@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Idioma por defecto: español (S001/RF-17). -->
+<resources>
+    <string name="ds_sun_mode_on">Activar modo sol</string>
+    <string name="ds_sun_mode_off">Desactivar modo sol</string>
+    <string name="ds_navigate_back">Volver</string>
+</resources>

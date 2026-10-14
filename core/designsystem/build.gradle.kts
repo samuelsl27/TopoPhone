@@ -6,3 +6,7 @@ plugins {
 android {
     namespace = "es.topophone.core.designsystem"
 }
+
+dependencies {
+    api(projects.core.model)
+}
