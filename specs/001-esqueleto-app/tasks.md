@@ -18,7 +18,7 @@
       Hecho cuando: los tests en verde y el script pasa limpio sobre el repositorio.
 - [x] T8. `core:model`: ThemeMode, AppLanguage, ThemeState (alternancia, selección, tema efectivo). (RF-9, RF-12, RF-13, RF-15, RF-16)
       Hecho cuando: `ThemeStateTest` en verde y `koverVerify` en verde.
-- [ ] T9. `data`: SettingsRepository con DataStore (tema activo y previo). (RF-15)
+- [x] T9. `data`: SettingsRepository con DataStore (tema activo y previo). (RF-15)
       Hecho cuando: `SettingsRepositoryTest` en verde (lee los valores por defecto y conserva lo guardado tras recrear el repositorio).
 - [ ] T10. `core:designsystem`: esquemas Claro, Oscuro y Sol, TopoPhoneTheme, TopoPhoneTopBar y EmptyState. (RF-11, RF-13, RF-14)
       Hecho cuando: `SunContrastTest` en verde (todos los pares ≥ 7:1) y Sol con `systemDark = true` sigue en claro.

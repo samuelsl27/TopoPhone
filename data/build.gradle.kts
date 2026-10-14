@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.topophone.android.library)
+    alias(libs.plugins.topophone.hilt)
 }
 
 android {
@@ -7,5 +8,7 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.model)
+    api(projects.core.model)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.kotlinx.coroutines.core)
 }
