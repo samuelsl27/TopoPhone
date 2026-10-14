@@ -42,7 +42,7 @@
       Hecho cuando: `LayoutRnfTest` en verde.
 - [x] T20. `.github/workflows/ci.yml` (con actionlint), `LICENSE` (texto GPL-3.0) y `test_ci_workflow.py`. (RF-25, RF-28)
       Hecho cuando: pytest en verde y actionlint sin errores en local.
-- [ ] T21. `build-logic`: ReleaseChecks y las tareas `verifyReleaseTag`, `verifyReleaseSigning` y `verifyReleaseCertificate`, con la firma de publicación leída de variables de entorno. (RF-30, RF-31, RF-32, RF-33, RF-34)
+- [x] T21. `build-logic`: ReleaseChecks y las tareas `verifyReleaseTag`, `verifyReleaseSigning` y `verifyReleaseCertificate`, con la firma de publicación leída de variables de entorno. (RF-30, RF-31, RF-32, RF-33, RF-34)
       Hecho cuando: `ReleaseChecksTest` en verde; `verifyReleaseSigning` sin variables falla con un mensaje claro.
 - [ ] T22. `.github/workflows/release.yml`, `test_release_workflow.py` y `docs/publicacion.md` (generar la clave con keytool, custodia, secretos de GitHub, `release/certificado-sha256.txt`). (RF-30–RF-34)
       Hecho cuando: pytest en verde y actionlint sin errores.
