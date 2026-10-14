@@ -1,7 +1,7 @@
 // Los plugins se declaran aquí (sin aplicar) para que compartan un único classpath;
 // cada módulo los aplica a través de las convenciones de build-logic.
 plugins {
-    base
+    alias(libs.plugins.topophone.quality)
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.jvm) apply false

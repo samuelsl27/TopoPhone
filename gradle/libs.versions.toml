@@ -102,3 +102,4 @@ topophone-android-library = { id = "topophone.android.library" }
 topophone-android-compose = { id = "topophone.android.compose" }
 topophone-jvm-library = { id = "topophone.jvm.library" }
 topophone-hilt = { id = "topophone.hilt" }
+topophone-quality = { id = "topophone.quality" }

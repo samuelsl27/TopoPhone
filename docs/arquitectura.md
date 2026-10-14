@@ -19,12 +19,24 @@ receiver/                 transportes (BT SPP, TCP, GNSS del móvil, replay, vir
 receiver-experimental/    solo en el flavor "experimental": REST + Socket.IO de Reach (S042)
 ```
 
-**Reglas de dependencia** (las comprueba un test de arquitectura en el CI):
-- `core:*` es JVM puro: sin `android.*` ni Hilt.
-- `core:ntrip` no depende de ningún otro módulo.
-- `core:gnss` no depende de `core:geodesy`.
-- `core:survey` depende de `core:geodesy`, `core:gnss` y `core:model`.
-- `app`, `data` y `receiver` dependen de `core:*`. Nada depende de `receiver-experimental`.
+**Reglas de dependencia** (las comprueba `./gradlew checkModuleRules`, incluida en `check`; S001/RF-27):
+
+| Módulo | Puede depender de |
+|---|---|
+| `core:model` | — |
+| `core:ntrip` | — |
+| `core:geodesy` | `core:model` |
+| `core:gnss` | `core:model` |
+| `core:formats` | `core:model`, `core:geodesy` |
+| `core:survey` | `core:model`, `core:geodesy`, `core:gnss` |
+| `core:testing` | cualquier `core` de dominio |
+| `core:designsystem` (Android) | `core:model` |
+| `app`, `data`, `receiver` | cualquier `core` |
+
+- Los módulos de dominio (todos los `core` salvo `designsystem`) son JVM puro: no aplican el plugin de Android, Hilt ni KSP, ni importan `android.`, `androidx.`, `dagger.`, `javax.inject.` o `com.google.dagger.`.
+- Ningún `core` depende de `app`, `data`, `receiver` ni `receiver-experimental`.
+- Nadie depende de `app`. Solo `app` (flavor `experimental`) depende de `receiver-experimental`.
+- Un módulo `core` nuevo necesita su fila en esta tabla y en `ModuleRules` antes de crearse.
 
 ## Flujo de datos de una medida
 

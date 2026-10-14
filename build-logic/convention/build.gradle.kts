@@ -37,6 +37,10 @@ gradlePlugin {
             id = "topophone.jvm.library"
             implementationClass = "es.topophone.buildlogic.JvmLibraryConventionPlugin"
         }
+        register("quality") {
+            id = "topophone.quality"
+            implementationClass = "es.topophone.buildlogic.QualityConventionPlugin"
+        }
         register("hilt") {
             id = "topophone.hilt"
             implementationClass = "es.topophone.buildlogic.HiltConventionPlugin"
