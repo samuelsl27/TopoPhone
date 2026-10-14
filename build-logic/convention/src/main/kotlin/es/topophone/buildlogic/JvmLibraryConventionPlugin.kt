@@ -36,6 +36,9 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
             tasks.withType<Test>().configureEach {
                 useJUnitPlatform()
             }
+
+            configureKtlint()
+            configureDomainCoverage()
         }
     }
 }

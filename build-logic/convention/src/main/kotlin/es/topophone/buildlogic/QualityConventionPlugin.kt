@@ -56,7 +56,8 @@ class QualityConventionPlugin : Plugin<Project> {
     }
 
     private companion object {
-        val ANDROID_PLUGINS = listOf("com.android.application", "com.android.library", "com.android.test", "com.android.kotlin.multiplatform.library")
+        val ANDROID_PLUGINS =
+            listOf("com.android.application", "com.android.library", "com.android.test", "com.android.kotlin.multiplatform.library")
         val INSPECTED_PLUGINS = listOf("com.google.dagger.hilt.android", "com.google.devtools.ksp", "org.jetbrains.kotlin.android")
         val PRODUCTION_SUFFIXES = listOf("Api", "Implementation", "CompileOnly", "RuntimeOnly", "CompileOnlyApi")
     }

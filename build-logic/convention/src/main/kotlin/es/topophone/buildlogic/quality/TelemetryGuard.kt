@@ -31,8 +31,7 @@ object TelemetryGuard {
     )
 
     /** @param coordinates dependencias resueltas como `grupo:artefacto:versión`. */
-    fun findForbidden(coordinates: Collection<String>): List<String> =
-        coordinates.filter(::isForbidden).distinct().sorted()
+    fun findForbidden(coordinates: Collection<String>): List<String> = coordinates.filter(::isForbidden).distinct().sorted()
 
     private fun isForbidden(coordinate: String): Boolean {
         val parts = coordinate.split(":")

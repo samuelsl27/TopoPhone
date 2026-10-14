@@ -3,12 +3,8 @@ package es.topophone.buildlogic.quality
 import java.io.Serializable
 
 /** Lo que las reglas necesitan saber de un módulo, ya extraído del proyecto Gradle. */
-data class ModuleInfo(
-    val path: String,
-    val isAndroid: Boolean,
-    val appliedPlugins: Set<String>,
-    val projectDependencies: Set<String>,
-) : Serializable
+data class ModuleInfo(val path: String, val isAndroid: Boolean, val appliedPlugins: Set<String>, val projectDependencies: Set<String>) :
+    Serializable
 
 data class ModuleRuleViolation(val module: String, val message: String, val location: String? = null) {
     fun describe(): String = "[$module] " + (location?.let { "$it: " } ?: "") + message
@@ -72,7 +68,14 @@ object ModuleRules {
             add(ModuleRuleViolation(path, "un módulo core no puede depender de $it"))
         }
         (deps - allowed - NON_CORE_FORBIDDEN_FOR_CORE).sorted().forEach {
-            add(ModuleRuleViolation(path, "dependencia no permitida con $it (permitidas: ${allowed.sorted().ifEmpty { listOf("ninguna") }.joinToString()})"))
+            add(
+                ModuleRuleViolation(
+                    path,
+                    "dependencia no permitida con $it (permitidas: ${allowed.sorted().ifEmpty {
+                        listOf("ninguna")
+                    }.joinToString()})",
+                ),
+            )
         }
         if (isDomainModule(path)) {
             if (module.isAndroid) add(ModuleRuleViolation(path, "un módulo de dominio no puede usar el plugin de Android"))

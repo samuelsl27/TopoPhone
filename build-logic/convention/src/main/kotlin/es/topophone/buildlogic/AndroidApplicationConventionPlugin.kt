@@ -38,10 +38,15 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 testOptions {
                     unitTests.isIncludeAndroidResources = true
                 }
+                lint {
+                    configureTopoPhoneLint(isApplication = true)
+                }
             }
 
             configureKotlinCompilation()
             addAndroidUnitTestDependencies()
+            configureKtlint()
+            registerHardcodedUiTextCheck()
             registerTelemetryCheck()
         }
     }
@@ -54,7 +59,9 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         }
         extensions.configure<ApplicationAndroidComponentsExtension> {
             onVariants(selector().withBuildType("release")) { variant ->
-                val variantTask = tasks.register<CheckNoTelemetryTask>("checkNoTelemetry${variant.name.replaceFirstChar(Char::uppercase)}") {
+                val variantTask = tasks.register<CheckNoTelemetryTask>(
+                    "checkNoTelemetry${variant.name.replaceFirstChar(Char::uppercase)}",
+                ) {
                     group = "verification"
                     coordinates.set(
                         variant.runtimeConfiguration.incoming.resolutionResult.rootComponent.map(CheckNoTelemetryTask::collectCoordinates),

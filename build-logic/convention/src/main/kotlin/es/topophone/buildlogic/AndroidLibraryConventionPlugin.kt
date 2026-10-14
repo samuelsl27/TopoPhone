@@ -23,10 +23,15 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 testOptions {
                     unitTests.isIncludeAndroidResources = true
                 }
+                lint {
+                    configureTopoPhoneLint(isApplication = false)
+                }
             }
 
             configureKotlinCompilation()
             addAndroidUnitTestDependencies()
+            configureKtlint()
+            registerHardcodedUiTextCheck()
         }
     }
 }

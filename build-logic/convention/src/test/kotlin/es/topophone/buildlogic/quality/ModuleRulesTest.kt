@@ -38,7 +38,13 @@ class ModuleRulesTest {
     @Test
     fun `S001 RF-27 un modulo de dominio con Hilt o KSP es una infraccion`() {
         val violations = ModuleRules.checkModules(
-            listOf(module(":core:gnss", plugins = setOf("com.google.dagger.hilt.android", "com.google.devtools.ksp"), deps = setOf(":core:model"))),
+            listOf(
+                module(
+                    ":core:gnss",
+                    plugins = setOf("com.google.dagger.hilt.android", "com.google.devtools.ksp"),
+                    deps = setOf(":core:model"),
+                ),
+            ),
         )
 
         assertEquals(2, violations.size)
@@ -135,8 +141,16 @@ class ModuleRulesTest {
 
     @Test
     fun `S001 RF-27 el informe nombra cada infraccion con su modulo y ubicacion`() {
-        val violation = ModuleRuleViolation(module = ":core:model", message = "import prohibido 'android.location.Location'", location = "core/model/src/main/kotlin/Foo.kt:4")
+        val violation =
+            ModuleRuleViolation(
+                module = ":core:model",
+                message = "import prohibido 'android.location.Location'",
+                location = "core/model/src/main/kotlin/Foo.kt:4",
+            )
 
-        assertEquals("[:core:model] core/model/src/main/kotlin/Foo.kt:4: import prohibido 'android.location.Location'", violation.describe())
+        assertEquals(
+            "[:core:model] core/model/src/main/kotlin/Foo.kt:4: import prohibido 'android.location.Location'",
+            violation.describe(),
+        )
     }
 }

@@ -19,10 +19,9 @@ internal class GitVersioning(private val project: Project) {
 
     val commit: Provider<String> = gitOutput("rev-parse", "HEAD").map(GitCommit::normalize)
 
-    private fun gitOutput(vararg args: String): Provider<String> =
-        project.providers.exec {
-            commandLine(listOf("git") + args)
-            workingDir = project.rootDir
-            isIgnoreExitValue = true
-        }.standardOutput.asText.orElse("")
+    private fun gitOutput(vararg args: String): Provider<String> = project.providers.exec {
+        commandLine(listOf("git") + args)
+        workingDir = project.rootDir
+        isIgnoreExitValue = true
+    }.standardOutput.asText.orElse("")
 }
