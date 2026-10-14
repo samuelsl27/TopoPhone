@@ -38,7 +38,7 @@
       Hecho cuando: `AboutScreenTest` en verde (versión, commit, licencia, repositorio, aviso).
 - [x] T18. `app`: Licencias y atribuciones con AboutLibraries. (RF-23)
       Hecho cuando: `LicensesScreenTest` en verde, incluida al menos una dependencia indirecta conocida.
-- [ ] T19. Tests de diseño (RNF): 360 × 640 dp en vertical y horizontal, fuente al 150 % y 200 %, zonas táctiles ≥ 56 dp. (RNF, RNF-T8)
+- [x] T19. Tests de diseño (RNF): 360 × 640 dp en vertical y horizontal, fuente al 150 % y 200 %, zonas táctiles ≥ 56 dp. (RNF, RNF-T8)
       Hecho cuando: `LayoutRnfTest` en verde.
 - [ ] T20. `.github/workflows/ci.yml` (con actionlint), `LICENSE` (texto GPL-3.0) y `test_ci_workflow.py`. (RF-25, RF-28)
       Hecho cuando: pytest en verde y actionlint sin errores en local.

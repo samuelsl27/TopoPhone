@@ -2,7 +2,9 @@ package es.topophone.app.ui
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -48,7 +51,19 @@ fun TopoPhoneApp(uiState: AppUiState, actions: AppActions, navController: NavHos
                         selected = currentDestination.isIn(destination),
                         onClick = { navController.navigateToTopLevel(destination) },
                         icon = { Icon(painterResource(destination.icon), contentDescription = null) },
-                        label = { Text(stringResource(destination.label)) },
+                        label = {
+                            // Con fuentes grandes "Levantamiento" no cabe en un tercio de 360 dp y es una sola
+                            // palabra: se reduce lo justo para no recortarla (RNF de la spec 001).
+                            Text(
+                                stringResource(destination.label),
+                                maxLines = 1,
+                                autoSize = TextAutoSize.StepBased(
+                                    minFontSize = 8.sp,
+                                    maxFontSize = MaterialTheme.typography.labelMedium.fontSize,
+                                    stepSize = 0.5.sp,
+                                ),
+                            )
+                        },
                         modifier = Modifier.testTag(destination.testTag),
                     )
                 }
