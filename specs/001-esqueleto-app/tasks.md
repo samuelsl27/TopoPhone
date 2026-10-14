@@ -40,7 +40,7 @@
       Hecho cuando: `LicensesScreenTest` en verde, incluida al menos una dependencia indirecta conocida.
 - [x] T19. Tests de diseño (RNF): 360 × 640 dp en vertical y horizontal, fuente al 150 % y 200 %, zonas táctiles ≥ 56 dp. (RNF, RNF-T8)
       Hecho cuando: `LayoutRnfTest` en verde.
-- [ ] T20. `.github/workflows/ci.yml` (con actionlint), `LICENSE` (texto GPL-3.0) y `test_ci_workflow.py`. (RF-25, RF-28)
+- [x] T20. `.github/workflows/ci.yml` (con actionlint), `LICENSE` (texto GPL-3.0) y `test_ci_workflow.py`. (RF-25, RF-28)
       Hecho cuando: pytest en verde y actionlint sin errores en local.
 - [ ] T21. `build-logic`: ReleaseChecks y las tareas `verifyReleaseTag`, `verifyReleaseSigning` y `verifyReleaseCertificate`, con la firma de publicación leída de variables de entorno. (RF-30, RF-31, RF-32, RF-33, RF-34)
       Hecho cuando: `ReleaseChecksTest` en verde; `verifyReleaseSigning` sin variables falla con un mensaje claro.

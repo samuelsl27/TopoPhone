@@ -1,5 +1,7 @@
 # TopoPhone
 
+[![CI](https://github.com/samuelsl27/TopoPhone/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelsl27/TopoPhone/actions/workflows/ci.yml)
+
 App Android de topografía GNSS para receptores **Emlid Reach**, con prioridad para el **Reach RS3**.
 Cubre el mismo terreno que Emlid Flow: proyectos, sistemas de coordenadas, recolección y replanteo de puntos y líneas, códigos, capas, COGO, localización y CAD.
 Es **100 % local**, sin cuentas ni nube, y está pensada primero para España (ETRS89 / REGCAN95, UTM, EGM08-REDNAP).
@@ -32,3 +34,6 @@ El proyecto sigue el método de [mouredev/hello-sdd](https://github.com/mouredev
 - Python con [uv](https://docs.astral.sh/uv/) para `tools/`.
 - Git LFS.
 - Para probar en campo: Reach RS3 con firmware ≥ 32 (recomendado 33.x) y acceso NTRIP.
+
+## Licencia
+TopoPhone es software libre con licencia [GNU GPL-3.0](LICENSE). Las dependencias del APK son compatibles con GPL-3.0; la lista completa está en la app, en Ajustes → Licencias y atribuciones.
