@@ -32,7 +32,7 @@
       Hecho cuando: `SettingsThemeTest` en verde (cambiar el `uiMode` cambia el tema sin reiniciar).
 - [x] T15. `app`: acceso rápido al modo sol en las tres secciones. (RF-11, RF-12)
       Hecho cuando: `SunToggleTest` en verde en las tres secciones.
-- [ ] T16. `app`: selector de idioma con el idioma por app de AppCompat. (RF-16, RF-17, RF-18)
+- [x] T16. `app`: selector de idioma con el idioma por app de AppCompat. (RF-16, RF-17, RF-18)
       Hecho cuando: `LanguageTest` en verde en API 28 y 34.
 - [ ] T17. `app`: pantalla Acerca de. (RF-20, RF-21, RF-22)
       Hecho cuando: `AboutScreenTest` en verde (versión, commit, licencia, repositorio, aviso).

@@ -20,4 +20,12 @@
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Oscuro</string>
     <string name="theme_sun">Sol (alto contraste)</string>
+
+    <!-- Ajustes: idioma (S001/RF-16). Español e English se escriben siempre en su idioma. -->
+    <string name="settings_section_language">Idioma</string>
+    <string name="settings_language">Idioma de la app</string>
+    <string name="settings_language_dialog_title">Elige el idioma</string>
+    <string name="language_system">Idioma del sistema</string>
+    <string name="language_spanish" translatable="false">Español</string>
+    <string name="language_english" translatable="false">English</string>
 </resources>

@@ -168,7 +168,7 @@ Ejemplo de estado: `{ theme_mode: "SUN", theme_before_sun: "DARK" }`. Al alterna
     - Giro con `ActivityScenario.recreate()` y `StateRestorationTester` para la muerte del proceso (RF-7, RF-8).
     - Ajustes de tema con `uiMode` nocturno cambiante (RF-9, RF-10, RF-15).
     - Acceso rápido al modo sol en las tres secciones (RF-11, RF-12).
-    - Idioma en `@Config(sdk = [28, 34])` (RF-16–RF-18).
+    - Idioma en `@Config(sdk = [28, 36])` (RF-16–RF-18). En API 28 AppCompat aplica el idioma y recrea la actividad; en API 33+ lo hace el sistema y Robolectric no lo emula, así que el test comprueba la llamada a AppCompat y simula la recreación con el nuevo idioma.
     - Acerca de y licencias (RF-20–RF-23).
     - Manifiesto: id, minSdk y nombre (RF-1).
   - `data`: SettingsRepository con un DataStore temporal (RF-15).

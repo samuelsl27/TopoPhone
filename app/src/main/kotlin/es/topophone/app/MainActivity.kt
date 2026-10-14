@@ -7,9 +7,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import es.topophone.app.ui.AppActions
@@ -53,15 +55,26 @@ class MainActivity : AppCompatActivity() {
 
             TopoPhoneTheme(effectiveTheme) {
                 TopoPhoneApp(
-                    uiState = AppUiState(themeState = themeState, language = AppLanguage.SYSTEM, appInfo = appInfo),
+                    uiState = AppUiState(themeState = themeState, language = currentLanguage(), appInfo = appInfo),
                     actions = AppActions(
                         onToggleSun = viewModel::toggleSun,
                         onSelectTheme = viewModel::selectTheme,
-                        onSelectLanguage = {},
+                        onSelectLanguage = ::applyLanguage,
                         onOpenUrl = {},
                     ),
                 )
             }
         }
+    }
+
+    /** Idioma elegido para la app; vacío = idioma del sistema (S001/RF-16). */
+    private fun currentLanguage(): AppLanguage = AppLanguage.fromLanguageTags(AppCompatDelegate.getApplicationLocales().toLanguageTags())
+
+    /**
+     * AppCompat guarda la elección y recrea la actividad en Android 8–12; en Android 13+ lo hace el
+     * sistema. La navegación se conserva en la recreación, así que se sigue en Ajustes (S001/RF-18).
+     */
+    private fun applyLanguage(language: AppLanguage) {
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language.languageTags))
     }
 }
