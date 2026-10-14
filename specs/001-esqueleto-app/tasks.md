@@ -14,7 +14,7 @@
       Hecho cuando: `./gradlew check` en verde; un texto escrito directamente en el código provocado a propósito hace fallar Lint.
 - [x] T6. `tools/` como proyecto uv (pytest, pyyaml) y `trazabilidad/rf_report.py` con sus tests. (RF-26, RF-35)
       Hecho cuando: `uv run --project tools pytest tools` en verde y `rf_report.py` lista los RF de S001.
-- [ ] T7. `tools/repo/forbidden_files.py` con sus tests. (RF-29)
+- [x] T7. `tools/repo/forbidden_files.py` con sus tests. (RF-29)
       Hecho cuando: los tests en verde y el script pasa limpio sobre el repositorio.
 - [ ] T8. `core:model`: ThemeMode, AppLanguage, ThemeState (alternancia, selección, tema efectivo). (RF-9, RF-12, RF-13, RF-15, RF-16)
       Hecho cuando: `ThemeStateTest` en verde y `koverVerify` en verde.
