@@ -1,0 +1,21 @@
+[project]
+name = "topophone-tools"
+version = "0.1.0"
+description = "Herramientas de desarrollo de TopoPhone (no van en el APK): trazabilidad, comprobaciones del repositorio y de los workflows."
+requires-python = ">=3.12"
+dependencies = [
+    "pyyaml>=6.0.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["."]
+addopts = "-q"

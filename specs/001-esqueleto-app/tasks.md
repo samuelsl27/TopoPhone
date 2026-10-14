@@ -12,8 +12,8 @@
       Hecho cuando: `TelemetryGuardTest` en verde y `./gradlew check` en verde.
 - [x] T5. ktlint, Android Lint (`MissingTranslation`, `HardcodedText` y `UnusedResources` como error), `checkHardcodedUiText` para Compose y Kover (≥ 80 % en `core:*`) conectados a `check`. (RF-19, RF-28)
       Hecho cuando: `./gradlew check` en verde; un texto escrito directamente en el código provocado a propósito hace fallar Lint.
-- [ ] T6. `tools/` como proyecto uv (pytest, pyyaml) y `trazabilidad/rf_report.py` con sus tests. (RF-26, RF-35)
-      Hecho cuando: `uv run --project tools pytest` en verde y `rf_report.py` lista los RF de S001.
+- [x] T6. `tools/` como proyecto uv (pytest, pyyaml) y `trazabilidad/rf_report.py` con sus tests. (RF-26, RF-35)
+      Hecho cuando: `uv run --project tools pytest tools` en verde y `rf_report.py` lista los RF de S001.
 - [ ] T7. `tools/repo/forbidden_files.py` con sus tests. (RF-29)
       Hecho cuando: los tests en verde y el script pasa limpio sobre el repositorio.
 - [ ] T8. `core:model`: ThemeMode, AppLanguage, ThemeState (alternancia, selección, tema efectivo). (RF-9, RF-12, RF-13, RF-15, RF-16)
