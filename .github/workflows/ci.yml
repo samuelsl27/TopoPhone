@@ -37,7 +37,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: uv
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@v10.3.0
 
       - name: Ficheros prohibidos (S001/RF-29)
         run: uv run --project tools tools/repo/forbidden_files.py
