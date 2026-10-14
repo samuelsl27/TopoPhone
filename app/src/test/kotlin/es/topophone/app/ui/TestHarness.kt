@@ -28,7 +28,12 @@ val testAppInfo = AppInfo(versionName = "0.0.0-dev", gitCommit = "0123456789ab",
  * para probar los flujos sin DataStore ni AppCompat.
  */
 @Composable
-fun StatefulTestApp(systemInDarkTheme: Boolean = false, initialTheme: ThemeState = ThemeState.DEFAULT) {
+fun StatefulTestApp(
+    systemInDarkTheme: Boolean = false,
+    initialTheme: ThemeState = ThemeState.DEFAULT,
+    appInfo: AppInfo = testAppInfo,
+    onOpenUrl: (String) -> Unit = {},
+) {
     var themeName by rememberSaveable { mutableStateOf(initialTheme.mode.name to initialTheme.beforeSun.name) }
     var language by rememberSaveable { mutableStateOf(AppLanguage.SYSTEM) }
     val theme = ThemeState.restore(themeName.first, themeName.second)
@@ -38,12 +43,12 @@ fun StatefulTestApp(systemInDarkTheme: Boolean = false, initialTheme: ThemeState
 
     TopoPhoneTheme(theme.effective(systemInDarkTheme)) {
         TopoPhoneApp(
-            uiState = AppUiState(themeState = theme, language = language, appInfo = testAppInfo),
+            uiState = AppUiState(themeState = theme, language = language, appInfo = appInfo),
             actions = AppActions(
                 onToggleSun = { save(theme.toggleSun()) },
                 onSelectTheme = { mode: ThemeMode -> save(theme.select(mode)) },
                 onSelectLanguage = { language = it },
-                onOpenUrl = {},
+                onOpenUrl = onOpenUrl,
             ),
         )
     }

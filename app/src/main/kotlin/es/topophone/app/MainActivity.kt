@@ -1,6 +1,9 @@
 package es.topophone.app
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -60,10 +63,19 @@ class MainActivity : AppCompatActivity() {
                         onToggleSun = viewModel::toggleSun,
                         onSelectTheme = viewModel::selectTheme,
                         onSelectLanguage = ::applyLanguage,
-                        onOpenUrl = {},
+                        onOpenUrl = ::openUrl,
                     ),
                 )
             }
+        }
+    }
+
+    /** Abre un enlace en el navegador; si no hay ninguno instalado, no hace nada (S001/RF-20). */
+    private fun openUrl(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (_: ActivityNotFoundException) {
+            // Sin navegador: el enlace sigue visible en pantalla.
         }
     }
 

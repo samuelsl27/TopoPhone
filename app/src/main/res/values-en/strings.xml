@@ -19,4 +19,13 @@
     <string name="settings_language">App language</string>
     <string name="settings_language_dialog_title">Choose a language</string>
     <string name="language_system">System language</string>
+
+    <string name="settings_section_information">Information</string>
+    <string name="about_title">About</string>
+    <string name="about_name">Name</string>
+    <string name="about_version">Version</string>
+    <string name="about_commit">Build (commit)</string>
+    <string name="about_license">License</string>
+    <string name="about_repository">Source code</string>
+    <string name="about_disclaimer">TopoPhone is an independent project and is not affiliated with Emlid Tech Kft. “Emlid”, “Reach” and “Emlid Flow” are trademarks of their respective owners.</string>
 </resources>

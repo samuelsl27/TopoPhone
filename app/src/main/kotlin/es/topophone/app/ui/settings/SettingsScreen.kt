@@ -1,9 +1,10 @@
 package es.topophone.app.ui.settings
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +25,7 @@ import es.topophone.core.model.preferences.ThemeMode
 
 const val THEME_SETTING_TAG = "setting_theme"
 const val LANGUAGE_SETTING_TAG = "setting_language"
+const val ABOUT_SETTING_TAG = "setting_about"
 
 fun themeOptionTag(mode: ThemeMode) = "theme_option_${mode.name}"
 
@@ -50,35 +52,37 @@ fun AppLanguage.labelRes(): Int = when (this) {
  * El diálogo abierto y el desplazamiento sobreviven al giro (S001/RF-7).
  */
 @Composable
-fun SettingsScreen(uiState: AppUiState, actions: AppActions) {
+fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> Unit) {
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
-    val listState = rememberLazyListState()
+    val scrollState = rememberScrollState()
 
     SectionScaffold(
         title = stringResource(R.string.nav_settings),
         themeState = uiState.themeState,
         onToggleSun = actions.onToggleSun,
     ) { padding ->
-        LazyColumn(state = listState, modifier = Modifier.padding(padding)) {
-            item { SettingsSectionHeader(stringResource(R.string.settings_section_appearance)) }
-            item {
-                SettingsItem(
-                    title = stringResource(R.string.settings_theme),
-                    value = stringResource(uiState.themeState.mode.labelRes()),
-                    onClick = { showThemeDialog = true },
-                    modifier = Modifier.testTag(THEME_SETTING_TAG),
-                )
-            }
-            item { SettingsSectionHeader(stringResource(R.string.settings_section_language)) }
-            item {
-                SettingsItem(
-                    title = stringResource(R.string.settings_language),
-                    value = stringResource(uiState.language.labelRes()),
-                    onClick = { showLanguageDialog = true },
-                    modifier = Modifier.testTag(LANGUAGE_SETTING_TAG),
-                )
-            }
+        Column(modifier = Modifier.padding(padding).verticalScroll(scrollState)) {
+            SettingsSectionHeader(stringResource(R.string.settings_section_appearance))
+            SettingsItem(
+                title = stringResource(R.string.settings_theme),
+                value = stringResource(uiState.themeState.mode.labelRes()),
+                onClick = { showThemeDialog = true },
+                modifier = Modifier.testTag(THEME_SETTING_TAG),
+            )
+            SettingsSectionHeader(stringResource(R.string.settings_section_language))
+            SettingsItem(
+                title = stringResource(R.string.settings_language),
+                value = stringResource(uiState.language.labelRes()),
+                onClick = { showLanguageDialog = true },
+                modifier = Modifier.testTag(LANGUAGE_SETTING_TAG),
+            )
+            SettingsSectionHeader(stringResource(R.string.settings_section_information))
+            SettingsItem(
+                title = stringResource(R.string.about_title),
+                onClick = onOpenAbout,
+                modifier = Modifier.testTag(ABOUT_SETTING_TAG),
+            )
         }
     }
 

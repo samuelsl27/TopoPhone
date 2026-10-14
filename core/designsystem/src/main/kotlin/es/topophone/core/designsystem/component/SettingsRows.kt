@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 /** Título de un grupo de ajustes. */
@@ -29,5 +30,16 @@ fun SettingsItem(title: String, onClick: () -> Unit, modifier: Modifier = Modifi
         headlineContent = { Text(title) },
         supportingContent = value?.let { { Text(it) } },
         modifier = modifier.heightIn(min = MinTouchTarget).clickable(role = Role.Button, onClick = onClick),
+    )
+}
+
+/** Fila informativa, no pulsable: un dato y su valor (p. ej. versión). */
+@Composable
+fun SettingsInfo(title: String, value: String, modifier: Modifier = Modifier) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(value) },
+        // Título y valor se leen juntos (TalkBack y tests).
+        modifier = modifier.heightIn(min = MinTouchTarget).semantics(mergeDescendants = true) {},
     )
 }

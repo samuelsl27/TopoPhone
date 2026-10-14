@@ -28,4 +28,15 @@
     <string name="language_system">Idioma del sistema</string>
     <string name="language_spanish" translatable="false">Español</string>
     <string name="language_english" translatable="false">English</string>
+
+    <!-- Acerca de (S001/RF-20 a RF-22) -->
+    <string name="settings_section_information">Información</string>
+    <string name="about_title">Acerca de</string>
+    <string name="about_name">Nombre</string>
+    <string name="about_version">Versión</string>
+    <string name="about_commit">Compilación (commit)</string>
+    <string name="about_license">Licencia</string>
+    <string name="about_license_value" translatable="false">GNU GPL-3.0</string>
+    <string name="about_repository">Código fuente</string>
+    <string name="about_disclaimer">TopoPhone es un proyecto independiente y no está afiliado a Emlid Tech Kft. «Emlid», «Reach» y «Emlid Flow» son marcas de sus respectivos propietarios.</string>
 </resources>
