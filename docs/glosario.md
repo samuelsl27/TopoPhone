@@ -71,5 +71,7 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Dibujo CAD | `CadDrawing` | |
 | Copia de seguridad | `Backup` | |
 | Paquete de proyecto | `ProjectPackage` | `.topoproj` |
-| Modo sol | `SunMode` | Tema de alto contraste |
+| Tema (Sistema, Claro, Oscuro, Sol) | `ThemeMode` (`SYSTEM`, `LIGHT`, `DARK`, `SUN`) | Elección del usuario; el que se pinta es `EffectiveTheme` |
+| Modo sol | `ThemeMode.SUN` | Tema claro de alto contraste (≥ 7:1); el acceso rápido es `ThemeState.toggleSun()` |
+| Idioma (Sistema, Español, English) | `AppLanguage` (`SYSTEM`, `SPANISH`, `ENGLISH`) | Se guarda con etiquetas BCP 47 |
 | Perfil de equipo | `EquipmentProfile` | Modelo, n.º de serie, firmware (lo introduce el usuario) |

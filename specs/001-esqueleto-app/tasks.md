@@ -16,7 +16,7 @@
       Hecho cuando: `uv run --project tools pytest tools` en verde y `rf_report.py` lista los RF de S001.
 - [x] T7. `tools/repo/forbidden_files.py` con sus tests. (RF-29)
       Hecho cuando: los tests en verde y el script pasa limpio sobre el repositorio.
-- [ ] T8. `core:model`: ThemeMode, AppLanguage, ThemeState (alternancia, selección, tema efectivo). (RF-9, RF-12, RF-13, RF-15, RF-16)
+- [x] T8. `core:model`: ThemeMode, AppLanguage, ThemeState (alternancia, selección, tema efectivo). (RF-9, RF-12, RF-13, RF-15, RF-16)
       Hecho cuando: `ThemeStateTest` en verde y `koverVerify` en verde.
 - [ ] T9. `data`: SettingsRepository con DataStore (tema activo y previo). (RF-15)
       Hecho cuando: `SettingsRepositoryTest` en verde (lee los valores por defecto y conserva lo guardado tras recrear el repositorio).
