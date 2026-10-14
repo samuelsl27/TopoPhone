@@ -11,7 +11,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 001 esqueleto-app | Proyecto Gradle multimódulo con build-logic, interfaz Compose con navegación (Levantamiento / Receptor / Ajustes), tema con modo sol, recursos es/en, Hilt, infraestructura de tests, detekt/ktlint, CI, script de trazabilidad de RF | — | pendiente |
+| 001 esqueleto-app | Proyecto Gradle multimódulo con build-logic, interfaz Compose con navegación (Levantamiento / Receptor / Ajustes), tema con modo sol, recursos es/en, Hilt, infraestructura de tests, detekt/ktlint, CI, script de trazabilidad de RF | — | en curso |
 | 002 cadena-rtk-minima | Conexión SPP a un RS3 ya emparejado, lectura de GGA+GST, NTRIP v1/v2 con mountpoint manual, RTCM al mismo socket y GGA al caster, h = alt + N, ETRS89/UTM 28–31, EGM08-REDNAP, altura del jalón + 0,134 m (ARP del RS3), una sola pantalla. **Puerta G0** | 001 | pendiente |
 
 ## H1 · Primer levantamiento útil

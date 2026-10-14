@@ -12,10 +12,11 @@ La arquitectura y las decisiones transversales están en `docs/arquitectura.md`.
 ## Comandos
 Disponibles a partir de la spec 001; usa siempre el wrapper.
 - Compilar debug: `./gradlew assembleDebug`
-- Tests JVM y Robolectric: `./gradlew test`
-- Tests de un módulo: `./gradlew :core:geodesy:test`
-- Lint y estilo: `./gradlew lint detekt ktlintCheck`
-- Trazabilidad de RF: `python tools/trazabilidad/rf_report.py`
+- Todo (tests, Lint, ktlint, reglas de módulos, telemetría, Kover): `./gradlew check`
+- Tests de un módulo: `./gradlew :core:model:test`
+- Herramientas del repositorio (tests): `uv run --project tools pytest`
+- Trazabilidad de RF: `uv run --project tools tools/trazabilidad/rf_report.py`
+- Ficheros prohibidos: `uv run --project tools tools/repo/forbidden_files.py`
 
 ## Estilo y convenciones
 - Kotlin con toolchain JDK 21. Identificadores en **inglés**. Textos de usuario en **español**, siempre en `strings.xml` (nunca literales en código).
@@ -40,5 +41,5 @@ Disponibles a partir de la spec 001; usa siempre el wrapper.
 - Nada de código, nombres ni recursos de Emlid. TopoPhone tiene interfaz y textos propios.
 
 ## Al terminar cualquier tarea
-- Ejecuta `./gradlew test` (y `lint detekt` si cambiaste código Android) y confirma en tu respuesta que todo pasa.
+- Ejecuta `./gradlew check` (y `uv run --project tools pytest` si tocaste `tools/` o `.github/`) y confirma en tu respuesta que todo pasa.
 - Indica qué `S###/RF-n` cubre la tarea y deja marcada la casilla en `tasks.md`.

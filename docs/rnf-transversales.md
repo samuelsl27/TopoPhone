@@ -68,7 +68,7 @@ Toda spec los cumple. Las specs los citan por su id (`RNF-T4`) en lugar de repet
 
 ## RNF-T13 · Rendimiento
 - La interfaz se refresca a 5 Hz como máximo a partir de un flujo de datos a 10 Hz como máximo, sin bloquear el hilo principal más de 16 ms.
-- El tiempo de arranque en frío hasta la pantalla principal es inferior a 2 s en un móvil de gama media.
+- El tiempo de arranque en frío hasta la pantalla principal es inferior a 2 s en el **móvil de referencia**: Android 11 o superior con 4 GB de RAM.
 
 ## RNF-T14 · Licencias y marca
 - TopoPhone se publica con licencia **GPL-3.0** en un repositorio público. Toda dependencia del APK debe ser compatible con GPL-3.0 (Apache-2.0, MIT, BSD, LGPL, GPL-3.0); no se admiten GPL-2.0-only ni licencias privativas.

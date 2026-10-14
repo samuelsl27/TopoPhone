@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Idioma por defecto: español (S001/RF-17). -->
+<resources>
+    <string name="app_name" translatable="false">TopoPhone</string>
+</resources>
