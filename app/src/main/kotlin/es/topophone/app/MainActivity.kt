@@ -4,11 +4,15 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.res.stringResource
 import dagger.hilt.android.AndroidEntryPoint
-import es.topophone.core.designsystem.component.EmptyState
+import es.topophone.app.ui.AppActions
+import es.topophone.app.ui.AppInfo
+import es.topophone.app.ui.AppUiState
+import es.topophone.app.ui.TopoPhoneApp
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.EffectiveTheme
+import es.topophone.core.model.preferences.ThemeState
 
 /**
  * Única actividad. Hereda de AppCompatActivity para que el idioma por app funcione
@@ -20,9 +24,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        val appInfo = AppInfo(versionName = BuildConfig.VERSION_NAME, gitCommit = BuildConfig.GIT_COMMIT, repoUrl = BuildConfig.REPO_URL)
         setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                EmptyState(title = stringResource(R.string.app_name), description = stringResource(R.string.app_tagline))
+                TopoPhoneApp(
+                    uiState = AppUiState(themeState = ThemeState.DEFAULT, language = AppLanguage.SYSTEM, appInfo = appInfo),
+                    actions = AppActions(onToggleSun = {}, onSelectTheme = {}, onSelectLanguage = {}, onOpenUrl = {}),
+                )
             }
         }
     }

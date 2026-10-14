@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_tagline">GNSS surveying with Reach receivers</string>
+    <string name="nav_survey">Survey</string>
+    <string name="nav_receiver">Receiver</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="survey_empty_description">Your projects, measured points and stakeout will appear here.</string>
+    <string name="receiver_empty_description">Here you will see the GNSS receiver status: solution, satellites and corrections.</string>
+    <string name="settings_empty_description">Here you will be able to choose the theme and language, and see the app information.</string>
 </resources>
