@@ -124,7 +124,7 @@ Como el repositorio será público y las versiones se distribuirán como APK en 
 - Todos los RF tienen al menos un test automático en verde que los cita. Esto incluye las reglas de integración continua y de publicación (RF-25 a RF-34), que se prueban con tests de los scripts y de la definición del flujo.
 - `rf_report` termina sin RF huérfanos.
 - La integración continua sale en verde en un pull request del repositorio público.
-- La versión `v0.1.0` está publicada en GitHub Releases, se instala en un móvil real con Android 8 o superior y `v0.1.1` se instala encima como actualización.
+- La versión `v0.0.1` está publicada en GitHub Releases, se instala en un móvil real con Android 8 o superior y `v0.0.2` se instala encima como actualización.
 - Demo manual: girar la pantalla, los cuatro temas, el modo sol al aire libre, los dos idiomas y "Acerca de".
 
 ## Dudas abiertas
@@ -133,3 +133,4 @@ Ninguna. Resueltas en la entrevista:
 - Clave de firma: la genera y custodia el mantenedor, con una copia en su gestor de contraseñas; en GitHub Actions está como secreto cifrado. La huella SHA-256 del certificado se registra en el repositorio (RF-34).
 - Icono: provisional, genérico, propio (jalón con satélite) y sin parecido con el de Emlid. Se podrá sustituir más adelante.
 - Móvil de referencia para los tiempos: Android 11 o superior con 4 GB de RAM (RNF-T13).
+- Numeración de versiones: etiquetas `vX.Y.Z` empezando por `v0.0.1`; cada publicación incrementa el número (`v0.0.2`, `v0.0.3`…).

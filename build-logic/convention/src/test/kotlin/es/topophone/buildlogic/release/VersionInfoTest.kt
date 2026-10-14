@@ -21,6 +21,17 @@ class VersionInfoTest {
     }
 
     @Test
+    fun `S001 RF-30 la primera version publicada v0_0_1 da versionCode 1 y v0_0_2 da 2`() {
+        val first = VersionInfo.from(exactTag = "v0.0.1", allTags = listOf("v0.0.1"))
+        val second = VersionInfo.from(exactTag = "v0.0.2", allTags = listOf("v0.0.1", "v0.0.2"))
+
+        assertEquals("0.0.1", first.versionName)
+        assertEquals(1, first.versionCode)
+        assertEquals("0.0.2", second.versionName)
+        assertEquals(2, second.versionCode)
+    }
+
+    @Test
     fun `S001 RF-30 versionCode es X por 10000 mas Y por 100 mas Z`() {
         val info = VersionInfo.from(exactTag = "v1.2.3", allTags = listOf("v1.2.3"))
 
@@ -81,7 +92,7 @@ class VersionInfoTest {
 
     @Test
     fun `S001 RF-30 el versionCode crece con cada version mayor`() {
-        val ordered = listOf("v0.1.0", "v0.1.1", "v0.2.0", "v0.99.99", "v1.0.0", "v2.0.0")
+        val ordered = listOf("v0.0.1", "v0.0.2", "v0.0.3", "v0.1.0", "v0.1.1", "v0.2.0", "v0.99.99", "v1.0.0", "v2.0.0")
             .map { requireNotNull(SemVer.parseTag(it)) }
 
         ordered.zipWithNext().forEach { (previous, next) ->
