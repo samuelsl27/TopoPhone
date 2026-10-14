@@ -26,6 +26,7 @@ import es.topophone.core.model.preferences.ThemeMode
 const val THEME_SETTING_TAG = "setting_theme"
 const val LANGUAGE_SETTING_TAG = "setting_language"
 const val ABOUT_SETTING_TAG = "setting_about"
+const val LICENSES_SETTING_TAG = "setting_licenses"
 
 fun themeOptionTag(mode: ThemeMode) = "theme_option_${mode.name}"
 
@@ -52,7 +53,7 @@ fun AppLanguage.labelRes(): Int = when (this) {
  * El diálogo abierto y el desplazamiento sobreviven al giro (S001/RF-7).
  */
 @Composable
-fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> Unit) {
+fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> Unit, onOpenLicenses: () -> Unit) {
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
@@ -82,6 +83,11 @@ fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> 
                 title = stringResource(R.string.about_title),
                 onClick = onOpenAbout,
                 modifier = Modifier.testTag(ABOUT_SETTING_TAG),
+            )
+            SettingsItem(
+                title = stringResource(R.string.licenses_title),
+                onClick = onOpenLicenses,
+                modifier = Modifier.testTag(LICENSES_SETTING_TAG),
             )
         }
     }

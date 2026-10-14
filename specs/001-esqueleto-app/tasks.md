@@ -36,7 +36,7 @@
       Hecho cuando: `LanguageTest` en verde en API 28 y 34.
 - [x] T17. `app`: pantalla Acerca de. (RF-20, RF-21, RF-22)
       Hecho cuando: `AboutScreenTest` en verde (versión, commit, licencia, repositorio, aviso).
-- [ ] T18. `app`: Licencias y atribuciones con AboutLibraries. (RF-23)
+- [x] T18. `app`: Licencias y atribuciones con AboutLibraries. (RF-23)
       Hecho cuando: `LicensesScreenTest` en verde, incluida al menos una dependencia indirecta conocida.
 - [ ] T19. Tests de diseño (RNF): 360 × 640 dp en vertical y horizontal, fuente al 150 % y 200 %, zonas táctiles ≥ 56 dp. (RNF, RNF-T8)
       Hecho cuando: `LayoutRnfTest` en verde.

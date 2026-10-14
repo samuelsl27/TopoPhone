@@ -22,6 +22,7 @@
 
     <string name="settings_section_information">Information</string>
     <string name="about_title">About</string>
+    <string name="licenses_title">Licenses and attributions</string>
     <string name="about_name">Name</string>
     <string name="about_version">Version</string>
     <string name="about_commit">Build (commit)</string>

@@ -25,6 +25,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import es.topophone.app.ui.receiver.ReceiverScreen
 import es.topophone.app.ui.settings.AboutScreen
+import es.topophone.app.ui.settings.LicensesScreen
 import es.topophone.app.ui.settings.SettingsScreen
 import es.topophone.app.ui.survey.SurveyScreen
 
@@ -62,8 +63,16 @@ fun TopoPhoneApp(uiState: AppUiState, actions: AppActions, navController: NavHos
                 composable<ReceiverRoute> { ReceiverScreen(uiState.themeState, actions.onToggleSun) }
             }
             navigation<SettingsGraph>(startDestination = SettingsRoute) {
-                composable<SettingsRoute> { SettingsScreen(uiState, actions, onOpenAbout = { navController.navigate(AboutRoute) }) }
+                composable<SettingsRoute> {
+                    SettingsScreen(
+                        uiState,
+                        actions,
+                        onOpenAbout = { navController.navigate(AboutRoute) },
+                        onOpenLicenses = { navController.navigate(LicensesRoute) },
+                    )
+                }
                 composable<AboutRoute> { AboutScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }
+                composable<LicensesRoute> { LicensesScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }
             }
         }
     }

@@ -32,6 +32,7 @@
     <!-- Acerca de (S001/RF-20 a RF-22) -->
     <string name="settings_section_information">Información</string>
     <string name="about_title">Acerca de</string>
+    <string name="licenses_title">Licencias y atribuciones</string>
     <string name="about_name">Nombre</string>
     <string name="about_version">Versión</string>
     <string name="about_commit">Compilación (commit)</string>
