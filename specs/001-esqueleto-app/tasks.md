@@ -30,7 +30,7 @@
       Hecho cuando: `NavigationTest` (RF-5, RF-6) y `StateRestorationTest` en verde.
 - [x] T14. `app`: Ajustes con el selector de tema conectado al repositorio y el tema Sistema reactivo. (RF-9, RF-10, RF-15)
       Hecho cuando: `SettingsThemeTest` en verde (cambiar el `uiMode` cambia el tema sin reiniciar).
-- [ ] T15. `app`: acceso rápido al modo sol en las tres secciones. (RF-11, RF-12)
+- [x] T15. `app`: acceso rápido al modo sol en las tres secciones. (RF-11, RF-12)
       Hecho cuando: `SunToggleTest` en verde en las tres secciones.
 - [ ] T16. `app`: selector de idioma con el idioma por app de AppCompat. (RF-16, RF-17, RF-18)
       Hecho cuando: `LanguageTest` en verde en API 28 y 34.
