@@ -8,7 +8,7 @@
       Hecho cuando: `VersionInfoTest` en verde con los casos del plan y `BuildConfig.VERSION_NAME` = `0.0.0-dev` sin etiqueta.
 - [x] T3. `build-logic`: ModuleRules (grafo de dependencias, convención jvm en `core`, imports prohibidos) y la tarea `checkModuleRules` conectada a `check`. (RF-27)
       Hecho cuando: `ModuleRulesTest` en verde; un import `android.` provocado a propósito en `core:model` hace fallar `check` con su ruta y línea.
-- [ ] T4. `build-logic`: TelemetryGuard y la tarea `checkNoTelemetry` conectada a `check`. (RF-24)
+- [x] T4. `build-logic`: TelemetryGuard y la tarea `checkNoTelemetry` conectada a `check`. (RF-24)
       Hecho cuando: `TelemetryGuardTest` en verde y `./gradlew check` en verde.
 - [ ] T5. ktlint, Android Lint (`MissingTranslation`, `HardcodedText` y `UnusedResources` como error) y Kover (≥ 80 % en `core:*`) conectados a `check`. (RF-19, RF-28)
       Hecho cuando: `./gradlew check` en verde; un texto escrito directamente en el código provocado a propósito hace fallar Lint.

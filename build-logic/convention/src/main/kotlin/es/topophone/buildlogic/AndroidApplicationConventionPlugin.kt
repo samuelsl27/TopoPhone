@@ -1,10 +1,13 @@
 package es.topophone.buildlogic
 
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import es.topophone.buildlogic.quality.CheckNoTelemetryTask
 import es.topophone.buildlogic.release.GitVersioning
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.register
 
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -39,6 +42,28 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             configureKotlinCompilation()
             addAndroidUnitTestDependencies()
+            registerTelemetryCheck()
         }
+    }
+
+    /** `checkNoTelemetry`: ninguna variante release puede llevar SDK de telemetría (S001/RF-24). */
+    private fun Project.registerTelemetryCheck() {
+        val aggregate = tasks.register("checkNoTelemetry") {
+            group = "verification"
+            description = "Comprueba que ninguna variante release incluye SDK de analítica o de informes de errores (S001/RF-24)."
+        }
+        extensions.configure<ApplicationAndroidComponentsExtension> {
+            onVariants(selector().withBuildType("release")) { variant ->
+                val variantTask = tasks.register<CheckNoTelemetryTask>("checkNoTelemetry${variant.name.replaceFirstChar(Char::uppercase)}") {
+                    group = "verification"
+                    coordinates.set(
+                        variant.runtimeConfiguration.incoming.resolutionResult.rootComponent.map(CheckNoTelemetryTask::collectCoordinates),
+                    )
+                    report.set(layout.buildDirectory.file("reports/quality/telemetry-${variant.name}.txt"))
+                }
+                aggregate.configure { dependsOn(variantTask) }
+            }
+        }
+        tasks.named("check") { dependsOn(aggregate) }
     }
 }
