@@ -1,0 +1,42 @@
+# Gradle / Android
+.gradle/
+build/
+**/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# Kotlin
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Firma de releases (nunca al repo)
+*.jks
+*.keystore
+keystore.properties
+
+# Python (tools/)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Claude Code (estado local de sesión)
+.claude/scheduled_tasks.lock
+.claude/settings.local.json
+
+# Documentos de terceros con derechos reservados: solo en local (RNF-T14)
+docs/referencias/**/*.pdf
