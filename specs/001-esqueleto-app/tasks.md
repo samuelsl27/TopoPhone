@@ -46,7 +46,7 @@
       Hecho cuando: `ReleaseChecksTest` en verde; `verifyReleaseSigning` sin variables falla con un mensaje claro.
 - [x] T22. `.github/workflows/release.yml`, `test_release_workflow.py` y `docs/publicacion.md` (generar la clave con keytool, custodia, secretos de GitHub, `release/certificado-sha256.txt`). (RF-30–RF-34)
       Hecho cuando: pytest en verde y actionlint sin errores.
-- [ ] T23. **(Requiere confirmación del usuario.)** Crear el repositorio público `samuelsl27/TopoPhone`, hacer push de `main`, abrir un pull request de prueba con el CI en verde y configurar los secretos de firma (el usuario genera la clave).
+- [x] T23. **(Requiere confirmación del usuario.)** Crear el repositorio público `samuelsl27/TopoPhone`, hacer push de `main`, abrir un pull request de prueba con el CI en verde y configurar los secretos de firma (el usuario genera la clave).
       Hecho cuando: el CI sale en verde en GitHub en el pull request de prueba.
 - [ ] T24. Validación final: recorrer la spec RF por RF, ejecutar `rf_report`, la demo manual y medir los RNF de tiempo en el móvil; publicar `v0.0.1` y luego `v0.0.2`. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no da RF huérfanos, v0.0.2 se instala como actualización de v0.0.1 y la demo funciona.
