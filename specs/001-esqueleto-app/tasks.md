@@ -44,7 +44,7 @@
       Hecho cuando: pytest en verde y actionlint sin errores en local.
 - [x] T21. `build-logic`: ReleaseChecks y las tareas `verifyReleaseTag`, `verifyReleaseSigning` y `verifyReleaseCertificate`, con la firma de publicación leída de variables de entorno. (RF-30, RF-31, RF-32, RF-33, RF-34)
       Hecho cuando: `ReleaseChecksTest` en verde; `verifyReleaseSigning` sin variables falla con un mensaje claro.
-- [ ] T22. `.github/workflows/release.yml`, `test_release_workflow.py` y `docs/publicacion.md` (generar la clave con keytool, custodia, secretos de GitHub, `release/certificado-sha256.txt`). (RF-30–RF-34)
+- [x] T22. `.github/workflows/release.yml`, `test_release_workflow.py` y `docs/publicacion.md` (generar la clave con keytool, custodia, secretos de GitHub, `release/certificado-sha256.txt`). (RF-30–RF-34)
       Hecho cuando: pytest en verde y actionlint sin errores.
 - [ ] T23. **(Requiere confirmación del usuario.)** Crear el repositorio público `samuelsl27/TopoPhone`, hacer push de `main`, abrir un pull request de prueba con el CI en verde y configurar los secretos de firma (el usuario genera la clave).
       Hecho cuando: el CI sale en verde en GitHub en el pull request de prueba.

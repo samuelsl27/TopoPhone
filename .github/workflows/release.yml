@@ -1,0 +1,87 @@
+# Publicación de TopoPhone en GitHub Releases (S001/RF-30 a S001/RF-34, ADR-20).
+# Al crear una etiqueta vX.Y.Z: mismas comprobaciones que el CI, validación de la etiqueta,
+# firma con la clave de publicación, verificación del certificado y subida del APK.
+# Guía para el mantenedor: docs/publicacion.md
+name: Publicación
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  checks:
+    name: Comprobaciones
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: Publicar APK
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - name: Código (con etiquetas)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: JDK 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Última versión publicada
+        id: last
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Sin publicaciones previas, gh falla y la última versión queda vacía (equivale a 0.0.0).
+          last="$(gh release view --json tagName --jq .tagName 2>/dev/null || echo "")"
+          echo "tag=${last}" >> "$GITHUB_OUTPUT"
+
+      - name: Etiqueta válida y mayor que la última publicada (S001/RF-31, S001/RF-33)
+        env:
+          LAST_TAG: ${{ steps.last.outputs.tag }}
+        run: ./gradlew :app:verifyReleaseTag -PreleaseTag="$RELEASE_TAG" -PlastPublishedTag="$LAST_TAG" --no-configuration-cache
+
+      - name: Almacén de claves
+        env:
+          KEYSTORE_BASE64: ${{ secrets.TOPOPHONE_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/topophone-release.jks"
+            echo "TOPOPHONE_KEYSTORE_FILE=$RUNNER_TEMP/topophone-release.jks" >> "$GITHUB_ENV"
+          fi
+
+      - name: Compilar, firmar y verificar el certificado (S001/RF-30, S001/RF-32, S001/RF-34)
+        env:
+          TOPOPHONE_KEYSTORE_PASSWORD: ${{ secrets.TOPOPHONE_KEYSTORE_PASSWORD }}
+          TOPOPHONE_KEY_ALIAS: ${{ secrets.TOPOPHONE_KEY_ALIAS }}
+          TOPOPHONE_KEY_PASSWORD: ${{ secrets.TOPOPHONE_KEY_PASSWORD }}
+        run: ./gradlew :app:verifyReleaseSigning :app:assembleRelease :app:verifyReleaseCertificate --no-configuration-cache --stacktrace
+
+      - name: Publicar en GitHub Releases (S001/RF-30)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${RELEASE_TAG#v}"
+          cp app/build/outputs/apk/release/app-release.apk "TopoPhone-${version}.apk"
+          gh release create "$RELEASE_TAG" "TopoPhone-${version}.apk" --title "TopoPhone ${version}" --generate-notes --verify-tag
+
+      - name: Borrar el almacén de claves
+        if: always()
+        run: rm -f "$RUNNER_TEMP/topophone-release.jks"

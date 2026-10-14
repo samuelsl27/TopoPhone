@@ -27,6 +27,7 @@ El proyecto sigue el método de [mouredev/hello-sdd](https://github.com/mouredev
 | [docs/glosario.md](docs/glosario.md) | Términos español ↔ código |
 | [docs/prompts-sdd.md](docs/prompts-sdd.md) | Prompts para cada fase |
 | [docs/validacion-campo/protocolo.md](docs/validacion-campo/protocolo.md) | Ensayos de campo y actas |
+| [docs/publicacion.md](docs/publicacion.md) | Clave de firma, secretos y cómo publicar una versión |
 | [specs/](specs/) | Una carpeta por funcionalidad: `spec.md`, `plan.md`, `tasks.md` |
 
 ## Requisitos de desarrollo
