@@ -30,6 +30,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 
             configureKotlinCompilation()
             addAndroidUnitTestDependencies()
+            configureRobolectricJvm()
             configureKtlint()
             registerHardcodedUiTextCheck()
         }

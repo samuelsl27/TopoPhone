@@ -45,6 +45,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             configureKotlinCompilation()
             addAndroidUnitTestDependencies()
+            configureRobolectricJvm()
             configureKtlint()
             registerHardcodedUiTextCheck()
             registerTelemetryCheck()

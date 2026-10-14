@@ -2,4 +2,5 @@
 <!-- Idioma por defecto: español (S001/RF-17). -->
 <resources>
     <string name="app_name" translatable="false">TopoPhone</string>
+    <string name="app_tagline">Topografía GNSS con receptores Reach</string>
 </resources>

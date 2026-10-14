@@ -22,7 +22,7 @@
       Hecho cuando: `SettingsRepositoryTest` en verde (lee los valores por defecto y conserva lo guardado tras recrear el repositorio).
 - [x] T10. `core:designsystem`: esquemas Claro, Oscuro y Sol, TopoPhoneTheme, TopoPhoneTopBar y EmptyState. (RF-11, RF-13, RF-14)
       Hecho cuando: `SunContrastTest` en verde (todos los pares ≥ 7:1) y Sol con `systemDark = true` sigue en claro.
-- [ ] T11. `app`: Application con Hilt, MainActivity (AppCompat), textos es/en con `app_name`, icono adaptativo provisional, `localeConfig` y recursos de idioma limitados a es/en (`localeFilters`). (RF-1, RF-17, RF-19)
+- [x] T11. `app`: Application con Hilt, MainActivity (AppCompat), textos es/en con `app_name`, icono adaptativo provisional, `localeConfig` y recursos de idioma limitados a es/en (`localeFilters`). (RF-1, RF-17, RF-19)
       Hecho cuando: `AppManifestTest` y `StringsParityTest` en verde; la app arranca en el emulador o en Robolectric.
 - [ ] T12. `app`: navegación de tres secciones con barra inferior y estados vacíos. (RF-2, RF-3, RF-4)
       Hecho cuando: `NavigationTest` (casos de RF-2 a RF-4) en verde.
