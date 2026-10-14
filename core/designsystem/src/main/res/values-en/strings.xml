@@ -3,4 +3,5 @@
     <string name="ds_sun_mode_on">Turn on sun mode</string>
     <string name="ds_sun_mode_off">Turn off sun mode</string>
     <string name="ds_navigate_back">Back</string>
+    <string name="ds_cancel">Cancel</string>
 </resources>

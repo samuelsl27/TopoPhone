@@ -11,5 +11,13 @@
     <!-- Estados vacíos (S001/RF-4) -->
     <string name="survey_empty_description">Aquí aparecerán tus proyectos, los puntos medidos y el replanteo.</string>
     <string name="receiver_empty_description">Aquí verás el estado del receptor GNSS: solución, satélites y correcciones.</string>
-    <string name="settings_empty_description">Aquí podrás elegir el tema y el idioma, y consultar la información de la app.</string>
+
+    <!-- Ajustes: tema (S001/RF-9) -->
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="settings_theme">Tema</string>
+    <string name="settings_theme_dialog_title">Elige el tema</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+    <string name="theme_sun">Sol (alto contraste)</string>
 </resources>

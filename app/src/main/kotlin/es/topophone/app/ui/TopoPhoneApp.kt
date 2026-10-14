@@ -61,7 +61,7 @@ fun TopoPhoneApp(uiState: AppUiState, actions: AppActions, navController: NavHos
                 composable<ReceiverRoute> { ReceiverScreen(uiState.themeState, actions.onToggleSun) }
             }
             navigation<SettingsGraph>(startDestination = SettingsRoute) {
-                composable<SettingsRoute> { SettingsScreen(uiState.themeState, actions.onToggleSun) }
+                composable<SettingsRoute> { SettingsScreen(uiState, actions) }
             }
         }
     }

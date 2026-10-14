@@ -5,11 +5,13 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.MainActivity
 import es.topophone.app.R
+import es.topophone.app.ui.settings.THEME_SETTING_TAG
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -71,7 +73,7 @@ class BackAndRestorationTest {
         restoration.emulateSavedInstanceStateRestore()
 
         compose.navItem(TopLevelDestination.SETTINGS).assertIsSelected()
-        compose.onNodeWithText(text(R.string.settings_empty_description)).assertIsDisplayed()
+        compose.onNodeWithTag(THEME_SETTING_TAG).assertIsDisplayed()
     }
 }
 
@@ -84,16 +86,19 @@ class RotationTest {
 
     @Test
     fun `S001 RF-7 al girar el dispositivo se conserva la seccion activa`() {
+        compose.awaitAppReady()
         compose.navItem(TopLevelDestination.RECEIVER).performClick()
 
         RuntimeEnvironment.setQualifiers("+land")
         compose.activityRule.scenario.recreate()
+        compose.awaitAppReady()
 
         compose.navItem(TopLevelDestination.RECEIVER).assertIsSelected()
         compose.onNodeWithText(text(R.string.receiver_empty_description)).assertIsDisplayed()
 
         RuntimeEnvironment.setQualifiers("+port")
         compose.activityRule.scenario.recreate()
+        compose.awaitAppReady()
 
         compose.navItem(TopLevelDestination.RECEIVER).assertIsSelected()
     }

@@ -6,12 +6,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
+import es.topophone.core.designsystem.theme.EffectiveThemeKey
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
+import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeMode
 import es.topophone.core.model.preferences.ThemeState
 
@@ -46,4 +49,12 @@ fun StatefulTestApp(systemInDarkTheme: Boolean = false, initialTheme: ThemeState
     }
 }
 
-fun ComposeContentTestRule.navItem(destination: TopLevelDestination): SemanticsNodeInteraction = onNodeWithTag(destination.testTag)
+fun ComposeTestRule.navItem(destination: TopLevelDestination): SemanticsNodeInteraction = onNodeWithTag(destination.testTag)
+
+/** El tema guardado se lee de forma asíncrona: espera a que la app real pinte su interfaz. */
+fun ComposeTestRule.awaitAppReady() = awaitNode(SemanticsMatcher.keyIsDefined(EffectiveThemeKey))
+
+fun ComposeTestRule.awaitTheme(theme: EffectiveTheme) = awaitNode(SemanticsMatcher.expectValue(EffectiveThemeKey, theme))
+
+private fun ComposeTestRule.awaitNode(matcher: SemanticsMatcher) =
+    waitUntil(timeoutMillis = 5_000) { onAllNodes(matcher).fetchSemanticsNodes().isNotEmpty() }

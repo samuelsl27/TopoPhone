@@ -4,4 +4,5 @@
     <string name="ds_sun_mode_on">Activar modo sol</string>
     <string name="ds_sun_mode_off">Desactivar modo sol</string>
     <string name="ds_navigate_back">Volver</string>
+    <string name="ds_cancel">Cancelar</string>
 </resources>

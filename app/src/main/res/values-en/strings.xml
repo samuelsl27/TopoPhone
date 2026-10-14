@@ -6,5 +6,12 @@
 
     <string name="survey_empty_description">Your projects, measured points and stakeout will appear here.</string>
     <string name="receiver_empty_description">Here you will see the GNSS receiver status: solution, satellites and corrections.</string>
-    <string name="settings_empty_description">Here you will be able to choose the theme and language, and see the app information.</string>
+
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_dialog_title">Choose a theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_sun">Sun (high contrast)</string>
 </resources>
