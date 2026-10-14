@@ -4,7 +4,7 @@
 
 - [x] T1. Wrapper de Gradle 9.8.1, `settings.gradle.kts`, catálogo `libs.versions.toml`, build incluido `build-logic` con las convenciones `android.application`, `android.library`, `jvm.library`, `compose` y `hilt`; módulos `app`, `core:model`, `core:designsystem` y `data`; daemon en JDK 21. (RF-1)
       Hecho cuando: `./gradlew assembleDebug` genera el APK y `./gradlew test` termina (0 tests) sin errores.
-- [ ] T2. `build-logic`: VersionInfo (versión desde git, `-dev`, versionCode) y los campos BuildConfig `VERSION_NAME` y `GIT_COMMIT`. (RF-21, RF-30, RF-31, RF-33)
+- [x] T2. `build-logic`: VersionInfo (versión desde git, `-dev`, versionCode) y los campos BuildConfig `VERSION_NAME` y `GIT_COMMIT`. (RF-21, RF-30, RF-31, RF-33)
       Hecho cuando: `VersionInfoTest` en verde con los casos del plan y `BuildConfig.VERSION_NAME` = `0.0.0-dev` sin etiqueta.
 - [ ] T3. `build-logic`: ModuleRules (grafo de dependencias, convención jvm en `core`, imports prohibidos) y la tarea `checkModuleRules` conectada a `check`. (RF-27)
       Hecho cuando: `ModuleRulesTest` en verde; un import `android.` provocado a propósito en `core:model` hace fallar `check` con su ruta y línea.
