@@ -2,7 +2,7 @@
 
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y empieza por sus tests. Tras cada una, `./gradlew check` en verde y commit.
 
-- [ ] T1. Módulos `core:gnss`, `core:ntrip`, `core:geodesy`, `core:survey` y `receiver` con sus convenciones, y reglas de dependencias comprobadas. (RF: —)
+- [x] T1. Módulos `core:gnss`, `core:ntrip`, `core:geodesy`, `core:survey` y `receiver` con sus convenciones, y reglas de dependencias comprobadas. (RF: —)
       Hecho cuando: `./gradlew check` en verde y `checkModuleRules` sin infracciones con los módulos nuevos.
 - [ ] T2. `core:gnss`: `NmeaFramer` (suma de control, cualquier talker, cortes y binario intercalado). (RF-11)
       Hecho cuando: `NmeaFramerTest` en verde.
