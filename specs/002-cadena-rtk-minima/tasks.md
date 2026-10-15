@@ -24,7 +24,7 @@
       Hecho cuando: `NtripClientTest` en verde.
 - [x] T11. `receiver`: `ReceiverTransport`, transporte falso, `BluetoothSppTransport` y `BondedDevices`. (RF-1, RF-5)
       Hecho cuando: compila, y `BondedDevicesTest` (Robolectric) en verde.
-- [ ] T12. `receiver`: `ReceiverSession` (estados, plazos, pérdida, reenvío de RTCM, NTRIP sin receptor). (RF-5–RF-10, RF-19, RF-28)
+- [x] T12. `receiver`: `ReceiverSession` (estados, plazos, pérdida, reenvío de RTCM, NTRIP sin receptor). (RF-5–RF-10, RF-19, RF-28)
       Hecho cuando: `ReceiverSessionTest` en verde con tiempo virtual.
 - [ ] T13. `receiver`: `SessionLogStore` (registro tal cual y retención de 10). (RF-42, RF-44)
       Hecho cuando: `SessionLogStoreTest` en verde.

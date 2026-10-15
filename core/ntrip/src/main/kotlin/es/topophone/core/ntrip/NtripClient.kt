@@ -16,6 +16,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+/** Fuente de correcciones NTRIP; [NtripClient] es la real y los tests usan una falsa. */
+fun interface NtripConnector {
+    suspend fun run(
+        config: NtripConfig,
+        latestGga: () -> String?,
+        onConnected: () -> Unit,
+        onCorrections: suspend (ByteArray) -> Unit,
+    ): NtripFailure
+}
+
 /**
  * Cliente NTRIP sobre un socket crudo (ADR-13): negocia con el caster, reenvía las correcciones
  * tal cual (S002/RF-19) y le envía la última GGA del receptor cada [ggaIntervalMs] (S002/RF-20).
@@ -28,7 +38,7 @@ class NtripClient(
     private val connectTimeoutMs: Int = DEFAULT_TIMEOUT_MS,
     private val noDataTimeoutMs: Int = DEFAULT_TIMEOUT_MS,
     private val ggaIntervalMs: Long = DEFAULT_GGA_INTERVAL_MS,
-) {
+) : NtripConnector {
 
     /**
      * Mantiene la conexión hasta que falla, y devuelve el motivo. Cancelar la corrutina cierra el socket.
@@ -37,7 +47,7 @@ class NtripClient(
      * @param onConnected se llama una vez, cuando el caster acepta la petición.
      * @param onCorrections recibe cada bloque de correcciones en el orden de llegada.
      */
-    suspend fun run(
+    override suspend fun run(
         config: NtripConfig,
         latestGga: () -> String?,
         onConnected: () -> Unit,
