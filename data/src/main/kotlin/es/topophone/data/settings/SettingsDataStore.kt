@@ -26,8 +26,8 @@ object SettingsDataStore {
     private const val FILE_NAME = "settings"
 
     /** DataStore de ajustes en el almacenamiento privado de la app. */
-    fun create(context: Context): DataStore<Preferences> =
-        create(CoroutineScope(Dispatchers.IO + SupervisorJob())) { context.preferencesDataStoreFile(FILE_NAME) }
+    fun create(context: Context, name: String = FILE_NAME): DataStore<Preferences> =
+        create(CoroutineScope(Dispatchers.IO + SupervisorJob())) { context.preferencesDataStoreFile(name) }
 
     /**
      * Si el fichero está corrupto se sustituye por unos ajustes vacíos (valores por defecto)

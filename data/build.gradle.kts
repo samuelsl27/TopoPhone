@@ -9,6 +9,7 @@ android {
 
 dependencies {
     api(projects.core.model)
+    implementation(projects.core.survey)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.core)
 }

@@ -9,6 +9,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import es.topophone.data.receiver.DataStoreReceiverPreferences
+import es.topophone.data.receiver.ReceiverDataStoreQualifier
+import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.settings.DataStoreSettingsRepository
 import es.topophone.data.settings.SettingsDataStore
 import es.topophone.data.settings.SettingsDataStoreQualifier
@@ -23,6 +26,12 @@ object DataStoreModule {
     @Singleton
     @SettingsDataStoreQualifier
     fun provideSettingsDataStore(@ApplicationContext context: Context): DataStore<Preferences> = SettingsDataStore.create(context)
+
+    @Provides
+    @Singleton
+    @ReceiverDataStoreQualifier
+    fun provideReceiverDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        SettingsDataStore.create(context, name = "receiver")
 }
 
 @Module
@@ -31,4 +40,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindSettingsRepository(implementation: DataStoreSettingsRepository): SettingsRepository
+
+    @Binds
+    abstract fun bindReceiverPreferences(implementation: DataStoreReceiverPreferences): ReceiverPreferences
 }

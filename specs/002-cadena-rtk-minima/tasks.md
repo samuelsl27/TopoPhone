@@ -28,7 +28,7 @@
       Hecho cuando: `ReceiverSessionTest` en verde con tiempo virtual.
 - [x] T13. `receiver`: `SessionLogStore` (registro tal cual y retención de 10). (RF-42, RF-44)
       Hecho cuando: `SessionLogStoreTest` en verde.
-- [ ] T14. `data`: `ReceiverPreferences` (servidor, puerto, punto de montaje, usuario y jalón; nunca la contraseña). (RF-26, RF-27, RF-30)
+- [x] T14. `data`: `ReceiverPreferences` (servidor, puerto, punto de montaje, usuario y jalón; nunca la contraseña). (RF-26, RF-27, RF-30)
       Hecho cuando: `ReceiverPreferencesTest` en verde.
 - [ ] T15. `app`: `ReceiverViewModel` y tarjeta Conexión (permisos, Bluetooth apagado, lista, estados, vibración). (RF-1–RF-10)
       Hecho cuando: `ReceiverConnectionCardTest` en verde.
