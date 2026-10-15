@@ -38,7 +38,7 @@
       Hecho cuando: `NtripCardTest` en verde.
 - [x] T18. `app`: tarjeta Coordenadas con la altura del jalón. (RF-29–RF-41)
       Hecho cuando: `CoordinatesCardTest` en verde.
-- [ ] T19. `app`: compartir sesión (FileProvider) y atribución del IGN en Licencias. (RF-43, RF-45)
+- [x] T19. `app`: compartir sesión (FileProvider) y atribución del IGN en Licencias. (RF-43, RF-45)
       Hecho cuando: `ShareSessionTest` y `LicensesScreenTest` en verde.
 - [ ] T20. Reproducción de principio a fin de una sesión NMEA sintética (fichero → sesión → coordenadas) y latencia < 300 ms. (RF-11–RF-15, RF-32–RF-38)
       Hecho cuando: `EndToEndReplayTest` en verde.

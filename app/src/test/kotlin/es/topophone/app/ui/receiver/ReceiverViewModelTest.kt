@@ -189,7 +189,9 @@ class ReceiverViewModelTest {
         vm.updateForm(NtripForm(host = "caster.es", mountpoint = "VRS3"))
         vm.connectNtrip()
 
-        vm.awaitState { !it.internetAvailable }.snapshot.ntrip shouldBe NtripState.Stopped(NtripFailure.UNREACHABLE)
+        // Los dos datos llegan por flujos distintos: se espera a ver ambos en el mismo estado.
+        vm.awaitState { !it.internetAvailable && it.snapshot.ntrip is NtripState.Stopped }.snapshot.ntrip shouldBe
+            NtripState.Stopped(NtripFailure.UNREACHABLE)
     }
 
     @Test

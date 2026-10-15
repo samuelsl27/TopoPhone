@@ -107,4 +107,12 @@
     <string name="unavailable_no_height">Not available: the GGA sentence has no altitude.</string>
     <string name="unavailable_outside_utm">Not available in this version: the point is outside UTM zones 29 to 31.</string>
     <string name="unavailable_outside_geoid">Not available: the point is outside the EGM08-REDNAP model of the Peninsula and the Balearic Islands.</string>
+    <string name="receiver_session_title">Session</string>
+    <string name="receiver_session_help">Everything the receiver sends is saved as it arrives. The last 10 sessions are kept.</string>
+    <string name="receiver_no_session">There is no saved session yet.</string>
+    <string name="receiver_share_session">Share session</string>
+    <string name="licenses_data_title">Data</string>
+    <string name="licenses_geoid_attribution">EGM08-REDNAP geoid model (Peninsula and Balearic Islands) © Instituto Geográfico Nacional, licensed under CC BY 4.0. Grid converted to GeoTIFF by the PROJ project.</string>
+    <string name="licenses_cc_by_open">View the CC BY 4.0 licence</string>
+    <string name="licenses_components_title">Software components</string>
 </resources>
