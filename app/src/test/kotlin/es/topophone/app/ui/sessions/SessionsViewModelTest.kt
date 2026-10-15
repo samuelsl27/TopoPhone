@@ -1,7 +1,9 @@
 package es.topophone.app.ui.sessions
 
+import es.topophone.core.gnss.nmea.NmeaChecksum
 import es.topophone.receiver.session.SessionLogStore
 import io.kotest.matchers.shouldBe
+import java.io.ByteArrayInputStream
 import java.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,7 +16,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-/** Lo que la lista de sesiones saca del registro (S003/RF-29, S003/RF-31). */
+/** Lo que la lista de sesiones saca del registro (S003/RF-29, S003/RF-31, S003/RF-33, S003/RF-34). */
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionsViewModelTest {
 
@@ -39,7 +41,7 @@ class SessionsViewModelTest {
         }
         now = now.plusSeconds(60)
         store.start("reach-RS3")
-        val viewModel = SessionsViewModel(store)
+        val viewModel = SessionsViewModel(store, Dispatchers.Unconfined)
 
         val rows = viewModel.state.value.rows
         rows.map { it.id } shouldBe listOf("20261015-093300", "20261015-083000")
@@ -53,11 +55,35 @@ class SessionsViewModelTest {
     @Test
     fun `S003 RF-31 al borrar una sesion desaparece de la lista`() {
         store.start("reach-RS3")!!.close()
-        val viewModel = SessionsViewModel(store)
+        val viewModel = SessionsViewModel(store, Dispatchers.Unconfined)
         val id = viewModel.state.value.rows.single().id
 
         viewModel.delete(id)
 
+        viewModel.state.value.rows shouldBe emptyList()
+    }
+
+    @Test
+    fun `S003 RF-33 al importar un fichero NMEA aparece en la lista como Importada`() {
+        val viewModel = SessionsViewModel(store, Dispatchers.Unconfined)
+        val body = "GNGGA,101530.00,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001"
+        val line = "$" + body + "*" + "%02X".format(NmeaChecksum.compute(body)) + "\r\n"
+
+        viewModel.import("log.nmea", sizeHint = null) { ByteArrayInputStream(line.toByteArray()) }
+
+        val row = viewModel.state.value.rows.single()
+        row.imported shouldBe true
+        row.receiver shouldBe "log.nmea"
+        viewModel.state.value.message shouldBe null
+    }
+
+    @Test
+    fun `S003 RF-34 si no se puede importar el estado indica el motivo`() {
+        val viewModel = SessionsViewModel(store, Dispatchers.Unconfined)
+
+        viewModel.import("binario.ubx", sizeHint = null) { ByteArrayInputStream(ByteArray(100)) }
+
+        viewModel.state.value.message shouldBe ImportMessage.NO_NMEA
         viewModel.state.value.rows shouldBe emptyList()
     }
 }

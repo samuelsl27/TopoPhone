@@ -148,4 +148,7 @@
     <string name="sessions_cancel">Cancel</string>
     <string name="sessions_delete_confirm_title">Delete the session?</string>
     <string name="sessions_delete_confirm_text">Its receiver data and corrections will be deleted.</string>
+    <string name="sessions_import">Import NMEA file</string>
+    <string name="sessions_import_no_nmea">The file has no NMEA sentences with time.</string>
+    <string name="sessions_import_too_large">The file exceeds 200 MB.</string>
 </resources>

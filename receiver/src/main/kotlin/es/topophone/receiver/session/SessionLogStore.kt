@@ -1,11 +1,18 @@
 package es.topophone.receiver.session
 
+import es.topophone.core.gnss.nmea.NmeaFramer
+import es.topophone.core.gnss.nmea.NmeaSentence
+import es.topophone.core.gnss.nmea.NmeaTime
+import es.topophone.core.gnss.nmea.RmcParser
+import es.topophone.core.gnss.nmea.ZdaParser
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.io.OutputStream
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -14,6 +21,17 @@ import java.util.Properties
 
 /** Queda menos espacio libre del necesario para seguir grabando (S003/RF-28). */
 class LowStorageException : IOException("Poco espacio libre para grabar la sesión")
+
+/** Resultado de importar un fichero NMEA (S003/RF-33, S003/RF-34). */
+sealed interface ImportResult {
+    data class Imported(val id: String) : ImportResult
+
+    /** No hay ninguna frase NMEA válida con hora. */
+    data object NoNmea : ImportResult
+
+    /** Supera [SessionLogStore.MAX_IMPORT_BYTES]. */
+    data object TooLarge : ImportResult
+}
 
 /** Origen de una sesión de la lista (S003/RF-29). */
 enum class SessionSource { RECORDED, IMPORTED }
@@ -49,6 +67,7 @@ class SessionLogStore(
     private val partSizeBytes: Long = PART_SIZE_BYTES,
     private val spaceLimitBytes: () -> Long = { DEFAULT_SPACE_LIMIT_BYTES },
     private val freeSpaceBytes: () -> Long = { directory.usableSpace },
+    private val maxImportBytes: Long = MAX_IMPORT_BYTES,
 ) : SessionRecorder {
 
     /** @throws LowStorageException si el móvil tiene menos de [MIN_FREE_BYTES] libres (S003/RF-28). */
@@ -57,17 +76,107 @@ class SessionLogStore(
         if (!directory.exists() && !directory.mkdirs()) return null
         if (freeSpaceBytes() < MIN_FREE_BYTES) throw LowStorageException()
         val startedAt = clock()
-        val base = NAME_FORMAT.format(startedAt)
-        var folder = File(directory, base)
-        var suffix = 1
-        while (folder.exists()) folder = File(directory, "$base-${suffix++}")
-        if (!folder.mkdirs()) return null
+        val folder = newFolder(startedAt) ?: return null
         val metadata = Metadata(SessionSource.RECORDED, description, startedAt, endedAt = null)
         metadata.writeTo(folder)
         val writer = Writer(folder, metadata)
         activeWriter = writer
         prune(writer)
         return writer
+    }
+
+    /**
+     * Copia un fichero NMEA de texto como sesión "Importada" para reproducirlo (S003/RF-33). Se valida
+     * por el contenido, no por la extensión (RNF-T5): sin frases NMEA válidas con hora, o con más de
+     * [MAX_IMPORT_BYTES], no se importa (S003/RF-34). El inicio y la duración salen de sus horas NMEA.
+     */
+    fun import(name: String, input: InputStream, sizeHint: Long?): ImportResult {
+        if (sizeHint != null && sizeHint > maxImportBytes) return ImportResult.TooLarge
+        migrateLegacyFiles()
+        if (!directory.exists() && !directory.mkdirs()) return ImportResult.NoNmea
+        val importedAt = clock()
+        val folder = newFolder(importedAt) ?: return ImportResult.NoNmea
+        val scan = NmeaScan()
+        val framer = NmeaFramer()
+        val out = PartedFile(folder, RECEIVER_PREFIX, RECEIVER_EXTENSION)
+        var total = 0L
+        try {
+            val buffer = ByteArray(IMPORT_BUFFER)
+            while (true) {
+                val n = input.read(buffer)
+                if (n < 0) break
+                total += n
+                if (total > maxImportBytes) {
+                    out.close()
+                    folder.deleteRecursively()
+                    return ImportResult.TooLarge
+                }
+                out.write(buffer, 0, n)
+                framer.feed(buffer, 0, n).forEach(scan::accept)
+            }
+        } finally {
+            out.close()
+        }
+        val started = scan.startedAt() ?: importedAt
+        if (!scan.hasTime) {
+            folder.deleteRecursively()
+            return ImportResult.NoNmea
+        }
+        Metadata(SessionSource.IMPORTED, name, started, started.plusMillis(scan.durationMs)).writeTo(folder)
+        prune(activeWriter)
+        return ImportResult.Imported(folder.name)
+    }
+
+    private fun newFolder(startedAt: Instant): File? {
+        val base = NAME_FORMAT.format(startedAt)
+        var folder = File(directory, base)
+        var suffix = 1
+        while (folder.exists()) folder = File(directory, "$base-${suffix++}")
+        return folder.takeIf { it.mkdirs() }
+    }
+
+    /** Horas NMEA de un fichero importado: si tiene alguna, su inicio (con fecha de RMC o ZDA) y su duración. */
+    private class NmeaScan {
+        private var firstTime: Int? = null
+        private var lastTime: Int? = null
+        private var datedAt: Pair<LocalDate, Int>? = null
+        var durationMs = 0L
+            private set
+        val hasTime: Boolean get() = firstTime != null
+
+        fun accept(sentence: NmeaSentence) {
+            if (sentence.type !in TIMED_TYPES) return
+            val time = NmeaTime.parse(sentence.fields.firstOrNull().orEmpty()) ?: return
+            val previous = lastTime
+            if (previous == null) {
+                firstTime = time
+            } else if (time != previous) {
+                durationMs += forward(previous, time) ?: 0
+            }
+            lastTime = time
+            if (datedAt == null) {
+                val date = when (sentence.type) {
+                    "RMC" -> RmcParser.parse(sentence)?.date
+                    "ZDA" -> ZdaParser.parse(sentence)?.date
+                    else -> null
+                }
+                if (date != null) datedAt = date to time
+            }
+        }
+
+        /** Instante de la primera frase con hora, si el fichero trae alguna fecha. */
+        fun startedAt(): Instant? {
+            val (date, time) = datedAt ?: return null
+            val elapsed = forward(checkNotNull(firstTime), time) ?: 0
+            return date.atStartOfDay().toInstant(ZoneOffset.UTC).plusMillis(time.toLong() - elapsed)
+        }
+
+        /** Milisegundos de [from] a [to] hacia delante (con el paso de medianoche); `null` si es un salto atrás. */
+        private fun forward(from: Int, to: Int): Long? {
+            var delta = (to - from).toLong()
+            if (delta < 0) delta += NmeaTime.MILLIS_PER_DAY
+            return delta.takeIf { it < NmeaTime.MILLIS_PER_DAY / 2 }
+        }
     }
 
     /** Sesiones de la más reciente a la más antigua. */
@@ -298,6 +407,11 @@ class SessionLogStore(
         /** Por debajo de 100 MB libres se deja de grabar (S003/RF-28). */
         const val MIN_FREE_BYTES = 100_000_000L
         const val PART_SIZE_BYTES = 16L * 1024 * 1024
+
+        /** Tamaño máximo de un fichero importado: 200 MB (S003/RF-34). */
+        const val MAX_IMPORT_BYTES = 200_000_000L
+        private const val IMPORT_BUFFER = 64 * 1024
+        private val TIMED_TYPES = setOf("GGA", "GST", "RMC", "ZDA", "ETC")
         const val METADATA_FILE = "session.properties"
         const val RECEIVER_PREFIX = "receiver-"
         const val RECEIVER_EXTENSION = ".nmea"

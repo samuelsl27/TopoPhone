@@ -160,4 +160,7 @@
     <string name="sessions_cancel">Cancelar</string>
     <string name="sessions_delete_confirm_title">¿Borrar la sesión?</string>
     <string name="sessions_delete_confirm_text">Se borrarán sus datos del receptor y sus correcciones.</string>
+    <string name="sessions_import">Importar fichero NMEA</string>
+    <string name="sessions_import_no_nmea">El fichero no tiene frases NMEA con hora.</string>
+    <string name="sessions_import_too_large">El fichero supera los 200 MB.</string>
 </resources>

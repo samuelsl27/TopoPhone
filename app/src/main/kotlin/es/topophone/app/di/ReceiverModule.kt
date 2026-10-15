@@ -25,11 +25,18 @@ import es.topophone.receiver.transport.BluetoothDevices
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Named
+import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+
+/** Hilo para el trabajo con ficheros (importar sesiones…). */
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class IoDispatcher
 
 /** Dependencias de la cadena receptor → NTRIP → coordenadas (spec 002). La sesión es de la app. */
 @Module
@@ -53,6 +60,10 @@ object ReceiverModule {
 
     @Provides
     fun sessionFiles(store: SessionLogStore): SessionFiles = store.asSessionFiles()
+
+    @Provides
+    @IoDispatcher
+    fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Provides
     @Singleton

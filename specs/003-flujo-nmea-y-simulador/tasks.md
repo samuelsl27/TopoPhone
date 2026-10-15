@@ -26,7 +26,7 @@
       Hecho cuando: `ReceiverPreferencesTest` y `SessionSpaceSettingTest` en verde.
 - [x] T12. `app`: pantalla Sesiones (lista con inicio, duración, tamaño y receptor; compartir las partes y las correcciones; borrar con confirmación salvo la sesión en curso), abierta desde la tarjeta Sesión. (RF-29, RF-30, RF-31)
       Hecho cuando: `SessionsScreenTest` en verde.
-- [ ] T13. `receiver` + `app`: importar un fichero NMEA (selector de documentos, validación por contenido, límite de 200 MB, marcado "Importada"). (RF-33, RF-34)
+- [x] T13. `receiver` + `app`: importar un fichero NMEA (selector de documentos, validación por contenido, límite de 200 MB, marcado "Importada"). (RF-33, RF-34)
       Hecho cuando: `SessionImportTest` en verde.
 - [ ] T14. `core:gnss`: `ReplayPacer` (ritmo por hora UTC acumulado, ×1/×5, cambio de velocidad, huecos de 10 s, medianoche, bucle). (RF-36, RF-37, RF-38, RF-39)
       Hecho cuando: `ReplayPacerTest` en verde, con duración a ×1 dentro del 1 %.

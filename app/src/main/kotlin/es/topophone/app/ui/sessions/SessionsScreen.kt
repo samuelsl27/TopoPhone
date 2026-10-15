@@ -1,6 +1,11 @@
 package es.topophone.app.ui.sessions
 
+import android.content.ContentResolver
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.text.format.Formatter
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -42,6 +47,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 const val SESSIONS_LIST_TAG = "sessions_list"
+const val IMPORT_SESSION_TAG = "sessions_import"
 const val CONFIRM_DELETE_TAG = "sessions_confirm_delete"
 const val CANCEL_DELETE_TAG = "sessions_cancel_delete"
 
@@ -52,7 +58,7 @@ fun shareSessionTag(id: String) = "session_share_$id"
 fun deleteSessionTag(id: String) = "session_delete_$id"
 
 /** Acciones de la lista de sesiones. */
-class SessionsActions(val onShare: (String) -> Unit = {}, val onDelete: (String) -> Unit = {})
+class SessionsActions(val onShare: (String) -> Unit = {}, val onDelete: (String) -> Unit = {}, val onImport: () -> Unit = {})
 
 /** Entrada de la pantalla Sesiones: une el ViewModel con compartir por FileProvider. */
 @Composable
@@ -64,6 +70,13 @@ fun SessionsSection(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    // S003/RF-33: cualquier tipo de fichero; se valida por el contenido (RNF-T5).
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            val (name, size) = describe(context.contentResolver, uri)
+            viewModel.import(name, size) { context.contentResolver.openInputStream(uri) }
+        }
+    }
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
         onPauseOrDispose {}
@@ -75,6 +88,7 @@ fun SessionsSection(
         actions = SessionsActions(
             onShare = { id -> viewModel.filesOf(id).takeIf { it.isNotEmpty() }?.let { shareSession(context, it) } },
             onDelete = viewModel::delete,
+            onImport = { importLauncher.launch(arrayOf("*/*")) },
         ),
         onNavigateBack = onNavigateBack,
     )
@@ -100,6 +114,23 @@ fun SessionsScreen(
             modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp).testTag(SESSIONS_LIST_TAG),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            OutlinedButton(onClick = actions.onImport, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(IMPORT_SESSION_TAG)) {
+                Text(stringResource(R.string.sessions_import))
+            } // S003/RF-33
+            state.message?.let { message ->
+                Text(
+                    stringResource(
+                        if (message ==
+                            ImportMessage.NO_NMEA
+                        ) {
+                            R.string.sessions_import_no_nmea
+                        } else {
+                            R.string.sessions_import_too_large
+                        },
+                    ),
+                    color = MaterialTheme.colorScheme.error,
+                )
+            } // S003/RF-34
             if (state.rows.isEmpty()) Text(stringResource(R.string.receiver_no_session))
             state.rows.forEach { row -> SessionCard(row, onShare = { actions.onShare(row.id) }, onDelete = { pendingDelete = row.id }) }
         }
@@ -180,3 +211,15 @@ private fun durationText(seconds: Long?): String = when {
 }
 
 private const val SECONDS_PER_HOUR = 3_600L
+
+/** Nombre y tamaño del documento elegido, si el proveedor los da. */
+private fun describe(resolver: ContentResolver, uri: Uri): Pair<String, Long?> {
+    resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE), null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val name = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME).takeIf { it >= 0 }?.let(cursor::getString)
+            val size = cursor.getColumnIndex(OpenableColumns.SIZE).takeIf { it >= 0 && !cursor.isNull(it) }?.let(cursor::getLong)
+            return (name ?: uri.lastPathSegment.orEmpty()) to size
+        }
+    }
+    return uri.lastPathSegment.orEmpty() to null
+}
