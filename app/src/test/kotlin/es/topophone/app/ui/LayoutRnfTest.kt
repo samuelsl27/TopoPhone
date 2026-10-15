@@ -89,7 +89,7 @@ abstract class LayoutRnfTestBase {
 
     private fun assertEmptyStatesAreReachable() {
         compose.navItem(TopLevelDestination.SURVEY).performClick()
-        compose.onNodeWithText(text(R.string.survey_empty_description)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText(text(R.string.projects_empty_title)).performScrollTo().assertIsDisplayed()
         compose.navItem(TopLevelDestination.RECEIVER).performClick()
         compose.onNodeWithTag(CONNECTION_STATUS_TAG).performScrollTo().assertIsDisplayed()
     }

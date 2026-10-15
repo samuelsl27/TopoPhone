@@ -6,11 +6,10 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.MainActivity
-import es.topophone.app.R
+import es.topophone.app.ui.projects.PROJECT_LIST_TAG
 import es.topophone.app.ui.receiver.CONNECTION_STATUS_TAG
 import es.topophone.app.ui.settings.THEME_SETTING_TAG
 import io.kotest.matchers.shouldBe
@@ -40,7 +39,7 @@ class BackAndRestorationTest {
         pressBack()
 
         compose.navItem(TopLevelDestination.SURVEY).assertIsSelected()
-        compose.onNodeWithText(text(R.string.survey_empty_description)).assertIsDisplayed()
+        compose.onNodeWithTag(PROJECT_LIST_TAG).assertIsDisplayed()
         compose.activity.isFinishing shouldBe false
     }
 

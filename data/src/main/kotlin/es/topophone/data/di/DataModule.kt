@@ -9,9 +9,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.DataStoreProjectPreferences
 import es.topophone.data.project.ProjectDataStoreQualifier
 import es.topophone.data.project.ProjectPreferences
+import es.topophone.data.project.ProjectRepository
+import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.receiver.DataStoreReceiverPreferences
 import es.topophone.data.receiver.ReceiverDataStoreQualifier
 import es.topophone.data.receiver.ReceiverPreferences
@@ -41,6 +44,20 @@ object DataStoreModule {
     @ReceiverDataStoreQualifier
     fun provideReceiverDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         SettingsDataStore.create(context, name = "receiver")
+}
+
+/** Base de datos de proyectos (ADR-8) y su repositorio (S006). */
+@Module
+@InstallIn(SingletonComponent::class)
+object DatabaseModule {
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): TopoPhoneDatabase = TopoPhoneDatabase.build(context)
+
+    @Provides
+    @Singleton
+    fun provideProjectRepository(database: TopoPhoneDatabase): ProjectRepository = RoomProjectRepository(database)
 }
 
 @Module

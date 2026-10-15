@@ -35,6 +35,9 @@ dependencies {
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.aboutlibraries.compose.m3)
+
+    // Base de datos en memoria para los tests de las pantallas de proyectos (S006).
+    testImplementation(libs.room.runtime)
 }
 
 // Licencias de terceros para "Licencias y atribuciones" (S001/RF-23), generadas al compilar sin red

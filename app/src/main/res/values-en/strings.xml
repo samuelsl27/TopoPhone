@@ -4,7 +4,6 @@
     <string name="nav_receiver">Receiver</string>
     <string name="nav_settings">Settings</string>
 
-    <string name="survey_empty_description">Your projects, measured points and stakeout will appear here.</string>
 
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_theme">Theme</string>
@@ -213,4 +212,10 @@
     <string name="receiver_menu_corrections_age">%1$s · %2$s s</string>
     <string name="receiver_no_receiver_connected">No receiver is connected.</string>
     <string name="receiver_replay_connect">Connect a receiver</string>
+    <string name="projects_empty_title">No projects yet</string>
+    <string name="projects_empty_description">Create the first one with “New project”.</string>
+    <string name="project_new">New project</string>
+    <string name="project_crs_utm">ETRS89 / UTM zone %1$d</string>
+    <string name="project_modified">Modified: %1$s</string>
+    <string name="project_in_folder">In folder %1$s</string>
 </resources>

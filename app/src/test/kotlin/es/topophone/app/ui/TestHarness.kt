@@ -11,6 +11,8 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
+import es.topophone.app.ui.projects.SurveyPageScreen
+import es.topophone.app.ui.projects.SurveyUiState
 import es.topophone.app.ui.receiver.ReceiverActions
 import es.topophone.app.ui.receiver.ReceiverPage
 import es.topophone.app.ui.receiver.ReceiverPageScreen
@@ -45,6 +47,7 @@ fun StatefulTestApp(
     onSelectSessionSpace: (Int) -> Unit = {},
     onOpenAppBatterySettings: () -> Unit = {},
     receiverState: ReceiverUiState = ReceiverUiState(),
+    surveyState: SurveyUiState = SurveyUiState(),
 ) {
     var themeName by rememberSaveable { mutableStateOf(initialTheme.mode.name to initialTheme.beforeSun.name) }
     var language by rememberSaveable { mutableStateOf(AppLanguage.SYSTEM) }
@@ -79,6 +82,7 @@ fun StatefulTestApp(
             },
             sessionsSection = { theme, toggleSun, back -> SessionsScreen(theme, toggleSun, SessionsUiState(), SessionsActions(), back) },
             statusIndicator = { onOpenReceiver -> StatusIndicator(StatusIndicatorState(), onOpenReceiver) },
+            surveySection = { page, theme, toggleSun, navigation, _ -> SurveyPageScreen(page, theme, toggleSun, surveyState, navigation) },
         )
     }
 }

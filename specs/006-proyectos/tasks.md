@@ -18,7 +18,7 @@
       Hecho cuando: `ProjectRepositoryTest` en verde para la papelera.
 - [x] T8. `data`: valores por defecto de los proyectos en DataStore. (RF-6, RF-13)
       Hecho cuando: `ProjectPreferencesTest` en verde.
-- [ ] T9. `app`: grafo de Levantamiento y lista de proyectos (carpetas, proyectos, vacío); adaptar los tests de S001 que daban Levantamiento por vacía. (RF-1, RF-2, RF-3)
+- [x] T9. `app`: grafo de Levantamiento y lista de proyectos (carpetas, proyectos, vacío); adaptar los tests de S001 que daban Levantamiento por vacía. (RF-1, RF-2, RF-3)
       Hecho cuando: `ProjectListTest` en verde y `./gradlew check` sin tests de S001 rotos.
 - [ ] T10. `app`: búsqueda en la lista. (RF-4)
       Hecho cuando: `ProjectSearchTest` en verde.

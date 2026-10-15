@@ -10,8 +10,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import es.topophone.app.R
+import es.topophone.app.ui.projects.PROJECT_LIST_TAG
 import es.topophone.app.ui.receiver.CONNECTION_STATUS_TAG
+import es.topophone.core.designsystem.component.EmptyState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,7 +31,7 @@ class NavigationTest {
         compose.navItem(TopLevelDestination.SURVEY).assertIsDisplayed().assertIsSelected()
         compose.navItem(TopLevelDestination.RECEIVER).assertIsDisplayed().assertIsNotSelected()
         compose.navItem(TopLevelDestination.SETTINGS).assertIsDisplayed().assertIsNotSelected()
-        compose.onNodeWithText(text(R.string.survey_empty_description)).assertIsDisplayed()
+        compose.onNodeWithTag(PROJECT_LIST_TAG).assertIsDisplayed()
     }
 
     @Test
@@ -65,11 +66,10 @@ class NavigationTest {
 
     @Test
     fun `S001 RF-4 las secciones sin funciones muestran su nombre y lo que contendran`() {
-        compose.setContent { StatefulTestApp() }
+        // Desde S006 todas las secciones tienen funciones: se comprueba el estado vacío que usaría una nueva.
+        compose.setContent { EmptyState(title = "Sección", description = "Lo que contendrá") }
 
-        // Desde la spec 002, Receptor ya tiene funciones; Levantamiento sigue vacío hasta S006.
-        compose.onNodeWithText(text(R.string.survey_empty_description)).assertIsDisplayed()
-        compose.navItem(TopLevelDestination.RECEIVER).performClick()
-        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assertIsDisplayed()
+        compose.onNodeWithText("Sección").assertIsDisplayed()
+        compose.onNodeWithText("Lo que contendrá").assertIsDisplayed()
     }
 }

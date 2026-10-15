@@ -32,6 +32,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import es.topophone.app.ui.projects.ProjectListRoute
+import es.topophone.app.ui.projects.SurveyNavigation
+import es.topophone.app.ui.projects.SurveyPage
 import es.topophone.app.ui.receiver.ReceiverNavigation
 import es.topophone.app.ui.receiver.ReceiverPage
 import es.topophone.app.ui.receiver.ReceiverRoute as ReceiverSectionRoute
@@ -41,7 +44,6 @@ import es.topophone.app.ui.settings.BackgroundHelpScreen
 import es.topophone.app.ui.settings.LicensesScreen
 import es.topophone.app.ui.settings.SettingsScreen
 import es.topophone.app.ui.status.StatusIndicatorRoute
-import es.topophone.app.ui.survey.SurveyScreen
 import es.topophone.core.model.preferences.ThemeState
 
 /**
@@ -62,6 +64,12 @@ fun TopoPhoneApp(
         SessionsSection(theme, toggleSun, back)
     },
     statusIndicator: @Composable (onOpenReceiver: () -> Unit) -> Unit = { onOpenReceiver -> StatusIndicatorRoute(onOpenReceiver) },
+    surveySection: @Composable (SurveyPage, ThemeState, () -> Unit, SurveyNavigation, ViewModelStoreOwner) -> Unit =
+        { page, theme, toggleSun, navigation, owner ->
+            when (page) {
+                SurveyPage.List -> ProjectListRoute(theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
+            }
+        },
     openReceiverRequest: Int = 0,
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -102,7 +110,7 @@ fun TopoPhoneApp(
     ) { padding ->
         val openReceiver = { navController.navigateToTopLevel(TopLevelDestination.RECEIVER) } // S003/RF-23
         CompositionLocalProvider(LocalStatusIndicator provides { statusIndicator(openReceiver) }) {
-            AppNavHost(navController, uiState, actions, receiverSection, sessionsSection, Modifier.padding(padding))
+            AppNavHost(navController, uiState, actions, receiverSection, sessionsSection, surveySection, Modifier.padding(padding))
         }
     }
 }
@@ -114,11 +122,15 @@ private fun AppNavHost(
     actions: AppActions,
     receiverSection: @Composable (ReceiverPage, ThemeState, () -> Unit, ReceiverNavigation, ViewModelStoreOwner) -> Unit,
     sessionsSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
+    surveySection: @Composable (SurveyPage, ThemeState, () -> Unit, SurveyNavigation, ViewModelStoreOwner) -> Unit,
     modifier: Modifier,
 ) {
     NavHost(navController = navController, startDestination = SurveyGraph, modifier = modifier) {
         navigation<SurveyGraph>(startDestination = SurveyRoute) {
-            composable<SurveyRoute> { SurveyScreen(uiState.themeState, actions.onToggleSun) }
+            val surveyNavigation = SurveyNavigation(onBack = { navController.popBackStack() })
+            composable<SurveyRoute> { entry ->
+                surveySection(SurveyPage.List, uiState.themeState, actions.onToggleSun, surveyNavigation, entry) // S006/RF-1
+            }
         }
         navigation<ReceiverGraph>(startDestination = ReceiverRoute) {
             val receiverNavigation = ReceiverNavigation(

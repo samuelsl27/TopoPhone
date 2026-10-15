@@ -9,7 +9,6 @@
     <string name="nav_settings">Ajustes</string>
 
     <!-- Estados vacíos (S001/RF-4) -->
-    <string name="survey_empty_description">Aquí aparecerán tus proyectos, los puntos medidos y el replanteo.</string>
 
     <!-- Ajustes: tema (S001/RF-9) -->
     <string name="settings_section_appearance">Apariencia</string>
@@ -225,4 +224,10 @@
     <string name="receiver_menu_corrections_age">%1$s · %2$s s</string>
     <string name="receiver_no_receiver_connected">No hay ningún receptor conectado.</string>
     <string name="receiver_replay_connect">Conectar un receptor</string>
+    <string name="projects_empty_title">Todavía no hay proyectos</string>
+    <string name="projects_empty_description">Crea el primero con «Nuevo proyecto».</string>
+    <string name="project_new">Nuevo proyecto</string>
+    <string name="project_crs_utm">ETRS89 / UTM huso %1$d</string>
+    <string name="project_modified">Modificado: %1$s</string>
+    <string name="project_in_folder">En la carpeta %1$s</string>
 </resources>

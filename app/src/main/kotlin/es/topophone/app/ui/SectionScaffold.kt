@@ -24,6 +24,7 @@ fun SectionScaffold(
     onToggleSun: () -> Unit,
     modifier: Modifier = Modifier,
     onNavigateBack: (() -> Unit)? = null,
+    floatingActionButton: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -38,6 +39,7 @@ fun SectionScaffold(
                 statusIndicator = LocalStatusIndicator.current, // S003/RF-16
             )
         },
+        floatingActionButton = floatingActionButton,
         content = content,
     )
 }
