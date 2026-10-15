@@ -226,4 +226,5 @@
     <string name="receiver_menu_corrections">Correcciones</string>
     <string name="receiver_menu_pole_height">Jalón %1$s m</string>
     <string name="receiver_menu_corrections_age">%1$s · %2$s s</string>
+    <string name="receiver_no_receiver_connected">No hay ningún receptor conectado.</string>
 </resources>

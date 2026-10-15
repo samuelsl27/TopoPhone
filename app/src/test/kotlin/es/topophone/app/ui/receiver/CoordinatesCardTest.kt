@@ -74,7 +74,9 @@ class CoordinatesCardTest {
             poleHeightValid = poleValid,
         )
         compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { ReceiverScreen(ThemeState.DEFAULT, {}, state, actions) }
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ReceiverPageScreen(ReceiverPage.COORDINATES, ThemeState.DEFAULT, {}, state, actions, {})
+            }
         }
     }
 
@@ -89,11 +91,13 @@ class CoordinatesCardTest {
         var pole by mutableStateOf("1,800")
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ReceiverScreen(
+                ReceiverPageScreen(
+                    ReceiverPage.COORDINATES,
                     ThemeState.DEFAULT,
                     {},
                     ReceiverUiState(snapshot = ReceiverSnapshot(receiving), poleHeightText = pole),
                     ReceiverActions(onPoleHeightChange = { pole = it }),
+                    {},
                 )
             }
         }

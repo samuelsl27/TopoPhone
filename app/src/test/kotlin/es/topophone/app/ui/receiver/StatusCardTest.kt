@@ -62,7 +62,7 @@ class StatusCardTest {
         snapshot = initial
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ReceiverScreen(ThemeState.DEFAULT, {}, ReceiverUiState(snapshot = snapshot), ReceiverActions())
+                ReceiverPageScreen(ReceiverPage.STATUS, ThemeState.DEFAULT, {}, ReceiverUiState(snapshot = snapshot), ReceiverActions(), {})
             }
         }
     }

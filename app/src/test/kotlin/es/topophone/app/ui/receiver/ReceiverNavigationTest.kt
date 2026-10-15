@@ -1,18 +1,25 @@
 package es.topophone.app.ui.receiver
 
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.R
 import es.topophone.app.ui.StatefulTestApp
 import es.topophone.app.ui.TopLevelDestination
 import es.topophone.app.ui.navItem
 import es.topophone.app.ui.sessions.SESSIONS_LIST_TAG
+import es.topophone.app.ui.text
 import es.topophone.core.designsystem.component.NAVIGATE_BACK_TAG
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSnapshot
@@ -20,7 +27,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Pantallas del menú del receptor: abrir, volver, giro y muerte del proceso (S005/RF-14, RF-15, RF-17). */
+/** Pantallas del menú del receptor: abrir, volver, fin de la conexión y muerte del proceso (S005/RF-14 a RF-17). */
 @RunWith(AndroidJUnit4::class)
 class ReceiverNavigationTest {
 
@@ -73,6 +80,29 @@ class ReceiverNavigationTest {
 
         compose.onNodeWithTag(RECEIVER_HEADER_TAG).performScrollTo().assertIsDisplayed()
         compose.navItem(TopLevelDestination.RECEIVER).assertIsSelected()
+    }
+
+    @Test
+    fun `S005 RF-16 si la conexion termina con una pantalla del menu abierta, sigue abierta y dice que no hay receptor`() {
+        var state by mutableStateOf(connected)
+        compose.setContent { StatefulTestApp(receiverState = state) }
+        compose.navItem(TopLevelDestination.RECEIVER).performClick()
+
+        listOf(
+            MENU_STATUS_TAG to RECEIVER_STATUS_SCREEN_TAG,
+            MENU_COORDINATES_TAG to RECEIVER_COORDINATES_SCREEN_TAG,
+        ).forEach { (entry, screen) ->
+            state = connected
+            compose.onNodeWithTag(entry).performScrollTo().performClick()
+            compose.onNodeWithTag(NO_RECEIVER_TAG).assertDoesNotExist()
+
+            state = connected.copy(snapshot = ReceiverSnapshot(ConnectionState.Lost("reach-RS3")))
+            compose.waitForIdle()
+
+            compose.onNodeWithTag(screen).assertIsDisplayed()
+            compose.onNodeWithTag(NO_RECEIVER_TAG).assert(hasText(text(R.string.receiver_no_receiver_connected)))
+            compose.onNodeWithTag(NAVIGATE_BACK_TAG).performClick()
+        }
     }
 
     @Test

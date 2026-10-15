@@ -250,10 +250,8 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
                     ReceiverMenu(state, actions)
                 }
             }
-            // Hasta que tengan su pantalla (S005 T7, T8), las demás tarjetas siguen debajo.
-            StatusCard(state.snapshot)
+            // Hasta que tengan su pantalla (S005 T8), las demás tarjetas siguen debajo.
             NtripCard(state, actions)
-            CoordinatesCard(state, actions.onPoleHeightChange)
             SessionCard(state.sessionAvailable, actions.onShareSession, actions.onOpenSessions)
         }
     }
