@@ -175,4 +175,5 @@
     <string name="sessions_replay_confirm_title">¿Desconectar el receptor?</string>
     <string name="sessions_replay_confirm_text">Para reproducir la sesión se cerrará la conexión con el receptor y la NTRIP.</string>
     <string name="receiver_state_reconnecting">Reconectando con %1$s…</string>
+    <string name="ntrip_paused">NTRIP en pausa mientras se reconecta el receptor</string>
 </resources>

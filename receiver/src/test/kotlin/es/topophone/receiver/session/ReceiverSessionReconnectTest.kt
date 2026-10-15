@@ -1,6 +1,7 @@
 package es.topophone.receiver.session
 
 import es.topophone.core.gnss.nmea.NmeaChecksum
+import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.receiver.transport.ReceiverTransport
@@ -17,6 +18,7 @@ import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -27,7 +29,7 @@ import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Test
 
-/** Reconexión automática dentro de la sesión (S004/RF-13, RF-14, RF-16, RF-17, RF-20, RF-21). */
+/** Reconexión automática dentro de la sesión (S004/RF-13 a RF-21). */
 class ReceiverSessionReconnectTest {
 
     private fun nmea(body: String) = "$" + body + "*" + "%02X".format(NmeaChecksum.compute(body)) + "\r\n"
@@ -210,5 +212,87 @@ class ReceiverSessionReconnectTest {
 
         session.state.value.connection shouldBe ConnectionState.Disconnected
         attempts.size shouldBe count
+    }
+
+    @Test
+    fun `S004 RF-18 durante la reconexion el NTRIP queda en pausa y se reanuda con la misma configuracion`() {
+        val configs = CopyOnWriteArrayList<NtripConfig>()
+        val connector = NtripConnector { config, _, onConnected, _ ->
+            configs += config
+            onConnected()
+            kotlinx.coroutines.awaitCancellation()
+        }
+        val session = ReceiverSession(scope, connector, connectTimeoutMs = 300, backoffMs = listOf(50), giveUpAfterMs = 60_000)
+        val first = LinkTransport()
+        val back = LinkTransport()
+        session.connected(first, reopen(back))
+        val config = NtripConfig("caster.es", 2101, "VRS3", "topo", "s3cr3t")
+        session.startNtrip(config)
+        session.await { it.ntrip is NtripState.Streaming }
+
+        first.cut()
+        session.await { it.ntrip == NtripState.Paused && it.connection is ConnectionState.Reconnecting }
+        back.send(gga)
+
+        session.await { it.connection is ConnectionState.Receiving && it.ntrip is NtripState.Streaming }
+        configs.toList() shouldBe listOf(config, config)
+    }
+
+    @Test
+    fun `S004 RF-18 un NTRIP parado a mano no se reanuda al reconectar`() {
+        val calls = AtomicInteger()
+        val connector = NtripConnector { _, _, onConnected, _ ->
+            calls.incrementAndGet()
+            onConnected()
+            kotlinx.coroutines.awaitCancellation()
+        }
+        val session = ReceiverSession(scope, connector, connectTimeoutMs = 300, backoffMs = listOf(50), giveUpAfterMs = 60_000)
+        val first = LinkTransport()
+        val back = LinkTransport()
+        session.connected(first, reopen(back))
+        session.startNtrip(NtripConfig("caster.es", 2101, "VRS3", "topo", ""))
+        session.await { it.ntrip is NtripState.Streaming }
+        session.stopNtrip()
+
+        first.cut()
+        session.await { it.connection is ConnectionState.Reconnecting }
+        back.send(gga)
+
+        session.await { it.connection is ConnectionState.Receiving }.ntrip shouldBe NtripState.Idle
+        Thread.sleep(200)
+        calls.get() shouldBe 1
+    }
+
+    @Test
+    fun `S004 RF-19 la grabacion sigue en la misma sesion durante el corte y tras reconectar`() {
+        val folder = kotlin.io.path.createTempDirectory("sesiones").toFile()
+        try {
+            val store = SessionLogStore(folder, freeSpaceBytes = { Long.MAX_VALUE })
+            val session =
+                ReceiverSession(scope, noNtrip, recorder = store, connectTimeoutMs = 300, backoffMs = listOf(50), giveUpAfterMs = 60_000)
+            val first = LinkTransport()
+            val back = LinkTransport()
+            val second = nmea("GNGGA,101540.00,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001")
+            session.connected(first, reopen(back))
+
+            first.cut()
+            session.await { it.connection is ConnectionState.Reconnecting }.recording shouldBe true
+            back.send(second)
+            session.await { it.gga?.utcTime == "101540.00" }
+            session.disconnect()
+            back.cut()
+
+            val sessions = runBlocking {
+                withTimeout(5_000) {
+                    while (store.sessions().singleOrNull()?.receiverFiles?.sumOf { it.length() } != (gga.length + second.length).toLong()) {
+                        kotlinx.coroutines.delay(20)
+                    }
+                    store.sessions()
+                }
+            }
+            sessions.single().receiverFiles.flatMap { it.readBytes().toList() } shouldBe (gga + second).toByteArray().toList()
+        } finally {
+            folder.deleteRecursively()
+        }
     }
 }

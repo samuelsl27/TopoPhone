@@ -4,7 +4,7 @@
 
 - [x] T1. `receiver`: reconexión en `ReceiverSession` (`connect` con `reopen`, estado `Reconnecting`, esperas de 1 s a 30 s, rendición a los 30 min, "Reintentar ahora", desconectar la detiene). (RF-13, RF-14, RF-16, RF-17, RF-20, RF-21)
       Hecho cuando: `ReceiverSessionReconnectTest` y los tests de S002 y S003 en verde.
-- [ ] T2. `receiver`: durante la reconexión, NTRIP en pausa y reanudado con la misma configuración, y la misma grabación. (RF-18, RF-19)
+- [x] T2. `receiver`: durante la reconexión, NTRIP en pausa y reanudado con la misma configuración, y la misma grabación. (RF-18, RF-19)
       Hecho cuando: `ReceiverSessionReconnectTest` en verde con esos casos.
 - [ ] T3. `receiver`: reintentos con el Bluetooth apagado, `ConnectFailure.BUSY` (rechazo en < 3 s) y `nmeaMissing` (10 s sin NMEA). (RF-22, RF-27, RF-28)
       Hecho cuando: `ReceiverSessionReconnectTest` en verde con esos casos.

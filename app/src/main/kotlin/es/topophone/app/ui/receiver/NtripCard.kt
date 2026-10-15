@@ -38,7 +38,7 @@ const val NTRIP_LAST_CORRECTION_TAG = "ntrip_last_correction"
 internal fun NtripCard(state: ReceiverUiState, actions: ReceiverActions) {
     ReceiverCard(stringResource(R.string.receiver_ntrip_title)) {
         val ntrip = state.snapshot.ntrip
-        val active = ntrip is NtripState.Connecting || ntrip is NtripState.Streaming
+        val active = ntrip is NtripState.Connecting || ntrip is NtripState.Streaming || ntrip == NtripState.Paused
         NtripForm(state.form, enabled = !active, onChange = actions.onFormChange)
         if (state.formInvalid) Text(stringResource(R.string.ntrip_form_invalid), color = MaterialTheme.colorScheme.error)
         Text(statusText(ntrip), modifier = Modifier.testTag(NTRIP_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
@@ -121,6 +121,7 @@ private fun statusText(ntrip: NtripState): String = stringResource(
         is NtripState.Streaming -> R.string.ntrip_state_streaming
         NtripState.ReceiverNotConnected -> R.string.ntrip_receiver_not_connected // S002/RF-28
         NtripState.UnavailableInReplay -> R.string.ntrip_unavailable_in_replay // S003/RF-44
+        NtripState.Paused -> R.string.ntrip_paused // S004/RF-18
         is NtripState.Stopped -> when (ntrip.failure) {
             NtripFailure.UNAUTHORIZED -> R.string.ntrip_error_unauthorized // S002/RF-21
             NtripFailure.MOUNTPOINT_NOT_FOUND -> R.string.ntrip_error_mountpoint // S002/RF-22

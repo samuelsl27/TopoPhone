@@ -73,6 +73,9 @@ sealed interface NtripState {
 
     /** Una reproducción no admite correcciones (S003/RF-44). */
     data object UnavailableInReplay : NtripState
+
+    /** En pausa mientras se reconecta el receptor; se reanuda solo al reconectar (S004/RF-18). */
+    data object Paused : NtripState
 }
 
 /** Reproducción en curso: qué sesión, a qué velocidad y si vuelve a empezar (S003/RF-35). */
@@ -183,6 +186,11 @@ class ReceiverSession(
 
     @Volatile private var lastGstAtMs = 0L
 
+    /** El NTRIP que el usuario tiene activo (solo en memoria, RNF-T11), para reanudarlo al reconectar (S004/RF-18). */
+    @Volatile private var ntripConfig: NtripConfig? = null
+
+    @Volatile private var resumeNtripOnData = false
+
     /** "Reintentar ahora" durante la reconexión (S004/RF-16). */
     private val retrySignal = Channel<Unit>(Channel.CONFLATED)
 
@@ -237,6 +245,10 @@ class ReceiverSession(
                         drain.cancel()
                         if (!currentCoroutineContext().isActive) break
                         ntripJob?.cancel()
+                        if (ntripConfig != null && reopen != null && !link.simulated) {
+                            resumeNtripOnData = true
+                            mutableState.update { it.copy(ntrip = NtripState.Paused) } // S004/RF-18
+                        }
                         // La grabación sigue abierta durante la reconexión: el corte queda en la misma sesión (S004/RF-19).
                         val resumed = if (link.simulated || reopen == null) null else reconnect(reopen, description)
                         if (resumed == null) {
@@ -247,6 +259,8 @@ class ReceiverSession(
                             } else {
                                 ConnectionState.Lost(description)
                             }
+                            ntripConfig = null
+                            resumeNtripOnData = false
                             mutableState.update { it.copy(connection = end, ntrip = NtripState.Idle, recording = false) }
                             break
                         }
@@ -303,6 +317,8 @@ class ReceiverSession(
 
     /** Cierra el NTRIP y la conexión con el receptor (S002/RF-10). */
     fun disconnect() {
+        ntripConfig = null
+        resumeNtripOnData = false
         ntripJob?.cancel()
         ntripJob = null
         connectionJob?.cancel()
@@ -343,6 +359,7 @@ class ReceiverSession(
             return
         }
         ntripJob?.cancel()
+        ntripConfig = config
         mutableState.update { it.copy(ntrip = NtripState.Connecting) }
         ntripJob = scope.launch {
             var bytes = 0L
@@ -356,11 +373,14 @@ class ReceiverSession(
                 val now = clock()
                 mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, now)) } // S002/RF-25
             }
+            ntripConfig = null // un NTRIP que el caster cortó no se reanuda solo
             mutableState.update { it.copy(ntrip = NtripState.Stopped(failure)) }
         }
     }
 
     fun stopNtrip() {
+        ntripConfig = null
+        resumeNtripOnData = false
         ntripJob?.cancel()
         ntripJob = null
         mutableState.update { it.copy(ntrip = NtripState.Idle) }
@@ -415,6 +435,10 @@ class ReceiverSession(
                 current.connection
             }
             current.copy(connection = connection, gga = gga ?: current.gga, gst = gst ?: current.gst)
+        }
+        if (resumeNtripOnData && mutableState.value.connection is ConnectionState.Receiving) {
+            resumeNtripOnData = false
+            ntripConfig?.let(::startNtrip) // S004/RF-18: el mismo caster y los mismos datos, sin pedirlos
         }
         synchronized(assemblerLock) { assembler.feed(sentence, now) }?.let { onEpoch(it, description) }
     }

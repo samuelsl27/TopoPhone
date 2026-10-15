@@ -216,4 +216,16 @@ class NtripCardTest {
 
         assertMessage(R.string.ntrip_receiver_not_connected)
     }
+
+    @Test
+    fun `S004 RF-18 mientras se reconecta el NTRIP se muestra en pausa y se puede desconectar`() {
+        var disconnect = false
+        show(ntrip = NtripState.Paused, actions = ReceiverActions(onDisconnectNtrip = { disconnect = true }))
+
+        assertMessage(R.string.ntrip_paused)
+        node(NTRIP_HOST_TAG).assertIsNotEnabled()
+        node(NTRIP_DISCONNECT_TAG).performClick()
+
+        disconnect shouldBe true
+    }
 }
