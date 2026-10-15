@@ -136,9 +136,10 @@ fun receiverHomeMode(snapshot: ReceiverSnapshot): ReceiverHomeMode = when (snaps
 /** Entrada de la sección Receptor: une el ViewModel con los permisos y las intenciones de Android. */
 @Composable
 fun ReceiverRoute(
+    page: ReceiverPage,
     themeState: ThemeState,
     onToggleSun: () -> Unit,
-    onOpenSessions: () -> Unit = {},
+    navigation: ReceiverNavigation = ReceiverNavigation(),
     viewModel: ReceiverViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -163,10 +164,12 @@ fun ReceiverRoute(
         viewModel.refreshNotifications()
         onPauseOrDispose {}
     }
-    ReceiverScreen(
+    ReceiverPageScreen(
+        page = page,
         themeState = themeState,
         onToggleSun = onToggleSun,
         state = state,
+        onBack = navigation.onBack,
         actions = ReceiverActions(
             onRequestPermission = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) permissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
@@ -185,7 +188,10 @@ fun ReceiverRoute(
             onDisconnectNtrip = viewModel::disconnectNtrip,
             onPoleHeightChange = viewModel::updatePoleHeight,
             onShareSession = { viewModel.latestSession()?.let { shareSession(context, it) } },
-            onOpenSessions = onOpenSessions,
+            onOpenSessions = navigation.onOpenSessions,
+            onOpenStatus = { navigation.onOpen(ReceiverPage.STATUS) }, // S005/RF-14
+            onOpenCoordinates = { navigation.onOpen(ReceiverPage.COORDINATES) },
+            onOpenCorrections = { navigation.onOpen(ReceiverPage.CORRECTIONS) },
             onReplaySpeed = viewModel::setReplaySpeed,
             onReplayLoop = viewModel::setReplayLoop,
             onStopReplay = viewModel::stopReplay,

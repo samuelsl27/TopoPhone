@@ -12,7 +12,7 @@
       Hecho cuando: `ReceiverHeaderTest` en verde y adaptados `ReconnectingCardTest`, `ReplayControlsTest`, `NotificationPermissionTest` y el aviso de NMEA de `ConnectionDiagnosisTest`.
 - [x] T5. `app`: menú de la pantalla del receptor con sus cuatro entradas y resúmenes. (RF-9 a RF-13)
       Hecho cuando: `ReceiverMenuTest` en verde.
-- [ ] T6. `app`: rutas de las pantallas Estado, Coordenadas y Correcciones en el grafo de Receptor, `ReceiverViewModel` con ámbito de grafo, Atrás y giro. (RF-14, RF-15, RF-17)
+- [x] T6. `app`: rutas de las pantallas Estado, Coordenadas y Correcciones en el grafo de Receptor, `ReceiverViewModel` con ámbito de grafo, Atrás y giro. (RF-14, RF-15, RF-17)
       Hecho cuando: `ReceiverNavigationTest` en verde para abrir, volver y girar.
 - [ ] T7. `app`: contenido de las pantallas Estado y Coordenadas, con el aviso de "No hay ningún receptor conectado". (RF-16, RF-19; S003/RF-14, RF-15)
       Hecho cuando: adaptados `StatusCardTest` y `CoordinatesCardTest`, y el caso de RF-16 en `ReceiverNavigationTest`.

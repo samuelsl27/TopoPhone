@@ -13,11 +13,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -28,6 +32,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import es.topophone.app.ui.receiver.ReceiverNavigation
+import es.topophone.app.ui.receiver.ReceiverPage
 import es.topophone.app.ui.receiver.ReceiverRoute as ReceiverSectionRoute
 import es.topophone.app.ui.sessions.SessionsSection
 import es.topophone.app.ui.settings.AboutScreen
@@ -48,9 +54,10 @@ fun TopoPhoneApp(
     uiState: AppUiState,
     actions: AppActions,
     navController: NavHostController = rememberNavController(),
-    receiverSection: @Composable (ThemeState, () -> Unit, onOpenSessions: () -> Unit) -> Unit = { theme, toggleSun, openSessions ->
-        ReceiverSectionRoute(theme, toggleSun, openSessions)
-    },
+    receiverSection: @Composable (ReceiverPage, ThemeState, () -> Unit, ReceiverNavigation, ViewModelStoreOwner) -> Unit =
+        { page, theme, toggleSun, navigation, owner ->
+            ReceiverSectionRoute(page, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
+        },
     sessionsSection: @Composable (ThemeState, () -> Unit, onNavigateBack: () -> Unit) -> Unit = { theme, toggleSun, back ->
         SessionsSection(theme, toggleSun, back)
     },
@@ -105,7 +112,7 @@ private fun AppNavHost(
     navController: NavHostController,
     uiState: AppUiState,
     actions: AppActions,
-    receiverSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
+    receiverSection: @Composable (ReceiverPage, ThemeState, () -> Unit, ReceiverNavigation, ViewModelStoreOwner) -> Unit,
     sessionsSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
     modifier: Modifier,
 ) {
@@ -114,9 +121,20 @@ private fun AppNavHost(
             composable<SurveyRoute> { SurveyScreen(uiState.themeState, actions.onToggleSun) }
         }
         navigation<ReceiverGraph>(startDestination = ReceiverRoute) {
-            composable<ReceiverRoute> {
-                receiverSection(uiState.themeState, actions.onToggleSun) { navController.navigate(SessionsRoute) }
+            val receiverNavigation = ReceiverNavigation(
+                onOpen = { page -> navController.navigate(page.route()) }, // S005/RF-14
+                onOpenSessions = { navController.navigate(SessionsRoute) },
+                onBack = { navController.popBackStack() }, // S005/RF-15
+            )
+            val page: @Composable (NavBackStackEntry, ReceiverPage) -> Unit = { entry, page ->
+                // El ReceiverViewModel es del grafo de Receptor: la raíz y sus pantallas comparten el estado.
+                val owner = remember(entry) { navController.getBackStackEntry(ReceiverGraph) }
+                receiverSection(page, uiState.themeState, actions.onToggleSun, receiverNavigation, owner)
             }
+            composable<ReceiverRoute> { page(it, ReceiverPage.HOME) }
+            composable<ReceiverStatusRoute> { page(it, ReceiverPage.STATUS) }
+            composable<ReceiverCoordinatesRoute> { page(it, ReceiverPage.COORDINATES) }
+            composable<ReceiverCorrectionsRoute> { page(it, ReceiverPage.CORRECTIONS) }
             composable<SessionsRoute> {
                 sessionsSection(uiState.themeState, actions.onToggleSun) { navController.popBackStack() } // S003/RF-29
             }
@@ -138,6 +156,14 @@ private fun AppNavHost(
             }
         }
     }
+}
+
+/** Ruta de cada pantalla de Receptor (S005/RF-14). */
+private fun ReceiverPage.route(): Any = when (this) {
+    ReceiverPage.HOME -> ReceiverRoute
+    ReceiverPage.STATUS -> ReceiverStatusRoute
+    ReceiverPage.COORDINATES -> ReceiverCoordinatesRoute
+    ReceiverPage.CORRECTIONS -> ReceiverCorrectionsRoute
 }
 
 private fun NavDestination?.isIn(destination: TopLevelDestination): Boolean =

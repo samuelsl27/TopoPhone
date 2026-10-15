@@ -12,7 +12,8 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
 import es.topophone.app.ui.receiver.ReceiverActions
-import es.topophone.app.ui.receiver.ReceiverScreen
+import es.topophone.app.ui.receiver.ReceiverPage
+import es.topophone.app.ui.receiver.ReceiverPageScreen
 import es.topophone.app.ui.receiver.ReceiverUiState
 import es.topophone.app.ui.sessions.SessionsActions
 import es.topophone.app.ui.sessions.SessionsScreen
@@ -43,6 +44,7 @@ fun StatefulTestApp(
     onOpenUrl: (String) -> Unit = {},
     onSelectSessionSpace: (Int) -> Unit = {},
     onOpenAppBatterySettings: () -> Unit = {},
+    receiverState: ReceiverUiState = ReceiverUiState(),
 ) {
     var themeName by rememberSaveable { mutableStateOf(initialTheme.mode.name to initialTheme.beforeSun.name) }
     var language by rememberSaveable { mutableStateOf(AppLanguage.SYSTEM) }
@@ -66,8 +68,14 @@ fun StatefulTestApp(
                 },
                 onOpenAppBatterySettings = onOpenAppBatterySettings,
             ),
-            receiverSection = { theme, toggleSun, openSessions ->
-                ReceiverScreen(theme, toggleSun, ReceiverUiState(), ReceiverActions(onOpenSessions = openSessions))
+            receiverSection = { page, theme, toggleSun, navigation, _ ->
+                val receiverActions = ReceiverActions(
+                    onOpenSessions = navigation.onOpenSessions,
+                    onOpenStatus = { navigation.onOpen(ReceiverPage.STATUS) },
+                    onOpenCoordinates = { navigation.onOpen(ReceiverPage.COORDINATES) },
+                    onOpenCorrections = { navigation.onOpen(ReceiverPage.CORRECTIONS) },
+                )
+                ReceiverPageScreen(page, theme, toggleSun, receiverState, receiverActions, navigation.onBack)
             },
             sessionsSection = { theme, toggleSun, back -> SessionsScreen(theme, toggleSun, SessionsUiState(), SessionsActions(), back) },
             statusIndicator = { onOpenReceiver -> StatusIndicator(StatusIndicatorState(), onOpenReceiver) },

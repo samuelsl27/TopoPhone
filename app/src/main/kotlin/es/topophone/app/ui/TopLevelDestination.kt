@@ -16,6 +16,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object SessionsRoute
 
+@Serializable data object ReceiverStatusRoute
+
+@Serializable data object ReceiverCoordinatesRoute
+
+@Serializable data object ReceiverCorrectionsRoute
+
 @Serializable data object SettingsGraph
 
 @Serializable data object SettingsRoute
