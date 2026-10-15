@@ -11,6 +11,7 @@ import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.EntryPointAccessors
+import es.topophone.app.MainActivity
 import es.topophone.app.R
 import es.topophone.app.ui.receiver.FakeBluetooth
 import es.topophone.app.ui.receiver.FakePreferences
@@ -39,7 +40,7 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ServiceController
 
-/** Servicio en primer plano con la notificación del receptor (S004/RF-7, RF-8, RF-11). Interfaz en español (es-ES). */
+/** Servicio en primer plano con la notificación del receptor (S004/RF-7 a RF-11). Interfaz en español (es-ES). */
 @RunWith(AndroidJUnit4::class)
 class ReceiverServiceTest {
 
@@ -151,5 +152,31 @@ class ReceiverServiceTest {
         toApp.write(nmea("GNGGA,101530.00,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
         toApp.flush()
         runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving } } }
+    }
+
+    @Test
+    fun `S004 RF-9 pulsar la notificacion abre la app en la seccion Receptor`() {
+        receiving()
+
+        val notification = shadowOf(start()).lastForegroundNotification.shouldNotBeNull()
+
+        val intent = shadowOf(notification.contentIntent).savedIntent
+        intent.component?.className shouldBe MainActivity::class.java.name
+        intent.getBooleanExtra(MainActivity.EXTRA_OPEN_RECEIVER, false) shouldBe true
+    }
+
+    @Test
+    fun `S004 RF-10 la notificacion tiene la accion Desconectar, que cierra la conexion y el servicio`() {
+        receiving()
+        val service = start()
+        val notification = shadowOf(service).lastForegroundNotification.shouldNotBeNull()
+        val action = notification.actions.single()
+        action.title.toString() shouldBe text(R.string.receiver_disconnect)
+
+        val disconnect = shadowOf(action.actionIntent).savedIntent
+        controller!!.withIntent(disconnect).startCommand(0, 2)
+
+        session.state.value.connection shouldBe ConnectionState.Disconnected
+        waitFor { shadowOf(service).isStoppedBySelf }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -53,9 +54,15 @@ fun TopoPhoneApp(
         SessionsSection(theme, toggleSun, back)
     },
     statusBar: @Composable (onOpenReceiver: () -> Unit) -> Unit = { onOpenReceiver -> StatusBarRoute(onOpenReceiver) },
+    openReceiverRequest: Int = 0,
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
+
+    // S004/RF-9: la notificación del receptor abre Receptor, también con la app ya abierta en otra sección.
+    LaunchedEffect(openReceiverRequest) {
+        if (openReceiverRequest > 0) navController.navigateToTopLevel(TopLevelDestination.RECEIVER)
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),

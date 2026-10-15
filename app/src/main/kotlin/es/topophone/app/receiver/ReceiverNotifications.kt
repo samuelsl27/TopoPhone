@@ -2,23 +2,29 @@ package es.topophone.app.receiver
 
 import android.Manifest
 import android.app.Notification
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import es.topophone.app.MainActivity
 import es.topophone.app.R
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSnapshot
 import java.util.Locale
 
-/** Notificación permanente del receptor: la solución y la edad de las correcciones (S004/RF-8). */
+/** Notificación permanente del receptor: la solución y la edad de las correcciones (S004/RF-8 a RF-10). */
 object ReceiverNotifications {
     const val NOTIFICATION_ID = 1001
     private const val CHANNEL_ID = "receiver"
+    private const val REQUEST_OPEN = 1
+    private const val REQUEST_DISCONNECT = 2
+    private const val FLAGS = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 
     fun createChannel(context: Context) {
         val channel = NotificationChannelCompat.Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_LOW)
@@ -45,7 +51,23 @@ object ReceiverNotifications {
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setContentIntent(openReceiver(context))
+            .addAction(0, context.getString(R.string.receiver_disconnect), disconnect(context))
             .build()
+    }
+
+    /** Pulsar la notificación abre la app en Receptor (S004/RF-9). */
+    private fun openReceiver(context: Context): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java)
+            .putExtra(MainActivity.EXTRA_OPEN_RECEIVER, true)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        return PendingIntent.getActivity(context, REQUEST_OPEN, intent, FLAGS)
+    }
+
+    /** "Desconectar" cierra la conexión con el receptor y el NTRIP (S004/RF-10). */
+    private fun disconnect(context: Context): PendingIntent {
+        val intent = Intent(context, ReceiverService::class.java).setAction(ReceiverService.ACTION_DISCONNECT)
+        return PendingIntent.getService(context, REQUEST_DISCONNECT, intent, FLAGS)
     }
 
     /** Actualiza la notificación; sin permiso de notificaciones no se ve, pero la conexión sigue (S004/RF-6). */

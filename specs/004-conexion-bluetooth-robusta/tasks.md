@@ -18,7 +18,7 @@
       Hecho cuando: `AutoConnectTest` en verde.
 - [x] T8. `receiver` + manifiestos: `ReceiverService` en primer plano (`connectedDevice`) con la notificación (solución, edad de las correcciones, reconectando) a 1 Hz como máximo; se detiene al no haber receptor. (RF-7, RF-8, RF-11)
       Hecho cuando: `ReceiverServiceTest` en verde y Lint sin errores.
-- [ ] T9. `receiver` + `app`: la notificación abre Receptor y su acción "Desconectar" cierra la conexión. (RF-9, RF-10)
+- [x] T9. `receiver` + `app`: la notificación abre Receptor y su acción "Desconectar" cierra la conexión. (RF-9, RF-10)
       Hecho cuando: `ReceiverServiceTest` y `OpenReceiverFromNotificationTest` en verde.
 - [ ] T10. `receiver`: wakelock parcial mientras el servicio sigue (plazo de 10 min renovado). (RF-7)
       Hecho cuando: `ReceiverServiceTest` en verde con el wakelock.

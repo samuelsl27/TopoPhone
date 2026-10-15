@@ -37,7 +37,7 @@ interface ReceiverServiceEntryPoint {
 /**
  * Mantiene la conexión con el receptor, el NTRIP y la grabación en segundo plano, con una
  * notificación permanente (S004/RF-7, RF-8; RNF-T2). Se detiene en cuanto no hay receptor
- * conectado ni reconectándose (S004/RF-11).
+ * conectado ni reconectándose (S004/RF-11), también al pulsar "Desconectar" en la notificación (S004/RF-10).
  */
 class ReceiverService : Service() {
 
@@ -54,6 +54,11 @@ class ReceiverService : Service() {
 
     @OptIn(FlowPreview::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_DISCONNECT) {
+            session.disconnect() // S004/RF-10: cierra el receptor y el NTRIP
+            stop()
+            return START_NOT_STICKY
+        }
         ServiceCompat.startForeground(
             this,
             ReceiverNotifications.NOTIFICATION_ID,
@@ -92,6 +97,9 @@ class ReceiverService : Service() {
 
     companion object {
         private const val UPDATE_PERIOD_MS = 1_000L
+
+        /** Acción "Desconectar" de la notificación (S004/RF-10). */
+        const val ACTION_DISCONNECT = "es.topophone.app.action.DISCONNECT_RECEIVER"
 
         /** Hace falta el servicio mientras hay un receptor real conectado o reconectándose. */
         fun needsService(snapshot: ReceiverSnapshot): Boolean {

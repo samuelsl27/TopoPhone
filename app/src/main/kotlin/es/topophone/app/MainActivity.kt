@@ -27,6 +27,8 @@ import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.EffectiveTheme
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -40,15 +42,21 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var connections: ReceiverConnections
 
+    /** Cuántas veces se ha pedido abrir Receptor desde la notificación (S004/RF-9). */
+    private val openReceiverRequests = MutableStateFlow(0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         lifecycleScope.launch { connections.autoConnect() } // S004/RF-25: una sola vez por arranque
+        // Al recrearse la actividad, la navegación ya está restaurada: el extra solo cuenta la primera vez.
+        if (savedInstanceState == null) handleOpenReceiver(intent)
         val appInfo = AppInfo(versionName = BuildConfig.VERSION_NAME, gitCommit = BuildConfig.GIT_COMMIT, repoUrl = BuildConfig.REPO_URL)
 
         setContent {
             val loadedTheme by viewModel.themeState.collectAsStateWithLifecycle()
             val sessionSpaceMb by viewModel.sessionSpaceMb.collectAsStateWithLifecycle()
+            val openReceiverRequest by openReceiverRequests.collectAsStateWithLifecycle()
             // Hasta leer el tema guardado solo se ve el fondo de la ventana (S001/RF-15).
             val themeState = loadedTheme ?: return@setContent
             // Sistema sigue al modo oscuro del dispositivo, también si cambia con la app abierta (S001/RF-10).
@@ -79,8 +87,21 @@ class MainActivity : AppCompatActivity() {
                         onOpenUrl = ::openUrl,
                         onSelectSessionSpace = viewModel::selectSessionSpace,
                     ),
+                    openReceiverRequest = openReceiverRequest,
                 )
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleOpenReceiver(intent)
+    }
+
+    private fun handleOpenReceiver(intent: Intent) {
+        if (intent.getBooleanExtra(EXTRA_OPEN_RECEIVER, false)) {
+            intent.removeExtra(EXTRA_OPEN_RECEIVER)
+            openReceiverRequests.update { it + 1 }
         }
     }
 
@@ -102,5 +123,10 @@ class MainActivity : AppCompatActivity() {
      */
     private fun applyLanguage(language: AppLanguage) {
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language.languageTags))
+    }
+
+    companion object {
+        /** Extra con el que la notificación del receptor abre la sección Receptor (S004/RF-9). */
+        const val EXTRA_OPEN_RECEIVER = "es.topophone.app.extra.OPEN_RECEIVER"
     }
 }
