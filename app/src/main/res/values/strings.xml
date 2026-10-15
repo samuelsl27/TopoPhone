@@ -62,4 +62,19 @@
     <string name="receiver_no_bonded_devices">No hay dispositivos emparejados. Empareja el receptor desde los ajustes de Bluetooth del móvil.</string>
     <string name="receiver_choose_device">Elige el receptor emparejado:</string>
     <string name="receiver_share_session_chooser">Compartir sesión</string>
+    <string name="receiver_status_title">Estado de la solución</string>
+    <string name="receiver_status_waiting">Sin datos de posición del receptor.</string>
+    <string name="solution_none">Sin solución</string>
+    <string name="solution_single">Autónoma</string>
+    <string name="solution_dgps">Diferencial</string>
+    <string name="solution_float">Flotante</string>
+    <string name="solution_fix">Fija</string>
+    <string name="solution_estimated">Estimada</string>
+    <string name="receiver_status_satellites">Satélites</string>
+    <string name="receiver_status_hdop">HDOP</string>
+    <string name="receiver_status_correction_age">Edad de las correcciones</string>
+    <string name="receiver_status_sigma_h">Precisión horizontal</string>
+    <string name="receiver_status_sigma_v">Precisión vertical</string>
+    <string name="receiver_value_unavailable">no disponible</string>
+    <string name="receiver_seconds">%1$s s</string>
 </resources>

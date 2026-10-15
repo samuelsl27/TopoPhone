@@ -32,7 +32,7 @@
       Hecho cuando: `ReceiverPreferencesTest` en verde.
 - [x] T15. `app`: `ReceiverViewModel` y tarjeta Conexión (permisos, Bluetooth apagado, lista, estados, vibración). (RF-1–RF-10)
       Hecho cuando: `ReceiverConnectionCardTest` en verde.
-- [ ] T16. `app`: tarjeta Estado. (RF-12–RF-17)
+- [x] T16. `app`: tarjeta Estado. (RF-12–RF-17)
       Hecho cuando: `StatusCardTest` en verde.
 - [ ] T17. `app`: tarjeta NTRIP. (RF-18–RF-28)
       Hecho cuando: `NtripCardTest` en verde.

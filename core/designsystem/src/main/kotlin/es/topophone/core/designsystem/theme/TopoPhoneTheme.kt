@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -18,10 +19,12 @@ var SemanticsPropertyReceiver.effectiveTheme by EffectiveThemeKey
 @Composable
 fun TopoPhoneTheme(effectiveTheme: EffectiveTheme, content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = colorSchemeFor(effectiveTheme)) {
-        Surface(
-            modifier = Modifier.fillMaxSize().semantics { this.effectiveTheme = effectiveTheme },
-            color = MaterialTheme.colorScheme.background,
-            content = content,
-        )
+        CompositionLocalProvider(LocalStatusPalette provides statusPaletteFor(effectiveTheme)) {
+            Surface(
+                modifier = Modifier.fillMaxSize().semantics { this.effectiveTheme = effectiveTheme },
+                color = MaterialTheme.colorScheme.background,
+                content = content,
+            )
+        }
     }
 }

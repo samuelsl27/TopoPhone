@@ -50,4 +50,19 @@
     <string name="receiver_no_bonded_devices">No paired devices. Pair the receiver from the phone\'s Bluetooth settings.</string>
     <string name="receiver_choose_device">Choose the paired receiver:</string>
     <string name="receiver_share_session_chooser">Share session</string>
+    <string name="receiver_status_title">Solution status</string>
+    <string name="receiver_status_waiting">No position data from the receiver.</string>
+    <string name="solution_none">No solution</string>
+    <string name="solution_single">Single</string>
+    <string name="solution_dgps">Differential</string>
+    <string name="solution_float">Float</string>
+    <string name="solution_fix">Fix</string>
+    <string name="solution_estimated">Estimated</string>
+    <string name="receiver_status_satellites">Satellites</string>
+    <string name="receiver_status_hdop">HDOP</string>
+    <string name="receiver_status_correction_age">Correction age</string>
+    <string name="receiver_status_sigma_h">Horizontal accuracy</string>
+    <string name="receiver_status_sigma_v">Vertical accuracy</string>
+    <string name="receiver_value_unavailable">not available</string>
+    <string name="receiver_seconds">%1$s s</string>
 </resources>

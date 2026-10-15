@@ -108,6 +108,7 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             ConnectionCard(state, actions)
+            StatusCard(state.snapshot)
         }
     }
 }
