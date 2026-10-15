@@ -243,4 +243,29 @@ class SessionLogStoreTest {
         store.sessions().sumOf { it.sizeBytes } shouldBeLessThanOrEqual 900L
         store.sessions().first().id shouldBe "20261015-083003"
     }
+
+    @Test
+    fun `S003 RF-31 una sesion que no esta en curso se puede borrar`() {
+        val store = store()
+        store.record(10)
+        val id = store.latest()!!.id
+
+        store.delete(id) shouldBe true
+
+        store.sessions() shouldHaveSize 0
+    }
+
+    @Test
+    fun `S003 RF-31 la sesion en curso no se puede borrar`() {
+        val store = store()
+        val writer = store.start("RS3")!!
+        val id = store.latest()!!.id
+
+        store.activeSessionId() shouldBe id
+        store.delete(id) shouldBe false
+        store.sessions() shouldHaveSize 1
+
+        writer.close()
+        store.activeSessionId().shouldBeNull()
+    }
 }

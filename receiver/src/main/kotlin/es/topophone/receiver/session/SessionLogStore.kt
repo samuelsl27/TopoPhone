@@ -99,6 +99,18 @@ class SessionLogStore(
 
     @Volatile private var activeWriter: Writer? = null
 
+    /** Sesión que se está grabando, si la hay (S003/RF-31). */
+    fun activeSessionId(): String? = activeWriter?.folder?.name
+
+    /** Borra una sesión; la que se está grabando no se puede borrar (S003/RF-31). */
+    @Synchronized
+    fun delete(id: String): Boolean {
+        if (id == activeSessionId()) return false
+        val folder = File(directory, id)
+        if (folder.parentFile != directory || !folder.isDirectory) return false
+        return folder.deleteRecursively()
+    }
+
     /** Aplica el límite de espacio en ese momento, p. ej. al cambiarlo en Ajustes (S003/RF-26). */
     fun applySpaceLimit() = prune(activeWriter)
 

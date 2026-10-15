@@ -145,4 +145,21 @@ class ShareSessionTest {
         compose.onNodeWithTag(SHARE_SESSION_TAG).performScrollTo().assertIsNotEnabled()
         compose.onNodeWithText(text(R.string.receiver_no_session)).performScrollTo()
     }
+
+    @Test
+    fun `S003 RF-30 una sesion con varias partes y correcciones se comparte entera`() {
+        val directory = File(context.filesDir, ReceiverModule.SESSIONS_DIR + "/20261015-101530").apply { mkdirs() }
+        val files = listOf("receiver-0001.nmea", "receiver-0002.nmea", "corrections-0001.rtcm3").map {
+            File(directory, it).apply { writeText(it) }
+        }
+        val uris = files.map { Uri.parse("content://${fileProviderAuthority(context)}/sessions/20261015-101530/${it.name}") }
+
+        val send = sendIntentOf(shareSessionFilesIntent(context, files, uris))
+
+        send.action shouldBe Intent.ACTION_SEND_MULTIPLE
+        IntentCompat.getParcelableArrayListExtra(send, Intent.EXTRA_STREAM, Uri::class.java) shouldBe ArrayList(uris)
+        val clip = send.clipData.shouldNotBeNull()
+        (0 until clip.itemCount).map { clip.getItemAt(it).uri } shouldBe uris
+        (send.flags and Intent.FLAG_GRANT_READ_URI_PERMISSION) shouldBe Intent.FLAG_GRANT_READ_URI_PERMISSION
+    }
 }

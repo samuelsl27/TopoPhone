@@ -50,6 +50,7 @@ class ReceiverActions(
     val onDisconnectNtrip: () -> Unit = {},
     val onPoleHeightChange: (String) -> Unit = {},
     val onShareSession: () -> Unit = {},
+    val onOpenSessions: () -> Unit = {},
 )
 
 const val PERMISSION_REQUEST_TAG = "bt_permission_request"
@@ -63,7 +64,12 @@ fun deviceTag(address: String) = "device_$address"
 
 /** Entrada de la sección Receptor: une el ViewModel con los permisos y las intenciones de Android. */
 @Composable
-fun ReceiverRoute(themeState: ThemeState, onToggleSun: () -> Unit, viewModel: ReceiverViewModel = hiltViewModel()) {
+fun ReceiverRoute(
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    onOpenSessions: () -> Unit = {},
+    viewModel: ReceiverViewModel = hiltViewModel(),
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { viewModel.refreshBluetooth() }
@@ -95,6 +101,7 @@ fun ReceiverRoute(themeState: ThemeState, onToggleSun: () -> Unit, viewModel: Re
             onDisconnectNtrip = viewModel::disconnectNtrip,
             onPoleHeightChange = viewModel::updatePoleHeight,
             onShareSession = { viewModel.latestSession()?.let { shareSession(context, it) } },
+            onOpenSessions = onOpenSessions,
         ),
     )
 }
@@ -111,7 +118,7 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
             StatusCard(state.snapshot)
             NtripCard(state, actions)
             CoordinatesCard(state, actions.onPoleHeightChange)
-            SessionCard(state.sessionAvailable, actions.onShareSession)
+            SessionCard(state.sessionAvailable, actions.onShareSession, actions.onOpenSessions)
         }
     }
 }

@@ -24,7 +24,7 @@
       Hecho cuando: `SessionLogStoreTest` en verde con los casos de límite.
 - [x] T11. `data` + `app`: preferencia `session_space_mb` y fila "Espacio para sesiones" en Ajustes, aplicada al momento. (RF-26)
       Hecho cuando: `ReceiverPreferencesTest` y `SessionSpaceSettingTest` en verde.
-- [ ] T12. `app`: pantalla Sesiones (lista con inicio, duración, tamaño y receptor; compartir las partes y las correcciones; borrar con confirmación salvo la sesión en curso), abierta desde la tarjeta Sesión. (RF-29, RF-30, RF-31)
+- [x] T12. `app`: pantalla Sesiones (lista con inicio, duración, tamaño y receptor; compartir las partes y las correcciones; borrar con confirmación salvo la sesión en curso), abierta desde la tarjeta Sesión. (RF-29, RF-30, RF-31)
       Hecho cuando: `SessionsScreenTest` en verde.
 - [ ] T13. `receiver` + `app`: importar un fichero NMEA (selector de documentos, validación por contenido, límite de 200 MB, marcado "Importada"). (RF-33, RF-34)
       Hecho cuando: `SessionImportTest` en verde.

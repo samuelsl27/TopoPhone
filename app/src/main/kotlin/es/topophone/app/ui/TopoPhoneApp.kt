@@ -28,6 +28,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import es.topophone.app.ui.receiver.ReceiverRoute as ReceiverSectionRoute
+import es.topophone.app.ui.sessions.SessionsSection
 import es.topophone.app.ui.settings.AboutScreen
 import es.topophone.app.ui.settings.LicensesScreen
 import es.topophone.app.ui.settings.SettingsScreen
@@ -45,7 +46,12 @@ fun TopoPhoneApp(
     uiState: AppUiState,
     actions: AppActions,
     navController: NavHostController = rememberNavController(),
-    receiverSection: @Composable (ThemeState, () -> Unit) -> Unit = { theme, toggleSun -> ReceiverSectionRoute(theme, toggleSun) },
+    receiverSection: @Composable (ThemeState, () -> Unit, onOpenSessions: () -> Unit) -> Unit = { theme, toggleSun, openSessions ->
+        ReceiverSectionRoute(theme, toggleSun, openSessions)
+    },
+    sessionsSection: @Composable (ThemeState, () -> Unit, onNavigateBack: () -> Unit) -> Unit = { theme, toggleSun, back ->
+        SessionsSection(theme, toggleSun, back)
+    },
     statusBar: @Composable (onOpenReceiver: () -> Unit) -> Unit = { onOpenReceiver -> StatusBarRoute(onOpenReceiver) },
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -81,7 +87,7 @@ fun TopoPhoneApp(
     ) { padding ->
         val openReceiver = { navController.navigateToTopLevel(TopLevelDestination.RECEIVER) } // S003/RF-23
         CompositionLocalProvider(LocalStatusBar provides { statusBar(openReceiver) }) {
-            AppNavHost(navController, uiState, actions, receiverSection, Modifier.padding(padding))
+            AppNavHost(navController, uiState, actions, receiverSection, sessionsSection, Modifier.padding(padding))
         }
     }
 }
@@ -91,7 +97,8 @@ private fun AppNavHost(
     navController: NavHostController,
     uiState: AppUiState,
     actions: AppActions,
-    receiverSection: @Composable (ThemeState, () -> Unit) -> Unit,
+    receiverSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
+    sessionsSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
     modifier: Modifier,
 ) {
     NavHost(navController = navController, startDestination = SurveyGraph, modifier = modifier) {
@@ -99,7 +106,12 @@ private fun AppNavHost(
             composable<SurveyRoute> { SurveyScreen(uiState.themeState, actions.onToggleSun) }
         }
         navigation<ReceiverGraph>(startDestination = ReceiverRoute) {
-            composable<ReceiverRoute> { receiverSection(uiState.themeState, actions.onToggleSun) }
+            composable<ReceiverRoute> {
+                receiverSection(uiState.themeState, actions.onToggleSun) { navController.navigate(SessionsRoute) }
+            }
+            composable<SessionsRoute> {
+                sessionsSection(uiState.themeState, actions.onToggleSun) { navController.popBackStack() } // S003/RF-29
+            }
         }
         navigation<SettingsGraph>(startDestination = SettingsRoute) {
             composable<SettingsRoute> {

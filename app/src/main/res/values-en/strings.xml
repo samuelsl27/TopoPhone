@@ -136,4 +136,16 @@
     <string name="settings_session_space">Space for sessions</string>
     <string name="settings_session_space_mb">%1$d MB</string>
     <string name="settings_session_space_gb">%1$d GB</string>
+    <string name="sessions_title">Sessions</string>
+    <string name="receiver_open_sessions">View sessions</string>
+    <string name="sessions_imported">Imported</string>
+    <string name="sessions_in_progress">In progress</string>
+    <string name="sessions_duration_hours">%1$d h %2$02d min</string>
+    <string name="sessions_duration_minutes">%1$d min %2$02d s</string>
+    <string name="sessions_duration_unknown">Unknown duration</string>
+    <string name="sessions_share">Share</string>
+    <string name="sessions_delete">Delete</string>
+    <string name="sessions_cancel">Cancel</string>
+    <string name="sessions_delete_confirm_title">Delete the session?</string>
+    <string name="sessions_delete_confirm_text">Its receiver data and corrections will be deleted.</string>
 </resources>

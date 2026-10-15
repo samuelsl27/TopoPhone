@@ -14,6 +14,9 @@ import androidx.test.core.app.ApplicationProvider
 import es.topophone.app.ui.receiver.ReceiverActions
 import es.topophone.app.ui.receiver.ReceiverScreen
 import es.topophone.app.ui.receiver.ReceiverUiState
+import es.topophone.app.ui.sessions.SessionsActions
+import es.topophone.app.ui.sessions.SessionsScreen
+import es.topophone.app.ui.sessions.SessionsUiState
 import es.topophone.app.ui.status.StatusBar
 import es.topophone.app.ui.status.StatusBarState
 import es.topophone.core.designsystem.theme.EffectiveThemeKey
@@ -61,7 +64,10 @@ fun StatefulTestApp(
                     onSelectSessionSpace(it)
                 },
             ),
-            receiverSection = { theme, toggleSun -> ReceiverScreen(theme, toggleSun, ReceiverUiState(), ReceiverActions()) },
+            receiverSection = { theme, toggleSun, openSessions ->
+                ReceiverScreen(theme, toggleSun, ReceiverUiState(), ReceiverActions(onOpenSessions = openSessions))
+            },
+            sessionsSection = { theme, toggleSun, back -> SessionsScreen(theme, toggleSun, SessionsUiState(), SessionsActions(), back) },
             statusBar = { onOpenReceiver -> StatusBar(StatusBarState(), onOpenReceiver) },
         )
     }
