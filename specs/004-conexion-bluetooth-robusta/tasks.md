@@ -24,7 +24,7 @@
       Hecho cuando: `ReceiverServiceTest` en verde con el wakelock.
 - [x] T11. `app`: permiso de notificaciones al conectar por primera vez (Android 13+) y aviso con "Activar" si se deniega. (RF-5, RF-6)
       Hecho cuando: `NotificationPermissionTest` en verde.
-- [ ] T12. `receiver`: `ReceiverPairing` (CompanionDeviceManager, emparejamiento con PIN por `createBond`, resultados y reserva sin companion_device_setup). (RF-1, RF-2, RF-4)
+- [x] T12. `receiver`: `ReceiverPairing` (CompanionDeviceManager, emparejamiento con PIN por `createBond`, resultados y reserva sin companion_device_setup). (RF-1, RF-2, RF-4)
       Hecho cuando: `ReceiverPairingTest` en verde.
 - [ ] T13. `app`: "Añadir receptor" en la tarjeta Conexión (buscar, emparejar, conectar, mensajes de cancelación y fallo). (RF-1, RF-2, RF-3, RF-4)
       Hecho cuando: `AddReceiverTest` en verde.

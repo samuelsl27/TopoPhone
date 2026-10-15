@@ -5,6 +5,10 @@
     <uses-permission
         android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
+    <!-- Android 11 o inferior: emparejar un receptor nuevo (S004/RF-2). -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
     <!-- Android 12+: conectar con dispositivos emparejados; no se escanea. -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <!-- Cliente NTRIP (S002/RF-19) y comprobación de la conexión a internet (S002/RF-23). -->
@@ -15,6 +19,10 @@
 
     <uses-feature
         android:name="android.hardware.bluetooth"
+        android:required="false" />
+    <!-- Buscar un receptor con el diálogo del sistema (S004/RF-1); sin ella, los ajustes de Bluetooth. -->
+    <uses-feature
+        android:name="android.software.companion_device_setup"
         android:required="false" />
 
 </manifest>
