@@ -30,7 +30,7 @@ fun interface NtripConnector {
  * Cliente NTRIP sobre un socket crudo (ADR-13): negocia con el caster, reenvía las correcciones
  * tal cual (S002/RF-19) y le envía la última GGA del receptor cada [ggaIntervalMs] (S002/RF-20).
  *
- * La [socketFactory] se inyecta para elegir la red (ADR-17, S019).
+ * La [socketFactory] se inyecta para elegir la red (ADR-17, S020).
  */
 class NtripClient(
     private val userAgent: String,

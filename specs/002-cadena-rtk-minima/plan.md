@@ -145,10 +145,10 @@ UTM 30 (λ = −3.7127572°) → E, N;  N_geoide (EGM08-REDNAP) ≈ 51.3 m  → 
 | Geodesia propia (Krüger de orden 6 y bilineal de PROJ) validada con pyproj 3.8 | ADR-2; tolerancia de 1 mm | proj4j (sin rejillas verticales) |
 | Rejilla como recurso Java de `core:geodesy`, en git normal y no en LFS (828 KB) | Se puede probar en la JVM y en el CI sin LFS; funciona sin red | Asset de Android (no se puede probar en `core`); LFS (el CI no lo descarga) |
 | Lector GeoTIFF propio limitado a lo que usan las rejillas de PROJ | Un solo formato (ADR-4); sin dependencias | GeoTools/GDAL (no válidos en Android) |
-| Socket crudo para NTRIP con `SocketFactory` inyectada | `ICY 200 OK`; selección de red en S019 (ADR-13, ADR-17) | OkHttp |
+| Socket crudo para NTRIP con `SocketFactory` inyectada | `ICY 200 OK`; selección de red en S020 (ADR-13, ADR-17) | OkHttp |
 | `ReceiverSession` en `receiver`, con `TimeSource` inyectado y transporte abstracto | Se prueba en la JVM con transporte y caster falsos | Lógica en el ViewModel (no se puede probar sin Android) |
 | Estado de la interfaz conflado (`sample(200 ms)`) | RNF-T13, GGA a 5 Hz | Recomponer con cada frase |
-| La contraseña solo en memoria | RF-27; el cifrado llega con S005 | Guardarla en claro |
+| La contraseña solo en memoria | RF-27; el cifrado llega con S007 | Guardarla en claro |
 | FileProvider con ruta `sessions/` | Compartir sin permisos de almacenamiento (RNF-T5) | `MANAGE_EXTERNAL_STORAGE` |
 
 ## Estrategia de tests

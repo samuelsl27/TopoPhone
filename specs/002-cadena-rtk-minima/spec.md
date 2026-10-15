@@ -60,7 +60,7 @@ Si cualquiera de estos eslabones falla, todo lo demás se construiría sobre are
 - RF-24: SI con la conexión NTRIP abierta no llegan correcciones durante 10 s o el caster corta la conexión, ENTONCES EL SISTEMA mostrará el aviso y ofrecerá reconectar.
 - RF-25: MIENTRAS la conexión NTRIP esté abierta, EL SISTEMA mostrará los bytes de corrección recibidos y los segundos desde la última corrección.
 - RF-26: EL SISTEMA recordará entre sesiones el servidor, el puerto, el punto de montaje y el usuario.
-- RF-27: EL SISTEMA no guardará la contraseña del caster en el dispositivo (se guardará cifrada a partir de S005).
+- RF-27: EL SISTEMA no guardará la contraseña del caster en el dispositivo (se guardará cifrada a partir de S007).
 - RF-28: SI el usuario pulsa "Conectar NTRIP" sin el receptor conectado, ENTONCES EL SISTEMA no se conectará al caster e indicará que antes hay que conectar el receptor.
 
 ### Coordenadas del punto del suelo (H4)
@@ -122,13 +122,13 @@ Si cualquiera de estos eslabones falla, todo lo demás se construiría sobre are
 
 ## Fuera de alcance
 - La conexión en segundo plano, la reconexión automática y el servicio en primer plano → S004.
-- Los perfiles NTRIP, el sourcetable, la contraseña cifrada y NTRIP sobre TLS → S005.
+- Los perfiles NTRIP, el sourcetable, la contraseña cifrada y NTRIP sobre TLS → S007.
 - Las frases GSA, GSV, RMC, ZDA, EBP y ETC, y el simulador por reproducción → S003.
-- La compensación de inclinación (ETC) → S014. Aquí el jalón se supone vertical.
-- La conexión por Wi-Fi/TCP → S019.
-- Canarias (REGCAN95, UTM 27/28, geoide de Canarias), el huso forzado, el factor de escala y la convergencia → S006.
-- Proyectos, guardar puntos, el mapa y el skyplot → S007, S009, S008 y S013.
-- Elegir otro sistema de coordenadas o datum → S006 y S030–S033.
+- La compensación de inclinación (ETC) → S015. Aquí el jalón se supone vertical.
+- La conexión por Wi-Fi/TCP → S020.
+- Canarias (REGCAN95, UTM 27/28, geoide de Canarias), el huso forzado, el factor de escala y la convergencia → S008.
+- Proyectos, guardar puntos, el mapa y el skyplot → S006, S010, S009 y S014.
+- Elegir otro sistema de coordenadas o datum → S008 y S031–S034.
 
 ## Criterios de finalización
 - Cada RF tiene un test automático en verde que lo cita y `rf_report` no da huérfanos.
@@ -141,5 +141,5 @@ Si cualquiera de estos eslabones falla, todo lo demás se construiría sobre are
 Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te vale, se cambia la spec antes de implementar esa parte.
 - [SUPOSICIÓN: el desplazamiento de la base del RS3 a su centro de referencia es de 0,134 m, según la especificación ETC_rev_3 de Emlid. Se confirma en G0 comparando con Emlid Flow sobre el mismo punto.]
 - [SUPOSICIÓN: se envía la GGA al caster cada 5 s siempre, aunque el punto de montaje no la necesite; los casters de estación única la ignoran.]
-- [SUPOSICIÓN: la contraseña NTRIP se escribe en cada sesión hasta S005, que la guardará cifrada.]
-- [SUPOSICIÓN: las coordenadas se tratan como ETRS89 (redes NTRIP españolas). El datum por proyecto llega en S007.]
+- [SUPOSICIÓN: la contraseña NTRIP se escribe en cada sesión hasta S007, que la guardará cifrada.]
+- [SUPOSICIÓN: las coordenadas se tratan como ETRS89 (redes NTRIP españolas). El datum por proyecto llega en S006.]

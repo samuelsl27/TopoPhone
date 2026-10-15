@@ -146,7 +146,7 @@ Ejemplo de estado: `{ theme_mode: "SUN", theme_before_sun: "DARK" }`. Al alterna
 |---|---|---|
 | Convenciones en `build-logic` (build incluido) | 40 specs añadirán módulos; una sola fuente de configuración | `subprojects {}` en el build raíz (frágil y sin caché) |
 | Kotlin integrado de AGP 9 en los módulos Android; `org.jetbrains.kotlin.jvm` en los `core` | Lo recomendado en AGP 9 | Aplicar `kotlin-android` (obsoleto en AGP 9) |
-| Navigation Compose con rutas tipadas | Patrón estándar de varias pilas; lo necesitarán las specs con pantallas anidadas | Estado propio con `rememberSaveable` (habría que rehacerlo en S007); Navigation 3 (menos ejemplos del patrón de barra inferior) |
+| Navigation Compose con rutas tipadas | Patrón estándar de varias pilas; lo necesitarán las specs con pantallas anidadas | Estado propio con `rememberSaveable` (habría que rehacerlo en S006); Navigation 3 (menos ejemplos del patrón de barra inferior) |
 | `MainActivity : AppCompatActivity` y `AppCompatDelegate.setApplicationLocales` | Idioma por app también en API 26–32 (RF-18) | API nativa de `LocaleManager` (solo API 33+) |
 | Tema y tema previo en DataStore; idioma en AppCompat | Cada dato tiene una única fuente | Guardar también el idioma en DataStore (dos fuentes que pueden divergir) |
 | DataStore con `OkioStorage` (`FileSystem.SYSTEM`) y `ReplaceFileCorruptionHandler` | El `FileStorage` por defecto sustituye el fichero con `renameTo`, que falla en la JVM de Windows si el destino existe (tests locales); Okio usa `Files.move` atómico en todas las plataformas. Un fichero corrupto vuelve a los valores por defecto (RF-15) | `FileStorage` por defecto; `createWithPath` (en Android/JVM también acaba en `FileStorage`) |

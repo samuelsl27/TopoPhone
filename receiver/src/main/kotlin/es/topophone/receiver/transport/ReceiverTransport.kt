@@ -15,7 +15,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.util.UUID
 
-/** Enlace de bytes con el receptor (Bluetooth SPP en S002; TCP en S019; reproducción en S003). */
+/** Enlace de bytes con el receptor (Bluetooth SPP en S002; TCP en S020; reproducción en S003). */
 interface ReceiverTransport : Closeable {
     val description: String
 

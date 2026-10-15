@@ -56,7 +56,7 @@ Esta spec hace que la conexión con el receptor aguante el uso real de una jorna
 - RF-20: SI tras 30 min de reintentos no se ha reconectado, ENTONCES EL SISTEMA dejará de intentarlo, mostrará "Conexión perdida" y ofrecerá reconectar.
 - RF-21: CUANDO el usuario pulse "Desconectar" mientras se reconecta, EL SISTEMA dejará de reintentar.
 - RF-22: SI el Bluetooth del móvil se apaga mientras se reconecta, ENTONCES EL SISTEMA lo indicará y seguirá reintentando cuando se vuelva a encender, dentro de los 30 min.
-- RF-23: MIENTRAS se reconecta, la barra de estado mostrará "Reconectando" en lugar de la solución.
+- RF-23: MIENTRAS se reconecta, el indicador de estado mostrará "Reconectando" en lugar de la solución.
 
 ### Último receptor y conexión automática (H4)
 - RF-24: EL SISTEMA recordará el último receptor con el que se conectó.
@@ -96,10 +96,10 @@ Esta spec hace que la conexión con el receptor aguante el uso real de una jorna
 | Receptor conectado sin salida de posición por Bluetooth | RF-28 |
 
 ## Fuera de alcance
-- La pantalla siempre encendida en el recolector y en el replanteo → S009 y S016.
-- Los perfiles NTRIP, la contraseña cifrada y la alarma por edad de las correcciones → S005.
-- El aviso con sonido por la pérdida de FIX → S009.
-- La conexión por Wi-Fi o TCP → S019.
+- La pantalla siempre encendida en el recolector y en el replanteo → S010 y S017.
+- Los perfiles NTRIP, la contraseña cifrada y la alarma por edad de las correcciones → S007.
+- El aviso con sonido por la pérdida de FIX → S010.
+- La conexión por Wi-Fi o TCP → S020.
 - Conectar con el receptor cuando aparece cerca sin abrir la app → no previsto.
 - Varios receptores conectados a la vez → no previsto.
 
@@ -122,4 +122,4 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 ## Cambios en documentos anteriores (aplicados al aprobar esta spec)
 - `docs/hoja-de-ruta.md`:
   - S004: sin "pantalla siempre encendida"; con la conexión automática al abrir y la ayuda para los fabricantes (RNF-T2).
-  - S009 y S016: añaden "pantalla siempre encendida" (RNF-T2).
+  - S010 y S017: añaden "pantalla siempre encendida" (RNF-T2).

@@ -35,7 +35,7 @@ object PoleHeight {
 /** Motivos por los que una parte del resultado no está disponible (S002/RF-37, S002/RF-39). */
 enum class Unavailable { NO_HEIGHT, OUTSIDE_UTM_ZONES, OUTSIDE_GEOID }
 
-/** Sistema de referencia de las coordenadas (S002/RF-41). El datum por proyecto llega en S007. */
+/** Sistema de referencia de las coordenadas (S002/RF-41). El datum por proyecto llega en S006. */
 enum class CoordinateReference { CORRECTIONS_ASSUMED_ETRS89, }
 
 /** Punto del suelo bajo la punta del jalón. */
@@ -85,7 +85,7 @@ class GroundPointCalculator(
     }
 
     companion object {
-        /** Husos de la Península y Baleares en esta versión; Canarias llega en S006 (S002/RF-37). */
+        /** Husos de la Península y Baleares en esta versión; Canarias llega en S008 (S002/RF-37). */
         val SUPPORTED_UTM_ZONES = 29..31
     }
 }

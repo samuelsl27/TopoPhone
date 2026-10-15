@@ -49,7 +49,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Sesión grabada | `RecordedSession` | Carpeta con los datos del receptor y las correcciones |
 | Espacio para sesiones | `sessionSpaceMb` | Límite de las sesiones grabadas |
 | Reproducción (simulador) | `Replay` | `ReplayTransport`, `ReplayPacer` |
-| Barra de estado | `StatusBar` | |
+| Indicador de estado | `StatusIndicator` | En el extremo derecho de la barra superior (S005); antes, franja de S003 |
+| Lista de receptores | `ReceiverList` | Receptor sin conexión (S005) |
+| Pantalla del receptor | `ReceiverDashboard` | Receptor conectado o reproducción: cabecera y menú (S005) |
+| Cabecera (de la pantalla del receptor) | `ReceiverHeader` | |
 | Correcciones | `Corrections` | RTCM3 |
 | Perfil NTRIP | `NtripProfile` | |
 | Punto de montaje | `Mountpoint` | |

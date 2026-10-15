@@ -67,7 +67,7 @@ class NavigationTest {
     fun `S001 RF-4 las secciones sin funciones muestran su nombre y lo que contendran`() {
         compose.setContent { StatefulTestApp() }
 
-        // Desde la spec 002, Receptor ya tiene funciones; Levantamiento sigue vacío hasta S007.
+        // Desde la spec 002, Receptor ya tiene funciones; Levantamiento sigue vacío hasta S006.
         compose.onNodeWithText(text(R.string.survey_empty_description)).assertIsDisplayed()
         compose.navItem(TopLevelDestination.RECEIVER).performClick()
         compose.onNodeWithTag(CONNECTION_STATUS_TAG).assertIsDisplayed()

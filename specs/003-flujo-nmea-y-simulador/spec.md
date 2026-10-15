@@ -4,9 +4,9 @@
 
 ## Contexto y objetivo
 La S002 solo entiende GGA y GST, y trata cada frase por separado. Las funciones siguientes necesitan más datos:
-- el estado detallado (S013): satélites, DOP y base;
-- la inclinación (S014): la frase ETC emparejada con su GGA;
-- el replanteo (S016): la velocidad y el rumbo;
+- el estado detallado (S014): satélites, DOP y base;
+- la inclinación (S015): la frase ETC emparejada con su GGA;
+- el replanteo (S017): la velocidad y el rumbo;
 - la fecha de las medidas (RNF-T10): ZDA o RMC.
 
 Además, la app debe saber en todo momento si lo que muestra es actual, y el usuario debe ver el estado de la solución en cualquier pantalla, no solo en Receptor.
@@ -43,18 +43,18 @@ Por último, hoy solo se puede probar TopoPhone con el receptor delante. Un simu
 - RF-11: EL SISTEMA asignará a cada época la fecha UTC que dan las frases RMC o ZDA, y la dejará sin fecha mientras no haya llegado ninguna.
 - RF-12: SI pasan más de 2 s sin que se complete ninguna época, ENTONCES EL SISTEMA mostrará el estado "Sin datos" (RNF-T3).
 - RF-13: MIENTRAS el estado sea "Sin datos", EL SISTEMA no mostrará la solución ni las coordenadas de la última época.
-- RF-14: CUANDO se complete una época, EL SISTEMA mostrará en la tarjeta Estado su fecha y su hora en la hora local del móvil, o "fecha no disponible" si la época no tiene fecha (RNF-T10).
-- RF-15: CUANDO se complete una época con frases GSV, EL SISTEMA mostrará en la tarjeta Estado el número de satélites en vista junto al de satélites usados.
+- RF-14: CUANDO se complete una época, EL SISTEMA mostrará en la pantalla Estado su fecha y su hora en la hora local del móvil, o "fecha no disponible" si la época no tiene fecha (RNF-T10).
+- RF-15: CUANDO se complete una época con frases GSV, EL SISTEMA mostrará en la pantalla Estado el número de satélites en vista junto al de satélites usados.
 
-### Barra de estado (H2)
-- RF-16: EL SISTEMA mostrará una barra de estado en las secciones Levantamiento, Receptor y Ajustes.
-- RF-17: MIENTRAS no haya ningún receptor conectado ni ninguna reproducción en curso, la barra de estado mostrará "Sin receptor".
-- RF-18: MIENTRAS se completen épocas, la barra de estado mostrará el estado de la solución con su color y su nombre, el número de satélites usados y, si la época la trae, la edad de las correcciones en segundos.
-- RF-19: MIENTRAS el estado sea "Sin datos", la barra de estado mostrará "Sin datos" en lugar de la solución.
-- RF-20: MIENTRAS se grabe una sesión, la barra de estado mostrará el indicador "Grabando".
-- RF-21: MIENTRAS haya una reproducción en curso, la barra de estado mostrará "Simulación" con un color propio y su texto.
-- RF-22: MIENTRAS lleguen frases ETC, la barra de estado mostrará el estado de la inclinación: Apagada, Error, Configuración, Alineación o Compensando.
-- RF-23: CUANDO el usuario pulse la barra de estado, EL SISTEMA abrirá la sección Receptor.
+### Indicador de estado (H2)
+- RF-16: EL SISTEMA mostrará el indicador de estado en el extremo derecho de la barra superior de las secciones Levantamiento, Receptor y Ajustes.
+- RF-17: MIENTRAS no haya ningún receptor conectado ni ninguna reproducción en curso, el indicador de estado mostrará "Sin receptor".
+- RF-18: MIENTRAS se completen épocas, el indicador de estado mostrará el estado de la solución con su color y su nombre y el número de satélites usados.
+- RF-19: MIENTRAS el estado sea "Sin datos", el indicador de estado mostrará "Sin datos" en lugar de la solución.
+- RF-20: MIENTRAS se grabe una sesión, la cabecera de la pantalla del receptor mostrará el indicador "Grabando".
+- RF-21: MIENTRAS haya una reproducción en curso, el indicador de estado mostrará "Simulación" con un color propio y su texto.
+- RF-22: MIENTRAS lleguen frases ETC, la cabecera de la pantalla del receptor mostrará el estado de la inclinación: Apagada, Error, Configuración, Alineación o Compensando.
+- RF-23: CUANDO el usuario pulse el indicador de estado, EL SISTEMA abrirá la sección Receptor.
 
 ### Grabación y lista de sesiones (H4)
 - RF-24: MIENTRAS el receptor esté conectado, EL SISTEMA guardará en la sesión, además de los datos recibidos del receptor (S002/RF-42), las correcciones enviadas al receptor tal como se envían.
@@ -70,7 +70,7 @@ Por último, hoy solo se puede probar TopoPhone con el receptor delante. Un simu
 - RF-32: CUANDO el usuario elija reproducir una sesión de la lista, EL SISTEMA usará sus datos del receptor como si llegaran de un receptor conectado.
 - RF-33: CUANDO el usuario importe un fichero NMEA de texto, EL SISTEMA lo añadirá a la lista de sesiones como "Importada", listo para reproducirlo (RNF-T5).
 - RF-34: SI el fichero importado no contiene ninguna frase NMEA válida con hora o supera los 200 MB, ENTONCES EL SISTEMA no lo importará e indicará el motivo.
-- RF-35: MIENTRAS haya una reproducción en curso, EL SISTEMA mostrará en la tarjeta Conexión "Reproduciendo" con el nombre de la sesión y la velocidad.
+- RF-35: MIENTRAS haya una reproducción en curso, EL SISTEMA mostrará en la cabecera de la pantalla del receptor "Reproduciendo" con el nombre de la sesión y la velocidad.
 - RF-36: MIENTRAS haya una reproducción en curso, EL SISTEMA entregará las épocas con los intervalos de hora UTC que tienen en el fichero, divididos por la velocidad elegida (×1 o ×5).
 - RF-37: CUANDO el usuario cambie la velocidad durante una reproducción, EL SISTEMA la aplicará desde la época siguiente.
 - RF-38: SI entre dos épocas del fichero hay más de 10 s, ENTONCES EL SISTEMA reproducirá ese hueco como si fuera de 10 s.
@@ -89,7 +89,7 @@ Por último, hoy solo se puede probar TopoPhone con el receptor delante. Un simu
   - RNF-T7: idioma.
   - RNF-T8: modo sol, 56 dp, color y texto, TalkBack en la barra de estado.
   - RNF-T10: fecha y hora del receptor.
-  - RNF-T12: grabación de sesiones. El log de la app y el informe de sistema van en la S012.
+  - RNF-T12: grabación de sesiones. El log de la app y el informe de sistema van en la S013.
   - RNF-T13: la barra de estado se refresca a 5 Hz como máximo.
 - **Latencia**: desde que llega una GGA hasta que se ven sus coordenadas, sigue siendo < 300 ms (S002), también con las épocas.
 - **Ritmo de la reproducción**: a ×1, la duración de la reproducción difiere de la de la sesión en menos de un 1 % (sin contar los huecos de más de 10 s).
@@ -117,13 +117,13 @@ Por último, hoy solo se puede probar TopoPhone con el receptor delante. Un simu
 | NTRIP durante la reproducción | RF-44 |
 
 ## Fuera de alcance
-- Las tramas RTCM3 (CRC24Q) y los contadores de mensajes RTCM → S005.
-- El log de la app y el informe de sistema (RNF-T12) → S012.
-- El skyplot, la SNR, los DOP, la posición de la base y la línea base en pantalla → S013.
-- Los avisos de la inclinación y la punta del jalón calculada con ETC → S014.
-- La velocidad y el rumbo en pantalla → S016.
+- Las tramas RTCM3 (CRC24Q) y los contadores de mensajes RTCM → S007.
+- El log de la app y el informe de sistema (RNF-T12) → S013.
+- El skyplot, la SNR, los DOP, la posición de la base y la línea base en pantalla → S014.
+- Los avisos de la inclinación y la punta del jalón calculada con ETC → S015.
+- La velocidad y el rumbo en pantalla → S017.
 - La reconexión automática y el servicio en primer plano → S004.
-- El receptor virtual con escenarios guionizados y el GNSS del móvil → S020.
+- El receptor virtual con escenarios guionizados y el GNSS del móvil → S021.
 - Reproducir ficheros binarios (UBX, RINEX, RTCM) → no previsto.
 - Pausar, avanzar o retroceder dentro de una reproducción → no previsto.
 - Enviar al caster la GGA de una reproducción → no previsto.
@@ -143,8 +143,8 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 
 ## Cambios en documentos anteriores (aplicados al aprobar esta spec)
 - `specs/002-cadena-rtk-minima/spec.md`, RF-44: pasa de "conservará como máximo las 10 últimas sesiones" a "conservará las sesiones más recientes y borrará las más antiguas cuando se supere el límite de espacio de grabación (S003/RF-25)".
-- `specs/001-esqueleto-app/spec.md`, fuera de alcance: el log de la app y el informe de sistema pasan de → S003 a → S012.
+- `specs/001-esqueleto-app/spec.md`, fuera de alcance: el log de la app y el informe de sistema pasan de → S003 a → S013.
 - `docs/hoja-de-ruta.md`:
   - S003: sin las tramas RTCM3; con la importación de ficheros NMEA y el límite de espacio de las sesiones.
-  - S005: añade las tramas RTCM3 (CRC24Q).
-  - S012: añade el log de la app y el informe de sistema.
+  - S007: añade las tramas RTCM3 (CRC24Q).
+  - S013: añade el log de la app y el informe de sistema.

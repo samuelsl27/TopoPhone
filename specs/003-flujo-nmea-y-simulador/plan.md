@@ -166,9 +166,9 @@ Textos de error:
 | Una época se cierra con un cambio de hora o con 150 ms de silencio | El orden y el número de frases dependen de la configuración del receptor; el silencio entre ráfagas a 5 Hz es de unos 190 ms | Fijar la última frase de cada época |
 | El simulador es un `ReceiverTransport` más | El resto de la app no distingue la reproducción salvo por `simulated` (una sola fuente de verdad, ADR-11) | Un flujo paralelo para la reproducción |
 | El ritmo se calcula acumulado desde un ancla | Sin deriva: a ×1 la duración difiere < 1 % | Dormir el intervalo de cada época |
-| Una carpeta por sesión, con partes de 16 MB y metadatos `.properties` | Cumplir RF-27 sin reescribir ficheros y compartir por partes; Room llega en S007 | Un único fichero por sesión; una tabla de Room |
+| Una carpeta por sesión, con partes de 16 MB y metadatos `.properties` | Cumplir RF-27 sin reescribir ficheros y compartir por partes; Room llega en S006 | Un único fichero por sesión; una tabla de Room |
 | Espacio para sesiones elegido entre 5 valores | Sin errores de escritura en campo | Campo numérico libre |
-| Compartir con `ACTION_SEND_MULTIPLE` (las partes y las correcciones) | FileProvider ya configurado (S002) | Comprimir en ZIP (S012) |
+| Compartir con `ACTION_SEND_MULTIPLE` (las partes y las correcciones) | FileProvider ya configurado (S002) | Comprimir en ZIP (S013) |
 | La barra de estado va dentro de `SectionScaffold` mediante una ranura | Aparece en todas las secciones sin repetir código | Repetirla en cada pantalla |
 | Importar validando el contenido con `NmeaFramer` | RNF-T5 | Fiarse de la extensión o del tipo MIME |
 | Ángulos nuevos en radianes | AGENTS.md (unidades SI) | Grados, como las latitudes de `GgaFix` |

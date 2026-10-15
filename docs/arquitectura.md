@@ -16,7 +16,7 @@ core/designsystem         Android: tema, modo sol, barra de estado, diana, boton
 core/testing              fakes, cargador de fixtures, caster NTRIP falso, reloj virtual para replay
 data/                     Room, DataStore, ficheros por proyecto, copias de seguridad, repositorios
 receiver/                 transportes (BT SPP, TCP, GNSS del móvil, replay, virtual), ReceiverSession, servicio en primer plano
-receiver-experimental/    solo en el flavor "experimental": REST + Socket.IO de Reach (S042)
+receiver-experimental/    solo en el flavor "experimental": REST + Socket.IO de Reach (S043)
 ```
 
 **Reglas de dependencia** (las comprueba `./gradlew checkModuleRules`, incluida en `check`; S001/RF-27):
