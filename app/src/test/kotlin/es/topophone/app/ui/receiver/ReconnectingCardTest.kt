@@ -51,7 +51,8 @@ class ReconnectingCardTest {
     fun `S004 RF-13 al perder el enlace se indica que se esta reconectando`() {
         show(reconnecting())
 
-        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_state_reconnecting, "reach-RS3")))
+        compose.onNodeWithTag(HEADER_NAME_TAG).assert(hasText("reach-RS3"))
+        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_header_reconnecting)))
     }
 
     @Test

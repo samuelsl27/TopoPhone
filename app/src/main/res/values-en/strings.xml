@@ -29,7 +29,6 @@
     <string name="about_repository">Source code</string>
     <string name="about_disclaimer">TopoPhone is an independent project and is not affiliated with Emlid Tech Kft. “Emlid”, “Reach” and “Emlid Flow” are trademarks of their respective owners.</string>
 
-    <string name="receiver_connection_title">Receiver connection</string>
     <string name="receiver_state_disconnected">Not connected</string>
     <string name="receiver_state_connecting">Connecting to %1$s…</string>
     <string name="receiver_state_receiving">Receiving data from %1$s</string>
@@ -152,7 +151,6 @@
     <string name="sessions_import_too_large">The file exceeds 200 MB.</string>
     <string name="ntrip_unavailable_in_replay">Replay does not accept corrections.</string>
     <string name="receiver_replay_finished">Replay finished: %1$s</string>
-    <string name="receiver_replaying">Replaying %1$s</string>
     <string name="replay_speed_x1">×1</string>
     <string name="replay_speed_x5">×5</string>
     <string name="replay_loop">Loop</string>
@@ -206,4 +204,9 @@
     <string name="receiver_paired_title">Paired receivers</string>
     <string name="receiver_last_used">Last used</string>
     <string name="receiver_menu_sessions">Recorded sessions</string>
+    <string name="receiver_header_connecting">Connecting…</string>
+    <string name="receiver_header_receiving">Receiving data</string>
+    <string name="receiver_header_no_data">Connected, but no NMEA data is arriving</string>
+    <string name="receiver_header_reconnecting">Reconnecting…</string>
+    <string name="receiver_header_replaying">Replaying</string>
 </resources>

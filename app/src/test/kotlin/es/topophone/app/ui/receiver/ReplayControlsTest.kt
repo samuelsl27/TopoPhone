@@ -30,7 +30,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Controles de la reproducción en la tarjeta Conexión (S003/RF-35, RF-37, RF-40, RF-41, RF-43). Interfaz en español (es-ES). */
+/** Controles de la reproducción en la cabecera de la pantalla del receptor (S003/RF-35, RF-37, RF-40, RF-41, RF-43). Interfaz en español (es-ES). */
 @RunWith(AndroidJUnit4::class)
 class ReplayControlsTest {
 
@@ -55,7 +55,8 @@ class ReplayControlsTest {
     fun `S003 RF-35 durante la reproduccion se indica Reproduciendo con la sesion y la velocidad`() {
         show(replaying())
 
-        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_replaying, replay.name)))
+        compose.onNodeWithTag(HEADER_NAME_TAG).assert(hasText(replay.name))
+        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_header_replaying)))
         compose.onNodeWithTag(REPLAY_SPEED_X1_TAG).performScrollTo().assertIsSelected()
         compose.onNodeWithTag(REPLAY_LOOP_TAG).performScrollTo().assertIsOff()
     }

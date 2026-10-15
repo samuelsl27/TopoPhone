@@ -41,7 +41,6 @@
     <string name="about_disclaimer">TopoPhone es un proyecto independiente y no está afiliado a Emlid Tech Kft. «Emlid», «Reach» y «Emlid Flow» son marcas de sus respectivos propietarios.</string>
 
     <!-- Receptor: conexión (S002/RF-1 a RF-10) -->
-    <string name="receiver_connection_title">Conexión con el receptor</string>
     <string name="receiver_state_disconnected">Sin conectar</string>
     <string name="receiver_state_connecting">Conectando con %1$s…</string>
     <string name="receiver_state_receiving">Recibiendo datos de %1$s</string>
@@ -164,7 +163,6 @@
     <string name="sessions_import_too_large">El fichero supera los 200 MB.</string>
     <string name="ntrip_unavailable_in_replay">La reproducción no admite correcciones.</string>
     <string name="receiver_replay_finished">Reproducción terminada: %1$s</string>
-    <string name="receiver_replaying">Reproduciendo %1$s</string>
     <string name="replay_speed_x1">×1</string>
     <string name="replay_speed_x5">×5</string>
     <string name="replay_loop">Bucle</string>
@@ -218,4 +216,9 @@
     <string name="receiver_paired_title">Receptores emparejados</string>
     <string name="receiver_last_used">Último usado</string>
     <string name="receiver_menu_sessions">Sesiones grabadas</string>
+    <string name="receiver_header_connecting">Conectando…</string>
+    <string name="receiver_header_receiving">Recibiendo datos</string>
+    <string name="receiver_header_no_data">Conectado, pero no llegan datos NMEA</string>
+    <string name="receiver_header_reconnecting">Reconectando…</string>
+    <string name="receiver_header_replaying">Reproduciendo</string>
 </resources>

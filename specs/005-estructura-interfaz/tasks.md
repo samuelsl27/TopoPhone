@@ -8,7 +8,7 @@
       Hecho cuando: `ReceiverHomeModeTest` en verde para todos los estados, con y sin reproducción.
 - [x] T3. `app`: lista de receptores: emparejados, último usado marcado, "Añadir receptor", acceso a las sesiones grabadas, fallo o pérdida encima. (RF-2, RF-3, RF-4)
       Hecho cuando: `ReceiverListTest` en verde y adaptados `ReceiverConnectionCardTest`, `AddReceiverTest` y la parte de fallos de `ConnectionDiagnosisTest`.
-- [ ] T4. `app`: cabecera de la pantalla del receptor: nombre, estado, acciones, avisos, "Grabando", inclinación y "Reproduciendo". (RF-6, RF-7, RF-8; S003/RF-20, RF-22, RF-35)
+- [x] T4. `app`: cabecera de la pantalla del receptor: nombre, estado, acciones, avisos, "Grabando", inclinación y "Reproduciendo". (RF-6, RF-7, RF-8; S003/RF-20, RF-22, RF-35)
       Hecho cuando: `ReceiverHeaderTest` en verde y adaptados `ReconnectingCardTest`, `ReplayControlsTest`, `NotificationPermissionTest` y el aviso de NMEA de `ConnectionDiagnosisTest`.
 - [ ] T5. `app`: menú de la pantalla del receptor con sus cuatro entradas y resúmenes. (RF-9 a RF-13)
       Hecho cuando: `ReceiverMenuTest` en verde.

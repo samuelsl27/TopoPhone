@@ -95,13 +95,15 @@ class ReceiverConnectionCardTest {
     @Test
     fun `S002 RF-5 S002 RF-6 los estados Conectando y Recibiendo se muestran con el receptor`() {
         show(connected(ConnectionState.Connecting("reach-RS3")))
-        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_state_connecting, "reach-RS3")))
+        compose.onNodeWithTag(HEADER_NAME_TAG).assert(hasText("reach-RS3"))
+        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_header_connecting)))
     }
 
     @Test
     fun `S002 RF-6 recibiendo datos`() {
         show(connected(ConnectionState.Receiving("reach-RS3")))
-        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_state_receiving, "reach-RS3")))
+        compose.onNodeWithTag(HEADER_NAME_TAG).assert(hasText("reach-RS3"))
+        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_header_receiving)))
     }
 
     @Test
@@ -116,7 +118,7 @@ class ReceiverConnectionCardTest {
     @Test
     fun `S002 RF-8 sin datos NMEA se indica`() {
         show(connected(ConnectionState.NoData("reach-RS3")))
-        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_state_no_data, "reach-RS3")))
+        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assert(hasText(text(R.string.receiver_header_no_data)))
     }
 
     @Test

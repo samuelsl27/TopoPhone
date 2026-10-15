@@ -236,7 +236,7 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
         ) {
             when (receiverHomeMode(state.snapshot)) {
                 ReceiverHomeMode.LIST -> ReceiverList(state, actions)
-                ReceiverHomeMode.DASHBOARD -> ConnectionCard(state, actions)
+                ReceiverHomeMode.DASHBOARD -> ReceiverHeader(state, actions)
             }
             // Hasta que tengan su pantalla (S005 T7, T8), las demás tarjetas siguen debajo.
             StatusCard(state.snapshot)
@@ -278,57 +278,9 @@ internal fun ReceiverCard(title: String, content: @Composable () -> Unit) {
     }
 }
 
-@Composable
-private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
-    ReceiverCard(stringResource(R.string.receiver_connection_title)) {
-        val connection = state.snapshot.connection
-        val replay = state.snapshot.replay
-        val active =
-            connection is ConnectionState.Connecting || connection is ConnectionState.Receiving || connection is ConnectionState.NoData
-        if (replay != null && active) {
-            Text(
-                stringResource(R.string.receiver_replaying, replay.name),
-                modifier = Modifier.testTag(CONNECTION_STATUS_TAG),
-                style = MaterialTheme.typography.bodyLarge,
-            ) // S003/RF-35
-            ConnectionIndicators(state)
-            ReplayControls(replay, actions)
-            BluetoothDevicesSection(state, actions) // S003/RF-43: conectar un receptor termina la reproducción
-            return@ReceiverCard
-        }
-        Text(connectionText(connection), modifier = Modifier.testTag(CONNECTION_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
-        ConnectionIndicators(state)
-        if (state.snapshot.nmeaMissing) {
-            Text(
-                stringResource(R.string.receiver_nmea_missing),
-                modifier = Modifier.testTag(NMEA_MISSING_TAG),
-                color = MaterialTheme.colorScheme.error,
-            )
-        } // S004/RF-28
-        if (state.notificationsDenied) {
-            Text(stringResource(R.string.receiver_notifications_denied))
-            OutlinedButton(
-                onClick = actions.onEnableNotifications,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ENABLE_NOTIFICATIONS_TAG),
-            ) { Text(stringResource(R.string.receiver_notifications_enable)) }
-        } // S004/RF-6
-        if (state.snapshot.recordingStoppedLowSpace) {
-            Text(stringResource(R.string.receiver_recording_stopped_low_space), color = MaterialTheme.colorScheme.error)
-        } // S003/RF-28
-        when (connection) {
-            is ConnectionState.Connecting, is ConnectionState.Receiving, is ConnectionState.NoData -> OutlinedButton(
-                onClick = actions.onDisconnect,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(DISCONNECT_TAG),
-            ) { Text(stringResource(R.string.receiver_disconnect)) }
-            is ConnectionState.Reconnecting -> ReconnectingDetails(connection, state.nowMs, actions)
-            else -> Unit
-        }
-    }
-}
-
 /** Intento, cuenta atrás, Bluetooth apagado, "Reintentar ahora" y "Desconectar" (S004/RF-15, RF-16, RF-21, RF-22). */
 @Composable
-private fun ReconnectingDetails(state: ConnectionState.Reconnecting, nowMs: Long, actions: ReceiverActions) {
+internal fun ReconnectingDetails(state: ConnectionState.Reconnecting, nowMs: Long, actions: ReceiverActions) {
     val next = state.nextAttemptAtMs
     val detail = if (next == null) {
         stringResource(R.string.receiver_reconnect_trying, state.attempt)
@@ -352,7 +304,7 @@ private const val MS_PER_S = 1_000L
 
 /** "Grabando" e inclinación, que antes iban en la franja de estado (S003/RF-20, RF-22). */
 @Composable
-private fun ConnectionIndicators(state: ReceiverUiState) {
+internal fun ConnectionIndicators(state: ReceiverUiState) {
     val tilt = state.snapshot.epoch?.tilt?.state
     if (!state.snapshot.recording && tilt == null) return
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -383,7 +335,7 @@ internal fun tiltNameRes(state: TiltState): Int = when (state) {
 
 /** Velocidad, bucle y Detener de la reproducción en curso (S003/RF-37, S003/RF-39, S003/RF-41). */
 @Composable
-private fun ReplayControls(replay: ReplayInfo, actions: ReceiverActions) {
+internal fun ReplayControls(replay: ReplayInfo, actions: ReceiverActions) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         SingleChoiceSegmentedButtonRow {
             ReplaySpeed.entries.forEachIndexed { index, speed ->
