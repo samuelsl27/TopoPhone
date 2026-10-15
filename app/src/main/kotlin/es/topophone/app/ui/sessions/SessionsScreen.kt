@@ -98,7 +98,7 @@ fun SessionsSection(
             onShare = { id -> viewModel.filesOf(id).takeIf { it.isNotEmpty() }?.let { shareSession(context, it) } },
             onDelete = viewModel::delete,
             onImport = { importLauncher.launch(arrayOf("*/*")) },
-            onPlay = { id -> if (viewModel.play(id)) onNavigateBack() }, // se ve en la tarjeta Conexión de Receptor
+            onPlay = { id -> if (viewModel.play(id)) onNavigateBack() }, // se ve en la cabecera de la pantalla del receptor
         ),
         onNavigateBack = onNavigateBack,
     )

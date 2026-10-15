@@ -100,7 +100,6 @@ class FullRs3ReplayTest {
             calculator = { GroundPointCalculator() },
             network = { true },
             alerts = {},
-            sessionFiles = { null },
             clock = ReceiverModule.monotonicClock(),
             samplePeriodMs = ReceiverModule.uiSamplePeriodMs(),
             replay = replay,

@@ -7,8 +7,6 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import es.topophone.receiver.session.SessionLogStore
-import java.io.File
 
 /** ¿Tiene el móvil conexión a internet? (S002/RF-23). */
 fun interface NetworkStatus {
@@ -43,10 +41,3 @@ class VibrationAlerts(private val context: Context) : Alerts {
         val LOST_PATTERN_MS = longArrayOf(0, 300, 150, 300)
     }
 }
-
-/** Ficheros de la última sesión, para compartirlos (S002/RF-43): los del receptor y las correcciones. */
-fun interface SessionFiles {
-    fun latest(): List<File>?
-}
-
-fun SessionLogStore.asSessionFiles() = SessionFiles { latest()?.dataFiles?.takeIf { it.isNotEmpty() } }

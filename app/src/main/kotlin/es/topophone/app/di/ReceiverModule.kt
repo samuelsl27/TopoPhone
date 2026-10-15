@@ -19,9 +19,7 @@ import es.topophone.data.receiver.SessionSpace
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.platform.AndroidNetworkStatus
 import es.topophone.receiver.platform.NetworkStatus
-import es.topophone.receiver.platform.SessionFiles
 import es.topophone.receiver.platform.VibrationAlerts
-import es.topophone.receiver.platform.asSessionFiles
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.session.SessionLogStore
@@ -64,9 +62,6 @@ object ReceiverModule {
         }
         return store
     }
-
-    @Provides
-    fun sessionFiles(store: SessionLogStore): SessionFiles = store.asSessionFiles()
 
     @Provides
     @IoDispatcher

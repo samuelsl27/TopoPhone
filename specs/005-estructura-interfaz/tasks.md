@@ -18,7 +18,7 @@
       Hecho cuando: adaptados `StatusCardTest` y `CoordinatesCardTest`, y el caso de RF-16 en `ReceiverNavigationTest`.
 - [x] T8. `app`: contenido de las pantallas Correcciones y Sesiones grabadas (desde la lista y desde el menú). (RF-19)
       Hecho cuando: adaptados `NtripCardTest` y `ShareSessionTest`, y `RelocationTest` en verde para todas las filas de la tabla.
-- [ ] T9. `app`: quitar la página larga y las piezas que ya no se usan; adaptar `EndToEndReplayTest`, `FullRs3ReplayTest`, `NavigationTest`, `RotationTest` y `OpenReceiverFromNotificationTest`. (RF-19)
+- [x] T9. `app`: quitar la página larga y las piezas que ya no se usan; adaptar `EndToEndReplayTest`, `FullRs3ReplayTest`, `NavigationTest`, `RotationTest` y `OpenReceiverFromNotificationTest`. (RF-19)
       Hecho cuando: `./gradlew check` en verde sin tests de S002–S004 borrados.
 - [ ] T10. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador con una reproducción y demo con el RS3 real según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y las demos funcionan.

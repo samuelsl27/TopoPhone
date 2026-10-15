@@ -19,7 +19,6 @@ import es.topophone.data.receiver.NtripPreferences
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.platform.NetworkStatus
-import es.topophone.receiver.platform.SessionFiles
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
 import es.topophone.receiver.session.ReceiverSession
@@ -29,7 +28,6 @@ import es.topophone.receiver.transport.BluetoothDevices
 import es.topophone.receiver.transport.BondedDevice
 import es.topophone.receiver.transport.PairingResult
 import es.topophone.receiver.transport.ReceiverPairing
-import java.io.File
 import java.math.BigDecimal
 import java.text.DecimalFormatSymbols
 import javax.inject.Inject
@@ -100,7 +98,6 @@ data class ReceiverUiState(
     val poleHeightText: String = "",
     val poleHeightValid: Boolean = true,
     val groundPoint: GroundPoint? = null,
-    val sessionAvailable: Boolean = false,
     val nowMs: Long = 0,
     /** Pedir el permiso de notificaciones, con su explicación (S004/RF-5). */
     val askNotifications: Boolean = false,
@@ -124,7 +121,6 @@ class ReceiverViewModel @Inject constructor(
     private val calculator: Lazy<GroundPointCalculator>,
     private val network: NetworkStatus,
     private val alerts: Alerts,
-    private val sessionFiles: SessionFiles,
     @param:Named(MONOTONIC_CLOCK) private val clock: () -> Long,
     @param:Named(UI_SAMPLE_MS) private val samplePeriodMs: Long,
     private val replay: ReplayController,
@@ -158,7 +154,6 @@ class ReceiverViewModel @Inject constructor(
     private data class PoleState(val text: String, val value: Double)
     private data class Extras(
         val nowMs: Long,
-        val sessionAvailable: Boolean,
         val addresses: Pair<String?, String?>,
         val notificationsGranted: Boolean,
         val notificationsAsked: Boolean,
@@ -171,14 +166,12 @@ class ReceiverViewModel @Inject constructor(
         combine(form, formInvalid, internet, ::FormState),
         combine(poleText, poleValue, ::PoleState),
         combine(
-            ticker.map {
-                it to (sessionFiles.latest() != null)
-            },
+            ticker,
             combine(lastAddress, preferences.lastReceiver.map { it?.address }) { last, saved -> last to saved },
             notificationsGranted,
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
             pairingUi,
-        ) { (now, available), addresses, granted, asked, pairing -> Extras(now, available, addresses, granted, asked, pairing) },
+        ) { now, addresses, granted, asked, pairing -> Extras(now, addresses, granted, asked, pairing) },
     ) { snapshot, bt, formState, pole, extras ->
         // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
         val realReceiver = ReceiverService.needsService(snapshot)
@@ -194,7 +187,6 @@ class ReceiverViewModel @Inject constructor(
             poleHeightText = pole.text,
             poleHeightValid = PoleHeight.parse(pole.text) != null,
             groundPoint = snapshot.gga?.let { calculator.get().compute(it, pole.value) },
-            sessionAvailable = extras.sessionAvailable,
             nowMs = extras.nowMs,
             askNotifications = missingPermission &&
                 !extras.notificationsAsked &&
@@ -333,8 +325,6 @@ class ReceiverViewModel @Inject constructor(
             viewModelScope.launch { preferences.savePoleHeight(value) } // S002/RF-30
         }
     }
-
-    fun latestSession(): List<File>? = sessionFiles.latest()
 
     private fun readBluetooth(): BluetoothUi = when {
         !bluetooth.isSupported -> BluetoothUi.Unsupported

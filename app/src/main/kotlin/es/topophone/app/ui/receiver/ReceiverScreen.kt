@@ -77,7 +77,6 @@ class ReceiverActions(
     val onConnectNtrip: () -> Unit = {},
     val onDisconnectNtrip: () -> Unit = {},
     val onPoleHeightChange: (String) -> Unit = {},
-    val onShareSession: () -> Unit = {},
     val onOpenSessions: () -> Unit = {},
     val onReplaySpeed: (ReplaySpeed) -> Unit = {},
     val onReplayLoop: (Boolean) -> Unit = {},
@@ -187,7 +186,6 @@ fun ReceiverRoute(
             onConnectNtrip = viewModel::connectNtrip,
             onDisconnectNtrip = viewModel::disconnectNtrip,
             onPoleHeightChange = viewModel::updatePoleHeight,
-            onShareSession = { viewModel.latestSession()?.let { shareSession(context, it) } },
             onOpenSessions = navigation.onOpenSessions,
             onOpenStatus = { navigation.onOpen(ReceiverPage.STATUS) }, // S005/RF-14
             onOpenCoordinates = { navigation.onOpen(ReceiverPage.COORDINATES) },
@@ -220,7 +218,7 @@ fun ReceiverRoute(
 /** Ajustes de Bluetooth del móvil: la vía de S002 para emparejar, sin búsqueda del sistema (S004/RF-1). */
 internal fun bluetoothSettingsIntent(): Intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
 
-/** Pantalla Receptor sin estado propio (S002). */
+/** Raíz de Receptor sin estado propio: la lista de receptores o la pantalla del receptor (S005/RF-1, RF-5). */
 @Composable
 fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: ReceiverUiState, actions: ReceiverActions) {
     val scrollState = rememberScrollState()
