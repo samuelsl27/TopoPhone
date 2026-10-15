@@ -1,5 +1,7 @@
 package es.topophone.receiver.session
 
+import es.topophone.core.gnss.nmea.Epoch
+import es.topophone.core.gnss.nmea.EpochAssembler
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GgaParser
 import es.topophone.core.gnss.nmea.GstAccuracy
@@ -59,12 +61,16 @@ sealed interface NtripState {
     data object ReceiverNotConnected : NtripState
 }
 
-/** Lo que la interfaz necesita saber de la sesión en cada momento. */
+/**
+ * Lo que la interfaz necesita saber de la sesión en cada momento. La GGA y la GST se publican al
+ * llegar (latencia de S002); [epoch] es la última época completa (S003/RF-8).
+ */
 data class ReceiverSnapshot(
     val connection: ConnectionState = ConnectionState.Disconnected,
     val gga: GgaFix? = null,
     val gst: GstAccuracy? = null,
     val ntrip: NtripState = NtripState.Idle,
+    val epoch: Epoch? = null,
 )
 
 /** Registro de los datos brutos recibidos del receptor (S002/RF-42). */
@@ -91,9 +97,9 @@ class ReceiverSession(
     private val ntripConnector: NtripConnector,
     private val recorder: SessionRecorder = SessionRecorder.NONE,
     private val connectTimeoutMs: Long = 10_000,
-    private val noDataTimeoutMs: Long = 3_000,
+    private val noDataTimeoutMs: Long = NO_DATA_TIMEOUT_MS,
     private val accuracyStaleMs: Long = 3_000,
-    private val watchdogPeriodMs: Long = 250,
+    private val watchdogPeriodMs: Long = TICK_MS,
     private val clock: () -> Long = { System.nanoTime() / 1_000_000 },
 ) {
     private val mutableState = MutableStateFlow(ReceiverSnapshot())
@@ -105,7 +111,11 @@ class ReceiverSession(
     private var transport: ReceiverTransport? = null
     private var writes: Channel<ByteArray>? = null
 
-    @Volatile private var lastValidAtMs = 0L
+    @Volatile private var lastEpochAtMs = 0L
+
+    /** Lo usan el lector y el vigilante: siempre bajo [assemblerLock]. */
+    private val assemblerLock = Any()
+    private var assembler = EpochAssembler()
 
     @Volatile private var lastGstAtMs = 0L
 
@@ -124,7 +134,8 @@ class ReceiverSession(
                 mutableState.update { it.copy(connection = ConnectionState.Failed(failure)) } // S002/RF-7
                 return@launch
             }
-            lastValidAtMs = clock()
+            synchronized(assemblerLock) { assembler = EpochAssembler() }
+            lastEpochAtMs = clock()
             coroutineScope {
                 launch(Dispatchers.IO) { drainWrites(newTransport, channel) }
                 launch { watchdog(description) }
@@ -224,30 +235,51 @@ class ReceiverSession(
 
     private fun onSentence(sentence: NmeaSentence, description: String) {
         val now = clock()
-        lastValidAtMs = now
         val gga = if (sentence.type == "GGA") GgaParser.parse(sentence) else null
         val gst = if (sentence.type == "GST") GstParser.parse(sentence) else null
         if (gst != null) lastGstAtMs = now
         mutableState.update { current ->
-            val connection = when (current.connection) {
-                is ConnectionState.Connecting, is ConnectionState.NoData, is ConnectionState.Receiving -> ConnectionState.Receiving(
+            // S002/RF-6: la primera frase válida da "Recibiendo"; de "Sin datos" se sale con una época (S003/RF-12).
+            val connection = if (current.connection is ConnectionState.Connecting) {
+                ConnectionState.Receiving(
                     description,
                 )
-                else -> current.connection
+            } else {
+                current.connection
             }
-            current.copy(connection = connection, gga = gga ?: current.gga, gst = gst ?: current.gst) // S002/RF-6
+            current.copy(connection = connection, gga = gga ?: current.gga, gst = gst ?: current.gst)
+        }
+        synchronized(assemblerLock) { assembler.feed(sentence, now) }?.let { onEpoch(it, description) }
+    }
+
+    /** Época completa (S003/RF-8): se publica y, si estaba en "Sin datos", se vuelve a "Recibiendo". */
+    private fun onEpoch(epoch: Epoch, description: String) {
+        lastEpochAtMs = epoch.completedAtMs
+        mutableState.update { current ->
+            val connection = if (current.connection is ConnectionState.NoData) {
+                ConnectionState.Receiving(
+                    description,
+                )
+            } else {
+                current.connection
+            }
+            current.copy(connection = connection, epoch = epoch)
         }
     }
 
-    /** Sin frases válidas durante el plazo → Sin datos (S002/RF-8); GST antigua → sin precisión (S002/RF-17). */
+    /**
+     * Completa la época tras el silencio (S003/RF-9); sin época durante el plazo → Sin datos
+     * (S002/RF-8, S003/RF-12); GST antigua → sin precisión (S002/RF-17).
+     */
     private suspend fun watchdog(description: String) {
         while (currentCoroutineContext().isActive) {
             delay(watchdogPeriodMs)
             val now = clock()
+            synchronized(assemblerLock) { assembler.tick(now) }?.let { onEpoch(it, description) }
             mutableState.update { current ->
                 var next = current
                 val waiting = current.connection is ConnectionState.Receiving || current.connection is ConnectionState.Connecting
-                if (waiting && now - lastValidAtMs > noDataTimeoutMs) next = next.copy(connection = ConnectionState.NoData(description))
+                if (waiting && now - lastEpochAtMs > noDataTimeoutMs) next = next.copy(connection = ConnectionState.NoData(description))
                 if (current.gst != null && now - lastGstAtMs > accuracyStaleMs) next = next.copy(gst = null)
                 next
             }
@@ -267,7 +299,12 @@ class ReceiverSession(
         }
     }
 
-    private companion object {
-        const val READ_BUFFER = 4096
+    companion object {
+        /** RNF-T3: más de 2 s sin época → "Sin datos" (S003/RF-12). */
+        const val NO_DATA_TIMEOUT_MS = 2_000L
+
+        /** Periodo del vigilante: resolución con la que se detectan los 150 ms de silencio (S003/RF-9). */
+        const val TICK_MS = 25L
+        private const val READ_BUFFER = 4096
     }
 }
