@@ -23,6 +23,7 @@ class SurveyNavigation(
     /** Tras guardar un proyecto nuevo se abre en lugar del formulario (S006/RF-12). */
     val onProjectSaved: (String) -> Unit = {},
     val onEditProject: (String) -> Unit = {},
+    val onOpenTrash: () -> Unit = {},
     val onBack: () -> Unit = {},
 )
 
@@ -51,6 +52,8 @@ fun SurveyPageScreen(
                 onNewProject = { navigation.onNewProject(null) },
                 onOpenProject = navigation.onOpenProject,
                 onOpenFolder = navigation.onOpenFolder,
+                onEdit = navigation.onEditProject,
+                onOpenTrash = navigation.onOpenTrash,
             ),
         )
         is SurveyPage.Form -> ProjectFormScreen(themeState, onToggleSun, state.form, ProjectFormActions(onBack = navigation.onBack))

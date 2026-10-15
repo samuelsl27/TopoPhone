@@ -253,4 +253,14 @@
     <string name="datum_etrs89">ETRS89</string>
     <string name="datum_regcan95">REGCAN95 (Canarias)</string>
     <string name="datum_itrf_wgs84">ITRF/WGS84</string>
+    <string name="project_menu">Más opciones de %1$s</string>
+    <string name="projects_menu">Más opciones</string>
+    <string name="project_duplicate">Duplicar</string>
+    <string name="project_move">Mover a carpeta</string>
+    <string name="project_move_title">Mover «%1$s» a…</string>
+    <string name="project_no_folder">Fuera de las carpetas</string>
+    <string name="project_copy_label">copia</string>
+    <string name="folder_new">Nueva carpeta</string>
+    <string name="trash_title">Papelera</string>
+    <string name="dialog_cancel">Cancelar</string>
 </resources>

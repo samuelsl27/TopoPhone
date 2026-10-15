@@ -6,20 +6,29 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -56,15 +65,24 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 const val PROJECT_LIST_TAG = "project_list"
 const val NEW_PROJECT_TAG = "new_project"
 const val EMPTY_NEW_PROJECT_TAG = "empty_new_project"
 const val PROJECT_SEARCH_TAG = "project_search"
+const val LIST_MENU_TAG = "project_list_menu"
 
 fun projectTag(id: String) = "project_$id"
 
 fun folderTag(id: String) = "folder_$id"
+
+fun projectMenuTag(id: String) = "project_menu_$id"
+
+/** Destino de "Mover a carpeta"; [ROOT_TARGET] es fuera de las carpetas. */
+fun moveTargetTag(folderId: String?) = "move_target_${folderId ?: ROOT_TARGET}"
+
+private const val ROOT_TARGET = "root"
 
 /** Lo que muestra la lista de proyectos (S006/RF-1 a RF-4); [results] solo mientras se busca. */
 data class ProjectListUiState(
@@ -80,12 +98,17 @@ class ProjectListActions(
     val onOpenProject: (String) -> Unit = {},
     val onOpenFolder: (String) -> Unit = {},
     val onQueryChange: (String) -> Unit = {},
+    val onEdit: (String) -> Unit = {},
+    val onDuplicate: (String) -> Unit = {},
+    val onMove: (projectId: String, folderId: String?) -> Unit = { _, _ -> },
+    val onNewFolder: () -> Unit = {},
+    val onOpenTrash: () -> Unit = {},
 )
 
 /** Carpetas y proyectos que no están en ninguna (S006/RF-1) y la búsqueda en todas (S006/RF-4). */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ProjectListViewModel @Inject constructor(repository: ProjectRepository) : ViewModel() {
+class ProjectListViewModel @Inject constructor(private val repository: ProjectRepository) : ViewModel() {
     private val query = MutableStateFlow("")
 
     private val results: Flow<List<ProjectSearchResult>?> = query.flatMapLatest { text ->
@@ -105,6 +128,15 @@ class ProjectListViewModel @Inject constructor(repository: ProjectRepository) : 
         query.value = text
     }
 
+    /** [copyLabel] es la palabra de la interfaz para la copia (S006/RF-16). */
+    fun duplicate(id: String, copyLabel: String) {
+        viewModelScope.launch { repository.duplicate(id, copyLabel) }
+    }
+
+    fun moveToFolder(id: String, folderId: String?) {
+        viewModelScope.launch { repository.moveToFolder(id, folderId) } // S006/RF-19
+    }
+
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
     }
@@ -119,6 +151,7 @@ fun ProjectListRoute(
     viewModel: ProjectListViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val copyLabel = stringResource(R.string.project_copy_label)
     ProjectListScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
@@ -128,6 +161,10 @@ fun ProjectListRoute(
             onOpenProject = navigation.onOpenProject,
             onOpenFolder = navigation.onOpenFolder,
             onQueryChange = viewModel::search,
+            onEdit = navigation.onEditProject,
+            onDuplicate = { viewModel.duplicate(it, copyLabel) },
+            onMove = viewModel::moveToFolder,
+            onOpenTrash = navigation.onOpenTrash,
         ),
     )
 }
@@ -139,6 +176,7 @@ fun ProjectListScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
         title = stringResource(R.string.nav_survey),
         themeState = themeState,
         onToggleSun = onToggleSun,
+        actions = { ListMenu(actions) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = actions.onNewProject,
@@ -167,7 +205,7 @@ fun ProjectListScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
                     Text(stringResource(R.string.projects_search_empty, state.query))
                 } else {
                     val folders = results.associate { it.project.id to it.folder?.name }
-                    ProjectRows(results.map { it.project }, actions.onOpenProject) { folders[it.id] }
+                    ProjectRows(results.map { it.project }, state.folders, actions) { folders[it.id] }
                 }
                 return@Column
             }
@@ -179,7 +217,7 @@ fun ProjectListScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
                     }
                 }
             }
-            if (state.projects.isNotEmpty()) ProjectRows(state.projects, actions.onOpenProject)
+            if (state.projects.isNotEmpty()) ProjectRows(state.projects, state.folders, actions)
         }
     }
 }
@@ -195,18 +233,110 @@ private fun EmptyProjects(onNewProject: () -> Unit) {
 }
 
 @Composable
-internal fun ProjectRows(projects: List<Project>, onOpenProject: (String) -> Unit, folderOf: (Project) -> String? = { null }) {
+internal fun ProjectRows(
+    projects: List<Project>,
+    folders: List<ProjectFolder>,
+    actions: ProjectListActions,
+    folderOf: (Project) -> String? = { null },
+) {
+    var moving by remember { mutableStateOf<Project?>(null) }
     Card(modifier = Modifier.fillMaxWidth()) {
         projects.forEachIndexed { index, project ->
             if (index > 0) HorizontalDivider()
-            ProjectRow(project, folderOf(project)) { onOpenProject(project.id) }
+            ProjectRow(project, folderOf(project), onClick = { actions.onOpenProject(project.id) }) {
+                ProjectMenu(project, actions, onMove = { moving = project })
+            }
+        }
+    }
+    moving?.let { project ->
+        MoveToFolderDialog(project, folders, onDismiss = { moving = null }) { folderId ->
+            actions.onMove(project.id, folderId)
+            moving = null
         }
     }
 }
 
+/** Menú "⋮" de cada proyecto: editar, duplicar y mover a carpeta (S006/RF-14, RF-16, RF-19). */
+@Composable
+private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: () -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(projectMenuTag(project.id))) {
+        Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.project_menu, project.name))
+    }
+    DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+        MenuItem(R.string.project_edit) {
+            open = false
+            actions.onEdit(project.id)
+        }
+        MenuItem(R.string.project_duplicate) {
+            open = false
+            actions.onDuplicate(project.id)
+        }
+        MenuItem(R.string.project_move) {
+            open = false
+            onMove()
+        }
+    }
+}
+
+/** Menú "⋮" de la lista: nueva carpeta y papelera (S006/RF-17, RF-23). */
+@Composable
+private fun ListMenu(actions: ProjectListActions) {
+    var open by remember { mutableStateOf(false) }
+    IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(LIST_MENU_TAG)) {
+        Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.projects_menu))
+    }
+    DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+        MenuItem(R.string.folder_new) {
+            open = false
+            actions.onNewFolder()
+        }
+        MenuItem(R.string.trash_title) {
+            open = false
+            actions.onOpenTrash()
+        }
+    }
+}
+
+@Composable
+private fun MenuItem(text: Int, onClick: () -> Unit) {
+    DropdownMenuItem(text = { Text(stringResource(text)) }, onClick = onClick, modifier = Modifier.heightIn(min = MinTouchTarget))
+}
+
+/** S006/RF-19: a una carpeta o fuera de todas. */
+@Composable
+private fun MoveToFolderDialog(project: Project, folders: List<ProjectFolder>, onDismiss: () -> Unit, onMove: (String?) -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.project_move_title, project.name)) },
+        text = {
+            Column {
+                MoveTarget(stringResource(R.string.project_no_folder), moveTargetTag(null)) { onMove(null) }
+                folders.forEach { folder -> MoveTarget(folder.name, moveTargetTag(folder.id)) { onMove(folder.id) } }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+        },
+    )
+}
+
+@Composable
+private fun MoveTarget(label: String, tag: String, onClick: () -> Unit) {
+    Text(
+        label,
+        modifier = Modifier.fillMaxWidth().heightIn(
+            min = MinTouchTarget,
+        ).clickable(onClick = onClick).padding(vertical = 16.dp).testTag(tag),
+    )
+}
+
 /** S006/RF-2: nombre, SC y última modificación (y, al buscar, su carpeta). */
 @Composable
-private fun ProjectRow(project: Project, folder: String?, onClick: () -> Unit) {
+private fun ProjectRow(project: Project, folder: String?, onClick: () -> Unit, menu: @Composable () -> Unit) {
     val modified = stringResource(R.string.project_modified, formatDateTime(project.modifiedAtMs, uiLocale()))
     ListItem(
         headlineContent = { Text(project.name) },
@@ -217,6 +347,7 @@ private fun ProjectRow(project: Project, folder: String?, onClick: () -> Unit) {
                 folder?.let { Text(stringResource(R.string.project_in_folder, it), style = MaterialTheme.typography.bodySmall) }
             }
         },
+        trailingContent = menu,
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
         modifier = Modifier.heightIn(min = MinTouchTarget).clickable(onClick = onClick).testTag(projectTag(project.id)),
     )

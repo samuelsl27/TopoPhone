@@ -26,7 +26,7 @@
       Hecho cuando: `ProjectFormTest` en verde para crear.
 - [x] T12. `app`: editar un proyecto y cambiar su SC. (RF-14, RF-15)
       Hecho cuando: `ProjectFormTest` en verde para editar.
-- [ ] T13. `app`: menú de cada proyecto (duplicar, mover a carpeta) y menú "⋮" de la barra. (RF-16, RF-19)
+- [x] T13. `app`: menú de cada proyecto (duplicar, mover a carpeta) y menú "⋮" de la barra. (RF-16, RF-19)
       Hecho cuando: `ProjectMenuTest` en verde.
 - [ ] T14. `app`: carpetas (crear, renombrar, abrir, borrar). (RF-17, RF-18, RF-20, RF-21)
       Hecho cuando: `ProjectFolderTest` en verde.
