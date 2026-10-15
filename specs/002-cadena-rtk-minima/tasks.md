@@ -12,7 +12,7 @@
       Hecho cuando: los CSV generados son reproducibles y la rejilla está versionada con su SHA-256 comprobado.
 - [x] T5. `core:geodesy`: `Ellipsoid`, `TransverseMercator` (Krüger, orden 6) y `Utm` (husos 29–31). (RF-36, RF-37)
       Hecho cuando: `UtmTest` coincide con pyproj a ≤ 1 mm en todos los vectores.
-- [ ] T6. `core:geodesy`: `GeoTiffGrid` (DEFLATE, predictor 3, teselas o tiras) y `GeoidModel` bilineal. (RF-38, RF-39)
+- [x] T6. `core:geodesy`: `GeoTiffGrid` (DEFLATE, predictor 3, teselas o tiras) y `GeoidModel` bilineal. (RF-38, RF-39)
       Hecho cuando: `GeoidModelTest` coincide con pyproj a ≤ 1 mm y fuera de la rejilla da "no disponible".
 - [ ] T7. `core:model`: `AngleFormat` (DMS y DD) y `LengthFormat`. (RF-34, RF-35, RF-36, RF-38)
       Hecho cuando: `AngleFormatTest` en verde (es/en, hemisferios, redondeo de 59,999995″).
