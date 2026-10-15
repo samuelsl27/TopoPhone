@@ -132,7 +132,7 @@
     <string name="receiver_satellites_in_view">%1$d usados de %2$d en vista</string>
     <string name="status_bar_no_receiver">Sin receptor</string>
     <string name="status_bar_no_data">Sin datos</string>
-    <string name="status_bar_satellites">%1$d sat.</string>
+    <string name="status_bar_satellites">%1$d sat</string>
     <string name="status_bar_correction_age">Correcciones: %1$s s</string>
     <string name="status_bar_recording">Grabando</string>
     <string name="status_bar_simulation">Simulación</string>

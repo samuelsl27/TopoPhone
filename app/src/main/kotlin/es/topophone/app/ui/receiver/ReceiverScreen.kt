@@ -10,14 +10,18 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -42,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -50,7 +55,10 @@ import es.topophone.app.R
 import es.topophone.app.receiver.notificationSettingsIntent
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.designsystem.theme.LocalStatusPalette
+import es.topophone.core.designsystem.theme.StatusTone
 import es.topophone.core.gnss.nmea.ReplaySpeed
+import es.topophone.core.gnss.nmea.TiltState
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.receiver.session.ConnectFailure
 import es.topophone.receiver.session.ConnectionState
@@ -96,6 +104,8 @@ const val REPLAY_AGAIN_TAG = "replay_again"
 const val RECONNECT_DETAIL_TAG = "reconnect_detail"
 const val RETRY_NOW_TAG = "retry_now"
 const val NMEA_MISSING_TAG = "nmea_missing"
+const val RECORDING_TAG = "receiver_recording"
+const val TILT_TAG = "receiver_tilt"
 const val ENABLE_NOTIFICATIONS_TAG = "enable_notifications"
 const val ADD_RECEIVER_TAG = "add_receiver"
 
@@ -253,11 +263,13 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
                 modifier = Modifier.testTag(CONNECTION_STATUS_TAG),
                 style = MaterialTheme.typography.bodyLarge,
             ) // S003/RF-35
+            ConnectionIndicators(state)
             ReplayControls(replay, actions)
             BluetoothDevicesSection(state, actions) // S003/RF-43: conectar un receptor termina la reproducción
             return@ReceiverCard
         }
         Text(connectionText(connection), modifier = Modifier.testTag(CONNECTION_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
+        ConnectionIndicators(state)
         if (connection is ConnectionState.Failed) {
             // S004/RF-27: un rechazo inmediato tiene una causa más probable que las demás.
             val causes = if (connection.failure ==
@@ -331,6 +343,37 @@ private fun ReconnectingDetails(state: ConnectionState.Reconnecting, nowMs: Long
 }
 
 private const val MS_PER_S = 1_000L
+
+/** "Grabando" e inclinación, que antes iban en la franja de estado (S003/RF-20, RF-22). */
+@Composable
+private fun ConnectionIndicators(state: ReceiverUiState) {
+    val tilt = state.snapshot.epoch?.tilt?.state
+    if (!state.snapshot.recording && tilt == null) return
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        if (state.snapshot.recording) {
+            Row(
+                modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(RECORDING_TAG),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Box(Modifier.size(10.dp).background(LocalStatusPalette.current.colorsFor(StatusTone.NEGATIVE).container, CircleShape))
+                Text(stringResource(R.string.status_bar_recording))
+            }
+        } // S003/RF-20
+        tilt?.let {
+            Text(stringResource(R.string.status_bar_tilt, stringResource(tiltNameRes(it))), modifier = Modifier.testTag(TILT_TAG))
+        } // S003/RF-22
+    }
+}
+
+/** Nombre del estado de la inclinación de ETC (S003/RF-22). */
+internal fun tiltNameRes(state: TiltState): Int = when (state) {
+    TiltState.OFF -> R.string.tilt_off
+    TiltState.FATAL -> R.string.tilt_fatal
+    TiltState.SETUP -> R.string.tilt_setup
+    TiltState.ALIGNMENT -> R.string.tilt_alignment
+    TiltState.COMPENSATING -> R.string.tilt_compensating
+}
 
 /** Velocidad, bucle y Detener de la reproducción en curso (S003/RF-37, S003/RF-39, S003/RF-41). */
 @Composable

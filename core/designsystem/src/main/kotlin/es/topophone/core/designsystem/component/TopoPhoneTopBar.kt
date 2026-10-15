@@ -25,6 +25,8 @@ const val NAVIGATE_BACK_TAG = "navigate_back"
  * Barra superior de las pantallas, siempre con el acceso rápido al modo sol (S001/RF-11).
  *
  * @param onNavigateBack si no es nulo, muestra la flecha para volver.
+ * @param statusIndicator si no es nulo, se pinta a la derecha, delante del modo sol. Las acciones se
+ *   miden antes que el título, así que es el título el que se acorta si no cabe todo.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +36,7 @@ fun TopoPhoneTopBar(
     onToggleSunMode: () -> Unit,
     modifier: Modifier = Modifier,
     onNavigateBack: (() -> Unit)? = null,
+    statusIndicator: (@Composable () -> Unit)? = null,
 ) {
     TopAppBar(
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -46,6 +49,7 @@ fun TopoPhoneTopBar(
             }
         },
         actions = {
+            statusIndicator?.invoke()
             IconButton(onClick = onToggleSunMode, modifier = Modifier.size(MinTouchTarget).testTag(SUN_TOGGLE_TAG)) {
                 Icon(
                     painterResource(R.drawable.ds_ic_sun),

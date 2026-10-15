@@ -34,7 +34,7 @@ import es.topophone.app.ui.settings.AboutScreen
 import es.topophone.app.ui.settings.BackgroundHelpScreen
 import es.topophone.app.ui.settings.LicensesScreen
 import es.topophone.app.ui.settings.SettingsScreen
-import es.topophone.app.ui.status.StatusBarRoute
+import es.topophone.app.ui.status.StatusIndicatorRoute
 import es.topophone.app.ui.survey.SurveyScreen
 import es.topophone.core.model.preferences.ThemeState
 
@@ -54,7 +54,7 @@ fun TopoPhoneApp(
     sessionsSection: @Composable (ThemeState, () -> Unit, onNavigateBack: () -> Unit) -> Unit = { theme, toggleSun, back ->
         SessionsSection(theme, toggleSun, back)
     },
-    statusBar: @Composable (onOpenReceiver: () -> Unit) -> Unit = { onOpenReceiver -> StatusBarRoute(onOpenReceiver) },
+    statusIndicator: @Composable (onOpenReceiver: () -> Unit) -> Unit = { onOpenReceiver -> StatusIndicatorRoute(onOpenReceiver) },
     openReceiverRequest: Int = 0,
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
@@ -94,7 +94,7 @@ fun TopoPhoneApp(
         },
     ) { padding ->
         val openReceiver = { navController.navigateToTopLevel(TopLevelDestination.RECEIVER) } // S003/RF-23
-        CompositionLocalProvider(LocalStatusBar provides { statusBar(openReceiver) }) {
+        CompositionLocalProvider(LocalStatusIndicator provides { statusIndicator(openReceiver) }) {
             AppNavHost(navController, uiState, actions, receiverSection, sessionsSection, Modifier.padding(padding))
         }
     }

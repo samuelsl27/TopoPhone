@@ -17,9 +17,13 @@ import es.topophone.core.designsystem.theme.StatusTone
 val StatusToneKey = SemanticsPropertyKey<StatusTone>("StatusTone")
 private var SemanticsPropertyReceiver.statusTone by StatusToneKey
 
-/** Estado con color **y** texto (RNF-T8). */
+/**
+ * Estado con color **y** texto (RNF-T8).
+ *
+ * @param compact versión pequeña para la barra superior (S005).
+ */
 @Composable
-fun StatusChip(text: String, tone: StatusTone, modifier: Modifier = Modifier) {
+fun StatusChip(text: String, tone: StatusTone, modifier: Modifier = Modifier, compact: Boolean = false) {
     val colors = LocalStatusPalette.current.colorsFor(tone)
     Surface(
         modifier = modifier.semantics(mergeDescendants = true) { statusTone = tone },
@@ -27,6 +31,16 @@ fun StatusChip(text: String, tone: StatusTone, modifier: Modifier = Modifier) {
         color = colors.container,
         contentColor = colors.content,
     ) {
-        Text(text, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.titleMedium)
+        if (compact) {
+            Text(
+                text,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                softWrap = false,
+            )
+        } else {
+            Text(text, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.titleMedium)
+        }
     }
 }

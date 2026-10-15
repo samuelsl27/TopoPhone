@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check`.
 
-- [ ] T1. `core:designsystem` + `app`: indicador de estado compacto en la barra superior en lugar de la franja (sin edad, "Grabando" ni inclinación). (S005/RF-18; S003/RF-16 a RF-19, RF-21, RF-23; S004/RF-23)
+- [x] T1. `core:designsystem` + `app`: indicador de estado compacto en la barra superior en lugar de la franja (sin edad, "Grabando" ni inclinación). (S005/RF-18; S003/RF-16 a RF-19, RF-21, RF-23; S004/RF-23)
       Hecho cuando: `StatusIndicatorTest` en verde (también a 360 dp con la fuente al 130 %) y ninguna pantalla pinta la franja.
 - [ ] T2. `app`: `receiverHomeMode` y raíz de Receptor que elige entre la lista y la pantalla del receptor. (RF-1, RF-5)
       Hecho cuando: `ReceiverHomeModeTest` en verde para todos los estados, con y sin reproducción.

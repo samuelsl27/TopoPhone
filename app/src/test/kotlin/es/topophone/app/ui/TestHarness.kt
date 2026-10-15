@@ -17,8 +17,8 @@ import es.topophone.app.ui.receiver.ReceiverUiState
 import es.topophone.app.ui.sessions.SessionsActions
 import es.topophone.app.ui.sessions.SessionsScreen
 import es.topophone.app.ui.sessions.SessionsUiState
-import es.topophone.app.ui.status.StatusBar
-import es.topophone.app.ui.status.StatusBarState
+import es.topophone.app.ui.status.StatusIndicator
+import es.topophone.app.ui.status.StatusIndicatorState
 import es.topophone.core.designsystem.theme.EffectiveThemeKey
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
@@ -70,7 +70,7 @@ fun StatefulTestApp(
                 ReceiverScreen(theme, toggleSun, ReceiverUiState(), ReceiverActions(onOpenSessions = openSessions))
             },
             sessionsSection = { theme, toggleSun, back -> SessionsScreen(theme, toggleSun, SessionsUiState(), SessionsActions(), back) },
-            statusBar = { onOpenReceiver -> StatusBar(StatusBarState(), onOpenReceiver) },
+            statusIndicator = { onOpenReceiver -> StatusIndicator(StatusIndicatorState(), onOpenReceiver) },
         )
     }
 }
