@@ -44,9 +44,9 @@ class VibrationAlerts(private val context: Context) : Alerts {
     }
 }
 
-/** Ficheros de sesión que se pueden compartir (S002/RF-43). */
+/** Ficheros de la última sesión, para compartirlos (S002/RF-43): los del receptor y las correcciones. */
 fun interface SessionFiles {
-    fun latest(): File?
+    fun latest(): List<File>?
 }
 
-fun SessionLogStore.asSessionFiles() = SessionFiles { latest() }
+fun SessionLogStore.asSessionFiles() = SessionFiles { latest()?.dataFiles?.takeIf { it.isNotEmpty() } }

@@ -12,7 +12,7 @@ import es.topophone.receiver.session.ReceiverSnapshot
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 
-/** Lo que la barra de estado saca de la sesión (S003/RF-17 a RF-19, S003/RF-22). */
+/** Lo que la barra de estado saca de la sesión (S003/RF-17 a RF-20, S003/RF-22). */
 class StatusBarStateTest {
 
     private val gga = GgaFix("101530.00", 40.4, -3.7, SolutionStatus.FLOAT, 18, 1.1, 650.0, 51.0, 2.0, "")
@@ -42,5 +42,11 @@ class StatusBarStateTest {
     fun `S003 RF-22 el estado de la inclinacion sale de la ETC de la ultima epoca`() {
         toStatusBarState(ReceiverSnapshot(ConnectionState.Receiving("RS3"), gga = gga, epoch = epoch)).tilt shouldBe TiltState.ALIGNMENT
         toStatusBarState(ReceiverSnapshot(ConnectionState.Receiving("RS3"), gga = gga)).tilt shouldBe null
+    }
+
+    @Test
+    fun `S003 RF-20 la barra indica la grabacion de la sesion`() {
+        toStatusBarState(ReceiverSnapshot(ConnectionState.Receiving("RS3"), gga = gga, recording = true)).recording shouldBe true
+        toStatusBarState(ReceiverSnapshot(ConnectionState.Receiving("RS3"), gga = gga)).recording shouldBe false
     }
 }

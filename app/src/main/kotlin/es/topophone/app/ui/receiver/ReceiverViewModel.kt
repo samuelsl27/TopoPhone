@@ -222,7 +222,7 @@ class ReceiverViewModel @Inject constructor(
         }
     }
 
-    fun latestSession(): File? = sessionFiles.latest()
+    fun latestSession(): List<File>? = sessionFiles.latest()
 
     private fun readBluetooth(): BluetoothUi = when {
         !bluetooth.isSupported -> BluetoothUi.Unsupported

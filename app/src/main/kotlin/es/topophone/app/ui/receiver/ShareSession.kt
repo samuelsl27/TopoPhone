@@ -28,6 +28,27 @@ fun shareSessionIntent(
     return Intent.createChooser(send, context.getString(R.string.receiver_share_session_chooser))
 }
 
-fun shareSession(context: Context, file: File) {
-    context.startActivity(shareSessionIntent(context, file))
+/**
+ * Intención para compartir todos los ficheros de una sesión: las partes de los datos del receptor y
+ * las de las correcciones (S002/RF-43, S003/RF-30). Con un solo fichero, como [shareSessionIntent].
+ */
+fun shareSessionFilesIntent(
+    context: Context,
+    files: List<File>,
+    uris: List<Uri> = files.map { FileProvider.getUriForFile(context, fileProviderAuthority(context), it) },
+): Intent {
+    require(files.isNotEmpty() && files.size == uris.size)
+    if (files.size == 1) return shareSessionIntent(context, files.single(), uris.single())
+    val send = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+        type = "*/*"
+        putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+        putExtra(Intent.EXTRA_SUBJECT, files.first().parentFile?.name ?: files.first().name)
+        clipData = ClipData.newRawUri(files.first().name, uris.first()).apply { uris.drop(1).forEach { addItem(ClipData.Item(it)) } }
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    return Intent.createChooser(send, context.getString(R.string.receiver_share_session_chooser))
+}
+
+fun shareSession(context: Context, files: List<File>) {
+    context.startActivity(shareSessionFilesIntent(context, files))
 }

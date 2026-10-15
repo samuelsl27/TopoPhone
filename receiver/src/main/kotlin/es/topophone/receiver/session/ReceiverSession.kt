@@ -73,6 +73,8 @@ data class ReceiverSnapshot(
     val epoch: Epoch? = null,
     /** Satélites en vista de la última época que trajo GSV (a 1 Hz frente a épocas a 5 Hz) (S003/RF-15). */
     val satellitesInView: Int? = null,
+    /** Se está grabando la sesión (S003/RF-20). */
+    val recording: Boolean = false,
 )
 
 /** Registro de los datos brutos recibidos del receptor (S002/RF-42). */
@@ -85,9 +87,44 @@ fun interface SessionRecorder {
 }
 
 interface SessionWriter {
+    /** Bytes recibidos del receptor, tal como llegan (S002/RF-42). */
     fun write(bytes: ByteArray, offset: Int, length: Int)
 
+    /** Correcciones enviadas al receptor, tal como se envían (S003/RF-24). */
+    fun writeCorrections(bytes: ByteArray)
+
+    fun flush()
+
     fun close()
+}
+
+/**
+ * Grabación de la sesión en curso. Un fallo al escribir (disco lleno…) detiene la grabación, pero
+ * no la conexión con el receptor: no debe confundirse con un corte del enlace.
+ */
+private class Recording(private val writer: SessionWriter, private val onStopped: () -> Unit) {
+    @Volatile private var active = true
+
+    fun write(bytes: ByteArray, offset: Int, length: Int) = guard { writer.write(bytes, offset, length) }
+
+    fun writeCorrections(bytes: ByteArray) = guard { writer.writeCorrections(bytes) }
+
+    fun flush() = guard { writer.flush() }
+
+    fun close() {
+        if (active) runCatching { writer.close() }
+        active = false
+    }
+
+    private inline fun guard(block: () -> Unit) {
+        if (!active) return
+        try {
+            block()
+        } catch (_: IOException) {
+            close()
+            onStopped()
+        }
+    }
 }
 
 /**
@@ -138,15 +175,25 @@ class ReceiverSession(
             }
             synchronized(assemblerLock) { assembler = EpochAssembler() }
             lastEpochAtMs = clock()
-            coroutineScope {
-                launch(Dispatchers.IO) { drainWrites(newTransport, channel) }
-                launch { watchdog(description) }
-                read(newTransport, description)
-                if (currentCoroutineContext().isActive) {
-                    ntripJob?.cancel()
-                    mutableState.update { it.copy(connection = ConnectionState.Lost(description), ntrip = NtripState.Idle) } // S002/RF-9
+            val recording = recorder.start(description)?.let { writer ->
+                Recording(writer) { mutableState.update { it.copy(recording = false) } }
+            }
+            mutableState.update { it.copy(recording = recording != null) } // S003/RF-20
+            try {
+                coroutineScope {
+                    launch(Dispatchers.IO) { drainWrites(newTransport, channel, recording) }
+                    launch { watchdog(description) }
+                    read(newTransport, description, recording)
+                    if (currentCoroutineContext().isActive) {
+                        ntripJob?.cancel()
+                        mutableState.update {
+                            it.copy(connection = ConnectionState.Lost(description), ntrip = NtripState.Idle, recording = false)
+                        } // S002/RF-9
+                    }
+                    coroutineContext.cancelChildren()
                 }
-                coroutineContext.cancelChildren()
+            } finally {
+                recording?.close()
             }
         }
     }
@@ -216,22 +263,19 @@ class ReceiverSession(
         }
     }
 
-    private suspend fun read(transport: ReceiverTransport, description: String) = withContext(Dispatchers.IO) {
+    private suspend fun read(transport: ReceiverTransport, description: String, recording: Recording?) = withContext(Dispatchers.IO) {
         val framer = NmeaFramer()
         val buffer = ByteArray(READ_BUFFER)
-        val writer = recorder.start(description)
         try {
             val input = transport.input
             while (isActive) {
                 val n = input.read(buffer)
                 if (n < 0) break
-                writer?.write(buffer, 0, n)
+                recording?.write(buffer, 0, n) // S002/RF-42
                 framer.feed(buffer, 0, n).forEach { onSentence(it, description) }
             }
         } catch (_: IOException) {
             // Enlace cortado o cerrado al desconectar: lo decide connect() según si sigue activa.
-        } finally {
-            writer?.close()
         }
     }
 
@@ -289,12 +333,13 @@ class ReceiverSession(
     }
 
     /** Cola única de escritura hacia el receptor (ADR-11). */
-    private suspend fun drainWrites(transport: ReceiverTransport, channel: Channel<ByteArray>) {
+    private suspend fun drainWrites(transport: ReceiverTransport, channel: Channel<ByteArray>, recording: Recording?) {
         try {
             val output = transport.output
             for (bytes in channel) {
                 output.write(bytes)
                 output.flush()
+                recording?.writeCorrections(bytes) // S003/RF-24
             }
         } catch (_: IOException) {
             // El lector detectará el corte.
