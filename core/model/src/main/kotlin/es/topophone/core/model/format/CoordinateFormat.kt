@@ -1,5 +1,6 @@
 package es.topophone.core.model.format
 
+import es.topophone.core.model.project.LinearUnit
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormatSymbols
@@ -45,9 +46,16 @@ object AngleFormat {
     }
 }
 
-/** Longitudes en metros para la interfaz (S002/RF-35, S002/RF-36, S002/RF-38). */
+/** Longitudes para la interfaz (S002/RF-35, S002/RF-36, S002/RF-38). */
 object LengthFormat {
     fun metres(valueM: Double, locale: Locale, decimals: Int = 3): String = decimals(valueM, decimals, locale, grouping = true) + " m"
+
+    /**
+     * Una longitud en metros, pasada a la unidad del proyecto, con 3 decimales y sin el nombre de la
+     * unidad, que es un texto de la interfaz (S006/RF-9).
+     */
+    fun inUnit(valueM: Double, unit: LinearUnit, locale: Locale, decimals: Int = 3): String =
+        decimals(unit.fromMetres(valueM), decimals, locale, grouping = true)
 }
 
 private fun decimals(value: Double, digits: Int, locale: Locale, grouping: Boolean): String {

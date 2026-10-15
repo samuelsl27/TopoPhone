@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `core:model`: unidades lineales y angulares, datum de las correcciones, SC del proyecto y formato de longitudes por unidad. (RF-8, RF-9, RF-10)
+- [x] T1. `core:model`: unidades lineales y angulares, datum de las correcciones, SC del proyecto y formato de longitudes por unidad. (RF-8, RF-9, RF-10)
       Hecho cuando: `ProjectUnitsTest` en verde (factores exactos, formato con configuración regional).
 - [ ] T2. `core:model`: reglas de nombres (comparar sin mayúsculas ni tildes, "(copia n)", "(restaurado n)") y aviso de datum. (RF-4, RF-7, RF-11, RF-16, RF-25)
       Hecho cuando: `ProjectNamesTest` en verde.
