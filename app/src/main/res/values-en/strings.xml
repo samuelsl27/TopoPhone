@@ -251,4 +251,11 @@
     <string name="folder_new">New folder</string>
     <string name="trash_title">Trash</string>
     <string name="dialog_cancel">Cancel</string>
+    <string name="folder_name">Folder name</string>
+    <string name="folder_name_empty">Enter a name for the folder.</string>
+    <string name="folder_name_duplicate">There is already a folder with that name.</string>
+    <string name="folder_rename">Rename</string>
+    <string name="folder_delete">Delete</string>
+    <string name="folder_delete_confirm">Delete the folder “%1$s”? Its projects will be left outside folders.</string>
+    <string name="folder_empty">This folder is empty.</string>
 </resources>

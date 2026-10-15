@@ -263,4 +263,11 @@
     <string name="folder_new">Nueva carpeta</string>
     <string name="trash_title">Papelera</string>
     <string name="dialog_cancel">Cancelar</string>
+    <string name="folder_name">Nombre de la carpeta</string>
+    <string name="folder_name_empty">Escribe un nombre para la carpeta.</string>
+    <string name="folder_name_duplicate">Ya hay una carpeta con ese nombre.</string>
+    <string name="folder_rename">Renombrar</string>
+    <string name="folder_delete">Borrar</string>
+    <string name="folder_delete_confirm">¿Borrar la carpeta «%1$s»? Sus proyectos quedarán fuera de las carpetas.</string>
+    <string name="folder_empty">Esta carpeta está vacía.</string>
 </resources>

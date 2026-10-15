@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import es.topophone.app.ui.projects.ProjectFolderRoute
 import es.topophone.app.ui.projects.ProjectFormRoute
 import es.topophone.app.ui.projects.ProjectListRoute
 import es.topophone.app.ui.projects.ProjectViewRoute
@@ -80,6 +81,7 @@ fun TopoPhoneApp(
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.View -> ProjectViewRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
+                is SurveyPage.Folder -> ProjectFolderRoute(page.folderId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
             }
         },
     openReceiverRequest: Int = 0,
@@ -147,6 +149,7 @@ private fun AppNavHost(
                     navController.navigate(ProjectViewDestination(id)) { popUpTo<ProjectFormDestination> { inclusive = true } }
                 },
                 onEditProject = { id -> navController.navigate(ProjectFormDestination(projectId = id)) }, // S006/RF-14
+                onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onBack = { navController.popBackStack() },
             )
             composable<SurveyRoute> { entry ->
@@ -161,6 +164,10 @@ private fun AppNavHost(
                     surveyNavigation,
                     entry,
                 )
+            }
+            composable<ProjectFolderDestination> { entry ->
+                val args = entry.toRoute<ProjectFolderDestination>()
+                surveySection(SurveyPage.Folder(args.folderId), uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
             }
             composable<ProjectViewDestination> { entry ->
                 val args = entry.toRoute<ProjectViewDestination>()

@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -42,14 +43,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.receiver.uiLocale
-import es.topophone.core.designsystem.R as DesignR
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectFolder
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.project.ProjectSearchResult
+import es.topophone.data.project.SaveResult
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -72,12 +74,26 @@ const val NEW_PROJECT_TAG = "new_project"
 const val EMPTY_NEW_PROJECT_TAG = "empty_new_project"
 const val PROJECT_SEARCH_TAG = "project_search"
 const val LIST_MENU_TAG = "project_list_menu"
+const val FOLDER_NAME_TAG = "folder_name"
+const val FOLDER_SAVE_TAG = "folder_save"
+const val CONFIRM_TAG = "dialog_confirm"
 
 fun projectTag(id: String) = "project_$id"
 
 fun folderTag(id: String) = "folder_$id"
 
 fun projectMenuTag(id: String) = "project_menu_$id"
+
+fun folderMenuTag(id: String) = "folder_menu_$id"
+
+/** Diálogo del nombre de una carpeta: crearla o renombrarla (S006/RF-17, RF-18). */
+sealed interface FolderDialog {
+    data object Create : FolderDialog
+
+    data class Rename(val id: String, val name: String) : FolderDialog
+}
+
+data class FolderDialogState(val dialog: FolderDialog, val error: NameError? = null)
 
 /** Destino de "Mover a carpeta"; [ROOT_TARGET] es fuera de las carpetas. */
 fun moveTargetTag(folderId: String?) = "move_target_${folderId ?: ROOT_TARGET}"
@@ -90,6 +106,7 @@ data class ProjectListUiState(
     val projects: List<Project> = emptyList(),
     val query: String = "",
     val results: List<ProjectSearchResult>? = null,
+    val folderDialog: FolderDialogState? = null,
 )
 
 /** Acciones de la lista de proyectos. */
@@ -103,6 +120,10 @@ class ProjectListActions(
     val onMove: (projectId: String, folderId: String?) -> Unit = { _, _ -> },
     val onNewFolder: () -> Unit = {},
     val onOpenTrash: () -> Unit = {},
+    val onRenameFolder: (ProjectFolder) -> Unit = {},
+    val onDeleteFolder: (String) -> Unit = {},
+    val onSubmitFolderName: (String) -> Unit = {},
+    val onDismissFolderDialog: () -> Unit = {},
 )
 
 /** Carpetas y proyectos que no están en ninguna (S006/RF-1) y la búsqueda en todas (S006/RF-4). */
@@ -115,14 +136,18 @@ class ProjectListViewModel @Inject constructor(private val repository: ProjectRe
         if (text.isBlank()) flowOf(null) else repository.search(text)
     }
 
-    val state: StateFlow<ProjectListUiState> = combine(repository.folders(), repository.projects(folderId = null), query, results) {
-            folders,
-            projects,
-            text,
-            found,
-        ->
-        ProjectListUiState(folders, projects, text, found)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectListUiState())
+    private val folderDialog = MutableStateFlow<FolderDialogState?>(null)
+
+    val state: StateFlow<ProjectListUiState> =
+        combine(repository.folders(), repository.projects(folderId = null), query, results, folderDialog) {
+                folders,
+                projects,
+                text,
+                found,
+                dialog,
+            ->
+            ProjectListUiState(folders, projects, text, found, dialog)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectListUiState())
 
     fun search(text: String) {
         query.value = text
@@ -135,6 +160,37 @@ class ProjectListViewModel @Inject constructor(private val repository: ProjectRe
 
     fun moveToFolder(id: String, folderId: String?) {
         viewModelScope.launch { repository.moveToFolder(id, folderId) } // S006/RF-19
+    }
+
+    fun openNewFolder() {
+        folderDialog.value = FolderDialogState(FolderDialog.Create)
+    }
+
+    fun openRenameFolder(folder: ProjectFolder) {
+        folderDialog.value = FolderDialogState(FolderDialog.Rename(folder.id, folder.name))
+    }
+
+    fun dismissFolderDialog() {
+        folderDialog.value = null
+    }
+
+    /** Crea o renombra según el diálogo abierto; si el nombre no vale, el diálogo dice por qué (S006/RF-17, RF-18). */
+    fun submitFolderName(name: String) {
+        val dialog = folderDialog.value?.dialog ?: return
+        viewModelScope.launch {
+            val result = when (dialog) {
+                FolderDialog.Create -> repository.createFolder(name)
+                is FolderDialog.Rename -> repository.renameFolder(dialog.id, name)
+            }
+            folderDialog.value = when (result) {
+                is SaveResult.Invalid -> FolderDialogState(dialog, result.error)
+                is SaveResult.Saved -> null
+            }
+        }
+    }
+
+    fun deleteFolder(id: String) {
+        viewModelScope.launch { repository.deleteFolder(id) } // S006/RF-21
     }
 
     private companion object {
@@ -165,6 +221,11 @@ fun ProjectListRoute(
             onDuplicate = { viewModel.duplicate(it, copyLabel) },
             onMove = viewModel::moveToFolder,
             onOpenTrash = navigation.onOpenTrash,
+            onNewFolder = viewModel::openNewFolder,
+            onRenameFolder = viewModel::openRenameFolder,
+            onDeleteFolder = viewModel::deleteFolder,
+            onSubmitFolderName = viewModel::submitFolderName,
+            onDismissFolderDialog = viewModel::dismissFolderDialog,
         ),
     )
 }
@@ -213,13 +274,70 @@ fun ProjectListScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
                 Card(modifier = Modifier.fillMaxWidth()) {
                     state.folders.forEachIndexed { index, folder ->
                         if (index > 0) HorizontalDivider()
-                        FolderRow(folder) { actions.onOpenFolder(folder.id) }
+                        FolderRow(folder, actions)
                     }
                 }
             }
             if (state.projects.isNotEmpty()) ProjectRows(state.projects, state.folders, actions)
         }
+        state.folderDialog?.let { FolderNameDialog(it, actions) }
     }
+}
+
+/** Nombre de una carpeta nueva o renombrada, con el motivo si no vale (S006/RF-17, RF-18). */
+@Composable
+private fun FolderNameDialog(state: FolderDialogState, actions: ProjectListActions) {
+    val initial = (state.dialog as? FolderDialog.Rename)?.name.orEmpty()
+    var name by rememberSaveable(state.dialog) { mutableStateOf(initial) }
+    AlertDialog(
+        onDismissRequest = actions.onDismissFolderDialog,
+        title = { Text(stringResource(if (state.dialog is FolderDialog.Rename) R.string.folder_rename else R.string.folder_new)) },
+        text = {
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(stringResource(R.string.folder_name)) },
+                isError = state.error != null,
+                supportingText = state.error?.let { error -> { Text(stringResource(folderErrorText(error))) } },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().testTag(FOLDER_NAME_TAG),
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                actions.onSubmitFolderName(name)
+            }, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(FOLDER_SAVE_TAG)) {
+                Text(stringResource(R.string.project_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = actions.onDismissFolderDialog, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+        },
+    )
+}
+
+private fun folderErrorText(error: NameError): Int = when (error) {
+    NameError.EMPTY -> R.string.folder_name_empty
+    NameError.DUPLICATE -> R.string.folder_name_duplicate
+}
+
+/** Diálogo de confirmación con su botón destructivo (S006/RF-21, RF-22, RF-26). */
+@Composable
+internal fun ConfirmDialog(message: String, confirm: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        text = { Text(message) },
+        confirmButton = {
+            TextButton(onClick = onConfirm, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CONFIRM_TAG)) { Text(confirm) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+        },
+    )
 }
 
 /** S006/RF-3: aún no hay proyectos; se ofrece crear uno. */
@@ -353,15 +471,43 @@ private fun ProjectRow(project: Project, folder: String?, onClick: () -> Unit, m
     )
 }
 
+/** Una carpeta: se abre al pulsarla; su menú permite renombrarla y borrarla (S006/RF-18, RF-20, RF-21). */
 @Composable
-private fun FolderRow(folder: ProjectFolder, onClick: () -> Unit) {
+private fun FolderRow(folder: ProjectFolder, actions: ProjectListActions) {
+    var menu by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
     ListItem(
         headlineContent = { Text(folder.name) },
         leadingContent = { Icon(painterResource(R.drawable.ic_folder), contentDescription = null) },
-        trailingContent = { Icon(painterResource(DesignR.drawable.ds_ic_chevron_right), contentDescription = null) },
+        trailingContent = {
+            IconButton(onClick = { menu = true }, modifier = Modifier.size(MinTouchTarget).testTag(folderMenuTag(folder.id))) {
+                Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.project_menu, folder.name))
+            }
+            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                MenuItem(R.string.folder_rename) {
+                    menu = false
+                    actions.onRenameFolder(folder)
+                }
+                MenuItem(R.string.folder_delete) {
+                    menu = false
+                    confirmDelete = true
+                }
+            }
+        },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        modifier = Modifier.heightIn(min = MinTouchTarget).clickable(onClick = onClick).testTag(folderTag(folder.id)),
+        modifier = Modifier.heightIn(min = MinTouchTarget).clickable { actions.onOpenFolder(folder.id) }.testTag(folderTag(folder.id)),
     )
+    if (confirmDelete) {
+        ConfirmDialog(
+            message = stringResource(R.string.folder_delete_confirm, folder.name),
+            confirm = stringResource(R.string.folder_delete),
+            onConfirm = {
+                confirmDelete = false
+                actions.onDeleteFolder(folder.id)
+            },
+            onDismiss = { confirmDelete = false },
+        )
+    }
 }
 
 /** Nombre del SC del proyecto en la interfaz (S006/RF-2, RF-8). */
