@@ -5,7 +5,16 @@ import androidx.compose.ui.graphics.Color
 import es.topophone.core.model.preferences.EffectiveTheme
 
 /** Tonos de estado (solución, conexiones). Siempre acompañan a un texto, nunca van solos (RNF-T8). */
-enum class StatusTone { POSITIVE, WARNING, INFO, NEGATIVE, NEUTRAL }
+enum class StatusTone {
+    POSITIVE,
+    WARNING,
+    INFO,
+    NEGATIVE,
+    NEUTRAL,
+
+    /** Datos de una reproducción, nunca de un receptor real (S003/RF-21). */
+    SIMULATION,
+}
 
 data class StatusColors(val container: Color, val content: Color)
 
@@ -22,6 +31,7 @@ private val OnLightPalette = StatusPalette(
         StatusTone.INFO to StatusColors(Color(0xFF0B4A8F), Color.White),
         StatusTone.NEGATIVE to StatusColors(Color(0xFFA50E0E), Color.White),
         StatusTone.NEUTRAL to StatusColors(Color(0xFF4D4D4D), Color.White),
+        StatusTone.SIMULATION to StatusColors(Color(0xFF5B2A86), Color.White),
     ),
 )
 
@@ -33,6 +43,7 @@ private val OnDarkPalette = StatusPalette(
         StatusTone.INFO to StatusColors(Color(0xFF9CC3FF), Color.Black),
         StatusTone.NEGATIVE to StatusColors(Color(0xFFFFB3AD), Color.Black),
         StatusTone.NEUTRAL to StatusColors(Color(0xFFC7C7C7), Color.Black),
+        StatusTone.SIMULATION to StatusColors(Color(0xFFD7B8FF), Color.Black),
     ),
 )
 

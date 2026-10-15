@@ -14,7 +14,7 @@
       Hecho cuando: `ReceiverSessionEpochTest` y los tests de S002 en verde.
 - [x] T6. `app`: tarjeta Estado con fecha y hora local o "fecha no disponible" y satélites en vista; las tarjetas no muestran solución ni coordenadas con "Sin datos". (RF-13, RF-14, RF-15)
       Hecho cuando: `StatusCardTest` y `CoordinatesCardTest` en verde.
-- [ ] T7. `core:designsystem` + `app`: tono `SIMULATION` y componente `StatusBar` sin estado (Sin receptor, solución, satélites, correcciones, Sin datos, Grabando, Simulación, inclinación). (RF-17–RF-22)
+- [x] T7. `core:designsystem` + `app`: tono `SIMULATION` y componente `StatusBar` sin estado (Sin receptor, solución, satélites, correcciones, Sin datos, Grabando, Simulación, inclinación). (RF-17–RF-22)
       Hecho cuando: `StatusBarTest` y `StatusPaletteTest` en verde.
 - [ ] T8. `app`: `StatusBarViewModel`, la barra en `SectionScaffold` de las tres secciones y la pulsación que abre Receptor. (RF-16, RF-23)
       Hecho cuando: `StatusBarNavigationTest` y los tests de navegación de S001 en verde.

@@ -130,4 +130,17 @@
     <string name="receiver_status_time">Hora</string>
     <string name="receiver_epoch_time_no_date">%1$s UTC · fecha no disponible</string>
     <string name="receiver_satellites_in_view">%1$d usados de %2$d en vista</string>
+    <string name="status_bar_no_receiver">Sin receptor</string>
+    <string name="status_bar_no_data">Sin datos</string>
+    <string name="status_bar_satellites">%1$d sat.</string>
+    <string name="status_bar_correction_age">Correcciones: %1$s s</string>
+    <string name="status_bar_recording">Grabando</string>
+    <string name="status_bar_simulation">Simulación</string>
+    <string name="status_bar_tilt">Inclinación: %1$s</string>
+    <string name="status_bar_open_receiver">Abrir Receptor</string>
+    <string name="tilt_off">Apagada</string>
+    <string name="tilt_fatal">Error</string>
+    <string name="tilt_setup">Configuración</string>
+    <string name="tilt_alignment">Alineación</string>
+    <string name="tilt_compensating">Compensando</string>
 </resources>

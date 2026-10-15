@@ -4,7 +4,7 @@ import es.topophone.core.model.preferences.EffectiveTheme
 import io.kotest.matchers.shouldBe
 import org.junit.Test
 
-/** Colores de estado (S002/RF-16, RNF-T8): legibles en todos los temas y distintos entre sí. */
+/** Colores de estado (S002/RF-16, S003/RF-21, RNF-T8): legibles en todos los temas y distintos entre sí. */
 class StatusPaletteTest {
 
     @Test

@@ -121,7 +121,8 @@ internal fun LabeledValue(label: String, value: String, tag: String) {
 @Composable
 internal fun uiLocale(): Locale = LocalConfiguration.current.locales[0]
 
-private fun SolutionStatus.nameRes(): Int = when (this) {
+/** Nombre de la solución en la interfaz (S002/RF-12). */
+internal fun SolutionStatus.nameRes(): Int = when (this) {
     SolutionStatus.NONE -> R.string.solution_none
     SolutionStatus.SINGLE -> R.string.solution_single
     SolutionStatus.DGPS -> R.string.solution_dgps
@@ -130,7 +131,8 @@ private fun SolutionStatus.nameRes(): Int = when (this) {
     SolutionStatus.ESTIMATED -> R.string.solution_estimated
 }
 
-private fun SolutionStatus.tone(): StatusTone = when (this) {
+/** Color de la solución, siempre junto a su nombre (S002/RF-16, RNF-T8). */
+internal fun SolutionStatus.tone(): StatusTone = when (this) {
     SolutionStatus.FIX -> StatusTone.POSITIVE
     SolutionStatus.FLOAT -> StatusTone.WARNING
     SolutionStatus.DGPS -> StatusTone.INFO
