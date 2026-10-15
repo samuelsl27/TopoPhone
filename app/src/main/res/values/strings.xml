@@ -232,4 +232,25 @@
     <string name="project_in_folder">En la carpeta %1$s</string>
     <string name="projects_search">Buscar proyecto</string>
     <string name="projects_search_empty">Ningún proyecto coincide con «%1$s».</string>
+    <string name="project_edit">Editar proyecto</string>
+    <string name="project_name">Nombre</string>
+    <string name="project_author">Autor</string>
+    <string name="project_description">Descripción</string>
+    <string name="project_crs">Sistema de coordenadas</string>
+    <string name="project_linear_unit">Unidades lineales</string>
+    <string name="project_angular_unit">Unidades angulares</string>
+    <string name="project_corrections_datum">Datum de las correcciones</string>
+    <string name="project_save">Guardar</string>
+    <string name="project_name_empty">Escribe un nombre para el proyecto.</string>
+    <string name="project_name_duplicate">Ya hay un proyecto con ese nombre.</string>
+    <string name="project_datum_warning">Las correcciones están en ITRF/WGS84 y el proyecto en ETRS89: las coordenadas pueden diferir unos 0,9 m.</string>
+    <string name="unit_metre">Metros (m)</string>
+    <string name="unit_foot">Pies (ft)</string>
+    <string name="unit_us_survey_foot">Pies topográficos de EE. UU. (ft EE. UU.)</string>
+    <string name="unit_decimal_degrees">Grados decimales</string>
+    <string name="unit_dms">Grados, minutos y segundos</string>
+    <string name="unit_gon">Gon</string>
+    <string name="datum_etrs89">ETRS89</string>
+    <string name="datum_regcan95">REGCAN95 (Canarias)</string>
+    <string name="datum_itrf_wgs84">ITRF/WGS84</string>
 </resources>

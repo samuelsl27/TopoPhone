@@ -32,6 +32,12 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object BackgroundHelpRoute
 
+/** Formulario de proyecto en Levantamiento: nuevo si [projectId] es null (S006). */
+@Serializable data class ProjectFormDestination(val projectId: String? = null, val folderId: String? = null)
+
+/** Vista de un proyecto (S006/RF-28). */
+@Serializable data class ProjectViewDestination(val projectId: String)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

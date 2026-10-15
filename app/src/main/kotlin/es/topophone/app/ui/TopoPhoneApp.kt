@@ -32,7 +32,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import es.topophone.app.ui.projects.ProjectFormRoute
 import es.topophone.app.ui.projects.ProjectListRoute
+import es.topophone.app.ui.projects.ProjectViewRoute
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.projects.SurveyPage
 import es.topophone.app.ui.receiver.ReceiverNavigation
@@ -68,6 +71,15 @@ fun TopoPhoneApp(
         { page, theme, toggleSun, navigation, owner ->
             when (page) {
                 SurveyPage.List -> ProjectListRoute(theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
+                is SurveyPage.Form -> ProjectFormRoute(
+                    page.projectId,
+                    page.folderId,
+                    theme,
+                    toggleSun,
+                    navigation,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.View -> ProjectViewRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
             }
         },
     openReceiverRequest: Int = 0,
@@ -127,9 +139,31 @@ private fun AppNavHost(
 ) {
     NavHost(navController = navController, startDestination = SurveyGraph, modifier = modifier) {
         navigation<SurveyGraph>(startDestination = SurveyRoute) {
-            val surveyNavigation = SurveyNavigation(onBack = { navController.popBackStack() })
+            val surveyNavigation = SurveyNavigation(
+                onNewProject = { folderId -> navController.navigate(ProjectFormDestination(folderId = folderId)) }, // S006/RF-5
+                onOpenProject = { id -> navController.navigate(ProjectViewDestination(id)) }, // S006/RF-28
+                onProjectSaved = { id ->
+                    // S006/RF-12: el proyecto nuevo se abre en lugar del formulario.
+                    navController.navigate(ProjectViewDestination(id)) { popUpTo<ProjectFormDestination> { inclusive = true } }
+                },
+                onBack = { navController.popBackStack() },
+            )
             composable<SurveyRoute> { entry ->
                 surveySection(SurveyPage.List, uiState.themeState, actions.onToggleSun, surveyNavigation, entry) // S006/RF-1
+            }
+            composable<ProjectFormDestination> { entry ->
+                val args = entry.toRoute<ProjectFormDestination>()
+                surveySection(
+                    SurveyPage.Form(args.projectId, args.folderId),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ProjectViewDestination> { entry ->
+                val args = entry.toRoute<ProjectViewDestination>()
+                surveySection(SurveyPage.View(args.projectId), uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
             }
         }
         navigation<ReceiverGraph>(startDestination = ReceiverRoute) {

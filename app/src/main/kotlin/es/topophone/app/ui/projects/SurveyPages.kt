@@ -7,6 +7,12 @@ import es.topophone.core.model.preferences.ThemeState
 sealed interface SurveyPage {
     /** Lista de proyectos (S006/RF-1). */
     data object List : SurveyPage
+
+    /** Formulario de proyecto: nuevo si [projectId] es null (S006/RF-5, RF-14). */
+    data class Form(val projectId: String?, val folderId: String?) : SurveyPage
+
+    /** Vista de un proyecto (S006/RF-28). */
+    data class View(val projectId: String) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -14,11 +20,17 @@ class SurveyNavigation(
     val onNewProject: (folderId: String?) -> Unit = {},
     val onOpenProject: (String) -> Unit = {},
     val onOpenFolder: (String) -> Unit = {},
+    /** Tras guardar un proyecto nuevo se abre en lugar del formulario (S006/RF-12). */
+    val onProjectSaved: (String) -> Unit = {},
     val onBack: () -> Unit = {},
 )
 
 /** Estado de las pantallas de Levantamiento para pintarlas sin ViewModel (tests y vistas previas). */
-data class SurveyUiState(val list: ProjectListUiState = ProjectListUiState())
+data class SurveyUiState(
+    val list: ProjectListUiState = ProjectListUiState(),
+    val form: ProjectFormUiState = ProjectFormUiState(loaded = true),
+    val view: ProjectViewUiState = ProjectViewUiState(),
+)
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
 @Composable
@@ -40,5 +52,7 @@ fun SurveyPageScreen(
                 onOpenFolder = navigation.onOpenFolder,
             ),
         )
+        is SurveyPage.Form -> ProjectFormScreen(themeState, onToggleSun, state.form, ProjectFormActions(onBack = navigation.onBack))
+        is SurveyPage.View -> ProjectViewScreen(themeState, onToggleSun, state.view, navigation.onBack)
     }
 }

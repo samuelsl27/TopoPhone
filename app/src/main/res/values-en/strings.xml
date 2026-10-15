@@ -220,4 +220,25 @@
     <string name="project_in_folder">In folder %1$s</string>
     <string name="projects_search">Search project</string>
     <string name="projects_search_empty">No project matches “%1$s”.</string>
+    <string name="project_edit">Edit project</string>
+    <string name="project_name">Name</string>
+    <string name="project_author">Author</string>
+    <string name="project_description">Description</string>
+    <string name="project_crs">Coordinate system</string>
+    <string name="project_linear_unit">Linear units</string>
+    <string name="project_angular_unit">Angular units</string>
+    <string name="project_corrections_datum">Corrections datum</string>
+    <string name="project_save">Save</string>
+    <string name="project_name_empty">Enter a name for the project.</string>
+    <string name="project_name_duplicate">There is already a project with that name.</string>
+    <string name="project_datum_warning">Corrections are in ITRF/WGS84 and the project in ETRS89: coordinates may differ by about 0.9 m.</string>
+    <string name="unit_metre">Metres (m)</string>
+    <string name="unit_foot">Feet (ft)</string>
+    <string name="unit_us_survey_foot">US survey feet (US ft)</string>
+    <string name="unit_decimal_degrees">Decimal degrees</string>
+    <string name="unit_dms">Degrees, minutes and seconds</string>
+    <string name="unit_gon">Gon</string>
+    <string name="datum_etrs89">ETRS89</string>
+    <string name="datum_regcan95">REGCAN95 (Canary Islands)</string>
+    <string name="datum_itrf_wgs84">ITRF/WGS84</string>
 </resources>

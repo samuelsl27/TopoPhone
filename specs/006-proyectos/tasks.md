@@ -22,7 +22,7 @@
       Hecho cuando: `ProjectListTest` en verde y `./gradlew check` sin tests de S001 rotos.
 - [x] T10. `app`: búsqueda en la lista. (RF-4)
       Hecho cuando: `ProjectSearchTest` en verde.
-- [ ] T11. `app`: formulario de proyecto nuevo con sus valores por defecto, validaciones y aviso de datum; al guardar se abre. (RF-5 a RF-12)
+- [x] T11. `app`: formulario de proyecto nuevo con sus valores por defecto, validaciones y aviso de datum; al guardar se abre. (RF-5 a RF-12)
       Hecho cuando: `ProjectFormTest` en verde para crear.
 - [ ] T12. `app`: editar un proyecto y cambiar su SC. (RF-14, RF-15)
       Hecho cuando: `ProjectFormTest` en verde para editar.
