@@ -272,4 +272,10 @@
     <string name="project_info_title">Project</string>
     <string name="project_points_title">Points</string>
     <string name="project_no_points">This project has no points yet.</string>
+    <string name="project_position_title">Current position</string>
+    <string name="project_no_position">No receiver position.</string>
+    <string name="project_outside_crs">Outside the area of the project coordinate system.</string>
+    <string name="unit_symbol_metre">m</string>
+    <string name="unit_symbol_foot">ft</string>
+    <string name="unit_symbol_us_survey_foot">US ft</string>
 </resources>

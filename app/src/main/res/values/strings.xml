@@ -284,4 +284,10 @@
     <string name="project_info_title">Proyecto</string>
     <string name="project_points_title">Puntos</string>
     <string name="project_no_points">Todavía no hay puntos en este proyecto.</string>
+    <string name="project_position_title">Posición actual</string>
+    <string name="project_no_position">Sin posición del receptor.</string>
+    <string name="project_outside_crs">Fuera del ámbito del sistema de coordenadas del proyecto.</string>
+    <string name="unit_symbol_metre">m</string>
+    <string name="unit_symbol_foot">ft</string>
+    <string name="unit_symbol_us_survey_foot">ft EE. UU.</string>
 </resources>

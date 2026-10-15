@@ -36,7 +36,7 @@
       Hecho cuando: `ProjectDefaultsTest` en verde.
 - [x] T17. `app`: vista de proyecto con sus datos, el aviso de datum y "sin puntos". (RF-11, RF-28, RF-31)
       Hecho cuando: `ProjectViewTest` en verde para esos casos.
-- [ ] T18. `app`: posición actual en la vista de proyecto, en su SC y unidades, o no disponible con su motivo. (RF-29, RF-30)
+- [x] T18. `app`: posición actual en la vista de proyecto, en su SC y unidades, o no disponible con su motivo. (RF-29, RF-30)
       Hecho cuando: `ProjectViewTest` en verde para la posición.
 - [ ] T19. Rendimiento con 500 proyectos (lista < 1 s, búsqueda < 300 ms). (RNF de la spec)
       Hecho cuando: el test de rendimiento en verde.

@@ -14,6 +14,7 @@ import es.topophone.app.receiver.ReceiverService
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.core.ntrip.NtripClient
 import es.topophone.core.survey.GroundPointCalculator
+import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.SessionSpace
 import es.topophone.receiver.platform.Alerts
@@ -102,6 +103,11 @@ object ReceiverModule {
     @Provides
     @Singleton
     fun groundPointCalculator(): GroundPointCalculator = GroundPointCalculator()
+
+    /** Posición en el SC del proyecto (S006/RF-29); el geoide se carga la primera vez que se usa. */
+    @Provides
+    @Singleton
+    fun projectPositionCalculator(): ProjectPositionCalculator = ProjectPositionCalculator()
 
     @Provides
     fun networkStatus(@ApplicationContext context: Context): NetworkStatus = AndroidNetworkStatus(context)
