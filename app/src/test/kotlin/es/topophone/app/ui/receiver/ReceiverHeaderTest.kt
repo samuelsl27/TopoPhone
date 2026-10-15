@@ -11,6 +11,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
@@ -128,6 +129,33 @@ class ReceiverHeaderTest {
             inHeader(it).performScrollTo().assertIsDisplayed()
         }
         inHeader(DISCONNECT_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S005 RF-7 S003 RF-43 durante una reproduccion la cabecera ofrece los emparejados para conectar, sin Anadir receptor`() {
+        val replay = ReplayInfo("sesion", ReplaySpeed.X1, loop = false)
+
+        show(ReceiverSnapshot(ConnectionState.Receiving("sesion"), replay = replay))
+
+        inHeader(deviceTag(RS3_DEVICE.address)).performScrollTo().assertIsDisplayed()
+        inHeader(ADD_RECEIVER_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S005 RF-7 durante una reproduccion sin emparejados la cabecera no habla de emparejar`() {
+        val replay = ReplayInfo("sesion", ReplaySpeed.X1, loop = false)
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                val state = ReceiverUiState(
+                    bluetooth = BluetoothUi.Ready(emptyList()),
+                    snapshot = ReceiverSnapshot(ConnectionState.Receiving("sesion"), replay = replay),
+                )
+                ReceiverScreen(ThemeState.DEFAULT, {}, state, ReceiverActions())
+            }
+        }
+
+        compose.onNodeWithText(text(R.string.receiver_no_bonded_devices)).assertDoesNotExist()
+        compose.onNodeWithText(text(R.string.receiver_replay_connect)).assertDoesNotExist()
     }
 
     @Test

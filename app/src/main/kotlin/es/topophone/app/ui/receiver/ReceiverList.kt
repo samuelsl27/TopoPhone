@@ -113,7 +113,7 @@ internal fun BluetoothDevicesSection(state: ReceiverUiState, actions: ReceiverAc
 
 /** Un receptor emparejado: nombre, dirección y, si es el último usado, su marca (S005/RF-3). */
 @Composable
-private fun DeviceRow(name: String, address: String, lastUsed: Boolean, onClick: () -> Unit) {
+internal fun DeviceRow(name: String, address: String, lastUsed: Boolean, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(name) },
         supportingContent = { Text(address) },

@@ -43,8 +43,10 @@ internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
         } // S005/RF-11
         HorizontalDivider()
         ListRow(stringResource(R.string.receiver_menu_corrections), actions.onOpenCorrections, Modifier.testTag(MENU_CORRECTIONS_TAG)) {
-            val ntrip = ntripStatusText(snapshot.ntrip)
-            val age = snapshot.gga?.correctionAgeS?.let { String.format(uiLocale(), "%.1f", it) }
+            // En una reproducción no hay NTRIP (S003/RF-44) y la edad sería la de los datos grabados.
+            val replaying = snapshot.replay != null
+            val ntrip = if (replaying) stringResource(R.string.ntrip_unavailable_in_replay) else ntripStatusText(snapshot.ntrip)
+            val age = snapshot.gga?.correctionAgeS?.takeUnless { replaying }?.let { String.format(uiLocale(), "%.1f", it) }
             Text(if (age == null) ntrip else stringResource(R.string.receiver_menu_corrections_age, ntrip, age))
         } // S005/RF-12
         HorizontalDivider()

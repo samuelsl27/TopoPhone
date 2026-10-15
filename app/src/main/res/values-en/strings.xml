@@ -106,7 +106,7 @@
     <string name="unavailable_outside_utm">Not available in this version: the point is outside UTM zones 29 to 31.</string>
     <string name="unavailable_outside_geoid">Not available: the point is outside the EGM08-REDNAP model of the Peninsula and the Balearic Islands.</string>
     <string name="receiver_no_session">There is no saved session yet.</string>
-    <string name="receiver_share_session">Share session</string>
+    <string name="receiver_share_session">Share the latest session</string>
     <string name="licenses_data_title">Data</string>
     <string name="licenses_geoid_attribution">EGM08-REDNAP geoid model (Peninsula and Balearic Islands) © Instituto Geográfico Nacional, licensed under CC BY 4.0. Grid converted to GeoTIFF by the PROJ project.</string>
     <string name="licenses_cc_by_open">View the CC BY 4.0 licence</string>
@@ -132,7 +132,7 @@
     <string name="settings_session_space">Space for sessions</string>
     <string name="settings_session_space_mb">%1$d MB</string>
     <string name="settings_session_space_gb">%1$d GB</string>
-    <string name="sessions_title">Sessions</string>
+    <string name="sessions_title">Recorded sessions</string>
     <string name="sessions_imported">Imported</string>
     <string name="sessions_in_progress">In progress</string>
     <string name="sessions_duration_hours">%1$d h %2$02d min</string>
@@ -212,4 +212,5 @@
     <string name="receiver_menu_pole_height">Pole %1$s m</string>
     <string name="receiver_menu_corrections_age">%1$s · %2$s s</string>
     <string name="receiver_no_receiver_connected">No receiver is connected.</string>
+    <string name="receiver_replay_connect">Connect a receiver</string>
 </resources>

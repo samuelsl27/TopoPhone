@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -45,7 +46,7 @@ internal fun ReceiverHeader(state: ReceiverUiState, actions: ReceiverActions) {
             ConnectionIndicators(state) // S003/RF-20, RF-22
             if (replay != null) {
                 ReplayControls(replay, actions) // S003/RF-37 a RF-41
-                BluetoothDevicesSection(state, actions) // S003/RF-43: conectar un receptor termina la reproducción
+                ReplayConnect(state, actions) // S003/RF-43
             } else {
                 Warnings(state, actions)
                 when (connection) {
@@ -57,6 +58,20 @@ internal fun ReceiverHeader(state: ReceiverUiState, actions: ReceiverActions) {
                     else -> Unit
                 }
             }
+        }
+    }
+}
+
+/** Durante una reproducción, los receptores emparejados: conectar uno termina la reproducción (S003/RF-43). */
+@Composable
+private fun ReplayConnect(state: ReceiverUiState, actions: ReceiverActions) {
+    val devices = (state.bluetooth as? BluetoothUi.Ready)?.devices.orEmpty()
+    if (devices.isEmpty()) return
+    Text(stringResource(R.string.receiver_replay_connect), style = MaterialTheme.typography.titleSmall)
+    Card(modifier = Modifier.fillMaxWidth()) {
+        devices.forEachIndexed { index, device ->
+            if (index > 0) HorizontalDivider()
+            DeviceRow(device.name, device.address, device.address == state.lastReceiverAddress) { actions.onConnect(device.address) }
         }
     }
 }

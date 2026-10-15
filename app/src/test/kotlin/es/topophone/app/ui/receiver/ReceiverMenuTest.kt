@@ -111,18 +111,13 @@ class ReceiverMenuTest {
     }
 
     @Test
-    fun `S005 RF-12 durante una reproduccion Correcciones no esta disponible`() {
+    fun `S005 RF-12 durante una reproduccion Correcciones no esta disponible y no da la edad grabada`() {
         val replay = ReplayInfo("sesion", ReplaySpeed.X1, loop = false)
-        show(
-            ReceiverSnapshot(
-                ConnectionState.Receiving("sesion"),
-                gga = fix.copy(correctionAgeS = null),
-                replay = replay,
-                ntrip = NtripState.UnavailableInReplay,
-            ),
-        )
+        show(ReceiverSnapshot(ConnectionState.Receiving("sesion"), gga = fix, replay = replay))
 
-        entry(MENU_CORRECTIONS_TAG).assert(hasText(text(R.string.ntrip_unavailable_in_replay)))
+        entry(MENU_CORRECTIONS_TAG)
+            .assert(hasText(text(R.string.ntrip_unavailable_in_replay)))
+            .assert(hasText("1,0", substring = true).not())
     }
 
     @Test

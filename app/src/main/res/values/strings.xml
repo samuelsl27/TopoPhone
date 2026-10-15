@@ -118,7 +118,7 @@
     <string name="unavailable_outside_utm">No disponible en esta versión: el punto está fuera de los husos UTM 29 a 31.</string>
     <string name="unavailable_outside_geoid">No disponible: el punto está fuera del modelo EGM08-REDNAP de la Península y Baleares.</string>
     <string name="receiver_no_session">Todavía no hay ninguna sesión guardada.</string>
-    <string name="receiver_share_session">Compartir sesión</string>
+    <string name="receiver_share_session">Compartir la última sesión</string>
     <string name="licenses_data_title">Datos</string>
     <string name="licenses_geoid_attribution">Modelo de geoide EGM08-REDNAP (Península y Baleares) © Instituto Geográfico Nacional, con licencia CC BY 4.0. Rejilla convertida a GeoTIFF por el proyecto PROJ.</string>
     <string name="licenses_cc_by_open">Ver la licencia CC BY 4.0</string>
@@ -144,7 +144,7 @@
     <string name="settings_session_space">Espacio para sesiones</string>
     <string name="settings_session_space_mb">%1$d MB</string>
     <string name="settings_session_space_gb">%1$d GB</string>
-    <string name="sessions_title">Sesiones</string>
+    <string name="sessions_title">Sesiones grabadas</string>
     <string name="sessions_imported">Importada</string>
     <string name="sessions_in_progress">En curso</string>
     <string name="sessions_duration_hours">%1$d h %2$02d min</string>
@@ -224,4 +224,5 @@
     <string name="receiver_menu_pole_height">Jalón %1$s m</string>
     <string name="receiver_menu_corrections_age">%1$s · %2$s s</string>
     <string name="receiver_no_receiver_connected">No hay ningún receptor conectado.</string>
+    <string name="receiver_replay_connect">Conectar un receptor</string>
 </resources>
