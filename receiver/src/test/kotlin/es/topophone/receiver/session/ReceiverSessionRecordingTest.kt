@@ -7,6 +7,7 @@ import es.topophone.core.ntrip.NtripFailure
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayOutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
@@ -24,7 +25,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-/** La sesión graba los datos del receptor y las correcciones que se le envían (S002/RF-42, S003/RF-20, S003/RF-24). */
+/** La sesión graba los datos del receptor y las correcciones que se le envían (S002/RF-42, S003/RF-20, S003/RF-24, S003/RF-28). */
 class ReceiverSessionRecordingTest {
 
     @get:Rule
@@ -34,7 +35,11 @@ class ReceiverSessionRecordingTest {
     private val toApp = PipedOutputStream()
     private val sentToReceiver = ByteArrayOutputStream()
     private val transport = StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), sentToReceiver)
-    private val store by lazy { SessionLogStore(folder.root, clock = { Instant.parse("2026-10-15T08:30:00Z") }) }
+
+    @Volatile private var freeSpace = 10_000_000_000L
+    private val store by lazy {
+        SessionLogStore(folder.root, clock = { Instant.parse("2026-10-15T08:30:00Z") }, freeSpaceBytes = { freeSpace })
+    }
     private val corrections = listOf(byteArrayOf(0xD3.toByte(), 0x00, 0x02, 0x11, 0x22), byteArrayOf(0x33, 0x44, 0x55))
     private val ntripDone = CompletableDeferred<Unit>()
 
@@ -114,5 +119,44 @@ class ReceiverSessionRecordingTest {
         toApp.flush()
 
         session.await { it.connection is ConnectionState.Receiving }.recording shouldBe false
+    }
+
+    @Test
+    fun `S003 RF-24 los datos se vacian a disco como maximo cada segundo, sin esperar a desconectar`() {
+        val session = ReceiverSession(scope, connector, recorder = store)
+        val gga = nmea("GNGGA,101530.00,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001")
+        session.connect(transport)
+        toApp.write(gga.toByteArray())
+        toApp.flush()
+        session.await { it.connection is ConnectionState.Receiving }
+
+        runBlocking {
+            withTimeout(1_500) {
+                while (store.latest()?.receiverFiles?.sumOf { it.length() } != gga.length.toLong()) kotlinx.coroutines.delay(20)
+            }
+        }
+    }
+
+    @Test
+    fun `S003 RF-28 si el espacio libre baja de 100 MB se deja de grabar y se avisa`() {
+        val session = ReceiverSession(scope, connector, recorder = store)
+        session.connect(transport)
+        session.await { it.recording }
+
+        freeSpace = 50_000_000
+
+        val snapshot = session.await { !it.recording }
+        snapshot.recordingStoppedLowSpace shouldBe true
+        snapshot.connection.shouldBeInstanceOf<ConnectionState.Connecting>()
+    }
+
+    @Test
+    fun `S003 RF-28 con poco espacio libre no se empieza a grabar y se avisa`() {
+        freeSpace = 50_000_000
+        val session = ReceiverSession(scope, connector, recorder = store)
+
+        session.connect(transport)
+
+        session.await { it.recordingStoppedLowSpace }.recording shouldBe false
     }
 }

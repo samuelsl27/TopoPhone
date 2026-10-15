@@ -139,4 +139,16 @@ class ReceiverConnectionCardTest {
 
         disconnected shouldBe true
     }
+
+    @Test
+    fun `S003 RF-28 si se deja de grabar por falta de espacio se avisa en la tarjeta Conexion`() {
+        show(
+            ReceiverUiState(
+                bluetooth = BluetoothUi.Ready(listOf(rs3)),
+                snapshot = ReceiverSnapshot(ConnectionState.Receiving("reach-RS3"), recordingStoppedLowSpace = true),
+            ),
+        )
+
+        compose.onNodeWithText(text(R.string.receiver_recording_stopped_low_space)).assertIsDisplayed()
+    }
 }

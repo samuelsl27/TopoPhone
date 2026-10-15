@@ -75,6 +75,8 @@ data class ReceiverSnapshot(
     val satellitesInView: Int? = null,
     /** Se está grabando la sesión (S003/RF-20). */
     val recording: Boolean = false,
+    /** Se dejó de grabar, o no se empezó, por falta de espacio libre (S003/RF-28). */
+    val recordingStoppedLowSpace: Boolean = false,
 )
 
 /** Registro de los datos brutos recibidos del receptor (S002/RF-42). */
@@ -102,7 +104,7 @@ interface SessionWriter {
  * Grabación de la sesión en curso. Un fallo al escribir (disco lleno…) detiene la grabación, pero
  * no la conexión con el receptor: no debe confundirse con un corte del enlace.
  */
-private class Recording(private val writer: SessionWriter, private val onStopped: () -> Unit) {
+private class Recording(private val writer: SessionWriter, private val onStopped: (lowStorage: Boolean) -> Unit) {
     @Volatile private var active = true
 
     fun write(bytes: ByteArray, offset: Int, length: Int) = guard { writer.write(bytes, offset, length) }
@@ -120,9 +122,9 @@ private class Recording(private val writer: SessionWriter, private val onStopped
         if (!active) return
         try {
             block()
-        } catch (_: IOException) {
+        } catch (e: IOException) {
             close()
-            onStopped()
+            onStopped(e is LowStorageException) // S003/RF-28
         }
     }
 }
@@ -152,6 +154,8 @@ class ReceiverSession(
 
     @Volatile private var lastEpochAtMs = 0L
 
+    @Volatile private var activeRecording: Recording? = null
+
     /** Lo usan el lector y el vigilante: siempre bajo [assemblerLock]. */
     private val assemblerLock = Any()
     private var assembler = EpochAssembler()
@@ -175,10 +179,18 @@ class ReceiverSession(
             }
             synchronized(assemblerLock) { assembler = EpochAssembler() }
             lastEpochAtMs = clock()
-            val recording = recorder.start(description)?.let { writer ->
-                Recording(writer) { mutableState.update { it.copy(recording = false) } }
+            var lowStorage = false
+            val writer = try {
+                recorder.start(description)
+            } catch (_: LowStorageException) {
+                lowStorage = true // S003/RF-28
+                null
             }
-            mutableState.update { it.copy(recording = recording != null) } // S003/RF-20
+            val recording = writer?.let {
+                Recording(it) { low -> mutableState.update { state -> state.copy(recording = false, recordingStoppedLowSpace = low) } }
+            }
+            mutableState.update { it.copy(recording = recording != null, recordingStoppedLowSpace = lowStorage) } // S003/RF-20
+            activeRecording = recording
             try {
                 coroutineScope {
                     launch(Dispatchers.IO) { drainWrites(newTransport, channel, recording) }
@@ -193,6 +205,7 @@ class ReceiverSession(
                     coroutineContext.cancelChildren()
                 }
             } finally {
+                activeRecording = null
                 recording?.close()
             }
         }
@@ -318,10 +331,15 @@ class ReceiverSession(
      * (S002/RF-8, S003/RF-12); GST antigua → sin precisión (S002/RF-17).
      */
     private suspend fun watchdog(description: String) {
+        var lastFlushMs = clock()
         while (currentCoroutineContext().isActive) {
             delay(watchdogPeriodMs)
             val now = clock()
             synchronized(assemblerLock) { assembler.tick(now) }?.let { onEpoch(it, description) }
+            if (now - lastFlushMs >= FLUSH_PERIOD_MS) { // un cierre brusco pierde como mucho los últimos 2 s
+                lastFlushMs = now
+                withContext(Dispatchers.IO) { activeRecording?.flush() }
+            }
             mutableState.update { current ->
                 var next = current
                 val waiting = current.connection is ConnectionState.Receiving || current.connection is ConnectionState.Connecting
@@ -352,6 +370,9 @@ class ReceiverSession(
 
         /** Periodo del vigilante: resolución con la que se detectan los 150 ms de silencio (S003/RF-9). */
         const val TICK_MS = 25L
+
+        /** La grabación se vacía a disco como mínimo una vez por segundo. */
+        const val FLUSH_PERIOD_MS = 1_000L
         private const val READ_BUFFER = 4096
     }
 }

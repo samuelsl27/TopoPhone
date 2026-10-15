@@ -20,7 +20,7 @@
       Hecho cuando: `StatusBarNavigationTest` y los tests de navegación de S001 en verde.
 - [x] T9. `receiver`: `SessionLogStore` v2 (carpeta por sesión, `session.properties`, partes de 16 MB, migración de los ficheros de S002) y grabación de las correcciones enviadas al receptor. (RF-24, S002/RF-42)
       Hecho cuando: `SessionLogStoreTest` y `ReceiverSessionRecordingTest` en verde.
-- [ ] T10. `receiver`: límite de espacio (500 MB, poda de las más antiguas, partes de la sesión en curso), parada con menos de 100 MB libres y vaciado como máximo cada segundo. (RF-25, RF-27, RF-28, S002/RF-44)
+- [x] T10. `receiver`: límite de espacio (500 MB, poda de las más antiguas, partes de la sesión en curso), parada con menos de 100 MB libres y vaciado como máximo cada segundo. (RF-25, RF-27, RF-28, S002/RF-44)
       Hecho cuando: `SessionLogStoreTest` en verde con los casos de límite.
 - [ ] T11. `data` + `app`: preferencia `session_space_mb` y fila "Espacio para sesiones" en Ajustes, aplicada al momento. (RF-26)
       Hecho cuando: `ReceiverPreferencesTest` y `SessionSpaceSettingTest` en verde.

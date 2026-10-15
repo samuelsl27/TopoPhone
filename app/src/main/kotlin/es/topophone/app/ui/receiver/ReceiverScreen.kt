@@ -132,6 +132,9 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
         val connection = state.snapshot.connection
         Text(connectionText(connection), modifier = Modifier.testTag(CONNECTION_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
         if (connection is ConnectionState.Failed) Text(stringResource(R.string.receiver_connect_failed_causes))
+        if (state.snapshot.recordingStoppedLowSpace) {
+            Text(stringResource(R.string.receiver_recording_stopped_low_space), color = MaterialTheme.colorScheme.error)
+        } // S003/RF-28
         when (connection) {
             is ConnectionState.Connecting, is ConnectionState.Receiving, is ConnectionState.NoData -> OutlinedButton(
                 onClick = actions.onDisconnect,

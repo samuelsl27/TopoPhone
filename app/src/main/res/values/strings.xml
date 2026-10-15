@@ -143,4 +143,5 @@
     <string name="tilt_setup">Configuración</string>
     <string name="tilt_alignment">Alineación</string>
     <string name="tilt_compensating">Compensando</string>
+    <string name="receiver_recording_stopped_low_space">Grabación detenida: queda poco espacio libre en el móvil.</string>
 </resources>

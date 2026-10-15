@@ -3,6 +3,7 @@ package es.topophone.receiver.session
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.OutputStream
 import java.time.Instant
 import java.time.LocalDateTime
@@ -10,6 +11,9 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Properties
+
+/** Queda menos espacio libre del necesario para seguir grabando (S003/RF-28). */
+class LowStorageException : IOException("Poco espacio libre para grabar la sesión")
 
 /** Origen de una sesión de la lista (S003/RF-29). */
 enum class SessionSource { RECORDED, IMPORTED }
@@ -42,13 +46,16 @@ data class RecordedSession(
 class SessionLogStore(
     private val directory: File,
     private val clock: () -> Instant = Instant::now,
-    private val maxSessions: Int = MAX_SESSIONS,
     private val partSizeBytes: Long = PART_SIZE_BYTES,
+    private val spaceLimitBytes: () -> Long = { DEFAULT_SPACE_LIMIT_BYTES },
+    private val freeSpaceBytes: () -> Long = { directory.usableSpace },
 ) : SessionRecorder {
 
+    /** @throws LowStorageException si el móvil tiene menos de [MIN_FREE_BYTES] libres (S003/RF-28). */
     override fun start(description: String): SessionWriter? {
         migrateLegacyFiles()
         if (!directory.exists() && !directory.mkdirs()) return null
+        if (freeSpaceBytes() < MIN_FREE_BYTES) throw LowStorageException()
         val startedAt = clock()
         val base = NAME_FORMAT.format(startedAt)
         var folder = File(directory, base)
@@ -57,8 +64,9 @@ class SessionLogStore(
         if (!folder.mkdirs()) return null
         val metadata = Metadata(SessionSource.RECORDED, description, startedAt, endedAt = null)
         metadata.writeTo(folder)
-        prune(keep = maxSessions)
-        return Writer(folder, metadata)
+        val writer = Writer(folder, metadata)
+        prune(writer)
+        return writer
     }
 
     /** Sesiones de la más reciente a la más antigua. */
@@ -88,8 +96,22 @@ class SessionLogStore(
         )
     }
 
-    private fun prune(keep: Int) {
-        sessions().drop(keep).forEach { it.directory.deleteRecursively() }
+    /**
+     * Borra las sesiones más antiguas mientras se pase del límite, sin tocar nunca la más reciente
+     * ni la que se graba (S003/RF-25); si aun así se pasa, la que se graba pierde sus partes más
+     * antiguas (S003/RF-27).
+     */
+    private fun prune(active: Writer?) {
+        val all = sessions()
+        val limit = spaceLimitBytes()
+        var total = all.sumOf { it.sizeBytes }
+        for (session in all.drop(1).asReversed()) {
+            if (total <= limit) break
+            if (session.directory == active?.folder) continue
+            total -= session.sizeBytes
+            session.directory.deleteRecursively()
+        }
+        if (total > limit) active?.dropOldestParts(total - limit)
     }
 
     /** Las sesiones de S002 eran ficheros sueltos `yyyyMMdd-HHmmss.nmea`: pasan a su carpeta. */
@@ -113,7 +135,7 @@ class SessionLogStore(
     }
 
     /** Escribe una sesión en partes de [partSizeBytes]. Lector y cola de escritura la usan a la vez. */
-    private inner class Writer(private val folder: File, private var metadata: Metadata) : SessionWriter {
+    private inner class Writer(val folder: File, private var metadata: Metadata) : SessionWriter {
         // El fichero del receptor existe desde el principio, aunque no llegue nada; el de correcciones, con la primera.
         private val receiver = PartedFile(folder, RECEIVER_PREFIX, RECEIVER_EXTENSION).apply { openNext() }
         private val corrections = PartedFile(folder, CORRECTIONS_PREFIX, CORRECTIONS_EXTENSION)
@@ -129,6 +151,7 @@ class SessionLogStore(
             if (!closed) corrections.write(bytes, 0, bytes.size)
         }
 
+        /** Vacía a disco, actualiza el fin y aplica el límite de espacio (S003/RF-25, S003/RF-27, S003/RF-28). */
         @Synchronized
         override fun flush() {
             if (closed) return
@@ -136,15 +159,37 @@ class SessionLogStore(
             corrections.flush()
             metadata = metadata.copy(endedAt = clock())
             metadata.writeTo(folder)
+            if (freeSpaceBytes() < MIN_FREE_BYTES) {
+                close()
+                throw LowStorageException()
+            }
+            prune(this)
+        }
+
+        /** Borra las partes más antiguas, nunca las que se están escribiendo, hasta liberar [excess] bytes. */
+        fun dropOldestParts(excess: Long) {
+            var remaining = excess
+            val current = setOfNotNull(receiver.currentFile, corrections.currentFile)
+            folder.listFiles().orEmpty()
+                .filter { (it.name.startsWith(RECEIVER_PREFIX) || it.name.startsWith(CORRECTIONS_PREFIX)) && it !in current }
+                .sortedWith(compareBy<File> { it.lastModified() }.thenBy { it.name.substringAfter("-") })
+                .forEach { file ->
+                    if (remaining <= 0) return
+                    remaining -= file.length()
+                    file.delete()
+                }
         }
 
         @Synchronized
         override fun close() {
             if (closed) return
-            flush()
+            closed = true
+            receiver.flush()
+            corrections.flush()
+            metadata = metadata.copy(endedAt = clock())
+            metadata.writeTo(folder)
             receiver.close()
             corrections.close()
-            closed = true
         }
     }
 
@@ -153,6 +198,8 @@ class SessionLogStore(
         private var part = 0
         private var stream: OutputStream? = null
         private var written = 0L
+        var currentFile: File? = null
+            private set
 
         fun write(bytes: ByteArray, offset: Int, length: Int) {
             var position = offset
@@ -180,7 +227,9 @@ class SessionLogStore(
             close()
             part++
             written = 0
-            stream = BufferedOutputStream(FileOutputStream(File(folder, partName(prefix, part, extension))))
+            val file = File(folder, partName(prefix, part, extension))
+            currentFile = file
+            stream = BufferedOutputStream(FileOutputStream(file))
         }
     }
 
@@ -223,7 +272,11 @@ class SessionLogStore(
     }
 
     companion object {
-        const val MAX_SESSIONS = 10
+        /** 500 MB (en unidades decimales, como Android) (S003/RF-25). */
+        const val DEFAULT_SPACE_LIMIT_BYTES = 500_000_000L
+
+        /** Por debajo de 100 MB libres se deja de grabar (S003/RF-28). */
+        const val MIN_FREE_BYTES = 100_000_000L
         const val PART_SIZE_BYTES = 16L * 1024 * 1024
         const val METADATA_FILE = "session.properties"
         const val RECEIVER_PREFIX = "receiver-"

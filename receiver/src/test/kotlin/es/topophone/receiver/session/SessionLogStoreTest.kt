@@ -1,6 +1,9 @@
 package es.topophone.receiver.session
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.longs.shouldBeLessThanOrEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -10,15 +13,27 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-/** Registro de sesiones del receptor (S002/RF-42 a RF-44, S003/RF-24). */
+/** Registro de sesiones del receptor (S002/RF-42 a RF-44, S003/RF-24, S003/RF-25, S003/RF-27, S003/RF-28). */
 class SessionLogStoreTest {
 
     @get:Rule
     val folder = TemporaryFolder()
 
     private var now = Instant.parse("2026-10-15T08:30:00Z")
-    private fun store(max: Int = 10, partSize: Long = SessionLogStore.PART_SIZE_BYTES) =
-        SessionLogStore(folder.root, clock = { now }, maxSessions = max, partSizeBytes = partSize)
+    private var limit = SessionLogStore.DEFAULT_SPACE_LIMIT_BYTES
+    private var freeSpace = 10_000_000_000L
+    private fun store(partSize: Long = SessionLogStore.PART_SIZE_BYTES) = SessionLogStore(
+        folder.root,
+        clock = { now },
+        partSizeBytes = partSize,
+        spaceLimitBytes = { limit },
+        freeSpaceBytes = { freeSpace },
+    )
+
+    private fun SessionLogStore.record(bytes: Int) = start("RS3")!!.apply {
+        write(ByteArray(bytes), 0, bytes)
+        close()
+    }
 
     private fun RecordedSession.receiverBytes() = receiverFiles.flatMap { it.readBytes().toList() }
 
@@ -113,17 +128,75 @@ class SessionLogStoreTest {
     }
 
     @Test
-    fun `S002 RF-44 se conservan como maximo las 10 ultimas sesiones`() {
+    fun `S003 RF-25 S002 RF-44 se conservan las sesiones mas recientes que caben en el limite y se borran las antiguas`() {
+        limit = 1_000
         val store = store()
 
-        repeat(13) {
-            store.start("RS3")!!.close()
+        repeat(5) {
+            store.record(300)
             now = now.plusSeconds(1)
         }
+        store.start("RS3")!!.close() // al empezar una sesión se aplica el límite
 
-        store.sessions() shouldHaveSize 10
-        store.sessions().first().id shouldBe "20261015-083012"
-        store.sessions().last().id shouldBe "20261015-083003"
+        store.sessions().sumOf { it.sizeBytes } shouldBeLessThanOrEqual 1_000L
+        store.sessions().map { it.id }.first() shouldBe "20261015-083005"
+        store.sessions().map { it.id } shouldNotContain "20261015-083000"
+    }
+
+    @Test
+    fun `S003 RF-25 el limite por defecto es de 500 MB`() {
+        SessionLogStore.DEFAULT_SPACE_LIMIT_BYTES shouldBe 500_000_000L
+    }
+
+    @Test
+    fun `S003 RF-25 la sesion mas reciente no se borra aunque supere sola el limite`() {
+        limit = 100
+        val store = store()
+        store.record(300)
+
+        store.start("RS3")!!.close()
+
+        store.sessions() shouldHaveSize 1
+    }
+
+    @Test
+    fun `S003 RF-27 si la sesion en curso supera sola el limite se conservan solo sus datos mas recientes`() {
+        limit = 450
+        val store = store(partSize = 100)
+        val writer = store.start("RS3")!!
+
+        repeat(10) { part ->
+            writer.write(ByteArray(100) { part.toByte() }, 0, 100)
+            writer.flush()
+        }
+
+        val session = store.latest()!!
+        session.sizeBytes shouldBeLessThanOrEqual 450L
+        session.receiverFiles.last().name shouldBe "receiver-0010.nmea"
+        session.receiverFiles.flatMap { it.readBytes().toList() }.last() shouldBe 9.toByte()
+        writer.close()
+    }
+
+    @Test
+    fun `S003 RF-28 con menos de 100 MB libres no se empieza a grabar`() {
+        freeSpace = 99_000_000
+        val store = store()
+
+        shouldThrow<LowStorageException> { store.start("RS3") }
+        store.sessions() shouldHaveSize 0
+    }
+
+    @Test
+    fun `S003 RF-28 si el espacio libre baja de 100 MB durante la grabacion se deja de grabar`() {
+        val store = store()
+        val writer = store.start("RS3")!!
+        writer.write(byteArrayOf(1, 2, 3), 0, 3)
+
+        freeSpace = 50_000_000
+        shouldThrow<LowStorageException> { writer.flush() }
+        writer.write(byteArrayOf(4), 0, 1)
+
+        store.latest()!!.receiverFiles.single().readBytes().toList() shouldBe listOf<Byte>(1, 2, 3)
     }
 
     @Test
