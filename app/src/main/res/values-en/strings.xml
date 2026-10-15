@@ -258,4 +258,12 @@
     <string name="folder_delete">Delete</string>
     <string name="folder_delete_confirm">Delete the folder “%1$s”? Its projects will be left outside folders.</string>
     <string name="folder_empty">This folder is empty.</string>
+    <string name="project_delete">Delete</string>
+    <string name="project_delete_confirm">Move “%1$s” to the trash? You can recover it for 30 days.</string>
+    <string name="project_restored_label">restored</string>
+    <string name="trash_days_left">%1$d days left</string>
+    <string name="trash_empty">The trash is empty.</string>
+    <string name="trash_restore">Restore</string>
+    <string name="trash_delete_forever">Delete forever</string>
+    <string name="trash_delete_forever_confirm">Delete “%1$s” forever? It cannot be recovered.</string>
 </resources>

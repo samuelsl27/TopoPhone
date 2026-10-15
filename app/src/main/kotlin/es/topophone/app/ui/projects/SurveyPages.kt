@@ -16,6 +16,9 @@ sealed interface SurveyPage {
 
     /** Una carpeta abierta (S006/RF-20). */
     data class Folder(val folderId: String) : SurveyPage
+
+    /** Papelera de proyectos (S006/RF-23). */
+    data object Trash : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -36,6 +39,7 @@ data class SurveyUiState(
     val form: ProjectFormUiState = ProjectFormUiState(loaded = true),
     val view: ProjectViewUiState = ProjectViewUiState(),
     val folder: ProjectFolderUiState = ProjectFolderUiState(),
+    val trash: TrashUiState = TrashUiState(),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -68,5 +72,6 @@ fun SurveyPageScreen(
             state.folder,
             ProjectFolderActions(ProjectListActions(onOpenProject = navigation.onOpenProject), navigation.onNewProject, navigation.onBack),
         )
+        SurveyPage.Trash -> TrashScreen(themeState, onToggleSun, state.trash, TrashActions(onBack = navigation.onBack))
     }
 }

@@ -78,6 +78,10 @@ class ProjectFolderViewModel @Inject constructor(private val repository: Project
         viewModelScope.launch { repository.moveToFolder(id, folderId) }
     }
 
+    fun delete(id: String) {
+        viewModelScope.launch { repository.moveToTrash(id) } // S006/RF-22
+    }
+
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
     }
@@ -104,6 +108,7 @@ fun ProjectFolderRoute(
                 onEdit = navigation.onEditProject,
                 onDuplicate = { viewModel.duplicate(it, copyLabel) },
                 onMove = viewModel::moveToFolder,
+                onDelete = viewModel::delete,
             ),
             onNewProject = navigation.onNewProject,
             onBack = navigation.onBack,

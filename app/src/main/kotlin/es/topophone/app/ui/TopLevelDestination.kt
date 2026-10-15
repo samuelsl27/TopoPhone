@@ -35,6 +35,9 @@ import kotlinx.serialization.Serializable
 /** Formulario de proyecto en Levantamiento: nuevo si [projectId] es null (S006). */
 @Serializable data class ProjectFormDestination(val projectId: String? = null, val folderId: String? = null)
 
+/** Papelera de proyectos (S006/RF-23). */
+@Serializable data object TrashDestination
+
 /** Una carpeta de proyectos (S006/RF-20). */
 @Serializable data class ProjectFolderDestination(val folderId: String)
 

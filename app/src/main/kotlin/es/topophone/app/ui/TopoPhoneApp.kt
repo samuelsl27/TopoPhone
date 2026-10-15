@@ -39,6 +39,7 @@ import es.topophone.app.ui.projects.ProjectListRoute
 import es.topophone.app.ui.projects.ProjectViewRoute
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.projects.SurveyPage
+import es.topophone.app.ui.projects.TrashRoute
 import es.topophone.app.ui.receiver.ReceiverNavigation
 import es.topophone.app.ui.receiver.ReceiverPage
 import es.topophone.app.ui.receiver.ReceiverRoute as ReceiverSectionRoute
@@ -82,6 +83,7 @@ fun TopoPhoneApp(
                 )
                 is SurveyPage.View -> ProjectViewRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.Folder -> ProjectFolderRoute(page.folderId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
+                SurveyPage.Trash -> TrashRoute(theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
             }
         },
     openReceiverRequest: Int = 0,
@@ -150,6 +152,7 @@ private fun AppNavHost(
                 },
                 onEditProject = { id -> navController.navigate(ProjectFormDestination(projectId = id)) }, // S006/RF-14
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
+                onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onBack = { navController.popBackStack() },
             )
             composable<SurveyRoute> { entry ->
@@ -168,6 +171,9 @@ private fun AppNavHost(
             composable<ProjectFolderDestination> { entry ->
                 val args = entry.toRoute<ProjectFolderDestination>()
                 surveySection(SurveyPage.Folder(args.folderId), uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
+            }
+            composable<TrashDestination> { entry ->
+                surveySection(SurveyPage.Trash, uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
             }
             composable<ProjectViewDestination> { entry ->
                 val args = entry.toRoute<ProjectViewDestination>()

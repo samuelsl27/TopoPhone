@@ -30,7 +30,7 @@
       Hecho cuando: `ProjectMenuTest` en verde.
 - [x] T14. `app`: carpetas (crear, renombrar, abrir, borrar). (RF-17, RF-18, RF-20, RF-21)
       Hecho cuando: `ProjectFolderTest` en verde.
-- [ ] T15. `app`: borrar un proyecto y papelera (restaurar, borrar definitivamente) y purga al arrancar. (RF-22 a RF-27)
+- [x] T15. `app`: borrar un proyecto y papelera (restaurar, borrar definitivamente) y purga al arrancar. (RF-22 a RF-27)
       Hecho cuando: `TrashTest` en verde.
 - [ ] T16. `app`: pantalla "Proyectos nuevos" en Ajustes. (RF-13)
       Hecho cuando: `ProjectDefaultsTest` en verde.

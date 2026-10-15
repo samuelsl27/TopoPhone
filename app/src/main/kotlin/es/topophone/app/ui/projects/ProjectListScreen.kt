@@ -124,6 +124,7 @@ class ProjectListActions(
     val onDeleteFolder: (String) -> Unit = {},
     val onSubmitFolderName: (String) -> Unit = {},
     val onDismissFolderDialog: () -> Unit = {},
+    val onDelete: (String) -> Unit = {},
 )
 
 /** Carpetas y proyectos que no están en ninguna (S006/RF-1) y la búsqueda en todas (S006/RF-4). */
@@ -193,6 +194,10 @@ class ProjectListViewModel @Inject constructor(private val repository: ProjectRe
         viewModelScope.launch { repository.deleteFolder(id) } // S006/RF-21
     }
 
+    fun delete(id: String) {
+        viewModelScope.launch { repository.moveToTrash(id) } // S006/RF-22
+    }
+
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
     }
@@ -226,6 +231,7 @@ fun ProjectListRoute(
             onDeleteFolder = viewModel::deleteFolder,
             onSubmitFolderName = viewModel::submitFolderName,
             onDismissFolderDialog = viewModel::dismissFolderDialog,
+            onDelete = viewModel::delete,
         ),
     )
 }
@@ -374,10 +380,11 @@ internal fun ProjectRows(
     }
 }
 
-/** Menú "⋮" de cada proyecto: editar, duplicar y mover a carpeta (S006/RF-14, RF-16, RF-19). */
+/** Menú "⋮" de cada proyecto: editar, duplicar, mover a carpeta y borrar (S006/RF-14, RF-16, RF-19, RF-22). */
 @Composable
 private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: () -> Unit) {
     var open by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(projectMenuTag(project.id))) {
         Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.project_menu, project.name))
     }
@@ -394,6 +401,21 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             onMove()
         }
+        MenuItem(R.string.project_delete) {
+            open = false
+            confirmDelete = true
+        }
+    }
+    if (confirmDelete) {
+        ConfirmDialog(
+            message = stringResource(R.string.project_delete_confirm, project.name),
+            confirm = stringResource(R.string.project_delete),
+            onConfirm = {
+                confirmDelete = false
+                actions.onDelete(project.id)
+            },
+            onDismiss = { confirmDelete = false },
+        )
     }
 }
 

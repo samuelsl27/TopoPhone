@@ -23,6 +23,7 @@ import es.topophone.app.ui.AppActions
 import es.topophone.app.ui.AppInfo
 import es.topophone.app.ui.AppUiState
 import es.topophone.app.ui.TopoPhoneApp
+import es.topophone.app.ui.projects.TrashPurge
 import es.topophone.app.ui.settings.appSettingsIntent
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
@@ -43,6 +44,8 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var connections: ReceiverConnections
 
+    @Inject lateinit var trashPurge: TrashPurge
+
     /** Cuántas veces se ha pedido abrir Receptor desde la notificación (S004/RF-9). */
     private val openReceiverRequests = MutableStateFlow(0)
 
@@ -50,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         lifecycleScope.launch { connections.autoConnect() } // S004/RF-25: una sola vez por arranque
+        lifecycleScope.launch { trashPurge.runOnce() } // S006/RF-27: la papelera se purga al abrir la app
         // Al recrearse la actividad, la navegación ya está restaurada: el extra solo cuenta la primera vez.
         if (savedInstanceState == null) handleOpenReceiver(intent)
         val appInfo = AppInfo(versionName = BuildConfig.VERSION_NAME, gitCommit = BuildConfig.GIT_COMMIT, repoUrl = BuildConfig.REPO_URL)

@@ -270,4 +270,12 @@
     <string name="folder_delete">Borrar</string>
     <string name="folder_delete_confirm">¿Borrar la carpeta «%1$s»? Sus proyectos quedarán fuera de las carpetas.</string>
     <string name="folder_empty">Esta carpeta está vacía.</string>
+    <string name="project_delete">Borrar</string>
+    <string name="project_delete_confirm">¿Mover «%1$s» a la papelera? Podrás recuperarlo durante 30 días.</string>
+    <string name="project_restored_label">restaurado</string>
+    <string name="trash_days_left">Quedan %1$d días</string>
+    <string name="trash_empty">La papelera está vacía.</string>
+    <string name="trash_restore">Restaurar</string>
+    <string name="trash_delete_forever">Borrar definitivamente</string>
+    <string name="trash_delete_forever_confirm">¿Borrar «%1$s» para siempre? No se podrá recuperar.</string>
 </resources>
