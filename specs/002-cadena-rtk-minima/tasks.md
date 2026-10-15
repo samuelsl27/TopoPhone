@@ -40,7 +40,7 @@
       Hecho cuando: `CoordinatesCardTest` en verde.
 - [x] T19. `app`: compartir sesión (FileProvider) y atribución del IGN en Licencias. (RF-43, RF-45)
       Hecho cuando: `ShareSessionTest` y `LicensesScreenTest` en verde.
-- [ ] T20. Reproducción de principio a fin de una sesión NMEA sintética (fichero → sesión → coordenadas) y latencia < 300 ms. (RF-11–RF-15, RF-32–RF-38)
+- [x] T20. Reproducción de principio a fin de una sesión NMEA sintética (fichero → sesión → coordenadas) y latencia < 300 ms. (RF-11–RF-15, RF-32–RF-38)
       Hecho cuando: `EndToEndReplayTest` en verde.
 - [ ] T21. Validación: recorrer la spec RF por RF, `rf_report`, demo con el RS3 real y puerta G0 en campo (protocolo (a)+(c), acta). (Todos)
       Hecho cuando: cada RF tiene test, la demo funciona y el acta G0 está firmada por el usuario.

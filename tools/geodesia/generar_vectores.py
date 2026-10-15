@@ -58,7 +58,8 @@ def utm_vectors(rng: random.Random) -> list[str]:
     return lines
 
 
-def geoid_vectors(rng: random.Random) -> list[str]:
+def geoid_transformer() -> Transformer:
+    """(lon, lat, 0) → (lon, lat, N) con la rejilla de la app; fuera de ella N no es finito."""
     pyproj.network.set_network_enabled(False)
     pyproj.datadir.append_data_dir(str(GEOID.path.parent))
     pipeline = (
@@ -66,7 +67,11 @@ def geoid_vectors(rng: random.Random) -> list[str]:
         f"+step +proj=vgridshift +grids={GEOID.name} +multiplier=1 "
         "+step +proj=unitconvert +xy_in=rad +xy_out=deg"
     )
-    transformer = Transformer.from_pipeline(pipeline)
+    return Transformer.from_pipeline(pipeline)
+
+
+def geoid_vectors(rng: random.Random) -> list[str]:
+    transformer = geoid_transformer()
 
     def node(i: int, j: int) -> tuple[float, float]:
         return GRID_LAT0 - j * GRID_STEP, GRID_LON0 + i * GRID_STEP

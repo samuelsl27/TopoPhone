@@ -1,18 +1,13 @@
 package es.topophone.app.ui.receiver
 
-import es.topophone.core.gnss.nmea.NmeaChecksum
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.data.receiver.NtripPreferences
-import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
 import es.topophone.receiver.session.ReceiverSession
-import es.topophone.receiver.transport.BluetoothDevices
-import es.topophone.receiver.transport.BondedDevice
-import es.topophone.receiver.transport.ReceiverTransport
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -25,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -45,31 +39,8 @@ class ReceiverViewModelTest {
     private val toApp = PipedOutputStream()
     private val receiverInput = PipedInputStream(toApp, 64 * 1024)
 
-    private class FakeBluetooth : BluetoothDevices {
-        var permission = true
-        var enabled = true
-        val transports = mutableMapOf<String, ReceiverTransport>()
-        override val isSupported = true
-        override val isEnabled get() = enabled
-        override fun hasConnectPermission() = permission
-        override fun bondedDevices() = listOf(BondedDevice("reach-RS3", "00:11:22:33:44:55"))
-        override fun transportFor(address: String) = transports.getValue(address)
-    }
-
-    private class FakePreferences : ReceiverPreferences {
-        val ntripFlow = MutableStateFlow(NtripPreferences())
-        val poleFlow = MutableStateFlow(1.8)
-        override val ntrip = ntripFlow
-        override val poleHeightM = poleFlow
-        override suspend fun saveNtrip(preferences: NtripPreferences) {
-            ntripFlow.value = preferences
-        }
-        override suspend fun savePoleHeight(heightM: Double) {
-            poleFlow.value = heightM
-        }
-    }
-
     private val bluetooth = FakeBluetooth()
+    private val calculator = GroundPointCalculator()
     private val preferences = FakePreferences()
     private var connectionLostAlerts = 0
     private var internet = true
@@ -79,8 +50,6 @@ class ReceiverViewModelTest {
         NtripFailure.UNREACHABLE
     }
     private val session = ReceiverSession(sessionScope, connector, noDataTimeoutMs = 60_000, watchdogPeriodMs = 1_000)
-
-    private fun nmea(body: String) = "$" + body + "*" + "%02X".format(NmeaChecksum.compute(body)) + "\r\n"
 
     @Before
     fun setUp() {
@@ -98,7 +67,7 @@ class ReceiverViewModelTest {
         session = session,
         bluetooth = bluetooth,
         preferences = preferences,
-        calculator = GroundPointCalculator(),
+        calculator = { calculator },
         network = { internet },
         alerts = { connectionLostAlerts++ },
         sessionFiles = { null },

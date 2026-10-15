@@ -2,6 +2,7 @@ package es.topophone.app.ui.receiver
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripFailure
@@ -95,7 +96,7 @@ class ReceiverViewModel @Inject constructor(
     private val session: ReceiverSession,
     private val bluetooth: BluetoothDevices,
     private val preferences: ReceiverPreferences,
-    private val calculator: GroundPointCalculator,
+    private val calculator: Lazy<GroundPointCalculator>,
     private val network: NetworkStatus,
     private val alerts: Alerts,
     private val sessionFiles: SessionFiles,
@@ -145,7 +146,7 @@ class ReceiverViewModel @Inject constructor(
             internetAvailable = formState.internet,
             poleHeightText = pole.text,
             poleHeightValid = PoleHeight.parse(pole.text) != null,
-            groundPoint = snapshot.gga?.let { calculator.compute(it, pole.value) },
+            groundPoint = snapshot.gga?.let { calculator.get().compute(it, pole.value) },
             sessionAvailable = extras.sessionAvailable,
             nowMs = extras.nowMs,
         )
@@ -156,6 +157,9 @@ class ReceiverViewModel @Inject constructor(
     )
 
     init {
+        // El geoide se descodifica la primera vez que se usa: fuera del hilo principal y antes de la
+        // primera GGA, para no bloquear la interfaz ni retrasar las primeras coordenadas (RNF-T13).
+        viewModelScope.launch(Dispatchers.Default) { calculator.get() }
         viewModelScope.launch {
             val saved = preferences.ntrip.first()
             form.value = NtripForm(saved.host, saved.port.toString(), saved.mountpoint, saved.username)
