@@ -4,7 +4,7 @@
 
 - [x] T1. Glosario (época, sesión, reproducción, barra de estado, satélites en vista, velocidad y rumbo sobre el suelo, posición de la base, estado de la inclinación) y, en `core:gnss`, `Constellation`, `NmeaTime`, `RmcParser`, `VtgParser` y `ZdaParser`. (RF-3, RF-4, RF-7)
       Hecho cuando: `RmcVtgZdaParserTest` en verde.
-- [ ] T2. `core:gnss`: `GsaParser` y `GsvParser` (talker por constelación, NMEA 4.10 y 4.11 con sistema y señal). (RF-1, RF-2, RF-7)
+- [x] T2. `core:gnss`: `GsaParser` y `GsvParser` (talker por constelación, NMEA 4.10 y 4.11 con sistema y señal). (RF-1, RF-2, RF-7)
       Hecho cuando: `GsaGsvParserTest` en verde.
 - [ ] T3. `core:gnss`: `EbpParser` y `EtcParser` (estados y avisos de ETC_rev_3). (RF-5, RF-6, RF-7)
       Hecho cuando: `EbpEtcParserTest` en verde.
