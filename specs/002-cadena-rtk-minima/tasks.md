@@ -16,7 +16,7 @@
       Hecho cuando: `GeoidModelTest` coincide con pyproj a ≤ 1 mm y fuera de la rejilla da "no disponible".
 - [x] T7. `core:model`: `AngleFormat` (DMS y DD) y `LengthFormat`. (RF-34, RF-35, RF-36, RF-38)
       Hecho cuando: `AngleFormatTest` en verde (es/en, hemisferios, redondeo de 59,999995″).
-- [ ] T8. `core:survey`: `VerticalPole` y `GroundPointCalculator`. (RF-32, RF-33, RF-37, RF-39, RF-40, RF-41)
+- [x] T8. `core:survey`: `VerticalPole` y `GroundPointCalculator`. (RF-32, RF-33, RF-37, RF-39, RF-40, RF-41)
       Hecho cuando: `GroundPointCalculatorTest` en verde.
 - [ ] T9. `core:ntrip`: `NtripRequest`, `NtripResponseParser` y `ChunkedDecoder`. (RF-21, RF-22)
       Hecho cuando: `NtripResponseParserTest` en verde (ICY, HTTP 200, chunked, 401, `SOURCETABLE`, 404).
