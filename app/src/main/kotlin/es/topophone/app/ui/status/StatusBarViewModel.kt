@@ -38,7 +38,7 @@ class StatusBarViewModel @Inject constructor(session: ReceiverSession, @param:Na
     }
 }
 
-/** Qué resume la barra de cada estado de la sesión (S003/RF-17 a RF-20, S003/RF-22). */
+/** Qué resume la barra de cada estado de la sesión (S003/RF-17 a RF-22). */
 internal fun toStatusBarState(snapshot: ReceiverSnapshot): StatusBarState {
     val connection = snapshot.connection
     val connected =
@@ -46,7 +46,7 @@ internal fun toStatusBarState(snapshot: ReceiverSnapshot): StatusBarState {
     if (!connected) return StatusBarState()
     val gga = snapshot.gga
     return StatusBarState(
-        source = StatusSource.RECEIVER,
+        source = if (snapshot.replay != null) StatusSource.REPLAY else StatusSource.RECEIVER, // S003/RF-21
         stale = connection is ConnectionState.NoData || gga == null,
         solution = gga?.status,
         satellites = gga?.satellites,

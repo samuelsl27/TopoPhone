@@ -24,6 +24,9 @@ interface ReceiverTransport : Closeable {
 
     val input: InputStream
     val output: OutputStream
+
+    /** Receptor simulado (reproducción): sin grabación ni correcciones (S003/RF-44, S003/RF-45). */
+    val simulated: Boolean get() = false
 }
 
 /** Transporte sobre flujos ya abiertos (tests y, más adelante, reproducción de sesiones). */

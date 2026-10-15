@@ -120,6 +120,7 @@ private fun statusText(ntrip: NtripState): String = stringResource(
         NtripState.Connecting -> R.string.ntrip_state_connecting
         is NtripState.Streaming -> R.string.ntrip_state_streaming
         NtripState.ReceiverNotConnected -> R.string.ntrip_receiver_not_connected // S002/RF-28
+        NtripState.UnavailableInReplay -> R.string.ntrip_unavailable_in_replay // S003/RF-44
         is NtripState.Stopped -> when (ntrip.failure) {
             NtripFailure.UNAUTHORIZED -> R.string.ntrip_error_unauthorized // S002/RF-21
             NtripFailure.MOUNTPOINT_NOT_FOUND -> R.string.ntrip_error_mountpoint // S002/RF-22

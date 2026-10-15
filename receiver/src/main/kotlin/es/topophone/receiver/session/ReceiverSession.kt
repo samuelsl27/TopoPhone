@@ -8,10 +8,12 @@ import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.GstParser
 import es.topophone.core.gnss.nmea.NmeaFramer
 import es.topophone.core.gnss.nmea.NmeaSentence
+import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.receiver.transport.ReceiverTransport
+import es.topophone.receiver.transport.ReplayTransport
 import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +46,9 @@ sealed interface ConnectionState {
     data class Lost(val description: String) : ConnectionState
 
     data class Failed(val failure: ConnectFailure) : ConnectionState
+
+    /** La reproducción llegó al final de la sesión sin bucle (S003/RF-40). */
+    data class ReplayFinished(val description: String) : ConnectionState
 }
 
 enum class ConnectFailure { TIMEOUT, ERROR }
@@ -59,7 +64,13 @@ sealed interface NtripState {
     data class Stopped(val failure: NtripFailure) : NtripState
 
     data object ReceiverNotConnected : NtripState
+
+    /** Una reproducción no admite correcciones (S003/RF-44). */
+    data object UnavailableInReplay : NtripState
 }
+
+/** Reproducción en curso: qué sesión, a qué velocidad y si vuelve a empezar (S003/RF-35). */
+data class ReplayInfo(val name: String, val speed: ReplaySpeed, val loop: Boolean)
 
 /**
  * Lo que la interfaz necesita saber de la sesión en cada momento. La GGA y la GST se publican al
@@ -77,6 +88,8 @@ data class ReceiverSnapshot(
     val recording: Boolean = false,
     /** Se dejó de grabar, o no se empezó, por falta de espacio libre (S003/RF-28). */
     val recordingStoppedLowSpace: Boolean = false,
+    /** Reproducción en curso o terminada; `null` con un receptor real o sin conexión. */
+    val replay: ReplayInfo? = null,
 )
 
 /** Registro de los datos brutos recibidos del receptor (S002/RF-42). */
@@ -171,7 +184,15 @@ class ReceiverSession(
             writes = channel
         }
         val description = newTransport.description
-        mutableState.value = ReceiverSnapshot(connection = ConnectionState.Connecting(description))
+        val replay = newTransport as? ReplayTransport
+        replay?.onRestart = {
+            // S003/RF-10, S003/RF-39: la última época de la vuelta se publica y se empieza de nuevo
+            synchronized(assemblerLock) { assembler.flush(clock()).also { assembler.reset() } }?.let { onEpoch(it, description) }
+        }
+        mutableState.value = ReceiverSnapshot(
+            connection = ConnectionState.Connecting(description),
+            replay = replay?.let { ReplayInfo(description, it.speed, it.loop) },
+        )
         connectionJob = scope.launch {
             open(newTransport)?.let { failure ->
                 mutableState.update { it.copy(connection = ConnectionState.Failed(failure)) } // S002/RF-7
@@ -181,7 +202,7 @@ class ReceiverSession(
             lastEpochAtMs = clock()
             var lowStorage = false
             val writer = try {
-                recorder.start(description)
+                if (newTransport.simulated) null else recorder.start(description) // S003/RF-45
             } catch (_: LowStorageException) {
                 lowStorage = true // S003/RF-28
                 null
@@ -198,9 +219,14 @@ class ReceiverSession(
                     read(newTransport, description, recording)
                     if (currentCoroutineContext().isActive) {
                         ntripJob?.cancel()
-                        mutableState.update {
-                            it.copy(connection = ConnectionState.Lost(description), ntrip = NtripState.Idle, recording = false)
-                        } // S002/RF-9
+                        // Fin de la reproducción (S003/RF-40), con su última época, o enlace perdido con el receptor (S002/RF-9).
+                        val end = if (newTransport.simulated) {
+                            synchronized(assemblerLock) { assembler.flush(clock()) }?.let { onEpoch(it, description) }
+                            ConnectionState.ReplayFinished(description)
+                        } else {
+                            ConnectionState.Lost(description)
+                        }
+                        mutableState.update { it.copy(connection = end, ntrip = NtripState.Idle, recording = false) }
                     }
                     coroutineContext.cancelChildren()
                 }
@@ -226,8 +252,26 @@ class ReceiverSession(
         mutableState.value = ReceiverSnapshot()
     }
 
+    /** Cambia la velocidad de la reproducción en curso (S003/RF-37). */
+    fun setReplaySpeed(speed: ReplaySpeed) {
+        val replay = synchronized(lock) { transport as? ReplayTransport } ?: return
+        replay.speed = speed
+        mutableState.update { it.copy(replay = it.replay?.copy(speed = speed)) }
+    }
+
+    /** Activa o desactiva el bucle de la reproducción en curso (S003/RF-39). */
+    fun setReplayLoop(loop: Boolean) {
+        val replay = synchronized(lock) { transport as? ReplayTransport } ?: return
+        replay.loop = loop
+        mutableState.update { it.copy(replay = it.replay?.copy(loop = loop)) }
+    }
+
     /** Conecta con el caster y reenvía sus correcciones al receptor (S002/RF-19, RF-28). */
     fun startNtrip(config: NtripConfig) {
+        if (synchronized(lock) { transport }?.simulated == true) {
+            mutableState.update { it.copy(ntrip = NtripState.UnavailableInReplay) } // S003/RF-44
+            return
+        }
         val channel = synchronized(lock) { writes }
         val connection = mutableState.value.connection
         if (channel == null || (connection !is ConnectionState.Receiving && connection !is ConnectionState.NoData)) {

@@ -154,4 +154,12 @@ class EpochAssemblerTest {
 
         completed.shouldBeEmpty()
     }
+
+    @Test
+    fun `S003 RF-9 S003 RF-39 al terminar o reiniciar una reproduccion la epoca abierta se completa al momento`() {
+        burst(gga("101530.00"))
+
+        assembler.flush(now).shouldNotBeNull().utcMillisOfDay shouldBe 36_930_000
+        assembler.flush(now).shouldBeNull()
+    }
 }

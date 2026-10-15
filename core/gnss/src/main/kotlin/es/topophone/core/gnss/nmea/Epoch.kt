@@ -70,6 +70,9 @@ class EpochAssembler(private val silenceMs: Long = DEFAULT_SILENCE_MS) {
     /** Completa la época en curso si lleva [silenceMs] sin frases (S003/RF-9). */
     fun tick(nowMs: Long): Epoch? = if (current.time != null && nowMs - lastArrivalMs >= silenceMs) complete(nowMs) else null
 
+    /** Completa ya la época en curso, si tiene hora: al terminar una reproducción o antes de volver a empezar. */
+    fun flush(nowMs: Long): Epoch? = if (current.time != null) complete(nowMs) else null
+
     /** Vuelta al principio de una reproducción: olvida la época en curso, la última hora y la fecha. */
     fun reset() {
         current = Builder()

@@ -151,4 +151,6 @@
     <string name="sessions_import">Import NMEA file</string>
     <string name="sessions_import_no_nmea">The file has no NMEA sentences with time.</string>
     <string name="sessions_import_too_large">The file exceeds 200 MB.</string>
+    <string name="ntrip_unavailable_in_replay">Replay does not accept corrections.</string>
+    <string name="receiver_replay_finished">Replay finished: %1$s</string>
 </resources>
