@@ -16,7 +16,7 @@
       Hecho cuando: `StatusCardTest` y `CoordinatesCardTest` en verde.
 - [x] T7. `core:designsystem` + `app`: tono `SIMULATION` y componente `StatusBar` sin estado (Sin receptor, solución, satélites, correcciones, Sin datos, Grabando, Simulación, inclinación). (RF-17–RF-22)
       Hecho cuando: `StatusBarTest` y `StatusPaletteTest` en verde.
-- [ ] T8. `app`: `StatusBarViewModel`, la barra en `SectionScaffold` de las tres secciones y la pulsación que abre Receptor. (RF-16, RF-23)
+- [x] T8. `app`: `StatusBarViewModel`, la barra en `SectionScaffold` de las tres secciones y la pulsación que abre Receptor. (RF-16, RF-23)
       Hecho cuando: `StatusBarNavigationTest` y los tests de navegación de S001 en verde.
 - [ ] T9. `receiver`: `SessionLogStore` v2 (carpeta por sesión, `session.properties`, partes de 16 MB, migración de los ficheros de S002) y grabación de las correcciones enviadas al receptor. (RF-24, S002/RF-42)
       Hecho cuando: `SessionLogStoreTest` y `ReceiverSessionRecordingTest` en verde.

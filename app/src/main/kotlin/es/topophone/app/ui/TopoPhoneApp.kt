@@ -10,6 +10,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -30,6 +31,7 @@ import es.topophone.app.ui.receiver.ReceiverRoute as ReceiverSectionRoute
 import es.topophone.app.ui.settings.AboutScreen
 import es.topophone.app.ui.settings.LicensesScreen
 import es.topophone.app.ui.settings.SettingsScreen
+import es.topophone.app.ui.status.StatusBarRoute
 import es.topophone.app.ui.survey.SurveyScreen
 import es.topophone.core.model.preferences.ThemeState
 
@@ -44,6 +46,7 @@ fun TopoPhoneApp(
     actions: AppActions,
     navController: NavHostController = rememberNavController(),
     receiverSection: @Composable (ThemeState, () -> Unit) -> Unit = { theme, toggleSun -> ReceiverSectionRoute(theme, toggleSun) },
+    statusBar: @Composable (onOpenReceiver: () -> Unit) -> Unit = { onOpenReceiver -> StatusBarRoute(onOpenReceiver) },
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
@@ -76,25 +79,39 @@ fun TopoPhoneApp(
             }
         },
     ) { padding ->
-        NavHost(navController = navController, startDestination = SurveyGraph, modifier = Modifier.padding(padding)) {
-            navigation<SurveyGraph>(startDestination = SurveyRoute) {
-                composable<SurveyRoute> { SurveyScreen(uiState.themeState, actions.onToggleSun) }
+        val openReceiver = { navController.navigateToTopLevel(TopLevelDestination.RECEIVER) } // S003/RF-23
+        CompositionLocalProvider(LocalStatusBar provides { statusBar(openReceiver) }) {
+            AppNavHost(navController, uiState, actions, receiverSection, Modifier.padding(padding))
+        }
+    }
+}
+
+@Composable
+private fun AppNavHost(
+    navController: NavHostController,
+    uiState: AppUiState,
+    actions: AppActions,
+    receiverSection: @Composable (ThemeState, () -> Unit) -> Unit,
+    modifier: Modifier,
+) {
+    NavHost(navController = navController, startDestination = SurveyGraph, modifier = modifier) {
+        navigation<SurveyGraph>(startDestination = SurveyRoute) {
+            composable<SurveyRoute> { SurveyScreen(uiState.themeState, actions.onToggleSun) }
+        }
+        navigation<ReceiverGraph>(startDestination = ReceiverRoute) {
+            composable<ReceiverRoute> { receiverSection(uiState.themeState, actions.onToggleSun) }
+        }
+        navigation<SettingsGraph>(startDestination = SettingsRoute) {
+            composable<SettingsRoute> {
+                SettingsScreen(
+                    uiState,
+                    actions,
+                    onOpenAbout = { navController.navigate(AboutRoute) },
+                    onOpenLicenses = { navController.navigate(LicensesRoute) },
+                )
             }
-            navigation<ReceiverGraph>(startDestination = ReceiverRoute) {
-                composable<ReceiverRoute> { receiverSection(uiState.themeState, actions.onToggleSun) }
-            }
-            navigation<SettingsGraph>(startDestination = SettingsRoute) {
-                composable<SettingsRoute> {
-                    SettingsScreen(
-                        uiState,
-                        actions,
-                        onOpenAbout = { navController.navigate(AboutRoute) },
-                        onOpenLicenses = { navController.navigate(LicensesRoute) },
-                    )
-                }
-                composable<AboutRoute> { AboutScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }
-                composable<LicensesRoute> { LicensesScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }
-            }
+            composable<AboutRoute> { AboutScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }
+            composable<LicensesRoute> { LicensesScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }
         }
     }
 }
