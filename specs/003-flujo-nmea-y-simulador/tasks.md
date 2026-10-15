@@ -28,7 +28,7 @@
       Hecho cuando: `SessionsScreenTest` en verde.
 - [x] T13. `receiver` + `app`: importar un fichero NMEA (selector de documentos, validación por contenido, límite de 200 MB, marcado "Importada"). (RF-33, RF-34)
       Hecho cuando: `SessionImportTest` en verde.
-- [ ] T14. `core:gnss`: `ReplayPacer` (ritmo por hora UTC acumulado, ×1/×5, cambio de velocidad, huecos de 10 s, medianoche, bucle). (RF-36, RF-37, RF-38, RF-39)
+- [x] T14. `core:gnss`: `ReplayPacer` (ritmo por hora UTC acumulado, ×1/×5, cambio de velocidad, huecos de 10 s, medianoche, bucle). (RF-36, RF-37, RF-38, RF-39)
       Hecho cuando: `ReplayPacerTest` en verde, con duración a ×1 dentro del 1 %.
 - [ ] T15. `receiver`: `ReplayTransport` y sesión en modo simulación (estados `Replaying`/`ReplayFinished`, reinicio de épocas en el bucle, sin grabación, NTRIP no disponible). (RF-32, RF-39, RF-40, RF-44, RF-45)
       Hecho cuando: `ReplayTransportTest` en verde.
