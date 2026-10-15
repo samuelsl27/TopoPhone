@@ -125,9 +125,23 @@ class ReceiverSessionTest {
 
     @Test
     fun `S002 RF-7 si la conexion da error se indica`() {
-        val session = session()
+        val session =
+            ReceiverSession(
+                scope,
+                NtripConnector { _, _, _, _ ->
+                    NtripFailure.CONNECTION_LOST
+                },
+                connectTimeoutMs = 1_000,
+                busyThresholdMs = 50,
+            )
 
-        session.connect(FakeTransport(openBehaviour = { throw IOException("rechazada") }))
+        // Un rechazo inmediato es BUSY (S004/RF-27); este tarda más que el umbral.
+        session.connect(
+            FakeTransport(openBehaviour = {
+                Thread.sleep(150)
+                throw IOException("rechazada")
+            }),
+        )
 
         session.await { it.connection is ConnectionState.Failed }.connection shouldBe ConnectionState.Failed(ConnectFailure.ERROR)
     }

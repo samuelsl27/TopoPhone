@@ -6,7 +6,7 @@
       Hecho cuando: `ReceiverSessionReconnectTest` y los tests de S002 y S003 en verde.
 - [x] T2. `receiver`: durante la reconexión, NTRIP en pausa y reanudado con la misma configuración, y la misma grabación. (RF-18, RF-19)
       Hecho cuando: `ReceiverSessionReconnectTest` en verde con esos casos.
-- [ ] T3. `receiver`: reintentos con el Bluetooth apagado, `ConnectFailure.BUSY` (rechazo en < 3 s) y `nmeaMissing` (10 s sin NMEA). (RF-22, RF-27, RF-28)
+- [x] T3. `receiver`: reintentos con el Bluetooth apagado, `ConnectFailure.BUSY` (rechazo en < 3 s) y `nmeaMissing` (10 s sin NMEA). (RF-22, RF-27, RF-28)
       Hecho cuando: `ReceiverSessionReconnectTest` en verde con esos casos.
 - [ ] T4. `app`: tarjeta Conexión con "Reconectando" (intento, cuenta atrás, "Reintentar ahora", Bluetooth apagado), vibración al empezar a reconectar y "Conexión perdida" tras rendirse; "Reconectando" en la barra de estado. (RF-13, RF-15, RF-16, RF-20, RF-22, RF-23)
       Hecho cuando: `ReconnectingCardTest`, `StatusBarStateTest` y `StatusBarTest` en verde.

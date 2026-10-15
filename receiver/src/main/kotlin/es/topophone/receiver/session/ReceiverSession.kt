@@ -12,6 +12,7 @@ import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.receiver.transport.BluetoothOffException
 import es.topophone.receiver.transport.ReceiverTransport
 import es.topophone.receiver.transport.ReplayTransport
 import java.io.IOException
@@ -49,7 +50,14 @@ sealed interface ConnectionState {
      * Se perdió el enlace y se está reintentando (S004/RF-13 a RF-16). [nextAttemptAtMs] es el
      * instante del siguiente intento (reloj monótono), o `null` mientras se intenta.
      */
-    data class Reconnecting(val description: String, val attempt: Int, val nextAttemptAtMs: Long?, val lostAtMs: Long) : ConnectionState
+    data class Reconnecting(
+        val description: String,
+        val attempt: Int,
+        val nextAttemptAtMs: Long?,
+        val lostAtMs: Long,
+        /** El último intento no pudo hacerse porque el Bluetooth del móvil está apagado (S004/RF-22). */
+        val bluetoothOff: Boolean = false,
+    ) : ConnectionState
 
     data class Failed(val failure: ConnectFailure) : ConnectionState
 
@@ -57,7 +65,13 @@ sealed interface ConnectionState {
     data class ReplayFinished(val description: String) : ConnectionState
 }
 
-enum class ConnectFailure { TIMEOUT, ERROR }
+enum class ConnectFailure {
+    TIMEOUT,
+    ERROR,
+
+    /** Rechazo en menos de 3 s: lo más probable es que otro dispositivo esté conectado al receptor (S004/RF-27). */
+    BUSY,
+}
 
 /** Estado de las correcciones NTRIP (S002/RF-19 a RF-25, RF-28). */
 sealed interface NtripState {
@@ -99,6 +113,8 @@ data class ReceiverSnapshot(
     val recordingStoppedLowSpace: Boolean = false,
     /** Reproducción en curso o terminada; `null` con un receptor real o sin conexión. */
     val replay: ReplayInfo? = null,
+    /** La conexión lleva 10 s abierta sin ninguna frase NMEA válida (S004/RF-28). */
+    val nmeaMissing: Boolean = false,
 )
 
 /** Registro de los datos brutos recibidos del receptor (S002/RF-42). */
@@ -166,6 +182,8 @@ class ReceiverSession(
     private val clock: () -> Long = { System.nanoTime() / 1_000_000 },
     private val backoffMs: List<Long> = DEFAULT_BACKOFF_MS,
     private val giveUpAfterMs: Long = GIVE_UP_AFTER_MS,
+    private val busyThresholdMs: Long = BUSY_THRESHOLD_MS,
+    private val nmeaMissingAfterMs: Long = NMEA_MISSING_AFTER_MS,
 ) {
     private val mutableState = MutableStateFlow(ReceiverSnapshot())
     val state: StateFlow<ReceiverSnapshot> = mutableState.asStateFlow()
@@ -190,6 +208,11 @@ class ReceiverSession(
     @Volatile private var ntripConfig: NtripConfig? = null
 
     @Volatile private var resumeNtripOnData = false
+
+    /** Apertura del enlace actual y si ya ha llegado alguna frase válida por él (S004/RF-28). */
+    @Volatile private var linkOpenedAtMs = 0L
+
+    @Volatile private var sawValidSentence = false
 
     /** "Reintentar ahora" durante la reconexión (S004/RF-16). */
     private val retrySignal = Channel<Unit>(Channel.CONFLATED)
@@ -222,6 +245,8 @@ class ReceiverSession(
             }
             synchronized(assemblerLock) { assembler = EpochAssembler() }
             lastEpochAtMs = clock()
+            linkOpenedAtMs = clock()
+            sawValidSentence = false
             var lowStorage = false
             val writer = try {
                 if (newTransport.simulated) null else recorder.start(description) // S003/RF-45
@@ -272,6 +297,8 @@ class ReceiverSession(
                         }
                         synchronized(assemblerLock) { assembler = EpochAssembler() }
                         lastEpochAtMs = clock()
+                        linkOpenedAtMs = clock()
+                        sawValidSentence = false
                         // S004/RF-17: la primera frase del enlace nuevo vuelve a dar "Recibiendo".
                         mutableState.update { it.copy(connection = ConnectionState.Connecting(description)) }
                     }
@@ -298,18 +325,27 @@ class ReceiverSession(
         while (retrySignal.tryReceive().isSuccess) Unit // un "Reintentar ahora" anterior no cuenta
         var attempt = 0
         var index = 0
+        var bluetoothOff = false
         while (true) {
             val wait = backoffMs[minOf(index, backoffMs.lastIndex)]
             val deadline = lostAt + giveUpAfterMs
             val now = clock()
             if (now >= deadline) return null
             val nextAt = minOf(now + wait, deadline)
-            mutableState.update { it.copy(connection = ConnectionState.Reconnecting(description, attempt, nextAt, lostAt)) }
+            mutableState.update { it.copy(connection = ConnectionState.Reconnecting(description, attempt, nextAt, lostAt, bluetoothOff)) }
             val retried = withTimeoutOrNull(nextAt - now) { retrySignal.receive() } != null
             if (!retried && clock() >= deadline) return null
             attempt++
-            mutableState.update { it.copy(connection = ConnectionState.Reconnecting(description, attempt, null, lostAt)) }
-            val candidate = runCatching { reopen() }.getOrNull()
+            mutableState.update { it.copy(connection = ConnectionState.Reconnecting(description, attempt, null, lostAt, bluetoothOff)) }
+            // S004/RF-22: con el Bluetooth apagado el intento falla y se sigue esperando a que se encienda.
+            val candidate = try {
+                reopen().also { bluetoothOff = false }
+            } catch (_: BluetoothOffException) {
+                bluetoothOff = true
+                null
+            } catch (_: Exception) {
+                null
+            }
             if (candidate != null && open(candidate) == null) return candidate
             index = if (retried) 0 else index + 1
         }
@@ -388,6 +424,7 @@ class ReceiverSession(
 
     /** Abre el transporte con plazo; si vence, lo cierra para desbloquear la conexión (S002/RF-7). */
     private suspend fun open(transport: ReceiverTransport): ConnectFailure? {
+        val started = clock()
         val opening = scope.async(Dispatchers.IO) { runCatching { transport.open() } }
         val result = withTimeoutOrNull(connectTimeoutMs) { opening.await() }
         return when {
@@ -398,7 +435,7 @@ class ReceiverSession(
             }
             result.isFailure -> {
                 runCatching { transport.close() }
-                ConnectFailure.ERROR
+                if (clock() - started < busyThresholdMs) ConnectFailure.BUSY else ConnectFailure.ERROR // S004/RF-27
             }
             else -> null
         }
@@ -422,6 +459,10 @@ class ReceiverSession(
 
     private fun onSentence(sentence: NmeaSentence, description: String) {
         val now = clock()
+        if (!sawValidSentence) {
+            sawValidSentence = true
+            if (mutableState.value.nmeaMissing) mutableState.update { it.copy(nmeaMissing = false) }
+        }
         val gga = if (sentence.type == "GGA") GgaParser.parse(sentence) else null
         val gst = if (sentence.type == "GST") GstParser.parse(sentence) else null
         if (gst != null) lastGstAtMs = now
@@ -477,6 +518,10 @@ class ReceiverSession(
                 val waiting = current.connection is ConnectionState.Receiving || current.connection is ConnectionState.Connecting
                 if (waiting && now - lastEpochAtMs > noDataTimeoutMs) next = next.copy(connection = ConnectionState.NoData(description))
                 if (current.gst != null && now - lastGstAtMs > accuracyStaleMs) next = next.copy(gst = null)
+                val linkOpen = waiting || current.connection is ConnectionState.NoData
+                if (linkOpen && !sawValidSentence && !current.nmeaMissing && now - linkOpenedAtMs >= nmeaMissingAfterMs) {
+                    next = next.copy(nmeaMissing = true) // S004/RF-28
+                }
                 next
             }
         }
@@ -505,6 +550,12 @@ class ReceiverSession(
 
         /** Esperas entre reintentos de reconexión: 1, 2, 4, 8 y 16 s y después cada 30 s (S004/RF-14, RNF-T3). */
         val DEFAULT_BACKOFF_MS = listOf(1_000L, 2_000L, 4_000L, 8_000L, 16_000L, 30_000L)
+
+        /** Un rechazo antes de 3 s apunta a que el receptor ya tiene otra conexión (S004/RF-27). */
+        const val BUSY_THRESHOLD_MS = 3_000L
+
+        /** Sin ninguna frase NMEA válida en 10 s con el enlace abierto (S004/RF-28). */
+        const val NMEA_MISSING_AFTER_MS = 10_000L
 
         /** La reconexión se rinde a los 30 min (S004/RF-20). */
         const val GIVE_UP_AFTER_MS = 30 * 60_000L

@@ -380,10 +380,24 @@ class SessionLogStore(
         }
 
         companion object {
+            /**
+             * Lee los metadatos. Mientras la grabación los reescribe (cada segundo) el fichero puede no
+             * estar accesible un instante: se reintenta antes de dar la sesión por ilegible.
+             */
+            private fun load(file: File): Properties? {
+                repeat(READ_ATTEMPTS) { attempt ->
+                    if (!file.isFile) return null
+                    try {
+                        return Properties().apply { file.inputStream().use(::load) }
+                    } catch (_: IOException) {
+                        if (attempt < READ_ATTEMPTS - 1) Thread.sleep(READ_RETRY_MS)
+                    }
+                }
+                return null
+            }
+
             fun readFrom(folder: File): Metadata? {
-                val file = File(folder, METADATA_FILE)
-                if (!file.isFile) return null
-                val properties = Properties().apply { file.inputStream().use(::load) }
+                val properties = load(File(folder, METADATA_FILE)) ?: return null
                 return try {
                     Metadata(
                         source = SessionSource.valueOf(properties.getProperty(KEY_SOURCE, SessionSource.RECORDED.name)),
@@ -422,6 +436,8 @@ class SessionLogStore(
         private const val KEY_STARTED = "startedAt"
         private const val KEY_ENDED = "endedAt"
         private const val NAME_LENGTH = 15
+        private const val READ_ATTEMPTS = 5
+        private const val READ_RETRY_MS = 10L
         private const val PART_DIGITS = 4
         private val LOCAL_NAME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")
         private val NAME_FORMAT: DateTimeFormatter = LOCAL_NAME_FORMAT.withZone(ZoneOffset.UTC)

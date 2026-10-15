@@ -29,6 +29,9 @@ interface ReceiverTransport : Closeable {
     val simulated: Boolean get() = false
 }
 
+/** El Bluetooth del móvil está apagado: no se puede abrir el receptor (S004/RF-22). */
+class BluetoothOffException : IOException("Bluetooth apagado")
+
 /** Transporte sobre flujos ya abiertos (tests y, más adelante, reproducción de sesiones). */
 class StreamTransport(override val description: String, override val input: InputStream, override val output: OutputStream) :
     ReceiverTransport {

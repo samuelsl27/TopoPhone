@@ -4,6 +4,7 @@ import es.topophone.core.gnss.nmea.NmeaChecksum
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.receiver.transport.BluetoothOffException
 import es.topophone.receiver.transport.ReceiverTransport
 import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.kotest.matchers.longs.shouldBeGreaterThanOrEqual
@@ -294,5 +295,49 @@ class ReceiverSessionReconnectTest {
         } finally {
             folder.deleteRecursively()
         }
+    }
+
+    @Test
+    fun `S004 RF-22 con el Bluetooth apagado se indica y se sigue reintentando hasta que vuelve`() {
+        val session = session(backoff = listOf(50))
+        val first = LinkTransport()
+        val back = LinkTransport()
+        var calls = 0
+        session.connected(first) {
+            attempts += now()
+            if (++calls <= 2) throw BluetoothOffException()
+            back
+        }
+
+        first.cut()
+        session.await { (it.connection as? ConnectionState.Reconnecting)?.bluetoothOff == true }
+        back.send(gga)
+
+        session.await { it.connection is ConnectionState.Receiving }
+        attempts shouldHaveAtLeastSize 3
+    }
+
+    @Test
+    fun `S004 RF-27 si el receptor rechaza la conexion al momento se indica que puede estar ocupado`() {
+        ReceiverSession.BUSY_THRESHOLD_MS shouldBe 3_000L
+        val session = session()
+
+        session.connect(LinkTransport(failOpen = true))
+
+        session.await { it.connection is ConnectionState.Failed }.connection shouldBe ConnectionState.Failed(ConnectFailure.BUSY)
+    }
+
+    @Test
+    fun `S004 RF-28 si la conexion se abre pero no llega NMEA en el plazo se indica, y se quita al llegar`() {
+        ReceiverSession.NMEA_MISSING_AFTER_MS shouldBe 10_000L
+        val session = ReceiverSession(scope, noNtrip, connectTimeoutMs = 300, nmeaMissingAfterMs = 300)
+        val link = LinkTransport()
+        session.connect(link)
+        link.send("basura sin NMEA\r\n")
+
+        session.await { it.nmeaMissing }
+        link.send(gga)
+
+        session.await { !it.nmeaMissing && it.connection is ConnectionState.Receiving }
     }
 }
