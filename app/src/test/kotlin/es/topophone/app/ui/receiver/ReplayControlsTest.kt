@@ -1,12 +1,17 @@
 package es.topophone.app.ui.receiver
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -104,5 +109,33 @@ class ReplayControlsTest {
         compose.onNodeWithTag(deviceTag(rs3.address)).performScrollTo().assertIsDisplayed().performClick()
 
         chosen shouldBe rs3.address
+    }
+
+    @Test
+    fun `S003 RF-37 la fila del bucle se activa pulsando tambien su texto`() {
+        var loop: Boolean? = null
+        show(replaying(), ReceiverActions(onReplayLoop = { loop = it }))
+
+        compose.onNodeWithText(text(R.string.replay_loop)).performScrollTo().performClick()
+
+        loop shouldBe true
+    }
+
+    @Test
+    fun `S003 RF-35 al empezar una reproduccion la pantalla sube hasta la tarjeta Conexion`() {
+        var snapshot by mutableStateOf(ReceiverSnapshot())
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ReceiverScreen(ThemeState.DEFAULT, {
+                }, ReceiverUiState(bluetooth = BluetoothUi.Ready(listOf(rs3)), snapshot = snapshot), ReceiverActions())
+            }
+        }
+        compose.onNodeWithTag(OPEN_SESSIONS_TAG).performScrollTo()
+        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assertIsNotDisplayed()
+
+        snapshot = replaying()
+        compose.waitForIdle()
+
+        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assertIsDisplayed()
     }
 }

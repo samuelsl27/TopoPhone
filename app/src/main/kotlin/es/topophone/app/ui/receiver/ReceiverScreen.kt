@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -26,12 +27,17 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -130,9 +136,19 @@ fun ReceiverRoute(
 /** Pantalla Receptor sin estado propio (S002). */
 @Composable
 fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: ReceiverUiState, actions: ReceiverActions) {
+    val scrollState = rememberScrollState()
+    // S003/RF-35: al empezar una reproducción se sube a la tarjeta Conexión, donde están sus controles.
+    val replayName = state.snapshot.replay?.name
+    var scrolledForReplay by rememberSaveable { mutableStateOf<String?>(null) }
+    LaunchedEffect(replayName) {
+        if (replayName != null && replayName != scrolledForReplay) {
+            scrollState.animateScrollTo(0)
+            scrolledForReplay = replayName
+        }
+    }
     SectionScaffold(title = stringResource(R.string.nav_receiver), themeState = themeState, onToggleSun = onToggleSun) { padding ->
         Column(
-            modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
+            modifier = Modifier.padding(padding).verticalScroll(scrollState).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             ConnectionCard(state, actions)
@@ -220,12 +236,16 @@ private fun ReplayControls(replay: ReplayInfo, actions: ReceiverActions) {
             }
         }
     }
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Switch(
-            checked = replay.loop,
-            onCheckedChange = actions.onReplayLoop,
-            modifier = Modifier.testTag(REPLAY_LOOP_TAG),
-        )
+    // Toda la fila, interruptor y texto, se pulsa (RNF-T8: 56 dp, con guantes).
+    Row(
+        modifier = Modifier
+            .heightIn(min = MinTouchTarget)
+            .toggleable(value = replay.loop, role = Role.Switch, onValueChange = actions.onReplayLoop)
+            .testTag(REPLAY_LOOP_TAG),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Switch(checked = replay.loop, onCheckedChange = null)
         Text(stringResource(R.string.replay_loop))
     }
     OutlinedButton(onClick = actions.onStopReplay, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(REPLAY_STOP_TAG)) {
