@@ -42,12 +42,16 @@ class StatusBarViewModel @Inject constructor(session: ReceiverSession, @param:Na
 internal fun toStatusBarState(snapshot: ReceiverSnapshot): StatusBarState {
     val connection = snapshot.connection
     val connected =
-        connection is ConnectionState.Connecting || connection is ConnectionState.Receiving || connection is ConnectionState.NoData
+        connection is ConnectionState.Connecting ||
+            connection is ConnectionState.Receiving ||
+            connection is ConnectionState.NoData ||
+            connection is ConnectionState.Reconnecting
     if (!connected) return StatusBarState()
     val gga = snapshot.gga
     return StatusBarState(
         source = if (snapshot.replay != null) StatusSource.REPLAY else StatusSource.RECEIVER, // S003/RF-21
-        stale = connection is ConnectionState.NoData || gga == null,
+        stale = connection is ConnectionState.NoData || (gga == null && connection !is ConnectionState.Reconnecting),
+        reconnecting = connection is ConnectionState.Reconnecting, // S004/RF-23
         solution = gga?.status,
         satellites = gga?.satellites,
         correctionAgeS = gga?.correctionAgeS,

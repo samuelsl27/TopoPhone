@@ -49,6 +49,8 @@ data class StatusBarState(
     val correctionAgeS: Double? = null,
     val recording: Boolean = false,
     val tilt: TiltState? = null,
+    /** Se está reconectando con el receptor (S004/RF-23). */
+    val reconnecting: Boolean = false,
 )
 
 /** Resumen del receptor en todas las secciones; al pulsarla se abre Receptor (S003/RF-16 a RF-23). */
@@ -87,6 +89,8 @@ private fun Content(state: StatusBarState) {
     val solution = state.solution
     when {
         state.source == StatusSource.NONE -> Text(stringResource(R.string.status_bar_no_receiver)) // S003/RF-17
+        // S004/RF-23
+        state.reconnecting -> Text(stringResource(R.string.status_bar_reconnecting), style = MaterialTheme.typography.titleSmall)
         state.stale -> Text(stringResource(R.string.status_bar_no_data), style = MaterialTheme.typography.titleSmall) // S003/RF-19
         solution != null -> {
             StatusChip(stringResource(solution.nameRes()), solution.tone(), Modifier.testTag(STATUS_BAR_SOLUTION_TAG)) // S003/RF-18

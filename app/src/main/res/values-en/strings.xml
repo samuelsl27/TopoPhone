@@ -164,4 +164,9 @@
     <string name="sessions_replay_confirm_text">To replay the session, the receiver and NTRIP connections will be closed.</string>
     <string name="receiver_state_reconnecting">Reconnecting to %1$s…</string>
     <string name="ntrip_paused">NTRIP paused while the receiver reconnects</string>
+    <string name="receiver_reconnect_waiting">Attempt %1$d · next in %2$d s</string>
+    <string name="receiver_reconnect_trying">Attempt %1$d in progress…</string>
+    <string name="receiver_reconnect_bluetooth_off">The phone\'s Bluetooth is off: it will try again once it is turned on.</string>
+    <string name="receiver_retry_now">Retry now</string>
+    <string name="status_bar_reconnecting">Reconnecting</string>
 </resources>

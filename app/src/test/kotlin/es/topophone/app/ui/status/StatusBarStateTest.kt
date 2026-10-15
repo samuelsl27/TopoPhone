@@ -60,4 +60,12 @@ class StatusBarStateTest {
             StatusSource.REPLAY
         toStatusBarState(ReceiverSnapshot(ConnectionState.ReplayFinished("sesion"), gga = gga, replay = replay)) shouldBe StatusBarState()
     }
+
+    @Test
+    fun `S004 RF-23 durante la reconexion la barra indica Reconectando`() {
+        val state = toStatusBarState(ReceiverSnapshot(ConnectionState.Reconnecting("RS3", 2, null, 0), gga = gga))
+
+        state.reconnecting shouldBe true
+        state.source shouldBe StatusSource.RECEIVER
+    }
 }

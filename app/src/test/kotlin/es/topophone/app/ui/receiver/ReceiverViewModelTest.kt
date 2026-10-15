@@ -211,4 +211,31 @@ class ReceiverViewModelTest {
         state.poleHeightText.replace(',', '.') shouldBe "2.000"
         state.snapshot.connection.shouldBeInstanceOf<ConnectionState.Disconnected>()
     }
+
+    @Test
+    fun `S004 RF-13 al empezar a reconectar se avisa con vibracion una sola vez`() {
+        val reconnecting =
+            ReceiverSession(sessionScope, connector, noDataTimeoutMs = 60_000, backoffMs = listOf(50), giveUpAfterMs = 60_000)
+        val vm = ReceiverViewModel(
+            session = reconnecting,
+            bluetooth = bluetooth,
+            preferences = preferences,
+            calculator = { calculator },
+            network = { internet },
+            alerts = { connectionLostAlerts++ },
+            sessionFiles = { null },
+            clock = { System.nanoTime() / 1_000_000 },
+            samplePeriodMs = 0,
+            replay = ReplayController(reconnecting) { emptyList() },
+        )
+        vm.awaitState { true }
+        reconnecting.connect(bluetooth.transports.getValue("00:11:22:33:44:55")) { throw java.io.IOException("sin receptor") }
+        toApp.write(nmea("GNGGA,101530.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
+        vm.awaitState { it.snapshot.connection is ConnectionState.Receiving }
+
+        toApp.close()
+
+        vm.awaitState { (it.snapshot.connection as? ConnectionState.Reconnecting)?.attempt == 3 }
+        connectionLostAlerts shouldBe 1
+    }
 }

@@ -176,4 +176,9 @@
     <string name="sessions_replay_confirm_text">Para reproducir la sesión se cerrará la conexión con el receptor y la NTRIP.</string>
     <string name="receiver_state_reconnecting">Reconectando con %1$s…</string>
     <string name="ntrip_paused">NTRIP en pausa mientras se reconecta el receptor</string>
+    <string name="receiver_reconnect_waiting">Intento %1$d · siguiente en %2$d s</string>
+    <string name="receiver_reconnect_trying">Intento %1$d en curso…</string>
+    <string name="receiver_reconnect_bluetooth_off">El Bluetooth del móvil está apagado: se volverá a intentar al encenderlo.</string>
+    <string name="receiver_retry_now">Reintentar ahora</string>
+    <string name="status_bar_reconnecting">Reconectando</string>
 </resources>

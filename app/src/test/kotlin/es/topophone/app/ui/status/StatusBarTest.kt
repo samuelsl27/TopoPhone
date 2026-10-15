@@ -127,4 +127,13 @@ class StatusBarTest {
 
         clicked shouldBe true
     }
+
+    @Test
+    fun `S004 RF-23 durante la reconexion se muestra Reconectando en lugar de la solucion`() {
+        show(fix.copy(reconnecting = true))
+
+        bar().assert(hasText(text(R.string.status_bar_reconnecting)))
+        compose.onNodeWithTag(STATUS_BAR_SOLUTION_TAG).assertDoesNotExist()
+        text(R.string.status_bar_reconnecting) shouldBe "Reconectando"
+    }
 }

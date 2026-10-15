@@ -69,6 +69,7 @@ class ReceiverActions(
     val onReplayLoop: (Boolean) -> Unit = {},
     val onStopReplay: () -> Unit = {},
     val onReplayAgain: () -> Unit = {},
+    val onRetryNow: () -> Unit = {},
 )
 
 const val PERMISSION_REQUEST_TAG = "bt_permission_request"
@@ -82,6 +83,8 @@ const val REPLAY_SPEED_X5_TAG = "replay_speed_x5"
 const val REPLAY_LOOP_TAG = "replay_loop"
 const val REPLAY_STOP_TAG = "replay_stop"
 const val REPLAY_AGAIN_TAG = "replay_again"
+const val RECONNECT_DETAIL_TAG = "reconnect_detail"
+const val RETRY_NOW_TAG = "retry_now"
 
 fun deviceTag(address: String) = "device_$address"
 
@@ -129,6 +132,7 @@ fun ReceiverRoute(
             onReplayLoop = viewModel::setReplayLoop,
             onStopReplay = viewModel::stopReplay,
             onReplayAgain = viewModel::replayAgain,
+            onRetryNow = viewModel::retryNow,
         ),
     )
 }
@@ -201,6 +205,7 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
                 onClick = actions.onReconnect,
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(RECONNECT_TAG),
             ) { Text(stringResource(R.string.receiver_reconnect)) }
+            is ConnectionState.Reconnecting -> ReconnectingDetails(connection, state.nowMs, actions)
             is ConnectionState.ReplayFinished -> Button(
                 onClick = actions.onReplayAgain,
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(REPLAY_AGAIN_TAG),
@@ -212,6 +217,30 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
         }
     }
 }
+
+/** Intento, cuenta atrás, Bluetooth apagado, "Reintentar ahora" y "Desconectar" (S004/RF-15, RF-16, RF-21, RF-22). */
+@Composable
+private fun ReconnectingDetails(state: ConnectionState.Reconnecting, nowMs: Long, actions: ReceiverActions) {
+    val next = state.nextAttemptAtMs
+    val detail = if (next == null) {
+        stringResource(R.string.receiver_reconnect_trying, state.attempt)
+    } else {
+        val seconds = ((next - nowMs).coerceAtLeast(0) + MS_PER_S - 1) / MS_PER_S
+        stringResource(R.string.receiver_reconnect_waiting, state.attempt, seconds.toInt())
+    }
+    Text(detail, modifier = Modifier.testTag(RECONNECT_DETAIL_TAG))
+    if (state.bluetoothOff) Text(stringResource(R.string.receiver_reconnect_bluetooth_off), color = MaterialTheme.colorScheme.error)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Button(onClick = actions.onRetryNow, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(RETRY_NOW_TAG)) {
+            Text(stringResource(R.string.receiver_retry_now))
+        }
+        OutlinedButton(onClick = actions.onDisconnect, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(DISCONNECT_TAG)) {
+            Text(stringResource(R.string.receiver_disconnect))
+        }
+    }
+}
+
+private const val MS_PER_S = 1_000L
 
 /** Velocidad, bucle y Detener de la reproducción en curso (S003/RF-37, S003/RF-39, S003/RF-41). */
 @Composable

@@ -8,7 +8,7 @@
       Hecho cuando: `ReceiverSessionReconnectTest` en verde con esos casos.
 - [x] T3. `receiver`: reintentos con el Bluetooth apagado, `ConnectFailure.BUSY` (rechazo en < 3 s) y `nmeaMissing` (10 s sin NMEA). (RF-22, RF-27, RF-28)
       Hecho cuando: `ReceiverSessionReconnectTest` en verde con esos casos.
-- [ ] T4. `app`: tarjeta Conexión con "Reconectando" (intento, cuenta atrás, "Reintentar ahora", Bluetooth apagado), vibración al empezar a reconectar y "Conexión perdida" tras rendirse; "Reconectando" en la barra de estado. (RF-13, RF-15, RF-16, RF-20, RF-22, RF-23)
+- [x] T4. `app`: tarjeta Conexión con "Reconectando" (intento, cuenta atrás, "Reintentar ahora", Bluetooth apagado), vibración al empezar a reconectar y "Conexión perdida" tras rendirse; "Reconectando" en la barra de estado. (RF-13, RF-15, RF-16, RF-20, RF-22, RF-23)
       Hecho cuando: `ReconnectingCardTest`, `StatusBarStateTest` y `StatusBarTest` en verde.
 - [ ] T5. `app`: mensajes de diagnóstico (receptor ocupado por otra conexión, salida de posición desactivada). (RF-27, RF-28)
       Hecho cuando: `ConnectionDiagnosisTest` en verde.

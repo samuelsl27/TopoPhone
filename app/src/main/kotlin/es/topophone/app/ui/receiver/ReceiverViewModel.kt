@@ -172,7 +172,8 @@ class ReceiverViewModel @Inject constructor(
         }
         viewModelScope.launch {
             // S002/RF-9
-            session.state.map { it.connection }.distinctUntilChanged().collect { if (it is ConnectionState.Lost) alerts.connectionLost() }
+            // S002/RF-9, S004/RF-13, S004/RF-20: vibra al empezar a reconectar y al dar la conexión por perdida, una vez cada vez.
+            session.state.map { alertFor(it.connection) }.distinctUntilChanged().collect { if (it != null) alerts.connectionLost() }
         }
         viewModelScope.launch {
             session.state.map { it.ntrip }.distinctUntilChanged().collect { state ->
@@ -196,6 +197,8 @@ class ReceiverViewModel @Inject constructor(
     }
 
     fun disconnect() = session.disconnect() // S002/RF-10
+
+    fun retryNow() = session.retryNow() // S004/RF-16
 
     fun setReplaySpeed(speed: ReplaySpeed) = session.setReplaySpeed(speed) // S003/RF-37
 
@@ -247,6 +250,12 @@ class ReceiverViewModel @Inject constructor(
     private fun formatPoleHeight(value: Double): String {
         val plain = BigDecimal(value.toString()).setScale(3).toPlainString()
         return plain.replace('.', DecimalFormatSymbols.getInstance().decimalSeparator)
+    }
+
+    private fun alertFor(connection: ConnectionState): String? = when (connection) {
+        is ConnectionState.Reconnecting -> "reconnecting"
+        is ConnectionState.Lost -> "lost"
+        else -> null
     }
 
     companion object {
