@@ -189,4 +189,19 @@
     <string name="receiver_pairing_search_failed">Couldn\'t search for receivers. Pair the receiver from the phone\'s Bluetooth settings.</string>
     <string name="receiver_pairing_search_cancelled">Search cancelled.</string>
     <string name="receiver_pairing_failed">Couldn\'t pair the receiver. Check the PIN and try again.</string>
+    <string name="background_help_title">Background operation</string>
+    <string name="background_help_intro">Some manufacturers close background apps to save battery, which would cut the receiver connection with the screen off. Follow these steps once on your phone.</string>
+    <string name="background_help_general_title">On every phone</string>
+    <string name="background_help_general_steps">1. Tap “App battery settings”, open Battery and choose “Unrestricted”.\n2. Don\'t close TopoPhone from recent apps while you work.\n3. If you use the phone\'s battery saver, turn it off during the working day.</string>
+    <string name="background_help_open_battery">App battery settings</string>
+    <string name="background_help_your_phone">%1$s (your phone)</string>
+    <string name="background_help_samsung_title">Samsung</string>
+    <string name="background_help_samsung_steps">Settings > Battery > Background usage limits: if TopoPhone is in “Sleeping apps” or “Deep sleeping apps”, remove it and add it to “Never sleeping apps”.</string>
+    <string name="background_help_xiaomi_title">Xiaomi, Redmi and POCO</string>
+    <string name="background_help_xiaomi_steps">Settings > Apps > Manage apps > TopoPhone: turn on “Autostart” and, under “Battery saver”, choose “No restrictions”. In recent apps, long-press TopoPhone and lock it.</string>
+    <string name="background_help_huawei_title">Huawei and Honor</string>
+    <string name="background_help_huawei_steps">Settings > Battery > App launch: turn off “Manage automatically” for TopoPhone and keep “Auto-launch”, “Secondary launch” and “Run in background” on.</string>
+    <string name="background_help_oppo_title">OPPO, realme and OnePlus</string>
+    <string name="background_help_oppo_steps">Settings > Battery > More settings > Optimise battery use: choose “Don\'t optimise” for TopoPhone and allow its background activity. In recent apps, lock it.</string>
+    <string name="background_help_note">Menu names vary with the phone model and the Android version.</string>
 </resources>

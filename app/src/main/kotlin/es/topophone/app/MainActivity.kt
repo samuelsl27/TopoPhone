@@ -23,6 +23,7 @@ import es.topophone.app.ui.AppActions
 import es.topophone.app.ui.AppInfo
 import es.topophone.app.ui.AppUiState
 import es.topophone.app.ui.TopoPhoneApp
+import es.topophone.app.ui.settings.appSettingsIntent
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -86,6 +87,7 @@ class MainActivity : AppCompatActivity() {
                         onSelectLanguage = ::applyLanguage,
                         onOpenUrl = ::openUrl,
                         onSelectSessionSpace = viewModel::selectSessionSpace,
+                        onOpenAppBatterySettings = { startActivity(appSettingsIntent(packageName)) },
                     ),
                     openReceiverRequest = openReceiverRequest,
                 )

@@ -31,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import es.topophone.app.ui.receiver.ReceiverRoute as ReceiverSectionRoute
 import es.topophone.app.ui.sessions.SessionsSection
 import es.topophone.app.ui.settings.AboutScreen
+import es.topophone.app.ui.settings.BackgroundHelpScreen
 import es.topophone.app.ui.settings.LicensesScreen
 import es.topophone.app.ui.settings.SettingsScreen
 import es.topophone.app.ui.status.StatusBarRoute
@@ -127,10 +128,14 @@ private fun AppNavHost(
                     actions,
                     onOpenAbout = { navController.navigate(AboutRoute) },
                     onOpenLicenses = { navController.navigate(LicensesRoute) },
+                    onOpenBackgroundHelp = { navController.navigate(BackgroundHelpRoute) },
                 )
             }
             composable<AboutRoute> { AboutScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }
             composable<LicensesRoute> { LicensesScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }
+            composable<BackgroundHelpRoute> {
+                BackgroundHelpScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) // S004/RF-12
+            }
         }
     }
 }

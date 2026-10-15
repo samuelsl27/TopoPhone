@@ -42,6 +42,7 @@ fun StatefulTestApp(
     appInfo: AppInfo = testAppInfo,
     onOpenUrl: (String) -> Unit = {},
     onSelectSessionSpace: (Int) -> Unit = {},
+    onOpenAppBatterySettings: () -> Unit = {},
 ) {
     var themeName by rememberSaveable { mutableStateOf(initialTheme.mode.name to initialTheme.beforeSun.name) }
     var language by rememberSaveable { mutableStateOf(AppLanguage.SYSTEM) }
@@ -63,6 +64,7 @@ fun StatefulTestApp(
                     sessionSpaceMb = it
                     onSelectSessionSpace(it)
                 },
+                onOpenAppBatterySettings = onOpenAppBatterySettings,
             ),
             receiverSection = { theme, toggleSun, openSessions ->
                 ReceiverScreen(theme, toggleSun, ReceiverUiState(), ReceiverActions(onOpenSessions = openSessions))

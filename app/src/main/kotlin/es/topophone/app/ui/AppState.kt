@@ -24,4 +24,6 @@ class AppActions(
     val onSelectLanguage: (AppLanguage) -> Unit,
     val onOpenUrl: (String) -> Unit,
     val onSelectSessionSpace: (Int) -> Unit = {},
+    /** Ajustes de la app en el sistema, para su batería (S004/RF-12). */
+    val onOpenAppBatterySettings: () -> Unit = {},
 )

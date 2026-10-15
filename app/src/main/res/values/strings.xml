@@ -201,4 +201,19 @@
     <string name="receiver_pairing_search_failed">No se ha podido buscar receptores. Empareja el receptor desde los ajustes de Bluetooth del móvil.</string>
     <string name="receiver_pairing_search_cancelled">Búsqueda cancelada.</string>
     <string name="receiver_pairing_failed">No se ha podido emparejar el receptor. Comprueba el PIN y vuelve a intentarlo.</string>
+    <string name="background_help_title">Funcionamiento en segundo plano</string>
+    <string name="background_help_intro">Algunos fabricantes cierran las apps en segundo plano para ahorrar batería, y con la pantalla apagada se cortaría la conexión con el receptor. Sigue estos pasos una vez en tu móvil.</string>
+    <string name="background_help_general_title">En todos los móviles</string>
+    <string name="background_help_general_steps">1. Pulsa «Ajustes de batería de la app», entra en Batería y elige «Sin restricciones».\n2. No cierres TopoPhone desde las apps recientes mientras trabajas.\n3. Si usas el ahorro de batería del móvil, desactívalo durante la jornada.</string>
+    <string name="background_help_open_battery">Ajustes de batería de la app</string>
+    <string name="background_help_your_phone">%1$s (tu móvil)</string>
+    <string name="background_help_samsung_title">Samsung</string>
+    <string name="background_help_samsung_steps">Ajustes > Batería > Límites de uso en segundo plano: si TopoPhone está en «Apps en suspensión» o en «Apps en suspensión profunda», quítala de ahí y añádela a «Apps que nunca se suspenden».</string>
+    <string name="background_help_xiaomi_title">Xiaomi, Redmi y POCO</string>
+    <string name="background_help_xiaomi_steps">Ajustes > Aplicaciones > Administrar aplicaciones > TopoPhone: activa «Inicio automático» y, en «Ahorro de batería», elige «Sin restricciones». En las apps recientes, mantén pulsada TopoPhone y fíjala con el candado.</string>
+    <string name="background_help_huawei_title">Huawei y Honor</string>
+    <string name="background_help_huawei_steps">Ajustes > Batería > Inicio de aplicaciones: desactiva «Gestionar automáticamente» para TopoPhone y deja activados «Inicio automático», «Inicio secundario» y «Ejecutar en segundo plano».</string>
+    <string name="background_help_oppo_title">OPPO, realme y OnePlus</string>
+    <string name="background_help_oppo_steps">Ajustes > Batería > Más ajustes > Optimizar uso de la batería: elige «No optimizar» para TopoPhone y permite su actividad en segundo plano. En las apps recientes, fíjala con el candado.</string>
+    <string name="background_help_note">Los nombres de los menús cambian según el modelo y la versión de Android.</string>
 </resources>

@@ -28,7 +28,7 @@
       Hecho cuando: `ReceiverPairingTest` en verde.
 - [x] T13. `app`: "Añadir receptor" en la tarjeta Conexión (buscar, emparejar, conectar, mensajes de cancelación y fallo). (RF-1, RF-2, RF-3, RF-4)
       Hecho cuando: `AddReceiverTest` en verde.
-- [ ] T14. `app`: ayuda "Funcionamiento en segundo plano" en Ajustes, con acceso a los ajustes de batería de la app. (RF-12)
+- [x] T14. `app`: ayuda "Funcionamiento en segundo plano" en Ajustes, con acceso a los ajustes de batería de la app. (RF-12)
       Hecho cuando: `BackgroundHelpTest` en verde.
 - [ ] T15. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador (reconexión con un transporte simulado no aplica; notificación, ayuda y estados con la reproducción) y demo con el RS3 real según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo con el RS3 funciona.

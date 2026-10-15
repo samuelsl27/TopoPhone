@@ -28,6 +28,7 @@ const val THEME_SETTING_TAG = "setting_theme"
 const val LANGUAGE_SETTING_TAG = "setting_language"
 const val ABOUT_SETTING_TAG = "setting_about"
 const val LICENSES_SETTING_TAG = "setting_licenses"
+const val BACKGROUND_HELP_SETTING_TAG = "setting_background_help"
 
 fun themeOptionTag(mode: ThemeMode) = "theme_option_${mode.name}"
 
@@ -54,7 +55,13 @@ fun AppLanguage.labelRes(): Int = when (this) {
  * El diálogo abierto y el desplazamiento sobreviven al giro (S001/RF-7).
  */
 @Composable
-fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> Unit, onOpenLicenses: () -> Unit) {
+fun SettingsScreen(
+    uiState: AppUiState,
+    actions: AppActions,
+    onOpenAbout: () -> Unit,
+    onOpenLicenses: () -> Unit,
+    onOpenBackgroundHelp: () -> Unit = {},
+) {
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     var showSessionSpaceDialog by rememberSaveable { mutableStateOf(false) }
@@ -86,6 +93,11 @@ fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> 
                 value = sessionSpaceLabel(uiState.sessionSpaceMb),
                 onClick = { showSessionSpaceDialog = true },
                 modifier = Modifier.testTag(SESSION_SPACE_SETTING_TAG),
+            )
+            SettingsItem(
+                title = stringResource(R.string.background_help_title),
+                onClick = onOpenBackgroundHelp, // S004/RF-12
+                modifier = Modifier.testTag(BACKGROUND_HELP_SETTING_TAG),
             )
             SettingsSectionHeader(stringResource(R.string.settings_section_information))
             SettingsItem(
