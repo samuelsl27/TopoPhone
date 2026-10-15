@@ -21,6 +21,7 @@ import es.topophone.app.ui.text
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
+import io.kotest.matchers.collections.shouldContain as shouldContainElement
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -28,6 +29,7 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
+import java.time.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -39,6 +41,8 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ServiceController
+import org.robolectric.shadows.ShadowPowerManager
+import org.robolectric.shadows.ShadowSystemClock
 
 /** Servicio en primer plano con la notificación del receptor (S004/RF-7 a RF-11). Interfaz en español (es-ES). */
 @RunWith(AndroidJUnit4::class)
@@ -87,6 +91,40 @@ class ReceiverServiceTest {
 
         info.foregroundServiceType shouldBe ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
         info.exported shouldBe false
+        val permissions = app.packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS).requestedPermissions.orEmpty()
+        permissions.toList() shouldContainElement Manifest.permission.WAKE_LOCK
+    }
+
+    @Test
+    fun `S004 RF-7 mientras el servicio sigue mantiene un wakelock parcial que suelta al detenerse`() {
+        receiving()
+        val service = start()
+
+        val wakeLock = ShadowPowerManager.getLatestWakeLock().shouldNotBeNull()
+        wakeLock.isHeld shouldBe true
+        shadowOf(wakeLock).tag shouldBe "TopoPhone:receiver"
+
+        session.disconnect()
+
+        waitFor { shadowOf(service).isStoppedBySelf }
+        wakeLock.isHeld shouldBe false
+    }
+
+    @Test
+    fun `S004 RF-7 el wakelock caduca a los 10 min si no se renueva y el servicio lo renueva antes`() {
+        receiving()
+        start()
+        val wakeLock = ShadowPowerManager.getLatestWakeLock().shouldNotBeNull()
+
+        // Sin ejecutar nada en el hilo principal, el plazo vence solo: un fallo nunca lo deja tomado.
+        ShadowSystemClock.advanceBy(Duration.ofMinutes(10).plusSeconds(1))
+        wakeLock.isHeld shouldBe false
+
+        // El servicio lo renueva antes de que venza, durante toda la jornada.
+        shadowOf(Looper.getMainLooper()).idle()
+        wakeLock.isHeld shouldBe true
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofHours(8))
+        wakeLock.isHeld shouldBe true
     }
 
     @Test

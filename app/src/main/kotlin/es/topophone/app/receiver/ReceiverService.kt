@@ -7,6 +7,7 @@ import android.content.pm.ServiceInfo
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.EntryPoint
@@ -38,6 +39,9 @@ interface ReceiverServiceEntryPoint {
  * Mantiene la conexión con el receptor, el NTRIP y la grabación en segundo plano, con una
  * notificación permanente (S004/RF-7, RF-8; RNF-T2). Se detiene en cuanto no hay receptor
  * conectado ni reconectándose (S004/RF-11), también al pulsar "Desconectar" en la notificación (S004/RF-10).
+ *
+ * Con la pantalla apagada, un wakelock parcial mantiene la CPU despierta (S004/RF-7). Se toma con un
+ * plazo de 10 min que se renueva cada 5 min: si algo fallase sin soltarlo, caduca solo.
  */
 class ReceiverService : Service() {
 
@@ -45,6 +49,13 @@ class ReceiverService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val main = Handler(Looper.getMainLooper())
     private var collector: Job? = null
+    private var wakeLock: PowerManager.WakeLock? = null
+    private val renewWakeLock = object : Runnable {
+        override fun run() {
+            wakeLock?.acquire(WAKE_LOCK_TIMEOUT_MS)
+            main.postDelayed(this, WAKE_LOCK_RENEW_MS)
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -65,6 +76,7 @@ class ReceiverService : Service() {
             ReceiverNotifications.build(this, session.state.value),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE,
         )
+        holdWakeLock()
         if (collector == null) {
             // RNF de la spec: la notificación se actualiza como mucho una vez por segundo.
             collector = scope.launch {
@@ -81,15 +93,31 @@ class ReceiverService : Service() {
         return START_NOT_STICKY
     }
 
+    private fun holdWakeLock() {
+        if (wakeLock != null) return
+        wakeLock = getSystemService(PowerManager::class.java)
+            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG)
+            .apply { setReferenceCounted(false) }
+        renewWakeLock.run()
+    }
+
+    private fun releaseWakeLock() {
+        main.removeCallbacks(renewWakeLock)
+        wakeLock?.takeIf { it.isHeld }?.release()
+        wakeLock = null
+    }
+
     private fun stop() {
         collector?.cancel()
         collector = null
+        releaseWakeLock()
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
     override fun onDestroy() {
         scope.cancel()
+        releaseWakeLock()
         super.onDestroy()
     }
 
@@ -97,6 +125,9 @@ class ReceiverService : Service() {
 
     companion object {
         private const val UPDATE_PERIOD_MS = 1_000L
+        private const val WAKE_LOCK_TAG = "TopoPhone:receiver"
+        private const val WAKE_LOCK_TIMEOUT_MS = 10 * 60_000L
+        private const val WAKE_LOCK_RENEW_MS = 5 * 60_000L
 
         /** Acción "Desconectar" de la notificación (S004/RF-10). */
         const val ACTION_DISCONNECT = "es.topophone.app.action.DISCONNECT_RECEIVER"
