@@ -40,5 +40,5 @@
       Hecho cuando: `ProjectViewTest` en verde para la posición.
 - [x] T19. Rendimiento con 500 proyectos (lista < 1 s, búsqueda < 300 ms). (RNF de la spec)
       Hecho cuando: el test de rendimiento en verde.
-- [ ] T20. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
+- [x] T20. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona.

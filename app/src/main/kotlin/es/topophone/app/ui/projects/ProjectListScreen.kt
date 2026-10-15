@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -34,6 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -281,8 +284,10 @@ fun ProjectListScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
                 return@LazyColumn
             }
             itemsIndexed(state.folders, key = { _, folder -> "folder-${folder.id}" }) { index, folder ->
-                if (index > 0) HorizontalDivider()
-                FolderRow(folder, actions)
+                Column(Modifier.clip(groupShape(index, state.folders.size))) {
+                    if (index > 0) HorizontalDivider()
+                    FolderRow(folder, actions)
+                }
             }
             if (state.folders.isNotEmpty() && state.projects.isNotEmpty()) item { Spacer(Modifier.height(12.dp)) }
             projectItems(state.projects, actions, onMove = { moving = it })
@@ -373,11 +378,27 @@ internal fun LazyListScope.projectItems(
     onMove: (Project) -> Unit,
 ) {
     itemsIndexed(projects, key = { _, project -> "project-${project.id}" }) { index, project ->
-        if (index > 0) HorizontalDivider()
-        ProjectRow(project, folderOf(project), onClick = { actions.onOpenProject(project.id) }) {
-            ProjectMenu(project, actions, onMove = { onMove(project) })
+        Column(Modifier.clip(groupShape(index, projects.size))) {
+            if (index > 0) HorizontalDivider()
+            ProjectRow(project, folderOf(project), onClick = { actions.onOpenProject(project.id) }) {
+                ProjectMenu(project, actions, onMove = { onMove(project) })
+            }
         }
     }
+}
+
+/** Esquinas de la fila [index] de un grupo de [count]: las filas seguidas se ven como una sola tarjeta. */
+@Composable
+private fun groupShape(index: Int, count: Int): Shape {
+    val card = MaterialTheme.shapes.medium
+    val first = index == 0
+    val last = index == count - 1
+    return card.copy(
+        topStart = if (first) card.topStart else ZeroCornerSize,
+        topEnd = if (first) card.topEnd else ZeroCornerSize,
+        bottomEnd = if (last) card.bottomEnd else ZeroCornerSize,
+        bottomStart = if (last) card.bottomStart else ZeroCornerSize,
+    )
 }
 
 /** Menú "⋮" de cada proyecto: editar, duplicar, mover a carpeta y borrar (S006/RF-14, RF-16, RF-19, RF-22). */
