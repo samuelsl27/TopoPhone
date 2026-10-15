@@ -22,7 +22,7 @@
       Hecho cuando: `NtripResponseParserTest` en verde (ICY, HTTP 200, chunked, 401, `SOURCETABLE`, 404).
 - [x] T10. `core:ntrip`: `NtripClient` (caster falso: reenvío, GGA cada 5 s, sin datos 10 s, corte, inaccesible) y `NtripStats`. (RF-19, RF-20, RF-23, RF-24, RF-25)
       Hecho cuando: `NtripClientTest` en verde.
-- [ ] T11. `receiver`: `ReceiverTransport`, transporte falso, `BluetoothSppTransport` y `BondedDevices`. (RF-1, RF-5)
+- [x] T11. `receiver`: `ReceiverTransport`, transporte falso, `BluetoothSppTransport` y `BondedDevices`. (RF-1, RF-5)
       Hecho cuando: compila, y `BondedDevicesTest` (Robolectric) en verde.
 - [ ] T12. `receiver`: `ReceiverSession` (estados, plazos, pérdida, reenvío de RTCM, NTRIP sin receptor). (RF-5–RF-10, RF-19, RF-28)
       Hecho cuando: `ReceiverSessionTest` en verde con tiempo virtual.
