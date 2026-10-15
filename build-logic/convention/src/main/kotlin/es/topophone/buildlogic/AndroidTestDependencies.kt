@@ -27,5 +27,7 @@ internal fun Project.configureRobolectricJvm() {
             "--add-opens=java.base/java.lang=ALL-UNNAMED",
         )
         maxHeapSize = "2g"
+        // Hilt (KSP) genera fuentes de test aunque el módulo aún no tenga tests.
+        failOnNoDiscoveredTests.set(false)
     }
 }

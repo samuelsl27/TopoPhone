@@ -6,7 +6,9 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -26,7 +28,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** "Licencias y atribuciones" (S001/RF-23). */
+/** "Licencias y atribuciones" (S001/RF-23, S002/RF-45). */
 @RunWith(AndroidJUnit4::class)
 class LicensesScreenTest {
 
@@ -69,13 +71,32 @@ class LicensesScreenTest {
         compose.onNodeWithTag(LICENSES_LIST_TAG)
             .assertIsDisplayed()
             .assert(
-                SemanticsMatcher("una fila por componente") {
+                SemanticsMatcher("una fila por componente y la cabecera de datos") {
+                    // + 1: la cabecera con las atribuciones de datos (S002/RF-45).
                     it.config.getOrNull(SemanticsProperties.CollectionInfo)?.rowCount ==
-                        libs.libraries.size
+                        libs.libraries.size + 1
                 },
             )
 
         compose.onNodeWithTag(NAVIGATE_BACK_TAG).performClick()
         compose.onNodeWithTag(LICENSES_SETTING_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S002 RF-45 se muestra la atribucion del geoide EGM08-REDNAP del IGN con su licencia`() {
+        var opened: String? = null
+        compose.setContent { StatefulTestApp(onOpenUrl = { opened = it }) }
+        compose.navItem(TopLevelDestination.SETTINGS).performClick()
+        compose.onNodeWithTag(LICENSES_SETTING_TAG).performScrollTo().performClick()
+
+        compose.waitUntil(timeoutMillis = 5_000) { compose.onAllNodesWithTag(GEOID_ATTRIBUTION_TAG).fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag(GEOID_ATTRIBUTION_TAG)
+            .assertIsDisplayed()
+            .assert(hasText("EGM08-REDNAP", substring = true))
+            .assert(hasText("© Instituto Geográfico Nacional", substring = true))
+            .assert(hasText("CC BY 4.0", substring = true))
+        compose.onNodeWithTag(CC_BY_LINK_TAG).performClick()
+
+        opened shouldBe CC_BY_4_URL
     }
 }

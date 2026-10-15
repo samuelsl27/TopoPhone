@@ -26,11 +26,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import es.topophone.app.ui.receiver.ReceiverScreen
+import es.topophone.app.ui.receiver.ReceiverRoute as ReceiverSectionRoute
 import es.topophone.app.ui.settings.AboutScreen
 import es.topophone.app.ui.settings.LicensesScreen
 import es.topophone.app.ui.settings.SettingsScreen
 import es.topophone.app.ui.survey.SurveyScreen
+import es.topophone.core.model.preferences.ThemeState
 
 /**
  * Estructura de la app: barra inferior con las tres secciones y su contenido (S001/RF-2, S001/RF-3).
@@ -38,7 +39,12 @@ import es.topophone.app.ui.survey.SurveyScreen
  * (S001/RF-7, S001/RF-8).
  */
 @Composable
-fun TopoPhoneApp(uiState: AppUiState, actions: AppActions, navController: NavHostController = rememberNavController()) {
+fun TopoPhoneApp(
+    uiState: AppUiState,
+    actions: AppActions,
+    navController: NavHostController = rememberNavController(),
+    receiverSection: @Composable (ThemeState, () -> Unit) -> Unit = { theme, toggleSun -> ReceiverSectionRoute(theme, toggleSun) },
+) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
 
@@ -75,7 +81,7 @@ fun TopoPhoneApp(uiState: AppUiState, actions: AppActions, navController: NavHos
                 composable<SurveyRoute> { SurveyScreen(uiState.themeState, actions.onToggleSun) }
             }
             navigation<ReceiverGraph>(startDestination = ReceiverRoute) {
-                composable<ReceiverRoute> { ReceiverScreen(uiState.themeState, actions.onToggleSun) }
+                composable<ReceiverRoute> { receiverSection(uiState.themeState, actions.onToggleSun) }
             }
             navigation<SettingsGraph>(startDestination = SettingsRoute) {
                 composable<SettingsRoute> {

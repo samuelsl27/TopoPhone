@@ -22,6 +22,17 @@
             </intent-filter>
         </activity>
 
+        <!-- Compartir el fichero de la última sesión con otras apps (S002/RF-43). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <!-- Idioma por app en Android 8–12: AppCompat guarda la elección (S001/RF-18). -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
