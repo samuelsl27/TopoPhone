@@ -85,6 +85,7 @@ const val REPLAY_STOP_TAG = "replay_stop"
 const val REPLAY_AGAIN_TAG = "replay_again"
 const val RECONNECT_DETAIL_TAG = "reconnect_detail"
 const val RETRY_NOW_TAG = "retry_now"
+const val NMEA_MISSING_TAG = "nmea_missing"
 
 fun deviceTag(address: String) = "device_$address"
 
@@ -192,7 +193,24 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
             return@ReceiverCard
         }
         Text(connectionText(connection), modifier = Modifier.testTag(CONNECTION_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
-        if (connection is ConnectionState.Failed) Text(stringResource(R.string.receiver_connect_failed_causes))
+        if (connection is ConnectionState.Failed) {
+            // S004/RF-27: un rechazo inmediato tiene una causa más probable que las demás.
+            val causes = if (connection.failure ==
+                ConnectFailure.BUSY
+            ) {
+                R.string.receiver_busy_cause
+            } else {
+                R.string.receiver_connect_failed_causes
+            }
+            Text(stringResource(causes))
+        }
+        if (state.snapshot.nmeaMissing) {
+            Text(
+                stringResource(R.string.receiver_nmea_missing),
+                modifier = Modifier.testTag(NMEA_MISSING_TAG),
+                color = MaterialTheme.colorScheme.error,
+            )
+        } // S004/RF-28
         if (state.snapshot.recordingStoppedLowSpace) {
             Text(stringResource(R.string.receiver_recording_stopped_low_space), color = MaterialTheme.colorScheme.error)
         } // S003/RF-28
@@ -292,7 +310,11 @@ private fun connectionText(connection: ConnectionState): String = when (connecti
     is ConnectionState.Reconnecting -> stringResource(R.string.receiver_state_reconnecting, connection.description) // S004/RF-13
     is ConnectionState.ReplayFinished -> stringResource(R.string.receiver_replay_finished, connection.description) // S003/RF-40
     is ConnectionState.Failed -> stringResource(
-        if (connection.failure == ConnectFailure.TIMEOUT) R.string.receiver_state_failed_timeout else R.string.receiver_state_failed_error,
+        when (connection.failure) {
+            ConnectFailure.TIMEOUT -> R.string.receiver_state_failed_timeout
+            ConnectFailure.BUSY -> R.string.receiver_state_failed_busy // S004/RF-27
+            ConnectFailure.ERROR -> R.string.receiver_state_failed_error
+        },
     )
 }
 

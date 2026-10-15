@@ -169,4 +169,7 @@
     <string name="receiver_reconnect_bluetooth_off">The phone\'s Bluetooth is off: it will try again once it is turned on.</string>
     <string name="receiver_retry_now">Retry now</string>
     <string name="status_bar_reconnecting">Reconnecting</string>
+    <string name="receiver_state_failed_busy">The receiver refused the connection</string>
+    <string name="receiver_busy_cause">Most likely another device, such as Emlid Flow, is connected to the receiver over Bluetooth: disconnect it and try again.</string>
+    <string name="receiver_nmea_missing">Connected, but the receiver is not sending position. Turn on Bluetooth position output (NMEA) in Emlid Flow.</string>
 </resources>
