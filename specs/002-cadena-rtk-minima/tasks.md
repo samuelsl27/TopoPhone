@@ -18,7 +18,7 @@
       Hecho cuando: `AngleFormatTest` en verde (es/en, hemisferios, redondeo de 59,999995″).
 - [x] T8. `core:survey`: `VerticalPole` y `GroundPointCalculator`. (RF-32, RF-33, RF-37, RF-39, RF-40, RF-41)
       Hecho cuando: `GroundPointCalculatorTest` en verde.
-- [ ] T9. `core:ntrip`: `NtripRequest`, `NtripResponseParser` y `ChunkedDecoder`. (RF-21, RF-22)
+- [x] T9. `core:ntrip`: `NtripRequest`, `NtripResponseParser` y `ChunkedDecoder`. (RF-21, RF-22)
       Hecho cuando: `NtripResponseParserTest` en verde (ICY, HTTP 200, chunked, 401, `SOURCETABLE`, 404).
 - [ ] T10. `core:ntrip`: `NtripClient` (caster falso: reenvío, GGA cada 5 s, sin datos 10 s, corte, inaccesible) y `NtripStats`. (RF-19, RF-20, RF-23, RF-24, RF-25)
       Hecho cuando: `NtripClientTest` en verde.
