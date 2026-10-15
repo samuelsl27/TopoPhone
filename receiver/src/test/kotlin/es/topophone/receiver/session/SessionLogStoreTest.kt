@@ -227,4 +227,20 @@ class SessionLogStoreTest {
         session.receiverBytes() shouldBe listOf<Byte>(7, 8, 9)
         File(folder.root, "20261014-070000.nmea").exists() shouldBe false
     }
+
+    @Test
+    fun `S003 RF-26 al reducir el limite se borran en ese momento las sesiones mas antiguas que no caben`() {
+        val store = store()
+        repeat(4) {
+            store.record(300)
+            now = now.plusSeconds(1)
+        }
+        store.sessions() shouldHaveSize 4
+
+        limit = 900
+        store.applySpaceLimit()
+
+        store.sessions().sumOf { it.sizeBytes } shouldBeLessThanOrEqual 900L
+        store.sessions().first().id shouldBe "20261015-083003"
+    }
 }

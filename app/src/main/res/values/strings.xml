@@ -144,4 +144,8 @@
     <string name="tilt_alignment">Alineación</string>
     <string name="tilt_compensating">Compensando</string>
     <string name="receiver_recording_stopped_low_space">Grabación detenida: queda poco espacio libre en el móvil.</string>
+    <string name="settings_section_receiver">Receptor</string>
+    <string name="settings_session_space">Espacio para sesiones</string>
+    <string name="settings_session_space_mb">%1$d MB</string>
+    <string name="settings_session_space_gb">%1$d GB</string>
 </resources>

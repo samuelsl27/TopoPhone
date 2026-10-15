@@ -24,14 +24,27 @@ data class NtripPreferences(val host: String = "", val port: Int = DEFAULT_PORT,
     }
 }
 
+/** Espacio para las sesiones grabadas: valores entre 100 MB y 2 GB que se ofrecen en Ajustes (S003/RF-26). */
+object SessionSpace {
+    val OPTIONS_MB = listOf(100, 250, 500, 1000, 2000)
+    const val DEFAULT_MB = 500
+
+    /** MB decimales, como Android. */
+    const val BYTES_PER_MB = 1_000_000L
+}
+
 /** Preferencias del receptor y del cálculo del punto del suelo. */
 interface ReceiverPreferences {
     val ntrip: Flow<NtripPreferences>
     val poleHeightM: Flow<Double>
+    val sessionSpaceMb: Flow<Int>
 
     suspend fun saveNtrip(preferences: NtripPreferences)
 
     suspend fun savePoleHeight(heightM: Double)
+
+    /** Guarda el espacio para sesiones; un valor que no está entre las opciones se ignora (S003/RF-26). */
+    suspend fun saveSessionSpaceMb(mb: Int)
 }
 
 @Qualifier
@@ -57,6 +70,9 @@ class DataStoreReceiverPreferences @Inject constructor(@param:ReceiverDataStoreQ
 
     override val poleHeightM: Flow<Double> = data.map { it[POLE_HEIGHT] ?: PoleHeight.DEFAULT_M }.distinctUntilChanged()
 
+    override val sessionSpaceMb: Flow<Int> =
+        data.map { p -> p[SESSION_SPACE]?.takeIf { it in SessionSpace.OPTIONS_MB } ?: SessionSpace.DEFAULT_MB }.distinctUntilChanged()
+
     override suspend fun saveNtrip(preferences: NtripPreferences) {
         dataStore.edit {
             it[HOST] = preferences.host
@@ -70,11 +86,16 @@ class DataStoreReceiverPreferences @Inject constructor(@param:ReceiverDataStoreQ
         dataStore.edit { it[POLE_HEIGHT] = heightM }
     }
 
+    override suspend fun saveSessionSpaceMb(mb: Int) {
+        if (mb in SessionSpace.OPTIONS_MB) dataStore.edit { it[SESSION_SPACE] = mb }
+    }
+
     private companion object {
         val HOST = stringPreferencesKey("ntrip_host")
         val PORT = intPreferencesKey("ntrip_port")
         val MOUNTPOINT = stringPreferencesKey("ntrip_mountpoint")
         val USERNAME = stringPreferencesKey("ntrip_username")
         val POLE_HEIGHT = doublePreferencesKey("pole_height_m")
+        val SESSION_SPACE = intPreferencesKey("session_space_mb")
     }
 }

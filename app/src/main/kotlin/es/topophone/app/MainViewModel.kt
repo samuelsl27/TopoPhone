@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.core.model.preferences.ThemeMode
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.receiver.SessionSpace
 import es.topophone.data.settings.SettingsRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,7 +16,8 @@ import kotlinx.coroutines.launch
 
 /** Estado global de la app que vive fuera de la interfaz: el tema guardado (S001/RF-15). */
 @HiltViewModel
-class MainViewModel @Inject constructor(private val settings: SettingsRepository) : ViewModel() {
+class MainViewModel @Inject constructor(private val settings: SettingsRepository, private val receiverPreferences: ReceiverPreferences) :
+    ViewModel() {
 
     /** `null` hasta leer el tema guardado: así no se pinta un tema equivocado al arrancar. */
     val themeState: StateFlow<ThemeState?> = settings.themeState.stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -25,5 +28,13 @@ class MainViewModel @Inject constructor(private val settings: SettingsRepository
 
     fun selectTheme(mode: ThemeMode) {
         viewModelScope.launch { settings.selectTheme(mode) }
+    }
+
+    /** Espacio para sesiones (S003/RF-26). */
+    val sessionSpaceMb: StateFlow<Int> =
+        receiverPreferences.sessionSpaceMb.stateIn(viewModelScope, SharingStarted.Eagerly, SessionSpace.DEFAULT_MB)
+
+    fun selectSessionSpace(mb: Int) {
+        viewModelScope.launch { receiverPreferences.saveSessionSpaceMb(mb) }
     }
 }

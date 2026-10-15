@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val loadedTheme by viewModel.themeState.collectAsStateWithLifecycle()
+            val sessionSpaceMb by viewModel.sessionSpaceMb.collectAsStateWithLifecycle()
             // Hasta leer el tema guardado solo se ve el fondo de la ventana (S001/RF-15).
             val themeState = loadedTheme ?: return@setContent
             // Sistema sigue al modo oscuro del dispositivo, también si cambia con la app abierta (S001/RF-10).
@@ -58,12 +59,18 @@ class MainActivity : AppCompatActivity() {
 
             TopoPhoneTheme(effectiveTheme) {
                 TopoPhoneApp(
-                    uiState = AppUiState(themeState = themeState, language = currentLanguage(), appInfo = appInfo),
+                    uiState = AppUiState(
+                        themeState = themeState,
+                        language = currentLanguage(),
+                        appInfo = appInfo,
+                        sessionSpaceMb = sessionSpaceMb,
+                    ),
                     actions = AppActions(
                         onToggleSun = viewModel::toggleSun,
                         onSelectTheme = viewModel::selectTheme,
                         onSelectLanguage = ::applyLanguage,
                         onOpenUrl = ::openUrl,
+                        onSelectSessionSpace = viewModel::selectSessionSpace,
                     ),
                 )
             }

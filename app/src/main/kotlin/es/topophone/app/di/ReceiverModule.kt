@@ -10,6 +10,8 @@ import es.topophone.app.BuildConfig
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.core.ntrip.NtripClient
 import es.topophone.core.survey.GroundPointCalculator
+import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.receiver.SessionSpace
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.platform.AndroidNetworkStatus
 import es.topophone.receiver.platform.NetworkStatus
@@ -21,20 +23,33 @@ import es.topophone.receiver.session.SessionLogStore
 import es.topophone.receiver.transport.AndroidBluetoothDevices
 import es.topophone.receiver.transport.BluetoothDevices
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Named
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /** Dependencias de la cadena receptor → NTRIP → coordenadas (spec 002). La sesión es de la app. */
 @Module
 @InstallIn(SingletonComponent::class)
 object ReceiverModule {
 
+    /** El límite de espacio sale de Ajustes y, al cambiarlo, se aplica al momento (S003/RF-25, S003/RF-26). */
     @Provides
     @Singleton
-    fun sessionLogStore(@ApplicationContext context: Context): SessionLogStore = SessionLogStore(File(context.filesDir, SESSIONS_DIR))
+    fun sessionLogStore(@ApplicationContext context: Context, preferences: ReceiverPreferences): SessionLogStore {
+        val limitMb = AtomicInteger(SessionSpace.DEFAULT_MB)
+        val store = SessionLogStore(File(context.filesDir, SESSIONS_DIR), spaceLimitBytes = { limitMb.get() * SessionSpace.BYTES_PER_MB })
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            preferences.sessionSpaceMb.collect { mb ->
+                limitMb.set(mb)
+                store.applySpaceLimit()
+            }
+        }
+        return store
+    }
 
     @Provides
     fun sessionFiles(store: SessionLogStore): SessionFiles = store.asSessionFiles()

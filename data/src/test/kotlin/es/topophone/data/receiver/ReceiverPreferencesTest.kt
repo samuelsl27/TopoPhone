@@ -15,7 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-/** Preferencias del receptor entre sesiones (S002/RF-26, S002/RF-27, S002/RF-30). */
+/** Preferencias del receptor entre sesiones (S002/RF-26, S002/RF-27, S002/RF-30, S003/RF-26). */
 class ReceiverPreferencesTest {
 
     @get:Rule
@@ -62,5 +62,26 @@ class ReceiverPreferencesTest {
         withPreferences { it.savePoleHeight(2.05) }
 
         withPreferences { it.poleHeightM.first() } shouldBe 2.05
+    }
+
+    @Test
+    fun `S003 RF-26 el espacio para sesiones es de 500 MB por defecto y se recuerda el elegido`() {
+        withPreferences { it.sessionSpaceMb.first() } shouldBe 500
+
+        withPreferences { it.saveSessionSpaceMb(2000) }
+
+        withPreferences { it.sessionSpaceMb.first() } shouldBe 2000
+    }
+
+    @Test
+    fun `S003 RF-26 solo se aceptan los valores entre 100 MB y 2 GB que se ofrecen`() {
+        SessionSpace.OPTIONS_MB shouldBe listOf(100, 250, 500, 1000, 2000)
+
+        withPreferences {
+            it.saveSessionSpaceMb(250)
+            it.saveSessionSpaceMb(5000)
+            it.saveSessionSpaceMb(50)
+            it.sessionSpaceMb.first()
+        } shouldBe 250
     }
 }

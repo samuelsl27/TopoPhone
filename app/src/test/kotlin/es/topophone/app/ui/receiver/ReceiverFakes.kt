@@ -26,8 +26,14 @@ internal class FakeBluetooth : BluetoothDevices {
 internal class FakePreferences : ReceiverPreferences {
     val ntripFlow = MutableStateFlow(NtripPreferences())
     val poleFlow = MutableStateFlow(1.8)
+    val sessionSpaceFlow = MutableStateFlow(500)
     override val ntrip = ntripFlow
     override val poleHeightM = poleFlow
+    override val sessionSpaceMb = sessionSpaceFlow
+
+    override suspend fun saveSessionSpaceMb(mb: Int) {
+        sessionSpaceFlow.value = mb
+    }
 
     override suspend fun saveNtrip(preferences: NtripPreferences) {
         ntripFlow.value = preferences

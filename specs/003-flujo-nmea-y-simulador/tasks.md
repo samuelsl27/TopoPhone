@@ -22,7 +22,7 @@
       Hecho cuando: `SessionLogStoreTest` y `ReceiverSessionRecordingTest` en verde.
 - [x] T10. `receiver`: límite de espacio (500 MB, poda de las más antiguas, partes de la sesión en curso), parada con menos de 100 MB libres y vaciado como máximo cada segundo. (RF-25, RF-27, RF-28, S002/RF-44)
       Hecho cuando: `SessionLogStoreTest` en verde con los casos de límite.
-- [ ] T11. `data` + `app`: preferencia `session_space_mb` y fila "Espacio para sesiones" en Ajustes, aplicada al momento. (RF-26)
+- [x] T11. `data` + `app`: preferencia `session_space_mb` y fila "Espacio para sesiones" en Ajustes, aplicada al momento. (RF-26)
       Hecho cuando: `ReceiverPreferencesTest` y `SessionSpaceSettingTest` en verde.
 - [ ] T12. `app`: pantalla Sesiones (lista con inicio, duración, tamaño y receptor; compartir las partes y las correcciones; borrar con confirmación salvo la sesión en curso), abierta desde la tarjeta Sesión. (RF-29, RF-30, RF-31)
       Hecho cuando: `SessionsScreenTest` en verde.

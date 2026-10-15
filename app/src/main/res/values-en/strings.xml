@@ -132,4 +132,8 @@
     <string name="tilt_alignment">Alignment</string>
     <string name="tilt_compensating">Compensating</string>
     <string name="receiver_recording_stopped_low_space">Recording stopped: the phone is running out of free space.</string>
+    <string name="settings_section_receiver">Receiver</string>
+    <string name="settings_session_space">Space for sessions</string>
+    <string name="settings_session_space_mb">%1$d MB</string>
+    <string name="settings_session_space_gb">%1$d GB</string>
 </resources>

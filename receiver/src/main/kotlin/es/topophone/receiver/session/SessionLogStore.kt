@@ -65,6 +65,7 @@ class SessionLogStore(
         val metadata = Metadata(SessionSource.RECORDED, description, startedAt, endedAt = null)
         metadata.writeTo(folder)
         val writer = Writer(folder, metadata)
+        activeWriter = writer
         prune(writer)
         return writer
     }
@@ -96,11 +97,17 @@ class SessionLogStore(
         )
     }
 
+    @Volatile private var activeWriter: Writer? = null
+
+    /** Aplica el límite de espacio en ese momento, p. ej. al cambiarlo en Ajustes (S003/RF-26). */
+    fun applySpaceLimit() = prune(activeWriter)
+
     /**
      * Borra las sesiones más antiguas mientras se pase del límite, sin tocar nunca la más reciente
      * ni la que se graba (S003/RF-25); si aun así se pasa, la que se graba pierde sus partes más
      * antiguas (S003/RF-27).
      */
+    @Synchronized
     private fun prune(active: Writer?) {
         val all = sessions()
         val limit = spaceLimitBytes()
@@ -190,6 +197,7 @@ class SessionLogStore(
             metadata.writeTo(folder)
             receiver.close()
             corrections.close()
+            if (activeWriter === this) activeWriter = null
         }
     }
 

@@ -22,6 +22,7 @@ import es.topophone.core.designsystem.component.SettingsSectionHeader
 import es.topophone.core.designsystem.component.SingleChoiceDialog
 import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.ThemeMode
+import es.topophone.data.receiver.SessionSpace
 
 const val THEME_SETTING_TAG = "setting_theme"
 const val LANGUAGE_SETTING_TAG = "setting_language"
@@ -56,6 +57,7 @@ fun AppLanguage.labelRes(): Int = when (this) {
 fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> Unit, onOpenLicenses: () -> Unit) {
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
+    var showSessionSpaceDialog by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
     SectionScaffold(
@@ -77,6 +79,13 @@ fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> 
                 value = stringResource(uiState.language.labelRes()),
                 onClick = { showLanguageDialog = true },
                 modifier = Modifier.testTag(LANGUAGE_SETTING_TAG),
+            )
+            SettingsSectionHeader(stringResource(R.string.settings_section_receiver))
+            SettingsItem(
+                title = stringResource(R.string.settings_session_space),
+                value = sessionSpaceLabel(uiState.sessionSpaceMb),
+                onClick = { showSessionSpaceDialog = true },
+                modifier = Modifier.testTag(SESSION_SPACE_SETTING_TAG),
             )
             SettingsSectionHeader(stringResource(R.string.settings_section_information))
             SettingsItem(
@@ -107,6 +116,21 @@ fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> 
         )
     }
 
+    if (showSessionSpaceDialog) {
+        // S003/RF-26: el nuevo límite se aplica al momento y borra las sesiones más antiguas que no quepan.
+        SingleChoiceDialog(
+            title = stringResource(R.string.settings_session_space),
+            options = SessionSpace.OPTIONS_MB.map { it to sessionSpaceLabel(it) },
+            selected = uiState.sessionSpaceMb,
+            onSelect = { mb ->
+                actions.onSelectSessionSpace(mb)
+                showSessionSpaceDialog = false
+            },
+            onDismiss = { showSessionSpaceDialog = false },
+            optionTag = ::sessionSpaceOptionTag,
+        )
+    }
+
     if (showLanguageDialog) {
         // S001/RF-16, S001/RF-18: el idioma se aplica a toda la interfaz sin salir de Ajustes.
         SingleChoiceDialog(
@@ -122,3 +146,17 @@ fun SettingsScreen(uiState: AppUiState, actions: AppActions, onOpenAbout: () -> 
         )
     }
 }
+
+const val SESSION_SPACE_SETTING_TAG = "setting_session_space"
+
+fun sessionSpaceOptionTag(mb: Int) = "session_space_$mb"
+
+/** 100 MB, 250 MB, 500 MB, 1 GB o 2 GB. */
+@Composable
+private fun sessionSpaceLabel(mb: Int): String = if (mb < MB_PER_GB) {
+    stringResource(R.string.settings_session_space_mb, mb)
+} else {
+    stringResource(R.string.settings_session_space_gb, mb / MB_PER_GB)
+}
+
+private const val MB_PER_GB = 1000

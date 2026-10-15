@@ -38,9 +38,11 @@ fun StatefulTestApp(
     initialTheme: ThemeState = ThemeState.DEFAULT,
     appInfo: AppInfo = testAppInfo,
     onOpenUrl: (String) -> Unit = {},
+    onSelectSessionSpace: (Int) -> Unit = {},
 ) {
     var themeName by rememberSaveable { mutableStateOf(initialTheme.mode.name to initialTheme.beforeSun.name) }
     var language by rememberSaveable { mutableStateOf(AppLanguage.SYSTEM) }
+    var sessionSpaceMb by rememberSaveable { mutableStateOf(500) }
     val theme = ThemeState.restore(themeName.first, themeName.second)
     fun save(state: ThemeState) {
         themeName = state.mode.name to state.beforeSun.name
@@ -48,12 +50,16 @@ fun StatefulTestApp(
 
     TopoPhoneTheme(theme.effective(systemInDarkTheme)) {
         TopoPhoneApp(
-            uiState = AppUiState(themeState = theme, language = language, appInfo = appInfo),
+            uiState = AppUiState(themeState = theme, language = language, appInfo = appInfo, sessionSpaceMb = sessionSpaceMb),
             actions = AppActions(
                 onToggleSun = { save(theme.toggleSun()) },
                 onSelectTheme = { mode: ThemeMode -> save(theme.select(mode)) },
                 onSelectLanguage = { language = it },
                 onOpenUrl = onOpenUrl,
+                onSelectSessionSpace = {
+                    sessionSpaceMb = it
+                    onSelectSessionSpace(it)
+                },
             ),
             receiverSection = { theme, toggleSun -> ReceiverScreen(theme, toggleSun, ReceiverUiState(), ReceiverActions()) },
             statusBar = { onOpenReceiver -> StatusBar(StatusBarState(), onOpenReceiver) },
