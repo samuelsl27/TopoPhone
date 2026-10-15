@@ -234,7 +234,11 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
             modifier = Modifier.padding(padding).verticalScroll(scrollState).padding(16.dp).testTag(tag),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            ConnectionCard(state, actions)
+            when (receiverHomeMode(state.snapshot)) {
+                ReceiverHomeMode.LIST -> ReceiverList(state, actions)
+                ReceiverHomeMode.DASHBOARD -> ConnectionCard(state, actions)
+            }
+            // Hasta que tengan su pantalla (S005 T7, T8), las demás tarjetas siguen debajo.
             StatusCard(state.snapshot)
             NtripCard(state, actions)
             CoordinatesCard(state, actions.onPoleHeightChange)
@@ -294,17 +298,6 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
         }
         Text(connectionText(connection), modifier = Modifier.testTag(CONNECTION_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
         ConnectionIndicators(state)
-        if (connection is ConnectionState.Failed) {
-            // S004/RF-27: un rechazo inmediato tiene una causa más probable que las demás.
-            val causes = if (connection.failure ==
-                ConnectFailure.BUSY
-            ) {
-                R.string.receiver_busy_cause
-            } else {
-                R.string.receiver_connect_failed_causes
-            }
-            Text(stringResource(causes))
-        }
         if (state.snapshot.nmeaMissing) {
             Text(
                 stringResource(R.string.receiver_nmea_missing),
@@ -327,19 +320,8 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
                 onClick = actions.onDisconnect,
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(DISCONNECT_TAG),
             ) { Text(stringResource(R.string.receiver_disconnect)) }
-            is ConnectionState.Lost -> Button(
-                onClick = actions.onReconnect,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(RECONNECT_TAG),
-            ) { Text(stringResource(R.string.receiver_reconnect)) }
             is ConnectionState.Reconnecting -> ReconnectingDetails(connection, state.nowMs, actions)
-            is ConnectionState.ReplayFinished -> Button(
-                onClick = actions.onReplayAgain,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(REPLAY_AGAIN_TAG),
-            ) { Text(stringResource(R.string.replay_again)) } // S003/RF-40
             else -> Unit
-        }
-        if (!active) {
-            BluetoothDevicesSection(state, actions)
         }
     }
 }
@@ -440,7 +422,7 @@ private fun ReplayControls(replay: ReplayInfo, actions: ReceiverActions) {
 }
 
 @Composable
-private fun connectionText(connection: ConnectionState): String = when (connection) {
+internal fun connectionText(connection: ConnectionState): String = when (connection) {
     ConnectionState.Disconnected -> stringResource(R.string.receiver_state_disconnected)
     is ConnectionState.Connecting -> stringResource(R.string.receiver_state_connecting, connection.description)
     is ConnectionState.Receiving -> stringResource(R.string.receiver_state_receiving, connection.description)
@@ -455,69 +437,4 @@ private fun connectionText(connection: ConnectionState): String = when (connecti
             ConnectFailure.ERROR -> R.string.receiver_state_failed_error
         },
     )
-}
-
-@Composable
-private fun BluetoothDevicesSection(state: ReceiverUiState, actions: ReceiverActions) {
-    when (val bluetooth = state.bluetooth) {
-        BluetoothUi.Unsupported -> Text(stringResource(R.string.receiver_bluetooth_unsupported))
-        BluetoothUi.PermissionNeeded -> {
-            Text(stringResource(R.string.receiver_bluetooth_permission_rationale))
-            Button(
-                onClick = actions.onRequestPermission,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(PERMISSION_REQUEST_TAG),
-            ) {
-                Text(stringResource(R.string.receiver_bluetooth_permission_request))
-            }
-            Text(stringResource(R.string.receiver_bluetooth_permission_settings_help), style = MaterialTheme.typography.bodySmall)
-            OutlinedButton(
-                onClick = actions.onOpenAppSettings,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OPEN_SETTINGS_TAG),
-            ) {
-                Text(stringResource(R.string.receiver_open_app_settings))
-            }
-        }
-        BluetoothUi.Disabled -> {
-            Text(stringResource(R.string.receiver_bluetooth_disabled))
-            Button(onClick = actions.onEnableBluetooth, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ENABLE_BLUETOOTH_TAG)) {
-                Text(stringResource(R.string.receiver_bluetooth_enable))
-            }
-        }
-        is BluetoothUi.Ready -> {
-            if (bluetooth.devices.isEmpty()) {
-                Text(stringResource(R.string.receiver_no_bonded_devices))
-            } else {
-                Text(stringResource(R.string.receiver_choose_device), style = MaterialTheme.typography.bodyMedium)
-                bluetooth.devices.forEach { device ->
-                    OutlinedButton(
-                        onClick = { actions.onConnect(device.address) },
-                        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(deviceTag(device.address)),
-                    ) {
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                            Text(device.name, style = MaterialTheme.typography.bodyLarge)
-                            Text(device.address, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
-            }
-            AddReceiver(state, actions)
-        }
-    }
-}
-
-/** "Añadir receptor" y sus avisos, debajo de la lista de emparejados, que no desaparece (S004/RF-1, RF-4). */
-@Composable
-private fun AddReceiver(state: ReceiverUiState, actions: ReceiverActions) {
-    state.pairing.message?.let { message ->
-        val text = when (message) {
-            PairingMessage.SEARCH_FAILED -> R.string.receiver_pairing_search_failed
-            PairingMessage.SEARCH_CANCELLED -> R.string.receiver_pairing_search_cancelled
-            PairingMessage.PAIRING_FAILED -> R.string.receiver_pairing_failed
-        }
-        Text(stringResource(text), color = MaterialTheme.colorScheme.error)
-    }
-    Button(
-        onClick = if (state.pairingSupported) actions.onAddReceiver else actions.onOpenBluetoothSettings,
-        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ADD_RECEIVER_TAG),
-    ) { Text(stringResource(R.string.receiver_add)) }
 }

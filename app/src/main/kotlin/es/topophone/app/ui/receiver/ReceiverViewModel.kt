@@ -92,6 +92,8 @@ data class ReceiverUiState(
     val bluetooth: BluetoothUi = BluetoothUi.PermissionNeeded,
     val snapshot: ReceiverSnapshot = ReceiverSnapshot(),
     val lastAddress: String? = null,
+    /** Último receptor con el que se conectó, para señalarlo en la lista (S004/RF-24, S005/RF-3). */
+    val lastReceiverAddress: String? = null,
     val form: NtripForm = NtripForm(),
     val formInvalid: Boolean = false,
     val internetAvailable: Boolean = true,
@@ -157,7 +159,7 @@ class ReceiverViewModel @Inject constructor(
     private data class Extras(
         val nowMs: Long,
         val sessionAvailable: Boolean,
-        val lastAddress: String?,
+        val addresses: Pair<String?, String?>,
         val notificationsGranted: Boolean,
         val notificationsAsked: Boolean,
         val pairing: PairingUi,
@@ -172,11 +174,11 @@ class ReceiverViewModel @Inject constructor(
             ticker.map {
                 it to (sessionFiles.latest() != null)
             },
-            lastAddress,
+            combine(lastAddress, preferences.lastReceiver.map { it?.address }) { last, saved -> last to saved },
             notificationsGranted,
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
             pairingUi,
-        ) { (now, available), address, granted, asked, pairing -> Extras(now, available, address, granted, asked, pairing) },
+        ) { (now, available), addresses, granted, asked, pairing -> Extras(now, available, addresses, granted, asked, pairing) },
     ) { snapshot, bt, formState, pole, extras ->
         // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
         val realReceiver = ReceiverService.needsService(snapshot)
@@ -184,7 +186,8 @@ class ReceiverViewModel @Inject constructor(
         ReceiverUiState(
             bluetooth = bt,
             snapshot = snapshot,
-            lastAddress = extras.lastAddress,
+            lastAddress = extras.addresses.first,
+            lastReceiverAddress = extras.addresses.second,
             form = formState.form,
             formInvalid = formState.invalid,
             internetAvailable = formState.internet,

@@ -48,7 +48,6 @@
     <string name="receiver_bluetooth_disabled">The phone\'s Bluetooth is off.</string>
     <string name="receiver_bluetooth_enable">Turn on Bluetooth</string>
     <string name="receiver_no_bonded_devices">No paired devices. Tap “Add receiver” to find the receiver and pair it.</string>
-    <string name="receiver_choose_device">Choose the paired receiver:</string>
     <string name="receiver_share_session_chooser">Share session</string>
     <string name="receiver_status_title">Solution status</string>
     <string name="receiver_status_waiting">No position data from the receiver.</string>
@@ -204,4 +203,7 @@
     <string name="background_help_oppo_title">OPPO, realme and OnePlus</string>
     <string name="background_help_oppo_steps">Settings > Battery > More settings > Optimise battery use: choose “Don\'t optimise” for TopoPhone and allow its background activity. In recent apps, lock it.</string>
     <string name="background_help_note">Menu names vary with the phone model and the Android version.</string>
+    <string name="receiver_paired_title">Paired receivers</string>
+    <string name="receiver_last_used">Last used</string>
+    <string name="receiver_menu_sessions">Recorded sessions</string>
 </resources>

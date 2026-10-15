@@ -60,7 +60,6 @@
     <string name="receiver_bluetooth_disabled">El Bluetooth del móvil está apagado.</string>
     <string name="receiver_bluetooth_enable">Activar Bluetooth</string>
     <string name="receiver_no_bonded_devices">No hay dispositivos emparejados. Pulsa «Añadir receptor» para buscar el receptor y emparejarlo.</string>
-    <string name="receiver_choose_device">Elige el receptor emparejado:</string>
     <string name="receiver_share_session_chooser">Compartir sesión</string>
     <string name="receiver_status_title">Estado de la solución</string>
     <string name="receiver_status_waiting">Sin datos de posición del receptor.</string>
@@ -216,4 +215,7 @@
     <string name="background_help_oppo_title">OPPO, realme y OnePlus</string>
     <string name="background_help_oppo_steps">Ajustes > Batería > Más ajustes > Optimizar uso de la batería: elige «No optimizar» para TopoPhone y permite su actividad en segundo plano. En las apps recientes, fíjala con el candado.</string>
     <string name="background_help_note">Los nombres de los menús cambian según el modelo y la versión de Android.</string>
+    <string name="receiver_paired_title">Receptores emparejados</string>
+    <string name="receiver_last_used">Último usado</string>
+    <string name="receiver_menu_sessions">Sesiones grabadas</string>
 </resources>
