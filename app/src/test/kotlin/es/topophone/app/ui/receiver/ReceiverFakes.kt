@@ -3,6 +3,7 @@ package es.topophone.app.ui.receiver
 import es.topophone.core.gnss.nmea.NmeaChecksum
 import es.topophone.data.receiver.NtripPreferences
 import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.receiver.SavedReceiver
 import es.topophone.receiver.transport.BluetoothDevices
 import es.topophone.receiver.transport.BondedDevice
 import es.topophone.receiver.transport.ReceiverTransport
@@ -33,6 +34,19 @@ internal class FakePreferences : ReceiverPreferences {
 
     override suspend fun saveSessionSpaceMb(mb: Int) {
         sessionSpaceFlow.value = mb
+    }
+
+    val lastReceiverFlow = MutableStateFlow<SavedReceiver?>(null)
+    val notificationsAskedFlow = MutableStateFlow(false)
+    override val lastReceiver = lastReceiverFlow
+    override val notificationsAsked = notificationsAskedFlow
+
+    override suspend fun saveLastReceiver(receiver: SavedReceiver) {
+        lastReceiverFlow.value = receiver
+    }
+
+    override suspend fun markNotificationsAsked() {
+        notificationsAskedFlow.value = true
     }
 
     override suspend fun saveNtrip(preferences: NtripPreferences) {

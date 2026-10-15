@@ -15,7 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-/** Preferencias del receptor entre sesiones (S002/RF-26, S002/RF-27, S002/RF-30, S003/RF-26). */
+/** Preferencias del receptor entre sesiones (S002/RF-26, S002/RF-27, S002/RF-30, S003/RF-26, S004/RF-5, S004/RF-24). */
 class ReceiverPreferencesTest {
 
     @get:Rule
@@ -83,5 +83,24 @@ class ReceiverPreferencesTest {
             it.saveSessionSpaceMb(50)
             it.sessionSpaceMb.first()
         } shouldBe 250
+    }
+
+    @Test
+    fun `S004 RF-24 se recuerda el ultimo receptor con el que se conecto`() {
+        withPreferences { it.lastReceiver.first() } shouldBe null
+
+        withPreferences { it.saveLastReceiver(SavedReceiver("00:11:22:33:44:55", "reach-RS3")) }
+        withPreferences { it.saveLastReceiver(SavedReceiver("66:77:88:99:AA:BB", "reach-RS3-2")) }
+
+        withPreferences { it.lastReceiver.first() } shouldBe SavedReceiver("66:77:88:99:AA:BB", "reach-RS3-2")
+    }
+
+    @Test
+    fun `S004 RF-5 se recuerda si ya se pidio el permiso de notificaciones`() {
+        withPreferences { it.notificationsAsked.first() } shouldBe false
+
+        withPreferences { it.markNotificationsAsked() }
+
+        withPreferences { it.notificationsAsked.first() } shouldBe true
     }
 }

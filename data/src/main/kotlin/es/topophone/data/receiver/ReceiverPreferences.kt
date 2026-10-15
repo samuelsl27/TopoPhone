@@ -2,6 +2,7 @@ package es.topophone.data.receiver
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
@@ -33,6 +34,9 @@ object SessionSpace {
     const val BYTES_PER_MB = 1_000_000L
 }
 
+/** Último receptor con el que se conectó, para la conexión automática (S004/RF-24, S004/RF-25). */
+data class SavedReceiver(val address: String, val name: String)
+
 /** Preferencias del receptor y del cálculo del punto del suelo. */
 interface ReceiverPreferences {
     val ntrip: Flow<NtripPreferences>
@@ -45,6 +49,15 @@ interface ReceiverPreferences {
 
     /** Guarda el espacio para sesiones; un valor que no está entre las opciones se ignora (S003/RF-26). */
     suspend fun saveSessionSpaceMb(mb: Int)
+
+    val lastReceiver: Flow<SavedReceiver?>
+
+    suspend fun saveLastReceiver(receiver: SavedReceiver)
+
+    /** Ya se pidió el permiso de notificaciones una vez (S004/RF-5). */
+    val notificationsAsked: Flow<Boolean>
+
+    suspend fun markNotificationsAsked()
 }
 
 @Qualifier
@@ -86,6 +99,24 @@ class DataStoreReceiverPreferences @Inject constructor(@param:ReceiverDataStoreQ
         dataStore.edit { it[POLE_HEIGHT] = heightM }
     }
 
+    override val lastReceiver: Flow<SavedReceiver?> = data.map { p ->
+        val address = p[LAST_RECEIVER_ADDRESS]
+        if (address.isNullOrEmpty()) null else SavedReceiver(address, p[LAST_RECEIVER_NAME].orEmpty())
+    }.distinctUntilChanged()
+
+    override val notificationsAsked: Flow<Boolean> = data.map { it[NOTIFICATIONS_ASKED] ?: false }.distinctUntilChanged()
+
+    override suspend fun saveLastReceiver(receiver: SavedReceiver) {
+        dataStore.edit {
+            it[LAST_RECEIVER_ADDRESS] = receiver.address
+            it[LAST_RECEIVER_NAME] = receiver.name
+        }
+    }
+
+    override suspend fun markNotificationsAsked() {
+        dataStore.edit { it[NOTIFICATIONS_ASKED] = true }
+    }
+
     override suspend fun saveSessionSpaceMb(mb: Int) {
         if (mb in SessionSpace.OPTIONS_MB) dataStore.edit { it[SESSION_SPACE] = mb }
     }
@@ -97,5 +128,8 @@ class DataStoreReceiverPreferences @Inject constructor(@param:ReceiverDataStoreQ
         val USERNAME = stringPreferencesKey("ntrip_username")
         val POLE_HEIGHT = doublePreferencesKey("pole_height_m")
         val SESSION_SPACE = intPreferencesKey("session_space_mb")
+        val LAST_RECEIVER_ADDRESS = stringPreferencesKey("last_receiver_address")
+        val LAST_RECEIVER_NAME = stringPreferencesKey("last_receiver_name")
+        val NOTIFICATIONS_ASKED = booleanPreferencesKey("notifications_asked")
     }
 }
