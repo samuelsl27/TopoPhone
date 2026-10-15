@@ -10,7 +10,7 @@
       Hecho cuando: `GgaParserTest` y `GstParserTest` en verde, con campos vacíos y todas las calidades.
 - [x] T4. `tools/geodesia`: pyproj, `descargar_rejillas.py` (SHA-256) y `generar_vectores.py` → `fixtures/geodesia/*.csv`; rejilla EGM08-REDNAP como recurso de `core:geodesy`. (RF-36, RF-38)
       Hecho cuando: los CSV generados son reproducibles y la rejilla está versionada con su SHA-256 comprobado.
-- [ ] T5. `core:geodesy`: `Ellipsoid`, `TransverseMercator` (Krüger, orden 6) y `Utm` (husos 29–31). (RF-36, RF-37)
+- [x] T5. `core:geodesy`: `Ellipsoid`, `TransverseMercator` (Krüger, orden 6) y `Utm` (husos 29–31). (RF-36, RF-37)
       Hecho cuando: `UtmTest` coincide con pyproj a ≤ 1 mm en todos los vectores.
 - [ ] T6. `core:geodesy`: `GeoTiffGrid` (DEFLATE, predictor 3, teselas o tiras) y `GeoidModel` bilineal. (RF-38, RF-39)
       Hecho cuando: `GeoidModelTest` coincide con pyproj a ≤ 1 mm y fuera de la rejilla da "no disponible".
