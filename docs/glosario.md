@@ -39,6 +39,17 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Línea base | `Baseline` | |
 | Solución: autónoma / flotante / fija | `SolutionStatus.SINGLE` / `.FLOAT` / `.FIX` | También `DGPS`, `NONE` |
 | Edad de las correcciones | `correctionAge` | |
+| Época | `Epoch` | Frases con la misma hora UTC; la completa `EpochAssembler` (S003) |
+| Constelación | `Constellation` | GPS, GLONASS, Galileo, BeiDou, QZSS, NavIC; por talker o por *system ID* |
+| Satélites usados / en vista | `satellitesUsed` / `satellitesInView` | GSA / GSV |
+| Velocidad / rumbo sobre el suelo | `speedMps` / `courseRad` | RMC y VTG |
+| Posición de la base | `BasePosition` | Frase EBP de Emlid |
+| Estado / aviso de la inclinación | `TiltState` / `TiltNotification` | Frase ETC |
+| Sesión del receptor (conexión) | `ReceiverSession` | |
+| Sesión grabada | `RecordedSession` | Carpeta con los datos del receptor y las correcciones |
+| Espacio para sesiones | `sessionSpaceMb` | Límite de las sesiones grabadas |
+| Reproducción (simulador) | `Replay` | `ReplayTransport`, `ReplayPacer` |
+| Barra de estado | `StatusBar` | |
 | Correcciones | `Corrections` | RTCM3 |
 | Perfil NTRIP | `NtripProfile` | |
 | Punto de montaje | `Mountpoint` | |

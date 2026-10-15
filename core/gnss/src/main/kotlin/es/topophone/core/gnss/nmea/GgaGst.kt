@@ -58,27 +58,6 @@ data class GstAccuracy(val utcTime: String, val sigmaLatitudeM: Double?, val sig
     val verticalM: Double? get() = sigmaAltitudeM
 }
 
-/** Campo vacío → `null`; campo no numérico → excepción, para descartar la frase. */
-private class CorruptField : IllegalArgumentException()
-
-private fun String.optionalDouble(): Double? = if (isEmpty()) null else toDoubleOrNull() ?: throw CorruptField()
-
-private fun String.optionalInt(): Int? = if (isEmpty()) null else toIntOrNull() ?: throw CorruptField()
-
-/** `ddmm.mmmm` / `dddmm.mmmm` y hemisferio → grados decimales; vacío → NaN. */
-private fun coordinate(value: String, hemisphere: String, degreeDigits: Int): Double {
-    if (value.isEmpty()) return Double.NaN
-    if (value.length < degreeDigits + 2) throw CorruptField()
-    val degrees = value.substring(0, degreeDigits).optionalInt() ?: throw CorruptField()
-    val minutes = value.substring(degreeDigits).optionalDouble() ?: throw CorruptField()
-    val decimal = degrees + minutes / 60.0
-    return when (hemisphere) {
-        "N", "E" -> decimal
-        "S", "W" -> -decimal
-        else -> throw CorruptField()
-    }
-}
-
 object GgaParser {
     /** `null` si la frase no es GGA o tiene campos corruptos. */
     fun parse(sentence: NmeaSentence): GgaFix? {

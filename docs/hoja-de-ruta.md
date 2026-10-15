@@ -18,7 +18,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 003 flujo-nmea-y-simulador | Parser completo (GGA, GSA, GST, GSV, RMC, VTG, ZDA, EBP, ETC), épocas agrupadas por hora, detección de datos obsoletos, transporte de replay (×1/×5, bucle) de sesiones y de ficheros NMEA importados, grabación de sesiones con correcciones y límite de espacio, componente de barra de estado | 002 | tareas |
+| 003 flujo-nmea-y-simulador | Parser completo (GGA, GSA, GST, GSV, RMC, VTG, ZDA, EBP, ETC), épocas agrupadas por hora, detección de datos obsoletos, transporte de replay (×1/×5, bucle) de sesiones y de ficheros NMEA importados, grabación de sesiones con correcciones y límite de espacio, componente de barra de estado | 002 | en curso |
 | 004 conexion-bluetooth-robusta | CompanionDeviceManager y emparejamiento con PIN, permisos con justificación, servicio `connectedDevice` con notificación, reconexión con espera exponencial, diagnóstico del caso FW33 (Emlid Flow conectado), wakelock y pantalla siempre encendida, último dispositivo recordado | 003 | pendiente |
 | 005 ntrip-perfiles-y-sourcetable | Altas, bajas y edición de perfiles con contraseñas cifradas, descarga y lectura del sourcetable, mountpoints ordenados por distancia, envío de GGA según el campo `nmea`, v2 por bloques (chunked), tramas RTCM3 (CRC24Q) y contadores de mensajes RTCM, reconexión, alarma por edad de las correcciones | 004 | pendiente |
 | 006 coordenadas-espana | ETRS89 UTM 28–31 (huso forzado o sugerido), REGCAN95 UTM 27/28, coordenadas geográficas, altura elipsoidal o EGM08-REDNAP (Península y Baleares, y Canarias), factor de escala y convergencia, vectores de referencia | 003 | pendiente |
