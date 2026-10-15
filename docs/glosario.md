@@ -5,6 +5,11 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Interfaz (es) | Código (en) | Nota |
 |---|---|---|
 | Proyecto | `Project` | |
+| Carpeta (de proyectos) | `ProjectFolder` | Un solo nivel (S006) |
+| Papelera | `Trash` | Proyectos borrados, recuperables 30 días (S006) |
+| Vista de proyecto | `ProjectView` | Lo que se ve al abrir un proyecto |
+| Datum de las correcciones | `CorrectionsDatum` | ETRS89, REGCAN95 o ITRF/WGS84 |
+| Unidades lineales / angulares | `LinearUnit` / `AngularUnit` | m, ft, usft / DD, DMS, gon (RNF-T9) |
 | Punto | `Point` | Medido, manual, importado, COGO o replanteado → `PointOrigin` |
 | Línea / polilínea | `Line` | |
 | Polígono (línea cerrada) | `Polygon` | |
