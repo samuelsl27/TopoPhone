@@ -35,4 +35,17 @@ class ProjectTest {
         )
         ProjectFolder("carpeta-1", "Obras 2026").name shouldBe "Obras 2026"
     }
+
+    @Test
+    fun `S006 RF-6 el formulario de proyecto nuevo parte de los valores por defecto, sin nombre`() {
+        ProjectDefaults().toDraft() shouldBe ProjectDraft(
+            name = "",
+            author = "",
+            description = "",
+            crs = ProjectCrs.ETRS89_UTM30,
+            linearUnit = LinearUnit.METRE,
+            angularUnit = AngularUnit.DMS,
+            correctionsDatum = CorrectionsDatum.ETRS89,
+        )
+    }
 }
