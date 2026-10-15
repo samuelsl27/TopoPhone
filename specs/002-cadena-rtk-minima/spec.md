@@ -81,7 +81,7 @@ Si cualquiera de estos eslabones falla, todo lo demás se construiría sobre are
 ### Sesión (H5)
 - RF-42: MIENTRAS el receptor esté conectado, EL SISTEMA guardará en un fichero de sesión todos los datos recibidos del receptor, tal como llegan.
 - RF-43: CUANDO el usuario pulse "Compartir sesión", EL SISTEMA ofrecerá el fichero de la última sesión para enviarlo o guardarlo con las apps del móvil.
-- RF-44: EL SISTEMA conservará como máximo las 10 últimas sesiones y borrará las más antiguas.
+- RF-44: EL SISTEMA conservará las sesiones más recientes y borrará las más antiguas cuando se supere el límite de espacio de grabación (S003/RF-25).
 
 ### Atribución (H4)
 - RF-45: CUANDO el usuario abra "Licencias y atribuciones", EL SISTEMA mostrará la atribución del modelo de geoide EGM08-REDNAP (© Instituto Geográfico Nacional, CC-BY 4.0).
