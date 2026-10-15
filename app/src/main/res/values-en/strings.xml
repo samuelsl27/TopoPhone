@@ -115,4 +115,7 @@
     <string name="licenses_geoid_attribution">EGM08-REDNAP geoid model (Peninsula and Balearic Islands) © Instituto Geográfico Nacional, licensed under CC BY 4.0. Grid converted to GeoTIFF by the PROJ project.</string>
     <string name="licenses_cc_by_open">View the CC BY 4.0 licence</string>
     <string name="licenses_components_title">Software components</string>
+    <string name="receiver_status_time">Time</string>
+    <string name="receiver_epoch_time_no_date">%1$s UTC · date not available</string>
+    <string name="receiver_satellites_in_view">%1$d used of %2$d in view</string>
 </resources>

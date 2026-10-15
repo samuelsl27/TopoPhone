@@ -119,4 +119,19 @@ class ReceiverSessionEpochTest {
         session.await { it.connection is ConnectionState.Receiving }.epoch.shouldNotBeNull().utcMillisOfDay shouldBe 36_931_000
         session.state.value.connection.shouldBeInstanceOf<ConnectionState.Receiving>()
     }
+
+    @Test
+    fun `S003 RF-15 los satelites en vista se conservan en las epocas que no traen GSV`() {
+        val session = ReceiverSession(scope, noNtrip)
+        session.connect(transport)
+        send(gga("101530.00") + nmea("GPGSV,1,1,04,05,62,045,48,12,35,301,44,13,22,089,40,15,10,190,35,1"))
+        session.await { it.satellitesInView == 4 }
+
+        send(gga("101530.20"))
+        Thread.sleep(300)
+
+        val snapshot = session.await { it.epoch?.utcMillisOfDay == 36_930_200 }
+        snapshot.epoch.shouldNotBeNull().satellitesInView.shouldBeNull()
+        snapshot.satellitesInView shouldBe 4
+    }
 }

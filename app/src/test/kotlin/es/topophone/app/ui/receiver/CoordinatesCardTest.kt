@@ -206,5 +206,13 @@ class CoordinatesCardTest {
         node(POLE_HEIGHT_TAG).assertIsDisplayed()
     }
 
+    @Test
+    fun `S003 RF-13 con Sin datos no se muestran las coordenadas de la ultima epoca`() {
+        show(connection = ConnectionState.NoData("reach-RS3"))
+
+        shown(R.string.coordinates_waiting)
+        compose.onNodeWithTag(COORD_LATITUDE_TAG).assertDoesNotExist()
+    }
+
     private fun metres(value: Double) = LengthFormat.metres(value, spanish)
 }

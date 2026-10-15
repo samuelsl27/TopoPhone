@@ -19,21 +19,29 @@ import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSnapshot
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 const val SOLUTION_STATUS_TAG = "solution_status"
 const val STATUS_SATELLITES_TAG = "status_satellites"
+const val STATUS_TIME_TAG = "status_time"
 const val STATUS_HDOP_TAG = "status_hdop"
 const val STATUS_CORRECTION_AGE_TAG = "status_correction_age"
 const val STATUS_SIGMA_H_TAG = "status_sigma_h"
 const val STATUS_SIGMA_V_TAG = "status_sigma_v"
 
-/** Tarjeta Estado: solución, satélites, HDOP, edad de las correcciones y precisiones (S002/RF-12 a RF-17). */
+/** Tarjeta Estado: solución, hora, satélites, HDOP, edad de las correcciones y precisiones (S002/RF-12 a RF-17, S003/RF-13 a RF-15). */
 @Composable
 internal fun StatusCard(snapshot: ReceiverSnapshot) {
     ReceiverCard(stringResource(R.string.receiver_status_title)) {
         val gga = snapshot.gga
-        // Solo lo que llega ahora: con la conexión perdida o sin datos no se enseña una solución antigua.
+        // Solo lo que llega ahora: con la conexión perdida o "Sin datos" no se enseña una solución antigua (S003/RF-13).
         if (gga == null || snapshot.connection !is ConnectionState.Receiving) {
             Text(stringResource(R.string.receiver_status_waiting))
             return@ReceiverCard
@@ -45,7 +53,19 @@ internal fun StatusCard(snapshot: ReceiverSnapshot) {
             tone = gga.status.tone(),
             modifier = Modifier.testTag(SOLUTION_STATUS_TAG),
         ) // S002/RF-12, S002/RF-16
-        LabeledValue(stringResource(R.string.receiver_status_satellites), gga.satellites.toString(), STATUS_SATELLITES_TAG)
+        snapshot.epoch?.let { epoch ->
+            LabeledValue(
+                stringResource(R.string.receiver_status_time),
+                epochTime(epoch.utcMillisOfDay, epoch.date, locale),
+                STATUS_TIME_TAG,
+            )
+        } // S003/RF-14
+        val inView = snapshot.satellitesInView
+        LabeledValue(
+            stringResource(R.string.receiver_status_satellites),
+            if (inView == null) gga.satellites.toString() else stringResource(R.string.receiver_satellites_in_view, gga.satellites, inView),
+            STATUS_SATELLITES_TAG,
+        ) // S002/RF-13, S003/RF-15
         LabeledValue(
             stringResource(R.string.receiver_status_hdop),
             gga.hdop?.let { String.format(locale, "%.1f", it) } ?: unavailable,
@@ -69,6 +89,21 @@ internal fun StatusCard(snapshot: ReceiverSnapshot) {
         ) // S002/RF-15, S002/RF-17
     }
 }
+
+/**
+ * Fecha y hora de una época en la hora local del móvil (RNF-T10); sin fecha no se puede pasar a hora
+ * local, así que se muestra la hora UTC y "fecha no disponible" (S003/RF-14).
+ */
+@Composable
+private fun epochTime(utcMillisOfDay: Int, date: LocalDate?, locale: Locale): String {
+    val utcTime = LocalTime.ofNanoOfDay(utcMillisOfDay * NANOS_PER_MILLI)
+    if (date == null) return stringResource(R.string.receiver_epoch_time_no_date, utcTime.format(UTC_TIME))
+    val local = ZonedDateTime.of(date, utcTime, ZoneOffset.UTC).withZoneSameInstant(ZoneId.systemDefault())
+    return local.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(locale))
+}
+
+private const val NANOS_PER_MILLI = 1_000_000L
+private val UTC_TIME: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
 
 /** Fila etiqueta/valor; TalkBack la lee como un único elemento. */
 @Composable

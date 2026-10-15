@@ -71,6 +71,8 @@ data class ReceiverSnapshot(
     val gst: GstAccuracy? = null,
     val ntrip: NtripState = NtripState.Idle,
     val epoch: Epoch? = null,
+    /** Satélites en vista de la última época que trajo GSV (a 1 Hz frente a épocas a 5 Hz) (S003/RF-15). */
+    val satellitesInView: Int? = null,
 )
 
 /** Registro de los datos brutos recibidos del receptor (S002/RF-42). */
@@ -263,7 +265,7 @@ class ReceiverSession(
             } else {
                 current.connection
             }
-            current.copy(connection = connection, epoch = epoch)
+            current.copy(connection = connection, epoch = epoch, satellitesInView = epoch.satellitesInView ?: current.satellitesInView)
         }
     }
 

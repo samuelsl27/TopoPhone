@@ -127,4 +127,7 @@
     <string name="licenses_geoid_attribution">Modelo de geoide EGM08-REDNAP (Península y Baleares) © Instituto Geográfico Nacional, con licencia CC BY 4.0. Rejilla convertida a GeoTIFF por el proyecto PROJ.</string>
     <string name="licenses_cc_by_open">Ver la licencia CC BY 4.0</string>
     <string name="licenses_components_title">Componentes de software</string>
+    <string name="receiver_status_time">Hora</string>
+    <string name="receiver_epoch_time_no_date">%1$s UTC · fecha no disponible</string>
+    <string name="receiver_satellites_in_view">%1$d usados de %2$d en vista</string>
 </resources>

@@ -17,6 +17,7 @@ import es.topophone.app.ui.text
 import es.topophone.core.designsystem.component.StatusToneKey
 import es.topophone.core.designsystem.theme.StatusTone
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
@@ -25,11 +26,13 @@ import es.topophone.core.model.preferences.ThemeState
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSnapshot
 import io.kotest.matchers.shouldBe
+import java.time.LocalDate
+import java.util.TimeZone
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Tarjeta Estado de la pantalla Receptor (S002/RF-12 a RF-17). Interfaz en español (es-ES). */
+/** Tarjeta Estado de la pantalla Receptor (S002/RF-12 a RF-17, S003/RF-13 a RF-15). Interfaz en español (es-ES). */
 @RunWith(AndroidJUnit4::class)
 class StatusCardTest {
 
@@ -140,6 +143,56 @@ class StatusCardTest {
 
         snapshot = ReceiverSnapshot(ConnectionState.Lost("reach-RS3"), gga = gga(), gst = gst)
         compose.waitForIdle()
+
+        compose.onNodeWithText(text(R.string.receiver_status_waiting)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(SOLUTION_STATUS_TAG).assertDoesNotExist()
+    }
+    private fun epoch(date: LocalDate?) = Epoch(
+        utcMillisOfDay = 37_530_000, // 10:25:30 UTC
+        date = date,
+        gga = gga(),
+        gst = null,
+        rmc = null,
+        vtg = null,
+        zda = null,
+        basePosition = null,
+        tilt = null,
+        gsa = emptyMap(),
+        gsv = emptyMap(),
+        completedAtMs = 0,
+    )
+
+    @Test
+    fun `S003 RF-14 la fecha y la hora de la epoca se muestran en la hora local del movil`() {
+        val zone = TimeZone.getDefault()
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Madrid"))
+        try {
+            show(ReceiverSnapshot(receiving, gga = gga(), epoch = epoch(LocalDate.of(2026, 10, 15))))
+
+            value(STATUS_TIME_TAG).assert(hasText("12:25:30", substring = true)).assert(hasText("2026", substring = true))
+        } finally {
+            TimeZone.setDefault(zone)
+        }
+    }
+
+    @Test
+    fun `S003 RF-14 una epoca sin fecha muestra la hora UTC y fecha no disponible`() {
+        show(ReceiverSnapshot(receiving, gga = gga(), epoch = epoch(null)))
+
+        value(STATUS_TIME_TAG).assert(hasText(text(R.string.receiver_epoch_time_no_date, "10:25:30")))
+        text(R.string.receiver_epoch_time_no_date, "10:25:30").contains("fecha no disponible") shouldBe true
+    }
+
+    @Test
+    fun `S003 RF-15 se muestran los satelites en vista junto a los usados`() {
+        show(ReceiverSnapshot(receiving, gga = gga(), epoch = epoch(null), satellitesInView = 31))
+
+        value(STATUS_SATELLITES_TAG).assert(hasText(text(R.string.receiver_satellites_in_view, 24, 31)))
+    }
+
+    @Test
+    fun `S003 RF-13 con Sin datos no se muestra la solucion de la ultima epoca`() {
+        show(ReceiverSnapshot(ConnectionState.NoData("reach-RS3"), gga = gga(), gst = gst, epoch = epoch(null)))
 
         compose.onNodeWithText(text(R.string.receiver_status_waiting)).performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag(SOLUTION_STATUS_TAG).assertDoesNotExist()

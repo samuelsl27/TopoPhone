@@ -12,7 +12,7 @@
       Hecho cuando: `EpochAssemblerTest` en verde.
 - [x] T5. `receiver`: `ReceiverSession` con épocas (época en el estado, "Sin datos" a 2 s sin época, tic de 25 ms, la latencia de la GGA no cambia). (RF-12)
       Hecho cuando: `ReceiverSessionEpochTest` y los tests de S002 en verde.
-- [ ] T6. `app`: tarjeta Estado con fecha y hora local o "fecha no disponible" y satélites en vista; las tarjetas no muestran solución ni coordenadas con "Sin datos". (RF-13, RF-14, RF-15)
+- [x] T6. `app`: tarjeta Estado con fecha y hora local o "fecha no disponible" y satélites en vista; las tarjetas no muestran solución ni coordenadas con "Sin datos". (RF-13, RF-14, RF-15)
       Hecho cuando: `StatusCardTest` y `CoordinatesCardTest` en verde.
 - [ ] T7. `core:designsystem` + `app`: tono `SIMULATION` y componente `StatusBar` sin estado (Sin receptor, solución, satélites, correcciones, Sin datos, Grabando, Simulación, inclinación). (RF-17–RF-22)
       Hecho cuando: `StatusBarTest` y `StatusPaletteTest` en verde.
