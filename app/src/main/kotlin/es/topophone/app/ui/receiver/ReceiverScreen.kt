@@ -110,6 +110,7 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
             ConnectionCard(state, actions)
             StatusCard(state.snapshot)
             NtripCard(state, actions)
+            CoordinatesCard(state, actions.onPoleHeightChange)
         }
     }
 }

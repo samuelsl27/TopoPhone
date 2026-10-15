@@ -102,4 +102,21 @@
     <string name="ntrip_error_connection_lost">El caster ha cortado la conexión</string>
     <string name="ntrip_error_protocol">La respuesta del caster no es válida</string>
     <string name="ntrip_receiver_not_connected">Conecta antes el receptor: las correcciones se le envían a él.</string>
+    <string name="receiver_coordinates_title">Coordenadas del punto</string>
+    <string name="pole_height_label">Altura del jalón (m)</string>
+    <string name="pole_height_help">Desde la punta del jalón hasta la base del receptor.</string>
+    <string name="pole_height_invalid">Escribe una altura entre 0 y 10 m.</string>
+    <string name="coordinates_waiting">Sin posición del receptor.</string>
+    <string name="coordinates_not_centimetric">Sin precisión centimétrica: la solución no es Fija.</string>
+    <string name="coordinates_reference">En el sistema de referencia de las correcciones, que se supone ETRS89.</string>
+    <string name="coord_latitude">Latitud</string>
+    <string name="coord_longitude">Longitud</string>
+    <string name="coord_ellipsoidal_height">Altura elipsoidal (h)</string>
+    <string name="coord_utm_zone">Huso UTM</string>
+    <string name="coord_easting">Este (E)</string>
+    <string name="coord_northing">Norte (N)</string>
+    <string name="coord_orthometric_height">Altitud (H, EGM08-REDNAP)</string>
+    <string name="unavailable_no_height">No disponible: la frase GGA no trae altitud.</string>
+    <string name="unavailable_outside_utm">No disponible en esta versión: el punto está fuera de los husos UTM 29 a 31.</string>
+    <string name="unavailable_outside_geoid">No disponible: el punto está fuera del modelo EGM08-REDNAP de la Península y Baleares.</string>
 </resources>

@@ -90,4 +90,21 @@
     <string name="ntrip_error_connection_lost">The caster closed the connection</string>
     <string name="ntrip_error_protocol">The caster response is not valid</string>
     <string name="ntrip_receiver_not_connected">Connect the receiver first: corrections are sent to it.</string>
+    <string name="receiver_coordinates_title">Point coordinates</string>
+    <string name="pole_height_label">Pole height (m)</string>
+    <string name="pole_height_help">From the pole tip to the base of the receiver.</string>
+    <string name="pole_height_invalid">Enter a height between 0 and 10 m.</string>
+    <string name="coordinates_waiting">No position from the receiver.</string>
+    <string name="coordinates_not_centimetric">No centimetre accuracy: the solution is not Fix.</string>
+    <string name="coordinates_reference">In the reference frame of the corrections, assumed to be ETRS89.</string>
+    <string name="coord_latitude">Latitude</string>
+    <string name="coord_longitude">Longitude</string>
+    <string name="coord_ellipsoidal_height">Ellipsoidal height (h)</string>
+    <string name="coord_utm_zone">UTM zone</string>
+    <string name="coord_easting">Easting (E)</string>
+    <string name="coord_northing">Northing (N)</string>
+    <string name="coord_orthometric_height">Orthometric height (H, EGM08-REDNAP)</string>
+    <string name="unavailable_no_height">Not available: the GGA sentence has no altitude.</string>
+    <string name="unavailable_outside_utm">Not available in this version: the point is outside UTM zones 29 to 31.</string>
+    <string name="unavailable_outside_geoid">Not available: the point is outside the EGM08-REDNAP model of the Peninsula and the Balearic Islands.</string>
 </resources>

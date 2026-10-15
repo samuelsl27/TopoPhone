@@ -36,7 +36,7 @@
       Hecho cuando: `StatusCardTest` en verde.
 - [x] T17. `app`: tarjeta NTRIP. (RF-18–RF-28)
       Hecho cuando: `NtripCardTest` en verde.
-- [ ] T18. `app`: tarjeta Coordenadas con la altura del jalón. (RF-29–RF-41)
+- [x] T18. `app`: tarjeta Coordenadas con la altura del jalón. (RF-29–RF-41)
       Hecho cuando: `CoordinatesCardTest` en verde.
 - [ ] T19. `app`: compartir sesión (FileProvider) y atribución del IGN en Licencias. (RF-43, RF-45)
       Hecho cuando: `ShareSessionTest` y `LicensesScreenTest` en verde.
