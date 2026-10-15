@@ -8,7 +8,7 @@
       Hecho cuando: `GsaGsvParserTest` en verde.
 - [x] T3. `core:gnss`: `EbpParser` y `EtcParser` (estados y avisos de ETC_rev_3). (RF-5, RF-6, RF-7)
       Hecho cuando: `EbpEtcParserTest` en verde.
-- [ ] T4. `core:gnss`: `Epoch` y `EpochAssembler` (agrupación, cierre por hora o 150 ms, desorden, medianoche, fecha, reinicio). (RF-8–RF-11)
+- [x] T4. `core:gnss`: `Epoch` y `EpochAssembler` (agrupación, cierre por hora o 150 ms, desorden, medianoche, fecha, reinicio). (RF-8–RF-11)
       Hecho cuando: `EpochAssemblerTest` en verde.
 - [ ] T5. `receiver`: `ReceiverSession` con épocas (época en el estado, "Sin datos" a 2 s sin época, tic de 25 ms, la latencia de la GGA no cambia). (RF-12)
       Hecho cuando: `ReceiverSessionEpochTest` y los tests de S002 en verde.
