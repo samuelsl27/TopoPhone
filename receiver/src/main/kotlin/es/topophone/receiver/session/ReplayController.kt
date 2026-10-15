@@ -23,13 +23,13 @@ class ReplayController(private val session: ReceiverSession, private val session
             return connected && snapshot.replay == null
         }
 
-    /** Reproduce la sesión [id] a ×1 y sin bucle; `false` si ya no existe o no tiene datos. */
-    fun play(id: String): Boolean {
+    /** Reproduce la sesión [id] sin bucle, a ×1 salvo que se pida otra velocidad; `false` si ya no existe o no tiene datos. */
+    fun play(id: String, speed: ReplaySpeed = ReplaySpeed.X1): Boolean {
         val recorded = sessions().firstOrNull { it.id == id } ?: return false
         if (recorded.receiverFiles.isEmpty()) return false
         val name = if (recorded.source == SessionSource.IMPORTED) recorded.receiver else recorded.id
         last = name to recorded.receiverFiles
-        session.connect(ReplayTransport(name, recorded.receiverFiles, ReplaySpeed.X1, loop = false))
+        session.connect(ReplayTransport(name, recorded.receiverFiles, speed, loop = false))
         return true
     }
 

@@ -34,7 +34,7 @@
       Hecho cuando: `ReplayTransportTest` en verde.
 - [x] T16. `app`: reproducir desde la lista y controles en la tarjeta Conexión (velocidad, bucle, Detener, "Reproducción terminada", volver a reproducir) y exclusión con el receptor (confirmación). (RF-35, RF-37, RF-40, RF-41, RF-42, RF-43)
       Hecho cuando: `ReplayControlsTest` y `ReceiverViewModelReplayTest` en verde.
-- [ ] T17. `tools` + `app`: sesión sintética completa del RS3 con sus épocas esperadas (pyproj) y reproducción de principio a fin a ×5 por la sesión y el ViewModel reales. (RF-1–RF-11, RF-36)
+- [x] T17. `tools` + `app`: sesión sintética completa del RS3 con sus épocas esperadas (pyproj) y reproducción de principio a fin a ×5 por la sesión y el ViewModel reales. (RF-1–RF-11, RF-36)
       Hecho cuando: `test_rs3_completo.py` y `FullRs3ReplayTest` en verde.
 - [ ] T18. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador (importar y reproducir) y demo con el RS3 real (barra de estado, grabación con correcciones, lista, compartir y reproducir). (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y las dos demos funcionan.
