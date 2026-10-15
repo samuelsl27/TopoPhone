@@ -10,7 +10,7 @@
       Hecho cuando: `ProjectPositionCalculatorTest` en verde (≤ 1 mm) y el test del generador en `tools`.
 - [x] T4. `data`: Room v1 (proyectos y carpetas) con WAL y `synchronous=FULL`, esquema exportado y banco de pruebas de migraciones. (RNF de la spec)
       Hecho cuando: el test de durabilidad y el de `MigrationTestHelper` en verde, y el esquema en `data/schemas/`.
-- [ ] T5. `data`: `ProjectRepository` crear, editar, abrir y listar, con sus errores y su orden. (RF-1, RF-2, RF-7, RF-12, RF-14, RF-15, RF-20)
+- [x] T5. `data`: `ProjectRepository` crear, editar, abrir y listar, con sus errores y su orden. (RF-1, RF-2, RF-7, RF-12, RF-14, RF-15, RF-20)
       Hecho cuando: `ProjectRepositoryTest` en verde para esos casos.
 - [ ] T6. `data`: duplicar, búsqueda y carpetas (crear, renombrar, mover, borrar). (RF-4, RF-16 a RF-21)
       Hecho cuando: `ProjectRepositoryTest` en verde para esos casos.
