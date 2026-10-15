@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Herramientas de desarrollo de TopoPhone (no van en el APK): trazabilidad, comprobaciones del repositorio y de los workflows."
 requires-python = ">=3.12"
 dependencies = [
+    "pyproj>=3.8,<3.9",
     "pyyaml>=6.0.2",
 ]
 
