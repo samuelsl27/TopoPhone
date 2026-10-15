@@ -5,7 +5,6 @@
     <string name="nav_settings">Settings</string>
 
     <string name="survey_empty_description">Your projects, measured points and stakeout will appear here.</string>
-    <string name="receiver_empty_description">Here you will see the GNSS receiver status: solution, satellites and corrections.</string>
 
     <string name="settings_section_appearance">Appearance</string>
     <string name="settings_theme">Theme</string>
@@ -29,4 +28,26 @@
     <string name="about_license">License</string>
     <string name="about_repository">Source code</string>
     <string name="about_disclaimer">TopoPhone is an independent project and is not affiliated with Emlid Tech Kft. “Emlid”, “Reach” and “Emlid Flow” are trademarks of their respective owners.</string>
+
+    <string name="receiver_connection_title">Receiver connection</string>
+    <string name="receiver_state_disconnected">Not connected</string>
+    <string name="receiver_state_connecting">Connecting to %1$s…</string>
+    <string name="receiver_state_receiving">Receiving data from %1$s</string>
+    <string name="receiver_state_no_data">Connected to %1$s, but no NMEA data is arriving</string>
+    <string name="receiver_state_lost">Connection with %1$s lost</string>
+    <string name="receiver_state_failed_timeout">Could not connect to the receiver within 10 s</string>
+    <string name="receiver_state_failed_error">Could not connect to the receiver</string>
+    <string name="receiver_connect_failed_causes">Check that the receiver is on and nearby, that Emlid Flow is not connected to it via Bluetooth and that its Bluetooth position output is configured.</string>
+    <string name="receiver_disconnect">Disconnect</string>
+    <string name="receiver_reconnect">Reconnect</string>
+    <string name="receiver_bluetooth_unsupported">This phone has no Bluetooth.</string>
+    <string name="receiver_bluetooth_permission_rationale">TopoPhone needs the nearby devices (Bluetooth) permission to connect to the paired GNSS receiver. It is not used to scan for or locate other devices.</string>
+    <string name="receiver_bluetooth_permission_request">Allow Bluetooth</string>
+    <string name="receiver_bluetooth_permission_settings_help">Without this permission the app cannot connect to the receiver. If you denied it, enable it in Settings &gt; Apps &gt; TopoPhone &gt; Permissions &gt; Nearby devices.</string>
+    <string name="receiver_open_app_settings">Open app settings</string>
+    <string name="receiver_bluetooth_disabled">The phone\'s Bluetooth is off.</string>
+    <string name="receiver_bluetooth_enable">Turn on Bluetooth</string>
+    <string name="receiver_no_bonded_devices">No paired devices. Pair the receiver from the phone\'s Bluetooth settings.</string>
+    <string name="receiver_choose_device">Choose the paired receiver:</string>
+    <string name="receiver_share_session_chooser">Share session</string>
 </resources>

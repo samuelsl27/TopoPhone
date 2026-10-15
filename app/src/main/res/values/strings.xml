@@ -10,7 +10,6 @@
 
     <!-- Estados vacíos (S001/RF-4) -->
     <string name="survey_empty_description">Aquí aparecerán tus proyectos, los puntos medidos y el replanteo.</string>
-    <string name="receiver_empty_description">Aquí verás el estado del receptor GNSS: solución, satélites y correcciones.</string>
 
     <!-- Ajustes: tema (S001/RF-9) -->
     <string name="settings_section_appearance">Apariencia</string>
@@ -40,4 +39,27 @@
     <string name="about_license_value" translatable="false">GNU GPL-3.0</string>
     <string name="about_repository">Código fuente</string>
     <string name="about_disclaimer">TopoPhone es un proyecto independiente y no está afiliado a Emlid Tech Kft. «Emlid», «Reach» y «Emlid Flow» son marcas de sus respectivos propietarios.</string>
+
+    <!-- Receptor: conexión (S002/RF-1 a RF-10) -->
+    <string name="receiver_connection_title">Conexión con el receptor</string>
+    <string name="receiver_state_disconnected">Sin conectar</string>
+    <string name="receiver_state_connecting">Conectando con %1$s…</string>
+    <string name="receiver_state_receiving">Recibiendo datos de %1$s</string>
+    <string name="receiver_state_no_data">Conectado con %1$s, pero no llegan datos NMEA</string>
+    <string name="receiver_state_lost">Se ha perdido la conexión con %1$s</string>
+    <string name="receiver_state_failed_timeout">No se pudo conectar con el receptor en 10 s</string>
+    <string name="receiver_state_failed_error">No se pudo conectar con el receptor</string>
+    <string name="receiver_connect_failed_causes">Comprueba que el receptor está encendido y cerca, que Emlid Flow no está conectado a él por Bluetooth y que su salida de posición por Bluetooth está configurada.</string>
+    <string name="receiver_disconnect">Desconectar</string>
+    <string name="receiver_reconnect">Reconectar</string>
+    <string name="receiver_bluetooth_unsupported">Este móvil no tiene Bluetooth.</string>
+    <string name="receiver_bluetooth_permission_rationale">TopoPhone necesita el permiso de dispositivos cercanos (Bluetooth) para conectar con el receptor GNSS emparejado. No se usa para buscar ni localizar otros dispositivos.</string>
+    <string name="receiver_bluetooth_permission_request">Permitir Bluetooth</string>
+    <string name="receiver_bluetooth_permission_settings_help">Sin este permiso no se puede conectar con el receptor. Si lo denegaste, actívalo en Ajustes &gt; Aplicaciones &gt; TopoPhone &gt; Permisos &gt; Dispositivos cercanos.</string>
+    <string name="receiver_open_app_settings">Abrir ajustes de la app</string>
+    <string name="receiver_bluetooth_disabled">El Bluetooth del móvil está apagado.</string>
+    <string name="receiver_bluetooth_enable">Activar Bluetooth</string>
+    <string name="receiver_no_bonded_devices">No hay dispositivos emparejados. Empareja el receptor desde los ajustes de Bluetooth del móvil.</string>
+    <string name="receiver_choose_device">Elige el receptor emparejado:</string>
+    <string name="receiver_share_session_chooser">Compartir sesión</string>
 </resources>

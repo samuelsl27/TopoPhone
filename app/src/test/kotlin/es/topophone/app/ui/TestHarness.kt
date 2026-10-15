@@ -11,6 +11,9 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
+import es.topophone.app.ui.receiver.ReceiverActions
+import es.topophone.app.ui.receiver.ReceiverScreen
+import es.topophone.app.ui.receiver.ReceiverUiState
 import es.topophone.core.designsystem.theme.EffectiveThemeKey
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
@@ -50,6 +53,7 @@ fun StatefulTestApp(
                 onSelectLanguage = { language = it },
                 onOpenUrl = onOpenUrl,
             ),
+            receiverSection = { theme, toggleSun -> ReceiverScreen(theme, toggleSun, ReceiverUiState(), ReceiverActions()) },
         )
     }
 }

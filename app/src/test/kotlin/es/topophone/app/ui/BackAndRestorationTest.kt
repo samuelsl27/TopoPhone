@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.MainActivity
 import es.topophone.app.R
+import es.topophone.app.ui.receiver.CONNECTION_STATUS_TAG
 import es.topophone.app.ui.settings.THEME_SETTING_TAG
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -94,7 +95,7 @@ class RotationTest {
         compose.awaitAppReady()
 
         compose.navItem(TopLevelDestination.RECEIVER).assertIsSelected()
-        compose.onNodeWithText(text(R.string.receiver_empty_description)).assertIsDisplayed()
+        compose.onNodeWithTag(CONNECTION_STATUS_TAG).assertIsDisplayed()
 
         RuntimeEnvironment.setQualifiers("+port")
         compose.activityRule.scenario.recreate()

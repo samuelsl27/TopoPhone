@@ -18,6 +18,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
+import es.topophone.app.ui.receiver.CONNECTION_STATUS_TAG
 import es.topophone.app.ui.settings.ABOUT_DISCLAIMER_TAG
 import es.topophone.app.ui.settings.ABOUT_SETTING_TAG
 import es.topophone.app.ui.settings.LANGUAGE_SETTING_TAG
@@ -90,7 +91,7 @@ abstract class LayoutRnfTestBase {
         compose.navItem(TopLevelDestination.SURVEY).performClick()
         compose.onNodeWithText(text(R.string.survey_empty_description)).performScrollTo().assertIsDisplayed()
         compose.navItem(TopLevelDestination.RECEIVER).performClick()
-        compose.onNodeWithText(text(R.string.receiver_empty_description)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(CONNECTION_STATUS_TAG).performScrollTo().assertIsDisplayed()
     }
 
     @Test

@@ -1,0 +1,241 @@
+package es.topophone.app.ui.receiver
+
+import es.topophone.core.gnss.nmea.NmeaChecksum
+import es.topophone.core.ntrip.NtripConfig
+import es.topophone.core.ntrip.NtripConnector
+import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.GroundPointCalculator
+import es.topophone.data.receiver.NtripPreferences
+import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.receiver.session.ConnectionState
+import es.topophone.receiver.session.NtripState
+import es.topophone.receiver.session.ReceiverSession
+import es.topophone.receiver.transport.BluetoothDevices
+import es.topophone.receiver.transport.BondedDevice
+import es.topophone.receiver.transport.ReceiverTransport
+import es.topophone.receiver.transport.StreamTransport
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import java.io.ByteArrayOutputStream
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withTimeout
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+
+/** ViewModel de la sección Receptor (S002/RF-1 a RF-4, RF-9, RF-19, RF-23, RF-26, RF-28, RF-30, RF-31). */
+@OptIn(ExperimentalCoroutinesApi::class)
+class ReceiverViewModelTest {
+
+    private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val toApp = PipedOutputStream()
+    private val receiverInput = PipedInputStream(toApp, 64 * 1024)
+
+    private class FakeBluetooth : BluetoothDevices {
+        var permission = true
+        var enabled = true
+        val transports = mutableMapOf<String, ReceiverTransport>()
+        override val isSupported = true
+        override val isEnabled get() = enabled
+        override fun hasConnectPermission() = permission
+        override fun bondedDevices() = listOf(BondedDevice("reach-RS3", "00:11:22:33:44:55"))
+        override fun transportFor(address: String) = transports.getValue(address)
+    }
+
+    private class FakePreferences : ReceiverPreferences {
+        val ntripFlow = MutableStateFlow(NtripPreferences())
+        val poleFlow = MutableStateFlow(1.8)
+        override val ntrip = ntripFlow
+        override val poleHeightM = poleFlow
+        override suspend fun saveNtrip(preferences: NtripPreferences) {
+            ntripFlow.value = preferences
+        }
+        override suspend fun savePoleHeight(heightM: Double) {
+            poleFlow.value = heightM
+        }
+    }
+
+    private val bluetooth = FakeBluetooth()
+    private val preferences = FakePreferences()
+    private var connectionLostAlerts = 0
+    private var internet = true
+    private var ntripConfigUsed: NtripConfig? = null
+    private val connector = NtripConnector { config, _, _, _ ->
+        ntripConfigUsed = config
+        NtripFailure.UNREACHABLE
+    }
+    private val session = ReceiverSession(sessionScope, connector, noDataTimeoutMs = 60_000, watchdogPeriodMs = 1_000)
+
+    private fun nmea(body: String) = "$" + body + "*" + "%02X".format(NmeaChecksum.compute(body)) + "\r\n"
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        bluetooth.transports["00:11:22:33:44:55"] = StreamTransport("reach-RS3", receiverInput, ByteArrayOutputStream())
+    }
+
+    @After
+    fun tearDown() {
+        sessionScope.cancel()
+        Dispatchers.resetMain()
+    }
+
+    private fun viewModel() = ReceiverViewModel(
+        session = session,
+        bluetooth = bluetooth,
+        preferences = preferences,
+        calculator = GroundPointCalculator(),
+        network = { internet },
+        alerts = { connectionLostAlerts++ },
+        sessionFiles = { null },
+        clock = { System.nanoTime() / 1_000_000 },
+        samplePeriodMs = 0,
+    )
+
+    private fun ReceiverViewModel.awaitState(predicate: (ReceiverUiState) -> Boolean): ReceiverUiState = runBlocking {
+        val collector = CoroutineScope(Dispatchers.Unconfined).launch { uiState.collect {} }
+        try {
+            withTimeout(5_000) { uiState.first(predicate) }
+        } finally {
+            collector.cancel()
+        }
+    }
+
+    @Test
+    fun `S002 RF-2 sin permiso el estado pide el permiso y al concederlo se listan los emparejados`() {
+        bluetooth.permission = false
+        val vm = viewModel()
+        vm.awaitState { true }.bluetooth shouldBe BluetoothUi.PermissionNeeded
+
+        bluetooth.permission = true
+        vm.refreshBluetooth()
+
+        vm.awaitState { it.bluetooth is BluetoothUi.Ready }.bluetooth shouldBe BluetoothUi.Ready(bluetooth.bondedDevices())
+    }
+
+    @Test
+    fun `S002 RF-4 con el Bluetooth apagado el estado lo indica`() {
+        bluetooth.enabled = false
+
+        viewModel().awaitState { true }.bluetooth shouldBe BluetoothUi.Disabled
+    }
+
+    @Test
+    fun `S002 RF-1 S002 RF-5 conectar con un emparejado abre la sesion y calcula el punto del suelo`() {
+        val vm = viewModel()
+
+        vm.connect("00:11:22:33:44:55")
+        toApp.write(nmea("GNGGA,101530.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
+        toApp.flush()
+
+        val state = vm.awaitState { it.groundPoint != null }
+        state.snapshot.connection shouldBe ConnectionState.Receiving("reach-RS3")
+        state.groundPoint.shouldNotBeNull().utm.shouldNotBeNull().zone shouldBe 30
+    }
+
+    @Test
+    fun `S002 RF-9 al perder la conexion se avisa con vibracion`() {
+        val vm = viewModel()
+        vm.awaitState { true }
+        vm.connect("00:11:22:33:44:55")
+        toApp.write(nmea("GNGGA,101530.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
+        vm.awaitState { it.snapshot.connection is ConnectionState.Receiving }
+
+        toApp.close()
+
+        vm.awaitState { it.snapshot.connection is ConnectionState.Lost }
+        runBlocking { withTimeout(2_000) { while (connectionLostAlerts == 0) kotlinx.coroutines.delay(20) } }
+        connectionLostAlerts shouldBe 1
+    }
+
+    @Test
+    fun `S002 RF-26 S002 RF-27 al conectar NTRIP se guardan los datos del caster pero no la contrasena`() {
+        val vm = viewModel()
+        vm.connect("00:11:22:33:44:55")
+        toApp.write(nmea("GNGGA,101530.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
+        vm.awaitState { it.snapshot.connection is ConnectionState.Receiving }
+
+        vm.updateForm(NtripForm(host = " caster.es ", port = "2102", mountpoint = "VRS3", username = "topo", password = "s3cr3t"))
+        vm.connectNtrip()
+
+        runBlocking { withTimeout(2_000) { preferences.ntripFlow.first { it.host.isNotEmpty() } } } shouldBe
+            NtripPreferences("caster.es", 2102, "VRS3", "topo")
+        vm.awaitState { it.snapshot.ntrip is NtripState.Stopped }
+        ntripConfigUsed shouldBe NtripConfig("caster.es", 2102, "VRS3", "topo", "s3cr3t")
+    }
+
+    @Test
+    fun `S002 RF-23 si el caster es inaccesible se comprueba si hay internet`() {
+        internet = false
+        val vm = viewModel()
+        vm.connect("00:11:22:33:44:55")
+        toApp.write(nmea("GNGGA,101530.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
+        vm.awaitState { it.snapshot.connection is ConnectionState.Receiving }
+
+        vm.updateForm(NtripForm(host = "caster.es", mountpoint = "VRS3"))
+        vm.connectNtrip()
+
+        vm.awaitState { !it.internetAvailable }.snapshot.ntrip shouldBe NtripState.Stopped(NtripFailure.UNREACHABLE)
+    }
+
+    @Test
+    fun `S002 RF-18 un formulario incompleto no se envia y se marca como no valido`() {
+        val vm = viewModel()
+
+        vm.updateForm(NtripForm(host = "", mountpoint = "VRS3"))
+        vm.connectNtrip()
+
+        vm.awaitState { it.formInvalid }.formInvalid shouldBe true
+        ntripConfigUsed shouldBe null
+    }
+
+    @Test
+    fun `S002 RF-28 sin receptor conectado el NTRIP no se conecta`() {
+        val vm = viewModel()
+        vm.updateForm(NtripForm(host = "caster.es", mountpoint = "VRS3"))
+
+        vm.connectNtrip()
+
+        vm.awaitState { it.snapshot.ntrip == NtripState.ReceiverNotConnected }
+        ntripConfigUsed shouldBe null
+    }
+
+    @Test
+    fun `S002 RF-30 S002 RF-31 la altura del jalon valida se guarda y la no valida se marca sin guardar`() {
+        val vm = viewModel()
+        vm.awaitState { true }
+
+        vm.updatePoleHeight("2,05")
+        runBlocking { withTimeout(2_000) { preferences.poleFlow.first { it == 2.05 } } }
+
+        vm.updatePoleHeight("12")
+        vm.awaitState { !it.poleHeightValid }.poleHeightText shouldBe "12"
+        preferences.poleFlow.value shouldBe 2.05
+    }
+
+    @Test
+    fun `S002 RF-26 S002 RF-30 al abrir la pantalla se recuperan el caster y el jalon guardados`() {
+        preferences.ntripFlow.value = NtripPreferences("caster.es", 2101, "VRS3", "topo")
+        preferences.poleFlow.value = 2.0
+
+        val state = viewModel().awaitState { it.form.host.isNotEmpty() }
+
+        state.form shouldBe NtripForm("caster.es", "2101", "VRS3", "topo", "")
+        state.poleHeightText.replace(',', '.') shouldBe "2.000"
+        state.snapshot.connection.shouldBeInstanceOf<ConnectionState.Disconnected>()
+    }
+}

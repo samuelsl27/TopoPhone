@@ -30,7 +30,7 @@
       Hecho cuando: `SessionLogStoreTest` en verde.
 - [x] T14. `data`: `ReceiverPreferences` (servidor, puerto, punto de montaje, usuario y jalón; nunca la contraseña). (RF-26, RF-27, RF-30)
       Hecho cuando: `ReceiverPreferencesTest` en verde.
-- [ ] T15. `app`: `ReceiverViewModel` y tarjeta Conexión (permisos, Bluetooth apagado, lista, estados, vibración). (RF-1–RF-10)
+- [x] T15. `app`: `ReceiverViewModel` y tarjeta Conexión (permisos, Bluetooth apagado, lista, estados, vibración). (RF-1–RF-10)
       Hecho cuando: `ReceiverConnectionCardTest` en verde.
 - [ ] T16. `app`: tarjeta Estado. (RF-12–RF-17)
       Hecho cuando: `StatusCardTest` en verde.
