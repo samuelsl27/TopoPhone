@@ -164,4 +164,100 @@ class ProjectRepositoryTest {
         project.createdAtMs shouldBe 1_000
         project.modifiedAtMs shouldBe 9_000
     }
+
+    private fun createFolder(name: String): String = runBlocking {
+        repository.createFolder(name).shouldBeInstanceOf<SaveResult.Saved>().id
+    }
+
+    @Test
+    fun `S006 RF-4 la busqueda encuentra por nombre o descripcion en todas las carpetas, sin mayusculas ni tildes`() = runBlocking<Unit> {
+        val obras = createFolder("Obras 2026")
+        val avila = create("Camino de Ávila", at = 1_000)
+        create("Parcela 23", at = 2_000)
+        val fachada = repository.create(
+            draft("Calle Mayor 12").copy(description = "Fachada norte"),
+        ).shouldBeInstanceOf<SaveResult.Saved>().id
+        repository.moveToFolder(avila, obras)
+
+        repository.search("AVILA").first().map { it.project.name to it.folder?.name } shouldContainExactly
+            listOf("Camino de Ávila" to "Obras 2026")
+        repository.search("norte").first().map { it.project.id } shouldContainExactly listOf(fachada)
+        repository.search("zzz").first() shouldBe emptyList()
+    }
+
+    @Test
+    fun `S006 RF-4 la busqueda no encuentra los proyectos de la papelera`() = runBlocking<Unit> {
+        val id = create("Parcela 23", at = 1_000)
+        db.projects().setDeletedAt(id, deletedAt = 2_000)
+
+        repository.search("parcela").first() shouldBe emptyList()
+    }
+
+    @Test
+    fun `S006 RF-16 duplicar crea una copia con sus datos en la misma carpeta y con nombre (copia)`() = runBlocking<Unit> {
+        val obras = createFolder("Obras 2026")
+        val original = create("Parcela 23", at = 1_000)
+        repository.moveToFolder(original, obras)
+        now = 5_000
+
+        val first = repository.duplicate(original, copyLabel = "copia").shouldBeInstanceOf<SaveResult.Saved>().id
+        val second = repository.duplicate(original, copyLabel = "copia").shouldBeInstanceOf<SaveResult.Saved>().id
+
+        val copy = repository.project(first).shouldNotBeNull()
+        copy.name shouldBe "Parcela 23 (copia)"
+        copy.toDraft() shouldBe draft("Parcela 23 (copia)")
+        copy.folderId shouldBe obras
+        copy.createdAtMs shouldBe 5_000
+        repository.project(second).shouldNotBeNull().name shouldBe "Parcela 23 (copia 2)"
+    }
+
+    @Test
+    fun `S006 RF-17 una carpeta necesita un nombre no vacio y distinto del de las demas`() = runBlocking<Unit> {
+        createFolder("Obras 2026")
+
+        repository.createFolder(" ") shouldBe SaveResult.Invalid(NameError.EMPTY)
+        repository.createFolder("obras 2026") shouldBe SaveResult.Invalid(NameError.DUPLICATE)
+        repository.createFolder("Fincas").shouldBeInstanceOf<SaveResult.Saved>()
+        repository.folders().first().map { it.name } shouldContainExactly listOf("Fincas", "Obras 2026")
+    }
+
+    @Test
+    fun `S006 RF-18 renombrar una carpeta tiene las mismas comprobaciones`() = runBlocking<Unit> {
+        val obras = createFolder("Obras 2026")
+        createFolder("Fincas")
+
+        repository.renameFolder(obras, "FINCAS") shouldBe SaveResult.Invalid(NameError.DUPLICATE)
+        repository.renameFolder(obras, "") shouldBe SaveResult.Invalid(NameError.EMPTY)
+        repository.renameFolder(obras, "Obras 2027") shouldBe SaveResult.Saved(obras)
+        repository.folders().first().map { it.name } shouldContainExactly listOf("Fincas", "Obras 2027")
+    }
+
+    @Test
+    fun `S006 RF-19 mover un proyecto a una carpeta y sacarlo de ella`() = runBlocking<Unit> {
+        val obras = createFolder("Obras 2026")
+        val id = create("Parcela 23", at = 1_000)
+
+        repository.moveToFolder(id, obras)
+        repository.projects(obras).first().map { it.id } shouldContainExactly listOf(id)
+        rootNames() shouldBe emptyList()
+
+        repository.moveToFolder(id, null)
+        rootNames() shouldContainExactly listOf("Parcela 23")
+    }
+
+    @Test
+    fun `S006 RF-21 al borrar una carpeta sus proyectos quedan fuera de las carpetas`() = runBlocking<Unit> {
+        val obras = createFolder("Obras 2026")
+        val inside = create("Parcela 23", at = 1_000)
+        val trashed = create("Viejo", at = 2_000)
+        repository.moveToFolder(inside, obras)
+        repository.moveToFolder(trashed, obras)
+        db.projects().setDeletedAt(trashed, deletedAt = 3_000)
+
+        repository.deleteFolder(obras)
+
+        repository.folders().first() shouldBe emptyList()
+        rootNames() shouldContainExactly listOf("Parcela 23")
+        repository.project(trashed).shouldNotBeNull().folderId shouldBe null
+    }
 }

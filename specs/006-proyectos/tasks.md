@@ -12,7 +12,7 @@
       Hecho cuando: el test de durabilidad y el de `MigrationTestHelper` en verde, y el esquema en `data/schemas/`.
 - [x] T5. `data`: `ProjectRepository` crear, editar, abrir y listar, con sus errores y su orden. (RF-1, RF-2, RF-7, RF-12, RF-14, RF-15, RF-20)
       Hecho cuando: `ProjectRepositoryTest` en verde para esos casos.
-- [ ] T6. `data`: duplicar, búsqueda y carpetas (crear, renombrar, mover, borrar). (RF-4, RF-16 a RF-21)
+- [x] T6. `data`: duplicar, búsqueda y carpetas (crear, renombrar, mover, borrar). (RF-4, RF-16 a RF-21)
       Hecho cuando: `ProjectRepositoryTest` en verde para esos casos.
 - [ ] T7. `data`: papelera (mover, restaurar, borrar definitivamente, purga a los 30 días con reloj inyectado). (RF-22 a RF-27)
       Hecho cuando: `ProjectRepositoryTest` en verde para la papelera.

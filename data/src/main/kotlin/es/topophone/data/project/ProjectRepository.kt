@@ -8,10 +8,12 @@ import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDraft
+import es.topophone.core.model.project.ProjectFolder
 import es.topophone.core.model.project.ProjectNames
 import es.topophone.data.db.TopoPhoneDatabase
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 /** Resultado de guardar un proyecto (S006/RF-7, RF-12, RF-14). */
@@ -20,6 +22,9 @@ sealed interface SaveResult {
 
     data class Invalid(val error: NameError) : SaveResult
 }
+
+/** Un proyecto encontrado y la carpeta en la que está (S006/RF-4). */
+data class ProjectSearchResult(val project: Project, val folder: ProjectFolder?)
 
 /** Proyectos y carpetas (S006). */
 interface ProjectRepository {
@@ -34,6 +39,21 @@ interface ProjectRepository {
     suspend fun update(id: String, draft: ProjectDraft): SaveResult
 
     suspend fun markOpened(id: String)
+
+    fun search(text: String): Flow<List<ProjectSearchResult>>
+
+    /** [copyLabel] es la palabra de la interfaz: "copia" (S006/RF-16). */
+    suspend fun duplicate(id: String, copyLabel: String): SaveResult
+
+    fun folders(): Flow<List<ProjectFolder>>
+
+    suspend fun createFolder(name: String): SaveResult
+
+    suspend fun renameFolder(id: String, name: String): SaveResult
+
+    suspend fun moveToFolder(projectId: String, folderId: String?)
+
+    suspend fun deleteFolder(id: String)
 }
 
 /**
@@ -71,6 +91,42 @@ class RoomProjectRepository(
     }
 
     override suspend fun markOpened(id: String) = dao.setOpenedAt(id, clock())
+
+    override fun search(text: String): Flow<List<ProjectSearchResult>> = combine(dao.active(), dao.folders()) { projects, folders ->
+        val byId = folders.associate { it.id to ProjectFolder(it.id, it.name) }
+        projects
+            .filter { ProjectNames.matches(it.name, text) || ProjectNames.matches(it.description, text) }
+            .map { ProjectSearchResult(it.toProject(), it.folderId?.let(byId::get)) }
+    }
+
+    override suspend fun duplicate(id: String, copyLabel: String): SaveResult = db.withTransaction {
+        val original = dao.byId(id) ?: error("No existe el proyecto $id")
+        val now = clock()
+        val copy = newId()
+        val name = ProjectNames.copyName(original.name, dao.activeNames(), copyLabel)
+        dao.insert(original.copy(id = copy, name = name, createdAt = now, modifiedAt = now, openedAt = null, deletedAt = null))
+        SaveResult.Saved(copy)
+    }
+
+    override fun folders(): Flow<List<ProjectFolder>> =
+        dao.folders().map { list -> list.map { ProjectFolder(it.id, it.name) }.sortedBy { ProjectNames.key(it.name) } }
+
+    override suspend fun createFolder(name: String): SaveResult = db.withTransaction {
+        ProjectNames.validate(name, dao.folderNames())?.let { return@withTransaction SaveResult.Invalid(it) }
+        val id = newId()
+        dao.insertFolder(ProjectFolderEntity(id, name.trim()))
+        SaveResult.Saved(id)
+    }
+
+    override suspend fun renameFolder(id: String, name: String): SaveResult = db.withTransaction {
+        ProjectNames.validate(name, dao.folderNames(exceptId = id))?.let { return@withTransaction SaveResult.Invalid(it) }
+        dao.renameFolder(id, name.trim())
+        SaveResult.Saved(id)
+    }
+
+    override suspend fun moveToFolder(projectId: String, folderId: String?) = dao.moveToFolder(projectId, folderId, clock())
+
+    override suspend fun deleteFolder(id: String) = dao.deleteFolder(id)
 }
 
 private fun ProjectDraft.toEntity(id: String, folderId: String?, createdAt: Long, modifiedAt: Long) = ProjectEntity(

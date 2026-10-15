@@ -31,6 +31,10 @@ interface ProjectDao {
     )
     fun inFolder(folderId: String?): Flow<List<ProjectEntity>>
 
+    /** S006/RF-4: todos los de fuera de la papelera, para buscar en todas las carpetas. */
+    @Query("SELECT * FROM projects WHERE deleted_at IS NULL ORDER BY COALESCE(opened_at, created_at) DESC")
+    fun active(): Flow<List<ProjectEntity>>
+
     /** Nombres en uso (fuera de la papelera), salvo el del propio proyecto (S006/RF-7). */
     @Query("SELECT name FROM projects WHERE deleted_at IS NULL AND id != :exceptId")
     suspend fun activeNames(exceptId: String = ""): List<String>
@@ -44,6 +48,22 @@ interface ProjectDao {
     @Query("UPDATE projects SET folder_id = :folderId WHERE id = :id")
     suspend fun setFolder(id: String, folderId: String?)
 
+    @Query("UPDATE projects SET folder_id = :folderId, modified_at = :at WHERE id = :id")
+    suspend fun moveToFolder(id: String, folderId: String?, at: Long)
+
     @Insert
     suspend fun insertFolder(folder: ProjectFolderEntity)
+
+    @Query("SELECT * FROM project_folders")
+    fun folders(): Flow<List<ProjectFolderEntity>>
+
+    @Query("SELECT name FROM project_folders WHERE id != :exceptId")
+    suspend fun folderNames(exceptId: String = ""): List<String>
+
+    @Query("UPDATE project_folders SET name = :name WHERE id = :id")
+    suspend fun renameFolder(id: String, name: String)
+
+    /** S006/RF-21: la clave ajena saca sus proyectos (`folder_id` a null). */
+    @Query("DELETE FROM project_folders WHERE id = :id")
+    suspend fun deleteFolder(id: String)
 }
