@@ -162,4 +162,5 @@
     <string name="sessions_play">Replay</string>
     <string name="sessions_replay_confirm_title">Disconnect the receiver?</string>
     <string name="sessions_replay_confirm_text">To replay the session, the receiver and NTRIP connections will be closed.</string>
+    <string name="receiver_state_reconnecting">Reconnecting to %1$s…</string>
 </resources>

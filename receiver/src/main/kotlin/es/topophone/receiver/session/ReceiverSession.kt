@@ -45,6 +45,12 @@ sealed interface ConnectionState {
 
     data class Lost(val description: String) : ConnectionState
 
+    /**
+     * Se perdió el enlace y se está reintentando (S004/RF-13 a RF-16). [nextAttemptAtMs] es el
+     * instante del siguiente intento (reloj monótono), o `null` mientras se intenta.
+     */
+    data class Reconnecting(val description: String, val attempt: Int, val nextAttemptAtMs: Long?, val lostAtMs: Long) : ConnectionState
+
     data class Failed(val failure: ConnectFailure) : ConnectionState
 
     /** La reproducción llegó al final de la sesión sin bucle (S003/RF-40). */
@@ -155,6 +161,8 @@ class ReceiverSession(
     private val accuracyStaleMs: Long = 3_000,
     private val watchdogPeriodMs: Long = TICK_MS,
     private val clock: () -> Long = { System.nanoTime() / 1_000_000 },
+    private val backoffMs: List<Long> = DEFAULT_BACKOFF_MS,
+    private val giveUpAfterMs: Long = GIVE_UP_AFTER_MS,
 ) {
     private val mutableState = MutableStateFlow(ReceiverSnapshot())
     val state: StateFlow<ReceiverSnapshot> = mutableState.asStateFlow()
@@ -175,8 +183,14 @@ class ReceiverSession(
 
     @Volatile private var lastGstAtMs = 0L
 
-    /** Abre la conexión con el receptor (S002/RF-5). */
-    fun connect(newTransport: ReceiverTransport) {
+    /** "Reintentar ahora" durante la reconexión (S004/RF-16). */
+    private val retrySignal = Channel<Unit>(Channel.CONFLATED)
+
+    /**
+     * Abre la conexión con el receptor (S002/RF-5). Con [reopen], si después se pierde el enlace
+     * se reintenta abrir el mismo receptor (S004/RF-13 a RF-21); sin él, queda perdida (S002/RF-9).
+     */
+    fun connect(newTransport: ReceiverTransport, reopen: (() -> ReceiverTransport)? = null) {
         disconnect()
         val channel = Channel<ByteArray>(Channel.UNLIMITED)
         synchronized(lock) {
@@ -214,19 +228,38 @@ class ReceiverSession(
             activeRecording = recording
             try {
                 coroutineScope {
-                    launch(Dispatchers.IO) { drainWrites(newTransport, channel, recording) }
                     launch { watchdog(description) }
-                    read(newTransport, description, recording)
-                    if (currentCoroutineContext().isActive) {
+                    var link = newTransport
+                    var linkWrites = channel
+                    while (true) {
+                        val drain = launch(Dispatchers.IO) { drainWrites(link, linkWrites, recording) }
+                        read(link, description, recording)
+                        drain.cancel()
+                        if (!currentCoroutineContext().isActive) break
                         ntripJob?.cancel()
-                        // Fin de la reproducción (S003/RF-40), con su última época, o enlace perdido con el receptor (S002/RF-9).
-                        val end = if (newTransport.simulated) {
-                            synchronized(assemblerLock) { assembler.flush(clock()) }?.let { onEpoch(it, description) }
-                            ConnectionState.ReplayFinished(description)
-                        } else {
-                            ConnectionState.Lost(description)
+                        // La grabación sigue abierta durante la reconexión: el corte queda en la misma sesión (S004/RF-19).
+                        val resumed = if (link.simulated || reopen == null) null else reconnect(reopen, description)
+                        if (resumed == null) {
+                            // Fin de la reproducción (S003/RF-40), con su última época, o enlace perdido con el receptor (S002/RF-9, S004/RF-20).
+                            val end = if (link.simulated) {
+                                synchronized(assemblerLock) { assembler.flush(clock()) }?.let { onEpoch(it, description) }
+                                ConnectionState.ReplayFinished(description)
+                            } else {
+                                ConnectionState.Lost(description)
+                            }
+                            mutableState.update { it.copy(connection = end, ntrip = NtripState.Idle, recording = false) }
+                            break
                         }
-                        mutableState.update { it.copy(connection = end, ntrip = NtripState.Idle, recording = false) }
+                        link = resumed
+                        linkWrites = Channel(Channel.UNLIMITED)
+                        synchronized(lock) {
+                            transport = link
+                            writes = linkWrites
+                        }
+                        synchronized(assemblerLock) { assembler = EpochAssembler() }
+                        lastEpochAtMs = clock()
+                        // S004/RF-17: la primera frase del enlace nuevo vuelve a dar "Recibiendo".
+                        mutableState.update { it.copy(connection = ConnectionState.Connecting(description)) }
                     }
                     coroutineContext.cancelChildren()
                 }
@@ -234,6 +267,37 @@ class ReceiverSession(
                 activeRecording = null
                 recording?.close()
             }
+        }
+    }
+
+    /** Durante la reconexión, intenta al momento y vuelve a empezar las esperas desde la primera (S004/RF-16). */
+    fun retryNow() {
+        retrySignal.trySend(Unit)
+    }
+
+    /**
+     * Reintenta abrir el receptor tras esperas crecientes hasta [giveUpAfterMs] (S004/RF-13 a RF-16,
+     * RF-20); devuelve el transporte abierto, o `null` al rendirse. Lo cancela `disconnect()` (S004/RF-21).
+     */
+    private suspend fun reconnect(reopen: () -> ReceiverTransport, description: String): ReceiverTransport? {
+        val lostAt = clock()
+        while (retrySignal.tryReceive().isSuccess) Unit // un "Reintentar ahora" anterior no cuenta
+        var attempt = 0
+        var index = 0
+        while (true) {
+            val wait = backoffMs[minOf(index, backoffMs.lastIndex)]
+            val deadline = lostAt + giveUpAfterMs
+            val now = clock()
+            if (now >= deadline) return null
+            val nextAt = minOf(now + wait, deadline)
+            mutableState.update { it.copy(connection = ConnectionState.Reconnecting(description, attempt, nextAt, lostAt)) }
+            val retried = withTimeoutOrNull(nextAt - now) { retrySignal.receive() } != null
+            if (!retried && clock() >= deadline) return null
+            attempt++
+            mutableState.update { it.copy(connection = ConnectionState.Reconnecting(description, attempt, null, lostAt)) }
+            val candidate = runCatching { reopen() }.getOrNull()
+            if (candidate != null && open(candidate) == null) return candidate
+            index = if (retried) 0 else index + 1
         }
     }
 
@@ -414,6 +478,12 @@ class ReceiverSession(
 
         /** Periodo del vigilante: resolución con la que se detectan los 150 ms de silencio (S003/RF-9). */
         const val TICK_MS = 25L
+
+        /** Esperas entre reintentos de reconexión: 1, 2, 4, 8 y 16 s y después cada 30 s (S004/RF-14, RNF-T3). */
+        val DEFAULT_BACKOFF_MS = listOf(1_000L, 2_000L, 4_000L, 8_000L, 16_000L, 30_000L)
+
+        /** La reconexión se rinde a los 30 min (S004/RF-20). */
+        const val GIVE_UP_AFTER_MS = 30 * 60_000L
 
         /** La grabación se vacía a disco como mínimo una vez por segundo. */
         const val FLUSH_PERIOD_MS = 1_000L
