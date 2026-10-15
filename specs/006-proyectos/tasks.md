@@ -8,7 +8,7 @@
       Hecho cuando: `ProjectNamesTest` en verde.
 - [x] T3. `tools` + `core:survey`: vectores de pyproj de UTM con huso fijo y `ProjectPositionCalculator`. (RF-29, RF-30)
       Hecho cuando: `ProjectPositionCalculatorTest` en verde (≤ 1 mm) y el test del generador en `tools`.
-- [ ] T4. `data`: Room v1 (proyectos y carpetas) con WAL y `synchronous=FULL`, esquema exportado y banco de pruebas de migraciones. (RNF de la spec)
+- [x] T4. `data`: Room v1 (proyectos y carpetas) con WAL y `synchronous=FULL`, esquema exportado y banco de pruebas de migraciones. (RNF de la spec)
       Hecho cuando: el test de durabilidad y el de `MigrationTestHelper` en verde, y el esquema en `data/schemas/`.
 - [ ] T5. `data`: `ProjectRepository` crear, editar, abrir y listar, con sus errores y su orden. (RF-1, RF-2, RF-7, RF-12, RF-14, RF-15, RF-20)
       Hecho cuando: `ProjectRepositoryTest` en verde para esos casos.

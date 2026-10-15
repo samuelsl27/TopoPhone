@@ -23,6 +23,7 @@ core-ktx = "1.19.1"
 lifecycle = "2.11.0"
 navigation = "2.10.2"
 datastore = "1.2.1"
+room = "2.8.5"
 androidx-hilt = "1.4.0"
 kotlinx-serialization = "1.11.0"
 
@@ -36,6 +37,12 @@ turbine = "1.2.1"
 androidx-test-ext = "1.3.0"
 
 [libraries]
+# Room (ADR-8, S006)
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+
 # Compose
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
@@ -97,6 +104,7 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutlibraries" }
+room = { id = "androidx.room", version.ref = "room" }
 
 # Convenciones propias (build-logic)
 topophone-android-application = { id = "topophone.android.application" }
