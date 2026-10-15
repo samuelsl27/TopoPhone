@@ -5,6 +5,8 @@ Genera en fixtures/geodesia/:
   bordes del huso (±3° del meridiano central).
 - geoide_egm08_rednap.csv: ondulación N de EGM08-REDNAP con la misma rejilla que va en la app
   (`vgridshift`), en nodos, celdas, bordes y fuera de la cobertura (N vacío).
+- proyecto_huso_fijo.csv: punto del suelo (φ, λ, h) → Este, Norte en el huso fijo del proyecto,
+  aunque el punto caiga en otro huso, y altitud H = h − N (vacía fuera del geoide) (S006/RF-29, RF-30).
 
 Uso: uv run --project tools tools/geodesia/generar_vectores.py
 Es determinista: la misma versión de pyproj/PROJ y de la rejilla dan el mismo fichero.
@@ -98,11 +100,38 @@ def geoid_vectors(rng: random.Random) -> list[str]:
     return lines
 
 
+def project_vectors(rng: random.Random) -> list[str]:
+    geoid = geoid_transformer()
+    lines = header("Punto del suelo a ETRS89 / UTM con huso fijo y altitud EGM08-REDNAP") + [
+        "latitud,longitud,altura_elipsoidal,huso,este,norte,altitud"
+    ]
+    inside = [(lat, lon) for lat in (35.5, 37.0, 38.5, 40.0, 41.5, 43.0, 43.9) for lon in (-9.3, -7.5, -6.0, -4.5, -3.0, -1.5, 0.0, 1.5, 3.0, 4.3)]
+    inside += [(rng.uniform(35.0, 43.99), rng.uniform(-9.5, 4.49)) for _ in range(30)]
+    # Dentro del ámbito del SC (λ −10…+5, φ 35…44,5) pero fuera de la rejilla del geoide: sin altitud.
+    no_geoid = [(44.3, -3.0), (40.0, -9.8), (40.0, 4.8)]
+    for zone in (29, 30, 31):
+        utm = Transformer.from_crs("EPSG:4258", f"EPSG:258{zone}", always_xy=True)
+        for lat, lon in inside + no_geoid:
+            h = round(rng.uniform(0.0, 1500.0), 4)
+            east, north = utm.transform(lon, lat)
+            _, _, n = geoid.transform(lon, lat, 0.0)
+            altitude = fmt(h - n) if abs(n) < 1e6 else ""
+            if (lat, lon) in no_geoid and altitude:
+                raise SystemExit(f"punto sin geoide con valor: {lat}, {lon}")
+            lines.append(",".join([fmt(lat), fmt(lon), fmt(h), str(zone), fmt(east), fmt(north), altitude]))
+    return lines
+
+
 def main() -> int:
     rejillas.ensure(GEOID, download=True)
     OUT.mkdir(parents=True, exist_ok=True)
     rng = random.Random(20261015)
-    for name, lines in (("utm_etrs89.csv", utm_vectors(rng)), ("geoide_egm08_rednap.csv", geoid_vectors(rng))):
+    outputs = (
+        ("utm_etrs89.csv", utm_vectors(rng)),
+        ("geoide_egm08_rednap.csv", geoid_vectors(rng)),
+        ("proyecto_huso_fijo.csv", project_vectors(rng)),
+    )
+    for name, lines in outputs:
         (OUT / name).write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
         print(f"{name}: {len(lines) - 3} vectores")
     return 0

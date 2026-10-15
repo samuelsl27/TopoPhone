@@ -6,7 +6,7 @@
       Hecho cuando: `ProjectUnitsTest` en verde (factores exactos, formato con configuración regional).
 - [x] T2. `core:model`: reglas de nombres (comparar sin mayúsculas ni tildes, "(copia n)", "(restaurado n)") y aviso de datum. (RF-4, RF-7, RF-11, RF-16, RF-25)
       Hecho cuando: `ProjectNamesTest` en verde.
-- [ ] T3. `tools` + `core:survey`: vectores de pyproj de UTM con huso fijo y `ProjectPositionCalculator`. (RF-29, RF-30)
+- [x] T3. `tools` + `core:survey`: vectores de pyproj de UTM con huso fijo y `ProjectPositionCalculator`. (RF-29, RF-30)
       Hecho cuando: `ProjectPositionCalculatorTest` en verde (≤ 1 mm) y el test del generador en `tools`.
 - [ ] T4. `data`: Room v1 (proyectos y carpetas) con WAL y `synchronous=FULL`, esquema exportado y banco de pruebas de migraciones. (RNF de la spec)
       Hecho cuando: el test de durabilidad y el de `MigrationTestHelper` en verde, y el esquema en `data/schemas/`.
