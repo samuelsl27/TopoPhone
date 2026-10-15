@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.receiver.ReceiverConnections
+import es.topophone.app.receiver.ReceiverService
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.core.ntrip.NtripClient
 import es.topophone.core.survey.GroundPointCalculator
@@ -78,8 +79,14 @@ object ReceiverModule {
     /** Único punto para conectar con un receptor real (S004). */
     @Provides
     @Singleton
-    fun receiverConnections(session: ReceiverSession, bluetooth: BluetoothDevices, preferences: ReceiverPreferences): ReceiverConnections =
-        ReceiverConnections(session, bluetooth, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default))
+    fun receiverConnections(
+        @ApplicationContext context: Context,
+        session: ReceiverSession,
+        bluetooth: BluetoothDevices,
+        preferences: ReceiverPreferences,
+    ): ReceiverConnections = ReceiverConnections(session, bluetooth, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default)) {
+        ReceiverService.start(context) // S004/RF-7
+    }
 
     @Provides
     @Singleton

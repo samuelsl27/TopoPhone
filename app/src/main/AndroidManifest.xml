@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- S004/RF-7: conexión con el receptor en segundo plano (RNF-T2). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:name=".TopoPhoneApplication"
         android:allowBackup="true"
@@ -21,6 +26,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Conexión con el receptor en segundo plano, con notificación (S004/RF-7, RF-8). -->
+        <service
+            android:name=".receiver.ReceiverService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
 
         <!-- Compartir el fichero de la última sesión con otras apps (S002/RF-43). -->
         <provider

@@ -172,4 +172,11 @@
     <string name="receiver_state_failed_busy">The receiver refused the connection</string>
     <string name="receiver_busy_cause">Most likely another device, such as Emlid Flow, is connected to the receiver over Bluetooth: disconnect it and try again.</string>
     <string name="receiver_nmea_missing">Connected, but the receiver is not sending position. Turn on Bluetooth position output (NMEA) in Emlid Flow.</string>
+    <string name="notification_channel_receiver">Receiver connection</string>
+    <string name="notification_title">Receiver %1$s</string>
+    <string name="notification_connecting">Connecting…</string>
+    <string name="notification_receiving">Receiving data</string>
+    <string name="notification_solution_age">%1$s · corrections %2$s s</string>
+    <string name="notification_no_data">No data</string>
+    <string name="notification_reconnecting">Reconnecting · attempt %1$d</string>
 </resources>

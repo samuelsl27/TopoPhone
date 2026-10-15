@@ -16,7 +16,7 @@
       Hecho cuando: `ReceiverPreferencesTest` en verde.
 - [x] T7. `app`: `ReceiverConnections` (un único punto para conectar con reconexión y guardar el último receptor) y conexión automática al arrancar. (RF-24, RF-25, RF-26)
       Hecho cuando: `AutoConnectTest` en verde.
-- [ ] T8. `receiver` + manifiestos: `ReceiverService` en primer plano (`connectedDevice`) con la notificación (solución, edad de las correcciones, reconectando) a 1 Hz como máximo; se detiene al no haber receptor. (RF-7, RF-8, RF-11)
+- [x] T8. `receiver` + manifiestos: `ReceiverService` en primer plano (`connectedDevice`) con la notificación (solución, edad de las correcciones, reconectando) a 1 Hz como máximo; se detiene al no haber receptor. (RF-7, RF-8, RF-11)
       Hecho cuando: `ReceiverServiceTest` en verde y Lint sin errores.
 - [ ] T9. `receiver` + `app`: la notificación abre Receptor y su acción "Desconectar" cierra la conexión. (RF-9, RF-10)
       Hecho cuando: `ReceiverServiceTest` y `OpenReceiverFromNotificationTest` en verde.
