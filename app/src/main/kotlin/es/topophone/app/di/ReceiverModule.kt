@@ -19,6 +19,7 @@ import es.topophone.receiver.platform.SessionFiles
 import es.topophone.receiver.platform.VibrationAlerts
 import es.topophone.receiver.platform.asSessionFiles
 import es.topophone.receiver.session.ReceiverSession
+import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.session.SessionLogStore
 import es.topophone.receiver.transport.AndroidBluetoothDevices
 import es.topophone.receiver.transport.BluetoothDevices
@@ -72,6 +73,11 @@ object ReceiverModule {
         ntripConnector = NtripClient(userAgent = "NTRIP TopoPhone/${BuildConfig.VERSION_NAME}"),
         recorder = store,
     )
+
+    @Provides
+    @Singleton
+    fun replayController(session: ReceiverSession, store: SessionLogStore): ReplayController =
+        ReplayController(session) { store.sessions() }
 
     @Provides
     @Singleton

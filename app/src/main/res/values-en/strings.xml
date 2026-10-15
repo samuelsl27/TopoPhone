@@ -153,4 +153,13 @@
     <string name="sessions_import_too_large">The file exceeds 200 MB.</string>
     <string name="ntrip_unavailable_in_replay">Replay does not accept corrections.</string>
     <string name="receiver_replay_finished">Replay finished: %1$s</string>
+    <string name="receiver_replaying">Replaying %1$s</string>
+    <string name="replay_speed_x1">×1</string>
+    <string name="replay_speed_x5">×5</string>
+    <string name="replay_loop">Loop</string>
+    <string name="replay_stop">Stop</string>
+    <string name="replay_again">Replay again</string>
+    <string name="sessions_play">Replay</string>
+    <string name="sessions_replay_confirm_title">Disconnect the receiver?</string>
+    <string name="sessions_replay_confirm_text">To replay the session, the receiver and NTRIP connections will be closed.</string>
 </resources>

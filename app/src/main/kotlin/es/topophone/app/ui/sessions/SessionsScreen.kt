@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -50,6 +49,10 @@ const val SESSIONS_LIST_TAG = "sessions_list"
 const val IMPORT_SESSION_TAG = "sessions_import"
 const val CONFIRM_DELETE_TAG = "sessions_confirm_delete"
 const val CANCEL_DELETE_TAG = "sessions_cancel_delete"
+const val CONFIRM_REPLAY_TAG = "sessions_confirm_replay"
+const val CANCEL_REPLAY_TAG = "sessions_cancel_replay"
+
+fun playSessionTag(id: String) = "session_play_$id"
 
 fun sessionRowTag(id: String) = "session_$id"
 
@@ -58,7 +61,12 @@ fun shareSessionTag(id: String) = "session_share_$id"
 fun deleteSessionTag(id: String) = "session_delete_$id"
 
 /** Acciones de la lista de sesiones. */
-class SessionsActions(val onShare: (String) -> Unit = {}, val onDelete: (String) -> Unit = {}, val onImport: () -> Unit = {})
+class SessionsActions(
+    val onShare: (String) -> Unit = {},
+    val onDelete: (String) -> Unit = {},
+    val onImport: () -> Unit = {},
+    val onPlay: (String) -> Unit = {},
+)
 
 /** Entrada de la pantalla Sesiones: une el ViewModel con compartir por FileProvider. */
 @Composable
@@ -89,6 +97,7 @@ fun SessionsSection(
             onShare = { id -> viewModel.filesOf(id).takeIf { it.isNotEmpty() }?.let { shareSession(context, it) } },
             onDelete = viewModel::delete,
             onImport = { importLauncher.launch(arrayOf("*/*")) },
+            onPlay = { id -> if (viewModel.play(id)) onNavigateBack() }, // se ve en la tarjeta Conexión de Receptor
         ),
         onNavigateBack = onNavigateBack,
     )
@@ -104,6 +113,7 @@ fun SessionsScreen(
     onNavigateBack: () -> Unit,
 ) {
     var pendingDelete by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingReplay by rememberSaveable { mutableStateOf<String?>(null) }
     SectionScaffold(
         title = stringResource(R.string.sessions_title),
         themeState = themeState,
@@ -132,8 +142,39 @@ fun SessionsScreen(
                 )
             } // S003/RF-34
             if (state.rows.isEmpty()) Text(stringResource(R.string.receiver_no_session))
-            state.rows.forEach { row -> SessionCard(row, onShare = { actions.onShare(row.id) }, onDelete = { pendingDelete = row.id }) }
+            state.rows.forEach { row ->
+                SessionCard(
+                    row,
+                    onPlay = { if (state.receiverConnected) pendingReplay = row.id else actions.onPlay(row.id) },
+                    onShare = { actions.onShare(row.id) },
+                    onDelete = { pendingDelete = row.id },
+                )
+            }
         }
+    }
+    pendingReplay?.let { id ->
+        // S003/RF-42: reproducir cierra la conexión con el receptor y la NTRIP.
+        AlertDialog(
+            onDismissRequest = { pendingReplay = null },
+            title = { Text(stringResource(R.string.sessions_replay_confirm_title)) },
+            text = { Text(stringResource(R.string.sessions_replay_confirm_text)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingReplay = null
+                        actions.onPlay(id)
+                    },
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CONFIRM_REPLAY_TAG),
+                ) { Text(stringResource(R.string.sessions_play)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    pendingReplay = null
+                }, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CANCEL_REPLAY_TAG)) {
+                    Text(stringResource(R.string.sessions_cancel))
+                }
+            },
+        )
     }
     pendingDelete?.let { id ->
         // S003/RF-31: borrar pide confirmación.
@@ -163,7 +204,7 @@ fun SessionsScreen(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun SessionCard(row: SessionRow, onShare: () -> Unit, onDelete: () -> Unit) {
+private fun SessionCard(row: SessionRow, onPlay: () -> Unit, onShare: () -> Unit, onDelete: () -> Unit) {
     val context = LocalContext.current
     val locale = uiLocale()
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -182,7 +223,12 @@ private fun SessionCard(row: SessionRow, onShare: () -> Unit, onDelete: () -> Un
                     if (row.inProgress) Text(stringResource(R.string.sessions_in_progress), color = MaterialTheme.colorScheme.primary)
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (!row.inProgress) {
+                    OutlinedButton(onClick = onPlay, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(playSessionTag(row.id))) {
+                        Text(stringResource(R.string.sessions_play))
+                    }
+                } // S003/RF-32
                 OutlinedButton(onClick = onShare, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(shareSessionTag(row.id))) {
                     Text(stringResource(R.string.sessions_share))
                 } // S003/RF-30

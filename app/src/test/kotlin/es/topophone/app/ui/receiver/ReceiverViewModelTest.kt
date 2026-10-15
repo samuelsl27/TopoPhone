@@ -8,6 +8,7 @@ import es.topophone.data.receiver.NtripPreferences
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
 import es.topophone.receiver.session.ReceiverSession
+import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -73,6 +74,7 @@ class ReceiverViewModelTest {
         sessionFiles = { null },
         clock = { System.nanoTime() / 1_000_000 },
         samplePeriodMs = 0,
+        replay = ReplayController(session) { emptyList() },
     )
 
     private fun ReceiverViewModel.awaitState(predicate: (ReceiverUiState) -> Boolean): ReceiverUiState = runBlocking {

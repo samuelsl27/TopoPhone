@@ -31,7 +31,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Lista de sesiones (S003/RF-29 a RF-31). Interfaz en español (es-ES). */
+/** Lista de sesiones (S003/RF-29 a RF-32, S003/RF-42). Interfaz en español (es-ES). */
 @RunWith(AndroidJUnit4::class)
 class SessionsScreenTest {
 
@@ -151,5 +151,44 @@ class SessionsScreenTest {
 
         compose.onNodeWithTag(NAVIGATE_BACK_TAG).performClick()
         compose.onNodeWithTag(OPEN_SESSIONS_TAG).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `S003 RF-32 se puede reproducir una sesion de la lista`() {
+        var played: String? = null
+        show(listOf(recorded), SessionsActions(onPlay = { played = it }))
+
+        compose.onNodeWithTag(playSessionTag(recorded.id)).performScrollTo().performClick()
+
+        played shouldBe recorded.id
+    }
+
+    @Test
+    fun `S003 RF-42 con un receptor conectado reproducir pide confirmacion antes de desconectarlo`() {
+        val played = mutableListOf<String>()
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                SessionsScreen(
+                    ThemeState.DEFAULT,
+                    {
+                    },
+                    SessionsUiState(listOf(recorded), receiverConnected = true),
+                    SessionsActions(onPlay = {
+                        played +=
+                            it
+                    }),
+                    {},
+                )
+            }
+        }
+
+        compose.onNodeWithTag(playSessionTag(recorded.id)).performScrollTo().performClick()
+        compose.onNodeWithText(text(R.string.sessions_replay_confirm_text)).assertIsDisplayed()
+        compose.onNodeWithTag(CANCEL_REPLAY_TAG).performClick()
+        played shouldBe emptyList()
+
+        compose.onNodeWithTag(playSessionTag(recorded.id)).performScrollTo().performClick()
+        compose.onNodeWithTag(CONFIRM_REPLAY_TAG).performClick()
+        played shouldBe listOf(recorded.id)
     }
 }

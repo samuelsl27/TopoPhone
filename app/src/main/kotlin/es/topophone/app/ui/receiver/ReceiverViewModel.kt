@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.GroundPoint
@@ -18,6 +19,7 @@ import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReceiverSnapshot
+import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.transport.BluetoothDevices
 import es.topophone.receiver.transport.BondedDevice
 import java.io.File
@@ -102,6 +104,7 @@ class ReceiverViewModel @Inject constructor(
     private val sessionFiles: SessionFiles,
     @param:Named(MONOTONIC_CLOCK) private val clock: () -> Long,
     @param:Named(UI_SAMPLE_MS) private val samplePeriodMs: Long,
+    private val replay: ReplayController,
 ) : ViewModel() {
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
@@ -193,6 +196,16 @@ class ReceiverViewModel @Inject constructor(
     }
 
     fun disconnect() = session.disconnect() // S002/RF-10
+
+    fun setReplaySpeed(speed: ReplaySpeed) = session.setReplaySpeed(speed) // S003/RF-37
+
+    fun setReplayLoop(loop: Boolean) = session.setReplayLoop(loop) // S003/RF-39
+
+    fun stopReplay() = session.disconnect() // S003/RF-41
+
+    fun replayAgain() {
+        replay.playAgain() // S003/RF-40
+    }
 
     fun updateForm(newForm: NtripForm) {
         form.value = newForm

@@ -10,6 +10,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -19,9 +20,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -33,9 +39,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.receiver.session.ConnectFailure
 import es.topophone.receiver.session.ConnectionState
+import es.topophone.receiver.session.ReplayInfo
 
 /** Acciones de la pantalla Receptor. */
 class ReceiverActions(
@@ -51,6 +59,10 @@ class ReceiverActions(
     val onPoleHeightChange: (String) -> Unit = {},
     val onShareSession: () -> Unit = {},
     val onOpenSessions: () -> Unit = {},
+    val onReplaySpeed: (ReplaySpeed) -> Unit = {},
+    val onReplayLoop: (Boolean) -> Unit = {},
+    val onStopReplay: () -> Unit = {},
+    val onReplayAgain: () -> Unit = {},
 )
 
 const val PERMISSION_REQUEST_TAG = "bt_permission_request"
@@ -59,6 +71,11 @@ const val ENABLE_BLUETOOTH_TAG = "bt_enable"
 const val CONNECTION_STATUS_TAG = "connection_status"
 const val DISCONNECT_TAG = "receiver_disconnect"
 const val RECONNECT_TAG = "receiver_reconnect"
+const val REPLAY_SPEED_X1_TAG = "replay_speed_x1"
+const val REPLAY_SPEED_X5_TAG = "replay_speed_x5"
+const val REPLAY_LOOP_TAG = "replay_loop"
+const val REPLAY_STOP_TAG = "replay_stop"
+const val REPLAY_AGAIN_TAG = "replay_again"
 
 fun deviceTag(address: String) = "device_$address"
 
@@ -102,6 +119,10 @@ fun ReceiverRoute(
             onPoleHeightChange = viewModel::updatePoleHeight,
             onShareSession = { viewModel.latestSession()?.let { shareSession(context, it) } },
             onOpenSessions = onOpenSessions,
+            onReplaySpeed = viewModel::setReplaySpeed,
+            onReplayLoop = viewModel::setReplayLoop,
+            onStopReplay = viewModel::stopReplay,
+            onReplayAgain = viewModel::replayAgain,
         ),
     )
 }
@@ -137,6 +158,19 @@ internal fun ReceiverCard(title: String, content: @Composable () -> Unit) {
 private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
     ReceiverCard(stringResource(R.string.receiver_connection_title)) {
         val connection = state.snapshot.connection
+        val replay = state.snapshot.replay
+        val active =
+            connection is ConnectionState.Connecting || connection is ConnectionState.Receiving || connection is ConnectionState.NoData
+        if (replay != null && active) {
+            Text(
+                stringResource(R.string.receiver_replaying, replay.name),
+                modifier = Modifier.testTag(CONNECTION_STATUS_TAG),
+                style = MaterialTheme.typography.bodyLarge,
+            ) // S003/RF-35
+            ReplayControls(replay, actions)
+            BluetoothDevicesSection(state.bluetooth, actions) // S003/RF-43: conectar un receptor termina la reproducción
+            return@ReceiverCard
+        }
         Text(connectionText(connection), modifier = Modifier.testTag(CONNECTION_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
         if (connection is ConnectionState.Failed) Text(stringResource(R.string.receiver_connect_failed_causes))
         if (state.snapshot.recordingStoppedLowSpace) {
@@ -151,11 +185,51 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
                 onClick = actions.onReconnect,
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(RECONNECT_TAG),
             ) { Text(stringResource(R.string.receiver_reconnect)) }
+            is ConnectionState.ReplayFinished -> Button(
+                onClick = actions.onReplayAgain,
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(REPLAY_AGAIN_TAG),
+            ) { Text(stringResource(R.string.replay_again)) } // S003/RF-40
             else -> Unit
         }
-        if (connection is ConnectionState.Disconnected || connection is ConnectionState.Failed || connection is ConnectionState.Lost) {
+        if (!active) {
             BluetoothDevicesSection(state.bluetooth, actions)
         }
+    }
+}
+
+/** Velocidad, bucle y Detener de la reproducción en curso (S003/RF-37, S003/RF-39, S003/RF-41). */
+@Composable
+private fun ReplayControls(replay: ReplayInfo, actions: ReceiverActions) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        SingleChoiceSegmentedButtonRow {
+            ReplaySpeed.entries.forEachIndexed { index, speed ->
+                SegmentedButton(
+                    selected = replay.speed == speed,
+                    onClick = { actions.onReplaySpeed(speed) },
+                    shape = SegmentedButtonDefaults.itemShape(index, ReplaySpeed.entries.size),
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(
+                        if (speed ==
+                            ReplaySpeed.X1
+                        ) {
+                            REPLAY_SPEED_X1_TAG
+                        } else {
+                            REPLAY_SPEED_X5_TAG
+                        },
+                    ),
+                ) { Text(stringResource(if (speed == ReplaySpeed.X1) R.string.replay_speed_x1 else R.string.replay_speed_x5)) }
+            }
+        }
+    }
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Switch(
+            checked = replay.loop,
+            onCheckedChange = actions.onReplayLoop,
+            modifier = Modifier.testTag(REPLAY_LOOP_TAG),
+        )
+        Text(stringResource(R.string.replay_loop))
+    }
+    OutlinedButton(onClick = actions.onStopReplay, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(REPLAY_STOP_TAG)) {
+        Text(stringResource(R.string.replay_stop))
     }
 }
 

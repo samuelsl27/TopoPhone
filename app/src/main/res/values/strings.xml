@@ -165,4 +165,13 @@
     <string name="sessions_import_too_large">El fichero supera los 200 MB.</string>
     <string name="ntrip_unavailable_in_replay">La reproducción no admite correcciones.</string>
     <string name="receiver_replay_finished">Reproducción terminada: %1$s</string>
+    <string name="receiver_replaying">Reproduciendo %1$s</string>
+    <string name="replay_speed_x1">×1</string>
+    <string name="replay_speed_x5">×5</string>
+    <string name="replay_loop">Bucle</string>
+    <string name="replay_stop">Detener</string>
+    <string name="replay_again">Volver a reproducir</string>
+    <string name="sessions_play">Reproducir</string>
+    <string name="sessions_replay_confirm_title">¿Desconectar el receptor?</string>
+    <string name="sessions_replay_confirm_text">Para reproducir la sesión se cerrará la conexión con el receptor y la NTRIP.</string>
 </resources>

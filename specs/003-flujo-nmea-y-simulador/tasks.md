@@ -32,7 +32,7 @@
       Hecho cuando: `ReplayPacerTest` en verde, con duración a ×1 dentro del 1 %.
 - [x] T15. `receiver`: `ReplayTransport` y sesión en modo simulación (estados `Replaying`/`ReplayFinished`, reinicio de épocas en el bucle, sin grabación, NTRIP no disponible). (RF-32, RF-39, RF-40, RF-44, RF-45)
       Hecho cuando: `ReplayTransportTest` en verde.
-- [ ] T16. `app`: reproducir desde la lista y controles en la tarjeta Conexión (velocidad, bucle, Detener, "Reproducción terminada", volver a reproducir) y exclusión con el receptor (confirmación). (RF-35, RF-37, RF-40, RF-41, RF-42, RF-43)
+- [x] T16. `app`: reproducir desde la lista y controles en la tarjeta Conexión (velocidad, bucle, Detener, "Reproducción terminada", volver a reproducir) y exclusión con el receptor (confirmación). (RF-35, RF-37, RF-40, RF-41, RF-42, RF-43)
       Hecho cuando: `ReplayControlsTest` y `ReceiverViewModelReplayTest` en verde.
 - [ ] T17. `tools` + `app`: sesión sintética completa del RS3 con sus épocas esperadas (pyproj) y reproducción de principio a fin a ×5 por la sesión y el ViewModel reales. (RF-1–RF-11, RF-36)
       Hecho cuando: `test_rs3_completo.py` y `FullRs3ReplayTest` en verde.

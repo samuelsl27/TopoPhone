@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
 import es.topophone.receiver.session.ImportResult
 import es.topophone.receiver.session.RecordedSession
+import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.session.SessionLogStore
 import es.topophone.receiver.session.SessionSource
 import java.io.File
@@ -34,20 +35,31 @@ data class SessionRow(
 /** Por qué no se pudo importar un fichero (S003/RF-34). */
 enum class ImportMessage { NO_NMEA, TOO_LARGE }
 
-data class SessionsUiState(val rows: List<SessionRow> = emptyList(), val message: ImportMessage? = null)
+data class SessionsUiState(
+    val rows: List<SessionRow> = emptyList(),
+    val message: ImportMessage? = null,
+    /** Hay un receptor conectado: reproducir pide confirmación (S003/RF-42). */
+    val receiverConnected: Boolean = false,
+)
 
 /** Lista de sesiones grabadas e importadas, de la más reciente a la más antigua (S003/RF-29 a RF-31). */
 @HiltViewModel
-class SessionsViewModel @Inject constructor(private val store: SessionLogStore, @param:IoDispatcher private val io: CoroutineDispatcher) :
-    ViewModel() {
+class SessionsViewModel @Inject constructor(
+    private val store: SessionLogStore,
+    @param:IoDispatcher private val io: CoroutineDispatcher,
+    private val replay: ReplayController,
+) : ViewModel() {
 
-    private val mutableState = MutableStateFlow(SessionsUiState(load()))
+    private val mutableState = MutableStateFlow(SessionsUiState(load(), receiverConnected = replay.receiverConnected))
     val state: StateFlow<SessionsUiState> = mutableState.asStateFlow()
 
     /** Al volver a la pantalla: la sesión en curso crece y puede haber terminado. */
     fun refresh() {
-        mutableState.update { it.copy(rows = load()) }
+        mutableState.update { it.copy(rows = load(), receiverConnected = replay.receiverConnected) }
     }
+
+    /** Reproduce la sesión como si fuera el receptor (S003/RF-32). */
+    fun play(id: String): Boolean = replay.play(id)
 
     /** Importa un fichero NMEA en segundo plano y muestra el motivo si no se puede (S003/RF-33, S003/RF-34). */
     fun import(name: String, sizeHint: Long?, open: () -> InputStream?) {
@@ -58,14 +70,14 @@ class SessionsViewModel @Inject constructor(private val store: SessionLogStore, 
                 ImportResult.NoNmea -> ImportMessage.NO_NMEA
                 ImportResult.TooLarge -> ImportMessage.TOO_LARGE
             }
-            mutableState.value = SessionsUiState(load(), message)
+            mutableState.value = SessionsUiState(load(), message, replay.receiverConnected)
         }
     }
 
     /** Borra una sesión que no esté en curso (S003/RF-31). */
     fun delete(id: String) {
         store.delete(id)
-        mutableState.value = SessionsUiState(load())
+        mutableState.value = SessionsUiState(load(), receiverConnected = replay.receiverConnected)
     }
 
     /** Ficheros que se comparten de una sesión: los del receptor y las correcciones (S003/RF-30). */

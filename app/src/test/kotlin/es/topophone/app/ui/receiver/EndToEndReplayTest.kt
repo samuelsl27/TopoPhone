@@ -7,6 +7,7 @@ import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.Unavailable
 import es.topophone.receiver.session.ReceiverSession
+import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
@@ -109,6 +110,7 @@ class EndToEndReplayTest {
             sessionFiles = { null },
             clock = ReceiverModule.monotonicClock(),
             samplePeriodMs = ReceiverModule.uiSamplePeriodMs(),
+            replay = ReplayController(session) { emptyList() },
         )
         val seenUtc = ConcurrentLinkedQueue<String>()
         collectorScope.launch { viewModel.uiState.collect { state -> state.snapshot.gga?.let { seenUtc += it.utcTime } } }
