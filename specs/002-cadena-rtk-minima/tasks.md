@@ -34,7 +34,7 @@
       Hecho cuando: `ReceiverConnectionCardTest` en verde.
 - [x] T16. `app`: tarjeta Estado. (RF-12–RF-17)
       Hecho cuando: `StatusCardTest` en verde.
-- [ ] T17. `app`: tarjeta NTRIP. (RF-18–RF-28)
+- [x] T17. `app`: tarjeta NTRIP. (RF-18–RF-28)
       Hecho cuando: `NtripCardTest` en verde.
 - [ ] T18. `app`: tarjeta Coordenadas con la altura del jalón. (RF-29–RF-41)
       Hecho cuando: `CoordinatesCardTest` en verde.
