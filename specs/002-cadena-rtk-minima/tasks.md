@@ -4,7 +4,7 @@
 
 - [x] T1. Módulos `core:gnss`, `core:ntrip`, `core:geodesy`, `core:survey` y `receiver` con sus convenciones, y reglas de dependencias comprobadas. (RF: —)
       Hecho cuando: `./gradlew check` en verde y `checkModuleRules` sin infracciones con los módulos nuevos.
-- [ ] T2. `core:gnss`: `NmeaFramer` (suma de control, cualquier talker, cortes y binario intercalado). (RF-11)
+- [x] T2. `core:gnss`: `NmeaFramer` (suma de control, cualquier talker, cortes y binario intercalado). (RF-11)
       Hecho cuando: `NmeaFramerTest` en verde.
 - [ ] T3. `core:gnss`: `GgaParser`, `GstParser` y `SolutionStatus`. (RF-12, RF-13, RF-14, RF-15)
       Hecho cuando: `GgaParserTest` y `GstParserTest` en verde, con campos vacíos y todas las calidades.
