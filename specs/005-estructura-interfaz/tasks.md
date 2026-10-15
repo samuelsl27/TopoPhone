@@ -10,7 +10,7 @@
       Hecho cuando: `ReceiverListTest` en verde y adaptados `ReceiverConnectionCardTest`, `AddReceiverTest` y la parte de fallos de `ConnectionDiagnosisTest`.
 - [x] T4. `app`: cabecera de la pantalla del receptor: nombre, estado, acciones, avisos, "Grabando", inclinación y "Reproduciendo". (RF-6, RF-7, RF-8; S003/RF-20, RF-22, RF-35)
       Hecho cuando: `ReceiverHeaderTest` en verde y adaptados `ReconnectingCardTest`, `ReplayControlsTest`, `NotificationPermissionTest` y el aviso de NMEA de `ConnectionDiagnosisTest`.
-- [ ] T5. `app`: menú de la pantalla del receptor con sus cuatro entradas y resúmenes. (RF-9 a RF-13)
+- [x] T5. `app`: menú de la pantalla del receptor con sus cuatro entradas y resúmenes. (RF-9 a RF-13)
       Hecho cuando: `ReceiverMenuTest` en verde.
 - [ ] T6. `app`: rutas de las pantallas Estado, Coordenadas y Correcciones en el grafo de Receptor, `ReceiverViewModel` con ámbito de grafo, Atrás y giro. (RF-14, RF-15, RF-17)
       Hecho cuando: `ReceiverNavigationTest` en verde para abrir, volver y girar.

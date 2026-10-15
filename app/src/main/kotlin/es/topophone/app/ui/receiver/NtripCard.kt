@@ -41,7 +41,7 @@ internal fun NtripCard(state: ReceiverUiState, actions: ReceiverActions) {
         val active = ntrip is NtripState.Connecting || ntrip is NtripState.Streaming || ntrip == NtripState.Paused
         NtripForm(state.form, enabled = !active, onChange = actions.onFormChange)
         if (state.formInvalid) Text(stringResource(R.string.ntrip_form_invalid), color = MaterialTheme.colorScheme.error)
-        Text(statusText(ntrip), modifier = Modifier.testTag(NTRIP_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
+        Text(ntripStatusText(ntrip), modifier = Modifier.testTag(NTRIP_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
         if (ntrip == NtripState.Stopped(NtripFailure.UNREACHABLE) && !state.internetAvailable) {
             Text(stringResource(R.string.ntrip_no_internet)) // S002/RF-23
         }
@@ -113,8 +113,9 @@ private fun StreamingStats(ntrip: NtripState.Streaming, nowMs: Long) {
     Text(since, modifier = Modifier.testTag(NTRIP_LAST_CORRECTION_TAG))
 }
 
+/** Estado del NTRIP en texto, también para el resumen de Correcciones (S005/RF-12). */
 @Composable
-private fun statusText(ntrip: NtripState): String = stringResource(
+internal fun ntripStatusText(ntrip: NtripState): String = stringResource(
     when (ntrip) {
         NtripState.Idle -> R.string.ntrip_state_idle
         NtripState.Connecting -> R.string.ntrip_state_connecting

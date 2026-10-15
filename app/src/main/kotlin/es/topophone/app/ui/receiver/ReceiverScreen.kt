@@ -88,6 +88,9 @@ class ReceiverActions(
     val onDeclineNotifications: () -> Unit = {},
     val onEnableNotifications: () -> Unit = {},
     val onAddReceiver: () -> Unit = {},
+    val onOpenStatus: () -> Unit = {},
+    val onOpenCoordinates: () -> Unit = {},
+    val onOpenCorrections: () -> Unit = {},
     val onOpenBluetoothSettings: () -> Unit = {},
 )
 
@@ -236,7 +239,10 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
         ) {
             when (receiverHomeMode(state.snapshot)) {
                 ReceiverHomeMode.LIST -> ReceiverList(state, actions)
-                ReceiverHomeMode.DASHBOARD -> ReceiverHeader(state, actions)
+                ReceiverHomeMode.DASHBOARD -> {
+                    ReceiverHeader(state, actions)
+                    ReceiverMenu(state, actions)
+                }
             }
             // Hasta que tengan su pantalla (S005 T7, T8), las demás tarjetas siguen debajo.
             StatusCard(state.snapshot)

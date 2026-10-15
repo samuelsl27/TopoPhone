@@ -209,4 +209,9 @@
     <string name="receiver_header_no_data">Connected, but no NMEA data is arriving</string>
     <string name="receiver_header_reconnecting">Reconnecting…</string>
     <string name="receiver_header_replaying">Replaying</string>
+    <string name="receiver_menu_status">Status</string>
+    <string name="receiver_menu_coordinates">Coordinates</string>
+    <string name="receiver_menu_corrections">Corrections</string>
+    <string name="receiver_menu_pole_height">Pole %1$s m</string>
+    <string name="receiver_menu_corrections_age">%1$s · %2$s s</string>
 </resources>
