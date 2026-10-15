@@ -1,5 +1,7 @@
 package es.topophone.app.ui.receiver
 
+import android.content.Intent
+import android.content.IntentSender
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
@@ -25,6 +27,8 @@ import es.topophone.receiver.session.ReceiverSnapshot
 import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.transport.BluetoothDevices
 import es.topophone.receiver.transport.BondedDevice
+import es.topophone.receiver.transport.PairingResult
+import es.topophone.receiver.transport.ReceiverPairing
 import java.io.File
 import java.math.BigDecimal
 import java.text.DecimalFormatSymbols
@@ -45,6 +49,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /** Estado del Bluetooth del móvil (S002/RF-1 a RF-4). */
@@ -57,6 +62,12 @@ sealed interface BluetoothUi {
 
     data class Ready(val devices: List<BondedDevice>) : BluetoothUi
 }
+
+/** Avisos de "Añadir receptor" (S004/RF-4). */
+enum class PairingMessage { SEARCH_FAILED, SEARCH_CANCELLED, PAIRING_FAILED }
+
+/** "Añadir receptor": el diálogo del sistema pendiente de abrir y el último aviso (S004/RF-1 a RF-4). */
+data class PairingUi(val chooser: IntentSender? = null, val message: PairingMessage? = null)
 
 /** Formulario del caster tal como lo escribe el usuario (S002/RF-18). La contraseña solo vive aquí. */
 data class NtripForm(
@@ -93,6 +104,9 @@ data class ReceiverUiState(
     val askNotifications: Boolean = false,
     /** Permiso denegado con un receptor conectado: avisar de cómo concederlo (S004/RF-6). */
     val notificationsDenied: Boolean = false,
+    /** Hay búsqueda del sistema; si no, "Añadir receptor" abre los ajustes de Bluetooth (S004/RF-1). */
+    val pairingSupported: Boolean = false,
+    val pairing: PairingUi = PairingUi(),
 )
 
 /**
@@ -114,6 +128,7 @@ class ReceiverViewModel @Inject constructor(
     private val replay: ReplayController,
     private val connections: ReceiverConnections,
     private val notifications: NotificationPermission = NotificationPermission.NotRequired,
+    private val pairing: ReceiverPairing = ReceiverPairing.Unsupported,
 ) : ViewModel() {
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
@@ -125,6 +140,8 @@ class ReceiverViewModel @Inject constructor(
     private val poleValue = MutableStateFlow(PoleHeight.DEFAULT_M)
     private val notificationsGranted = MutableStateFlow(notifications.isGranted())
     private val notificationsAnsweredNow = MutableStateFlow(false)
+    private val pairingSupported = pairing.isSupported
+    private val pairingUi = MutableStateFlow(PairingUi())
 
     private val ticker: Flow<Long> = flow {
         while (true) {
@@ -143,6 +160,7 @@ class ReceiverViewModel @Inject constructor(
         val lastAddress: String?,
         val notificationsGranted: Boolean,
         val notificationsAsked: Boolean,
+        val pairing: PairingUi,
     )
 
     val uiState: StateFlow<ReceiverUiState> = combine(
@@ -157,7 +175,8 @@ class ReceiverViewModel @Inject constructor(
             lastAddress,
             notificationsGranted,
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
-        ) { (now, available), address, granted, asked -> Extras(now, available, address, granted, asked) },
+            pairingUi,
+        ) { (now, available), address, granted, asked, pairing -> Extras(now, available, address, granted, asked, pairing) },
     ) { snapshot, bt, formState, pole, extras ->
         // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
         val realReceiver = ReceiverService.needsService(snapshot)
@@ -179,11 +198,18 @@ class ReceiverViewModel @Inject constructor(
                 realReceiver &&
                 snapshot.connection is ConnectionState.Receiving, // S004/RF-5
             notificationsDenied = missingPermission && extras.notificationsAsked && realReceiver, // S004/RF-6
+            pairingSupported = pairingSupported,
+            pairing = extras.pairing,
         )
     }.flowOn(Dispatchers.Default).stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS),
-        ReceiverUiState(bluetooth = bluetoothUi.value, snapshot = session.state.value, poleHeightText = poleText.value),
+        ReceiverUiState(
+            bluetooth = bluetoothUi.value,
+            snapshot = session.state.value,
+            poleHeightText = poleText.value,
+            pairingSupported = pairingSupported,
+        ),
     )
 
     init {
@@ -223,6 +249,35 @@ class ReceiverViewModel @Inject constructor(
     fun notificationsAnswered() {
         notificationsAnsweredNow.value = true
         viewModelScope.launch { preferences.markNotificationsAsked() }
+    }
+
+    /** S004/RF-1: busca el receptor con el diálogo del sistema. */
+    fun addReceiver() {
+        pairingUi.value = PairingUi()
+        viewModelScope.launch {
+            val chooser = pairing.search()
+            pairingUi.value = if (chooser != null) PairingUi(chooser = chooser) else PairingUi(message = PairingMessage.SEARCH_FAILED)
+        }
+    }
+
+    /** La pantalla ya ha abierto el diálogo: no se vuelve a abrir al recomponer. */
+    fun chooserOpened() {
+        pairingUi.update { it.copy(chooser = null) }
+    }
+
+    /** Resultado del diálogo: se empareja si hace falta y se conecta (S004/RF-2, RF-3); si no, se avisa (RF-4). */
+    fun receiverChosen(resultCode: Int, data: Intent?) {
+        viewModelScope.launch {
+            when (val result = pairing.complete(resultCode, data)) {
+                is PairingResult.Paired -> {
+                    pairingUi.value = PairingUi()
+                    refreshBluetooth()
+                    connect(result.device.address)
+                }
+                PairingResult.SearchCancelled -> pairingUi.value = PairingUi(message = PairingMessage.SEARCH_CANCELLED)
+                PairingResult.PairingFailed -> pairingUi.value = PairingUi(message = PairingMessage.PAIRING_FAILED)
+            }
+        }
     }
 
     fun connect(address: String) {

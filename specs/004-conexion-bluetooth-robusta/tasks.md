@@ -26,7 +26,7 @@
       Hecho cuando: `NotificationPermissionTest` en verde.
 - [x] T12. `receiver`: `ReceiverPairing` (CompanionDeviceManager, emparejamiento con PIN por `createBond`, resultados y reserva sin companion_device_setup). (RF-1, RF-2, RF-4)
       Hecho cuando: `ReceiverPairingTest` en verde.
-- [ ] T13. `app`: "Añadir receptor" en la tarjeta Conexión (buscar, emparejar, conectar, mensajes de cancelación y fallo). (RF-1, RF-2, RF-3, RF-4)
+- [x] T13. `app`: "Añadir receptor" en la tarjeta Conexión (buscar, emparejar, conectar, mensajes de cancelación y fallo). (RF-1, RF-2, RF-3, RF-4)
       Hecho cuando: `AddReceiverTest` en verde.
 - [ ] T14. `app`: ayuda "Funcionamiento en segundo plano" en Ajustes, con acceso a los ajustes de batería de la app. (RF-12)
       Hecho cuando: `BackgroundHelpTest` en verde.

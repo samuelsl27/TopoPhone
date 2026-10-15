@@ -45,6 +45,17 @@ interface ReceiverPairing {
 
     /** Con el resultado del diálogo, empareja el dispositivo elegido si hace falta (RF-2, RF-3, RF-4). */
     suspend fun complete(resultCode: Int, data: Intent?): PairingResult
+
+    companion object {
+        /** Sin búsqueda del sistema: solo queda emparejar desde los ajustes de Bluetooth. */
+        val Unsupported: ReceiverPairing = object : ReceiverPairing {
+            override val isSupported = false
+
+            override suspend fun search(): IntentSender? = null
+
+            override suspend fun complete(resultCode: Int, data: Intent?): PairingResult = PairingResult.SearchCancelled
+        }
+    }
 }
 
 /**

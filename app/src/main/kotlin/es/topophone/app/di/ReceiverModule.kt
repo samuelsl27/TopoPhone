@@ -26,7 +26,9 @@ import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.session.SessionLogStore
 import es.topophone.receiver.transport.AndroidBluetoothDevices
+import es.topophone.receiver.transport.AndroidReceiverPairing
 import es.topophone.receiver.transport.BluetoothDevices
+import es.topophone.receiver.transport.ReceiverPairing
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Named
@@ -98,6 +100,9 @@ object ReceiverModule {
     @Provides
     @Singleton
     fun bluetoothDevices(@ApplicationContext context: Context): BluetoothDevices = AndroidBluetoothDevices(context)
+
+    @Provides
+    fun receiverPairing(@ApplicationContext context: Context): ReceiverPairing = AndroidReceiverPairing(context)
 
     @Provides
     @Singleton

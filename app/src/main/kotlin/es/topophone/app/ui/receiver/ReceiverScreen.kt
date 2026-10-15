@@ -2,11 +2,13 @@ package es.topophone.app.ui.receiver
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -76,6 +78,8 @@ class ReceiverActions(
     val onAllowNotifications: () -> Unit = {},
     val onDeclineNotifications: () -> Unit = {},
     val onEnableNotifications: () -> Unit = {},
+    val onAddReceiver: () -> Unit = {},
+    val onOpenBluetoothSettings: () -> Unit = {},
 )
 
 const val PERMISSION_REQUEST_TAG = "bt_permission_request"
@@ -93,6 +97,7 @@ const val RECONNECT_DETAIL_TAG = "reconnect_detail"
 const val RETRY_NOW_TAG = "retry_now"
 const val NMEA_MISSING_TAG = "nmea_missing"
 const val ENABLE_NOTIFICATIONS_TAG = "enable_notifications"
+const val ADD_RECEIVER_TAG = "add_receiver"
 
 fun deviceTag(address: String) = "device_$address"
 
@@ -111,6 +116,16 @@ fun ReceiverRoute(
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { viewModel.refreshBluetooth() }
     val notificationsLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { viewModel.refreshNotifications() }
+    val chooserLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        viewModel.receiverChosen(result.resultCode, result.data) // S004/RF-2 a RF-4
+    }
+    val chooser = state.pairing.chooser
+    LaunchedEffect(chooser) {
+        if (chooser != null) {
+            viewModel.chooserOpened()
+            chooserLauncher.launch(IntentSenderRequest.Builder(chooser).build()) // S004/RF-1
+        }
+    }
     LifecycleResumeEffect(Unit) {
         viewModel.refreshBluetooth()
         viewModel.refreshNotifications()
@@ -152,9 +167,20 @@ fun ReceiverRoute(
             },
             onDeclineNotifications = viewModel::notificationsAnswered,
             onEnableNotifications = { context.startActivity(notificationSettingsIntent(context.packageName)) },
+            onAddReceiver = viewModel::addReceiver,
+            onOpenBluetoothSettings = {
+                try {
+                    context.startActivity(bluetoothSettingsIntent())
+                } catch (_: ActivityNotFoundException) {
+                    // Sin pantalla de ajustes de Bluetooth: el texto de la tarjeta sigue indicando qué hacer.
+                }
+            },
         ),
     )
 }
+
+/** Ajustes de Bluetooth del móvil: la vía de S002 para emparejar, sin búsqueda del sistema (S004/RF-1). */
+internal fun bluetoothSettingsIntent(): Intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
 
 /** Pantalla Receptor sin estado propio (S002). */
 @Composable
@@ -228,7 +254,7 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
                 style = MaterialTheme.typography.bodyLarge,
             ) // S003/RF-35
             ReplayControls(replay, actions)
-            BluetoothDevicesSection(state.bluetooth, actions) // S003/RF-43: conectar un receptor termina la reproducción
+            BluetoothDevicesSection(state, actions) // S003/RF-43: conectar un receptor termina la reproducción
             return@ReceiverCard
         }
         Text(connectionText(connection), modifier = Modifier.testTag(CONNECTION_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
@@ -277,7 +303,7 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
             else -> Unit
         }
         if (!active) {
-            BluetoothDevicesSection(state.bluetooth, actions)
+            BluetoothDevicesSection(state, actions)
         }
     }
 }
@@ -365,8 +391,8 @@ private fun connectionText(connection: ConnectionState): String = when (connecti
 }
 
 @Composable
-private fun BluetoothDevicesSection(bluetooth: BluetoothUi, actions: ReceiverActions) {
-    when (bluetooth) {
+private fun BluetoothDevicesSection(state: ReceiverUiState, actions: ReceiverActions) {
+    when (val bluetooth = state.bluetooth) {
         BluetoothUi.Unsupported -> Text(stringResource(R.string.receiver_bluetooth_unsupported))
         BluetoothUi.PermissionNeeded -> {
             Text(stringResource(R.string.receiver_bluetooth_permission_rationale))
@@ -407,6 +433,24 @@ private fun BluetoothDevicesSection(bluetooth: BluetoothUi, actions: ReceiverAct
                     }
                 }
             }
+            AddReceiver(state, actions)
         }
     }
+}
+
+/** "Añadir receptor" y sus avisos, debajo de la lista de emparejados, que no desaparece (S004/RF-1, RF-4). */
+@Composable
+private fun AddReceiver(state: ReceiverUiState, actions: ReceiverActions) {
+    state.pairing.message?.let { message ->
+        val text = when (message) {
+            PairingMessage.SEARCH_FAILED -> R.string.receiver_pairing_search_failed
+            PairingMessage.SEARCH_CANCELLED -> R.string.receiver_pairing_search_cancelled
+            PairingMessage.PAIRING_FAILED -> R.string.receiver_pairing_failed
+        }
+        Text(stringResource(text), color = MaterialTheme.colorScheme.error)
+    }
+    Button(
+        onClick = if (state.pairingSupported) actions.onAddReceiver else actions.onOpenBluetoothSettings,
+        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ADD_RECEIVER_TAG),
+    ) { Text(stringResource(R.string.receiver_add)) }
 }

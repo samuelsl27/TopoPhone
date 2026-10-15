@@ -59,7 +59,7 @@
     <string name="receiver_open_app_settings">Abrir ajustes de la app</string>
     <string name="receiver_bluetooth_disabled">El Bluetooth del móvil está apagado.</string>
     <string name="receiver_bluetooth_enable">Activar Bluetooth</string>
-    <string name="receiver_no_bonded_devices">No hay dispositivos emparejados. Empareja el receptor desde los ajustes de Bluetooth del móvil.</string>
+    <string name="receiver_no_bonded_devices">No hay dispositivos emparejados. Pulsa «Añadir receptor» para buscar el receptor y emparejarlo.</string>
     <string name="receiver_choose_device">Elige el receptor emparejado:</string>
     <string name="receiver_share_session_chooser">Compartir sesión</string>
     <string name="receiver_status_title">Estado de la solución</string>
@@ -197,4 +197,8 @@
     <string name="notifications_permission_not_now">Ahora no</string>
     <string name="receiver_notifications_denied">Sin permiso de notificaciones no verás la conexión en segundo plano, aunque sigue activa.</string>
     <string name="receiver_notifications_enable">Activar</string>
+    <string name="receiver_add">Añadir receptor</string>
+    <string name="receiver_pairing_search_failed">No se ha podido buscar receptores. Empareja el receptor desde los ajustes de Bluetooth del móvil.</string>
+    <string name="receiver_pairing_search_cancelled">Búsqueda cancelada.</string>
+    <string name="receiver_pairing_failed">No se ha podido emparejar el receptor. Comprueba el PIN y vuelve a intentarlo.</string>
 </resources>
