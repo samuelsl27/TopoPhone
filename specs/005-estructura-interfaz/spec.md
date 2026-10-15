@@ -109,11 +109,11 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
   - S008 coordenadas-espana añade los demás SC de España a los proyectos.
 - `specs/003-flujo-nmea-y-simulador/spec.md`:
   - En RF-16 a RF-23, "la barra de estado" pasa a ser "el indicador de estado".
-  - RF-16: "EL SISTEMA mostrará el indicador de estado en el extremo derecho de la barra superior de las secciones Levantamiento, Receptor y Ajustes."
-  - RF-18: "MIENTRAS se completen épocas, el indicador de estado mostrará el estado de la solución con su color y su nombre y el número de satélites usados." (sin la edad de las correcciones)
-  - RF-20: "MIENTRAS se grabe una sesión, la cabecera de la pantalla del receptor mostrará el indicador «Grabando»."
-  - RF-22: "MIENTRAS lleguen frases ETC, la cabecera de la pantalla del receptor mostrará el estado de la inclinación: Apagada, Error, Configuración, Alineación o Compensando."
-  - RF-14 y RF-15: "en la tarjeta Estado" pasa a ser "en la pantalla Estado".
-  - RF-35: "en la tarjeta Conexión" pasa a ser "en la cabecera de la pantalla del receptor".
+  - S003/RF-16 pasa a decir: "EL SISTEMA mostrará el indicador de estado en el extremo derecho de la barra superior de las secciones Levantamiento, Receptor y Ajustes."
+  - S003/RF-18 pasa a decir: "MIENTRAS se completen épocas, el indicador de estado mostrará el estado de la solución con su color y su nombre y el número de satélites usados." (sin la edad de las correcciones)
+  - S003/RF-20 pasa a decir: "MIENTRAS se grabe una sesión, la cabecera de la pantalla del receptor mostrará el indicador «Grabando»."
+  - S003/RF-22 pasa a decir: "MIENTRAS lleguen frases ETC, la cabecera de la pantalla del receptor mostrará el estado de la inclinación: Apagada, Error, Configuración, Alineación o Compensando."
+  - S003/RF-14 y RF-15: "en la tarjeta Estado" pasa a ser "en la pantalla Estado".
+  - S003/RF-35: "en la tarjeta Conexión" pasa a ser "en la cabecera de la pantalla del receptor".
 - `specs/004-conexion-bluetooth-robusta/spec.md`: en RF-23, "la barra de estado" pasa a ser "el indicador de estado".
 - `docs/glosario.md`: "Barra de estado" pasa a ser "Indicador de estado"; se añaden "Lista de receptores", "Pantalla del receptor" y "Cabecera (de la pantalla del receptor)".
