@@ -3,15 +3,18 @@ package es.topophone.app.ui.projects
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -251,40 +254,44 @@ fun ProjectListScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
             ) { Text(stringResource(R.string.project_new)) }
         },
     ) { padding ->
-        Column(
-            modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp).testTag(PROJECT_LIST_TAG),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+        var moving by remember { mutableStateOf<Project?>(null) }
+        // Lista perezosa: con cientos de proyectos solo se pintan los que se ven (RNF de la spec).
+        LazyColumn(modifier = Modifier.padding(padding).testTag(PROJECT_LIST_TAG), contentPadding = PaddingValues(16.dp)) {
             if (state.folders.isEmpty() && state.projects.isEmpty() && state.query.isEmpty()) {
-                EmptyProjects(actions.onNewProject)
-                return@Column
+                item { EmptyProjects(actions.onNewProject) }
+                return@LazyColumn
             }
-            OutlinedTextField(
-                value = state.query,
-                onValueChange = actions.onQueryChange,
-                label = { Text(stringResource(R.string.projects_search)) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().testTag(PROJECT_SEARCH_TAG),
-            ) // S006/RF-4
+            item {
+                OutlinedTextField(
+                    value = state.query,
+                    onValueChange = actions.onQueryChange,
+                    label = { Text(stringResource(R.string.projects_search)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).testTag(PROJECT_SEARCH_TAG),
+                ) // S006/RF-4
+            }
             val results = state.results
             if (results != null) {
                 if (results.isEmpty()) {
-                    Text(stringResource(R.string.projects_search_empty, state.query))
+                    item { Text(stringResource(R.string.projects_search_empty, state.query)) }
                 } else {
                     val folders = results.associate { it.project.id to it.folder?.name }
-                    ProjectRows(results.map { it.project }, state.folders, actions) { folders[it.id] }
+                    projectItems(results.map { it.project }, actions, folderOf = { folders[it.id] }, onMove = { moving = it })
                 }
-                return@Column
+                return@LazyColumn
             }
-            if (state.folders.isNotEmpty()) {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    state.folders.forEachIndexed { index, folder ->
-                        if (index > 0) HorizontalDivider()
-                        FolderRow(folder, actions)
-                    }
-                }
+            itemsIndexed(state.folders, key = { _, folder -> "folder-${folder.id}" }) { index, folder ->
+                if (index > 0) HorizontalDivider()
+                FolderRow(folder, actions)
             }
-            if (state.projects.isNotEmpty()) ProjectRows(state.projects, state.folders, actions)
+            if (state.folders.isNotEmpty() && state.projects.isNotEmpty()) item { Spacer(Modifier.height(12.dp)) }
+            projectItems(state.projects, actions, onMove = { moving = it })
+        }
+        moving?.let { project ->
+            MoveToFolderDialog(project, state.folders, onDismiss = { moving = null }) { folderId ->
+                actions.onMove(project.id, folderId)
+                moving = null
+            }
         }
         state.folderDialog?.let { FolderNameDialog(it, actions) }
     }
@@ -349,33 +356,26 @@ internal fun ConfirmDialog(message: String, confirm: String, onConfirm: () -> Un
 /** S006/RF-3: aún no hay proyectos; se ofrece crear uno. */
 @Composable
 private fun EmptyProjects(onNewProject: () -> Unit) {
-    Text(stringResource(R.string.projects_empty_title), style = MaterialTheme.typography.headlineSmall)
-    Text(stringResource(R.string.projects_empty_description), style = MaterialTheme.typography.bodyLarge)
-    Button(onClick = onNewProject, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(EMPTY_NEW_PROJECT_TAG)) {
-        Text(stringResource(R.string.project_new))
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(stringResource(R.string.projects_empty_title), style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(R.string.projects_empty_description), style = MaterialTheme.typography.bodyLarge)
+        Button(onClick = onNewProject, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(EMPTY_NEW_PROJECT_TAG)) {
+            Text(stringResource(R.string.project_new))
+        }
     }
 }
 
-@Composable
-internal fun ProjectRows(
+/** Filas de proyectos de una lista perezosa, cada una con su menú; [onMove] abre "Mover a carpeta". */
+internal fun LazyListScope.projectItems(
     projects: List<Project>,
-    folders: List<ProjectFolder>,
     actions: ProjectListActions,
     folderOf: (Project) -> String? = { null },
+    onMove: (Project) -> Unit,
 ) {
-    var moving by remember { mutableStateOf<Project?>(null) }
-    Card(modifier = Modifier.fillMaxWidth()) {
-        projects.forEachIndexed { index, project ->
-            if (index > 0) HorizontalDivider()
-            ProjectRow(project, folderOf(project), onClick = { actions.onOpenProject(project.id) }) {
-                ProjectMenu(project, actions, onMove = { moving = project })
-            }
-        }
-    }
-    moving?.let { project ->
-        MoveToFolderDialog(project, folders, onDismiss = { moving = null }) { folderId ->
-            actions.onMove(project.id, folderId)
-            moving = null
+    itemsIndexed(projects, key = { _, project -> "project-${project.id}" }) { index, project ->
+        if (index > 0) HorizontalDivider()
+        ProjectRow(project, folderOf(project), onClick = { actions.onOpenProject(project.id) }) {
+            ProjectMenu(project, actions, onMove = { onMove(project) })
         }
     }
 }
@@ -445,7 +445,7 @@ private fun MenuItem(text: Int, onClick: () -> Unit) {
 
 /** S006/RF-19: a una carpeta o fuera de todas. */
 @Composable
-private fun MoveToFolderDialog(project: Project, folders: List<ProjectFolder>, onDismiss: () -> Unit, onMove: (String?) -> Unit) {
+internal fun MoveToFolderDialog(project: Project, folders: List<ProjectFolder>, onDismiss: () -> Unit, onMove: (String?) -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.project_move_title, project.name)) },

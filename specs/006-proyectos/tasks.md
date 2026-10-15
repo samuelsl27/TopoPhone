@@ -38,7 +38,7 @@
       Hecho cuando: `ProjectViewTest` en verde para esos casos.
 - [x] T18. `app`: posición actual en la vista de proyecto, en su SC y unidades, o no disponible con su motivo. (RF-29, RF-30)
       Hecho cuando: `ProjectViewTest` en verde para la posición.
-- [ ] T19. Rendimiento con 500 proyectos (lista < 1 s, búsqueda < 300 ms). (RNF de la spec)
+- [x] T19. Rendimiento con 500 proyectos (lista < 1 s, búsqueda < 300 ms). (RNF de la spec)
       Hecho cuando: el test de rendimiento en verde.
 - [ ] T20. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona.
