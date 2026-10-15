@@ -146,6 +146,7 @@ private fun AppNavHost(
                     // S006/RF-12: el proyecto nuevo se abre en lugar del formulario.
                     navController.navigate(ProjectViewDestination(id)) { popUpTo<ProjectFormDestination> { inclusive = true } }
                 },
+                onEditProject = { id -> navController.navigate(ProjectFormDestination(projectId = id)) }, // S006/RF-14
                 onBack = { navController.popBackStack() },
             )
             composable<SurveyRoute> { entry ->

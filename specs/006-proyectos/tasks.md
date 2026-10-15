@@ -24,7 +24,7 @@
       Hecho cuando: `ProjectSearchTest` en verde.
 - [x] T11. `app`: formulario de proyecto nuevo con sus valores por defecto, validaciones y aviso de datum; al guardar se abre. (RF-5 a RF-12)
       Hecho cuando: `ProjectFormTest` en verde para crear.
-- [ ] T12. `app`: editar un proyecto y cambiar su SC. (RF-14, RF-15)
+- [x] T12. `app`: editar un proyecto y cambiar su SC. (RF-14, RF-15)
       Hecho cuando: `ProjectFormTest` en verde para editar.
 - [ ] T13. `app`: menú de cada proyecto (duplicar, mover a carpeta) y menú "⋮" de la barra. (RF-16, RF-19)
       Hecho cuando: `ProjectMenuTest` en verde.

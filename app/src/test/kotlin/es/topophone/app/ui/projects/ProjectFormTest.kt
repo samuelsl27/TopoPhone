@@ -199,4 +199,77 @@ class ProjectFormTest {
 
         saved shouldBe 1
     }
+
+    private fun saved(name: String): String = runBlocking {
+        (repository.create(draft.copy(name = name)) as es.topophone.data.project.SaveResult.Saved).id
+    }
+
+    @Test
+    fun `S006 RF-14 al editar el formulario parte de los datos del proyecto`() {
+        val id = saved("Calle Mayor 12")
+        val vm = viewModel()
+
+        vm.start(projectId = id, folderId = null)
+
+        val state = vm.awaitState { it.loaded }
+        state.editing shouldBe true
+        state.draft shouldBe draft.copy(name = "Calle Mayor 12")
+    }
+
+    @Test
+    fun `S006 RF-14 se pueden cambiar todos los datos con las mismas comprobaciones`() {
+        val id = saved("Calle Mayor 12")
+        saved("Parcela 23")
+        val vm = viewModel()
+        vm.start(projectId = id, folderId = null)
+        vm.awaitState { it.loaded }
+
+        vm.update(draft.copy(name = "PARCELA 23"))
+        vm.save()
+        vm.awaitState { it.error == NameError.DUPLICATE }
+
+        val changed = draft.copy(name = "Calle Mayor 14", author = "Otro", linearUnit = LinearUnit.METRE, angularUnit = AngularUnit.GON)
+        vm.update(changed)
+        vm.save()
+
+        vm.awaitState { it.savedId == id }
+        runBlocking { repository.project(id) }.shouldNotBeNull().toDraft() shouldBe changed
+    }
+
+    @Test
+    fun `S006 RF-15 cambiar el SC del proyecto se guarda sin cambiar su identidad`() {
+        val id = saved("Calle Mayor 12")
+        val vm = viewModel()
+        vm.start(projectId = id, folderId = null)
+        vm.awaitState { it.loaded }
+
+        vm.update(vm.state.value.draft.copy(crs = ProjectCrs.ETRS89_UTM29))
+        vm.save()
+
+        vm.awaitState { it.savedId == id }
+        runBlocking { repository.project(id) }.shouldNotBeNull().crs shouldBe ProjectCrs.ETRS89_UTM29
+    }
+
+    @Test
+    fun `S006 RF-14 el titulo dice Editar proyecto`() {
+        show(ProjectFormUiState(draft = draft, loaded = true, editing = true))
+
+        compose.onNodeWithText(text(R.string.project_edit)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S006 RF-14 la vista de proyecto ofrece editarlo`() {
+        val id = saved("Calle Mayor 12")
+        val project = runBlocking { repository.project(id) }.shouldNotBeNull()
+        var edited: String? = null
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ProjectViewScreen(ThemeState.DEFAULT, {}, ProjectViewUiState(project), onBack = {}, onEdit = { edited = it })
+            }
+        }
+
+        compose.onNodeWithTag(PROJECT_EDIT_TAG).performClick()
+
+        edited shouldBe id
+    }
 }

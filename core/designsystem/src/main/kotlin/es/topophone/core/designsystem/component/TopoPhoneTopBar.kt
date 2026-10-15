@@ -1,5 +1,6 @@
 package es.topophone.core.designsystem.component
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,6 +28,7 @@ const val NAVIGATE_BACK_TAG = "navigate_back"
  * @param onNavigateBack si no es nulo, muestra la flecha para volver.
  * @param statusIndicator si no es nulo, se pinta a la derecha, delante del modo sol. Las acciones se
  *   miden antes que el título, así que es el título el que se acorta si no cabe todo.
+ * @param actions acciones propias de la pantalla, entre el indicador y el modo sol.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +39,7 @@ fun TopoPhoneTopBar(
     modifier: Modifier = Modifier,
     onNavigateBack: (() -> Unit)? = null,
     statusIndicator: (@Composable () -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -50,6 +53,7 @@ fun TopoPhoneTopBar(
         },
         actions = {
             statusIndicator?.invoke()
+            actions()
             IconButton(onClick = onToggleSunMode, modifier = Modifier.size(MinTouchTarget).testTag(SUN_TOGGLE_TAG)) {
                 Icon(
                     painterResource(R.drawable.ds_ic_sun),

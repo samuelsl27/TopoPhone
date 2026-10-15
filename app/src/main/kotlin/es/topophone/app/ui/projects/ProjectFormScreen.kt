@@ -78,22 +78,29 @@ data class ProjectFormUiState(
 /** Acciones del formulario de proyecto. */
 class ProjectFormActions(val onChange: (ProjectDraft) -> Unit = {}, val onSave: () -> Unit = {}, val onBack: () -> Unit = {})
 
-/** Proyecto nuevo, desde los valores por defecto de Ajustes (S006/RF-5, RF-6, RF-12). */
+/** Proyecto nuevo, desde los valores por defecto de Ajustes (S006/RF-5, RF-6, RF-12), o editado (S006/RF-14, RF-15). */
 @HiltViewModel
 class ProjectFormViewModel @Inject constructor(private val repository: ProjectRepository, private val preferences: ProjectPreferences) :
     ViewModel() {
     private val mutableState = MutableStateFlow(ProjectFormUiState())
     val state: StateFlow<ProjectFormUiState> = mutableState.asStateFlow()
 
+    private var projectId: String? = null
     private var folderId: String? = null
     private var started = false
 
     fun start(projectId: String?, folderId: String?) {
         if (started) return
         started = true
+        this.projectId = projectId
         this.folderId = folderId
         viewModelScope.launch {
-            mutableState.value = ProjectFormUiState(draft = preferences.defaults.first().toDraft(), loaded = true) // S006/RF-6
+            val project = projectId?.let { repository.project(it) }
+            mutableState.value = if (project != null) {
+                ProjectFormUiState(draft = project.toDraft(), loaded = true, editing = true) // S006/RF-14
+            } else {
+                ProjectFormUiState(draft = preferences.defaults.first().toDraft(), loaded = true) // S006/RF-6
+            }
         }
     }
 
@@ -101,11 +108,13 @@ class ProjectFormViewModel @Inject constructor(private val repository: ProjectRe
 
     fun save() {
         val draft = mutableState.value.draft
+        val editingId = projectId
         viewModelScope.launch {
-            when (val result = repository.create(draft, folderId)) {
-                is SaveResult.Invalid -> mutableState.update { it.copy(error = result.error) } // S006/RF-7
+            val result = if (editingId != null) repository.update(editingId, draft) else repository.create(draft, folderId)
+            when (result) {
+                is SaveResult.Invalid -> mutableState.update { it.copy(error = result.error) } // S006/RF-7, RF-14
                 is SaveResult.Saved -> {
-                    repository.markOpened(result.id) // S006/RF-12: se abre al guardarlo
+                    if (editingId == null) repository.markOpened(result.id) // S006/RF-12: se abre al guardarlo
                     mutableState.update { it.copy(savedId = result.id) }
                 }
             }
@@ -126,7 +135,13 @@ fun ProjectFormRoute(
     LaunchedEffect(Unit) { viewModel.start(projectId, folderId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val saved = state.savedId
-    LaunchedEffect(saved) { if (saved != null) navigation.onProjectSaved(saved) }
+    LaunchedEffect(saved) {
+        when {
+            saved == null -> Unit
+            state.editing -> navigation.onBack() // se vuelve a donde se estaba
+            else -> navigation.onProjectSaved(saved)
+        }
+    }
     ProjectFormScreen(themeState, onToggleSun, state, ProjectFormActions(viewModel::update, viewModel::save, navigation.onBack))
 }
 

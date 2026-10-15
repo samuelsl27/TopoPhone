@@ -1,6 +1,7 @@
 package es.topophone.app.ui
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ fun SectionScaffold(
     modifier: Modifier = Modifier,
     onNavigateBack: (() -> Unit)? = null,
     floatingActionButton: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -37,6 +39,7 @@ fun SectionScaffold(
                 onToggleSunMode = onToggleSun,
                 onNavigateBack = onNavigateBack,
                 statusIndicator = LocalStatusIndicator.current, // S003/RF-16
+                actions = actions,
             )
         },
         floatingActionButton = floatingActionButton,
