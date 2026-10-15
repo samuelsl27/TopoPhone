@@ -26,6 +26,9 @@ sealed interface SaveResult {
 /** Un proyecto encontrado y la carpeta en la que está (S006/RF-4). */
 data class ProjectSearchResult(val project: Project, val folder: ProjectFolder?)
 
+/** Un proyecto de la papelera y los días que le quedan antes de eliminarse (S006/RF-23). */
+data class TrashedProject(val project: Project, val daysLeft: Int)
+
 /** Proyectos y carpetas (S006). */
 interface ProjectRepository {
     fun projects(folderId: String?): Flow<List<Project>>
@@ -54,6 +57,23 @@ interface ProjectRepository {
     suspend fun moveToFolder(projectId: String, folderId: String?)
 
     suspend fun deleteFolder(id: String)
+
+    suspend fun moveToTrash(id: String)
+
+    fun trash(): Flow<List<TrashedProject>>
+
+    /** [restoredLabel] es la palabra de la interfaz: "restaurado" (S006/RF-25). */
+    suspend fun restore(id: String, restoredLabel: String)
+
+    suspend fun deleteForever(id: String)
+
+    /** Elimina los que han cumplido los días de la papelera; devuelve cuántos (S006/RF-27). */
+    suspend fun purgeTrash(): Int
+
+    companion object {
+        /** Días que un proyecto borrado se puede recuperar (S006/RF-22). */
+        const val TRASH_DAYS = 30
+    }
 }
 
 /**
@@ -127,6 +147,30 @@ class RoomProjectRepository(
     override suspend fun moveToFolder(projectId: String, folderId: String?) = dao.moveToFolder(projectId, folderId, clock())
 
     override suspend fun deleteFolder(id: String) = dao.deleteFolder(id)
+
+    override suspend fun moveToTrash(id: String) = dao.setDeletedAt(id, clock())
+
+    override fun trash(): Flow<List<TrashedProject>> = dao.trashed().map { list ->
+        val now = clock()
+        list.map { entity ->
+            val daysIn = ((now - (entity.deletedAt ?: now)) / DAY_MS).toInt()
+            TrashedProject(entity.toProject(), (ProjectRepository.TRASH_DAYS - daysIn).coerceAtLeast(0))
+        }
+    }
+
+    override suspend fun restore(id: String, restoredLabel: String) = db.withTransaction {
+        val project = dao.byId(id) ?: return@withTransaction
+        // Si su carpeta ya no existe, la clave ajena ya dejó folder_id a null: vuelve fuera de las carpetas (S006/RF-24).
+        dao.restore(id, ProjectNames.restoredName(project.name, dao.activeNames(exceptId = id), restoredLabel))
+    }
+
+    override suspend fun deleteForever(id: String) = dao.delete(id)
+
+    override suspend fun purgeTrash(): Int = dao.purge(limit = clock() - ProjectRepository.TRASH_DAYS * DAY_MS)
+
+    private companion object {
+        const val DAY_MS = 24L * 60 * 60 * 1000
+    }
 }
 
 private fun ProjectDraft.toEntity(id: String, folderId: String?, createdAt: Long, modifiedAt: Long) = ProjectEntity(

@@ -63,6 +63,20 @@ interface ProjectDao {
     @Query("UPDATE project_folders SET name = :name WHERE id = :id")
     suspend fun renameFolder(id: String, name: String)
 
+    /** S006/RF-23: los de la papelera, del último borrado al primero. */
+    @Query("SELECT * FROM projects WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC")
+    fun trashed(): Flow<List<ProjectEntity>>
+
+    @Query("UPDATE projects SET deleted_at = NULL, name = :name WHERE id = :id")
+    suspend fun restore(id: String, name: String)
+
+    @Query("DELETE FROM projects WHERE id = :id")
+    suspend fun delete(id: String)
+
+    /** S006/RF-27: elimina los que llevan en la papelera desde [limit] o antes. */
+    @Query("DELETE FROM projects WHERE deleted_at IS NOT NULL AND deleted_at <= :limit")
+    suspend fun purge(limit: Long): Int
+
     /** S006/RF-21: la clave ajena saca sus proyectos (`folder_id` a null). */
     @Query("DELETE FROM project_folders WHERE id = :id")
     suspend fun deleteFolder(id: String)

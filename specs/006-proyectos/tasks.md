@@ -14,7 +14,7 @@
       Hecho cuando: `ProjectRepositoryTest` en verde para esos casos.
 - [x] T6. `data`: duplicar, búsqueda y carpetas (crear, renombrar, mover, borrar). (RF-4, RF-16 a RF-21)
       Hecho cuando: `ProjectRepositoryTest` en verde para esos casos.
-- [ ] T7. `data`: papelera (mover, restaurar, borrar definitivamente, purga a los 30 días con reloj inyectado). (RF-22 a RF-27)
+- [x] T7. `data`: papelera (mover, restaurar, borrar definitivamente, purga a los 30 días con reloj inyectado). (RF-22 a RF-27)
       Hecho cuando: `ProjectRepositoryTest` en verde para la papelera.
 - [ ] T8. `data`: valores por defecto de los proyectos en DataStore. (RF-6, RF-13)
       Hecho cuando: `ProjectPreferencesTest` en verde.

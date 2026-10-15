@@ -260,4 +260,98 @@ class ProjectRepositoryTest {
         rootNames() shouldContainExactly listOf("Parcela 23")
         repository.project(trashed).shouldNotBeNull().folderId shouldBe null
     }
+
+    private val day = 24L * 60 * 60 * 1000
+
+    @Test
+    fun `S006 RF-22 un proyecto borrado sale de la lista y va a la papelera`() = runBlocking<Unit> {
+        val id = create("Parcela 23", at = 1_000)
+
+        repository.moveToTrash(id)
+
+        rootNames() shouldBe emptyList()
+        repository.trash().first().map { it.project.id } shouldContainExactly listOf(id)
+    }
+
+    @Test
+    fun `S006 RF-23 la papelera muestra los dias que le quedan a cada proyecto, del ultimo borrado al primero`() = runBlocking<Unit> {
+        val old = create("Viejo", at = 1_000)
+        val recent = create("Reciente", at = 2_000)
+        now = 10 * day
+        repository.moveToTrash(old)
+        now = 12 * day + day / 2
+        repository.moveToTrash(recent)
+
+        val trash = repository.trash().first()
+
+        trash.map { it.project.name } shouldContainExactly listOf("Reciente", "Viejo")
+        trash.map { it.daysLeft } shouldContainExactly listOf(30, 28)
+    }
+
+    @Test
+    fun `S006 RF-24 al restaurar vuelve a su carpeta con todos sus datos`() = runBlocking<Unit> {
+        val obras = createFolder("Obras 2026")
+        val id = create("Parcela 23", at = 1_000)
+        repository.moveToFolder(id, obras)
+        repository.moveToTrash(id)
+
+        repository.restore(id, restoredLabel = "restaurado")
+
+        repository.projects(obras).first().map { it.id } shouldContainExactly listOf(id)
+        repository.project(id).shouldNotBeNull().toDraft() shouldBe draft("Parcela 23")
+        repository.trash().first() shouldBe emptyList()
+    }
+
+    @Test
+    fun `S006 RF-24 si su carpeta ya no existe vuelve fuera de las carpetas`() = runBlocking<Unit> {
+        val obras = createFolder("Obras 2026")
+        val id = create("Parcela 23", at = 1_000)
+        repository.moveToFolder(id, obras)
+        repository.moveToTrash(id)
+        repository.deleteFolder(obras)
+
+        repository.restore(id, restoredLabel = "restaurado")
+
+        rootNames() shouldContainExactly listOf("Parcela 23")
+    }
+
+    @Test
+    fun `S006 RF-25 si su nombre ya esta en uso se restaura como (restaurado)`() = runBlocking<Unit> {
+        val id = create("Parcela 23", at = 1_000)
+        repository.moveToTrash(id)
+        create("parcela 23", at = 2_000)
+
+        repository.restore(id, restoredLabel = "restaurado")
+
+        repository.project(id).shouldNotBeNull().name shouldBe "Parcela 23 (restaurado)"
+    }
+
+    @Test
+    fun `S006 RF-26 borrar definitivamente elimina el proyecto`() = runBlocking<Unit> {
+        val id = create("Parcela 23", at = 1_000)
+        repository.moveToTrash(id)
+
+        repository.deleteForever(id)
+
+        repository.trash().first() shouldBe emptyList()
+        repository.project(id) shouldBe null
+    }
+
+    @Test
+    fun `S006 RF-27 al cumplir 30 dias en la papelera el proyecto se elimina al purgar y antes no`() = runBlocking<Unit> {
+        val expired = create("Caducado", at = 1_000)
+        val kept = create("Aun no", at = 2_000)
+        val active = create("Activo", at = 3_000)
+        now = 100 * day
+        repository.moveToTrash(expired)
+        now = 101 * day
+        repository.moveToTrash(kept)
+
+        now = 130 * day
+        repository.purgeTrash() shouldBe 1
+
+        repository.project(expired) shouldBe null
+        repository.trash().first().map { it.project.id } shouldContainExactly listOf(kept)
+        repository.project(active).shouldNotBeNull()
+    }
 }
