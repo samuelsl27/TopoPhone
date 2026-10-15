@@ -6,7 +6,7 @@
       Hecho cuando: `RmcVtgZdaParserTest` en verde.
 - [x] T2. `core:gnss`: `GsaParser` y `GsvParser` (talker por constelación, NMEA 4.10 y 4.11 con sistema y señal). (RF-1, RF-2, RF-7)
       Hecho cuando: `GsaGsvParserTest` en verde.
-- [ ] T3. `core:gnss`: `EbpParser` y `EtcParser` (estados y avisos de ETC_rev_3). (RF-5, RF-6, RF-7)
+- [x] T3. `core:gnss`: `EbpParser` y `EtcParser` (estados y avisos de ETC_rev_3). (RF-5, RF-6, RF-7)
       Hecho cuando: `EbpEtcParserTest` en verde.
 - [ ] T4. `core:gnss`: `Epoch` y `EpochAssembler` (agrupación, cierre por hora o 150 ms, desorden, medianoche, fecha, reinicio). (RF-8–RF-11)
       Hecho cuando: `EpochAssemblerTest` en verde.
