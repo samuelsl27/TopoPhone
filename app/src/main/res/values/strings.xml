@@ -191,4 +191,10 @@
     <string name="notification_solution_age">%1$s · correcciones %2$s s</string>
     <string name="notification_no_data">Sin datos</string>
     <string name="notification_reconnecting">Reconectando · intento %1$d</string>
+    <string name="notifications_permission_title">Notificaciones del receptor</string>
+    <string name="notifications_permission_rationale">TopoPhone muestra una notificación con la conexión con el receptor mientras la app está en segundo plano. Para verla, permite las notificaciones en el paso siguiente.</string>
+    <string name="notifications_permission_continue">Continuar</string>
+    <string name="notifications_permission_not_now">Ahora no</string>
+    <string name="receiver_notifications_denied">Sin permiso de notificaciones no verás la conexión en segundo plano, aunque sigue activa.</string>
+    <string name="receiver_notifications_enable">Activar</string>
 </resources>

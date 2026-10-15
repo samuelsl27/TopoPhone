@@ -179,4 +179,10 @@
     <string name="notification_solution_age">%1$s · corrections %2$s s</string>
     <string name="notification_no_data">No data</string>
     <string name="notification_reconnecting">Reconnecting · attempt %1$d</string>
+    <string name="notifications_permission_title">Receiver notifications</string>
+    <string name="notifications_permission_rationale">TopoPhone shows a notification with the receiver connection while the app is in the background. To see it, allow notifications in the next step.</string>
+    <string name="notifications_permission_continue">Continue</string>
+    <string name="notifications_permission_not_now">Not now</string>
+    <string name="receiver_notifications_denied">Without notification permission you won\'t see the connection in the background, although it stays active.</string>
+    <string name="receiver_notifications_enable">Turn on</string>
 </resources>

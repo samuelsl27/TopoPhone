@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +27,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,6 +45,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.topophone.app.R
+import es.topophone.app.receiver.notificationSettingsIntent
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.gnss.nmea.ReplaySpeed
@@ -70,6 +73,9 @@ class ReceiverActions(
     val onStopReplay: () -> Unit = {},
     val onReplayAgain: () -> Unit = {},
     val onRetryNow: () -> Unit = {},
+    val onAllowNotifications: () -> Unit = {},
+    val onDeclineNotifications: () -> Unit = {},
+    val onEnableNotifications: () -> Unit = {},
 )
 
 const val PERMISSION_REQUEST_TAG = "bt_permission_request"
@@ -86,6 +92,7 @@ const val REPLAY_AGAIN_TAG = "replay_again"
 const val RECONNECT_DETAIL_TAG = "reconnect_detail"
 const val RETRY_NOW_TAG = "retry_now"
 const val NMEA_MISSING_TAG = "nmea_missing"
+const val ENABLE_NOTIFICATIONS_TAG = "enable_notifications"
 
 fun deviceTag(address: String) = "device_$address"
 
@@ -102,8 +109,11 @@ fun ReceiverRoute(
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { viewModel.refreshBluetooth() }
     val enableLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { viewModel.refreshBluetooth() }
+    val notificationsLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { viewModel.refreshNotifications() }
     LifecycleResumeEffect(Unit) {
         viewModel.refreshBluetooth()
+        viewModel.refreshNotifications()
         onPauseOrDispose {}
     }
     ReceiverScreen(
@@ -134,6 +144,14 @@ fun ReceiverRoute(
             onStopReplay = viewModel::stopReplay,
             onReplayAgain = viewModel::replayAgain,
             onRetryNow = viewModel::retryNow,
+            onAllowNotifications = {
+                viewModel.notificationsAnswered()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            },
+            onDeclineNotifications = viewModel::notificationsAnswered,
+            onEnableNotifications = { context.startActivity(notificationSettingsIntent(context.packageName)) },
         ),
     )
 }
@@ -163,6 +181,27 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
             SessionCard(state.sessionAvailable, actions.onShareSession, actions.onOpenSessions)
         }
     }
+    if (state.askNotifications) NotificationsDialog(actions)
+}
+
+/** Explica para qué es el permiso de notificaciones antes de que Android lo pida (S004/RF-5). */
+@Composable
+private fun NotificationsDialog(actions: ReceiverActions) {
+    AlertDialog(
+        onDismissRequest = actions.onDeclineNotifications,
+        title = { Text(stringResource(R.string.notifications_permission_title)) },
+        text = { Text(stringResource(R.string.notifications_permission_rationale)) },
+        confirmButton = {
+            TextButton(onClick = actions.onAllowNotifications, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.notifications_permission_continue))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = actions.onDeclineNotifications, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.notifications_permission_not_now))
+            }
+        },
+    )
 }
 
 @Composable
@@ -211,6 +250,13 @@ private fun ConnectionCard(state: ReceiverUiState, actions: ReceiverActions) {
                 color = MaterialTheme.colorScheme.error,
             )
         } // S004/RF-28
+        if (state.notificationsDenied) {
+            Text(stringResource(R.string.receiver_notifications_denied))
+            OutlinedButton(
+                onClick = actions.onEnableNotifications,
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ENABLE_NOTIFICATIONS_TAG),
+            ) { Text(stringResource(R.string.receiver_notifications_enable)) }
+        } // S004/RF-6
         if (state.snapshot.recordingStoppedLowSpace) {
             Text(stringResource(R.string.receiver_recording_stopped_low_space), color = MaterialTheme.colorScheme.error)
         } // S003/RF-28

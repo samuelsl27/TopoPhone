@@ -22,7 +22,7 @@
       Hecho cuando: `ReceiverServiceTest` y `OpenReceiverFromNotificationTest` en verde.
 - [x] T10. `receiver`: wakelock parcial mientras el servicio sigue (plazo de 10 min renovado). (RF-7)
       Hecho cuando: `ReceiverServiceTest` en verde con el wakelock.
-- [ ] T11. `app`: permiso de notificaciones al conectar por primera vez (Android 13+) y aviso con "Activar" si se deniega. (RF-5, RF-6)
+- [x] T11. `app`: permiso de notificaciones al conectar por primera vez (Android 13+) y aviso con "Activar" si se deniega. (RF-5, RF-6)
       Hecho cuando: `NotificationPermissionTest` en verde.
 - [ ] T12. `receiver`: `ReceiverPairing` (CompanionDeviceManager, emparejamiento con PIN por `createBond`, resultados y reserva sin companion_device_setup). (RF-1, RF-2, RF-4)
       Hecho cuando: `ReceiverPairingTest` en verde.

@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
+import es.topophone.app.receiver.ReceiverService
 import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripFailure
@@ -87,6 +89,10 @@ data class ReceiverUiState(
     val groundPoint: GroundPoint? = null,
     val sessionAvailable: Boolean = false,
     val nowMs: Long = 0,
+    /** Pedir el permiso de notificaciones, con su explicación (S004/RF-5). */
+    val askNotifications: Boolean = false,
+    /** Permiso denegado con un receptor conectado: avisar de cómo concederlo (S004/RF-6). */
+    val notificationsDenied: Boolean = false,
 )
 
 /**
@@ -107,6 +113,7 @@ class ReceiverViewModel @Inject constructor(
     @param:Named(UI_SAMPLE_MS) private val samplePeriodMs: Long,
     private val replay: ReplayController,
     private val connections: ReceiverConnections,
+    private val notifications: NotificationPermission = NotificationPermission.NotRequired,
 ) : ViewModel() {
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
@@ -116,6 +123,8 @@ class ReceiverViewModel @Inject constructor(
     private val internet = MutableStateFlow(true)
     private val poleText = MutableStateFlow(formatPoleHeight(PoleHeight.DEFAULT_M))
     private val poleValue = MutableStateFlow(PoleHeight.DEFAULT_M)
+    private val notificationsGranted = MutableStateFlow(notifications.isGranted())
+    private val notificationsAnsweredNow = MutableStateFlow(false)
 
     private val ticker: Flow<Long> = flow {
         while (true) {
@@ -128,7 +137,13 @@ class ReceiverViewModel @Inject constructor(
 
     private data class FormState(val form: NtripForm, val invalid: Boolean, val internet: Boolean)
     private data class PoleState(val text: String, val value: Double)
-    private data class Extras(val nowMs: Long, val sessionAvailable: Boolean, val lastAddress: String?)
+    private data class Extras(
+        val nowMs: Long,
+        val sessionAvailable: Boolean,
+        val lastAddress: String?,
+        val notificationsGranted: Boolean,
+        val notificationsAsked: Boolean,
+    )
 
     val uiState: StateFlow<ReceiverUiState> = combine(
         snapshots,
@@ -140,8 +155,13 @@ class ReceiverViewModel @Inject constructor(
                 it to (sessionFiles.latest() != null)
             },
             lastAddress,
-        ) { (now, available), address -> Extras(now, available, address) },
+            notificationsGranted,
+            combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
+        ) { (now, available), address, granted, asked -> Extras(now, available, address, granted, asked) },
     ) { snapshot, bt, formState, pole, extras ->
+        // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
+        val realReceiver = ReceiverService.needsService(snapshot)
+        val missingPermission = notifications.required && !extras.notificationsGranted
         ReceiverUiState(
             bluetooth = bt,
             snapshot = snapshot,
@@ -154,6 +174,11 @@ class ReceiverViewModel @Inject constructor(
             groundPoint = snapshot.gga?.let { calculator.get().compute(it, pole.value) },
             sessionAvailable = extras.sessionAvailable,
             nowMs = extras.nowMs,
+            askNotifications = missingPermission &&
+                !extras.notificationsAsked &&
+                realReceiver &&
+                snapshot.connection is ConnectionState.Receiving, // S004/RF-5
+            notificationsDenied = missingPermission && extras.notificationsAsked && realReceiver, // S004/RF-6
         )
     }.flowOn(Dispatchers.Default).stateIn(
         viewModelScope,
@@ -187,6 +212,17 @@ class ReceiverViewModel @Inject constructor(
     /** Se llama al volver a la pantalla y tras pedir el permiso o activar el Bluetooth (S002/RF-1 a RF-4). */
     fun refreshBluetooth() {
         bluetoothUi.value = readBluetooth()
+    }
+
+    /** Se llama al volver a la pantalla y tras responder al permiso (S004/RF-6). */
+    fun refreshNotifications() {
+        notificationsGranted.value = notifications.isGranted()
+    }
+
+    /** El permiso de notificaciones se pide una sola vez, se acepte o no (S004/RF-5). */
+    fun notificationsAnswered() {
+        notificationsAnsweredNow.value = true
+        viewModelScope.launch { preferences.markNotificationsAsked() }
     }
 
     fun connect(address: String) {

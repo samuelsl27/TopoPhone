@@ -7,6 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
+import es.topophone.app.receiver.AndroidNotificationPermission
+import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
 import es.topophone.app.ui.receiver.ReceiverViewModel
@@ -106,6 +108,9 @@ object ReceiverModule {
 
     @Provides
     fun alerts(@ApplicationContext context: Context): Alerts = VibrationAlerts(context)
+
+    @Provides
+    fun notificationPermission(@ApplicationContext context: Context): NotificationPermission = AndroidNotificationPermission(context)
 
     @Provides
     @Named(ReceiverViewModel.MONOTONIC_CLOCK)
