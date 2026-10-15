@@ -31,8 +31,12 @@ class ConnectionDiagnosisTest {
     private fun show(snapshot: ReceiverSnapshot) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ReceiverScreen(ThemeState.DEFAULT, {
-                }, ReceiverUiState(bluetooth = BluetoothUi.Ready(emptyList()), snapshot = snapshot), ReceiverActions())
+                ReceiverScreen(
+                    themeState = ThemeState.DEFAULT,
+                    onToggleSun = {},
+                    state = ReceiverUiState(bluetooth = BluetoothUi.Ready(emptyList()), snapshot = snapshot),
+                    actions = ReceiverActions(),
+                )
             }
         }
     }
