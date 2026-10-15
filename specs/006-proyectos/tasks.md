@@ -4,7 +4,7 @@
 
 - [x] T1. `core:model`: unidades lineales y angulares, datum de las correcciones, SC del proyecto y formato de longitudes por unidad. (RF-8, RF-9, RF-10)
       Hecho cuando: `ProjectUnitsTest` en verde (factores exactos, formato con configuración regional).
-- [ ] T2. `core:model`: reglas de nombres (comparar sin mayúsculas ni tildes, "(copia n)", "(restaurado n)") y aviso de datum. (RF-4, RF-7, RF-11, RF-16, RF-25)
+- [x] T2. `core:model`: reglas de nombres (comparar sin mayúsculas ni tildes, "(copia n)", "(restaurado n)") y aviso de datum. (RF-4, RF-7, RF-11, RF-16, RF-25)
       Hecho cuando: `ProjectNamesTest` en verde.
 - [ ] T3. `tools` + `core:survey`: vectores de pyproj de UTM con huso fijo y `ProjectPositionCalculator`. (RF-29, RF-30)
       Hecho cuando: `ProjectPositionCalculatorTest` en verde (≤ 1 mm) y el test del generador en `tools`.
