@@ -6,7 +6,7 @@
       Hecho cuando: `./gradlew check` en verde y `checkModuleRules` sin infracciones con los módulos nuevos.
 - [x] T2. `core:gnss`: `NmeaFramer` (suma de control, cualquier talker, cortes y binario intercalado). (RF-11)
       Hecho cuando: `NmeaFramerTest` en verde.
-- [ ] T3. `core:gnss`: `GgaParser`, `GstParser` y `SolutionStatus`. (RF-12, RF-13, RF-14, RF-15)
+- [x] T3. `core:gnss`: `GgaParser`, `GstParser` y `SolutionStatus`. (RF-12, RF-13, RF-14, RF-15)
       Hecho cuando: `GgaParserTest` y `GstParserTest` en verde, con campos vacíos y todas las calidades.
 - [ ] T4. `tools/geodesia`: pyproj, `descargar_rejillas.py` (SHA-256) y `generar_vectores.py` → `fixtures/geodesia/*.csv`; rejilla EGM08-REDNAP como recurso de `core:geodesy`. (RF-36, RF-38)
       Hecho cuando: los CSV generados son reproducibles y la rejilla está versionada con su SHA-256 comprobado.
