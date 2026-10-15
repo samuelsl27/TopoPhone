@@ -281,4 +281,7 @@
     <string name="settings_section_projects">Proyectos</string>
     <string name="settings_project_defaults">Proyectos nuevos</string>
     <string name="settings_project_defaults_help">Valores con los que empieza cada proyecto nuevo. Los proyectos que ya existen no cambian.</string>
+    <string name="project_info_title">Proyecto</string>
+    <string name="project_points_title">Puntos</string>
+    <string name="project_no_points">Todavía no hay puntos en este proyecto.</string>
 </resources>

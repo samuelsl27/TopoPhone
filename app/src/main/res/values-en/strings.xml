@@ -269,4 +269,7 @@
     <string name="settings_section_projects">Projects</string>
     <string name="settings_project_defaults">New projects</string>
     <string name="settings_project_defaults_help">Values every new project starts with. Existing projects do not change.</string>
+    <string name="project_info_title">Project</string>
+    <string name="project_points_title">Points</string>
+    <string name="project_no_points">This project has no points yet.</string>
 </resources>
