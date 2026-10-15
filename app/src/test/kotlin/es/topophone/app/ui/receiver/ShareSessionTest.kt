@@ -17,6 +17,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
 import es.topophone.app.di.ReceiverModule
+import es.topophone.app.ui.sessions.SHARE_SESSION_TAG
+import es.topophone.app.ui.sessions.SessionRow
+import es.topophone.app.ui.sessions.SessionsActions
+import es.topophone.app.ui.sessions.SessionsScreen
+import es.topophone.app.ui.sessions.SessionsUiState
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -25,6 +30,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.lang.reflect.Modifier
+import java.time.Instant
 import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Rule
@@ -115,30 +121,30 @@ class ShareSessionTest {
         context.contentResolver.openInputStream(uri).shouldNotBeNull().use { it.reader().readText() } shouldBe content
     }
 
+    private fun session(id: String, startedAt: String) =
+        SessionRow(id, Instant.parse(startedAt), 60, 1_000, "reach-RS3", imported = false, inProgress = false)
+
     @Test
-    fun `S002 RF-43 la tarjeta Sesion comparte la ultima sesion`() {
-        var shared = false
+    fun `S002 RF-43 la pantalla Sesiones grabadas comparte la ultima sesion`() {
+        var shared: String? = null
+        val rows = listOf(session("20261015-101530", "2026-10-15T10:15:30Z"), session("20261014-083000", "2026-10-14T08:30:00Z"))
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ReceiverScreen(
-                    ThemeState.DEFAULT,
-                    {},
-                    ReceiverUiState(sessionAvailable = true),
-                    ReceiverActions(onShareSession = { shared = true }),
-                )
+                SessionsScreen(ThemeState.DEFAULT, {
+                }, SessionsUiState(rows), SessionsActions(onShare = { shared = it }), onNavigateBack = {})
             }
         }
 
         compose.onNodeWithTag(SHARE_SESSION_TAG).performScrollTo().assertIsEnabled().performClick()
 
-        shared shouldBe true
+        shared shouldBe "20261015-101530"
     }
 
     @Test
     fun `S002 RF-43 sin sesiones guardadas no se puede compartir y se indica`() {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ReceiverScreen(ThemeState.DEFAULT, {}, ReceiverUiState(sessionAvailable = false), ReceiverActions())
+                SessionsScreen(ThemeState.DEFAULT, {}, SessionsUiState(), SessionsActions(), onNavigateBack = {})
             }
         }
 

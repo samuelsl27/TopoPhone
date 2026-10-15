@@ -16,7 +16,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.StatefulTestApp
 import es.topophone.app.ui.TopLevelDestination
 import es.topophone.app.ui.navItem
-import es.topophone.app.ui.receiver.OPEN_SESSIONS_TAG
+import es.topophone.app.ui.receiver.LIST_SESSIONS_TAG
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.component.NAVIGATE_BACK_TAG
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -142,15 +142,15 @@ class SessionsScreenTest {
     }
 
     @Test
-    fun `S003 RF-29 la lista se abre desde la tarjeta Sesion y se vuelve a Receptor`() {
+    fun `S003 RF-29 la lista se abre desde la lista de receptores y se vuelve a Receptor`() {
         compose.setContent { StatefulTestApp() }
         compose.navItem(TopLevelDestination.RECEIVER).performClick()
 
-        compose.onNodeWithTag(OPEN_SESSIONS_TAG).performScrollTo().performClick()
+        compose.onNodeWithTag(LIST_SESSIONS_TAG).performScrollTo().performClick()
         compose.onNodeWithTag(SESSIONS_LIST_TAG).assertIsDisplayed()
 
         compose.onNodeWithTag(NAVIGATE_BACK_TAG).performClick()
-        compose.onNodeWithTag(OPEN_SESSIONS_TAG).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(LIST_SESSIONS_TAG).performScrollTo().assertIsDisplayed()
     }
 
     @Test

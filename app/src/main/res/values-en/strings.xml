@@ -105,8 +105,6 @@
     <string name="unavailable_no_height">Not available: the GGA sentence has no altitude.</string>
     <string name="unavailable_outside_utm">Not available in this version: the point is outside UTM zones 29 to 31.</string>
     <string name="unavailable_outside_geoid">Not available: the point is outside the EGM08-REDNAP model of the Peninsula and the Balearic Islands.</string>
-    <string name="receiver_session_title">Session</string>
-    <string name="receiver_session_help">Everything the receiver sends is saved as it arrives. The last 10 sessions are kept.</string>
     <string name="receiver_no_session">There is no saved session yet.</string>
     <string name="receiver_share_session">Share session</string>
     <string name="licenses_data_title">Data</string>
@@ -135,7 +133,6 @@
     <string name="settings_session_space_mb">%1$d MB</string>
     <string name="settings_session_space_gb">%1$d GB</string>
     <string name="sessions_title">Sessions</string>
-    <string name="receiver_open_sessions">View sessions</string>
     <string name="sessions_imported">Imported</string>
     <string name="sessions_in_progress">In progress</string>
     <string name="sessions_duration_hours">%1$d h %2$02d min</string>

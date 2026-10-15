@@ -117,8 +117,6 @@
     <string name="unavailable_no_height">No disponible: la frase GGA no trae altitud.</string>
     <string name="unavailable_outside_utm">No disponible en esta versión: el punto está fuera de los husos UTM 29 a 31.</string>
     <string name="unavailable_outside_geoid">No disponible: el punto está fuera del modelo EGM08-REDNAP de la Península y Baleares.</string>
-    <string name="receiver_session_title">Sesión</string>
-    <string name="receiver_session_help">Se guarda todo lo que envía el receptor, tal como llega. Se conservan las 10 últimas sesiones.</string>
     <string name="receiver_no_session">Todavía no hay ninguna sesión guardada.</string>
     <string name="receiver_share_session">Compartir sesión</string>
     <string name="licenses_data_title">Datos</string>
@@ -147,7 +145,6 @@
     <string name="settings_session_space_mb">%1$d MB</string>
     <string name="settings_session_space_gb">%1$d GB</string>
     <string name="sessions_title">Sesiones</string>
-    <string name="receiver_open_sessions">Ver sesiones</string>
     <string name="sessions_imported">Importada</string>
     <string name="sessions_in_progress">En curso</string>
     <string name="sessions_duration_hours">%1$d h %2$02d min</string>

@@ -56,7 +56,9 @@ class NtripCardTest {
             nowMs = nowMs,
         )
         compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { ReceiverScreen(ThemeState.DEFAULT, {}, state, actions) }
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ReceiverPageScreen(ReceiverPage.CORRECTIONS, ThemeState.DEFAULT, {}, state, actions, {})
+            }
         }
     }
 
@@ -71,11 +73,13 @@ class NtripCardTest {
         var form by mutableStateOf(NtripForm())
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ReceiverScreen(
+                ReceiverPageScreen(
+                    ReceiverPage.CORRECTIONS,
                     ThemeState.DEFAULT,
                     {},
                     ReceiverUiState(snapshot = ReceiverSnapshot(receiving), form = form),
                     ReceiverActions(onFormChange = { form = it }),
+                    {},
                 )
             }
         }

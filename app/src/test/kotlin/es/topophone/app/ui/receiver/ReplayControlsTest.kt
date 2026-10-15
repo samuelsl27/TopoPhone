@@ -123,15 +123,17 @@ class ReplayControlsTest {
     }
 
     @Test
-    fun `S003 RF-35 al empezar una reproduccion la pantalla sube hasta la tarjeta Conexion`() {
+    fun `S003 RF-35 al empezar una reproduccion la pantalla sube hasta la cabecera`() {
         var snapshot by mutableStateOf(ReceiverSnapshot())
+        // Muchos emparejados para que la lista no quepa en la pantalla.
+        val devices = (1..20).map { BondedDevice("receptor-$it", "00:11:22:33:44:%02d".format(it)) }
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
                 ReceiverScreen(ThemeState.DEFAULT, {
-                }, ReceiverUiState(bluetooth = BluetoothUi.Ready(listOf(rs3)), snapshot = snapshot), ReceiverActions())
+                }, ReceiverUiState(bluetooth = BluetoothUi.Ready(devices), snapshot = snapshot), ReceiverActions())
             }
         }
-        compose.onNodeWithTag(OPEN_SESSIONS_TAG).performScrollTo()
+        compose.onNodeWithTag(LIST_SESSIONS_TAG).performScrollTo()
         compose.onNodeWithTag(CONNECTION_STATUS_TAG).assertIsNotDisplayed()
 
         snapshot = replaying()

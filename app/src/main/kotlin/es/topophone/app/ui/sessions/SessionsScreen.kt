@@ -46,6 +46,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 const val SESSIONS_LIST_TAG = "sessions_list"
+const val SHARE_SESSION_TAG = "share_session"
 const val IMPORT_SESSION_TAG = "sessions_import"
 const val CONFIRM_DELETE_TAG = "sessions_confirm_delete"
 const val CANCEL_DELETE_TAG = "sessions_cancel_delete"
@@ -124,6 +125,13 @@ fun SessionsScreen(
             modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp).testTag(SESSIONS_LIST_TAG),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            // S002/RF-43: compartir la última sesión, la primera de la lista; sin sesiones lo dice la lista vacía.
+            val latest = state.rows.firstOrNull()
+            OutlinedButton(
+                onClick = { latest?.let { actions.onShare(it.id) } },
+                enabled = latest != null,
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(SHARE_SESSION_TAG),
+            ) { Text(stringResource(R.string.receiver_share_session)) }
             OutlinedButton(onClick = actions.onImport, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(IMPORT_SESSION_TAG)) {
                 Text(stringResource(R.string.sessions_import))
             } // S003/RF-33

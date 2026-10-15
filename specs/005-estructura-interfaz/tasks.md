@@ -16,7 +16,7 @@
       Hecho cuando: `ReceiverNavigationTest` en verde para abrir, volver y girar.
 - [x] T7. `app`: contenido de las pantallas Estado y Coordenadas, con el aviso de "No hay ningún receptor conectado". (RF-16, RF-19; S003/RF-14, RF-15)
       Hecho cuando: adaptados `StatusCardTest` y `CoordinatesCardTest`, y el caso de RF-16 en `ReceiverNavigationTest`.
-- [ ] T8. `app`: contenido de las pantallas Correcciones y Sesiones grabadas (desde la lista y desde el menú). (RF-19)
+- [x] T8. `app`: contenido de las pantallas Correcciones y Sesiones grabadas (desde la lista y desde el menú). (RF-19)
       Hecho cuando: adaptados `NtripCardTest` y `ShareSessionTest`, y `RelocationTest` en verde para todas las filas de la tabla.
 - [ ] T9. `app`: quitar la página larga y las piezas que ya no se usan; adaptar `EndToEndReplayTest`, `FullRs3ReplayTest`, `NavigationTest`, `RotationTest` y `OpenReceiverFromNotificationTest`. (RF-19)
       Hecho cuando: `./gradlew check` en verde sin tests de S002–S004 borrados.
