@@ -32,6 +32,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object BackgroundHelpRoute
 
+/** "Proyectos nuevos" en Ajustes (S006/RF-13). */
+@Serializable data object ProjectDefaultsDestination
+
 /** Formulario de proyecto en Levantamiento: nuevo si [projectId] es null (S006). */
 @Serializable data class ProjectFormDestination(val projectId: String? = null, val folderId: String? = null)
 

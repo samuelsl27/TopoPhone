@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.SemanticsMatcher
@@ -20,6 +21,7 @@ import es.topophone.app.ui.receiver.ReceiverUiState
 import es.topophone.app.ui.sessions.SessionsActions
 import es.topophone.app.ui.sessions.SessionsScreen
 import es.topophone.app.ui.sessions.SessionsUiState
+import es.topophone.app.ui.settings.ProjectDefaultsScreen
 import es.topophone.app.ui.status.StatusIndicator
 import es.topophone.app.ui.status.StatusIndicatorState
 import es.topophone.core.designsystem.theme.EffectiveThemeKey
@@ -28,6 +30,7 @@ import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeMode
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.core.model.project.ProjectDefaults
 
 /** Texto de un recurso, en el idioma del entorno de test (español por defecto). */
 fun text(id: Int, vararg args: Any): String = ApplicationProvider.getApplicationContext<Context>().getString(id, *args)
@@ -83,6 +86,10 @@ fun StatefulTestApp(
             sessionsSection = { theme, toggleSun, back -> SessionsScreen(theme, toggleSun, SessionsUiState(), SessionsActions(), back) },
             statusIndicator = { onOpenReceiver -> StatusIndicator(StatusIndicatorState(), onOpenReceiver) },
             surveySection = { page, theme, toggleSun, navigation, _ -> SurveyPageScreen(page, theme, toggleSun, surveyState, navigation) },
+            projectDefaultsSection = { theme, toggleSun, back ->
+                var defaults by remember { mutableStateOf(ProjectDefaults()) }
+                ProjectDefaultsScreen(theme, toggleSun, defaults, { defaults = it }, back)
+            },
         )
     }
 }

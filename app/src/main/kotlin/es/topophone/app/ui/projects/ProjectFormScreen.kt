@@ -227,7 +227,7 @@ internal fun DatumWarning() {
 
 /** Opciones excluyentes en filas de 56 dp (RNF-T8), con su botón de radio. */
 @Composable
-private fun <T> ChoiceGroup(
+internal fun <T> ChoiceGroup(
     title: String,
     options: List<T>,
     selected: T,

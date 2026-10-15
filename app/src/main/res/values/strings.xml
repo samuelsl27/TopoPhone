@@ -278,4 +278,7 @@
     <string name="trash_restore">Restaurar</string>
     <string name="trash_delete_forever">Borrar definitivamente</string>
     <string name="trash_delete_forever_confirm">¿Borrar «%1$s» para siempre? No se podrá recuperar.</string>
+    <string name="settings_section_projects">Proyectos</string>
+    <string name="settings_project_defaults">Proyectos nuevos</string>
+    <string name="settings_project_defaults_help">Valores con los que empieza cada proyecto nuevo. Los proyectos que ya existen no cambian.</string>
 </resources>

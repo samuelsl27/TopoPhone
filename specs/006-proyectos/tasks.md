@@ -32,7 +32,7 @@
       Hecho cuando: `ProjectFolderTest` en verde.
 - [x] T15. `app`: borrar un proyecto y papelera (restaurar, borrar definitivamente) y purga al arrancar. (RF-22 a RF-27)
       Hecho cuando: `TrashTest` en verde.
-- [ ] T16. `app`: pantalla "Proyectos nuevos" en Ajustes. (RF-13)
+- [x] T16. `app`: pantalla "Proyectos nuevos" en Ajustes. (RF-13)
       Hecho cuando: `ProjectDefaultsTest` en verde.
 - [ ] T17. `app`: vista de proyecto con sus datos, el aviso de datum y "sin puntos". (RF-11, RF-28, RF-31)
       Hecho cuando: `ProjectViewTest` en verde para esos casos.

@@ -47,6 +47,7 @@ import es.topophone.app.ui.sessions.SessionsSection
 import es.topophone.app.ui.settings.AboutScreen
 import es.topophone.app.ui.settings.BackgroundHelpScreen
 import es.topophone.app.ui.settings.LicensesScreen
+import es.topophone.app.ui.settings.ProjectDefaultsRoute
 import es.topophone.app.ui.settings.SettingsScreen
 import es.topophone.app.ui.status.StatusIndicatorRoute
 import es.topophone.core.model.preferences.ThemeState
@@ -69,6 +70,9 @@ fun TopoPhoneApp(
         SessionsSection(theme, toggleSun, back)
     },
     statusIndicator: @Composable (onOpenReceiver: () -> Unit) -> Unit = { onOpenReceiver -> StatusIndicatorRoute(onOpenReceiver) },
+    projectDefaultsSection: @Composable (ThemeState, () -> Unit, onBack: () -> Unit) -> Unit = { theme, toggleSun, back ->
+        ProjectDefaultsRoute(theme, toggleSun, back)
+    },
     surveySection: @Composable (SurveyPage, ThemeState, () -> Unit, SurveyNavigation, ViewModelStoreOwner) -> Unit =
         { page, theme, toggleSun, navigation, owner ->
             when (page) {
@@ -126,7 +130,16 @@ fun TopoPhoneApp(
     ) { padding ->
         val openReceiver = { navController.navigateToTopLevel(TopLevelDestination.RECEIVER) } // S003/RF-23
         CompositionLocalProvider(LocalStatusIndicator provides { statusIndicator(openReceiver) }) {
-            AppNavHost(navController, uiState, actions, receiverSection, sessionsSection, surveySection, Modifier.padding(padding))
+            AppNavHost(
+                navController,
+                uiState,
+                actions,
+                receiverSection,
+                sessionsSection,
+                surveySection,
+                projectDefaultsSection,
+                Modifier.padding(padding),
+            )
         }
     }
 }
@@ -139,6 +152,7 @@ private fun AppNavHost(
     receiverSection: @Composable (ReceiverPage, ThemeState, () -> Unit, ReceiverNavigation, ViewModelStoreOwner) -> Unit,
     sessionsSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
     surveySection: @Composable (SurveyPage, ThemeState, () -> Unit, SurveyNavigation, ViewModelStoreOwner) -> Unit,
+    projectDefaultsSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
     modifier: Modifier,
 ) {
     NavHost(navController = navController, startDestination = SurveyGraph, modifier = modifier) {
@@ -207,7 +221,11 @@ private fun AppNavHost(
                     onOpenAbout = { navController.navigate(AboutRoute) },
                     onOpenLicenses = { navController.navigate(LicensesRoute) },
                     onOpenBackgroundHelp = { navController.navigate(BackgroundHelpRoute) },
+                    onOpenProjectDefaults = { navController.navigate(ProjectDefaultsDestination) }, // S006/RF-13
                 )
+            }
+            composable<ProjectDefaultsDestination> {
+                projectDefaultsSection(uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<AboutRoute> { AboutScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }
             composable<LicensesRoute> { LicensesScreen(uiState, actions, onNavigateBack = { navController.popBackStack() }) }

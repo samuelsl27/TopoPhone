@@ -28,6 +28,7 @@ const val THEME_SETTING_TAG = "setting_theme"
 const val LANGUAGE_SETTING_TAG = "setting_language"
 const val ABOUT_SETTING_TAG = "setting_about"
 const val LICENSES_SETTING_TAG = "setting_licenses"
+const val PROJECT_DEFAULTS_SETTING_TAG = "setting_project_defaults"
 const val BACKGROUND_HELP_SETTING_TAG = "setting_background_help"
 
 fun themeOptionTag(mode: ThemeMode) = "theme_option_${mode.name}"
@@ -61,6 +62,7 @@ fun SettingsScreen(
     onOpenAbout: () -> Unit,
     onOpenLicenses: () -> Unit,
     onOpenBackgroundHelp: () -> Unit = {},
+    onOpenProjectDefaults: () -> Unit = {},
 ) {
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
@@ -86,6 +88,12 @@ fun SettingsScreen(
                 value = stringResource(uiState.language.labelRes()),
                 onClick = { showLanguageDialog = true },
                 modifier = Modifier.testTag(LANGUAGE_SETTING_TAG),
+            )
+            SettingsSectionHeader(stringResource(R.string.settings_section_projects))
+            SettingsItem(
+                title = stringResource(R.string.settings_project_defaults),
+                onClick = onOpenProjectDefaults, // S006/RF-13
+                modifier = Modifier.testTag(PROJECT_DEFAULTS_SETTING_TAG),
             )
             SettingsSectionHeader(stringResource(R.string.settings_section_receiver))
             SettingsItem(

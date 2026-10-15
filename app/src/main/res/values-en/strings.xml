@@ -266,4 +266,7 @@
     <string name="trash_restore">Restore</string>
     <string name="trash_delete_forever">Delete forever</string>
     <string name="trash_delete_forever_confirm">Delete “%1$s” forever? It cannot be recovered.</string>
+    <string name="settings_section_projects">Projects</string>
+    <string name="settings_project_defaults">New projects</string>
+    <string name="settings_project_defaults_help">Values every new project starts with. Existing projects do not change.</string>
 </resources>
