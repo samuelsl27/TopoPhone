@@ -134,7 +134,7 @@ def fmt(value: float | None) -> str:
     return "" if value is None else repr(float(value))
 
 
-def expected_row(epoch: Epoch, lat: float | None, lon: float | None, geoid: Transformer) -> list[str]:
+def expected_row(epoch: Epoch, lat: float | None, lon: float | None, geoid: Transformer, pole_m: float = POLE_M) -> list[str]:
     sigma = epoch.sigma
     sigma_h = math.sqrt(sigma[0] ** 2 + sigma[1] ** 2) if sigma else None
     sigma_v = sigma[2] if sigma else None
@@ -143,7 +143,7 @@ def expected_row(epoch: Epoch, lat: float | None, lon: float | None, geoid: Tran
         h = None
         if epoch.altitude is not None and epoch.separation is not None:
             # Mismo orden de operaciones que GroundPointCalculator (S002/RF-32, S002/RF-33).
-            h = (epoch.altitude + epoch.separation) - (POLE_M + RS3_BASE_TO_REFERENCE_M)
+            h = (epoch.altitude + epoch.separation) - (pole_m + RS3_BASE_TO_REFERENCE_M)
         zone = math.floor((lon + 180.0) / 6.0) + 1
         east = north = None
         if zone in UTM_ZONES:
