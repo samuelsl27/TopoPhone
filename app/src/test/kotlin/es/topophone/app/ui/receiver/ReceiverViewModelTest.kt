@@ -1,5 +1,6 @@
 package es.topophone.app.ui.receiver
 
+import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
@@ -75,6 +76,7 @@ class ReceiverViewModelTest {
         clock = { System.nanoTime() / 1_000_000 },
         samplePeriodMs = 0,
         replay = ReplayController(session) { emptyList() },
+        connections = ReceiverConnections(session, bluetooth, preferences, CoroutineScope(Dispatchers.Default)),
     )
 
     private fun ReceiverViewModel.awaitState(predicate: (ReceiverUiState) -> Boolean): ReceiverUiState = runBlocking {
@@ -119,7 +121,7 @@ class ReceiverViewModelTest {
     }
 
     @Test
-    fun `S002 RF-9 al perder la conexion se avisa con vibracion`() {
+    fun `S002 RF-9 S004 RF-13 al perder la conexion se avisa con vibracion y se empieza a reconectar`() {
         val vm = viewModel()
         vm.awaitState { true }
         vm.connect("00:11:22:33:44:55")
@@ -128,7 +130,8 @@ class ReceiverViewModelTest {
 
         toApp.close()
 
-        vm.awaitState { it.snapshot.connection is ConnectionState.Lost }
+        // Desde S004 la tarjeta conecta con reconexión: el corte se indica como "Reconectando".
+        vm.awaitState { it.snapshot.connection is ConnectionState.Reconnecting }
         runBlocking { withTimeout(2_000) { while (connectionLostAlerts == 0) kotlinx.coroutines.delay(20) } }
         connectionLostAlerts shouldBe 1
     }
@@ -227,6 +230,7 @@ class ReceiverViewModelTest {
             clock = { System.nanoTime() / 1_000_000 },
             samplePeriodMs = 0,
             replay = ReplayController(reconnecting) { emptyList() },
+            connections = ReceiverConnections(reconnecting, bluetooth, preferences, CoroutineScope(Dispatchers.Default)),
         )
         vm.awaitState { true }
         reconnecting.connect(bluetooth.transports.getValue("00:11:22:33:44:55")) { throw java.io.IOException("sin receptor") }

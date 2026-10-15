@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripFailure
@@ -105,6 +106,7 @@ class ReceiverViewModel @Inject constructor(
     @param:Named(MONOTONIC_CLOCK) private val clock: () -> Long,
     @param:Named(UI_SAMPLE_MS) private val samplePeriodMs: Long,
     private val replay: ReplayController,
+    private val connections: ReceiverConnections,
 ) : ViewModel() {
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
@@ -189,7 +191,7 @@ class ReceiverViewModel @Inject constructor(
 
     fun connect(address: String) {
         lastAddress.value = address
-        session.connect(bluetooth.transportFor(address)) // S002/RF-5
+        connections.connect(address) // S002/RF-5, con reconexión (S004/RF-13)
     }
 
     fun reconnect() {

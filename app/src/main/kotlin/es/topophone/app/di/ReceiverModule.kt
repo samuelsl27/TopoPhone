@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
+import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.core.ntrip.NtripClient
 import es.topophone.core.survey.GroundPointCalculator
@@ -73,6 +74,12 @@ object ReceiverModule {
         ntripConnector = NtripClient(userAgent = "NTRIP TopoPhone/${BuildConfig.VERSION_NAME}"),
         recorder = store,
     )
+
+    /** Único punto para conectar con un receptor real (S004). */
+    @Provides
+    @Singleton
+    fun receiverConnections(session: ReceiverSession, bluetooth: BluetoothDevices, preferences: ReceiverPreferences): ReceiverConnections =
+        ReceiverConnections(session, bluetooth, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default))
 
     @Provides
     @Singleton

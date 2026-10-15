@@ -1,5 +1,6 @@
 package es.topophone.app.ui.receiver
 
+import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.core.gnss.nmea.NmeaChecksum
 import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.ntrip.NtripConnector
@@ -84,6 +85,7 @@ class ReceiverViewModelReplayTest {
         clock = { System.nanoTime() / 1_000_000 },
         samplePeriodMs = 0,
         replay = replay,
+        connections = ReceiverConnections(session, bluetooth, FakePreferences(), CoroutineScope(Dispatchers.Default)),
     )
 
     private fun ReceiverViewModel.awaitState(predicate: (ReceiverUiState) -> Boolean): ReceiverUiState = runBlocking {

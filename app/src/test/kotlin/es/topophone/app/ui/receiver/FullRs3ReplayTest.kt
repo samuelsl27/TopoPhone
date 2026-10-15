@@ -1,6 +1,7 @@
 package es.topophone.app.ui.receiver
 
 import es.topophone.app.di.ReceiverModule
+import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.gnss.nmea.TiltState
@@ -103,6 +104,7 @@ class FullRs3ReplayTest {
             clock = ReceiverModule.monotonicClock(),
             samplePeriodMs = ReceiverModule.uiSamplePeriodMs(),
             replay = replay,
+            connections = ReceiverConnections(session, FakeBluetooth(), FakePreferences(), CoroutineScope(Dispatchers.Default)),
         )
         val epochs = Collections.synchronizedList(mutableListOf<Epoch>())
         val replayNames = Collections.synchronizedSet(mutableSetOf<String>())

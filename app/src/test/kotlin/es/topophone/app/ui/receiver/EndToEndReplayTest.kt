@@ -1,6 +1,7 @@
 package es.topophone.app.ui.receiver
 
 import es.topophone.app.di.ReceiverModule
+import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
@@ -111,6 +112,7 @@ class EndToEndReplayTest {
             clock = ReceiverModule.monotonicClock(),
             samplePeriodMs = ReceiverModule.uiSamplePeriodMs(),
             replay = ReplayController(session) { emptyList() },
+            connections = ReceiverConnections(session, bluetooth, FakePreferences(), CoroutineScope(Dispatchers.Default)),
         )
         val seenUtc = ConcurrentLinkedQueue<String>()
         collectorScope.launch { viewModel.uiState.collect { state -> state.snapshot.gga?.let { seenUtc += it.utcTime } } }

@@ -16,7 +16,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.ui.AppActions
 import es.topophone.app.ui.AppInfo
 import es.topophone.app.ui.AppUiState
@@ -24,6 +26,8 @@ import es.topophone.app.ui.TopoPhoneApp
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.EffectiveTheme
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 /**
  * Única actividad. Hereda de AppCompatActivity para que el idioma por app funcione
@@ -34,9 +38,12 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    @Inject lateinit var connections: ReceiverConnections
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch { connections.autoConnect() } // S004/RF-25: una sola vez por arranque
         val appInfo = AppInfo(versionName = BuildConfig.VERSION_NAME, gitCommit = BuildConfig.GIT_COMMIT, repoUrl = BuildConfig.REPO_URL)
 
         setContent {
