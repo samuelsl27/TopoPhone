@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,40 +40,70 @@ import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectFolder
 import es.topophone.data.project.ProjectRepository
+import es.topophone.data.project.ProjectSearchResult
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 
 const val PROJECT_LIST_TAG = "project_list"
 const val NEW_PROJECT_TAG = "new_project"
 const val EMPTY_NEW_PROJECT_TAG = "empty_new_project"
+const val PROJECT_SEARCH_TAG = "project_search"
 
 fun projectTag(id: String) = "project_$id"
 
 fun folderTag(id: String) = "folder_$id"
 
-/** Lo que muestra la lista de proyectos (S006/RF-1 a RF-3). */
-data class ProjectListUiState(val folders: List<ProjectFolder> = emptyList(), val projects: List<Project> = emptyList())
+/** Lo que muestra la lista de proyectos (S006/RF-1 a RF-4); [results] solo mientras se busca. */
+data class ProjectListUiState(
+    val folders: List<ProjectFolder> = emptyList(),
+    val projects: List<Project> = emptyList(),
+    val query: String = "",
+    val results: List<ProjectSearchResult>? = null,
+)
 
 /** Acciones de la lista de proyectos. */
 class ProjectListActions(
     val onNewProject: () -> Unit = {},
     val onOpenProject: (String) -> Unit = {},
     val onOpenFolder: (String) -> Unit = {},
+    val onQueryChange: (String) -> Unit = {},
 )
 
-/** Carpetas y proyectos que no están en ninguna (S006/RF-1). */
+/** Carpetas y proyectos que no están en ninguna (S006/RF-1) y la búsqueda en todas (S006/RF-4). */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ProjectListViewModel @Inject constructor(repository: ProjectRepository) : ViewModel() {
-    val state: StateFlow<ProjectListUiState> = combine(repository.folders(), repository.projects(folderId = null), ::ProjectListUiState)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectListUiState())
+    private val query = MutableStateFlow("")
+
+    private val results: Flow<List<ProjectSearchResult>?> = query.flatMapLatest { text ->
+        if (text.isBlank()) flowOf(null) else repository.search(text)
+    }
+
+    val state: StateFlow<ProjectListUiState> = combine(repository.folders(), repository.projects(folderId = null), query, results) {
+            folders,
+            projects,
+            text,
+            found,
+        ->
+        ProjectListUiState(folders, projects, text, found)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectListUiState())
+
+    fun search(text: String) {
+        query.value = text
+    }
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
@@ -96,6 +127,7 @@ fun ProjectListRoute(
             onNewProject = { navigation.onNewProject(null) },
             onOpenProject = navigation.onOpenProject,
             onOpenFolder = navigation.onOpenFolder,
+            onQueryChange = viewModel::search,
         ),
     )
 }
@@ -118,8 +150,25 @@ fun ProjectListScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
             modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp).testTag(PROJECT_LIST_TAG),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (state.folders.isEmpty() && state.projects.isEmpty()) {
+            if (state.folders.isEmpty() && state.projects.isEmpty() && state.query.isEmpty()) {
                 EmptyProjects(actions.onNewProject)
+                return@Column
+            }
+            OutlinedTextField(
+                value = state.query,
+                onValueChange = actions.onQueryChange,
+                label = { Text(stringResource(R.string.projects_search)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth().testTag(PROJECT_SEARCH_TAG),
+            ) // S006/RF-4
+            val results = state.results
+            if (results != null) {
+                if (results.isEmpty()) {
+                    Text(stringResource(R.string.projects_search_empty, state.query))
+                } else {
+                    val folders = results.associate { it.project.id to it.folder?.name }
+                    ProjectRows(results.map { it.project }, actions.onOpenProject) { folders[it.id] }
+                }
                 return@Column
             }
             if (state.folders.isNotEmpty()) {

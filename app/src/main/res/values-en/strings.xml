@@ -218,4 +218,6 @@
     <string name="project_crs_utm">ETRS89 / UTM zone %1$d</string>
     <string name="project_modified">Modified: %1$s</string>
     <string name="project_in_folder">In folder %1$s</string>
+    <string name="projects_search">Search project</string>
+    <string name="projects_search_empty">No project matches “%1$s”.</string>
 </resources>

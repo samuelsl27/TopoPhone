@@ -230,4 +230,6 @@
     <string name="project_crs_utm">ETRS89 / UTM huso %1$d</string>
     <string name="project_modified">Modificado: %1$s</string>
     <string name="project_in_folder">En la carpeta %1$s</string>
+    <string name="projects_search">Buscar proyecto</string>
+    <string name="projects_search_empty">Ningún proyecto coincide con «%1$s».</string>
 </resources>
