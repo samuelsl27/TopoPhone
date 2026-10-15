@@ -62,6 +62,7 @@ import es.topophone.core.gnss.nmea.TiltState
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.receiver.session.ConnectFailure
 import es.topophone.receiver.session.ConnectionState
+import es.topophone.receiver.session.ReceiverSnapshot
 import es.topophone.receiver.session.ReplayInfo
 
 /** Acciones de la pantalla Receptor. */
@@ -105,11 +106,29 @@ const val RECONNECT_DETAIL_TAG = "reconnect_detail"
 const val RETRY_NOW_TAG = "retry_now"
 const val NMEA_MISSING_TAG = "nmea_missing"
 const val RECORDING_TAG = "receiver_recording"
+const val RECEIVER_LIST_TAG = "receiver_list"
+const val RECEIVER_DASHBOARD_TAG = "receiver_dashboard"
 const val TILT_TAG = "receiver_tilt"
 const val ENABLE_NOTIFICATIONS_TAG = "enable_notifications"
 const val ADD_RECEIVER_TAG = "add_receiver"
 
 fun deviceTag(address: String) = "device_$address"
+
+/** Qué muestra la raíz de Receptor (S005/RF-1, RF-5). */
+enum class ReceiverHomeMode { LIST, DASHBOARD }
+
+/**
+ * La pantalla del receptor mientras hay un receptor conectado, conectándose o reconectándose, o una
+ * reproducción en curso (que pasa por los mismos estados); la lista de receptores en los demás casos.
+ */
+fun receiverHomeMode(snapshot: ReceiverSnapshot): ReceiverHomeMode = when (snapshot.connection) {
+    is ConnectionState.Connecting,
+    is ConnectionState.Receiving,
+    is ConnectionState.NoData,
+    is ConnectionState.Reconnecting,
+    -> ReceiverHomeMode.DASHBOARD
+    else -> ReceiverHomeMode.LIST
+}
 
 /** Entrada de la sección Receptor: une el ViewModel con los permisos y las intenciones de Android. */
 @Composable
@@ -206,8 +225,13 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
         }
     }
     SectionScaffold(title = stringResource(R.string.nav_receiver), themeState = themeState, onToggleSun = onToggleSun) { padding ->
+        // La raíz cambia de contenido con el estado, sin navegar (S005/RF-1, RF-5).
+        val tag = when (receiverHomeMode(state.snapshot)) {
+            ReceiverHomeMode.LIST -> RECEIVER_LIST_TAG
+            ReceiverHomeMode.DASHBOARD -> RECEIVER_DASHBOARD_TAG
+        }
         Column(
-            modifier = Modifier.padding(padding).verticalScroll(scrollState).padding(16.dp),
+            modifier = Modifier.padding(padding).verticalScroll(scrollState).padding(16.dp).testTag(tag),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             ConnectionCard(state, actions)
