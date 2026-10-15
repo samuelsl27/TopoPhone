@@ -31,7 +31,7 @@ def test_las_coordenadas_coinciden_con_las_esperadas_salvo_las_precisiones() -> 
     for epoch, row in zip(epochs, expected_rows(), strict=True):
         got = g0_sesion.expected(epoch, 1.8, geoid)
         for key in ("estado", "satelites", "latitud", "longitud", "h", "huso", "este", "norte", "H"):
-            assert got[key] == row[key], (row["hora"], key)
+            assert g0_sesion.g.same_value(got[key], row[key]), (row["hora"], key, got[key], row[key])
 
 
 def test_formatos_como_en_la_pantalla_en_espanol() -> None:
@@ -59,6 +59,6 @@ def test_esperado_escribe_el_csv_que_lee_recorded_sessions_test(tmp_path: Path) 
     written = (tmp_path / "estatico-fix-vertice.esperado.csv").read_text(encoding="utf-8").splitlines()
     assert any(line.startswith("# jalon_m=1.8;") for line in written)
     rows = [line.split(",") for line in written if line and not line.startswith(("#", "frase"))]
-    synthetic = [row for row in expected_rows()]
+    synthetic = expected_rows()
     assert [r[1] for r in rows] == [row["hora"] for row in synthetic]
-    assert [r[12] for r in rows] == [row["este"] for row in synthetic]
+    assert all(g0_sesion.g.same_value(r[12], row["este"]) for r, row in zip(rows, synthetic, strict=True))

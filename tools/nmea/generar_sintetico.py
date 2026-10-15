@@ -164,6 +164,32 @@ def expected_row(epoch: Epoch, lat: float | None, lon: float | None, geoid: Tran
     ]
 
 
+def same_value(a: str, b: str, tolerance: float = 1e-6) -> bool:
+    """Celdas iguales; las numéricas, a 1 µm: PROJ puede variar la última cifra entre plataformas."""
+    if a == b:
+        return True
+    try:
+        return abs(float(a) - float(b)) <= tolerance
+    except ValueError:
+        return False
+
+
+def same_csv(a: str, b: str) -> bool:
+    """Mismos comentarios y cabecera, y mismas celdas según [same_value]."""
+    lines_a, lines_b = a.splitlines(), b.splitlines()
+    if len(lines_a) != len(lines_b):
+        return False
+    for line_a, line_b in zip(lines_a, lines_b):
+        if line_a.startswith("#") or line_b.startswith("#"):
+            if line_a != line_b:
+                return False
+            continue
+        cells_a, cells_b = line_a.split(","), line_b.split(",")
+        if len(cells_a) != len(cells_b) or not all(same_value(x, y) for x, y in zip(cells_a, cells_b)):
+            return False
+    return True
+
+
 def generate() -> tuple[bytes, str]:
     geoid = generar_vectores.geoid_transformer()
     nmea = bytearray()

@@ -13,7 +13,15 @@ def test_los_ficheros_guardados_son_los_que_genera_el_script() -> None:
     nmea, expected = g.generate()
 
     assert (g.OUT / f"{g.NAME}.nmea").read_bytes() == nmea
-    assert (g.OUT / f"{g.NAME}.esperado.csv").read_text(encoding="utf-8") == expected
+    assert g.same_csv((g.OUT / f"{g.NAME}.esperado.csv").read_text(encoding="utf-8"), expected)
+
+
+def test_la_comparacion_admite_solo_diferencias_de_la_ultima_cifra() -> None:
+    assert g.same_value("4747389.743750659", "4747389.74375066")
+    assert not g.same_value("4747389.743750659", "4747389.743752")
+    assert not g.same_value("FIX", "FLOAT")
+    assert g.same_csv("# a\nx,1.0000000001\n", "# a\nx,1.0\n")
+    assert not g.same_csv("# a\nx,1.0\n", "# b\nx,1.0\n")
 
 
 def test_todas_las_frases_completas_tienen_suma_correcta_salvo_la_corrupta() -> None:
