@@ -14,7 +14,7 @@
       Hecho cuando: `NtripClientTlsTest` (válido, otro nombre, no confiable) y los casos nuevos de `NtripClientTest` en verde.
 - [x] T6. `core:model`: `NtripProfileDraft` y `NtripProfileRules`, y catálogo `PublicCasters`. (RF-2, RF-3, RF-11, RF-13)
       Hecho cuando: `NtripProfileRulesTest` y `PublicCastersTest` en verde.
-- [ ] T7. `data`: `SecretCipher` AES-GCM con clave del Keystore (clave en memoria en los tests). (RF-4, RF-6)
+- [x] T7. `data`: `SecretCipher` AES-GCM con clave del Keystore (clave en memoria en los tests). (RF-4, RF-6)
       Hecho cuando: `SecretCipherTest` en verde (ida y vuelta, IV distinto cada vez, otra clave → no se descifra).
 - [ ] T8. `data`: Room v2 con `ntrip_profiles`, migración 1→2 probada y esquema exportado. (RNF de la spec)
       Hecho cuando: el test de migración con datos de la v1 y el de esquema en verde, y `data/schemas/…/2.json` en el repositorio.
