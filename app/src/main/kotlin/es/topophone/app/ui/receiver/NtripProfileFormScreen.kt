@@ -17,6 +17,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -28,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -424,6 +426,7 @@ private fun CasterChooser(onChoose: (PublicCaster?, String) -> Unit) {
                     ListItem(
                         headlineContent = { Text(name) },
                         supportingContent = { Text(casterAccessLabel(caster.access)) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent), // el fondo del diálogo
                         modifier = Modifier.heightIn(min = MinTouchTarget).clickable {
                             onChoose(caster, name)
                         }.testTag(casterTag(caster.id)),
@@ -432,6 +435,7 @@ private fun CasterChooser(onChoose: (PublicCaster?, String) -> Unit) {
                 }
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.caster_other)) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                     modifier = Modifier.heightIn(min = MinTouchTarget).clickable { onChoose(null, "") }.testTag(CASTER_OTHER_TAG),
                 )
             }

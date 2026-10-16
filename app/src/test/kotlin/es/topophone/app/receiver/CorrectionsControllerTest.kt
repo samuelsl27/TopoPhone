@@ -216,4 +216,16 @@ class CorrectionsControllerTest {
         await { it.ntrip == NtripState.Idle }
         controller.status.value.activeProfileId shouldBe null
     }
+
+    @Test
+    fun `S007 RF-31 el umbral de la alarma de Ajustes llega a la sesion`() = runBlocking<Unit> {
+        preferences.correctionsAlarmFlow.value = 2 // con 10 s, el valor por defecto, no saltaría en los 5 s de espera
+        profiles.add("ign", ign, "s3cr3t")
+        connectReceiver()
+        val controller = controller()
+
+        controller.connect("ign") // el caster falso conecta pero no envía correcciones
+
+        await { it.correctionsAlarm }
+    }
 }
