@@ -1,0 +1,6 @@
+# Respuesta completa del caster a "GET / HTTP/1.0" (NTRIP 1.0): estado, cabeceras y tabla, en CRLF e ISO-8859-1.
+caster: { host: ergnss-tr.ign.es, puerto: 2102 }
+descargada: "2026-10-16T21:22Z"
+lineas_STR: 263
+notas: "ERGNSS (IGN), estación única: incluye estaciones de redes autonómicas"
+uso: "S007/RF-14 a RF-18: lector de la tabla de fuentes, orden por distancia y búsqueda"

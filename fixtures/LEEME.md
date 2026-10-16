@@ -6,8 +6,8 @@ Datos compartidos por los tests de todos los módulos. Los ficheros de más de 5
 |---|---|
 | `nmea/rs3/fw<versión>/` | Sesiones reales del RS3: `<escenario>.nmea` y su descriptor `<escenario>.yaml` |
 | `nmea/sintetico/` | Sesiones sintéticas generadas por `tools/nmea/generar_sintetico.py` y sus resultados esperados (`.esperado.csv`); no se editan a mano |
-| `rtcm/` | Flujos RTCM3 grabados (`.rtcm3`) del mismo instante que las sesiones NMEA |
-| `ntrip/sourcetables/` | Sourcetables reales de casters (IGN, redes autonómicas, Emlid Caster) |
+| `rtcm/` | Flujos RTCM 3 grabados (`.rtcm3`, tal como los envía el caster) con su descriptor `.yaml`: `rgapa-AVL13M` (S007) |
+| `ntrip/sourcetables/` | Tablas de fuentes reales (`.sourcetable`, respuesta completa del caster, byte a byte) con su `.yaml`: IGN 2101 y 2102, RGAPA (S007) |
 | `geodesia/` | Vectores de referencia generados por `tools/geodesia` (CSV) |
 | `formatos/` | Ejemplos de CSV, DXF, SHP, KML, LandXML y GetCapabilities |
 

@@ -1,0 +1,6 @@
+# Respuesta completa del caster a "GET / HTTP/1.0" (NTRIP 1.0): estado, cabeceras y tabla, en CRLF e ISO-8859-1.
+caster: { host: rgapa.cartografia.asturias.es, puerto: 2101 }
+descargada: "2026-10-16T21:22Z"
+lineas_STR: 42
+notas: "RGAPA (Asturias): líneas STR con 19 campos y alguna con campos vacíos (FUDE3)"
+uso: "S007/RF-14 a RF-18: lector de la tabla de fuentes, orden por distancia y búsqueda"

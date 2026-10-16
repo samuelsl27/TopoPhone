@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. Fixtures: grabar las tablas de fuentes reales (IGN 2101 y 2102, y una red autonómica) y unos segundos de RTCM 3 de una red de acceso libre, cada uno con su `.yaml` (caster, punto de montaje, fecha). (RF-14, RF-32)
+- [x] T1. Fixtures: grabar las tablas de fuentes reales (IGN 2101 y 2102, y una red autonómica) y unos segundos de RTCM 3 de una red de acceso libre, cada uno con su `.yaml` (caster, punto de montaje, fecha). (RF-14, RF-32)
       Hecho cuando: los ficheros están en `fixtures/ntrip/sourcetables/` y `fixtures/rtcm/`, sin credenciales, y `LEEME.md` los cita.
 - [ ] T2. `core:gnss`: `RtcmFramer` incremental con CRC24Q, recuento por tipo y errores, y `RtcmMessages.kind`. (RF-32, RF-33)
       Hecho cuando: `RtcmFramerTest` en verde con el flujo real, en bloques de 1 byte, con bytes corrompidos y 4 KB en < 50 ms.
