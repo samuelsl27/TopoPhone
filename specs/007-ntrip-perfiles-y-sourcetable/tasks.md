@@ -16,7 +16,7 @@
       Hecho cuando: `NtripProfileRulesTest` y `PublicCastersTest` en verde.
 - [x] T7. `data`: `SecretCipher` AES-GCM con clave del Keystore (clave en memoria en los tests). (RF-4, RF-6)
       Hecho cuando: `SecretCipherTest` en verde (ida y vuelta, IV distinto cada vez, otra clave → no se descifra).
-- [ ] T8. `data`: Room v2 con `ntrip_profiles`, migración 1→2 probada y esquema exportado. (RNF de la spec)
+- [x] T8. `data`: Room v2 con `ntrip_profiles`, migración 1→2 probada y esquema exportado. (RNF de la spec)
       Hecho cuando: el test de migración con datos de la v1 y el de esquema en verde, y `data/schemas/…/2.json` en el repositorio.
 - [ ] T9. `data`: `NtripProfileRepository` (crear, editar, borrar, unicidad, `setMountpoint`, `password()`), contraseña solo cifrada. (RF-1, RF-3, RF-4, RF-6, RF-7, RF-19)
       Hecho cuando: `NtripProfileRepositoryTest` en verde, incluido que la base no contiene la contraseña en claro.

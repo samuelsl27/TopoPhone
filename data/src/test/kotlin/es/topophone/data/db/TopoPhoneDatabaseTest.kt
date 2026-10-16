@@ -17,7 +17,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Base de datos de proyectos: durabilidad y banco de pruebas de migraciones (S006, RNF de la spec; RNF-T6). */
+/** Base de datos: durabilidad y banco de pruebas de migraciones (S006 y S007, RNF de las specs; RNF-T6). */
 @RunWith(AndroidJUnit4::class)
 class TopoPhoneDatabaseTest {
 
@@ -109,30 +109,58 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
-    fun `S006 RNF el esquema v1 exportado coincide con el de la app`() {
-        createFromExportedSchema(1)
+    fun `S006 RNF el esquema exportado de la version actual coincide con el de la app`() {
+        createFromExportedSchema(CURRENT_VERSION)
 
         // Room compara la huella del esquema guardado con la de la app al abrir: si no coinciden, no abre.
         val db = TopoPhoneDatabase.build(context, TEST_DB)
         try {
-            db.openHelper.writableDatabase.version shouldBe 1
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
         } finally {
             db.close()
         }
     }
 
     @Test
-    fun `S006 RNF el banco de pruebas valida la v1 contra su esquema exportado`() {
+    fun `S007 RNF al actualizar de la v1 a la v2 los proyectos siguen ahi y se anade la tabla de perfiles NTRIP`() {
+        createFromExportedSchema(1)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v1 ->
+            v1.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+        }
+
+        // Al abrir, Room migra a la v2 y comprueba que el esquema resultante es el de la app.
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe 2
+            runBlocking { db.projects().byId(project.id) } shouldBe project
+            db.openHelper.readableDatabase.query("SELECT COUNT(*) FROM ntrip_profiles").use {
+                it.moveToFirst() shouldBe true
+                it.getInt(0) shouldBe 0
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun `S006 RNF el banco de pruebas valida las migraciones contra los esquemas exportados`() {
         // room-testing compara el nombre de la base de datos con su ruta usando "/": en Windows falla
         // siempre. Se ejecuta en la integración continua (Linux) y en macOS.
         assumeFalse(File.separatorChar == '\\')
         migrations.createDatabase(TEST_DB, 1).close()
 
-        migrations.runMigrationsAndValidate(TEST_DB, 1, true).close()
+        migrations.runMigrationsAndValidate(TEST_DB, CURRENT_VERSION, true).close()
     }
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
+        const val CURRENT_VERSION = 2
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
