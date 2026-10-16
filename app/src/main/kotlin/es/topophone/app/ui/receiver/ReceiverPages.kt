@@ -24,8 +24,14 @@ const val NO_RECEIVER_TAG = "receiver_no_receiver"
 /** Pantallas de la sección Receptor: la raíz y las del menú (S005/RF-14). Las sesiones grabadas son de S003. */
 enum class ReceiverPage { HOME, STATUS, COORDINATES, CORRECTIONS }
 
-/** Lo que la sección Receptor necesita de la navegación de la app (S005/RF-14, RF-15). */
-class ReceiverNavigation(val onOpen: (ReceiverPage) -> Unit = {}, val onOpenSessions: () -> Unit = {}, val onBack: () -> Unit = {})
+/** Lo que la sección Receptor necesita de la navegación de la app (S005/RF-14, RF-15; perfiles NTRIP, S007). */
+class ReceiverNavigation(
+    val onOpen: (ReceiverPage) -> Unit = {},
+    val onOpenSessions: () -> Unit = {},
+    val onBack: () -> Unit = {},
+    val onNewProfile: () -> Unit = {},
+    val onEditProfile: (String) -> Unit = {},
+)
 
 /** Pinta una pantalla de Receptor sin estado propio; las acciones de navegación ya vienen en [actions]. */
 @Composable
@@ -36,6 +42,8 @@ fun ReceiverPageScreen(
     state: ReceiverUiState,
     actions: ReceiverActions,
     onBack: () -> Unit,
+    corrections: CorrectionsUiState = CorrectionsUiState(),
+    correctionsActions: CorrectionsActions = CorrectionsActions(),
 ) {
     when (page) {
         ReceiverPage.HOME -> ReceiverScreen(themeState, onToggleSun, state, actions)
@@ -57,14 +65,7 @@ fun ReceiverPageScreen(
             onToggleSun,
             onBack,
         ) { CoordinatesCard(state, actions.onPoleHeightChange) } // S002/RF-29 a RF-41
-        ReceiverPage.CORRECTIONS -> ChildScreen(
-            R.string.receiver_menu_corrections,
-            RECEIVER_CORRECTIONS_SCREEN_TAG,
-            state,
-            themeState,
-            onToggleSun,
-            onBack,
-        ) { NtripCard(state, actions) }
+        ReceiverPage.CORRECTIONS -> CorrectionsScreen(themeState, onToggleSun, onBack, state, corrections, correctionsActions) // S007
     }
 }
 

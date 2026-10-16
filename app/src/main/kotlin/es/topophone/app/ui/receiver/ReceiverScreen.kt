@@ -163,12 +163,27 @@ fun ReceiverRoute(
         viewModel.refreshNotifications()
         onPauseOrDispose {}
     }
+    // La pantalla Correcciones tiene su propio ViewModel (perfiles NTRIP, S007); la página no cambia en la misma ruta.
+    val correctionsViewModel: CorrectionsViewModel? = if (page == ReceiverPage.CORRECTIONS) hiltViewModel() else null
+    val corrections = correctionsViewModel?.state?.collectAsStateWithLifecycle()?.value ?: CorrectionsUiState()
     ReceiverPageScreen(
         page = page,
         themeState = themeState,
         onToggleSun = onToggleSun,
         state = state,
         onBack = navigation.onBack,
+        corrections = corrections,
+        correctionsActions = correctionsViewModel?.let { vm ->
+            CorrectionsActions(
+                onConnect = vm::connect,
+                onStop = vm::stop,
+                onNewProfile = navigation.onNewProfile,
+                onEditProfile = navigation.onEditProfile,
+                onDeleteProfile = vm::delete,
+                onSubmitPassword = vm::submitPassword,
+                onDismissPassword = vm::dismissPassword,
+            )
+        } ?: CorrectionsActions(),
         actions = ReceiverActions(
             onRequestPermission = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) permissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)

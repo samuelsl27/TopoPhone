@@ -20,7 +20,6 @@ import es.topophone.app.R
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.receiver.session.NtripState
-import java.text.NumberFormat
 
 const val NTRIP_HOST_TAG = "ntrip_host"
 const val NTRIP_PORT_TAG = "ntrip_port"
@@ -30,8 +29,6 @@ const val NTRIP_PASSWORD_TAG = "ntrip_password"
 const val NTRIP_CONNECT_TAG = "ntrip_connect"
 const val NTRIP_DISCONNECT_TAG = "ntrip_disconnect"
 const val NTRIP_STATUS_TAG = "ntrip_status"
-const val NTRIP_BYTES_TAG = "ntrip_bytes"
-const val NTRIP_LAST_CORRECTION_TAG = "ntrip_last_correction"
 
 /** Tarjeta NTRIP: datos del caster, conexión, errores y estadísticas (S002/RF-18 a RF-28). */
 @Composable
@@ -102,52 +99,3 @@ private fun FormField(
         modifier = Modifier.fillMaxWidth().testTag(tag),
     )
 }
-
-@Composable
-private fun StreamingStats(ntrip: NtripState.Streaming, nowMs: Long) {
-    val bytes = NumberFormat.getIntegerInstance(uiLocale()).format(ntrip.bytesReceived)
-    Text(stringResource(R.string.ntrip_bytes, bytes), modifier = Modifier.testTag(NTRIP_BYTES_TAG)) // S002/RF-25
-    val last = ntrip.lastCorrectionAtMs
-    val since = if (last == null) {
-        stringResource(R.string.ntrip_waiting_first)
-    } else {
-        stringResource(R.string.ntrip_last_correction, ((nowMs - last).coerceAtLeast(0) / MS_PER_S).toInt())
-    }
-    Text(since, modifier = Modifier.testTag(NTRIP_LAST_CORRECTION_TAG))
-}
-
-/** No se puede contactar con el caster, se esté reintentando o no (S002/RF-23). */
-internal fun NtripState.unreachable(): Boolean =
-    this == NtripState.Stopped(NtripFailure.UNREACHABLE) || (this as? NtripState.Reconnecting)?.failure == NtripFailure.UNREACHABLE
-
-/** Estado del NTRIP en texto, también para el resumen de Correcciones (S005/RF-12). */
-@Composable
-internal fun ntripStatusText(ntrip: NtripState): String = if (ntrip is NtripState.Reconnecting) {
-    stringResource(R.string.ntrip_reconnecting, ntrip.attempt) // S007/RF-25
-} else {
-    ntripStatusResource(ntrip)
-}
-
-@Composable
-private fun ntripStatusResource(ntrip: NtripState): String = stringResource(
-    when (ntrip) {
-        is NtripState.Reconnecting -> R.string.ntrip_state_connecting
-        NtripState.Idle -> R.string.ntrip_state_idle
-        NtripState.Connecting -> R.string.ntrip_state_connecting
-        is NtripState.Streaming -> R.string.ntrip_state_streaming
-        NtripState.ReceiverNotConnected -> R.string.ntrip_receiver_not_connected // S002/RF-28
-        NtripState.UnavailableInReplay -> R.string.ntrip_unavailable_in_replay // S003/RF-44
-        NtripState.Paused -> R.string.ntrip_paused // S004/RF-18
-        is NtripState.Stopped -> when (ntrip.failure) {
-            NtripFailure.UNAUTHORIZED -> R.string.ntrip_error_unauthorized // S002/RF-21
-            NtripFailure.MOUNTPOINT_NOT_FOUND -> R.string.ntrip_error_mountpoint // S002/RF-22
-            NtripFailure.UNREACHABLE -> R.string.ntrip_error_unreachable // S002/RF-23
-            NtripFailure.NO_DATA -> R.string.ntrip_error_no_data // S002/RF-24
-            NtripFailure.CONNECTION_LOST -> R.string.ntrip_error_connection_lost // S002/RF-24
-            NtripFailure.PROTOCOL -> R.string.ntrip_error_protocol
-            NtripFailure.TLS_INVALID -> R.string.ntrip_error_tls // S007/RF-28
-        }
-    },
-)
-
-private const val MS_PER_S = 1_000L

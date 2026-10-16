@@ -292,4 +292,19 @@
     <string name="unit_symbol_metre">m</string>
     <string name="unit_symbol_foot">ft</string>
     <string name="unit_symbol_us_survey_foot">ft EE. UU.</string>
+    <string name="corrections_status_title">Estado</string>
+    <string name="corrections_active_profile">Perfil: %1$s</string>
+    <string name="corrections_stop">Detener</string>
+    <string name="corrections_profiles_title">Perfiles NTRIP</string>
+    <string name="corrections_no_profiles">Todavía no hay perfiles NTRIP.</string>
+    <string name="corrections_new_profile">Nuevo perfil</string>
+    <string name="corrections_profile_summary">%1$s:%2$d · %3$s</string>
+    <string name="corrections_no_mountpoint">sin punto de montaje</string>
+    <string name="corrections_profile_menu">Más opciones de %1$s</string>
+    <string name="corrections_edit">Editar</string>
+    <string name="corrections_delete">Borrar</string>
+    <string name="corrections_delete_confirm">¿Borrar el perfil «%1$s»?</string>
+    <string name="corrections_password_title">Contraseña</string>
+    <string name="corrections_password_lost">No se pudo leer la contraseña guardada. Escríbela de nuevo.</string>
+    <string name="corrections_connect">Conectar</string>
 </resources>

@@ -67,6 +67,11 @@ class CorrectionsController(
     /** Conecta con el perfil, cerrando antes la conexión en curso; con [password] la guarda de nuevo (S007/RF-6). */
     suspend fun connect(profileId: String, password: String? = null): ConnectResult = mutex.withLock { connectLocked(profileId, password) }
 
+    /** El usuario no quiere escribir la contraseña ahora (S007/RF-6). */
+    fun dismissPasswordPrompt() {
+        mutableStatus.update { it.copy(passwordNeededFor = null) }
+    }
+
     /** El usuario detiene el NTRIP: no se volverá a abrir solo (S007/RF-26). */
     fun stop() {
         session.stopNtrip()

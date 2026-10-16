@@ -28,7 +28,7 @@
       Hecho cuando: `ReceiverSessionNtripTest` en verde para alarma (umbral, vuelta, una por corte) y recuento con reenvío intacto.
 - [x] T13. `app`: `CorrectionsController` (conectar con perfil y contraseña, detener, arranque automático, editar o borrar el perfil en uso, GGA según el perfil) e inyección de dependencias. (RF-6, RF-8, RF-9, RF-21, RF-22, RF-26)
       Hecho cuando: `CorrectionsControllerTest` en verde.
-- [ ] T14. `app`: pantalla Correcciones con lista de perfiles, tarjeta de estado (reconectando y "Detener") y menú de perfil; sustituye a la tarjeta NTRIP de S002. (RF-1, RF-7, RF-22, RF-25)
+- [x] T14. `app`: pantalla Correcciones con lista de perfiles, tarjeta de estado (reconectando y "Detener") y menú de perfil; sustituye a la tarjeta NTRIP de S002. (RF-1, RF-7, RF-22, RF-25)
       Hecho cuando: `CorrectionsScreenTest` en verde y los tests de S002 adaptados.
 - [ ] T15. `app`: formulario de perfil (validaciones, contraseña oculta con botón de ver, TLS) y diálogo "Elegir caster" con casters públicos. (RF-2, RF-3, RF-5, RF-11 a RF-13)
       Hecho cuando: `NtripProfileFormTest` en verde.

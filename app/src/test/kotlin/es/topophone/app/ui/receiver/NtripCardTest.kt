@@ -1,8 +1,12 @@
 package es.topophone.app.ui.receiver
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -21,7 +25,6 @@ import es.topophone.app.R
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.EffectiveTheme
-import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
@@ -57,7 +60,7 @@ class NtripCardTest {
         )
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ReceiverPageScreen(ReceiverPage.CORRECTIONS, ThemeState.DEFAULT, {}, state, actions, {})
+                Column(Modifier.verticalScroll(rememberScrollState())) { NtripCard(state, actions) }
             }
         }
     }
@@ -73,14 +76,15 @@ class NtripCardTest {
         var form by mutableStateOf(NtripForm())
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ReceiverPageScreen(
-                    ReceiverPage.CORRECTIONS,
-                    ThemeState.DEFAULT,
-                    {},
-                    ReceiverUiState(snapshot = ReceiverSnapshot(receiving), form = form),
-                    ReceiverActions(onFormChange = { form = it }),
-                    {},
-                )
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    NtripCard(
+                        ReceiverUiState(snapshot = ReceiverSnapshot(receiving), form = form),
+                        ReceiverActions(onFormChange = {
+                            form =
+                                it
+                        }),
+                    )
+                }
             }
         }
 

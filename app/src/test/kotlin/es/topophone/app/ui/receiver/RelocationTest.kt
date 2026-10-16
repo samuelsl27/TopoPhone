@@ -92,12 +92,12 @@ class RelocationTest {
 
     @Test
     fun `S005 RF-19 el NTRIP esta en la pantalla Correcciones y su edad en el resumen de la entrada`() {
-        compose.onNodeWithTag(NTRIP_HOST_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(CORRECTIONS_STATUS_TAG).assertDoesNotExist()
         compose.onNodeWithTag(MENU_CORRECTIONS_TAG).performScrollTo().assert(hasText("1,0", substring = true))
 
         open(MENU_CORRECTIONS_TAG)
 
-        listOf(NTRIP_HOST_TAG, NTRIP_MOUNTPOINT_TAG, NTRIP_STATUS_TAG, NTRIP_CONNECT_TAG).forEach {
+        listOf(CORRECTIONS_STATUS_TAG, NO_PROFILES_TAG, NEW_PROFILE_TAG).forEach {
             inside(it, RECEIVER_CORRECTIONS_SCREEN_TAG).assertExists()
         }
     }
