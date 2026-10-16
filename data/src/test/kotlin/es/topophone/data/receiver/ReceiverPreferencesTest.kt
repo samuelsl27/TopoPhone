@@ -15,7 +15,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-/** Preferencias del receptor entre sesiones (S002/RF-26, S002/RF-27, S002/RF-30, S003/RF-26, S004/RF-5, S004/RF-24). */
+/** Preferencias del receptor entre sesiones (S002/RF-26, S002/RF-27, S002/RF-30, S003/RF-26, S004/RF-5, S004/RF-24, S007/RF-26, RF-31). */
 class ReceiverPreferencesTest {
 
     @get:Rule
@@ -102,5 +102,35 @@ class ReceiverPreferencesTest {
         withPreferences { it.markNotificationsAsked() }
 
         withPreferences { it.notificationsAsked.first() } shouldBe true
+    }
+
+    @Test
+    fun `S007 RF-26 se recuerda el ultimo perfil NTRIP y si la conexion estaba abierta`() {
+        withPreferences { it.lastNtripProfileId.first() to it.ntripWasActive.first() } shouldBe (null to false)
+
+        withPreferences { it.saveNtripSession(profileId = "perfil-1", active = true) }
+
+        withPreferences { it.lastNtripProfileId.first() to it.ntripWasActive.first() } shouldBe ("perfil-1" to true)
+
+        withPreferences { it.saveNtripSession(profileId = "perfil-1", active = false) }
+
+        withPreferences { it.ntripWasActive.first() } shouldBe false
+    }
+
+    @Test
+    fun `S007 RF-31 el umbral de la alarma es 10 s por defecto y solo admite de 2 a 60 s`() {
+        withPreferences { it.correctionsAlarmS.first() } shouldBe CorrectionsAlarm.DEFAULT_S
+        CorrectionsAlarm.DEFAULT_S shouldBe 10
+
+        withPreferences {
+            it.saveCorrectionsAlarmS(2)
+            it.correctionsAlarmS.first()
+        } shouldBe 2
+        withPreferences {
+            it.saveCorrectionsAlarmS(60)
+            it.saveCorrectionsAlarmS(61)
+            it.saveCorrectionsAlarmS(1)
+            it.correctionsAlarmS.first()
+        } shouldBe 60
     }
 }

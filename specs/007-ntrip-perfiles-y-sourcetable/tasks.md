@@ -20,7 +20,7 @@
       Hecho cuando: el test de migración con datos de la v1 y el de esquema en verde, y `data/schemas/…/2.json` en el repositorio.
 - [x] T9. `data`: `NtripProfileRepository` (crear, editar, borrar, unicidad, `setMountpoint`, `password()`), contraseña solo cifrada. (RF-1, RF-3, RF-4, RF-6, RF-7, RF-19)
       Hecho cuando: `NtripProfileRepositoryTest` en verde, incluido que la base no contiene la contraseña en claro.
-- [ ] T10. `data`: preferencias nuevas (último perfil, "estaba abierta", umbral 2–60 s) e importación única de los datos de S002. (RF-10, RF-26, RF-31)
+- [x] T10. `data`: preferencias nuevas (último perfil, "estaba abierta", umbral 2–60 s) e importación única de los datos de S002. (RF-10, RF-26, RF-31)
       Hecho cuando: `ReceiverPreferencesTest` y `NtripLegacyImportTest` en verde.
 - [ ] T11. `receiver`: reconexión del NTRIP con espera creciente, estado `Reconnecting`, sin reintento ante rechazos y TLS, y detener durante la espera. (RF-23 a RF-25)
       Hecho cuando: `ReceiverSessionNtripTest` en verde para esos casos con reloj virtual.

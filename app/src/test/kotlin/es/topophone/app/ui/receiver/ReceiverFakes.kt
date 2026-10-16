@@ -56,6 +56,26 @@ internal class FakePreferences : ReceiverPreferences {
     override suspend fun savePoleHeight(heightM: Double) {
         poleFlow.value = heightM
     }
+
+    val lastNtripProfileFlow = MutableStateFlow<String?>(null)
+    val ntripWasActiveFlow = MutableStateFlow(false)
+    val correctionsAlarmFlow = MutableStateFlow(10)
+    override val lastNtripProfileId = lastNtripProfileFlow
+    override val ntripWasActive = ntripWasActiveFlow
+    override val correctionsAlarmS = correctionsAlarmFlow
+
+    override suspend fun saveNtripSession(profileId: String?, active: Boolean) {
+        lastNtripProfileFlow.value = profileId
+        ntripWasActiveFlow.value = active
+    }
+
+    override suspend fun saveCorrectionsAlarmS(seconds: Int) {
+        correctionsAlarmFlow.value = seconds
+    }
+
+    override suspend fun legacyNtrip(): NtripPreferences? = null
+
+    override suspend fun markLegacyNtripImported() = Unit
 }
 
 internal fun nmea(body: String) = "$" + body + "*" + "%02X".format(NmeaChecksum.compute(body)) + "\r\n"

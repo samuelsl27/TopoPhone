@@ -16,6 +16,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /** Datos del caster que se recuerdan (S002/RF-26). La contraseña no existe aquí (S002/RF-27, RNF-T11). */
@@ -32,6 +33,13 @@ object SessionSpace {
 
     /** MB decimales, como Android. */
     const val BYTES_PER_MB = 1_000_000L
+}
+
+/** Umbral de la alarma por edad de las correcciones, en s (S007/RF-31). */
+object CorrectionsAlarm {
+    const val MIN_S = 2
+    const val MAX_S = 60
+    const val DEFAULT_S = 10
 }
 
 /** Último receptor con el que se conectó, para la conexión automática (S004/RF-24, S004/RF-25). */
@@ -58,6 +66,24 @@ interface ReceiverPreferences {
     val notificationsAsked: Flow<Boolean>
 
     suspend fun markNotificationsAsked()
+
+    /** Último perfil NTRIP usado y si la conexión NTRIP estaba abierta, para abrirla sola (S007/RF-26). */
+    val lastNtripProfileId: Flow<String?>
+    val ntripWasActive: Flow<Boolean>
+
+    suspend fun saveNtripSession(profileId: String?, active: Boolean)
+
+    /** S007/RF-31. */
+    val correctionsAlarmS: Flow<Int>
+
+    /** Un valor fuera de 2–60 s se ignora. */
+    suspend fun saveCorrectionsAlarmS(seconds: Int)
+
+    /** Datos de caster de S002 aún sin pasar a un perfil, o `null` si no hay o ya se pasaron (S007/RF-10). */
+    suspend fun legacyNtrip(): NtripPreferences?
+
+    /** Los datos de S002 ya son un perfil: se borran y no se vuelven a importar. */
+    suspend fun markLegacyNtripImported()
 }
 
 @Qualifier
@@ -121,6 +147,43 @@ class DataStoreReceiverPreferences @Inject constructor(@param:ReceiverDataStoreQ
         if (mb in SessionSpace.OPTIONS_MB) dataStore.edit { it[SESSION_SPACE] = mb }
     }
 
+    override val lastNtripProfileId: Flow<String?> = data.map { it[LAST_NTRIP_PROFILE] }.distinctUntilChanged()
+
+    override val ntripWasActive: Flow<Boolean> = data.map { it[NTRIP_WAS_ACTIVE] ?: false }.distinctUntilChanged()
+
+    override suspend fun saveNtripSession(profileId: String?, active: Boolean) {
+        dataStore.edit {
+            if (profileId == null) it.remove(LAST_NTRIP_PROFILE) else it[LAST_NTRIP_PROFILE] = profileId
+            it[NTRIP_WAS_ACTIVE] = active
+        }
+    }
+
+    override val correctionsAlarmS: Flow<Int> = data.map { p ->
+        p[CORRECTIONS_ALARM]?.takeIf { it in CorrectionsAlarm.MIN_S..CorrectionsAlarm.MAX_S } ?: CorrectionsAlarm.DEFAULT_S
+    }.distinctUntilChanged()
+
+    override suspend fun saveCorrectionsAlarmS(seconds: Int) {
+        if (seconds in CorrectionsAlarm.MIN_S..CorrectionsAlarm.MAX_S) dataStore.edit { it[CORRECTIONS_ALARM] = seconds }
+    }
+
+    override suspend fun legacyNtrip(): NtripPreferences? {
+        val p = data.first()
+        if (p[LEGACY_NTRIP_IMPORTED] == true) return null
+        val host = p[HOST].orEmpty()
+        if (host.isBlank()) return null
+        return NtripPreferences(host, p[PORT] ?: NtripPreferences.DEFAULT_PORT, p[MOUNTPOINT].orEmpty(), p[USERNAME].orEmpty())
+    }
+
+    override suspend fun markLegacyNtripImported() {
+        dataStore.edit {
+            it[LEGACY_NTRIP_IMPORTED] = true
+            it.remove(HOST)
+            it.remove(PORT)
+            it.remove(MOUNTPOINT)
+            it.remove(USERNAME)
+        }
+    }
+
     private companion object {
         val HOST = stringPreferencesKey("ntrip_host")
         val PORT = intPreferencesKey("ntrip_port")
@@ -131,5 +194,9 @@ class DataStoreReceiverPreferences @Inject constructor(@param:ReceiverDataStoreQ
         val LAST_RECEIVER_ADDRESS = stringPreferencesKey("last_receiver_address")
         val LAST_RECEIVER_NAME = stringPreferencesKey("last_receiver_name")
         val NOTIFICATIONS_ASKED = booleanPreferencesKey("notifications_asked")
+        val LAST_NTRIP_PROFILE = stringPreferencesKey("ntrip_last_profile_id")
+        val NTRIP_WAS_ACTIVE = booleanPreferencesKey("ntrip_was_active")
+        val CORRECTIONS_ALARM = intPreferencesKey("corrections_alarm_s")
+        val LEGACY_NTRIP_IMPORTED = booleanPreferencesKey("ntrip_legacy_imported")
     }
 }
