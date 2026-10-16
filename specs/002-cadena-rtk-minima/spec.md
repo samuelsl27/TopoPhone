@@ -53,14 +53,14 @@ Si cualquiera de estos eslabones falla, todo lo demás se construiría sobre are
 ### Correcciones NTRIP (H2)
 - RF-18: EL SISTEMA permitirá introducir el servidor, el puerto (2101 por defecto), el punto de montaje, el usuario y la contraseña del caster.
 - RF-19: CUANDO el usuario pulse "Conectar NTRIP" con el receptor conectado, EL SISTEMA se conectará al caster y reenviará al receptor todos los datos de corrección recibidos, sin modificarlos y en el mismo orden.
-- RF-20: MIENTRAS la conexión NTRIP esté abierta y el receptor haya enviado alguna GGA, EL SISTEMA enviará al caster la última GGA recibida cada 5 s.
+- RF-20: MIENTRAS la conexión NTRIP esté abierta y el receptor haya enviado alguna GGA, EL SISTEMA enviará al caster la última GGA recibida cada 5 s, según S007/RF-21.
 - RF-21: SI el caster rechaza el usuario o la contraseña, ENTONCES EL SISTEMA mostrará "Usuario o contraseña incorrectos".
 - RF-22: SI el punto de montaje no existe en el caster, ENTONCES EL SISTEMA mostrará "El punto de montaje no existe".
 - RF-23: SI no se puede contactar con el caster en 10 s, ENTONCES EL SISTEMA mostrará "No se puede conectar con el caster" y comprobará si el móvil tiene conexión a internet.
-- RF-24: SI con la conexión NTRIP abierta no llegan correcciones durante 10 s o el caster corta la conexión, ENTONCES EL SISTEMA mostrará el aviso y ofrecerá reconectar.
+- RF-24: SI con la conexión NTRIP abierta no llegan correcciones durante 10 s o el caster corta la conexión, ENTONCES EL SISTEMA mostrará el aviso y reconectará según S007/RF-23.
 - RF-25: MIENTRAS la conexión NTRIP esté abierta, EL SISTEMA mostrará los bytes de corrección recibidos y los segundos desde la última corrección.
-- RF-26: EL SISTEMA recordará entre sesiones el servidor, el puerto, el punto de montaje y el usuario.
-- RF-27: EL SISTEMA no guardará la contraseña del caster en el dispositivo (se guardará cifrada a partir de S007).
+- RF-26: EL SISTEMA recordará entre sesiones los datos del caster en perfiles NTRIP (S007/RF-1 a RF-10).
+- RF-27: EL SISTEMA solo guardará la contraseña del caster cifrada (S007/RF-4).
 - RF-28: SI el usuario pulsa "Conectar NTRIP" sin el receptor conectado, ENTONCES EL SISTEMA no se conectará al caster e indicará que antes hay que conectar el receptor.
 
 ### Coordenadas del punto del suelo (H4)

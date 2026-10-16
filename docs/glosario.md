@@ -62,6 +62,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Perfil NTRIP | `NtripProfile` | |
 | Punto de montaje | `Mountpoint` | |
 | Tabla de fuentes | `Sourcetable` | |
+| Caster público | `PublicCaster` | Red del IGN o autonómica, plantilla para crear un perfil (S007) |
+| Conexión segura (TLS) | `useTls` | Opción de cada perfil NTRIP (S007) |
+| Mensaje RTCM | `RtcmMessage` | Trama RTCM 3 con su tipo y su CRC24Q (S007) |
+| Umbral de la alarma de correcciones | `correctionAgeAlarmS` | Edad máxima de las correcciones antes de avisar (S007) |
 | Sistema de coordenadas (SC) | `CoordinateSystem` | |
 | Datum | `Datum` | |
 | Elipsoide | `Ellipsoid` | |

@@ -74,7 +74,7 @@ Esta spec hace que la conexión con el receptor aguante el uso real de una jorna
   - RNF-T3: estados, esperas de 1 s a 30 s, NTRIP pausado y reanudado, aviso en menos de 3 s.
   - RNF-T7: idioma.
   - RNF-T8: 56 dp, TalkBack y textos en la notificación.
-  - RNF-T11: la contraseña NTRIP solo vive en memoria, también para reanudar el NTRIP.
+  - RNF-T11: la contraseña NTRIP se guarda cifrada (S007/RF-4) y se usa también para reanudar el NTRIP.
 - **Continuidad**: con la pantalla apagada durante 30 min y el receptor cerca, no hay ningún hueco de más de 2 s sin época, salvo los cortes de Bluetooth.
 - **Reconexión**: cuando el receptor vuelve a estar disponible, la conexión se recupera como mucho en el siguiente intento programado (≤ 30 s).
 - **Notificación**: se actualiza como mucho una vez por segundo.
