@@ -99,7 +99,7 @@ class FullRs3ReplayTest {
             preferences = FakePreferences(),
             calculator = { GroundPointCalculator() },
             network = { true },
-            alerts = {},
+            alerts = NoAlerts,
             clock = ReceiverModule.monotonicClock(),
             samplePeriodMs = ReceiverModule.uiSamplePeriodMs(),
             replay = replay,

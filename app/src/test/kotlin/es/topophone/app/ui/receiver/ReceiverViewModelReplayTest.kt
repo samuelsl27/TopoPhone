@@ -80,7 +80,7 @@ class ReceiverViewModelReplayTest {
         preferences = FakePreferences(),
         calculator = { GroundPointCalculator() },
         network = { true },
-        alerts = {},
+        alerts = NoAlerts,
         clock = { System.nanoTime() / 1_000_000 },
         samplePeriodMs = 0,
         replay = replay,

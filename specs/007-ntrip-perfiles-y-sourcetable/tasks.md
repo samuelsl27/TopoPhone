@@ -24,7 +24,7 @@
       Hecho cuando: `ReceiverPreferencesTest` y `NtripLegacyImportTest` en verde.
 - [x] T11. `receiver`: reconexión del NTRIP con espera creciente, estado `Reconnecting`, sin reintento ante rechazos y TLS, y detener durante la espera. (RF-23 a RF-25)
       Hecho cuando: `ReceiverSessionNtripTest` en verde para esos casos con reloj virtual.
-- [ ] T12. `receiver`: recuento RTCM en `Streaming` (reenviar antes de contar) y alarma por edad con `Alerts.correctionsLost()`. (RF-29, RF-30, RF-32, RF-33)
+- [x] T12. `receiver`: recuento RTCM en `Streaming` (reenviar antes de contar) y alarma por edad con `Alerts.correctionsLost()`. (RF-29, RF-30, RF-32, RF-33)
       Hecho cuando: `ReceiverSessionNtripTest` en verde para alarma (umbral, vuelta, una por corte) y recuento con reenvío intacto.
 - [ ] T13. `app`: `CorrectionsController` (conectar con perfil y contraseña, detener, arranque automático, editar o borrar el perfil en uso, GGA según el perfil) e inyección de dependencias. (RF-6, RF-8, RF-9, RF-21, RF-22, RF-26)
       Hecho cuando: `CorrectionsControllerTest` en verde.

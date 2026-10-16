@@ -9,6 +9,8 @@ import es.topophone.core.gnss.nmea.GstParser
 import es.topophone.core.gnss.nmea.NmeaFramer
 import es.topophone.core.gnss.nmea.NmeaSentence
 import es.topophone.core.gnss.nmea.ReplaySpeed
+import es.topophone.core.gnss.rtcm.RtcmFramer
+import es.topophone.core.gnss.rtcm.RtcmStats
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
@@ -79,7 +81,8 @@ sealed interface NtripState {
 
     data object Connecting : NtripState
 
-    data class Streaming(val bytesReceived: Long, val lastCorrectionAtMs: Long?) : NtripState
+    /** [rtcm]: mensajes RTCM 3 recibidos desde que se conectó, por tipo, y los erróneos (S007/RF-32, RF-33). */
+    data class Streaming(val bytesReceived: Long, val lastCorrectionAtMs: Long?, val rtcm: RtcmStats = RtcmStats()) : NtripState
 
     data class Stopped(val failure: NtripFailure) : NtripState
 
@@ -118,6 +121,8 @@ data class ReceiverSnapshot(
     val replay: ReplayInfo? = null,
     /** La conexión lleva 10 s abierta sin ninguna frase NMEA válida (S004/RF-28). */
     val nmeaMissing: Boolean = false,
+    /** Con la conexión NTRIP abierta, la edad de las correcciones supera el umbral (S007/RF-29). */
+    val correctionsAlarm: Boolean = false,
 )
 
 /** Registro de los datos brutos recibidos del receptor (S002/RF-42). */
@@ -213,6 +218,11 @@ class ReceiverSession(
 
     @Volatile private var resumeNtripOnData = false
 
+    /** Desde cuándo se cuenta la edad de las correcciones: la última que llegó, o el inicio del NTRIP (S007/RF-29). */
+    @Volatile private var correctionsSinceMs = 0L
+
+    @Volatile private var correctionsAlarmMs = DEFAULT_CORRECTIONS_ALARM_S * MS_PER_S
+
     /** Apertura del enlace actual y si ya ha llegado alguna frase válida por él (S004/RF-28). */
     @Volatile private var linkOpenedAtMs = 0L
 
@@ -290,7 +300,9 @@ class ReceiverSession(
                             }
                             ntripConfig = null
                             resumeNtripOnData = false
-                            mutableState.update { it.copy(connection = end, ntrip = NtripState.Idle, recording = false) }
+                            mutableState.update {
+                                it.copy(connection = end, ntrip = NtripState.Idle, recording = false, correctionsAlarm = false)
+                            }
                             break
                         }
                         link = resumed
@@ -405,24 +417,30 @@ class ReceiverSession(
         ntripJob?.cancel()
         ntripConfig = config
         mutableState.update { it.copy(ntrip = NtripState.Connecting) }
+        correctionsSinceMs = clock()
         ntripJob = scope.launch {
             var bytes = 0L
             var lastCorrectionAtMs: Long? = null
             var attempt = 0
+            var rtcm = RtcmStats()
+            var framer = RtcmFramer()
             while (isActive) {
                 val failure = ntripConnector.run(
                     config,
                     latestGga = { mutableState.value.gga?.rawSentence },
                     onConnected = {
                         attempt = 0 // S007/RF-23: un corte nuevo empieza por el primer intento
-                        mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, lastCorrectionAtMs)) }
+                        framer = RtcmFramer() // el flujo nuevo empieza a mitad de trama
+                        mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, lastCorrectionAtMs, rtcm)) }
                     },
                 ) { corrections ->
-                    channel.send(corrections)
+                    channel.send(corrections) // primero al receptor, tal cual (S002/RF-19); después se cuentan
                     bytes += corrections.size
                     val now = clock()
                     lastCorrectionAtMs = now
-                    mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, now)) } // S002/RF-25
+                    correctionsSinceMs = now
+                    rtcm += framer.feed(corrections) // S007/RF-32, RF-33
+                    mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, now, rtcm)) } // S002/RF-25
                 }
                 if (failure in PERMANENT_NTRIP_FAILURES) {
                     ntripConfig = null // S007/RF-24, RF-28: hace falta que el usuario cambie algo
@@ -442,7 +460,12 @@ class ReceiverSession(
         resumeNtripOnData = false
         ntripJob?.cancel()
         ntripJob = null
-        mutableState.update { it.copy(ntrip = NtripState.Idle) }
+        mutableState.update { it.copy(ntrip = NtripState.Idle, correctionsAlarm = false) }
+    }
+
+    /** Umbral de la alarma por edad de las correcciones, en s (S007/RF-31). */
+    fun setCorrectionsAlarmThreshold(seconds: Int) {
+        correctionsAlarmMs = seconds * MS_PER_S
     }
 
     /** Abre el transporte con plazo; si vence, lo cierra para desbloquear la conexión (S002/RF-7). */
@@ -545,6 +568,10 @@ class ReceiverSession(
                 if (linkOpen && !sawValidSentence && !current.nmeaMissing && now - linkOpenedAtMs >= nmeaMissingAfterMs) {
                     next = next.copy(nmeaMissing = true) // S004/RF-28
                 }
+                // S007/RF-29, RF-30: con el NTRIP abierto (recibiendo o reintentando); en pausa avisa la pérdida del receptor.
+                val ntripOpen = current.ntrip is NtripState.Streaming || current.ntrip is NtripState.Reconnecting
+                val alarm = ntripOpen && now - correctionsSinceMs > correctionsAlarmMs
+                if (alarm != current.correctionsAlarm) next = next.copy(correctionsAlarm = alarm)
                 next
             }
         }
@@ -573,6 +600,11 @@ class ReceiverSession(
 
         /** Esperas entre reintentos de reconexión: 1, 2, 4, 8 y 16 s y después cada 30 s (S004/RF-14, RNF-T3). */
         val DEFAULT_BACKOFF_MS = listOf(1_000L, 2_000L, 4_000L, 8_000L, 16_000L, 30_000L)
+
+        /** Umbral por defecto de la alarma por edad de las correcciones (S007/RF-31). */
+        const val DEFAULT_CORRECTIONS_ALARM_S = 10
+
+        private const val MS_PER_S = 1_000L
 
         /** Las mismas esperas para volver a conectar con el caster (S007/RF-23, RNF-T3). */
         val DEFAULT_NTRIP_BACKOFF_MS = DEFAULT_BACKOFF_MS

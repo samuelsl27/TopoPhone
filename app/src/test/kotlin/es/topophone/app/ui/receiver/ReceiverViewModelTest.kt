@@ -6,6 +6,7 @@ import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.data.receiver.NtripPreferences
+import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
 import es.topophone.receiver.session.ReceiverSession
@@ -45,6 +46,13 @@ class ReceiverViewModelTest {
     private val calculator = GroundPointCalculator()
     private val preferences = FakePreferences()
     private var connectionLostAlerts = 0
+    private val countingAlerts = object : Alerts {
+        override fun connectionLost() {
+            connectionLostAlerts++
+        }
+
+        override fun correctionsLost() = Unit
+    }
     private var internet = true
     private var ntripConfigUsed: NtripConfig? = null
     private val connector = NtripConnector { config, _, _, _ ->
@@ -71,7 +79,7 @@ class ReceiverViewModelTest {
         preferences = preferences,
         calculator = { calculator },
         network = { internet },
-        alerts = { connectionLostAlerts++ },
+        alerts = countingAlerts,
         clock = { System.nanoTime() / 1_000_000 },
         samplePeriodMs = 0,
         replay = ReplayController(session) { emptyList() },
@@ -225,7 +233,7 @@ class ReceiverViewModelTest {
             preferences = preferences,
             calculator = { calculator },
             network = { internet },
-            alerts = { connectionLostAlerts++ },
+            alerts = countingAlerts,
             clock = { System.nanoTime() / 1_000_000 },
             samplePeriodMs = 0,
             replay = ReplayController(reconnecting) { emptyList() },

@@ -4,6 +4,7 @@ import es.topophone.core.gnss.nmea.NmeaChecksum
 import es.topophone.data.receiver.NtripPreferences
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.SavedReceiver
+import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.transport.BluetoothDevices
 import es.topophone.receiver.transport.BondedDevice
 import es.topophone.receiver.transport.ReceiverTransport
@@ -22,6 +23,13 @@ internal class FakeBluetooth : BluetoothDevices {
     override fun hasConnectPermission() = permission
     override fun bondedDevices() = listOf(RS3_DEVICE)
     override fun transportFor(address: String) = transports.getValue(address)
+}
+
+/** Avisos que no hacen nada, para los tests que no los miran. */
+internal object NoAlerts : Alerts {
+    override fun connectionLost() = Unit
+
+    override fun correctionsLost() = Unit
 }
 
 internal class FakePreferences : ReceiverPreferences {

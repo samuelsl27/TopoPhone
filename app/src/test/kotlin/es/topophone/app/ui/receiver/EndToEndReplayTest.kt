@@ -107,7 +107,7 @@ class EndToEndReplayTest {
             preferences = FakePreferences(),
             calculator = { CALCULATOR },
             network = { true },
-            alerts = {},
+            alerts = NoAlerts,
             clock = ReceiverModule.monotonicClock(),
             samplePeriodMs = ReceiverModule.uiSamplePeriodMs(),
             replay = ReplayController(session) { emptyList() },

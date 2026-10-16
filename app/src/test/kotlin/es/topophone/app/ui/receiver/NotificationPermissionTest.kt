@@ -85,7 +85,7 @@ class NotificationPermissionTest {
         preferences = preferences,
         calculator = { CALCULATOR },
         network = { true },
-        alerts = {},
+        alerts = NoAlerts,
         clock = { System.nanoTime() / 1_000_000 },
         samplePeriodMs = 0,
         replay = ReplayController(session) { emptyList() },
