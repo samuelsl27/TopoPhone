@@ -342,4 +342,22 @@
     <string name="sourcetable_not_table">the response is not a source table</string>
     <string name="sourcetable_empty">the table has no mountpoints</string>
     <string name="sourcetable_tls">the caster certificate is not valid</string>
+    <string name="rtcm_title">RTCM messages</string>
+    <string name="rtcm_type_named">%1$d · %2$s</string>
+    <string name="rtcm_count">Received: %1$s</string>
+    <string name="rtcm_crc_errors">CRC errors: %1$d</string>
+    <string name="rtcm_msm">MSM%1$d %2$s</string>
+    <string name="rtcm_legacy_observables">%1$s observables (pre-MSM)</string>
+    <string name="rtcm_reference_station">Reference station position</string>
+    <string name="rtcm_antenna">Station antenna</string>
+    <string name="rtcm_receiver_antenna">Station receiver and antenna</string>
+    <string name="rtcm_ephemeris">%1$s ephemeris</string>
+    <string name="rtcm_glonass_biases">GLONASS code-phase biases</string>
+    <string name="gnss_gps">GPS</string>
+    <string name="gnss_glonass">GLONASS</string>
+    <string name="gnss_galileo">Galileo</string>
+    <string name="gnss_sbas">SBAS</string>
+    <string name="gnss_qzss">QZSS</string>
+    <string name="gnss_beidou">BeiDou</string>
+    <string name="gnss_navic">NavIC</string>
 </resources>

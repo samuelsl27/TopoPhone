@@ -354,4 +354,22 @@
     <string name="sourcetable_not_table">la respuesta no es una tabla de fuentes</string>
     <string name="sourcetable_empty">la tabla no tiene puntos de montaje</string>
     <string name="sourcetable_tls">el certificado del caster no es válido</string>
+    <string name="rtcm_title">Mensajes RTCM</string>
+    <string name="rtcm_type_named">%1$d · %2$s</string>
+    <string name="rtcm_count">Recibidos: %1$s</string>
+    <string name="rtcm_crc_errors">Errores de CRC: %1$d</string>
+    <string name="rtcm_msm">MSM%1$d %2$s</string>
+    <string name="rtcm_legacy_observables">Observables %1$s (anteriores a MSM)</string>
+    <string name="rtcm_reference_station">Posición de la estación de referencia</string>
+    <string name="rtcm_antenna">Antena de la estación</string>
+    <string name="rtcm_receiver_antenna">Receptor y antena de la estación</string>
+    <string name="rtcm_ephemeris">Efemérides %1$s</string>
+    <string name="rtcm_glonass_biases">Sesgos de código y fase GLONASS</string>
+    <string name="gnss_gps">GPS</string>
+    <string name="gnss_glonass">GLONASS</string>
+    <string name="gnss_galileo">Galileo</string>
+    <string name="gnss_sbas">SBAS</string>
+    <string name="gnss_qzss">QZSS</string>
+    <string name="gnss_beidou">BeiDou</string>
+    <string name="gnss_navic">NavIC</string>
 </resources>

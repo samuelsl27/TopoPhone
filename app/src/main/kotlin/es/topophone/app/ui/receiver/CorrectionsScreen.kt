@@ -2,6 +2,7 @@ package es.topophone.app.ui.receiver
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -32,12 +33,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.gnss.rtcm.RtcmKind
+import es.topophone.core.gnss.rtcm.RtcmMessages
+import es.topophone.core.gnss.rtcm.RtcmStats
+import es.topophone.core.gnss.rtcm.RtcmSystem
 import es.topophone.core.model.ntrip.NtripProfile
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.ntrip.NtripFailure
@@ -53,6 +59,10 @@ const val PASSWORD_PROMPT_FIELD_TAG = "corrections_password_field"
 const val PASSWORD_PROMPT_CONNECT_TAG = "corrections_password_connect"
 const val NTRIP_BYTES_TAG = "ntrip_bytes"
 const val NTRIP_LAST_CORRECTION_TAG = "ntrip_last_correction"
+const val RTCM_CARD_TAG = "rtcm_card"
+const val RTCM_ERRORS_TAG = "rtcm_errors"
+
+fun rtcmTag(type: Int) = "rtcm_$type"
 
 fun profileTag(id: String) = "ntrip_profile_$id"
 
@@ -114,6 +124,7 @@ fun CorrectionsScreen(
                 )
             } // S005/RF-16
             StatusCard(receiver, state, actions.onStop)
+            (receiver.snapshot.ntrip as? NtripState.Streaming)?.let { RtcmCard(it.rtcm) } // S007/RF-32, RF-33
             Text(stringResource(R.string.corrections_profiles_title), style = MaterialTheme.typography.titleMedium)
             if (state.profiles.isEmpty()) {
                 Text(stringResource(R.string.corrections_no_profiles), modifier = Modifier.testTag(NO_PROFILES_TAG)) // S007/RF-1
@@ -151,6 +162,50 @@ private fun StatusCard(receiver: ReceiverUiState, state: CorrectionsUiState, onS
         }
     }
 }
+
+/** Mensajes RTCM 3 recibidos por tipo y los que tenían el CRC erróneo (S007/RF-32, RF-33). */
+@Composable
+private fun RtcmCard(rtcm: RtcmStats) {
+    val numbers = NumberFormat.getIntegerInstance(uiLocale())
+    Box(modifier = Modifier.testTag(RTCM_CARD_TAG)) {
+        ReceiverCard(stringResource(R.string.rtcm_title)) {
+            rtcm.counts.toSortedMap().forEach { (type, count) ->
+                val name = rtcmName(RtcmMessages.kind(type))
+                Column(modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(rtcmTag(type))) {
+                    Text(if (name == null) type.toString() else stringResource(R.string.rtcm_type_named, type, name))
+                    Text(stringResource(R.string.rtcm_count, numbers.format(count)), style = MaterialTheme.typography.bodySmall)
+                }
+            }
+            Text(stringResource(R.string.rtcm_crc_errors, rtcm.crcErrors), modifier = Modifier.testTag(RTCM_ERRORS_TAG))
+        }
+    }
+}
+
+/** Nombre de un tipo de mensaje RTCM conocido, o `null` (S007/RF-32). */
+@Composable
+private fun rtcmName(kind: RtcmKind): String? = when (kind) {
+    is RtcmKind.Msm -> stringResource(R.string.rtcm_msm, kind.level, systemName(kind.system))
+    is RtcmKind.LegacyObservables -> stringResource(R.string.rtcm_legacy_observables, systemName(kind.system))
+    RtcmKind.ReferenceStation -> stringResource(R.string.rtcm_reference_station)
+    RtcmKind.AntennaDescriptor -> stringResource(R.string.rtcm_antenna)
+    RtcmKind.ReceiverAntennaDescriptor -> stringResource(R.string.rtcm_receiver_antenna)
+    is RtcmKind.Ephemeris -> stringResource(R.string.rtcm_ephemeris, systemName(kind.system))
+    RtcmKind.GlonassBiases -> stringResource(R.string.rtcm_glonass_biases)
+    RtcmKind.Unknown -> null
+}
+
+@Composable
+private fun systemName(system: RtcmSystem): String = stringResource(
+    when (system) {
+        RtcmSystem.GPS -> R.string.gnss_gps
+        RtcmSystem.GLONASS -> R.string.gnss_glonass
+        RtcmSystem.GALILEO -> R.string.gnss_galileo
+        RtcmSystem.SBAS -> R.string.gnss_sbas
+        RtcmSystem.QZSS -> R.string.gnss_qzss
+        RtcmSystem.BEIDOU -> R.string.gnss_beidou
+        RtcmSystem.NAVIC -> R.string.gnss_navic
+    },
+)
 
 /** Nombre, servidor:puerto y punto de montaje (S007/RF-1); pulsarlo conecta (S007/RF-22). */
 @Composable

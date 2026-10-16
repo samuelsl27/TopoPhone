@@ -17,6 +17,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.projects.CONFIRM_TAG
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.gnss.rtcm.RtcmStats
 import es.topophone.core.model.ntrip.NtripProfile
 import es.topophone.core.model.ntrip.NtripProfileDraft
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -220,5 +221,47 @@ class CorrectionsScreenTest {
         compose.onNodeWithTag(CORRECTIONS_STATUS_TAG).assert(hasText(text(R.string.ntrip_paused)))
         compose.onNodeWithTag(CORRECTIONS_STOP_TAG).performClick()
         calls shouldBe listOf("stop")
+    }
+
+    @Test
+    fun `S007 RF-32 recibiendo se ve cada tipo de mensaje RTCM con su numero, su nombre si se conoce y cuantos`() {
+        val rtcm = RtcmStats(mapOf(1006 to 2L, 1077 to 1_024L, 4091 to 1L))
+        show(CorrectionsUiState(), withNtrip(NtripState.Streaming(5_000, 1_000, rtcm)))
+
+        compose.onNodeWithTag(rtcmTag(1077)).performScrollTo()
+            .assert(hasText("1077", substring = true))
+            .assert(hasText(text(R.string.rtcm_msm, 7, text(R.string.gnss_gps)), substring = true))
+            .assert(hasText("1.024", substring = true))
+        compose.onNodeWithTag(rtcmTag(1006)).assert(hasText(text(R.string.rtcm_reference_station), substring = true))
+        compose.onNodeWithTag(rtcmTag(4091)).assert(hasText("4091", substring = true)).assert(hasText("1", substring = true))
+    }
+
+    @Test
+    fun `S007 RF-33 se ve el total de mensajes con el CRC erroneo`() {
+        show(CorrectionsUiState(), withNtrip(NtripState.Streaming(5_000, 1_000, RtcmStats(mapOf(1077 to 10L), crcErrors = 3))))
+
+        compose.onNodeWithTag(RTCM_ERRORS_TAG).performScrollTo().assert(hasText(text(R.string.rtcm_crc_errors, 3)))
+    }
+
+    @Test
+    fun `S007 RF-32 sin correcciones no hay tarjeta de mensajes RTCM`() {
+        show(CorrectionsUiState(), withNtrip(NtripState.Idle))
+
+        compose.onNodeWithTag(RTCM_CARD_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S007 RF-32 cada tipo conocido tiene su nombre`() {
+        val kinds = listOf(1001, 1009, 1005, 1007, 1033, 1019, 1020, 1042, 1044, 1045, 1230, 1071, 1081, 1091, 1101, 1111, 1121, 1131)
+        val rtcm = RtcmStats(kinds.associateWith { 1L })
+        show(CorrectionsUiState(), withNtrip(NtripState.Streaming(1, 1, rtcm)))
+
+        compose.onNodeWithTag(
+            rtcmTag(1020),
+        ).performScrollTo().assert(hasText(text(R.string.rtcm_ephemeris, text(R.string.gnss_glonass)), substring = true))
+        compose.onNodeWithTag(
+            rtcmTag(1131),
+        ).performScrollTo().assert(hasText(text(R.string.rtcm_msm, 1, text(R.string.gnss_navic)), substring = true))
+        compose.onNodeWithTag(rtcmTag(1230)).performScrollTo().assert(hasText(text(R.string.rtcm_glonass_biases), substring = true))
     }
 }

@@ -34,7 +34,7 @@
       Hecho cuando: `NtripProfileFormTest` en verde.
 - [x] T16. `app`: elegir punto de montaje desde la tabla de fuentes (orden, búsqueda, sin posición, fallo y escribirlo a mano). (RF-14 a RF-20)
       Hecho cuando: `MountpointPickerTest` en verde.
-- [ ] T17. `app`: tarjeta "Mensajes RTCM" en Correcciones. (RF-32, RF-33)
+- [x] T17. `app`: tarjeta "Mensajes RTCM" en Correcciones. (RF-32, RF-33)
       Hecho cuando: `CorrectionsScreenTest` en verde para tipos, nombres, cuántos y errores.
 - [ ] T18. `app`: alarma en el indicador de estado y en la notificación, sonido y vibración del servicio, y umbral en Ajustes. (RF-29 a RF-31)
       Hecho cuando: `StatusIndicatorTest`, `ReceiverNotificationsTest` y `CorrectionsSettingsTest` en verde.
