@@ -40,6 +40,7 @@ import es.topophone.app.ui.projects.ProjectViewRoute
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.projects.SurveyPage
 import es.topophone.app.ui.projects.TrashRoute
+import es.topophone.app.ui.receiver.NtripProfileFormRoute
 import es.topophone.app.ui.receiver.ReceiverNavigation
 import es.topophone.app.ui.receiver.ReceiverPage
 import es.topophone.app.ui.receiver.ReceiverRoute as ReceiverSectionRoute
@@ -73,6 +74,8 @@ fun TopoPhoneApp(
     projectDefaultsSection: @Composable (ThemeState, () -> Unit, onBack: () -> Unit) -> Unit = { theme, toggleSun, back ->
         ProjectDefaultsRoute(theme, toggleSun, back)
     },
+    ntripProfileSection: @Composable (profileId: String?, ThemeState, () -> Unit, onBack: () -> Unit) -> Unit =
+        { profileId, theme, toggleSun, back -> NtripProfileFormRoute(profileId, theme, toggleSun, back) },
     surveySection: @Composable (SurveyPage, ThemeState, () -> Unit, SurveyNavigation, ViewModelStoreOwner) -> Unit =
         { page, theme, toggleSun, navigation, owner ->
             when (page) {
@@ -138,6 +141,7 @@ fun TopoPhoneApp(
                 sessionsSection,
                 surveySection,
                 projectDefaultsSection,
+                ntripProfileSection,
                 Modifier.padding(padding),
             )
         }
@@ -153,6 +157,7 @@ private fun AppNavHost(
     sessionsSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
     surveySection: @Composable (SurveyPage, ThemeState, () -> Unit, SurveyNavigation, ViewModelStoreOwner) -> Unit,
     projectDefaultsSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
+    ntripProfileSection: @Composable (String?, ThemeState, () -> Unit, () -> Unit) -> Unit,
     modifier: Modifier,
 ) {
     NavHost(navController = navController, startDestination = SurveyGraph, modifier = modifier) {
@@ -199,6 +204,8 @@ private fun AppNavHost(
                 onOpen = { page -> navController.navigate(page.route()) }, // S005/RF-14
                 onOpenSessions = { navController.navigate(SessionsRoute) },
                 onBack = { navController.popBackStack() }, // S005/RF-15
+                onNewProfile = { navController.navigate(NtripProfileFormDestination()) }, // S007/RF-2
+                onEditProfile = { id -> navController.navigate(NtripProfileFormDestination(id)) },
             )
             val page: @Composable (NavBackStackEntry, ReceiverPage) -> Unit = { entry, page ->
                 // El ReceiverViewModel es del grafo de Receptor: la raíz y sus pantallas comparten el estado.
@@ -209,6 +216,10 @@ private fun AppNavHost(
             composable<ReceiverStatusRoute> { page(it, ReceiverPage.STATUS) }
             composable<ReceiverCoordinatesRoute> { page(it, ReceiverPage.COORDINATES) }
             composable<ReceiverCorrectionsRoute> { page(it, ReceiverPage.CORRECTIONS) }
+            composable<NtripProfileFormDestination> { entry ->
+                val args = entry.toRoute<NtripProfileFormDestination>()
+                ntripProfileSection(args.profileId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
+            }
             composable<SessionsRoute> {
                 sessionsSection(uiState.themeState, actions.onToggleSun) { navController.popBackStack() } // S003/RF-29
             }

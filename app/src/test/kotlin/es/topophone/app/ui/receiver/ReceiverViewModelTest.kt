@@ -5,7 +5,6 @@ import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.GroundPointCalculator
-import es.topophone.data.receiver.NtripPreferences
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
@@ -144,22 +143,6 @@ class ReceiverViewModelTest {
     }
 
     @Test
-    fun `S002 RF-26 S002 RF-27 al conectar NTRIP se guardan los datos del caster pero no la contrasena`() {
-        val vm = viewModel()
-        vm.connect("00:11:22:33:44:55")
-        toApp.write(nmea("GNGGA,101530.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
-        vm.awaitState { it.snapshot.connection is ConnectionState.Receiving }
-
-        vm.updateForm(NtripForm(host = " caster.es ", port = "2102", mountpoint = "VRS3", username = "topo", password = "s3cr3t"))
-        vm.connectNtrip()
-
-        runBlocking { withTimeout(2_000) { preferences.ntripFlow.first { it.host.isNotEmpty() } } } shouldBe
-            NtripPreferences("caster.es", 2102, "VRS3", "topo")
-        vm.awaitState { it.snapshot.ntrip is NtripState.Reconnecting } // S007/RF-23: el caster falso no responde
-        ntripConfigUsed shouldBe NtripConfig("caster.es", 2102, "VRS3", "topo", "s3cr3t")
-    }
-
-    @Test
     fun `S002 RF-23 si el caster es inaccesible se comprueba si hay internet`() {
         internet = false
         val vm = viewModel()
@@ -167,35 +150,12 @@ class ReceiverViewModelTest {
         toApp.write(nmea("GNGGA,101530.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
         vm.awaitState { it.snapshot.connection is ConnectionState.Receiving }
 
-        vm.updateForm(NtripForm(host = "caster.es", mountpoint = "VRS3"))
-        vm.connectNtrip()
+        session.startNtrip(NtripConfig("caster.es", 2101, "VRS3", "", ""))
 
         // Los dos datos llegan por flujos distintos: se espera a ver ambos en el mismo estado. Mientras,
         // se reintenta (S007/RF-23).
         val ntrip = vm.awaitState { !it.internetAvailable && it.snapshot.ntrip is NtripState.Reconnecting }.snapshot.ntrip
         (ntrip as NtripState.Reconnecting).failure shouldBe NtripFailure.UNREACHABLE
-    }
-
-    @Test
-    fun `S002 RF-18 un formulario incompleto no se envia y se marca como no valido`() {
-        val vm = viewModel()
-
-        vm.updateForm(NtripForm(host = "", mountpoint = "VRS3"))
-        vm.connectNtrip()
-
-        vm.awaitState { it.formInvalid }.formInvalid shouldBe true
-        ntripConfigUsed shouldBe null
-    }
-
-    @Test
-    fun `S002 RF-28 sin receptor conectado el NTRIP no se conecta`() {
-        val vm = viewModel()
-        vm.updateForm(NtripForm(host = "caster.es", mountpoint = "VRS3"))
-
-        vm.connectNtrip()
-
-        vm.awaitState { it.snapshot.ntrip == NtripState.ReceiverNotConnected }
-        ntripConfigUsed shouldBe null
     }
 
     @Test
@@ -212,13 +172,11 @@ class ReceiverViewModelTest {
     }
 
     @Test
-    fun `S002 RF-26 S002 RF-30 al abrir la pantalla se recuperan el caster y el jalon guardados`() {
-        preferences.ntripFlow.value = NtripPreferences("caster.es", 2101, "VRS3", "topo")
+    fun `S002 RF-30 al abrir la pantalla se recupera la altura del jalon guardada`() {
         preferences.poleFlow.value = 2.0
 
-        val state = viewModel().awaitState { it.form.host.isNotEmpty() }
+        val state = viewModel().awaitState { it.poleHeightText.replace(',', '.') == "2.000" }
 
-        state.form shouldBe NtripForm("caster.es", "2101", "VRS3", "topo", "")
         state.poleHeightText.replace(',', '.') shouldBe "2.000"
         state.snapshot.connection.shouldBeInstanceOf<ConnectionState.Disconnected>()
     }

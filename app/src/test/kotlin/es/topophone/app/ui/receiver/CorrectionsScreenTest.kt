@@ -173,4 +173,52 @@ class CorrectionsScreenTest {
 
         compose.onNodeWithTag(NO_RECEIVER_TAG).assertIsDisplayed()
     }
+
+    private fun withNtrip(ntrip: NtripState, internet: Boolean = true) =
+        connected.copy(snapshot = connected.snapshot.copy(ntrip = ntrip), internetAvailable = internet)
+
+    @Test
+    fun `S002 RF-22 si el punto de montaje no existe se dice`() {
+        show(CorrectionsUiState(), withNtrip(NtripState.Stopped(NtripFailure.MOUNTPOINT_NOT_FOUND)))
+
+        compose.onNodeWithTag(CORRECTIONS_STATUS_TAG).assert(hasText(text(R.string.ntrip_error_mountpoint)))
+    }
+
+    @Test
+    fun `S002 RF-23 sin poder contactar con el caster y sin internet se dice que falta internet`() {
+        show(CorrectionsUiState(), withNtrip(NtripState.Reconnecting(1, NtripFailure.UNREACHABLE, 0), internet = false))
+
+        compose.onNodeWithText(text(R.string.ntrip_no_internet)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S002 RF-23 con internet no se culpa a la red`() {
+        show(CorrectionsUiState(), withNtrip(NtripState.Reconnecting(1, NtripFailure.UNREACHABLE, 0), internet = true))
+
+        compose.onNodeWithText(text(R.string.ntrip_no_internet)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S002 RF-24 si dejan de llegar correcciones se avisa y se reconecta`() {
+        show(CorrectionsUiState(), withNtrip(NtripState.Reconnecting(1, NtripFailure.NO_DATA, 0)))
+
+        compose.onNodeWithTag(CORRECTIONS_STATUS_TAG).assert(hasText(text(R.string.ntrip_reconnecting, 1)))
+        compose.onNodeWithTag(CORRECTIONS_STOP_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S002 RF-28 sin receptor se dice que antes hay que conectarlo`() {
+        show(CorrectionsUiState(), withNtrip(NtripState.ReceiverNotConnected))
+
+        compose.onNodeWithTag(CORRECTIONS_STATUS_TAG).assert(hasText(text(R.string.ntrip_receiver_not_connected)))
+    }
+
+    @Test
+    fun `S004 RF-18 mientras se reconecta el receptor el NTRIP esta en pausa y se puede detener`() {
+        show(CorrectionsUiState(), withNtrip(NtripState.Paused))
+
+        compose.onNodeWithTag(CORRECTIONS_STATUS_TAG).assert(hasText(text(R.string.ntrip_paused)))
+        compose.onNodeWithTag(CORRECTIONS_STOP_TAG).performClick()
+        calls shouldBe listOf("stop")
+    }
 }

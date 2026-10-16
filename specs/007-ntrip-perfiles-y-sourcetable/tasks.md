@@ -30,7 +30,7 @@
       Hecho cuando: `CorrectionsControllerTest` en verde.
 - [x] T14. `app`: pantalla Correcciones con lista de perfiles, tarjeta de estado (reconectando y "Detener") y menú de perfil; sustituye a la tarjeta NTRIP de S002. (RF-1, RF-7, RF-22, RF-25)
       Hecho cuando: `CorrectionsScreenTest` en verde y los tests de S002 adaptados.
-- [ ] T15. `app`: formulario de perfil (validaciones, contraseña oculta con botón de ver, TLS) y diálogo "Elegir caster" con casters públicos. (RF-2, RF-3, RF-5, RF-11 a RF-13)
+- [x] T15. `app`: formulario de perfil (validaciones, contraseña oculta con botón de ver, TLS) y diálogo "Elegir caster" con casters públicos. (RF-2, RF-3, RF-5, RF-11 a RF-13)
       Hecho cuando: `NtripProfileFormTest` en verde.
 - [ ] T16. `app`: elegir punto de montaje desde la tabla de fuentes (orden, búsqueda, sin posición, fallo y escribirlo a mano). (RF-14 a RF-20)
       Hecho cuando: `MountpointPickerTest` en verde.

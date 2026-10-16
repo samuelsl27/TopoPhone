@@ -10,11 +10,9 @@ import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
 import es.topophone.core.gnss.nmea.ReplaySpeed
-import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.PoleHeight
-import es.topophone.data.receiver.NtripPreferences
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.platform.NetworkStatus
@@ -65,33 +63,12 @@ enum class PairingMessage { SEARCH_FAILED, SEARCH_CANCELLED, PAIRING_FAILED }
 /** "Añadir receptor": el diálogo del sistema pendiente de abrir y el último aviso (S004/RF-1 a RF-4). */
 data class PairingUi(val chooser: IntentSender? = null, val message: PairingMessage? = null)
 
-/** Formulario del caster tal como lo escribe el usuario (S002/RF-18). La contraseña solo vive aquí. */
-data class NtripForm(
-    val host: String = "",
-    val port: String = NtripConfig.DEFAULT_PORT.toString(),
-    val mountpoint: String = "",
-    val username: String = "",
-    val password: String = "",
-) {
-    fun toConfig(): NtripConfig? {
-        val portNumber = port.trim().toIntOrNull()?.takeIf { it in 1..MAX_PORT } ?: return null
-        if (host.isBlank() || mountpoint.isBlank()) return null
-        return NtripConfig(host.trim(), portNumber, mountpoint.trim(), username.trim(), password)
-    }
-
-    private companion object {
-        const val MAX_PORT = 65535
-    }
-}
-
 data class ReceiverUiState(
     val bluetooth: BluetoothUi = BluetoothUi.PermissionNeeded,
     val snapshot: ReceiverSnapshot = ReceiverSnapshot(),
     val lastAddress: String? = null,
     /** Último receptor con el que se conectó, para señalarlo en la lista (S004/RF-24, S005/RF-3). */
     val lastReceiverAddress: String? = null,
-    val form: NtripForm = NtripForm(),
-    val formInvalid: Boolean = false,
     val internetAvailable: Boolean = true,
     val poleHeightText: String = "",
     val poleHeightValid: Boolean = true,
@@ -129,8 +106,6 @@ class ReceiverViewModel @Inject constructor(
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
     private val lastAddress = MutableStateFlow<String?>(null)
-    private val form = MutableStateFlow(NtripForm())
-    private val formInvalid = MutableStateFlow(false)
     private val internet = MutableStateFlow(true)
     private val poleText = MutableStateFlow(formatPoleHeight(PoleHeight.DEFAULT_M))
     private val poleValue = MutableStateFlow(PoleHeight.DEFAULT_M)
@@ -148,7 +123,6 @@ class ReceiverViewModel @Inject constructor(
 
     private val snapshots: Flow<ReceiverSnapshot> = if (samplePeriodMs > 0) session.state.sample(samplePeriodMs) else session.state
 
-    private data class FormState(val form: NtripForm, val invalid: Boolean, val internet: Boolean)
     private data class PoleState(val text: String, val value: Double)
     private data class Extras(
         val nowMs: Long,
@@ -161,7 +135,7 @@ class ReceiverViewModel @Inject constructor(
     val uiState: StateFlow<ReceiverUiState> = combine(
         snapshots,
         bluetoothUi,
-        combine(form, formInvalid, internet, ::FormState),
+        internet,
         combine(poleText, poleValue, ::PoleState),
         combine(
             ticker,
@@ -170,7 +144,7 @@ class ReceiverViewModel @Inject constructor(
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
             pairingUi,
         ) { now, addresses, granted, asked, pairing -> Extras(now, addresses, granted, asked, pairing) },
-    ) { snapshot, bt, formState, pole, extras ->
+    ) { snapshot, bt, internetAvailable, pole, extras ->
         // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
         val realReceiver = ReceiverService.needsService(snapshot)
         val missingPermission = notifications.required && !extras.notificationsGranted
@@ -179,9 +153,7 @@ class ReceiverViewModel @Inject constructor(
             snapshot = snapshot,
             lastAddress = extras.addresses.first,
             lastReceiverAddress = extras.addresses.second,
-            form = formState.form,
-            formInvalid = formState.invalid,
-            internetAvailable = formState.internet,
+            internetAvailable = internetAvailable,
             poleHeightText = pole.text,
             poleHeightValid = PoleHeight.parse(pole.text) != null,
             groundPoint = snapshot.gga?.let { calculator.get().compute(it, pole.value) },
@@ -210,8 +182,6 @@ class ReceiverViewModel @Inject constructor(
         // primera GGA, para no bloquear la interfaz ni retrasar las primeras coordenadas (RNF-T13).
         viewModelScope.launch(Dispatchers.Default) { calculator.get() }
         viewModelScope.launch {
-            val saved = preferences.ntrip.first()
-            form.value = NtripForm(saved.host, saved.port.toString(), saved.mountpoint, saved.username)
             val pole = preferences.poleHeightM.first()
             poleValue.value = pole
             poleText.value = formatPoleHeight(pole)
@@ -295,26 +265,6 @@ class ReceiverViewModel @Inject constructor(
     fun replayAgain() {
         replay.playAgain() // S003/RF-40
     }
-
-    fun updateForm(newForm: NtripForm) {
-        form.value = newForm
-        formInvalid.value = false
-    }
-
-    fun connectNtrip() {
-        val config = form.value.toConfig()
-        if (config == null) {
-            formInvalid.value = true
-            return
-        }
-        internet.value = true
-        viewModelScope.launch {
-            preferences.saveNtrip(NtripPreferences(config.host, config.port, config.mountpoint, config.username))
-        } // S002/RF-26
-        session.startNtrip(config) // S002/RF-19, S002/RF-28
-    }
-
-    fun disconnectNtrip() = session.stopNtrip()
 
     fun updatePoleHeight(text: String) {
         poleText.value = text

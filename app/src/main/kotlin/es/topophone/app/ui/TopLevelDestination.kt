@@ -22,6 +22,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object ReceiverCorrectionsRoute
 
+/** Formulario de perfil NTRIP: nuevo (sin id) o editado (S007/RF-2). */
+@Serializable data class NtripProfileFormDestination(val profileId: String? = null)
+
 @Serializable data object SettingsGraph
 
 @Serializable data object SettingsRoute

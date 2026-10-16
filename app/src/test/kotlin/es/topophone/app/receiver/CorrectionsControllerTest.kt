@@ -2,13 +2,10 @@ package es.topophone.app.receiver
 
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
-import es.topophone.core.model.ntrip.NtripProfile
 import es.topophone.core.model.ntrip.NtripProfileDraft
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
-import es.topophone.data.ntrip.NtripProfileRepository
-import es.topophone.data.ntrip.NtripSaveResult
 import es.topophone.data.ntrip.PasswordResult
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
@@ -26,10 +23,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -37,45 +31,6 @@ import org.junit.Test
 
 /** Conectar con un perfil, detener, arranque automático y cambios del perfil en uso (S007/RF-6, RF-8, RF-9, RF-21, RF-22, RF-24, RF-26). */
 class CorrectionsControllerTest {
-
-    /** Repositorio en memoria; [undecryptable] simula la clave perdida (S007/RF-6). */
-    private class FakeProfiles : NtripProfileRepository {
-        val stored = MutableStateFlow<Map<String, NtripProfile>>(emptyMap())
-        val passwords = mutableMapOf<String, String>()
-        val undecryptable = mutableSetOf<String>()
-        private var now = 1_000L
-
-        fun add(id: String, draft: NtripProfileDraft, password: String) {
-            stored.value += id to NtripProfile(id, draft, password.isNotEmpty(), now, now)
-            if (password.isNotEmpty()) passwords[id] = password
-        }
-
-        override fun profiles(): Flow<List<NtripProfile>> = stored.map { it.values.toList() }
-        override fun observe(id: String): Flow<NtripProfile?> = stored.map { it[id] }
-        override suspend fun profile(id: String): NtripProfile? = stored.value[id]
-        override suspend fun create(draft: NtripProfileDraft, password: String): NtripSaveResult = error("no se usa")
-
-        override suspend fun update(id: String, draft: NtripProfileDraft, password: String?): NtripSaveResult {
-            now += 1_000
-            if (password != null) {
-                passwords[id] = password
-                undecryptable -= id
-            }
-            stored.value += id to NtripProfile(id, draft, passwords.containsKey(id), 1_000L, now)
-            return NtripSaveResult.Saved(id)
-        }
-
-        override suspend fun delete(id: String) {
-            stored.value -= id
-            passwords -= id
-        }
-
-        override suspend fun password(id: String): PasswordResult = when {
-            id in undecryptable -> PasswordResult.Undecryptable
-            id in passwords -> PasswordResult.Ok(passwords.getValue(id))
-            else -> PasswordResult.None
-        }
-    }
 
     private val gga = nmea("GNGGA,101530.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001")
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -90,7 +45,7 @@ class CorrectionsControllerTest {
     }
     private val session = ReceiverSession(sessionScope, connector, ntripBackoffMs = listOf(60_000L))
     private val preferences = FakePreferences()
-    private val profiles = FakeProfiles()
+    private val profiles = FakeNtripProfiles()
 
     private val ign = NtripProfileDraft("ERGNSS (IGN): red", "ergnss-tr.ign.es", 2101, false, "sgarcia", "VRS3M", mountpointNeedsGga = true)
     private val station =
