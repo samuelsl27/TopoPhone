@@ -1,5 +1,8 @@
 package es.topophone.core.ntrip
 
+import java.nio.ByteBuffer
+import java.nio.charset.CharacterCodingException
+import java.nio.charset.CodingErrorAction
 import java.util.Locale
 import kotlin.math.asin
 import kotlin.math.cos
@@ -39,8 +42,36 @@ object SourcetableParser {
     private const val LATITUDE = 9
     private const val LONGITUDE = 10
     private const val NMEA = 11
+    private const val NEWLINE = '\n'.code.toByte()
 
     fun parse(text: String): List<SourcetableStream> = parse(text.lineSequence())
+
+    /**
+     * Líneas de la respuesta del caster. Cada una se lee en UTF-8 y, si no lo es, en ISO-8859-1: hay
+     * tablas que mezclan las dos (en la del IGN, "Sierra Espuña" va en ISO-8859-1 y "Gomezserracín" en UTF-8).
+     */
+    fun lines(bytes: ByteArray): List<String> {
+        val lines = ArrayList<String>()
+        var start = 0
+        for (i in 0..bytes.size) {
+            val end = i == bytes.size
+            if (end || bytes[i] == NEWLINE) {
+                if (!end || i > start) lines += decode(bytes, start, i).trimEnd('\r')
+                start = i + 1
+            }
+        }
+        return lines
+    }
+
+    private fun decode(bytes: ByteArray, from: Int, to: Int): String = try {
+        Charsets.UTF_8.newDecoder()
+            .onMalformedInput(CodingErrorAction.REPORT)
+            .onUnmappableCharacter(CodingErrorAction.REPORT)
+            .decode(ByteBuffer.wrap(bytes, from, to - from))
+            .toString()
+    } catch (_: CharacterCodingException) {
+        String(bytes, from, to - from, Charsets.ISO_8859_1)
+    }
 
     fun parse(lines: Sequence<String>): List<SourcetableStream> = lines
         .map { it.trimEnd('\r') }

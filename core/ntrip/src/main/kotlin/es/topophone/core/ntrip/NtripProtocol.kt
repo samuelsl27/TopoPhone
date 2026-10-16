@@ -74,7 +74,8 @@ object NtripResponseParser {
         }
     }
 
-    private fun readHeaders(input: InputStream): Map<String, String> {
+    /** Cabeceras HTTP hasta la línea vacía, con el nombre en minúsculas. */
+    internal fun readHeaders(input: InputStream): Map<String, String> {
         val headers = HashMap<String, String>()
         while (true) {
             val line = readLine(input) ?: break
@@ -86,7 +87,7 @@ object NtripResponseParser {
     }
 
     /** Lee hasta `\n` (quitando `\r`); `null` si el flujo termina antes de leer nada. */
-    private fun readLine(input: InputStream): String? {
+    internal fun readLine(input: InputStream): String? {
         val line = StringBuilder()
         while (line.length < MAX_LINE) {
             val b = input.read()
