@@ -12,7 +12,7 @@
       Hecho cuando: `SourcetableClientTest` en verde contra el caster falso.
 - [x] T5. `core:ntrip`: TLS opcional en `NtripClient` y `SourcetableClient` (fallo `TLS_INVALID`) y GGA solo con `sendGga`; certificados de test con `keytool`. (RF-21, RF-27, RF-28)
       Hecho cuando: `NtripClientTlsTest` (válido, otro nombre, no confiable) y los casos nuevos de `NtripClientTest` en verde.
-- [ ] T6. `core:model`: `NtripProfileDraft` y `NtripProfileRules`, y catálogo `PublicCasters`. (RF-2, RF-3, RF-11, RF-13)
+- [x] T6. `core:model`: `NtripProfileDraft` y `NtripProfileRules`, y catálogo `PublicCasters`. (RF-2, RF-3, RF-11, RF-13)
       Hecho cuando: `NtripProfileRulesTest` y `PublicCastersTest` en verde.
 - [ ] T7. `data`: `SecretCipher` AES-GCM con clave del Keystore (clave en memoria en los tests). (RF-4, RF-6)
       Hecho cuando: `SecretCipherTest` en verde (ida y vuelta, IV distinto cada vez, otra clave → no se descifra).
