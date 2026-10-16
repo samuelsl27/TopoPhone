@@ -1,0 +1,264 @@
+package es.topophone.app.receiver
+
+import es.topophone.app.ui.receiver.FakePreferences
+import es.topophone.app.ui.receiver.nmea
+import es.topophone.core.model.ntrip.NtripProfile
+import es.topophone.core.model.ntrip.NtripProfileDraft
+import es.topophone.core.ntrip.NtripConfig
+import es.topophone.core.ntrip.NtripConnector
+import es.topophone.core.ntrip.NtripFailure
+import es.topophone.data.ntrip.NtripProfileRepository
+import es.topophone.data.ntrip.NtripSaveResult
+import es.topophone.data.ntrip.PasswordResult
+import es.topophone.receiver.session.ConnectionState
+import es.topophone.receiver.session.NtripState
+import es.topophone.receiver.session.ReceiverSession
+import es.topophone.receiver.session.ReceiverSnapshot
+import es.topophone.receiver.transport.StreamTransport
+import io.kotest.matchers.shouldBe
+import java.io.ByteArrayOutputStream
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import org.junit.After
+import org.junit.Test
+
+/** Conectar con un perfil, detener, arranque automático y cambios del perfil en uso (S007/RF-6, RF-8, RF-9, RF-21, RF-22, RF-24, RF-26). */
+class CorrectionsControllerTest {
+
+    /** Repositorio en memoria; [undecryptable] simula la clave perdida (S007/RF-6). */
+    private class FakeProfiles : NtripProfileRepository {
+        val stored = MutableStateFlow<Map<String, NtripProfile>>(emptyMap())
+        val passwords = mutableMapOf<String, String>()
+        val undecryptable = mutableSetOf<String>()
+        private var now = 1_000L
+
+        fun add(id: String, draft: NtripProfileDraft, password: String) {
+            stored.value += id to NtripProfile(id, draft, password.isNotEmpty(), now, now)
+            if (password.isNotEmpty()) passwords[id] = password
+        }
+
+        override fun profiles(): Flow<List<NtripProfile>> = stored.map { it.values.toList() }
+        override fun observe(id: String): Flow<NtripProfile?> = stored.map { it[id] }
+        override suspend fun profile(id: String): NtripProfile? = stored.value[id]
+        override suspend fun create(draft: NtripProfileDraft, password: String): NtripSaveResult = error("no se usa")
+
+        override suspend fun update(id: String, draft: NtripProfileDraft, password: String?): NtripSaveResult {
+            now += 1_000
+            if (password != null) {
+                passwords[id] = password
+                undecryptable -= id
+            }
+            stored.value += id to NtripProfile(id, draft, passwords.containsKey(id), 1_000L, now)
+            return NtripSaveResult.Saved(id)
+        }
+
+        override suspend fun delete(id: String) {
+            stored.value -= id
+            passwords -= id
+        }
+
+        override suspend fun password(id: String): PasswordResult = when {
+            id in undecryptable -> PasswordResult.Undecryptable
+            id in passwords -> PasswordResult.Ok(passwords.getValue(id))
+            else -> PasswordResult.None
+        }
+    }
+
+    private val gga = nmea("GNGGA,101530.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001")
+    private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val controllerScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val configs = CopyOnWriteArrayList<NtripConfig>()
+    private var failure: NtripFailure? = null
+    private val connector = NtripConnector { config, _, onConnected, _ ->
+        configs += config
+        failure?.let { return@NtripConnector it }
+        onConnected()
+        awaitCancellation()
+    }
+    private val session = ReceiverSession(sessionScope, connector, ntripBackoffMs = listOf(60_000L))
+    private val preferences = FakePreferences()
+    private val profiles = FakeProfiles()
+
+    private val ign = NtripProfileDraft("ERGNSS (IGN): red", "ergnss-tr.ign.es", 2101, false, "sgarcia", "VRS3M", mountpointNeedsGga = true)
+    private val station =
+        NtripProfileDraft("RGAPA", "rgapa.cartografia.asturias.es", 2101, false, "anonimo", "AVL13M", mountpointNeedsGga = false)
+
+    @After
+    fun tearDown() {
+        controllerScope.cancel()
+        sessionScope.cancel()
+    }
+
+    private fun controller() = CorrectionsController(session, profiles, preferences, controllerScope)
+
+    private fun connectReceiver() {
+        val toApp = PipedOutputStream()
+        session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
+        toApp.write(gga.toByteArray())
+        toApp.flush()
+        await { it.connection is ConnectionState.Receiving }
+    }
+
+    private fun await(predicate: (ReceiverSnapshot) -> Boolean): ReceiverSnapshot =
+        runBlocking { withTimeout(5_000) { session.state.first(predicate) } }
+
+    private fun <T> eventually(block: () -> T, expected: T) = runBlocking {
+        withTimeout(5_000) { while (block() != expected) delay(20) }
+    }
+
+    @Test
+    fun `S007 RF-22 al pulsar un perfil se conecta con sus datos y su contrasena guardada`() = runBlocking<Unit> {
+        profiles.add("ign", ign, "s3cr3t")
+        connectReceiver()
+
+        controller().connect("ign") shouldBe ConnectResult.Started
+
+        await { it.ntrip is NtripState.Streaming }
+        configs.single() shouldBe NtripConfig("ergnss-tr.ign.es", 2101, "VRS3M", "sgarcia", "s3cr3t", useTls = false, sendGga = true)
+    }
+
+    @Test
+    fun `S007 RF-21 la GGA se envia segun lo que dijo la tabla de fuentes y, si no se sabe, se envia`() = runBlocking<Unit> {
+        profiles.add("station", station, "anonimo")
+        profiles.add("manual", ign.copy(name = "A mano", mountpoint = "MIBASE", mountpointNeedsGga = null), "x")
+        connectReceiver()
+        val controller = controller()
+
+        controller.connect("station")
+        await { it.ntrip is NtripState.Streaming }
+        controller.connect("manual")
+        eventually({ configs.size }, 2)
+
+        configs.map { it.sendGga } shouldBe listOf(false, true)
+    }
+
+    @Test
+    fun `S007 RF-22 al pulsar otro perfil se cierra la conexion anterior y se abre la nueva`() = runBlocking<Unit> {
+        profiles.add("ign", ign, "a")
+        profiles.add("station", station, "anonimo")
+        connectReceiver()
+        val controller = controller()
+        controller.connect("ign")
+        await { it.ntrip is NtripState.Streaming }
+
+        controller.connect("station")
+
+        eventually({ configs.size }, 2)
+        configs.last().host shouldBe "rgapa.cartografia.asturias.es"
+        controller.status.value.activeProfileId shouldBe "station"
+    }
+
+    @Test
+    fun `S007 RF-6 si la contrasena no se puede descifrar se pide y con la nueva se guarda y se conecta`() = runBlocking<Unit> {
+        profiles.add("ign", ign, "vieja")
+        profiles.undecryptable += "ign"
+        connectReceiver()
+        val controller = controller()
+
+        controller.connect("ign") shouldBe ConnectResult.PasswordNeeded
+        configs.size shouldBe 0
+
+        controller.connect("ign", password = "nueva") shouldBe ConnectResult.Started
+        await { it.ntrip is NtripState.Streaming }
+        configs.single().password shouldBe "nueva"
+        profiles.password("ign") shouldBe PasswordResult.Ok("nueva")
+    }
+
+    @Test
+    fun `S007 RF-26 al conectar se recuerda el perfil y que estaba abierta, y al detener que no`() = runBlocking<Unit> {
+        profiles.add("ign", ign, "s3cr3t")
+        connectReceiver()
+        val controller = controller()
+
+        controller.connect("ign")
+        eventually({ preferences.ntripWasActiveFlow.value }, true)
+        preferences.lastNtripProfileFlow.value shouldBe "ign"
+
+        controller.stop()
+
+        eventually({ preferences.ntripWasActiveFlow.value }, false)
+        session.state.value.ntrip shouldBe NtripState.Idle
+    }
+
+    @Test
+    fun `S007 RF-26 si estaba abierta al terminar la conexion anterior, se abre sola al conectar el receptor`() = runBlocking<Unit> {
+        profiles.add("ign", ign, "s3cr3t")
+        preferences.saveNtripSession("ign", active = true)
+        controller()
+
+        connectReceiver()
+
+        await { it.ntrip is NtripState.Streaming }
+        configs.single().mountpoint shouldBe "VRS3M"
+    }
+
+    @Test
+    fun `S007 RF-26 si se detuvo o el perfil ya no existe no se abre sola`() = runBlocking<Unit> {
+        preferences.saveNtripSession("borrado", active = true)
+        profiles.add("ign", ign, "s3cr3t")
+        controller()
+        connectReceiver()
+        delay(500)
+        configs.size shouldBe 0
+
+        session.disconnect()
+        preferences.saveNtripSession("ign", active = false)
+        connectReceiver()
+        delay(500)
+        configs.size shouldBe 0
+    }
+
+    @Test
+    fun `S007 RF-24 si el caster rechaza las credenciales ya no se abre sola la proxima vez`() = runBlocking<Unit> {
+        profiles.add("ign", ign, "mala")
+        failure = NtripFailure.UNAUTHORIZED
+        connectReceiver()
+        val controller = controller()
+
+        controller.connect("ign")
+
+        await { it.ntrip == NtripState.Stopped(NtripFailure.UNAUTHORIZED) }
+        eventually({ preferences.ntripWasActiveFlow.value }, false)
+    }
+
+    @Test
+    fun `S007 RF-9 al guardar cambios en el perfil en uso se vuelve a conectar con los datos nuevos`() = runBlocking<Unit> {
+        profiles.add("ign", ign, "s3cr3t")
+        connectReceiver()
+        val controller = controller()
+        controller.connect("ign")
+        await { it.ntrip is NtripState.Streaming }
+
+        profiles.update("ign", ign.copy(mountpoint = "CERCANA3M"), password = null)
+
+        eventually({ configs.size }, 2)
+        configs.last().mountpoint shouldBe "CERCANA3M"
+    }
+
+    @Test
+    fun `S007 RF-8 al borrar el perfil en uso se cierra la conexion NTRIP`() = runBlocking<Unit> {
+        profiles.add("ign", ign, "s3cr3t")
+        connectReceiver()
+        val controller = controller()
+        controller.connect("ign")
+        await { it.ntrip is NtripState.Streaming }
+
+        profiles.delete("ign")
+
+        await { it.ntrip == NtripState.Idle }
+        controller.status.value.activeProfileId shouldBe null
+    }
+}

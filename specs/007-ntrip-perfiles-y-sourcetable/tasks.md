@@ -26,7 +26,7 @@
       Hecho cuando: `ReceiverSessionNtripTest` en verde para esos casos con reloj virtual.
 - [x] T12. `receiver`: recuento RTCM en `Streaming` (reenviar antes de contar) y alarma por edad con `Alerts.correctionsLost()`. (RF-29, RF-30, RF-32, RF-33)
       Hecho cuando: `ReceiverSessionNtripTest` en verde para alarma (umbral, vuelta, una por corte) y recuento con reenvío intacto.
-- [ ] T13. `app`: `CorrectionsController` (conectar con perfil y contraseña, detener, arranque automático, editar o borrar el perfil en uso, GGA según el perfil) e inyección de dependencias. (RF-6, RF-8, RF-9, RF-21, RF-22, RF-26)
+- [x] T13. `app`: `CorrectionsController` (conectar con perfil y contraseña, detener, arranque automático, editar o borrar el perfil en uso, GGA según el perfil) e inyección de dependencias. (RF-6, RF-8, RF-9, RF-21, RF-22, RF-26)
       Hecho cuando: `CorrectionsControllerTest` en verde.
 - [ ] T14. `app`: pantalla Correcciones con lista de perfiles, tarjeta de estado (reconectando y "Detener") y menú de perfil; sustituye a la tarjeta NTRIP de S002. (RF-1, RF-7, RF-22, RF-25)
       Hecho cuando: `CorrectionsScreenTest` en verde y los tests de S002 adaptados.

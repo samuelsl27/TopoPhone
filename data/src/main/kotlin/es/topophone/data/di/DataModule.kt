@@ -10,6 +10,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.ntrip.NtripLegacyImport
+import es.topophone.data.ntrip.NtripProfileRepository
+import es.topophone.data.ntrip.RoomNtripProfileRepository
 import es.topophone.data.project.DataStoreProjectPreferences
 import es.topophone.data.project.ProjectDataStoreQualifier
 import es.topophone.data.project.ProjectPreferences
@@ -18,6 +21,8 @@ import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.receiver.DataStoreReceiverPreferences
 import es.topophone.data.receiver.ReceiverDataStoreQualifier
 import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.secret.AesGcmCipher
+import es.topophone.data.secret.AndroidKeystoreKeyProvider
 import es.topophone.data.settings.DataStoreSettingsRepository
 import es.topophone.data.settings.SettingsDataStore
 import es.topophone.data.settings.SettingsDataStoreQualifier
@@ -58,6 +63,16 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideProjectRepository(database: TopoPhoneDatabase): ProjectRepository = RoomProjectRepository(database)
+
+    /** Perfiles NTRIP con la contraseña cifrada con una clave del Android Keystore (S007, RNF-T11). */
+    @Provides
+    @Singleton
+    fun provideNtripProfileRepository(database: TopoPhoneDatabase): NtripProfileRepository =
+        RoomNtripProfileRepository(database, AesGcmCipher(AndroidKeystoreKeyProvider()))
+
+    @Provides
+    fun provideNtripLegacyImport(preferences: ReceiverPreferences, profiles: NtripProfileRepository): NtripLegacyImport =
+        NtripLegacyImport(preferences, profiles)
 }
 
 @Module

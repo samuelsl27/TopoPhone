@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.receiver.AndroidNotificationPermission
+import es.topophone.app.receiver.CorrectionsController
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
@@ -15,6 +16,7 @@ import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.core.ntrip.NtripClient
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.SessionSpace
 import es.topophone.receiver.platform.Alerts
@@ -87,6 +89,15 @@ object ReceiverModule {
     ): ReceiverConnections = ReceiverConnections(session, bluetooth, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default)) {
         ReceiverService.start(context) // S004/RF-7
     }
+
+    /** Conexión NTRIP con perfiles (S007): vive con la app para abrirse sola al conectar el receptor. */
+    @Provides
+    @Singleton
+    fun correctionsController(
+        session: ReceiverSession,
+        profiles: NtripProfileRepository,
+        preferences: ReceiverPreferences,
+    ): CorrectionsController = CorrectionsController(session, profiles, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default))
 
     @Provides
     @Singleton

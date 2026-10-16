@@ -18,6 +18,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import es.topophone.app.receiver.CorrectionsController
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.ui.AppActions
 import es.topophone.app.ui.AppInfo
@@ -28,6 +29,7 @@ import es.topophone.app.ui.settings.appSettingsIntent
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.EffectiveTheme
+import es.topophone.data.ntrip.NtripLegacyImport
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -46,6 +48,11 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var trashPurge: TrashPurge
 
+    /** Se crea con la actividad para vigilar la conexión del receptor y abrir el NTRIP solo (S007/RF-26). */
+    @Inject lateinit var corrections: CorrectionsController
+
+    @Inject lateinit var ntripLegacyImport: NtripLegacyImport
+
     /** Cuántas veces se ha pedido abrir Receptor desde la notificación (S004/RF-9). */
     private val openReceiverRequests = MutableStateFlow(0)
 
@@ -54,6 +61,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch { connections.autoConnect() } // S004/RF-25: una sola vez por arranque
         lifecycleScope.launch { trashPurge.runOnce() } // S006/RF-27: la papelera se purga al abrir la app
+        lifecycleScope.launch { ntripLegacyImport.run() } // S007/RF-10: los datos de caster de S002 pasan a un perfil
         // Al recrearse la actividad, la navegación ya está restaurada: el extra solo cuenta la primera vez.
         if (savedInstanceState == null) handleOpenReceiver(intent)
         val appInfo = AppInfo(versionName = BuildConfig.VERSION_NAME, gitCommit = BuildConfig.GIT_COMMIT, repoUrl = BuildConfig.REPO_URL)
