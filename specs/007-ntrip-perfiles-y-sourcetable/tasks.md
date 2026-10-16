@@ -10,7 +10,7 @@
       Hecho cuando: `SourcetableParserTest` (tablas reales y casos raros, 5000 puntos en < 2 s) y `MountpointsTest` en verde.
 - [x] T4. `core:ntrip`: `SourcetableClient` (v1, v2, chunked, 401, respuesta que no es tabla, vacía, inalcanzable). (RF-14, RF-20)
       Hecho cuando: `SourcetableClientTest` en verde contra el caster falso.
-- [ ] T5. `core:ntrip`: TLS opcional en `NtripClient` y `SourcetableClient` (fallo `TLS_INVALID`) y GGA solo con `sendGga`; certificados de test con `keytool`. (RF-21, RF-27, RF-28)
+- [x] T5. `core:ntrip`: TLS opcional en `NtripClient` y `SourcetableClient` (fallo `TLS_INVALID`) y GGA solo con `sendGga`; certificados de test con `keytool`. (RF-21, RF-27, RF-28)
       Hecho cuando: `NtripClientTlsTest` (válido, otro nombre, no confiable) y los casos nuevos de `NtripClientTest` en verde.
 - [ ] T6. `core:model`: `NtripProfileDraft` y `NtripProfileRules`, y catálogo `PublicCasters`. (RF-2, RF-3, RF-11, RF-13)
       Hecho cuando: `NtripProfileRulesTest` y `PublicCastersTest` en verde.

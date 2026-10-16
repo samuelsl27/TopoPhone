@@ -148,6 +148,22 @@ class NtripClientTest {
     }
 
     @Test
+    fun `S007 RF-21 si el punto de montaje no necesita la GGA no se envia aunque la haya`() = runBlocking<Unit> {
+        val caster = caster { socket ->
+            socket.getOutputStream().write("ICY 200 OK\r\n".toByteArray())
+            repeat(5) {
+                socket.getOutputStream().write(rtcmBlocks[0])
+                Thread.sleep(40)
+            }
+        }
+        val gga = "\$GNGGA,101530.20,4025.1234567,N,00342.7654321,W,4,24,0.6,650.123,M,51.234,M,1.0,0001*00"
+
+        withTimeout(5_000) { client(ggaMs = 50).run(caster.config.copy(sendGga = false), { gga }, {}) {} }
+
+        caster.ggaLines().shouldBeEmpty()
+    }
+
+    @Test
     fun `S002 RF-20 la GGA se envia cada 5 s por defecto`() {
         NtripClient.DEFAULT_GGA_INTERVAL_MS shouldBe 5_000L
     }

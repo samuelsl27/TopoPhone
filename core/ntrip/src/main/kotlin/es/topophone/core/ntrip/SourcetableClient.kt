@@ -7,12 +7,14 @@ import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 import javax.net.SocketFactory
+import javax.net.ssl.SSLException
+import javax.net.ssl.SSLSocketFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
-/** Por qué no se pudo obtener la tabla de fuentes (S007/RF-20). */
-enum class SourcetableFailure { UNREACHABLE, UNAUTHORIZED, NOT_A_SOURCETABLE, EMPTY }
+/** Por qué no se pudo obtener la tabla de fuentes (S007/RF-20); [TLS_INVALID]: certificado no válido (S007/RF-28). */
+enum class SourcetableFailure { UNREACHABLE, UNAUTHORIZED, NOT_A_SOURCETABLE, EMPTY, TLS_INVALID }
 
 sealed interface SourcetableResult {
     data class Ok(val streams: List<SourcetableStream>) : SourcetableResult
@@ -27,24 +29,30 @@ sealed interface SourcetableResult {
 class SourcetableClient(
     private val userAgent: String,
     private val socketFactory: SocketFactory = SocketFactory.getDefault(),
+    private val sslSocketFactory: SSLSocketFactory = SSLSocketFactory.getDefault() as SSLSocketFactory,
     private val timeoutMs: Int = DEFAULT_TIMEOUT_MS,
     private val maxBytes: Int = MAX_BYTES,
 ) {
-    suspend fun fetch(host: String, port: Int, username: String, password: String): SourcetableResult = coroutineScope {
-        val socket = socketFactory.createSocket()
-        val request = async(Dispatchers.IO) { download(socket, NtripConfig(host, port, mountpoint = "", username, password)) }
-        try {
-            request.await()
-        } finally {
-            runCatching { socket.close() }
+    suspend fun fetch(host: String, port: Int, username: String, password: String, useTls: Boolean = false): SourcetableResult =
+        coroutineScope {
+            val socket = socketFactory.createSocket()
+            val config = NtripConfig(host, port, mountpoint = "", username, password, useTls = useTls)
+            val request = async(Dispatchers.IO) { download(socket, config) }
+            try {
+                request.await()
+            } finally {
+                runCatching { socket.close() }
+            }
         }
-    }
 
     private fun download(socket: Socket, config: NtripConfig): SourcetableResult = try {
         socket.connect(InetSocketAddress(config.host, config.port), timeoutMs)
         socket.soTimeout = timeoutMs
-        socket.getOutputStream().apply { write(NtripRequest.build(config, userAgent)) }.flush()
-        read(BufferedInputStream(socket.getInputStream()))
+        val stream = if (config.useTls) Tls.wrap(socket, sslSocketFactory, config.host, config.port) else socket
+        stream.getOutputStream().apply { write(NtripRequest.build(config, userAgent)) }.flush()
+        read(BufferedInputStream(stream.getInputStream()))
+    } catch (_: SSLException) {
+        SourcetableResult.Failed(SourcetableFailure.TLS_INVALID) // S007/RF-28
     } catch (_: IOException) {
         SourcetableResult.Failed(SourcetableFailure.UNREACHABLE)
     } catch (_: IllegalArgumentException) {

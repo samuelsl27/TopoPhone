@@ -8,6 +8,8 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.SocketTimeoutException
 import javax.net.SocketFactory
+import javax.net.ssl.SSLException
+import javax.net.ssl.SSLSocketFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -30,11 +32,13 @@ fun interface NtripConnector {
  * Cliente NTRIP sobre un socket crudo (ADR-13): negocia con el caster, reenvía las correcciones
  * tal cual (S002/RF-19) y le envía la última GGA del receptor cada [ggaIntervalMs] (S002/RF-20).
  *
- * La [socketFactory] se inyecta para elegir la red (ADR-17, S020).
+ * La [socketFactory] se inyecta para elegir la red (ADR-17, S020); con TLS, el socket ya conectado se
+ * envuelve con [sslSocketFactory] (S007/RF-27).
  */
 class NtripClient(
     private val userAgent: String,
     private val socketFactory: SocketFactory = SocketFactory.getDefault(),
+    private val sslSocketFactory: SSLSocketFactory = SSLSocketFactory.getDefault() as SSLSocketFactory,
     private val connectTimeoutMs: Int = DEFAULT_TIMEOUT_MS,
     private val noDataTimeoutMs: Int = DEFAULT_TIMEOUT_MS,
     private val ggaIntervalMs: Long = DEFAULT_GGA_INTERVAL_MS,
@@ -77,8 +81,19 @@ class NtripClient(
             return@coroutineScope NtripFailure.UNREACHABLE
         }
         socket.soTimeout = noDataTimeoutMs
-        val output = socket.getOutputStream()
-        val input = BufferedInputStream(socket.getInputStream())
+        val stream = if (config.useTls) {
+            try {
+                Tls.wrap(socket, sslSocketFactory, config.host, config.port)
+            } catch (_: SSLException) {
+                return@coroutineScope NtripFailure.TLS_INVALID // S007/RF-28
+            } catch (_: IOException) {
+                return@coroutineScope NtripFailure.UNREACHABLE
+            }
+        } else {
+            socket
+        }
+        val output = stream.getOutputStream()
+        val input = BufferedInputStream(stream.getInputStream())
         try {
             output.write(NtripRequest.build(config, userAgent))
             output.flush()
@@ -86,11 +101,11 @@ class NtripClient(
             if (handshake is NtripHandshake.Rejected) return@coroutineScope handshake.failure
             onConnected()
 
-            val gga = launch { sendGgaPeriodically(output, latestGga) }
+            val gga = if (config.sendGga) launch { sendGgaPeriodically(output, latestGga) } else null // S007/RF-21
             try {
                 forward(input, chunked = (handshake as NtripHandshake.Streaming).chunked, onCorrections)
             } finally {
-                gga.cancel()
+                gga?.cancel()
             }
         } catch (_: SocketTimeoutException) {
             NtripFailure.NO_DATA

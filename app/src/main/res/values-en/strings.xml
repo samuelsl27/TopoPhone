@@ -86,6 +86,7 @@
     <string name="ntrip_error_no_data">No corrections from the caster for 10 s</string>
     <string name="ntrip_error_connection_lost">The caster closed the connection</string>
     <string name="ntrip_error_protocol">The caster response is not valid</string>
+    <string name="ntrip_error_tls">The caster certificate is not valid.</string>
     <string name="ntrip_receiver_not_connected">Connect the receiver first: corrections are sent to it.</string>
     <string name="receiver_coordinates_title">Point coordinates</string>
     <string name="pole_height_label">Pole height (m)</string>

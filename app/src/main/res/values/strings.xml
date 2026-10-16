@@ -98,6 +98,7 @@
     <string name="ntrip_error_no_data">No llegan correcciones del caster desde hace 10 s</string>
     <string name="ntrip_error_connection_lost">El caster ha cortado la conexión</string>
     <string name="ntrip_error_protocol">La respuesta del caster no es válida</string>
+    <string name="ntrip_error_tls">El certificado del caster no es válido.</string>
     <string name="ntrip_receiver_not_connected">Conecta antes el receptor: las correcciones se le envían a él.</string>
     <string name="receiver_coordinates_title">Coordenadas del punto</string>
     <string name="pole_height_label">Altura del jalón (m)</string>

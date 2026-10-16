@@ -3,19 +3,49 @@ package es.topophone.core.ntrip
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.net.Socket
 import java.util.Base64
+import javax.net.ssl.SSLSocket
+import javax.net.ssl.SSLSocketFactory
 
-/** Datos de conexión a un caster NTRIP (S002/RF-18). La contraseña solo vive en memoria (S002/RF-27). */
-data class NtripConfig(val host: String, val port: Int = DEFAULT_PORT, val mountpoint: String, val username: String, val password: String) {
-    override fun toString(): String = "NtripConfig(host=$host, port=$port, mountpoint=$mountpoint, username=$username, password=***)"
+/**
+ * Datos de conexión a un caster NTRIP (S002/RF-18). La contraseña no aparece en [toString] (RNF-T11).
+ *
+ * @property useTls conexión segura con TLS (S007/RF-27).
+ * @property sendGga si se envía la GGA al caster: el punto de montaje la necesita o no se sabe (S007/RF-21).
+ */
+data class NtripConfig(
+    val host: String,
+    val port: Int = DEFAULT_PORT,
+    val mountpoint: String,
+    val username: String,
+    val password: String,
+    val useTls: Boolean = false,
+    val sendGga: Boolean = true,
+) {
+    override fun toString(): String =
+        "NtripConfig(host=$host, port=$port, mountpoint=$mountpoint, username=$username, password=***, useTls=$useTls, sendGga=$sendGga)"
 
     companion object {
         const val DEFAULT_PORT = 2101
     }
 }
 
-/** Por qué no se pudo conectar o se perdió la conexión con el caster. */
-enum class NtripFailure { UNAUTHORIZED, MOUNTPOINT_NOT_FOUND, UNREACHABLE, NO_DATA, CONNECTION_LOST, PROTOCOL }
+/** Por qué no se pudo conectar o se perdió la conexión con el caster; [TLS_INVALID]: certificado no válido (S007/RF-28). */
+enum class NtripFailure { UNAUTHORIZED, MOUNTPOINT_NOT_FOUND, UNREACHABLE, NO_DATA, CONNECTION_LOST, PROTOCOL, TLS_INVALID }
+
+/** Conexión segura con el caster (S007/RF-27, RF-28). */
+internal object Tls {
+    /**
+     * Envuelve el socket ya conectado (por la red elegida, ADR-17) en TLS, con SNI y comprobando que el
+     * certificado es de [host]. Un certificado no válido lanza [javax.net.ssl.SSLException].
+     */
+    fun wrap(socket: Socket, factory: SSLSocketFactory, host: String, port: Int): SSLSocket =
+        (factory.createSocket(socket, host, port, true) as SSLSocket).apply {
+            sslParameters = sslParameters.apply { endpointIdentificationAlgorithm = "HTTPS" }
+            startHandshake()
+        }
+}
 
 /** Resultado de la negociación con el caster. */
 sealed interface NtripHandshake {

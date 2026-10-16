@@ -130,6 +130,7 @@ internal fun ntripStatusText(ntrip: NtripState): String = stringResource(
             NtripFailure.NO_DATA -> R.string.ntrip_error_no_data // S002/RF-24
             NtripFailure.CONNECTION_LOST -> R.string.ntrip_error_connection_lost // S002/RF-24
             NtripFailure.PROTOCOL -> R.string.ntrip_error_protocol
+            NtripFailure.TLS_INVALID -> R.string.ntrip_error_tls // S007/RF-28
         }
     },
 )
