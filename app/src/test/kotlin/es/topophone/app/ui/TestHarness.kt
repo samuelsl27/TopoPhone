@@ -48,6 +48,7 @@ fun StatefulTestApp(
     appInfo: AppInfo = testAppInfo,
     onOpenUrl: (String) -> Unit = {},
     onSelectSessionSpace: (Int) -> Unit = {},
+    onSelectCorrectionsAlarm: (Int) -> Unit = {},
     onOpenAppBatterySettings: () -> Unit = {},
     receiverState: ReceiverUiState = ReceiverUiState(),
     surveyState: SurveyUiState = SurveyUiState(),
@@ -55,6 +56,7 @@ fun StatefulTestApp(
     var themeName by rememberSaveable { mutableStateOf(initialTheme.mode.name to initialTheme.beforeSun.name) }
     var language by rememberSaveable { mutableStateOf(AppLanguage.SYSTEM) }
     var sessionSpaceMb by rememberSaveable { mutableStateOf(500) }
+    var correctionsAlarmS by rememberSaveable { mutableStateOf(10) }
     val theme = ThemeState.restore(themeName.first, themeName.second)
     fun save(state: ThemeState) {
         themeName = state.mode.name to state.beforeSun.name
@@ -62,7 +64,13 @@ fun StatefulTestApp(
 
     TopoPhoneTheme(theme.effective(systemInDarkTheme)) {
         TopoPhoneApp(
-            uiState = AppUiState(themeState = theme, language = language, appInfo = appInfo, sessionSpaceMb = sessionSpaceMb),
+            uiState = AppUiState(
+                themeState = theme,
+                language = language,
+                appInfo = appInfo,
+                sessionSpaceMb = sessionSpaceMb,
+                correctionsAlarmS = correctionsAlarmS,
+            ),
             actions = AppActions(
                 onToggleSun = { save(theme.toggleSun()) },
                 onSelectTheme = { mode: ThemeMode -> save(theme.select(mode)) },
@@ -73,6 +81,10 @@ fun StatefulTestApp(
                     onSelectSessionSpace(it)
                 },
                 onOpenAppBatterySettings = onOpenAppBatterySettings,
+                onSelectCorrectionsAlarm = {
+                    correctionsAlarmS = it
+                    onSelectCorrectionsAlarm(it)
+                },
             ),
             receiverSection = { page, theme, toggleSun, navigation, _ ->
                 val receiverActions = ReceiverActions(

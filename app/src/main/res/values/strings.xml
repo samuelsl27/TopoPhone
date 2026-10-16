@@ -372,4 +372,10 @@
     <string name="gnss_qzss">QZSS</string>
     <string name="gnss_beidou">BeiDou</string>
     <string name="gnss_navic">NavIC</string>
+    <string name="status_bar_no_corrections">Sin correcciones</string>
+    <string name="notification_no_corrections">Sin correcciones</string>
+    <string name="notification_join">%1$s · %2$s</string>
+    <string name="settings_section_corrections">Correcciones</string>
+    <string name="settings_corrections_alarm">Alarma de correcciones</string>
+    <string name="settings_seconds">%1$d s</string>
 </resources>

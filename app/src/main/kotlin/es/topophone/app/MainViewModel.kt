@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.core.model.preferences.ThemeMode
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.data.receiver.CorrectionsAlarm
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.SessionSpace
 import es.topophone.data.settings.SettingsRepository
@@ -33,6 +34,14 @@ class MainViewModel @Inject constructor(private val settings: SettingsRepository
     /** Espacio para sesiones (S003/RF-26). */
     val sessionSpaceMb: StateFlow<Int> =
         receiverPreferences.sessionSpaceMb.stateIn(viewModelScope, SharingStarted.Eagerly, SessionSpace.DEFAULT_MB)
+
+    val correctionsAlarmS: StateFlow<Int> =
+        receiverPreferences.correctionsAlarmS.stateIn(viewModelScope, SharingStarted.Eagerly, CorrectionsAlarm.DEFAULT_S)
+
+    /** S007/RF-31. */
+    fun selectCorrectionsAlarm(seconds: Int) {
+        viewModelScope.launch { receiverPreferences.saveCorrectionsAlarmS(seconds) }
+    }
 
     fun selectSessionSpace(mb: Int) {
         viewModelScope.launch { receiverPreferences.saveSessionSpaceMb(mb) }

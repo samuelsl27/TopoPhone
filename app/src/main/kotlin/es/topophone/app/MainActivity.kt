@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val loadedTheme by viewModel.themeState.collectAsStateWithLifecycle()
             val sessionSpaceMb by viewModel.sessionSpaceMb.collectAsStateWithLifecycle()
+            val correctionsAlarmS by viewModel.correctionsAlarmS.collectAsStateWithLifecycle()
             val openReceiverRequest by openReceiverRequests.collectAsStateWithLifecycle()
             // Hasta leer el tema guardado solo se ve el fondo de la ventana (S001/RF-15).
             val themeState = loadedTheme ?: return@setContent
@@ -92,6 +93,7 @@ class MainActivity : AppCompatActivity() {
                         language = currentLanguage(),
                         appInfo = appInfo,
                         sessionSpaceMb = sessionSpaceMb,
+                        correctionsAlarmS = correctionsAlarmS,
                     ),
                     actions = AppActions(
                         onToggleSun = viewModel::toggleSun,
@@ -99,6 +101,7 @@ class MainActivity : AppCompatActivity() {
                         onSelectLanguage = ::applyLanguage,
                         onOpenUrl = ::openUrl,
                         onSelectSessionSpace = viewModel::selectSessionSpace,
+                        onSelectCorrectionsAlarm = viewModel::selectCorrectionsAlarm,
                         onOpenAppBatterySettings = { startActivity(appSettingsIntent(packageName)) },
                     ),
                     openReceiverRequest = openReceiverRequest,

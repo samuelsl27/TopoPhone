@@ -17,6 +17,10 @@ import es.topophone.app.ui.receiver.nameRes
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSnapshot
 import java.util.Locale
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 
 /** Notificación permanente del receptor: la solución y la edad de las correcciones (S004/RF-8 a RF-10). */
 object ReceiverNotifications {
@@ -77,8 +81,15 @@ object ReceiverNotifications {
         if (allowed) NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, build(context, snapshot))
     }
 
-    /** "Fija · correcciones 1,0 s", "Sin datos", "Reconectando · intento 3"… */
+    /** "Fija · correcciones 1,0 s", "Sin datos", "Reconectando · intento 3"…; con la alarma, "… · Sin correcciones" (S007/RF-29). */
     fun text(context: Context, snapshot: ReceiverSnapshot): String {
+        val base = baseText(context, snapshot)
+        if (!snapshot.correctionsAlarm) return base
+        val alarm = context.getString(R.string.notification_no_corrections)
+        return if (base.isEmpty()) alarm else context.getString(R.string.notification_join, base, alarm)
+    }
+
+    private fun baseText(context: Context, snapshot: ReceiverSnapshot): String {
         val gga = snapshot.gga
         return when (val connection = snapshot.connection) {
             is ConnectionState.Connecting -> context.getString(R.string.notification_connecting)
@@ -99,3 +110,7 @@ object ReceiverNotifications {
 
     private fun locale(context: Context): Locale = context.resources.configuration.locales[0]
 }
+
+/** Cada vez que salta la alarma de correcciones, una sola vez por corte (S007/RF-29). */
+internal fun correctionsAlarmRises(states: Flow<ReceiverSnapshot>): Flow<Unit> =
+    states.map { it.correctionsAlarm }.distinctUntilChanged().filter { it }.map { }

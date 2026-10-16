@@ -59,6 +59,7 @@ internal fun toStatusIndicatorState(snapshot: ReceiverSnapshot): StatusIndicator
         reconnecting = connection is ConnectionState.Reconnecting, // S004/RF-23
         solution = gga?.status,
         satellites = gga?.satellites,
+        correctionsAlarm = snapshot.correctionsAlarm, // S007/RF-29
     )
 }
 

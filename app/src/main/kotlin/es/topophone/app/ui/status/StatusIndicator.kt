@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -25,6 +27,7 @@ import es.topophone.core.gnss.nmea.SolutionStatus
 const val STATUS_INDICATOR_TAG = "status_indicator"
 const val STATUS_INDICATOR_SOLUTION_TAG = "status_indicator_solution"
 const val STATUS_INDICATOR_SIMULATION_TAG = "status_indicator_simulation"
+const val STATUS_INDICATOR_CORRECTIONS_TAG = "status_indicator_corrections"
 
 /** De dónde llegan los datos que resume el indicador. */
 enum class StatusSource { NONE, RECEIVER, REPLAY }
@@ -37,6 +40,8 @@ data class StatusIndicatorState(
     val satellites: Int? = null,
     /** Se está reconectando con el receptor (S004/RF-23). */
     val reconnecting: Boolean = false,
+    /** Las correcciones superan el umbral de edad (S007/RF-29). */
+    val correctionsAlarm: Boolean = false,
 )
 
 /**
@@ -78,8 +83,32 @@ private fun Content(state: StatusIndicatorState) {
         state.stale -> Label(stringResource(R.string.status_bar_no_data)) // S003/RF-19
         solution != null -> {
             StatusChip(stringResource(solution.nameRes()), solution.tone(), Modifier.testTag(STATUS_INDICATOR_SOLUTION_TAG), compact = true)
-            state.satellites?.let { Label(stringResource(R.string.status_bar_satellites, it)) } // S003/RF-18
+            // S007/RF-29: con la alarma, en lugar de los satélites, para que el indicador no crezca (S005/RF-18).
+            if (state.correctionsAlarm) {
+                NoCorrections()
+            } else {
+                state.satellites?.let { Label(stringResource(R.string.status_bar_satellites, it)) } // S003/RF-18
+            }
         }
+    }
+}
+
+/** "Sin correcciones" con icono y color de aviso, nunca solo color (RNF-T8). */
+@Composable
+private fun NoCorrections() {
+    Row(
+        modifier = Modifier.testTag(STATUS_INDICATOR_CORRECTIONS_TAG),
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(painterResource(R.drawable.ic_warning), contentDescription = null, tint = MaterialTheme.colorScheme.error)
+        Text(
+            stringResource(R.string.status_bar_no_corrections),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.error,
+            maxLines = 1,
+            softWrap = false,
+        )
     }
 }
 

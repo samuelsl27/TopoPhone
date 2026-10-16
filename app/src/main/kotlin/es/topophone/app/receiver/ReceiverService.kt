@@ -14,6 +14,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReceiverSnapshot
@@ -33,6 +34,8 @@ import kotlinx.coroutines.launch
 @InstallIn(SingletonComponent::class)
 interface ReceiverServiceEntryPoint {
     fun session(): ReceiverSession
+
+    fun alerts(): Alerts
 }
 
 /**
@@ -46,6 +49,8 @@ interface ReceiverServiceEntryPoint {
 class ReceiverService : Service() {
 
     private lateinit var session: ReceiverSession
+    private lateinit var alerts: Alerts
+    private var alarmCollector: Job? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val main = Handler(Looper.getMainLooper())
     private var collector: Job? = null
@@ -59,7 +64,9 @@ class ReceiverService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        session = EntryPointAccessors.fromApplication(applicationContext, ReceiverServiceEntryPoint::class.java).session()
+        val entryPoint = EntryPointAccessors.fromApplication(applicationContext, ReceiverServiceEntryPoint::class.java)
+        session = entryPoint.session()
+        alerts = entryPoint.alerts()
         ReceiverNotifications.createChannel(this)
     }
 
@@ -89,6 +96,10 @@ class ReceiverService : Service() {
                 }
             }
         }
+        if (alarmCollector == null) {
+            // S007/RF-29: sonido y vibración desde el servicio, también con la app en segundo plano.
+            alarmCollector = scope.launch { correctionsAlarmRises(session.state).collect { alerts.correctionsLost() } }
+        }
         // Si Android mata el proceso, la sesión se pierde con él: no tiene sentido recrear el servicio solo.
         return START_NOT_STICKY
     }
@@ -110,6 +121,8 @@ class ReceiverService : Service() {
     private fun stop() {
         collector?.cancel()
         collector = null
+        alarmCollector?.cancel()
+        alarmCollector = null
         releaseWakeLock()
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()

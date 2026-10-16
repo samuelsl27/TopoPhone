@@ -36,7 +36,7 @@
       Hecho cuando: `MountpointPickerTest` en verde.
 - [x] T17. `app`: tarjeta "Mensajes RTCM" en Correcciones. (RF-32, RF-33)
       Hecho cuando: `CorrectionsScreenTest` en verde para tipos, nombres, cuántos y errores.
-- [ ] T18. `app`: alarma en el indicador de estado y en la notificación, sonido y vibración del servicio, y umbral en Ajustes. (RF-29 a RF-31)
+- [x] T18. `app`: alarma en el indicador de estado y en la notificación, sonido y vibración del servicio, y umbral en Ajustes. (RF-29 a RF-31)
       Hecho cuando: `StatusIndicatorTest`, `ReceiverNotificationsTest` y `CorrectionsSettingsTest` en verde.
 - [ ] T19. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador con el caster falso según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo con el RS3 queda para el usuario.

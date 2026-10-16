@@ -67,6 +67,7 @@ fun SettingsScreen(
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     var showSessionSpaceDialog by rememberSaveable { mutableStateOf(false) }
+    var showCorrectionsAlarmDialog by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
     SectionScaffold(
@@ -106,6 +107,13 @@ fun SettingsScreen(
                 title = stringResource(R.string.background_help_title),
                 onClick = onOpenBackgroundHelp, // S004/RF-12
                 modifier = Modifier.testTag(BACKGROUND_HELP_SETTING_TAG),
+            )
+            SettingsSectionHeader(stringResource(R.string.settings_section_corrections))
+            SettingsItem(
+                title = stringResource(R.string.settings_corrections_alarm),
+                value = stringResource(R.string.settings_seconds, uiState.correctionsAlarmS),
+                onClick = { showCorrectionsAlarmDialog = true }, // S007/RF-31
+                modifier = Modifier.testTag(CORRECTIONS_ALARM_SETTING_TAG),
             )
             SettingsSectionHeader(stringResource(R.string.settings_section_information))
             SettingsItem(
@@ -151,6 +159,21 @@ fun SettingsScreen(
         )
     }
 
+    if (showCorrectionsAlarmDialog) {
+        // S007/RF-31: edad de las correcciones a partir de la cual suena la alarma.
+        SingleChoiceDialog(
+            title = stringResource(R.string.settings_corrections_alarm),
+            options = CORRECTIONS_ALARM_OPTIONS_S.map { it to stringResource(R.string.settings_seconds, it) },
+            selected = uiState.correctionsAlarmS,
+            onSelect = { seconds ->
+                actions.onSelectCorrectionsAlarm(seconds)
+                showCorrectionsAlarmDialog = false
+            },
+            onDismiss = { showCorrectionsAlarmDialog = false },
+            optionTag = ::correctionsAlarmOptionTag,
+        )
+    }
+
     if (showLanguageDialog) {
         // S001/RF-16, S001/RF-18: el idioma se aplica a toda la interfaz sin salir de Ajustes.
         SingleChoiceDialog(
@@ -168,6 +191,12 @@ fun SettingsScreen(
 }
 
 const val SESSION_SPACE_SETTING_TAG = "setting_session_space"
+const val CORRECTIONS_ALARM_SETTING_TAG = "setting_corrections_alarm"
+
+/** Umbrales que se ofrecen, todos entre 2 y 60 s (S007/RF-31). */
+val CORRECTIONS_ALARM_OPTIONS_S = listOf(2, 5, 10, 15, 20, 30, 45, 60)
+
+fun correctionsAlarmOptionTag(seconds: Int) = "corrections_alarm_$seconds"
 
 fun sessionSpaceOptionTag(mb: Int) = "session_space_$mb"
 
