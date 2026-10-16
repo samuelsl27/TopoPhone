@@ -14,6 +14,8 @@ import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.core.ntrip.NtripClient
+import es.topophone.core.ntrip.SourcetableClient
+import es.topophone.core.ntrip.SourcetableSource
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.ntrip.NtripProfileRepository
@@ -89,6 +91,10 @@ object ReceiverModule {
     ): ReceiverConnections = ReceiverConnections(session, bluetooth, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default)) {
         ReceiverService.start(context) // S004/RF-7
     }
+
+    /** Tabla de fuentes del caster, con la misma identificación que la conexión NTRIP (S007/RF-14). */
+    @Provides
+    fun sourcetableSource(): SourcetableSource = SourcetableClient(userAgent = "NTRIP TopoPhone/${BuildConfig.VERSION_NAME}")
 
     /** Conexión NTRIP con perfiles (S007): vive con la app para abrirse sola al conectar el receptor. */
     @Provides

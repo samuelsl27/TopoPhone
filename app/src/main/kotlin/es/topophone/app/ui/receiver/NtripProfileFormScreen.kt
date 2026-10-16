@@ -18,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -50,15 +51,24 @@ import es.topophone.core.model.ntrip.NtripProfileError
 import es.topophone.core.model.ntrip.PublicCaster
 import es.topophone.core.model.ntrip.PublicCasters
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.core.ntrip.Mountpoints
+import es.topophone.core.ntrip.RankedMountpoint
+import es.topophone.core.ntrip.SourcetableFailure
+import es.topophone.core.ntrip.SourcetableResult
+import es.topophone.core.ntrip.SourcetableSource
+import es.topophone.core.ntrip.SourcetableStream
 import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.ntrip.NtripSaveResult
 import es.topophone.data.ntrip.PasswordResult
+import es.topophone.receiver.session.ReceiverSession
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val PROFILE_NAME_TAG = "ntrip_profile_name"
 const val PROFILE_HOST_TAG = "ntrip_profile_host"
@@ -71,8 +81,21 @@ const val PROFILE_MOUNTPOINT_TAG = "ntrip_profile_mountpoint"
 const val PROFILE_SIGNUP_TAG = "ntrip_profile_signup"
 const val PROFILE_SAVE_TAG = "ntrip_profile_save"
 const val CASTER_OTHER_TAG = "caster_other"
+const val PROFILE_PICK_MOUNTPOINT_TAG = "ntrip_profile_pick_mountpoint"
 
 fun casterTag(id: String) = "caster_$id"
+
+/**
+ * Elegir el punto de montaje de la tabla de fuentes (S007/RF-14 a RF-20): descargando, la lista ya
+ * ordenada, lo que queda con la búsqueda, o por qué no se pudo descargar.
+ */
+data class MountpointPickerUi(
+    val loading: Boolean = true,
+    val all: List<RankedMountpoint> = emptyList(),
+    val query: String = "",
+    val shown: List<RankedMountpoint> = emptyList(),
+    val failure: SourcetableFailure? = null,
+)
 
 /**
  * Formulario de perfil NTRIP (S007/RF-2). [portText] es lo que se escribe; [publicCaster] el caster
@@ -89,6 +112,7 @@ data class NtripProfileFormUiState(
     val publicCaster: PublicCaster? = null,
     val errors: Set<NtripProfileError> = emptySet(),
     val saved: Boolean = false,
+    val picker: MountpointPickerUi? = null,
 )
 
 class NtripProfileFormActions(
@@ -101,11 +125,19 @@ class NtripProfileFormActions(
     val onSave: () -> Unit = {},
     val onBack: () -> Unit = {},
     val onOpenUrl: (String) -> Unit = {},
+    val onPickMountpoint: () -> Unit = {},
+    val onPickerQuery: (String) -> Unit = {},
+    val onChooseMountpoint: (SourcetableStream) -> Unit = {},
+    val onClosePicker: () -> Unit = {},
 )
 
 /** Perfil nuevo, partiendo de un caster público u otro (S007/RF-11), o editado (S007/RF-2, RF-14 de S006 en estilo). */
 @HiltViewModel
-class NtripProfileFormViewModel @Inject constructor(private val profiles: NtripProfileRepository) : ViewModel() {
+class NtripProfileFormViewModel @Inject constructor(
+    private val profiles: NtripProfileRepository,
+    private val sourcetable: SourcetableSource,
+    private val session: ReceiverSession,
+) : ViewModel() {
     private val mutableState = MutableStateFlow(NtripProfileFormUiState())
     val state: StateFlow<NtripProfileFormUiState> = mutableState.asStateFlow()
 
@@ -150,7 +182,43 @@ class NtripProfileFormViewModel @Inject constructor(private val profiles: NtripP
         onSave = ::save,
         onBack = onBack,
         onOpenUrl = onOpenUrl,
+        onPickMountpoint = ::openPicker,
+        onPickerQuery = ::filterMountpoints,
+        onChooseMountpoint = ::chooseMountpoint,
+        onClosePicker = { mutableState.update { it.copy(picker = null) } },
     )
+
+    /** S007/RF-14: con el servidor, el puerto, el TLS y las credenciales del formulario, aunque no esté guardado. */
+    fun openPicker() {
+        val current = mutableState.value
+        val draft = current.draft
+        val port = current.portText.trim().toIntOrNull() ?: draft.port
+        mutableState.update { it.copy(picker = MountpointPickerUi()) }
+        viewModelScope.launch {
+            val result = sourcetable.fetch(draft.host.trim(), port, draft.username, current.password, draft.useTls)
+            // S007/RF-16, RF-17: con posición del receptor, por distancia; sin ella, por nombre.
+            val fix = session.state.value.gga?.takeIf { it.hasPosition }
+            val picker = when (result) {
+                is SourcetableResult.Ok -> {
+                    val ranked = withContext(Dispatchers.Default) { Mountpoints.sort(result.streams, fix?.latitudeDeg, fix?.longitudeDeg) }
+                    MountpointPickerUi(loading = false, all = ranked, shown = ranked)
+                }
+                is SourcetableResult.Failed -> MountpointPickerUi(loading = false, failure = result.reason) // S007/RF-20
+            }
+            mutableState.update { if (it.picker == null) it else it.copy(picker = picker) }
+        }
+    }
+
+    /** S007/RF-18. */
+    fun filterMountpoints(query: String) = mutableState.update { current ->
+        val picker = current.picker ?: return@update current
+        current.copy(picker = picker.copy(query = query, shown = Mountpoints.filter(picker.all, query)))
+    }
+
+    /** S007/RF-19: el punto de montaje y si necesita la GGA, según la tabla. */
+    fun chooseMountpoint(stream: SourcetableStream) = mutableState.update {
+        it.copy(draft = it.draft.copy(mountpoint = stream.mountpoint, mountpointNeedsGga = stream.needsGga), picker = null)
+    }
 
     fun update(draft: NtripProfileDraft) = mutableState.update { it.copy(draft = draft, errors = emptySet()) }
 
@@ -253,6 +321,11 @@ fun NtripProfileFormScreen(
             FormText(draft.mountpoint, R.string.ntrip_mountpoint, PROFILE_MOUNTPOINT_TAG, null, KeyboardType.Ascii) {
                 actions.onChange(draft.copy(mountpoint = it, mountpointNeedsGga = null))
             }
+            OutlinedButton(
+                onClick = actions.onPickMountpoint,
+                enabled = draft.host.isNotBlank(),
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(PROFILE_PICK_MOUNTPOINT_TAG),
+            ) { Text(stringResource(R.string.ntrip_pick_mountpoint)) } // S007/RF-14
             state.publicCaster?.let { caster ->
                 val access = casterAccessLabel(caster.access)
                 Text(
@@ -269,6 +342,7 @@ fun NtripProfileFormScreen(
             }
         }
         if (state.choosingCaster) CasterChooser(actions.onChooseCaster)
+        state.picker?.let { MountpointPicker(it, actions) }
     }
 }
 

@@ -130,8 +130,9 @@ class ReceiverSessionCorrectionsTest {
         val session = session(alarmSeconds = 2)
         session.startNtrip(config)
         blocks.trySend(rtcm.copyOfRange(0, 1000))
-        session.await { (it.ntrip as? NtripState.Streaming)?.bytesReceived == 1000L }
-        val lastCorrection = now()
+        // La edad se cuenta desde que la sesión recibió la corrección, con su mismo reloj monótono.
+        val lastCorrection = (session.await { (it.ntrip as? NtripState.Streaming)?.bytesReceived == 1000L }.ntrip as NtripState.Streaming)
+            .lastCorrectionAtMs!!
 
         session.await(timeoutMs = 6_000) { it.correctionsAlarm }
 

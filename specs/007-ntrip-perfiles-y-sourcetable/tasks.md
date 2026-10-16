@@ -32,7 +32,7 @@
       Hecho cuando: `CorrectionsScreenTest` en verde y los tests de S002 adaptados.
 - [x] T15. `app`: formulario de perfil (validaciones, contraseña oculta con botón de ver, TLS) y diálogo "Elegir caster" con casters públicos. (RF-2, RF-3, RF-5, RF-11 a RF-13)
       Hecho cuando: `NtripProfileFormTest` en verde.
-- [ ] T16. `app`: elegir punto de montaje desde la tabla de fuentes (orden, búsqueda, sin posición, fallo y escribirlo a mano). (RF-14 a RF-20)
+- [x] T16. `app`: elegir punto de montaje desde la tabla de fuentes (orden, búsqueda, sin posición, fallo y escribirlo a mano). (RF-14 a RF-20)
       Hecho cuando: `MountpointPickerTest` en verde.
 - [ ] T17. `app`: tarjeta "Mensajes RTCM" en Correcciones. (RF-32, RF-33)
       Hecho cuando: `CorrectionsScreenTest` en verde para tipos, nombres, cuántos y errores.

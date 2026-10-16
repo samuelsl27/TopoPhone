@@ -23,12 +23,20 @@ import es.topophone.core.model.ntrip.NtripProfileDraft
 import es.topophone.core.model.ntrip.PublicCasters
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.core.ntrip.NtripConnector
+import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.ntrip.SourcetableFailure
+import es.topophone.core.ntrip.SourcetableResult
 import es.topophone.data.ntrip.PasswordResult
+import es.topophone.receiver.session.ReceiverSession
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -50,6 +58,8 @@ class NtripProfileFormTest {
     val compose = createComposeRule()
 
     private val profiles = FakeNtripProfiles()
+    private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val session = ReceiverSession(sessionScope, NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
     private var savedBack = 0
     private val opened = mutableListOf<String>()
 
@@ -59,10 +69,13 @@ class NtripProfileFormTest {
     fun setMain() = Dispatchers.setMain(UnconfinedTestDispatcher())
 
     @After
-    fun resetMain() = Dispatchers.resetMain()
+    fun resetMain() {
+        sessionScope.cancel()
+        Dispatchers.resetMain()
+    }
 
     private fun open(profileId: String? = null): NtripProfileFormViewModel {
-        val vm = NtripProfileFormViewModel(profiles)
+        val vm = NtripProfileFormViewModel(profiles, { _, _, _, _, _ -> SourcetableResult.Failed(SourcetableFailure.UNREACHABLE) }, session)
         vm.start(profileId)
         compose.setContent {
             val state by vm.state.collectAsStateWithLifecycle()

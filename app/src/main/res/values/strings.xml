@@ -339,4 +339,19 @@
     <string name="caster_euskadi_network">Red GNSS de Euskadi: red</string>
     <string name="caster_euskadi_station">Red GNSS de Euskadi: estación única</string>
     <string name="caster_bizkaia">Red de Bizkaia</string>
+    <string name="ntrip_pick_mountpoint">Elegir de la lista</string>
+    <string name="mountpoint_picker_title">Puntos de montaje</string>
+    <string name="mountpoint_search">Buscar punto de montaje</string>
+    <string name="mountpoint_none">Ningún punto de montaje coincide.</string>
+    <string name="mountpoint_loading">Descargando la tabla de fuentes…</string>
+    <string name="mountpoint_summary">%1$s · %2$s · %3$s</string>
+    <string name="mountpoint_needs_gga">Necesita la posición del receptor (GGA)</string>
+    <string name="mountpoint_distance">%1$s km</string>
+    <string name="mountpoint_failure">No se pudo descargar la tabla de fuentes: %1$s. Puedes escribir el punto de montaje.</string>
+    <string name="mountpoint_manual">Escribir a mano</string>
+    <string name="sourcetable_unreachable">no se puede contactar con el caster</string>
+    <string name="sourcetable_unauthorized">el caster rechaza el usuario o la contraseña</string>
+    <string name="sourcetable_not_table">la respuesta no es una tabla de fuentes</string>
+    <string name="sourcetable_empty">la tabla no tiene puntos de montaje</string>
+    <string name="sourcetable_tls">el certificado del caster no es válido</string>
 </resources>

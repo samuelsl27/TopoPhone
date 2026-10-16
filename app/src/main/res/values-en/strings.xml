@@ -327,4 +327,19 @@
     <string name="caster_euskadi_network">Basque Country GNSS network: network</string>
     <string name="caster_euskadi_station">Basque Country GNSS network: single station</string>
     <string name="caster_bizkaia">Biscay network</string>
+    <string name="ntrip_pick_mountpoint">Choose from the list</string>
+    <string name="mountpoint_picker_title">Mountpoints</string>
+    <string name="mountpoint_search">Search mountpoint</string>
+    <string name="mountpoint_none">No mountpoint matches.</string>
+    <string name="mountpoint_loading">Downloading the source table…</string>
+    <string name="mountpoint_summary">%1$s · %2$s · %3$s</string>
+    <string name="mountpoint_needs_gga">Needs the receiver position (GGA)</string>
+    <string name="mountpoint_distance">%1$s km</string>
+    <string name="mountpoint_failure">The source table could not be downloaded: %1$s. You can type the mountpoint.</string>
+    <string name="mountpoint_manual">Type it</string>
+    <string name="sourcetable_unreachable">the caster cannot be reached</string>
+    <string name="sourcetable_unauthorized">the caster rejects the user or password</string>
+    <string name="sourcetable_not_table">the response is not a source table</string>
+    <string name="sourcetable_empty">the table has no mountpoints</string>
+    <string name="sourcetable_tls">the caster certificate is not valid</string>
 </resources>

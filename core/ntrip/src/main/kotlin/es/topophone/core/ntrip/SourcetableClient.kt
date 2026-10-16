@@ -22,6 +22,11 @@ sealed interface SourcetableResult {
     data class Failed(val reason: SourcetableFailure) : SourcetableResult
 }
 
+/** De dónde sale la tabla de fuentes; [SourcetableClient] es la real y los tests usan una falsa (S007/RF-14). */
+fun interface SourcetableSource {
+    suspend fun fetch(host: String, port: Int, username: String, password: String, useTls: Boolean): SourcetableResult
+}
+
 /**
  * Descarga la tabla de fuentes del caster (`GET /`) con la misma petición que la conexión NTRIP,
  * en 1.0 (`SOURCETABLE 200 OK`) o en 2.0 (HTTP, quizá por bloques) (S007/RF-14).
@@ -32,8 +37,12 @@ class SourcetableClient(
     private val sslSocketFactory: SSLSocketFactory = SSLSocketFactory.getDefault() as SSLSocketFactory,
     private val timeoutMs: Int = DEFAULT_TIMEOUT_MS,
     private val maxBytes: Int = MAX_BYTES,
-) {
-    suspend fun fetch(host: String, port: Int, username: String, password: String, useTls: Boolean = false): SourcetableResult =
+) : SourcetableSource {
+    /** Sin TLS si no se dice; la interfaz lo pide siempre. */
+    suspend fun fetch(host: String, port: Int, username: String, password: String): SourcetableResult =
+        fetch(host, port, username, password, false)
+
+    override suspend fun fetch(host: String, port: Int, username: String, password: String, useTls: Boolean): SourcetableResult =
         coroutineScope {
             val socket = socketFactory.createSocket()
             val config = NtripConfig(host, port, mountpoint = "", username, password, useTls = useTls)
