@@ -38,11 +38,14 @@ const val NTRIP_LAST_CORRECTION_TAG = "ntrip_last_correction"
 internal fun NtripCard(state: ReceiverUiState, actions: ReceiverActions) {
     ReceiverCard(stringResource(R.string.receiver_ntrip_title)) {
         val ntrip = state.snapshot.ntrip
-        val active = ntrip is NtripState.Connecting || ntrip is NtripState.Streaming || ntrip == NtripState.Paused
+        val active = ntrip is NtripState.Connecting ||
+            ntrip is NtripState.Streaming ||
+            ntrip is NtripState.Reconnecting ||
+            ntrip == NtripState.Paused
         NtripForm(state.form, enabled = !active, onChange = actions.onFormChange)
         if (state.formInvalid) Text(stringResource(R.string.ntrip_form_invalid), color = MaterialTheme.colorScheme.error)
         Text(ntripStatusText(ntrip), modifier = Modifier.testTag(NTRIP_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
-        if (ntrip == NtripState.Stopped(NtripFailure.UNREACHABLE) && !state.internetAvailable) {
+        if (ntrip.unreachable() && !state.internetAvailable) {
             Text(stringResource(R.string.ntrip_no_internet)) // S002/RF-23
         }
         if (ntrip is NtripState.Streaming) StreamingStats(ntrip, state.nowMs)
@@ -113,10 +116,22 @@ private fun StreamingStats(ntrip: NtripState.Streaming, nowMs: Long) {
     Text(since, modifier = Modifier.testTag(NTRIP_LAST_CORRECTION_TAG))
 }
 
+/** No se puede contactar con el caster, se esté reintentando o no (S002/RF-23). */
+internal fun NtripState.unreachable(): Boolean =
+    this == NtripState.Stopped(NtripFailure.UNREACHABLE) || (this as? NtripState.Reconnecting)?.failure == NtripFailure.UNREACHABLE
+
 /** Estado del NTRIP en texto, también para el resumen de Correcciones (S005/RF-12). */
 @Composable
-internal fun ntripStatusText(ntrip: NtripState): String = stringResource(
+internal fun ntripStatusText(ntrip: NtripState): String = if (ntrip is NtripState.Reconnecting) {
+    stringResource(R.string.ntrip_reconnecting, ntrip.attempt) // S007/RF-25
+} else {
+    ntripStatusResource(ntrip)
+}
+
+@Composable
+private fun ntripStatusResource(ntrip: NtripState): String = stringResource(
     when (ntrip) {
+        is NtripState.Reconnecting -> R.string.ntrip_state_connecting
         NtripState.Idle -> R.string.ntrip_state_idle
         NtripState.Connecting -> R.string.ntrip_state_connecting
         is NtripState.Streaming -> R.string.ntrip_state_streaming

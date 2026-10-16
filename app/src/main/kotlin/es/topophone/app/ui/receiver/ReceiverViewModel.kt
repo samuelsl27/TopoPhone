@@ -11,7 +11,6 @@ import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
 import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.ntrip.NtripConfig
-import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.PoleHeight
@@ -20,7 +19,6 @@ import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.platform.NetworkStatus
 import es.topophone.receiver.session.ConnectionState
-import es.topophone.receiver.session.NtripState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReceiverSnapshot
 import es.topophone.receiver.session.ReplayController
@@ -225,7 +223,7 @@ class ReceiverViewModel @Inject constructor(
         }
         viewModelScope.launch {
             session.state.map { it.ntrip }.distinctUntilChanged().collect { state ->
-                if (state == NtripState.Stopped(NtripFailure.UNREACHABLE)) internet.value = network.hasInternet() // S002/RF-23
+                if (state.unreachable()) internet.value = network.hasInternet() // S002/RF-23
             }
         }
     }

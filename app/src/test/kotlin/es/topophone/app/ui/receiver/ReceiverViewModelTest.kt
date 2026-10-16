@@ -147,7 +147,7 @@ class ReceiverViewModelTest {
 
         runBlocking { withTimeout(2_000) { preferences.ntripFlow.first { it.host.isNotEmpty() } } } shouldBe
             NtripPreferences("caster.es", 2102, "VRS3", "topo")
-        vm.awaitState { it.snapshot.ntrip is NtripState.Stopped }
+        vm.awaitState { it.snapshot.ntrip is NtripState.Reconnecting } // S007/RF-23: el caster falso no responde
         ntripConfigUsed shouldBe NtripConfig("caster.es", 2102, "VRS3", "topo", "s3cr3t")
     }
 
@@ -162,9 +162,10 @@ class ReceiverViewModelTest {
         vm.updateForm(NtripForm(host = "caster.es", mountpoint = "VRS3"))
         vm.connectNtrip()
 
-        // Los dos datos llegan por flujos distintos: se espera a ver ambos en el mismo estado.
-        vm.awaitState { !it.internetAvailable && it.snapshot.ntrip is NtripState.Stopped }.snapshot.ntrip shouldBe
-            NtripState.Stopped(NtripFailure.UNREACHABLE)
+        // Los dos datos llegan por flujos distintos: se espera a ver ambos en el mismo estado. Mientras,
+        // se reintenta (S007/RF-23).
+        val ntrip = vm.awaitState { !it.internetAvailable && it.snapshot.ntrip is NtripState.Reconnecting }.snapshot.ntrip
+        (ntrip as NtripState.Reconnecting).failure shouldBe NtripFailure.UNREACHABLE
     }
 
     @Test

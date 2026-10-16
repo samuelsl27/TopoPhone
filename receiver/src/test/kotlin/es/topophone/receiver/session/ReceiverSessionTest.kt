@@ -22,6 +22,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -208,7 +209,7 @@ class ReceiverSessionTest {
             onConnected()
             ggaSeen.complete(latestGga())
             blocks.forEach { onCorrections(it) }
-            NtripFailure.CONNECTION_LOST
+            awaitCancellation() // sigue conectado: un corte se reintentaría (S007/RF-23) y repetiría los bloques
         }
         val transport = FakeTransport()
         val session = session(connector)
@@ -218,7 +219,7 @@ class ReceiverSessionTest {
 
         session.startNtrip(CONFIG)
 
-        session.await { it.ntrip is NtripState.Stopped }.ntrip shouldBe NtripState.Stopped(NtripFailure.CONNECTION_LOST)
+        session.await { (it.ntrip as? NtripState.Streaming)?.bytesReceived == 9L }
         runBlocking { withTimeout(2_000) { ggaSeen.await() } } shouldBe gga.trimEnd()
         runBlocking { withTimeout(2_000) { while (transport.writtenBytes().size < 9) kotlinx.coroutines.delay(20) } }
         transport.writtenBytes().toList() shouldBe blocks.flatMap { it.toList() }

@@ -83,6 +83,9 @@ sealed interface NtripState {
 
     data class Stopped(val failure: NtripFailure) : NtripState
 
+    /** Se cortó por [failure] y se volverá a conectar sola en [nextAttemptAtMs]; [attempt] empieza en 1 (S007/RF-23, RF-25). */
+    data class Reconnecting(val attempt: Int, val failure: NtripFailure, val nextAttemptAtMs: Long) : NtripState
+
     data object ReceiverNotConnected : NtripState
 
     /** Una reproducción no admite correcciones (S003/RF-44). */
@@ -184,6 +187,7 @@ class ReceiverSession(
     private val giveUpAfterMs: Long = GIVE_UP_AFTER_MS,
     private val busyThresholdMs: Long = BUSY_THRESHOLD_MS,
     private val nmeaMissingAfterMs: Long = NMEA_MISSING_AFTER_MS,
+    private val ntripBackoffMs: List<Long> = DEFAULT_NTRIP_BACKOFF_MS,
 ) {
     private val mutableState = MutableStateFlow(ReceiverSnapshot())
     val state: StateFlow<ReceiverSnapshot> = mutableState.asStateFlow()
@@ -382,7 +386,11 @@ class ReceiverSession(
         mutableState.update { it.copy(replay = it.replay?.copy(loop = loop)) }
     }
 
-    /** Conecta con el caster y reenvía sus correcciones al receptor (S002/RF-19, RF-28). */
+    /**
+     * Conecta con el caster y reenvía sus correcciones al receptor (S002/RF-19, RF-28). Si se corta, no
+     * llegan datos o no se puede contactar, reintenta con esperas crecientes hasta que se detenga
+     * (S007/RF-23); los rechazos y el TLS no válido no se reintentan (S007/RF-24, RF-28).
+     */
     fun startNtrip(config: NtripConfig) {
         if (synchronized(lock) { transport }?.simulated == true) {
             mutableState.update { it.copy(ntrip = NtripState.UnavailableInReplay) } // S003/RF-44
@@ -399,18 +407,33 @@ class ReceiverSession(
         mutableState.update { it.copy(ntrip = NtripState.Connecting) }
         ntripJob = scope.launch {
             var bytes = 0L
-            val failure = ntripConnector.run(
-                config,
-                latestGga = { mutableState.value.gga?.rawSentence },
-                onConnected = { mutableState.update { it.copy(ntrip = NtripState.Streaming(0, null)) } },
-            ) { corrections ->
-                channel.send(corrections)
-                bytes += corrections.size
-                val now = clock()
-                mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, now)) } // S002/RF-25
+            var lastCorrectionAtMs: Long? = null
+            var attempt = 0
+            while (isActive) {
+                val failure = ntripConnector.run(
+                    config,
+                    latestGga = { mutableState.value.gga?.rawSentence },
+                    onConnected = {
+                        attempt = 0 // S007/RF-23: un corte nuevo empieza por el primer intento
+                        mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, lastCorrectionAtMs)) }
+                    },
+                ) { corrections ->
+                    channel.send(corrections)
+                    bytes += corrections.size
+                    val now = clock()
+                    lastCorrectionAtMs = now
+                    mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, now)) } // S002/RF-25
+                }
+                if (failure in PERMANENT_NTRIP_FAILURES) {
+                    ntripConfig = null // S007/RF-24, RF-28: hace falta que el usuario cambie algo
+                    mutableState.update { it.copy(ntrip = NtripState.Stopped(failure)) }
+                    break
+                }
+                attempt++
+                val wait = ntripBackoffMs[minOf(attempt - 1, ntripBackoffMs.lastIndex)]
+                mutableState.update { it.copy(ntrip = NtripState.Reconnecting(attempt, failure, clock() + wait)) } // S007/RF-25
+                delay(wait)
             }
-            ntripConfig = null // un NTRIP que el caster cortó no se reanuda solo
-            mutableState.update { it.copy(ntrip = NtripState.Stopped(failure)) }
         }
     }
 
@@ -550,6 +573,13 @@ class ReceiverSession(
 
         /** Esperas entre reintentos de reconexión: 1, 2, 4, 8 y 16 s y después cada 30 s (S004/RF-14, RNF-T3). */
         val DEFAULT_BACKOFF_MS = listOf(1_000L, 2_000L, 4_000L, 8_000L, 16_000L, 30_000L)
+
+        /** Las mismas esperas para volver a conectar con el caster (S007/RF-23, RNF-T3). */
+        val DEFAULT_NTRIP_BACKOFF_MS = DEFAULT_BACKOFF_MS
+
+        /** Fallos que no se arreglan reintentando: credenciales, punto de montaje, TLS y respuesta no NTRIP (S007/RF-24, RF-28). */
+        private val PERMANENT_NTRIP_FAILURES =
+            setOf(NtripFailure.UNAUTHORIZED, NtripFailure.MOUNTPOINT_NOT_FOUND, NtripFailure.TLS_INVALID, NtripFailure.PROTOCOL)
 
         /** Un rechazo antes de 3 s apunta a que el receptor ya tiene otra conexión (S004/RF-27). */
         const val BUSY_THRESHOLD_MS = 3_000L

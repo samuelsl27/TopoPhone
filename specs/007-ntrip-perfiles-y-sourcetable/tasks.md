@@ -22,7 +22,7 @@
       Hecho cuando: `NtripProfileRepositoryTest` en verde, incluido que la base no contiene la contraseña en claro.
 - [x] T10. `data`: preferencias nuevas (último perfil, "estaba abierta", umbral 2–60 s) e importación única de los datos de S002. (RF-10, RF-26, RF-31)
       Hecho cuando: `ReceiverPreferencesTest` y `NtripLegacyImportTest` en verde.
-- [ ] T11. `receiver`: reconexión del NTRIP con espera creciente, estado `Reconnecting`, sin reintento ante rechazos y TLS, y detener durante la espera. (RF-23 a RF-25)
+- [x] T11. `receiver`: reconexión del NTRIP con espera creciente, estado `Reconnecting`, sin reintento ante rechazos y TLS, y detener durante la espera. (RF-23 a RF-25)
       Hecho cuando: `ReceiverSessionNtripTest` en verde para esos casos con reloj virtual.
 - [ ] T12. `receiver`: recuento RTCM en `Streaming` (reenviar antes de contar) y alarma por edad con `Alerts.correctionsLost()`. (RF-29, RF-30, RF-32, RF-33)
       Hecho cuando: `ReceiverSessionNtripTest` en verde para alarma (umbral, vuelta, una por corte) y recuento con reenvío intacto.
