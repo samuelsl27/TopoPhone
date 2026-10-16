@@ -6,6 +6,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import es.topophone.data.ntrip.NtripProfileDao
 import es.topophone.data.ntrip.NtripProfileEntity
 import es.topophone.data.project.ProjectDao
 import es.topophone.data.project.ProjectEntity
@@ -27,6 +28,8 @@ import es.topophone.data.project.ProjectFolderEntity
 abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun projects(): ProjectDao
+
+    abstract fun ntripProfiles(): NtripProfileDao
 
     companion object {
         const val NAME = "topophone.db"
