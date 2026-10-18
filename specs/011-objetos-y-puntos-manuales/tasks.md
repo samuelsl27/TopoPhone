@@ -10,7 +10,7 @@
       Hecho cuando: `NumberInputTest` y `AngleInputTest` en verde, con los casos inválidos.
 - [x] T4. `core:model`: `Point`, `Measurement`, `TypedCoordinates`, `PointSnapshot`, `PointHistoryEntry` y `PointSummary`; `PointNames.nextFree` y `PointSearch`. `CollectedPoint` pasa a `Point` en todo el código de S010. (RF-1 a RF-3, RF-16, RF-21)
       Hecho cuando: `PointNamesTest` y `PointSearchTest` en verde, y los tests de S010 siguen en verde.
-- [ ] T5. `core:survey`: `ProjectPositionCalculator.fromGround` y `ManualCoordinates`. (RF-17 a RF-20)
+- [x] T5. `core:survey`: `ProjectPositionCalculator.fromGround` y `ManualCoordinates`. (RF-17 a RF-20)
       Hecho cuando: `ManualCoordinatesTest` en verde frente a `puntos_manuales.csv` (≤ 1 mm) y los tests de S008 siguen en verde.
 - [ ] T6. `core:survey`: `PointCorrections` (jalón, volver a la medida, duplicar). (RF-12 a RF-14, RF-21)
       Hecho cuando: `PointCorrectionsTest` en verde frente a `jalon_corregido.csv` (≤ 1 mm), con un punto editado.

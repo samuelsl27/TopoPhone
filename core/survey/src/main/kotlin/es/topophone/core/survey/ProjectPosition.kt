@@ -7,6 +7,7 @@ import es.topophone.core.geodesy.GeoidModel
 import es.topophone.core.geodesy.GeoidModels
 import es.topophone.core.geodesy.Utm
 import es.topophone.core.gnss.nmea.GgaFix
+import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.HeightSystem
@@ -53,8 +54,24 @@ class ProjectPositionCalculator(
         heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
     ): ProjectPosition? {
         if (!fix.hasPosition) return null
-        val lat = fix.latitudeDeg
-        val lon = fix.longitudeDeg
+        // Jalón vertical, como en S002/RF-32: el suelo está bajo el receptor sobre la normal.
+        val altitude = fix.altitudeM
+        val separation = fix.geoidSeparationM
+        val groundHeight = if (altitude != null && separation != null) {
+            altitude + separation - VerticalPole.antennaHeightM(poleHeightM, model)
+        } else {
+            null
+        }
+        return fromGround(GeodeticPosition(fix.latitudeDeg, fix.longitudeDeg, groundHeight), crs, heightSystem)
+    }
+
+    /**
+     * Del punto del suelo (geográficas ETRS89 o REGCAN95 y altura elipsoidal) al SC del proyecto: lo que hace
+     * [compute] tras restar el jalón, para los puntos manuales y al corregir el jalón (S011/RF-14, RF-17).
+     */
+    fun fromGround(ground: GeodeticPosition, crs: ProjectCrs, heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC): ProjectPosition {
+        val lat = ground.latitudeDeg
+        val lon = ground.longitudeDeg
         if (!crs.area.contains(lat, lon)) return ProjectPosition(unavailable = setOf(PositionUnavailable.OUTSIDE_CRS_AREA)) // S008/RF-9
 
         // S008/RF-7, RF-8: ED50 sale de ETRS89 por la rejilla; fuera de ella no hay coordenadas.
@@ -64,15 +81,7 @@ class ProjectPositionCalculator(
             lat to lon
         }
         val unavailable = mutableSetOf<PositionUnavailable>()
-
-        // Jalón vertical, como en S002/RF-32: el suelo está bajo el receptor sobre la normal.
-        val altitude = fix.altitudeM
-        val separation = fix.geoidSeparationM
-        val groundHeight = if (altitude != null && separation != null) {
-            altitude + separation - VerticalPole.antennaHeightM(poleHeightM, model)
-        } else {
-            null
-        }
+        val groundHeight = ground.ellipsoidalHeightM
         if (groundHeight == null) unavailable += PositionUnavailable.NO_HEIGHT
         val height = when (heightSystem) {
             HeightSystem.ELLIPSOIDAL -> groundHeight // S008/RF-5
