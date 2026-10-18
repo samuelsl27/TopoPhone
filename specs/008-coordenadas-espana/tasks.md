@@ -12,7 +12,7 @@
       Hecho cuando: `Ed50Test` en verde contra los vectores ED50 / UTM (≤ 1 mm) y la ida y vuelta ≤ 0,1 mm.
 - [x] T5. `core:geodesy`: geoide EGM08-REDNAP de Canarias incluido; tamaño de las rejillas. (RF-4)
       Hecho cuando: `GeoidCanariasTest` en verde (≤ 1 mm y fuera de cobertura) y la prueba de tamaño < 300 KB.
-- [ ] T6. `core:model`: catálogo `ProjectCrs` (11 SC con datum, huso, ámbito, EPSG y alturas), `HeightSystem`, datum de las correcciones por SC, `DatumCheck` general y huso propuesto. (RF-1 a RF-3, RF-9, RF-11, RF-17, RF-18)
+- [x] T6. `core:model`: catálogo `ProjectCrs` (10 SC con datum, huso, ámbito, EPSG y alturas), `HeightSystem`, datum de las correcciones por SC, `DatumCheck` general y huso propuesto. (RF-1 a RF-3, RF-9, RF-11, RF-17, RF-18)
       Hecho cuando: `ProjectCrsTest` y los casos nuevos de `ProjectNamesTest` en verde, y los de S006 adaptados.
 - [ ] T7. `core:model`: formato de ángulos en gon y de latitud, longitud y convergencia en DD, DMS y gon con su resolución. (RF-6, RF-14)
       Hecho cuando: `AngleFormatTest` en verde.

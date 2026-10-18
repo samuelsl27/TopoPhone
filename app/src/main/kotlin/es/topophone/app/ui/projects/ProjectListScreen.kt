@@ -51,6 +51,7 @@ import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
@@ -553,9 +554,28 @@ private fun FolderRow(folder: ProjectFolder, actions: ProjectListActions) {
     }
 }
 
-/** Nombre del SC del proyecto en la interfaz (S006/RF-2, RF-8). */
+/** Nombre del SC del proyecto en la interfaz: "ETRS89 / UTM huso 30", "REGCAN95 / geográficas" (S006/RF-2, S008/RF-1). */
 @Composable
-internal fun crsLabel(crs: ProjectCrs): String = stringResource(R.string.project_crs_utm, crs.utmZone)
+internal fun crsLabel(crs: ProjectCrs): String {
+    val datum = datumName(crs.datum)
+    val zone = crs.utmZone
+    return if (zone !=
+        null
+    ) {
+        stringResource(R.string.project_crs_utm, datum, zone)
+    } else {
+        stringResource(R.string.project_crs_geographic, datum)
+    }
+}
+
+@Composable
+internal fun datumName(datum: GeodeticDatum): String = stringResource(
+    when (datum) {
+        GeodeticDatum.ETRS89 -> R.string.crs_datum_etrs89
+        GeodeticDatum.REGCAN95 -> R.string.crs_datum_regcan95
+        GeodeticDatum.ED50 -> R.string.crs_datum_ed50
+    },
+)
 
 /** Fecha y hora locales del móvil (RNF-T10). */
 internal fun formatDateTime(epochMs: Long, locale: Locale): String = Instant.ofEpochMilli(

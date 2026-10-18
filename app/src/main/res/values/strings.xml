@@ -223,7 +223,7 @@
     <string name="projects_empty_title">Todavía no hay proyectos</string>
     <string name="projects_empty_description">Crea el primero con «Nuevo proyecto».</string>
     <string name="project_new">Nuevo proyecto</string>
-    <string name="project_crs_utm">ETRS89 / UTM huso %1$d</string>
+    <string name="project_crs_utm">%1$s / UTM huso %2$d</string>
     <string name="project_modified">Modificado: %1$s</string>
     <string name="project_in_folder">En la carpeta %1$s</string>
     <string name="projects_search">Buscar proyecto</string>
@@ -378,4 +378,8 @@
     <string name="settings_section_corrections">Correcciones</string>
     <string name="settings_corrections_alarm">Alarma de correcciones</string>
     <string name="settings_seconds">%1$d s</string>
+    <string name="project_crs_geographic">%1$s / geográficas</string>
+    <string name="crs_datum_etrs89">ETRS89</string>
+    <string name="crs_datum_regcan95">REGCAN95</string>
+    <string name="crs_datum_ed50">ED50</string>
 </resources>

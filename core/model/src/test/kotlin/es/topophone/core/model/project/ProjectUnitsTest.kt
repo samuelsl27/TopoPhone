@@ -51,11 +51,10 @@ class ProjectUnitsTest {
 
     @Test
     fun `S006 RF-8 SC del proyecto ETRS89 UTM husos 29, 30 y 31 con altitudes EGM08-REDNAP`() {
-        ProjectCrs.entries.map { it.utmZone } shouldContainExactly listOf(29, 30, 31)
-        ProjectCrs.entries.forEach {
-            it.datum shouldBe GeodeticDatum.ETRS89
-            it.heights shouldBe HeightModel.EGM08_REDNAP
-        }
+        // S008 añade más SC; los de S006 siguen ahí, con altitud.
+        val etrs89Utm = ProjectCrs.entries.filter { it.datum == GeodeticDatum.ETRS89 && it.isUtm }
+        etrs89Utm.map { it.utmZone } shouldContainExactly listOf(29, 30, 31)
+        etrs89Utm.forEach { (HeightSystem.ORTHOMETRIC in it.heightSystems) shouldBe true }
         ProjectCrs.ETRS89_UTM30.epsg shouldBe 25830
     }
 }

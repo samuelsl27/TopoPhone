@@ -113,7 +113,7 @@ class ProjectViewTest {
 
         compose.onNodeWithText("Calle Mayor 12").assertIsDisplayed()
         compose.onNodeWithTag(PROJECT_INFO_TAG)
-            .assert(hasText(text(R.string.project_crs_utm, 30)))
+            .assert(hasText(text(R.string.project_crs_utm, "ETRS89", 30)))
             .assert(hasText(text(R.string.unit_us_survey_foot), substring = true))
             .assert(hasText(text(R.string.unit_gon), substring = true))
             .assert(hasText(text(R.string.datum_etrs89), substring = true))

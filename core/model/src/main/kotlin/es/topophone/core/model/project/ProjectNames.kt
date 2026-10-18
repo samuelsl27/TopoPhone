@@ -47,9 +47,12 @@ object ProjectNames {
     }
 }
 
-/** Datum de las correcciones frente al del SC del proyecto (S006/RF-11). */
+/** Datum de las correcciones frente al del SC del proyecto (S006/RF-11, S008/RF-18). */
 object DatumCheck {
-    /** ITRF/WGS84 y ETRS89 difieren unos 0,9 m en 2026; REGCAN95 es ETRS89 en Canarias. */
-    fun mismatch(crs: ProjectCrs, corrections: CorrectionsDatum): Boolean =
-        crs.datum == GeodeticDatum.ETRS89 && corrections == CorrectionsDatum.ITRF_WGS84
+    /** Las correcciones no están en el datum del SC (ETRS89 para ETRS89 y ED50, REGCAN95 para REGCAN95). */
+    fun mismatch(crs: ProjectCrs, corrections: CorrectionsDatum): Boolean = corrections != crs.correctionsDatum
+
+    /** El caso de S006/RF-11: ITRF/WGS84 y ETRS89 difieren unos 0,9 m en 2026. */
+    fun itrfOverEtrs89(crs: ProjectCrs, corrections: CorrectionsDatum): Boolean =
+        crs.correctionsDatum == CorrectionsDatum.ETRS89 && corrections == CorrectionsDatum.ITRF_WGS84
 }

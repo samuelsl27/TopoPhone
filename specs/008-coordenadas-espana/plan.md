@@ -7,7 +7,7 @@
 |---|---|---|
 | `tools` | Rejillas SPED2ETV2 y EGM08-REDNAP Canarias en el registro (con SHA-256); vectores de pyproj para REGCAN95 / UTM 27–28, geoide de Canarias, ED50 / UTM 29–31 (por la rejilla) y factor de escala y convergencia | RF-1, RF-4, RF-7, RF-13, RF-14; RNF |
 | `core:geodesy` | `Ellipsoid.INTERNATIONAL_1924`; UTM sobre cualquier elipsoide; factor de escala y convergencia de la TM; lector GeoTIFF con varias subrejillas y bandas; `HorizontalShiftGrid` y la transformación ETRS89 → ED50; geoide de Canarias | RF-4, RF-7, RF-8, RF-13, RF-14 |
-| `core:model` | `ProjectCrs` con los 11 SC (datum, proyección, huso, ámbito), `HeightSystem`, datum de las correcciones de cada SC, aviso de datum general, formato de ángulos en gon y de la convergencia | RF-1 a RF-3, RF-6, RF-9, RF-14, RF-17, RF-18 |
+| `core:model` | `ProjectCrs` con los 10 SC (datum, proyección, huso, ámbito), `HeightSystem`, datum de las correcciones de cada SC, aviso de datum general, formato de ángulos en gon y de la convergencia | RF-1 a RF-3, RF-6, RF-9, RF-14, RF-17, RF-18 |
 | `core:survey` | `ProjectPositionCalculator` para todos los SC y alturas, con factores y huso de la posición; `GroundPointCalculator` con husos 27–31 y Canarias | RF-4 a RF-9, RF-12 a RF-16, RF-20, RF-21 |
 | `data` | Room v3: columna `height_system` en `projects` (migración 2→3 probada); `ProjectPreferences` con la altura por defecto | RF-2, RF-10; RNF |
 | `app` | Formulario con datum, proyección y altura; huso propuesto; datum de las correcciones según el SC; vista de proyecto con geográficas, altura elipsoidal, factores y aviso de huso; Ajustes; pantalla Coordenadas con Canarias | RF-1 a RF-21 |
@@ -144,8 +144,8 @@ Textos nuevos (es):
 ## Decisiones técnicas
 | Decisión | Motivo | Alternativa descartada |
 |---|---|---|
-| SC del proyecto como un enum de 11 valores, más la altura aparte | Los nombres de S006 siguen valiendo: no hay que migrar datos, solo añadir una columna | Clase de datos con datum, proyección y huso (migración de todos los proyectos) |
-| Formulario en tres grupos (datum, proyección, altura) | 11 opciones seguidas no se leen a pleno sol; al editar solo se bloquea el datum (RF-19) | Una lista de 11 SC |
+| SC del proyecto como un enum de 10 valores, más la altura aparte | Los nombres de S006 siguen valiendo: no hay que migrar datos, solo añadir una columna | Clase de datos con datum, proyección y huso (migración de todos los proyectos) |
+| Formulario en tres grupos (datum, proyección, altura) | 10 opciones seguidas no se leen a pleno sol; al editar solo se bloquea el datum (RF-19) | Una lista de 10 SC |
 | ED50 por la rejilla oficial invertida por iteración, como PROJ | Es la transformación EPSG:15932 que usa el IGN | Helmert de 7 parámetros (error de decímetros) |
 | Rejillas en recursos de `core:geodesy` | Tests JVM sin Android y funcionamiento sin conexión | Assets de la app (los tests de `core` no los ven) |
 | Factores con las mismas series de Krüger | Coherentes con las coordenadas; error despreciable hasta ±3,5° | Fórmulas de Redfearn (peor fuera del huso, con huso forzado) |
@@ -160,7 +160,7 @@ Textos nuevos (es):
   - lector con varias subrejillas y bandas;
   - geoide de Canarias (≤ 1 mm) y fuera de él;
   - tamaño de las rejillas incluidas (< 300 KB entre las dos nuevas).
-- **JVM `core:model`:** catálogo (11 SC, ámbitos, EPSG, alturas por SC), datum de las correcciones por SC, aviso general, formatos de geográficas en DD, DMS y gon con su resolución, y huso propuesto.
+- **JVM `core:model`:** catálogo (10 SC, ámbitos, EPSG, alturas por SC), datum de las correcciones por SC, aviso general, formatos de geográficas en DD, DMS y gon con su resolución, y huso propuesto.
 - **JVM `core:survey`:**
   - `ProjectPositionCalculator` contra vectores para cada SC, cada altura y cada caso no disponible;
   - el factor combinado contra su fórmula con R de pyproj;

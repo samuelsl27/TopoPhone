@@ -33,7 +33,8 @@ class ProjectPositionCalculator(
             return ProjectPosition(null, null, null, setOf(PositionUnavailable.OUTSIDE_CRS_AREA))
         }
         val unavailable = mutableSetOf<PositionUnavailable>()
-        val utm = Utm.forward(lat, lon, crs.utmZone)
+        // Hasta S008 T8 solo se calculan los SC UTM; los demás, sin coordenadas.
+        val utm = crs.utmZone?.let { Utm.forward(lat, lon, it) }
 
         // Jalón vertical, como en S002/RF-32: el suelo está bajo el receptor sobre la normal.
         val altitude = fix.altitudeM
@@ -48,7 +49,7 @@ class ProjectPositionCalculator(
         if (undulation == null && groundHeight != null) unavailable += PositionUnavailable.OUTSIDE_GEOID
         val orthometric = if (groundHeight != null && undulation != null) groundHeight - undulation else null
 
-        return ProjectPosition(utm.easting, utm.northing, orthometric, unavailable)
+        return ProjectPosition(utm?.easting, utm?.northing, orthometric, unavailable)
     }
 
     companion object {

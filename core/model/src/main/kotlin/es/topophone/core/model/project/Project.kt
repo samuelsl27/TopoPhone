@@ -9,6 +9,8 @@ data class ProjectDraft(
     val linearUnit: LinearUnit,
     val angularUnit: AngularUnit,
     val correctionsDatum: CorrectionsDatum,
+    /** S008/RF-2. */
+    val heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
 )
 
 /** Un proyecto guardado (S006). Fechas en ms UTC; con [deletedAtMs] está en la papelera. */
@@ -26,8 +28,9 @@ data class Project(
     val modifiedAtMs: Long,
     val openedAtMs: Long?,
     val deletedAtMs: Long?,
+    val heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
 ) {
-    fun toDraft() = ProjectDraft(name, author, description, crs, linearUnit, angularUnit, correctionsDatum)
+    fun toDraft() = ProjectDraft(name, author, description, crs, linearUnit, angularUnit, correctionsDatum, heightSystem)
 }
 
 /**
@@ -40,9 +43,11 @@ data class ProjectDefaults(
     val linearUnit: LinearUnit = LinearUnit.METRE,
     val angularUnit: AngularUnit = AngularUnit.DMS,
     val correctionsDatum: CorrectionsDatum = CorrectionsDatum.ETRS89,
+    /** S008/RF-10. */
+    val heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
 ) {
     /** El formulario de proyecto nuevo, sin nombre ni descripción (S006/RF-6). */
-    fun toDraft() = ProjectDraft("", author, "", crs, linearUnit, angularUnit, correctionsDatum)
+    fun toDraft() = ProjectDraft("", author, "", crs, linearUnit, angularUnit, correctionsDatum, heightSystem)
 }
 
 /** Una carpeta de proyectos (S006/RF-17). */

@@ -53,11 +53,11 @@ class ProjectNamesTest {
 
     @Test
     fun `S006 RF-11 se avisa si las correcciones estan en ITRF-WGS84 y el SC en ETRS89`() {
-        ProjectCrs.entries.forEach { crs ->
+        ProjectCrs.entries.filter { it.datum == GeodeticDatum.ETRS89 }.forEach { crs ->
             DatumCheck.mismatch(crs, CorrectionsDatum.ITRF_WGS84) shouldBe true
+            DatumCheck.itrfOverEtrs89(crs, CorrectionsDatum.ITRF_WGS84) shouldBe true
             DatumCheck.mismatch(crs, CorrectionsDatum.ETRS89) shouldBe false
-            // REGCAN95 es la realización de ETRS89 en Canarias: compatible al nivel del centímetro.
-            DatumCheck.mismatch(crs, CorrectionsDatum.REGCAN95) shouldBe false
         }
+        // Desde S008/RF-18, correcciones REGCAN95 en un SC ETRS89 también avisan (ProjectCrsTest).
     }
 }

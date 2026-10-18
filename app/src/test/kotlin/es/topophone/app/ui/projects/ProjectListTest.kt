@@ -94,7 +94,7 @@ class ProjectListTest {
 
         compose.onNodeWithTag(projectTag("p1"))
             .assert(hasText("Calle Mayor 12"))
-            .assert(hasText(text(R.string.project_crs_utm, 31)))
+            .assert(hasText(text(R.string.project_crs_utm, "ETRS89", 31)))
             .assert(hasText(text(R.string.project_modified, formatDateTime(modified, Locale.forLanguageTag("es-ES")))))
     }
 

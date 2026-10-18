@@ -211,7 +211,7 @@
     <string name="projects_empty_title">No projects yet</string>
     <string name="projects_empty_description">Create the first one with “New project”.</string>
     <string name="project_new">New project</string>
-    <string name="project_crs_utm">ETRS89 / UTM zone %1$d</string>
+    <string name="project_crs_utm">%1$s / UTM zone %2$d</string>
     <string name="project_modified">Modified: %1$s</string>
     <string name="project_in_folder">In folder %1$s</string>
     <string name="projects_search">Search project</string>
@@ -366,4 +366,8 @@
     <string name="settings_section_corrections">Corrections</string>
     <string name="settings_corrections_alarm">Corrections alarm</string>
     <string name="settings_seconds">%1$d s</string>
+    <string name="project_crs_geographic">%1$s / geographic</string>
+    <string name="crs_datum_etrs89">ETRS89</string>
+    <string name="crs_datum_regcan95">REGCAN95</string>
+    <string name="crs_datum_ed50">ED50</string>
 </resources>

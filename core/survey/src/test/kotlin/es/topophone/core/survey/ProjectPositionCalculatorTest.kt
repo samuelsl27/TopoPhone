@@ -2,6 +2,7 @@ package es.topophone.core.survey
 
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.ProjectCrs
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.doubles.plusOrMinus
@@ -44,7 +45,7 @@ class ProjectPositionCalculatorTest {
     fun `S006 RF-29 Este, Norte y altitud en el huso del proyecto coinciden con pyproj a 1 mm, tambien con huso forzado`() {
         vectors.size shouldBe 309
         vectors.forEach { (lat, lon, h, zone, east, north, altitude) ->
-            val crs = ProjectCrs.entries.single { it.utmZone == zone.toInt() }
+            val crs = ProjectCrs.of(GeodeticDatum.ETRS89, zone.toInt())!!
             val position = calculator.compute(fix(lat.toDouble(), lon.toDouble(), h.toDouble()), pole, crs).shouldNotBeNull()
 
             position.easting.shouldNotBeNull() shouldBe (east.toDouble() plusOrMinus 0.001)
