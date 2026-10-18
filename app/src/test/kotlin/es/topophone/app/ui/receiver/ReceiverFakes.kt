@@ -30,6 +30,10 @@ internal object NoAlerts : Alerts {
     override fun connectionLost() = Unit
 
     override fun correctionsLost() = Unit
+
+    override fun pointSaved() = Unit
+
+    override fun solutionLost() = Unit
 }
 
 internal class FakePreferences : ReceiverPreferences {

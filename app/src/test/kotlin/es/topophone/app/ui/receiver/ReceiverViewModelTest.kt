@@ -51,6 +51,10 @@ class ReceiverViewModelTest {
         }
 
         override fun correctionsLost() = Unit
+
+        override fun pointSaved() = Unit
+
+        override fun solutionLost() = Unit
     }
     private var internet = true
     private var ntripConfigUsed: NtripConfig? = null

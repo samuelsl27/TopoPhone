@@ -80,6 +80,13 @@ class GgaGstParserTest {
     }
 
     @Test
+    fun `S010 RF-17 la GST conserva su frase tal como llego, como la GGA`() {
+        val gst = sentence("GNGST,101530.20,0.010,0.012,0.008,45.0,0.009,0.012,0.020")
+
+        GstParser.parse(gst).shouldNotBeNull().rawSentence shouldBe gst.raw
+    }
+
+    @Test
     fun `S002 RF-14 una GST con desviaciones vacias no da precision`() {
         val accuracy = GstParser.parse(sentence("GNGST,101530.20,,,,,,,"))
 

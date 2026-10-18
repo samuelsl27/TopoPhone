@@ -43,8 +43,14 @@ data class GgaFix(
     val hasPosition: Boolean get() = status != SolutionStatus.NONE && !latitudeDeg.isNaN() && !longitudeDeg.isNaN()
 }
 
-/** Precisión estimada (1σ) de una frase GST, en metros. */
-data class GstAccuracy(val utcTime: String, val sigmaLatitudeM: Double?, val sigmaLongitudeM: Double?, val sigmaAltitudeM: Double?) {
+/** Precisión estimada (1σ) de una frase GST, en metros, y la frase tal como llegó (S010/RF-17). */
+data class GstAccuracy(
+    val utcTime: String,
+    val sigmaLatitudeM: Double?,
+    val sigmaLongitudeM: Double?,
+    val sigmaAltitudeM: Double?,
+    val rawSentence: String = "",
+) {
 
     /** √(σlat² + σlon²) (S002/RF-14). */
     val horizontalM: Double?
@@ -94,6 +100,7 @@ object GstParser {
                 sigmaLatitudeM = f[5].optionalDouble(),
                 sigmaLongitudeM = f[6].optionalDouble(),
                 sigmaAltitudeM = f[7].optionalDouble(),
+                rawSentence = sentence.raw,
             )
         } catch (_: CorruptField) {
             null

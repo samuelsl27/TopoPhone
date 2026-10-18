@@ -30,6 +30,12 @@ interface Alerts {
 
     /** Sonido y vibración cuando dejan de llegar correcciones, también en segundo plano (S007/RF-29). */
     fun correctionsLost()
+
+    /** Punto guardado (S010/RF-19). */
+    fun pointSaved()
+
+    /** Se ha perdido el FIX durante un promediado (S010/RF-10). */
+    fun solutionLost()
 }
 
 class VibrationAlerts(private val context: Context) : Alerts {
@@ -45,6 +51,16 @@ class VibrationAlerts(private val context: Context) : Alerts {
         vibrate(CORRECTIONS_PATTERN_MS)
     }
 
+    override fun pointSaved() {
+        tones?.startTone(ToneGenerator.TONE_PROP_ACK, TONE_MS)
+        vibrate(SAVED_PATTERN_MS)
+    }
+
+    override fun solutionLost() {
+        tones?.startTone(ToneGenerator.TONE_SUP_ERROR, TONE_MS)
+        vibrate(LOST_PATTERN_MS)
+    }
+
     private fun vibrate(pattern: LongArray) {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(VibratorManager::class.java)?.defaultVibrator
@@ -57,6 +73,7 @@ class VibrationAlerts(private val context: Context) : Alerts {
 
     private companion object {
         val LOST_PATTERN_MS = longArrayOf(0, 300, 150, 300)
+        val SAVED_PATTERN_MS = longArrayOf(0, 80)
         val CORRECTIONS_PATTERN_MS = longArrayOf(0, 150, 100, 150, 100, 150)
         const val TONE_VOLUME = 100
         const val TONE_MS = 600

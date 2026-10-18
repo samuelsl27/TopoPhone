@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `core:gnss` y `receiver`: la GST con su frase; `ReceiverSession.epochs` con todas las épocas; `Alerts.pointSaved()` y `Alerts.solutionLost()`. (RF-10, RF-17, RF-19)
+- [x] T1. `core:gnss` y `receiver`: la GST con su frase; `ReceiverSession.epochs` con todas las épocas; `Alerts.pointSaved()` y `Alerts.solutionLost()`. (RF-10, RF-17, RF-19)
       Hecho cuando: los tests de la GST y `ReceiverSessionEpochsTest` (todas las épocas de una reproducción a 10 Hz) en verde.
 - [ ] T2. `core:model`: `PointNames`, `PrecisionControl` con su comprobación, `CollectorSettings`, `CollectedPoint` y `PointQuality`. (RF-2, RF-13, RF-14, RF-18)
       Hecho cuando: `PointNamesTest` y `PrecisionControlTest` en verde.

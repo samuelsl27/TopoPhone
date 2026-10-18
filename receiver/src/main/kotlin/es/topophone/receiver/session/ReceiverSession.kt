@@ -23,12 +23,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -196,6 +200,14 @@ class ReceiverSession(
 ) {
     private val mutableState = MutableStateFlow(ReceiverSnapshot())
     val state: StateFlow<ReceiverSnapshot> = mutableState.asStateFlow()
+
+    private val mutableEpochs = MutableSharedFlow<Epoch>(extraBufferCapacity = EPOCH_BUFFER, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    /**
+     * Cada época completa, en orden. El estado conserva solo la última y a 10 Hz un lector lento se saltaría
+     * alguna; aquí no, mientras no se retrase más de [EPOCH_BUFFER] épocas (S010/RF-9).
+     */
+    val epochs: SharedFlow<Epoch> = mutableEpochs.asSharedFlow()
 
     private val lock = Any()
     private var connectionJob: Job? = null
@@ -543,6 +555,7 @@ class ReceiverSession(
             }
             current.copy(connection = connection, epoch = epoch, satellitesInView = epoch.satellitesInView ?: current.satellitesInView)
         }
+        mutableEpochs.tryEmit(epoch)
     }
 
     /**
@@ -592,6 +605,9 @@ class ReceiverSession(
     }
 
     companion object {
+        /** Épocas que el flujo [epochs] guarda para un lector que se retrasa: 6,4 s a 10 Hz. */
+        const val EPOCH_BUFFER = 64
+
         /** RNF-T3: más de 2 s sin época → "Sin datos" (S003/RF-12). */
         const val NO_DATA_TIMEOUT_MS = 2_000L
 

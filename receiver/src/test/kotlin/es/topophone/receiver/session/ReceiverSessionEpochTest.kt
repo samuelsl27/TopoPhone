@@ -14,11 +14,15 @@ import java.io.ByteArrayOutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.time.LocalDate
+import java.util.Collections
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -133,5 +137,20 @@ class ReceiverSessionEpochTest {
         val snapshot = session.await { it.epoch?.utcMillisOfDay == 36_930_200 }
         snapshot.epoch.shouldNotBeNull().satellitesInView.shouldBeNull()
         snapshot.satellitesInView shouldBe 4
+    }
+
+    @Test
+    fun `S010 RF-9 la sesion entrega todas las epocas, sin saltarse ninguna aunque lleguen a 10 Hz`() {
+        val session = ReceiverSession(scope, noNtrip)
+        val received = Collections.synchronizedList(mutableListOf<Int>())
+        val collector = scope.launch(start = CoroutineStart.UNDISPATCHED) { session.epochs.collect { received += it.utcMillisOfDay } }
+        session.connect(transport)
+
+        // 50 épocas a 10 Hz en una sola ráfaga: el estado solo conserva la última.
+        send((0 until 50).joinToString("") { i -> gga("1015%02d.%02d".format(30 + i / 10, i % 10 * 10)) })
+
+        runBlocking { withTimeout(5_000) { while (received.size < 50) delay(10) } }
+        collector.cancel()
+        received shouldBe (0 until 50).map { 36_930_000 + it * 100 }
     }
 }
