@@ -36,6 +36,8 @@ data class ProjectEntity(
     @ColumnInfo(name = "modified_at") val modifiedAt: Long,
     @ColumnInfo(name = "opened_at") val openedAt: Long?,
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
+    /** Altitud o altura elipsoidal (S008/RF-2); los proyectos de la v2 quedan con altitud. */
+    @ColumnInfo(name = "height_system", defaultValue = "ORTHOMETRIC") val heightSystem: String = "ORTHOMETRIC",
 )
 
 /** Una carpeta de proyectos; un solo nivel (S006/RF-17). */

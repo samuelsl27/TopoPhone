@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.ProjectCrs
@@ -353,5 +354,26 @@ class ProjectRepositoryTest {
         repository.project(expired) shouldBe null
         repository.trash().first().map { it.project.id } shouldContainExactly listOf(kept)
         repository.project(active).shouldNotBeNull()
+    }
+
+    @Test
+    fun `S008 RF-1 RF-2 un proyecto se guarda con su SC de cualquier datum y su altura`() = runBlocking<Unit> {
+        val canarias = draft("Puerto de la Cruz").copy(crs = ProjectCrs.REGCAN95_GEOGRAPHIC, heightSystem = HeightSystem.ELLIPSOIDAL)
+        val id = repository.create(canarias).shouldBeInstanceOf<SaveResult.Saved>().id
+
+        repository.project(id).shouldNotBeNull().toDraft() shouldBe canarias
+
+        repository.update(id, canarias.copy(crs = ProjectCrs.REGCAN95_UTM28, heightSystem = HeightSystem.ORTHOMETRIC))
+        repository.project(id).shouldNotBeNull().let { it.crs to it.heightSystem } shouldBe
+            (ProjectCrs.REGCAN95_UTM28 to HeightSystem.ORTHOMETRIC)
+    }
+
+    @Test
+    fun `S008 RF-2 la copia de un proyecto conserva su altura`() = runBlocking<Unit> {
+        val id = repository.create(draft("Muralla").copy(heightSystem = HeightSystem.ELLIPSOIDAL)).shouldBeInstanceOf<SaveResult.Saved>().id
+
+        val copy = repository.duplicate(id, "copia").shouldBeInstanceOf<SaveResult.Saved>().id
+
+        repository.project(copy).shouldNotBeNull().heightSystem shouldBe HeightSystem.ELLIPSOIDAL
     }
 }

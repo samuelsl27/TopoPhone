@@ -4,6 +4,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
@@ -92,5 +93,15 @@ class ProjectPreferencesTest {
         }
 
         withPreferences { it.defaults.first() }.crs shouldBe ProjectCrs.ETRS89_UTM30
+    }
+
+    @Test
+    fun `S008 RF-10 la altura por defecto de fabrica es la altitud y la elegida se recuerda`() {
+        withPreferences { it.defaults.first() }.heightSystem shouldBe HeightSystem.ORTHOMETRIC
+
+        withPreferences { it.saveDefaults(ProjectDefaults(crs = ProjectCrs.ETRS89_GEOGRAPHIC, heightSystem = HeightSystem.ELLIPSOIDAL)) }
+
+        withPreferences { it.defaults.first() }.let { it.crs to it.heightSystem } shouldBe
+            (ProjectCrs.ETRS89_GEOGRAPHIC to HeightSystem.ELLIPSOIDAL)
     }
 }

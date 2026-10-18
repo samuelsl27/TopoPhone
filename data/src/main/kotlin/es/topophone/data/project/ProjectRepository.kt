@@ -3,6 +3,7 @@ package es.topophone.data.project
 import androidx.room.withTransaction
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.Project
@@ -187,6 +188,7 @@ private fun ProjectDraft.toEntity(id: String, folderId: String?, createdAt: Long
     modifiedAt = modifiedAt,
     openedAt = null,
     deletedAt = null,
+    heightSystem = heightSystem.name,
 )
 
 internal fun ProjectEntity.toProject() = Project(
@@ -203,4 +205,5 @@ internal fun ProjectEntity.toProject() = Project(
     modifiedAtMs = modifiedAt,
     openedAtMs = openedAt,
     deletedAtMs = deletedAt,
+    heightSystem = HeightSystem.entries.firstOrNull { it.name == heightSystem } ?: HeightSystem.ORTHOMETRIC,
 )

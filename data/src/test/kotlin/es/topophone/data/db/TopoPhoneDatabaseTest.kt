@@ -7,6 +7,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import es.topophone.data.project.ProjectEntity
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.io.File
 import kotlinx.coroutines.runBlocking
@@ -122,7 +123,7 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
-    fun `S007 RNF al actualizar de la v1 a la v2 los proyectos siguen ahi y se anade la tabla de perfiles NTRIP`() {
+    fun `S007 RNF al actualizar desde la v1 los proyectos siguen ahi y se anade la tabla de perfiles NTRIP`() {
         createFromExportedSchema(1)
         SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v1 ->
             v1.execSQL(
@@ -134,10 +135,10 @@ class TopoPhoneDatabaseTest {
             )
         }
 
-        // Al abrir, Room migra a la v2 y comprueba que el esquema resultante es el de la app.
+        // Al abrir, Room migra hasta la versión actual y comprueba que el esquema resultante es el de la app.
         val db = TopoPhoneDatabase.build(context, TEST_DB)
         try {
-            db.openHelper.writableDatabase.version shouldBe 2
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
             runBlocking { db.projects().byId(project.id) } shouldBe project
             db.openHelper.readableDatabase.query("SELECT COUNT(*) FROM ntrip_profiles").use {
                 it.moveToFirst() shouldBe true
@@ -160,9 +161,33 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 2
+        const val CURRENT_VERSION = 3
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
+    }
+
+    @Test
+    fun `S008 RNF al actualizar de la v2 a la v3 los proyectos conservan su SC con altitud`() {
+        createFromExportedSchema(2)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v2 ->
+            v2.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe 3
+            val migrated = runBlocking { db.projects().byId(project.id) }.shouldNotBeNull()
+            migrated.crs shouldBe "ETRS89_UTM30"
+            migrated.heightSystem shouldBe "ORTHOMETRIC"
+        } finally {
+            db.close()
+        }
     }
 }

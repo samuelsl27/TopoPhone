@@ -18,12 +18,13 @@ import es.topophone.data.project.ProjectFolderEntity
  *
  * - v1 (S006): proyectos y carpetas.
  * - v2 (S007): perfiles NTRIP. Solo añade una tabla, así que la migración la genera Room.
+ * - v3 (S008): altura de cada proyecto (`height_system`, por defecto altitud). Migración de Room.
  */
 @Database(
     entities = [ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2)],
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
 

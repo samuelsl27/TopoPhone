@@ -42,6 +42,7 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
             linearUnit = enumOr(p[LINEAR_UNIT], factory.linearUnit),
             angularUnit = enumOr(p[ANGULAR_UNIT], factory.angularUnit),
             correctionsDatum = enumOr(p[CORRECTIONS_DATUM], factory.correctionsDatum),
+            heightSystem = enumOr(p[HEIGHT_SYSTEM], factory.heightSystem), // S008/RF-10
         )
     }.distinctUntilChanged()
 
@@ -52,6 +53,7 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
             it[LINEAR_UNIT] = defaults.linearUnit.name
             it[ANGULAR_UNIT] = defaults.angularUnit.name
             it[CORRECTIONS_DATUM] = defaults.correctionsDatum.name
+            it[HEIGHT_SYSTEM] = defaults.heightSystem.name
         }
     }
 
@@ -61,6 +63,7 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
         val LINEAR_UNIT = stringPreferencesKey("default_linear_unit")
         val ANGULAR_UNIT = stringPreferencesKey("default_angular_unit")
         val CORRECTIONS_DATUM = stringPreferencesKey("default_corrections_datum")
+        val HEIGHT_SYSTEM = stringPreferencesKey("default_height_system")
 
         /** Un valor desconocido (de otra versión o dañado) cuenta como el de fábrica. */
         inline fun <reified E : Enum<E>> enumOr(name: String?, fallback: E): E = enumValues<E>().firstOrNull { it.name == name } ?: fallback

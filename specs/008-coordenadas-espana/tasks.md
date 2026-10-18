@@ -20,7 +20,7 @@
       Hecho cuando: `ProjectPositionCalculatorTest` en verde contra los vectores (≤ 1 mm) en cada SC y caso no disponible.
 - [x] T9. `core:survey`: `GroundPointCalculator` con husos 27–31, REGCAN95 y el geoide de Canarias. (RF-20, RF-21)
       Hecho cuando: `GroundPointCalculatorTest` en verde con un punto en Canarias y los casos de S002 adaptados.
-- [ ] T10. `data`: Room v3 con `height_system` (migración 2→3 probada y esquema exportado); repositorio y preferencias con la altura. (RF-2, RF-10; RNF)
+- [x] T10. `data`: Room v3 con `height_system` (migración 2→3 probada y esquema exportado); repositorio y preferencias con la altura. (RF-2, RF-10; RNF)
       Hecho cuando: el test de migración (un proyecto de la v2 queda en ORTHOMETRIC), `ProjectRepositoryTest` y `ProjectPreferencesTest` en verde, y `data/schemas/…/3.json` en el repositorio.
 - [ ] T11. `app`: formulario con grupos Datum, Proyección y Altura; ED50 solo con altitud; datum de las correcciones según el SC; aviso de datum general; al editar, solo el mismo datum. (RF-1 a RF-3, RF-17 a RF-19)
       Hecho cuando: `ProjectFormCrsTest` en verde y los tests de S006 del formulario adaptados.
