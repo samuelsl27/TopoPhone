@@ -32,5 +32,5 @@
       Hecho cuando: `ProjectDefaultsTest` en verde con los casos nuevos.
 - [x] T15. `app`: pantalla Coordenadas del receptor en Canarias (REGCAN95, husos 27–28 y su geoide). (RF-20, RF-21)
       Hecho cuando: `CoordinatesCardTest` en verde con un punto en Canarias.
-- [ ] T16. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador con reproducciones sintéticas en Canarias y en la Península según los criterios de finalización. (Todos)
+- [x] T16. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador con reproducciones sintéticas en Canarias y en la Península según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona.
