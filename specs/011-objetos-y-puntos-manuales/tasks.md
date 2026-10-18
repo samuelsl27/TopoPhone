@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/geodesia`: vectores `puntos_manuales.csv` (UTM inversa en ETRS89, REGCAN95 y ED50; altitud y altura elipsoidal; fuera de ámbito, de rejilla y de geoide) y `jalon_corregido.csv`. (RF-14, RF-17, RF-19, RF-20)
       Hecho cuando: los CSV están en `fixtures/geodesia/` y `uv run --project tools pytest tools` los regenera iguales.
-- [ ] T2. `core:geodesy`: `TransverseMercator.inverse` y `Utm.inverse`. (RF-17, RF-20)
+- [x] T2. `core:geodesy`: `TransverseMercator.inverse` y `Utm.inverse`. (RF-17, RF-20)
       Hecho cuando: `UtmInverseTest` en verde frente a los CSV de S008 al revés (≤ 1e-9°) y con la ida y vuelta ≤ 0,1 mm en los husos 27 a 31.
 - [ ] T3. `core:model`: `NumberInput` y `AngleInput` (DD, DMS y gon, con signo o letra de hemisferio). (RF-8, RF-17)
       Hecho cuando: `NumberInputTest` y `AngleInputTest` en verde, con los casos inválidos.

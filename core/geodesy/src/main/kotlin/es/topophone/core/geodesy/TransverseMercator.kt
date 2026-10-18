@@ -1,6 +1,8 @@
 package es.topophone.core.geodesy
 
+import kotlin.math.abs
 import kotlin.math.asinh
+import kotlin.math.atan
 import kotlin.math.atan2
 import kotlin.math.atanh
 import kotlin.math.cos
@@ -65,6 +67,7 @@ class TransverseMercator(
     private val n = ellipsoid.flattening / (2.0 - ellipsoid.flattening)
     private val rectifyingRadius: Double
     private val alpha: DoubleArray
+    private val beta: DoubleArray
 
     init {
         val n2 = n * n
@@ -81,6 +84,15 @@ class TransverseMercator(
             34729.0 / 80640 * n5 - 3418889.0 / 1995840 * n6,
             212378941.0 / 319334400 * n6,
         )
+        // Karney 2011, ecuación 36: los coeficientes de la serie inversa (S011/RF-17).
+        beta = doubleArrayOf(
+            n / 2 - 2.0 / 3 * n2 + 37.0 / 96 * n3 - 1.0 / 360 * n4 - 81.0 / 512 * n5 + 96199.0 / 604800 * n6,
+            1.0 / 48 * n2 + 1.0 / 15 * n3 - 437.0 / 1440 * n4 + 46.0 / 105 * n5 - 1118711.0 / 3870720 * n6,
+            17.0 / 480 * n3 - 37.0 / 840 * n4 - 209.0 / 4480 * n5 + 5569.0 / 90720 * n6,
+            4397.0 / 161280 * n4 - 11.0 / 504 * n5 - 830251.0 / 7257600 * n6,
+            4583.0 / 161280 * n5 - 108847.0 / 3991680 * n6,
+            20648693.0 / 638668800 * n6,
+        )
     }
 
     /** Geográficas (grados) → (Este, Norte) en metros. */
@@ -95,6 +107,46 @@ class TransverseMercator(
         }
         val k = scaleFactor * rectifyingRadius
         return (falseEastingM + k * eta) to (falseNorthingM + k * xi)
+    }
+
+    /**
+     * (Este, Norte) en metros → geográficas (grados): la inversa de [forward] con la serie β de Krüger y la latitud
+     * por Newton desde la conforme (Karney 2011, ecuaciones 11, 15 y 19 a 21) (S011/RF-17).
+     */
+    fun inverse(eastingM: Double, northingM: Double): GeoPoint {
+        val k = scaleFactor * rectifyingRadius
+        val xi = (northingM - falseNorthingM) / k
+        val eta = (eastingM - falseEastingM) / k
+        var xiPrime = xi
+        var etaPrime = eta
+        for (j in 1..beta.size) {
+            val twoJ = 2.0 * j
+            xiPrime -= beta[j - 1] * sin(twoJ * xi) * cosh(twoJ * eta)
+            etaPrime -= beta[j - 1] * cos(twoJ * xi) * sinh(twoJ * eta)
+        }
+        val tauPrime = sin(xiPrime) / sqrt(sinh(etaPrime) * sinh(etaPrime) + cos(xiPrime) * cos(xiPrime))
+        val dLambda = atan2(sinh(etaPrime), cos(xiPrime))
+        return GeoPoint(Math.toDegrees(atan(tauFromConformal(tauPrime))), Math.toDegrees(lambda0 + dLambda))
+    }
+
+    /** τ = tan φ desde τ' = tan χ por Newton (Karney 2011, ecuaciones 19 a 21); converge en dos o tres pasos. */
+    private fun tauFromConformal(tauPrime: Double): Double {
+        val e2 = ellipsoid.eccentricitySquared
+        var tau = tauPrime / (1 - e2)
+        repeat(MAX_NEWTON_STEPS) {
+            val tp = conformalTau(tau)
+            val step = (tauPrime - tp) * (1 + (1 - e2) * tau * tau) / ((1 - e2) * sqrt(1 + tp * tp) * sqrt(1 + tau * tau))
+            tau += step
+            if (abs(step) <= NEWTON_TOLERANCE * maxOf(1.0, abs(tau))) return tau
+        }
+        return tau
+    }
+
+    /** τ' = tan χ de la latitud conforme, sin pérdida de precisión cerca del polo (Karney 2011, ecuación 7). */
+    private fun conformalTau(tau: Double): Double {
+        val e = ellipsoid.eccentricity
+        val sigma = sinh(e * atanh(e * tau / sqrt(1 + tau * tau)))
+        return tau * sqrt(1 + sigma * sigma) - sigma * sqrt(1 + tau * tau)
     }
 
     /**
@@ -129,12 +181,15 @@ class TransverseMercator(
         val etaPrime: Double
 
         init {
-            val e = ellipsoid.eccentricity
-            val sigma = sinh(e * atanh(e * tau / sqrt(1 + tau * tau)))
-            tauPrime = tau * sqrt(1 + sigma * sigma) - sigma * sqrt(1 + tau * tau)
+            tauPrime = conformalTau(tau)
             xiPrime = atan2(tauPrime, cos(dLambda))
             etaPrime = asinh(sin(dLambda) / sqrt(tauPrime * tauPrime + cos(dLambda) * cos(dLambda)))
         }
+    }
+
+    private companion object {
+        const val MAX_NEWTON_STEPS = 6
+        const val NEWTON_TOLERANCE = 1e-14
     }
 }
 
@@ -161,6 +216,10 @@ object Utm {
         val (easting, northing) = projection(zone, ellipsoid).forward(latitudeDeg, longitudeDeg)
         return UtmCoordinate(zone, easting, northing)
     }
+
+    /** Geográficas de (Este, Norte) en el huso y el elipsoide del proyecto (S011/RF-17). */
+    fun inverse(eastingM: Double, northingM: Double, zone: Int, ellipsoid: Ellipsoid = Ellipsoid.GRS80): GeoPoint =
+        projection(zone, ellipsoid).inverse(eastingM, northingM)
 
     /** Factor de escala y convergencia en el huso dado, aunque el punto caiga en otro (S008/RF-13, RF-14). */
     fun factors(latitudeDeg: Double, longitudeDeg: Double, zone: Int, ellipsoid: Ellipsoid = Ellipsoid.GRS80): PointFactors =
