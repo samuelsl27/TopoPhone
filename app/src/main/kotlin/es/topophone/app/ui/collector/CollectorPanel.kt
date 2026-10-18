@@ -115,11 +115,13 @@ fun CollectorPanel(
                 modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_POLE_TAG),
             ) // S010/RF-5
             ModeChoice(state.settings, actions)
+            PrecisionControlRow(state.settings.precision, unit) { actions.onSettings(state.settings.copy(precision = it)) } // S010/RF-13
             LiveQualityText(state.live, unit)
             Messages(state)
             if (state.measuring) Measuring(state, actions) else MeasureButton(state, actions)
         }
     }
+    state.pending?.let { OutOfToleranceDialog(it, actions.onConfirm, actions.onDiscard) } // S010/RF-14, RF-15
 }
 
 @Composable

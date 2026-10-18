@@ -14,7 +14,7 @@
       Hecho cuando: `CollectorViewModelTest` en verde con una sesión de reproducción.
 - [x] T6. `app`: botón "Recolectar" y panel del recolector, con la pantalla encendida y los avisos. (RF-1, RF-4 a RF-7, RF-9, RF-11, RF-12)
       Hecho cuando: `CollectorPanelTest` en verde.
-- [ ] T7. `app`: diálogos de ajustes del control de precisión y de fuera de tolerancia. (RF-13, RF-14, RF-15)
+- [x] T7. `app`: diálogos de ajustes del control de precisión y de fuera de tolerancia. (RF-13, RF-14, RF-15)
       Hecho cuando: `CollectorDialogsTest` en verde.
 - [ ] T8. `app`: puntos en el mapa con su nombre y número de puntos en los datos del proyecto; glifos del IGN en los estilos locales. (RF-20, RF-21)
       Hecho cuando: `PointsLayerTest`, `MapStylesTest` y `ProjectInfoTest` en verde.

@@ -440,4 +440,22 @@
     <string name="collector_solution_lost">Solución perdida: no cuentan las épocas sin FIX.</string>
     <string name="collector_no_data">Sin datos del receptor: la medida se ha cancelado.</string>
     <string name="collector_saved">Punto %1$s guardado.</string>
+    <string name="precision_title">Control de precisión</string>
+    <string name="precision_summary">Control de precisión: %1$s</string>
+    <string name="precision_fix_only">Solo FIX</string>
+    <string name="precision_summary_h">H ≤ %1$s</string>
+    <string name="precision_summary_v">V ≤ %1$s</string>
+    <string name="precision_none">sin límites</string>
+    <string name="precision_adjust">Ajustar</string>
+    <string name="precision_horizontal_limit">Límite horizontal</string>
+    <string name="precision_vertical_limit">Límite vertical</string>
+    <string name="precision_limit_value">Límite (%1$s)</string>
+    <string name="precision_save">Guardar</string>
+    <string name="out_of_tolerance_title">La medida no cumple el control de precisión:</string>
+    <string name="out_of_tolerance_not_fix">No es FIX</string>
+    <string name="out_of_tolerance_horizontal">Precisión horizontal mayor que el límite</string>
+    <string name="out_of_tolerance_vertical">Precisión vertical mayor que el límite</string>
+    <string name="out_of_tolerance_no_accuracy">Sin precisión del receptor</string>
+    <string name="out_of_tolerance_save">Guardar fuera de tolerancia</string>
+    <string name="out_of_tolerance_discard">Descartar</string>
 </resources>

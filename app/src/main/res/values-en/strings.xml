@@ -428,4 +428,22 @@
     <string name="collector_solution_lost">Solution lost: epochs without FIX are not counted.</string>
     <string name="collector_no_data">No data from the receiver: the measurement was cancelled.</string>
     <string name="collector_saved">Point %1$s saved.</string>
+    <string name="precision_title">Precision control</string>
+    <string name="precision_summary">Precision control: %1$s</string>
+    <string name="precision_fix_only">FIX only</string>
+    <string name="precision_summary_h">H ≤ %1$s</string>
+    <string name="precision_summary_v">V ≤ %1$s</string>
+    <string name="precision_none">no limits</string>
+    <string name="precision_adjust">Adjust</string>
+    <string name="precision_horizontal_limit">Horizontal limit</string>
+    <string name="precision_vertical_limit">Vertical limit</string>
+    <string name="precision_limit_value">Limit (%1$s)</string>
+    <string name="precision_save">Save</string>
+    <string name="out_of_tolerance_title">The measurement does not meet the precision control:</string>
+    <string name="out_of_tolerance_not_fix">Not FIX</string>
+    <string name="out_of_tolerance_horizontal">Horizontal accuracy above the limit</string>
+    <string name="out_of_tolerance_vertical">Vertical accuracy above the limit</string>
+    <string name="out_of_tolerance_no_accuracy">No accuracy from the receiver</string>
+    <string name="out_of_tolerance_save">Save out of tolerance</string>
+    <string name="out_of_tolerance_discard">Discard</string>
 </resources>
