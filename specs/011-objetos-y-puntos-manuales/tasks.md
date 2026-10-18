@@ -18,7 +18,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` en verde con un punto de S010 migrado (todo conservado, la medida copiada).
 - [x] T8. `data`: `PointRepository` con resúmenes, ficha, edición con historial, `updateAll`, visibilidad y papelera (mover, restaurar, borrar, purgar); `TrashPurge` purga también los puntos. (RF-1, RF-4, RF-9 a RF-11, RF-13 a RF-15, RF-22 a RF-26)
       Hecho cuando: `PointRepositoryTest` y `TrashPurgeTest` en verde.
-- [ ] T9. `app`: navegación nueva, botón "Objetos" en el mapa, `ObjectListViewModel` y pantalla de la lista (búsqueda, marcas, ojo, selección múltiple con ocultar, mostrar y borrar). (RF-1 a RF-4, RF-22)
+- [x] T9. `app`: navegación nueva, botón "Objetos" en el mapa, `ObjectListViewModel` y pantalla de la lista (búsqueda, marcas, ojo, selección múltiple con ocultar, mostrar y borrar). (RF-1 a RF-4, RF-22)
       Hecho cuando: `ObjectListViewModelTest` y `ObjectListScreenTest` en verde.
 - [ ] T10. `app`: corrección del jalón de una selección desde la lista, con el aviso de los manuales. (RF-14, RF-15)
       Hecho cuando: los tests del jalón en `ObjectListViewModelTest` y `ObjectListScreenTest` en verde.

@@ -77,6 +77,7 @@ import es.topophone.app.ui.map.MapPoints
 import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
+import es.topophone.app.ui.points.OBJECTS_BUTTON_TAG
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.tone
 import es.topophone.app.ui.receiver.uiLocale
@@ -93,7 +94,7 @@ import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.map.ScaleBar
-import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointSummary
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.HeightSystem
@@ -175,7 +176,7 @@ data class ProjectViewUiState(
     /** Fallan las descargas del mapa por falta de conexión (S009/RF-15). */
     val mapOffline: Boolean = false,
     /** Puntos del proyecto (S010/RF-20, RF-21). */
-    val points: List<Point> = emptyList(),
+    val points: List<PointSummary> = emptyList(),
 )
 
 /** El rover: posición de la GGA tal cual, su solución y la precisión horizontal de la GST (S009/RF-16, RF-17). */
@@ -241,7 +242,7 @@ class ProjectViewModel @Inject constructor(
             viewport != null,
         )
     }.combine(networkMonitor.offline) { state, offline -> state.copy(mapOffline = offline) }
-        .combine(projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else points.points(id) }) { state, list ->
+        .combine(projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else points.summaries(id) }) { state, list ->
             state.copy(points = list)
         }
         .flowOn(Dispatchers.Default)
@@ -315,6 +316,7 @@ fun ProjectViewRoute(
             onConfirm = collectorViewModel::confirmOutOfTolerance,
             onDiscard = collectorViewModel::discardPending,
         ),
+        onObjects = navigation.onOpenObjects,
     )
 }
 
@@ -332,6 +334,7 @@ fun ProjectViewScreen(
     map: MapSlot = { _, _ -> },
     collector: CollectorUiState? = null,
     collectorActions: CollectorActions = CollectorActions(),
+    onObjects: (projectId: String) -> Unit = {},
 ) {
     var collectorOpen by rememberSaveable { mutableStateOf(false) }
     val policy = remember { CameraPolicy() }
@@ -385,6 +388,14 @@ fun ProjectViewScreen(
                 ) {
                     Icon(painterResource(R.drawable.ic_center_rover), contentDescription = stringResource(R.string.map_center_rover))
                 } // S009/RF-19
+                if (project != null) {
+                    FilledTonalIconButton(
+                        onClick = { onObjects(project.id) },
+                        modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_BUTTON_TAG),
+                    ) {
+                        Icon(painterResource(R.drawable.ic_list), contentDescription = stringResource(R.string.objects_open))
+                    } // S011/RF-1
+                }
             }
             Column(modifier = Modifier.align(Alignment.BottomCenter).onSizeChanged { bottomInsetPx = it.height }) {
                 // Barra de escala y atribución abajo a la izquierda, justo encima del panel.

@@ -463,4 +463,29 @@
         <item quantity="other">%1$d puntos</item>
     </plurals>
     <string name="collector_seconds_invalid">Entre 1 y 60 s.</string>
+    <string name="objects_title">Objetos</string>
+    <string name="objects_open">Objetos del proyecto</string>
+    <string name="objects_search">Buscar punto</string>
+    <string name="objects_empty">Todavía no hay puntos.</string>
+    <string name="objects_search_empty">Ningún punto contiene «%1$s».</string>
+    <string name="point_origin_measured">Medido</string>
+    <string name="point_origin_manual">Manual</string>
+    <string name="point_mark_out_of_tolerance">Fuera de tolerancia</string>
+    <string name="point_mark_edited">Editado</string>
+    <string name="point_mark_no_height">Sin altura</string>
+    <string name="objects_hide">Ocultar</string>
+    <string name="objects_show">Mostrar</string>
+    <string name="objects_delete">Borrar</string>
+    <string name="objects_cancel_selection">Cancelar</string>
+    <string name="objects_hide_point">Ocultar %1$s en el mapa</string>
+    <string name="objects_show_point">Mostrar %1$s en el mapa</string>
+    <string name="objects_move_to_trash">Mover a la papelera</string>
+    <plurals name="objects_selected">
+        <item quantity="one">%1$d seleccionado</item>
+        <item quantity="other">%1$d seleccionados</item>
+    </plurals>
+    <plurals name="objects_delete_confirm">
+        <item quantity="one">¿Mover %1$d punto a la papelera? Se puede recuperar durante 30 días.</item>
+        <item quantity="other">¿Mover %1$d puntos a la papelera? Se pueden recuperar durante 30 días.</item>
+    </plurals>
 </resources>

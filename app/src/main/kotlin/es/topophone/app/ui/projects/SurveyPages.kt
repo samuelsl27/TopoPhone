@@ -1,6 +1,9 @@
 package es.topophone.app.ui.projects
 
 import androidx.compose.runtime.Composable
+import es.topophone.app.ui.points.ObjectListActions
+import es.topophone.app.ui.points.ObjectListScreen
+import es.topophone.app.ui.points.ObjectListUiState
 import es.topophone.core.model.preferences.ThemeState
 
 /** Pantallas de la sección Levantamiento (S006). */
@@ -22,6 +25,9 @@ sealed interface SurveyPage {
 
     /** Papelera de proyectos (S006/RF-23). */
     data object Trash : SurveyPage
+
+    /** Lista de objetos de un proyecto (S011/RF-1). */
+    data class Objects(val projectId: String) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -33,6 +39,7 @@ class SurveyNavigation(
     val onProjectSaved: (String) -> Unit = {},
     val onEditProject: (String) -> Unit = {},
     val onOpenProjectInfo: (String) -> Unit = {},
+    val onOpenObjects: (projectId: String) -> Unit = {},
     val onOpenTrash: () -> Unit = {},
     val onBack: () -> Unit = {},
 )
@@ -45,6 +52,7 @@ data class SurveyUiState(
     val info: ProjectInfoUiState = ProjectInfoUiState(),
     val folder: ProjectFolderUiState = ProjectFolderUiState(),
     val trash: TrashUiState = TrashUiState(),
+    val objects: ObjectListUiState = ObjectListUiState(),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -86,5 +94,6 @@ fun SurveyPageScreen(
             ProjectFolderActions(ProjectListActions(onOpenProject = navigation.onOpenProject), navigation.onNewProject, navigation.onBack),
         )
         SurveyPage.Trash -> TrashScreen(themeState, onToggleSun, state.trash, TrashActions(onBack = navigation.onBack))
+        is SurveyPage.Objects -> ObjectListScreen(themeState, onToggleSun, state.objects, ObjectListActions(), navigation.onBack)
     }
 }

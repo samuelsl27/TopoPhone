@@ -451,4 +451,29 @@
         <item quantity="other">%1$d points</item>
     </plurals>
     <string name="collector_seconds_invalid">Between 1 and 60 s.</string>
+    <string name="objects_title">Objects</string>
+    <string name="objects_open">Project objects</string>
+    <string name="objects_search">Search point</string>
+    <string name="objects_empty">There are no points yet.</string>
+    <string name="objects_search_empty">No point contains “%1$s”.</string>
+    <string name="point_origin_measured">Measured</string>
+    <string name="point_origin_manual">Manual</string>
+    <string name="point_mark_out_of_tolerance">Out of tolerance</string>
+    <string name="point_mark_edited">Edited</string>
+    <string name="point_mark_no_height">No height</string>
+    <string name="objects_hide">Hide</string>
+    <string name="objects_show">Show</string>
+    <string name="objects_delete">Delete</string>
+    <string name="objects_cancel_selection">Cancel</string>
+    <string name="objects_hide_point">Hide %1$s on the map</string>
+    <string name="objects_show_point">Show %1$s on the map</string>
+    <string name="objects_move_to_trash">Move to trash</string>
+    <plurals name="objects_selected">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <plurals name="objects_delete_confirm">
+        <item quantity="one">Move %1$d point to the trash? It can be recovered for 30 days.</item>
+        <item quantity="other">Move %1$d points to the trash? They can be recovered for 30 days.</item>
+    </plurals>
 </resources>

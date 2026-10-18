@@ -75,7 +75,7 @@ class PointsLayerTest {
     fun `S010 RF-20 cada punto va al mapa en su punto del suelo, con su nombre y si esta fuera de tolerancia`() {
         val points = listOf(point("P1", 40.416_801_234, -3.703_712_345), point("P2", 40.4169, -3.7036, setOf(PrecisionFailure.NOT_FIX)))
 
-        MapPoints.from(points) shouldBe listOf(
+        MapPoints.from(points.map { it.summary() }) shouldBe listOf(
             MapPoint("id-P1", "P1", GeoPoint(40.416_801_234, -3.703_712_345), outOfTolerance = false),
             MapPoint("id-P2", "P2", GeoPoint(40.4169, -3.7036), outOfTolerance = true),
         )
@@ -83,7 +83,7 @@ class PointsLayerTest {
 
     @Test
     fun `S010 RF-20 el nombre se ve desde la escala 1 2500 en la latitud de los puntos`() {
-        val points = MapPoints.from(listOf(point("P1", 40.0, -3.7), point("P2", 41.0, -3.7)))
+        val points = MapPoints.from(listOf(point("P1", 40.0, -3.7), point("P2", 41.0, -3.7)).map { it.summary() })
 
         MapPoints.labelMinZoom(points) shouldBe (WebMercator.zoomForScale(2_500.0, 40.5) plusOrMinus 1e-9)
         MapPoints.labelMinZoom(emptyList()).shouldBeNull()
@@ -91,7 +91,7 @@ class PointsLayerTest {
 
     @Test
     fun `S010 RF-20 siguiendo al rover los nombres se ven aunque el rover este al norte de los puntos`() {
-        val points = MapPoints.from(listOf(point("P1", 40.0, -3.7)))
+        val points = MapPoints.from(listOf(point("P1", 40.0, -3.7).summary()))
 
         val follow = CameraPolicy().onCenterPressed(GeoPoint(40.5, -3.7), camera = null) as CameraCommand.MoveTo
 
@@ -106,7 +106,7 @@ class PointsLayerTest {
                 ProjectViewScreen(
                     ThemeState.DEFAULT,
                     {},
-                    ProjectViewUiState(project, points = listOf(point("P1", 40.4168, -3.7037))),
+                    ProjectViewUiState(project, points = listOf(point("P1", 40.4168, -3.7037).summary())),
                     onBack = {},
                     map = fakeMap(map),
                 )

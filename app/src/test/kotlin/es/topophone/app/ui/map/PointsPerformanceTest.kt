@@ -74,7 +74,7 @@ class PointsPerformanceTest {
         }
 
         val (mapPoints, elapsed) = measureTimedValue {
-            val list = runBlocking { points.points(projectId).first() }
+            val list = runBlocking { points.summaries(projectId).first() }
             MapPoints.from(list).also { MapPoints.labelMinZoom(it) }
         }
 
