@@ -23,11 +23,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.projects.ChoiceGroup
+import es.topophone.app.ui.projects.CrsChoices
 import es.topophone.app.ui.projects.FORM_AUTHOR_TAG
 import es.topophone.app.ui.projects.angularOptionTag
 import es.topophone.app.ui.projects.angularUnitLabel
-import es.topophone.app.ui.projects.crsLabel
-import es.topophone.app.ui.projects.crsOptionTag
 import es.topophone.app.ui.projects.datumLabel
 import es.topophone.app.ui.projects.datumOptionTag
 import es.topophone.app.ui.projects.linearOptionTag
@@ -36,7 +35,6 @@ import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LinearUnit
-import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.data.project.ProjectPreferences
 import javax.inject.Inject
@@ -73,7 +71,7 @@ fun ProjectDefaultsRoute(
     ProjectDefaultsScreen(themeState, onToggleSun, defaults, viewModel::update, onBack)
 }
 
-/** "Proyectos nuevos" en Ajustes: autor, SC, unidades y datum con que empieza cada proyecto (S006/RF-13). */
+/** "Proyectos nuevos" en Ajustes: autor, SC, altura, unidades y datum con que empieza cada proyecto (S006/RF-13, S008/RF-10). */
 @Composable
 fun ProjectDefaultsScreen(
     themeState: ThemeState,
@@ -100,8 +98,8 @@ fun ProjectDefaultsScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().testTag(FORM_AUTHOR_TAG),
             )
-            ChoiceGroup(stringResource(R.string.project_crs), ProjectCrs.entries, defaults.crs, ::crsOptionTag, { crsLabel(it) }) {
-                onChange(defaults.copy(crs = it))
+            CrsChoices(defaults.crs, defaults.heightSystem, datumLocked = false, onCrs = { onChange(defaults.withCrs(it)) }) {
+                onChange(defaults.copy(heightSystem = it))
             }
             ChoiceGroup(stringResource(R.string.project_linear_unit), LinearUnit.entries, defaults.linearUnit, ::linearOptionTag, {
                 linearUnitLabel(it)

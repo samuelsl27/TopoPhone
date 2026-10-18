@@ -1,5 +1,8 @@
 package es.topophone.app.ui.settings
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -15,12 +18,16 @@ import es.topophone.app.ui.projects.FORM_AUTHOR_TAG
 import es.topophone.app.ui.projects.angularOptionTag
 import es.topophone.app.ui.projects.crsOptionTag
 import es.topophone.app.ui.projects.datumOptionTag
+import es.topophone.app.ui.projects.geodeticDatumOptionTag
+import es.topophone.app.ui.projects.heightOptionTag
 import es.topophone.app.ui.projects.linearOptionTag
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
@@ -42,7 +49,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Valores por defecto de los proyectos nuevos en Ajustes (S006/RF-13). Interfaz en español (es-ES). */
+/** Valores por defecto de los proyectos nuevos en Ajustes (S006/RF-13, S008/RF-10). Interfaz en español (es-ES). */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class ProjectDefaultsTest {
@@ -113,5 +120,29 @@ class ProjectDefaultsTest {
         } finally {
             Dispatchers.resetMain()
         }
+    }
+
+    @Test
+    fun `S008 RF-10 Ajustes ofrece los mismos datum, proyecciones y alturas que el formulario`() {
+        var current by mutableStateOf(ProjectDefaults())
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ProjectDefaultsScreen(ThemeState.DEFAULT, {}, current, onChange = { current = it }, onBack = {})
+            }
+        }
+        fun click(tag: String) = compose.onNodeWithTag(tag).performScrollTo().performClick()
+
+        click(geodeticDatumOptionTag(GeodeticDatum.REGCAN95))
+        click(crsOptionTag(ProjectCrs.REGCAN95_GEOGRAPHIC))
+        click(heightOptionTag(HeightSystem.ELLIPSOIDAL))
+        current.crs shouldBe ProjectCrs.REGCAN95_GEOGRAPHIC
+        current.heightSystem shouldBe HeightSystem.ELLIPSOIDAL
+        current.correctionsDatum shouldBe CorrectionsDatum.REGCAN95
+
+        click(geodeticDatumOptionTag(GeodeticDatum.ED50)) // S008/RF-3: ED50 solo en UTM y con altitud
+        current.crs shouldBe ProjectCrs.ED50_UTM30
+        current.heightSystem shouldBe HeightSystem.ORTHOMETRIC
+        compose.onNodeWithTag(heightOptionTag(HeightSystem.ELLIPSOIDAL)).assertDoesNotExist()
+        compose.onNodeWithTag(crsOptionTag(ProjectCrs.ETRS89_UTM30)).assertDoesNotExist()
     }
 }

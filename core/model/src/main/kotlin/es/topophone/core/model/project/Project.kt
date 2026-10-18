@@ -64,6 +64,10 @@ data class ProjectDefaults(
 ) {
     /** El formulario de proyecto nuevo, sin nombre ni descripción (S006/RF-6). */
     fun toDraft() = ProjectDraft("", author, "", crs, linearUnit, angularUnit, correctionsDatum, heightSystem)
+
+    /** Con el SC [newCrs], como en el formulario de proyecto (S008/RF-10, RF-3, RF-17). */
+    fun withCrs(newCrs: ProjectCrs): ProjectDefaults =
+        toDraft().withCrs(newCrs).let { copy(crs = it.crs, correctionsDatum = it.correctionsDatum, heightSystem = it.heightSystem) }
 }
 
 /** Una carpeta de proyectos (S006/RF-17). */

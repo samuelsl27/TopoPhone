@@ -28,7 +28,7 @@
       Hecho cuando: `ProjectFormCrsTest` en verde para Península, Canarias, ED50, geográficas y sin posición.
 - [x] T13. `app`: vista de proyecto con geográficas, altura elipsoidal, factores, aviso de otro huso y fuera de ED50; nombres de los SC en la lista. (RF-5, RF-6, RF-8, RF-12 a RF-16)
       Hecho cuando: `ProjectViewCrsTest` en verde y los tests de S006 de la vista y la lista adaptados.
-- [ ] T14. `app`: "Proyectos nuevos" en Ajustes con los nuevos SC y la altura. (RF-10)
+- [x] T14. `app`: "Proyectos nuevos" en Ajustes con los nuevos SC y la altura. (RF-10)
       Hecho cuando: `ProjectDefaultsTest` en verde con los casos nuevos.
 - [ ] T15. `app`: pantalla Coordenadas del receptor en Canarias (REGCAN95, husos 27–28 y su geoide). (RF-20, RF-21)
       Hecho cuando: `CoordinatesCardTest` en verde con un punto en Canarias.

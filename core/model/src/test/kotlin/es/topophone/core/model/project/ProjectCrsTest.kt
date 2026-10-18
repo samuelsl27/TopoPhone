@@ -1,6 +1,7 @@
 package es.topophone.core.model.project
 
 import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectDefaults
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
@@ -129,5 +130,14 @@ class ProjectCrsTest {
         draft.withProposedCrs(ProjectCrs.ETRS89_UTM29) shouldBe draft.copy(crs = ProjectCrs.ETRS89_UTM29)
         draft.withProposedCrs(ProjectCrs.REGCAN95_UTM28) shouldBe
             draft.copy(crs = ProjectCrs.REGCAN95_UTM28, correctionsDatum = CorrectionsDatum.REGCAN95)
+    }
+
+    @Test
+    fun `S008 RF-10 en los valores por defecto el SC elegido trae su datum de las correcciones y una altura que admite`() {
+        val defaults = ProjectDefaults(author = "S. S.", heightSystem = HeightSystem.ELLIPSOIDAL)
+
+        defaults.withCrs(ProjectCrs.REGCAN95_GEOGRAPHIC) shouldBe
+            defaults.copy(crs = ProjectCrs.REGCAN95_GEOGRAPHIC, correctionsDatum = CorrectionsDatum.REGCAN95)
+        defaults.withCrs(ProjectCrs.ED50_UTM31) shouldBe defaults.copy(crs = ProjectCrs.ED50_UTM31, heightSystem = HeightSystem.ORTHOMETRIC)
     }
 }
