@@ -230,6 +230,7 @@ fun ObjectListRoute(
         state,
         ObjectListActions(
             onQueryChange = viewModel::search,
+            onOpen = { pointId -> navigation.onOpenPoint(projectId, pointId) }, // S011/RF-5
             onToggleSelection = viewModel::toggleSelection,
             onClearSelection = viewModel::clearSelection,
             onSetHidden = viewModel::setHidden,

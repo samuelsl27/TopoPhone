@@ -41,6 +41,14 @@ class FakeMapController : MapController {
         gestures.tryEmit(Unit)
     }
 
+    private val clicks = MutableSharedFlow<String>(extraBufferCapacity = 8)
+    override val pointClicks: Flow<String> = clicks
+
+    /** El usuario toca el punto [id] en el mapa. */
+    fun clickPoint(id: String) {
+        clicks.tryEmit(id)
+    }
+
     override fun setSettings(settings: MapSettings) {
         this.settings += settings
     }

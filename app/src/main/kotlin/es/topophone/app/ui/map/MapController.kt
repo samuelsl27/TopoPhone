@@ -36,6 +36,9 @@ interface MapController {
      */
     fun setBottomInset(px: Int)
 
+    /** El id de cada punto que el usuario toca en el mapa (S011/RF-5). */
+    val pointClicks: Flow<String>
+
     /** Cada vez que el usuario empieza a mover el mapa con el dedo (S009/RF-20). */
     val userGestures: Flow<Unit>
 

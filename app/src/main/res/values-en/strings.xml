@@ -488,4 +488,23 @@
         <item quantity="one">%1$d manual point has no pole and has not changed.</item>
         <item quantity="other">%1$d manual points have no pole and have not changed.</item>
     </plurals>
+    <string name="point_coordinates">Coordinates</string>
+    <string name="point_geographic">Geographic %1$s</string>
+    <string name="point_measured_coordinates">Measured coordinates</string>
+    <string name="point_revert">Back to the measurement</string>
+    <string name="point_measurement">Measurement</string>
+    <string name="point_antenna_latitude">Antenna (φ)</string>
+    <string name="point_antenna_longitude">Antenna (λ)</string>
+    <string name="point_antenna_height">Antenna (h)</string>
+    <string name="point_solution">Solution</string>
+    <string name="point_accuracy_v">V accuracy</string>
+    <string name="point_mode">Mode</string>
+    <string name="point_epochs">Epochs</string>
+    <string name="point_epochs_value">Used: %1$d, discarded: %2$d</string>
+    <string name="point_from_replay">Measured in a replay.</string>
+    <string name="point_measured_at">Date and time</string>
+    <string name="point_nmea">Show NMEA sentences</string>
+    <string name="point_nmea_title">NMEA sentences</string>
+    <string name="point_list_item">• %1$s</string>
+    <string name="point_created_at">Created: %1$s</string>
 </resources>

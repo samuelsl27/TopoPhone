@@ -3,6 +3,8 @@ package es.topophone.app.ui.map
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.PointF
+import android.graphics.RectF
 import android.os.Handler
 import android.os.Looper
 import es.topophone.core.geodesy.AccuracyCircle
@@ -66,6 +68,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     override val camera: StateFlow<MapCamera?> = cameraFlow
     private val gestures = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val userGestures: Flow<Unit> = gestures
+    private val clicks = MutableSharedFlow<String>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    override val pointClicks: Flow<String> = clicks
 
     init {
         map.uiSettings.isRotateGesturesEnabled = MapOptions.ROTATE_GESTURES // S009/RF-11
@@ -85,6 +89,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 override fun onMoveEnd(detector: MoveGestureDetector) = Unit
             },
         )
+        map.addOnMapClickListener { latLng -> pointAt(map.projection.toScreenLocation(latLng))?.also { clicks.tryEmit(it) } != null }
         map.addOnCameraIdleListener {
             publishCamera()
             updateGrid()
@@ -167,6 +172,13 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         map.moveCamera(CameraUpdateFactory.paddingTo(0.0, 0.0, 0.0, bottomInsetPx.toDouble()))
     }
 
+    /** El punto bajo un toque, en un cuadro de 48 dp para que se acierte con el dedo (S011/RF-5). */
+    private fun pointAt(screen: PointF): String? {
+        val half = POINT_TOUCH_DP * mapView.resources.displayMetrics.density / 2
+        val box = RectF(screen.x - half, screen.y - half, screen.x + half, screen.y + half)
+        return map.queryRenderedFeatures(box, POINTS_LAYER, POINT_LABELS_LAYER).firstNotNullOfOrNull { it.getStringProperty(POINT_ID) }
+    }
+
     override fun showPoints(points: List<MapPoint>) {
         this.points = points
         drawPoints()
@@ -207,6 +219,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         val source = style.getSourceAs<GeoJsonSource>(POINTS_SOURCE) ?: return
         val features = points.map { point ->
             Feature.fromGeometry(Point.fromLngLat(point.position.longitudeDeg, point.position.latitudeDeg)).apply {
+                addStringProperty(POINT_ID, point.id)
                 addStringProperty(NAME, point.name)
                 addBooleanProperty(OUT_OF_TOLERANCE, point.outOfTolerance)
             }
@@ -378,6 +391,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val POINTS_LAYER = "topophone-points"
         const val POINT_LABELS_LAYER = "topophone-point-labels"
         const val NAME = "name"
+        const val POINT_ID = "id"
+        const val POINT_TOUCH_DP = 48f
         const val OUT_OF_TOLERANCE = "outOfTolerance"
         const val POINT_COLOR = "#1565C0"
         const val OUT_OF_TOLERANCE_COLOR = "#E65100"

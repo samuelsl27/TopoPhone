@@ -56,6 +56,9 @@ import kotlinx.serialization.Serializable
 /** Lista de objetos de un proyecto (S011/RF-1). */
 @Serializable data class ObjectListDestination(val projectId: String)
 
+/** Ficha de un punto (S011/RF-5). */
+@Serializable data class PointDestination(val projectId: String, val pointId: String)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

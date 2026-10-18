@@ -115,7 +115,7 @@ class ObjectListScreenTest {
     }
 
     @Test
-    fun `S011 RF-4 una pulsacion larga selecciona y fuera de la seleccion pulsar abre el punto`() {
+    fun `S011 RF-4 y RF-5 una pulsacion larga selecciona y fuera de la seleccion pulsar abre el punto`() {
         show(ObjectListUiState(loaded = true, points = summaries, total = 3))
 
         compose.onNodeWithTag(objectRowTag("id-2")).performTouchInput { longClick() }

@@ -500,4 +500,23 @@
         <item quantity="one">%1$d punto manual no tiene jalón y no ha cambiado.</item>
         <item quantity="other">%1$d puntos manuales no tienen jalón y no han cambiado.</item>
     </plurals>
+    <string name="point_coordinates">Coordenadas</string>
+    <string name="point_geographic">Geográficas %1$s</string>
+    <string name="point_measured_coordinates">Coordenadas de la medida</string>
+    <string name="point_revert">Volver a la medida</string>
+    <string name="point_measurement">Medida</string>
+    <string name="point_antenna_latitude">Antena (φ)</string>
+    <string name="point_antenna_longitude">Antena (λ)</string>
+    <string name="point_antenna_height">Antena (h)</string>
+    <string name="point_solution">Solución</string>
+    <string name="point_accuracy_v">Precisión V</string>
+    <string name="point_mode">Modo</string>
+    <string name="point_epochs">Épocas</string>
+    <string name="point_epochs_value">Usadas: %1$d, descartadas: %2$d</string>
+    <string name="point_from_replay">Medido en una reproducción.</string>
+    <string name="point_measured_at">Fecha y hora</string>
+    <string name="point_nmea">Ver frases NMEA</string>
+    <string name="point_nmea_title">Frases NMEA</string>
+    <string name="point_list_item">• %1$s</string>
+    <string name="point_created_at">Creado: %1$s</string>
 </resources>

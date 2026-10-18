@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -317,6 +318,7 @@ fun ProjectViewRoute(
             onDiscard = collectorViewModel::discardPending,
         ),
         onObjects = navigation.onOpenObjects,
+        onOpenPoint = navigation.onOpenPoint,
     )
 }
 
@@ -335,6 +337,7 @@ fun ProjectViewScreen(
     collector: CollectorUiState? = null,
     collectorActions: CollectorActions = CollectorActions(),
     onObjects: (projectId: String) -> Unit = {},
+    onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
 ) {
     var collectorOpen by rememberSaveable { mutableStateOf(false) }
     val policy = remember { CameraPolicy() }
@@ -429,6 +432,13 @@ fun ProjectViewScreen(
     BindMap(controller, state)
     LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
     controller?.let { FollowRover(it, state, policy, onViewportChanged) }
+    // S011/RF-5: tocar un punto del mapa abre su ficha.
+    val openPoint by rememberUpdatedState(onOpenPoint)
+    val projectId = project?.id
+    LaunchedEffect(controller, projectId) {
+        val map = controller ?: return@LaunchedEffect
+        if (projectId != null) map.pointClicks.collect { pointId -> openPoint(projectId, pointId) }
+    }
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
 }
 
@@ -672,7 +682,7 @@ private fun PositionValues(project: Project, position: ProjectPosition, accuracy
 }
 
 @Composable
-private fun heightTitle(height: HeightSystem): String = stringResource(
+internal fun heightTitle(height: HeightSystem): String = stringResource(
     when (height) {
         HeightSystem.ORTHOMETRIC -> R.string.coord_orthometric_height
         HeightSystem.ELLIPSOIDAL -> R.string.coord_ellipsoidal_height
@@ -691,7 +701,7 @@ private fun heightUnavailable(project: Project, position: ProjectPosition): Stri
 
 /** Etiqueta a la izquierda y valor a la derecha, en tipografía monoespaciada (RNF-T8); TalkBack la lee entera. */
 @Composable
-private fun CoordinateRow(label: String, value: String, tag: String) {
+internal fun CoordinateRow(label: String, value: String, tag: String) {
     Row(
         modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.testTag(tag),
         horizontalArrangement = Arrangement.SpaceBetween,
