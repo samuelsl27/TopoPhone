@@ -115,7 +115,7 @@ class CollectorPanelTest {
     }
 
     @Test
-    fun `S010 RF-4 RF-5 nombre, descripcion y jalon se ven y se cambian`() {
+    fun `S010 RF-4 y RF-5 nombre, descripcion y jalon se ven y se cambian`() {
         show(ready)
 
         compose.onNodeWithTag(COLLECTOR_NAME_TAG).performScrollTo().assert(hasText("P12")).performTextReplacement("P13")
@@ -148,7 +148,7 @@ class CollectorPanelTest {
     }
 
     @Test
-    fun `S010 RF-8 RF-9 se elige el modo y se mide`() {
+    fun `S010 RF-8 y RF-9 se elige el modo y se mide`() {
         show(ready)
 
         compose.onNodeWithTag(modeOptionTag(MeasurementMode.AVERAGED)).performScrollTo().performClick()
@@ -158,7 +158,7 @@ class CollectorPanelTest {
     }
 
     @Test
-    fun `S010 RF-9 RF-11 durante el promediado se ve el progreso y se puede cancelar`() {
+    fun `S010 RF-9 y RF-11 durante el promediado se ve el progreso y se puede cancelar`() {
         show(ready.copy(settings = CollectorSettings(MeasurementMode.AVERAGED), measuring = true, progress = MeasureProgress(2.0, 5.0)))
 
         compose.onNodeWithText("2 / 5 s").performScrollTo().assertIsDisplayed()

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class FactorFormatTest {
 
     @Test
-    fun `S008 RF-13 RF-15 los factores se muestran con 8 decimales y el separador del idioma`() {
+    fun `S008 RF-13 y RF-15 los factores se muestran con 8 decimales y el separador del idioma`() {
         FactorFormat.factor(0.999612345678, Locale.forLanguageTag("es-ES")) shouldBe "0,99961235"
         FactorFormat.factor(1.0002, Locale.US) shouldBe "1.00020000"
     }

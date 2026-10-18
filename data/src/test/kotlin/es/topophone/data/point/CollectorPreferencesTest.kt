@@ -40,7 +40,7 @@ class CollectorPreferencesTest {
     }
 
     @Test
-    fun `S010 RF-9 RF-13 lo elegido se recuerda al volver a abrir la app, tambien quitar un limite`() {
+    fun `S010 RF-9 y RF-13 lo elegido se recuerda al volver a abrir la app, tambien quitar un limite`() {
         val chosen =
             CollectorSettings(
                 MeasurementMode.AVERAGED,

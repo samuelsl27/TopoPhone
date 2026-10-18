@@ -87,7 +87,7 @@ class RoverLayerTest {
     private fun color(tone: StatusTone) = statusPaletteFor(EffectiveTheme.LIGHT).colorsFor(tone).container.toArgb()
 
     @Test
-    fun `S009 RF-16 RF-17 el rover se pinta en su posicion con el color de la solucion y su precision`() {
+    fun `S009 RF-16 y RF-17 el rover se pinta en su posicion con el color de la solucion y su precision`() {
         var rover by mutableStateOf<Rover?>(Rover(madrid, SolutionStatus.FIX, accuracyM = 0.012))
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
@@ -119,7 +119,7 @@ class RoverLayerTest {
     }
 
     @Test
-    fun `S009 RF-16 RF-17 RF-18 el ViewModel da el rover de la GGA tal cual, en cualquier SC, y lo quita sin datos`() {
+    fun `S009 RF-16, RF-17 y RF-18 el ViewModel da el rover de la GGA tal cual, en cualquier SC, y lo quita sin datos`() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), TopoPhoneDatabase::class.java).build()
         val toApp = PipedOutputStream()

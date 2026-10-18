@@ -201,7 +201,7 @@ class ProjectMapScreenTest {
     }
 
     @Test
-    fun `S009 RF-6 RF-10 el mapa recibe los ajustes del mapa y la unidad del proyecto`() {
+    fun `S009 RF-6 y RF-10 el mapa recibe los ajustes del mapa y la unidad del proyecto`() {
         show(ProjectViewUiState(project.copy(linearUnit = LinearUnit.US_SURVEY_FOOT), madrid))
         compose.waitForIdle()
 
@@ -254,7 +254,7 @@ class ProjectMapScreenTest {
     }
 
     @Test
-    fun `S009 RF-19 RF-20 el mapa sigue al rover hasta que se mueve con el dedo y vuelve con Centrar en el rover`() {
+    fun `S009 RF-19 y RF-20 el mapa sigue al rover hasta que se mueve con el dedo y vuelve con Centrar en el rover`() {
         var rover by mutableStateOf(Rover(GeoPoint(40.4168, -3.7037), SolutionStatus.FIX, 0.012))
         map.camera.value = MapCamera(40.0, -4.0, zoom = 5.0)
         compose.setContent {

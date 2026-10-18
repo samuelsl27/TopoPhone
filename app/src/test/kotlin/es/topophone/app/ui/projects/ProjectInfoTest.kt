@@ -103,7 +103,7 @@ class ProjectInfoTest {
     }
 
     @Test
-    fun `S008 RF-1 RF-2 los datos nombran el SC con su datum y la altura elipsoidal`() {
+    fun `S008 RF-1 y RF-2 los datos nombran el SC con su datum y la altura elipsoidal`() {
         show(project.copy(crs = ProjectCrs.REGCAN95_GEOGRAPHIC, heightSystem = HeightSystem.ELLIPSOIDAL))
 
         compose.onNodeWithTag(PROJECT_INFO_TAG).assert(hasText("REGCAN95 / geográficas")).assert(hasText("Altura elipsoidal"))

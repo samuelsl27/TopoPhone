@@ -78,7 +78,7 @@ class PointMeasurementTest {
     private fun List<MeasurementUpdate>.done() = filterIsInstance<MeasurementUpdate.Done>().single().result
 
     @Test
-    fun `S010 RF-8 RF-17 la medida instantanea es la primera epoca con posicion, tal como llega`() {
+    fun `S010 RF-8 y RF-17 la medida instantanea es la primera epoca con posicion, tal como llega`() {
         val m = measurement(MeasurementMode.INSTANT)
 
         m.feed(epoch(0, status = SolutionStatus.NONE, lat = Double.NaN)).filterIsInstance<MeasurementUpdate.Done>().shouldBeEmpty()
@@ -93,7 +93,7 @@ class PointMeasurementTest {
     }
 
     @Test
-    fun `S010 RF-17 RF-18 el punto del suelo y el SC del proyecto salen como en S008 con la altura del jalon`() {
+    fun `S010 RF-17 y RF-18 el punto del suelo y el SC del proyecto salen como en S008 con la altura del jalon`() {
         val e = epoch(0)
         val result = measurement(MeasurementMode.INSTANT).feed(e).done()
         val expected = calculator.compute(e.gga!!, 1.8, ProjectCrs.ETRS89_UTM30, HeightSystem.ORTHOMETRIC).shouldNotBeNull()
@@ -205,7 +205,7 @@ class PointMeasurementTest {
     }
 
     @Test
-    fun `S010 RF-9 RF-12 un promediado a ritmo real no se cancela y su hora es la del movil`() {
+    fun `S010 RF-9 y RF-12 un promediado a ritmo real no se cancela y su hora es la del movil`() {
         val m = measurement(MeasurementMode.AVERAGED, seconds = 5)
 
         // Una época por segundo y comprobaciones del plazo cada 250 ms, como en el recolector.

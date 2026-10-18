@@ -357,7 +357,7 @@ class ProjectRepositoryTest {
     }
 
     @Test
-    fun `S008 RF-1 RF-2 un proyecto se guarda con su SC de cualquier datum y su altura`() = runBlocking<Unit> {
+    fun `S008 RF-1 y RF-2 un proyecto se guarda con su SC de cualquier datum y su altura`() = runBlocking<Unit> {
         val canarias = draft("Puerto de la Cruz").copy(crs = ProjectCrs.REGCAN95_GEOGRAPHIC, heightSystem = HeightSystem.ELLIPSOIDAL)
         val id = repository.create(canarias).shouldBeInstanceOf<SaveResult.Saved>().id
 

@@ -37,7 +37,7 @@ class ProjectCrsTest {
     }
 
     @Test
-    fun `S008 RF-2 RF-3 todos admiten altitud y altura elipsoidal salvo ED50, que solo admite altitud`() {
+    fun `S008 RF-2 y RF-3 todos admiten altitud y altura elipsoidal salvo ED50, que solo admite altitud`() {
         ProjectCrs.entries.forEach { crs ->
             crs.heightSystems shouldBe if (crs.datum == GeodeticDatum.ED50) {
                 listOf(HeightSystem.ORTHOMETRIC)
@@ -111,7 +111,7 @@ class ProjectCrsTest {
     }
 
     @Test
-    fun `S008 RF-3 RF-17 al elegir un SC el borrador toma su datum de las correcciones y una altura admitida`() {
+    fun `S008 RF-3 y RF-17 al elegir un SC el borrador toma su datum de las correcciones y una altura admitida`() {
         val draft = ProjectDefaults(heightSystem = HeightSystem.ELLIPSOIDAL).toDraft()
 
         val ed50 = draft.withCrs(ProjectCrs.ED50_UTM30)

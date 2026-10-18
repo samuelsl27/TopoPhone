@@ -51,7 +51,7 @@ class UtmFactorsTest {
     }
 
     @Test
-    fun `S008 RF-13 RF-14 el factor de escala y la convergencia coinciden con pyproj, tambien con huso forzado`() {
+    fun `S008 RF-13 y RF-14 el factor de escala y la convergencia coinciden con pyproj, tambien con huso forzado`() {
         val vectors = GeodesyFixtures.rows("factores_tm.csv")
         vectors.size shouldBeGreaterThan 200
 

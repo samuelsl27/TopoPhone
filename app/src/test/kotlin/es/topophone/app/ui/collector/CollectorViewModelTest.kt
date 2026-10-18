@@ -177,7 +177,7 @@ class CollectorViewModelTest {
     }
 
     @Test
-    fun `S010 RF-8 RF-16 RF-19 una medida instantanea en FIX se guarda al momento, suena y se propone el nombre siguiente`() {
+    fun `S010 RF-8, RF-16 y RF-19 una medida instantanea en FIX se guarda al momento, suena y se propone el nombre siguiente`() {
         val projectId = project()
         val vm = viewModel(projectId)
         receiving(vm)
@@ -219,7 +219,7 @@ class CollectorViewModelTest {
     }
 
     @Test
-    fun `S010 RF-9 RF-10 RF-18 el promediado descarta las epocas sin FIX, avisa una vez y guarda cuantas uso`() {
+    fun `S010 RF-9, RF-10 y RF-18 el promediado descarta las epocas sin FIX, avisa una vez y guarda cuantas uso`() {
         collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 3)
         val projectId = project()
         val vm = viewModel(projectId)
@@ -260,7 +260,7 @@ class CollectorViewModelTest {
     }
 
     @Test
-    fun `S010 RF-14 RF-15 fuera de tolerancia se pregunta y solo se guarda si se confirma, marcado`() {
+    fun `S010 RF-14 y RF-15 fuera de tolerancia se pregunta y solo se guarda si se confirma, marcado`() {
         val projectId = project()
         val vm = viewModel(projectId)
         receiving(vm, status = 5)

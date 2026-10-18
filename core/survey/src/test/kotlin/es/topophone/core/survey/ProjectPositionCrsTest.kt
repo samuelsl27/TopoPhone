@@ -69,7 +69,7 @@ class ProjectPositionCrsTest {
     }
 
     @Test
-    fun `S008 RF-4 RF-6 en REGCAN95 geograficas la altitud usa el geoide de Canarias y coincide con pyproj`() {
+    fun `S008 RF-4 y RF-6 en REGCAN95 geograficas la altitud usa el geoide de Canarias y coincide con pyproj`() {
         val vectors = rows("geoide_egm08_rednap_canarias.csv").filter { it[2].isNotEmpty() }
         vectors.size shouldBeGreaterThan 50
 
@@ -122,7 +122,7 @@ class ProjectPositionCrsTest {
     }
 
     @Test
-    fun `S008 RF-6 RF-16 en geograficas se dan latitud y longitud, sin Este, Norte ni factores`() {
+    fun `S008 RF-6 y RF-16 en geograficas se dan latitud y longitud, sin Este, Norte ni factores`() {
         val position = compute(40.4168, -3.7038, ProjectCrs.ETRS89_GEOGRAPHIC)
 
         position.latitudeDeg shouldBe 40.4168
@@ -146,7 +146,7 @@ class ProjectPositionCrsTest {
     }
 
     @Test
-    fun `S008 RF-13 RF-14 el factor de escala y la convergencia coinciden con pyproj en ETRS89 y REGCAN95`() {
+    fun `S008 RF-13 y RF-14 el factor de escala y la convergencia coinciden con pyproj en ETRS89 y REGCAN95`() {
         val vectors = rows("factores_tm.csv").filter { row ->
             val crs = ProjectCrs.of(if (row[3].toInt() <= 28) GeodeticDatum.REGCAN95 else GeodeticDatum.ETRS89, row[3].toInt())
             row[0] == "GRS80" && crs != null && crs.area.contains(row[1].toDouble(), row[2].toDouble())

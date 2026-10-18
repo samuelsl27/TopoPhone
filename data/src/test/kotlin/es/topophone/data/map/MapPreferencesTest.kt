@@ -45,7 +45,7 @@ class MapPreferencesTest {
     }
 
     @Test
-    fun `S009 RF-6 RF-7 RF-8 el mapa base y el Catastro elegidos se recuerdan al volver a abrir la app`() {
+    fun `S009 RF-6, RF-7 y RF-8 el mapa base y el Catastro elegidos se recuerdan al volver a abrir la app`() {
         withPreferences { preferences, _ -> preferences.save(MapSettings(Basemap.PNOA_ORTHOPHOTO, cadastre = true)) }
 
         withPreferences { preferences, _ -> preferences.settings.first() } shouldBe MapSettings(Basemap.PNOA_ORTHOPHOTO, cadastre = true)

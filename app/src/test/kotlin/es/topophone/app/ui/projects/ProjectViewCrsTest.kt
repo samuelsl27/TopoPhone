@@ -183,7 +183,7 @@ class ProjectViewCrsTest {
     }
 
     @Test
-    fun `S008 RF-13 RF-14 RF-15 en UTM se dan el factor de escala, la convergencia y el factor combinado`() {
+    fun `S008 RF-13, RF-14 y RF-15 en UTM se dan el factor de escala, la convergencia y el factor combinado`() {
         show(project, madrid)
         moreData()
 
@@ -242,7 +242,7 @@ class ProjectViewCrsTest {
     }
 
     @Test
-    fun `S008 RF-5 RF-6 el ViewModel calcula la posicion en las geograficas REGCAN95 con altura elipsoidal`() {
+    fun `S008 RF-5 y RF-6 el ViewModel calcula la posicion en las geograficas REGCAN95 con altura elipsoidal`() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), TopoPhoneDatabase::class.java).build()
         val toApp = PipedOutputStream()

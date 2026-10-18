@@ -42,7 +42,7 @@ class MapStylesTest {
     }
 
     @Test
-    fun `S009 RF-6 RF-14 sin mapa base el estilo esta vacio y solo queda el fondo neutro con la cuadricula`() {
+    fun `S009 RF-6 y RF-14 sin mapa base el estilo esta vacio y solo queda el fondo neutro con la cuadricula`() {
         val style = parse(MapStyles.style(Basemap.NONE).shouldBeInstanceOf<BasemapStyle.Local>().json)
 
         style["sources"]!!.jsonObject.size shouldBe 0

@@ -62,7 +62,7 @@ class PointRepositoryTest {
     )
 
     @Test
-    fun `S010 RF-16 RF-17 RF-18 un punto se guarda y se lee tal cual, sin redondear, con su calidad y su observacion`() =
+    fun `S010 RF-16, RF-17 y RF-18 un punto se guarda y se lee tal cual, sin redondear, con su calidad y su observacion`() =
         runBlocking<Unit> {
             val project = newProject("Calle Mayor 12")
             val saved = point(project, "P12")
@@ -85,7 +85,7 @@ class PointRepositoryTest {
     }
 
     @Test
-    fun `S010 RF-2 RF-21 el ultimo nombre y el numero de puntos siguen a lo guardado`() = runBlocking<Unit> {
+    fun `S010 RF-2 y RF-21 el ultimo nombre y el numero de puntos siguen a lo guardado`() = runBlocking<Unit> {
         val project = newProject("Calle Mayor 12")
         points.lastName(project).shouldBeNull()
 

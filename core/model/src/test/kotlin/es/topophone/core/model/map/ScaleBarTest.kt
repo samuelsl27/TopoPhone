@@ -65,7 +65,7 @@ class ScaleBarTest {
     }
 
     @Test
-    fun `S009 RF-6 RF-8 por defecto el mapa del IGN sin Catastro, entre cuatro mapas base`() {
+    fun `S009 RF-6 y RF-8 por defecto el mapa del IGN sin Catastro, entre cuatro mapas base`() {
         MapSettings() shouldBe MapSettings(basemap = Basemap.IGN_VECTOR, cadastre = false)
         Basemap.entries shouldBe listOf(Basemap.IGN_VECTOR, Basemap.OSM_VECTOR, Basemap.PNOA_ORTHOPHOTO, Basemap.NONE)
     }

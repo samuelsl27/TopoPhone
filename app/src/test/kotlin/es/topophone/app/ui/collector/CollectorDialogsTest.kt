@@ -102,7 +102,7 @@ class CollectorDialogsTest {
     }
 
     @Test
-    fun `S010 RF-14 RF-15 una medida fuera de tolerancia dice que falla y se guarda solo si se confirma`() {
+    fun `S010 RF-14 y RF-15 una medida fuera de tolerancia dice que falla y se guarda solo si se confirma`() {
         show(ready.copy(pending = PendingPoint(setOf(PrecisionFailure.NOT_FIX, PrecisionFailure.VERTICAL))))
 
         compose.onNodeWithText("La medida no cumple el control de precisión:").assertIsDisplayed()
