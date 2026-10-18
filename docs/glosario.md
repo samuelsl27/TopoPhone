@@ -94,6 +94,13 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Inversa / poligonal / intersección | `Inverse` / `Traverse` / `Intersection` | COGO |
 | Capa (WMS) | `MapLayer` | |
 | Mapa base | `Basemap` | |
+| Ortofoto | `Orthophoto` | PNOA del IGN (S009) |
+| Barra de escala | `ScaleBar` | |
+| Encuadre (del mapa) | `MapViewport` | Centro y escala con que se ve el mapa |
+| Tesela | `Tile` | Trozo del mapa que se descarga y se guarda en la caché |
+| Círculo de precisión | `AccuracyCircle` | Radio = precisión horizontal (S002/RF-14) |
+| Panel de posición | `PositionPanel` | Parte inferior del mapa del proyecto (S009) |
+| Datos del proyecto | `ProjectInfo` | SC, altura, unidades y datum de las correcciones (S009) |
 | Superficie (MDT/TIN) | `Surface` | |
 | Dibujo CAD | `CadDrawing` | |
 | Copia de seguridad | `Backup` | |

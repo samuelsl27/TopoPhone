@@ -60,10 +60,10 @@ Los proyectos se agrupan en carpetas, y uno borrado pasa 30 días en la papelera
 - RF-27: CUANDO un proyecto cumpla 30 días en la papelera, EL SISTEMA lo eliminará definitivamente la siguiente vez que se abra la app.
 
 ### Vista de proyecto (H5)
-- RF-28: CUANDO el usuario abra un proyecto, EL SISTEMA mostrará su nombre, su sistema de coordenadas, sus unidades y el datum de las correcciones.
+- RF-28: CUANDO el usuario abra un proyecto, EL SISTEMA mostrará su nombre en la vista de proyecto, y su sistema de coordenadas, sus unidades y el datum de las correcciones en sus datos (S009/RF-5).
 - RF-29: MIENTRAS haya posición del receptor o de una reproducción, la vista de proyecto mostrará la posición del punto del suelo (con la altura del jalón de Receptor) en el sistema de coordenadas del proyecto: Este, Norte y altitud, en sus unidades lineales.
 - RF-30: SI el punto del suelo queda fuera del ámbito del sistema de coordenadas del proyecto o del modelo de geoide, ENTONCES EL SISTEMA mostrará esas coordenadas como no disponibles e indicará el motivo.
-- RF-31: MIENTRAS el proyecto no tenga puntos, la vista de proyecto mostrará que todavía no hay puntos.
+- RF-31: MIENTRAS el proyecto no tenga puntos, los datos del proyecto mostrarán que todavía no hay puntos.
 
 ## Requisitos no funcionales
 - Transversales que aplican: RNF-T6, RNF-T7, RNF-T8, RNF-T9 y RNF-T13.
