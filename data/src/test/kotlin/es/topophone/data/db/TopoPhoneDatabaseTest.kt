@@ -6,6 +6,7 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.project.ProjectEntity
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -18,7 +19,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Base de datos: durabilidad y banco de pruebas de migraciones (S006 y S007, RNF de las specs; RNF-T6). */
+/** Base de datos: durabilidad y banco de pruebas de migraciones (S006 a S009, RNF de las specs; RNF-T6). */
 @RunWith(AndroidJUnit4::class)
 class TopoPhoneDatabaseTest {
 
@@ -161,7 +162,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 3
+        const val CURRENT_VERSION = 4
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
@@ -182,10 +183,35 @@ class TopoPhoneDatabaseTest {
 
         val db = TopoPhoneDatabase.build(context, TEST_DB)
         try {
-            db.openHelper.writableDatabase.version shouldBe 3
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
             val migrated = runBlocking { db.projects().byId(project.id) }.shouldNotBeNull()
             migrated.crs shouldBe "ETRS89_UTM30"
             migrated.heightSystem shouldBe "ORTHOMETRIC"
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun `S009 RNF al actualizar de la v3 a la v4 los proyectos siguen ahi y se anade la tabla de encuadres del mapa`() {
+        createFromExportedSchema(3)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v3 ->
+            v3.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ELLIPSOIDAL')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            runBlocking { db.projects().byId(project.id) }.shouldNotBeNull().heightSystem shouldBe "ELLIPSOIDAL"
+            val viewport = MapViewportEntity(project.id, latitude = 40.41668, longitude = -3.70371, zoom = 17.5)
+            runBlocking { db.mapViewports().upsert(viewport) }
+            runBlocking { db.mapViewports().byProject(project.id) } shouldBe viewport
         } finally {
             db.close()
         }

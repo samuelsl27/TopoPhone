@@ -6,6 +6,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import es.topophone.data.map.MapViewportDao
+import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.ntrip.NtripProfileDao
 import es.topophone.data.ntrip.NtripProfileEntity
 import es.topophone.data.project.ProjectDao
@@ -19,18 +21,21 @@ import es.topophone.data.project.ProjectFolderEntity
  * - v1 (S006): proyectos y carpetas.
  * - v2 (S007): perfiles NTRIP. Solo añade una tabla, así que la migración la genera Room.
  * - v3 (S008): altura de cada proyecto (`height_system`, por defecto altitud). Migración de Room.
+ * - v4 (S009): último encuadre del mapa de cada proyecto. Solo añade una tabla: migración de Room.
  */
 @Database(
-    entities = [ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class],
-    version = 3,
+    entities = [ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class],
+    version = 4,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4)],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun projects(): ProjectDao
 
     abstract fun ntripProfiles(): NtripProfileDao
+
+    abstract fun mapViewports(): MapViewportDao
 
     companion object {
         const val NAME = "topophone.db"

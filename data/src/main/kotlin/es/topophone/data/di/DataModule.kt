@@ -10,6 +10,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.map.DataStoreMapPreferences
+import es.topophone.data.map.MapDataStoreQualifier
+import es.topophone.data.map.MapPreferences
+import es.topophone.data.map.MapViewportRepository
+import es.topophone.data.map.RoomMapViewportRepository
 import es.topophone.data.ntrip.NtripLegacyImport
 import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.ntrip.RoomNtripProfileRepository
@@ -46,6 +51,11 @@ object DataStoreModule {
 
     @Provides
     @Singleton
+    @MapDataStoreQualifier
+    fun provideMapDataStore(@ApplicationContext context: Context): DataStore<Preferences> = SettingsDataStore.create(context, name = "map")
+
+    @Provides
+    @Singleton
     @ReceiverDataStoreQualifier
     fun provideReceiverDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         SettingsDataStore.create(context, name = "receiver")
@@ -70,6 +80,11 @@ object DatabaseModule {
     fun provideNtripProfileRepository(database: TopoPhoneDatabase): NtripProfileRepository =
         RoomNtripProfileRepository(database, AesGcmCipher(AndroidKeystoreKeyProvider()))
 
+    /** Último encuadre del mapa de cada proyecto (S009/RF-21). */
+    @Provides
+    @Singleton
+    fun provideMapViewportRepository(database: TopoPhoneDatabase): MapViewportRepository = RoomMapViewportRepository(database)
+
     @Provides
     fun provideNtripLegacyImport(preferences: ReceiverPreferences, profiles: NtripProfileRepository): NtripLegacyImport =
         NtripLegacyImport(preferences, profiles)
@@ -87,4 +102,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindProjectPreferences(implementation: DataStoreProjectPreferences): ProjectPreferences
+
+    @Binds
+    abstract fun bindMapPreferences(implementation: DataStoreMapPreferences): MapPreferences
 }

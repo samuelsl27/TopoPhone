@@ -8,7 +8,7 @@
       Hecho cuando: `WebMercatorTest`, `AccuracyCircleTest` y `MapGridTest` en verde contra los vectores (≤ 1 mm).
 - [x] T3. `core:model`: `Basemap`, `MapSettings`, `MapViewport` y `ScaleBar` en m, ft y ft EE. UU. (RF-6, RF-10, RF-12)
       Hecho cuando: `ScaleBarTest` en verde (longitudes redondas, ≤ 100 dp, 1 m o menos en el zoom máximo).
-- [ ] T4. `data`: Room v4 con `map_viewports` (migración 3→4) y su repositorio; `MapPreferences` en DataStore. (RF-8, RF-21)
+- [x] T4. `data`: Room v4 con `map_viewports` (migración 3→4) y su repositorio; `MapPreferences` en DataStore. (RF-8, RF-21)
       Hecho cuando: `TopoPhoneDatabaseTest` (migración), `MapViewportRepositoryTest` (cascada al vaciar la papelera) y `MapPreferencesTest` en verde.
 - [ ] T5. `app`: MapLibre (OpenGL ES 13.6.1) con tres arquitecturas y bibliotecas comprimidas, sin permisos de ubicación; `MapController` y su implementación con el mapa del IGN; cliente HTTP con User-Agent. (RF-6, RF-11)
       Hecho cuando: el test de permisos del manifiesto en verde, `assembleDebug` y `assembleRelease` compilan y el APK de publicación crece ≤ 15 MB.
