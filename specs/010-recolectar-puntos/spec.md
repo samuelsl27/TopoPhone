@@ -103,7 +103,7 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - [SUPOSICIÓN: el modo (instantáneo o promediado) y el tiempo de promediado se recuerdan para todos los proyectos, como el control de precisión.]
 - [SUPOSICIÓN: la precisión vertical de la medida es la σ de altitud de la GST; con el promediado se toma la de la última época usada.]
 - [SUPOSICIÓN: los puntos de una reproducción se pueden guardar, marcados como tales, para poder probar la app sin receptor.]
-- [SUPOSICIÓN: el nombre del punto se dibuja en el mapa a escala 1:2.000 o más grande, para que no se amontonen.]
+- [SUPOSICIÓN: el nombre del punto se dibuja en el mapa a escala 1:2.500 o más grande, para que no se amontonen; algo antes que la escala a la que el mapa sigue al rover (1:2.000), para que los nombres no parpadeen al seguirlo.]
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S010: "promediado de hasta 60 s" en lugar de "promediado", para distinguirlo de S016.
