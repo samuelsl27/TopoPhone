@@ -18,6 +18,7 @@ import es.topophone.receiver.transport.BluetoothOffException
 import es.topophone.receiver.transport.ReceiverTransport
 import es.topophone.receiver.transport.ReplayTransport
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -244,6 +245,16 @@ class ReceiverSession(
     private val retrySignal = Channel<Unit>(Channel.CONFLATED)
 
     /**
+     * Número de la conexión en curso; `disconnect()` lo cambia. Entre dos puntos de suspensión la conexión anterior
+     * puede seguir un momento tras cancelarla: lo que escriba entonces en el estado se descarta (S004/RF-21).
+     */
+    private val connectionGeneration = AtomicInteger()
+
+    private inline fun updateConnection(generation: Int, crossinline change: (ReceiverSnapshot) -> ReceiverSnapshot) {
+        mutableState.update { if (generation == connectionGeneration.get()) change(it) else it }
+    }
+
+    /**
      * Abre la conexión con el receptor (S002/RF-5). Con [reopen], si después se pierde el enlace
      * se reintenta abrir el mismo receptor (S004/RF-13 a RF-21); sin él, queda perdida (S002/RF-9).
      */
@@ -264,9 +275,10 @@ class ReceiverSession(
             connection = ConnectionState.Connecting(description),
             replay = replay?.let { ReplayInfo(description, it.speed, it.loop) },
         )
+        val generation = connectionGeneration.get()
         connectionJob = scope.launch {
             open(newTransport)?.let { failure ->
-                mutableState.update { it.copy(connection = ConnectionState.Failed(failure)) } // S002/RF-7
+                updateConnection(generation) { it.copy(connection = ConnectionState.Failed(failure)) } // S002/RF-7
                 return@launch
             }
             synchronized(assemblerLock) { assembler = EpochAssembler() }
@@ -298,10 +310,10 @@ class ReceiverSession(
                         ntripJob?.cancel()
                         if (ntripConfig != null && reopen != null && !link.simulated) {
                             resumeNtripOnData = true
-                            mutableState.update { it.copy(ntrip = NtripState.Paused) } // S004/RF-18
+                            updateConnection(generation) { it.copy(ntrip = NtripState.Paused) } // S004/RF-18
                         }
                         // La grabación sigue abierta durante la reconexión: el corte queda en la misma sesión (S004/RF-19).
-                        val resumed = if (link.simulated || reopen == null) null else reconnect(reopen, description)
+                        val resumed = if (link.simulated || reopen == null) null else reconnect(reopen, description, generation)
                         if (resumed == null) {
                             // Fin de la reproducción (S003/RF-40), con su última época, o enlace perdido con el receptor (S002/RF-9, S004/RF-20).
                             val end = if (link.simulated) {
@@ -312,7 +324,7 @@ class ReceiverSession(
                             }
                             ntripConfig = null
                             resumeNtripOnData = false
-                            mutableState.update {
+                            updateConnection(generation) {
                                 it.copy(connection = end, ntrip = NtripState.Idle, recording = false, correctionsAlarm = false)
                             }
                             break
@@ -328,7 +340,7 @@ class ReceiverSession(
                         linkOpenedAtMs = clock()
                         sawValidSentence = false
                         // S004/RF-17: la primera frase del enlace nuevo vuelve a dar "Recibiendo".
-                        mutableState.update { it.copy(connection = ConnectionState.Connecting(description)) }
+                        updateConnection(generation) { it.copy(connection = ConnectionState.Connecting(description)) }
                     }
                     coroutineContext.cancelChildren()
                 }
@@ -348,7 +360,7 @@ class ReceiverSession(
      * Reintenta abrir el receptor tras esperas crecientes hasta [giveUpAfterMs] (S004/RF-13 a RF-16,
      * RF-20); devuelve el transporte abierto, o `null` al rendirse. Lo cancela `disconnect()` (S004/RF-21).
      */
-    private suspend fun reconnect(reopen: () -> ReceiverTransport, description: String): ReceiverTransport? {
+    private suspend fun reconnect(reopen: () -> ReceiverTransport, description: String, generation: Int): ReceiverTransport? {
         val lostAt = clock()
         while (retrySignal.tryReceive().isSuccess) Unit // un "Reintentar ahora" anterior no cuenta
         var attempt = 0
@@ -360,11 +372,15 @@ class ReceiverSession(
             val now = clock()
             if (now >= deadline) return null
             val nextAt = minOf(now + wait, deadline)
-            mutableState.update { it.copy(connection = ConnectionState.Reconnecting(description, attempt, nextAt, lostAt, bluetoothOff)) }
+            updateConnection(generation) {
+                it.copy(connection = ConnectionState.Reconnecting(description, attempt, nextAt, lostAt, bluetoothOff))
+            }
             val retried = withTimeoutOrNull(nextAt - now) { retrySignal.receive() } != null
             if (!retried && clock() >= deadline) return null
             attempt++
-            mutableState.update { it.copy(connection = ConnectionState.Reconnecting(description, attempt, null, lostAt, bluetoothOff)) }
+            updateConnection(generation) {
+                it.copy(connection = ConnectionState.Reconnecting(description, attempt, null, lostAt, bluetoothOff))
+            }
             // S004/RF-22: con el Bluetooth apagado el intento falla y se sigue esperando a que se encienda.
             val candidate = try {
                 reopen().also { bluetoothOff = false }
@@ -381,6 +397,7 @@ class ReceiverSession(
 
     /** Cierra el NTRIP y la conexión con el receptor (S002/RF-10). */
     fun disconnect() {
+        connectionGeneration.incrementAndGet() // antes de nada: la conexión anterior ya no escribe en el estado
         ntripConfig = null
         resumeNtripOnData = false
         ntripJob?.cancel()

@@ -19,6 +19,8 @@ import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,8 +39,15 @@ class ReceiverSessionReconnectTest {
 
     private val gga = nmea("GNGGA,101530.00,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001")
 
-    /** Receptor falso: [failOpen] hace que abrir falle; [send] envía datos; [cut] corta el enlace. */
-    private class LinkTransport(private val failOpen: Boolean = false) : ReceiverTransport {
+    /**
+     * Receptor falso: [failOpen] hace que abrir falle; [send] envía datos; [cut] corta el enlace. Con [closing] y
+     * [release], cerrarlo avisa y espera, para desconectar justo entonces.
+     */
+    private class LinkTransport(
+        private val failOpen: Boolean = false,
+        private val closing: CountDownLatch? = null,
+        private val release: CountDownLatch? = null,
+    ) : ReceiverTransport {
         private val toApp = PipedOutputStream()
         private val pipe = PipedInputStream(toApp, 64 * 1024)
         override val description = "reach-RS3"
@@ -53,6 +62,8 @@ class ReceiverSessionReconnectTest {
         }
         fun cut() = runCatching { toApp.close() }
         override fun close() {
+            closing?.countDown()
+            release?.await(5, TimeUnit.SECONDS)
             runCatching { toApp.close() }
             runCatching { pipe.close() }
         }
@@ -197,6 +208,24 @@ class ReceiverSessionReconnectTest {
         val count = attempts.size
         Thread.sleep(300)
         attempts.size shouldBe count
+    }
+
+    @Test
+    fun `S004 RF-21 desconectar mientras se cierra un intento fallido deja la sesion desconectada`() {
+        val session = session(backoff = listOf(50))
+        val first = LinkTransport()
+        val closing = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        session.connected(first, reopen(LinkTransport(failOpen = true, closing = closing, release = release)))
+        first.cut()
+        closing.await(5, TimeUnit.SECONDS) shouldBe true
+
+        // La reconexión está entre el intento fallido y su siguiente espera, sin poder cancelarse aún.
+        session.disconnect()
+        release.countDown()
+        Thread.sleep(300)
+
+        session.state.value.connection shouldBe ConnectionState.Disconnected
     }
 
     @Test
