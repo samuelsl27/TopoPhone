@@ -8,7 +8,7 @@
       Hecho cuando: `UtmFactorsTest` en verde contra los vectores (k ≤ 1·10⁻⁹, γ ≤ 0,01″) y los tests UTM de antes siguen en verde.
 - [x] T3. `core:geodesy`: lector GeoTIFF con varias subrejillas, dos bandas en planos separados y metadatos; `HorizontalShiftGrid`. (RF-7)
       Hecho cuando: `HorizontalShiftGridTest` en verde con `es_ign_SPED2ETV2.tif` (subrejillas, nodos y signo de la longitud).
-- [ ] T4. `core:geodesy`: transformación ETRS89 → ED50 por la rejilla invertida, y fuera de la rejilla. (RF-7, RF-8)
+- [x] T4. `core:geodesy`: transformación ETRS89 → ED50 por la rejilla invertida, y fuera de la rejilla. (RF-7, RF-8)
       Hecho cuando: `Ed50Test` en verde contra los vectores ED50 / UTM (≤ 1 mm) y la ida y vuelta ≤ 0,1 mm.
 - [ ] T5. `core:geodesy`: geoide EGM08-REDNAP de Canarias incluido; tamaño de las rejillas. (RF-4)
       Hecho cuando: `GeoidCanariasTest` en verde (≤ 1 mm y fuera de cobertura) y la prueba de tamaño < 300 KB.
