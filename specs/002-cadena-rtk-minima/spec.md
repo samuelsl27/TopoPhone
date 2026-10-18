@@ -71,10 +71,10 @@ Si cualquiera de estos eslabones falla, todo lo demás se construiría sobre are
 - RF-33: EL SISTEMA obtendrá la altura elipsoidal de la posición del receptor sumando la altitud y la separación del geoide que da la frase GGA.
 - RF-34: EL SISTEMA mostrará la latitud y la longitud del punto del suelo en grados, minutos y segundos con 5 decimales de segundo, y en grados decimales con 9 decimales.
 - RF-35: EL SISTEMA mostrará la altura elipsoidal del punto del suelo en metros con 3 decimales.
-- RF-36: EL SISTEMA mostrará las coordenadas UTM del punto del suelo (Este y Norte, en metros con 3 decimales) en el huso que corresponde a su longitud, entre el 29 y el 31, indicando el huso.
-- RF-37: SI la longitud del punto queda fuera de los husos 29 a 31, ENTONCES EL SISTEMA mostrará las coordenadas UTM como no disponibles en esta versión.
+- RF-36: EL SISTEMA mostrará las coordenadas UTM del punto del suelo (Este y Norte, en metros con 3 decimales) en el huso que corresponde a su longitud, del 27 al 31, indicando el huso, según S008/RF-20.
+- RF-37: SI la longitud del punto queda fuera de los husos 27 a 31, ENTONCES EL SISTEMA mostrará las coordenadas UTM como no disponibles.
 - RF-38: EL SISTEMA mostrará la altitud ortométrica del punto del suelo, igual a la altura elipsoidal menos la ondulación del modelo de geoide EGM08-REDNAP del IGN, en metros con 3 decimales.
-- RF-39: SI el punto queda fuera de la cobertura del modelo EGM08-REDNAP de la Península y Baleares, ENTONCES EL SISTEMA mostrará la altitud ortométrica como no disponible e indicará el motivo, sin extrapolar.
+- RF-39: SI el punto queda fuera de la cobertura de los modelos EGM08-REDNAP de la Península y Baleares y de Canarias, ENTONCES EL SISTEMA mostrará la altitud ortométrica como no disponible e indicará el motivo, sin extrapolar.
 - RF-40: MIENTRAS la solución no sea Fija, EL SISTEMA mostrará junto a las coordenadas un aviso de que no tienen precisión centimétrica.
 - RF-41: EL SISTEMA indicará que las coordenadas están en el sistema de referencia de las correcciones y que se suponen ETRS89.
 

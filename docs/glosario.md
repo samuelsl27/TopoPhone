@@ -83,6 +83,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Plano tangente local | `EnuPosition` | |
 | Factor de escala | `scaleFactor` | |
 | Convergencia de meridianos | `meridianConvergence` | |
+| Factor de altura | `heightFactor` | Radio medio de Gauss / (radio + altura elipsoidal) (S008) |
+| Factor combinado | `combinedFactor` | Factor de escala × factor de altura (S008) |
+| Huso propuesto | `suggestedZone` | Huso de la posición al crear un proyecto (S008) |
+| ED50 | `Ed50` | Datum antiguo; se calcula desde ETRS89 con la rejilla SPED2ETV2 del IGN (S008) |
 | Distancia de cuadrícula / de terreno | `gridDistance` / `groundDistance` | |
 | Base shift (desplazamiento de base) | `BaseShift` | |
 | Localización (calibración local) | `Localization` | |
