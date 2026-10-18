@@ -6,11 +6,17 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 |---|---|---|
 | Proyecto | `Project` | |
 | Carpeta (de proyectos) | `ProjectFolder` | Un solo nivel (S006) |
-| Papelera | `Trash` | Proyectos borrados, recuperables 30 días (S006) |
+| Papelera | `Trash` | Proyectos (S006) y puntos de un proyecto (S011), recuperables 30 días |
 | Vista de proyecto | `ProjectView` | Lo que se ve al abrir un proyecto |
 | Datum de las correcciones | `CorrectionsDatum` | ETRS89, REGCAN95 o ITRF/WGS84 |
 | Unidades lineales / angulares | `LinearUnit` / `AngularUnit` | m, ft, usft / DD, DMS, gon (RNF-T9) |
 | Punto | `Point` | Medido, manual, importado, COGO o replanteado → `PointOrigin` |
+| Punto medido / manual | `PointOrigin.MEASURED` / `.MANUAL` | Medido con el recolector (S010) o escrito a mano o duplicado (S011) |
+| Punto sin altura | `hasHeight` | Punto manual solo con planimetría (S011) |
+| Punto editado | `edited` | Punto medido cuyas coordenadas difieren de las de su medida (S011) |
+| Historial (del punto) | `PointHistory` | Cambios de un punto con su fecha y los valores anteriores (S011) |
+| Lista de objetos | `ObjectList` | Puntos del proyecto; las líneas llegan en S024 (S011) |
+| Ficha del punto | `PointDetails` | Todo lo guardado de un punto (S011) |
 | Línea / polilínea | `Line` | |
 | Polígono (línea cerrada) | `Polygon` | |
 | Vértice (de una línea) | `Vertex` | |
