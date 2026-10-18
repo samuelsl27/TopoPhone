@@ -20,7 +20,7 @@
       Hecho cuando: `PointRepositoryTest` y `TrashPurgeTest` en verde.
 - [x] T9. `app`: navegación nueva, botón "Objetos" en el mapa, `ObjectListViewModel` y pantalla de la lista (búsqueda, marcas, ojo, selección múltiple con ocultar, mostrar y borrar). (RF-1 a RF-4, RF-22)
       Hecho cuando: `ObjectListViewModelTest` y `ObjectListScreenTest` en verde.
-- [ ] T10. `app`: corrección del jalón de una selección desde la lista, con el aviso de los manuales. (RF-14, RF-15)
+- [x] T10. `app`: corrección del jalón de una selección desde la lista, con el aviso de los manuales. (RF-14, RF-15)
       Hecho cuando: los tests del jalón en `ObjectListViewModelTest` y `ObjectListScreenTest` en verde.
 - [ ] T11. `app`: ficha del punto (coordenadas, medida, NMEA, editado y "Volver a la medida", copia de) y toque en el mapa y en la lista. (RF-5 a RF-7, RF-12, RF-13)
       Hecho cuando: `PointDetailsViewModelTest`, `PointDetailsScreenTest` y el test del toque en `PointsLayerTest` en verde.

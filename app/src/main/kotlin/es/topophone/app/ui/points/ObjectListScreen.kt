@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,22 +41,29 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.point.PointChange
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointSearch
 import es.topophone.core.model.point.PointSummary
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.core.survey.PointCorrections
+import es.topophone.core.survey.PoleHeight
+import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.point.PointRepository
+import es.topophone.data.project.ProjectRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -62,11 +71,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val OBJECTS_BUTTON_TAG = "objects_button"
 const val OBJECT_LIST_TAG = "object_list"
@@ -76,6 +87,10 @@ const val SELECTION_HIDE_TAG = "selection_hide"
 const val SELECTION_SHOW_TAG = "selection_show"
 const val SELECTION_DELETE_TAG = "selection_delete"
 const val SELECTION_CANCEL_TAG = "selection_cancel"
+const val SELECTION_POLE_TAG = "selection_pole"
+const val POLE_FIELD_TAG = "pole_field"
+const val POLE_APPLY_TAG = "pole_apply"
+const val POLE_OUTCOME_DISMISS_TAG = "pole_outcome_dismiss"
 
 fun objectRowTag(id: String) = "object_$id"
 
@@ -88,7 +103,11 @@ data class ObjectListUiState(
     val points: List<PointSummary> = emptyList(),
     val total: Int = 0,
     val selected: Set<String> = emptySet(),
+    val poleOutcome: PoleOutcome? = null,
 )
+
+/** Lo que pasó al corregir el jalón de una selección (S011/RF-14, RF-15). */
+data class PoleOutcome(val corrected: Int, val manualSkipped: Int, val keptEdited: Boolean)
 
 /** Acciones de la lista de objetos. */
 class ObjectListActions(
@@ -100,24 +119,34 @@ class ObjectListActions(
     val onHideSelected: () -> Unit = {},
     val onShowSelected: () -> Unit = {},
     val onDeleteSelected: () -> Unit = {},
+    val onCorrectPole: (poleHeightM: Double) -> Unit = {},
+    val onDismissPoleOutcome: () -> Unit = {},
 )
 
-/** Puntos de un proyecto, la búsqueda (en segundo plano) y la selección múltiple (S011/RF-1 a RF-4, RF-22). */
+/**
+ * Puntos de un proyecto, la búsqueda (en segundo plano), la selección múltiple y la corrección del jalón de la
+ * selección (S011/RF-1 a RF-4, RF-14, RF-15, RF-22).
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ObjectListViewModel @Inject constructor(private val points: PointRepository) : ViewModel() {
+class ObjectListViewModel @Inject constructor(
+    private val points: PointRepository,
+    private val projects: ProjectRepository,
+    private val calculator: Lazy<ProjectPositionCalculator>,
+) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
     private val query = MutableStateFlow("")
     private val selected = MutableStateFlow<Set<String>>(emptySet())
+    private val poleOutcome = MutableStateFlow<PoleOutcome?>(null)
 
     private val summaries = projectId.flatMapLatest { id -> if (id == null) flowOf(null) else points.summaries(id) }
 
-    val state: StateFlow<ObjectListUiState> = combine(summaries, query, selected) { all, text, chosen ->
+    val state: StateFlow<ObjectListUiState> = combine(summaries, query, selected, poleOutcome) { all, text, chosen, outcome ->
         if (all == null) {
             ObjectListUiState()
         } else {
             val visible = if (text.isBlank()) all else all.filter { PointSearch.matches(it, text) } // S011/RF-2
-            ObjectListUiState(loaded = true, query = text, points = visible, total = all.size, selected = chosen)
+            ObjectListUiState(loaded = true, query = text, points = visible, total = all.size, selected = chosen, poleOutcome = outcome)
         }
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ObjectListUiState())
 
@@ -156,6 +185,30 @@ class ObjectListViewModel @Inject constructor(private val points: PointRepositor
         viewModelScope.launch { points.moveToTrash(ids) }
     }
 
+    /**
+     * S011/RF-14, RF-15: el jalón de los puntos medidos de la selección se corrige desde su antena, todos o
+     * ninguno; los manuales no cambian y se cuentan.
+     */
+    fun correctSelectedPole(poleHeightM: Double) {
+        val ids = selected.value
+        val id = projectId.value ?: return
+        selected.value = emptySet()
+        viewModelScope.launch {
+            val project = projects.project(id) ?: return@launch
+            val chosen = ids.mapNotNull { points.point(it).first() }
+            val corrections = withContext(Dispatchers.Default) {
+                val tool = PointCorrections(calculator.get())
+                chosen.mapNotNull { tool.withPoleHeight(it, poleHeightM, project.crs, project.heightSystem) }
+            }
+            if (corrections.isNotEmpty()) points.updateAll(corrections.map { it.point }, PointChange.POLE)
+            poleOutcome.value = PoleOutcome(corrections.size, chosen.size - corrections.size, corrections.any { it.keptEditedCoordinates })
+        }
+    }
+
+    fun dismissPoleOutcome() {
+        poleOutcome.value = null
+    }
+
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
     }
@@ -183,6 +236,8 @@ fun ObjectListRoute(
             onHideSelected = { viewModel.setSelectedHidden(true) },
             onShowSelected = { viewModel.setSelectedHidden(false) },
             onDeleteSelected = viewModel::deleteSelected,
+            onCorrectPole = viewModel::correctSelectedPole,
+            onDismissPoleOutcome = viewModel::dismissPoleOutcome,
         ),
         onBack = navigation.onBack,
     )
@@ -226,6 +281,7 @@ fun ObjectListScreen(
                         modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).testTag(OBJECT_SEARCH_TAG),
                     ) // S011/RF-2
                 }
+                state.poleOutcome?.let { outcome -> item { PoleOutcomeNotice(outcome, actions.onDismissPoleOutcome) } }
                 if (state.points.isEmpty()) {
                     item { Text(stringResource(R.string.objects_search_empty, state.query)) }
                 }
@@ -293,10 +349,63 @@ private fun Mark(@DrawableRes icon: Int, @StringRes text: Int) {
     }
 }
 
-/** Barra de la selección múltiple, abajo y a mano con el pulgar (S011/RF-4, RF-22). */
+/** Cuántos puntos han cambiado al corregir el jalón y cuántos no (S011/RF-14, RF-15). */
+@Composable
+private fun PoleOutcomeNotice(outcome: PoleOutcome, onDismiss: () -> Unit) {
+    Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (outcome.corrected > 0) Text(pluralStringResource(R.plurals.objects_pole_done, outcome.corrected, outcome.corrected))
+            if (outcome.manualSkipped > 0) {
+                Text(pluralStringResource(R.plurals.objects_pole_manual_skipped, outcome.manualSkipped, outcome.manualSkipped))
+            }
+            if (outcome.keptEdited) Text(stringResource(R.string.objects_pole_kept_edited))
+            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(POLE_OUTCOME_DISMISS_TAG)) {
+                Text(stringResource(R.string.objects_dismiss))
+            }
+        }
+    }
+}
+
+/** La altura del jalón para la selección, en metros como en Coordenadas (S011/RF-14; S002/RF-29). */
+@Composable
+private fun PoleDialog(onApply: (Double) -> Unit, onDismiss: () -> Unit) {
+    var text by remember { mutableStateOf("") }
+    val value = PoleHeight.parse(text)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.objects_pole)) },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text(stringResource(R.string.pole_height_label)) },
+                isError = text.isNotEmpty() && value == null,
+                supportingText = if (text.isNotEmpty() && value == null) ({ Text(stringResource(R.string.pole_height_invalid)) }) else null,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth().testTag(POLE_FIELD_TAG),
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { value?.let(onApply) },
+                enabled = value != null,
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(POLE_APPLY_TAG),
+            ) { Text(stringResource(R.string.objects_pole_apply)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+        },
+    )
+}
+
+/** Barra de la selección múltiple, abajo y a mano con el pulgar (S011/RF-4, RF-14, RF-22). */
 @Composable
 private fun SelectionBar(count: Int, actions: ObjectListActions) {
     var confirmDelete by remember { mutableStateOf(false) }
+    var editPole by remember { mutableStateOf(false) }
     Surface(tonalElevation = 3.dp, modifier = Modifier.fillMaxWidth().testTag(SELECTION_BAR_TAG)) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Text(pluralStringResource(R.plurals.objects_selected, count, count), style = MaterialTheme.typography.titleMedium)
@@ -304,11 +413,21 @@ private fun SelectionBar(count: Int, actions: ObjectListActions) {
                 listOf(
                     Triple(R.string.objects_hide, SELECTION_HIDE_TAG, actions.onHideSelected),
                     Triple(R.string.objects_show, SELECTION_SHOW_TAG, actions.onShowSelected),
+                    Triple(R.string.objects_pole, SELECTION_POLE_TAG) { editPole = true },
                     Triple(R.string.objects_delete, SELECTION_DELETE_TAG) { confirmDelete = true },
                     Triple(R.string.objects_cancel_selection, SELECTION_CANCEL_TAG, actions.onClearSelection),
                 ),
             )
         }
+    }
+    if (editPole) {
+        PoleDialog(
+            onApply = { pole ->
+                editPole = false
+                actions.onCorrectPole(pole)
+            },
+            onDismiss = { editPole = false },
+        )
     }
     if (confirmDelete) {
         ConfirmDialog(

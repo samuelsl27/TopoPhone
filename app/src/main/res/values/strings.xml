@@ -488,4 +488,16 @@
         <item quantity="one">¿Mover %1$d punto a la papelera? Se puede recuperar durante 30 días.</item>
         <item quantity="other">¿Mover %1$d puntos a la papelera? Se pueden recuperar durante 30 días.</item>
     </plurals>
+    <string name="objects_pole">Altura del jalón</string>
+    <string name="objects_pole_apply">Aplicar</string>
+    <string name="objects_pole_kept_edited">Las coordenadas editadas se mantienen; se ha recalculado la medida.</string>
+    <string name="objects_dismiss">Entendido</string>
+    <plurals name="objects_pole_done">
+        <item quantity="one">Jalón corregido en %1$d punto.</item>
+        <item quantity="other">Jalón corregido en %1$d puntos.</item>
+    </plurals>
+    <plurals name="objects_pole_manual_skipped">
+        <item quantity="one">%1$d punto manual no tiene jalón y no ha cambiado.</item>
+        <item quantity="other">%1$d puntos manuales no tienen jalón y no han cambiado.</item>
+    </plurals>
 </resources>

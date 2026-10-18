@@ -476,4 +476,16 @@
         <item quantity="one">Move %1$d point to the trash? It can be recovered for 30 days.</item>
         <item quantity="other">Move %1$d points to the trash? They can be recovered for 30 days.</item>
     </plurals>
+    <string name="objects_pole">Pole height</string>
+    <string name="objects_pole_apply">Apply</string>
+    <string name="objects_pole_kept_edited">Edited coordinates are kept; the measurement has been recalculated.</string>
+    <string name="objects_dismiss">OK</string>
+    <plurals name="objects_pole_done">
+        <item quantity="one">Pole corrected on %1$d point.</item>
+        <item quantity="other">Pole corrected on %1$d points.</item>
+    </plurals>
+    <plurals name="objects_pole_manual_skipped">
+        <item quantity="one">%1$d manual point has no pole and has not changed.</item>
+        <item quantity="other">%1$d manual points have no pole and have not changed.</item>
+    </plurals>
 </resources>

@@ -2,6 +2,7 @@ package es.topophone.app.ui.points
 
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -53,6 +54,8 @@ class ObjectListScreenTest {
         onHideSelected = { calls += "hideSelected" },
         onShowSelected = { calls += "showSelected" },
         onDeleteSelected = { calls += "deleteSelected" },
+        onCorrectPole = { calls += "pole:$it" },
+        onDismissPoleOutcome = { calls += "dismissPole" },
     )
 
     private val summaries = listOf(
@@ -136,6 +139,32 @@ class ObjectListScreenTest {
         compose.onNodeWithTag(SELECTION_CANCEL_TAG).performClick()
 
         calls shouldBe listOf("select:id-E1", "hideSelected", "showSelected", "deleteSelected", "clear")
+    }
+
+    @Test
+    fun `S011 RF-14 la altura del jalon de la seleccion se escribe en metros y no vale fuera de 0 a 10 m`() {
+        show(ObjectListUiState(loaded = true, points = summaries, total = 3, selected = setOf("id-1", "id-2")))
+
+        compose.onNodeWithTag(SELECTION_POLE_TAG).performClick()
+        compose.onNodeWithTag(POLE_FIELD_TAG).performTextReplacement("12")
+        compose.onNodeWithText("Escribe una altura entre 0 y 10 m.").assertIsDisplayed()
+        compose.onNodeWithTag(POLE_APPLY_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(POLE_FIELD_TAG).performTextReplacement("2,05")
+        compose.onNodeWithTag(POLE_APPLY_TAG).performClick()
+
+        calls shouldBe listOf("pole:2.05")
+    }
+
+    @Test
+    fun `S011 RF-14 y RF-15 tras corregir el jalon se dice cuantos han cambiado, cuantos manuales no y si hay editados`() {
+        show(ObjectListUiState(loaded = true, points = summaries, total = 3, poleOutcome = PoleOutcome(2, 1, keptEdited = true)))
+
+        compose.onNodeWithText("Jalón corregido en 2 puntos.").assertIsDisplayed()
+        compose.onNodeWithText("1 punto manual no tiene jalón y no ha cambiado.").assertIsDisplayed()
+        compose.onNodeWithText("Las coordenadas editadas se mantienen; se ha recalculado la medida.").assertIsDisplayed()
+        compose.onNodeWithTag(POLE_OUTCOME_DISMISS_TAG).performClick()
+
+        calls shouldBe listOf("dismissPole")
     }
 
     @Test
