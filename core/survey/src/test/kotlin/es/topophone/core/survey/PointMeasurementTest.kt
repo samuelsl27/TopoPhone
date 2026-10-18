@@ -48,7 +48,7 @@ class PointMeasurementTest {
             tilt = null,
             gsa = emptyMap(),
             gsv = emptyMap(),
-            completedAtMs = 1_000_000L + utc,
+            completedAtMs = 7L, // reloj monótono de la sesión: la medida no lo usa
         )
     }
 
@@ -70,14 +70,19 @@ class PointMeasurementTest {
         calculator,
     )
 
+    /** Hora del móvil a la que llega la época: la que da el recolector. */
+    private fun receivedAt(epoch: Epoch) = 1_000_000L + (epoch.utcMillisOfDay - 36_930_000)
+
+    private fun PointMeasurement.feed(epoch: Epoch) = onEpoch(epoch, receivedAt(epoch))
+
     private fun List<MeasurementUpdate>.done() = filterIsInstance<MeasurementUpdate.Done>().single().result
 
     @Test
     fun `S010 RF-8 RF-17 la medida instantanea es la primera epoca con posicion, tal como llega`() {
         val m = measurement(MeasurementMode.INSTANT)
 
-        m.onEpoch(epoch(0, status = SolutionStatus.NONE, lat = Double.NaN)).filterIsInstance<MeasurementUpdate.Done>().shouldBeEmpty()
-        val result = m.onEpoch(epoch(1)).done()
+        m.feed(epoch(0, status = SolutionStatus.NONE, lat = Double.NaN)).filterIsInstance<MeasurementUpdate.Done>().shouldBeEmpty()
+        val result = m.feed(epoch(1)).done()
 
         result.antenna.latitudeDeg shouldBe 40.416_80
         result.antenna.longitudeDeg shouldBe -3.703_71
@@ -90,7 +95,7 @@ class PointMeasurementTest {
     @Test
     fun `S010 RF-17 RF-18 el punto del suelo y el SC del proyecto salen como en S008 con la altura del jalon`() {
         val e = epoch(0)
-        val result = measurement(MeasurementMode.INSTANT).onEpoch(e).done()
+        val result = measurement(MeasurementMode.INSTANT).feed(e).done()
         val expected = calculator.compute(e.gga!!, 1.8, ProjectCrs.ETRS89_UTM30, HeightSystem.ORTHOMETRIC).shouldNotBeNull()
 
         result.position.easting shouldBe expected.easting
@@ -114,7 +119,7 @@ class PointMeasurementTest {
 
     @Test
     fun `S010 RF-12 fuera del ambito del SC del proyecto no hay punto`() {
-        val failed = measurement(MeasurementMode.INSTANT).onEpoch(epoch(0, lat = 28.4636, lon = -16.2518))
+        val failed = measurement(MeasurementMode.INSTANT).feed(epoch(0, lat = 28.4636, lon = -16.2518))
             .filterIsInstance<MeasurementUpdate.Failed>().single()
 
         failed.reason shouldBe MeasurementFailure.OUTSIDE_CRS_AREA
@@ -124,18 +129,18 @@ class PointMeasurementTest {
     fun `S010 RF-9 el promediado de 5 s a 1 Hz usa 5 epocas y va dando el progreso`() {
         val m = measurement(MeasurementMode.AVERAGED, seconds = 5)
 
-        val progress = (0 until 4).flatMap { m.onEpoch(epoch(it)) }.filterIsInstance<MeasurementUpdate.Progress>()
+        val progress = (0 until 4).flatMap { m.feed(epoch(it)) }.filterIsInstance<MeasurementUpdate.Progress>()
         progress.map { it.elapsedS } shouldContainExactly listOf(1.0, 2.0, 3.0, 4.0)
         progress.last().requiredS shouldBe 5.0
-        m.onEpoch(epoch(4)).done().epochsUsed shouldBe 5
-        m.onEpoch(epoch(5)).shouldBeEmpty() // terminada, no hace nada más
+        m.feed(epoch(4)).done().epochsUsed shouldBe 5
+        m.feed(epoch(5)).shouldBeEmpty() // terminada, no hace nada más
     }
 
     @Test
     fun `S010 RF-9 a 10 Hz el mismo tiempo son 50 epocas`() {
         val m = measurement(MeasurementMode.AVERAGED, seconds = 5, intervalS = 0.1)
 
-        val updates = (0 until 50).flatMap { m.onEpoch(epoch(it, intervalMs = 100)) }
+        val updates = (0 until 50).flatMap { m.feed(epoch(it, intervalMs = 100)) }
 
         updates.done().epochsUsed shouldBe 50
     }
@@ -145,7 +150,7 @@ class PointMeasurementTest {
         val m = measurement(MeasurementMode.AVERAGED, seconds = 3)
         val statuses = listOf(SolutionStatus.FIX, SolutionStatus.FLOAT, SolutionStatus.FLOAT, SolutionStatus.FIX, SolutionStatus.FIX)
 
-        val updates = statuses.withIndex().flatMap { (i, status) -> m.onEpoch(epoch(i, status = status)) }
+        val updates = statuses.withIndex().flatMap { (i, status) -> m.feed(epoch(i, status = status)) }
 
         updates.filterIsInstance<MeasurementUpdate.SolutionLost>().size shouldBe 1
         val result = updates.done()
@@ -159,7 +164,7 @@ class PointMeasurementTest {
         val m = measurement(MeasurementMode.AVERAGED, seconds = 3, fixOnly = false)
         val statuses = listOf(SolutionStatus.FIX, SolutionStatus.FLOAT, SolutionStatus.FIX)
 
-        val result = statuses.withIndex().flatMap { (i, status) -> m.onEpoch(epoch(i, status = status)) }.done()
+        val result = statuses.withIndex().flatMap { (i, status) -> m.feed(epoch(i, status = status)) }.done()
 
         result.epochsUsed shouldBe 3
         result.epochsDiscarded shouldBe 0
@@ -172,7 +177,7 @@ class PointMeasurementTest {
         val epochs = offsets.mapIndexed { i, d -> epoch(i, lat = 40.416_80 + d, lon = -3.703_71 - 2 * d, altitude = 650.123 + d * 1e5) }
         val m = measurement(MeasurementMode.AVERAGED, seconds = 10)
 
-        val result = epochs.flatMap { m.onEpoch(it) }.done()
+        val result = epochs.flatMap { m.feed(it) }.done()
 
         // Referencia: media exacta con BigDecimal.
         fun mean(values: List<Double>) =
@@ -184,18 +189,34 @@ class PointMeasurementTest {
         (kotlin.math.abs(result.antenna.longitudeDeg - lon) * 111_000.0 * cos(Math.toRadians(lat))) shouldBeLessThan 1e-4
         kotlin.math.abs(result.antenna.ellipsoidalHeightM!! - h) shouldBeLessThan 1e-4
         result.rawNmea.lines().size shouldBe 20
-        result.measuredFromMs shouldBe epochs.first().completedAtMs
-        result.measuredToMs shouldBe epochs.last().completedAtMs
+        result.measuredFromMs shouldBe receivedAt(epochs.first())
+        result.measuredToMs shouldBe receivedAt(epochs.last())
     }
 
     @Test
     fun `S010 RF-11 una medida cancelada no da nada mas`() {
         val m = measurement(MeasurementMode.AVERAGED, seconds = 3)
-        m.onEpoch(epoch(0))
+        m.feed(epoch(0))
 
         m.cancel()
 
-        (1 until 5).flatMap { m.onEpoch(epoch(it)) }.shouldBeEmpty()
+        (1 until 5).flatMap { m.feed(epoch(it)) }.shouldBeEmpty()
         m.onTick(10_000_000L).shouldBeNull()
+    }
+
+    @Test
+    fun `S010 RF-9 RF-12 un promediado a ritmo real no se cancela y su hora es la del movil`() {
+        val m = measurement(MeasurementMode.AVERAGED, seconds = 5)
+
+        // Una época por segundo y comprobaciones del plazo cada 250 ms, como en el recolector.
+        val updates = (0 until 5).flatMap { i ->
+            val e = epoch(i)
+            listOfNotNull(m.onTick(receivedAt(e) - 250)) + m.feed(e)
+        }
+
+        updates.filterIsInstance<MeasurementUpdate.Failed>().shouldBeEmpty()
+        val result = updates.done()
+        result.measuredFromMs shouldBe 1_000_000L
+        result.measuredToMs shouldBe 1_004_000L
     }
 }

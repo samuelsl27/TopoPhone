@@ -246,7 +246,7 @@ class CollectorViewModel @Inject constructor(
             if (delta > 0) epochIntervalS = delta.coerceIn(MIN_INTERVAL_S, DEFAULT_INTERVAL_S)
         }
         lastEpochUtc = epoch.utcMillisOfDay
-        measurement?.onEpoch(epoch)?.forEach(::handle)
+        measurement?.onEpoch(epoch, System.currentTimeMillis())?.forEach(::handle)
     }
 
     private fun handle(update: MeasurementUpdate) {

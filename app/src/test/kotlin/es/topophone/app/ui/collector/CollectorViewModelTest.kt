@@ -119,7 +119,7 @@ class CollectorViewModelTest {
     }
 
     private fun await(vm: CollectorViewModel, predicate: (CollectorUiState) -> Boolean): CollectorUiState =
-        runBlocking { withTimeout(5_000) { vm.state.first(predicate) } }
+        runBlocking { withTimeout(10_000) { vm.state.first(predicate) } }
 
     private fun connect() {
         session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
@@ -315,5 +315,23 @@ class CollectorViewModelTest {
         live.solution shouldBe SolutionStatus.FIX
         live.horizontalM.shouldNotBeNull() shouldBe (0.01 plusOrMinus 1e-12)
         live.verticalM shouldBe 0.015
+    }
+
+    @Test
+    fun `S010 RF-9 un promediado con las epocas espaciadas como en campo no se da por falto de datos`() {
+        collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 3)
+        val projectId = project()
+        val vm = viewModel(projectId)
+        receiving(vm)
+
+        vm.measure()
+        // Más separadas que la comprobación del plazo (250 ms): la hora de la sesión y la del móvil no se mezclan.
+        (2..6).forEach { second ->
+            sendEpoch(second)
+            Thread.sleep(400)
+        }
+
+        await(vm) { it.savedName == "1" }.error shouldBe null
+        runBlocking { points.points(projectId).first() }.single().quality.epochsUsed shouldBe 3
     }
 }

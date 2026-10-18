@@ -53,6 +53,9 @@ data class MeasurementResult(
  * - promediada: las épocas válidas hasta reunir el tiempo pedido, contando cada una como el intervalo del
  *   receptor ([epochIntervalS]). Con [fixOnly], las épocas sin FIX se descartan y se avisa una vez;
  * - sin ninguna época en 2 s, se cancela; fuera del ámbito del SC del proyecto, no hay punto.
+ *
+ * El tiempo es siempre el del reloj del móvil que da quien la usa (llegada de cada época y comprobaciones del
+ * plazo): la hora de la sesión es de un reloj monótono que no sirve como fecha de la medida.
  */
 class PointMeasurement(
     private val mode: MeasurementMode,
@@ -68,14 +71,16 @@ class PointMeasurement(
 ) {
     private val requiredS = averagingSeconds.toDouble()
     private val used = mutableListOf<Epoch>()
+    private val usedAtMs = mutableListOf<Long>()
     private var discarded = 0
     private var lastEpochAtMs = startedAtMs
     private var lostWarned = false
     private var finished = false
 
-    fun onEpoch(epoch: Epoch): List<MeasurementUpdate> {
+    /** Una época completa que ha llegado a las [receivedAtMs] del reloj del móvil. */
+    fun onEpoch(epoch: Epoch, receivedAtMs: Long): List<MeasurementUpdate> {
         if (finished) return emptyList()
-        lastEpochAtMs = epoch.completedAtMs
+        lastEpochAtMs = receivedAtMs
         val fix = epoch.gga?.takeIf { it.hasPosition }
         val updates = mutableListOf<MeasurementUpdate>()
         when {
@@ -87,6 +92,7 @@ class PointMeasurement(
             }
             else -> {
                 used += epoch
+                usedAtMs += receivedAtMs
                 if (fix.status == SolutionStatus.FIX) lostWarned = false
             }
         }
@@ -154,8 +160,8 @@ class PointMeasurement(
                 rawNmea = used.flatMap {
                     listOfNotNull(it.gga?.rawSentence, it.gst?.rawSentence?.takeIf(String::isNotEmpty))
                 }.joinToString("\n"),
-                measuredFromMs = used.first().completedAtMs,
-                measuredToMs = used.last().completedAtMs,
+                measuredFromMs = usedAtMs.first(),
+                measuredToMs = usedAtMs.last(),
             ),
         )
     }
