@@ -9,7 +9,11 @@ import es.topophone.receiver.transport.BluetoothDevices
 import es.topophone.receiver.transport.BondedDevice
 import es.topophone.receiver.transport.ReceiverTransport
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 
 /** Dobles de prueba de la sección Receptor. */
 internal val RS3_DEVICE = BondedDevice("reach-RS3", "00:11:22:33:44:55")
@@ -73,7 +77,13 @@ internal class FakePreferences : ReceiverPreferences {
     val ntripWasActiveFlow = MutableStateFlow(false)
     val correctionsAlarmFlow = MutableStateFlow(10)
     override val lastNtripProfileId = lastNtripProfileFlow
-    override val ntripWasActive = ntripWasActiveFlow
+
+    /** Cuántas veces se ha leído si el NTRIP estaba abierto: el arranque automático lo mira al enlazar el receptor. */
+    val ntripWasActiveReads = AtomicInteger()
+    override val ntripWasActive: Flow<Boolean> = flow {
+        ntripWasActiveReads.incrementAndGet()
+        emitAll(ntripWasActiveFlow)
+    }
     override val correctionsAlarmS = correctionsAlarmFlow
 
     override suspend fun saveNtripSession(profileId: String?, active: Boolean) {

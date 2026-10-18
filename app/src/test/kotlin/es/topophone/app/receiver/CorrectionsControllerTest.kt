@@ -137,6 +137,9 @@ class CorrectionsControllerTest {
         profiles.add("ign", ign, "s3cr3t")
         connectReceiver()
         val controller = controller()
+        // El arranque automático mira la preferencia al enlazar el receptor. Si lo hiciera después de detener,
+        // aún con la preferencia de antes, abriría otra vez la conexión: se espera a que ya la haya mirado.
+        eventually({ preferences.ntripWasActiveReads.get() > 0 }, true)
 
         controller.connect("ign")
         eventually({ preferences.ntripWasActiveFlow.value }, true)
