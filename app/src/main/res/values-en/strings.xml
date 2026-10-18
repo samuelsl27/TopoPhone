@@ -507,4 +507,19 @@
     <string name="point_nmea_title">NMEA sentences</string>
     <string name="point_list_item">• %1$s</string>
     <string name="point_created_at">Created: %1$s</string>
+    <string name="point_duplicate">Duplicate</string>
+    <string name="point_history">History</string>
+    <string name="point_history_empty">No changes.</string>
+    <string name="point_change_edit">Edit</string>
+    <string name="point_change_pole">Pole corrected</string>
+    <string name="point_change_revert">Back to the measurement</string>
+    <string name="point_history_name">Name: %1$s → %2$s</string>
+    <string name="point_history_description">Description: %1$s → %2$s</string>
+    <string name="point_history_pole">Pole: %1$s → %2$s</string>
+    <string name="point_history_coordinates">Coordinates edited</string>
+    <string name="point_history_reverted">Coordinates set back to the measurement</string>
+    <string name="point_copy_of">Copy of %1$s</string>
+    <string name="point_delete_confirm">Move %1$s to the trash? It can be recovered for 30 days.</string>
+    <string name="point_history_entry">%1$s · %2$s</string>
+    <string name="point_history_none">—</string>
 </resources>

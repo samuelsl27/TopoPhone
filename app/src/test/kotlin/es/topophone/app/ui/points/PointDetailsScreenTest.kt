@@ -10,15 +10,20 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.fakeMap
 import es.topophone.app.ui.points.PointFixtures.manual
 import es.topophone.app.ui.points.PointFixtures.measured
+import es.topophone.app.ui.projects.CONFIRM_TAG
 import es.topophone.app.ui.projects.ProjectViewScreen
 import es.topophone.app.ui.projects.ProjectViewUiState
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.model.point.PointChange
 import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.PointHistoryEntry
+import es.topophone.core.model.point.PointSnapshot
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
@@ -66,7 +71,19 @@ class PointDetailsScreenTest {
     private fun show(state: PointDetailsUiState) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                PointDetailsScreen(ThemeState.DEFAULT, {}, state, PointDetailsActions(onRevert = { calls += "revert" }), onBack = {})
+                PointDetailsScreen(
+                    ThemeState.DEFAULT,
+                    {},
+                    state,
+                    PointDetailsActions(
+                        onRevert = { calls += "revert" },
+                        onCorrectPole = { calls += "pole:$it" },
+                        onDismissNotice = { calls += "dismiss" },
+                        onDuplicate = { calls += "duplicate" },
+                        onDelete = { calls += "delete" },
+                    ),
+                    onBack = {},
+                )
             }
         }
     }
@@ -176,5 +193,86 @@ class PointDetailsScreenTest {
         show(PointDetailsUiState(project, measured("12")))
 
         compose.onNodeWithText("12").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S011 RF-14 desde la ficha de un punto medido se corrige su jalon`() {
+        show(PointDetailsUiState(project, measured("12")))
+
+        compose.onNodeWithTag(POINT_POLE_TAG).performClick()
+        compose.onNodeWithTag(POLE_FIELD_TAG).performTextReplacement("2")
+        compose.onNodeWithTag(POLE_APPLY_TAG).performClick()
+
+        calls shouldBe listOf("pole:2.0")
+    }
+
+    @Test
+    fun `S011 RF-15 un punto manual no tiene jalon que corregir`() {
+        show(PointDetailsUiState(project, manual("E1")))
+
+        compose.onNodeWithTag(POINT_POLE_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S011 RF-14 si se mantienen las coordenadas editadas la ficha lo dice`() {
+        show(PointDetailsUiState(project, measured("12"), keptEdited = true))
+
+        compose.onNodeWithText("Las coordenadas editadas se mantienen; se ha recalculado la medida.").assertIsDisplayed()
+        compose.onNodeWithTag(POINT_NOTICE_DISMISS_TAG).performClick()
+
+        calls shouldBe listOf("dismiss")
+    }
+
+    @Test
+    fun `S011 RF-21 se duplica desde la ficha y la copia dice de que punto es`() {
+        show(PointDetailsUiState(project, manual("13").copy(copyOf = "12")))
+
+        compose.onNodeWithText("Copia de 12").assertIsDisplayed()
+        compose.onNodeWithTag(POINT_DUPLICATE_TAG).performClick()
+
+        calls shouldBe listOf("duplicate")
+    }
+
+    @Test
+    fun `S011 RF-22 se borra desde la ficha tras confirmar`() {
+        show(PointDetailsUiState(project, measured("12")))
+
+        compose.onNodeWithTag(POINT_DELETE_TAG).performClick()
+        compose.onNodeWithText("¿Mover 12 a la papelera? Se puede recuperar durante 30 días.").assertIsDisplayed()
+        compose.onNodeWithTag(CONFIRM_TAG).performClick()
+
+        calls shouldBe listOf("delete")
+    }
+
+    @Test
+    fun `S011 RF-11 el historial muestra los cambios del mas reciente al mas antiguo`() {
+        val v1 = measured("P1")
+        val v2 = v1.copy(name = "P1a")
+        val v3 = v2.copy(measurement = v2.measurement!!.copy(poleHeightM = 2.0))
+        val history = listOf(
+            PointHistoryEntry("h2", "id-P1", 3_000, PointChange.POLE, PointSnapshot.of(v2)),
+            PointHistoryEntry("h1", "id-P1", 2_000, PointChange.EDIT, PointSnapshot.of(v1)),
+        )
+        show(PointDetailsUiState(project, v3, history = history))
+
+        compose.onNodeWithTag(POINT_HISTORY_TAG).performClick()
+
+        compose.onNodeWithTag(HISTORY_DIALOG_TAG).shows("Jalón: 1,800 m → 2,000 m").shows("Nombre: P1 → P1a")
+        val texts = compose.onNodeWithTag(HISTORY_DIALOG_TAG, useUnmergedTree = true).fetchSemanticsNode().let { node ->
+            fun collect(n: androidx.compose.ui.semantics.SemanticsNode): List<String> =
+                n.config.getOrElse(androidx.compose.ui.semantics.SemanticsProperties.Text) { emptyList() }.map { it.text } +
+                    n.children.flatMap { collect(it) }
+            collect(node)
+        }
+        (texts.indexOfFirst { it.startsWith("Jalón") } < texts.indexOfFirst { it.startsWith("Nombre") }) shouldBe true
+    }
+
+    @Test
+    fun `S011 RF-11 sin cambios el historial lo dice`() {
+        show(PointDetailsUiState(project, measured("12")))
+
+        compose.onNodeWithTag(POINT_HISTORY_TAG).performClick()
+
+        compose.onNodeWithText("Sin cambios.").assertIsDisplayed()
     }
 }

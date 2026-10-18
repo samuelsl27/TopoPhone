@@ -519,4 +519,19 @@
     <string name="point_nmea_title">Frases NMEA</string>
     <string name="point_list_item">• %1$s</string>
     <string name="point_created_at">Creado: %1$s</string>
+    <string name="point_duplicate">Duplicar</string>
+    <string name="point_history">Historial</string>
+    <string name="point_history_empty">Sin cambios.</string>
+    <string name="point_change_edit">Edición</string>
+    <string name="point_change_pole">Jalón corregido</string>
+    <string name="point_change_revert">Vuelta a la medida</string>
+    <string name="point_history_name">Nombre: %1$s → %2$s</string>
+    <string name="point_history_description">Descripción: %1$s → %2$s</string>
+    <string name="point_history_pole">Jalón: %1$s → %2$s</string>
+    <string name="point_history_coordinates">Coordenadas editadas</string>
+    <string name="point_history_reverted">Coordenadas devueltas a las de la medida</string>
+    <string name="point_copy_of">Copia de %1$s</string>
+    <string name="point_delete_confirm">¿Mover %1$s a la papelera? Se puede recuperar durante 30 días.</string>
+    <string name="point_history_entry">%1$s · %2$s</string>
+    <string name="point_history_none">—</string>
 </resources>

@@ -24,7 +24,7 @@
       Hecho cuando: los tests del jalón en `ObjectListViewModelTest` y `ObjectListScreenTest` en verde.
 - [x] T11. `app`: ficha del punto (coordenadas, medida, NMEA, editado y "Volver a la medida", copia de) y toque en el mapa y en la lista. (RF-5 a RF-7, RF-12, RF-13)
       Hecho cuando: `PointDetailsViewModelTest`, `PointDetailsScreenTest` y el test del toque en `PointsLayerTest` en verde.
-- [ ] T12. `app`: acciones de la ficha: jalón, duplicar, borrar e historial. (RF-10, RF-11, RF-14, RF-21, RF-22)
+- [x] T12. `app`: acciones de la ficha: jalón, duplicar, borrar e historial. (RF-10, RF-11, RF-14, RF-21, RF-22)
       Hecho cuando: los tests de las acciones y `PointHistoryTest` en verde.
 - [ ] T13. `app`: formulario de punto, nuevo y editado (SC del proyecto o geográficas, altura opcional y su tipo, errores, nombre repetido). (RF-8, RF-9, RF-16 a RF-20)
       Hecho cuando: `PointFormViewModelTest` y `PointFormScreenTest` en verde.

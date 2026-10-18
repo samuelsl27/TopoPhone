@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,7 +39,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -60,7 +57,6 @@ import es.topophone.core.model.point.PointSearch
 import es.topophone.core.model.point.PointSummary
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.survey.PointCorrections
-import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
@@ -365,41 +361,6 @@ private fun PoleOutcomeNotice(outcome: PoleOutcome, onDismiss: () -> Unit) {
             }
         }
     }
-}
-
-/** La altura del jalón para la selección, en metros como en Coordenadas (S011/RF-14; S002/RF-29). */
-@Composable
-private fun PoleDialog(onApply: (Double) -> Unit, onDismiss: () -> Unit) {
-    var text by remember { mutableStateOf("") }
-    val value = PoleHeight.parse(text)
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.objects_pole)) },
-        text = {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                label = { Text(stringResource(R.string.pole_height_label)) },
-                isError = text.isNotEmpty() && value == null,
-                supportingText = if (text.isNotEmpty() && value == null) ({ Text(stringResource(R.string.pole_height_invalid)) }) else null,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                modifier = Modifier.fillMaxWidth().testTag(POLE_FIELD_TAG),
-            )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { value?.let(onApply) },
-                enabled = value != null,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(POLE_APPLY_TAG),
-            ) { Text(stringResource(R.string.objects_pole_apply)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                Text(stringResource(R.string.dialog_cancel))
-            }
-        },
-    )
 }
 
 /** Barra de la selección múltiple, abajo y a mano con el pulgar (S011/RF-4, RF-14, RF-22). */

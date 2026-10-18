@@ -2,6 +2,8 @@ package es.topophone.app.ui.points
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -11,6 +13,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,6 +36,7 @@ import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.CoordinateRow
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.projects.datumName
@@ -45,11 +49,16 @@ import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.HistoryItem
+import es.topophone.core.model.point.HistoryLine
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointChange
 import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.PointHistory
+import es.topophone.core.model.point.PointHistoryEntry
+import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.GeodeticDatum
@@ -57,15 +66,20 @@ import es.topophone.core.model.project.Project
 import es.topophone.core.survey.PointCorrections
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.point.PointRepository
+import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
+import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -75,14 +89,44 @@ const val POINT_REVERT_TAG = "point_revert"
 const val POINT_MEASUREMENT_TAG = "point_measurement"
 const val POINT_NMEA_TAG = "point_nmea"
 const val NMEA_DIALOG_TAG = "nmea_dialog"
+const val POINT_POLE_TAG = "point_pole"
+const val POINT_DUPLICATE_TAG = "point_duplicate"
+const val POINT_HISTORY_TAG = "point_history"
+const val POINT_DELETE_TAG = "point_delete"
+const val POINT_NOTICE_DISMISS_TAG = "point_notice_dismiss"
+const val HISTORY_DIALOG_TAG = "history_dialog"
 
-/** Lo que muestra la ficha de un punto (S011/RF-5 a RF-7). */
-data class PointDetailsUiState(val project: Project? = null, val point: Point? = null)
+/**
+ * Lo que muestra la ficha de un punto (S011/RF-5 a RF-7, RF-11): el punto, su proyecto, su historial y si una
+ * corrección del jalón ha mantenido sus coordenadas editadas.
+ */
+data class PointDetailsUiState(
+    val project: Project? = null,
+    val point: Point? = null,
+    val history: List<PointHistoryEntry> = emptyList(),
+    val keptEdited: Boolean = false,
+)
 
 /** Acciones de la ficha del punto. */
-class PointDetailsActions(val onRevert: () -> Unit = {})
+class PointDetailsActions(
+    val onRevert: () -> Unit = {},
+    val onCorrectPole: (poleHeightM: Double) -> Unit = {},
+    val onDismissNotice: () -> Unit = {},
+    val onDuplicate: () -> Unit = {},
+    val onDelete: () -> Unit = {},
+)
 
-/** Un punto y su proyecto, al día si cambian (S011/RF-5); volver a la medida (S011/RF-13). */
+/** Adónde va la ficha tras una acción: a la de la copia, o fuera si el punto se ha borrado. */
+sealed interface PointDetailsEvent {
+    data class Open(val pointId: String) : PointDetailsEvent
+
+    data object Close : PointDetailsEvent
+}
+
+/**
+ * Un punto y su proyecto, al día si cambian (S011/RF-5), con su historial (S011/RF-11); volver a la medida,
+ * corregir el jalón, duplicar y borrar (S011/RF-13, RF-14, RF-21, RF-22).
+ */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PointDetailsViewModel @Inject constructor(
@@ -91,10 +135,17 @@ class PointDetailsViewModel @Inject constructor(
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val ids = MutableStateFlow<Pair<String, String>?>(null)
+    private val keptEdited = MutableStateFlow(false)
+    private val eventChannel = Channel<PointDetailsEvent>(Channel.BUFFERED)
+    val events: Flow<PointDetailsEvent> = eventChannel.receiveAsFlow()
 
     val state: StateFlow<PointDetailsUiState> = ids.filterNotNull().flatMapLatest { (projectId, pointId) ->
-        combine(projects.observe(projectId), points.point(pointId)) { project, point -> PointDetailsUiState(project, point) }
+        combine(projects.observe(projectId), points.point(pointId), points.history(pointId), keptEdited) { project, point, history, kept ->
+            PointDetailsUiState(project, point, history, kept)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), PointDetailsUiState())
+
+    private val corrections: PointCorrections get() = PointCorrections(calculator.get())
 
     fun start(projectId: String, pointId: String) {
         ids.value = projectId to pointId
@@ -103,8 +154,41 @@ class PointDetailsViewModel @Inject constructor(
     /** Las coordenadas de la medida, como un cambio más del historial (S011/RF-13). */
     fun revertToMeasurement() {
         val point = state.value.point ?: return
-        val reverted = PointCorrections(calculator.get()).revertToMeasurement(point) ?: return
+        val reverted = corrections.revertToMeasurement(point) ?: return
         viewModelScope.launch { points.update(reverted, PointChange.REVERT) }
+    }
+
+    /** S011/RF-14: desde la antena guardada; si sus coordenadas están editadas, se mantienen y se avisa. */
+    fun correctPole(poleHeightM: Double) {
+        val point = state.value.point ?: return
+        val project = state.value.project ?: return
+        val result = corrections.withPoleHeight(point, poleHeightM, project.crs, project.heightSystem) ?: return
+        viewModelScope.launch {
+            if (points.update(result.point, PointChange.POLE) == PointSaveResult.Saved) keptEdited.value = result.keptEditedCoordinates
+        }
+    }
+
+    fun dismissNotice() {
+        keptEdited.value = false
+    }
+
+    /** S011/RF-21: una copia manual con el siguiente nombre libre; se abre su ficha. */
+    fun duplicate() {
+        val point = state.value.point ?: return
+        viewModelScope.launch {
+            val name = PointNames.nextFree(points.lastName(point.projectId), points.names(point.projectId))
+            val copy = corrections.duplicate(point, UUID.randomUUID().toString(), name, System.currentTimeMillis())
+            if (points.create(copy) == PointSaveResult.Saved) eventChannel.send(PointDetailsEvent.Open(copy.id))
+        }
+    }
+
+    /** S011/RF-22: la confirmación la pide la pantalla. */
+    fun delete() {
+        val point = state.value.point ?: return
+        viewModelScope.launch {
+            points.moveToTrash(listOf(point.id))
+            eventChannel.send(PointDetailsEvent.Close)
+        }
     }
 
     private companion object {
@@ -122,13 +206,33 @@ fun PointDetailsRoute(
     viewModel: PointDetailsViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId, pointId) { viewModel.start(projectId, pointId) }
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is PointDetailsEvent.Open -> navigation.onOpenPoint(projectId, event.pointId)
+                PointDetailsEvent.Close -> navigation.onBack()
+            }
+        }
+    }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    PointDetailsScreen(themeState, onToggleSun, state, PointDetailsActions(onRevert = viewModel::revertToMeasurement), navigation.onBack)
+    PointDetailsScreen(
+        themeState,
+        onToggleSun,
+        state,
+        PointDetailsActions(
+            onRevert = viewModel::revertToMeasurement,
+            onCorrectPole = viewModel::correctPole,
+            onDismissNotice = viewModel::dismissNotice,
+            onDuplicate = viewModel::duplicate,
+            onDelete = viewModel::delete,
+        ),
+        navigation.onBack,
+    )
 }
 
 /**
- * Ficha de un punto (S011/RF-6, RF-7, RF-12, RF-13): sus coordenadas actuales; si está editado, también las de su
- * medida con "Volver a la medida"; y, si es medido, su medida con las frases NMEA.
+ * Ficha de un punto (S011/RF-6, RF-7, RF-11 a RF-14, RF-21, RF-22): acciones arriba; sus coordenadas actuales; si
+ * está editado, también las de su medida con "Volver a la medida"; y, si es medido, su medida con las frases NMEA.
  */
 @Composable
 fun PointDetailsScreen(
@@ -150,6 +254,10 @@ fun PointDetailsScreen(
             modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            // S011/RF-21
+            point.copyOf?.let { Text(stringResource(R.string.point_copy_of, it), style = MaterialTheme.typography.labelLarge) }
+            Actions(state, point, actions)
+            if (state.keptEdited) Notice(actions.onDismissNotice) // S011/RF-14
             DetailsCard(stringResource(R.string.point_coordinates), POINT_COORDINATES_TAG) {
                 if (point.edited) MarkLine(R.string.point_mark_edited)
                 CoordinateRows(project, point.coordinates)
@@ -173,6 +281,124 @@ fun PointDetailsScreen(
                 )
             }
         }
+    }
+}
+
+/** Jalón (solo medidos), duplicar, historial y borrar tras confirmar (S011/RF-11, RF-14, RF-21, RF-22). */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun Actions(state: PointDetailsUiState, point: Point, actions: PointDetailsActions) {
+    var pole by remember { mutableStateOf(false) }
+    var history by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (point.measurement != null) ActionButton(R.string.objects_pole, POINT_POLE_TAG) { pole = true }
+        ActionButton(R.string.point_duplicate, POINT_DUPLICATE_TAG, actions.onDuplicate)
+        ActionButton(R.string.point_history, POINT_HISTORY_TAG) { history = true }
+        ActionButton(R.string.objects_delete, POINT_DELETE_TAG) { confirmDelete = true }
+    }
+    if (pole) {
+        PoleDialog(
+            onApply = { value ->
+                pole = false
+                actions.onCorrectPole(value)
+            },
+            onDismiss = { pole = false },
+        )
+    }
+    if (history) HistoryDialog(PointHistory.items(state.history, point)) { history = false }
+    if (confirmDelete) {
+        ConfirmDialog(
+            message = stringResource(R.string.point_delete_confirm, point.name),
+            confirm = stringResource(R.string.objects_move_to_trash),
+            onConfirm = {
+                confirmDelete = false
+                actions.onDelete()
+            },
+            onDismiss = { confirmDelete = false },
+        )
+    }
+}
+
+@Composable
+private fun ActionButton(text: Int, tag: String, onClick: () -> Unit) {
+    OutlinedButton(onClick = onClick, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(tag)) { Text(stringResource(text)) }
+}
+
+@Composable
+private fun Notice(onDismiss: () -> Unit) {
+    Surface(tonalElevation = 2.dp, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(stringResource(R.string.objects_pole_kept_edited))
+            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(POINT_NOTICE_DISMISS_TAG)) {
+                Text(stringResource(R.string.objects_dismiss))
+            }
+        }
+    }
+}
+
+/** Los cambios del punto, del más reciente al más antiguo, con su fecha en hora local (S011/RF-11; RNF-T10). */
+@Composable
+private fun HistoryDialog(items: List<HistoryItem>, onDismiss: () -> Unit) {
+    val locale = uiLocale()
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.point_history)) },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()).testTag(HISTORY_DIALOG_TAG),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                if (items.isEmpty()) Text(stringResource(R.string.point_history_empty))
+                items.forEach { item ->
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            stringResource(
+                                R.string.point_history_entry,
+                                formatDateTime(item.changedAtMs, locale),
+                                stringResource(item.change.titleRes()),
+                            ),
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                        item.lines.forEach { line -> Text(historyLine(line)) }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.collector_close))
+            }
+        },
+    )
+}
+
+private fun PointChange.titleRes(): Int = when (this) {
+    PointChange.EDIT -> R.string.point_change_edit
+    PointChange.POLE -> R.string.point_change_pole
+    PointChange.REVERT -> R.string.point_change_revert
+}
+
+@Composable
+private fun historyLine(line: HistoryLine): String {
+    val locale = uiLocale()
+    val empty = stringResource(R.string.point_history_none)
+    return when (line) {
+        is HistoryLine.Name -> stringResource(R.string.point_history_name, line.from, line.to)
+        is HistoryLine.Description -> stringResource(
+            R.string.point_history_description,
+            line.from.ifEmpty {
+                empty
+            },
+            line.to.ifEmpty { empty },
+        )
+        is HistoryLine.Pole -> stringResource(
+            R.string.point_history_pole,
+            line.fromM?.let { LengthFormat.metres(it, locale) } ?: empty,
+            line.toM?.let { LengthFormat.metres(it, locale) } ?: empty,
+        )
+        HistoryLine.Coordinates -> stringResource(R.string.point_history_coordinates)
+        HistoryLine.Reverted -> stringResource(R.string.point_history_reverted)
     }
 }
 
@@ -228,10 +454,10 @@ private fun MeasurementCard(project: Project, measurement: Measurement) {
     val unit = unitSymbol(project.linearUnit)
     fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
     val quality = measurement.quality
-    val unavailable = "—"
+    val unavailable = stringResource(R.string.point_history_none)
     var nmea by remember { mutableStateOf(false) }
     DetailsCard(stringResource(R.string.point_measurement), POINT_MEASUREMENT_TAG) {
-        CoordinateRow(stringResource(R.string.objects_pole), LengthFormat.metres(measurement.poleHeightM, locale), "point_pole")
+        CoordinateRow(stringResource(R.string.objects_pole), LengthFormat.metres(measurement.poleHeightM, locale), "point_pole_height")
         val antenna = measurement.antenna
         CoordinateRow(
             stringResource(R.string.point_antenna_latitude),
@@ -263,9 +489,7 @@ private fun MeasurementCard(project: Project, measurement: Measurement) {
         )
         CoordinateRow(
             stringResource(R.string.receiver_status_hdop),
-            quality.hdop?.let {
-                String.format(locale, "%.1f", it)
-            } ?: unavailable,
+            quality.hdop?.let { String.format(locale, "%.1f", it) } ?: unavailable,
             "point_hdop",
         )
         CoordinateRow(
