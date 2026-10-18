@@ -1,40 +1,69 @@
 package es.topophone.core.survey
 
+import es.topophone.core.geodesy.Ed50
+import es.topophone.core.geodesy.Ellipsoid
+import es.topophone.core.geodesy.Geodesy
 import es.topophone.core.geodesy.GeoidModel
 import es.topophone.core.geodesy.GeoidModels
 import es.topophone.core.geodesy.Utm
 import es.topophone.core.gnss.nmea.GgaFix
+import es.topophone.core.model.project.CrsArea
+import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectCrs
 
-/** Por qué falta alguna coordenada de la posición en el SC del proyecto (S006/RF-30). */
-enum class PositionUnavailable { NO_HEIGHT, OUTSIDE_CRS_AREA, OUTSIDE_GEOID }
+/** Por qué falta alguna coordenada de la posición en el SC del proyecto (S006/RF-30, S008/RF-8). */
+enum class PositionUnavailable { NO_HEIGHT, OUTSIDE_CRS_AREA, OUTSIDE_GEOID, OUTSIDE_ED50_GRID }
 
-/** Punto del suelo en el SC del proyecto, en metros; null lo que no se puede calcular. */
+/**
+ * Punto del suelo en el SC del proyecto, en metros y grados; `null` lo que no se puede calcular.
+ *
+ * @property height altitud o altura elipsoidal, según el proyecto (S008/RF-2).
+ * @property latitudeDeg y [longitudeDeg] en los SC de coordenadas geográficas (S008/RF-6).
+ * @property scaleFactor, [convergenceRad] y [combinedFactor] solo en los SC UTM (S008/RF-13 a RF-16).
+ * @property positionZone huso que corresponde a la longitud del punto (S008/RF-12).
+ */
 data class ProjectPosition(
-    val easting: Double?,
-    val northing: Double?,
-    val orthometricHeight: Double?,
-    val unavailable: Set<PositionUnavailable>,
+    val easting: Double? = null,
+    val northing: Double? = null,
+    val height: Double? = null,
+    val unavailable: Set<PositionUnavailable> = emptySet(),
+    val latitudeDeg: Double? = null,
+    val longitudeDeg: Double? = null,
+    val scaleFactor: Double? = null,
+    val convergenceRad: Double? = null,
+    val combinedFactor: Double? = null,
+    val positionZone: Int? = null,
 )
 
 /**
- * Del fix GGA y la altura del jalón al Este, Norte y altitud en el SC del proyecto, con su huso
- * fijo aunque el punto caiga en otro (huso forzado), y altitud EGM08-REDNAP (S006/RF-29, RF-30).
+ * Del fix GGA y la altura del jalón al punto del suelo en el SC del proyecto (S006/RF-29, S008):
+ * UTM en el huso del proyecto aunque el punto caiga en otro (huso forzado) o geográficas; ED50 por la
+ * rejilla del IGN; altitud con el geoide de su ámbito o altura elipsoidal; y factores de la proyección.
  */
 class ProjectPositionCalculator(
-    private val geoid: GeoidModel = GeoidModels.egm08RednapPeninsula,
+    private val peninsulaGeoid: () -> GeoidModel = { GeoidModels.egm08RednapPeninsula },
+    private val canariasGeoid: () -> GeoidModel = { GeoidModels.egm08RednapCanarias },
     private val model: ReceiverModel = ReceiverModel.RS3,
 ) {
-    fun compute(fix: GgaFix, poleHeightM: Double, crs: ProjectCrs): ProjectPosition? {
+    fun compute(
+        fix: GgaFix,
+        poleHeightM: Double,
+        crs: ProjectCrs,
+        heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
+    ): ProjectPosition? {
         if (!fix.hasPosition) return null
         val lat = fix.latitudeDeg
         val lon = fix.longitudeDeg
-        if (lat !in AREA_LATITUDE || lon !in AREA_LONGITUDE) {
-            return ProjectPosition(null, null, null, setOf(PositionUnavailable.OUTSIDE_CRS_AREA))
+        if (!crs.area.contains(lat, lon)) return ProjectPosition(unavailable = setOf(PositionUnavailable.OUTSIDE_CRS_AREA)) // S008/RF-9
+
+        // S008/RF-7, RF-8: ED50 sale de ETRS89 por la rejilla; fuera de ella no hay coordenadas.
+        val (datumLat, datumLon) = if (crs.datum == GeodeticDatum.ED50) {
+            Ed50.fromEtrs89(lat, lon) ?: return ProjectPosition(unavailable = setOf(PositionUnavailable.OUTSIDE_ED50_GRID))
+        } else {
+            lat to lon
         }
         val unavailable = mutableSetOf<PositionUnavailable>()
-        // Hasta S008 T8 solo se calculan los SC UTM; los demás, sin coordenadas.
-        val utm = crs.utmZone?.let { Utm.forward(lat, lon, it) }
 
         // Jalón vertical, como en S002/RF-32: el suelo está bajo el receptor sobre la normal.
         val altitude = fix.altitudeM
@@ -45,16 +74,44 @@ class ProjectPositionCalculator(
             null
         }
         if (groundHeight == null) unavailable += PositionUnavailable.NO_HEIGHT
-        val undulation = geoid.undulationM(lat, lon)
-        if (undulation == null && groundHeight != null) unavailable += PositionUnavailable.OUTSIDE_GEOID
-        val orthometric = if (groundHeight != null && undulation != null) groundHeight - undulation else null
+        val height = when (heightSystem) {
+            HeightSystem.ELLIPSOIDAL -> groundHeight // S008/RF-5
+            HeightSystem.ORTHOMETRIC -> {
+                // S008/RF-4: el geoide del ámbito, en las geográficas ETRS89 o REGCAN95 del punto.
+                val geoid = if (crs.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
+                val undulation = geoid.undulationM(lat, lon)
+                if (undulation == null && groundHeight != null) unavailable += PositionUnavailable.OUTSIDE_GEOID
+                if (groundHeight != null && undulation != null) groundHeight - undulation else null
+            }
+        }
 
-        return ProjectPosition(utm?.easting, utm?.northing, orthometric, unavailable)
-    }
-
-    companion object {
-        /** Ámbito de ETRS89 / UTM 29 a 31 en la Península y Baleares, con margen para el huso forzado. */
-        val AREA_LATITUDE = 35.0..44.5
-        val AREA_LONGITUDE = -10.0..5.0
+        val zone = crs.utmZone
+        if (zone == null) {
+            // S008/RF-6, RF-16: geográficas, sin factores.
+            return ProjectPosition(
+                height = height,
+                unavailable = unavailable,
+                latitudeDeg = datumLat,
+                longitudeDeg = datumLon,
+                positionZone = Utm.zoneFor(lon),
+            )
+        }
+        val ellipsoid = if (crs.datum == GeodeticDatum.ED50) Ellipsoid.INTERNATIONAL_1924 else Ellipsoid.GRS80
+        val utm = Utm.forward(datumLat, datumLon, zone, ellipsoid)
+        val factors = Utm.factors(datumLat, datumLon, zone, ellipsoid) // S008/RF-13, RF-14
+        val combined = groundHeight?.let { h ->
+            val radius = Geodesy.gaussMeanRadius(datumLat, ellipsoid)
+            factors.scale * radius / (radius + h) // S008/RF-15
+        }
+        return ProjectPosition(
+            easting = utm.easting,
+            northing = utm.northing,
+            height = height,
+            unavailable = unavailable,
+            scaleFactor = factors.scale,
+            convergenceRad = factors.convergenceRad,
+            combinedFactor = combined,
+            positionZone = Utm.zoneFor(lon), // S008/RF-12
+        )
     }
 }

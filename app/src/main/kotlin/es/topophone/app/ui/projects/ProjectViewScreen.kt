@@ -98,7 +98,7 @@ class ProjectViewModel @Inject constructor(
 
     val state: StateFlow<ProjectViewUiState> = combine(project, fixes, preferences.poleHeightM) { project, gga, pole ->
         // Con el SC del proyecto: si se cambia, la posición se recalcula en el nuevo (S006/RF-15).
-        val position = if (project != null && gga != null) calculator.get().compute(gga, pole, project.crs) else null
+        val position = if (project != null && gga != null) calculator.get().compute(gga, pole, project.crs, project.heightSystem) else null
         ProjectViewUiState(project, position)
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
@@ -158,7 +158,7 @@ private fun PositionCard(project: Project, position: ProjectPosition?) {
                 fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
                 position.easting?.let { CoordinateRow(stringResource(R.string.coord_easting), length(it), POSITION_EASTING_TAG) }
                 position.northing?.let { CoordinateRow(stringResource(R.string.coord_northing), length(it), POSITION_NORTHING_TAG) }
-                val height = position.orthometricHeight?.let(::length) ?: stringResource(
+                val height = position.height?.let(::length) ?: stringResource(
                     if (PositionUnavailable.OUTSIDE_GEOID in
                         position.unavailable
                     ) {

@@ -51,10 +51,10 @@ class ProjectPositionCalculatorTest {
             position.easting.shouldNotBeNull() shouldBe (east.toDouble() plusOrMinus 0.001)
             position.northing.shouldNotBeNull() shouldBe (north.toDouble() plusOrMinus 0.001)
             if (altitude.isEmpty()) {
-                position.orthometricHeight.shouldBeNull()
+                position.height.shouldBeNull()
                 position.unavailable shouldContainExactly setOf(PositionUnavailable.OUTSIDE_GEOID)
             } else {
-                position.orthometricHeight.shouldNotBeNull() shouldBe (altitude.toDouble() plusOrMinus 0.001)
+                position.height.shouldNotBeNull() shouldBe (altitude.toDouble() plusOrMinus 0.001)
                 position.unavailable shouldBe emptySet()
             }
         }
@@ -67,7 +67,7 @@ class ProjectPositionCalculatorTest {
 
             position.easting.shouldBeNull()
             position.northing.shouldBeNull()
-            position.orthometricHeight.shouldBeNull()
+            position.height.shouldBeNull()
             position.unavailable shouldContainExactly setOf(PositionUnavailable.OUTSIDE_CRS_AREA)
         }
     }
@@ -77,7 +77,7 @@ class ProjectPositionCalculatorTest {
         val position = calculator.compute(fix(40.4168, -3.7038, groundHeight = null), pole, ProjectCrs.ETRS89_UTM30).shouldNotBeNull()
 
         position.easting.shouldNotBeNull()
-        position.orthometricHeight.shouldBeNull()
+        position.height.shouldBeNull()
         position.unavailable shouldContainExactly setOf(PositionUnavailable.NO_HEIGHT)
     }
 

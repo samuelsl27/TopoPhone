@@ -179,7 +179,7 @@ class ProjectViewTest {
 
     @Test
     fun `S006 RF-29 en pies topograficos de EE UU las coordenadas se pasan a esa unidad`() {
-        show(project.copy(linearUnit = LinearUnit.US_SURVEY_FOOT), madrid.copy(orthometricHeight = 1200.0))
+        show(project.copy(linearUnit = LinearUnit.US_SURVEY_FOOT), madrid.copy(height = 1200.0))
 
         compose.onNodeWithTag(
             POSITION_HEIGHT_TAG,
@@ -205,7 +205,7 @@ class ProjectViewTest {
     fun `S006 RF-30 fuera del geoide hay Este y Norte y la altitud dice por que falta`() {
         show(
             project.copy(linearUnit = LinearUnit.METRE),
-            madrid.copy(orthometricHeight = null, unavailable = setOf(PositionUnavailable.OUTSIDE_GEOID)),
+            madrid.copy(height = null, unavailable = setOf(PositionUnavailable.OUTSIDE_GEOID)),
         )
 
         compose.onNodeWithTag(POSITION_EASTING_TAG).performScrollTo().assertIsDisplayed()

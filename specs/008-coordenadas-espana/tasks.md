@@ -16,7 +16,7 @@
       Hecho cuando: `ProjectCrsTest` y los casos nuevos de `ProjectNamesTest` en verde, y los de S006 adaptados.
 - [x] T7. `core:model`: formato de ángulos en gon y de latitud, longitud y convergencia en DD, DMS y gon con su resolución. (RF-6, RF-14)
       Hecho cuando: `AngleFormatTest` en verde.
-- [ ] T8. `core:survey`: `ProjectPositionCalculator` para todos los SC y alturas, con ED50, ámbitos, factores, factor combinado y huso de la posición. (RF-4 a RF-9, RF-12 a RF-16)
+- [x] T8. `core:survey`: `ProjectPositionCalculator` para todos los SC y alturas, con ED50, ámbitos, factores, factor combinado y huso de la posición. (RF-4 a RF-9, RF-12 a RF-16)
       Hecho cuando: `ProjectPositionCalculatorTest` en verde contra los vectores (≤ 1 mm) en cada SC y caso no disponible.
 - [ ] T9. `core:survey`: `GroundPointCalculator` con husos 27–31, REGCAN95 y el geoide de Canarias. (RF-20, RF-21)
       Hecho cuando: `GroundPointCalculatorTest` en verde con un punto en Canarias y los casos de S002 adaptados.
