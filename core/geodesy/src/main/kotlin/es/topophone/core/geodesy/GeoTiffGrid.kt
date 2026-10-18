@@ -7,11 +7,15 @@ import java.util.zip.Inflater
 import kotlin.math.floor
 
 /**
- * Rejilla geográfica de una banda float32 leída de un GeoTIFF del CDN de PROJ (ADR-4).
+ * Rejilla geográfica float32 leída de un GeoTIFF del CDN de PROJ (ADR-4): una subrejilla con una o
+ * varias bandas (el geoide tiene una; los desplazamientos horizontales, dos, S008/RF-7).
  *
- * Admite lo que usan esas rejillas: orden de bytes II/MM, teselas o tiras, sin compresión o
- * DEFLATE, predictor 1 o 3 (coma flotante), PixelIsPoint/PixelIsArea y GDAL_NODATA.
+ * Admite lo que usan esas rejillas: orden de bytes II/MM, teselas o tiras, varias subrejillas (IFD),
+ * bandas en planos separados, sin compresión o DEFLATE, predictor 1 o 3 (coma flotante),
+ * PixelIsPoint/PixelIsArea, GDAL_NODATA y los metadatos de GDAL.
  * Los nodos van de oeste a este (`i`) y de norte a sur (`j`), como las filas del fichero.
+ *
+ * @property metadata elementos de GDAL_METADATA: `nombre` o `nombre:banda` (por ejemplo `positive_value:1`).
  */
 class GeoTiffGrid private constructor(
     val width: Int,
@@ -20,24 +24,26 @@ class GeoTiffGrid private constructor(
     val firstNodeLatitudeDeg: Double,
     val stepLongitudeDeg: Double,
     val stepLatitudeDeg: Double,
-    private val values: FloatArray,
+    private val values: List<FloatArray>,
     private val noData: Float?,
+    val metadata: Map<String, String>,
 ) {
+    val bands: Int get() = values.size
 
-    fun node(i: Int, j: Int): Float = values[j * width + i]
+    fun node(i: Int, j: Int, band: Int = 0): Float = values[band][j * width + i]
 
     /**
      * Interpolación bilineal como la de PROJ (S002/RF-38). `null` fuera de la rejilla o si algún
      * nodo de la celda no tiene datos: nunca se extrapola (S002/RF-39, ADR-5).
      */
-    fun interpolate(latitudeDeg: Double, longitudeDeg: Double): Double? {
+    fun interpolate(latitudeDeg: Double, longitudeDeg: Double, band: Int = 0): Double? {
         val x = (longitudeDeg - firstNodeLongitudeDeg) / stepLongitudeDeg
         val y = (firstNodeLatitudeDeg - latitudeDeg) / stepLatitudeDeg
         if (x.isNaN() || y.isNaN() || x < -EDGE_EPS || y < -EDGE_EPS || x > width - 1 + EDGE_EPS || y > height - 1 + EDGE_EPS) return null
 
         val (i, fx) = cell(x, width)
         val (j, fy) = cell(y, height)
-        val corners = floatArrayOf(node(i, j), node(i + 1, j), node(i, j + 1), node(i + 1, j + 1))
+        val corners = floatArrayOf(node(i, j, band), node(i + 1, j, band), node(i, j + 1, band), node(i + 1, j + 1, band))
         if (corners.any { it.isNaN() || (noData != null && it == noData) }) return null
 
         return (1 - fx) * (1 - fy) * corners[0] + fx * (1 - fy) * corners[1] + (1 - fx) * fy * corners[2] + fx * fy * corners[3]
@@ -62,6 +68,7 @@ class GeoTiffGrid private constructor(
         private const val TAG_SAMPLES = 277
         private const val TAG_ROWS_PER_STRIP = 278
         private const val TAG_STRIP_COUNTS = 279
+        private const val TAG_PLANAR = 284
         private const val TAG_PREDICTOR = 317
         private const val TAG_TILE_WIDTH = 322
         private const val TAG_TILE_LENGTH = 323
@@ -71,12 +78,20 @@ class GeoTiffGrid private constructor(
         private const val TAG_PIXEL_SCALE = 33550
         private const val TAG_TIEPOINT = 33922
         private const val TAG_GEO_KEYS = 34735
+        private const val TAG_GDAL_METADATA = 42112
         private const val TAG_NODATA = 42113
 
         private const val KEY_RASTER_TYPE = 1025
         private const val RASTER_PIXEL_IS_AREA = 1
 
-        fun read(bytes: ByteArray): GeoTiffGrid = Reader(bytes).read()
+        private const val PLANAR_SEPARATE = 2
+        private val METADATA_ITEM = Regex("""<Item name="([^"]+)"(?: sample="(\d+)")?[^>]*>([^<]*)</Item>""")
+
+        /** La primera subrejilla (los modelos de geoide solo tienen una). */
+        fun read(bytes: ByteArray): GeoTiffGrid = readAll(bytes).first()
+
+        /** Todas las subrejillas, en el orden del fichero (PROJ usa la primera que contiene el punto). */
+        fun readAll(bytes: ByteArray): List<GeoTiffGrid> = Reader(bytes).readAll()
     }
 
     private class Entry(val type: Int, val count: Int, val valueOffset: Int, val inline: ByteArray)
@@ -90,38 +105,65 @@ class GeoTiffGrid private constructor(
         private val buffer: ByteBuffer = ByteBuffer.wrap(bytes).order(order)
         private val tags = HashMap<Int, Entry>()
 
-        fun read(): GeoTiffGrid {
+        fun readAll(): List<GeoTiffGrid> {
             require(buffer.getShort(2).toInt() == 42) { "Solo se admite TIFF clásico (no BigTIFF)" }
-            readIfd(buffer.getInt(4))
+            val grids = ArrayList<GeoTiffGrid>()
+            var offset = buffer.getInt(4)
+            while (offset != 0) {
+                tags.clear()
+                offset = readIfd(offset)
+                grids += read()
+            }
+            return grids
+        }
 
+        private fun read(): GeoTiffGrid {
             val width = int(TAG_WIDTH)
             val height = int(TAG_HEIGHT)
             require(int(TAG_BITS) == 32 && int(TAG_SAMPLE_FORMAT, default = 1) == 3) { "Solo se admiten muestras float32" }
-            require(int(TAG_SAMPLES, default = 1) == 1) { "Solo se admite una banda" }
+            val bands = int(TAG_SAMPLES, default = 1)
+            require(bands == 1 || int(TAG_PLANAR, default = 1) == PLANAR_SEPARATE) { "Varias bandas solo en planos separados" }
             val compression = int(TAG_COMPRESSION, default = 1)
             require(compression == 1 || compression == 8 || compression == 32946) { "Compresión $compression no admitida" }
             val predictor = int(TAG_PREDICTOR, default = 1)
             require(predictor == 1 || predictor == 3) { "Predictor $predictor no admitido" }
 
-            val values = FloatArray(width * height)
+            // En planos separados, los bloques de cada banda van seguidos: primero todos los de la banda 0.
+            val values = List(bands) { FloatArray(width * height) }
             if (TAG_TILE_WIDTH in tags) {
                 val tileWidth = int(TAG_TILE_WIDTH)
                 val tileHeight = int(TAG_TILE_LENGTH)
                 val offsets = ints(TAG_TILE_OFFSETS)
                 val counts = ints(TAG_TILE_COUNTS)
                 val tilesAcross = (width + tileWidth - 1) / tileWidth
-                offsets.indices.forEach { t ->
-                    val block = decode(offsets[t], counts[t], tileWidth, tileHeight, compression, predictor)
-                    copy(block, tileWidth, tileHeight, (t % tilesAcross) * tileWidth, (t / tilesAcross) * tileHeight, width, height, values)
+                val perBand = offsets.size / bands
+                offsets.indices.forEach { k ->
+                    val t = k % perBand
+                    val block = decode(offsets[k], counts[k], tileWidth, tileHeight, compression, predictor)
+                    copy(
+                        block,
+                        tileWidth,
+                        tileHeight,
+                        (t % tilesAcross) * tileWidth,
+                        (t / tilesAcross) * tileHeight,
+                        width,
+                        height,
+                        values[
+                            k /
+                                perBand,
+                        ],
+                    )
                 }
             } else {
                 val rowsPerStrip = int(TAG_ROWS_PER_STRIP, default = height)
                 val offsets = ints(TAG_STRIP_OFFSETS)
                 val counts = ints(TAG_STRIP_COUNTS)
-                offsets.indices.forEach { s ->
+                val perBand = offsets.size / bands
+                offsets.indices.forEach { k ->
+                    val s = k % perBand
                     val rows = minOf(rowsPerStrip, height - s * rowsPerStrip)
-                    val block = decode(offsets[s], counts[s], width, rows, compression, predictor)
-                    copy(block, width, rows, 0, s * rowsPerStrip, width, height, values)
+                    val block = decode(offsets[k], counts[k], width, rows, compression, predictor)
+                    copy(block, width, rows, 0, s * rowsPerStrip, width, height, values[k / perBand])
                 }
             }
 
@@ -131,10 +173,11 @@ class GeoTiffGrid private constructor(
             val lon0 = tie[3] - tie[0] * scale[0] + if (area) scale[0] / 2 else 0.0
             val lat0 = tie[4] + tie[1] * scale[1] - if (area) scale[1] / 2 else 0.0
             val noData = tags[TAG_NODATA]?.let { ascii(it).trim().toFloatOrNull() }
-            return GeoTiffGrid(width, height, lon0, lat0, scale[0], scale[1], values, noData)
+            return GeoTiffGrid(width, height, lon0, lat0, scale[0], scale[1], values, noData, metadata())
         }
 
-        private fun readIfd(offset: Int) {
+        /** Lee una IFD y devuelve dónde empieza la siguiente (0 si es la última). */
+        private fun readIfd(offset: Int): Int {
             val count = buffer.getShort(offset).toInt() and 0xFFFF
             for (k in 0 until count) {
                 val at = offset + 2 + 12 * k
@@ -142,6 +185,16 @@ class GeoTiffGrid private constructor(
                 val type = buffer.getShort(at + 2).toInt() and 0xFFFF
                 val n = buffer.getInt(at + 4)
                 tags[tag] = Entry(type, n, buffer.getInt(at + 8), bytes.copyOfRange(at + 8, at + 12))
+            }
+            return buffer.getInt(offset + 2 + 12 * count)
+        }
+
+        /** `<Item name="x" sample="n">v</Item>` → `x:n` = v (o `x` = v sin banda). */
+        private fun metadata(): Map<String, String> {
+            val entry = tags[TAG_GDAL_METADATA] ?: return emptyMap()
+            return METADATA_ITEM.findAll(ascii(entry)).associate { m ->
+                val sample = m.groupValues[2]
+                (if (sample.isEmpty()) m.groupValues[1] else "${m.groupValues[1]}:$sample") to m.groupValues[3].trim()
             }
         }
 
