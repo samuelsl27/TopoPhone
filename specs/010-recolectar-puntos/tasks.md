@@ -12,7 +12,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest`, `PointRepositoryTest` y `CollectorPreferencesTest` en verde.
 - [x] T5. `app`: `CollectorViewModel` (nombre, jalón, medida, control de precisión, guardado, sonidos). (RF-2 a RF-5, RF-8 a RF-19)
       Hecho cuando: `CollectorViewModelTest` en verde con una sesión de reproducción.
-- [ ] T6. `app`: botón "Recolectar" y panel del recolector, con la pantalla encendida y los avisos. (RF-1, RF-4 a RF-7, RF-9, RF-11, RF-12)
+- [x] T6. `app`: botón "Recolectar" y panel del recolector, con la pantalla encendida y los avisos. (RF-1, RF-4 a RF-7, RF-9, RF-11, RF-12)
       Hecho cuando: `CollectorPanelTest` en verde.
 - [ ] T7. `app`: diálogos de ajustes del control de precisión y de fuera de tolerancia. (RF-13, RF-14, RF-15)
       Hecho cuando: `CollectorDialogsTest` en verde.

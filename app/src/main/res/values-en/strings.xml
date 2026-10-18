@@ -409,4 +409,23 @@
     <string name="attribution_cadastre">© Dirección General del Catastro</string>
     <string name="map_center_rover">Center on the rover</string>
     <string name="map_offline">No connection: the map may be incomplete.</string>
+    <string name="collector_collect">Collect</string>
+    <string name="collector_title">Collector</string>
+    <string name="collector_close">Close</string>
+    <string name="collector_name">Name</string>
+    <string name="collector_description">Description</string>
+    <string name="collector_mode_instant">Instant</string>
+    <string name="collector_mode_averaged">Averaged</string>
+    <string name="collector_seconds">Seconds</string>
+    <string name="collector_measure">Measure</string>
+    <string name="collector_measuring">Measuring…</string>
+    <string name="collector_cancel">Cancel</string>
+    <string name="collector_progress">%1$s / %2$s s</string>
+    <string name="collector_live">%1$s · H %2$s · V %3$s</string>
+    <string name="collector_no_accuracy">—</string>
+    <string name="collector_name_taken">There is already a point with that name.</string>
+    <string name="collector_name_invalid">Enter a name for the point.</string>
+    <string name="collector_solution_lost">Solution lost: epochs without FIX are not counted.</string>
+    <string name="collector_no_data">No data from the receiver: the measurement was cancelled.</string>
+    <string name="collector_saved">Point %1$s saved.</string>
 </resources>

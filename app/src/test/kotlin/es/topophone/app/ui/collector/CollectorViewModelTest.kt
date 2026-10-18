@@ -310,7 +310,8 @@ class CollectorViewModelTest {
         val vm = viewModel(project())
         receiving(vm)
 
-        val live = vm.state.value.live.shouldNotBeNull()
+        // La GGA llega antes que la GST de su época: se espera a tener las dos.
+        val live = await(vm) { it.live?.horizontalM != null }.live.shouldNotBeNull()
         live.solution shouldBe SolutionStatus.FIX
         live.horizontalM.shouldNotBeNull() shouldBe (0.01 plusOrMinus 1e-12)
         live.verticalM shouldBe 0.015

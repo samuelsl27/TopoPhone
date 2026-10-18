@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +19,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,6 +58,11 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.collector.COLLECT_BUTTON_TAG
+import es.topophone.app.ui.collector.CollectorActions
+import es.topophone.app.ui.collector.CollectorPanel
+import es.topophone.app.ui.collector.CollectorUiState
+import es.topophone.app.ui.collector.CollectorViewModel
 import es.topophone.app.ui.map.AttributionSource
 import es.topophone.app.ui.map.CameraCommand
 import es.topophone.app.ui.map.CameraPolicy
@@ -263,9 +270,14 @@ fun ProjectViewRoute(
     onToggleSun: () -> Unit,
     navigation: SurveyNavigation,
     viewModel: ProjectViewModel = hiltViewModel(),
+    collectorViewModel: CollectorViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(projectId) { viewModel.start(projectId) }
+    LaunchedEffect(projectId) {
+        viewModel.start(projectId)
+        collectorViewModel.start(projectId)
+    }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val environment =
         remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
@@ -279,6 +291,19 @@ fun ProjectViewRoute(
         viewModel::setMapSettings,
         viewModel::onViewportChanged,
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
+        collector = collector,
+        collectorActions = CollectorActions(
+            onName = collectorViewModel::setName,
+            onDescription = collectorViewModel::setDescription,
+            onPoleHeight = collectorViewModel::setPoleHeight,
+            onMode = { mode -> collectorViewModel.setSettings(collector.settings.copy(mode = mode)) },
+            onSeconds = { seconds -> collectorViewModel.setSettings(collector.settings.copy(averagingSeconds = seconds)) },
+            onSettings = collectorViewModel::setSettings,
+            onMeasure = collectorViewModel::measure,
+            onCancel = collectorViewModel::cancel,
+            onConfirm = collectorViewModel::confirmOutOfTolerance,
+            onDiscard = collectorViewModel::discardPending,
+        ),
     )
 }
 
@@ -294,7 +319,10 @@ fun ProjectViewScreen(
     onMapSettings: (MapSettings) -> Unit = {},
     onViewportChanged: (MapViewport) -> Unit = {},
     map: MapSlot = { _, _ -> },
+    collector: CollectorUiState? = null,
+    collectorActions: CollectorActions = CollectorActions(),
 ) {
+    var collectorOpen by rememberSaveable { mutableStateOf(false) }
     val policy = remember { CameraPolicy() }
     val project = state.project
     var controller by remember { mutableStateOf<MapController?>(null) }
@@ -356,8 +384,22 @@ fun ProjectViewScreen(
                     val camera = controller?.camera?.collectAsStateWithLifecycle()?.value
                     if (project != null && camera != null) ScaleBarView(camera, project.linearUnit)
                     Attribution(state.mapSettings)
+                    if (project != null && collector != null && !collectorOpen) {
+                        Spacer(Modifier.weight(1f))
+                        ExtendedFloatingActionButton(
+                            onClick = { collectorOpen = true },
+                            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(COLLECT_BUTTON_TAG),
+                        ) { Text(stringResource(R.string.collector_collect)) } // S010/RF-1
+                    }
                 }
-                if (project != null) PositionPanel(project, state.position, state.accuracyM, onInfo, Modifier)
+                when {
+                    project == null -> Unit
+                    collector != null && collectorOpen -> CollectorPanel(collector, project.linearUnit, collectorActions, onClose = {
+                        collectorOpen =
+                            false
+                    })
+                    else -> PositionPanel(project, state.position, state.accuracyM, onInfo, Modifier)
+                }
             }
         }
     }
@@ -636,7 +678,7 @@ private fun CoordinateRow(label: String, value: String, tag: String) {
 }
 
 @Composable
-private fun unitSymbol(unit: LinearUnit): String = stringResource(
+internal fun unitSymbol(unit: LinearUnit): String = stringResource(
     when (unit) {
         LinearUnit.METRE -> R.string.unit_symbol_metre
         LinearUnit.INTERNATIONAL_FOOT -> R.string.unit_symbol_foot

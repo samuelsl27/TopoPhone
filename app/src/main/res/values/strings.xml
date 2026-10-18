@@ -421,4 +421,23 @@
     <string name="attribution_cadastre">© Dirección General del Catastro</string>
     <string name="map_center_rover">Centrar en el rover</string>
     <string name="map_offline">Sin conexión: el mapa puede estar incompleto.</string>
+    <string name="collector_collect">Recolectar</string>
+    <string name="collector_title">Recolector</string>
+    <string name="collector_close">Cerrar</string>
+    <string name="collector_name">Nombre</string>
+    <string name="collector_description">Descripción</string>
+    <string name="collector_mode_instant">Instantáneo</string>
+    <string name="collector_mode_averaged">Promediado</string>
+    <string name="collector_seconds">Segundos</string>
+    <string name="collector_measure">Medir</string>
+    <string name="collector_measuring">Midiendo…</string>
+    <string name="collector_cancel">Cancelar</string>
+    <string name="collector_progress">%1$s / %2$s s</string>
+    <string name="collector_live">%1$s · H %2$s · V %3$s</string>
+    <string name="collector_no_accuracy">—</string>
+    <string name="collector_name_taken">Ya hay un punto con ese nombre.</string>
+    <string name="collector_name_invalid">Escribe un nombre para el punto.</string>
+    <string name="collector_solution_lost">Solución perdida: no cuentan las épocas sin FIX.</string>
+    <string name="collector_no_data">Sin datos del receptor: la medida se ha cancelado.</string>
+    <string name="collector_saved">Punto %1$s guardado.</string>
 </resources>
