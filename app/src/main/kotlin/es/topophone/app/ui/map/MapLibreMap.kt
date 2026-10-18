@@ -27,6 +27,7 @@ import okhttp3.OkHttpClient
 import org.maplibre.android.MapLibre
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.module.http.HttpRequestUtil
+import org.maplibre.android.offline.OfflineManager
 
 /** El cliente HTTP de todo lo que descarga el mapa (S009). */
 @Qualifier
@@ -38,9 +39,10 @@ annotation class MapHttp
  * OpenFreeMap y del resto de servicios (S009, RNF). S019 lo enlazará a la red con internet (RNF-T4).
  */
 object MapHttpClient {
-    fun create(versionName: String): OkHttpClient {
+    fun create(versionName: String, monitor: NetworkFailureMonitor? = null): OkHttpClient {
         val userAgent = "TopoPhone/$versionName (+${BuildConfig.REPO_URL})"
         return OkHttpClient.Builder()
+            .apply { if (monitor != null) addInterceptor(monitor.interceptor) } // S009/RF-15
             .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("User-Agent", userAgent).build()) }
             .addInterceptor(IgnStylePatch.interceptor) // S009/RF-6
             .build()
@@ -59,6 +61,15 @@ class MapEnvironment @Inject constructor(
         if (initialized) return
         MapLibre.getInstance(context)
         HttpRequestUtil.setOkHttpClient(httpClient)
+        // S009/RF-13: lo ya visto queda guardado para verlo sin conexión; antes de poner ningún estilo.
+        OfflineManager.getInstance(context).setMaximumAmbientCacheSize(
+            MapOptions.AMBIENT_CACHE_BYTES,
+            object : OfflineManager.FileSourceCallback {
+                override fun onSuccess() = Unit
+
+                override fun onError(message: String) = Unit
+            },
+        )
         initialized = true
     }
 }

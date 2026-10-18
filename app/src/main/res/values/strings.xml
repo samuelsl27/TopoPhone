@@ -420,4 +420,5 @@
     <string name="attribution_openfreemap">OpenFreeMap © OpenMapTiles Data from OpenStreetMap</string>
     <string name="attribution_cadastre">© Dirección General del Catastro</string>
     <string name="map_center_rover">Centrar en el rover</string>
+    <string name="map_offline">Sin conexión: el mapa puede estar incompleto.</string>
 </resources>

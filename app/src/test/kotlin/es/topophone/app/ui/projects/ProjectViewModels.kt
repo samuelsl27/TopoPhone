@@ -2,6 +2,7 @@ package es.topophone.app.ui.projects
 
 import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.map.FakeMapViewportRepository
+import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.map.MapPreferences
@@ -16,4 +17,5 @@ internal fun projectViewModel(
     mapPreferences: MapPreferences = FakeMapPreferences(),
     viewports: MapViewportRepository = FakeMapViewportRepository(),
     calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
-) = ProjectViewModel(repository, session, FakePreferences(), { calculator }, mapPreferences, viewports, samplePeriodMs = 0)
+    monitor: NetworkFailureMonitor = NetworkFailureMonitor(),
+) = ProjectViewModel(repository, session, FakePreferences(), { calculator }, mapPreferences, viewports, monitor, samplePeriodMs = 0)

@@ -64,6 +64,7 @@ import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.MapController
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
+import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
 import es.topophone.app.ui.receiver.ReceiverViewModel
@@ -135,6 +136,7 @@ const val COMBINED_FACTOR_TAG = "position_combined_factor"
 const val OTHER_ZONE_TAG = "position_other_zone"
 const val LAYERS_BUTTON_TAG = "map_layers"
 const val CENTER_BUTTON_TAG = "map_center_rover"
+const val OFFLINE_BANNER_TAG = "map_offline"
 const val SCALE_BAR_TAG = "map_scale_bar"
 const val ATTRIBUTION_TAG = "map_attribution"
 const val CADASTRE_SWITCH_TAG = "map_cadastre"
@@ -158,6 +160,8 @@ data class ProjectViewUiState(
     /** Último encuadre del proyecto (S009/RF-21), válido cuando [viewportLoaded]. */
     val savedViewport: MapViewport? = null,
     val viewportLoaded: Boolean = false,
+    /** Fallan las descargas del mapa por falta de conexión (S009/RF-15). */
+    val mapOffline: Boolean = false,
 )
 
 /** El rover: posición de la GGA tal cual, su solución y la precisión horizontal de la GST (S009/RF-16, RF-17). */
@@ -176,6 +180,7 @@ class ProjectViewModel @Inject constructor(
     calculator: Lazy<ProjectPositionCalculator>,
     private val mapPreferences: MapPreferences,
     private val viewports: MapViewportRepository,
+    networkMonitor: NetworkFailureMonitor,
     @param:Named(ReceiverViewModel.UI_SAMPLE_MS) samplePeriodMs: Long,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
@@ -220,7 +225,9 @@ class ProjectViewModel @Inject constructor(
             viewportLoaded =
             viewport != null,
         )
-    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
+    }.combine(networkMonitor.offline) { state, offline -> state.copy(mapOffline = offline) }
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
     /** Mapa base y Catastro, para todos los proyectos (S009/RF-8). */
     fun setMapSettings(settings: MapSettings) {
@@ -310,6 +317,19 @@ fun ProjectViewScreen(
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize().testTag(PROJECT_VIEW_TAG)) {
             map(Modifier.fillMaxSize().testTag(PROJECT_MAP_TAG)) { controller = it }
+            if (state.mapOffline) {
+                Text(
+                    stringResource(R.string.map_offline),
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(12.dp)
+                        .background(MaterialTheme.colorScheme.errorContainer, MaterialTheme.shapes.small)
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .testTag(OFFLINE_BANNER_TAG),
+                )
+            } // S009/RF-15
             Column(
                 modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),

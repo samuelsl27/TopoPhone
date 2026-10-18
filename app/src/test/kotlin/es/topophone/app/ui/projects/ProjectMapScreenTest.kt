@@ -20,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.FakeMapViewportRepository
 import es.topophone.app.ui.map.MapCamera
+import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.map.fakeMap
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -262,6 +263,21 @@ class ProjectMapScreenTest {
         compose.onNodeWithTag(CENTER_BUTTON_TAG).assertIsNotEnabled()
     }
 
+    @Test
+    fun `S009 RF-15 mientras falla la descarga del mapa se avisa de que puede estar incompleto`() {
+        show(ProjectViewUiState(project, madrid, mapOffline = true))
+
+        compose.onNodeWithTag(OFFLINE_BANNER_TAG).assertIsDisplayed()
+        compose.onNodeWithText("Sin conexión: el mapa puede estar incompleto.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S009 RF-15 con conexion no hay aviso`() {
+        show(ProjectViewUiState(project, madrid, mapOffline = false))
+
+        compose.onNodeWithTag(OFFLINE_BANNER_TAG).assertDoesNotExist()
+    }
+
     // --- ViewModel: la precisión horizontal sale de la GST ---
 
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -330,6 +346,29 @@ class ProjectMapScreenTest {
             vm.onViewportChanged(MapViewport(40.5, -3.6, 18.0))
 
             viewports.saved[id] shouldBe MapViewport(40.5, -3.6, 18.0)
+        } finally {
+            db.close()
+            Dispatchers.resetMain()
+        }
+    }
+
+    @Test
+    fun `S009 RF-15 el ViewModel avisa cuando el mapa se queda sin conexion`() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), TopoPhoneDatabase::class.java).build()
+        try {
+            val repository = RoomProjectRepository(db)
+            val id = runBlocking { (repository.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12")) as SaveResult.Saved).id }
+            val monitor = NetworkFailureMonitor()
+            val vm = projectViewModel(repository, session, monitor = monitor)
+            vm.start(id)
+            val collector = CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+            try {
+                monitor.markFailure()
+                runBlocking { withTimeout(5_000) { vm.state.first { it.mapOffline } } }.mapOffline shouldBe true
+            } finally {
+                collector.cancel()
+            }
         } finally {
             db.close()
             Dispatchers.resetMain()

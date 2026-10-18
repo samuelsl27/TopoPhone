@@ -13,6 +13,9 @@ object MapOptions {
     /** S009/RF-12: hasta que la barra de escala baja a 1 m o menos. */
     const val MAX_ZOOM = WebMercator.MAX_ZOOM
 
+    /** S009/RF-13: caché del mapa base ya visto; MapLibre descarta lo usado hace más tiempo. */
+    const val AMBIENT_CACHE_BYTES = 200L * 1024 * 1024
+
     /** S009/RF-9: la atribución la pone la app, con el texto que pide cada servicio, y siempre a la vista. */
     const val MAPLIBRE_ATTRIBUTION = false
 }

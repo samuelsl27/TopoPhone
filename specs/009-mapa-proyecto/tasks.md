@@ -24,7 +24,7 @@
       Hecho cuando: `RoverLayerTest` en verde (color por solución, círculo con la precisión H, sin GST, "Sin datos").
 - [x] T11. `app`: `CameraPolicy` (seguir, gesto, centrar, acercar a 1:2.000) y encuadre guardado por proyecto o España. (RF-19, RF-20, RF-21)
       Hecho cuando: `CameraPolicyTest` y los casos de centrar y encuadre de `ProjectMapScreenTest` en verde.
-- [ ] T12. `app`: caché de 200 MB, `NetworkFailureMonitor` y aviso sin conexión. (RF-13, RF-14, RF-15)
+- [x] T12. `app`: caché de 200 MB, `NetworkFailureMonitor` y aviso sin conexión. (RF-13, RF-14, RF-15)
       Hecho cuando: `NetworkFailureMonitorTest` y el caso del aviso de `ProjectMapScreenTest` en verde.
 - [ ] T13. Validación: recorrer la spec RF por RF, `rf_report`, tamaño del APK, demo en el emulador con una reproducción según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos, el APK crece ≤ 15 MB y la demo funciona. La demo de campo con el RS3 queda para el usuario.
