@@ -89,6 +89,7 @@ const val POINT_REVERT_TAG = "point_revert"
 const val POINT_MEASUREMENT_TAG = "point_measurement"
 const val POINT_NMEA_TAG = "point_nmea"
 const val NMEA_DIALOG_TAG = "nmea_dialog"
+const val POINT_EDIT_TAG = "point_edit"
 const val POINT_POLE_TAG = "point_pole"
 const val POINT_DUPLICATE_TAG = "point_duplicate"
 const val POINT_HISTORY_TAG = "point_history"
@@ -109,6 +110,7 @@ data class PointDetailsUiState(
 
 /** Acciones de la ficha del punto. */
 class PointDetailsActions(
+    val onEdit: () -> Unit = {},
     val onRevert: () -> Unit = {},
     val onCorrectPole: (poleHeightM: Double) -> Unit = {},
     val onDismissNotice: () -> Unit = {},
@@ -220,6 +222,7 @@ fun PointDetailsRoute(
         onToggleSun,
         state,
         PointDetailsActions(
+            onEdit = { navigation.onEditPoint(projectId, pointId) }, // S011/RF-8
             onRevert = viewModel::revertToMeasurement,
             onCorrectPole = viewModel::correctPole,
             onDismissNotice = viewModel::dismissNotice,
@@ -292,6 +295,7 @@ private fun Actions(state: PointDetailsUiState, point: Point, actions: PointDeta
     var history by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        ActionButton(R.string.point_edit, POINT_EDIT_TAG, actions.onEdit)
         if (point.measurement != null) ActionButton(R.string.objects_pole, POINT_POLE_TAG) { pole = true }
         ActionButton(R.string.point_duplicate, POINT_DUPLICATE_TAG, actions.onDuplicate)
         ActionButton(R.string.point_history, POINT_HISTORY_TAG) { history = true }

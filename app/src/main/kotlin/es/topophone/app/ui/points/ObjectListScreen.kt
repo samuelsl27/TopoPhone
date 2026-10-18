@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,6 +78,7 @@ import kotlinx.coroutines.withContext
 
 const val OBJECTS_BUTTON_TAG = "objects_button"
 const val OBJECT_LIST_TAG = "object_list"
+const val ADD_POINT_TAG = "add_point"
 const val OBJECT_SEARCH_TAG = "object_search"
 const val SELECTION_BAR_TAG = "selection_bar"
 const val SELECTION_HIDE_TAG = "selection_hide"
@@ -109,6 +111,7 @@ data class PoleOutcome(val corrected: Int, val manualSkipped: Int, val keptEdite
 class ObjectListActions(
     val onQueryChange: (String) -> Unit = {},
     val onOpen: (String) -> Unit = {},
+    val onAdd: () -> Unit = {},
     val onToggleSelection: (String) -> Unit = {},
     val onClearSelection: () -> Unit = {},
     val onSetHidden: (id: String, hidden: Boolean) -> Unit = { _, _ -> },
@@ -227,6 +230,7 @@ fun ObjectListRoute(
         ObjectListActions(
             onQueryChange = viewModel::search,
             onOpen = { pointId -> navigation.onOpenPoint(projectId, pointId) }, // S011/RF-5
+            onAdd = { navigation.onNewPoint(projectId) }, // S011/RF-16
             onToggleSelection = viewModel::toggleSelection,
             onClearSelection = viewModel::clearSelection,
             onSetHidden = viewModel::setHidden,
@@ -258,6 +262,14 @@ fun ObjectListScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
+        floatingActionButton = {
+            if (state.selected.isEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = actions.onAdd,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ADD_POINT_TAG),
+                ) { Text(stringResource(R.string.point_add)) } // S011/RF-16
+            }
+        },
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             // Lista perezosa: con miles de puntos solo se pintan los que se ven (RNF de la spec).

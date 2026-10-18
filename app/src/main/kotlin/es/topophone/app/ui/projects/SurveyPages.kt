@@ -7,6 +7,9 @@ import es.topophone.app.ui.points.ObjectListUiState
 import es.topophone.app.ui.points.PointDetailsActions
 import es.topophone.app.ui.points.PointDetailsScreen
 import es.topophone.app.ui.points.PointDetailsUiState
+import es.topophone.app.ui.points.PointFormActions
+import es.topophone.app.ui.points.PointFormScreen
+import es.topophone.app.ui.points.PointFormUiState
 import es.topophone.core.model.preferences.ThemeState
 
 /** Pantallas de la sección Levantamiento (S006). */
@@ -34,6 +37,9 @@ sealed interface SurveyPage {
 
     /** Ficha de un punto (S011/RF-5). */
     data class PointDetails(val projectId: String, val pointId: String) : SurveyPage
+
+    /** Punto nuevo, o edición de uno si hay [pointId] (S011/RF-8, RF-16). */
+    data class PointForm(val projectId: String, val pointId: String?) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -47,6 +53,8 @@ class SurveyNavigation(
     val onOpenProjectInfo: (String) -> Unit = {},
     val onOpenObjects: (projectId: String) -> Unit = {},
     val onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
+    val onNewPoint: (projectId: String) -> Unit = {},
+    val onEditPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     val onBack: () -> Unit = {},
 )
@@ -61,6 +69,7 @@ data class SurveyUiState(
     val trash: TrashUiState = TrashUiState(),
     val objects: ObjectListUiState = ObjectListUiState(),
     val point: PointDetailsUiState = PointDetailsUiState(),
+    val pointForm: PointFormUiState = PointFormUiState(loaded = true),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -104,5 +113,6 @@ fun SurveyPageScreen(
         SurveyPage.Trash -> TrashScreen(themeState, onToggleSun, state.trash, TrashActions(onBack = navigation.onBack))
         is SurveyPage.Objects -> ObjectListScreen(themeState, onToggleSun, state.objects, ObjectListActions(), navigation.onBack)
         is SurveyPage.PointDetails -> PointDetailsScreen(themeState, onToggleSun, state.point, PointDetailsActions(), navigation.onBack)
+        is SurveyPage.PointForm -> PointFormScreen(themeState, onToggleSun, state.pointForm, PointFormActions(), navigation.onBack)
     }
 }

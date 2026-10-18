@@ -522,4 +522,20 @@
     <string name="point_delete_confirm">Move %1$s to the trash? It can be recovered for 30 days.</string>
     <string name="point_history_entry">%1$s · %2$s</string>
     <string name="point_history_none">—</string>
+    <string name="point_add">Add point</string>
+    <string name="point_new">New point</string>
+    <string name="point_edit_title">Edit point</string>
+    <string name="point_edit">Edit</string>
+    <string name="point_form_project_crs">Project CRS</string>
+    <string name="point_form_geographic">Geographic</string>
+    <string name="point_latitude">Latitude</string>
+    <string name="point_longitude">Longitude</string>
+    <string name="point_height_optional">%1$s (optional)</string>
+    <string name="point_height_altitude">Altitude</string>
+    <string name="point_height_ellipsoidal">Ellipsoidal</string>
+    <string name="point_value_invalid">Invalid value.</string>
+    <string name="point_outside_geoid">With an altitude, the point must be inside the geoid model. Leave the height empty or enter it as ellipsoidal.</string>
+    <string name="point_hint_dms">Degrees, minutes and seconds: 40 25 07.24 N</string>
+    <string name="point_hint_dd">Decimal degrees: 40.41868</string>
+    <string name="point_hint_gon">Gon: 44.90965</string>
 </resources>

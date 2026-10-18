@@ -26,7 +26,7 @@
       Hecho cuando: `PointDetailsViewModelTest`, `PointDetailsScreenTest` y el test del toque en `PointsLayerTest` en verde.
 - [x] T12. `app`: acciones de la ficha: jalón, duplicar, borrar e historial. (RF-10, RF-11, RF-14, RF-21, RF-22)
       Hecho cuando: los tests de las acciones y `PointHistoryTest` en verde.
-- [ ] T13. `app`: formulario de punto, nuevo y editado (SC del proyecto o geográficas, altura opcional y su tipo, errores, nombre repetido). (RF-8, RF-9, RF-16 a RF-20)
+- [x] T13. `app`: formulario de punto, nuevo y editado (SC del proyecto o geográficas, altura opcional y su tipo, errores, nombre repetido). (RF-8, RF-9, RF-16 a RF-20)
       Hecho cuando: `PointFormViewModelTest` y `PointFormScreenTest` en verde.
 - [ ] T14. `app`: papelera de puntos (lista con días, restaurar, nombre ocupado, borrar definitivamente). (RF-23 a RF-26)
       Hecho cuando: `PointTrashViewModelTest` y `PointTrashScreenTest` en verde.

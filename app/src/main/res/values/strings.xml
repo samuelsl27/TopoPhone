@@ -534,4 +534,20 @@
     <string name="point_delete_confirm">¿Mover %1$s a la papelera? Se puede recuperar durante 30 días.</string>
     <string name="point_history_entry">%1$s · %2$s</string>
     <string name="point_history_none">—</string>
+    <string name="point_add">Añadir punto</string>
+    <string name="point_new">Nuevo punto</string>
+    <string name="point_edit_title">Editar punto</string>
+    <string name="point_edit">Editar</string>
+    <string name="point_form_project_crs">SC del proyecto</string>
+    <string name="point_form_geographic">Geográficas</string>
+    <string name="point_latitude">Latitud</string>
+    <string name="point_longitude">Longitud</string>
+    <string name="point_height_optional">%1$s (opcional)</string>
+    <string name="point_height_altitude">Altitud</string>
+    <string name="point_height_ellipsoidal">Elipsoidal</string>
+    <string name="point_value_invalid">Valor no válido.</string>
+    <string name="point_outside_geoid">Con altitud, el punto tiene que estar dentro del modelo de geoide. Deja la altura vacía o escríbela elipsoidal.</string>
+    <string name="point_hint_dms">Grados, minutos y segundos: 40 25 07,24 N</string>
+    <string name="point_hint_dd">Grados decimales: 40,41868</string>
+    <string name="point_hint_gon">Gon: 44,90965</string>
 </resources>

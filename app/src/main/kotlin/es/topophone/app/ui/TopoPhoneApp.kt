@@ -35,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import es.topophone.app.ui.points.ObjectListRoute
 import es.topophone.app.ui.points.PointDetailsRoute
+import es.topophone.app.ui.points.PointFormRoute
 import es.topophone.app.ui.projects.ProjectFolderRoute
 import es.topophone.app.ui.projects.ProjectFormRoute
 import es.topophone.app.ui.projects.ProjectInfoRoute
@@ -96,6 +97,8 @@ fun TopoPhoneApp(
                 is SurveyPage.Folder -> ProjectFolderRoute(page.folderId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 SurveyPage.Trash -> TrashRoute(theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.Objects -> ObjectListRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
+                is SurveyPage.PointForm ->
+                    PointFormRoute(page.projectId, page.pointId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.PointDetails ->
                     PointDetailsRoute(page.projectId, page.pointId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
             }
@@ -180,6 +183,8 @@ private fun AppNavHost(
                 onOpenProjectInfo = { id -> navController.navigate(ProjectInfoDestination(id)) }, // S009/RF-5
                 onOpenObjects = { id -> navController.navigate(ObjectListDestination(id)) }, // S011/RF-1
                 onOpenPoint = { projectId, pointId -> navController.navigate(PointDestination(projectId, pointId)) }, // S011/RF-5
+                onNewPoint = { projectId -> navController.navigate(PointFormDestination(projectId)) }, // S011/RF-16
+                onEditPoint = { projectId, pointId -> navController.navigate(PointFormDestination(projectId, pointId)) }, // S011/RF-8
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onBack = { navController.popBackStack() },
@@ -215,6 +220,16 @@ private fun AppNavHost(
             composable<ObjectListDestination> { entry ->
                 val args = entry.toRoute<ObjectListDestination>()
                 surveySection(SurveyPage.Objects(args.projectId), uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
+            }
+            composable<PointFormDestination> { entry ->
+                val args = entry.toRoute<PointFormDestination>()
+                surveySection(
+                    SurveyPage.PointForm(args.projectId, args.pointId),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
             }
             composable<PointDestination> { entry ->
                 val args = entry.toRoute<PointDestination>()
