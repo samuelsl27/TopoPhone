@@ -8,7 +8,7 @@
       Hecho cuando: `UtmInverseTest` en verde frente a los CSV de S008 al revés (≤ 1e-9°) y con la ida y vuelta ≤ 0,1 mm en los husos 27 a 31.
 - [x] T3. `core:model`: `NumberInput` y `AngleInput` (DD, DMS y gon, con signo o letra de hemisferio). (RF-8, RF-17)
       Hecho cuando: `NumberInputTest` y `AngleInputTest` en verde, con los casos inválidos.
-- [ ] T4. `core:model`: `Point`, `Measurement`, `TypedCoordinates`, `PointSnapshot`, `PointHistoryEntry` y `PointSummary`; `PointNames.nextFree` y `PointSearch`. `CollectedPoint` pasa a `Point` en todo el código de S010. (RF-1 a RF-3, RF-16, RF-21)
+- [x] T4. `core:model`: `Point`, `Measurement`, `TypedCoordinates`, `PointSnapshot`, `PointHistoryEntry` y `PointSummary`; `PointNames.nextFree` y `PointSearch`. `CollectedPoint` pasa a `Point` en todo el código de S010. (RF-1 a RF-3, RF-16, RF-21)
       Hecho cuando: `PointNamesTest` y `PointSearchTest` en verde, y los tests de S010 siguen en verde.
 - [ ] T5. `core:survey`: `ProjectPositionCalculator.fromGround` y `ManualCoordinates`. (RF-17 a RF-20)
       Hecho cuando: `ManualCoordinatesTest` en verde frente a `puntos_manuales.csv` (≤ 1 mm) y los tests de S008 siguen en verde.

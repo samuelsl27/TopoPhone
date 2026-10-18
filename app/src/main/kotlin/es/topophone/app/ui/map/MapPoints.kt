@@ -2,7 +2,7 @@ package es.topophone.app.ui.map
 
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.WebMercator
-import es.topophone.core.model.point.CollectedPoint
+import es.topophone.core.model.point.Point
 
 /** Un punto del proyecto en el mapa: el punto del suelo, su nombre y si está fuera de tolerancia (S010/RF-20). */
 data class MapPoint(val id: String, val name: String, val position: GeoPoint, val outOfTolerance: Boolean)
@@ -15,8 +15,9 @@ object MapPoints {
      */
     private const val LABEL_SCALE = 2_500.0
 
-    fun from(points: List<CollectedPoint>): List<MapPoint> = points.map { point ->
-        MapPoint(point.id, point.name, GeoPoint(point.ground.latitudeDeg, point.ground.longitudeDeg), point.outOfTolerance.isNotEmpty())
+    fun from(points: List<Point>): List<MapPoint> = points.map { point ->
+        val ground = point.coordinates.ground
+        MapPoint(point.id, point.name, GeoPoint(ground.latitudeDeg, ground.longitudeDeg), point.outOfTolerance)
     }
 
     /** Zoom de 1:2.500 en la latitud media de los puntos; null sin puntos. */

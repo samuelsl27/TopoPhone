@@ -7,9 +7,11 @@ import es.topophone.app.ui.projects.ProjectViewUiState
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.WebMercator
-import es.topophone.core.model.point.CollectedPoint
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -35,22 +37,21 @@ class PointsLayerTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private fun point(name: String, lat: Double, lon: Double, failures: Set<PrecisionFailure> = emptySet()) = CollectedPoint(
+    private fun point(name: String, lat: Double, lon: Double, failures: Set<PrecisionFailure> = emptySet()) = Point.measured(
         id = "id-$name",
         projectId = "p1",
         name = name,
         description = "",
-        antenna = GeodeticPosition(lat, lon, 700.0),
-        poleHeightM = 1.8,
-        ground = GeodeticPosition(lat, lon, 698.066),
-        easting = 1.0,
-        northing = 2.0,
-        height = 650.0,
-        quality = PointQuality("FIX", 20, 0.6, 1.0, 0.01, 0.015, MeasurementMode.INSTANT, 1, 0, false),
-        rawNmea = "",
-        outOfTolerance = failures,
-        measuredFromMs = 0,
-        measuredToMs = 0,
+        measurement = Measurement(
+            antenna = GeodeticPosition(lat, lon, 700.0),
+            poleHeightM = 1.8,
+            quality = PointQuality("FIX", 20, 0.6, 1.0, 0.01, 0.015, MeasurementMode.INSTANT, 1, 0, false),
+            rawNmea = "",
+            outOfTolerance = failures,
+            measuredFromMs = 0,
+            measuredToMs = 0,
+            coordinates = PointCoordinates(GeodeticPosition(lat, lon, 698.066), 1.0, 2.0, 650.0),
+        ),
         createdAtMs = 0,
     )
 

@@ -7,9 +7,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.LengthFormat
-import es.topophone.core.model.point.CollectedPoint
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
@@ -309,17 +311,9 @@ class CollectorViewModel @Inject constructor(
     private fun save(result: MeasurementResult, failures: Set<PrecisionFailure>) {
         val projectId = projectId.value ?: return
         val name = PointNames.clean(form.value.name)
-        val point = CollectedPoint(
-            id = UUID.randomUUID().toString(),
-            projectId = projectId,
-            name = name,
-            description = form.value.description.trim(),
+        val measurement = Measurement(
             antenna = result.antenna,
             poleHeightM = result.poleHeightM,
-            ground = result.ground,
-            easting = result.position.easting,
-            northing = result.position.northing,
-            height = result.position.height,
             quality = PointQuality(
                 solution = result.solution.name,
                 satellites = result.satellites,
@@ -336,6 +330,14 @@ class CollectorViewModel @Inject constructor(
             outOfTolerance = failures,
             measuredFromMs = result.measuredFromMs,
             measuredToMs = result.measuredToMs,
+            coordinates = PointCoordinates(result.ground, result.position.easting, result.position.northing, result.position.height),
+        )
+        val point = Point.measured(
+            id = UUID.randomUUID().toString(),
+            projectId = projectId,
+            name = name,
+            description = form.value.description.trim(),
+            measurement = measurement,
             createdAtMs = System.currentTimeMillis(),
         )
         viewModelScope.launch {

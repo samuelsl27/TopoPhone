@@ -195,11 +195,12 @@ class CollectorViewModelTest {
         saved shouldBe 1
         val point = runBlocking { points.points(projectId).first() }.single()
         point.name shouldBe "1"
-        point.outOfTolerance.shouldBeEmpty()
-        point.quality.mode shouldBe MeasurementMode.INSTANT
-        point.quality.solution shouldBe SolutionStatus.FIX.name
-        point.poleHeightM shouldBe 1.8
-        point.rawNmea.lines().size shouldBe 2
+        val measurement = point.measurement.shouldNotBeNull()
+        measurement.outOfTolerance.shouldBeEmpty()
+        measurement.quality.mode shouldBe MeasurementMode.INSTANT
+        measurement.quality.solution shouldBe SolutionStatus.FIX.name
+        measurement.poleHeightM shouldBe 1.8
+        measurement.rawNmea.lines().size shouldBe 2
     }
 
     @Test
@@ -237,7 +238,7 @@ class CollectorViewModelTest {
         await(vm) { it.savedName == "1" }
 
         lost shouldBe 1
-        val quality = runBlocking { points.points(projectId).first() }.single().quality
+        val quality = runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().quality
         quality.epochsUsed shouldBe 3
         quality.epochsDiscarded shouldBe 2
         quality.mode shouldBe MeasurementMode.AVERAGED
@@ -275,7 +276,8 @@ class CollectorViewModelTest {
         vm.confirmOutOfTolerance()
 
         await(vm) { it.savedName == "1" }
-        runBlocking { points.points(projectId).first() }.single().outOfTolerance shouldBe setOf(PrecisionFailure.NOT_FIX)
+        runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().outOfTolerance shouldBe
+            setOf(PrecisionFailure.NOT_FIX)
     }
 
     @Test
@@ -352,6 +354,6 @@ class CollectorViewModelTest {
         }
 
         await(vm) { it.savedName == "1" }.error shouldBe null
-        runBlocking { points.points(projectId).first() }.single().quality.epochsUsed shouldBe 3
+        runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().quality.epochsUsed shouldBe 3
     }
 }

@@ -10,9 +10,11 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
-import es.topophone.core.model.point.CollectedPoint
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.data.db.TopoPhoneDatabase
@@ -93,9 +95,9 @@ sealed interface PointSaveResult {
 
 /** Puntos recolectados de cada proyecto (S010). */
 interface PointRepository {
-    suspend fun create(point: CollectedPoint): PointSaveResult
+    suspend fun create(point: Point): PointSaveResult
 
-    fun points(projectId: String): Flow<List<CollectedPoint>>
+    fun points(projectId: String): Flow<List<Point>>
 
     fun count(projectId: String): Flow<Int>
 
@@ -107,14 +109,14 @@ interface PointRepository {
 class RoomPointRepository(database: TopoPhoneDatabase) : PointRepository {
     private val dao = database.points()
 
-    override suspend fun create(point: CollectedPoint): PointSaveResult = try {
+    override suspend fun create(point: Point): PointSaveResult = try {
         dao.insert(point.toEntity())
         PointSaveResult.Saved
     } catch (_: SQLiteConstraintException) {
         PointSaveResult.DuplicateName // el índice único de (proyecto, nombre)
     }
 
-    override fun points(projectId: String): Flow<List<CollectedPoint>> = dao.byProject(projectId).map { list -> list.map { it.toPoint() } }
+    override fun points(projectId: String): Flow<List<Point>> = dao.byProject(projectId).map { list -> list.map { it.toPoint() } }
 
     override fun count(projectId: String): Flow<Int> = dao.count(projectId)
 
@@ -123,64 +125,64 @@ class RoomPointRepository(database: TopoPhoneDatabase) : PointRepository {
     override suspend fun nameExists(projectId: String, name: String): Boolean = dao.nameExists(projectId, name)
 }
 
-private fun CollectedPoint.toEntity() = PointEntity(
-    id = id,
-    projectId = projectId,
-    name = name,
-    description = description,
-    antennaLat = antenna.latitudeDeg,
-    antennaLon = antenna.longitudeDeg,
-    antennaH = antenna.ellipsoidalHeightM,
-    poleHeight = poleHeightM,
-    groundLat = ground.latitudeDeg,
-    groundLon = ground.longitudeDeg,
-    groundH = ground.ellipsoidalHeightM,
-    easting = easting,
-    northing = northing,
-    height = height,
-    solution = quality.solution,
-    satellites = quality.satellites,
-    hdop = quality.hdop,
-    correctionAge = quality.correctionAgeS,
-    sigmaH = quality.horizontalM,
-    sigmaV = quality.verticalM,
-    mode = quality.mode.name,
-    epochsUsed = quality.epochsUsed,
-    epochsDiscarded = quality.epochsDiscarded,
-    fromReplay = quality.fromReplay,
-    outOfTolerance = outOfTolerance.sorted().joinToString(",") { it.name },
-    rawNmea = rawNmea,
-    measuredFrom = measuredFromMs,
-    measuredTo = measuredToMs,
-    createdAt = createdAtMs,
-)
+/** Hasta la base de datos v6 (S011 T7) la tabla solo guarda puntos medidos. */
+private fun Point.toEntity(): PointEntity {
+    val measurement = checkNotNull(measurement) { "La tabla de puntos v5 solo guarda puntos medidos" }
+    return PointEntity(
+        id = id,
+        projectId = projectId,
+        name = name,
+        description = description,
+        antennaLat = measurement.antenna.latitudeDeg,
+        antennaLon = measurement.antenna.longitudeDeg,
+        antennaH = measurement.antenna.ellipsoidalHeightM,
+        poleHeight = measurement.poleHeightM,
+        groundLat = coordinates.ground.latitudeDeg,
+        groundLon = coordinates.ground.longitudeDeg,
+        groundH = coordinates.ground.ellipsoidalHeightM,
+        easting = coordinates.easting,
+        northing = coordinates.northing,
+        height = coordinates.height,
+        solution = measurement.quality.solution,
+        satellites = measurement.quality.satellites,
+        hdop = measurement.quality.hdop,
+        correctionAge = measurement.quality.correctionAgeS,
+        sigmaH = measurement.quality.horizontalM,
+        sigmaV = measurement.quality.verticalM,
+        mode = measurement.quality.mode.name,
+        epochsUsed = measurement.quality.epochsUsed,
+        epochsDiscarded = measurement.quality.epochsDiscarded,
+        fromReplay = measurement.quality.fromReplay,
+        outOfTolerance = measurement.outOfTolerance.sorted().joinToString(",") { it.name },
+        rawNmea = measurement.rawNmea,
+        measuredFrom = measurement.measuredFromMs,
+        measuredTo = measurement.measuredToMs,
+        createdAt = createdAtMs,
+    )
+}
 
-private fun PointEntity.toPoint() = CollectedPoint(
-    id = id,
-    projectId = projectId,
-    name = name,
-    description = description,
-    antenna = GeodeticPosition(antennaLat, antennaLon, antennaH),
-    poleHeightM = poleHeight,
-    ground = GeodeticPosition(groundLat, groundLon, groundH),
-    easting = easting,
-    northing = northing,
-    height = height,
-    quality = PointQuality(
-        solution = solution,
-        satellites = satellites,
-        hdop = hdop,
-        correctionAgeS = correctionAge,
-        horizontalM = sigmaH,
-        verticalM = sigmaV,
-        mode = MeasurementMode.entries.firstOrNull { it.name == mode } ?: MeasurementMode.INSTANT,
-        epochsUsed = epochsUsed,
-        epochsDiscarded = epochsDiscarded,
-        fromReplay = fromReplay,
-    ),
-    rawNmea = rawNmea,
-    outOfTolerance = outOfTolerance.split(',').mapNotNull { name -> PrecisionFailure.entries.firstOrNull { it.name == name } }.toSet(),
-    measuredFromMs = measuredFrom,
-    measuredToMs = measuredTo,
-    createdAtMs = createdAt,
-)
+private fun PointEntity.toPoint(): Point {
+    val coordinates = PointCoordinates(GeodeticPosition(groundLat, groundLon, groundH), easting, northing, height)
+    val measurement = Measurement(
+        antenna = GeodeticPosition(antennaLat, antennaLon, antennaH),
+        poleHeightM = poleHeight,
+        quality = PointQuality(
+            solution = solution,
+            satellites = satellites,
+            hdop = hdop,
+            correctionAgeS = correctionAge,
+            horizontalM = sigmaH,
+            verticalM = sigmaV,
+            mode = MeasurementMode.entries.firstOrNull { it.name == mode } ?: MeasurementMode.INSTANT,
+            epochsUsed = epochsUsed,
+            epochsDiscarded = epochsDiscarded,
+            fromReplay = fromReplay,
+        ),
+        rawNmea = rawNmea,
+        outOfTolerance = outOfTolerance.split(',').mapNotNull { name -> PrecisionFailure.entries.firstOrNull { it.name == name } }.toSet(),
+        measuredFromMs = measuredFrom,
+        measuredToMs = measuredTo,
+        coordinates = coordinates,
+    )
+    return Point.measured(id, projectId, name, description, measurement, createdAt)
+}

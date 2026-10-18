@@ -5,9 +5,11 @@ import androidx.room.Room
 import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import es.topophone.core.model.point.CollectedPoint
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.data.db.TopoPhoneDatabase
@@ -49,13 +51,22 @@ class PointsPerformanceTest {
                     val lat = 40.4 + (i % 100) * 1e-4
                     val lon = -3.7 + (i / 100) * 1e-4
                     points.create(
-                        CollectedPoint(
-                            id = "id-$i", projectId = projectId, name = "P$i", description = "",
-                            antenna = GeodeticPosition(lat, lon, 700.0), poleHeightM = 1.8, ground = GeodeticPosition(lat, lon, 698.066),
-                            easting = 440_000.0 + i, northing = 4_474_000.0 + i, height = 650.0,
-                            quality = PointQuality("FIX", 20, 0.6, 1.0, 0.01, 0.015, MeasurementMode.INSTANT, 1, 0, false),
-                            rawNmea = "\$GNGGA,$i*00\n\$GNGST,$i*00", outOfTolerance = emptySet(),
-                            measuredFromMs = i.toLong(), measuredToMs = i.toLong(), createdAtMs = i.toLong(),
+                        Point.measured(
+                            id = "id-$i",
+                            projectId = projectId,
+                            name = "P$i",
+                            description = "",
+                            measurement = Measurement(
+                                antenna = GeodeticPosition(lat, lon, 700.0),
+                                poleHeightM = 1.8,
+                                quality = PointQuality("FIX", 20, 0.6, 1.0, 0.01, 0.015, MeasurementMode.INSTANT, 1, 0, false),
+                                rawNmea = "\$GNGGA,$i*00\n\$GNGST,$i*00",
+                                outOfTolerance = emptySet(),
+                                measuredFromMs = i.toLong(),
+                                measuredToMs = i.toLong(),
+                                coordinates = PointCoordinates(GeodeticPosition(lat, lon, 698.066), 440_000.0 + i, 4_474_000.0 + i, 650.0),
+                            ),
+                            createdAtMs = i.toLong(),
                         ),
                     )
                 }

@@ -5,9 +5,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
-import es.topophone.core.model.point.CollectedPoint
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.project.ProjectDefaults
@@ -42,22 +44,26 @@ class PointRepositoryTest {
         projects.create(ProjectDefaults().toDraft().copy(name = name)).shouldBeInstanceOf<SaveResult.Saved>().id
     }
 
-    private fun point(projectId: String, name: String, createdAtMs: Long = 2_000) = CollectedPoint(
+    private fun point(projectId: String, name: String, createdAtMs: Long = 2_000) = Point.measured(
         id = "id-$name-$projectId",
         projectId = projectId,
         name = name,
         description = "arqueta",
-        antenna = GeodeticPosition(40.416_801_234_567_89, -3.703_712_345_678_9, 701.357_123_456),
-        poleHeightM = 1.8,
-        ground = GeodeticPosition(40.416_801_234_567_89, -3.703_712_345_678_9, 699.423_123_456),
-        easting = 440_290.434_567_891,
-        northing = 4_474_257.414_123_456,
-        height = 648.340_987_654,
-        quality = PointQuality("FLOAT", 18, 0.7, 2.0, 0.031, 0.052, MeasurementMode.AVERAGED, 5, 2, fromReplay = true),
-        rawNmea = "\$GNGGA,1*00\n\$GNGST,1*00",
-        outOfTolerance = setOf(PrecisionFailure.NOT_FIX, PrecisionFailure.VERTICAL),
-        measuredFromMs = 1_500,
-        measuredToMs = 1_900,
+        measurement = Measurement(
+            antenna = GeodeticPosition(40.416_801_234_567_89, -3.703_712_345_678_9, 701.357_123_456),
+            poleHeightM = 1.8,
+            quality = PointQuality("FLOAT", 18, 0.7, 2.0, 0.031, 0.052, MeasurementMode.AVERAGED, 5, 2, fromReplay = true),
+            rawNmea = "\$GNGGA,1*00\n\$GNGST,1*00",
+            outOfTolerance = setOf(PrecisionFailure.NOT_FIX, PrecisionFailure.VERTICAL),
+            measuredFromMs = 1_500,
+            measuredToMs = 1_900,
+            coordinates = PointCoordinates(
+                GeodeticPosition(40.416_801_234_567_89, -3.703_712_345_678_9, 699.423_123_456),
+                440_290.434_567_891,
+                4_474_257.414_123_456,
+                648.340_987_654,
+            ),
+        ),
         createdAtMs = createdAtMs,
     )
 

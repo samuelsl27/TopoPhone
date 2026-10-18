@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import es.topophone.app.ui.projects.MapSlot
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
-import es.topophone.core.model.point.CollectedPoint
+import es.topophone.core.model.point.Point
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.map.MapViewportRepository
@@ -93,15 +93,15 @@ class FakeMapViewportRepository : MapViewportRepository {
 }
 
 /** Puntos en memoria (S010). */
-class FakePointRepository(initial: List<CollectedPoint> = emptyList()) : PointRepository {
+class FakePointRepository(initial: List<Point> = emptyList()) : PointRepository {
     val points = MutableStateFlow(initial)
 
-    override suspend fun create(point: CollectedPoint): PointSaveResult {
+    override suspend fun create(point: Point): PointSaveResult {
         points.value = points.value + point
         return PointSaveResult.Saved
     }
 
-    override fun points(projectId: String): Flow<List<CollectedPoint>> = points.map { list -> list.filter { it.projectId == projectId } }
+    override fun points(projectId: String): Flow<List<Point>> = points.map { list -> list.filter { it.projectId == projectId } }
 
     override fun count(projectId: String): Flow<Int> = points(projectId).map { it.size }
 

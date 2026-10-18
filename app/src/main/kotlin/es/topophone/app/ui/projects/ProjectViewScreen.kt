@@ -93,7 +93,7 @@ import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.map.ScaleBar
-import es.topophone.core.model.point.CollectedPoint
+import es.topophone.core.model.point.Point
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.HeightSystem
@@ -175,7 +175,7 @@ data class ProjectViewUiState(
     /** Fallan las descargas del mapa por falta de conexión (S009/RF-15). */
     val mapOffline: Boolean = false,
     /** Puntos del proyecto (S010/RF-20, RF-21). */
-    val points: List<CollectedPoint> = emptyList(),
+    val points: List<Point> = emptyList(),
 )
 
 /** El rover: posición de la GGA tal cual, su solución y la precisión horizontal de la GST (S009/RF-16, RF-17). */
