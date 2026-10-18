@@ -409,4 +409,11 @@
     <string name="map_panel_more">Más datos</string>
     <string name="map_panel_less">Menos datos</string>
     <string name="map_accuracy_h">Precisión H</string>
+    <string name="map_layers">Capas</string>
+    <string name="map_basemap">Mapa base</string>
+    <string name="map_basemap_ign">Mapa IGN</string>
+    <string name="map_basemap_osm">Mapa OpenStreetMap</string>
+    <string name="map_basemap_pnoa">Ortofoto PNOA</string>
+    <string name="map_basemap_none">Ninguno</string>
+    <string name="map_cadastre">Catastro</string>
 </resources>

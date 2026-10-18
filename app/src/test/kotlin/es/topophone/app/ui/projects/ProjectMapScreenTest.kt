@@ -14,6 +14,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakeMapController
+import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.map.fakeMap
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
@@ -196,7 +197,10 @@ class ProjectMapScreenTest {
             toApp.write(nmea("GNGGA,101530.00,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
             toApp.write(nmea("GNGST,101530.00,0.012,0.010,0.007,45.0,0.008,0.006,0.015").toByteArray())
             toApp.flush()
-            val vm = ProjectViewModel(repository, session, FakePreferences(), { ProjectPositionCalculator() }, samplePeriodMs = 0)
+            val vm =
+                ProjectViewModel(repository, session, FakePreferences(), {
+                    ProjectPositionCalculator()
+                }, FakeMapPreferences(), samplePeriodMs = 0)
             vm.start(id)
 
             val state = runBlocking {

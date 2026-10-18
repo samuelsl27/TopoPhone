@@ -51,14 +51,14 @@ object MapHttpClient {
 @Singleton
 class MapEnvironment @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    @param:MapHttp private val client: OkHttpClient,
+    @param:MapHttp val httpClient: OkHttpClient,
 ) {
     private var initialized = false
 
     fun ensureInitialized() {
         if (initialized) return
         MapLibre.getInstance(context)
-        HttpRequestUtil.setOkHttpClient(client)
+        HttpRequestUtil.setOkHttpClient(httpClient)
         initialized = true
     }
 }
@@ -99,5 +99,5 @@ fun MapLibreMap(environment: MapEnvironment, onReady: (MapController) -> Unit, m
     }
     val description = stringResource(R.string.map_description)
     AndroidView(factory = { mapView }, modifier = modifier.semantics { contentDescription = description })
-    LaunchedEffect(mapView) { mapView.getMapAsync { map -> onReady(MapLibreMapController(map)) } }
+    LaunchedEffect(mapView) { mapView.getMapAsync { map -> onReady(MapLibreMapController(map, mapView, environment.httpClient)) } }
 }

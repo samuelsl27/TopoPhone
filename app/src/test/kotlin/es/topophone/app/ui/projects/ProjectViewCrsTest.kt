@@ -13,6 +13,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
+import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.app.ui.text
@@ -255,7 +256,7 @@ class ProjectViewCrsTest {
             session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
             toApp.write(nmea("GNGGA,101530.00,2827.8160000,N,01615.1080000,W,4,24,0.6,30.123,M,40.234,M,1.0,0001").toByteArray())
             toApp.flush()
-            val vm = ProjectViewModel(repository, session, FakePreferences(), { CALCULATOR }, samplePeriodMs = 0)
+            val vm = ProjectViewModel(repository, session, FakePreferences(), { CALCULATOR }, FakeMapPreferences(), samplePeriodMs = 0)
             vm.start(id)
 
             val state = runBlocking {

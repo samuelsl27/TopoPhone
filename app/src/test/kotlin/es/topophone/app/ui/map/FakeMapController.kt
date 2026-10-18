@@ -5,6 +5,8 @@ import androidx.compose.runtime.LaunchedEffect
 import es.topophone.app.ui.projects.MapSlot
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.project.LinearUnit
+import es.topophone.data.map.MapPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /** Doble de [MapController] para los tests de la interfaz: MapLibre no funciona en Robolectric (código nativo). */
 class FakeMapController : MapController {
@@ -24,4 +26,13 @@ class FakeMapController : MapController {
 fun fakeMap(controller: FakeMapController): MapSlot = { modifier, onReady ->
     Box(modifier)
     LaunchedEffect(Unit) { onReady(controller) }
+}
+
+/** Preferencias del mapa en memoria (S009/RF-8). */
+class FakeMapPreferences(initial: MapSettings = MapSettings()) : MapPreferences {
+    override val settings = MutableStateFlow(initial)
+
+    override suspend fun save(settings: MapSettings) {
+        this.settings.value = settings
+    }
 }

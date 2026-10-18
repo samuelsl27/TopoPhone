@@ -10,13 +10,19 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -53,6 +60,7 @@ import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.FactorFormat
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CrsArea
@@ -62,6 +70,7 @@ import es.topophone.core.model.project.Project
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.map.MapPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.session.ConnectionState
@@ -99,6 +108,10 @@ const val SCALE_FACTOR_TAG = "position_scale_factor"
 const val CONVERGENCE_TAG = "position_convergence"
 const val COMBINED_FACTOR_TAG = "position_combined_factor"
 const val OTHER_ZONE_TAG = "position_other_zone"
+const val LAYERS_BUTTON_TAG = "map_layers"
+const val CADASTRE_SWITCH_TAG = "map_cadastre"
+
+fun basemapOptionTag(basemap: Basemap) = "map_basemap_${basemap.name}"
 
 /** Hueco del mapa en la vista de proyecto: recibe su modificador y avisa cuando el mapa está listo (ADR-9). */
 typealias MapSlot = @Composable (Modifier, (MapController) -> Unit) -> Unit
@@ -125,6 +138,7 @@ class ProjectViewModel @Inject constructor(
     session: ReceiverSession,
     preferences: ReceiverPreferences,
     calculator: Lazy<ProjectPositionCalculator>,
+    private val mapPreferences: MapPreferences,
     @param:Named(ReceiverViewModel.UI_SAMPLE_MS) samplePeriodMs: Long,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
@@ -138,17 +152,21 @@ class ProjectViewModel @Inject constructor(
         }
         .distinctUntilChanged()
 
-    val state: StateFlow<ProjectViewUiState> = combine(project, fixes, preferences.poleHeightM) { project, fix, pole ->
+    val state: StateFlow<ProjectViewUiState> = combine(project, fixes, preferences.poleHeightM, mapPreferences.settings) {
+            project,
+            fix,
+            pole,
+            map,
+        ->
         // Con el SC del proyecto: si se cambia, la posición se recalcula en el nuevo (S006/RF-15).
-        val position = if (project != null &&
-            fix != null
-        ) {
-            calculator.get().compute(fix.gga, pole, project.crs, project.heightSystem)
-        } else {
-            null
-        }
-        ProjectViewUiState(project, position, accuracyM = fix?.accuracyM)
+        val position = fix?.let { project?.let { p -> calculator.get().compute(it.gga, pole, p.crs, p.heightSystem) } }
+        ProjectViewUiState(project, position, accuracyM = fix?.accuracyM, mapSettings = map)
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
+
+    /** Mapa base y Catastro, para todos los proyectos (S009/RF-8). */
+    fun setMapSettings(settings: MapSettings) {
+        viewModelScope.launch { mapPreferences.save(settings) }
+    }
 
     fun start(id: String) {
         if (projectId.value != null) return
@@ -183,6 +201,7 @@ fun ProjectViewRoute(
         navigation.onBack,
         navigation.onEditProject,
         navigation.onOpenProjectInfo,
+        viewModel::setMapSettings,
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
     )
 }
@@ -196,10 +215,12 @@ fun ProjectViewScreen(
     onBack: () -> Unit,
     onEdit: (String) -> Unit = {},
     onInfo: (String) -> Unit = {},
+    onMapSettings: (MapSettings) -> Unit = {},
     map: MapSlot = { _, _ -> },
 ) {
     val project = state.project
     var controller by remember { mutableStateOf<MapController?>(null) }
+    var layersOpen by rememberSaveable { mutableStateOf(false) }
     SectionScaffold(
         title = project?.name.orEmpty(),
         themeState = themeState,
@@ -218,13 +239,58 @@ fun ProjectViewScreen(
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize().testTag(PROJECT_VIEW_TAG)) {
             map(Modifier.fillMaxSize().testTag(PROJECT_MAP_TAG)) { controller = it }
+            FilledTonalIconButton(
+                onClick = { layersOpen = true },
+                modifier = Modifier.align(Alignment.TopEnd).padding(12.dp).size(MinTouchTarget).testTag(LAYERS_BUTTON_TAG),
+            ) {
+                Icon(painterResource(R.drawable.ic_layers), contentDescription = stringResource(R.string.map_layers))
+            } // S009/RF-6, RF-7
             if (project != null) {
                 PositionPanel(project, state.position, state.accuracyM, Modifier.align(Alignment.BottomCenter))
             }
         }
     }
     BindMap(controller, state)
+    if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
 }
+
+/** Hoja "Capas": mapa base y Catastro (S009/RF-6, RF-7). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LayersSheet(settings: MapSettings, onChange: (MapSettings) -> Unit, onDismiss: () -> Unit) {
+    // Es corta: se abre entera.
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            ChoiceGroup(stringResource(R.string.map_basemap), Basemap.entries, settings.basemap, ::basemapOptionTag, { basemapLabel(it) }) {
+                onChange(settings.copy(basemap = it))
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = MinTouchTarget)
+                    .toggleable(value = settings.cadastre, role = Role.Switch, onValueChange = { onChange(settings.copy(cadastre = it)) })
+                    .testTag(CADASTRE_SWITCH_TAG),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(stringResource(R.string.map_cadastre), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                Switch(checked = settings.cadastre, onCheckedChange = null)
+            }
+        }
+    }
+}
+
+@Composable
+private fun basemapLabel(basemap: Basemap): String = stringResource(
+    when (basemap) {
+        Basemap.IGN_VECTOR -> R.string.map_basemap_ign
+        Basemap.OSM_VECTOR -> R.string.map_basemap_osm
+        Basemap.PNOA_ORTHOPHOTO -> R.string.map_basemap_pnoa
+        Basemap.NONE -> R.string.map_basemap_none
+    },
+)
 
 /** Lleva al mapa sus ajustes y la unidad del proyecto (S009/RF-6, RF-10). */
 @Composable

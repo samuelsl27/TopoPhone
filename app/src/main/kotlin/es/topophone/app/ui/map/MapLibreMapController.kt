@@ -1,43 +1,73 @@
 package es.topophone.app.ui.map
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Handler
+import android.os.Looper
 import es.topophone.core.geodesy.MapGrid
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.ScaleBar
 import es.topophone.core.model.project.LinearUnit
+import java.io.IOException
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.geometry.LatLngQuad
 import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
 import org.maplibre.android.style.layers.BackgroundLayer
 import org.maplibre.android.style.layers.LineLayer
 import org.maplibre.android.style.layers.PropertyFactory
+import org.maplibre.android.style.layers.RasterLayer
 import org.maplibre.android.style.sources.GeoJsonSource
+import org.maplibre.android.style.sources.ImageSource
 import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.LineString
 import org.maplibre.geojson.Point
 
 /** [MapController] sobre MapLibre (ADR-9). */
-internal class MapLibreMapController(private val map: MapLibreMap) : MapController {
+internal class MapLibreMapController(private val map: MapLibreMap, private val mapView: MapView, private val client: OkHttpClient) :
+    MapController {
     private var settings: MapSettings? = null
     private var unit = LinearUnit.METRE
+    private val handler = Handler(Looper.getMainLooper())
+    private var cadastreCall: Call? = null
+    private val requestCadastre = Runnable { loadCadastre() }
 
     init {
         // S009/RF-11: norte arriba; el mapa no gira ni se inclina.
         map.uiSettings.isRotateGesturesEnabled = false
         map.uiSettings.isTiltGesturesEnabled = false
-        map.addOnCameraIdleListener { updateGrid() }
+        map.addOnCameraIdleListener {
+            updateGrid()
+            scheduleCadastre(CADASTRE_DELAY_MS)
+        }
     }
 
     override fun setSettings(settings: MapSettings) {
-        if (settings == this.settings) return
+        val previous = this.settings
+        if (settings == previous) return
         this.settings = settings
-        val builder = when (val style = MapStyles.style(settings.basemap)) {
-            is BasemapStyle.Remote -> Style.Builder().fromUri(style.url)
-            is BasemapStyle.Local -> Style.Builder().fromJson(style.json)
-        }
-        map.setStyle(builder) { style ->
-            addBackground(style)
-            updateGrid()
+        if (settings.basemap != previous?.basemap) {
+            val builder = when (val style = MapStyles.style(settings.basemap)) {
+                is BasemapStyle.Remote -> Style.Builder().fromUri(style.url)
+                is BasemapStyle.Local -> Style.Builder().fromJson(style.json)
+            }
+            map.setStyle(builder) { style ->
+                addBackground(style)
+                updateGrid()
+                scheduleCadastre(0)
+            }
+        } else if (settings.cadastre) {
+            scheduleCadastre(0)
+        } else {
+            removeCadastre()
         }
     }
 
@@ -90,9 +120,75 @@ internal class MapLibreMapController(private val map: MapLibreMap) : MapControll
         source.setGeoJson(FeatureCollection.fromFeatures(features))
     }
 
+    /** S009/RF-7: el Catastro se pide cuando el mapa se detiene, y solo la última petición cuenta. */
+    private fun scheduleCadastre(delayMs: Long) {
+        handler.removeCallbacks(requestCadastre)
+        if (settings?.cadastre == true) handler.postDelayed(requestCadastre, delayMs)
+    }
+
+    private fun loadCadastre() {
+        cadastreCall?.cancel()
+        if (map.style?.isFullyLoaded != true || mapView.width <= 0 || mapView.height <= 0) return
+        val bounds = map.projection.visibleRegion.latLngBounds
+        val url = CadastreRequest.url(
+            bounds.latitudeSouth,
+            bounds.longitudeWest,
+            bounds.latitudeNorth,
+            bounds.longitudeEast,
+            mapView.width,
+            mapView.height,
+        )
+        // El mapa no gira ni se inclina: el encuadre es un rectángulo norte-sur.
+        val quad = LatLngQuad(
+            LatLng(bounds.latitudeNorth, bounds.longitudeWest),
+            LatLng(bounds.latitudeNorth, bounds.longitudeEast),
+            LatLng(bounds.latitudeSouth, bounds.longitudeEast),
+            LatLng(bounds.latitudeSouth, bounds.longitudeWest),
+        )
+        val call = client.newCall(Request.Builder().url(url).build())
+        cadastreCall = call
+        call.enqueue(
+            object : Callback {
+                // Sin red no hay Catastro; el aviso lo da el mapa (S009/RF-15).
+                override fun onFailure(call: Call, e: IOException) = Unit
+
+                override fun onResponse(call: Call, response: Response) {
+                    val bitmap = response.use { if (it.isSuccessful) it.body?.byteStream()?.let(BitmapFactory::decodeStream) else null }
+                    if (bitmap != null) handler.post { if (cadastreCall === call && settings?.cadastre == true) showCadastre(quad, bitmap) }
+                }
+            },
+        )
+    }
+
+    private fun showCadastre(quad: LatLngQuad, bitmap: Bitmap) {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val source = style.getSourceAs<ImageSource>(CADASTRE_SOURCE)
+        if (source == null) {
+            style.addSource(ImageSource(CADASTRE_SOURCE, quad, bitmap))
+            style.addLayer(RasterLayer(CADASTRE_LAYER, CADASTRE_SOURCE))
+        } else {
+            source.setCoordinates(quad)
+            source.setImage(bitmap)
+        }
+    }
+
+    private fun removeCadastre() {
+        handler.removeCallbacks(requestCadastre)
+        cadastreCall?.cancel()
+        cadastreCall = null
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        style.removeLayer(CADASTRE_LAYER)
+        style.removeSource(CADASTRE_SOURCE)
+    }
+
     private companion object {
         const val BACKGROUND_LAYER = "topophone-background"
         const val GRID_SOURCE = "topophone-grid"
         const val GRID_LAYER = "topophone-grid"
+        const val CADASTRE_SOURCE = "topophone-cadastre"
+        const val CADASTRE_LAYER = "topophone-cadastre"
+
+        /** Espera tras detenerse el mapa antes de pedir el Catastro. */
+        const val CADASTRE_DELAY_MS = 500L
     }
 }
