@@ -116,4 +116,20 @@ class PointsLayerTest {
 
         map.points shouldBe listOf(MapPoint("id-P1", "P1", GeoPoint(40.4168, -3.7037), outOfTolerance = false))
     }
+
+    @Test
+    fun `S011 RF-4 la vista de proyecto no lleva al mapa los puntos ocultos`() {
+        val map = FakeMapController()
+        val visible = point("P1", 40.4168, -3.7037).summary()
+        val hidden = point("P2", 40.4169, -3.7036).copy(hidden = true).summary()
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ProjectViewScreen(ThemeState.DEFAULT, {
+                }, ProjectViewUiState(project, points = listOf(visible, hidden)), onBack = {}, map = fakeMap(map))
+            }
+        }
+        compose.waitForIdle()
+
+        map.points.map { it.name } shouldBe listOf("P1")
+    }
 }

@@ -11,6 +11,7 @@ import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
+import es.topophone.core.model.point.PointSearch
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.point.RoomPointRepository
@@ -42,8 +43,7 @@ class PointsPerformanceTest {
     @After
     fun close() = db.close()
 
-    @Test
-    fun `S010 RNF con 10 000 puntos el proyecto se lee y se prepara para el mapa en menos de 2 s`() {
+    private fun tenThousandPoints(): String {
         val projectId = runBlocking { (projects.create(ProjectDefaults().toDraft().copy(name = "Parcelaria")) as SaveResult.Saved).id }
         runBlocking {
             db.withTransaction {
@@ -72,6 +72,12 @@ class PointsPerformanceTest {
                 }
             }
         }
+        return projectId
+    }
+
+    @Test
+    fun `S010 RNF con 10 000 puntos el proyecto se lee y se prepara para el mapa en menos de 2 s`() {
+        val projectId = tenThousandPoints()
 
         val (mapPoints, elapsed) = measureTimedValue {
             val list = runBlocking { points.summaries(projectId).first() }
@@ -80,6 +86,20 @@ class PointsPerformanceTest {
 
         mapPoints.size shouldBe POINTS
         elapsed.inWholeMilliseconds shouldBeLessThan 2_000
+    }
+
+    @Test
+    fun `S011 RNF con 10 000 puntos la lista se lee y la busqueda filtra en menos de 1 s`() {
+        val projectId = tenThousandPoints()
+
+        val (found, elapsed) = measureTimedValue {
+            val summaries = runBlocking { points.summaries(projectId).first() }
+            summaries.size shouldBe POINTS
+            summaries.filter { PointSearch.matches(it, "p99") }
+        }
+
+        found.map { it.name }.toSet() shouldBe setOf("P99") + (990..999).map { "P$it" } + (9900..9999).map { "P$it" }
+        elapsed.inWholeMilliseconds shouldBeLessThan 1_000
     }
 
     private companion object {

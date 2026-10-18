@@ -248,4 +248,15 @@ class PointRepositoryEditTest {
 
         runBlocking { points.summaries(project).first() }.map { it.name } shouldContainExactly listOf("1")
     }
+
+    @Test
+    fun `S011 RF-4 y RF-22 un punto oculto sigue contando en los datos del proyecto y uno de la papelera no`() {
+        save(measured("1"), measured("2"), measured("3"))
+
+        runBlocking { points.setHidden(listOf("id-1"), hidden = true) }
+        runBlocking { points.moveToTrash(listOf("id-2")) }
+
+        runBlocking { points.count(project).first() } shouldBe 2
+        runBlocking { points.summaries(project).first() }.map { it.name }.toSet() shouldBe setOf("1", "3")
+    }
 }

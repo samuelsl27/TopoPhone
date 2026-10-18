@@ -30,7 +30,7 @@
       Hecho cuando: `PointFormViewModelTest` y `PointFormScreenTest` en verde.
 - [x] T14. `app`: papelera de puntos (lista con días, restaurar, nombre ocupado, borrar definitivamente). (RF-23 a RF-26)
       Hecho cuando: `PointTrashViewModelTest` y `PointTrashScreenTest` en verde.
-- [ ] T15. Rendimiento: 10 000 resúmenes leídos y filtrados en menos de 1 s; puntos ocultos y de la papelera fuera del mapa y del recuento. (RF-4, RF-22, RNF)
+- [x] T15. Rendimiento: 10 000 resúmenes leídos y filtrados en menos de 1 s; puntos ocultos y de la papelera fuera del mapa y del recuento. (RF-4, RF-22, RNF)
       Hecho cuando: el test de rendimiento y los de recuento y mapa en verde.
 - [ ] T16. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
