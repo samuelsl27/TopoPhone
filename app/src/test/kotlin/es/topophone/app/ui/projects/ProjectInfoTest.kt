@@ -11,6 +11,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
+import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -67,10 +68,26 @@ class ProjectInfoTest {
         deletedAtMs = null,
     )
 
-    private fun show(project: Project) {
+    private fun show(project: Project, pointCount: Int = 0) {
         compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { ProjectInfoScreen(ThemeState.DEFAULT, {}, ProjectInfoUiState(project), onBack = {}) }
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ProjectInfoScreen(ThemeState.DEFAULT, {}, ProjectInfoUiState(project, pointCount), onBack = {})
+            }
         }
+    }
+
+    @Test
+    fun `S010 RF-21 con puntos los datos del proyecto dicen cuantos tiene`() {
+        show(project, pointCount = 3)
+
+        compose.onNodeWithTag(NO_POINTS_TAG).performScrollTo().assert(hasText("3 puntos"))
+    }
+
+    @Test
+    fun `S010 RF-21 con un punto se dice en singular`() {
+        show(project, pointCount = 1)
+
+        compose.onNodeWithTag(NO_POINTS_TAG).performScrollTo().assert(hasText("1 punto"))
     }
 
     @Test
@@ -120,7 +137,7 @@ class ProjectInfoTest {
         try {
             val repository = RoomProjectRepository(db)
             val id = runBlocking { (repository.create(ProjectDefaults().toDraft().copy(name = "Muralla")) as SaveResult.Saved).id }
-            val vm = ProjectInfoViewModel(repository)
+            val vm = ProjectInfoViewModel(repository, FakePointRepository())
 
             vm.start(id)
 

@@ -5,12 +5,16 @@ import androidx.compose.runtime.LaunchedEffect
 import es.topophone.app.ui.projects.MapSlot
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
+import es.topophone.core.model.point.CollectedPoint
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.map.MapViewportRepository
+import es.topophone.data.point.PointRepository
+import es.topophone.data.point.PointSaveResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 
 /** Doble de [MapController] para los tests de la interfaz: MapLibre no funciona en Robolectric (código nativo). */
 class FakeMapController : MapController {
@@ -19,6 +23,7 @@ class FakeMapController : MapController {
     override val camera = MutableStateFlow<MapCamera?>(null)
     var rover: RoverMarker? = null
     var roverCalls = 0
+    var points: List<MapPoint> = emptyList()
     val moves = mutableListOf<MapViewport>()
     var spainShown = false
     private val gestures = MutableSharedFlow<Unit>(extraBufferCapacity = 8)
@@ -40,6 +45,10 @@ class FakeMapController : MapController {
     override fun showRover(marker: RoverMarker?) {
         rover = marker
         roverCalls++
+    }
+
+    override fun showPoints(points: List<MapPoint>) {
+        this.points = points
     }
 
     override fun moveTo(viewport: MapViewport) {
@@ -75,5 +84,26 @@ class FakeMapViewportRepository : MapViewportRepository {
 
     override suspend fun save(projectId: String, viewport: MapViewport) {
         saved[projectId] = viewport
+    }
+}
+
+/** Puntos en memoria (S010). */
+class FakePointRepository(initial: List<CollectedPoint> = emptyList()) : PointRepository {
+    val points = MutableStateFlow(initial)
+
+    override suspend fun create(point: CollectedPoint): PointSaveResult {
+        points.value = points.value + point
+        return PointSaveResult.Saved
+    }
+
+    override fun points(projectId: String): Flow<List<CollectedPoint>> = points.map { list -> list.filter { it.projectId == projectId } }
+
+    override fun count(projectId: String): Flow<Int> = points(projectId).map { it.size }
+
+    override suspend fun lastName(projectId: String): String? = points.value.lastOrNull { it.projectId == projectId }?.name
+
+    override suspend fun nameExists(projectId: String, name: String): Boolean = points.value.any {
+        it.projectId == projectId &&
+            it.name == name
     }
 }

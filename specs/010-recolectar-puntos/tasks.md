@@ -16,7 +16,7 @@
       Hecho cuando: `CollectorPanelTest` en verde.
 - [x] T7. `app`: diálogos de ajustes del control de precisión y de fuera de tolerancia. (RF-13, RF-14, RF-15)
       Hecho cuando: `CollectorDialogsTest` en verde.
-- [ ] T8. `app`: puntos en el mapa con su nombre y número de puntos en los datos del proyecto; glifos del IGN en los estilos locales. (RF-20, RF-21)
+- [x] T8. `app`: puntos en el mapa con su nombre y número de puntos en los datos del proyecto; glifos del IGN en los estilos locales. (RF-20, RF-21)
       Hecho cuando: `PointsLayerTest`, `MapStylesTest` y `ProjectInfoTest` en verde.
 - [ ] T9. Rendimiento: 10 000 puntos leídos y preparados para el mapa en menos de 2 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.

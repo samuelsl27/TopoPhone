@@ -458,4 +458,8 @@
     <string name="out_of_tolerance_no_accuracy">Sin precisión del receptor</string>
     <string name="out_of_tolerance_save">Guardar fuera de tolerancia</string>
     <string name="out_of_tolerance_discard">Descartar</string>
+    <plurals name="project_points_count">
+        <item quantity="one">%1$d punto</item>
+        <item quantity="other">%1$d puntos</item>
+    </plurals>
 </resources>

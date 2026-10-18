@@ -21,6 +21,9 @@ interface MapController {
     /** El rover y su círculo de precisión, o nada sin posición reciente (S009/RF-16 a RF-18). */
     fun showRover(marker: RoverMarker?)
 
+    /** Puntos del proyecto con su nombre (S010/RF-20). */
+    fun showPoints(points: List<MapPoint>)
+
     /** Lleva el mapa a un encuadre (S009/RF-19, RF-21). */
     fun moveTo(viewport: MapViewport)
 

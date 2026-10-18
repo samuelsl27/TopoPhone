@@ -31,12 +31,15 @@ import org.maplibre.android.gestures.MoveGestureDetector
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
+import org.maplibre.android.style.expressions.Expression
 import org.maplibre.android.style.layers.BackgroundLayer
 import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.FillLayer
 import org.maplibre.android.style.layers.LineLayer
+import org.maplibre.android.style.layers.Property
 import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.layers.RasterLayer
+import org.maplibre.android.style.layers.SymbolLayer
 import org.maplibre.android.style.sources.GeoJsonSource
 import org.maplibre.android.style.sources.ImageSource
 import org.maplibre.geojson.Feature
@@ -54,6 +57,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private var cadastreCall: Call? = null
     private val requestCadastre = Runnable { loadCadastre() }
     private var rover: RoverMarker? = null
+    private var points: List<MapPoint> = emptyList()
     private val cameraFlow = MutableStateFlow<MapCamera?>(null)
     override val camera: StateFlow<MapCamera?> = cameraFlow
     private val gestures = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -102,7 +106,9 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             }
             map.setStyle(builder) { style ->
                 addBackground(style)
+                addPointLayers(style)
                 addRoverLayers(style)
+                drawPoints()
                 drawRover()
                 updateGrid()
                 scheduleCadastre(0)
@@ -121,6 +127,54 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     override fun showSpain() {
         val spain = LatLngBounds.from(CameraPolicy.SPAIN_NORTH, CameraPolicy.SPAIN_EAST, CameraPolicy.SPAIN_SOUTH, CameraPolicy.SPAIN_WEST)
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(spain, SPAIN_PADDING_PX))
+    }
+
+    override fun showPoints(points: List<MapPoint>) {
+        this.points = points
+        drawPoints()
+    }
+
+    /** Puntos y sus nombres, encima del Catastro y debajo del rover (S010/RF-20). */
+    private fun addPointLayers(style: Style) {
+        style.addSource(GeoJsonSource(POINTS_SOURCE))
+        style.addLayer(
+            CircleLayer(POINTS_LAYER, POINTS_SOURCE).withProperties(
+                PropertyFactory.circleRadius(POINT_RADIUS_DP),
+                PropertyFactory.circleColor(
+                    Expression.switchCase(
+                        Expression.get(OUT_OF_TOLERANCE),
+                        Expression.color(Color.parseColor(OUT_OF_TOLERANCE_COLOR)),
+                        Expression.color(Color.parseColor(POINT_COLOR)),
+                    ),
+                ),
+                PropertyFactory.circleStrokeColor(Color.WHITE),
+                PropertyFactory.circleStrokeWidth(1.5f),
+            ),
+        )
+        style.addLayer(
+            SymbolLayer(POINT_LABELS_LAYER, POINTS_SOURCE).withProperties(
+                PropertyFactory.textField(Expression.get(NAME)),
+                PropertyFactory.textFont(arrayOf(MapStyles.LABEL_FONT)),
+                PropertyFactory.textSize(LABEL_SIZE_SP),
+                PropertyFactory.textAnchor(Property.TEXT_ANCHOR_TOP),
+                PropertyFactory.textOffset(arrayOf(0f, 0.8f)),
+                PropertyFactory.textHaloColor(Color.WHITE),
+                PropertyFactory.textHaloWidth(1.5f),
+            ),
+        )
+    }
+
+    private fun drawPoints() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val source = style.getSourceAs<GeoJsonSource>(POINTS_SOURCE) ?: return
+        val features = points.map { point ->
+            Feature.fromGeometry(Point.fromLngLat(point.position.longitudeDeg, point.position.latitudeDeg)).apply {
+                addStringProperty(NAME, point.name)
+                addBooleanProperty(OUT_OF_TOLERANCE, point.outOfTolerance)
+            }
+        }
+        source.setGeoJson(FeatureCollection.fromFeatures(features))
+        MapPoints.labelMinZoom(points)?.let { style.getLayer(POINT_LABELS_LAYER)?.minZoom = it.toFloat() }
     }
 
     override fun showRover(marker: RoverMarker?) {
@@ -259,8 +313,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         val source = style.getSourceAs<ImageSource>(CADASTRE_SOURCE)
         if (source == null) {
             style.addSource(ImageSource(CADASTRE_SOURCE, quad, bitmap))
-            // Debajo del rover y su círculo.
-            style.addLayerBelow(RasterLayer(CADASTRE_LAYER, CADASTRE_SOURCE), ACCURACY_FILL_LAYER)
+            // Debajo de los puntos, el rover y su círculo.
+            style.addLayerBelow(RasterLayer(CADASTRE_LAYER, CADASTRE_SOURCE), POINTS_LAYER)
         } else {
             source.setCoordinates(quad)
             source.setImage(bitmap)
@@ -282,6 +336,15 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val GRID_LAYER = "topophone-grid"
         const val CADASTRE_SOURCE = "topophone-cadastre"
         const val CADASTRE_LAYER = "topophone-cadastre"
+        const val POINTS_SOURCE = "topophone-points"
+        const val POINTS_LAYER = "topophone-points"
+        const val POINT_LABELS_LAYER = "topophone-point-labels"
+        const val NAME = "name"
+        const val OUT_OF_TOLERANCE = "outOfTolerance"
+        const val POINT_COLOR = "#1565C0"
+        const val OUT_OF_TOLERANCE_COLOR = "#E65100"
+        const val POINT_RADIUS_DP = 5f
+        const val LABEL_SIZE_SP = 12f
         const val ACCURACY_SOURCE = "topophone-accuracy"
         const val ACCURACY_FILL_LAYER = "topophone-accuracy-fill"
         const val ACCURACY_LINE_LAYER = "topophone-accuracy-line"

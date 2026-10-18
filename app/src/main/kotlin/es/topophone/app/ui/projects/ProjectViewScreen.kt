@@ -71,6 +71,7 @@ import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.MapController
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
+import es.topophone.app.ui.map.MapPoints
 import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
@@ -90,6 +91,7 @@ import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.map.ScaleBar
+import es.topophone.core.model.point.CollectedPoint
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.HeightSystem
@@ -100,6 +102,7 @@ import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.map.MapViewportRepository
+import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.session.ConnectionState
@@ -169,6 +172,8 @@ data class ProjectViewUiState(
     val viewportLoaded: Boolean = false,
     /** Fallan las descargas del mapa por falta de conexión (S009/RF-15). */
     val mapOffline: Boolean = false,
+    /** Puntos del proyecto (S010/RF-20, RF-21). */
+    val points: List<CollectedPoint> = emptyList(),
 )
 
 /** El rover: posición de la GGA tal cual, su solución y la precisión horizontal de la GST (S009/RF-16, RF-17). */
@@ -188,6 +193,7 @@ class ProjectViewModel @Inject constructor(
     private val mapPreferences: MapPreferences,
     private val viewports: MapViewportRepository,
     networkMonitor: NetworkFailureMonitor,
+    points: PointRepository,
     @param:Named(ReceiverViewModel.UI_SAMPLE_MS) samplePeriodMs: Long,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
@@ -233,6 +239,9 @@ class ProjectViewModel @Inject constructor(
             viewport != null,
         )
     }.combine(networkMonitor.offline) { state, offline -> state.copy(mapOffline = offline) }
+        .combine(projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else points.points(id) }) { state, list ->
+            state.copy(points = list)
+        }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
@@ -539,6 +548,7 @@ private fun BindMap(controller: MapController?, state: ProjectViewUiState) {
     val palette = LocalStatusPalette.current
     val marker = state.rover?.let { RoverMarker(it.position, it.accuracyM, palette.colorsFor(it.solution.tone()).container.toArgb()) }
     LaunchedEffect(controller, marker) { controller?.showRover(marker) }
+    LaunchedEffect(controller, state.points) { controller?.showPoints(MapPoints.from(state.points)) } // S010/RF-20
     LaunchedEffect(controller, state.mapSettings) { controller?.setSettings(state.mapSettings) }
     LaunchedEffect(controller, unit) { if (unit != null) controller?.setLinearUnit(unit) }
 }

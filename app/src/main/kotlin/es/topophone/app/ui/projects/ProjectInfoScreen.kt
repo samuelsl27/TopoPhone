@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -27,32 +28,40 @@ import es.topophone.app.ui.SectionScaffold
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.DatumCheck
 import es.topophone.core.model.project.Project
+import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 const val PROJECT_INFO_TAG = "project_info"
 const val NO_POINTS_TAG = "project_no_points"
 
 /** Lo que muestran los datos del proyecto (S009/RF-5). */
-data class ProjectInfoUiState(val project: Project? = null)
+data class ProjectInfoUiState(val project: Project? = null, val pointCount: Int = 0)
 
 /** El proyecto cuyos datos se ven, al día si se edita (S009/RF-5). */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ProjectInfoViewModel @Inject constructor(repository: ProjectRepository) : ViewModel() {
+class ProjectInfoViewModel @Inject constructor(repository: ProjectRepository, points: PointRepository) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
 
     val state: StateFlow<ProjectInfoUiState> = projectId
-        .flatMapLatest { id -> if (id == null) flowOf(null) else repository.observe(id) }
-        .map { ProjectInfoUiState(it) }
+        .flatMapLatest { id ->
+            if (id ==
+                null
+            ) {
+                flowOf(ProjectInfoUiState())
+            } else {
+                combine(repository.observe(id), points.count(id)) { project, count -> ProjectInfoUiState(project, count) }
+            }
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectInfoUiState())
 
     fun start(id: String) {
@@ -92,7 +101,7 @@ fun ProjectInfoScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
         ) {
             state.project?.let { project ->
                 ProjectInfoCard(project)
-                PointsCard()
+                PointsCard(state.pointCount)
             }
         }
     }
@@ -116,11 +125,18 @@ private fun ProjectInfoCard(project: Project) {
     }
 }
 
-/** Hasta S010 no hay recolección: el proyecto aún no tiene puntos (S006/RF-31). */
+/** Cuántos puntos tiene el proyecto, o que todavía no tiene (S006/RF-31, S010/RF-21). */
 @Composable
-private fun PointsCard() {
+private fun PointsCard(count: Int) {
     ViewCard(stringResource(R.string.project_points_title)) {
-        Text(stringResource(R.string.project_no_points), modifier = Modifier.testTag(NO_POINTS_TAG))
+        val text = if (count ==
+            0
+        ) {
+            stringResource(R.string.project_no_points)
+        } else {
+            pluralStringResource(R.plurals.project_points_count, count, count)
+        }
+        Text(text, modifier = Modifier.testTag(NO_POINTS_TAG))
     }
 }
 

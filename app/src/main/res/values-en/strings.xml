@@ -446,4 +446,8 @@
     <string name="out_of_tolerance_no_accuracy">No accuracy from the receiver</string>
     <string name="out_of_tolerance_save">Save out of tolerance</string>
     <string name="out_of_tolerance_discard">Discard</string>
+    <plurals name="project_points_count">
+        <item quantity="one">%1$d point</item>
+        <item quantity="other">%1$d points</item>
+    </plurals>
 </resources>

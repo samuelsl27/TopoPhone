@@ -36,6 +36,10 @@ object MapStyles {
     /** Teselas del PNOA generadas: por encima, MapLibre amplía las del nivel 19. */
     private const val PNOA_MAX_ZOOM = 19
 
+    /** Glifos del IGN para los nombres de los puntos en los estilos locales; la fuente la sirven el IGN y OpenFreeMap (S010/RF-20). */
+    const val IGN_GLYPHS = "https://vt-mapabase.idee.es/files/styles/fonts/pbf/{fontstack}/{range}.pbf"
+    const val LABEL_FONT = "Noto Sans Regular"
+
     /** Fondo neutro y líneas de la cuadrícula (S009/RF-14). */
     const val BACKGROUND_COLOR = "#E4E6E8"
     const val GRID_COLOR = "#A9B0B6"
@@ -72,6 +76,7 @@ object MapStyles {
         }
         return buildJsonObject {
             put("version", 8)
+            put("glyphs", IGN_GLYPHS)
             put("sources", sourceObject)
             put("layers", layers)
         }.toString()

@@ -90,4 +90,13 @@ class MapStylesTest {
         parse(fetch(MapStyles.IGN_STYLE_URL))["sources"]!!.jsonObject["s"]!!.jsonObject.containsKey("maxzoom") shouldBe true
         fetch("https://tiles.openfreemap.org/styles/liberty") shouldBe style
     }
+
+    @Test
+    fun `S010 RF-20 los estilos locales llevan los glifos del IGN para los nombres de los puntos`() {
+        listOf(Basemap.PNOA_ORTHOPHOTO, Basemap.NONE).forEach { basemap ->
+            val style = parse(MapStyles.style(basemap).shouldBeInstanceOf<BasemapStyle.Local>().json)
+            style["glyphs"]!!.jsonPrimitive.content shouldBe "https://vt-mapabase.idee.es/files/styles/fonts/pbf/{fontstack}/{range}.pbf"
+        }
+        MapStyles.LABEL_FONT shouldBe "Noto Sans Regular"
+    }
 }
