@@ -17,6 +17,11 @@ Genera en fixtures/geodesia/:
   geodésica sobre GRS80 (`Geod.fwd`), con radios de 5 mm a 100 m y 16 rumbos (S009/RF-17).
 - web_mercator.csv: ETRS89 geográficas → Web Mercator (EPSG:3857) y metros del terreno por píxel a
   varios zooms (teselas de 512 px), medidos con la geodésica entre los dos bordes de un píxel (S009/RF-12).
+- puntos_manuales.csv: coordenadas escritas de un punto manual (en el SC del proyecto o en geográficas de
+  su datum, con altitud, altura elipsoidal o sin altura) → punto del suelo en ETRS89 o REGCAN95 y
+  coordenadas del proyecto; o el motivo por el que no se puede guardar (S011/RF-17 a RF-20).
+- jalon_corregido.csv: antena de un punto medido y altura del jalón corregida → punto del suelo y
+  coordenadas del proyecto (S011/RF-14).
 
 Uso: uv run --project tools tools/geodesia/generar_vectores.py
 Es determinista: la misma versión de pyproj/PROJ y de la rejilla dan el mismo fichero.
@@ -269,6 +274,206 @@ def mercator_vectors(rng: random.Random) -> list[str]:
     return lines
 
 
+# Altura del ARP del RS3 sobre la base del jalón (ETC_rev_3; `ReceiverModel.RS3` en la app).
+RS3_ARP_M = 0.134
+
+# SC del proyecto: datum, huso (None en geográficas), EPSG de las geográficas y del UTM, y su geoide.
+MANUAL_CRS = (
+    ("ETRS89", 29, "EPSG:4258", "EPSG:25829"),
+    ("ETRS89", 30, "EPSG:4258", "EPSG:25830"),
+    ("ETRS89", 31, "EPSG:4258", "EPSG:25831"),
+    ("ETRS89", None, "EPSG:4258", None),
+    ("REGCAN95", 27, "EPSG:4081", "EPSG:4082"),
+    ("REGCAN95", 28, "EPSG:4081", "EPSG:4083"),
+    ("REGCAN95", None, "EPSG:4081", None),
+    ("ED50", 29, None, None),
+    ("ED50", 30, None, None),
+    ("ED50", 31, None, None),
+)
+
+
+def ed50_to_etrs89(zone: int | None) -> Transformer:
+    """ED50 (UTM sobre el internacional de 1924, o geográficas) → ETRS89 geográficas por la rejilla en su sentido directo."""
+    use_local_grids()
+    steps = "+proj=pipeline "
+    steps += f"+step +inv +proj=utm +zone={zone} +ellps=intl " if zone else "+step +proj=unitconvert +xy_in=deg +xy_out=rad "
+    steps += f"+step +proj=hgridshift +grids={rejillas.ED50_SHIFT.name} +step +proj=unitconvert +xy_in=rad +xy_out=deg"
+    return Transformer.from_pipeline(steps)
+
+
+def finite(*values: float) -> bool:
+    return all(abs(v) < 1e6 for v in values)
+
+
+class ManualCrs:
+    """Lo que la app hace con un punto manual, calculado con pyproj."""
+
+    def __init__(self, datum: str, zone: int | None, geographic: str | None, utm: str | None) -> None:
+        self.datum, self.zone = datum, zone
+        self.geoid = geoid_transformer(rejillas.GEOID_CANARIAS if datum == "REGCAN95" else GEOID)
+        self.area = ((27.0, 29.5), (-18.5, -13.0)) if datum == "REGCAN95" else ((35.0, 44.5), (-10.0, 5.0))
+        if datum == "ED50":
+            self.to_base_projected = ed50_to_etrs89(zone)
+            self.to_base_geographic = ed50_to_etrs89(None)
+            self.from_base_projected = ed50_transformer(zone)
+            self.from_base_geographic = ed50_transformer(None)
+        else:
+            self.to_base_geographic = None
+            self.to_base_projected = Transformer.from_crs(utm, geographic, always_xy=True) if utm else None
+            self.from_base_projected = Transformer.from_crs(geographic, utm, always_xy=True) if utm else None
+            self.from_base_geographic = None
+
+    def typed_from_base(self, lat: float, lon: float, form: str) -> tuple[float, float]:
+        """Lo que escribiría el usuario para el punto (lat, lon) de ETRS89 o REGCAN95."""
+        if form == "PROJECT_CRS" and self.zone:
+            east, north = self.from_base_projected.transform(lon, lat)
+            return east, north
+        if self.datum == "ED50":
+            lon_ed, lat_ed = self.from_base_geographic.transform(lon, lat)
+            return lat_ed, lon_ed
+        return lat, lon
+
+    def base_from_typed(self, form: str, first: float, second: float) -> tuple[float, float] | None:
+        """Punto del suelo en ETRS89 o REGCAN95 desde lo escrito; None fuera de la rejilla ED50."""
+        if form == "PROJECT_CRS" and self.zone:
+            lon, lat = self.to_base_projected.transform(first, second)
+        elif self.datum == "ED50":
+            lon, lat = self.to_base_geographic.transform(second, first)
+        else:
+            lat, lon = first, second
+        return (lat, lon) if finite(lat, lon) else None
+
+    def undulation(self, lat: float, lon: float) -> float | None:
+        _, _, n = self.geoid.transform(lon, lat, 0.0)
+        return n if finite(n) else None
+
+    def inside(self, lat: float, lon: float) -> bool:
+        (lat_min, lat_max), (lon_min, lon_max) = self.area
+        return lat_min <= lat <= lat_max and lon_min <= lon <= lon_max
+
+    def projected(self, lat: float, lon: float) -> tuple[float, float] | tuple[None, None]:
+        if not self.zone:
+            return None, None
+        east, north = self.from_base_projected.transform(lon, lat)
+        return east, north
+
+
+def manual_row(crs: ManualCrs, heights: str, form: str, first: float, second: float, height: float | None, kind: str) -> list[str]:
+    """Una fila: lo escrito y lo que debe salir, o el motivo de rechazo (S011/RF-19)."""
+    typed = [crs.datum, str(crs.zone or ""), heights, form, fmt(first), fmt(second), fmt(height) if height is not None else "", kind]
+    base = crs.base_from_typed(form, first, second)
+    if base is None:
+        return typed + ["", "", "", "", "", "", "OUTSIDE_ED50_GRID"]
+    lat, lon = base
+    if not crs.inside(lat, lon):
+        return typed + ["", "", "", "", "", "", "OUTSIDE_CRS_AREA"]
+    n = crs.undulation(lat, lon)
+    altitude_input = height is not None and kind == "PROJECT" and heights == "ORTHOMETRIC"
+    if altitude_input and n is None:
+        return typed + ["", "", "", "", "", "", "OUTSIDE_GEOID"]
+    if height is None:
+        ellipsoidal = None
+    elif altitude_input:
+        ellipsoidal = height + n
+    else:
+        ellipsoidal = height
+    if ellipsoidal is None:
+        project_height = None
+    elif heights == "ELLIPSOIDAL":
+        project_height = ellipsoidal
+    elif altitude_input:
+        project_height = height
+    else:
+        project_height = ellipsoidal - n if n is not None else None
+    if form == "PROJECT_CRS" and crs.zone:
+        east, north = first, second
+    else:
+        east, north = crs.projected(lat, lon)
+    expected = [fmt(lat), fmt(lon), fmt(ellipsoidal) if ellipsoidal is not None else ""]
+    expected += [fmt(east) if east is not None else "", fmt(north) if north is not None else ""]
+    expected += [fmt(project_height) if project_height is not None else "", ""]
+    return typed + expected
+
+
+def manual_vectors(rng: random.Random) -> list[str]:
+    """S011/RF-17 a RF-20: lo escrito se calcula con pyproj al revés, desde lo que verá el usuario."""
+    lines = header("Puntos manuales: coordenadas escritas a punto del suelo y SC del proyecto", rejillas.ED50_SHIFT) + [
+        "datum,huso,sistema_alturas,forma,primera,segunda,altura,tipo_altura,"
+        "latitud,longitud,altura_elipsoidal,este,norte,altura_proyecto,motivo"
+    ]
+    for datum, zone, geographic, utm in MANUAL_CRS:
+        crs = ManualCrs(datum, zone, geographic, utm)
+        if datum == "REGCAN95":
+            points = [(28.4636, -16.2518), (28.1, -15.4), (28.96, -13.55), (28.68, -17.86)]
+            points += [(rng.uniform(27.7, 29.3), rng.uniform(-18.1, -13.4)) for _ in range(4)]
+        else:
+            central = 6 * (zone or 30) - 183
+            points = [(40.41668, -3.70371), (39.5696, 2.6502), (43.36, -8.41), (36.72, -4.42)]
+            points += [(rng.uniform(36.0, 43.5), central + rng.uniform(-2.9, 2.9)) for _ in range(4)]
+        heights_options = ["ORTHOMETRIC"] if datum == "ED50" else ["ORTHOMETRIC", "ELLIPSOIDAL"]
+        forms = ["PROJECT_CRS", "GEOGRAPHIC"] if zone else ["GEOGRAPHIC"]
+        for lat, lon in points:
+            if crs.base_from_typed("GEOGRAPHIC", *crs.typed_from_base(lat, lon, "GEOGRAPHIC")) is None:
+                continue  # en el mar, fuera de la rejilla ED50: los rechazos van aparte
+            h = round(rng.uniform(0.0, 1500.0), 4)
+            n = crs.undulation(lat, lon)
+            for heights in heights_options:
+                for form in forms:
+                    first, second = crs.typed_from_base(lat, lon, form)
+                    kinds = [("PROJECT", h - n if heights == "ORTHOMETRIC" and n is not None else h)]
+                    if form == "GEOGRAPHIC" and datum != "ED50" and heights == "ORTHOMETRIC":
+                        kinds.append(("ELLIPSOIDAL", h))
+                    for kind, value in kinds:
+                        lines.append(",".join(manual_row(crs, heights, form, first, second, value, kind)))
+                    lines.append(",".join(manual_row(crs, heights, form, first, second, None, "PROJECT")))
+    # Rechazos: fuera del ámbito, de la rejilla ED50 o del geoide (con altitud; sin altura, se guarda).
+    etrs30 = ManualCrs(*MANUAL_CRS[1])
+    ed50_30 = ManualCrs(*MANUAL_CRS[8])
+    canarias = ManualCrs(*MANUAL_CRS[5])
+    rejected = [
+        manual_row(etrs30, "ORTHOMETRIC", "PROJECT_CRS", 440000.0, 5600000.0, 650.0, "PROJECT"),  # φ ≈ 50,5°
+        manual_row(etrs30, "ORTHOMETRIC", "GEOGRAPHIC", 28.1, -15.4, 650.0, "PROJECT"),  # Canarias en ETRS89
+        manual_row(canarias, "ORTHOMETRIC", "GEOGRAPHIC", 40.0, -3.7, 650.0, "PROJECT"),  # Madrid en REGCAN95
+        manual_row(ed50_30, "ORTHOMETRIC", "GEOGRAPHIC", 35.1, -3.0, 650.0, "PROJECT"),  # en el ámbito, fuera de la rejilla
+        manual_row(etrs30, "ORTHOMETRIC", "GEOGRAPHIC", 44.3, -3.0, 650.0, "PROJECT"),  # fuera del geoide, con altitud
+        manual_row(etrs30, "ORTHOMETRIC", "GEOGRAPHIC", 44.3, -3.0, 650.0, "ELLIPSOIDAL"),  # elipsoidal: se guarda
+        manual_row(etrs30, "ORTHOMETRIC", "GEOGRAPHIC", 44.3, -3.0, None, "PROJECT"),  # sin altura: se guarda
+    ]
+    reasons = [row[-1] for row in rejected]
+    if reasons != ["OUTSIDE_CRS_AREA", "OUTSIDE_CRS_AREA", "OUTSIDE_CRS_AREA", "OUTSIDE_ED50_GRID", "OUTSIDE_GEOID", "", ""]:
+        raise SystemExit(f"rechazos inesperados: {reasons}")
+    lines += [",".join(row) for row in rejected]
+    return lines
+
+
+def pole_vectors(rng: random.Random) -> list[str]:
+    """S011/RF-14: el suelo bajo la antena con la nueva altura del jalón (jalón vertical, S002/RF-32)."""
+    lines = header("Jalón corregido: antena y jalón a punto del suelo y SC del proyecto", rejillas.ED50_SHIFT) + [
+        "datum,huso,latitud,longitud,altura_antena,jalon,altura_elipsoidal,este,norte,altitud"
+    ]
+    for datum, zone, geographic, utm in MANUAL_CRS:
+        if zone is None:
+            continue
+        crs = ManualCrs(datum, zone, geographic, utm)
+        central = 6 * zone - 183
+        lat_range = (27.7, 29.3) if datum == "REGCAN95" else (36.0, 43.5)
+        # Dentro del huso y del ámbito del SC: fuera de él la app no da coordenadas (S008/RF-9).
+        (lon_min, lon_max) = (-18.1, -13.4) if datum == "REGCAN95" else (-9.9, 4.9)
+        lon_range = (max(central - 2.9, lon_min), min(central + 2.9, lon_max))
+        for _ in range(8):
+            lat, lon = rng.uniform(*lat_range), rng.uniform(*lon_range)
+            if datum == "ED50" and crs.from_base_geographic.transform(lon, lat)[0] > 1e6:
+                continue
+            antenna_h = round(rng.uniform(50.0, 1500.0), 4)
+            pole = round(rng.uniform(0.0, 2.5), 3)
+            ground_h = antenna_h - (pole + RS3_ARP_M)
+            east, north = crs.projected(lat, lon)
+            n = crs.undulation(lat, lon)
+            altitude = fmt(ground_h - n) if n is not None else ""
+            lines.append(",".join([datum, str(zone), fmt(lat), fmt(lon), fmt(antenna_h), fmt(pole), fmt(ground_h), fmt(east), fmt(north), altitude]))
+    return lines
+
+
 def main() -> int:
     for grid in rejillas.GRIDS:
         rejillas.ensure(grid, download=True)
@@ -286,6 +491,9 @@ def main() -> int:
         # S009.
         ("circulo_precision.csv", circle_vectors(random.Random(20261022))),
         ("web_mercator.csv", mercator_vectors(random.Random(20261023))),
+        # S011.
+        ("puntos_manuales.csv", manual_vectors(random.Random(20261024))),
+        ("jalon_corregido.csv", pole_vectors(random.Random(20261025))),
     )
     for name, lines in outputs:
         (OUT / name).write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")

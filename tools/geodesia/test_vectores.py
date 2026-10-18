@@ -25,6 +25,8 @@ def test_los_vectores_se_generaron_con_la_misma_rejilla() -> None:
         "geoide_egm08_rednap_canarias.csv": rejillas.GEOID_CANARIAS,
         "ed50_utm.csv": rejillas.ED50_SHIFT,
         "factores_tm.csv": rejillas.GEOID_PENINSULA,
+        "puntos_manuales.csv": rejillas.ED50_SHIFT,
+        "jalon_corregido.csv": rejillas.ED50_SHIFT,
     }
     for name, grid in expected.items():
         text = (FIXTURES / name).read_text(encoding="utf-8")
@@ -33,7 +35,7 @@ def test_los_vectores_se_generaron_con_la_misma_rejilla() -> None:
 
 def rows(name: str) -> list[list[str]]:
     lines = (FIXTURES / name).read_text(encoding="utf-8").splitlines()
-    return [line.split(",") for line in lines if line and not line.startswith(("#", "latitud", "elipsoide"))]
+    return [line.split(",") for line in lines if line and not line.startswith(("#", "latitud", "elipsoide", "datum"))]
 
 
 def test_las_rejillas_de_s008_van_en_su_carpeta_y_ocupan_menos_de_300_kb() -> None:
@@ -99,3 +101,31 @@ def test_s009_rf_12_web_mercator_llega_al_zoom_maximo_con_metros_por_pixel_del_e
     assert len(mercator) > 100
     # A 44° N y zoom 22, 100 px son menos de 1,7 m (la barra de escala puede bajar a 1 m).
     assert all(100 * float(row[5]) < 1.7 for row in mercator if float(row[4]) == 22.0 and 27.0 <= float(row[0]) <= 44.0)
+
+
+def test_s011_rf_17_rf_18_rf_20_los_puntos_manuales_cubren_cada_datum_forma_y_altura() -> None:
+    manual = [row for row in rows("puntos_manuales.csv") if not row[14]]
+    assert {(row[0], row[1]) for row in manual} >= {
+        ("ETRS89", "29"), ("ETRS89", "30"), ("ETRS89", "31"), ("ETRS89", ""),
+        ("REGCAN95", "27"), ("REGCAN95", "28"), ("REGCAN95", ""),
+        ("ED50", "29"), ("ED50", "30"), ("ED50", "31"),
+    }
+    assert {row[3] for row in manual} == {"PROJECT_CRS", "GEOGRAPHIC"}
+    assert {row[7] for row in manual} == {"PROJECT", "ELLIPSOIDAL"}
+    assert {row[2] for row in manual} == {"ORTHOMETRIC", "ELLIPSOIDAL"}
+    # Sin altura (S011/RF-18): no hay altura elipsoidal ni del proyecto.
+    assert any(row[6] == "" and row[10] == "" and row[13] == "" for row in manual)
+    # ED50 solo admite altitud (S008/RF-3).
+    assert all(row[2] == "ORTHOMETRIC" and row[7] == "PROJECT" for row in manual if row[0] == "ED50")
+
+
+def test_s011_rf_19_hay_rechazos_por_cada_motivo() -> None:
+    reasons = {row[14] for row in rows("puntos_manuales.csv")}
+    assert reasons == {"", "OUTSIDE_CRS_AREA", "OUTSIDE_ED50_GRID", "OUTSIDE_GEOID"}
+
+
+def test_s011_rf_14_el_jalon_corregido_baja_el_suelo_jalon_mas_0_134_m() -> None:
+    pole = rows("jalon_corregido.csv")
+    assert {row[0] for row in pole} == {"ETRS89", "REGCAN95", "ED50"}
+    for row in pole:
+        assert abs(float(row[4]) - float(row[5]) - 0.134 - float(row[6])) < 1e-9
