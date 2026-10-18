@@ -62,6 +62,9 @@ import kotlinx.serialization.Serializable
 /** Punto nuevo, o edición de uno si hay [pointId] (S011/RF-8, RF-16). */
 @Serializable data class PointFormDestination(val projectId: String, val pointId: String? = null)
 
+/** Papelera de puntos de un proyecto (S011/RF-23). */
+@Serializable data class PointTrashDestination(val projectId: String)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

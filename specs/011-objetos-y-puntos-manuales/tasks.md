@@ -28,7 +28,7 @@
       Hecho cuando: los tests de las acciones y `PointHistoryTest` en verde.
 - [x] T13. `app`: formulario de punto, nuevo y editado (SC del proyecto o geográficas, altura opcional y su tipo, errores, nombre repetido). (RF-8, RF-9, RF-16 a RF-20)
       Hecho cuando: `PointFormViewModelTest` y `PointFormScreenTest` en verde.
-- [ ] T14. `app`: papelera de puntos (lista con días, restaurar, nombre ocupado, borrar definitivamente). (RF-23 a RF-26)
+- [x] T14. `app`: papelera de puntos (lista con días, restaurar, nombre ocupado, borrar definitivamente). (RF-23 a RF-26)
       Hecho cuando: `PointTrashViewModelTest` y `PointTrashScreenTest` en verde.
 - [ ] T15. Rendimiento: 10 000 resúmenes leídos y filtrados en menos de 1 s; puntos ocultos y de la papelera fuera del mapa y del recuento. (RF-4, RF-22, RNF)
       Hecho cuando: el test de rendimiento y los de recuento y mapa en verde.

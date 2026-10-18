@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -79,6 +81,7 @@ import kotlinx.coroutines.withContext
 const val OBJECTS_BUTTON_TAG = "objects_button"
 const val OBJECT_LIST_TAG = "object_list"
 const val ADD_POINT_TAG = "add_point"
+const val OBJECTS_MENU_TAG = "objects_menu"
 const val OBJECT_SEARCH_TAG = "object_search"
 const val SELECTION_BAR_TAG = "selection_bar"
 const val SELECTION_HIDE_TAG = "selection_hide"
@@ -112,6 +115,7 @@ class ObjectListActions(
     val onQueryChange: (String) -> Unit = {},
     val onOpen: (String) -> Unit = {},
     val onAdd: () -> Unit = {},
+    val onOpenTrash: () -> Unit = {},
     val onToggleSelection: (String) -> Unit = {},
     val onClearSelection: () -> Unit = {},
     val onSetHidden: (id: String, hidden: Boolean) -> Unit = { _, _ -> },
@@ -231,6 +235,7 @@ fun ObjectListRoute(
             onQueryChange = viewModel::search,
             onOpen = { pointId -> navigation.onOpenPoint(projectId, pointId) }, // S011/RF-5
             onAdd = { navigation.onNewPoint(projectId) }, // S011/RF-16
+            onOpenTrash = { navigation.onOpenPointTrash(projectId) }, // S011/RF-23
             onToggleSelection = viewModel::toggleSelection,
             onClearSelection = viewModel::clearSelection,
             onSetHidden = viewModel::setHidden,
@@ -262,6 +267,7 @@ fun ObjectListScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
+        actions = { ObjectsMenu(actions.onOpenTrash) },
         floatingActionButton = {
             if (state.selected.isEmpty()) {
                 ExtendedFloatingActionButton(
@@ -308,6 +314,25 @@ fun ObjectListScreen(
             }
             if (state.selected.isNotEmpty()) SelectionBar(state.selected.size, actions)
         }
+    }
+}
+
+/** Menú "⋮" de la lista de objetos: la papelera de puntos (S011/RF-23). */
+@Composable
+private fun ObjectsMenu(onOpenTrash: () -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
+        Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.projects_menu))
+    }
+    DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.point_trash_title)) },
+            onClick = {
+                open = false
+                onOpenTrash()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        )
     }
 }
 

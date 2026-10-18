@@ -550,4 +550,6 @@
     <string name="point_hint_dms">Grados, minutos y segundos: 40 25 07,24 N</string>
     <string name="point_hint_dd">Grados decimales: 40,41868</string>
     <string name="point_hint_gon">Gon: 44,90965</string>
+    <string name="point_trash_title">Papelera de puntos</string>
+    <string name="point_trash_name_taken">Ya hay un punto con ese nombre: escribe otro para restaurarlo.</string>
 </resources>
