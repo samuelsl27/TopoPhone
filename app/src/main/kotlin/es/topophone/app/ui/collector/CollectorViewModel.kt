@@ -352,6 +352,7 @@ class CollectorViewModel @Inject constructor(
                     nameTaken.value = true
                     run.value = Run()
                 }
+                PointSaveResult.NotFound -> run.value = Run()
             }
         }
     }

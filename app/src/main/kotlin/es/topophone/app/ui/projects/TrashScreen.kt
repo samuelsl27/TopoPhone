@@ -32,6 +32,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.project.TrashedProject
 import java.util.concurrent.atomic.AtomicBoolean
@@ -76,15 +77,16 @@ class TrashViewModel @Inject constructor(private val repository: ProjectReposito
     }
 }
 
-/** Purga de la papelera al abrir la app, una sola vez por proceso (S006/RF-27). */
+/** Purga las papeleras de proyectos y de puntos al abrir la app, una sola vez por proceso (S006/RF-27, S011/RF-26). */
 @Singleton
-class TrashPurge @Inject constructor(private val repository: ProjectRepository) {
+class TrashPurge @Inject constructor(private val repository: ProjectRepository, private val points: PointRepository) {
     private val done = AtomicBoolean(false)
 
     /** Devuelve si ha purgado en esta llamada. */
     suspend fun runOnce(): Boolean {
         if (!done.compareAndSet(false, true)) return false
         repository.purgeTrash()
+        points.purgeTrash()
         return true
     }
 }

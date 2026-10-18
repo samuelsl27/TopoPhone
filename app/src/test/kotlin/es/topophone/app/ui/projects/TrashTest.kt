@@ -14,11 +14,16 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
 import es.topophone.data.project.TrashedProject
@@ -223,11 +228,42 @@ class TrashTest {
         now = 2 * day
         runBlocking { repository.moveToTrash(expired) }
         now = 40 * day
-        val purge = TrashPurge(repository)
+        val purge = TrashPurge(repository, RoomPointRepository(db, clock = { now }))
 
         runBlocking { purge.runOnce() } shouldBe true
         runBlocking { purge.runOnce() } shouldBe false
 
         runBlocking { repository.project(expired) } shouldBe null
+    }
+
+    @Test
+    fun `S011 RF-26 al abrir la app se purgan tambien los puntos que llevan 30 dias en la papelera`() {
+        val id = create("Con puntos")
+        val points = RoomPointRepository(db, clock = { now })
+        val point = Point(
+            id = "p1",
+            projectId = id,
+            name = "1",
+            description = "",
+            origin = PointOrigin.MANUAL,
+            coordinates = PointCoordinates(GeodeticPosition(40.0, -3.7, null), null, null, null),
+            measurement = null,
+            typed = null,
+            edited = false,
+            hidden = false,
+            copyOf = null,
+            createdAtMs = now,
+            deletedAtMs = null,
+        )
+        runBlocking {
+            points.create(point)
+            now = 2 * day
+            points.moveToTrash(listOf("p1"))
+        }
+        now = 40 * day
+
+        runBlocking { TrashPurge(repository, points).runOnce() } shouldBe true
+
+        runBlocking { points.point("p1").first() } shouldBe null
     }
 }

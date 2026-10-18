@@ -1,70 +1,252 @@
 package es.topophone.data.point
 
 import android.database.sqlite.SQLiteConstraintException
+import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
+import androidx.room.withTransaction
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointChange
+import es.topophone.core.model.point.PointHistoryEntry
+import es.topophone.core.model.point.PointOrigin
+import es.topophone.core.model.point.PointSnapshot
+import es.topophone.core.model.point.PointSummary
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.project.ProjectRepository
+import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+/** Un punto para la lista de objetos y el mapa, sin las frases NMEA (S011/RF-1, RF-3). */
+data class PointSummaryRow(
+    val id: String,
+    val name: String,
+    val description: String,
+    val origin: String,
+    @ColumnInfo(name = "ground_lat") val groundLat: Double,
+    @ColumnInfo(name = "ground_lon") val groundLon: Double,
+    @ColumnInfo(name = "has_height") val hasHeight: Boolean,
+    @ColumnInfo(name = "out_of_tolerance") val outOfTolerance: Boolean,
+    val edited: Boolean,
+    val hidden: Boolean,
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+)
+
+/** Los puntos activos de un proyecto son los que no están en la papelera (S011/RF-22). */
 @Dao
 interface PointDao {
     /** Una inserción: con WAL y `synchronous=FULL`, o queda entera o no queda (RNF-T6). */
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(point: PointEntity)
 
-    @Query("SELECT * FROM points WHERE project_id = :projectId ORDER BY created_at")
+    @Update(onConflict = OnConflictStrategy.ABORT)
+    suspend fun update(point: PointEntity)
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertHistory(entry: PointHistoryEntity)
+
+    @Query("SELECT * FROM points WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at")
     fun byProject(projectId: String): Flow<List<PointEntity>>
 
-    @Query("SELECT COUNT(*) FROM points WHERE project_id = :projectId")
+    @Query(
+        "SELECT id, name, description, origin, ground_lat, ground_lon, ground_h IS NOT NULL AS has_height, " +
+            "out_of_tolerance <> '' AS out_of_tolerance, edited, hidden, created_at FROM points " +
+            "WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at DESC",
+    )
+    fun summaries(projectId: String): Flow<List<PointSummaryRow>>
+
+    @Query("SELECT * FROM points WHERE id = :id")
+    fun observe(id: String): Flow<PointEntity?>
+
+    @Query("SELECT * FROM points WHERE id = :id")
+    suspend fun byId(id: String): PointEntity?
+
+    @Query("SELECT * FROM point_history WHERE point_id = :pointId ORDER BY changed_at DESC")
+    fun history(pointId: String): Flow<List<PointHistoryEntity>>
+
+    @Query("SELECT COUNT(*) FROM points WHERE project_id = :projectId AND deleted_at IS NULL")
     fun count(projectId: String): Flow<Int>
 
-    @Query("SELECT name FROM points WHERE project_id = :projectId ORDER BY created_at DESC LIMIT 1")
+    @Query("SELECT name FROM points WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1")
     suspend fun lastName(projectId: String): String?
 
-    @Query("SELECT EXISTS(SELECT 1 FROM points WHERE project_id = :projectId AND name = :name)")
+    @Query("SELECT EXISTS(SELECT 1 FROM points WHERE project_id = :projectId AND name = :name AND deleted_at IS NULL)")
     suspend fun nameExists(projectId: String, name: String): Boolean
+
+    @Query("SELECT name FROM points WHERE project_id = :projectId AND deleted_at IS NULL")
+    suspend fun names(projectId: String): List<String>
+
+    @Query("UPDATE points SET hidden = :hidden WHERE id IN (:ids)")
+    suspend fun setHidden(ids: List<String>, hidden: Boolean)
+
+    @Query("UPDATE points SET deleted_at = :now, trash_key = id WHERE id IN (:ids) AND deleted_at IS NULL")
+    suspend fun moveToTrash(ids: List<String>, now: Long)
+
+    @Query("SELECT * FROM points WHERE project_id = :projectId AND deleted_at IS NOT NULL ORDER BY deleted_at DESC")
+    fun trash(projectId: String): Flow<List<PointEntity>>
+
+    @Query("UPDATE points SET deleted_at = NULL, trash_key = '', name = :name WHERE id = :id AND deleted_at IS NOT NULL")
+    suspend fun restore(id: String, name: String)
+
+    @Query("DELETE FROM points WHERE id = :id AND deleted_at IS NOT NULL")
+    suspend fun deleteFromTrash(id: String)
+
+    @Query("DELETE FROM points WHERE deleted_at IS NOT NULL AND deleted_at < :limit")
+    suspend fun purge(limit: Long): Int
 }
 
 /** Resultado de guardar un punto. */
 sealed interface PointSaveResult {
     data object Saved : PointSaveResult
 
-    /** Ya hay un punto con ese nombre en el proyecto (S010/RF-3). */
+    /** Ya hay un punto con ese nombre en el proyecto (S010/RF-3, S011/RF-9, RF-25). */
     data object DuplicateName : PointSaveResult
+
+    /** El punto ya no existe. */
+    data object NotFound : PointSaveResult
 }
 
-/** Puntos recolectados de cada proyecto (S010). */
+/** Un punto de la papelera con los días que le quedan (S011/RF-23). */
+data class TrashedPoint(val point: Point, val daysLeft: Int)
+
+/** Puntos de cada proyecto (S010, S011). Salvo la papelera, todo trata solo los puntos activos. */
 interface PointRepository {
     suspend fun create(point: Point): PointSaveResult
 
     fun points(projectId: String): Flow<List<Point>>
+
+    /** Del más reciente al más antiguo (S011/RF-1). */
+    fun summaries(projectId: String): Flow<List<PointSummary>>
+
+    fun point(id: String): Flow<Point?>
+
+    /** Versiones anteriores, del cambio más reciente al más antiguo (S011/RF-11). */
+    fun history(id: String): Flow<List<PointHistoryEntry>>
 
     fun count(projectId: String): Flow<Int>
 
     suspend fun lastName(projectId: String): String?
 
     suspend fun nameExists(projectId: String, name: String): Boolean
+
+    suspend fun names(projectId: String): Set<String>
+
+    /** Guarda [point] y, en la misma transacción, su versión anterior en el historial (S011/RF-10). */
+    suspend fun update(point: Point, change: PointChange): PointSaveResult
+
+    /** Como [update] para varios puntos, todos o ninguno (S011/RF-14). */
+    suspend fun updateAll(points: List<Point>, change: PointChange): PointSaveResult
+
+    suspend fun setHidden(ids: List<String>, hidden: Boolean)
+
+    suspend fun moveToTrash(ids: List<String>)
+
+    fun trash(projectId: String): Flow<List<TrashedPoint>>
+
+    /** Lo devuelve al proyecto con [newName] o con el suyo; si está ocupado, `DuplicateName` (S011/RF-24, RF-25). */
+    suspend fun restore(id: String, newName: String? = null): PointSaveResult
+
+    suspend fun deletePermanently(id: String)
+
+    /** Borra los puntos que llevan 30 días en la papelera (S011/RF-26); devuelve cuántos. */
+    suspend fun purgeTrash(): Int
 }
 
-class RoomPointRepository(database: TopoPhoneDatabase) : PointRepository {
+class RoomPointRepository(private val database: TopoPhoneDatabase, private val clock: () -> Long = System::currentTimeMillis) :
+    PointRepository {
     private val dao = database.points()
 
     override suspend fun create(point: Point): PointSaveResult = try {
         dao.insert(point.toEntity())
         PointSaveResult.Saved
     } catch (_: SQLiteConstraintException) {
-        PointSaveResult.DuplicateName // el índice único de (proyecto, nombre)
+        PointSaveResult.DuplicateName // el índice único de (proyecto, nombre, papelera)
     }
 
     override fun points(projectId: String): Flow<List<Point>> = dao.byProject(projectId).map { list -> list.map { it.toPoint() } }
+
+    override fun summaries(projectId: String): Flow<List<PointSummary>> = dao.summaries(projectId).map { rows ->
+        rows.map { row ->
+            PointSummary(
+                id = row.id,
+                name = row.name,
+                description = row.description,
+                origin = PointOrigin.entries.firstOrNull { it.name == row.origin } ?: PointOrigin.MEASURED,
+                latitudeDeg = row.groundLat,
+                longitudeDeg = row.groundLon,
+                hasHeight = row.hasHeight,
+                outOfTolerance = row.outOfTolerance,
+                edited = row.edited,
+                hidden = row.hidden,
+                createdAtMs = row.createdAt,
+            )
+        }
+    }
+
+    override fun point(id: String): Flow<Point?> = dao.observe(id).map { it?.toPoint() }
+
+    override fun history(id: String): Flow<List<PointHistoryEntry>> = dao.history(id).map { list -> list.map { it.toEntry() } }
 
     override fun count(projectId: String): Flow<Int> = dao.count(projectId)
 
     override suspend fun lastName(projectId: String): String? = dao.lastName(projectId)
 
     override suspend fun nameExists(projectId: String, name: String): Boolean = dao.nameExists(projectId, name)
+
+    override suspend fun names(projectId: String): Set<String> = dao.names(projectId).toSet()
+
+    override suspend fun update(point: Point, change: PointChange): PointSaveResult = updateAll(listOf(point), change)
+
+    override suspend fun updateAll(points: List<Point>, change: PointChange): PointSaveResult = try {
+        database.withTransaction {
+            val now = clock()
+            for (point in points) {
+                val current = dao.byId(point.id) ?: throw MissingPoint()
+                val previous = PointSnapshot.of(current.toPoint())
+                dao.insertHistory(previous.toHistoryEntity(UUID.randomUUID().toString(), point.id, now, change))
+                dao.update(point.toEntity())
+            }
+        }
+        PointSaveResult.Saved
+    } catch (_: SQLiteConstraintException) {
+        PointSaveResult.DuplicateName
+    } catch (_: MissingPoint) {
+        PointSaveResult.NotFound
+    }
+
+    override suspend fun setHidden(ids: List<String>, hidden: Boolean) = dao.setHidden(ids, hidden)
+
+    override suspend fun moveToTrash(ids: List<String>) = dao.moveToTrash(ids, clock())
+
+    override fun trash(projectId: String): Flow<List<TrashedPoint>> = dao.trash(projectId).map { list ->
+        val now = clock()
+        list.map { entity ->
+            val daysIn = ((now - (entity.deletedAt ?: now)) / DAY_MS).toInt()
+            TrashedPoint(entity.toPoint(), (ProjectRepository.TRASH_DAYS - daysIn).coerceAtLeast(0))
+        }
+    }
+
+    override suspend fun restore(id: String, newName: String?): PointSaveResult {
+        val current = dao.byId(id) ?: return PointSaveResult.NotFound
+        return try {
+            dao.restore(id, newName ?: current.name)
+            PointSaveResult.Saved
+        } catch (_: SQLiteConstraintException) {
+            PointSaveResult.DuplicateName
+        }
+    }
+
+    override suspend fun deletePermanently(id: String) = dao.deleteFromTrash(id)
+
+    override suspend fun purgeTrash(): Int = dao.purge(limit = clock() - ProjectRepository.TRASH_DAYS * DAY_MS)
+
+    /** Deshace la transacción de [updateAll] si falta algún punto. */
+    private class MissingPoint : RuntimeException()
+
+    private companion object {
+        const val DAY_MS = 24L * 60 * 60 * 1000
+    }
 }
