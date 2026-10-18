@@ -176,4 +176,12 @@ class PointFormScreenTest {
         compose.onNodeWithTag(FORM_HEIGHT_TAG).performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Altura elipsoidal (h) (opcional)").assertIsDisplayed()
     }
+
+    @Test
+    fun `S011 RF-17 cada campo de geograficas da un ejemplo de su eje`() {
+        show(base.copy(form = EntryForm.GEOGRAPHIC, allowEllipsoidalKind = true))
+
+        compose.onNodeWithText("Grados, minutos y segundos: 40 25 07,24 N").assertIsDisplayed()
+        compose.onNodeWithText("Grados, minutos y segundos: 3 42 13,64 W").assertIsDisplayed()
+    }
 }

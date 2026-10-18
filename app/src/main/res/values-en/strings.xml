@@ -540,4 +540,7 @@
     <string name="point_hint_gon">Gon: 44.90965</string>
     <string name="point_trash_title">Points trash</string>
     <string name="point_trash_name_taken">There is already a point with that name: enter another one to restore it.</string>
+    <string name="point_hint_dms_lon">Degrees, minutes and seconds: 3 42 13.64 W</string>
+    <string name="point_hint_dd_lon">Decimal degrees: -3.70379</string>
+    <string name="point_hint_gon_lon">Gon: -4.11532</string>
 </resources>

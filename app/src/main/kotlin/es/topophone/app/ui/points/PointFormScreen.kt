@@ -470,20 +470,19 @@ private fun CoordinateFields(state: PointFormUiState, actions: PointFormActions)
     val unit = unitSymbol(state.linearUnit)
     val invalid = stringResource(R.string.point_value_invalid)
     val projected = state.form == EntryForm.PROJECT_CRS && !state.geographicCrs
-    val hint = stringResource(
-        when (state.angularUnit) {
-            AngularUnit.DMS -> R.string.point_hint_dms
-            AngularUnit.DECIMAL_DEGREES -> R.string.point_hint_dd
-            AngularUnit.GON -> R.string.point_hint_gon
-        },
-    )
+    // Un ejemplo por eje, en la unidad angular del proyecto (S011/RF-17).
+    val (latitudeHint, longitudeHint) = when (state.angularUnit) {
+        AngularUnit.DMS -> R.string.point_hint_dms to R.string.point_hint_dms_lon
+        AngularUnit.DECIMAL_DEGREES -> R.string.point_hint_dd to R.string.point_hint_dd_lon
+        AngularUnit.GON -> R.string.point_hint_gon to R.string.point_hint_gon_lon
+    }
     Field(
         state.first,
         actions.onFirst,
         stringResource(if (projected) R.string.coord_easting else R.string.point_latitude),
         FORM_FIRST_TAG,
         error = invalid.takeIf { state.firstInvalid },
-        hint = hint.takeUnless { projected },
+        hint = stringResource(latitudeHint).takeUnless { projected },
         suffix = unit.takeIf { projected },
     )
     Field(
@@ -492,7 +491,7 @@ private fun CoordinateFields(state: PointFormUiState, actions: PointFormActions)
         stringResource(if (projected) R.string.coord_northing else R.string.point_longitude),
         FORM_SECOND_TAG,
         error = invalid.takeIf { state.secondInvalid },
-        hint = hint.takeUnless { projected },
+        hint = stringResource(longitudeHint).takeUnless { projected },
         suffix = unit.takeIf { projected },
     )
     val heightName = if (state.heightKind ==
