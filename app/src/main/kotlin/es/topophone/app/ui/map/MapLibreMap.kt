@@ -17,15 +17,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import dagger.hilt.android.qualifiers.ApplicationContext
 import es.topophone.app.BuildConfig
 import es.topophone.app.R
-import es.topophone.core.model.map.MapSettings
 import javax.inject.Inject
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import org.maplibre.android.MapLibre
-import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
-import org.maplibre.android.maps.Style
 import org.maplibre.android.module.http.HttpRequestUtil
 
 /** El cliente HTTP de todo lo que descarga el mapa (S009). */
@@ -42,6 +39,7 @@ object MapHttpClient {
         val userAgent = "TopoPhone/$versionName (+${BuildConfig.REPO_URL})"
         return OkHttpClient.Builder()
             .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("User-Agent", userAgent).build()) }
+            .addInterceptor(IgnStylePatch.interceptor) // S009/RF-6
             .build()
     }
 }
@@ -92,27 +90,4 @@ fun MapLibreMap(environment: MapEnvironment, onReady: (MapController) -> Unit, m
     val description = stringResource(R.string.map_description)
     AndroidView(factory = { mapView }, modifier = modifier.semantics { contentDescription = description })
     LaunchedEffect(mapView) { mapView.getMapAsync { map -> onReady(MapLibreMapController(map)) } }
-}
-
-/** [MapController] sobre MapLibre. */
-internal class MapLibreMapController(private val map: MapLibreMap) : MapController {
-    private var settings: MapSettings? = null
-
-    init {
-        // S009/RF-11: norte arriba; el mapa no gira ni se inclina.
-        map.uiSettings.isRotateGesturesEnabled = false
-        map.uiSettings.isTiltGesturesEnabled = false
-    }
-
-    override fun setSettings(settings: MapSettings) {
-        if (settings == this.settings) return
-        this.settings = settings
-        // T6: los demás mapas base y el fondo neutro con cuadrícula.
-        map.setStyle(Style.Builder().fromUri(MapStyles.IGN_STYLE_URL))
-    }
-}
-
-/** Direcciones de los mapas base (plan de S009, "Fuentes de mapas"). */
-object MapStyles {
-    const val IGN_STYLE_URL = "https://vt-mapabase.idee.es/files/styles/mapaBase_scn_color1_CNIG.json"
 }
