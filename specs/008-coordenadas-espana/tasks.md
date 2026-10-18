@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools`: rejillas SPED2ETV2 y EGM08-REDNAP Canarias en el registro con su SHA-256; vectores de pyproj para REGCAN95 / UTM 27–28, geoide de Canarias, ED50 / UTM 29–31 (dentro y fuera de la rejilla) y factores de la TM. (RF-1, RF-4, RF-7, RF-13, RF-14)
+- [x] T1. `tools`: rejillas SPED2ETV2 y EGM08-REDNAP Canarias en el registro con su SHA-256; vectores de pyproj para REGCAN95 / UTM 27–28, geoide de Canarias, ED50 / UTM 29–31 (dentro y fuera de la rejilla) y factores de la TM. (RF-1, RF-4, RF-7, RF-13, RF-14)
       Hecho cuando: `uv run --project tools pytest tools` en verde y los CSV nuevos en `fixtures/geodesia/`.
 - [ ] T2. `core:geodesy`: elipsoide internacional de 1924, UTM sobre cualquier elipsoide, factor de escala y convergencia, y radio medio de Gauss. (RF-13, RF-14, RF-15)
       Hecho cuando: `UtmFactorsTest` en verde contra los vectores (k ≤ 1·10⁻⁹, γ ≤ 0,01″) y los tests UTM de antes siguen en verde.

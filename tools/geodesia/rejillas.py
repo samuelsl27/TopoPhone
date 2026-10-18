@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-RESOURCES = ROOT / "core" / "geodesy" / "src" / "main" / "resources" / "geoid"
+RESOURCES = ROOT / "core" / "geodesy" / "src" / "main" / "resources"
 
 
 @dataclass(frozen=True)
@@ -22,6 +22,7 @@ class Grid:
     name: str
     sha256: str
     attribution: str
+    folder: str = "geoid"  # "geoid" (modelos de geoide) o "shift" (desplazamientos horizontales)
 
     @property
     def url(self) -> str:
@@ -29,7 +30,7 @@ class Grid:
 
     @property
     def path(self) -> Path:
-        return RESOURCES / self.name
+        return RESOURCES / self.folder / self.name
 
 
 GRIDS = [
@@ -38,7 +39,20 @@ GRIDS = [
         sha256="d1758a580c2acc7cddcb814c2aebe1e5ab83f74dfaed8c1a885355bb3f85df58",
         attribution="EGM08-REDNAP (Península y Baleares) © Instituto Geográfico Nacional, CC-BY 4.0",
     ),
+    Grid(
+        name="es_ign_egm08-rednap-canarias.tif",
+        sha256="ef545116102c73860fe364061b75f17caf15431a992dc9b3ed2fbe250619373f",
+        attribution="EGM08-REDNAP (Canarias) © Instituto Geográfico Nacional, CC-BY 4.0",
+    ),
+    Grid(
+        name="es_ign_SPED2ETV2.tif",
+        sha256="61896f5d74bdc7c1d5850839ae743b08e19f9a627e8febb4ac93353ded835961",
+        attribution="ED50 a ETRS89 (SPED2ETV2, Península y Baleares) © Instituto Geográfico Nacional, CC-BY 4.0",
+        folder="shift",
+    ),
 ]
+
+GEOID_PENINSULA, GEOID_CANARIAS, ED50_SHIFT = GRIDS
 
 
 def sha256_of(path: Path) -> str:
