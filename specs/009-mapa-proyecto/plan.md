@@ -105,7 +105,7 @@ Polígono de 64 vértices alrededor del rover: para cada rumbo θ, Δφ = r·cos
 - **Arranque sin red:** la vista no espera a las descargas, porque MapLibre carga en segundo plano (RNF de la spec, < 1 s).
 
 ## Interfaz
-- **Vista de proyecto:** barra superior con el nombre, el indicador de estado, "Datos del proyecto" y "Editar". Debajo:
+- **Vista de proyecto:** barra superior con el nombre, el indicador de estado y "Editar" ("Datos del proyecto" va en la cabecera del panel: con la simulación y una solución larga, la barra no tiene sitio y taparía "Volver"). Debajo:
   - el mapa, que llena la vista;
   - encima del mapa, el aviso sin conexión arriba y la barra de escala y la atribución abajo a la izquierda;
   - el botón "Capas" y "Centrar en el rover" a la derecha, de 56 dp (RNF-T8);

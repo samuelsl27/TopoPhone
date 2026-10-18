@@ -12,13 +12,17 @@ import kotlinx.coroutines.flow.StateFlow
 import okhttp3.Interceptor
 
 /**
- * Si las descargas del mapa están fallando por falta de conexión (S009/RF-15): un fallo de conexión lo marca
- * y cualquier respuesta lo quita. Cancelar una petición (el Catastro al mover el mapa) no cuenta.
+ * Si el mapa está sin conexión (S009/RF-15). Hay dos señales:
+ * - sin una red con internet en el móvil: MapLibre ni siquiera lanza las peticiones;
+ * - con red, una descarga que falla por la conexión, hasta que llega cualquier respuesta. Cancelar una
+ *   petición (el Catastro al mover el mapa) no cuenta.
  */
 @Singleton
 class NetworkFailureMonitor @Inject constructor() {
-    private val failing = MutableStateFlow(false)
-    val offline: StateFlow<Boolean> = failing
+    private var failing = false
+    private var internet = true
+    private val state = MutableStateFlow(false)
+    val offline: StateFlow<Boolean> = state
 
     val interceptor = Interceptor { chain ->
         try {
@@ -29,12 +33,27 @@ class NetworkFailureMonitor @Inject constructor() {
         }
     }
 
+    @Synchronized
     fun markFailure() {
-        failing.value = true
+        failing = true
+        publish()
     }
 
+    @Synchronized
     fun markSuccess() {
-        failing.value = false
+        failing = false
+        publish()
+    }
+
+    /** Hay, o no, una red con internet en el móvil (lo dice Android). */
+    @Synchronized
+    fun onInternetAvailable(available: Boolean) {
+        internet = available
+        publish()
+    }
+
+    private fun publish() {
+        state.value = failing || !internet
     }
 
     private fun IOException.isConnectionFailure() =

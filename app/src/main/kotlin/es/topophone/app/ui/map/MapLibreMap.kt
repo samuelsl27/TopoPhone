@@ -1,6 +1,9 @@
 package es.topophone.app.ui.map
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +57,7 @@ object MapHttpClient {
 class MapEnvironment @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:MapHttp val httpClient: OkHttpClient,
+    private val monitor: NetworkFailureMonitor,
 ) {
     private var initialized = false
 
@@ -61,6 +65,7 @@ class MapEnvironment @Inject constructor(
         if (initialized) return
         MapLibre.getInstance(context)
         HttpRequestUtil.setOkHttpClient(httpClient)
+        watchInternet()
         // S009/RF-13: lo ya visto queda guardado para verlo sin conexión; antes de poner ningún estilo.
         OfflineManager.getInstance(context).setMaximumAmbientCacheSize(
             MapOptions.AMBIENT_CACHE_BYTES,
@@ -71,6 +76,20 @@ class MapEnvironment @Inject constructor(
             },
         )
         initialized = true
+    }
+
+    /** Sin red con internet MapLibre no pide nada: el aviso de sin conexión lo sabe por Android (S009/RF-15). */
+    private fun watchInternet() {
+        val connectivity = context.getSystemService(ConnectivityManager::class.java) ?: return
+        monitor.onInternetAvailable(connectivity.activeNetwork != null)
+        connectivity.registerDefaultNetworkCallback(
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) =
+                    monitor.onInternetAvailable(capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))
+
+                override fun onLost(network: Network) = monitor.onInternetAvailable(false)
+            },
+        )
     }
 }
 

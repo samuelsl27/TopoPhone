@@ -306,9 +306,6 @@ fun ProjectViewScreen(
         onNavigateBack = onBack,
         actions = {
             if (project != null) {
-                IconButton(onClick = { onInfo(project.id) }, modifier = Modifier.size(MinTouchTarget).testTag(PROJECT_INFO_BUTTON_TAG)) {
-                    Icon(painterResource(R.drawable.ic_info), contentDescription = stringResource(R.string.project_info_screen))
-                } // S009/RF-5
                 IconButton(onClick = { onEdit(project.id) }, modifier = Modifier.size(MinTouchTarget).testTag(PROJECT_EDIT_TAG)) {
                     Icon(painterResource(R.drawable.ic_edit), contentDescription = stringResource(R.string.project_edit))
                 } // S006/RF-14
@@ -360,7 +357,7 @@ fun ProjectViewScreen(
                     if (project != null && camera != null) ScaleBarView(camera, project.linearUnit)
                     Attribution(state.mapSettings)
                 }
-                if (project != null) PositionPanel(project, state.position, state.accuracyM, Modifier)
+                if (project != null) PositionPanel(project, state.position, state.accuracyM, onInfo, Modifier)
             }
         }
     }
@@ -509,7 +506,7 @@ private fun BindMap(controller: MapController?, state: ProjectViewUiState) {
  * desplegarlo, también los factores (S006/RF-29, RF-30; S008/RF-8; S009/RF-2 a RF-4).
  */
 @Composable
-private fun PositionPanel(project: Project, position: ProjectPosition?, accuracyM: Double?, modifier: Modifier) {
+private fun PositionPanel(project: Project, position: ProjectPosition?, accuracyM: Double?, onInfo: (String) -> Unit, modifier: Modifier) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(POSITION_PANEL_TAG)) {
         Column(
@@ -518,7 +515,18 @@ private fun PositionPanel(project: Project, position: ProjectPosition?, accuracy
             ).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Text(stringResource(R.string.project_position_title), style = MaterialTheme.typography.labelLarge)
+            // "Datos del proyecto" va aquí y no en la barra superior, que con el indicador de estado no tiene sitio (S009/RF-5).
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.project_position_title),
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(
+                    onClick = { onInfo(project.id) },
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(PROJECT_INFO_BUTTON_TAG),
+                ) { Text(stringResource(R.string.project_info_screen)) }
+            }
             when {
                 position == null -> Text(stringResource(R.string.project_no_position))
                 PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable ->

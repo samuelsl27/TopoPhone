@@ -26,5 +26,5 @@
       Hecho cuando: `CameraPolicyTest` y los casos de centrar y encuadre de `ProjectMapScreenTest` en verde.
 - [x] T12. `app`: caché de 200 MB, `NetworkFailureMonitor` y aviso sin conexión. (RF-13, RF-14, RF-15)
       Hecho cuando: `NetworkFailureMonitorTest` y el caso del aviso de `ProjectMapScreenTest` en verde.
-- [ ] T13. Validación: recorrer la spec RF por RF, `rf_report`, tamaño del APK, demo en el emulador con una reproducción según los criterios de finalización. (Todos)
+- [x] T13. Validación: recorrer la spec RF por RF, `rf_report`, tamaño del APK, demo en el emulador con una reproducción según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos, el APK crece ≤ 15 MB y la demo funciona. La demo de campo con el RS3 queda para el usuario.

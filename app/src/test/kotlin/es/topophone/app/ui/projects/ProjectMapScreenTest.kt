@@ -1,9 +1,15 @@
 package es.topophone.app.ui.projects
 
 import android.content.Context
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -14,15 +20,18 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.dp
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.LocalStatusIndicator
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.FakeMapViewportRepository
 import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.map.fakeMap
 import es.topophone.app.ui.receiver.nmea
+import es.topophone.core.designsystem.component.NAVIGATE_BACK_TAG
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.WebMercator
@@ -172,6 +181,23 @@ class ProjectMapScreenTest {
         compose.onNodeWithTag(PROJECT_INFO_BUTTON_TAG).performClick()
 
         opened shouldBe "p1"
+    }
+
+    @Test
+    @Config(qualifiers = "es-rES-w412dp-h915dp")
+    fun `S009 RF-1 en un movil normal, con simulacion y una solucion larga, el boton de volver no queda tapado`() {
+        // "Simulación", "Autónoma" y "14 sat" miden unos 216 dp a este ancho.
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                CompositionLocalProvider(LocalStatusIndicator provides { Box(Modifier.width(216.dp).height(40.dp).testTag("status")) }) {
+                    ProjectViewScreen(ThemeState.DEFAULT, {}, ProjectViewUiState(project, madrid), onBack = {}, map = fakeMap(map))
+                }
+            }
+        }
+
+        val back = compose.onNodeWithTag(NAVIGATE_BACK_TAG).assertIsDisplayed().getBoundsInRoot()
+        val status = compose.onNodeWithTag("status").getBoundsInRoot()
+        (back.right <= status.left) shouldBe true
     }
 
     @Test

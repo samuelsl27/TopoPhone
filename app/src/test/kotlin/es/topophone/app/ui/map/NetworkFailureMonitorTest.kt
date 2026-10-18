@@ -47,6 +47,25 @@ class NetworkFailureMonitorTest {
     }
 
     @Test
+    fun `S009 RF-15 sin una red con internet el mapa esta sin conexion aunque MapLibre ni lo intente`() {
+        // Con el móvil sin red, MapLibre no lanza peticiones: no hay fallos que ver.
+        monitor.onInternetAvailable(false)
+        monitor.offline.value shouldBe true
+
+        monitor.onInternetAvailable(true)
+        monitor.offline.value shouldBe false
+    }
+
+    @Test
+    fun `S009 RF-15 con red pero fallando las descargas sigue sin conexion hasta que llega una respuesta`() {
+        monitor.onInternetAvailable(true)
+        network = Interceptor { throw UnknownHostException("vt-mapabase.idee.es") }
+        fetch()
+
+        monitor.offline.value shouldBe true
+    }
+
+    @Test
     fun `S009 RF-13 la cache del mapa base guarda hasta 200 MB`() {
         MapOptions.AMBIENT_CACHE_BYTES shouldBe 200L * 1024 * 1024
     }
