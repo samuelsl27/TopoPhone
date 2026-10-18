@@ -12,7 +12,13 @@ android {
     defaultConfig {
         applicationId = "es.topophone.app" // S001/RF-1
         buildConfigField("String", "REPO_URL", "\"https://github.com/samuelsl27/TopoPhone\"") // S001/RF-20
+
+        // S009: MapLibre trae código nativo. Móviles de 64 y 32 bits, y x86_64 para emuladores y Chromebooks.
+        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
     }
+
+    // S009, RNF: bibliotecas nativas comprimidas en el APK publicado (≤ 15 MB más con el mapa).
+    packaging { jniLibs { useLegacyPackaging = true } }
 
     androidResources {
         // Idiomas de la app: español (por defecto) e inglés (S001/RF-16, S001/RF-17).
@@ -35,6 +41,8 @@ dependencies {
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.aboutlibraries.compose.m3)
+    implementation(libs.maplibre.android) // S009 (ADR-9)
+    implementation(libs.okhttp)
 
     // Base de datos en memoria para los tests de las pantallas de proyectos (S006).
     testImplementation(libs.room.runtime)

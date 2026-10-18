@@ -404,4 +404,5 @@
     <string name="unavailable_outside_geoid_canarias">No disponible: el punto está fuera del modelo EGM08-REDNAP de Canarias.</string>
     <string name="coordinates_reference_regcan95">En el sistema de referencia de las correcciones, que se supone REGCAN95.</string>
     <string name="unavailable_outside_geoids">No disponible: el punto está fuera de los modelos EGM08-REDNAP de la Península y Baleares y de Canarias.</string>
+    <string name="map_description">Mapa del proyecto</string>
 </resources>

@@ -10,7 +10,7 @@
       Hecho cuando: `ScaleBarTest` en verde (longitudes redondas, ≤ 100 dp, 1 m o menos en el zoom máximo).
 - [x] T4. `data`: Room v4 con `map_viewports` (migración 3→4) y su repositorio; `MapPreferences` en DataStore. (RF-8, RF-21)
       Hecho cuando: `TopoPhoneDatabaseTest` (migración), `MapViewportRepositoryTest` (cascada al vaciar la papelera) y `MapPreferencesTest` en verde.
-- [ ] T5. `app`: MapLibre (OpenGL ES 13.6.1) con tres arquitecturas y bibliotecas comprimidas, sin permisos de ubicación; `MapController` y su implementación con el mapa del IGN; cliente HTTP con User-Agent. (RF-6, RF-11)
+- [x] T5. `app`: MapLibre (OpenGL ES 13.6.1) con tres arquitecturas y bibliotecas comprimidas, sin permisos de ubicación; `MapController` y su implementación con el mapa del IGN; cliente HTTP con User-Agent. (RF-6, RF-11)
       Hecho cuando: el test de permisos del manifiesto en verde, `assembleDebug` y `assembleRelease` compilan y el APK de publicación crece ≤ 15 MB.
 - [ ] T6. `app`: estilos de los cuatro mapas base (IGN con el parche de `maxzoom`, OpenFreeMap, PNOA, Ninguno) con el fondo neutro y la cuadrícula debajo. (RF-6, RF-14)
       Hecho cuando: `IgnStylePatchTest` y `MapStylesTest` en verde.
