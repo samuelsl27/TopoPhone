@@ -23,7 +23,6 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Recolector | `Collector` | |
 | Recolectar / medir punto | `collectPoint` | |
 | Promediado | `Averaging` | |
-| Época | `Epoch` | Una posición del receptor con sus frases NMEA (S003) |
 | Medida instantánea | `InstantMeasurement` | Con la primera época que llega (S010) |
 | Fuera de tolerancia | `OutOfTolerance` | Punto guardado sin cumplir el control de precisión, por decisión del usuario (S010) |
 | Descripción (del punto) | `description` | Texto libre; se conserva para el siguiente punto (S010) |

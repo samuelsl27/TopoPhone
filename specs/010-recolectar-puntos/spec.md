@@ -107,4 +107,4 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S010: "promediado de hasta 60 s" en lugar de "promediado", para distinguirlo de S016.
-- `docs/glosario.md`: se añaden "Época" (`Epoch`), "Medida instantánea" (`InstantMeasurement`), "Fuera de tolerancia" (`OutOfTolerance`) y "Descripción (del punto)" (`description`).
+- `docs/glosario.md`: se añaden "Medida instantánea" (`InstantMeasurement`), "Fuera de tolerancia" (`OutOfTolerance`) y "Descripción (del punto)" (`description`).
