@@ -1,16 +1,25 @@
 package es.topophone.data.db
 
 import android.content.Context
+import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabase
 import androidx.room.testing.MigrationTestHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.PointOrigin
+import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.data.map.MapViewportEntity
+import es.topophone.data.point.PointEntity
+import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.ProjectEntity
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.io.File
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.After
@@ -19,7 +28,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Base de datos: durabilidad y banco de pruebas de migraciones (S006 a S009, RNF de las specs; RNF-T6). */
+/** Base de datos: durabilidad y banco de pruebas de migraciones (S006 a S011, RNF de las specs; RNF-T6). */
 @RunWith(AndroidJUnit4::class)
 class TopoPhoneDatabaseTest {
 
@@ -160,9 +169,86 @@ class TopoPhoneDatabaseTest {
         migrations.runMigrationsAndValidate(TEST_DB, CURRENT_VERSION, true).close()
     }
 
+    @Test
+    fun `S011 RF-20 al actualizar de la v5 a la v6 un punto de S010 conserva su medida y queda activo y visible`() {
+        createFromExportedSchema(5)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v5 ->
+            v5.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v5.execSQL(
+                "INSERT INTO points (id, project_id, name, description, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, hdop, correction_age, " +
+                    "sigma_h, sigma_v, mode, epochs_used, epochs_discarded, from_replay, out_of_tolerance, raw_nmea, " +
+                    "measured_from, measured_to, created_at) VALUES (?, ?, 'P12', 'arqueta', 40.416801234567891, " +
+                    "-3.7037123456789, 701.357123456, 1.8, 40.416801234567891, -3.7037123456789, 699.423123456, " +
+                    "440290.434567891, 4474257.414123456, 648.340987654, 'FLOAT', 18, 0.7, 2.0, 0.031, 0.052, 'AVERAGED', " +
+                    "5, 2, 1, 'NOT_FIX', '\$GNGGA,1*00', 1500, 1900, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val point = runBlocking { RoomPointRepository(db).points(project.id).first() }.single()
+            val coordinates = PointCoordinates(
+                GeodeticPosition(40.416801234567891, -3.7037123456789, 699.423123456),
+                440_290.434567891,
+                4_474_257.414123456,
+                648.340987654,
+            )
+            point.origin shouldBe PointOrigin.MEASURED
+            point.coordinates shouldBe coordinates
+            point.measurement.shouldNotBeNull().coordinates shouldBe coordinates
+            point.measurement.shouldNotBeNull().antenna shouldBe GeodeticPosition(40.416801234567891, -3.7037123456789, 701.357123456)
+            point.measurement.shouldNotBeNull().outOfTolerance shouldBe setOf(PrecisionFailure.NOT_FIX)
+            point.edited shouldBe false
+            point.hidden shouldBe false
+            point.deletedAtMs shouldBe null
+            point.typed shouldBe null
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun `S011 RF-22 y RF-25 el nombre de un punto de la papelera queda libre y entre los activos sigue siendo unico`() {
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            runBlocking { db.projects().insert(project) }
+            val base = PointEntity(
+                id = "a", projectId = project.id, name = "P1", description = "", origin = "MANUAL",
+                antennaLat = null, antennaLon = null, antennaH = null, poleHeight = null,
+                groundLat = 40.0, groundLon = -3.7, groundH = null, easting = 1.0, northing = 2.0, height = null,
+                measuredGroundLat = null, measuredGroundLon = null, measuredGroundH = null,
+                measuredEasting = null, measuredNorthing = null, measuredHeight = null,
+                solution = null, satellites = null, hdop = null, correctionAge = null, sigmaH = null, sigmaV = null, mode = null,
+                epochsUsed = null, epochsDiscarded = null, fromReplay = null, outOfTolerance = "", rawNmea = null,
+                measuredFrom = null, measuredTo = null, typedForm = null, typedFirst = null, typedSecond = null,
+                typedHeight = null, typedHeightKind = null, edited = false, hidden = false, copyOf = null,
+                createdAt = 1_000, deletedAt = 5_000, trashKey = "a",
+            )
+            runBlocking {
+                db.points().insert(base)
+                db.points().insert(base.copy(id = "b", deletedAt = null, trashKey = ""))
+            }
+
+            shouldThrow<SQLiteConstraintException> {
+                runBlocking { db.points().insert(base.copy(id = "c", deletedAt = null, trashKey = "")) }
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 5
+        const val CURRENT_VERSION = 6
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

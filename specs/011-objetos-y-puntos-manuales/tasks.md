@@ -14,7 +14,7 @@
       Hecho cuando: `ManualCoordinatesTest` en verde frente a `puntos_manuales.csv` (≤ 1 mm) y los tests de S008 siguen en verde.
 - [x] T6. `core:survey`: `PointCorrections` (jalón, volver a la medida, duplicar). (RF-12 a RF-14, RF-21)
       Hecho cuando: `PointCorrectionsTest` en verde frente a `jalon_corregido.csv` (≤ 1 mm), con un punto editado.
-- [ ] T7. `data`: Room v6, con las columnas nuevas de `points`, `point_history` e índice `(project_id, name, trash_key)`; migración 5→6. (RF-20, RF-22, RF-25)
+- [x] T7. `data`: Room v6, con las columnas nuevas de `points`, `point_history` e índice `(project_id, name, trash_key)`; migración 5→6. (RF-20, RF-22, RF-25)
       Hecho cuando: `TopoPhoneDatabaseTest` en verde con un punto de S010 migrado (todo conservado, la medida copiada).
 - [ ] T8. `data`: `PointRepository` con resúmenes, ficha, edición con historial, `updateAll`, visibilidad y papelera (mover, restaurar, borrar, purgar); `TrashPurge` purga también los puntos. (RF-1, RF-4, RF-9 a RF-11, RF-13 a RF-15, RF-22 a RF-26)
       Hecho cuando: `PointRepositoryTest` y `TrashPurgeTest` en verde.
