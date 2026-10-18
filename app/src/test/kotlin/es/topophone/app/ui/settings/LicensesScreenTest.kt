@@ -21,9 +21,11 @@ import es.topophone.app.ui.StatefulTestApp
 import es.topophone.app.ui.TopLevelDestination
 import es.topophone.app.ui.navItem
 import es.topophone.core.designsystem.component.NAVIGATE_BACK_TAG
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -51,6 +53,17 @@ class LicensesScreenTest {
             "androidx.collection:collection", // indirecta (Compose)
             "com.squareup.okio:okio", // indirecta (DataStore)
         )
+    }
+
+    @Test
+    fun `S009 RNF-T14 MapLibre lleva su licencia y los avisos de los componentes de terceros que incluye`() {
+        val maplibre = libs.libraries.single { it.uniqueId == "org.maplibre.gl:android-sdk-opengl" }
+
+        maplibre.licenses.map { it.spdxId } shouldContain "BSD-2-Clause"
+        val notices = maplibre.licenses.joinToString(" ") { it.licenseContent.orEmpty() }
+        notices shouldContain "FreeType"
+        notices shouldContain "RapidJSON"
+        notices shouldContain "Boost Software License"
     }
 
     @Test

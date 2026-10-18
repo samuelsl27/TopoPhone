@@ -1,0 +1,7 @@
+{
+  "uniqueId": "org.maplibre.gl:android-sdk-opengl",
+  "licenses": [
+    "BSD-2-Clause",
+    "maplibre-native-notices"
+  ]
+}

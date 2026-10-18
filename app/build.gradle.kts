@@ -55,6 +55,8 @@ aboutLibraries {
     collect {
         fetchRemoteLicense = false
         fetchRemoteFunding = false
+        // S009, RNF-T14: avisos de los componentes de terceros que lleva MapLibre Native en su código nativo.
+        configPath = file("config")
     }
     export {
         excludeFields.addAll("funding")
@@ -71,6 +73,8 @@ aboutLibraries {
             "LGPL-3.0-or-later",
             "GPL-3.0-or-later",
             "GPL-3.0-only",
+            // Avisos de MapLibre Native (FreeType, Boost, RapidJSON…), que acompañan a su BSD-2-Clause.
+            "MapLibre Native Android: avisos de terceros",
         )
     }
 }

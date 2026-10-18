@@ -28,3 +28,5 @@
       Hecho cuando: `NetworkFailureMonitorTest` y el caso del aviso de `ProjectMapScreenTest` en verde.
 - [x] T13. Validación: recorrer la spec RF por RF, `rf_report`, tamaño del APK, demo en el emulador con una reproducción según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos, el APK crece ≤ 15 MB y la demo funciona. La demo de campo con el RS3 queda para el usuario.
+- [x] T14. Licencias: los avisos de los componentes de terceros que lleva MapLibre Native (FreeType, Boost, RapidJSON…) en "Licencias y atribuciones". (RNF-T14)
+      Hecho cuando: `LicensesScreenTest` en verde con los avisos de MapLibre y el modo estricto de licencias sigue pasando.
