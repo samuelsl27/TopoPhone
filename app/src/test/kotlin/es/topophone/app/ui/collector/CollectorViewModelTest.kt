@@ -31,6 +31,7 @@ import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import java.io.ByteArrayOutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
@@ -292,6 +293,25 @@ class CollectorViewModelTest {
         await(vm) { it.pending == null && !it.measuring }
         runBlocking { points.points(projectId).first() }.shouldBeEmpty()
         saved shouldBe 0
+    }
+
+    @Test
+    fun `S010 RF-9 los segundos se escriben libremente, solo se guardan de 1 a 60 y fuera de eso no dejan promediar`() {
+        val vm = viewModel(project())
+        vm.setSettings(CollectorSettings(MeasurementMode.AVERAGED))
+        await(vm) { it.settings.mode == MeasurementMode.AVERAGED }
+
+        vm.setAveragingSeconds("")
+        await(vm) { it.averagingSecondsText == "" && !it.averagingSecondsValid }.blocker shouldBe MeasureBlocker.INVALID_SECONDS
+        vm.setAveragingSeconds("20")
+        await(vm) { it.settings.averagingSeconds == 20 }.averagingSecondsValid shouldBe true
+        vm.setAveragingSeconds("520")
+        await(vm) { it.averagingSecondsText == "520" }.blocker shouldBe MeasureBlocker.INVALID_SECONDS
+        collectorPreferences.settings.value.averagingSeconds shouldBe 20
+
+        // En instantáneo los segundos no cuentan.
+        vm.setSettings(CollectorSettings(MeasurementMode.INSTANT, averagingSeconds = 20))
+        await(vm) { it.settings.mode == MeasurementMode.INSTANT }.blocker shouldNotBe MeasureBlocker.INVALID_SECONDS
     }
 
     @Test

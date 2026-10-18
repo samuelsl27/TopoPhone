@@ -20,7 +20,9 @@ import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.doubles.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -79,11 +81,20 @@ class PointsLayerTest {
     }
 
     @Test
-    fun `S010 RF-20 el nombre se ve desde la escala 1 2000 en la latitud de los puntos`() {
+    fun `S010 RF-20 el nombre se ve desde la escala 1 2500 en la latitud de los puntos`() {
         val points = MapPoints.from(listOf(point("P1", 40.0, -3.7), point("P2", 41.0, -3.7)))
 
-        MapPoints.labelMinZoom(points) shouldBe (WebMercator.zoomForScale(2_000.0, 40.5) plusOrMinus 1e-9)
+        MapPoints.labelMinZoom(points) shouldBe (WebMercator.zoomForScale(2_500.0, 40.5) plusOrMinus 1e-9)
         MapPoints.labelMinZoom(emptyList()).shouldBeNull()
+    }
+
+    @Test
+    fun `S010 RF-20 siguiendo al rover los nombres se ven aunque el rover este al norte de los puntos`() {
+        val points = MapPoints.from(listOf(point("P1", 40.0, -3.7)))
+
+        val follow = CameraPolicy().onCenterPressed(GeoPoint(40.5, -3.7), camera = null) as CameraCommand.MoveTo
+
+        follow.viewport.zoom shouldBeGreaterThan MapPoints.labelMinZoom(points).shouldNotBeNull()
     }
 
     @Test

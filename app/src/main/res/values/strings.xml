@@ -462,4 +462,5 @@
         <item quantity="one">%1$d punto</item>
         <item quantity="other">%1$d puntos</item>
     </plurals>
+    <string name="collector_seconds_invalid">Entre 1 y 60 s.</string>
 </resources>

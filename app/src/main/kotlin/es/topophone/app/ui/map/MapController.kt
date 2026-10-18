@@ -30,6 +30,12 @@ interface MapController {
     /** España entera, con Canarias (S009/RF-21). */
     fun showSpain()
 
+    /**
+     * Píxeles que tapan los paneles por abajo. El centro del mapa, donde se sigue al rover, pasa al resto de la
+     * pantalla, así el rover queda a la vista con el recolector abierto (S010/RF-1).
+     */
+    fun setBottomInset(px: Int)
+
     /** Cada vez que el usuario empieza a mover el mapa con el dedo (S009/RF-20). */
     val userGestures: Flow<Unit>
 

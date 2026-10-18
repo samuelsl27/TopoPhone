@@ -61,7 +61,7 @@ class CollectorActions(
     val onDescription: (String) -> Unit = {},
     val onPoleHeight: (String) -> Unit = {},
     val onMode: (MeasurementMode) -> Unit = {},
-    val onSeconds: (Int) -> Unit = {},
+    val onSeconds: (String) -> Unit = {},
     val onSettings: (CollectorSettings) -> Unit = {},
     val onMeasure: () -> Unit = {},
     val onCancel: () -> Unit = {},
@@ -84,44 +84,49 @@ fun CollectorPanel(
 ) {
     KeepScreenOn()
     Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(COLLECTOR_PANEL_TAG)) {
-        Column(
-            modifier = Modifier.heightIn(
-                max = PANEL_MAX_HEIGHT,
-            ).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.collector_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                 TextButton(onClick = onClose, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(COLLECTOR_CLOSE_TAG)) {
                     Text(stringResource(R.string.collector_close))
                 }
             }
-            NameField(state, actions)
-            OutlinedTextField(
-                value = state.description,
-                onValueChange = actions.onDescription,
-                label = { Text(stringResource(R.string.collector_description)) },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_DESCRIPTION_TAG),
-            ) // S010/RF-4
-            OutlinedTextField(
-                value = state.poleHeightText,
-                onValueChange = actions.onPoleHeight,
-                label = { Text(stringResource(R.string.pole_height_label)) },
-                isError = !state.poleHeightValid,
-                supportingText = if (state.poleHeightValid) null else ({ Text(stringResource(R.string.pole_height_invalid)) }),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_POLE_TAG),
-            ) // S010/RF-5
-            ModeChoice(state.settings, actions)
-            PrecisionControlRow(state.settings.precision, unit) { actions.onSettings(state.settings.copy(precision = it)) } // S010/RF-13
+            // Solo el formulario se desplaza y encoge: la solución y "Medir" o "Cancelar" se ven siempre (S010/RF-6, RF-8, RF-11).
+            Column(
+                modifier = Modifier.weight(1f, fill = false).heightIn(max = FORM_MAX_HEIGHT).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) { Form(state, unit, actions) }
             LiveQualityText(state.live, unit)
             Messages(state)
             if (state.measuring) Measuring(state, actions) else MeasureButton(state, actions)
         }
     }
     state.pending?.let { OutOfToleranceDialog(it, actions.onConfirm, actions.onDiscard) } // S010/RF-14, RF-15
+}
+
+/** Nombre, descripción, jalón, modo y control de precisión. */
+@Composable
+private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorActions) {
+    NameField(state, actions)
+    OutlinedTextField(
+        value = state.description,
+        onValueChange = actions.onDescription,
+        label = { Text(stringResource(R.string.collector_description)) },
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_DESCRIPTION_TAG),
+    ) // S010/RF-4
+    OutlinedTextField(
+        value = state.poleHeightText,
+        onValueChange = actions.onPoleHeight,
+        label = { Text(stringResource(R.string.pole_height_label)) },
+        isError = !state.poleHeightValid,
+        supportingText = if (state.poleHeightValid) null else ({ Text(stringResource(R.string.pole_height_invalid)) }),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_POLE_TAG),
+    ) // S010/RF-5
+    ModeChoice(state, actions)
+    PrecisionControlRow(state.settings.precision, unit) { actions.onSettings(state.settings.copy(precision = it)) } // S010/RF-13
 }
 
 @Composable
@@ -144,11 +149,11 @@ private fun NameField(state: CollectorUiState, actions: CollectorActions) {
 
 /** Instantáneo o promediado, con los segundos del promediado (S010/RF-8, RF-9). */
 @Composable
-private fun ModeChoice(settings: CollectorSettings, actions: CollectorActions) {
+private fun ModeChoice(state: CollectorUiState, actions: CollectorActions) {
     Row(modifier = Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         MeasurementMode.entries.forEach { mode ->
             FilterChip(
-                selected = settings.mode == mode,
+                selected = state.settings.mode == mode,
                 onClick = { actions.onMode(mode) },
                 label = {
                     Text(
@@ -167,11 +172,13 @@ private fun ModeChoice(settings: CollectorSettings, actions: CollectorActions) {
             )
         }
     }
-    if (settings.mode == MeasurementMode.AVERAGED) {
+    if (state.settings.mode == MeasurementMode.AVERAGED) {
         OutlinedTextField(
-            value = settings.averagingSeconds.toString(),
-            onValueChange = { text -> text.toIntOrNull()?.let(actions.onSeconds) },
+            value = state.averagingSecondsText,
+            onValueChange = actions.onSeconds,
             label = { Text(stringResource(R.string.collector_seconds)) },
+            isError = !state.averagingSecondsValid,
+            supportingText = if (state.averagingSecondsValid) null else ({ Text(stringResource(R.string.collector_seconds_invalid)) }),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_SECONDS_TAG),
@@ -256,5 +263,5 @@ private fun seconds(value: Double, locale: Locale): String = NumberFormat.getNum
     maximumFractionDigits = 1
 }.format(value)
 
-/** El panel no tapa más de esto del mapa; si no cabe, se desplaza. */
-private val PANEL_MAX_HEIGHT = 420.dp
+/** El formulario no pasa de esto, para que el panel deje ver el mapa; si no cabe, se desplaza. */
+private val FORM_MAX_HEIGHT = 168.dp

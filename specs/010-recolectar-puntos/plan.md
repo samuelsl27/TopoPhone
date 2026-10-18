@@ -104,7 +104,7 @@ Se separa el número final (con sus ceros) y se suma uno conservando el ancho: "
   - una fuente GeoJSON con un círculo azul por punto (los fuera de tolerancia, naranjas con borde discontinuo) y el nombre en una capa de texto;
   - el texto usa "Noto Sans Regular", que sirven tanto el IGN como OpenFreeMap;
   - los estilos locales (PNOA y Ninguno) usan los glifos del IGN;
-  - el nombre se ve desde el zoom de 1:2.000 en la latitud de los puntos;
+  - el nombre se ve desde el zoom de 1:2.500 en la latitud de los puntos, algo más lejos que el de seguir al rover (1:2.000) para que siguiéndolo no aparezca y desaparezca;
   - los puntos quedan encima del Catastro y debajo del rover.
 - **Datos del proyecto:** "N puntos" en lugar de "Todavía no hay puntos" en cuanto hay uno.
 

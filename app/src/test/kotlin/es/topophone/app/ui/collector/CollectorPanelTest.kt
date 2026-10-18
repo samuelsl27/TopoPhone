@@ -32,6 +32,8 @@ import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.floats.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.floats.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -77,11 +79,12 @@ class CollectorPanelTest {
         onDescription = { calls += "description:$it" },
         onPoleHeight = { calls += "pole:$it" },
         onMode = { calls += "mode:$it" },
+        onSeconds = { calls += "seconds:$it" },
         onMeasure = { calls += "measure" },
         onCancel = { calls += "cancel" },
     )
 
-    private fun show(state: CollectorUiState, open: Boolean = true) {
+    private fun show(state: CollectorUiState, open: Boolean = true, map: FakeMapController = FakeMapController()) {
         compose.setContent {
             view = LocalView.current
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
@@ -90,7 +93,7 @@ class CollectorPanelTest {
                     {},
                     ProjectViewUiState(project),
                     onBack = {},
-                    map = fakeMap(FakeMapController()),
+                    map = fakeMap(map),
                     collector = state,
                     collectorActions = actions,
                 )
@@ -115,6 +118,42 @@ class CollectorPanelTest {
     }
 
     @Test
+    @Config(qualifiers = "+w360dp-h640dp")
+    fun `S010 RF-1 el mapa deja libre lo que tapa el recolector, para que el rover quede a la vista`() {
+        val map = FakeMapController()
+        show(ready, open = false, map = map)
+        compose.waitForIdle()
+        val mapBounds = compose.onNodeWithTag(PROJECT_MAP_TAG).fetchSemanticsNode().boundsInRoot
+        val positionPanel = compose.onNodeWithTag(POSITION_PANEL_TAG).fetchSemanticsNode().boundsInRoot
+        map.bottomInsetPx.toFloat() shouldBeGreaterThanOrEqual mapBounds.bottom - positionPanel.top
+
+        compose.onNodeWithTag(COLLECT_BUTTON_TAG).performClick()
+        compose.waitForIdle()
+
+        val panel = compose.onNodeWithTag(COLLECTOR_PANEL_TAG).fetchSemanticsNode().boundsInRoot
+        map.bottomInsetPx.toFloat() shouldBeGreaterThanOrEqual mapBounds.bottom - panel.top
+        map.bottomInsetPx.toFloat() shouldBeLessThan mapBounds.height
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp")
+    fun `S010 RF-6 y RF-8 en un movil pequeno la solucion y Medir se ven sin desplazar el panel`() {
+        show(ready)
+
+        compose.onNodeWithTag(COLLECTOR_LIVE_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp")
+    fun `S010 RF-9 y RF-11 en un movil pequeno el progreso y Cancelar se ven sin desplazar el panel`() {
+        show(ready.copy(settings = CollectorSettings(MeasurementMode.AVERAGED), measuring = true, progress = MeasureProgress(2.0, 5.0)))
+
+        compose.onNodeWithText("2 / 5 s").assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).assertIsDisplayed()
+    }
+
+    @Test
     fun `S010 RF-4 y RF-5 nombre, descripcion y jalon se ven y se cambian`() {
         show(ready)
 
@@ -130,7 +169,7 @@ class CollectorPanelTest {
     fun `S010 RF-6 el recolector da la solucion y las precisiones H y V`() {
         show(ready)
 
-        compose.onNodeWithTag(COLLECTOR_LIVE_TAG).performScrollTo()
+        compose.onNodeWithTag(COLLECTOR_LIVE_TAG)
             .assert(hasText("Fija", substring = true))
             .assert(hasText("H 0,010 m", substring = true))
             .assert(hasText("V 0,015 m", substring = true))
@@ -152,7 +191,7 @@ class CollectorPanelTest {
         show(ready)
 
         compose.onNodeWithTag(modeOptionTag(MeasurementMode.AVERAGED)).performScrollTo().performClick()
-        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).performScrollTo().assertIsEnabled().performClick()
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsEnabled().performClick()
 
         calls shouldBe listOf("mode:AVERAGED", "measure")
     }
@@ -161,26 +200,44 @@ class CollectorPanelTest {
     fun `S010 RF-9 y RF-11 durante el promediado se ve el progreso y se puede cancelar`() {
         show(ready.copy(settings = CollectorSettings(MeasurementMode.AVERAGED), measuring = true, progress = MeasureProgress(2.0, 5.0)))
 
-        compose.onNodeWithText("2 / 5 s").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("2 / 5 s").assertIsDisplayed()
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertDoesNotExist()
-        compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).performScrollTo().performClick()
+        compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).performClick()
 
         calls shouldBe listOf("cancel")
+    }
+
+    @Test
+    fun `S010 RF-9 los segundos se pueden vaciar y, fuera de 1 a 60, se dice el rango y no se mide`() {
+        show(
+            ready.copy(
+                settings = CollectorSettings(MeasurementMode.AVERAGED),
+                averagingSecondsText = "",
+                averagingSecondsValid = false,
+                blocker = MeasureBlocker.INVALID_SECONDS,
+            ),
+        )
+
+        compose.onNodeWithText("Entre 1 y 60 s.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_SECONDS_TAG).performScrollTo().assert(hasText("")).performTextReplacement("20")
+
+        calls shouldContainAll listOf("seconds:20")
     }
 
     @Test
     fun `S010 RF-10 si se pierde el FIX se avisa`() {
         show(ready.copy(measuring = true, progress = MeasureProgress(1.0, 5.0), solutionLost = true))
 
-        compose.onNodeWithText("Solución perdida: no cuentan las épocas sin FIX.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Solución perdida: no cuentan las épocas sin FIX.").assertIsDisplayed()
     }
 
     @Test
     fun `S010 RF-12 sin posicion no se puede medir y se dice por que`() {
         show(ready.copy(live = null, blocker = MeasureBlocker.NO_POSITION))
 
-        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).performScrollTo().assertIsNotEnabled()
-        compose.onNodeWithTag(COLLECTOR_BLOCKER_TAG).performScrollTo().assert(hasText("Sin posición del receptor."))
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_BLOCKER_TAG).assert(hasText("Sin posición del receptor."))
     }
 
     @Test
@@ -188,20 +245,20 @@ class CollectorPanelTest {
         show(ready.copy(blocker = MeasureBlocker.NAME_TAKEN))
 
         compose.onNodeWithText("Ya hay un punto con ese nombre.").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsNotEnabled()
     }
 
     @Test
     fun `S010 RF-12 una medida cancelada por falta de datos lo dice`() {
         show(ready.copy(error = CollectorError.NO_DATA))
 
-        compose.onNodeWithText("Sin datos del receptor: la medida se ha cancelado.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Sin datos del receptor: la medida se ha cancelado.").assertIsDisplayed()
     }
 
     @Test
     fun `S010 RF-19 tras guardar se dice que punto se ha guardado`() {
         show(ready.copy(name = "P13", savedName = "P12"))
 
-        compose.onNodeWithText("Punto P12 guardado.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Punto P12 guardado.").assertIsDisplayed()
     }
 }

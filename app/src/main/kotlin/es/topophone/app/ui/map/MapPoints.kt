@@ -9,14 +9,17 @@ data class MapPoint(val id: String, val name: String, val position: GeoPoint, va
 
 /** Puntos del proyecto para el mapa (S010/RF-20, RF-21). */
 object MapPoints {
-    /** Escala desde la que se ve el nombre de los puntos, para que no se amontonen. */
-    private const val LABEL_SCALE = 2_000.0
+    /**
+     * Escala desde la que se ve el nombre de los puntos, para que no se amontonen. Algo más lejos que la de seguir
+     * al rover (1:2.000), para que siguiéndolo los nombres no aparezcan y desaparezcan según la latitud.
+     */
+    private const val LABEL_SCALE = 2_500.0
 
     fun from(points: List<CollectedPoint>): List<MapPoint> = points.map { point ->
         MapPoint(point.id, point.name, GeoPoint(point.ground.latitudeDeg, point.ground.longitudeDeg), point.outOfTolerance.isNotEmpty())
     }
 
-    /** Zoom de 1:2.000 en la latitud media de los puntos; null sin puntos. */
+    /** Zoom de 1:2.500 en la latitud media de los puntos; null sin puntos. */
     fun labelMinZoom(points: List<MapPoint>): Double? =
         points.takeIf { it.isNotEmpty() }?.let { WebMercator.zoomForScale(LABEL_SCALE, it.map { p -> p.position.latitudeDeg }.average()) }
 }

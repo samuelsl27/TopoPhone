@@ -26,6 +26,7 @@ class FakeMapController : MapController {
     var points: List<MapPoint> = emptyList()
     val moves = mutableListOf<MapViewport>()
     var spainShown = false
+    var bottomInsetPx = 0
     private val gestures = MutableSharedFlow<Unit>(extraBufferCapacity = 8)
     override val userGestures: Flow<Unit> = gestures
 
@@ -58,6 +59,10 @@ class FakeMapController : MapController {
 
     override fun showSpain() {
         spainShown = true
+    }
+
+    override fun setBottomInset(px: Int) {
+        bottomInsetPx = px
     }
 }
 

@@ -9,6 +9,7 @@ import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.CollectedPoint
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
@@ -52,7 +53,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /** Por qué no se puede medir ahora (S010/RF-3, RF-12). */
-enum class MeasureBlocker { INVALID_NAME, NAME_TAKEN, INVALID_POLE, NO_POSITION, OUTSIDE_CRS_AREA }
+enum class MeasureBlocker { INVALID_NAME, NAME_TAKEN, INVALID_POLE, INVALID_SECONDS, NO_POSITION, OUTSIDE_CRS_AREA }
 
 /** Por qué una medida se ha cancelado sola (S010/RF-12). */
 enum class CollectorError { NO_DATA, OUTSIDE_CRS_AREA }
@@ -74,6 +75,9 @@ data class CollectorUiState(
     val poleHeightText: String = "",
     val poleHeightValid: Boolean = true,
     val settings: CollectorSettings = CollectorSettings(),
+    /** Segundos del promediado tal como se escriben; solo se guardan si están dentro del rango (S010/RF-9). */
+    val averagingSecondsText: String = CollectorSettings().averagingSeconds.toString(),
+    val averagingSecondsValid: Boolean = true,
     val live: LiveQuality? = null,
     val blocker: MeasureBlocker? = null,
     val measuring: Boolean = false,
@@ -100,7 +104,14 @@ class CollectorViewModel @Inject constructor(
     private val alerts: Alerts,
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
-    private data class Form(val loaded: Boolean = false, val name: String = "", val description: String = "", val poleText: String = "")
+    private data class Form(
+        val loaded: Boolean = false,
+        val name: String = "",
+        val description: String = "",
+        val poleText: String = "",
+        /** Null mientras no se escriba: se ven los segundos guardados. */
+        val secondsText: String? = null,
+    )
 
     private data class Run(
         val measuring: Boolean = false,
@@ -135,6 +146,8 @@ class CollectorViewModel @Inject constructor(
     }.onEach { project = it }
 
     private val formState = combine(form, nameTaken, run, collectorPreferences.settings) { form, taken, run, settings ->
+        val secondsText = form.secondsText ?: settings.averagingSeconds.toString()
+        val secondsValid = parseSeconds(secondsText) != null
         CollectorUiState(
             loaded = form.loaded,
             name = form.name,
@@ -142,7 +155,11 @@ class CollectorViewModel @Inject constructor(
             poleHeightText = form.poleText,
             poleHeightValid = PoleHeight.parse(form.poleText) != null,
             settings = settings,
-            blocker = formBlocker(form, taken),
+            averagingSecondsText = secondsText,
+            averagingSecondsValid = secondsValid,
+            blocker = formBlocker(form, taken) ?: MeasureBlocker.INVALID_SECONDS.takeIf {
+                settings.mode == MeasurementMode.AVERAGED && !secondsValid
+            },
             measuring = run.measuring,
             progress = run.progress,
             solutionLost = run.solutionLost,
@@ -184,6 +201,13 @@ class CollectorViewModel @Inject constructor(
     fun setPoleHeight(text: String) {
         form.update { it.copy(poleText = text) }
         PoleHeight.parse(text)?.let { pole -> viewModelScope.launch { receiverPreferences.savePoleHeight(pole) } }
+    }
+
+    /** Se guardan solo de 1 a 60 s; fuera de eso no se puede promediar (S010/RF-9). */
+    fun setAveragingSeconds(text: String) {
+        form.update { it.copy(secondsText = text) }
+        val seconds = parseSeconds(text) ?: return
+        viewModelScope.launch { collectorPreferences.save(collectorPreferences.settings.first().copy(averagingSeconds = seconds)) }
     }
 
     /** Para todos los proyectos (S010/RF-13). */
@@ -342,6 +366,8 @@ class CollectorViewModel @Inject constructor(
         nameCheck?.cancel()
         nameCheck = viewModelScope.launch { nameTaken.value = name.isNotEmpty() && points.nameExists(id, name) } // S010/RF-3
     }
+
+    private fun parseSeconds(text: String): Int? = text.trim().toIntOrNull()?.takeIf { it in CollectorSettings.AVERAGING_SECONDS }
 
     private fun formBlocker(form: Form, taken: Boolean): MeasureBlocker? = when {
         !PointNames.isValid(form.name) -> MeasureBlocker.INVALID_NAME

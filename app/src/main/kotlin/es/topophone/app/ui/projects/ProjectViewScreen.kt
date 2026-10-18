@@ -32,6 +32,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -306,7 +308,7 @@ fun ProjectViewRoute(
             onDescription = collectorViewModel::setDescription,
             onPoleHeight = collectorViewModel::setPoleHeight,
             onMode = { mode -> collectorViewModel.setSettings(collector.settings.copy(mode = mode)) },
-            onSeconds = { seconds -> collectorViewModel.setSettings(collector.settings.copy(averagingSeconds = seconds)) },
+            onSeconds = collectorViewModel::setAveragingSeconds,
             onSettings = collectorViewModel::setSettings,
             onMeasure = collectorViewModel::measure,
             onCancel = collectorViewModel::cancel,
@@ -336,6 +338,7 @@ fun ProjectViewScreen(
     val project = state.project
     var controller by remember { mutableStateOf<MapController?>(null) }
     var layersOpen by rememberSaveable { mutableStateOf(false) }
+    var bottomInsetPx by remember { mutableIntStateOf(0) }
     SectionScaffold(
         title = project?.name.orEmpty(),
         themeState = themeState,
@@ -383,7 +386,7 @@ fun ProjectViewScreen(
                     Icon(painterResource(R.drawable.ic_center_rover), contentDescription = stringResource(R.string.map_center_rover))
                 } // S009/RF-19
             }
-            Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+            Column(modifier = Modifier.align(Alignment.BottomCenter).onSizeChanged { bottomInsetPx = it.height }) {
                 // Barra de escala y atribución abajo a la izquierda, justo encima del panel.
                 Row(
                     modifier = Modifier.padding(horizontal = 12.dp),
@@ -413,6 +416,7 @@ fun ProjectViewScreen(
         }
     }
     BindMap(controller, state)
+    LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
     controller?.let { FollowRover(it, state, policy, onViewportChanged) }
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
 }

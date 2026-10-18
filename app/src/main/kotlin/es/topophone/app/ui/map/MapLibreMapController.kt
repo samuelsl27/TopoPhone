@@ -23,6 +23,7 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.geometry.LatLngBounds
@@ -58,6 +59,9 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private val requestCadastre = Runnable { loadCadastre() }
     private var rover: RoverMarker? = null
     private var points: List<MapPoint> = emptyList()
+    private var bottomInsetPx = 0
+    private var appliedInsetPx = 0
+    private var easing = false
     private val cameraFlow = MutableStateFlow<MapCamera?>(null)
     override val camera: StateFlow<MapCamera?> = cameraFlow
     private val gestures = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -121,12 +125,46 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     }
 
     override fun moveTo(viewport: MapViewport) {
-        map.easeCamera(CameraUpdateFactory.newLatLngZoom(LatLng(viewport.latitudeDeg, viewport.longitudeDeg), viewport.zoom), MOVE_MS)
+        // El hueco de los paneles va en el mismo movimiento: cambiarlo aparte cortaría la animación a medio camino.
+        appliedInsetPx = bottomInsetPx
+        val position = CameraPosition.Builder()
+            .target(LatLng(viewport.latitudeDeg, viewport.longitudeDeg))
+            .zoom(viewport.zoom)
+            .padding(0.0, 0.0, 0.0, bottomInsetPx.toDouble())
+            .build()
+        easing = true
+        map.easeCamera(CameraUpdateFactory.newCameraPosition(position), MOVE_MS, easeDone)
+    }
+
+    private val easeDone = object : MapLibreMap.CancelableCallback {
+        override fun onFinish() = endEase()
+
+        override fun onCancel() = endEase()
+    }
+
+    private fun endEase() {
+        easing = false
+        applyInset()
     }
 
     override fun showSpain() {
         val spain = LatLngBounds.from(CameraPolicy.SPAIN_NORTH, CameraPolicy.SPAIN_EAST, CameraPolicy.SPAIN_SOUTH, CameraPolicy.SPAIN_WEST)
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(spain, SPAIN_PADDING_PX))
+        val p = SPAIN_PADDING_PX
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(spain, p, p, p, p + bottomInsetPx))
+        // Mismo centro en pantalla, pero solo con el hueco de los paneles para lo que venga después.
+        appliedInsetPx = bottomInsetPx
+        map.moveCamera(CameraUpdateFactory.paddingTo(0.0, 0.0, 0.0, bottomInsetPx.toDouble()))
+    }
+
+    override fun setBottomInset(px: Int) {
+        bottomInsetPx = px
+        if (!easing) applyInset() // S010/RF-1
+    }
+
+    private fun applyInset() {
+        if (appliedInsetPx == bottomInsetPx) return
+        appliedInsetPx = bottomInsetPx
+        map.moveCamera(CameraUpdateFactory.paddingTo(0.0, 0.0, 0.0, bottomInsetPx.toDouble()))
     }
 
     override fun showPoints(points: List<MapPoint>) {
