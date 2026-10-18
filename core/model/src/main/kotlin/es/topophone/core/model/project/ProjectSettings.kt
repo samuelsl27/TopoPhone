@@ -10,6 +10,9 @@ enum class LinearUnit(val metres: Double) {
     ;
 
     fun fromMetres(valueM: Double): Double = valueM / metres
+
+    /** Lo que se escribe en la unidad del proyecto, en metros (S011/RF-17). */
+    fun toMetres(value: Double): Double = value * metres
 }
 
 /** Unidades angulares del proyecto (S006/RF-9, RNF-T9). */
