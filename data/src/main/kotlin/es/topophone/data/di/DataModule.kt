@@ -18,6 +18,11 @@ import es.topophone.data.map.RoomMapViewportRepository
 import es.topophone.data.ntrip.NtripLegacyImport
 import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.ntrip.RoomNtripProfileRepository
+import es.topophone.data.point.CollectorDataStoreQualifier
+import es.topophone.data.point.CollectorPreferences
+import es.topophone.data.point.DataStoreCollectorPreferences
+import es.topophone.data.point.PointRepository
+import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.DataStoreProjectPreferences
 import es.topophone.data.project.ProjectDataStoreQualifier
 import es.topophone.data.project.ProjectPreferences
@@ -51,6 +56,12 @@ object DataStoreModule {
 
     @Provides
     @Singleton
+    @CollectorDataStoreQualifier
+    fun provideCollectorDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        SettingsDataStore.create(context, name = "collector")
+
+    @Provides
+    @Singleton
     @MapDataStoreQualifier
     fun provideMapDataStore(@ApplicationContext context: Context): DataStore<Preferences> = SettingsDataStore.create(context, name = "map")
 
@@ -80,6 +91,11 @@ object DatabaseModule {
     fun provideNtripProfileRepository(database: TopoPhoneDatabase): NtripProfileRepository =
         RoomNtripProfileRepository(database, AesGcmCipher(AndroidKeystoreKeyProvider()))
 
+    /** Puntos recolectados (S010). */
+    @Provides
+    @Singleton
+    fun providePointRepository(database: TopoPhoneDatabase): PointRepository = RoomPointRepository(database)
+
     /** Último encuadre del mapa de cada proyecto (S009/RF-21). */
     @Provides
     @Singleton
@@ -105,4 +121,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindMapPreferences(implementation: DataStoreMapPreferences): MapPreferences
+
+    @Binds
+    abstract fun bindCollectorPreferences(implementation: DataStoreCollectorPreferences): CollectorPreferences
 }

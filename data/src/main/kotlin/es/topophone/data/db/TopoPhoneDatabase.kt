@@ -10,6 +10,8 @@ import es.topophone.data.map.MapViewportDao
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.ntrip.NtripProfileDao
 import es.topophone.data.ntrip.NtripProfileEntity
+import es.topophone.data.point.PointDao
+import es.topophone.data.point.PointEntity
 import es.topophone.data.project.ProjectDao
 import es.topophone.data.project.ProjectEntity
 import es.topophone.data.project.ProjectFolderEntity
@@ -22,12 +24,18 @@ import es.topophone.data.project.ProjectFolderEntity
  * - v2 (S007): perfiles NTRIP. Solo añade una tabla, así que la migración la genera Room.
  * - v3 (S008): altura de cada proyecto (`height_system`, por defecto altitud). Migración de Room.
  * - v4 (S009): último encuadre del mapa de cada proyecto. Solo añade una tabla: migración de Room.
+ * - v5 (S010): puntos recolectados. Solo añade una tabla: migración de Room.
  */
 @Database(
-    entities = [ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class],
-    version = 4,
+    entities = [ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class, PointEntity::class],
+    version = 5,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4)],
+    autoMigrations = [
+        AutoMigration(
+            from = 1,
+            to = 2,
+        ), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5),
+    ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
 
@@ -36,6 +44,8 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
     abstract fun ntripProfiles(): NtripProfileDao
 
     abstract fun mapViewports(): MapViewportDao
+
+    abstract fun points(): PointDao
 
     companion object {
         const val NAME = "topophone.db"

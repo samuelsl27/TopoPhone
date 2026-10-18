@@ -1,0 +1,57 @@
+package es.topophone.data.point
+
+import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.PrecisionControl
+import es.topophone.data.settings.SettingsDataStore
+import io.kotest.matchers.shouldBe
+import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.job
+import kotlinx.coroutines.runBlocking
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TemporaryFolder
+
+/** Modo de medida, promediado y control de precisión, para todos los proyectos (S010/RF-9, RF-13). */
+class CollectorPreferencesTest {
+
+    @get:Rule
+    val folder = TemporaryFolder()
+
+    private val file: File by lazy { File(folder.root, "collector.preferences_pb") }
+
+    private fun <T> withPreferences(block: suspend (DataStoreCollectorPreferences) -> T): T = runBlocking {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        try {
+            block(DataStoreCollectorPreferences(SettingsDataStore.create(scope) { file }))
+        } finally {
+            scope.coroutineContext.job.cancelAndJoin()
+        }
+    }
+
+    @Test
+    fun `S010 RF-13 de fabrica instantaneo, 5 s de promediado, solo FIX y sin limites`() {
+        withPreferences { it.settings.first() } shouldBe CollectorSettings()
+    }
+
+    @Test
+    fun `S010 RF-9 RF-13 lo elegido se recuerda al volver a abrir la app, tambien quitar un limite`() {
+        val chosen =
+            CollectorSettings(
+                MeasurementMode.AVERAGED,
+                30,
+                PrecisionControl(fixOnly = false, horizontalLimitM = 0.02, verticalLimitM = 0.035),
+            )
+        withPreferences { it.save(chosen) }
+        withPreferences { it.settings.first() } shouldBe chosen
+
+        withPreferences { it.save(chosen.copy(precision = chosen.precision.copy(horizontalLimitM = null))) }
+
+        withPreferences { it.settings.first() }.precision.horizontalLimitM shouldBe null
+    }
+}

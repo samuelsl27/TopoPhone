@@ -8,7 +8,7 @@
       Hecho cuando: `PointModelTest` (nombres y control de precisión) en verde.
 - [x] T3. `core:survey`: `PointMeasurement` instantánea y promediada, con épocas descartadas, media, punto del suelo y SC del proyecto. (RF-8 a RF-10, RF-12, RF-17, RF-18)
       Hecho cuando: `PointMeasurementTest` en verde (media ≤ 0,1 mm frente a la referencia).
-- [ ] T4. `data`: Room v5 con `points` (migración 4→5), `PointRepository` y `CollectorPreferences`. (RF-3, RF-13, RF-16, RF-21)
+- [x] T4. `data`: Room v5 con `points` (migración 4→5), `PointRepository` y `CollectorPreferences`. (RF-3, RF-13, RF-16, RF-21)
       Hecho cuando: `TopoPhoneDatabaseTest`, `PointRepositoryTest` y `CollectorPreferencesTest` en verde.
 - [ ] T5. `app`: `CollectorViewModel` (nombre, jalón, medida, control de precisión, guardado, sonidos). (RF-2 a RF-5, RF-8 a RF-19)
       Hecho cuando: `CollectorViewModelTest` en verde con una sesión de reproducción.

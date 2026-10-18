@@ -162,7 +162,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 4
+        const val CURRENT_VERSION = 5
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
@@ -212,6 +212,29 @@ class TopoPhoneDatabaseTest {
             val viewport = MapViewportEntity(project.id, latitude = 40.41668, longitude = -3.70371, zoom = 17.5)
             runBlocking { db.mapViewports().upsert(viewport) }
             runBlocking { db.mapViewports().byProject(project.id) } shouldBe viewport
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun `S010 RNF al actualizar de la v4 a la v5 los proyectos siguen ahi y se añade la tabla de puntos`() {
+        createFromExportedSchema(4)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v4 ->
+            v4.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            runBlocking { db.projects().byId(project.id) }.shouldNotBeNull().name shouldBe project.name
+            runBlocking { db.points().lastName(project.id) } shouldBe null
         } finally {
             db.close()
         }
