@@ -13,6 +13,10 @@ Genera en fixtures/geodesia/:
   vacíos fuera de la rejilla (S008/RF-7, RF-8).
 - factores_tm.csv: factor de escala y convergencia de meridianos de la UTM, con huso forzado
   (S008/RF-13, RF-14).
+- circulo_precision.csv: vértices del círculo de precisión del rover, por el problema directo de la
+  geodésica sobre GRS80 (`Geod.fwd`), con radios de 5 mm a 100 m y 16 rumbos (S009/RF-17).
+- web_mercator.csv: ETRS89 geográficas → Web Mercator (EPSG:3857) y metros del terreno por píxel a
+  varios zooms (teselas de 512 px), medidos con la geodésica entre los dos bordes de un píxel (S009/RF-12).
 
 Uso: uv run --project tools tools/geodesia/generar_vectores.py
 Es determinista: la misma versión de pyproj/PROJ y de la rejilla dan el mismo fichero.
@@ -222,6 +226,49 @@ def factor_vectors(rng: random.Random) -> list[str]:
     return lines
 
 
+def circle_vectors(rng: random.Random) -> list[str]:
+    """S009/RF-17: vértices a distancia r y rumbo θ (grados desde el norte, en sentido horario) del centro."""
+    lines = header("Círculo de precisión: problema directo de la geodésica sobre GRS80 (Geod.fwd)") + [
+        "latitud,longitud,radio,rumbo,latitud_vertice,longitud_vertice"
+    ]
+    geod = pyproj.Geod(ellps="GRS80")
+    centers = [(0.0, 0.0), (28.4636, -16.2518), (40.41668, -3.70371), (44.0, 3.0)]
+    centers += [(rng.uniform(27.0, 44.0), rng.uniform(-18.5, 4.5)) for _ in range(2)]
+    for lat, lon in centers:
+        for radius in (0.005, 0.012, 0.5, 2.0, 25.0, 100.0):
+            for k in range(16):
+                azimuth = k * 22.5
+                vlon, vlat, _ = geod.fwd(lon, lat, azimuth, radius)
+                lines.append(",".join([fmt(lat), fmt(lon), fmt(radius), fmt(azimuth), fmt(vlat), fmt(vlon)]))
+    return lines
+
+
+# Teselas de 512 px (MapLibre): el mundo mide 512·2^z px y 2π·6378137 m en EPSG:3857.
+MERCATOR_HALF_WORLD = 20037508.342789244
+TILE_PX = 512
+
+
+def mercator_vectors(rng: random.Random) -> list[str]:
+    """S009/RF-12: x, y en EPSG:3857 y metros del terreno que mide un píxel horizontal en ese punto."""
+    lines = header("ETRS89 geográficas a Web Mercator (EPSG:3857) y metros por píxel") + [
+        "latitud,longitud,x,y,zoom,metros_por_pixel"
+    ]
+    forward = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+    inverse = Transformer.from_crs("EPSG:3857", "EPSG:4326", always_xy=True)
+    geod = pyproj.Geod(ellps="WGS84")
+    points = [(0.0, 0.0), (27.6, -18.2), (28.4636, -16.2518), (36.0, -5.6), (40.41668, -3.70371), (43.8, 4.4), (44.0, -9.0), (85.0, 179.9)]
+    points += [(rng.uniform(27.0, 44.0), rng.uniform(-18.5, 4.5)) for _ in range(22)]
+    for lat, lon in points:
+        x, y = forward.transform(lon, lat)
+        for zoom in (5.0, 12.0, 17.0, 17.5, 22.0):
+            pixel = 2 * MERCATOR_HALF_WORLD / (TILE_PX * 2**zoom)
+            lon_a, lat_a = inverse.transform(x - pixel / 2, y)
+            lon_b, lat_b = inverse.transform(x + pixel / 2, y)
+            _, _, metres = geod.inv(lon_a, lat_a, lon_b, lat_b)
+            lines.append(",".join([fmt(lat), fmt(lon), fmt(x), fmt(y), fmt(zoom), fmt(metres)]))
+    return lines
+
+
 def main() -> int:
     for grid in rejillas.GRIDS:
         rejillas.ensure(grid, download=True)
@@ -236,6 +283,9 @@ def main() -> int:
         ("geoide_egm08_rednap_canarias.csv", canarias_geoid_vectors(random.Random(20261019))),
         ("ed50_utm.csv", ed50_vectors(random.Random(20261020))),
         ("factores_tm.csv", factor_vectors(random.Random(20261021))),
+        # S009.
+        ("circulo_precision.csv", circle_vectors(random.Random(20261022))),
+        ("web_mercator.csv", mercator_vectors(random.Random(20261023))),
     )
     for name, lines in outputs:
         (OUT / name).write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")

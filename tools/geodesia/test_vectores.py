@@ -83,3 +83,19 @@ def test_los_vectores_de_proyecto_incluyen_huso_forzado_y_puntos_sin_geoide() ->
     forced = [row for row in rows if int(row[3]) != int((float(row[1]) + 180) // 6) + 1]
     assert len(forced) > 100
     assert any(row[6] == "" for row in rows)
+
+
+def test_s009_rf_17_el_circulo_cubre_radios_de_5_mm_a_100_m_con_16_rumbos() -> None:
+    circle = rows("circulo_precision.csv")
+    assert {float(row[2]) for row in circle} == {0.005, 0.012, 0.5, 2.0, 25.0, 100.0}
+    assert len({float(row[3]) for row in circle}) == 16
+    # Cerca del ecuador, en Canarias y en el norte de la Península.
+    assert {round(float(row[0])) for row in circle} >= {0, 28, 44}
+
+
+def test_s009_rf_12_web_mercator_llega_al_zoom_maximo_con_metros_por_pixel_del_elipsoide() -> None:
+    mercator = rows("web_mercator.csv")
+    assert {float(row[4]) for row in mercator} >= {5.0, 17.0, 22.0}
+    assert len(mercator) > 100
+    # A 44° N y zoom 22, 100 px son menos de 1,7 m (la barra de escala puede bajar a 1 m).
+    assert all(100 * float(row[5]) < 1.7 for row in mercator if float(row[4]) == 22.0 and 27.0 <= float(row[0]) <= 44.0)
