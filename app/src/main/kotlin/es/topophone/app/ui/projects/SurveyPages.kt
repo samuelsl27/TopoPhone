@@ -14,6 +14,9 @@ sealed interface SurveyPage {
     /** Vista de un proyecto (S006/RF-28). */
     data class View(val projectId: String) : SurveyPage
 
+    /** Datos de un proyecto (S009/RF-5). */
+    data class Info(val projectId: String) : SurveyPage
+
     /** Una carpeta abierta (S006/RF-20). */
     data class Folder(val folderId: String) : SurveyPage
 
@@ -29,6 +32,7 @@ class SurveyNavigation(
     /** Tras guardar un proyecto nuevo se abre en lugar del formulario (S006/RF-12). */
     val onProjectSaved: (String) -> Unit = {},
     val onEditProject: (String) -> Unit = {},
+    val onOpenProjectInfo: (String) -> Unit = {},
     val onOpenTrash: () -> Unit = {},
     val onBack: () -> Unit = {},
 )
@@ -38,6 +42,7 @@ data class SurveyUiState(
     val list: ProjectListUiState = ProjectListUiState(),
     val form: ProjectFormUiState = ProjectFormUiState(loaded = true),
     val view: ProjectViewUiState = ProjectViewUiState(),
+    val info: ProjectInfoUiState = ProjectInfoUiState(),
     val folder: ProjectFolderUiState = ProjectFolderUiState(),
     val trash: TrashUiState = TrashUiState(),
 )
@@ -65,7 +70,15 @@ fun SurveyPageScreen(
             ),
         )
         is SurveyPage.Form -> ProjectFormScreen(themeState, onToggleSun, state.form, ProjectFormActions(onBack = navigation.onBack))
-        is SurveyPage.View -> ProjectViewScreen(themeState, onToggleSun, state.view, navigation.onBack, navigation.onEditProject)
+        is SurveyPage.View -> ProjectViewScreen(
+            themeState,
+            onToggleSun,
+            state.view,
+            navigation.onBack,
+            navigation.onEditProject,
+            navigation.onOpenProjectInfo,
+        )
+        is SurveyPage.Info -> ProjectInfoScreen(themeState, onToggleSun, state.info, navigation.onBack)
         is SurveyPage.Folder -> ProjectFolderScreen(
             themeState,
             onToggleSun,

@@ -405,4 +405,8 @@
     <string name="coordinates_reference_regcan95">En el sistema de referencia de las correcciones, que se supone REGCAN95.</string>
     <string name="unavailable_outside_geoids">No disponible: el punto está fuera de los modelos EGM08-REDNAP de la Península y Baleares y de Canarias.</string>
     <string name="map_description">Mapa del proyecto</string>
+    <string name="project_info_screen">Datos del proyecto</string>
+    <string name="map_panel_more">Más datos</string>
+    <string name="map_panel_less">Menos datos</string>
+    <string name="map_accuracy_h">Precisión H</string>
 </resources>

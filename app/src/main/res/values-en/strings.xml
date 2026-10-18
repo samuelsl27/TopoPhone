@@ -393,4 +393,8 @@
     <string name="coordinates_reference_regcan95">In the reference frame of the corrections, assumed to be REGCAN95.</string>
     <string name="unavailable_outside_geoids">Not available: the point is outside the EGM08-REDNAP models of the Peninsula and the Balearic Islands and of the Canary Islands.</string>
     <string name="map_description">Project map</string>
+    <string name="project_info_screen">Project details</string>
+    <string name="map_panel_more">More details</string>
+    <string name="map_panel_less">Fewer details</string>
+    <string name="map_accuracy_h">H accuracy</string>
 </resources>

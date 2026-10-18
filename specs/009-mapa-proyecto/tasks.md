@@ -14,7 +14,7 @@
       Hecho cuando: el test de permisos del manifiesto en verde, `assembleDebug` y `assembleRelease` compilan y el APK de publicación crece ≤ 15 MB.
 - [x] T6. `app`: estilos de los cuatro mapas base (IGN con el parche de `maxzoom`, OpenFreeMap, PNOA, Ninguno) con el fondo neutro y la cuadrícula debajo. (RF-6, RF-14)
       Hecho cuando: `IgnStylePatchTest` y `MapStylesTest` en verde.
-- [ ] T7. `app`: vista de proyecto con el mapa a pantalla completa, panel de posición plegado y desplegado con la precisión H, y página "Datos del proyecto"; tests de S006 y S008 adaptados. (RF-1 a RF-5)
+- [x] T7. `app`: vista de proyecto con el mapa a pantalla completa, panel de posición plegado y desplegado con la precisión H, y página "Datos del proyecto"; tests de S006 y S008 adaptados. (RF-1 a RF-5)
       Hecho cuando: `ProjectMapScreenTest`, `ProjectInfoTest` y `ProjectViewCrsTest` en verde.
 - [ ] T8. `app`: hoja "Capas" con el mapa base y el Catastro, recordados para toda la app; el Catastro como una imagen por encuadre al detenerse la cámara. (RF-6, RF-7, RF-8)
       Hecho cuando: `MapLayersTest` y `CadastreRequestTest` en verde.

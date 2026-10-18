@@ -35,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import es.topophone.app.ui.projects.ProjectFolderRoute
 import es.topophone.app.ui.projects.ProjectFormRoute
+import es.topophone.app.ui.projects.ProjectInfoRoute
 import es.topophone.app.ui.projects.ProjectListRoute
 import es.topophone.app.ui.projects.ProjectViewRoute
 import es.topophone.app.ui.projects.SurveyNavigation
@@ -89,6 +90,7 @@ fun TopoPhoneApp(
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.View -> ProjectViewRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
+                is SurveyPage.Info -> ProjectInfoRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.Folder -> ProjectFolderRoute(page.folderId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 SurveyPage.Trash -> TrashRoute(theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
             }
@@ -170,6 +172,7 @@ private fun AppNavHost(
                     navController.navigate(ProjectViewDestination(id)) { popUpTo<ProjectFormDestination> { inclusive = true } }
                 },
                 onEditProject = { id -> navController.navigate(ProjectFormDestination(projectId = id)) }, // S006/RF-14
+                onOpenProjectInfo = { id -> navController.navigate(ProjectInfoDestination(id)) }, // S009/RF-5
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onBack = { navController.popBackStack() },
@@ -197,6 +200,10 @@ private fun AppNavHost(
             composable<ProjectViewDestination> { entry ->
                 val args = entry.toRoute<ProjectViewDestination>()
                 surveySection(SurveyPage.View(args.projectId), uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
+            }
+            composable<ProjectInfoDestination> { entry ->
+                val args = entry.toRoute<ProjectInfoDestination>()
+                surveySection(SurveyPage.Info(args.projectId), uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
             }
         }
         navigation<ReceiverGraph>(startDestination = ReceiverRoute) {

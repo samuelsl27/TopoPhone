@@ -50,6 +50,9 @@ import kotlinx.serialization.Serializable
 /** Vista de un proyecto (S006/RF-28). */
 @Serializable data class ProjectViewDestination(val projectId: String)
 
+/** Datos de un proyecto (S009/RF-5). */
+@Serializable data class ProjectInfoDestination(val projectId: String)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

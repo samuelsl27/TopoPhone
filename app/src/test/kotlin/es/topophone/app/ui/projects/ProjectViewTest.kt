@@ -56,7 +56,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Vista de proyecto (S006/RF-11, RF-28, RF-31). Interfaz en español (es-ES). */
+/** Posición en la vista de proyecto (S006/RF-28 a RF-30); los datos del proyecto, en ProjectInfoTest. Interfaz en español (es-ES). */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class ProjectViewTest {
@@ -106,39 +106,6 @@ class ProjectViewTest {
     )
 
     private val madrid = ProjectPosition(440_290.434, 4_474_257.414, 648.34, emptySet())
-
-    @Test
-    fun `S006 RF-28 al abrir un proyecto se ven su nombre, su SC, sus unidades y el datum de las correcciones`() {
-        show(project)
-
-        compose.onNodeWithText("Calle Mayor 12").assertIsDisplayed()
-        compose.onNodeWithTag(PROJECT_INFO_TAG)
-            .assert(hasText(text(R.string.project_crs_utm, "ETRS89", 30)))
-            .assert(hasText(text(R.string.unit_us_survey_foot), substring = true))
-            .assert(hasText(text(R.string.unit_gon), substring = true))
-            .assert(hasText(text(R.string.datum_etrs89), substring = true))
-    }
-
-    @Test
-    fun `S006 RF-11 con correcciones en ITRF-WGS84 la vista de proyecto avisa`() {
-        show(project.copy(correctionsDatum = CorrectionsDatum.ITRF_WGS84))
-
-        compose.onNodeWithTag(DATUM_WARNING_TAG).performScrollTo().assertIsDisplayed()
-    }
-
-    @Test
-    fun `S006 RF-11 con correcciones en ETRS89 no hay aviso en la vista de proyecto`() {
-        show(project)
-
-        compose.onNodeWithTag(DATUM_WARNING_TAG).assertDoesNotExist()
-    }
-
-    @Test
-    fun `S006 RF-31 mientras el proyecto no tenga puntos la vista lo dice`() {
-        show(project)
-
-        compose.onNodeWithTag(NO_POINTS_TAG).performScrollTo().assert(hasText(text(R.string.project_no_points)))
-    }
 
     @Test
     fun `S006 RF-28 el ViewModel da el proyecto abierto y lo marca como abierto`() {

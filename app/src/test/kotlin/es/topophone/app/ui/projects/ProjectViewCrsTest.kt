@@ -7,6 +7,7 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -114,12 +115,14 @@ class ProjectViewCrsTest {
 
     private fun row(tag: String) = compose.onNodeWithTag(tag).performScrollTo()
 
+    /** Los factores están en el panel desplegado (S009/RF-4). */
+    private fun moreData() = compose.onNodeWithText("Más datos").performScrollTo().performClick()
+
     @Test
     fun `S008 RF-5 con altura elipsoidal la vista da la altura elipsoidal del punto del suelo en las unidades del proyecto`() {
         show(project.copy(heightSystem = HeightSystem.ELLIPSOIDAL), madrid.copy(height = 700.1))
 
         row(POSITION_HEIGHT_TAG).assert(hasText("Altura elipsoidal (h)")).assert(hasText("700,100 m", substring = true))
-        compose.onNodeWithTag(PROJECT_INFO_TAG).assert(hasText("Altura elipsoidal"))
     }
 
     @Test
@@ -183,6 +186,7 @@ class ProjectViewCrsTest {
     @Test
     fun `S008 RF-13 RF-14 RF-15 en UTM se dan el factor de escala, la convergencia y el factor combinado`() {
         show(project, madrid)
+        moreData()
 
         row(SCALE_FACTOR_TAG).assert(hasText("Factor de escala")).assert(hasText(FactorFormat.factor(0.999_612_345_678, es)))
         row(CONVERGENCE_TAG).assert(hasText("Convergencia")).assert(hasText(AngleFormat.convergence(-0.012_345_678, AngularUnit.DMS, es)))
@@ -192,6 +196,7 @@ class ProjectViewCrsTest {
     @Test
     fun `S008 RF-14 la convergencia sale en las unidades angulares del proyecto`() {
         show(project.copy(angularUnit = AngularUnit.GON), madrid)
+        moreData()
 
         row(CONVERGENCE_TAG).assert(hasText(AngleFormat.convergence(-0.012_345_678, AngularUnit.GON, es)))
     }
@@ -204,16 +209,10 @@ class ProjectViewCrsTest {
         )
 
         row(POSITION_LATITUDE_TAG).assertIsDisplayed()
+        compose.onNodeWithText("Más datos").assertDoesNotExist() // S009/RF-4: nada que desplegar
         compose.onNodeWithTag(SCALE_FACTOR_TAG).assertDoesNotExist()
         compose.onNodeWithTag(CONVERGENCE_TAG).assertDoesNotExist()
         compose.onNodeWithTag(COMBINED_FACTOR_TAG).assertDoesNotExist()
-    }
-
-    @Test
-    fun `S008 RF-1 la vista nombra el SC con su datum`() {
-        show(project.copy(crs = ProjectCrs.REGCAN95_GEOGRAPHIC), null)
-
-        compose.onNodeWithTag(PROJECT_INFO_TAG).assert(hasText("REGCAN95 / geográficas"))
     }
 
     @Test

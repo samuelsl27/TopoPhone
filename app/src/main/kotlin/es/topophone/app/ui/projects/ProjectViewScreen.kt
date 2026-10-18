@@ -1,8 +1,12 @@
 package es.topophone.app.ui.projects
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -12,33 +16,46 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
+import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.map.MapController
+import es.topophone.app.ui.map.MapEntryPoint
+import es.topophone.app.ui.map.MapLibreMap
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.FactorFormat
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CrsArea
-import es.topophone.core.model.project.DatumCheck
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
@@ -69,20 +86,33 @@ import kotlinx.coroutines.launch
 
 const val PROJECT_VIEW_TAG = "project_view"
 const val PROJECT_EDIT_TAG = "project_edit"
-const val PROJECT_INFO_TAG = "project_info"
-const val NO_POINTS_TAG = "project_no_points"
+const val PROJECT_INFO_BUTTON_TAG = "project_info_button"
+const val PROJECT_MAP_TAG = "project_map"
+const val POSITION_PANEL_TAG = "position_panel"
 const val POSITION_EASTING_TAG = "position_easting"
 const val POSITION_NORTHING_TAG = "position_northing"
 const val POSITION_HEIGHT_TAG = "position_height"
 const val POSITION_LATITUDE_TAG = "position_latitude"
 const val POSITION_LONGITUDE_TAG = "position_longitude"
+const val ACCURACY_TAG = "position_accuracy"
 const val SCALE_FACTOR_TAG = "position_scale_factor"
 const val CONVERGENCE_TAG = "position_convergence"
 const val COMBINED_FACTOR_TAG = "position_combined_factor"
 const val OTHER_ZONE_TAG = "position_other_zone"
 
-/** Lo que muestra la vista de proyecto (S006/RF-28 a RF-31); [position] null sin posición del receptor. */
-data class ProjectViewUiState(val project: Project? = null, val position: ProjectPosition? = null)
+/** Hueco del mapa en la vista de proyecto: recibe su modificador y avisa cuando el mapa está listo (ADR-9). */
+typealias MapSlot = @Composable (Modifier, (MapController) -> Unit) -> Unit
+
+/**
+ * Lo que muestra la vista de proyecto (S006/RF-29, RF-30; S009/RF-1 a RF-4): [position] es null sin posición
+ * del receptor, y [accuracyM] es la precisión horizontal de la GST (S002/RF-14).
+ */
+data class ProjectViewUiState(
+    val project: Project? = null,
+    val position: ProjectPosition? = null,
+    val accuracyM: Double? = null,
+    val mapSettings: MapSettings = MapSettings(),
+)
 
 /**
  * Proyecto abierto, que pasa a ser el primero de la lista (S006/RF-1), y la posición del receptor en
@@ -101,15 +131,23 @@ class ProjectViewModel @Inject constructor(
 
     private val project = projectId.flatMapLatest { id -> if (id == null) flowOf(null) else repository.observe(id) }
 
-    /** Solo una GGA reciente: sin datos o sin receptor no se muestra una posición antigua. */
+    /** Solo una GGA reciente, con la precisión de la GST: sin datos o sin receptor no se muestra una posición antigua. */
     private val fixes = (if (samplePeriodMs > 0) session.state.sample(samplePeriodMs) else session.state)
-        .map { if (it.connection is ConnectionState.Receiving) it.gga else null }
+        .map { snapshot ->
+            snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving }?.let { ReceiverFix(it, snapshot.gst?.horizontalM) }
+        }
         .distinctUntilChanged()
 
-    val state: StateFlow<ProjectViewUiState> = combine(project, fixes, preferences.poleHeightM) { project, gga, pole ->
+    val state: StateFlow<ProjectViewUiState> = combine(project, fixes, preferences.poleHeightM) { project, fix, pole ->
         // Con el SC del proyecto: si se cambia, la posición se recalcula en el nuevo (S006/RF-15).
-        val position = if (project != null && gga != null) calculator.get().compute(gga, pole, project.crs, project.heightSystem) else null
-        ProjectViewUiState(project, position)
+        val position = if (project != null &&
+            fix != null
+        ) {
+            calculator.get().compute(fix.gga, pole, project.crs, project.heightSystem)
+        } else {
+            null
+        }
+        ProjectViewUiState(project, position, accuracyM = fix?.accuracyM)
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
     fun start(id: String) {
@@ -117,6 +155,8 @@ class ProjectViewModel @Inject constructor(
         projectId.value = id
         viewModelScope.launch { repository.markOpened(id) }
     }
+
+    private data class ReceiverFix(val gga: GgaFix, val accuracyM: Double?)
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
@@ -133,49 +173,109 @@ fun ProjectViewRoute(
 ) {
     LaunchedEffect(projectId) { viewModel.start(projectId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ProjectViewScreen(themeState, onToggleSun, state, navigation.onBack, navigation.onEditProject)
+    val context = LocalContext.current
+    val environment =
+        remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
+    ProjectViewScreen(
+        themeState,
+        onToggleSun,
+        state,
+        navigation.onBack,
+        navigation.onEditProject,
+        navigation.onOpenProjectInfo,
+        map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
+    )
 }
 
-/** Datos del proyecto: SC, altura, unidades y datum de las correcciones, con su aviso (S006/RF-11, RF-28; S008/RF-2). */
+/** Vista de proyecto: el mapa en toda la vista y el panel de posición encima, abajo (S009/RF-1). */
 @Composable
-private fun ProjectInfoCard(project: Project) {
-    ViewCard(stringResource(R.string.project_info_title)) {
-        Column(
-            modifier = Modifier.semantics(mergeDescendants = true) {
-            }.testTag(PROJECT_INFO_TAG),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            LabeledValue(stringResource(R.string.project_crs), crsLabel(project.crs))
-            LabeledValue(stringResource(R.string.project_height), heightLabel(project.heightSystem))
-            LabeledValue(stringResource(R.string.project_linear_unit), linearUnitLabel(project.linearUnit))
-            LabeledValue(stringResource(R.string.project_angular_unit), angularUnitLabel(project.angularUnit))
-            LabeledValue(stringResource(R.string.project_corrections_datum), datumLabel(project.correctionsDatum))
+fun ProjectViewScreen(
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    state: ProjectViewUiState,
+    onBack: () -> Unit,
+    onEdit: (String) -> Unit = {},
+    onInfo: (String) -> Unit = {},
+    map: MapSlot = { _, _ -> },
+) {
+    val project = state.project
+    var controller by remember { mutableStateOf<MapController?>(null) }
+    SectionScaffold(
+        title = project?.name.orEmpty(),
+        themeState = themeState,
+        onToggleSun = onToggleSun,
+        onNavigateBack = onBack,
+        actions = {
+            if (project != null) {
+                IconButton(onClick = { onInfo(project.id) }, modifier = Modifier.size(MinTouchTarget).testTag(PROJECT_INFO_BUTTON_TAG)) {
+                    Icon(painterResource(R.drawable.ic_info), contentDescription = stringResource(R.string.project_info_screen))
+                } // S009/RF-5
+                IconButton(onClick = { onEdit(project.id) }, modifier = Modifier.size(MinTouchTarget).testTag(PROJECT_EDIT_TAG)) {
+                    Icon(painterResource(R.drawable.ic_edit), contentDescription = stringResource(R.string.project_edit))
+                } // S006/RF-14
+            }
+        },
+    ) { padding ->
+        Box(modifier = Modifier.padding(padding).fillMaxSize().testTag(PROJECT_VIEW_TAG)) {
+            map(Modifier.fillMaxSize().testTag(PROJECT_MAP_TAG)) { controller = it }
+            if (project != null) {
+                PositionPanel(project, state.position, state.accuracyM, Modifier.align(Alignment.BottomCenter))
+            }
         }
-        if (DatumCheck.mismatch(project.crs, project.correctionsDatum)) DatumWarning(project.crs, project.correctionsDatum)
     }
+    BindMap(controller, state)
 }
 
-/** Posición actual del punto del suelo en el SC y las unidades del proyecto (S006/RF-29, RF-30; S008/RF-8). */
+/** Lleva al mapa sus ajustes y la unidad del proyecto (S009/RF-6, RF-10). */
 @Composable
-private fun PositionCard(project: Project, position: ProjectPosition?) {
-    ViewCard(stringResource(R.string.project_position_title)) {
-        when {
-            position == null -> Text(stringResource(R.string.project_no_position))
-            PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable ->
-                Text(stringResource(R.string.project_outside_crs), color = MaterialTheme.colorScheme.error)
-            PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable ->
-                Text(stringResource(R.string.project_outside_ed50), color = MaterialTheme.colorScheme.error)
-            else -> PositionValues(project, position)
+private fun BindMap(controller: MapController?, state: ProjectViewUiState) {
+    val unit = state.project?.linearUnit
+    LaunchedEffect(controller, state.mapSettings) { controller?.setSettings(state.mapSettings) }
+    LaunchedEffect(controller, unit) { if (unit != null) controller?.setLinearUnit(unit) }
+}
+
+/**
+ * Panel de posición: coordenadas y altura del punto del suelo con sus avisos y la precisión horizontal; al
+ * desplegarlo, también los factores (S006/RF-29, RF-30; S008/RF-8; S009/RF-2 a RF-4).
+ */
+@Composable
+private fun PositionPanel(project: Project, position: ProjectPosition?, accuracyM: Double?, modifier: Modifier) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(POSITION_PANEL_TAG)) {
+        Column(
+            modifier = Modifier.heightIn(
+                max = PANEL_MAX_HEIGHT,
+            ).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(stringResource(R.string.project_position_title), style = MaterialTheme.typography.labelLarge)
+            when {
+                position == null -> Text(stringResource(R.string.project_no_position))
+                PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable ->
+                    Text(stringResource(R.string.project_outside_crs), color = MaterialTheme.colorScheme.error)
+                PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable ->
+                    Text(stringResource(R.string.project_outside_ed50), color = MaterialTheme.colorScheme.error)
+                else -> {
+                    PositionValues(project, position, accuracyM, showFactors = expanded)
+                    // S008/RF-16: en geográficas no hay factores, así que no hay nada que desplegar.
+                    if (project.crs.isUtm) {
+                        TextButton(onClick = { expanded = !expanded }, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                            Text(stringResource(if (expanded) R.string.map_panel_less else R.string.map_panel_more))
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 /**
  * Este y Norte en el huso del proyecto, con aviso si el punto cae en otro (S008/RF-12), o latitud y longitud
- * (S008/RF-6); la altura del proyecto (S008/RF-5); y en UTM, los factores y la convergencia (S008/RF-13 a RF-16).
+ * (S008/RF-6); la altura del proyecto (S008/RF-5); la precisión horizontal (S009/RF-3); y, con [showFactors]
+ * en UTM, los factores y la convergencia (S008/RF-13 a RF-16, S009/RF-4).
  */
 @Composable
-private fun PositionValues(project: Project, position: ProjectPosition) {
+private fun PositionValues(project: Project, position: ProjectPosition, accuracyM: Double?, showFactors: Boolean) {
     val unit = unitSymbol(project.linearUnit)
     val locale = uiLocale()
     fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
@@ -209,7 +309,8 @@ private fun PositionValues(project: Project, position: ProjectPosition) {
         position.height?.let(::length) ?: heightUnavailable(project, position),
         POSITION_HEIGHT_TAG,
     )
-    if (zone == null) return // S008/RF-16: en geográficas no hay factores
+    accuracyM?.let { CoordinateRow(stringResource(R.string.map_accuracy_h), length(it), ACCURACY_TAG) }
+    if (zone == null || !showFactors) return
     position.scaleFactor?.let {
         CoordinateRow(stringResource(R.string.project_scale_factor), FactorFormat.factor(it, locale), SCALE_FACTOR_TAG)
     }
@@ -243,11 +344,16 @@ private fun heightUnavailable(project: Project, position: ProjectPosition): Stri
     },
 )
 
+/** Etiqueta a la izquierda y valor a la derecha, en tipografía monoespaciada (RNF-T8); TalkBack la lee entera. */
 @Composable
 private fun CoordinateRow(label: String, value: String, tag: String) {
-    Column(modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(tag)) {
-        Text(label, style = MaterialTheme.typography.labelMedium)
-        Text(value, style = MaterialTheme.typography.titleLarge.copy(fontFamily = FontFamily.Monospace)) // RNF-T8
+    Row(
+        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.testTag(tag),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(end = 8.dp))
+        Text(value, style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace), textAlign = TextAlign.End)
     }
 }
 
@@ -260,64 +366,5 @@ private fun unitSymbol(unit: LinearUnit): String = stringResource(
     },
 )
 
-/** Hasta S010 no hay recolección: el proyecto aún no tiene puntos (S006/RF-31). */
-@Composable
-private fun PointsCard() {
-    ViewCard(stringResource(R.string.project_points_title)) {
-        Text(stringResource(R.string.project_no_points), modifier = Modifier.testTag(NO_POINTS_TAG))
-    }
-}
-
-@Composable
-internal fun ViewCard(title: String, content: @Composable () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            content()
-        }
-    }
-}
-
-@Composable
-private fun LabeledValue(label: String, value: String) {
-    Column {
-        Text(label, style = MaterialTheme.typography.labelMedium)
-        Text(value, style = MaterialTheme.typography.bodyLarge)
-    }
-}
-
-/** Vista de proyecto (S006/RF-28 a RF-31). */
-@Composable
-fun ProjectViewScreen(
-    themeState: ThemeState,
-    onToggleSun: () -> Unit,
-    state: ProjectViewUiState,
-    onBack: () -> Unit,
-    onEdit: (String) -> Unit = {},
-) {
-    val project = state.project
-    SectionScaffold(
-        title = project?.name.orEmpty(),
-        themeState = themeState,
-        onToggleSun = onToggleSun,
-        onNavigateBack = onBack,
-        actions = {
-            if (project != null) {
-                IconButton(onClick = { onEdit(project.id) }, modifier = Modifier.size(MinTouchTarget).testTag(PROJECT_EDIT_TAG)) {
-                    Icon(painterResource(R.drawable.ic_edit), contentDescription = stringResource(R.string.project_edit))
-                }
-            } // S006/RF-14
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp).testTag(PROJECT_VIEW_TAG),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            if (project != null) {
-                ProjectInfoCard(project)
-                PositionCard(project, state.position)
-                PointsCard()
-            }
-        }
-    }
-}
+/** El panel no tapa más de esto del mapa; si no cabe, se desplaza. */
+private val PANEL_MAX_HEIGHT = 320.dp

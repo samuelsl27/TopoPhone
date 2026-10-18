@@ -14,7 +14,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.R
 import javax.inject.Inject
@@ -58,6 +61,13 @@ class MapEnvironment @Inject constructor(
         HttpRequestUtil.setOkHttpClient(client)
         initialized = true
     }
+}
+
+/** Acceso al entorno del mapa desde Compose, fuera de los ViewModel (ADR-9). */
+@EntryPoint
+@InstallIn(SingletonComponent::class)
+interface MapEntryPoint {
+    fun mapEnvironment(): MapEnvironment
 }
 
 /** Mapa de MapLibre en Compose: crea el `MapView`, le pasa el ciclo de vida y entrega su controlador. */
