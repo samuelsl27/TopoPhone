@@ -2,8 +2,10 @@ package es.topophone.app.ui.map
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
+import es.topophone.core.geodesy.AccuracyCircle
 import es.topophone.core.geodesy.MapGrid
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.model.map.MapSettings
@@ -23,6 +25,8 @@ import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
 import org.maplibre.android.style.layers.BackgroundLayer
+import org.maplibre.android.style.layers.CircleLayer
+import org.maplibre.android.style.layers.FillLayer
 import org.maplibre.android.style.layers.LineLayer
 import org.maplibre.android.style.layers.PropertyFactory
 import org.maplibre.android.style.layers.RasterLayer
@@ -32,6 +36,7 @@ import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.LineString
 import org.maplibre.geojson.Point
+import org.maplibre.geojson.Polygon
 
 /** [MapController] sobre MapLibre (ADR-9). */
 internal class MapLibreMapController(private val map: MapLibreMap, private val mapView: MapView, private val client: OkHttpClient) :
@@ -41,6 +46,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private val handler = Handler(Looper.getMainLooper())
     private var cadastreCall: Call? = null
     private val requestCadastre = Runnable { loadCadastre() }
+    private var rover: RoverMarker? = null
     private val cameraFlow = MutableStateFlow<MapCamera?>(null)
     override val camera: StateFlow<MapCamera?> = cameraFlow
 
@@ -76,6 +82,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             }
             map.setStyle(builder) { style ->
                 addBackground(style)
+                addRoverLayers(style)
+                drawRover()
                 updateGrid()
                 scheduleCadastre(0)
             }
@@ -84,6 +92,48 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         } else {
             removeCadastre()
         }
+    }
+
+    override fun showRover(marker: RoverMarker?) {
+        rover = marker
+        drawRover()
+    }
+
+    /** Círculo de precisión y rover, encima de todo (S009/RF-16, RF-17). */
+    private fun addRoverLayers(style: Style) {
+        style.addSource(GeoJsonSource(ACCURACY_SOURCE))
+        style.addSource(GeoJsonSource(ROVER_SOURCE))
+        style.addLayer(FillLayer(ACCURACY_FILL_LAYER, ACCURACY_SOURCE).withProperties(PropertyFactory.fillOpacity(ACCURACY_OPACITY)))
+        style.addLayer(LineLayer(ACCURACY_LINE_LAYER, ACCURACY_SOURCE).withProperties(PropertyFactory.lineWidth(1.5f)))
+        style.addLayer(
+            CircleLayer(ROVER_LAYER, ROVER_SOURCE).withProperties(
+                PropertyFactory.circleRadius(ROVER_RADIUS_DP),
+                PropertyFactory.circleStrokeColor(Color.WHITE),
+                PropertyFactory.circleStrokeWidth(2f),
+            ),
+        )
+    }
+
+    private fun drawRover() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val roverSource = style.getSourceAs<GeoJsonSource>(ROVER_SOURCE) ?: return
+        val accuracySource = style.getSourceAs<GeoJsonSource>(ACCURACY_SOURCE) ?: return
+        val marker = rover
+        if (marker == null) {
+            // S009/RF-18: sin posición reciente no se pinta el rover.
+            roverSource.setGeoJson(FeatureCollection.fromFeatures(emptyList()))
+            accuracySource.setGeoJson(FeatureCollection.fromFeatures(emptyList()))
+            return
+        }
+        roverSource.setGeoJson(Feature.fromGeometry(Point.fromLngLat(marker.position.longitudeDeg, marker.position.latitudeDeg)))
+        val circle = marker.accuracyM?.let { radius ->
+            val ring = AccuracyCircle.polygon(marker.position, radius).map { Point.fromLngLat(it.longitudeDeg, it.latitudeDeg) }
+            Feature.fromGeometry(Polygon.fromLngLats(listOf(ring + ring.first())))
+        }
+        accuracySource.setGeoJson(FeatureCollection.fromFeatures(listOfNotNull(circle)))
+        style.getLayer(ROVER_LAYER)?.setProperties(PropertyFactory.circleColor(marker.colorArgb))
+        style.getLayer(ACCURACY_FILL_LAYER)?.setProperties(PropertyFactory.fillColor(marker.colorArgb))
+        style.getLayer(ACCURACY_LINE_LAYER)?.setProperties(PropertyFactory.lineColor(marker.colorArgb))
     }
 
     override fun setLinearUnit(unit: LinearUnit) {
@@ -180,7 +230,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         val source = style.getSourceAs<ImageSource>(CADASTRE_SOURCE)
         if (source == null) {
             style.addSource(ImageSource(CADASTRE_SOURCE, quad, bitmap))
-            style.addLayer(RasterLayer(CADASTRE_LAYER, CADASTRE_SOURCE))
+            // Debajo del rover y su círculo.
+            style.addLayerBelow(RasterLayer(CADASTRE_LAYER, CADASTRE_SOURCE), ACCURACY_FILL_LAYER)
         } else {
             source.setCoordinates(quad)
             source.setImage(bitmap)
@@ -202,6 +253,13 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val GRID_LAYER = "topophone-grid"
         const val CADASTRE_SOURCE = "topophone-cadastre"
         const val CADASTRE_LAYER = "topophone-cadastre"
+        const val ACCURACY_SOURCE = "topophone-accuracy"
+        const val ACCURACY_FILL_LAYER = "topophone-accuracy-fill"
+        const val ACCURACY_LINE_LAYER = "topophone-accuracy-line"
+        const val ROVER_SOURCE = "topophone-rover"
+        const val ROVER_LAYER = "topophone-rover"
+        const val ROVER_RADIUS_DP = 8f
+        const val ACCURACY_OPACITY = 0.25f
 
         /** Espera tras detenerse el mapa antes de pedir el Catastro. */
         const val CADASTRE_DELAY_MS = 500L

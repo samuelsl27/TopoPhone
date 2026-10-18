@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -61,12 +62,17 @@ import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.MapController
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
+import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
 import es.topophone.app.ui.receiver.ReceiverViewModel
+import es.topophone.app.ui.receiver.tone
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.designsystem.theme.LocalStatusPalette
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.gnss.nmea.GgaFix
+import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.FactorFormat
 import es.topophone.core.model.format.LengthFormat
@@ -130,15 +136,20 @@ fun basemapOptionTag(basemap: Basemap) = "map_basemap_${basemap.name}"
 typealias MapSlot = @Composable (Modifier, (MapController) -> Unit) -> Unit
 
 /**
- * Lo que muestra la vista de proyecto (S006/RF-29, RF-30; S009/RF-1 a RF-4): [position] es null sin posición
- * del receptor, y [accuracyM] es la precisión horizontal de la GST (S002/RF-14).
+ * Lo que muestra la vista de proyecto (S006/RF-29, RF-30; S009/RF-1 a RF-4, RF-16): [position] es null sin
+ * posición del receptor, [accuracyM] es la precisión horizontal de la GST (S002/RF-14) y [rover], lo que se
+ * pinta en el mapa.
  */
 data class ProjectViewUiState(
     val project: Project? = null,
     val position: ProjectPosition? = null,
     val accuracyM: Double? = null,
     val mapSettings: MapSettings = MapSettings(),
+    val rover: Rover? = null,
 )
+
+/** El rover: posición de la GGA tal cual, su solución y la precisión horizontal de la GST (S009/RF-16, RF-17). */
+data class Rover(val position: GeoPoint, val solution: SolutionStatus, val accuracyM: Double?)
 
 /**
  * Proyecto abierto, que pasa a ser el primero de la lista (S006/RF-1), y la posición del receptor en
@@ -173,7 +184,9 @@ class ProjectViewModel @Inject constructor(
         ->
         // Con el SC del proyecto: si se cambia, la posición se recalcula en el nuevo (S006/RF-15).
         val position = fix?.let { project?.let { p -> calculator.get().compute(it.gga, pole, p.crs, p.heightSystem) } }
-        ProjectViewUiState(project, position, accuracyM = fix?.accuracyM, mapSettings = map)
+        // S009/RF-16: el rover en su posición real, sea cual sea el SC del proyecto.
+        val rover = fix?.gga?.takeIf { it.hasPosition }?.let { Rover(GeoPoint(it.latitudeDeg, it.longitudeDeg), it.status, fix.accuracyM) }
+        ProjectViewUiState(project, position, accuracyM = fix?.accuracyM, mapSettings = map, rover = rover)
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
     /** Mapa base y Catastro, para todos los proyectos (S009/RF-8). */
@@ -366,10 +379,13 @@ private fun basemapLabel(basemap: Basemap): String = stringResource(
     },
 )
 
-/** Lleva al mapa sus ajustes y la unidad del proyecto (S009/RF-6, RF-10). */
+/** Lleva al mapa sus ajustes, la unidad del proyecto y el rover con el color de su solución (S009/RF-6, RF-10, RF-16). */
 @Composable
 private fun BindMap(controller: MapController?, state: ProjectViewUiState) {
     val unit = state.project?.linearUnit
+    val palette = LocalStatusPalette.current
+    val marker = state.rover?.let { RoverMarker(it.position, it.accuracyM, palette.colorsFor(it.solution.tone()).container.toArgb()) }
+    LaunchedEffect(controller, marker) { controller?.showRover(marker) }
     LaunchedEffect(controller, state.mapSettings) { controller?.setSettings(state.mapSettings) }
     LaunchedEffect(controller, unit) { if (unit != null) controller?.setLinearUnit(unit) }
 }

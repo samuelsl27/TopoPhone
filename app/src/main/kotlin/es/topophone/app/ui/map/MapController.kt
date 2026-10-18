@@ -1,5 +1,6 @@
 package es.topophone.app.ui.map
 
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.project.LinearUnit
 import kotlinx.coroutines.flow.StateFlow
@@ -15,9 +16,18 @@ interface MapController {
     /** Unidad de la barra de escala, que marca también la separación de la cuadrícula (S009/RF-10, RF-14). */
     fun setLinearUnit(unit: LinearUnit)
 
+    /** El rover y su círculo de precisión, o nada sin posición reciente (S009/RF-16 a RF-18). */
+    fun showRover(marker: RoverMarker?)
+
     /** Centro y zoom del mapa mientras se mueve, para la barra de escala (S009/RF-10); null hasta que se ve. */
     val camera: StateFlow<MapCamera?>
 }
+
+/**
+ * El rover en el mapa: posición de la GGA sin redondear, precisión horizontal de la GST (null sin ella) y
+ * color de su solución (S009/RF-16, RF-17).
+ */
+data class RoverMarker(val position: GeoPoint, val accuracyM: Double?, val colorArgb: Int)
 
 /** Centro del mapa en geográficas y zoom de MapLibre (teselas de 512 dp). */
 data class MapCamera(val latitudeDeg: Double, val longitudeDeg: Double, val zoom: Double)

@@ -13,6 +13,8 @@ class FakeMapController : MapController {
     val settings = mutableListOf<MapSettings>()
     var unit: LinearUnit? = null
     override val camera = MutableStateFlow<MapCamera?>(null)
+    var rover: RoverMarker? = null
+    var roverCalls = 0
 
     override fun setSettings(settings: MapSettings) {
         this.settings += settings
@@ -20,6 +22,11 @@ class FakeMapController : MapController {
 
     override fun setLinearUnit(unit: LinearUnit) {
         this.unit = unit
+    }
+
+    override fun showRover(marker: RoverMarker?) {
+        rover = marker
+        roverCalls++
     }
 }
 

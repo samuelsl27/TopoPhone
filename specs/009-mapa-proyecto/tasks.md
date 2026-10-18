@@ -20,7 +20,7 @@
       Hecho cuando: `MapLayersTest` y `CadastreRequestTest` en verde.
 - [x] T9. `app`: atribución de las capas visibles y barra de escala; norte arriba y zoom máximo 22. (RF-9, RF-10, RF-11, RF-12)
       Hecho cuando: `MapAttributionTest` y los casos de barra de escala y opciones del mapa de `ProjectMapScreenTest` en verde.
-- [ ] T10. `app`: rover con el color de la solución y círculo de precisión; desaparecen sin datos. (RF-16, RF-17, RF-18)
+- [x] T10. `app`: rover con el color de la solución y círculo de precisión; desaparecen sin datos. (RF-16, RF-17, RF-18)
       Hecho cuando: `RoverLayerTest` en verde (color por solución, círculo con la precisión H, sin GST, "Sin datos").
 - [ ] T11. `app`: `CameraPolicy` (seguir, gesto, centrar, acercar a 1:2.000) y encuadre guardado por proyecto o España. (RF-19, RF-20, RF-21)
       Hecho cuando: `CameraPolicyTest` y los casos de centrar y encuadre de `ProjectMapScreenTest` en verde.
