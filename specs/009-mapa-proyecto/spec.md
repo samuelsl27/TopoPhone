@@ -42,7 +42,7 @@ Sin cobertura, el mapa sigue sirviendo: muestra lo que ya se vio y, donde no hay
 - RF-12: EL SISTEMA permitirá acercar el mapa hasta que la barra de escala represente 1 m o menos.
 
 ### Sin cobertura (H3)
-- RF-13: EL SISTEMA guardará en el móvil, hasta 200 MB, el mapa base y el Catastro ya vistos, y los mostrará cuando no haya conexión.
+- RF-13: EL SISTEMA guardará en el móvil, hasta 200 MB, el mapa base ya visto, y lo mostrará cuando no haya conexión.
 - RF-14: SI una zona del mapa no se puede descargar ni está guardada, ENTONCES EL SISTEMA la mostrará con un fondo neutro con cuadrícula, con el rover encima.
 - RF-15: MIENTRAS falle la descarga del mapa por falta de conexión, EL SISTEMA mostrará el aviso "Sin conexión: el mapa puede estar incompleto."
 
@@ -59,8 +59,10 @@ Sin cobertura, el mapa sigue sirviendo: muestra lo que ya se vio y, donde no hay
   - RNF-T4: el mapa se descarga por la red con internet, no por la Wi-Fi del receptor.
   - RNF-T7, RNF-T8 (modo sol, 56 dp, TalkBack en los controles del mapa; la solución también se dice con texto en el indicador de estado).
   - RNF-T13: el rover se actualiza a 5 Hz como máximo y el mapa no bloquea el hilo principal más de 16 ms.
-  - RNF-T14: atribución visible (IGN/CNIG CC-BY 4.0, © colaboradores de OpenStreetMap ODbL, Dirección General del Catastro); dependencias compatibles con GPL-3.0.
+  - RNF-T14: atribución visible con el texto que pide cada servicio (IGN: "CC BY 4.0 scne.es"; OpenStreetMap; Dirección General del Catastro); dependencias compatibles con GPL-3.0.
 - Constitución nº 4: los mapas base solo se descargan mientras el mapa está a la vista, sin cuentas ni claves, y el usuario puede quitarlos eligiendo "Ninguno".
+- El Catastro se pide como una sola imagen de la zona visible cuando el mapa se detiene, sin teselas ni descargas masivas, porque sus condiciones de uso lo prohíben. Por eso tarda un momento en aparecer tras mover el mapa y no se guarda para usarlo sin conexión.
+- El APK publicado no crece más de 15 MB con el mapa.
 - Constitución nº 2: el rover y el círculo de precisión se dibujan en su posición con un error ≤ 1 cm frente a pyproj (EPSG:3857).
 - Se cumplen las condiciones de uso de cada servicio de mapas (identificación de la app y límites de descarga).
 - Sin conexión, la vista de proyecto se abre en menos de 1 s en el móvil de referencia: no espera a que fallen las descargas.
@@ -88,6 +90,7 @@ Sin cobertura, el mapa sigue sirviendo: muestra lo que ya se vio y, donde no hay
 - Posición de la base en el mapa → S014.
 - Seleccionar o medir sobre el mapa → S011 y S025.
 - Otros mapas base fuera de España → S033.
+- Guardar el Catastro para usarlo sin conexión → no previsto: sus condiciones prohíben la descarga masiva.
 
 ## Criterios de finalización
 - Cada RF tiene un test automático en verde que lo cita, y `rf_report` no muestra RF huérfanos.
@@ -107,7 +110,6 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - [SUPOSICIÓN: el límite de la caché es fijo (200 MB); cuando se llena, se descarta lo visto hace más tiempo.]
 - [SUPOSICIÓN: la cuadrícula del fondo neutro sigue la barra de escala, para dar idea de distancias.]
 - [SUPOSICIÓN: el panel plegado muestra las coordenadas, la altura, la precisión y los avisos; desplegado, también los factores y la convergencia.]
-- [SUPOSICIÓN: la app no crece más de 15 MB por arquitectura con el mapa.]
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - S006/RF-28 pasa a decir: "CUANDO el usuario abra un proyecto, EL SISTEMA mostrará su nombre en la vista de proyecto, y su sistema de coordenadas, sus unidades y el datum de las correcciones en sus datos (S009/RF-5)."
