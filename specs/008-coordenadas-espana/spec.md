@@ -97,7 +97,7 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - [SUPOSICIÓN: el factor de altura usa la altura elipsoidal y el radio medio de Gauss del elipsoide en el punto; el combinado es factor de escala × factor de altura.]
 - [SUPOSICIÓN: el huso propuesto (RF-11) solo cambia el SC del formulario; las demás opciones siguen siendo las de Ajustes.]
 - [SUPOSICIÓN: no se ofrece ETRS89 / UTM 28; la hoja de ruta lo citaba, pero en España no hay territorio ETRS89 en ese huso.]
-- [SUPOSICIÓN: las coordenadas geográficas se muestran con 9 decimales en grados decimales y en gon, y con 5 decimales de segundo en grados, minutos y segundos.]
+- [SUPOSICIÓN: las coordenadas geográficas se muestran con 10 decimales en grados decimales y en gon, y con 6 decimales de segundo en grados, minutos y segundos: es lo que da la resolución de 0,1 mm de RF-6 (9 y 5 se quedaban en 0,11 y 0,3 mm).]
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - S002/RF-36 pasa a decir: "EL SISTEMA mostrará las coordenadas UTM del punto del suelo (Este y Norte, en metros con 3 decimales) en el huso que corresponde a su longitud, del 27 al 31, indicando el huso, según S008/RF-20."

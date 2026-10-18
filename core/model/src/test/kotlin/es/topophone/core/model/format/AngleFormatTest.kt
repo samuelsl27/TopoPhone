@@ -1,10 +1,12 @@
 package es.topophone.core.model.format
 
+import es.topophone.core.model.project.AngularUnit
+import io.kotest.matchers.doubles.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import java.util.Locale
 import org.junit.jupiter.api.Test
 
-/** Formatos de coordenadas y longitudes (S002/RF-34, S002/RF-35, S002/RF-36, S002/RF-38). */
+/** Formatos de coordenadas y longitudes (S002/RF-34, S002/RF-35, S002/RF-36, S002/RF-38, S008/RF-6, RF-14). */
 class AngleFormatTest {
 
     private val es = Locale.forLanguageTag("es-ES")
@@ -41,5 +43,34 @@ class AngleFormatTest {
         LengthFormat.metres(4_474_123.4567, es) shouldBe "4.474.123,457 m"
         LengthFormat.metres(4_474_123.4567, en) shouldBe "4,474,123.457 m"
         LengthFormat.metres(-0.0004, es) shouldBe "0,000 m"
+    }
+
+    @Test
+    fun `S008 RF-6 latitud y longitud del proyecto en sus unidades con resolucion de 0,1 mm o mejor`() {
+        AngleFormat.latitude(40.4168, AngularUnit.DMS, es) shouldBe "40° 25′ 00,480000″ N"
+        AngleFormat.longitude(-3.7038, AngularUnit.DMS, es) shouldBe "003° 42′ 13,680000″ W"
+        AngleFormat.latitude(40.4168, AngularUnit.DECIMAL_DEGREES, es) shouldBe "40,4168000000°"
+        AngleFormat.longitude(-3.7038, AngularUnit.DECIMAL_DEGREES, es) shouldBe "-3,7038000000°"
+        AngleFormat.latitude(40.4168, AngularUnit.GON, es) shouldBe "44,9075555556 gon"
+        AngleFormat.latitude(40.4168, AngularUnit.GON, en) shouldBe "44.9075555556 gon"
+    }
+
+    @Test
+    fun `S008 RF-6 el ultimo digito vale menos de 0,1 mm en el terreno`() {
+        val metresPerDegree = 111_320.0
+        (1e-6 / 3600 * metresPerDegree) shouldBeLessThan 0.0001 // DMS: 6 decimales de segundo
+        (1e-10 * metresPerDegree) shouldBeLessThan 0.0001 // DD: 10 decimales de grado
+        (1e-10 * 0.9 * metresPerDegree) shouldBeLessThan 0.0001 // gon: 10 decimales
+        AngleFormat.latitude(40.4168 + 1e-10, AngularUnit.DECIMAL_DEGREES, es) shouldBe "40,4168000001°"
+    }
+
+    @Test
+    fun `S008 RF-14 la convergencia con su signo en grados, minutos y segundos, grados decimales o gon`() {
+        val gamma = Math.toRadians(-2.5847081380079753)
+
+        AngleFormat.convergence(gamma, AngularUnit.DMS, es) shouldBe "-2° 35′ 04,95″"
+        AngleFormat.convergence(gamma, AngularUnit.DECIMAL_DEGREES, es) shouldBe "-2,584708°"
+        AngleFormat.convergence(gamma, AngularUnit.GON, es) shouldBe "-2,871898 gon"
+        AngleFormat.convergence(Math.toRadians(0.5), AngularUnit.DMS, es) shouldBe "0° 30′ 00,00″"
     }
 }
