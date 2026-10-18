@@ -18,7 +18,7 @@
       Hecho cuando: `CollectorDialogsTest` en verde.
 - [x] T8. `app`: puntos en el mapa con su nombre y número de puntos en los datos del proyecto; glifos del IGN en los estilos locales. (RF-20, RF-21)
       Hecho cuando: `PointsLayerTest`, `MapStylesTest` y `ProjectInfoTest` en verde.
-- [ ] T9. Rendimiento: 10 000 puntos leídos y preparados para el mapa en menos de 2 s. (RNF)
+- [x] T9. Rendimiento: 10 000 puntos leídos y preparados para el mapa en menos de 2 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.
 - [ ] T10. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador con reproducciones según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo con el RS3 queda para el usuario.
