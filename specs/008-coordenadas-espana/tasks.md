@@ -30,7 +30,7 @@
       Hecho cuando: `ProjectViewCrsTest` en verde y los tests de S006 de la vista y la lista adaptados.
 - [x] T14. `app`: "Proyectos nuevos" en Ajustes con los nuevos SC y la altura. (RF-10)
       Hecho cuando: `ProjectDefaultsTest` en verde con los casos nuevos.
-- [ ] T15. `app`: pantalla Coordenadas del receptor en Canarias (REGCAN95, husos 27–28 y su geoide). (RF-20, RF-21)
+- [x] T15. `app`: pantalla Coordenadas del receptor en Canarias (REGCAN95, husos 27–28 y su geoide). (RF-20, RF-21)
       Hecho cuando: `CoordinatesCardTest` en verde con un punto en Canarias.
 - [ ] T16. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador con reproducciones sintéticas en Canarias y en la Península según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona.

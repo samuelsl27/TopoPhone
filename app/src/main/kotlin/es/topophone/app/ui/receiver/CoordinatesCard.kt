@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import es.topophone.app.R
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.survey.CoordinateReference
 import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.Unavailable
 import es.topophone.receiver.session.ConnectionState
@@ -30,7 +31,7 @@ const val COORD_EASTING_TAG = "coord_easting"
 const val COORD_NORTHING_TAG = "coord_northing"
 const val COORD_ORTHOMETRIC_TAG = "coord_orthometric"
 
-/** Tarjeta Coordenadas: altura del jalón y punto del suelo (S002/RF-29 a RF-41). */
+/** Tarjeta Coordenadas: altura del jalón y punto del suelo (S002/RF-29 a RF-41; en Canarias, S008/RF-20, RF-21). */
 @Composable
 internal fun CoordinatesCard(state: ReceiverUiState, onPoleHeightChange: (String) -> Unit) {
     ReceiverCard(stringResource(R.string.receiver_coordinates_title)) {
@@ -71,7 +72,11 @@ private fun GroundPointValues(point: GroundPoint) {
             style = MaterialTheme.typography.titleSmall,
         ) // S002/RF-40
     }
-    Text(stringResource(R.string.coordinates_reference), style = MaterialTheme.typography.bodySmall) // S002/RF-41
+    val reference = when (point.reference) {
+        CoordinateReference.CORRECTIONS_ASSUMED_ETRS89 -> R.string.coordinates_reference
+        CoordinateReference.CORRECTIONS_ASSUMED_REGCAN95 -> R.string.coordinates_reference_regcan95 // S008/RF-20
+    }
+    Text(stringResource(reference), style = MaterialTheme.typography.bodySmall) // S002/RF-41
     CoordinateValue(
         stringResource(R.string.coord_latitude),
         listOf(AngleFormat.latitudeDms(point.latitudeDeg, locale), AngleFormat.decimalDegrees(point.latitudeDeg, locale)),
@@ -102,8 +107,8 @@ private fun GroundPointValues(point: GroundPoint) {
     }
     val orthometric = point.orthometricHeightM?.let { LengthFormat.metres(it, locale) }
         ?: stringResource(
-            if (Unavailable.NO_HEIGHT in point.unavailable) R.string.unavailable_no_height else R.string.unavailable_outside_geoid,
-        ) // S002/RF-38, S002/RF-39
+            if (Unavailable.NO_HEIGHT in point.unavailable) R.string.unavailable_no_height else R.string.unavailable_outside_geoids,
+        ) // S002/RF-38, S002/RF-39, S008/RF-21
     CoordinateValue(stringResource(R.string.coord_orthometric_height), listOf(orthometric), COORD_ORTHOMETRIC_TAG)
 }
 

@@ -110,7 +110,7 @@
     <string name="coord_northing">Norte (N)</string>
     <string name="coord_orthometric_height">Altitud (H, EGM08-REDNAP)</string>
     <string name="unavailable_no_height">No disponible: la frase GGA no trae altitud.</string>
-    <string name="unavailable_outside_utm">No disponible en esta versión: el punto está fuera de los husos UTM 29 a 31.</string>
+    <string name="unavailable_outside_utm">No disponible: el punto está fuera de los husos UTM 27 a 31.</string>
     <string name="unavailable_outside_geoid">No disponible: el punto está fuera del modelo EGM08-REDNAP de la Península y Baleares.</string>
     <string name="receiver_no_session">Todavía no hay ninguna sesión guardada.</string>
     <string name="receiver_share_session">Compartir la última sesión</string>
@@ -402,4 +402,6 @@
     <string name="project_other_zone">Estás en el huso %1$d; el proyecto usa el %2$d.</string>
     <string name="project_outside_ed50">Fuera de la transformación ED50 del IGN (rejilla SPED2ETV2).</string>
     <string name="unavailable_outside_geoid_canarias">No disponible: el punto está fuera del modelo EGM08-REDNAP de Canarias.</string>
+    <string name="coordinates_reference_regcan95">En el sistema de referencia de las correcciones, que se supone REGCAN95.</string>
+    <string name="unavailable_outside_geoids">No disponible: el punto está fuera de los modelos EGM08-REDNAP de la Península y Baleares y de Canarias.</string>
 </resources>

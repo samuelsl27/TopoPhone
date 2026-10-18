@@ -98,7 +98,7 @@
     <string name="coord_northing">Northing (N)</string>
     <string name="coord_orthometric_height">Orthometric height (H, EGM08-REDNAP)</string>
     <string name="unavailable_no_height">Not available: the GGA sentence has no altitude.</string>
-    <string name="unavailable_outside_utm">Not available in this version: the point is outside UTM zones 29 to 31.</string>
+    <string name="unavailable_outside_utm">Not available: the point is outside UTM zones 27 to 31.</string>
     <string name="unavailable_outside_geoid">Not available: the point is outside the EGM08-REDNAP model of the Peninsula and the Balearic Islands.</string>
     <string name="receiver_no_session">There is no saved session yet.</string>
     <string name="receiver_share_session">Share the latest session</string>
@@ -390,4 +390,6 @@
     <string name="project_other_zone">You are in zone %1$d; the project uses zone %2$d.</string>
     <string name="project_outside_ed50">Outside the IGN ED50 transformation (SPED2ETV2 grid).</string>
     <string name="unavailable_outside_geoid_canarias">Not available: the point is outside the EGM08-REDNAP model of the Canary Islands.</string>
+    <string name="coordinates_reference_regcan95">In the reference frame of the corrections, assumed to be REGCAN95.</string>
+    <string name="unavailable_outside_geoids">Not available: the point is outside the EGM08-REDNAP models of the Peninsula and the Balearic Islands and of the Canary Islands.</string>
 </resources>

@@ -34,7 +34,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Tarjeta Coordenadas de la pantalla Receptor (S002/RF-29 a RF-41). Interfaz en español (es-ES). */
+/** Tarjeta Coordenadas de la pantalla Receptor (S002/RF-29 a RF-41, S008/RF-20, RF-21). Interfaz en español (es-ES). */
 @RunWith(AndroidJUnit4::class)
 class CoordinatesCardTest {
 
@@ -44,10 +44,10 @@ class CoordinatesCardTest {
     private val spanish = Locale.forLanguageTag("es-ES")
     private val receiving = ConnectionState.Receiving("reach-RS3")
 
-    private fun gga(status: SolutionStatus = SolutionStatus.FIX) = GgaFix(
+    private fun gga(status: SolutionStatus = SolutionStatus.FIX, latitudeDeg: Double = 40.41668, longitudeDeg: Double = -3.70371) = GgaFix(
         utcTime = "101530.20",
-        latitudeDeg = 40.41668,
-        longitudeDeg = -3.70371,
+        latitudeDeg = latitudeDeg,
+        longitudeDeg = longitudeDeg,
         status = status,
         satellites = 24,
         hdop = 0.6,
@@ -151,7 +151,7 @@ class CoordinatesCardTest {
     }
 
     @Test
-    fun `S002 RF-37 fuera de los husos 29 a 31 UTM no esta disponible en esta version`() {
+    fun `S002 RF-37 fuera de los husos 27 a 31 UTM no esta disponible`() {
         show(point = madrid.copy(utm = null, unavailable = setOf(Unavailable.OUTSIDE_UTM_ZONES)))
 
         node(COORD_UTM_ZONE_TAG).assert(hasText(text(R.string.unavailable_outside_utm)))
@@ -170,7 +170,7 @@ class CoordinatesCardTest {
     fun `S002 RF-39 fuera del modelo de geoide la altitud no esta disponible y se dice por que`() {
         show(point = madrid.copy(orthometricHeightM = null, unavailable = setOf(Unavailable.OUTSIDE_GEOID)))
 
-        node(COORD_ORTHOMETRIC_TAG).assert(hasText(text(R.string.unavailable_outside_geoid)))
+        node(COORD_ORTHOMETRIC_TAG).assert(hasText(text(R.string.unavailable_outside_geoids)))
     }
 
     @Test
@@ -219,4 +219,29 @@ class CoordinatesCardTest {
     }
 
     private fun metres(value: Double) = LengthFormat.metres(value, spanish)
+
+    /** Santa Cruz de Tenerife, en el huso 28. */
+    private val tenerife: GroundPoint = GroundPointCalculator().compute(
+        gga(latitudeDeg = 28.4636, longitudeDeg = -16.2518),
+        1.8,
+    ).shouldNotBeNull()
+
+    @Test
+    fun `S008 RF-20 en Canarias se dan las UTM REGCAN95 del huso de su longitud`() {
+        show(point = tenerife)
+        val utm = tenerife.utm.shouldNotBeNull()
+
+        node(COORD_UTM_ZONE_TAG).assert(hasText("28"))
+        node(COORD_EASTING_TAG).assert(hasText(metres(utm.easting)))
+        node(COORD_NORTHING_TAG).assert(hasText(metres(utm.northing)))
+        shown(R.string.coordinates_reference_regcan95)
+        compose.onNodeWithText(text(R.string.coordinates_reference)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S008 RF-21 en Canarias la altitud sale del modelo EGM08-REDNAP de Canarias`() {
+        show(point = tenerife)
+
+        node(COORD_ORTHOMETRIC_TAG).assert(hasText(metres(tenerife.orthometricHeightM.shouldNotBeNull())))
+    }
 }
