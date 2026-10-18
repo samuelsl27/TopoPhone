@@ -36,6 +36,17 @@ object Geodesy {
         val e2 = ellipsoid.eccentricitySquared
         return ellipsoid.semiMajorAxisM * sqrt(1 - e2) / (1 - e2 * sinPhi * sinPhi)
     }
+
+    /** Radio de curvatura del meridiano M en la latitud [phiRad] (S009/RF-17). */
+    fun meridianRadius(phiRad: Double, ellipsoid: Ellipsoid = Ellipsoid.GRS80): Double {
+        val e2 = ellipsoid.eccentricitySquared
+        val w = 1 - e2 * sin(phiRad) * sin(phiRad)
+        return ellipsoid.semiMajorAxisM * (1 - e2) / (w * sqrt(w))
+    }
+
+    /** Radio de curvatura del primer vertical N en la latitud [phiRad] (S009/RF-12, RF-17). */
+    fun primeVerticalRadius(phiRad: Double, ellipsoid: Ellipsoid = Ellipsoid.GRS80): Double =
+        ellipsoid.semiMajorAxisM / sqrt(1 - ellipsoid.eccentricitySquared * sin(phiRad) * sin(phiRad))
 }
 
 /**

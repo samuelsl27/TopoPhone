@@ -2,9 +2,9 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [x] T1. `tools`: vectores de pyproj para el círculo de precisión (`Geod.fwd`, 64 rumbos, r de 0,005 a 100 m), Web Mercator (EPSG:3857) y metros por píxel. (RF-12, RF-17)
+- [x] T1. `tools`: vectores de pyproj para el círculo de precisión (`Geod.fwd`, 16 rumbos, r de 0,005 a 100 m), Web Mercator (EPSG:3857) y metros por píxel. (RF-12, RF-17)
       Hecho cuando: `uv run --project tools pytest tools` en verde y los CSV nuevos en `fixtures/geodesia/`.
-- [ ] T2. `core:geodesy`: `WebMercator` (directa, metros por píxel, zoom para una escala), `AccuracyCircle` y `MapGrid`. (RF-12, RF-14, RF-17, RF-19)
+- [x] T2. `core:geodesy`: `WebMercator` (directa, metros por píxel, zoom para una escala), `AccuracyCircle` y `MapGrid`. (RF-12, RF-14, RF-17, RF-19)
       Hecho cuando: `WebMercatorTest`, `AccuracyCircleTest` y `MapGridTest` en verde contra los vectores (≤ 1 mm).
 - [ ] T3. `core:model`: `Basemap`, `MapSettings`, `MapViewport` y `ScaleBar` en m, ft y ft EE. UU. (RF-6, RF-10, RF-12)
       Hecho cuando: `ScaleBarTest` en verde (longitudes redondas, ≤ 100 dp, 1 m o menos en el zoom máximo).
