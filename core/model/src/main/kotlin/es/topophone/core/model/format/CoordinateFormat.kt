@@ -119,6 +119,13 @@ object LengthFormat {
         decimals(unit.fromMetres(valueM), decimals, locale, grouping = true)
 }
 
+/** Factor de escala y factor combinado de la proyección, con 8 decimales (S008/RF-13, RF-15). */
+object FactorFormat {
+    private const val FACTOR_DECIMALS = 8
+
+    fun factor(value: Double, locale: Locale): String = decimals(value, FACTOR_DECIMALS, locale, grouping = false)
+}
+
 private fun decimals(value: Double, digits: Int, locale: Locale, grouping: Boolean): String {
     val rounded = BigDecimal(value).setScale(digits, RoundingMode.HALF_UP)
     val normalized = if (rounded.signum() == 0) BigDecimal.ZERO.setScale(digits) else rounded

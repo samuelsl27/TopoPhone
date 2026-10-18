@@ -394,4 +394,12 @@
     <string name="project_height_ellipsoidal">Altura elipsoidal</string>
     <string name="project_datum_warning_general">Las correcciones están en %1$s y el proyecto en %2$s: las coordenadas pueden diferir.</string>
     <string name="project_zone_proposed">Huso propuesto por tu posición.</string>
+    <string name="coord_latitude_symbol">Latitud (φ)</string>
+    <string name="coord_longitude_symbol">Longitud (λ)</string>
+    <string name="project_scale_factor">Factor de escala</string>
+    <string name="project_convergence">Convergencia</string>
+    <string name="project_combined_factor">Factor combinado</string>
+    <string name="project_other_zone">Estás en el huso %1$d; el proyecto usa el %2$d.</string>
+    <string name="project_outside_ed50">Fuera de la transformación ED50 del IGN (rejilla SPED2ETV2).</string>
+    <string name="unavailable_outside_geoid_canarias">No disponible: el punto está fuera del modelo EGM08-REDNAP de Canarias.</string>
 </resources>

@@ -382,4 +382,12 @@
     <string name="project_height_ellipsoidal">Ellipsoidal height</string>
     <string name="project_datum_warning_general">Corrections are in %1$s and the project in %2$s: coordinates may differ.</string>
     <string name="project_zone_proposed">Zone proposed from your position.</string>
+    <string name="coord_latitude_symbol">Latitude (φ)</string>
+    <string name="coord_longitude_symbol">Longitude (λ)</string>
+    <string name="project_scale_factor">Scale factor</string>
+    <string name="project_convergence">Convergence</string>
+    <string name="project_combined_factor">Combined factor</string>
+    <string name="project_other_zone">You are in zone %1$d; the project uses zone %2$d.</string>
+    <string name="project_outside_ed50">Outside the IGN ED50 transformation (SPED2ETV2 grid).</string>
+    <string name="unavailable_outside_geoid_canarias">Not available: the point is outside the EGM08-REDNAP model of the Canary Islands.</string>
 </resources>
