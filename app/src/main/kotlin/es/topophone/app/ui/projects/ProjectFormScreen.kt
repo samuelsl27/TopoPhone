@@ -36,6 +36,8 @@ import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.DatumCheck
+import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.ProjectCrs
@@ -59,6 +61,10 @@ const val FORM_SAVE_TAG = "project_form_save"
 const val DATUM_WARNING_TAG = "project_datum_warning"
 
 fun crsOptionTag(crs: ProjectCrs) = "project_crs_${crs.name}"
+
+fun geodeticDatumOptionTag(datum: GeodeticDatum) = "project_geodetic_datum_${datum.name}"
+
+fun heightOptionTag(height: HeightSystem) = "project_height_${height.name}"
 
 fun linearOptionTag(unit: LinearUnit) = "project_linear_${unit.name}"
 
@@ -181,9 +187,9 @@ fun ProjectFormScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
                 label = { Text(stringResource(R.string.project_description)) },
                 modifier = Modifier.fillMaxWidth().testTag(FORM_DESCRIPTION_TAG),
             )
-            ChoiceGroup(stringResource(R.string.project_crs), ProjectCrs.entries, draft.crs, ::crsOptionTag, { crsLabel(it) }) {
-                actions.onChange(draft.copy(crs = it))
-            } // S006/RF-8
+            CrsChoices(draft.crs, draft.heightSystem, datumLocked = state.editing, onCrs = { actions.onChange(draft.withCrs(it)) }) {
+                actions.onChange(draft.copy(heightSystem = it))
+            } // S006/RF-8, S008/RF-1 a RF-3, RF-17, RF-19
             ChoiceGroup(stringResource(R.string.project_linear_unit), LinearUnit.entries, draft.linearUnit, ::linearOptionTag, {
                 linearUnitLabel(it)
             }) {
@@ -207,7 +213,8 @@ fun ProjectFormScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
             ) {
                 actions.onChange(draft.copy(correctionsDatum = it))
             } // S006/RF-10
-            if (DatumCheck.mismatch(draft.crs, draft.correctionsDatum)) DatumWarning() // S006/RF-11
+            // S006/RF-11, S008/RF-18
+            if (DatumCheck.mismatch(draft.crs, draft.correctionsDatum)) DatumWarning(draft.crs, draft.correctionsDatum)
             Button(onClick = actions.onSave, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(FORM_SAVE_TAG)) {
                 Text(stringResource(R.string.project_save))
             }
@@ -215,15 +222,81 @@ fun ProjectFormScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
     }
 }
 
-/** Aviso de datum de las correcciones distinto del del SC (S006/RF-11), también en la vista de proyecto. */
+/**
+ * Aviso de datum de las correcciones distinto del del SC, también en la vista de proyecto: el de
+ * ITRF/WGS84 sobre ETRS89 con sus 0,9 m (S006/RF-11) y el general (S008/RF-18).
+ */
 @Composable
-internal fun DatumWarning() {
-    Text(
-        stringResource(R.string.project_datum_warning),
-        color = MaterialTheme.colorScheme.error,
-        modifier = Modifier.testTag(DATUM_WARNING_TAG),
-    )
+internal fun DatumWarning(crs: ProjectCrs, corrections: CorrectionsDatum) {
+    val text = if (DatumCheck.itrfOverEtrs89(crs, corrections)) {
+        stringResource(R.string.project_datum_warning)
+    } else {
+        stringResource(R.string.project_datum_warning_general, datumLabel(corrections), datumName(crs.datum))
+    }
+    Text(text, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag(DATUM_WARNING_TAG))
 }
+
+/**
+ * SC del proyecto en tres grupos: datum, proyección de ese datum (UTM en un huso o geográficas) y altura
+ * (S008/RF-1 a RF-3). Con [datumLocked] (al editar) el datum no se puede cambiar (S008/RF-19).
+ */
+@Composable
+internal fun CrsChoices(
+    crs: ProjectCrs,
+    heightSystem: HeightSystem,
+    datumLocked: Boolean,
+    onCrs: (ProjectCrs) -> Unit,
+    onHeight: (HeightSystem) -> Unit,
+) {
+    Text(stringResource(R.string.project_crs), style = MaterialTheme.typography.titleMedium)
+    ChoiceGroup(
+        stringResource(R.string.project_geodetic_datum),
+        GeodeticDatum.entries,
+        crs.datum,
+        ::geodeticDatumOptionTag,
+        { datumOptionLabel(it) },
+        enabled = !datumLocked,
+    ) { onCrs(crs.closestIn(it)) }
+    ChoiceGroup(
+        stringResource(R.string.project_projection),
+        ProjectCrs.entries.filter { it.datum == crs.datum },
+        crs,
+        ::crsOptionTag,
+        { projectionLabel(it) },
+    ) { onCrs(it) }
+    ChoiceGroup(stringResource(R.string.project_height), crs.heightSystems, heightSystem, ::heightOptionTag, { heightLabel(it) }) {
+        onHeight(it)
+    }
+}
+
+@Composable
+private fun datumOptionLabel(datum: GeodeticDatum): String = stringResource(
+    when (datum) {
+        GeodeticDatum.ETRS89 -> R.string.project_datum_option_etrs89
+        GeodeticDatum.REGCAN95 -> R.string.project_datum_option_regcan95
+        GeodeticDatum.ED50 -> R.string.project_datum_option_ed50
+    },
+)
+
+@Composable
+private fun projectionLabel(crs: ProjectCrs): String {
+    val zone = crs.utmZone
+    return if (zone !=
+        null
+    ) {
+        stringResource(R.string.project_projection_utm, zone)
+    } else {
+        stringResource(R.string.project_projection_geographic)
+    }
+}
+
+@Composable
+internal fun heightLabel(height: HeightSystem): String = stringResource(
+    when (height) {
+        HeightSystem.ORTHOMETRIC -> R.string.project_height_orthometric
+        HeightSystem.ELLIPSOIDAL -> R.string.project_height_ellipsoidal
+    },
+)
 
 /** Opciones excluyentes en filas de 56 dp (RNF-T8), con su botón de radio. */
 @Composable
@@ -233,6 +306,7 @@ internal fun <T> ChoiceGroup(
     selected: T,
     tag: (T) -> String,
     label: @Composable (T) -> String,
+    enabled: Boolean = true,
     onSelect: (T) -> Unit,
 ) {
     Text(title, style = MaterialTheme.typography.titleSmall)
@@ -242,11 +316,11 @@ internal fun <T> ChoiceGroup(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = MinTouchTarget)
-                    .selectable(selected = option == selected, role = Role.RadioButton, onClick = { onSelect(option) })
+                    .selectable(selected = option == selected, enabled = enabled, role = Role.RadioButton, onClick = { onSelect(option) })
                     .testTag(tag(option)),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                RadioButton(selected = option == selected, onClick = null)
+                RadioButton(selected = option == selected, onClick = null, enabled = enabled)
                 Text(label(option), modifier = Modifier.padding(start = 12.dp))
             }
         }

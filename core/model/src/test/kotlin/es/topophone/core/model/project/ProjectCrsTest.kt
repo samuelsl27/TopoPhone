@@ -97,4 +97,26 @@ class ProjectCrsTest {
         ProjectDefaults().heightSystem shouldBe HeightSystem.ORTHOMETRIC
         ProjectDefaults().toDraft().heightSystem shouldBe HeightSystem.ORTHOMETRIC
     }
+
+    @Test
+    fun `S008 RF-1 al cambiar de datum se conserva el huso si existe y si no se usa el habitual del datum`() {
+        ProjectCrs.ETRS89_UTM29.closestIn(GeodeticDatum.ED50) shouldBe ProjectCrs.ED50_UTM29
+        ProjectCrs.ETRS89_UTM30.closestIn(GeodeticDatum.REGCAN95) shouldBe ProjectCrs.REGCAN95_UTM28
+        ProjectCrs.REGCAN95_UTM27.closestIn(GeodeticDatum.ETRS89) shouldBe ProjectCrs.ETRS89_UTM30
+        ProjectCrs.ETRS89_GEOGRAPHIC.closestIn(GeodeticDatum.REGCAN95) shouldBe ProjectCrs.REGCAN95_GEOGRAPHIC
+        ProjectCrs.ETRS89_GEOGRAPHIC.closestIn(GeodeticDatum.ED50) shouldBe ProjectCrs.ED50_UTM30
+    }
+
+    @Test
+    fun `S008 RF-3 RF-17 al elegir un SC el borrador toma su datum de las correcciones y una altura admitida`() {
+        val draft = ProjectDefaults(heightSystem = HeightSystem.ELLIPSOIDAL).toDraft()
+
+        val ed50 = draft.withCrs(ProjectCrs.ED50_UTM30)
+        ed50.heightSystem shouldBe HeightSystem.ORTHOMETRIC
+        ed50.correctionsDatum shouldBe CorrectionsDatum.ETRS89
+
+        val canarias = draft.copy(correctionsDatum = CorrectionsDatum.ITRF_WGS84).withCrs(ProjectCrs.REGCAN95_UTM28)
+        canarias.correctionsDatum shouldBe CorrectionsDatum.REGCAN95
+        canarias.heightSystem shouldBe HeightSystem.ELLIPSOIDAL
+    }
 }

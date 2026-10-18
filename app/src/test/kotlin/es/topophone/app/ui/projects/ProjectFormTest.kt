@@ -106,7 +106,10 @@ class ProjectFormTest {
         listOf(FORM_NAME_TAG, FORM_AUTHOR_TAG, FORM_DESCRIPTION_TAG).forEach {
             compose.onNodeWithTag(it).performScrollTo().assertIsDisplayed()
         }
-        ProjectCrs.entries.forEach { compose.onNodeWithTag(crsOptionTag(it)).performScrollTo().assertIsDisplayed() }
+        // Desde S008 se ven las proyecciones del datum elegido (ProjectFormCrsTest).
+        ProjectCrs.entries.filter { it.datum == draft.crs.datum }.forEach {
+            compose.onNodeWithTag(crsOptionTag(it)).performScrollTo().assertIsDisplayed()
+        }
         LinearUnit.entries.forEach { compose.onNodeWithTag(linearOptionTag(it)).performScrollTo().assertIsDisplayed() }
         AngularUnit.entries.forEach { compose.onNodeWithTag(angularOptionTag(it)).performScrollTo().assertIsDisplayed() }
         CorrectionsDatum.entries.forEach { compose.onNodeWithTag(datumOptionTag(it)).performScrollTo().assertIsDisplayed() }

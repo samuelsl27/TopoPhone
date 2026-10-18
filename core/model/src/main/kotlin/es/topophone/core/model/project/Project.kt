@@ -11,7 +11,17 @@ data class ProjectDraft(
     val correctionsDatum: CorrectionsDatum,
     /** S008/RF-2. */
     val heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
-)
+) {
+    /**
+     * Con el SC [newCrs]: su datum de las correcciones (S008/RF-17) y una altura que admita (S008/RF-3).
+     * El usuario puede cambiar después el datum de las correcciones.
+     */
+    fun withCrs(newCrs: ProjectCrs): ProjectDraft = copy(
+        crs = newCrs,
+        correctionsDatum = newCrs.correctionsDatum,
+        heightSystem = if (heightSystem in newCrs.heightSystems) heightSystem else HeightSystem.ORTHOMETRIC,
+    )
+}
 
 /** Un proyecto guardado (S006). Fechas en ms UTC; con [deletedAtMs] está en la papelera. */
 data class Project(

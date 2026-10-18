@@ -370,4 +370,15 @@
     <string name="crs_datum_etrs89">ETRS89</string>
     <string name="crs_datum_regcan95">REGCAN95</string>
     <string name="crs_datum_ed50">ED50</string>
+    <string name="project_geodetic_datum">Datum</string>
+    <string name="project_projection">Projection</string>
+    <string name="project_height">Height</string>
+    <string name="project_datum_option_etrs89">ETRS89 (mainland Spain and Balearic Islands)</string>
+    <string name="project_datum_option_regcan95">REGCAN95 (Canary Islands)</string>
+    <string name="project_datum_option_ed50">ED50 (legacy mapping)</string>
+    <string name="project_projection_utm">UTM zone %1$d</string>
+    <string name="project_projection_geographic">Geographic coordinates</string>
+    <string name="project_height_orthometric">Orthometric height (EGM08-REDNAP)</string>
+    <string name="project_height_ellipsoidal">Ellipsoidal height</string>
+    <string name="project_datum_warning_general">Corrections are in %1$s and the project in %2$s: coordinates may differ.</string>
 </resources>

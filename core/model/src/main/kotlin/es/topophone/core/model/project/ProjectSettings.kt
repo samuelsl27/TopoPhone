@@ -73,8 +73,19 @@ enum class ProjectCrs(val datum: GeodeticDatum, val utmZone: Int?, val epsg: Int
     val correctionsDatum: CorrectionsDatum
         get() = if (datum == GeodeticDatum.REGCAN95) CorrectionsDatum.REGCAN95 else CorrectionsDatum.ETRS89
 
+    /**
+     * El SC de [target] más parecido a este, al cambiar de datum en el formulario: el mismo huso si existe,
+     * geográficas si lo eran y el datum las tiene, y si no el huso habitual del datum (S008/RF-1).
+     */
+    fun closestIn(target: GeodeticDatum): ProjectCrs = of(target, utmZone)
+        ?: of(target, null)?.takeIf { !isUtm }
+        ?: of(target, defaultZone(target))!!
+
     companion object {
         private const val DEGREES_PER_ZONE = 6.0
+
+        /** Huso habitual de cada datum: el de Madrid, y el de las islas centrales en Canarias. */
+        private fun defaultZone(datum: GeodeticDatum): Int = if (datum == GeodeticDatum.REGCAN95) 28 else 30
 
         fun of(datum: GeodeticDatum, utmZone: Int?): ProjectCrs? = entries.firstOrNull { it.datum == datum && it.utmZone == utmZone }
 

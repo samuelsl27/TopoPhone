@@ -140,7 +140,7 @@ private fun ProjectInfoCard(project: Project) {
             LabeledValue(stringResource(R.string.project_angular_unit), angularUnitLabel(project.angularUnit))
             LabeledValue(stringResource(R.string.project_corrections_datum), datumLabel(project.correctionsDatum))
         }
-        if (DatumCheck.mismatch(project.crs, project.correctionsDatum)) DatumWarning()
+        if (DatumCheck.mismatch(project.crs, project.correctionsDatum)) DatumWarning(project.crs, project.correctionsDatum)
     }
 }
 
