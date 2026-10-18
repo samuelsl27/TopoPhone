@@ -12,7 +12,7 @@
       Hecho cuando: `PointNamesTest` y `PointSearchTest` en verde, y los tests de S010 siguen en verde.
 - [x] T5. `core:survey`: `ProjectPositionCalculator.fromGround` y `ManualCoordinates`. (RF-17 a RF-20)
       Hecho cuando: `ManualCoordinatesTest` en verde frente a `puntos_manuales.csv` (≤ 1 mm) y los tests de S008 siguen en verde.
-- [ ] T6. `core:survey`: `PointCorrections` (jalón, volver a la medida, duplicar). (RF-12 a RF-14, RF-21)
+- [x] T6. `core:survey`: `PointCorrections` (jalón, volver a la medida, duplicar). (RF-12 a RF-14, RF-21)
       Hecho cuando: `PointCorrectionsTest` en verde frente a `jalon_corregido.csv` (≤ 1 mm), con un punto editado.
 - [ ] T7. `data`: Room v6, con las columnas nuevas de `points`, `point_history` e índice `(project_id, name, trash_key)`; migración 5→6. (RF-20, RF-22, RF-25)
       Hecho cuando: `TopoPhoneDatabaseTest` en verde con un punto de S010 migrado (todo conservado, la medida copiada).
