@@ -117,7 +117,11 @@ class CorrectionsController(
     private suspend fun autostart() {
         if (!preferences.ntripWasActive.first()) return
         val id = preferences.lastNtripProfileId.first() ?: return
-        if (profiles.profile(id) != null) connect(id)
+        mutex.withLock {
+            // Si entretanto el usuario ya ha conectado un perfil, no se abre otra vez.
+            val busy = mutableStatus.value.activeProfileId != null || session.state.value.ntrip != NtripState.Idle
+            if (!busy && profiles.profile(id) != null) connectLocked(id, password = null)
+        }
     }
 
     /** S007/RF-24, RF-28: lo que no se arregla reintentando tampoco se reintenta al conectar otra vez el receptor. */
