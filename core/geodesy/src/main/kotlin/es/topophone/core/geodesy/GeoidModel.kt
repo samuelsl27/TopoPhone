@@ -19,6 +19,15 @@ object GeoidModels {
         )
     }
 
+    /** EGM08-REDNAP de Canarias (IGN), sobre REGCAN95 (S008/RF-4). */
+    val egm08RednapCanarias: GeoidModel by lazy {
+        GeoidModel(
+            name = "EGM08-REDNAP Canarias",
+            attribution = "EGM08-REDNAP (Canarias) © Instituto Geográfico Nacional (IGN), CC-BY 4.0",
+            grid = GeoTiffGrid.read(resource("/geoid/es_ign_egm08-rednap-canarias.tif")),
+        )
+    }
+
     private fun resource(path: String): ByteArray = GeoidModels::class.java.getResourceAsStream(path)?.use { it.readBytes() }
         ?: error("Falta el recurso $path")
 }
