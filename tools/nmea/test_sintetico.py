@@ -52,7 +52,8 @@ def test_hay_puntos_en_cada_huso_fuera_de_los_husos_y_sin_solucion() -> None:
     _, expected = g.generate()
     rows = [line.split(",") for line in expected.splitlines() if line and not line.startswith(("#", "frase"))]
 
-    assert {row[11] for row in rows} == {"29", "30", "31", ""}
+    assert {row[11] for row in rows} == {"28", "29", "30", "31", ""}
     assert any(row[2] == "NONE" and row[8] == "" for row in rows)
-    assert any(row[11] == "" and row[8] != "" and row[14] == "" for row in rows)  # Canarias: sin UTM ni H
+    # S008/RF-20, RF-21: en Canarias hay UTM REGCAN95 (huso 28) y altitud con su geoide.
+    assert any(row[11] == "28" and row[14] != "" for row in rows)
     assert any(row[0].startswith("GP") for row in rows)

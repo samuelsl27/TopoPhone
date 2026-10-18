@@ -18,7 +18,7 @@
       Hecho cuando: `AngleFormatTest` en verde.
 - [x] T8. `core:survey`: `ProjectPositionCalculator` para todos los SC y alturas, con ED50, ámbitos, factores, factor combinado y huso de la posición. (RF-4 a RF-9, RF-12 a RF-16)
       Hecho cuando: `ProjectPositionCalculatorTest` en verde contra los vectores (≤ 1 mm) en cada SC y caso no disponible.
-- [ ] T9. `core:survey`: `GroundPointCalculator` con husos 27–31, REGCAN95 y el geoide de Canarias. (RF-20, RF-21)
+- [x] T9. `core:survey`: `GroundPointCalculator` con husos 27–31, REGCAN95 y el geoide de Canarias. (RF-20, RF-21)
       Hecho cuando: `GroundPointCalculatorTest` en verde con un punto en Canarias y los casos de S002 adaptados.
 - [ ] T10. `data`: Room v3 con `height_system` (migración 2→3 probada y esquema exportado); repositorio y preferencias con la altura. (RF-2, RF-10; RNF)
       Hecho cuando: el test de migración (un proyecto de la v2 queda en ORTHOMETRIC), `ProjectRepositoryTest` y `ProjectPreferencesTest` en verde, y `data/schemas/…/3.json` en el repositorio.

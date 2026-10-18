@@ -70,8 +70,8 @@ def gga_epochs(data: bytes) -> list[g.Epoch]:
 COLUMNS = ["frase", "hora", "estado", "satelites", "hdop", "edad", "sigma_h", "sigma_v", "latitud", "longitud", "h", "huso", "este", "norte", "H"]
 
 
-def expected(epoch: g.Epoch, pole_m: float, geoid) -> dict[str, str]:
-    return dict(zip(COLUMNS, g.expected_row(epoch, epoch.lat, epoch.lon, geoid, pole_m)))
+def expected(epoch: g.Epoch, pole_m: float, geoid, canarias_geoid=None) -> dict[str, str]:
+    return dict(zip(COLUMNS, g.expected_row(epoch, epoch.lat, epoch.lon, geoid, canarias_geoid, pole_m)))
 
 
 def dms(value: float, degree_digits: int, positive: str, negative: str) -> str:
@@ -103,7 +103,7 @@ def show(row: dict[str, str]) -> None:
     print(f"  Latitud   {dms(lat, 2, 'N', 'S')}   {spanish(lat, 9, grouping=False)}")
     print(f"  Longitud  {dms(lon, 3, 'E', 'W')}   {spanish(lon, 9, grouping=False)}")
     print(f"  h         {metres(row['h'])}")
-    print(f"  Huso UTM  {row['huso'] or 'fuera de 29 a 31'}")
+    print(f"  Huso UTM  {row['huso'] or 'fuera de 27 a 31'}")
     print(f"  E         {metres(row['este'])}")
     print(f"  N         {metres(row['norte'])}")
     print(f"  H         {metres(row['H'])}")
@@ -146,7 +146,8 @@ def main(argv: list[str] | None = None) -> int:
     sys.stdout.reconfigure(encoding="utf-8")
 
     geoid = g.generar_vectores.geoid_transformer()
-    rows = [expected(epoch, args.jalon, geoid) for epoch in gga_epochs(args.sesion.read_bytes())]
+    canarias_geoid = g.generar_vectores.geoid_transformer(g.rejillas.GEOID_CANARIAS)
+    rows = [expected(epoch, args.jalon, geoid, canarias_geoid) for epoch in gga_epochs(args.sesion.read_bytes())]
     if not rows:
         print("La sesión no tiene ninguna GGA válida.")
         return 1

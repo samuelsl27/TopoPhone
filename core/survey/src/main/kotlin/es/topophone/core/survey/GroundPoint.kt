@@ -6,6 +6,7 @@ import es.topophone.core.geodesy.Utm
 import es.topophone.core.geodesy.UtmCoordinate
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.project.CrsArea
 
 /** Modelos de receptor con la distancia de su base al centro de referencia de la posición. */
 enum class ReceiverModel(val baseToReferenceM: Double) {
@@ -35,8 +36,8 @@ object PoleHeight {
 /** Motivos por los que una parte del resultado no está disponible (S002/RF-37, S002/RF-39). */
 enum class Unavailable { NO_HEIGHT, OUTSIDE_UTM_ZONES, OUTSIDE_GEOID }
 
-/** Sistema de referencia de las coordenadas (S002/RF-41). El datum por proyecto llega en S006. */
-enum class CoordinateReference { CORRECTIONS_ASSUMED_ETRS89, }
+/** Sistema de referencia de las coordenadas (S002/RF-41): REGCAN95 en Canarias (S008/RF-20). */
+enum class CoordinateReference { CORRECTIONS_ASSUMED_ETRS89, CORRECTIONS_ASSUMED_REGCAN95 }
 
 /** Punto del suelo bajo la punta del jalón. */
 data class GroundPoint(
@@ -54,11 +55,13 @@ data class GroundPoint(
 }
 
 /**
- * Del fix GGA del receptor al punto del suelo en ETRS89 / UTM con altitud EGM08-REDNAP
- * (S002/RF-32, RF-33, RF-36 a RF-39).
+ * Del fix GGA del receptor al punto del suelo en UTM del huso de su longitud con altitud EGM08-REDNAP:
+ * ETRS89 en la Península y Baleares, REGCAN95 y su geoide en Canarias (S002/RF-32, RF-33, RF-36 a
+ * RF-39; S008/RF-20, RF-21).
  */
 class GroundPointCalculator(
-    private val geoid: GeoidModel = GeoidModels.egm08RednapPeninsula,
+    private val peninsulaGeoid: () -> GeoidModel = { GeoidModels.egm08RednapPeninsula },
+    private val canariasGeoid: () -> GeoidModel = { GeoidModels.egm08RednapCanarias },
     private val model: ReceiverModel = ReceiverModel.RS3,
     private val utmZones: IntRange = SUPPORTED_UTM_ZONES,
 ) {
@@ -77,15 +80,19 @@ class GroundPointCalculator(
         val utm = if (zone in utmZones) Utm.forward(fix.latitudeDeg, fix.longitudeDeg, zone) else null
         if (utm == null) unavailable += Unavailable.OUTSIDE_UTM_ZONES
 
+        // S008/RF-21: en Canarias, su geoide y REGCAN95.
+        val canarias = CrsArea.CANARIAS.contains(fix.latitudeDeg, fix.longitudeDeg)
+        val geoid = if (canarias) canariasGeoid() else peninsulaGeoid()
         val undulation = geoid.undulationM(fix.latitudeDeg, fix.longitudeDeg)
         if (undulation == null) unavailable += Unavailable.OUTSIDE_GEOID
         val orthometric = if (groundHeight != null && undulation != null) groundHeight - undulation else null
+        val reference = if (canarias) CoordinateReference.CORRECTIONS_ASSUMED_REGCAN95 else CoordinateReference.CORRECTIONS_ASSUMED_ETRS89
 
-        return GroundPoint(fix.latitudeDeg, fix.longitudeDeg, groundHeight, utm, orthometric, unavailable, fix.status)
+        return GroundPoint(fix.latitudeDeg, fix.longitudeDeg, groundHeight, utm, orthometric, unavailable, fix.status, reference)
     }
 
     companion object {
-        /** Husos de la Península y Baleares en esta versión; Canarias llega en S008 (S002/RF-37). */
-        val SUPPORTED_UTM_ZONES = 29..31
+        /** Husos de España: 27 y 28 en Canarias, 29 a 31 en la Península y Baleares (S002/RF-37, S008/RF-20). */
+        val SUPPORTED_UTM_ZONES = 27..31
     }
 }

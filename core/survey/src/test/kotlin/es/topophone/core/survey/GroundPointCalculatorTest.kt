@@ -63,13 +63,31 @@ class GroundPointCalculatorTest {
     }
 
     @Test
-    fun `S002 RF-37 S002 RF-39 en Canarias no hay UTM ni altitud ortometrica en esta version`() {
-        val point = calculator.compute(fix(lat = 28.1, lon = -15.4), poleHeightM = 1.8).shouldNotBeNull()
+    fun `S002 RF-37 fuera de los husos 27 a 31 no hay UTM`() {
+        val point = calculator.compute(fix(lat = 45.0, lon = 10.0), poleHeightM = 1.8).shouldNotBeNull()
 
         point.utm.shouldBeNull()
-        point.orthometricHeightM.shouldBeNull()
-        point.unavailable shouldContainExactly setOf(Unavailable.OUTSIDE_UTM_ZONES, Unavailable.OUTSIDE_GEOID)
-        point.ellipsoidalHeightM.shouldNotBeNull()
+        point.unavailable shouldContain Unavailable.OUTSIDE_UTM_ZONES
+    }
+
+    @Test
+    fun `S008 RF-20 en Canarias se dan las UTM REGCAN95 del huso de su longitud, 27 o 28`() {
+        val tenerife = calculator.compute(fix(lat = 28.4636, lon = -16.2518), poleHeightM = 1.8).shouldNotBeNull()
+        val hierro = calculator.compute(fix(lat = 27.72, lon = -18.1), poleHeightM = 1.8).shouldNotBeNull()
+
+        tenerife.utm.shouldNotBeNull().zone shouldBe 28
+        tenerife.utm!!.easting shouldBe Utm.forward(28.4636, -16.2518, zone = 28).easting
+        hierro.utm.shouldNotBeNull().zone shouldBe 27
+        tenerife.reference shouldBe CoordinateReference.CORRECTIONS_ASSUMED_REGCAN95
+    }
+
+    @Test
+    fun `S008 RF-21 en Canarias la altitud usa el geoide EGM08-REDNAP de Canarias`() {
+        val point = calculator.compute(fix(lat = 28.4636, lon = -16.2518), poleHeightM = 1.8).shouldNotBeNull()
+        val undulation = GeoidModels.egm08RednapCanarias.undulationM(28.4636, -16.2518).shouldNotBeNull()
+
+        point.orthometricHeightM.shouldNotBeNull() shouldBe (point.ellipsoidalHeightM!! - undulation plusOrMinus 1e-9)
+        point.unavailable shouldBe emptySet()
     }
 
     @Test

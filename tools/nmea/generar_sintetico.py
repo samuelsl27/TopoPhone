@@ -33,7 +33,9 @@ NAME = "estatico-fix"
 
 POLE_M = 1.8
 RS3_BASE_TO_REFERENCE_M = 0.134
-UTM_ZONES = (29, 30, 31)
+UTM_ZONES = (27, 28, 29, 30, 31)
+# Canarias: REGCAN95 (UTM 27/28, EPSG:4082/4083) y su geoide (S008/RF-20, RF-21); mismo recuadro que CrsArea.
+CANARIAS = ((27.0, 29.5), (-18.5, -13.0))
 # Una GGA válida en todo salvo la suma de control: la app nunca debe mostrar esta hora (S002/RF-11).
 CORRUPT_UTC = "999999.00"
 
@@ -134,7 +136,19 @@ def fmt(value: float | None) -> str:
     return "" if value is None else repr(float(value))
 
 
-def expected_row(epoch: Epoch, lat: float | None, lon: float | None, geoid: Transformer, pole_m: float = POLE_M) -> list[str]:
+def in_canarias(lat: float, lon: float) -> bool:
+    (lat_min, lat_max), (lon_min, lon_max) = CANARIAS
+    return lat_min <= lat <= lat_max and lon_min <= lon <= lon_max
+
+
+def expected_row(
+    epoch: Epoch,
+    lat: float | None,
+    lon: float | None,
+    geoid: Transformer,
+    canarias_geoid: Transformer | None = None,
+    pole_m: float = POLE_M,
+) -> list[str]:
     sigma = epoch.sigma
     sigma_h = math.sqrt(sigma[0] ** 2 + sigma[1] ** 2) if sigma else None
     sigma_v = sigma[2] if sigma else None
@@ -146,9 +160,13 @@ def expected_row(epoch: Epoch, lat: float | None, lon: float | None, geoid: Tran
             h = (epoch.altitude + epoch.separation) - (pole_m + RS3_BASE_TO_REFERENCE_M)
         zone = math.floor((lon + 180.0) / 6.0) + 1
         east = north = None
+        canarias = in_canarias(lat, lon)
         if zone in UTM_ZONES:
-            east, north = Transformer.from_crs("EPSG:4258", f"EPSG:258{zone}", always_xy=True).transform(lon, lat)
-        _, _, n = geoid.transform(lon, lat, 0.0)
+            source, target = ("EPSG:4081", f"EPSG:{4055 + zone}") if canarias else ("EPSG:4258", f"EPSG:258{zone}")
+            east, north = Transformer.from_crs(source, target, always_xy=True).transform(lon, lat)
+        if canarias and canarias_geoid is None:
+            canarias_geoid = generar_vectores.geoid_transformer(rejillas.GEOID_CANARIAS)
+        _, _, n = (canarias_geoid if canarias else geoid).transform(lon, lat, 0.0)
         orthometric = h - n if h is not None and abs(n) < 1e6 else None
         point = [fmt(lat), fmt(lon), fmt(h), str(zone) if east is not None else "", fmt(east), fmt(north), fmt(orthometric)]
     return [
@@ -192,6 +210,7 @@ def same_csv(a: str, b: str) -> bool:
 
 def generate() -> tuple[bytes, str]:
     geoid = generar_vectores.geoid_transformer()
+    canarias_geoid = generar_vectores.geoid_transformer(rejillas.GEOID_CANARIAS)
     nmea = bytearray()
     # Restos de una trama RTCM3 y bytes sin sentido antes de la primera frase.
     nmea += bytes([0xD3, 0x00, 0x13, 0x3E, 0xD0, 0x00, 0x03, 0x8A, 0x24, 0x00, 0xFF, 0x0D, 0x24, 0x47])
@@ -201,7 +220,7 @@ def generate() -> tuple[bytes, str]:
         body, lat, lon = gga_body(epoch)
         nmea += sentence(body)
         nmea += sentence(gst_body(epoch))
-        rows.append(",".join(expected_row(epoch, lat, lon, geoid)))
+        rows.append(",".join(expected_row(epoch, lat, lon, geoid, canarias_geoid)))
         if index == 1:
             corrupt = sentence(body.replace(epoch.utc, CORRUPT_UTC).replace(",22,", ",23,"))
             wrong = b"00" if corrupt[-4:-2] != b"00" else b"01"
@@ -212,6 +231,7 @@ def generate() -> tuple[bytes, str]:
     header = [
         "# Sesión sintética de principio a fin (S002/T20). Generado por tools/nmea/generar_sintetico.py; no editar a mano.",
         f"# pyproj={pyproj.__version__}; PROJ={pyproj.proj_version_str}; rejilla={rejillas.GRIDS[0].name} sha256={rejillas.GRIDS[0].sha256}",
+        f"# rejilla_canarias={rejillas.GEOID_CANARIAS.name} sha256={rejillas.GEOID_CANARIAS.sha256}",
         f"# jalon_m={POLE_M}; receptor=RS3 ({RS3_BASE_TO_REFERENCE_M} m); hora_corrupta={CORRUPT_UTC}",
         "frase,hora,estado,satelites,hdop,edad,sigma_h,sigma_v,latitud,longitud,h,huso,este,norte,H",
     ]
@@ -220,6 +240,7 @@ def generate() -> tuple[bytes, str]:
 
 def main() -> int:
     rejillas.ensure(rejillas.GRIDS[0], download=False)
+    rejillas.ensure(rejillas.GEOID_CANARIAS, download=False)
     nmea, expected = generate()
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{NAME}.nmea").write_bytes(nmea)
