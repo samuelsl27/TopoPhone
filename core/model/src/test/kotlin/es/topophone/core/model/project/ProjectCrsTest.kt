@@ -1,5 +1,7 @@
 package es.topophone.core.model.project
 
+import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.ProjectDefaults
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -118,5 +120,14 @@ class ProjectCrsTest {
         val canarias = draft.copy(correctionsDatum = CorrectionsDatum.ITRF_WGS84).withCrs(ProjectCrs.REGCAN95_UTM28)
         canarias.correctionsDatum shouldBe CorrectionsDatum.REGCAN95
         canarias.heightSystem shouldBe HeightSystem.ELLIPSOIDAL
+    }
+
+    @Test
+    fun `S008 RF-11 el SC propuesto cambia el huso y, si el territorio pide otro datum, tambien el de las correcciones`() {
+        val draft = ProjectDefaults(correctionsDatum = CorrectionsDatum.ITRF_WGS84).toDraft()
+
+        draft.withProposedCrs(ProjectCrs.ETRS89_UTM29) shouldBe draft.copy(crs = ProjectCrs.ETRS89_UTM29)
+        draft.withProposedCrs(ProjectCrs.REGCAN95_UTM28) shouldBe
+            draft.copy(crs = ProjectCrs.REGCAN95_UTM28, correctionsDatum = CorrectionsDatum.REGCAN95)
     }
 }

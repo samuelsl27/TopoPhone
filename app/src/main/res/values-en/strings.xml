@@ -381,4 +381,5 @@
     <string name="project_height_orthometric">Orthometric height (EGM08-REDNAP)</string>
     <string name="project_height_ellipsoidal">Ellipsoidal height</string>
     <string name="project_datum_warning_general">Corrections are in %1$s and the project in %2$s: coordinates may differ.</string>
+    <string name="project_zone_proposed">Zone proposed from your position.</string>
 </resources>

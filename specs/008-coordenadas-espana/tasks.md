@@ -24,7 +24,7 @@
       Hecho cuando: el test de migración (un proyecto de la v2 queda en ORTHOMETRIC), `ProjectRepositoryTest` y `ProjectPreferencesTest` en verde, y `data/schemas/…/3.json` en el repositorio.
 - [x] T11. `app`: formulario con grupos Datum, Proyección y Altura; ED50 solo con altitud; datum de las correcciones según el SC; aviso de datum general; al editar, solo el mismo datum. (RF-1 a RF-3, RF-17 a RF-19)
       Hecho cuando: `ProjectFormCrsTest` en verde y los tests de S006 del formulario adaptados.
-- [ ] T12. `app`: huso propuesto por la posición al crear un proyecto. (RF-11)
+- [x] T12. `app`: huso propuesto por la posición al crear un proyecto. (RF-11)
       Hecho cuando: `ProjectFormCrsTest` en verde para Península, Canarias, ED50, geográficas y sin posición.
 - [ ] T13. `app`: vista de proyecto con geográficas, altura elipsoidal, factores, aviso de otro huso y fuera de ED50; nombres de los SC en la lista. (RF-5, RF-6, RF-8, RF-12 a RF-16)
       Hecho cuando: `ProjectViewCrsTest` en verde y los tests de S006 de la vista y la lista adaptados.

@@ -21,6 +21,12 @@ data class ProjectDraft(
         correctionsDatum = newCrs.correctionsDatum,
         heightSystem = if (heightSystem in newCrs.heightSystems) heightSystem else HeightSystem.ORTHOMETRIC,
     )
+
+    /**
+     * Con el SC [proposed] por la posición del receptor (S008/RF-11): cambia el huso y, solo si el territorio
+     * pide otro datum, también lo que depende de él; lo demás sigue como en Ajustes.
+     */
+    fun withProposedCrs(proposed: ProjectCrs): ProjectDraft = if (proposed.datum == crs.datum) copy(crs = proposed) else withCrs(proposed)
 }
 
 /** Un proyecto guardado (S006). Fechas en ms UTC; con [deletedAtMs] está en la papelera. */

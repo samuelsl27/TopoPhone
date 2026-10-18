@@ -46,6 +46,8 @@ import es.topophone.core.model.project.ProjectDraft
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.project.SaveResult
+import es.topophone.receiver.session.ConnectionState
+import es.topophone.receiver.session.ReceiverSession
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -59,6 +61,7 @@ const val FORM_AUTHOR_TAG = "project_form_author"
 const val FORM_DESCRIPTION_TAG = "project_form_description"
 const val FORM_SAVE_TAG = "project_form_save"
 const val DATUM_WARNING_TAG = "project_datum_warning"
+const val ZONE_PROPOSED_TAG = "project_zone_proposed"
 
 fun crsOptionTag(crs: ProjectCrs) = "project_crs_${crs.name}"
 
@@ -72,22 +75,32 @@ fun angularOptionTag(unit: AngularUnit) = "project_angular_${unit.name}"
 
 fun datumOptionTag(datum: CorrectionsDatum) = "project_datum_${datum.name}"
 
-/** Estado del formulario de proyecto (S006/RF-5 a RF-12); [savedId] cuando ya se ha guardado. */
+/**
+ * Estado del formulario de proyecto (S006/RF-5 a RF-12); [savedId] cuando ya se ha guardado y [proposedCrs]
+ * cuando el SC de un proyecto nuevo se ha propuesto por la posición del receptor (S008/RF-11).
+ */
 data class ProjectFormUiState(
     val draft: ProjectDraft = ProjectDefaults().toDraft(),
     val loaded: Boolean = false,
     val editing: Boolean = false,
     val error: NameError? = null,
     val savedId: String? = null,
+    val proposedCrs: ProjectCrs? = null,
 )
 
 /** Acciones del formulario de proyecto. */
 class ProjectFormActions(val onChange: (ProjectDraft) -> Unit = {}, val onSave: () -> Unit = {}, val onBack: () -> Unit = {})
 
-/** Proyecto nuevo, desde los valores por defecto de Ajustes (S006/RF-5, RF-6, RF-12), o editado (S006/RF-14, RF-15). */
+/**
+ * Proyecto nuevo, desde los valores por defecto de Ajustes (S006/RF-5, RF-6, RF-12) con el huso de la posición
+ * del receptor (S008/RF-11), o editado (S006/RF-14, RF-15).
+ */
 @HiltViewModel
-class ProjectFormViewModel @Inject constructor(private val repository: ProjectRepository, private val preferences: ProjectPreferences) :
-    ViewModel() {
+class ProjectFormViewModel @Inject constructor(
+    private val repository: ProjectRepository,
+    private val preferences: ProjectPreferences,
+    private val session: ReceiverSession,
+) : ViewModel() {
     private val mutableState = MutableStateFlow(ProjectFormUiState())
     val state: StateFlow<ProjectFormUiState> = mutableState.asStateFlow()
 
@@ -105,9 +118,18 @@ class ProjectFormViewModel @Inject constructor(private val repository: ProjectRe
             mutableState.value = if (project != null) {
                 ProjectFormUiState(draft = project.toDraft(), loaded = true, editing = true) // S006/RF-14
             } else {
-                ProjectFormUiState(draft = preferences.defaults.first().toDraft(), loaded = true) // S006/RF-6
+                newProject(preferences.defaults.first().toDraft()) // S006/RF-6
             }
         }
+    }
+
+    /** Con la posición del receptor y un SC UTM por defecto, el SC UTM de su huso y territorio (S008/RF-11). */
+    private fun newProject(defaults: ProjectDraft): ProjectFormUiState {
+        val snapshot = session.state.value
+        val fix = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
+        val proposed = fix?.let { ProjectCrs.suggested(defaults.crs, it.latitudeDeg, it.longitudeDeg) }
+            ?: return ProjectFormUiState(draft = defaults, loaded = true)
+        return ProjectFormUiState(draft = defaults.withProposedCrs(proposed), loaded = true, proposedCrs = proposed)
     }
 
     fun update(draft: ProjectDraft) = mutableState.update { it.copy(draft = draft, error = null) }
@@ -187,9 +209,13 @@ fun ProjectFormScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
                 label = { Text(stringResource(R.string.project_description)) },
                 modifier = Modifier.fillMaxWidth().testTag(FORM_DESCRIPTION_TAG),
             )
-            CrsChoices(draft.crs, draft.heightSystem, datumLocked = state.editing, onCrs = { actions.onChange(draft.withCrs(it)) }) {
-                actions.onChange(draft.copy(heightSystem = it))
-            } // S006/RF-8, S008/RF-1 a RF-3, RF-17, RF-19
+            CrsChoices(
+                draft.crs,
+                draft.heightSystem,
+                datumLocked = state.editing,
+                zoneProposed = state.proposedCrs == draft.crs,
+                onCrs = { actions.onChange(draft.withCrs(it)) },
+            ) { actions.onChange(draft.copy(heightSystem = it)) } // S006/RF-8, S008/RF-1 a RF-3, RF-11, RF-17, RF-19
             ChoiceGroup(stringResource(R.string.project_linear_unit), LinearUnit.entries, draft.linearUnit, ::linearOptionTag, {
                 linearUnitLabel(it)
             }) {
@@ -238,13 +264,15 @@ internal fun DatumWarning(crs: ProjectCrs, corrections: CorrectionsDatum) {
 
 /**
  * SC del proyecto en tres grupos: datum, proyección de ese datum (UTM en un huso o geográficas) y altura
- * (S008/RF-1 a RF-3). Con [datumLocked] (al editar) el datum no se puede cambiar (S008/RF-19).
+ * (S008/RF-1 a RF-3). Con [datumLocked] (al editar) el datum no se puede cambiar (S008/RF-19), y con
+ * [zoneProposed] se dice que la proyección es la propuesta por la posición (S008/RF-11).
  */
 @Composable
 internal fun CrsChoices(
     crs: ProjectCrs,
     heightSystem: HeightSystem,
     datumLocked: Boolean,
+    zoneProposed: Boolean = false,
     onCrs: (ProjectCrs) -> Unit,
     onHeight: (HeightSystem) -> Unit,
 ) {
@@ -264,6 +292,13 @@ internal fun CrsChoices(
         ::crsOptionTag,
         { projectionLabel(it) },
     ) { onCrs(it) }
+    if (zoneProposed) {
+        Text(
+            stringResource(R.string.project_zone_proposed),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.testTag(ZONE_PROPOSED_TAG),
+        )
+    }
     ChoiceGroup(stringResource(R.string.project_height), crs.heightSystems, heightSystem, ::heightOptionTag, { heightLabel(it) }) {
         onHeight(it)
     }

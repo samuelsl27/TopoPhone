@@ -393,4 +393,5 @@
     <string name="project_height_orthometric">Altitud (EGM08-REDNAP)</string>
     <string name="project_height_ellipsoidal">Altura elipsoidal</string>
     <string name="project_datum_warning_general">Las correcciones están en %1$s y el proyecto en %2$s: las coordenadas pueden diferir.</string>
+    <string name="project_zone_proposed">Huso propuesto por tu posición.</string>
 </resources>

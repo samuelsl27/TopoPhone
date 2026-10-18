@@ -24,14 +24,18 @@ import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.model.project.ProjectDraft
+import es.topophone.core.ntrip.NtripConnector
+import es.topophone.core.ntrip.NtripFailure
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.RoomProjectRepository
+import es.topophone.receiver.session.ReceiverSession
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -74,13 +78,18 @@ class ProjectFormTest {
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
 
+    private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val session = ReceiverSession(sessionScope, NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
+
     @After
     fun tearDown() {
+        session.disconnect()
+        sessionScope.cancel()
         db.close()
         Dispatchers.resetMain()
     }
 
-    private fun viewModel() = ProjectFormViewModel(repository, FakeProjectPreferences(defaults))
+    private fun viewModel() = ProjectFormViewModel(repository, FakeProjectPreferences(defaults), session)
 
     private fun ProjectFormViewModel.awaitState(predicate: (ProjectFormUiState) -> Boolean): ProjectFormUiState = runBlocking {
         val collector = CoroutineScope(Dispatchers.Unconfined).launch { state.collect {} }
