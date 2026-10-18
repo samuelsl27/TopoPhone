@@ -1,14 +1,18 @@
 package es.topophone.app.ui.projects
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
@@ -32,6 +36,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -50,18 +55,24 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.map.AttributionSource
+import es.topophone.app.ui.map.MapAttribution
+import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.MapController
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
+import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.FactorFormat
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.map.MapSettings
+import es.topophone.core.model.map.ScaleBar
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.HeightSystem
@@ -109,6 +120,8 @@ const val CONVERGENCE_TAG = "position_convergence"
 const val COMBINED_FACTOR_TAG = "position_combined_factor"
 const val OTHER_ZONE_TAG = "position_other_zone"
 const val LAYERS_BUTTON_TAG = "map_layers"
+const val SCALE_BAR_TAG = "map_scale_bar"
+const val ATTRIBUTION_TAG = "map_attribution"
 const val CADASTRE_SWITCH_TAG = "map_cadastre"
 
 fun basemapOptionTag(basemap: Basemap) = "map_basemap_${basemap.name}"
@@ -245,8 +258,18 @@ fun ProjectViewScreen(
             ) {
                 Icon(painterResource(R.drawable.ic_layers), contentDescription = stringResource(R.string.map_layers))
             } // S009/RF-6, RF-7
-            if (project != null) {
-                PositionPanel(project, state.position, state.accuracyM, Modifier.align(Alignment.BottomCenter))
+            Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+                // Barra de escala y atribución abajo a la izquierda, justo encima del panel.
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    val camera = controller?.camera?.collectAsStateWithLifecycle()?.value
+                    if (project != null && camera != null) ScaleBarView(camera, project.linearUnit)
+                    Attribution(state.mapSettings)
+                }
+                if (project != null) PositionPanel(project, state.position, state.accuracyM, Modifier)
             }
         }
     }
@@ -280,6 +303,57 @@ private fun LayersSheet(settings: MapSettings, onChange: (MapSettings) -> Unit, 
             }
         }
     }
+}
+
+/**
+ * Barra de escala: la mayor longitud redonda en la unidad del proyecto que cabe en 100 dp, dibujada con su
+ * ancho a escala (S009/RF-10).
+ */
+@Composable
+private fun ScaleBarView(camera: MapCamera, unit: LinearUnit) {
+    val bar = ScaleBar.choose(WebMercator.metresPerPixel(camera.latitudeDeg, camera.zoom), SCALE_BAR_MAX_DP, unit)
+    val text = "${bar.valueText(uiLocale())} ${unitSymbol(unit)}"
+    val color = MaterialTheme.colorScheme.onSurface
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = OVERLAY_ALPHA), MaterialTheme.shapes.small)
+            .padding(horizontal = 6.dp, vertical = 2.dp)
+            .semantics(mergeDescendants = true) {}
+            .testTag(SCALE_BAR_TAG),
+    ) {
+        Text(text, style = MaterialTheme.typography.labelMedium, color = color)
+        Canvas(modifier = Modifier.width(bar.widthPx.dp).height(6.dp)) {
+            val stroke = 2.dp.toPx()
+            drawLine(color, Offset(0f, size.height), Offset(size.width, size.height), stroke)
+            drawLine(color, Offset(0f, 0f), Offset(0f, size.height), stroke)
+            drawLine(color, Offset(size.width, 0f), Offset(size.width, size.height), stroke)
+        }
+    }
+}
+
+/** Atribución de las fuentes a la vista, siempre visible (S009/RF-9, RNF-T14). */
+@Composable
+private fun Attribution(settings: MapSettings) {
+    val sources = MapAttribution.sources(settings)
+    if (sources.isEmpty()) return
+    val text = sources.map { source ->
+        stringResource(
+            when (source) {
+                AttributionSource.IGN -> R.string.attribution_ign
+                AttributionSource.OPENFREEMAP -> R.string.attribution_openfreemap
+                AttributionSource.CADASTRE -> R.string.attribution_cadastre
+            },
+        )
+    }.joinToString(" · ")
+    Text(
+        text,
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = OVERLAY_ALPHA), MaterialTheme.shapes.small)
+            .padding(horizontal = 6.dp, vertical = 2.dp)
+            .testTag(ATTRIBUTION_TAG),
+    )
 }
 
 @Composable
@@ -434,3 +508,6 @@ private fun unitSymbol(unit: LinearUnit): String = stringResource(
 
 /** El panel no tapa más de esto del mapa; si no cabe, se desplaza. */
 private val PANEL_MAX_HEIGHT = 320.dp
+
+/** Fondo de la barra de escala y la atribución: legibles sobre cualquier mapa base (RNF-T8). */
+private const val OVERLAY_ALPHA = 0.85f

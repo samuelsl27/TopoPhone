@@ -404,4 +404,7 @@
     <string name="map_basemap_pnoa">PNOA orthophoto</string>
     <string name="map_basemap_none">None</string>
     <string name="map_cadastre">Cadastre</string>
+    <string name="attribution_ign">CC BY 4.0 scne.es</string>
+    <string name="attribution_openfreemap">OpenFreeMap © OpenMapTiles Data from OpenStreetMap</string>
+    <string name="attribution_cadastre">© Dirección General del Catastro</string>
 </resources>

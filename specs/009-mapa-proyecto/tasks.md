@@ -18,7 +18,7 @@
       Hecho cuando: `ProjectMapScreenTest`, `ProjectInfoTest` y `ProjectViewCrsTest` en verde.
 - [x] T8. `app`: hoja "Capas" con el mapa base y el Catastro, recordados para toda la app; el Catastro como una imagen por encuadre al detenerse la cámara. (RF-6, RF-7, RF-8)
       Hecho cuando: `MapLayersTest` y `CadastreRequestTest` en verde.
-- [ ] T9. `app`: atribución de las capas visibles y barra de escala; norte arriba y zoom máximo 22. (RF-9, RF-10, RF-11, RF-12)
+- [x] T9. `app`: atribución de las capas visibles y barra de escala; norte arriba y zoom máximo 22. (RF-9, RF-10, RF-11, RF-12)
       Hecho cuando: `MapAttributionTest` y los casos de barra de escala y opciones del mapa de `ProjectMapScreenTest` en verde.
 - [ ] T10. `app`: rover con el color de la solución y círculo de precisión; desaparecen sin datos. (RF-16, RF-17, RF-18)
       Hecho cuando: `RoverLayerTest` en verde (color por solución, círculo con la precisión H, sin GST, "Sin datos").

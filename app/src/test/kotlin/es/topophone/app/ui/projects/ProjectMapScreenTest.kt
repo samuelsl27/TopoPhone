@@ -15,10 +15,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.FakeMapPreferences
+import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.fakeMap
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
@@ -172,6 +174,32 @@ class ProjectMapScreenTest {
 
         map.settings.last() shouldBe MapSettings()
         map.unit shouldBe LinearUnit.US_SURVEY_FOOT
+    }
+
+    @Test
+    fun `S009 RF-10 la barra de escala da una longitud redonda en las unidades del proyecto`() {
+        // A 40° N y zoom 17, un dp mide 0,458 m del terreno: 100 dp son 45,8 m, así que 20 m.
+        map.camera.value = MapCamera(latitudeDeg = 40.0, longitudeDeg = -3.7, zoom = 17.0)
+        show(ProjectViewUiState(project, madrid))
+
+        compose.onNodeWithTag(SCALE_BAR_TAG).assert(hasText("20 m"))
+    }
+
+    @Test
+    fun `S009 RF-10 en pies la barra va en pies`() {
+        map.camera.value = MapCamera(latitudeDeg = 40.0, longitudeDeg = -3.7, zoom = 17.0)
+        show(ProjectViewUiState(project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT), madrid))
+
+        compose.onNodeWithTag(SCALE_BAR_TAG).assert(hasText("100 ft"))
+    }
+
+    @Test
+    fun `S009 RF-9 la atribucion de las fuentes a la vista siempre se ve`() {
+        show(ProjectViewUiState(project, madrid, mapSettings = MapSettings(Basemap.IGN_VECTOR, cadastre = true)))
+
+        compose.onNodeWithTag(ATTRIBUTION_TAG).assertIsDisplayed()
+            .assert(hasText("CC BY 4.0 scne.es", substring = true))
+            .assert(hasText("Dirección General del Catastro", substring = true))
     }
 
     // --- ViewModel: la precisión horizontal sale de la GST ---

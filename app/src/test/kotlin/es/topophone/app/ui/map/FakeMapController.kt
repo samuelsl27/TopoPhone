@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class FakeMapController : MapController {
     val settings = mutableListOf<MapSettings>()
     var unit: LinearUnit? = null
+    override val camera = MutableStateFlow<MapCamera?>(null)
 
     override fun setSettings(settings: MapSettings) {
         this.settings += settings

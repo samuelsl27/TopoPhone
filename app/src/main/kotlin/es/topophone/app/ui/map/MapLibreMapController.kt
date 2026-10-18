@@ -10,6 +10,8 @@ import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.ScaleBar
 import es.topophone.core.model.project.LinearUnit
 import java.io.IOException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -39,15 +41,28 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private val handler = Handler(Looper.getMainLooper())
     private var cadastreCall: Call? = null
     private val requestCadastre = Runnable { loadCadastre() }
+    private val cameraFlow = MutableStateFlow<MapCamera?>(null)
+    override val camera: StateFlow<MapCamera?> = cameraFlow
 
     init {
-        // S009/RF-11: norte arriba; el mapa no gira ni se inclina.
-        map.uiSettings.isRotateGesturesEnabled = false
-        map.uiSettings.isTiltGesturesEnabled = false
+        map.uiSettings.isRotateGesturesEnabled = MapOptions.ROTATE_GESTURES // S009/RF-11
+        map.uiSettings.isTiltGesturesEnabled = MapOptions.TILT_GESTURES
+        map.uiSettings.isLogoEnabled = MapOptions.MAPLIBRE_ATTRIBUTION // S009/RF-9
+        map.uiSettings.isAttributionEnabled = MapOptions.MAPLIBRE_ATTRIBUTION
+        map.setMaxZoomPreference(MapOptions.MAX_ZOOM) // S009/RF-12
+        map.addOnCameraMoveListener { publishCamera() }
         map.addOnCameraIdleListener {
+            publishCamera()
             updateGrid()
             scheduleCadastre(CADASTRE_DELAY_MS)
         }
+        publishCamera()
+    }
+
+    private fun publishCamera() {
+        val position = map.cameraPosition
+        val target = position.target ?: return
+        cameraFlow.value = MapCamera(target.latitude, target.longitude, position.zoom)
     }
 
     override fun setSettings(settings: MapSettings) {
