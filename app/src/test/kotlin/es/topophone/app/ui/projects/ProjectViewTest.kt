@@ -12,8 +12,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
-import es.topophone.app.ui.map.FakeMapPreferences
-import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -98,14 +96,7 @@ class ProjectViewTest {
         sessionScope.cancel()
     }
 
-    private fun viewModel(repository: RoomProjectRepository) = ProjectViewModel(
-        repository = repository,
-        session = session,
-        preferences = FakePreferences(),
-        calculator = { CALCULATOR },
-        mapPreferences = FakeMapPreferences(),
-        samplePeriodMs = 0,
-    )
+    private fun viewModel(repository: RoomProjectRepository) = projectViewModel(repository, session, calculator = CALCULATOR)
 
     private val madrid = ProjectPosition(440_290.434, 4_474_257.414, 648.34, emptySet())
 

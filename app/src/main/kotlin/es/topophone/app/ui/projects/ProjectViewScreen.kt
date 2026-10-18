@@ -57,6 +57,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.map.AttributionSource
+import es.topophone.app.ui.map.CameraCommand
+import es.topophone.app.ui.map.CameraPolicy
 import es.topophone.app.ui.map.MapAttribution
 import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.MapController
@@ -78,6 +80,7 @@ import es.topophone.core.model.format.FactorFormat
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.map.MapSettings
+import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.map.ScaleBar
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CrsArea
@@ -88,6 +91,7 @@ import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.map.MapPreferences
+import es.topophone.data.map.MapViewportRepository
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.session.ConnectionState
@@ -97,11 +101,15 @@ import javax.inject.Named
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -126,6 +134,7 @@ const val CONVERGENCE_TAG = "position_convergence"
 const val COMBINED_FACTOR_TAG = "position_combined_factor"
 const val OTHER_ZONE_TAG = "position_other_zone"
 const val LAYERS_BUTTON_TAG = "map_layers"
+const val CENTER_BUTTON_TAG = "map_center_rover"
 const val SCALE_BAR_TAG = "map_scale_bar"
 const val ATTRIBUTION_TAG = "map_attribution"
 const val CADASTRE_SWITCH_TAG = "map_cadastre"
@@ -146,6 +155,9 @@ data class ProjectViewUiState(
     val accuracyM: Double? = null,
     val mapSettings: MapSettings = MapSettings(),
     val rover: Rover? = null,
+    /** Último encuadre del proyecto (S009/RF-21), válido cuando [viewportLoaded]. */
+    val savedViewport: MapViewport? = null,
+    val viewportLoaded: Boolean = false,
 )
 
 /** El rover: posición de la GGA tal cual, su solución y la precisión horizontal de la GST (S009/RF-16, RF-17). */
@@ -163,9 +175,20 @@ class ProjectViewModel @Inject constructor(
     preferences: ReceiverPreferences,
     calculator: Lazy<ProjectPositionCalculator>,
     private val mapPreferences: MapPreferences,
+    private val viewports: MapViewportRepository,
     @param:Named(ReceiverViewModel.UI_SAMPLE_MS) samplePeriodMs: Long,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
+
+    /** Encuadre guardado del proyecto: null hasta que se lee (S009/RF-21). */
+    private val savedViewport = MutableStateFlow<SavedViewport?>(null)
+    private val viewportChanges = MutableSharedFlow<MapViewport>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    init {
+        // S009/RF-21: el encuadre se guarda, como mucho cada 2 s mientras se mueve el mapa.
+        val changes = if (samplePeriodMs > 0) viewportChanges.sample(VIEWPORT_SAVE_MS) else viewportChanges
+        viewModelScope.launch { changes.collect { viewport -> projectId.value?.let { viewports.save(it, viewport) } } }
+    }
 
     private val project = projectId.flatMapLatest { id -> if (id == null) flowOf(null) else repository.observe(id) }
 
@@ -176,17 +199,27 @@ class ProjectViewModel @Inject constructor(
         }
         .distinctUntilChanged()
 
-    val state: StateFlow<ProjectViewUiState> = combine(project, fixes, preferences.poleHeightM, mapPreferences.settings) {
-            project,
-            fix,
-            pole,
-            map,
-        ->
+    val state: StateFlow<ProjectViewUiState> = combine(
+        project,
+        fixes,
+        preferences.poleHeightM,
+        mapPreferences.settings,
+        savedViewport,
+    ) { project, fix, pole, map, viewport ->
         // Con el SC del proyecto: si se cambia, la posición se recalcula en el nuevo (S006/RF-15).
         val position = fix?.let { project?.let { p -> calculator.get().compute(it.gga, pole, p.crs, p.heightSystem) } }
         // S009/RF-16: el rover en su posición real, sea cual sea el SC del proyecto.
         val rover = fix?.gga?.takeIf { it.hasPosition }?.let { Rover(GeoPoint(it.latitudeDeg, it.longitudeDeg), it.status, fix.accuracyM) }
-        ProjectViewUiState(project, position, accuracyM = fix?.accuracyM, mapSettings = map, rover = rover)
+        ProjectViewUiState(
+            project,
+            position,
+            fix?.accuracyM,
+            map,
+            rover,
+            savedViewport = viewport?.viewport,
+            viewportLoaded =
+            viewport != null,
+        )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
     /** Mapa base y Catastro, para todos los proyectos (S009/RF-8). */
@@ -198,12 +231,21 @@ class ProjectViewModel @Inject constructor(
         if (projectId.value != null) return
         projectId.value = id
         viewModelScope.launch { repository.markOpened(id) }
+        viewModelScope.launch { savedViewport.value = SavedViewport(viewports.viewport(id)) }
     }
+
+    /** El mapa se ha movido: su encuadre pasa a ser el del proyecto (S009/RF-21). */
+    fun onViewportChanged(viewport: MapViewport) {
+        viewportChanges.tryEmit(viewport)
+    }
+
+    private data class SavedViewport(val viewport: MapViewport?)
 
     private data class ReceiverFix(val gga: GgaFix, val accuracyM: Double?)
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
+        const val VIEWPORT_SAVE_MS = 2_000L
     }
 }
 
@@ -228,6 +270,7 @@ fun ProjectViewRoute(
         navigation.onEditProject,
         navigation.onOpenProjectInfo,
         viewModel::setMapSettings,
+        viewModel::onViewportChanged,
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
     )
 }
@@ -242,8 +285,10 @@ fun ProjectViewScreen(
     onEdit: (String) -> Unit = {},
     onInfo: (String) -> Unit = {},
     onMapSettings: (MapSettings) -> Unit = {},
+    onViewportChanged: (MapViewport) -> Unit = {},
     map: MapSlot = { _, _ -> },
 ) {
+    val policy = remember { CameraPolicy() }
     val project = state.project
     var controller by remember { mutableStateOf<MapController?>(null) }
     var layersOpen by rememberSaveable { mutableStateOf(false) }
@@ -265,12 +310,25 @@ fun ProjectViewScreen(
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize().testTag(PROJECT_VIEW_TAG)) {
             map(Modifier.fillMaxSize().testTag(PROJECT_MAP_TAG)) { controller = it }
-            FilledTonalIconButton(
-                onClick = { layersOpen = true },
-                modifier = Modifier.align(Alignment.TopEnd).padding(12.dp).size(MinTouchTarget).testTag(LAYERS_BUTTON_TAG),
+            Column(
+                modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Icon(painterResource(R.drawable.ic_layers), contentDescription = stringResource(R.string.map_layers))
-            } // S009/RF-6, RF-7
+                FilledTonalIconButton(
+                    onClick = { layersOpen = true },
+                    modifier = Modifier.size(MinTouchTarget).testTag(LAYERS_BUTTON_TAG),
+                ) {
+                    Icon(painterResource(R.drawable.ic_layers), contentDescription = stringResource(R.string.map_layers))
+                } // S009/RF-6, RF-7
+                val rover = state.rover
+                FilledTonalIconButton(
+                    onClick = { if (rover != null) controller?.run { execute(policy.onCenterPressed(rover.position, camera.value)) } },
+                    enabled = rover != null,
+                    modifier = Modifier.size(MinTouchTarget).testTag(CENTER_BUTTON_TAG),
+                ) {
+                    Icon(painterResource(R.drawable.ic_center_rover), contentDescription = stringResource(R.string.map_center_rover))
+                } // S009/RF-19
+            }
             Column(modifier = Modifier.align(Alignment.BottomCenter)) {
                 // Barra de escala y atribución abajo a la izquierda, justo encima del panel.
                 Row(
@@ -287,7 +345,43 @@ fun ProjectViewScreen(
         }
     }
     BindMap(controller, state)
+    controller?.let { FollowRover(it, state, policy, onViewportChanged) }
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
+}
+
+/** Cámara del mapa según [CameraPolicy], y su encuadre al ViewModel una vez colocado (S009/RF-19 a RF-21). */
+@Composable
+private fun FollowRover(
+    controller: MapController,
+    state: ProjectViewUiState,
+    policy: CameraPolicy,
+    onViewportChanged: (MapViewport) -> Unit,
+) {
+    val position = state.rover?.position
+    LaunchedEffect(controller, state.viewportLoaded) {
+        // Sin posición, el último encuadre o España; si ya hay rover, manda él (S009/RF-19, RF-21).
+        if (state.viewportLoaded &&
+            !policy.placed &&
+            !policy.hasRover &&
+            position == null
+        ) {
+            controller.execute(policy.onOpen(state.savedViewport))
+        }
+    }
+    LaunchedEffect(controller, position) {
+        if (position != null) policy.onPosition(position, controller.camera.value)?.let { controller.execute(it) }
+    }
+    LaunchedEffect(controller) { controller.userGestures.collect { policy.onUserGesture() } }
+    LaunchedEffect(controller) {
+        controller.camera.filterNotNull().filter {
+            policy.placed
+        }.collect { onViewportChanged(MapViewport(it.latitudeDeg, it.longitudeDeg, it.zoom)) }
+    }
+}
+
+private fun MapController.execute(command: CameraCommand) = when (command) {
+    is CameraCommand.MoveTo -> moveTo(command.viewport)
+    CameraCommand.ShowSpain -> showSpain()
 }
 
 /** Hoja "Capas": mapa base y Catastro (S009/RF-6, RF-7). */

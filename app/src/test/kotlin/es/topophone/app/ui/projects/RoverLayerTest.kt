@@ -10,10 +10,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakeMapController
-import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.fakeMap
-import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.designsystem.theme.StatusTone
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -30,7 +28,6 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
-import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
@@ -135,9 +132,7 @@ class RoverLayerTest {
             toApp.write(nmea("GNGST,101530.00,0.012,0.010,0.007,45.0,0.008,0.006,0.015").toByteArray())
             toApp.flush()
             val vm =
-                ProjectViewModel(repository, session, FakePreferences(), {
-                    ProjectPositionCalculator()
-                }, FakeMapPreferences(), samplePeriodMs = 0)
+                projectViewModel(repository, session)
             vm.start(id)
             val collector = CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
             try {

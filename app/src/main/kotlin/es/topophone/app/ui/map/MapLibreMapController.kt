@@ -9,9 +9,13 @@ import es.topophone.core.geodesy.AccuracyCircle
 import es.topophone.core.geodesy.MapGrid
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.model.map.MapSettings
+import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.map.ScaleBar
 import es.topophone.core.model.project.LinearUnit
 import java.io.IOException
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import okhttp3.Call
@@ -19,8 +23,11 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.geometry.LatLngQuad
+import org.maplibre.android.gestures.MoveGestureDetector
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
@@ -49,6 +56,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private var rover: RoverMarker? = null
     private val cameraFlow = MutableStateFlow<MapCamera?>(null)
     override val camera: StateFlow<MapCamera?> = cameraFlow
+    private val gestures = MutableSharedFlow<Unit>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    override val userGestures: Flow<Unit> = gestures
 
     init {
         map.uiSettings.isRotateGesturesEnabled = MapOptions.ROTATE_GESTURES // S009/RF-11
@@ -57,6 +66,17 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         map.uiSettings.isAttributionEnabled = MapOptions.MAPLIBRE_ATTRIBUTION
         map.setMaxZoomPreference(MapOptions.MAX_ZOOM) // S009/RF-12
         map.addOnCameraMoveListener { publishCamera() }
+        map.addOnMoveListener(
+            object : MapLibreMap.OnMoveListener {
+                override fun onMoveBegin(detector: MoveGestureDetector) {
+                    gestures.tryEmit(Unit) // S009/RF-20
+                }
+
+                override fun onMove(detector: MoveGestureDetector) = Unit
+
+                override fun onMoveEnd(detector: MoveGestureDetector) = Unit
+            },
+        )
         map.addOnCameraIdleListener {
             publishCamera()
             updateGrid()
@@ -92,6 +112,15 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         } else {
             removeCadastre()
         }
+    }
+
+    override fun moveTo(viewport: MapViewport) {
+        map.easeCamera(CameraUpdateFactory.newLatLngZoom(LatLng(viewport.latitudeDeg, viewport.longitudeDeg), viewport.zoom), MOVE_MS)
+    }
+
+    override fun showSpain() {
+        val spain = LatLngBounds.from(CameraPolicy.SPAIN_NORTH, CameraPolicy.SPAIN_EAST, CameraPolicy.SPAIN_SOUTH, CameraPolicy.SPAIN_WEST)
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(spain, SPAIN_PADDING_PX))
     }
 
     override fun showRover(marker: RoverMarker?) {
@@ -260,6 +289,10 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val ROVER_LAYER = "topophone-rover"
         const val ROVER_RADIUS_DP = 8f
         const val ACCURACY_OPACITY = 0.25f
+
+        /** Desplazamiento suave al seguir al rover, que llega a 5 Hz como mucho (RNF-T13). */
+        const val MOVE_MS = 200
+        const val SPAIN_PADDING_PX = 32
 
         /** Espera tras detenerse el mapa antes de pedir el Catastro. */
         const val CADASTRE_DELAY_MS = 500L

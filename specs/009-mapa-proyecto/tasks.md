@@ -22,7 +22,7 @@
       Hecho cuando: `MapAttributionTest` y los casos de barra de escala y opciones del mapa de `ProjectMapScreenTest` en verde.
 - [x] T10. `app`: rover con el color de la solución y círculo de precisión; desaparecen sin datos. (RF-16, RF-17, RF-18)
       Hecho cuando: `RoverLayerTest` en verde (color por solución, círculo con la precisión H, sin GST, "Sin datos").
-- [ ] T11. `app`: `CameraPolicy` (seguir, gesto, centrar, acercar a 1:2.000) y encuadre guardado por proyecto o España. (RF-19, RF-20, RF-21)
+- [x] T11. `app`: `CameraPolicy` (seguir, gesto, centrar, acercar a 1:2.000) y encuadre guardado por proyecto o España. (RF-19, RF-20, RF-21)
       Hecho cuando: `CameraPolicyTest` y los casos de centrar y encuadre de `ProjectMapScreenTest` en verde.
 - [ ] T12. `app`: caché de 200 MB, `NetworkFailureMonitor` y aviso sin conexión. (RF-13, RF-14, RF-15)
       Hecho cuando: `NetworkFailureMonitorTest` y el caso del aviso de `ProjectMapScreenTest` en verde.

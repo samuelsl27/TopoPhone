@@ -2,7 +2,9 @@ package es.topophone.app.ui.map
 
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.map.MapSettings
+import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.project.LinearUnit
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -18,6 +20,15 @@ interface MapController {
 
     /** El rover y su círculo de precisión, o nada sin posición reciente (S009/RF-16 a RF-18). */
     fun showRover(marker: RoverMarker?)
+
+    /** Lleva el mapa a un encuadre (S009/RF-19, RF-21). */
+    fun moveTo(viewport: MapViewport)
+
+    /** España entera, con Canarias (S009/RF-21). */
+    fun showSpain()
+
+    /** Cada vez que el usuario empieza a mover el mapa con el dedo (S009/RF-20). */
+    val userGestures: Flow<Unit>
 
     /** Centro y zoom del mapa mientras se mueve, para la barra de escala (S009/RF-10); null hasta que se ve. */
     val camera: StateFlow<MapCamera?>

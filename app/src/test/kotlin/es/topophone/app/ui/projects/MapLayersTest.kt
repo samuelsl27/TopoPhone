@@ -14,7 +14,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.map.fakeMap
-import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.map.MapSettings
@@ -28,7 +27,6 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
-import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
@@ -141,7 +139,7 @@ class MapLayersTest {
             val id = runBlocking { (repository.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12")) as SaveResult.Saved).id }
             val preferences = FakeMapPreferences()
             val vm =
-                ProjectViewModel(repository, session, FakePreferences(), { ProjectPositionCalculator() }, preferences, samplePeriodMs = 0)
+                projectViewModel(repository, session, mapPreferences = preferences)
             vm.start(id)
 
             vm.setMapSettings(MapSettings(Basemap.PNOA_ORTHOPHOTO, cadastre = true))

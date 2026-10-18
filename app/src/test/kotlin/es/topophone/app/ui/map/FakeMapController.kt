@@ -4,8 +4,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.LaunchedEffect
 import es.topophone.app.ui.projects.MapSlot
 import es.topophone.core.model.map.MapSettings
+import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.data.map.MapPreferences
+import es.topophone.data.map.MapViewportRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /** Doble de [MapController] para los tests de la interfaz: MapLibre no funciona en Robolectric (código nativo). */
@@ -15,6 +19,15 @@ class FakeMapController : MapController {
     override val camera = MutableStateFlow<MapCamera?>(null)
     var rover: RoverMarker? = null
     var roverCalls = 0
+    val moves = mutableListOf<MapViewport>()
+    var spainShown = false
+    private val gestures = MutableSharedFlow<Unit>(extraBufferCapacity = 8)
+    override val userGestures: Flow<Unit> = gestures
+
+    /** El usuario mueve el mapa con el dedo. */
+    fun gesture() {
+        gestures.tryEmit(Unit)
+    }
 
     override fun setSettings(settings: MapSettings) {
         this.settings += settings
@@ -27,6 +40,15 @@ class FakeMapController : MapController {
     override fun showRover(marker: RoverMarker?) {
         rover = marker
         roverCalls++
+    }
+
+    override fun moveTo(viewport: MapViewport) {
+        moves += viewport
+        camera.value = MapCamera(viewport.latitudeDeg, viewport.longitudeDeg, viewport.zoom)
+    }
+
+    override fun showSpain() {
+        spainShown = true
     }
 }
 
@@ -42,5 +64,16 @@ class FakeMapPreferences(initial: MapSettings = MapSettings()) : MapPreferences 
 
     override suspend fun save(settings: MapSettings) {
         this.settings.value = settings
+    }
+}
+
+/** Encuadres del mapa en memoria (S009/RF-21). */
+class FakeMapViewportRepository : MapViewportRepository {
+    val saved = mutableMapOf<String, MapViewport>()
+
+    override suspend fun viewport(projectId: String): MapViewport? = saved[projectId]
+
+    override suspend fun save(projectId: String, viewport: MapViewport) {
+        saved[projectId] = viewport
     }
 }

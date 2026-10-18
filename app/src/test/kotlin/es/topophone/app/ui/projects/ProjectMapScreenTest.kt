@@ -1,8 +1,12 @@
 package es.topophone.app.ui.projects
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -14,14 +18,17 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakeMapController
-import es.topophone.app.ui.map.FakeMapPreferences
+import es.topophone.app.ui.map.FakeMapViewportRepository
 import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.fakeMap
-import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.geodesy.GeoPoint
+import es.topophone.core.geodesy.WebMercator
+import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.map.MapSettings
+import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
@@ -33,7 +40,6 @@ import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.ProjectPosition
-import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
@@ -202,6 +208,60 @@ class ProjectMapScreenTest {
             .assert(hasText("Dirección General del Catastro", substring = true))
     }
 
+    @Test
+    fun `S009 RF-21 al abrir sin posicion el mapa muestra el ultimo encuadre del proyecto`() {
+        val saved = MapViewport(40.4168, -3.7037, 16.5)
+        show(ProjectViewUiState(project, savedViewport = saved, viewportLoaded = true))
+        compose.waitForIdle()
+
+        map.moves shouldBe listOf(saved)
+        map.spainShown shouldBe false
+    }
+
+    @Test
+    fun `S009 RF-21 la primera vez sin posicion el mapa muestra España entera`() {
+        show(ProjectViewUiState(project, viewportLoaded = true))
+        compose.waitForIdle()
+
+        map.spainShown shouldBe true
+    }
+
+    @Test
+    fun `S009 RF-19 RF-20 el mapa sigue al rover hasta que se mueve con el dedo y vuelve con Centrar en el rover`() {
+        var rover by mutableStateOf(Rover(GeoPoint(40.4168, -3.7037), SolutionStatus.FIX, 0.012))
+        map.camera.value = MapCamera(40.0, -4.0, zoom = 5.0)
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ProjectViewScreen(
+                    ThemeState.DEFAULT,
+                    {},
+                    ProjectViewUiState(project, madrid, rover = rover, viewportLoaded = true),
+                    onBack = {},
+                    map = fakeMap(map),
+                )
+            }
+        }
+        compose.waitForIdle()
+        map.moves.last() shouldBe MapViewport(40.4168, -3.7037, WebMercator.zoomForScale(2_000.0, 40.4168))
+        map.spainShown shouldBe false // con posición se centra en el rover
+
+        map.gesture()
+        rover = rover.copy(position = GeoPoint(40.4170, -3.7035))
+        compose.waitForIdle()
+        map.moves.size shouldBe 1
+
+        compose.onNodeWithTag(CENTER_BUTTON_TAG).performClick()
+        compose.waitForIdle()
+        map.moves.last().latitudeDeg shouldBe 40.4170
+    }
+
+    @Test
+    fun `S009 RF-19 sin rover Centrar en el rover no esta disponible`() {
+        show(ProjectViewUiState(project, viewportLoaded = true))
+
+        compose.onNodeWithTag(CENTER_BUTTON_TAG).assertIsNotEnabled()
+    }
+
     // --- ViewModel: la precisión horizontal sale de la GST ---
 
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -226,9 +286,7 @@ class ProjectMapScreenTest {
             toApp.write(nmea("GNGST,101530.00,0.012,0.010,0.007,45.0,0.008,0.006,0.015").toByteArray())
             toApp.flush()
             val vm =
-                ProjectViewModel(repository, session, FakePreferences(), {
-                    ProjectPositionCalculator()
-                }, FakeMapPreferences(), samplePeriodMs = 0)
+                projectViewModel(repository, session)
             vm.start(id)
 
             val state = runBlocking {
@@ -243,6 +301,36 @@ class ProjectMapScreenTest {
             state.accuracyM.shouldNotBeNull() shouldBe (0.010 plusOrMinus 1e-12) // √(0,008² + 0,006²)
         } finally {
             runCatching { toApp.close() }
+            db.close()
+            Dispatchers.resetMain()
+        }
+    }
+
+    @Test
+    fun `S009 RF-21 el ViewModel da el ultimo encuadre del proyecto y guarda el nuevo`() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), TopoPhoneDatabase::class.java).build()
+        try {
+            val repository = RoomProjectRepository(db)
+            val id = runBlocking { (repository.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12")) as SaveResult.Saved).id }
+            val viewports = FakeMapViewportRepository().apply { saved[id] = MapViewport(40.4168, -3.7037, 16.5) }
+            val vm = projectViewModel(repository, session, viewports = viewports)
+            vm.start(id)
+
+            val state = runBlocking {
+                val collector = CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+                try {
+                    withTimeout(5_000) { vm.state.first { it.viewportLoaded } }
+                } finally {
+                    collector.cancel()
+                }
+            }
+            state.savedViewport shouldBe MapViewport(40.4168, -3.7037, 16.5)
+
+            vm.onViewportChanged(MapViewport(40.5, -3.6, 18.0))
+
+            viewports.saved[id] shouldBe MapViewport(40.5, -3.6, 18.0)
+        } finally {
             db.close()
             Dispatchers.resetMain()
         }
