@@ -145,7 +145,8 @@ class CorrectionsControllerTest {
         controller.stop()
 
         eventually({ preferences.ntripWasActiveFlow.value }, false)
-        session.state.value.ntrip shouldBe NtripState.Idle
+        // El estado del NTRIP cambia en la sesión, no a la vez que la preferencia: se espera también.
+        await { it.ntrip == NtripState.Idle }
     }
 
     @Test
