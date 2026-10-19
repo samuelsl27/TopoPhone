@@ -15,8 +15,12 @@ import es.topophone.core.formats.csv.ExportColumn
 import es.topophone.core.formats.csv.ExportFormat
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.log.LogLevel
+import es.topophone.core.model.point.BaseSource
+import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.ExportPreferences
 import es.topophone.data.project.RoomProjectRepository
@@ -26,6 +30,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.util.Locale
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -200,5 +205,28 @@ class ExportViewModelTest {
         vm.report(ExportResult.FAILED)
 
         log.entries.single() shouldBe Triple(LogLevel.ERROR, LogCategory.APP, "No se pudo exportar el CSV de «Proyecto ETRS89_UTM30»")
+    }
+
+    @Test
+    fun `S015 RF-22 el CSV lleva la base en el SC del proyecto`() {
+        val avl13m = PointBase(GeodeticPosition(43.5578666032, -5.9130704113, 78.4338), BaseSource.CORRECTIONS, 6, 0.0, 382_123.4567)
+        val withBase = measured("B", projectId = projectId, createdAtMs = 500).let {
+            it.copy(measurement = it.measurement!!.copy(base = avl13m))
+        }
+        val vm = ExportViewModel(FakePointRepository(listOf(withBase)), projects, preferences, selection, log)
+        CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+        vm.start(projectId, selectionOnly = false)
+        vm.await { it.loaded }
+        val out = ByteArrayOutputStream()
+
+        runBlocking { vm.writeTo(out) } shouldBe true
+
+        val (header, row) = out.toString(Charsets.UTF_8.name()).trimEnd().split("\r\n").map { it.split(",") }
+        val project = runBlocking { projects.project(projectId) }!!
+        val expected = ProjectPositionCalculator().fromGround(avl13m.position, project.crs, project.heightSystem)
+        row[header.indexOf("Base easting")] shouldBe String.format(Locale.ROOT, "%.4f", expected.easting!!)
+        row[header.indexOf("Base northing")] shouldBe String.format(Locale.ROOT, "%.4f", expected.northing!!)
+        row[header.indexOf("Base elevation")] shouldBe String.format(Locale.ROOT, "%.4f", expected.height!!)
+        row[header.indexOf("Baseline")] shouldBe "382123.4567"
     }
 }

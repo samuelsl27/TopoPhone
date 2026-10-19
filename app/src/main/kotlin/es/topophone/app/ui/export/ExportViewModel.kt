@@ -2,7 +2,9 @@ package es.topophone.app.ui.export
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.ColumnSeparator
 import es.topophone.core.formats.csv.CsvExport
 import es.topophone.core.formats.csv.CsvOptions
@@ -11,8 +13,11 @@ import es.topophone.core.formats.csv.ExportColumn
 import es.topophone.core.formats.csv.ExportFormat
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.export.ExportPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
@@ -69,6 +74,7 @@ class ExportViewModel @Inject constructor(
     private val preferences: ExportPreferences,
     private val selection: ExportSelection,
     private val log: AppLog = AppLog.NONE,
+    private val calculator: Lazy<ProjectPositionCalculator> = Lazy { ProjectPositionCalculator() },
 ) : ViewModel() {
     private data class Content(val project: Project, val points: List<Point>)
 
@@ -113,13 +119,27 @@ class ExportViewModel @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 BufferedWriter(OutputStreamWriter(out, Charsets.UTF_8)).use { writer ->
-                    CsvExport.write(loaded.points.asSequence(), loaded.project, options, writer)
+                    CsvExport.write(loaded.points.asSequence(), loaded.project, options, writer, baseProjection(loaded.project))
                 }
                 true
             } catch (_: IOException) {
                 false
             } catch (_: SecurityException) {
                 false
+            }
+        }
+    }
+
+    /**
+     * La base de cada punto en el SC actual del proyecto (S015/RF-22). Casi todos los puntos comparten base: se calcula
+     * una vez por posición.
+     */
+    private fun baseProjection(project: Project): (PointBase) -> BaseProjection {
+        val known = HashMap<GeodeticPosition, BaseProjection>()
+        return { base ->
+            known.getOrPut(base.position) {
+                val position = calculator.get().fromGround(base.position, project.crs, project.heightSystem)
+                BaseProjection(position.easting, position.northing, position.height)
             }
         }
     }

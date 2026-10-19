@@ -54,4 +54,15 @@ class ExportPreferencesTest {
 
         withPreferences { it.options.first() } shouldBe chosen
     }
+
+    @Test
+    fun `S015 RF-22 un personalizado guardado antes deja las columnas de la base sin marcar`() {
+        val before = CsvOptions(format = ExportFormat.CUSTOM, customColumns = setOf(ExportColumn.NAME, ExportColumn.EASTING))
+        withPreferences { it.save(before) }
+
+        val read = withPreferences { it.options.first() }
+
+        read.customColumns shouldBe setOf(ExportColumn.NAME, ExportColumn.EASTING)
+        read.columns.none { it.name.startsWith("BASE") } shouldBe true
+    }
 }
