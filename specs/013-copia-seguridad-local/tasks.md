@@ -22,7 +22,7 @@
       Hecho cuando: los tests de sustituir en verde, y el mismo paquete importado otra vez se reconoce.
 - [x] T10. `data`: `AutoBackupPreferences` (DataStore "backup") y `BackupChanges` (cambios de Room y de los DataStores, sin `map_viewports`). (RF-18, RF-20, RF-21, RF-23)
       Hecho cuando: `AutoBackupPreferencesTest` y `BackupChangesTest` en verde.
-- [ ] T11. `data`: `BackupFolder` con `DocumentsContract` (crear y escribir, listar, borrar, permiso persistido) y borrado del fichero a medias. (RF-5, RF-17, RF-19)
+- [x] T11. `data`: `BackupFolder` con `DocumentsContract` (crear y escribir, listar, borrar, permiso persistido) y borrado del fichero a medias. (RF-5, RF-17, RF-19)
       Hecho cuando: los tests con un proveedor de documentos de prueba en verde.
 - [ ] T12. `app`: `AutoBackupScheduler` y el ámbito de la app (cada 5 min, al pasar a segundo plano, primera copia al elegir la carpeta, retención, fallo y reintento, un cerrojo con la restauración). (RF-18, RF-19, RF-21)
       Hecho cuando: `AutoBackupSchedulerTest` en verde con tiempo virtual.
