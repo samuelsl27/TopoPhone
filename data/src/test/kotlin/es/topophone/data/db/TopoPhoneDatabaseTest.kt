@@ -21,7 +21,6 @@ import io.kotest.matchers.shouldBe
 import java.io.File
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.json.JSONObject
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Rule
@@ -97,27 +96,7 @@ class TopoPhoneDatabaseTest {
     }
 
     /** Crea la base de datos tal como la describe el esquema exportado, sin room-testing. */
-    private fun createFromExportedSchema(version: Int) {
-        val schema = JSONObject(File("schemas/${TopoPhoneDatabase::class.java.name}/$version.json").readText()).getJSONObject("database")
-        val file = context.getDatabasePath(TEST_DB).apply { parentFile?.mkdirs() }
-        SQLiteDatabase.openOrCreateDatabase(file, null).use { db ->
-            val entities = schema.getJSONArray("entities")
-            for (i in 0 until entities.length()) {
-                val entity = entities.getJSONObject(i)
-                val table = entity.getString("tableName")
-                db.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}", table))
-                val indices = entity.optJSONArray("indices") ?: continue
-                for (j in 0 until indices.length()) {
-                    db.execSQL(
-                        indices.getJSONObject(j).getString("createSql").replace("\${TABLE_NAME}", table),
-                    )
-                }
-            }
-            val setup = schema.getJSONArray("setupQueries")
-            for (i in 0 until setup.length()) db.execSQL(setup.getString(i))
-            db.version = schema.getInt("version")
-        }
-    }
+    private fun createFromExportedSchema(version: Int) = ExportedSchemas.create(context.getDatabasePath(TEST_DB), version)
 
     @Test
     fun `S006 RNF el esquema exportado de la version actual coincide con el de la app`() {

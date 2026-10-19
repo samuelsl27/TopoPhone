@@ -10,7 +10,7 @@
       Hecho cuando: `DatabaseSnapshotTest` en verde con los `double` iguales bit a bit y un punto guardado mientras la instantánea está abierta.
 - [x] T4. `data`: `SettingsArchive` y `AppLanguageStore` (claves que viajan, claves del móvil intactas). (RF-2, RF-3, RF-8)
       Hecho cuando: `SettingsArchiveTest` en verde.
-- [ ] T5. `data`: `BackupRepository.writeBackup` y `read` (A2, A3: ZIP completo, validación y migración de `data.db`). (RF-1, RF-5, RF-6, RF-12, RF-13, RF-14)
+- [x] T5. `data`: `BackupRepository.writeBackup` y `read` (A2, A3: ZIP completo, validación y migración de `data.db`). (RF-1, RF-5, RF-6, RF-12, RF-13, RF-14)
       Hecho cuando: los tests de escribir y leer en verde, y `BackupMigrationTest` restaura copias de las versiones 1 a 5 del esquema y rechaza la 7.
 - [ ] T6. `data`: `restore` (copia previa privada, sustitución en una transacción, contraseñas conservadas, ajustes, vuelta atrás si falla). (RF-7, RF-8, RF-9, RF-10, RF-15)
       Hecho cuando: `BackupRestoreTest` en verde con los fallos en los pasos 5 y 6 y la contraseña pedida con `Undecryptable`.
