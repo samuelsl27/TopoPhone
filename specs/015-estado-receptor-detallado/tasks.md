@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/geodesia`: vectores de pyproj de geodésicas ↔ ECEF (España, Canarias y la estación AVL13M) y de líneas base. (RF-13, RF-14)
       Hecho cuando: el script genera los CSV de referencia y su test de `tools` está en verde.
-- [ ] T2. `core:geodesy`: `Ecef` (directa e inversa, A5). (RF-13, RF-14)
+- [x] T2. `core:geodesy`: `Ecef` (directa e inversa, A5). (RF-13, RF-14)
       Hecho cuando: `EcefTest` en verde contra los vectores de T1 (≤ 1·10⁻⁹°, h ≤ 1 mm, ida y vuelta ≤ 0,1 mm).
 - [ ] T3. `core:gnss`: `RtcmBits` y `onFrame` en `RtcmFramer`. (RF-8, RF-12)
       Hecho cuando: `RtcmBitsTest` en verde y `RtcmFramerTest` entrega 113 cargas de la grabación real con las mismas estadísticas.
