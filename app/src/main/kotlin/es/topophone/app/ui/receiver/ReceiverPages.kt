@@ -59,6 +59,7 @@ fun ReceiverPageScreen(
             PositionCard(state) // S015/RF-1
             SatellitesCard(state) // S015/RF-2, RF-3
             SkyplotCard(state) // S015/RF-4 a RF-6
+            BaseCard(state) // S015/RF-13, RF-14, RF-16
             SnrCard(state) // S015/RF-7 a RF-10
         }
         ReceiverPage.COORDINATES -> ChildScreen(

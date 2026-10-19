@@ -12,6 +12,7 @@ import es.topophone.app.R
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.geodesy.Ecef
 import es.topophone.core.gnss.nmea.Constellation
 import es.topophone.core.gnss.nmea.Dop
 import es.topophone.core.gnss.nmea.GgaFix
@@ -20,12 +21,16 @@ import es.topophone.core.gnss.nmea.SatellitesInView
 import es.topophone.core.gnss.nmea.SkyView
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.AngleFormat
+import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.BaseFix
+import es.topophone.core.survey.BaseState
+import es.topophone.core.survey.Baseline
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.receiver.session.ConnectionState
@@ -179,5 +184,55 @@ class StatusScreenTest {
             scope.cancel()
             Dispatchers.resetMain()
         }
+    }
+
+    private fun base(position: BaseFix?) = BaseState(position, serial = 1, change = null, snr = emptyMap(), snrAvailable = false)
+
+    private val avl13m = BaseFix(
+        43.5578666032,
+        -5.9130704113,
+        78.4338,
+        Ecef(4_604_889.1789, -476_930.7239, 4_372_677.1220),
+        BaseSource.CORRECTIONS,
+        stationId = 6,
+        antennaHeightM = 0.0,
+        receivedAtMs = 0,
+    )
+    private val madrid = BaseFix(40.4166667, -3.7, 700.0, Ecef.fromGeodetic(40.4166667, -3.7, 700.0), BaseSource.RECEIVER, null, null, 0)
+
+    @Test
+    fun `S015 RF-13 la base de las correcciones con su estacion y su altura de antena`() {
+        show(ReceiverUiState(snapshot = ReceiverSnapshot(receiving, gga = gga, base = base(avl13m)), angularUnit = AngularUnit.DMS))
+
+        value(BASE_SOURCE_TAG).assert(hasText(text(R.string.base_source_corrections, 6)))
+        value(BASE_LATITUDE_TAG).assert(hasText(AngleFormat.latitude(43.5578666032, AngularUnit.DMS, spanish)))
+        value(BASE_LONGITUDE_TAG).assert(hasText(AngleFormat.longitude(-5.9130704113, AngularUnit.DMS, spanish)))
+        value(BASE_HEIGHT_TAG).assert(hasText("78,434 m"))
+        value(BASE_ANTENNA_HEIGHT_TAG).assert(hasText("0,000 m"))
+    }
+
+    @Test
+    fun `S015 RF-13 la base del receptor no tiene estacion ni altura de antena`() {
+        show(ReceiverUiState(snapshot = ReceiverSnapshot(receiving, gga = gga, base = base(madrid))))
+
+        value(BASE_SOURCE_TAG).assert(hasText(text(R.string.base_source_receiver)))
+        compose.onAllNodesWithTag(BASE_ANTENNA_HEIGHT_TAG).assertCountEquals(0)
+    }
+
+    @Test
+    fun `S015 RF-14 la linea base en km con 3 decimales`() {
+        show(ReceiverUiState(snapshot = ReceiverSnapshot(receiving, gga = gga, base = base(madrid))))
+        val metres = Baseline.distanceM(40.41668, -3.70371, 701.357, madrid.ecef)
+
+        value(BASELINE_TAG).assert(hasText(text(R.string.baseline)))
+            .assert(hasText(String.format(spanish, "%.3f km", metres / 1000)))
+    }
+
+    @Test
+    fun `S015 RF-16 sin base se dice que no esta disponible`() {
+        show(ReceiverUiState(snapshot = ReceiverSnapshot(receiving, gga = gga, base = base(null))))
+
+        value(BASE_UNAVAILABLE_TAG).assert(hasText(text(R.string.base_unavailable)))
+        compose.onAllNodesWithTag(BASELINE_TAG).assertCountEquals(0)
     }
 }

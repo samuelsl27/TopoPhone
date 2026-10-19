@@ -26,7 +26,7 @@
       Hecho cuando: `SkyplotTest` en verde.
 - [x] T12. `app`: gráfico de SNR del rover y de la base (A9). (RF-7, RF-8, RF-9, RF-10)
       Hecho cuando: `SnrChartTest` en verde con los tramos, los valores, las filas solo de base y "sin banda".
-- [ ] T13. `app`: tarjeta "Base" (fuente, estación, altura de antena, línea base, base no disponible). (RF-13, RF-14, RF-16)
+- [x] T13. `app`: tarjeta "Base" (fuente, estación, altura de antena, línea base, base no disponible). (RF-13, RF-14, RF-16)
       Hecho cuando: los tests de la tarjeta en `StatusScreenTest` en verde.
 - [ ] T14. `app`: `BaseNotices` y los avisos "Línea base larga" y "La base ha cambiado" en la pantalla Estado, con su anotación en el log. (RF-15, RF-17, S014/RF-5)
       Hecho cuando: los tests de los avisos y `ReceiverLogRecorderTest` en verde.

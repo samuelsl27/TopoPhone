@@ -685,4 +685,13 @@
     <string name="snr_row_rover_none">rover no signal</string>
     <string name="snr_row_base">base %1$s dB-Hz</string>
     <string name="snr_row_base_none">base no data</string>
+    <string name="base_title">Base</string>
+    <string name="base_source">Source</string>
+    <string name="base_source_receiver">Receiver (EBP)</string>
+    <string name="base_source_corrections">Corrections, station %1$d</string>
+    <string name="base_source_corrections_no_station">Corrections</string>
+    <string name="base_antenna_height">Antenna height</string>
+    <string name="baseline">Baseline</string>
+    <string name="baseline_km">%1$s km</string>
+    <string name="base_unavailable">Base not available</string>
 </resources>
