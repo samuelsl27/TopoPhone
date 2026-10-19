@@ -68,6 +68,8 @@ class SurveyNavigation(
     val onNewPoint: (projectId: String) -> Unit = {},
     val onEditPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     val onOpenPointTrash: (projectId: String) -> Unit = {},
+    /** S013/RF-21: "Copias de seguridad" de Ajustes. */
+    val onOpenBackups: () -> Unit = {},
     val onExport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     val onBack: () -> Unit = {},

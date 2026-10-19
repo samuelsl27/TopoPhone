@@ -202,6 +202,7 @@ private fun AppNavHost(
                 onNewPoint = { projectId -> navController.navigate(PointFormDestination(projectId)) }, // S011/RF-16
                 onEditPoint = { projectId, pointId -> navController.navigate(PointFormDestination(projectId, pointId)) }, // S011/RF-8
                 onOpenPointTrash = { projectId -> navController.navigate(PointTrashDestination(projectId)) }, // S011/RF-23
+                onOpenBackups = { navController.navigate(BackupsDestination) }, // S013/RF-21
                 onExport = { projectId, selection -> navController.navigate(ExportDestination(projectId, selection)) }, // S012/RF-1, RF-2
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23

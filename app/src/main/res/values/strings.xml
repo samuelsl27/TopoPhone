@@ -648,4 +648,8 @@
         <item quantity="one">%1$d punto</item>
         <item quantity="other">%1$d puntos</item>
     </plurals>
+    <string name="backup_notice_no_folder">Las copias automáticas están desactivadas.</string>
+    <string name="backup_choose_folder">Elegir carpeta</string>
+    <string name="backup_notice_later">Ahora no</string>
+    <string name="backup_review">Revisar</string>
 </resources>

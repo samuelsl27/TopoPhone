@@ -636,4 +636,8 @@
         <item quantity="one">%1$d point</item>
         <item quantity="other">%1$d points</item>
     </plurals>
+    <string name="backup_notice_no_folder">Automatic backups are off.</string>
+    <string name="backup_choose_folder">Choose folder</string>
+    <string name="backup_notice_later">Not now</string>
+    <string name="backup_review">Review</string>
 </resources>

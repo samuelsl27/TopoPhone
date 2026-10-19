@@ -46,6 +46,19 @@ object AutoBackupPolicy {
         return nowMs - lastSuccessMs >= INTERVAL_MS
     }
 
+    /** Días que el aviso de la lista de proyectos tarda en volver tras cerrarlo (S013/RF-23). */
+    const val NOTICE_PAUSE_MS = 7 * 24 * 60 * 60 * 1000L
+
+    /**
+     * S013/RF-22, RF-23 (plan, A8): sin carpeta y con algún proyecto, el aviso se ve salvo en los 7 días después de
+     * cerrarlo. Si el reloj vuelve atrás (cerrado "en el futuro"), se espera a que pasen igualmente 7 días.
+     */
+    fun showNotice(nowMs: Long, folderSet: Boolean, projectCount: Int, dismissedMs: Long?): Boolean = when {
+        folderSet || projectCount < 1 -> false
+        dismissedMs == null -> true
+        else -> nowMs - dismissedMs >= NOTICE_PAUSE_MS
+    }
+
     /** S013/RF-19: las copias automáticas que pasan de las [KEEP] más recientes; los demás ficheros no se tocan. */
     fun surplus(names: List<String>): List<String> = names.filter(BackupFileNames::isAutomatic)
         .sortedWith(compareByDescending<String> { it.substringAfter("_auto_").take(STAMP_LENGTH) }.thenByDescending { suffix(it) })

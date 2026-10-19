@@ -34,7 +34,7 @@
       Hecho cuando: `BackupsScreenTest` en verde.
 - [x] T16. `app`: tras restaurar o deshacer, volver a la lista de proyectos y aplicar el idioma; comprobar que la conexión NTRIP se cierra o se reconecta. (RF-8, S007/RF-8, RF-9)
       Hecho cuando: los tests de navegación y del controlador NTRIP tras restaurar en verde.
-- [ ] T17. `app`: aviso sin carpeta y alerta de fallo en la lista de proyectos. (RF-21, RF-22, RF-23)
+- [x] T17. `app`: aviso sin carpeta y alerta de fallo en la lista de proyectos. (RF-21, RF-22, RF-23)
       Hecho cuando: `ProjectListBackupNoticeTest` en verde.
 - [ ] T18. `app`: "Exportar paquete" en el menú del proyecto, con guardar o compartir. (RF-4, RF-5, RF-24)
       Hecho cuando: los tests del menú y del diálogo en verde.

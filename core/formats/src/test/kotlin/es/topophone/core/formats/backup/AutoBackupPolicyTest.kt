@@ -50,4 +50,18 @@ class AutoBackupPolicyTest {
     fun `S013 RF-19 con 24 o menos no sobra ninguna`() {
         AutoBackupPolicy.surplus((1..24).map { "TopoPhone_auto_202610%02d-0800.zip".format(it) }) shouldBe emptyList()
     }
+
+    @Test
+    fun `S013 RF-22 sin carpeta y con algun proyecto se avisa`() {
+        AutoBackupPolicy.showNotice(now, folderSet = false, projectCount = 1, dismissedMs = null) shouldBe true
+        AutoBackupPolicy.showNotice(now, folderSet = false, projectCount = 0, dismissedMs = null) shouldBe false
+        AutoBackupPolicy.showNotice(now, folderSet = true, projectCount = 5, dismissedMs = null) shouldBe false
+    }
+
+    @Test
+    fun `S013 RF-23 cerrado, el aviso vuelve a los 7 dias`() {
+        val day = 24 * hour
+        AutoBackupPolicy.showNotice(now, folderSet = false, projectCount = 1, dismissedMs = now - 7 * day + 1) shouldBe false
+        AutoBackupPolicy.showNotice(now, folderSet = false, projectCount = 1, dismissedMs = now - 7 * day) shouldBe true
+    }
 }

@@ -1,9 +1,12 @@
 package es.topophone.app.ui.projects
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +29,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -48,6 +52,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.backup.BackupNotice
+import es.topophone.app.ui.backup.BackupNoticeViewModel
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
@@ -77,6 +83,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 const val PROJECT_LIST_TAG = "project_list"
+const val BACKUP_NOTICE_TAG = "backup_notice"
+const val BACKUP_CHOOSE_FOLDER_TAG = "backup_notice_choose"
+const val BACKUP_NOTICE_DISMISS_TAG = "backup_notice_dismiss"
+const val BACKUP_REVIEW_TAG = "backup_notice_review"
 const val NEW_PROJECT_TAG = "new_project"
 const val EMPTY_NEW_PROJECT_TAG = "empty_new_project"
 const val PROJECT_SEARCH_TAG = "project_search"
@@ -133,6 +143,12 @@ class ProjectListActions(
     val onDismissFolderDialog: () -> Unit = {},
     val onDelete: (String) -> Unit = {},
     val onExport: (String) -> Unit = {},
+    /** S013/RF-22: abre el selector de carpetas para las copias automáticas. */
+    val onChooseBackupFolder: () -> Unit = {},
+    /** S013/RF-23. */
+    val onDismissBackupNotice: () -> Unit = {},
+    /** S013/RF-21: lleva a "Copias de seguridad". */
+    val onReviewBackups: () -> Unit = {},
 )
 
 /** Carpetas y proyectos que no están en ninguna (S006/RF-1) y la búsqueda en todas (S006/RF-4). */
@@ -218,9 +234,14 @@ fun ProjectListRoute(
     onToggleSun: () -> Unit,
     navigation: SurveyNavigation,
     viewModel: ProjectListViewModel = hiltViewModel(),
+    noticeViewModel: BackupNoticeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val notice by noticeViewModel.notice.collectAsStateWithLifecycle()
     val copyLabel = stringResource(R.string.project_copy_label)
+    val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) noticeViewModel.folderChosen(uri.toString()) // S013/RF-22
+    }
     ProjectListScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
@@ -241,13 +262,23 @@ fun ProjectListRoute(
             onDismissFolderDialog = viewModel::dismissFolderDialog,
             onDelete = viewModel::delete,
             onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
+            onChooseBackupFolder = { chooseFolder.launch(null) },
+            onDismissBackupNotice = noticeViewModel::dismiss,
+            onReviewBackups = navigation.onOpenBackups,
         ),
+        backupNotice = notice,
     )
 }
 
 /** Lista de proyectos en Levantamiento, como la app de referencia y con diseño propio (S006/RF-1 a RF-3). */
 @Composable
-fun ProjectListScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: ProjectListUiState, actions: ProjectListActions) {
+fun ProjectListScreen(
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    state: ProjectListUiState,
+    actions: ProjectListActions,
+    backupNotice: BackupNotice = BackupNotice.NONE,
+) {
     SectionScaffold(
         title = stringResource(R.string.nav_survey),
         themeState = themeState,
@@ -263,6 +294,7 @@ fun ProjectListScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
         var moving by remember { mutableStateOf<Project?>(null) }
         // Lista perezosa: con cientos de proyectos solo se pintan los que se ven (RNF de la spec).
         LazyColumn(modifier = Modifier.padding(padding).testTag(PROJECT_LIST_TAG), contentPadding = PaddingValues(16.dp)) {
+            if (backupNotice != BackupNotice.NONE) item { BackupNoticeCard(backupNotice, actions) }
             if (state.folders.isEmpty() && state.projects.isEmpty() && state.query.isEmpty()) {
                 item { EmptyProjects(actions.onNewProject) }
                 return@LazyColumn
@@ -342,6 +374,41 @@ private fun FolderNameDialog(state: FolderDialogState, actions: ProjectListActio
 private fun folderErrorText(error: NameError): Int = when (error) {
     NameError.EMPTY -> R.string.folder_name_empty
     NameError.DUPLICATE -> R.string.folder_name_duplicate
+}
+
+/** S013/RF-21, RF-22: copias automáticas sin carpeta, o la última fallida. */
+@Composable
+private fun BackupNoticeCard(notice: BackupNotice, actions: ProjectListActions) {
+    Surface(
+        tonalElevation = 2.dp,
+        shape = MaterialTheme.shapes.medium,
+        color = if (notice == BackupNotice.FAILED) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp).testTag(BACKUP_NOTICE_TAG),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            val text = if (notice == BackupNotice.FAILED) R.string.backup_auto_failed else R.string.backup_notice_no_folder
+            Text(stringResource(text), style = MaterialTheme.typography.bodyLarge)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (notice == BackupNotice.FAILED) {
+                    TextButton(
+                        onClick = actions.onReviewBackups,
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(BACKUP_REVIEW_TAG),
+                    ) {
+                        Text(stringResource(R.string.backup_review))
+                    }
+                } else {
+                    TextButton(
+                        onClick = actions.onChooseBackupFolder,
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(BACKUP_CHOOSE_FOLDER_TAG),
+                    ) { Text(stringResource(R.string.backup_choose_folder)) }
+                    TextButton(
+                        onClick = actions.onDismissBackupNotice,
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(BACKUP_NOTICE_DISMISS_TAG),
+                    ) { Text(stringResource(R.string.backup_notice_later)) }
+                }
+            }
+        }
+    }
 }
 
 /** Diálogo de confirmación con su botón destructivo (S006/RF-21, RF-22, RF-26). */
