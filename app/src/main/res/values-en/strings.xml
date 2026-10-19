@@ -675,4 +675,14 @@
     <string name="skyplot_east">E</string>
     <string name="skyplot_south">S</string>
     <string name="skyplot_west">W</string>
+    <string name="snr_title">SNR (dB-Hz)</string>
+    <string name="snr_legend">For each satellite, the rover on top and the base below.</string>
+    <string name="snr_no_band">No band</string>
+    <string name="snr_group">%1$s · %2$s</string>
+    <string name="snr_base_unavailable">Base SNR not available</string>
+    <string name="snr_row_description">%1$s %2$s: %3$s, %4$s</string>
+    <string name="snr_row_rover">rover %1$s dB-Hz</string>
+    <string name="snr_row_rover_none">rover no signal</string>
+    <string name="snr_row_base">base %1$s dB-Hz</string>
+    <string name="snr_row_base_none">base no data</string>
 </resources>
