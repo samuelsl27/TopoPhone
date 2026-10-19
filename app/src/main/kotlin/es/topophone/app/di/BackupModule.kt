@@ -14,6 +14,7 @@ import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.BackupChanges
 import es.topophone.data.backup.BackupFolder
 import es.topophone.data.backup.BackupRepository
+import es.topophone.data.backup.Backups
 import es.topophone.data.backup.DocumentsBackupFolder
 import es.topophone.data.backup.SettingsArchive
 import es.topophone.data.db.TopoPhoneDatabase
@@ -50,6 +51,9 @@ object BackupModule {
         database: TopoPhoneDatabase,
         settings: SettingsArchive,
     ): BackupRepository = BackupRepository(context, database, settings, appVersion = BuildConfig.VERSION_NAME)
+
+    @Provides
+    fun provideBackups(repository: BackupRepository): Backups = repository
 
     @Provides
     @Singleton

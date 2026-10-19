@@ -66,6 +66,24 @@ sealed interface ImportResult {
 /** Qué hacer con un paquete de un proyecto que ya está en el móvil (S013/RF-26). */
 enum class ImportChoice { REPLACE, AS_NEW }
 
+/** Lo que las pantallas usan de las copias y los paquetes (S013); lo implementa [BackupRepository]. */
+interface Backups {
+    /** Hay una restauración que se puede deshacer (S013/RF-11). */
+    val undoAvailable: StateFlow<Boolean>
+
+    suspend fun writeBackup(out: OutputStream): Boolean
+
+    suspend fun read(input: () -> InputStream, kind: BackupKind): BackupRead
+
+    suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit = {}): RestoreResult
+
+    suspend fun undoRestore(): RestoreResult
+
+    suspend fun writePackage(projectId: String, out: OutputStream): Boolean
+
+    suspend fun importPackage(valid: BackupRead.Valid, choice: ImportChoice?, importedLabel: String): ImportResult
+}
+
 /** Sitios donde los tests provocan un fallo en mitad de una restauración (S013/RF-10). */
 internal class RestoreHooks(val beforeCommit: () -> Unit = {}, val afterDatabase: () -> Unit = {})
 
@@ -83,7 +101,7 @@ class BackupRepository(
     private val workDir: File = File(context.cacheDir, "backup"),
     private val undoDir: File = File(context.filesDir, "backups/undo"),
     private val newId: () -> String = { UUID.randomUUID().toString() },
-) {
+) : Backups {
     private val lock = Mutex()
 
     internal var hooks = RestoreHooks()
@@ -91,7 +109,7 @@ class BackupRepository(
     private val undo = MutableStateFlow(File(undoDir, BEFORE_RESTORE).isFile && File(undoDir, NTRIP_SECRETS).isFile)
 
     /** Hay una restauración que se puede deshacer (S013/RF-11). */
-    val undoAvailable: StateFlow<Boolean> = undo.asStateFlow()
+    override val undoAvailable: StateFlow<Boolean> = undo.asStateFlow()
 
     private val databaseFile: File
         get() {
@@ -100,7 +118,7 @@ class BackupRepository(
         }
 
     /** S013/RF-1, RF-5: escribe la copia completa en [out]; false si no se ha podido. No cierra [out]. */
-    suspend fun writeBackup(out: OutputStream): Boolean = lock.withLock {
+    override suspend fun writeBackup(out: OutputStream): Boolean = lock.withLock {
         withContext(Dispatchers.IO) {
             val file = File(dir(BUILD), "backup.zip")
             try {
@@ -126,7 +144,7 @@ class BackupRepository(
      * S013/RF-6, RF-12 a RF-14: lee una copia ([kind] = copia) o un paquete y lo comprueba. La base de datos se pasa a
      * la versión actual con las migraciones de Room. El resultado vale hasta la siguiente lectura.
      */
-    suspend fun read(input: () -> InputStream, kind: BackupKind): BackupRead = lock.withLock {
+    override suspend fun read(input: () -> InputStream, kind: BackupKind): BackupRead = lock.withLock {
         withContext(Dispatchers.IO) {
             val dir = dir(READ)
             val result = try {
@@ -152,7 +170,7 @@ class BackupRepository(
      * ajustes. Si algo falla, los datos quedan como estaban y se conserva lo que había para deshacer. Los perfiles NTRIP
      * que siguen en el móvil conservan su contraseña (S013/RF-9); los que solo estaban en la copia la pedirán (S013/RF-15).
      */
-    suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit = {}): RestoreResult = lock.withLock {
+    override suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult = lock.withLock {
         withContext(Dispatchers.IO) {
             val backupSettings = valid.settings
             if (valid.manifest.kind != BackupKind.BACKUP || backupSettings == null) return@withContext RestoreResult.Failed
@@ -176,7 +194,7 @@ class BackupRepository(
      * S013/RF-11: vuelve al estado guardado antes de la última restauración, contraseñas NTRIP incluidas, y la opción
      * desaparece. Si falla, los datos quedan como estaban y se puede volver a intentar.
      */
-    suspend fun undoRestore(): RestoreResult = lock.withLock {
+    override suspend fun undoRestore(): RestoreResult = lock.withLock {
         withContext(Dispatchers.IO) {
             val saved = undoState()
             val before = attempt { saved.open(UNDO) } ?: return@withContext RestoreResult.Failed
@@ -196,7 +214,7 @@ class BackupRepository(
     }
 
     /** S013/RF-24: escribe en [out] el paquete del proyecto [projectId]; false si no existe o no se ha podido. */
-    suspend fun writePackage(projectId: String, out: OutputStream): Boolean = lock.withLock {
+    override suspend fun writePackage(projectId: String, out: OutputStream): Boolean = lock.withLock {
         withContext(Dispatchers.IO) {
             val dir = dir(SNAPSHOT)
             try {
@@ -235,13 +253,14 @@ class BackupRepository(
      * papelera; el nombre lleva "([importedLabel])" como nuevo o si otro proyecto activo lo tiene. Al sustituir, el del
      * móvil pasa a la papelera con ids nuevos y el del paquete se queda los suyos y su carpeta (S013/RF-27).
      */
-    suspend fun importPackage(valid: BackupRead.Valid, choice: ImportChoice?, importedLabel: String): ImportResult = lock.withLock {
-        withContext(Dispatchers.IO) {
-            val projectId = valid.manifest.projectId
-            if (valid.manifest.kind != BackupKind.PACKAGE || projectId == null) return@withContext ImportResult.Failed
-            attempt { importLocked(valid.database, projectId, choice, importedLabel) } ?: ImportResult.Failed
+    override suspend fun importPackage(valid: BackupRead.Valid, choice: ImportChoice?, importedLabel: String): ImportResult =
+        lock.withLock {
+            withContext(Dispatchers.IO) {
+                val projectId = valid.manifest.projectId
+                if (valid.manifest.kind != BackupKind.PACKAGE || projectId == null) return@withContext ImportResult.Failed
+                attempt { importLocked(valid.database, projectId, choice, importedLabel) } ?: ImportResult.Failed
+            }
         }
-    }
 
     private fun importLocked(database: File, projectId: String, choice: ImportChoice?, importedLabel: String): ImportResult =
         SQLiteDatabase.openDatabase(database.path, null, SQLiteDatabase.OPEN_READONLY).use { from ->

@@ -28,7 +28,7 @@
       Hecho cuando: `AutoBackupSchedulerTest` en verde con tiempo virtual.
 - [x] T13. `app`: `MeasurementInProgress` actualizado por `CollectorViewModel` (medida y punto pendiente de confirmar). (RF-16)
       Hecho cuando: los tests del recolector y del singleton en verde.
-- [ ] T14. `app`: `BackupsViewModel` (crear, leer, confirmar, restaurar, deshacer, errores, medida en curso, carpeta). (RF-1, RF-5, RF-6, RF-11, RF-12, RF-13, RF-16, RF-17, RF-20, RF-21)
+- [x] T14. `app`: `BackupsViewModel` (crear, leer, confirmar, restaurar, deshacer, errores, medida en curso, carpeta). (RF-1, RF-5, RF-6, RF-11, RF-12, RF-13, RF-16, RF-17, RF-20, RF-21)
       Hecho cuando: `BackupsViewModelTest` en verde.
 - [ ] T15. `app`: pantalla "Copias de seguridad" y su acceso desde Ajustes, con el selector de ficheros y el de carpetas. (RF-1, RF-6, RF-11, RF-17, RF-20, RF-21)
       Hecho cuando: `BackupsScreenTest` en verde.

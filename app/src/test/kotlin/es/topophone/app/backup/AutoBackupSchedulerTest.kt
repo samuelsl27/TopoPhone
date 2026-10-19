@@ -1,16 +1,10 @@
 package es.topophone.app.backup
 
-import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.AutoBackupState
-import es.topophone.data.backup.BackupFolder
 import io.kotest.matchers.shouldBe
-import java.io.File
 import java.time.Instant
 import java.time.ZoneId
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -29,47 +23,6 @@ class AutoBackupSchedulerTest {
     private val hour = 60 * 60 * 1000L
     private val start = Instant.parse("2026-10-19T06:00:00Z").toEpochMilli()
     private val utc = ZoneId.of("UTC")
-
-    private class FakePreferences(initial: AutoBackupState) : AutoBackupPreferences {
-        val flow = MutableStateFlow(initial)
-        override val state: Flow<AutoBackupState> = flow
-
-        override suspend fun setFolder(uri: String?) = flow.update { it.copy(folderUri = uri, failing = false) }
-
-        override suspend fun markPending() = flow.update { it.copy(pendingChanges = true) }
-
-        override suspend fun clearPending() = flow.update { it.copy(pendingChanges = false) }
-
-        override suspend fun recordSuccess(atMs: Long) = flow.update { it.copy(lastSuccessMs = atMs, failing = false) }
-
-        override suspend fun recordFailure() = flow.update { it.copy(failing = true, pendingChanges = true) }
-
-        override suspend fun dismissNotice(atMs: Long) = flow.update { it.copy(noticeDismissedMs = atMs) }
-    }
-
-    private class FakeFolder : BackupFolder {
-        val files = linkedMapOf<String, String>()
-        var failWrites = false
-        val persisted = mutableListOf<String>()
-
-        override suspend fun write(treeUri: String, name: String, from: File): Boolean {
-            if (failWrites) return false
-            files[name] = from.readText()
-            return true
-        }
-
-        override suspend fun list(treeUri: String): List<String> = files.keys.toList()
-
-        override suspend fun delete(treeUri: String, name: String): Boolean = files.remove(name) != null
-
-        override fun persist(treeUri: String) {
-            persisted += treeUri
-        }
-
-        override fun release(treeUri: String) {
-            persisted -= treeUri
-        }
-    }
 
     private val backupFolder = FakeFolder()
 
