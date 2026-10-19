@@ -18,5 +18,5 @@
       Hecho cuando: los tests de guardar y compartir (intents y escritura en el `Uri`) en verde.
 - [x] T8. Rendimiento: 10 000 puntos escritos en menos de 3 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.
-- [ ] T9. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador y ficheros abiertos en QGIS. (Todos)
+- [x] T9. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador y ficheros abiertos en QGIS. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
