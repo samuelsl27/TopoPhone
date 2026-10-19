@@ -24,6 +24,9 @@ interface MapController {
     /** Puntos del proyecto con su nombre (S010/RF-20). */
     fun showPoints(points: List<MapPoint>)
 
+    /** La base con su símbolo, o nada sin posición de la base (S015/RF-19). */
+    fun showBase(position: GeoPoint?)
+
     /** Lleva el mapa a un encuadre (S009/RF-19, RF-21). */
     fun moveTo(viewport: MapViewport)
 

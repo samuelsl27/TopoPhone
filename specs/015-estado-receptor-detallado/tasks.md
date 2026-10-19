@@ -32,7 +32,7 @@
       Hecho cuando: los tests de los avisos y `ReceiverLogRecorderTest` en verde.
 - [x] T15. `app`: avisos en el recolector y reinicio de la medida cuando cambia la base (A10). (RF-15, RF-17, RF-18)
       Hecho cuando: los tests nuevos de `CollectorViewModelTest` en verde.
-- [ ] T16. `app`: la base en el mapa del proyecto (`showBase` e icono propio). (RF-19)
+- [x] T16. `app`: la base en el mapa del proyecto (`showBase` e icono propio). (RF-19)
       Hecho cuando: `BaseLayerTest` en verde.
 - [ ] T17. `core:model` y `data`: `PointBase`, columnas de la base y migración 6 → 7. (RF-20)
       Hecho cuando: `TopoPhoneDatabaseTest` (paso 6 → 7 y esquema 7) y la ida y vuelta de un punto con base y sin base en verde.

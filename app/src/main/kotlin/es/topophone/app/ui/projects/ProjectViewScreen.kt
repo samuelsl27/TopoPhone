@@ -178,6 +178,8 @@ data class ProjectViewUiState(
     val mapOffline: Boolean = false,
     /** Puntos del proyecto (S010/RF-20, RF-21). */
     val points: List<PointSummary> = emptyList(),
+    /** La base tal como la da su fuente, mientras la haya (S015/RF-19). */
+    val base: GeoPoint? = null,
 )
 
 /** El rover: posición de la GGA tal cual, su solución y la precisión horizontal de la GST (S009/RF-16, RF-17). */
@@ -221,6 +223,11 @@ class ProjectViewModel @Inject constructor(
         }
         .distinctUntilChanged()
 
+    /** S015/RF-19: la base de la sesión mientras la haya. */
+    private val bases = (if (samplePeriodMs > 0) session.state.sample(samplePeriodMs) else session.state)
+        .map { snapshot -> snapshot.base.position?.let { GeoPoint(it.latitudeDeg, it.longitudeDeg) } }
+        .distinctUntilChanged()
+
     val state: StateFlow<ProjectViewUiState> = combine(
         project,
         fixes,
@@ -246,6 +253,7 @@ class ProjectViewModel @Inject constructor(
         .combine(projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else points.summaries(id) }) { state, list ->
             state.copy(points = list)
         }
+        .combine(bases) { state, base -> state.copy(base = base) }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
@@ -576,6 +584,7 @@ private fun BindMap(controller: MapController?, state: ProjectViewUiState) {
     val marker = state.rover?.let { RoverMarker(it.position, it.accuracyM, palette.colorsFor(it.solution.tone()).container.toArgb()) }
     LaunchedEffect(controller, marker) { controller?.showRover(marker) }
     LaunchedEffect(controller, state.points) { controller?.showPoints(MapPoints.from(state.points)) } // S010/RF-20
+    LaunchedEffect(controller, state.base) { controller?.showBase(state.base) } // S015/RF-19
     LaunchedEffect(controller, state.mapSettings) { controller?.setSettings(state.mapSettings) }
     LaunchedEffect(controller, unit) { if (unit != null) controller?.setLinearUnit(unit) }
 }

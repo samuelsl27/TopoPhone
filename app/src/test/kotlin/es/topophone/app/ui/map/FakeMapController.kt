@@ -3,6 +3,7 @@ package es.topophone.app.ui.map
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.LaunchedEffect
 import es.topophone.app.ui.projects.MapSlot
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.point.Point
@@ -29,6 +30,7 @@ class FakeMapController : MapController {
     override val camera = MutableStateFlow<MapCamera?>(null)
     var rover: RoverMarker? = null
     var roverCalls = 0
+    var base: GeoPoint? = null
     var points: List<MapPoint> = emptyList()
     val moves = mutableListOf<MapViewport>()
     var spainShown = false
@@ -55,6 +57,10 @@ class FakeMapController : MapController {
 
     override fun setLinearUnit(unit: LinearUnit) {
         this.unit = unit
+    }
+
+    override fun showBase(position: GeoPoint?) {
+        base = position
     }
 
     override fun showRover(marker: RoverMarker?) {

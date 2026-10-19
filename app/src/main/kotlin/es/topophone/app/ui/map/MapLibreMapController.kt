@@ -2,12 +2,16 @@ package es.topophone.app.ui.map
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.RectF
 import android.os.Handler
 import android.os.Looper
 import es.topophone.core.geodesy.AccuracyCircle
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.MapGrid
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.model.map.MapSettings
@@ -15,6 +19,7 @@ import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.map.ScaleBar
 import es.topophone.core.model.project.LinearUnit
 import java.io.IOException
+import kotlin.math.roundToInt
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -60,6 +65,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private var cadastreCall: Call? = null
     private val requestCadastre = Runnable { loadCadastre() }
     private var rover: RoverMarker? = null
+    private var base: GeoPoint? = null
     private var points: List<MapPoint> = emptyList()
     private var bottomInsetPx = 0
     private var appliedInsetPx = 0
@@ -116,8 +122,10 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             map.setStyle(builder) { style ->
                 addBackground(style)
                 addPointLayers(style)
+                addBaseLayer(style)
                 addRoverLayers(style)
                 drawPoints()
+                drawBase()
                 drawRover()
                 updateGrid()
                 scheduleCadastre(0)
@@ -231,6 +239,60 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     override fun showRover(marker: RoverMarker?) {
         rover = marker
         drawRover()
+    }
+
+    override fun showBase(position: GeoPoint?) {
+        base = position
+        drawBase()
+    }
+
+    /** La base, con un triángulo propio, encima de los puntos y debajo del rover (S015/RF-19). */
+    private fun addBaseLayer(style: Style) {
+        style.addImage(BASE_ICON, baseIcon())
+        style.addSource(GeoJsonSource(BASE_SOURCE))
+        style.addLayer(
+            SymbolLayer(BASE_LAYER, BASE_SOURCE).withProperties(
+                PropertyFactory.iconImage(BASE_ICON),
+                PropertyFactory.iconAllowOverlap(true),
+                PropertyFactory.iconIgnorePlacement(true),
+            ),
+        )
+    }
+
+    private fun drawBase() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val source = style.getSourceAs<GeoJsonSource>(BASE_SOURCE) ?: return
+        val position = base
+        if (position == null) {
+            source.setGeoJson(FeatureCollection.fromFeatures(emptyList()))
+        } else {
+            source.setGeoJson(Feature.fromGeometry(Point.fromLngLat(position.longitudeDeg, position.latitudeDeg)))
+        }
+    }
+
+    /** Triángulo oscuro con borde blanco: el símbolo de una estación, distinto del círculo del rover y de los puntos. */
+    private fun baseIcon(): Bitmap {
+        val density = mapView.resources.displayMetrics.density
+        val size = (BASE_ICON_DP * density).roundToInt()
+        val inset = BASE_STROKE_DP * density
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val path = Path().apply {
+            moveTo(size / 2f, inset)
+            lineTo(size - inset, size - inset)
+            lineTo(inset, size - inset)
+            close()
+        }
+        val canvas = Canvas(bitmap)
+        canvas.drawPath(path, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = BASE_COLOR })
+        canvas.drawPath(
+            path,
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.WHITE
+                style = Paint.Style.STROKE
+                strokeWidth = inset
+            },
+        )
+        return bitmap
     }
 
     /** Círculo de precisión y rover, encima de todo (S009/RF-16, RF-17). */
@@ -404,6 +466,12 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val ROVER_SOURCE = "topophone-rover"
         const val ROVER_LAYER = "topophone-rover"
         const val ROVER_RADIUS_DP = 8f
+        const val BASE_SOURCE = "topophone-base"
+        const val BASE_LAYER = "topophone-base"
+        const val BASE_ICON = "topophone-base-icon"
+        const val BASE_ICON_DP = 22f
+        const val BASE_STROKE_DP = 2f
+        const val BASE_COLOR = 0xFF263238.toInt()
         const val ACCURACY_OPACITY = 0.25f
 
         /** Desplazamiento suave al seguir al rover, que llega a 5 Hz como mucho (RNF-T13). */
