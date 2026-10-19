@@ -40,7 +40,7 @@
       Hecho cuando: los tests del menú y del diálogo en verde.
 - [x] T19. `app`: "Importar paquete" en el menú de la lista, con los errores y la pregunta de sustituir o importar como nuevo. (RF-12, RF-13, RF-16, RF-25, RF-26, RF-27, RF-28)
       Hecho cuando: `PackageScreenTest` en verde.
-- [ ] T20. Rendimiento: 10 000 puntos se copian en menos de 5 s y se restauran en menos de 10 s. (RNF)
+- [x] T20. Rendimiento: 10 000 puntos se copian en menos de 5 s y se restauran en menos de 10 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.
 - [ ] T21. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona.
