@@ -61,7 +61,7 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Estación de referencia | `ReferenceStation` | La base que describen los mensajes RTCM 1005/1006, con su identificador (S015) |
 | Skyplot | `Skyplot` | Satélites en vista por elevación y azimut (S015) |
 | SNR (relación señal/ruido) | `snrDbHz` | En dB-Hz; del rover por GSV y de la base por MSM 4 a 7 (S015) |
-| Banda de frecuencia | `Band` | L1, L2, L5, G1, G2, E1, E5a, E5b, E6, B1, B1C, B2, B2a, B3 (S015) |
+| Banda de frecuencia | `Band` | L1, L2, L5, G1, G2, E1, E5a, E5b, E5, E6, B1, B1C, B2, B2a, B2b, B3 (S015) |
 | DOP (PDOP, HDOP, VDOP) | `Dop` | Dilución de la precisión, de la frase GSA |
 | Estado / aviso de la inclinación | `TiltState` / `TiltNotification` | Frase ETC |
 | Sesión del receptor (conexión) | `ReceiverSession` | |

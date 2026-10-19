@@ -122,7 +122,7 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - [SUPOSICIÓN: la base "cambia" cuando su posición se aleja más de 0,1 m de la última conocida de la misma fuente; un cambio de fuente no avisa.]
 - [SUPOSICIÓN: la base deja de estar disponible si en 60 s no llega EBP ni 1005/1006; los casters suelen enviar 1005/1006 cada 10 a 30 s.]
 - [SUPOSICIÓN: la línea base es la distancia en línea recta, en 3D, entre la antena del rover y la posición de la base; en km con 3 decimales en la pantalla Estado y en la unidad del proyecto en la ficha y el CSV.]
-- [SUPOSICIÓN: las barras de SNR se nombran por banda (L1, L2, L5, G1, G2, E1, E5a, E5b, E6, B1, B1C, B2, B2a, B3), y rover y base se comparan en la misma banda.]
+- [SUPOSICIÓN: las barras de SNR se nombran por banda (L1, L2, L5, G1, G2, E1, E5a, E5b, E5, E6, B1, B1C, B2, B2a, B2b, B3), y rover y base se comparan en la misma banda.]
 - [SUPOSICIÓN: los avisos "Línea base larga" y "La base ha cambiado" siguen visibles hasta que el usuario los cierra; "Línea base larga" vuelve a salir cuando cambia la base. No cambian el control de precisión (S010) y quedan en el log (S014/RF-5).]
 - [SUPOSICIÓN: las columnas nuevas del CSV van en inglés, como el resto (S012), y vacías en los puntos sin base.]
 
