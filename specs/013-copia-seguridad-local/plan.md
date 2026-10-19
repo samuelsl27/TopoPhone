@@ -67,19 +67,18 @@ La copia completa y el paquete son el mismo formato ZIP; cambia `kind`:
 `points.copy_of` guarda el nombre del punto original, no su id: no se reasigna.
 
 ### `settings.json`
-Solo las claves de esta lista viajan. Al restaurar, las de la lista que no estén en el fichero se borran (vuelven al valor por defecto) y las demás claves del DataStore no se tocan (RF-8).
+Solo viajan las claves de la tabla de abajo. Al restaurar, las que viajan y no están en el fichero se borran (vuelven al valor por defecto), y las demás claves del DataStore no se tocan (RF-8). Cada valor lleva su tipo, porque JSON no distingue un `Int` de un `Long` ni un `Float` de un `Double`. La codificación (`BackupSettingsJson`) está en `core:formats`.
 
 ```json
 {
-  "settings": { "theme_mode": "SUN", "theme_before_sun": "LIGHT" },
-  "projects": { "default_author": "Ana", "default_crs": "ETRS89_UTM30", "default_linear_unit": "METRE",
-                "default_angular_unit": "DMS", "default_corrections_datum": "ETRS89", "default_height_system": "ORTHOMETRIC" },
-  "collector": { "collector_mode": "AVERAGED", "collector_averaging_seconds": 20, "collector_fix_only": true,
-                 "collector_horizontal_limit_m": 0.03 },
-  "export": { "format": "PENZD", "separator": "SEMICOLON", "decimal": "COMMA", "custom_columns": ["NAME", "LATITUDE"] },
-  "map": { "map_basemap": "PNOA", "map_cadastre": false },
-  "receiver": { "pole_height_m": 1.8, "session_space_mb": 500, "corrections_alarm_s": 10 },
-  "app_language": "es"
+  "stores": {
+    "settings": { "theme_mode": { "string": "SUN" }, "theme_before_sun": { "string": "LIGHT" } },
+    "collector": { "collector_mode": { "string": "AVERAGED" }, "collector_averaging_seconds": { "int": 20 },
+                   "collector_fix_only": { "boolean": true }, "collector_horizontal_limit_m": { "double": 0.03 } },
+    "export": { "format": { "string": "PENZD" }, "custom_columns": { "strings": ["LATITUDE", "NAME"] } },
+    "receiver": { "pole_height_m": { "double": 1.8 }, "session_space_mb": { "int": 500 } }
+  },
+  "appLanguage": "es"
 }
 ```
 
@@ -90,7 +89,7 @@ Solo las claves de esta lista viajan. Al restaurar, las de la lista que no esté
 | `receiver` | `pole_height_m`, `session_space_mb`, `corrections_alarm_s` | `last_receiver_address`, `last_receiver_name`, `notifications_asked`, `ntrip_last_profile_id`, `ntrip_was_active`, `ntrip_legacy_imported` y las heredadas de S002 |
 | `backup` (nuevo) | ninguna | todas |
 
-El idioma no está en un DataStore (lo guarda AppCompat): `app_language` se lee y se aplica con `AppLanguageStore`, una interfaz de `data` que implementa `app`.
+El idioma no está en un DataStore (lo guarda AppCompat): `appLanguage` se lee y se aplica con `AppLanguageStore`, una interfaz de `data` que implementa `app`.
 
 ### DataStore "backup" (`AutoBackupPreferences`)
 | Clave | Tipo | Uso |
@@ -139,7 +138,7 @@ Sin cambios en el esquema de Room (sigue en la versión 6).
    2. borrar las tablas en orden hijo → padre;
    3. insertar todas las filas de la copia (como en A1, de la copia validada a la base de datos de la app);
    4. volver a poner la contraseña cifrada de cada perfil que estaba en el móvil y está en la copia (RF-9).
-6. Aplicar `settings.json` (`SettingsArchive.restore`) e `app_language`.
+6. Aplicar `settings.json` (`SettingsArchive.restore`, que también aplica `appLanguage`).
 7. Si falla el paso 5, la transacción se deshace sola. Si falla el paso 6, se repite el paso 5 con `before-restore.zip` y se vuelven a poner sus ajustes. En los dos casos el resultado es `Failed` y los datos quedan como estaban (RF-10).
 8. Las sesiones grabadas y las claves del móvil no se tocan (RF-8). El controlador NTRIP ve desaparecer o cambiar el perfil en uso por su flujo de Room y cierra o vuelve a conectar (S007/RF-8, RF-9).
 

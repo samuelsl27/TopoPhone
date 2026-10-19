@@ -8,7 +8,7 @@
       Hecho cuando: `BackupFileNamesTest` y `AutoBackupPolicyTest` en verde.
 - [x] T3. `data`: `DatabaseSnapshot` (conexión de solo lectura, copia por tablas entera o de un proyecto, marca de contraseña). (RF-2, RF-3, RF-24, RNF)
       Hecho cuando: `DatabaseSnapshotTest` en verde con los `double` iguales bit a bit y un punto guardado mientras la instantánea está abierta.
-- [ ] T4. `data`: `SettingsArchive` y `AppLanguageStore` (claves que viajan, claves del móvil intactas). (RF-2, RF-3, RF-8)
+- [x] T4. `data`: `SettingsArchive` y `AppLanguageStore` (claves que viajan, claves del móvil intactas). (RF-2, RF-3, RF-8)
       Hecho cuando: `SettingsArchiveTest` en verde.
 - [ ] T5. `data`: `BackupRepository.writeBackup` y `read` (A2, A3: ZIP completo, validación y migración de `data.db`). (RF-1, RF-5, RF-6, RF-12, RF-13, RF-14)
       Hecho cuando: los tests de escribir y leer en verde, y `BackupMigrationTest` restaura copias de las versiones 1 a 5 del esquema y rechaza la 7.
