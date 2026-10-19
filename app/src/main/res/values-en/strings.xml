@@ -640,4 +640,9 @@
     <string name="backup_choose_folder">Choose folder</string>
     <string name="backup_notice_later">Not now</string>
     <string name="backup_review">Review</string>
+    <string name="package_export">Export package</string>
+    <string name="package_export_question">Package of %1$s: save it with the file picker or share it with another app.</string>
+    <string name="package_share_chooser">Share package</string>
+    <string name="package_saved">Package saved.</string>
+    <string name="package_not_saved">The package could not be exported.</string>
 </resources>

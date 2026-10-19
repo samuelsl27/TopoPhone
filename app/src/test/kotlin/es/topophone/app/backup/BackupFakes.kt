@@ -1,9 +1,17 @@
 package es.topophone.app.backup
 
+import es.topophone.core.formats.backup.BackupKind
 import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.AutoBackupState
 import es.topophone.data.backup.BackupFolder
+import es.topophone.data.backup.BackupRead
+import es.topophone.data.backup.Backups
+import es.topophone.data.backup.ImportChoice
+import es.topophone.data.backup.ImportResult
+import es.topophone.data.backup.RestoreResult
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -51,4 +59,37 @@ class FakeFolder : BackupFolder {
     override fun release(treeUri: String) {
         persisted -= treeUri
     }
+}
+
+/** Paquetes en memoria para los tests de S013: lo que se exporta y cómo responde la importación. */
+class FakePackageBackups : Backups {
+    override val undoAvailable = MutableStateFlow(false)
+    var writeOk = true
+    val written = mutableListOf<String>()
+    var readResult: BackupRead = BackupRead.Damaged
+    var readKind: BackupKind? = null
+    val imports = mutableListOf<ImportChoice?>()
+    var importResults = ArrayDeque<ImportResult>()
+
+    override suspend fun writePackage(projectId: String, out: OutputStream): Boolean {
+        written += projectId
+        if (writeOk) out.write("paquete".toByteArray())
+        return writeOk
+    }
+
+    override suspend fun read(input: () -> InputStream, kind: BackupKind): BackupRead {
+        readKind = kind
+        return readResult
+    }
+
+    override suspend fun importPackage(valid: BackupRead.Valid, choice: ImportChoice?, importedLabel: String): ImportResult {
+        imports += choice
+        return importResults.removeFirstOrNull() ?: ImportResult.Failed
+    }
+
+    override suspend fun writeBackup(out: OutputStream): Boolean = false
+
+    override suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult = RestoreResult.Failed
+
+    override suspend fun undoRestore(): RestoreResult = RestoreResult.Failed
 }

@@ -36,7 +36,7 @@
       Hecho cuando: los tests de navegación y del controlador NTRIP tras restaurar en verde.
 - [x] T17. `app`: aviso sin carpeta y alerta de fallo en la lista de proyectos. (RF-21, RF-22, RF-23)
       Hecho cuando: `ProjectListBackupNoticeTest` en verde.
-- [ ] T18. `app`: "Exportar paquete" en el menú del proyecto, con guardar o compartir. (RF-4, RF-5, RF-24)
+- [x] T18. `app`: "Exportar paquete" en el menú del proyecto, con guardar o compartir. (RF-4, RF-5, RF-24)
       Hecho cuando: los tests del menú y del diálogo en verde.
 - [ ] T19. `app`: "Importar paquete" en el menú de la lista, con los errores y la pregunta de sustituir o importar como nuevo. (RF-12, RF-13, RF-16, RF-25, RF-26, RF-27, RF-28)
       Hecho cuando: `PackageScreenTest` en verde.

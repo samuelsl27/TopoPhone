@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
 import es.topophone.app.R
 import es.topophone.app.ui.receiver.fileProviderAuthority
@@ -28,21 +29,23 @@ object ExportFiles {
     }
 }
 
-/** Intención para compartir un CSV exportado con las apps del móvil (S012/RF-18). */
+/** Intención para compartir un fichero exportado (CSV, S012/RF-18; paquete, S013/RF-24) con las apps del móvil. */
 fun shareExportIntent(
     context: Context,
     file: File,
     uri: Uri = FileProvider.getUriForFile(context, fileProviderAuthority(context), file),
+    mimeType: String = "text/csv",
+    @StringRes chooserTitle: Int = R.string.export_share_chooser,
 ): Intent {
     val send = Intent(Intent.ACTION_SEND).apply {
-        type = "text/csv"
+        type = mimeType
         putExtra(Intent.EXTRA_STREAM, uri)
         putExtra(Intent.EXTRA_SUBJECT, file.name)
         // Con ClipData el permiso de lectura llega también a través del selector.
         clipData = ClipData.newRawUri(file.name, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    return Intent.createChooser(send, context.getString(R.string.export_share_chooser))
+    return Intent.createChooser(send, context.getString(chooserTitle))
 }
 
 /**

@@ -54,6 +54,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.backup.BackupNotice
 import es.topophone.app.ui.backup.BackupNoticeViewModel
+import es.topophone.app.ui.backup.rememberPackageExport
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
@@ -143,6 +144,8 @@ class ProjectListActions(
     val onDismissFolderDialog: () -> Unit = {},
     val onDelete: (String) -> Unit = {},
     val onExport: (String) -> Unit = {},
+    /** S013/RF-24. */
+    val onExportPackage: (Project) -> Unit = {},
     /** S013/RF-22: abre el selector de carpetas para las copias automáticas. */
     val onChooseBackupFolder: () -> Unit = {},
     /** S013/RF-23. */
@@ -239,6 +242,7 @@ fun ProjectListRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val notice by noticeViewModel.notice.collectAsStateWithLifecycle()
     val copyLabel = stringResource(R.string.project_copy_label)
+    val exportPackage = rememberPackageExport()
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) noticeViewModel.folderChosen(uri.toString()) // S013/RF-22
     }
@@ -262,6 +266,7 @@ fun ProjectListRoute(
             onDismissFolderDialog = viewModel::dismissFolderDialog,
             onDelete = viewModel::delete,
             onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
+            onExportPackage = exportPackage,
             onChooseBackupFolder = { chooseFolder.launch(null) },
             onDismissBackupNotice = noticeViewModel::dismiss,
             onReviewBackups = navigation.onOpenBackups,
@@ -496,6 +501,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onExport(project.id)
         } // S012/RF-1
+        MenuItem(R.string.package_export) {
+            open = false
+            actions.onExportPackage(project)
+        } // S013/RF-24
         MenuItem(R.string.project_delete) {
             open = false
             confirmDelete = true

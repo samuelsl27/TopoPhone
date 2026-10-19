@@ -652,4 +652,9 @@
     <string name="backup_choose_folder">Elegir carpeta</string>
     <string name="backup_notice_later">Ahora no</string>
     <string name="backup_review">Revisar</string>
+    <string name="package_export">Exportar paquete</string>
+    <string name="package_export_question">Paquete de %1$s: guárdalo con el selector de ficheros o compártelo con otra app.</string>
+    <string name="package_share_chooser">Compartir paquete</string>
+    <string name="package_saved">Paquete guardado.</string>
+    <string name="package_not_saved">No se ha podido exportar el paquete.</string>
 </resources>
