@@ -22,3 +22,5 @@
       Hecho cuando: el test de rendimiento en verde.
 - [x] T10. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador con reproducciones según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo con el RS3 queda para el usuario.
+- [x] T11. Cambio tras la demo de S015: las precisiones del punto salen de la última GST de menos de 3 s, que la sesión pasa con cada época, y esa GST va con sus frases NMEA. (RF-22, RF-23)
+      Hecho cuando: los tests nuevos de `PointMeasurementTest`, `ReceiverSessionBaseTest` y `CollectorViewModelTest` en verde.

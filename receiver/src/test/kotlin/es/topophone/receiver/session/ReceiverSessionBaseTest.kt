@@ -172,4 +172,23 @@ class ReceiverSessionBaseTest {
         session.state.value.base shouldBe BaseState.NONE
         session.state.value.sky.shouldBeNull()
     }
+
+    @Test
+    fun `S010 RF-22 cada epoca sale con la ultima GST, aunque llegue en una epoca anterior`() {
+        val session = session()
+        val gstAtEpoch = CopyOnWriteArrayList<String?>()
+        val ready = Channel<Unit>(1)
+        scope.launch {
+            session.epochs.onSubscription { ready.send(Unit) }.collect { (epoch, _, gst) ->
+                if (epoch.utcMillisOfDay >= 36_931_000) gstAtEpoch += gst?.rawSentence
+            }
+        }
+        runBlocking { ready.receive() }
+        val gst = nmea("GNGST,101531.00,0.012,0.010,0.007,45.0,0.008,0.006,0.015")
+
+        link.send(gga("101531.00"), gst, gga("101531.20"), gga("101531.40"))
+
+        runBlocking { withTimeout(5_000) { while (gstAtEpoch.size < 2) kotlinx.coroutines.delay(10) } }
+        gstAtEpoch.take(2) shouldBe listOf(gst.trimEnd(), gst.trimEnd()) // la época de .20 no la trae, pero sale con ella
+    }
 }

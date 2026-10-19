@@ -219,4 +219,48 @@ class PointMeasurementTest {
         result.measuredFromMs shouldBe 1_000_000L
         result.measuredToMs shouldBe 1_004_000L
     }
+
+    /** Una época de 5 Hz sin GST, como cuatro de cada cinco del RS3. */
+    private fun withoutGst(index: Int) = epoch(index, intervalMs = 200).copy(gst = null)
+
+    private val lastGst = GstAccuracy("t0", 0.008, 0.006, 0.015, "\$GNGST,last*00")
+
+    @Test
+    fun `S010 RF-22 RF-23 la medida instantanea toma la ultima GST aunque su epoca no la traiga`() {
+        val result = measurement(MeasurementMode.INSTANT).onEpoch(withoutGst(1), receivedAt(withoutGst(1)), lastGst).done()
+
+        result.horizontalM shouldBe (0.010 plusOrMinus 1e-12)
+        result.verticalM shouldBe 0.015
+        result.rawNmea shouldBe "\$GNGGA,1*00\n\$GNGST,last*00"
+    }
+
+    @Test
+    fun `S010 RF-22 el promediado toma la ultima GST que habia en su ultima epoca`() {
+        val m = measurement(MeasurementMode.AVERAGED, seconds = 1, intervalS = 0.2)
+        val older = GstAccuracy("t", 0.1, 0.1, 0.3, "\$GNGST,older*00")
+        (1..4).forEach { m.onEpoch(withoutGst(it), receivedAt(withoutGst(it)), older) }
+
+        val result = m.onEpoch(withoutGst(5), receivedAt(withoutGst(5)), lastGst).done()
+
+        result.horizontalM shouldBe (0.010 plusOrMinus 1e-12)
+        result.rawNmea.lines().last() shouldBe "\$GNGST,last*00"
+    }
+
+    @Test
+    fun `S010 RF-22 sin GST de menos de 3 s el punto va sin precisiones`() {
+        val result = measurement(MeasurementMode.INSTANT).onEpoch(withoutGst(1), receivedAt(withoutGst(1)), null).done()
+
+        result.horizontalM shouldBe null
+        result.verticalM shouldBe null
+        result.rawNmea shouldBe "\$GNGGA,1*00"
+    }
+
+    @Test
+    fun `S010 RF-23 la GST que ya viene en una epoca usada no se repite`() {
+        val e = epoch(1)
+
+        val result = measurement(MeasurementMode.INSTANT).onEpoch(e, receivedAt(e), e.gst).done()
+
+        result.rawNmea shouldBe "\$GNGGA,1*00\n\$GNGST,1*00"
+    }
 }

@@ -48,6 +48,8 @@ El dato de campo es sagrado (constitución nº 1): cada punto se guarda al momen
 - RF-17: EL SISTEMA guardará con cada punto la posición de la antena tal como la da el receptor, las frases NMEA de las épocas usadas, la altura del jalón, el punto del suelo en geográficas y en el SC del proyecto, y la fecha y hora de la medida.
 - RF-18: EL SISTEMA guardará con cada punto sus metadatos de calidad: estado de la solución, satélites, HDOP, edad de las correcciones, precisiones de la GST, modo de medida, épocas usadas y descartadas, y si viene de una reproducción.
 - RF-19: CUANDO se guarde un punto, EL SISTEMA lo confirmará con un sonido y una vibración y propondrá el nombre siguiente.
+- RF-22: EL SISTEMA guardará como precisiones de un punto las de la última GST recibida hasta el final de la medida, si tiene menos de 3 s (S002/RF-17), aunque no llegue en una de las épocas usadas.
+- RF-23: EL SISTEMA guardará con las frases NMEA del punto la GST de la que salen sus precisiones.
 
 ### Puntos en el mapa (H5)
 - RF-20: EL SISTEMA dibujará en el mapa los puntos del proyecto con su nombre, y los que están fuera de tolerancia con otro símbolo.
@@ -75,6 +77,8 @@ El dato de campo es sagrado (constitución nº 1): cada punto se guarda al momen
 | Control de solo FIX desactivado | RF-10 (no se descartan épocas), RF-13 |
 | Punto fuera del ámbito del SC del proyecto | RF-12 |
 | Sin GST con límites H/V activos | RF-14 (la condición no se cumple: no hay precisión que comprobar) |
+| GST a 1 Hz con épocas a 5 Hz (RS3) | RF-22 (la última GST, aunque llegue en una época anterior a la usada) |
+| La última GST tiene más de 3 s | RF-22 (el punto va sin precisiones; con límites H/V activos, RF-14) |
 | Reproducción en lugar de receptor | RF-18 (el punto queda marcado como de reproducción) |
 | Cierre de la app justo después de guardar | RF-16 |
 
@@ -101,7 +105,7 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - [SUPOSICIÓN: la medida instantánea espera como mucho 2 s a la siguiente época; si no llega, se cancela y se dice que no hay datos del receptor.]
 - [SUPOSICIÓN: el promediado llega a 60 s en esta spec; S017 lo amplía a 60 min con estadísticas en vivo.]
 - [SUPOSICIÓN: el modo (instantáneo o promediado) y el tiempo de promediado se recuerdan para todos los proyectos, como el control de precisión.]
-- [SUPOSICIÓN: la precisión vertical de la medida es la σ de altitud de la GST; con el promediado se toma la de la última época usada.]
+- [SUPOSICIÓN: la precisión vertical de la medida es la σ de altitud de la GST; la GST es la última recibida hasta el final de la medida (RF-22).]
 - [SUPOSICIÓN: los puntos de una reproducción se pueden guardar, marcados como tales, para poder probar la app sin receptor.]
 - [SUPOSICIÓN: el nombre del punto se dibuja en el mapa a escala 1:2.500 o más grande, para que no se amontonen; algo antes que la escala a la que el mapa sigue al rover (1:2.000), para que los nombres no parpadeen al seguirlo.]
 

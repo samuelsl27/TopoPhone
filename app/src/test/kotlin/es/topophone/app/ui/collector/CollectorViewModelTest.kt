@@ -39,6 +39,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldStartWith
 import java.io.ByteArrayOutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
@@ -535,5 +536,26 @@ class CollectorViewModelTest {
         await(vm) { it.savedName == "1" }
 
         runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().base shouldBe null
+    }
+
+    @Test
+    fun `S010 RF-22 una medida instantanea en una epoca sin GST guarda las precisiones de la ultima GST`() {
+        val projectId = project()
+        val vm = viewModel(projectId)
+        receiving(vm) // épocas de 10:15:30 y 10:15:31 con GGA y GST
+        toApp.write(nmea("GNGGA,101531.20,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
+        toApp.flush()
+        runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == 36_931_000 } } }
+        await(vm) { it.blocker == null }
+
+        vm.measure()
+        toApp.write(nmea("GNGGA,101531.40,4025.0080000,N,00342.2228000,W,4,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
+        toApp.flush() // completa la época de .20, que no trae GST
+        await(vm) { it.savedName == "1" }
+
+        val measurement = runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull()
+        measurement.quality.horizontalM.shouldNotBeNull() shouldBe (0.010 plusOrMinus 1e-9)
+        measurement.quality.verticalM shouldBe 0.015
+        measurement.rawNmea.lines().last() shouldStartWith "\$GNGST,101531.00"
     }
 }

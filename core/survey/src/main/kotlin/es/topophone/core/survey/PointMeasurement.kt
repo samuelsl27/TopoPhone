@@ -1,6 +1,7 @@
 package es.topophone.core.survey
 
 import es.topophone.core.gnss.nmea.Epoch
+import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.MeasurementMode
@@ -72,13 +73,19 @@ class PointMeasurement(
     private val requiredS = averagingSeconds.toDouble()
     private val used = mutableListOf<Epoch>()
     private val usedAtMs = mutableListOf<Long>()
+
+    /** La última GST de menos de 3 s que había al llegar la última época usada (S010/RF-22). */
+    private var usedGst: GstAccuracy? = null
     private var discarded = 0
     private var lastEpochAtMs = startedAtMs
     private var lostWarned = false
     private var finished = false
 
-    /** Una época completa que ha llegado a las [receivedAtMs] del reloj del móvil. */
-    fun onEpoch(epoch: Epoch, receivedAtMs: Long): List<MeasurementUpdate> {
+    /**
+     * Una época completa que ha llegado a las [receivedAtMs] del reloj del móvil, con [latestGst], la última GST de menos
+     * de 3 s, que puede haber llegado en una época anterior (S010/RF-22).
+     */
+    fun onEpoch(epoch: Epoch, receivedAtMs: Long, latestGst: GstAccuracy? = epoch.gst): List<MeasurementUpdate> {
         if (finished) return emptyList()
         lastEpochAtMs = receivedAtMs
         val fix = epoch.gga?.takeIf { it.hasPosition }
@@ -93,6 +100,7 @@ class PointMeasurement(
             else -> {
                 used += epoch
                 usedAtMs += receivedAtMs
+                usedGst = latestGst
                 if (fix.status == SolutionStatus.FIX) lostWarned = false
             }
         }
@@ -137,7 +145,7 @@ class PointMeasurement(
             return MeasurementUpdate.Failed(MeasurementFailure.OUTSIDE_CRS_AREA)
         }
         val antennaHeight = mean.altitudeM?.let { altitude -> mean.geoidSeparationM?.let { altitude + it } }
-        val lastGst = used.last().gst
+        val lastGst = usedGst
         return MeasurementUpdate.Done(
             MeasurementResult(
                 antenna = GeodeticPosition(mean.latitudeDeg, mean.longitudeDeg, antennaHeight),
@@ -157,13 +165,18 @@ class PointMeasurement(
                 mode = mode,
                 epochsUsed = used.size,
                 epochsDiscarded = discarded,
-                rawNmea = used.flatMap {
-                    listOfNotNull(it.gga?.rawSentence, it.gst?.rawSentence?.takeIf(String::isNotEmpty))
-                }.joinToString("\n"),
+                rawNmea = rawNmea(lastGst),
                 measuredFromMs = usedAtMs.first(),
                 measuredToMs = usedAtMs.last(),
             ),
         )
+    }
+
+    /** Las frases de las épocas usadas y, si no venía en ellas, la GST de la que salen las precisiones (S010/RF-17, RF-23). */
+    private fun rawNmea(gst: GstAccuracy?): String {
+        val sentences = used.flatMap { listOfNotNull(it.gga?.rawSentence, it.gst?.rawSentence?.takeIf(String::isNotEmpty)) }
+        val extra = gst?.rawSentence?.takeIf { it.isNotEmpty() && it !in sentences }
+        return (sentences + listOfNotNull(extra)).joinToString("\n")
     }
 
     private companion object {

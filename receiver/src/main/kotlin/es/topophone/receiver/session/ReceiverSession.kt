@@ -142,10 +142,10 @@ data class ReceiverSnapshot(
 )
 
 /**
- * Una época con la base que había al emitirla: quien va con retraso no confunde la base de una época vieja con la de
- * ahora (S015/RF-18, plan A10).
+ * Una época con la base y la última GST de menos de 3 s que había al emitirla: quien va con retraso no confunde las de
+ * una época vieja con las de ahora (S015/RF-18, plan A10; S010/RF-22). El RS3 manda la GST a 1 Hz y la GGA a 5 Hz.
  */
-data class SessionEpoch(val epoch: Epoch, val base: BaseState)
+data class SessionEpoch(val epoch: Epoch, val base: BaseState, val gst: GstAccuracy? = epoch.gst)
 
 /** Registro de los datos brutos recibidos del receptor (S002/RF-42). */
 fun interface SessionRecorder {
@@ -629,7 +629,7 @@ class ReceiverSession(
                 base = base,
             )
         }
-        mutableEpochs.tryEmit(SessionEpoch(epoch, base))
+        mutableEpochs.tryEmit(SessionEpoch(epoch, base, mutableState.value.gst))
     }
 
     /**

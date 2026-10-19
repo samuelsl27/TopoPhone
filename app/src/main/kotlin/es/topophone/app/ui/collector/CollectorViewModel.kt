@@ -338,7 +338,7 @@ class CollectorViewModel @Inject constructor(
         }
         lastEpochUtc = epoch.utcMillisOfDay
         if (measurement != null) received.base.position?.let { measurementBase = it }
-        measurement?.onEpoch(epoch, System.currentTimeMillis())?.forEach(::handle)
+        measurement?.onEpoch(epoch, System.currentTimeMillis(), received.gst)?.forEach(::handle) // S010/RF-22
     }
 
     private fun handle(update: MeasurementUpdate) {
