@@ -14,7 +14,7 @@
       Hecho cuando: `MsmDecoderTest` en verde con celdas de la grabación real, MSM4/6/7 sintéticos, MSM1 a 3 y cargas cortas.
 - [x] T6. `core:gnss`: `Band` y `SatelliteNumber` (A3, A4). (RF-6, RF-7, RF-8)
       Hecho cuando: `BandTest` y `SatelliteNumberTest` en verde con las tablas de NMEA 4.11 y RTCM.
-- [ ] T7. `core:gnss`: `SkyView` (lo último de GSA y GSV, DOP y recuentos, A8). (RF-2, RF-3, RF-6)
+- [x] T7. `core:gnss`: `SkyView` (lo último de GSA y GSV, DOP y recuentos, A8). (RF-2, RF-3, RF-6)
       Hecho cuando: `SkyViewTest` en verde, también con épocas de 5 Hz sin GSA ni GSV.
 - [ ] T8. `core:survey`: `BaseTracker` y `Baseline` (A6, A7). (RF-10, RF-11, RF-12, RF-14, RF-16, RF-17)
       Hecho cuando: `BaseTrackerTest` y `BaselineTest` en verde (línea base ≤ 1 mm frente a pyproj).

@@ -66,3 +66,6 @@ object SatelliteNumber {
         Constellation.MULTIPLE, Constellation.UNKNOWN -> '?'
     }
 }
+
+/** Una señal de un satélite: su banda, o `null` si no se sabe (S015/RF-7, RF-8). */
+data class SignalKey(val satellite: SatelliteId, val band: Band?)
