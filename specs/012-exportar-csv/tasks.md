@@ -14,7 +14,7 @@
       Hecho cuando: `ExportViewModelTest` en verde.
 - [x] T6. `app`: pantalla "Exportar CSV" y su ruta; accesos desde el menú del proyecto, el de la lista de objetos y la selección. (RF-1, RF-2, RF-5, RF-8, RF-10, RF-13, RF-14)
       Hecho cuando: `ExportScreenTest` y `ExportEntryTest` en verde.
-- [ ] T7. `app`: "Guardar" con el selector de ficheros y "Compartir" con FileProvider desde `cache/exports/`. (RF-17, RF-18, RF-20)
+- [x] T7. `app`: "Guardar" con el selector de ficheros y "Compartir" con FileProvider desde `cache/exports/`. (RF-17, RF-18, RF-20)
       Hecho cuando: los tests de guardar y compartir (intents y escritura en el `Uri`) en verde.
 - [ ] T8. Rendimiento: 10 000 puntos escritos en menos de 3 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.

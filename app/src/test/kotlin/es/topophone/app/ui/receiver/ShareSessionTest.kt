@@ -17,6 +17,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
 import es.topophone.app.di.ReceiverModule
+import es.topophone.app.ui.export.ExportFiles
 import es.topophone.app.ui.sessions.SHARE_SESSION_TAG
 import es.topophone.app.ui.sessions.SessionRow
 import es.topophone.app.ui.sessions.SessionsActions
@@ -89,7 +90,7 @@ class ShareSessionTest {
     }
 
     @Test
-    fun `S002 RF-43 el FileProvider no es publico y solo expone la carpeta de sesiones`() {
+    fun `S002 RF-43 y S012 RF-18 el FileProvider no es publico y solo expone las sesiones y los CSV exportados`() {
         val info = context.packageManager
             .resolveContentProvider(fileProviderAuthority(context), PackageManager.GET_META_DATA)
             .shouldNotBeNull()
@@ -105,7 +106,10 @@ class ShareSessionTest {
                 }
             }
         }
-        roots shouldBe listOf(Triple("files-path", "sessions", "${ReceiverModule.SESSIONS_DIR}/"))
+        roots shouldBe listOf(
+            Triple("files-path", "sessions", "${ReceiverModule.SESSIONS_DIR}/"),
+            Triple("cache-path", "exports", "${ExportFiles.DIR}/"),
+        )
     }
 
     @Test

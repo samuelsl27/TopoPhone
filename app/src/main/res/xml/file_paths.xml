@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Solo la carpeta de sesiones (ReceiverModule.SESSIONS_DIR) se puede compartir (S002/RF-43). -->
+<!-- Se comparten la carpeta de sesiones (ReceiverModule.SESSIONS_DIR, S002/RF-43) y la de los CSV exportados (ExportFiles.DIR, S012/RF-18). -->
 <paths>
     <files-path name="sessions" path="sessions/" />
+    <cache-path name="exports" path="exports/" />
 </paths>

@@ -610,4 +610,5 @@
         <item quantity="one">Se exportará %1$d punto</item>
         <item quantity="other">Se exportarán %1$d puntos</item>
     </plurals>
+    <string name="export_share_chooser">Compartir CSV</string>
 </resources>

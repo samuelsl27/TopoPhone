@@ -1,5 +1,7 @@
 package es.topophone.app.ui.export
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,8 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -43,9 +47,13 @@ import es.topophone.core.formats.csv.ExportFormat
 import es.topophone.core.model.preferences.ThemeState
 import java.time.Instant
 import java.time.ZoneId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val EXPORT_SAVE_TAG = "export_save"
 const val EXPORT_SHARE_TAG = "export_share"
+private const val CSV_MIME = "text/csv"
 
 fun formatTag(format: ExportFormat) = "export_format_${format.name}"
 
@@ -76,6 +84,17 @@ fun ExportRoute(
 ) {
     LaunchedEffect(projectId, selection) { viewModel.start(projectId, selection) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    // S012/RF-17: el selector de ficheros del móvil; si el usuario cancela, no se escribe nada.
+    val save = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(CSV_MIME)) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val ok = writeToUri(context.contentResolver, uri, viewModel::writeTo)
+                viewModel.report(if (ok) ExportResult.SAVED else ExportResult.FAILED)
+            }
+        }
+    }
     ExportScreen(
         themeState,
         onToggleSun,
@@ -85,6 +104,19 @@ fun ExportRoute(
             onSeparator = viewModel::setSeparator,
             onDecimal = viewModel::setDecimal,
             onToggleColumn = viewModel::toggleColumn,
+            onSave = { name ->
+                viewModel.report(null)
+                save.launch(name)
+            },
+            onShare = { name ->
+                viewModel.report(null)
+                scope.launch {
+                    // S012/RF-18: desde la caché de la app, con el FileProvider.
+                    val file = ExportFiles.prepare(context.cacheDir, name, System.currentTimeMillis())
+                    val ok = withContext(Dispatchers.IO) { file.outputStream() }.use { viewModel.writeTo(it) }
+                    if (ok) context.startActivity(shareExportIntent(context, file)) else viewModel.report(ExportResult.FAILED)
+                }
+            },
         ),
         navigation.onBack,
     )
