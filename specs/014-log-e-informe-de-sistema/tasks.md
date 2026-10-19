@@ -24,5 +24,5 @@
       Hecho cuando: `NoSecretsTest` en verde.
 - [x] T11. Rendimiento: informe con 25 MB de sesiones en menos de 10 s; anotar no retrasa el guardado de un punto. (RNF)
       Hecho cuando: los tests de rendimiento en verde.
-- [ ] T12. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
+- [x] T12. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La puerta G1 queda para el usuario.
