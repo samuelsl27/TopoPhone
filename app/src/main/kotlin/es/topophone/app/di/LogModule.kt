@@ -6,9 +6,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import es.topophone.app.log.ReceiverLogRecorder
 import es.topophone.core.model.log.AppLog
 import es.topophone.data.log.FileAppLog
 import es.topophone.data.log.LogPreferences
+import es.topophone.receiver.session.ReceiverSession
 import java.io.File
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -28,4 +30,9 @@ object LogModule {
 
     @Provides
     fun provideAppLog(log: FileAppLog): AppLog = log
+
+    @Provides
+    @Singleton
+    fun provideReceiverLogRecorder(session: ReceiverSession, log: AppLog, @ApplicationScope scope: CoroutineScope): ReceiverLogRecorder =
+        ReceiverLogRecorder(session.state, log, scope)
 }

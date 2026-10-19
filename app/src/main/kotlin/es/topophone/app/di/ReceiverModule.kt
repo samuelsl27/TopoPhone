@@ -13,6 +13,7 @@ import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
 import es.topophone.app.ui.receiver.ReceiverViewModel
+import es.topophone.core.model.log.AppLog
 import es.topophone.core.ntrip.NtripClient
 import es.topophone.core.ntrip.SourcetableClient
 import es.topophone.core.ntrip.SourcetableSource
@@ -103,7 +104,9 @@ object ReceiverModule {
         session: ReceiverSession,
         profiles: NtripProfileRepository,
         preferences: ReceiverPreferences,
-    ): CorrectionsController = CorrectionsController(session, profiles, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default))
+        log: AppLog,
+    ): CorrectionsController =
+        CorrectionsController(session, profiles, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default), log)
 
     @Provides
     @Singleton

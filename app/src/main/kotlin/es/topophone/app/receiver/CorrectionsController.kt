@@ -1,5 +1,7 @@
 package es.topophone.app.receiver
 
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.ntrip.NtripProfile
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.data.ntrip.NtripProfileRepository
@@ -47,6 +49,7 @@ class CorrectionsController(
     private val profiles: NtripProfileRepository,
     private val preferences: ReceiverPreferences,
     private val scope: CoroutineScope,
+    private val log: AppLog = AppLog.NONE,
 ) {
     private val mutableStatus = MutableStateFlow(CorrectionsStatus())
     val status: StateFlow<CorrectionsStatus> = mutableStatus.asStateFlow()
@@ -91,6 +94,10 @@ class CorrectionsController(
                 is PasswordResult.Ok -> result.password
                 PasswordResult.None -> ""
                 PasswordResult.Undecryptable -> {
+                    log.warning(
+                        LogCategory.NTRIP,
+                        "La contraseña guardada del perfil «${saved.draft.name}» no se puede descifrar; se pide de nuevo",
+                    )
                     mutableStatus.update { it.copy(passwordNeededFor = profileId) }
                     return ConnectResult.PasswordNeeded
                 }
@@ -99,6 +106,12 @@ class CorrectionsController(
         val profile = profiles.profile(profileId) ?: return ConnectResult.ProfileNotFound
         connectedVersion = profile.modifiedAtMs
         mutableStatus.value = CorrectionsStatus(activeProfileId = profileId)
+        // S014/RF-2, RF-7: a dónde se conecta, sin el usuario ni la contraseña.
+        val draft = profile.draft
+        log.info(
+            LogCategory.NTRIP,
+            "Perfil «${draft.name}»: ${draft.host}:${draft.port}${if (draft.useTls) " con TLS" else ""}, punto de montaje ${draft.mountpoint}",
+        )
         session.startNtrip(profile.toConfig(secret)) // la sesión cierra antes la conexión en curso (S007/RF-22)
         preferences.saveNtripSession(profileId, active = true)
         return ConnectResult.Started

@@ -2,6 +2,9 @@ package es.topophone.app.receiver
 
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.log.LogLevel
 import es.topophone.core.model.ntrip.NtripProfileDraft
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
@@ -205,6 +208,23 @@ class CorrectionsControllerTest {
 
         eventually({ configs.size }, 2)
         configs.last().mountpoint shouldBe "CERCANA3M"
+    }
+
+    @Test
+    fun `S014 RF-2 y RF-7 se anota a que caster se conecta, sin usuario ni contrasena`() = runBlocking<Unit> {
+        val lines = mutableListOf<String>()
+        val log = object : AppLog {
+            override fun record(level: LogLevel, category: LogCategory, message: String) {
+                lines += message
+            }
+        }
+        profiles.add("ign", ign, "s3cr3t")
+        connectReceiver()
+
+        CorrectionsController(session, profiles, preferences, controllerScope, log).connect("ign")
+
+        lines.single() shouldBe "Perfil «ERGNSS (IGN): red»: ergnss-tr.ign.es:2101, punto de montaje VRS3M"
+        lines.none { "sgarcia" in it || "s3cr3t" in it } shouldBe true
     }
 
     @Test

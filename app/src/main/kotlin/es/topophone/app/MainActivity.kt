@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import es.topophone.app.backup.AutoBackupScheduler
 import es.topophone.app.di.ApplicationScope
+import es.topophone.app.log.ReceiverLogRecorder
 import es.topophone.app.receiver.CorrectionsController
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.ui.AppActions
@@ -61,6 +62,8 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var backupChanges: BackupChanges
 
+    @Inject lateinit var receiverLog: ReceiverLogRecorder
+
     @Inject @ApplicationScope
     lateinit var appScope: CoroutineScope
 
@@ -74,6 +77,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch { trashPurge.runOnce() } // S006/RF-27: la papelera se purga al abrir la app
         lifecycleScope.launch { ntripLegacyImport.run() } // S007/RF-10: los datos de caster de S002 pasan a un perfil
         autoBackups.start() // S013/RF-18: una vez por proceso
+        receiverLog.start() // S014/RF-1, RF-2: una vez por proceso
         // Al recrearse la actividad, la navegación ya está restaurada: el extra solo cuenta la primera vez.
         if (savedInstanceState == null) handleOpenReceiver(intent)
         val appInfo = AppInfo(versionName = BuildConfig.VERSION_NAME, gitCommit = BuildConfig.GIT_COMMIT, repoUrl = BuildConfig.REPO_URL)
