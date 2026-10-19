@@ -51,7 +51,8 @@ object BackupModule {
         @ApplicationContext context: Context,
         database: TopoPhoneDatabase,
         settings: SettingsArchive,
-    ): BackupRepository = BackupRepository(context, database, settings, appVersion = BuildConfig.VERSION_NAME)
+        log: AppLog,
+    ): BackupRepository = BackupRepository(context, database, settings, appVersion = BuildConfig.VERSION_NAME, log = log) // S014/RF-4, RF-5
 
     @Provides
     fun provideBackups(repository: BackupRepository): Backups = repository

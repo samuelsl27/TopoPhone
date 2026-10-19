@@ -658,7 +658,7 @@
     <string name="package_not_imported">The package could not be imported.</string>
     <string name="settings_section_diagnostics">Diagnostics</string>
     <string name="report_create">Create system report</string>
-    <string name="report_question">The report contains the app log, the recent sessions (up to 25 MB) and the app and phone details, without passwords. Save it with the file picker or share it with another app.</string>
+    <string name="report_question">The report contains the app log, the recent sessions (up to 25 MB) and the app and phone details, without passwords or NTRIP usernames. Save it with the file picker or share it with another app.</string>
     <string name="report_share_chooser">Share report</string>
     <string name="report_saved">Report saved.</string>
     <string name="report_not_saved">The report could not be created.</string>
