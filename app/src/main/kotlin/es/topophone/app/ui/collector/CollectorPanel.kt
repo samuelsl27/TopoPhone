@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.projects.unitSymbol
+import es.topophone.app.ui.receiver.BaseNoticeBanners
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -56,6 +57,8 @@ const val COLLECTOR_BLOCKER_TAG = "collector_blocker"
 fun modeOptionTag(mode: MeasurementMode) = "collector_mode_${mode.name}"
 
 /** Lo que el usuario hace en el recolector. */
+const val COLLECTOR_RESTARTED_TAG = "collector_restarted"
+
 class CollectorActions(
     val onName: (String) -> Unit = {},
     val onDescription: (String) -> Unit = {},
@@ -67,6 +70,10 @@ class CollectorActions(
     val onCancel: () -> Unit = {},
     val onConfirm: () -> Unit = {},
     val onDiscard: () -> Unit = {},
+    /** S015/RF-17. */
+    val onDismissBaseChange: (Int) -> Unit = {},
+    /** S015/RF-15. */
+    val onDismissLongBaseline: (Int) -> Unit = {},
 )
 
 /**
@@ -96,6 +103,7 @@ fun CollectorPanel(
                 modifier = Modifier.weight(1f, fill = false).heightIn(max = FORM_MAX_HEIGHT).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) { Form(state, unit, actions) }
+            BaseNoticeBanners(state.notices, actions.onDismissBaseChange, actions.onDismissLongBaseline) // S015/RF-15, RF-17
             LiveQualityText(state.live, unit)
             Messages(state)
             if (state.measuring) Measuring(state, actions) else MeasureButton(state, actions)
@@ -214,6 +222,9 @@ private fun Messages(state: CollectorUiState) {
         state.solutionLost
     ) {
         Text(stringResource(R.string.collector_solution_lost), color = MaterialTheme.colorScheme.error)
+    }
+    if (state.measuring && state.restarted) {
+        Text(stringResource(R.string.collector_restarted), modifier = Modifier.testTag(COLLECTOR_RESTARTED_TAG)) // S015/RF-18
     }
     when (state.error) {
         CollectorError.NO_DATA -> Text(stringResource(R.string.collector_no_data), color = MaterialTheme.colorScheme.error)

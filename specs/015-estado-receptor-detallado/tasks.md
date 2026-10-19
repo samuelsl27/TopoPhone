@@ -30,7 +30,7 @@
       Hecho cuando: los tests de la tarjeta en `StatusScreenTest` en verde.
 - [x] T14. `app`: `BaseNotices` y los avisos "Línea base larga" y "La base ha cambiado" en la pantalla Estado, con su anotación en el log. (RF-15, RF-17, S014/RF-5)
       Hecho cuando: los tests de los avisos y `ReceiverLogRecorderTest` en verde.
-- [ ] T15. `app`: avisos en el recolector y reinicio de la medida cuando cambia la base (A10). (RF-15, RF-17, RF-18)
+- [x] T15. `app`: avisos en el recolector y reinicio de la medida cuando cambia la base (A10). (RF-15, RF-17, RF-18)
       Hecho cuando: los tests nuevos de `CollectorViewModelTest` en verde.
 - [ ] T16. `app`: la base en el mapa del proyecto (`showBase` e icono propio). (RF-19)
       Hecho cuando: `BaseLayerTest` en verde.

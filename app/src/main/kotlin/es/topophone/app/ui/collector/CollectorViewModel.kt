@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.topophone.core.gnss.nmea.Epoch
+import es.topophone.app.receiver.BaseNotices
+import es.topophone.app.receiver.VisibleNotices
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.log.AppLog
@@ -35,6 +36,7 @@ import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReceiverSnapshot
+import es.topophone.receiver.session.SessionEpoch
 import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
@@ -93,6 +95,10 @@ data class CollectorUiState(
     /** Último punto guardado, para decirlo (S010/RF-19). */
     val savedName: String? = null,
     val error: CollectorError? = null,
+    /** Avisos de la base que no se han cerrado (S015/RF-15, RF-17). */
+    val notices: VisibleNotices = VisibleNotices(null, null, 0),
+    /** La medida en curso empezó de nuevo porque cambió la base (S015/RF-18). */
+    val restarted: Boolean = false,
 )
 
 /**
@@ -111,6 +117,7 @@ class CollectorViewModel @Inject constructor(
     private val calculator: Lazy<ProjectPositionCalculator>,
     private val inProgress: MeasurementInProgress = MeasurementInProgress(),
     private val log: AppLog = AppLog.NONE,
+    private val baseNotices: BaseNotices = BaseNotices(),
 ) : ViewModel() {
     private data class Form(
         val loaded: Boolean = false,
@@ -128,6 +135,7 @@ class CollectorViewModel @Inject constructor(
         val pending: PendingPoint? = null,
         val savedName: String? = null,
         val error: CollectorError? = null,
+        val restarted: Boolean = false,
     )
 
     private val projectId = MutableStateFlow<String?>(null)
@@ -142,6 +150,13 @@ class CollectorViewModel @Inject constructor(
     private var nameCheck: Job? = null
     private var lastEpochUtc: Int? = null
     private var epochIntervalS = DEFAULT_INTERVAL_S
+
+    /** Crea la medida con los datos de "Medir", para empezarla de nuevo si cambia la base (S015/RF-18). */
+    private var newMeasurement: (() -> PointMeasurement)? = null
+
+    /** Número del último cambio de base al empezar la medida, y en la última época (plan de S015, A10). */
+    private var measurementBaseChange: Int? = null
+    private var lastBaseChange: Int? = null
 
     init {
         // S013/RF-16: la medida y el punto que espera a confirmarse, fuera del recolector.
@@ -183,17 +198,27 @@ class CollectorViewModel @Inject constructor(
             pending = run.pending,
             savedName = run.savedName,
             error = run.error,
+            restarted = run.restarted,
         )
     }
 
-    val state: StateFlow<CollectorUiState> = combine(formState, projectFlow, session.state) { state, project, snapshot ->
+    val state: StateFlow<CollectorUiState> = combine(
+        formState,
+        projectFlow,
+        session.state,
+        baseNotices.dismissed,
+    ) { state, project, snapshot, dismissed ->
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val live = gga?.let { LiveQuality(it.status, snapshot.gst?.horizontalM, snapshot.gst?.verticalM) }
-        state.copy(live = live, blocker = state.blocker ?: positionBlocker(snapshot, project, state.poleHeightText))
+        state.copy(
+            live = live,
+            blocker = state.blocker ?: positionBlocker(snapshot, project, state.poleHeightText),
+            notices = BaseNotices.visible(gga, snapshot.base, dismissed), // S015/RF-15, RF-17
+        )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, CollectorUiState())
 
     init {
-        viewModelScope.launch { session.epochs.collect { onEpoch(it.epoch) } }
+        viewModelScope.launch { session.epochs.collect(::onEpoch) }
     }
 
     fun start(id: String) {
@@ -238,17 +263,22 @@ class CollectorViewModel @Inject constructor(
         val pole = PoleHeight.parse(current.poleHeightText) ?: return
         if (current.blocker != null || current.measuring || current.pending != null) return
         val settings = current.settings
-        measurement = PointMeasurement(
-            mode = settings.mode,
-            averagingSeconds = settings.validAveragingSeconds,
-            fixOnly = settings.precision.fixOnly,
-            poleHeightM = pole,
-            crs = project.crs,
-            heightSystem = project.heightSystem,
-            epochIntervalS = epochIntervalS,
-            startedAtMs = System.currentTimeMillis(),
-            calculator = calculator.get(),
-        )
+        val factory = {
+            PointMeasurement(
+                mode = settings.mode,
+                averagingSeconds = settings.validAveragingSeconds,
+                fixOnly = settings.precision.fixOnly,
+                poleHeightM = pole,
+                crs = project.crs,
+                heightSystem = project.heightSystem,
+                epochIntervalS = epochIntervalS,
+                startedAtMs = System.currentTimeMillis(),
+                calculator = calculator.get(),
+            )
+        }
+        newMeasurement = factory
+        measurementBaseChange = lastBaseChange
+        measurement = factory()
         measuringReplay = session.state.value.replay != null
         run.value = Run(measuring = true)
         ticker = viewModelScope.launch {
@@ -281,7 +311,18 @@ class CollectorViewModel @Inject constructor(
         run.value = Run()
     }
 
-    private fun onEpoch(epoch: Epoch) {
+    /** Cierra "La base ha cambiado" de ese cambio (S015/RF-17). */
+    fun dismissBaseChange(count: Int) = baseNotices.dismissChange(count)
+
+    /** Cierra "Línea base larga" para esa base (S015/RF-15). */
+    fun dismissLongBaseline(serial: Int) = baseNotices.dismissLongBaseline(serial)
+
+    private fun onEpoch(received: SessionEpoch) {
+        val epoch = received.epoch
+        // S015/RF-18: la época llega con la base que había al emitirla; si cambió, la medida empieza de nuevo antes de usarla.
+        val baseChange = received.base.change?.count
+        if (baseChange != null) lastBaseChange = baseChange
+        if (measurement != null && baseChange != null && baseChange != measurementBaseChange) restartMeasurement(baseChange)
         // Intervalo del receptor: la menor separación entre épocas seguidas, de 0,05 a 1 s.
         lastEpochUtc?.let { previous ->
             val delta = (epoch.utcMillisOfDay - previous) / 1_000.0
@@ -386,6 +427,16 @@ class CollectorViewModel @Inject constructor(
         ticker?.cancel()
         ticker = null
         measurement = null
+        newMeasurement = null
+    }
+
+    /** Las épocas con la base vieja se descartan y la medida empieza de nuevo con la nueva (S015/RF-18). */
+    private fun restartMeasurement(baseChange: Int) {
+        measurement?.cancel()
+        measurement = newMeasurement?.invoke()
+        measurementBaseChange = baseChange
+        log.warning(LogCategory.POINTS, "Medida de ${measuredName()} empezada de nuevo: la base ha cambiado") // S014/RF-5
+        run.update { it.copy(progress = null, solutionLost = false, restarted = true) }
     }
 
     private fun checkName() {

@@ -29,6 +29,7 @@ import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldBeNull
@@ -132,11 +133,18 @@ class CollectorViewModelTest {
         session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
     }
 
-    /** Una época a 1 Hz: GGA (con la calidad de [status]) y GST. */
-    private fun sendEpoch(second: Int, status: Int = 4, lat: String = "4025.0080000", lon: String = "00342.2228000") {
+    /** Una época a 1 Hz: GGA (con la calidad de [status]), GST y, con [baseLat], la EBP de una base a esa latitud. */
+    private fun sendEpoch(
+        second: Int,
+        status: Int = 4,
+        lat: String = "4025.0080000",
+        lon: String = "00342.2228000",
+        baseLat: String? = null,
+    ) {
         val time = "1015%02d.00".format(30 + second)
         toApp.write(nmea("GNGGA,$time,$lat,N,$lon,W,$status,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
         toApp.write(nmea("GNGST,$time,0.012,0.010,0.007,45.0,0.008,0.006,0.015").toByteArray())
+        baseLat?.let { toApp.write(nmea("GNEBP,$it,N,00342.0000000,W,700.000,M").toByteArray()) }
         toApp.flush()
     }
 
@@ -423,5 +431,59 @@ class CollectorViewModelTest {
         runBlocking { withTimeout(5_000) { while (log.messages.isEmpty()) kotlinx.coroutines.delay(10) } }
         log.entries.first() shouldBe Triple(LogLevel.WARNING, LogCategory.POINTS, "Solución perdida durante la medida de 1")
         vm.cancel()
+    }
+
+    private val baseA = "4025.0000000"
+    private val baseB = "4025.0010000" // 1,85 m al norte de A
+    private val farBase = "4300.0000000" // a unos 290 km del rover
+
+    @Test
+    fun `S015 RF-18 si la base cambia durante un promediado la medida empieza de nuevo con la base nueva`() {
+        collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 5)
+        val projectId = project()
+        val vm = viewModel(projectId)
+        receiving(vm)
+
+        vm.measure()
+        sendEpoch(2, baseLat = baseA)
+        sendEpoch(3, baseLat = baseA)
+        await(vm) { it.progress != null }
+        sendEpoch(4, baseLat = baseB) // cambia la base
+        sendEpoch(5, baseLat = baseB) // completa la época 4
+        await(vm) { it.restarted }
+
+        vm.state.value.savedName shouldBe null
+        (6..9).forEach { sendEpoch(it, baseLat = baseB) }
+        await(vm) { it.savedName == "1" }
+        // Las cinco épocas con la base nueva (4 a 8); ninguna de las de antes del cambio.
+        runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().quality.epochsUsed shouldBe 5
+        log.messages shouldContain "Medida de 1 empezada de nuevo: la base ha cambiado"
+    }
+
+    @Test
+    fun `S015 RF-17 el cambio de base se avisa en el recolector y se cierra`() {
+        val vm = viewModel(project())
+        receiving(vm)
+
+        sendEpoch(2, baseLat = baseA)
+        sendEpoch(3, baseLat = baseB)
+        sendEpoch(4, baseLat = baseB)
+        val change = await(vm) { it.notices.change != null }.notices.change!!
+        change.distanceM shouldBe (1.85 plusOrMinus 0.01)
+        vm.dismissBaseChange(change.count)
+
+        await(vm) { it.notices.change == null }
+    }
+
+    @Test
+    fun `S015 RF-15 la linea base larga se avisa en el recolector sin impedir medir`() {
+        val vm = viewModel(project())
+        receiving(vm)
+
+        sendEpoch(2, baseLat = farBase)
+        sendEpoch(3, baseLat = farBase)
+
+        val state = await(vm) { it.notices.longBaselineM != null }
+        state.blocker shouldBe null
     }
 }

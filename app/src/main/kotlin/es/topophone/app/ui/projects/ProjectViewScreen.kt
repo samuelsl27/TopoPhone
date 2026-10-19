@@ -316,6 +316,8 @@ fun ProjectViewRoute(
             onCancel = collectorViewModel::cancel,
             onConfirm = collectorViewModel::confirmOutOfTolerance,
             onDiscard = collectorViewModel::discardPending,
+            onDismissBaseChange = collectorViewModel::dismissBaseChange,
+            onDismissLongBaseline = collectorViewModel::dismissLongBaseline,
         ),
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,
