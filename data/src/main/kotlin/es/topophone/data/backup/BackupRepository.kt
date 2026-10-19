@@ -22,6 +22,9 @@ import java.time.Instant
 import java.util.Base64
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -68,6 +71,11 @@ class BackupRepository(
     private val lock = Mutex()
 
     internal var hooks = RestoreHooks()
+
+    private val undo = MutableStateFlow(File(undoDir, BEFORE_RESTORE).isFile && File(undoDir, NTRIP_SECRETS).isFile)
+
+    /** Hay una restauración que se puede deshacer (S013/RF-11). */
+    val undoAvailable: StateFlow<Boolean> = undo.asStateFlow()
 
     private val databaseFile: File
         get() {
@@ -125,28 +133,54 @@ class BackupRepository(
     /**
      * S013/RF-7 a RF-10: guarda el estado actual para deshacer (y lo pasa a [keepCopy], que lo guarda en la carpeta de las
      * copias automáticas si están activas), sustituye los datos por los de [valid] en una sola transacción y pone sus
-     * ajustes. Si algo falla, los datos quedan como estaban. Los perfiles NTRIP que siguen en el móvil conservan su
-     * contraseña (S013/RF-9); los que solo estaban en la copia la pedirán al conectar (S013/RF-15).
+     * ajustes. Si algo falla, los datos quedan como estaban y se conserva lo que había para deshacer. Los perfiles NTRIP
+     * que siguen en el móvil conservan su contraseña (S013/RF-9); los que solo estaban en la copia la pedirán (S013/RF-15).
      */
     suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit = {}): RestoreResult = lock.withLock {
         withContext(Dispatchers.IO) {
             val backupSettings = valid.settings
             if (valid.manifest.kind != BackupKind.BACKUP || backupSettings == null) return@withContext RestoreResult.Failed
             val secrets = currentSecrets()
-            val before = attempt { saveUndoLocked(secrets) } ?: return@withContext RestoreResult.Failed // S013/RF-10
-            attempt { keepCopy(before) } // S013/RF-7: si la carpeta falla, la copia privada ya permite deshacer.
-            if (attempt { replaceDatabase(valid.database, secrets, withHooks = true) } == null) return@withContext RestoreResult.Failed
-            val settingsApplied = attempt {
-                hooks.afterDatabase()
-                settings.restore(backupSettings)
-            }
-            if (settingsApplied == null) {
-                attempt { rollBackLocked() }
+            val before = attempt {
+                if (!undoDir.isDirectory && !undoDir.mkdirs()) throw IOException("No se puede crear $undoDir")
+                saveState(secrets, File(undoDir, "$BEFORE_RESTORE.tmp"), File(undoDir, "$NTRIP_SECRETS.tmp"))
+            } ?: return@withContext RestoreResult.Failed // S013/RF-10
+            attempt { keepCopy(before.zip) } // S013/RF-7: si la carpeta falla, la copia privada ya permite deshacer.
+            if (!apply(valid.database, backupSettings, secrets, rollbackTo = before)) {
+                before.delete()
                 return@withContext RestoreResult.Failed
             }
+            before.moveTo(undoState())
+            undo.value = true
             RestoreResult.Restored(valid.manifest.projectCount, valid.manifest.pointCount)
         }
     }
+
+    /**
+     * S013/RF-11: vuelve al estado guardado antes de la última restauración, contraseñas NTRIP incluidas, y la opción
+     * desaparece. Si falla, los datos quedan como estaban y se puede volver a intentar.
+     */
+    suspend fun undoRestore(): RestoreResult = lock.withLock {
+        withContext(Dispatchers.IO) {
+            val saved = undoState()
+            val before = attempt { saved.open(UNDO) } ?: return@withContext RestoreResult.Failed
+            val current = attempt {
+                val dir = dir(CURRENT)
+                saveState(currentSecrets(), File(dir, BEFORE_RESTORE), File(dir, NTRIP_SECRETS))
+            } ?: return@withContext RestoreResult.Failed
+            try {
+                if (!apply(before.database, before.settings, before.secrets, rollbackTo = current)) return@withContext RestoreResult.Failed
+            } finally {
+                current.delete()
+            }
+            saved.delete()
+            undo.value = false
+            RestoreResult.Restored(before.manifest.projectCount, before.manifest.pointCount)
+        }
+    }
+
+    /** Lo que se guarda para deshacer la última restauración. */
+    private fun undoState() = SavedState(File(undoDir, BEFORE_RESTORE), File(undoDir, NTRIP_SECRETS))
 
     /** Contraseñas cifradas tal como están en la base de datos, por perfil; las marcas vacías no cuentan. */
     private fun currentSecrets(): Map<String, Secret> = db.openHelper.readableDatabase
@@ -155,15 +189,32 @@ class BackupRepository(
             buildMap { while (cursor.moveToNext()) put(cursor.getString(0), Secret(cursor.getBlob(1), cursor.getBlob(2))) }
         }
 
-    /** Copia completa del estado actual y sus contraseñas cifradas en [undoDir]; sustituye las anteriores al final. */
-    private suspend fun saveUndoLocked(secrets: Map<String, Secret>): File {
-        if (!undoDir.isDirectory && !undoDir.mkdirs()) throw IOException("No se puede crear $undoDir")
-        val zip = File(undoDir, "$BEFORE_RESTORE.tmp")
+    /** Copia completa del estado actual en [zip] y sus contraseñas cifradas en [secretsFile]. */
+    private suspend fun saveState(secrets: Map<String, Secret>, zip: File, secretsFile: File): SavedState {
         createBackupFileLocked(zip)
-        val secretsFile = File(undoDir, "$NTRIP_SECRETS.tmp")
         secretsFile.writeText(encode(secrets))
-        Files.move(secretsFile.toPath(), File(undoDir, NTRIP_SECRETS).toPath(), StandardCopyOption.REPLACE_EXISTING)
-        return File(undoDir, BEFORE_RESTORE).also { Files.move(zip.toPath(), it.toPath(), StandardCopyOption.REPLACE_EXISTING) }
+        return SavedState(zip, secretsFile)
+    }
+
+    /**
+     * Pone [database], [secrets] y [newSettings]. Si la base de datos falla, su transacción se deshace sola; si fallan los
+     * ajustes, se vuelve a [rollbackTo] (S013/RF-10). false si no se ha podido.
+     */
+    private suspend fun apply(database: File, newSettings: BackupSettings, secrets: Map<String, Secret>, rollbackTo: SavedState): Boolean {
+        if (attempt { replaceDatabase(database, secrets, withHooks = true) } == null) return false
+        val applied = attempt {
+            hooks.afterDatabase()
+            settings.restore(newSettings)
+        }
+        if (applied == null) {
+            attempt {
+                val previous = rollbackTo.open(ROLLBACK) ?: return@attempt
+                replaceDatabase(previous.database, previous.secrets, withHooks = false)
+                settings.restore(previous.settings)
+            }
+            return false
+        }
+        return true
     }
 
     /**
@@ -189,25 +240,30 @@ class BackupRepository(
         }
     }
 
-    /** Vuelve al estado guardado en [undoDir] antes de la restauración: datos, contraseñas y ajustes (S013/RF-10). */
-    private suspend fun rollBackLocked() {
-        val before = undoFiles() ?: return
-        replaceDatabase(before.database, before.secrets, withHooks = false)
-        settings.restore(before.settings)
+    /** Una copia completa y sus contraseñas cifradas guardadas en el móvil. */
+    private inner class SavedState(val zip: File, val secretsFile: File) {
+        fun delete() {
+            zip.delete()
+            secretsFile.delete()
+        }
+
+        /** Sustituye a [target] solo cuando la restauración ha ido bien. */
+        fun moveTo(target: SavedState) {
+            Files.move(secretsFile.toPath(), target.secretsFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            Files.move(zip.toPath(), target.zip.toPath(), StandardCopyOption.REPLACE_EXISTING)
+        }
+
+        /** Extraída en la carpeta de trabajo [dirName]; null si no está o no se puede leer. */
+        fun open(dirName: String): Opened? {
+            if (!zip.isFile || !secretsFile.isFile) return null
+            val valid = zip.inputStream().use { BackupArchive.read(it, BackupKind.BACKUP, TopoPhoneDatabase.VERSION, dir(dirName)) }
+                as? BackupReadResult.Valid ?: return null
+            val savedSettings = valid.files[BackupArchive.SETTINGS]?.let { BackupSettingsJson.decode(it.readText()) } ?: return null
+            return Opened(valid.manifest, valid.files.getValue(BackupArchive.DATABASE), savedSettings, decode(secretsFile.readText()))
+        }
     }
 
-    private class UndoFiles(val database: File, val settings: BackupSettings, val secrets: Map<String, Secret>)
-
-    /** Lo guardado en [undoDir], extraído en una carpeta de trabajo; null si no hay nada o no se puede leer. */
-    private fun undoFiles(): UndoFiles? {
-        val zip = File(undoDir, BEFORE_RESTORE)
-        val secretsFile = File(undoDir, NTRIP_SECRETS)
-        if (!zip.isFile || !secretsFile.isFile) return null
-        val valid = zip.inputStream().use { BackupArchive.read(it, BackupKind.BACKUP, TopoPhoneDatabase.VERSION, dir(UNDO)) }
-            as? BackupReadResult.Valid ?: return null
-        val undoSettings = valid.files[BackupArchive.SETTINGS]?.let { BackupSettingsJson.decode(it.readText()) } ?: return null
-        return UndoFiles(valid.files.getValue(BackupArchive.DATABASE), undoSettings, decode(secretsFile.readText()))
-    }
+    private class Opened(val manifest: BackupManifest, val database: File, val settings: BackupSettings, val secrets: Map<String, Secret>)
 
     private class Secret(val iv: ByteArray, val ciphertext: ByteArray)
 
@@ -332,5 +388,7 @@ class BackupRepository(
         private const val READ = "read"
         private const val SNAPSHOT = "snapshot"
         private const val UNDO = "undo"
+        private const val CURRENT = "current"
+        private const val ROLLBACK = "rollback"
     }
 }

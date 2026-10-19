@@ -194,4 +194,66 @@ class BackupRestoreTest {
         runBlocking { repository.restore(pkg) } shouldBe RestoreResult.Failed
         profileNames() shouldBe setOf("IGN", "Libre", "Red A", "Red C")
     }
+
+    @Test
+    fun `S013 RF-11 deshacer devuelve datos y contrasenas de antes`() {
+        val before = tables.associateWith { rows(source(), it) }
+        runBlocking { repository.restore(valid()) }
+
+        runBlocking { repository.undoRestore() } shouldBe RestoreResult.Restored(projects = 3, points = 4)
+
+        for (table in tables) rows(source(), table) shouldBe before.getValue(table)
+        profileNames() shouldBe setOf("IGN", "Libre", "Red A", "Red C")
+        val redC = runBlocking { profiles.profiles().first() }.single { it.draft.name == "Red C" }.id
+        runBlocking { profiles.password(redC) } shouldBe PasswordResult.Ok("secreto-c")
+        runBlocking { profiles.password(redA) } shouldBe PasswordResult.Ok("nueva-a")
+        theme() shouldBe "SUN"
+    }
+
+    @Test
+    fun `S013 RF-11 deshacer aparece al restaurar y se va al usarlo`() {
+        runBlocking { repository.undoAvailable.first() } shouldBe false
+
+        runBlocking { repository.restore(valid()) }
+        runBlocking { repository.undoAvailable.first() } shouldBe true
+
+        runBlocking { repository.undoRestore() }.shouldBeInstanceOf<RestoreResult.Restored>()
+        runBlocking { repository.undoAvailable.first() } shouldBe false
+        runBlocking { repository.undoRestore() } shouldBe RestoreResult.Failed
+    }
+
+    @Test
+    fun `S013 RF-11 deshacer sigue disponible al reabrir la app`() {
+        runBlocking { repository.restore(valid()) }
+
+        val reopened = BackupRepository(context, db, settings.archive, "0.13.0", workDir = folder.newFolder("w2"), undoDir = undoDir)
+
+        runBlocking { reopened.undoAvailable.first() } shouldBe true
+    }
+
+    @Test
+    fun `S013 RF-11 una restauracion fallida no pierde el deshacer anterior`() {
+        runBlocking { repository.restore(valid()) }
+        val first = File(undoDir, BackupRepository.BEFORE_RESTORE).readBytes()
+        repository.hooks = RestoreHooks(beforeCommit = { error("sin espacio") })
+
+        runBlocking { repository.restore(valid()) } shouldBe RestoreResult.Failed
+
+        File(undoDir, BackupRepository.BEFORE_RESTORE).readBytes() shouldBe first
+        runBlocking { repository.undoAvailable.first() } shouldBe true
+    }
+
+    @Test
+    fun `S013 RF-11 un fallo al deshacer no cambia nada`() {
+        runBlocking { repository.restore(valid()) }
+        val restored = tables.associateWith { rows(source(), it) }
+        repository.hooks = RestoreHooks(afterDatabase = { error("ajustes ilegibles") })
+
+        runBlocking { repository.undoRestore() } shouldBe RestoreResult.Failed
+
+        for (table in tables) rows(source(), table) shouldBe restored.getValue(table)
+        theme() shouldBe "DARK"
+        runBlocking { profiles.password(redA) } shouldBe PasswordResult.Ok("nueva-a")
+        runBlocking { repository.undoAvailable.first() } shouldBe true
+    }
 }
