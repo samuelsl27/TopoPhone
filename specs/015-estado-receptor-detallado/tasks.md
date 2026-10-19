@@ -44,7 +44,7 @@
       Hecho cuando: `CsvExportGoldenTest`, `CsvExportTest` y `test_csv_exportado.py` en verde con 35 columnas.
 - [x] T21. `app`: la exportación calcula el Este, Norte y altura de la base, y los nombres de las columnas nuevas en la pantalla Exportar. (RF-22)
       Hecho cuando: `ExportViewModelTest` en verde, también con un formato personalizado guardado antes.
-- [ ] T22. Rendimiento y reproducción: 64 satélites con 3 bandas en menos de 1 s; exportar 10 000 puntos con base; `FullRs3ReplayTest` con la base de la EBP. (RNF, RF-11, RF-14)
+- [x] T22. Rendimiento y reproducción: 64 satélites con 3 bandas en menos de 1 s; exportar 10 000 puntos con base; `FullRs3ReplayTest` con la base de la EBP. (RNF, RF-11, RF-14)
       Hecho cuando: los tests de rendimiento y de reproducción en verde.
 - [ ] T23. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo quedan para el usuario.

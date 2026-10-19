@@ -4,9 +4,12 @@ import es.topophone.app.di.ReceiverModule
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.ReplaySpeed
+import es.topophone.core.gnss.nmea.SkyView
 import es.topophone.core.gnss.nmea.TiltState
+import es.topophone.core.model.point.BaseSource
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.Baseline
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ImportResult
@@ -134,6 +137,36 @@ class FullRs3ReplayTest {
         // 5,8 s + el hueco de 15 s acortado a 10 s (S003/RF-38) + 1,8 s, a ×5 (S003/RF-36): unos 3,5 s.
         elapsedMs shouldBeGreaterThan 3_300L
         elapsedMs shouldBeLessThan 5_000L
+    }
+
+    @Test
+    fun `S015 RF-11 y RF-14 la reproduccion del RS3 da la base de su EBP, la linea base y la vista del cielo`() {
+        val bytes = File(directory, "rs3-completo.nmea").readBytes()
+        val id = store.import("rs3-completo.nmea", bytes.inputStream(), bytes.size.toLong()).shouldBeInstanceOf<ImportResult.Imported>().id
+        val baselines = Collections.synchronizedList(mutableListOf<Double>())
+        val skies = Collections.synchronizedList(mutableListOf<SkyView>())
+        collectors.launch {
+            session.state.collect { snapshot ->
+                val base = snapshot.base.position ?: return@collect
+                snapshot.sky?.let(skies::add)
+                snapshot.gga?.let { Baseline.fromGga(it, base.ecef) }?.let(baselines::add)
+            }
+        }
+
+        replay.play(id, ReplaySpeed.X5) shouldBe true
+        runBlocking { withTimeout(30_000) { session.state.first { it.connection is ConnectionState.ReplayFinished } } }
+
+        val base = session.state.value.base.position.shouldNotBeNull()
+        base.source shouldBe BaseSource.RECEIVER // S015/RF-11: la reproducción no admite correcciones; solo la EBP
+        base.latitudeDeg shouldBe (40.416666667 plusOrMinus 1e-9) // 4025.0000000 N
+        base.longitudeDeg shouldBe (-3.7 plusOrMinus 1e-9) // 00342.0000000 W
+        base.ellipsoidalHeightM shouldBe 700.0
+        // S015/RF-14: el rover, en 4025.008 N 00342.228 W, a unos 300 m de la base.
+        baselines.isNotEmpty() shouldBe true
+        baselines.forEach { (it in 250.0..400.0) shouldBe true }
+        session.state.value.base.snrAvailable shouldBe false // S015/RF-10: sin correcciones no hay SNR de la base
+        skies.last().satellites.isNotEmpty() shouldBe true
+        skies.last().dop.shouldNotBeNull()
     }
 
     private companion object {
