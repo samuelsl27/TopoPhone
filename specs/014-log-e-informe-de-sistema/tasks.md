@@ -16,7 +16,7 @@
       Hecho cuando: los tests `S014 RF-5` de cada pantalla en verde.
 - [x] T7. `core:formats`: nombre del informe; `app`: `SessionSelection`. (RF-12, RF-16)
       Hecho cuando: `BackupFileNamesTest` y `SessionSelectionTest` en verde.
-- [ ] T8. `app`: `SystemReportWriter` (`informe.txt`, log, sesiones, fallo al escribir). (RF-11, RF-12, RF-13, RF-14, RF-15, RF-17)
+- [x] T8. `app`: `SystemReportWriter` (`informe.txt`, log, sesiones, fallo al escribir). (RF-11, RF-12, RF-13, RF-14, RF-15, RF-17)
       Hecho cuando: `SystemReportWriterTest` en verde.
 - [ ] T9. `app`: sección "Diagnóstico" de Ajustes (crear el informe con guardar o compartir, tamaño del log). (RF-9, RF-10, RF-17)
       Hecho cuando: `DiagnosticsSettingsTest` en verde.
