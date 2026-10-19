@@ -1,0 +1,5 @@
+[
+  {"name": "P1", "description": "base", "easting": 440297.98753542645, "northing": 4474244.001132507, "height": 648.3113331296773, "latitude": 40.41668, "longitude": -3.7037100000000005, "ellipsoidal_height": 699.4230000000001, "pole_height": 1.8, "horizontal_accuracy": 0.009219544457292887, "vertical_accuracy": 0.014},
+  {"name": "P2;b", "description": "Pozo, \"nuevo\"", "easting": 440313.1221195372, "northing": 4474258.876880059, "height": 648.3113666754832, "latitude": 40.416815094, "longitude": -3.703533016, "ellipsoidal_height": 699.4230000000001, "pole_height": 1.8, "horizontal_accuracy": 0.1382931668593933, "vertical_accuracy": 0.21},
+  {"name": "E1", "description": "línea 1\nlínea 2\ttab;fin", "easting": 997102.5, "northing": 4398611.25, "height": null, "latitude": 39.5696, "longitude": 2.6502, "ellipsoidal_height": null, "pole_height": null, "horizontal_accuracy": null, "vertical_accuracy": null}
+]

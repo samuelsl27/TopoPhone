@@ -6,7 +6,7 @@
       Hecho cuando: `CsvExportTest` en verde y el módulo pasa las reglas de módulos y Kover.
 - [x] T2. `core:formats`: `ExportFileName`. (RF-19)
       Hecho cuando: `ExportFileNameTest` en verde con caracteres no válidos y nombres largos.
-- [ ] T3. Ficheros dorados en `fixtures/formatos/csv/` y `tools/formatos/test_csv_exportado.py`. (RF-11, RF-12, RF-15, RF-16)
+- [x] T3. Ficheros dorados en `fixtures/formatos/csv/` y `tools/formatos/test_csv_exportado.py`. (RF-11, RF-12, RF-15, RF-16)
       Hecho cuando: `CsvExportGoldenTest` y `uv run --project tools pytest tools` en verde.
 - [ ] T4. `data`: `PointRepository.pointsForExport` y `ExportPreferences` (DataStore "export"). (RF-1, RF-3, RF-21)
       Hecho cuando: `PointRepositoryExportTest` y `ExportPreferencesTest` en verde.
