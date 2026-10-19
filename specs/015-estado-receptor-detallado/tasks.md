@@ -12,7 +12,7 @@
       Hecho cuando: `ReferenceStationDecoderTest` en verde con la estación 6 de la grabación real y un 1005 sintético.
 - [x] T5. `core:gnss`: `MsmDecoder` (CNR de los MSM 4 a 7, A2). (RF-8, RF-10)
       Hecho cuando: `MsmDecoderTest` en verde con celdas de la grabación real, MSM4/6/7 sintéticos, MSM1 a 3 y cargas cortas.
-- [ ] T6. `core:gnss`: `Band` y `SatelliteNumber` (A3, A4). (RF-6, RF-7, RF-8)
+- [x] T6. `core:gnss`: `Band` y `SatelliteNumber` (A3, A4). (RF-6, RF-7, RF-8)
       Hecho cuando: `BandTest` y `SatelliteNumberTest` en verde con las tablas de NMEA 4.11 y RTCM.
 - [ ] T7. `core:gnss`: `SkyView` (lo último de GSA y GSV, DOP y recuentos, A8). (RF-2, RF-3, RF-6)
       Hecho cuando: `SkyViewTest` en verde, también con épocas de 5 Hz sin GSA ni GSV.
