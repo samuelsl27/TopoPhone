@@ -132,6 +132,7 @@ class ProjectListActions(
     val onSubmitFolderName: (String) -> Unit = {},
     val onDismissFolderDialog: () -> Unit = {},
     val onDelete: (String) -> Unit = {},
+    val onExport: (String) -> Unit = {},
 )
 
 /** Carpetas y proyectos que no están en ninguna (S006/RF-1) y la búsqueda en todas (S006/RF-4). */
@@ -239,6 +240,7 @@ fun ProjectListRoute(
             onSubmitFolderName = viewModel::submitFolderName,
             onDismissFolderDialog = viewModel::dismissFolderDialog,
             onDelete = viewModel::delete,
+            onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
         ),
     )
 }
@@ -423,6 +425,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             onMove()
         }
+        MenuItem(R.string.export_csv) {
+            open = false
+            actions.onExport(project.id)
+        } // S012/RF-1
         MenuItem(R.string.project_delete) {
             open = false
             confirmDelete = true

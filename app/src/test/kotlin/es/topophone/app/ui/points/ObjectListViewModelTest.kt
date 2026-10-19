@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.points.PointFixtures.manual
 import es.topophone.app.ui.points.PointFixtures.measured
@@ -60,7 +61,7 @@ class ObjectListViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        vm = ObjectListViewModel(repository, projects) { ProjectPositionCalculator() }
+        vm = ObjectListViewModel(repository, projects, ExportSelection()) { ProjectPositionCalculator() }
         CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         vm.start(projectId)
     }

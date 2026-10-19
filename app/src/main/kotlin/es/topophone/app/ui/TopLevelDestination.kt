@@ -65,6 +65,9 @@ import kotlinx.serialization.Serializable
 /** Papelera de puntos de un proyecto (S011/RF-23). */
 @Serializable data class PointTrashDestination(val projectId: String)
 
+/** Exportar CSV: todos los puntos del proyecto o, con [selection], los elegidos en la lista (S012/RF-1, RF-2). */
+@Serializable data class ExportDestination(val projectId: String, val selection: Boolean = false)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

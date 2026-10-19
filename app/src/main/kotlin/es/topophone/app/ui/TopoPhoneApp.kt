@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.points.ObjectListRoute
 import es.topophone.app.ui.points.PointDetailsRoute
 import es.topophone.app.ui.points.PointFormRoute
@@ -99,6 +100,14 @@ fun TopoPhoneApp(
                 SurveyPage.Trash -> TrashRoute(theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.Objects -> ObjectListRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.PointTrash -> PointTrashRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
+                is SurveyPage.Export -> ExportRoute(
+                    page.projectId,
+                    page.selection,
+                    theme,
+                    toggleSun,
+                    navigation,
+                    viewModel = hiltViewModel(owner),
+                )
                 is SurveyPage.PointForm ->
                     PointFormRoute(page.projectId, page.pointId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.PointDetails ->
@@ -188,6 +197,7 @@ private fun AppNavHost(
                 onNewPoint = { projectId -> navController.navigate(PointFormDestination(projectId)) }, // S011/RF-16
                 onEditPoint = { projectId, pointId -> navController.navigate(PointFormDestination(projectId, pointId)) }, // S011/RF-8
                 onOpenPointTrash = { projectId -> navController.navigate(PointTrashDestination(projectId)) }, // S011/RF-23
+                onExport = { projectId, selection -> navController.navigate(ExportDestination(projectId, selection)) }, // S012/RF-1, RF-2
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onBack = { navController.popBackStack() },
@@ -223,6 +233,16 @@ private fun AppNavHost(
             composable<ObjectListDestination> { entry ->
                 val args = entry.toRoute<ObjectListDestination>()
                 surveySection(SurveyPage.Objects(args.projectId), uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
+            }
+            composable<ExportDestination> { entry ->
+                val args = entry.toRoute<ExportDestination>()
+                surveySection(
+                    SurveyPage.Export(args.projectId, args.selection),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
             }
             composable<PointTrashDestination> { entry ->
                 val args = entry.toRoute<PointTrashDestination>()

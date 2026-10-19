@@ -110,6 +110,7 @@ fun ProjectFolderRoute(
                 onDuplicate = { viewModel.duplicate(it, copyLabel) },
                 onMove = viewModel::moveToFolder,
                 onDelete = viewModel::delete,
+                onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
             ),
             onNewProject = navigation.onNewProject,
             onBack = navigation.onBack,

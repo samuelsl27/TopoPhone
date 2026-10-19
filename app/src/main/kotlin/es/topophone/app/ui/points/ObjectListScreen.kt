@@ -51,6 +51,7 @@ import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -88,6 +89,7 @@ const val SELECTION_HIDE_TAG = "selection_hide"
 const val SELECTION_SHOW_TAG = "selection_show"
 const val SELECTION_DELETE_TAG = "selection_delete"
 const val SELECTION_CANCEL_TAG = "selection_cancel"
+const val SELECTION_EXPORT_TAG = "selection_export"
 const val SELECTION_POLE_TAG = "selection_pole"
 const val POLE_FIELD_TAG = "pole_field"
 const val POLE_APPLY_TAG = "pole_apply"
@@ -116,6 +118,8 @@ class ObjectListActions(
     val onOpen: (String) -> Unit = {},
     val onAdd: () -> Unit = {},
     val onOpenTrash: () -> Unit = {},
+    val onExport: () -> Unit = {},
+    val onExportSelected: () -> Unit = {},
     val onToggleSelection: (String) -> Unit = {},
     val onClearSelection: () -> Unit = {},
     val onSetHidden: (id: String, hidden: Boolean) -> Unit = { _, _ -> },
@@ -135,6 +139,7 @@ class ObjectListActions(
 class ObjectListViewModel @Inject constructor(
     private val points: PointRepository,
     private val projects: ProjectRepository,
+    private val exportSelection: ExportSelection,
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
@@ -179,6 +184,12 @@ class ObjectListViewModel @Inject constructor(
         val ids = selected.value.toList()
         selected.value = emptySet()
         viewModelScope.launch { points.setHidden(ids, hidden) }
+    }
+
+    /** S012/RF-2: los elegidos pasan a la exportación y la selección se quita. */
+    fun exportSelected() {
+        exportSelection.ids = selected.value
+        selected.value = emptySet()
     }
 
     /** S011/RF-22: la confirmación la pide la pantalla. */
@@ -236,6 +247,11 @@ fun ObjectListRoute(
             onOpen = { pointId -> navigation.onOpenPoint(projectId, pointId) }, // S011/RF-5
             onAdd = { navigation.onNewPoint(projectId) }, // S011/RF-16
             onOpenTrash = { navigation.onOpenPointTrash(projectId) }, // S011/RF-23
+            onExport = { navigation.onExport(projectId, false) }, // S012/RF-1
+            onExportSelected = {
+                viewModel.exportSelected()
+                navigation.onExport(projectId, true) // S012/RF-2
+            },
             onToggleSelection = viewModel::toggleSelection,
             onClearSelection = viewModel::clearSelection,
             onSetHidden = viewModel::setHidden,
@@ -267,7 +283,7 @@ fun ObjectListScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
-        actions = { ObjectsMenu(actions.onOpenTrash) },
+        actions = { ObjectsMenu(actions.onOpenTrash, actions.onExport) },
         floatingActionButton = {
             if (state.selected.isEmpty()) {
                 ExtendedFloatingActionButton(
@@ -319,12 +335,20 @@ fun ObjectListScreen(
 
 /** Menú "⋮" de la lista de objetos: la papelera de puntos (S011/RF-23). */
 @Composable
-private fun ObjectsMenu(onOpenTrash: () -> Unit) {
+private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
         Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.projects_menu))
     }
     DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.export_csv)) },
+            onClick = {
+                open = false
+                onExport()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S012/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.point_trash_title)) },
             onClick = {
@@ -413,6 +437,7 @@ private fun SelectionBar(count: Int, actions: ObjectListActions) {
                     Triple(R.string.objects_hide, SELECTION_HIDE_TAG, actions.onHideSelected),
                     Triple(R.string.objects_show, SELECTION_SHOW_TAG, actions.onShowSelected),
                     Triple(R.string.objects_pole, SELECTION_POLE_TAG) { editPole = true },
+                    Triple(R.string.export_selected, SELECTION_EXPORT_TAG, actions.onExportSelected),
                     Triple(R.string.objects_delete, SELECTION_DELETE_TAG) { confirmDelete = true },
                     Triple(R.string.objects_cancel_selection, SELECTION_CANCEL_TAG, actions.onClearSelection),
                 ),

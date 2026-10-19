@@ -1,6 +1,9 @@
 package es.topophone.app.ui.projects
 
 import androidx.compose.runtime.Composable
+import es.topophone.app.ui.export.ExportActions
+import es.topophone.app.ui.export.ExportScreen
+import es.topophone.app.ui.export.ExportUiState
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -46,6 +49,9 @@ sealed interface SurveyPage {
 
     /** Papelera de puntos de un proyecto (S011/RF-23). */
     data class PointTrash(val projectId: String) : SurveyPage
+
+    /** Exportar CSV (S012/RF-1, RF-2). */
+    data class Export(val projectId: String, val selection: Boolean) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -62,6 +68,7 @@ class SurveyNavigation(
     val onNewPoint: (projectId: String) -> Unit = {},
     val onEditPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     val onOpenPointTrash: (projectId: String) -> Unit = {},
+    val onExport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     val onBack: () -> Unit = {},
 )
@@ -78,6 +85,7 @@ data class SurveyUiState(
     val point: PointDetailsUiState = PointDetailsUiState(),
     val pointForm: PointFormUiState = PointFormUiState(loaded = true),
     val pointTrash: PointTrashUiState = PointTrashUiState(loaded = true),
+    val export: ExportUiState = ExportUiState(loaded = true),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -123,5 +131,6 @@ fun SurveyPageScreen(
         is SurveyPage.PointDetails -> PointDetailsScreen(themeState, onToggleSun, state.point, PointDetailsActions(), navigation.onBack)
         is SurveyPage.PointForm -> PointFormScreen(themeState, onToggleSun, state.pointForm, PointFormActions(), navigation.onBack)
         is SurveyPage.PointTrash -> PointTrashScreen(themeState, onToggleSun, state.pointTrash, PointTrashActions(), navigation.onBack)
+        is SurveyPage.Export -> ExportScreen(themeState, onToggleSun, state.export, ExportActions(), navigation.onBack)
     }
 }
