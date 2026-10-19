@@ -35,7 +35,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 015 estado-receptor-detallado | Pantalla de estado: posición, DOP, skyplot (GSV), SNR por constelación y señal, base (EBP o RTCM 1005/1006), línea base, SNR de la base (MSM) | 014 | pendiente |
+| 015 estado-receptor-detallado | Pantalla de estado: posición, DOP, skyplot (GSV), SNR del rover y de la base por satélite y banda (MSM), base (EBP o RTCM 1005/1006) y línea base, con avisos de línea base larga y de cambio de base; la base en el mapa y guardada en cada punto (ficha y CSV) | 014 | en curso |
 | 016 inclinacion-rs3 | Estados y avisos de ETC, guía de inicialización con el movimiento en ocho, punta del jalón calculada en la app (por defecto) o compensada por el receptor, asistente que detecta el modo, bloqueo sin estado 30 + FIX, inclinación y rumbo guardados por punto, precisión con los coeficientes de ETC | 015, 010 | pendiente |
 | 017 recolectar-avanzado | Modo automático por tiempo o distancia, promediado de hasta 60 min con estadísticas en vivo, fotos por punto | 016 | pendiente |
 | 018 replanteo-puntos | Replanteo por dirección (rumbo de marcha o del IMU) y por distancia (N/E), zoom automático, diana métrica (verde ≤ 2,5 cm, configurable), ayuda visual ≤ 40 cm, anterior/siguiente, avisos de FIX y de inclinación, sonido, punto replanteado `_stkd`, pantalla siempre encendida (RNF-T2) | 016 | pendiente |
