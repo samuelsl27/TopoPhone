@@ -38,7 +38,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` (paso 6 → 7 y esquema 7) y la ida y vuelta de un punto con base y sin base en verde.
 - [x] T18. `app`: el recolector guarda la base con el punto. (RF-20)
       Hecho cuando: el test de `CollectorViewModelTest` que guarda un punto con su base y su línea base está en verde.
-- [ ] T19. `app`: tarjeta "Base" en la ficha del punto. (RF-21)
+- [x] T19. `app`: tarjeta "Base" en la ficha del punto. (RF-21)
       Hecho cuando: `PointDetailsBaseTest` en verde, también con la base fuera del SC.
 - [ ] T20. `core:formats` y `tools`: las siete columnas de la base en el CSV, con los ficheros dorados y la comprobación de Python. (RF-22)
       Hecho cuando: `CsvExportGoldenTest`, `CsvExportTest` y `test_csv_exportado.py` en verde con 35 columnas.

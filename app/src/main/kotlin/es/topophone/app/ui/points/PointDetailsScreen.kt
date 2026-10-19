@@ -49,11 +49,13 @@ import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.HistoryItem
 import es.topophone.core.model.point.HistoryLine
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointChange
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointHistory
@@ -64,6 +66,7 @@ import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.Project
 import es.topophone.core.survey.PointCorrections
+import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
@@ -86,6 +89,7 @@ import kotlinx.coroutines.launch
 const val POINT_COORDINATES_TAG = "point_coordinates"
 const val POINT_MEASURED_COORDINATES_TAG = "point_measured_coordinates"
 const val POINT_REVERT_TAG = "point_revert"
+const val POINT_BASE_TAG = "point_base"
 const val POINT_MEASUREMENT_TAG = "point_measurement"
 const val POINT_NMEA_TAG = "point_nmea"
 const val NMEA_DIALOG_TAG = "nmea_dialog"
@@ -106,6 +110,8 @@ data class PointDetailsUiState(
     val point: Point? = null,
     val history: List<PointHistoryEntry> = emptyList(),
     val keptEdited: Boolean = false,
+    /** La base del punto en el SC del proyecto, si la tiene (S015/RF-21). */
+    val baseCoordinates: ProjectPosition? = null,
 )
 
 /** Acciones de la ficha del punto. */
@@ -143,7 +149,14 @@ class PointDetailsViewModel @Inject constructor(
 
     val state: StateFlow<PointDetailsUiState> = ids.filterNotNull().flatMapLatest { (projectId, pointId) ->
         combine(projects.observe(projectId), points.point(pointId), points.history(pointId), keptEdited) { project, point, history, kept ->
-            PointDetailsUiState(project, point, history, kept)
+            // S015/RF-21: con el SC actual del proyecto; si cambia, la base se calcula en el nuevo.
+            val base = point?.measurement?.base
+            val baseCoordinates = if (base != null && project != null) {
+                calculator.get().fromGround(base.position, project.crs, project.heightSystem)
+            } else {
+                null
+            }
+            PointDetailsUiState(project, point, history, kept, baseCoordinates)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), PointDetailsUiState())
 
@@ -277,6 +290,7 @@ fun PointDetailsScreen(
             }
             if (measurement != null) {
                 MeasurementCard(project, measurement) // S011/RF-7
+                measurement.base?.let { BaseCard(project, it, state.baseCoordinates) } // S015/RF-21
             } else {
                 Text(
                     stringResource(R.string.point_created_at, formatDateTime(point.createdAtMs, uiLocale())),
@@ -529,6 +543,45 @@ private fun MeasurementCard(project: Project, measurement: Measurement) {
         }
     }
     if (nmea) NmeaDialog(measurement.rawNmea) { nmea = false }
+}
+
+/** La base con la que se midió: geográficas tal como las dio su fuente, el SC del proyecto, la fuente y la línea base (S015/RF-21). */
+@Composable
+private fun BaseCard(project: Project, base: PointBase, projected: ProjectPosition?) {
+    val locale = uiLocale()
+    val unit = unitSymbol(project.linearUnit)
+    fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
+    val unavailable = stringResource(R.string.point_history_none)
+    DetailsCard(stringResource(R.string.base_title), POINT_BASE_TAG) {
+        val source = when (base.source) {
+            BaseSource.RECEIVER -> stringResource(R.string.base_source_receiver)
+            BaseSource.CORRECTIONS -> base.stationId?.let { stringResource(R.string.base_source_corrections, it) }
+                ?: stringResource(R.string.base_source_corrections_no_station)
+        }
+        CoordinateRow(stringResource(R.string.base_source), source, "point_base_source")
+        CoordinateRow(stringResource(R.string.coord_easting), projected?.easting?.let(::length) ?: unavailable, "point_base_easting")
+        CoordinateRow(stringResource(R.string.coord_northing), projected?.northing?.let(::length) ?: unavailable, "point_base_northing")
+        CoordinateRow(heightTitle(project.heightSystem), projected?.height?.let(::length) ?: unavailable, "point_base_height")
+        CoordinateRow(
+            stringResource(R.string.coord_latitude_symbol),
+            AngleFormat.latitude(base.position.latitudeDeg, project.angularUnit, locale),
+            "point_base_lat",
+        )
+        CoordinateRow(
+            stringResource(R.string.coord_longitude_symbol),
+            AngleFormat.longitude(base.position.longitudeDeg, project.angularUnit, locale),
+            "point_base_lon",
+        )
+        CoordinateRow(
+            stringResource(R.string.coord_ellipsoidal_height),
+            base.position.ellipsoidalHeightM?.let(::length) ?: unavailable,
+            "point_base_h",
+        )
+        base.antennaHeightM?.let {
+            CoordinateRow(stringResource(R.string.base_antenna_height), LengthFormat.metres(it, locale), "point_base_antenna_height")
+        }
+        CoordinateRow(stringResource(R.string.baseline), length(base.baselineM), "point_baseline")
+    }
 }
 
 private fun PrecisionFailure.textRes(): Int = when (this) {
