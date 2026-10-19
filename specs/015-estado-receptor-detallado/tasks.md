@@ -36,7 +36,7 @@
       Hecho cuando: `BaseLayerTest` en verde.
 - [x] T17. `core:model` y `data`: `PointBase`, columnas de la base y migración 6 → 7. (RF-20)
       Hecho cuando: `TopoPhoneDatabaseTest` (paso 6 → 7 y esquema 7) y la ida y vuelta de un punto con base y sin base en verde.
-- [ ] T18. `app`: el recolector guarda la base con el punto. (RF-20)
+- [x] T18. `app`: el recolector guarda la base con el punto. (RF-20)
       Hecho cuando: el test de `CollectorViewModelTest` que guarda un punto con su base y su línea base está en verde.
 - [ ] T19. `app`: tarjeta "Base" en la ficha del punto. (RF-21)
       Hecho cuando: `PointDetailsBaseTest` en verde, también con la base fuera del SC.

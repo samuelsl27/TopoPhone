@@ -11,15 +11,19 @@ import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.BaseFix
+import es.topophone.core.survey.Baseline
 import es.topophone.core.survey.MeasurementFailure
 import es.topophone.core.survey.MeasurementResult
 import es.topophone.core.survey.MeasurementUpdate
@@ -158,6 +162,9 @@ class CollectorViewModel @Inject constructor(
     private var measurementBaseChange: Int? = null
     private var lastBaseChange: Int? = null
 
+    /** La base de las épocas de la medida en curso; con el reinicio de RF-18 es siempre la misma (S015/RF-20). */
+    private var measurementBase: BaseFix? = null
+
     init {
         // S013/RF-16: la medida y el punto que espera a confirmarse, fuera del recolector.
         viewModelScope.launch { run.map { it.measuring || it.pending != null }.distinctUntilChanged().collect(inProgress::set) }
@@ -278,6 +285,7 @@ class CollectorViewModel @Inject constructor(
         }
         newMeasurement = factory
         measurementBaseChange = lastBaseChange
+        measurementBase = null
         measurement = factory()
         measuringReplay = session.state.value.replay != null
         run.value = Run(measuring = true)
@@ -329,6 +337,7 @@ class CollectorViewModel @Inject constructor(
             if (delta > 0) epochIntervalS = delta.coerceIn(MIN_INTERVAL_S, DEFAULT_INTERVAL_S)
         }
         lastEpochUtc = epoch.utcMillisOfDay
+        if (measurement != null) received.base.position?.let { measurementBase = it }
         measurement?.onEpoch(epoch, System.currentTimeMillis())?.forEach(::handle)
     }
 
@@ -393,6 +402,7 @@ class CollectorViewModel @Inject constructor(
             measuredFromMs = result.measuredFromMs,
             measuredToMs = result.measuredToMs,
             coordinates = PointCoordinates(result.ground, result.position.easting, result.position.northing, result.position.height),
+            base = measurementBase?.let { pointBase(it, result.antenna) }, // S015/RF-20
         )
         val point = Point.measured(
             id = UUID.randomUUID().toString(),
@@ -420,6 +430,23 @@ class CollectorViewModel @Inject constructor(
         }
     }
 
+    /**
+     * La base tal como la dio su fuente, con la línea base desde la antena medida (S015/RF-20). Sin altura de la antena,
+     * se mide a la altura de la base: casi la distancia horizontal.
+     */
+    private fun pointBase(base: BaseFix, antenna: GeodeticPosition) = PointBase(
+        position = GeodeticPosition(base.latitudeDeg, base.longitudeDeg, base.ellipsoidalHeightM),
+        source = base.source,
+        stationId = base.stationId,
+        antennaHeightM = base.antennaHeightM,
+        baselineM = Baseline.distanceM(
+            antenna.latitudeDeg,
+            antenna.longitudeDeg,
+            antenna.ellipsoidalHeightM ?: base.ellipsoidalHeightM,
+            base.ecef,
+        ),
+    )
+
     /** El nombre del punto que se mide, para el log (sin coordenadas, S014/RF-7). */
     private fun measuredName(): String = PointNames.clean(form.value.name)
 
@@ -435,6 +462,7 @@ class CollectorViewModel @Inject constructor(
         measurement?.cancel()
         measurement = newMeasurement?.invoke()
         measurementBaseChange = baseChange
+        measurementBase = null
         log.warning(LogCategory.POINTS, "Medida de ${measuredName()} empezada de nuevo: la base ha cambiado") // S014/RF-5
         run.update { it.copy(progress = null, solutionLost = false, restarted = true) }
     }

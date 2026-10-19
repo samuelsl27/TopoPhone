@@ -7,9 +7,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
+import es.topophone.core.geodesy.Ecef
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.log.LogLevel
+import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PrecisionControl
@@ -18,6 +20,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.Baseline
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.point.CollectorPreferences
@@ -485,5 +488,52 @@ class CollectorViewModelTest {
 
         val state = await(vm) { it.notices.longBaselineM != null }
         state.blocker shouldBe null
+    }
+
+    @Test
+    fun `S015 RF-20 el punto medido guarda la base con la que se midio y su linea base`() {
+        val projectId = project()
+        val vm = viewModel(projectId)
+        receiving(vm)
+        sendEpoch(2, baseLat = baseA)
+        sendEpoch(3, baseLat = baseA)
+        runBlocking { withTimeout(5_000) { session.state.first { it.base.position != null } } }
+        await(vm) { it.blocker == null }
+
+        vm.measure()
+        sendEpoch(4, baseLat = baseA)
+        sendEpoch(5, baseLat = baseA)
+        await(vm) { it.savedName == "1" }
+
+        val measurement = runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull()
+        val base = measurement.base.shouldNotBeNull()
+        base.position.latitudeDeg shouldBe (40.4166666667 plusOrMinus 1e-9)
+        base.position.longitudeDeg shouldBe (-3.7 plusOrMinus 1e-9)
+        base.position.ellipsoidalHeightM shouldBe 700.0
+        base.source shouldBe BaseSource.RECEIVER
+        base.stationId shouldBe null
+        val antenna = measurement.antenna
+        val expected = Baseline.distanceM(
+            antenna.latitudeDeg,
+            antenna.longitudeDeg,
+            antenna.ellipsoidalHeightM!!,
+            Ecef.fromGeodetic(40.4166666667, -3.7, 700.0),
+        )
+        base.baselineM shouldBe (expected plusOrMinus 1e-3)
+    }
+
+    @Test
+    fun `S015 RF-20 sin base el punto se guarda sin base`() {
+        val projectId = project()
+        val vm = viewModel(projectId)
+        receiving(vm)
+        await(vm) { it.blocker == null }
+
+        vm.measure()
+        sendEpoch(2)
+        sendEpoch(3)
+        await(vm) { it.savedName == "1" }
+
+        runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().base shouldBe null
     }
 }
