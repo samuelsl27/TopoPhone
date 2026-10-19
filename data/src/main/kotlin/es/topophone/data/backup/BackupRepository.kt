@@ -232,7 +232,8 @@ class BackupRepository(
     /**
      * S013/RF-25 a RF-28: añade el proyecto del paquete [valid]. Si el mismo proyecto ya está activo en el móvil y no hay
      * [choice], devuelve [ImportResult.NeedsChoice]. Se importa con sus ids salvo como nuevo o si su id está en la
-     * papelera; el nombre lleva "([importedLabel])" como nuevo o si otro proyecto activo lo tiene.
+     * papelera; el nombre lleva "([importedLabel])" como nuevo o si otro proyecto activo lo tiene. Al sustituir, el del
+     * móvil pasa a la papelera con ids nuevos y el del paquete se queda los suyos y su carpeta (S013/RF-27).
      */
     suspend fun importPackage(valid: BackupRead.Valid, choice: ImportChoice?, importedLabel: String): ImportResult = lock.withLock {
         withContext(Dispatchers.IO) {
@@ -250,6 +251,7 @@ class BackupRepository(
             val existing = main.query("SELECT name FROM projects WHERE id = ? AND deleted_at IS NULL", arrayOf(projectId))
                 .use { if (it.moveToFirst()) it.getString(0) else null }
             if (existing != null && choice == null) return ImportResult.NeedsChoice(existing)
+            if (existing != null && choice == ImportChoice.REPLACE) return replaceProject(from, main, projectId, packageName, importedLabel)
             val idTaken = main.query("SELECT 1 FROM projects WHERE id = ?", arrayOf(projectId)).use { it.moveToFirst() }
             val activeNames = main.query("SELECT name FROM projects WHERE deleted_at IS NULL").use { cursor ->
                 buildList { while (cursor.moveToNext()) add(cursor.getString(0)) }
@@ -270,6 +272,37 @@ class BackupRepository(
             )
             ImportResult.Imported(newProjectId, name)
         }
+
+    /** S013/RF-27: el proyecto del móvil, con ids nuevos, a la papelera (S006/RF-22); el del paquete, en su sitio. */
+    private fun replaceProject(
+        from: SQLiteDatabase,
+        main: androidx.sqlite.db.SupportSQLiteDatabase,
+        projectId: String,
+        packageName: String,
+        importedLabel: String,
+    ): ImportResult {
+        val folderId = main.query("SELECT folder_id FROM projects WHERE id = ?", arrayOf(projectId))
+            .use { if (it.moveToFirst() && !it.isNull(0)) it.getString(0) else null }
+        val otherNames = main.query("SELECT name FROM projects WHERE deleted_at IS NULL AND id <> ?", arrayOf(projectId)).use { cursor ->
+            buildList { while (cursor.moveToNext()) add(cursor.getString(0)) }
+        }
+        val name = ProjectNames.restoredName(packageName, otherNames, importedLabel)
+        val trashedId = newId()
+        val now = clock()
+        db.runInTransaction(
+            Runnable {
+                copyProject({ sql, args ->
+                    main.query(sql, args)
+                }, main, projectId, trashedId, keepIds = false) { it.put("deleted_at", now) }
+                main.execSQL("DELETE FROM projects WHERE id = ?", arrayOf(projectId)) // Sus puntos, historial y encuadre se van con él.
+                copyProject({ sql, args -> from.rawQuery(sql, args) }, main, projectId, projectId, keepIds = true) { project ->
+                    project.put("name", name)
+                    if (folderId == null) project.putNull("folder_id") else project.put("folder_id", folderId)
+                }
+            },
+        )
+        return ImportResult.Imported(projectId, name)
+    }
 
     /**
      * Copia el proyecto [oldId] de [source] a [sink] como [newProjectId], con sus encuadres, sus puntos (también los de su

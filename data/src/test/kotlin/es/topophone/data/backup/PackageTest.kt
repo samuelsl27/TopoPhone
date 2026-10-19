@@ -159,4 +159,40 @@ class PackageTest {
         result.projectId shouldNotBe fixture.streetId
         result.name shouldBe "Calle Mayor 12"
     }
+
+    @Test
+    fun `S013 RF-27 sustituir pasa el del movil a la papelera`() {
+        runBlocking { fixture.points.create(fixture.measured("5", fixture.streetId)) } // Medido después de exportar el paquete.
+
+        import(repository, ImportChoice.REPLACE) shouldBe ImportResult.Imported(fixture.streetId, "Calle Mayor 12")
+
+        val projectCols = columns(file(mine), "projects")
+        val projects = rows(file(mine), "projects").filter { it[projectCols.indexOf("name")] == "Calle Mayor 12" }
+        val active = projects.single { it[projectCols.indexOf("deleted_at")] == null }
+        val trashed = projects.single { it[projectCols.indexOf("deleted_at")] != null }
+        active[projectCols.indexOf("id")] shouldBe fixture.streetId
+        active[projectCols.indexOf("folder_id")] shouldBe fixture.folderId // RF-27: en su misma carpeta.
+        trashed[projectCols.indexOf("id")] shouldNotBe fixture.streetId
+        trashed[projectCols.indexOf("folder_id")] shouldBe fixture.folderId
+        val inProject = { id: Any? -> { row: List<Any?>, cols: List<String> -> row[cols.indexOf("project_id")] == id } }
+        column(mine, "points", "name", inProject(fixture.streetId)).toSet() shouldBe setOf("1", "E1", "2", "3", "4")
+        column(mine, "points", "name", inProject(trashed[projectCols.indexOf("id")])).toSet() shouldBe setOf("1", "E1", "2", "3", "4", "5")
+        column(mine, "points", "id", inProject(trashed[projectCols.indexOf("id")])) shouldNotContainAnyOf listOf("id-1", "id-5")
+        column(mine, "point_history", "id").size shouldBe 2 // el del importado y el del que está en la papelera
+    }
+
+    @Test
+    fun `S013 RF-27 el mismo paquete otra vez se reconoce`() {
+        import(repository, ImportChoice.REPLACE).shouldBeInstanceOf<ImportResult.Imported>()
+
+        import(repository) shouldBe ImportResult.NeedsChoice("Calle Mayor 12")
+    }
+
+    @Test
+    fun `S013 RF-27 al sustituir, un nombre ocupado por otro se cambia`() {
+        db.openHelper.writableDatabase.execSQL("UPDATE projects SET name = 'Calle Mayor 12 v2' WHERE id = ?", arrayOf(fixture.streetId))
+        runBlocking { fixture.projects.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12")) }
+
+        import(repository, ImportChoice.REPLACE) shouldBe ImportResult.Imported(fixture.streetId, "Calle Mayor 12 (importado)")
+    }
 }

@@ -18,7 +18,7 @@
       Hecho cuando: los tests de deshacer en verde (datos y contraseñas como antes; la opción desaparece).
 - [x] T8. `data`: `writePackage` e `importPackage` con sus ids y como nuevo ("(importado)", ids nuevos, id en la papelera). (RF-24, RF-25, RF-28)
       Hecho cuando: los tests de paquete (exportar, importar, como nuevo, nombre ocupado) en verde.
-- [ ] T9. `data`: sustituir al importar un paquete (el antiguo a la papelera con ids nuevos, el nuevo en su carpeta) y `NeedsChoice`. (RF-26, RF-27)
+- [x] T9. `data`: sustituir al importar un paquete (el antiguo a la papelera con ids nuevos, el nuevo en su carpeta) y `NeedsChoice`. (RF-26, RF-27)
       Hecho cuando: los tests de sustituir en verde, y el mismo paquete importado otra vez se reconoce.
 - [ ] T10. `data`: `AutoBackupPreferences` (DataStore "backup") y `BackupChanges` (cambios de Room y de los DataStores, sin `map_viewports`). (RF-18, RF-20, RF-21, RF-23)
       Hecho cuando: `AutoBackupPreferencesTest` y `BackupChangesTest` en verde.
