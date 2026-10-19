@@ -26,45 +26,46 @@ Esta spec completa la pantalla Estado con la posición, los DOP, un skyplot, la 
 
 ## Requisitos funcionales (criterios de aceptación en EARS)
 ### Posición y DOP (H1)
-- RF-1: CUANDO se complete una época con GGA, EL SISTEMA mostrará en la pantalla Estado la latitud, la longitud y la altura elipsoidal de la antena que da el receptor, con el formato angular de los proyectos nuevos (S006).
+- RF-1: CUANDO se complete una época con GGA, EL SISTEMA mostrará en la pantalla Estado la latitud y la longitud de la antena que da el receptor, con el formato angular de los proyectos nuevos (S006), y su altura elipsoidal en metros con 3 decimales.
 - RF-2: CUANDO se complete una época con frases GSA, EL SISTEMA mostrará en la pantalla Estado el PDOP, el HDOP y el VDOP.
-- RF-3: CUANDO se complete una época con frases GSA y GSV, EL SISTEMA mostrará en la pantalla Estado, por constelación, los satélites usados y los satélites en vista.
+- RF-3: CUANDO se complete una época con frases GSA y GSV, EL SISTEMA mostrará en la pantalla Estado, por constelación, los satélites usados y los satélites en vista, contados como en S003/RF-15.
 
 ### Skyplot (H2)
 - RF-4: CUANDO se complete una época con frases GSV, EL SISTEMA dibujará en un skyplot cada satélite que tenga elevación y azimut, con el norte arriba, el azimut en sentido horario, el horizonte en el borde y el cénit en el centro.
-- RF-5: EL SISTEMA indicará en el skyplot la constelación de cada satélite con un color y una letra, y su número.
+- RF-5: EL SISTEMA indicará en el skyplot la constelación de cada satélite con un color y su letra (G GPS, R GLONASS, E Galileo, C BeiDou, J QZSS, I NavIC), y su número.
 - RF-6: EL SISTEMA distinguirá en el skyplot, con relleno y sin relleno, los satélites usados en la solución de los que solo están en vista.
 
 ### SNR del rover y de la base (H3)
-- RF-7: CUANDO se complete una época con frases GSV, EL SISTEMA mostrará una barra con la SNR del rover para cada satélite y banda de frecuencia, agrupadas por constelación y banda.
+- RF-7: CUANDO se complete una época con frases GSV, EL SISTEMA mostrará una barra con la SNR del rover para cada satélite y banda de frecuencia, o sin banda si el receptor no la indica, agrupadas por constelación y banda.
 - RF-8: CUANDO lleguen en las correcciones mensajes MSM de nivel 4 o superior, EL SISTEMA mostrará junto a la barra del rover la barra de la base para el mismo satélite y la misma banda.
-- RF-9: EL SISTEMA dará a cada barra un color según su SNR (menos de 35 dB-Hz, de 35 a 44 dB-Hz, y 45 dB-Hz o más) y escribirá su valor.
+- RF-9: EL SISTEMA dará a cada barra un color según su SNR (menos de 35 dB-Hz, de 35 a menos de 45 dB-Hz, y 45 dB-Hz o más) y escribirá su valor.
 - RF-10: SI en los últimos 10 s no ha llegado ningún mensaje MSM de nivel 4 o superior, ENTONCES EL SISTEMA indicará que la SNR de la base no está disponible.
 
 ### Base y línea base (H4)
 - RF-11: CUANDO el receptor envíe una frase EBP, EL SISTEMA tomará de ella la posición de la base.
 - RF-12: MIENTRAS el receptor no envíe frases EBP, EL SISTEMA tomará la posición de la base del último mensaje RTCM 1005 o 1006 de las correcciones.
-- RF-13: EL SISTEMA mostrará en la pantalla Estado la latitud, la longitud y la altura elipsoidal de la base, y si la da el receptor o las correcciones, con el identificador de la estación de referencia en este caso.
+- RF-13: EL SISTEMA mostrará en la pantalla Estado la latitud, la longitud y la altura elipsoidal de la base tal como las da su fuente, y si la fuente es el receptor o las correcciones, con el identificador de la estación de referencia y, si llega en un 1006, la altura de antena.
 - RF-14: MIENTRAS haya posición del rover y de la base, EL SISTEMA mostrará la línea base: la distancia en línea recta entre la antena del rover y la base, en km con 3 decimales.
 - RF-15: SI la línea base supera 20 km, ENTONCES EL SISTEMA mostrará el aviso "Línea base larga" en la pantalla Estado y en el recolector, sin impedir medir.
 - RF-16: SI en los últimos 60 s no ha llegado ninguna frase EBP ni ningún mensaje RTCM 1005 o 1006, ENTONCES EL SISTEMA mostrará la base y la línea base como no disponibles.
 
 ### Cambio de base (H4)
-- RF-17: CUANDO la posición de la base se mueva más de 0,1 m, EL SISTEMA mostrará en la pantalla Estado y en el recolector el aviso "La base ha cambiado", con la distancia entre la base anterior y la nueva.
+- RF-17: CUANDO la posición de la base que da una misma fuente se aleje más de 0,1 m de la última conocida desde que se conectó el receptor, EL SISTEMA mostrará en la pantalla Estado y en el recolector el aviso "La base ha cambiado", con la distancia entre la base anterior y la nueva.
 - RF-18: SI la base cambia durante una medida, ENTONCES EL SISTEMA descartará las épocas ya tomadas y empezará la medida de nuevo con la base nueva.
 
 ### Base en el mapa (H5)
 - RF-19: MIENTRAS haya posición de la base, EL SISTEMA la dibujará en el mapa del proyecto con un símbolo propio, distinto del rover y de los puntos.
 
 ### Base de cada punto (H6)
-- RF-20: CUANDO se guarde un punto medido con posición de la base, EL SISTEMA guardará con él la posición de la base, de dónde salió, el identificador de la estación si lo hay y la línea base.
-- RF-21: DONDE el punto tenga base, EL SISTEMA mostrará en su ficha la posición de la base en geográficas y en el SC del proyecto, de dónde salió y la línea base.
-- RF-22: EL SISTEMA escribirá en "Todas las columnas" de la exportación CSV (S012/RF-6), tras las columnas de la medida, la latitud, la longitud y la altura elipsoidal de la base, su Este, Norte y altura en el SC del proyecto, y la línea base.
+- RF-20: CUANDO se guarde un punto medido con posición de la base, EL SISTEMA guardará con él la posición de la base tal como la da su fuente, la fuente, el identificador de la estación y la altura de antena si los hay, y la línea base.
+- RF-21: DONDE el punto tenga base, EL SISTEMA mostrará en su ficha la posición de la base en geográficas y en el SC del proyecto, su fuente y la línea base en la unidad lineal del proyecto.
+- RF-22: EL SISTEMA escribirá en "Todas las columnas" de la exportación CSV (S012/RF-6), tras las columnas de la medida, la latitud, la longitud y la altura elipsoidal de la base, su Este, Norte y altura en el SC del proyecto, y la línea base en la unidad lineal del proyecto.
 
 ## Requisitos no funcionales
 - Transversales que aplican:
   - RNF-T6: la base se guarda en la misma transacción que el punto; al actualizar la app, los puntos existentes se conservan, sin base.
-  - RNF-T7 y RNF-T8: textos en recursos; la constelación y el umbral de SNR se indican con color y con letra o valor, nunca solo con color; zonas táctiles de 56 dp; TalkBack.
+  - RNF-T7 y RNF-T8: textos en recursos; la constelación y el umbral de SNR se indican con color y con letra o valor, nunca solo con color; las letras y los valores cumplen el contraste de 7:1 en modo sol, y los colores son una ayuda; zonas táctiles de 56 dp.
+  - RNF-T8 (TalkBack): del skyplot se lee un resumen por constelación (satélites usados y en vista), y de cada barra de SNR su satélite, su banda y los valores del rover y de la base.
   - RNF-T9: azimut en sentido horario desde el norte; unidades del proyecto en la ficha y en el CSV.
   - RNF-T13: el skyplot y el gráfico de SNR se refrescan a 5 Hz como máximo sin bloquear el hilo principal más de 16 ms.
 - Constitución nº 2: frente a pyproj, la posición de la base sacada de un mensaje 1005/1006 difiere ≤ 1 mm y la línea base ≤ 1 mm.
@@ -79,14 +80,20 @@ Esta spec completa la pantalla Estado con la posición, los DOP, un skyplot, la 
 | Las correcciones traen MSM de nivel 1 a 3 (sin SNR) | RF-10 |
 | Satélite en GSV sin elevación o sin azimut | RF-4 (no se dibuja en el skyplot), RF-7 (sí tiene barra) |
 | Satélite en vista sin SNR (no se sigue) | RF-7 (aparece con su número y sin barra) |
-| Satélite que ve la base y no el rover | RF-8 (solo la barra de la base) |
-| Llegan EBP y 1005/1006 de la misma base | RF-11 (manda la EBP); RF-17 (no es cambio si se mueve ≤ 0,1 m) |
+| Satélite o banda que ve la base y no el rover | RF-8 (solo la barra de la base) |
+| GSV sin identificador de señal (NMEA 4.10 o anterior) | RF-7 (una barra sin banda), RF-8 (sin barra de la base) |
+| Llegan EBP y 1005/1006 de la misma base | RF-11 (manda la EBP) |
+| La fuente pasa de EBP a RTCM o al revés | RF-17 (no es un cambio de base, aunque las posiciones difieran) |
+| La base deja de estar disponible y vuelve en otro sitio | RF-17 (se compara con la última base desde que se conectó el receptor) |
 | La base cambia durante una medida promediada | RF-18 |
 | La base cambia sin medida en curso | RF-17 |
+| La base cambia una y otra vez (VRS que se regenera) | RF-18 (cada cambio reinicia la medida, sin límite) |
 | NTRIP en pausa o reconectando | RF-16 (la base deja de estar disponible a los 60 s) |
 | Reproducción de una sesión | RF-11 (EBP de la reproducción); RF-10 (la reproducción no admite correcciones, S003) |
 | Puntos medidos antes de esta versión, puntos manuales y copias | RF-20 (sin base): la ficha no la muestra y las columnas van vacías |
 | Base fuera del encuadre del mapa | RF-19 (se dibuja en su sitio; el mapa no se mueve) |
+| Base fuera del alcance del SC del proyecto o de la rejilla del geoide | RF-21, RF-22 (su Este, Norte o altura, no disponibles en la ficha y vacíos en el CSV) |
+| Formato «Personalizado» guardado antes de esta versión (S012/RF-21) | RF-22 (las columnas de la base salen sin marcar) |
 | Copias de seguridad y paquetes (S013) | RF-20 (la base viaja con el punto) |
 
 ## Fuera de alcance
@@ -111,13 +118,15 @@ Esta spec completa la pantalla Estado con la posición, los DOP, un skyplot, la 
 ## Dudas abiertas
 Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te vale, se cambia la spec antes de implementarla.
 - [SUPOSICIÓN: si llegan EBP y RTCM 1005/1006, manda la EBP, que es la base que usa el receptor.]
-- [SUPOSICIÓN: la base "cambia" cuando su posición se mueve más de 0,1 m; un cambio de fuente con la misma base no avisa.]
+- [SUPOSICIÓN: los 1005/1006 dan el punto de referencia de la antena (ARP); no se sabe si la EBP da el ARP o la marca del suelo. Por eso la posición se muestra y se guarda tal como la da su fuente, con la fuente, y el cambio de base solo se mira dentro de una misma fuente. Se comprueba en campo.]
+- [SUPOSICIÓN: la base "cambia" cuando su posición se aleja más de 0,1 m de la última conocida de la misma fuente; un cambio de fuente no avisa.]
 - [SUPOSICIÓN: la base deja de estar disponible si en 60 s no llega EBP ni 1005/1006; los casters suelen enviar 1005/1006 cada 10 a 30 s.]
-- [SUPOSICIÓN: la línea base es la distancia en línea recta, en 3D, entre la antena del rover y la posición de la base, en km con 3 decimales.]
+- [SUPOSICIÓN: la línea base es la distancia en línea recta, en 3D, entre la antena del rover y la posición de la base; en km con 3 decimales en la pantalla Estado y en la unidad del proyecto en la ficha y el CSV.]
 - [SUPOSICIÓN: las barras de SNR se nombran por banda (L1, L2, L5, G1, G2, E1, E5a, E5b, E6, B1, B1C, B2, B2a, B3), y rover y base se comparan en la misma banda.]
-- [SUPOSICIÓN: los avisos "Línea base larga" y "La base ha cambiado" siguen visibles hasta que el usuario los cierra; no cambian el control de precisión (S010) y quedan en el log (S014/RF-5).]
+- [SUPOSICIÓN: los avisos "Línea base larga" y "La base ha cambiado" siguen visibles hasta que el usuario los cierra; "Línea base larga" vuelve a salir cuando cambia la base. No cambian el control de precisión (S010) y quedan en el log (S014/RF-5).]
 - [SUPOSICIÓN: las columnas nuevas del CSV van en inglés, como el resto (S012), y vacías en los puntos sin base.]
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S015: "Pantalla de estado: posición, DOP, skyplot (GSV), SNR del rover y de la base por satélite y banda (MSM), base (EBP o RTCM 1005/1006) y línea base, con avisos de línea base larga y de cambio de base; la base en el mapa y guardada en cada punto (ficha y CSV)", y pasa a "en curso".
+- `specs/012-exportar-csv/spec.md`, RF-6: en el grupo "de la medida" se añade "y la base con la que se midió (S015/RF-22)".
 - `docs/glosario.md`: se añaden "Skyplot" (`Skyplot`), "SNR" (`snrDbHz`), "DOP (PDOP, HDOP, VDOP)" (`Dop`), "Banda de frecuencia" (`Band`) y "Estación de referencia" (`ReferenceStation`, RTCM 1005/1006); "Posición de la base" pasa a "Frase EBP o mensajes RTCM 1005/1006".
