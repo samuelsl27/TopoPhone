@@ -27,33 +27,36 @@ La constitución nº 1 exige que el dato de campo "siempre pueda exportarse o re
 - RF-2: EL SISTEMA incluirá en la copia completa las carpetas y los proyectos, también los de la papelera de proyectos, con sus puntos, su historial de cambios y su papelera de puntos, los ajustes de la app y los perfiles NTRIP.
 - RF-3: EL SISTEMA no incluirá en ninguna copia ni paquete las contraseñas NTRIP (RNF-T11), las sesiones grabadas, la caché del mapa ni los ajustes propios de este móvil (el receptor asociado y la carpeta de las copias automáticas).
 - RF-4: EL SISTEMA propondrá como nombre de la copia "TopoPhone_<AAAAMMDD-HHMM>.zip" y como nombre del paquete "<proyecto>_<AAAAMMDD-HHMM>.topoproj", con los caracteres que no valen en un nombre de fichero cambiados por "_" (como en S012/RF-19).
+- RF-5: SI una copia o un paquete no se puede escribir (sin espacio, sitio no disponible), ENTONCES EL SISTEMA indicará que no se ha guardado y no dejará un fichero a medias.
 
 ### Restaurar (H2)
-- RF-5: CUANDO el usuario elija "Restaurar copia de seguridad" en Ajustes y un fichero, EL SISTEMA mostrará la fecha de la copia y cuántos proyectos y puntos tiene, y pedirá confirmación avisando de que sustituirá todos los datos del móvil.
-- RF-6: CUANDO el usuario confirme la restauración, EL SISTEMA guardará antes, en el propio móvil, una copia completa del estado actual.
-- RF-7: CUANDO esa copia del estado actual esté guardada, EL SISTEMA sustituirá las carpetas, los proyectos, los puntos, los ajustes y los perfiles NTRIP por los de la copia.
-- RF-8: SI la restauración no puede terminar, ENTONCES EL SISTEMA dejará todos los datos como estaban antes de empezar e indicará que no se ha restaurado.
-- RF-9: CUANDO el usuario pulse "Deshacer la restauración" en Ajustes, EL SISTEMA pedirá confirmación y devolverá los datos al estado guardado antes de la última restauración.
-- RF-10: SI el fichero elegido no es una copia o un paquete de TopoPhone, o está dañado o incompleto, ENTONCES EL SISTEMA no cambiará nada e indicará el motivo.
-- RF-11: SI la copia o el paquete es de una versión de los datos más reciente que la de la app, ENTONCES EL SISTEMA no cambiará nada y pedirá actualizar la app.
-- RF-12: CUANDO se restaure una copia o se importe un paquete de una versión de los datos anterior, EL SISTEMA lo pasará a la versión actual sin perder datos (RNF-T6).
-- RF-13: CUANDO el usuario se conecte por primera vez con un perfil NTRIP restaurado que tenía contraseña, EL SISTEMA se la pedirá, sin perder el resto del perfil (como en S007/RF-6).
+- RF-6: CUANDO el usuario elija "Restaurar copia de seguridad" en Ajustes y un fichero, EL SISTEMA mostrará la fecha de la copia y cuántos proyectos y puntos tiene, y pedirá confirmación avisando de que sustituirá todos los datos del móvil.
+- RF-7: CUANDO el usuario confirme la restauración, EL SISTEMA guardará antes una copia completa del estado actual en el propio móvil y, si las copias automáticas están activas, también en su carpeta.
+- RF-8: CUANDO esa copia del estado actual esté guardada, EL SISTEMA sustituirá las carpetas, los proyectos, los puntos, los ajustes y los perfiles NTRIP por los de la copia, sin cambiar las sesiones grabadas ni los ajustes propios de este móvil.
+- RF-9: EL SISTEMA conservará la contraseña guardada de cada perfil NTRIP que esté a la vez en el móvil y en la copia restaurada.
+- RF-10: SI la restauración no puede terminar, ENTONCES EL SISTEMA dejará todos los datos como estaban antes de empezar e indicará que no se ha restaurado.
+- RF-11: CUANDO el usuario pulse "Deshacer la restauración" en Ajustes, EL SISTEMA pedirá confirmación y devolverá los datos, contraseñas NTRIP incluidas, al estado guardado antes de la última restauración.
+- RF-12: SI el fichero elegido no es una copia o un paquete de TopoPhone, o está dañado o incompleto, ENTONCES EL SISTEMA no cambiará nada e indicará el motivo.
+- RF-13: SI la copia o el paquete es de una versión de los datos más reciente que la de la app, ENTONCES EL SISTEMA no cambiará nada y pedirá actualizar la app.
+- RF-14: CUANDO se restaure una copia o se importe un paquete de una versión de los datos anterior, EL SISTEMA lo pasará a la versión actual sin perder datos (RNF-T6).
+- RF-15: CUANDO el usuario se conecte por primera vez con un perfil NTRIP restaurado cuya contraseña no está guardada en este móvil, EL SISTEMA se la pedirá, sin perder el resto del perfil (como en S007/RF-6).
+- RF-16: SI hay una medida de un punto en curso, ENTONCES EL SISTEMA no restaurará una copia ni sustituirá un proyecto, e indicará que hay que terminar o cancelar la medida.
 
 ### Copias automáticas (H3)
-- RF-14: EL SISTEMA permitirá en Ajustes elegir la carpeta de las copias automáticas, lo que las activa, o quitarla, lo que las desactiva (RNF-T5).
-- RF-15: MIENTRAS las copias automáticas estén activas, EL SISTEMA hará una copia completa en la carpeta cuando haya cambios sin copiar en los proyectos, los puntos, los ajustes o los perfiles NTRIP y haya pasado al menos 1 h desde la anterior, también en el momento en que la app pase a segundo plano.
-- RF-16: EL SISTEMA conservará en la carpeta las 24 copias automáticas más recientes y borrará las más antiguas, sin tocar ningún otro fichero de la carpeta.
-- RF-17: EL SISTEMA mostrará en Ajustes la fecha y hora de la última copia automática que se ha guardado bien.
-- RF-18: SI una copia automática no se puede guardar (carpeta borrada, permiso retirado, sin espacio), ENTONCES EL SISTEMA lo avisará en la lista de proyectos y en Ajustes, y lo volverá a intentar en la siguiente ocasión.
-- RF-19: MIENTRAS no haya carpeta de copias automáticas y exista al menos un proyecto, EL SISTEMA mostrará en la lista de proyectos un aviso con un botón para elegirla.
-- RF-20: CUANDO el usuario cierre ese aviso, EL SISTEMA no lo volverá a mostrar hasta 7 días después.
+- RF-17: EL SISTEMA permitirá en Ajustes elegir la carpeta de las copias automáticas, lo que las activa, o quitarla, lo que las desactiva (RNF-T5).
+- RF-18: MIENTRAS las copias automáticas estén activas, EL SISTEMA hará una copia completa en la carpeta cuando haya cambios sin copiar en los proyectos, los puntos, los ajustes o los perfiles NTRIP y haya pasado al menos 1 h desde la anterior, también en el momento en que la app pase a segundo plano.
+- RF-19: EL SISTEMA conservará en la carpeta las 24 copias automáticas más recientes y borrará las más antiguas, sin tocar ningún otro fichero de la carpeta.
+- RF-20: EL SISTEMA mostrará en Ajustes la fecha y hora de la última copia automática que se ha guardado bien.
+- RF-21: SI una copia automática no se puede guardar (carpeta borrada, permiso retirado, sin espacio), ENTONCES EL SISTEMA lo avisará en la lista de proyectos y en Ajustes, y lo volverá a intentar en la siguiente ocasión.
+- RF-22: MIENTRAS no haya carpeta de copias automáticas y exista al menos un proyecto, EL SISTEMA mostrará en la lista de proyectos un aviso con un botón para elegirla.
+- RF-23: CUANDO el usuario cierre ese aviso, EL SISTEMA no lo volverá a mostrar hasta 7 días después.
 
 ### Paquetes de proyecto (H4)
-- RF-21: CUANDO el usuario elija "Exportar paquete" en el menú de un proyecto, EL SISTEMA creará un paquete con el proyecto, sus puntos, su historial de cambios y su papelera de puntos, y ofrecerá guardarlo con el selector de ficheros o compartirlo con otras apps.
-- RF-22: CUANDO el usuario elija "Importar paquete" en el menú de la lista de proyectos y un fichero, EL SISTEMA añadirá el proyecto del paquete con todo su contenido.
-- RF-23: SI el proyecto del paquete ya está en el móvil, ENTONCES EL SISTEMA preguntará si se sustituye o se importa como un proyecto nuevo.
-- RF-24: CUANDO el usuario elija sustituirlo, EL SISTEMA moverá el proyecto del móvil a la papelera de proyectos (S006/RF-22) y añadirá el del paquete.
-- RF-25: SI el usuario elige importarlo como proyecto nuevo, o ya hay otro proyecto con su nombre, ENTONCES EL SISTEMA lo añadirá como un proyecto distinto llamado "<nombre> (importado)" o, si ya existe, "<nombre> (importado 2)", "(importado 3)"…
+- RF-24: CUANDO el usuario elija "Exportar paquete" en el menú de un proyecto, EL SISTEMA creará un paquete con el proyecto, sus puntos, su historial de cambios y su papelera de puntos, y ofrecerá guardarlo con el selector de ficheros o compartirlo con otras apps.
+- RF-25: CUANDO el usuario elija "Importar paquete" en el menú de la lista de proyectos y un fichero, EL SISTEMA añadirá el proyecto del paquete con todo su contenido.
+- RF-26: SI el proyecto del paquete ya está en el móvil, ENTONCES EL SISTEMA preguntará si se sustituye o se importa como un proyecto nuevo.
+- RF-27: CUANDO el usuario elija sustituirlo, EL SISTEMA moverá el proyecto del móvil a la papelera de proyectos (S006/RF-22) y añadirá el del paquete en su misma carpeta.
+- RF-28: SI el usuario elige importarlo como proyecto nuevo, o ya hay otro proyecto con su nombre, ENTONCES EL SISTEMA lo añadirá como un proyecto distinto llamado "<nombre> (importado)" o, si ya existe, "<nombre> (importado 2)", "(importado 3)"…
 
 ## Requisitos no funcionales
 - Transversales que aplican:
@@ -71,22 +74,27 @@ La constitución nº 1 exige que el dato de campo "siempre pueda exportarse o re
 ## Casos límite
 | Caso | RF |
 |---|---|
-| El usuario cancela el selector de ficheros | RF-1, RF-21 (no se escribe nada) |
-| Fichero que no es de TopoPhone, ZIP dañado o cortado | RF-10 |
-| Copia o paquete de una app más nueva | RF-11 |
-| Copia o paquete de una app más antigua | RF-12 |
-| La restauración falla a medias (sin espacio, app cerrada) | RF-8 |
-| Restaurar la copia equivocada | RF-9 |
-| Restaurar en otro móvil: receptor sin asociar y sin carpeta de copias | RF-3 (se asocian de nuevo) |
-| Perfil NTRIP restaurado sin contraseña | RF-13 |
-| Carpeta de copias borrada, tarjeta retirada o permiso revocado | RF-18 |
-| Carpeta de copias con otros ficheros del usuario | RF-16 |
+| El usuario cancela el selector de ficheros | RF-1, RF-24 (no se escribe nada) |
+| Sin espacio o sitio no disponible al guardar una copia o un paquete | RF-5 |
+| Fichero que no es de TopoPhone, ZIP dañado o cortado | RF-12 |
+| Copia o paquete de una app más nueva | RF-13 |
+| Copia o paquete de una app más antigua | RF-14 |
+| La restauración falla a medias (sin espacio, app cerrada) | RF-10 |
+| Restaurar la copia equivocada | RF-11 |
+| Restaurar dos veces seguidas | RF-7 (la copia del estado anterior a la primera queda en la carpeta de las copias automáticas) |
+| Restaurar en el mismo móvil | RF-9 (las contraseñas NTRIP se conservan) |
+| Restaurar en otro móvil: receptor sin asociar y sin carpeta de copias | RF-3, RF-8 (se asocian de nuevo) |
+| Perfil NTRIP restaurado sin contraseña en este móvil | RF-15 |
+| Restaurar con una conexión NTRIP abierta cuyo perfil cambia o desaparece | RF-8 y S007/RF-8, RF-9 (se reconecta o se cierra) |
+| Restaurar o sustituir un proyecto mientras se mide un punto | RF-16 |
+| Carpeta de copias borrada, tarjeta retirada o permiso revocado | RF-21 |
+| Carpeta de copias con otros ficheros del usuario | RF-19 |
 | Recolectar mientras se hace una copia automática | RNF (estado coherente, no impide guardar) |
-| Sin cambios desde la última copia | RF-15 (no se hace otra) |
-| Paquete de un proyecto que ya está en el móvil | RF-23 a RF-25 |
-| Paquete de otro proyecto con el mismo nombre | RF-25 |
-| Paquete importado varias veces como nuevo | RF-25 |
-| Proyecto sin puntos | RF-2, RF-21 (se copia igual) |
+| Sin cambios desde la última copia | RF-18 (no se hace otra) |
+| Paquete de un proyecto que ya está en el móvil | RF-26 a RF-28 |
+| Paquete de otro proyecto con el mismo nombre | RF-28 |
+| Paquete importado varias veces como nuevo | RF-28 |
+| Proyecto sin puntos | RF-2, RF-24 (se copia igual) |
 
 ## Fuera de alcance
 - Log de la app e informe de sistema (RNF-T12) → S014.
@@ -112,13 +120,15 @@ La constitución nº 1 exige que el dato de campo "siempre pueda exportarse o re
 ## Dudas abiertas
 Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te vale, se cambia la spec antes de implementarla.
 - [SUPOSICIÓN: la copia completa es un fichero ZIP, para que se pueda abrir con cualquier programa; el paquete usa la extensión `.topoproj`.]
-- [SUPOSICIÓN: las copias automáticas se llaman "TopoPhone_auto_<AAAAMMDD-HHMM>.zip"; RF-16 solo borra los ficheros con ese nombre.]
-- [SUPOSICIÓN: "Deshacer la restauración" está disponible hasta la siguiente restauración, que guarda un nuevo estado anterior.]
+- [SUPOSICIÓN: las copias automáticas se llaman "TopoPhone_auto_<AAAAMMDD-HHMM>.zip" y las del estado anterior a una restauración "TopoPhone_antes-de-restaurar_<AAAAMMDD-HHMM>.zip"; RF-19 solo borra las primeras.]
+- [SUPOSICIÓN: "Deshacer la restauración" está disponible hasta la siguiente restauración, que guarda un nuevo estado anterior; después de deshacer, la opción desaparece hasta la siguiente restauración.]
+- [SUPOSICIÓN: al elegir la carpeta de las copias automáticas se hace la primera copia en ese momento.]
 - [SUPOSICIÓN: "el proyecto ya está en el móvil" significa el mismo proyecto (el que se exportó en el paquete), no otro con el mismo nombre; un proyecto en la papelera no cuenta.]
-- [SUPOSICIÓN: el proyecto importado se añade fuera de las carpetas; el paquete no lleva la carpeta.]
+- [SUPOSICIÓN: el proyecto importado como nuevo se añade fuera de las carpetas; el paquete no lleva la carpeta.]
 - [SUPOSICIÓN: el paquete no lleva ajustes de la app ni perfiles NTRIP; solo el proyecto.]
+- [SUPOSICIÓN: en RF-9, "el mismo perfil" es el que se guardó en la copia, aunque después haya cambiado su nombre o su servidor.]
 - [SUPOSICIÓN: las opciones de copia y restauración están en una sección "Copias de seguridad" de Ajustes; "Exportar paquete" en el menú de cada proyecto, junto a "Exportar CSV", e "Importar paquete" en el menú de la lista de proyectos (S006).]
-- [SUPOSICIÓN: el aviso de RF-19 desaparece en cuanto se elige una carpeta.]
+- [SUPOSICIÓN: el aviso de RF-22 desaparece en cuanto se elige una carpeta.]
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`:
