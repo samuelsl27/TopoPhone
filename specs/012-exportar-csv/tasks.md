@@ -8,7 +8,7 @@
       Hecho cuando: `ExportFileNameTest` en verde con caracteres no válidos y nombres largos.
 - [x] T3. Ficheros dorados en `fixtures/formatos/csv/` y `tools/formatos/test_csv_exportado.py`. (RF-11, RF-12, RF-15, RF-16)
       Hecho cuando: `CsvExportGoldenTest` y `uv run --project tools pytest tools` en verde.
-- [ ] T4. `data`: `PointRepository.pointsForExport` y `ExportPreferences` (DataStore "export"). (RF-1, RF-3, RF-21)
+- [x] T4. `data`: `PointRepository.pointsForExport` y `ExportPreferences` (DataStore "export"). (RF-1, RF-3, RF-21)
       Hecho cuando: `PointRepositoryExportTest` y `ExportPreferencesTest` en verde.
 - [ ] T5. `app`: `ExportSelection` y `ExportViewModel` (puntos, ajustes recordados, validez, nombre, escritura en un `OutputStream`, errores). (RF-1 a RF-4, RF-13, RF-14, RF-16, RF-19 a RF-21)
       Hecho cuando: `ExportViewModelTest` en verde.

@@ -10,6 +10,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.export.DataStoreExportPreferences
+import es.topophone.data.export.ExportDataStoreQualifier
+import es.topophone.data.export.ExportPreferences
 import es.topophone.data.map.DataStoreMapPreferences
 import es.topophone.data.map.MapDataStoreQualifier
 import es.topophone.data.map.MapPreferences
@@ -59,6 +62,12 @@ object DataStoreModule {
     @CollectorDataStoreQualifier
     fun provideCollectorDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         SettingsDataStore.create(context, name = "collector")
+
+    @Provides
+    @Singleton
+    @ExportDataStoreQualifier
+    fun provideExportDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        SettingsDataStore.create(context, name = "export")
 
     @Provides
     @Singleton
@@ -124,4 +133,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindCollectorPreferences(implementation: DataStoreCollectorPreferences): CollectorPreferences
+
+    @Binds
+    abstract fun bindExportPreferences(implementation: DataStoreExportPreferences): ExportPreferences
 }

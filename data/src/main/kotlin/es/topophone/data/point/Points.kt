@@ -64,6 +64,18 @@ interface PointDao {
     @Query("SELECT * FROM points WHERE id = :id")
     suspend fun byId(id: String): PointEntity?
 
+    /** Los activos para exportar, sin las frases NMEA, que el CSV no usa y pueden ocupar mucho (S012/RF-1, RF-3). */
+    @Query(
+        "SELECT id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+            "ground_lat, ground_lon, ground_h, easting, northing, height, measured_ground_lat, measured_ground_lon, " +
+            "measured_ground_h, measured_easting, measured_northing, measured_height, solution, satellites, hdop, " +
+            "correction_age, sigma_h, sigma_v, mode, epochs_used, epochs_discarded, from_replay, out_of_tolerance, " +
+            "'' AS raw_nmea, measured_from, measured_to, typed_form, typed_first, typed_second, typed_height, " +
+            "typed_height_kind, edited, hidden, copy_of, created_at, deleted_at, trash_key FROM points " +
+            "WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at",
+    )
+    suspend fun forExport(projectId: String): List<PointEntity>
+
     @Query("SELECT * FROM point_history WHERE point_id = :pointId ORDER BY changed_at DESC")
     fun history(pointId: String): Flow<List<PointHistoryEntity>>
 
@@ -134,6 +146,9 @@ interface PointRepository {
 
     suspend fun names(projectId: String): Set<String>
 
+    /** Los puntos activos, ocultos incluidos, en orden de creación y sin las frases NMEA (S012/RF-1, RF-3). */
+    suspend fun pointsForExport(projectId: String): List<Point>
+
     /** Guarda [point] y, en la misma transacción, su versión anterior en el historial (S011/RF-10). */
     suspend fun update(point: Point, change: PointChange): PointSaveResult
 
@@ -197,6 +212,8 @@ class RoomPointRepository(private val database: TopoPhoneDatabase, private val c
     override suspend fun nameExists(projectId: String, name: String): Boolean = dao.nameExists(projectId, name)
 
     override suspend fun names(projectId: String): Set<String> = dao.names(projectId).toSet()
+
+    override suspend fun pointsForExport(projectId: String): List<Point> = dao.forExport(projectId).map { it.toPoint() }
 
     override suspend fun update(point: Point, change: PointChange): PointSaveResult = updateAll(listOf(point), change)
 

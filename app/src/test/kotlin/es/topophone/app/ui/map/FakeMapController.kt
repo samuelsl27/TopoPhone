@@ -138,6 +138,9 @@ class FakePointRepository(initial: List<Point> = emptyList(), private val clock:
 
     override suspend fun names(projectId: String): Set<String> = active(projectId).map { it.name }.toSet()
 
+    override suspend fun pointsForExport(projectId: String): List<Point> =
+        active(projectId).sortedBy { it.createdAtMs }.map { point -> point.copy(measurement = point.measurement?.copy(rawNmea = "")) }
+
     override suspend fun update(point: Point, change: PointChange): PointSaveResult = updateAll(listOf(point), change)
 
     override suspend fun updateAll(points: List<Point>, change: PointChange): PointSaveResult {

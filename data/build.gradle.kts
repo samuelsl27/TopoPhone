@@ -21,6 +21,7 @@ room {
 
 dependencies {
     api(projects.core.model)
+    api(projects.core.formats)
     implementation(projects.core.survey)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.core)
