@@ -143,7 +143,7 @@ class ReceiverSessionEpochTest {
     fun `S010 RF-9 la sesion entrega todas las epocas, sin saltarse ninguna aunque lleguen a 10 Hz`() {
         val session = ReceiverSession(scope, noNtrip)
         val received = Collections.synchronizedList(mutableListOf<Int>())
-        val collector = scope.launch(start = CoroutineStart.UNDISPATCHED) { session.epochs.collect { received += it.utcMillisOfDay } }
+        val collector = scope.launch(start = CoroutineStart.UNDISPATCHED) { session.epochs.collect { received += it.epoch.utcMillisOfDay } }
         session.connect(transport)
 
         // 50 épocas a 10 Hz en una sola ráfaga: el estado solo conserva la última.

@@ -9,11 +9,18 @@ import es.topophone.core.gnss.nmea.GstParser
 import es.topophone.core.gnss.nmea.NmeaFramer
 import es.topophone.core.gnss.nmea.NmeaSentence
 import es.topophone.core.gnss.nmea.ReplaySpeed
+import es.topophone.core.gnss.nmea.SkyView
+import es.topophone.core.gnss.rtcm.MsmDecoder
+import es.topophone.core.gnss.rtcm.ReferenceStationDecoder
 import es.topophone.core.gnss.rtcm.RtcmFramer
+import es.topophone.core.gnss.rtcm.RtcmKind
+import es.topophone.core.gnss.rtcm.RtcmMessages
 import es.topophone.core.gnss.rtcm.RtcmStats
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.BaseState
+import es.topophone.core.survey.BaseTracker
 import es.topophone.receiver.transport.BluetoothOffException
 import es.topophone.receiver.transport.ReceiverTransport
 import es.topophone.receiver.transport.ReplayTransport
@@ -128,7 +135,17 @@ data class ReceiverSnapshot(
     val nmeaMissing: Boolean = false,
     /** Con la conexión NTRIP abierta, la edad de las correcciones supera el umbral (S007/RF-29). */
     val correctionsAlarm: Boolean = false,
+    /** Lo último de GSA y GSV: DOP, satélites, skyplot y SNR del rover (S015/RF-2 a RF-7). */
+    val sky: SkyView? = null,
+    /** La base en uso, su SNR y sus cambios (S015/RF-8 a RF-17). */
+    val base: BaseState = BaseState.NONE,
 )
+
+/**
+ * Una época con la base que había al emitirla: quien va con retraso no confunde la base de una época vieja con la de
+ * ahora (S015/RF-18, plan A10).
+ */
+data class SessionEpoch(val epoch: Epoch, val base: BaseState)
 
 /** Registro de los datos brutos recibidos del receptor (S002/RF-42). */
 fun interface SessionRecorder {
@@ -202,13 +219,14 @@ class ReceiverSession(
     private val mutableState = MutableStateFlow(ReceiverSnapshot())
     val state: StateFlow<ReceiverSnapshot> = mutableState.asStateFlow()
 
-    private val mutableEpochs = MutableSharedFlow<Epoch>(extraBufferCapacity = EPOCH_BUFFER, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val mutableEpochs =
+        MutableSharedFlow<SessionEpoch>(extraBufferCapacity = EPOCH_BUFFER, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     /**
      * Cada época completa, en orden. El estado conserva solo la última y a 10 Hz un lector lento se saltaría
      * alguna; aquí no, mientras no se retrase más de [EPOCH_BUFFER] épocas (S010/RF-9).
      */
-    val epochs: SharedFlow<Epoch> = mutableEpochs.asSharedFlow()
+    val epochs: SharedFlow<SessionEpoch> = mutableEpochs.asSharedFlow()
 
     private val lock = Any()
     private var connectionJob: Job? = null
@@ -223,6 +241,10 @@ class ReceiverSession(
     /** Lo usan el lector y el vigilante: siempre bajo [assemblerLock]. */
     private val assemblerLock = Any()
     private var assembler = EpochAssembler()
+
+    /** Lo usan el lector, el NTRIP y el vigilante: siempre bajo [baseLock] (S015, plan A6). */
+    private val baseLock = Any()
+    private val baseTracker = BaseTracker()
 
     @Volatile private var lastGstAtMs = 0L
 
@@ -410,6 +432,7 @@ class ReceiverSession(
             writes?.close()
             writes = null
         }
+        synchronized(baseLock) { baseTracker.reset() } // S015/RF-17: la base se compara dentro de una conexión
         mutableState.value = ReceiverSnapshot()
     }
 
@@ -447,19 +470,21 @@ class ReceiverSession(
         ntripConfig = config
         mutableState.update { it.copy(ntrip = NtripState.Connecting) }
         correctionsSinceMs = clock()
+        val generation = connectionGeneration.get()
+        val onFrame = { type: Int, payload: ByteArray -> onCorrectionFrame(type, payload, generation) }
         ntripJob = scope.launch {
             var bytes = 0L
             var lastCorrectionAtMs: Long? = null
             var attempt = 0
             var rtcm = RtcmStats()
-            var framer = RtcmFramer()
+            var framer = RtcmFramer(onFrame)
             while (isActive) {
                 val failure = ntripConnector.run(
                     config,
                     latestGga = { mutableState.value.gga?.rawSentence },
                     onConnected = {
                         attempt = 0 // S007/RF-23: un corte nuevo empieza por el primer intento
-                        framer = RtcmFramer() // el flujo nuevo empieza a mitad de trama
+                        framer = RtcmFramer(onFrame) // el flujo nuevo empieza a mitad de trama
                         mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, lastCorrectionAtMs, rtcm)) }
                     },
                 ) { corrections ->
@@ -559,9 +584,35 @@ class ReceiverSession(
         synchronized(assemblerLock) { assembler.feed(sentence, now) }?.let { onEpoch(it, description) }
     }
 
-    /** Época completa (S003/RF-8): se publica y, si estaba en "Sin datos", se vuelve a "Recibiendo". */
+    /**
+     * La posición de la estación (1005/1006) y la SNR de la base (MSM) de las correcciones (S015/RF-8, RF-12). Lo que
+     * llegue de un NTRIP de una conexión anterior se descarta.
+     */
+    private fun onCorrectionFrame(type: Int, payload: ByteArray, generation: Int) {
+        val now = clock()
+        val base = synchronized(baseLock) {
+            if (generation != connectionGeneration.get()) return
+            val changed = when (RtcmMessages.kind(type)) {
+                RtcmKind.ReferenceStation -> ReferenceStationDecoder.decode(payload)?.let { baseTracker.onReferenceStation(it, now) }
+                is RtcmKind.Msm -> MsmDecoder.decode(payload)?.let { baseTracker.onMsm(it, now) }
+                else -> null
+            }
+            if (changed == true) baseTracker.state else return
+        }
+        updateConnection(generation) { it.copy(base = base) }
+    }
+
+    /**
+     * Época completa (S003/RF-8): se publica y, si estaba en "Sin datos", se vuelve a "Recibiendo". La base y la vista
+     * del cielo se actualizan antes de emitirla: quien la recibe ya ve su base (S015, plan A10).
+     */
     private fun onEpoch(epoch: Epoch, description: String) {
         lastEpochAtMs = epoch.completedAtMs
+        val base = synchronized(baseLock) {
+            epoch.basePosition?.let { baseTracker.onEbp(it, epoch.completedAtMs) }
+            baseTracker.tick(epoch.completedAtMs)
+            baseTracker.state
+        }
         mutableState.update { current ->
             val connection = if (current.connection is ConnectionState.NoData) {
                 ConnectionState.Receiving(
@@ -570,9 +621,15 @@ class ReceiverSession(
             } else {
                 current.connection
             }
-            current.copy(connection = connection, epoch = epoch, satellitesInView = epoch.satellitesInView ?: current.satellitesInView)
+            current.copy(
+                connection = connection,
+                epoch = epoch,
+                satellitesInView = epoch.satellitesInView ?: current.satellitesInView,
+                sky = SkyView.next(current.sky, epoch),
+                base = base,
+            )
         }
-        mutableEpochs.tryEmit(epoch)
+        mutableEpochs.tryEmit(SessionEpoch(epoch, base))
     }
 
     /**
@@ -585,6 +642,7 @@ class ReceiverSession(
             delay(watchdogPeriodMs)
             val now = clock()
             synchronized(assemblerLock) { assembler.tick(now) }?.let { onEpoch(it, description) }
+            val base = synchronized(baseLock) { if (baseTracker.tick(now)) baseTracker.state else null } // S015/RF-10, RF-16
             if (now - lastFlushMs >= FLUSH_PERIOD_MS) { // un cierre brusco pierde como mucho los últimos 2 s
                 lastFlushMs = now
                 withContext(Dispatchers.IO) { activeRecording?.flush() }
@@ -602,6 +660,7 @@ class ReceiverSession(
                 val ntripOpen = current.ntrip is NtripState.Streaming || current.ntrip is NtripState.Reconnecting
                 val alarm = ntripOpen && now - correctionsSinceMs > correctionsAlarmMs
                 if (alarm != current.correctionsAlarm) next = next.copy(correctionsAlarm = alarm)
+                if (base != null) next = next.copy(base = base)
                 next
             }
         }

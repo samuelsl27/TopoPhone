@@ -193,7 +193,7 @@ class CollectorViewModel @Inject constructor(
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, CollectorUiState())
 
     init {
-        viewModelScope.launch { session.epochs.collect(::onEpoch) }
+        viewModelScope.launch { session.epochs.collect { onEpoch(it.epoch) } }
     }
 
     fun start(id: String) {

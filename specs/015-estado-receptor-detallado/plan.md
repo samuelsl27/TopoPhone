@@ -152,10 +152,11 @@ Columnas nuevas de `points`, todas opcionales (NULL en los puntos sin base, los 
 4. Tramo de color de cada barra: menos de 35, de 35 a menos de 45, y 45 o más (RF-9). Cada barra escribe su valor: entero el del rover, con un decimal el de la base en MSM6 y MSM7.
 
 ### A10. Reinicio de la medida (RF-18)
-1. Al empezar, la medida guarda el `serial` de la base del estado de la sesión.
-2. En cada época, antes de pasarla a `PointMeasurement`, el recolector mira `session.state.value.base?.serial`. La sesión actualiza la base antes de emitir la época, así que la época que trae una base nueva no entra nunca en la media vieja.
-3. Si el serial ha cambiado, cancela la medida y crea otra con los mismos parámetros y la hora de ahora. El progreso vuelve a cero y se ve el aviso "La base ha cambiado".
-4. Una base nueva que llega por las correcciones se detecta en la época siguiente.
+1. Cada época sale de la sesión con la base que había al emitirla (`SessionEpoch(epoch, base)`). La sesión actualiza la base antes de emitir la época.
+2. Al empezar, la medida guarda el número de cambios de base (`base.change?.count`) de la época en curso.
+3. En cada época, antes de pasarla a `PointMeasurement`, el recolector compara ese número con el de la época. Si el recolector va con retraso, no confunde la base de una época vieja con la de ahora, y la época que trae una base nueva no entra nunca en la media vieja.
+4. Si el número ha cambiado, cancela la medida y crea otra con los mismos parámetros y la hora de ahora. El progreso vuelve a cero y se ve el aviso "La base ha cambiado".
+5. Una base nueva que llega por las correcciones se detecta en la época siguiente.
 
 ## Contratos
 - `RtcmFramer(onFrame: ((type: Int, payload: ByteArray) -> Unit)? = null)`.
@@ -164,7 +165,8 @@ Columnas nuevas de `points`, todas opcionales (NULL en los puntos sin base, los 
 - `Band.fromNmea(constellation, signalId?)`, `Band.fromRtcm(system, signal)` y `SatelliteNumber.native(constellation, prn)`.
 - `Ecef.fromGeodetic(latDeg, lonDeg, h, ellipsoid)` y `Ecef.toGeodetic(x, y, z, ellipsoid)`.
 - `BaseTracker(clock)`: `onEbp`, `onReferenceStation`, `onMsm`, `tick`, `reset` y `state: BaseState`.
-- `ReceiverSnapshot`: `sky: SkyView? = null` y `base: BaseState? = null`.
+- `ReceiverSnapshot`: `sky: SkyView? = null` y `base: BaseState = BaseState.NONE`.
+- `ReceiverSession.epochs: SharedFlow<SessionEpoch>`, con `SessionEpoch(epoch, base)` (A10).
 - `MapController.showBase(position: GeoPoint?)`.
 - `BaseNotices` (app, @Singleton): `dismissedChangeSerial` y `dismissedLongBaselineSerial`.
   - "La base ha cambiado" se ve mientras `change.serial != dismissedChangeSerial`.
@@ -192,7 +194,7 @@ Columnas nuevas de `points`, todas opcionales (NULL en los puntos sin base, los 
 | Migración automática 6 → 7 | Solo son columnas nuevas que admiten NULL (ADR-8) | Migración escrita a mano |
 | Base en el mapa con un icono propio (triángulo con borde blanco) en una `SymbolLayer` | Se distingue del círculo del rover y de los puntos; es el símbolo habitual de una estación | Otro círculo (se confunde); un carácter "▲" (puede faltar en las fuentes del mapa) |
 | SNR en barras horizontales, una fila por satélite con rover y base juntos, agrupadas por constelación y banda | Caben 60 satélites en un móvil y se leen con guantes; la comparación por satélite que pidió el usuario | Gráfico de barras vertical: no cabe y las etiquetas no se leen |
-| El recolector mira el serial de la base al recibir cada época | La sesión actualiza la base antes de emitir la época: ninguna época con la base nueva entra en la media vieja | Observar el estado aparte: carrera entre el flujo de épocas y el del estado |
+| Cada época sale con la base que había al emitirla, y el recolector compara su número de cambios | Ninguna época con la base nueva entra en la media vieja, aunque el recolector vaya con retraso | Leer el estado de la sesión al recibir la época: si el recolector va con retraso, el estado ya va por delante (lo detectó `ReceiverSessionBaseTest`) |
 | Los avisos cerrados se guardan en un `BaseNotices` común | Cerrar un aviso en Estado lo cierra también en el recolector ("hasta que el usuario los cierra") | Un estado por pantalla |
 
 ## Estrategia de tests
