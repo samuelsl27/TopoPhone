@@ -12,6 +12,9 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
+import es.topophone.app.ui.backup.BackupsActions
+import es.topophone.app.ui.backup.BackupsScreen
+import es.topophone.app.ui.backup.BackupsUiState
 import es.topophone.app.ui.projects.SurveyPageScreen
 import es.topophone.app.ui.projects.SurveyUiState
 import es.topophone.app.ui.receiver.ReceiverActions
@@ -102,6 +105,7 @@ fun StatefulTestApp(
                 var defaults by remember { mutableStateOf(ProjectDefaults()) }
                 ProjectDefaultsScreen(theme, toggleSun, defaults, { defaults = it }, back)
             },
+            backupsSection = { theme, toggleSun, back, _ -> BackupsScreen(theme, toggleSun, BackupsUiState(), BackupsActions(), back) },
         )
     }
 }

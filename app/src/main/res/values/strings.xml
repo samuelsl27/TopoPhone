@@ -611,4 +611,41 @@
         <item quantity="other">Se exportarán %1$d puntos</item>
     </plurals>
     <string name="export_share_chooser">Compartir CSV</string>
+    <string name="backups_title">Copias de seguridad</string>
+    <string name="backup_section_full">Copia completa</string>
+    <string name="backup_section_auto">Copias automáticas</string>
+    <string name="backup_create">Crear copia de seguridad</string>
+    <string name="backup_restore">Restaurar copia de seguridad</string>
+    <string name="backup_undo">Deshacer la restauración</string>
+    <string name="backup_folder">Carpeta de las copias automáticas</string>
+    <string name="backup_folder_none">Sin elegir</string>
+    <string name="backup_folder_remove">Quitar la carpeta</string>
+    <string name="backup_last_auto">Última copia automática</string>
+    <string name="backup_last_auto_none">Todavía no se ha hecho ninguna</string>
+    <string name="backup_confirm_text">Copia del %1$s: %2$s y %3$s. Sustituirá todos los datos del móvil. Antes se guarda una copia de lo que hay ahora.</string>
+    <string name="backup_confirm">Restaurar</string>
+    <string name="backup_undo_text">Los datos, los ajustes y las contraseñas NTRIP vuelven a como estaban antes de restaurar.</string>
+    <string name="backup_undo_confirm">Deshacer</string>
+    <string name="backup_working">Un momento…</string>
+    <string name="backup_saved">Copia de seguridad guardada.</string>
+    <string name="backup_not_saved">No se ha podido guardar la copia de seguridad.</string>
+    <string name="backup_restored">Copia restaurada.</string>
+    <string name="backup_undone">Restauración deshecha.</string>
+    <string name="backup_not_topophone">Ese fichero no es una copia de seguridad de TopoPhone.</string>
+    <string name="backup_is_package">Ese fichero es un paquete de proyecto: impórtalo desde el menú de la lista de proyectos.</string>
+    <string name="backup_damaged">La copia está dañada o incompleta.</string>
+    <string name="backup_newer">La copia es de una versión más nueva de TopoPhone. Actualiza la app para restaurarla.</string>
+    <string name="backup_measuring">Hay una medida en curso. Termínala o cancélala antes de seguir.</string>
+    <string name="backup_not_restored">No se ha podido restaurar. Los datos siguen como estaban.</string>
+    <string name="backup_folder_failed">No se puede guardar en esa carpeta. Elige otra.</string>
+    <string name="backup_auto_failed">No se ha podido hacer la copia automática.</string>
+    <string name="backup_dismiss">Entendido</string>
+    <plurals name="backup_projects">
+        <item quantity="one">%1$d proyecto</item>
+        <item quantity="other">%1$d proyectos</item>
+    </plurals>
+    <plurals name="backup_points">
+        <item quantity="one">%1$d punto</item>
+        <item quantity="other">%1$d puntos</item>
+    </plurals>
 </resources>

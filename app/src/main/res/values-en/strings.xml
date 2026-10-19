@@ -599,4 +599,41 @@
         <item quantity="other">%1$d points will be exported</item>
     </plurals>
     <string name="export_share_chooser">Share CSV</string>
+    <string name="backups_title">Backups</string>
+    <string name="backup_section_full">Full backup</string>
+    <string name="backup_section_auto">Automatic backups</string>
+    <string name="backup_create">Create backup</string>
+    <string name="backup_restore">Restore backup</string>
+    <string name="backup_undo">Undo the restore</string>
+    <string name="backup_folder">Automatic backup folder</string>
+    <string name="backup_folder_none">Not chosen</string>
+    <string name="backup_folder_remove">Remove the folder</string>
+    <string name="backup_last_auto">Last automatic backup</string>
+    <string name="backup_last_auto_none">None made yet</string>
+    <string name="backup_confirm_text">Backup from %1$s: %2$s and %3$s. It will replace all the data on this phone. A copy of the current data is saved first.</string>
+    <string name="backup_confirm">Restore</string>
+    <string name="backup_undo_text">The data, settings and NTRIP passwords go back to how they were before the restore.</string>
+    <string name="backup_undo_confirm">Undo</string>
+    <string name="backup_working">One moment…</string>
+    <string name="backup_saved">Backup saved.</string>
+    <string name="backup_not_saved">The backup could not be saved.</string>
+    <string name="backup_restored">Backup restored.</string>
+    <string name="backup_undone">Restore undone.</string>
+    <string name="backup_not_topophone">That file is not a TopoPhone backup.</string>
+    <string name="backup_is_package">That file is a project package: import it from the project list menu.</string>
+    <string name="backup_damaged">The backup is damaged or incomplete.</string>
+    <string name="backup_newer">The backup is from a newer version of TopoPhone. Update the app to restore it.</string>
+    <string name="backup_measuring">A measurement is in progress. Finish or cancel it before going on.</string>
+    <string name="backup_not_restored">The restore failed. The data is as it was.</string>
+    <string name="backup_folder_failed">That folder cannot be used. Choose another one.</string>
+    <string name="backup_auto_failed">The automatic backup could not be made.</string>
+    <string name="backup_dismiss">OK</string>
+    <plurals name="backup_projects">
+        <item quantity="one">%1$d project</item>
+        <item quantity="other">%1$d projects</item>
+    </plurals>
+    <plurals name="backup_points">
+        <item quantity="one">%1$d point</item>
+        <item quantity="other">%1$d points</item>
+    </plurals>
 </resources>

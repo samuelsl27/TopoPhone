@@ -29,6 +29,7 @@ const val LANGUAGE_SETTING_TAG = "setting_language"
 const val ABOUT_SETTING_TAG = "setting_about"
 const val LICENSES_SETTING_TAG = "setting_licenses"
 const val PROJECT_DEFAULTS_SETTING_TAG = "setting_project_defaults"
+const val BACKUPS_SETTING_TAG = "setting_backups"
 const val BACKGROUND_HELP_SETTING_TAG = "setting_background_help"
 
 fun themeOptionTag(mode: ThemeMode) = "theme_option_${mode.name}"
@@ -63,6 +64,7 @@ fun SettingsScreen(
     onOpenLicenses: () -> Unit,
     onOpenBackgroundHelp: () -> Unit = {},
     onOpenProjectDefaults: () -> Unit = {},
+    onOpenBackups: () -> Unit = {},
 ) {
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
@@ -95,6 +97,11 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_project_defaults),
                 onClick = onOpenProjectDefaults, // S006/RF-13
                 modifier = Modifier.testTag(PROJECT_DEFAULTS_SETTING_TAG),
+            )
+            SettingsItem(
+                title = stringResource(R.string.backups_title),
+                onClick = onOpenBackups, // S013
+                modifier = Modifier.testTag(BACKUPS_SETTING_TAG),
             )
             SettingsSectionHeader(stringResource(R.string.settings_section_receiver))
             SettingsItem(

@@ -38,6 +38,9 @@ import kotlinx.serialization.Serializable
 /** "Proyectos nuevos" en Ajustes (S006/RF-13). */
 @Serializable data object ProjectDefaultsDestination
 
+/** "Copias de seguridad" en Ajustes (S013). */
+@Serializable data object BackupsDestination
+
 /** Formulario de proyecto en Levantamiento: nuevo si [projectId] es null (S006). */
 @Serializable data class ProjectFormDestination(val projectId: String? = null, val folderId: String? = null)
 

@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import es.topophone.app.ui.backup.BackupsRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.points.ObjectListRoute
 import es.topophone.app.ui.points.PointDetailsRoute
@@ -80,6 +81,8 @@ fun TopoPhoneApp(
     projectDefaultsSection: @Composable (ThemeState, () -> Unit, onBack: () -> Unit) -> Unit = { theme, toggleSun, back ->
         ProjectDefaultsRoute(theme, toggleSun, back)
     },
+    backupsSection: @Composable (ThemeState, () -> Unit, onBack: () -> Unit, onRestored: () -> Unit) -> Unit =
+        { theme, toggleSun, back, restored -> BackupsRoute(theme, toggleSun, back, restored) },
     ntripProfileSection: @Composable (profileId: String?, ThemeState, () -> Unit, onBack: () -> Unit) -> Unit =
         { profileId, theme, toggleSun, back -> NtripProfileFormRoute(profileId, theme, toggleSun, back) },
     surveySection: @Composable (SurveyPage, ThemeState, () -> Unit, SurveyNavigation, ViewModelStoreOwner) -> Unit =
@@ -162,6 +165,7 @@ fun TopoPhoneApp(
                 sessionsSection,
                 surveySection,
                 projectDefaultsSection,
+                backupsSection,
                 ntripProfileSection,
                 Modifier.padding(padding),
             )
@@ -178,6 +182,7 @@ private fun AppNavHost(
     sessionsSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
     surveySection: @Composable (SurveyPage, ThemeState, () -> Unit, SurveyNavigation, ViewModelStoreOwner) -> Unit,
     projectDefaultsSection: @Composable (ThemeState, () -> Unit, () -> Unit) -> Unit,
+    backupsSection: @Composable (ThemeState, () -> Unit, () -> Unit, () -> Unit) -> Unit,
     ntripProfileSection: @Composable (String?, ThemeState, () -> Unit, () -> Unit) -> Unit,
     modifier: Modifier,
 ) {
@@ -303,7 +308,11 @@ private fun AppNavHost(
                     onOpenLicenses = { navController.navigate(LicensesRoute) },
                     onOpenBackgroundHelp = { navController.navigate(BackgroundHelpRoute) },
                     onOpenProjectDefaults = { navController.navigate(ProjectDefaultsDestination) }, // S006/RF-13
+                    onOpenBackups = { navController.navigate(BackupsDestination) }, // S013
                 )
+            }
+            composable<BackupsDestination> {
+                backupsSection(uiState.themeState, actions.onToggleSun, { navController.popBackStack() }, {})
             }
             composable<ProjectDefaultsDestination> {
                 projectDefaultsSection(uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
