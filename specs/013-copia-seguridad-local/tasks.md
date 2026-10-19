@@ -4,7 +4,7 @@
 
 - [x] T1. `core:formats`: `BackupManifest` y `BackupArchive` (escribir y leer el ZIP, sumas SHA-256, `NotTopoPhone`, `WrongKind`, `Damaged`, `Newer`), con `kotlinx-serialization-json`. (RF-12, RF-13)
       Hecho cuando: `BackupArchiveTest` en verde con ida y vuelta, entradas que faltan, sumas cambiadas y versiones más nuevas.
-- [ ] T2. `core:formats`: `BackupFileNames` (con `ExportFileName.clean` pública) y `AutoBackupPolicy` (cuándo toca y qué copias sobran). (RF-4, RF-7, RF-18, RF-19)
+- [x] T2. `core:formats`: `BackupFileNames` (con las reglas de `ExportFileName` compartidas en el módulo) y `AutoBackupPolicy` (cuándo toca y qué copias sobran). (RF-4, RF-7, RF-18, RF-19)
       Hecho cuando: `BackupFileNamesTest` y `AutoBackupPolicyTest` en verde.
 - [ ] T3. `data`: `DatabaseSnapshot` (conexión de solo lectura, copia por tablas entera o de un proyecto, marca de contraseña). (RF-2, RF-3, RF-24, RNF)
       Hecho cuando: `DatabaseSnapshotTest` en verde con los `double` iguales bit a bit y un punto guardado mientras la instantánea está abierta.

@@ -227,7 +227,7 @@ interface BackupFolder {                                                     // 
 | `MeasurementInProgress` como `@Singleton` que actualiza `CollectorViewModel` | El estado de la medida vive en el ViewModel del recolector y la pantalla de copias no lo ve (RF-16) | Mover toda la medida a un singleton: cambio grande en S010 |
 | La copia "antes de restaurar" de la carpeta, si falla, no detiene la restauración | La copia privada ya permite deshacer; el fallo se avisa como el de una copia automática | Detener la restauración: un problema de la tarjeta impediría restaurar |
 | Las claves de los DataStores que viajan, en una lista explícita | Lo que es del móvil (receptor, permisos, estado de la sesión NTRIP) no viaja por error al añadir claves nuevas | Copiar los ficheros `.preferences_pb` enteros: se llevaría la dirección del receptor |
-| `ExportFileName.clean` pasa a ser pública y la usan los nombres de la copia | La misma regla de caracteres que S012/RF-19 (RF-4) | Duplicar la expresión regular |
+| Las reglas de `ExportFileName` (proyecto y fecha) se comparten dentro de `core:formats` y las usan los nombres de la copia | La misma regla de caracteres que S012/RF-19 (RF-4) | Duplicar la expresión regular |
 
 ## Estrategia de tests
 - **Unitarios JVM (`core:formats`):**
