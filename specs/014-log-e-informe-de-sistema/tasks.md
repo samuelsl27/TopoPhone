@@ -20,7 +20,7 @@
       Hecho cuando: `SystemReportWriterTest` en verde.
 - [x] T9. `app`: sección "Diagnóstico" de Ajustes (crear el informe con guardar o compartir, tamaño del log). (RF-9, RF-10, RF-17)
       Hecho cuando: `DiagnosticsSettingsTest` en verde.
-- [ ] T10. `app`: ni el log ni el informe llevan contraseñas ni usuarios NTRIP. (RF-7, RF-15)
+- [x] T10. `app`: ni el log ni el informe llevan contraseñas ni usuarios NTRIP. (RF-7, RF-15)
       Hecho cuando: `NoSecretsTest` en verde.
 - [ ] T11. Rendimiento: informe con 25 MB de sesiones en menos de 10 s; anotar no retrasa el guardado de un punto. (RNF)
       Hecho cuando: los tests de rendimiento en verde.
