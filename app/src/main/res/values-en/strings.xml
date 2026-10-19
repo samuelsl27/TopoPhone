@@ -645,4 +645,15 @@
     <string name="package_share_chooser">Share package</string>
     <string name="package_saved">Package saved.</string>
     <string name="package_not_saved">The package could not be exported.</string>
+    <string name="package_import">Import package</string>
+    <string name="project_imported_label">imported</string>
+    <string name="package_exists">%1$s is already on this phone. Replace it (the one on the phone goes to the trash) or import it as a new project?</string>
+    <string name="package_replace">Replace</string>
+    <string name="package_as_new">Import as new</string>
+    <string name="package_imported">Project imported: %1$s.</string>
+    <string name="package_not_topophone">That file is not a TopoPhone project package.</string>
+    <string name="package_is_backup">That file is a full backup: restore it from Settings, in Backups.</string>
+    <string name="package_damaged">The package is damaged or incomplete.</string>
+    <string name="package_newer">The package is from a newer version of TopoPhone. Update the app to import it.</string>
+    <string name="package_not_imported">The package could not be imported.</string>
 </resources>

@@ -23,7 +23,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
-import es.topophone.app.ui.backup.rememberPackageExport
+import es.topophone.app.ui.backup.rememberPackageHost
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.Project
@@ -100,7 +100,7 @@ fun ProjectFolderRoute(
     LaunchedEffect(folderId) { viewModel.start(folderId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val copyLabel = stringResource(R.string.project_copy_label)
-    val exportPackage = rememberPackageExport()
+    val packages = rememberPackageHost()
     ProjectFolderScreen(
         themeState,
         onToggleSun,
@@ -113,7 +113,7 @@ fun ProjectFolderRoute(
                 onMove = viewModel::moveToFolder,
                 onDelete = viewModel::delete,
                 onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
-                onExportPackage = exportPackage, // S013/RF-24
+                onExportPackage = packages.export, // S013/RF-24
             ),
             onNewProject = navigation.onNewProject,
             onBack = navigation.onBack,

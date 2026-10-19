@@ -15,6 +15,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
 import es.topophone.app.backup.FakePackageBackups
+import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.app.ui.export.shareExportIntent
 import es.topophone.app.ui.projects.ProjectListActions
 import es.topophone.app.ui.projects.ProjectListScreen
@@ -54,7 +55,7 @@ class PackageExportTest {
         openedAtMs = null, deletedAtMs = null,
     )
     private val backups = FakePackageBackups()
-    private val vm = PackageViewModel(backups).apply {
+    private val vm = PackageViewModel(backups, MeasurementInProgress()).apply {
         clock = { Instant.parse("2026-10-19T06:02:31Z") }
         zone = { ZoneId.of("Europe/Madrid") }
     }
@@ -90,9 +91,7 @@ class PackageExportTest {
         compose.setContent {
             val state by vm.state.collectAsStateWithLifecycle()
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                PackageExportDialogs(state, onSave = {
-                    names += "save:$it"
-                }, onShare = { names += "share:$it" }, onCancel = {}, onDismissMessage = {})
+                PackageDialogs(state, PackageDialogActions(onSave = { names += "save:$it" }, onShare = { names += "share:$it" }))
             }
         }
 
@@ -123,7 +122,7 @@ class PackageExportTest {
         vm.startExport("p1", "Calle Mayor 12")
         compose.setContent {
             val state by vm.state.collectAsStateWithLifecycle()
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { PackageExportDialogs(state, {}, {}, {}, vm::dismissMessage) }
+            TopoPhoneTheme(EffectiveTheme.LIGHT) { PackageDialogs(state, PackageDialogActions(onDismissMessage = vm::dismissMessage)) }
         }
 
         runBlocking { vm.writePackage(ByteArrayOutputStream()) } shouldBe false

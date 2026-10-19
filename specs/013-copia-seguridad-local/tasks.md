@@ -38,7 +38,7 @@
       Hecho cuando: `ProjectListBackupNoticeTest` en verde.
 - [x] T18. `app`: "Exportar paquete" en el menú del proyecto, con guardar o compartir. (RF-4, RF-5, RF-24)
       Hecho cuando: los tests del menú y del diálogo en verde.
-- [ ] T19. `app`: "Importar paquete" en el menú de la lista, con los errores y la pregunta de sustituir o importar como nuevo. (RF-12, RF-13, RF-16, RF-25, RF-26, RF-27, RF-28)
+- [x] T19. `app`: "Importar paquete" en el menú de la lista, con los errores y la pregunta de sustituir o importar como nuevo. (RF-12, RF-13, RF-16, RF-25, RF-26, RF-27, RF-28)
       Hecho cuando: `PackageScreenTest` en verde.
 - [ ] T20. Rendimiento: 10 000 puntos se copian en menos de 5 s y se restauran en menos de 10 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.

@@ -54,7 +54,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.backup.BackupNotice
 import es.topophone.app.ui.backup.BackupNoticeViewModel
-import es.topophone.app.ui.backup.rememberPackageExport
+import es.topophone.app.ui.backup.rememberPackageHost
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
@@ -146,6 +146,8 @@ class ProjectListActions(
     val onExport: (String) -> Unit = {},
     /** S013/RF-24. */
     val onExportPackage: (Project) -> Unit = {},
+    /** S013/RF-25: abre el selector de ficheros para elegir el paquete. */
+    val onImportPackage: () -> Unit = {},
     /** S013/RF-22: abre el selector de carpetas para las copias automáticas. */
     val onChooseBackupFolder: () -> Unit = {},
     /** S013/RF-23. */
@@ -242,7 +244,7 @@ fun ProjectListRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val notice by noticeViewModel.notice.collectAsStateWithLifecycle()
     val copyLabel = stringResource(R.string.project_copy_label)
-    val exportPackage = rememberPackageExport()
+    val packages = rememberPackageHost()
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) noticeViewModel.folderChosen(uri.toString()) // S013/RF-22
     }
@@ -266,7 +268,8 @@ fun ProjectListRoute(
             onDismissFolderDialog = viewModel::dismissFolderDialog,
             onDelete = viewModel::delete,
             onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
-            onExportPackage = exportPackage,
+            onExportPackage = packages.export,
+            onImportPackage = packages.import,
             onChooseBackupFolder = { chooseFolder.launch(null) },
             onDismissBackupNotice = noticeViewModel::dismiss,
             onReviewBackups = navigation.onOpenBackups,
@@ -539,6 +542,10 @@ private fun ListMenu(actions: ProjectListActions) {
             open = false
             actions.onOpenTrash()
         }
+        MenuItem(R.string.package_import) {
+            open = false
+            actions.onImportPackage()
+        } // S013/RF-25
     }
 }
 

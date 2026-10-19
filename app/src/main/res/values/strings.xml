@@ -657,4 +657,15 @@
     <string name="package_share_chooser">Compartir paquete</string>
     <string name="package_saved">Paquete guardado.</string>
     <string name="package_not_saved">No se ha podido exportar el paquete.</string>
+    <string name="package_import">Importar paquete</string>
+    <string name="project_imported_label">importado</string>
+    <string name="package_exists">%1$s ya está en el móvil. ¿Lo sustituyes (el del móvil pasa a la papelera) o lo importas como un proyecto nuevo?</string>
+    <string name="package_replace">Sustituir</string>
+    <string name="package_as_new">Importar como nuevo</string>
+    <string name="package_imported">Proyecto importado: %1$s.</string>
+    <string name="package_not_topophone">Ese fichero no es un paquete de proyecto de TopoPhone.</string>
+    <string name="package_is_backup">Ese fichero es una copia de seguridad completa: restáurala desde Ajustes, en Copias de seguridad.</string>
+    <string name="package_damaged">El paquete está dañado o incompleto.</string>
+    <string name="package_newer">El paquete es de una versión más nueva de TopoPhone. Actualiza la app para importarlo.</string>
+    <string name="package_not_imported">No se ha podido importar el paquete.</string>
 </resources>
