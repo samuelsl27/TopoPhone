@@ -28,7 +28,7 @@
       Hecho cuando: `SnrChartTest` en verde con los tramos, los valores, las filas solo de base y "sin banda".
 - [x] T13. `app`: tarjeta "Base" (fuente, estación, altura de antena, línea base, base no disponible). (RF-13, RF-14, RF-16)
       Hecho cuando: los tests de la tarjeta en `StatusScreenTest` en verde.
-- [ ] T14. `app`: `BaseNotices` y los avisos "Línea base larga" y "La base ha cambiado" en la pantalla Estado, con su anotación en el log. (RF-15, RF-17, S014/RF-5)
+- [x] T14. `app`: `BaseNotices` y los avisos "Línea base larga" y "La base ha cambiado" en la pantalla Estado, con su anotación en el log. (RF-15, RF-17, S014/RF-5)
       Hecho cuando: los tests de los avisos y `ReceiverLogRecorderTest` en verde.
 - [ ] T15. `app`: avisos en el recolector y reinicio de la medida cuando cambia la base (A10). (RF-15, RF-17, RF-18)
       Hecho cuando: los tests nuevos de `CollectorViewModelTest` en verde.

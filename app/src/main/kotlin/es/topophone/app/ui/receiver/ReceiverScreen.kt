@@ -88,6 +88,10 @@ class ReceiverActions(
     val onOpenCoordinates: () -> Unit = {},
     val onOpenCorrections: () -> Unit = {},
     val onOpenBluetoothSettings: () -> Unit = {},
+    /** S015/RF-17. */
+    val onDismissBaseChange: (Int) -> Unit = {},
+    /** S015/RF-15. */
+    val onDismissLongBaseline: (Int) -> Unit = {},
 )
 
 const val PERMISSION_REQUEST_TAG = "bt_permission_request"
@@ -213,6 +217,8 @@ fun ReceiverRoute(
             onDeclineNotifications = viewModel::notificationsAnswered,
             onEnableNotifications = { context.startActivity(notificationSettingsIntent(context.packageName)) },
             onAddReceiver = viewModel::addReceiver,
+            onDismissBaseChange = viewModel::dismissBaseChange,
+            onDismissLongBaseline = viewModel::dismissLongBaseline,
             onOpenBluetoothSettings = {
                 try {
                     context.startActivity(bluetoothSettingsIntent())

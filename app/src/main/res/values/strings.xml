@@ -706,4 +706,7 @@
     <string name="baseline">Línea base</string>
     <string name="baseline_km">%1$s km</string>
     <string name="base_unavailable">Base no disponible</string>
+    <string name="notice_long_baseline">Línea base larga: %1$s km. La precisión empeora 1 mm por km.</string>
+    <string name="notice_base_changed">La base ha cambiado: se ha movido %1$s.</string>
+    <string name="notice_close">Cerrar</string>
 </resources>

@@ -1,11 +1,18 @@
 package es.topophone.app.log
 
 import es.topophone.app.log.ReceiverLogRecorder.Companion.entries
+import es.topophone.core.geodesy.Ecef
+import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.ReplaySpeed
+import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.log.LogLevel
+import es.topophone.core.model.point.BaseSource
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.BaseChange
+import es.topophone.core.survey.BaseFix
+import es.topophone.core.survey.BaseState
 import es.topophone.receiver.session.ConnectFailure
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
@@ -130,5 +137,42 @@ class ReceiverLogRecorderTest {
 
         lines shouldBe listOf("Conectando: RS3", "Conectado: RS3")
         scope.cancel()
+    }
+
+    private val madridGga = GgaFix("101530.20", 40.41668, -3.70371, SolutionStatus.FIX, 24, 0.6, 650.123, 51.234, 1.0, "")
+    private val avl13m =
+        BaseFix(
+            43.5578666032,
+            -5.9130704113,
+            78.4338,
+            Ecef(4_604_889.1789, -476_930.7239, 4_372_677.1220),
+            BaseSource.CORRECTIONS,
+            6,
+            0.0,
+            0,
+        )
+    private val near = BaseFix(40.4167, -3.7037, 700.0, Ecef.fromGeodetic(40.4167, -3.7037, 700.0), BaseSource.RECEIVER, null, null, 0)
+
+    @Test
+    fun `S015 RF-17 el cambio de base se anota con la distancia y sin coordenadas`() {
+        val receiving = idle.copy(connection = ConnectionState.Receiving("RS3 Ana"), gga = madridGga)
+        val before = receiving.copy(base = BaseState(near, 1, null, emptyMap(), false))
+        val after = receiving.copy(base = BaseState(near, 2, BaseChange(1.85, 1), emptyMap(), false))
+
+        step(before, after) shouldBe listOf(Triple(LogLevel.WARNING, LogCategory.RECEIVER, "La base ha cambiado: se ha movido 1.850 m"))
+        step(after, after.copy(satellitesInView = 20)) shouldBe emptyList()
+    }
+
+    @Test
+    fun `S015 RF-15 la linea base larga se anota una vez por base`() {
+        val receiving = idle.copy(connection = ConnectionState.Receiving("RS3 Ana"), gga = madridGga)
+        val far = receiving.copy(base = BaseState(avl13m, 1, null, emptyMap(), false))
+
+        val entries = step(receiving, far)
+        entries.single().first shouldBe LogLevel.WARNING
+        entries.single().third shouldContain "Línea base larga: 3"
+        entries.single().third shouldContain " km"
+        step(far, far.copy(satellitesInView = 20)) shouldBe emptyList()
+        step(far, far.copy(base = far.base.copy(serial = 2))).size shouldBe 1
     }
 }

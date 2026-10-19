@@ -26,12 +26,12 @@ data class BaseFix(
     val receivedAtMs: Long,
 )
 
-/** El último cambio de base: lo que se ha movido y cuántos cambios van desde la conexión (S015/RF-17, RF-18). */
+/** El último cambio de base: lo que se ha movido y su número, que no se repite mientras viva la app (S015/RF-17, RF-18). */
 data class BaseChange(val distanceM: Double, val count: Int)
 
 /**
- * La base en uso (S015/RF-10 a RF-13, RF-16, RF-17). [serial] sube con la primera base de la conexión y con cada
- * cambio: identifica la base para los avisos que el usuario ha cerrado.
+ * La base en uso (S015/RF-10 a RF-13, RF-16, RF-17). [serial] sube con la primera base de cada conexión y con cada
+ * cambio, y no vuelve a empezar: identifica la base para los avisos que el usuario ha cerrado.
  */
 data class BaseState(
     val position: BaseFix?,
@@ -53,7 +53,9 @@ class BaseTracker {
     private var ebp: BaseFix? = null
     private var station: BaseFix? = null
     private val lastBySource = mutableMapOf<BaseSource, Ecef>()
+    private var hasBase = false
     private var serial = 0
+    private var changes = 0
     private var change: BaseChange? = null
     private val snrBySystem = mutableMapOf<RtcmSystem, Pair<Long, Map<SignalKey, Double>>>()
 
@@ -111,12 +113,15 @@ class BaseTracker {
         return expired && publish(nowMs)
     }
 
-    /** Conexión nueva con el receptor: se olvida todo, también la última base de cada fuente (RF-17). */
+    /**
+     * Conexión nueva con el receptor: se olvidan las bases, también la última de cada fuente (RF-17). Los números de base y
+     * de cambio siguen: un aviso cerrado en otra conexión no tapa los de esta.
+     */
     fun reset() {
         ebp = null
         station = null
         lastBySource.clear()
-        serial = 0
+        hasBase = false
         change = null
         snrBySystem.clear()
         state = BaseState.NONE
@@ -127,11 +132,15 @@ class BaseTracker {
         lastBySource[source] = ecef
         val selected = selected()?.source
         when {
-            serial == 0 -> serial = 1
+            !hasBase -> {
+                hasBase = true
+                serial++
+            }
             // Solo cuenta el cambio de la fuente que se usa: el de la otra llegaría dos veces (plan, A6).
             previous != null && source == selected && previous.distanceTo(ecef) > CHANGE_THRESHOLD_M -> {
                 serial++
-                change = BaseChange(previous.distanceTo(ecef), (change?.count ?: 0) + 1)
+                changes++
+                change = BaseChange(previous.distanceTo(ecef), changes)
             }
         }
         return publish(nowMs)

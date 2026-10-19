@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import es.topophone.app.R
+import es.topophone.app.receiver.BaseNotices
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.BaseSource
@@ -20,12 +21,17 @@ const val BASE_ANTENNA_HEIGHT_TAG = "base_antenna_height"
 const val BASELINE_TAG = "baseline"
 const val BASE_UNAVAILABLE_TAG = "base_unavailable"
 
-/** La base tal como la da su fuente y la línea base (S015/RF-13, RF-14, RF-16). */
+/** La base tal como la da su fuente, la línea base y sus avisos (S015/RF-13 a RF-17). */
 @Composable
-internal fun BaseCard(state: ReceiverUiState) {
+internal fun BaseCard(state: ReceiverUiState, actions: ReceiverActions) {
     val snapshot = state.snapshot
     if (snapshot.connection !is ConnectionState.Receiving) return
     ReceiverCard(stringResource(R.string.base_title)) {
+        BaseNoticeBanners(
+            BaseNotices.visible(snapshot.gga, snapshot.base, state.notices),
+            actions.onDismissBaseChange,
+            actions.onDismissLongBaseline,
+        ) // RF-15, RF-17
         val base = snapshot.base.position
         if (base == null) {
             Text(stringResource(R.string.base_unavailable), modifier = Modifier.testTag(BASE_UNAVAILABLE_TAG)) // RF-16

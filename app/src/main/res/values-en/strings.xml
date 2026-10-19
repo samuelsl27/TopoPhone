@@ -694,4 +694,7 @@
     <string name="baseline">Baseline</string>
     <string name="baseline_km">%1$s km</string>
     <string name="base_unavailable">Base not available</string>
+    <string name="notice_long_baseline">Long baseline: %1$s km. Accuracy degrades 1 mm per km.</string>
+    <string name="notice_base_changed">The base has changed: it moved %1$s.</string>
+    <string name="notice_close">Close</string>
 </resources>

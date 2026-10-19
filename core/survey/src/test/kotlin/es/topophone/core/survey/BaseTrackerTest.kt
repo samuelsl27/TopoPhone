@@ -125,10 +125,24 @@ class BaseTrackerTest {
         tracker.onEbp(madrid, nowMs = 0)
 
         tracker.reset()
+        tracker.state shouldBe BaseState.NONE
         tracker.onEbp(madrid.north(1_000.0), nowMs = 1_000)
 
         tracker.state.change.shouldBeNull()
-        tracker.state.serial shouldBe 1
+        tracker.state.serial shouldBe 2 // otra base: los avisos que se cerraron con la anterior vuelven a salir
+    }
+
+    @Test
+    fun `S015 RF-17 los numeros de cambio siguen tras una conexion nueva`() {
+        tracker.onEbp(madrid, nowMs = 0)
+        tracker.onEbp(madrid.north(1.0), nowMs = 1_000)
+        tracker.state.change?.count shouldBe 1
+
+        tracker.reset()
+        tracker.onEbp(madrid, nowMs = 2_000)
+        tracker.onEbp(madrid.north(1.0), nowMs = 3_000)
+
+        tracker.state.change?.count shouldBe 2
     }
 
     @Test

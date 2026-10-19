@@ -6,9 +6,11 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
+import es.topophone.app.receiver.DismissedNotices
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -28,6 +30,7 @@ import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.BaseChange
 import es.topophone.core.survey.BaseFix
 import es.topophone.core.survey.BaseState
 import es.topophone.core.survey.Baseline
@@ -234,5 +237,73 @@ class StatusScreenTest {
 
         value(BASE_UNAVAILABLE_TAG).assert(hasText(text(R.string.base_unavailable)))
         compose.onAllNodesWithTag(BASELINE_TAG).assertCountEquals(0)
+    }
+
+    @Test
+    fun `S015 RF-15 la linea base larga se avisa en la pantalla Estado y se cierra para esa base`() {
+        var dismissed: Int? = null
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                val state = ReceiverUiState(snapshot = ReceiverSnapshot(receiving, gga = gga, base = base(avl13m).copy(serial = 7)))
+                ReceiverPageScreen(
+                    ReceiverPage.STATUS,
+                    ThemeState.DEFAULT,
+                    {},
+                    state,
+                    ReceiverActions(onDismissLongBaseline = {
+                        dismissed =
+                            it
+                    }),
+                    {},
+                )
+            }
+        }
+
+        val metres = Baseline.distanceM(40.41668, -3.70371, 701.357, avl13m.ecef)
+        value(LONG_BASELINE_NOTICE_TAG).assert(hasText(text(R.string.notice_long_baseline, String.format(spanish, "%.3f", metres / 1000))))
+        compose.onNodeWithTag(noticeCloseTag(LONG_BASELINE_NOTICE_TAG)).performScrollTo().performClick()
+
+        dismissed shouldBe 7
+    }
+
+    @Test
+    fun `S015 RF-17 el cambio de base se avisa con la distancia y se cierra`() {
+        var dismissed: Int? = null
+        val changed = base(madrid).copy(change = BaseChange(1.85, count = 3))
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                val state = ReceiverUiState(snapshot = ReceiverSnapshot(receiving, gga = gga, base = changed))
+                ReceiverPageScreen(
+                    ReceiverPage.STATUS,
+                    ThemeState.DEFAULT,
+                    {},
+                    state,
+                    ReceiverActions(onDismissBaseChange = {
+                        dismissed =
+                            it
+                    }),
+                    {},
+                )
+            }
+        }
+
+        value(BASE_CHANGED_NOTICE_TAG).assert(hasText(text(R.string.notice_base_changed, "1,850 m")))
+        compose.onNodeWithTag(noticeCloseTag(BASE_CHANGED_NOTICE_TAG)).performScrollTo().performClick()
+
+        dismissed shouldBe 3
+    }
+
+    @Test
+    fun `S015 RF-15 RF-17 los avisos cerrados no se ven`() {
+        val changed = base(avl13m).copy(serial = 7, change = BaseChange(1.85, count = 3))
+        show(
+            ReceiverUiState(
+                snapshot = ReceiverSnapshot(receiving, gga = gga, base = changed),
+                notices = DismissedNotices(changeCount = 3, longBaselineSerial = 7),
+            ),
+        )
+
+        compose.onAllNodesWithTag(LONG_BASELINE_NOTICE_TAG).assertCountEquals(0)
+        compose.onAllNodesWithTag(BASE_CHANGED_NOTICE_TAG).assertCountEquals(0)
     }
 }

@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.app.receiver.BaseNotices
+import es.topophone.app.receiver.DismissedNotices
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
@@ -86,6 +88,8 @@ data class ReceiverUiState(
     val pairing: PairingUi = PairingUi(),
     /** Formato angular de los proyectos nuevos, para la posición de la pantalla Estado (S015/RF-1). */
     val angularUnit: AngularUnit = ProjectDefaults().angularUnit,
+    /** Avisos de la base que el usuario ha cerrado (S015/RF-15, RF-17). */
+    val notices: DismissedNotices = DismissedNotices(),
 )
 
 /**
@@ -108,6 +112,7 @@ class ReceiverViewModel @Inject constructor(
     private val notifications: NotificationPermission = NotificationPermission.NotRequired,
     private val pairing: ReceiverPairing = ReceiverPairing.Unsupported,
     private val projectPreferences: ProjectPreferences = ProjectPreferences.FACTORY,
+    private val baseNotices: BaseNotices = BaseNotices(),
 ) : ViewModel() {
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
@@ -141,7 +146,7 @@ class ReceiverViewModel @Inject constructor(
     private val angularUnits: Flow<AngularUnit> = projectPreferences.defaults.map { it.angularUnit }.distinctUntilChanged()
 
     val uiState: StateFlow<ReceiverUiState> = combine(
-        combine(snapshots, angularUnits, ::Pair),
+        combine(snapshots, angularUnits, baseNotices.dismissed, ::Triple),
         bluetoothUi,
         internet,
         combine(poleText, poleValue, ::PoleState),
@@ -152,7 +157,7 @@ class ReceiverViewModel @Inject constructor(
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
             pairingUi,
         ) { now, addresses, granted, asked, pairing -> Extras(now, addresses, granted, asked, pairing) },
-    ) { (snapshot, angularUnit), bt, internetAvailable, pole, extras ->
+    ) { (snapshot, angularUnit, notices), bt, internetAvailable, pole, extras ->
         // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
         val realReceiver = ReceiverService.needsService(snapshot)
         val missingPermission = notifications.required && !extras.notificationsGranted
@@ -174,6 +179,7 @@ class ReceiverViewModel @Inject constructor(
             pairingSupported = pairingSupported,
             pairing = extras.pairing,
             angularUnit = angularUnit,
+            notices = notices,
         )
     }.flowOn(Dispatchers.Default).stateIn(
         viewModelScope,
@@ -185,6 +191,12 @@ class ReceiverViewModel @Inject constructor(
             pairingSupported = pairingSupported,
         ),
     )
+
+    /** Cierra "La base ha cambiado" de ese cambio (S015/RF-17). */
+    fun dismissBaseChange(count: Int) = baseNotices.dismissChange(count)
+
+    /** Cierra "Línea base larga" para esa base (S015/RF-15). */
+    fun dismissLongBaseline(serial: Int) = baseNotices.dismissLongBaseline(serial)
 
     init {
         // El geoide se descodifica la primera vez que se usa: fuera del hilo principal y antes de la

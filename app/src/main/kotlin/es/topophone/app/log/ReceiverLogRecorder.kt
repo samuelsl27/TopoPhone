@@ -4,10 +4,12 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.log.LogLevel
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.Baseline
 import es.topophone.receiver.session.ConnectFailure
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
 import es.topophone.receiver.session.ReceiverSnapshot
+import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -74,7 +76,27 @@ class ReceiverLogRecorder(private val states: Flow<ReceiverSnapshot>, private va
             if (previous.correctionsAlarm && !current.correctionsAlarm) {
                 add(LogEntry(LogLevel.INFO, LogCategory.NTRIP, "Las correcciones vuelven a estar al día"))
             }
+            // S015/RF-15, RF-17 con S014/RF-5: los avisos de la base, con la distancia y sin coordenadas.
+            val change = current.base.change
+            if (change != null && change != previous.base.change) {
+                add(LogEntry(LogLevel.WARNING, LogCategory.RECEIVER, "La base ha cambiado: se ha movido ${metres(change.distanceM)}"))
+            }
+            val longNow = longBaseline(current)
+            if (longNow != null && (longBaseline(previous) == null || previous.base.serial != current.base.serial)) {
+                add(LogEntry(LogLevel.WARNING, LogCategory.RECEIVER, "Línea base larga: ${metres(longNow)}"))
+            }
         }
+
+        /** La línea base si supera los 20 km (S015/RF-15). */
+        private fun longBaseline(snapshot: ReceiverSnapshot): Double? {
+            val base = snapshot.base.position ?: return null
+            val gga = snapshot.gga ?: return null
+            return Baseline.fromGga(gga, base.ecef)?.takeIf(Baseline::isLong)
+        }
+
+        /** Los números del log, con punto decimal (`Locale.ROOT`). */
+        private fun metres(value: Double): String =
+            if (value < 1_000.0) String.format(Locale.ROOT, "%.3f m", value) else String.format(Locale.ROOT, "%.3f km", value / 1_000.0)
 
         private fun connection(previous: ConnectionState, current: ConnectionState): LogEntry? {
             if (previous == current) return null
