@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `core:formats`: `BackupManifest` y `BackupArchive` (escribir y leer el ZIP, sumas SHA-256, `NotTopoPhone`, `WrongKind`, `Damaged`, `Newer`), con `kotlinx-serialization-json`. (RF-12, RF-13)
+- [x] T1. `core:formats`: `BackupManifest` y `BackupArchive` (escribir y leer el ZIP, sumas SHA-256, `NotTopoPhone`, `WrongKind`, `Damaged`, `Newer`), con `kotlinx-serialization-json`. (RF-12, RF-13)
       Hecho cuando: `BackupArchiveTest` en verde con ida y vuelta, entradas que faltan, sumas cambiadas y versiones más nuevas.
 - [ ] T2. `core:formats`: `BackupFileNames` (con `ExportFileName.clean` pública) y `AutoBackupPolicy` (cuándo toca y qué copias sobran). (RF-4, RF-7, RF-18, RF-19)
       Hecho cuando: `BackupFileNamesTest` y `AutoBackupPolicyTest` en verde.
