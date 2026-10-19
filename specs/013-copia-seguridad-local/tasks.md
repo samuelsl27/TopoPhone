@@ -6,7 +6,7 @@
       Hecho cuando: `BackupArchiveTest` en verde con ida y vuelta, entradas que faltan, sumas cambiadas y versiones más nuevas.
 - [x] T2. `core:formats`: `BackupFileNames` (con las reglas de `ExportFileName` compartidas en el módulo) y `AutoBackupPolicy` (cuándo toca y qué copias sobran). (RF-4, RF-7, RF-18, RF-19)
       Hecho cuando: `BackupFileNamesTest` y `AutoBackupPolicyTest` en verde.
-- [ ] T3. `data`: `DatabaseSnapshot` (conexión de solo lectura, copia por tablas entera o de un proyecto, marca de contraseña). (RF-2, RF-3, RF-24, RNF)
+- [x] T3. `data`: `DatabaseSnapshot` (conexión de solo lectura, copia por tablas entera o de un proyecto, marca de contraseña). (RF-2, RF-3, RF-24, RNF)
       Hecho cuando: `DatabaseSnapshotTest` en verde con los `double` iguales bit a bit y un punto guardado mientras la instantánea está abierta.
 - [ ] T4. `data`: `SettingsArchive` y `AppLanguageStore` (claves que viajan, claves del móvil intactas). (RF-2, RF-3, RF-8)
       Hecho cuando: `SettingsArchiveTest` en verde.
