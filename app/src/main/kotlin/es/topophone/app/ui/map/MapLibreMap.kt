@@ -39,7 +39,7 @@ annotation class MapHttp
 
 /**
  * Cliente HTTP del mapa, con un User-Agent que identifica la app, como piden las condiciones de
- * OpenFreeMap y del resto de servicios (S009, RNF). S019 lo enlazará a la red con internet (RNF-T4).
+ * OpenFreeMap y del resto de servicios (S009, RNF). S020 lo enlazará a la red con internet (RNF-T4).
  */
 object MapHttpClient {
     fun create(versionName: String, monitor: NetworkFailureMonitor? = null): OkHttpClient {

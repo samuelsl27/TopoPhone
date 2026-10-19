@@ -112,13 +112,13 @@ Como el repositorio será público y las versiones se distribuirán como APK en 
 - El contenido real de las secciones Levantamiento y Receptor → S002 y siguientes.
 - Los ajustes de cada función (unidades, sonidos, NTRIP…) → la spec de cada función.
 - La conexión con el receptor → S002 y S004.
-- El log de la app y el informe de sistema (RNF-T12) → S013.
+- El log de la app y el informe de sistema (RNF-T12) → S014.
 - La disposición específica para tablet (dos paneles); en tablet se usa el diseño de móvil ampliado. No está planificada.
 - Publicar en Google Play o F-Droid. No está planificado.
 - Más idiomas además de español e inglés. No está planificado.
 - El tema automático por sensor de luz. Descartado en la entrevista.
 - Los informes de errores o la analítica remota: excluidos por la constitución (nº 4).
-- La guía de primer uso del receptor → S042.
+- La guía de primer uso del receptor → S043.
 
 ## Criterios de finalización
 - Todos los RF tienen al menos un test automático en verde que los cita. Esto incluye las reglas de integración continua y de publicación (RF-25 a RF-34), que se prueban con tests de los scripts y de la definición del flujo.

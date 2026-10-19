@@ -11,7 +11,7 @@ Esta spec convierte la vista de proyecto en un mapa a pantalla completa:
 - con dos mapas base vectoriales (IGN y OpenStreetMap), la ortofoto PNOA y el Catastro superpuesto;
 - con el rover dibujado con el color de su solución y su círculo de precisión.
 
-Sin cobertura, el mapa sigue sirviendo: muestra lo que ya se vio y, donde no hay nada, un fondo neutro con el rover encima. La descarga de zonas para trabajar sin conexión llega en S036.
+Sin cobertura, el mapa sigue sirviendo: muestra lo que ya se vio y, donde no hay nada, un fondo neutro con el rover encima. La descarga de zonas para trabajar sin conexión llega en S037.
 
 ## Usuarios / actores
 - Topógrafo en campo con el RS3, con o sin cobertura de datos.
@@ -82,14 +82,14 @@ Sin cobertura, el mapa sigue sirviendo: muestra lo que ya se vio y, donde no hay
 | Mapa movido a mano mientras llega la posición | RF-20 |
 
 ## Fuera de alcance
-- Puntos del proyecto en el mapa (capa de objetos) → S010; líneas y polígonos → S024.
-- Biblioteca WMS, capas por proyecto, orden y opacidad → S035.
-- Descargar una zona para trabajar sin conexión → S036.
-- Girar el mapa u orientarlo con la brújula o el IMU → S017.
-- Diana de replanteo → S017.
-- Posición de la base en el mapa → S014.
-- Seleccionar o medir sobre el mapa → S011 y S025.
-- Otros mapas base fuera de España → S033.
+- Puntos del proyecto en el mapa (capa de objetos) → S010; líneas y polígonos → S025.
+- Biblioteca WMS, capas por proyecto, orden y opacidad → S036.
+- Descargar una zona para trabajar sin conexión → S037.
+- Girar el mapa u orientarlo con la brújula o el IMU → S018.
+- Diana de replanteo → S018.
+- Posición de la base en el mapa → S015.
+- Seleccionar o medir sobre el mapa → S011 y S026.
+- Otros mapas base fuera de España → S034.
 - Guardar el Catastro para usarlo sin conexión → no previsto: sus condiciones prohíben la descarga masiva.
 
 ## Criterios de finalización
@@ -104,7 +104,7 @@ Sin cobertura, el mapa sigue sirviendo: muestra lo que ya se vio y, donde no hay
 
 ## Dudas abiertas
 Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te vale, se cambia la spec antes de implementarla.
-- [SUPOSICIÓN: el mapa base y el Catastro se recuerdan para toda la app, no por proyecto; las capas por proyecto llegan con S035.]
+- [SUPOSICIÓN: el mapa base y el Catastro se recuerdan para toda la app, no por proyecto; las capas por proyecto llegan con S036.]
 - [SUPOSICIÓN: por defecto, el mapa vectorial del IGN, sin Catastro.]
 - [SUPOSICIÓN: los mapas base integrados cuentan como servicios que configura el usuario (constitución nº 4): los elige en el mapa y puede quitarlos con "Ninguno".]
 - [SUPOSICIÓN: el límite de la caché es fijo (200 MB); cuando se llena, se descarta lo visto hace más tiempo.]

@@ -3,7 +3,7 @@
 > Hito: H1 · Depende de: S010 · Estado: aprobada (con suposiciones a revisar; ver "Dudas abiertas")
 
 ## Contexto y objetivo
-Con S010 el topógrafo ya recolecta puntos y los ve en el mapa, pero no puede consultarlos ni corregirlos. Esta spec trae la lista de objetos del proyecto (de momento, solo puntos; las líneas llegan en S024), la ficha de cada punto y las herramientas para mantenerlos:
+Con S010 el topógrafo ya recolecta puntos y los ve en el mapa, pero no puede consultarlos ni corregirlos. Esta spec trae la lista de objetos del proyecto (de momento, solo puntos; las líneas llegan en S025), la ficha de cada punto y las herramientas para mantenerlos:
 - buscarlos y elegir cuáles se ven en el mapa;
 - editarlos, incluidas sus coordenadas, sin perder nunca la medida original;
 - corregir una altura del jalón equivocada en uno o en varios puntos, recalculándolos desde la antena guardada;
@@ -100,13 +100,13 @@ El dato de campo es sagrado (constitución nº 1): editar un punto no borra lo q
 ## Fuera de alcance
 - Exportar puntos → S012.
 - Paquetes y copias de seguridad del proyecto → S013.
-- Puntos con inclinación del jalón → S015.
-- Fotos del punto → S016.
-- Replantear un punto desde la lista o la ficha → S017.
-- Códigos y atributos, y cambiar el código de un punto → S022 y S023.
-- Líneas y polígonos en la lista de objetos → S024.
-- Importar puntos de un fichero → S027.
-- Medir distancias o ángulos entre puntos sobre el mapa (inversa, COGO) → S037.
+- Puntos con inclinación del jalón → S016.
+- Fotos del punto → S017.
+- Replantear un punto desde la lista o la ficha → S018.
+- Códigos y atributos, y cambiar el código de un punto → S023 y S024.
+- Líneas y polígonos en la lista de objetos → S025.
+- Importar puntos de un fichero → S028.
+- Medir distancias o ángulos entre puntos sobre el mapa (inversa, COGO) → S038.
 - Escribir un punto manual en el datum de las correcciones (coordenadas "globales") → no previsto.
 - Corregir el jalón de todos los puntos que tienen una altura dada → no previsto: se hace seleccionándolos (RF-14).
 

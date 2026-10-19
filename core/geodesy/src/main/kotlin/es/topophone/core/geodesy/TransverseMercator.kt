@@ -54,7 +54,7 @@ object Geodesy {
 /**
  * Proyección transversa de Mercator por las series de Krüger hasta orden 6 (Karney 2011),
  * equivalente al `etmerc` de PROJ: error < 1 µm hasta ±3° del meridiano central.
- * Latitud de origen 0 (la de UTM); otras latitudes de origen llegan en S031.
+ * Latitud de origen 0 (la de UTM); otras latitudes de origen llegan en S032.
  */
 class TransverseMercator(
     private val ellipsoid: Ellipsoid,

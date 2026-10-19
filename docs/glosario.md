@@ -15,7 +15,7 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Punto sin altura | `hasHeight` | Punto manual solo con planimetría (S011) |
 | Punto editado | `edited` | Punto medido cuyas coordenadas difieren de las de su medida (S011) |
 | Historial (del punto) | `PointHistory` | Cambios de un punto con su fecha y los valores anteriores (S011) |
-| Lista de objetos | `ObjectList` | Puntos del proyecto; las líneas llegan en S024 (S011) |
+| Lista de objetos | `ObjectList` | Puntos del proyecto; las líneas llegan en S025 (S011) |
 | Ficha del punto | `PointDetails` | Todo lo guardado de un punto (S011) |
 | Línea / polilínea | `Line` | |
 | Polígono (línea cerrada) | `Polygon` | |
@@ -112,12 +112,15 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Datos del proyecto | `ProjectInfo` | SC, altura, unidades y datum de las correcciones (S009) |
 | Superficie (MDT/TIN) | `Surface` | |
 | Dibujo CAD | `CadDrawing` | |
-| Copia de seguridad | `Backup` | |
+| Copia de seguridad | `Backup` | Copia completa de los datos de la app en un ZIP (S013) |
 | Exportar | `export` | Sacar los puntos de un proyecto a un fichero (S012) |
 | Formato de exportación | `ExportFormat` | Todas las columnas, PENZD, PNEZD o personalizado (S012) |
 | Separador de columnas | `columnSeparator` | Coma, punto y coma o tabulador (S012) |
 | Signo decimal | `decimalSeparator` | Punto o coma (S012) |
-| Paquete de proyecto | `ProjectPackage` | `.topoproj` |
+| Paquete de proyecto | `ProjectPackage` | `.topoproj`: un proyecto completo para llevarlo a otro móvil (S013) |
+| Restaurar (una copia) | `restore` | Sustituir los datos del móvil por los de una copia (S013) |
+| Deshacer la restauración | `undoRestore` | Volver al estado guardado antes de la última restauración (S013) |
+| Copia automática | `AutoBackup` | Copia completa que se hace sola en la carpeta elegida (S013) |
 | Tema (Sistema, Claro, Oscuro, Sol) | `ThemeMode` (`SYSTEM`, `LIGHT`, `DARK`, `SUN`) | Elección del usuario; el que se pinta es `EffectiveTheme` |
 | Modo sol | `ThemeMode.SUN` | Tema claro de alto contraste (≥ 7:1); el acceso rápido es `ThemeState.toggleSun()` |
 | Idioma (Sistema, Español, English) | `AppLanguage` (`SYSTEM`, `SPANISH`, `ENGLISH`) | Se guarda con etiquetas BCP 47 |

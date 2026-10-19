@@ -133,10 +133,10 @@ Castilla-La Mancha, Galicia, la Comunidad de Madrid, Ceuta y Melilla no tienen c
 | Trama RTCM con CRC erróneo | RF-33 |
 
 ## Fuera de alcance
-- Posición de la base (RTCM 1005/1006), línea base y SNR de la base → S014.
-- NTRIP por datos móviles mientras el receptor está en la Wi-Fi → S020.
-- Copia y traspaso de los perfiles a otro dispositivo (sin contraseñas) → S013.
-- NTRIP en el propio receptor, salida de correcciones del receptor y radio LoRa → guía de S042 (solo en Emlid Flow o Reach Panel).
+- Posición de la base (RTCM 1005/1006), línea base y SNR de la base → S015.
+- NTRIP por datos móviles mientras el receptor está en la Wi-Fi → S021.
+- Copia y traspaso de los perfiles a otro dispositivo (sin contraseñas) → S013 (en la copia completa).
+- NTRIP en el propio receptor, salida de correcciones del receptor y radio LoRa → guía de S043 (solo en Emlid Flow o Reach Panel).
 - Gestionar perfiles sin un receptor conectado → no previsto (S005: Correcciones solo se abre desde el receptor).
 - Elegir la versión de NTRIP → no previsto (la petición 2.0 sirve también para los casters 1.0, ADR-13).
 

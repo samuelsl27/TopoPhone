@@ -4,9 +4,9 @@
 
 ## Contexto y objetivo
 La S002 solo entiende GGA y GST, y trata cada frase por separado. Las funciones siguientes necesitan más datos:
-- el estado detallado (S014): satélites, DOP y base;
-- la inclinación (S015): la frase ETC emparejada con su GGA;
-- el replanteo (S017): la velocidad y el rumbo;
+- el estado detallado (S015): satélites, DOP y base;
+- la inclinación (S016): la frase ETC emparejada con su GGA;
+- el replanteo (S018): la velocidad y el rumbo;
 - la fecha de las medidas (RNF-T10): ZDA o RMC.
 
 Además, la app debe saber en todo momento si lo que muestra es actual, y el usuario debe ver el estado de la solución en cualquier pantalla, no solo en Receptor.
@@ -89,7 +89,7 @@ Por último, hoy solo se puede probar TopoPhone con el receptor delante. Un simu
   - RNF-T7: idioma.
   - RNF-T8: modo sol, 56 dp, color y texto, TalkBack en la barra de estado.
   - RNF-T10: fecha y hora del receptor.
-  - RNF-T12: grabación de sesiones. El log de la app y el informe de sistema van en la S013.
+  - RNF-T12: grabación de sesiones. El log de la app y el informe de sistema van en la S014.
   - RNF-T13: la barra de estado se refresca a 5 Hz como máximo.
 - **Latencia**: desde que llega una GGA hasta que se ven sus coordenadas, sigue siendo < 300 ms (S002), también con las épocas.
 - **Ritmo de la reproducción**: a ×1, la duración de la reproducción difiere de la de la sesión en menos de un 1 % (sin contar los huecos de más de 10 s).
@@ -118,12 +118,12 @@ Por último, hoy solo se puede probar TopoPhone con el receptor delante. Un simu
 
 ## Fuera de alcance
 - Las tramas RTCM3 (CRC24Q) y los contadores de mensajes RTCM → S007.
-- El log de la app y el informe de sistema (RNF-T12) → S013.
-- El skyplot, la SNR, los DOP, la posición de la base y la línea base en pantalla → S014.
-- Los avisos de la inclinación y la punta del jalón calculada con ETC → S015.
-- La velocidad y el rumbo en pantalla → S017.
+- El log de la app y el informe de sistema (RNF-T12) → S014.
+- El skyplot, la SNR, los DOP, la posición de la base y la línea base en pantalla → S015.
+- Los avisos de la inclinación y la punta del jalón calculada con ETC → S016.
+- La velocidad y el rumbo en pantalla → S018.
 - La reconexión automática y el servicio en primer plano → S004.
-- El receptor virtual con escenarios guionizados y el GNSS del móvil → S021.
+- El receptor virtual con escenarios guionizados y el GNSS del móvil → S022.
 - Reproducir ficheros binarios (UBX, RINEX, RTCM) → no previsto.
 - Pausar, avanzar o retroceder dentro de una reproducción → no previsto.
 - Enviar al caster la GGA de una reproducción → no previsto.

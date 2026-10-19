@@ -124,11 +124,11 @@ Si cualquiera de estos eslabones falla, todo lo demás se construiría sobre are
 - La conexión en segundo plano, la reconexión automática y el servicio en primer plano → S004.
 - Los perfiles NTRIP, el sourcetable, la contraseña cifrada y NTRIP sobre TLS → S007.
 - Las frases GSA, GSV, RMC, ZDA, EBP y ETC, y el simulador por reproducción → S003.
-- La compensación de inclinación (ETC) → S015. Aquí el jalón se supone vertical.
-- La conexión por Wi-Fi/TCP → S020.
+- La compensación de inclinación (ETC) → S016. Aquí el jalón se supone vertical.
+- La conexión por Wi-Fi/TCP → S021.
 - Canarias (REGCAN95, UTM 27/28, geoide de Canarias), el huso forzado, el factor de escala y la convergencia → S008.
-- Proyectos, guardar puntos, el mapa y el skyplot → S006, S010, S009 y S014.
-- Elegir otro sistema de coordenadas o datum → S008 y S031–S034.
+- Proyectos, guardar puntos, el mapa y el skyplot → S006, S010, S009 y S015.
+- Elegir otro sistema de coordenadas o datum → S008 y S032–S035.
 
 ## Criterios de finalización
 - Cada RF tiene un test automático en verde que lo cita y `rf_report` no da huérfanos.

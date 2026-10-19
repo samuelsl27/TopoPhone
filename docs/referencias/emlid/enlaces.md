@@ -44,7 +44,7 @@ Consultado en octubre de 2026 (firmware Reach 33.1, Emlid Flow 15.11). Antes de 
   - Flujo de una conexión NTRIP explicado: https://rtkdata.com/ntrip-connection-flow-explained
 - **Emlid Caster**: `caster.emlid.com:2101`, con credenciales separadas de base y rover.
 
-## No documentado (solo para S043, experimental)
+## No documentado (solo para S044, experimental)
 - **No existe ninguna API oficial de configuración.**
   - https://community.emlid.com/t/reach-rs2-ssh-credentials/34346
   - https://docs.emlid.com/reachrx2/api-integration/api-integration-intro/

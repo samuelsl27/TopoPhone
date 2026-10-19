@@ -96,10 +96,10 @@ Esta spec hace que la conexión con el receptor aguante el uso real de una jorna
 | Receptor conectado sin salida de posición por Bluetooth | RF-28 |
 
 ## Fuera de alcance
-- La pantalla siempre encendida en el recolector y en el replanteo → S010 y S017.
+- La pantalla siempre encendida en el recolector y en el replanteo → S010 y S018.
 - Los perfiles NTRIP, la contraseña cifrada y la alarma por edad de las correcciones → S007.
 - El aviso con sonido por la pérdida de FIX → S010.
-- La conexión por Wi-Fi o TCP → S020.
+- La conexión por Wi-Fi o TCP → S021.
 - Conectar con el receptor cuando aparece cerca sin abrir la app → no previsto.
 - Varios receptores conectados a la vez → no previsto.
 
@@ -122,4 +122,4 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 ## Cambios en documentos anteriores (aplicados al aprobar esta spec)
 - `docs/hoja-de-ruta.md`:
   - S004: sin "pantalla siempre encendida"; con la conexión automática al abrir y la ayuda para los fabricantes (RNF-T2).
-  - S010 y S017: añaden "pantalla siempre encendida" (RNF-T2).
+  - S010 y S018: añaden "pantalla siempre encendida" (RNF-T2).

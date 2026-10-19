@@ -37,7 +37,7 @@ data class CollectorSettings(
     val validAveragingSeconds: Int get() = averagingSeconds.coerceIn(AVERAGING_SECONDS)
 
     companion object {
-        /** S010/RF-9; S016 lo amplía a 60 min. */
+        /** S010/RF-9; S017 lo amplía a 60 min. */
         val AVERAGING_SECONDS = 1..60
     }
 }

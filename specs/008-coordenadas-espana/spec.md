@@ -11,7 +11,7 @@ Hoy un proyecto solo puede estar en ETRS89 / UTM 29, 30 o 31 con altitudes EGM08
 El topógrafo tampoco ve el factor de escala ni la convergencia, que necesita para pasar distancias de cuadrícula a terreno y orientar.
 
 Esta spec trae todos los sistemas de coordenadas (SC) de uso habitual en España, cada uno con la transformación y el modelo de geoide oficiales del IGN:
-- ED50 con la rejilla oficial (adelantado desde S032);
+- ED50 con la rejilla oficial (adelantado desde S033);
 - el huso propuesto por la posición al crear un proyecto, y un aviso si se trabaja fuera de él;
 - factor de escala, convergencia y factor combinado en la vista de proyecto.
 
@@ -81,10 +81,10 @@ Las coordenadas que se calculan tienen que coincidir con una referencia independ
 | Proyectos de S006 al actualizar | RNF de la spec |
 
 ## Fuera de alcance
-- ED50 geográficas, el antiguo datum de Canarias (Pico de las Nieves) y otros datums → S032 y S033.
-- Cambiar el SC de un proyecto por otro de distinto datum → S034.
-- Aplicar el factor combinado a distancias (cuadrícula o terreno) → S025.
-- Introducir o importar puntos en estos SC → S011 y S026.
+- ED50 geográficas, el antiguo datum de Canarias (Pico de las Nieves) y otros datums → S033 y S034.
+- Cambiar el SC de un proyecto por otro de distinto datum → S035.
+- Aplicar el factor combinado a distancias (cuadrícula o terreno) → S026.
+- Introducir o importar puntos en estos SC → S011 y S027.
 - ETRS89 / UTM 28 → no previsto: no hay territorio español en ETRS89 en ese huso (Canarias usa REGCAN95).
 
 ## Criterios de finalización
@@ -104,6 +104,6 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - S002/RF-37 pasa a decir: "SI la longitud del punto queda fuera de los husos 27 a 31, ENTONCES EL SISTEMA mostrará las coordenadas UTM como no disponibles."
 - S002/RF-39 pasa a decir: "SI el punto queda fuera de la cobertura de los modelos EGM08-REDNAP de la Península y Baleares y de Canarias, ENTONCES EL SISTEMA mostrará la altitud ortométrica como no disponible e indicará el motivo, sin extrapolar."
 - `docs/hoja-de-ruta.md`:
-  - fila S008: "ETRS89 UTM 29–31, REGCAN95 UTM 27/28 y ED50 UTM 29–31 (rejilla SPED2ETV2, adelantada desde S032)…";
-  - fila S032: se quita "SPED2ETV2 para ED50".
+  - fila S008: "ETRS89 UTM 29–31, REGCAN95 UTM 27/28 y ED50 UTM 29–31 (rejilla SPED2ETV2, adelantada desde S033)…";
+  - fila S033: se quita "SPED2ETV2 para ED50".
 - `docs/glosario.md`: se añaden "Factor de altura", "Factor combinado", "Huso propuesto" y "ED50" ("Factor de escala", "Convergencia de meridianos" y "Altura elipsoidal" ya estaban).

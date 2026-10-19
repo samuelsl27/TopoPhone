@@ -20,7 +20,7 @@ El proyecto sigue el método de [mouredev/hello-sdd](https://github.com/mouredev
 |---|---|
 | [docs/constitution.md](docs/constitution.md) | Principios innegociables |
 | [AGENTS.md](AGENTS.md) | Instrucciones para agentes de IA (Claude Code, opencode…) |
-| [docs/hoja-de-ruta.md](docs/hoja-de-ruta.md) | Las 42 specs, hitos H0–H7 y puertas de validación |
+| [docs/hoja-de-ruta.md](docs/hoja-de-ruta.md) | Las 44 specs, hitos H0–H7 y puertas de validación |
 | [docs/rnf-transversales.md](docs/rnf-transversales.md) | Requisitos no funcionales comunes (RNF-T1…T14) |
 | [docs/arquitectura.md](docs/arquitectura.md) | Módulos, flujo de datos y ADR |
 | [docs/inventario-funcional.md](docs/inventario-funcional.md) | Funciones de Emlid Flow y del RS3, y cómo las cubre TopoPhone |

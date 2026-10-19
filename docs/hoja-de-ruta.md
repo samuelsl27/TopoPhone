@@ -23,77 +23,78 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 005 estructura-interfaz | Organización de la interfaz como la app de referencia, con diseño propio: Receptor como lista de receptores y, con uno conectado, cabecera y menú de pantallas (Estado, Coordenadas, Correcciones, Sesiones grabadas) con resumen; indicador de estado en el extremo derecho de la barra superior; reubicación de todo lo de S002–S004 | 004 | en curso |
 | 006 proyectos | Lista de proyectos en Levantamiento; altas, bajas y edición de proyectos, búsqueda, duplicado y carpetas; papelera de 30 días; vista de proyecto (sin mapa hasta S009); metadatos; SC ETRS89/UTM con EGM08-REDNAP (los demás de España llegan en S008); datum de las correcciones; unidades m/ft/usft y DD/DMS/gon; almacenamiento de proyectos con banco de pruebas de migraciones (cada spec posterior añade sus datos con una migración probada) | 005 | implementada |
 | 007 ntrip-perfiles-y-sourcetable | Altas, bajas y edición de perfiles con contraseñas cifradas, casters públicos de España (IGN y redes autonómicas), descarga y lectura del sourcetable, mountpoints ordenados por distancia, envío de GGA según el campo `nmea`, TLS opcional, tramas RTCM3 (CRC24Q) y contadores de mensajes RTCM, reconexión y arranque automáticos, alarma por edad de las correcciones (v2 por bloques ya está en S002) | 005 | en curso |
-| 008 coordenadas-espana | ETRS89 UTM 29–31 y geográficas, REGCAN95 UTM 27/28 y geográficas, ED50 UTM 29–31 (rejilla SPED2ETV2, adelantada desde S032), altitud EGM08-REDNAP (Península y Baleares, y Canarias) o altura elipsoidal, huso propuesto al crear el proyecto y aviso fuera de él, factor de escala, convergencia y factor combinado, vectores de referencia; estos SC disponibles en los proyectos | 006 | implementada |
+| 008 coordenadas-espana | ETRS89 UTM 29–31 y geográficas, REGCAN95 UTM 27/28 y geográficas, ED50 UTM 29–31 (rejilla SPED2ETV2, adelantada desde S033), altitud EGM08-REDNAP (Península y Baleares, y Canarias) o altura elipsoidal, huso propuesto al crear el proyecto y aviso fuera de él, factor de escala, convergencia y factor combinado, vectores de referencia; estos SC disponibles en los proyectos | 006 | implementada |
 | 009 mapa-proyecto | Mapa a pantalla completa en la vista de proyecto con panel de posición y datos del proyecto; mapas base vectoriales del IGN y de OpenStreetMap, ortofoto PNOA y Catastro superpuesto; caché para trabajar sin cobertura; rover con círculo de precisión y color según la solución; barra de escala, atribución, norte arriba | 006, 008 | en curso |
 | 010 recolectar-puntos | Altura del jalón (1,8 m por defecto), control de precisión (solo FIX, límites H/V), modos instantáneo y promediado de hasta 60 s, nombres autoincrementales, descripción, metadatos de calidad, guardado atómico, sonido y vibración, pantalla siempre encendida (RNF-T2), puntos en el mapa (capa de objetos) | 009, 007 | en curso |
 | 011 objetos-y-puntos-manuales | Lista de objetos (buscar, mostrar u ocultar, editar con historial de cambios, duplicar, borrar a la papelera de puntos), ficha del punto, punto manual (proyectado o geográfico), recálculo al corregir la altura de antena | 010 | en curso |
 | 012 exportar-csv | Todos los puntos o una selección; todas las columnas, PENZD/PNEZD con cabecera, separador y decimal configurables, selección de columnas, coordenadas globales o locales, UTF-8; guardar (SAF) o compartir | 011 | en curso |
-| 013 copia-seguridad-local | ZIP de copia completa con manifiesto y restauración, copias automáticas en una carpeta SAF, paquetes `.topoproj` para importar y exportar entre dispositivos, log de la app e informe de sistema (RNF-T12). **Puerta G1** | 012 | pendiente |
+| 013 copia-seguridad-local | ZIP de copia completa con restauración y deshacer, copias automáticas en una carpeta SAF (cada hora con cambios, las 24 últimas), paquetes `.topoproj` para importar y exportar entre dispositivos, perfiles NTRIP sin contraseñas | 012 | en curso |
+| 014 log-e-informe-de-sistema | Log de la app (rotativo, de tamaño limitado, sin secretos) e informe de sistema exportable con el log, las sesiones recientes y los datos de la app y del móvil, sin contraseñas (RNF-T12). **Puerta G1** | 013 | pendiente |
 
 ## H2 · Receptor completo, inclinación y replanteo
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 014 estado-receptor-detallado | Pantalla de estado: posición, DOP, skyplot (GSV), SNR por constelación y señal, base (EBP o RTCM 1005/1006), línea base, SNR de la base (MSM) | 013 | pendiente |
-| 015 inclinacion-rs3 | Estados y avisos de ETC, guía de inicialización con el movimiento en ocho, punta del jalón calculada en la app (por defecto) o compensada por el receptor, asistente que detecta el modo, bloqueo sin estado 30 + FIX, inclinación y rumbo guardados por punto, precisión con los coeficientes de ETC | 014, 010 | pendiente |
-| 016 recolectar-avanzado | Modo automático por tiempo o distancia, promediado de hasta 60 min con estadísticas en vivo, fotos por punto | 015 | pendiente |
-| 017 replanteo-puntos | Replanteo por dirección (rumbo de marcha o del IMU) y por distancia (N/E), zoom automático, diana métrica (verde ≤ 2,5 cm, configurable), ayuda visual ≤ 40 cm, anterior/siguiente, avisos de FIX y de inclinación, sonido, punto replanteado `_stkd`, pantalla siempre encendida (RNF-T2) | 015 | pendiente |
-| 018 replanteo-cota-e-informe | Cota de diseño (desmonte/terraplén con tolerancia) e informe de replanteo CSV | 017 | pendiente |
-| 019 base-shift | Desplazamiento ECEF (conocido − medido) aplicado a los puntos siguientes, registrado en cada punto y desactivable. Orden fijo: bruto → shift → SC → localización | 011, 010 | pendiente |
-| 020 conexion-wifi-tcp | Cliente TCP (hotspot 192.168.42.1:9001 o IP de la red local), tráfico del receptor por Wi-Fi y NTRIP por datos móviles, descubrimiento mDNS, correcciones al puerto TCP de entrada del receptor, permiso de red local | 014 | pendiente |
-| 021 gnss-movil-y-receptor-virtual | GNSS del propio móvil (nunca se presenta como FIX) y receptor virtual con escenarios guionizados | 020 | pendiente |
+| 015 estado-receptor-detallado | Pantalla de estado: posición, DOP, skyplot (GSV), SNR por constelación y señal, base (EBP o RTCM 1005/1006), línea base, SNR de la base (MSM) | 014 | pendiente |
+| 016 inclinacion-rs3 | Estados y avisos de ETC, guía de inicialización con el movimiento en ocho, punta del jalón calculada en la app (por defecto) o compensada por el receptor, asistente que detecta el modo, bloqueo sin estado 30 + FIX, inclinación y rumbo guardados por punto, precisión con los coeficientes de ETC | 015, 010 | pendiente |
+| 017 recolectar-avanzado | Modo automático por tiempo o distancia, promediado de hasta 60 min con estadísticas en vivo, fotos por punto | 016 | pendiente |
+| 018 replanteo-puntos | Replanteo por dirección (rumbo de marcha o del IMU) y por distancia (N/E), zoom automático, diana métrica (verde ≤ 2,5 cm, configurable), ayuda visual ≤ 40 cm, anterior/siguiente, avisos de FIX y de inclinación, sonido, punto replanteado `_stkd`, pantalla siempre encendida (RNF-T2) | 016 | pendiente |
+| 019 replanteo-cota-e-informe | Cota de diseño (desmonte/terraplén con tolerancia) e informe de replanteo CSV | 018 | pendiente |
+| 020 base-shift | Desplazamiento ECEF (conocido − medido) aplicado a los puntos siguientes, registrado en cada punto y desactivable. Orden fijo: bruto → shift → SC → localización | 011, 010 | pendiente |
+| 021 conexion-wifi-tcp | Cliente TCP (hotspot 192.168.42.1:9001 o IP de la red local), tráfico del receptor por Wi-Fi y NTRIP por datos móviles, descubrimiento mDNS, correcciones al puerto TCP de entrada del receptor, permiso de red local | 015 | pendiente |
+| 022 gnss-movil-y-receptor-virtual | GNSS del propio móvil (nunca se presenta como FIX) y receptor virtual con escenarios guionizados | 021 | pendiente |
 
 ## H3 · Códigos y líneas
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 022 bibliotecas-codigos | Bibliotecas de códigos gestionadas en el móvil (código, descripción, geometría, color, atributos Text/Integer/Number/List), importar y exportar CSV, bibliotecas por defecto, códigos sin duplicados, biblioteca vinculada al proyecto | 006 | pendiente |
-| 023 recolectar-con-codigos | Selector de códigos con recientes, códigos creados sobre la marcha (solo para el proyecto), formulario de atributos, cambio de código, símbolos por código | 022 | pendiente |
-| 024 lineas-y-poligonos | Empezar o continuar una línea, cerrarla en polígono, crear una línea desde puntos existentes, editar vértices | 023 | pendiente |
-| 025 informacion-geometrica | Longitud 2D/3D, área, perímetro, azimut, pendiente, tabla por segmento, ángulo entre 3 puntos, distancias de cuadrícula o de terreno | 024 | pendiente |
-| 026 replanteo-lineas | Por segmentos, a la línea, a lo largo de la línea con desplazamiento, encadenamiento hasta A/B, intervalos | 024, 017 | pendiente |
+| 023 bibliotecas-codigos | Bibliotecas de códigos gestionadas en el móvil (código, descripción, geometría, color, atributos Text/Integer/Number/List), importar y exportar CSV, bibliotecas por defecto, códigos sin duplicados, biblioteca vinculada al proyecto | 006 | pendiente |
+| 024 recolectar-con-codigos | Selector de códigos con recientes, códigos creados sobre la marcha (solo para el proyecto), formulario de atributos, cambio de código, símbolos por código | 023 | pendiente |
+| 025 lineas-y-poligonos | Empezar o continuar una línea, cerrarla en polígono, crear una línea desde puntos existentes, editar vértices | 024 | pendiente |
+| 026 informacion-geometrica | Longitud 2D/3D, área, perímetro, azimut, pendiente, tabla por segmento, ángulo entre 3 puntos, distancias de cuadrícula o de terreno | 025 | pendiente |
+| 027 replanteo-lineas | Por segmentos, a la línea, a lo largo de la línea con desplazamiento, encadenamiento hasta A/B, intervalos | 025, 018 | pendiente |
 
 ## H4 · Intercambio de datos
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 027 importar-csv-txt | Asignación de columnas, PENZD/PNEZD, UTF-8 o Windows-1252, coma decimal, vista previa, informe de errores, nombres repetidos | 011 | pendiente |
-| 028 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 024 | pendiente |
-| 029 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 024 | pendiente |
-| 030 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 024, 016 | pendiente |
+| 028 importar-csv-txt | Asignación de columnas, PENZD/PNEZD, UTF-8 o Windows-1252, coma decimal, vista previa, informe de errores, nombres repetidos | 011 | pendiente |
+| 029 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 025 | pendiente |
+| 030 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 025 | pendiente |
+| 031 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 025, 017 | pendiente |
 
 ## H5 · Sistemas de coordenadas mundiales y capas
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 031 proyecciones-completas | LCC 1SP/2SP y Oblique Mercator A/B (otras solo si el catálogo las necesita) | 008 | pendiente |
-| 032 transformaciones-datum | Helmert 3/4/6/7 (PV y CF), Molodensky-Badekas 10, rejillas de desplazamiento horizontal (ED50 con SPED2ETV2 ya está en S008) | 031 | pendiente |
-| 033 biblioteca-sc-mundial | Catálogo con búsqueda por país, código o nombre; ficha del SC; datums verticales; descarga de geoides con SHA-256 | 032 | pendiente |
-| 034 sc-personalizado | Editor de SC personalizado, "Mis SC", importar y exportar JSON, cambio del SC del proyecto (mismo datum), cuadrícula o terreno | 033 | pendiente |
-| 035 capas-wms | Biblioteca WMS en el móvil (GetCapabilities 1.1.1/1.3.0), presets españoles (IGN, Catastro, ICV, ICGC, GRAFCAN…), orden, visibilidad y opacidad por proyecto | 009 | pendiente |
-| 036 mapas-sin-conexion | Descarga del mapa base y de capas WMS de la zona del proyecto, gestión del almacenamiento | 035 | pendiente |
+| 032 proyecciones-completas | LCC 1SP/2SP y Oblique Mercator A/B (otras solo si el catálogo las necesita) | 008 | pendiente |
+| 033 transformaciones-datum | Helmert 3/4/6/7 (PV y CF), Molodensky-Badekas 10, rejillas de desplazamiento horizontal (ED50 con SPED2ETV2 ya está en S008) | 032 | pendiente |
+| 034 biblioteca-sc-mundial | Catálogo con búsqueda por país, código o nombre; ficha del SC; datums verticales; descarga de geoides con SHA-256 | 033 | pendiente |
+| 035 sc-personalizado | Editor de SC personalizado, "Mis SC", importar y exportar JSON, cambio del SC del proyecto (mismo datum), cuadrícula o terreno | 034 | pendiente |
+| 036 capas-wms | Biblioteca WMS en el móvil (GetCapabilities 1.1.1/1.3.0), presets españoles (IGN, Catastro, ICV, ICGC, GRAFCAN…), orden, visibilidad y opacidad por proyecto | 009 | pendiente |
+| 037 mapas-sin-conexion | Descarga del mapa base y de capas WMS de la zona del proyecto, gestión del almacenamiento | 036 | pendiente |
 
 ## H6 · Herramientas Pro
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 037 cogo | Inversa, poligonal, intersecciones (distancia-distancia, dirección-dirección, distancia-dirección); los resultados se guardan como puntos de origen COGO | 011 | pendiente |
-| 038 localizacion | Hasta 50 pares H/V, semejanza 2D por mínimos cuadrados con plano inclinado, residuos, exclusión de componentes, aplicar al proyecto y guardar como SC | 034 | pendiente |
-| 039 capa-cad-dxf | Lectura de DXF por streaming (R12–R2018, ≤ 100 MB), bloques (INSERT), arcos, círculos y splines como polilíneas, índice espacial | 028, 009 | pendiente |
-| 040 replanteo-cad | Replanteo de puntos, vértices, centros de bloque, líneas y segmentos del DXF | 039, 026 | pendiente |
-| 041 superficies-landxml | Importar una superficie TIN (una activa), desplazamiento vertical, desmonte/terraplén respecto a la superficie | 018 | pendiente |
+| 038 cogo | Inversa, poligonal, intersecciones (distancia-distancia, dirección-dirección, distancia-dirección); los resultados se guardan como puntos de origen COGO | 011 | pendiente |
+| 039 localizacion | Hasta 50 pares H/V, semejanza 2D por mínimos cuadrados con plano inclinado, residuos, exclusión de componentes, aplicar al proyecto y guardar como SC | 035 | pendiente |
+| 040 capa-cad-dxf | Lectura de DXF por streaming (R12–R2018, ≤ 100 MB), bloques (INSERT), arcos, círculos y splines como polilíneas, índice espacial | 029, 009 | pendiente |
+| 041 replanteo-cad | Replanteo de puntos, vértices, centros de bloque, líneas y segmentos del DXF | 040, 027 | pendiente |
+| 042 superficies-landxml | Importar una superficie TIN (una activa), desplazamiento vertical, desmonte/terraplén respecto a la superficie | 019 | pendiente |
 
 ## H7 · Receptor avanzado
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 042 receptor-guiado | Listas de configuración del receptor, comprobaciones previas, Reach Panel en un WebView, perfil de equipo | 015 | pendiente |
-| 043 modulo-experimental-reach | Flavor `experimental` con aviso legal: lectura de información, batería y configuración, estado por Socket.IO, escritura de altura de antena e inicio/parada de logs | 042 | pendiente |
+| 043 receptor-guiado | Listas de configuración del receptor, comprobaciones previas, Reach Panel en un WebView, perfil de equipo | 016 | pendiente |
+| 044 modulo-experimental-reach | Flavor `experimental` con aviso legal: lectura de información, batería y configuración, estado por Socket.IO, escritura de altura de antena e inicio/parada de logs | 043 | pendiente |
 
 ## Puertas de validación
 | Puerta | Al cerrar | Qué se demuestra |
 |---|---|---|
 | G0 | S002 | FIX sobre un vértice REGENTE; las coordenadas en pantalla coinciden con pyproj aplicado al GGA grabado (≤ 1 mm) |
-| G1 | S013 | Un trabajo real: CSV abierto en QGIS y comparado con Emlid Flow (≤ 2 cm H / 3 cm V) |
-| G2 | S021 | Inclinación y replanteo: 5 puntos replanteados y comprobados después (≤ 2,5 cm); punta calculada frente a jalón vertical |
+| G1 | S014 | Un trabajo real: CSV abierto en QGIS y comparado con Emlid Flow (≤ 2 cm H / 3 cm V) |
+| G2 | S022 | Inclinación y replanteo: 5 puntos replanteados y comprobados después (≤ 2,5 cm); punta calculada frente a jalón vertical |
 | G3–G7 | fin de cada hito | Según el protocolo de campo |

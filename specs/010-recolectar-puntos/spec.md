@@ -82,10 +82,10 @@ El dato de campo es sagrado (constitución nº 1): cada punto se guarda al momen
 - Lista de puntos, ficha del punto, editar, duplicar y borrar → S011.
 - Recalcular puntos al corregir la altura del jalón → S011.
 - Exportar puntos → S012.
-- Inclinación del jalón → S015.
-- Modo automático por tiempo o distancia, promediado de hasta 60 min y fotos → S016.
-- Replanteo → S017.
-- Códigos, atributos y líneas → S022 a S024.
+- Inclinación del jalón → S016.
+- Modo automático por tiempo o distancia, promediado de hasta 60 min y fotos → S017.
+- Replanteo → S018.
+- Códigos, atributos y líneas → S023 a S025.
 
 ## Criterios de finalización
 - Cada RF tiene un test automático en verde que lo cita, y `rf_report` no muestra RF huérfanos.
@@ -99,12 +99,12 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - [SUPOSICIÓN: la altura del jalón es una sola para toda la app; cambiarla en el recolector la cambia también en Coordenadas, y cada punto guarda la que se usó.]
 - [SUPOSICIÓN: al aumentar el número del nombre se conservan los ceros a la izquierda ("P009" → "P010").]
 - [SUPOSICIÓN: la medida instantánea espera como mucho 2 s a la siguiente época; si no llega, se cancela y se dice que no hay datos del receptor.]
-- [SUPOSICIÓN: el promediado llega a 60 s en esta spec; S016 lo amplía a 60 min con estadísticas en vivo.]
+- [SUPOSICIÓN: el promediado llega a 60 s en esta spec; S017 lo amplía a 60 min con estadísticas en vivo.]
 - [SUPOSICIÓN: el modo (instantáneo o promediado) y el tiempo de promediado se recuerdan para todos los proyectos, como el control de precisión.]
 - [SUPOSICIÓN: la precisión vertical de la medida es la σ de altitud de la GST; con el promediado se toma la de la última época usada.]
 - [SUPOSICIÓN: los puntos de una reproducción se pueden guardar, marcados como tales, para poder probar la app sin receptor.]
 - [SUPOSICIÓN: el nombre del punto se dibuja en el mapa a escala 1:2.500 o más grande, para que no se amontonen; algo antes que la escala a la que el mapa sigue al rover (1:2.000), para que los nombres no parpadeen al seguirlo.]
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
-- `docs/hoja-de-ruta.md`, fila S010: "promediado de hasta 60 s" en lugar de "promediado", para distinguirlo de S016.
+- `docs/hoja-de-ruta.md`, fila S010: "promediado de hasta 60 s" en lugar de "promediado", para distinguirlo de S017.
 - `docs/glosario.md`: se añaden "Medida instantánea" (`InstantMeasurement`), "Fuera de tolerancia" (`OutOfTolerance`) y "Descripción (del punto)" (`description`).

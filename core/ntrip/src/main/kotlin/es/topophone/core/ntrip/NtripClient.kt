@@ -32,7 +32,7 @@ fun interface NtripConnector {
  * Cliente NTRIP sobre un socket crudo (ADR-13): negocia con el caster, reenvía las correcciones
  * tal cual (S002/RF-19) y le envía la última GGA del receptor cada [ggaIntervalMs] (S002/RF-20).
  *
- * La [socketFactory] se inyecta para elegir la red (ADR-17, S020); con TLS, el socket ya conectado se
+ * La [socketFactory] se inyecta para elegir la red (ADR-17, S021); con TLS, el socket ya conectado se
  * envuelve con [sslSocketFactory] (S007/RF-27).
  */
 class NtripClient(

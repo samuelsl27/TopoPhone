@@ -84,11 +84,11 @@ El indicador de estado sustituye a la franja de S003: su posición y su contenid
 - Lista de proyectos, crear, abrir y editar proyectos, y la vista de proyecto en Levantamiento → S006. Hasta entonces Levantamiento conserva su estado vacío (S001/RF-4).
 - El mapa de la vista de proyecto → S009.
 - Los perfiles NTRIP dentro de Correcciones → S007.
-- La pantalla Estado detallada (skyplot, SNR, base y línea base) → S014.
+- La pantalla Estado detallada (skyplot, SNR, base y línea base) → S015.
 - La altura del jalón en el recolector → S010.
-- "Mis bibliotecas de códigos", "Mis capas" y "Mis SC" en Ajustes → S022, S035 y S034.
-- Los ajustes del propio receptor (salida de base, Wi-Fi, registro en el receptor) → S042 (guía) y S043 (experimental).
-- Conectar por Wi-Fi desde la lista de receptores → S020.
+- "Mis bibliotecas de códigos", "Mis capas" y "Mis SC" en Ajustes → S023, S036 y S035.
+- Los ajustes del propio receptor (salida de base, Wi-Fi, registro en el receptor) → S043 (guía) y S044 (experimental).
+- Conectar por Wi-Fi desde la lista de receptores → S021.
 - Copiar iconos, textos, colores o el diseño visual de Emlid Flow → nunca (RNF-T14).
 
 ## Criterios de finalización

@@ -90,10 +90,10 @@ Los proyectos se agrupan en carpetas, y uno borrado pasa 30 días en la papelera
 ## Fuera de alcance
 - El mapa en la vista de proyecto → S009.
 - Recolectar puntos → S010; la lista de objetos (buscar, editar, borrar puntos) → S011.
-- Exportar → S012 (CSV) y S013 (paquete `.topoproj` y copias); importar desde el menú de la lista → S013 (paquete) y S027 (CSV).
+- Exportar → S012 (CSV) y S013 (paquete `.topoproj` y copias); importar desde el menú de la lista → S013 (paquete) y S028 (CSV).
 - Los demás SC de España (UTM 28, REGCAN95 UTM 27/28, geográficas, altura elipsoidal) y el huso sugerido por la posición → S008.
-- Biblioteca de códigos vinculada al proyecto → S022; capas del proyecto → S035.
-- Base shift → S019; localización → S038; biblioteca mundial de SC → S033.
+- Biblioteca de códigos vinculada al proyecto → S023; capas del proyecto → S036.
+- Base shift → S020; localización → S039; biblioteca mundial de SC → S034.
 - Subcarpetas → no previstas.
 - Sincronización o nube → nunca (constitución nº 4).
 

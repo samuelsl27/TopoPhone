@@ -101,7 +101,7 @@ Polígono de 64 vértices alrededor del rover: para cada rumbo θ, Δφ = r·cos
   - el parche del estilo del IGN;
   - `NetworkFailureMonitor`.
 - **`NetworkFailureMonitor`:** una `IOException` de conexión (sin red, host desconocido, tiempo agotado) pone `offline = true`, y cualquier respuesta lo devuelve a `false`. El aviso se ve mientras `offline` y el mapa esté a la vista.
-- **RNF-T4:** hasta S019 la app no se conecta a la Wi-Fi del receptor, y el mapa usa la red por defecto, como el NTRIP. S019 enlazará este cliente a la red con internet.
+- **RNF-T4:** hasta S020 la app no se conecta a la Wi-Fi del receptor, y el mapa usa la red por defecto, como el NTRIP. S020 enlazará este cliente a la red con internet.
 - **Arranque sin red:** la vista no espera a las descargas, porque MapLibre carga en segundo plano (RNF de la spec, < 1 s).
 
 ## Interfaz

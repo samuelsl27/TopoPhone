@@ -84,10 +84,10 @@ Lo que sale del móvil tiene que valer lo mismo que lo que se midió (constituci
 
 ## Fuera de alcance
 - Paquete del proyecto (`.topoproj`) y copias de seguridad → S013.
-- Importar CSV → S027.
-- DXF, Shapefile y KML/KMZ → S028 a S030.
-- Códigos, atributos, líneas y polígonos en el fichero → S023 y S024 (añadirán sus columnas).
-- Coordenadas de una localización → S038.
+- Importar CSV → S028.
+- DXF, Shapefile y KML/KMZ → S029 a S031.
+- Códigos, atributos, líneas y polígonos en el fichero → S024 y S025 (añadirán sus columnas).
+- Coordenadas de una localización → S039.
 - Codificaciones distintas de UTF-8 (Windows-1252) → no previsto.
 - Cambiar el orden de las columnas del formato personalizado → no previsto.
 - Exportar varios proyectos a la vez → no previsto.
