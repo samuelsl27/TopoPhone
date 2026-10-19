@@ -32,7 +32,7 @@
       Hecho cuando: `BackupsViewModelTest` en verde.
 - [x] T15. `app`: pantalla "Copias de seguridad" y su acceso desde Ajustes, con el selector de ficheros y el de carpetas. (RF-1, RF-6, RF-11, RF-17, RF-20, RF-21)
       Hecho cuando: `BackupsScreenTest` en verde.
-- [ ] T16. `app`: tras restaurar o deshacer, volver a la lista de proyectos y aplicar el idioma; comprobar que la conexión NTRIP se cierra o se reconecta. (RF-8, S007/RF-8, RF-9)
+- [x] T16. `app`: tras restaurar o deshacer, volver a la lista de proyectos y aplicar el idioma; comprobar que la conexión NTRIP se cierra o se reconecta. (RF-8, S007/RF-8, RF-9)
       Hecho cuando: los tests de navegación y del controlador NTRIP tras restaurar en verde.
 - [ ] T17. `app`: aviso sin carpeta y alerta de fallo en la lista de proyectos. (RF-21, RF-22, RF-23)
       Hecho cuando: `ProjectListBackupNoticeTest` en verde.

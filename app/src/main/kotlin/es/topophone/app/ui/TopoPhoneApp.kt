@@ -312,7 +312,9 @@ private fun AppNavHost(
                 )
             }
             composable<BackupsDestination> {
-                backupsSection(uiState.themeState, actions.onToggleSun, { navController.popBackStack() }, {})
+                backupsSection(uiState.themeState, actions.onToggleSun, { navController.popBackStack() }) {
+                    navController.navigateToSurveyList() // S013/RF-8, RF-11
+                }
             }
             composable<ProjectDefaultsDestination> {
                 projectDefaultsSection(uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
@@ -341,6 +343,16 @@ private fun NavDestination?.isIn(destination: TopLevelDestination): Boolean =
  * Patrón de varias pilas: volver a una sección restaura su pila, y "Atrás" desde Receptor
  * o Ajustes vuelve a Levantamiento (S001/RF-5).
  */
+/**
+ * Tras restaurar o deshacer (S013/RF-8, RF-11): a la lista de proyectos con los datos nuevos, sin lo que había abierto
+ * en Levantamiento (un proyecto que quizá ya no existe). Lo guardado de Levantamiento se recupera, para que deje de
+ * estar guardado y no vuelva al cambiar de sección, y se quita hasta la lista.
+ */
+private fun NavHostController.navigateToSurveyList() {
+    navigateToTopLevel(TopLevelDestination.SURVEY)
+    popBackStack<SurveyRoute>(inclusive = false)
+}
+
 private fun NavHostController.navigateToTopLevel(destination: TopLevelDestination) {
     navigate(destination.graph) {
         popUpTo(graph.findStartDestination().id) { saveState = true }

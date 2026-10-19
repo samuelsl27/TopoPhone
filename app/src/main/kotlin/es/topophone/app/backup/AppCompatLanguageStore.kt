@@ -8,12 +8,16 @@ import kotlinx.coroutines.withContext
 
 /**
  * Idioma de la app para la copia (S013/RF-2, RF-8): el que guarda AppCompat (S001/RF-16), en etiquetas BCP 47; vacío
- * es el del sistema. Aplicarlo recrea la actividad si cambia.
+ * es el del sistema. Aplicarlo recrea la actividad, así que solo se aplica si cambia. [read] y [write] son AppCompat;
+ * los tests los sustituyen porque Robolectric no tiene el gestor de idiomas del sistema (Android 13+).
  */
-class AppCompatLanguageStore : AppLanguageStore {
-    override fun current(): String = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+class AppCompatLanguageStore(
+    private val read: () -> String = { AppCompatDelegate.getApplicationLocales().toLanguageTags() },
+    private val write: (String) -> Unit = { AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(it)) },
+) : AppLanguageStore {
+    override fun current(): String = read()
 
-    override suspend fun apply(tag: String) = withContext(Dispatchers.Main) {
-        if (current() != tag) AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tag))
+    override suspend fun apply(tag: String) = withContext(Dispatchers.Main.immediate) {
+        if (read() != tag) write(tag)
     }
 }

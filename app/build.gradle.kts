@@ -47,6 +47,8 @@ dependencies {
 
     // Base de datos en memoria para los tests de las pantallas de proyectos (S006).
     testImplementation(libs.room.runtime)
+    // Ajustes reales en el test de restaurar con la conexión NTRIP abierta (S013).
+    testImplementation(libs.androidx.datastore.preferences)
 }
 
 // Licencias de terceros para "Licencias y atribuciones" (S001/RF-23), generadas al compilar sin red
