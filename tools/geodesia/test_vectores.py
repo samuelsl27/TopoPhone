@@ -27,6 +27,8 @@ def test_los_vectores_se_generaron_con_la_misma_rejilla() -> None:
         "factores_tm.csv": rejillas.GEOID_PENINSULA,
         "puntos_manuales.csv": rejillas.ED50_SHIFT,
         "jalon_corregido.csv": rejillas.ED50_SHIFT,
+        "ecef.csv": rejillas.GEOID_PENINSULA,
+        "linea_base.csv": rejillas.GEOID_PENINSULA,
     }
     for name, grid in expected.items():
         text = (FIXTURES / name).read_text(encoding="utf-8")
@@ -129,3 +131,22 @@ def test_s011_rf_14_el_jalon_corregido_baja_el_suelo_jalon_mas_0_134_m() -> None
     assert {row[0] for row in pole} == {"ETRS89", "REGCAN95", "ED50"}
     for row in pole:
         assert abs(float(row[4]) - float(row[5]) - 0.134 - float(row[6])) < 1e-9
+
+
+def test_s015_rf_13_ecef_cubre_espana_canarias_avl13m_y_extremos() -> None:
+    ecef = rows("ecef.csv")
+    assert len(ecef) > 50
+    lats = [float(row[0]) for row in ecef]
+    assert any(27.6 < lat < 29.4 for lat in lats) and any(lat > 89.0 for lat in lats) and any(lat < -89.0 for lat in lats)
+    # La estación AVL13M del 1006 real: Avilés, a 78 m de altura elipsoidal.
+    avl13m = next(row for row in ecef if row[3] == "4604889.1789")
+    assert abs(float(avl13m[0]) - 43.5578666) < 1e-6 and abs(float(avl13m[1]) + 5.9130704) < 1e-6
+    assert abs(float(avl13m[2]) - 78.434) < 1e-3
+
+
+def test_s015_rf_14_la_linea_base_va_de_cero_a_80_km_y_rodea_los_20_km() -> None:
+    distances = [float(row[6]) for row in rows("linea_base.csv")]
+    assert min(distances) < 1e-6  # la misma posición, salvo el redondeo de las geocéntricas
+    assert any(0.1 < d < 3.0 for d in distances)
+    assert max(distances) > 79_000.0
+    assert any(19_000.0 < d < 20_000.0 for d in distances) and any(20_000.0 < d < 21_000.0 for d in distances)

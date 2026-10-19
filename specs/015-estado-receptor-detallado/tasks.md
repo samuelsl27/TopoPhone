@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/geodesia`: vectores de pyproj de geodésicas ↔ ECEF (España, Canarias y la estación AVL13M) y de líneas base. (RF-13, RF-14)
+- [x] T1. `tools/geodesia`: vectores de pyproj de geodésicas ↔ ECEF (España, Canarias y la estación AVL13M) y de líneas base. (RF-13, RF-14)
       Hecho cuando: el script genera los CSV de referencia y su test de `tools` está en verde.
 - [ ] T2. `core:geodesy`: `Ecef` (directa e inversa, A5). (RF-13, RF-14)
       Hecho cuando: `EcefTest` en verde contra los vectores de T1 (≤ 1·10⁻⁹°, h ≤ 1 mm, ida y vuelta ≤ 0,1 mm).

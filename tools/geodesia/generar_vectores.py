@@ -22,6 +22,10 @@ Genera en fixtures/geodesia/:
   coordenadas del proyecto; o el motivo por el que no se puede guardar (S011/RF-17 a RF-20).
 - jalon_corregido.csv: antena de un punto medido y altura del jalón corregida → punto del suelo y
   coordenadas del proyecto (S011/RF-14).
+- ecef.csv: ETRS89 geográficas con altura elipsoidal ↔ cartesianas geocéntricas (EPSG:4937 ↔ EPSG:4936,
+  GRS80), en España, Canarias, la estación AVL13M de la grabación RTCM real y casos extremos (S015/RF-13).
+- linea_base.csv: distancia en línea recta entre la antena del rover y la base, desde sus cartesianas
+  geocéntricas de pyproj, de metros a 80 km (S015/RF-14).
 
 Uso: uv run --project tools tools/geodesia/generar_vectores.py
 Es determinista: la misma versión de pyproj/PROJ y de la rejilla dan el mismo fichero.
@@ -474,6 +478,58 @@ def pole_vectors(rng: random.Random) -> list[str]:
     return lines
 
 
+# Estación de referencia de fixtures/rtcm/rgapa-AVL13M.rtcm3 (mensaje 1006, estación 6), en metros.
+AVL13M_ECEF = (4604889.1789, -476930.7239, 4372677.1220)
+
+
+def geocentric() -> tuple[Transformer, Transformer]:
+    """ETRS89 geográficas 3D (EPSG:4937) → geocéntricas (EPSG:4936), y al revés."""
+    return (
+        Transformer.from_crs("EPSG:4937", "EPSG:4936", always_xy=True),
+        Transformer.from_crs("EPSG:4936", "EPSG:4937", always_xy=True),
+    )
+
+
+def ecef_vectors(rng: random.Random) -> list[str]:
+    """S015/RF-13: geográficas con altura elipsoidal ↔ X, Y, Z sobre GRS80."""
+    lines = header("Geográficas ETRS89 con altura elipsoidal ↔ geocéntricas (EPSG:4937 ↔ EPSG:4936)") + [
+        "latitud,longitud,altura_elipsoidal,x,y,z"
+    ]
+    forward, inverse = geocentric()
+    points = [(0.0, 0.0, 0.0), (0.0, 90.0, 10.0), (-33.8688, 151.2093, 58.0), (89.9999, 45.0, 120.0), (-89.5, -120.0, 2800.0)]
+    points += [(40.41668, -3.70371, 699.42), (28.27223, -16.64251, 3718.0), (39.5696, 2.6502, -12.5)]
+    points += [(rng.uniform(36.0, 43.8), rng.uniform(-9.3, 4.3), rng.uniform(-50.0, 3500.0)) for _ in range(40)]
+    points += [(rng.uniform(27.6, 29.4), rng.uniform(-18.2, -13.4), rng.uniform(0.0, 3700.0)) for _ in range(10)]
+    for lat, lon, h in points:
+        x, y, z = forward.transform(lon, lat, h)
+        lines.append(",".join(fmt(v) for v in (lat, lon, h, x, y, z)))
+    lon, lat, h = inverse.transform(*AVL13M_ECEF)
+    lines.append(",".join(fmt(v) for v in (lat, lon, h, *AVL13M_ECEF)))
+    return lines
+
+
+def baseline_vectors(rng: random.Random) -> list[str]:
+    """S015/RF-14: |ECEF(rover) − ECEF(base)| con las geocéntricas de pyproj."""
+    lines = header("Línea base: distancia en línea recta entre las geocéntricas del rover y de la base") + [
+        "latitud_rover,longitud_rover,altura_rover,latitud_base,longitud_base,altura_base,linea_base"
+    ]
+    forward, inverse = geocentric()
+    geod = pyproj.Geod(ellps="GRS80")
+    base_lon, base_lat, base_h = inverse.transform(*AVL13M_ECEF)
+    bases = [(base_lat, base_lon, base_h), (40.4166667, -3.7, 700.0), (28.4636, -16.2518, 35.0)]
+    for lat_b, lon_b, h_b in bases:
+        xb, yb, zb = forward.transform(lon_b, lat_b, h_b)
+        for distance in (0.0, 0.25, 300.0, 5_000.0, 19_999.0, 20_001.0, 80_000.0):
+            azimuth = rng.uniform(0.0, 360.0)
+            lon_r, lat_r, _ = geod.fwd(lon_b, lat_b, azimuth, distance)
+            # Desnivel de hasta 200 m en las largas y de hasta 2 m en las cortas, para que no tape la distancia.
+            h_r = h_b + rng.uniform(-200.0, 200.0) if distance >= 1_000.0 else h_b + rng.uniform(-2.0, 2.0) if distance > 0 else h_b
+            xr, yr, zr = forward.transform(lon_r, lat_r, h_r)
+            d = ((xr - xb) ** 2 + (yr - yb) ** 2 + (zr - zb) ** 2) ** 0.5
+            lines.append(",".join(fmt(v) for v in (lat_r, lon_r, h_r, lat_b, lon_b, h_b, d)))
+    return lines
+
+
 def main() -> int:
     for grid in rejillas.GRIDS:
         rejillas.ensure(grid, download=True)
@@ -494,6 +550,9 @@ def main() -> int:
         # S011.
         ("puntos_manuales.csv", manual_vectors(random.Random(20261024))),
         ("jalon_corregido.csv", pole_vectors(random.Random(20261025))),
+        # S015.
+        ("ecef.csv", ecef_vectors(random.Random(20261026))),
+        ("linea_base.csv", baseline_vectors(random.Random(20261027))),
     )
     for name, lines in outputs:
         (OUT / name).write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
