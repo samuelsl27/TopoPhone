@@ -11,6 +11,8 @@ import es.topophone.core.formats.backup.BackupManifest
 import es.topophone.core.formats.backup.BackupReadResult
 import es.topophone.core.formats.backup.BackupSettings
 import es.topophone.core.formats.backup.BackupSettingsJson
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.project.ProjectNames
 import es.topophone.data.db.TopoPhoneDatabase
 import java.io.File
@@ -101,6 +103,7 @@ class BackupRepository(
     private val workDir: File = File(context.cacheDir, "backup"),
     private val undoDir: File = File(context.filesDir, "backups/undo"),
     private val newId: () -> String = { UUID.randomUUID().toString() },
+    private val log: AppLog = AppLog.NONE,
 ) : Backups {
     private val lock = Mutex()
 
@@ -122,13 +125,17 @@ class BackupRepository(
         withContext(Dispatchers.IO) {
             val file = File(dir(BUILD), "backup.zip")
             try {
-                createBackupFileLocked(file)
+                val manifest = createBackupFileLocked(file)
                 file.inputStream().use { it.copyTo(out) }
                 out.flush()
+                // S014/RF-4
+                log.info(LogCategory.BACKUPS, "Copia de seguridad creada: ${counts(manifest.projectCount, manifest.pointCount)}")
                 true
             } catch (_: IOException) {
+                log.error(LogCategory.BACKUPS, "No se pudo guardar la copia de seguridad")
                 false
             } catch (_: SQLException) {
+                log.error(LogCategory.BACKUPS, "No se pudo guardar la copia de seguridad")
                 false
             } finally {
                 file.delete()
@@ -160,7 +167,12 @@ class BackupRepository(
                 BackupReadResult.Newer -> BackupRead.Newer
                 is BackupReadResult.WrongKind -> BackupRead.WrongKind(result.actual)
                 is BackupReadResult.Valid -> checked(result)
-            }.also { if (it !is BackupRead.Valid) dir.deleteRecursively() }
+            }.also {
+                if (it !is BackupRead.Valid) {
+                    dir.deleteRecursively()
+                    logRejected(kind, it) // S014/RF-5
+                }
+            }
         }
     }
 
@@ -170,7 +182,18 @@ class BackupRepository(
      * ajustes. Si algo falla, los datos quedan como estaban y se conserva lo que había para deshacer. Los perfiles NTRIP
      * que siguen en el móvil conservan su contraseña (S013/RF-9); los que solo estaban en la copia la pedirán (S013/RF-15).
      */
-    override suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult = lock.withLock {
+    override suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult =
+        restoreUnlogged(valid, keepCopy).also { result ->
+            // S014/RF-4
+            val createdAt = valid.manifest.createdAt
+            if (result is RestoreResult.Restored) {
+                log.info(LogCategory.BACKUPS, "Restaurada la copia del $createdAt: ${counts(result.projects, result.points)}")
+            } else {
+                log.error(LogCategory.BACKUPS, "No se pudo restaurar la copia del $createdAt; los datos siguen como estaban")
+            }
+        }
+
+    private suspend fun restoreUnlogged(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult = lock.withLock {
         withContext(Dispatchers.IO) {
             val backupSettings = valid.settings
             if (valid.manifest.kind != BackupKind.BACKUP || backupSettings == null) return@withContext RestoreResult.Failed
@@ -194,7 +217,15 @@ class BackupRepository(
      * S013/RF-11: vuelve al estado guardado antes de la última restauración, contraseñas NTRIP incluidas, y la opción
      * desaparece. Si falla, los datos quedan como estaban y se puede volver a intentar.
      */
-    override suspend fun undoRestore(): RestoreResult = lock.withLock {
+    override suspend fun undoRestore(): RestoreResult = undoUnlogged().also { result ->
+        if (result is RestoreResult.Restored) {
+            log.info(LogCategory.BACKUPS, "Deshecha la restauración") // S014/RF-4
+        } else {
+            log.error(LogCategory.BACKUPS, "No se pudo deshacer la restauración")
+        }
+    }
+
+    private suspend fun undoUnlogged(): RestoreResult = lock.withLock {
         withContext(Dispatchers.IO) {
             val saved = undoState()
             val before = attempt { saved.open(UNDO) } ?: return@withContext RestoreResult.Failed
@@ -236,10 +267,13 @@ class BackupRepository(
                 zip.outputStream().use { BackupArchive.write(manifest, mapOf(BackupArchive.DATABASE to database), it) }
                 zip.inputStream().use { it.copyTo(out) }
                 out.flush()
+                log.info(LogCategory.BACKUPS, "Paquete exportado: «$name»") // S014/RF-4
                 true
             } catch (_: IOException) {
+                log.error(LogCategory.BACKUPS, "No se pudo exportar el paquete")
                 false
             } catch (_: SQLException) {
+                log.error(LogCategory.BACKUPS, "No se pudo exportar el paquete")
                 false
             } finally {
                 dir.deleteRecursively()
@@ -254,6 +288,23 @@ class BackupRepository(
      * móvil pasa a la papelera con ids nuevos y el del paquete se queda los suyos y su carpeta (S013/RF-27).
      */
     override suspend fun importPackage(valid: BackupRead.Valid, choice: ImportChoice?, importedLabel: String): ImportResult =
+        importUnlogged(valid, choice, importedLabel).also { result ->
+            // S014/RF-4
+            when (result) {
+                is ImportResult.Imported -> log.info(
+                    LogCategory.BACKUPS,
+                    when (choice) {
+                        null -> "Paquete importado: «${result.name}»"
+                        ImportChoice.AS_NEW -> "Paquete importado como nuevo: «${result.name}»"
+                        ImportChoice.REPLACE -> "Paquete importado sustituyendo al del móvil: «${result.name}»"
+                    },
+                )
+                is ImportResult.NeedsChoice -> Unit
+                ImportResult.Failed -> log.error(LogCategory.BACKUPS, "No se pudo importar el paquete de «${valid.manifest.projectName}»")
+            }
+        }
+
+    private suspend fun importUnlogged(valid: BackupRead.Valid, choice: ImportChoice?, importedLabel: String): ImportResult =
         lock.withLock {
             withContext(Dispatchers.IO) {
                 val projectId = valid.manifest.projectId
@@ -478,6 +529,21 @@ class BackupRepository(
     } catch (_: Exception) {
         null
     }
+
+    private fun logRejected(kind: BackupKind, result: BackupRead) {
+        val what = if (kind == BackupKind.BACKUP) "copia de seguridad" else "paquete"
+        val reason = when (result) {
+            BackupRead.NotTopoPhone -> "no es de TopoPhone"
+            is BackupRead.WrongKind -> if (result.actual == BackupKind.PACKAGE) "es un paquete" else "es una copia de seguridad"
+            BackupRead.Damaged -> "está dañado o incompleto"
+            BackupRead.Newer -> "es de una versión más nueva de la app"
+            is BackupRead.Valid -> return
+        }
+        log.warning(LogCategory.BACKUPS, "Fichero rechazado como $what: $reason")
+    }
+
+    private fun counts(projects: Int, points: Int): String =
+        "${if (projects == 1) "1 proyecto" else "$projects proyectos"} y ${if (points == 1) "1 punto" else "$points puntos"}"
 
     private fun checked(valid: BackupReadResult.Valid): BackupRead {
         val database = valid.files.getValue(BackupArchive.DATABASE)

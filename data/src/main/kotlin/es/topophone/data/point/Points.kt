@@ -8,6 +8,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.withTransaction
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointChange
 import es.topophone.core.model.point.PointHistoryEntry
@@ -170,12 +172,18 @@ interface PointRepository {
     suspend fun purgeTrash(): Int
 }
 
-class RoomPointRepository(private val database: TopoPhoneDatabase, private val clock: () -> Long = System::currentTimeMillis) :
-    PointRepository {
+class RoomPointRepository(
+    private val database: TopoPhoneDatabase,
+    private val clock: () -> Long = System::currentTimeMillis,
+    private val log: AppLog = AppLog.NONE,
+) : PointRepository {
     private val dao = database.points()
 
     override suspend fun create(point: Point): PointSaveResult = try {
         dao.insert(point.toEntity())
+        // S014/RF-3, RF-7: nombre, proyecto y solución; nunca las coordenadas.
+        val project = database.projects().byId(point.projectId)?.name ?: point.projectId
+        log.info(LogCategory.POINTS, "Guardado ${point.name} en «$project»: ${point.measurement?.quality?.solution ?: "punto manual"}")
         PointSaveResult.Saved
     } catch (_: SQLiteConstraintException) {
         PointSaveResult.DuplicateName // el índice único de (proyecto, nombre, papelera)

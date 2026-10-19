@@ -9,6 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import es.topophone.core.model.log.AppLog
 import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.BackupDataStoreQualifier
 import es.topophone.data.backup.DataStoreAutoBackupPreferences
@@ -115,7 +116,7 @@ object DatabaseModule {
     /** Puntos recolectados (S010). */
     @Provides
     @Singleton
-    fun providePointRepository(database: TopoPhoneDatabase): PointRepository = RoomPointRepository(database)
+    fun providePointRepository(database: TopoPhoneDatabase, log: AppLog): PointRepository = RoomPointRepository(database, log = log)
 
     /** Último encuadre del mapa de cada proyecto (S009/RF-21). */
     @Provides
