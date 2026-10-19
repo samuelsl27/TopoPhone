@@ -42,5 +42,5 @@
       Hecho cuando: `PackageScreenTest` en verde.
 - [x] T20. Rendimiento: 10 000 puntos se copian en menos de 5 s y se restauran en menos de 10 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.
-- [ ] T21. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
+- [x] T21. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona.

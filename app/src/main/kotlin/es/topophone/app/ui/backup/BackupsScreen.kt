@@ -103,7 +103,11 @@ fun BackupsRoute(
         if (uri != null) viewModel.folderChosen(uri.toString())
     }
     LaunchedEffect(state.message) {
-        if (state.message == BackupMessage.RESTORED || state.message == BackupMessage.UNDONE) onRestored()
+        if (state.message == BackupMessage.RESTORED || state.message == BackupMessage.UNDONE) {
+            // Se consume: al volver a esta pantalla no debe llevar otra vez a la lista de proyectos.
+            viewModel.dismissMessage()
+            onRestored()
+        }
     }
     BackupsScreen(
         themeState,
