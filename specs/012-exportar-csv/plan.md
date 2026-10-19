@@ -27,22 +27,20 @@ enum class ExportColumn(val header: String) {
     EDITED("Edited"), COPY_OF("Copy of"),
 }
 
-sealed interface ExportFormat {
-    val columns: List<ExportColumn>
-    data object All : ExportFormat            // todas, en el orden de ExportColumn (S012/RF-6)
-    data object Penzd : ExportFormat          // NAME, EASTING, NORTHING, ELEVATION, DESCRIPTION (S012/RF-7)
-    data object Pnezd : ExportFormat          // NAME, NORTHING, EASTING, ELEVATION, DESCRIPTION
-    data class Custom(val chosen: Set<ExportColumn>) : ExportFormat   // las marcadas, en el orden de ExportColumn (S012/RF-8)
-}
+enum class ExportFormat { ALL, PENZD, PNEZD, CUSTOM }   // S012/RF-5
 
-enum class ColumnSeparator(val char: Char) { COMMA(','), SEMICOLON(';'), TAB('\t') }
+enum class ColumnSeparator(val char: Char) { COMMA(','), SEMICOLON(';'), TAB('	') }
 enum class DecimalSeparator(val char: Char) { POINT('.'), COMMA(',') }
 
 data class CsvOptions(
-    val format: ExportFormat = ExportFormat.All,
+    val format: ExportFormat = ExportFormat.ALL,
     val separator: ColumnSeparator = ColumnSeparator.COMMA,
     val decimal: DecimalSeparator = DecimalSeparator.POINT,
-) { val valid: Boolean get() = !(separator == ColumnSeparator.COMMA && decimal == DecimalSeparator.COMMA) }   // S012/RF-14
+    val customColumns: Set<ExportColumn> = ExportColumn.entries.toSet(),   // las del personalizado (S012/RF-8)
+) {
+    val valid: Boolean get() = !(separator == ColumnSeparator.COMMA && decimal == DecimalSeparator.COMMA)   // S012/RF-14
+    val columns: List<ExportColumn>   // todas; PENZD; PNEZD; o las marcadas, en el orden de ExportColumn (S012/RF-6 a RF-8)
+}
 
 object CsvExport {
     /** Formatos que admite el SC del proyecto: sin PENZD ni PNEZD en geográficas (S012/RF-10). */
@@ -56,7 +54,6 @@ object ExportFileName { fun of(projectName: String, format: ExportFormat, at: In
 
 ```kotlin
 // data
-data class ExportSettings(val format: String, val separator: ColumnSeparator, val decimal: DecimalSeparator, val custom: List<String>)
 interface ExportPreferences { val settings: Flow<CsvOptions>; suspend fun save(options: CsvOptions) }   // DataStore "export" (S012/RF-21)
 PointRepository.pointsForExport(projectId): List<Point>   // activos, por created_at, con rawNmea vacío
 ```
@@ -135,6 +132,7 @@ Textos nuevos (es):
 | Escritor CSV propio en `core:formats` | ADR-14; unas decenas de líneas con el RFC 4180, probadas en la JVM | Una librería CSV (dependencia nueva para lo que es escribir texto) |
 | Cabeceras y valores fijos en inglés | Los reconocen otros programas, y el fichero no cambia con el idioma de la app (suposición de la spec) | Cabeceras traducidas |
 | Leer los puntos sin las frases NMEA | Un promediado de 60 s guarda cientos de frases que el CSV no usa; con 10 000 puntos serían cientos de MB | Leer el punto completo |
+| `ExportFormat` como enumerado y las columnas del personalizado en `CsvOptions` | Se guarda y se elige en la interfaz como un valor más | Una clase sellada con las columnas dentro |
 | Selección en un `@Singleton` | No se pasan miles de ids por la ruta de navegación | Lista de ids como argumento de la ruta |
 | Ficheros dorados leídos por Python | Una herramienta distinta comprueba el CSV (constitución nº 2) | Comprobar solo con el mismo código Kotlin que lo escribe |
 | Compartir desde `cache/exports/` con el FileProvider existente | Nada fuera de la app; Android puede vaciar la caché | Escribir en Descargas (permisos y ficheros sueltos) |

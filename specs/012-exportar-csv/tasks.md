@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `core:formats` (módulo nuevo): `ExportColumn`, `ExportFormat`, `CsvOptions`, `CsvExport.formatsFor` y `CsvExport.write` (columnas, cabecera, números, celdas vacías, comillas, CRLF). (RF-5 a RF-16)
+- [x] T1. `core:formats` (módulo nuevo): `ExportColumn`, `ExportFormat`, `CsvOptions`, `CsvExport.formatsFor` y `CsvExport.write` (columnas, cabecera, números, celdas vacías, comillas, CRLF). (RF-5 a RF-16)
       Hecho cuando: `CsvExportTest` en verde y el módulo pasa las reglas de módulos y Kover.
 - [ ] T2. `core:formats`: `ExportFileName`. (RF-19)
       Hecho cuando: `ExportFileNameTest` en verde con caracteres no válidos y nombres largos.
