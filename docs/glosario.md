@@ -113,6 +113,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Superficie (MDT/TIN) | `Surface` | |
 | Dibujo CAD | `CadDrawing` | |
 | Copia de seguridad | `Backup` | |
+| Exportar | `export` | Sacar los puntos de un proyecto a un fichero (S012) |
+| Formato de exportación | `ExportFormat` | Todas las columnas, PENZD, PNEZD o personalizado (S012) |
+| Separador de columnas | `columnSeparator` | Coma, punto y coma o tabulador (S012) |
+| Signo decimal | `decimalSeparator` | Punto o coma (S012) |
 | Paquete de proyecto | `ProjectPackage` | `.topoproj` |
 | Tema (Sistema, Claro, Oscuro, Sol) | `ThemeMode` (`SYSTEM`, `LIGHT`, `DARK`, `SUN`) | Elección del usuario; el que se pinta es `EffectiveTheme` |
 | Modo sol | `ThemeMode.SUN` | Tema claro de alto contraste (≥ 7:1); el acceso rápido es `ThemeState.toggleSun()` |
