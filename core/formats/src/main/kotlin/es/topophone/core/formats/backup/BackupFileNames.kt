@@ -26,6 +26,9 @@ object BackupFileNames {
     fun beforeRestore(at: Instant, zone: ZoneId): String = "${APP}_antes-de-restaurar_${ExportFileName.stamp(at, zone)}.zip"
 
     fun isAutomatic(name: String): Boolean = AUTOMATIC.matches(name)
+
+    /** El informe de sistema: `TopoPhone_informe_<AAAAMMDD-HHMM>.zip` (S014/RF-16). */
+    fun systemReport(at: Instant, zone: ZoneId): String = "${APP}_informe_${ExportFileName.stamp(at, zone)}.zip"
 }
 
 /** Cuándo toca una copia automática y cuáles sobran en la carpeta (S013/RF-18, RF-19). */

@@ -41,4 +41,10 @@ class BackupFileNamesTest {
         BackupFileNames.isAutomatic("TopoPhone_auto_20261019-0802.zip.txt") shouldBe false
         BackupFileNames.isAutomatic("mis fotos.zip") shouldBe false
     }
+
+    @Test
+    fun `S014 RF-16 el informe de sistema se llama TopoPhone_informe con la fecha y hora locales`() {
+        BackupFileNames.systemReport(at, madrid) shouldBe "TopoPhone_informe_20261019-0802.zip"
+        BackupFileNames.isAutomatic(BackupFileNames.systemReport(at, madrid)) shouldBe false
+    }
 }
