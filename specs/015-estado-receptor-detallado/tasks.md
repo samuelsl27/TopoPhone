@@ -20,7 +20,7 @@
       Hecho cuando: `BaseTrackerTest` y `BaselineTest` en verde (línea base ≤ 1 mm frente a pyproj).
 - [x] T9. `receiver`: `ReceiverSession` con `sky` y `base` en el estado, el `BaseTracker` alimentado por las EBP y las correcciones, y `reset` al conectar. (RF-8, RF-11, RF-12, RF-17)
       Hecho cuando: `ReceiverSessionBaseTest` en verde con la grabación real por un conector falso y con EBP en el NMEA.
-- [ ] T10. `app`: tarjetas "Posición" y "Satélites" (DOP y recuentos por constelación) en la pantalla Estado. (RF-1, RF-2, RF-3)
+- [x] T10. `app`: tarjetas "Posición" y "Satélites" (DOP y recuentos por constelación) en la pantalla Estado. (RF-1, RF-2, RF-3)
       Hecho cuando: `StatusScreenTest` en verde con el formato angular de los proyectos nuevos.
 - [ ] T11. `app`: skyplot (A8) con su descripción para TalkBack. (RF-4, RF-5, RF-6)
       Hecho cuando: `SkyplotTest` en verde.

@@ -675,4 +675,10 @@
     <string name="report_saved">Informe guardado.</string>
     <string name="report_not_saved">No se ha podido crear el informe.</string>
     <string name="log_size">Tamaño del log</string>
+    <string name="status_position_title">Posición de la antena</string>
+    <string name="status_satellites_title">Satélites y DOP</string>
+    <string name="status_pdop">PDOP</string>
+    <string name="status_vdop">VDOP</string>
+    <string name="status_constellation">%1$s (%2$c)</string>
+    <string name="gnss_other">Otras</string>
 </resources>

@@ -13,6 +13,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 /** Valores por defecto de los proyectos nuevos, que se eligen en Ajustes (S006/RF-6, RF-13). */
@@ -20,6 +21,15 @@ interface ProjectPreferences {
     val defaults: Flow<ProjectDefaults>
 
     suspend fun saveDefaults(defaults: ProjectDefaults)
+
+    companion object {
+        /** Siempre los valores por defecto de fábrica, sin guardar nada: para quien solo los lee y no tiene Ajustes. */
+        val FACTORY: ProjectPreferences = object : ProjectPreferences {
+            override val defaults: Flow<ProjectDefaults> = flowOf(ProjectDefaults())
+
+            override suspend fun saveDefaults(defaults: ProjectDefaults) = Unit
+        }
+    }
 }
 
 @Qualifier

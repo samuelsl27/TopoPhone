@@ -10,9 +10,12 @@ import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
 import es.topophone.core.gnss.nmea.ReplaySpeed
+import es.topophone.core.model.project.AngularUnit
+import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.PoleHeight
+import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.platform.NetworkStatus
@@ -81,6 +84,8 @@ data class ReceiverUiState(
     /** Hay búsqueda del sistema; si no, "Añadir receptor" abre los ajustes de Bluetooth (S004/RF-1). */
     val pairingSupported: Boolean = false,
     val pairing: PairingUi = PairingUi(),
+    /** Formato angular de los proyectos nuevos, para la posición de la pantalla Estado (S015/RF-1). */
+    val angularUnit: AngularUnit = ProjectDefaults().angularUnit,
 )
 
 /**
@@ -102,6 +107,7 @@ class ReceiverViewModel @Inject constructor(
     private val connections: ReceiverConnections,
     private val notifications: NotificationPermission = NotificationPermission.NotRequired,
     private val pairing: ReceiverPairing = ReceiverPairing.Unsupported,
+    private val projectPreferences: ProjectPreferences = ProjectPreferences.FACTORY,
 ) : ViewModel() {
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
@@ -132,8 +138,10 @@ class ReceiverViewModel @Inject constructor(
         val pairing: PairingUi,
     )
 
+    private val angularUnits: Flow<AngularUnit> = projectPreferences.defaults.map { it.angularUnit }.distinctUntilChanged()
+
     val uiState: StateFlow<ReceiverUiState> = combine(
-        snapshots,
+        combine(snapshots, angularUnits, ::Pair),
         bluetoothUi,
         internet,
         combine(poleText, poleValue, ::PoleState),
@@ -144,7 +152,7 @@ class ReceiverViewModel @Inject constructor(
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
             pairingUi,
         ) { now, addresses, granted, asked, pairing -> Extras(now, addresses, granted, asked, pairing) },
-    ) { snapshot, bt, internetAvailable, pole, extras ->
+    ) { (snapshot, angularUnit), bt, internetAvailable, pole, extras ->
         // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
         val realReceiver = ReceiverService.needsService(snapshot)
         val missingPermission = notifications.required && !extras.notificationsGranted
@@ -165,6 +173,7 @@ class ReceiverViewModel @Inject constructor(
             notificationsDenied = missingPermission && extras.notificationsAsked && realReceiver, // S004/RF-6
             pairingSupported = pairingSupported,
             pairing = extras.pairing,
+            angularUnit = angularUnit,
         )
     }.flowOn(Dispatchers.Default).stateIn(
         viewModelScope,
