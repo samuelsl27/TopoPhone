@@ -16,7 +16,7 @@
       Hecho cuando: `BandTest` y `SatelliteNumberTest` en verde con las tablas de NMEA 4.11 y RTCM.
 - [x] T7. `core:gnss`: `SkyView` (lo último de GSA y GSV, DOP y recuentos, A8). (RF-2, RF-3, RF-6)
       Hecho cuando: `SkyViewTest` en verde, también con épocas de 5 Hz sin GSA ni GSV.
-- [ ] T8. `core:survey`: `BaseTracker` y `Baseline` (A6, A7). (RF-10, RF-11, RF-12, RF-14, RF-16, RF-17)
+- [x] T8. `core:survey`: `BaseTracker` y `Baseline` (A6, A7). (RF-10, RF-11, RF-12, RF-14, RF-16, RF-17)
       Hecho cuando: `BaseTrackerTest` y `BaselineTest` en verde (línea base ≤ 1 mm frente a pyproj).
 - [ ] T9. `receiver`: `ReceiverSession` con `sky` y `base` en el estado, el `BaseTracker` alimentado por las EBP y las correcciones, y `reset` al conectar. (RF-8, RF-11, RF-12, RF-17)
       Hecho cuando: `ReceiverSessionBaseTest` en verde con la grabación real por un conector falso y con EBP en el NMEA.
