@@ -8,7 +8,7 @@
       Hecho cuando: `EcefTest` en verde contra los vectores de T1 (≤ 1·10⁻⁹°, h ≤ 1 mm, ida y vuelta ≤ 0,1 mm).
 - [x] T3. `core:gnss`: `RtcmBits` y `onFrame` en `RtcmFramer`. (RF-8, RF-12)
       Hecho cuando: `RtcmBitsTest` en verde y `RtcmFramerTest` entrega 113 cargas de la grabación real con las mismas estadísticas.
-- [ ] T4. `core:gnss`: `ReferenceStationDecoder` (1005/1006, A1). (RF-12, RF-13)
+- [x] T4. `core:gnss`: `ReferenceStationDecoder` (1005/1006, A1). (RF-12, RF-13)
       Hecho cuando: `ReferenceStationDecoderTest` en verde con la estación 6 de la grabación real y un 1005 sintético.
 - [ ] T5. `core:gnss`: `MsmDecoder` (CNR de los MSM 4 a 7, A2). (RF-8, RF-10)
       Hecho cuando: `MsmDecoderTest` en verde con celdas de la grabación real, MSM4/6/7 sintéticos, MSM1 a 3 y cargas cortas.
