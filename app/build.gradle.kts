@@ -29,6 +29,7 @@ android {
 
 dependencies {
     implementation(projects.core.model)
+    implementation(projects.core.formats)
     implementation(projects.core.designsystem)
     implementation(projects.data)
     implementation(projects.receiver)
