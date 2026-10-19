@@ -9,6 +9,7 @@ import androidx.compose.ui.test.performClick
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.backup.FakePackageBackups
+import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.app.ui.projects.LIST_MENU_TAG
 import es.topophone.app.ui.projects.ProjectListActions
@@ -184,5 +185,18 @@ class PackageImportTest {
         }
 
         compose.onNodeWithText("Proyecto importado: Calle Mayor 12 (importado).").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S014 RF-5 una sustitucion bloqueada por una medida queda en el log`() {
+        val log = RecordingLog()
+        val logged = PackageViewModel(backups, measuring, log)
+        backups.importResults += ImportResult.NeedsChoice("Calle Mayor 12")
+        logged.openPackage({ "zip".byteInputStream() }, label = "importado")
+        measuring.set(true)
+
+        logged.answer(ImportChoice.REPLACE)
+
+        log.messages shouldBe listOf("Sustitución no hecha: hay una medida en curso")
     }
 }

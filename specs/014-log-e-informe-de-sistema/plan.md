@@ -175,7 +175,7 @@ interface SystemReportWriter {
 - **Robolectric `app`:**
   - `CrashLogTest`: un error no capturado queda anotado y llega al manejador anterior (RF-6);
   - `ReceiverLogRecorderTest`: con una `ReceiverSession` real y un transporte de prueba, cada transición de A4 (RF-1, RF-2, RF-5);
-  - `UserMessagesLogTest`: los avisos de A5 (RF-5);
+  - los avisos de A5, en los tests de cada pantalla (`CollectorViewModelTest`, `ExportViewModelTest`, `SessionsViewModelTest`, `AutoBackupSchedulerTest`, `BackupsViewModelTest`, `PackageImportTest`) (RF-5);
   - `SessionSelectionTest`: 25 MB, la sesión en curso primero, la parte más reciente si no cabe, sin importadas (RF-12);
   - `SystemReportWriterTest`: entradas del ZIP, `informe.txt`, fallo al escribir (RF-11 a RF-17);
   - `DiagnosticsSettingsTest`: la sección de Ajustes, el diálogo y el tamaño del log (RF-9, RF-10);
@@ -188,7 +188,7 @@ interface SystemReportWriter {
 |---|---|---|
 | RF-1, RF-2 | A4 | `ReceiverLogRecorderTest` |
 | RF-3, RF-4 | Repositorios de `data` | `PointRepositoryLogTest`, `BackupLogTest` |
-| RF-5 | A4, A5 | `ReceiverLogRecorderTest`, `UserMessagesLogTest` |
+| RF-5 | A4, A5 | `ReceiverLogRecorderTest` y los tests de cada pantalla (A5) |
 | RF-6 | A3 | `CrashLogTest` |
 | RF-7 | A4, textos sin secretos | `NoSecretsTest`, `PointRepositoryLogTest` |
 | RF-8, RF-9 | A2, `LogPreferences` | `LogRetentionTest`, `FileAppLogTest`, `DiagnosticsSettingsTest` |

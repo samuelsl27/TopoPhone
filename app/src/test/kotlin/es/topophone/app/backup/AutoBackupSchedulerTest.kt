@@ -1,5 +1,7 @@
 package es.topophone.app.backup
 
+import es.topophone.app.log.RecordingLog
+import es.topophone.core.model.log.LogLevel
 import es.topophone.data.backup.AutoBackupState
 import io.kotest.matchers.shouldBe
 import java.time.Instant
@@ -170,5 +172,30 @@ class AutoBackupSchedulerTest {
         scheduler(prefs).keepBeforeRestore(folder.newFile("b.zip"))
 
         prefs.flow.value.failing shouldBe true
+    }
+
+    @Test
+    fun `S014 RF-4 y RF-5 las copias automaticas, buenas o fallidas, quedan en el log`() = runTest {
+        val log = RecordingLog()
+        val prefs = FakePreferences(withFolder.copy(pendingChanges = true))
+        val scheduler = AutoBackupScheduler(
+            createBackup = { it.writeText("copia") },
+            folder = backupFolder,
+            preferences = prefs,
+            workDir = folder.newFolder(),
+            scope = backgroundScope,
+            clock = { start + testScheduler.currentTime },
+            zone = { utc },
+            log = log,
+        )
+
+        scheduler.backupNow()
+        backupFolder.failWrites = true
+        scheduler.backupNow()
+
+        log.entries.map { it.first to it.third } shouldBe listOf(
+            LogLevel.INFO to "Copia automática guardada: TopoPhone_auto_20261019-0600.zip",
+            LogLevel.WARNING to "No se pudo hacer la copia automática; se volverá a intentar",
+        )
     }
 }

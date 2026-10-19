@@ -6,6 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.formats.backup.BackupFileNames
 import es.topophone.core.formats.backup.BackupKind
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.data.backup.BackupRead
 import es.topophone.data.backup.Backups
 import es.topophone.data.backup.ImportChoice
@@ -67,7 +69,11 @@ data class PackageUiState(
 
 /** Paquetes de proyecto desde la lista de proyectos: exportar e importar (S013/RF-24 a RF-28). */
 @HiltViewModel
-class PackageViewModel @Inject constructor(private val backups: Backups, private val measuring: MeasurementInProgress) : ViewModel() {
+class PackageViewModel @Inject constructor(
+    private val backups: Backups,
+    private val measuring: MeasurementInProgress,
+    private val log: AppLog = AppLog.NONE,
+) : ViewModel() {
     internal var clock: () -> Instant = Instant::now
     internal var zone: () -> ZoneId = ZoneId::systemDefault
 
@@ -99,6 +105,7 @@ class PackageViewModel @Inject constructor(private val backups: Backups, private
 
     /** [saved] null: se ha compartido o el usuario canceló el selector, y no hay nada que decir. */
     fun exportDone(saved: Boolean?) {
+        if (saved == false) log.error(LogCategory.BACKUPS, "No se pudo guardar el paquete en el sitio elegido") // S014/RF-5
         mutable.value = PackageUiState(
             message = when (saved) {
                 true -> PackageMessage.SAVED
@@ -132,7 +139,10 @@ class PackageViewModel @Inject constructor(private val backups: Backups, private
     fun answer(choice: ImportChoice) {
         val valid = chosen ?: return
         mutable.update { it.copy(question = null) }
-        if (choice == ImportChoice.REPLACE && measuring.active.value) return show(PackageMessage.MEASURING)
+        if (choice == ImportChoice.REPLACE && measuring.active.value) {
+            log.warning(LogCategory.BACKUPS, "Sustitución no hecha: hay una medida en curso") // S014/RF-5
+            return show(PackageMessage.MEASURING)
+        }
         viewModelScope.launch { finish(backups.importPackage(valid, choice, importedLabel)) }
     }
 

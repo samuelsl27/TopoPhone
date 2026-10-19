@@ -9,6 +9,8 @@ import es.topophone.core.formats.csv.CsvOptions
 import es.topophone.core.formats.csv.DecimalSeparator
 import es.topophone.core.formats.csv.ExportColumn
 import es.topophone.core.formats.csv.ExportFormat
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.project.Project
 import es.topophone.data.export.ExportPreferences
@@ -66,6 +68,7 @@ class ExportViewModel @Inject constructor(
     private val projects: ProjectRepository,
     private val preferences: ExportPreferences,
     private val selection: ExportSelection,
+    private val log: AppLog = AppLog.NONE,
 ) : ViewModel() {
     private data class Content(val project: Project, val points: List<Point>)
 
@@ -123,6 +126,16 @@ class ExportViewModel @Inject constructor(
 
     fun report(outcome: ExportResult?) {
         result.value = outcome
+        // S014/RF-5
+        val project = state.value.projectName
+        when (outcome) {
+            ExportResult.SAVED -> log.info(
+                LogCategory.APP,
+                "CSV exportado: «$project», ${state.value.pointCount} puntos, ${state.value.options.format}",
+            )
+            ExportResult.FAILED -> log.error(LogCategory.APP, "No se pudo exportar el CSV de «$project»")
+            null -> Unit
+        }
     }
 
     private fun change(update: (CsvOptions) -> CsvOptions) {

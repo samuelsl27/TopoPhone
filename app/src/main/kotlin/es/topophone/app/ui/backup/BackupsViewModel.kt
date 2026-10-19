@@ -6,6 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.backup.AutoBackupScheduler
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.formats.backup.BackupKind
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.BackupRead
 import es.topophone.data.backup.Backups
@@ -84,6 +86,7 @@ class BackupsViewModel @Inject constructor(
     private val preferences: AutoBackupPreferences,
     private val scheduler: AutoBackupScheduler,
     private val measuring: MeasurementInProgress,
+    private val log: AppLog = AppLog.NONE,
 ) : ViewModel() {
     private val step = MutableStateFlow<BackupStep>(BackupStep.Idle)
     private val message = MutableStateFlow<BackupMessage?>(null)
@@ -106,6 +109,7 @@ class BackupsViewModel @Inject constructor(
     /** S013/RF-1, RF-5. */
     fun backupSaved(saved: Boolean) {
         message.value = if (saved) BackupMessage.SAVED else BackupMessage.NOT_SAVED
+        if (!saved) log.error(LogCategory.BACKUPS, "No se pudo guardar la copia de seguridad en el sitio elegido") // S014/RF-5
     }
 
     /** S013/RF-6, RF-12, RF-13: lee la copia elegida y, si vale, pide confirmación. */
@@ -129,7 +133,10 @@ class BackupsViewModel @Inject constructor(
     fun confirmRestore() {
         val valid = chosen ?: return
         chosen = null
-        if (measuring.active.value) return fail(BackupMessage.MEASURING)
+        if (measuring.active.value) {
+            log.warning(LogCategory.BACKUPS, "Restauración no hecha: hay una medida en curso") // S014/RF-5
+            return fail(BackupMessage.MEASURING)
+        }
         viewModelScope.launch {
             step.value = BackupStep.Working
             val result = backups.restore(valid, scheduler::keepBeforeRestore)
@@ -145,7 +152,10 @@ class BackupsViewModel @Inject constructor(
 
     /** S013/RF-11, RF-16 (la pantalla ya ha pedido confirmación). */
     fun undo() {
-        if (measuring.active.value) return fail(BackupMessage.MEASURING)
+        if (measuring.active.value) {
+            log.warning(LogCategory.BACKUPS, "Deshacer no hecho: hay una medida en curso") // S014/RF-5
+            return fail(BackupMessage.MEASURING)
+        }
         viewModelScope.launch {
             step.value = BackupStep.Working
             val result = backups.undoRestore()
@@ -160,6 +170,7 @@ class BackupsViewModel @Inject constructor(
             if (!scheduler.folderChosen(treeUri) &&
                 preferences.state.first().folderUri != treeUri
             ) {
+                log.warning(LogCategory.BACKUPS, "No se puede usar la carpeta elegida para las copias automáticas") // S014/RF-5
                 message.value = BackupMessage.FOLDER_FAILED
             }
         }

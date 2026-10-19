@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.log.LogLevel
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PrecisionControl
@@ -109,12 +112,13 @@ class CollectorViewModelTest {
     }
 
     private val inProgress = MeasurementInProgress()
+    private val log = RecordingLog()
 
     private fun viewModel(projectId: String): CollectorViewModel {
         val vm =
             CollectorViewModel(projects, points, collectorPreferences, receiverPreferences, session, alerts, {
                 ProjectPositionCalculator()
-            }, inProgress)
+            }, inProgress, log)
         vm.start(projectId)
         CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         await(vm) { it.loaded }
@@ -389,5 +393,35 @@ class CollectorViewModelTest {
 
         await(vm) { it.savedName == "1" }.error shouldBe null
         runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().quality.epochsUsed shouldBe 3
+    }
+
+    @Test
+    fun `S014 RF-5 una medida fuera de tolerancia y su descarte quedan en el log`() {
+        val vm = viewModel(project())
+        receiving(vm, status = 5)
+        vm.measure()
+        sendEpoch(2, status = 5)
+        sendEpoch(3, status = 5)
+        await(vm) { it.pending != null }
+
+        vm.discardPending()
+
+        log.entries.map { it.first to it.third } shouldBe listOf(
+            LogLevel.WARNING to "Medida de 1 fuera de tolerancia: NOT_FIX",
+            LogLevel.INFO to "Medida de 1 descartada",
+        )
+    }
+
+    @Test
+    fun `S014 RF-5 la solucion perdida durante un promediado queda en el log`() {
+        collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 5)
+        val vm = viewModel(project())
+        receiving(vm)
+        vm.measure()
+        sendEpoch(2, status = 5)
+
+        runBlocking { withTimeout(5_000) { while (log.messages.isEmpty()) kotlinx.coroutines.delay(10) } }
+        log.entries.first() shouldBe Triple(LogLevel.WARNING, LogCategory.POINTS, "Solución perdida durante la medida de 1")
+        vm.cancel()
     }
 }

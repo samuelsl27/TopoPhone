@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.points.PointFixtures.manual
 import es.topophone.app.ui.points.PointFixtures.measured
@@ -12,6 +13,8 @@ import es.topophone.core.formats.csv.CsvOptions
 import es.topophone.core.formats.csv.DecimalSeparator
 import es.topophone.core.formats.csv.ExportColumn
 import es.topophone.core.formats.csv.ExportFormat
+import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.log.LogLevel
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.data.db.TopoPhoneDatabase
@@ -85,8 +88,10 @@ class ExportViewModelTest {
         db.close()
     }
 
+    private val log = RecordingLog()
+
     private fun viewModel(project: String = projectId, selectionOnly: Boolean = false): ExportViewModel {
-        val vm = ExportViewModel(repository, projects, preferences, selection)
+        val vm = ExportViewModel(repository, projects, preferences, selection, log)
         CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         vm.start(project, selectionOnly)
         return vm
@@ -185,5 +190,15 @@ class ExportViewModelTest {
         }
 
         runBlocking { vm.writeTo(broken) } shouldBe false
+    }
+
+    @Test
+    fun `S014 RF-5 una exportacion fallida queda en el log`() {
+        val vm = viewModel()
+        vm.await { it.loaded }
+
+        vm.report(ExportResult.FAILED)
+
+        log.entries.single() shouldBe Triple(LogLevel.ERROR, LogCategory.APP, "No se pudo exportar el CSV de «Proyecto ETRS89_UTM30»")
     }
 }

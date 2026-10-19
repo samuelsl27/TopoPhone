@@ -1,6 +1,9 @@
 package es.topophone.app.ui.sessions
 
+import es.topophone.app.log.RecordingLog
 import es.topophone.core.gnss.nmea.NmeaChecksum
+import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.log.LogLevel
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.receiver.session.ReceiverSession
@@ -99,5 +102,16 @@ class SessionsViewModelTest {
 
         viewModel.state.value.message shouldBe ImportMessage.NO_NMEA
         viewModel.state.value.rows shouldBe emptyList()
+    }
+
+    @Test
+    fun `S014 RF-5 un fichero NMEA rechazado queda en el log`() {
+        val log = RecordingLog()
+        val viewModel = SessionsViewModel(store, Dispatchers.Unconfined, replay, log)
+
+        viewModel.import("fotos.zip", sizeHint = null) { ByteArrayInputStream("no es NMEA".toByteArray()) }
+
+        log.entries.single() shouldBe
+            Triple(LogLevel.WARNING, LogCategory.RECEIVER, "Fichero NMEA rechazado, sin frases válidas con hora: fotos.zip")
     }
 }

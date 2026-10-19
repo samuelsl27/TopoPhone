@@ -12,8 +12,8 @@
       Hecho cuando: `ReceiverLogRecorderTest` en verde con cada transición de A4.
 - [x] T5. `data`: anotar los puntos guardados y las copias, restauraciones, deshacer e importaciones. (RF-3, RF-4, RF-7)
       Hecho cuando: `PointRepositoryLogTest` y `BackupLogTest` en verde.
-- [ ] T6. `app`: anotar los avisos y errores del recolector, la exportación, las copias, los paquetes, las copias automáticas y la importación de sesiones. (RF-5)
-      Hecho cuando: `UserMessagesLogTest` en verde.
+- [x] T6. `app`: anotar los avisos y errores del recolector, la exportación, las copias, los paquetes, las copias automáticas y la importación de sesiones. (RF-5)
+      Hecho cuando: los tests `S014 RF-5` de cada pantalla en verde.
 - [ ] T7. `core:formats`: nombre del informe; `app`: `SessionSelection`. (RF-12, RF-16)
       Hecho cuando: `BackupFileNamesTest` y `SessionSelectionTest` en verde.
 - [ ] T8. `app`: `SystemReportWriter` (`informe.txt`, log, sesiones, fallo al escribir). (RF-11, RF-12, RF-13, RF-14, RF-15, RF-17)

@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.backup.AppCompatLanguageStore
 import es.topophone.app.backup.AutoBackupScheduler
+import es.topophone.core.model.log.AppLog
 import es.topophone.data.backup.AppLanguageStore
 import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.BackupChanges
@@ -68,6 +69,7 @@ object BackupModule {
         preferences: AutoBackupPreferences,
         changes: BackupChanges,
         @ApplicationScope scope: CoroutineScope,
+        log: AppLog,
     ): AutoBackupScheduler = AutoBackupScheduler(
         createBackup = { repository.createBackupFile(it) },
         folder = folder,
@@ -75,5 +77,6 @@ object BackupModule {
         workDir = File(context.cacheDir, "backup-auto"),
         scope = scope,
         onStart = { changes.start(it) },
+        log = log,
     )
 }

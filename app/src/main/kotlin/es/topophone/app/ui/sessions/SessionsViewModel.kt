@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.receiver.session.ImportResult
 import es.topophone.receiver.session.RecordedSession
 import es.topophone.receiver.session.ReplayController
@@ -48,6 +50,7 @@ class SessionsViewModel @Inject constructor(
     private val store: SessionLogStore,
     @param:IoDispatcher private val io: CoroutineDispatcher,
     private val replay: ReplayController,
+    private val log: AppLog = AppLog.NONE,
 ) : ViewModel() {
 
     private val mutableState = MutableStateFlow(SessionsUiState(load(), receiverConnected = replay.receiverConnected))
@@ -69,6 +72,12 @@ class SessionsViewModel @Inject constructor(
                 is ImportResult.Imported -> null
                 ImportResult.NoNmea -> ImportMessage.NO_NMEA
                 ImportResult.TooLarge -> ImportMessage.TOO_LARGE
+            }
+            // S014/RF-5
+            when (message) {
+                null -> log.info(LogCategory.RECEIVER, "Sesión importada: $name")
+                ImportMessage.NO_NMEA -> log.warning(LogCategory.RECEIVER, "Fichero NMEA rechazado, sin frases válidas con hora: $name")
+                ImportMessage.TOO_LARGE -> log.warning(LogCategory.RECEIVER, "Fichero NMEA rechazado, de más de 200 MB: $name")
             }
             mutableState.value = SessionsUiState(load(), message, replay.receiverConnected)
         }

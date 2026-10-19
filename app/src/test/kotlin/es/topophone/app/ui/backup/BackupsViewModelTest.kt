@@ -3,6 +3,7 @@ package es.topophone.app.ui.backup
 import es.topophone.app.backup.AutoBackupScheduler
 import es.topophone.app.backup.FakeFolder
 import es.topophone.app.backup.FakePreferences
+import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.formats.backup.BackupKind
 import es.topophone.core.formats.backup.BackupManifest
@@ -265,5 +266,25 @@ class BackupsViewModelTest {
         runBlocking { preferences.recordSuccess(1_000) }
 
         runBlocking { vm.state.first { it.lastAutoBackupMs == 1_000L } }.lastAutoBackupMs shouldBe 1_000
+    }
+
+    @Test
+    fun `S014 RF-5 lo que la pantalla de copias no deja hacer queda en el log`() {
+        val log = RecordingLog()
+        val scheduler =
+            AutoBackupScheduler({
+                it.writeText("copia")
+            }, backupFolder, preferences, folder.newFolder("auto2"), CoroutineScope(Dispatchers.Unconfined))
+        val logged = BackupsViewModel(backups, preferences, scheduler, measuring, log)
+        backupFolder.failPersist = true
+        logged.folderChosen("content://tree/copias")
+        logged.open { "zip".byteInputStream() }
+        measuring.set(true)
+        logged.confirmRestore()
+
+        log.messages shouldBe listOf(
+            "No se puede usar la carpeta elegida para las copias automáticas",
+            "Restauración no hecha: hay una medida en curso",
+        )
     }
 }

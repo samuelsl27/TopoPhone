@@ -2,6 +2,8 @@ package es.topophone.app.backup
 
 import es.topophone.core.formats.backup.AutoBackupPolicy
 import es.topophone.core.formats.backup.BackupFileNames
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.BackupFolder
 import java.io.File
@@ -31,6 +33,7 @@ class AutoBackupScheduler(
     private val clock: () -> Long = System::currentTimeMillis,
     private val zone: () -> ZoneId = ZoneId::systemDefault,
     private val onStart: (CoroutineScope) -> Unit = {},
+    private val log: AppLog = AppLog.NONE,
 ) {
     private val started = AtomicBoolean(false)
     private val mutex = Mutex()
@@ -82,20 +85,23 @@ class AutoBackupScheduler(
         val treeUri = preferences.state.first().folderUri ?: return false
         preferences.clearPending()
         val now = clock()
+        val name = BackupFileNames.automatic(Instant.ofEpochMilli(now), zone())
         val file = File(workDir, "auto.zip")
         val saved = try {
             attempt {
                 workDir.mkdirs()
                 createBackup(file)
-                folder.write(treeUri, BackupFileNames.automatic(Instant.ofEpochMilli(now), zone()), file)
+                folder.write(treeUri, name, file)
             } == true
         } finally {
             file.delete()
         }
         if (!saved) {
+            log.warning(LogCategory.BACKUPS, "No se pudo hacer la copia automática; se volverá a intentar") // S014/RF-5
             preferences.recordFailure()
             return false
         }
+        log.info(LogCategory.BACKUPS, "Copia automática guardada: $name") // S014/RF-4
         preferences.recordSuccess(now)
         folder.list(treeUri)?.let { names -> AutoBackupPolicy.surplus(names).forEach { folder.delete(treeUri, it) } }
         true
@@ -107,8 +113,14 @@ class AutoBackupScheduler(
      */
     suspend fun keepBeforeRestore(file: File) {
         val treeUri = preferences.state.first().folderUri ?: return
-        val saved = attempt { folder.write(treeUri, BackupFileNames.beforeRestore(Instant.ofEpochMilli(clock()), zone()), file) } == true
-        if (!saved) preferences.recordFailure()
+        val name = BackupFileNames.beforeRestore(Instant.ofEpochMilli(clock()), zone())
+        val saved = attempt { folder.write(treeUri, name, file) } == true
+        if (saved) {
+            log.info(LogCategory.BACKUPS, "Estado anterior a la restauración guardado en la carpeta: $name")
+        } else {
+            log.warning(LogCategory.BACKUPS, "No se pudo guardar en la carpeta el estado anterior a la restauración") // S014/RF-5
+            preferences.recordFailure()
+        }
     }
 
     @Suppress("TooGenericExceptionCaught") // Un fallo de la copia o de la carpeta es "no se ha podido" (S013/RF-21).

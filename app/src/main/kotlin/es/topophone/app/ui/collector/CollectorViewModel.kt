@@ -7,6 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
@@ -108,6 +110,7 @@ class CollectorViewModel @Inject constructor(
     private val alerts: Alerts,
     private val calculator: Lazy<ProjectPositionCalculator>,
     private val inProgress: MeasurementInProgress = MeasurementInProgress(),
+    private val log: AppLog = AppLog.NONE,
 ) : ViewModel() {
     private data class Form(
         val loaded: Boolean = false,
@@ -273,6 +276,7 @@ class CollectorViewModel @Inject constructor(
     }
 
     fun discardPending() {
+        log.info(LogCategory.POINTS, "Medida de ${measuredName()} descartada") // S014/RF-5
         pendingResult = null
         run.value = Run()
     }
@@ -291,6 +295,7 @@ class CollectorViewModel @Inject constructor(
         when (update) {
             is MeasurementUpdate.Progress -> run.update { it.copy(progress = MeasureProgress(update.elapsedS, update.requiredS)) }
             MeasurementUpdate.SolutionLost -> {
+                log.warning(LogCategory.POINTS, "Solución perdida durante la medida de ${measuredName()}") // S014/RF-5
                 alerts.solutionLost() // S010/RF-10
                 run.update { it.copy(solutionLost = true) }
             }
@@ -300,6 +305,9 @@ class CollectorViewModel @Inject constructor(
                     MeasurementFailure.NO_DATA -> CollectorError.NO_DATA
                     MeasurementFailure.OUTSIDE_CRS_AREA -> CollectorError.OUTSIDE_CRS_AREA
                 }
+                // S014/RF-5
+                val cause = if (error == CollectorError.NO_DATA) "sin datos del receptor" else "fuera del ámbito del SC del proyecto"
+                log.error(LogCategory.POINTS, "No se pudo medir ${measuredName()}: $cause")
                 run.value = Run(error = error)
             }
             is MeasurementUpdate.Done -> {
@@ -314,6 +322,7 @@ class CollectorViewModel @Inject constructor(
                     save(result, failures)
                 } else {
                     pendingResult = result // S010/RF-14: se pregunta antes de guardar
+                    log.warning(LogCategory.POINTS, "Medida de ${measuredName()} fuera de tolerancia: ${failures.joinToString { it.name }}")
                     run.value = Run(pending = PendingPoint(failures))
                 }
             }
@@ -361,6 +370,7 @@ class CollectorViewModel @Inject constructor(
                     checkName()
                 }
                 PointSaveResult.DuplicateName -> {
+                    log.warning(LogCategory.POINTS, "No se guardó ${measuredName()}: ya hay un punto con ese nombre") // S014/RF-5
                     nameTaken.value = true
                     run.value = Run()
                 }
@@ -368,6 +378,9 @@ class CollectorViewModel @Inject constructor(
             }
         }
     }
+
+    /** El nombre del punto que se mide, para el log (sin coordenadas, S014/RF-7). */
+    private fun measuredName(): String = PointNames.clean(form.value.name)
 
     private fun stopMeasuring() {
         ticker?.cancel()
