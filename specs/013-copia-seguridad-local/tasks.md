@@ -16,7 +16,7 @@
       Hecho cuando: `BackupRestoreTest` en verde con los fallos en los pasos 5 y 6 y la contraseña pedida con `Undecryptable`.
 - [x] T7. `data`: `undoRestore` y `undoAvailable`. (RF-11)
       Hecho cuando: los tests de deshacer en verde (datos y contraseñas como antes; la opción desaparece).
-- [ ] T8. `data`: `writePackage` e `importPackage` con sus ids y como nuevo ("(importado)", ids nuevos, id en la papelera). (RF-24, RF-25, RF-28)
+- [x] T8. `data`: `writePackage` e `importPackage` con sus ids y como nuevo ("(importado)", ids nuevos, id en la papelera). (RF-24, RF-25, RF-28)
       Hecho cuando: los tests de paquete (exportar, importar, como nuevo, nombre ocupado) en verde.
 - [ ] T9. `data`: sustituir al importar un paquete (el antiguo a la papelera con ids nuevos, el nuevo en su carpeta) y `NeedsChoice`. (RF-26, RF-27)
       Hecho cuando: los tests de sustituir en verde, y el mismo paquete importado otra vez se reconoce.

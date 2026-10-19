@@ -11,6 +11,7 @@ import es.topophone.core.formats.backup.BackupManifest
 import es.topophone.core.formats.backup.BackupReadResult
 import es.topophone.core.formats.backup.BackupSettings
 import es.topophone.core.formats.backup.BackupSettingsJson
+import es.topophone.core.model.project.ProjectNames
 import es.topophone.data.db.TopoPhoneDatabase
 import java.io.File
 import java.io.IOException
@@ -20,6 +21,7 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.time.Instant
 import java.util.Base64
+import java.util.UUID
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,6 +53,19 @@ sealed interface RestoreResult {
     data object Failed : RestoreResult
 }
 
+/** Resultado de importar un paquete (S013/RF-25 a RF-28). */
+sealed interface ImportResult {
+    data class Imported(val projectId: String, val name: String) : ImportResult
+
+    /** El proyecto ya está en el móvil: hay que elegir entre sustituirlo e importarlo como nuevo (S013/RF-26). */
+    data class NeedsChoice(val existingName: String) : ImportResult
+
+    data object Failed : ImportResult
+}
+
+/** Qué hacer con un paquete de un proyecto que ya está en el móvil (S013/RF-26). */
+enum class ImportChoice { REPLACE, AS_NEW }
+
 /** Sitios donde los tests provocan un fallo en mitad de una restauración (S013/RF-10). */
 internal class RestoreHooks(val beforeCommit: () -> Unit = {}, val afterDatabase: () -> Unit = {})
 
@@ -67,6 +82,7 @@ class BackupRepository(
     private val clock: () -> Long = System::currentTimeMillis,
     private val workDir: File = File(context.cacheDir, "backup"),
     private val undoDir: File = File(context.filesDir, "backups/undo"),
+    private val newId: () -> String = { UUID.randomUUID().toString() },
 ) {
     private val lock = Mutex()
 
@@ -176,6 +192,124 @@ class BackupRepository(
             saved.delete()
             undo.value = false
             RestoreResult.Restored(before.manifest.projectCount, before.manifest.pointCount)
+        }
+    }
+
+    /** S013/RF-24: escribe en [out] el paquete del proyecto [projectId]; false si no existe o no se ha podido. */
+    suspend fun writePackage(projectId: String, out: OutputStream): Boolean = lock.withLock {
+        withContext(Dispatchers.IO) {
+            val dir = dir(SNAPSHOT)
+            try {
+                val name = db.openHelper.readableDatabase.query("SELECT name FROM projects WHERE id = ?", arrayOf(projectId))
+                    .use { if (it.moveToFirst()) it.getString(0) else null } ?: return@withContext false
+                val database = File(dir, BackupArchive.DATABASE)
+                val counts = DatabaseSnapshot(context, databaseFile).copy(database, SnapshotScope.Project(projectId))
+                val manifest = BackupManifest(
+                    kind = BackupKind.PACKAGE,
+                    schemaVersion = TopoPhoneDatabase.VERSION,
+                    appVersion = appVersion,
+                    createdAt = Instant.ofEpochMilli(clock()),
+                    projectCount = counts.projects,
+                    pointCount = counts.points,
+                    projectId = projectId,
+                    projectName = name,
+                )
+                val zip = File(dir, "package.zip")
+                zip.outputStream().use { BackupArchive.write(manifest, mapOf(BackupArchive.DATABASE to database), it) }
+                zip.inputStream().use { it.copyTo(out) }
+                out.flush()
+                true
+            } catch (_: IOException) {
+                false
+            } catch (_: SQLException) {
+                false
+            } finally {
+                dir.deleteRecursively()
+            }
+        }
+    }
+
+    /**
+     * S013/RF-25 a RF-28: añade el proyecto del paquete [valid]. Si el mismo proyecto ya está activo en el móvil y no hay
+     * [choice], devuelve [ImportResult.NeedsChoice]. Se importa con sus ids salvo como nuevo o si su id está en la
+     * papelera; el nombre lleva "([importedLabel])" como nuevo o si otro proyecto activo lo tiene.
+     */
+    suspend fun importPackage(valid: BackupRead.Valid, choice: ImportChoice?, importedLabel: String): ImportResult = lock.withLock {
+        withContext(Dispatchers.IO) {
+            val projectId = valid.manifest.projectId
+            if (valid.manifest.kind != BackupKind.PACKAGE || projectId == null) return@withContext ImportResult.Failed
+            attempt { importLocked(valid.database, projectId, choice, importedLabel) } ?: ImportResult.Failed
+        }
+    }
+
+    private fun importLocked(database: File, projectId: String, choice: ImportChoice?, importedLabel: String): ImportResult =
+        SQLiteDatabase.openDatabase(database.path, null, SQLiteDatabase.OPEN_READONLY).use { from ->
+            val packageName = from.rawQuery("SELECT name FROM projects WHERE id = ?", arrayOf(projectId))
+                .use { if (it.moveToFirst()) it.getString(0) else null } ?: return ImportResult.Failed
+            val main = db.openHelper.writableDatabase
+            val existing = main.query("SELECT name FROM projects WHERE id = ? AND deleted_at IS NULL", arrayOf(projectId))
+                .use { if (it.moveToFirst()) it.getString(0) else null }
+            if (existing != null && choice == null) return ImportResult.NeedsChoice(existing)
+            val idTaken = main.query("SELECT 1 FROM projects WHERE id = ?", arrayOf(projectId)).use { it.moveToFirst() }
+            val activeNames = main.query("SELECT name FROM projects WHERE deleted_at IS NULL").use { cursor ->
+                buildList { while (cursor.moveToNext()) add(cursor.getString(0)) }
+            }
+            val name = if (choice == ImportChoice.AS_NEW) {
+                ProjectNames.copyName(packageName, activeNames, importedLabel)
+            } else {
+                ProjectNames.restoredName(packageName, activeNames, importedLabel)
+            }
+            val newProjectId = if (idTaken) newId() else projectId
+            db.runInTransaction(
+                Runnable {
+                    copyProject({ sql, args -> from.rawQuery(sql, args) }, main, projectId, newProjectId, keepIds = !idTaken) { project ->
+                        project.put("name", name)
+                        project.putNull("folder_id") // S013: el paquete no lleva la carpeta.
+                    }
+                },
+            )
+            ImportResult.Imported(newProjectId, name)
+        }
+
+    /**
+     * Copia el proyecto [oldId] de [source] a [sink] como [newProjectId], con sus encuadres, sus puntos (también los de su
+     * papelera) y su historial. Sin [keepIds], cada punto y cada cambio del historial reciben un id nuevo; la clave de
+     * papelera de un punto borrado es su id (S011). [project] cambia la fila del proyecto antes de insertarla.
+     */
+    private fun copyProject(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        oldId: String,
+        newProjectId: String,
+        keepIds: Boolean,
+        project: (android.content.ContentValues) -> Unit,
+    ) {
+        val args = arrayOf(oldId)
+        source("SELECT * FROM projects WHERE id = ?", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "projects") {
+                it.put("id", newProjectId)
+                project(it)
+            }
+        }
+        source("SELECT * FROM map_viewports WHERE project_id = ?", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "map_viewports") { it.put("project_id", newProjectId) }
+        }
+        val pointIds = mutableMapOf<String, String>()
+        source("SELECT * FROM points WHERE project_id = ?", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "points") { point ->
+                val old = point.getAsString("id")
+                val id = if (keepIds) old else newId()
+                pointIds[old] = id
+                point.put("id", id)
+                point.put("project_id", newProjectId)
+                if (point.getAsString("trash_key").isNotEmpty()) point.put("trash_key", id)
+            }
+        }
+        source("SELECT * FROM point_history WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "point_history") { change ->
+                if (!keepIds) change.put("id", newId())
+                change.put("point_id", pointIds.getValue(change.getAsString("point_id")))
+            }
         }
     }
 
