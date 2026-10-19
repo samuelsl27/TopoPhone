@@ -16,6 +16,8 @@ import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.DataStoreExportPreferences
 import es.topophone.data.export.ExportDataStoreQualifier
 import es.topophone.data.export.ExportPreferences
+import es.topophone.data.log.DataStoreLogPreferences
+import es.topophone.data.log.LogPreferences
 import es.topophone.data.map.DataStoreMapPreferences
 import es.topophone.data.map.MapDataStoreQualifier
 import es.topophone.data.map.MapPreferences
@@ -149,4 +151,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindAutoBackupPreferences(implementation: DataStoreAutoBackupPreferences): AutoBackupPreferences
+
+    @Binds
+    abstract fun bindLogPreferences(implementation: DataStoreLogPreferences): LogPreferences
 }

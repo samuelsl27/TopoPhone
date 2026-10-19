@@ -80,3 +80,13 @@ object LogRetention {
         return count
     }
 }
+
+/** Tamaño del log que se elige en Ajustes (S014/RF-8, RF-9): de 5 a 50 MB, 10 MB por defecto (suposición de la spec). */
+object LogSize {
+    const val DEFAULT_MB = 10
+    const val MIN_MB = 5
+    const val MAX_MB = 50
+    val OPTIONS_MB = listOf(5, 10, 20, 50)
+
+    fun clamp(mb: Int): Int = mb.coerceIn(MIN_MB, MAX_MB)
+}

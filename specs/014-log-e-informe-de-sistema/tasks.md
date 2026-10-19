@@ -4,7 +4,7 @@
 
 - [x] T1. `core:model`: `AppLog` (con `NONE`), `LogLevel`, `LogCategory`, `LogLine` y `LogRetention`. (RF-1, RF-8)
       Hecho cuando: `LogLineTest` y `LogRetentionTest` en verde.
-- [ ] T2. `data`: `FileAppLog` (canal, un solo escritor, volcado como mucho cada segundo, `flushNow`, corte y retención) y `LogPreferences`. (RF-8, RF-9, RNF)
+- [x] T2. `data`: `FileAppLog` (canal, un solo escritor, volcado como mucho cada segundo, `flushNow`, corte y retención) y `LogPreferences`. (RF-8, RF-9, RNF)
       Hecho cuando: `FileAppLogTest` y `LogPreferencesTest` en verde.
 - [ ] T3. `app`: `AppLog` en Hilt y `CrashLog` instalado en `TopoPhoneApplication`. (RF-6)
       Hecho cuando: `CrashLogTest` en verde y la app arranca con el log.
