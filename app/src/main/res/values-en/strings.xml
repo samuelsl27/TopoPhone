@@ -669,4 +669,10 @@
     <string name="status_vdop">VDOP</string>
     <string name="status_constellation">%1$s (%2$c)</string>
     <string name="gnss_other">Other</string>
+    <string name="skyplot_title">Skyplot</string>
+    <string name="skyplot_constellation">%1$s: %2$d used of %3$d in view</string>
+    <string name="skyplot_north">N</string>
+    <string name="skyplot_east">E</string>
+    <string name="skyplot_south">S</string>
+    <string name="skyplot_west">W</string>
 </resources>

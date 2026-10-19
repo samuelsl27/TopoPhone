@@ -58,6 +58,7 @@ fun ReceiverPageScreen(
             StatusCard(state.snapshot) // S002/RF-12 a RF-17, S003/RF-14, RF-15
             PositionCard(state) // S015/RF-1
             SatellitesCard(state) // S015/RF-2, RF-3
+            SkyplotCard(state) // S015/RF-4 a RF-6
         }
         ReceiverPage.COORDINATES -> ChildScreen(
             R.string.receiver_menu_coordinates,
