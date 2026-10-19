@@ -34,7 +34,7 @@
       Hecho cuando: los tests nuevos de `CollectorViewModelTest` en verde.
 - [x] T16. `app`: la base en el mapa del proyecto (`showBase` e icono propio). (RF-19)
       Hecho cuando: `BaseLayerTest` en verde.
-- [ ] T17. `core:model` y `data`: `PointBase`, columnas de la base y migración 6 → 7. (RF-20)
+- [x] T17. `core:model` y `data`: `PointBase`, columnas de la base y migración 6 → 7. (RF-20)
       Hecho cuando: `TopoPhoneDatabaseTest` (paso 6 → 7 y esquema 7) y la ida y vuelta de un punto con base y sin base en verde.
 - [ ] T18. `app`: el recolector guarda la base con el punto. (RF-20)
       Hecho cuando: el test de `CollectorViewModelTest` que guarda un punto con su base y su línea base está en verde.

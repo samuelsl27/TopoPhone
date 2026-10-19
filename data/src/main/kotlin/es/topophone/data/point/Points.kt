@@ -73,7 +73,8 @@ interface PointDao {
             "measured_ground_h, measured_easting, measured_northing, measured_height, solution, satellites, hdop, " +
             "correction_age, sigma_h, sigma_v, mode, epochs_used, epochs_discarded, from_replay, out_of_tolerance, " +
             "'' AS raw_nmea, measured_from, measured_to, typed_form, typed_first, typed_second, typed_height, " +
-            "typed_height_kind, edited, hidden, copy_of, created_at, deleted_at, trash_key FROM points " +
+            "typed_height_kind, edited, hidden, copy_of, created_at, deleted_at, trash_key, base_lat, base_lon, base_h, " +
+            "base_source, base_station, base_antenna_height, baseline FROM points " +
             "WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at",
     )
     suspend fun forExport(projectId: String): List<PointEntity>

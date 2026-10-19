@@ -30,6 +30,7 @@ import es.topophone.data.project.ProjectFolderEntity
  * - v6 (S011): puntos manuales (la medida bruta pasa a admitir NULL), coordenadas de la medida aparte, lo escrito,
  *   editado, oculto, copia de y papelera con `trash_key` en el índice del nombre; historial de cada punto. Room rehace
  *   la tabla y [PointsV6] copia la medida de los puntos de S010.
+ * - v7 (S015): la base con la que se midió cada punto. Solo añade columnas que admiten NULL: migración de Room.
  */
 @Database(
     entities = [
@@ -44,6 +45,7 @@ import es.topophone.data.project.ProjectFolderEntity
             to = 2,
         ), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = TopoPhoneDatabase.PointsV6::class),
+        AutoMigration(from = 6, to = 7),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -60,7 +62,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 6
+        const val VERSION = 7
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

@@ -72,6 +72,20 @@ data class Measurement(
     val measuredFromMs: Long,
     val measuredToMs: Long,
     val coordinates: PointCoordinates,
+    /** La base con la que se midió, si la había (S015/RF-20). */
+    val base: PointBase? = null,
+)
+
+/**
+ * La base con la que se midió un punto (S015/RF-20): su posición tal como la dio su fuente, la fuente, el identificador
+ * de la estación y la altura de antena si venían en un 1005/1006, y la línea base en metros.
+ */
+data class PointBase(
+    val position: GeodeticPosition,
+    val source: BaseSource,
+    val stationId: Int?,
+    val antennaHeightM: Double?,
+    val baselineM: Double,
 )
 
 /** Cómo se escriben las coordenadas de un punto manual (S011/RF-17). */

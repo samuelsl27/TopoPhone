@@ -5,10 +5,12 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
+import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
@@ -66,6 +68,35 @@ class PointRepositoryTest {
         ),
         createdAtMs = createdAtMs,
     )
+
+    @Test
+    fun `S015 RF-20 un punto medido guarda su base y su linea base sin redondear`() = runBlocking<Unit> {
+        val project = newProject("Calle Mayor 12")
+        val base = PointBase(
+            GeodeticPosition(43.557_866_603_2, -5.913_070_411_3, 78.433_812_345),
+            BaseSource.CORRECTIONS,
+            stationId = 6,
+            antennaHeightM = 0.0,
+            baselineM = 382_123.456_789_012,
+        )
+        val saved = point(project, "P12").let { it.copy(measurement = it.measurement!!.copy(base = base)) }
+
+        points.create(saved) shouldBe PointSaveResult.Saved
+
+        points.points(project).first().single().measurement!!.base shouldBe base
+        points.pointsForExport(project).single().measurement!!.base shouldBe base
+    }
+
+    @Test
+    fun `S015 RF-20 sin base el punto se guarda sin base`() = runBlocking<Unit> {
+        val project = newProject("Calle Mayor 12")
+        val receiver = PointBase(GeodeticPosition(40.4166667, -3.7, 700.0), BaseSource.RECEIVER, null, null, 300.5)
+
+        points.create(point(project, "P1"))
+        points.create(point(project, "P2").let { it.copy(measurement = it.measurement!!.copy(base = receiver)) })
+
+        points.points(project).first().map { it.measurement!!.base } shouldBe listOf(null, receiver)
+    }
 
     @Test
     fun `S010 RF-16, RF-17 y RF-18 un punto se guarda y se lee tal cual, sin redondear, con su calidad y su observacion`() =

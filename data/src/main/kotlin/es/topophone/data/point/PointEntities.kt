@@ -5,12 +5,14 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointChange
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointHistoryEntry
@@ -84,6 +86,14 @@ data class PointEntity(
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
     @ColumnInfo(name = "trash_key", defaultValue = "''") val trashKey: String,
+    // S015/RF-20: la base con la que se midió; NULL sin base, en los manuales y en los de versiones anteriores.
+    @ColumnInfo(name = "base_lat") val baseLat: Double? = null,
+    @ColumnInfo(name = "base_lon") val baseLon: Double? = null,
+    @ColumnInfo(name = "base_h") val baseH: Double? = null,
+    @ColumnInfo(name = "base_source") val baseSource: String? = null,
+    @ColumnInfo(name = "base_station") val baseStation: Int? = null,
+    @ColumnInfo(name = "base_antenna_height") val baseAntennaHeight: Double? = null,
+    val baseline: Double? = null,
 )
 
 /** Una versión anterior de un punto, con la fecha del cambio (S011/RF-10; RNF-T6). Se borra con el punto. */
@@ -172,6 +182,13 @@ internal fun Point.toEntity(): PointEntity {
         createdAt = createdAtMs,
         deletedAt = deletedAtMs,
         trashKey = if (deletedAtMs == null) "" else id,
+        baseLat = m?.base?.position?.latitudeDeg,
+        baseLon = m?.base?.position?.longitudeDeg,
+        baseH = m?.base?.position?.ellipsoidalHeightM,
+        baseSource = m?.base?.source?.name,
+        baseStation = m?.base?.stationId,
+        baseAntennaHeight = m?.base?.antennaHeightM,
+        baseline = m?.base?.baselineM,
     )
 }
 
@@ -217,6 +234,20 @@ private fun PointEntity.measurement(): Measurement? {
         measuredToMs = measuredTo ?: createdAt,
         coordinates = coordinates(measuredGroundLat, measuredGroundLon, measuredGroundH, measuredEasting, measuredNorthing, measuredHeight)
             ?: PointCoordinates(GeodeticPosition(groundLat, groundLon, groundH), easting, northing, height),
+        base = base(),
+    )
+}
+
+/** La base de la medida; null si no se guardó (S015/RF-20). */
+private fun PointEntity.base(): PointBase? {
+    val latitude = baseLat ?: return null
+    val longitude = baseLon ?: return null
+    return PointBase(
+        position = GeodeticPosition(latitude, longitude, baseH),
+        source = enumOr(baseSource, BaseSource.RECEIVER),
+        stationId = baseStation,
+        antennaHeightM = baseAntennaHeight,
+        baselineM = baseline ?: return null,
     )
 }
 
