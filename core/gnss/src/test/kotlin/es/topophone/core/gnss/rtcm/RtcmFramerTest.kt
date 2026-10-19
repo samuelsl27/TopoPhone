@@ -87,6 +87,37 @@ class RtcmFramerTest {
     }
 
     @Test
+    fun `S015 RF-12 onFrame entrega la carga de cada trama buena, sin cambiar el recuento`() {
+        val payloads = ArrayList<Pair<Int, ByteArray>>()
+        val framer = RtcmFramer { type, payload -> payloads += type to payload }
+        var stats = RtcmStats()
+        for (start in stream.indices step 700) stats += framer.feed(stream, start, minOf(700, stream.size - start))
+
+        stats.counts shouldBe expected
+        payloads.size shouldBe 113
+        payloads.groupingBy { it.first }.eachCount().mapValues { it.value.toLong() } shouldBe expected
+        // La carga empieza por su tipo y mide lo que dice la cabecera de su trama.
+        val starts = frames(stream).map { it.first }
+        payloads.forEachIndexed { i, (type, payload) ->
+            RtcmBits(payload).unsigned(12) shouldBe type.toLong()
+            val length = ((stream[starts[i] + 1].toInt() and 0x03) shl 8) or (stream[starts[i] + 2].toInt() and 0xFF)
+            payload.size shouldBe length
+        }
+    }
+
+    @Test
+    fun `S015 RF-12 la carga entregada es una copia que no cambia con lo que llega despues`() {
+        val payloads = ArrayList<ByteArray>()
+        val framer = RtcmFramer { _, payload -> payloads += payload }
+        framer.feed(stream, 0, 2_000)
+        val first = payloads.first().copyOf()
+
+        framer.feed(stream, 2_000, stream.size - 2_000)
+
+        payloads.first().contentEquals(first) shouldBe true
+    }
+
+    @Test
     fun `S007 RF-33 el CRC24Q coincide con el valor de comprobacion publicado`() {
         val check = "123456789".toByteArray(Charsets.US_ASCII)
 

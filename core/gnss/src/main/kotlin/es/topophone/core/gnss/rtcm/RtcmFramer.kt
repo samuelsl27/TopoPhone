@@ -54,8 +54,11 @@ data class RtcmStats(val counts: Map<Int, Long> = emptyMap(), val crcErrors: Lon
  *
  * Solo cuenta como error (S007/RF-33) una trama dañada cuando ya se estaba sincronizado: el
  * principio cortado de un flujo no es un error. Tras un error busca el siguiente `0xD3` válido.
+ *
+ * [onFrame] recibe el tipo y una copia de los datos de cada trama con el CRC bien, para leer su contenido
+ * (S015/RF-8, RF-12).
  */
-class RtcmFramer {
+class RtcmFramer(private val onFrame: ((type: Int, payload: ByteArray) -> Unit)? = null) {
     private var buffer = ByteArray(INITIAL_CAPACITY)
     private var size = 0
     private var synced = false
@@ -81,7 +84,11 @@ class RtcmFramer {
             val frameLength = HEADER + dataLength + CRC_BYTES
             if (size - position < frameLength) break
             if (Crc24q.compute(buffer, position, HEADER + dataLength) == crcAt(position + HEADER + dataLength)) {
-                if (dataLength >= 2) events += RtcmEvent.Message(typeAt(position + HEADER))
+                if (dataLength >= 2) {
+                    val type = typeAt(position + HEADER)
+                    events += RtcmEvent.Message(type)
+                    onFrame?.invoke(type, buffer.copyOfRange(position + HEADER, position + HEADER + dataLength))
+                }
                 synced = true
                 position += frameLength
             } else {
