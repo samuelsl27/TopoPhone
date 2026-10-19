@@ -121,6 +121,8 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Restaurar (una copia) | `restore` | Sustituir los datos del móvil por los de una copia (S013) |
 | Deshacer la restauración | `undoRestore` | Volver al estado guardado antes de la última restauración (S013) |
 | Copia automática | `AutoBackup` | Copia completa que se hace sola en la carpeta elegida (S013) |
+| Log de la app | `AppLog` | Anotaciones de lo que hace la app y de lo que falla, sin secretos (S014) |
+| Informe de sistema | `SystemReport` | ZIP con el log, las sesiones recientes y los datos de la app y del móvil (S014) |
 | Tema (Sistema, Claro, Oscuro, Sol) | `ThemeMode` (`SYSTEM`, `LIGHT`, `DARK`, `SUN`) | Elección del usuario; el que se pinta es `EffectiveTheme` |
 | Modo sol | `ThemeMode.SUN` | Tema claro de alto contraste (≥ 7:1); el acceso rápido es `ThemeState.toggleSun()` |
 | Idioma (Sistema, Español, English) | `AppLanguage` (`SYSTEM`, `SPANISH`, `ENGLISH`) | Se guarda con etiquetas BCP 47 |

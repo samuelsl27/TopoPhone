@@ -29,7 +29,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 011 objetos-y-puntos-manuales | Lista de objetos (buscar, mostrar u ocultar, editar con historial de cambios, duplicar, borrar a la papelera de puntos), ficha del punto, punto manual (proyectado o geográfico), recálculo al corregir la altura de antena | 010 | en curso |
 | 012 exportar-csv | Todos los puntos o una selección; todas las columnas, PENZD/PNEZD con cabecera, separador y decimal configurables, selección de columnas, coordenadas globales o locales, UTF-8; guardar (SAF) o compartir | 011 | en curso |
 | 013 copia-seguridad-local | ZIP de copia completa con restauración y deshacer, copias automáticas en una carpeta SAF (cada hora con cambios, las 24 últimas), paquetes `.topoproj` para importar y exportar entre dispositivos, perfiles NTRIP sin contraseñas | 012 | en curso |
-| 014 log-e-informe-de-sistema | Log de la app (rotativo, de tamaño limitado, sin secretos) e informe de sistema exportable con el log, las sesiones recientes y los datos de la app y del móvil, sin contraseñas (RNF-T12). **Puerta G1** | 013 | pendiente |
+| 014 log-e-informe-de-sistema | Log de la app (rotativo, de 5 a 50 MB elegidos en Ajustes, sin secretos) e informe de sistema exportable con el log, las sesiones recientes (hasta 25 MB) y los datos de la app y del móvil, sin contraseñas ni usuarios NTRIP (RNF-T12). **Puerta G1** | 013 | en curso |
 
 ## H2 · Receptor completo, inclinación y replanteo
 
