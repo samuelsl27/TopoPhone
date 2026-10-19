@@ -18,6 +18,8 @@ import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import es.topophone.app.backup.AutoBackupScheduler
+import es.topophone.app.di.ApplicationScope
 import es.topophone.app.receiver.CorrectionsController
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.ui.AppActions
@@ -29,8 +31,10 @@ import es.topophone.app.ui.settings.appSettingsIntent
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.EffectiveTheme
+import es.topophone.data.backup.BackupChanges
 import es.topophone.data.ntrip.NtripLegacyImport
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -53,6 +57,13 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var ntripLegacyImport: NtripLegacyImport
 
+    @Inject lateinit var autoBackups: AutoBackupScheduler
+
+    @Inject lateinit var backupChanges: BackupChanges
+
+    @Inject @ApplicationScope
+    lateinit var appScope: CoroutineScope
+
     /** Cuántas veces se ha pedido abrir Receptor desde la notificación (S004/RF-9). */
     private val openReceiverRequests = MutableStateFlow(0)
 
@@ -62,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch { connections.autoConnect() } // S004/RF-25: una sola vez por arranque
         lifecycleScope.launch { trashPurge.runOnce() } // S006/RF-27: la papelera se purga al abrir la app
         lifecycleScope.launch { ntripLegacyImport.run() } // S007/RF-10: los datos de caster de S002 pasan a un perfil
+        autoBackups.start() // S013/RF-18: una vez por proceso
         // Al recrearse la actividad, la navegación ya está restaurada: el extra solo cuenta la primera vez.
         if (savedInstanceState == null) handleOpenReceiver(intent)
         val appInfo = AppInfo(versionName = BuildConfig.VERSION_NAME, gitCommit = BuildConfig.GIT_COMMIT, repoUrl = BuildConfig.REPO_URL)
@@ -110,6 +122,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** S013/RF-18: al pasar a segundo plano se mira si toca una copia automática; girar la pantalla no cuenta. */
+    override fun onStop() {
+        super.onStop()
+        if (!isChangingConfigurations) autoBackups.onBackground()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleOpenReceiver(intent)
@@ -139,6 +157,7 @@ class MainActivity : AppCompatActivity() {
      * sistema. La navegación se conserva en la recreación, así que se sigue en Ajustes (S001/RF-18).
      */
     private fun applyLanguage(language: AppLanguage) {
+        appScope.launch { backupChanges.languageChanged() } // S013/RF-18: el idioma también viaja en la copia
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language.languageTags))
     }
 

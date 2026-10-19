@@ -24,7 +24,7 @@
       Hecho cuando: `AutoBackupPreferencesTest` y `BackupChangesTest` en verde.
 - [x] T11. `data`: `BackupFolder` con `DocumentsContract` (crear y escribir, listar, borrar, permiso persistido) y borrado del fichero a medias. (RF-5, RF-17, RF-19)
       Hecho cuando: los tests con un proveedor de documentos de prueba en verde.
-- [ ] T12. `app`: `AutoBackupScheduler` y el ámbito de la app (cada 5 min, al pasar a segundo plano, primera copia al elegir la carpeta, retención, fallo y reintento, un cerrojo con la restauración). (RF-18, RF-19, RF-21)
+- [x] T12. `app`: `AutoBackupScheduler` y el ámbito de la app (cada 5 min, al pasar a segundo plano, primera copia al elegir la carpeta, retención, fallo y reintento, un cerrojo con la restauración). (RF-18, RF-19, RF-21)
       Hecho cuando: `AutoBackupSchedulerTest` en verde con tiempo virtual.
 - [ ] T13. `app`: `MeasurementInProgress` actualizado por `CollectorViewModel` (medida y punto pendiente de confirmar). (RF-16)
       Hecho cuando: los tests del recolector y del singleton en verde.
