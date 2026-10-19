@@ -61,54 +61,36 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
         val activeProjects = mutableSetOf<String>()
         var activePoints = 0
         var first = true
+        val opened = {
+            if (first) {
+                first = false
+                onSnapshotOpen()
+            }
+        }
         for (table in TABLES) {
             val where = when (scope) {
                 SnapshotScope.All -> ""
                 is SnapshotScope.Project -> table.projectFilter ?: continue
             }
             val args = if (scope is SnapshotScope.Project) arrayOf(scope.id) else null
-            from.rawQuery("SELECT * FROM ${table.name} $where", args).use { cursor ->
-                val columns = cursor.columnNames
-                while (cursor.moveToNext()) {
-                    if (first) {
-                        first = false
-                        onSnapshotOpen()
+            copyRows(from, sink, table.name, where, args) { values ->
+                opened()
+                when (table.name) {
+                    "projects" -> {
+                        if (scope is SnapshotScope.Project) values.putNull("folder_id") // El paquete no lleva carpetas.
+                        if (values.get("deleted_at") == null) activeProjects += values.getAsString("id")
                     }
-                    val values = ContentValues(columns.size)
-                    columns.forEachIndexed { i, column -> values.put(column, cursor, i) }
-                    when (table.name) {
-                        "projects" -> {
-                            if (scope is SnapshotScope.Project) values.putNull("folder_id") // El paquete no lleva carpetas.
-                            if (values.get("deleted_at") == null) activeProjects += values.getAsString("id")
-                        }
-                        "points" -> if (values.getAsString("trash_key").isEmpty() &&
-                            values.getAsString("project_id") in activeProjects
-                        ) {
-                            activePoints++
-                        }
-                        "ntrip_profiles" -> PASSWORD_COLUMNS.forEach { column ->
-                            if (values.get(column) != null) values.put(column, ByteArray(0)) // S013/RF-3: solo la marca.
-                        }
+                    "points" -> if (values.getAsString("trash_key").isEmpty() && values.getAsString("project_id") in activeProjects) {
+                        activePoints++
                     }
-                    sink.insert(table.name, SQLiteDatabase.CONFLICT_ABORT, values)
-                }
-                if (first) {
-                    first = false
-                    onSnapshotOpen()
+                    "ntrip_profiles" -> PASSWORD_COLUMNS.forEach { column ->
+                        if (values.get(column) != null) values.put(column, ByteArray(0)) // S013/RF-3: solo la marca.
+                    }
                 }
             }
+            opened()
         }
         return SnapshotCounts(projects = activeProjects.size, points = activePoints)
-    }
-
-    private fun ContentValues.put(column: String, cursor: Cursor, i: Int) {
-        when (cursor.getType(i)) {
-            Cursor.FIELD_TYPE_NULL -> putNull(column)
-            Cursor.FIELD_TYPE_INTEGER -> put(column, cursor.getLong(i))
-            Cursor.FIELD_TYPE_FLOAT -> put(column, cursor.getDouble(i))
-            Cursor.FIELD_TYPE_BLOB -> put(column, cursor.getBlob(i))
-            else -> put(column, cursor.getString(i))
-        }
     }
 
     /** Una tabla de la app; [projectFilter] es la condición del paquete, o null si la tabla no va en el paquete. */
@@ -116,6 +98,42 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
 
     companion object {
         private const val SAVEPOINT = "backup_snapshot"
+
+        /**
+         * Copia las filas de [table] de [from] a [sink] columna a columna con su tipo; [transform] puede cambiar cada fila
+         * antes de insertarla. También la usan la restauración y los paquetes.
+         */
+        internal fun copyRows(
+            from: SQLiteDatabase,
+            sink: SupportSQLiteDatabase,
+            table: String,
+            where: String = "",
+            args: Array<String>? = null,
+            transform: (ContentValues) -> Unit = {},
+        ): Int {
+            var count = 0
+            from.rawQuery("SELECT * FROM $table $where", args).use { cursor ->
+                val columns = cursor.columnNames
+                while (cursor.moveToNext()) {
+                    val values = ContentValues(columns.size)
+                    columns.forEachIndexed { i, column -> values.put(column, cursor, i) }
+                    transform(values)
+                    sink.insert(table, SQLiteDatabase.CONFLICT_ABORT, values)
+                    count++
+                }
+            }
+            return count
+        }
+
+        private fun ContentValues.put(column: String, cursor: Cursor, i: Int) {
+            when (cursor.getType(i)) {
+                Cursor.FIELD_TYPE_NULL -> putNull(column)
+                Cursor.FIELD_TYPE_INTEGER -> put(column, cursor.getLong(i))
+                Cursor.FIELD_TYPE_FLOAT -> put(column, cursor.getDouble(i))
+                Cursor.FIELD_TYPE_BLOB -> put(column, cursor.getBlob(i))
+                else -> put(column, cursor.getString(i))
+            }
+        }
         private val PASSWORD_COLUMNS = listOf("password_iv", "password_ct")
 
         /**

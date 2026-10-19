@@ -12,7 +12,7 @@
       Hecho cuando: `SettingsArchiveTest` en verde.
 - [x] T5. `data`: `BackupRepository.writeBackup` y `read` (A2, A3: ZIP completo, validación y migración de `data.db`). (RF-1, RF-5, RF-6, RF-12, RF-13, RF-14)
       Hecho cuando: los tests de escribir y leer en verde, y `BackupMigrationTest` restaura copias de las versiones 1 a 5 del esquema y rechaza la 7.
-- [ ] T6. `data`: `restore` (copia previa privada, sustitución en una transacción, contraseñas conservadas, ajustes, vuelta atrás si falla). (RF-7, RF-8, RF-9, RF-10, RF-15)
+- [x] T6. `data`: `restore` (copia previa privada, sustitución en una transacción, contraseñas conservadas, ajustes, vuelta atrás si falla). (RF-7, RF-8, RF-9, RF-10, RF-15)
       Hecho cuando: `BackupRestoreTest` en verde con los fallos en los pasos 5 y 6 y la contraseña pedida con `Undecryptable`.
 - [ ] T7. `data`: `undoRestore` y `undoAvailable`. (RF-11)
       Hecho cuando: los tests de deshacer en verde (datos y contraseñas como antes; la opción desaparece).
