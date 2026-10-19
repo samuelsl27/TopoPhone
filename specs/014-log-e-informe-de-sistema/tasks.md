@@ -6,7 +6,7 @@
       Hecho cuando: `LogLineTest` y `LogRetentionTest` en verde.
 - [x] T2. `data`: `FileAppLog` (canal, un solo escritor, volcado como mucho cada segundo, `flushNow`, corte y retención) y `LogPreferences`. (RF-8, RF-9, RNF)
       Hecho cuando: `FileAppLogTest` y `LogPreferencesTest` en verde.
-- [ ] T3. `app`: `AppLog` en Hilt y `CrashLog` instalado en `TopoPhoneApplication`. (RF-6)
+- [x] T3. `app`: `AppLog` en Hilt y `CrashLog` instalado en `TopoPhoneApplication`. (RF-6)
       Hecho cuando: `CrashLogTest` en verde y la app arranca con el log.
 - [ ] T4. `app`: `ReceiverLogRecorder` (conexiones, reproducciones, NTRIP y sus avisos). (RF-1, RF-2, RF-5, RF-7)
       Hecho cuando: `ReceiverLogRecorderTest` en verde con cada transición de A4.
