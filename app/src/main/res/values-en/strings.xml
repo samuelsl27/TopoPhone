@@ -656,4 +656,11 @@
     <string name="package_damaged">The package is damaged or incomplete.</string>
     <string name="package_newer">The package is from a newer version of TopoPhone. Update the app to import it.</string>
     <string name="package_not_imported">The package could not be imported.</string>
+    <string name="settings_section_diagnostics">Diagnostics</string>
+    <string name="report_create">Create system report</string>
+    <string name="report_question">The report contains the app log, the recent sessions (up to 25 MB) and the app and phone details, without passwords. Save it with the file picker or share it with another app.</string>
+    <string name="report_share_chooser">Share report</string>
+    <string name="report_saved">Report saved.</string>
+    <string name="report_not_saved">The report could not be created.</string>
+    <string name="log_size">Log size</string>
 </resources>

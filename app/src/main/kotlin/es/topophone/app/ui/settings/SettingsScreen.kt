@@ -20,6 +20,7 @@ import es.topophone.app.ui.SectionScaffold
 import es.topophone.core.designsystem.component.SettingsItem
 import es.topophone.core.designsystem.component.SettingsSectionHeader
 import es.topophone.core.designsystem.component.SingleChoiceDialog
+import es.topophone.core.model.log.LogSize
 import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.ThemeMode
 import es.topophone.data.receiver.SessionSpace
@@ -70,6 +71,7 @@ fun SettingsScreen(
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     var showSessionSpaceDialog by rememberSaveable { mutableStateOf(false) }
     var showCorrectionsAlarmDialog by rememberSaveable { mutableStateOf(false) }
+    var showLogSizeDialog by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
 
     SectionScaffold(
@@ -122,6 +124,18 @@ fun SettingsScreen(
                 onClick = { showCorrectionsAlarmDialog = true }, // S007/RF-31
                 modifier = Modifier.testTag(CORRECTIONS_ALARM_SETTING_TAG),
             )
+            SettingsSectionHeader(stringResource(R.string.settings_section_diagnostics))
+            SettingsItem(
+                title = stringResource(R.string.report_create),
+                onClick = actions.onCreateReport, // S014/RF-10
+                modifier = Modifier.testTag(REPORT_SETTING_TAG),
+            )
+            SettingsItem(
+                title = stringResource(R.string.log_size),
+                value = stringResource(R.string.settings_session_space_mb, uiState.logSizeMb),
+                onClick = { showLogSizeDialog = true }, // S014/RF-9
+                modifier = Modifier.testTag(LOG_SIZE_SETTING_TAG),
+            )
             SettingsSectionHeader(stringResource(R.string.settings_section_information))
             SettingsItem(
                 title = stringResource(R.string.about_title),
@@ -166,6 +180,21 @@ fun SettingsScreen(
         )
     }
 
+    if (showLogSizeDialog) {
+        // S014/RF-9: el nuevo límite se aplica al momento y borra lo más antiguo que no quepa.
+        SingleChoiceDialog(
+            title = stringResource(R.string.log_size),
+            options = LogSize.OPTIONS_MB.map { it to stringResource(R.string.settings_session_space_mb, it) },
+            selected = uiState.logSizeMb,
+            onSelect = { mb ->
+                actions.onSelectLogSize(mb)
+                showLogSizeDialog = false
+            },
+            onDismiss = { showLogSizeDialog = false },
+            optionTag = ::logSizeOptionTag,
+        )
+    }
+
     if (showCorrectionsAlarmDialog) {
         // S007/RF-31: edad de las correcciones a partir de la cual suena la alarma.
         SingleChoiceDialog(
@@ -198,6 +227,8 @@ fun SettingsScreen(
 }
 
 const val SESSION_SPACE_SETTING_TAG = "setting_session_space"
+const val REPORT_SETTING_TAG = "setting_report"
+const val LOG_SIZE_SETTING_TAG = "setting_log_size"
 const val CORRECTIONS_ALARM_SETTING_TAG = "setting_corrections_alarm"
 
 /** Umbrales que se ofrecen, todos entre 2 y 60 s (S007/RF-31). */
@@ -206,6 +237,8 @@ val CORRECTIONS_ALARM_OPTIONS_S = listOf(2, 5, 10, 15, 20, 30, 45, 60)
 fun correctionsAlarmOptionTag(seconds: Int) = "corrections_alarm_$seconds"
 
 fun sessionSpaceOptionTag(mb: Int) = "session_space_$mb"
+
+fun logSizeOptionTag(mb: Int) = "log_size_$mb"
 
 /** 100 MB, 250 MB, 500 MB, 1 GB o 2 GB. */
 @Composable

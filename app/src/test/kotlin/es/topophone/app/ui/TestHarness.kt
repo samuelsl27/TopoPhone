@@ -53,6 +53,8 @@ fun StatefulTestApp(
     onSelectSessionSpace: (Int) -> Unit = {},
     onSelectCorrectionsAlarm: (Int) -> Unit = {},
     onOpenAppBatterySettings: () -> Unit = {},
+    onSelectLogSize: (Int) -> Unit = {},
+    onCreateReport: () -> Unit = {},
     receiverState: ReceiverUiState = ReceiverUiState(),
     surveyState: SurveyUiState = SurveyUiState(),
 ) {
@@ -60,6 +62,7 @@ fun StatefulTestApp(
     var language by rememberSaveable { mutableStateOf(AppLanguage.SYSTEM) }
     var sessionSpaceMb by rememberSaveable { mutableStateOf(500) }
     var correctionsAlarmS by rememberSaveable { mutableStateOf(10) }
+    var logSizeMb by rememberSaveable { mutableStateOf(10) }
     val theme = ThemeState.restore(themeName.first, themeName.second)
     fun save(state: ThemeState) {
         themeName = state.mode.name to state.beforeSun.name
@@ -73,6 +76,7 @@ fun StatefulTestApp(
                 appInfo = appInfo,
                 sessionSpaceMb = sessionSpaceMb,
                 correctionsAlarmS = correctionsAlarmS,
+                logSizeMb = logSizeMb,
             ),
             actions = AppActions(
                 onToggleSun = { save(theme.toggleSun()) },
@@ -88,6 +92,11 @@ fun StatefulTestApp(
                     correctionsAlarmS = it
                     onSelectCorrectionsAlarm(it)
                 },
+                onSelectLogSize = {
+                    logSizeMb = it
+                    onSelectLogSize(it)
+                },
+                onCreateReport = onCreateReport,
             ),
             receiverSection = { page, theme, toggleSun, navigation, _ ->
                 val receiverActions = ReceiverActions(

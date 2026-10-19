@@ -668,4 +668,11 @@
     <string name="package_damaged">El paquete está dañado o incompleto.</string>
     <string name="package_newer">El paquete es de una versión más nueva de TopoPhone. Actualiza la app para importarlo.</string>
     <string name="package_not_imported">No se ha podido importar el paquete.</string>
+    <string name="settings_section_diagnostics">Diagnóstico</string>
+    <string name="report_create">Crear informe de sistema</string>
+    <string name="report_question">El informe lleva el log de la app, las sesiones recientes (hasta 25 MB) y los datos de la app y del móvil, sin contraseñas. Guárdalo con el selector de ficheros o compártelo con otra app.</string>
+    <string name="report_share_chooser">Compartir informe</string>
+    <string name="report_saved">Informe guardado.</string>
+    <string name="report_not_saved">No se ha podido crear el informe.</string>
+    <string name="log_size">Tamaño del log</string>
 </resources>

@@ -29,6 +29,7 @@ import es.topophone.app.ui.AppUiState
 import es.topophone.app.ui.TopoPhoneApp
 import es.topophone.app.ui.projects.TrashPurge
 import es.topophone.app.ui.settings.appSettingsIntent
+import es.topophone.app.ui.settings.rememberSystemReport
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -86,6 +87,8 @@ class MainActivity : AppCompatActivity() {
             val loadedTheme by viewModel.themeState.collectAsStateWithLifecycle()
             val sessionSpaceMb by viewModel.sessionSpaceMb.collectAsStateWithLifecycle()
             val correctionsAlarmS by viewModel.correctionsAlarmS.collectAsStateWithLifecycle()
+            val logSizeMb by viewModel.logSizeMb.collectAsStateWithLifecycle()
+            val createReport = rememberSystemReport() // S014/RF-10
             val openReceiverRequest by openReceiverRequests.collectAsStateWithLifecycle()
             // Hasta leer el tema guardado solo se ve el fondo de la ventana (S001/RF-15).
             val themeState = loadedTheme ?: return@setContent
@@ -110,6 +113,7 @@ class MainActivity : AppCompatActivity() {
                         appInfo = appInfo,
                         sessionSpaceMb = sessionSpaceMb,
                         correctionsAlarmS = correctionsAlarmS,
+                        logSizeMb = logSizeMb,
                     ),
                     actions = AppActions(
                         onToggleSun = viewModel::toggleSun,
@@ -119,6 +123,8 @@ class MainActivity : AppCompatActivity() {
                         onSelectSessionSpace = viewModel::selectSessionSpace,
                         onSelectCorrectionsAlarm = viewModel::selectCorrectionsAlarm,
                         onOpenAppBatterySettings = { startActivity(appSettingsIntent(packageName)) },
+                        onSelectLogSize = viewModel::selectLogSize,
+                        onCreateReport = createReport,
                     ),
                     openReceiverRequest = openReceiverRequest,
                 )
