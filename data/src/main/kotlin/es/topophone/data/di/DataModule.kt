@@ -9,6 +9,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import es.topophone.data.backup.AutoBackupPreferences
+import es.topophone.data.backup.BackupDataStoreQualifier
+import es.topophone.data.backup.DataStoreAutoBackupPreferences
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.DataStoreExportPreferences
 import es.topophone.data.export.ExportDataStoreQualifier
@@ -79,6 +82,13 @@ object DataStoreModule {
     @ReceiverDataStoreQualifier
     fun provideReceiverDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         SettingsDataStore.create(context, name = "receiver")
+
+    /** Copias automáticas de este móvil (S013): no viaja en la copia. */
+    @Provides
+    @Singleton
+    @BackupDataStoreQualifier
+    fun provideBackupDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        SettingsDataStore.create(context, name = "backup")
 }
 
 /** Base de datos de proyectos (ADR-8) y su repositorio (S006). */
@@ -136,4 +146,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindExportPreferences(implementation: DataStoreExportPreferences): ExportPreferences
+
+    @Binds
+    abstract fun bindAutoBackupPreferences(implementation: DataStoreAutoBackupPreferences): AutoBackupPreferences
 }

@@ -20,7 +20,7 @@
       Hecho cuando: los tests de paquete (exportar, importar, como nuevo, nombre ocupado) en verde.
 - [x] T9. `data`: sustituir al importar un paquete (el antiguo a la papelera con ids nuevos, el nuevo en su carpeta) y `NeedsChoice`. (RF-26, RF-27)
       Hecho cuando: los tests de sustituir en verde, y el mismo paquete importado otra vez se reconoce.
-- [ ] T10. `data`: `AutoBackupPreferences` (DataStore "backup") y `BackupChanges` (cambios de Room y de los DataStores, sin `map_viewports`). (RF-18, RF-20, RF-21, RF-23)
+- [x] T10. `data`: `AutoBackupPreferences` (DataStore "backup") y `BackupChanges` (cambios de Room y de los DataStores, sin `map_viewports`). (RF-18, RF-20, RF-21, RF-23)
       Hecho cuando: `AutoBackupPreferencesTest` y `BackupChangesTest` en verde.
 - [ ] T11. `data`: `BackupFolder` con `DocumentsContract` (crear y escribir, listar, borrar, permiso persistido) y borrado del fichero a medias. (RF-5, RF-17, RF-19)
       Hecho cuando: los tests con un proveedor de documentos de prueba en verde.
