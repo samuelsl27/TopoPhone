@@ -108,11 +108,13 @@ class CollectorViewModelTest {
         (projects.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12", crs = crs)) as SaveResult.Saved).id
     }
 
+    private val inProgress = MeasurementInProgress()
+
     private fun viewModel(projectId: String): CollectorViewModel {
         val vm =
             CollectorViewModel(projects, points, collectorPreferences, receiverPreferences, session, alerts, {
                 ProjectPositionCalculator()
-            })
+            }, inProgress)
         vm.start(projectId)
         CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         await(vm) { it.loaded }
@@ -278,6 +280,38 @@ class CollectorViewModelTest {
         await(vm) { it.savedName == "1" }
         runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().outOfTolerance shouldBe
             setOf(PrecisionFailure.NOT_FIX)
+    }
+
+    @Test
+    fun `S013 RF-16 promediar es una medida en curso hasta cancelar`() {
+        collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 5)
+        val vm = viewModel(project())
+        receiving(vm)
+        inProgress.active.value shouldBe false
+
+        vm.measure()
+        sendEpoch(2)
+        await(vm) { it.progress != null }
+        inProgress.active.value shouldBe true
+
+        vm.cancel()
+        await(vm) { !it.measuring }
+        inProgress.active.value shouldBe false
+    }
+
+    @Test
+    fun `S013 RF-16 un punto pendiente de confirmar es una medida en curso`() {
+        val vm = viewModel(project())
+        receiving(vm, status = 5)
+        vm.measure()
+        sendEpoch(2, status = 5)
+        sendEpoch(3, status = 5)
+        await(vm) { it.pending != null && !it.measuring }
+        inProgress.active.value shouldBe true
+
+        vm.discardPending()
+        await(vm) { it.pending == null }
+        inProgress.active.value shouldBe false
     }
 
     @Test

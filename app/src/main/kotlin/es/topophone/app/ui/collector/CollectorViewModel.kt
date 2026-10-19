@@ -44,10 +44,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -105,6 +107,7 @@ class CollectorViewModel @Inject constructor(
     private val session: ReceiverSession,
     private val alerts: Alerts,
     private val calculator: Lazy<ProjectPositionCalculator>,
+    private val inProgress: MeasurementInProgress = MeasurementInProgress(),
 ) : ViewModel() {
     private data class Form(
         val loaded: Boolean = false,
@@ -136,6 +139,15 @@ class CollectorViewModel @Inject constructor(
     private var nameCheck: Job? = null
     private var lastEpochUtc: Int? = null
     private var epochIntervalS = DEFAULT_INTERVAL_S
+
+    init {
+        // S013/RF-16: la medida y el punto que espera a confirmarse, fuera del recolector.
+        viewModelScope.launch { run.map { it.measuring || it.pending != null }.distinctUntilChanged().collect(inProgress::set) }
+    }
+
+    override fun onCleared() {
+        inProgress.set(false)
+    }
 
     private val projectFlow = projectId.flatMapLatest { id ->
         if (id ==

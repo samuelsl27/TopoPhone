@@ -26,7 +26,7 @@
       Hecho cuando: los tests con un proveedor de documentos de prueba en verde.
 - [x] T12. `app`: `AutoBackupScheduler` y el ámbito de la app (cada 5 min, al pasar a segundo plano, primera copia al elegir la carpeta, retención, fallo y reintento, un cerrojo con la restauración). (RF-18, RF-19, RF-21)
       Hecho cuando: `AutoBackupSchedulerTest` en verde con tiempo virtual.
-- [ ] T13. `app`: `MeasurementInProgress` actualizado por `CollectorViewModel` (medida y punto pendiente de confirmar). (RF-16)
+- [x] T13. `app`: `MeasurementInProgress` actualizado por `CollectorViewModel` (medida y punto pendiente de confirmar). (RF-16)
       Hecho cuando: los tests del recolector y del singleton en verde.
 - [ ] T14. `app`: `BackupsViewModel` (crear, leer, confirmar, restaurar, deshacer, errores, medida en curso, carpeta). (RF-1, RF-5, RF-6, RF-11, RF-12, RF-13, RF-16, RF-17, RF-20, RF-21)
       Hecho cuando: `BackupsViewModelTest` en verde.
