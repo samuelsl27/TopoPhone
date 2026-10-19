@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `core:model`: `AppLog` (con `NONE`), `LogLevel`, `LogCategory`, `LogLine` y `LogRetention`. (RF-1, RF-8)
+- [x] T1. `core:model`: `AppLog` (con `NONE`), `LogLevel`, `LogCategory`, `LogLine` y `LogRetention`. (RF-1, RF-8)
       Hecho cuando: `LogLineTest` y `LogRetentionTest` en verde.
 - [ ] T2. `data`: `FileAppLog` (canal, un solo escritor, volcado como mucho cada segundo, `flushNow`, corte y retención) y `LogPreferences`. (RF-8, RF-9, RNF)
       Hecho cuando: `FileAppLogTest` y `LogPreferencesTest` en verde.
