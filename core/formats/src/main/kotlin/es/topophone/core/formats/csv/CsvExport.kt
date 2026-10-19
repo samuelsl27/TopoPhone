@@ -2,6 +2,7 @@ package es.topophone.core.formats.csv
 
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
@@ -44,9 +45,21 @@ enum class ExportColumn(val header: String) {
     OUT_OF_TOLERANCE("Out of tolerance"),
     MEASURED_FROM("Measured from"),
     MEASURED_TO("Measured to"),
+
+    // S015/RF-22: la base con la que se midió.
+    BASE_LATITUDE("Base latitude"),
+    BASE_LONGITUDE("Base longitude"),
+    BASE_ELLIPSOIDAL_HEIGHT("Base ellipsoidal height"),
+    BASE_EASTING("Base easting"),
+    BASE_NORTHING("Base northing"),
+    BASE_ELEVATION("Base elevation"),
+    BASELINE("Baseline"),
     EDITED("Edited"),
     COPY_OF("Copy of"),
 }
+
+/** La base de un punto en el SC del proyecto, que calcula quien exporta (S015/RF-22); null lo que no se puede calcular. */
+data class BaseProjection(val easting: Double?, val northing: Double?, val height: Double?)
 
 /** Formato de exportación (S012/RF-5): las columnas del personalizado van en [CsvOptions.customColumns]. */
 enum class ExportFormat {
@@ -112,31 +125,42 @@ object CsvExport {
     private const val ONE_DECIMAL = 1
     private const val LIST_SEPARATOR = "|"
     private const val LINE_END = "\r\n"
+    private val PROJECTED_BASE_COLUMNS = setOf(ExportColumn.BASE_EASTING, ExportColumn.BASE_NORTHING, ExportColumn.BASE_ELEVATION)
 
     /** S012/RF-10: sin Este ni Norte, PENZD y PNEZD no tienen sentido. */
     fun formatsFor(crs: ProjectCrs): List<ExportFormat> =
         if (crs.isUtm) ExportFormat.entries else listOf(ExportFormat.ALL, ExportFormat.CUSTOM)
 
-    fun write(points: Sequence<Point>, project: Project, options: CsvOptions, out: Appendable) {
+    /** [baseProjection] da la base de un punto en el SC del proyecto (S015/RF-22); sin ella, esas columnas van vacías. */
+    fun write(
+        points: Sequence<Point>,
+        project: Project,
+        options: CsvOptions,
+        out: Appendable,
+        baseProjection: (PointBase) -> BaseProjection? = { null },
+    ) {
         require(options.valid) { "El separador y el signo decimal no pueden ser los dos la coma" }
         val columns = options.columns
         val separator = options.separator.char
         out.append(columns.joinToString(separator.toString()) { quoted(it.header, separator) }).append(LINE_END)
+        val needsProjection = columns.any { it in PROJECTED_BASE_COLUMNS }
         for (point in points) {
+            val projected = if (needsProjection) point.measurement?.base?.let(baseProjection) else null
             columns.forEachIndexed { index, column ->
                 if (index > 0) out.append(separator)
-                out.append(quoted(value(point, column, project, options.decimal), separator))
+                out.append(quoted(value(point, column, project, options.decimal, projected), separator))
             }
             out.append(LINE_END)
         }
     }
 
-    private fun value(point: Point, column: ExportColumn, project: Project, decimal: DecimalSeparator): String {
+    private fun value(point: Point, column: ExportColumn, project: Project, decimal: DecimalSeparator, projected: BaseProjection?): String {
         val unit = project.linearUnit
         fun length(valueM: Double?) = valueM?.let { number(unit.fromMetres(it), LENGTH_DECIMALS, decimal) }.orEmpty()
         val coordinates = point.coordinates
         val measurement = point.measurement
         val quality = measurement?.quality
+        val base = measurement?.base
         return when (column) {
             ExportColumn.NAME -> point.name
             ExportColumn.DESCRIPTION -> point.description
@@ -164,6 +188,13 @@ object CsvExport {
             ExportColumn.OUT_OF_TOLERANCE -> measurement?.outOfTolerance?.sorted()?.joinToString(LIST_SEPARATOR) { it.name }.orEmpty()
             ExportColumn.MEASURED_FROM -> measurement?.measuredFromMs?.let(::utc).orEmpty()
             ExportColumn.MEASURED_TO -> measurement?.measuredToMs?.let(::utc).orEmpty()
+            ExportColumn.BASE_LATITUDE -> base?.let { number(it.position.latitudeDeg, DEGREE_DECIMALS, decimal) }.orEmpty()
+            ExportColumn.BASE_LONGITUDE -> base?.let { number(it.position.longitudeDeg, DEGREE_DECIMALS, decimal) }.orEmpty()
+            ExportColumn.BASE_ELLIPSOIDAL_HEIGHT -> length(base?.position?.ellipsoidalHeightM)
+            ExportColumn.BASE_EASTING -> length(projected?.easting)
+            ExportColumn.BASE_NORTHING -> length(projected?.northing)
+            ExportColumn.BASE_ELEVATION -> length(projected?.height)
+            ExportColumn.BASELINE -> length(base?.baselineM)
             ExportColumn.EDITED -> point.edited.toString()
             ExportColumn.COPY_OF -> point.copyOf.orEmpty()
         }

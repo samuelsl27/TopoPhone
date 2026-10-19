@@ -592,6 +592,13 @@
     <string name="export_column_out_of_tolerance">Out of tolerance</string>
     <string name="export_column_measured_from">Measurement start</string>
     <string name="export_column_measured_to">Measurement end</string>
+    <string name="export_column_base_latitude">Base latitude</string>
+    <string name="export_column_base_longitude">Base longitude</string>
+    <string name="export_column_base_ellipsoidal_height">Base ellipsoidal height</string>
+    <string name="export_column_base_easting">Base easting</string>
+    <string name="export_column_base_northing">Base northing</string>
+    <string name="export_column_base_elevation">Base elevation</string>
+    <string name="export_column_baseline">Baseline</string>
     <string name="export_column_edited">Edited</string>
     <string name="export_column_copy_of">Copy of</string>
     <plurals name="export_count">

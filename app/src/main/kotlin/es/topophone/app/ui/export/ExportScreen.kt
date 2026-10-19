@@ -288,6 +288,13 @@ private fun ExportColumn.labelRes(): Int = when (this) {
     ExportColumn.OUT_OF_TOLERANCE -> R.string.export_column_out_of_tolerance
     ExportColumn.MEASURED_FROM -> R.string.export_column_measured_from
     ExportColumn.MEASURED_TO -> R.string.export_column_measured_to
+    ExportColumn.BASE_LATITUDE -> R.string.export_column_base_latitude // S015/RF-22
+    ExportColumn.BASE_LONGITUDE -> R.string.export_column_base_longitude
+    ExportColumn.BASE_ELLIPSOIDAL_HEIGHT -> R.string.export_column_base_ellipsoidal_height
+    ExportColumn.BASE_EASTING -> R.string.export_column_base_easting
+    ExportColumn.BASE_NORTHING -> R.string.export_column_base_northing
+    ExportColumn.BASE_ELEVATION -> R.string.export_column_base_elevation
+    ExportColumn.BASELINE -> R.string.export_column_baseline
     ExportColumn.EDITED -> R.string.export_column_edited
     ExportColumn.COPY_OF -> R.string.export_column_copy_of
 }

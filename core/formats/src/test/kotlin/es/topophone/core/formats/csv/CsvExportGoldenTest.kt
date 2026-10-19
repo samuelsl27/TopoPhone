@@ -1,9 +1,11 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
@@ -85,7 +87,7 @@ class CsvExportGoldenTest {
             ),
             PointQuality("FIX", 24, 0.6, 1.0, 0.009219544457292887, 0.014, MeasurementMode.AVERAGED, 20, 6, fromReplay = false),
             emptySet(),
-        ),
+        ).let { it.copy(measurement = it.measurement!!.copy(base = avl13m)) }, // S015/RF-22
         measured(
             "P2;b",
             "Pozo, \"nuevo\"",
@@ -115,6 +117,17 @@ class CsvExportGoldenTest {
         ),
     )
 
+    /** La estación 6 de RGAPA (Avilés), como base del primer punto, y sus coordenadas en el SC (que da la app). */
+    private val avl13m: PointBase
+        get() = PointBase(
+            GeodeticPosition(43.55786660321234, -5.913070411312345, 78.43381234567891),
+            BaseSource.CORRECTIONS,
+            stationId = 6,
+            antennaHeightM = 0.0,
+            baselineM = 382_123.45678901234,
+        )
+    private val avl13mProjected = BaseProjection(266_134.98765432101, 4_826_201.123456789, 26.01234567891234)
+
     private val files = mapOf(
         "todas_coma_punto.csv" to CsvOptions(),
         "todas_puntoycoma_coma.csv" to CsvOptions(separator = ColumnSeparator.SEMICOLON, decimal = DecimalSeparator.COMMA),
@@ -125,7 +138,8 @@ class CsvExportGoldenTest {
     )
 
     private fun written(options: CsvOptions): ByteArray =
-        StringBuilder().also { CsvExport.write(points.asSequence(), project, options, it) }.toString().toByteArray(Charsets.UTF_8)
+        StringBuilder().also { CsvExport.write(points.asSequence(), project, options, it) { avl13mProjected } }.toString()
+            .toByteArray(Charsets.UTF_8)
 
     /** Los valores sin redondear, para que Python compruebe el redondeo (constitución nº 2). */
     private fun source(): String = points.joinToString(",\n", prefix = "[\n", postfix = "\n]\n") { point ->
@@ -137,11 +151,21 @@ class CsvExportGoldenTest {
             """"ellipsoidal_height": ${n(c.ground.ellipsoidalHeightM)}, "pole_height": ${n(point.measurement?.poleHeightM)}, """ +
             """"horizontal_accuracy": ${n(
                 point.measurement?.quality?.horizontalM,
-            )}, "vertical_accuracy": ${n(point.measurement?.quality?.verticalM)}}"""
+            )}, "vertical_accuracy": ${n(point.measurement?.quality?.verticalM)}, """ +
+            baseSource(point.measurement?.base)
+    }
+
+    /** S015/RF-22: la base sin redondear, o null sin base. */
+    private fun baseSource(base: PointBase?): String {
+        fun n(value: Double?) = value?.toString() ?: "null"
+        val projected = base?.let { avl13mProjected }
+        return """"base_latitude": ${n(base?.position?.latitudeDeg)}, "base_longitude": ${n(base?.position?.longitudeDeg)}, """ +
+            """"base_ellipsoidal_height": ${n(base?.position?.ellipsoidalHeightM)}, "base_easting": ${n(projected?.easting)}, """ +
+            """"base_northing": ${n(projected?.northing)}, "base_elevation": ${n(projected?.height)}, "baseline": ${n(base?.baselineM)}}"""
     }
 
     @Test
-    fun `S012 RF-11, RF-12, RF-15 y RF-16 CsvExport escribe exactamente los ficheros dorados`() {
+    fun `S012 RF-11, RF-12, RF-15 y RF-16 S015 RF-22 CsvExport escribe exactamente los ficheros dorados`() {
         if (System.getenv("TOPOPHONE_REGENERAR_DORADOS") == "1") {
             folder.mkdirs()
             files.forEach { (name, options) -> File(folder, name).writeBytes(written(options)) }

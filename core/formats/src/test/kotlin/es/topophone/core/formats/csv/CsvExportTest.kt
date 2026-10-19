@@ -1,9 +1,11 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
@@ -79,7 +81,8 @@ class CsvExportTest {
     private val allHeader =
         "Name,Description,Origin,Easting,Northing,Elevation,Latitude,Longitude,Ellipsoidal height,CRS,Height system,Units," +
             "Pole height,Solution,Satellites,HDOP,Correction age,Horizontal accuracy,Vertical accuracy,Mode," +
-            "Epochs used,Epochs discarded,Replay,Out of tolerance,Measured from,Measured to,Edited,Copy of"
+            "Epochs used,Epochs discarded,Replay,Out of tolerance,Measured from,Measured to," +
+            "Base latitude,Base longitude,Base ellipsoidal height,Base easting,Base northing,Base elevation,Baseline,Edited,Copy of"
 
     private fun csv(points: List<Point>, options: CsvOptions, project: Project = this.project): String =
         StringBuilder().also { CsvExport.write(points.asSequence(), project, options, it) }.toString()
@@ -93,7 +96,8 @@ class CsvExportTest {
         lines(text) shouldBe listOf(
             allHeader,
             "4,,Measured,440313.1221,4474258.8769,648.3114,40.416815094,-3.703533016,699.4230,EPSG:25830,EGM08-REDNAP,m," +
-                "1.8000,FLOAT,24,0.6,1.0,0.1383,0.2100,Instant,1,0,true,NOT_FIX,2026-10-18T18:03:34Z,2026-10-18T18:03:59Z,false,",
+                "1.8000,FLOAT,24,0.6,1.0,0.1383,0.2100,Instant,1,0,true,NOT_FIX,2026-10-18T18:03:34Z,2026-10-18T18:03:59Z," +
+                ",,,,,,,false,", // sin base (S015/RF-22)
         )
     }
 
@@ -144,10 +148,55 @@ class CsvExportTest {
     fun `S012 RF-12 lo que el punto no tiene queda vacio y la papelera ni se ve aqui`() {
         val row = lines(csv(listOf(manual), CsvOptions(separator = ColumnSeparator.SEMICOLON)))[1]
 
-        // Los 14 campos de la medida, vacíos.
+        // Los 14 campos de la medida y los 7 de la base (S015/RF-22), vacíos.
         row shouldBe "E1;\"Pozo, \"\"nuevo\"\"\";Manual;440300.0000;4474250.0000;;40.416800000;-3.703600000;;EPSG:25830;EGM08-REDNAP;m;" +
-            ";;;;;;;;;;;;;;false;"
-        row.split(";").size shouldBe 28
+            ";;;;;;;;;;;;;;;;;;;;;false;"
+        row.split(";").size shouldBe 35
+    }
+
+    @Test
+    fun `S015 RF-22 las columnas de la base van tras las de la medida, en la unidad del proyecto`() {
+        val base = PointBase(GeodeticPosition(43.5578666032, -5.9130704113, 78.4338), BaseSource.CORRECTIONS, 6, 0.0, 382_123.4567)
+        val withBase = measured.copy(measurement = measured.measurement!!.copy(base = base))
+        val feet = project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT)
+        val out = StringBuilder()
+
+        CsvExport.write(sequenceOf(withBase), feet, CsvOptions(), out) { BaseProjection(266_134.9877, 4_826_201.1235, 26.0123) }
+
+        val (header, row) = lines(out.toString()).map { it.split(",") }
+        header.subList(25, 34) shouldBe listOf(
+            "Measured to",
+            "Base latitude",
+            "Base longitude",
+            "Base ellipsoidal height",
+            "Base easting",
+            "Base northing",
+            "Base elevation",
+            "Baseline",
+            "Edited",
+        )
+        row.subList(26, 33) shouldBe listOf(
+            "43.557866603",
+            "-5.913070411",
+            "257.3287",
+            "873146.2851",
+            "15833993.1873",
+            "85.3422",
+            "1253685.8816",
+        )
+    }
+
+    @Test
+    fun `S015 RF-22 sin base o fuera del SC las columnas de la base van vacias`() {
+        val base = PointBase(GeodeticPosition(28.4636, -16.2518, 35.0), BaseSource.RECEIVER, null, null, 1_700_000.0)
+        val withBase = measured.copy(measurement = measured.measurement!!.copy(base = base))
+        val out = StringBuilder()
+
+        CsvExport.write(sequenceOf(measured, withBase), project, CsvOptions(), out) { BaseProjection(null, null, null) }
+
+        val rows = lines(out.toString()).drop(1).map { it.split(",").subList(26, 33) }
+        rows[0] shouldBe List(7) { "" }
+        rows[1] shouldBe listOf("28.463600000", "-16.251800000", "35.0000", "", "", "", "1700000.0000")
     }
 
     @Test

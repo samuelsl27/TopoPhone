@@ -40,7 +40,7 @@
       Hecho cuando: el test de `CollectorViewModelTest` que guarda un punto con su base y su línea base está en verde.
 - [x] T19. `app`: tarjeta "Base" en la ficha del punto. (RF-21)
       Hecho cuando: `PointDetailsBaseTest` en verde, también con la base fuera del SC.
-- [ ] T20. `core:formats` y `tools`: las siete columnas de la base en el CSV, con los ficheros dorados y la comprobación de Python. (RF-22)
+- [x] T20. `core:formats` y `tools`: las siete columnas de la base en el CSV, con los ficheros dorados y la comprobación de Python. (RF-22)
       Hecho cuando: `CsvExportGoldenTest`, `CsvExportTest` y `test_csv_exportado.py` en verde con 35 columnas.
 - [ ] T21. `app`: la exportación calcula el Este, Norte y altura de la base, y los nombres de las columnas nuevas en la pantalla Exportar. (RF-22)
       Hecho cuando: `ExportViewModelTest` en verde, también con un formato personalizado guardado antes.

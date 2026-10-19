@@ -604,6 +604,13 @@
     <string name="export_column_out_of_tolerance">Fuera de tolerancia</string>
     <string name="export_column_measured_from">Inicio de la medida</string>
     <string name="export_column_measured_to">Fin de la medida</string>
+    <string name="export_column_base_latitude">Latitud de la base</string>
+    <string name="export_column_base_longitude">Longitud de la base</string>
+    <string name="export_column_base_ellipsoidal_height">Altura elipsoidal de la base</string>
+    <string name="export_column_base_easting">Este de la base</string>
+    <string name="export_column_base_northing">Norte de la base</string>
+    <string name="export_column_base_elevation">Altura de la base</string>
+    <string name="export_column_baseline">Línea base</string>
     <string name="export_column_edited">Editado</string>
     <string name="export_column_copy_of">Copia de</string>
     <plurals name="export_count">

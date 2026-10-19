@@ -33,8 +33,14 @@ LENGTHS = {
     "Pole height": "pole_height",
     "Horizontal accuracy": "horizontal_accuracy",
     "Vertical accuracy": "vertical_accuracy",
+    # S015/RF-22
+    "Base ellipsoidal height": "base_ellipsoidal_height",
+    "Base easting": "base_easting",
+    "Base northing": "base_northing",
+    "Base elevation": "base_elevation",
+    "Baseline": "baseline",
 }
-DEGREES = {"Latitude": "latitude", "Longitude": "longitude"}
+DEGREES = {"Latitude": "latitude", "Longitude": "longitude", "Base latitude": "base_latitude", "Base longitude": "base_longitude"}
 
 
 def read(name: str) -> list[dict[str, str]]:
@@ -72,7 +78,11 @@ def test_s012_rf_11_rf_12_los_valores_leidos_difieren_de_los_guardados_menos_de_
                 else:
                     assert value is not None and abs(value - expected) <= 0.00005 + 1e-12, (name, column, value, expected)
             for column, key in DEGREES.items():
-                if column in row:
+                if column not in row:
+                    continue
+                if point[key] is None:
+                    assert row[column] == "", (name, column, row[column])
+                else:
                     assert abs(number(row[column], decimal) - point[key]) <= 5e-10 + 1e-15, (name, column)
 
 
@@ -85,9 +95,26 @@ def test_s012_rf_15_los_textos_con_separador_comillas_o_saltos_se_leen_tal_cual(
 def test_s012_rf_9_todas_las_columnas_y_penzd_pnezd_con_su_cabecera() -> None:
     headers = {name: list(read(name)[0].keys()) for name in FILES}
     assert headers["todas_coma_punto.csv"] == headers["todas_puntoycoma_coma.csv"] == headers["todas_tabulador_punto.csv"]
-    assert len(headers["todas_coma_punto.csv"]) == 28
+    assert len(headers["todas_coma_punto.csv"]) == 35
     assert headers["penzd_puntoycoma_coma.csv"] == ["Name", "Easting", "Northing", "Elevation", "Description"]
     assert headers["pnezd_coma_punto.csv"] == ["Name", "Northing", "Easting", "Elevation", "Description"]
+
+
+def test_s015_rf_22_las_columnas_de_la_base_van_tras_las_de_la_medida() -> None:
+    header = list(read("todas_coma_punto.csv")[0].keys())
+    start = header.index("Measured to") + 1
+    assert header[start:start + 7] == [
+        "Base latitude",
+        "Base longitude",
+        "Base ellipsoidal height",
+        "Base easting",
+        "Base northing",
+        "Base elevation",
+        "Baseline",
+    ]
+    assert header[start + 7] == "Edited"
+    rows = read("todas_coma_punto.csv")
+    assert rows[0]["Base latitude"] != "" and rows[1]["Base latitude"] == "" and rows[2]["Baseline"] == ""
 
 
 def test_s012_rf_13_los_tres_ficheros_completos_dicen_lo_mismo() -> None:
