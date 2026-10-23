@@ -1,5 +1,6 @@
 package es.topophone.app.ui.projects
 
+import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.map.FakeMapViewportRepository
 import es.topophone.app.ui.map.FakePointRepository
@@ -21,4 +22,16 @@ internal fun projectViewModel(
     calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
     monitor: NetworkFailureMonitor = NetworkFailureMonitor(),
     points: PointRepository = FakePointRepository(),
-) = ProjectViewModel(repository, session, FakePreferences(), { calculator }, mapPreferences, viewports, monitor, points, samplePeriodMs = 0)
+    tilt: CurrentTilt = CurrentTilt.NONE,
+) = ProjectViewModel(
+    repository,
+    session,
+    FakePreferences(),
+    { calculator },
+    mapPreferences,
+    viewports,
+    monitor,
+    points,
+    samplePeriodMs = 0,
+    tilt = tilt,
+)

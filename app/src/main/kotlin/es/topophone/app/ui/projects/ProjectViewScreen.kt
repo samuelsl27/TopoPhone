@@ -60,6 +60,7 @@ import dagger.Lazy
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
+import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.collector.COLLECT_BUTTON_TAG
 import es.topophone.app.ui.collector.CollectorActions
@@ -88,6 +89,7 @@ import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.FactorFormat
 import es.topophone.core.model.format.LengthFormat
@@ -101,6 +103,7 @@ import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
@@ -137,6 +140,7 @@ const val PROJECT_VIEW_TAG = "project_view"
 const val PROJECT_EDIT_TAG = "project_edit"
 const val PROJECT_INFO_BUTTON_TAG = "project_info_button"
 const val PROJECT_MAP_TAG = "project_map"
+const val POSITION_UNCOMPENSATED_TAG = "position_uncompensated"
 const val POSITION_PANEL_TAG = "position_panel"
 const val POSITION_EASTING_TAG = "position_easting"
 const val POSITION_NORTHING_TAG = "position_northing"
@@ -180,6 +184,8 @@ data class ProjectViewUiState(
     val points: List<PointSummary> = emptyList(),
     /** La base tal como la da su fuente, mientras la haya (S015/RF-19). */
     val base: GeoPoint? = null,
+    /** El modo usa la inclinación pero la época no está en estado 30: "Punta sin compensar" (S016/RF-17). */
+    val uncompensated: Boolean = false,
 )
 
 /** El rover: posición de la GGA tal cual, su solución y la precisión horizontal de la GST (S009/RF-16, RF-17). */
@@ -201,6 +207,7 @@ class ProjectViewModel @Inject constructor(
     networkMonitor: NetworkFailureMonitor,
     points: PointRepository,
     @param:Named(ReceiverViewModel.UI_SAMPLE_MS) samplePeriodMs: Long,
+    tilt: CurrentTilt = CurrentTilt.NONE,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
 
@@ -219,7 +226,9 @@ class ProjectViewModel @Inject constructor(
     /** Solo una GGA reciente, con la precisión de la GST: sin datos o sin receptor no se muestra una posición antigua. */
     private val fixes = (if (samplePeriodMs > 0) session.state.sample(samplePeriodMs) else session.state)
         .map { snapshot ->
-            snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving }?.let { ReceiverFix(it, snapshot.gst?.horizontalM) }
+            snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving }?.let {
+                ReceiverFix(it, snapshot.gst?.horizontalM, snapshot.epoch?.gga, snapshot.epoch?.tilt)
+            }
         }
         .distinctUntilChanged()
 
@@ -228,26 +237,35 @@ class ProjectViewModel @Inject constructor(
         .map { snapshot -> snapshot.base.position?.let { GeoPoint(it.latitudeDeg, it.longitudeDeg) } }
         .distinctUntilChanged()
 
+    private val modes = tilt.state.map { it.settings.mode }.distinctUntilChanged()
+
     val state: StateFlow<ProjectViewUiState> = combine(
         project,
-        fixes,
+        combine(fixes, modes, ::Pair),
         preferences.poleHeightM,
         mapPreferences.settings,
         savedViewport,
-    ) { project, fix, pole, map, viewport ->
+    ) { project, (fix, mode), pole, map, viewport ->
+        // S016/RF-16, RF-17: la punta del jalón, con la GGA y el ETC de la misma época si el modo usa la inclinación.
+        val usesTilt = mode?.usesTilt == true
+        val gga = fix?.let { if (usesTilt && it.epochGga != null) it.epochGga else it.gga }
+        val tip = gga?.let { LiveTip.of(it, if (usesTilt) fix?.tilt else null, mode, pole) }
         // Con el SC del proyecto: si se cambia, la posición se recalcula en el nuevo (S006/RF-15).
-        val position = fix?.let { project?.let { p -> calculator.get().compute(it.gga, pole, p.crs, p.heightSystem) } }
+        val position = tip?.let { project?.let { p -> calculator.get().fromGround(it.ground, p.crs, p.heightSystem) } }
+        // S016/RF-21: el círculo mide la precisión de la GST más la de la inclinación.
+        val accuracy = fix?.accuracyM?.let { it + (tip?.extraHorizontalM ?: 0.0) }
         // S009/RF-16: el rover en su posición real, sea cual sea el SC del proyecto.
-        val rover = fix?.gga?.takeIf { it.hasPosition }?.let { Rover(GeoPoint(it.latitudeDeg, it.longitudeDeg), it.status, fix.accuracyM) }
+        val rover = tip?.let { Rover(GeoPoint(it.ground.latitudeDeg, it.ground.longitudeDeg), checkNotNull(gga).status, accuracy) }
         ProjectViewUiState(
             project,
             position,
-            fix?.accuracyM,
+            accuracy,
             map,
             rover,
             savedViewport = viewport?.viewport,
             viewportLoaded =
             viewport != null,
+            uncompensated = tip?.uncompensated == true,
         )
     }.combine(networkMonitor.offline) { state, offline -> state.copy(mapOffline = offline) }
         .combine(projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else points.summaries(id) }) { state, list ->
@@ -276,7 +294,7 @@ class ProjectViewModel @Inject constructor(
 
     private data class SavedViewport(val viewport: MapViewport?)
 
-    private data class ReceiverFix(val gga: GgaFix, val accuracyM: Double?)
+    private data class ReceiverFix(val gga: GgaFix, val accuracyM: Double?, val epochGga: GgaFix?, val tilt: TiltData?)
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
@@ -434,7 +452,7 @@ fun ProjectViewScreen(
                         collectorOpen =
                             false
                     })
-                    else -> PositionPanel(project, state.position, state.accuracyM, onInfo, Modifier)
+                    else -> PositionPanel(project, state.position, state.accuracyM, state.uncompensated, onInfo, Modifier)
                 }
             }
         }
@@ -594,7 +612,14 @@ private fun BindMap(controller: MapController?, state: ProjectViewUiState) {
  * desplegarlo, también los factores (S006/RF-29, RF-30; S008/RF-8; S009/RF-2 a RF-4).
  */
 @Composable
-private fun PositionPanel(project: Project, position: ProjectPosition?, accuracyM: Double?, onInfo: (String) -> Unit, modifier: Modifier) {
+private fun PositionPanel(
+    project: Project,
+    position: ProjectPosition?,
+    accuracyM: Double?,
+    uncompensated: Boolean,
+    onInfo: (String) -> Unit,
+    modifier: Modifier,
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(POSITION_PANEL_TAG)) {
         Column(
@@ -622,6 +647,13 @@ private fun PositionPanel(project: Project, position: ProjectPosition?, accuracy
                 PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable ->
                     Text(stringResource(R.string.project_outside_ed50), color = MaterialTheme.colorScheme.error)
                 else -> {
+                    if (uncompensated) {
+                        Text(
+                            stringResource(R.string.tilt_tip_uncompensated),
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.testTag(POSITION_UNCOMPENSATED_TAG),
+                        ) // S016/RF-17
+                    }
                     PositionValues(project, position, accuracyM, showFactors = expanded)
                     // S008/RF-16: en geográficas no hay factores, así que no hay nada que desplegar.
                     if (project.crs.isUtm) {
