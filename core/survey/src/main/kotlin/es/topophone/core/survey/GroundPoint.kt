@@ -6,6 +6,7 @@ import es.topophone.core.geodesy.Utm
 import es.topophone.core.geodesy.UtmCoordinate
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.project.CrsArea
 
 /** Modelos de receptor con la distancia de su base al centro de referencia de la posición. */
@@ -67,28 +68,38 @@ class GroundPointCalculator(
 ) {
     fun compute(fix: GgaFix, poleHeightM: Double): GroundPoint? {
         if (!fix.hasPosition) return null
-        val unavailable = mutableSetOf<Unavailable>()
-
         // Jalón vertical: la punta tiene la misma φ, λ y está bajo el receptor sobre la normal (S002/RF-32).
         val altitude = fix.altitudeM
         val separation = fix.geoidSeparationM
         val receiverHeight = if (altitude != null && separation != null) altitude + separation else null
         val groundHeight = receiverHeight?.minus(VerticalPole.antennaHeightM(poleHeightM, model))
+        return fromGround(GeodeticPosition(fix.latitudeDeg, fix.longitudeDeg, groundHeight), fix.status)
+    }
+
+    /**
+     * Del punto del suelo (la punta con o sin inclinación) a UTM y altitud: lo que hace [compute] tras restar el jalón
+     * vertical, para la punta calculada con la inclinación (S016/RF-16).
+     */
+    fun fromGround(ground: GeodeticPosition, solution: SolutionStatus): GroundPoint {
+        val unavailable = mutableSetOf<Unavailable>()
+        val lat = ground.latitudeDeg
+        val lon = ground.longitudeDeg
+        val groundHeight = ground.ellipsoidalHeightM
         if (groundHeight == null) unavailable += Unavailable.NO_HEIGHT
 
-        val zone = Utm.zoneFor(fix.longitudeDeg)
-        val utm = if (zone in utmZones) Utm.forward(fix.latitudeDeg, fix.longitudeDeg, zone) else null
+        val zone = Utm.zoneFor(lon)
+        val utm = if (zone in utmZones) Utm.forward(lat, lon, zone) else null
         if (utm == null) unavailable += Unavailable.OUTSIDE_UTM_ZONES
 
         // S008/RF-21: en Canarias, su geoide y REGCAN95.
-        val canarias = CrsArea.CANARIAS.contains(fix.latitudeDeg, fix.longitudeDeg)
+        val canarias = CrsArea.CANARIAS.contains(lat, lon)
         val geoid = if (canarias) canariasGeoid() else peninsulaGeoid()
-        val undulation = geoid.undulationM(fix.latitudeDeg, fix.longitudeDeg)
+        val undulation = geoid.undulationM(lat, lon)
         if (undulation == null) unavailable += Unavailable.OUTSIDE_GEOID
         val orthometric = if (groundHeight != null && undulation != null) groundHeight - undulation else null
         val reference = if (canarias) CoordinateReference.CORRECTIONS_ASSUMED_REGCAN95 else CoordinateReference.CORRECTIONS_ASSUMED_ETRS89
 
-        return GroundPoint(fix.latitudeDeg, fix.longitudeDeg, groundHeight, utm, orthometric, unavailable, fix.status, reference)
+        return GroundPoint(lat, lon, groundHeight, utm, orthometric, unavailable, solution, reference)
     }
 
     companion object {

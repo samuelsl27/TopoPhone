@@ -147,4 +147,26 @@ class GroundPointCalculatorTest {
         PoleHeight.DEFAULT_M shouldBe 1.8
         PoleHeight.parse("1,8") shouldBe 1.8
     }
+
+    @Test
+    fun `S016 RF-16 desde la punta se calcula igual que desde el jalon vertical`() {
+        val vertical = calculator.compute(fix(), poleHeightM = 1.8).shouldNotBeNull()
+
+        val fromGround = calculator.fromGround(
+            es.topophone.core.model.point.GeodeticPosition(40.4168, -3.7038, 650.123 + 51.234 - (1.8 + 0.134)),
+            SolutionStatus.FIX,
+        )
+
+        fromGround shouldBe vertical
+    }
+
+    @Test
+    fun `S016 RF-27 desde una punta sin altura no hay altura ni altitud`() {
+        val point = calculator.fromGround(es.topophone.core.model.point.GeodeticPosition(40.4168, -3.7038, null), SolutionStatus.FIX)
+
+        point.ellipsoidalHeightM.shouldBeNull()
+        point.orthometricHeightM.shouldBeNull()
+        point.unavailable shouldContain Unavailable.NO_HEIGHT
+        point.utm.shouldNotBeNull()
+    }
 }
