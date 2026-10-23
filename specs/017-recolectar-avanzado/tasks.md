@@ -16,7 +16,7 @@
       Hecho cuando: `PointMeasurementStreamingTest` en verde con una medida de 36.000 épocas frente a `fixtures/promediado/` y con los instantáneos sin datos nuevos.
 - [x] T7. `core:survey`: pausa, reanudación y pregunta de 5 min de `PointMeasurement` (A3). (RF-8, RF-9, RF-10)
       Hecho cuando: `PointMeasurementPauseTest` en verde: pausa a los 2 s, el tiempo del corte no suma, `LongPause` a los 5 min y repetida con "Seguir esperando", y la instantánea sigue cancelándose.
-- [ ] T8. `core:survey`: `finishNow()` de `PointMeasurement` (A4). (RF-6, RF-7)
+- [x] T8. `core:survey`: `finishNow()` de `PointMeasurement` (A4). (RF-6, RF-7)
       Hecho cuando: `PointMeasurementPauseTest` en verde con "Terminar" con épocas, sin ninguna y en pausa.
 - [ ] T9. `core:survey`: `AutoMeasure` (A5). (RF-19, RF-20, RF-21, RF-24, RF-25, RF-27, RF-28, RF-32)
       Hecho cuando: `AutoMeasureTest` en verde con el primer punto inmediato, los dos disparos, el punto sin terminar, un solo aviso, el reintento por distancia, la pausa en los dos disparos, `stop()` y el cambio de día.

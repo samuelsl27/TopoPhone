@@ -418,6 +418,8 @@ class CollectorViewModel @Inject constructor(
             }
             // S017/RF-8 a RF-10: la pausa, la reanudación y la pregunta de 5 min llegan al recolector en T16.
             MeasurementUpdate.Paused, MeasurementUpdate.Resumed, MeasurementUpdate.LongPause -> Unit
+            // S017/RF-7: "Terminar" sin épocas llega al recolector en T15.
+            MeasurementUpdate.NoEpochsYet -> Unit
             is MeasurementUpdate.Failed -> {
                 stopMeasuring()
                 val error = when (update.reason) {

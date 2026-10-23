@@ -34,6 +34,9 @@ sealed interface MeasurementUpdate {
 
     data class Failed(val reason: MeasurementFailure) : MeasurementUpdate
 
+    /** "Terminar" sin ninguna época usada: no se guarda nada y la medida sigue (S017/RF-7). */
+    data object NoEpochsYet : MeasurementUpdate
+
     /** Un promediado sin épocas desde hace 2 s se pausa y conserva lo reunido: una vez por corte (S017/RF-8). */
     data object Paused : MeasurementUpdate
 
@@ -325,6 +328,15 @@ class PointMeasurement(
     fun keepWaiting(nowMs: Long) {
         longPauseAsked = false
         longPauseDueAtMs = nowMs + LONG_PAUSE_MS
+    }
+
+    /**
+     * "Terminar" (S017/RF-6, RF-7): cierra la medida con las épocas reunidas, también en pausa; sin ninguna no termina y
+     * sigue. Null si la medida ya había terminado.
+     */
+    fun finishNow(): MeasurementUpdate? {
+        if (finished) return null
+        return if (usedCount == 0) MeasurementUpdate.NoEpochsYet else finish()
     }
 
     /** S010/RF-11: no se guarda nada y no sale nada más. */

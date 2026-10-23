@@ -13,6 +13,7 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.longs.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
@@ -23,12 +24,12 @@ class PointMeasurementPauseTest {
     private val calculator = ProjectPositionCalculator()
     private val start = 1_000_000L
 
-    private fun epoch(index: Int, status: SolutionStatus = SolutionStatus.FIX): Epoch {
+    private fun epoch(index: Int, status: SolutionStatus = SolutionStatus.FIX, lat: Double = 40.41680, lon: Double = -3.70371): Epoch {
         val utc = 36_930_000 + index * 1_000
         return Epoch(
             utcMillisOfDay = utc,
             date = null,
-            gga = GgaFix("t$index", 40.41680, -3.70371, status, 24, 0.6, 650.123, 51.234, 1.0, "\$GNGGA,$index*00"),
+            gga = GgaFix("t$index", lat, lon, status, 24, 0.6, 650.123, 51.234, 1.0, "\$GNGGA,$index*00"),
             gst = GstAccuracy("t$index", 0.008, 0.006, 0.016, "\$GNGST,$index*00"),
             rmc = null,
             vtg = null,
@@ -56,6 +57,8 @@ class PointMeasurementPauseTest {
     /** La época `index` llega a su hora, con un [gap] de más: lo que dura un corte antes de ella. */
     private fun PointMeasurement.feed(index: Int, gapMs: Long = 0, status: SolutionStatus = SolutionStatus.FIX) =
         onEpoch(epoch(index, status), start + index * 1_000L + gapMs)
+
+    private fun MeasurementUpdate?.result() = shouldBeInstanceOf<MeasurementUpdate.Done>().result
 
     @Test
     fun `S017 RF-8 sin epocas en 2 s un promediado se pausa una sola vez y conserva lo reunido`() {
@@ -158,5 +161,68 @@ class PointMeasurementPauseTest {
 
         m.onTick(start + 600_000).shouldBeNull()
         m.feed(3).shouldBeEmpty()
+    }
+
+    @Test
+    fun `S017 RF-6 Terminar cierra el promediado con las epocas reunidas y lo da por terminado`() {
+        val m = measurement(seconds = 10)
+        (0 until 4).forEach { m.feed(it) }
+
+        val result = m.finishNow().result()
+
+        result.epochsUsed shouldBe 4
+        result.averagedTimeS.shouldNotBeNull() shouldBe (4.0 plusOrMinus 1e-9)
+        result.deviationHorizontalM.shouldNotBeNull() shouldBe (0.0 plusOrMinus 1e-9)
+        result.rawNmea.lines().first() shouldBe "\$GNGGA,0*00"
+        m.feed(4).shouldBeEmpty()
+        m.onTick(start + 600_000).shouldBeNull()
+        m.finishNow().shouldBeNull()
+    }
+
+    @Test
+    fun `S017 RF-6 Terminar tambien vale con la medida en pausa`() {
+        val m = measurement(seconds = 10)
+        (0 until 3).forEach { m.feed(it) }
+        m.onTick(start + 2_000L + 2_000) shouldBe MeasurementUpdate.Paused
+
+        val result = m.finishNow().result()
+
+        result.epochsUsed shouldBe 3
+        result.averagedTimeS.shouldNotBeNull() shouldBe (3.0 plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S017 RF-6 con una sola epoca usada no hay desviaciones tipicas`() {
+        val m = measurement(seconds = 10)
+        m.feed(0)
+
+        val result = m.finishNow().result()
+
+        result.epochsUsed shouldBe 1
+        result.deviationHorizontalM.shouldBeNull()
+        result.deviationVerticalM.shouldBeNull()
+    }
+
+    @Test
+    fun `S017 RF-7 sin ninguna epoca usada Terminar no termina y la medida sigue`() {
+        val m = measurement(seconds = 3)
+        // Con el control de solo FIX, estas dos épocas se descartan.
+        m.feed(0, status = SolutionStatus.FLOAT)
+        m.feed(1, status = SolutionStatus.FLOAT)
+
+        m.finishNow() shouldBe MeasurementUpdate.NoEpochsYet
+
+        val done = (2 until 5).flatMap { m.feed(it) }.filterIsInstance<MeasurementUpdate.Done>().single().result
+        done.epochsUsed shouldBe 3
+        done.epochsDiscarded shouldBe 2
+    }
+
+    @Test
+    fun `S017 RF-6 fuera del ambito del SC del proyecto Terminar no da punto`() {
+        val m = measurement(seconds = 10)
+        // Tenerife con un proyecto en ETRS89 / UTM 30 de la Península.
+        m.onEpoch(epoch(0, lat = 28.4636, lon = -16.2518), start)
+
+        m.finishNow().shouldBeInstanceOf<MeasurementUpdate.Failed>().reason shouldBe MeasurementFailure.OUTSIDE_CRS_AREA
     }
 }
