@@ -37,8 +37,10 @@ data class CurrentTiltState(
 /** Lo comparten el apartado "Inclinación", el asistente, el recolector y las coordenadas (@Singleton en la app). */
 @OptIn(ExperimentalCoroutinesApi::class)
 class CurrentTilt(replaying: Flow<Boolean>, address: Flow<String?>, private val preferences: TiltPreferences, scope: CoroutineScope) {
-    private val wizardOpen = MutableStateFlow(false)
-    private val revision = MutableStateFlow(0)
+    /** Asistente abierto y revisión juntos, para que cambien a la vez (S016/RF-28). */
+    private data class Flags(val wizardOpen: Boolean = false, val revision: Int = 0)
+
+    private val flags = MutableStateFlow(Flags())
 
     private val key: Flow<String?> = combine(replaying, address) { replay, receiver -> if (replay) TiltPreferences.REPLAY else receiver }
         .distinctUntilChanged()
@@ -47,8 +49,8 @@ class CurrentTilt(replaying: Flow<Boolean>, address: Flow<String?>, private val 
         if (key == null) flowOf(null to ReceiverTiltSettings.NONE) else preferences.settings(key).map { key to it }
     }
 
-    val state: StateFlow<CurrentTiltState> = combine(settings, wizardOpen, revision) { (key, settings), open, revision ->
-        CurrentTiltState(key, settings, open, revision)
+    val state: StateFlow<CurrentTiltState> = combine(settings, flags) { (key, settings), flags ->
+        CurrentTiltState(key, settings, flags.wizardOpen, flags.revision)
     }.stateIn(scope, SharingStarted.Eagerly, CurrentTiltState())
 
     /** Elegido a mano: "sin comprobar", sin olvidar lo que encontró el asistente (S016/RF-3, RF-4). */
@@ -58,12 +60,11 @@ class CurrentTilt(replaying: Flow<Boolean>, address: Flow<String?>, private val 
     suspend fun confirm(mode: TiltMode) = save { ReceiverTiltSettings(mode, verified = true, detected = mode) }
 
     fun openWizard() {
-        wizardOpen.value = true
-        revision.update { it + 1 }
+        flags.update { Flags(wizardOpen = true, revision = it.revision + 1) }
     }
 
     fun closeWizard() {
-        wizardOpen.value = false
+        flags.update { it.copy(wizardOpen = false) }
     }
 
     companion object {
@@ -82,6 +83,6 @@ class CurrentTilt(replaying: Flow<Boolean>, address: Flow<String?>, private val 
     private suspend fun save(change: (ReceiverTiltSettings) -> ReceiverTiltSettings) {
         val key = state.value.key ?: return
         preferences.save(key, change(preferences.settings(key).first()))
-        revision.update { it + 1 }
+        flags.update { it.copy(revision = it.revision + 1) }
     }
 }

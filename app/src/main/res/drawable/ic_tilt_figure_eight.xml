@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ilustración propia del movimiento en ocho para alinear la inclinación (S016/RF-12; RNF-T14). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="64dp"
+    android:viewportWidth="48"
+    android:viewportHeight="32">
+    <!-- El ocho que dibuja la antena. -->
+    <path
+        android:pathData="M24,16 C29,7 42,6 42,16 C42,26 29,25 24,16 C19,7 6,6 6,16 C6,26 19,25 24,16 Z"
+        android:strokeWidth="2.5"
+        android:strokeColor="#FF000000"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <!-- Flecha del sentido del movimiento en el lazo derecho. -->
+    <path
+        android:pathData="M37,8.5 L41,10.5 L39.5,6.2"
+        android:strokeWidth="2.5"
+        android:strokeColor="#FF000000"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <!-- Flecha en el lazo izquierdo. -->
+    <path
+        android:pathData="M11,23.5 L7,21.5 L8.5,25.8"
+        android:strokeWidth="2.5"
+        android:strokeColor="#FF000000"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

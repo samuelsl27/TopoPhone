@@ -766,4 +766,12 @@
     <string name="tilt_notification_fast_motion">Movimiento rápido</string>
     <string name="tilt_notification_bad_gnss">GNSS malo</string>
     <string name="tilt_notification_filter_fault">Fallo del filtro</string>
+    <string name="tilt_guide_no_tilt">No llega la inclinación: actívala en el receptor junto con la frase ETC, o elige «Jalón vertical».</string>
+    <string name="tilt_guide_fatal">Error de la inclinación: reinicia el receptor y, si sigue, contacta con el soporte del fabricante.</string>
+    <string name="tilt_guide_setup">Espera: el receptor está preparando la inclinación.</string>
+    <string name="tilt_guide_alignment">Mueve el receptor en ocho hasta que la inclinación pase a «Compensando».</string>
+    <string name="tilt_guide_fast_motion">Mueve el receptor más despacio.</string>
+    <string name="tilt_guide_bad_gnss">Busca un sitio con más cielo despejado: la inclinación puede volver a alineación.</string>
+    <string name="tilt_guide_filter_fault">Fallo del filtro: mueve el receptor en ocho para volver a alinear.</string>
+    <string name="tilt_guide_figure_eight_description">El jalón se mueve dibujando un ocho</string>
 </resources>

@@ -754,4 +754,12 @@
     <string name="tilt_notification_fast_motion">Fast motion</string>
     <string name="tilt_notification_bad_gnss">Bad GNSS</string>
     <string name="tilt_notification_filter_fault">Filter fault</string>
+    <string name="tilt_guide_no_tilt">No tilt data: turn tilt on in the receiver along with the ETC sentence, or choose “Vertical pole”.</string>
+    <string name="tilt_guide_fatal">Tilt error: restart the receiver and, if it persists, contact the manufacturer’s support.</string>
+    <string name="tilt_guide_setup">Wait: the receiver is setting up the tilt.</string>
+    <string name="tilt_guide_alignment">Move the receiver in a figure eight until the tilt changes to “Compensating”.</string>
+    <string name="tilt_guide_fast_motion">Move the receiver more slowly.</string>
+    <string name="tilt_guide_bad_gnss">Find a spot with a clearer sky: the tilt may go back to alignment.</string>
+    <string name="tilt_guide_filter_fault">Filter fault: move the receiver in a figure eight to align again.</string>
+    <string name="tilt_guide_figure_eight_description">The pole moves drawing a figure eight</string>
 </resources>

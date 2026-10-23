@@ -32,7 +32,7 @@
       Hecho cuando: `TiltWizardScreenTest` en verde: qué falta, pasos, propuesta, confirmar, repetir y no concluyente.
 - [x] T15. `app`: tarjeta "Inclinación" en la pantalla Estado. (RF-11)
       Hecho cuando: `StatusScreenTest` en verde con el estado, el aviso, los ángulos en el formato de los proyectos nuevos y las precisiones.
-- [ ] T16. `app`: `TiltGuideBanner` con los siete textos y la ilustración propia del ocho. (RF-12)
+- [x] T16. `app`: `TiltGuideBanner` con los siete textos y la ilustración propia del ocho. (RF-12)
       Hecho cuando: `TiltGuideBannerTest` en verde, con la descripción de la ilustración para TalkBack.
 - [ ] T17. `app`: la punta en Coordenadas con "Punta sin compensar". (RF-16, RF-17)
       Hecho cuando: `CoordinatesCardTest` y `ReceiverViewModelTest` en verde en APP, RECEIVER, VERTICAL y sin modo.
