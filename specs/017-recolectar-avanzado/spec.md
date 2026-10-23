@@ -1,6 +1,6 @@
 # Spec 017 — Recolectar avanzado
 
-> Hito: H2 · Depende de: S016 · Estado: borrador
+> Hito: H2 · Depende de: S016 · Estado: aprobada (con suposiciones a revisar; ver "Dudas abiertas")
 
 ## Contexto y objetivo
 El recolector de S010 mide un punto cada vez que se pulsa "Medir", en un instante o promediando hasta 60 s. Para dos trabajos habituales eso se queda corto:

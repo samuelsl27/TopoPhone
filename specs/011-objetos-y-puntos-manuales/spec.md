@@ -34,7 +34,7 @@ El dato de campo es sagrado (constitución nº 1): editar un punto no borra lo q
 ### Ficha del punto (H2)
 - RF-5: CUANDO el usuario toque un punto en la lista o en el mapa, EL SISTEMA abrirá su ficha.
 - RF-6: EL SISTEMA mostrará en la ficha las coordenadas actuales del punto en el SC del proyecto y en geográficas, en las unidades del proyecto.
-- RF-7: DONDE el punto sea medido, EL SISTEMA mostrará en la ficha la altura del jalón, la posición de la antena, los metadatos de calidad (S010/RF-18), la fecha y hora de la medida, las condiciones del control de precisión que incumplió y las frases NMEA guardadas con él.
+- RF-7: DONDE el punto sea medido, EL SISTEMA mostrará en la ficha la altura del jalón, la posición de la antena, los metadatos de calidad (S010/RF-18), la fecha y hora de la medida, las condiciones del control de precisión que incumplió y las frases NMEA guardadas con él y, si se promedió, el tiempo promediado y las desviaciones típicas (S017/RF-13).
 
 ### Editar con rastro (H3)
 - RF-8: CUANDO el usuario edite un punto, EL SISTEMA permitirá cambiar su nombre, su descripción y sus coordenadas, escritas como en un punto manual (RF-16 a RF-18).

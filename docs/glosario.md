@@ -32,6 +32,11 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Medida instantánea | `InstantMeasurement` | Con la primera época que llega (S010) |
 | Fuera de tolerancia | `OutOfTolerance` | Punto guardado sin cumplir el control de precisión, por decisión del usuario (S010) |
 | Descripción (del punto) | `description` | Texto libre; se conserva para el siguiente punto (S010) |
+| Modo automático | `AutoMode` | Mide solo un punto por tiempo o por distancia (S017) |
+| Disparo | `trigger` | Momento en que el modo automático mide un punto (S017) |
+| Medida en pausa | `MeasurementPaused` | Promediado o modo automático detenido por un corte (S017) |
+| Desviación típica (de una medida) | `standardDeviation` | Horizontal y vertical de las épocas usadas (S017) |
+| Estabilidad de la media | `meanStability` | Lo que se mueve la media en el último minuto (S017) |
 | Control de precisión | `PrecisionControl` | |
 | Replanteo / replantear | `Stakeout` / `stakeOut` | |
 | Punto replanteado | `StakedPoint` | Sufijo `_stkd` |

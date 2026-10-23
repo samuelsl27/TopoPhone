@@ -33,7 +33,7 @@ El dato de campo es sagrado (constitución nº 1): cada punto se guarda al momen
 
 ### Medida (H2)
 - RF-8: CUANDO el usuario pulse "Medir" en modo instantáneo, EL SISTEMA medirá el punto con la primera época completa que llegue.
-- RF-9: CUANDO el usuario pulse "Medir" en modo promediado, EL SISTEMA promediará las posiciones de las épocas hasta reunir el tiempo elegido (de 1 a 60 s, 5 s por defecto), mostrando el progreso.
+- RF-9: CUANDO el usuario pulse "Medir" en modo promediado, EL SISTEMA promediará las posiciones de las épocas hasta reunir el tiempo elegido (de 1 s a 60 min, 5 s por defecto; S017/RF-1), mostrando el progreso.
 - RF-10: SI la solución deja de ser FIX durante un promediado con el control de solo FIX activo, ENTONCES EL SISTEMA descartará esas épocas, avisará "Solución perdida" con un sonido y seguirá hasta completar el tiempo con épocas en FIX.
 - RF-11: CUANDO el usuario pulse "Cancelar" durante una medida, EL SISTEMA la descartará sin guardar nada.
 - RF-12: MIENTRAS no haya posición del receptor o de una reproducción, o el punto del suelo quede fuera del ámbito del SC del proyecto, EL SISTEMA no permitirá medir e indicará el motivo.
@@ -72,7 +72,7 @@ El dato de campo es sagrado (constitución nº 1): cada punto se guarda al momen
 | Último nombre sin número final ("arqueta") | RF-2 (se propone "arqueta1") |
 | Nombre repetido | RF-3 |
 | Pérdida de FIX durante el promediado | RF-10 |
-| Pérdida de la conexión o "Sin datos" durante una medida | RF-11, RF-12 (la medida se cancela y se dice por qué) |
+| Pérdida de la conexión o "Sin datos" durante una medida | RF-11, RF-12 (la medida se cancela y se dice por qué; en un promediado se pausa, S017/RF-8) |
 | Medida en FLOAT con el control de solo FIX activo | RF-14, RF-15 |
 | Control de solo FIX desactivado | RF-10 (no se descartan épocas), RF-13 |
 | Punto fuera del ámbito del SC del proyecto | RF-12 |
@@ -87,7 +87,7 @@ El dato de campo es sagrado (constitución nº 1): cada punto se guarda al momen
 - Recalcular puntos al corregir la altura del jalón → S011.
 - Exportar puntos → S012.
 - Inclinación del jalón → S016.
-- Modo automático por tiempo o distancia, promediado de hasta 60 min y fotos → S017.
+- Modo automático por tiempo o distancia y promediado de hasta 60 min → S017. Fotos → S017b.
 - Replanteo → S018.
 - Códigos, atributos y líneas → S023 a S025.
 
@@ -103,7 +103,7 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - [SUPOSICIÓN: la altura del jalón es una sola para toda la app; cambiarla en el recolector la cambia también en Coordenadas, y cada punto guarda la que se usó.]
 - [SUPOSICIÓN: al aumentar el número del nombre se conservan los ceros a la izquierda ("P009" → "P010").]
 - [SUPOSICIÓN: la medida instantánea espera como mucho 2 s a la siguiente época; si no llega, se cancela y se dice que no hay datos del receptor.]
-- [SUPOSICIÓN: el promediado llega a 60 s en esta spec; S017 lo amplía a 60 min con estadísticas en vivo.]
+- [SUPOSICIÓN: el promediado llega a 60 s en esta spec; S017 lo amplía a 60 min con estadísticas en vivo (S017/RF-1 a RF-5).]
 - [SUPOSICIÓN: el modo (instantáneo o promediado) y el tiempo de promediado se recuerdan para todos los proyectos, como el control de precisión.]
 - [SUPOSICIÓN: la precisión vertical de la medida es la σ de altitud de la GST; la GST es la última recibida hasta el final de la medida (RF-22).]
 - [SUPOSICIÓN: los puntos de una reproducción se pueden guardar, marcados como tales, para poder probar la app sin receptor.]
