@@ -26,6 +26,9 @@ Genera en fixtures/geodesia/:
   GRS80), en España, Canarias, la estación AVL13M de la grabación RTCM real y casos extremos (S015/RF-13).
 - linea_base.csv: distancia en línea recta entre la antena del rover y la base, desde sus cartesianas
   geocéntricas de pyproj, de metros a 80 km (S015/RF-14).
+- punta_jalon.csv: antena (φ, λ, h), inclinación, dirección de la inclinación y altura de antena → punta del
+  jalón, con el desplazamiento de ETC_rev_3 en el plano tangente local de la antena, calculado con la tubería
+  `cart` + `topocentric` de PROJ (S016/RF-13, RF-25, RF-27).
 
 Uso: uv run --project tools tools/geodesia/generar_vectores.py
 Es determinista: la misma versión de pyproj/PROJ y de la rejilla dan el mismo fichero.
@@ -37,8 +40,11 @@ import random
 import sys
 from pathlib import Path
 
+import math
+
 import pyproj
 from pyproj import Transformer
+from pyproj.enums import TransformDirection
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import rejillas  # noqa: E402
@@ -530,6 +536,40 @@ def baseline_vectors(rng: random.Random) -> list[str]:
     return lines
 
 
+def topocentric(lat: float, lon: float, h: float) -> Transformer:
+    """Geográficas GRS80 (grados) → ENU en el plano tangente local de (φ, λ, h), con las conversiones de PROJ."""
+    return Transformer.from_pipeline(
+        "+proj=pipeline +step +proj=unitconvert +xy_in=deg +xy_out=rad +step +proj=cart +ellps=GRS80 "
+        f"+step +proj=topocentric +ellps=GRS80 +lat_0={lat!r} +lon_0={lon!r} +h_0={h!r}"
+    )
+
+
+def pole_tip_vectors(rng: random.Random) -> list[str]:
+    """S016/RF-13: la punta está en Δ = −H·(sen θ·sen α, sen θ·cos α, cos θ) desde la antena (ETC_rev_3)."""
+    lines = header("Punta del jalón: antena desplazada en su plano tangente local según la inclinación (ETC_rev_3)") + [
+        "latitud,longitud,altura_elipsoidal,inclinacion,direccion,altura_antena,latitud_punta,longitud_punta,altura_punta"
+    ]
+    places = [(40.4168, -3.7038, 650.123), (28.27223, -16.64251, 3000.0), (39.5696, 2.6502, 12.0), (43.3623, -8.4115, 0.0)]
+    # Casos fijos: vertical, 60°, los cuatro cuadrantes, casi 360° y las alturas de antena extremas.
+    cases = [(0.0, 0.0, 1.934), (60.0, 0.0, 1.934), (15.0, 90.0, 1.934), (30.0, 180.0, 1.934), (45.0, 270.0, 1.934)]
+    cases += [(5.0, 359.9, 1.934), (12.0, 210.5, 0.134), (25.0, 33.3, 10.134), (0.0, 123.4, 10.134)]
+    rows = [(lat, lon, h, tilt, direction, antenna) for lat, lon, h in places for tilt, direction, antenna in cases]
+    for _ in range(40):
+        rows.append((rng.uniform(36.0, 43.8), rng.uniform(-9.3, 4.3), rng.uniform(-50.0, 3000.0),
+                     rng.uniform(0.0, 60.0), rng.uniform(0.0, 360.0), rng.uniform(0.134, 10.134)))
+    for _ in range(20):
+        rows.append((rng.uniform(27.6, 29.4), rng.uniform(-18.2, -13.4), rng.uniform(0.0, 3000.0),
+                     rng.uniform(0.0, 60.0), rng.uniform(0.0, 360.0), rng.uniform(0.134, 10.134)))
+    for lat, lon, h, tilt, direction, antenna in rows:
+        theta, alpha = math.radians(tilt), math.radians(direction)
+        east = -antenna * math.sin(theta) * math.sin(alpha)
+        north = -antenna * math.sin(theta) * math.cos(alpha)
+        up = -antenna * math.cos(theta)
+        lon_t, lat_t, h_t = topocentric(lat, lon, h).transform(east, north, up, direction=TransformDirection.INVERSE)
+        lines.append(",".join(fmt(v) for v in (lat, lon, h, tilt, direction, antenna, lat_t, lon_t, h_t)))
+    return lines
+
+
 def main() -> int:
     for grid in rejillas.GRIDS:
         rejillas.ensure(grid, download=True)
@@ -553,6 +593,8 @@ def main() -> int:
         # S015.
         ("ecef.csv", ecef_vectors(random.Random(20261026))),
         ("linea_base.csv", baseline_vectors(random.Random(20261027))),
+        # S016.
+        ("punta_jalon.csv", pole_tip_vectors(random.Random(20261028))),
     )
     for name, lines in outputs:
         (OUT / name).write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")

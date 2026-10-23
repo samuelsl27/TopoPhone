@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import math
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import rejillas  # noqa: E402
+from pyproj import Geod  # noqa: E402
 
 FIXTURES = rejillas.ROOT / "fixtures" / "geodesia"
 
@@ -29,6 +31,7 @@ def test_los_vectores_se_generaron_con_la_misma_rejilla() -> None:
         "jalon_corregido.csv": rejillas.ED50_SHIFT,
         "ecef.csv": rejillas.GEOID_PENINSULA,
         "linea_base.csv": rejillas.GEOID_PENINSULA,
+        "punta_jalon.csv": rejillas.GEOID_PENINSULA,
     }
     for name, grid in expected.items():
         text = (FIXTURES / name).read_text(encoding="utf-8")
@@ -150,3 +153,34 @@ def test_s015_rf_14_la_linea_base_va_de_cero_a_80_km_y_rodea_los_20_km() -> None
     assert any(0.1 < d < 3.0 for d in distances)
     assert max(distances) > 79_000.0
     assert any(19_000.0 < d < 20_000.0 for d in distances) and any(20_000.0 < d < 21_000.0 for d in distances)
+
+
+def test_s016_rf_13_la_punta_cubre_espana_canarias_inclinaciones_y_alturas() -> None:
+    tips = rows("punta_jalon.csv")
+    assert len(tips) > 60
+    lats = [float(row[0]) for row in tips]
+    tilts = [float(row[3]) for row in tips]
+    directions = [float(row[4]) for row in tips]
+    antennas = [float(row[5]) for row in tips]
+    assert any(27.6 < lat < 29.4 for lat in lats) and any(38.6 < lat < 40.1 and 1.2 < float(row[1]) < 4.4 for lat, row in zip(lats, tips))
+    assert 0.0 in tilts and 60.0 in tilts and max(tilts) <= 60.0
+    assert 0.0 in directions and max(directions) > 350.0
+    assert min(antennas) == 0.134 and max(antennas) == 10.134
+    assert max(float(row[2]) for row in tips) > 2_900.0
+
+
+def test_s016_rf_13_la_punta_queda_a_h_sen_inclinacion_en_sentido_contrario_a_la_direccion() -> None:
+    """Comprobación independiente de la tubería topocéntrica: distancia y acimut con la geodésica de GRS80."""
+    geod = Geod(ellps="GRS80")
+    for row in rows("punta_jalon.csv"):
+        lat, lon, h, tilt, direction, antenna, lat_t, lon_t, h_t = (float(v) for v in row)
+        theta = math.radians(tilt)
+        if tilt == 0.0:
+            assert abs(lat_t - lat) < 1e-12 and abs(lon_t - lon) < 1e-12
+        else:
+            azimuth, _, distance = geod.inv(lon, lat, lon_t, lat_t)
+            # La geodésica va sobre el elipsoide y el desplazamiento a la altura h: difieren en d·h/R (< 5 mm).
+            assert abs(distance - antenna * math.sin(theta)) < 0.005
+            assert abs((azimuth - direction - 180.0 + 540.0) % 360.0 - 180.0) < 0.01
+        # El desnivel es H·cos θ más la caída de la curvatura (d²/2R, menos de 1 mm con 10 m de jalón).
+        assert abs(h - h_t - antenna * math.cos(theta)) < 0.001

@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/geodesia`: vectores `punta_jalon` de pyproj (`cart` + `topocentric`): antena, inclinación, dirección y altura de antena → punta, en la Península, Baleares y Canarias. (RF-13, RF-25, RF-27)
+- [x] T1. `tools/geodesia`: vectores `punta_jalon` de pyproj (`cart` + `topocentric`): antena, inclinación, dirección y altura de antena → punta, en la Península, Baleares y Canarias. (RF-13, RF-25, RF-27)
       Hecho cuando: el script genera `fixtures/geodesia/punta_jalon.csv` y su test de `tools` está en verde.
 - [ ] T2. `core:geodesy`: `LocalTangentPlane.offset` y `between` (A1). (RF-13, RF-7, RF-8)
       Hecho cuando: `LocalTangentPlaneTest` en verde contra `punta_jalon.csv` (≤ 1 mm; ida y vuelta ≤ 0,1 mm).
