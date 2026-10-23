@@ -40,7 +40,7 @@ La constitución nº 1 exige que el dato de campo "siempre pueda exportarse o re
 - RF-13: SI la copia o el paquete es de una versión de los datos más reciente que la de la app, ENTONCES EL SISTEMA no cambiará nada y pedirá actualizar la app.
 - RF-14: CUANDO se restaure una copia o se importe un paquete de una versión de los datos anterior, EL SISTEMA lo pasará a la versión actual sin perder datos (RNF-T6).
 - RF-15: CUANDO el usuario se conecte por primera vez con un perfil NTRIP restaurado cuya contraseña no está guardada en este móvil, EL SISTEMA se la pedirá, sin perder el resto del perfil (como en S007/RF-6).
-- RF-16: SI hay una medida de un punto en curso, ENTONCES EL SISTEMA no restaurará una copia ni sustituirá un proyecto, e indicará que hay que terminar o cancelar la medida.
+- RF-16: SI hay una medida de un punto en curso, o el modo automático en marcha o en pausa (S017), ENTONCES EL SISTEMA no restaurará una copia ni sustituirá un proyecto, e indicará que hay que terminar o cancelar la medida.
 
 ### Copias automáticas (H3)
 - RF-17: EL SISTEMA permitirá en Ajustes elegir la carpeta de las copias automáticas, lo que las activa, o quitarla, lo que las desactiva (RNF-T5).
