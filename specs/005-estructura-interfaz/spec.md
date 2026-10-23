@@ -34,7 +34,7 @@ No añade funciones: reubica las de S002, S003 y S004 sin perder ningún requisi
 - RF-6: EL SISTEMA mostrará en la cabecera de la pantalla del receptor el nombre del receptor, o el de la sesión reproducida, y el estado de la conexión.
 - RF-7: EL SISTEMA mostrará en la cabecera las acciones del estado de la conexión: "Desconectar", "Reintentar ahora" (S004/RF-16) o los controles de la reproducción (S003/RF-37 a RF-41).
 - RF-8: EL SISTEMA mostrará en la cabecera los avisos de la conexión: salida de posición desactivada (S004/RF-28), permiso de notificaciones denegado (S004/RF-6) y grabación detenida por falta de espacio (S003/RF-28).
-- RF-9: EL SISTEMA mostrará bajo la cabecera un menú con cuatro entradas, en este orden: Estado, Coordenadas, Correcciones y Sesiones grabadas.
+- RF-9: EL SISTEMA mostrará bajo la cabecera un menú con cinco entradas, en este orden: Estado, Coordenadas, Inclinación (S016/RF-1), Correcciones y Sesiones grabadas.
 - RF-10: MIENTRAS se completen épocas, la entrada Estado mostrará como resumen el estado de la solución, con su color y su nombre, y el número de satélites usados.
 - RF-11: EL SISTEMA mostrará en la entrada Coordenadas, como resumen, la altura del jalón en uso.
 - RF-12: EL SISTEMA mostrará en la entrada Correcciones, como resumen, el estado del NTRIP y, mientras lleguen correcciones, su edad en segundos.

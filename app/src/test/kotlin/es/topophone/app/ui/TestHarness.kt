@@ -104,6 +104,7 @@ fun StatefulTestApp(
                     onOpenStatus = { navigation.onOpen(ReceiverPage.STATUS) },
                     onOpenCoordinates = { navigation.onOpen(ReceiverPage.COORDINATES) },
                     onOpenCorrections = { navigation.onOpen(ReceiverPage.CORRECTIONS) },
+                    onOpenTilt = { navigation.onOpen(ReceiverPage.TILT) },
                 )
                 ReceiverPageScreen(page, theme, toggleSun, receiverState, receiverActions, navigation.onBack)
             },

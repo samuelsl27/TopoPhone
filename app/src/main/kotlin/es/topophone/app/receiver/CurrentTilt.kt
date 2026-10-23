@@ -4,6 +4,7 @@ import es.topophone.core.model.point.TiltMode
 import es.topophone.data.receiver.ReceiverTiltSettings
 import es.topophone.data.receiver.TiltPreferences
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,6 +64,19 @@ class CurrentTilt(replaying: Flow<Boolean>, address: Flow<String?>, private val 
 
     fun closeWizard() {
         wizardOpen.value = false
+    }
+
+    companion object {
+        /** Sin receptor ni modos guardados: el valor por defecto de quien no lo recibe por Hilt (tests). */
+        val NONE: CurrentTilt by lazy {
+            CurrentTilt(flowOf(false), flowOf(null), NoTiltPreferences, CoroutineScope(Dispatchers.Unconfined))
+        }
+    }
+
+    private object NoTiltPreferences : TiltPreferences {
+        override fun settings(key: String): Flow<ReceiverTiltSettings> = flowOf(ReceiverTiltSettings.NONE)
+
+        override suspend fun save(key: String, settings: ReceiverTiltSettings) = Unit
     }
 
     private suspend fun save(change: (ReceiverTiltSettings) -> ReceiverTiltSettings) {

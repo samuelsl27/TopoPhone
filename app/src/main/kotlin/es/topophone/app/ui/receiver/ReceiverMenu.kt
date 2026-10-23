@@ -19,9 +19,10 @@ import es.topophone.receiver.session.ConnectionState
 const val MENU_STATUS_TAG = "menu_status"
 const val MENU_COORDINATES_TAG = "menu_coordinates"
 const val MENU_CORRECTIONS_TAG = "menu_corrections"
+const val MENU_TILT_TAG = "menu_tilt"
 const val MENU_SESSIONS_TAG = "menu_sessions"
 
-/** Menú de la pantalla del receptor: cuatro entradas, cada una con su resumen (S005/RF-9 a RF-13). */
+/** Menú de la pantalla del receptor: cinco entradas, cada una con su resumen (S005/RF-9 a RF-13; S016/RF-1). */
 @Composable
 internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
     val snapshot = state.snapshot
@@ -41,6 +42,10 @@ internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
         ListRow(stringResource(R.string.receiver_menu_coordinates), actions.onOpenCoordinates, Modifier.testTag(MENU_COORDINATES_TAG)) {
             Text(stringResource(R.string.receiver_menu_pole_height, state.poleHeightText))
         } // S005/RF-11
+        HorizontalDivider()
+        ListRow(stringResource(R.string.receiver_menu_tilt), actions.onOpenTilt, Modifier.testTag(MENU_TILT_TAG)) {
+            Text(tiltSummary(state.tilt.settings))
+        } // S016/RF-1
         HorizontalDivider()
         ListRow(stringResource(R.string.receiver_menu_corrections), actions.onOpenCorrections, Modifier.testTag(MENU_CORRECTIONS_TAG)) {
             // En una reproducción no hay NTRIP (S003/RF-44) y la edad sería la de los datos grabados.

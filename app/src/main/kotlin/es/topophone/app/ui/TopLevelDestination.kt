@@ -22,6 +22,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object ReceiverCorrectionsRoute
 
+/** Apartado "Inclinación" del menú del receptor (S016/RF-1). */
+@Serializable data object ReceiverTiltRoute
+
 /** Formulario de perfil NTRIP: nuevo (sin id) o editado (S007/RF-2). */
 @Serializable data class NtripProfileFormDestination(val profileId: String? = null)
 

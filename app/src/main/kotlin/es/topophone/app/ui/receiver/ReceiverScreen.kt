@@ -87,6 +87,8 @@ class ReceiverActions(
     val onOpenStatus: () -> Unit = {},
     val onOpenCoordinates: () -> Unit = {},
     val onOpenCorrections: () -> Unit = {},
+    /** S016/RF-1. */
+    val onOpenTilt: () -> Unit = {},
     val onOpenBluetoothSettings: () -> Unit = {},
     /** S015/RF-17. */
     val onDismissBaseChange: (Int) -> Unit = {},
@@ -167,6 +169,9 @@ fun ReceiverRoute(
     // La pantalla Correcciones tiene su propio ViewModel (perfiles NTRIP, S007); la página no cambia en la misma ruta.
     val correctionsViewModel: CorrectionsViewModel? = if (page == ReceiverPage.CORRECTIONS) hiltViewModel() else null
     val corrections = correctionsViewModel?.state?.collectAsStateWithLifecycle()?.value ?: CorrectionsUiState()
+    // Y el apartado "Inclinación", el suyo (S016/RF-1).
+    val tiltViewModel: TiltViewModel? = if (page == ReceiverPage.TILT) hiltViewModel() else null
+    val tilt = tiltViewModel?.state?.collectAsStateWithLifecycle()?.value ?: TiltUiState()
     ReceiverPageScreen(
         page = page,
         themeState = themeState,
@@ -185,6 +190,8 @@ fun ReceiverRoute(
                 onDismissPassword = vm::dismissPassword,
             )
         } ?: CorrectionsActions(),
+        tilt = tilt,
+        tiltActions = tiltViewModel?.let { vm -> TiltActions(onChoose = vm::choose) } ?: TiltActions(),
         actions = ReceiverActions(
             onRequestPermission = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) permissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
@@ -203,6 +210,7 @@ fun ReceiverRoute(
             onOpenStatus = { navigation.onOpen(ReceiverPage.STATUS) }, // S005/RF-14
             onOpenCoordinates = { navigation.onOpen(ReceiverPage.COORDINATES) },
             onOpenCorrections = { navigation.onOpen(ReceiverPage.CORRECTIONS) },
+            onOpenTilt = { navigation.onOpen(ReceiverPage.TILT) }, // S016/RF-1
             onReplaySpeed = viewModel::setReplaySpeed,
             onReplayLoop = viewModel::setReplayLoop,
             onStopReplay = viewModel::stopReplay,

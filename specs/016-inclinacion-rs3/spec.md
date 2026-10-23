@@ -171,6 +171,7 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S016: "Modo de inclinación por receptor (calculada por la app, compensada por el receptor o jalón vertical) con un asistente que lo detecta con una prueba de inclinación; estados y avisos de ETC con la guía de inicialización en ocho; punta del jalón en el mapa y en las coordenadas; bloqueo sin estado 30 y descarte de épocas con aviso; condición de inclinación máxima; precisión con los coeficientes de ETC; inclinación y rumbo guardados por punto (ficha y CSV)", y pasa a "en curso".
+- `specs/005-estructura-interfaz/spec.md`, RF-9: el menú pasa a cinco entradas, con "Inclinación (S016/RF-1)" tras Coordenadas.
 - `specs/010-recolectar-puntos/spec.md`, RF-13: se añade "y, con la inclinación, la de inclinación máxima (S016/RF-20)".
 - `specs/011-objetos-y-puntos-manuales/spec.md`, RF-14: se añade "y, si se midió con inclinación, a lo largo del jalón (S016/RF-25)".
 - `specs/012-exportar-csv/spec.md`, RF-6: en el grupo "de la medida" se añade "y su inclinación (S016/RF-24)".

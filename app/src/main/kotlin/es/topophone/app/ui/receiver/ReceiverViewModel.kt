@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.receiver.BaseNotices
+import es.topophone.app.receiver.CurrentTilt
+import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.DismissedNotices
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
@@ -90,6 +92,8 @@ data class ReceiverUiState(
     val angularUnit: AngularUnit = ProjectDefaults().angularUnit,
     /** Avisos de la base que el usuario ha cerrado (S015/RF-15, RF-17). */
     val notices: DismissedNotices = DismissedNotices(),
+    /** El receptor en uso y su modo de inclinación (S016/RF-1). */
+    val tilt: CurrentTiltState = CurrentTiltState(),
 )
 
 /**
@@ -113,6 +117,7 @@ class ReceiverViewModel @Inject constructor(
     private val pairing: ReceiverPairing = ReceiverPairing.Unsupported,
     private val projectPreferences: ProjectPreferences = ProjectPreferences.FACTORY,
     private val baseNotices: BaseNotices = BaseNotices(),
+    private val tilt: CurrentTilt = CurrentTilt.NONE,
 ) : ViewModel() {
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
@@ -135,6 +140,12 @@ class ReceiverViewModel @Inject constructor(
     private val snapshots: Flow<ReceiverSnapshot> = if (samplePeriodMs > 0) session.state.sample(samplePeriodMs) else session.state
 
     private data class PoleState(val text: String, val value: Double)
+    private data class Shown(
+        val snapshot: ReceiverSnapshot,
+        val angularUnit: AngularUnit,
+        val notices: DismissedNotices,
+        val tilt: CurrentTiltState,
+    )
     private data class Extras(
         val nowMs: Long,
         val addresses: Pair<String?, String?>,
@@ -146,7 +157,7 @@ class ReceiverViewModel @Inject constructor(
     private val angularUnits: Flow<AngularUnit> = projectPreferences.defaults.map { it.angularUnit }.distinctUntilChanged()
 
     val uiState: StateFlow<ReceiverUiState> = combine(
-        combine(snapshots, angularUnits, baseNotices.dismissed, ::Triple),
+        combine(snapshots, angularUnits, baseNotices.dismissed, tilt.state, ::Shown),
         bluetoothUi,
         internet,
         combine(poleText, poleValue, ::PoleState),
@@ -157,7 +168,7 @@ class ReceiverViewModel @Inject constructor(
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
             pairingUi,
         ) { now, addresses, granted, asked, pairing -> Extras(now, addresses, granted, asked, pairing) },
-    ) { (snapshot, angularUnit, notices), bt, internetAvailable, pole, extras ->
+    ) { (snapshot, angularUnit, notices, tiltState), bt, internetAvailable, pole, extras ->
         // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
         val realReceiver = ReceiverService.needsService(snapshot)
         val missingPermission = notifications.required && !extras.notificationsGranted
@@ -180,6 +191,7 @@ class ReceiverViewModel @Inject constructor(
             pairing = extras.pairing,
             angularUnit = angularUnit,
             notices = notices,
+            tilt = tiltState,
         )
     }.flowOn(Dispatchers.Default).stateIn(
         viewModelScope,

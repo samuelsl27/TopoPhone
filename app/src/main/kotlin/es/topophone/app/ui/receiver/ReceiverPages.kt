@@ -19,10 +19,11 @@ import es.topophone.core.model.preferences.ThemeState
 const val RECEIVER_STATUS_SCREEN_TAG = "receiver_status_screen"
 const val RECEIVER_COORDINATES_SCREEN_TAG = "receiver_coordinates_screen"
 const val RECEIVER_CORRECTIONS_SCREEN_TAG = "receiver_corrections_screen"
+const val RECEIVER_TILT_SCREEN_TAG = "receiver_tilt_screen_page"
 const val NO_RECEIVER_TAG = "receiver_no_receiver"
 
-/** Pantallas de la sección Receptor: la raíz y las del menú (S005/RF-14). Las sesiones grabadas son de S003. */
-enum class ReceiverPage { HOME, STATUS, COORDINATES, CORRECTIONS }
+/** Pantallas de la sección Receptor: la raíz y las del menú (S005/RF-14; S016/RF-1). Las sesiones grabadas son de S003. */
+enum class ReceiverPage { HOME, STATUS, COORDINATES, TILT, CORRECTIONS }
 
 /** Lo que la sección Receptor necesita de la navegación de la app (S005/RF-14, RF-15; perfiles NTRIP, S007). */
 class ReceiverNavigation(
@@ -44,6 +45,8 @@ fun ReceiverPageScreen(
     onBack: () -> Unit,
     corrections: CorrectionsUiState = CorrectionsUiState(),
     correctionsActions: CorrectionsActions = CorrectionsActions(),
+    tilt: TiltUiState = TiltUiState(),
+    tiltActions: TiltActions = TiltActions(),
 ) {
     when (page) {
         ReceiverPage.HOME -> ReceiverScreen(themeState, onToggleSun, state, actions)
@@ -70,6 +73,14 @@ fun ReceiverPageScreen(
             onToggleSun,
             onBack,
         ) { CoordinatesCard(state, actions.onPoleHeightChange) } // S002/RF-29 a RF-41
+        ReceiverPage.TILT -> ChildScreen(
+            R.string.receiver_menu_tilt,
+            RECEIVER_TILT_SCREEN_TAG,
+            state,
+            themeState,
+            onToggleSun,
+            onBack,
+        ) { TiltCard(tilt, tiltActions) } // S016/RF-1 a RF-4
         ReceiverPage.CORRECTIONS -> CorrectionsScreen(themeState, onToggleSun, onBack, state, corrections, correctionsActions) // S007
     }
 }

@@ -718,4 +718,21 @@
     <string name="notice_base_changed">La base ha cambiado: se ha movido %1$s.</string>
     <string name="notice_close">Cerrar</string>
     <string name="collector_restarted">La medida ha empezado de nuevo con la base nueva.</string>
+    <!-- S016: inclinación -->
+    <string name="receiver_menu_tilt">Inclinación</string>
+    <string name="tilt_mode_title">Modo de inclinación</string>
+    <string name="tilt_mode_app">Calculada por la app</string>
+    <string name="tilt_mode_app_help">El receptor no compensa la posición y la app calcula la punta del jalón con la inclinación.</string>
+    <string name="tilt_mode_receiver">Compensada por el receptor</string>
+    <string name="tilt_mode_receiver_help">El receptor ya da la punta del jalón, con la altura de antena configurada en él.</string>
+    <string name="tilt_mode_vertical">Jalón vertical</string>
+    <string name="tilt_mode_vertical_help">Sin inclinación: el punto queda bajo la antena.</string>
+    <string name="tilt_mode_none">Sin elegir</string>
+    <string name="tilt_mode_verified">%1$s · comprobado</string>
+    <string name="tilt_mode_unverified">%1$s · sin comprobar</string>
+    <string name="tilt_mode_state_none">Elige el modo o pasa el asistente para medir con este receptor.</string>
+    <string name="tilt_mode_state_verified">Comprobado con el asistente.</string>
+    <string name="tilt_mode_state_unverified">Elegido a mano, sin comprobar.</string>
+    <string name="tilt_vertical_warning">El asistente encontró este receptor compensando la posición. Con «Jalón vertical», el receptor tiene que estar sin compensar la posición o con la inclinación apagada.</string>
+    <string name="tilt_wizard_open">Asistente del modo</string>
 </resources>

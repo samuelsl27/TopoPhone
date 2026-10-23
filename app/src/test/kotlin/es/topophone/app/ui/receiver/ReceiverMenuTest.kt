@@ -52,13 +52,14 @@ class ReceiverMenuTest {
     private fun entry(tag: String) = compose.onNodeWithTag(tag).performScrollTo()
 
     @Test
-    fun `S005 RF-9 bajo la cabecera hay cuatro entradas en orden Estado, Coordenadas, Correcciones y Sesiones grabadas`() {
+    fun `S005 RF-9 bajo la cabecera hay cinco entradas en orden, con Inclinacion tras Coordenadas`() {
         show(receiving)
 
         val header = compose.onNodeWithTag(RECEIVER_HEADER_TAG).getBoundsInRoot()
         val tops = listOf(
             MENU_STATUS_TAG to R.string.receiver_menu_status,
             MENU_COORDINATES_TAG to R.string.receiver_menu_coordinates,
+            MENU_TILT_TAG to R.string.receiver_menu_tilt,
             MENU_CORRECTIONS_TAG to R.string.receiver_menu_corrections,
             MENU_SESSIONS_TAG to R.string.receiver_menu_sessions,
         ).map { (tag, title) ->
@@ -148,5 +149,31 @@ class ReceiverMenuTest {
         listOf(MENU_STATUS_TAG, MENU_COORDINATES_TAG, MENU_CORRECTIONS_TAG, MENU_SESSIONS_TAG).forEach { entry(it).performClick() }
 
         opened shouldBe listOf("estado", "coordenadas", "correcciones", "sesiones")
+    }
+
+    @Test
+    fun `S016 RF-1 la entrada Inclinacion resume el modo y abre su apartado`() {
+        var opened = false
+        val tilt = es.topophone.app.receiver.CurrentTiltState(
+            key = "00:11:22:33:44:55",
+            settings = es.topophone.data.receiver.ReceiverTiltSettings(es.topophone.core.model.point.TiltMode.APP, verified = false),
+        )
+        val actions = ReceiverActions(onOpenTilt = { opened = true })
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ReceiverScreen(ThemeState.DEFAULT, {}, ReceiverUiState(snapshot = receiving, tilt = tilt), actions)
+            }
+        }
+
+        entry(MENU_TILT_TAG).assert(hasText(text(R.string.tilt_mode_unverified, text(R.string.tilt_mode_app)))).performClick()
+
+        opened shouldBe true
+    }
+
+    @Test
+    fun `S016 RF-2 sin modo la entrada Inclinacion dice Sin elegir`() {
+        show(receiving)
+
+        entry(MENU_TILT_TAG).assert(hasText(text(R.string.tilt_mode_none)))
     }
 }

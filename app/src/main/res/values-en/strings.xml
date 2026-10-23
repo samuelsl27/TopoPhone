@@ -706,4 +706,21 @@
     <string name="notice_base_changed">The base has changed: it moved %1$s.</string>
     <string name="notice_close">Close</string>
     <string name="collector_restarted">The measurement started again with the new base.</string>
+    <!-- S016: inclinación -->
+    <string name="receiver_menu_tilt">Tilt</string>
+    <string name="tilt_mode_title">Tilt mode</string>
+    <string name="tilt_mode_app">Calculated by the app</string>
+    <string name="tilt_mode_app_help">The receiver does not compensate its position and the app calculates the pole tip from the tilt.</string>
+    <string name="tilt_mode_receiver">Compensated by the receiver</string>
+    <string name="tilt_mode_receiver_help">The receiver already outputs the pole tip, with the antenna height set in it.</string>
+    <string name="tilt_mode_vertical">Vertical pole</string>
+    <string name="tilt_mode_vertical_help">No tilt: the point lies below the antenna.</string>
+    <string name="tilt_mode_none">Not chosen</string>
+    <string name="tilt_mode_verified">%1$s · verified</string>
+    <string name="tilt_mode_unverified">%1$s · not verified</string>
+    <string name="tilt_mode_state_none">Choose the mode or run the wizard to measure with this receiver.</string>
+    <string name="tilt_mode_state_verified">Verified with the wizard.</string>
+    <string name="tilt_mode_state_unverified">Chosen by hand, not verified.</string>
+    <string name="tilt_vertical_warning">The wizard found this receiver compensating its position. With “Vertical pole”, the receiver must not compensate its position, or its tilt must be off.</string>
+    <string name="tilt_wizard_open">Mode wizard</string>
 </resources>
