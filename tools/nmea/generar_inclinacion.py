@@ -3,7 +3,7 @@
 Genera en fixtures/nmea/sintetico/, a 5 Hz como el RS3 (GGA y ETC en cada época; GST, RMC y ZDA cada segundo):
 - rs3-inclinacion.nmea: 2 s en configuración, 2 s en alineación y 10 s compensando con la punta quieta sobre un
   punto y el jalón balanceándose de 0° a 40°, con 1 s de "movimiento rápido" en medio. El receptor no compensa: la
-  GGA es la antena. rs3-inclinacion.esperado.csv da, por época, la punta calculada con pyproj (tubería
+  GGA es la antena. rs3-inclinacion.punta.csv da, por época, la punta calculada con pyproj (tubería
   `cart` + `topocentric`) desde la GGA tal como la lee la app, y su Este y Norte en ETRS89 / UTM 30.
 - rs3-asistente-app.nmea: la prueba del asistente con el receptor sin compensar (la GGA sigue a la antena).
 - rs3-asistente-receptor.nmea: la misma prueba con el receptor que compensa (la GGA queda en la punta, con 5 mm de
@@ -161,7 +161,7 @@ def generate() -> dict[str, bytes | str]:
     receiver, _ = write(wizard_specs(compensates=True))
     return {
         "rs3-inclinacion.nmea": inclination,
-        "rs3-inclinacion.esperado.csv": expected_inclination(parsed),
+        "rs3-inclinacion.punta.csv": expected_inclination(parsed),
         "rs3-asistente-app.nmea": app,
         "rs3-asistente-receptor.nmea": receiver,
     }

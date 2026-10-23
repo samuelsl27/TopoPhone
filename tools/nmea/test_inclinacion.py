@@ -19,7 +19,7 @@ def lines(name: str) -> list[str]:
 
 
 def expected_rows() -> list[list[str]]:
-    text = (g.OUT / "rs3-inclinacion.esperado.csv").read_text(encoding="utf-8")
+    text = (g.OUT / "rs3-inclinacion.punta.csv").read_text(encoding="utf-8")
     return [line.split(",") for line in text.splitlines() if line and not line.startswith(("#", "hora"))]
 
 

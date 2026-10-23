@@ -341,7 +341,7 @@ Rotación ENU ↔ ECEF de ETC_rev_3 (página 5), que es la conversión geocéntr
   - `rs3-inclinacion.nmea`:
     - configuración, alineación, compensando y un tramo de "movimiento rápido";
     - la punta quieta sobre un punto conocido y el jalón balanceándose (de 0° a 40°), con el receptor sin compensar;
-    - `rs3-inclinacion.esperado.csv`, con la punta en ETRS89 y UTM de cada época, calculada con pyproj;
+    - `rs3-inclinacion.punta.csv`, con la punta en ETRS89 y UTM de cada época, calculada con pyproj;
   - `rs3-asistente-app.nmea`: la prueba del asistente con el receptor sin compensar (la GGA sigue a la antena);
   - `rs3-asistente-receptor.nmea`: la prueba con el receptor que compensa (la GGA quieta en la punta, con ruido de 5 mm).
 - **Robolectric (`app`):**
