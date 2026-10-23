@@ -9,7 +9,11 @@ import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
+import es.topophone.core.model.point.PointTilt
+import es.topophone.core.model.point.PoleVector
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.TiltAngles
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LinearUnit
@@ -87,7 +91,7 @@ class CsvExportGoldenTest {
             ),
             PointQuality("FIX", 24, 0.6, 1.0, 0.009219544457292887, 0.014, MeasurementMode.AVERAGED, 20, 6, fromReplay = false),
             emptySet(),
-        ).let { it.copy(measurement = it.measurement!!.copy(base = avl13m)) }, // S015/RF-22
+        ).let { it.copy(measurement = it.measurement!!.copy(base = avl13m, tilt = tiltApp)) }, // S015/RF-22, S016/RF-24
         measured(
             "P2;b",
             "Pozo, \"nuevo\"",
@@ -99,7 +103,7 @@ class CsvExportGoldenTest {
             ),
             PointQuality("FLOAT", 18, 1.25, 12.0, 0.1382931668593933, 0.21, MeasurementMode.INSTANT, 1, 0, fromReplay = true),
             setOf(PrecisionFailure.VERTICAL, PrecisionFailure.NOT_FIX),
-        ).copy(edited = true),
+        ).let { it.copy(edited = true, measurement = it.measurement!!.copy(tilt = PointTilt(TiltMode.VERTICAL, false, null))) },
         Point(
             id = "id-E1",
             projectId = "p1",
@@ -125,6 +129,22 @@ class CsvExportGoldenTest {
             stationId = 6,
             antennaHeightM = 0.0,
             baselineM = 382_123.45678901234,
+        )
+
+    /** S016/RF-24: inclinación del primer punto, sin redondear, en radianes y metros. */
+    private val tiltApp: PointTilt
+        get() = PointTilt(
+            TiltMode.APP,
+            verified = true,
+            angles = TiltAngles(
+                tiltRad = 0.20943951023931953,
+                directionRad = 3.6739427695683973,
+                headingRad = 2.1537363752924596,
+                maxTiltRad = 0.24434609527920614,
+                horizontalAccuracyM = 0.0027431234567891,
+                verticalAccuracyM = 0.0019746140001234,
+                pole = PoleVector(-0.1055, -0.1791, 0.9781),
+            ),
         )
     private val avl13mProjected = BaseProjection(266_134.98765432101, 4_826_201.123456789, 26.01234567891234)
 
@@ -152,7 +172,19 @@ class CsvExportGoldenTest {
             """"horizontal_accuracy": ${n(
                 point.measurement?.quality?.horizontalM,
             )}, "vertical_accuracy": ${n(point.measurement?.quality?.verticalM)}, """ +
-            baseSource(point.measurement?.base)
+            baseSource(point.measurement?.base) + ", " + tiltSource(point.measurement?.tilt) + "}"
+    }
+
+    /** S016/RF-24: el modo y la inclinación sin redondear, con los ángulos en grados; null sin ellos. */
+    private fun tiltSource(tilt: PointTilt?): String {
+        fun n(value: Double?) = value?.toString() ?: "null"
+        fun deg(value: Double?) = value?.let { Math.toDegrees(it) }?.toString() ?: "null"
+        val a = tilt?.angles
+        val mode = tilt?.mode?.let { "\"${it.name}\"" } ?: "null"
+        val verified = tilt?.takeIf { it.mode.usesTilt }?.let { "\"${it.verified}\"" } ?: "null"
+        return """"tilt_mode": $mode, "tilt_mode_verified": $verified, "tilt": ${deg(a?.tiltRad)}, """ +
+            """"tilt_direction": ${deg(a?.directionRad)}, "heading": ${deg(a?.headingRad)}, "max_tilt": ${deg(a?.maxTiltRad)}, """ +
+            """"tilt_horizontal_accuracy": ${n(a?.horizontalAccuracyM)}, "tilt_vertical_accuracy": ${n(a?.verticalAccuracyM)}"""
     }
 
     /** S015/RF-22: la base sin redondear, o null sin base. */
@@ -161,11 +193,11 @@ class CsvExportGoldenTest {
         val projected = base?.let { avl13mProjected }
         return """"base_latitude": ${n(base?.position?.latitudeDeg)}, "base_longitude": ${n(base?.position?.longitudeDeg)}, """ +
             """"base_ellipsoidal_height": ${n(base?.position?.ellipsoidalHeightM)}, "base_easting": ${n(projected?.easting)}, """ +
-            """"base_northing": ${n(projected?.northing)}, "base_elevation": ${n(projected?.height)}, "baseline": ${n(base?.baselineM)}}"""
+            """"base_northing": ${n(projected?.northing)}, "base_elevation": ${n(projected?.height)}, "baseline": ${n(base?.baselineM)}"""
     }
 
     @Test
-    fun `S012 RF-11, RF-12, RF-15 y RF-16 S015 RF-22 CsvExport escribe exactamente los ficheros dorados`() {
+    fun `S012 RF-11, RF-12, RF-15 y RF-16 S015 RF-22 S016 RF-24 CsvExport escribe exactamente los ficheros dorados`() {
         if (System.getenv("TOPOPHONE_REGENERAR_DORADOS") == "1") {
             folder.mkdirs()
             files.forEach { (name, options) -> File(folder, name).writeBytes(written(options)) }

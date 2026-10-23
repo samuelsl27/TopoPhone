@@ -779,4 +779,12 @@
     <string name="point_receiver_tip_latitude">Tip latitude (compensated by the receiver)</string>
     <string name="point_receiver_tip_longitude">Tip longitude (compensated by the receiver)</string>
     <string name="point_receiver_tip_height">Tip ellipsoidal height (compensated by the receiver)</string>
+    <string name="export_column_tilt_mode">Tilt mode</string>
+    <string name="export_column_tilt_mode_verified">Tilt mode verified</string>
+    <string name="export_column_tilt">Tilt</string>
+    <string name="export_column_tilt_direction">Tilt direction</string>
+    <string name="export_column_heading">Heading</string>
+    <string name="export_column_max_tilt">Maximum tilt</string>
+    <string name="export_column_tilt_horizontal_accuracy">Tilt horizontal accuracy</string>
+    <string name="export_column_tilt_vertical_accuracy">Tilt vertical accuracy</string>
 </resources>

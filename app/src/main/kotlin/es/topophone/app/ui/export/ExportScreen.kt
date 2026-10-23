@@ -295,6 +295,14 @@ private fun ExportColumn.labelRes(): Int = when (this) {
     ExportColumn.BASE_NORTHING -> R.string.export_column_base_northing
     ExportColumn.BASE_ELEVATION -> R.string.export_column_base_elevation
     ExportColumn.BASELINE -> R.string.export_column_baseline
+    ExportColumn.TILT_MODE -> R.string.export_column_tilt_mode // S016/RF-24
+    ExportColumn.TILT_MODE_VERIFIED -> R.string.export_column_tilt_mode_verified
+    ExportColumn.TILT -> R.string.export_column_tilt
+    ExportColumn.TILT_DIRECTION -> R.string.export_column_tilt_direction
+    ExportColumn.HEADING -> R.string.export_column_heading
+    ExportColumn.MAX_TILT -> R.string.export_column_max_tilt
+    ExportColumn.TILT_HORIZONTAL_ACCURACY -> R.string.export_column_tilt_horizontal_accuracy
+    ExportColumn.TILT_VERTICAL_ACCURACY -> R.string.export_column_tilt_vertical_accuracy
     ExportColumn.EDITED -> R.string.export_column_edited
     ExportColumn.COPY_OF -> R.string.export_column_copy_of
 }

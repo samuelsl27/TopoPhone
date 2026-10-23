@@ -39,8 +39,13 @@ LENGTHS = {
     "Base northing": "base_northing",
     "Base elevation": "base_elevation",
     "Baseline": "baseline",
+    # S016/RF-24
+    "Tilt horizontal accuracy": "tilt_horizontal_accuracy",
+    "Tilt vertical accuracy": "tilt_vertical_accuracy",
 }
 DEGREES = {"Latitude": "latitude", "Longitude": "longitude", "Base latitude": "base_latitude", "Base longitude": "base_longitude"}
+# S016/RF-24: inclinación, dirección y rumbo en grados con 3 decimales, como el ETC.
+ANGLES = {"Tilt": "tilt", "Tilt direction": "tilt_direction", "Heading": "heading", "Maximum tilt": "max_tilt"}
 
 
 def read(name: str) -> list[dict[str, str]]:
@@ -84,6 +89,13 @@ def test_s012_rf_11_rf_12_los_valores_leidos_difieren_de_los_guardados_menos_de_
                     assert row[column] == "", (name, column, row[column])
                 else:
                     assert abs(number(row[column], decimal) - point[key]) <= 5e-10 + 1e-15, (name, column)
+            for column, key in ANGLES.items():
+                if column not in row:
+                    continue
+                if point[key] is None:
+                    assert row[column] == "", (name, column, row[column])
+                else:
+                    assert abs(number(row[column], decimal) - point[key]) <= 0.0005 + 1e-12, (name, column)
 
 
 def test_s012_rf_15_los_textos_con_separador_comillas_o_saltos_se_leen_tal_cual() -> None:
@@ -95,7 +107,7 @@ def test_s012_rf_15_los_textos_con_separador_comillas_o_saltos_se_leen_tal_cual(
 def test_s012_rf_9_todas_las_columnas_y_penzd_pnezd_con_su_cabecera() -> None:
     headers = {name: list(read(name)[0].keys()) for name in FILES}
     assert headers["todas_coma_punto.csv"] == headers["todas_puntoycoma_coma.csv"] == headers["todas_tabulador_punto.csv"]
-    assert len(headers["todas_coma_punto.csv"]) == 35
+    assert len(headers["todas_coma_punto.csv"]) == 43
     assert headers["penzd_puntoycoma_coma.csv"] == ["Name", "Easting", "Northing", "Elevation", "Description"]
     assert headers["pnezd_coma_punto.csv"] == ["Name", "Northing", "Easting", "Elevation", "Description"]
 
@@ -112,9 +124,29 @@ def test_s015_rf_22_las_columnas_de_la_base_van_tras_las_de_la_medida() -> None:
         "Base elevation",
         "Baseline",
     ]
-    assert header[start + 7] == "Edited"
+    assert header[start + 7] == "Tilt mode"
     rows = read("todas_coma_punto.csv")
     assert rows[0]["Base latitude"] != "" and rows[1]["Base latitude"] == "" and rows[2]["Baseline"] == ""
+
+
+def test_s016_rf_24_las_columnas_de_la_inclinacion_van_tras_las_de_la_base() -> None:
+    header = list(read("todas_coma_punto.csv")[0].keys())
+    start = header.index("Baseline") + 1
+    assert header[start:start + 8] == [
+        "Tilt mode",
+        "Tilt mode verified",
+        "Tilt",
+        "Tilt direction",
+        "Heading",
+        "Maximum tilt",
+        "Tilt horizontal accuracy",
+        "Tilt vertical accuracy",
+    ]
+    assert header[start + 8] == "Edited"
+    rows = read("todas_coma_punto.csv")
+    assert [row["Tilt mode"] for row in rows] == [point["tilt_mode"] or "" for point in SOURCE] == ["APP", "VERTICAL", ""]
+    assert [row["Tilt mode verified"] for row in rows] == ["true", "", ""]
+    assert rows[0]["Tilt"] == "12.000" and rows[1]["Tilt"] == "" and rows[2]["Heading"] == ""
 
 
 def test_s012_rf_13_los_tres_ficheros_completos_dicen_lo_mismo() -> None:
@@ -123,7 +155,7 @@ def test_s012_rf_13_los_tres_ficheros_completos_dicen_lo_mismo() -> None:
         _, decimal = FILES[name]
         for expected, row in zip(reference, read(name)):
             for column, value in row.items():
-                if column in LENGTHS or column in DEGREES or column in ("HDOP", "Correction age"):
+                if column in LENGTHS or column in DEGREES or column in ANGLES or column in ("HDOP", "Correction age"):
                     assert number(value, decimal) == number(expected[column], "."), (name, column)
                 else:
                     assert value == expected[column], (name, column)

@@ -9,7 +9,11 @@ import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
+import es.topophone.core.model.point.PointTilt
+import es.topophone.core.model.point.PoleVector
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.TiltAngles
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.HeightSystem
@@ -82,7 +86,9 @@ class CsvExportTest {
         "Name,Description,Origin,Easting,Northing,Elevation,Latitude,Longitude,Ellipsoidal height,CRS,Height system,Units," +
             "Pole height,Solution,Satellites,HDOP,Correction age,Horizontal accuracy,Vertical accuracy,Mode," +
             "Epochs used,Epochs discarded,Replay,Out of tolerance,Measured from,Measured to," +
-            "Base latitude,Base longitude,Base ellipsoidal height,Base easting,Base northing,Base elevation,Baseline,Edited,Copy of"
+            "Base latitude,Base longitude,Base ellipsoidal height,Base easting,Base northing,Base elevation,Baseline," +
+            "Tilt mode,Tilt mode verified,Tilt,Tilt direction,Heading,Maximum tilt,Tilt horizontal accuracy,Tilt vertical accuracy," +
+            "Edited,Copy of"
 
     private fun csv(points: List<Point>, options: CsvOptions, project: Project = this.project): String =
         StringBuilder().also { CsvExport.write(points.asSequence(), project, options, it) }.toString()
@@ -97,7 +103,7 @@ class CsvExportTest {
             allHeader,
             "4,,Measured,440313.1221,4474258.8769,648.3114,40.416815094,-3.703533016,699.4230,EPSG:25830,EGM08-REDNAP,m," +
                 "1.8000,FLOAT,24,0.6,1.0,0.1383,0.2100,Instant,1,0,true,NOT_FIX,2026-10-18T18:03:34Z,2026-10-18T18:03:59Z," +
-                ",,,,,,,false,", // sin base (S015/RF-22)
+                ",,,,,,,,,,,,,,,false,", // sin base (S015/RF-22) ni inclinación (S016/RF-24)
         )
     }
 
@@ -148,10 +154,10 @@ class CsvExportTest {
     fun `S012 RF-12 lo que el punto no tiene queda vacio y la papelera ni se ve aqui`() {
         val row = lines(csv(listOf(manual), CsvOptions(separator = ColumnSeparator.SEMICOLON)))[1]
 
-        // Los 14 campos de la medida y los 7 de la base (S015/RF-22), vacíos.
+        // Los 14 campos de la medida, los 7 de la base (S015/RF-22) y los 8 de la inclinación (S016/RF-24), vacíos.
         row shouldBe "E1;\"Pozo, \"\"nuevo\"\"\";Manual;440300.0000;4474250.0000;;40.416800000;-3.703600000;;EPSG:25830;EGM08-REDNAP;m;" +
-            ";;;;;;;;;;;;;;;;;;;;;false;"
-        row.split(";").size shouldBe 35
+            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;"
+        row.split(";").size shouldBe 43
     }
 
     @Test
@@ -173,7 +179,7 @@ class CsvExportTest {
             "Base northing",
             "Base elevation",
             "Baseline",
-            "Edited",
+            "Tilt mode",
         )
         row.subList(26, 33) shouldBe listOf(
             "43.557866603",
@@ -272,5 +278,39 @@ class CsvExportTest {
 
         row[10] shouldBe "Ellipsoidal"
         row.last() shouldBe "P12"
+    }
+
+    @Test
+    fun `S016 RF-24 la inclinacion va tras la base, en grados y en la unidad del proyecto`() {
+        val angles = TiltAngles(
+            tiltRad = Math.toRadians(12.0),
+            directionRad = Math.toRadians(210.5),
+            headingRad = null,
+            maxTiltRad = Math.toRadians(14.25),
+            horizontalAccuracyM = 0.0027,
+            verticalAccuracyM = 0.002,
+            pole = PoleVector(0.0, 0.0, 1.0),
+        )
+        val app = measured.copy(
+            measurement = measured.measurement!!.copy(tilt = PointTilt(TiltMode.APP, verified = false, angles = angles)),
+        )
+        val vertical = measured.copy(measurement = measured.measurement!!.copy(tilt = PointTilt(TiltMode.VERTICAL, false, null)))
+        val feet = project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT)
+
+        val (header, appRow, verticalRow) = lines(csv(listOf(app, vertical), CsvOptions(), feet)).map { it.split(",") }
+
+        header.subList(33, 42) shouldBe listOf(
+            "Tilt mode",
+            "Tilt mode verified",
+            "Tilt",
+            "Tilt direction",
+            "Heading",
+            "Maximum tilt",
+            "Tilt horizontal accuracy",
+            "Tilt vertical accuracy",
+            "Edited",
+        )
+        appRow.subList(33, 41) shouldBe listOf("APP", "false", "12.000", "210.500", "", "14.250", "0.0089", "0.0066")
+        verticalRow.subList(33, 41) shouldBe listOf("VERTICAL", "", "", "", "", "", "", "")
     }
 }

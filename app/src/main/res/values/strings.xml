@@ -791,4 +791,12 @@
     <string name="point_receiver_tip_latitude">Latitud de la punta (compensada por el receptor)</string>
     <string name="point_receiver_tip_longitude">Longitud de la punta (compensada por el receptor)</string>
     <string name="point_receiver_tip_height">Altura elipsoidal de la punta (compensada por el receptor)</string>
+    <string name="export_column_tilt_mode">Modo de inclinación</string>
+    <string name="export_column_tilt_mode_verified">Modo comprobado</string>
+    <string name="export_column_tilt">Inclinación</string>
+    <string name="export_column_tilt_direction">Dirección de la inclinación</string>
+    <string name="export_column_heading">Rumbo</string>
+    <string name="export_column_max_tilt">Inclinación máxima</string>
+    <string name="export_column_tilt_horizontal_accuracy">Precisión de la inclinación en planta</string>
+    <string name="export_column_tilt_vertical_accuracy">Precisión de la inclinación en vertical</string>
 </resources>

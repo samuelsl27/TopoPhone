@@ -54,6 +54,16 @@ enum class ExportColumn(val header: String) {
     BASE_NORTHING("Base northing"),
     BASE_ELEVATION("Base elevation"),
     BASELINE("Baseline"),
+
+    // S016/RF-24: el modo de inclinación y la inclinación.
+    TILT_MODE("Tilt mode"),
+    TILT_MODE_VERIFIED("Tilt mode verified"),
+    TILT("Tilt"),
+    TILT_DIRECTION("Tilt direction"),
+    HEADING("Heading"),
+    MAX_TILT("Maximum tilt"),
+    TILT_HORIZONTAL_ACCURACY("Tilt horizontal accuracy"),
+    TILT_VERTICAL_ACCURACY("Tilt vertical accuracy"),
     EDITED("Edited"),
     COPY_OF("Copy of"),
 }
@@ -122,6 +132,9 @@ data class CsvOptions(
 object CsvExport {
     private const val LENGTH_DECIMALS = 4
     private const val DEGREE_DECIMALS = 9
+
+    /** Inclinación, dirección y rumbo en grados, con la resolución del ETC (S016/RF-24). */
+    private const val ANGLE_DECIMALS = 3
     private const val ONE_DECIMAL = 1
     private const val LIST_SEPARATOR = "|"
     private const val LINE_END = "\r\n"
@@ -161,6 +174,9 @@ object CsvExport {
         val measurement = point.measurement
         val quality = measurement?.quality
         val base = measurement?.base
+        val tilt = measurement?.tilt
+        val angles = tilt?.angles
+        fun angle(valueRad: Double?) = valueRad?.let { number(Math.toDegrees(it), ANGLE_DECIMALS, decimal) }.orEmpty()
         return when (column) {
             ExportColumn.NAME -> point.name
             ExportColumn.DESCRIPTION -> point.description
@@ -195,6 +211,15 @@ object CsvExport {
             ExportColumn.BASE_NORTHING -> length(projected?.northing)
             ExportColumn.BASE_ELEVATION -> length(projected?.height)
             ExportColumn.BASELINE -> length(base?.baselineM)
+            ExportColumn.TILT_MODE -> tilt?.mode?.name.orEmpty()
+            // "Comprobado" solo tiene sentido en los modos que usan la inclinación.
+            ExportColumn.TILT_MODE_VERIFIED -> tilt?.takeIf { it.mode.usesTilt }?.verified?.toString().orEmpty()
+            ExportColumn.TILT -> angle(angles?.tiltRad)
+            ExportColumn.TILT_DIRECTION -> angle(angles?.directionRad)
+            ExportColumn.HEADING -> angle(angles?.headingRad)
+            ExportColumn.MAX_TILT -> angle(angles?.maxTiltRad)
+            ExportColumn.TILT_HORIZONTAL_ACCURACY -> length(angles?.horizontalAccuracyM)
+            ExportColumn.TILT_VERTICAL_ACCURACY -> length(angles?.verticalAccuracyM)
             ExportColumn.EDITED -> point.edited.toString()
             ExportColumn.COPY_OF -> point.copyOf.orEmpty()
         }

@@ -46,7 +46,7 @@
       Hecho cuando: `CollectorViewModelTest` guarda un punto APP, uno RECEIVER y uno VERTICAL con sus datos, y los tests del log en verde.
 - [x] T22. `app`: ficha del punto con la tarjeta "Inclinación", el modo y la punta rotulada en RECEIVER; corrección del jalón a lo largo del jalón. (RF-23, RF-25, RF-26)
       Hecho cuando: `PointDetailsTiltTest` en verde, también corrigiendo el jalón de un punto APP.
-- [ ] T23. `core:formats`, `app` y `tools`: las ocho columnas del CSV, sus nombres en Exportar, los ficheros dorados y `test_csv_exportado.py`. (RF-24)
+- [x] T23. `core:formats`, `app` y `tools`: las ocho columnas del CSV, sus nombres en Exportar, los ficheros dorados y `test_csv_exportado.py`. (RF-24)
       Hecho cuando: `CsvExportGoldenTest`, `ExportPreferencesTest`, `ExportScreenTest` y `test_csv_exportado.py` en verde con 43 columnas.
 - [ ] T24. `tools/nmea`: `generar_inclinacion.py` con `rs3-inclinacion`, `rs3-asistente-app` y `rs3-asistente-receptor`, y lo esperado de cada uno. (RF-7, RF-8, RF-13, RF-19)
       Hecho cuando: los ficheros se generan y su test de `tools` está en verde.

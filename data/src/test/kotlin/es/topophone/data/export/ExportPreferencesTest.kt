@@ -65,4 +65,14 @@ class ExportPreferencesTest {
         read.customColumns shouldBe setOf(ExportColumn.NAME, ExportColumn.EASTING)
         read.columns.none { it.name.startsWith("BASE") } shouldBe true
     }
+
+    @Test
+    fun `S016 RF-24 un personalizado guardado antes deja las columnas de la inclinacion sin marcar`() {
+        val before = CsvOptions(format = ExportFormat.CUSTOM, customColumns = setOf(ExportColumn.NAME, ExportColumn.BASELINE))
+        withPreferences { it.save(before) }
+
+        val read = withPreferences { it.options.first() }
+
+        read.columns.none { it.name.contains("TILT") || it == ExportColumn.HEADING } shouldBe true
+    }
 }
