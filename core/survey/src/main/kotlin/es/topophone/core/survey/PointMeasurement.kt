@@ -33,6 +33,15 @@ sealed interface MeasurementUpdate {
     data class Done(val result: MeasurementResult) : MeasurementUpdate
 
     data class Failed(val reason: MeasurementFailure) : MeasurementUpdate
+
+    /** Un promediado sin épocas desde hace 2 s se pausa y conserva lo reunido: una vez por corte (S017/RF-8). */
+    data object Paused : MeasurementUpdate
+
+    /** Han vuelto las épocas y el promediado sigue solo, sin contar el tiempo del corte (S017/RF-9). */
+    data object Resumed : MeasurementUpdate
+
+    /** El corte pasa de 5 min: hay que elegir entre guardar con lo reunido, descartar o seguir esperando (S017/RF-10). */
+    data object LongPause : MeasurementUpdate
 }
 
 /** El modo de inclinación del receptor con el que se mide y si estaba comprobado (S016/RF-1, RF-10). */
@@ -82,7 +91,9 @@ data class MeasurementResult(
  * - instantánea: la primera época con posición;
  * - promediada: las épocas válidas hasta reunir el tiempo pedido, contando cada una como el intervalo del
  *   receptor ([epochIntervalS]). Con [fixOnly], las épocas sin FIX se descartan y se avisa una vez;
- * - sin ninguna época en 2 s, se cancela; fuera del ámbito del SC del proyecto, no hay punto.
+ * - sin ninguna época en 2 s, la instantánea se cancela y la promediada se pausa, conserva lo reunido y sigue sola al
+ *   volver las épocas (S017/RF-8, RF-9); a los 5 min de corte se pregunta qué hacer (RF-10). Fuera del ámbito del SC del
+ *   proyecto, no hay punto.
  *
  * Con un modo que usa la inclinación ([tilt]), solo valen las épocas en estado 30 sin aviso; las demás se descartan y
  * se avisa una vez con su guía (S016/RF-19). El suelo es la punta del jalón (S016/RF-13, RF-14; plan A5).
@@ -147,6 +158,12 @@ class PointMeasurement(
     private var tiltWarned = false
     private var finished = false
 
+    /** En pausa por un corte (S017/RF-8); solo el promediado, que la instantánea se cancela. */
+    var paused = false
+        private set
+    private var longPauseDueAtMs = 0L
+    private var longPauseAsked = false
+
     /**
      * Una época completa que ha llegado a las [receivedAtMs] del reloj del móvil, con [latestGst], la última GST de menos
      * de 3 s, que puede haber llegado en una época anterior (S010/RF-22).
@@ -154,10 +171,14 @@ class PointMeasurement(
     fun onEpoch(epoch: Epoch, receivedAtMs: Long, latestGst: GstAccuracy? = epoch.gst): List<MeasurementUpdate> {
         if (finished) return emptyList()
         lastEpochAtMs = receivedAtMs
+        val updates = mutableListOf<MeasurementUpdate>()
+        if (paused) {
+            paused = false
+            updates += MeasurementUpdate.Resumed // S017/RF-9
+        }
         val fix = epoch.gga?.takeIf { it.hasPosition }
         val tiltReady = !tilt.mode.usesTilt || TiltEpoch.isClean(epoch.tilt)
         if (tiltReady) tiltWarned = false
-        val updates = mutableListOf<MeasurementUpdate>()
         when {
             fix == null -> discarded++
             // S016/RF-19: antes que el FIX, porque con "GNSS malo" se pierden los dos y la guía explica más.
@@ -272,11 +293,38 @@ class PointMeasurement(
         poleUp += pole.up
     }
 
-    /** Con el reloj del móvil: sin ninguna época en 2 s, la medida se cancela (S010/RF-12). */
+    /**
+     * Con el reloj del móvil: sin ninguna época en 2 s, la instantánea se cancela (S010/RF-12) y la promediada se pausa
+     * (S017/RF-8); con la promediada en pausa 5 min seguidos, se pregunta qué hacer (S017/RF-10). Como mucho un aviso por
+     * llamada: el segundo llega en la siguiente.
+     */
     fun onTick(nowMs: Long): MeasurementUpdate? {
-        if (finished || nowMs - lastEpochAtMs < NO_DATA_MS) return null
-        finished = true
-        return MeasurementUpdate.Failed(MeasurementFailure.NO_DATA)
+        if (finished) return null
+        val silentMs = nowMs - lastEpochAtMs
+        if (mode == MeasurementMode.INSTANT) {
+            if (silentMs < NO_DATA_MS) return null
+            finished = true
+            return MeasurementUpdate.Failed(MeasurementFailure.NO_DATA)
+        }
+        return when {
+            !paused && silentMs >= NO_DATA_MS -> {
+                paused = true
+                longPauseAsked = false
+                longPauseDueAtMs = lastEpochAtMs + LONG_PAUSE_MS
+                MeasurementUpdate.Paused
+            }
+            paused && !longPauseAsked && nowMs >= longPauseDueAtMs -> {
+                longPauseAsked = true
+                MeasurementUpdate.LongPause
+            }
+            else -> null
+        }
+    }
+
+    /** "Seguir esperando" a la pregunta de 5 min: se vuelve a preguntar si el corte sigue 5 min más (S017/RF-10). */
+    fun keepWaiting(nowMs: Long) {
+        longPauseAsked = false
+        longPauseDueAtMs = nowMs + LONG_PAUSE_MS
     }
 
     /** S010/RF-11: no se guarda nada y no sale nada más. */
@@ -367,6 +415,7 @@ class PointMeasurement(
 
     private companion object {
         const val NO_DATA_MS = 2_000L
+        const val LONG_PAUSE_MS = 300_000L
         const val TIME_EPSILON_S = 1e-9
 
         /** De mejor a peor: con el promediado, la solución del punto es la peor de las épocas usadas. */

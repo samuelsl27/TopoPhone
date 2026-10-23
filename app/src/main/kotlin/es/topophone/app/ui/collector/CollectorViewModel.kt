@@ -416,6 +416,8 @@ class CollectorViewModel @Inject constructor(
                 alerts.tiltLost() // S016/RF-19
                 run.update { it.copy(tiltLost = update.guide) }
             }
+            // S017/RF-8 a RF-10: la pausa, la reanudación y la pregunta de 5 min llegan al recolector en T16.
+            MeasurementUpdate.Paused, MeasurementUpdate.Resumed, MeasurementUpdate.LongPause -> Unit
             is MeasurementUpdate.Failed -> {
                 stopMeasuring()
                 val error = when (update.reason) {
