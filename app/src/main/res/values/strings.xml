@@ -456,6 +456,7 @@
     <string name="out_of_tolerance_horizontal">Precisión horizontal mayor que el límite</string>
     <string name="out_of_tolerance_vertical">Precisión vertical mayor que el límite</string>
     <string name="out_of_tolerance_no_accuracy">Sin precisión del receptor</string>
+    <string name="out_of_tolerance_tilt">Inclinación máxima superada</string>
     <string name="out_of_tolerance_save">Guardar fuera de tolerancia</string>
     <string name="out_of_tolerance_discard">Descartar</string>
     <plurals name="project_points_count">

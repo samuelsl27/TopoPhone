@@ -12,7 +12,10 @@ enum class TiltNotification { OFF, NONE, FAST_MOTION, BAD_GNSS, FILTER_FAULT }
 /** Coeficientes de precisión de la inclinación por eje (ETC_rev_3). */
 data class TiltAccuracyCoefficients(val north: Double, val east: Double, val up: Double)
 
-/** Frase ETC: estado, aviso, rumbo, dirección e inclinación (rad) y coeficientes de precisión (S003/RF-6). */
+/**
+ * Frase ETC: estado, aviso, rumbo, dirección e inclinación (rad) y coeficientes de precisión (S003/RF-6), con la frase
+ * tal como llegó para guardarla con el punto (S016/RF-22).
+ */
 data class TiltData(
     val utcMillisOfDay: Int?,
     val state: TiltState,
@@ -21,6 +24,7 @@ data class TiltData(
     val tiltDirectionRad: Double?,
     val tiltRad: Double?,
     val accuracyCoefficients: TiltAccuracyCoefficients?,
+    val rawSentence: String = "",
 )
 
 object EbpParser {
@@ -70,6 +74,7 @@ object EtcParser {
                 tiltDirectionRad = f[4].angle(FULL_CIRCLE_DEG),
                 tiltRad = f[5].angle(HALF_CIRCLE_DEG),
                 accuracyCoefficients = if (north != null && east != null && up != null) TiltAccuracyCoefficients(north, east, up) else null,
+                rawSentence = sentence.raw,
             )
         }
     }

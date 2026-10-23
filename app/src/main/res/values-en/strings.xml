@@ -444,6 +444,7 @@
     <string name="out_of_tolerance_horizontal">Horizontal accuracy above the limit</string>
     <string name="out_of_tolerance_vertical">Vertical accuracy above the limit</string>
     <string name="out_of_tolerance_no_accuracy">No accuracy from the receiver</string>
+    <string name="out_of_tolerance_tilt">Maximum tilt exceeded</string>
     <string name="out_of_tolerance_save">Save out of tolerance</string>
     <string name="out_of_tolerance_discard">Discard</string>
     <plurals name="project_points_count">

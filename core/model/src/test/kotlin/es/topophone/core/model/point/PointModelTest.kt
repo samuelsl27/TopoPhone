@@ -67,4 +67,43 @@ class PointModelTest {
         CollectorSettings(averagingSeconds = 90).validAveragingSeconds shouldBe 60
         CollectorSettings(averagingSeconds = 0).validAveragingSeconds shouldBe 1
     }
+
+    @Test
+    fun `S016 RF-20 la inclinacion maxima esta activa por defecto con 60 grados`() {
+        PrecisionControl().maxTiltRad shouldBe Math.toRadians(60.0)
+        PrecisionControl.MAX_TILT_RANGE_DEG shouldBe 1..60
+    }
+
+    @Test
+    fun `S016 RF-20 la inclinacion maxima no se cumple si alguna epoca la supera`() {
+        val control = PrecisionControl(maxTiltRad = Math.toRadians(30.0))
+
+        control.check(isFix = true, horizontalM = 0.01, verticalM = 0.02, tiltRad = Math.toRadians(30.0)).shouldBeEmpty()
+        control.check(isFix = true, horizontalM = 0.01, verticalM = 0.02, tiltRad = Math.toRadians(30.5)) shouldBe
+            setOf(PrecisionFailure.TILT)
+        // Sin inclinación (jalón vertical, S016/RF-20) o con la condición desactivada, no se mira.
+        control.check(isFix = true, horizontalM = 0.01, verticalM = 0.02, tiltRad = null).shouldBeEmpty()
+        PrecisionControl(maxTiltRad = null).check(isFix = true, horizontalM = 0.01, verticalM = 0.02, tiltRad = 1.2).shouldBeEmpty()
+    }
+
+    @Test
+    fun `S016 RF-1 los modos que usan la inclinacion son el de la app y el del receptor`() {
+        TiltMode.entries.filter { it.usesTilt } shouldBe listOf(TiltMode.APP, TiltMode.RECEIVER)
+    }
+
+    @Test
+    fun `S016 RF-22 una medida sin inclinacion la tiene vacia por defecto`() {
+        val measurement = Measurement(
+            antenna = GeodeticPosition(40.0, -3.0, 700.0),
+            poleHeightM = 1.8,
+            quality = PointQuality("FIX", 20, 0.6, 1.0, 0.01, 0.02, MeasurementMode.INSTANT, 1, 0, fromReplay = false),
+            rawNmea = "",
+            outOfTolerance = emptySet(),
+            measuredFromMs = 0,
+            measuredToMs = 0,
+            coordinates = PointCoordinates(GeodeticPosition(40.0, -3.0, 698.066), null, null, null),
+        )
+
+        measurement.tilt shouldBe null
+    }
 }

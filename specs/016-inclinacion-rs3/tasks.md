@@ -6,7 +6,7 @@
       Hecho cuando: el script genera `fixtures/geodesia/punta_jalon.csv` y su test de `tools` está en verde.
 - [x] T2. `core:geodesy`: `LocalTangentPlane.offset` y `between` (A1). (RF-13, RF-7, RF-8)
       Hecho cuando: `LocalTangentPlaneTest` en verde contra `punta_jalon.csv` (≤ 1 mm; ida y vuelta ≤ 0,1 mm).
-- [ ] T3. `core:gnss` y `core:model`: `TiltData.rawSentence`; `TiltMode`, `PointTilt`, `TiltAngles`, `PoleVector` y `Measurement.tilt`; `PrecisionControl.maxTiltRad` y `PrecisionFailure.TILT`; `AngleFormat.direction`. (RF-11, RF-20, RF-22)
+- [x] T3. `core:gnss` y `core:model`: `TiltData.rawSentence`; `TiltMode`, `PointTilt`, `TiltAngles`, `PoleVector` y `Measurement.tilt`; `PrecisionControl.maxTiltRad` y `PrecisionFailure.TILT`; `AngleFormat.direction`. (RF-11, RF-20, RF-22)
       Hecho cuando: `EbpEtcParserTest`, `PrecisionControlTest` y `CoordinateFormatTest` en verde con los casos nuevos.
 - [ ] T4. `core:survey`: `TiltEpoch` (estado 30, limpia, guía, vector del jalón y precisión de la inclinación, A2). (RF-12, RF-21)
       Hecho cuando: `TiltEpochTest` en verde con la tabla de guías y el ejemplo de ETC_rev_3.

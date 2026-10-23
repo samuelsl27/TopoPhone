@@ -80,4 +80,13 @@ class EbpEtcParserTest {
     fun `S003 RF-7 una ETC con un campo que no se puede interpretar se descarta`(body: String) {
         EtcParser.parse(sentence(body)).shouldBeNull()
     }
+
+    @Test
+    fun `S016 RF-22 la ETC conserva la frase tal como llego`() {
+        val body = "GNETC,101530.20,30,0,123.40,210.50,15.25,1.10,1.20,0.30"
+
+        val tilt = EtcParser.parse(sentence(body)).shouldNotBeNull()
+
+        tilt.rawSentence shouldBe "$" + body + "*" + "%02X".format(NmeaChecksum.compute(body))
+    }
 }

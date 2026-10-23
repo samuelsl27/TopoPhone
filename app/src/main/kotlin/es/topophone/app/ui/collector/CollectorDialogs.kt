@@ -190,6 +190,7 @@ internal fun OutOfToleranceDialog(pending: PendingPoint, onConfirm: () -> Unit, 
                                 PrecisionFailure.HORIZONTAL -> R.string.out_of_tolerance_horizontal
                                 PrecisionFailure.VERTICAL -> R.string.out_of_tolerance_vertical
                                 PrecisionFailure.NO_ACCURACY -> R.string.out_of_tolerance_no_accuracy
+                                PrecisionFailure.TILT -> R.string.out_of_tolerance_tilt
                             },
                         ),
                     )

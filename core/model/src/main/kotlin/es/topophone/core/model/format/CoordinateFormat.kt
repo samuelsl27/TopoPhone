@@ -23,6 +23,7 @@ object AngleFormat {
     private const val PROJECT_DECIMALS = 10
     private const val CONVERGENCE_SECOND_DECIMALS = 2
     private const val CONVERGENCE_DECIMALS = 6
+    private const val DIRECTION_DECIMALS = 3
     private const val GON_PER_DEGREE = 400.0 / 360.0
 
     /** Latitud `40° 25′ 07,24408″ N` (S002/RF-34). */
@@ -56,6 +57,22 @@ object AngleFormat {
         }
     }
 
+    /**
+     * Inclinación, dirección de la inclinación o rumbo (S016/RF-11, RF-23): segundos enteros en DMS y 3 decimales en
+     * grados o gon, la resolución del ETC (0,001°).
+     */
+    fun direction(valueRad: Double, unit: AngularUnit, locale: Locale): String {
+        val degrees = Math.toDegrees(valueRad)
+        return when (unit) {
+            AngularUnit.DMS -> {
+                val (d, m, s) = sexagesimal(abs(degrees), secondDecimals = 0, locale)
+                "$d° ${m.toString().padStart(2, '0')}′ $s″"
+            }
+            AngularUnit.DECIMAL_DEGREES -> decimals(degrees, DIRECTION_DECIMALS, locale, grouping = false) + "°"
+            AngularUnit.GON -> decimals(degrees * GON_PER_DEGREE, DIRECTION_DECIMALS, locale, grouping = false) + " gon"
+        }
+    }
+
     private inline fun geographic(valueDeg: Double, unit: AngularUnit, locale: Locale, dms: () -> String): String = when (unit) {
         AngularUnit.DMS -> dms()
         AngularUnit.DECIMAL_DEGREES -> decimals(valueDeg, PROJECT_DECIMALS, locale, grouping = false) + "°"
@@ -78,7 +95,8 @@ object AngleFormat {
         val totalSeconds = totalUnits / unitsPerSecond
         val fraction = totalUnits % unitsPerSecond
         val separator = DecimalFormatSymbols.getInstance(locale).decimalSeparator
-        val seconds = (totalSeconds % 60).toString().padStart(2, '0') + separator + fraction.toString().padStart(secondDecimals, '0')
+        val whole = (totalSeconds % 60).toString().padStart(2, '0')
+        val seconds = if (secondDecimals == 0) whole else whole + separator + fraction.toString().padStart(secondDecimals, '0')
         return Triple(totalSeconds / 3600, (totalSeconds % 3600) / 60, seconds)
     }
 

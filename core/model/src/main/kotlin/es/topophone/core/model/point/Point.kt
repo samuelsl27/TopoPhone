@@ -74,6 +74,8 @@ data class Measurement(
     val coordinates: PointCoordinates,
     /** La base con la que se midió, si la había (S015/RF-20). */
     val base: PointBase? = null,
+    /** El modo de inclinación y la inclinación (S016/RF-22); null en los puntos de antes de S016. */
+    val tilt: PointTilt? = null,
 )
 
 /**

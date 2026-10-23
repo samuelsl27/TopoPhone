@@ -73,4 +73,16 @@ class AngleFormatTest {
         AngleFormat.convergence(gamma, AngularUnit.GON, es) shouldBe "-2,871898 gon"
         AngleFormat.convergence(Math.toRadians(0.5), AngularUnit.DMS, es) shouldBe "0° 30′ 00,00″"
     }
+
+    @Test
+    fun `S016 RF-11 la inclinacion, la direccion y el rumbo en DMS, grados o gon`() {
+        val direction = Math.toRadians(210.5)
+
+        AngleFormat.direction(direction, AngularUnit.DMS, es) shouldBe "210° 30′ 00″"
+        AngleFormat.direction(direction, AngularUnit.DECIMAL_DEGREES, es) shouldBe "210,500°"
+        AngleFormat.direction(direction, AngularUnit.DECIMAL_DEGREES, en) shouldBe "210.500°"
+        AngleFormat.direction(direction, AngularUnit.GON, es) shouldBe "233,889 gon"
+        AngleFormat.direction(Math.toRadians(15.25), AngularUnit.DMS, es) shouldBe "15° 15′ 00″"
+        AngleFormat.direction(Math.toRadians(359.9999), AngularUnit.DMS, es) shouldBe "360° 00′ 00″"
+    }
 }
