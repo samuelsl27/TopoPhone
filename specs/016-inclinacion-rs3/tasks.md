@@ -48,7 +48,7 @@
       Hecho cuando: `PointDetailsTiltTest` en verde, también corrigiendo el jalón de un punto APP.
 - [x] T23. `core:formats`, `app` y `tools`: las ocho columnas del CSV, sus nombres en Exportar, los ficheros dorados y `test_csv_exportado.py`. (RF-24)
       Hecho cuando: `CsvExportGoldenTest`, `ExportPreferencesTest`, `ExportScreenTest` y `test_csv_exportado.py` en verde con 43 columnas.
-- [ ] T24. `tools/nmea`: `generar_inclinacion.py` con `rs3-inclinacion`, `rs3-asistente-app` y `rs3-asistente-receptor`, y lo esperado de cada uno. (RF-7, RF-8, RF-13, RF-19)
+- [x] T24. `tools/nmea`: `generar_inclinacion.py` con `rs3-inclinacion`, `rs3-asistente-app` y `rs3-asistente-receptor`, y lo esperado de cada uno. (RF-7, RF-8, RF-13, RF-19)
       Hecho cuando: los ficheros se generan y su test de `tools` está en verde.
 - [ ] T25. Rendimiento y reproducción: `TiltReplayTest` con las tres reproducciones; `LiveTip` y `PointMeasurement` a 10 Hz en menos de 1 ms por época. (RNF, RF-7, RF-8, RF-13, RF-16, RF-19)
       Hecho cuando: los tests de reproducción y de rendimiento en verde, y `FullRs3ReplayTest` sigue igual.
