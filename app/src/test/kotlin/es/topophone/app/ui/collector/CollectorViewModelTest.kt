@@ -350,7 +350,7 @@ class CollectorViewModelTest {
     }
 
     @Test
-    fun `S010 RF-9 los segundos se escriben libremente, solo se guardan de 1 a 60 y fuera de eso no dejan promediar`() {
+    fun `S010 RF-9 los segundos se escriben libremente, solo se guardan de 1 a 3600 y fuera de eso no dejan promediar`() {
         val vm = viewModel(project())
         vm.setSettings(CollectorSettings(MeasurementMode.AVERAGED))
         await(vm) { it.settings.mode == MeasurementMode.AVERAGED }
@@ -359,8 +359,8 @@ class CollectorViewModelTest {
         await(vm) { it.averagingSecondsText == "" && !it.averagingSecondsValid }.blocker shouldBe MeasureBlocker.INVALID_SECONDS
         vm.setAveragingSeconds("20")
         await(vm) { it.settings.averagingSeconds == 20 }.averagingSecondsValid shouldBe true
-        vm.setAveragingSeconds("520")
-        await(vm) { it.averagingSecondsText == "520" }.blocker shouldBe MeasureBlocker.INVALID_SECONDS
+        vm.setAveragingSeconds("3601") // S017/RF-1: el límite sube a 60 min
+        await(vm) { it.averagingSecondsText == "3601" }.blocker shouldBe MeasureBlocker.INVALID_SECONDS
         collectorPreferences.settings.value.averagingSeconds shouldBe 20
 
         // En instantáneo los segundos no cuentan.

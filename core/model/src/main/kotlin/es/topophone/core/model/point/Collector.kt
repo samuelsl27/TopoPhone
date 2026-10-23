@@ -1,5 +1,8 @@
 package es.topophone.core.model.point
 
+import es.topophone.core.model.format.NumberInput
+import es.topophone.core.model.project.LinearUnit
+
 /** Instantánea (primera época que llega) o promediada (S010/RF-8, RF-9). */
 enum class MeasurementMode { INSTANT, AVERAGED }
 
@@ -46,17 +49,58 @@ data class PrecisionControl(
     }
 }
 
-/** Modo de medida, tiempo de promediado y control de precisión, los mismos para todos los proyectos (S010/RF-13). */
+/** Cuándo mide un punto el modo automático: cada cierto tiempo o cada cierta distancia (S017/RF-15). */
+enum class AutoTrigger { TIME, DISTANCE }
+
+/**
+ * Modo de medida, tiempo de promediado y control de precisión, los mismos para todos los proyectos (S010/RF-13), y el
+ * disparo, el intervalo y la distancia del modo automático (S017/RF-16, RF-17). Que el modo automático esté encendido
+ * no se guarda: el recolector abre siempre en manual.
+ */
 data class CollectorSettings(
     val mode: MeasurementMode = MeasurementMode.INSTANT,
     val averagingSeconds: Int = 5,
     val precision: PrecisionControl = PrecisionControl(),
+    val autoTrigger: AutoTrigger = AutoTrigger.TIME,
+    val autoIntervalS: Int = 5,
+    val autoDistanceM: Double = 1.0,
 ) {
     /** El tiempo de promediado dentro de [AVERAGING_SECONDS]. */
     val validAveragingSeconds: Int get() = averagingSeconds.coerceIn(AVERAGING_SECONDS)
 
+    /** El intervalo del disparo por tiempo dentro de [AUTO_INTERVAL_SECONDS]. */
+    val validAutoIntervalS: Int get() = autoIntervalS.coerceIn(AUTO_INTERVAL_SECONDS)
+
+    /** La distancia del disparo por distancia dentro de [AUTO_DISTANCE_M]. */
+    val validAutoDistanceM: Double get() = autoDistanceM.coerceIn(AUTO_DISTANCE_M)
+
     companion object {
-        /** S010/RF-9; S017 lo amplía a 60 min. */
-        val AVERAGING_SECONDS = 1..60
+        /** S010/RF-9, ampliado a 60 min en S017/RF-1. */
+        val AVERAGING_SECONDS = 1..3600
+
+        /** S017/RF-16. */
+        val AUTO_INTERVAL_SECONDS = 1..3600
+
+        /** S017/RF-17: en metros, sea cual sea la unidad del proyecto. */
+        val AUTO_DISTANCE_M = 0.1..1000.0
+
+        /** Los milímetros que se perdonan al límite al escribirlo redondeado en pies: 0,328 ft son 0,09997 m. */
+        private const val ROUNDING_MARGIN_M = 0.001
+
+        /** Los límites de la distancia en la unidad del proyecto, para enseñarlos (S017/RF-17). */
+        fun autoDistanceRangeIn(unit: LinearUnit): ClosedFloatingPointRange<Double> =
+            unit.fromMetres(AUTO_DISTANCE_M.start)..unit.fromMetres(AUTO_DISTANCE_M.endInclusive)
+
+        /** La distancia escrita en la unidad del proyecto, en metros; null si no es un número o está fuera de límites. */
+        fun parseAutoDistance(text: String, unit: LinearUnit): Double? {
+            val metres = NumberInput.parse(text)?.let(unit::toMetres) ?: return null
+            return when {
+                metres in AUTO_DISTANCE_M -> metres
+                metres < AUTO_DISTANCE_M.start && metres >= AUTO_DISTANCE_M.start - ROUNDING_MARGIN_M -> AUTO_DISTANCE_M.start
+                metres > AUTO_DISTANCE_M.endInclusive && metres <= AUTO_DISTANCE_M.endInclusive + ROUNDING_MARGIN_M ->
+                    AUTO_DISTANCE_M.endInclusive
+                else -> null
+            }
+        }
     }
 }

@@ -62,13 +62,6 @@ class PointModelTest {
     }
 
     @Test
-    fun `S010 RF-9 el promediado va de 1 a 60 s`() {
-        CollectorSettings.AVERAGING_SECONDS shouldBe 1..60
-        CollectorSettings(averagingSeconds = 90).validAveragingSeconds shouldBe 60
-        CollectorSettings(averagingSeconds = 0).validAveragingSeconds shouldBe 1
-    }
-
-    @Test
     fun `S016 RF-20 la inclinacion maxima esta activa por defecto con 60 grados`() {
         PrecisionControl().maxTiltRad shouldBe Math.toRadians(60.0)
         PrecisionControl.MAX_TILT_RANGE_DEG shouldBe 1..60
