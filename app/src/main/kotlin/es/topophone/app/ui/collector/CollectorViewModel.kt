@@ -349,6 +349,7 @@ class CollectorViewModel @Inject constructor(
                 alerts.solutionLost() // S010/RF-10
                 run.update { it.copy(solutionLost = true) }
             }
+            is MeasurementUpdate.TiltLost -> Unit // el recolector aún no mide con la inclinación (S016/RF-19)
             is MeasurementUpdate.Failed -> {
                 stopMeasuring()
                 val error = when (update.reason) {

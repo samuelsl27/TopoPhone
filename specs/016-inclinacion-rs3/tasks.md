@@ -14,7 +14,7 @@
       Hecho cuando: `PoleTipTest` en verde contra `punta_jalon.csv` (≤ 1 mm), con 0° igual al jalón vertical (≤ 0,1 mm) y sin altura.
 - [x] T6. `core:survey`: `LiveTip` (A4) y `GroundPointCalculator.fromGround`. (RF-14, RF-16, RF-17, RF-21)
       Hecho cuando: `LiveTipTest` en verde con la tabla de A4, y `GroundPointTest` sigue igual.
-- [ ] T7. `core:survey`: `PointMeasurement` con la inclinación (A5). (RF-13, RF-14, RF-19, RF-21, RF-22, RF-27)
+- [x] T7. `core:survey`: `PointMeasurement` con la inclinación (A5). (RF-13, RF-14, RF-19, RF-21, RF-22, RF-27)
       Hecho cuando: `PointMeasurementTiltTest` en verde (descarte con `TiltLost` una vez, promediado con el jalón moviéndose ≤ 1 mm, RECEIVER, VERTICAL con ángulos, precisión, ETC en `rawNmea`), y `PointMeasurementTest` sigue igual.
 - [ ] T8. `core:survey`: `PointCorrections.withPoleHeight` a lo largo del jalón (A6). (RF-25)
       Hecho cuando: `PointCorrectionsTiltTest` en verde en APP y RECEIVER (≤ 1 mm), y `PointCorrectionsTest` sigue igual.
