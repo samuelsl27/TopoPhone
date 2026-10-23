@@ -774,4 +774,5 @@
     <string name="tilt_guide_bad_gnss">Busca un sitio con más cielo despejado: la inclinación puede volver a alineación.</string>
     <string name="tilt_guide_filter_fault">Fallo del filtro: mueve el receptor en ocho para volver a alinear.</string>
     <string name="tilt_guide_figure_eight_description">El jalón se mueve dibujando un ocho</string>
+    <string name="tilt_tip_uncompensated">Punta sin compensar</string>
 </resources>

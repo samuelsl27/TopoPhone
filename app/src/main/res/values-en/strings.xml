@@ -762,4 +762,5 @@
     <string name="tilt_guide_bad_gnss">Find a spot with a clearer sky: the tilt may go back to alignment.</string>
     <string name="tilt_guide_filter_fault">Filter fault: move the receiver in a figure eight to align again.</string>
     <string name="tilt_guide_figure_eight_description">The pole moves drawing a figure eight</string>
+    <string name="tilt_tip_uncompensated">Tip not compensated</string>
 </resources>

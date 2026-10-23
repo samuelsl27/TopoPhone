@@ -30,6 +30,7 @@ const val COORD_UTM_ZONE_TAG = "coord_utm_zone"
 const val COORD_EASTING_TAG = "coord_easting"
 const val COORD_NORTHING_TAG = "coord_northing"
 const val COORD_ORTHOMETRIC_TAG = "coord_orthometric"
+const val COORD_UNCOMPENSATED_TAG = "coord_uncompensated"
 
 /** Tarjeta Coordenadas: altura del jalón y punto del suelo (S002/RF-29 a RF-41; en Canarias, S008/RF-20, RF-21). */
 @Composable
@@ -41,6 +42,14 @@ internal fun CoordinatesCard(state: ReceiverUiState, onPoleHeightChange: (String
         if (point == null || state.snapshot.connection !is ConnectionState.Receiving) {
             Text(stringResource(R.string.coordinates_waiting))
             return@ReceiverCard
+        }
+        if (state.tipUncompensated) {
+            Text(
+                stringResource(R.string.tilt_tip_uncompensated),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.testTag(COORD_UNCOMPENSATED_TAG),
+            ) // S016/RF-17
         }
         GroundPointValues(point)
     }

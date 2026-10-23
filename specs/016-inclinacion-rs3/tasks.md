@@ -34,7 +34,7 @@
       Hecho cuando: `StatusScreenTest` en verde con el estado, el aviso, los ángulos en el formato de los proyectos nuevos y las precisiones.
 - [x] T16. `app`: `TiltGuideBanner` con los siete textos y la ilustración propia del ocho. (RF-12)
       Hecho cuando: `TiltGuideBannerTest` en verde, con la descripción de la ilustración para TalkBack.
-- [ ] T17. `app`: la punta en Coordenadas con "Punta sin compensar". (RF-16, RF-17)
+- [x] T17. `app`: la punta en Coordenadas con "Punta sin compensar". (RF-16, RF-17)
       Hecho cuando: `CoordinatesCardTest` y `ReceiverViewModelTest` en verde en APP, RECEIVER, VERTICAL y sin modo.
 - [ ] T18. `app`: la punta en el panel de posición y en el rover, con el círculo de la precisión de la inclinación. (RF-16, RF-17, RF-21)
       Hecho cuando: `ProjectViewTest` y `RoverLayerTest` en verde con la punta, el aviso y el radio del círculo.

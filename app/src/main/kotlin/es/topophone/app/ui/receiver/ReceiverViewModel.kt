@@ -18,6 +18,7 @@ import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.GroundPointCalculator
+import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.PoleHeight
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.receiver.ReceiverPreferences
@@ -82,6 +83,8 @@ data class ReceiverUiState(
     /** La altura del jalón en uso, para la precisión de la inclinación (S016/RF-11). */
     val poleHeightM: Double = PoleHeight.DEFAULT_M,
     val groundPoint: GroundPoint? = null,
+    /** El modo usa la inclinación pero la época no está en estado 30: "Punta sin compensar" (S016/RF-17). */
+    val tipUncompensated: Boolean = false,
     val nowMs: Long = 0,
     /** Pedir el permiso de notificaciones, con su explicación (S004/RF-5). */
     val askNotifications: Boolean = false,
@@ -171,6 +174,12 @@ class ReceiverViewModel @Inject constructor(
             pairingUi,
         ) { now, addresses, granted, asked, pairing -> Extras(now, addresses, granted, asked, pairing) },
     ) { (snapshot, angularUnit, notices, tiltState), bt, internetAvailable, pole, extras ->
+        // S016/RF-16, RF-17: con la inclinación, la GGA y el ETC de la misma época; si no, la última GGA.
+        val mode = tiltState.settings.mode
+        val epoch = snapshot.epoch
+        val tipFix = if (mode?.usesTilt == true && epoch?.gga != null) epoch.gga else snapshot.gga
+        val tipTilt = if (mode?.usesTilt == true) epoch?.tilt else null
+        val tip = tipFix?.let { LiveTip.of(it, tipTilt, mode, pole.value) }
         // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
         val realReceiver = ReceiverService.needsService(snapshot)
         val missingPermission = notifications.required && !extras.notificationsGranted
@@ -183,7 +192,8 @@ class ReceiverViewModel @Inject constructor(
             poleHeightText = pole.text,
             poleHeightValid = PoleHeight.parse(pole.text) != null,
             poleHeightM = pole.value,
-            groundPoint = snapshot.gga?.let { calculator.get().compute(it, pole.value) },
+            groundPoint = tip?.let { calculator.get().fromGround(it.ground, checkNotNull(tipFix).status) },
+            tipUncompensated = tip?.uncompensated == true,
             nowMs = extras.nowMs,
             askNotifications = missingPermission &&
                 !extras.notificationsAsked &&

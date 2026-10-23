@@ -244,4 +244,17 @@ class CoordinatesCardTest {
 
         node(COORD_ORTHOMETRIC_TAG).assert(hasText(metres(tenerife.orthometricHeightM.shouldNotBeNull())))
     }
+
+    @Test
+    fun `S016 RF-17 sin estado 30 dice Punta sin compensar`() {
+        val fix = gga()
+        val state = ReceiverUiState(
+            snapshot = ReceiverSnapshot(receiving, gga = fix),
+            groundPoint = GroundPointCalculator().compute(fix, 1.8),
+            tipUncompensated = true,
+        )
+        compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { CoordinatesCard(state) {} } }
+
+        compose.onNodeWithTag(COORD_UNCOMPENSATED_TAG).assert(hasText(text(R.string.tilt_tip_uncompensated)))
+    }
 }
