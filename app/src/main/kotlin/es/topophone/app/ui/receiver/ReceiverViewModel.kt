@@ -79,6 +79,8 @@ data class ReceiverUiState(
     val internetAvailable: Boolean = true,
     val poleHeightText: String = "",
     val poleHeightValid: Boolean = true,
+    /** La altura del jalón en uso, para la precisión de la inclinación (S016/RF-11). */
+    val poleHeightM: Double = PoleHeight.DEFAULT_M,
     val groundPoint: GroundPoint? = null,
     val nowMs: Long = 0,
     /** Pedir el permiso de notificaciones, con su explicación (S004/RF-5). */
@@ -180,6 +182,7 @@ class ReceiverViewModel @Inject constructor(
             internetAvailable = internetAvailable,
             poleHeightText = pole.text,
             poleHeightValid = PoleHeight.parse(pole.text) != null,
+            poleHeightM = pole.value,
             groundPoint = snapshot.gga?.let { calculator.get().compute(it, pole.value) },
             nowMs = extras.nowMs,
             askNotifications = missingPermission &&

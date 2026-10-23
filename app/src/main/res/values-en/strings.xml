@@ -742,4 +742,16 @@
     <string name="tilt_wizard_confirm">Confirm</string>
     <string name="tilt_wizard_repeat">Repeat</string>
     <string name="tilt_wizard_close">Close</string>
+    <string name="status_tilt_title">Tilt</string>
+    <string name="status_tilt_state">State</string>
+    <string name="status_tilt_notification">Warning</string>
+    <string name="status_tilt_angle">Tilt</string>
+    <string name="status_tilt_direction">Direction</string>
+    <string name="status_tilt_heading">Heading</string>
+    <string name="status_tilt_horizontal">Horizontal accuracy</string>
+    <string name="status_tilt_vertical">Vertical accuracy</string>
+    <string name="tilt_notification_none">None</string>
+    <string name="tilt_notification_fast_motion">Fast motion</string>
+    <string name="tilt_notification_bad_gnss">Bad GNSS</string>
+    <string name="tilt_notification_filter_fault">Filter fault</string>
 </resources>

@@ -30,7 +30,7 @@
       Hecho cuando: `TiltScreenTest` y `ReceiverMenuTest` en verde, con TalkBack.
 - [x] T14. `app`: el asistente en la pantalla "Inclinación" (`TiltViewModel` con `TiltModeWizard`). (RF-5, RF-6, RF-7, RF-8, RF-9, RF-10)
       Hecho cuando: `TiltWizardScreenTest` en verde: qué falta, pasos, propuesta, confirmar, repetir y no concluyente.
-- [ ] T15. `app`: tarjeta "Inclinación" en la pantalla Estado. (RF-11)
+- [x] T15. `app`: tarjeta "Inclinación" en la pantalla Estado. (RF-11)
       Hecho cuando: `StatusScreenTest` en verde con el estado, el aviso, los ángulos en el formato de los proyectos nuevos y las precisiones.
 - [ ] T16. `app`: `TiltGuideBanner` con los siete textos y la ilustración propia del ocho. (RF-12)
       Hecho cuando: `TiltGuideBannerTest` en verde, con la descripción de la ilustración para TalkBack.

@@ -754,4 +754,16 @@
     <string name="tilt_wizard_confirm">Confirmar</string>
     <string name="tilt_wizard_repeat">Repetir</string>
     <string name="tilt_wizard_close">Cerrar</string>
+    <string name="status_tilt_title">Inclinación</string>
+    <string name="status_tilt_state">Estado</string>
+    <string name="status_tilt_notification">Aviso</string>
+    <string name="status_tilt_angle">Inclinación</string>
+    <string name="status_tilt_direction">Dirección</string>
+    <string name="status_tilt_heading">Rumbo</string>
+    <string name="status_tilt_horizontal">Precisión en planta</string>
+    <string name="status_tilt_vertical">Precisión vertical</string>
+    <string name="tilt_notification_none">Ninguno</string>
+    <string name="tilt_notification_fast_motion">Movimiento rápido</string>
+    <string name="tilt_notification_bad_gnss">GNSS malo</string>
+    <string name="tilt_notification_filter_fault">Fallo del filtro</string>
 </resources>
