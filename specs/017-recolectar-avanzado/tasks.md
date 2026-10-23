@@ -10,7 +10,7 @@
       Hecho cuando: los tests de `core:model` en verde y `Point.measured` sin cambios para quien no pasa los datos nuevos.
 - [x] T4. `core:survey`: `AverageStats` (Welford, estabilidad, muestra y escala del gráfico). (RF-3, RF-4, RF-5, RF-12)
       Hecho cuando: `AverageStatsTest` en verde contra `fixtures/promediado/` (≤ 0,1 mm), con `n < 2`, el minuto de la estabilidad y la muestra de 2.000.
-- [ ] T5. `core:survey`: `PointMeasurement` sin retener épocas (A1), con el mismo resultado. (RF-12)
+- [x] T5. `core:survey`: `PointMeasurement` sin retener épocas (A1), con el mismo resultado. (RF-12)
       Hecho cuando: `PointMeasurementTest` y `PointMeasurementTiltTest` siguen en verde sin tocarlos y `PointMeasurementStreamingTest` comprueba que una época usada no queda retenida.
 - [ ] T6. `core:survey`: `PointMeasurement` con las estadísticas y `MeasurementResult` con el tiempo promediado y las desviaciones típicas. (RF-12, RF-3, RF-4)
       Hecho cuando: `PointMeasurementStreamingTest` en verde con una medida de 36.000 épocas frente a `fixtures/promediado/` y con los instantáneos sin datos nuevos.

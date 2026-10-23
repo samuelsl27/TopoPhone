@@ -1,8 +1,10 @@
 package es.topophone.core.survey
 
 import es.topophone.core.gnss.nmea.Epoch
+import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PointTilt
@@ -77,6 +79,9 @@ data class MeasurementResult(
  * Con un modo que usa la inclinación ([tilt]), solo valen las épocas en estado 30 sin aviso; las demás se descartan y
  * se avisa una vez con su guía (S016/RF-19). El suelo es la punta del jalón (S016/RF-13, RF-14; plan A5).
  *
+ * No guarda las épocas usadas, que en un promediado de 60 min a 10 Hz serían decenas de MB: acumula en una sola pasada
+ * lo que hace falta para el resultado (S017/RF-12; plan A1).
+ *
  * El tiempo es siempre el del reloj del móvil que da quien la usa (llegada de cada época y comprobaciones del
  * plazo): la hora de la sesión es de un reloj monótono que no sirve como fecha de la medida.
  */
@@ -94,8 +99,33 @@ class PointMeasurement(
     private val tilt: TiltSetup = TiltSetup.VERTICAL,
 ) {
     private val requiredS = averagingSeconds.toDouble()
-    private val used = mutableListOf<Epoch>()
-    private val usedAtMs = mutableListOf<Long>()
+
+    /** Lo acumulado de las épocas usadas (plan A1). */
+    private var usedCount = 0
+    private var lastFix: GgaFix? = null
+    private var sumLatitude = 0.0
+    private var sumLongitude = 0.0
+    private var sumAltitude = 0.0
+    private var altitudeCount = 0
+    private var sumSeparation = 0.0
+    private var separationCount = 0
+    private var minSatellites = Int.MAX_VALUE
+    private var worstSolution: SolutionStatus? = null
+    private var firstUsedAtMs = 0L
+    private var lastUsedAtMs = 0L
+    private val raw = StringBuilder()
+    private val includedGst = HashSet<String>()
+
+    /** Con la inclinación (S016/RF-22): mientras todas las épocas usadas estén en estado 30. */
+    private val antennaHeightM = VerticalPole.antennaHeightM(poleHeightM, model)
+    private var allCompensating = true
+    private var lastTilt: TiltData? = null
+    private var maxTilt = 0.0
+    private var maxHorizontalAccuracy = 0.0
+    private var maxVerticalAccuracy = 0.0
+    private var poleEast = 0.0
+    private var poleNorth = 0.0
+    private var poleUp = 0.0
 
     /** La última GST de menos de 3 s que había al llegar la última época usada (S010/RF-22). */
     private var usedGst: GstAccuracy? = null
@@ -130,22 +160,66 @@ class PointMeasurement(
                 lostWarned = true
             }
             else -> {
-                used += epoch
-                usedAtMs += receivedAtMs
-                usedGst = latestGst
+                use(epoch, fix, receivedAtMs, latestGst)
                 if (fix.status == SolutionStatus.FIX) lostWarned = false
             }
         }
-        val elapsedS = used.size * epochIntervalS
+        val elapsedS = usedCount * epochIntervalS
         val complete = when (mode) {
-            MeasurementMode.INSTANT -> used.isNotEmpty()
+            MeasurementMode.INSTANT -> usedCount > 0
             MeasurementMode.AVERAGED -> elapsedS >= requiredS - TIME_EPSILON_S
         }
         when {
             complete -> updates += finish()
-            mode == MeasurementMode.AVERAGED -> updates += MeasurementUpdate.Progress(elapsedS, requiredS, used.size, discarded)
+            mode == MeasurementMode.AVERAGED -> updates += MeasurementUpdate.Progress(elapsedS, requiredS, usedCount, discarded)
         }
         return updates
+    }
+
+    /** Suma una época usada a lo acumulado (plan A1). */
+    private fun use(epoch: Epoch, fix: GgaFix, receivedAtMs: Long, latestGst: GstAccuracy?) {
+        if (usedCount == 0) firstUsedAtMs = receivedAtMs
+        usedCount++
+        lastUsedAtMs = receivedAtMs
+        lastFix = fix
+        usedGst = latestGst
+        sumLatitude += fix.latitudeDeg
+        sumLongitude += fix.longitudeDeg
+        fix.altitudeM?.let {
+            sumAltitude += it
+            altitudeCount++
+        }
+        fix.geoidSeparationM?.let {
+            sumSeparation += it
+            separationCount++
+        }
+        minSatellites = minOf(minSatellites, fix.satellites)
+        // Si dos son igual de malas, se queda la primera (como el `maxBy` de antes).
+        if (worstSolution == null || SOLUTION_RANK.indexOf(fix.status) > SOLUTION_RANK.indexOf(worstSolution)) worstSolution = fix.status
+        addTilt(epoch.tilt)
+        listOfNotNull(fix.rawSentence, epoch.gst?.rawSentence, epoch.tilt?.rawSentence).filter(String::isNotEmpty).forEach {
+            if (raw.isNotEmpty()) raw.append('\n')
+            raw.append(it)
+        }
+        epoch.gst?.rawSentence?.takeIf(String::isNotEmpty)?.let(includedGst::add)
+    }
+
+    /** S016/RF-22: los ángulos de las épocas usadas, si todas están en estado 30, en cualquier modo. */
+    private fun addTilt(data: TiltData?) {
+        if (!allCompensating) return
+        if (!TiltEpoch.isCompensating(data)) {
+            allCompensating = false
+            return
+        }
+        val pole = checkNotNull(TiltEpoch.poleVector(data))
+        val accuracy = checkNotNull(TiltEpoch.accuracy(data, antennaHeightM))
+        lastTilt = data
+        maxTilt = maxOf(maxTilt, checkNotNull(data?.tiltRad))
+        maxHorizontalAccuracy = maxOf(maxHorizontalAccuracy, accuracy.horizontalM)
+        maxVerticalAccuracy = maxOf(maxVerticalAccuracy, accuracy.verticalM)
+        poleEast += pole.east
+        poleNorth += pole.north
+        poleUp += pole.up
     }
 
     /** Con el reloj del móvil: sin ninguna época en 2 s, la medida se cancela (S010/RF-12). */
@@ -162,25 +236,21 @@ class PointMeasurement(
 
     private fun finish(): MeasurementUpdate {
         finished = true
-        val fixes = used.map { checkNotNull(it.gga) }
-        val altitudes = fixes.mapNotNull { it.altitudeM }.takeIf { it.size == fixes.size }
-        val separations = fixes.mapNotNull { it.geoidSeparationM }.takeIf { it.size == fixes.size }
+        val last = checkNotNull(lastFix)
+        val n = usedCount
         // Media aritmética de φ, λ y h: con dispersiones de centímetros es la de ECEF a menos de 1 µm.
-        val mean = fixes.last().copy(
-            latitudeDeg = fixes.map { it.latitudeDeg }.average(),
-            longitudeDeg = fixes.map { it.longitudeDeg }.average(),
-            altitudeM = altitudes?.average(),
-            geoidSeparationM = separations?.average(),
-        )
-        val antennaH = mean.altitudeM?.let { altitude -> mean.geoidSeparationM?.let { altitude + it } }
-        val antenna = GeodeticPosition(mean.latitudeDeg, mean.longitudeDeg, antennaH)
-        val antennaHeight = VerticalPole.antennaHeightM(poleHeightM, model)
-        val angles = angles(antennaHeight)
+        val latitude = sumLatitude / n
+        val longitude = sumLongitude / n
+        val altitude = if (altitudeCount == n) sumAltitude / n else null
+        val separation = if (separationCount == n) sumSeparation / n else null
+        val antennaH = altitude?.let { a -> separation?.let { a + it } }
+        val antenna = GeodeticPosition(latitude, longitude, antennaH)
+        val angles = angles()
         val ground = when (tilt.mode) {
             // Media de la antena menos H·ū: la media de las puntas de cada época (plan A3.3).
-            TiltMode.APP -> PoleTip.fromAntenna(antenna, checkNotNull(angles).pole, antennaHeight)
+            TiltMode.APP -> PoleTip.fromAntenna(antenna, checkNotNull(angles).pole, antennaHeightM)
             TiltMode.RECEIVER -> antenna // la GGA ya es la punta (S016/RF-14)
-            TiltMode.VERTICAL -> GeodeticPosition(mean.latitudeDeg, mean.longitudeDeg, antennaH?.minus(antennaHeight))
+            TiltMode.VERTICAL -> GeodeticPosition(latitude, longitude, antennaH?.minus(antennaHeightM))
         }
         val position = calculator.fromGround(ground, crs, heightSystem)
         if (PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable || PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable) {
@@ -195,18 +265,18 @@ class PointMeasurement(
                 poleHeightM = poleHeightM,
                 ground = ground,
                 position = position,
-                solution = fixes.maxBy { SOLUTION_RANK.indexOf(it.status) }.status,
-                satellites = fixes.minOf { it.satellites },
-                hdop = mean.hdop,
-                correctionAgeS = mean.correctionAgeS,
+                solution = checkNotNull(worstSolution),
+                satellites = minSatellites,
+                hdop = last.hdop,
+                correctionAgeS = last.correctionAgeS,
                 horizontalM = lastGst?.horizontalM?.plus(if (addTilt) checkNotNull(angles).horizontalAccuracyM else 0.0),
                 verticalM = lastGst?.verticalM?.plus(if (addTilt) checkNotNull(angles).verticalAccuracyM else 0.0),
                 mode = mode,
-                epochsUsed = used.size,
+                epochsUsed = n,
                 epochsDiscarded = discarded,
                 rawNmea = rawNmea(lastGst),
-                measuredFromMs = usedAtMs.first(),
-                measuredToMs = usedAtMs.last(),
+                measuredFromMs = firstUsedAtMs,
+                measuredToMs = lastUsedAtMs,
                 tilt = PointTilt(tilt.mode, tilt.verified, angles),
                 maxTiltRad = if (tilt.mode.usesTilt) angles?.maxTiltRad else null,
             ),
@@ -217,20 +287,18 @@ class PointMeasurement(
      * Los ángulos de las épocas usadas si todas están en estado 30, en cualquier modo (S016/RF-22): los de la última,
      * la mayor inclinación, las mayores precisiones de la inclinación y la media del vector del jalón.
      */
-    private fun angles(antennaHeightM: Double): TiltAngles? {
-        val tilts = used.map { it.tilt }
-        if (!tilts.all(TiltEpoch::isCompensating)) return null
-        val poles = tilts.map { checkNotNull(TiltEpoch.poleVector(it)) }
-        val accuracies = tilts.map { checkNotNull(TiltEpoch.accuracy(it, antennaHeightM)) }
-        val last = checkNotNull(tilts.last())
+    private fun angles(): TiltAngles? {
+        val last = lastTilt
+        if (!allCompensating || last == null) return null
+        val n = usedCount
         return TiltAngles(
             tiltRad = checkNotNull(last.tiltRad),
             directionRad = checkNotNull(last.tiltDirectionRad),
             headingRad = last.headingRad,
-            maxTiltRad = tilts.maxOf { checkNotNull(it?.tiltRad) },
-            horizontalAccuracyM = accuracies.maxOf { it.horizontalM },
-            verticalAccuracyM = accuracies.maxOf { it.verticalM },
-            pole = PoleVector(poles.map { it.east }.average(), poles.map { it.north }.average(), poles.map { it.up }.average()),
+            maxTiltRad = maxTilt,
+            horizontalAccuracyM = maxHorizontalAccuracy,
+            verticalAccuracyM = maxVerticalAccuracy,
+            pole = PoleVector(poleEast / n, poleNorth / n, poleUp / n),
             receiverPoleHeightM = if (tilt.mode == TiltMode.RECEIVER) poleHeightM else null,
         )
     }
@@ -240,11 +308,8 @@ class PointMeasurement(
      * (S010/RF-17, RF-23; S016/RF-22).
      */
     private fun rawNmea(gst: GstAccuracy?): String {
-        val sentences = used.flatMap { epoch ->
-            listOfNotNull(epoch.gga?.rawSentence, epoch.gst?.rawSentence, epoch.tilt?.rawSentence).filter(String::isNotEmpty)
-        }
-        val extra = gst?.rawSentence?.takeIf { it.isNotEmpty() && it !in sentences }
-        return (sentences + listOfNotNull(extra)).joinToString("\n")
+        val extra = gst?.rawSentence?.takeIf { it.isNotEmpty() && it !in includedGst }
+        return if (extra == null) raw.toString() else raw.append('\n').append(extra).toString()
     }
 
     private companion object {
