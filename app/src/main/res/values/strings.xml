@@ -775,4 +775,8 @@
     <string name="tilt_guide_filter_fault">Fallo del filtro: mueve el receptor en ocho para volver a alinear.</string>
     <string name="tilt_guide_figure_eight_description">El jalón se mueve dibujando un ocho</string>
     <string name="tilt_tip_uncompensated">Punta sin compensar</string>
+    <string name="pole_height_receiver_label">Altura del jalón, la del receptor (m)</string>
+    <string name="pole_height_receiver_help">Tiene que coincidir con la altura de antena configurada en el receptor.</string>
+    <string name="collector_tilt_mode_missing">Elige el modo de inclinación de este receptor o pasa el asistente.</string>
+    <string name="collector_open_tilt">Inclinación</string>
 </resources>

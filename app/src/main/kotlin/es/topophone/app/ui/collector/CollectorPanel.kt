@@ -38,6 +38,7 @@ import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
 import java.text.NumberFormat
 import java.util.Locale
@@ -58,6 +59,7 @@ fun modeOptionTag(mode: MeasurementMode) = "collector_mode_${mode.name}"
 
 /** Lo que el usuario hace en el recolector. */
 const val COLLECTOR_RESTARTED_TAG = "collector_restarted"
+const val COLLECTOR_OPEN_TILT_TAG = "collector_open_tilt"
 
 class CollectorActions(
     val onName: (String) -> Unit = {},
@@ -74,6 +76,8 @@ class CollectorActions(
     val onDismissBaseChange: (Int) -> Unit = {},
     /** S015/RF-15. */
     val onDismissLongBaseline: (Int) -> Unit = {},
+    /** El apartado "Inclinación" del receptor (S016/RF-2, RF-18). */
+    val onOpenTilt: () -> Unit = {},
 )
 
 /**
@@ -105,7 +109,7 @@ fun CollectorPanel(
             ) { Form(state, unit, actions) }
             BaseNoticeBanners(state.notices, actions.onDismissBaseChange, actions.onDismissLongBaseline) // S015/RF-15, RF-17
             LiveQualityText(state.live, unit)
-            Messages(state)
+            Messages(state, actions)
             if (state.measuring) Measuring(state, actions) else MeasureButton(state, actions)
         }
     }
@@ -115,6 +119,7 @@ fun CollectorPanel(
 /** Nombre, descripción, jalón, modo y control de precisión. */
 @Composable
 private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorActions) {
+    val receiverPole = state.tiltMode == TiltMode.RECEIVER
     NameField(state, actions)
     OutlinedTextField(
         value = state.description,
@@ -126,9 +131,14 @@ private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorAc
     OutlinedTextField(
         value = state.poleHeightText,
         onValueChange = actions.onPoleHeight,
-        label = { Text(stringResource(R.string.pole_height_label)) },
+        // S016/RF-15: con el receptor que compensa, es la altura configurada en el receptor y tienen que coincidir.
+        label = { Text(stringResource(if (receiverPole) R.string.pole_height_receiver_label else R.string.pole_height_label)) },
         isError = !state.poleHeightValid,
-        supportingText = if (state.poleHeightValid) null else ({ Text(stringResource(R.string.pole_height_invalid)) }),
+        supportingText = when {
+            !state.poleHeightValid -> ({ Text(stringResource(R.string.pole_height_invalid)) })
+            receiverPole -> ({ Text(stringResource(R.string.pole_height_receiver_help)) })
+            else -> null
+        },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_POLE_TAG),
@@ -209,15 +219,23 @@ private fun LiveQualityText(live: LiveQuality?, unit: LinearUnit) {
     )
 }
 
-/** Por qué no se puede medir, avisos de la medida y punto guardado (S010/RF-10, RF-12, RF-19). */
+/** Por qué no se puede medir, la guía de la inclinación, avisos de la medida y punto guardado (S010/RF-10, RF-12, RF-19; S016). */
 @Composable
-private fun Messages(state: CollectorUiState) {
+private fun Messages(state: CollectorUiState, actions: CollectorActions) {
     val blocker = when (state.blocker) {
         MeasureBlocker.NO_POSITION -> R.string.project_no_position
         MeasureBlocker.OUTSIDE_CRS_AREA -> R.string.project_outside_crs
+        MeasureBlocker.TILT_MODE_MISSING -> R.string.collector_tilt_mode_missing // S016/RF-2
         else -> null
     }
     blocker?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag(COLLECTOR_BLOCKER_TAG)) }
+    state.tiltGuide?.let { TiltGuideBanner(it) } // S016/RF-12, RF-18
+    if (state.blocker == MeasureBlocker.TILT_MODE_MISSING || state.blocker == MeasureBlocker.TILT_NOT_READY) {
+        TextButton(
+            onClick = actions.onOpenTilt,
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(COLLECTOR_OPEN_TILT_TAG),
+        ) { Text(stringResource(R.string.collector_open_tilt)) } // S016/RF-2, RF-18
+    }
     if (state.measuring &&
         state.solutionLost
     ) {

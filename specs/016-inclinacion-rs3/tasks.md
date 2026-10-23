@@ -38,7 +38,7 @@
       Hecho cuando: `CoordinatesCardTest` y `ReceiverViewModelTest` en verde en APP, RECEIVER, VERTICAL y sin modo.
 - [x] T18. `app`: la punta en el panel de posición y en el rover, con el círculo de la precisión de la inclinación. (RF-16, RF-17, RF-21)
       Hecho cuando: `ProjectViewTest` y `RoverLayerTest` en verde con la punta, el aviso y el radio del círculo.
-- [ ] T19. `app`: bloqueos del recolector (sin modo y fuera del estado 30, con la guía y el enlace) y la altura del jalón del receptor. (RF-2, RF-12, RF-15, RF-18)
+- [x] T19. `app`: bloqueos del recolector (sin modo y fuera del estado 30, con la guía y el enlace) y la altura del jalón del receptor. (RF-2, RF-12, RF-15, RF-18)
       Hecho cuando: `CollectorViewModelTest` y `CollectorPanelTest` en verde con los dos bloqueos, la guía y la etiqueta de la altura.
 - [ ] T20. `app`: medida con inclinación en el recolector: `TiltLost` con sonido y vibración, inclinación máxima en el control de precisión, precisión en directo y cancelación al cambiar el modo. (RF-19, RF-20, RF-21, RF-28)
       Hecho cuando: `CollectorViewModelTest` y `CollectorDialogsTest` en verde, con `TILT` en el aviso de fuera de tolerancia.

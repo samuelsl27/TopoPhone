@@ -206,6 +206,11 @@ private fun AppNavHost(
                 onExport = { projectId, selection -> navController.navigate(ExportDestination(projectId, selection)) }, // S012/RF-1, RF-2
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
+                onOpenTilt = {
+                    // S016/RF-2, RF-18: a la sección Receptor, con su apartado "Inclinación" encima.
+                    navController.navigateToTopLevel(TopLevelDestination.RECEIVER)
+                    navController.navigate(ReceiverTiltRoute)
+                },
                 onBack = { navController.popBackStack() },
             )
             composable<SurveyRoute> { entry ->

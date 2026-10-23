@@ -344,6 +344,7 @@ fun ProjectViewRoute(
             onDiscard = collectorViewModel::discardPending,
             onDismissBaseChange = collectorViewModel::dismissBaseChange,
             onDismissLongBaseline = collectorViewModel::dismissLongBaseline,
+            onOpenTilt = navigation.onOpenTilt, // S016/RF-2, RF-18
         ),
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,

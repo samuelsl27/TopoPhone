@@ -763,4 +763,8 @@
     <string name="tilt_guide_filter_fault">Filter fault: move the receiver in a figure eight to align again.</string>
     <string name="tilt_guide_figure_eight_description">The pole moves drawing a figure eight</string>
     <string name="tilt_tip_uncompensated">Tip not compensated</string>
+    <string name="pole_height_receiver_label">Pole height, the receiver’s (m)</string>
+    <string name="pole_height_receiver_help">It must match the antenna height set in the receiver.</string>
+    <string name="collector_tilt_mode_missing">Choose the tilt mode of this receiver or run the wizard.</string>
+    <string name="collector_open_tilt">Tilt</string>
 </resources>

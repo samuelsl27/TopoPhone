@@ -72,6 +72,8 @@ class SurveyNavigation(
     val onOpenBackups: () -> Unit = {},
     val onExport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
+    /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
+    val onOpenTilt: () -> Unit = {},
     val onBack: () -> Unit = {},
 )
 

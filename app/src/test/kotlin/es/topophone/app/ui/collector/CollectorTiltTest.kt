@@ -1,0 +1,225 @@
+package es.topophone.app.ui.collector
+
+import android.content.Context
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.log.RecordingLog
+import es.topophone.app.receiver.CurrentTilt
+import es.topophone.app.receiver.MemoryTiltPreferences
+import es.topophone.app.receiver.currentTilt
+import es.topophone.app.ui.receiver.FakePreferences
+import es.topophone.app.ui.receiver.nmea
+import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.TiltMode
+import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.core.ntrip.NtripConnector
+import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TiltGuide
+import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.point.CollectorPreferences
+import es.topophone.data.point.RoomPointRepository
+import es.topophone.data.project.RoomProjectRepository
+import es.topophone.data.project.SaveResult
+import es.topophone.data.receiver.ReceiverTiltSettings
+import es.topophone.receiver.platform.Alerts
+import es.topophone.receiver.session.ConnectionState
+import es.topophone.receiver.session.ReceiverSession
+import es.topophone.receiver.transport.StreamTransport
+import io.kotest.matchers.shouldBe
+import java.io.ByteArrayOutputStream
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.withTimeout
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/** El recolector con la inclinación del RS3 (S016/RF-2, RF-12, RF-15, RF-18 a RF-22, RF-28). */
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(AndroidJUnit4::class)
+class CollectorTiltTest {
+
+    private val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), TopoPhoneDatabase::class.java)
+        .allowMainThreadQueries()
+        .build()
+    private val projects = RoomProjectRepository(db)
+    private val points = RoomPointRepository(db)
+    private val receiverPreferences = FakePreferences()
+    private val collectorPreferences = FakeCollectorPreferences()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val session = ReceiverSession(scope, NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
+    private val toApp = PipedOutputStream()
+    private val rs3 = "00:11:22:33:44:55"
+    private val log = RecordingLog()
+    private var tiltLost = 0
+    private var saved = 0
+    private val alerts = object : Alerts {
+        override fun connectionLost() = Unit
+
+        override fun correctionsLost() = Unit
+
+        override fun pointSaved() {
+            saved++
+        }
+
+        override fun solutionLost() = Unit
+
+        override fun tiltLost() {
+            tiltLost++
+        }
+    }
+    private lateinit var tilt: CurrentTilt
+    private lateinit var tiltPreferences: MemoryTiltPreferences
+
+    private class FakeCollectorPreferences : CollectorPreferences {
+        override val settings = MutableStateFlow(CollectorSettings())
+
+        override suspend fun save(settings: CollectorSettings) {
+            this.settings.value = settings
+        }
+    }
+
+    @Before
+    fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
+
+    @After
+    fun tearDown() {
+        runCatching { toApp.close() }
+        session.disconnect()
+        scope.cancel()
+        db.close()
+        Dispatchers.resetMain()
+    }
+
+    private fun viewModel(mode: TiltMode?, verified: Boolean = true): CollectorViewModel {
+        tiltPreferences = MemoryTiltPreferences(if (mode == null) emptyMap() else mapOf(rs3 to ReceiverTiltSettings(mode, verified)))
+        tilt = currentTilt(scope, tiltPreferences, address = rs3)
+        runBlocking { withTimeout(5_000) { tilt.state.first { it.key == rs3 } } }
+        val projectId = runBlocking { (projects.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12")) as SaveResult.Saved).id }
+        val vm = CollectorViewModel(
+            projects = projects,
+            points = points,
+            collectorPreferences = collectorPreferences,
+            receiverPreferences = receiverPreferences,
+            session = session,
+            alerts = alerts,
+            calculator = { ProjectPositionCalculator() },
+            log = log,
+            tilt = tilt,
+        )
+        vm.start(projectId)
+        CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+        await(vm) { it.loaded }
+        return vm
+    }
+
+    private fun await(vm: CollectorViewModel, predicate: (CollectorUiState) -> Boolean): CollectorUiState =
+        runBlocking { withTimeout(10_000) { vm.state.first(predicate) } }
+
+    /** Una época por segundo con su GGA, su GST y, si se da, su ETC. */
+    private fun sendEpoch(second: Int, etc: String? = COMPENSATING, status: Int = 4) {
+        val time = "1015%02d.00".format(30 + second)
+        toApp.write(nmea("GNGGA,$time,4025.0080000,N,00342.2228000,W,$status,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
+        toApp.write(nmea("GNGST,$time,0.012,0.010,0.007,45.0,0.008,0.006,0.015").toByteArray())
+        etc?.let { toApp.write(nmea("GNETC,$time,$it").toByteArray()) }
+        toApp.flush()
+    }
+
+    /** Conecta y manda dos épocas con [etc]: la primera queda completa. */
+    private fun receiving(vm: CollectorViewModel, etc: String?) {
+        session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
+        sendEpoch(0, etc)
+        sendEpoch(1, etc)
+        runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving && it.epoch != null } } }
+        await(vm) { it.live != null }
+    }
+
+    @Test
+    fun `S016 RF-2 sin modo y con la inclinacion encendida no se mide`() {
+        val vm = viewModel(mode = null)
+
+        receiving(vm, ALIGNMENT)
+
+        await(vm) { it.blocker == MeasureBlocker.TILT_MODE_MISSING }
+    }
+
+    @Test
+    fun `S016 RF-2 sin modo ni ETC se mide con el jalon vertical`() {
+        val vm = viewModel(mode = null)
+
+        receiving(vm, etc = null)
+
+        await(vm) { it.live != null }.blocker shouldBe null
+    }
+
+    @Test
+    fun `S016 RF-2 sin modo y con la inclinacion apagada se mide`() {
+        val vm = viewModel(mode = null)
+
+        receiving(vm, OFF)
+
+        await(vm) { it.live != null }.blocker shouldBe null
+    }
+
+    @Test
+    fun `S016 RF-18 en APP sin estado 30 no se mide y se guia`() {
+        val vm = viewModel(TiltMode.APP)
+
+        receiving(vm, ALIGNMENT)
+
+        val state = await(vm) { it.blocker == MeasureBlocker.TILT_NOT_READY }
+        state.tiltGuide shouldBe TiltGuide.ALIGNMENT
+    }
+
+    @Test
+    fun `S016 RF-12 con un aviso en estado 30 se mide y se guia`() {
+        val vm = viewModel(TiltMode.APP)
+
+        receiving(vm, FAST_MOTION)
+
+        val state = await(vm) { it.tiltGuide == TiltGuide.FAST_MOTION }
+        state.blocker shouldBe null
+    }
+
+    @Test
+    fun `S016 RF-12 en estado 30 sin aviso no hay guia`() {
+        val vm = viewModel(TiltMode.APP)
+
+        receiving(vm, COMPENSATING)
+
+        val state = await(vm) { it.live != null && it.blocker == null }
+        state.tiltGuide shouldBe null
+        state.tiltMode shouldBe TiltMode.APP
+    }
+
+    @Test
+    fun `S016 RF-15 en RECEIVER el recolector conoce el modo`() {
+        val vm = viewModel(TiltMode.RECEIVER)
+
+        receiving(vm, COMPENSATING)
+
+        await(vm) { it.live != null }.tiltMode shouldBe TiltMode.RECEIVER
+    }
+
+    private companion object {
+        const val COMPENSATING = "30,0,123.40,210.50,12.00,1.013,0.993,1.021"
+        const val FAST_MOTION = "30,10,123.40,210.50,12.00,1.013,0.993,1.021"
+        const val ALIGNMENT = "20,0,,,,,,"
+        const val OFF = ",,,,,,,"
+    }
+}

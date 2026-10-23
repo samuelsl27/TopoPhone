@@ -5,8 +5,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.receiver.BaseNotices
+import es.topophone.app.receiver.CurrentTilt
+import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.VisibleNotices
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.gnss.nmea.TiltData
+import es.topophone.core.gnss.nmea.TiltState
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
@@ -20,6 +24,7 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.survey.BaseFix
@@ -31,6 +36,8 @@ import es.topophone.core.survey.PointMeasurement
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TiltEpoch
+import es.topophone.core.survey.TiltGuide
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
@@ -64,8 +71,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-/** Por qué no se puede medir ahora (S010/RF-3, RF-12). */
-enum class MeasureBlocker { INVALID_NAME, NAME_TAKEN, INVALID_POLE, INVALID_SECONDS, NO_POSITION, OUTSIDE_CRS_AREA }
+/** Por qué no se puede medir ahora (S010/RF-3, RF-12; sin modo de inclinación o fuera del estado 30, S016/RF-2, RF-18). */
+enum class MeasureBlocker {
+    INVALID_NAME,
+    NAME_TAKEN,
+    INVALID_POLE,
+    INVALID_SECONDS,
+    NO_POSITION,
+    OUTSIDE_CRS_AREA,
+    TILT_MODE_MISSING,
+    TILT_NOT_READY,
+}
 
 /** Por qué una medida se ha cancelado sola (S010/RF-12). */
 enum class CollectorError { NO_DATA, OUTSIDE_CRS_AREA }
@@ -103,6 +119,10 @@ data class CollectorUiState(
     val notices: VisibleNotices = VisibleNotices(null, null, 0),
     /** La medida en curso empezó de nuevo porque cambió la base (S015/RF-18). */
     val restarted: Boolean = false,
+    /** El modo de inclinación del receptor en uso (S016/RF-15). */
+    val tiltMode: TiltMode? = null,
+    /** La guía de la inclinación, mientras el modo la use y la época no esté en estado 30 sin aviso (S016/RF-12). */
+    val tiltGuide: TiltGuide? = null,
 )
 
 /**
@@ -122,6 +142,7 @@ class CollectorViewModel @Inject constructor(
     private val inProgress: MeasurementInProgress = MeasurementInProgress(),
     private val log: AppLog = AppLog.NONE,
     private val baseNotices: BaseNotices = BaseNotices(),
+    private val tilt: CurrentTilt = CurrentTilt.NONE,
 ) : ViewModel() {
     private data class Form(
         val loaded: Boolean = false,
@@ -214,13 +235,18 @@ class CollectorViewModel @Inject constructor(
         projectFlow,
         session.state,
         baseNotices.dismissed,
-    ) { state, project, snapshot, dismissed ->
+        tilt.state,
+    ) { state, project, snapshot, dismissed, tiltState ->
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val live = gga?.let { LiveQuality(it.status, snapshot.gst?.horizontalM, snapshot.gst?.verticalM) }
+        val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
+        val mode = tiltState.settings.mode
         state.copy(
             live = live,
-            blocker = state.blocker ?: positionBlocker(snapshot, project, state.poleHeightText),
+            blocker = state.blocker ?: positionBlocker(snapshot, project, state.poleHeightText) ?: tiltBlocker(tiltState, epochTilt),
             notices = BaseNotices.visible(gga, snapshot.base, dismissed), // S015/RF-15, RF-17
+            tiltMode = mode,
+            tiltGuide = if (mode?.usesTilt == true) TiltEpoch.guide(epochTilt) else null, // S016/RF-12
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, CollectorUiState())
 
@@ -494,6 +520,21 @@ class CollectorViewModel @Inject constructor(
         val outside =
             PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable || PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable
         return if (outside) MeasureBlocker.OUTSIDE_CRS_AREA else null
+    }
+
+    /**
+     * S016/RF-2: un receptor sin modo que manda ETC con la inclinación encendida; S016/RF-18: un modo con la inclinación y
+     * la época fuera del estado 30. Sin ETC, o con la inclinación apagada, se mide con el jalón vertical (S002/RF-32).
+     */
+    private fun tiltBlocker(current: CurrentTiltState, epochTilt: TiltData?): MeasureBlocker? {
+        val mode = current.settings.mode
+        return when {
+            mode == null -> MeasureBlocker.TILT_MODE_MISSING.takeIf {
+                current.key != null && epochTilt != null && epochTilt.state != TiltState.OFF
+            }
+            mode.usesTilt && !TiltEpoch.isCompensating(epochTilt) -> MeasureBlocker.TILT_NOT_READY
+            else -> null
+        }
     }
 
     private fun formatPole(valueM: Double): String = LengthFormat.inUnit(valueM, LinearUnit.METRE, Locale.getDefault())
