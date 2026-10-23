@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.receiver.AndroidNotificationPermission
 import es.topophone.app.receiver.CorrectionsController
+import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
@@ -22,6 +23,7 @@ import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.SessionSpace
+import es.topophone.data.receiver.TiltPreferences
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.platform.AndroidNetworkStatus
 import es.topophone.receiver.platform.NetworkStatus
@@ -42,6 +44,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /** Hilo para el trabajo con ficheros (importar sesiones…). */
@@ -92,6 +96,16 @@ object ReceiverModule {
     ): ReceiverConnections = ReceiverConnections(session, bluetooth, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default)) {
         ReceiverService.start(context) // S004/RF-7
     }
+
+    /** El receptor en uso y su modo de inclinación, uno para toda la app (S016/RF-1; plan A8). */
+    @Provides
+    @Singleton
+    fun currentTilt(session: ReceiverSession, connections: ReceiverConnections, preferences: TiltPreferences): CurrentTilt = CurrentTilt(
+        replaying = session.state.map { it.replay != null }.distinctUntilChanged(),
+        address = connections.currentAddress,
+        preferences = preferences,
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+    )
 
     /** Tabla de fuentes del caster, con la misma identificación que la conexión NTRIP (S007/RF-14). */
     @Provides

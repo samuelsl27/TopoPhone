@@ -9,6 +9,9 @@ import es.topophone.receiver.transport.BluetoothOffException
 import es.topophone.receiver.transport.ReceiverTransport
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -26,13 +29,16 @@ class ReceiverConnections(
     private val scope: CoroutineScope,
     private val onConnecting: () -> Unit = {},
 ) {
-    @Volatile private var current: String? = null
+    private val current = MutableStateFlow<String?>(null)
+
+    /** La dirección del último receptor con el que se ha pedido conectar: la clave de su modo de inclinación (S016/RF-1). */
+    val currentAddress: StateFlow<String?> = current.asStateFlow()
     private val autoConnectTried = AtomicBoolean(false)
 
     init {
         scope.launch {
             session.state.map { it.connection to it.replay }.distinctUntilChanged().collect { (connection, replay) ->
-                val address = current
+                val address = current.value
                 if (connection is ConnectionState.Receiving && replay == null && address != null) {
                     preferences.saveLastReceiver(SavedReceiver(address, connection.description)) // S004/RF-24
                 }
@@ -43,7 +49,7 @@ class ReceiverConnections(
     /** Conecta con el receptor emparejado [address]; si se pierde el enlace, se reconecta solo. */
     fun connect(address: String) {
         onConnecting()
-        current = address
+        current.value = address
         session.connect(bluetooth.transportFor(address)) { reopen(address) }
     }
 

@@ -46,6 +46,8 @@ class ReceiverViewModelTest {
     private val preferences = FakePreferences()
     private var connectionLostAlerts = 0
     private val countingAlerts = object : Alerts {
+        override fun tiltLost() = Unit
+
         override fun connectionLost() {
             connectionLostAlerts++
         }

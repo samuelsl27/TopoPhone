@@ -79,6 +79,8 @@ class CollectorViewModelTest {
     private var saved = 0
     private var lost = 0
     private val alerts = object : Alerts {
+        override fun tiltLost() = Unit
+
         override fun connectionLost() = Unit
 
         override fun correctionsLost() = Unit

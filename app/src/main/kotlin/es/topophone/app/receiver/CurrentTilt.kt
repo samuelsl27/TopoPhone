@@ -1,0 +1,73 @@
+package es.topophone.app.receiver
+
+import es.topophone.core.model.point.TiltMode
+import es.topophone.data.receiver.ReceiverTiltSettings
+import es.topophone.data.receiver.TiltPreferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+
+/**
+ * El receptor en uso y su modo de inclinación (S016/RF-1, RF-2; plan A8).
+ *
+ * @property key la dirección Bluetooth del receptor, [TiltPreferences.REPLAY] con una reproducción, o null si no hay
+ *   ninguno.
+ * @property revision sube cada vez que se guarda el modo o se abre el asistente: el recolector cancela la medida si
+ *   cambia durante ella (S016/RF-28; plan A9).
+ */
+data class CurrentTiltState(
+    val key: String? = null,
+    val settings: ReceiverTiltSettings = ReceiverTiltSettings.NONE,
+    val wizardOpen: Boolean = false,
+    val revision: Int = 0,
+)
+
+/** Lo comparten el apartado "Inclinación", el asistente, el recolector y las coordenadas (@Singleton en la app). */
+@OptIn(ExperimentalCoroutinesApi::class)
+class CurrentTilt(replaying: Flow<Boolean>, address: Flow<String?>, private val preferences: TiltPreferences, scope: CoroutineScope) {
+    private val wizardOpen = MutableStateFlow(false)
+    private val revision = MutableStateFlow(0)
+
+    private val key: Flow<String?> = combine(replaying, address) { replay, receiver -> if (replay) TiltPreferences.REPLAY else receiver }
+        .distinctUntilChanged()
+
+    private val settings: Flow<Pair<String?, ReceiverTiltSettings>> = key.flatMapLatest { key ->
+        if (key == null) flowOf(null to ReceiverTiltSettings.NONE) else preferences.settings(key).map { key to it }
+    }
+
+    val state: StateFlow<CurrentTiltState> = combine(settings, wizardOpen, revision) { (key, settings), open, revision ->
+        CurrentTiltState(key, settings, open, revision)
+    }.stateIn(scope, SharingStarted.Eagerly, CurrentTiltState())
+
+    /** Elegido a mano: "sin comprobar", sin olvidar lo que encontró el asistente (S016/RF-3, RF-4). */
+    suspend fun choose(mode: TiltMode) = save { it.copy(mode = mode, verified = false) }
+
+    /** Confirmado en el asistente: "comprobado" (S016/RF-10). */
+    suspend fun confirm(mode: TiltMode) = save { ReceiverTiltSettings(mode, verified = true, detected = mode) }
+
+    fun openWizard() {
+        wizardOpen.value = true
+        revision.update { it + 1 }
+    }
+
+    fun closeWizard() {
+        wizardOpen.value = false
+    }
+
+    private suspend fun save(change: (ReceiverTiltSettings) -> ReceiverTiltSettings) {
+        val key = state.value.key ?: return
+        preferences.save(key, change(preferences.settings(key).first()))
+        revision.update { it + 1 }
+    }
+}

@@ -138,4 +138,13 @@ class AutoConnectTest {
 
         await { (it.connection as? ConnectionState.Reconnecting)?.bluetoothOff == true }
     }
+
+    @Test
+    fun `S016 RF-1 se sabe que receptor se ha conectado`() {
+        connections.currentAddress.value shouldBe null
+
+        connections.connect(RS3_DEVICE.address)
+
+        connections.currentAddress.value shouldBe RS3_DEVICE.address
+    }
 }

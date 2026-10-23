@@ -36,6 +36,9 @@ interface Alerts {
 
     /** Se ha perdido el FIX durante un promediado (S010/RF-10). */
     fun solutionLost()
+
+    /** Se descartan épocas de una medida por la inclinación (S016/RF-19). */
+    fun tiltLost()
 }
 
 class VibrationAlerts(private val context: Context) : Alerts {
@@ -61,6 +64,11 @@ class VibrationAlerts(private val context: Context) : Alerts {
         vibrate(LOST_PATTERN_MS)
     }
 
+    override fun tiltLost() {
+        tones?.startTone(ToneGenerator.TONE_PROP_NACK, TONE_MS)
+        vibrate(TILT_PATTERN_MS)
+    }
+
     private fun vibrate(pattern: LongArray) {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(VibratorManager::class.java)?.defaultVibrator
@@ -75,6 +83,7 @@ class VibrationAlerts(private val context: Context) : Alerts {
         val LOST_PATTERN_MS = longArrayOf(0, 300, 150, 300)
         val SAVED_PATTERN_MS = longArrayOf(0, 80)
         val CORRECTIONS_PATTERN_MS = longArrayOf(0, 150, 100, 150, 100, 150)
+        val TILT_PATTERN_MS = longArrayOf(0, 120, 80, 120)
         const val TONE_VOLUME = 100
         const val TONE_MS = 600
     }

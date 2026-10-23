@@ -31,6 +31,8 @@ internal class FakeBluetooth : BluetoothDevices {
 
 /** Avisos que no hacen nada, para los tests que no los miran. */
 internal object NoAlerts : Alerts {
+    override fun tiltLost() = Unit
+
     override fun connectionLost() = Unit
 
     override fun correctionsLost() = Unit
