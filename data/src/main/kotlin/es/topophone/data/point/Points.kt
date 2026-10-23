@@ -74,7 +74,8 @@ interface PointDao {
             "correction_age, sigma_h, sigma_v, mode, epochs_used, epochs_discarded, from_replay, out_of_tolerance, " +
             "'' AS raw_nmea, measured_from, measured_to, typed_form, typed_first, typed_second, typed_height, " +
             "typed_height_kind, edited, hidden, copy_of, created_at, deleted_at, trash_key, base_lat, base_lon, base_h, " +
-            "base_source, base_station, base_antenna_height, baseline FROM points " +
+            "base_source, base_station, base_antenna_height, baseline, tilt_mode, tilt_verified, tilt, tilt_direction, " +
+            "tilt_heading, tilt_max, tilt_sigma_h, tilt_sigma_v, tilt_pole_e, tilt_pole_n, tilt_pole_u, tilt_receiver_pole FROM points " +
             "WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at",
     )
     suspend fun forExport(projectId: String): List<PointEntity>

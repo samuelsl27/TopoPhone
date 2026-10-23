@@ -19,7 +19,11 @@ import es.topophone.core.model.point.PointHistoryEntry
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PointSnapshot
+import es.topophone.core.model.point.PointTilt
+import es.topophone.core.model.point.PoleVector
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.TiltAngles
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.data.project.ProjectEntity
 
@@ -94,6 +98,19 @@ data class PointEntity(
     @ColumnInfo(name = "base_station") val baseStation: Int? = null,
     @ColumnInfo(name = "base_antenna_height") val baseAntennaHeight: Double? = null,
     val baseline: Double? = null,
+    // S016/RF-22: el modo de inclinación y la inclinación, en radianes y metros; NULL en los manuales.
+    @ColumnInfo(name = "tilt_mode") val tiltMode: String? = null,
+    @ColumnInfo(name = "tilt_verified") val tiltVerified: Boolean? = null,
+    val tilt: Double? = null,
+    @ColumnInfo(name = "tilt_direction") val tiltDirection: Double? = null,
+    @ColumnInfo(name = "tilt_heading") val tiltHeading: Double? = null,
+    @ColumnInfo(name = "tilt_max") val tiltMax: Double? = null,
+    @ColumnInfo(name = "tilt_sigma_h") val tiltSigmaH: Double? = null,
+    @ColumnInfo(name = "tilt_sigma_v") val tiltSigmaV: Double? = null,
+    @ColumnInfo(name = "tilt_pole_e") val tiltPoleE: Double? = null,
+    @ColumnInfo(name = "tilt_pole_n") val tiltPoleN: Double? = null,
+    @ColumnInfo(name = "tilt_pole_u") val tiltPoleU: Double? = null,
+    @ColumnInfo(name = "tilt_receiver_pole") val tiltReceiverPole: Double? = null,
 )
 
 /** Una versión anterior de un punto, con la fecha del cambio (S011/RF-10; RNF-T6). Se borra con el punto. */
@@ -189,6 +206,18 @@ internal fun Point.toEntity(): PointEntity {
         baseStation = m?.base?.stationId,
         baseAntennaHeight = m?.base?.antennaHeightM,
         baseline = m?.base?.baselineM,
+        tiltMode = m?.tilt?.mode?.name,
+        tiltVerified = m?.tilt?.verified,
+        tilt = m?.tilt?.angles?.tiltRad,
+        tiltDirection = m?.tilt?.angles?.directionRad,
+        tiltHeading = m?.tilt?.angles?.headingRad,
+        tiltMax = m?.tilt?.angles?.maxTiltRad,
+        tiltSigmaH = m?.tilt?.angles?.horizontalAccuracyM,
+        tiltSigmaV = m?.tilt?.angles?.verticalAccuracyM,
+        tiltPoleE = m?.tilt?.angles?.pole?.east,
+        tiltPoleN = m?.tilt?.angles?.pole?.north,
+        tiltPoleU = m?.tilt?.angles?.pole?.up,
+        tiltReceiverPole = m?.tilt?.angles?.receiverPoleHeightM,
     )
 }
 
@@ -235,8 +264,26 @@ private fun PointEntity.measurement(): Measurement? {
         coordinates = coordinates(measuredGroundLat, measuredGroundLon, measuredGroundH, measuredEasting, measuredNorthing, measuredHeight)
             ?: PointCoordinates(GeodeticPosition(groundLat, groundLon, groundH), easting, northing, height),
         base = base(),
+        tilt = tilt(),
     )
 }
+
+/** El modo de inclinación y la inclinación de la medida; null en los puntos sin modo (S016/RF-22). */
+private fun PointEntity.tilt(): PointTilt? {
+    val mode = TiltMode.entries.firstOrNull { it.name == tiltMode } ?: return null
+    return PointTilt(mode, verified = tiltVerified ?: false, angles = angles())
+}
+
+private fun PointEntity.angles(): TiltAngles? = TiltAngles(
+    tiltRad = tilt ?: return null,
+    directionRad = tiltDirection ?: return null,
+    headingRad = tiltHeading,
+    maxTiltRad = tiltMax ?: return null,
+    horizontalAccuracyM = tiltSigmaH ?: return null,
+    verticalAccuracyM = tiltSigmaV ?: return null,
+    pole = PoleVector(tiltPoleE ?: return null, tiltPoleN ?: return null, tiltPoleU ?: return null),
+    receiverPoleHeightM = tiltReceiverPole,
+)
 
 /** La base de la medida; null si no se guardó (S015/RF-20). */
 private fun PointEntity.base(): PointBase? {

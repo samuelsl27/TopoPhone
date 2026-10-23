@@ -13,7 +13,11 @@ import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
+import es.topophone.core.model.point.PointTilt
+import es.topophone.core.model.point.PoleVector
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.TiltAngles
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.ProjectRepository
@@ -85,6 +89,33 @@ class PointRepositoryTest {
 
         points.points(project).first().single().measurement!!.base shouldBe base
         points.pointsForExport(project).single().measurement!!.base shouldBe base
+    }
+
+    @Test
+    fun `S016 RF-22 un punto guarda su inclinacion tal cual`() = runBlocking<Unit> {
+        val project = newProject("Calle Mayor 12")
+        val app = PointTilt(
+            TiltMode.APP,
+            verified = true,
+            angles = TiltAngles(
+                tiltRad = 0.209_439_510_239_319_55,
+                directionRad = 3.673_868_314_731_582_6,
+                headingRad = 2.153_736_051_229_437,
+                maxTiltRad = 0.218_166_156_499_291_55,
+                horizontalAccuracyM = 0.002_743_123_456,
+                verticalAccuracyM = 0.001_974_614_000_1,
+                pole = PoleVector(-0.105_515_123_456_7, -0.179_123_456_789, 0.978_147_600_733_805_6),
+            ),
+        )
+        val receiverAngles = app.angles!!.copy(headingRad = null, receiverPoleHeightM = 1.8)
+        val receiver = PointTilt(TiltMode.RECEIVER, verified = false, angles = receiverAngles)
+        val vertical = PointTilt(TiltMode.VERTICAL, verified = false, angles = null)
+        listOf("P1" to app, "P2" to receiver, "P3" to vertical).forEachIndexed { i, (name, tilt) ->
+            points.create(point(project, name, 2_000L + i).let { it.copy(measurement = it.measurement!!.copy(tilt = tilt)) })
+        }
+
+        points.points(project).first().map { it.measurement!!.tilt } shouldBe listOf(app, receiver, vertical)
+        points.pointsForExport(project).map { it.measurement!!.tilt } shouldBe listOf(app, receiver, vertical)
     }
 
     @Test

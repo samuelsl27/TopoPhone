@@ -10,7 +10,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
+import es.topophone.core.model.point.PointTilt
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.TiltMode
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.point.PointEntity
 import es.topophone.data.point.RoomPointRepository
@@ -229,6 +231,47 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S016 RF-22 de la v7 a la v8 los medidos son jalon vertical`() {
+        createFromExportedSchema(7)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v7 ->
+            v7.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v7.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, created_at) VALUES (?, ?, 'P12', '', 'MEASURED', " +
+                    "40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, -3.7037123456789, 699.423, " +
+                    "440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', 'INSTANT', 1, 0, 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+            v7.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, ground_lat, ground_lon, out_of_tolerance, created_at) " +
+                    "VALUES (?, ?, 'M1', '', 'MANUAL', 40.4, -3.7, '', 3000)",
+                arrayOf<Any>("manual-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            val measured = points.single { it.name == "P12" }.measurement.shouldNotBeNull()
+            measured.tilt shouldBe PointTilt(TiltMode.VERTICAL, verified = false, angles = null)
+            db.openHelper.readableDatabase.query("SELECT tilt_mode FROM points WHERE id = 'manual-1'").use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                cursor.isNull(0) shouldBe true
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S011 RF-22 y RF-25 el nombre de un punto de la papelera queda libre y entre los activos sigue siendo unico`() {
         val db = TopoPhoneDatabase.build(context, TEST_DB)
         try {
@@ -260,7 +303,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 7
+        const val CURRENT_VERSION = 8
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

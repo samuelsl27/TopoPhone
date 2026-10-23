@@ -31,6 +31,8 @@ import es.topophone.data.project.ProjectFolderEntity
  *   editado, oculto, copia de y papelera con `trash_key` en el índice del nombre; historial de cada punto. Room rehace
  *   la tabla y [PointsV6] copia la medida de los puntos de S010.
  * - v7 (S015): la base con la que se midió cada punto. Solo añade columnas que admiten NULL: migración de Room.
+ * - v8 (S016): el modo de inclinación y la inclinación de cada punto. Columnas que admiten NULL: migración de Room, y
+ *   [PointsV8] marca los puntos medidos antes como "Jalón vertical", que es como se calcularon.
  */
 @Database(
     entities = [
@@ -46,6 +48,7 @@ import es.topophone.data.project.ProjectFolderEntity
         ), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6, spec = TopoPhoneDatabase.PointsV6::class),
         AutoMigration(from = 6, to = 7),
+        AutoMigration(from = 7, to = 8, spec = TopoPhoneDatabase.PointsV8::class),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -62,7 +65,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 7
+        const val VERSION = 8
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =
@@ -80,6 +83,13 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
                     "measured_ground_h = ground_h, measured_easting = easting, measured_northing = northing, " +
                     "measured_height = height WHERE origin = 'MEASURED'",
             )
+        }
+    }
+
+    /** v7 → v8 (S016): los puntos medidos hasta ahora se calcularon con el jalón vertical (RNF-T6). */
+    class PointsV8 : AutoMigrationSpec {
+        override fun onPostMigrate(db: SupportSQLiteDatabase) {
+            db.execSQL("UPDATE points SET tilt_mode = 'VERTICAL', tilt_verified = 0 WHERE origin = 'MEASURED'")
         }
     }
 
