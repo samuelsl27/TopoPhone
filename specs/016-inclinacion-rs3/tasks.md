@@ -16,7 +16,7 @@
       Hecho cuando: `LiveTipTest` en verde con la tabla de A4, y `GroundPointTest` sigue igual.
 - [x] T7. `core:survey`: `PointMeasurement` con la inclinación (A5). (RF-13, RF-14, RF-19, RF-21, RF-22, RF-27)
       Hecho cuando: `PointMeasurementTiltTest` en verde (descarte con `TiltLost` una vez, promediado con el jalón moviéndose ≤ 1 mm, RECEIVER, VERTICAL con ángulos, precisión, ETC en `rawNmea`), y `PointMeasurementTest` sigue igual.
-- [ ] T8. `core:survey`: `PointCorrections.withPoleHeight` a lo largo del jalón (A6). (RF-25)
+- [x] T8. `core:survey`: `PointCorrections.withPoleHeight` a lo largo del jalón (A6). (RF-25)
       Hecho cuando: `PointCorrectionsTiltTest` en verde en APP y RECEIVER (≤ 1 mm), y `PointCorrectionsTest` sigue igual.
 - [ ] T9. `core:survey`: `TiltModeWizard` (A7). (RF-5, RF-6, RF-7, RF-8, RF-9)
       Hecho cuando: `TiltModeWizardTest` en verde con los dos modos, los tres motivos de no concluyente, el jalón de 0 m y la decisión en la misma época.
