@@ -99,4 +99,41 @@ class PointModelTest {
 
         measurement.tilt shouldBe null
     }
+
+    private fun measurement(quality: PointQuality, nmeaChunks: Int? = null) = Measurement(
+        antenna = GeodeticPosition(40.0, -3.0, 700.0),
+        poleHeightM = 1.8,
+        quality = quality,
+        rawNmea = "",
+        outOfTolerance = emptySet(),
+        measuredFromMs = 0,
+        measuredToMs = 0,
+        coordinates = PointCoordinates(GeodeticPosition(40.0, -3.0, 698.066), null, null, null),
+    ).let { if (nmeaChunks == null) it else it.copy(nmeaChunks = nmeaChunks) }
+
+    @Test
+    fun `S017 RF-12 una medida sin los datos del promediado los tiene vacios por defecto`() {
+        val quality = PointQuality("FIX", 20, 0.6, 1.0, 0.01, 0.02, MeasurementMode.INSTANT, 1, 0, fromReplay = false)
+
+        quality.averagedTimeS shouldBe null
+        quality.deviationHorizontalM shouldBe null
+        quality.deviationVerticalM shouldBe null
+        quality.auto shouldBe null
+        measurement(quality).nmeaChunks shouldBe 0
+    }
+
+    @Test
+    fun `S017 RF-12 un punto promediado lleva su tiempo, sus desviaciones tipicas y si fue automatico`() {
+        val quality = PointQuality(
+            "FIX", 20, 0.6, 1.0, 0.01, 0.02, MeasurementMode.AVERAGED, 7200, 3, fromReplay = false,
+            averagedTimeS = 720.0, deviationHorizontalM = 0.0042, deviationVerticalM = 0.0068, auto = false,
+        )
+        val point = Point.measured("id", "project", "P1", "", measurement(quality, nmeaChunks = 6), createdAtMs = 1L)
+
+        point.measurement?.quality?.averagedTimeS shouldBe 720.0
+        point.measurement?.quality?.deviationHorizontalM shouldBe 0.0042
+        point.measurement?.quality?.deviationVerticalM shouldBe 0.0068
+        point.measurement?.quality?.auto shouldBe false
+        point.measurement?.nmeaChunks shouldBe 6
+    }
 }

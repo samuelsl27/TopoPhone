@@ -46,6 +46,12 @@ data class PointQuality(
     val epochsUsed: Int,
     val epochsDiscarded: Int,
     val fromReplay: Boolean,
+    /** El tiempo realmente promediado en segundos, y las desviaciones típicas de las épocas usadas; null si no se promedió (S017/RF-12). */
+    val averagedTimeS: Double? = null,
+    val deviationHorizontalM: Double? = null,
+    val deviationVerticalM: Double? = null,
+    /** Medido por el modo automático; null en los puntos de antes de S017 y en los manuales (S017/RF-14). */
+    val auto: Boolean? = null,
 )
 
 /** Medido con el recolector (S010) o escrito a mano o duplicado (S011). */
@@ -76,6 +82,11 @@ data class Measurement(
     val base: PointBase? = null,
     /** El modo de inclinación y la inclinación (S016/RF-22); null en los puntos de antes de S016. */
     val tilt: PointTilt? = null,
+    /**
+     * Cuántos tramos de frases NMEA tiene el punto fuera de su fila, cuando son demasiadas para ella; entonces [rawNmea]
+     * está vacía (S017/RF-12). 0: todas las frases están en [rawNmea].
+     */
+    val nmeaChunks: Int = 0,
 )
 
 /**

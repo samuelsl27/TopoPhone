@@ -6,7 +6,7 @@
       Hecho cuando: el script genera `fixtures/promediado/` y su test de `tools` está en verde.
 - [x] T2. `core:model`: `DurationText` (`m:ss`), `AutoTrigger` y `CollectorSettings` con el automático y `AVERAGING_SECONDS` de 1 a 3600. (RF-1, RF-16, RF-17)
       Hecho cuando: `DurationTextTest` y `CollectorSettingsTest` en verde, con los rangos, la conversión de la distancia a la unidad del proyecto y `CollectorSettings` por defecto igual que antes.
-- [ ] T3. `core:model`: `PointQuality` con el tiempo promediado, las desviaciones típicas y `auto`, y `Measurement.nmeaChunks`. (RF-12, RF-14)
+- [x] T3. `core:model`: `PointQuality` con el tiempo promediado, las desviaciones típicas y `auto`, y `Measurement.nmeaChunks`. (RF-12, RF-14)
       Hecho cuando: los tests de `core:model` en verde y `Point.measured` sin cambios para quien no pasa los datos nuevos.
 - [ ] T4. `core:survey`: `AverageStats` (Welford, estabilidad, muestra y escala del gráfico). (RF-3, RF-4, RF-5, RF-12)
       Hecho cuando: `AverageStatsTest` en verde contra `fixtures/promediado/` (≤ 0,1 mm), con `n < 2`, el minuto de la estabilidad y la muestra de 2.000.
