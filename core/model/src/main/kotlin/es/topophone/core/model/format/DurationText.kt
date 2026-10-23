@@ -19,7 +19,14 @@ object DurationText {
         } else {
             val minutes = compact.substring(0, colon).toDigitsOrNull()
             val seconds = compact.substring(colon + 1).takeIf { it.length == 2 }?.toDigitsOrNull()
-            if (minutes == null || seconds == null || seconds >= SECONDS_PER_MINUTE) null else minutes.toLong() * SECONDS_PER_MINUTE + seconds
+            if (minutes == null ||
+                seconds == null ||
+                seconds >= SECONDS_PER_MINUTE
+            ) {
+                null
+            } else {
+                minutes.toLong() * SECONDS_PER_MINUTE + seconds
+            }
         }
         return value?.takeIf { it in range }?.toInt()
     }
