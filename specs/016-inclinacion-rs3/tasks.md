@@ -8,7 +8,7 @@
       Hecho cuando: `LocalTangentPlaneTest` en verde contra `punta_jalon.csv` (≤ 1 mm; ida y vuelta ≤ 0,1 mm).
 - [x] T3. `core:gnss` y `core:model`: `TiltData.rawSentence`; `TiltMode`, `PointTilt`, `TiltAngles`, `PoleVector` y `Measurement.tilt`; `PrecisionControl.maxTiltRad` y `PrecisionFailure.TILT`; `AngleFormat.direction`. (RF-11, RF-20, RF-22)
       Hecho cuando: `EbpEtcParserTest`, `PrecisionControlTest` y `CoordinateFormatTest` en verde con los casos nuevos.
-- [ ] T4. `core:survey`: `TiltEpoch` (estado 30, limpia, guía, vector del jalón y precisión de la inclinación, A2). (RF-12, RF-21)
+- [x] T4. `core:survey`: `TiltEpoch` (estado 30, limpia, guía, vector del jalón y precisión de la inclinación, A2). (RF-12, RF-21)
       Hecho cuando: `TiltEpochTest` en verde con la tabla de guías y el ejemplo de ETC_rev_3.
 - [ ] T5. `core:survey`: `PoleTip` (A3), también sin altura. (RF-13, RF-27)
       Hecho cuando: `PoleTipTest` en verde contra `punta_jalon.csv` (≤ 1 mm), con 0° igual al jalón vertical (≤ 0,1 mm) y sin altura.
