@@ -64,11 +64,16 @@ class AverageStats(private val epochPeriodS: Double) {
     /** La media tras cada una de las últimas `window + 1` épocas, por eje, en un buffer circular. */
     private val means = Array(AXES) { DoubleArray(window + 1) }
 
+    private var missingHeight = false
     private var east = DoubleArray(INITIAL_CAPACITY)
     private var north = DoubleArray(INITIAL_CAPACITY)
 
-    /** Una época usada: su posición en el SC del proyecto en metros. */
-    fun add(east: Double, north: Double, height: Double) {
+    /**
+     * Una época usada: su posición en el SC del proyecto en metros. Si a alguna le falta la altura (un punto sin altitud),
+     * no hay estadísticas verticales.
+     */
+    fun add(east: Double, north: Double, height: Double?) {
+        if (height == null) missingHeight = true
         if (n == this.east.size) {
             this.east = this.east.copyOf(n * 2)
             this.north = this.north.copyOf(n * 2)
@@ -78,7 +83,7 @@ class AverageStats(private val epochPeriodS: Double) {
         n++
         update(0, east)
         update(1, north)
-        update(2, height)
+        update(2, height ?: mean[2])
         val slot = n % (window + 1)
         for (axis in 0 until AXES) means[axis][slot] = mean[axis]
     }
@@ -102,9 +107,9 @@ class AverageStats(private val epochPeriodS: Double) {
             meanNorth = mean[1],
             meanHeight = mean[2],
             deviationHorizontalM = if (deviations) sqrt((sumSquares[0] + sumSquares[1]) / (n - 1)) else null,
-            deviationVerticalM = if (deviations) sqrt(sumSquares[2] / (n - 1)) else null,
+            deviationVerticalM = if (deviations && !missingHeight) sqrt(sumSquares[2] / (n - 1)) else null,
             stabilityHorizontalM = if (stable) hypot(mean[0] - means[0][before], mean[1] - means[1][before]) else null,
-            stabilityVerticalM = if (stable) abs(mean[2] - means[2][before]) else null,
+            stabilityVerticalM = if (stable && !missingHeight) abs(mean[2] - means[2][before]) else null,
         )
     }
 

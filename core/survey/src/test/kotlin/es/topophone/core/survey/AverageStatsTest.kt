@@ -187,4 +187,16 @@ class AverageStatsTest {
 
         stats.snapshot().shouldNotBeNull().timeS shouldBe (5.0 plusOrMinus 1e-9)
     }
+
+    @Test
+    fun `S017 RF-3 si a alguna epoca le falta la altura no hay estadisticas verticales`() {
+        val stats = AverageStats(epochPeriodS = 1.0)
+        repeat(100) { stats.add(it.toDouble(), 0.0, if (it == 50) null else 1.0) }
+
+        val snapshot = stats.snapshot().shouldNotBeNull()
+        snapshot.deviationHorizontalM.shouldNotBeNull()
+        snapshot.stabilityHorizontalM.shouldNotBeNull()
+        snapshot.deviationVerticalM.shouldBeNull()
+        snapshot.stabilityVerticalM.shouldBeNull()
+    }
 }

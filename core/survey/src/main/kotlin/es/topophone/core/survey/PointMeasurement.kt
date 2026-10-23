@@ -1,5 +1,7 @@
 package es.topophone.core.survey
 
+import es.topophone.core.geodesy.GeodeticPoint
+import es.topophone.core.geodesy.LocalTangentPlane
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
@@ -47,6 +49,9 @@ data class TiltSetup(val mode: TiltMode, val verified: Boolean) {
  *
  * @property maxTiltRad la mayor inclinación de las épocas usadas, para el control de precisión; null si el modo no
  *   usa la inclinación (S016/RF-20).
+ * @property averagedTimeS el tiempo promediado y [deviationHorizontalM] y [deviationVerticalM] las desviaciones típicas de
+ *   las épocas usadas, solo en una medida promediada; las desviaciones son null con menos de 2 épocas, y la vertical,
+ *   sin altura (S017/RF-12).
  */
 data class MeasurementResult(
     val antenna: GeodeticPosition,
@@ -67,6 +72,9 @@ data class MeasurementResult(
     val measuredToMs: Long,
     val tilt: PointTilt = PointTilt(TiltMode.VERTICAL, verified = false, angles = null),
     val maxTiltRad: Double? = null,
+    val averagedTimeS: Double? = null,
+    val deviationHorizontalM: Double? = null,
+    val deviationVerticalM: Double? = null,
 )
 
 /**
@@ -99,6 +107,10 @@ class PointMeasurement(
     private val tilt: TiltSetup = TiltSetup.VERTICAL,
 ) {
     private val requiredS = averagingSeconds.toDouble()
+
+    /** Las estadísticas del promediado (S017/RF-3 a RF-5); la instantánea no las lleva. */
+    private val stats = if (mode == MeasurementMode.AVERAGED) AverageStats(epochIntervalS) else null
+    private var statsOrigin: GeodeticPoint? = null
 
     /** Lo acumulado de las épocas usadas (plan A1). */
     private var usedCount = 0
@@ -197,12 +209,50 @@ class PointMeasurement(
         // Si dos son igual de malas, se queda la primera (como el `maxBy` de antes).
         if (worstSolution == null || SOLUTION_RANK.indexOf(fix.status) > SOLUTION_RANK.indexOf(worstSolution)) worstSolution = fix.status
         addTilt(epoch.tilt)
+        stats?.let { addToStats(it, fix, epoch.tilt) }
         listOfNotNull(fix.rawSentence, epoch.gst?.rawSentence, epoch.tilt?.rawSentence).filter(String::isNotEmpty).forEach {
             if (raw.isNotEmpty()) raw.append('\n')
             raw.append(it)
         }
         epoch.gst?.rawSentence?.takeIf(String::isNotEmpty)?.let(includedGst::add)
     }
+
+    /**
+     * La posición del suelo de la época en el SC del proyecto, para la desviación típica (S017/RF-3; plan A2). En un SC
+     * geográfico no hay Este ni Norte y se usa el plano tangente local de la primera época. Una época sin posición en el
+     * SC (fuera de su ámbito) no entra: la medida acabará en `OUTSIDE_CRS_AREA`.
+     */
+    private fun addToStats(stats: AverageStats, fix: GgaFix, data: TiltData?) {
+        val altitude = fix.altitudeM
+        val separation = fix.geoidSeparationM
+        val antennaH = if (altitude != null && separation != null) altitude + separation else null
+        val antenna = GeodeticPosition(fix.latitudeDeg, fix.longitudeDeg, antennaH)
+        val ground = when (tilt.mode) {
+            TiltMode.APP -> TiltEpoch.poleVector(data)?.let { PoleTip.fromAntenna(antenna, it, antennaHeightM) } ?: belowAntenna(antenna)
+            TiltMode.RECEIVER -> antenna
+            TiltMode.VERTICAL -> belowAntenna(antenna)
+        }
+        if (crs.isUtm) {
+            val position = calculator.fromGround(ground, crs, heightSystem)
+            val east = position.easting
+            val north = position.northing
+            if (east != null && north != null) stats.add(east, north, position.height)
+        } else {
+            val point = GeodeticPoint(ground.latitudeDeg, ground.longitudeDeg, ground.ellipsoidalHeightM ?: 0.0)
+            val origin = statsOrigin ?: point.also { statsOrigin = it }
+            val enu = LocalTangentPlane.between(origin, point)
+            stats.add(enu.east, enu.north, enu.up.takeIf { ground.ellipsoidalHeightM != null })
+        }
+    }
+
+    private fun belowAntenna(antenna: GeodeticPosition) =
+        GeodeticPosition(antenna.latitudeDeg, antenna.longitudeDeg, antenna.ellipsoidalHeightM?.minus(antennaHeightM))
+
+    /** Las estadísticas del promediado en curso (S017/RF-3, RF-4); null si es instantánea o aún no hay épocas. */
+    fun stats(): AverageStatsSnapshot? = stats?.snapshot()
+
+    /** Las épocas del gráfico de dispersión del promediado en curso (S017/RF-5); null si es instantánea o aún no hay épocas. */
+    fun dispersion(): Dispersion? = stats?.takeIf { it.snapshot() != null }?.dispersion()
 
     /** S016/RF-22: los ángulos de las épocas usadas, si todas están en estado 30, en cualquier modo. */
     private fun addTilt(data: TiltData?) {
@@ -250,7 +300,7 @@ class PointMeasurement(
             // Media de la antena menos H·ū: la media de las puntas de cada época (plan A3.3).
             TiltMode.APP -> PoleTip.fromAntenna(antenna, checkNotNull(angles).pole, antennaHeightM)
             TiltMode.RECEIVER -> antenna // la GGA ya es la punta (S016/RF-14)
-            TiltMode.VERTICAL -> GeodeticPosition(latitude, longitude, antennaH?.minus(antennaHeightM))
+            TiltMode.VERTICAL -> belowAntenna(antenna)
         }
         val position = calculator.fromGround(ground, crs, heightSystem)
         if (PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable || PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable) {
@@ -279,6 +329,9 @@ class PointMeasurement(
                 measuredToMs = lastUsedAtMs,
                 tilt = PointTilt(tilt.mode, tilt.verified, angles),
                 maxTiltRad = if (tilt.mode.usesTilt) angles?.maxTiltRad else null,
+                averagedTimeS = if (mode == MeasurementMode.AVERAGED) n * epochIntervalS else null,
+                deviationHorizontalM = stats?.snapshot()?.deviationHorizontalM,
+                deviationVerticalM = stats?.snapshot()?.deviationVerticalM,
             ),
         )
     }
