@@ -767,4 +767,9 @@
     <string name="pole_height_receiver_help">It must match the antenna height set in the receiver.</string>
     <string name="collector_tilt_mode_missing">Choose the tilt mode of this receiver or run the wizard.</string>
     <string name="collector_open_tilt">Tilt</string>
+    <string name="collector_tilt_lost">Tilt not valid: those epochs do not count.</string>
+    <string name="collector_tilt_mode_changed">Measurement cancelled: the tilt mode has changed.</string>
+    <string name="precision_tilt_limit">Maximum tilt</string>
+    <string name="precision_tilt_value">Maximum tilt (°, 1 to 60)</string>
+    <string name="precision_summary_tilt">tilt ≤ %1$s°</string>
 </resources>

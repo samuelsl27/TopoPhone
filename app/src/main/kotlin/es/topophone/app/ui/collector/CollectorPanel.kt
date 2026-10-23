@@ -60,6 +60,8 @@ fun modeOptionTag(mode: MeasurementMode) = "collector_mode_${mode.name}"
 /** Lo que el usuario hace en el recolector. */
 const val COLLECTOR_RESTARTED_TAG = "collector_restarted"
 const val COLLECTOR_OPEN_TILT_TAG = "collector_open_tilt"
+const val COLLECTOR_TILT_LOST_TAG = "collector_tilt_lost"
+const val COLLECTOR_TILT_CHANGED_TAG = "collector_tilt_changed"
 
 class CollectorActions(
     val onName: (String) -> Unit = {},
@@ -144,7 +146,10 @@ private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorAc
         modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_POLE_TAG),
     ) // S010/RF-5
     ModeChoice(state, actions)
-    PrecisionControlRow(state.settings.precision, unit) { actions.onSettings(state.settings.copy(precision = it)) } // S010/RF-13
+    // S010/RF-13; con la inclinación, también la inclinación máxima (S016/RF-20).
+    PrecisionControlRow(state.settings.precision, unit, showTilt = state.tiltMode?.usesTilt == true) {
+        actions.onSettings(state.settings.copy(precision = it))
+    }
 }
 
 @Composable
@@ -241,12 +246,24 @@ private fun Messages(state: CollectorUiState, actions: CollectorActions) {
     ) {
         Text(stringResource(R.string.collector_solution_lost), color = MaterialTheme.colorScheme.error)
     }
+    if (state.measuring && state.tiltLost != null) {
+        Text(
+            stringResource(R.string.collector_tilt_lost),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag(COLLECTOR_TILT_LOST_TAG),
+        )
+    } // S016/RF-19
     if (state.measuring && state.restarted) {
         Text(stringResource(R.string.collector_restarted), modifier = Modifier.testTag(COLLECTOR_RESTARTED_TAG)) // S015/RF-18
     }
     when (state.error) {
         CollectorError.NO_DATA -> Text(stringResource(R.string.collector_no_data), color = MaterialTheme.colorScheme.error)
         CollectorError.OUTSIDE_CRS_AREA -> Text(stringResource(R.string.project_outside_crs), color = MaterialTheme.colorScheme.error)
+        CollectorError.TILT_MODE_CHANGED -> Text(
+            stringResource(R.string.collector_tilt_mode_changed),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag(COLLECTOR_TILT_CHANGED_TAG),
+        ) // S016/RF-28
         null -> Unit
     }
     state.savedName?.let { Text(stringResource(R.string.collector_saved, it), style = MaterialTheme.typography.bodyLarge) }

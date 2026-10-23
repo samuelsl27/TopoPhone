@@ -11,6 +11,9 @@ import es.topophone.app.receiver.currentTilt
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.PrecisionControl
+import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
@@ -27,6 +30,9 @@ import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.io.ByteArrayOutputStream
 import java.io.PipedInputStream
@@ -214,6 +220,92 @@ class CollectorTiltTest {
         receiving(vm, COMPENSATING)
 
         await(vm) { it.live != null }.tiltMode shouldBe TiltMode.RECEIVER
+    }
+
+    @Test
+    fun `S016 RF-19 las epocas con aviso se descartan con sonido`() {
+        val vm = viewModel(TiltMode.APP)
+        collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 2)
+        receiving(vm, COMPENSATING)
+
+        await(vm) { it.blocker == null }
+        vm.measure()
+        sendEpoch(2, FAST_MOTION)
+        await(vm) { it.tiltLost == TiltGuide.FAST_MOTION }
+        (3..5).forEach { sendEpoch(it, COMPENSATING) }
+
+        await(vm) { it.savedName != null }
+        tiltLost shouldBe 1
+        log.messages.any { it.startsWith("Épocas descartadas por la inclinación") && it.endsWith("movimiento rápido") } shouldBe true
+    }
+
+    @Test
+    fun `S016 RF-20 superar la inclinacion maxima pide confirmar`() {
+        val vm = viewModel(TiltMode.APP)
+        collectorPreferences.settings.value = CollectorSettings(precision = PrecisionControl(maxTiltRad = Math.toRadians(10.0)))
+        receiving(vm, COMPENSATING)
+
+        await(vm) { it.blocker == null }
+        vm.measure()
+        sendEpoch(2, COMPENSATING)
+
+        await(vm) { it.pending != null }.pending.shouldNotBeNull().failures shouldBe setOf(PrecisionFailure.TILT)
+    }
+
+    @Test
+    fun `S016 RF-20 en jalon vertical la inclinacion maxima no cuenta`() {
+        val vm = viewModel(TiltMode.VERTICAL)
+        collectorPreferences.settings.value = CollectorSettings(precision = PrecisionControl(maxTiltRad = Math.toRadians(10.0)))
+        receiving(vm, COMPENSATING)
+
+        await(vm) { it.blocker == null }
+        vm.measure()
+        sendEpoch(2, COMPENSATING)
+
+        await(vm) { it.savedName != null }.pending shouldBe null
+    }
+
+    @Test
+    fun `S016 RF-21 la precision en directo suma la de la inclinacion`() {
+        val vm = viewModel(TiltMode.APP)
+
+        receiving(vm, COMPENSATING)
+
+        val live = await(vm) { it.live != null }.live.shouldNotBeNull()
+        val tilt = Math.hypot(0.993, 1.013) * (1.8 + 0.134) / 1000
+        live.horizontalM.shouldNotBeNull() shouldBe ((Math.hypot(0.008, 0.006) + tilt) plusOrMinus 1e-9)
+        live.verticalM.shouldNotBeNull() shouldBe ((0.015 + 1.021 * 1.934 / 1000) plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S016 RF-28 cambiar el modo durante una medida la cancela`() {
+        val vm = viewModel(TiltMode.APP)
+        collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 30)
+        receiving(vm, COMPENSATING)
+        await(vm) { it.blocker == null }
+        vm.measure()
+        await(vm) { it.measuring }
+
+        runBlocking { tilt.choose(TiltMode.VERTICAL) }
+
+        val state = await(vm) { it.error == CollectorError.TILT_MODE_CHANGED }
+        state.measuring shouldBe false
+        log.messages shouldContain "Medida de 1 cancelada: ha cambiado el modo de inclinación"
+    }
+
+    @Test
+    fun `S016 RF-28 abrir el asistente durante una medida la cancela`() {
+        val vm = viewModel(TiltMode.APP)
+        collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 30)
+        receiving(vm, COMPENSATING)
+        await(vm) { it.blocker == null }
+        vm.measure()
+        await(vm) { it.measuring }
+
+        tilt.openWizard()
+
+        await(vm) { it.error == CollectorError.TILT_MODE_CHANGED }
+        saved shouldBe 0
     }
 
     private companion object {

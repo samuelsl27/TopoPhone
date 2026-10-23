@@ -779,4 +779,9 @@
     <string name="pole_height_receiver_help">Tiene que coincidir con la altura de antena configurada en el receptor.</string>
     <string name="collector_tilt_mode_missing">Elige el modo de inclinación de este receptor o pasa el asistente.</string>
     <string name="collector_open_tilt">Inclinación</string>
+    <string name="collector_tilt_lost">Inclinación no válida: no cuentan esas épocas.</string>
+    <string name="collector_tilt_mode_changed">Medida cancelada: ha cambiado el modo de inclinación.</string>
+    <string name="precision_tilt_limit">Inclinación máxima</string>
+    <string name="precision_tilt_value">Inclinación máxima (°, de 1 a 60)</string>
+    <string name="precision_summary_tilt">inclinación ≤ %1$s°</string>
 </resources>

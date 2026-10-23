@@ -36,8 +36,11 @@ import es.topophone.core.survey.PointMeasurement
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.ReceiverModel
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.TiltGuide
+import es.topophone.core.survey.TiltSetup
+import es.topophone.core.survey.VerticalPole
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
@@ -83,8 +86,8 @@ enum class MeasureBlocker {
     TILT_NOT_READY,
 }
 
-/** Por qué una medida se ha cancelado sola (S010/RF-12). */
-enum class CollectorError { NO_DATA, OUTSIDE_CRS_AREA }
+/** Por qué una medida se ha cancelado sola (S010/RF-12; al cambiar el modo de inclinación, S016/RF-28). */
+enum class CollectorError { NO_DATA, OUTSIDE_CRS_AREA, TILT_MODE_CHANGED }
 
 /** Solución y precisiones de la GST del receptor (S010/RF-6). */
 data class LiveQuality(val solution: SolutionStatus, val horizontalM: Double?, val verticalM: Double?)
@@ -111,6 +114,8 @@ data class CollectorUiState(
     val measuring: Boolean = false,
     val progress: MeasureProgress? = null,
     val solutionLost: Boolean = false,
+    /** La medida en curso descarta épocas por la inclinación, con la guía de la primera (S016/RF-19). */
+    val tiltLost: TiltGuide? = null,
     val pending: PendingPoint? = null,
     /** Último punto guardado, para decirlo (S010/RF-19). */
     val savedName: String? = null,
@@ -157,6 +162,7 @@ class CollectorViewModel @Inject constructor(
         val measuring: Boolean = false,
         val progress: MeasureProgress? = null,
         val solutionLost: Boolean = false,
+        val tiltLost: TiltGuide? = null,
         val pending: PendingPoint? = null,
         val savedName: String? = null,
         val error: CollectorError? = null,
@@ -185,6 +191,9 @@ class CollectorViewModel @Inject constructor(
 
     /** La base de las épocas de la medida en curso; con el reinicio de RF-18 es siempre la misma (S015/RF-20). */
     private var measurementBase: BaseFix? = null
+
+    /** La revisión del modo de inclinación al empezar la medida (S016/RF-28; plan A9). */
+    private var measurementRevision: Int? = null
 
     init {
         // S013/RF-16: la medida y el punto que espera a confirmarse, fuera del recolector.
@@ -223,6 +232,7 @@ class CollectorViewModel @Inject constructor(
             measuring = run.measuring,
             progress = run.progress,
             solutionLost = run.solutionLost,
+            tiltLost = run.tiltLost,
             pending = run.pending,
             savedName = run.savedName,
             error = run.error,
@@ -238,9 +248,9 @@ class CollectorViewModel @Inject constructor(
         tilt.state,
     ) { state, project, snapshot, dismissed, tiltState ->
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
-        val live = gga?.let { LiveQuality(it.status, snapshot.gst?.horizontalM, snapshot.gst?.verticalM) }
         val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
         val mode = tiltState.settings.mode
+        val live = gga?.let { liveQuality(it.status, snapshot, mode, epochTilt, state.poleHeightText) }
         state.copy(
             live = live,
             blocker = state.blocker ?: positionBlocker(snapshot, project, state.poleHeightText) ?: tiltBlocker(tiltState, epochTilt),
@@ -252,6 +262,12 @@ class CollectorViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { session.epochs.collect(::onEpoch) }
+        // S016/RF-28: cambiar el modo o abrir el asistente durante una medida la cancela sin guardar nada.
+        viewModelScope.launch {
+            tilt.state.map { it.revision }.distinctUntilChanged().collect { revision ->
+                if (measurement != null && measurementRevision != null && revision != measurementRevision) cancelForTiltMode()
+            }
+        }
     }
 
     fun start(id: String) {
@@ -296,6 +312,10 @@ class CollectorViewModel @Inject constructor(
         val pole = PoleHeight.parse(current.poleHeightText) ?: return
         if (current.blocker != null || current.measuring || current.pending != null) return
         val settings = current.settings
+        // S016/RF-13, RF-14: el modo del receptor al empezar; sin modo, sin ETC o con la inclinación apagada, jalón vertical.
+        val tiltState = tilt.state.value
+        val tiltSetup = TiltSetup(tiltState.settings.mode ?: TiltMode.VERTICAL, tiltState.settings.verified)
+        measurementRevision = tiltState.revision
         val factory = {
             PointMeasurement(
                 mode = settings.mode,
@@ -307,6 +327,7 @@ class CollectorViewModel @Inject constructor(
                 epochIntervalS = epochIntervalS,
                 startedAtMs = System.currentTimeMillis(),
                 calculator = calculator.get(),
+                tilt = tiltSetup,
             )
         }
         newMeasurement = factory
@@ -321,6 +342,13 @@ class CollectorViewModel @Inject constructor(
                 measurement?.onTick(System.currentTimeMillis())?.let(::handle)
             }
         }
+    }
+
+    private fun cancelForTiltMode() {
+        measurement?.cancel()
+        stopMeasuring()
+        log.warning(LogCategory.POINTS, "Medida de ${measuredName()} cancelada: ha cambiado el modo de inclinación") // S014/RF-5
+        run.value = Run(error = CollectorError.TILT_MODE_CHANGED)
     }
 
     /** S010/RF-11: no se guarda nada. */
@@ -375,7 +403,13 @@ class CollectorViewModel @Inject constructor(
                 alerts.solutionLost() // S010/RF-10
                 run.update { it.copy(solutionLost = true) }
             }
-            is MeasurementUpdate.TiltLost -> Unit // el recolector aún no mide con la inclinación (S016/RF-19)
+            is MeasurementUpdate.TiltLost -> {
+                // S014/RF-5
+                val cause = update.guide.logText()
+                log.warning(LogCategory.POINTS, "Épocas descartadas por la inclinación durante la medida de ${measuredName()}: $cause")
+                alerts.tiltLost() // S016/RF-19
+                run.update { it.copy(tiltLost = update.guide) }
+            }
             is MeasurementUpdate.Failed -> {
                 stopMeasuring()
                 val error = when (update.reason) {
@@ -394,6 +428,7 @@ class CollectorViewModel @Inject constructor(
                     result.solution == SolutionStatus.FIX,
                     result.horizontalM,
                     result.verticalM,
+                    result.maxTiltRad, // S016/RF-20: null si el modo no usa la inclinación
                 )
                 if (failures.isEmpty()) {
                     save(result, failures)
@@ -482,6 +517,7 @@ class CollectorViewModel @Inject constructor(
         ticker = null
         measurement = null
         newMeasurement = null
+        measurementRevision = null
     }
 
     /** Las épocas con la base vieja se descartan y la medida empieza de nuevo con la nueva (S015/RF-18). */
@@ -491,7 +527,7 @@ class CollectorViewModel @Inject constructor(
         measurementBaseChange = baseChange
         measurementBase = null
         log.warning(LogCategory.POINTS, "Medida de ${measuredName()} empezada de nuevo: la base ha cambiado") // S014/RF-5
-        run.update { it.copy(progress = null, solutionLost = false, restarted = true) }
+        run.update { it.copy(progress = null, solutionLost = false, tiltLost = null, restarted = true) }
     }
 
     private fun checkName() {
@@ -522,6 +558,27 @@ class CollectorViewModel @Inject constructor(
         return if (outside) MeasureBlocker.OUTSIDE_CRS_AREA else null
     }
 
+    /** S010/RF-6 con S016/RF-21: en "Calculada por la app", la precisión de la GST más la de la inclinación de la época. */
+    private fun liveQuality(
+        status: SolutionStatus,
+        snapshot: ReceiverSnapshot,
+        mode: TiltMode?,
+        epochTilt: TiltData?,
+        poleText: String,
+    ): LiveQuality {
+        val pole = PoleHeight.parse(poleText)
+        val accuracy = if (mode == TiltMode.APP && pole != null) {
+            TiltEpoch.accuracy(epochTilt?.takeIf(TiltEpoch::isCompensating), VerticalPole.antennaHeightM(pole, ReceiverModel.RS3))
+        } else {
+            null
+        }
+        return LiveQuality(
+            status,
+            snapshot.gst?.horizontalM?.plus(accuracy?.horizontalM ?: 0.0),
+            snapshot.gst?.verticalM?.plus(accuracy?.verticalM ?: 0.0),
+        )
+    }
+
     /**
      * S016/RF-2: un receptor sin modo que manda ETC con la inclinación encendida; S016/RF-18: un modo con la inclinación y
      * la época fuera del estado 30. Sin ETC, o con la inclinación apagada, se mide con el jalón vertical (S002/RF-32).
@@ -544,4 +601,15 @@ class CollectorViewModel @Inject constructor(
         const val DEFAULT_INTERVAL_S = 1.0
         const val MIN_INTERVAL_S = 0.05
     }
+}
+
+/** La guía en el log, en español y sin depender del idioma de la interfaz (S014/RF-5). */
+internal fun TiltGuide.logText(): String = when (this) {
+    TiltGuide.NO_TILT -> "no llega la inclinación"
+    TiltGuide.FATAL -> "error de la inclinación"
+    TiltGuide.SETUP -> "la inclinación se está preparando"
+    TiltGuide.ALIGNMENT -> "la inclinación está en alineación"
+    TiltGuide.FAST_MOTION -> "movimiento rápido"
+    TiltGuide.BAD_GNSS -> "GNSS malo"
+    TiltGuide.FILTER_FAULT -> "fallo del filtro"
 }
