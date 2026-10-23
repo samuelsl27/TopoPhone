@@ -28,7 +28,7 @@
       Hecho cuando: `CurrentTiltTest` en verde con un receptor, una reproducción, la revisión y el asistente.
 - [x] T13. `app`: entrada "Inclinación" del menú del receptor, ruta y pantalla con los tres modos, el resumen y el aviso de RF-4. (RF-1, RF-3, RF-4)
       Hecho cuando: `TiltScreenTest` y `ReceiverMenuTest` en verde, con TalkBack.
-- [ ] T14. `app`: el asistente en la pantalla "Inclinación" (`TiltViewModel` con `TiltModeWizard`). (RF-5, RF-6, RF-7, RF-8, RF-9, RF-10)
+- [x] T14. `app`: el asistente en la pantalla "Inclinación" (`TiltViewModel` con `TiltModeWizard`). (RF-5, RF-6, RF-7, RF-8, RF-9, RF-10)
       Hecho cuando: `TiltWizardScreenTest` en verde: qué falta, pasos, propuesta, confirmar, repetir y no concluyente.
 - [ ] T15. `app`: tarjeta "Inclinación" en la pantalla Estado. (RF-11)
       Hecho cuando: `StatusScreenTest` en verde con el estado, el aviso, los ángulos en el formato de los proyectos nuevos y las precisiones.

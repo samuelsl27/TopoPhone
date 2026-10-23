@@ -191,7 +191,16 @@ fun ReceiverRoute(
             )
         } ?: CorrectionsActions(),
         tilt = tilt,
-        tiltActions = tiltViewModel?.let { vm -> TiltActions(onChoose = vm::choose) } ?: TiltActions(),
+        tiltActions = tiltViewModel?.let { vm ->
+            TiltActions(
+                onChoose = vm::choose,
+                onOpenWizard = vm::openWizard,
+                onStartTest = vm::startTest,
+                onConfirm = vm::confirm,
+                onRepeat = vm::repeatTest,
+                onCloseWizard = vm::closeWizard,
+            )
+        } ?: TiltActions(),
         actions = ReceiverActions(
             onRequestPermission = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) permissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)

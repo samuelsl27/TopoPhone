@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.point.TiltMode
+import es.topophone.core.survey.WizardState
 import es.topophone.data.receiver.ReceiverTiltSettings
 
 const val TILT_SCREEN_TAG = "receiver_tilt_screen"
@@ -30,14 +31,21 @@ const val TILT_WIZARD_OPEN_TAG = "tilt_wizard_open"
 
 fun tiltModeTag(mode: TiltMode) = "tilt_mode_${mode.name.lowercase()}"
 
-/** Lo que pinta el apartado "Inclinación" (S016/RF-1, RF-3, RF-4). */
-data class TiltUiState(val settings: ReceiverTiltSettings = ReceiverTiltSettings.NONE) {
+/** Lo que pinta el apartado "Inclinación" (S016/RF-1, RF-3, RF-4) y el asistente, si está abierto (S016/RF-5 a RF-10). */
+data class TiltUiState(val settings: ReceiverTiltSettings = ReceiverTiltSettings.NONE, val wizard: WizardState? = null) {
     /** S016/RF-4: "Jalón vertical" con un receptor que el asistente encontró compensando. */
     val verticalWithCompensatingReceiver: Boolean
         get() = settings.mode == TiltMode.VERTICAL && settings.detected == TiltMode.RECEIVER
 }
 
-class TiltActions(val onChoose: (TiltMode) -> Unit = {}, val onOpenWizard: () -> Unit = {})
+class TiltActions(
+    val onChoose: (TiltMode) -> Unit = {},
+    val onOpenWizard: () -> Unit = {},
+    val onStartTest: () -> Unit = {},
+    val onConfirm: () -> Unit = {},
+    val onRepeat: () -> Unit = {},
+    val onCloseWizard: () -> Unit = {},
+)
 
 /** El nombre de cada modo (S016/RF-1). */
 internal fun TiltMode.labelRes(): Int = when (this) {
@@ -101,8 +109,11 @@ internal fun TiltCard(state: TiltUiState, actions: TiltActions) {
                 modifier = Modifier.testTag(TILT_VERTICAL_WARNING_TAG),
             ) // S016/RF-4
         }
-        Button(onClick = actions.onOpenWizard, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(TILT_WIZARD_OPEN_TAG)) {
-            Text(stringResource(R.string.tilt_wizard_open))
+        if (state.wizard == null) {
+            Button(onClick = actions.onOpenWizard, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(TILT_WIZARD_OPEN_TAG)) {
+                Text(stringResource(R.string.tilt_wizard_open))
+            }
         }
     }
+    state.wizard?.let { TiltWizardCard(it, actions) }
 }

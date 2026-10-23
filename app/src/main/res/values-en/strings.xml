@@ -723,4 +723,23 @@
     <string name="tilt_mode_state_unverified">Chosen by hand, not verified.</string>
     <string name="tilt_vertical_warning">The wizard found this receiver compensating its position. With “Vertical pole”, the receiver must not compensate its position, or its tilt must be off.</string>
     <string name="tilt_wizard_open">Mode wizard</string>
+    <string name="tilt_wizard_intro">Checks whether the receiver compensates its position: with the pole tip still, the pole is tilted and the movement of the position is checked.</string>
+    <string name="tilt_wizard_missing_fix">Missing: FIX solution</string>
+    <string name="tilt_wizard_missing_tilt">Missing: tilt in “Compensating” without warnings</string>
+    <string name="tilt_wizard_start">Start the test</string>
+    <string name="tilt_wizard_reference">Keep the tip still with the pole vertical</string>
+    <string name="tilt_wizard_tilt">Tilt the pole 15° or more without moving the tip</string>
+    <string name="tilt_wizard_tilt_more">Tilt the pole further</string>
+    <string name="tilt_wizard_current_tilt">Tilt: %1$s</string>
+    <string name="tilt_wizard_hold">Hold it there</string>
+    <string name="tilt_wizard_proposed_receiver">The receiver compensates its position: “Compensated by the receiver”. “Calculated by the app” is recommended, with the receiver not compensating its position.</string>
+    <string name="tilt_wizard_proposed_app">The receiver does not compensate its position: “Calculated by the app”.</string>
+    <string name="tilt_wizard_movement">Movement of the position: %1$s; expected without compensation: %2$s</string>
+    <string name="tilt_wizard_inconclusive">The test is inconclusive: %1$s</string>
+    <string name="tilt_wizard_reason_mismatch">the position did not move as in either mode</string>
+    <string name="tilt_wizard_reason_lost">the FIX or the tilt was lost</string>
+    <string name="tilt_wizard_reason_timeout">the pole was not tilted in time</string>
+    <string name="tilt_wizard_confirm">Confirm</string>
+    <string name="tilt_wizard_repeat">Repeat</string>
+    <string name="tilt_wizard_close">Close</string>
 </resources>

@@ -735,4 +735,23 @@
     <string name="tilt_mode_state_unverified">Elegido a mano, sin comprobar.</string>
     <string name="tilt_vertical_warning">El asistente encontró este receptor compensando la posición. Con «Jalón vertical», el receptor tiene que estar sin compensar la posición o con la inclinación apagada.</string>
     <string name="tilt_wizard_open">Asistente del modo</string>
+    <string name="tilt_wizard_intro">Comprueba si el receptor compensa la posición: con la punta del jalón quieta, se inclina el jalón y se mira cómo se mueve la posición.</string>
+    <string name="tilt_wizard_missing_fix">Falta: solución FIX</string>
+    <string name="tilt_wizard_missing_tilt">Falta: inclinación en «Compensando» sin avisos</string>
+    <string name="tilt_wizard_start">Empezar la prueba</string>
+    <string name="tilt_wizard_reference">Mantén la punta quieta con el jalón vertical</string>
+    <string name="tilt_wizard_tilt">Inclina el jalón 15° o más sin mover la punta</string>
+    <string name="tilt_wizard_tilt_more">Inclina más el jalón</string>
+    <string name="tilt_wizard_current_tilt">Inclinación: %1$s</string>
+    <string name="tilt_wizard_hold">Aguanta así</string>
+    <string name="tilt_wizard_proposed_receiver">El receptor compensa la posición: «Compensada por el receptor». Se recomienda «Calculada por la app», con el receptor sin compensar la posición.</string>
+    <string name="tilt_wizard_proposed_app">El receptor no compensa la posición: «Calculada por la app».</string>
+    <string name="tilt_wizard_movement">Movimiento de la posición: %1$s; esperado sin compensar: %2$s</string>
+    <string name="tilt_wizard_inconclusive">La prueba no es concluyente: %1$s</string>
+    <string name="tilt_wizard_reason_mismatch">la posición no se ha movido como en ningún modo</string>
+    <string name="tilt_wizard_reason_lost">se ha perdido el FIX o la inclinación</string>
+    <string name="tilt_wizard_reason_timeout">el jalón no se ha inclinado a tiempo</string>
+    <string name="tilt_wizard_confirm">Confirmar</string>
+    <string name="tilt_wizard_repeat">Repetir</string>
+    <string name="tilt_wizard_close">Cerrar</string>
 </resources>
