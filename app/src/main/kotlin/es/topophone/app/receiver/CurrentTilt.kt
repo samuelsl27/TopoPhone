@@ -82,7 +82,8 @@ class CurrentTilt(replaying: Flow<Boolean>, address: Flow<String?>, private val 
 
     private suspend fun save(change: (ReceiverTiltSettings) -> ReceiverTiltSettings) {
         val key = state.value.key ?: return
-        preferences.save(key, change(preferences.settings(key).first()))
+        // La revisión sube antes: el modo nuevo nunca se ve con la revisión vieja (S016/RF-28).
         flags.update { it.copy(revision = it.revision + 1) }
+        preferences.save(key, change(preferences.settings(key).first()))
     }
 }

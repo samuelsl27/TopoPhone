@@ -12,6 +12,7 @@ import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.PointTilt
 import es.topophone.core.model.point.PrecisionControl
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.TiltMode
@@ -42,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -90,6 +92,7 @@ class CollectorTiltTest {
         }
     }
     private lateinit var tilt: CurrentTilt
+    private lateinit var projectId: String
     private lateinit var tiltPreferences: MemoryTiltPreferences
 
     private class FakeCollectorPreferences : CollectorPreferences {
@@ -116,7 +119,7 @@ class CollectorTiltTest {
         tiltPreferences = MemoryTiltPreferences(if (mode == null) emptyMap() else mapOf(rs3 to ReceiverTiltSettings(mode, verified)))
         tilt = currentTilt(scope, tiltPreferences, address = rs3)
         runBlocking { withTimeout(5_000) { tilt.state.first { it.key == rs3 } } }
-        val projectId = runBlocking { (projects.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12")) as SaveResult.Saved).id }
+        projectId = runBlocking { (projects.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12")) as SaveResult.Saved).id }
         val vm = CollectorViewModel(
             projects = projects,
             points = points,
@@ -306,6 +309,69 @@ class CollectorTiltTest {
 
         await(vm) { it.error == CollectorError.TILT_MODE_CHANGED }
         saved shouldBe 0
+    }
+
+    private fun savedPoint() = runBlocking { withTimeout(5_000) { points.points(projectId).first { it.isNotEmpty() } } }.single()
+
+    @Test
+    fun `S016 RF-22 el punto guarda su modo y su inclinacion`() {
+        val vm = viewModel(TiltMode.APP, verified = true)
+        receiving(vm, COMPENSATING)
+
+        await(vm) { it.blocker == null }
+        vm.measure()
+        sendEpoch(2, COMPENSATING)
+
+        val measurement = savedPoint().measurement.shouldNotBeNull()
+        val tilt = measurement.tilt.shouldNotBeNull()
+        tilt.mode shouldBe TiltMode.APP
+        tilt.verified shouldBe true
+        val angles = tilt.angles.shouldNotBeNull()
+        angles.tiltRad shouldBe (Math.toRadians(12.0) plusOrMinus 1e-12)
+        angles.directionRad shouldBe (Math.toRadians(210.5) plusOrMinus 1e-12)
+        angles.headingRad.shouldNotBeNull() shouldBe (Math.toRadians(123.4) plusOrMinus 1e-12)
+        angles.maxTiltRad shouldBe (Math.toRadians(12.0) plusOrMinus 1e-12)
+        measurement.rawNmea.lines().any { it.startsWith("\$GNETC,") } shouldBe true
+        // La punta no está bajo la antena: el jalón está inclinado 12°.
+        (measurement.coordinates.ground.latitudeDeg != measurement.antenna.latitudeDeg) shouldBe true
+    }
+
+    @Test
+    fun `S016 RF-22 en RECEIVER se guarda el jalon declarado`() {
+        val vm = viewModel(TiltMode.RECEIVER, verified = false)
+        receiving(vm, COMPENSATING)
+
+        await(vm) { it.blocker == null }
+        vm.measure()
+        sendEpoch(2, COMPENSATING)
+
+        val measurement = savedPoint().measurement.shouldNotBeNull()
+        measurement.tilt.shouldNotBeNull().verified shouldBe false
+        measurement.tilt!!.angles.shouldNotBeNull().receiverPoleHeightM shouldBe 1.8
+        measurement.coordinates.ground shouldBe measurement.antenna
+    }
+
+    @Test
+    fun `S016 RF-22 sin modo ni ETC el punto queda como jalon vertical`() {
+        val vm = viewModel(mode = null)
+        receiving(vm, etc = null)
+
+        await(vm) { it.blocker == null }
+        vm.measure()
+        sendEpoch(2, etc = null)
+
+        savedPoint().measurement.shouldNotBeNull().tilt shouldBe PointTilt(TiltMode.VERTICAL, verified = false, angles = null)
+    }
+
+    @Test
+    fun `S016 RF-12 la guia de la inclinacion queda en el log`() {
+        val vm = viewModel(TiltMode.APP)
+
+        receiving(vm, ALIGNMENT)
+
+        await(vm) { it.tiltGuide == TiltGuide.ALIGNMENT }
+        val message = "Guía de la inclinación: la inclinación está en alineación"
+        runBlocking { withTimeout(5_000) { while (message !in log.messages) delay(10) } }
     }
 
     private companion object {

@@ -42,7 +42,7 @@
       Hecho cuando: `CollectorViewModelTest` y `CollectorPanelTest` en verde con los dos bloqueos, la guía y la etiqueta de la altura.
 - [x] T20. `app`: medida con inclinación en el recolector: `TiltLost` con sonido y vibración, inclinación máxima en el control de precisión, precisión en directo y cancelación al cambiar el modo. (RF-19, RF-20, RF-21, RF-28)
       Hecho cuando: `CollectorViewModelTest` y `CollectorDialogsTest` en verde, con `TILT` en el aviso de fuera de tolerancia.
-- [ ] T21. `app`: guardar la inclinación con el punto y anotar en el log los avisos de la inclinación (S014/RF-5). (RF-22)
+- [x] T21. `app`: guardar la inclinación con el punto y anotar en el log los avisos de la inclinación (S014/RF-5). (RF-22)
       Hecho cuando: `CollectorViewModelTest` guarda un punto APP, uno RECEIVER y uno VERTICAL con sus datos, y los tests del log en verde.
 - [ ] T22. `app`: ficha del punto con la tarjeta "Inclinación", el modo y la punta rotulada en RECEIVER; corrección del jalón a lo largo del jalón. (RF-23, RF-25, RF-26)
       Hecho cuando: `PointDetailsTiltTest` en verde, también corrigiendo el jalón de un punto APP.

@@ -106,7 +106,9 @@ class ReceiverViewModelReplayTest {
         vm.setReplaySpeed(ReplaySpeed.X5)
         vm.setReplayLoop(true)
 
-        vm.awaitState { it.snapshot.replay?.speed == ReplaySpeed.X5 }.snapshot.replay.shouldNotBeNull().loop shouldBe true
+        // La velocidad y el bucle se piden por separado: se espera a que estén los dos.
+        vm.awaitState { it.snapshot.replay?.speed == ReplaySpeed.X5 && it.snapshot.replay?.loop == true }
+            .snapshot.replay.shouldNotBeNull().loop shouldBe true
     }
 
     @Test

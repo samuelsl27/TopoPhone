@@ -262,6 +262,12 @@ class CollectorViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { session.epochs.collect(::onEpoch) }
+        // S014/RF-5: la guía de la inclinación queda en el log cada vez que aparece o cambia.
+        viewModelScope.launch {
+            state.map { it.tiltGuide }.distinctUntilChanged().collect { guide ->
+                guide?.let { log.warning(LogCategory.RECEIVER, "Guía de la inclinación: ${it.logText()}") }
+            }
+        }
         // S016/RF-28: cambiar el modo o abrir el asistente durante una medida la cancela sin guardar nada.
         viewModelScope.launch {
             tilt.state.map { it.revision }.distinctUntilChanged().collect { revision ->
@@ -465,6 +471,7 @@ class CollectorViewModel @Inject constructor(
             measuredToMs = result.measuredToMs,
             coordinates = PointCoordinates(result.ground, result.position.easting, result.position.northing, result.position.height),
             base = measurementBase?.let { pointBase(it, result.antenna) }, // S015/RF-20
+            tilt = result.tilt, // S016/RF-22
         )
         val point = Point.measured(
             id = UUID.randomUUID().toString(),
