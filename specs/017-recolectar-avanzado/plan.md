@@ -27,7 +27,7 @@
   - ficha del punto: tiempo promediado, desviaciones típicas y "medido en automático"; "Ver frases NMEA" por tramos (RF-13, RNF);
   - nombres de las columnas nuevas en Exportar (RF-14).
 - `tools`:
-  - `tools/promediado/generar_promediado.py`: 36.000 épocas simuladas con la media, las desviaciones típicas y la estabilidad esperadas, calculadas con pyproj y numpy (constitución nº 2);
+  - `tools/promediado/generar_promediado.py`: 36.000 épocas simuladas con la media, las desviaciones típicas y la estabilidad esperadas, calculadas con pyproj y `math.fsum` (constitución nº 2);
   - `tools/nmea/generar_avanzado.py`: reproducciones `rs3-promediado-largo`, `rs3-corte` y `rs3-traza`, con lo esperado de cada una.
 
 ## Modelo de datos
@@ -88,7 +88,7 @@ point_nmea(point_id TEXT, seq INTEGER, text TEXT NOT NULL,
 Con la posición de cada época usada en el SC del proyecto (E, N, H), calculada con `ProjectPositionCalculator.fromGround` sobre la punta de esa época (la punta de ETC en "Calculada por la app", la GGA en "Compensada por el receptor" y la antena menos el jalón en "Jalón vertical"):
 1. **Welford** por separado para E, N y H: `n`, media y `M2`.
 2. **Desviación típica horizontal** = √((M2_E + M2_N) / (n − 1)); **vertical** = √(M2_H / (n − 1)); null con `n < 2` (RF-3, RF-12).
-3. **Estabilidad**: un buffer circular con la media (E, N, H) tras cada época de los últimos 60 s de tiempo promediado, es decir, `K = round(60 / T) + 1` posiciones. Con `n × T ≥ 60 s`: planta = hipot(ΔE, ΔN) entre la media actual y la de hace `K − 1` épocas, y vertical = |ΔH|; antes, null (RF-4).
+3. **Estabilidad**: un buffer circular con la media (E, N, H) tras cada época de los últimos 60 s de tiempo promediado, es decir, `K = round(60 / T) + 1` posiciones. Con más de `K − 1` épocas (60 s de tiempo promediado y una más, a los 60,1 s con 10 Hz, para tener la media de hace 60 s): planta = hipot(ΔE, ΔN) entre la media actual y la de hace `K − 1` épocas, y vertical = |ΔH|; antes, null (RF-4).
 4. **Gráfico**: se guardan E y N de todas las épocas usadas en dos arrays de doubles (576 kB con 36.000). La muestra es una de cada `⌈n / 2000⌉` épocas, como diferencia con la media actual, y la escala es el mayor radio de la muestra con un mínimo de 1 cm, redondeado hacia arriba a 1, 2 o 5 por una potencia de 10 (RF-5).
 5. Cada llamada es O(1), salvo la muestra del gráfico, que es O(2.000) y se pide a 5 Hz.
 - Que los valores estén en el SC del proyecto, y no en un plano local, es lo que pide la spec. El test lo valida contra pyproj (EPSG:25830 y 25828) a menos de 0,1 mm.
@@ -187,7 +187,7 @@ Se añaden, sin cambiar los actuales:
 
 ## Estrategia de tests
 - **Unitarios JVM**:
-  - `AverageStatsTest`: 36.000 épocas de `fixtures/promediado/` frente a pyproj y numpy (media, `dev_h`, `dev_v` y estabilidad ≤ 0,1 mm), `n < 2`, antes y después del minuto, la muestra de 2.000 y la escala mínima de 1 cm (RF-3 a RF-5, RF-12).
+  - `AverageStatsTest`: 36.000 épocas de `fixtures/promediado/` frente a pyproj y `math.fsum` (media, `dev_h`, `dev_v` y estabilidad ≤ 0,1 mm), `n < 2`, antes y después del minuto, la muestra de 2.000 y la escala mínima de 1 cm (RF-3 a RF-5, RF-12).
   - `PointMeasurementStreamingTest`: el resultado es el de siempre (se mantienen `PointMeasurementTest` y `PointMeasurementTiltTest`), y una época usada ya no está retenida (`WeakReference` tras `System.gc()`; RNF).
   - `PointMeasurementPauseTest`: pausa a los 2 s, reanudación, el tiempo del corte no suma, `LongPause` a los 5 min y repetida con "Seguir esperando", `finishNow()` con y sin épocas y en pausa, la instantánea sigue cancelándose (RF-6 a RF-10, RF-28).
   - `AutoMeasureTest`: primer punto inmediato, disparo por tiempo y por distancia, punto sin terminar, omisiones con un solo aviso y reintento por distancia, pausa y reanudación en los dos disparos, `stop()` y cambio de día (RF-19 a RF-28).

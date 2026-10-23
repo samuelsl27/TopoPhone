@@ -9,6 +9,7 @@ Datos compartidos por los tests de todos los módulos. Los ficheros de más de 5
 | `rtcm/` | Flujos RTCM 3 grabados (`.rtcm3`, tal como los envía el caster) con su descriptor `.yaml`: `rgapa-AVL13M` (S007) |
 | `ntrip/sourcetables/` | Tablas de fuentes reales (`.sourcetable`, respuesta completa del caster, byte a byte) con su `.yaml`: IGN 2101 y 2102, RGAPA (S007) |
 | `geodesia/` | Vectores de referencia generados por `tools/geodesia` (CSV) |
+| `promediado/` | Promediados simulados de 60 min a 10 Hz y lo esperado (media, desviación típica y estabilidad), generados por `tools/promediado` (S017) |
 | `formatos/` | Ejemplos de CSV, DXF, SHP, KML, LandXML y GetCapabilities |
 
 ## Descriptor de escenario (`.yaml`)

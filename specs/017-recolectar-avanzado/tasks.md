@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/promediado`: `generar_promediado.py` con 36.000 épocas simuladas y lo esperado (media, `dev_h`, `dev_v` y estabilidad) calculado con pyproj y numpy, en EPSG:25830 y 25828. (RF-3, RF-4, RF-5, RF-12)
+- [x] T1. `tools/promediado`: `generar_promediado.py` con 36.000 épocas simuladas y lo esperado (media, `dev_h`, `dev_v` y estabilidad) calculado con pyproj y `math.fsum`, en EPSG:25830 y 4083 (REGCAN95 / UTM 28). (RF-3, RF-4, RF-5, RF-12)
       Hecho cuando: el script genera `fixtures/promediado/` y su test de `tools` está en verde.
 - [ ] T2. `core:model`: `DurationText` (`m:ss`), `AutoTrigger` y `CollectorSettings` con el automático y `AVERAGING_SECONDS` de 1 a 3600. (RF-1, RF-16, RF-17)
       Hecho cuando: `DurationTextTest` y `CollectorSettingsTest` en verde, con los rangos, la conversión de la distancia a la unidad del proyecto y `CollectorSettings` por defecto igual que antes.
