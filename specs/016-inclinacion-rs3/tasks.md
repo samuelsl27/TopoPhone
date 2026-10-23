@@ -20,7 +20,7 @@
       Hecho cuando: `PointCorrectionsTiltTest` en verde en APP y RECEIVER (≤ 1 mm), y `PointCorrectionsTest` sigue igual.
 - [x] T9. `core:survey`: `TiltModeWizard` (A7). (RF-5, RF-6, RF-7, RF-8, RF-9)
       Hecho cuando: `TiltModeWizardTest` en verde con los dos modos, los tres motivos de no concluyente, el jalón de 0 m y la decisión en la misma época.
-- [ ] T10. `data`: `TiltPreferences` (modo por receptor, `replay`, comprobado y detectado) y la inclinación máxima en `CollectorPreferences`; las claves `tilt_` no viajan en las copias. (RF-1, RF-3, RF-4, RF-10, RF-20)
+- [x] T10. `data`: `TiltPreferences` (modo por receptor, `replay`, comprobado y detectado) y la inclinación máxima en `CollectorPreferences`; las claves `tilt_` no viajan en las copias. (RF-1, RF-3, RF-4, RF-10, RF-20)
       Hecho cuando: `TiltPreferencesTest`, `CollectorPreferencesTest` y `SettingsArchiveTest` en verde.
 - [ ] T11. `data`: columnas de la inclinación en `points`, migración 7 → 8 con `PointsV8`, mapeo y `forExport`. (RF-22)
       Hecho cuando: `TopoPhoneDatabaseTest` (7 → 8: medido `VERTICAL`, manual sin modo), `PointRepositoryTest` y `PointRepositoryExportTest` en verde, con el esquema 8 exportado.

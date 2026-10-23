@@ -54,4 +54,15 @@ class CollectorPreferencesTest {
 
         withPreferences { it.settings.first() }.precision.horizontalLimitM shouldBe null
     }
+
+    @Test
+    fun `S016 RF-20 la inclinacion maxima esta activa con 60 grados y se recuerda su valor o desactivada`() {
+        withPreferences { it.settings.first() }.precision.maxTiltRad shouldBe Math.toRadians(60.0)
+
+        withPreferences { it.save(CollectorSettings(precision = PrecisionControl(maxTiltRad = Math.toRadians(25.0)))) }
+        withPreferences { it.settings.first() }.precision.maxTiltRad shouldBe Math.toRadians(25.0)
+
+        withPreferences { it.save(CollectorSettings(precision = PrecisionControl(maxTiltRad = null))) }
+        withPreferences { it.settings.first() }.precision.maxTiltRad shouldBe null
+    }
 }

@@ -20,7 +20,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
-/** Modo de medida, tiempo de promediado y control de precisión, los mismos para todos los proyectos (S010/RF-9, RF-13). */
+/**
+ * Modo de medida, tiempo de promediado y control de precisión, con la inclinación máxima, los mismos para todos los
+ * proyectos (S010/RF-9, RF-13; S016/RF-20).
+ */
 interface CollectorPreferences {
     val settings: Flow<CollectorSettings>
 
@@ -46,6 +49,8 @@ class DataStoreCollectorPreferences @Inject constructor(@param:CollectorDataStor
                     fixOnly = p[FIX_ONLY] ?: factory.precision.fixOnly,
                     horizontalLimitM = p[HORIZONTAL_LIMIT],
                     verticalLimitM = p[VERTICAL_LIMIT],
+                    // S016/RF-20: activa por defecto, así que se guarda si está activa además del valor.
+                    maxTiltRad = if (p[MAX_TILT_ENABLED] ?: true) p[MAX_TILT] ?: PrecisionControl.DEFAULT_MAX_TILT_RAD else null,
                 ),
             )
         }.distinctUntilChanged()
@@ -58,6 +63,8 @@ class DataStoreCollectorPreferences @Inject constructor(@param:CollectorDataStor
             // Un límite desactivado no se guarda (S010/RF-13).
             settings.precision.horizontalLimitM?.let { limit -> it[HORIZONTAL_LIMIT] = limit } ?: it.remove(HORIZONTAL_LIMIT)
             settings.precision.verticalLimitM?.let { limit -> it[VERTICAL_LIMIT] = limit } ?: it.remove(VERTICAL_LIMIT)
+            it[MAX_TILT_ENABLED] = settings.precision.maxTiltRad != null
+            settings.precision.maxTiltRad?.let { limit -> it[MAX_TILT] = limit }
         }
     }
 
@@ -67,5 +74,7 @@ class DataStoreCollectorPreferences @Inject constructor(@param:CollectorDataStor
         val FIX_ONLY = booleanPreferencesKey("collector_fix_only")
         val HORIZONTAL_LIMIT = doublePreferencesKey("collector_horizontal_limit_m")
         val VERTICAL_LIMIT = doublePreferencesKey("collector_vertical_limit_m")
+        val MAX_TILT_ENABLED = booleanPreferencesKey("collector_max_tilt_enabled")
+        val MAX_TILT = doublePreferencesKey("collector_max_tilt_rad")
     }
 }

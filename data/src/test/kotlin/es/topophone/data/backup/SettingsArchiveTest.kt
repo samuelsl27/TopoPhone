@@ -10,8 +10,11 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import es.topophone.core.formats.backup.BackupSettings
 import es.topophone.core.formats.backup.SettingValue
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.preferences.ThemeMode
 import es.topophone.data.receiver.DataStoreReceiverPreferences
+import es.topophone.data.receiver.DataStoreTiltPreferences
+import es.topophone.data.receiver.ReceiverTiltSettings
 import es.topophone.data.receiver.SavedReceiver
 import es.topophone.data.settings.DataStoreSettingsRepository
 import es.topophone.data.settings.SettingsDataStore
@@ -64,6 +67,7 @@ class SettingsArchiveTest {
         receiver.saveLastReceiver(SavedReceiver("00:11:22:33:44:55", "RS3 Ana"))
         receiver.markNotificationsAsked()
         receiver.saveNtripSession("ntrip-ign", active = true)
+        DataStoreTiltPreferences(stores.getValue("receiver")).save("00:11:22:33:44:55", ReceiverTiltSettings(TiltMode.APP, verified = true))
     }
 
     @Test
@@ -82,7 +86,7 @@ class SettingsArchiveTest {
     }
 
     @Test
-    fun `S013 RF-3 el receptor asociado, los permisos y la sesion NTRIP no salen del movil`() {
+    fun `S013 RF-3 S016 RF-1 el receptor, su modo de inclinacion, los permisos y la NTRIP no salen`() {
         val receiver = withStores("b") { stores ->
             fill(stores)
             SettingsArchive(stores, FakeLanguage()).export()

@@ -38,8 +38,10 @@ import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.receiver.DataStoreReceiverPreferences
+import es.topophone.data.receiver.DataStoreTiltPreferences
 import es.topophone.data.receiver.ReceiverDataStoreQualifier
 import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.receiver.TiltPreferences
 import es.topophone.data.secret.AesGcmCipher
 import es.topophone.data.secret.AndroidKeystoreKeyProvider
 import es.topophone.data.settings.DataStoreSettingsRepository
@@ -137,6 +139,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindReceiverPreferences(implementation: DataStoreReceiverPreferences): ReceiverPreferences
+
+    @Binds
+    abstract fun bindTiltPreferences(implementation: DataStoreTiltPreferences): TiltPreferences
 
     @Binds
     abstract fun bindProjectPreferences(implementation: DataStoreProjectPreferences): ProjectPreferences
