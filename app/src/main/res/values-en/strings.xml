@@ -772,4 +772,11 @@
     <string name="precision_tilt_limit">Maximum tilt</string>
     <string name="precision_tilt_value">Maximum tilt (°, 1 to 60)</string>
     <string name="precision_summary_tilt">tilt ≤ %1$s°</string>
+    <string name="point_tilt_title">Tilt</string>
+    <string name="point_tilt_mode">Tilt mode</string>
+    <string name="point_tilt_sigma_h">Horizontal tilt accuracy</string>
+    <string name="point_tilt_sigma_v">Vertical tilt accuracy</string>
+    <string name="point_receiver_tip_latitude">Tip latitude (compensated by the receiver)</string>
+    <string name="point_receiver_tip_longitude">Tip longitude (compensated by the receiver)</string>
+    <string name="point_receiver_tip_height">Tip ellipsoidal height (compensated by the receiver)</string>
 </resources>

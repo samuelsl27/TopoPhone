@@ -784,4 +784,11 @@
     <string name="precision_tilt_limit">Inclinación máxima</string>
     <string name="precision_tilt_value">Inclinación máxima (°, de 1 a 60)</string>
     <string name="precision_summary_tilt">inclinación ≤ %1$s°</string>
+    <string name="point_tilt_title">Inclinación</string>
+    <string name="point_tilt_mode">Modo de inclinación</string>
+    <string name="point_tilt_sigma_h">Precisión de la inclinación en planta</string>
+    <string name="point_tilt_sigma_v">Precisión de la inclinación en vertical</string>
+    <string name="point_receiver_tip_latitude">Latitud de la punta (compensada por el receptor)</string>
+    <string name="point_receiver_tip_longitude">Longitud de la punta (compensada por el receptor)</string>
+    <string name="point_receiver_tip_height">Altura elipsoidal de la punta (compensada por el receptor)</string>
 </resources>

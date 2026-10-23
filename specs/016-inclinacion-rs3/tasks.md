@@ -44,7 +44,7 @@
       Hecho cuando: `CollectorViewModelTest` y `CollectorDialogsTest` en verde, con `TILT` en el aviso de fuera de tolerancia.
 - [x] T21. `app`: guardar la inclinación con el punto y anotar en el log los avisos de la inclinación (S014/RF-5). (RF-22)
       Hecho cuando: `CollectorViewModelTest` guarda un punto APP, uno RECEIVER y uno VERTICAL con sus datos, y los tests del log en verde.
-- [ ] T22. `app`: ficha del punto con la tarjeta "Inclinación", el modo y la punta rotulada en RECEIVER; corrección del jalón a lo largo del jalón. (RF-23, RF-25, RF-26)
+- [x] T22. `app`: ficha del punto con la tarjeta "Inclinación", el modo y la punta rotulada en RECEIVER; corrección del jalón a lo largo del jalón. (RF-23, RF-25, RF-26)
       Hecho cuando: `PointDetailsTiltTest` en verde, también corrigiendo el jalón de un punto APP.
 - [ ] T23. `core:formats`, `app` y `tools`: las ocho columnas del CSV, sus nombres en Exportar, los ficheros dorados y `test_csv_exportado.py`. (RF-24)
       Hecho cuando: `CsvExportGoldenTest`, `ExportPreferencesTest`, `ExportScreenTest` y `test_csv_exportado.py` en verde con 43 columnas.

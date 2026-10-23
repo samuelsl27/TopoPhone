@@ -44,6 +44,7 @@ import es.topophone.app.ui.projects.formatDateTime
 import es.topophone.app.ui.projects.heightTitle
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.nameRes
+import es.topophone.app.ui.receiver.tiltSummary
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.gnss.nmea.SolutionStatus
@@ -62,6 +63,8 @@ import es.topophone.core.model.point.PointHistory
 import es.topophone.core.model.point.PointHistoryEntry
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.TiltAngles
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.Project
@@ -71,6 +74,7 @@ import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
+import es.topophone.data.receiver.ReceiverTiltSettings
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -91,6 +95,7 @@ const val POINT_MEASURED_COORDINATES_TAG = "point_measured_coordinates"
 const val POINT_REVERT_TAG = "point_revert"
 const val POINT_BASE_TAG = "point_base"
 const val POINT_MEASUREMENT_TAG = "point_measurement"
+const val POINT_TILT_TAG = "point_tilt"
 const val POINT_NMEA_TAG = "point_nmea"
 const val NMEA_DIALOG_TAG = "nmea_dialog"
 const val POINT_EDIT_TAG = "point_edit"
@@ -291,6 +296,7 @@ fun PointDetailsScreen(
             if (measurement != null) {
                 MeasurementCard(project, measurement) // S011/RF-7
                 measurement.base?.let { BaseCard(project, it, state.baseCoordinates) } // S015/RF-21
+                measurement.tilt?.angles?.let { TiltCard(project, it) } // S016/RF-23
             } else {
                 Text(
                     stringResource(R.string.point_created_at, formatDateTime(point.createdAtMs, uiLocale())),
@@ -476,19 +482,28 @@ private fun MeasurementCard(project: Project, measurement: Measurement) {
     var nmea by remember { mutableStateOf(false) }
     DetailsCard(stringResource(R.string.point_measurement), POINT_MEASUREMENT_TAG) {
         CoordinateRow(stringResource(R.string.objects_pole), LengthFormat.metres(measurement.poleHeightM, locale), "point_pole_height")
+        measurement.tilt?.let { tilt ->
+            CoordinateRow(
+                stringResource(R.string.point_tilt_mode),
+                tiltSummary(ReceiverTiltSettings(tilt.mode, tilt.verified)),
+                "point_tilt_mode",
+            ) // S016/RF-23
+        }
         val antenna = measurement.antenna
+        // S016/RF-26: con el receptor que compensa, la posición del receptor ya es la punta.
+        val tip = measurement.tilt?.mode == TiltMode.RECEIVER
         CoordinateRow(
-            stringResource(R.string.point_antenna_latitude),
+            stringResource(if (tip) R.string.point_receiver_tip_latitude else R.string.point_antenna_latitude),
             AngleFormat.latitude(antenna.latitudeDeg, project.angularUnit, locale),
             "point_antenna_lat",
         )
         CoordinateRow(
-            stringResource(R.string.point_antenna_longitude),
+            stringResource(if (tip) R.string.point_receiver_tip_longitude else R.string.point_antenna_longitude),
             AngleFormat.longitude(antenna.longitudeDeg, project.angularUnit, locale),
             "point_antenna_lon",
         )
         CoordinateRow(
-            stringResource(R.string.point_antenna_height),
+            stringResource(if (tip) R.string.point_receiver_tip_height else R.string.point_antenna_height),
             antenna.ellipsoidalHeightM?.let(::length) ?: unavailable,
             "point_antenna_h",
         )
@@ -543,6 +558,23 @@ private fun MeasurementCard(project: Project, measurement: Measurement) {
         }
     }
     if (nmea) NmeaDialog(measurement.rawNmea) { nmea = false }
+}
+
+/** La inclinación de la medida, en la unidad angular y lineal del proyecto (S016/RF-23). */
+@Composable
+private fun TiltCard(project: Project, angles: TiltAngles) {
+    val locale = uiLocale()
+    val unit = unitSymbol(project.linearUnit)
+    fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
+    fun angle(valueRad: Double) = AngleFormat.direction(valueRad, project.angularUnit, locale)
+    DetailsCard(stringResource(R.string.point_tilt_title), POINT_TILT_TAG) {
+        CoordinateRow(stringResource(R.string.status_tilt_angle), angle(angles.tiltRad), "point_tilt_angle")
+        CoordinateRow(stringResource(R.string.status_tilt_direction), angle(angles.directionRad), "point_tilt_direction")
+        angles.headingRad?.let { CoordinateRow(stringResource(R.string.status_tilt_heading), angle(it), "point_tilt_heading") }
+        CoordinateRow(stringResource(R.string.precision_tilt_limit), angle(angles.maxTiltRad), "point_tilt_max")
+        CoordinateRow(stringResource(R.string.point_tilt_sigma_h), length(angles.horizontalAccuracyM), "point_tilt_sigma_h")
+        CoordinateRow(stringResource(R.string.point_tilt_sigma_v), length(angles.verticalAccuracyM), "point_tilt_sigma_v")
+    }
 }
 
 /** La base con la que se midió: geográficas tal como las dio su fuente, el SC del proyecto, la fuente y la línea base (S015/RF-21). */
