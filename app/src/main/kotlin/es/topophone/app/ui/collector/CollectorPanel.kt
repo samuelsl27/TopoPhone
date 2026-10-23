@@ -61,6 +61,7 @@ fun modeOptionTag(mode: MeasurementMode) = "collector_mode_${mode.name}"
 const val COLLECTOR_RESTARTED_TAG = "collector_restarted"
 const val COLLECTOR_OPEN_TILT_TAG = "collector_open_tilt"
 const val COLLECTOR_TILT_LOST_TAG = "collector_tilt_lost"
+const val COLLECTOR_TILT_LOST_GUIDE_TAG = "collector_tilt_lost_guide"
 const val COLLECTOR_TILT_CHANGED_TAG = "collector_tilt_changed"
 
 class CollectorActions(
@@ -251,6 +252,11 @@ private fun Messages(state: CollectorUiState, actions: CollectorActions) {
             stringResource(R.string.collector_tilt_lost),
             color = MaterialTheme.colorScheme.error,
             modifier = Modifier.testTag(COLLECTOR_TILT_LOST_TAG),
+        )
+        Text(
+            stringResource(state.tiltLost.textRes()),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag(COLLECTOR_TILT_LOST_GUIDE_TAG),
         )
     } // S016/RF-19
     if (state.measuring && state.restarted) {

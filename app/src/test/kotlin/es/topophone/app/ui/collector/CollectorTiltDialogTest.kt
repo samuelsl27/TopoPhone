@@ -102,6 +102,7 @@ class CollectorTiltDialogTest {
         show(ready.copy(measuring = true, tiltLost = es.topophone.core.survey.TiltGuide.FAST_MOTION))
 
         compose.onNodeWithTag(COLLECTOR_TILT_LOST_TAG).assert(hasText(text(R.string.collector_tilt_lost)))
+        compose.onNodeWithTag(COLLECTOR_TILT_LOST_GUIDE_TAG).assert(hasText(text(R.string.tilt_guide_fast_motion)))
     }
 
     @Test
