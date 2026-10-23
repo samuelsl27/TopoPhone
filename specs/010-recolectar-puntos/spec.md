@@ -39,7 +39,7 @@ El dato de campo es sagrado (constitución nº 1): cada punto se guarda al momen
 - RF-12: MIENTRAS no haya posición del receptor o de una reproducción, o el punto del suelo quede fuera del ámbito del SC del proyecto, EL SISTEMA no permitirá medir e indicará el motivo.
 
 ### Control de precisión (H3)
-- RF-13: EL SISTEMA ofrecerá un control de precisión con tres condiciones: solo FIX (activa por defecto), límite de precisión horizontal y límite de precisión vertical (desactivados por defecto), que se recuerdan para todos los proyectos.
+- RF-13: EL SISTEMA ofrecerá un control de precisión con tres condiciones: solo FIX (activa por defecto), límite de precisión horizontal y límite de precisión vertical (desactivados por defecto), que se recuerdan para todos los proyectos, y, con la inclinación, la de inclinación máxima (S016/RF-20).
 - RF-14: SI una medida no cumple el control de precisión, ENTONCES EL SISTEMA indicará qué condiciones incumple y pedirá confirmación antes de guardarla.
 - RF-15: CUANDO el usuario confirme guardar una medida que no cumple el control de precisión, EL SISTEMA guardará el punto marcado como fuera de tolerancia, con las condiciones incumplidas.
 

@@ -48,6 +48,13 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Inclinación (compensación) | `Tilt` / `TiltCompensation` | Mensaje ETC |
 | Rumbo (del IMU) | `heading` | |
 | Dirección de inclinación | `tiltDirection` | |
+| Modo de inclinación | `TiltMode` (`APP`, `RECEIVER`, `VERTICAL`) | Calculada por la app, compensada por el receptor o jalón vertical; uno por receptor (S016) |
+| Modo comprobado | `verified` | Modo de inclinación confirmado con el asistente; elegido a mano, "sin comprobar" (S016) |
+| Asistente del modo de inclinación | `TiltModeWizard` | Prueba con la punta quieta y el jalón inclinado 15° (S016) |
+| Guía de la inclinación | `TiltGuide` | Qué hacer según el estado y el aviso del ETC, como el movimiento en ocho (S016) |
+| Punta del jalón | `PoleTip` | Punto del suelo con la inclinación aplicada (S016) |
+| Precisión de la inclinación | `tiltAccuracy` | Coeficiente del ETC × altura de antena, por eje (S016) |
+| Inclinación máxima | `maxTilt` | Condición del control de precisión, 60° por defecto (S016) |
 | Receptor | `Receiver` | |
 | Base / rover | `Base` / `Rover` | |
 | Línea base | `Baseline` | |

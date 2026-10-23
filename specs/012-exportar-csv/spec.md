@@ -34,7 +34,7 @@ Lo que sale del móvil tiene que valer lo mismo que lo que se midió (constituci
   - Este, Norte y altura en el SC del proyecto;
   - latitud, longitud y altura elipsoidal;
   - SC del proyecto, sistema de alturas y unidad lineal;
-  - de la medida: altura del jalón, solución, satélites, HDOP, edad de las correcciones, precisiones horizontal y vertical, modo, épocas usadas y descartadas, si viene de una reproducción, condiciones del control de precisión que incumplió, inicio y fin de la medida, y la base con la que se midió (S015/RF-22);
+  - de la medida: altura del jalón, solución, satélites, HDOP, edad de las correcciones, precisiones horizontal y vertical, modo, épocas usadas y descartadas, si viene de una reproducción, condiciones del control de precisión que incumplió, inicio y fin de la medida, la base con la que se midió (S015/RF-22) y su inclinación (S016/RF-24);
   - si está editado y de qué punto es copia.
 - RF-7: EL SISTEMA escribirá en PENZD el nombre, el Este, el Norte, la altura del proyecto y la descripción, por este orden, y en PNEZD lo mismo con el Norte antes que el Este.
 - RF-8: CUANDO el usuario elija "Personalizado", EL SISTEMA permitirá marcar qué columnas de "Todas las columnas" se escriben, en el orden de esa lista.

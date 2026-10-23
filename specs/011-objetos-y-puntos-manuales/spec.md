@@ -45,7 +45,7 @@ El dato de campo es sagrado (constitución nº 1): editar un punto no borra lo q
 - RF-13: CUANDO el usuario pulse "Volver a la medida" en la ficha de un punto editado, EL SISTEMA le devolverá las coordenadas de su medida, como un cambio más del historial.
 
 ### Corregir el jalón (H4)
-- RF-14: CUANDO el usuario cambie la altura del jalón de un punto medido, desde su ficha o para varios seleccionados en la lista, EL SISTEMA recalculará el punto del suelo de cada uno desde la posición de la antena guardada, en geográficas y en el SC del proyecto.
+- RF-14: CUANDO el usuario cambie la altura del jalón de un punto medido, desde su ficha o para varios seleccionados en la lista, EL SISTEMA recalculará el punto del suelo de cada uno desde la posición de la antena guardada, en geográficas y en el SC del proyecto, y, si se midió con inclinación, a lo largo del jalón (S016/RF-25).
 - RF-15: SI la selección incluye puntos manuales, ENTONCES EL SISTEMA no los cambiará e indicará cuántos se han quedado sin cambiar.
 
 ### Punto manual (H5)
