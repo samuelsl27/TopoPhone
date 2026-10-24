@@ -32,7 +32,7 @@
        Hecho cuando: el test de `VibrationAlerts` en verde con los tres avisos distintos de los actuales.
 - [x] T15. `app`: el promediado largo en `CollectorViewModel`: tiempo en `m:ss`, flujo de estadísticas a 5 Hz y "Terminar". (RF-1 a RF-7)
        Hecho cuando: `CollectorViewModelAdvancedTest` en verde con la `ReceiverSession` real y las épocas de una en una, y `CollectorViewModelTest` sin cambios.
-- [ ] T16. `app`: pausa, reanudación, pregunta de 5 min y cambio de base con el tiempo descartado en `CollectorViewModel`. (RF-8 a RF-11, RF-30)
+- [x] T16. `app`: pausa, reanudación, pregunta de 5 min y cambio de base con el tiempo descartado en `CollectorViewModel`. (RF-8 a RF-11, RF-30)
        Hecho cuando: `CollectorViewModelAdvancedTest` en verde con el corte corto, la pregunta con un reloj falso, que la medida sigue sin nadie recogiendo `state`, y el reinicio por la base.
 - [ ] T17. `app`: guardar el punto con el tiempo promediado, las desviaciones típicas, `auto` y los tramos, y anotar en el log los sucesos. (RF-12, RF-31)
        Hecho cuando: `CollectorViewModelAdvancedTest` guarda un punto promediado y uno de 12 MB con sus datos, y los tests del log en verde.

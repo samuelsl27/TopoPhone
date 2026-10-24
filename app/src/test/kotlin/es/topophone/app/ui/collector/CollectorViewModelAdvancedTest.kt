@@ -26,6 +26,7 @@ import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -68,11 +69,18 @@ class CollectorViewModelAdvancedTest {
     private val receiverPreferences = FakePreferences()
     private val collectorPreferences = FakeCollectorPreferences()
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val session = ReceiverSession(sessionScope, NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
+    private val session = ReceiverSession(
+        sessionScope,
+        NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE },
+        noDataTimeoutMs = 60_000, // las épocas se mandan a mano: bajo carga, 2 s sin ninguna dejarían la sesión en "Sin datos"
+        watchdogPeriodMs = 1_000,
+    )
     private val toApp = PipedOutputStream()
     private val log = RecordingLog()
     private var saved = 0
     private var lost = 0
+    private var pausedAlerts = 0
+    private var restartedAlerts = 0
     private val alerts = object : Alerts {
         override fun connectionLost() = Unit
 
@@ -87,6 +95,14 @@ class CollectorViewModelAdvancedTest {
         }
 
         override fun tiltLost() = Unit
+
+        override fun measurementPaused() {
+            pausedAlerts++
+        }
+
+        override fun measurementRestarted() {
+            restartedAlerts++
+        }
     }
 
     private class FakeCollectorPreferences : CollectorPreferences {
@@ -122,14 +138,15 @@ class CollectorViewModelAdvancedTest {
         seconds: Int,
         precision: PrecisionControl = PrecisionControl(),
         projectId: String = project(),
+        observed: Boolean = true,
     ): CollectorViewModel {
         collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = seconds, precision = precision)
-        val vm = viewModel(projectId)
+        val vm = viewModel(projectId, observed)
         await(vm) { it.settings.mode == MeasurementMode.AVERAGED && it.settings.averagingSeconds == seconds }
         return vm
     }
 
-    private fun viewModel(projectId: String): CollectorViewModel {
+    private fun viewModel(projectId: String, observed: Boolean = true): CollectorViewModel {
         val vm = CollectorViewModel(
             projects,
             points,
@@ -144,7 +161,7 @@ class CollectorViewModelAdvancedTest {
         viewModels += vm
         vm.statsIntervalMs = 0
         vm.start(projectId)
-        CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+        if (observed) CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         await(vm) { it.loaded }
         return vm
     }
@@ -155,7 +172,7 @@ class CollectorViewModelAdvancedTest {
             withTimeout(10_000) { vm.state.first(predicate) }
         } catch (e: TimeoutCancellationException) {
             throw AssertionError(
-                "El recolector no llegó al estado esperado; se quedó en ${vm.state.value}; estadísticas ${vm.stats.value}",
+                "El recolector no llegó al estado esperado; se quedó en ${vm.state.value}; estadísticas ${vm.stats.value}; log ${log.messages}",
                 e,
             )
         }
@@ -170,10 +187,11 @@ class CollectorViewModelAdvancedTest {
     }
 
     /** Una época a 1 Hz: GGA (con la calidad de [status]) y GST; [lat] en minutos con siete decimales (1 cm son 0,0000054). */
-    private fun sendEpoch(second: Int, status: Int = 4, lat: String = "4025.0080000") {
+    private fun sendEpoch(second: Int, status: Int = 4, lat: String = "4025.0080000", baseLat: String? = null) {
         val time = "1015%02d.00".format(30 + second)
         toApp.write(nmea("GNGGA,$time,$lat,N,00342.2228000,W,$status,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
         toApp.write(nmea("GNGST,$time,0.012,0.010,0.007,45.0,0.008,0.006,0.015").toByteArray())
+        baseLat?.let { toApp.write(nmea("GNEBP,$it,N,00342.0000000,W,700.000,M").toByteArray()) }
         toApp.flush()
     }
 
@@ -308,5 +326,140 @@ class CollectorViewModelAdvancedTest {
         sendEpoch(5) // FIX: la medida sigue y el aviso se va
         sendEpoch(6)
         await(vm) { it.progress?.epochsUsed == 1 && !it.noEpochsYet }.measuring shouldBe true
+    }
+
+    private val baseA = "4025.0000000"
+    private val baseB = "4025.0010000" // 1,85 m al norte de A
+
+    /** La hora del móvil [afterMs] después de ahora: para el reloj de la medida, que en los tests no avanza solo. */
+    private fun later(afterMs: Long) = System.currentTimeMillis() + afterMs
+
+    /** Un promediado de 60 s con dos épocas usadas (la 1 y la 2), listo para que se corte. */
+    private fun measuringTwoEpochs(projectId: String = project()): CollectorViewModel {
+        val vm = averagedViewModel(seconds = 60, projectId = projectId)
+        receiving(vm)
+        vm.measure()
+        sendEpoch(2)
+        sendEpoch(3)
+        await(vm) { it.progress?.epochsUsed == 2 }
+        return vm
+    }
+
+    @Test
+    fun `S017 RF-8 sin epocas en 2 s un promediado se pausa, avisa una vez y conserva lo reunido`() {
+        val vm = measuringTwoEpochs()
+
+        vm.tick(later(2_500))
+        val state = await(vm) { it.paused == PauseState.PAUSED }
+        vm.tick(later(3_000))
+
+        state.measuring shouldBe true
+        state.progress.shouldNotBeNull().epochsUsed shouldBe 2
+        pausedAlerts shouldBe 1
+        log.messages shouldContain "Medida de 1 en pausa: sin datos del receptor"
+    }
+
+    @Test
+    fun `S017 RF-9 al volver los datos se reanuda sola y el tiempo del corte no cuenta`() {
+        val vm = measuringTwoEpochs()
+        vm.tick(later(2_500))
+        await(vm) { it.paused == PauseState.PAUSED }
+
+        sendEpoch(4)
+        sendEpoch(5)
+        val resumed = await(vm) { it.paused == null && it.progress?.epochsUsed == 4 }
+
+        // Cuatro épocas de 1 s: lo que dura el corte no suma.
+        resumed.progress.shouldNotBeNull().elapsedS shouldBe (4.0 plusOrMinus 1e-9)
+        log.messages shouldContain "Medida de 1 reanudada: han vuelto los datos del receptor"
+    }
+
+    @Test
+    fun `S017 RF-10 a los 5 min de corte se pregunta y Guardar con lo reunido guarda el punto`() {
+        val projectId = project()
+        val vm = measuringTwoEpochs(projectId)
+        vm.tick(later(2_500))
+        await(vm) { it.paused == PauseState.PAUSED }
+        vm.tick(later(301_000))
+        await(vm) { it.paused == PauseState.LONG_PAUSE }
+
+        vm.finishNow()
+
+        await(vm) { it.savedName == "1" }
+        runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().quality.epochsUsed shouldBe 2
+        log.messages shouldContain "Corte de más de 5 min en la medida de 1: se pregunta qué hacer"
+    }
+
+    @Test
+    fun `S017 RF-10 Descartar no guarda nada`() {
+        val projectId = project()
+        val vm = measuringTwoEpochs(projectId)
+        vm.tick(later(2_500))
+        vm.tick(later(301_000))
+        await(vm) { it.paused == PauseState.LONG_PAUSE }
+
+        vm.cancel()
+
+        val state = await(vm) { !it.measuring }
+        state.paused shouldBe null
+        state.savedName shouldBe null
+        runBlocking { points.points(projectId).first() }.shouldBeEmpty()
+    }
+
+    @Test
+    fun `S017 RF-10 Seguir esperando deja la medida en pausa y al volver los datos la pregunta se cierra`() {
+        val vm = measuringTwoEpochs()
+        vm.tick(later(2_500))
+        vm.tick(later(301_000))
+        await(vm) { it.paused == PauseState.LONG_PAUSE }
+
+        vm.keepWaiting()
+        await(vm) { it.paused == PauseState.PAUSED }
+        vm.tick(later(299_000)) // la pregunta vuelve a los 5 min, no antes
+        vm.tick(later(301_000))
+        await(vm) { it.paused == PauseState.LONG_PAUSE }
+
+        sendEpoch(4)
+        sendEpoch(5)
+        await(vm) { it.paused == null && it.measuring }
+    }
+
+    @Test
+    fun `S017 RF-11 la medida sigue aunque nadie mire el estado del recolector`() {
+        val vm = averagedViewModel(seconds = 600, observed = false)
+        receiving(vm)
+        vm.measure()
+        sendEpoch(2)
+        sendEpoch(3)
+        sendEpoch(4)
+
+        // Sin ningún observador del estado, como con la app en segundo plano: la medida llega igual.
+        runBlocking {
+            withTimeout(10_000) { while (vm.state.value.progress?.epochsUsed != 3) kotlinx.coroutines.delay(20) }
+        }
+        vm.state.value.measuring shouldBe true
+        vm.finishNow()
+        await(vm) { it.savedName == "1" }
+    }
+
+    @Test
+    fun `S017 RF-30 si la base cambia a mitad de un promediado se descarta lo promediado, se avisa y se dice cuanto`() {
+        val vm = averagedViewModel(seconds = 60)
+        receiving(vm)
+        vm.measure()
+        sendEpoch(2, baseLat = baseA)
+        sendEpoch(3, baseLat = baseA)
+        sendEpoch(4, baseLat = baseA)
+        await(vm) { it.progress?.epochsUsed == 3 }
+        sendEpoch(5, baseLat = baseB) // cambia la base
+        sendEpoch(6, baseLat = baseB) // completa la época 5
+
+        val state = await(vm) { it.restarted }
+
+        // Cuatro épocas de 1 s: la 5, que ya trae la base nueva, es la que empieza de nuevo.
+        state.restartedDiscardedS.shouldNotBeNull() shouldBe (4.0 plusOrMinus 1e-9)
+        restartedAlerts shouldBe 1
+        log.messages shouldContain "Medida de 1: se descartan 0:04 de promediado"
+        log.messages shouldContain "Medida de 1 empezada de nuevo: la base ha cambiado"
     }
 }

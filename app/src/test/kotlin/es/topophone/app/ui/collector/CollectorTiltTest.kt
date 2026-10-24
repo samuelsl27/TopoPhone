@@ -71,7 +71,12 @@ class CollectorTiltTest {
     private val receiverPreferences = FakePreferences()
     private val collectorPreferences = FakeCollectorPreferences()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val session = ReceiverSession(scope, NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
+    private val session = ReceiverSession(
+        scope,
+        NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE },
+        noDataTimeoutMs = 60_000, // las épocas se mandan a mano: bajo carga, 2 s sin ninguna dejarían la sesión en "Sin datos"
+        watchdogPeriodMs = 1_000,
+    )
     private val toApp = PipedOutputStream()
     private val rs3 = "00:11:22:33:44:55"
     private val log = RecordingLog()

@@ -104,6 +104,9 @@ data class MeasureProgress(val elapsedS: Double, val requiredS: Double, val epoc
  */
 data class AverageStatsUi(val snapshot: AverageStatsSnapshot, val dispersion: Dispersion?)
 
+/** Por qué un promediado está parado: un corte, o un corte de más de 5 min que pide decidir (S017/RF-8, RF-10). */
+enum class PauseState { PAUSED, LONG_PAUSE }
+
 /** Medida terminada que no cumple el control de precisión, a la espera de confirmar (S010/RF-14). */
 data class PendingPoint(val failures: Set<PrecisionFailure>)
 
@@ -127,6 +130,8 @@ data class CollectorUiState(
     val tiltLost: TiltGuide? = null,
     /** "Terminar" sin ninguna época usada: no se ha guardado nada y la medida sigue (S017/RF-7). */
     val noEpochsYet: Boolean = false,
+    /** El promediado está en pausa por un corte, o pregunta qué hacer tras 5 min (S017/RF-8, RF-10). */
+    val paused: PauseState? = null,
     val pending: PendingPoint? = null,
     /** Último punto guardado, para decirlo (S010/RF-19). */
     val savedName: String? = null,
@@ -135,6 +140,8 @@ data class CollectorUiState(
     val notices: VisibleNotices = VisibleNotices(null, null, 0),
     /** La medida en curso empezó de nuevo porque cambió la base (S015/RF-18). */
     val restarted: Boolean = false,
+    /** El tiempo promediado que se descartó con ese reinicio, si había (S017/RF-30). */
+    val restartedDiscardedS: Double? = null,
     /** El modo de inclinación del receptor en uso (S016/RF-15). */
     val tiltMode: TiltMode? = null,
     /** La guía de la inclinación, mientras el modo la use y la época no esté en estado 30 sin aviso (S016/RF-12). */
@@ -175,10 +182,12 @@ class CollectorViewModel @Inject constructor(
         val solutionLost: Boolean = false,
         val tiltLost: TiltGuide? = null,
         val noEpochsYet: Boolean = false,
+        val paused: PauseState? = null,
         val pending: PendingPoint? = null,
         val savedName: String? = null,
         val error: CollectorError? = null,
         val restarted: Boolean = false,
+        val restartedDiscardedS: Double? = null,
     )
 
     private val projectId = MutableStateFlow<String?>(null)
@@ -251,10 +260,12 @@ class CollectorViewModel @Inject constructor(
             solutionLost = run.solutionLost,
             tiltLost = run.tiltLost,
             noEpochsYet = run.noEpochsYet,
+            paused = run.paused,
             pending = run.pending,
             savedName = run.savedName,
             error = run.error,
             restarted = run.restarted,
+            restartedDiscardedS = run.restartedDiscardedS,
         )
     }
 
@@ -366,8 +377,7 @@ class CollectorViewModel @Inject constructor(
         ticker = viewModelScope.launch {
             while (isActive) {
                 delay(TICK_MS)
-                measurement?.onTick(System.currentTimeMillis())?.let(::handle)
-                publishStats()
+                tick(System.currentTimeMillis())
             }
         }
     }
@@ -377,6 +387,19 @@ class CollectorViewModel @Inject constructor(
         stopMeasuring()
         log.warning(LogCategory.POINTS, "Medida de ${measuredName()} cancelada: ha cambiado el modo de inclinación") // S014/RF-5
         run.value = Run(error = CollectorError.TILT_MODE_CHANGED)
+    }
+
+    /** El reloj de la medida, con la hora del móvil: la instantánea sin datos se cancela y la promediada se pausa (S017/RF-8). */
+    internal fun tick(nowMs: Long) {
+        measurement?.onTick(nowMs)?.let(::handle)
+        publishStats()
+    }
+
+    /** "Seguir esperando" a la pregunta de 5 min: sigue pausada y se vuelve a preguntar si el corte sigue 5 min más (S017/RF-10). */
+    fun keepWaiting() {
+        measurement?.keepWaiting(System.currentTimeMillis())
+        log.info(LogCategory.POINTS, "Medida de ${measuredName()}: se sigue esperando los datos del receptor") // S014/RF-5
+        run.update { it.copy(paused = PauseState.PAUSED) }
     }
 
     /** "Terminar": cierra el promediado con las épocas reunidas y lo guarda como cualquier medida (S017/RF-6, RF-7). */
@@ -466,7 +489,20 @@ class CollectorViewModel @Inject constructor(
                 run.update { it.copy(tiltLost = update.guide) }
             }
             // S017/RF-8 a RF-10: la pausa, la reanudación y la pregunta de 5 min llegan al recolector en T16.
-            MeasurementUpdate.Paused, MeasurementUpdate.Resumed, MeasurementUpdate.LongPause -> Unit
+            MeasurementUpdate.Paused -> {
+                log.warning(LogCategory.POINTS, "Medida de ${measuredName()} en pausa: sin datos del receptor") // S014/RF-5
+                alerts.measurementPaused() // S017/RF-8
+                run.update { it.copy(paused = PauseState.PAUSED) }
+            }
+            MeasurementUpdate.Resumed -> {
+                log.info(LogCategory.POINTS, "Medida de ${measuredName()} reanudada: han vuelto los datos del receptor") // S014/RF-5
+                run.update { it.copy(paused = null) } // S017/RF-9: también cierra la pregunta de 5 min
+            }
+            MeasurementUpdate.LongPause -> {
+                // S014/RF-5
+                log.warning(LogCategory.POINTS, "Corte de más de 5 min en la medida de ${measuredName()}: se pregunta qué hacer")
+                run.update { it.copy(paused = PauseState.LONG_PAUSE) } // S017/RF-10
+            }
             MeasurementUpdate.NoEpochsYet -> run.update { it.copy(noEpochsYet = true) } // S017/RF-7
             is MeasurementUpdate.Failed -> {
                 stopMeasuring()
@@ -588,7 +624,25 @@ class CollectorViewModel @Inject constructor(
         measurementBaseChange = baseChange
         measurementBase = null
         log.warning(LogCategory.POINTS, "Medida de ${measuredName()} empezada de nuevo: la base ha cambiado") // S014/RF-5
-        run.update { it.copy(progress = null, solutionLost = false, tiltLost = null, restarted = true) }
+        // S017/RF-30: en un promediado se avisa de cuánto tiempo promediado se descarta.
+        val discardedS = run.value.progress?.elapsedS?.takeIf { it > 0 }
+        if (discardedS != null) {
+            log.warning(
+                LogCategory.POINTS,
+                "Medida de ${measuredName()}: se descartan ${DurationText.format(discardedS.toInt())} de promediado",
+            )
+            alerts.measurementRestarted()
+        }
+        run.update {
+            it.copy(
+                progress = null,
+                solutionLost = false,
+                tiltLost = null,
+                restarted = true,
+                restartedDiscardedS = discardedS,
+                paused = null,
+            )
+        }
     }
 
     private fun checkName() {

@@ -75,7 +75,12 @@ class CollectorViewModelTest {
     private val receiverPreferences = FakePreferences()
     private val collectorPreferences = FakeCollectorPreferences()
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val session = ReceiverSession(sessionScope, NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
+    private val session = ReceiverSession(
+        sessionScope,
+        NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE },
+        noDataTimeoutMs = 60_000, // las épocas se mandan a mano: bajo carga, 2 s sin ninguna dejarían la sesión en "Sin datos"
+        watchdogPeriodMs = 1_000,
+    )
     private val toApp = PipedOutputStream()
     private var saved = 0
     private var lost = 0
