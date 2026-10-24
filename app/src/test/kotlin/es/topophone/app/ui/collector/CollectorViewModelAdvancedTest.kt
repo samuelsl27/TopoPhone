@@ -146,6 +146,16 @@ class CollectorViewModelAdvancedTest {
         return vm
     }
 
+    /** "Medir", con reintento: `measure()` se sale en silencio mientras el proyecto no ha llegado de Room. */
+    private fun startMeasuring(vm: CollectorViewModel) = runBlocking {
+        withTimeout(10_000) {
+            while (!vm.state.value.measuring) {
+                vm.measure()
+                kotlinx.coroutines.delay(50)
+            }
+        }
+    }
+
     private fun viewModel(projectId: String, observed: Boolean = true): CollectorViewModel {
         val vm = CollectorViewModel(
             projects,
@@ -188,7 +198,8 @@ class CollectorViewModelAdvancedTest {
 
     /** Una época a 1 Hz: GGA (con la calidad de [status]) y GST; [lat] en minutos con siete decimales (1 cm son 0,0000054). */
     private fun sendEpoch(second: Int, status: Int = 4, lat: String = "4025.0080000", baseLat: String? = null) {
-        val time = "1015%02d.00".format(30 + second)
+        val t = 36_930 + second // 10:15:30 más [second] segundos
+        val time = "%02d%02d%02d.00".format(t / 3_600, t / 60 % 60, t % 60)
         toApp.write(nmea("GNGGA,$time,$lat,N,00342.2228000,W,$status,24,0.6,650.123,M,51.234,M,1.0,0001").toByteArray())
         toApp.write(nmea("GNGST,$time,0.012,0.010,0.007,45.0,0.008,0.006,0.015").toByteArray())
         baseLat?.let { toApp.write(nmea("GNEBP,$it,N,00342.0000000,W,700.000,M").toByteArray()) }
@@ -233,7 +244,7 @@ class CollectorViewModelAdvancedTest {
         val vm = averagedViewModel(seconds = 10)
         receiving(vm)
 
-        vm.measure()
+        startMeasuring(vm)
         sendEpoch(2) // usada
         sendEpoch(3, status = 5) // FLOAT: descartada
         sendEpoch(4) // usada
@@ -249,7 +260,7 @@ class CollectorViewModelAdvancedTest {
         receiving(vm)
         vm.stats.value.shouldBeNull()
 
-        vm.measure()
+        startMeasuring(vm)
         sendEpoch(2, lat = "4025.0080000")
         sendEpoch(3, lat = "4025.0080054") // 1 cm al norte
         sendEpoch(4, lat = "4025.0080000")
@@ -271,7 +282,7 @@ class CollectorViewModelAdvancedTest {
         val vm = averagedViewModel(seconds = 600, projectId = projectId)
         receiving(vm)
 
-        vm.measure()
+        startMeasuring(vm)
         (2..5).forEach { sendEpoch(it) }
         await(vm) { it.progress?.epochsUsed == 4 }
         vm.finishNow()
@@ -291,7 +302,7 @@ class CollectorViewModelAdvancedTest {
         val vm = averagedViewModel(600, PrecisionControl(fixOnly = false, horizontalLimitM = 0.001), projectId)
         receiving(vm)
 
-        vm.measure()
+        startMeasuring(vm)
         sendEpoch(2)
         sendEpoch(3)
         await(vm) { it.progress?.epochsUsed == 2 }
@@ -312,7 +323,7 @@ class CollectorViewModelAdvancedTest {
         sendEpoch(2, status = 5)
         runBlocking { withTimeout(5_000) { session.state.first { it.epoch?.utcMillisOfDay == EPOCH_1_UTC_MS } } }
 
-        vm.measure()
+        startMeasuring(vm)
         sendEpoch(3, status = 5) // FLOAT con "solo FIX": se descarta
         sendEpoch(4, status = 5)
         await(vm) { it.progress?.epochsDiscarded == 2 }
@@ -338,7 +349,7 @@ class CollectorViewModelAdvancedTest {
     private fun measuringTwoEpochs(projectId: String = project()): CollectorViewModel {
         val vm = averagedViewModel(seconds = 60, projectId = projectId)
         receiving(vm)
-        vm.measure()
+        startMeasuring(vm)
         sendEpoch(2)
         sendEpoch(3)
         await(vm) { it.progress?.epochsUsed == 2 }
@@ -428,7 +439,7 @@ class CollectorViewModelAdvancedTest {
     fun `S017 RF-11 la medida sigue aunque nadie mire el estado del recolector`() {
         val vm = averagedViewModel(seconds = 600, observed = false)
         receiving(vm)
-        vm.measure()
+        startMeasuring(vm)
         sendEpoch(2)
         sendEpoch(3)
         sendEpoch(4)
@@ -446,7 +457,7 @@ class CollectorViewModelAdvancedTest {
     fun `S017 RF-30 si la base cambia a mitad de un promediado se descarta lo promediado, se avisa y se dice cuanto`() {
         val vm = averagedViewModel(seconds = 60)
         receiving(vm)
-        vm.measure()
+        startMeasuring(vm)
         sendEpoch(2, baseLat = baseA)
         sendEpoch(3, baseLat = baseA)
         sendEpoch(4, baseLat = baseA)
@@ -461,5 +472,66 @@ class CollectorViewModelAdvancedTest {
         restartedAlerts shouldBe 1
         log.messages shouldContain "Medida de 1: se descartan 0:04 de promediado"
         log.messages shouldContain "Medida de 1 empezada de nuevo: la base ha cambiado"
+    }
+
+    @Test
+    fun `S017 RF-12 el punto promediado guarda su tiempo y sus desviaciones tipicas y no es automatico`() {
+        val projectId = project()
+        val vm = averagedViewModel(seconds = 600, projectId = projectId)
+        receiving(vm)
+        startMeasuring(vm)
+        sendEpoch(2, lat = "4025.0080000")
+        sendEpoch(3, lat = "4025.0080054") // 1 cm al norte
+        sendEpoch(4, lat = "4025.0080000")
+        sendEpoch(5, lat = "4025.0080054")
+        await(vm) { it.progress?.epochsUsed == 4 }
+        vm.finishNow()
+        await(vm) { it.savedName == "1" }
+
+        val quality = runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().quality
+        quality.averagedTimeS.shouldNotBeNull() shouldBe (4.0 plusOrMinus 1e-9)
+        quality.deviationHorizontalM.shouldNotBeNull() shouldBe (0.0058 plusOrMinus 0.002)
+        quality.deviationVerticalM.shouldNotBeNull() shouldBe (0.0 plusOrMinus 1e-6)
+        quality.auto shouldBe false
+        log.messages shouldContain "Medida de 1: Terminar con las épocas reunidas"
+    }
+
+    @Test
+    fun `S017 RF-12 una medida instantanea no lleva tiempo promediado ni desviaciones`() {
+        val projectId = project()
+        val vm = viewModel(projectId)
+        receiving(vm)
+
+        startMeasuring(vm)
+        sendEpoch(2)
+        await(vm) { it.savedName == "1" }
+
+        val quality = runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull().quality
+        quality.averagedTimeS.shouldBeNull()
+        quality.deviationHorizontalM.shouldBeNull()
+        quality.deviationVerticalM.shouldBeNull()
+        quality.auto shouldBe false
+    }
+
+    @Test
+    fun `S017 RF-12 un promediado con mas frases de las que caben en una fila se guarda con sus tramos`() {
+        val projectId = project()
+        val vm = averagedViewModel(seconds = 3_600, projectId = projectId)
+        receiving(vm)
+        startMeasuring(vm)
+        (2..2_001).forEach { sendEpoch(it) }
+        await(vm) { it.progress?.epochsUsed == 2_000 }
+        vm.finishNow()
+        await(vm) { it.savedName == "1" }
+
+        val point = runBlocking { points.points(projectId).first() }.single()
+        val measurement = point.measurement.shouldNotBeNull()
+        measurement.rawNmea shouldBe ""
+        measurement.nmeaChunks shouldBe 2
+        val text = runBlocking {
+            (0 until measurement.nmeaChunks).map { points.nmeaChunk(point.id, it).shouldNotBeNull() }
+        }.joinToString("")
+        text.lines().size shouldBe 4_000 // la GGA y la GST de cada una de las 2.000 épocas usadas (de la 1 a la 2.000)
+        text.lines().first().startsWith("\$GNGGA,101531.00") shouldBe true
     }
 }

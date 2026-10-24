@@ -202,6 +202,9 @@ class CollectorViewModel @Inject constructor(
     /** Los milisegundos entre dos publicaciones de las estadísticas; los tests mandan las épocas sin pausa y lo ponen a 0. */
     internal var statsIntervalMs = STATS_INTERVAL_MS
     private var measuringReplay = false
+
+    /** La medida en curso es de un punto del modo automático (S017/RF-14). */
+    private var measuringAuto = false
     private var pendingResult: MeasurementResult? = null
     private var ticker: Job? = null
     private var nameCheck: Job? = null
@@ -404,7 +407,9 @@ class CollectorViewModel @Inject constructor(
 
     /** "Terminar": cierra el promediado con las épocas reunidas y lo guarda como cualquier medida (S017/RF-6, RF-7). */
     fun finishNow() {
-        measurement?.finishNow()?.let(::handle)
+        val update = measurement?.finishNow() ?: return
+        log.info(LogCategory.POINTS, "Medida de ${measuredName()}: Terminar con las épocas reunidas") // S014/RF-5
+        handle(update)
     }
 
     /**
@@ -552,6 +557,11 @@ class CollectorViewModel @Inject constructor(
                 epochsUsed = result.epochsUsed,
                 epochsDiscarded = result.epochsDiscarded,
                 fromReplay = measuringReplay,
+                // S017/RF-12, RF-14: lo que dejó el promediado, y si lo midió el modo automático (T19).
+                averagedTimeS = result.averagedTimeS,
+                deviationHorizontalM = result.deviationHorizontalM,
+                deviationVerticalM = result.deviationVerticalM,
+                auto = measuringAuto,
             ),
             rawNmea = result.rawNmea,
             outOfTolerance = failures,
