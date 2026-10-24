@@ -8,7 +8,7 @@
       Hecho cuando: `StakeoutSettingsTest` y `StakeoutNamesTest` en verde con la tolerancia en m, ft y usft, fuera de rango y `_stkd`, `_stkd2` y un nombre editado.
 - [x] T3. `core:model`: `StakeoutRef` con `designElevationM`, `toleranceHM`, `toleranceVM` y `withinTolerance`. (RF-13, RF-14, RF-26)
       Hecho cuando: los tests de `core:model` en verde y `StakeoutRef` sin cambios para quien no pasa los datos nuevos.
-- [ ] T4. `core:survey`: `StakeoutLevel`, los estados desmonte, terraplén y en cota con sus avisos y el margen de 5 mm. (RF-6, RF-8, RF-9)
+- [x] T4. `core:survey`: `StakeoutLevel`, los estados desmonte, terraplén y en cota con sus avisos y el margen de 5 mm. (RF-6, RF-8, RF-9)
       Hecho cuando: `StakeoutLevelTest` en verde: los tres estados, el aviso una sola vez, el borde oscilando, entrar en cota en la primera época y el reinicio.
 - [ ] T5. `core:survey`: `LevelScale` y `LevelView`. (RF-7)
       Hecho cuando: `LevelScaleTest` y `LevelViewTest` en verde: los pasos 1-2-5 hasta decenas de metros, sin saltos de ida y vuelta, la burbuja recortada al borde y la banda de la tolerancia.
