@@ -426,7 +426,6 @@
     <string name="stakeout_back">Back %1$s</string>
     <string name="stakeout_right">Right %1$s</string>
     <string name="stakeout_left">Left %1$s</string>
-    <string name="stakeout_dz">Height difference %1$s</string>
     <string name="stakeout_status">%1$s · H accuracy %2$s</string>
     <string name="stakeout_heading_walking">Walking heading %1$s</string>
     <string name="stakeout_heading_imu">IMU heading %1$s</string>
@@ -435,6 +434,14 @@
     <string name="stakeout_heading_no_imu">No heading: the receiver does not send the IMU one.</string>
     <string name="stakeout_heading_imu_not_ready">No heading: the IMU is not ready (state 30).</string>
     <string name="stakeout_inside">Within tolerance</string>
+    <string name="stakeout_level_cut">Cut %1$s</string>
+    <string name="stakeout_level_fill">Fill %1$s</string>
+    <string name="stakeout_level_on_grade">On grade</string>
+    <string name="stakeout_level_no_elevation">No design elevation: the point has no height</string>
+    <string name="stakeout_level_no_tip_height">No elevation: the tip has no height</string>
+    <string name="stakeout_level_description_cut">Vertical level: cut of %1$s, dig</string>
+    <string name="stakeout_level_description_fill">Vertical level: fill of %1$s, add material</string>
+    <string name="stakeout_level_description_on_grade">Vertical level: on grade</string>
     <string name="stakeout_diana_description">Bullseye of %1$d cm radius: the tip is %2$d cm from the design point.</string>
     <string name="stakeout_arrow_description">Arrow to the design point: %1$s</string>
     <string name="stakeout_arrow_ahead">straight ahead</string>

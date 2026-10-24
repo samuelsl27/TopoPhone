@@ -25,7 +25,7 @@ const val STAKEOUT_ARROW_TAG = "stakeout_arrow"
 const val STAKEOUT_INSIDE_TAG = "stakeout_inside"
 
 /** Verde de "dentro de la tolerancia" (S018/RF-19); siempre con su texto, nunca solo con color (RNF-T8). */
-private val InsideGreen = Color(0xFF2E7D32)
+internal val InsideGreen = Color(0xFF2E7D32)
 
 /**
  * La flecha hacia el punto de diseño respecto al rumbo del usuario: arriba es seguir de frente (S018/RF-7). Un `Canvas`

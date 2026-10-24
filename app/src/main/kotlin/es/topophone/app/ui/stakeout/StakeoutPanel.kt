@@ -4,9 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
@@ -72,7 +74,6 @@ const val STAKEOUT_NORTH_TAG = "stakeout_north"
 const val STAKEOUT_EAST_TAG = "stakeout_east"
 const val STAKEOUT_AHEAD_TAG = "stakeout_ahead"
 const val STAKEOUT_RIGHT_TAG = "stakeout_right"
-const val STAKEOUT_DZ_TAG = "stakeout_dz"
 const val STAKEOUT_HEADING_TAG = "stakeout_heading"
 const val STAKEOUT_STATUS_TAG = "stakeout_status"
 const val STAKEOUT_RESULT_TAG = "stakeout_result"
@@ -287,6 +288,8 @@ private fun Guidance(state: StakeoutUiState) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     GuidanceFigures(state, ui, numbers)
                 }
+                // S019/RF-7: el nivel vertical al lado de la diana o de la flecha, a cualquier distancia del punto.
+                ui.level?.let { StakeoutLevelView(it, numbers, Modifier.width(LEVEL_WIDTH).height(DIANA_SIZE)) }
             }
             GuidanceNotes(state, ui, numbers, angular)
             Text(
@@ -357,13 +360,13 @@ private fun GuidanceNotes(state: StakeoutUiState, ui: GuidanceUi, numbers: Numbe
     if (state.settings.mode == StakeMode.BY_DIRECTION) {
         Text(headingText(ui.heading, state.settings.heading, angular), modifier = Modifier.testTag(STAKEOUT_HEADING_TAG))
     }
-    ui.guidance.dHeightM?.let {
-        Text(stringResource(R.string.stakeout_dz, numbers.signed(it)), modifier = Modifier.testTag(STAKEOUT_DZ_TAG))
-    }
+    // S019/RF-6, RF-8: "Desmonte", "Terraplén" o "En cota"; sin nivel, por qué falta (RF-5). Sustituye al dato de S018/RF-12.
+    ui.level?.let { StakeoutLevelReading(it, numbers) }
+    ui.levelUnavailable?.let { StakeoutLevelUnavailable(it) }
 }
 
 /** Las cifras de la guía en la unidad del proyecto (RNF-T9). */
-private class Numbers(private val unit: LinearUnit, private val symbol: String, private val locale: Locale) {
+internal class Numbers(private val unit: LinearUnit, private val symbol: String, private val locale: Locale) {
     fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, unit, locale)} $symbol"
 
     /** Con "+" delante si es positiva: hacia el Norte o el Este, o la punta por encima del diseño (S018/RF-6, RF-12). */
@@ -422,3 +425,4 @@ private val BODY_MAX_HEIGHT = 380.dp
 private val ARROW_ALONE = 96.dp
 private val ARROW_BESIDE_DIANA = 72.dp
 private val DIANA_SIZE = 130.dp
+private val LEVEL_WIDTH = 44.dp

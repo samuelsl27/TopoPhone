@@ -438,7 +438,6 @@
     <string name="stakeout_back">Atrás %1$s</string>
     <string name="stakeout_right">Derecha %1$s</string>
     <string name="stakeout_left">Izquierda %1$s</string>
-    <string name="stakeout_dz">Diferencia de cota %1$s</string>
     <string name="stakeout_status">%1$s · precisión H %2$s</string>
     <string name="stakeout_heading_walking">Rumbo de marcha %1$s</string>
     <string name="stakeout_heading_imu">Rumbo del IMU %1$s</string>
@@ -447,6 +446,14 @@
     <string name="stakeout_heading_no_imu">Sin rumbo: el receptor no envía el del IMU.</string>
     <string name="stakeout_heading_imu_not_ready">Sin rumbo: el IMU no está listo (estado 30).</string>
     <string name="stakeout_inside">Dentro de la tolerancia</string>
+    <string name="stakeout_level_cut">Desmonte %1$s</string>
+    <string name="stakeout_level_fill">Terraplén %1$s</string>
+    <string name="stakeout_level_on_grade">En cota</string>
+    <string name="stakeout_level_no_elevation">Sin cota de diseño: el punto no tiene altura</string>
+    <string name="stakeout_level_no_tip_height">Sin cota: la punta no tiene altura</string>
+    <string name="stakeout_level_description_cut">Nivel vertical: desmonte de %1$s, hay que excavar</string>
+    <string name="stakeout_level_description_fill">Nivel vertical: terraplén de %1$s, hay que rellenar</string>
+    <string name="stakeout_level_description_on_grade">Nivel vertical: en cota</string>
     <string name="stakeout_diana_description">Diana de %1$d cm de radio: la punta está a %2$d cm del punto de diseño.</string>
     <string name="stakeout_arrow_description">Flecha hacia el punto de diseño: %1$s</string>
     <string name="stakeout_arrow_ahead">de frente</string>

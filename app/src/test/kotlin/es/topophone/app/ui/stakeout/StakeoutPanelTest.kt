@@ -40,6 +40,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.Guidance
 import es.topophone.core.survey.HeadingResult
 import es.topophone.core.survey.HeadingUnavailable
+import es.topophone.core.survey.LevelState
 import es.topophone.core.survey.StakeZone
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
@@ -95,6 +96,8 @@ class StakeoutPanelTest {
         solution: SolutionStatus = SolutionStatus.FIX,
         accuracy: Double? = 0.012,
         zone: StakeZone = StakeZone.FAR,
+        level: LevelUi? = null,
+        levelUnavailable: LevelUnavailable? = null,
     ) = GuidanceState.On(
         GuidanceUi(
             guidance = guidance,
@@ -106,8 +109,12 @@ class StakeoutPanelTest {
             solution = solution,
             horizontalAccuracyM = accuracy,
             tipUncompensated = false,
+            level = level,
+            levelUnavailable = levelUnavailable,
         ),
     )
+
+    private fun level(dz: Double, state: LevelState, radius: Double = 5.0, tolerance: Double = 0.03) = LevelUi(dz, state, radius, tolerance)
 
     private fun state(
         guidance: GuidanceState = on(),
@@ -253,15 +260,126 @@ class StakeoutPanelTest {
     }
 
     @Test
-    fun `S018 RF-12 la diferencia de cota se muestra como dato con su signo y solo si hay`() {
-        show(state(on(guidance(dHeight = -0.123))))
-        compose.onNodeWithTag(STAKEOUT_DZ_TAG).assertTextContains("-0,123", substring = true)
+    fun `S019 RF-6 con la punta por encima de la cota dice desmonte con el valor sin signo`() {
+        show(state(on(guidance(dHeight = 3.25), level = level(3.25, LevelState.CUT))))
+
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertTextEquals("Desmonte 3,250 m")
     }
 
     @Test
-    fun `S018 RF-12 sin diferencia de cota no se muestra`() {
-        show(state(on(guidance(dHeight = null))))
-        compose.onNodeWithTag(STAKEOUT_DZ_TAG).assertDoesNotExist()
+    fun `S019 RF-6 con la punta por debajo de la cota dice terraplen con el valor sin signo`() {
+        show(state(on(guidance(dHeight = -0.04), level = level(-0.04, LevelState.FILL, radius = 0.05))))
+
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertTextEquals("Terraplén 0,040 m")
+    }
+
+    @Test
+    fun `S019 RF-6 con una diferencia de decenas de metros se lee igual`() {
+        show(state(on(level = level(12.5, LevelState.CUT, radius = 20.0))))
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertTextEquals("Desmonte 12,500 m")
+    }
+
+    @Test
+    fun `S019 RF-6 la cifra va en la unidad del proyecto`() {
+        val feet = state(on(level = level(3.25, LevelState.CUT))).copy(project = project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT))
+
+        show(feet)
+
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertTextContains("Desmonte 10,663", substring = true)
+    }
+
+    @Test
+    fun `S019 RF-7 el nivel vertical se dibuja a cualquier distancia, tambien sin diana`() {
+        show(state(on(zone = StakeZone.FAR, level = level(2.0, LevelState.CUT))))
+
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(STAKEOUT_DIANA_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S019 RF-7 junto a la diana, en la zona de ayuda, tambien esta el nivel`() {
+        show(
+            state(
+                on(
+                    guidance(distance = 0.3, dEast = 0.1, dNorth = 0.28),
+                    zone = StakeZone.AID,
+                    level = level(0.1, LevelState.CUT, radius = 0.2),
+                ),
+            ),
+        )
+
+        compose.onNodeWithTag(STAKEOUT_DIANA_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S019 RF-7 el nivel lleva una descripcion de texto con el desmonte o el terraplen`() {
+        show(state(on(level = level(3.25, LevelState.CUT))))
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TAG).assert(hasContentDescription("Nivel vertical: desmonte de 3,250 m, hay que excavar"))
+    }
+
+    @Test
+    fun `S019 RF-7 en terraplen la descripcion dice que hay que rellenar`() {
+        show(state(on(level = level(-1.2, LevelState.FILL))))
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TAG).assert(hasContentDescription("Nivel vertical: terraplén de 1,200 m, hay que rellenar"))
+    }
+
+    @Test
+    fun `S019 RF-8 dentro de la tolerancia vertical dice En cota con texto, no solo con color`() {
+        show(state(on(level = level(0.01, LevelState.ON_GRADE, radius = 0.05))))
+
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertTextEquals("En cota")
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TAG).assert(hasContentDescription("Nivel vertical: en cota"))
+    }
+
+    @Test
+    fun `S019 RF-5 sin altura en el punto de diseno ni cota escrita dice que falta la cota y no hay nivel`() {
+        show(state(on(guidance(dHeight = null), levelUnavailable = LevelUnavailable.NO_DESIGN_ELEVATION)))
+
+        compose.onNodeWithTag(STAKEOUT_LEVEL_UNAVAILABLE_TAG).assertTextContains("Sin cota de diseño", substring = true)
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S019 RF-5 con la punta sin altura dice que falta la altura de la punta`() {
+        show(state(on(guidance(dHeight = null), levelUnavailable = LevelUnavailable.TIP_WITHOUT_HEIGHT)))
+
+        compose.onNodeWithTag(STAKEOUT_LEVEL_UNAVAILABLE_TAG).assertTextContains("punta no tiene altura", substring = true)
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S019 RF-5 con nivel no hay aviso de que falte nada`() {
+        show(state(on(level = level(0.5, LevelState.CUT))))
+
+        compose.onNodeWithTag(STAKEOUT_LEVEL_UNAVAILABLE_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S019 RF-11 con la guia apagada no hay nivel y se dice el motivo de la guia`() {
+        show(state(GuidanceState.Off(GuidanceOff.NO_FIX)))
+
+        compose.onNodeWithTag(STAKEOUT_OFF_TAG).assertTextContains("Sin FIX", substring = true)
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(STAKEOUT_LEVEL_UNAVAILABLE_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S019 RF-12 la diana sigue dentro de la tolerancia con el texto aunque el nivel diga desmonte`() {
+        show(
+            state(
+                on(
+                    guidance(distance = 0.01, dEast = 0.0, dNorth = 0.01),
+                    zone = StakeZone.INSIDE,
+                    level = level(2.0, LevelState.CUT, radius = 5.0),
+                ),
+            ),
+        )
+
+        compose.onNodeWithTag(STAKEOUT_INSIDE_TAG).assertTextContains("Dentro de la tolerancia", substring = true)
+        compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertTextEquals("Desmonte 2,000 m")
     }
 
     @Test
