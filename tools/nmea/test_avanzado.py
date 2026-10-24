@@ -60,16 +60,16 @@ def test_s017_las_frases_tienen_suma_correcta() -> None:
 def test_s017_rf_12_el_promediado_largo_son_10_min_a_10_hz_con_un_corte_de_6_s() -> None:
     times = [seconds(utc) for utc, *_ in ground("rs3-promediado-largo.nmea")]
     steps = [round(b - a, 2) for a, b in zip(times, times[1:])]
-    assert len(times) == 6000 - 60
+    assert len(times) == r.LEAD_IN_EPOCHS + 6000 - 60
     assert steps.count(0.1) == len(steps) - 1
     assert steps.count(6.1) == 1
-    assert math.isclose(times[-1] - times[0], 599.9, abs_tol=1e-6)  # 10 min de reloj con el corte dentro
+    assert math.isclose(times[-1] - times[0], 599.9 + r.LEAD_IN_EPOCHS * 0.1, abs_tol=1e-6)  # 10 min de reloj con el corte dentro
 
 
 def test_s017_rf_12_lo_esperado_del_promediado_sale_de_la_gga_aparte() -> None:
     """Media y desviaciones típicas muestrales (n − 1) del suelo, recalculadas aquí sin las funciones del generador."""
-    epochs = ground("rs3-promediado-largo.nmea")
-    for row in csv_rows("rs3-promediado-largo.esperado.csv"):
+    epochs = ground("rs3-promediado-largo.nmea")[r.LEAD_IN_EPOCHS :]  # sin las de calentamiento
+    for row in csv_rows("rs3-promediado-largo.medias.csv"):
         n = int(row[0])
         used = epochs[:n]
         assert math.isclose(float(row[1]), n * 0.1, abs_tol=1e-9)
@@ -89,7 +89,7 @@ def test_s017_rf_12_lo_esperado_del_promediado_sale_de_la_gga_aparte() -> None:
 
 
 def test_s017_rf_12_el_esperado_incluye_las_epocas_de_antes_y_de_despues_del_corte() -> None:
-    ns = [int(row[0]) for row in csv_rows("rs3-promediado-largo.esperado.csv")]
+    ns = [int(row[0]) for row in csv_rows("rs3-promediado-largo.medias.csv")]
     assert 1 in ns and 2 in ns and ns[-1] == 5940
     assert any(n < r.CUT_AT_EPOCH for n in ns) and any(n > r.CUT_AT_EPOCH for n in ns)
 
@@ -98,7 +98,7 @@ def test_s017_rf_19_el_corte_corto_y_el_largo_del_fichero_de_cortes() -> None:
     times = [seconds(utc) for utc, *_ in ground("rs3-corte.nmea")]
     gaps = sorted({round(b - a, 2) for a, b in zip(times, times[1:])})
     assert gaps == [0.2, 4.2, 360.2]
-    rows = csv_rows("rs3-corte.esperado.csv")
+    rows = csv_rows("rs3-corte.tramos.csv")
     assert [row[5] for row in rows] == ["inicio", "pausa-y-reanuda", "pausa-larga"]
     assert [int(row[3]) for row in rows] == [100, 100, 50]
     assert sum(int(row[3]) for row in rows) == len(times)
@@ -117,7 +117,7 @@ def test_s017_rf_20_rf_21_la_traza_son_2_min_andando_a_5_hz_con_10_s_sin_fix() -
 
 def test_s017_rf_20_rf_21_los_disparos_esperados_salen_de_las_posiciones_aparte() -> None:
     epochs = ground("rs3-traza.nmea")
-    rows = csv_rows("rs3-traza.esperado.csv")
+    rows = csv_rows("rs3-traza.disparos.csv")
     assert len(rows) == len(epochs)
     last = 0
     by_distance = []

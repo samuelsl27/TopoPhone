@@ -5,7 +5,7 @@ Datos compartidos por los tests de todos los módulos. Los ficheros de más de 5
 | Carpeta | Contenido |
 |---|---|
 | `nmea/rs3/fw<versión>/` | Sesiones reales del RS3: `<escenario>.nmea` y su descriptor `<escenario>.yaml` |
-| `nmea/sintetico/` | Sesiones sintéticas generadas por `tools/nmea/generar_sintetico.py` y sus resultados esperados (`.esperado.csv`); no se editan a mano |
+| `nmea/sintetico/` | Sesiones sintéticas generadas por `tools/nmea/generar_sintetico.py` y sus resultados esperados (`.esperado.csv` para S002; `.epocas.csv`, `.punta.csv`, `.medias.csv`, `.tramos.csv` y `.disparos.csv` para las de S003, S016 y S017, que no son del formato de S002); no se editan a mano |
 | `rtcm/` | Flujos RTCM 3 grabados (`.rtcm3`, tal como los envía el caster) con su descriptor `.yaml`: `rgapa-AVL13M` (S007) |
 | `ntrip/sourcetables/` | Tablas de fuentes reales (`.sourcetable`, respuesta completa del caster, byte a byte) con su `.yaml`: IGN 2101 y 2102, RGAPA (S007) |
 | `geodesia/` | Vectores de referencia generados por `tools/geodesia` (CSV) |

@@ -2,13 +2,14 @@
 
 Genera en fixtures/nmea/sintetico/ (GGA a la frecuencia indicada; GST, RMC y ZDA cada segundo; sin ETC, el suelo se saca
 de la antena con el jalón de 1,800 m y el RS3 como en S002):
-- rs3-promediado-largo.nmea: 10 min a 10 Hz con un punto quieto, ruido y un corte de 6 s a mitad (5.940 épocas).
-  rs3-promediado-largo.esperado.csv da, tras n épocas, el tiempo promediado, la media del suelo en ETRS89 / UTM 30 y
+- rs3-promediado-largo.nmea: 10 min a 10 Hz con un punto quieto, ruido y un corte de 6 s a mitad (5.940 épocas), tras 9 de
+  calentamiento: el recolector toma el intervalo del receptor de las épocas que ya ha visto, y la novena queda abierta al empezar.
+  rs3-promediado-largo.medias.csv da, tras n épocas, el tiempo promediado, la media del suelo en ETRS89 / UTM 30 y
   sus desviaciones típicas muestrales, con `math.fsum` en dos pasadas desde la GGA tal como la lee la app.
 - rs3-corte.nmea: a 5 Hz, 20 s, un corte corto de 4 s, 20 s, un corte largo de 6 min y 10 s.
-  rs3-corte.esperado.csv da los tres tramos y cómo debe acabar cada corte.
+  rs3-corte.tramos.csv da los tres tramos y cómo debe acabar cada corte.
 - rs3-traza.nmea: 2 min andando a 1,2 m/s a 5 Hz, con 10 s sin FIX (FLOAT) a mitad.
-  rs3-traza.esperado.csv da, por época, el suelo y cuándo disparan el modo automático por distancia (10 m) y por tiempo (30 s)
+  rs3-traza.disparos.csv da, por época, el suelo y cuándo disparan el modo automático por distancia (10 m) y por tiempo (30 s)
   contados desde el último disparo.
 
 Uso: uv run --project tools tools/nmea/generar_avanzado.py
@@ -37,10 +38,11 @@ ORIGIN = (40.4168, -3.7038, 699.423)
 SEPARATION = 51.234
 ANTENNA_HEIGHT = g.POLE_M + g.RS3_BASE_TO_REFERENCE_M
 
+LEAD_IN_EPOCHS = 9  # las que el recolector ve antes de empezar a medir; el promediado empieza en la novena
 LONG_EPOCHS = 6000
 CUT_AT_EPOCH = 3000  # la última época antes del corte es la 3.000
 CUT_EPOCHS = 60  # 6 s a 10 Hz
-LONG_CHECKPOINTS = (1, 2, 10, 600, 601, 3000, 3001, 5940)
+LONG_CHECKPOINTS = (1, 2, 10, 600, 601, 3000, 3001, 5939, 5940)
 LONG_SIGMA_M = (0.004, 0.003, 0.007)
 
 CUT_SEGMENTS = ((100, 0.0, "inicio"), (100, 4.0, "pausa-y-reanuda"), (50, 360.0, "pausa-larga"))
@@ -112,14 +114,15 @@ def write(fixes: list[Fix]) -> tuple[bytes, list[Parsed]]:
 def long_fixes() -> list[Fix]:
     rng = random.Random(20261023)
     fixes = []
-    for i in range(LONG_EPOCHS - CUT_EPOCHS):
-        slot = i + (CUT_EPOCHS if i >= CUT_AT_EPOCH else 0)
+    for i in range(LEAD_IN_EPOCHS + LONG_EPOCHS - CUT_EPOCHS):
+        slot = i + (CUT_EPOCHS if i - LEAD_IN_EPOCHS >= CUT_AT_EPOCH else 0)
         offset = tuple(rng.gauss(0.0, sigma) for sigma in LONG_SIGMA_M)
         fixes.append(Fix(at_after(slot * p.EPOCH_S), offset))
     return fixes
 
 
 def expected_long(parsed: list[Parsed]) -> str:
+    parsed = parsed[LEAD_IN_EPOCHS:]
     east, north, height = [e.ground_e for e in parsed], [e.ground_n for e in parsed], [e.ground_h for e in parsed]
     rows = []
     for n in LONG_CHECKPOINTS:
@@ -131,7 +134,7 @@ def expected_long(parsed: list[Parsed]) -> str:
     header = [
         "# Lo esperado de rs3-promediado-largo.nmea (S017). Generado por tools/nmea/generar_avanzado.py; no editar a mano.",
         f"# pyproj={g.pyproj.__version__}; PROJ={g.pyproj.proj_version_str}; EPSG:4258 → EPSG:25830; jalon_m={g.POLE_M}; receptor=RS3 ({g.RS3_BASE_TO_REFERENCE_M} m)",
-        f"# {len(parsed)} épocas a 10 Hz con un corte de {CUT_EPOCHS * p.EPOCH_S:g} s tras la época {CUT_AT_EPOCH}; el corte pausa y reanuda, no descarta.",
+        f"# {len(parsed)} épocas a 10 Hz (tras {LEAD_IN_EPOCHS} de calentamiento) con un corte de {CUT_EPOCHS * p.EPOCH_S:g} s tras la época {CUT_AT_EPOCH}; el corte pausa y reanuda, no descarta.",
         "# Media del suelo (E, N, h elipsoidal) y desviaciones típicas muestrales (n − 1) tras n épocas; math.fsum en dos pasadas.",
         "n,tiempo_s,media_e,media_n,media_h,dev_h,dev_v",
     ]
@@ -214,11 +217,11 @@ def generate() -> dict[str, bytes | str]:
     walk_nmea, walk_parsed = write(walk_fixes())
     return {
         "rs3-promediado-largo.nmea": long_nmea,
-        "rs3-promediado-largo.esperado.csv": expected_long(long_parsed),
+        "rs3-promediado-largo.medias.csv": expected_long(long_parsed),
         "rs3-corte.nmea": cut_nmea,
-        "rs3-corte.esperado.csv": expected_cut(spans),
+        "rs3-corte.tramos.csv": expected_cut(spans),
         "rs3-traza.nmea": walk_nmea,
-        "rs3-traza.esperado.csv": expected_walk(walk_parsed),
+        "rs3-traza.disparos.csv": expected_walk(walk_parsed),
     }
 
 

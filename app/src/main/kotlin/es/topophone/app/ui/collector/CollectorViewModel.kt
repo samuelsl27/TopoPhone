@@ -233,7 +233,11 @@ class CollectorViewModel @Inject constructor(
     private var pendingResult: MeasurementResult? = null
     private var ticker: Job? = null
     private var nameCheck: Job? = null
-    private var lastEpochUtc: Int? = null
+
+    @Volatile private var lastEpochUtc: Int? = null
+
+    /** La hora UTC de la última época que el recolector ha recibido; los tests esperan a ella antes de medir. */
+    internal val lastEpochUtcMs: Int? get() = lastEpochUtc
     private var epochIntervalS = DEFAULT_INTERVAL_S
 
     /** Crea la medida con los datos de "Medir", para empezarla de nuevo si cambia la base (S015/RF-18). */
