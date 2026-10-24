@@ -108,6 +108,37 @@ class ExportScreenTest {
     }
 
     @Test
+    fun `S019 RF-25 el personalizado ofrece las siete columnas del replanteo con su nombre`() {
+        show(base.copy(options = CsvOptions(format = ExportFormat.CUSTOM, customColumns = setOf(ExportColumn.NAME))))
+
+        compose.onNodeWithTag(columnTag(ExportColumn.STAKE_DESIGN)).performScrollTo()
+        compose.onNodeWithText("Punto de diseño (replanteo)").assertIsDisplayed()
+        compose.onNodeWithText("Cota de diseño (replanteo)").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Diferencia de Norte (replanteo)").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Diferencia de Este (replanteo)").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Distancia horizontal (replanteo)").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Diferencia de cota (replanteo)").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Dentro de la tolerancia (replanteo)").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `S019 RF-25 marcar una columna del replanteo avisa de cual`() {
+        show(base.copy(options = CsvOptions(format = ExportFormat.CUSTOM, customColumns = setOf(ExportColumn.NAME))))
+
+        compose.onNodeWithTag(columnTag(ExportColumn.STAKE_WITHIN)).performScrollTo().performClick()
+        compose.onNodeWithTag(columnTag(ExportColumn.STAKE_D_ELEVATION)).performScrollTo().performClick()
+
+        calls shouldBe listOf("column:STAKE_WITHIN", "column:STAKE_D_ELEVATION")
+    }
+
+    @Test
+    fun `S019 RF-25 con todas las columnas no se listan, van todas`() {
+        show(base.copy(options = CsvOptions(format = ExportFormat.ALL)))
+
+        compose.onNodeWithTag(columnTag(ExportColumn.STAKE_DESIGN)).assertDoesNotExist()
+    }
+
+    @Test
     fun `S012 RF-14 coma con coma se avisa y no se puede guardar ni compartir`() {
         show(base.copy(options = CsvOptions(separator = ColumnSeparator.COMMA, decimal = DecimalSeparator.COMMA)))
 

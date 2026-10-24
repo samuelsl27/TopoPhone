@@ -42,7 +42,7 @@
       Hecho cuando: `StakeoutReportViewModelTest` en verde: todos y seleccionados, sin papelera, sin puntos replanteados, error de escritura y el nombre propuesto.
 - [x] T20. `app`: la pantalla del informe con su resumen, "Guardar" y "Compartir", y sus entradas en el menú del proyecto, en el de la lista de objetos y en la selección. (RF-17, RF-18, RF-20, RF-24)
       Hecho cuando: `StakeoutReportScreenTest` en verde, con el selector de ficheros cancelado y la lista de objetos con y sin selección.
-- [ ] T21. `app`: las columnas del replanteo en la pantalla de exportación del CSV de puntos. (RF-25)
+- [x] T21. `app`: las columnas del replanteo en la pantalla de exportación del CSV de puntos. (RF-25)
       Hecho cuando: `ExportViewModelTest` y `ExportScreenTest` en verde, con las columnas nuevas en "Personalizado" y la selección guardada de antes.
 - [ ] T22. `tools/nmea`: `generar_cota_rs3.py` con `rs3-cota` (la punta sube y baja alrededor de la cota de diseño y 10 s sin FIX) y lo esperado de cada época. (RF-6, RF-8, RF-9, RF-11)
       Hecho cuando: los ficheros se generan y su test de `tools` está en verde.

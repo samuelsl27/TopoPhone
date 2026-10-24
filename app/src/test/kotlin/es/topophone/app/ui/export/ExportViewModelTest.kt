@@ -8,6 +8,7 @@ import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.points.PointFixtures.manual
 import es.topophone.app.ui.points.PointFixtures.measured
+import es.topophone.app.ui.points.PointFixtures.staked
 import es.topophone.core.formats.csv.ColumnSeparator
 import es.topophone.core.formats.csv.CsvOptions
 import es.topophone.core.formats.csv.DecimalSeparator
@@ -184,6 +185,88 @@ class ExportViewModelTest {
         val text = bytes.toString(Charsets.UTF_8)
         text.split("\r\n").drop(1).map { it.substringBefore(',') } shouldBe listOf("1", "2", "E1", "")
         text.contains("Peña") shouldBe true
+    }
+
+    private val stakeColumns = listOf(
+        ExportColumn.STAKE_DESIGN,
+        ExportColumn.STAKE_DESIGN_ELEVATION,
+        ExportColumn.STAKE_D_NORTH,
+        ExportColumn.STAKE_D_EAST,
+        ExportColumn.STAKE_D_HORIZONTAL,
+        ExportColumn.STAKE_D_ELEVATION,
+        ExportColumn.STAKE_WITHIN,
+    )
+
+    private fun stakedViewModel(): ExportViewModel {
+        val replanteo = staked(
+            "12_stkd",
+            projectId = projectId,
+            designElevationM = 648.19,
+            toleranceHM = 0.025,
+            toleranceVM = 0.03,
+            withinTolerance = true,
+        ).copy(createdAtMs = 2_000)
+        val normal = measured("1", projectId = projectId, createdAtMs = 1_000)
+        val vm = ExportViewModel(FakePointRepository(listOf(replanteo, normal)), projects, preferences, selection, log)
+        CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+        vm.start(projectId, selectionOnly = false)
+        vm.await { it.loaded }
+        return vm
+    }
+
+    @Test
+    fun `S019 RF-25 todas las columnas incluyen las del replanteo, vacias en los puntos que no lo son`() {
+        val vm = stakedViewModel()
+        val out = ByteArrayOutputStream()
+
+        runBlocking { vm.writeTo(out) } shouldBe true
+
+        // El orden es el de creación: el punto medido sale antes que el replanteado.
+        val (header, normal, replanteo) = out.toString(Charsets.UTF_8.name()).trimEnd().split("\r\n").map { it.split(",") }
+        header.takeLast(7) shouldBe stakeColumns.map { it.header }
+        replanteo[header.indexOf("Stake design")] shouldBe "12"
+        replanteo[header.indexOf("Stake within tolerance")] shouldBe "true"
+        replanteo[header.indexOf("Stake design elevation")] shouldBe "648.1900"
+        normal.takeLast(7).all { it.isEmpty() } shouldBe true
+    }
+
+    @Test
+    fun `S019 RF-25 las columnas del replanteo se pueden elegir en el personalizado y se recuerdan`() {
+        val vm = stakedViewModel()
+        vm.setFormat(ExportFormat.CUSTOM)
+        ExportColumn.entries.forEach { vm.toggleColumn(it) } // quita todas
+        vm.await { it.options.customColumns.isEmpty() }
+
+        vm.toggleColumn(ExportColumn.NAME)
+        vm.toggleColumn(ExportColumn.STAKE_D_HORIZONTAL)
+
+        vm.await { ExportColumn.STAKE_D_HORIZONTAL in it.options.customColumns }.options.customColumns shouldBe
+            setOf(ExportColumn.NAME, ExportColumn.STAKE_D_HORIZONTAL)
+        preferences.options.value.customColumns shouldBe setOf(ExportColumn.NAME, ExportColumn.STAKE_D_HORIZONTAL)
+    }
+
+    @Test
+    fun `S019 RF-25 una seleccion personalizada guardada antes no incluye las columnas nuevas hasta marcarlas`() {
+        val before = ExportColumn.entries.filter { it !in stakeColumns }.toSet()
+        preferences.options.value = CsvOptions(format = ExportFormat.CUSTOM, customColumns = before)
+        val vm = stakedViewModel()
+
+        val state = vm.await { it.loaded }
+
+        state.options.columns.none { it in stakeColumns } shouldBe true
+        vm.toggleColumn(ExportColumn.STAKE_WITHIN)
+        vm.await { ExportColumn.STAKE_WITHIN in it.options.customColumns }.options.columns.last() shouldBe ExportColumn.STAKE_WITHIN
+    }
+
+    @Test
+    fun `S019 RF-25 PENZD no lleva las columnas del replanteo`() {
+        preferences.options.value = CsvOptions(format = ExportFormat.PENZD)
+        val vm = stakedViewModel()
+        val out = ByteArrayOutputStream()
+
+        runBlocking { vm.writeTo(out) } shouldBe true
+
+        out.toString(Charsets.UTF_8.name()).lineSequence().first() shouldBe "Name,Easting,Northing,Elevation,Description"
     }
 
     @Test
