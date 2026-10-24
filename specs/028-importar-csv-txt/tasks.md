@@ -6,7 +6,7 @@
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [x] T2. `core:model`: `PointOrigin.IMPORTED`, `Point.importId` y `hasMeasurement`; los términos nuevos en `docs/glosario.md`. (RF-31, RF-33)
       Hecho cuando: los tests de `core:model` en verde, con el importado sin medida y `Point` sin cambios para quien no pasa el identificador.
-- [ ] T3. `core:model`: los tipos de la importación (`ImportEncoding`, `ColumnRole`, `ColumnMapping`, `ImportCoordinates`, `DuplicatePolicy`, `ImportOptions`, `ImportRowError`, `ImportErrorReason`, `ImportCounts`, `ImportPreviewRow`). (RF-4 a RF-24)
+- [x] T3. `core:model`: los tipos de la importación (`ImportEncoding`, `ColumnRole`, `ColumnMapping`, `ImportCoordinates`, `DuplicatePolicy`, `ImportOptions`, `ImportRowError`, `ImportErrorReason`, `ImportCounts`, `ImportPreviewRow`). (RF-4 a RF-24)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto de la spec (saltar repetidos, 0 como altura).
 - [ ] T4. `core:formats`: `TextDecoding`, la codificación con su detección. (RF-2, RF-4)
       Hecho cuando: `TextDecodingTest` en verde: UTF-8 con y sin BOM, Windows-1252 con acentos, binario, vacío y la muestra cortada en mitad de un carácter.

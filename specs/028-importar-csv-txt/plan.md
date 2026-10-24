@@ -7,7 +7,7 @@ Sin dependencias nuevas (Gradle ni Python). El lector de texto delimitado es pro
 ## Estructura de módulos
 - `core:model`:
   - `PointOrigin.IMPORTED`, `Point.importId` y `PointOrigin.hasMeasurement` sin el importado (RF-31, RF-33);
-  - los tipos de la importación, sin lógica: `ImportEncoding`, `ColumnSeparator` ya existe en `core:formats` y se reutiliza, `ColumnRole`, `ColumnMapping`, `ImportCoordinates` (SC del proyecto o geográficas, con el tipo de altura y la unidad), `DuplicatePolicy`, `ImportOptions` (RF-4 a RF-20), y los resultados `ImportRowError`, `ImportErrorReason`, `ImportCounts`, `ImportPreviewRow` (RF-21, RF-23, RF-28).
+  - los tipos de la importación, con poca lógica: `ImportEncoding`, `ImportSeparator` y `ImportDecimal` (propios, porque `core:formats` depende de `core:model` y no al revés), `ColumnRole`, `ColumnMapping`, `ImportCoordinates` (SC del proyecto o geográficas, con el tipo de altura), `DuplicatePolicy`, `ImportOptions` con la unidad (RF-4 a RF-20), y los resultados `ImportRowError`, `ImportErrorReason`, `ImportCounts`, `ImportPreviewRow` (RF-21, RF-23, RF-28).
 - `core:formats`:
   - `TextDecoding`: UTF-8 con y sin BOM o Windows-1252 y su detección (A1; RF-4);
   - `DelimitedReader`: lectura por flujo de filas con su número de línea, con comillas, y la detección del separador (A1, A2; RF-2, RF-3, RF-5, RF-6);
