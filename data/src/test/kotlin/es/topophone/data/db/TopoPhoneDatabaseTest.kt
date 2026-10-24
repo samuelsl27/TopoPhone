@@ -370,6 +370,70 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S019 RF-26 de la v10 a la v11 los puntos y replanteos conservan sus datos, con lo nuevo vacio`() {
+        createFromExportedSchema(10)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v10 ->
+            v10.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            // Un punto medido normal y un replanteo de S018 (con diseno por valor y diferencias, sin lo de S019).
+            v10.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P12', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', 'INSTANT', " +
+                    "1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+            v10.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at, " +
+                    "stake_design_id, stake_design_name, stake_design_east, stake_design_north, stake_design_height, " +
+                    "stake_design_lat, stake_design_lon, stake_design_ground_h, stake_d_east, stake_d_north, stake_d_horizontal, " +
+                    "stake_d_height) VALUES " +
+                    "(?, ?, '12_stkd', '', 'STAKED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', 'INSTANT', " +
+                    "1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 3000, " +
+                    "'design-12', '12', 440290.4, 4474257.4, 648.346, 40.4168, -3.7037, 699.428, 0.0345, 0.0141, 0.0373, -0.005)",
+                arrayOf<Any>("punto-2", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            val measured = points.single { it.name == "P12" }
+            measured.staked shouldBe null
+            val staked = points.single { it.name == "12_stkd" }
+            staked.origin shouldBe PointOrigin.STAKED
+            val ref = staked.staked.shouldNotBeNull()
+            ref.designName shouldBe "12"
+            ref.dHorizontalM shouldBe 0.0373
+            ref.dHeightM shouldBe -0.005
+            // S018 no guardaba la cota usada: era la altura del punto de diseno, y asi se lee.
+            ref.designElevationM shouldBe 648.346
+            ref.toleranceHM shouldBe null
+            ref.toleranceVM shouldBe null
+            ref.withinTolerance shouldBe null
+            ref.notEvaluated shouldBe true
+            db.openHelper.readableDatabase.query(
+                "SELECT stake_design_elevation, stake_tol_h, stake_tol_v, stake_within FROM points",
+            ).use { cursor ->
+                while (cursor.moveToNext()) (0..3).forEach { cursor.isNull(it) shouldBe true }
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S011 RF-22 y RF-25 el nombre de un punto de la papelera queda libre y entre los activos sigue siendo unico`() {
         val db = TopoPhoneDatabase.build(context, TEST_DB)
         try {
@@ -401,7 +465,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 10
+        const val CURRENT_VERSION = 11
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

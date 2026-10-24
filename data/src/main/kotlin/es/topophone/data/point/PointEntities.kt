@@ -133,6 +133,11 @@ data class PointEntity(
     @ColumnInfo(name = "stake_d_north") val stakeDNorth: Double? = null,
     @ColumnInfo(name = "stake_d_horizontal") val stakeDHorizontal: Double? = null,
     @ColumnInfo(name = "stake_d_height") val stakeDHeight: Double? = null,
+    // S019/RF-13, RF-14: la cota de diseño usada, las tolerancias vigentes al medir y si cumple; NULL en los replanteos de antes.
+    @ColumnInfo(name = "stake_design_elevation") val stakeDesignElevation: Double? = null,
+    @ColumnInfo(name = "stake_tol_h") val stakeTolH: Double? = null,
+    @ColumnInfo(name = "stake_tol_v") val stakeTolV: Double? = null,
+    @ColumnInfo(name = "stake_within") val stakeWithin: Boolean? = null,
 )
 
 /**
@@ -270,6 +275,10 @@ internal fun Point.toEntity(): PointEntity {
         stakeDNorth = staked?.dNorthM,
         stakeDHorizontal = staked?.dHorizontalM,
         stakeDHeight = staked?.dHeightM,
+        stakeDesignElevation = staked?.designElevationM,
+        stakeTolH = staked?.toleranceHM,
+        stakeTolV = staked?.toleranceVM,
+        stakeWithin = staked?.withinTolerance,
     )
 }
 
@@ -304,6 +313,11 @@ private fun PointEntity.staked(): StakeoutRef? = StakeoutRef(
     dNorthM = stakeDNorth ?: return null,
     dHorizontalM = stakeDHorizontal ?: return null,
     dHeightM = stakeDHeight,
+    // Un replanteo de S018 no guardaba la cota usada: era la altura del punto de diseño (S019/RF-26).
+    designElevationM = stakeDesignElevation ?: stakeDesignHeight.takeIf { stakeDHeight != null },
+    toleranceHM = stakeTolH,
+    toleranceVM = stakeTolV,
+    withinTolerance = stakeWithin,
 )
 
 /** La medida de un punto medido o replanteado; null en uno manual (sin antena ni NMEA). */

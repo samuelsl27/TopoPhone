@@ -73,6 +73,7 @@ class PointRepositoryStakeoutTest {
         dNorthM = 0.014123456,
         dHorizontalM = 0.037344,
         dHeightM = -0.005012345,
+        designElevationM = designCoordinates.height, // en S018 la cota usada era la altura del punto de diseño
     )
 
     @Test
@@ -88,11 +89,94 @@ class PointRepositoryStakeoutTest {
         read.description shouldBe "esquina"
     }
 
+    private val checked = ref.copy(
+        designElevationM = 648.2914123456,
+        toleranceHM = 0.025,
+        toleranceVM = 0.03,
+        withinTolerance = false,
+    )
+
+    @Test
+    fun `S019 RF-13 y RF-14 la cota usada, las tolerancias y si cumple se guardan y se leen sin redondear`() {
+        runBlocking { points.create(staked("12_stkd", checked)) }
+
+        val read = runBlocking { points.point("id-12_stkd").first() }.shouldNotBeNull()
+
+        read.staked shouldBe checked
+        read.staked.shouldNotBeNull().designElevationM shouldBe 648.2914123456
+        read.staked.shouldNotBeNull().withinTolerance shouldBe false
+    }
+
+    @Test
+    fun `S019 RF-14 dentro de la tolerancia verdadero y falso se distinguen del sin evaluar`() {
+        runBlocking {
+            points.create(staked("1_stkd", checked.copy(withinTolerance = true)))
+            points.create(staked("2_stkd", checked.copy(withinTolerance = false)))
+            points.create(staked("3_stkd", ref))
+        }
+
+        fun within(name: String) = runBlocking {
+            points.point("id-$name").first()
+        }.shouldNotBeNull().staked.shouldNotBeNull().withinTolerance
+
+        within("1_stkd") shouldBe true
+        within("2_stkd") shouldBe false
+        within("3_stkd").shouldBeNull()
+        runBlocking { points.point("id-3_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull().notEvaluated shouldBe true
+    }
+
+    @Test
+    fun `S019 RF-13 un replanteo sin cota se guarda con la cota usada y la diferencia de cota vacias`() {
+        val noElevation = checked.copy(designElevationM = null, dHeightM = null)
+        runBlocking { points.create(staked("1_stkd", noElevation)) }
+
+        val read = runBlocking { points.point("id-1_stkd").first() }.shouldNotBeNull()
+
+        read.staked shouldBe noElevation
+        read.staked.shouldNotBeNull().hasElevation shouldBe false
+        read.staked.shouldNotBeNull().designElevationM.shouldBeNull()
+    }
+
+    @Test
+    fun `S019 RF-13 una cota escrita distinta de la del punto se guarda aparte del diseno por valor`() {
+        val written = checked.copy(designElevationM = 646.9)
+        runBlocking { points.create(staked("1_stkd", written)) }
+
+        val read = runBlocking { points.point("id-1_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull()
+
+        read.designElevationM shouldBe 646.9
+        read.design.height shouldBe designCoordinates.height
+    }
+
+    @Test
+    fun `S019 RF-14 la exportacion y la papelera conservan lo guardado del replanteo`() {
+        runBlocking {
+            points.create(staked("12_stkd", checked))
+            points.moveToTrash(listOf("id-12_stkd"))
+            points.restore("id-12_stkd")
+        }
+
+        runBlocking { points.pointsForExport(project) }.single().staked shouldBe checked
+        runBlocking { points.point("id-12_stkd").first() }.shouldNotBeNull().staked shouldBe checked
+    }
+
+    @Test
+    fun `S019 RF-19 los puntos replanteados de la papelera no salen en la exportacion del informe`() {
+        runBlocking {
+            points.create(staked("12_stkd", checked))
+            points.create(staked("13_stkd", checked.copy(designId = "design-13")))
+            points.moveToTrash(listOf("id-12_stkd"))
+        }
+
+        runBlocking { points.pointsForExport(project) }.map { it.name } shouldBe listOf("13_stkd")
+    }
+
     @Test
     fun `S018 RF-28 el diseno sin altura ni cota se guarda y se lee tal cual`() {
         val geographic = ref.copy(
             design = PointCoordinates(GeodeticPosition(41.3874, 2.1686, null), null, null, null),
             dHeightM = null,
+            designElevationM = null,
         )
         runBlocking { points.create(staked("1_stkd", geographic)) }
 
