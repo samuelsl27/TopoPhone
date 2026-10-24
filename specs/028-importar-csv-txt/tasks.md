@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/formatos`: `generar_importacion.py` con los ficheros de ejemplo de `fixtures/formatos/csv-importacion/` (UTF-8 con y sin BOM, Windows-1252, los cuatro separadores, coma y punto decimal, comillas, con y sin cabecera, un fallo de cada tipo) y lo esperado de cada uno, con las coordenadas proyectadas y geográficas de ETRS89, REGCAN95 y ED50 calculadas con pyproj. (RF-4 a RF-7, RF-9, RF-12, RF-13, RF-14, RF-27)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `PointOrigin.IMPORTED`, `Point.importId` y `hasMeasurement`; los términos nuevos en `docs/glosario.md`. (RF-31, RF-33)
+- [x] T2. `core:model`: `PointOrigin.IMPORTED`, `Point.importId` y `hasMeasurement`; los términos nuevos en `docs/glosario.md`. (RF-31, RF-33)
       Hecho cuando: los tests de `core:model` en verde, con el importado sin medida y `Point` sin cambios para quien no pasa el identificador.
 - [ ] T3. `core:model`: los tipos de la importación (`ImportEncoding`, `ColumnRole`, `ColumnMapping`, `ImportCoordinates`, `DuplicatePolicy`, `ImportOptions`, `ImportRowError`, `ImportErrorReason`, `ImportCounts`, `ImportPreviewRow`). (RF-4 a RF-24)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto de la spec (saltar repetidos, 0 como altura).

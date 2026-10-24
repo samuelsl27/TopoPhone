@@ -13,6 +13,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Punto | `Point` | Medido, manual, importado, COGO o replanteado → `PointOrigin` |
 | Punto medido / manual | `PointOrigin.MEASURED` / `.MANUAL` | Medido con el recolector (S010) o escrito a mano o duplicado (S011) |
 | Punto sin altura | `hasHeight` | Punto manual solo con planimetría (S011) |
+| Punto importado | `PointOrigin.IMPORTED` | Punto que viene de un fichero CSV o TXT; es un punto manual para todo lo demás (S028) |
+| Importación (de puntos) | `PointImport` | Lo que se lee de un fichero y entra de una vez en el proyecto, con su `importId`; se puede deshacer (S028) |
+| Asignación (de columnas) | `ColumnMapping` | Qué papel tiene cada columna del fichero: nombre, Este o latitud, Norte o longitud, altura, descripción o ninguno (S028) |
+| Informe de errores (de la importación) | `ImportReport` | Las filas del fichero que no entran, con su línea y su motivo (S028) |
 | Foto (de un punto) | `PointPhoto` | De la cámara o de la galería (`PhotoOrigin.CAMERA` / `.GALLERY`); hasta 10 por punto (S017b) |
 | Foto en espera | `StagedPhoto` | Foto de una medida que aún no se ha guardado como punto (S017b) |
 | Destino de la foto | `PhotoDestination` | El punto al que irá una foto desde el recolector (S017b) |

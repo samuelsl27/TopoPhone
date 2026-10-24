@@ -54,11 +54,14 @@ data class PointQuality(
     val auto: Boolean? = null,
 )
 
-/** Medido con el recolector (S010), escrito a mano o duplicado (S011) o medido al replantear un punto de diseño (S018/RF-27). */
-enum class PointOrigin { MEASURED, MANUAL, STAKED }
+/**
+ * Medido con el recolector (S010), escrito a mano o duplicado (S011), medido al replantear un punto de diseño (S018/RF-27) o
+ * importado de un fichero (S028/RF-31).
+ */
+enum class PointOrigin { MEASURED, MANUAL, STAKED, IMPORTED }
 
-/** Un punto con medida del receptor: el medido y el replanteado; el manual solo tiene lo escrito (S011, S018). */
-val PointOrigin.hasMeasurement: Boolean get() = this != PointOrigin.MANUAL
+/** Un punto con medida del receptor: el medido y el replanteado; el manual y el importado solo tienen lo escrito (S011, S018, S028). */
+val PointOrigin.hasMeasurement: Boolean get() = this != PointOrigin.MANUAL && this != PointOrigin.IMPORTED
 
 /**
  * Coordenadas de un punto del suelo: [ground] en geográficas del datum de los cálculos (ETRS89 o REGCAN95), con la
@@ -156,6 +159,7 @@ data class StakeoutRef(
  * @property copyOf nombre del punto del que es copia (S011/RF-21).
  * @property deletedAtMs en la papelera desde entonces (S011/RF-22).
  * @property staked de qué punto de diseño viene un punto replanteado, con sus diferencias (S018/RF-28).
+ * @property importId la importación de la que viene un punto importado; null en los demás (S028/RF-29).
  */
 data class Point(
     val id: String,
@@ -172,6 +176,7 @@ data class Point(
     val createdAtMs: Long,
     val deletedAtMs: Long?,
     val staked: StakeoutRef? = null,
+    val importId: String? = null,
 ) {
     /** Sin altura elipsoidal no hay altura en ningún sistema (S011/RF-18). */
     val hasHeight: Boolean get() = coordinates.ground.ellipsoidalHeightM != null
