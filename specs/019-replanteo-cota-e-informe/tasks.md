@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/replanteo`: `generar_informe.py` con puntos de diseño con y sin altura y con cota escrita (Península, Canarias y un SC geográfico), la diferencia de cota, el desmonte o terraplén, "dentro", y un informe con varios replanteos por punto con su resumen, calculados con pyproj y Python aparte. (RF-6, RF-13, RF-14, RF-17, RF-21, RF-26)
       Hecho cuando: el script genera `fixtures/replanteo/` (la cota y el informe) y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `StakeoutSettings.toleranceVM` (rango, 3 cm por defecto, conversión a la unidad del proyecto) y `StakeoutNames.number`; los términos nuevos en `docs/glosario.md`. (RF-10, RF-21)
+- [x] T2. `core:model`: `StakeoutSettings.toleranceVM` (rango, 3 cm por defecto, conversión a la unidad del proyecto) y `StakeoutNames.number`; los términos nuevos en `docs/glosario.md`. (RF-10, RF-21)
       Hecho cuando: `StakeoutSettingsTest` y `StakeoutNamesTest` en verde con la tolerancia en m, ft y usft, fuera de rango y `_stkd`, `_stkd2` y un nombre editado.
 - [ ] T3. `core:model`: `StakeoutRef` con `designElevationM`, `toleranceHM`, `toleranceVM` y `withinTolerance`. (RF-13, RF-14, RF-26)
       Hecho cuando: los tests de `core:model` en verde y `StakeoutRef` sin cambios para quien no pasa los datos nuevos.

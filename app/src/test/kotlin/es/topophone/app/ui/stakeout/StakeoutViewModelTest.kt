@@ -398,7 +398,9 @@ class StakeoutViewModelTest {
         await(vm) { it.target?.name == "2" }
         sendEpoch(3)
 
-        val on = await(vm) { it.target?.name == "2" && distanceOf(it) > 5 }.guidance.shouldBeInstanceOf<GuidanceState.On>()
+        // distanceOf da infinito con la guía apagada: hay que pedir una distancia finita, no solo mayor de 5 m.
+        val on = await(vm) { it.target?.name == "2" && distanceOf(it).let { d -> d.isFinite() && d > 5 } }
+            .guidance.shouldBeInstanceOf<GuidanceState.On>()
         on.ui.guidance.distanceM shouldBe (11.1 plusOrMinus 0.2)
     }
 

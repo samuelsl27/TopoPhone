@@ -11,20 +11,28 @@ enum class StakeMode { BY_DIRECTION, BY_DISTANCE }
 enum class HeadingChoice { WALKING, IMU }
 
 /**
- * Modo de guía, origen del rumbo y tolerancia del replanteo, los mismos para todos los proyectos (S018/RF-5, RF-8,
- * RF-18). La tolerancia va en metros, sea cual sea la unidad del proyecto.
+ * Modo de guía, origen del rumbo y tolerancias del replanteo, los mismos para todos los proyectos (S018/RF-5, RF-8,
+ * RF-18; S019/RF-10). Las tolerancias van en metros, sea cual sea la unidad del proyecto: [toleranceM] es la horizontal y
+ * [toleranceVM] la vertical.
  */
 data class StakeoutSettings(
     val mode: StakeMode = StakeMode.BY_DIRECTION,
     val heading: HeadingChoice = HeadingChoice.WALKING,
     val toleranceM: Double = DEFAULT_TOLERANCE_M,
+    val toleranceVM: Double = DEFAULT_TOLERANCE_V_M,
 ) {
     /** La tolerancia dentro de [TOLERANCE_M]; 2,5 cm si no es un número. */
     val validToleranceM: Double get() = if (toleranceM.isNaN()) DEFAULT_TOLERANCE_M else toleranceM.coerceIn(TOLERANCE_M)
 
+    /** La tolerancia vertical dentro de [TOLERANCE_M] (el mismo rango que la horizontal); 3 cm si no es un número (S019/RF-10). */
+    val validToleranceVM: Double get() = if (toleranceVM.isNaN()) DEFAULT_TOLERANCE_V_M else toleranceVM.coerceIn(TOLERANCE_M)
+
     companion object {
         /** S018/RF-18: 2,5 cm. */
         const val DEFAULT_TOLERANCE_M = 0.025
+
+        /** S019/RF-10: 3 cm. */
+        const val DEFAULT_TOLERANCE_V_M = 0.03
 
         /** S018/RF-18: de 1 cm a 1 m. */
         val TOLERANCE_M = 0.01..1.0
@@ -60,6 +68,17 @@ object StakeoutNames {
         var n = 2
         while ("$base$n" in taken) n++
         return "$base$n"
+    }
+
+    private val NUMBERED = Regex("""_stkd(\d*)$""")
+
+    /**
+     * El número de replanteo de [name]: 1 para `_stkd`, 2 para `_stkd2`… (S019/RF-21). Null si el nombre no acaba así
+     * (un punto editado) o el número no cabe en un entero.
+     */
+    fun number(name: String): Int? {
+        val digits = NUMBERED.find(name)?.groupValues?.get(1) ?: return null
+        return if (digits.isEmpty()) 1 else digits.toIntOrNull()
     }
 }
 

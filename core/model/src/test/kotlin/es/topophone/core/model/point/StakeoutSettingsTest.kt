@@ -52,6 +52,37 @@ class StakeoutSettingsTest {
     }
 
     @Test
+    fun `S019 RF-10 la tolerancia vertical es de 3 cm por defecto`() {
+        StakeoutSettings().toleranceVM shouldBe 0.03
+        StakeoutSettings.DEFAULT_TOLERANCE_V_M shouldBe 0.03
+    }
+
+    @Test
+    fun `S019 RF-10 la tolerancia vertical vale de 1 cm a 1 m y fuera de ese rango se corrige`() {
+        StakeoutSettings(toleranceVM = 0.001).validToleranceVM shouldBe 0.01
+        StakeoutSettings(toleranceVM = 5.0).validToleranceVM shouldBe 1.0
+        StakeoutSettings(toleranceVM = 0.04).validToleranceVM shouldBe 0.04
+        StakeoutSettings(toleranceVM = Double.NaN).validToleranceVM shouldBe 0.03
+    }
+
+    @Test
+    fun `S019 RF-10 las dos tolerancias son independientes`() {
+        val settings = StakeoutSettings(toleranceM = 0.05, toleranceVM = 0.02)
+
+        settings.validToleranceM shouldBe 0.05
+        settings.validToleranceVM shouldBe 0.02
+        settings.copy(toleranceM = 0.1).toleranceVM shouldBe 0.02
+    }
+
+    @Test
+    fun `S019 RF-10 la tolerancia vertical se escribe en la unidad del proyecto y se guarda en metros`() {
+        // Es el mismo rango y la misma conversión que la horizontal: 1 cm a 1 m.
+        StakeoutSettings.parseTolerance("0,03", LinearUnit.METRE) shouldBe 0.03
+        StakeoutSettings.parseTolerance("0,1", LinearUnit.INTERNATIONAL_FOOT).shouldNotBeNull() shouldBe (0.03048 plusOrMinus 1e-12)
+        StakeoutSettings.parseTolerance("0,005", LinearUnit.METRE).shouldBeNull()
+    }
+
+    @Test
     fun `S018 RF-18 los limites se ensenan en la unidad del proyecto`() {
         val feet = StakeoutSettings.toleranceRangeIn(LinearUnit.INTERNATIONAL_FOOT)
 

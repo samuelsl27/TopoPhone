@@ -47,7 +47,12 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Encadenamiento (PK) | `Chainage` | |
 | Desplazamiento (offset) | `Offset` | |
 | Desmonte / terraplén | `Cut` / `Fill` | |
-| Cota de diseño | `DesignElevation` | |
+| Cota de diseño | `DesignElevation` | La altura a la que hay que llegar: la del punto de diseño o la que escribe el usuario (S019) |
+| En cota | `ON_GRADE` | La punta dentro de la tolerancia vertical de la cota de diseño; fuera, `CUT` (desmonte: hay que excavar) o `FILL` (terraplén: hay que rellenar) (S019) |
+| Nivel vertical | `VerticalLevel` | Burbuja vertical junto a la diana con el desmonte o el terraplén y la banda de la tolerancia (S019) |
+| Tolerancia vertical | `toleranceVM` | Valor absoluto máximo de la diferencia de cota; 3 cm por defecto (S019) |
+| Informe de replanteo | `StakeoutReport` | Resumen y CSV de los puntos replanteados, con el último replanteo de cada punto de diseño (S019) |
+| Sin evaluar | `notEvaluated` | Punto replanteado antes de S019, sin tolerancias guardadas (S019) |
 | Jalón | `Pole` | |
 | Altura del jalón | `poleHeight` | Del regatón a la base del receptor |
 | Altura de antena | `antennaHeight` | Altura del jalón + offset al ARP (RS3: 0,134 m) |
