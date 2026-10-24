@@ -57,6 +57,7 @@ import es.topophone.app.ui.settings.BackgroundHelpScreen
 import es.topophone.app.ui.settings.LicensesScreen
 import es.topophone.app.ui.settings.ProjectDefaultsRoute
 import es.topophone.app.ui.settings.SettingsScreen
+import es.topophone.app.ui.stakeout.StakeoutReportRoute
 import es.topophone.app.ui.status.StatusIndicatorRoute
 import es.topophone.core.model.preferences.ThemeState
 
@@ -112,6 +113,14 @@ fun TopoPhoneApp(
                 is SurveyPage.Objects -> ObjectListRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.PointTrash -> PointTrashRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.Export -> ExportRoute(
+                    page.projectId,
+                    page.selection,
+                    theme,
+                    toggleSun,
+                    navigation,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.StakeoutReport -> StakeoutReportRoute(
                     page.projectId,
                     page.selection,
                     theme,
@@ -214,6 +223,8 @@ private fun AppNavHost(
                 onStakeout = { projectId, pointId, query -> navController.navigate(ProjectViewDestination(projectId, pointId, query)) },
                 onOpenBackups = { navController.navigate(BackupsDestination) }, // S013/RF-21
                 onExport = { projectId, selection -> navController.navigate(ExportDestination(projectId, selection)) }, // S012/RF-1, RF-2
+                // S019/RF-17, RF-18
+                onStakeoutReport = { projectId, selection -> navController.navigate(StakeoutReportDestination(projectId, selection)) },
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onOpenTilt = {
@@ -260,6 +271,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ExportDestination>()
                 surveySection(
                     SurveyPage.Export(args.projectId, args.selection),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<StakeoutReportDestination> { entry ->
+                val args = entry.toRoute<StakeoutReportDestination>()
+                surveySection(
+                    SurveyPage.StakeoutReport(args.projectId, args.selection),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

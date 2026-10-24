@@ -16,6 +16,9 @@ import es.topophone.app.ui.points.PointFormUiState
 import es.topophone.app.ui.points.PointTrashActions
 import es.topophone.app.ui.points.PointTrashScreen
 import es.topophone.app.ui.points.PointTrashUiState
+import es.topophone.app.ui.stakeout.StakeoutReportActions
+import es.topophone.app.ui.stakeout.StakeoutReportScreen
+import es.topophone.app.ui.stakeout.StakeoutReportUiState
 import es.topophone.core.model.preferences.ThemeState
 
 /** Pantallas de la sección Levantamiento (S006). */
@@ -52,6 +55,9 @@ sealed interface SurveyPage {
 
     /** Exportar CSV (S012/RF-1, RF-2). */
     data class Export(val projectId: String, val selection: Boolean) : SurveyPage
+
+    /** Informe de replanteo (S019/RF-17, RF-18). */
+    data class StakeoutReport(val projectId: String, val selection: Boolean) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -73,6 +79,8 @@ class SurveyNavigation(
     /** S013/RF-21: "Copias de seguridad" de Ajustes. */
     val onOpenBackups: () -> Unit = {},
     val onExport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
+    /** El informe de replanteo de un proyecto o de los puntos seleccionados (S019/RF-17, RF-18). */
+    val onStakeoutReport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
@@ -92,6 +100,7 @@ data class SurveyUiState(
     val pointForm: PointFormUiState = PointFormUiState(loaded = true),
     val pointTrash: PointTrashUiState = PointTrashUiState(loaded = true),
     val export: ExportUiState = ExportUiState(loaded = true),
+    val stakeoutReport: StakeoutReportUiState = StakeoutReportUiState(loaded = true),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -138,5 +147,7 @@ fun SurveyPageScreen(
         is SurveyPage.PointForm -> PointFormScreen(themeState, onToggleSun, state.pointForm, PointFormActions(), navigation.onBack)
         is SurveyPage.PointTrash -> PointTrashScreen(themeState, onToggleSun, state.pointTrash, PointTrashActions(), navigation.onBack)
         is SurveyPage.Export -> ExportScreen(themeState, onToggleSun, state.export, ExportActions(), navigation.onBack)
+        is SurveyPage.StakeoutReport ->
+            StakeoutReportScreen(themeState, onToggleSun, state.stakeoutReport, StakeoutReportActions(), navigation.onBack)
     }
 }

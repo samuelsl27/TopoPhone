@@ -468,6 +468,16 @@
     <string name="stakeout_elevation_use_point">Use the point one</string>
     <string name="stakeout_elevation_cancel">Cancel</string>
     <string name="stakeout_elevation_written">Typed design elevation: %1$s</string>
+    <string name="stakeout_report_title">Stakeout report</string>
+    <string name="objects_stakeout_report">Stakeout report</string>
+    <string name="stakeout_report_none">There are no staked points</string>
+    <string name="stakeout_report_designs">Design points staked: %1$d</string>
+    <string name="stakeout_report_within">Within tolerance: %1$d</string>
+    <string name="stakeout_report_outside">Outside the tolerance: %1$d</string>
+    <string name="stakeout_report_not_evaluated">Not evaluated: %1$d</string>
+    <string name="stakeout_report_horizontal">Horizontal deviation: maximum %1$s, mean %2$s</string>
+    <string name="stakeout_report_vertical">Vertical deviation: maximum %1$s, mean %2$s (%3$d with elevation)</string>
+    <string name="stakeout_report_file_label">stakeout</string>
     <string name="stakeout_tolerance_invalid">Between %1$s and %2$s %3$s.</string>
     <string name="stakeout_result">Point %1$s saved · difference from design: North %2$s · East %3$s · distance %4$s</string>
     <string name="stakeout_result_height">Point %1$s saved · difference from design: North %2$s · East %3$s · distance %4$s · height %5$s</string>

@@ -40,7 +40,7 @@
       Hecho cuando: `StakeoutPanelTest` y `PointDetailsStakeoutTest` en verde, con las unidades del proyecto y un replanteo de antes "sin evaluar".
 - [x] T19. `app`: `StakeoutReportViewModel` con el resumen, la selección, el vacío y la escritura del CSV. (RF-17, RF-18, RF-19, RF-20, RF-24)
       Hecho cuando: `StakeoutReportViewModelTest` en verde: todos y seleccionados, sin papelera, sin puntos replanteados, error de escritura y el nombre propuesto.
-- [ ] T20. `app`: la pantalla del informe con su resumen, "Guardar" y "Compartir", y sus entradas en el menú del proyecto, en el de la lista de objetos y en la selección. (RF-17, RF-18, RF-20, RF-24)
+- [x] T20. `app`: la pantalla del informe con su resumen, "Guardar" y "Compartir", y sus entradas en el menú del proyecto, en el de la lista de objetos y en la selección. (RF-17, RF-18, RF-20, RF-24)
       Hecho cuando: `StakeoutReportScreenTest` en verde, con el selector de ficheros cancelado y la lista de objetos con y sin selección.
 - [ ] T21. `app`: las columnas del replanteo en la pantalla de exportación del CSV de puntos. (RF-25)
       Hecho cuando: `ExportViewModelTest` y `ExportScreenTest` en verde, con las columnas nuevas en "Personalizado" y la selección guardada de antes.

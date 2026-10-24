@@ -480,6 +480,16 @@
     <string name="stakeout_elevation_use_point">Usar la del punto</string>
     <string name="stakeout_elevation_cancel">Cancelar</string>
     <string name="stakeout_elevation_written">Cota de diseño escrita: %1$s</string>
+    <string name="stakeout_report_title">Informe de replanteo</string>
+    <string name="objects_stakeout_report">Informe de replanteo</string>
+    <string name="stakeout_report_none">No hay puntos replanteados</string>
+    <string name="stakeout_report_designs">Puntos de diseño replanteados: %1$d</string>
+    <string name="stakeout_report_within">Dentro de la tolerancia: %1$d</string>
+    <string name="stakeout_report_outside">Fuera de la tolerancia: %1$d</string>
+    <string name="stakeout_report_not_evaluated">Sin evaluar: %1$d</string>
+    <string name="stakeout_report_horizontal">Desviación horizontal: máxima %1$s, media %2$s</string>
+    <string name="stakeout_report_vertical">Desviación vertical: máxima %1$s, media %2$s (%3$d con cota)</string>
+    <string name="stakeout_report_file_label">replanteo</string>
     <string name="stakeout_tolerance_invalid">Entre %1$s y %2$s %3$s.</string>
     <string name="stakeout_result">Punto %1$s guardado · diferencia con el diseño: Norte %2$s · Este %3$s · distancia %4$s</string>
     <string name="stakeout_result_height">Punto %1$s guardado · diferencia con el diseño: Norte %2$s · Este %3$s · distancia %4$s · cota %5$s</string>

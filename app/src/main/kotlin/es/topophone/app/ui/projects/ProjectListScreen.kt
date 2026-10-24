@@ -144,6 +144,8 @@ class ProjectListActions(
     val onDismissFolderDialog: () -> Unit = {},
     val onDelete: (String) -> Unit = {},
     val onExport: (String) -> Unit = {},
+    /** El informe de replanteo del proyecto (S019/RF-17). */
+    val onStakeoutReport: (String) -> Unit = {},
     /** S013/RF-24. */
     val onExportPackage: (Project) -> Unit = {},
     /** S013/RF-25: abre el selector de ficheros para elegir el paquete. */
@@ -268,6 +270,7 @@ fun ProjectListRoute(
             onDismissFolderDialog = viewModel::dismissFolderDialog,
             onDelete = viewModel::delete,
             onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
+            onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
             onExportPackage = packages.export,
             onImportPackage = packages.import,
             onChooseBackupFolder = { chooseFolder.launch(null) },
@@ -504,6 +507,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onExport(project.id)
         } // S012/RF-1
+        MenuItem(R.string.stakeout_report_title) {
+            open = false
+            actions.onStakeoutReport(project.id)
+        } // S019/RF-17
         MenuItem(R.string.package_export) {
             open = false
             actions.onExportPackage(project)

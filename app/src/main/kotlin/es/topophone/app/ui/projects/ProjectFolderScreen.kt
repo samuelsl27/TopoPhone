@@ -113,6 +113,7 @@ fun ProjectFolderRoute(
                 onMove = viewModel::moveToFolder,
                 onDelete = viewModel::delete,
                 onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
+                onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
                 onExportPackage = packages.export, // S013/RF-24
             ),
             onNewProject = navigation.onNewProject,

@@ -38,6 +38,7 @@ import kotlinx.coroutines.withContext
 data class StakeoutReportUiState(
     val loaded: Boolean = false,
     val projectName: String = "",
+    val project: Project? = null,
     val report: StakeoutReport = StakeoutReport.of(emptyList()),
     val options: CsvOptions = CsvOptions(),
     val result: ExportResult? = null,
@@ -65,7 +66,7 @@ class StakeoutReportViewModel @Inject constructor(
 
     val state: StateFlow<StakeoutReportUiState> = combine(content, preferences.options, result) { loaded, options, outcome ->
         if (loaded == null) return@combine StakeoutReportUiState()
-        StakeoutReportUiState(true, loaded.project.name, loaded.report, options, outcome)
+        StakeoutReportUiState(true, loaded.project.name, loaded.project, loaded.report, options, outcome)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), StakeoutReportUiState())
 
     /**

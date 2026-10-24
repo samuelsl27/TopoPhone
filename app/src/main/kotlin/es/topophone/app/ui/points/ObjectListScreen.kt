@@ -89,6 +89,7 @@ const val SELECTION_SHOW_TAG = "selection_show"
 const val SELECTION_DELETE_TAG = "selection_delete"
 const val SELECTION_CANCEL_TAG = "selection_cancel"
 const val SELECTION_EXPORT_TAG = "selection_export"
+const val SELECTION_STAKEOUT_REPORT_TAG = "selection_stakeout_report"
 const val SELECTION_POLE_TAG = "selection_pole"
 const val SELECTION_STAKEOUT_TAG = "selection_stakeout"
 const val POLE_FIELD_TAG = "pole_field"
@@ -120,6 +121,9 @@ class ObjectListActions(
     val onOpenTrash: () -> Unit = {},
     val onExport: () -> Unit = {},
     val onExportSelected: () -> Unit = {},
+    /** El informe de replanteo de todo el proyecto y de los puntos seleccionados (S019/RF-17, RF-18). */
+    val onStakeoutReport: () -> Unit = {},
+    val onStakeoutReportSelected: () -> Unit = {},
     val onToggleSelection: (String) -> Unit = {},
     val onClearSelection: () -> Unit = {},
     val onSetHidden: (id: String, hidden: Boolean) -> Unit = { _, _ -> },
@@ -250,6 +254,11 @@ fun ObjectListRoute(
             onAdd = { navigation.onNewPoint(projectId) }, // S011/RF-16
             onOpenTrash = { navigation.onOpenPointTrash(projectId) }, // S011/RF-23
             onExport = { navigation.onExport(projectId, false) }, // S012/RF-1
+            onStakeoutReport = { navigation.onStakeoutReport(projectId, false) }, // S019/RF-17
+            onStakeoutReportSelected = {
+                viewModel.exportSelected()
+                navigation.onStakeoutReport(projectId, true) // S019/RF-18
+            },
             onExportSelected = {
                 viewModel.exportSelected()
                 navigation.onExport(projectId, true) // S012/RF-2
@@ -286,7 +295,7 @@ fun ObjectListScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
-        actions = { ObjectsMenu(actions.onOpenTrash, actions.onExport) },
+        actions = { ObjectsMenu(actions.onOpenTrash, actions.onExport, actions.onStakeoutReport) },
         floatingActionButton = {
             if (state.selected.isEmpty()) {
                 ExtendedFloatingActionButton(
@@ -338,7 +347,7 @@ fun ObjectListScreen(
 
 /** Menú "⋮" de la lista de objetos: la papelera de puntos (S011/RF-23). */
 @Composable
-private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit) {
+private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit, onStakeoutReport: () -> Unit) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
         Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.projects_menu))
@@ -352,6 +361,14 @@ private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit) {
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S012/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.stakeout_report_title)) },
+            onClick = {
+                open = false
+                onStakeoutReport()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S019/RF-17
         DropdownMenuItem(
             text = { Text(stringResource(R.string.point_trash_title)) },
             onClick = {
@@ -456,6 +473,7 @@ private fun SelectionBar(count: Int, single: String?, actions: ObjectListActions
                     Triple(R.string.objects_show, SELECTION_SHOW_TAG, actions.onShowSelected),
                     Triple(R.string.objects_pole, SELECTION_POLE_TAG) { editPole = true },
                     Triple(R.string.export_selected, SELECTION_EXPORT_TAG, actions.onExportSelected),
+                    Triple(R.string.objects_stakeout_report, SELECTION_STAKEOUT_REPORT_TAG, actions.onStakeoutReportSelected), // S019/RF-18
                     Triple(R.string.objects_delete, SELECTION_DELETE_TAG) { confirmDelete = true },
                     Triple(R.string.objects_cancel_selection, SELECTION_CANCEL_TAG, actions.onClearSelection),
                 ),
