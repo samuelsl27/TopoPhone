@@ -44,7 +44,7 @@
        Hecho cuando: `CollectorPanelAdvancedTest` y `CollectorViewModelAdvancedTest` en verde con "Iniciar", "Parar", los contadores y el modo de inclinación cambiado en marcha.
 - [x] T21. `app`: la ficha con el tiempo promediado, las desviaciones típicas, "medido en automático" y las frases NMEA por tramos. (RF-13)
        Hecho cuando: `PointDetailsAveragedTest` en verde con un punto con datos, uno anterior sin ellos y uno de varios tramos.
-- [ ] T22. `tools/nmea`: `generar_avanzado.py` con `rs3-promediado-largo`, `rs3-corte` y `rs3-traza`, y lo esperado de cada una. (RF-12, RF-19, RF-20, RF-21)
+- [x] T22. `tools/nmea`: `generar_avanzado.py` con `rs3-promediado-largo`, `rs3-corte` y `rs3-traza`, y lo esperado de cada una. (RF-12, RF-19, RF-20, RF-21)
        Hecho cuando: los ficheros se generan y su test de `tools` está en verde.
 - [ ] T23. Reproducciones y rendimiento: `AdvancedReplayTest` con las tres y `AdvancedPerformanceTest` (36.000 épocas a 10 Hz en menos de 1 ms por época; estadísticas a 5 Hz en menos de 16 ms). (RNF, RF-12, RF-19, RF-20, RF-21)
        Hecho cuando: los tests de reproducción y de rendimiento en verde y `FullRs3ReplayTest` y `TiltReplayTest` siguen igual.

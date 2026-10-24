@@ -1,0 +1,7 @@
+# Lo esperado de rs3-corte.nmea (S017). Generado por tools/nmea/generar_avanzado.py; no editar a mano.
+# Tres tramos a 5 Hz. Un corte de más de 2 s pausa el promediado y, si dura menos de 5 min, lo reanuda sin descartar nada (S017/RF-8, RF-9);
+# a los 5 min avisa y espera la decisión del usuario (S017/RF-10). Una medida instantánea se cancela en los dos casos (S010/RF-11).
+segmento,hora_inicio,hora_fin,epocas,corte_previo_s,desenlace
+1,100000.00,100019.80,100,0,inicio
+2,100024.00,100043.80,100,4,pausa-y-reanuda
+3,100644.00,100653.80,50,360,pausa-larga
