@@ -595,6 +595,20 @@
     <string name="point_created_at">Created: %1$s</string>
     <string name="point_duplicate">Duplicate</string>
     <string name="point_stakeout">Stake out</string>
+    <string name="point_stakeout_title">Stakeout</string>
+    <string name="point_stakeout_design">Design point</string>
+    <string name="point_stakeout_design_easting">Design easting</string>
+    <string name="point_stakeout_design_northing">Design northing</string>
+    <string name="point_stakeout_design_height">Design %1$s</string>
+    <string name="point_stakeout_diff_north">Northing difference</string>
+    <string name="point_stakeout_diff_east">Easting difference</string>
+    <string name="point_stakeout_diff_distance">Horizontal distance</string>
+    <string name="point_stakeout_diff_height">Height difference</string>
+    <string name="point_stakeout_no_height">No height</string>
+    <plurals name="objects_stake_count">
+        <item quantity="one">Staked out %1$d time</item>
+        <item quantity="other">Staked out %1$d times</item>
+    </plurals>
     <string name="point_history">History</string>
     <string name="point_history_empty">No changes.</string>
     <string name="point_change_edit">Edit</string>

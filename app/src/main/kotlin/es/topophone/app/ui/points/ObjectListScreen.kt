@@ -1,7 +1,6 @@
 package es.topophone.app.ui.points
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -385,8 +384,15 @@ private fun PointRow(point: PointSummary, selected: Boolean, onClick: () -> Unit
                     if (point.edited) add(R.drawable.ic_edit to R.string.point_mark_edited)
                     if (!point.hasHeight) add(R.drawable.ic_no_height to R.string.point_mark_no_height)
                 }
-                if (marks.isNotEmpty()) {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) { marks.forEach { (icon, text) -> Mark(icon, text) } }
+                if (marks.isNotEmpty() || point.stakeCount > 0) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        marks.forEach { (icon, text) -> Mark(icon, stringResource(text)) }
+                        // S018/RF-33: los puntos de diseño con replanteos, y cuántos
+                        if (point.stakeCount > 0) {
+                            val count = point.stakeCount
+                            Mark(R.drawable.ic_stakeout, pluralStringResource(R.plurals.objects_stake_count, count, count))
+                        }
+                    }
                 }
             }
         },
@@ -410,10 +416,10 @@ private fun PointRow(point: PointSummary, selected: Boolean, onClick: () -> Unit
 }
 
 @Composable
-private fun Mark(@DrawableRes icon: Int, @StringRes text: Int) {
+private fun Mark(@DrawableRes icon: Int, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(16.dp))
-        Text(stringResource(text), style = MaterialTheme.typography.labelMedium)
+        Text(text, style = MaterialTheme.typography.labelMedium)
     }
 }
 

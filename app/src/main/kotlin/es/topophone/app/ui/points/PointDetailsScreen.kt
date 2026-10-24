@@ -69,6 +69,7 @@ import es.topophone.core.model.point.PointHistory
 import es.topophone.core.model.point.PointHistoryEntry
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.TiltAngles
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.preferences.ThemeState
@@ -112,6 +113,7 @@ const val POINT_EDIT_TAG = "point_edit"
 const val POINT_POLE_TAG = "point_pole"
 const val POINT_DUPLICATE_TAG = "point_duplicate"
 const val POINT_STAKEOUT_TAG = "point_stakeout"
+const val POINT_STAKEOUT_INFO_TAG = "point_stakeout_info"
 const val POINT_HISTORY_TAG = "point_history"
 const val POINT_DELETE_TAG = "point_delete"
 const val POINT_NOTICE_DISMISS_TAG = "point_notice_dismiss"
@@ -302,6 +304,7 @@ fun PointDetailsScreen(
                 if (point.edited) MarkLine(R.string.point_mark_edited)
                 CoordinateRows(project, point.coordinates)
             } // S011/RF-6
+            point.staked?.let { StakeoutCard(project, it) } // S018/RF-32
             val measurement = point.measurement
             if (point.edited && measurement != null) {
                 DetailsCard(stringResource(R.string.point_measured_coordinates), POINT_MEASURED_COORDINATES_TAG) {
@@ -489,6 +492,44 @@ private fun CoordinateRows(project: Project, coordinates: PointCoordinates) {
         "point_lon",
     )
     CoordinateRow(stringResource(R.string.coord_ellipsoidal_height), ground.ellipsoidalHeightM?.let(::length) ?: noHeight, "point_h")
+}
+
+/**
+ * De qué punto de diseño viene un punto replanteado, sus coordenadas de diseño y lo que se desvió lo medido (medido menos
+ * diseño), en las unidades del proyecto (S018/RF-32).
+ */
+@Composable
+private fun StakeoutCard(project: Project, ref: StakeoutRef) {
+    val locale = uiLocale()
+    val unit = unitSymbol(project.linearUnit)
+    fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
+
+    fun signed(valueM: Double): String {
+        val text = length(valueM)
+        return if (valueM > 0.0 && !text.startsWith("-")) "+$text" else text
+    }
+    DetailsCard(stringResource(R.string.point_stakeout_title), POINT_STAKEOUT_INFO_TAG) {
+        CoordinateRow(stringResource(R.string.point_stakeout_design), ref.designName, "point_stakeout_design")
+        ref.design.easting?.let {
+            CoordinateRow(stringResource(R.string.point_stakeout_design_easting), length(it), "point_stakeout_design_e")
+        }
+        ref.design.northing?.let {
+            CoordinateRow(stringResource(R.string.point_stakeout_design_northing), length(it), "point_stakeout_design_n")
+        }
+        CoordinateRow(
+            stringResource(R.string.point_stakeout_design_height, heightTitle(project.heightSystem)),
+            ref.design.height?.let(::length) ?: stringResource(R.string.point_stakeout_no_height),
+            "point_stakeout_design_h",
+        )
+        CoordinateRow(stringResource(R.string.point_stakeout_diff_north), signed(ref.dNorthM), "point_stakeout_diff_n")
+        CoordinateRow(stringResource(R.string.point_stakeout_diff_east), signed(ref.dEastM), "point_stakeout_diff_e")
+        CoordinateRow(stringResource(R.string.point_stakeout_diff_distance), length(ref.dHorizontalM), "point_stakeout_diff_d")
+        CoordinateRow(
+            stringResource(R.string.point_stakeout_diff_height),
+            ref.dHeightM?.let(::signed) ?: stringResource(R.string.point_stakeout_no_height),
+            "point_stakeout_diff_h",
+        )
+    }
 }
 
 /** Jalón, antena, calidad, fecha y hora, control de precisión y frases NMEA de un punto medido (S011/RF-7). */

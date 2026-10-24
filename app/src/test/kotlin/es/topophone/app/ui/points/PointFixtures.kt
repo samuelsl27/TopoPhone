@@ -10,6 +10,7 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.TypedCoordinates
 
 /** Puntos de prueba en la Puerta del Sol (S011). */
@@ -38,6 +39,20 @@ object PointFixtures {
             coordinates = sol,
         ),
         createdAtMs = createdAtMs,
+    )
+
+    /** Un punto replanteado: el diseño es 12 con cota 648,190 y lo medido se desvió 12 mm al Norte, 4 mm al Oeste y 21 mm por debajo. */
+    fun staked(name: String, projectId: String = "p1", dHeightM: Double? = -0.021) = measured(name, projectId).copy(
+        origin = PointOrigin.STAKED,
+        staked = StakeoutRef(
+            designId = "id-12",
+            designName = "12",
+            design = PointCoordinates(GeodeticPosition(40.41668, -3.70371, 699.3), 440_290.458, 4_474_257.382, 648.19),
+            dEastM = -0.004,
+            dNorthM = 0.012,
+            dHorizontalM = 0.0126,
+            dHeightM = dHeightM,
+        ),
     )
 
     fun manual(name: String, projectId: String = "p1", description: String = "esquina", createdAtMs: Long = 2_000, height: Double? = null) =

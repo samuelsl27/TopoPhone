@@ -607,6 +607,20 @@
     <string name="point_created_at">Creado: %1$s</string>
     <string name="point_duplicate">Duplicar</string>
     <string name="point_stakeout">Replantear</string>
+    <string name="point_stakeout_title">Replanteo</string>
+    <string name="point_stakeout_design">Punto de diseño</string>
+    <string name="point_stakeout_design_easting">Este de diseño</string>
+    <string name="point_stakeout_design_northing">Norte de diseño</string>
+    <string name="point_stakeout_design_height">%1$s de diseño</string>
+    <string name="point_stakeout_diff_north">Diferencia Norte</string>
+    <string name="point_stakeout_diff_east">Diferencia Este</string>
+    <string name="point_stakeout_diff_distance">Distancia horizontal</string>
+    <string name="point_stakeout_diff_height">Diferencia de cota</string>
+    <string name="point_stakeout_no_height">Sin cota</string>
+    <plurals name="objects_stake_count">
+        <item quantity="one">Replanteado %1$d vez</item>
+        <item quantity="other">Replanteado %1$d veces</item>
+    </plurals>
     <string name="point_history">Historial</string>
     <string name="point_history_empty">Sin cambios.</string>
     <string name="point_change_edit">Edición</string>

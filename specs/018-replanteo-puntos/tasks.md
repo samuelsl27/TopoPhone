@@ -42,7 +42,7 @@
       Hecho cuando: `StakeoutEntriesTest` en verde, con el recolector y el replanteo que no se pisan y la pantalla encendida con el replanteo abierto.
 - [x] T20. `app`: `MapController.showStakeout` con la punta, el diseño y la línea, y el símbolo de los replanteados. (RF-14, RF-34)
       Hecho cuando: `MapStakeoutTest` en verde: la línea a más de 40 cm, sin ella dentro, y los símbolos distintos.
-- [ ] T21. `app`: la ficha del punto replanteado y la marca de replanteos en la lista de objetos. (RF-32, RF-33)
+- [x] T21. `app`: la ficha del punto replanteado y la marca de replanteos en la lista de objetos. (RF-32, RF-33)
       Hecho cuando: `PointDetailsStakeoutTest` y `ObjectListStakeoutTest` en verde, con las unidades del proyecto.
 - [ ] T22. `tools/nmea`: `generar_replanteo.py` con `rs3-replanteo` (40 m andando hacia el diseño, 10 s sin FIX y una parada) y lo esperado de cada época. (RF-6, RF-9, RF-20, RF-21, RF-22)
       Hecho cuando: los ficheros se generan y su test de `tools` está en verde.
