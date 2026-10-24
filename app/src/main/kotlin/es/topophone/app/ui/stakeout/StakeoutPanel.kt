@@ -89,6 +89,10 @@ class StakeoutActions(
     /** El origen del rumbo y la tolerancia, en el diálogo de ajustes; la tolerancia da false si no vale (S018/RF-8, RF-18). */
     val onHeading: (HeadingChoice) -> Unit = {},
     val onTolerance: (String) -> Boolean = { false },
+    /** La tolerancia vertical (S019/RF-10) y la cota de diseño: escribir una y volver a la del punto (S019/RF-2, RF-3, RF-4). */
+    val onToleranceV: (String) -> Boolean = { false },
+    val onElevation: (String) -> Boolean = { false },
+    val onUseDesignElevation: () -> Unit = {},
 )
 
 /**
@@ -108,6 +112,7 @@ fun StakeoutPanel(
 ) {
     KeepScreenOn()
     var settingsOpen by remember { mutableStateOf(false) }
+    var elevationOpen by remember { mutableStateOf(false) }
     val target = state.target
     Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(STAKEOUT_PANEL_TAG)) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -134,11 +139,19 @@ fun StakeoutPanel(
                 } else {
                     MeasureButton(collector, collectorActions) // S018/RF-26
                 }
-                TextButton(
-                    onClick = { settingsOpen = true },
-                    enabled = !state.measuring,
-                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_SETTINGS_TAG),
-                ) { Text(stringResource(R.string.stakeout_settings)) }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    // S019/RF-2, RF-16: la cota de diseño, que no se cambia con una medida en marcha.
+                    TextButton(
+                        onClick = { elevationOpen = true },
+                        enabled = !state.measuring,
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_ELEVATION_TAG),
+                    ) { Text(stringResource(R.string.stakeout_elevation_button)) }
+                    TextButton(
+                        onClick = { settingsOpen = true },
+                        enabled = !state.measuring,
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_SETTINGS_TAG),
+                    ) { Text(stringResource(R.string.stakeout_settings)) }
+                }
             }
         }
     }
@@ -148,7 +161,18 @@ fun StakeoutPanel(
             state.project?.linearUnit ?: LinearUnit.METRE,
             actions.onHeading,
             actions.onTolerance,
-        ) { settingsOpen = false }
+            onDismiss = { settingsOpen = false },
+            onToleranceV = actions.onToleranceV,
+        )
+    }
+    if (elevationOpen && !state.measuring) {
+        StakeoutElevationDialog(
+            state.designElevationM,
+            state.elevationOverridden,
+            state.project?.linearUnit ?: LinearUnit.METRE,
+            actions.onElevation,
+            actions.onUseDesignElevation,
+        ) { elevationOpen = false }
     }
     collector?.pending?.let { OutOfToleranceDialog(it, collectorActions.onConfirm, collectorActions.onDiscard) } // S018/RF-26
     if (collector?.paused == PauseState.LONG_PAUSE) {
@@ -218,6 +242,15 @@ private fun Design(state: StakeoutUiState, target: StakeTarget) {
         style = MaterialTheme.typography.bodyMedium,
         modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(STAKEOUT_DESIGN_TAG),
     )
+    // S019/RF-2: con una cota escrita, el panel lo dice (la del punto de arriba ya no es la que se replantea).
+    val written = state.designElevationM.takeIf { state.elevationOverridden }
+    if (written != null) {
+        Text(
+            stringResource(R.string.stakeout_elevation_written, "${LengthFormat.inUnit(written, unit, locale)} $symbol"),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.testTag(STAKEOUT_ELEVATION_TEXT_TAG),
+        )
+    }
 }
 
 @Composable

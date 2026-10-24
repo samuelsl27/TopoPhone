@@ -1,5 +1,8 @@
 package es.topophone.app.ui.stakeout
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -137,6 +140,9 @@ class StakeoutPanelTest {
     private val calls = mutableListOf<String>()
     private val headings = mutableListOf<HeadingChoice>()
     private val tolerances = mutableListOf<String>()
+    private val tolerancesV = mutableListOf<String>()
+    private val elevations = mutableListOf<String>()
+    private var usedPoint = 0
 
     private fun show(state: StakeoutUiState, collector: CollectorUiState = CollectorUiState(loaded = true)) = compose.setContent {
         TopoPhoneTheme(EffectiveTheme.LIGHT) {
@@ -148,6 +154,15 @@ class StakeoutPanelTest {
                     onNext = { next++ },
                     onMode = { modes += it },
                     onHeading = { headings += it },
+                    onToleranceV = { text ->
+                        tolerancesV += text
+                        text != "mala"
+                    },
+                    onElevation = { text ->
+                        elevations += text
+                        text != "mala"
+                    },
+                    onUseDesignElevation = { usedPoint++ },
                     onTolerance = { text ->
                         tolerances += text
                         text != "mala"
@@ -605,6 +620,128 @@ class StakeoutPanelTest {
         compose.onNodeWithTag(STAKEOUT_TOLERANCE_ERROR_TAG, useUnmergedTree = true).assertDoesNotExist()
 
         tolerances shouldBe listOf("mala", "0,05")
+    }
+
+    @Test
+    fun `S019 RF-10 los ajustes llevan la tolerancia vertical aparte de la horizontal, con su valor`() {
+        show(state().copy(settings = StakeoutSettings(toleranceM = 0.04, toleranceVM = 0.05)))
+
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_TAG).assertTextContains("0,040", substring = true)
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_TAG).assertTextContains("0,050", substring = true)
+    }
+
+    @Test
+    fun `S019 RF-10 una tolerancia vertical que no vale se avisa con su rango y una que vale se envia`() {
+        show(state())
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_TAG).performTextReplacement("mala")
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_ERROR_TAG, useUnmergedTree = true).assertTextContains("0,010", substring = true)
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_TAG).performTextReplacement("0,05")
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_ERROR_TAG, useUnmergedTree = true).assertDoesNotExist()
+
+        tolerancesV shouldBe listOf("mala", "0,05")
+        tolerances shouldBe emptyList()
+    }
+
+    @Test
+    fun `S019 RF-10 la tolerancia vertical se muestra en la unidad del proyecto`() {
+        val feet = state().copy(project = project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT))
+        show(feet)
+
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_TAG).assertTextContains("0,098", substring = true) // 3 cm en pies
+    }
+
+    @Test
+    fun `S019 RF-2 el boton de la cota de diseno abre un dialogo con la cota de ahora en la unidad del proyecto`() {
+        show(state().copy(designElevationM = 648.19))
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_FIELD_TAG).assertTextContains("648,190", substring = true)
+    }
+
+    @Test
+    fun `S019 RF-2 al aplicar una cota valida se envia tal como se escribio y el dialogo se cierra`() {
+        show(state().copy(designElevationM = 648.19))
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_FIELD_TAG).performTextReplacement("650,25")
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_APPLY_TAG).performClick()
+
+        elevations shouldBe listOf("650,25")
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_FIELD_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S019 RF-4 una cota que no es un numero se avisa y el dialogo sigue abierto`() {
+        show(state().copy(designElevationM = 648.19))
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_FIELD_TAG).performTextReplacement("mala")
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_APPLY_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_ERROR_TAG, useUnmergedTree = true).assertTextContains("número", substring = true)
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_FIELD_TAG).assertIsDisplayed()
+        elevations shouldBe listOf("mala")
+    }
+
+    @Test
+    fun `S019 RF-3 usar la del punto solo se puede con una cota escrita y la descarta`() {
+        show(state().copy(designElevationM = 648.19, elevationOverridden = false))
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TAG).performClick()
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_USE_POINT_TAG).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S019 RF-3 con una cota escrita usar la del punto la descarta y cierra el dialogo`() {
+        show(state().copy(designElevationM = 650.25, elevationOverridden = true))
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_USE_POINT_TAG).assertIsEnabled().performClick()
+
+        usedPoint shouldBe 1
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_FIELD_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S019 RF-2 con una cota escrita el panel lo dice con su valor`() {
+        show(state().copy(designElevationM = 650.25, elevationOverridden = true))
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TEXT_TAG).assertTextContains("650,250", substring = true)
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TEXT_TAG).assertTextContains("escrita", substring = true)
+    }
+
+    @Test
+    fun `S019 RF-2 con la cota del punto el panel no dice que sea escrita`() {
+        show(state().copy(designElevationM = 648.19, elevationOverridden = false))
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TEXT_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S019 RF-2 sin cota de diseno el dialogo empieza vacio y acepta una`() {
+        show(state().copy(designElevationM = null))
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_FIELD_TAG).assert(
+            SemanticsMatcher("el texto escrito esta vacio") { it.config.getOrNull(SemanticsProperties.EditableText)?.text == "" },
+        )
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_FIELD_TAG).performTextReplacement("100")
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_APPLY_TAG).performClick()
+
+        elevations shouldBe listOf("100")
+    }
+
+    @Test
+    fun `S019 RF-16 midiendo no se abre el dialogo de la cota de diseno`() {
+        show(state().copy(measuring = true), CollectorUiState(loaded = true, measuring = true))
+
+        compose.onNodeWithTag(STAKEOUT_ELEVATION_TAG).assertIsNotEnabled()
     }
 
     @Test

@@ -467,6 +467,16 @@
     <string name="stakeout_heading_choice_walking">Rumbo de marcha</string>
     <string name="stakeout_heading_choice_imu">IMU del receptor</string>
     <string name="stakeout_tolerance_label">Tolerancia (%1$s)</string>
+    <string name="stakeout_tolerance_v_label">Tolerancia vertical (%1$s)</string>
+    <string name="stakeout_elevation_button">Cota de diseño</string>
+    <string name="stakeout_elevation_title">Cota de diseño</string>
+    <string name="stakeout_elevation_help">Escribe la cota a la que hay que llegar en este punto. Sustituye a la del punto de diseño solo en este replanteo.</string>
+    <string name="stakeout_elevation_label">Cota (%1$s)</string>
+    <string name="stakeout_elevation_invalid">Escribe un número, por ejemplo 648,250.</string>
+    <string name="stakeout_elevation_apply">Aplicar</string>
+    <string name="stakeout_elevation_use_point">Usar la del punto</string>
+    <string name="stakeout_elevation_cancel">Cancelar</string>
+    <string name="stakeout_elevation_written">Cota de diseño escrita: %1$s</string>
     <string name="stakeout_tolerance_invalid">Entre %1$s y %2$s %3$s.</string>
     <string name="stakeout_result">Punto %1$s guardado · diferencia con el diseño: Norte %2$s · Este %3$s · distancia %4$s</string>
     <string name="stakeout_result_height">Punto %1$s guardado · diferencia con el diseño: Norte %2$s · Este %3$s · distancia %4$s · cota %5$s</string>

@@ -391,6 +391,9 @@ fun ProjectViewRoute(
             onMode = stakeoutViewModel::setMode,
             onHeading = stakeoutViewModel::setHeading,
             onTolerance = stakeoutViewModel::setTolerance,
+            onToleranceV = stakeoutViewModel::setToleranceV,
+            onElevation = stakeoutViewModel::setDesignElevation,
+            onUseDesignElevation = stakeoutViewModel::useDesignPointElevation,
         ),
     )
 }

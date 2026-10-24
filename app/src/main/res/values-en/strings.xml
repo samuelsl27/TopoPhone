@@ -455,6 +455,16 @@
     <string name="stakeout_heading_choice_walking">Walking heading</string>
     <string name="stakeout_heading_choice_imu">Receiver IMU</string>
     <string name="stakeout_tolerance_label">Tolerance (%1$s)</string>
+    <string name="stakeout_tolerance_v_label">Vertical tolerance (%1$s)</string>
+    <string name="stakeout_elevation_button">Design elevation</string>
+    <string name="stakeout_elevation_title">Design elevation</string>
+    <string name="stakeout_elevation_help">Type the elevation to reach at this point. It replaces the design point elevation for this stakeout only.</string>
+    <string name="stakeout_elevation_label">Elevation (%1$s)</string>
+    <string name="stakeout_elevation_invalid">Type a number, for example 648.250.</string>
+    <string name="stakeout_elevation_apply">Apply</string>
+    <string name="stakeout_elevation_use_point">Use the point one</string>
+    <string name="stakeout_elevation_cancel">Cancel</string>
+    <string name="stakeout_elevation_written">Typed design elevation: %1$s</string>
     <string name="stakeout_tolerance_invalid">Between %1$s and %2$s %3$s.</string>
     <string name="stakeout_result">Point %1$s saved · difference from design: North %2$s · East %3$s · distance %4$s</string>
     <string name="stakeout_result_height">Point %1$s saved · difference from design: North %2$s · East %3$s · distance %4$s · height %5$s</string>
