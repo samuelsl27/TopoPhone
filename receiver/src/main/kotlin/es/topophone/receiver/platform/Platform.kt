@@ -48,6 +48,15 @@ interface Alerts {
 
     /** Un promediado empieza de nuevo porque cambió la base (S017/RF-30). */
     fun measurementRestarted() = Unit
+
+    /** La punta entra en la zona de ayuda del punto de diseño, a 40 cm o menos (S018/RF-21). */
+    fun stakeoutApproach() = Unit
+
+    /** La punta entra en la tolerancia del punto de diseño (S018/RF-20). */
+    fun stakeoutArrived() = Unit
+
+    /** La punta sale de la tolerancia del punto de diseño (S018/RF-20). */
+    fun stakeoutLeft() = Unit
 }
 
 class VibrationAlerts(private val context: Context) : Alerts {
@@ -93,6 +102,21 @@ class VibrationAlerts(private val context: Context) : Alerts {
         vibrate(RESTARTED_PATTERN_MS)
     }
 
+    override fun stakeoutApproach() {
+        tones?.startTone(ToneGenerator.TONE_PROP_BEEP, TONE_MS)
+        vibrate(APPROACH_PATTERN_MS)
+    }
+
+    override fun stakeoutArrived() {
+        tones?.startTone(ToneGenerator.TONE_CDMA_CONFIRM, TONE_MS)
+        vibrate(ARRIVED_PATTERN_MS)
+    }
+
+    override fun stakeoutLeft() {
+        tones?.startTone(ToneGenerator.TONE_CDMA_REORDER, TONE_MS)
+        vibrate(LEFT_PATTERN_MS)
+    }
+
     private fun vibrate(pattern: LongArray) {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(VibratorManager::class.java)?.defaultVibrator
@@ -111,6 +135,9 @@ class VibrationAlerts(private val context: Context) : Alerts {
         val PAUSED_PATTERN_MS = longArrayOf(0, 250, 120, 250)
         val OMITTED_PATTERN_MS = longArrayOf(0, 60, 60, 60)
         val RESTARTED_PATTERN_MS = longArrayOf(0, 400, 150, 100, 150, 400)
+        val APPROACH_PATTERN_MS = longArrayOf(0, 40, 80, 40)
+        val ARRIVED_PATTERN_MS = longArrayOf(0, 200)
+        val LEFT_PATTERN_MS = longArrayOf(0, 100, 60, 100, 60, 100)
 
         /** Todas las vibraciones, para comprobar que cada aviso se distingue de los demás. */
         val ALL_PATTERNS_MS = listOf(
@@ -121,6 +148,9 @@ class VibrationAlerts(private val context: Context) : Alerts {
             PAUSED_PATTERN_MS,
             OMITTED_PATTERN_MS,
             RESTARTED_PATTERN_MS,
+            APPROACH_PATTERN_MS,
+            ARRIVED_PATTERN_MS,
+            LEFT_PATTERN_MS,
         )
         const val TONE_VOLUME = 100
         const val TONE_MS = 600

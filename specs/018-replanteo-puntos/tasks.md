@@ -22,7 +22,7 @@
       Hecho cuando: los tests del recuento en verde: con dos replanteos, con un diseño borrado, con un replanteo en la papelera y sin ninguno.
 - [x] T10. `data`: `StakeoutPreferences` y su paso por la copia de ajustes. (RF-5, RF-8, RF-18)
       Hecho cuando: `StakeoutPreferencesTest` y `SettingsArchiveTest` en verde, con los valores fuera de rango corregidos.
-- [ ] T11. `receiver`: `Alerts.stakeoutApproach()`, `stakeoutArrived()` y `stakeoutLeft()` con sus sonidos y vibraciones distintos. (RF-20, RF-21)
+- [x] T11. `receiver`: `Alerts.stakeoutApproach()`, `stakeoutArrived()` y `stakeoutLeft()` con sus sonidos y vibraciones distintos. (RF-20, RF-21)
       Hecho cuando: `VibrationAlertsTest` en verde con los tres patrones distintos entre sí y de los demás avisos, y los fakes sin cambios.
 - [ ] T12. `app`: `StakeoutController` con la guía y las condiciones que la apagan. (RF-5 a RF-13, RF-22 a RF-25, RF-35)
       Hecho cuando: `StakeoutControllerTest` en verde con la `ReceiverSession` real y las épocas de una en una: por dirección y por distancia, sin posición al abrir, un corte y su vuelta, sin FIX con "Solo FIX" y sin él, sin estado 30 con la inclinación y la solución y la precisión que se muestran.
