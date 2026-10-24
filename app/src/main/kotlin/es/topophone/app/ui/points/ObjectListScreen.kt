@@ -91,6 +91,7 @@ const val SELECTION_DELETE_TAG = "selection_delete"
 const val SELECTION_CANCEL_TAG = "selection_cancel"
 const val SELECTION_EXPORT_TAG = "selection_export"
 const val SELECTION_POLE_TAG = "selection_pole"
+const val SELECTION_STAKEOUT_TAG = "selection_stakeout"
 const val POLE_FIELD_TAG = "pole_field"
 const val POLE_APPLY_TAG = "pole_apply"
 const val POLE_OUTCOME_DISMISS_TAG = "pole_outcome_dismiss"
@@ -128,6 +129,8 @@ class ObjectListActions(
     val onDeleteSelected: () -> Unit = {},
     val onCorrectPole: (poleHeightM: Double) -> Unit = {},
     val onDismissPoleOutcome: () -> Unit = {},
+    /** "Replantear" con un solo punto elegido (S018/RF-1). */
+    val onStakeout: (pointId: String) -> Unit = {},
 )
 
 /**
@@ -260,6 +263,7 @@ fun ObjectListRoute(
             onDeleteSelected = viewModel::deleteSelected,
             onCorrectPole = viewModel::correctSelectedPole,
             onDismissPoleOutcome = viewModel::dismissPoleOutcome,
+            onStakeout = { pointId -> navigation.onStakeout(projectId, pointId, state.query) }, // S018/RF-1
         ),
         onBack = navigation.onBack,
     )
@@ -328,7 +332,7 @@ fun ObjectListScreen(
                     HorizontalDivider()
                 }
             }
-            if (state.selected.isNotEmpty()) SelectionBar(state.selected.size, actions)
+            if (state.selected.isNotEmpty()) SelectionBar(state.selected.size, state.selected.singleOrNull(), actions)
         }
     }
 }
@@ -432,14 +436,16 @@ private fun PoleOutcomeNotice(outcome: PoleOutcome, onDismiss: () -> Unit) {
 
 /** Barra de la selección múltiple, abajo y a mano con el pulgar (S011/RF-4, RF-14, RF-22). */
 @Composable
-private fun SelectionBar(count: Int, actions: ObjectListActions) {
+private fun SelectionBar(count: Int, single: String?, actions: ObjectListActions) {
     var confirmDelete by remember { mutableStateOf(false) }
     var editPole by remember { mutableStateOf(false) }
     Surface(tonalElevation = 3.dp, modifier = Modifier.fillMaxWidth().testTag(SELECTION_BAR_TAG)) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             Text(pluralStringResource(R.plurals.objects_selected, count, count), style = MaterialTheme.typography.titleMedium)
             FlowRowButtons(
-                listOf(
+                listOfNotNull(
+                    // S018/RF-1: replantear es de un punto cada vez.
+                    single?.let { id -> Triple(R.string.objects_stakeout, SELECTION_STAKEOUT_TAG) { actions.onStakeout(id) } },
                     Triple(R.string.objects_hide, SELECTION_HIDE_TAG, actions.onHideSelected),
                     Triple(R.string.objects_show, SELECTION_SHOW_TAG, actions.onShowSelected),
                     Triple(R.string.objects_pole, SELECTION_POLE_TAG) { editPole = true },

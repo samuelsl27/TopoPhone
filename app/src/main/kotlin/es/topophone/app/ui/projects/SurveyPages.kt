@@ -27,7 +27,7 @@ sealed interface SurveyPage {
     data class Form(val projectId: String?, val folderId: String?) : SurveyPage
 
     /** Vista de un proyecto (S006/RF-28). */
-    data class View(val projectId: String) : SurveyPage
+    data class View(val projectId: String, val stakeoutPointId: String? = null, val stakeoutQuery: String = "") : SurveyPage
 
     /** Datos de un proyecto (S009/RF-5). */
     data class Info(val projectId: String) : SurveyPage
@@ -68,6 +68,8 @@ class SurveyNavigation(
     val onNewPoint: (projectId: String) -> Unit = {},
     val onEditPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     val onOpenPointTrash: (projectId: String) -> Unit = {},
+    /** El replanteo de un punto, en la vista del proyecto; [query] es la búsqueda de la lista de objetos (S018/RF-1, RF-3). */
+    val onStakeout: (projectId: String, pointId: String, query: String) -> Unit = { _, _, _ -> },
     /** S013/RF-21: "Copias de seguridad" de Ajustes. */
     val onOpenBackups: () -> Unit = {},
     val onExport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },

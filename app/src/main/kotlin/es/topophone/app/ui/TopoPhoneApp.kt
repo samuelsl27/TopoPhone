@@ -97,7 +97,15 @@ fun TopoPhoneApp(
                     navigation,
                     viewModel = hiltViewModel(owner),
                 )
-                is SurveyPage.View -> ProjectViewRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
+                is SurveyPage.View -> ProjectViewRoute(
+                    page.projectId,
+                    theme,
+                    toggleSun,
+                    navigation,
+                    stakeoutPointId = page.stakeoutPointId,
+                    stakeoutQuery = page.stakeoutQuery,
+                    viewModel = hiltViewModel(owner),
+                )
                 is SurveyPage.Info -> ProjectInfoRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.Folder -> ProjectFolderRoute(page.folderId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 SurveyPage.Trash -> TrashRoute(theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
@@ -202,6 +210,8 @@ private fun AppNavHost(
                 onNewPoint = { projectId -> navController.navigate(PointFormDestination(projectId)) }, // S011/RF-16
                 onEditPoint = { projectId, pointId -> navController.navigate(PointFormDestination(projectId, pointId)) }, // S011/RF-8
                 onOpenPointTrash = { projectId -> navController.navigate(PointTrashDestination(projectId)) }, // S011/RF-23
+                // S018/RF-1: la vista del proyecto con el replanteo abierto y el punto de diseño elegido.
+                onStakeout = { projectId, pointId, query -> navController.navigate(ProjectViewDestination(projectId, pointId, query)) },
                 onOpenBackups = { navController.navigate(BackupsDestination) }, // S013/RF-21
                 onExport = { projectId, selection -> navController.navigate(ExportDestination(projectId, selection)) }, // S012/RF-1, RF-2
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
@@ -235,7 +245,8 @@ private fun AppNavHost(
             }
             composable<ProjectViewDestination> { entry ->
                 val args = entry.toRoute<ProjectViewDestination>()
-                surveySection(SurveyPage.View(args.projectId), uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
+                val page = SurveyPage.View(args.projectId, args.stakeoutPointId, args.stakeoutQuery)
+                surveySection(page, uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
             }
             composable<ProjectInfoDestination> { entry ->
                 val args = entry.toRoute<ProjectInfoDestination>()

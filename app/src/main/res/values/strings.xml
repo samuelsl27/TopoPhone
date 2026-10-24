@@ -554,6 +554,7 @@
     <string name="objects_show">Mostrar</string>
     <string name="objects_delete">Borrar</string>
     <string name="objects_cancel_selection">Cancelar</string>
+    <string name="objects_stakeout">Replantear</string>
     <string name="objects_hide_point">Ocultar %1$s en el mapa</string>
     <string name="objects_show_point">Mostrar %1$s en el mapa</string>
     <string name="objects_move_to_trash">Mover a la papelera</string>
@@ -605,6 +606,7 @@
     <string name="point_list_item">• %1$s</string>
     <string name="point_created_at">Creado: %1$s</string>
     <string name="point_duplicate">Duplicar</string>
+    <string name="point_stakeout">Replantear</string>
     <string name="point_history">Historial</string>
     <string name="point_history_empty">Sin cambios.</string>
     <string name="point_change_edit">Edición</string>

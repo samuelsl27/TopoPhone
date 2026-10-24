@@ -85,6 +85,10 @@ import es.topophone.app.ui.points.OBJECTS_BUTTON_TAG
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.tone
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.app.ui.stakeout.StakeoutActions
+import es.topophone.app.ui.stakeout.StakeoutPanel
+import es.topophone.app.ui.stakeout.StakeoutUiState
+import es.topophone.app.ui.stakeout.StakeoutViewModel
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.designsystem.theme.LocalStatusPalette
 import es.topophone.core.geodesy.GeoPoint
@@ -310,13 +314,24 @@ fun ProjectViewRoute(
     themeState: ThemeState,
     onToggleSun: () -> Unit,
     navigation: SurveyNavigation,
+    stakeoutPointId: String? = null,
+    stakeoutQuery: String = "",
     viewModel: ProjectViewModel = hiltViewModel(),
     collectorViewModel: CollectorViewModel = hiltViewModel(),
+    stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
         viewModel.start(projectId)
         collectorViewModel.start(projectId)
     }
+    // S018/RF-1: el replanteo se abre desde la ficha o la lista con el punto elegido, y se cierra con "Cerrar".
+    var stakeoutOpen by rememberSaveable { mutableStateOf(stakeoutPointId != null) }
+    LaunchedEffect(stakeoutPointId) {
+        if (stakeoutPointId != null) stakeoutViewModel.open(projectId, stakeoutPointId, stakeoutQuery)
+    }
+    val stakeout by stakeoutViewModel.state.collectAsStateWithLifecycle()
+    // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5).
+    LaunchedEffect(stakeoutOpen, stakeout.target) { collectorViewModel.setStakeTarget(stakeout.target.takeIf { stakeoutOpen }) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
@@ -362,6 +377,18 @@ fun ProjectViewRoute(
         ),
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,
+        stakeout = stakeout.takeIf { stakeoutOpen },
+        stakeoutActions = StakeoutActions(
+            onClose = {
+                stakeoutOpen = false
+                stakeoutViewModel.close()
+            },
+            onPrevious = stakeoutViewModel::previous,
+            onNext = stakeoutViewModel::next,
+            onMode = stakeoutViewModel::setMode,
+            onHeading = stakeoutViewModel::setHeading,
+            onTolerance = stakeoutViewModel::setTolerance,
+        ),
     )
 }
 
@@ -383,6 +410,8 @@ fun ProjectViewScreen(
     collectorActions: CollectorActions = CollectorActions(),
     onObjects: (projectId: String) -> Unit = {},
     onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
+    stakeout: StakeoutUiState? = null,
+    stakeoutActions: StakeoutActions = StakeoutActions(),
 ) {
     var collectorOpen by rememberSaveable { mutableStateOf(false) }
     val policy = remember { CameraPolicy() }
@@ -455,7 +484,7 @@ fun ProjectViewScreen(
                     val camera = controller?.camera?.collectAsStateWithLifecycle()?.value
                     if (project != null && camera != null) ScaleBarView(camera, project.linearUnit)
                     Attribution(state.mapSettings)
-                    if (project != null && collector != null && !collectorOpen) {
+                    if (project != null && collector != null && !collectorOpen && stakeout == null) {
                         Spacer(Modifier.weight(1f))
                         ExtendedFloatingActionButton(
                             onClick = { collectorOpen = true },
@@ -465,6 +494,13 @@ fun ProjectViewScreen(
                 }
                 when {
                     project == null -> Unit
+                    stakeout != null -> StakeoutPanel(
+                        stakeout,
+                        stakeoutActions,
+                        collector = collector,
+                        collectorActions = collectorActions,
+                        stats = collectorStats,
+                    ) // S018/RF-1: en lugar del recolector, con el mismo hueco
                     collector != null && collectorOpen -> CollectorPanel(collector, project.linearUnit, collectorActions, onClose = {
                         collectorOpen =
                             false

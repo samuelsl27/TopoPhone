@@ -111,6 +111,7 @@ const val NMEA_NEXT_TAG = "nmea_next"
 const val POINT_EDIT_TAG = "point_edit"
 const val POINT_POLE_TAG = "point_pole"
 const val POINT_DUPLICATE_TAG = "point_duplicate"
+const val POINT_STAKEOUT_TAG = "point_stakeout"
 const val POINT_HISTORY_TAG = "point_history"
 const val POINT_DELETE_TAG = "point_delete"
 const val POINT_NOTICE_DISMISS_TAG = "point_notice_dismiss"
@@ -137,6 +138,8 @@ class PointDetailsActions(
     val onDismissNotice: () -> Unit = {},
     val onDuplicate: () -> Unit = {},
     val onDelete: () -> Unit = {},
+    /** "Replantear" este punto (S018/RF-1). */
+    val onStakeout: () -> Unit = {},
 )
 
 /** Adónde va la ficha tras una acción: a la de la copia, o fuera si el punto se ha borrado. */
@@ -259,6 +262,7 @@ fun PointDetailsRoute(
             onDismissNotice = viewModel::dismissNotice,
             onDuplicate = viewModel::duplicate,
             onDelete = viewModel::delete,
+            onStakeout = { navigation.onStakeout(projectId, pointId, "") }, // S018/RF-1
         ),
         navigation.onBack,
         loadNmeaChunk = viewModel::nmeaChunk, // S017/RF-12
@@ -332,6 +336,7 @@ private fun Actions(state: PointDetailsUiState, point: Point, actions: PointDeta
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         ActionButton(R.string.point_edit, POINT_EDIT_TAG, actions.onEdit)
         if (point.measurement != null) ActionButton(R.string.objects_pole, POINT_POLE_TAG) { pole = true }
+        ActionButton(R.string.point_stakeout, POINT_STAKEOUT_TAG, actions.onStakeout) // S018/RF-1
         ActionButton(R.string.point_duplicate, POINT_DUPLICATE_TAG, actions.onDuplicate)
         ActionButton(R.string.point_history, POINT_HISTORY_TAG) { history = true }
         ActionButton(R.string.objects_delete, POINT_DELETE_TAG) { confirmDelete = true }

@@ -542,6 +542,7 @@
     <string name="objects_show">Show</string>
     <string name="objects_delete">Delete</string>
     <string name="objects_cancel_selection">Cancel</string>
+    <string name="objects_stakeout">Stake out</string>
     <string name="objects_hide_point">Hide %1$s on the map</string>
     <string name="objects_show_point">Show %1$s on the map</string>
     <string name="objects_move_to_trash">Move to trash</string>
@@ -593,6 +594,7 @@
     <string name="point_list_item">• %1$s</string>
     <string name="point_created_at">Created: %1$s</string>
     <string name="point_duplicate">Duplicate</string>
+    <string name="point_stakeout">Stake out</string>
     <string name="point_history">History</string>
     <string name="point_history_empty">No changes.</string>
     <string name="point_change_edit">Edit</string>
