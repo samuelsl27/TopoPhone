@@ -8,6 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
+import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PrecisionControl
@@ -15,6 +16,7 @@ import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.AutoSummary
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.point.CollectorPreferences
@@ -27,8 +29,11 @@ import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldHaveAtLeastSize
 import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.doubles.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
+import io.kotest.matchers.ints.shouldBeLessThanOrEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -81,6 +86,7 @@ class CollectorViewModelAdvancedTest {
     private var saved = 0
     private var lost = 0
     private var pausedAlerts = 0
+    private var omittedAlerts = 0
     private var restartedAlerts = 0
     private val alerts = object : Alerts {
         override fun connectionLost() = Unit
@@ -99,6 +105,10 @@ class CollectorViewModelAdvancedTest {
 
         override fun measurementPaused() {
             pausedAlerts++
+        }
+
+        override fun pointOmitted() {
+            omittedAlerts++
         }
 
         override fun measurementRestarted() {
@@ -207,12 +217,12 @@ class CollectorViewModelAdvancedTest {
         toApp.flush()
     }
 
-    private fun receiving(vm: CollectorViewModel) {
+    private fun receiving(vm: CollectorViewModel, ready: Boolean = true) {
         session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
         sendEpoch(0)
         sendEpoch(1)
         runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving && it.epoch != null } } }
-        await(vm) { it.live != null && it.blocker == null }
+        await(vm) { it.live != null && (!ready || it.blocker == null) }
     }
 
     private companion object {
@@ -537,5 +547,237 @@ class CollectorViewModelAdvancedTest {
         used shouldBeGreaterThanOrEqual 2_000
         text.lines().size shouldBe 2 * used
         text.lines().first().startsWith("\$GNGGA,1015") shouldBe true
+    }
+
+    /** Un recolector con el modo automático encendido y [settings], con sus ajustes ya llegados. */
+    private fun autoViewModel(settings: CollectorSettings, projectId: String = project()): CollectorViewModel {
+        collectorPreferences.settings.value = settings
+        val vm = viewModel(projectId)
+        await(vm) { it.settings == settings }
+        vm.setAutoEnabled(true)
+        await(vm) { it.autoEnabled }
+        return vm
+    }
+
+    /** "Iniciar", con reintento por lo mismo que "Medir" (S017/RF-19). */
+    private fun startAuto(vm: CollectorViewModel) = runBlocking {
+        withTimeout(10_000) {
+            while (!vm.state.value.auto.running) {
+                vm.startAuto()
+                kotlinx.coroutines.delay(50)
+            }
+        }
+    }
+
+    /** La latitud de la época [second] con 5 cm más al norte que la anterior (1 cm son 0,0000054 minutos). */
+    private fun walking(second: Int) = "4025.%07d".format(80_000 + 270 * second)
+
+    @Test
+    fun `S017 RF-19 RF-20 y RF-22 por tiempo mide un punto de inmediato y otro cada intervalo, con nombres seguidos`() {
+        val projectId = project()
+        val vm = autoViewModel(CollectorSettings(autoTrigger = AutoTrigger.TIME, autoIntervalS = 3), projectId)
+        receiving(vm)
+
+        startAuto(vm)
+        (2..10).forEach { sendEpoch(it) }
+        await(vm) { it.auto.saved >= 3 }
+
+        val saved = runBlocking { points.points(projectId).first() }.sortedBy { it.name }
+        saved shouldHaveAtLeastSize 3
+        saved.take(3).map { it.name } shouldBe listOf("1", "2", "3")
+        saved.all { it.measurement.shouldNotBeNull().quality.auto == true } shouldBe true
+        this@CollectorViewModelAdvancedTest.saved shouldBe saved.size // el sonido de cada punto (S010/RF-19)
+        log.messages shouldContain "Modo automático iniciado: cada 3 s"
+    }
+
+    @Test
+    fun `S017 RF-21 por distancia mide un punto cuando el suelo se ha movido esa distancia del ultimo guardado`() {
+        val projectId = project()
+        val vm = autoViewModel(CollectorSettings(autoTrigger = AutoTrigger.DISTANCE, autoDistanceM = 0.1), projectId)
+        receiving(vm)
+
+        startAuto(vm)
+        (2..14).forEach { sendEpoch(it, lat = walking(it)) }
+        await(vm) { it.auto.saved >= 3 }
+
+        val saved = runBlocking { points.points(projectId).first() }.sortedBy { it.name }
+        saved shouldHaveAtLeastSize 3
+        for ((previous, next) in saved.zipWithNext()) {
+            val dn = checkNotNull(next.coordinates.northing) - checkNotNull(previous.coordinates.northing)
+            val de = checkNotNull(next.coordinates.easting) - checkNotNull(previous.coordinates.easting)
+            // 10 cm de distancia y un paso de 5 cm por época: el punto sale 10 cm o más después del anterior.
+            kotlin.math.hypot(de, dn) shouldBeGreaterThanOrEqual 0.099
+        }
+    }
+
+    @Test
+    fun `S017 RF-24 y RF-31 un punto que no cumple el control de precision se omite, avisa una vez y queda en el log`() {
+        val projectId = project()
+        val settings = CollectorSettings(
+            autoTrigger = AutoTrigger.TIME,
+            autoIntervalS = 2,
+            precision = PrecisionControl(horizontalLimitM = 0.001),
+        )
+        val vm = autoViewModel(settings, projectId)
+        receiving(vm)
+
+        startAuto(vm)
+        (2..8).forEach { sendEpoch(it) }
+        await(vm) { it.auto.omitted >= 3 }
+
+        runBlocking { points.points(projectId).first() }.shouldBeEmpty()
+        omittedAlerts shouldBe 1 // una sola vez hasta que se guarde un punto
+        log.messages shouldContain "Punto omitido del modo automático: no cumple el control de precisión: HORIZONTAL"
+        vm.state.value.auto.saved shouldBe 0
+    }
+
+    @Test
+    fun `S017 RF-27 Parar detiene el modo, dice lo guardado y lo omitido y no mide mas`() {
+        val projectId = project()
+        val vm = autoViewModel(CollectorSettings(autoTrigger = AutoTrigger.TIME, autoIntervalS = 2), projectId)
+        receiving(vm)
+        startAuto(vm)
+        (2..6).forEach { sendEpoch(it) }
+        await(vm) { it.auto.saved >= 2 }
+
+        vm.stopAuto()
+
+        val stopped = await(vm) { !it.auto.running && it.auto.summary != null }
+        val summary = stopped.auto.summary.shouldNotBeNull()
+        summary.saved shouldBeGreaterThanOrEqual 2
+        summary shouldBe AutoSummary(summary.saved, 0)
+        stopped.measuring shouldBe false
+        val count = runBlocking { points.points(projectId).first() }.size
+        count shouldBe summary.saved
+        (7..12).forEach { sendEpoch(it) }
+        runBlocking { kotlinx.coroutines.delay(300) }
+        runBlocking { points.points(projectId).first() }.size shouldBe count
+        log.messages shouldContain "Modo automático parado: ${summary.saved} guardados y 0 omitidos"
+    }
+
+    @Test
+    fun `S017 RF-28 un corte pausa el modo automatico, avisa, y al volver los datos sigue sin recuperar los puntos del corte`() {
+        val projectId = project()
+        val vm = autoViewModel(CollectorSettings(autoTrigger = AutoTrigger.TIME, autoIntervalS = 3), projectId)
+        receiving(vm)
+        startAuto(vm)
+        sendEpoch(2)
+        await(vm) { it.auto.saved >= 1 }
+
+        vm.tick(later(2_500))
+        await(vm) { it.auto.paused }
+        vm.tick(later(3_000))
+
+        pausedAlerts shouldBe 1
+        log.messages shouldContain "Modo automático en pausa: sin datos del receptor"
+        // Un corte largo en la hora de las épocas: 60 s después, las épocas vuelven.
+        (60..63).forEach { sendEpoch(it) }
+        await(vm) { !it.auto.paused && it.auto.running }
+        log.messages shouldContain "Modo automático reanudado: han vuelto los datos del receptor"
+        // Ni uno por cada intervalo del corte: el intervalo cuenta de nuevo desde que vuelven los datos.
+        // El recuento sube al pasar el control y el guardado acaba un momento después.
+        runBlocking { withTimeout(5_000) { points.points(projectId).first { it.size == vm.state.value.auto.saved } } }
+        vm.state.value.auto.saved shouldBeLessThanOrEqual 3
+    }
+
+    @Test
+    fun `S017 RF-32 con el modo automatico en marcha la medida y el disparo no cambian`() {
+        val settings = CollectorSettings(autoTrigger = AutoTrigger.TIME, autoIntervalS = 3)
+        val vm = autoViewModel(settings)
+        receiving(vm)
+        startAuto(vm)
+
+        vm.setSettings(settings.copy(mode = MeasurementMode.AVERAGED, autoTrigger = AutoTrigger.DISTANCE, autoIntervalS = 10))
+        vm.setAveragingSeconds("2:00")
+        vm.setAutoInterval("1:00")
+        vm.setAutoTrigger(AutoTrigger.DISTANCE)
+        vm.setAutoEnabled(false)
+
+        collectorPreferences.settings.value shouldBe settings
+        vm.state.value.autoEnabled shouldBe true
+    }
+
+    @Test
+    fun `S017 RF-32 el control de precision si se puede cambiar con el modo en marcha`() {
+        val settings = CollectorSettings(autoTrigger = AutoTrigger.TIME, autoIntervalS = 3)
+        val vm = autoViewModel(settings)
+        receiving(vm)
+        startAuto(vm)
+
+        vm.setSettings(settings.copy(precision = PrecisionControl(fixOnly = false)))
+
+        collectorPreferences.settings.value.precision.fixOnly shouldBe false
+    }
+
+    @Test
+    fun `S017 RF-33 con el nombre del campo repetido no se inicia el modo automatico`() {
+        val projectId = project()
+        val vm = viewModel(projectId)
+        receiving(vm)
+        startMeasuring(vm)
+        sendEpoch(2)
+        await(vm) { it.savedName == "1" }
+        vm.setName("1")
+        await(vm) { it.blocker == MeasureBlocker.NAME_TAKEN }
+        vm.setAutoEnabled(true)
+        await(vm) { it.autoEnabled }
+
+        vm.startAuto()
+
+        runBlocking { kotlinx.coroutines.delay(200) }
+        vm.state.value.auto.running shouldBe false
+    }
+
+    @Test
+    fun `S017 RF-23 si el nombre siguiente ya existe el modo automatico usa el siguiente libre`() {
+        val projectId = project()
+        val vm = viewModel(projectId)
+        receiving(vm)
+        // Los puntos 1 y 3 a mano; el 2 lo pone el modo automático y el siguiente, el 3, ya existe.
+        startMeasuring(vm)
+        sendEpoch(2)
+        await(vm) { it.savedName == "1" }
+        vm.setName("3")
+        startMeasuring(vm)
+        sendEpoch(3)
+        await(vm) { it.savedName == "3" }
+        vm.setName("2")
+        collectorPreferences.settings.value = CollectorSettings(autoTrigger = AutoTrigger.TIME, autoIntervalS = 2)
+        await(vm) { it.settings.autoIntervalS == 2 && it.blocker == null }
+        vm.setAutoEnabled(true)
+        await(vm) { it.autoEnabled }
+
+        startAuto(vm)
+        (4..9).forEach { sendEpoch(it) }
+        await(vm) { it.auto.saved >= 2 }
+
+        val names = runBlocking { points.points(projectId).first() }.map { it.name }.toSet()
+        names shouldContain "2"
+        names shouldContain "4" // el 3 ya estaba
+    }
+
+    @Test
+    fun `S017 RF-18 un promediado mas largo que el intervalo por tiempo no deja iniciar el modo automatico`() {
+        val settings = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 10, autoTrigger = AutoTrigger.TIME, autoIntervalS = 5)
+        val vm = autoViewModel(settings)
+        receiving(vm, ready = false)
+
+        await(vm) { it.blocker == MeasureBlocker.AUTO_INTERVAL_TOO_SHORT }
+        vm.startAuto()
+
+        runBlocking { kotlinx.coroutines.delay(200) }
+        vm.state.value.auto.running shouldBe false
+    }
+
+    @Test
+    fun `S017 RF-15 el modo automatico no se recuerda y un recolector nuevo abre en manual`() {
+        val projectId = project()
+        val vm = autoViewModel(CollectorSettings(autoTrigger = AutoTrigger.DISTANCE), projectId)
+
+        vm.state.value.autoEnabled shouldBe true
+        val reopened = viewModel(projectId)
+
+        reopened.state.value.autoEnabled shouldBe false
+        reopened.state.value.settings.autoTrigger shouldBe AutoTrigger.DISTANCE // el disparo, el intervalo y la distancia sí
     }
 }

@@ -38,7 +38,7 @@
        Hecho cuando: `CollectorViewModelAdvancedTest` guarda un punto promediado y uno de 12 MB con sus datos, y los tests del log en verde.
 - [x] T18. `app`: panel del recolector con el tiempo en `m:ss`, las estadísticas, el gráfico de dispersión, "Terminar", el banner de pausa y la pregunta de 5 min. (RF-1 a RF-5, RF-8, RF-10)
        Hecho cuando: `CollectorPanelAdvancedTest` en verde, con la descripción del gráfico para TalkBack y el anuncio de cada minuto.
-- [ ] T19. `app`: `AutoCollector`: nombres libres, control de precisión, guardado, omisiones, log y avisos. (RF-15, RF-18, RF-19 a RF-28, RF-31, RF-33)
+- [x] T19. `app`: `AutoCollector`: nombres libres, control de precisión, guardado, omisiones, log y avisos. (RF-15, RF-18, RF-19 a RF-28, RF-31, RF-33)
        Hecho cuando: `AutoCollectorTest` y `CollectorViewModelAdvancedTest` en verde con el modo automático por tiempo y por distancia y un punto omitido.
 - [ ] T20. `app`: los controles del modo automático en el panel, con los ajustes bloqueados, el estado y el cambio de modo de inclinación. (RF-15, RF-16, RF-17, RF-26, RF-29, RF-32)
        Hecho cuando: `CollectorPanelAdvancedTest` y `CollectorViewModelAdvancedTest` en verde con "Iniciar", "Parar", los contadores y el modo de inclinación cambiado en marcha.

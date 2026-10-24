@@ -199,6 +199,21 @@ class AutoMeasureTest {
     }
 
     @Test
+    fun `S017 RF-28 un punto perdido por un corte no cuenta como omitido`() {
+        val auto = byTime(intervalS = 5)
+        auto.start(utc(0))
+        auto.onPointOutcome(saved)
+        auto.run(200, 5_000) // el segundo punto empieza
+        auto.inProgress shouldBe true
+
+        auto.onPointCancelled()
+
+        auto.inProgress shouldBe false
+        auto.omitted shouldBe 0
+        auto.saved shouldBe 1
+    }
+
+    @Test
     fun `S017 RF-27 parar da lo guardado y lo omitido y no mide mas`() {
         val auto = byTime(intervalS = 5)
         auto.start(utc(0))

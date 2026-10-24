@@ -8,6 +8,7 @@ import es.topophone.app.receiver.BaseNotices
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.VisibleNotices
+import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.gnss.nmea.TiltState
@@ -15,6 +16,7 @@ import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
@@ -28,10 +30,13 @@ import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.AutoAction
+import es.topophone.core.survey.AutoOutcome
 import es.topophone.core.survey.AverageStatsSnapshot
 import es.topophone.core.survey.BaseFix
 import es.topophone.core.survey.Baseline
 import es.topophone.core.survey.Dispersion
+import es.topophone.core.survey.GroundEN
 import es.topophone.core.survey.MeasurementFailure
 import es.topophone.core.survey.MeasurementResult
 import es.topophone.core.survey.MeasurementUpdate
@@ -87,6 +92,11 @@ enum class MeasureBlocker {
     OUTSIDE_CRS_AREA,
     TILT_MODE_MISSING,
     TILT_NOT_READY,
+
+    /** El promediado dura más que el intervalo del modo automático por tiempo (S017/RF-18). */
+    AUTO_INTERVAL_TOO_SHORT,
+    INVALID_AUTO_INTERVAL,
+    INVALID_AUTO_DISTANCE,
 }
 
 /** Por qué una medida se ha cancelado sola (S010/RF-12; al cambiar el modo de inclinación, S016/RF-28). */
@@ -146,6 +156,14 @@ data class CollectorUiState(
     val tiltMode: TiltMode? = null,
     /** La guía de la inclinación, mientras el modo la use y la época no esté en estado 30 sin aviso (S016/RF-12). */
     val tiltGuide: TiltGuide? = null,
+    /** La opción "Automático" está encendida; no se guarda y el recolector abre siempre en manual (S017/RF-15). */
+    val autoEnabled: Boolean = false,
+    val auto: AutoUiState = AutoUiState(),
+    /** El intervalo y la distancia del modo automático tal como se escriben (S017/RF-16, RF-17). */
+    val autoIntervalText: String = DurationText.format(CollectorSettings().autoIntervalS),
+    val autoIntervalValid: Boolean = true,
+    val autoDistanceText: String = "1,000",
+    val autoDistanceValid: Boolean = true,
 )
 
 /**
@@ -174,6 +192,8 @@ class CollectorViewModel @Inject constructor(
         val poleText: String = "",
         /** Null mientras no se escriba: se ven los segundos guardados. */
         val secondsText: String? = null,
+        val autoIntervalText: String? = null,
+        val autoDistanceText: String? = null,
     )
 
     private data class Run(
@@ -202,6 +222,11 @@ class CollectorViewModel @Inject constructor(
     /** Los milisegundos entre dos publicaciones de las estadísticas; los tests mandan las épocas sin pausa y lo ponen a 0. */
     internal var statsIntervalMs = STATS_INTERVAL_MS
     private var measuringReplay = false
+    private val autoEnabled = MutableStateFlow(false)
+    private val autoCollector = AutoCollector(log, alerts)
+    private var lastEpochAtMs = 0L
+    private var autoRevision: Int? = null
+    private var lastAutoGround: GroundEN? = null
 
     /** La medida en curso es de un punto del modo automático (S017/RF-14). */
     private var measuringAuto = false
@@ -226,7 +251,10 @@ class CollectorViewModel @Inject constructor(
 
     init {
         // S013/RF-16: la medida y el punto que espera a confirmarse, fuera del recolector.
-        viewModelScope.launch { run.map { it.measuring || it.pending != null }.distinctUntilChanged().collect(inProgress::set) }
+        viewModelScope.launch {
+            combine(run, autoCollector.ui) { run, auto -> run.measuring || run.pending != null || auto.running }
+                .distinctUntilChanged().collect(inProgress::set)
+        }
     }
 
     override fun onCleared() {
@@ -243,9 +271,12 @@ class CollectorViewModel @Inject constructor(
         }
     }.onEach { project = it }
 
-    private val formState = combine(form, nameTaken, run, collectorPreferences.settings) { form, taken, run, settings ->
+    private val baseFormState = combine(form, nameTaken, run, collectorPreferences.settings) { form, taken, run, settings ->
         val secondsText = form.secondsText ?: DurationText.format(settings.averagingSeconds)
         val secondsValid = parseSeconds(secondsText) != null
+        val unit = project?.linearUnit ?: LinearUnit.METRE
+        val intervalText = form.autoIntervalText ?: DurationText.format(settings.autoIntervalS)
+        val distanceText = form.autoDistanceText ?: LengthFormat.inUnit(settings.autoDistanceM, unit, Locale.getDefault())
         CollectorUiState(
             loaded = form.loaded,
             name = form.name,
@@ -269,11 +300,23 @@ class CollectorViewModel @Inject constructor(
             error = run.error,
             restarted = run.restarted,
             restartedDiscardedS = run.restartedDiscardedS,
+            autoIntervalText = intervalText,
+            autoIntervalValid = DurationText.parse(intervalText, CollectorSettings.AUTO_INTERVAL_SECONDS) != null,
+            autoDistanceText = distanceText,
+            autoDistanceValid = CollectorSettings.parseAutoDistance(distanceText, unit) != null,
         )
+    }
+
+    /** Con el modo automático: los bloqueos de sus ajustes (S017/RF-18). */
+    private val formState = combine(baseFormState, autoEnabled, autoCollector.ui) { base, enabled, auto ->
+        base.copy(autoEnabled = enabled, auto = auto, blocker = base.blocker ?: autoBlocker(base, enabled))
     }
 
     /** Las estadísticas del promediado en curso, a 4 Hz; null sin promediado (S017/RF-3 a RF-5). */
     val stats: StateFlow<AverageStatsUi?> = statsFlow
+
+    /** Lo que falta para el siguiente punto del modo automático (S017/RF-26). */
+    val autoLive: StateFlow<AutoLive?> = autoCollector.live
 
     val state: StateFlow<CollectorUiState> = combine(
         formState,
@@ -306,7 +349,9 @@ class CollectorViewModel @Inject constructor(
         // S016/RF-28: cambiar el modo o abrir el asistente durante una medida la cancela sin guardar nada.
         viewModelScope.launch {
             tilt.state.map { it.revision }.distinctUntilChanged().collect { revision ->
-                if (measurement != null && measurementRevision != null && revision != measurementRevision) cancelForTiltMode()
+                val measuringChanged = measurement != null && measurementRevision != null && revision != measurementRevision
+                val autoChanged = autoCollector.running && autoRevision != null && revision != autoRevision
+                if (measuringChanged || autoChanged) cancelForTiltMode() // S016/RF-28; con el modo automático, S017/RF-29
             }
         }
     }
@@ -337,6 +382,7 @@ class CollectorViewModel @Inject constructor(
 
     /** Se escribe en minutos y segundos (o en segundos) y solo se guarda de 1 s a 60 min; fuera de eso no se puede promediar (S017/RF-1). */
     fun setAveragingSeconds(text: String) {
+        if (autoCollector.running) return // S017/RF-32
         form.update { it.copy(secondsText = text) }
         val seconds = parseSeconds(text) ?: return
         viewModelScope.launch { collectorPreferences.save(collectorPreferences.settings.first().copy(averagingSeconds = seconds)) }
@@ -344,15 +390,66 @@ class CollectorViewModel @Inject constructor(
 
     /** Para todos los proyectos (S010/RF-13). */
     fun setSettings(settings: CollectorSettings) {
-        viewModelScope.launch { collectorPreferences.save(settings) }
+        viewModelScope.launch {
+            val current = collectorPreferences.settings.first()
+            // S017/RF-32: con el modo automático en marcha, la medida y el disparo no cambian; el control de precisión sí.
+            val effective = if (autoCollector.running) {
+                settings.copy(
+                    mode = current.mode,
+                    averagingSeconds = current.averagingSeconds,
+                    autoTrigger = current.autoTrigger,
+                    autoIntervalS = current.autoIntervalS,
+                    autoDistanceM = current.autoDistanceM,
+                )
+            } else {
+                settings
+            }
+            collectorPreferences.save(effective)
+        }
+    }
+
+    /** Enciende o apaga la opción "Automático"; no se guarda, y con el modo en marcha no se toca (S017/RF-15, RF-32). */
+    fun setAutoEnabled(enabled: Boolean) {
+        if (!autoCollector.running) autoEnabled.value = enabled
+    }
+
+    fun setAutoTrigger(trigger: AutoTrigger) = changeAutoSettings { it.copy(autoTrigger = trigger) }
+
+    /** El intervalo del disparo por tiempo, en min:s o en segundos (S017/RF-16). */
+    fun setAutoInterval(text: String) {
+        if (autoCollector.running) return
+        form.update { it.copy(autoIntervalText = text) }
+        DurationText.parse(text, CollectorSettings.AUTO_INTERVAL_SECONDS)?.let { seconds ->
+            changeAutoSettings { it.copy(autoIntervalS = seconds) }
+        }
+    }
+
+    /** La distancia del disparo por distancia, en la unidad del proyecto (S017/RF-17). */
+    fun setAutoDistance(text: String) {
+        if (autoCollector.running) return
+        form.update { it.copy(autoDistanceText = text) }
+        val unit = project?.linearUnit ?: LinearUnit.METRE
+        CollectorSettings.parseAutoDistance(text, unit)?.let { metres -> changeAutoSettings { it.copy(autoDistanceM = metres) } }
+    }
+
+    private fun changeAutoSettings(change: (CollectorSettings) -> CollectorSettings) {
+        if (autoCollector.running) return
+        viewModelScope.launch { collectorPreferences.save(change(collectorPreferences.settings.first())) }
     }
 
     fun measure() {
         val current = state.value
+        project ?: return
+        PoleHeight.parse(current.poleHeightText) ?: return
+        if (autoCollector.running || current.blocker != null || current.measuring || current.pending != null) return
+        startPoint(auto = false)
+    }
+
+    /** Empieza un punto con los datos del recolector de ahora, a mano o desde el modo automático (S010/RF-8, RF-9; S017/RF-19). */
+    private fun startPoint(auto: Boolean) {
         val project = project ?: return
-        val pole = PoleHeight.parse(current.poleHeightText) ?: return
-        if (current.blocker != null || current.measuring || current.pending != null) return
-        val settings = current.settings
+        val pole = PoleHeight.parse(form.value.poleText) ?: return
+        val settings = state.value.settings
         // S016/RF-13, RF-14: el modo del receptor al empezar; sin modo, sin ETC o con la inclinación apagada, jalón vertical.
         val tiltState = tilt.state.value
         val tiltSetup = TiltSetup(tiltState.settings.mode ?: TiltMode.VERTICAL, tiltState.settings.verified)
@@ -376,7 +473,14 @@ class CollectorViewModel @Inject constructor(
         measurementBase = null
         measurement = factory()
         measuringReplay = session.state.value.replay != null
+        measuringAuto = auto
         run.value = Run(measuring = true)
+        ensureTicker()
+    }
+
+    /** El reloj de la medida y del modo automático, mientras haya una de las dos cosas (S010/RF-12; S017/RF-8, RF-28). */
+    private fun ensureTicker() {
+        if (ticker != null) return
         ticker = viewModelScope.launch {
             while (isActive) {
                 delay(TICK_MS)
@@ -385,8 +489,85 @@ class CollectorViewModel @Inject constructor(
         }
     }
 
+    /**
+     * "Iniciar" del modo automático: el primer punto de inmediato y los demás cuando toque (S017/RF-15, RF-19). Con los
+     * mismos bloqueos que "Medir": el nombre repetido (RF-33), la inclinación sin estado 30 (RF-29) y el intervalo más
+     * corto que el promediado (RF-18).
+     */
+    fun startAuto() {
+        val current = state.value
+        if (!current.autoEnabled || autoCollector.running || current.blocker != null || current.measuring || current.pending != null) return
+        val project = project ?: return
+        val pole = PoleHeight.parse(current.poleHeightText) ?: return
+        val epoch = session.state.value.epoch ?: return
+        autoRevision = tilt.state.value.revision
+        lastEpochAtMs = System.currentTimeMillis()
+        val ground = autoCollector.ground(epoch, tilt.state.value.settings.mode, pole, project, calculator.get())
+        lastAutoGround = ground
+        run.value = Run()
+        applyAuto(autoCollector.start(current.settings, epoch.utcMillisOfDay, ground))
+        ensureTicker()
+    }
+
+    /** "Parar": detiene el modo, descarta el punto en curso y conserva los guardados (S017/RF-27). */
+    fun stopAuto() {
+        if (!autoCollector.running) return
+        measurement?.cancel()
+        autoCollector.stop()
+        stopAutoState()
+        stopMeasuring()
+        run.value = Run()
+    }
+
+    private fun stopAutoState() {
+        measuringAuto = false
+        autoRevision = null
+        lastAutoGround = null
+    }
+
+    /** Lo que pide el modo automático: empezar un punto u omitir el que no terminó (S017/RF-19, RF-24). */
+    private fun applyAuto(actions: List<AutoAction>) {
+        for (action in actions) {
+            when (action) {
+                AutoAction.StartPoint -> startPoint(auto = true)
+                is AutoAction.OmitCurrent -> {
+                    measurement?.cancel()
+                    stopMeasuring()
+                    run.value = Run()
+                }
+            }
+        }
+    }
+
+    /** Una época con el modo automático en marcha: reanuda si había un corte y mira si toca otro punto (S017/RF-20, RF-21, RF-28). */
+    private fun onAutoEpoch(epoch: Epoch) {
+        if (autoCollector.paused) autoCollector.resume(epoch.utcMillisOfDay)
+        val project = project ?: return
+        val pole = PoleHeight.parse(form.value.poleText) ?: return
+        val ground = autoCollector.ground(epoch, tilt.state.value.settings.mode, pole, project, calculator.get())
+        lastAutoGround = ground
+        applyAuto(autoCollector.onEpoch(epoch.utcMillisOfDay, ground))
+    }
+
+    private fun autoBlocker(state: CollectorUiState, enabled: Boolean): MeasureBlocker? {
+        if (!enabled) return null
+        val settings = state.settings
+        return when {
+            settings.autoTrigger == AutoTrigger.TIME && !state.autoIntervalValid -> MeasureBlocker.INVALID_AUTO_INTERVAL
+            settings.autoTrigger == AutoTrigger.DISTANCE && !state.autoDistanceValid -> MeasureBlocker.INVALID_AUTO_DISTANCE
+            settings.autoTrigger == AutoTrigger.TIME &&
+                settings.mode == MeasurementMode.AVERAGED &&
+                settings.averagingSeconds > settings.validAutoIntervalS -> MeasureBlocker.AUTO_INTERVAL_TOO_SHORT
+            else -> null
+        }
+    }
+
     private fun cancelForTiltMode() {
         measurement?.cancel()
+        if (autoCollector.running) {
+            autoCollector.stop() // S017/RF-29: como "Parar"
+            stopAutoState()
+        }
         stopMeasuring()
         log.warning(LogCategory.POINTS, "Medida de ${measuredName()} cancelada: ha cambiado el modo de inclinación") // S014/RF-5
         run.value = Run(error = CollectorError.TILT_MODE_CHANGED)
@@ -395,6 +576,11 @@ class CollectorViewModel @Inject constructor(
     /** El reloj de la medida, con la hora del móvil: la instantánea sin datos se cancela y la promediada se pausa (S017/RF-8). */
     internal fun tick(nowMs: Long) {
         measurement?.onTick(nowMs)?.let(::handle)
+        if (autoCollector.running) {
+            // S017/RF-28: sin épocas en 2 s hay un corte; si hay un promediado en curso, él ya avisa de la pausa.
+            if (!autoCollector.paused && nowMs - lastEpochAtMs >= NO_DATA_MS) autoCollector.pause(alert = measurement == null)
+            autoCollector.refreshLive(lastAutoGround)
+        }
         publishStats()
     }
 
@@ -430,6 +616,11 @@ class CollectorViewModel @Inject constructor(
 
     /** S010/RF-11: no se guarda nada. */
     fun cancel() {
+        // S017/RF-27: con el modo automático en marcha no hay "Cancelar", salvo para descartar el punto de la pregunta de 5 min.
+        if (autoCollector.running) {
+            if (run.value.paused != PauseState.LONG_PAUSE) return
+            autoCollector.onPointCancelled()
+        }
         measurement?.cancel()
         stopMeasuring()
         run.value = Run()
@@ -468,8 +659,10 @@ class CollectorViewModel @Inject constructor(
             if (delta > 0) epochIntervalS = delta.coerceIn(MIN_INTERVAL_S, DEFAULT_INTERVAL_S)
         }
         lastEpochUtc = epoch.utcMillisOfDay
+        lastEpochAtMs = System.currentTimeMillis()
         if (measurement != null) received.base.position?.let { measurementBase = it }
-        measurement?.onEpoch(epoch, System.currentTimeMillis(), received.gst)?.forEach(::handle) // S010/RF-22
+        measurement?.onEpoch(epoch, lastEpochAtMs, received.gst)?.forEach(::handle) // S010/RF-22
+        if (autoCollector.running) onAutoEpoch(epoch)
         publishStats()
     }
 
@@ -511,6 +704,16 @@ class CollectorViewModel @Inject constructor(
             MeasurementUpdate.NoEpochsYet -> run.update { it.copy(noEpochsYet = true) } // S017/RF-7
             is MeasurementUpdate.Failed -> {
                 stopMeasuring()
+                if (measuringAuto && autoCollector.running) {
+                    // S017/RF-24, RF-28: un corte no es un punto omitido; lo demás, sí.
+                    if (update.reason == MeasurementFailure.NO_DATA) {
+                        autoCollector.onPointCancelled()
+                    } else {
+                        autoCollector.onOutcome(AutoOutcome.Omitted("fuera del ámbito del SC del proyecto"))
+                    }
+                    run.value = Run()
+                    return
+                }
                 val error = when (update.reason) {
                     MeasurementFailure.NO_DATA -> CollectorError.NO_DATA
                     MeasurementFailure.OUTSIDE_CRS_AREA -> CollectorError.OUTSIDE_CRS_AREA
@@ -529,8 +732,14 @@ class CollectorViewModel @Inject constructor(
                     result.verticalM,
                     result.maxTiltRad, // S016/RF-20: null si el modo no usa la inclinación
                 )
+                val auto = measuringAuto && autoCollector.running
                 if (failures.isEmpty()) {
                     save(result, failures)
+                    if (auto) autoCollector.onOutcome(AutoOutcome.Saved(result.position.easting, result.position.northing))
+                } else if (auto) {
+                    // S017/RF-24: sin pedir confirmación punto a punto, el que no cumple se omite.
+                    run.value = Run()
+                    autoCollector.onOutcome(AutoOutcome.Omitted("no cumple el control de precisión: ${failures.joinToString { it.name }}"))
                 } else {
                     pendingResult = result // S010/RF-14: se pregunta antes de guardar
                     log.warning(LogCategory.POINTS, "Medida de ${measuredName()} fuera de tolerancia: ${failures.joinToString { it.name }}")
@@ -543,6 +752,7 @@ class CollectorViewModel @Inject constructor(
     private fun save(result: MeasurementResult, failures: Set<PrecisionFailure>) {
         val projectId = projectId.value ?: return
         val name = PointNames.clean(form.value.name)
+        val auto = measuringAuto
         val measurement = Measurement(
             antenna = result.antenna,
             poleHeightM = result.poleHeightM,
@@ -579,12 +789,17 @@ class CollectorViewModel @Inject constructor(
             measurement = measurement,
             createdAtMs = System.currentTimeMillis(),
         )
+        // S017/RF-22: el modo automático propone ya el nombre siguiente, que la época que sigue puede necesitar enseguida.
+        if (auto) form.update { if (PointNames.clean(it.name) == name) it.copy(name = PointNames.next(name)) else it }
         viewModelScope.launch {
-            when (points.create(point)) {
+            // S017/RF-23: si el nombre ya existe, el modo automático usa el siguiente libre.
+            val taken = if (auto) points.names(projectId) else emptySet()
+            val finalName = if (name in taken) PointNames.nextFree(name, taken) else name
+            when (points.create(if (finalName == name) point else point.copy(name = finalName))) {
                 PointSaveResult.Saved -> {
                     alerts.pointSaved() // S010/RF-19
-                    form.update { it.copy(name = PointNames.next(name)) }
-                    run.value = Run(savedName = name)
+                    if (!auto) form.update { it.copy(name = PointNames.next(name)) }
+                    run.value = Run(savedName = finalName)
                     checkName()
                 }
                 PointSaveResult.DuplicateName -> {
@@ -618,8 +833,11 @@ class CollectorViewModel @Inject constructor(
     private fun measuredName(): String = PointNames.clean(form.value.name)
 
     private fun stopMeasuring() {
-        ticker?.cancel()
-        ticker = null
+        // El reloj sigue mientras el modo automático esté en marcha: detecta los cortes y cuenta el tiempo del siguiente punto.
+        if (!autoCollector.running) {
+            ticker?.cancel()
+            ticker = null
+        }
         measurement = null
         statsFlow.value = null
         lastStatsAtMs = 0
@@ -724,6 +942,7 @@ class CollectorViewModel @Inject constructor(
     private companion object {
         const val TICK_MS = 250L
         const val STATS_INTERVAL_MS = 200L
+        const val NO_DATA_MS = 2_000L
         const val DEFAULT_INTERVAL_S = 1.0
         const val MIN_INTERVAL_S = 0.05
     }

@@ -124,6 +124,14 @@ class AutoMeasure(private val trigger: AutoTrigger, intervalS: Int, private val 
         }
     }
 
+    /**
+     * El punto en curso se pierde sin culpa del punto, por un corte (S017/RF-28): no cuenta como omitido y el siguiente
+     * disparo lo decide [resume].
+     */
+    fun onPointCancelled() {
+        if (running) inProgress = false
+    }
+
     /** Hay un corte (S017/RF-28): no se mide hasta [resume]. */
     fun pause() {
         if (running) paused = true
