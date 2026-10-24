@@ -26,7 +26,7 @@
        Hecho cuando: `PointRepositoryNmeaTest` (12 MB en menos de 3 s, filas de hasta 256.000 caracteres, lectura tramo a tramo, cascada y sin restos si falla) y `DatabaseSnapshotTest` en verde.
 - [x] T12. `data`: las claves del modo automático en `CollectorPreferences`. (RF-1, RF-16, RF-17)
        Hecho cuando: `CollectorPreferencesTest` y `SettingsArchiveTest` en verde.
-- [ ] T13. `core:formats` y `app`: las cuatro columnas del CSV y sus nombres en Exportar, con los ficheros dorados. (RF-14)
+- [x] T13. `core:formats` y `app`: las cuatro columnas del CSV y sus nombres en Exportar, con los ficheros dorados. (RF-14)
        Hecho cuando: `CsvExportGoldenTest`, `ExportPreferencesTest` y `ExportScreenTest` en verde con 47 columnas y `test_csv_exportado.py` en verde.
 - [ ] T14. `receiver`: `Alerts.measurementPaused()`, `pointOmitted()` y `measurementRestarted()`. (RF-8, RF-24, RF-30)
        Hecho cuando: el test de `VibrationAlerts` en verde con los tres avisos distintos de los actuales.

@@ -64,6 +64,12 @@ enum class ExportColumn(val header: String) {
     MAX_TILT("Maximum tilt"),
     TILT_HORIZONTAL_ACCURACY("Tilt horizontal accuracy"),
     TILT_VERTICAL_ACCURACY("Tilt vertical accuracy"),
+
+    // S017/RF-14: el tiempo promediado, las desviaciones típicas y si se midió en automático.
+    AVERAGED_TIME("Averaged time"),
+    DEVIATION_HORIZONTAL("Deviation horizontal"),
+    DEVIATION_VERTICAL("Deviation vertical"),
+    AUTOMATIC("Automatic"),
     EDITED("Edited"),
     COPY_OF("Copy of"),
 }
@@ -220,6 +226,11 @@ object CsvExport {
             ExportColumn.MAX_TILT -> angle(angles?.maxTiltRad)
             ExportColumn.TILT_HORIZONTAL_ACCURACY -> length(angles?.horizontalAccuracyM)
             ExportColumn.TILT_VERTICAL_ACCURACY -> length(angles?.verticalAccuracyM)
+            // El tiempo, en segundos con la resolución de una época a 10 Hz; las desviaciones, en la unidad del proyecto.
+            ExportColumn.AVERAGED_TIME -> quality?.averagedTimeS?.let { number(it, ONE_DECIMAL, decimal) }.orEmpty()
+            ExportColumn.DEVIATION_HORIZONTAL -> length(quality?.deviationHorizontalM)
+            ExportColumn.DEVIATION_VERTICAL -> length(quality?.deviationVerticalM)
+            ExportColumn.AUTOMATIC -> quality?.auto?.toString().orEmpty()
             ExportColumn.EDITED -> point.edited.toString()
             ExportColumn.COPY_OF -> point.copyOf.orEmpty()
         }

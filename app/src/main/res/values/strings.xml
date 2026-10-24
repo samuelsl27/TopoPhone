@@ -799,4 +799,8 @@
     <string name="export_column_max_tilt">Inclinación máxima</string>
     <string name="export_column_tilt_horizontal_accuracy">Precisión de la inclinación en planta</string>
     <string name="export_column_tilt_vertical_accuracy">Precisión de la inclinación en vertical</string>
+    <string name="export_column_averaged_time">Tiempo promediado</string>
+    <string name="export_column_deviation_horizontal">Desviación típica horizontal</string>
+    <string name="export_column_deviation_vertical">Desviación típica vertical</string>
+    <string name="export_column_automatic">Medido en automático</string>
 </resources>

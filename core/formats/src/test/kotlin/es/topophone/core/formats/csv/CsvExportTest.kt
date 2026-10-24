@@ -88,6 +88,7 @@ class CsvExportTest {
             "Epochs used,Epochs discarded,Replay,Out of tolerance,Measured from,Measured to," +
             "Base latitude,Base longitude,Base ellipsoidal height,Base easting,Base northing,Base elevation,Baseline," +
             "Tilt mode,Tilt mode verified,Tilt,Tilt direction,Heading,Maximum tilt,Tilt horizontal accuracy,Tilt vertical accuracy," +
+            "Averaged time,Deviation horizontal,Deviation vertical,Automatic," +
             "Edited,Copy of"
 
     private fun csv(points: List<Point>, options: CsvOptions, project: Project = this.project): String =
@@ -103,7 +104,7 @@ class CsvExportTest {
             allHeader,
             "4,,Measured,440313.1221,4474258.8769,648.3114,40.416815094,-3.703533016,699.4230,EPSG:25830,EGM08-REDNAP,m," +
                 "1.8000,FLOAT,24,0.6,1.0,0.1383,0.2100,Instant,1,0,true,NOT_FIX,2026-10-18T18:03:34Z,2026-10-18T18:03:59Z," +
-                ",,,,,,,,,,,,,,,false,", // sin base (S015/RF-22) ni inclinación (S016/RF-24)
+                ",,,,,,,,,,,,,,,,,,,false,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
         )
     }
 
@@ -154,10 +155,11 @@ class CsvExportTest {
     fun `S012 RF-12 lo que el punto no tiene queda vacio y la papelera ni se ve aqui`() {
         val row = lines(csv(listOf(manual), CsvOptions(separator = ColumnSeparator.SEMICOLON)))[1]
 
-        // Los 14 campos de la medida, los 7 de la base (S015/RF-22) y los 8 de la inclinación (S016/RF-24), vacíos.
+        // Los 14 campos de la medida, los 7 de la base (S015/RF-22), los 8 de la inclinación (S016/RF-24) y los 4 del
+        // promediado (S017/RF-14), vacíos.
         row shouldBe "E1;\"Pozo, \"\"nuevo\"\"\";Manual;440300.0000;4474250.0000;;40.416800000;-3.703600000;;EPSG:25830;EGM08-REDNAP;m;" +
-            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;"
-        row.split(";").size shouldBe 43
+            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;"
+        row.split(";").size shouldBe 47
     }
 
     @Test
@@ -299,7 +301,7 @@ class CsvExportTest {
 
         val (header, appRow, verticalRow) = lines(csv(listOf(app, vertical), CsvOptions(), feet)).map { it.split(",") }
 
-        header.subList(33, 42) shouldBe listOf(
+        header.subList(33, 45) shouldBe listOf(
             "Tilt mode",
             "Tilt mode verified",
             "Tilt",
@@ -308,9 +310,45 @@ class CsvExportTest {
             "Maximum tilt",
             "Tilt horizontal accuracy",
             "Tilt vertical accuracy",
-            "Edited",
+            "Averaged time",
+            "Deviation horizontal",
+            "Deviation vertical",
+            "Automatic",
         )
         appRow.subList(33, 41) shouldBe listOf("APP", "false", "12.000", "210.500", "", "14.250", "0.0089", "0.0066")
         verticalRow.subList(33, 41) shouldBe listOf("VERTICAL", "", "", "", "", "", "", "")
+    }
+
+    @Test
+    fun `S017 RF-14 el tiempo promediado, las desviaciones tipicas y si fue automatico van tras la inclinacion`() {
+        val quality = measured.measurement!!.quality
+        val averaged = measured.copy(
+            measurement = measured.measurement!!.copy(
+                quality = quality.copy(averagedTimeS = 720.0, deviationHorizontalM = 0.0042, deviationVerticalM = 0.0068, auto = true),
+            ),
+        )
+        val short = measured.copy(
+            measurement = measured.measurement!!.copy(quality = quality.copy(averagedTimeS = 12.3456, auto = false)),
+        )
+        val feet = project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT)
+
+        val (header, row, plain) = lines(csv(listOf(averaged, short), CsvOptions(), feet)).map { it.split(",") }
+
+        header.subList(41, 46) shouldBe listOf("Averaged time", "Deviation horizontal", "Deviation vertical", "Automatic", "Edited")
+        // El tiempo, en segundos con un decimal; las desviaciones, en pies del proyecto con 4 decimales.
+        row.subList(41, 45) shouldBe listOf("720.0", "0.0138", "0.0223", "true")
+        plain.subList(41, 45) shouldBe listOf("12.3", "", "", "false")
+    }
+
+    @Test
+    fun `S017 RF-14 con coma decimal el tiempo promediado lleva coma y el punto sin promediar lo deja vacio`() {
+        val quality = measured.measurement!!.quality
+        val averaged = measured.copy(measurement = measured.measurement!!.copy(quality = quality.copy(averagedTimeS = 3600.0)))
+        val options = CsvOptions(separator = ColumnSeparator.SEMICOLON, decimal = DecimalSeparator.COMMA)
+
+        val (_, row, instant) = lines(csv(listOf(averaged, measured), options)).map { it.split(";") }
+
+        row[41] shouldBe "3600,0"
+        instant.subList(41, 45) shouldBe listOf("", "", "", "")
     }
 }

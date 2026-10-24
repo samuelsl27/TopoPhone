@@ -89,7 +89,10 @@ class CsvExportGoldenTest {
                 4_474_244.001132507,
                 648.3113331296773,
             ),
-            PointQuality("FIX", 24, 0.6, 1.0, 0.009219544457292887, 0.014, MeasurementMode.AVERAGED, 20, 6, fromReplay = false),
+            PointQuality(
+                "FIX", 24, 0.6, 1.0, 0.009219544457292887, 0.014, MeasurementMode.AVERAGED, 20, 6, fromReplay = false,
+                averagedTimeS = 720.0, deviationHorizontalM = 0.0042123456, deviationVerticalM = 0.0068987654, auto = false, // S017/RF-14
+            ),
             emptySet(),
         ).let { it.copy(measurement = it.measurement!!.copy(base = avl13m, tilt = tiltApp)) }, // S015/RF-22, S016/RF-24
         measured(
@@ -101,7 +104,7 @@ class CsvExportGoldenTest {
                 4_474_258.876880059,
                 648.3113666754832,
             ),
-            PointQuality("FLOAT", 18, 1.25, 12.0, 0.1382931668593933, 0.21, MeasurementMode.INSTANT, 1, 0, fromReplay = true),
+            PointQuality("FLOAT", 18, 1.25, 12.0, 0.1382931668593933, 0.21, MeasurementMode.INSTANT, 1, 0, fromReplay = true, auto = true),
             setOf(PrecisionFailure.VERTICAL, PrecisionFailure.NOT_FIX),
         ).let { it.copy(edited = true, measurement = it.measurement!!.copy(tilt = PointTilt(TiltMode.VERTICAL, false, null))) },
         Point(
@@ -172,7 +175,8 @@ class CsvExportGoldenTest {
             """"horizontal_accuracy": ${n(
                 point.measurement?.quality?.horizontalM,
             )}, "vertical_accuracy": ${n(point.measurement?.quality?.verticalM)}, """ +
-            baseSource(point.measurement?.base) + ", " + tiltSource(point.measurement?.tilt) + "}"
+            baseSource(point.measurement?.base) + ", " + tiltSource(point.measurement?.tilt) + ", " +
+            averagedSource(point.measurement?.quality) + "}"
     }
 
     /** S016/RF-24: el modo y la inclinación sin redondear, con los ángulos en grados; null sin ellos. */
@@ -187,6 +191,14 @@ class CsvExportGoldenTest {
             """"tilt_horizontal_accuracy": ${n(a?.horizontalAccuracyM)}, "tilt_vertical_accuracy": ${n(a?.verticalAccuracyM)}"""
     }
 
+    /** S017/RF-14: el tiempo promediado y las desviaciones típicas sin redondear, y si fue automático; null sin ellos. */
+    private fun averagedSource(quality: PointQuality?): String {
+        fun n(value: Double?) = value?.toString() ?: "null"
+        val automatic = quality?.auto?.let { "\"$it\"" } ?: "null"
+        return """"averaged_time": ${n(quality?.averagedTimeS)}, "deviation_horizontal": ${n(quality?.deviationHorizontalM)}, """ +
+            """"deviation_vertical": ${n(quality?.deviationVerticalM)}, "automatic": $automatic"""
+    }
+
     /** S015/RF-22: la base sin redondear, o null sin base. */
     private fun baseSource(base: PointBase?): String {
         fun n(value: Double?) = value?.toString() ?: "null"
@@ -197,7 +209,7 @@ class CsvExportGoldenTest {
     }
 
     @Test
-    fun `S012 RF-11, RF-12, RF-15 y RF-16 S015 RF-22 S016 RF-24 CsvExport escribe exactamente los ficheros dorados`() {
+    fun `S012 RF-11, RF-12, RF-15 y RF-16 S015 RF-22 S016 RF-24 S017 RF-14 CsvExport escribe exactamente los ficheros dorados`() {
         if (System.getenv("TOPOPHONE_REGENERAR_DORADOS") == "1") {
             folder.mkdirs()
             files.forEach { (name, options) -> File(folder, name).writeBytes(written(options)) }

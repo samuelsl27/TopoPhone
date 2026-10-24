@@ -787,4 +787,8 @@
     <string name="export_column_max_tilt">Maximum tilt</string>
     <string name="export_column_tilt_horizontal_accuracy">Tilt horizontal accuracy</string>
     <string name="export_column_tilt_vertical_accuracy">Tilt vertical accuracy</string>
+    <string name="export_column_averaged_time">Averaged time</string>
+    <string name="export_column_deviation_horizontal">Horizontal standard deviation</string>
+    <string name="export_column_deviation_vertical">Vertical standard deviation</string>
+    <string name="export_column_automatic">Measured in automatic mode</string>
 </resources>

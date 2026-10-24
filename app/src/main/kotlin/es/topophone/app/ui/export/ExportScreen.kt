@@ -303,6 +303,10 @@ private fun ExportColumn.labelRes(): Int = when (this) {
     ExportColumn.MAX_TILT -> R.string.export_column_max_tilt
     ExportColumn.TILT_HORIZONTAL_ACCURACY -> R.string.export_column_tilt_horizontal_accuracy
     ExportColumn.TILT_VERTICAL_ACCURACY -> R.string.export_column_tilt_vertical_accuracy
+    ExportColumn.AVERAGED_TIME -> R.string.export_column_averaged_time // S017/RF-14
+    ExportColumn.DEVIATION_HORIZONTAL -> R.string.export_column_deviation_horizontal
+    ExportColumn.DEVIATION_VERTICAL -> R.string.export_column_deviation_vertical
+    ExportColumn.AUTOMATIC -> R.string.export_column_automatic
     ExportColumn.EDITED -> R.string.export_column_edited
     ExportColumn.COPY_OF -> R.string.export_column_copy_of
 }

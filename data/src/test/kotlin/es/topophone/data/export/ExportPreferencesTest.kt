@@ -75,4 +75,22 @@ class ExportPreferencesTest {
 
         read.columns.none { it.name.contains("TILT") || it == ExportColumn.HEADING } shouldBe true
     }
+
+    @Test
+    fun `S017 RF-14 un personalizado guardado antes deja las columnas del promediado sin marcar`() {
+        val before = CsvOptions(format = ExportFormat.CUSTOM, customColumns = setOf(ExportColumn.NAME, ExportColumn.TILT_MODE))
+        withPreferences { it.save(before) }
+
+        val read = withPreferences { it.options.first() }
+
+        read.columns.none {
+            it in
+                setOf(
+                    ExportColumn.AVERAGED_TIME,
+                    ExportColumn.DEVIATION_HORIZONTAL,
+                    ExportColumn.DEVIATION_VERTICAL,
+                    ExportColumn.AUTOMATIC,
+                )
+        } shouldBe true
+    }
 }
