@@ -24,7 +24,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 10 → 11 y `PointRepositoryStakeoutTest` en verde: se guardan y se leen sin redondear, y un replanteo de antes se lee con su cota y sin evaluar.
 - [x] T11. `data`: `StakeoutPreferences` con la tolerancia vertical y su paso por la copia de ajustes. (RF-10)
       Hecho cuando: `StakeoutPreferencesTest` y `SettingsArchiveTest` en verde, con los valores fuera de rango corregidos.
-- [ ] T12. `receiver`: `Alerts.stakeoutLevelArrived()` y `stakeoutLevelLeft()` con sonidos y vibraciones distintos. (RF-9)
+- [x] T12. `receiver`: `Alerts.stakeoutLevelArrived()` y `stakeoutLevelLeft()` con sonidos y vibraciones distintos. (RF-9)
       Hecho cuando: `VibrationAlertsTest` en verde con los dos patrones distintos entre sí y de los demás avisos, y los fakes sin cambios.
 - [ ] T13. `app`: `StakeoutController` con la cota efectiva, el nivel, sus avisos y su apagado junto a la guía, y el log. (RF-1, RF-5, RF-6, RF-8, RF-9, RF-11, RF-12)
       Hecho cuando: `StakeoutControllerTest` ampliado en verde con la `ReceiverSession` real y las épocas de una en una: con la cota del punto y la escrita, sin cota, punta sin altura, avisos, apagado con la guía y la llegada horizontal sin cambios.

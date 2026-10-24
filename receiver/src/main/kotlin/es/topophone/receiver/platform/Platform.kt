@@ -57,6 +57,12 @@ interface Alerts {
 
     /** La punta sale de la tolerancia del punto de diseño (S018/RF-20). */
     fun stakeoutLeft() = Unit
+
+    /** La punta entra en cota: dentro de la tolerancia vertical de la cota de diseño (S019/RF-9). */
+    fun stakeoutLevelArrived() = Unit
+
+    /** La punta sale de la cota de diseño, más allá de la tolerancia vertical (S019/RF-9). */
+    fun stakeoutLevelLeft() = Unit
 }
 
 class VibrationAlerts(private val context: Context) : Alerts {
@@ -117,6 +123,16 @@ class VibrationAlerts(private val context: Context) : Alerts {
         vibrate(LEFT_PATTERN_MS)
     }
 
+    override fun stakeoutLevelArrived() {
+        tones?.startTone(ToneGenerator.TONE_CDMA_ALERT_NETWORK_LITE, TONE_MS)
+        vibrate(LEVEL_ARRIVED_PATTERN_MS)
+    }
+
+    override fun stakeoutLevelLeft() {
+        tones?.startTone(ToneGenerator.TONE_CDMA_SOFT_ERROR_LITE, TONE_MS)
+        vibrate(LEVEL_LEFT_PATTERN_MS)
+    }
+
     private fun vibrate(pattern: LongArray) {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(VibratorManager::class.java)?.defaultVibrator
@@ -138,6 +154,8 @@ class VibrationAlerts(private val context: Context) : Alerts {
         val APPROACH_PATTERN_MS = longArrayOf(0, 40, 80, 40)
         val ARRIVED_PATTERN_MS = longArrayOf(0, 200)
         val LEFT_PATTERN_MS = longArrayOf(0, 100, 60, 100, 60, 100)
+        val LEVEL_ARRIVED_PATTERN_MS = longArrayOf(0, 90, 50, 90, 50, 200) // S019/RF-9
+        val LEVEL_LEFT_PATTERN_MS = longArrayOf(0, 60, 40, 60, 40, 60, 40, 60)
 
         /** Todas las vibraciones, para comprobar que cada aviso se distingue de los demás. */
         val ALL_PATTERNS_MS = listOf(
@@ -151,6 +169,8 @@ class VibrationAlerts(private val context: Context) : Alerts {
             APPROACH_PATTERN_MS,
             ARRIVED_PATTERN_MS,
             LEFT_PATTERN_MS,
+            LEVEL_ARRIVED_PATTERN_MS,
+            LEVEL_LEFT_PATTERN_MS,
         )
         const val TONE_VOLUME = 100
         const val TONE_MS = 600
