@@ -111,7 +111,27 @@ data class PointEntity(
     @ColumnInfo(name = "tilt_pole_n") val tiltPoleN: Double? = null,
     @ColumnInfo(name = "tilt_pole_u") val tiltPoleU: Double? = null,
     @ColumnInfo(name = "tilt_receiver_pole") val tiltReceiverPole: Double? = null,
+    // S017/RF-12, RF-14: el tiempo promediado, las desviaciones típicas y si fue automático; NULL en los manuales y en los de antes.
+    @ColumnInfo(name = "avg_time") val avgTime: Double? = null,
+    @ColumnInfo(name = "dev_h") val devH: Double? = null,
+    @ColumnInfo(name = "dev_v") val devV: Double? = null,
+    @ColumnInfo(name = "auto_mode") val autoMode: Boolean? = null,
+    // S017/RF-12: los tramos de frases NMEA que van en `point_nmea` por ser demasiadas para `raw_nmea`; 0 si van en ella.
+    @ColumnInfo(name = "nmea_chunks", defaultValue = "0") val nmeaChunks: Int = 0,
 )
+
+/**
+ * Un tramo de las frases NMEA de un punto medido, cuando son demasiadas para la fila del punto (S017/RF-12; plan A6): el
+ * cursor de Android lee unos 2 MB por fila y un promediado de 60 min a 10 Hz son unos 12 MB. Se borra con el punto.
+ */
+@Entity(
+    tableName = "point_nmea",
+    primaryKeys = ["point_id", "seq"],
+    foreignKeys = [
+        ForeignKey(entity = PointEntity::class, parentColumns = ["id"], childColumns = ["point_id"], onDelete = ForeignKey.CASCADE),
+    ],
+)
+data class PointNmeaEntity(@ColumnInfo(name = "point_id") val pointId: String, val seq: Int, val text: String)
 
 /** Una versión anterior de un punto, con la fecha del cambio (S011/RF-10; RNF-T6). Se borra con el punto. */
 @Entity(
@@ -218,6 +238,11 @@ internal fun Point.toEntity(): PointEntity {
         tiltPoleN = m?.tilt?.angles?.pole?.north,
         tiltPoleU = m?.tilt?.angles?.pole?.up,
         tiltReceiverPole = m?.tilt?.angles?.receiverPoleHeightM,
+        avgTime = quality?.averagedTimeS,
+        devH = quality?.deviationHorizontalM,
+        devV = quality?.deviationVerticalM,
+        autoMode = quality?.auto,
+        nmeaChunks = m?.nmeaChunks ?: 0,
     )
 }
 
@@ -256,6 +281,10 @@ private fun PointEntity.measurement(): Measurement? {
             epochsUsed = epochsUsed ?: 0,
             epochsDiscarded = epochsDiscarded ?: 0,
             fromReplay = fromReplay ?: false,
+            averagedTimeS = avgTime,
+            deviationHorizontalM = devH,
+            deviationVerticalM = devV,
+            auto = autoMode,
         ),
         rawNmea = rawNmea.orEmpty(),
         outOfTolerance = outOfTolerance.split(',').mapNotNull { name -> PrecisionFailure.entries.firstOrNull { it.name == name } }.toSet(),
@@ -265,6 +294,7 @@ private fun PointEntity.measurement(): Measurement? {
             ?: PointCoordinates(GeodeticPosition(groundLat, groundLon, groundH), easting, northing, height),
         base = base(),
         tilt = tilt(),
+        nmeaChunks = nmeaChunks,
     )
 }
 

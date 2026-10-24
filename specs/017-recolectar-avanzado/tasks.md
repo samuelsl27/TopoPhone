@@ -20,7 +20,7 @@
       Hecho cuando: `PointMeasurementPauseTest` en verde con "Terminar" con épocas, sin ninguna y en pausa.
 - [x] T9. `core:survey`: `AutoMeasure` (A5). (RF-19, RF-20, RF-21, RF-24, RF-25, RF-27, RF-28, RF-32)
       Hecho cuando: `AutoMeasureTest` en verde con el primer punto inmediato, los dos disparos, el punto sin terminar, un solo aviso, el reintento por distancia, la pausa en los dos disparos, `stop()` y el cambio de día.
-- [ ] T10. `data`: columnas de `points`, tabla `point_nmea`, migración 8 → 9, `NmeaChunks` y el mapeo. (RF-12, RF-14)
+- [x] T10. `data`: columnas de `points`, tabla `point_nmea`, migración 8 → 9, `NmeaChunks` y el mapeo. (RF-12, RF-14)
        Hecho cuando: `TopoPhoneDatabaseTest` (8 → 9: datos conservados, columnas a NULL y `nmea_chunks` a 0), `NmeaChunksTest` y `PointRepositoryExportTest` en verde, con el esquema 9 exportado.
 - [ ] T11. `data`: guardar el punto con sus tramos en una transacción, `nmeaChunk` y las copias con `point_nmea`. (RF-12)
        Hecho cuando: `PointRepositoryNmeaTest` (12 MB en menos de 3 s, filas de hasta 256.000 caracteres, lectura tramo a tramo, cascada y sin restos si falla) y `DatabaseSnapshotTest` en verde.

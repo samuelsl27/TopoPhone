@@ -127,7 +127,7 @@ Pausada ──(5 min seguidos sin época)──▶ Pregunta ──┬ Guardar co
 - Cada punto es un `PointMeasurement` nuevo, con la misma fábrica que "Medir"; así reutiliza el descarte por la inclinación (S016/RF-19), el cambio de base (S015/RF-18) y el control de precisión.
 
 ### A6. Guardado con tramos (RF-12; RNF)
-1. `NmeaChunks.split(text, maxChars = 256_000)` parte por saltos de línea; `join` los une con "\n". Con `text.length ≤ maxChars`, un solo tramo, que va a `raw_nmea`.
+1. `NmeaChunks.split(text, maxChars = 256_000)` parte tras un salto de línea (cada tramo lo conserva al final, salvo el último); `join` los concatena. Con `text.length ≤ maxChars`, un solo tramo, que va a `raw_nmea`.
 2. `PointRepository.create(point)`: una transacción de Room que inserta el punto con `raw_nmea` o con `""` y `nmea_chunks`, y los tramos. Si algo falla, no queda nada a medias (RNF-T6).
 3. La ficha lee la fila del punto sin las frases; "Ver frases NMEA" pide el tramo 0 y deja pasar al siguiente y al anterior, con "tramo i de N".
 

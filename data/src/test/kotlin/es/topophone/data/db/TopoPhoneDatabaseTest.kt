@@ -272,6 +272,61 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S017 RF-12 de la v8 a la v9 los puntos conservan sus datos, con lo nuevo vacio y sin tramos de frases`() {
+        createFromExportedSchema(8)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v8 ->
+            v8.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v8.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P12', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', 'AVERAGED', " +
+                    "20, 3, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+            v8.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, ground_lat, ground_lon, out_of_tolerance, created_at) " +
+                    "VALUES (?, ?, 'M1', '', 'MANUAL', 40.4, -3.7, '', 3000)",
+                arrayOf<Any>("manual-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            val measured = points.single { it.name == "P12" }.measurement.shouldNotBeNull()
+            measured.rawNmea shouldBe "\$GNGGA,1*00"
+            measured.nmeaChunks shouldBe 0
+            measured.quality.epochsUsed shouldBe 20
+            measured.quality.averagedTimeS shouldBe null
+            measured.quality.deviationHorizontalM shouldBe null
+            measured.quality.deviationVerticalM shouldBe null
+            measured.quality.auto shouldBe null
+            points.single { it.name == "M1" }.measurement shouldBe null
+            db.openHelper.readableDatabase.query("SELECT avg_time, dev_h, dev_v, auto_mode, nmea_chunks FROM points").use { cursor ->
+                while (cursor.moveToNext()) {
+                    (0..3).forEach { cursor.isNull(it) shouldBe true }
+                    cursor.getInt(4) shouldBe 0
+                }
+            }
+            db.openHelper.readableDatabase.query("SELECT COUNT(*) FROM point_nmea").use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                cursor.getInt(0) shouldBe 0
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S011 RF-22 y RF-25 el nombre de un punto de la papelera queda libre y entre los activos sigue siendo unico`() {
         val db = TopoPhoneDatabase.build(context, TEST_DB)
         try {
@@ -303,7 +358,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 8
+        const val CURRENT_VERSION = 9
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

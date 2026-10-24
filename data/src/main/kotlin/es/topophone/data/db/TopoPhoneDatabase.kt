@@ -14,6 +14,7 @@ import es.topophone.data.ntrip.NtripProfileEntity
 import es.topophone.data.point.PointDao
 import es.topophone.data.point.PointEntity
 import es.topophone.data.point.PointHistoryEntity
+import es.topophone.data.point.PointNmeaEntity
 import es.topophone.data.project.ProjectDao
 import es.topophone.data.project.ProjectEntity
 import es.topophone.data.project.ProjectFolderEntity
@@ -33,11 +34,14 @@ import es.topophone.data.project.ProjectFolderEntity
  * - v7 (S015): la base con la que se midió cada punto. Solo añade columnas que admiten NULL: migración de Room.
  * - v8 (S016): el modo de inclinación y la inclinación de cada punto. Columnas que admiten NULL: migración de Room, y
  *   [PointsV8] marca los puntos medidos antes como "Jalón vertical", que es como se calcularon.
+ * - v9 (S017): el tiempo promediado, las desviaciones típicas y si fue automático de cada punto (columnas que admiten NULL, y
+ *   `nmea_chunks` con 0 por defecto) y la tabla `point_nmea` con los tramos de frases NMEA de los promediados largos. Solo añade
+ *   columnas y una tabla: migración de Room.
  */
 @Database(
     entities = [
         ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class, PointEntity::class,
-        PointHistoryEntity::class,
+        PointHistoryEntity::class, PointNmeaEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -49,6 +53,7 @@ import es.topophone.data.project.ProjectFolderEntity
         AutoMigration(from = 5, to = 6, spec = TopoPhoneDatabase.PointsV6::class),
         AutoMigration(from = 6, to = 7),
         AutoMigration(from = 7, to = 8, spec = TopoPhoneDatabase.PointsV8::class),
+        AutoMigration(from = 8, to = 9),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -65,7 +70,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 8
+        const val VERSION = 9
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

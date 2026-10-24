@@ -16,6 +16,7 @@ import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Test
@@ -82,5 +83,29 @@ class PointRepositoryExportTest {
         val exported = runBlocking { points.pointsForExport(project) }.single()
 
         exported shouldBe saved.copy(measurement = saved.measurement!!.copy(rawNmea = ""))
+    }
+
+    @Test
+    fun `S017 RF-12 y RF-14 el punto lleva el tiempo promediado, las desviaciones tipicas y si fue automatico`() {
+        val base = point("1", 1_000)
+        val measurement = base.measurement!!
+        val saved = base.copy(
+            measurement = measurement.copy(
+                quality = measurement.quality.copy(
+                    averagedTimeS = 720.0,
+                    deviationHorizontalM = 0.0042,
+                    deviationVerticalM = 0.0068,
+                    auto = true,
+                ),
+                nmeaChunks = 3,
+            ),
+        )
+        runBlocking { points.create(saved) }
+
+        val exported = runBlocking { points.pointsForExport(project) }.single()
+        val read = runBlocking { points.point("id-1").first() }
+
+        exported shouldBe saved.copy(measurement = saved.measurement!!.copy(rawNmea = ""))
+        read shouldBe saved
     }
 }
