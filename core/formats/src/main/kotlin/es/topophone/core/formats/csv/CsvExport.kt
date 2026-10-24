@@ -136,14 +136,14 @@ data class CsvOptions(
  * longitud del datum de los cálculos, con signo y 9 decimales; lo que el punto no tiene, vacío.
  */
 object CsvExport {
-    private const val LENGTH_DECIMALS = 4
-    private const val DEGREE_DECIMALS = 9
+    internal const val LENGTH_DECIMALS = 4
+    internal const val DEGREE_DECIMALS = 9
 
     /** Inclinación, dirección y rumbo en grados, con la resolución del ETC (S016/RF-24). */
     private const val ANGLE_DECIMALS = 3
     private const val ONE_DECIMAL = 1
     private const val LIST_SEPARATOR = "|"
-    private const val LINE_END = "\r\n"
+    internal const val LINE_END = "\r\n"
     private val PROJECTED_BASE_COLUMNS = setOf(ExportColumn.BASE_EASTING, ExportColumn.BASE_NORTHING, ExportColumn.BASE_ELEVATION)
 
     /** S012/RF-10: sin Este ni Norte, PENZD y PNEZD no tienen sentido. */
@@ -244,7 +244,7 @@ object CsvExport {
     }
 
     /** Sin notación científica ni signo en el cero (`-0.0000`), con el signo decimal elegido (RNF-T9). */
-    private fun number(value: Double, decimals: Int, decimal: DecimalSeparator): String {
+    internal fun number(value: Double, decimals: Int, decimal: DecimalSeparator): String {
         val rounded = BigDecimal(value).setScale(decimals, RoundingMode.HALF_UP)
         val normalized = if (rounded.signum() == 0) BigDecimal.ZERO.setScale(decimals) else rounded
         val text = normalized.toPlainString()
@@ -252,10 +252,10 @@ object CsvExport {
     }
 
     /** Fecha y hora en UTC al segundo, ISO 8601 con Z (RNF-T10). */
-    private fun utc(epochMs: Long): String =
+    internal fun utc(epochMs: Long): String =
         DateTimeFormatter.ISO_INSTANT.format(Instant.ofEpochMilli(epochMs).truncatedTo(ChronoUnit.SECONDS))
 
     /** RFC 4180: entre comillas si lleva el separador, comillas o saltos de línea, con las comillas duplicadas (S012/RF-15). */
-    private fun quoted(text: String, separator: Char): String =
+    internal fun quoted(text: String, separator: Char): String =
         if (text.any { it == separator || it == '"' || it == '\n' || it == '\r' }) "\"" + text.replace("\"", "\"\"") + "\"" else text
 }

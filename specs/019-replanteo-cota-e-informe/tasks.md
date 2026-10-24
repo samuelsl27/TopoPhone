@@ -16,7 +16,7 @@
       Hecho cuando: `StakeoutDiffTest` en verde contra `fixtures/replanteo/` (≤ 1 mm): con y sin cota, la cota escrita, dentro en H y fuera en V y al revés.
 - [x] T7. `core:model`: `StakeoutReport` con las filas, el último replanteo, los sin evaluar y el resumen. (RF-17, RF-18, RF-21, RF-26)
       Hecho cuando: `StakeoutReportTest` en verde contra `fixtures/replanteo/` (resumen ≤ 0,1 mm): varios replanteos, con selección, sin evaluar, sin ninguno y un nombre editado.
-- [ ] T8. `core:formats`: `StakeoutReportCsv`, y las ayudas de `CsvExport` abiertas al módulo. (RF-21, RF-22, RF-23)
+- [x] T8. `core:formats`: `StakeoutReportCsv`, y las ayudas de `CsvExport` abiertas al módulo. (RF-21, RF-22, RF-23)
       Hecho cuando: `StakeoutReportCsvTest` y su golden en verde: columnas y orden, geográficas, celdas vacías, unidades, comillas, separador y decimal, y `CsvExportGoldenTest` sin cambios.
 - [ ] T9. `core:formats`: las siete columnas del replanteo en `ExportColumn`. (RF-25)
       Hecho cuando: `CsvExportTest` y `CsvExportGoldenTest` en verde: en "Todas las columnas" y "Personalizado", vacías en los no replanteados, PENZD y PNEZD sin cambios y una selección guardada de antes que no las incluye.
