@@ -1,5 +1,6 @@
 package es.topophone.app.ui.stakeout
 
+import es.topophone.app.log.RecordingLog
 import es.topophone.core.geodesy.GeodeticPoint
 import es.topophone.core.geodesy.LocalTangentPlane
 import es.topophone.core.gnss.nmea.Epoch
@@ -10,6 +11,8 @@ import es.topophone.core.gnss.nmea.TiltAccuracyCoefficients
 import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.gnss.nmea.TiltNotification
 import es.topophone.core.gnss.nmea.TiltState
+import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.log.LogLevel
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.PointCoordinates
@@ -382,5 +385,62 @@ class StakeoutControllerTest {
         off() shouldBe GuidanceOff.NO_POSITION
         controller.onEpoch(epoch(0.0, 0.5, 16), context())
         on().ui.heading shouldBe HeadingResult.Unavailable(HeadingUnavailable.NOT_MOVING)
+    }
+
+    private val log = RecordingLog()
+    private val logged = StakeoutController(alerts, log, publishIntervalMs = 0, now = { clock })
+
+    @Test
+    fun `S018 RF-20 y RF-21 el log anota cada cambio de zona una sola vez, sin coordenadas`() {
+        listOf(0.9, 0.38, 0.30, 0.1, 0.02, 0.015, 0.05).forEachIndexed { i, north ->
+            logged.onEpoch(epoch(0.0, north, index = i), context())
+        }
+
+        log.messages shouldBe listOf(
+            "Replanteo de 12: entra en la zona de ayuda",
+            "Replanteo de 12: dentro de la tolerancia",
+            "Replanteo de 12: fuera de la tolerancia",
+        )
+        log.entries.all { it.second == LogCategory.POINTS } shouldBe true
+        // Ni coordenadas ni distancias: solo el nombre del punto (S014/RF-7).
+        log.messages.none { Regex("""\d+[.,]\d+""").containsMatchIn(it) } shouldBe true
+    }
+
+    @Test
+    fun `S018 RF-22, RF-24 y RF-25 el log anota cuando la guia se apaga y por que, una sola vez`() {
+        logged.onEpoch(epoch(-1.0, 0.0, 0), context())
+        logged.onEpoch(epoch(-1.0, 0.0, 1, status = SolutionStatus.FLOAT), context())
+        logged.onEpoch(epoch(-1.0, 0.0, 2, status = SolutionStatus.FLOAT), context())
+        logged.onEpoch(epoch(-1.0, 0.0, 3), context())
+        logged.onEpoch(epoch(-1.0, 0.0, 4, tilt = tilt(TiltState.ALIGNMENT)), context(tiltMode = TiltMode.APP))
+        logged.onEpoch(epoch(-1.0, 0.0, 5, tilt = tilt()), context(tiltMode = TiltMode.APP))
+        logged.onSilence(context())
+        logged.onSilence(context())
+
+        log.messages shouldBe listOf(
+            "Replanteo de 12: guía apagada, sin FIX",
+            "Replanteo de 12: guía apagada, la inclinación no está en estado 30",
+            "Replanteo de 12: guía apagada, sin datos del receptor",
+        )
+        log.entries.map { it.first } shouldBe List(3) { LogLevel.WARNING }
+    }
+
+    @Test
+    fun `S018 RF-35 abrir el replanteo sin posicion no deja nada en el log`() {
+        logged.onEpoch(epoch(0.0, 0.0, position = false), context())
+
+        log.messages shouldBe emptyList()
+    }
+
+    @Test
+    fun `S018 RF-21 despues de apagarse y volver, la zona de ayuda avisa de nuevo`() {
+        controller.onEpoch(epoch(0.0, 0.3, 0), context())
+        alerts.events shouldBe listOf("approach")
+        controller.onSilence()
+        alerts.events.clear()
+
+        controller.onEpoch(epoch(0.0, 0.3, 1), context())
+
+        alerts.events shouldBe listOf("approach")
     }
 }
