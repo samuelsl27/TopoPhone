@@ -294,7 +294,7 @@ class AdvancedReplayTest {
     }
 
     @Test
-    fun `S017 RF-8 RF-9 y RF-10 el corte corto reanuda solo y el de 6 min pregunta y al volver los datos se cierra`() {
+    fun `S017 RF-8, RF-9 y RF-10 el corte corto reanuda solo y el de 6 min pregunta y al volver los datos se cierra`() {
         val groups = epochs("rs3-corte.nmea")
         expected("rs3-corte.tramos.csv").map { it.getValue("desenlace") } shouldBe listOf("inicio", "pausa-y-reanuda", "pausa-larga")
         val projectId = project()

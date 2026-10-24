@@ -288,7 +288,8 @@ class CollectorTiltTest {
 
         receiving(vm, COMPENSATING)
 
-        val live = await(vm) { it.live != null }.live.shouldNotBeNull()
+        // La época llega antes que el ETC que la completa: hasta entonces la precisión no lleva la de la inclinación.
+        val live = await(vm) { (it.live?.horizontalM ?: 0.0) > 0.0101 }.live.shouldNotBeNull()
         val tilt = Math.hypot(0.993, 1.013) * (1.8 + 0.134) / 1000
         live.horizontalM.shouldNotBeNull() shouldBe ((Math.hypot(0.008, 0.006) + tilt) plusOrMinus 1e-9)
         live.verticalM.shouldNotBeNull() shouldBe ((0.015 + 1.021 * 1.934 / 1000) plusOrMinus 1e-9)

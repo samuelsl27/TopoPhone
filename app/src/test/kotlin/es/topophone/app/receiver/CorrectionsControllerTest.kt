@@ -238,7 +238,7 @@ class CorrectionsControllerTest {
         profiles.delete("ign")
 
         await { it.ntrip == NtripState.Idle }
-        controller.status.value.activeProfileId shouldBe null
+        eventually({ controller.status.value.activeProfileId }, null) // el perfil activo se limpia aparte de la conexión
     }
 
     @Test

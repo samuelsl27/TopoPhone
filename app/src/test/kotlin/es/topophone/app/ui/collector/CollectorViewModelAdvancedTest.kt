@@ -268,7 +268,7 @@ class CollectorViewModelAdvancedTest {
     }
 
     @Test
-    fun `S017 RF-3 RF-4 y RF-5 las estadisticas y el grafico salen en su propio flujo`() {
+    fun `S017 RF-3, RF-4 y RF-5 las estadisticas y el grafico salen en su propio flujo`() {
         val vm = averagedViewModel(seconds = 60)
         receiving(vm)
         vm.stats.value.shouldBeNull()
@@ -575,7 +575,7 @@ class CollectorViewModelAdvancedTest {
     private fun walking(second: Int) = "4025.%07d".format(80_000 + 270 * second)
 
     @Test
-    fun `S017 RF-19 RF-20 y RF-22 por tiempo mide un punto de inmediato y otro cada intervalo, con nombres seguidos`() {
+    fun `S017 RF-19, RF-20 y RF-22 por tiempo mide un punto de inmediato y otro cada intervalo, con nombres seguidos`() {
         val projectId = project()
         val vm = autoViewModel(CollectorSettings(autoTrigger = AutoTrigger.TIME, autoIntervalS = 3), projectId)
         receiving(vm)
