@@ -453,6 +453,16 @@
     <string name="stakeout_arrow_behind">detrás</string>
     <string name="stakeout_arrow_right">%1$d° a la derecha</string>
     <string name="stakeout_arrow_left">%1$d° a la izquierda</string>
+    <string name="stakeout_settings">Ajustes</string>
+    <string name="stakeout_settings_title">Ajustes del replanteo</string>
+    <string name="stakeout_settings_close">Listo</string>
+    <string name="stakeout_heading_source">Rumbo del usuario</string>
+    <string name="stakeout_heading_choice_walking">Rumbo de marcha</string>
+    <string name="stakeout_heading_choice_imu">IMU del receptor</string>
+    <string name="stakeout_tolerance_label">Tolerancia (%1$s)</string>
+    <string name="stakeout_tolerance_invalid">Entre %1$s y %2$s %3$s.</string>
+    <string name="stakeout_result">Punto %1$s guardado · diferencia con el diseño: Norte %2$s · Este %3$s · distancia %4$s</string>
+    <string name="stakeout_result_height">Punto %1$s guardado · diferencia con el diseño: Norte %2$s · Este %3$s · distancia %4$s · cota %5$s</string>
     <string name="stakeout_off_no_position">Sin posición del receptor.</string>
     <string name="stakeout_off_no_data">Sin datos del receptor: guía apagada.</string>
     <string name="stakeout_off_no_fix">Sin FIX: guía apagada.</string>

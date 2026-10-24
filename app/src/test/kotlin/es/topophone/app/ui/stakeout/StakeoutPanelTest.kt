@@ -11,12 +11,25 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.collector.COLLECTOR_BLOCKER_TAG
+import es.topophone.app.ui.collector.COLLECTOR_CANCEL_TAG
+import es.topophone.app.ui.collector.COLLECTOR_MEASURE_TAG
+import es.topophone.app.ui.collector.CollectorActions
+import es.topophone.app.ui.collector.CollectorUiState
+import es.topophone.app.ui.collector.MeasureBlocker
+import es.topophone.app.ui.collector.MeasureProgress
+import es.topophone.app.ui.collector.OUT_OF_TOLERANCE_SAVE_TAG
+import es.topophone.app.ui.collector.PendingPoint
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeMode
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.project.AngularUnit
@@ -114,8 +127,11 @@ class StakeoutPanelTest {
     private var previous = 0
     private var next = 0
     private var modes = mutableListOf<StakeMode>()
+    private val calls = mutableListOf<String>()
+    private val headings = mutableListOf<HeadingChoice>()
+    private val tolerances = mutableListOf<String>()
 
-    private fun show(state: StakeoutUiState) = compose.setContent {
+    private fun show(state: StakeoutUiState, collector: CollectorUiState = CollectorUiState(loaded = true)) = compose.setContent {
         TopoPhoneTheme(EffectiveTheme.LIGHT) {
             StakeoutPanel(
                 state,
@@ -124,6 +140,19 @@ class StakeoutPanelTest {
                     onPrevious = { previous++ },
                     onNext = { next++ },
                     onMode = { modes += it },
+                    onHeading = { headings += it },
+                    onTolerance = { text ->
+                        tolerances += text
+                        text != "mala"
+                    },
+                ),
+                collector = collector,
+                collectorActions = CollectorActions(
+                    onMeasure = { calls += "measure" },
+                    onCancel = { calls += "cancel" },
+                    onConfirm = { calls += "confirm" },
+                    onDiscard = { calls += "discard" },
+                    onFinish = { calls += "finish" },
                 ),
             )
         }
@@ -360,5 +389,110 @@ class StakeoutPanelTest {
     fun `S018 RF-7 por distancia no hay flecha aunque haya rumbo`() {
         show(state(on(guidance(ahead = 4.0, right = 3.0)), StakeMode.BY_DISTANCE))
         compose.onNodeWithTag(STAKEOUT_ARROW_TAG).assertDoesNotExist()
+    }
+
+    private val savedStake = StakeoutRef(
+        designId = "d1",
+        designName = "12",
+        design = target.coordinates,
+        dEastM = -0.02,
+        dNorthM = 0.03,
+        dHorizontalM = 0.0361,
+        dHeightM = -0.005,
+    )
+
+    @Test
+    fun `S018 RF-26 con la guia encendida el boton Medir mide`() {
+        show(state())
+
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsEnabled().performClick()
+
+        calls shouldBe listOf("measure")
+    }
+
+    @Test
+    fun `S018 RF-31 sin poder medir por el recolector el boton Medir esta desactivado y dice por que`() {
+        show(state(), CollectorUiState(loaded = true, blocker = MeasureBlocker.OUTSIDE_CRS_AREA))
+
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_BLOCKER_TAG).assertTextContains("ámbito", substring = true)
+    }
+
+    @Test
+    fun `S018 RF-35 sin posicion no se puede medir`() {
+        show(state(GuidanceState.Off(GuidanceOff.NO_POSITION)), CollectorUiState(loaded = true, blocker = MeasureBlocker.NO_POSITION))
+
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S018 RF-30 midiendo se ve el progreso con Cancelar y no se cambia de punto ni de modo`() {
+        val measuring = state().copy(measuring = true)
+        show(measuring, CollectorUiState(loaded = true, measuring = true, progress = MeasureProgress(3.0, 10.0, 15, 1)))
+
+        compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).assertIsDisplayed().performClick()
+        compose.onNodeWithTag(STAKEOUT_NEXT_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(STAKEOUT_PREVIOUS_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(stakeModeTag(StakeMode.BY_DIRECTION)).assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertDoesNotExist()
+
+        calls shouldBe listOf("cancel")
+    }
+
+    @Test
+    fun `S018 RF-29 tras guardar dice el punto y las diferencias respecto al diseno`() {
+        show(state(), CollectorUiState(loaded = true, savedName = "12_stkd", savedStake = savedStake))
+
+        compose.onNodeWithTag(STAKEOUT_RESULT_TAG).assertTextContains("12_stkd", substring = true)
+        compose.onNodeWithTag(STAKEOUT_RESULT_TAG).assertTextContains("Norte +0,030", substring = true)
+        compose.onNodeWithTag(STAKEOUT_RESULT_TAG).assertTextContains("Este -0,020", substring = true)
+        compose.onNodeWithTag(STAKEOUT_RESULT_TAG).assertTextContains("cota -0,005", substring = true)
+    }
+
+    @Test
+    fun `S018 RF-29 un resultado sin cota no la dice`() {
+        show(state(), CollectorUiState(loaded = true, savedName = "12_stkd", savedStake = savedStake.copy(dHeightM = null)))
+
+        compose.onNodeWithTag(STAKEOUT_RESULT_TAG).assert(hasText("cota", substring = true).not())
+    }
+
+    @Test
+    fun `S018 RF-26 una medida fuera de tolerancia pide confirmar como en el recolector`() {
+        show(state(), CollectorUiState(loaded = true, pending = PendingPoint(setOf(PrecisionFailure.HORIZONTAL))))
+
+        compose.onNodeWithTag(OUT_OF_TOLERANCE_SAVE_TAG).performClick()
+
+        calls shouldBe listOf("confirm")
+    }
+
+    @Test
+    fun `S018 RF-8 y RF-18 los ajustes abren un dialogo con el origen del rumbo y la tolerancia`() {
+        show(state().copy(settings = StakeoutSettings(toleranceM = 0.04)))
+
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_TAG).assertTextContains("0,040", substring = true)
+        compose.onNodeWithTag(stakeHeadingTag(HeadingChoice.IMU)).performClick()
+        headings shouldBe listOf(HeadingChoice.IMU)
+    }
+
+    @Test
+    fun `S018 RF-18 una tolerancia que no vale se avisa con su rango y una que vale se envia`() {
+        show(state())
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_TAG).performTextReplacement("mala")
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_ERROR_TAG, useUnmergedTree = true).assertTextContains("0,010", substring = true)
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_TAG).performTextReplacement("0,05")
+        compose.onNodeWithTag(STAKEOUT_TOLERANCE_ERROR_TAG, useUnmergedTree = true).assertDoesNotExist()
+
+        tolerances shouldBe listOf("mala", "0,05")
+    }
+
+    @Test
+    fun `S018 RF-30 midiendo no se abren los ajustes`() {
+        show(state().copy(measuring = true), CollectorUiState(loaded = true, measuring = true))
+
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).assertIsNotEnabled()
     }
 }

@@ -16,6 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -26,6 +30,15 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.app.ui.collector.AverageStatsUi
+import es.topophone.app.ui.collector.CollectorActions
+import es.topophone.app.ui.collector.CollectorUiState
+import es.topophone.app.ui.collector.LongPauseDialog
+import es.topophone.app.ui.collector.MeasureButton
+import es.topophone.app.ui.collector.Measuring
+import es.topophone.app.ui.collector.Messages
+import es.topophone.app.ui.collector.OutOfToleranceDialog
+import es.topophone.app.ui.collector.PauseState
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.uiLocale
@@ -35,6 +48,7 @@ import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.StakeMode
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.survey.HeadingResult
@@ -60,6 +74,7 @@ const val STAKEOUT_RIGHT_TAG = "stakeout_right"
 const val STAKEOUT_DZ_TAG = "stakeout_dz"
 const val STAKEOUT_HEADING_TAG = "stakeout_heading"
 const val STAKEOUT_STATUS_TAG = "stakeout_status"
+const val STAKEOUT_RESULT_TAG = "stakeout_result"
 
 fun stakeModeTag(mode: StakeMode) = "stakeout_mode_${mode.name}"
 
@@ -69,6 +84,9 @@ class StakeoutActions(
     val onPrevious: () -> Unit = {},
     val onNext: () -> Unit = {},
     val onMode: (StakeMode) -> Unit = {},
+    /** El origen del rumbo y la tolerancia, en el diálogo de ajustes; la tolerancia da false si no vale (S018/RF-8, RF-18). */
+    val onHeading: (HeadingChoice) -> Unit = {},
+    val onTolerance: (String) -> Boolean = { false },
 )
 
 /**
@@ -78,8 +96,16 @@ class StakeoutActions(
  * mientras está abierto (RNF-T2).
  */
 @Composable
-fun StakeoutPanel(state: StakeoutUiState, actions: StakeoutActions, modifier: Modifier = Modifier) {
+fun StakeoutPanel(
+    state: StakeoutUiState,
+    actions: StakeoutActions,
+    modifier: Modifier = Modifier,
+    collector: CollectorUiState? = null,
+    collectorActions: CollectorActions = CollectorActions(),
+    stats: AverageStatsUi? = null,
+) {
     KeepScreenOn()
+    var settingsOpen by remember { mutableStateOf(false) }
     val target = state.target
     Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(STAKEOUT_PANEL_TAG)) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -95,9 +121,60 @@ fun StakeoutPanel(state: StakeoutUiState, actions: StakeoutActions, modifier: Mo
                 Design(state, target)
                 ModeChoice(state, actions)
                 Guidance(state)
+                collector?.let { Messages(it, collectorActions) } // los motivos por los que no se puede medir, avisos y el punto guardado
+                collector?.savedStake?.let { Result(collector.savedName, it, state) }
+            }
+            if (collector != null) {
+                val unit = state.project?.linearUnit ?: LinearUnit.METRE
+                if (collector.measuring) {
+                    Measuring(collector, unit, stats, collectorActions) // S018/RF-26, RF-30
+                } else {
+                    MeasureButton(collector, collectorActions) // S018/RF-26
+                }
+                TextButton(
+                    onClick = { settingsOpen = true },
+                    enabled = !state.measuring,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_SETTINGS_TAG),
+                ) { Text(stringResource(R.string.stakeout_settings)) }
             }
         }
     }
+    if (settingsOpen && !state.measuring) {
+        StakeoutSettingsDialog(
+            state.settings,
+            state.project?.linearUnit ?: LinearUnit.METRE,
+            actions.onHeading,
+            actions.onTolerance,
+        ) { settingsOpen = false }
+    }
+    collector?.pending?.let { OutOfToleranceDialog(it, collectorActions.onConfirm, collectorActions.onDiscard) } // S018/RF-26
+    if (collector?.paused == PauseState.LONG_PAUSE) {
+        LongPauseDialog(collectorActions.onFinish, collectorActions.onCancel, collectorActions.onKeepWaiting)
+    }
+}
+
+/** Lo que se desvió el punto replanteado respecto al diseño, medido menos diseño (S018/RF-28, RF-29). */
+@Composable
+private fun Result(savedName: String?, ref: StakeoutRef, state: StakeoutUiState) {
+    val unit = state.project?.linearUnit ?: LinearUnit.METRE
+    val numbers = Numbers(unit, unitSymbol(unit), uiLocale())
+    val text = ref.dHeightM?.let {
+        stringResource(
+            R.string.stakeout_result_height,
+            savedName.orEmpty(),
+            numbers.signed(ref.dNorthM),
+            numbers.signed(ref.dEastM),
+            numbers.length(ref.dHorizontalM),
+            numbers.signed(it),
+        )
+    } ?: stringResource(
+        R.string.stakeout_result,
+        savedName.orEmpty(),
+        numbers.signed(ref.dNorthM),
+        numbers.signed(ref.dEastM),
+        numbers.length(ref.dHorizontalM),
+    )
+    Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag(STAKEOUT_RESULT_TAG))
 }
 
 @Composable

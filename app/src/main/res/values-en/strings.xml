@@ -441,6 +441,16 @@
     <string name="stakeout_arrow_behind">behind you</string>
     <string name="stakeout_arrow_right">%1$d° to the right</string>
     <string name="stakeout_arrow_left">%1$d° to the left</string>
+    <string name="stakeout_settings">Settings</string>
+    <string name="stakeout_settings_title">Stakeout settings</string>
+    <string name="stakeout_settings_close">Done</string>
+    <string name="stakeout_heading_source">User heading</string>
+    <string name="stakeout_heading_choice_walking">Walking heading</string>
+    <string name="stakeout_heading_choice_imu">Receiver IMU</string>
+    <string name="stakeout_tolerance_label">Tolerance (%1$s)</string>
+    <string name="stakeout_tolerance_invalid">Between %1$s and %2$s %3$s.</string>
+    <string name="stakeout_result">Point %1$s saved · difference from design: North %2$s · East %3$s · distance %4$s</string>
+    <string name="stakeout_result_height">Point %1$s saved · difference from design: North %2$s · East %3$s · distance %4$s · height %5$s</string>
     <string name="stakeout_off_no_position">No receiver position.</string>
     <string name="stakeout_off_no_data">No data from the receiver: guidance off.</string>
     <string name="stakeout_off_no_fix">No FIX: guidance off.</string>

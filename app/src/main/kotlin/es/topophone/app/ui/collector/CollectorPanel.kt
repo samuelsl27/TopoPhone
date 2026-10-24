@@ -257,7 +257,7 @@ private fun LiveQualityText(live: LiveQuality?, unit: LinearUnit) {
 
 /** Por qué no se puede medir, la guía de la inclinación, avisos de la medida y punto guardado (S010/RF-10, RF-12, RF-19; S016). */
 @Composable
-private fun Messages(state: CollectorUiState, actions: CollectorActions) {
+internal fun Messages(state: CollectorUiState, actions: CollectorActions) {
     val blocker = when (state.blocker) {
         MeasureBlocker.NO_POSITION -> R.string.project_no_position
         MeasureBlocker.OUTSIDE_CRS_AREA -> R.string.project_outside_crs
@@ -322,7 +322,7 @@ private fun Messages(state: CollectorUiState, actions: CollectorActions) {
 }
 
 @Composable
-private fun MeasureButton(state: CollectorUiState, actions: CollectorActions) {
+internal fun MeasureButton(state: CollectorUiState, actions: CollectorActions) {
     Button(
         onClick = actions.onMeasure,
         enabled = state.blocker == null && state.pending == null,
@@ -335,7 +335,7 @@ private fun MeasureButton(state: CollectorUiState, actions: CollectorActions) {
  * (S010/RF-9, RF-11; S017/RF-2 a RF-6).
  */
 @Composable
-private fun Measuring(state: CollectorUiState, unit: LinearUnit, stats: AverageStatsUi?, actions: CollectorActions) {
+internal fun Measuring(state: CollectorUiState, unit: LinearUnit, stats: AverageStatsUi?, actions: CollectorActions) {
     val progress = state.progress
     if (progress != null) {
         AveragingProgress(progress)

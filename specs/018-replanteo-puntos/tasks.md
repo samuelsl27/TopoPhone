@@ -36,7 +36,7 @@
       Hecho cuando: `StakeoutPanelTest` en verde con los textos de cada modo y situación, la guía apagada con su motivo y las etiquetas de TalkBack.
 - [x] T17. `app`: la flecha y la diana métrica, con su escala, su orientación y "Dentro de la tolerancia". (RF-15, RF-16, RF-17, RF-19)
       Hecho cuando: los tests de la diana en verde: aparece a 40 cm o menos, el círculo de la tolerancia a escala, el verde con su texto y la descripción de texto.
-- [ ] T18. `app`: "Medir", el progreso, el resultado con las diferencias, "Cancelar" y el diálogo de ajustes en el panel. (RF-18, RF-26, RF-29, RF-30)
+- [x] T18. `app`: "Medir", el progreso, el resultado con las diferencias, "Cancelar" y el diálogo de ajustes en el panel. (RF-18, RF-26, RF-29, RF-30)
       Hecho cuando: los tests de medir de `StakeoutPanelTest` en verde: el progreso, las diferencias tras guardar, los controles bloqueados durante la medida y la tolerancia cambiada.
 - [ ] T19. `app`: el panel en la vista de proyecto y las entradas "Replantear" en la ficha, la lista de objetos y el mapa. (RF-1)
       Hecho cuando: `StakeoutEntriesTest` en verde, con el recolector y el replanteo que no se pisan y la pantalla encendida con el replanteo abierto.
