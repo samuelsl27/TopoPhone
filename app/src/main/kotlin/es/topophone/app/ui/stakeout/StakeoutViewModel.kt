@@ -6,6 +6,7 @@ import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.collector.MeasurementInProgress
+import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.HeadingChoice
@@ -40,10 +41,19 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
- * Lo que muestra el replanteo (S018/RF-1 a RF-8, RF-13 a RF-19, RF-30, RF-35).
+ * Lo que se guarda con el punto replanteado de S019 (RF-13): la cota de diseño usada y las dos tolerancias vigentes, en metros.
+ * [elevationM] es null si no hay cota de diseño.
+ */
+data class StakeSaveInfo(val elevationM: Double?, val toleranceHM: Double, val toleranceVM: Double)
+
+/**
+ * Lo que muestra el replanteo (S018/RF-1 a RF-8, RF-13 a RF-19, RF-30, RF-35; S019/RF-1 a RF-4, RF-10, RF-13, RF-16).
  *
  * @property notFound el punto que se pidió no existe o está en la papelera.
  * @property measuring hay una medida en marcha: no se cambia de punto ni de ajustes (RF-30).
+ * @property designElevationM la cota de diseño que se replantea: la escrita o la del punto de diseño; null si no hay (S019/RF-1).
+ * @property elevationOverridden la cota de diseño es la que escribió el usuario y no la del punto (S019/RF-2).
+ * @property saveInfo lo que se guardará con el punto replanteado (S019/RF-13).
  */
 data class StakeoutUiState(
     val project: Project? = null,
@@ -54,6 +64,9 @@ data class StakeoutUiState(
     val guidance: GuidanceState = GuidanceState.Off(GuidanceOff.NO_POSITION),
     val measuring: Boolean = false,
     val notFound: Boolean = false,
+    val designElevationM: Double? = null,
+    val elevationOverridden: Boolean = false,
+    val saveInfo: StakeSaveInfo? = null,
 )
 
 /**
@@ -84,6 +97,9 @@ class StakeoutViewModel @Inject constructor(
     private val notFound = MutableStateFlow(false)
     private val target = MutableStateFlow<StakeTarget?>(null)
 
+    /** La cota de diseño escrita por el usuario, en metros; solo vive aquí y se descarta al cambiar de punto o cerrar (S019/RF-2, RF-3). */
+    private val elevationOverride = MutableStateFlow<Double?>(null)
+
     @Volatile private var project: Project? = null
 
     @Volatile private var settings = StakeoutSettings()
@@ -101,22 +117,35 @@ class StakeoutViewModel @Inject constructor(
     ) { list, text -> list.filter { PointSearch.matches(it, text) }.sortedWith(compareBy(NaturalOrder) { it.name }) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    /** Lo que cambia con el panel abierto y no es ni el proyecto, ni el punto, ni la lista (agrupado para el `combine`). */
+    private data class Live(
+        val settings: StakeoutSettings,
+        val guidance: GuidanceState,
+        val measuring: Boolean,
+        val notFound: Boolean,
+        val elevationOverride: Double?,
+    )
+
     val state: StateFlow<StakeoutUiState> = combine(
         projectFlow,
         target,
         ordered,
-        combine(stakeoutPreferences.settings, controller.state, inProgress.active, notFound) { s, g, m, n -> Triple(s, g, m to n) },
-    ) { project, target, list, (settings, guidance, flags) ->
+        combine(stakeoutPreferences.settings, controller.state, inProgress.active, notFound, elevationOverride, ::Live),
+    ) { project, target, list, live ->
         val index = target?.let { t -> list.indexOfFirst { it.id == t.id } } ?: -1
+        val elevation = live.elevationOverride ?: target?.coordinates?.height
         StakeoutUiState(
             project = project,
             target = target,
             hasPrevious = index > 0,
             hasNext = index in 0 until list.lastIndex,
-            settings = settings,
-            guidance = guidance,
-            measuring = flags.first,
-            notFound = flags.second,
+            settings = live.settings,
+            guidance = live.guidance,
+            measuring = live.measuring,
+            notFound = live.notFound,
+            designElevationM = elevation,
+            elevationOverridden = live.elevationOverride != null,
+            saveInfo = target?.let { StakeSaveInfo(elevation, live.settings.validToleranceM, live.settings.validToleranceVM) },
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, StakeoutUiState())
 
@@ -164,6 +193,7 @@ class StakeoutViewModel @Inject constructor(
         targetId.value = null
         target.value = null
         notFound.value = false
+        elevationOverride.value = null // S019/RF-3
         controller.reset()
     }
 
@@ -184,6 +214,7 @@ class StakeoutViewModel @Inject constructor(
     private fun goTo(pointId: String) {
         controller.reset()
         notFound.value = false
+        elevationOverride.value = null // S019/RF-3: la cota escrita no pasa al punto siguiente
         targetId.value = pointId
     }
 
@@ -200,6 +231,33 @@ class StakeoutViewModel @Inject constructor(
         return true
     }
 
+    /** La tolerancia vertical escrita en la unidad del proyecto; false si no vale o no se puede cambiar ahora (S019/RF-10, RF-16). */
+    fun setToleranceV(text: String): Boolean {
+        if (inProgress.active.value) return false
+        val unit = project?.linearUnit ?: LinearUnit.METRE
+        val metres = StakeoutSettings.parseTolerance(text, unit) ?: return false
+        change { it.copy(toleranceVM = metres) }
+        return true
+    }
+
+    /**
+     * La cota de diseño escrita en la unidad del proyecto, en lugar de la del punto de diseño; false si no es un número o no se
+     * puede cambiar ahora, y entonces no cambia nada (S019/RF-2, RF-4, RF-16). No modifica el punto de diseño.
+     */
+    fun setDesignElevation(text: String): Boolean {
+        if (inProgress.active.value) return false
+        val unit = project?.linearUnit ?: LinearUnit.METRE
+        val metres = NumberInput.parse(text)?.let(unit::toMetres)?.takeIf { it.isFinite() } ?: return false
+        elevationOverride.value = metres
+        return true
+    }
+
+    /** Descarta la cota escrita y vuelve a la del punto de diseño (S019/RF-3); no cambia con una medida en marcha (RF-16). */
+    fun useDesignPointElevation() {
+        if (inProgress.active.value) return
+        elevationOverride.value = null
+    }
+
     private fun change(transform: (StakeoutSettings) -> StakeoutSettings) {
         if (inProgress.active.value) return // S018/RF-30
         viewModelScope.launch { stakeoutPreferences.save(transform(stakeoutPreferences.settings.first())) }
@@ -209,6 +267,6 @@ class StakeoutViewModel @Inject constructor(
         val project = project ?: return null
         val design = target.value ?: return null
         val mode: TiltMode? = tilt.state.value.settings.mode
-        return StakeContext(settings, design, fixOnly, mode, poleHeightM, project, calculator.get())
+        return StakeContext(settings, design, fixOnly, mode, poleHeightM, project, calculator.get(), elevationOverride.value)
     }
 }

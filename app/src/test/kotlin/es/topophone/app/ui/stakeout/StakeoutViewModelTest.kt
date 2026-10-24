@@ -23,6 +23,7 @@ import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.StakeMode
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TypedCoordinates
+import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
@@ -92,7 +93,7 @@ class StakeoutViewModelTest {
         override val settings = MutableStateFlow(StakeoutSettings())
 
         override suspend fun save(settings: StakeoutSettings) {
-            this.settings.value = settings.copy(toleranceM = settings.validToleranceM)
+            this.settings.value = settings.copy(toleranceM = settings.validToleranceM, toleranceVM = settings.validToleranceVM)
         }
     }
 
@@ -160,7 +161,13 @@ class StakeoutViewModelTest {
     }
 
     /** Un punto del proyecto en la posición de las épocas de `sendEpoch`, con el [name] y la [description] dados. */
-    private fun addPoint(name: String, description: String = "", id: String = "id-$name", northDegrees: Double = 0.0): Point {
+    private fun addPoint(
+        name: String,
+        description: String = "",
+        id: String = "id-$name",
+        northDegrees: Double = 0.0,
+        inProject: String = projectId,
+    ): Point {
         val ground = GeodeticPosition(40.416800 + northDegrees, -3.703713, 699.0)
         val position = calculator.fromGround(ground, ProjectDefaults().toDraft().crs, ProjectDefaults().toDraft().heightSystem)
         val coordinates = PointCoordinates(ground, position.easting, position.northing, position.height)
@@ -174,7 +181,7 @@ class StakeoutViewModelTest {
             measuredToMs = 1_200,
             coordinates = coordinates,
         )
-        return Point.measured(id, projectId, name, description, measurement, createdAtMs = 1_000).also {
+        return Point.measured(id, inProject, name, description, measurement, createdAtMs = 1_000).also {
             runBlocking { points.create(it) }
         }
     }
@@ -350,6 +357,238 @@ class StakeoutViewModelTest {
         vm.setTolerance("abc") shouldBe false
 
         stakeoutPreferences.settings.value.toleranceM shouldBe 0.025
+    }
+
+    private fun open(name: String = "1"): StakeoutViewModel {
+        val vm = viewModel()
+        vm.open(projectId, "id-$name")
+        await(vm) { it.target?.name == name && it.project != null }
+        return vm
+    }
+
+    private fun designHeight(name: String): Double = addedHeights.getValue(name)
+
+    private val addedHeights = mutableMapOf<String, Double>()
+
+    private fun addHeightPoint(name: String, northDegrees: Double = 0.0): Point =
+        addPoint(name, northDegrees = northDegrees).also { addedHeights[name] = it.coordinates.height!! }
+
+    @Test
+    fun `S019 RF-1 la cota de diseno es la altura del punto de diseno mientras no se escriba otra`() {
+        addHeightPoint("1")
+
+        val state = open().state.value
+
+        state.designElevationM.shouldNotBeNull() shouldBe (designHeight("1") plusOrMinus 1e-9)
+        state.elevationOverridden shouldBe false
+    }
+
+    @Test
+    fun `S019 RF-1 un punto de diseno sin altura no tiene cota de diseno`() {
+        val withHeight = addPoint("1")
+        runBlocking {
+            points.create(
+                withHeight.copy(id = "id-2", name = "2", coordinates = withHeight.coordinates.copy(height = null)),
+            )
+        }
+
+        val vm = viewModel()
+        vm.open(projectId, "id-2")
+        val state = await(vm) { it.target?.name == "2" }
+
+        state.designElevationM.shouldBeNull()
+        state.elevationOverridden shouldBe false
+    }
+
+    @Test
+    fun `S019 RF-2 una cota escrita sustituye a la del punto y no modifica el punto de diseno`() {
+        val point = addPoint("1")
+        val vm = open()
+
+        vm.setDesignElevation("650,25") shouldBe true
+
+        val state = await(vm) { it.elevationOverridden }
+        state.designElevationM shouldBe 650.25
+        runBlocking { points.point("id-1").first() }.shouldNotBeNull().coordinates.height shouldBe point.coordinates.height
+    }
+
+    @Test
+    fun `S019 RF-2 una cota escrita da cota de diseno a un punto sin altura`() {
+        val withHeight = addPoint("1")
+        runBlocking { points.create(withHeight.copy(id = "id-2", name = "2", coordinates = withHeight.coordinates.copy(height = null))) }
+        val vm = viewModel()
+        vm.open(projectId, "id-2")
+        await(vm) { it.target?.name == "2" }
+
+        vm.setDesignElevation("100") shouldBe true
+
+        await(vm) { it.elevationOverridden }.designElevationM shouldBe 100.0
+    }
+
+    @Test
+    fun `S019 RF-2 la cota escrita se entiende en la unidad del proyecto y vale negativa`() {
+        val feetProject = runBlocking {
+            (
+                projects.create(
+                    ProjectDefaults().toDraft().copy(name = "En pies", linearUnit = LinearUnit.INTERNATIONAL_FOOT),
+                ) as SaveResult.Saved
+                ).id
+        }
+        addPoint("f", inProject = feetProject)
+        val vm = viewModel()
+        vm.open(feetProject, "id-f")
+        await(vm) { it.target?.name == "f" && it.project != null }
+
+        vm.setDesignElevation("100") shouldBe true
+        await(vm) { it.elevationOverridden }.designElevationM.shouldNotBeNull() shouldBe (30.48 plusOrMinus 1e-9)
+
+        vm.setDesignElevation("-3,5") shouldBe true
+        await(vm) { state -> state.designElevationM?.let { kotlin.math.abs(it + 1.0668) < 1e-9 } == true }
+    }
+
+    @Test
+    fun `S019 RF-3 usar la del punto descarta la cota escrita`() {
+        addHeightPoint("1")
+        val vm = open()
+        vm.setDesignElevation("650") shouldBe true
+        await(vm) { it.elevationOverridden }
+
+        vm.useDesignPointElevation()
+
+        val state = await(vm) { !it.elevationOverridden }
+        state.designElevationM.shouldNotBeNull() shouldBe (designHeight("1") plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S019 RF-3 al pasar a otro punto de diseno la cota escrita se descarta`() {
+        addHeightPoint("1")
+        addHeightPoint("2", northDegrees = 0.0001)
+        val vm = viewModel()
+        vm.open(projectId, "id-1")
+        await(vm) { it.target?.name == "1" && it.hasNext }
+        vm.setDesignElevation("650") shouldBe true
+        await(vm) { it.elevationOverridden }
+
+        vm.next()
+
+        val state = await(vm) { it.target?.name == "2" }
+        state.elevationOverridden shouldBe false
+        state.designElevationM.shouldNotBeNull() shouldBe (designHeight("2") plusOrMinus 1e-9)
+        // Y al volver al primero tampoco se recuerda.
+        vm.previous()
+        await(vm) { it.target?.name == "1" }.elevationOverridden shouldBe false
+    }
+
+    @Test
+    fun `S019 RF-3 al cerrar el replanteo la cota escrita se descarta`() {
+        addHeightPoint("1")
+        val vm = open()
+        vm.setDesignElevation("650") shouldBe true
+        await(vm) { it.elevationOverridden }
+
+        vm.close()
+        vm.open(projectId, "id-1")
+
+        await(vm) { it.target?.name == "1" }.elevationOverridden shouldBe false
+    }
+
+    @Test
+    fun `S019 RF-4 un valor que no es un numero no se aplica`() {
+        addHeightPoint("1")
+        val vm = open()
+
+        listOf("", "abc", "1e3", "-", "12,3,4", "4.47.244", "NaN", "Infinity").forEach { text ->
+            vm.setDesignElevation(text) shouldBe false
+        }
+
+        vm.state.value.elevationOverridden shouldBe false
+        vm.state.value.designElevationM.shouldNotBeNull() shouldBe (designHeight("1") plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S019 RF-4 una cota no valida no borra la que ya estaba escrita`() {
+        addHeightPoint("1")
+        val vm = open()
+        vm.setDesignElevation("650") shouldBe true
+        await(vm) { it.designElevationM == 650.0 }
+
+        vm.setDesignElevation("abc") shouldBe false
+
+        vm.state.value.designElevationM shouldBe 650.0
+    }
+
+    @Test
+    fun `S019 RF-10 la tolerancia vertical se escribe en la unidad del proyecto y se guarda aparte de la horizontal`() {
+        addHeightPoint("1")
+        val vm = open()
+
+        vm.setToleranceV("0,05") shouldBe true
+
+        val settings = await(vm) { it.settings.toleranceVM == 0.05 }.settings
+        settings.toleranceM shouldBe 0.025
+        stakeoutPreferences.settings.value.toleranceVM shouldBe 0.05
+        vm.setTolerance("0,04") shouldBe true
+        await(vm) { it.settings.toleranceM == 0.04 }.settings.toleranceVM shouldBe 0.05
+    }
+
+    @Test
+    fun `S019 RF-10 una tolerancia vertical fuera de rango o que no es un numero no se guarda`() {
+        addHeightPoint("1")
+        val vm = open()
+
+        vm.setToleranceV("5") shouldBe false
+        vm.setToleranceV("0,001") shouldBe false
+        vm.setToleranceV("abc") shouldBe false
+
+        stakeoutPreferences.settings.value.toleranceVM shouldBe 0.03
+    }
+
+    @Test
+    fun `S019 RF-16 con una medida en marcha no se cambia la cota escrita ni la tolerancia vertical`() {
+        addHeightPoint("1")
+        val vm = open()
+        vm.setDesignElevation("650") shouldBe true
+        await(vm) { it.elevationOverridden }
+
+        inProgress.set(true)
+        await(vm) { it.measuring }
+        vm.setDesignElevation("700") shouldBe false
+        vm.useDesignPointElevation()
+        vm.setToleranceV("0,05") shouldBe false
+
+        vm.state.value.designElevationM shouldBe 650.0
+        vm.state.value.elevationOverridden shouldBe true
+        stakeoutPreferences.settings.value.toleranceVM shouldBe 0.03
+
+        inProgress.set(false)
+        await(vm) { !it.measuring }
+        vm.setDesignElevation("700") shouldBe true
+        await(vm) { it.designElevationM == 700.0 }
+    }
+
+    @Test
+    fun `S019 RF-13 lo que se guarda con el replanteo lleva la cota usada y las dos tolerancias`() {
+        addHeightPoint("1")
+        val vm = open()
+        vm.setToleranceV("0,05") shouldBe true
+        vm.setTolerance("0,04") shouldBe true
+        await(vm) { it.settings.toleranceVM == 0.05 && it.settings.toleranceM == 0.04 }
+
+        val info = vm.state.value.saveInfo.shouldNotBeNull()
+
+        info.elevationM.shouldNotBeNull() shouldBe (designHeight("1") plusOrMinus 1e-9)
+        info.toleranceHM shouldBe 0.04
+        info.toleranceVM shouldBe 0.05
+
+        vm.setDesignElevation("650") shouldBe true
+        await(vm) { it.saveInfo?.elevationM == 650.0 }
+    }
+
+    @Test
+    fun `S019 RF-13 sin punto de diseno no hay datos que guardar`() {
+        val vm = viewModel()
+
+        vm.state.value.saveInfo.shouldBeNull()
     }
 
     @Test

@@ -28,7 +28,7 @@
       Hecho cuando: `VibrationAlertsTest` en verde con los dos patrones distintos entre sí y de los demás avisos, y los fakes sin cambios.
 - [x] T13. `app`: `StakeoutController` con la cota efectiva, el nivel, sus avisos y su apagado junto a la guía, y el log. (RF-1, RF-5, RF-6, RF-8, RF-9, RF-11, RF-12)
       Hecho cuando: `StakeoutControllerTest` ampliado en verde con la `ReceiverSession` real y las épocas de una en una: con la cota del punto y la escrita, sin cota, punta sin altura, avisos, apagado con la guía y la llegada horizontal sin cambios.
-- [ ] T14. `app`: `StakeoutViewModel` con la cota escrita, "Usar la del punto", la tolerancia vertical y el bloqueo durante la medida. (RF-2, RF-3, RF-4, RF-10, RF-16)
+- [x] T14. `app`: `StakeoutViewModel` con la cota escrita, "Usar la del punto", la tolerancia vertical y el bloqueo durante la medida. (RF-2, RF-3, RF-4, RF-10, RF-16)
       Hecho cuando: los tests del ViewModel en verde: cota válida y no numérica, volver a la del punto, cambio de punto, tolerancia vertical y el bloqueo durante la medida.
 - [ ] T15. `app`: `CollectorViewModel` guarda el replanteo con la cota usada, las tolerancias y si cumple. (RF-13, RF-14)
       Hecho cuando: `CollectorViewModelStakeoutTest` ampliado en verde: con y sin cota, la cota escrita, dentro en H y fuera en V y al revés, y un replanteo sin tolerancias propias intacto.
