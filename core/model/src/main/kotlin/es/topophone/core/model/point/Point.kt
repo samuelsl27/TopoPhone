@@ -54,8 +54,11 @@ data class PointQuality(
     val auto: Boolean? = null,
 )
 
-/** Medido con el recolector (S010) o escrito a mano o duplicado (S011). */
-enum class PointOrigin { MEASURED, MANUAL }
+/** Medido con el recolector (S010), escrito a mano o duplicado (S011) o medido al replantear un punto de diseño (S018/RF-27). */
+enum class PointOrigin { MEASURED, MANUAL, STAKED }
+
+/** Un punto con medida del receptor: el medido y el replanteado; el manual solo tiene lo escrito (S011, S018). */
+val PointOrigin.hasMeasurement: Boolean get() = this != PointOrigin.MANUAL
 
 /**
  * Coordenadas de un punto del suelo: [ground] en geográficas del datum de los cálculos (ETRS89 o REGCAN95), con la
@@ -114,6 +117,21 @@ enum class HeightKind { PROJECT, ELLIPSOIDAL }
 data class TypedCoordinates(val form: EntryForm, val first: Double, val second: Double, val height: Double?, val heightKind: HeightKind)
 
 /**
+ * De qué punto de diseño viene un punto replanteado (S018/RF-28): su identificador y su nombre, sus coordenadas de diseño
+ * tal como eran al replantear y lo que se desvió lo medido (medido menos diseño) en Este, Norte, distancia horizontal y
+ * cota, sin redondear. Con un SC geográfico, Este y Norte son del plano local de la punta.
+ */
+data class StakeoutRef(
+    val designId: String,
+    val designName: String,
+    val design: PointCoordinates,
+    val dEastM: Double,
+    val dNorthM: Double,
+    val dHorizontalM: Double,
+    val dHeightM: Double?,
+)
+
+/**
  * Un punto del proyecto (S010, S011). [coordinates] son siempre las actuales: las de la medida, las escritas o las
  * editadas a mano.
  *
@@ -123,6 +141,7 @@ data class TypedCoordinates(val form: EntryForm, val first: Double, val second: 
  * @property hidden fuera del mapa (S011/RF-4).
  * @property copyOf nombre del punto del que es copia (S011/RF-21).
  * @property deletedAtMs en la papelera desde entonces (S011/RF-22).
+ * @property staked de qué punto de diseño viene un punto replanteado, con sus diferencias (S018/RF-28).
  */
 data class Point(
     val id: String,
@@ -138,6 +157,7 @@ data class Point(
     val copyOf: String?,
     val createdAtMs: Long,
     val deletedAtMs: Long?,
+    val staked: StakeoutRef? = null,
 ) {
     /** Sin altura elipsoidal no hay altura en ningún sistema (S011/RF-18). */
     val hasHeight: Boolean get() = coordinates.ground.ellipsoidalHeightM != null
@@ -161,12 +181,20 @@ data class Point(
 
     companion object {
         /** Un punto recién medido: sus coordenadas son las de la medida (S010/RF-17). */
-        fun measured(id: String, projectId: String, name: String, description: String, measurement: Measurement, createdAtMs: Long) = Point(
+        fun measured(
+            id: String,
+            projectId: String,
+            name: String,
+            description: String,
+            measurement: Measurement,
+            createdAtMs: Long,
+            staked: StakeoutRef? = null,
+        ) = Point(
             id = id,
             projectId = projectId,
             name = name,
             description = description,
-            origin = PointOrigin.MEASURED,
+            origin = if (staked == null) PointOrigin.MEASURED else PointOrigin.STAKED,
             coordinates = measurement.coordinates,
             measurement = measurement,
             typed = null,
@@ -175,6 +203,7 @@ data class Point(
             copyOf = null,
             createdAtMs = createdAtMs,
             deletedAtMs = null,
+            staked = staked,
         )
     }
 }
@@ -227,6 +256,8 @@ data class PointSummary(
     val edited: Boolean,
     val hidden: Boolean,
     val createdAtMs: Long,
+    /** Cuántas veces se ha replantado este punto de diseño (S018/RF-33); lo rellena el repositorio. */
+    val stakeCount: Int = 0,
 )
 
 /** Búsqueda de la lista de objetos por nombre o descripción, sin distinguir mayúsculas ni acentos (S011/RF-2). */
