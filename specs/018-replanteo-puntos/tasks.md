@@ -24,7 +24,7 @@
       Hecho cuando: `StakeoutPreferencesTest` y `SettingsArchiveTest` en verde, con los valores fuera de rango corregidos.
 - [x] T11. `receiver`: `Alerts.stakeoutApproach()`, `stakeoutArrived()` y `stakeoutLeft()` con sus sonidos y vibraciones distintos. (RF-20, RF-21)
       Hecho cuando: `VibrationAlertsTest` en verde con los tres patrones distintos entre sí y de los demás avisos, y los fakes sin cambios.
-- [ ] T12. `app`: `StakeoutController` con la guía y las condiciones que la apagan. (RF-5 a RF-13, RF-22 a RF-25, RF-35)
+- [x] T12. `app`: `StakeoutController` con la guía y las condiciones que la apagan. (RF-5 a RF-13, RF-22 a RF-25, RF-35)
       Hecho cuando: `StakeoutControllerTest` en verde con la `ReceiverSession` real y las épocas de una en una: por dirección y por distancia, sin posición al abrir, un corte y su vuelta, sin FIX con "Solo FIX" y sin él, sin estado 30 con la inclinación y la solución y la precisión que se muestran.
 - [ ] T13. `app`: los avisos de entrada y salida de las zonas y el log del replanteo. (RF-20, RF-21)
       Hecho cuando: los tests de avisos de `StakeoutControllerTest` en verde: un aviso al entrar, otro al salir, nada con el borde oscilando, el aviso de la zona de ayuda una sola vez y las anotaciones del log sin coordenadas.
