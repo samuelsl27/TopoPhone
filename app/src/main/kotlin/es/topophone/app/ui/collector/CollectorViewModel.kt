@@ -8,6 +8,7 @@ import es.topophone.app.receiver.BaseNotices
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.VisibleNotices
+import es.topophone.app.ui.stakeout.StakeTarget
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
@@ -27,6 +28,8 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.StakeoutNames
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
@@ -45,6 +48,7 @@ import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.ReceiverModel
+import es.topophone.core.survey.StakeoutDiff
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.TiltGuide
 import es.topophone.core.survey.TiltSetup
@@ -145,6 +149,8 @@ data class CollectorUiState(
     val pending: PendingPoint? = null,
     /** Último punto guardado, para decirlo (S010/RF-19). */
     val savedName: String? = null,
+    /** Las diferencias del último punto replanteado que se ha guardado, hasta la medida siguiente (S018/RF-29). */
+    val savedStake: StakeoutRef? = null,
     val error: CollectorError? = null,
     /** Avisos de la base que no se han cerrado (S015/RF-15, RF-17). */
     val notices: VisibleNotices = VisibleNotices(null, null, 0),
@@ -205,6 +211,7 @@ class CollectorViewModel @Inject constructor(
         val paused: PauseState? = null,
         val pending: PendingPoint? = null,
         val savedName: String? = null,
+        val savedStake: StakeoutRef? = null,
         val error: CollectorError? = null,
         val restarted: Boolean = false,
         val restartedDiscardedS: Double? = null,
@@ -216,6 +223,12 @@ class CollectorViewModel @Inject constructor(
     private val nameTaken = MutableStateFlow(false)
     private val run = MutableStateFlow(Run())
     private var measurement: PointMeasurement? = null
+
+    /** El punto de diseño que se replantea, o null si el recolector mide como siempre (S018/RF-26). */
+    private var stake: StakeTarget? = null
+
+    /** El nombre y la descripción del recolector antes de empezar el replanteo, para devolverlos al terminar (S018/RF-26). */
+    private var stakeBackup: Pair<String, String>? = null
     private val statsFlow = MutableStateFlow<AverageStatsUi?>(null)
     private var lastStatsAtMs = 0L
 
@@ -301,6 +314,7 @@ class CollectorViewModel @Inject constructor(
             paused = run.paused,
             pending = run.pending,
             savedName = run.savedName,
+            savedStake = run.savedStake,
             error = run.error,
             restarted = run.restarted,
             restartedDiscardedS = run.restartedDiscardedS,
@@ -376,6 +390,33 @@ class CollectorViewModel @Inject constructor(
     fun setName(name: String) {
         form.update { it.copy(name = name) }
         checkName()
+    }
+
+    /**
+     * El punto de diseño del replanteo, o null al cerrarlo (S018/A5, RF-26 a RF-28): el recolector propone `<diseño>_stkd`,
+     * con la descripción del diseño, y al guardar crea un punto replanteado. Con una medida en marcha no cambia (RF-30).
+     */
+    @Synchronized
+    fun setStakeTarget(target: StakeTarget?) {
+        val id = projectId.value ?: return
+        if (run.value.measuring || run.value.pending != null) return
+        if (target == null) {
+            val backup = stakeBackup
+            stake = null
+            stakeBackup = null
+            run.value = Run()
+            if (backup != null) form.update { it.copy(name = backup.first, description = backup.second) }
+            checkName()
+            return
+        }
+        if (stake == null) stakeBackup = form.value.name to form.value.description
+        stake = target
+        run.value = Run()
+        viewModelScope.launch {
+            val taken = points.names(id)
+            form.update { it.copy(name = StakeoutNames.next(target.name, taken), description = target.description) }
+            checkName()
+        }
     }
 
     /** La descripción se conserva para el siguiente punto (S010/RF-4). */
@@ -506,6 +547,7 @@ class CollectorViewModel @Inject constructor(
     fun startAuto() {
         val current = state.value
         if (!current.autoEnabled || autoCollector.running || current.blocker != null || current.measuring || current.pending != null) return
+        if (stake != null) return // el modo automático no se mezcla con un replanteo (S018)
         val project = project ?: return
         val pole = PoleHeight.parse(current.poleHeightText) ?: return
         val epoch = session.state.value.epoch ?: return
@@ -800,6 +842,8 @@ class CollectorViewModel @Inject constructor(
             base = measurementBase?.let { pointBase(it, result.antenna) }, // S015/RF-20
             tilt = result.tilt, // S016/RF-22
         )
+        // S018/RF-28: el diseño por valor y lo que se desvió lo medido (medido menos diseño).
+        val staked = stake?.let { StakeoutDiff.ref(it.id, it.name, it.coordinates, measurement.coordinates) }
         val point = Point.measured(
             id = UUID.randomUUID().toString(),
             projectId = projectId,
@@ -807,6 +851,7 @@ class CollectorViewModel @Inject constructor(
             description = form.value.description.trim(),
             measurement = measurement,
             createdAtMs = System.currentTimeMillis(),
+            staked = staked,
         )
         // S017/RF-22: el modo automático propone ya el nombre siguiente, que la época que sigue puede necesitar enseguida.
         if (auto) form.update { if (PointNames.clean(it.name) == name) it.copy(name = PointNames.next(name)) else it }
@@ -817,8 +862,15 @@ class CollectorViewModel @Inject constructor(
             when (points.create(if (finalName == name) point else point.copy(name = finalName))) {
                 PointSaveResult.Saved -> {
                     alerts.pointSaved() // S010/RF-19
-                    if (!auto) form.update { it.copy(name = PointNames.next(name)) }
-                    run.value = Run(savedName = finalName)
+                    val target = stake
+                    if (target != null) {
+                        // S018/RF-27: el replanteo siguiente del mismo punto de diseño, `_stkd2`…
+                        val taken = points.names(projectId)
+                        form.update { it.copy(name = StakeoutNames.next(target.name, taken)) }
+                    } else if (!auto) {
+                        form.update { it.copy(name = PointNames.next(name)) }
+                    }
+                    run.value = Run(savedName = finalName, savedStake = staked)
                     checkName()
                 }
                 PointSaveResult.DuplicateName -> {
