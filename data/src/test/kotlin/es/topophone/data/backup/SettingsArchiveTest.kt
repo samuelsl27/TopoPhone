@@ -12,9 +12,13 @@ import es.topophone.core.formats.backup.BackupSettings
 import es.topophone.core.formats.backup.SettingValue
 import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.HeadingChoice
+import es.topophone.core.model.point.StakeMode
+import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.preferences.ThemeMode
 import es.topophone.data.point.DataStoreCollectorPreferences
+import es.topophone.data.point.DataStoreStakeoutPreferences
 import es.topophone.data.receiver.DataStoreReceiverPreferences
 import es.topophone.data.receiver.DataStoreTiltPreferences
 import es.topophone.data.receiver.ReceiverTiltSettings
@@ -86,6 +90,20 @@ class SettingsArchiveTest {
         exported.stores.getValue("export").getValue("custom_columns") shouldBe SettingValue.Texts(setOf("NAME", "LATITUDE"))
         exported.stores.getValue("receiver").getValue("pole_height_m") shouldBe SettingValue.Float64(2.0 + 1e-12)
         exported.stores.getValue("receiver").getValue("session_space_mb") shouldBe SettingValue.Int32(1_000)
+    }
+
+    @Test
+    fun `S018 RF-5, RF-8 y RF-18 el modo de guia, el origen del rumbo y la tolerancia viajan en la copia`() {
+        val exported = withStores("stakeout") { stores ->
+            DataStoreStakeoutPreferences(stores.getValue("stakeout"))
+                .save(StakeoutSettings(StakeMode.BY_DISTANCE, HeadingChoice.IMU, toleranceM = 0.04))
+            SettingsArchive(stores, FakeLanguage()).export()
+        }
+
+        val stakeout = exported.stores.getValue("stakeout")
+        stakeout.getValue("stakeout_mode") shouldBe SettingValue.Text("BY_DISTANCE")
+        stakeout.getValue("stakeout_heading") shouldBe SettingValue.Text("IMU")
+        stakeout.getValue("stakeout_tolerance_m") shouldBe SettingValue.Float64(0.04)
     }
 
     @Test

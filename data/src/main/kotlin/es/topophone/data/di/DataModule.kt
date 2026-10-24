@@ -30,8 +30,11 @@ import es.topophone.data.ntrip.RoomNtripProfileRepository
 import es.topophone.data.point.CollectorDataStoreQualifier
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.DataStoreCollectorPreferences
+import es.topophone.data.point.DataStoreStakeoutPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.RoomPointRepository
+import es.topophone.data.point.StakeoutDataStoreQualifier
+import es.topophone.data.point.StakeoutPreferences
 import es.topophone.data.project.DataStoreProjectPreferences
 import es.topophone.data.project.ProjectDataStoreQualifier
 import es.topophone.data.project.ProjectPreferences
@@ -70,6 +73,12 @@ object DataStoreModule {
     @CollectorDataStoreQualifier
     fun provideCollectorDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         SettingsDataStore.create(context, name = "collector")
+
+    @Provides
+    @Singleton
+    @StakeoutDataStoreQualifier
+    fun provideStakeoutDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        SettingsDataStore.create(context, name = "stakeout")
 
     @Provides
     @Singleton
@@ -151,6 +160,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindCollectorPreferences(implementation: DataStoreCollectorPreferences): CollectorPreferences
+
+    @Binds
+    abstract fun bindStakeoutPreferences(implementation: DataStoreStakeoutPreferences): StakeoutPreferences
 
     @Binds
     abstract fun bindExportPreferences(implementation: DataStoreExportPreferences): ExportPreferences

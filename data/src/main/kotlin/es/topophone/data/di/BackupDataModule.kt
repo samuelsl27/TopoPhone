@@ -14,6 +14,7 @@ import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.ExportDataStoreQualifier
 import es.topophone.data.map.MapDataStoreQualifier
 import es.topophone.data.point.CollectorDataStoreQualifier
+import es.topophone.data.point.StakeoutDataStoreQualifier
 import es.topophone.data.project.ProjectDataStoreQualifier
 import es.topophone.data.receiver.ReceiverDataStoreQualifier
 import es.topophone.data.settings.SettingsDataStoreQualifier
@@ -33,6 +34,7 @@ object BackupDataModule {
         @SettingsDataStoreQualifier settings: DataStore<Preferences>,
         @ProjectDataStoreQualifier projects: DataStore<Preferences>,
         @CollectorDataStoreQualifier collector: DataStore<Preferences>,
+        @StakeoutDataStoreQualifier stakeout: DataStore<Preferences>,
         @ExportDataStoreQualifier export: DataStore<Preferences>,
         @MapDataStoreQualifier map: DataStore<Preferences>,
         @ReceiverDataStoreQualifier receiver: DataStore<Preferences>,
@@ -41,6 +43,7 @@ object BackupDataModule {
             "settings" to settings,
             "projects" to projects,
             "collector" to collector,
+            "stakeout" to stakeout,
             "export" to export,
             "map" to map,
             "receiver" to receiver,

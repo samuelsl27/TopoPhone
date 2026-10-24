@@ -86,6 +86,7 @@ class SettingsArchive(private val stores: Map<String, DataStore<Preferences>>, p
             "settings" to null,
             "projects" to null,
             "collector" to null,
+            "stakeout" to null,
             "export" to null,
             "map" to null,
             "receiver" to setOf("pole_height_m", "session_space_mb", "corrections_alarm_s"),

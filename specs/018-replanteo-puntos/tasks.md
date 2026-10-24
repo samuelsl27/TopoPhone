@@ -20,7 +20,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 9 → 10 y `PointRepositoryStakeoutTest` en verde: un punto replanteado se guarda y se lee con su diseño y sus diferencias sin redondear, y los puntos de antes conservan sus datos.
 - [x] T9. `data`: el recuento de replanteos por punto de diseño en los resúmenes. (RF-33)
       Hecho cuando: los tests del recuento en verde: con dos replanteos, con un diseño borrado, con un replanteo en la papelera y sin ninguno.
-- [ ] T10. `data`: `StakeoutPreferences` y su paso por la copia de ajustes. (RF-5, RF-8, RF-18)
+- [x] T10. `data`: `StakeoutPreferences` y su paso por la copia de ajustes. (RF-5, RF-8, RF-18)
       Hecho cuando: `StakeoutPreferencesTest` y `SettingsArchiveTest` en verde, con los valores fuera de rango corregidos.
 - [ ] T11. `receiver`: `Alerts.stakeoutApproach()`, `stakeoutArrived()` y `stakeoutLeft()` con sus sonidos y vibraciones distintos. (RF-20, RF-21)
       Hecho cuando: `VibrationAlertsTest` en verde con los tres patrones distintos entre sí y de los demás avisos, y los fakes sin cambios.
