@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -35,13 +34,12 @@ import es.topophone.app.ui.receiver.BaseNoticeBanners
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
-import java.text.NumberFormat
-import java.util.Locale
 
 const val COLLECT_BUTTON_TAG = "collect"
 const val COLLECTOR_PANEL_TAG = "collector_panel"
@@ -81,6 +79,10 @@ class CollectorActions(
     val onDismissLongBaseline: (Int) -> Unit = {},
     /** El apartado "Inclinación" del receptor (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
+    /** "Terminar" y "Guardar con lo reunido" (S017/RF-6, RF-10). */
+    val onFinish: () -> Unit = {},
+    /** "Seguir esperando" a la pregunta de 5 min (S017/RF-10). */
+    val onKeepWaiting: () -> Unit = {},
 )
 
 /**
@@ -95,6 +97,7 @@ fun CollectorPanel(
     actions: CollectorActions,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    stats: AverageStatsUi? = null,
 ) {
     KeepScreenOn()
     Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(COLLECTOR_PANEL_TAG)) {
@@ -107,16 +110,26 @@ fun CollectorPanel(
             }
             // Solo el formulario se desplaza y encoge: la solución y "Medir" o "Cancelar" se ven siempre (S010/RF-6, RF-8, RF-11).
             Column(
-                modifier = Modifier.weight(1f, fill = false).heightIn(max = FORM_MAX_HEIGHT).verticalScroll(rememberScrollState()),
+                modifier = Modifier.weight(1f, fill = false).heightIn(
+                    max = if (state.progress !=
+                        null
+                    ) {
+                        FORM_MEASURING_MAX_HEIGHT
+                    } else {
+                        FORM_MAX_HEIGHT
+                    },
+                )
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) { Form(state, unit, actions) }
             BaseNoticeBanners(state.notices, actions.onDismissBaseChange, actions.onDismissLongBaseline) // S015/RF-15, RF-17
             LiveQualityText(state.live, unit)
             Messages(state, actions)
-            if (state.measuring) Measuring(state, actions) else MeasureButton(state, actions)
+            if (state.measuring) Measuring(state, unit, stats, actions) else MeasureButton(state, actions)
         }
     }
     state.pending?.let { OutOfToleranceDialog(it, actions.onConfirm, actions.onDiscard) } // S010/RF-14, RF-15
+    if (state.paused == PauseState.LONG_PAUSE) LongPauseDialog(actions.onFinish, actions.onCancel, actions.onKeepWaiting) // S017/RF-10
 }
 
 /** Nombre, descripción, jalón, modo y control de precisión. */
@@ -204,7 +217,8 @@ private fun ModeChoice(state: CollectorUiState, actions: CollectorActions) {
             isError = !state.averagingSecondsValid,
             supportingText = if (state.averagingSecondsValid) null else ({ Text(stringResource(R.string.collector_seconds_invalid)) }),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            // S017/RF-1: minutos y segundos, con ":", que el teclado numérico no tiene.
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_SECONDS_TAG),
         )
     }
@@ -260,7 +274,22 @@ private fun Messages(state: CollectorUiState, actions: CollectorActions) {
         )
     } // S016/RF-19
     if (state.measuring && state.restarted) {
-        Text(stringResource(R.string.collector_restarted), modifier = Modifier.testTag(COLLECTOR_RESTARTED_TAG)) // S015/RF-18
+        // S015/RF-18; con el tiempo promediado que se descartó, S017/RF-30.
+        val discarded = state.restartedDiscardedS?.let { DurationText.format(it.toInt()) }
+        val text = if (discarded == null) {
+            stringResource(R.string.collector_restarted)
+        } else {
+            stringResource(R.string.collector_restarted_discarded, discarded)
+        }
+        Text(text, modifier = Modifier.testTag(COLLECTOR_RESTARTED_TAG))
+    }
+    if (state.measuring && state.paused == PauseState.PAUSED) PausedBanner() // S017/RF-8
+    if (state.measuring && state.noEpochsYet) {
+        Text(
+            stringResource(R.string.collector_no_epochs_yet),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag(COLLECTOR_NO_EPOCHS_TAG),
+        ) // S017/RF-7
     }
     when (state.error) {
         CollectorError.NO_DATA -> Text(stringResource(R.string.collector_no_data), color = MaterialTheme.colorScheme.error)
@@ -284,21 +313,35 @@ private fun MeasureButton(state: CollectorUiState, actions: CollectorActions) {
     ) { Text(stringResource(R.string.collector_measure)) }
 }
 
-/** Progreso del promediado, o espera de la época instantánea, con "Cancelar" (S010/RF-9, RF-11). */
+/**
+ * El avance del promediado con sus estadísticas, o la espera de la época instantánea, y "Terminar" y "Cancelar"
+ * (S010/RF-9, RF-11; S017/RF-2 a RF-6).
+ */
 @Composable
-private fun Measuring(state: CollectorUiState, actions: CollectorActions) {
+private fun Measuring(state: CollectorUiState, unit: LinearUnit, stats: AverageStatsUi?, actions: CollectorActions) {
     val progress = state.progress
     if (progress != null) {
-        val locale = uiLocale()
-        Text(stringResource(R.string.collector_progress, seconds(progress.elapsedS, locale), seconds(progress.requiredS, locale)))
-        LinearProgressIndicator(progress = { (progress.elapsedS / progress.requiredS).toFloat() }, modifier = Modifier.fillMaxWidth())
+        AveragingProgress(progress)
+        if (stats != null) {
+            Column(modifier = Modifier.heightIn(max = STATS_MAX_HEIGHT).verticalScroll(rememberScrollState())) {
+                AverageStatsBlock(stats, unit)
+            }
+        }
     } else {
         Text(stringResource(R.string.collector_measuring))
     }
-    OutlinedButton(
-        onClick = actions.onCancel,
-        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(COLLECTOR_CANCEL_TAG),
-    ) { Text(stringResource(R.string.collector_cancel)) }
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (state.settings.mode == MeasurementMode.AVERAGED) {
+            Button(
+                onClick = actions.onFinish,
+                modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(COLLECTOR_FINISH_TAG),
+            ) { Text(stringResource(R.string.collector_finish)) } // S017/RF-6
+        }
+        OutlinedButton(
+            onClick = actions.onCancel,
+            modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(COLLECTOR_CANCEL_TAG),
+        ) { Text(stringResource(R.string.collector_cancel)) }
+    }
 }
 
 /** S010/RF-7 y RNF-T2. */
@@ -311,9 +354,8 @@ private fun KeepScreenOn() {
     }
 }
 
-private fun seconds(value: Double, locale: Locale): String = NumberFormat.getNumberInstance(locale).apply {
-    maximumFractionDigits = 1
-}.format(value)
-
 /** El formulario no pasa de esto, para que el panel deje ver el mapa; si no cabe, se desplaza. */
 private val FORM_MAX_HEIGHT = 168.dp
+
+/** Mientras se promedia, el formulario cede sitio a las estadísticas. */
+private val FORM_MEASURING_MAX_HEIGHT = 72.dp

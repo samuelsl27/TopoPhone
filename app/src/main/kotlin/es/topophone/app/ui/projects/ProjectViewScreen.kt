@@ -62,6 +62,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.COLLECT_BUTTON_TAG
 import es.topophone.app.ui.collector.CollectorActions
 import es.topophone.app.ui.collector.CollectorPanel
@@ -317,6 +318,7 @@ fun ProjectViewRoute(
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
+    val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
     val context = LocalContext.current
     val environment =
         remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
@@ -331,6 +333,7 @@ fun ProjectViewRoute(
         viewModel::onViewportChanged,
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
         collector = collector,
+        collectorStats = collectorStats,
         collectorActions = CollectorActions(
             onName = collectorViewModel::setName,
             onDescription = collectorViewModel::setDescription,
@@ -345,6 +348,8 @@ fun ProjectViewRoute(
             onDismissBaseChange = collectorViewModel::dismissBaseChange,
             onDismissLongBaseline = collectorViewModel::dismissLongBaseline,
             onOpenTilt = navigation.onOpenTilt, // S016/RF-2, RF-18
+            onFinish = collectorViewModel::finishNow, // S017/RF-6, RF-10
+            onKeepWaiting = collectorViewModel::keepWaiting, // S017/RF-10
         ),
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,
@@ -364,6 +369,7 @@ fun ProjectViewScreen(
     onViewportChanged: (MapViewport) -> Unit = {},
     map: MapSlot = { _, _ -> },
     collector: CollectorUiState? = null,
+    collectorStats: AverageStatsUi? = null,
     collectorActions: CollectorActions = CollectorActions(),
     onObjects: (projectId: String) -> Unit = {},
     onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
@@ -452,7 +458,7 @@ fun ProjectViewScreen(
                     collector != null && collectorOpen -> CollectorPanel(collector, project.linearUnit, collectorActions, onClose = {
                         collectorOpen =
                             false
-                    })
+                    }, stats = collectorStats)
                     else -> PositionPanel(project, state.position, state.accuracyM, state.uncompensated, onInfo, Modifier)
                 }
             }

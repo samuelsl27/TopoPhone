@@ -149,7 +149,7 @@ class CollectorPanelTest {
     fun `S010 RF-9 y RF-11 en un movil pequeno el progreso y Cancelar se ven sin desplazar el panel`() {
         show(ready.copy(settings = CollectorSettings(MeasurementMode.AVERAGED), measuring = true, progress = MeasureProgress(2.0, 5.0)))
 
-        compose.onNodeWithText("2 / 5 s").assertIsDisplayed()
+        compose.onNodeWithText("Tiempo 0:02 de 0:05").assertIsDisplayed() // S017/RF-1
         compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).assertIsDisplayed()
     }
 
@@ -200,7 +200,7 @@ class CollectorPanelTest {
     fun `S010 RF-9 y RF-11 durante el promediado se ve el progreso y se puede cancelar`() {
         show(ready.copy(settings = CollectorSettings(MeasurementMode.AVERAGED), measuring = true, progress = MeasureProgress(2.0, 5.0)))
 
-        compose.onNodeWithText("2 / 5 s").assertIsDisplayed()
+        compose.onNodeWithText("Tiempo 0:02 de 0:05").assertIsDisplayed() // S017/RF-1
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertDoesNotExist()
         compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).performClick()
 
@@ -218,7 +218,7 @@ class CollectorPanelTest {
             ),
         )
 
-        compose.onNodeWithText("Entre 1 y 60 s.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("De 0:01 a 60:00.").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsNotEnabled()
         compose.onNodeWithTag(COLLECTOR_SECONDS_TAG).performScrollTo().assert(hasText("")).performTextReplacement("20")
 

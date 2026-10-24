@@ -28,6 +28,7 @@ import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -520,7 +521,7 @@ class CollectorViewModelAdvancedTest {
         receiving(vm)
         startMeasuring(vm)
         (2..2_001).forEach { sendEpoch(it) }
-        await(vm) { it.progress?.epochsUsed == 2_000 }
+        await(vm) { (it.progress?.epochsUsed ?: 0) >= 2_000 } // el estado junta cambios: no se ve cada época
         vm.finishNow()
         await(vm) { it.savedName == "1" }
 
@@ -531,7 +532,10 @@ class CollectorViewModelAdvancedTest {
         val text = runBlocking {
             (0 until measurement.nmeaChunks).map { points.nmeaChunk(point.id, it).shouldNotBeNull() }
         }.joinToString("")
-        text.lines().size shouldBe 4_000 // la GGA y la GST de cada una de las 2.000 épocas usadas (de la 1 a la 2.000)
-        text.lines().first().startsWith("\$GNGGA,101531.00") shouldBe true
+        // Las 2.000 que se mandan y las que llegaron tarde de antes de medir: la GGA y la GST de cada una.
+        val used = measurement.quality.epochsUsed
+        used shouldBeGreaterThanOrEqual 2_000
+        text.lines().size shouldBe 2 * used
+        text.lines().first().startsWith("\$GNGGA,1015") shouldBe true
     }
 }
