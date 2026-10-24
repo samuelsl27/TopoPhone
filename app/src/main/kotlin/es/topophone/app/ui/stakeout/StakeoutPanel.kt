@@ -77,6 +77,8 @@ const val STAKEOUT_RIGHT_TAG = "stakeout_right"
 const val STAKEOUT_HEADING_TAG = "stakeout_heading"
 const val STAKEOUT_STATUS_TAG = "stakeout_status"
 const val STAKEOUT_RESULT_TAG = "stakeout_result"
+const val STAKEOUT_RESULT_LEVEL_TAG = "stakeout_result_level"
+const val STAKEOUT_RESULT_WITHIN_TAG = "stakeout_result_within"
 
 fun stakeModeTag(mode: StakeMode) = "stakeout_mode_${mode.name}"
 
@@ -201,7 +203,28 @@ private fun Result(savedName: String?, ref: StakeoutRef, state: StakeoutUiState)
         numbers.signed(ref.dEastM),
         numbers.length(ref.dHorizontalM),
     )
-    Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag(STAKEOUT_RESULT_TAG))
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag(STAKEOUT_RESULT_TAG))
+        // S019/RF-15: la cota de diseño usada, el desmonte o terraplén y si cumple, con texto además de color.
+        ref.designElevationM?.let { elevation ->
+            val level = ref.levelText(numbers::length)?.let { " · $it" }.orEmpty()
+            Text(
+                stringResource(R.string.stakeout_result_elevation, numbers.length(elevation)) + level,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.testTag(STAKEOUT_RESULT_LEVEL_TAG),
+            )
+        }
+        Text(
+            ref.withinText(),
+            color = when (ref.withinTolerance) {
+                true -> MaterialTheme.colorScheme.primary
+                false -> MaterialTheme.colorScheme.error
+                null -> MaterialTheme.colorScheme.onSurface
+            },
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.testTag(STAKEOUT_RESULT_WITHIN_TAG),
+        )
+    }
 }
 
 @Composable

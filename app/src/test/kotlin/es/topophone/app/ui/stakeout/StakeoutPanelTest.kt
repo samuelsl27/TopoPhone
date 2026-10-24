@@ -582,6 +582,61 @@ class StakeoutPanelTest {
         compose.onNodeWithTag(STAKEOUT_RESULT_TAG).assertTextContains("cota -0,005", substring = true)
     }
 
+    private val checkedStake = savedStake.copy(
+        designElevationM = 648.19,
+        toleranceHM = 0.05,
+        toleranceVM = 0.03,
+        withinTolerance = true,
+    )
+
+    private fun saved(ref: StakeoutRef) = CollectorUiState(loaded = true, savedName = "12_stkd", savedStake = ref)
+
+    @Test
+    fun `S019 RF-15 tras guardar dice la cota de diseno usada y que esta en cota`() {
+        show(state(), saved(checkedStake))
+
+        compose.onNodeWithTag(STAKEOUT_RESULT_LEVEL_TAG).assertTextContains("Cota de diseño 648,190 m", substring = true)
+        compose.onNodeWithTag(STAKEOUT_RESULT_LEVEL_TAG).assertTextContains("En cota", substring = true)
+    }
+
+    @Test
+    fun `S019 RF-15 tras guardar en desmonte o terraplen dice cuanto`() {
+        show(state(), saved(checkedStake.copy(dHeightM = 0.45)))
+        compose.onNodeWithTag(STAKEOUT_RESULT_LEVEL_TAG).assertTextContains("Desmonte 0,450 m", substring = true)
+    }
+
+    @Test
+    fun `S019 RF-15 tras guardar en terraplen dice cuanto`() {
+        show(state(), saved(checkedStake.copy(dHeightM = -1.25)))
+        compose.onNodeWithTag(STAKEOUT_RESULT_LEVEL_TAG).assertTextContains("Terraplén 1,250 m", substring = true)
+    }
+
+    @Test
+    fun `S019 RF-15 tras guardar dice si esta dentro o fuera de la tolerancia con texto`() {
+        show(state(), saved(checkedStake))
+        compose.onNodeWithTag(STAKEOUT_RESULT_WITHIN_TAG).assertTextEquals("Dentro de la tolerancia")
+    }
+
+    @Test
+    fun `S019 RF-15 fuera de la tolerancia lo dice con texto`() {
+        show(state(), saved(checkedStake.copy(withinTolerance = false)))
+        compose.onNodeWithTag(STAKEOUT_RESULT_WITHIN_TAG).assertTextEquals("Fuera de la tolerancia")
+    }
+
+    @Test
+    fun `S019 RF-26 un replanteo sin tolerancias guardadas dice sin evaluar`() {
+        show(state(), saved(checkedStake.copy(toleranceHM = null, toleranceVM = null, withinTolerance = null)))
+        compose.onNodeWithTag(STAKEOUT_RESULT_WITHIN_TAG).assertTextEquals("Sin evaluar")
+    }
+
+    @Test
+    fun `S019 RF-15 sin cota de diseno no hay linea de cota pero si el veredicto`() {
+        show(state(), saved(checkedStake.copy(designElevationM = null, dHeightM = null)))
+
+        compose.onNodeWithTag(STAKEOUT_RESULT_LEVEL_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(STAKEOUT_RESULT_WITHIN_TAG).assertTextEquals("Dentro de la tolerancia")
+    }
+
     @Test
     fun `S018 RF-29 un resultado sin cota no la dice`() {
         show(state(), CollectorUiState(loaded = true, savedName = "12_stkd", savedStake = savedStake.copy(dHeightM = null)))

@@ -36,7 +36,7 @@
       Hecho cuando: los tests del nivel y de `StakeoutPanelTest` en verde: a cualquier distancia y con varios metros de diferencia, verde con su texto, apagado con la guía, sin cota y la descripción para TalkBack.
 - [x] T17. `app`: el diálogo de la cota de diseño y la tolerancia vertical en los ajustes. (RF-2, RF-3, RF-4, RF-10, RF-16)
       Hecho cuando: los tests del diálogo en verde: escribir la cota, el error si no es un número, "Usar la del punto", la tolerancia vertical en la unidad del proyecto y los controles bloqueados durante la medida.
-- [ ] T18. `app`: la confirmación del punto replanteado y su ficha con la cota usada, el desmonte o terraplén y si cumple. (RF-15)
+- [x] T18. `app`: la confirmación del punto replanteado y su ficha con la cota usada, el desmonte o terraplén y si cumple. (RF-15)
       Hecho cuando: `StakeoutPanelTest` y `PointDetailsStakeoutTest` en verde, con las unidades del proyecto y un replanteo de antes "sin evaluar".
 - [ ] T19. `app`: `StakeoutReportViewModel` con el resumen, la selección, el vacío y la escritura del CSV. (RF-17, RF-18, RF-19, RF-20, RF-24)
       Hecho cuando: `StakeoutReportViewModelTest` en verde: todos y seleccionados, sin papelera, sin puntos replanteados, error de escritura y el nombre propuesto.

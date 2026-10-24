@@ -434,6 +434,9 @@
     <string name="stakeout_heading_no_imu">No heading: the receiver does not send the IMU one.</string>
     <string name="stakeout_heading_imu_not_ready">No heading: the IMU is not ready (state 30).</string>
     <string name="stakeout_inside">Within tolerance</string>
+    <string name="stakeout_outside">Outside the tolerance</string>
+    <string name="stakeout_not_evaluated">Not evaluated</string>
+    <string name="stakeout_result_elevation">Design elevation %1$s</string>
     <string name="stakeout_level_cut">Cut %1$s</string>
     <string name="stakeout_level_fill">Fill %1$s</string>
     <string name="stakeout_level_on_grade">On grade</string>
@@ -622,6 +625,10 @@
     <string name="point_stakeout_diff_distance">Horizontal distance</string>
     <string name="point_stakeout_diff_height">Height difference</string>
     <string name="point_stakeout_no_height">No height</string>
+    <string name="point_stakeout_elevation">Design elevation used</string>
+    <string name="point_stakeout_level">Cut or fill</string>
+    <string name="point_stakeout_tolerances">Tolerances (horizontal / vertical)</string>
+    <string name="point_stakeout_within">Result</string>
     <plurals name="objects_stake_count">
         <item quantity="one">Staked out %1$d time</item>
         <item quantity="other">Staked out %1$d times</item>

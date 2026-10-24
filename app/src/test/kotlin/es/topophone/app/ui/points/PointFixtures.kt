@@ -42,7 +42,15 @@ object PointFixtures {
     )
 
     /** Un punto replanteado: el diseño es 12 con cota 648,190 y lo medido se desvió 12 mm al Norte, 4 mm al Oeste y 21 mm por debajo. */
-    fun staked(name: String, projectId: String = "p1", dHeightM: Double? = -0.021) = measured(name, projectId).copy(
+    fun staked(
+        name: String,
+        projectId: String = "p1",
+        dHeightM: Double? = -0.021,
+        designElevationM: Double? = null,
+        toleranceHM: Double? = null,
+        toleranceVM: Double? = null,
+        withinTolerance: Boolean? = null,
+    ) = measured(name, projectId).copy(
         origin = PointOrigin.STAKED,
         staked = StakeoutRef(
             designId = "id-12",
@@ -52,6 +60,10 @@ object PointFixtures {
             dNorthM = 0.012,
             dHorizontalM = 0.0126,
             dHeightM = dHeightM,
+            designElevationM = designElevationM,
+            toleranceHM = toleranceHM,
+            toleranceVM = toleranceVM,
+            withinTolerance = withinTolerance,
         ),
     )
 

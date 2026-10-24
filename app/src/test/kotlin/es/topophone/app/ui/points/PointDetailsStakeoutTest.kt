@@ -89,6 +89,85 @@ class PointDetailsStakeoutTest {
         compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo().shows("Sin cota")
     }
 
+    private fun checked(
+        dHeightM: Double? = -0.021,
+        designElevationM: Double? = 648.19,
+        within: Boolean? = true,
+        toleranceHM: Double? = 0.025,
+        toleranceVM: Double? = 0.03,
+    ) = staked(
+        "12_stkd",
+        dHeightM = dHeightM,
+        designElevationM = designElevationM,
+        toleranceHM = toleranceHM,
+        toleranceVM = toleranceVM,
+        withinTolerance = within,
+    )
+
+    @Test
+    fun `S019 RF-15 la ficha dice la cota de diseno usada, en cota y dentro de la tolerancia`() {
+        show(PointDetailsUiState(project(), checked()))
+
+        compose.onNodeWithTag("point_stakeout_elevation").performScrollTo().shows("648,190 m")
+        compose.onNodeWithTag("point_stakeout_level").performScrollTo().shows("En cota")
+        compose.onNodeWithTag("point_stakeout_within").performScrollTo().shows("Dentro de la tolerancia")
+    }
+
+    @Test
+    fun `S019 RF-15 con la punta por encima de la cota la ficha dice desmonte y fuera de la tolerancia`() {
+        show(PointDetailsUiState(project(), checked(dHeightM = 0.12, within = false)))
+
+        compose.onNodeWithTag("point_stakeout_level").performScrollTo().shows("Desmonte 0,120 m")
+        compose.onNodeWithTag("point_stakeout_within").performScrollTo().shows("Fuera de la tolerancia")
+    }
+
+    @Test
+    fun `S019 RF-15 con la punta por debajo de la cota la ficha dice terraplen`() {
+        show(PointDetailsUiState(project(), checked(dHeightM = -0.5, within = false)))
+
+        compose.onNodeWithTag("point_stakeout_level").performScrollTo().shows("Terraplén 0,500 m")
+    }
+
+    @Test
+    fun `S019 RF-15 la cota escrita se ve aparte de la altura del punto de diseno`() {
+        show(PointDetailsUiState(project(), checked(designElevationM = 646.9, dHeightM = 1.0, within = false)))
+
+        compose.onNodeWithTag("point_stakeout_elevation").performScrollTo().shows("646,900 m")
+        compose.onNodeWithTag("point_stakeout_design_h").performScrollTo().shows("648,190 m")
+    }
+
+    @Test
+    fun `S019 RF-15 las tolerancias con las que se midio salen en la ficha`() {
+        show(PointDetailsUiState(project(), checked()))
+
+        compose.onNodeWithTag("point_stakeout_tolerances").performScrollTo().shows("0,025 m").shows("0,030 m")
+    }
+
+    @Test
+    fun `S019 RF-15 el desmonte va en la unidad del proyecto`() {
+        show(PointDetailsUiState(project(LinearUnit.INTERNATIONAL_FOOT), checked(dHeightM = 0.12, within = false)))
+
+        compose.onNodeWithTag("point_stakeout_level").performScrollTo().shows("Desmonte 0,394 ft")
+    }
+
+    @Test
+    fun `S019 RF-26 un replanteo de antes dice sin evaluar, sin tolerancias, y el desmonte por su signo`() {
+        show(PointDetailsUiState(project(), checked(within = null, toleranceHM = null, toleranceVM = null)))
+
+        compose.onNodeWithTag("point_stakeout_within").performScrollTo().shows("Sin evaluar")
+        compose.onNodeWithTag("point_stakeout_tolerances").performScrollTo().shows("Sin evaluar")
+        compose.onNodeWithTag("point_stakeout_level").performScrollTo().shows("Terraplén 0,021 m")
+    }
+
+    @Test
+    fun `S019 RF-15 sin cota de diseno la ficha lo dice en la cota usada y en el nivel`() {
+        show(PointDetailsUiState(project(), checked(dHeightM = null, designElevationM = null)))
+
+        compose.onNodeWithTag("point_stakeout_elevation").performScrollTo().shows("Sin cota")
+        compose.onNodeWithTag("point_stakeout_level").performScrollTo().shows("Sin cota")
+        compose.onNodeWithTag("point_stakeout_within").performScrollTo().shows("Dentro de la tolerancia")
+    }
+
     @Test
     fun `S018 RF-32 un punto medido no tiene tarjeta de replanteo`() {
         show(PointDetailsUiState(project(), measured("12")))

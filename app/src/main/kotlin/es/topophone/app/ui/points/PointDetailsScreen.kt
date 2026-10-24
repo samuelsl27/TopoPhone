@@ -51,6 +51,8 @@ import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.tiltSummary
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.app.ui.stakeout.levelText
+import es.topophone.app.ui.stakeout.withinText
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.AngleFormat
@@ -529,6 +531,31 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
             ref.dHeightM?.let(::signed) ?: stringResource(R.string.point_stakeout_no_height),
             "point_stakeout_diff_h",
         )
+        // S019/RF-15: la cota de diseño usada (la escrita o la del punto), el desmonte o terraplén y si cumple.
+        CoordinateRow(
+            stringResource(R.string.point_stakeout_elevation),
+            ref.designElevationM?.let(::length) ?: stringResource(R.string.point_stakeout_no_height),
+            "point_stakeout_elevation",
+        )
+        CoordinateRow(
+            stringResource(R.string.point_stakeout_level),
+            ref.levelText(::length) ?: stringResource(R.string.point_stakeout_no_height),
+            "point_stakeout_level",
+        )
+        val horizontal = ref.toleranceHM
+        val vertical = ref.toleranceVM
+        CoordinateRow(
+            stringResource(R.string.point_stakeout_tolerances),
+            if (horizontal != null &&
+                vertical != null
+            ) {
+                "${length(horizontal)} / ${length(vertical)}"
+            } else {
+                stringResource(R.string.stakeout_not_evaluated)
+            },
+            "point_stakeout_tolerances",
+        )
+        CoordinateRow(stringResource(R.string.point_stakeout_within), ref.withinText(), "point_stakeout_within")
     }
 }
 

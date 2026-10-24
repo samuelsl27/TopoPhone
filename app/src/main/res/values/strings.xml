@@ -446,6 +446,9 @@
     <string name="stakeout_heading_no_imu">Sin rumbo: el receptor no envía el del IMU.</string>
     <string name="stakeout_heading_imu_not_ready">Sin rumbo: el IMU no está listo (estado 30).</string>
     <string name="stakeout_inside">Dentro de la tolerancia</string>
+    <string name="stakeout_outside">Fuera de la tolerancia</string>
+    <string name="stakeout_not_evaluated">Sin evaluar</string>
+    <string name="stakeout_result_elevation">Cota de diseño %1$s</string>
     <string name="stakeout_level_cut">Desmonte %1$s</string>
     <string name="stakeout_level_fill">Terraplén %1$s</string>
     <string name="stakeout_level_on_grade">En cota</string>
@@ -634,6 +637,10 @@
     <string name="point_stakeout_diff_distance">Distancia horizontal</string>
     <string name="point_stakeout_diff_height">Diferencia de cota</string>
     <string name="point_stakeout_no_height">Sin cota</string>
+    <string name="point_stakeout_elevation">Cota de diseño usada</string>
+    <string name="point_stakeout_level">Desmonte o terraplén</string>
+    <string name="point_stakeout_tolerances">Tolerancias (horizontal / vertical)</string>
+    <string name="point_stakeout_within">Resultado</string>
     <plurals name="objects_stake_count">
         <item quantity="one">Replanteado %1$d vez</item>
         <item quantity="other">Replanteado %1$d veces</item>
