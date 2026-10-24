@@ -117,6 +117,9 @@ class FakePointRepository(initial: List<Point> = emptyList(), private val clock:
     val points = MutableStateFlow(initial)
     val historyEntries = MutableStateFlow<List<PointHistoryEntry>>(emptyList())
 
+    /** Los tramos de frases NMEA de los puntos largos, por punto y número de tramo (S017/RF-12). */
+    val nmeaChunks = mutableMapOf<Pair<String, Int>, String>()
+
     private fun active(projectId: String) = points.value.filter { it.projectId == projectId && it.deletedAtMs == null }
 
     override suspend fun create(point: Point): PointSaveResult {
@@ -124,6 +127,8 @@ class FakePointRepository(initial: List<Point> = emptyList(), private val clock:
         points.value = points.value + point
         return PointSaveResult.Saved
     }
+
+    override suspend fun nmeaChunk(pointId: String, seq: Int): String? = nmeaChunks[pointId to seq]
 
     override fun points(projectId: String): Flow<List<Point>> =
         points.map { list -> list.filter { it.projectId == projectId && it.deletedAtMs == null } }

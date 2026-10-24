@@ -50,6 +50,13 @@ interface PointDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertHistory(entry: PointHistoryEntity)
 
+    /** Los tramos de las frases NMEA de un punto medido (S017/RF-12). */
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertNmea(chunks: List<PointNmeaEntity>)
+
+    @Query("SELECT text FROM point_nmea WHERE point_id = :pointId AND seq = :seq")
+    suspend fun nmeaChunk(pointId: String, seq: Int): String?
+
     @Query("SELECT * FROM points WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at")
     fun byProject(projectId: String): Flow<List<PointEntity>>
 
@@ -131,7 +138,14 @@ data class TrashedPoint(val point: Point, val daysLeft: Int)
 
 /** Puntos de cada proyecto (S010, S011). Salvo la papelera, todo trata solo los puntos activos. */
 interface PointRepository {
+    /**
+     * Guarda el punto. Con más frases NMEA de las que caben en su fila ([NmeaChunks.MAX_CHARS]), van en tramos aparte, en la
+     * misma transacción (S017/RF-12).
+     */
     suspend fun create(point: Point): PointSaveResult
+
+    /** El tramo [seq] de las frases NMEA de un punto que las tiene aparte (`Measurement.nmeaChunks`); null si no existe (S017/RF-12). */
+    suspend fun nmeaChunk(pointId: String, seq: Int): String?
 
     fun points(projectId: String): Flow<List<Point>>
 
@@ -183,7 +197,17 @@ class RoomPointRepository(
     private val dao = database.points()
 
     override suspend fun create(point: Point): PointSaveResult = try {
-        dao.insert(point.toEntity())
+        val entity = point.toEntity()
+        val raw = entity.rawNmea.orEmpty()
+        if (raw.length > NmeaChunks.MAX_CHARS) {
+            val chunks = NmeaChunks.split(raw)
+            database.withTransaction {
+                dao.insert(entity.copy(rawNmea = "", nmeaChunks = chunks.size))
+                dao.insertNmea(chunks.mapIndexed { seq, text -> PointNmeaEntity(point.id, seq, text) })
+            }
+        } else {
+            dao.insert(entity)
+        }
         // S014/RF-3, RF-7: nombre, proyecto y solución; nunca las coordenadas.
         val project = database.projects().byId(point.projectId)?.name ?: point.projectId
         log.info(LogCategory.POINTS, "Guardado ${point.name} en «$project»: ${point.measurement?.quality?.solution ?: "punto manual"}")
@@ -191,6 +215,8 @@ class RoomPointRepository(
     } catch (_: SQLiteConstraintException) {
         PointSaveResult.DuplicateName // el índice único de (proyecto, nombre, papelera)
     }
+
+    override suspend fun nmeaChunk(pointId: String, seq: Int): String? = dao.nmeaChunk(pointId, seq)
 
     override fun points(projectId: String): Flow<List<Point>> = dao.byProject(projectId).map { list -> list.map { it.toPoint() } }
 

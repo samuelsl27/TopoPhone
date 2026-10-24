@@ -139,13 +139,14 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
 
         /**
          * Las tablas de la app, de padres a hijos (en este orden se insertan; al revés se borran). Cada spec que añada
-         * una tabla la añade aquí (S017 fotos, S023 códigos…).
+         * una tabla la añade aquí (S017b fotos, S023 códigos…).
          */
         val TABLES = listOf(
             Table("project_folders", projectFilter = null),
             Table("projects", "WHERE id = ?"),
             Table("map_viewports", "WHERE project_id = ?"),
             Table("points", "WHERE project_id = ?"),
+            Table("point_nmea", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
             Table("point_history", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
             Table("ntrip_profiles", projectFilter = null),
         )

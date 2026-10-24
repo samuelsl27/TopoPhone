@@ -115,7 +115,7 @@ class BackupFixture(val db: TopoPhoneDatabase, var now: Long = 1_792_346_000_000
 
     companion object {
         /** Las tablas que guarda la app, en el orden en que se copian. */
-        val TABLES = listOf("project_folders", "projects", "map_viewports", "points", "point_history", "ntrip_profiles")
+        val TABLES = listOf("project_folders", "projects", "map_viewports", "points", "point_nmea", "point_history", "ntrip_profiles")
 
         /** Todas las filas de [table] en [file], ordenadas por su primera columna; los BLOB como listas para compararlos. */
         fun rows(file: File, table: String): List<List<Any?>> {

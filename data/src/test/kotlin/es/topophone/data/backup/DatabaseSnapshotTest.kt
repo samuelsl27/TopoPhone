@@ -55,6 +55,35 @@ class DatabaseSnapshotTest {
     }
 
     @Test
+    fun `S017 RF-12 la copia y el paquete llevan los tramos de frases de un promediado largo`() {
+        val raw = (0 until 4_000).joinToString("\n") {
+            "\$GNGGA,$it,4025.0080000,N,00342.2280000,W,4,28,0.5,650.123,M,51.234,M,1.0,0001*41"
+        }
+        val long = fixture.measured("L", fixture.streetId)
+        runBlocking { fixture.points.create(long.copy(measurement = long.measurement!!.copy(rawNmea = raw))) }
+
+        DatabaseSnapshot(context, source).copy(target, SnapshotScope.All)
+
+        val chunkCols = columns(target, "point_nmea")
+        val chunks = rows(target, "point_nmea")
+        chunks.size shouldBe 2
+        rows(target, "point_nmea") shouldBe rows(source, "point_nmea")
+        chunks.joinToString("") { it[chunkCols.indexOf("text")] as String } shouldBe raw
+        columns(target, "points").let { cols ->
+            rows(target, "points").single { it[cols.indexOf("id")] == "id-L" }[cols.indexOf("nmea_chunks")]
+        } shouldBe
+            2L
+
+        val packageTarget = File(context.cacheDir, "snapshot-package-${System.nanoTime()}.db")
+        try {
+            DatabaseSnapshot(context, source).copy(packageTarget, SnapshotScope.Project(fixture.streetId))
+            rows(packageTarget, "point_nmea") shouldBe rows(source, "point_nmea")
+        } finally {
+            packageTarget.delete()
+        }
+    }
+
+    @Test
     fun `S013 RF-3 las contrasenas NTRIP no salen, solo la marca de que el perfil la tenia`() {
         DatabaseSnapshot(context, source).copy(target, SnapshotScope.All)
 
