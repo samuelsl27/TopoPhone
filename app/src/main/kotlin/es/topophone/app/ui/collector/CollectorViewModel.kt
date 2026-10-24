@@ -11,6 +11,7 @@ import es.topophone.app.receiver.VisibleNotices
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.gnss.nmea.TiltState
+import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
@@ -27,8 +28,10 @@ import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.AverageStatsSnapshot
 import es.topophone.core.survey.BaseFix
 import es.topophone.core.survey.Baseline
+import es.topophone.core.survey.Dispersion
 import es.topophone.core.survey.MeasurementFailure
 import es.topophone.core.survey.MeasurementResult
 import es.topophone.core.survey.MeasurementUpdate
@@ -92,8 +95,14 @@ enum class CollectorError { NO_DATA, OUTSIDE_CRS_AREA, TILT_MODE_CHANGED }
 /** Solución y precisiones de la GST del receptor (S010/RF-6). */
 data class LiveQuality(val solution: SolutionStatus, val horizontalM: Double?, val verticalM: Double?)
 
-/** Tiempo reunido de un promediado (S010/RF-9). */
-data class MeasureProgress(val elapsedS: Double, val requiredS: Double)
+/** Tiempo reunido de un promediado y épocas usadas y descartadas (S010/RF-9; S017/RF-2). */
+data class MeasureProgress(val elapsedS: Double, val requiredS: Double, val epochsUsed: Int = 0, val epochsDiscarded: Int = 0)
+
+/**
+ * Las estadísticas de un promediado en curso y su gráfico de dispersión (S017/RF-3 a RF-5). Salen en su propio flujo,
+ * a 4 Hz, para que [CollectorUiState] solo cambie con los sucesos (RNF-T13).
+ */
+data class AverageStatsUi(val snapshot: AverageStatsSnapshot, val dispersion: Dispersion?)
 
 /** Medida terminada que no cumple el control de precisión, a la espera de confirmar (S010/RF-14). */
 data class PendingPoint(val failures: Set<PrecisionFailure>)
@@ -107,7 +116,7 @@ data class CollectorUiState(
     val poleHeightValid: Boolean = true,
     val settings: CollectorSettings = CollectorSettings(),
     /** Segundos del promediado tal como se escriben; solo se guardan si están dentro del rango (S010/RF-9). */
-    val averagingSecondsText: String = CollectorSettings().averagingSeconds.toString(),
+    val averagingSecondsText: String = DurationText.format(CollectorSettings().averagingSeconds),
     val averagingSecondsValid: Boolean = true,
     val live: LiveQuality? = null,
     val blocker: MeasureBlocker? = null,
@@ -116,6 +125,8 @@ data class CollectorUiState(
     val solutionLost: Boolean = false,
     /** La medida en curso descarta épocas por la inclinación, con la guía de la primera (S016/RF-19). */
     val tiltLost: TiltGuide? = null,
+    /** "Terminar" sin ninguna época usada: no se ha guardado nada y la medida sigue (S017/RF-7). */
+    val noEpochsYet: Boolean = false,
     val pending: PendingPoint? = null,
     /** Último punto guardado, para decirlo (S010/RF-19). */
     val savedName: String? = null,
@@ -163,6 +174,7 @@ class CollectorViewModel @Inject constructor(
         val progress: MeasureProgress? = null,
         val solutionLost: Boolean = false,
         val tiltLost: TiltGuide? = null,
+        val noEpochsYet: Boolean = false,
         val pending: PendingPoint? = null,
         val savedName: String? = null,
         val error: CollectorError? = null,
@@ -175,6 +187,11 @@ class CollectorViewModel @Inject constructor(
     private val nameTaken = MutableStateFlow(false)
     private val run = MutableStateFlow(Run())
     private var measurement: PointMeasurement? = null
+    private val statsFlow = MutableStateFlow<AverageStatsUi?>(null)
+    private var lastStatsAtMs = 0L
+
+    /** Los milisegundos entre dos publicaciones de las estadísticas; los tests mandan las épocas sin pausa y lo ponen a 0. */
+    internal var statsIntervalMs = STATS_INTERVAL_MS
     private var measuringReplay = false
     private var pendingResult: MeasurementResult? = null
     private var ticker: Job? = null
@@ -215,7 +232,7 @@ class CollectorViewModel @Inject constructor(
     }.onEach { project = it }
 
     private val formState = combine(form, nameTaken, run, collectorPreferences.settings) { form, taken, run, settings ->
-        val secondsText = form.secondsText ?: settings.averagingSeconds.toString()
+        val secondsText = form.secondsText ?: DurationText.format(settings.averagingSeconds)
         val secondsValid = parseSeconds(secondsText) != null
         CollectorUiState(
             loaded = form.loaded,
@@ -233,12 +250,16 @@ class CollectorViewModel @Inject constructor(
             progress = run.progress,
             solutionLost = run.solutionLost,
             tiltLost = run.tiltLost,
+            noEpochsYet = run.noEpochsYet,
             pending = run.pending,
             savedName = run.savedName,
             error = run.error,
             restarted = run.restarted,
         )
     }
+
+    /** Las estadísticas del promediado en curso, a 4 Hz; null sin promediado (S017/RF-3 a RF-5). */
+    val stats: StateFlow<AverageStatsUi?> = statsFlow
 
     val state: StateFlow<CollectorUiState> = combine(
         formState,
@@ -300,7 +321,7 @@ class CollectorViewModel @Inject constructor(
         PoleHeight.parse(text)?.let { pole -> viewModelScope.launch { receiverPreferences.savePoleHeight(pole) } }
     }
 
-    /** Se guardan solo de 1 a 60 s; fuera de eso no se puede promediar (S010/RF-9). */
+    /** Se escribe en minutos y segundos (o en segundos) y solo se guarda de 1 s a 60 min; fuera de eso no se puede promediar (S017/RF-1). */
     fun setAveragingSeconds(text: String) {
         form.update { it.copy(secondsText = text) }
         val seconds = parseSeconds(text) ?: return
@@ -346,6 +367,7 @@ class CollectorViewModel @Inject constructor(
             while (isActive) {
                 delay(TICK_MS)
                 measurement?.onTick(System.currentTimeMillis())?.let(::handle)
+                publishStats()
             }
         }
     }
@@ -355,6 +377,27 @@ class CollectorViewModel @Inject constructor(
         stopMeasuring()
         log.warning(LogCategory.POINTS, "Medida de ${measuredName()} cancelada: ha cambiado el modo de inclinación") // S014/RF-5
         run.value = Run(error = CollectorError.TILT_MODE_CHANGED)
+    }
+
+    /** "Terminar": cierra el promediado con las épocas reunidas y lo guarda como cualquier medida (S017/RF-6, RF-7). */
+    fun finishNow() {
+        measurement?.finishNow()?.let(::handle)
+    }
+
+    /**
+     * Publica las estadísticas del promediado a 4 Hz como mucho (S017/RNF-T13), con el reloj del móvil: se pide desde cada época
+     * y desde el reloj de la medida, que cubre los cortes en que no llegan épocas.
+     */
+    private fun publishStats() {
+        val current = measurement
+        if (current == null) {
+            statsFlow.value = null
+            return
+        }
+        val now = System.currentTimeMillis()
+        if (now - lastStatsAtMs < statsIntervalMs) return
+        lastStatsAtMs = now
+        statsFlow.value = current.stats()?.let { AverageStatsUi(it, current.dispersion()) }
     }
 
     /** S010/RF-11: no se guarda nada. */
@@ -399,11 +442,17 @@ class CollectorViewModel @Inject constructor(
         lastEpochUtc = epoch.utcMillisOfDay
         if (measurement != null) received.base.position?.let { measurementBase = it }
         measurement?.onEpoch(epoch, System.currentTimeMillis(), received.gst)?.forEach(::handle) // S010/RF-22
+        publishStats()
     }
 
     private fun handle(update: MeasurementUpdate) {
         when (update) {
-            is MeasurementUpdate.Progress -> run.update { it.copy(progress = MeasureProgress(update.elapsedS, update.requiredS)) }
+            is MeasurementUpdate.Progress -> run.update {
+                it.copy(
+                    progress = MeasureProgress(update.elapsedS, update.requiredS, update.epochsUsed, update.epochsDiscarded),
+                    noEpochsYet = false,
+                )
+            }
             MeasurementUpdate.SolutionLost -> {
                 log.warning(LogCategory.POINTS, "Solución perdida durante la medida de ${measuredName()}") // S014/RF-5
                 alerts.solutionLost() // S010/RF-10
@@ -418,8 +467,7 @@ class CollectorViewModel @Inject constructor(
             }
             // S017/RF-8 a RF-10: la pausa, la reanudación y la pregunta de 5 min llegan al recolector en T16.
             MeasurementUpdate.Paused, MeasurementUpdate.Resumed, MeasurementUpdate.LongPause -> Unit
-            // S017/RF-7: "Terminar" sin épocas llega al recolector en T15.
-            MeasurementUpdate.NoEpochsYet -> Unit
+            MeasurementUpdate.NoEpochsYet -> run.update { it.copy(noEpochsYet = true) } // S017/RF-7
             is MeasurementUpdate.Failed -> {
                 stopMeasuring()
                 val error = when (update.reason) {
@@ -527,6 +575,8 @@ class CollectorViewModel @Inject constructor(
         ticker?.cancel()
         ticker = null
         measurement = null
+        statsFlow.value = null
+        lastStatsAtMs = 0
         newMeasurement = null
         measurementRevision = null
     }
@@ -548,7 +598,7 @@ class CollectorViewModel @Inject constructor(
         nameCheck = viewModelScope.launch { nameTaken.value = name.isNotEmpty() && points.nameExists(id, name) } // S010/RF-3
     }
 
-    private fun parseSeconds(text: String): Int? = text.trim().toIntOrNull()?.takeIf { it in CollectorSettings.AVERAGING_SECONDS }
+    private fun parseSeconds(text: String): Int? = DurationText.parse(text, CollectorSettings.AVERAGING_SECONDS)
 
     private fun formBlocker(form: Form, taken: Boolean): MeasureBlocker? = when {
         !PointNames.isValid(form.name) -> MeasureBlocker.INVALID_NAME
@@ -609,6 +659,7 @@ class CollectorViewModel @Inject constructor(
 
     private companion object {
         const val TICK_MS = 250L
+        const val STATS_INTERVAL_MS = 200L
         const val DEFAULT_INTERVAL_S = 1.0
         const val MIN_INTERVAL_S = 0.05
     }
