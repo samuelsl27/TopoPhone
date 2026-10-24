@@ -13,23 +13,31 @@ import es.topophone.core.survey.DianaScale
 import es.topophone.core.survey.Guidance
 import es.topophone.core.survey.HeadingResult
 import es.topophone.core.survey.HeadingSource
+import es.topophone.core.survey.LevelAlert
+import es.topophone.core.survey.LevelScale
+import es.topophone.core.survey.LevelState
 import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.ReceiverModel
 import es.topophone.core.survey.StakeAlert
 import es.topophone.core.survey.StakeZone
 import es.topophone.core.survey.StakeoutGeometry
+import es.topophone.core.survey.StakeoutLevel
 import es.topophone.core.survey.StakeoutZones
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.VerticalPole
 import es.topophone.receiver.platform.Alerts
+import kotlin.math.abs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /** El punto de diseño que se replantea (S018/RF-4). */
 data class StakeTarget(val id: String, val name: String, val description: String, val coordinates: PointCoordinates)
 
-/** Todo lo que la guía necesita saber de fuera con cada época: los ajustes, el punto, el control de precisión y el proyecto. */
+/**
+ * Todo lo que la guía necesita saber de fuera con cada época: los ajustes, el punto, el control de precisión y el proyecto.
+ * [designElevationM] es la cota de diseño que escribió el usuario (S019/RF-2); sin ella se usa la altura del punto de diseño.
+ */
 class StakeContext(
     val settings: StakeoutSettings,
     val target: StakeTarget,
@@ -38,7 +46,20 @@ class StakeContext(
     val poleHeightM: Double,
     val project: Project,
     val calculator: ProjectPositionCalculator,
-)
+    val designElevationM: Double? = null,
+) {
+    /** La cota de diseño que se replantea: la escrita, o la altura del punto de diseño (S019/RF-1, RF-2). */
+    val elevationM: Double? get() = designElevationM ?: target.coordinates.height
+}
+
+/** Por qué no hay nivel vertical aunque la guía esté encendida (S019/RF-5). */
+enum class LevelUnavailable { NO_DESIGN_ELEVATION, TIP_WITHOUT_HEIGHT }
+
+/**
+ * El nivel vertical con una época (S019/RF-6 a RF-9): la diferencia de cota [dzM] (punta menos cota de diseño; positiva en
+ * desmonte), su [state], el radio visible [radiusM] del tubo y la tolerancia vertical [toleranceM].
+ */
+data class LevelUi(val dzM: Double, val state: LevelState, val radiusM: Double, val toleranceM: Double)
 
 /** Por qué la guía está apagada (S018/RF-22, RF-24, RF-25, RF-35). */
 enum class GuidanceOff { NO_POSITION, NO_DATA, NO_FIX, TILT_NOT_READY }
@@ -62,6 +83,9 @@ data class GuidanceUi(
     val tipUncompensated: Boolean,
     /** La punta en geográficas, para dibujarla en el mapa (S018/RF-14). */
     val tip: GeodeticPosition? = null,
+    /** El nivel vertical, o null si falta la cota o la altura de la punta, con el motivo en [levelUnavailable] (S019/RF-5). */
+    val level: LevelUi? = null,
+    val levelUnavailable: LevelUnavailable? = null,
 )
 
 sealed interface GuidanceState {
@@ -91,6 +115,11 @@ class StakeoutController(
     private var lastPublishedAtMs = Long.MIN_VALUE
     private var wasOn = false
 
+    // S019: el nivel vertical; null es "sin estado previo" (al empezar, al volver la guía o al cambiar la cota).
+    private var levelState: LevelState? = null
+    private var levelRadius: Double? = null
+    private var levelElevation: Double? = null
+
     /** Una época nueva con lo que hay ahora fuera (S018/RF-5 a RF-25, RF-35). */
     @Synchronized
     fun onEpoch(epoch: Epoch, context: StakeContext) {
@@ -114,7 +143,9 @@ class StakeoutController(
         }
         val position = context.calculator.fromGround(tip.ground, context.project.crs, context.project.heightSystem)
         val tipCoordinates = PointCoordinates(tip.ground, position.easting, position.northing, position.height)
-        val design = context.target.coordinates
+        // S019/RF-1, RF-2: la cota de diseño es la escrita o la del punto; la diferencia de cota sale contra ella.
+        val elevation = context.elevationM
+        val design = context.target.coordinates.copy(height = elevation)
 
         // El rumbo de marcha sigue a la punta respecto al punto de diseño, que no se mueve: vale con cualquier SC.
         val toward = StakeoutGeometry.guidance(design, tipCoordinates, headingRad = null)
@@ -136,6 +167,11 @@ class StakeoutController(
             log.info(LogCategory.POINTS, "Replanteo de ${context.target.name}: ${alert.logText()}")
         }
         val radius = DianaScale.radius(dianaRadius, guidance.distanceM, tolerance).also { dianaRadius = it }
+        if (elevation != levelElevation) levelState = null // S019/RF-2: otra cota, el nivel empieza de cero
+        levelElevation = elevation
+        val levelBefore = levelState
+        val level = levelOf(guidance.dHeightM, context)
+        val levelChanged = levelBefore != levelState
         val ui = GuidanceUi(
             guidance = guidance,
             zone = zone,
@@ -147,10 +183,20 @@ class StakeoutController(
             horizontalAccuracyM = horizontalAccuracy(epoch, context, tip.uncompensated),
             tipUncompensated = tip.uncompensated,
             tip = tip.ground,
+            level = level,
+            levelUnavailable = if (level !=
+                null
+            ) {
+                null
+            } else if (elevation == null) {
+                LevelUnavailable.NO_DESIGN_ELEVATION
+            } else {
+                LevelUnavailable.TIP_WITHOUT_HEIGHT
+            },
         )
         val becameOn = !wasOn
         wasOn = true
-        publish(GuidanceState.On(ui), force = becameOn || zoneChanged)
+        publish(GuidanceState.On(ui), force = becameOn || zoneChanged || levelChanged)
     }
 
     /** Un corte ("Sin datos" o conexión perdida): la guía se apaga hasta que vuelvan las épocas (S018/RF-25). */
@@ -165,6 +211,7 @@ class StakeoutController(
         heading = HeadingSource()
         zone = StakeZone.FAR
         dianaRadius = null
+        resetLevel()
         wasOn = false
         lastPublishedAtMs = Long.MIN_VALUE
         flow.value = GuidanceState.Off(GuidanceOff.NO_POSITION)
@@ -183,10 +230,41 @@ class StakeoutController(
         wasOn = false
         zone = StakeZone.FAR
         dianaRadius = null
+        resetLevel() // S019/RF-11: el nivel se apaga con la guía y vuelve a empezar de cero
         if (!alreadyOff) {
             flow.value = GuidanceState.Off(reason)
             lastPublishedAtMs = Long.MIN_VALUE
         }
+    }
+
+    private fun resetLevel() {
+        levelState = null
+        levelRadius = null
+        levelElevation = null
+    }
+
+    /**
+     * El nivel vertical de la época (S019/A1): su estado con el margen de 5 mm, el aviso si entra o sale de la cota, y la escala.
+     * Sin diferencia de cota (falta la cota de diseño o la altura de la punta) no hay nivel y empieza de cero cuando vuelva.
+     */
+    private fun levelOf(dzM: Double?, context: StakeContext): LevelUi? {
+        if (dzM == null) {
+            levelState = null
+            levelRadius = null
+            return null
+        }
+        val tolerance = context.settings.validToleranceVM
+        val step = StakeoutLevel.next(levelState, dzM, tolerance)
+        levelState = step.state
+        step.alert?.let { alert ->
+            when (alert) {
+                LevelAlert.ARRIVED -> alerts.stakeoutLevelArrived()
+                LevelAlert.LEFT -> alerts.stakeoutLevelLeft()
+            }
+            log.info(LogCategory.POINTS, "Replanteo de ${context.target.name}: ${alert.logText()}")
+        }
+        val radius = LevelScale.radius(levelRadius, abs(dzM), tolerance).also { levelRadius = it }
+        return LevelUi(dzM, step.state, radius, tolerance)
     }
 
     private fun publish(state: GuidanceState, force: Boolean) {
@@ -212,6 +290,11 @@ class StakeoutController(
         StakeAlert.APPROACH -> "entra en la zona de ayuda"
         StakeAlert.ARRIVED -> "dentro de la tolerancia"
         StakeAlert.LEFT -> "fuera de la tolerancia"
+    }
+
+    private fun LevelAlert.logText() = when (this) {
+        LevelAlert.ARRIVED -> "en cota"
+        LevelAlert.LEFT -> "fuera de cota"
     }
 
     private fun GuidanceOff.logText() = when (this) {

@@ -26,6 +26,7 @@ import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.HeadingResult
 import es.topophone.core.survey.HeadingUnavailable
+import es.topophone.core.survey.LevelState
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.StakeZone
 import es.topophone.receiver.platform.Alerts
@@ -44,6 +45,9 @@ class StakeoutControllerTest {
 
     private class Recorder : Alerts {
         val events = mutableListOf<String>()
+
+        /** Los avisos del nivel vertical (S019/RF-9), aparte de los de S018. */
+        val levelEvents = mutableListOf<String>()
 
         override fun connectionLost() {
             events += "connectionLost"
@@ -65,6 +69,14 @@ class StakeoutControllerTest {
 
         override fun stakeoutArrived() {
             events += "arrived"
+        }
+
+        override fun stakeoutLevelArrived() {
+            levelEvents += "levelArrived"
+        }
+
+        override fun stakeoutLevelLeft() {
+            levelEvents += "levelLeft"
         }
 
         override fun stakeoutLeft() {
@@ -106,8 +118,16 @@ class StakeoutControllerTest {
     }
     private val target = StakeTarget("design-1", "12", "esquina", designCoordinates)
 
-    private fun context(settings: StakeoutSettings = StakeoutSettings(), fixOnly: Boolean = true, tiltMode: TiltMode? = null) =
-        StakeContext(settings, target, fixOnly, tiltMode, poleHeight, project, calculator)
+    private fun context(
+        settings: StakeoutSettings = StakeoutSettings(),
+        fixOnly: Boolean = true,
+        tiltMode: TiltMode? = null,
+        designElevationM: Double? = null,
+        design: StakeTarget = target,
+    ) = StakeContext(settings, design, fixOnly, tiltMode, poleHeight, project, calculator, designElevationM)
+
+    /** El punto de diseño sin altura (S019/RF-5). */
+    private val targetWithoutHeight = target.copy(coordinates = designCoordinates.copy(height = null))
 
     private fun tilt(state: TiltState = TiltState.COMPENSATING, headingDeg: Double? = 0.0) = TiltData(
         utcMillisOfDay = 0,
@@ -128,6 +148,7 @@ class StakeoutControllerTest {
         tilt: TiltData? = null,
         position: Boolean = true,
         up: Double = 0.0,
+        withAltitude: Boolean = true,
     ): Epoch {
         val tip = LocalTangentPlane.offset(origin, east, north, up)
         val fix = GgaFix(
@@ -137,7 +158,7 @@ class StakeoutControllerTest {
             if (position) status else SolutionStatus.NONE,
             24,
             0.6,
-            tip.ellipsoidalHeightM + antennaHeight - 51.234,
+            if (withAltitude) tip.ellipsoidalHeightM + antennaHeight - 51.234 else null,
             51.234,
             1.0,
             "",
@@ -231,6 +252,221 @@ class StakeoutControllerTest {
         controller.onEpoch(epoch(0.5, 0.0, up = 0.25), context())
 
         on().ui.guidance.dHeightM.shouldNotBeNull() shouldBe (0.25 plusOrMinus 0.01)
+    }
+
+    private fun level(): LevelUi = on().ui.level.shouldNotBeNull()
+
+    @Test
+    fun `S019 RF-1 y RF-6 sin cota escrita el nivel usa la altura del punto de diseno`() {
+        controller.onEpoch(epoch(0.5, 0.0, up = 0.25), context())
+
+        level().dzM shouldBe (0.25 plusOrMinus 0.002)
+        level().state shouldBe LevelState.CUT
+        level().toleranceM shouldBe 0.03
+        on().ui.levelUnavailable.shouldBeNull()
+    }
+
+    @Test
+    fun `S019 RF-6 por debajo de la cota de diseno es terraplen y por encima desmonte, a metros de diferencia`() {
+        controller.onEpoch(epoch(0.5, 0.0, up = -1.2), context())
+        level().state shouldBe LevelState.FILL
+        level().dzM shouldBe (-1.2 plusOrMinus 0.002)
+
+        controller.onEpoch(epoch(0.5, 0.0, index = 1, up = 3.25), context())
+        level().state shouldBe LevelState.CUT
+        level().dzM shouldBe (3.25 plusOrMinus 0.002)
+    }
+
+    @Test
+    fun `S019 RF-6 y RF-7 el nivel sigue a cualquier distancia del punto y con decenas de metros de diferencia`() {
+        // A 100 m del punto de diseno y 12,5 m por encima de su cota: fuera de la diana, el nivel esta igual.
+        controller.onEpoch(epoch(100.0, 0.0, up = 12.5), context())
+
+        on().ui.zone shouldBe StakeZone.FAR
+        level().state shouldBe LevelState.CUT
+        level().dzM shouldBe (12.5 plusOrMinus 0.002)
+        level().radiusM shouldBe 20.0
+
+        controller.onEpoch(epoch(100.0, 0.0, index = 1, up = -35.0), context())
+        level().state shouldBe LevelState.FILL
+        level().radiusM shouldBe 50.0
+    }
+
+    @Test
+    fun `S019 RF-7 la escala del nivel no salta de ida y vuelta en el borde de un paso`() {
+        val radii = listOf(4.1, 3.95, 4.05, 3.8).mapIndexed { i, up ->
+            controller.onEpoch(epoch(0.5, 0.0, index = i, up = up), context())
+            level().radiusM
+        }
+
+        radii.toSet() shouldBe setOf(10.0)
+    }
+
+    @Test
+    fun `S019 RF-2 una cota escrita sustituye a la del punto sin tocar el punto`() {
+        val written = designCoordinates.height!! - 2.0
+
+        controller.onEpoch(epoch(0.5, 0.0, up = 0.0), context(designElevationM = written))
+
+        level().dzM shouldBe (2.0 plusOrMinus 0.002)
+        level().state shouldBe LevelState.CUT
+        target.coordinates.height shouldBe designCoordinates.height
+    }
+
+    @Test
+    fun `S019 RF-2 una cota escrita da nivel aunque el punto de diseno no tenga altura`() {
+        val written = designCoordinates.height!! + 0.5
+
+        controller.onEpoch(epoch(0.5, 0.0, up = 0.0), context(designElevationM = written, design = targetWithoutHeight))
+
+        level().dzM shouldBe (-0.5 plusOrMinus 0.002)
+        level().state shouldBe LevelState.FILL
+    }
+
+    @Test
+    fun `S019 RF-5 sin altura en el punto de diseno ni cota escrita no hay nivel y se dice que falta la cota`() {
+        controller.onEpoch(epoch(0.5, 0.0, up = 0.25), context(design = targetWithoutHeight))
+
+        on().ui.level.shouldBeNull()
+        on().ui.levelUnavailable shouldBe LevelUnavailable.NO_DESIGN_ELEVATION
+        on().ui.guidance.distanceM shouldBe (0.5 plusOrMinus 0.005) // la guia horizontal sigue
+        on().ui.guidance.dHeightM.shouldBeNull()
+        alerts.levelEvents shouldBe emptyList()
+    }
+
+    @Test
+    fun `S019 RF-5 con la punta sin altura no hay nivel y se dice que falta la altura de la punta`() {
+        controller.onEpoch(epoch(0.5, 0.0, withAltitude = false), context())
+
+        on().ui.level.shouldBeNull()
+        on().ui.levelUnavailable shouldBe LevelUnavailable.TIP_WITHOUT_HEIGHT
+        on().ui.guidance.distanceM shouldBe (0.5 plusOrMinus 0.005)
+    }
+
+    @Test
+    fun `S019 RF-5 si falta las dos cosas se dice que falta la cota de diseno`() {
+        controller.onEpoch(epoch(0.5, 0.0, withAltitude = false), context(design = targetWithoutHeight))
+
+        on().ui.levelUnavailable shouldBe LevelUnavailable.NO_DESIGN_ELEVATION
+    }
+
+    @Test
+    fun `S019 RF-8 con la diferencia dentro de la tolerancia vertical esta en cota`() {
+        controller.onEpoch(epoch(0.5, 0.0, up = 0.02), context())
+
+        level().state shouldBe LevelState.ON_GRADE
+        controller.onEpoch(epoch(0.5, 0.0, index = 1, up = -0.025), context())
+        level().state shouldBe LevelState.ON_GRADE
+    }
+
+    @Test
+    fun `S019 RF-10 la tolerancia vertical elegida se aplica en cada epoca`() {
+        controller.onEpoch(epoch(0.5, 0.0, up = 0.05), context(StakeoutSettings(toleranceVM = 0.03)))
+        level().state shouldBe LevelState.CUT
+
+        controller.onEpoch(epoch(0.5, 0.0, index = 1, up = 0.05), context(StakeoutSettings(toleranceVM = 0.08)))
+
+        level().state shouldBe LevelState.ON_GRADE
+        level().toleranceM shouldBe 0.08
+    }
+
+    @Test
+    fun `S019 RF-9 al entrar en cota y al salir de ella avisa una vez, aparte de la llegada horizontal`() {
+        listOf(0.5, 0.2, 0.05, 0.02, 0.01, 0.0, 0.015, 0.06, 0.2).forEachIndexed { i, up ->
+            controller.onEpoch(epoch(0.5, 0.0, index = i, up = up), context())
+        }
+
+        alerts.levelEvents shouldBe listOf("levelArrived", "levelLeft")
+        // La diana horizontal no ha llegado a ningun sitio: a 0,5 m no hay avisos de S018.
+        alerts.events shouldBe emptyList()
+    }
+
+    @Test
+    fun `S019 RF-9 los avisos del nivel suenan aunque la punta este lejos del punto en horizontal`() {
+        controller.onEpoch(epoch(100.0, 0.0, up = 0.01), context())
+
+        alerts.levelEvents shouldBe listOf("levelArrived")
+    }
+
+    @Test
+    fun `S019 RF-12 la llegada horizontal no depende de la cota ni la cota de la llegada`() {
+        // Dentro de la tolerancia en horizontal y a 2 m de la cota: el replanteo horizontal llega, el nivel no.
+        controller.onEpoch(epoch(0.0, 0.01, 0, up = 2.0), context())
+
+        on().ui.zone shouldBe StakeZone.INSIDE
+        alerts.events shouldBe listOf("arrived")
+        level().state shouldBe LevelState.CUT
+        alerts.levelEvents shouldBe emptyList()
+
+        // En cota y a 1 m en horizontal: el nivel llega, la diana no.
+        controller.onEpoch(epoch(1.0, 0.0, 1, up = 0.0), context())
+
+        level().state shouldBe LevelState.ON_GRADE
+        on().ui.zone shouldBe StakeZone.FAR
+        alerts.levelEvents shouldBe listOf("levelArrived")
+    }
+
+    @Test
+    fun `S019 RF-12 sin cota la guia horizontal funciona igual que en S018`() {
+        controller.onEpoch(epoch(0.0, 0.3, 0), context(design = targetWithoutHeight))
+
+        on().ui.zone shouldBe StakeZone.AID
+        alerts.events shouldBe listOf("approach")
+    }
+
+    @Test
+    fun `S019 RF-11 sin FIX con Solo FIX el nivel se apaga con la guia y no avisa`() {
+        controller.onEpoch(epoch(0.5, 0.0, 0, up = 0.01), context())
+        alerts.levelEvents shouldBe listOf("levelArrived")
+
+        controller.onEpoch(epoch(0.5, 0.0, 1, status = SolutionStatus.FLOAT, up = 0.5), context())
+
+        off() shouldBe GuidanceOff.NO_FIX
+        alerts.levelEvents shouldBe listOf("levelArrived") // ni salir de la cota, ni entrar: no hay guia
+    }
+
+    @Test
+    fun `S019 RF-11 un corte y la falta de estado 30 apagan el nivel con la guia`() {
+        controller.onEpoch(epoch(0.5, 0.0, 0, up = 0.5), context())
+        level()
+
+        controller.onSilence(context())
+        off() shouldBe GuidanceOff.NO_DATA
+
+        controller.onEpoch(epoch(0.5, 0.0, 1, tilt = tilt(TiltState.ALIGNMENT), up = 0.5), context(tiltMode = TiltMode.APP))
+        off() shouldBe GuidanceOff.TILT_NOT_READY
+    }
+
+    @Test
+    fun `S019 RF-11 al volver la guia el nivel empieza de cero y vuelve a avisar de la entrada en cota`() {
+        controller.onEpoch(epoch(0.5, 0.0, 0, up = 0.01), context())
+        controller.onSilence()
+        controller.onEpoch(epoch(0.5, 0.0, 1, up = 0.01), context())
+
+        alerts.levelEvents shouldBe listOf("levelArrived", "levelArrived")
+    }
+
+    @Test
+    fun `S019 RF-2 cambiar la cota escrita reinicia el nivel`() {
+        controller.onEpoch(epoch(0.5, 0.0, 0, up = 0.01), context())
+        alerts.levelEvents shouldBe listOf("levelArrived")
+
+        // Misma punta, otra cota: 1 m mas arriba. Sale de la cota (sin aviso de salir: empieza de cero) y no repite la entrada.
+        controller.onEpoch(epoch(0.5, 0.0, 1, up = 0.01), context(designElevationM = designCoordinates.height!! - 1.0))
+        level().state shouldBe LevelState.CUT
+        alerts.levelEvents shouldBe listOf("levelArrived")
+
+        // Y volver a la del punto empieza otra vez: el primer dato en cota avisa de la entrada.
+        controller.onEpoch(epoch(0.5, 0.0, 2, up = 0.01), context())
+        alerts.levelEvents shouldBe listOf("levelArrived", "levelArrived")
+    }
+
+    @Test
+    fun `S019 RF-9 el log anota la entrada y la salida de cota, sin cifras`() {
+        listOf(0.5, 0.01, 0.01, 0.2).forEachIndexed { i, up -> logged.onEpoch(epoch(0.5, 0.0, index = i, up = up), context()) }
+
+        log.messages.filter { "cota" in it } shouldBe listOf("Replanteo de 12: en cota", "Replanteo de 12: fuera de cota")
+        log.messages.none { Regex("""\d+[.,]\d+""").containsMatchIn(it) } shouldBe true
     }
 
     @Test
@@ -396,7 +632,7 @@ class StakeoutControllerTest {
             logged.onEpoch(epoch(0.0, north, index = i), context())
         }
 
-        log.messages shouldBe listOf(
+        log.messages.filterNot { "cota" in it } shouldBe listOf(
             "Replanteo de 12: entra en la zona de ayuda",
             "Replanteo de 12: dentro de la tolerancia",
             "Replanteo de 12: fuera de la tolerancia",
@@ -417,12 +653,12 @@ class StakeoutControllerTest {
         logged.onSilence(context())
         logged.onSilence(context())
 
-        log.messages shouldBe listOf(
+        log.messages.filterNot { "cota" in it } shouldBe listOf(
             "Replanteo de 12: guía apagada, sin FIX",
             "Replanteo de 12: guía apagada, la inclinación no está en estado 30",
             "Replanteo de 12: guía apagada, sin datos del receptor",
         )
-        log.entries.map { it.first } shouldBe List(3) { LogLevel.WARNING }
+        log.entries.filterNot { "cota" in it.third }.map { it.first } shouldBe List(3) { LogLevel.WARNING }
     }
 
     @Test

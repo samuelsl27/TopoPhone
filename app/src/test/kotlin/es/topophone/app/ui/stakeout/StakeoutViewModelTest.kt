@@ -201,12 +201,14 @@ class StakeoutViewModelTest {
 
         vm.open(projectId, point.id)
 
-        val target = await(vm) { it.target != null }.target.shouldNotBeNull()
+        // El punto y el proyecto llegan de la base de datos por rutas distintas: hay que esperar a los dos.
+        val loaded = await(vm) { it.target != null && it.project != null }
+        val target = loaded.target.shouldNotBeNull()
         target.id shouldBe point.id
         target.name shouldBe "12"
         target.description shouldBe "esquina norte"
         target.coordinates shouldBe point.coordinates
-        vm.state.value.project.shouldNotBeNull().name shouldBe "Calle Mayor 12"
+        loaded.project.shouldNotBeNull().name shouldBe "Calle Mayor 12"
     }
 
     @Test
