@@ -34,7 +34,7 @@
       Hecho cuando: los tests del ViewModel en verde: siguiente y anterior con búsqueda y en los extremos, el cambio de punto bloqueado durante la medida y los ajustes que se recuerdan.
 - [x] T16. `app`: `StakeoutPanel`, con la cabecera, los dos modos y las cifras de la guía, con sus textos en es y en. (RF-4, RF-5, RF-6, RF-7, RF-11, RF-12, RF-13, RF-35)
       Hecho cuando: `StakeoutPanelTest` en verde con los textos de cada modo y situación, la guía apagada con su motivo y las etiquetas de TalkBack.
-- [ ] T17. `app`: la flecha y la diana métrica, con su escala, su orientación y "Dentro de la tolerancia". (RF-15, RF-16, RF-17, RF-19)
+- [x] T17. `app`: la flecha y la diana métrica, con su escala, su orientación y "Dentro de la tolerancia". (RF-15, RF-16, RF-17, RF-19)
       Hecho cuando: los tests de la diana en verde: aparece a 40 cm o menos, el círculo de la tolerancia a escala, el verde con su texto y la descripción de texto.
 - [ ] T18. `app`: "Medir", el progreso, el resultado con las diferencias, "Cancelar" y el diálogo de ajustes en el panel. (RF-18, RF-26, RF-29, RF-30)
       Hecho cuando: los tests de medir de `StakeoutPanelTest` en verde: el progreso, las diferencias tras guardar, los controles bloqueados durante la medida y la tolerancia cambiada.

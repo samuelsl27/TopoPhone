@@ -28,6 +28,8 @@ import es.topophone.data.backup.AutoBackupState
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.RoomProjectRepository
 import io.kotest.matchers.shouldBe
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -100,7 +102,11 @@ class ProjectListBackupNoticeTest {
     }
 
     private class Setup(folder: TemporaryFolder, initial: AutoBackupState) {
-        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), TopoPhoneDatabase::class.java).build()
+        // Los hilos de Room son de la prueba: al cerrar se espera a la consulta en vuelo, que si no lee una base ya cerrada.
+        private val executor = Executors.newSingleThreadExecutor()
+        val db = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), TopoPhoneDatabase::class.java)
+            .setQueryExecutor(executor)
+            .build()
         val projects = RoomProjectRepository(db)
         val preferences = FakePreferences(initial)
         val backupFolder = FakeFolder()
@@ -119,6 +125,8 @@ class ProjectListBackupNoticeTest {
         fun close() {
             collector.cancel()
             vm.viewModelScope.cancel()
+            executor.shutdown()
+            executor.awaitTermination(5, TimeUnit.SECONDS)
             db.close()
         }
 

@@ -434,6 +434,13 @@
     <string name="stakeout_heading_not_moving">No heading: walk to get one.</string>
     <string name="stakeout_heading_no_imu">No heading: the receiver does not send the IMU one.</string>
     <string name="stakeout_heading_imu_not_ready">No heading: the IMU is not ready (state 30).</string>
+    <string name="stakeout_inside">Within tolerance</string>
+    <string name="stakeout_diana_description">Bullseye of %1$d cm radius: the tip is %2$d cm from the design point.</string>
+    <string name="stakeout_arrow_description">Arrow to the design point: %1$s</string>
+    <string name="stakeout_arrow_ahead">straight ahead</string>
+    <string name="stakeout_arrow_behind">behind you</string>
+    <string name="stakeout_arrow_right">%1$d° to the right</string>
+    <string name="stakeout_arrow_left">%1$d° to the left</string>
     <string name="stakeout_off_no_position">No receiver position.</string>
     <string name="stakeout_off_no_data">No data from the receiver: guidance off.</string>
     <string name="stakeout_off_no_fix">No FIX: guidance off.</string>

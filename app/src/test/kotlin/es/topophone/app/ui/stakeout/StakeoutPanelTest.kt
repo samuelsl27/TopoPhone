@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -308,5 +309,56 @@ class StakeoutPanelTest {
         show(state())
 
         compose.onNodeWithTag(STAKEOUT_NAME_TAG).assertTextEquals("Replantear 12")
+    }
+
+    @Test
+    fun `S018 RF-15 lejos no hay diana y en la zona de ayuda y dentro si`() {
+        show(state(on(zone = StakeZone.FAR)))
+        compose.onNodeWithTag(STAKEOUT_DIANA_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S018 RF-15 en la zona de ayuda hay diana con su descripcion y aun no dice dentro de la tolerancia`() {
+        show(state(on(guidance(distance = 0.1, dEast = 0.1, dNorth = 0.0, ahead = 0.1, right = 0.0), zone = StakeZone.AID)))
+
+        compose.onNodeWithTag(STAKEOUT_DIANA_TAG).assertIsDisplayed()
+        val description = "Diana de 20 cm de radio: la punta está a 10 cm del punto de diseño."
+        compose.onNodeWithTag(STAKEOUT_DIANA_TAG).assert(hasContentDescription(description))
+        compose.onNodeWithTag(STAKEOUT_INSIDE_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S018 RF-19 dentro de la tolerancia hay diana y el texto Dentro de la tolerancia`() {
+        show(state(on(guidance(distance = 0.01, dEast = 0.01, dNorth = 0.0, ahead = 0.01, right = 0.0), zone = StakeZone.INSIDE)))
+
+        compose.onNodeWithTag(STAKEOUT_DIANA_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(STAKEOUT_INSIDE_TAG).assertTextEquals("Dentro de la tolerancia")
+    }
+
+    @Test
+    fun `S018 RF-7 por direccion con rumbo hay flecha con su descripcion para TalkBack`() {
+        show(state(on(guidance(distance = 5.0, ahead = 4.0, right = 3.0)), StakeMode.BY_DIRECTION))
+
+        compose.onNodeWithTag(STAKEOUT_ARROW_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(STAKEOUT_ARROW_TAG).assert(hasContentDescription("Flecha hacia el punto de diseño: 37° a la derecha"))
+    }
+
+    @Test
+    fun `S018 RF-7 la flecha dice de frente y detras cuando toca`() {
+        show(state(on(guidance(distance = 5.0, ahead = 5.0, right = 0.2)), StakeMode.BY_DIRECTION))
+        compose.onNodeWithTag(STAKEOUT_ARROW_TAG).assert(hasContentDescription("Flecha hacia el punto de diseño: de frente"))
+    }
+
+    @Test
+    fun `S018 RF-7 sin rumbo o por distancia no hay flecha`() {
+        val noHeading = on(guidance(ahead = null, right = null), HeadingResult.Unavailable(HeadingUnavailable.NOT_MOVING))
+        show(state(noHeading, StakeMode.BY_DIRECTION))
+        compose.onNodeWithTag(STAKEOUT_ARROW_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S018 RF-7 por distancia no hay flecha aunque haya rumbo`() {
+        show(state(on(guidance(ahead = 4.0, right = 3.0)), StakeMode.BY_DISTANCE))
+        compose.onNodeWithTag(STAKEOUT_ARROW_TAG).assertDoesNotExist()
     }
 }

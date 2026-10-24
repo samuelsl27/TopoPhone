@@ -39,6 +39,7 @@ import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.survey.HeadingResult
 import es.topophone.core.survey.HeadingUnavailable
+import es.topophone.core.survey.StakeZone
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -189,6 +190,23 @@ private fun Guidance(state: StakeoutUiState) {
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.testTag(STAKEOUT_DISTANCE_TAG),
             )
+            val byDirection = state.settings.mode == StakeMode.BY_DIRECTION
+            val ahead = ui.guidance.aheadM
+            val right = ui.guidance.rightM
+            if (byDirection && ahead != null && right != null) StakeoutArrow(ahead, right) // S018/RF-7
+            if (ui.zone != StakeZone.FAR) {
+                // S018/RF-15 a RF-17: en la zona de ayuda, la diana; con el rumbo del usuario arriba si hay flecha.
+                val headingUp = (ui.heading as? HeadingResult.Available)?.rad?.takeIf { byDirection }
+                StakeoutDiana(ui, state.settings.validToleranceM, headingUp)
+            }
+            if (ui.zone == StakeZone.INSIDE) {
+                Text(
+                    stringResource(R.string.stakeout_inside),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.testTag(STAKEOUT_INSIDE_TAG),
+                ) // S018/RF-19: con texto, no solo con color (RNF-T8)
+            }
             if (state.settings.mode == StakeMode.BY_DISTANCE) {
                 Text(
                     stringResource(R.string.stakeout_north, numbers.signed(ui.guidance.dNorthM)),

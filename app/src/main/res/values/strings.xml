@@ -446,6 +446,13 @@
     <string name="stakeout_heading_not_moving">Sin rumbo: camina para obtenerlo.</string>
     <string name="stakeout_heading_no_imu">Sin rumbo: el receptor no envía el del IMU.</string>
     <string name="stakeout_heading_imu_not_ready">Sin rumbo: el IMU no está listo (estado 30).</string>
+    <string name="stakeout_inside">Dentro de la tolerancia</string>
+    <string name="stakeout_diana_description">Diana de %1$d cm de radio: la punta está a %2$d cm del punto de diseño.</string>
+    <string name="stakeout_arrow_description">Flecha hacia el punto de diseño: %1$s</string>
+    <string name="stakeout_arrow_ahead">de frente</string>
+    <string name="stakeout_arrow_behind">detrás</string>
+    <string name="stakeout_arrow_right">%1$d° a la derecha</string>
+    <string name="stakeout_arrow_left">%1$d° a la izquierda</string>
     <string name="stakeout_off_no_position">Sin posición del receptor.</string>
     <string name="stakeout_off_no_data">Sin datos del receptor: guía apagada.</string>
     <string name="stakeout_off_no_fix">Sin FIX: guía apagada.</string>
