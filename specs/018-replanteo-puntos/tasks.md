@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/replanteo`: `generar_replanteo.py` con pares de diseño y punta en la Península, en Canarias y en un SC geográfico, y la distancia, las diferencias de Norte y Este y el rumbo calculados con pyproj. (RF-6, RF-7, RF-12)
       Hecho cuando: el script genera `fixtures/replanteo/` y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `StakeoutSettings` (modo, origen del rumbo y tolerancia con su rango y su conversión a la unidad del proyecto), `StakeoutNames` y `NaturalOrder`. (RF-3, RF-5, RF-8, RF-18, RF-27)
+- [x] T2. `core:model`: `StakeoutSettings` (modo, origen del rumbo y tolerancia con su rango y su conversión a la unidad del proyecto), `StakeoutNames` y `NaturalOrder`. (RF-3, RF-5, RF-8, RF-18, RF-27)
       Hecho cuando: `StakeoutSettingsTest`, `StakeoutNamesTest` y `NaturalOrderTest` en verde, con `_stkd`, `_stkd2`, un nombre que ya acaba en número, 1, 2, 10 y la tolerancia en m, ft y usft.
 - [ ] T3. `core:model`: `PointOrigin.STAKED`, `StakeoutRef` en `Point` y `PointSummary.stakeCount`. (RF-27, RF-28, RF-32, RF-33)
       Hecho cuando: los tests de `core:model` en verde y `Point.measured` sin cambios para quien no pasa los datos nuevos.
