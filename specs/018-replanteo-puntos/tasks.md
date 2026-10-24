@@ -18,7 +18,7 @@
       Hecho cuando: `StakeoutDiffTest` en verde, con los signos, sin redondear y con y sin altura.
 - [x] T8. `data`: columnas de replanteo en `points`, `AutoMigration(9, 10)` y su lectura y escritura. (RF-27, RF-28, RF-32)
       Hecho cuando: `TopoPhoneDatabaseTest` 9 → 10 y `PointRepositoryStakeoutTest` en verde: un punto replanteado se guarda y se lee con su diseño y sus diferencias sin redondear, y los puntos de antes conservan sus datos.
-- [ ] T9. `data`: el recuento de replanteos por punto de diseño en los resúmenes. (RF-33)
+- [x] T9. `data`: el recuento de replanteos por punto de diseño en los resúmenes. (RF-33)
       Hecho cuando: los tests del recuento en verde: con dos replanteos, con un diseño borrado, con un replanteo en la papelera y sin ninguno.
 - [ ] T10. `data`: `StakeoutPreferences` y su paso por la copia de ajustes. (RF-5, RF-8, RF-18)
       Hecho cuando: `StakeoutPreferencesTest` y `SettingsArchiveTest` en verde, con los valores fuera de rango corregidos.

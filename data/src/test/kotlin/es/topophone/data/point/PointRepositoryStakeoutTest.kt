@@ -152,4 +152,66 @@ class PointRepositoryStakeoutTest {
         read.origin shouldBe PointOrigin.STAKED
         read.staked shouldBe ref
     }
+
+    private fun stakedOf(designId: String, name: String) = staked(name, ref.copy(designId = designId))
+
+    private fun stakeCounts(): Map<String, Int> = runBlocking { points.summaries(project).first() }.associate { it.name to it.stakeCount }
+
+    @Test
+    fun `S018 RF-33 el resumen de un punto de diseno dice cuantos replanteos tiene`() {
+        runBlocking {
+            points.create(Point.measured("design-12", project, "12", "", measurement(), 500))
+            points.create(Point.measured("design-13", project, "13", "", measurement(), 600))
+            points.create(stakedOf("design-12", "12_stkd"))
+            points.create(stakedOf("design-12", "12_stkd2"))
+            points.create(stakedOf("design-13", "13_stkd"))
+        }
+
+        val counts = stakeCounts()
+
+        counts["12"] shouldBe 2
+        counts["13"] shouldBe 1
+        counts["12_stkd"] shouldBe 0
+    }
+
+    @Test
+    fun `S018 RF-33 un punto sin replanteos tiene cero y uno replanteado a la papelera ya no cuenta`() {
+        runBlocking {
+            points.create(Point.measured("design-12", project, "12", "", measurement(), 500))
+            points.create(Point.measured("other", project, "7", "", measurement(), 600))
+            points.create(stakedOf("design-12", "12_stkd"))
+            points.create(stakedOf("design-12", "12_stkd2"))
+        }
+        stakeCounts()["7"] shouldBe 0
+        stakeCounts()["12"] shouldBe 2
+
+        runBlocking { points.moveToTrash(listOf("id-12_stkd2")) }
+
+        stakeCounts()["12"] shouldBe 1
+    }
+
+    @Test
+    fun `S018 RF-33 los replanteos de un punto de otro proyecto no cuentan`() {
+        val other = runBlocking {
+            projects.create(ProjectDefaults().toDraft().copy(name = "Otra obra")).shouldBeInstanceOf<SaveResult.Saved>().id
+        }
+        runBlocking {
+            points.create(Point.measured("design-12", project, "12", "", measurement(), 500))
+            points.create(
+                Point.measured("id-x", other, "12_stkd", "", measurement(), 1_000, ref.copy(designId = "design-12")),
+            )
+        }
+
+        stakeCounts()["12"] shouldBe 0
+    }
+
+    @Test
+    fun `S018 RF-33 la exportacion lleva los datos del replanteo`() {
+        runBlocking { points.create(staked("12_stkd", ref)) }
+
+        val exported = runBlocking { points.pointsForExport(project) }.single()
+
+        exported.origin shouldBe PointOrigin.STAKED
+        exported.staked shouldBe ref
+    }
 }

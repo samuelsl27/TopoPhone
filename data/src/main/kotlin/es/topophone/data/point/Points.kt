@@ -35,6 +35,8 @@ data class PointSummaryRow(
     val edited: Boolean,
     val hidden: Boolean,
     @ColumnInfo(name = "created_at") val createdAt: Long,
+    /** Cuántos puntos activos del proyecto son replanteos de este (S018/RF-33). */
+    @ColumnInfo(name = "stake_count") val stakeCount: Int,
 )
 
 /** Los puntos activos de un proyecto son los que no están en la papelera (S011/RF-22). */
@@ -61,9 +63,14 @@ interface PointDao {
     fun byProject(projectId: String): Flow<List<PointEntity>>
 
     @Query(
-        "SELECT id, name, description, origin, ground_lat, ground_lon, ground_h IS NOT NULL AS has_height, " +
-            "out_of_tolerance <> '' AS out_of_tolerance, edited, hidden, created_at FROM points " +
-            "WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at DESC",
+        "SELECT points.id, points.name, points.description, points.origin, points.ground_lat, points.ground_lon, " +
+            "points.ground_h IS NOT NULL AS has_height, points.out_of_tolerance <> '' AS out_of_tolerance, points.edited, " +
+            "points.hidden, points.created_at, COALESCE(stakes.n, 0) AS stake_count FROM points " +
+            // Una sola agregación de los replanteos del proyecto: una subconsulta por fila sería cuadrática (S011 RNF, 10.000 puntos).
+            "LEFT JOIN (SELECT project_id AS p, stake_design_id AS d, COUNT(*) AS n FROM points " +
+            "WHERE project_id = :projectId AND deleted_at IS NULL AND stake_design_id IS NOT NULL " +
+            "GROUP BY project_id, stake_design_id) stakes ON stakes.d = points.id AND stakes.p = points.project_id " +
+            "WHERE points.project_id = :projectId AND points.deleted_at IS NULL ORDER BY points.created_at DESC",
     )
     fun summaries(projectId: String): Flow<List<PointSummaryRow>>
 
@@ -83,7 +90,9 @@ interface PointDao {
             "typed_height_kind, edited, hidden, copy_of, created_at, deleted_at, trash_key, base_lat, base_lon, base_h, " +
             "base_source, base_station, base_antenna_height, baseline, tilt_mode, tilt_verified, tilt, tilt_direction, " +
             "tilt_heading, tilt_max, tilt_sigma_h, tilt_sigma_v, tilt_pole_e, tilt_pole_n, tilt_pole_u, tilt_receiver_pole, " +
-            "avg_time, dev_h, dev_v, auto_mode, nmea_chunks FROM points " +
+            "avg_time, dev_h, dev_v, auto_mode, nmea_chunks, stake_design_id, stake_design_name, stake_design_east, " +
+            "stake_design_north, stake_design_height, stake_design_lat, stake_design_lon, stake_design_ground_h, stake_d_east, " +
+            "stake_d_north, stake_d_horizontal, stake_d_height FROM points " +
             "WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at",
     )
     suspend fun forExport(projectId: String): List<PointEntity>
@@ -234,6 +243,7 @@ class RoomPointRepository(
                 edited = row.edited,
                 hidden = row.hidden,
                 createdAtMs = row.createdAt,
+                stakeCount = row.stakeCount,
             )
         }
     }
