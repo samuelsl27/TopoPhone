@@ -202,7 +202,8 @@ class CollectorTiltTest {
 
         receiving(vm, ALIGNMENT)
 
-        val state = await(vm) { it.blocker == MeasureBlocker.TILT_NOT_READY }
+        // Sin ETC todavía también está "sin estado 30": se espera a la guía de la alineación.
+        val state = await(vm) { it.blocker == MeasureBlocker.TILT_NOT_READY && it.tiltGuide == TiltGuide.ALIGNMENT }
         state.tiltGuide shouldBe TiltGuide.ALIGNMENT
     }
 

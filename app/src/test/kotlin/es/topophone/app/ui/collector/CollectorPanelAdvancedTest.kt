@@ -4,6 +4,8 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -18,6 +20,7 @@ import es.topophone.app.ui.projects.ProjectViewScreen
 import es.topophone.app.ui.projects.ProjectViewUiState
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -27,6 +30,7 @@ import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.survey.AutoSummary
 import es.topophone.core.survey.AverageStats
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -81,6 +85,12 @@ class CollectorPanelAdvancedTest {
         onCancel = { calls += "cancel" },
         onFinish = { calls += "finish" },
         onKeepWaiting = { calls += "wait" },
+        onAutoEnabled = { calls += "auto:$it" },
+        onAutoTrigger = { calls += "trigger:$it" },
+        onAutoInterval = { calls += "interval:$it" },
+        onAutoDistance = { calls += "distance:$it" },
+        onStartAuto = { calls += "start" },
+        onStopAuto = { calls += "stop" },
     )
 
     /** Las estadísticas de 250 épocas a 1 Hz en torno a una media, con una deriva lenta. */
@@ -90,7 +100,7 @@ class CollectorPanelAdvancedTest {
         return AverageStatsUi(checkNotNull(stats.snapshot()), stats.dispersion())
     }
 
-    private fun show(state: CollectorUiState, collectorStats: AverageStatsUi? = null) {
+    private fun show(state: CollectorUiState, collectorStats: AverageStatsUi? = null, autoLive: AutoLive? = null) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
                 ProjectViewScreen(
@@ -102,6 +112,7 @@ class CollectorPanelAdvancedTest {
                     collector = state,
                     collectorActions = actions,
                     collectorStats = collectorStats,
+                    collectorAutoLive = autoLive,
                 )
             }
         }
@@ -245,5 +256,134 @@ class CollectorPanelAdvancedTest {
         show(ready.copy(measuring = true, progress = MeasureProgress(2.0, 30.0, 2, 0)))
 
         compose.onNodeWithTag(COLLECTOR_ANNOUNCE_TAG).assertDoesNotExist()
+    }
+
+    private val automatic = ready.copy(settings = CollectorSettings(), autoEnabled = true)
+
+    private val running = automatic.copy(auto = AutoUiState(running = true, saved = 3, omitted = 1))
+
+    @Test
+    fun `S017 RF-15 Automatico se enciende y apaga y con el encendido el boton es Iniciar`() {
+        show(ready.copy(settings = CollectorSettings()))
+
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_AUTO_TAG).performScrollTo().performClick()
+        calls shouldContainExactly listOf("auto:true")
+    }
+
+    @Test
+    fun `S017 RF-15 con Automatico encendido se elige el disparo y se ve Iniciar en lugar de Medir`() {
+        show(automatic)
+
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(COLLECTOR_START_AUTO_TAG).assertIsDisplayed().assertIsEnabled().performClick()
+        compose.onNodeWithTag(autoTriggerTag(AutoTrigger.DISTANCE)).performScrollTo().performClick()
+        calls shouldContainExactly listOf("start", "trigger:DISTANCE")
+    }
+
+    @Test
+    fun `S017 RF-16 por tiempo se escribe el intervalo en minutos y segundos y fuera de rango se dice el rango`() {
+        show(automatic.copy(autoIntervalText = "0:10"))
+
+        compose.onNodeWithTag(COLLECTOR_AUTO_INTERVAL_TAG).performScrollTo().assert(hasText("0:10")).performTextReplacement("0:30")
+        calls shouldContainExactly listOf("interval:0:30")
+    }
+
+    @Test
+    fun `S017 RF-16 un intervalo fuera de rango no deja iniciar`() {
+        show(automatic.copy(autoIntervalText = "90:00", autoIntervalValid = false, blocker = MeasureBlocker.INVALID_AUTO_INTERVAL))
+
+        compose.onNodeWithText("De 0:01 a 60:00.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_START_AUTO_TAG).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S017 RF-17 por distancia se escribe la distancia en la unidad del proyecto y se dice el rango`() {
+        val distance = automatic.copy(
+            settings = CollectorSettings(autoTrigger = AutoTrigger.DISTANCE),
+            autoDistanceText = "0,05",
+            autoDistanceValid = false,
+            blocker = MeasureBlocker.INVALID_AUTO_DISTANCE,
+        )
+        show(distance)
+
+        compose.onNodeWithTag(COLLECTOR_AUTO_DISTANCE_TAG).performScrollTo().assert(hasText("0,05")).performTextReplacement("2")
+        compose.onNodeWithText("De 0,1 m a 1.000,0 m.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_START_AUTO_TAG).assertIsNotEnabled()
+        calls shouldContainExactly listOf("distance:2")
+    }
+
+    @Test
+    fun `S017 RF-18 un promediado mas largo que el intervalo se dice y no deja iniciar`() {
+        show(automatic.copy(blocker = MeasureBlocker.AUTO_INTERVAL_TOO_SHORT))
+
+        compose.onNodeWithText("El intervalo no puede ser menor que el tiempo de promediado.").assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_START_AUTO_TAG).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S017 RF-26 con el modo en marcha se ven los guardados, los omitidos y lo que falta, y Parar`() {
+        show(running, autoLive = AutoLive(nextInS = 3.2, nextDistanceM = null))
+
+        compose.onNodeWithText("Guardados: 3 · Omitidos: 1").assertIsDisplayed()
+        compose.onNodeWithText("Siguiente punto en 0:04").assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_STOP_AUTO_TAG).assertIsDisplayed().performClick()
+        compose.onNodeWithTag(COLLECTOR_START_AUTO_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).assertDoesNotExist() // S017/RF-27: no hay "Cancelar"
+        calls shouldContainExactly listOf("stop")
+    }
+
+    @Test
+    fun `S017 RF-26 por distancia se ve la distancia que falta en la unidad del proyecto`() {
+        show(
+            running.copy(settings = CollectorSettings(autoTrigger = AutoTrigger.DISTANCE)),
+            autoLive = AutoLive(nextInS = null, nextDistanceM = 0.45),
+        )
+
+        compose.onNodeWithText("Siguiente punto a 0,450 m").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S017 RF-32 con el modo en marcha la medida y el disparo no se pueden cambiar pero el nombre si`() {
+        show(running)
+
+        compose.onNodeWithTag(modeOptionTag(MeasurementMode.INSTANT)).assertIsNotEnabled()
+        compose.onNodeWithTag(modeOptionTag(MeasurementMode.AVERAGED)).assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_AUTO_TAG).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(autoTriggerTag(AutoTrigger.TIME)).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_AUTO_INTERVAL_TAG).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(COLLECTOR_NAME_TAG).performScrollTo().assertIsEnabled()
+        compose.onNodeWithTag(COLLECTOR_POLE_TAG).performScrollTo().assertIsEnabled()
+    }
+
+    @Test
+    fun `S017 RF-28 un corte con el modo en marcha se avisa en el panel`() {
+        show(running.copy(auto = running.auto.copy(paused = true)))
+
+        compose.onNodeWithTag(COLLECTOR_AUTO_PAUSED_TAG).assert(hasText("Modo automático en pausa", substring = true))
+    }
+
+    @Test
+    fun `S017 RF-27 al parar el modo se dice cuantos puntos se guardaron y cuantos se omitieron`() {
+        show(automatic.copy(auto = AutoUiState(summary = AutoSummary(saved = 4, omitted = 2))))
+
+        compose.onNodeWithText("Modo automático parado: 4 guardados, 2 omitidos.").assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_START_AUTO_TAG).assertIsEnabled()
+    }
+
+    @Test
+    @Config(qualifiers = "+w360dp-h640dp")
+    fun `S017 RF-27 en un movil pequeno Parar se ve sin desplazar el panel`() {
+        show(running, autoLive = AutoLive(nextInS = 3.2, nextDistanceM = null))
+
+        compose.onNodeWithTag(COLLECTOR_STOP_AUTO_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S017 RF-29 si cambia el modo de inclinacion con el modo en marcha se dice que se ha parado`() {
+        show(automatic.copy(error = CollectorError.TILT_MODE_CHANGED, auto = AutoUiState(summary = AutoSummary(1, 0))))
+
+        compose.onNodeWithTag(COLLECTOR_TILT_CHANGED_TAG).assertIsDisplayed()
     }
 }

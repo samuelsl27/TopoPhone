@@ -36,6 +36,7 @@ import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.TiltMode
@@ -83,6 +84,13 @@ class CollectorActions(
     val onFinish: () -> Unit = {},
     /** "Seguir esperando" a la pregunta de 5 min (S017/RF-10). */
     val onKeepWaiting: () -> Unit = {},
+    /** El modo automático: encenderlo, el disparo, el intervalo, la distancia, "Iniciar" y "Parar" (S017/RF-15 a RF-17, RF-27). */
+    val onAutoEnabled: (Boolean) -> Unit = {},
+    val onAutoTrigger: (AutoTrigger) -> Unit = {},
+    val onAutoInterval: (String) -> Unit = {},
+    val onAutoDistance: (String) -> Unit = {},
+    val onStartAuto: () -> Unit = {},
+    val onStopAuto: () -> Unit = {},
 )
 
 /**
@@ -98,6 +106,7 @@ fun CollectorPanel(
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
     stats: AverageStatsUi? = null,
+    autoLive: AutoLive? = null,
 ) {
     KeepScreenOn()
     Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(COLLECTOR_PANEL_TAG)) {
@@ -125,7 +134,11 @@ fun CollectorPanel(
             BaseNoticeBanners(state.notices, actions.onDismissBaseChange, actions.onDismissLongBaseline) // S015/RF-15, RF-17
             LiveQualityText(state.live, unit)
             Messages(state, actions)
-            if (state.measuring) Measuring(state, unit, stats, actions) else MeasureButton(state, actions)
+            when {
+                state.autoEnabled || state.auto.running -> AutoControls(state, unit, autoLive, actions) // S017/RF-15
+                state.measuring -> Measuring(state, unit, stats, actions)
+                else -> MeasureButton(state, actions)
+            }
         }
     }
     state.pending?.let { OutOfToleranceDialog(it, actions.onConfirm, actions.onDiscard) } // S010/RF-14, RF-15
@@ -160,6 +173,7 @@ private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorAc
         modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_POLE_TAG),
     ) // S010/RF-5
     ModeChoice(state, actions)
+    AutoChoice(state, unit, actions) // S017/RF-15 a RF-17
     // S010/RF-13; con la inclinación, también la inclinación máxima (S016/RF-20).
     PrecisionControlRow(state.settings.precision, unit, showTilt = state.tiltMode?.usesTilt == true) {
         actions.onSettings(state.settings.copy(precision = it))
@@ -192,6 +206,7 @@ private fun ModeChoice(state: CollectorUiState, actions: CollectorActions) {
             FilterChip(
                 selected = state.settings.mode == mode,
                 onClick = { actions.onMode(mode) },
+                enabled = !state.auto.running, // S017/RF-32
                 label = {
                     Text(
                         stringResource(
@@ -213,6 +228,7 @@ private fun ModeChoice(state: CollectorUiState, actions: CollectorActions) {
         OutlinedTextField(
             value = state.averagingSecondsText,
             onValueChange = actions.onSeconds,
+            enabled = !state.auto.running, // S017/RF-32
             label = { Text(stringResource(R.string.collector_seconds)) },
             isError = !state.averagingSecondsValid,
             supportingText = if (state.averagingSecondsValid) null else ({ Text(stringResource(R.string.collector_seconds_invalid)) }),
@@ -246,6 +262,7 @@ private fun Messages(state: CollectorUiState, actions: CollectorActions) {
         MeasureBlocker.NO_POSITION -> R.string.project_no_position
         MeasureBlocker.OUTSIDE_CRS_AREA -> R.string.project_outside_crs
         MeasureBlocker.TILT_MODE_MISSING -> R.string.collector_tilt_mode_missing // S016/RF-2
+        MeasureBlocker.AUTO_INTERVAL_TOO_SHORT -> R.string.collector_auto_interval_too_short // S017/RF-18
         else -> null
     }
     blocker?.let { Text(stringResource(it), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag(COLLECTOR_BLOCKER_TAG)) }

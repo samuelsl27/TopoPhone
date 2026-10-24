@@ -513,10 +513,11 @@ class CollectorViewModel @Inject constructor(
     fun stopAuto() {
         if (!autoCollector.running) return
         measurement?.cancel()
+        // Antes de parar el modo, para que el estado no pase por "parado" con una medida todavía en curso.
+        run.value = Run()
         autoCollector.stop()
         stopAutoState()
         stopMeasuring()
-        run.value = Run()
     }
 
     private fun stopAutoState() {
@@ -529,7 +530,7 @@ class CollectorViewModel @Inject constructor(
     private fun applyAuto(actions: List<AutoAction>) {
         for (action in actions) {
             when (action) {
-                AutoAction.StartPoint -> startPoint(auto = true)
+                AutoAction.StartPoint -> if (autoCollector.running) startPoint(auto = true) // no tras "Parar"
                 is AutoAction.OmitCurrent -> {
                     measurement?.cancel()
                     stopMeasuring()
@@ -564,13 +565,13 @@ class CollectorViewModel @Inject constructor(
 
     private fun cancelForTiltMode() {
         measurement?.cancel()
+        log.warning(LogCategory.POINTS, "Medida de ${measuredName()} cancelada: ha cambiado el modo de inclinación") // S014/RF-5
+        run.value = Run(error = CollectorError.TILT_MODE_CHANGED)
         if (autoCollector.running) {
             autoCollector.stop() // S017/RF-29: como "Parar"
             stopAutoState()
         }
         stopMeasuring()
-        log.warning(LogCategory.POINTS, "Medida de ${measuredName()} cancelada: ha cambiado el modo de inclinación") // S014/RF-5
-        run.value = Run(error = CollectorError.TILT_MODE_CHANGED)
     }
 
     /** El reloj de la medida, con la hora del móvil: la instantánea sin datos se cancela y la promediada se pausa (S017/RF-8). */
