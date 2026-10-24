@@ -2,6 +2,8 @@
 
 > Lee antes: `docs/constitution.md`, `docs/arquitectura.md`, `specs/017b-fotos-de-puntos/spec.md`. Sin código.
 
+> **Aviso al retomarla**: S018 (replanteo) pasó por delante y usa la versión 10 de la base de datos; las tablas de fotos pasan a la versión 11 (`AutoMigration(10, 11)`, `TopoPhoneDatabaseTest` 10 → 11) donde este plan dice 10.
+
 ## Estructura de módulos
 - `core:model`:
   - `PhotoPolicy`: máximo de 10 fotos por punto, 2.048 px de lado largo, el tamaño reducido de una foto y cuántas fotos de una selección caben (A1; RF-13, RF-14, RF-18);

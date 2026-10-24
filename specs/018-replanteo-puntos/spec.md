@@ -1,6 +1,6 @@
 # Spec 018 — Replanteo de puntos
 
-> Hito: H2 · Depende de: S016 · Estado: borrador (pendiente de aprobación)
+> Hito: H2 · Depende de: S016 · Estado: aprobada (con suposiciones a revisar; ver "Dudas abiertas")
 
 ## Contexto y objetivo
 Medir un punto dice dónde está algo; replantearlo es lo contrario: se sabe dónde tiene que estar un punto (un vértice de una parcela, una esquina de un edificio, un eje) y hay que llevar el jalón hasta allí y marcarlo. Es el trabajo de campo más habitual después de levantar, y sin él la app solo sirve para medir.
@@ -62,6 +62,7 @@ Términos de esta spec:
 - RF-23: DONDE el control de precisión no tenga "Solo FIX" activo, EL SISTEMA mantendrá la guía con cualquier solución y mostrará su estado de forma destacada.
 - RF-24: MIENTRAS el modo use la inclinación y la época no esté en estado 30 (S016/RF-18), EL SISTEMA apagará la guía e indicará el motivo con la guía de S016/RF-12.
 - RF-25: SI hay un corte ("Sin datos") o se pierde la conexión con el receptor (RNF-T3), ENTONCES EL SISTEMA apagará la guía, avisará con un sonido y una vibración y la volverá a mostrar al volver los datos.
+- RF-35: MIENTRAS aún no haya posición del receptor o de una reproducción, EL SISTEMA mostrará la guía apagada con el motivo, sin sonido, y no permitirá medir (S010/RF-12).
 
 ### Medir el punto replanteado (H3)
 - RF-26: CUANDO el usuario pulse "Medir" en el replanteo, EL SISTEMA medirá el punto con el modo de medida del recolector (instantáneo o promediado), la altura del jalón, el control de precisión y las reglas de corte, descarte y confirmación de S010/RF-8 a RF-15 y de S017/RF-6 a RF-10.
@@ -99,6 +100,7 @@ Términos de esta spec:
 | FIX perdido con "Solo FIX" desactivado | RF-23 |
 | Inclinación en uso y época sin estado 30 | RF-24 |
 | Corte de datos o pérdida de la conexión | RF-25 |
+| Abrir el replanteo antes de que llegue la primera posición | RF-35 |
 | Oscilar sobre el borde de la tolerancia | RF-20 (5 mm de margen) |
 | Replantear dos veces el mismo punto | RF-27 (`_stkd2`) |
 | Medida fuera del control de precisión | RF-26 (S010/RF-14, RF-15) |
