@@ -30,7 +30,7 @@
       Hecho cuando: los tests de avisos de `StakeoutControllerTest` en verde: un aviso al entrar, otro al salir, nada con el borde oscilando, el aviso de la zona de ayuda una sola vez y las anotaciones del log sin coordenadas.
 - [x] T14. `app`: `CollectorViewModel` con el contexto de replanteo: nombre `_stkd`, guardado `STAKED` con el diseño y las diferencias, y el nombre del recolector que se restaura. (RF-26 a RF-31)
       Hecho cuando: `CollectorViewModelStakeoutTest` en verde: medir y guardar, repetir (`_stkd2`), el control de precisión con su confirmación, un promediado con un corte, el diseño editado después, fuera del ámbito del SC y el recolector sin cambios sin contexto.
-- [ ] T15. `app`: `StakeoutViewModel`: el punto de diseño, siguiente y anterior, los ajustes y la medida en marcha. (RF-1 a RF-4, RF-30)
+- [x] T15. `app`: `StakeoutViewModel`: el punto de diseño, siguiente y anterior, los ajustes y la medida en marcha. (RF-1 a RF-4, RF-30)
       Hecho cuando: los tests del ViewModel en verde: siguiente y anterior con búsqueda y en los extremos, el cambio de punto bloqueado durante la medida y los ajustes que se recuerdan.
 - [ ] T16. `app`: `StakeoutPanel`, con la cabecera, los dos modos y las cifras de la guía, con sus textos en es y en. (RF-4, RF-5, RF-6, RF-7, RF-11, RF-12, RF-13, RF-35)
       Hecho cuando: `StakeoutPanelTest` en verde con los textos de cada modo y situación, la guía apagada con su motivo y las etiquetas de TalkBack.
