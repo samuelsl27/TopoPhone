@@ -2,6 +2,7 @@ package es.topophone.data.point
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import es.topophone.core.model.point.HeadingChoice
@@ -60,6 +61,48 @@ class StakeoutPreferencesTest {
 
         withPreferences { prefs, _ -> prefs.save(StakeoutSettings(toleranceM = 0.0001)) }
         withPreferences { prefs, _ -> prefs.settings.first() }.toleranceM shouldBe 0.01
+    }
+
+    @Test
+    fun `S019 RF-10 de fabrica la tolerancia vertical es de 3 cm`() {
+        withPreferences { prefs, _ -> prefs.settings.first() }.toleranceVM shouldBe 0.03
+    }
+
+    @Test
+    fun `S019 RF-10 la tolerancia vertical se recuerda al volver a abrir la app, aparte de la horizontal`() {
+        val chosen = StakeoutSettings(toleranceM = 0.05, toleranceVM = 0.02)
+
+        withPreferences { prefs, _ -> prefs.save(chosen) }
+
+        val read = withPreferences { prefs, _ -> prefs.settings.first() }
+        read shouldBe chosen
+        read.toleranceM shouldBe 0.05
+        read.toleranceVM shouldBe 0.02
+    }
+
+    @Test
+    fun `S019 RF-10 una tolerancia vertical fuera de rango se guarda corregida`() {
+        withPreferences { prefs, _ -> prefs.save(StakeoutSettings(toleranceVM = 7.0)) }
+        withPreferences { prefs, _ -> prefs.settings.first() }.toleranceVM shouldBe 1.0
+
+        withPreferences { prefs, _ -> prefs.save(StakeoutSettings(toleranceVM = 0.0001)) }
+        withPreferences { prefs, _ -> prefs.settings.first() }.toleranceVM shouldBe 0.01
+    }
+
+    @Test
+    fun `S019 RF-10 unos ajustes guardados antes de S019 sin tolerancia vertical la tienen de 3 cm`() {
+        withPreferences { prefs, store ->
+            // Lo que escribía S018: sin la clave de la tolerancia vertical.
+            store.edit {
+                it[stringPreferencesKey("stakeout_mode")] = "BY_DISTANCE"
+                it[doublePreferencesKey("stakeout_tolerance_m")] = 0.05
+            }
+            val read = prefs.settings.first()
+
+            read.mode shouldBe StakeMode.BY_DISTANCE
+            read.toleranceM shouldBe 0.05
+            read.toleranceVM shouldBe 0.03
+        }
     }
 
     @Test

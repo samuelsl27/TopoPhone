@@ -107,6 +107,19 @@ class SettingsArchiveTest {
     }
 
     @Test
+    fun `S019 RF-10 la tolerancia vertical viaja en la copia con el resto de los ajustes del replanteo`() {
+        val exported = withStores("stakeout") { stores ->
+            DataStoreStakeoutPreferences(stores.getValue("stakeout"))
+                .save(StakeoutSettings(toleranceM = 0.04, toleranceVM = 0.02))
+            SettingsArchive(stores, FakeLanguage()).export()
+        }
+
+        val stakeout = exported.stores.getValue("stakeout")
+        stakeout.getValue("stakeout_tolerance_m") shouldBe SettingValue.Float64(0.04)
+        stakeout.getValue("stakeout_tolerance_v_m") shouldBe SettingValue.Float64(0.02)
+    }
+
+    @Test
     fun `S017 RF-16 y RF-17 el disparo, el intervalo y la distancia del modo automatico viajan en la copia`() {
         val exported = withStores("auto") { stores ->
             DataStoreCollectorPreferences(stores.getValue("collector"))

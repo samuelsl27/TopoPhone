@@ -41,7 +41,8 @@ class DataStoreStakeoutPreferences @Inject constructor(@param:StakeoutDataStoreQ
                 mode = StakeMode.entries.firstOrNull { it.name == p[MODE] } ?: factory.mode,
                 heading = HeadingChoice.entries.firstOrNull { it.name == p[HEADING] } ?: factory.heading,
                 toleranceM = p[TOLERANCE_M] ?: factory.toleranceM,
-            ).let { it.copy(toleranceM = it.validToleranceM) }
+                toleranceVM = p[TOLERANCE_V_M] ?: factory.toleranceVM,
+            ).let { it.copy(toleranceM = it.validToleranceM, toleranceVM = it.validToleranceVM) }
         }.distinctUntilChanged()
 
     override suspend fun save(settings: StakeoutSettings) {
@@ -49,6 +50,7 @@ class DataStoreStakeoutPreferences @Inject constructor(@param:StakeoutDataStoreQ
             it[MODE] = settings.mode.name
             it[HEADING] = settings.heading.name
             it[TOLERANCE_M] = settings.validToleranceM
+            it[TOLERANCE_V_M] = settings.validToleranceVM
         }
     }
 
@@ -56,5 +58,6 @@ class DataStoreStakeoutPreferences @Inject constructor(@param:StakeoutDataStoreQ
         val MODE = stringPreferencesKey("stakeout_mode")
         val HEADING = stringPreferencesKey("stakeout_heading")
         val TOLERANCE_M = doublePreferencesKey("stakeout_tolerance_m")
+        val TOLERANCE_V_M = doublePreferencesKey("stakeout_tolerance_v_m") // S019/RF-10
     }
 }

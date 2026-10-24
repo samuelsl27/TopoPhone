@@ -22,7 +22,7 @@
       Hecho cuando: `CsvExportTest` y `CsvExportGoldenTest` en verde: en "Todas las columnas" y "Personalizado", vacías en los no replanteados, PENZD y PNEZD sin cambios y una selección guardada de antes que no las incluye.
 - [x] T10. `data`: columnas nuevas en `points`, `AutoMigration(10, 11)` y su lectura y escritura, incluida la consulta de exportación. (RF-13, RF-14, RF-26)
       Hecho cuando: `TopoPhoneDatabaseTest` 10 → 11 y `PointRepositoryStakeoutTest` en verde: se guardan y se leen sin redondear, y un replanteo de antes se lee con su cota y sin evaluar.
-- [ ] T11. `data`: `StakeoutPreferences` con la tolerancia vertical y su paso por la copia de ajustes. (RF-10)
+- [x] T11. `data`: `StakeoutPreferences` con la tolerancia vertical y su paso por la copia de ajustes. (RF-10)
       Hecho cuando: `StakeoutPreferencesTest` y `SettingsArchiveTest` en verde, con los valores fuera de rango corregidos.
 - [ ] T12. `receiver`: `Alerts.stakeoutLevelArrived()` y `stakeoutLevelLeft()` con sonidos y vibraciones distintos. (RF-9)
       Hecho cuando: `VibrationAlertsTest` en verde con los dos patrones distintos entre sí y de los demás avisos, y los fakes sin cambios.
