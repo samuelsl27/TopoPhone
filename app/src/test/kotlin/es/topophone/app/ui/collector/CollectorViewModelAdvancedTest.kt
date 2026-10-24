@@ -184,6 +184,8 @@ class CollectorViewModelAdvancedTest {
         vm.start(projectId)
         if (observed) CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         await(vm) { it.loaded }
+        // El proyecto llega de Room aparte del formulario; hasta entonces `measure()` se sale en silencio.
+        runBlocking { withTimeout(10_000) { while (!vm.isProjectLoaded) kotlinx.coroutines.delay(10) } }
         return vm
     }
 

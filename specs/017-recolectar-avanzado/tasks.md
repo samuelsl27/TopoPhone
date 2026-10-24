@@ -42,7 +42,7 @@
        Hecho cuando: `AutoCollectorTest` y `CollectorViewModelAdvancedTest` en verde con el modo automático por tiempo y por distancia y un punto omitido.
 - [x] T20. `app`: los controles del modo automático en el panel, con los ajustes bloqueados, el estado y el cambio de modo de inclinación. (RF-15, RF-16, RF-17, RF-26, RF-29, RF-32)
        Hecho cuando: `CollectorPanelAdvancedTest` y `CollectorViewModelAdvancedTest` en verde con "Iniciar", "Parar", los contadores y el modo de inclinación cambiado en marcha.
-- [ ] T21. `app`: la ficha con el tiempo promediado, las desviaciones típicas, "medido en automático" y las frases NMEA por tramos. (RF-13)
+- [x] T21. `app`: la ficha con el tiempo promediado, las desviaciones típicas, "medido en automático" y las frases NMEA por tramos. (RF-13)
        Hecho cuando: `PointDetailsAveragedTest` en verde con un punto con datos, uno anterior sin ellos y uno de varios tramos.
 - [ ] T22. `tools/nmea`: `generar_avanzado.py` con `rs3-promediado-largo`, `rs3-corte` y `rs3-traza`, y lo esperado de cada una. (RF-12, RF-19, RF-20, RF-21)
        Hecho cuando: los ficheros se generan y su test de `tools` está en verde.

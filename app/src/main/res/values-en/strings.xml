@@ -536,6 +536,14 @@
     <string name="point_measured_at">Date and time</string>
     <string name="point_nmea">Show NMEA sentences</string>
     <string name="point_nmea_title">NMEA sentences</string>
+    <string name="point_nmea_chunk_title">NMEA sentences · part %1$d of %2$d</string>
+    <string name="point_nmea_previous">Previous</string>
+    <string name="point_nmea_next">Next</string>
+    <string name="point_averaged_time">Averaged time</string>
+    <string name="point_deviation_h">Horizontal standard deviation</string>
+    <string name="point_deviation_v">Vertical standard deviation</string>
+    <string name="point_auto">Measured in automatic mode</string>
+    <string name="point_auto_yes">Yes</string>
     <string name="point_list_item">• %1$s</string>
     <string name="point_created_at">Created: %1$s</string>
     <string name="point_duplicate">Duplicate</string>

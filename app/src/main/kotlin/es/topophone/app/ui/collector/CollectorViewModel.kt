@@ -312,6 +312,9 @@ class CollectorViewModel @Inject constructor(
         base.copy(autoEnabled = enabled, auto = auto, blocker = base.blocker ?: autoBlocker(base, enabled))
     }
 
+    /** El proyecto ya ha llegado de Room: hasta entonces `measure()` se sale en silencio; los tests lo esperan. */
+    internal val isProjectLoaded: Boolean get() = project != null
+
     /** Las estadísticas del promediado en curso, a 4 Hz; null sin promediado (S017/RF-3 a RF-5). */
     val stats: StateFlow<AverageStatsUi?> = statsFlow
 
@@ -437,6 +440,7 @@ class CollectorViewModel @Inject constructor(
         viewModelScope.launch { collectorPreferences.save(change(collectorPreferences.settings.first())) }
     }
 
+    @Synchronized
     fun measure() {
         val current = state.value
         project ?: return
@@ -494,6 +498,7 @@ class CollectorViewModel @Inject constructor(
      * mismos bloqueos que "Medir": el nombre repetido (RF-33), la inclinación sin estado 30 (RF-29) y el intervalo más
      * corto que el promediado (RF-18).
      */
+    @Synchronized
     fun startAuto() {
         val current = state.value
         if (!current.autoEnabled || autoCollector.running || current.blocker != null || current.measuring || current.pending != null) return
@@ -510,6 +515,7 @@ class CollectorViewModel @Inject constructor(
     }
 
     /** "Parar": detiene el modo, descarta el punto en curso y conserva los guardados (S017/RF-27). */
+    @Synchronized
     fun stopAuto() {
         if (!autoCollector.running) return
         measurement?.cancel()
@@ -563,6 +569,7 @@ class CollectorViewModel @Inject constructor(
         }
     }
 
+    @Synchronized
     private fun cancelForTiltMode() {
         measurement?.cancel()
         log.warning(LogCategory.POINTS, "Medida de ${measuredName()} cancelada: ha cambiado el modo de inclinación") // S014/RF-5
@@ -575,6 +582,7 @@ class CollectorViewModel @Inject constructor(
     }
 
     /** El reloj de la medida, con la hora del móvil: la instantánea sin datos se cancela y la promediada se pausa (S017/RF-8). */
+    @Synchronized
     internal fun tick(nowMs: Long) {
         measurement?.onTick(nowMs)?.let(::handle)
         if (autoCollector.running) {
@@ -586,6 +594,7 @@ class CollectorViewModel @Inject constructor(
     }
 
     /** "Seguir esperando" a la pregunta de 5 min: sigue pausada y se vuelve a preguntar si el corte sigue 5 min más (S017/RF-10). */
+    @Synchronized
     fun keepWaiting() {
         measurement?.keepWaiting(System.currentTimeMillis())
         log.info(LogCategory.POINTS, "Medida de ${measuredName()}: se sigue esperando los datos del receptor") // S014/RF-5
@@ -593,6 +602,7 @@ class CollectorViewModel @Inject constructor(
     }
 
     /** "Terminar": cierra el promediado con las épocas reunidas y lo guarda como cualquier medida (S017/RF-6, RF-7). */
+    @Synchronized
     fun finishNow() {
         val update = measurement?.finishNow() ?: return
         log.info(LogCategory.POINTS, "Medida de ${measuredName()}: Terminar con las épocas reunidas") // S014/RF-5
@@ -616,6 +626,7 @@ class CollectorViewModel @Inject constructor(
     }
 
     /** S010/RF-11: no se guarda nada. */
+    @Synchronized
     fun cancel() {
         // S017/RF-27: con el modo automático en marcha no hay "Cancelar", salvo para descartar el punto de la pregunta de 5 min.
         if (autoCollector.running) {
@@ -628,6 +639,7 @@ class CollectorViewModel @Inject constructor(
     }
 
     /** S010/RF-15: se guarda marcado como fuera de tolerancia. */
+    @Synchronized
     fun confirmOutOfTolerance() {
         val result = pendingResult ?: return
         val failures = run.value.pending?.failures.orEmpty()
@@ -636,6 +648,7 @@ class CollectorViewModel @Inject constructor(
         save(result, failures)
     }
 
+    @Synchronized
     fun discardPending() {
         log.info(LogCategory.POINTS, "Medida de ${measuredName()} descartada") // S014/RF-5
         pendingResult = null
@@ -648,6 +661,7 @@ class CollectorViewModel @Inject constructor(
     /** Cierra "Línea base larga" para esa base (S015/RF-15). */
     fun dismissLongBaseline(serial: Int) = baseNotices.dismissLongBaseline(serial)
 
+    @Synchronized
     private fun onEpoch(received: SessionEpoch) {
         val epoch = received.epoch
         // S015/RF-18: la época llega con la base que había al emitirla; si cambió, la medida empieza de nuevo antes de usarla.

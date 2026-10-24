@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -19,7 +22,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -49,6 +54,7 @@ import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.format.AngleFormat
+import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.HistoryItem
@@ -77,6 +83,7 @@ import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverTiltSettings
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.math.roundToInt
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -98,6 +105,9 @@ const val POINT_MEASUREMENT_TAG = "point_measurement"
 const val POINT_TILT_TAG = "point_tilt"
 const val POINT_NMEA_TAG = "point_nmea"
 const val NMEA_DIALOG_TAG = "nmea_dialog"
+const val NMEA_CHUNK_TITLE_TAG = "nmea_chunk_title"
+const val NMEA_PREVIOUS_TAG = "nmea_previous"
+const val NMEA_NEXT_TAG = "nmea_next"
 const val POINT_EDIT_TAG = "point_edit"
 const val POINT_POLE_TAG = "point_pole"
 const val POINT_DUPLICATE_TAG = "point_duplicate"
@@ -192,6 +202,9 @@ class PointDetailsViewModel @Inject constructor(
         keptEdited.value = false
     }
 
+    /** El tramo [seq] de las frases NMEA del punto, cuando son demasiadas para su fila; null si no existe (S017/RF-12). */
+    suspend fun nmeaChunk(seq: Int): String? = state.value.point?.id?.let { points.nmeaChunk(it, seq) }
+
     /** S011/RF-21: una copia manual con el siguiente nombre libre; se abre su ficha. */
     fun duplicate() {
         val point = state.value.point ?: return
@@ -248,6 +261,7 @@ fun PointDetailsRoute(
             onDelete = viewModel::delete,
         ),
         navigation.onBack,
+        loadNmeaChunk = viewModel::nmeaChunk, // S017/RF-12
     )
 }
 
@@ -262,6 +276,7 @@ fun PointDetailsScreen(
     state: PointDetailsUiState,
     actions: PointDetailsActions,
     onBack: () -> Unit,
+    loadNmeaChunk: suspend (Int) -> String? = { null },
 ) {
     SectionScaffold(
         title = state.point?.name.orEmpty(),
@@ -294,7 +309,7 @@ fun PointDetailsScreen(
                 } // S011/RF-12, RF-13
             }
             if (measurement != null) {
-                MeasurementCard(project, measurement) // S011/RF-7
+                MeasurementCard(project, measurement, loadNmeaChunk) // S011/RF-7
                 measurement.base?.let { BaseCard(project, it, state.baseCoordinates) } // S015/RF-21
                 measurement.tilt?.angles?.let { TiltCard(project, it) } // S016/RF-23
             } else {
@@ -473,7 +488,7 @@ private fun CoordinateRows(project: Project, coordinates: PointCoordinates) {
 
 /** Jalón, antena, calidad, fecha y hora, control de precisión y frases NMEA de un punto medido (S011/RF-7). */
 @Composable
-private fun MeasurementCard(project: Project, measurement: Measurement) {
+private fun MeasurementCard(project: Project, measurement: Measurement, loadNmeaChunk: suspend (Int) -> String?) {
     val locale = uiLocale()
     val unit = unitSymbol(project.linearUnit)
     fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
@@ -547,6 +562,21 @@ private fun MeasurementCard(project: Project, measurement: Measurement) {
             stringResource(R.string.point_epochs_value, quality.epochsUsed, quality.epochsDiscarded),
             "point_epochs",
         )
+        // S017/RF-13, RF-14: lo que dejó el promediado, y si lo midió el modo automático.
+        quality.averagedTimeS?.let {
+            CoordinateRow(stringResource(R.string.point_averaged_time), DurationText.format(it.roundToInt()), "point_averaged_time")
+            CoordinateRow(
+                stringResource(R.string.point_deviation_h),
+                quality.deviationHorizontalM?.let(::length) ?: unavailable,
+                "point_deviation_h",
+            )
+            CoordinateRow(
+                stringResource(R.string.point_deviation_v),
+                quality.deviationVerticalM?.let(::length) ?: unavailable,
+                "point_deviation_v",
+            )
+        }
+        if (quality.auto == true) CoordinateRow(stringResource(R.string.point_auto), stringResource(R.string.point_auto_yes), "point_auto")
         CoordinateRow(stringResource(R.string.point_measured_at), formatDateTime(measurement.measuredToMs, locale), "point_measured_at")
         if (quality.fromReplay) Text(stringResource(R.string.point_from_replay))
         if (measurement.outOfTolerance.isNotEmpty()) {
@@ -557,7 +587,7 @@ private fun MeasurementCard(project: Project, measurement: Measurement) {
             Text(stringResource(R.string.point_nmea))
         }
     }
-    if (nmea) NmeaDialog(measurement.rawNmea) { nmea = false }
+    if (nmea) NmeaDialog(measurement.rawNmea, measurement.nmeaChunks, loadNmeaChunk) { nmea = false }
 }
 
 /** La inclinación de la medida, en la unidad angular y lineal del proyecto (S016/RF-23). */
@@ -624,23 +654,59 @@ private fun PrecisionFailure.textRes(): Int = when (this) {
     PrecisionFailure.TILT -> R.string.out_of_tolerance_tilt
 }
 
-/** Las frases NMEA de las épocas usadas, tal como llegaron (S011/RF-7; S010/RF-17). */
+/**
+ * Las frases NMEA de las épocas usadas, tal como llegaron (S011/RF-7; S010/RF-17). Un promediado largo las tiene en varios
+ * tramos, que se ven de uno en uno (S017/RF-12).
+ */
 @Composable
-private fun NmeaDialog(rawNmea: String, onDismiss: () -> Unit) {
+private fun NmeaDialog(rawNmea: String, chunks: Int, loadChunk: suspend (Int) -> String?, onDismiss: () -> Unit) {
+    var index by remember { mutableIntStateOf(0) }
+    val text by produceState(rawNmea, index, chunks) { value = if (chunks == 0) rawNmea else loadChunk(index).orEmpty() }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.point_nmea_title)) },
-        text = {
-            Text(
-                rawNmea,
-                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                modifier = Modifier.verticalScroll(rememberScrollState()).testTag(NMEA_DIALOG_TAG),
-            )
+        title = {
+            if (chunks == 0) {
+                Text(stringResource(R.string.point_nmea_title))
+            } else {
+                Text(stringResource(R.string.point_nmea_chunk_title, index + 1, chunks), modifier = Modifier.testTag(NMEA_CHUNK_TITLE_TAG))
+            }
         },
+        text = { NmeaText(text) },
         confirmButton = {
-            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) {
-                Text(stringResource(R.string.collector_close))
+            Row {
+                if (chunks > 1) {
+                    TextButton(
+                        onClick = { index-- },
+                        enabled = index > 0,
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(NMEA_PREVIOUS_TAG),
+                    ) { Text(stringResource(R.string.point_nmea_previous)) }
+                    TextButton(
+                        onClick = { index++ },
+                        enabled = index < chunks - 1,
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(NMEA_NEXT_TAG),
+                    ) { Text(stringResource(R.string.point_nmea_next)) }
+                }
+                TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                    Text(stringResource(R.string.collector_close))
+                }
             }
         },
     )
 }
+
+/** Un texto corto, de una vez; uno largo, por líneas, para no maquetar cientos de miles de caracteres juntos (S017/RF-12). */
+@Composable
+private fun NmeaText(text: String) {
+    val style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace)
+    if (text.length <= NMEA_SINGLE_TEXT_MAX) {
+        Text(text, style = style, modifier = Modifier.verticalScroll(rememberScrollState()).testTag(NMEA_DIALOG_TAG))
+    } else {
+        val lines = remember(text) { text.lines() }
+        LazyColumn(modifier = Modifier.heightIn(max = NMEA_LIST_MAX_HEIGHT).testTag(NMEA_DIALOG_TAG)) {
+            items(lines) { line -> Text(line, style = style) }
+        }
+    }
+}
+
+private const val NMEA_SINGLE_TEXT_MAX = 20_000
+private val NMEA_LIST_MAX_HEIGHT = 360.dp
