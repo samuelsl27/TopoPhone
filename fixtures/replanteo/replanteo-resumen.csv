@@ -1,0 +1,9 @@
+# Resumen del informe de replanteo (S019). Generado por tools/replanteo/generar_informe.py; no editar a mano.
+# Cuenta solo el último replanteo de cada punto de diseño entre los incluidos; v_* solo de los que tienen cota.
+proyecto,ambito,puntos,dentro,fuera,sin_evaluar,h_max,h_media,v_n,v_max,v_media
+UTM30,todos,7,4,2,1,1.441544998,0.291176462,6,3.250000000,0.887666667
+UTM30,seleccion,3,1,1,1,0.538266068,0.186490979,3,2.000000000,0.688333333
+UTM28,todos,7,4,2,1,1.441879756,0.291244491,6,3.250000000,0.887666667
+UTM28,seleccion,3,1,1,1,0.538393380,0.186531216,3,2.000000000,0.688333333
+GEOGRAFICO,todos,7,4,2,1,1.442220320,0.291312305,6,3.250000000,0.887666667
+GEOGRAFICO,seleccion,3,1,1,1,0.538516026,0.186576436,3,2.000000000,0.688333333

@@ -394,6 +394,8 @@ class StakeoutViewModelTest {
         await(vm) { distanceOf(it) < 0.1 }
 
         vm.next()
+        // El punto nuevo llega de la base de datos de forma asíncrona: sin él, la época se descartaría y la guía no se actualizaría.
+        await(vm) { it.target?.name == "2" }
         sendEpoch(3)
 
         val on = await(vm) { it.target?.name == "2" && distanceOf(it) > 5 }.guidance.shouldBeInstanceOf<GuidanceState.On>()

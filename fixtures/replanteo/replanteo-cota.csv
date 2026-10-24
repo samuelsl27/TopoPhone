@@ -1,0 +1,24 @@
+# Diferencia de cota de la punta y su estado de nivel (S019). Generado por tools/replanteo/generar_informe.py; no editar a mano.
+# cota_efectiva: la escrita si hay y, si no, la del punto de diseño. d_cota: punta menos cota efectiva (positiva en desmonte).
+# estado: CUT (desmonte), FILL (terraplén) o ON_GRADE (en cota, |d_cota| <= tol_v); vacío sin cota o sin altura en la punta.
+caso,diseno_h,cota_escrita,punta_h,tol_v,cota_efectiva,d_cota,estado
+exacta,100.00000,,100.00000,0.030,100.00000,0.000000000,ON_GRADE
+desmonte-1-cm,100.00000,,100.01000,0.030,100.00000,0.010000000,ON_GRADE
+terraplen-1-cm,100.00000,,99.99000,0.030,100.00000,-0.010000000,ON_GRADE
+desmonte-en-el-limite,100.00000,,100.25000,0.250,100.00000,0.250000000,ON_GRADE
+terraplen-en-el-limite,100.00000,,99.75000,0.250,100.00000,-0.250000000,ON_GRADE
+desmonte-justo-fuera,100.00000,,100.03500,0.030,100.00000,0.035000000,CUT
+terraplen-justo-fuera,100.00000,,99.96500,0.030,100.00000,-0.035000000,FILL
+desmonte-de-metros,702.45600,,705.70600,0.030,702.45600,3.250000000,CUT
+terraplen-de-metros,702.45600,,698.20600,0.030,702.45600,-4.250000000,FILL
+desmonte-de-decenas,50.00000,,62.50000,0.030,50.00000,12.500000000,CUT
+terraplen-de-decenas,50.00000,,10.00000,0.030,50.00000,-40.000000000,FILL
+tolerancia-minima,10.00000,,10.00900,0.010,10.00000,0.009000000,ON_GRADE
+tolerancia-maxima,10.00000,,10.90000,1.000,10.00000,0.900000000,ON_GRADE
+cota-escrita-sobre-la-del-punto,100.00000,98.50000,98.52000,0.030,98.50000,0.020000000,ON_GRADE
+cota-escrita-sin-altura-en-el-punto,,250.00000,250.20000,0.030,250.00000,0.200000000,CUT
+cota-negativa,-3.50000,,-3.52000,0.030,-3.50000,-0.020000000,ON_GRADE
+sin-cota-de-diseno,,,120.00000,0.030,,,
+punta-sin-altura,100.00000,,,0.030,100.00000,,
+sin-cota-ni-altura,,,,0.030,,,
+cota-escrita-sin-altura-en-la-punta,100.00000,99.00000,,0.030,99.00000,,
