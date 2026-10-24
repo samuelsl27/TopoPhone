@@ -84,7 +84,7 @@ Estados por la distancia `d` y la tolerancia `t`: **LEJOS** (`d > 0,40`), **AYUD
 
 ### A4. Escala de la diana (RF-15, RF-16, RF-17)
 - Radio visible: el menor valor de `{0,05; 0,1; 0,2; 0,5}` m que deje dentro la punta con un 25 % de margen y el círculo de la tolerancia; nunca por debajo de 5 cm, y nunca por encima de 0,5 m (la diana solo se ve a 40 cm o menos).
-- Cambia de paso sin saltos de ida y vuelta: no baja de escala hasta que la punta quepa en el 70 % del paso menor.
+- Cambia de paso sin saltos de ida y vuelta: no baja de escala hasta que la punta, con su margen del 25 %, quepa en el 80 % del paso menor (y el círculo de la tolerancia, siempre).
 - Orientación: con el modo "por dirección" y rumbo disponible, el rumbo del usuario arriba; en los demás casos, el norte arriba.
 - La diana es un `Canvas` métrico aparte del mapa (ADR-9).
 

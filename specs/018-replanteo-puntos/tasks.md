@@ -10,9 +10,9 @@
       Hecho cuando: los tests de `core:model` en verde y `Point.measured` sin cambios para quien no pasa los datos nuevos.
 - [x] T4. `core:survey`: `StakeoutGeometry`. (RF-6, RF-7, RF-12)
       Hecho cuando: `StakeoutGeometryTest` en verde contra `fixtures/replanteo/` (≤ 1 mm y 0,001°), con el diseño sin altura, la punta sin altura, distancia 0 y el SC geográfico.
-- [ ] T5. `core:survey`: `HeadingSource` con el rumbo de marcha y el del IMU. (RF-8, RF-9, RF-10, RF-11)
+- [x] T5. `core:survey`: `HeadingSource` con el rumbo de marcha y el del IMU. (RF-8, RF-9, RF-10, RF-11)
       Hecho cuando: `HeadingSourceTest` en verde: por encima y por debajo de 0,3 m/s, los 10 s de "último rumbo", el IMU en estado 30 y fuera de él y la convergencia de cuadrícula.
-- [ ] T6. `core:survey`: `StakeoutZones` y `DianaScale`. (RF-16, RF-19, RF-20, RF-21)
+- [x] T6. `core:survey`: `StakeoutZones` y `DianaScale`. (RF-16, RF-19, RF-20, RF-21)
       Hecho cuando: `StakeoutZonesTest` y `DianaScaleTest` en verde: las tres zonas, el margen de 5 mm, el aviso una vez, una tolerancia mayor de 40 cm, el rearmado y la escala sin saltos de ida y vuelta.
 - [ ] T7. `core:survey`: `StakeoutDiff`, medido menos diseño. (RF-28)
       Hecho cuando: `StakeoutDiffTest` en verde, con los signos, sin redondear y con y sin altura.
