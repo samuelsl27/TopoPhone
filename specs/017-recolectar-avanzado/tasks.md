@@ -24,7 +24,7 @@
        Hecho cuando: `TopoPhoneDatabaseTest` (8 → 9: datos conservados, columnas a NULL y `nmea_chunks` a 0), `NmeaChunksTest` y `PointRepositoryExportTest` en verde, con el esquema 9 exportado.
 - [x] T11. `data`: guardar el punto con sus tramos en una transacción, `nmeaChunk` y las copias con `point_nmea`. (RF-12)
        Hecho cuando: `PointRepositoryNmeaTest` (12 MB en menos de 3 s, filas de hasta 256.000 caracteres, lectura tramo a tramo, cascada y sin restos si falla) y `DatabaseSnapshotTest` en verde.
-- [ ] T12. `data`: las claves del modo automático en `CollectorPreferences`. (RF-1, RF-16, RF-17)
+- [x] T12. `data`: las claves del modo automático en `CollectorPreferences`. (RF-1, RF-16, RF-17)
        Hecho cuando: `CollectorPreferencesTest` y `SettingsArchiveTest` en verde.
 - [ ] T13. `core:formats` y `app`: las cuatro columnas del CSV y sus nombres en Exportar, con los ficheros dorados. (RF-14)
        Hecho cuando: `CsvExportGoldenTest`, `ExportPreferencesTest` y `ExportScreenTest` en verde con 47 columnas y `test_csv_exportado.py` en verde.

@@ -98,6 +98,7 @@ class FileAppLogTest {
         repeat(7_000) { log.info(LogCategory.APP, "linea $it $filler") }
         log.info(LogCategory.APP, "ultima")
         awaitText(log, "ultima")
+        log.flushNow() // sincroniza con el escritor: el límite ya está aplicado
 
         log.files().size shouldBeGreaterThan 1
         log.files().sumOf { it.length() } shouldBeLessThanOrEqual 5 * mb

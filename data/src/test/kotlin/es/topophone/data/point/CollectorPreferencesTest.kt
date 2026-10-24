@@ -1,5 +1,6 @@
 package es.topophone.data.point
 
+import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PrecisionControl
@@ -64,5 +65,36 @@ class CollectorPreferencesTest {
 
         withPreferences { it.save(CollectorSettings(precision = PrecisionControl(maxTiltRad = null))) }
         withPreferences { it.settings.first() }.precision.maxTiltRad shouldBe null
+    }
+
+    @Test
+    fun `S017 RF-16 y RF-17 el disparo, el intervalo y la distancia se recuerdan, y de fabrica son por tiempo, 5 s y 1 m`() {
+        val factory = withPreferences { it.settings.first() }
+        factory.autoTrigger shouldBe AutoTrigger.TIME
+        factory.autoIntervalS shouldBe 5
+        factory.autoDistanceM shouldBe 1.0
+
+        val chosen = CollectorSettings(autoTrigger = AutoTrigger.DISTANCE, autoIntervalS = 30, autoDistanceM = 2.5)
+        withPreferences { it.save(chosen) }
+
+        withPreferences { it.settings.first() } shouldBe chosen
+    }
+
+    @Test
+    fun `S017 RF-1 el promediado se guarda hasta 3600 s y lo que pasa del rango se recorta`() {
+        withPreferences { it.save(CollectorSettings(averagingSeconds = 3_600)) }
+        withPreferences { it.settings.first() }.averagingSeconds shouldBe 3_600
+
+        withPreferences { it.save(CollectorSettings(averagingSeconds = 7_200)) }
+        withPreferences { it.settings.first() }.averagingSeconds shouldBe 3_600
+    }
+
+    @Test
+    fun `S017 RF-16 y RF-17 el intervalo y la distancia fuera de rango se guardan recortados`() {
+        withPreferences { it.save(CollectorSettings(autoIntervalS = 0, autoDistanceM = 5_000.0)) }
+
+        val saved = withPreferences { it.settings.first() }
+        saved.autoIntervalS shouldBe 1
+        saved.autoDistanceM shouldBe 1_000.0
     }
 }

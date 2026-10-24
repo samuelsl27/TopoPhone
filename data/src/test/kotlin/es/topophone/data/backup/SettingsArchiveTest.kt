@@ -10,8 +10,11 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import es.topophone.core.formats.backup.BackupSettings
 import es.topophone.core.formats.backup.SettingValue
+import es.topophone.core.model.point.AutoTrigger
+import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.preferences.ThemeMode
+import es.topophone.data.point.DataStoreCollectorPreferences
 import es.topophone.data.receiver.DataStoreReceiverPreferences
 import es.topophone.data.receiver.DataStoreTiltPreferences
 import es.topophone.data.receiver.ReceiverTiltSettings
@@ -83,6 +86,20 @@ class SettingsArchiveTest {
         exported.stores.getValue("export").getValue("custom_columns") shouldBe SettingValue.Texts(setOf("NAME", "LATITUDE"))
         exported.stores.getValue("receiver").getValue("pole_height_m") shouldBe SettingValue.Float64(2.0 + 1e-12)
         exported.stores.getValue("receiver").getValue("session_space_mb") shouldBe SettingValue.Int32(1_000)
+    }
+
+    @Test
+    fun `S017 RF-16 y RF-17 el disparo, el intervalo y la distancia del modo automatico viajan en la copia`() {
+        val exported = withStores("auto") { stores ->
+            DataStoreCollectorPreferences(stores.getValue("collector"))
+                .save(CollectorSettings(autoTrigger = AutoTrigger.DISTANCE, autoIntervalS = 30, autoDistanceM = 2.5))
+            SettingsArchive(stores, FakeLanguage()).export()
+        }
+
+        val collector = exported.stores.getValue("collector")
+        collector.getValue("collector_auto_trigger") shouldBe SettingValue.Text("DISTANCE")
+        collector.getValue("collector_auto_interval_s") shouldBe SettingValue.Int32(30)
+        collector.getValue("collector_auto_distance_m") shouldBe SettingValue.Float64(2.5)
     }
 
     @Test
