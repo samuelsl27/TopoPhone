@@ -38,7 +38,7 @@
       Hecho cuando: los tests del diálogo en verde: escribir la cota, el error si no es un número, "Usar la del punto", la tolerancia vertical en la unidad del proyecto y los controles bloqueados durante la medida.
 - [x] T18. `app`: la confirmación del punto replanteado y su ficha con la cota usada, el desmonte o terraplén y si cumple. (RF-15)
       Hecho cuando: `StakeoutPanelTest` y `PointDetailsStakeoutTest` en verde, con las unidades del proyecto y un replanteo de antes "sin evaluar".
-- [ ] T19. `app`: `StakeoutReportViewModel` con el resumen, la selección, el vacío y la escritura del CSV. (RF-17, RF-18, RF-19, RF-20, RF-24)
+- [x] T19. `app`: `StakeoutReportViewModel` con el resumen, la selección, el vacío y la escritura del CSV. (RF-17, RF-18, RF-19, RF-20, RF-24)
       Hecho cuando: `StakeoutReportViewModelTest` en verde: todos y seleccionados, sin papelera, sin puntos replanteados, error de escritura y el nombre propuesto.
 - [ ] T20. `app`: la pantalla del informe con su resumen, "Guardar" y "Compartir", y sus entradas en el menú del proyecto, en el de la lista de objetos y en la selección. (RF-17, RF-18, RF-20, RF-24)
       Hecho cuando: `StakeoutReportScreenTest` en verde, con el selector de ficheros cancelado y la lista de objetos con y sin selección.
