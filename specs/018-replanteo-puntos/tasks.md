@@ -44,7 +44,7 @@
       Hecho cuando: `MapStakeoutTest` en verde: la línea a más de 40 cm, sin ella dentro, y los símbolos distintos.
 - [x] T21. `app`: la ficha del punto replanteado y la marca de replanteos en la lista de objetos. (RF-32, RF-33)
       Hecho cuando: `PointDetailsStakeoutTest` y `ObjectListStakeoutTest` en verde, con las unidades del proyecto.
-- [ ] T22. `tools/nmea`: `generar_replanteo.py` con `rs3-replanteo` (40 m andando hacia el diseño, 10 s sin FIX y una parada) y lo esperado de cada época. (RF-6, RF-9, RF-20, RF-21, RF-22)
+- [x] T22. `tools/nmea`: `generar_replanteo.py` con `rs3-replanteo` (40 m andando hacia el diseño, 10 s sin FIX y una parada) y lo esperado de cada época. (RF-6, RF-9, RF-20, RF-21, RF-22)
       Hecho cuando: los ficheros se generan y su test de `tools` está en verde.
 - [ ] T23. Reproducción y rendimiento: `StakeoutReplayTest` con `rs3-replanteo` y `StakeoutPerformanceTest`. (RNF, RF-6, RF-20, RF-22, RF-27)
       Hecho cuando: ambos en verde (guía a 10 Hz en menos de 1 ms por época; de una época a la pantalla, menos de 300 ms) y los demás tests de reproducción siguen igual.
