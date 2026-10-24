@@ -309,4 +309,11 @@ private fun ExportColumn.labelRes(): Int = when (this) {
     ExportColumn.AUTOMATIC -> R.string.export_column_automatic
     ExportColumn.EDITED -> R.string.export_column_edited
     ExportColumn.COPY_OF -> R.string.export_column_copy_of
+    ExportColumn.STAKE_DESIGN -> R.string.export_column_stake_design // S019/RF-25
+    ExportColumn.STAKE_DESIGN_ELEVATION -> R.string.export_column_stake_design_elevation
+    ExportColumn.STAKE_D_NORTH -> R.string.export_column_stake_d_north
+    ExportColumn.STAKE_D_EAST -> R.string.export_column_stake_d_east
+    ExportColumn.STAKE_D_HORIZONTAL -> R.string.export_column_stake_d_horizontal
+    ExportColumn.STAKE_D_ELEVATION -> R.string.export_column_stake_d_elevation
+    ExportColumn.STAKE_WITHIN -> R.string.export_column_stake_within
 }

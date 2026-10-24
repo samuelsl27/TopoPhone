@@ -702,6 +702,13 @@
     <string name="export_column_baseline">Baseline</string>
     <string name="export_column_edited">Edited</string>
     <string name="export_column_copy_of">Copy of</string>
+    <string name="export_column_stake_design">Design point (stakeout)</string>
+    <string name="export_column_stake_design_elevation">Design elevation (stakeout)</string>
+    <string name="export_column_stake_d_north">Northing difference (stakeout)</string>
+    <string name="export_column_stake_d_east">Easting difference (stakeout)</string>
+    <string name="export_column_stake_d_horizontal">Horizontal distance (stakeout)</string>
+    <string name="export_column_stake_d_elevation">Elevation difference (stakeout)</string>
+    <string name="export_column_stake_within">Within tolerance (stakeout)</string>
     <plurals name="export_count">
         <item quantity="one">%1$d point will be exported</item>
         <item quantity="other">%1$d points will be exported</item>

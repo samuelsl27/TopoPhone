@@ -714,6 +714,13 @@
     <string name="export_column_baseline">Línea base</string>
     <string name="export_column_edited">Editado</string>
     <string name="export_column_copy_of">Copia de</string>
+    <string name="export_column_stake_design">Punto de diseño (replanteo)</string>
+    <string name="export_column_stake_design_elevation">Cota de diseño (replanteo)</string>
+    <string name="export_column_stake_d_north">Diferencia de Norte (replanteo)</string>
+    <string name="export_column_stake_d_east">Diferencia de Este (replanteo)</string>
+    <string name="export_column_stake_d_horizontal">Distancia horizontal (replanteo)</string>
+    <string name="export_column_stake_d_elevation">Diferencia de cota (replanteo)</string>
+    <string name="export_column_stake_within">Dentro de la tolerancia (replanteo)</string>
     <plurals name="export_count">
         <item quantity="one">Se exportará %1$d punto</item>
         <item quantity="other">Se exportarán %1$d puntos</item>

@@ -90,7 +90,8 @@ class CsvExportTest {
             "Base latitude,Base longitude,Base ellipsoidal height,Base easting,Base northing,Base elevation,Baseline," +
             "Tilt mode,Tilt mode verified,Tilt,Tilt direction,Heading,Maximum tilt,Tilt horizontal accuracy,Tilt vertical accuracy," +
             "Averaged time,Deviation horizontal,Deviation vertical,Automatic," +
-            "Edited,Copy of"
+            "Edited,Copy of,Stake design,Stake design elevation,Stake delta northing,Stake delta easting,Stake horizontal distance," +
+            "Stake delta elevation,Stake within tolerance"
 
     private fun csv(points: List<Point>, options: CsvOptions, project: Project = this.project): String =
         StringBuilder().also { CsvExport.write(points.asSequence(), project, options, it) }.toString()
@@ -105,7 +106,7 @@ class CsvExportTest {
             allHeader,
             "4,,Measured,440313.1221,4474258.8769,648.3114,40.416815094,-3.703533016,699.4230,EPSG:25830,EGM08-REDNAP,m," +
                 "1.8000,FLOAT,24,0.6,1.0,0.1383,0.2100,Instant,1,0,true,NOT_FIX,2026-10-18T18:03:34Z,2026-10-18T18:03:59Z," +
-                ",,,,,,,,,,,,,,,,,,,false,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
+                ",,,,,,,,,,,,,,,,,,,false,,,,,,,,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
         )
     }
 
@@ -117,6 +118,115 @@ class CsvExportTest {
         )
 
         lines(csv(listOf(staked), CsvOptions()))[1].split(",")[2] shouldBe "Measured"
+    }
+
+    private val stakeColumns = listOf(
+        ExportColumn.STAKE_DESIGN,
+        ExportColumn.STAKE_DESIGN_ELEVATION,
+        ExportColumn.STAKE_D_NORTH,
+        ExportColumn.STAKE_D_EAST,
+        ExportColumn.STAKE_D_HORIZONTAL,
+        ExportColumn.STAKE_D_ELEVATION,
+        ExportColumn.STAKE_WITHIN,
+    )
+
+    private val stakedPoint = measured.copy(
+        origin = PointOrigin.STAKED,
+        staked = StakeoutRef(
+            designId = "d1",
+            designName = "P1",
+            design = measured.coordinates,
+            dEastM = 0.0166,
+            dNorthM = -0.01,
+            dHorizontalM = 0.019337,
+            dHeightM = 0.02,
+            designElevationM = 648.2914,
+            toleranceHM = 0.025,
+            toleranceVM = 0.03,
+            withinTolerance = true,
+        ),
+    )
+
+    private fun stakeCells(point: Point, options: CsvOptions = CsvOptions(), project: Project = this.project): List<String> {
+        val comma = options.copy(format = ExportFormat.CUSTOM, customColumns = stakeColumns.toSet())
+        return lines(csv(listOf(point), comma, project))[1].split(options.separator.char)
+    }
+
+    @Test
+    fun `S019 RF-25 las columnas del replanteo van tras las de S012 en todas las columnas`() {
+        val header = lines(csv(listOf(stakedPoint), CsvOptions()))[0].split(",")
+
+        header.subList(header.size - 9, header.size) shouldBe listOf("Edited", "Copy of") + stakeColumns.map { it.header }
+        stakeColumns.map { it.header } shouldBe listOf(
+            "Stake design",
+            "Stake design elevation",
+            "Stake delta northing",
+            "Stake delta easting",
+            "Stake horizontal distance",
+            "Stake delta elevation",
+            "Stake within tolerance",
+        )
+    }
+
+    @Test
+    fun `S019 RF-25 un punto replanteado lleva el diseno, la cota usada, las diferencias y si cumple`() {
+        stakeCells(stakedPoint) shouldBe listOf("P1", "648.2914", "-0.0100", "0.0166", "0.0193", "0.0200", "true")
+    }
+
+    @Test
+    fun `S019 RF-25 las columnas del replanteo salen en la unidad del proyecto`() {
+        val feet = stakeCells(stakedPoint, project = project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT))
+
+        feet[1] shouldBe "2126.9403" // 648,2914 m en pies internacionales
+        feet[4] shouldBe "0.0634"
+    }
+
+    @Test
+    fun `S019 RF-25 en los puntos que no son replanteados las columnas del replanteo van vacias`() {
+        stakeCells(measured) shouldBe List(7) { "" }
+        stakeCells(manual) shouldBe List(7) { "" }
+    }
+
+    @Test
+    fun `S019 RF-26 un replanteo sin evaluar deja vacio el dentro de la tolerancia pero lleva las diferencias`() {
+        val old = stakedPoint.copy(
+            staked = stakedPoint.staked!!.copy(toleranceHM = null, toleranceVM = null, withinTolerance = null),
+        )
+
+        stakeCells(old).takeLast(2) shouldBe listOf("0.0200", "")
+    }
+
+    @Test
+    fun `S019 RF-25 un replanteo sin cota deja vacias la cota de diseno y la diferencia de cota`() {
+        val noElevation = stakedPoint.copy(staked = stakedPoint.staked!!.copy(designElevationM = null, dHeightM = null))
+
+        stakeCells(noElevation) shouldBe listOf("P1", "", "-0.0100", "0.0166", "0.0193", "", "true")
+    }
+
+    @Test
+    fun `S019 RF-25 en Personalizado se pueden elegir solo las columnas del replanteo`() {
+        val custom = CsvOptions(format = ExportFormat.CUSTOM, customColumns = setOf(ExportColumn.NAME, ExportColumn.STAKE_D_HORIZONTAL))
+
+        lines(csv(listOf(stakedPoint), custom)) shouldBe listOf("Name,Stake horizontal distance", "4,0.0193")
+    }
+
+    @Test
+    fun `S019 RF-25 una seleccion personalizada guardada antes no incluye las columnas nuevas hasta que se marcan`() {
+        val before = ExportColumn.entries.filter { it !in stakeColumns }.toSet()
+        val saved = CsvOptions(format = ExportFormat.CUSTOM, customColumns = before)
+
+        saved.columns.none { it in stakeColumns } shouldBe true
+        saved.columns.size shouldBe 47
+        saved.copy(customColumns = before + ExportColumn.STAKE_WITHIN).columns.last() shouldBe ExportColumn.STAKE_WITHIN
+    }
+
+    @Test
+    fun `S019 RF-25 PENZD y PNEZD no cambian con un punto replanteado`() {
+        val penzd = lines(csv(listOf(stakedPoint), CsvOptions(format = ExportFormat.PENZD)))
+        val pnezd = lines(csv(listOf(stakedPoint), CsvOptions(format = ExportFormat.PNEZD)))
+
+        penzd shouldBe listOf("Name,Easting,Northing,Elevation,Description", "4,440313.1221,4474258.8769,648.3114,")
+        pnezd shouldBe listOf("Name,Northing,Easting,Elevation,Description", "4,4474258.8769,440313.1221,648.3114,")
     }
 
     @Test
@@ -169,8 +279,8 @@ class CsvExportTest {
         // Los 14 campos de la medida, los 7 de la base (S015/RF-22), los 8 de la inclinación (S016/RF-24) y los 4 del
         // promediado (S017/RF-14), vacíos.
         row shouldBe "E1;\"Pozo, \"\"nuevo\"\"\";Manual;440300.0000;4474250.0000;;40.416800000;-3.703600000;;EPSG:25830;EGM08-REDNAP;m;" +
-            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;"
-        row.split(";").size shouldBe 47
+            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;;;;;;;;"
+        row.split(";").size shouldBe 54
     }
 
     @Test
@@ -287,10 +397,12 @@ class CsvExportTest {
     @Test
     fun `S012 RF-6 la altura elipsoidal del proyecto se nombra asi y la copia dice de que punto es`() {
         val copy = manual.copy(copyOf = "P12", description = "")
-        val row = lines(csv(listOf(copy), CsvOptions(), project.copy(heightSystem = HeightSystem.ELLIPSOIDAL)))[1].split(",")
+        val (header, row) = lines(csv(listOf(copy), CsvOptions(), project.copy(heightSystem = HeightSystem.ELLIPSOIDAL))).map {
+            it.split(",")
+        }
 
         row[10] shouldBe "Ellipsoidal"
-        row.last() shouldBe "P12"
+        row[header.indexOf("Copy of")] shouldBe "P12"
     }
 
     @Test

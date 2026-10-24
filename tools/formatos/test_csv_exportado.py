@@ -119,7 +119,7 @@ def test_s012_rf_15_los_textos_con_separador_comillas_o_saltos_se_leen_tal_cual(
 def test_s012_rf_9_todas_las_columnas_y_penzd_pnezd_con_su_cabecera() -> None:
     headers = {name: list(read(name)[0].keys()) for name in FILES}
     assert headers["todas_coma_punto.csv"] == headers["todas_puntoycoma_coma.csv"] == headers["todas_tabulador_punto.csv"]
-    assert len(headers["todas_coma_punto.csv"]) == 47
+    assert len(headers["todas_coma_punto.csv"]) == 54
     assert headers["penzd_puntoycoma_coma.csv"] == ["Name", "Easting", "Northing", "Elevation", "Description"]
     assert headers["pnezd_coma_punto.csv"] == ["Name", "Northing", "Easting", "Elevation", "Description"]
 

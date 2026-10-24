@@ -72,6 +72,15 @@ enum class ExportColumn(val header: String) {
     AUTOMATIC("Automatic"),
     EDITED("Edited"),
     COPY_OF("Copy of"),
+
+    // S019/RF-25: el replanteo; vacías en los puntos que no son replanteados.
+    STAKE_DESIGN("Stake design"),
+    STAKE_DESIGN_ELEVATION("Stake design elevation"),
+    STAKE_D_NORTH("Stake delta northing"),
+    STAKE_D_EAST("Stake delta easting"),
+    STAKE_D_HORIZONTAL("Stake horizontal distance"),
+    STAKE_D_ELEVATION("Stake delta elevation"),
+    STAKE_WITHIN("Stake within tolerance"),
 }
 
 /** La base de un punto en el SC del proyecto, que calcula quien exporta (S015/RF-22); null lo que no se puede calcular. */
@@ -182,6 +191,7 @@ object CsvExport {
         val base = measurement?.base
         val tilt = measurement?.tilt
         val angles = tilt?.angles
+        val staked = point.staked
         fun angle(valueRad: Double?) = valueRad?.let { number(Math.toDegrees(it), ANGLE_DECIMALS, decimal) }.orEmpty()
         return when (column) {
             ExportColumn.NAME -> point.name
@@ -234,6 +244,13 @@ object CsvExport {
             ExportColumn.AUTOMATIC -> quality?.auto?.toString().orEmpty()
             ExportColumn.EDITED -> point.edited.toString()
             ExportColumn.COPY_OF -> point.copyOf.orEmpty()
+            ExportColumn.STAKE_DESIGN -> staked?.designName.orEmpty()
+            ExportColumn.STAKE_DESIGN_ELEVATION -> length(staked?.designElevationM)
+            ExportColumn.STAKE_D_NORTH -> length(staked?.dNorthM)
+            ExportColumn.STAKE_D_EAST -> length(staked?.dEastM)
+            ExportColumn.STAKE_D_HORIZONTAL -> length(staked?.dHorizontalM)
+            ExportColumn.STAKE_D_ELEVATION -> length(staked?.dHeightM)
+            ExportColumn.STAKE_WITHIN -> staked?.withinTolerance?.toString().orEmpty()
         }
     }
 

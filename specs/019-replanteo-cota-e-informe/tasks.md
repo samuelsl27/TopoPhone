@@ -18,7 +18,7 @@
       Hecho cuando: `StakeoutReportTest` en verde contra `fixtures/replanteo/` (resumen ≤ 0,1 mm): varios replanteos, con selección, sin evaluar, sin ninguno y un nombre editado.
 - [x] T8. `core:formats`: `StakeoutReportCsv`, y las ayudas de `CsvExport` abiertas al módulo. (RF-21, RF-22, RF-23)
       Hecho cuando: `StakeoutReportCsvTest` y su golden en verde: columnas y orden, geográficas, celdas vacías, unidades, comillas, separador y decimal, y `CsvExportGoldenTest` sin cambios.
-- [ ] T9. `core:formats`: las siete columnas del replanteo en `ExportColumn`. (RF-25)
+- [x] T9. `core:formats`: las siete columnas del replanteo en `ExportColumn`. (RF-25)
       Hecho cuando: `CsvExportTest` y `CsvExportGoldenTest` en verde: en "Todas las columnas" y "Personalizado", vacías en los no replanteados, PENZD y PNEZD sin cambios y una selección guardada de antes que no las incluye.
 - [ ] T10. `data`: columnas nuevas en `points`, `AutoMigration(10, 11)` y su lectura y escritura, incluida la consulta de exportación. (RF-13, RF-14, RF-26)
       Hecho cuando: `TopoPhoneDatabaseTest` 10 → 11 y `PointRepositoryStakeoutTest` en verde: se guardan y se leen sin redondear, y un replanteo de antes se lee con su cota y sin evaluar.
