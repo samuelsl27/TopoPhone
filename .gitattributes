@@ -11,6 +11,8 @@ gradlew text eol=lf
 *.sourcetable -text
 # CSV exportados de referencia: CRLF y un salto de línea dentro de un campo, byte a byte (S012)
 fixtures/formatos/csv/*.csv -text
+# Ficheros de ejemplo de la importación: BOM, Windows-1252 y CRLF o LF tal como están, byte a byte (S028)
+fixtures/formatos/csv-importacion/* -text
 
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.nmea.gz filter=lfs diff=lfs merge=lfs -text
