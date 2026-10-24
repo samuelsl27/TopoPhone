@@ -46,7 +46,7 @@
       Hecho cuando: `ExportViewModelTest` y `ExportScreenTest` en verde, con las columnas nuevas en "Personalizado" y la selección guardada de antes.
 - [x] T22. `tools/nmea`: `generar_cota_rs3.py` con `rs3-cota` (la punta sube y baja alrededor de la cota de diseño y 10 s sin FIX) y lo esperado de cada época. (RF-6, RF-8, RF-9, RF-11)
       Hecho cuando: los ficheros se generan y su test de `tools` está en verde.
-- [ ] T23. Reproducción y rendimiento: `StakeoutLevelReplayTest` con `rs3-cota`, `StakeoutLevelPerformanceTest` y `StakeoutReportPerformanceTest`. (RNF, RF-6, RF-9, RF-11, RF-17)
+- [x] T23. Reproducción y rendimiento: `StakeoutLevelReplayTest` con `rs3-cota`, `StakeoutLevelPerformanceTest` y `StakeoutReportPerformanceTest`. (RNF, RF-6, RF-9, RF-11, RF-17)
       Hecho cuando: los tres en verde (nivel a 10 Hz en menos de 1 ms por época; de una época a la pantalla, menos de 300 ms; resumen y CSV de 1.000 puntos en menos de 2 s) y los demás tests de reproducción siguen igual.
 - [ ] T24. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización, S019 a "implementada" en la hoja de ruta. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo (puerta G2) quedan para el usuario.
