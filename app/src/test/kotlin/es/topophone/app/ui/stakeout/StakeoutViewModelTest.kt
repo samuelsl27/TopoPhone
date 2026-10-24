@@ -241,9 +241,9 @@ class StakeoutViewModelTest {
         val vm = viewModel()
 
         vm.open(projectId, "id-P1", query = "P")
-        await(vm) { it.target?.name == "P1" }
+        await(vm) { it.target?.name == "P1" && it.hasNext } // la lista tarda en llegar: sin ella, "Siguiente" no hace nada
         vm.next()
-        await(vm) { it.target?.name == "P2" }
+        await(vm) { it.target?.name == "P2" && it.hasNext }
         vm.next()
         await(vm) { it.target?.name == "P3" }.hasNext shouldBe false
     }

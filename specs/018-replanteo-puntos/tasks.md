@@ -46,7 +46,7 @@
       Hecho cuando: `PointDetailsStakeoutTest` y `ObjectListStakeoutTest` en verde, con las unidades del proyecto.
 - [x] T22. `tools/nmea`: `generar_replanteo.py` con `rs3-replanteo` (40 m andando hacia el diseño, 10 s sin FIX y una parada) y lo esperado de cada época. (RF-6, RF-9, RF-20, RF-21, RF-22)
       Hecho cuando: los ficheros se generan y su test de `tools` está en verde.
-- [ ] T23. Reproducción y rendimiento: `StakeoutReplayTest` con `rs3-replanteo` y `StakeoutPerformanceTest`. (RNF, RF-6, RF-20, RF-22, RF-27)
+- [x] T23. Reproducción y rendimiento: `StakeoutReplayTest` con `rs3-replanteo` y `StakeoutPerformanceTest`. (RNF, RF-6, RF-20, RF-22, RF-27)
       Hecho cuando: ambos en verde (guía a 10 Hz en menos de 1 ms por época; de una época a la pantalla, menos de 300 ms) y los demás tests de reproducción siguen igual.
 - [ ] T24. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo quedan para el usuario.
