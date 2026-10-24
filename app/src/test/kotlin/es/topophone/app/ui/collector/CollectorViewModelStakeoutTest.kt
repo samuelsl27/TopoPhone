@@ -8,6 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
+import es.topophone.app.ui.stakeout.StakeSaveInfo
 import es.topophone.app.ui.stakeout.StakeTarget
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.GeodeticPosition
@@ -17,6 +18,7 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PrecisionControl
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
@@ -194,6 +196,150 @@ class CollectorViewModelStakeoutTest {
         val c = measured.coordinates
         val design = PointCoordinates(c.ground, c.easting!! + 0.02, c.northing!! - 0.03, c.height!! + 0.005)
         return StakeTarget("design-12", "12", "esquina norte", design)
+    }
+
+    /** Fija el diseño y lo que se guarda de S019, y deja listo el nombre propuesto. */
+    private fun stakeWith(vm: CollectorViewModel, design: StakeTarget, info: StakeSaveInfo?) {
+        vm.setStakeTarget(design)
+        vm.setStakeSaveInfo(info)
+        await(vm) { it.name == "12_stkd" }
+    }
+
+    private fun measureStaked(vm: CollectorViewModel): StakeoutRef {
+        vm.measure()
+        sendEpoch(next++)
+        await(vm) { it.savedName == "12_stkd" }
+        return runBlocking { points.points(projectId).first() }.single { it.name == "12_stkd" }.staked.shouldNotBeNull()
+    }
+
+    @Test
+    fun `S019 RF-13 y RF-14 se guarda la cota usada, las tolerancias y que cumple en horizontal y en vertical`() {
+        val vm = viewModel()
+        receiving(vm)
+        val design = designOf(measureNormalPoint(vm, "1"))
+        stakeWith(vm, design, StakeSaveInfo(design.coordinates.height, toleranceHM = 0.05, toleranceVM = 0.03))
+
+        val ref = measureStaked(vm)
+
+        ref.designElevationM shouldBe design.coordinates.height
+        ref.toleranceHM shouldBe 0.05
+        ref.toleranceVM shouldBe 0.03
+        ref.dHeightM.shouldNotBeNull() shouldBe (-0.005 plusOrMinus 1e-6)
+        ref.withinTolerance shouldBe true // 3,6 cm de distancia horizontal y 5 mm de cota
+    }
+
+    @Test
+    fun `S019 RF-14 fuera de la tolerancia horizontal no cumple aunque la cota este bien`() {
+        val vm = viewModel()
+        receiving(vm)
+        val design = designOf(measureNormalPoint(vm, "1"))
+        stakeWith(vm, design, StakeSaveInfo(design.coordinates.height, toleranceHM = 0.025, toleranceVM = 0.03))
+
+        val ref = measureStaked(vm)
+
+        ref.dHorizontalM shouldBe (hypot(0.02, 0.03) plusOrMinus 1e-6)
+        ref.withinTolerance shouldBe false
+    }
+
+    @Test
+    fun `S019 RF-14 dentro en horizontal y fuera en vertical no cumple`() {
+        val vm = viewModel()
+        receiving(vm)
+        val design = designOf(measureNormalPoint(vm, "1"))
+        // Una cota escrita 10 cm por encima de la del punto: lo medido queda 10,5 cm por debajo de ella.
+        stakeWith(vm, design, StakeSaveInfo(design.coordinates.height!! + 0.1, toleranceHM = 0.05, toleranceVM = 0.03))
+
+        val ref = measureStaked(vm)
+
+        ref.dHeightM.shouldNotBeNull() shouldBe (-0.105 plusOrMinus 1e-6)
+        ref.withinTolerance shouldBe false
+    }
+
+    @Test
+    fun `S019 RF-13 la cota escrita se guarda aparte y el diseno se guarda por valor con su altura`() {
+        val vm = viewModel()
+        receiving(vm)
+        val design = designOf(measureNormalPoint(vm, "1"))
+        stakeWith(vm, design, StakeSaveInfo(design.coordinates.height!! - 1.0, toleranceHM = 0.05, toleranceVM = 0.03))
+
+        val ref = measureStaked(vm)
+
+        ref.designElevationM shouldBe design.coordinates.height!! - 1.0
+        ref.design shouldBe design.coordinates
+        ref.design.height shouldBe design.coordinates.height
+        ref.dHeightM.shouldNotBeNull() shouldBe (0.995 plusOrMinus 1e-6)
+    }
+
+    @Test
+    fun `S019 RF-14 sin cota de diseno no hay diferencia de cota y cumple solo por la horizontal`() {
+        val vm = viewModel()
+        receiving(vm)
+        val design = designOf(measureNormalPoint(vm, "1"))
+        stakeWith(vm, design, StakeSaveInfo(null, toleranceHM = 0.05, toleranceVM = 0.03))
+
+        val ref = measureStaked(vm)
+
+        ref.designElevationM.shouldBeNull()
+        ref.dHeightM.shouldBeNull()
+        ref.toleranceVM shouldBe 0.03
+        ref.withinTolerance shouldBe true
+    }
+
+    @Test
+    fun `S019 RF-26 sin los datos de S019 el replanteo se guarda como los de antes, sin evaluar`() {
+        val vm = viewModel()
+        receiving(vm)
+        val design = designOf(measureNormalPoint(vm, "1"))
+        stakeWith(vm, design, null)
+
+        val ref = measureStaked(vm)
+
+        ref.designElevationM shouldBe design.coordinates.height
+        ref.toleranceHM.shouldBeNull()
+        ref.toleranceVM.shouldBeNull()
+        ref.withinTolerance.shouldBeNull()
+        ref.notEvaluated shouldBe true
+        ref.dHeightM.shouldNotBeNull() shouldBe (-0.005 plusOrMinus 1e-6)
+    }
+
+    @Test
+    fun `S019 RF-13 se guarda lo ultimo que dio el replanteo aunque cambie entre un punto y el siguiente`() {
+        val vm = viewModel()
+        receiving(vm)
+        val design = designOf(measureNormalPoint(vm, "1"))
+        stakeWith(vm, design, StakeSaveInfo(design.coordinates.height, toleranceHM = 0.025, toleranceVM = 0.03))
+        measureStaked(vm).withinTolerance shouldBe false
+        await(vm) { it.name == "12_stkd2" }
+
+        vm.setStakeSaveInfo(StakeSaveInfo(design.coordinates.height, toleranceHM = 0.05, toleranceVM = 0.03))
+        vm.measure()
+        sendEpoch(next++)
+        await(vm) { it.savedName == "12_stkd2" }
+
+        val second = runBlocking { points.points(projectId).first() }.single { it.name == "12_stkd2" }.staked.shouldNotBeNull()
+        second.toleranceHM shouldBe 0.05
+        second.withinTolerance shouldBe true
+        // Y el primero conserva las tolerancias con las que se midio.
+        runBlocking { points.points(projectId).first() }.single { it.name == "12_stkd" }.staked.shouldNotBeNull().toleranceHM shouldBe 0.025
+    }
+
+    @Test
+    fun `S019 RF-13 al quitar el replanteo los puntos normales no llevan datos de replanteo`() {
+        val vm = viewModel()
+        receiving(vm)
+        val design = designOf(measureNormalPoint(vm, "1"))
+        stakeWith(vm, design, StakeSaveInfo(design.coordinates.height, toleranceHM = 0.05, toleranceVM = 0.03))
+        vm.setStakeTarget(null)
+        vm.setStakeSaveInfo(null)
+        await(vm) { it.name == "2" }
+
+        vm.measure()
+        sendEpoch(next++)
+        await(vm) { it.savedName == "2" }
+
+        val normal = runBlocking { points.points(projectId).first() }.single { it.name == "2" }
+        normal.origin shouldBe PointOrigin.MEASURED
+        normal.staked.shouldBeNull()
     }
 
     @Test

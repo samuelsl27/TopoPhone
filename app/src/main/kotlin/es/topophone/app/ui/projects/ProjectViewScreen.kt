@@ -333,6 +333,8 @@ fun ProjectViewRoute(
     val stakeout by stakeoutViewModel.state.collectAsStateWithLifecycle()
     // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5).
     LaunchedEffect(stakeoutOpen, stakeout.target) { collectorViewModel.setStakeTarget(stakeout.target.takeIf { stakeoutOpen }) }
+    // S019/RF-13: la cota usada y las tolerancias vigentes viajan con el recolector para guardarse con el replanteo.
+    LaunchedEffect(stakeoutOpen, stakeout.saveInfo) { collectorViewModel.setStakeSaveInfo(stakeout.saveInfo.takeIf { stakeoutOpen }) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5

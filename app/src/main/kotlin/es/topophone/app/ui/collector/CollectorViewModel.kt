@@ -8,6 +8,7 @@ import es.topophone.app.receiver.BaseNotices
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.VisibleNotices
+import es.topophone.app.ui.stakeout.StakeSaveInfo
 import es.topophone.app.ui.stakeout.StakeTarget
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
@@ -229,6 +230,9 @@ class CollectorViewModel @Inject constructor(
 
     /** El nombre y la descripción del recolector antes de empezar el replanteo, para devolverlos al terminar (S018/RF-26). */
     private var stakeBackup: Pair<String, String>? = null
+
+    /** La cota de diseño usada y las tolerancias vigentes que se guardan con el replanteo (S019/RF-13); null: como en S018. */
+    private var stakeSaveInfo: StakeSaveInfo? = null
     private val statsFlow = MutableStateFlow<AverageStatsUi?>(null)
     private var lastStatsAtMs = 0L
 
@@ -404,6 +408,7 @@ class CollectorViewModel @Inject constructor(
             val backup = stakeBackup
             stake = null
             stakeBackup = null
+            stakeSaveInfo = null
             run.value = Run()
             if (backup != null) form.update { it.copy(name = backup.first, description = backup.second) }
             checkName()
@@ -417,6 +422,15 @@ class CollectorViewModel @Inject constructor(
             form.update { it.copy(name = StakeoutNames.next(target.name, taken), description = target.description) }
             checkName()
         }
+    }
+
+    /**
+     * La cota de diseño usada y las tolerancias vigentes del replanteo, que se guardan con el punto replanteado y con las que se
+     * decide si cumple (S019/RF-13, RF-14). Sin ellas el replanteo se guarda como antes de S019, sin evaluar (RF-26).
+     */
+    @Synchronized
+    fun setStakeSaveInfo(info: StakeSaveInfo?) {
+        stakeSaveInfo = info
     }
 
     /** La descripción se conserva para el siguiente punto (S010/RF-4). */
@@ -842,8 +856,24 @@ class CollectorViewModel @Inject constructor(
             base = measurementBase?.let { pointBase(it, result.antenna) }, // S015/RF-20
             tilt = result.tilt, // S016/RF-22
         )
-        // S018/RF-28: el diseño por valor y lo que se desvió lo medido (medido menos diseño).
-        val staked = stake?.let { StakeoutDiff.ref(it.id, it.name, it.coordinates, measurement.coordinates) }
+        // S018/RF-28: el diseño por valor y lo que se desvió lo medido (medido menos diseño). S019/RF-13, RF-14: contra la cota
+        // usada, con las tolerancias vigentes y si cumple.
+        val staked = stake?.let { target ->
+            val info = stakeSaveInfo
+            if (info == null) {
+                StakeoutDiff.ref(target.id, target.name, target.coordinates, measurement.coordinates)
+            } else {
+                StakeoutDiff.ref(
+                    target.id,
+                    target.name,
+                    target.coordinates,
+                    measurement.coordinates,
+                    elevationM = info.elevationM,
+                    toleranceHM = info.toleranceHM,
+                    toleranceVM = info.toleranceVM,
+                )
+            }
+        }
         val point = Point.measured(
             id = UUID.randomUUID().toString(),
             projectId = projectId,
