@@ -1,6 +1,6 @@
 # Spec 017b — Fotos de los puntos
 
-> Hito: H2 · Depende de: S017 · Estado: borrador (pendiente de aprobación)
+> Hito: H2 · Depende de: S017 · Estado: aprobada (con suposiciones a revisar; ver "Dudas abiertas")
 
 ## Contexto y objetivo
 Un punto de campo rara vez se entiende solo con sus coordenadas: la foto de un vértice, de la arqueta que se ha medido o del detalle que justifica una cota evita volver a la obra. Hoy el punto guarda su posición, su calidad y sus frases NMEA, pero nada de lo que se vio.
@@ -26,7 +26,7 @@ Términos de esta spec:
 
 ### Añadir fotos desde el recolector (H1)
 - RF-1: EL SISTEMA ofrecerá en el recolector "Foto", que abre la cámara del móvil, y "Galería", que deja elegir fotos del móvil, para añadirlas a un punto.
-- RF-2: MIENTRAS haya una medida de un punto en marcha, también en pausa, EL SISTEMA añadirá las fotos al punto que se está midiendo, y se guardarán con él cuando se guarde.
+- RF-2: MIENTRAS haya una medida de un punto en marcha, también en pausa o esperando que se confirme el control de precisión, y no esté el modo automático, EL SISTEMA añadirá las fotos al punto que se está midiendo, y se guardarán con él cuando se guarde.
 - RF-3: CUANDO el usuario pulse "Cancelar" en una medida que tiene fotos, EL SISTEMA pedirá confirmación diciendo cuántas fotos se descartan.
 - RF-4: SI una medida termina sin guardar su punto (cancelada, fallida, o fuera de tolerancia sin que el usuario la confirme), ENTONCES EL SISTEMA descartará las fotos que se añadieron durante ella.
 - RF-5: MIENTRAS no haya una medida en marcha ni el modo automático, EL SISTEMA añadirá las fotos al último punto guardado, hasta que empiece otra medida o se cierre el recolector.
@@ -49,20 +49,21 @@ Términos de esta spec:
 - RF-18: CUANDO se añada una foto, EL SISTEMA la guardará reducida a 2.048 px de lado largo como máximo, sin ampliar las menores, y conservará sus metadatos tal como venían, ubicación del móvil incluida.
 - RF-19: EL SISTEMA no modificará ni borrará nunca las fotos originales de la galería del móvil.
 - RF-20: CUANDO se añada una foto, EL SISTEMA la guardará en el almacenamiento privado de la app (RNF-T5), con su fecha, su origen y su tamaño, y de forma atómica: no quedará una foto a medias.
-- RF-21: EL SISTEMA no mirará si una foto está repetida: la misma foto añadida dos veces cuenta como dos.
+- RF-21: CUANDO se añada una foto que el punto ya tiene, EL SISTEMA la tratará como una foto nueva, sin buscar repetidas.
 
 ### Borrar y rastro (H2)
 - RF-22: CUANDO el usuario borre una foto desde la ficha, EL SISTEMA pedirá confirmación y la eliminará de forma definitiva.
 - RF-23: CUANDO se añada o se borre una foto de un punto ya guardado, EL SISTEMA lo anotará en su historial (S011/RF-10) con la fecha y hora del cambio y con el nombre y la fecha de la foto, sin marcar el punto como editado (S011/RF-12).
 - RF-24: CUANDO se borre un punto a la papelera (S011/RF-22), EL SISTEMA llevará sus fotos con él, las devolverá al restaurarlo (S011/RF-24) y las eliminará con él al borrarlo definitivamente (S011/RF-26).
 - RF-25: CUANDO se duplique un punto (S011/RF-21), EL SISTEMA no copiará sus fotos.
+- RF-34: CUANDO se borre un proyecto a la papelera de proyectos (S006/RF-22), EL SISTEMA llevará con él las fotos de sus puntos, las devolverá al restaurarlo y las eliminará con él al borrarlo definitivamente.
 - RF-26: EL SISTEMA marcará en la lista de objetos, con un icono y un texto, los puntos que tienen fotos y cuántas (S011/RF-3).
 - RF-27: EL SISTEMA mostrará en los datos del proyecto cuántas fotos tiene y cuánto espacio ocupan.
 
 ### Copias de seguridad y paquetes (H3)
 - RF-28: EL SISTEMA incluirá las fotos de los puntos, también las de los puntos de la papelera, en la copia de seguridad completa (S013/RF-2) y en la copia del estado actual que se guarda antes de restaurar (S013/RF-7), y las devolverá al restaurar (S013/RF-8) y al deshacer la restauración (S013/RF-11).
 - RF-29: CUANDO el usuario exporte un paquete (S013/RF-24), EL SISTEMA incluirá las fotos de los puntos del proyecto y de su papelera de puntos y, al importarlo (S013/RF-25), las añadirá con sus puntos.
-- RF-30: MIENTRAS las copias automáticas estén activas, EL SISTEMA copiará cada foto nueva una sola vez a una carpeta propia dentro de la carpeta de copias, sin repetirla en cada copia, y las copias automáticas (ZIP) no la llevarán dentro.
+- RF-30: MIENTRAS las copias automáticas estén activas, EL SISTEMA copiará las fotos que aún no estén en una carpeta propia dentro de la carpeta de copias, una sola vez cada una, y las copias automáticas (ZIP) no las llevarán dentro.
 - RF-31: EL SISTEMA conservará en esa carpeta cada foto mientras la use alguna de las 24 copias automáticas guardadas (S013/RF-19) y la borrará cuando ninguna la use, sin tocar ningún otro fichero de la carpeta.
 - RF-32: CUANDO el usuario restaure una copia automática, EL SISTEMA recuperará las fotos de sus puntos de esa carpeta.
 - RF-33: SI falta alguna foto de una copia automática en esa carpeta, ENTONCES EL SISTEMA restaurará el punto sin ella e indicará cuántas fotos no se han podido recuperar.
@@ -81,7 +82,7 @@ Términos de esta spec:
 ## Casos límite
 | Caso | RF |
 |---|---|
-| Foto con una medida instantánea o promediada en marcha | RF-2 |
+| Foto con una medida instantánea o promediada en marcha, o esperando confirmar la precisión | RF-2 |
 | Cancelar una medida con fotos | RF-3, RF-4 |
 | Medida que falla por corte o por falta de datos | RF-4 |
 | Punto fuera de tolerancia pendiente de confirmar | RF-2, RF-4 |
@@ -98,6 +99,7 @@ Términos de esta spec:
 | Borrar una foto | RF-22, RF-23 |
 | Borrar un punto con fotos, restaurarlo o vaciar la papelera | RF-24 |
 | Duplicar un punto con fotos | RF-25 |
+| Borrar un proyecto con fotos, restaurarlo o vaciar la papelera de proyectos | RF-34 |
 | Copia manual, restauración y deshacer con fotos | RF-28 |
 | Paquete con fotos, importado en otro móvil | RF-29 |
 | Restaurar una copia con el recolector midiendo | S013/RF-16 |

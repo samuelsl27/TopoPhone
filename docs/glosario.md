@@ -13,6 +13,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Punto | `Point` | Medido, manual, importado, COGO o replanteado → `PointOrigin` |
 | Punto medido / manual | `PointOrigin.MEASURED` / `.MANUAL` | Medido con el recolector (S010) o escrito a mano o duplicado (S011) |
 | Punto sin altura | `hasHeight` | Punto manual solo con planimetría (S011) |
+| Foto (de un punto) | `PointPhoto` | De la cámara o de la galería (`PhotoOrigin.CAMERA` / `.GALLERY`); hasta 10 por punto (S017b) |
+| Foto en espera | `StagedPhoto` | Foto de una medida que aún no se ha guardado como punto (S017b) |
+| Destino de la foto | `PhotoDestination` | El punto al que irá una foto desde el recolector (S017b) |
 | Punto editado | `edited` | Punto medido cuyas coordenadas difieren de las de su medida (S011) |
 | Historial (del punto) | `PointHistory` | Cambios de un punto con su fecha y los valores anteriores (S011) |
 | Lista de objetos | `ObjectList` | Puntos del proyecto; las líneas llegan en S025 (S011) |

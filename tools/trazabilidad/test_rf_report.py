@@ -178,3 +178,35 @@ def test_s001_rf26_una_spec_exigible_sin_spec_md_es_un_error(tmp_path: Path, cap
 
     assert rf_report.main(["--root", str(tmp_path)]) == 1
     assert "spec.md" in capsys.readouterr().out
+
+
+def test_s001_rf26_una_spec_con_letra_es_otra_spec_que_la_de_su_numero(tmp_path: Path, capsys) -> None:
+    """S001/RF-26: `017b` es una spec propia: sus RF y sus citas no se mezclan con los de `017`."""
+    roadmap(tmp_path, ("017 recolectar", "implementada"), ("017b fotos", "implementada"))
+    spec(tmp_path, "017", "recolectar", 2)
+    spec(tmp_path, "017b", "fotos", 3)
+    write(
+        tmp_path,
+        "app/src/test/kotlin/ATest.kt",
+        f"// {cite('017', 1)} y {cite('017', 2, ' ')}\n// {cite('017b', 1)}, RF-2\n// {cite('017B', 3, ' ')}\n",
+    )
+
+    assert rf_report.main(["--root", str(tmp_path)]) == 0
+
+    out = capsys.readouterr().out
+    assert "S017 (implementada): 2 RF, 2 con test" in out
+    assert "S017b (implementada): 3 RF, 3 con test" in out
+
+
+def test_s001_rf26_la_cita_de_una_spec_con_letra_no_cuenta_para_la_del_numero(tmp_path: Path, capsys) -> None:
+    """S001/RF-26: citar `017b/RF-2` no cubre el RF-2 de `017`."""
+    roadmap(tmp_path, ("017 recolectar", "implementada"), ("017b fotos", "en curso"))
+    spec(tmp_path, "017", "recolectar", 2)
+    spec(tmp_path, "017b", "fotos", 2)
+    write(tmp_path, "app/src/test/kotlin/ATest.kt", f"// {cite('017', 1)}\n// {cite('017b', 2)}\n")
+
+    code = rf_report.main(["--root", str(tmp_path)])
+
+    out = capsys.readouterr().out
+    assert code == 1
+    assert "S017 (implementada): RF sin test: RF-2" in out

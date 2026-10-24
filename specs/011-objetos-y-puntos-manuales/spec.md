@@ -101,7 +101,7 @@ El dato de campo es sagrado (constitución nº 1): editar un punto no borra lo q
 - Exportar puntos → S012.
 - Paquetes y copias de seguridad del proyecto → S013.
 - Puntos con inclinación del jalón → S016.
-- Fotos del punto → S017.
+- Fotos del punto → S017b (ficha, historial, papelera y lista de objetos: S017b/RF-9, RF-23, RF-24, RF-26).
 - Replantear un punto desde la lista o la ficha → S018.
 - Códigos y atributos, y cambiar el código de un punto → S023 y S024.
 - Líneas y polígonos en la lista de objetos → S025.

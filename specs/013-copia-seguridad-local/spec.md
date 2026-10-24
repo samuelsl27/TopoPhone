@@ -24,7 +24,7 @@ La constitución nº 1 exige que el dato de campo "siempre pueda exportarse o re
 ## Requisitos funcionales (criterios de aceptación en EARS)
 ### Copia completa (H1)
 - RF-1: CUANDO el usuario pulse "Crear copia de seguridad" en Ajustes, EL SISTEMA pedirá con el selector de ficheros del móvil dónde guardarla y escribirá allí la copia completa.
-- RF-2: EL SISTEMA incluirá en la copia completa las carpetas y los proyectos, también los de la papelera de proyectos, con sus puntos, su historial de cambios y su papelera de puntos, los ajustes de la app y los perfiles NTRIP.
+- RF-2: EL SISTEMA incluirá en la copia completa las carpetas y los proyectos, también los de la papelera de proyectos, con sus puntos, su historial de cambios y su papelera de puntos, los ajustes de la app y los perfiles NTRIP (y, desde S017b, las fotos de los puntos: S017b/RF-28).
 - RF-3: EL SISTEMA no incluirá en ninguna copia ni paquete las contraseñas NTRIP (RNF-T11), las sesiones grabadas, la caché del mapa ni los ajustes propios de este móvil (el receptor asociado y la carpeta de las copias automáticas).
 - RF-4: EL SISTEMA propondrá como nombre de la copia "TopoPhone_<AAAAMMDD-HHMM>.zip" y como nombre del paquete "<proyecto>_<AAAAMMDD-HHMM>.topoproj", con los caracteres que no valen en un nombre de fichero cambiados por "_" (como en S012/RF-19).
 - RF-5: SI una copia o un paquete no se puede escribir (sin espacio, sitio no disponible), ENTONCES EL SISTEMA indicará que no se ha guardado y no dejará un fichero a medias.
@@ -52,7 +52,7 @@ La constitución nº 1 exige que el dato de campo "siempre pueda exportarse o re
 - RF-23: CUANDO el usuario cierre ese aviso, EL SISTEMA no lo volverá a mostrar hasta 7 días después.
 
 ### Paquetes de proyecto (H4)
-- RF-24: CUANDO el usuario elija "Exportar paquete" en el menú de un proyecto, EL SISTEMA creará un paquete con el proyecto, sus puntos, su historial de cambios y su papelera de puntos, y ofrecerá guardarlo con el selector de ficheros o compartirlo con otras apps.
+- RF-24: CUANDO el usuario elija "Exportar paquete" en el menú de un proyecto, EL SISTEMA creará un paquete con el proyecto, sus puntos, su historial de cambios y su papelera de puntos (con sus fotos, S017b/RF-29), y ofrecerá guardarlo con el selector de ficheros o compartirlo con otras apps.
 - RF-25: CUANDO el usuario elija "Importar paquete" en el menú de la lista de proyectos y un fichero, EL SISTEMA añadirá el proyecto del paquete con todo su contenido.
 - RF-26: SI el proyecto del paquete ya está en el móvil, ENTONCES EL SISTEMA preguntará si se sustituye o se importa como un proyecto nuevo.
 - RF-27: CUANDO el usuario elija sustituirlo, EL SISTEMA moverá el proyecto del móvil a la papelera de proyectos (S006/RF-22) y añadirá el del paquete en su misma carpeta.
@@ -99,7 +99,7 @@ La constitución nº 1 exige que el dato de campo "siempre pueda exportarse o re
 ## Fuera de alcance
 - Log de la app e informe de sistema (RNF-T12) → S014.
 - Sesiones grabadas en la copia → no previsto (se comparten una a una, S003).
-- Fotos, bibliotecas de códigos, SC personalizados, capas y ficheros importados en la copia y en el paquete → S017 (fotos), S023 (códigos), S035 (SC personalizados), S036 (capas WMS) y S040 (DXF) añadirán su contenido (números de la hoja de ruta ya renumerada).
+- Fotos, bibliotecas de códigos, SC personalizados, capas y ficheros importados en la copia y en el paquete → S017b (fotos), S023 (códigos), S035 (SC personalizados), S036 (capas WMS) y S040 (DXF) añadirán su contenido (números de la hoja de ruta ya renumerada).
 - Restaurar solo algunos proyectos de una copia → no previsto (se importan con paquetes).
 - Fusionar los puntos de dos versiones del mismo proyecto → no previsto.
 - Cifrar la copia con una contraseña → no previsto.

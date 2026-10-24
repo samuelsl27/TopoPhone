@@ -6,7 +6,7 @@
 - Las specs `en curso` solo listan sus RF pendientes, sin fallar (S001/RF-35).
 - Una cita a un RF inexistente o a una spec sin `spec.md` también es un error.
 
-Una cita es `S###/RF-n`, `S### RF-n` o `s###_rfn` (sin distinguir mayúsculas), con listas
+Una cita es `S###/RF-n`, `S### RF-n` o `s###_rfn` (sin distinguir mayúsculas; `S017b` es otra spec que `S017`), con listas
 (`S002/RF-1, RF-2 y RF-4`) y rangos (`S003/RF-2..RF-5`). Solo cuentan los ficheros de test:
 `**/src/test*/**/*.kt`, `**/src/androidTest/**/*.kt` y `tools/**/test_*.py`.
 
@@ -25,9 +25,9 @@ from pathlib import Path
 ENFORCED_STATE = "implementada"
 LISTED_STATE = "en curso"
 
-ROADMAP_ROW = re.compile(r"^\|\s*(\d{3})\s+[\w-]+\s*\|.*\|\s*([^|]+?)\s*\|\s*$")
+ROADMAP_ROW = re.compile(r"^\|\s*(\d{3}[a-z]?)\s+[\w-]+\s*\|.*\|\s*([^|]+?)\s*\|\s*$")
 RF_LINE = re.compile(r"^\s*-\s*RF-(\d+):", re.MULTILINE)
-CITATION = re.compile(r"S(\d{3})[ /_]RF-?(\d+)((?:\s*(?:,|\by\b|\band\b|\.\.|–)\s*RF-?\d+)*)", re.IGNORECASE)
+CITATION = re.compile(r"S(\d{3}[a-z]?)[ /_]RF-?(\d+)((?:\s*(?:,|\by\b|\band\b|\.\.|–)\s*RF-?\d+)*)", re.IGNORECASE)
 CONTINUATION = re.compile(r"(,|\by\b|\band\b|\.\.|–)\s*RF-?(\d+)", re.IGNORECASE)
 
 TEST_GLOBS = ("**/src/test*/**/*.kt", "**/src/androidTest/**/*.kt", "tools/**/test_*.py")
@@ -56,7 +56,7 @@ def extract_citations(text: str) -> set[tuple[str, int]]:
     """Pares (spec, RF) citados en un texto, expandiendo listas y rangos."""
     cited: set[tuple[str, int]] = set()
     for match in CITATION.finditer(text):
-        spec, first = match.group(1), int(match.group(2))
+        spec, first = match.group(1).lower(), int(match.group(2))
         cited.add((spec, first))
         previous = first
         for separator, number in CONTINUATION.findall(match.group(3)):
