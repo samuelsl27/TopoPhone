@@ -28,7 +28,7 @@
        Hecho cuando: `CollectorPreferencesTest` y `SettingsArchiveTest` en verde.
 - [x] T13. `core:formats` y `app`: las cuatro columnas del CSV y sus nombres en Exportar, con los ficheros dorados. (RF-14)
        Hecho cuando: `CsvExportGoldenTest`, `ExportPreferencesTest` y `ExportScreenTest` en verde con 47 columnas y `test_csv_exportado.py` en verde.
-- [ ] T14. `receiver`: `Alerts.measurementPaused()`, `pointOmitted()` y `measurementRestarted()`. (RF-8, RF-24, RF-30)
+- [x] T14. `receiver`: `Alerts.measurementPaused()`, `pointOmitted()` y `measurementRestarted()`. (RF-8, RF-24, RF-30)
        Hecho cuando: el test de `VibrationAlerts` en verde con los tres avisos distintos de los actuales.
 - [ ] T15. `app`: el promediado largo en `CollectorViewModel`: tiempo en `m:ss`, flujo de estadísticas a 5 Hz y "Terminar". (RF-1 a RF-7)
        Hecho cuando: `CollectorViewModelAdvancedTest` en verde con la `ReceiverSession` real y las épocas de una en una, y `CollectorViewModelTest` sin cambios.

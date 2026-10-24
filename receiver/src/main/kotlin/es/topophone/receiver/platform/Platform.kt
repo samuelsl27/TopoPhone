@@ -39,6 +39,15 @@ interface Alerts {
 
     /** Se descartan épocas de una medida por la inclinación (S016/RF-19). */
     fun tiltLost()
+
+    /** Un promediado o el modo automático se pausan por un corte (S017/RF-8, RF-28). Sin hacer nada por defecto, para los fakes. */
+    fun measurementPaused() = Unit
+
+    /** El modo automático omite un punto: una vez hasta que se guarda otro (S017/RF-24). */
+    fun pointOmitted() = Unit
+
+    /** Un promediado empieza de nuevo porque cambió la base (S017/RF-30). */
+    fun measurementRestarted() = Unit
 }
 
 class VibrationAlerts(private val context: Context) : Alerts {
@@ -69,6 +78,21 @@ class VibrationAlerts(private val context: Context) : Alerts {
         vibrate(TILT_PATTERN_MS)
     }
 
+    override fun measurementPaused() {
+        tones?.startTone(ToneGenerator.TONE_SUP_PIP, TONE_MS)
+        vibrate(PAUSED_PATTERN_MS)
+    }
+
+    override fun pointOmitted() {
+        tones?.startTone(ToneGenerator.TONE_PROP_PROMPT, TONE_MS)
+        vibrate(OMITTED_PATTERN_MS)
+    }
+
+    override fun measurementRestarted() {
+        tones?.startTone(ToneGenerator.TONE_SUP_CONGESTION, TONE_MS)
+        vibrate(RESTARTED_PATTERN_MS)
+    }
+
     private fun vibrate(pattern: LongArray) {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(VibratorManager::class.java)?.defaultVibrator
@@ -79,11 +103,25 @@ class VibrationAlerts(private val context: Context) : Alerts {
         vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
     }
 
-    private companion object {
+    internal companion object {
         val LOST_PATTERN_MS = longArrayOf(0, 300, 150, 300)
         val SAVED_PATTERN_MS = longArrayOf(0, 80)
         val CORRECTIONS_PATTERN_MS = longArrayOf(0, 150, 100, 150, 100, 150)
         val TILT_PATTERN_MS = longArrayOf(0, 120, 80, 120)
+        val PAUSED_PATTERN_MS = longArrayOf(0, 250, 120, 250)
+        val OMITTED_PATTERN_MS = longArrayOf(0, 60, 60, 60)
+        val RESTARTED_PATTERN_MS = longArrayOf(0, 400, 150, 100, 150, 400)
+
+        /** Todas las vibraciones, para comprobar que cada aviso se distingue de los demás. */
+        val ALL_PATTERNS_MS = listOf(
+            LOST_PATTERN_MS,
+            SAVED_PATTERN_MS,
+            CORRECTIONS_PATTERN_MS,
+            TILT_PATTERN_MS,
+            PAUSED_PATTERN_MS,
+            OMITTED_PATTERN_MS,
+            RESTARTED_PATTERN_MS,
+        )
         const val TONE_VOLUME = 100
         const val TONE_MS = 600
     }
