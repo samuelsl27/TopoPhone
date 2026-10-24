@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
@@ -119,10 +120,11 @@ fun StakeoutPanel(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Design(state, target)
+                // Lo que se desvió el último punto, arriba: es lo que se mira al medir y no debe quedar bajo el pliegue.
+                collector?.savedStake?.let { Result(collector.savedName, it, state) }
                 ModeChoice(state, actions)
                 Guidance(state)
                 collector?.let { Messages(it, collectorActions) } // los motivos por los que no se puede medir, avisos y el punto guardado
-                collector?.savedStake?.let { Result(collector.savedName, it, state) }
             }
             if (collector != null) {
                 val unit = state.project?.linearUnit ?: LinearUnit.METRE
@@ -270,58 +272,23 @@ private fun Guidance(state: StakeoutUiState) {
             val byDirection = state.settings.mode == StakeMode.BY_DIRECTION
             val ahead = ui.guidance.aheadM
             val right = ui.guidance.rightM
-            if (byDirection && ahead != null && right != null) StakeoutArrow(ahead, right) // S018/RF-7
-            if (ui.zone != StakeZone.FAR) {
-                // S018/RF-15 a RF-17: en la zona de ayuda, la diana; con el rumbo del usuario arriba si hay flecha.
-                val headingUp = (ui.heading as? HeadingResult.Available)?.rad?.takeIf { byDirection }
-                StakeoutDiana(ui, state.settings.validToleranceM, headingUp)
-            }
-            if (ui.zone == StakeZone.INSIDE) {
-                Text(
-                    stringResource(R.string.stakeout_inside),
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.testTag(STAKEOUT_INSIDE_TAG),
-                ) // S018/RF-19: con texto, no solo con color (RNF-T8)
-            }
-            if (state.settings.mode == StakeMode.BY_DISTANCE) {
-                Text(
-                    stringResource(R.string.stakeout_north, numbers.signed(ui.guidance.dNorthM)),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.testTag(STAKEOUT_NORTH_TAG),
-                )
-                Text(
-                    stringResource(R.string.stakeout_east, numbers.signed(ui.guidance.dEastM)),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.testTag(STAKEOUT_EAST_TAG),
-                )
-            } else {
-                ui.guidance.aheadM?.let { ahead ->
-                    Text(
-                        stringResource(if (ahead >= 0.0) R.string.stakeout_ahead else R.string.stakeout_back, numbers.length(abs(ahead))),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.testTag(STAKEOUT_AHEAD_TAG),
-                    )
+            val hasArrow = byDirection && ahead != null && right != null // S018/RF-7
+            val hasDiana = ui.zone != StakeZone.FAR // S018/RF-15 a RF-17
+            // Los dibujos y las cifras juntos, para que la diana y la cota no queden bajo el pliegue del panel.
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (hasArrow && ahead != null && right != null) {
+                    StakeoutArrow(ahead, right, Modifier.size(if (hasDiana) ARROW_BESIDE_DIANA else ARROW_ALONE))
                 }
-                ui.guidance.rightM?.let { right ->
-                    Text(
-                        stringResource(if (right >= 0.0) R.string.stakeout_right else R.string.stakeout_left, numbers.length(abs(right))),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.testTag(STAKEOUT_RIGHT_TAG),
-                    )
+                if (hasDiana) {
+                    // En la zona de ayuda, la diana; con el rumbo del usuario arriba si hay flecha.
+                    val headingUp = (ui.heading as? HeadingResult.Available)?.rad?.takeIf { byDirection }
+                    StakeoutDiana(ui, state.settings.validToleranceM, headingUp, Modifier.size(DIANA_SIZE))
                 }
-                if (ui.guidance.aheadM == null) {
-                    // S018/RF-11: sin rumbo, la distancia y las diferencias de Norte y Este siguen a la vista.
-                    val north = stringResource(R.string.stakeout_north, numbers.signed(ui.guidance.dNorthM))
-                    val east = stringResource(R.string.stakeout_east, numbers.signed(ui.guidance.dEastM))
-                    Text(north, modifier = Modifier.testTag(STAKEOUT_NORTH_TAG))
-                    Text(east, modifier = Modifier.testTag(STAKEOUT_EAST_TAG))
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    GuidanceFigures(state, ui, numbers)
                 }
-                Text(headingText(ui.heading, state.settings.heading, angular), modifier = Modifier.testTag(STAKEOUT_HEADING_TAG))
             }
-            ui.guidance.dHeightM?.let {
-                Text(stringResource(R.string.stakeout_dz, numbers.signed(it)), modifier = Modifier.testTag(STAKEOUT_DZ_TAG))
-            }
+            GuidanceNotes(state, ui, numbers, angular)
             Text(
                 stringResource(
                     R.string.stakeout_status,
@@ -332,6 +299,66 @@ private fun Guidance(state: StakeoutUiState) {
                 modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(STAKEOUT_STATUS_TAG),
             )
         }
+    }
+}
+
+/**
+ * Lo que dice la guía con cifras, al lado de la flecha y la diana: la llegada y las diferencias (S018/RF-6, RF-7, RF-11, RF-19).
+ */
+@Composable
+private fun GuidanceFigures(state: StakeoutUiState, ui: GuidanceUi, numbers: Numbers) {
+    if (ui.zone == StakeZone.INSIDE) {
+        Text(
+            stringResource(R.string.stakeout_inside),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.testTag(STAKEOUT_INSIDE_TAG),
+        ) // S018/RF-19: con texto, no solo con color (RNF-T8)
+    }
+    if (state.settings.mode == StakeMode.BY_DISTANCE) {
+        Text(
+            stringResource(R.string.stakeout_north, numbers.signed(ui.guidance.dNorthM)),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.testTag(STAKEOUT_NORTH_TAG),
+        )
+        Text(
+            stringResource(R.string.stakeout_east, numbers.signed(ui.guidance.dEastM)),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.testTag(STAKEOUT_EAST_TAG),
+        )
+    } else {
+        ui.guidance.aheadM?.let { ahead ->
+            Text(
+                stringResource(if (ahead >= 0.0) R.string.stakeout_ahead else R.string.stakeout_back, numbers.length(abs(ahead))),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.testTag(STAKEOUT_AHEAD_TAG),
+            )
+        }
+        ui.guidance.rightM?.let { right ->
+            Text(
+                stringResource(if (right >= 0.0) R.string.stakeout_right else R.string.stakeout_left, numbers.length(abs(right))),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.testTag(STAKEOUT_RIGHT_TAG),
+            )
+        }
+        if (ui.guidance.aheadM == null) {
+            // S018/RF-11: sin rumbo, la distancia y las diferencias de Norte y Este siguen a la vista.
+            val north = stringResource(R.string.stakeout_north, numbers.signed(ui.guidance.dNorthM))
+            val east = stringResource(R.string.stakeout_east, numbers.signed(ui.guidance.dEastM))
+            Text(north, modifier = Modifier.testTag(STAKEOUT_NORTH_TAG))
+            Text(east, modifier = Modifier.testTag(STAKEOUT_EAST_TAG))
+        }
+    }
+}
+
+/** El rumbo de la flecha y la diferencia de cota, a todo el ancho: su texto es más largo que el de las cifras (S018/RF-9 a RF-12). */
+@Composable
+private fun GuidanceNotes(state: StakeoutUiState, ui: GuidanceUi, numbers: Numbers, angular: AngularUnit) {
+    if (state.settings.mode == StakeMode.BY_DIRECTION) {
+        Text(headingText(ui.heading, state.settings.heading, angular), modifier = Modifier.testTag(STAKEOUT_HEADING_TAG))
+    }
+    ui.guidance.dHeightM?.let {
+        Text(stringResource(R.string.stakeout_dz, numbers.signed(it)), modifier = Modifier.testTag(STAKEOUT_DZ_TAG))
     }
 }
 
@@ -391,4 +418,7 @@ private fun KeepScreenOn() {
 }
 
 /** El cuerpo no pasa de esto, para que el panel deje ver el mapa; si no cabe, se desplaza. */
-private val BODY_MAX_HEIGHT = 260.dp
+private val BODY_MAX_HEIGHT = 380.dp
+private val ARROW_ALONE = 96.dp
+private val ARROW_BESIDE_DIANA = 72.dp
+private val DIANA_SIZE = 130.dp

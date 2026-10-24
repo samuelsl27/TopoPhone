@@ -10,15 +10,19 @@ import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeadingChoice
+import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.StakeMode
 import es.topophone.core.model.point.StakeoutSettings
+import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
@@ -203,6 +207,38 @@ class StakeoutViewModelTest {
         target.description shouldBe "esquina norte"
         target.coordinates shouldBe point.coordinates
         vm.state.value.project.shouldNotBeNull().name shouldBe "Calle Mayor 12"
+    }
+
+    @Test
+    fun `S018 RF-2 se replantea cualquier punto activo, medido o manual, y uno en la papelera no`() {
+        val measured = addPoint("12")
+        val ground = GeodeticPosition(40.4169, -3.7036, 750.0)
+        val manual = Point(
+            id = "id-M1",
+            projectId = projectId,
+            name = "M1",
+            description = "esquina",
+            origin = PointOrigin.MANUAL,
+            coordinates = PointCoordinates(ground, 440_310.0, 4_474_256.0, 698.9),
+            measurement = null,
+            typed = TypedCoordinates(EntryForm.PROJECT_CRS, 440_310.0, 4_474_256.0, 698.9, HeightKind.PROJECT),
+            edited = false,
+            hidden = false,
+            copyOf = null,
+            createdAtMs = 2_000,
+            deletedAtMs = null,
+        )
+        runBlocking { points.create(manual) }
+        val trashed = addPoint("13")
+        runBlocking { points.moveToTrash(listOf(trashed.id)) }
+        val vm = viewModel()
+
+        vm.open(projectId, measured.id)
+        await(vm) { it.target?.id == measured.id }
+        vm.open(projectId, manual.id)
+        await(vm) { it.target?.id == manual.id }.target.shouldNotBeNull().coordinates shouldBe manual.coordinates
+        vm.open(projectId, trashed.id)
+        await(vm) { it.notFound }.target.shouldBeNull()
     }
 
     @Test
