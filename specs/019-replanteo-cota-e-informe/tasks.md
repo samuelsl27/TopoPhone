@@ -14,7 +14,7 @@
       Hecho cuando: `LevelScaleTest` y `LevelViewTest` en verde: los pasos 1-2-5 hasta decenas de metros, sin saltos de ida y vuelta, la burbuja recortada al borde y la banda de la tolerancia.
 - [x] T6. `core:survey`: `StakeoutDiff.ref` con la cota usada y las tolerancias, y `StakeoutDiff.within`. (RF-13, RF-14)
       Hecho cuando: `StakeoutDiffTest` en verde contra `fixtures/replanteo/` (≤ 1 mm): con y sin cota, la cota escrita, dentro en H y fuera en V y al revés.
-- [ ] T7. `core:model`: `StakeoutReport` con las filas, el último replanteo, los sin evaluar y el resumen. (RF-17, RF-18, RF-21, RF-26)
+- [x] T7. `core:model`: `StakeoutReport` con las filas, el último replanteo, los sin evaluar y el resumen. (RF-17, RF-18, RF-21, RF-26)
       Hecho cuando: `StakeoutReportTest` en verde contra `fixtures/replanteo/` (resumen ≤ 0,1 mm): varios replanteos, con selección, sin evaluar, sin ninguno y un nombre editado.
 - [ ] T8. `core:formats`: `StakeoutReportCsv`, y las ayudas de `CsvExport` abiertas al módulo. (RF-21, RF-22, RF-23)
       Hecho cuando: `StakeoutReportCsvTest` y su golden en verde: columnas y orden, geográficas, celdas vacías, unidades, comillas, separador y decimal, y `CsvExportGoldenTest` sin cambios.
