@@ -47,6 +47,7 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.TypedCoordinates
+import es.topophone.core.model.point.hasMeasurement
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.GeodeticDatum
@@ -235,7 +236,7 @@ class PointFormViewModel @Inject constructor(
                         description = description,
                         coordinates = coordinates ?: original.coordinates,
                         typed = if (recompute) typed else original.typed,
-                        edited = if (recompute) original.origin == PointOrigin.MEASURED else original.edited, // S011/RF-12
+                        edited = if (recompute) original.origin.hasMeasurement else original.edited, // S011/RF-12
                     ),
                     PointChange.EDIT,
                 )

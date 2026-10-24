@@ -54,6 +54,7 @@ import es.topophone.data.project.ProjectFolderEntity
         AutoMigration(from = 6, to = 7),
         AutoMigration(from = 7, to = 8, spec = TopoPhoneDatabase.PointsV8::class),
         AutoMigration(from = 8, to = 9),
+        AutoMigration(from = 9, to = 10),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -70,7 +71,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 9
+        const val VERSION = 10
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

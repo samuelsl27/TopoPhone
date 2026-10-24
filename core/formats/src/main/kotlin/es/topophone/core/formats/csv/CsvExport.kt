@@ -3,7 +3,7 @@ package es.topophone.core.formats.csv
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointBase
-import es.topophone.core.model.point.PointOrigin
+import es.topophone.core.model.point.hasMeasurement
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
@@ -186,7 +186,8 @@ object CsvExport {
         return when (column) {
             ExportColumn.NAME -> point.name
             ExportColumn.DESCRIPTION -> point.description
-            ExportColumn.ORIGIN -> if (point.origin == PointOrigin.MEASURED) "Measured" else "Manual"
+            // Un replanteado es un punto medido; S019 le añade sus columnas propias.
+            ExportColumn.ORIGIN -> if (point.origin.hasMeasurement) "Measured" else "Manual"
             ExportColumn.EASTING -> length(coordinates.easting)
             ExportColumn.NORTHING -> length(coordinates.northing)
             ExportColumn.ELEVATION -> length(coordinates.height)

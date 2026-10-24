@@ -16,7 +16,7 @@
       Hecho cuando: `StakeoutZonesTest` y `DianaScaleTest` en verde: las tres zonas, el margen de 5 mm, el aviso una vez, una tolerancia mayor de 40 cm, el rearmado y la escala sin saltos de ida y vuelta.
 - [x] T7. `core:survey`: `StakeoutDiff`, medido menos diseño. (RF-28)
       Hecho cuando: `StakeoutDiffTest` en verde, con los signos, sin redondear y con y sin altura.
-- [ ] T8. `data`: columnas de replanteo en `points`, `AutoMigration(9, 10)` y su lectura y escritura. (RF-27, RF-28, RF-32)
+- [x] T8. `data`: columnas de replanteo en `points`, `AutoMigration(9, 10)` y su lectura y escritura. (RF-27, RF-28, RF-32)
       Hecho cuando: `TopoPhoneDatabaseTest` 9 → 10 y `PointRepositoryStakeoutTest` en verde: un punto replanteado se guarda y se lee con su diseño y sus diferencias sin redondear, y los puntos de antes conservan sus datos.
 - [ ] T9. `data`: el recuento de replanteos por punto de diseño en los resúmenes. (RF-33)
       Hecho cuando: los tests del recuento en verde: con dos replanteos, con un diseño borrado, con un replanteo en la papelera y sin ninguno.

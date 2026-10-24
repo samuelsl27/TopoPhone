@@ -1,0 +1,974 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 10,
+    "identityHash": "9b8100f80c54c4bf3dff6c144a52bf3b",
+    "entities": [
+      {
+        "tableName": "projects",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `author` TEXT NOT NULL, `description` TEXT NOT NULL, `crs` TEXT NOT NULL, `linear_unit` TEXT NOT NULL, `angular_unit` TEXT NOT NULL, `corrections_datum` TEXT NOT NULL, `folder_id` TEXT, `created_at` INTEGER NOT NULL, `modified_at` INTEGER NOT NULL, `opened_at` INTEGER, `deleted_at` INTEGER, `height_system` TEXT NOT NULL DEFAULT 'ORTHOMETRIC', PRIMARY KEY(`id`), FOREIGN KEY(`folder_id`) REFERENCES `project_folders`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "author",
+            "columnName": "author",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "crs",
+            "columnName": "crs",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "linearUnit",
+            "columnName": "linear_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "angularUnit",
+            "columnName": "angular_unit",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correctionsDatum",
+            "columnName": "corrections_datum",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "folderId",
+            "columnName": "folder_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modifiedAt",
+            "columnName": "modified_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "openedAt",
+            "columnName": "opened_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "heightSystem",
+            "columnName": "height_system",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'ORTHOMETRIC'"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_projects_folder_id",
+            "unique": false,
+            "columnNames": [
+              "folder_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_projects_folder_id` ON `${TABLE_NAME}` (`folder_id`)"
+          },
+          {
+            "name": "index_projects_deleted_at",
+            "unique": false,
+            "columnNames": [
+              "deleted_at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_projects_deleted_at` ON `${TABLE_NAME}` (`deleted_at`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "project_folders",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "folder_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "project_folders",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ntrip_profiles",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `host` TEXT NOT NULL, `port` INTEGER NOT NULL, `use_tls` INTEGER NOT NULL, `username` TEXT NOT NULL, `mountpoint` TEXT NOT NULL, `mountpoint_needs_gga` INTEGER, `password_iv` BLOB, `password_ct` BLOB, `created_at` INTEGER NOT NULL, `modified_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "host",
+            "columnName": "host",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "port",
+            "columnName": "port",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "useTls",
+            "columnName": "use_tls",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mountpoint",
+            "columnName": "mountpoint",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mountpointNeedsGga",
+            "columnName": "mountpoint_needs_gga",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "passwordIv",
+            "columnName": "password_iv",
+            "affinity": "BLOB"
+          },
+          {
+            "fieldPath": "passwordCiphertext",
+            "columnName": "password_ct",
+            "affinity": "BLOB"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modifiedAt",
+            "columnName": "modified_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "map_viewports",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`project_id` TEXT NOT NULL, `latitude` REAL NOT NULL, `longitude` REAL NOT NULL, `zoom` REAL NOT NULL, PRIMARY KEY(`project_id`), FOREIGN KEY(`project_id`) REFERENCES `projects`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "projectId",
+            "columnName": "project_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "latitude",
+            "columnName": "latitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "longitude",
+            "columnName": "longitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zoom",
+            "columnName": "zoom",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "project_id"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "projects",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "project_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "points",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `project_id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `origin` TEXT NOT NULL DEFAULT 'MEASURED', `antenna_lat` REAL, `antenna_lon` REAL, `antenna_h` REAL, `pole_height` REAL, `ground_lat` REAL NOT NULL, `ground_lon` REAL NOT NULL, `ground_h` REAL, `easting` REAL, `northing` REAL, `height` REAL, `measured_ground_lat` REAL, `measured_ground_lon` REAL, `measured_ground_h` REAL, `measured_easting` REAL, `measured_northing` REAL, `measured_height` REAL, `solution` TEXT, `satellites` INTEGER, `hdop` REAL, `correction_age` REAL, `sigma_h` REAL, `sigma_v` REAL, `mode` TEXT, `epochs_used` INTEGER, `epochs_discarded` INTEGER, `from_replay` INTEGER, `out_of_tolerance` TEXT NOT NULL, `raw_nmea` TEXT, `measured_from` INTEGER, `measured_to` INTEGER, `typed_form` TEXT, `typed_first` REAL, `typed_second` REAL, `typed_height` REAL, `typed_height_kind` TEXT, `edited` INTEGER NOT NULL DEFAULT 0, `hidden` INTEGER NOT NULL DEFAULT 0, `copy_of` TEXT, `created_at` INTEGER NOT NULL, `deleted_at` INTEGER, `trash_key` TEXT NOT NULL DEFAULT '', `base_lat` REAL, `base_lon` REAL, `base_h` REAL, `base_source` TEXT, `base_station` INTEGER, `base_antenna_height` REAL, `baseline` REAL, `tilt_mode` TEXT, `tilt_verified` INTEGER, `tilt` REAL, `tilt_direction` REAL, `tilt_heading` REAL, `tilt_max` REAL, `tilt_sigma_h` REAL, `tilt_sigma_v` REAL, `tilt_pole_e` REAL, `tilt_pole_n` REAL, `tilt_pole_u` REAL, `tilt_receiver_pole` REAL, `avg_time` REAL, `dev_h` REAL, `dev_v` REAL, `auto_mode` INTEGER, `nmea_chunks` INTEGER NOT NULL DEFAULT 0, `stake_design_id` TEXT, `stake_design_name` TEXT, `stake_design_east` REAL, `stake_design_north` REAL, `stake_design_height` REAL, `stake_design_lat` REAL, `stake_design_lon` REAL, `stake_design_ground_h` REAL, `stake_d_east` REAL, `stake_d_north` REAL, `stake_d_horizontal` REAL, `stake_d_height` REAL, PRIMARY KEY(`id`), FOREIGN KEY(`project_id`) REFERENCES `projects`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "project_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origin",
+            "columnName": "origin",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "'MEASURED'"
+          },
+          {
+            "fieldPath": "antennaLat",
+            "columnName": "antenna_lat",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "antennaLon",
+            "columnName": "antenna_lon",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "antennaH",
+            "columnName": "antenna_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "poleHeight",
+            "columnName": "pole_height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "groundLat",
+            "columnName": "ground_lat",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groundLon",
+            "columnName": "ground_lon",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groundH",
+            "columnName": "ground_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "easting",
+            "columnName": "easting",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "northing",
+            "columnName": "northing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "height",
+            "columnName": "height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredGroundLat",
+            "columnName": "measured_ground_lat",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredGroundLon",
+            "columnName": "measured_ground_lon",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredGroundH",
+            "columnName": "measured_ground_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredEasting",
+            "columnName": "measured_easting",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredNorthing",
+            "columnName": "measured_northing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredHeight",
+            "columnName": "measured_height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "solution",
+            "columnName": "solution",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "satellites",
+            "columnName": "satellites",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hdop",
+            "columnName": "hdop",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "correctionAge",
+            "columnName": "correction_age",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sigmaH",
+            "columnName": "sigma_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sigmaV",
+            "columnName": "sigma_v",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "mode",
+            "columnName": "mode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "epochsUsed",
+            "columnName": "epochs_used",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "epochsDiscarded",
+            "columnName": "epochs_discarded",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "fromReplay",
+            "columnName": "from_replay",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "outOfTolerance",
+            "columnName": "out_of_tolerance",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rawNmea",
+            "columnName": "raw_nmea",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "measuredFrom",
+            "columnName": "measured_from",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "measuredTo",
+            "columnName": "measured_to",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "typedForm",
+            "columnName": "typed_form",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "typedFirst",
+            "columnName": "typed_first",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "typedSecond",
+            "columnName": "typed_second",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "typedHeight",
+            "columnName": "typed_height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "typedHeightKind",
+            "columnName": "typed_height_kind",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "edited",
+            "columnName": "edited",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "hidden",
+            "columnName": "hidden",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "copyOf",
+            "columnName": "copy_of",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "trashKey",
+            "columnName": "trash_key",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "baseLat",
+            "columnName": "base_lat",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "baseLon",
+            "columnName": "base_lon",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "baseH",
+            "columnName": "base_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "baseSource",
+            "columnName": "base_source",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "baseStation",
+            "columnName": "base_station",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "baseAntennaHeight",
+            "columnName": "base_antenna_height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "baseline",
+            "columnName": "baseline",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltMode",
+            "columnName": "tilt_mode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tiltVerified",
+            "columnName": "tilt_verified",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "tilt",
+            "columnName": "tilt",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltDirection",
+            "columnName": "tilt_direction",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltHeading",
+            "columnName": "tilt_heading",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltMax",
+            "columnName": "tilt_max",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltSigmaH",
+            "columnName": "tilt_sigma_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltSigmaV",
+            "columnName": "tilt_sigma_v",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltPoleE",
+            "columnName": "tilt_pole_e",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltPoleN",
+            "columnName": "tilt_pole_n",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltPoleU",
+            "columnName": "tilt_pole_u",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "tiltReceiverPole",
+            "columnName": "tilt_receiver_pole",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "avgTime",
+            "columnName": "avg_time",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "devH",
+            "columnName": "dev_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "devV",
+            "columnName": "dev_v",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "autoMode",
+            "columnName": "auto_mode",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "nmeaChunks",
+            "columnName": "nmea_chunks",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "stakeDesignId",
+            "columnName": "stake_design_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "stakeDesignName",
+            "columnName": "stake_design_name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "stakeDesignEast",
+            "columnName": "stake_design_east",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stakeDesignNorth",
+            "columnName": "stake_design_north",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stakeDesignHeight",
+            "columnName": "stake_design_height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stakeDesignLat",
+            "columnName": "stake_design_lat",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stakeDesignLon",
+            "columnName": "stake_design_lon",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stakeDesignGroundH",
+            "columnName": "stake_design_ground_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stakeDEast",
+            "columnName": "stake_d_east",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stakeDNorth",
+            "columnName": "stake_d_north",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stakeDHorizontal",
+            "columnName": "stake_d_horizontal",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "stakeDHeight",
+            "columnName": "stake_d_height",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_points_project_id_name_trash_key",
+            "unique": true,
+            "columnNames": [
+              "project_id",
+              "name",
+              "trash_key"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_points_project_id_name_trash_key` ON `${TABLE_NAME}` (`project_id`, `name`, `trash_key`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "projects",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "project_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "point_history",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `point_id` TEXT NOT NULL, `changed_at` INTEGER NOT NULL, `change` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `pole_height` REAL, `ground_lat` REAL NOT NULL, `ground_lon` REAL NOT NULL, `ground_h` REAL, `easting` REAL, `northing` REAL, `height` REAL, `measured_ground_lat` REAL, `measured_ground_lon` REAL, `measured_ground_h` REAL, `measured_easting` REAL, `measured_northing` REAL, `measured_height` REAL, `typed_form` TEXT, `typed_first` REAL, `typed_second` REAL, `typed_height` REAL, `typed_height_kind` TEXT, `edited` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`point_id`) REFERENCES `points`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pointId",
+            "columnName": "point_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "changedAt",
+            "columnName": "changed_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "change",
+            "columnName": "change",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "poleHeight",
+            "columnName": "pole_height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "groundLat",
+            "columnName": "ground_lat",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groundLon",
+            "columnName": "ground_lon",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groundH",
+            "columnName": "ground_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "easting",
+            "columnName": "easting",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "northing",
+            "columnName": "northing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "height",
+            "columnName": "height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredGroundLat",
+            "columnName": "measured_ground_lat",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredGroundLon",
+            "columnName": "measured_ground_lon",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredGroundH",
+            "columnName": "measured_ground_h",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredEasting",
+            "columnName": "measured_easting",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredNorthing",
+            "columnName": "measured_northing",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "measuredHeight",
+            "columnName": "measured_height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "typedForm",
+            "columnName": "typed_form",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "typedFirst",
+            "columnName": "typed_first",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "typedSecond",
+            "columnName": "typed_second",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "typedHeight",
+            "columnName": "typed_height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "typedHeightKind",
+            "columnName": "typed_height_kind",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "edited",
+            "columnName": "edited",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_point_history_point_id",
+            "unique": false,
+            "columnNames": [
+              "point_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_point_history_point_id` ON `${TABLE_NAME}` (`point_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "points",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "point_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "point_nmea",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`point_id` TEXT NOT NULL, `seq` INTEGER NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`point_id`, `seq`), FOREIGN KEY(`point_id`) REFERENCES `points`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "pointId",
+            "columnName": "point_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seq",
+            "columnName": "seq",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "point_id",
+            "seq"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "points",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "point_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9b8100f80c54c4bf3dff6c144a52bf3b')"
+    ]
+  }
+}

@@ -489,6 +489,7 @@
     <string name="objects_search_empty">No point contains “%1$s”.</string>
     <string name="point_origin_measured">Measured</string>
     <string name="point_origin_manual">Manual</string>
+    <string name="point_origin_staked">Staked out</string>
     <string name="point_mark_out_of_tolerance">Out of tolerance</string>
     <string name="point_mark_edited">Edited</string>
     <string name="point_mark_no_height">No height</string>

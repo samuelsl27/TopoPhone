@@ -364,7 +364,13 @@ private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit) {
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun PointRow(point: PointSummary, selected: Boolean, onClick: () -> Unit, onLongClick: () -> Unit, onToggleHidden: () -> Unit) {
-    val origin = stringResource(if (point.origin == PointOrigin.MEASURED) R.string.point_origin_measured else R.string.point_origin_manual)
+    val origin = stringResource(
+        when (point.origin) {
+            PointOrigin.MEASURED -> R.string.point_origin_measured
+            PointOrigin.STAKED -> R.string.point_origin_staked // S018/RF-32
+            PointOrigin.MANUAL -> R.string.point_origin_manual
+        },
+    )
     ListItem(
         headlineContent = { Text(point.name, style = MaterialTheme.typography.titleMedium) },
         supportingContent = {

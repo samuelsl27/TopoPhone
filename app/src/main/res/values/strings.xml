@@ -501,6 +501,7 @@
     <string name="objects_search_empty">Ningún punto contiene «%1$s».</string>
     <string name="point_origin_measured">Medido</string>
     <string name="point_origin_manual">Manual</string>
+    <string name="point_origin_staked">Replanteado</string>
     <string name="point_mark_out_of_tolerance">Fuera de tolerancia</string>
     <string name="point_mark_edited">Editado</string>
     <string name="point_mark_no_height">Sin altura</string>

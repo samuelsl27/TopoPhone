@@ -22,9 +22,11 @@ import es.topophone.core.model.point.PointSnapshot
 import es.topophone.core.model.point.PointTilt
 import es.topophone.core.model.point.PoleVector
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.TiltAngles
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.point.TypedCoordinates
+import es.topophone.core.model.point.hasMeasurement
 import es.topophone.data.project.ProjectEntity
 
 /**
@@ -118,6 +120,19 @@ data class PointEntity(
     @ColumnInfo(name = "auto_mode") val autoMode: Boolean? = null,
     // S017/RF-12: los tramos de frases NMEA que van en `point_nmea` por ser demasiadas para `raw_nmea`; 0 si van en ella.
     @ColumnInfo(name = "nmea_chunks", defaultValue = "0") val nmeaChunks: Int = 0,
+    // S018/RF-28: de qué punto de diseño viene un punto replanteado, por valor, y lo que se desvió (medido − diseño); NULL en los demás.
+    @ColumnInfo(name = "stake_design_id") val stakeDesignId: String? = null,
+    @ColumnInfo(name = "stake_design_name") val stakeDesignName: String? = null,
+    @ColumnInfo(name = "stake_design_east") val stakeDesignEast: Double? = null,
+    @ColumnInfo(name = "stake_design_north") val stakeDesignNorth: Double? = null,
+    @ColumnInfo(name = "stake_design_height") val stakeDesignHeight: Double? = null,
+    @ColumnInfo(name = "stake_design_lat") val stakeDesignLat: Double? = null,
+    @ColumnInfo(name = "stake_design_lon") val stakeDesignLon: Double? = null,
+    @ColumnInfo(name = "stake_design_ground_h") val stakeDesignGroundH: Double? = null,
+    @ColumnInfo(name = "stake_d_east") val stakeDEast: Double? = null,
+    @ColumnInfo(name = "stake_d_north") val stakeDNorth: Double? = null,
+    @ColumnInfo(name = "stake_d_horizontal") val stakeDHorizontal: Double? = null,
+    @ColumnInfo(name = "stake_d_height") val stakeDHeight: Double? = null,
 )
 
 /**
@@ -243,6 +258,18 @@ internal fun Point.toEntity(): PointEntity {
         devV = quality?.deviationVerticalM,
         autoMode = quality?.auto,
         nmeaChunks = m?.nmeaChunks ?: 0,
+        stakeDesignId = staked?.designId,
+        stakeDesignName = staked?.designName,
+        stakeDesignEast = staked?.design?.easting,
+        stakeDesignNorth = staked?.design?.northing,
+        stakeDesignHeight = staked?.design?.height,
+        stakeDesignLat = staked?.design?.ground?.latitudeDeg,
+        stakeDesignLon = staked?.design?.ground?.longitudeDeg,
+        stakeDesignGroundH = staked?.design?.ground?.ellipsoidalHeightM,
+        stakeDEast = staked?.dEastM,
+        stakeDNorth = staked?.dNorthM,
+        stakeDHorizontal = staked?.dHorizontalM,
+        stakeDHeight = staked?.dHeightM,
     )
 }
 
@@ -260,11 +287,28 @@ internal fun PointEntity.toPoint(): Point = Point(
     copyOf = copyOf,
     createdAtMs = createdAt,
     deletedAtMs = deletedAt,
+    staked = staked(),
 )
 
-/** La medida de un punto medido; null en uno manual (sin antena ni NMEA). */
+/** De qué punto de diseño viene un punto replanteado; null en los demás (S018/RF-28). */
+private fun PointEntity.staked(): StakeoutRef? = StakeoutRef(
+    designId = stakeDesignId ?: return null,
+    designName = stakeDesignName ?: return null,
+    design = PointCoordinates(
+        GeodeticPosition(stakeDesignLat ?: return null, stakeDesignLon ?: return null, stakeDesignGroundH),
+        stakeDesignEast,
+        stakeDesignNorth,
+        stakeDesignHeight,
+    ),
+    dEastM = stakeDEast ?: return null,
+    dNorthM = stakeDNorth ?: return null,
+    dHorizontalM = stakeDHorizontal ?: return null,
+    dHeightM = stakeDHeight,
+)
+
+/** La medida de un punto medido o replanteado; null en uno manual (sin antena ni NMEA). */
 private fun PointEntity.measurement(): Measurement? {
-    if (origin != PointOrigin.MEASURED.name) return null
+    if (!enumOr(origin, PointOrigin.MEASURED).hasMeasurement) return null
     val antennaLatitude = antennaLat ?: return null
     val antennaLongitude = antennaLon ?: return null
     return Measurement(

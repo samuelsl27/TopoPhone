@@ -12,6 +12,7 @@ import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PointTilt
 import es.topophone.core.model.point.PoleVector
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.TiltAngles
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.AngularUnit
@@ -106,6 +107,16 @@ class CsvExportTest {
                 "1.8000,FLOAT,24,0.6,1.0,0.1383,0.2100,Instant,1,0,true,NOT_FIX,2026-10-18T18:03:34Z,2026-10-18T18:03:59Z," +
                 ",,,,,,,,,,,,,,,,,,,false,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
         )
+    }
+
+    @Test
+    fun `S018 RF-27 un punto replanteado sale en la columna Origin como medido`() {
+        val staked = measured.copy(
+            origin = PointOrigin.STAKED,
+            staked = StakeoutRef("d", "4", measured.coordinates, 0.01, -0.02, 0.0224, 0.003),
+        )
+
+        lines(csv(listOf(staked), CsvOptions()))[1].split(",")[2] shouldBe "Measured"
     }
 
     @Test
