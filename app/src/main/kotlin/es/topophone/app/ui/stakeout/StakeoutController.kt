@@ -4,6 +4,7 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TiltMode
@@ -59,6 +60,8 @@ data class GuidanceUi(
     val solution: SolutionStatus,
     val horizontalAccuracyM: Double?,
     val tipUncompensated: Boolean,
+    /** La punta en geográficas, para dibujarla en el mapa (S018/RF-14). */
+    val tip: GeodeticPosition? = null,
 )
 
 sealed interface GuidanceState {
@@ -143,6 +146,7 @@ class StakeoutController(
             solution = fix.status,
             horizontalAccuracyM = horizontalAccuracy(epoch, context, tip.uncompensated),
             tipUncompensated = tip.uncompensated,
+            tip = tip.ground,
         )
         val becameOn = !wasOn
         wasOn = true

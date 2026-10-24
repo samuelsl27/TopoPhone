@@ -67,6 +67,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private var rover: RoverMarker? = null
     private var base: GeoPoint? = null
     private var points: List<MapPoint> = emptyList()
+    private var stakeout: StakeoutMarker? = null
     private var bottomInsetPx = 0
     private var appliedInsetPx = 0
     private var easing = false
@@ -122,9 +123,11 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             map.setStyle(builder) { style ->
                 addBackground(style)
                 addPointLayers(style)
+                addStakeoutLayers(style)
                 addBaseLayer(style)
                 addRoverLayers(style)
                 drawPoints()
+                drawStakeout()
                 drawBase()
                 drawRover()
                 updateGrid()
@@ -184,7 +187,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private fun pointAt(screen: PointF): String? {
         val half = POINT_TOUCH_DP * mapView.resources.displayMetrics.density / 2
         val box = RectF(screen.x - half, screen.y - half, screen.x + half, screen.y + half)
-        return map.queryRenderedFeatures(box, POINTS_LAYER, POINT_LABELS_LAYER).firstNotNullOfOrNull { it.getStringProperty(POINT_ID) }
+        val layers = arrayOf(POINTS_LAYER, STAKED_LAYER, POINT_LABELS_LAYER)
+        return map.queryRenderedFeatures(box, *layers).firstNotNullOfOrNull { it.getStringProperty(POINT_ID) }
     }
 
     override fun showPoints(points: List<MapPoint>) {
@@ -196,7 +200,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private fun addPointLayers(style: Style) {
         style.addSource(GeoJsonSource(POINTS_SOURCE))
         style.addLayer(
-            CircleLayer(POINTS_LAYER, POINTS_SOURCE).withProperties(
+            CircleLayer(POINTS_LAYER, POINTS_SOURCE).withFilter(Expression.not(Expression.get(STAKED))).withProperties(
                 PropertyFactory.circleRadius(POINT_RADIUS_DP),
                 PropertyFactory.circleColor(
                     Expression.switchCase(
@@ -207,6 +211,15 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 ),
                 PropertyFactory.circleStrokeColor(Color.WHITE),
                 PropertyFactory.circleStrokeWidth(1.5f),
+            ),
+        )
+        // S018/RF-34: un punto replanteado es un rombo, distinto del círculo de los medidos.
+        style.addImage(STAKED_ICON, stakedIcon())
+        style.addLayer(
+            SymbolLayer(STAKED_LAYER, POINTS_SOURCE).withFilter(Expression.get(STAKED)).withProperties(
+                PropertyFactory.iconImage(STAKED_ICON),
+                PropertyFactory.iconAllowOverlap(true),
+                PropertyFactory.iconIgnorePlacement(true),
             ),
         )
         style.addLayer(
@@ -230,10 +243,91 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 addStringProperty(POINT_ID, point.id)
                 addStringProperty(NAME, point.name)
                 addBooleanProperty(OUT_OF_TOLERANCE, point.outOfTolerance)
+                addBooleanProperty(STAKED, point.staked)
             }
         }
         source.setGeoJson(FeatureCollection.fromFeatures(features))
         MapPoints.labelMinZoom(points)?.let { style.getLayer(POINT_LABELS_LAYER)?.minZoom = it.toFloat() }
+    }
+
+    override fun showStakeout(marker: StakeoutMarker?) {
+        stakeout = marker
+        drawStakeout()
+    }
+
+    /** La línea punta-diseño y los dos puntos, debajo del rover y encima de los puntos (S018/RF-14). */
+    private fun addStakeoutLayers(style: Style) {
+        style.addSource(GeoJsonSource(STAKEOUT_SOURCE))
+        val lines = Expression.eq(Expression.geometryType(), "LineString")
+        val designs = Expression.eq(Expression.get(STAKEOUT_ROLE), STAKEOUT_DESIGN)
+        val tips = Expression.eq(Expression.get(STAKEOUT_ROLE), STAKEOUT_TIP)
+        style.addLayer(
+            LineLayer(STAKEOUT_LINE_LAYER, STAKEOUT_SOURCE).withFilter(lines).withProperties(
+                PropertyFactory.lineColor(Color.parseColor(STAKEOUT_COLOR)),
+                PropertyFactory.lineWidth(STAKEOUT_LINE_DP),
+                PropertyFactory.lineDasharray(arrayOf(2f, 2f)),
+            ),
+        )
+        style.addLayer(
+            CircleLayer(STAKEOUT_DESIGN_LAYER, STAKEOUT_SOURCE).withFilter(designs).withProperties(
+                PropertyFactory.circleRadius(STAKEOUT_DESIGN_RADIUS_DP),
+                PropertyFactory.circleColor(Color.TRANSPARENT),
+                PropertyFactory.circleStrokeColor(Color.parseColor(STAKEOUT_COLOR)),
+                PropertyFactory.circleStrokeWidth(3f),
+            ),
+        )
+        style.addLayer(
+            CircleLayer(STAKEOUT_TIP_LAYER, STAKEOUT_SOURCE).withFilter(tips).withProperties(
+                PropertyFactory.circleRadius(POINT_RADIUS_DP),
+                PropertyFactory.circleColor(Color.parseColor(STAKEOUT_COLOR)),
+                PropertyFactory.circleStrokeColor(Color.WHITE),
+                PropertyFactory.circleStrokeWidth(1.5f),
+            ),
+        )
+    }
+
+    private fun drawStakeout() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val source = style.getSourceAs<GeoJsonSource>(STAKEOUT_SOURCE) ?: return
+        val marker = stakeout
+        if (marker == null) {
+            source.setGeoJson(FeatureCollection.fromFeatures(emptyList()))
+            return
+        }
+        val design = Point.fromLngLat(marker.design.longitudeDeg, marker.design.latitudeDeg)
+        val features = mutableListOf(Feature.fromGeometry(design).apply { addStringProperty(STAKEOUT_ROLE, STAKEOUT_DESIGN) })
+        marker.tip?.let { tip ->
+            val tipPoint = Point.fromLngLat(tip.longitudeDeg, tip.latitudeDeg)
+            features += Feature.fromGeometry(tipPoint).apply { addStringProperty(STAKEOUT_ROLE, STAKEOUT_TIP) }
+            if (marker.line) features += Feature.fromGeometry(LineString.fromLngLats(listOf(tipPoint, design)))
+        }
+        source.setGeoJson(FeatureCollection.fromFeatures(features))
+    }
+
+    /** Un rombo con borde blanco para los puntos replanteados, distinto del círculo de los medidos y del triángulo de la base. */
+    private fun stakedIcon(): Bitmap {
+        val density = mapView.resources.displayMetrics.density
+        val size = (STAKED_ICON_DP * density).roundToInt()
+        val inset = STAKED_STROKE_DP * density
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val path = Path().apply {
+            moveTo(size / 2f, inset)
+            lineTo(size - inset, size / 2f)
+            lineTo(size / 2f, size - inset)
+            lineTo(inset, size / 2f)
+            close()
+        }
+        val canvas = Canvas(bitmap)
+        canvas.drawPath(path, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor(STAKED_COLOR) })
+        canvas.drawPath(
+            path,
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.WHITE
+                style = Paint.Style.STROKE
+                strokeWidth = inset
+            },
+        )
+        return bitmap
     }
 
     override fun showRover(marker: RoverMarker?) {
@@ -459,6 +553,22 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val POINT_COLOR = "#1565C0"
         const val OUT_OF_TOLERANCE_COLOR = "#E65100"
         const val POINT_RADIUS_DP = 5f
+        const val STAKED = "staked"
+        const val STAKED_LAYER = "topophone-staked"
+        const val STAKED_ICON = "topophone-staked-icon"
+        const val STAKED_ICON_DP = 20f
+        const val STAKED_STROKE_DP = 1.5f
+        const val STAKED_COLOR = "#2E7D32"
+        const val STAKEOUT_SOURCE = "topophone-stakeout"
+        const val STAKEOUT_LINE_LAYER = "topophone-stakeout-line"
+        const val STAKEOUT_DESIGN_LAYER = "topophone-stakeout-design"
+        const val STAKEOUT_TIP_LAYER = "topophone-stakeout-tip"
+        const val STAKEOUT_ROLE = "role"
+        const val STAKEOUT_DESIGN = "design"
+        const val STAKEOUT_TIP = "tip"
+        const val STAKEOUT_COLOR = "#C62828"
+        const val STAKEOUT_LINE_DP = 2f
+        const val STAKEOUT_DESIGN_RADIUS_DP = 11f
         const val LABEL_SIZE_SP = 12f
         const val ACCURACY_SOURCE = "topophone-accuracy"
         const val ACCURACY_FILL_LAYER = "topophone-accuracy-fill"

@@ -24,6 +24,9 @@ interface MapController {
     /** Puntos del proyecto con su nombre (S010/RF-20). */
     fun showPoints(points: List<MapPoint>)
 
+    /** El replanteo: el punto de diseño, la punta y la línea entre ellos; nada sin replanteo (S018/RF-14). */
+    fun showStakeout(marker: StakeoutMarker?)
+
     /** La base con su símbolo, o nada sin posición de la base (S015/RF-19). */
     fun showBase(position: GeoPoint?)
 
@@ -54,6 +57,12 @@ interface MapController {
  * color de su solución (S009/RF-16, RF-17).
  */
 data class RoverMarker(val position: GeoPoint, val accuracyM: Double?, val colorArgb: Int)
+
+/**
+ * El replanteo en el mapa: el punto de diseño, la punta del jalón si hay guía y, con [line], la línea entre ellos, que solo se
+ * dibuja mientras queda a más de 40 cm (S018/RF-14).
+ */
+data class StakeoutMarker(val design: GeoPoint, val tip: GeoPoint?, val line: Boolean)
 
 /** Centro del mapa en geográficas y zoom de MapLibre (teselas de 512 dp). */
 data class MapCamera(val latitudeDeg: Double, val longitudeDeg: Double, val zoom: Double)

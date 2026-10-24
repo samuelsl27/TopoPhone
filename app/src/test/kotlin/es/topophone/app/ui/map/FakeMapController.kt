@@ -32,6 +32,7 @@ class FakeMapController : MapController {
     var roverCalls = 0
     var base: GeoPoint? = null
     var points: List<MapPoint> = emptyList()
+    var stakeout: StakeoutMarker? = null
     val moves = mutableListOf<MapViewport>()
     var spainShown = false
     var bottomInsetPx = 0
@@ -70,6 +71,10 @@ class FakeMapController : MapController {
 
     override fun showPoints(points: List<MapPoint>) {
         this.points = points
+    }
+
+    override fun showStakeout(marker: StakeoutMarker?) {
+        stakeout = marker
     }
 
     override fun moveTo(viewport: MapViewport) {

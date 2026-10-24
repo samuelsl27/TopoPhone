@@ -86,6 +86,7 @@ import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.tone
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.app.ui.stakeout.StakeoutActions
+import es.topophone.app.ui.stakeout.StakeoutMarkers
 import es.topophone.app.ui.stakeout.StakeoutPanel
 import es.topophone.app.ui.stakeout.StakeoutUiState
 import es.topophone.app.ui.stakeout.StakeoutViewModel
@@ -510,7 +511,7 @@ fun ProjectViewScreen(
             }
         }
     }
-    BindMap(controller, state)
+    BindMap(controller, state, stakeout)
     LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
     controller?.let { FollowRover(it, state, policy, onViewportChanged) }
     // S011/RF-5: tocar un punto del mapa abre su ficha.
@@ -649,13 +650,15 @@ private fun basemapLabel(basemap: Basemap): String = stringResource(
 
 /** Lleva al mapa sus ajustes, la unidad del proyecto y el rover con el color de su solución (S009/RF-6, RF-10, RF-16). */
 @Composable
-private fun BindMap(controller: MapController?, state: ProjectViewUiState) {
+private fun BindMap(controller: MapController?, state: ProjectViewUiState, stakeout: StakeoutUiState?) {
     val unit = state.project?.linearUnit
     val palette = LocalStatusPalette.current
     val marker = state.rover?.let { RoverMarker(it.position, it.accuracyM, palette.colorsFor(it.solution.tone()).container.toArgb()) }
     LaunchedEffect(controller, marker) { controller?.showRover(marker) }
     LaunchedEffect(controller, state.points) { controller?.showPoints(MapPoints.from(state.points)) } // S010/RF-20
     LaunchedEffect(controller, state.base) { controller?.showBase(state.base) } // S015/RF-19
+    val stakeoutMarker = StakeoutMarkers.of(stakeout)
+    LaunchedEffect(controller, stakeoutMarker) { controller?.showStakeout(stakeoutMarker) } // S018/RF-14
     LaunchedEffect(controller, state.mapSettings) { controller?.setSettings(state.mapSettings) }
     LaunchedEffect(controller, unit) { if (unit != null) controller?.setLinearUnit(unit) }
 }

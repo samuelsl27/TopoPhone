@@ -40,7 +40,7 @@
       Hecho cuando: los tests de medir de `StakeoutPanelTest` en verde: el progreso, las diferencias tras guardar, los controles bloqueados durante la medida y la tolerancia cambiada.
 - [x] T19. `app`: el panel en la vista de proyecto y las entradas "Replantear" en la ficha, la lista de objetos y el mapa. (RF-1)
       Hecho cuando: `StakeoutEntriesTest` en verde, con el recolector y el replanteo que no se pisan y la pantalla encendida con el replanteo abierto.
-- [ ] T20. `app`: `MapController.showStakeout` con la punta, el diseño y la línea, y el símbolo de los replanteados. (RF-14, RF-34)
+- [x] T20. `app`: `MapController.showStakeout` con la punta, el diseño y la línea, y el símbolo de los replanteados. (RF-14, RF-34)
       Hecho cuando: `MapStakeoutTest` en verde: la línea a más de 40 cm, sin ella dentro, y los símbolos distintos.
 - [ ] T21. `app`: la ficha del punto replanteado y la marca de replanteos en la lista de objetos. (RF-32, RF-33)
       Hecho cuando: `PointDetailsStakeoutTest` y `ObjectListStakeoutTest` en verde, con las unidades del proyecto.
