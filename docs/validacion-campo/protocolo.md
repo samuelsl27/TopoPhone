@@ -31,7 +31,8 @@ Cada puerta de hito (G0, G1, …; ver `docs/hoja-de-ruta.md`) se cierra con un a
 |---|---|
 | G0 (S002) | a (solo TopoPhone frente a pyproj aplicado al GGA grabado), c |
 | G1 (S014) | a, b, c, f (CSV), g; el acta lleva el informe de sistema |
-| G2 (S022) | d, e, g |
+| G2 (S019) | d, e (también una cota de diseño), g |
+| G2b (S045) | e con el diseño importado: puntos de un CSV, líneas de un DXF y la cota contra una superficie LandXML y contra un raster |
 | G3–G7 | f para cada formato nuevo; los que añada cada spec |
 
 ## Plantilla de acta

@@ -1,6 +1,6 @@
 # Hoja de ruta de TopoPhone
 
-Las specs se implementan **en orden**. Cada hito termina con una puerta de validación de campo (`docs/validacion-campo/protocolo.md`).
+Las specs se implementan **en el orden de las tablas**, no por su número: los números son identificadores estables y desde S017b no van seguidos (el replanteo y la importación de diseño pasan delante de las fotos). Cada hito termina con una puerta de validación de campo (`docs/validacion-campo/protocolo.md`).
 
 Estados: `pendiente` → `spec` → `plan` → `tareas` → `en curso` → `implementada`.
 
@@ -31,16 +31,21 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 013 copia-seguridad-local | ZIP de copia completa con restauración y deshacer, copias automáticas en una carpeta SAF (cada hora con cambios, las 24 últimas), paquetes `.topoproj` para importar y exportar entre dispositivos, perfiles NTRIP sin contraseñas | 012 | en curso |
 | 014 log-e-informe-de-sistema | Log de la app (rotativo, de 5 a 50 MB elegidos en Ajustes, sin secretos) e informe de sistema exportable con el log, las sesiones recientes (hasta 25 MB) y los datos de la app y del móvil, sin contraseñas ni usuarios NTRIP (RNF-T12). **Puerta G1** | 013 | en curso |
 
-## H2 · Receptor completo, inclinación y replanteo
+## H2 · Receptor completo, inclinación, replanteo e importación de diseño
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
 | 015 estado-receptor-detallado | Pantalla de estado: posición, DOP, skyplot (GSV), SNR del rover y de la base por satélite y banda (MSM), base (EBP o RTCM 1005/1006) y línea base, con avisos de línea base larga y de cambio de base; la base en el mapa y guardada en cada punto (ficha y CSV) | 014 | en curso |
 | 016 inclinacion-rs3 | Modo de inclinación por receptor (calculada por la app, compensada por el receptor o jalón vertical) con un asistente que lo detecta con una prueba de inclinación; estados y avisos de ETC con la guía de inicialización en ocho; punta del jalón en el mapa y en las coordenadas; bloqueo sin estado 30 y descarte de épocas con aviso; condición de inclinación máxima; precisión con los coeficientes de ETC; inclinación y rumbo guardados por punto (ficha y CSV) | 015, 010 | en curso |
 | 017 recolectar-avanzado | Modo automático por tiempo o distancia con omisión de los puntos que no cumplen el control de precisión; promediado de hasta 60 min con estadísticas en vivo (desviación típica, estabilidad de la media y gráfico de dispersión), pausa ante los cortes y datos guardados en la ficha y el CSV | 016 | en curso |
-| 017b fotos-de-puntos | Fotos de los puntos, varias por punto: desde el recolector, durante la medida o justo después de guardar, y desde la ficha (ver, añadir y borrar con rastro en el historial); viajan con el punto en la papelera, las copias de seguridad y los paquetes | 017 | tareas |
 | 018 replanteo-puntos | Replanteo por dirección (rumbo de marcha o del IMU) y por distancia (N/E), zoom automático, diana métrica (verde ≤ 2,5 cm, configurable), ayuda visual ≤ 40 cm, anterior/siguiente, avisos de FIX y de inclinación, sonido, punto replanteado `_stkd`, pantalla siempre encendida (RNF-T2) | 016 | pendiente |
 | 019 replanteo-cota-e-informe | Cota de diseño (desmonte/terraplén con tolerancia) e informe de replanteo CSV | 018 | pendiente |
+| 028 importar-csv-txt | Asignación de columnas, PENZD/PNEZD, UTF-8 o Windows-1252, coma decimal, vista previa, informe de errores, nombres repetidos | 011 | pendiente |
+| 040 capa-cad-dxf | Lectura de DXF por streaming (R12–R2018, ≤ 100 MB), bloques (INSERT), arcos, círculos y splines como polilíneas, índice espacial; sus puntos y líneas se ven en el mapa como capa de diseño; los DWG no se leen (licencia, RNF-T14): se avisa y se convierten a DXF fuera | 009 | pendiente |
+| 041 replanteo-cad | Replanteo de puntos, vértices, centros de bloque, líneas y segmentos del DXF; por segmentos, a la línea, a lo largo de la línea con desplazamiento, encadenamiento hasta A/B e intervalos (el motor de líneas, que S027 reutiliza para las líneas propias) | 040, 019 | pendiente |
+| 042 superficies-landxml | Importar una superficie TIN (una activa), desplazamiento vertical, desmonte/terraplén respecto a la superficie | 019 | pendiente |
+| 045 raster-mdt | Importar un raster de cotas (GeoTIFF y ASCII Grid) como superficie, con su SC y su datum vertical, y replantear solo la cota: desmonte/terraplén contra el raster en la posición del jalón, con tolerancia; una superficie activa por proyecto, como las de LandXML | 042 | pendiente |
+| 017b fotos-de-puntos | Fotos de los puntos, varias por punto: desde el recolector, durante la medida o justo después de guardar, y desde la ficha (ver, añadir y borrar con rastro en el historial); viajan con el punto en la papelera, las copias de seguridad y los paquetes | 017 | tareas |
 | 020 base-shift | Desplazamiento ECEF (conocido − medido) aplicado a los puntos siguientes, registrado en cada punto y desactivable. Orden fijo: bruto → shift → SC → localización | 011, 010 | pendiente |
 | 021 conexion-wifi-tcp | Cliente TCP (hotspot 192.168.42.1:9001 o IP de la red local), tráfico del receptor por Wi-Fi y NTRIP por datos móviles, descubrimiento mDNS, correcciones al puerto TCP de entrada del receptor, permiso de red local | 015 | pendiente |
 | 022 gnss-movil-y-receptor-virtual | GNSS del propio móvil (nunca se presenta como FIX) y receptor virtual con escenarios guionizados | 021 | pendiente |
@@ -53,13 +58,12 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 024 recolectar-con-codigos | Selector de códigos con recientes, códigos creados sobre la marcha (solo para el proyecto), formulario de atributos, cambio de código, símbolos por código | 023 | pendiente |
 | 025 lineas-y-poligonos | Empezar o continuar una línea, cerrarla en polígono, crear una línea desde puntos existentes, editar vértices | 024 | pendiente |
 | 026 informacion-geometrica | Longitud 2D/3D, área, perímetro, azimut, pendiente, tabla por segmento, ángulo entre 3 puntos, distancias de cuadrícula o de terreno | 025 | pendiente |
-| 027 replanteo-lineas | Por segmentos, a la línea, a lo largo de la línea con desplazamiento, encadenamiento hasta A/B, intervalos | 025, 018 | pendiente |
+| 027 replanteo-lineas | Replanteo de las líneas propias del proyecto con el motor de líneas de S041: por segmentos, a la línea, a lo largo de la línea con desplazamiento, encadenamiento hasta A/B, intervalos | 025, 041 | pendiente |
 
 ## H4 · Intercambio de datos
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 028 importar-csv-txt | Asignación de columnas, PENZD/PNEZD, UTF-8 o Windows-1252, coma decimal, vista previa, informe de errores, nombres repetidos | 011 | pendiente |
 | 029 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 025 | pendiente |
 | 030 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 025 | pendiente |
 | 031 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 025, 017b | pendiente |
@@ -81,9 +85,6 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 |---|---|---|---|
 | 038 cogo | Inversa, poligonal, intersecciones (distancia-distancia, dirección-dirección, distancia-dirección); los resultados se guardan como puntos de origen COGO | 011 | pendiente |
 | 039 localizacion | Hasta 50 pares H/V, semejanza 2D por mínimos cuadrados con plano inclinado, residuos, exclusión de componentes, aplicar al proyecto y guardar como SC | 035 | pendiente |
-| 040 capa-cad-dxf | Lectura de DXF por streaming (R12–R2018, ≤ 100 MB), bloques (INSERT), arcos, círculos y splines como polilíneas, índice espacial | 029, 009 | pendiente |
-| 041 replanteo-cad | Replanteo de puntos, vértices, centros de bloque, líneas y segmentos del DXF | 040, 027 | pendiente |
-| 042 superficies-landxml | Importar una superficie TIN (una activa), desplazamiento vertical, desmonte/terraplén respecto a la superficie | 019 | pendiente |
 
 ## H7 · Receptor avanzado
 
@@ -97,5 +98,6 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 |---|---|---|
 | G0 | S002 | FIX sobre un vértice REGENTE; las coordenadas en pantalla coinciden con pyproj aplicado al GGA grabado (≤ 1 mm) |
 | G1 | S014 | Un trabajo real: CSV abierto en QGIS y comparado con Emlid Flow (≤ 2 cm H / 3 cm V) |
-| G2 | S022 | Inclinación y replanteo: 5 puntos replanteados y comprobados después (≤ 2,5 cm); punta calculada frente a jalón vertical |
+| G2 | S019 | Inclinación y replanteo: 5 puntos replanteados y comprobados después (≤ 2,5 cm); punta calculada frente a jalón vertical; replanteo de una cota de diseño |
+| G2b | S045 | Diseño importado: puntos de un CSV y líneas de un DXF replanteados, y una cota replanteada contra una superficie LandXML y contra un raster, comprobadas después (≤ 2,5 cm H, ≤ 3 cm V) |
 | G3–G7 | fin de cada hito | Según el protocolo de campo |
