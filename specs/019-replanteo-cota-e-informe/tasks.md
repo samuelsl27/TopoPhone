@@ -10,7 +10,7 @@
       Hecho cuando: los tests de `core:model` en verde y `StakeoutRef` sin cambios para quien no pasa los datos nuevos.
 - [x] T4. `core:survey`: `StakeoutLevel`, los estados desmonte, terraplén y en cota con sus avisos y el margen de 5 mm. (RF-6, RF-8, RF-9)
       Hecho cuando: `StakeoutLevelTest` en verde: los tres estados, el aviso una sola vez, el borde oscilando, entrar en cota en la primera época y el reinicio.
-- [ ] T5. `core:survey`: `LevelScale` y `LevelView`. (RF-7)
+- [x] T5. `core:survey`: `LevelScale` y `LevelView`. (RF-7)
       Hecho cuando: `LevelScaleTest` y `LevelViewTest` en verde: los pasos 1-2-5 hasta decenas de metros, sin saltos de ida y vuelta, la burbuja recortada al borde y la banda de la tolerancia.
 - [ ] T6. `core:survey`: `StakeoutDiff.ref` con la cota usada y las tolerancias, y `StakeoutDiff.within`. (RF-13, RF-14)
       Hecho cuando: `StakeoutDiffTest` en verde contra `fixtures/replanteo/` (≤ 1 mm): con y sin cota, la cota escrita, dentro en H y fuera en V y al revés.
