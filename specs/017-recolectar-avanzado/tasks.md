@@ -18,7 +18,7 @@
       Hecho cuando: `PointMeasurementPauseTest` en verde: pausa a los 2 s, el tiempo del corte no suma, `LongPause` a los 5 min y repetida con "Seguir esperando", y la instantánea sigue cancelándose.
 - [x] T8. `core:survey`: `finishNow()` de `PointMeasurement` (A4). (RF-6, RF-7)
       Hecho cuando: `PointMeasurementPauseTest` en verde con "Terminar" con épocas, sin ninguna y en pausa.
-- [ ] T9. `core:survey`: `AutoMeasure` (A5). (RF-19, RF-20, RF-21, RF-24, RF-25, RF-27, RF-28, RF-32)
+- [x] T9. `core:survey`: `AutoMeasure` (A5). (RF-19, RF-20, RF-21, RF-24, RF-25, RF-27, RF-28, RF-32)
       Hecho cuando: `AutoMeasureTest` en verde con el primer punto inmediato, los dos disparos, el punto sin terminar, un solo aviso, el reintento por distancia, la pausa en los dos disparos, `stop()` y el cambio de día.
 - [ ] T10. `data`: columnas de `points`, tabla `point_nmea`, migración 8 → 9, `NmeaChunks` y el mapeo. (RF-12, RF-14)
        Hecho cuando: `TopoPhoneDatabaseTest` (8 → 9: datos conservados, columnas a NULL y `nmea_chunks` a 0), `NmeaChunksTest` y `PointRepositoryExportTest` en verde, con el esquema 9 exportado.

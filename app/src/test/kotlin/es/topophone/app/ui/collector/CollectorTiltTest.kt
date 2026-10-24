@@ -1,6 +1,7 @@
 package es.topophone.app.ui.collector
 
 import android.content.Context
+import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -103,11 +104,15 @@ class CollectorTiltTest {
         }
     }
 
+    /** Los recolectores de la prueba: un guardado en vuelo al cerrar la base filtraba su excepción al test siguiente. */
+    private val viewModels = mutableListOf<CollectorViewModel>()
+
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
 
     @After
     fun tearDown() {
+        viewModels.forEach { it.viewModelScope.cancel() }
         runCatching { toApp.close() }
         session.disconnect()
         scope.cancel()
@@ -131,6 +136,7 @@ class CollectorTiltTest {
             log = log,
             tilt = tilt,
         )
+        viewModels += vm
         vm.start(projectId)
         CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         await(vm) { it.loaded }
