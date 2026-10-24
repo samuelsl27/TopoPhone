@@ -120,6 +120,10 @@ data class TypedCoordinates(val form: EntryForm, val first: Double, val second: 
  * De qué punto de diseño viene un punto replanteado (S018/RF-28): su identificador y su nombre, sus coordenadas de diseño
  * tal como eran al replantear y lo que se desvió lo medido (medido menos diseño) en Este, Norte, distancia horizontal y
  * cota, sin redondear. Con un SC geográfico, Este y Norte son del plano local de la punta.
+ *
+ * Desde S019 guarda también la cota de diseño usada ([designElevationM]: la del punto o la escrita a mano, y contra ella se
+ * mide [dHeightM]), las tolerancias horizontal y vertical vigentes al medir y si el replanteo quedó dentro de ellas
+ * ([withinTolerance], RF-13, RF-14). Un replanteo de antes de S019 no las tiene: está sin evaluar (RF-26).
  */
 data class StakeoutRef(
     val designId: String,
@@ -129,7 +133,17 @@ data class StakeoutRef(
     val dNorthM: Double,
     val dHorizontalM: Double,
     val dHeightM: Double?,
-)
+    val designElevationM: Double? = null,
+    val toleranceHM: Double? = null,
+    val toleranceVM: Double? = null,
+    val withinTolerance: Boolean? = null,
+) {
+    /** Replanteado antes de S019, sin tolerancias ni veredicto guardados (S019/RF-26). */
+    val notEvaluated: Boolean get() = withinTolerance == null
+
+    /** Se replanteó con cota de diseño: hay diferencia de cota (S019/RF-14). */
+    val hasElevation: Boolean get() = dHeightM != null
+}
 
 /**
  * Un punto del proyecto (S010, S011). [coordinates] son siempre las actuales: las de la medida, las escritas o las

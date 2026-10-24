@@ -6,7 +6,7 @@
       Hecho cuando: el script genera `fixtures/replanteo/` (la cota y el informe) y su test de `tools` está en verde.
 - [x] T2. `core:model`: `StakeoutSettings.toleranceVM` (rango, 3 cm por defecto, conversión a la unidad del proyecto) y `StakeoutNames.number`; los términos nuevos en `docs/glosario.md`. (RF-10, RF-21)
       Hecho cuando: `StakeoutSettingsTest` y `StakeoutNamesTest` en verde con la tolerancia en m, ft y usft, fuera de rango y `_stkd`, `_stkd2` y un nombre editado.
-- [ ] T3. `core:model`: `StakeoutRef` con `designElevationM`, `toleranceHM`, `toleranceVM` y `withinTolerance`. (RF-13, RF-14, RF-26)
+- [x] T3. `core:model`: `StakeoutRef` con `designElevationM`, `toleranceHM`, `toleranceVM` y `withinTolerance`. (RF-13, RF-14, RF-26)
       Hecho cuando: los tests de `core:model` en verde y `StakeoutRef` sin cambios para quien no pasa los datos nuevos.
 - [ ] T4. `core:survey`: `StakeoutLevel`, los estados desmonte, terraplén y en cota con sus avisos y el margen de 5 mm. (RF-6, RF-8, RF-9)
       Hecho cuando: `StakeoutLevelTest` en verde: los tres estados, el aviso una sola vez, el borde oscilando, entrar en cota en la primera época y el reinicio.

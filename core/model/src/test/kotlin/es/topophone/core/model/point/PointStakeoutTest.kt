@@ -69,6 +69,48 @@ class PointStakeoutTest {
     }
 
     @Test
+    fun `S019 RF-13 una referencia sin los datos nuevos no tiene cota usada ni tolerancias ni veredicto`() {
+        ref.designElevationM.shouldBeNull()
+        ref.toleranceHM.shouldBeNull()
+        ref.toleranceVM.shouldBeNull()
+        ref.withinTolerance.shouldBeNull()
+    }
+
+    @Test
+    fun `S019 RF-13 la referencia guarda la cota usada y las dos tolerancias sin redondear`() {
+        val checked = ref.copy(designElevationM = 698.25, toleranceHM = 0.025, toleranceVM = 0.03, withinTolerance = true)
+
+        checked.designElevationM shouldBe 698.25
+        checked.toleranceHM shouldBe 0.025
+        checked.toleranceVM shouldBe 0.03
+        checked.withinTolerance shouldBe true
+        checked.dHeightM shouldBe -0.005
+        point(checked).staked shouldBe checked
+    }
+
+    @Test
+    fun `S019 RF-26 sin tolerancias guardadas el replanteo esta sin evaluar`() {
+        ref.notEvaluated shouldBe true
+        ref.copy(toleranceHM = 0.025, toleranceVM = 0.03, withinTolerance = false).notEvaluated shouldBe false
+        ref.copy(toleranceHM = 0.025, toleranceVM = 0.03, withinTolerance = true).notEvaluated shouldBe false
+    }
+
+    @Test
+    fun `S019 RF-14 un replanteo sin cota tiene dentro de la tolerancia solo por la horizontal`() {
+        val noElevation = ref.copy(
+            dHeightM = null,
+            designElevationM = null,
+            toleranceHM = 0.025,
+            toleranceVM = 0.03,
+            withinTolerance = true,
+        )
+
+        noElevation.hasElevation shouldBe false
+        noElevation.notEvaluated shouldBe false
+        ref.hasElevation shouldBe true
+    }
+
+    @Test
     fun `S018 RF-32 el resumen de un punto replanteado lleva su origen y sin replanteos por defecto`() {
         val summary = point(ref).summary()
 
