@@ -14,7 +14,7 @@
       Hecho cuando: `HeadingSourceTest` en verde: por encima y por debajo de 0,3 m/s, los 10 s de "último rumbo", el IMU en estado 30 y fuera de él y la convergencia de cuadrícula.
 - [x] T6. `core:survey`: `StakeoutZones` y `DianaScale`. (RF-16, RF-19, RF-20, RF-21)
       Hecho cuando: `StakeoutZonesTest` y `DianaScaleTest` en verde: las tres zonas, el margen de 5 mm, el aviso una vez, una tolerancia mayor de 40 cm, el rearmado y la escala sin saltos de ida y vuelta.
-- [ ] T7. `core:survey`: `StakeoutDiff`, medido menos diseño. (RF-28)
+- [x] T7. `core:survey`: `StakeoutDiff`, medido menos diseño. (RF-28)
       Hecho cuando: `StakeoutDiffTest` en verde, con los signos, sin redondear y con y sin altura.
 - [ ] T8. `data`: columnas de replanteo en `points`, `AutoMigration(9, 10)` y su lectura y escritura. (RF-27, RF-28, RF-32)
       Hecho cuando: `TopoPhoneDatabaseTest` 9 → 10 y `PointRepositoryStakeoutTest` en verde: un punto replanteado se guarda y se lee con su diseño y sus diferencias sin redondear, y los puntos de antes conservan sus datos.
