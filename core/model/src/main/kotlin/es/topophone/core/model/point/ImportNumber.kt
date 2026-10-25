@@ -1,6 +1,4 @@
-package es.topophone.core.formats.csv
-
-import es.topophone.core.model.point.ImportDecimal
+package es.topophone.core.model.point
 
 /**
  * Lee un número del fichero con el signo decimal elegido (S028/RF-7, RF-8, RF-23): signo opcional, dígitos y, a lo sumo, un signo

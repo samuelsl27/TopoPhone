@@ -1,6 +1,5 @@
-package es.topophone.core.formats.csv
+package es.topophone.core.model.point
 
-import es.topophone.core.model.point.ImportDecimal
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test

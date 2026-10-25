@@ -16,7 +16,7 @@
       Hecho cuando: `DecimalDetectorTest`, `ImportNumberTest` y `HeaderDetectorTest` en verde: coma y punto, miles, notación científica, letras, la coma con la coma y la cabecera con y sin números.
 - [x] T7. `core:formats`: `ColumnSuggester`, la asignación propuesta. (RF-10, RF-11)
       Hecho cuando: `ColumnSuggesterTest` en verde: nombres en es y en, las columnas del CSV de S012, PENZD sin cabecera, papeles repetidos y asignación sin nombre.
-- [ ] T8. `core:survey`: `PointImporter` para una fila: unidades, SC del proyecto o geográficas, alturas y errores de la fila. (RF-12 a RF-16, RF-20, RF-23, RF-27)
+- [x] T8. `core:survey`: `PointImporter` para una fila: unidades, SC del proyecto o geográficas, alturas y errores de la fila. (RF-12 a RF-16, RF-20, RF-23, RF-27)
       Hecho cuando: `PointImporterTest` en verde frente a `fixtures/formatos/csv-importacion/` y pyproj (≤ 1 mm; ida y vuelta ≤ 0,1 mm) en ETRS89, REGCAN95 y ED50, con altura vacía y 0, fuera del ámbito y del geoide, nombre vacío y fila corta.
 - [ ] T9. `core:survey`: los nombres repetidos y el análisis de un fichero entero con sus recuentos, las 20 filas de la vista previa y los primeros errores. (RF-17, RF-18, RF-19, RF-21)
       Hecho cuando: los tests en verde con `SKIP`, `RENAME` y `CANCEL`, repetidos del proyecto y del propio fichero, y sin retener los puntos.

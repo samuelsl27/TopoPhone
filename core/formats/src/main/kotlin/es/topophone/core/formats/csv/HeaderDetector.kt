@@ -1,6 +1,7 @@
 package es.topophone.core.formats.csv
 
 import es.topophone.core.model.point.ImportDecimal
+import es.topophone.core.model.point.ImportNumber
 
 /** Si la primera fila de un fichero es una cabecera (S028/RF-9). */
 object HeaderDetector {
