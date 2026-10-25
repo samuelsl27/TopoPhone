@@ -12,6 +12,7 @@ import es.topophone.core.formats.csv.ImportLimit
 import es.topophone.core.formats.csv.TextDecoding
 import es.topophone.core.formats.csv.TextProbe
 import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.ColumnMapping
 import es.topophone.core.model.point.ColumnRole
 import es.topophone.core.model.point.DelimitedRow
@@ -22,6 +23,7 @@ import es.topophone.core.model.point.ImportCoordinates
 import es.topophone.core.model.point.ImportCounts
 import es.topophone.core.model.point.ImportDecimal
 import es.topophone.core.model.point.ImportEncoding
+import es.topophone.core.model.point.ImportErrorReason
 import es.topophone.core.model.point.ImportOptions
 import es.topophone.core.model.point.ImportPreviewRow
 import es.topophone.core.model.point.ImportRowError
@@ -29,13 +31,18 @@ import es.topophone.core.model.point.ImportSeparator
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.survey.ImportAnalysis
 import es.topophone.core.survey.ImportAnalyzer
+import es.topophone.core.survey.ImportReportText
 import es.topophone.data.point.PointRepository
+import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
 import java.io.FilterInputStream
 import java.io.IOException
 import java.io.InputStream
+import java.io.OutputStream
 import java.io.StringReader
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -47,6 +54,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * El fichero que se importa (S028/RF-1): su nombre, su tamaño si el selector lo da y cómo abrirlo cada vez que hace falta, sin
@@ -58,7 +66,24 @@ class ImportSource(val name: String, val sizeBytes: Long?, val open: () -> Input
 enum class ImportFileProblem { EMPTY, NOT_TEXT, NO_COLUMNS, TOO_BIG, TOO_MANY_ROWS, UNREADABLE }
 
 /** En qué punto está el asistente. */
-enum class ImportStage { LOADING, PROBLEM, WIZARD }
+enum class ImportStage { LOADING, PROBLEM, WIZARD, IMPORTING, RESULT }
+
+/**
+ * El resultado de una importación (S028/RF-28, RF-29): los recuentos de esa pasada, la importación para poder deshacerla y, si se
+ * deshizo, cuántos puntos pasaron a la papelera.
+ */
+data class PointImportResult(val counts: ImportCounts, val importId: String, val undone: Boolean = false, val undoneCount: Int = 0) {
+    val canUndo: Boolean get() = !undone && counts.valid > 0
+}
+
+/** Los textos del informe de errores, que son de la interfaz (`strings.xml`) y no del módulo de dominio (S028/RF-24). */
+class ImportReportLabels(
+    val title: String,
+    val summary: String,
+    val empty: String,
+    val lineFormat: (line: Int, reason: String) -> String,
+    val reason: (ImportErrorReason) -> String,
+)
 
 /** Lo que muestra el asistente de importación (S028). */
 data class PointImportUiState(
@@ -77,6 +102,9 @@ data class PointImportUiState(
     val counts: ImportCounts = ImportCounts(),
     val errors: List<ImportRowError> = emptyList(),
     val blockedByDuplicates: Boolean = false,
+    /** El último intento de importar no pudo escribir en la base de datos: no se ha importado nada (RF-26). */
+    val writeFailed: Boolean = false,
+    val result: PointImportResult? = null,
 ) {
     /** Hay algo que importar y nada lo impide: la asignación vale, las comas no se pisan y no se cancela por un repetido (RF-8, RF-11, RF-17). */
     val canImport: Boolean
@@ -113,6 +141,9 @@ class PointImportViewModel @Inject constructor(
     private var project: Project? = null
     private var takenNames: Set<String> = emptySet()
     private var analysisJob: Job? = null
+
+    internal var clock: () -> Long = System::currentTimeMillis
+    internal var newId: () -> String = { UUID.randomUUID().toString() }
 
     /** La asignación la cambió el usuario a mano: no se vuelve a proponer sola (S028/RF-10). */
     private var mappingTouched = false
@@ -284,13 +315,29 @@ class PointImportViewModel @Inject constructor(
         return stream.use { DelimitedReader.rows(TextDecoding.reader(it, options.encoding), options.separator).take(HEAD_ROWS).toList() }
     }
 
+    /** Recorre el fichero entero con [options] (S028/RF-21). [maxErrors] limita la lista de errores, no su recuento. */
+    private fun analyzeFile(options: ImportOptions, maxErrors: Int, checkCancelled: () -> Unit = {}): ImportAnalysis {
+        val project = checkNotNull(project)
+        val stream = checkNotNull(source).open() ?: throw IOException("No se puede abrir el fichero")
+        return stream.use {
+            analyzer.analyze(
+                rows = DelimitedReader.rows(TextDecoding.reader(it, options.encoding), options.separator),
+                options = options,
+                crs = project.crs,
+                heightSystem = project.heightSystem,
+                takenNames = takenNames,
+                maxErrors = maxErrors,
+                checkCancelled = checkCancelled,
+            )
+        }
+    }
+
     /**
      * Analiza el fichero entero con las opciones de ahora; uno nuevo cancela el anterior y, tras un cambio, espera [debounceMs] por si
      * vienen más (S028/RF-22). Con [reread], antes vuelve a leer las columnas.
      */
     private fun schedule(reread: Boolean, debounce: Boolean) {
-        val project = project ?: return
-        val source = source ?: return
+        if (project == null || source == null) return
         analysisJob?.cancel()
         mutable.update { it.copy(analyzing = true) }
         analysisJob = viewModelScope.launch(io) {
@@ -299,18 +346,7 @@ class PointImportViewModel @Inject constructor(
             val analysis = try {
                 if (reread) refreshColumns()
                 snapshot = mutable.value.options
-                val stream = source.open() ?: throw IOException("No se puede abrir el fichero")
-                stream.use {
-                    val rows = DelimitedReader.rows(TextDecoding.reader(it, snapshot.encoding), snapshot.separator)
-                    analyzer.analyze(
-                        rows = rows,
-                        options = snapshot,
-                        crs = project.crs,
-                        heightSystem = project.heightSystem,
-                        takenNames = takenNames,
-                        checkCancelled = { ensureActive() },
-                    )
-                }
+                analyzeFile(snapshot, ImportAnalyzer.MAX_ERRORS) { ensureActive() }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: IOException) {
@@ -331,6 +367,108 @@ class PointImportViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    // --- Importar, deshacer y el informe (S028/RF-24 a RF-30, RF-34) ---
+
+    /**
+     * Crea los puntos de las filas válidas en una sola transacción (RF-25). Recorre el fichero otra vez con las mismas opciones y los
+     * nombres del proyecto de ahora; si no se puede escribir, no crea ninguno y lo dice (RF-26).
+     */
+    fun import() {
+        val current = mutable.value
+        if (!current.canImport) return
+        val project = project ?: return
+        val source = source ?: return
+        analysisJob?.cancel()
+        mutable.update { it.copy(stage = ImportStage.IMPORTING, writeFailed = false) }
+        viewModelScope.launch(io) {
+            val options = current.options
+            val importId = newId()
+            val batch = try {
+                takenNames = points.names(projectId)
+                val stream = source.open() ?: throw IOException("No se puede abrir el fichero")
+                stream.use {
+                    analyzer.collect(
+                        rows = DelimitedReader.rows(TextDecoding.reader(it, options.encoding), options.separator),
+                        options = options,
+                        crs = project.crs,
+                        heightSystem = project.heightSystem,
+                        takenNames = takenNames,
+                        projectId = projectId,
+                        importId = importId,
+                        createdAtMs = clock(),
+                        newId = newId,
+                    )
+                }
+            } catch (_: IOException) {
+                return@launch problem(ImportFileProblem.UNREADABLE)
+            } catch (_: SecurityException) {
+                return@launch problem(ImportFileProblem.UNREADABLE)
+            }
+            if (options.duplicates == DuplicatePolicy.CANCEL && batch.counts.repeated > 0) {
+                // Entre el análisis y el botón ha aparecido un repetido: se vuelve a analizar y no se importa (RF-17).
+                mutable.update { it.copy(stage = ImportStage.WIZARD) }
+                return@launch schedule(reread = false, debounce = false)
+            }
+            val saved = try {
+                points.createAll(batch.points)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                null
+            }
+            if (saved == PointSaveResult.Saved) {
+                log.info(LogCategory.POINTS, importedMessage(batch.counts))
+                mutable.update {
+                    it.copy(stage = ImportStage.RESULT, result = PointImportResult(batch.counts, importId), writeFailed = false)
+                }
+            } else {
+                log.error(LogCategory.POINTS, "Importación CSV/TXT fallida: no se pudo escribir en la base de datos")
+                mutable.update { it.copy(stage = ImportStage.WIZARD, writeFailed = true) }
+                takenNames = runCatching { points.names(projectId) }.getOrDefault(takenNames) // pueden haber cambiado
+                schedule(reread = false, debounce = false)
+            }
+        }
+    }
+
+    private fun importedMessage(counts: ImportCounts) =
+        "Importación CSV/TXT: ${counts.valid} importados, ${counts.skipped} saltados, ${counts.renamed} renombrados, ${counts.errors} con error"
+
+    /** Manda a la papelera los puntos de la importación que siguen en el proyecto (RF-29). La confirmación la pide la pantalla. */
+    fun undo() {
+        val result = mutable.value.result ?: return
+        if (!result.canUndo) return
+        viewModelScope.launch(io) {
+            val moved = points.trashImport(result.importId)
+            log.info(LogCategory.POINTS, "Importación CSV/TXT deshecha: $moved puntos a la papelera")
+            mutable.update { it.copy(result = result.copy(undone = true, undoneCount = moved)) }
+        }
+    }
+
+    /**
+     * Escribe en [out], en UTF-8, el informe con todas las filas erróneas del fichero con las opciones de ahora (RF-24); false si no
+     * se ha podido leer el fichero o escribir. No cambia nada.
+     */
+    suspend fun writeReport(out: OutputStream, labels: ImportReportLabels): Boolean = withContext(io) {
+        try {
+            val options = mutable.value.options
+            val errors = analyzeFile(options, maxErrors = Int.MAX_VALUE).errors
+            val text = ImportReportText.build(
+                title = labels.title,
+                summary = labels.summary,
+                errors = errors,
+                reasonText = labels.reason,
+                lineFormat = labels.lineFormat,
+                emptyText = labels.empty,
+            )
+            out.bufferedWriter(Charsets.UTF_8).use { it.write(text) }
+            true
+        } catch (_: IOException) {
+            false
+        } catch (_: SecurityException) {
+            false
         }
     }
 

@@ -56,5 +56,6 @@ object ImportTestFiles {
 }
 
 /** Espera a que el fichero esté leído y analizado: Room contesta desde otro hilo. Un test no debe acabar con la carga en vuelo. */
-fun PointImportViewModel.settled(): PointImportUiState =
-    runBlocking { withTimeout(10_000) { state.first { it.stage != ImportStage.LOADING && !it.analyzing } } }
+fun PointImportViewModel.settled(): PointImportUiState = runBlocking {
+    withTimeout(10_000) { state.first { it.stage != ImportStage.LOADING && it.stage != ImportStage.IMPORTING && !it.analyzing } }
+}
