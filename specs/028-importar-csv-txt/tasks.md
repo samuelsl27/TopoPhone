@@ -34,7 +34,7 @@
       Hecho cuando: los tests en verde: importar con repetidos de cada tipo, fallo de escritura, salir sin importar, deshacer con algún punto ya borrado y el log sin nombres ni coordenadas.
 - [x] T16. `app`: `PointImportScreen`, el fichero y la lectura (codificación, separador, signo decimal y cabecera), con sus textos en es y en. (RF-4 a RF-9)
       Hecho cuando: `PointImportScreenTest` en verde con cada selector y los avisos de la coma con la coma.
-- [ ] T17. `app`: `PointImportScreen`, las columnas, el SC, la unidad, la altura y los nombres repetidos. (RF-10 a RF-20)
+- [x] T17. `app`: `PointImportScreen`, las columnas, el SC, la unidad, la altura y los nombres repetidos. (RF-10 a RF-20)
       Hecho cuando: los tests en verde: un selector de papel por columna, PENZD y PNEZD, geográficas con la altura elipsoidal salvo en ED50, y las casillas.
 - [ ] T18. `app`: la vista previa, los recuentos con icono y texto y el informe de errores con "Guardar" y "Compartir". (RF-21, RF-22, RF-24)
       Hecho cuando: los tests en verde, con las etiquetas de TalkBack, el fichero de informe y el selector de ficheros cancelado.
