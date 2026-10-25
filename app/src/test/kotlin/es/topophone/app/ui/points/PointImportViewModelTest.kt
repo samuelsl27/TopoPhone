@@ -26,12 +26,10 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
-import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -71,10 +69,6 @@ class PointImportViewModelTest {
             it.debounceMs = 0
             it.start(project, source)
         }
-
-    /** Espera a que el fichero esté leído y analizado: Room contesta desde otro hilo. */
-    private fun PointImportViewModel.settled(): PointImportUiState =
-        runBlocking { withTimeout(10_000) { state.first { it.stage != ImportStage.LOADING && !it.analyzing } } }
 
     private fun open(name: String, project: String = projectId) = viewModel(ImportTestFiles.fixture(name).asSource(), project).settled()
 

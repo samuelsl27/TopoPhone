@@ -28,7 +28,7 @@
       Hecho cuando: `PointRepositoryImportTest` en verde: todos o ninguno ante un nombre repetido, lo escrito sin redondear, y `trashImport` solo manda los activos de esa importación.
 - [x] T13. `app`: `PointImportViewModel`, parte 1: leer el fichero, detectar y mostrar la vista previa y los errores del fichero. (RF-1 a RF-9, RF-21)
       Hecho cuando: `PointImportViewModelTest` en verde con un `ContentResolver` falso: fichero vacío, binario o demasiado grande, detección de cada opción y vista previa.
-- [ ] T14. `app`: `PointImportViewModel`, parte 2: cambiar las opciones y la asignación, y recalcular. (RF-10 a RF-20, RF-22)
+- [x] T14. `app`: `PointImportViewModel`, parte 2: cambiar las opciones y la asignación, y recalcular. (RF-10 a RF-20, RF-22)
       Hecho cuando: los tests en verde: cada opción actualiza los recuentos, un análisis nuevo cancela el anterior y `CANCEL` ante un repetido o la coma con la coma desactivan "Importar".
 - [ ] T15. `app`: `PointImportViewModel`, parte 3: importar, el resultado, deshacer, el informe y el log. (RF-24 a RF-30, RF-34)
       Hecho cuando: los tests en verde: importar con repetidos de cada tipo, fallo de escritura, salir sin importar, deshacer con algún punto ya borrado y el log sin nombres ni coordenadas.

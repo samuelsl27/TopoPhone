@@ -3,6 +3,9 @@ package es.topophone.app.ui.points
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.InputStream
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 
 /** Los ficheros de ejemplo de `fixtures/` como fuentes de la importación, sin pasar por el selector de ficheros (S028). */
 object ImportTestFiles {
@@ -51,3 +54,7 @@ object ImportTestFiles {
         }
     }
 }
+
+/** Espera a que el fichero esté leído y analizado: Room contesta desde otro hilo. Un test no debe acabar con la carga en vuelo. */
+fun PointImportViewModel.settled(): PointImportUiState =
+    runBlocking { withTimeout(10_000) { state.first { it.stage != ImportStage.LOADING && !it.analyzing } } }

@@ -12,11 +12,21 @@ import es.topophone.core.formats.csv.ImportLimit
 import es.topophone.core.formats.csv.TextDecoding
 import es.topophone.core.formats.csv.TextProbe
 import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.point.ColumnMapping
+import es.topophone.core.model.point.ColumnRole
+import es.topophone.core.model.point.DelimitedRow
+import es.topophone.core.model.point.DuplicatePolicy
+import es.topophone.core.model.point.EntryForm
+import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.ImportCoordinates
 import es.topophone.core.model.point.ImportCounts
+import es.topophone.core.model.point.ImportDecimal
+import es.topophone.core.model.point.ImportEncoding
 import es.topophone.core.model.point.ImportOptions
 import es.topophone.core.model.point.ImportPreviewRow
 import es.topophone.core.model.point.ImportRowError
+import es.topophone.core.model.point.ImportSeparator
+import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.ImportAnalyzer
@@ -104,6 +114,9 @@ class PointImportViewModel @Inject constructor(
     private var takenNames: Set<String> = emptySet()
     private var analysisJob: Job? = null
 
+    /** La asignación la cambió el usuario a mano: no se vuelve a proponer sola (S028/RF-10). */
+    private var mappingTouched = false
+
     /** Prepara el asistente con [source] para el proyecto [projectId]; solo la primera vez (S028/RF-1). */
     fun start(projectId: String, source: ImportSource) {
         if (started) return
@@ -185,19 +198,107 @@ class PointImportViewModel @Inject constructor(
             headerCells = List(columnCount) { firstRow.getOrElse(it) { "" } },
             analyzing = true,
         )
-        analyze(debounce = false)
+        schedule(reread = false, debounce = false)
     }
 
-    /** Analiza el fichero entero con las opciones de ahora; un análisis nuevo cancela el anterior (S028/RF-22). */
-    private fun analyze(debounce: Boolean) {
+    // --- Las opciones (S028/RF-4 a RF-20, RF-22). Cada cambio recalcula la vista previa y los recuentos. ---
+
+    fun setEncoding(encoding: ImportEncoding) = change(reread = true) { it.copy(encoding = encoding) }
+
+    fun setSeparator(separator: ImportSeparator) = change(reread = true) { it.copy(separator = separator) }
+
+    fun setDecimal(decimal: ImportDecimal) = change { it.copy(decimal = decimal) }
+
+    /** La primera fila es o no una cabecera; sin tocar a mano la asignación, se propone otra (RF-9, RF-10). */
+    fun setHasHeader(hasHeader: Boolean) =
+        change { it.copy(hasHeader = hasHeader, mapping = suggestedMapping(it.copy(hasHeader = hasHeader))) }
+
+    /** Cambia el papel de la columna [index] (RF-11). */
+    fun setColumnRole(index: Int, role: ColumnRole) {
+        mappingTouched = true
+        change { it.copy(mapping = it.mapping.withRole(index, role)) }
+    }
+
+    /** Nombre, Este, Norte, altura y descripción (RF-11). */
+    fun applyPenzd() {
+        mappingTouched = true
+        change { it.copy(mapping = ColumnMapping.penzd(mutable.value.columnCount)) }
+    }
+
+    /** Nombre, Norte, Este, altura y descripción (RF-11). */
+    fun applyPnezd() {
+        mappingTouched = true
+        change { it.copy(mapping = ColumnMapping.pnezd(mutable.value.columnCount)) }
+    }
+
+    /** El SC de las coordenadas del fichero y su altura; la elipsoidal solo vale en geográficas (RF-12, RF-13). */
+    fun setCoordinates(form: EntryForm, heightKind: HeightKind) = change {
+        val coordinates = ImportCoordinates(form, if (form == EntryForm.PROJECT_CRS) HeightKind.PROJECT else heightKind)
+        val changed = it.copy(coordinates = coordinates)
+        changed.copy(mapping = suggestedMapping(changed))
+    }
+
+    fun setUnit(unit: LinearUnit) = change { it.copy(unit = unit) }
+
+    fun setZeroAsNoHeight(zeroAsNoHeight: Boolean) = change { it.copy(zeroAsNoHeight = zeroAsNoHeight) }
+
+    fun setDuplicates(policy: DuplicatePolicy) = change { it.copy(duplicates = policy) }
+
+    /** Lo que se propone con las opciones de ahora; una asignación hecha a mano se respeta (RF-10). */
+    private fun suggestedMapping(options: ImportOptions): ColumnMapping {
+        if (mappingTouched) return options.mapping
+        val header = mutable.value.headerCells
+        return ColumnSuggester.suggest(if (options.hasHeader) header else null, mutable.value.columnCount, options.coordinates)
+    }
+
+    private fun change(reread: Boolean = false, transform: (ImportOptions) -> ImportOptions) {
+        if (mutable.value.stage != ImportStage.WIZARD) return
+        mutable.update { it.copy(options = transform(it.options)) }
+        schedule(reread = reread, debounce = true)
+    }
+
+    /**
+     * Con otra codificación o separador cambian las columnas, la cabecera y la asignación propuesta: se vuelven a leer las primeras
+     * filas (RF-4, RF-5).
+     */
+    private fun refreshColumns() {
+        val options = mutable.value.options
+        val head = readHead(options)
+        val columnCount = head.take(COLUMN_ROWS).maxOfOrNull { it.cells.size } ?: 0
+        val firstRow = head.firstOrNull()?.cells.orEmpty()
+        val hasHeader = columnCount >= 2 && HeaderDetector.isHeader(firstRow)
+        mappingTouched = false
+        mutable.update {
+            val headerCells = List(columnCount) { index -> firstRow.getOrElse(index) { "" } }
+            val mapping = ColumnSuggester.suggest(if (hasHeader) headerCells else null, columnCount, it.options.coordinates)
+            it.copy(
+                options = it.options.copy(hasHeader = hasHeader, mapping = mapping),
+                columnCount = columnCount,
+                headerCells = headerCells,
+            )
+        }
+    }
+
+    private fun readHead(options: ImportOptions): List<DelimitedRow> {
+        val stream = source?.open() ?: throw IOException("No se puede abrir el fichero")
+        return stream.use { DelimitedReader.rows(TextDecoding.reader(it, options.encoding), options.separator).take(HEAD_ROWS).toList() }
+    }
+
+    /**
+     * Analiza el fichero entero con las opciones de ahora; uno nuevo cancela el anterior y, tras un cambio, espera [debounceMs] por si
+     * vienen más (S028/RF-22). Con [reread], antes vuelve a leer las columnas.
+     */
+    private fun schedule(reread: Boolean, debounce: Boolean) {
         val project = project ?: return
         val source = source ?: return
         analysisJob?.cancel()
-        val snapshot = mutable.value.options
         mutable.update { it.copy(analyzing = true) }
         analysisJob = viewModelScope.launch(io) {
-            if (debounce) delay(debounceMs)
+            if (debounce && debounceMs > 0) delay(debounceMs)
+            val snapshot: ImportOptions
             val analysis = try {
+                if (reread) refreshColumns()
+                snapshot = mutable.value.options
                 val stream = source.open() ?: throw IOException("No se puede abrir el fichero")
                 stream.use {
                     val rows = DelimitedReader.rows(TextDecoding.reader(it, snapshot.encoding), snapshot.separator)
