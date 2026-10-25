@@ -46,6 +46,10 @@ interface PointDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(point: PointEntity)
 
+    /** Varias inserciones en la transacción de quien llama: si una repite nombre, falla y se revierte todo (S028/RF-26). */
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertAll(points: List<PointEntity>)
+
     @Update(onConflict = OnConflictStrategy.ABORT)
     suspend fun update(point: PointEntity)
 
@@ -119,6 +123,10 @@ interface PointDao {
     @Query("UPDATE points SET deleted_at = :now, trash_key = id WHERE id IN (:ids) AND deleted_at IS NULL")
     suspend fun moveToTrash(ids: List<String>, now: Long)
 
+    /** Como [moveToTrash] para los puntos activos de una importación; devuelve cuántos (S028/RF-29). */
+    @Query("UPDATE points SET deleted_at = :now, trash_key = id WHERE import_id = :importId AND deleted_at IS NULL")
+    suspend fun trashImport(importId: String, now: Long): Int
+
     @Query("SELECT * FROM points WHERE project_id = :projectId AND deleted_at IS NOT NULL ORDER BY deleted_at DESC")
     fun trash(projectId: String): Flow<List<PointEntity>>
 
@@ -154,6 +162,12 @@ interface PointRepository {
      */
     suspend fun create(point: Point): PointSaveResult
 
+    /**
+     * Guarda todos los puntos, en el orden dado, en una sola transacción: si uno repite nombre, no se guarda ninguno y devuelve
+     * `DuplicateName` (S028/RF-25, RF-26). No toca los puntos que ya están (RF-19).
+     */
+    suspend fun createAll(points: List<Point>): PointSaveResult
+
     /** El tramo [seq] de las frases NMEA de un punto que las tiene aparte (`Measurement.nmeaChunks`); null si no existe (S017/RF-12). */
     suspend fun nmeaChunk(pointId: String, seq: Int): String?
 
@@ -187,6 +201,9 @@ interface PointRepository {
     suspend fun setHidden(ids: List<String>, hidden: Boolean)
 
     suspend fun moveToTrash(ids: List<String>)
+
+    /** Manda a la papelera los puntos activos de la importación [importId] y devuelve cuántos (S028/RF-29). */
+    suspend fun trashImport(importId: String): Int
 
     fun trash(projectId: String): Flow<List<TrashedPoint>>
 
@@ -224,6 +241,13 @@ class RoomPointRepository(
         PointSaveResult.Saved
     } catch (_: SQLiteConstraintException) {
         PointSaveResult.DuplicateName // el índice único de (proyecto, nombre, papelera)
+    }
+
+    override suspend fun createAll(points: List<Point>): PointSaveResult = try {
+        database.withTransaction { dao.insertAll(points.map { it.toEntity() }) }
+        PointSaveResult.Saved
+    } catch (_: SQLiteConstraintException) {
+        PointSaveResult.DuplicateName
     }
 
     override suspend fun nmeaChunk(pointId: String, seq: Int): String? = dao.nmeaChunk(pointId, seq)
@@ -285,6 +309,8 @@ class RoomPointRepository(
     override suspend fun setHidden(ids: List<String>, hidden: Boolean) = dao.setHidden(ids, hidden)
 
     override suspend fun moveToTrash(ids: List<String>) = dao.moveToTrash(ids, clock())
+
+    override suspend fun trashImport(importId: String): Int = dao.trashImport(importId, clock())
 
     override fun trash(projectId: String): Flow<List<TrashedPoint>> = dao.trash(projectId).map { list ->
         val now = clock()

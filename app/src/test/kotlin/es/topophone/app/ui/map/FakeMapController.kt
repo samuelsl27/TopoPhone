@@ -133,6 +133,13 @@ class FakePointRepository(initial: List<Point> = emptyList(), private val clock:
         return PointSaveResult.Saved
     }
 
+    override suspend fun createAll(points: List<Point>): PointSaveResult {
+        val taken = active(points.firstOrNull()?.projectId ?: return PointSaveResult.Saved).map { it.name }.toMutableSet()
+        if (points.any { !taken.add(it.name) }) return PointSaveResult.DuplicateName
+        this.points.value = this.points.value + points
+        return PointSaveResult.Saved
+    }
+
     override suspend fun nmeaChunk(pointId: String, seq: Int): String? = nmeaChunks[pointId to seq]
 
     override fun points(projectId: String): Flow<List<Point>> =
@@ -186,6 +193,12 @@ class FakePointRepository(initial: List<Point> = emptyList(), private val clock:
 
     override suspend fun moveToTrash(ids: List<String>) {
         points.value = points.value.map { if (it.id in ids && it.deletedAtMs == null) it.copy(deletedAtMs = clock()) else it }
+    }
+
+    override suspend fun trashImport(importId: String): Int {
+        val ids = points.value.filter { it.importId == importId && it.deletedAtMs == null }.map { it.id }
+        moveToTrash(ids)
+        return ids.size
     }
 
     override fun trash(projectId: String): Flow<List<TrashedPoint>> = points.map { list ->

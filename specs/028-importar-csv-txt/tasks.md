@@ -24,7 +24,7 @@
       Hecho cuando: `ImportReportTextTest` en verde, con la línea y el motivo de cada error y el informe vacío.
 - [x] T11. `data`: la columna `import_id`, su índice, `AutoMigration(11, 12)` y la lectura y escritura del origen importado. (RF-27, RF-31, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 11 → 12 en verde: los puntos y replanteos conservan sus datos y `import_id` queda a NULL.
-- [ ] T12. `data`: `PointRepository.createAll` y `trashImport`. (RF-19, RF-25, RF-26, RF-29)
+- [x] T12. `data`: `PointRepository.createAll` y `trashImport`. (RF-19, RF-25, RF-26, RF-29)
       Hecho cuando: `PointRepositoryImportTest` en verde: todos o ninguno ante un nombre repetido, lo escrito sin redondear, y `trashImport` solo manda los activos de esa importación.
 - [ ] T13. `app`: `PointImportViewModel`, parte 1: leer el fichero, detectar y mostrar la vista previa y los errores del fichero. (RF-1 a RF-9, RF-21)
       Hecho cuando: `PointImportViewModelTest` en verde con un `ContentResolver` falso: fichero vacío, binario o demasiado grande, detección de cada opción y vista previa.
