@@ -1,5 +1,6 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.point.DelimitedRow
 import es.topophone.core.model.point.ImportDecimal
 import es.topophone.core.model.point.ImportSeparator
 

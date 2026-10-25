@@ -148,3 +148,6 @@ data class ImportPreviewRow(
     val reason: ImportErrorReason? = null,
     val renamedTo: String? = null,
 )
+
+/** Una fila del fichero: sus celdas y su línea (desde 1, contando las vacías y los saltos dentro de comillas) (S028/RF-5, RF-23). */
+data class DelimitedRow(val line: Int, val cells: List<String>)

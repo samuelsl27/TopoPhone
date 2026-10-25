@@ -1,11 +1,9 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.point.DelimitedRow
 import es.topophone.core.model.point.ImportSeparator
 import java.io.Reader
 import java.io.StringReader
-
-/** Una fila del fichero: sus celdas y su línea (desde 1, contando las vacías y los saltos dentro de comillas) (S028/RF-5, RF-23). */
-data class DelimitedRow(val line: Int, val cells: List<String>)
 
 /** Qué límite pasa un fichero y no se abre el asistente (S028/RF-3). */
 enum class ImportLimit { TOO_BIG, TOO_MANY_ROWS }
