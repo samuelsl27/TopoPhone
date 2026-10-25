@@ -46,7 +46,7 @@
       Hecho cuando: `ImportedPointsTest` y `CsvExportTest` en verde, con el origen en es y en.
 - [x] T22. Los puntos importados como manuales: editar, duplicar, borrar y restaurar, replantear, copia de seguridad y paquete. (RF-33)
       Hecho cuando: los tests en verde con un punto importado en cada operación y el paquete y la copia que lo conservan con su origen.
-- [ ] T23. Rendimiento: `PointImportPerformanceTest`. (RNF)
+- [x] T23. Rendimiento: `PointImportPerformanceTest`. (RNF)
       Hecho cuando: 50.000 filas leídas y validadas en menos de 3 s, un cambio de opción en menos de 1 s y 10.000 puntos importados en menos de 5 s.
 - [ ] T24. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo (puerta G2b) quedan para el usuario.
