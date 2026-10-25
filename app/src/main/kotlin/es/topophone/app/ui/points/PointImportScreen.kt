@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,6 +27,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -71,6 +74,11 @@ const val IMPORT_COUNTS_TAG = "import_counts"
 const val IMPORT_REPORT_SAVE_TAG = "import_report_save"
 const val IMPORT_REPORT_SHARE_TAG = "import_report_share"
 const val IMPORT_BUTTON_TAG = "import_button"
+const val IMPORT_RESULT_COUNTS_TAG = "import_result_counts"
+const val IMPORT_VIEW_REPORT_TAG = "import_view_report"
+const val IMPORT_UNDO_TAG = "import_undo"
+const val IMPORT_UNDO_CONFIRM_TAG = "import_undo_confirm"
+const val IMPORT_UNDONE_TAG = "import_undone"
 const val IMPORT_PENZD_TAG = "import_penzd"
 const val IMPORT_PNEZD_TAG = "import_pnezd"
 const val IMPORT_MAPPING_PROBLEM_TAG = "import_mapping_problem"
@@ -113,6 +121,7 @@ class PointImportActions(
     val onSaveReport: (fileName: String) -> Unit = {},
     val onShareReport: (fileName: String) -> Unit = {},
     val onImport: () -> Unit = {},
+    val onUndo: () -> Unit = {},
 )
 
 /**
@@ -154,7 +163,14 @@ fun PointImportScreen(
                 ) // S028/RF-2, RF-3
                 Button(onClick = onBack, modifier = Modifier.heightIn(min = MinTouchTarget)) { Text(stringResource(R.string.import_close)) }
             }
-            ImportStage.WIZARD, ImportStage.RESULT -> Column(
+            ImportStage.RESULT -> Column(
+                modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(stringResource(R.string.import_file_name, state.fileName), style = MaterialTheme.typography.titleSmall)
+                state.result?.let { ResultSection(state, it, actions, reportOutcome, onBack) }
+            }
+            ImportStage.WIZARD -> Column(
                 modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -554,4 +570,75 @@ internal fun reasonText(reason: ImportErrorReason): Int = when (reason) {
     ImportErrorReason.OUTSIDE_CRS_AREA -> R.string.import_reason_outside_crs_area
     ImportErrorReason.OUTSIDE_ED50_GRID -> R.string.import_reason_outside_ed50_grid
     ImportErrorReason.OUTSIDE_GEOID -> R.string.import_reason_outside_geoid
+}
+
+/** Los cuatro recuentos de la importación, el informe de errores y deshacer (S028/RF-28, RF-29). */
+@Composable
+private fun ResultSection(
+    state: PointImportUiState,
+    result: PointImportResult,
+    actions: PointImportActions,
+    reportOutcome: ReportOutcome?,
+    onClose: () -> Unit,
+) {
+    val counts = result.counts
+    var showReport by remember { mutableStateOf(false) }
+    var confirmUndo by remember { mutableStateOf(false) }
+    Text(stringResource(R.string.import_result_title), style = MaterialTheme.typography.titleMedium)
+    val description = stringResource(R.string.import_result_description, counts.valid, counts.skipped, counts.renamed, counts.errors)
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier
+            .testTag(IMPORT_RESULT_COUNTS_TAG)
+            .semantics(mergeDescendants = true) { contentDescription = description },
+    ) {
+        StatusMark(R.drawable.ic_check, stringResource(R.string.import_result_imported, counts.valid))
+        StatusMark(R.drawable.ic_repeat, stringResource(R.string.import_result_skipped, counts.skipped))
+        StatusMark(R.drawable.ic_repeat, stringResource(R.string.import_result_renamed, counts.renamed))
+        StatusMark(R.drawable.ic_warning, stringResource(R.string.import_result_errors, counts.errors), error = counts.errors > 0)
+    }
+    if (counts.errors > 0) {
+        OutlinedButton(
+            onClick = { showReport = !showReport },
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(IMPORT_VIEW_REPORT_TAG),
+        ) { Text(stringResource(R.string.import_view_report)) }
+        if (showReport) ErrorsSection(state.copy(counts = counts), actions, reportOutcome)
+    }
+    if (result.undone) {
+        val text = if (result.undoneCount == 0) {
+            stringResource(R.string.import_undone_none)
+        } else {
+            pluralStringResource(R.plurals.import_undone, result.undoneCount, result.undoneCount)
+        }
+        Text(text, modifier = Modifier.testTag(IMPORT_UNDONE_TAG))
+    } else if (result.canUndo) {
+        OutlinedButton(
+            onClick = { confirmUndo = true },
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(IMPORT_UNDO_TAG),
+        ) { Text(stringResource(R.string.import_undo)) }
+    }
+    Button(onClick = onClose, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)) {
+        Text(stringResource(R.string.import_close))
+    }
+    if (confirmUndo) {
+        AlertDialog(
+            onDismissRequest = { confirmUndo = false },
+            title = { Text(stringResource(R.string.import_undo_title)) },
+            text = { Text(stringResource(R.string.import_undo_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmUndo = false
+                        actions.onUndo()
+                    },
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(IMPORT_UNDO_CONFIRM_TAG),
+                ) { Text(stringResource(R.string.import_undo_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmUndo = false }, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            },
+        ) // RF-29: la confirmación va antes de mover nada
+    }
 }

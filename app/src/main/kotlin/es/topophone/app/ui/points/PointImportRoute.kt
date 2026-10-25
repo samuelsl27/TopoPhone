@@ -132,6 +132,7 @@ fun PointImportRoute(
                 }
             },
             onImport = viewModel::import,
+            onUndo = viewModel::undo,
         ),
         onBack = onBack,
         reportOutcome = reportOutcome,

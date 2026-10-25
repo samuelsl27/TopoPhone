@@ -1027,4 +1027,20 @@
     <string name="import_report_chooser">Share import report</string>
     <string name="import_action">Import</string>
     <string name="import_write_failed">No points were imported: the database could not be written.</string>
+    <string name="import_result_title">Import finished</string>
+    <string name="import_result_imported">Imported: %1$d</string>
+    <string name="import_result_skipped">Skipped as repeated: %1$d</string>
+    <string name="import_result_renamed">Renamed: %1$d</string>
+    <string name="import_result_errors">With errors: %1$d</string>
+    <string name="import_result_description">Imported: %1$d. Skipped as repeated: %2$d. Renamed: %3$d. With errors: %4$d.</string>
+    <string name="import_view_report">View report</string>
+    <string name="import_undo">Undo import</string>
+    <string name="import_undo_title">Undo the import?</string>
+    <string name="import_undo_message">The points of this import that are still in the project will go to the trash.</string>
+    <string name="import_undo_confirm">Undo</string>
+    <plurals name="import_undone">
+        <item quantity="one">Import undone: %1$d point goes to the trash.</item>
+        <item quantity="other">Import undone: %1$d points go to the trash.</item>
+    </plurals>
+    <string name="import_undone_none">Import undone: none of its points were still in the project.</string>
 </resources>

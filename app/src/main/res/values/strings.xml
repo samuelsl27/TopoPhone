@@ -1039,4 +1039,20 @@
     <string name="import_report_chooser">Compartir informe de importación</string>
     <string name="import_action">Importar</string>
     <string name="import_write_failed">No se ha importado ningún punto: no se pudo escribir en la base de datos.</string>
+    <string name="import_result_title">Importación terminada</string>
+    <string name="import_result_imported">Importados: %1$d</string>
+    <string name="import_result_skipped">Saltados por repetidos: %1$d</string>
+    <string name="import_result_renamed">Renombrados: %1$d</string>
+    <string name="import_result_errors">Con error: %1$d</string>
+    <string name="import_result_description">Importados: %1$d. Saltados por repetidos: %2$d. Renombrados: %3$d. Con error: %4$d.</string>
+    <string name="import_view_report">Ver informe</string>
+    <string name="import_undo">Deshacer importación</string>
+    <string name="import_undo_title">¿Deshacer la importación?</string>
+    <string name="import_undo_message">Los puntos de esta importación que sigan en el proyecto pasarán a la papelera.</string>
+    <string name="import_undo_confirm">Deshacer</string>
+    <plurals name="import_undone">
+        <item quantity="one">Importación deshecha: %1$d punto pasa a la papelera.</item>
+        <item quantity="other">Importación deshecha: %1$d puntos pasan a la papelera.</item>
+    </plurals>
+    <string name="import_undone_none">Importación deshecha: ningún punto seguía en el proyecto.</string>
 </resources>

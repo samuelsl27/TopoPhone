@@ -38,7 +38,7 @@
       Hecho cuando: los tests en verde: un selector de papel por columna, PENZD y PNEZD, geográficas con la altura elipsoidal salvo en ED50, y las casillas.
 - [x] T18. `app`: la vista previa, los recuentos con icono y texto y el informe de errores con "Guardar" y "Compartir". (RF-21, RF-22, RF-24)
       Hecho cuando: los tests en verde, con las etiquetas de TalkBack, el fichero de informe y el selector de ficheros cancelado.
-- [ ] T19. `app`: el resultado de la importación con "Ver informe" y "Deshacer importación" con su confirmación. (RF-28, RF-29)
+- [x] T19. `app`: el resultado de la importación con "Ver informe" y "Deshacer importación" con su confirmación. (RF-28, RF-29)
       Hecho cuando: los tests en verde con los cuatro recuentos y deshacer.
 - [ ] T20. `app`: "Importar CSV/TXT" en el menú del proyecto y en el de la lista de objetos, la navegación y el selector de ficheros. (RF-1, RF-2, RF-3)
       Hecho cuando: `PointImportEntriesTest` en verde, con el aviso de cada fichero que no se puede abrir.
