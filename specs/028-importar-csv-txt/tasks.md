@@ -14,7 +14,7 @@
       Hecho cuando: `DelimitedReaderTest` en verde con los ficheros de `fixtures/`: los cuatro separadores, comillas con saltos, CRLF, LF y CR, líneas vacías, última línea sin salto, y los límites de 20 MB y 50.000 filas.
 - [x] T6. `core:formats`: `DecimalDetector`, `ImportNumber` y `HeaderDetector`. (RF-7, RF-8, RF-9, RF-23)
       Hecho cuando: `DecimalDetectorTest`, `ImportNumberTest` y `HeaderDetectorTest` en verde: coma y punto, miles, notación científica, letras, la coma con la coma y la cabecera con y sin números.
-- [ ] T7. `core:formats`: `ColumnSuggester`, la asignación propuesta. (RF-10, RF-11)
+- [x] T7. `core:formats`: `ColumnSuggester`, la asignación propuesta. (RF-10, RF-11)
       Hecho cuando: `ColumnSuggesterTest` en verde: nombres en es y en, las columnas del CSV de S012, PENZD sin cabecera, papeles repetidos y asignación sin nombre.
 - [ ] T8. `core:survey`: `PointImporter` para una fila: unidades, SC del proyecto o geográficas, alturas y errores de la fila. (RF-12 a RF-16, RF-20, RF-23, RF-27)
       Hecho cuando: `PointImporterTest` en verde frente a `fixtures/formatos/csv-importacion/` y pyproj (≤ 1 mm; ida y vuelta ≤ 0,1 mm) en ETRS89, REGCAN95 y ED50, con altura vacía y 0, fuera del ámbito y del geoide, nombre vacío y fila corta.
