@@ -32,7 +32,7 @@
       Hecho cuando: los tests en verde: cada opción actualiza los recuentos, un análisis nuevo cancela el anterior y `CANCEL` ante un repetido o la coma con la coma desactivan "Importar".
 - [x] T15. `app`: `PointImportViewModel`, parte 3: importar, el resultado, deshacer, el informe y el log. (RF-24 a RF-30, RF-34)
       Hecho cuando: los tests en verde: importar con repetidos de cada tipo, fallo de escritura, salir sin importar, deshacer con algún punto ya borrado y el log sin nombres ni coordenadas.
-- [ ] T16. `app`: `PointImportScreen`, el fichero y la lectura (codificación, separador, signo decimal y cabecera), con sus textos en es y en. (RF-4 a RF-9)
+- [x] T16. `app`: `PointImportScreen`, el fichero y la lectura (codificación, separador, signo decimal y cabecera), con sus textos en es y en. (RF-4 a RF-9)
       Hecho cuando: `PointImportScreenTest` en verde con cada selector y los avisos de la coma con la coma.
 - [ ] T17. `app`: `PointImportScreen`, las columnas, el SC, la unidad, la altura y los nombres repetidos. (RF-10 a RF-20)
       Hecho cuando: los tests en verde: un selector de papel por columna, PENZD y PNEZD, geográficas con la altura elipsoidal salvo en ED50, y las casillas.
