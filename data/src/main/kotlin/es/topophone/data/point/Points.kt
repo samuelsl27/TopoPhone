@@ -93,7 +93,7 @@ interface PointDao {
             "avg_time, dev_h, dev_v, auto_mode, nmea_chunks, stake_design_id, stake_design_name, stake_design_east, " +
             "stake_design_north, stake_design_height, stake_design_lat, stake_design_lon, stake_design_ground_h, stake_d_east, " +
             "stake_d_north, stake_d_horizontal, stake_d_height, stake_design_elevation, stake_tol_h, stake_tol_v, " +
-            "stake_within FROM points " +
+            "stake_within, import_id FROM points " +
             "WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at",
     )
     suspend fun forExport(projectId: String): List<PointEntity>

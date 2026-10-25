@@ -42,7 +42,7 @@ import es.topophone.data.project.ProjectEntity
     foreignKeys = [
         ForeignKey(entity = ProjectEntity::class, parentColumns = ["id"], childColumns = ["project_id"], onDelete = ForeignKey.CASCADE),
     ],
-    indices = [Index(value = ["project_id", "name", "trash_key"], unique = true)],
+    indices = [Index(value = ["project_id", "name", "trash_key"], unique = true), Index(value = ["import_id"])],
 )
 data class PointEntity(
     @PrimaryKey val id: String,
@@ -138,6 +138,8 @@ data class PointEntity(
     @ColumnInfo(name = "stake_tol_h") val stakeTolH: Double? = null,
     @ColumnInfo(name = "stake_tol_v") val stakeTolV: Double? = null,
     @ColumnInfo(name = "stake_within") val stakeWithin: Boolean? = null,
+    // S028/RF-29: la importación de la que viene un punto importado, para deshacerla; NULL en los demás.
+    @ColumnInfo(name = "import_id") val importId: String? = null,
 )
 
 /**
@@ -279,6 +281,7 @@ internal fun Point.toEntity(): PointEntity {
         stakeTolH = staked?.toleranceHM,
         stakeTolV = staked?.toleranceVM,
         stakeWithin = staked?.withinTolerance,
+        importId = importId,
     )
 }
 
@@ -297,6 +300,7 @@ internal fun PointEntity.toPoint(): Point = Point(
     createdAtMs = createdAt,
     deletedAtMs = deletedAt,
     staked = staked(),
+    importId = importId,
 )
 
 /** De qué punto de diseño viene un punto replanteado; null en los demás (S018/RF-28). */

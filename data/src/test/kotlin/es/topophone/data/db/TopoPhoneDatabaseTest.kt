@@ -434,6 +434,99 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S028 RNF-T6 de la v11 a la v12 los puntos conservan sus datos, con import_id vacio y su indice`() {
+        createFromExportedSchema(11)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v11 ->
+            v11.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v11.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P12', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', 'INSTANT', " +
+                    "1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+            v11.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, ground_lat, ground_lon, easting, northing, " +
+                    "out_of_tolerance, typed_form, typed_first, typed_second, typed_height_kind, created_at) VALUES " +
+                    "(?, ?, 'M1', 'a mano', 'MANUAL', 40.4, -3.7, 440000.123456789, 4474000.987654321, '', " +
+                    "'PROJECT_CRS', 440000.123456789, 4474000.987654321, 'PROJECT', 3000)",
+                arrayOf<Any>("punto-2", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.map { it.name } shouldBe listOf("P12", "M1")
+            points.map { it.origin } shouldBe listOf(PointOrigin.MEASURED, PointOrigin.MANUAL)
+            points.map { it.importId } shouldBe listOf(null, null)
+            points[1].typed.shouldNotBeNull().first shouldBe 440000.123456789
+            points[0].measurement.shouldNotBeNull().rawNmea shouldBe "\$GNGGA,1*00"
+            db.openHelper.readableDatabase.query("SELECT import_id FROM points").use { cursor ->
+                while (cursor.moveToNext()) cursor.isNull(0) shouldBe true
+            }
+            db.openHelper.readableDatabase.query("SELECT name FROM sqlite_master WHERE type = 'index' AND name = 'index_points_import_id'")
+                .use { it.count shouldBe 1 }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun `S028 RF-27 un punto importado se guarda con su origen y su importacion, y se lee igual`() {
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            runBlocking { db.projects().insert(project) }
+            val point = es.topophone.core.model.point.Point(
+                id = "imp-1-a",
+                projectId = project.id,
+                name = "007",
+                description = "Esquina",
+                origin = PointOrigin.IMPORTED,
+                coordinates = PointCoordinates(
+                    GeodeticPosition(40.416801234567891, -3.7037123456789, 699.423),
+                    440290.434567891,
+                    4474257.414123456,
+                    648.34,
+                ),
+                measurement = null,
+                typed = es.topophone.core.model.point.TypedCoordinates(
+                    es.topophone.core.model.point.EntryForm.PROJECT_CRS,
+                    440290.434567891,
+                    4474257.414123456,
+                    648.34,
+                    es.topophone.core.model.point.HeightKind.PROJECT,
+                ),
+                edited = false,
+                hidden = false,
+                copyOf = null,
+                createdAtMs = 5_000,
+                deletedAtMs = null,
+                importId = "imp-1",
+            )
+
+            runBlocking { RoomPointRepository(db).create(point) }
+
+            val read = runBlocking { RoomPointRepository(db).points(project.id).first() }.single()
+            read shouldBe point
+            read.origin shouldBe PointOrigin.IMPORTED
+            read.importId shouldBe "imp-1"
+            runBlocking { RoomPointRepository(db).pointsForExport(project.id) }.single().importId shouldBe "imp-1"
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S011 RF-22 y RF-25 el nombre de un punto de la papelera queda libre y entre los activos sigue siendo unico`() {
         val db = TopoPhoneDatabase.build(context, TEST_DB)
         try {
@@ -465,7 +558,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 11
+        const val CURRENT_VERSION = 12
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

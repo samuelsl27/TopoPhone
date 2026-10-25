@@ -37,6 +37,9 @@ import es.topophone.data.project.ProjectFolderEntity
  * - v9 (S017): el tiempo promediado, las desviaciones típicas y si fue automático de cada punto (columnas que admiten NULL, y
  *   `nmea_chunks` con 0 por defecto) y la tabla `point_nmea` con los tramos de frases NMEA de los promediados largos. Solo añade
  *   columnas y una tabla: migración de Room.
+ * - v10 (S018): el punto de diseño y las diferencias de cada replanteo. Columnas que admiten NULL: migración de Room.
+ * - v11 (S019): la cota de diseño usada, las tolerancias y si cumple cada replanteo. Columnas que admiten NULL: migración de Room.
+ * - v12 (S028): `import_id` de los puntos importados, con su índice. Columna que admite NULL: migración de Room.
  */
 @Database(
     entities = [
@@ -56,6 +59,7 @@ import es.topophone.data.project.ProjectFolderEntity
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 9, to = 10),
         AutoMigration(from = 10, to = 11),
+        AutoMigration(from = 11, to = 12),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -72,7 +76,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 11
+        const val VERSION = 12
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =
