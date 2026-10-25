@@ -44,7 +44,7 @@
       Hecho cuando: `PointImportEntriesTest` en verde, con el aviso de cada fichero que no se puede abrir.
 - [x] T21. `app` y `core:formats`: el origen "Importado" en la lista, la ficha y el mapa, e `Imported` en el CSV de puntos. (RF-31, RF-32)
       Hecho cuando: `ImportedPointsTest` y `CsvExportTest` en verde, con el origen en es y en.
-- [ ] T22. Los puntos importados como manuales: editar, duplicar, borrar y restaurar, replantear, copia de seguridad y paquete. (RF-33)
+- [x] T22. Los puntos importados como manuales: editar, duplicar, borrar y restaurar, replantear, copia de seguridad y paquete. (RF-33)
       Hecho cuando: los tests en verde con un punto importado en cada operación y el paquete y la copia que lo conservan con su origen.
 - [ ] T23. Rendimiento: `PointImportPerformanceTest`. (RNF)
       Hecho cuando: 50.000 filas leídas y validadas en menos de 3 s, un cambio de opción en menos de 1 s y 10.000 puntos importados en menos de 5 s.
