@@ -1,5 +1,6 @@
 package es.topophone.app.ui
 
+import android.net.Uri
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.TextAutoSize
@@ -38,6 +39,7 @@ import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.points.ObjectListRoute
 import es.topophone.app.ui.points.PointDetailsRoute
 import es.topophone.app.ui.points.PointFormRoute
+import es.topophone.app.ui.points.PointImportRoute
 import es.topophone.app.ui.points.PointTrashRoute
 import es.topophone.app.ui.projects.ProjectFolderRoute
 import es.topophone.app.ui.projects.ProjectFormRoute
@@ -118,6 +120,14 @@ fun TopoPhoneApp(
                     theme,
                     toggleSun,
                     navigation,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.ImportPoints -> PointImportRoute(
+                    page.projectId,
+                    Uri.parse(page.fileUri),
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.StakeoutReport -> StakeoutReportRoute(
@@ -225,6 +235,7 @@ private fun AppNavHost(
                 onExport = { projectId, selection -> navController.navigate(ExportDestination(projectId, selection)) }, // S012/RF-1, RF-2
                 // S019/RF-17, RF-18
                 onStakeoutReport = { projectId, selection -> navController.navigate(StakeoutReportDestination(projectId, selection)) },
+                onImportPoints = { projectId, fileUri -> navController.navigate(ImportPointsDestination(projectId, fileUri)) }, // S028/RF-1
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onOpenTilt = {
@@ -271,6 +282,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ExportDestination>()
                 surveySection(
                     SurveyPage.Export(args.projectId, args.selection),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ImportPointsDestination> { entry ->
+                val args = entry.toRoute<ImportPointsDestination>()
+                surveySection(
+                    SurveyPage.ImportPoints(args.projectId, args.fileUri),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

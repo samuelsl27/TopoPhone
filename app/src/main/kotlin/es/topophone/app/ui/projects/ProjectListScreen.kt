@@ -55,6 +55,7 @@ import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.backup.BackupNotice
 import es.topophone.app.ui.backup.BackupNoticeViewModel
 import es.topophone.app.ui.backup.rememberPackageHost
+import es.topophone.app.ui.points.rememberImportPointsLauncher
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
@@ -146,6 +147,8 @@ class ProjectListActions(
     val onExport: (String) -> Unit = {},
     /** El informe de replanteo del proyecto (S019/RF-17). */
     val onStakeoutReport: (String) -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, el asistente de importación de puntos del proyecto (S028/RF-1). */
+    val onImportPoints: (String) -> Unit = {},
     /** S013/RF-24. */
     val onExportPackage: (Project) -> Unit = {},
     /** S013/RF-25: abre el selector de ficheros para elegir el paquete. */
@@ -247,6 +250,7 @@ fun ProjectListRoute(
     val notice by noticeViewModel.notice.collectAsStateWithLifecycle()
     val copyLabel = stringResource(R.string.project_copy_label)
     val packages = rememberPackageHost()
+    val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) noticeViewModel.folderChosen(uri.toString()) // S013/RF-22
     }
@@ -271,6 +275,7 @@ fun ProjectListRoute(
             onDelete = viewModel::delete,
             onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
             onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
+            onImportPoints = importPoints,
             onExportPackage = packages.export,
             onImportPackage = packages.import,
             onChooseBackupFolder = { chooseFolder.launch(null) },
@@ -507,6 +512,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onExport(project.id)
         } // S012/RF-1
+        MenuItem(R.string.import_title) {
+            open = false
+            actions.onImportPoints(project.id)
+        } // S028/RF-1
         MenuItem(R.string.stakeout_report_title) {
             open = false
             actions.onStakeoutReport(project.id)

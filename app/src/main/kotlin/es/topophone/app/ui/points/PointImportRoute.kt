@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
@@ -137,4 +138,23 @@ fun PointImportRoute(
         onBack = onBack,
         reportOutcome = reportOutcome,
     )
+}
+
+/**
+ * Abre el selector de ficheros del móvil para importar puntos al proyecto que se le pase y, con el fichero elegido, pide el asistente
+ * con [onPicked] (S028/RF-1). Si el usuario cancela el selector, no pasa nada. El proyecto pendiente sobrevive al giro y a la muerte
+ * del proceso mientras el selector está abierto.
+ */
+@Composable
+fun rememberImportPointsLauncher(onPicked: (projectId: String, fileUri: String) -> Unit): (projectId: String) -> Unit {
+    var pending by rememberSaveable { mutableStateOf<String?>(null) }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        val projectId = pending
+        pending = null
+        if (uri != null && projectId != null) onPicked(projectId, uri.toString())
+    }
+    return { projectId ->
+        pending = projectId
+        picker.launch(arrayOf("*/*")) // RF-2: cualquier tipo; el contenido decide si es texto
+    }
 }

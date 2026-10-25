@@ -40,7 +40,7 @@
       Hecho cuando: los tests en verde, con las etiquetas de TalkBack, el fichero de informe y el selector de ficheros cancelado.
 - [x] T19. `app`: el resultado de la importación con "Ver informe" y "Deshacer importación" con su confirmación. (RF-28, RF-29)
       Hecho cuando: los tests en verde con los cuatro recuentos y deshacer.
-- [ ] T20. `app`: "Importar CSV/TXT" en el menú del proyecto y en el de la lista de objetos, la navegación y el selector de ficheros. (RF-1, RF-2, RF-3)
+- [x] T20. `app`: "Importar CSV/TXT" en el menú del proyecto y en el de la lista de objetos, la navegación y el selector de ficheros. (RF-1, RF-2, RF-3)
       Hecho cuando: `PointImportEntriesTest` en verde, con el aviso de cada fichero que no se puede abrir.
 - [ ] T21. `app` y `core:formats`: el origen "Importado" en la lista, la ficha y el mapa, e `Imported` en el CSV de puntos. (RF-31, RF-32)
       Hecho cuando: `ImportedPointsTest` y `CsvExportTest` en verde, con el origen en es y en.

@@ -77,6 +77,9 @@ import kotlinx.serialization.Serializable
 /** Informe de replanteo: de todo el proyecto o, con [selection], de los puntos elegidos en la lista (S019/RF-17, RF-18). */
 @Serializable data class StakeoutReportDestination(val projectId: String, val selection: Boolean = false)
 
+/** El asistente de importación de puntos de un CSV o TXT: el proyecto y el fichero elegido, como dirección (S028/RF-1). */
+@Serializable data class ImportPointsDestination(val projectId: String, val fileUri: String)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

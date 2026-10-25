@@ -123,6 +123,8 @@ class ObjectListActions(
     val onExportSelected: () -> Unit = {},
     /** El informe de replanteo de todo el proyecto y de los puntos seleccionados (S019/RF-17, RF-18). */
     val onStakeoutReport: () -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, el asistente de importación de puntos (S028/RF-1). */
+    val onImportPoints: () -> Unit = {},
     val onStakeoutReportSelected: () -> Unit = {},
     val onToggleSelection: (String) -> Unit = {},
     val onClearSelection: () -> Unit = {},
@@ -243,6 +245,7 @@ fun ObjectListRoute(
     viewModel: ObjectListViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) { viewModel.start(projectId) }
+    val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
     val state by viewModel.state.collectAsStateWithLifecycle()
     ObjectListScreen(
         themeState,
@@ -255,6 +258,7 @@ fun ObjectListRoute(
             onOpenTrash = { navigation.onOpenPointTrash(projectId) }, // S011/RF-23
             onExport = { navigation.onExport(projectId, false) }, // S012/RF-1
             onStakeoutReport = { navigation.onStakeoutReport(projectId, false) }, // S019/RF-17
+            onImportPoints = { importPoints(projectId) },
             onStakeoutReportSelected = {
                 viewModel.exportSelected()
                 navigation.onStakeoutReport(projectId, true) // S019/RF-18
@@ -295,7 +299,7 @@ fun ObjectListScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
-        actions = { ObjectsMenu(actions.onOpenTrash, actions.onExport, actions.onStakeoutReport) },
+        actions = { ObjectsMenu(actions.onOpenTrash, actions.onExport, actions.onStakeoutReport, actions.onImportPoints) },
         floatingActionButton = {
             if (state.selected.isEmpty()) {
                 ExtendedFloatingActionButton(
@@ -347,7 +351,7 @@ fun ObjectListScreen(
 
 /** Menú "⋮" de la lista de objetos: la papelera de puntos (S011/RF-23). */
 @Composable
-private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit, onStakeoutReport: () -> Unit) {
+private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit, onStakeoutReport: () -> Unit, onImportPoints: () -> Unit) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
         Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.projects_menu))
@@ -361,6 +365,14 @@ private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit, onStakeou
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S012/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.import_title)) },
+            onClick = {
+                open = false
+                onImportPoints()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S028/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.stakeout_report_title)) },
             onClick = {

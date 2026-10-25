@@ -13,6 +13,9 @@ import es.topophone.app.ui.points.PointDetailsUiState
 import es.topophone.app.ui.points.PointFormActions
 import es.topophone.app.ui.points.PointFormScreen
 import es.topophone.app.ui.points.PointFormUiState
+import es.topophone.app.ui.points.PointImportActions
+import es.topophone.app.ui.points.PointImportScreen
+import es.topophone.app.ui.points.PointImportUiState
 import es.topophone.app.ui.points.PointTrashActions
 import es.topophone.app.ui.points.PointTrashScreen
 import es.topophone.app.ui.points.PointTrashUiState
@@ -58,6 +61,9 @@ sealed interface SurveyPage {
 
     /** Informe de replanteo (S019/RF-17, RF-18). */
     data class StakeoutReport(val projectId: String, val selection: Boolean) : SurveyPage
+
+    /** Importar puntos de un CSV o TXT: el proyecto y la dirección del fichero elegido (S028/RF-1). */
+    data class ImportPoints(val projectId: String, val fileUri: String) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -81,6 +87,8 @@ class SurveyNavigation(
     val onExport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     /** El informe de replanteo de un proyecto o de los puntos seleccionados (S019/RF-17, RF-18). */
     val onStakeoutReport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
+    /** El asistente de importación de puntos, con el fichero que eligió el usuario (S028/RF-1). */
+    val onImportPoints: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
@@ -101,6 +109,7 @@ data class SurveyUiState(
     val pointTrash: PointTrashUiState = PointTrashUiState(loaded = true),
     val export: ExportUiState = ExportUiState(loaded = true),
     val stakeoutReport: StakeoutReportUiState = StakeoutReportUiState(loaded = true),
+    val import: PointImportUiState = PointImportUiState(),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -147,6 +156,7 @@ fun SurveyPageScreen(
         is SurveyPage.PointForm -> PointFormScreen(themeState, onToggleSun, state.pointForm, PointFormActions(), navigation.onBack)
         is SurveyPage.PointTrash -> PointTrashScreen(themeState, onToggleSun, state.pointTrash, PointTrashActions(), navigation.onBack)
         is SurveyPage.Export -> ExportScreen(themeState, onToggleSun, state.export, ExportActions(), navigation.onBack)
+        is SurveyPage.ImportPoints -> PointImportScreen(themeState, onToggleSun, state.import, PointImportActions(), navigation.onBack)
         is SurveyPage.StakeoutReport ->
             StakeoutReportScreen(themeState, onToggleSun, state.stakeoutReport, StakeoutReportActions(), navigation.onBack)
     }
