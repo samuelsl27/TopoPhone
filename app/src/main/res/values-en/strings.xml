@@ -624,6 +624,7 @@
     <string name="point_auto_yes">Yes</string>
     <string name="point_list_item">• %1$s</string>
     <string name="point_created_at">Created: %1$s</string>
+    <string name="point_origin_line">Origin: %1$s</string>
     <string name="point_duplicate">Duplicate</string>
     <string name="point_stakeout">Stake out</string>
     <string name="point_stakeout_title">Stakeout</string>

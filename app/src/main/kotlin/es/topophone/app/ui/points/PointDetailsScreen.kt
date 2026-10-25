@@ -105,6 +105,7 @@ const val POINT_MEASURED_COORDINATES_TAG = "point_measured_coordinates"
 const val POINT_REVERT_TAG = "point_revert"
 const val POINT_BASE_TAG = "point_base"
 const val POINT_MEASUREMENT_TAG = "point_measurement"
+const val POINT_ORIGIN_TAG = "point_origin"
 const val POINT_TILT_TAG = "point_tilt"
 const val POINT_NMEA_TAG = "point_nmea"
 const val NMEA_DIALOG_TAG = "nmea_dialog"
@@ -300,6 +301,11 @@ fun PointDetailsScreen(
         ) {
             // S011/RF-21
             point.copyOf?.let { Text(stringResource(R.string.point_copy_of, it), style = MaterialTheme.typography.labelLarge) }
+            Text(
+                stringResource(R.string.point_origin_line, stringResource(point.origin.labelRes())),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.testTag(POINT_ORIGIN_TAG),
+            ) // S028/RF-31
             Actions(state, point, actions)
             if (state.keptEdited) Notice(actions.onDismissNotice) // S011/RF-14
             DetailsCard(stringResource(R.string.point_coordinates), POINT_COORDINATES_TAG) {

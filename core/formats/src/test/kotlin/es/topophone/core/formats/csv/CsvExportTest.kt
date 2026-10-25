@@ -120,6 +120,20 @@ class CsvExportTest {
         lines(csv(listOf(staked), CsvOptions()))[1].split(",")[2] shouldBe "Measured"
     }
 
+    @Test
+    fun `S028 RF-32 un punto importado sale en la columna Origin como Imported`() {
+        val imported = manual.copy(origin = PointOrigin.IMPORTED, importId = "imp-1", description = "")
+
+        lines(csv(listOf(imported), CsvOptions()))[1].split(",")[2] shouldBe "Imported"
+    }
+
+    @Test
+    fun `S028 RF-32 los puntos manuales y medidos siguen saliendo como Manual y Measured`() {
+        val plain = manual.copy(description = "")
+
+        lines(csv(listOf(plain, measured), CsvOptions())).drop(1).map { it.split(",")[2] } shouldBe listOf("Manual", "Measured")
+    }
+
     private val stakeColumns = listOf(
         ExportColumn.STAKE_DESIGN,
         ExportColumn.STAKE_DESIGN_ELEVATION,

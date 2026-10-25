@@ -42,7 +42,7 @@
       Hecho cuando: los tests en verde con los cuatro recuentos y deshacer.
 - [x] T20. `app`: "Importar CSV/TXT" en el menú del proyecto y en el de la lista de objetos, la navegación y el selector de ficheros. (RF-1, RF-2, RF-3)
       Hecho cuando: `PointImportEntriesTest` en verde, con el aviso de cada fichero que no se puede abrir.
-- [ ] T21. `app` y `core:formats`: el origen "Importado" en la lista, la ficha y el mapa, e `Imported` en el CSV de puntos. (RF-31, RF-32)
+- [x] T21. `app` y `core:formats`: el origen "Importado" en la lista, la ficha y el mapa, e `Imported` en el CSV de puntos. (RF-31, RF-32)
       Hecho cuando: `ImportedPointsTest` y `CsvExportTest` en verde, con el origen en es y en.
 - [ ] T22. Los puntos importados como manuales: editar, duplicar, borrar y restaurar, replantear, copia de seguridad y paquete. (RF-33)
       Hecho cuando: los tests en verde con un punto importado en cada operación y el paquete y la copia que lo conservan con su origen.

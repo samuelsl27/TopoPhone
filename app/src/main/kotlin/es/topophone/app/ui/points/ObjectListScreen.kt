@@ -1,6 +1,7 @@
 package es.topophone.app.ui.points
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -396,14 +397,7 @@ private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit, onStakeou
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun PointRow(point: PointSummary, selected: Boolean, onClick: () -> Unit, onLongClick: () -> Unit, onToggleHidden: () -> Unit) {
-    val origin = stringResource(
-        when (point.origin) {
-            PointOrigin.MEASURED -> R.string.point_origin_measured
-            PointOrigin.STAKED -> R.string.point_origin_staked // S018/RF-32
-            PointOrigin.MANUAL -> R.string.point_origin_manual
-            PointOrigin.IMPORTED -> R.string.point_origin_imported // S028/RF-31
-        },
-    )
+    val origin = stringResource(point.origin.labelRes())
     ListItem(
         headlineContent = { Text(point.name, style = MaterialTheme.typography.titleMedium) },
         supportingContent = {
@@ -523,4 +517,13 @@ private fun FlowRowButtons(buttons: List<Triple<Int, String, () -> Unit>>) {
             TextButton(onClick = onClick, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(tag)) { Text(stringResource(text)) }
         }
     }
+}
+
+/** El nombre del origen de un punto en la lista de objetos y en la ficha (S011/RF-3, S018/RF-32, S028/RF-31). */
+@StringRes
+internal fun PointOrigin.labelRes(): Int = when (this) {
+    PointOrigin.MEASURED -> R.string.point_origin_measured
+    PointOrigin.STAKED -> R.string.point_origin_staked
+    PointOrigin.MANUAL -> R.string.point_origin_manual
+    PointOrigin.IMPORTED -> R.string.point_origin_imported
 }
