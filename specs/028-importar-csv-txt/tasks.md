@@ -36,7 +36,7 @@
       Hecho cuando: `PointImportScreenTest` en verde con cada selector y los avisos de la coma con la coma.
 - [x] T17. `app`: `PointImportScreen`, las columnas, el SC, la unidad, la altura y los nombres repetidos. (RF-10 a RF-20)
       Hecho cuando: los tests en verde: un selector de papel por columna, PENZD y PNEZD, geográficas con la altura elipsoidal salvo en ED50, y las casillas.
-- [ ] T18. `app`: la vista previa, los recuentos con icono y texto y el informe de errores con "Guardar" y "Compartir". (RF-21, RF-22, RF-24)
+- [x] T18. `app`: la vista previa, los recuentos con icono y texto y el informe de errores con "Guardar" y "Compartir". (RF-21, RF-22, RF-24)
       Hecho cuando: los tests en verde, con las etiquetas de TalkBack, el fichero de informe y el selector de ficheros cancelado.
 - [ ] T19. `app`: el resultado de la importación con "Ver informe" y "Deshacer importación" con su confirmación. (RF-28, RF-29)
       Hecho cuando: los tests en verde con los cuatro recuentos y deshacer.

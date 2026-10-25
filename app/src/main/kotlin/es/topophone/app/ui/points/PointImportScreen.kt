@@ -1,5 +1,6 @@
 package es.topophone.app.ui.points
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +21,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -29,28 +33,44 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.formats.csv.ExportFileName
 import es.topophone.core.model.point.ColumnRole
 import es.topophone.core.model.point.DuplicatePolicy
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.ImportDecimal
 import es.topophone.core.model.point.ImportEncoding
+import es.topophone.core.model.point.ImportErrorReason
+import es.topophone.core.model.point.ImportPreviewRow
+import es.topophone.core.model.point.ImportRowStatus
 import es.topophone.core.model.point.ImportSeparator
 import es.topophone.core.model.point.MappingProblem
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.LinearUnit
+import java.time.Instant
+import java.time.ZoneId
 
 const val IMPORT_PROBLEM_TAG = "import_problem"
 const val IMPORT_HEADER_TAG = "import_header"
 const val IMPORT_COMMA_CONFLICT_TAG = "import_comma_conflict"
 const val IMPORT_LOADING_TAG = "import_loading"
+const val IMPORT_COUNTS_TAG = "import_counts"
+const val IMPORT_REPORT_SAVE_TAG = "import_report_save"
+const val IMPORT_REPORT_SHARE_TAG = "import_report_share"
+const val IMPORT_BUTTON_TAG = "import_button"
 const val IMPORT_PENZD_TAG = "import_penzd"
 const val IMPORT_PNEZD_TAG = "import_pnezd"
 const val IMPORT_MAPPING_PROBLEM_TAG = "import_mapping_problem"
@@ -64,6 +84,8 @@ fun importSeparatorTag(separator: ImportSeparator) = "import_separator_${separat
 fun importDecimalTag(decimal: ImportDecimal) = "import_decimal_${decimal.name}"
 
 fun importColumnTag(index: Int) = "import_column_$index"
+
+fun importPreviewRowTag(line: Int) = "import_preview_row_$line"
 
 fun importRoleTag(index: Int, role: ColumnRole) = "import_role_${index}_${role.name}"
 
@@ -88,6 +110,9 @@ class PointImportActions(
     val onUnit: (LinearUnit) -> Unit = {},
     val onZeroAsNoHeight: (Boolean) -> Unit = {},
     val onDuplicates: (DuplicatePolicy) -> Unit = {},
+    val onSaveReport: (fileName: String) -> Unit = {},
+    val onShareReport: (fileName: String) -> Unit = {},
+    val onImport: () -> Unit = {},
 )
 
 /**
@@ -101,6 +126,7 @@ fun PointImportScreen(
     state: PointImportUiState,
     actions: PointImportActions,
     onBack: () -> Unit,
+    reportOutcome: ReportOutcome? = null,
 ) {
     SectionScaffold(
         title = stringResource(R.string.import_title),
@@ -137,6 +163,8 @@ fun PointImportScreen(
                 ColumnsSection(state, actions)
                 CoordinatesSection(state, actions)
                 OptionsSection(state, actions)
+                PreviewSection(state, actions, reportOutcome)
+                ImportButton(state, actions)
             }
         }
     }
@@ -397,4 +425,133 @@ private fun duplicatesLabel(policy: DuplicatePolicy) = when (policy) {
     DuplicatePolicy.SKIP -> R.string.import_duplicates_skip
     DuplicatePolicy.RENAME -> R.string.import_duplicates_rename
     DuplicatePolicy.CANCEL -> R.string.import_duplicates_cancel
+}
+
+/** Los recuentos, las primeras filas con su estado y la lista de errores con el informe (S028/RF-21, RF-22, RF-24). */
+@Composable
+private fun PreviewSection(state: PointImportUiState, actions: PointImportActions, reportOutcome: ReportOutcome?) {
+    val counts = state.counts
+    Text(stringResource(R.string.import_section_preview), style = MaterialTheme.typography.titleSmall)
+    if (state.analyzing) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            CircularProgressIndicator(modifier = Modifier.size(20.dp))
+            Text(stringResource(R.string.import_analyzing))
+        }
+    }
+    val countsDescription = stringResource(R.string.import_counts_description, counts.valid, counts.repeated, counts.errors)
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier
+            .testTag(IMPORT_COUNTS_TAG)
+            .semantics(mergeDescendants = true) {
+                contentDescription = countsDescription
+                liveRegion = LiveRegionMode.Polite // TalkBack lo lee al cambiar, sin anunciar cada refresco (RNF-T8)
+            },
+    ) {
+        StatusMark(R.drawable.ic_check, stringResource(R.string.import_count_valid, counts.valid))
+        StatusMark(R.drawable.ic_repeat, stringResource(R.string.import_count_repeated, counts.repeated))
+        StatusMark(R.drawable.ic_warning, stringResource(R.string.import_count_errors, counts.errors))
+    }
+    state.preview.forEach { row -> PreviewRow(row) }
+    ErrorsSection(state, actions, reportOutcome)
+}
+
+@Composable
+private fun PreviewRow(row: ImportPreviewRow) {
+    val name = row.name.ifEmpty { stringResource(R.string.import_row_no_name) }
+    val reason = row.reason?.let { stringResource(reasonText(it)) }.orEmpty()
+    val state = when (row.status) {
+        ImportRowStatus.VALID -> stringResource(R.string.import_state_valid)
+        ImportRowStatus.REPEATED_SKIPPED -> stringResource(R.string.import_state_skipped)
+        ImportRowStatus.REPEATED_RENAMED -> stringResource(R.string.import_state_renamed, row.renamedTo.orEmpty())
+        ImportRowStatus.ERROR -> stringResource(R.string.import_state_error, reason)
+    }
+    val description = stringResource(R.string.import_row_description, row.line, name, state)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(importPreviewRowTag(row.line))
+            .semantics(mergeDescendants = true) { contentDescription = description },
+    ) {
+        Text(stringResource(R.string.import_row_title, row.line, row.name), style = MaterialTheme.typography.bodyMedium)
+        Text(
+            stringResource(R.string.import_row_values, row.first, row.second, row.height, row.description),
+            style = MaterialTheme.typography.bodySmall,
+        )
+        when (row.status) {
+            ImportRowStatus.VALID -> StatusMark(R.drawable.ic_check, stringResource(R.string.import_status_valid))
+            ImportRowStatus.REPEATED_SKIPPED -> StatusMark(R.drawable.ic_repeat, stringResource(R.string.import_status_skipped))
+            ImportRowStatus.REPEATED_RENAMED ->
+                StatusMark(R.drawable.ic_repeat, stringResource(R.string.import_status_renamed, row.renamedTo.orEmpty()))
+            ImportRowStatus.ERROR -> StatusMark(R.drawable.ic_warning, stringResource(R.string.import_status_error, reason), error = true)
+        }
+    }
+}
+
+@Composable
+private fun ErrorsSection(state: PointImportUiState, actions: PointImportActions, reportOutcome: ReportOutcome?) {
+    Text(stringResource(R.string.import_section_errors), style = MaterialTheme.typography.titleSmall)
+    if (state.counts.errors == 0) {
+        Text(stringResource(R.string.import_errors_none))
+    } else {
+        state.errors.forEach { error ->
+            Text(stringResource(R.string.import_errors_line, error.line, stringResource(reasonText(error.reason))))
+        }
+        val more = state.counts.errors - state.errors.size
+        if (more > 0) Text(stringResource(R.string.import_errors_more, more), style = MaterialTheme.typography.bodySmall)
+        val opened = remember { Instant.now() }
+        val label = stringResource(R.string.import_report_file_label)
+        val fileName = ExportFileName.of(state.projectName, label, opened, ZoneId.systemDefault(), "txt")
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedButton(
+                onClick = { actions.onSaveReport(fileName) },
+                modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(IMPORT_REPORT_SAVE_TAG),
+            ) { Text(stringResource(R.string.import_report_save)) }
+            OutlinedButton(
+                onClick = { actions.onShareReport(fileName) },
+                modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(IMPORT_REPORT_SHARE_TAG),
+            ) { Text(stringResource(R.string.import_report_share)) }
+        } // RF-24
+    }
+    when (reportOutcome) {
+        ReportOutcome.SAVED -> Text(stringResource(R.string.import_report_saved))
+        ReportOutcome.FAILED -> Text(stringResource(R.string.import_report_failed), color = MaterialTheme.colorScheme.error)
+        null -> Unit
+    }
+}
+
+/** El botón Importar, activo solo si hay algo que importar y nada lo impide (S028/RF-25, RF-26). */
+@Composable
+private fun ImportButton(state: PointImportUiState, actions: PointImportActions) {
+    if (state.writeFailed) {
+        Text(stringResource(R.string.import_write_failed), color = MaterialTheme.colorScheme.error) // RF-26
+    }
+    Button(
+        onClick = actions.onImport,
+        enabled = state.canImport,
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(IMPORT_BUTTON_TAG),
+    ) { Text(stringResource(R.string.import_action)) }
+}
+
+@Composable
+private fun StatusMark(@DrawableRes icon: Int, text: String, error: Boolean = false) {
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            painterResource(icon),
+            contentDescription = null, // el texto de al lado lo dice
+            modifier = Modifier.size(18.dp),
+            tint = if (error) MaterialTheme.colorScheme.error else LocalContentColor.current,
+        )
+        Text(text, style = MaterialTheme.typography.bodySmall, color = if (error) MaterialTheme.colorScheme.error else Color.Unspecified)
+    }
+}
+
+@StringRes
+internal fun reasonText(reason: ImportErrorReason): Int = when (reason) {
+    ImportErrorReason.MISSING_NAME -> R.string.import_reason_missing_name
+    ImportErrorReason.NOT_A_NUMBER -> R.string.import_reason_not_a_number
+    ImportErrorReason.MISSING_COLUMNS -> R.string.import_reason_missing_columns
+    ImportErrorReason.OUTSIDE_CRS_AREA -> R.string.import_reason_outside_crs_area
+    ImportErrorReason.OUTSIDE_ED50_GRID -> R.string.import_reason_outside_ed50_grid
+    ImportErrorReason.OUTSIDE_GEOID -> R.string.import_reason_outside_geoid
 }

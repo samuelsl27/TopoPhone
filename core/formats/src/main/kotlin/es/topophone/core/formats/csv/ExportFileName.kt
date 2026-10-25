@@ -5,7 +5,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 /**
- * Nombre propuesto para el fichero exportado (S012/RF-19): `<proyecto>_<formato>_<AAAAMMDD-HHMM>.csv`, con la hora
+ * Nombre propuesto para el fichero exportado (S012/RF-19): `<proyecto>_<formato>_<AAAAMMDD-HHMM>.csv` (o con otra [extension], como el
+ * informe de errores de una importación, S028/RF-24), con la hora
  * local del móvil. Lo que no vale en un nombre de fichero (`\ / : * ? " < > |` y los caracteres de control) pasa a
  * `_`; el proyecto se corta en 100 caracteres sin partir ninguno.
  */
@@ -15,8 +16,8 @@ object ExportFileName {
     private val INVALID = Regex("""[\\/:*?"<>|\p{Cntrl}]""")
     private val STAMP = DateTimeFormatter.ofPattern("yyyyMMdd-HHmm")
 
-    fun of(projectName: String, formatLabel: String, at: Instant, zone: ZoneId): String =
-        "${projectPart(projectName)}_${clean(formatLabel)}_${stamp(at, zone)}.csv"
+    fun of(projectName: String, formatLabel: String, at: Instant, zone: ZoneId, extension: String = "csv"): String =
+        "${projectPart(projectName)}_${clean(formatLabel)}_${stamp(at, zone)}.$extension"
 
     /** El proyecto tal como va en un nombre de fichero; también lo usan los nombres de la copia (S013/RF-4). */
     internal fun projectPart(projectName: String): String = clean(projectName).let { name ->

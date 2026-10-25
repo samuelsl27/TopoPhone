@@ -35,4 +35,10 @@ class ExportFileNameTest {
         val globe = "🌍"
         ExportFileName.of(globe.repeat(120), "PENZD", at, madrid) shouldBe globe.repeat(100) + "_PENZD_20261018-2009.csv"
     }
+
+    @Test
+    fun `S028 RF-24 el informe de errores de una importacion lleva la extension txt`() {
+        ExportFileName.of("Calle Mayor 12", "errores-importacion", at, madrid, "txt") shouldBe
+            "Calle Mayor 12_errores-importacion_20261018-2009.txt"
+    }
 }
