@@ -26,7 +26,7 @@
       Hecho cuando: `ActiveSurfaceTest` en verde: `Loading` y después `Value` o `Outside`, la precarga y la superficie borrada o desactivada.
 - [x] T12. `data`: copia de seguridad, paquete y restauración con las superficies, la activa y el desplazamiento. (RF-21, RNF-T6)
       Hecho cuando: `SurfaceBackupTest` en verde: copia completa, paquete de un proyecto con identificadores nuevos y restauración, con la activa y el desplazamiento.
-- [ ] T13. `app`: `SurfaceImportViewModel`, los pasos, los rechazos, la elección de superficie, el SC y la unidad, la lejanía y el nombre repetido. (RF-1 a RF-10, RF-15)
+- [x] T13. `app`: `SurfaceImportViewModel`, los pasos, los rechazos, la elección de superficie, el SC y la unidad, la lejanía y el nombre repetido. (RF-1 a RF-10, RF-15)
       Hecho cuando: `SurfaceImportViewModelTest` en verde.
 - [ ] T14. `app`: `SurfaceImportScreen`, `SurfaceImportRoute` y «Importar superficie» en los menús, con sus textos en es y en. (RF-1, RF-5, RF-8, RF-13, RNF-T7, RNF-T8)
       Hecho cuando: `SurfaceImportScreenTest` en verde, con las zonas táctiles de 56 dp y el resumen.
