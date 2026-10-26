@@ -18,7 +18,7 @@
       Hecho cuando: `PointMeasurementGearTest` y `PointCorrectionsGearTest` en verde, y `ReceiverModel` borrado con todo en verde.
 - [x] T8. `core:model`: `GearUsed` en `Measurement` (nombre y altura del jalón, tipo, altura introducida, perfil, desplazamiento y altura de antena). (RF-24)
       Hecho cuando: los tests de `core:model` en verde y `Measurement` sin cambios para quien no pasa `GearUsed`.
-- [ ] T9. `data`: tablas `antenna_profiles`, `saved_poles` y `receiver_gear` y las columnas nuevas de `points`, con `AutoMigration(15, 16)`. (RF-24, RF-29, RNF-T6)
+- [x] T9. `data`: tablas `antenna_profiles`, `saved_poles` y `receiver_gear` y las columnas nuevas de `points`, con `AutoMigration(15, 16)`. (RF-24, RF-29, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 15 → 16 en verde con puntos antiguos que se leen con el equipo vacío.
 - [ ] T10. `data`: `GearRepository` con las operaciones y los resultados de A4. (RF-5, RF-6, RF-9 a RF-13)
       Hecho cuando: `GearRepositoryTest` en verde: altas, ediciones, nombre repetido, `InUse`, `LastPole`, `ActiveElsewhere` y una transacción por operación.

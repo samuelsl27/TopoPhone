@@ -802,9 +802,51 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S046 RNF-T6 de la v15 a la v16 los puntos siguen y el equipo queda vacio`() {
+        createFromExportedSchema(15)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v15 ->
+            v15.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v15.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', 'INSTANT', " +
+                    "1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.single().name shouldBe "P1"
+            points.single().measurement.shouldNotBeNull().poleHeightM shouldBe 1.8
+            count(db, "antenna_profiles") shouldBe 0
+            count(db, "saved_poles") shouldBe 0
+            count(db, "receiver_gear") shouldBe 0
+            db.openHelper.readableDatabase.query(
+                "SELECT pole_name, pole_kind, pole_entered_m, antenna_profile, antenna_offset_m, antenna_height_m FROM points",
+            ).use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                (0 until 6).all { cursor.isNull(it) } shouldBe true
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 15
+        const val CURRENT_VERSION = 16
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

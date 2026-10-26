@@ -160,6 +160,13 @@ data class PointEntity(
     @ColumnInfo(name = "stake_vertical_offset") val stakeVerticalOffset: Double? = null,
     // S028/RF-29: la importación de la que viene un punto importado, para deshacerla; NULL en los demás.
     @ColumnInfo(name = "import_id") val importId: String? = null,
+    // S046/RF-24: el jalón y la antena con los que se midió, por valor (copiados: pueden editarse o borrarse); NULL en los demás.
+    @ColumnInfo(name = "pole_name") val poleName: String? = null,
+    @ColumnInfo(name = "pole_kind") val poleKind: String? = null,
+    @ColumnInfo(name = "pole_entered_m") val poleEnteredM: Double? = null,
+    @ColumnInfo(name = "antenna_profile") val antennaProfile: String? = null,
+    @ColumnInfo(name = "antenna_offset_m") val antennaOffsetM: Double? = null,
+    @ColumnInfo(name = "antenna_height_m") val antennaHeightM: Double? = null,
 )
 
 /**
