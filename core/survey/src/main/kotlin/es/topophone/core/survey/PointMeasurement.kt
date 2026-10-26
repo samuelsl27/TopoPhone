@@ -7,6 +7,7 @@ import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
+import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PointTilt
@@ -87,6 +88,8 @@ data class MeasurementResult(
     val averagedTimeS: Double? = null,
     val deviationHorizontalM: Double? = null,
     val deviationVerticalM: Double? = null,
+    /** El jalón y la antena con los que se midió (S046/RF-24); null si quien mide no los da. */
+    val gear: GearUsed? = null,
 )
 
 /**
@@ -119,6 +122,7 @@ class PointMeasurement(
     private val calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
     private val profile: AntennaProfile = AntennaProfile.RS3,
     private val tilt: TiltSetup = TiltSetup.VERTICAL,
+    private val gear: GearUsed? = null,
 ) {
     private val requiredS = averagingSeconds.toDouble()
 
@@ -373,6 +377,7 @@ class PointMeasurement(
             MeasurementResult(
                 antenna = antenna,
                 poleHeightM = poleHeightM,
+                gear = gear,
                 ground = ground,
                 position = position,
                 solution = checkNotNull(worstSolution),

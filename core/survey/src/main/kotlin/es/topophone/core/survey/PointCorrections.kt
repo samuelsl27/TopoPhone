@@ -1,16 +1,28 @@
 package es.topophone.core.survey
 
 import es.topophone.core.model.point.EntryForm
+import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
+import es.topophone.core.model.point.PoleKind
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectCrs
+
+/**
+ * El equipo de un punto con una altura de jalón corregida: la altura escrita pasa a ser la vertical y la de antena se
+ * recalcula con el mismo desplazamiento (S046/RF-24, S011/RF-14).
+ */
+private fun GearUsed.withPole(poleHeightM: Double) = copy(
+    poleKind = PoleKind.VERTICAL,
+    poleEnteredM = poleHeightM,
+    antennaHeightM = PoleGeometry.antennaHeightM(poleHeightM, antennaOffsetM),
+)
 
 /** Un punto con el jalón corregido y si ha conservado sus coordenadas editadas (S011/RF-14). */
 data class PoleCorrection(val point: Point, val keptEditedCoordinates: Boolean)
@@ -31,11 +43,16 @@ class PointCorrections(
      */
     fun withPoleHeight(point: Point, poleHeightM: Double, crs: ProjectCrs, heightSystem: HeightSystem): PoleCorrection? {
         val measurement = point.measurement ?: return null
-        val ground = ground(measurement, poleHeightM)
+        val offsetM = measurement.gear?.antennaOffsetM ?: profile.offsetM
+        val ground = ground(measurement, poleHeightM, offsetM)
         val position = calculator.fromGround(ground, crs, heightSystem)
         val measured = PointCoordinates(ground, position.easting, position.northing, position.height)
         val corrected = point.copy(
-            measurement = measurement.copy(poleHeightM = poleHeightM, coordinates = measured),
+            measurement = measurement.copy(
+                poleHeightM = poleHeightM,
+                coordinates = measured,
+                gear = measurement.gear?.withPole(poleHeightM),
+            ),
             coordinates = if (point.edited) point.coordinates else measured,
         )
         return PoleCorrection(corrected, keptEditedCoordinates = point.edited)
@@ -46,18 +63,18 @@ class PointCorrections(
      * a lo largo del jalón; en RECEIVER, la punta guardada movida lo que cambia el jalón respecto al declarado al medir;
      * sin inclinación, bajo la antena por la normal.
      */
-    private fun ground(measurement: Measurement, poleHeightM: Double): GeodeticPosition {
+    private fun ground(measurement: Measurement, poleHeightM: Double, offsetM: Double): GeodeticPosition {
         val antenna = measurement.antenna
         val angles = measurement.tilt?.angles
         return when {
             measurement.tilt?.mode == TiltMode.APP && angles != null ->
-                PoleTip.fromAntenna(antenna, angles.pole, PoleGeometry.antennaHeightM(poleHeightM, profile.offsetM))
+                PoleTip.fromAntenna(antenna, angles.pole, PoleGeometry.antennaHeightM(poleHeightM, offsetM))
             measurement.tilt?.mode == TiltMode.RECEIVER && angles != null ->
                 PoleTip.alongPole(antenna, angles.pole, -(poleHeightM - (angles.receiverPoleHeightM ?: poleHeightM)))
             else -> GeodeticPosition(
                 antenna.latitudeDeg,
                 antenna.longitudeDeg,
-                antenna.ellipsoidalHeightM?.minus(PoleGeometry.antennaHeightM(poleHeightM, profile.offsetM)),
+                antenna.ellipsoidalHeightM?.minus(PoleGeometry.antennaHeightM(poleHeightM, offsetM)),
             )
         }
     }

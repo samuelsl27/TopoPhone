@@ -1,5 +1,6 @@
 package es.topophone.core.survey
 
+import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.PoleKind
 /**
  * Un jalón guardado (S046/RF-9, RF-16).
@@ -22,6 +23,13 @@ data class ActiveGear(
     val problem: GearProblem?,
 ) {
     val usable: Boolean get() = problem == null
+
+    /** El equipo tal como se guarda con un punto (S046/RF-24); null si no se puede medir con él. */
+    fun toUsed(): GearUsed? {
+        val pole = pole ?: return null
+        val antenna = antennaHeightM ?: return null
+        return GearUsed(pole.name, pole.kind, pole.enteredM, profile.name, profile.offsetM, antenna)
+    }
 }
 
 /** Del perfil y el jalón que recuerda un receptor al equipo que se usa (S046/RF-7, RF-13; plan A3). */
