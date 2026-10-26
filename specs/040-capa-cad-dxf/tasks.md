@@ -24,7 +24,7 @@
       Hecho cuando: `DxfReaderTest` en verde con los fixtures R12, R2000, R2010 y R2018, un fichero cortado, un elemento roto y un fichero sin ningún elemento.
 - [x] T11. `core:survey`: `CadProjector`, de las coordenadas del dibujo a las del proyecto. (RF-6, RF-7, RF-17, RF-21)
       Hecho cuando: `CadProjectorTest` en verde frente a pyproj (≤ 1 mm; ida y vuelta ≤ 0,1 mm) en ETRS89, REGCAN95 y ED50 y otro huso, con metros, pies y pies topográficos, fuera del ámbito y la altura sin convertir.
-- [ ] T12. `core:survey`: `DesignHitTest`, el elemento más cercano a un toque. (RF-29)
+- [x] T12. `core:survey`: `DesignHitTest`, el elemento más cercano a un toque. (RF-29)
       Hecho cuando: `DesignHitTestTest` en verde: tolerancia, vértice y segmento, y los puntos del proyecto con preferencia.
 - [ ] T13. `data`: las tablas `cad_drawings`, `cad_layers` y `cad_chunks`, sus DAO y `AutoMigration(12, 13)`. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 12 → 13 en verde: los proyectos, puntos y replanteos conservan sus datos.
