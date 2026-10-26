@@ -5,7 +5,9 @@ import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.Project
@@ -16,10 +18,16 @@ import es.topophone.core.survey.HeadingSource
 import es.topophone.core.survey.LevelAlert
 import es.topophone.core.survey.LevelScale
 import es.topophone.core.survey.LevelState
+import es.topophone.core.survey.LineLocator
+import es.topophone.core.survey.LineObjective
+import es.topophone.core.survey.LineObjectives
+import es.topophone.core.survey.LineRange
 import es.topophone.core.survey.LiveTip
+import es.topophone.core.survey.PlanePoint
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.ReceiverModel
 import es.topophone.core.survey.StakeAlert
+import es.topophone.core.survey.StakeLine
 import es.topophone.core.survey.StakeZone
 import es.topophone.core.survey.StakeoutGeometry
 import es.topophone.core.survey.StakeoutLevel
@@ -31,8 +39,29 @@ import kotlin.math.abs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-/** El punto de diseño que se replantea (S018/RF-4). */
-data class StakeTarget(val id: String, val name: String, val description: String, val coordinates: PointCoordinates)
+/**
+ * El punto de diseño que se replantea (S018/RF-4). [source] dice si es un punto del proyecto o un elemento de un dibujo (S041/RF-28);
+ * en una línea, [coordinates] es el primer vértice y solo da el nombre y el origen: el objetivo de cada época sale de [LineGuide].
+ */
+data class StakeTarget(
+    val id: String,
+    val name: String,
+    val description: String,
+    val coordinates: PointCoordinates,
+    val source: StakeSource = StakeSource.ProjectPoint,
+)
+
+/**
+ * El objetivo que se mueve con la punta cuando se replantea una línea (S041/A4, RF-10, RF-11, RF-17): la línea con su localizador,
+ * el desplazamiento lateral y el tramo. En "Por segmentos" y "Intervalos" no hay [LineGuide]: el objetivo es un punto fijo.
+ */
+class LineGuide(
+    val line: StakeLine,
+    val locator: LineLocator,
+    val mode: LineStakeoutMode,
+    val offsetM: Double = 0.0,
+    val range: LineRange = LineRange.whole(line),
+)
 
 /**
  * Todo lo que la guía necesita saber de fuera con cada época: los ajustes, el punto, el control de precisión y el proyecto.
@@ -47,6 +76,7 @@ class StakeContext(
     val project: Project,
     val calculator: ProjectPositionCalculator,
     val designElevationM: Double? = null,
+    val line: LineGuide? = null,
 ) {
     /** La cota de diseño que se replantea: la escrita, o la altura del punto de diseño (S019/RF-1, RF-2). */
     val elevationM: Double? get() = designElevationM ?: target.coordinates.height
@@ -86,6 +116,10 @@ data class GuidanceUi(
     /** El nivel vertical, o null si falta la cota o la altura de la punta, con el motivo en [levelUnavailable] (S019/RF-5). */
     val level: LevelUi? = null,
     val levelUnavailable: LevelUnavailable? = null,
+    /** El objetivo de una línea con la punta donde está: el PK, el lado, el error lateral y lo que falta (S041/RF-10 a RF-14). */
+    val line: LineObjective? = null,
+    /** El objetivo de la época, para guardar el replanteo y dibujarlo en el mapa (S041/RF-5, RF-28). */
+    val objective: PlanePoint? = null,
 )
 
 sealed interface GuidanceState {
@@ -114,6 +148,7 @@ class StakeoutController(
     private var dianaRadius: Double? = null
     private var lastPublishedAtMs = Long.MIN_VALUE
     private var wasOn = false
+    private var lineSegment: Int? = null // el tramo de la época anterior, para empezar por él (S041/RNF-T13)
 
     // S019: el nivel vertical; null es "sin estado previo" (al empezar, al volver la guía o al cambiar la cota).
     private var levelState: LevelState? = null
@@ -143,14 +178,42 @@ class StakeoutController(
         }
         val position = context.calculator.fromGround(tip.ground, context.project.crs, context.project.heightSystem)
         val tipCoordinates = PointCoordinates(tip.ground, position.easting, position.northing, position.height)
+        val tipEast = tipCoordinates.easting
+        val tipNorth = tipCoordinates.northing
+        val guide = context.line
+        // S041: con una línea el objetivo se mueve con la punta y se calcula con el plano del SC del proyecto.
+        if (guide != null && (tipEast == null || tipNorth == null)) {
+            switchOff(GuidanceOff.NO_POSITION, context)
+            return
+        }
+        val lineObjective = if (guide != null && tipEast != null && tipNorth != null) {
+            val location = guide.locator.locate(tipEast, tipNorth, lineSegment)
+            lineSegment = location.segment
+            LineObjectives.of(guide.line, location, guide.offsetM, guide.range)
+        } else {
+            null
+        }
         // S019/RF-1, RF-2: la cota de diseño es la escrita o la del punto; la diferencia de cota sale contra ella.
-        val elevation = context.elevationM
-        val design = context.target.coordinates.copy(height = elevation)
+        val elevation = context.designElevationM ?: lineObjective?.heightM ?: context.target.coordinates.height
+        val design = if (lineObjective != null) {
+            context.target.coordinates.copy(
+                ground = tip.ground,
+                easting = lineObjective.point.easting,
+                northing = lineObjective.point.northing,
+                height = elevation,
+            )
+        } else {
+            context.target.coordinates.copy(height = elevation)
+        }
 
-        // El rumbo de marcha sigue a la punta respecto al punto de diseño, que no se mueve: vale con cualquier SC.
+        // El rumbo de marcha sigue a la punta respecto a un punto que no se mueve: el de diseño, o con una línea, su primer vértice.
         val toward = StakeoutGeometry.guidance(design, tipCoordinates, headingRad = null)
         val timeMs = epoch.utcMillisOfDay.toLong()
-        heading.onTip(timeMs, -toward.dEastM, -toward.dNorthM)
+        if (guide != null && tipEast != null && tipNorth != null) {
+            heading.onTip(timeMs, tipEast - guide.line.easting(0), tipNorth - guide.line.northing(0))
+        } else {
+            heading.onTip(timeMs, -toward.dEastM, -toward.dNorthM)
+        }
         val userHeading = heading.heading(context.settings.heading, timeMs, epoch.tilt, position.convergenceRad)
         val guidance = StakeoutGeometry.guidance(design, tipCoordinates, (userHeading as? HeadingResult.Available)?.rad)
 
@@ -167,8 +230,10 @@ class StakeoutController(
             log.info(LogCategory.POINTS, "Replanteo de ${context.target.name}: ${alert.logText()}")
         }
         val radius = DianaScale.radius(dianaRadius, guidance.distanceM, tolerance).also { dianaRadius = it }
-        if (elevation != levelElevation) levelState = null // S019/RF-2: otra cota, el nivel empieza de cero
-        levelElevation = elevation
+        // S019/RF-2: otra cota, el nivel empieza de cero; con una línea la cota cambia con el PK, y solo cuenta la que escribe el usuario.
+        val levelKey = if (lineObjective != null) context.designElevationM else elevation
+        if (levelKey != levelElevation) levelState = null
+        levelElevation = levelKey
         val levelBefore = levelState
         val level = levelOf(guidance.dHeightM, context)
         val levelChanged = levelBefore != levelState
@@ -193,6 +258,8 @@ class StakeoutController(
             } else {
                 LevelUnavailable.TIP_WITHOUT_HEIGHT
             },
+            line = lineObjective,
+            objective = lineObjective?.point,
         )
         val becameOn = !wasOn
         wasOn = true
@@ -213,6 +280,7 @@ class StakeoutController(
         dianaRadius = null
         resetLevel()
         wasOn = false
+        lineSegment = null
         lastPublishedAtMs = Long.MIN_VALUE
         flow.value = GuidanceState.Off(GuidanceOff.NO_POSITION)
     }

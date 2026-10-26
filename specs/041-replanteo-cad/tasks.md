@@ -26,7 +26,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 13 → 14 en verde: los proyectos, los puntos, los replanteos y los dibujos conservan sus datos.
 - [x] T12. `data`: `PointRepository` guarda y lee el replanteo de un elemento en una transacción; borrar el dibujo no toca el punto. (RF-27, RF-28, RF-32)
       Hecho cuando: `PointRepositoryTest` en verde: punto y replanteo juntos, nombres copiados, dibujo borrado después, y un punto del proyecto que no cambia.
-- [ ] T13. `app`: `StakeTarget` con su origen y `StakeContext.line`; `StakeoutController` con el objetivo que se mueve, el rumbo respecto a un origen fijo y `LineGuidanceUi`. (RF-6, RF-10, RF-12, RF-13, RF-25, RF-26)
+- [x] T13. `app`: `StakeTarget` con su origen y `StakeContext.line`; `StakeoutController` con el objetivo que se mueve, el rumbo respecto a un origen fijo y `LineGuidanceUi`. (RF-6, RF-10, RF-12, RF-13, RF-25, RF-26)
       Hecho cuando: `StakeoutControllerLineTest` en verde: el objetivo que se mueve, la diana, las zonas con el error lateral, los avisos y el apagado en todos los casos de S018; los tests de S018 y S019 siguen en verde.
 - [ ] T14. `app`: la cota de diseño en las líneas: la interpolada, y la escrita a mano si el elemento o el dibujo no tienen cota. (RF-23, RF-24, RF-25)
       Hecho cuando: `StakeoutControllerLineTest` y `LineStakeoutViewModelTest` en verde con una línea con cota, otra sin cota y el nivel de S019.
