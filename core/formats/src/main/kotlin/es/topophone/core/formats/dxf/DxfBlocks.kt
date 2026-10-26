@@ -12,6 +12,9 @@ import kotlin.math.sqrt
 
 /** Adonde van los elementos del DXF ya desplegados, en las coordenadas del dibujo, y lo que no entra (S040/RF-14, RF-16). */
 interface DxfSink {
+    /** Las capas del DXF, antes del primer elemento: sirven para dar a cada capa su color y su estado. */
+    fun tables(tables: DxfTables) {}
+
     /** Un elemento en la capa [layer] (el nombre en el DXF); su color es null si es el de su capa. */
     fun element(layer: String, entity: CadEntity)
 

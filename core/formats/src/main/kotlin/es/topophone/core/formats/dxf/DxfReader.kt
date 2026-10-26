@@ -55,6 +55,7 @@ object DxfReader {
 
     /** Lee la sección ENTITIES; true si acabó en su `ENDSEC` (o en el `EOF`). */
     private fun entities(tags: DxfTagReader, tables: DxfTables, blocks: Map<String, DxfBlock>, unit: LinearUnit, sink: DxfSink): Boolean {
+        sink.tables(tables)
         val expander = DxfExpander(tables, blocks, CadCurves.TOLERANCE_M / unit.metres, sink)
         val stream = DxfEntityStream(tags)
         while (true) {
