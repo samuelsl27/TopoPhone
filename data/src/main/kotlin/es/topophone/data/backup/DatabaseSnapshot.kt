@@ -148,6 +148,13 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("points", "WHERE project_id = ?"),
             Table("point_nmea", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
             Table("point_history", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
+            Table("cad_drawings", "WHERE project_id = ? AND status = 'READY'"),
+            Table("cad_layers", "WHERE drawing_id IN (SELECT id FROM cad_drawings WHERE project_id = ? AND status = 'READY')"),
+            Table(
+                "cad_chunks",
+                "WHERE layer_id IN (SELECT l.id FROM cad_layers l JOIN cad_drawings d ON d.id = l.drawing_id " +
+                    "WHERE d.project_id = ? AND d.status = 'READY')",
+            ),
             Table("ntrip_profiles", projectFilter = null),
         )
     }

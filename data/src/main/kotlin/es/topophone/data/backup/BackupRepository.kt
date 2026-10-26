@@ -414,6 +414,48 @@ class BackupRepository(
                 change.put("point_id", pointIds.getValue(change.getAsString("point_id")))
             }
         }
+        copyDrawings(source, sink, args, newProjectId, keepIds)
+    }
+
+    /**
+     * Los dibujos terminados del proyecto con sus capas y trozos (S040/RF-31). Sin [keepIds] cada dibujo y cada capa reciben un id
+     * nuevo; los trozos reciben siempre el suyo, porque su identificador es de la base de datos de cada móvil.
+     */
+    private fun copyDrawings(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        keepIds: Boolean,
+    ) {
+        val drawingIds = mutableMapOf<String, String>()
+        val ready = "SELECT id FROM cad_drawings WHERE project_id = ? AND status = 'READY'"
+        source("SELECT * FROM cad_drawings WHERE project_id = ? AND status = 'READY' ORDER BY imported_at_ms, id", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "cad_drawings") { drawing ->
+                val old = drawing.getAsString("id")
+                val id = if (keepIds) old else newId()
+                drawingIds[old] = id
+                drawing.put("id", id)
+                drawing.put("project_id", newProjectId)
+            }
+        }
+        val layerIds = mutableMapOf<String, String>()
+        source("SELECT * FROM cad_layers WHERE drawing_id IN ($ready)", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "cad_layers") { layer ->
+                val old = layer.getAsString("id")
+                val id = if (keepIds) old else newId()
+                layerIds[old] = id
+                layer.put("id", id)
+                layer.put("drawing_id", drawingIds.getValue(layer.getAsString("drawing_id")))
+            }
+        }
+        val chunks = "SELECT * FROM cad_chunks WHERE layer_id IN (SELECT id FROM cad_layers WHERE drawing_id IN ($ready))"
+        source(chunks, args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "cad_chunks") { chunk ->
+                chunk.remove("id")
+                chunk.put("layer_id", layerIds.getValue(chunk.getAsString("layer_id")))
+            }
+        }
     }
 
     /** Lo que se guarda para deshacer la última restauración. */

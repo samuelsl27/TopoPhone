@@ -32,7 +32,7 @@
       Hecho cuando: `CadRepositoryTest` en verde: lo no terminado no se ve, la visibilidad persiste, borrar un dibujo o un proyecto no deja trozos y los puntos no se tocan.
 - [x] T15. `data`: `CadDrawingImporter`, leer, convertir, agrupar por capa de diseño y zona, escribir, cancelar y resumir. (RF-11 a RF-13, RF-15, RF-17 a RF-23, RF-33)
       Hecho cuando: `CadDrawingImporterTest` en verde: todo o nada, cancelar, fallo de escritura, fichero cortado, capas por tipo, cota con «Sí», con «No» y con todo a 0, capas apagadas, resumen y el mismo fichero dos veces.
-- [ ] T16. `data`: las tablas del dibujo en `DatabaseSnapshot.TABLES` para la copia y el paquete. (RF-31)
+- [x] T16. `data`: las tablas del dibujo en `DatabaseSnapshot.TABLES` para la copia y el paquete. (RF-31)
       Hecho cuando: `BackupCadTest` en verde: la copia y el paquete conservan los dibujos, sus capas y su visibilidad, y la restauración los devuelve.
 - [ ] T17. `app`: `CadImportViewModel`, parte 1: leer el tipo de fichero, explorar, y calcular la extensión, la distancia y los avisos. (RF-1 a RF-10, RF-20)
       Hecho cuando: `CadImportViewModelTest` en verde con un `ContentResolver` falso: DWG, binario, vacío, grande, exploración, cambio de sistema y de unidad, aviso de lejanía y nombre repetido.
