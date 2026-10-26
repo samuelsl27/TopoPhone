@@ -38,7 +38,7 @@
       Hecho cuando: `CadImportViewModelTest` en verde con un `ContentResolver` falso: DWG, binario, vacío, grande, exploración, cambio de sistema y de unidad, aviso de lejanía y nombre repetido.
 - [x] T18. `app`: `CadImportViewModel`, parte 2: importar, el progreso, cancelar, el resumen, guardarlo y el log. (RF-11, RF-12, RF-13, RF-18, RF-32)
       Hecho cuando: los tests en verde: progreso, cancelar, fallo de escritura, dibujo incompleto, resumen y log sin nombres ni coordenadas.
-- [ ] T19. `app`: `CadImportScreen`, la configuración (sistema, unidad, cotas), la extensión con sus avisos, el progreso con «Cancelar» y el resumen, con sus textos en es y en. (RF-6 a RF-10, RF-13, RF-18)
+- [x] T19. `app`: `CadImportScreen`, la configuración (sistema, unidad, cotas), la extensión con sus avisos, el progreso con «Cancelar» y el resumen, con sus textos en es y en. (RF-6 a RF-10, RF-13, RF-18)
       Hecho cuando: `CadImportScreenTest` en verde, con las etiquetas de TalkBack y el estado con icono y texto.
 - [ ] T20. `app`: «Importar DXF» en el menú del proyecto y en el de la lista de objetos, la navegación y el selector de ficheros. (RF-1)
       Hecho cuando: `CadImportEntriesTest` en verde, con el aviso de cada fichero que no se puede abrir.
