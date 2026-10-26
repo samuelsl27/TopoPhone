@@ -131,6 +131,10 @@ data class TypedCoordinates(val form: EntryForm, val first: Double, val second: 
  * Desde S041 guarda también de dónde viene el punto de diseño ([source]) y, si venía de una línea, el [mode], el PK del objetivo
  * ([chainageM]), el desplazamiento lateral ([lateralOffsetM]) y el error lateral al medir ([dLateralM]), todo en metros y
  * sin redondear (S041/RF-28). Un replanteo de antes de S041 es de un punto del proyecto y no tiene nada de esto.
+ *
+ * Desde S042 guarda también contra qué cota se replanteó ([elevationSource]) y, con la superficie, su nombre y la fecha de su
+ * importación (copiados, para que sobrevivan al borrado de la superficie), la cota de la superficie en la punta y el desplazamiento
+ * vertical (S042/RF-28, RF-32). Sin superficie, o fuera de ella (RF-29), quedan vacíos.
  */
 data class StakeoutRef(
     val designId: String,
@@ -149,7 +153,15 @@ data class StakeoutRef(
     val chainageM: Double? = null,
     val lateralOffsetM: Double? = null,
     val dLateralM: Double? = null,
+    val elevationSource: ElevationSource? = null,
+    val surfaceName: String? = null,
+    val surfaceImportedAtMs: Long? = null,
+    val surfaceElevationM: Double? = null,
+    val verticalOffsetM: Double? = null,
 ) {
+    /** Se replanteó contra la superficie activa: guarda su nombre, su cota en la punta y el desplazamiento (S042/RF-28). */
+    val usedSurface: Boolean get() = elevationSource == ElevationSource.SURFACE
+
     /** El punto de diseño es un elemento de un dibujo y no un punto del proyecto (S041/RF-28). */
     val fromDrawing: Boolean get() = source is StakeSource.CadElement
 

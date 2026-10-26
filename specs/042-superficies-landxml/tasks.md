@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/superficies`: `generar_superficies.py` con los casos de `fixtures/superficies/` (LandXML con dos superficies, en pies, con caras invisibles, con identificadores no consecutivos, con una malla `GRID`, sin superficies y mal formado) y lo esperado con pyproj y con un cálculo baricéntrico aparte (dentro, arista, vértice, fuera y hueco). (Constitución nº 2, RF-6, RF-7, RF-12, RF-22)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `Surface`, `SurfaceHeight`, `ElevationSource` y las ampliaciones de `StakeoutRef` (origen, superficie, fecha, cota de la superficie y desplazamiento). (RF-14, RF-28, RF-29)
+- [x] T2. `core:model`: `Surface`, `SurfaceHeight`, `ElevationSource` y las ampliaciones de `StakeoutRef` (origen, superficie, fecha, cota de la superficie y desplazamiento). (RF-14, RF-28, RF-29)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto (los puntos de S018 a S041 no cambian).
 - [ ] T3. `core:model`: `SurfaceTileCodec`, la tesela binaria autosuficiente de hasta 256 kB. (RF-14, plan A3)
       Hecho cuando: `SurfaceTileCodecTest` en verde: ida y vuelta sin redondear, una tesela vacía y una de 256 kB.

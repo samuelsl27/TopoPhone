@@ -32,5 +32,11 @@ sealed interface StakeSource {
     data class CadElement(val drawingName: String, val layerName: String, val kind: CadEntityKind) : StakeSource
 }
 
+/**
+ * Contra qué cota se replantea (S042/RF-25, RF-28): la del punto de diseño (la propia, la del dibujo, la interpolada de una línea o
+ * la escrita a mano) o la de la superficie activa con el desplazamiento vertical.
+ */
+enum class ElevationSource { POINT, SURFACE }
+
 /** Por qué no se aplica un valor escrito en el replanteo de una línea (S041/RF-21). */
 enum class LineInputError { NOT_A_NUMBER, OUT_OF_LINE, SAME_PK, INTERVAL_NOT_POSITIVE }
