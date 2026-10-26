@@ -90,6 +90,7 @@ class ReceiverActions(
     /** S016/RF-1. */
     val onOpenTilt: () -> Unit = {},
     val onOpenGear: () -> Unit = {},
+    val onSelectPole: (String) -> Unit = {},
     val onOpenBluetoothSettings: () -> Unit = {},
     /** S015/RF-17. */
     val onDismissBaseChange: (Int) -> Unit = {},
@@ -231,6 +232,7 @@ fun ReceiverRoute(
             onDisconnect = viewModel::disconnect,
             onReconnect = viewModel::reconnect,
             onPoleHeightChange = viewModel::updatePoleHeight,
+            onSelectPole = viewModel::selectPole,
             onOpenSessions = navigation.onOpenSessions,
             onOpenStatus = { navigation.onOpen(ReceiverPage.STATUS) }, // S005/RF-14
             onOpenCoordinates = { navigation.onOpen(ReceiverPage.COORDINATES) },

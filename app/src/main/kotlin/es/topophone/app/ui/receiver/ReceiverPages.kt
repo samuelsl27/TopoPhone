@@ -76,7 +76,9 @@ fun ReceiverPageScreen(
             themeState,
             onToggleSun,
             onBack,
-        ) { CoordinatesCard(state, actions.onPoleHeightChange) } // S002/RF-29 a RF-41
+        ) {
+            CoordinatesCard(state, onSelectPole = actions.onSelectPole, onPoleHeightChange = actions.onPoleHeightChange)
+        } // S002/RF-29 a RF-41; S046/RF-14
         ReceiverPage.GEAR -> ChildScreen(
             R.string.receiver_menu_gear,
             RECEIVER_GEAR_SCREEN_TAG,

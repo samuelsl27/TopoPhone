@@ -1323,4 +1323,10 @@
     <string name="gear_problem_no_pole">There is no pole: add one in Antenna and pole.</string>
     <string name="gear_problem_no_radius">The slant pole needs an antenna profile with a radius.</string>
     <string name="gear_problem_slant_short">The slant height is smaller than the profile radius.</string>
+    <string name="gear_selector_none">No valid pole: set it up in Antenna and pole</string>
+    <string name="gear_selector_summary">Pole: %1$s · vertical %2$s · antenna %3$s</string>
+    <string name="gear_selector_description">Active pole %1$s, antenna height %2$s</string>
+    <string name="gear_selector_item">%1$s · %2$s</string>
+    <string name="gear_selector_compensated">The receiver compensates the position: the real antenna height is the one configured in the receiver.</string>
+    <string name="gear_selector_changed">You changed the pole or the antenna: it only affects the points you measure now, not the ones already saved.</string>
 </resources>

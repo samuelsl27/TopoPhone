@@ -14,6 +14,7 @@ import es.topophone.app.receiver.DismissedNotices
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
+import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.ProjectDefaults
@@ -22,6 +23,7 @@ import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.PoleHeight
+import es.topophone.core.survey.SavedPole
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.platform.Alerts
@@ -88,6 +90,9 @@ data class ReceiverUiState(
     val antennaHeightM: Double = CurrentGear.DEFAULT.antennaHeightM!!,
     /** El equipo activo del receptor: perfil de antena y jalón (S046/RF-15). */
     val gear: ActiveGear = CurrentGear.DEFAULT,
+    /** Los jalones guardados y si hay una medida en curso, para el selector rápido (S046/RF-14, RF-27). */
+    val poles: List<SavedPole> = emptyList(),
+    val gearLocked: Boolean = false,
     val groundPoint: GroundPoint? = null,
     /** El modo usa la inclinación pero la época no está en estado 30: "Punta sin compensar" (S016/RF-17). */
     val tipUncompensated: Boolean = false,
@@ -130,6 +135,7 @@ class ReceiverViewModel @Inject constructor(
     private val baseNotices: BaseNotices = BaseNotices(),
     private val tilt: CurrentTilt = CurrentTilt.NONE,
     private val gear: CurrentGear = CurrentGear.NONE,
+    private val inProgress: MeasurementInProgress = MeasurementInProgress(),
 ) : ViewModel() {
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
@@ -156,7 +162,18 @@ class ReceiverViewModel @Inject constructor(
         val notices: DismissedNotices,
         val tilt: CurrentTiltState,
         val gear: ActiveGear,
+        val poles: List<SavedPole>,
+        val locked: Boolean,
     )
+    private data class Shown3(
+        val snapshot: ReceiverSnapshot,
+        val angularUnit: AngularUnit,
+        val notices: DismissedNotices,
+        val tilt: CurrentTiltState,
+    )
+
+    private data class GearInputs(val gear: ActiveGear, val poles: List<SavedPole>, val locked: Boolean)
+
     private data class Extras(
         val nowMs: Long,
         val addresses: Pair<String?, String?>,
@@ -168,7 +185,12 @@ class ReceiverViewModel @Inject constructor(
     private val angularUnits: Flow<AngularUnit> = projectPreferences.defaults.map { it.angularUnit }.distinctUntilChanged()
 
     val uiState: StateFlow<ReceiverUiState> = combine(
-        combine(snapshots, angularUnits, baseNotices.dismissed, tilt.state, gear.state, ::Shown),
+        combine(
+            combine(snapshots, angularUnits, baseNotices.dismissed, tilt.state, ::Shown3),
+            combine(gear.state, gear.poles, inProgress.active, ::GearInputs),
+        ) { shown, equipment ->
+            Shown(shown.snapshot, shown.angularUnit, shown.notices, shown.tilt, equipment.gear, equipment.poles, equipment.locked)
+        },
         bluetoothUi,
         internet,
         poleText,
@@ -179,7 +201,7 @@ class ReceiverViewModel @Inject constructor(
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
             pairingUi,
         ) { now, addresses, granted, asked, pairing -> Extras(now, addresses, granted, asked, pairing) },
-    ) { (snapshot, angularUnit, notices, tiltState, gearState), bt, internetAvailable, poleTyped, extras ->
+    ) { (snapshot, angularUnit, notices, tiltState, gearState, poles, gearLocked), bt, internetAvailable, poleTyped, extras ->
         // S016/RF-16, RF-17: con la inclinación, la GGA y el ETC de la misma época; si no, la última GGA.
         val mode = tiltState.settings.mode
         val epoch = snapshot.epoch
@@ -201,6 +223,8 @@ class ReceiverViewModel @Inject constructor(
             poleHeightM = poleValue ?: PoleHeight.DEFAULT_M,
             antennaHeightM = gearState.antennaHeightM ?: CurrentGear.DEFAULT.antennaHeightM!!,
             gear = gearState,
+            poles = poles,
+            gearLocked = gearLocked,
             groundPoint = tip?.let { calculator.get().fromGround(it.ground, checkNotNull(tipFix).status) },
             tipUncompensated = tip?.uncompensated == true,
             nowMs = extras.nowMs,
@@ -320,6 +344,12 @@ class ReceiverViewModel @Inject constructor(
 
     fun replayAgain() {
         replay.playAgain() // S003/RF-40
+    }
+
+    /** El jalón activo desde el selector rápido (S046/RF-14); con una medida en curso, no (RF-27). */
+    fun selectPole(id: String) {
+        if (inProgress.active.value) return
+        viewModelScope.launch { gear.setActivePole(id) }
     }
 
     fun updatePoleHeight(text: String) {

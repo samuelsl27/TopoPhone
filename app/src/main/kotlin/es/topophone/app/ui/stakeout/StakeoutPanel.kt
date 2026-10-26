@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.CollectorActions
+import es.topophone.app.ui.collector.CollectorGearSelector
 import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.collector.LongPauseDialog
 import es.topophone.app.ui.collector.MeasureButton
@@ -147,6 +148,7 @@ fun StakeoutPanel(
                     actions.onElevationSource,
                 ) // S042/RF-23 a RF-27
                 Guidance(state.project, state.settings, state.guidance)
+                collector?.let { CollectorGearSelector(it, collectorActions) } // S046/RF-23
                 collector?.let { Messages(it, collectorActions) } // los motivos por los que no se puede medir, avisos y el punto guardado
             }
             if (collector != null) {

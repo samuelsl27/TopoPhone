@@ -420,6 +420,7 @@ fun ProjectViewRoute(
             onName = collectorViewModel::setName,
             onDescription = collectorViewModel::setDescription,
             onPoleHeight = collectorViewModel::setPoleHeight,
+            onSelectPole = collectorViewModel::selectPole,
             onMode = { mode -> collectorViewModel.setSettings(collector.settings.copy(mode = mode)) },
             onSeconds = collectorViewModel::setAveragingSeconds,
             onSettings = collectorViewModel::setSettings,

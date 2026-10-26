@@ -57,6 +57,7 @@ import es.topophone.core.survey.PointMeasurement
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.SavedPole
 import es.topophone.core.survey.StakeoutDiff
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.TiltGuide
@@ -195,6 +196,8 @@ data class CollectorUiState(
     val autoDistanceValid: Boolean = true,
     /** El equipo activo del receptor: perfil de antena y jalón (S046/RF-15). */
     val gear: ActiveGear = CurrentGear.DEFAULT,
+    /** Los jalones guardados, para el selector rápido (S046/RF-14). */
+    val poles: List<SavedPole> = emptyList(),
     /** Con una medida o el modo automático en curso no se cambia de jalón ni de perfil (S046/RF-27). */
     val gearLocked: Boolean = false,
     /** El equipo cambió desde el último punto guardado de la sesión: afecta solo a los siguientes (S046/RF-25, RF-26). */
@@ -231,6 +234,9 @@ class CollectorViewModel @Inject constructor(
         val autoIntervalText: String? = null,
         val autoDistanceText: String? = null,
     )
+
+    /** El modo de inclinación, el equipo, los jalones y el equipo del último punto guardado, juntos para el `combine` (S046). */
+    private data class Equipment(val tilt: CurrentTiltState, val gear: ActiveGear, val poles: List<SavedPole>, val last: GearUsed?)
 
     private data class Run(
         val measuring: Boolean = false,
@@ -412,8 +418,8 @@ class CollectorViewModel @Inject constructor(
         projectFlow,
         session.state,
         baseNotices.dismissed,
-        combine(tilt.state, gear.state, lastSavedGear) { tilt, gear, last -> Triple(tilt, gear, last) },
-    ) { state, project, snapshot, dismissed, (tiltState, gearState, savedGear) ->
+        combine(tilt.state, gear.state, gear.poles, lastSavedGear, ::Equipment),
+    ) { state, project, snapshot, dismissed, (tiltState, gearState, poles, savedGear) ->
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
         val mode = tiltState.settings.mode
@@ -424,6 +430,7 @@ class CollectorViewModel @Inject constructor(
             state.blocker ?: gearBlocker(gearState) ?: positionBlocker(snapshot, project, state.poleHeightText)
                 ?: tiltBlocker(tiltState, epochTilt),
             gear = gearState,
+            poles = poles,
             gearLocked = state.measuring || state.auto.running,
             gearChanged = savedGear != null && gearState.toUsed() != savedGear,
             notices = BaseNotices.visible(gga, snapshot.base, dismissed), // S015/RF-15, RF-17
@@ -521,6 +528,12 @@ class CollectorViewModel @Inject constructor(
 
     /** La descripción se conserva para el siguiente punto (S010/RF-4). */
     fun setDescription(description: String) = form.update { it.copy(description = description) }
+
+    /** Cambia el jalón activo desde el selector rápido: con una medida en curso, no (S046/RF-14, RF-27). */
+    fun selectPole(id: String) {
+        if (gearLocked()) return
+        viewModelScope.launch { gear.setActivePole(id) }
+    }
 
     /** La misma altura del jalón que en Coordenadas (S010/RF-5). */
     fun setPoleHeight(text: String) {

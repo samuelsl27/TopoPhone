@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.BaseNoticeBanners
+import es.topophone.app.ui.receiver.GearSelector
+import es.topophone.app.ui.receiver.GearSelectorUi
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -70,6 +72,8 @@ class CollectorActions(
     val onName: (String) -> Unit = {},
     val onDescription: (String) -> Unit = {},
     val onPoleHeight: (String) -> Unit = {},
+    /** El jalón activo desde el selector rápido (S046/RF-14). */
+    val onSelectPole: (String) -> Unit = {},
     val onMode: (MeasurementMode) -> Unit = {},
     val onSeconds: (String) -> Unit = {},
     val onSettings: (CollectorSettings) -> Unit = {},
@@ -151,6 +155,21 @@ fun CollectorPanel(
     if (state.paused == PauseState.LONG_PAUSE) LongPauseDialog(actions.onFinish, actions.onCancel, actions.onKeepWaiting) // S017/RF-10
 }
 
+/** El selector rápido del jalón activo con los datos del recolector (S046/RF-14, RF-15, RF-22, RF-26, RF-27). */
+@Composable
+internal fun CollectorGearSelector(state: CollectorUiState, actions: CollectorActions) {
+    GearSelector(
+        GearSelectorUi(
+            gear = state.gear,
+            poles = state.poles,
+            locked = state.gearLocked,
+            receiverCompensates = state.tiltMode == TiltMode.RECEIVER,
+            changedNotice = state.gearChanged,
+        ),
+        actions.onSelectPole,
+    )
+}
+
 /** Nombre, descripción, jalón, modo y control de precisión. */
 @Composable
 private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorActions) {
@@ -163,6 +182,7 @@ private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorAc
         singleLine = true,
         modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_DESCRIPTION_TAG),
     ) // S010/RF-4
+    CollectorGearSelector(state, actions) // S046/RF-14, RF-15, RF-22
     OutlinedTextField(
         value = state.poleHeightText,
         onValueChange = actions.onPoleHeight,

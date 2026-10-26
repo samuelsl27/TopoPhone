@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import es.topophone.app.R
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.survey.CoordinateReference
 import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.Unavailable
@@ -34,8 +35,12 @@ const val COORD_UNCOMPENSATED_TAG = "coord_uncompensated"
 
 /** Tarjeta Coordenadas: altura del jalón y punto del suelo (S002/RF-29 a RF-41; en Canarias, S008/RF-20, RF-21). */
 @Composable
-internal fun CoordinatesCard(state: ReceiverUiState, onPoleHeightChange: (String) -> Unit) {
+internal fun CoordinatesCard(state: ReceiverUiState, onSelectPole: (String) -> Unit = {}, onPoleHeightChange: (String) -> Unit) {
     ReceiverCard(stringResource(R.string.receiver_coordinates_title)) {
+        GearSelector(
+            GearSelectorUi(state.gear, state.poles, state.gearLocked, state.tilt.settings.mode == TiltMode.RECEIVER),
+            onSelectPole,
+        ) // S046/RF-14, RF-15, RF-22
         PoleHeightField(state.poleHeightText, state.poleHeightValid, onPoleHeightChange)
         val point = state.groundPoint
         // Como en la tarjeta Estado: con la conexión perdida o sin datos no se enseñan coordenadas antiguas.

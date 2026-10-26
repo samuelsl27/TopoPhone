@@ -1335,4 +1335,10 @@
     <string name="gear_problem_no_pole">Falta un jalón: añade uno en Antena y jalón.</string>
     <string name="gear_problem_no_radius">El jalón inclinado necesita un perfil de antena con radio.</string>
     <string name="gear_problem_slant_short">La altura inclinada es menor que el radio del perfil.</string>
+    <string name="gear_selector_none">Sin jalón válido: configúralo en Antena y jalón</string>
+    <string name="gear_selector_summary">Jalón: %1$s · vertical %2$s · antena %3$s</string>
+    <string name="gear_selector_description">Jalón activo %1$s, altura de antena %2$s</string>
+    <string name="gear_selector_item">%1$s · %2$s</string>
+    <string name="gear_selector_compensated">El receptor compensa la posición: la altura de antena real es la que tiene configurada el receptor.</string>
+    <string name="gear_selector_changed">Has cambiado el jalón o la antena: afecta solo a los puntos que midas ahora, no a los ya guardados.</string>
 </resources>

@@ -39,6 +39,9 @@ class CurrentGear(key: Flow<String?>, private val repository: GearRepository, sc
     val state: StateFlow<ActiveGear> = receiverKey.flatMapLatest { repository.gear(it) }.distinctUntilChanged()
         .stateIn(scope, SharingStarted.Eagerly, DEFAULT)
 
+    /** Los jalones guardados para el selector (S046/RF-14); hasta que lleguen, el de por defecto. */
+    val poles: StateFlow<List<SavedPole>> = repository.poles().stateIn(scope, SharingStarted.Eagerly, listOf(DEFAULT_POLE))
+
     /** El jalón activo pasa a tener esta altura escrita (S046/RF-10); el tipo, el nombre y el perfil no cambian. */
     suspend fun editActivePoleHeight(enteredM: Double) {
         val pole = state.value.pole ?: return
@@ -57,12 +60,9 @@ class CurrentGear(key: Flow<String?>, private val repository: GearRepository, sc
         const val NO_RECEIVER = "none"
 
         /** RS3 con un jalón vertical de 1,8 m: lo de antes de S046. */
-        val DEFAULT: ActiveGear = GearResolver.resolve(
-            null,
-            emptyList(),
-            "default",
-            listOf(SavedPole("default", "Jalón estándar", PoleKind.VERTICAL, PoleHeight.DEFAULT_M)),
-        )
+        private val DEFAULT_POLE = SavedPole("default", "Jalón estándar", PoleKind.VERTICAL, PoleHeight.DEFAULT_M)
+
+        val DEFAULT: ActiveGear = GearResolver.resolve(null, emptyList(), "default", listOf(DEFAULT_POLE))
 
         /** El valor por defecto de quien no lo recibe por Hilt (tests): siempre el equipo por defecto, sin cambios. */
         val NONE: CurrentGear by lazy { CurrentGear(flowOf(null), NoGearRepository, CoroutineScope(Dispatchers.Unconfined)) }
