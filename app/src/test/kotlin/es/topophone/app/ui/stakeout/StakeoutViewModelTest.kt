@@ -6,9 +6,13 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
+import es.topophone.app.ui.cad.DesignSelection
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
+import es.topophone.core.model.cad.CadEntity
+import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.cad.CadEntityRef
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.GeodeticPosition
@@ -21,6 +25,7 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.StakeMode
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.LinearUnit
@@ -655,5 +660,67 @@ class StakeoutViewModelTest {
         vm.close()
 
         await(vm) { it.target == null }
+    }
+
+    private fun cadPoint(z: Double? = null, kind: CadEntityKind = CadEntityKind.POINT) = DesignSelection(
+        CadEntityRef("l1", 7L, 3),
+        CadEntity(kind, doubleArrayOf(440_290.5), doubleArrayOf(4_474_257.25), z?.let { doubleArrayOf(it) }, null),
+        "Pozos",
+        "calle.dxf",
+        hasElevation = z != null,
+    )
+
+    @Test
+    fun `S041 RF-1 abrir un punto del dibujo da su Este, su Norte y su cota como punto de diseno con su origen`() {
+        val vm = viewModel()
+
+        vm.openElement(projectId, cadPoint(z = 648.25))
+
+        val state = await(vm) { it.target != null && it.project != null }
+        val target = state.target.shouldNotBeNull()
+        target.name shouldBe "Pozos"
+        target.id shouldBe "cad:l1:7:3"
+        target.source shouldBe StakeSource.CadElement("calle.dxf", "Pozos", CadEntityKind.POINT)
+        target.coordinates.easting shouldBe 440_290.5
+        target.coordinates.northing shouldBe 4_474_257.25
+        target.coordinates.height shouldBe 648.25
+        state.hasPrevious shouldBe false
+        state.hasNext shouldBe false
+        state.saveInfo.shouldNotBeNull().elevationM shouldBe 648.25
+    }
+
+    @Test
+    fun `S041 RF-1 un centro de bloque sin cota se replantea solo en planta`() {
+        val vm = viewModel()
+
+        vm.openElement(projectId, cadPoint(z = null, kind = CadEntityKind.BLOCK_INSERT))
+
+        val target = await(vm) { it.target != null }.target.shouldNotBeNull()
+        target.coordinates.height.shouldBeNull()
+        target.source shouldBe StakeSource.CadElement("calle.dxf", "Pozos", CadEntityKind.BLOCK_INSERT)
+    }
+
+    @Test
+    fun `S041 RF-1 un punto de un dibujo con la cota a 0 pero el dibujo sin cotas no lleva cota`() {
+        val vm = viewModel()
+        val noElevations = cadPoint(z = 0.0).copy(hasElevation = false)
+
+        vm.openElement(projectId, noElevations)
+
+        await(vm) { it.target != null }.target.shouldNotBeNull().coordinates.height.shouldBeNull()
+    }
+
+    @Test
+    fun `S041 RF-1 cerrar el replanteo de un punto del dibujo lo quita y abrir un punto del proyecto vuelve a la lista`() {
+        val point = addPoint("12")
+        val vm = viewModel()
+        vm.openElement(projectId, cadPoint())
+        await(vm) { it.target?.source is StakeSource.CadElement }
+
+        vm.close()
+        await(vm) { it.target == null }
+        vm.open(projectId, point.id)
+
+        await(vm) { it.target?.id == point.id }.target.shouldNotBeNull().source shouldBe StakeSource.ProjectPoint
     }
 }

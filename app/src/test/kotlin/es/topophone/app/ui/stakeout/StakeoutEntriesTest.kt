@@ -24,6 +24,7 @@ import es.topophone.app.ui.projects.ProjectViewScreen
 import es.topophone.app.ui.projects.ProjectViewUiState
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
@@ -211,5 +212,50 @@ class StakeoutEntriesTest {
 
         compose.onNodeWithTag(COLLECT_BUTTON_TAG).assertIsDisplayed()
         compose.onNodeWithTag(STAKEOUT_PANEL_TAG).assertDoesNotExist()
+    }
+
+    private fun showLineProject(line: LineStakeoutUiState?) = compose.setContent {
+        TopoPhoneTheme(EffectiveTheme.LIGHT) {
+            ProjectViewScreen(
+                ThemeState.DEFAULT,
+                {},
+                ProjectViewUiState(project),
+                onBack = {},
+                map = fakeMap(FakeMapController()),
+                collector = CollectorUiState(loaded = true),
+                lineStakeout = line,
+                lineStakeoutActions = LineStakeoutActions(onClose = { calls += "line-close" }),
+            )
+        }
+    }
+
+    private val lineState = LineStakeoutUiState(
+        project = project,
+        element = LineElementInfo("l1", "Eje", "calle.dxf", CadEntityKind.POLYLINE, 90.0, false, null, null),
+    )
+
+    @Test
+    fun `S041 RF-2 con el replanteo de una linea abierto su panel sustituye al recolector y a su boton`() {
+        showLineProject(lineState)
+
+        compose.onNodeWithTag(LINE_PANEL_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(COLLECTOR_PANEL_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(COLLECT_BUTTON_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(STAKEOUT_PANEL_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S041 RF-2 sin replanteo de linea el panel no esta y cerrarlo avisa`() {
+        showLineProject(null)
+        compose.onNodeWithTag(LINE_PANEL_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S041 RF-2 cerrar el panel de la linea avisa`() {
+        showLineProject(lineState)
+
+        compose.onNodeWithTag(LINE_CLOSE_TAG).performClick()
+
+        calls shouldBe listOf("line-close")
     }
 }

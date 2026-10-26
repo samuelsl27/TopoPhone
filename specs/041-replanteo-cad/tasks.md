@@ -36,7 +36,7 @@
       Hecho cuando: `StakeoutMeasureLineTest` en verde: dos veces el mismo elemento, el objetivo de cuando se midió, el error lateral con su signo y un punto de dibujo con cota.
 - [x] T17. `app`: `LineStakeoutPanel`, los cinco modos, las listas de vértices y de puntos de la serie, los textos de RF-14 y las etiquetas de TalkBack, con sus textos en es y en. (RF-4, RF-8, RF-14, RF-20, RNF-T7, RNF-T8)
       Hecho cuando: `LineStakeoutPanelTest` en verde, con el lado y «Dentro de la tolerancia» en texto y las zonas táctiles de 56 dp.
-- [ ] T18. `app`: «Replantear» en `DesignElementSheet`, la navegación a S018 para un punto y a la línea para una línea. (RF-1, RF-2)
+- [x] T18. `app`: «Replantear» en `DesignElementSheet`, la navegación a S018 para un punto y a la línea para una línea. (RF-1, RF-2)
       Hecho cuando: `DesignElementSheetTest` en verde: un punto, un centro de bloque, una línea, un círculo y un elemento sin cota.
 - [ ] T19. `app`: el mapa con la línea elegida más gruesa, el objetivo y la línea de la punta. (RF-5)
       Hecho cuando: `LineMapMarkersTest` en verde, con la capa del dibujo oculta y el modo «Por segmentos».

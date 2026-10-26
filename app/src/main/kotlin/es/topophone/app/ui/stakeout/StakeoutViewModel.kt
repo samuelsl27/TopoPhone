@@ -5,19 +5,26 @@ import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.receiver.CurrentTilt
+import es.topophone.app.ui.cad.DesignSelection
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.HeadingChoice
+import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.NaturalOrder
 import es.topophone.core.model.point.PointSearch
 import es.topophone.core.model.point.PointSummary
 import es.topophone.core.model.point.StakeMode
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TiltMode
+import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.ManualCoordinates
+import es.topophone.core.survey.ManualResult
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.point.CollectorPreferences
@@ -97,6 +104,9 @@ class StakeoutViewModel @Inject constructor(
     private val notFound = MutableStateFlow(false)
     private val target = MutableStateFlow<StakeTarget?>(null)
 
+    /** El punto de diseño es un punto o un centro de bloque de un dibujo (S041/RF-1): no sale de la lista de puntos. */
+    @Volatile private var fromDrawing = false
+
     /** La cota de diseño escrita por el usuario, en metros; solo vive aquí y se descarta al cambiar de punto o cerrar (S019/RF-2, RF-3). */
     private val elevationOverride = MutableStateFlow<Double?>(null)
 
@@ -168,6 +178,7 @@ class StakeoutViewModel @Inject constructor(
         }
         viewModelScope.launch {
             targetId.flatMapLatest { id -> if (id == null) flowOf(null) else points.point(id) }.collect { point ->
+                if (fromDrawing) return@collect
                 if (point == null || point.deletedAtMs != null) {
                     // S018/RF-1: no existe o está en la papelera.
                     target.value = null
@@ -188,8 +199,41 @@ class StakeoutViewModel @Inject constructor(
         log.info(LogCategory.POINTS, "Replanteo abierto") // S014/RF-5
     }
 
+    /**
+     * Abre el replanteo con un punto o un centro de bloque del dibujo como punto de diseño, con su Este, su Norte y su cota si la
+     * tiene (S041/RF-1). No hay "Siguiente" ni "Anterior": no está en la lista de puntos del proyecto.
+     */
+    fun openElement(projectId: String, selection: DesignSelection) {
+        this.projectId.value = projectId
+        searchText.value = ""
+        controller.reset()
+        notFound.value = false
+        elevationOverride.value = null
+        fromDrawing = true
+        targetId.value = null
+        target.value = null
+        viewModelScope.launch {
+            val project = projects.project(projectId) ?: return@launch
+            val entity = selection.entity
+            val height = entity.height?.get(0)?.takeIf { selection.hasElevation }
+            val typed = TypedCoordinates(EntryForm.PROJECT_CRS, entity.easting[0], entity.northing[0], height, HeightKind.PROJECT)
+            val computed = ManualCoordinates(calculator.get()).compute(typed, project.crs, project.heightSystem)
+            val coordinates = (computed as? ManualResult.Computed)?.coordinates ?: return@launch
+            if (!fromDrawing) return@launch // se cerró o se abrió otro punto mientras tanto
+            target.value = StakeTarget(
+                id = "cad:${selection.ref.layerId}:${selection.ref.chunkId}:${selection.ref.index}",
+                name = selection.layerName,
+                description = "",
+                coordinates = coordinates,
+                source = StakeSource.CadElement(selection.drawingName, selection.layerName, entity.kind),
+            )
+        }
+        log.info(LogCategory.POINTS, "Replanteo abierto") // S014/RF-5
+    }
+
     /** Cierra el replanteo y empieza de cero (S018/RF-3). */
     fun close() {
+        fromDrawing = false
         targetId.value = null
         target.value = null
         notFound.value = false
@@ -212,6 +256,7 @@ class StakeoutViewModel @Inject constructor(
     }
 
     private fun goTo(pointId: String) {
+        fromDrawing = false
         controller.reset()
         notFound.value = false
         elevationOverride.value = null // S019/RF-3: la cota escrita no pasa al punto siguiente

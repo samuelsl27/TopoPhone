@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.MapTap
@@ -38,9 +39,13 @@ class DesignElementSheetTest {
     private fun selection(entity: CadEntity, hasElevation: Boolean = true) =
         DesignSelection(CadEntityRef("l1", 1L, 0), entity, "Ejes", "calle.dxf", hasElevation)
 
+    private var stakeouts = 0
+
     private fun show(selection: DesignSelection, unit: LinearUnit = LinearUnit.METRE, symbol: String = "m", geographic: Boolean = false) {
         compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { DesignElementSheet(selection, unit, symbol, geographic, onDismiss = {}) }
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                DesignElementSheet(selection, unit, symbol, geographic, onDismiss = {}, onStakeout = { stakeouts++ })
+            }
         }
     }
 
@@ -127,6 +132,40 @@ class DesignElementSheetTest {
         show(selection(geo, hasElevation = false), geographic = true)
 
         compose.onNodeWithText("Longitud -3,704, latitud 40,417").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S041 RF-1 la ficha de un punto tiene Replantear y avisa al pulsarlo`() {
+        show(selection(point(646.5, CadEntityKind.POINT)))
+
+        compose.onNodeWithTag(DESIGN_STAKEOUT_TAG).assertIsDisplayed().performClick()
+        stakeouts shouldBe 1
+    }
+
+    @Test
+    fun `S041 RF-1 la ficha de un centro de bloque tiene Replantear y avisa al pulsarlo`() {
+        show(selection(point(646.5, CadEntityKind.BLOCK_INSERT)))
+
+        compose.onNodeWithTag(DESIGN_STAKEOUT_TAG).assertIsDisplayed().performClick()
+        stakeouts shouldBe 1
+    }
+
+    @Test
+    fun `S041 RF-2 la ficha de una linea, un arco o una polilinea tiene Replantear y avisa al pulsarlo`() {
+        show(selection(line(null, CadEntityKind.POLYLINE), hasElevation = false))
+
+        compose.onNodeWithText("Replantear").assertIsDisplayed()
+        compose.onNodeWithTag(DESIGN_STAKEOUT_TAG).performClick()
+        stakeouts shouldBe 1
+    }
+
+    @Test
+    fun `S041 RF-23 un elemento sin cota tambien se puede replantear`() {
+        show(selection(point(null), hasElevation = false))
+
+        compose.onNodeWithTag(DESIGN_NO_ELEVATION_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(DESIGN_STAKEOUT_TAG).assertIsDisplayed().performClick()
+        stakeouts shouldBe 1
     }
 
     private val project = Project(

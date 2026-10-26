@@ -3,7 +3,10 @@ package es.topophone.app.ui.cad
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -15,6 +18,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.project.LinearUnit
@@ -24,6 +28,7 @@ import kotlin.math.hypot
 const val DESIGN_SHEET_TAG = "design_element_sheet"
 const val DESIGN_NO_ELEVATION_TAG = "design_element_no_elevation"
 const val DESIGN_ELEVATION_TAG = "design_element_elevation"
+const val DESIGN_STAKEOUT_TAG = "design_element_stakeout"
 
 /**
  * La ficha de un elemento del dibujo que se ha tocado en el mapa: su tipo original, su capa y su dibujo, sus coordenadas o su
@@ -32,7 +37,14 @@ const val DESIGN_ELEVATION_TAG = "design_element_elevation"
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DesignElementSheet(selection: DesignSelection, unit: LinearUnit, unitSymbol: String, geographic: Boolean, onDismiss: () -> Unit) {
+fun DesignElementSheet(
+    selection: DesignSelection,
+    unit: LinearUnit,
+    unitSymbol: String,
+    geographic: Boolean,
+    onDismiss: () -> Unit,
+    onStakeout: () -> Unit = {},
+) {
     val entity = selection.entity
     val number = NumberFormat.getNumberInstance().apply {
         minimumFractionDigits = 3
@@ -64,6 +76,11 @@ fun DesignElementSheet(selection: DesignSelection, unit: LinearUnit, unitSymbol:
                 Text(stringResource(R.string.cad_element_vertices, entity.vertexCount))
             }
             Elevation(selection, unit, unitSymbol, number)
+            // S041/RF-1, RF-2: un punto o un centro de bloque abre el replanteo de siempre y una línea, el de línea.
+            Button(
+                onClick = onStakeout,
+                modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(DESIGN_STAKEOUT_TAG),
+            ) { Text(stringResource(R.string.design_element_stakeout)) }
         }
     }
 }

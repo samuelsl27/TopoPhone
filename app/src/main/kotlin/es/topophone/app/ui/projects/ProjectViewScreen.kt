@@ -93,6 +93,10 @@ import es.topophone.app.ui.points.OBJECTS_BUTTON_TAG
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.tone
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.app.ui.stakeout.LineStakeoutActions
+import es.topophone.app.ui.stakeout.LineStakeoutPanel
+import es.topophone.app.ui.stakeout.LineStakeoutUiState
+import es.topophone.app.ui.stakeout.LineStakeoutViewModel
 import es.topophone.app.ui.stakeout.StakeoutActions
 import es.topophone.app.ui.stakeout.StakeoutMarkers
 import es.topophone.app.ui.stakeout.StakeoutPanel
@@ -105,6 +109,7 @@ import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
+import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.FactorFormat
 import es.topophone.core.model.format.LengthFormat
@@ -333,6 +338,7 @@ fun ProjectViewRoute(
     viewModel: ProjectViewModel = hiltViewModel(),
     collectorViewModel: CollectorViewModel = hiltViewModel(),
     stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
+    lineStakeoutViewModel: LineStakeoutViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
@@ -346,10 +352,17 @@ fun ProjectViewRoute(
         if (stakeoutPointId != null) stakeoutViewModel.open(projectId, stakeoutPointId, stakeoutQuery)
     }
     val stakeout by stakeoutViewModel.state.collectAsStateWithLifecycle()
-    // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5).
-    LaunchedEffect(stakeoutOpen, stakeout.target) { collectorViewModel.setStakeTarget(stakeout.target.takeIf { stakeoutOpen }) }
+    // S041/RF-2: el replanteo de una línea del dibujo, en el mismo hueco, con su propio modelo.
+    var lineOpen by rememberSaveable { mutableStateOf(false) }
+    val line by lineStakeoutViewModel.state.collectAsStateWithLifecycle()
+    // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5, S041/RF-27).
+    val activeTarget = if (stakeoutOpen) stakeout.target else line.target.takeIf { lineOpen }
+    LaunchedEffect(stakeoutOpen, lineOpen, activeTarget) { collectorViewModel.setStakeTarget(activeTarget) }
     // S019/RF-13: la cota usada y las tolerancias vigentes viajan con el recolector para guardarse con el replanteo.
-    LaunchedEffect(stakeoutOpen, stakeout.saveInfo) { collectorViewModel.setStakeSaveInfo(stakeout.saveInfo.takeIf { stakeoutOpen }) }
+    val activeInfo = if (stakeoutOpen) stakeout.saveInfo else line.saveInfo.takeIf { lineOpen }
+    LaunchedEffect(stakeoutOpen, lineOpen, activeInfo) { collectorViewModel.setStakeSaveInfo(activeInfo) }
+    // S041/RF-28: con una línea, el recolector pide el objetivo de ese momento al terminar la medida.
+    LaunchedEffect(lineOpen) { collectorViewModel.setStakeObjective(lineStakeoutViewModel.objectiveProvider.takeIf { lineOpen }) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val design by designViewModel.scene.collectAsStateWithLifecycle()
     val drawings by designViewModel.drawings.collectAsStateWithLifecycle()
@@ -409,6 +422,47 @@ fun ProjectViewRoute(
         ),
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,
+        lineStakeout = line.takeIf { lineOpen },
+        lineStakeoutActions = LineStakeoutActions(
+            onClose = {
+                lineOpen = false
+                lineStakeoutViewModel.close()
+            },
+            onMode = { lineStakeoutViewModel.setMode(it) },
+            onGuideMode = { lineStakeoutViewModel.setGuideMode(it) },
+            onOffset = { lineStakeoutViewModel.setOffset(it) },
+            onA = { lineStakeoutViewModel.setA(it) },
+            onB = { lineStakeoutViewModel.setB(it) },
+            onInterval = { lineStakeoutViewModel.setInterval(it) },
+            onInvert = { lineStakeoutViewModel.invert() },
+            onHere = { lineStakeoutViewModel.useMyPosition() },
+            onSelectVertex = { lineStakeoutViewModel.selectVertex(it) },
+            onSelectPoint = { lineStakeoutViewModel.selectSeriesPoint(it) },
+            onPrevious = { lineStakeoutViewModel.previous() },
+            onNext = { lineStakeoutViewModel.next() },
+            onHeading = { lineStakeoutViewModel.setHeading(it) },
+            onTolerance = lineStakeoutViewModel::setTolerance,
+            onToleranceV = lineStakeoutViewModel::setToleranceV,
+            onElevation = lineStakeoutViewModel::setDesignElevation,
+            onUseLineElevation = { lineStakeoutViewModel.useLineElevation() },
+        ),
+        onStakeoutElement = {
+            // S041/RF-1, RF-2: "Replantear" en la ficha de un elemento del dibujo.
+            designSelection?.let { selection ->
+                designViewModel.dismissSelection()
+                if (selection.entity.kind == CadEntityKind.POINT || selection.entity.kind == CadEntityKind.BLOCK_INSERT) {
+                    lineOpen = false
+                    lineStakeoutViewModel.close()
+                    stakeoutViewModel.openElement(projectId, selection)
+                    stakeoutOpen = true
+                } else {
+                    stakeoutOpen = false
+                    stakeoutViewModel.close()
+                    lineStakeoutViewModel.open(projectId, selection)
+                    lineOpen = true
+                }
+            }
+        },
         stakeout = stakeout.takeIf { stakeoutOpen },
         stakeoutActions = StakeoutActions(
             onClose = {
@@ -447,6 +501,10 @@ fun ProjectViewScreen(
     onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     stakeout: StakeoutUiState? = null,
     stakeoutActions: StakeoutActions = StakeoutActions(),
+    /** El replanteo de una línea del dibujo y el botón "Replantear" de la ficha de un elemento (S041/RF-1, RF-2). */
+    lineStakeout: LineStakeoutUiState? = null,
+    lineStakeoutActions: LineStakeoutActions = LineStakeoutActions(),
+    onStakeoutElement: () -> Unit = {},
     /** El dibujo importado de un DXF en la vista de ahora y el aviso de que la cámara se ha parado (S040/RF-24). */
     design: DesignScene? = null,
     onDesignCamera: (MapCamera) -> Unit = {},
@@ -538,7 +596,7 @@ fun ProjectViewScreen(
                     val camera = controller?.camera?.collectAsStateWithLifecycle()?.value
                     if (project != null && camera != null) ScaleBarView(camera, project.linearUnit)
                     Attribution(state.mapSettings)
-                    if (project != null && collector != null && !collectorOpen && stakeout == null) {
+                    if (project != null && collector != null && !collectorOpen && stakeout == null && lineStakeout == null) {
                         Spacer(Modifier.weight(1f))
                         ExtendedFloatingActionButton(
                             onClick = { collectorOpen = true },
@@ -555,6 +613,13 @@ fun ProjectViewScreen(
                         collectorActions = collectorActions,
                         stats = collectorStats,
                     ) // S018/RF-1: en lugar del recolector, con el mismo hueco
+                    lineStakeout != null -> LineStakeoutPanel(
+                        lineStakeout,
+                        lineStakeoutActions,
+                        collector = collector,
+                        collectorActions = collectorActions,
+                        stats = collectorStats,
+                    ) // S041/RF-2
                     collector != null && collectorOpen -> CollectorPanel(collector, project.linearUnit, collectorActions, onClose = {
                         collectorOpen =
                             false
@@ -583,6 +648,7 @@ fun ProjectViewScreen(
             unitSymbol(project.linearUnit),
             geographic = project.crs.utmZone == null,
             onDismiss = onDismissDesignSelection,
+            onStakeout = onStakeoutElement,
         )
     }
     LaunchedEffect(controller) { controller?.mapTaps?.collect { onMapTap(it) } } // S040/RF-29

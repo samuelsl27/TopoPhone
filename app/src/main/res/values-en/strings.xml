@@ -1186,4 +1186,5 @@
     <string name="stakeout_line_reimport">This drawing was imported before the original vertices were marked. Import it again to stake out only the ends of its arcs, circles and splines.</string>
     <string name="stakeout_line_closed_drawing">The drawing was deleted and the stakeout was closed.</string>
     <string name="stakeout_line_unsupported">This element cannot be staked out as a line.</string>
+    <string name="design_element_stakeout">Stake out</string>
 </resources>
