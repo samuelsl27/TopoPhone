@@ -44,7 +44,7 @@
       Hecho cuando: `StakeoutMeasureLineTest` y el test de la ficha en verde con un punto de línea y un punto de dibujo.
 - [x] T21. `app`: el informe de replanteo con los puntos de un dibujo y las seis columnas nuevas del CSV. (RF-30)
       Hecho cuando: `StakeoutReportCsvTest` en verde: columnas vacías en un punto del proyecto, `Locale.ROOT` y unidades del proyecto.
-- [ ] T22. Rendimiento: `LineStakeoutPerformanceTest`. (RNF)
+- [x] T22. Rendimiento: `LineStakeoutPerformanceTest`. (RNF)
       Hecho cuando: una línea de 100.000 vértices empieza a guiar en menos de 1 s, el punto más cercano a 10 Hz no pasa de 16 ms por consulta y la guía refleja una época en menos de 300 ms.
 - [ ] T23. Reproducción sintética de un recorrido paralelo a una línea con desplazamiento y su resultado esperado calculado aparte. (Criterios de finalización)
       Hecho cuando: el test en verde con desplazamientos a derecha e izquierda y el PK y el error lateral esperados.
