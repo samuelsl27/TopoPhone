@@ -70,6 +70,14 @@ object StakeoutNames {
         return "$base$n"
     }
 
+    /** El nombre libre del próximo replanteo de un elemento de la capa [layer] de un dibujo: `capa_n_stkd` (S041/RF-27). */
+    fun nextForLayer(layer: String, taken: Set<String>): String {
+        val clean = PointNames.clean(layer)
+        var n = 1
+        while ("${clean}_${n}$SUFFIX" in taken) n++
+        return "${clean}_${n}$SUFFIX"
+    }
+
     private val NUMBERED = Regex("""_stkd(\d*)$""")
 
     /**

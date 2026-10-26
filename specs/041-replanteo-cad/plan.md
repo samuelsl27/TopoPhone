@@ -7,7 +7,7 @@ Sin dependencias nuevas (Gradle ni Python). El motor de líneas es geometría pl
 ## Estructura de módulos
 - `core:model`:
   - `LineStakeoutMode { BY_SEGMENTS, TO_LINE, ALONG, SEGMENT_AB, INTERVALS }` (RF-3);
-  - `StakeSource`: de dónde viene el punto de diseño, `ProjectPoint` o `CadElement(drawingId, drawingName, layerId, layerName, kind, ref)` (RF-28);
+  - `StakeSource`: de dónde viene el punto de diseño, `ProjectPoint` o `CadElement(drawingName, layerName, kind)`, con los nombres y no los identificadores para que sobrevivan al borrado del dibujo (RF-28, RF-32); la referencia al elemento va en `StakeTarget` y en `stake_design_id`;
   - `StakeoutRef` gana `source`, `mode`, `chainageM`, `lateralOffsetM` y `dLateralM`, todos opcionales (RF-28, RF-29);
   - `CadChunkCodec` guarda una marca por vértice, «original del DXF» o «de la aproximación de una curva», y lee los trozos antiguos con todos sus vértices originales (S040/RF-34, RF-33, RF-34).
 - `core:formats` (`dxf/`): `CadCurves`, `DxfBlocks` y `DxfReader` marcan los vértices que vienen escritos en el DXF y los de la aproximación (S040/RF-34).

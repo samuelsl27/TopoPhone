@@ -127,6 +127,10 @@ data class TypedCoordinates(val form: EntryForm, val first: Double, val second: 
  * Desde S019 guarda también la cota de diseño usada ([designElevationM]: la del punto o la escrita a mano, y contra ella se
  * mide [dHeightM]), las tolerancias horizontal y vertical vigentes al medir y si el replanteo quedó dentro de ellas
  * ([withinTolerance], RF-13, RF-14). Un replanteo de antes de S019 no las tiene: está sin evaluar (RF-26).
+ *
+ * Desde S041 guarda también de dónde viene el punto de diseño ([source]) y, si venía de una línea, el [mode], el PK del objetivo
+ * ([chainageM]), el desplazamiento lateral ([lateralOffsetM]) y el error lateral al medir ([dLateralM]), todo en metros y
+ * sin redondear (S041/RF-28). Un replanteo de antes de S041 es de un punto del proyecto y no tiene nada de esto.
  */
 data class StakeoutRef(
     val designId: String,
@@ -140,7 +144,15 @@ data class StakeoutRef(
     val toleranceHM: Double? = null,
     val toleranceVM: Double? = null,
     val withinTolerance: Boolean? = null,
+    val source: StakeSource = StakeSource.ProjectPoint,
+    val mode: LineStakeoutMode? = null,
+    val chainageM: Double? = null,
+    val lateralOffsetM: Double? = null,
+    val dLateralM: Double? = null,
 ) {
+    /** El punto de diseño es un elemento de un dibujo y no un punto del proyecto (S041/RF-28). */
+    val fromDrawing: Boolean get() = source is StakeSource.CadElement
+
     /** Replanteado antes de S019, sin tolerancias ni veredicto guardados (S019/RF-26). */
     val notEvaluated: Boolean get() = withinTolerance == null
 
