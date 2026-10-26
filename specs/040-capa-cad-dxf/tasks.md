@@ -8,7 +8,7 @@
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto de la spec (sistema del proyecto, usar las cotas).
 - [x] T3. `core:model`: `CadChunkCodec`, los elementos de un trozo a bytes y al revés. (RF-19, RF-22, RF-23)
       Hecho cuando: `CadChunkCodecTest` en verde: cada tipo, con y sin Z y con color, sin redondear, y un trozo de 256 kB.
-- [ ] T4. `core:formats`: `DxfFileKind`, el tipo de fichero por su contenido y el límite de 100 MB. (RF-2, RF-3, RF-4, RF-5)
+- [x] T4. `core:formats`: `DxfFileKind`, el tipo de fichero por su contenido y el límite de 100 MB. (RF-2, RF-3, RF-4, RF-5)
       Hecho cuando: `DxfFileKindTest` en verde con DWG renombrado, DXF binario, vacío, texto cualquiera, las versiones R12 a R2018 y más de 100 MB.
 - [ ] T5. `core:formats`: `DxfTagReader` y `DxfHeader`, los pares código/valor por flujo, la codificación y la cabecera. (RF-2, RF-7, RNF-T9)
       Hecho cuando: `DxfTagReaderTest` en verde: CRLF, LF y CR, punto decimal con otra región, UTF-8 y página de códigos, nombres con acentos, valor que no es número, y la unidad declarada.
