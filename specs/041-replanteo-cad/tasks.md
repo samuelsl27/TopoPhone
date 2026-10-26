@@ -14,7 +14,7 @@
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto (los puntos de S018 y S019 no cambian).
 - [x] T6. `core:survey`: `StakeLine`, el PK acumulado, las líneas cerradas y la cota interpolada. (RF-15, RF-23)
       Hecho cuando: `StakeLineTest` en verde con la línea abierta y cerrada, con y sin cota, y los vértices originales.
-- [ ] T7. `core:survey`: `LineLocator`, el punto más cercano, el PK, la distancia lateral con signo, antes del inicio y después del final, con la rejilla de segmentos. (RF-10, RF-14, RF-15)
+- [x] T7. `core:survey`: `LineLocator`, el punto más cercano, el PK, la distancia lateral con signo, antes del inicio y después del final, con la rejilla de segmentos. (RF-10, RF-14, RF-15)
       Hecho cuando: `LineLocatorTest` en verde frente a `fixtures/replanteo/lineas/` (≤ 1 mm) con rectas, polilíneas, cerradas, ambos lados, extremos y 100.000 vértices.
 - [ ] T8. `core:survey`: `LineObjective`, el objetivo de «A la línea», «A lo largo» y «Tramo A–B» con el desplazamiento y el error lateral. (RF-10, RF-11, RF-17, RF-23, RF-25)
       Hecho cuando: `LineObjectiveTest` en verde con desplazamientos a derecha e izquierda, esquinas, la cota interpolada y el extremo más cercano fuera del tramo.

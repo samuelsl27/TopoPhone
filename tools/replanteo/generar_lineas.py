@@ -13,7 +13,8 @@ Genera cuatro ficheros en fixtures/replanteo/lineas/:
 
 Reglas que la spec no fija y que quedan escritas aquí (se confirman al hacer cada tarea):
 - El punto más cercano es el del segmento a menor distancia; con dos a la misma distancia (hasta 1e-9 m), el primero.
-- Con la distancia lateral con signo, el lado es el del segmento elegido, también cuando el punto más cercano es un vértice.
+- La distancia lateral tiene la magnitud de la distancia al punto más cercano y el lado del segmento elegido, también cuando ese punto
+  es un vértice (en una esquina exterior no es la perpendicular al segmento, sino la distancia al vértice).
 - `ANTES_INICIO` solo en una línea abierta, con el primer segmento elegido y la proyección antes de su inicio; `DESPUES_FINAL`, con
   el último segmento y la proyección más allá de su final. En una cerrada no hay extremos.
 - El objetivo es el punto más cercano desplazado `d` hacia la derecha del segmento elegido (sin recortar ni unir esquinas).
@@ -119,8 +120,6 @@ def locate(line: Line, tx: float, ty: float) -> dict:
     # cross > 0: la punta está a la izquierda del sentido del segmento; el lado derecho es el positivo
     cross = best["dx"] * (ty - line.ys[segs[k][0]]) - best["dy"] * (tx - line.xs[segs[k][0]])
     signed = -cross / best["length"]
-    if abs(signed) < 1e-12:
-        signed = 0.0
     position = "EN_LINEA"
     if not line.closed and k == 0 and best["raw"] < 0.0:
         position = "ANTES_INICIO"
@@ -129,7 +128,8 @@ def locate(line: Line, tx: float, ty: float) -> dict:
     pk = cum[k] + best["t"] * best["length"]
     if position != "EN_LINEA":
         signed = 0.0
-    return {**best, "pk": pk, "lateral": math.copysign(best["dist"], signed) if signed else 0.0, "signed": signed, "position": position,
+    return {**best, "pk": pk, "lateral": 0.0 if best["dist"] == 0.0 or position != "EN_LINEA" else (best["dist"] if signed >= 0.0 else -best["dist"]),
+            "signed": signed, "position": position,
             "total": cum[-1]}
 
 
