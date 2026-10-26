@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.MapCamera
+import es.topophone.app.ui.map.MapTap
 import es.topophone.core.model.cad.CadImportOptions
 import es.topophone.core.model.cad.DesignLayerKind
 import es.topophone.core.model.map.Basemap
@@ -181,5 +182,98 @@ class DesignMapViewModelTest {
         vm.setBasemap(Basemap.PNOA_ORTHOPHOTO)
         val light = vm.await { it != null && it.lines.any { l -> l.argb == 0xFFFFFFFF.toInt() } }!!
         light.lines.none { it.argb == 0xFF000000.toInt() } shouldBe true
+    }
+
+    // Madrid: la línea del eje de la zanja va de (440000, 4474000) a (440100, 4474050) en ETRS89 UTM 30.
+    private val onTheLine = MapTap(40.416_65, -3.7040, 6.0)
+
+    @Test
+    fun `S040 RF-29 tocar un elemento visible lo selecciona con su capa, su dibujo y su cota`() {
+        import("cotas.dxf")
+        val vm = open()
+        vm.await { it != null }
+
+        // La línea con cota de cotas.dxf va de (440000, 4474005, z=101) a (440010, 4474005, z=102).
+        vm.onTap(tapAt(440_005.0, 4_474_005.0))
+        val selected = runBlocking { withTimeout(10_000) { vm.selected.first { it != null } } }!!
+
+        selected.entity.kind.name shouldBe "LINE"
+        selected.layerName shouldBe "Cotas"
+        selected.drawingName shouldBe "cotas.dxf"
+        selected.hasElevation shouldBe true
+        selected.entity.height!!.toList() shouldBe listOf(101.0, 102.0)
+    }
+
+    @Test
+    fun `S040 RF-23 un elemento sin Z se selecciona sin cota`() {
+        import("cotas.dxf")
+        val vm = open()
+        vm.await { it != null }
+
+        vm.onTap(tapAt(440_005.0, 4_474_000.0)) // la línea sin Z
+        val selected = runBlocking { withTimeout(10_000) { vm.selected.first { it != null } } }!!
+
+        selected.entity.hasZ shouldBe false
+        selected.hasElevation shouldBe false
+    }
+
+    @Test
+    fun `S040 RF-29 un toque lejos de todo cierra la ficha`() {
+        import("cotas.dxf")
+        val vm = open()
+        vm.await { it != null }
+        vm.onTap(tapAt(440_005.0, 4_474_005.0))
+        runBlocking { withTimeout(10_000) { vm.selected.first { it != null } } }
+
+        vm.onTap(tapAt(441_500.0, 4_476_000.0))
+
+        runBlocking { withTimeout(10_000) { vm.selected.first { it == null } } } shouldBe null
+    }
+
+    @Test
+    fun `S040 RF-27 una capa oculta no se puede tocar`() {
+        val drawing = import("cotas.dxf")
+        val vm = open()
+        vm.await { it != null }
+        runBlocking {
+            cad.drawings(projectId).first().single { it.drawing.id == drawing }.layers.forEach { cad.setLayerVisible(it.id, false) }
+        }
+        vm.await { it == null }
+
+        vm.onTap(tapAt(440_005.0, 4_474_005.0))
+        Thread.sleep(300)
+
+        vm.selected.value shouldBe null
+    }
+
+    @Test
+    fun `S040 RF-26 el panel recibe los dibujos y los interruptores cambian la visibilidad`() {
+        val drawing = import("r2000.dxf")
+        val vm = open()
+        val layers = runBlocking { withTimeout(10_000) { vm.drawings.first { it.isNotEmpty() } } }.single().layers
+        val first = layers.first()
+
+        vm.setLayerVisible(first.id, false)
+
+        val hidden =
+            runBlocking { withTimeout(10_000) { vm.drawings.first { d -> d.single().layers.first { it.id == first.id }.visible.not() } } }
+        hidden.single().drawing.id shouldBe drawing
+    }
+
+    @Test
+    fun `S040 RF-30 borrar un dibujo desde el panel lo quita de la lista`() {
+        val drawing = import("r2000.dxf")
+        val vm = open()
+        runBlocking { withTimeout(10_000) { vm.drawings.first { it.isNotEmpty() } } }
+
+        vm.deleteDrawing(drawing)
+
+        runBlocking { withTimeout(10_000) { vm.drawings.first { it.isEmpty() } } } shouldBe emptyList()
+    }
+
+    /** Un toque sobre el punto del proyecto (este, norte), con la tolerancia de un dedo de 50 cm. */
+    private fun tapAt(east: Double, north: Double): MapTap {
+        val geographic = es.topophone.core.survey.CadPlacement.geographic(ProjectCrs.ETRS89_UTM30, east, north)!!
+        return MapTap(geographic.first, geographic.second, 0.5)
     }
 }

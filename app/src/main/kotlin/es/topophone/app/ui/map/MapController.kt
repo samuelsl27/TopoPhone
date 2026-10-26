@@ -49,6 +49,9 @@ interface MapController {
     /** El id de cada punto que el usuario toca en el mapa (S011/RF-5). */
     val pointClicks: Flow<String>
 
+    /** Cada toque en el mapa que no cae en un punto del proyecto, con la tolerancia de un dedo en metros (S040/RF-29). */
+    val mapTaps: Flow<MapTap>
+
     /** Cada vez que el usuario empieza a mover el mapa con el dedo (S009/RF-20). */
     val userGestures: Flow<Unit>
 
@@ -67,6 +70,9 @@ data class RoverMarker(val position: GeoPoint, val accuracyM: Double?, val color
  * dibuja mientras queda a más de 40 cm (S018/RF-14).
  */
 data class StakeoutMarker(val design: GeoPoint, val tip: GeoPoint?, val line: Boolean)
+
+/** Un toque en el mapa: dónde, y a cuántos metros equivalen 24 dp en ese punto para acertar con el dedo (S040/RF-29). */
+data class MapTap(val latitudeDeg: Double, val longitudeDeg: Double, val toleranceM: Double)
 
 /** Centro del mapa en geográficas y zoom de MapLibre (teselas de 512 dp). */
 data class MapCamera(val latitudeDeg: Double, val longitudeDeg: Double, val zoom: Double)

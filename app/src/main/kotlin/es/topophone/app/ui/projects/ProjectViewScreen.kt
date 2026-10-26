@@ -63,8 +63,10 @@ import es.topophone.app.R
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.cad.DRAWINGS_BUTTON_TAG
+import es.topophone.app.ui.cad.DesignElementSheet
 import es.topophone.app.ui.cad.DesignMapViewModel
 import es.topophone.app.ui.cad.DesignScene
+import es.topophone.app.ui.cad.DesignSelection
 import es.topophone.app.ui.cad.DrawingsActions
 import es.topophone.app.ui.cad.DrawingsSheet
 import es.topophone.app.ui.collector.AutoLive
@@ -83,6 +85,7 @@ import es.topophone.app.ui.map.MapController
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
 import es.topophone.app.ui.map.MapPoints
+import es.topophone.app.ui.map.MapTap
 import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
@@ -350,6 +353,7 @@ fun ProjectViewRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val design by designViewModel.scene.collectAsStateWithLifecycle()
     val drawings by designViewModel.drawings.collectAsStateWithLifecycle()
+    val designSelection by designViewModel.selected.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
@@ -370,6 +374,9 @@ fun ProjectViewRoute(
         design = design,
         onDesignCamera = designViewModel::onCamera,
         drawings = drawings,
+        designSelection = designSelection,
+        onMapTap = designViewModel::onTap,
+        onDismissDesignSelection = designViewModel::dismissSelection,
         drawingsActions = DrawingsActions(
             onLayerVisible = designViewModel::setLayerVisible, // S040/RF-27
             onDeleteDrawing = designViewModel::deleteDrawing, // S040/RF-30
@@ -446,6 +453,10 @@ fun ProjectViewScreen(
     /** Los dibujos importados con sus capas, para el panel «Dibujos» (S040/RF-26 a RF-30). */
     drawings: List<CadDrawingWithLayers> = emptyList(),
     drawingsActions: DrawingsActions = DrawingsActions(),
+    /** El elemento del dibujo tocado en el mapa, los toques en el mapa y el cierre de su ficha (S040/RF-29). */
+    designSelection: DesignSelection? = null,
+    onMapTap: (MapTap) -> Unit = {},
+    onDismissDesignSelection: () -> Unit = {},
 ) {
     var collectorOpen by rememberSaveable { mutableStateOf(false) }
     val policy = remember { CameraPolicy() }
@@ -565,6 +576,16 @@ fun ProjectViewScreen(
     }
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
+    if (designSelection != null && project != null) {
+        DesignElementSheet(
+            designSelection,
+            project.linearUnit,
+            unitSymbol(project.linearUnit),
+            geographic = project.crs.utmZone == null,
+            onDismiss = onDismissDesignSelection,
+        )
+    }
+    LaunchedEffect(controller) { controller?.mapTaps?.collect { onMapTap(it) } } // S040/RF-29
 }
 
 /** Cámara del mapa según [CameraPolicy], y su encuadre al ViewModel una vez colocado (S009/RF-19 a RF-21). */

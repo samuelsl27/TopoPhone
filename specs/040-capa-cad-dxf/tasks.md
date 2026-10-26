@@ -46,7 +46,7 @@
       Hecho cuando: `DesignSceneBuilderTest` en verde con capas ocultas, el recorte a la vista, el umbral por zoom y el blanco y el negro; el doble del mapa recoge la escena.
 - [x] T22. `app`: el panel «Dibujos» del mapa con las capas por tipo, sus interruptores, y el borrado de un dibujo. (RF-26, RF-28, RF-30)
       Hecho cuando: `DesignLayersPanelTest` en verde: capas con el mismo nombre de dos dibujos, la visibilidad que se recuerda y el borrado con confirmación sin tocar los puntos.
-- [ ] T23. `app`: el toque en el mapa y la ficha del elemento. (RF-23, RF-29)
+- [x] T23. `app`: el toque en el mapa y la ficha del elemento. (RF-23, RF-29)
       Hecho cuando: `DesignElementSheetTest` en verde con un punto, una línea y un elemento sin cota.
 - [ ] T24. Rendimiento: `CadPerformanceTest`. (RNF)
       Hecho cuando: un DXF sintético de 100 MB se explora en menos de 20 s y se importa en menos de 60 s sin pasar de 256 MB, el proyecto lo muestra en menos de 3 s y reconstruir la escena tarda menos de 200 ms.

@@ -1131,4 +1131,21 @@
     <string name="cad_drawing_delete_title">Delete this drawing?</string>
     <string name="cad_drawing_delete_message">The drawing “%1$s” is deleted with all its layers. The project\'s points are not touched.</string>
     <string name="cad_drawing_delete_confirm">Delete</string>
+    <string name="cad_element_title">Drawing element</string>
+    <string name="cad_element_point">Point</string>
+    <string name="cad_element_line">Line</string>
+    <string name="cad_element_polyline">Polyline</string>
+    <string name="cad_element_arc">Arc</string>
+    <string name="cad_element_circle">Circle</string>
+    <string name="cad_element_spline">Spline</string>
+    <string name="cad_element_block_insert">Block insertion point</string>
+    <string name="cad_element_layer">Layer: %1$s</string>
+    <string name="cad_element_drawing">Drawing: %1$s</string>
+    <string name="cad_element_position">Easting %1$s, Northing %2$s</string>
+    <string name="cad_element_position_geographic">Longitude %1$s, latitude %2$s</string>
+    <string name="cad_element_length">Length: %1$s %2$s</string>
+    <string name="cad_element_vertices">Vertices: %1$d</string>
+    <string name="cad_element_elevation">Elevation: %1$s %2$s</string>
+    <string name="cad_element_elevation_range">Elevation: from %1$s to %2$s %3$s</string>
+    <string name="cad_element_no_elevation">No elevation</string>
 </resources>

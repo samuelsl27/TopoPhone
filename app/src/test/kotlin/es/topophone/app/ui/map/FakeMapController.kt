@@ -60,6 +60,14 @@ class FakeMapController : MapController {
         designCalls++
     }
 
+    private val taps = MutableSharedFlow<MapTap>(extraBufferCapacity = 8)
+    override val mapTaps: Flow<MapTap> = taps
+
+    /** El usuario toca el mapa en un sitio sin puntos del proyecto. */
+    fun tap(tap: MapTap) {
+        taps.tryEmit(tap)
+    }
+
     override fun setSettings(settings: MapSettings) {
         this.settings += settings
     }

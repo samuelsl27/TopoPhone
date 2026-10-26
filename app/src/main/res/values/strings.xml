@@ -1143,4 +1143,21 @@
     <string name="cad_drawing_delete_title">¿Borrar este dibujo?</string>
     <string name="cad_drawing_delete_message">Se borra el dibujo «%1$s» con todas sus capas. Los puntos del proyecto no se tocan.</string>
     <string name="cad_drawing_delete_confirm">Borrar</string>
+    <string name="cad_element_title">Elemento del dibujo</string>
+    <string name="cad_element_point">Punto</string>
+    <string name="cad_element_line">Línea</string>
+    <string name="cad_element_polyline">Polilínea</string>
+    <string name="cad_element_arc">Arco</string>
+    <string name="cad_element_circle">Círculo</string>
+    <string name="cad_element_spline">Spline</string>
+    <string name="cad_element_block_insert">Punto de inserción de un bloque</string>
+    <string name="cad_element_layer">Capa: %1$s</string>
+    <string name="cad_element_drawing">Dibujo: %1$s</string>
+    <string name="cad_element_position">Este %1$s, Norte %2$s</string>
+    <string name="cad_element_position_geographic">Longitud %1$s, latitud %2$s</string>
+    <string name="cad_element_length">Longitud: %1$s %2$s</string>
+    <string name="cad_element_vertices">Vértices: %1$d</string>
+    <string name="cad_element_elevation">Cota: %1$s %2$s</string>
+    <string name="cad_element_elevation_range">Cota: de %1$s a %2$s %3$s</string>
+    <string name="cad_element_no_elevation">Sin cota</string>
 </resources>

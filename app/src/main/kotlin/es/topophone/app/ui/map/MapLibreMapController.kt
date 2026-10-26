@@ -79,6 +79,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     override val userGestures: Flow<Unit> = gestures
     private val clicks = MutableSharedFlow<String>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val pointClicks: Flow<String> = clicks
+    private val taps = MutableSharedFlow<MapTap>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    override val mapTaps: Flow<MapTap> = taps
 
     init {
         map.uiSettings.isRotateGesturesEnabled = MapOptions.ROTATE_GESTURES // S009/RF-11
@@ -98,7 +100,17 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 override fun onMoveEnd(detector: MoveGestureDetector) = Unit
             },
         )
-        map.addOnMapClickListener { latLng -> pointAt(map.projection.toScreenLocation(latLng))?.also { clicks.tryEmit(it) } != null }
+        map.addOnMapClickListener { latLng ->
+            val point = pointAt(map.projection.toScreenLocation(latLng))
+            if (point != null) {
+                clicks.tryEmit(point)
+            } else {
+                // S040/RF-29: sin punto del proyecto bajo el dedo, el toque puede ser sobre un elemento del dibujo.
+                val metres = WebMercator.metresPerPixel(latLng.latitude, map.cameraPosition.zoom)
+                taps.tryEmit(MapTap(latLng.latitude, latLng.longitude, metres * DESIGN_TOUCH_DP * mapView.resources.displayMetrics.density))
+            }
+            point != null
+        }
         map.addOnCameraIdleListener {
             publishCamera()
             updateGrid()
@@ -602,6 +614,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val DESIGN_POINTS_SOURCE = "topophone-design-points"
         const val DESIGN_POINTS_LAYER = "topophone-design-points"
         const val DESIGN_COLOR = "color"
+        const val DESIGN_TOUCH_DP = 24f
         const val DESIGN_LINE_DP = 1.5f
         const val DESIGN_POINT_RADIUS_DP = 4f
         const val DESIGN_POINT_STROKE_DP = 1.5f
