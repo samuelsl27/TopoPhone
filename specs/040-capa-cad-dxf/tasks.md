@@ -28,7 +28,7 @@
       Hecho cuando: `DesignHitTestTest` en verde: tolerancia, vértice y segmento, y los puntos del proyecto con preferencia.
 - [x] T13. `data`: las tablas `cad_drawings`, `cad_layers` y `cad_chunks`, sus DAO y `AutoMigration(12, 13)`. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 12 → 13 en verde: los proyectos, puntos y replanteos conservan sus datos.
-- [ ] T14. `data`: `CadRepository`, la escritura por tandas con `IMPORTING` y `READY`, la limpieza al arrancar, la lectura por zona, la visibilidad y el borrado. (RF-12, RF-19, RF-27, RF-28, RF-30)
+- [x] T14. `data`: `CadRepository`, la escritura por tandas con `IMPORTING` y `READY`, la limpieza al arrancar, la lectura por zona, la visibilidad y el borrado. (RF-12, RF-19, RF-27, RF-28, RF-30)
       Hecho cuando: `CadRepositoryTest` en verde: lo no terminado no se ve, la visibilidad persiste, borrar un dibujo o un proyecto no deja trozos y los puntos no se tocan.
 - [ ] T15. `data`: `CadDrawingImporter`, leer, convertir, agrupar por capa de diseño y zona, escribir, cancelar y resumir. (RF-11 a RF-13, RF-15, RF-17 a RF-23, RF-33)
       Hecho cuando: `CadDrawingImporterTest` en verde: todo o nada, cancelar, fallo de escritura, fichero cortado, capas por tipo, cota con «Sí», con «No» y con todo a 0, capas apagadas, resumen y el mismo fichero dos veces.

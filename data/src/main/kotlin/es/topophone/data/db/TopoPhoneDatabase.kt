@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.db.SupportSQLiteDatabase
 import es.topophone.data.cad.CadChunkEntity
+import es.topophone.data.cad.CadDao
 import es.topophone.data.cad.CadDrawingEntity
 import es.topophone.data.cad.CadLayerEntity
 import es.topophone.data.map.MapViewportDao
@@ -76,6 +77,8 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
     abstract fun mapViewports(): MapViewportDao
 
     abstract fun points(): PointDao
+
+    abstract fun cad(): CadDao
 
     companion object {
         const val NAME = "topophone.db"
