@@ -59,8 +59,13 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Sin evaluar | `notEvaluated` | Punto replanteado antes de S019, sin tolerancias guardadas (S019) |
 | Jalón | `Pole` | |
 | Altura del jalón | `poleHeight` | Del regatón a la base del receptor |
-| Altura de antena | `antennaHeight` | Altura del jalón + offset al ARP (RS3: 0,134 m) |
+| Altura de antena | `antennaHeight` | Altura vertical del jalón + desplazamiento al centro de fase (APC) del perfil de antena (RS3: 0,134 m) (S046) |
 | ARP (punto de referencia de la antena) | `Arp` | |
+| Perfil de antena | `AntennaProfile` | Modelo de receptor o de antena con su desplazamiento del ARP al centro de fase y, si se conoce, el radio de su base; del catálogo o propio (S046) |
+| Jalón guardado | `SavedPole` | Jalón con nombre, tipo de medida y altura (S046) |
+| Jalón activo | `ActivePole` | El jalón que usan el recolector, el replanteo y las coordenadas para un receptor (S046) |
+| Altura inclinada | `slantHeight` | La que se mide con la cinta del regatón al borde de la base del receptor (S046) |
+| Altura vertical del jalón | `verticalPoleHeight` | Del regatón a la base del receptor, en vertical; la de todos los cálculos (S046) |
 | APC (centro de fase) | `Apc` | |
 | Inclinación (compensación) | `Tilt` / `TiltCompensation` | Mensaje ETC |
 | Rumbo (del IMU) | `heading` | |
