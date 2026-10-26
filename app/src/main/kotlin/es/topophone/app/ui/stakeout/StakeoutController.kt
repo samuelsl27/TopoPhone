@@ -84,6 +84,8 @@ class StakeContext(
     val surface: SurfaceGuide? = null,
     /** Contra qué cota se replantea; con [ElevationSource.SURFACE] la cota de diseño sale de [surface] en la punta (S042/RF-24, RF-25). */
     val elevationSource: ElevationSource = ElevationSource.POINT,
+    /** El perfil de antena del receptor: su desplazamiento al centro de fase (S046/RF-20, RF-23). */
+    val profile: AntennaProfile = AntennaProfile.RS3,
 ) {
     /** La cota de diseño que se replantea: la escrita, o la altura del punto de diseño (S019/RF-1, RF-2). */
     val elevationM: Double? get() = designElevationM ?: target.coordinates.height
@@ -190,7 +192,7 @@ class StakeoutController(
             switchOff(GuidanceOff.TILT_NOT_READY, context)
             return
         }
-        val tip = LiveTip.of(fix, epoch.tilt, context.tiltMode, context.poleHeightM)
+        val tip = LiveTip.of(fix, epoch.tilt, context.tiltMode, context.poleHeightM, context.profile)
         if (tip == null) {
             switchOff(GuidanceOff.NO_POSITION, context)
             return
@@ -397,7 +399,7 @@ class StakeoutController(
         if (context.tiltMode != TiltMode.APP || uncompensated) return gst
         val extra = TiltEpoch.accuracy(
             epoch.tilt?.takeIf(TiltEpoch::isCompensating),
-            PoleGeometry.antennaHeightM(context.poleHeightM, AntennaProfile.RS3.offsetM),
+            PoleGeometry.antennaHeightM(context.poleHeightM, context.profile.offsetM),
         )
         return gst + (extra?.horizontalM ?: 0.0)
     }

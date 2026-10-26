@@ -6,9 +6,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
+import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.ui.cad.DesignSelection
 import es.topophone.app.ui.collector.MeasurementInProgress
-import es.topophone.app.ui.receiver.FakePreferences
+import es.topophone.app.ui.receiver.FakeGearRepository
+import es.topophone.app.ui.receiver.fakeCurrentGear
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.model.cad.CadColor
 import es.topophone.core.model.cad.CadDrawing
@@ -135,13 +137,13 @@ class LineStakeoutViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel(prefs: StakeoutPreferences = stakeoutPreferences): LineStakeoutViewModel {
+    private fun viewModel(prefs: StakeoutPreferences = stakeoutPreferences, gear: CurrentGear = CurrentGear.NONE): LineStakeoutViewModel {
         val vm = LineStakeoutViewModel(
             projects,
             cad,
             prefs,
             FakeCollectorPreferences(),
-            FakePreferences(),
+            gear,
             session,
             object : Alerts {
                 override fun connectionLost() = Unit
@@ -215,6 +217,18 @@ class LineStakeoutViewModelTest {
         sendEpoch(0)
         sendEpoch(1)
         runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving && it.epoch != null } } }
+    }
+
+    @Test
+    fun `S046 RF-20 y RF-23 la punta del replanteo de una linea usa el desplazamiento del perfil activo`() {
+        val gear = fakeCurrentGear(FakeGearRepository())
+        runBlocking { gear.setProfile("catalog:RS4") }
+        val vm = viewModel(gear = gear)
+        open(vm)
+        connect()
+
+        val ui = (await(vm) { it.guidance is GuidanceState.On }.guidance as GuidanceState.On).ui
+        ui.tip.shouldNotBeNull().ellipsoidalHeightM.shouldNotBeNull() shouldBe (650.123 + 51.234 - 1.895 plusOrMinus 1e-9)
     }
 
     @Test

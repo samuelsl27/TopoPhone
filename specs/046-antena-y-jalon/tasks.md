@@ -32,7 +32,7 @@
       Hecho cuando: los tests de `ReceiverViewModel` y `TiltViewModel` en verde con el jalón y la altura de antena nuevos.
 - [x] T15. `app`: `CollectorViewModel` con el equipo activo: medir y guardar, el bloqueo sin equipo, el bloqueo durante un promediado o un modo automático y el aviso del cambio a mitad de sesión. (RF-15, RF-24 a RF-28)
       Hecho cuando: `CollectorViewModelGearTest` en verde.
-- [ ] T16. `app`: `StakeoutViewModel` y `LineStakeoutViewModel` con el mismo equipo activo. (RF-23)
+- [x] T16. `app`: `StakeoutViewModel` y `LineStakeoutViewModel` con el mismo equipo activo. (RF-23)
       Hecho cuando: `StakeoutViewModelGearTest` y `LineStakeoutViewModelGearTest` en verde, y los tests de S018, S019 y S041 sin cambios.
 - [ ] T17. `app`: `GearViewModel` con la lista de perfiles y jalones, las altas, ediciones y borrados, el cambio de perfil y de jalón activo, y los avisos. (RF-3 a RF-13, RF-16 a RF-19)
       Hecho cuando: `GearViewModelTest` en verde.

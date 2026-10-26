@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.cad.DesignSelection
 import es.topophone.app.ui.collector.MeasurementInProgress
@@ -25,6 +26,7 @@ import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.surface.SurfaceGuide
+import es.topophone.core.survey.AntennaProfile
 import es.topophone.core.survey.ElevationSources
 import es.topophone.core.survey.ManualCoordinates
 import es.topophone.core.survey.ManualResult
@@ -34,7 +36,6 @@ import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.StakeoutPreferences
 import es.topophone.data.project.ProjectRepository
-import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.surface.SurfaceGuides
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
@@ -108,7 +109,7 @@ class StakeoutViewModel @Inject constructor(
     private val points: PointRepository,
     private val stakeoutPreferences: StakeoutPreferences,
     private val collectorPreferences: CollectorPreferences,
-    private val receiverPreferences: ReceiverPreferences,
+    private val gear: CurrentGear,
     private val session: ReceiverSession,
     alerts: Alerts,
     private val calculator: Lazy<ProjectPositionCalculator>,
@@ -144,6 +145,8 @@ class StakeoutViewModel @Inject constructor(
     @Volatile private var fixOnly = true
 
     @Volatile private var poleHeightM = PoleHeight.DEFAULT_M
+
+    @Volatile private var profile = AntennaProfile.RS3
 
     private val projectFlow = projectId.flatMapLatest { id -> if (id == null) flowOf(null) else projects.observe(id) }
 
@@ -226,7 +229,13 @@ class StakeoutViewModel @Inject constructor(
         }
         viewModelScope.launch { stakeoutPreferences.settings.collect { settings = it } }
         viewModelScope.launch { collectorPreferences.settings.collect { fixOnly = it.precision.fixOnly } }
-        viewModelScope.launch { receiverPreferences.poleHeightM.collect { poleHeightM = it } }
+        viewModelScope.launch {
+            // S046/RF-23: el mismo equipo activo que el recolector.
+            gear.state.collect { g ->
+                g.verticalPoleM?.let { poleHeightM = it }
+                profile = g.profile
+            }
+        }
         viewModelScope.launch {
             session.epochs.collect { received ->
                 val context = context() ?: return@collect
@@ -396,6 +405,7 @@ class StakeoutViewModel @Inject constructor(
     private fun context(): StakeContext? {
         val project = project ?: return null
         val design = target.value ?: return null
+        if (!gear.state.value.usable) return null // S046/RF-28
         val mode: TiltMode? = tilt.state.value.settings.mode
         val guide = surfaceGuide.value
         return StakeContext(
@@ -409,6 +419,7 @@ class StakeoutViewModel @Inject constructor(
             elevationOverride.value,
             surface = guide,
             elevationSource = resolution(guide).source,
+            profile = profile,
         )
     }
 }

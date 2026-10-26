@@ -6,9 +6,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
+import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.ui.cad.DesignSelection
 import es.topophone.app.ui.collector.MeasurementInProgress
-import es.topophone.app.ui.receiver.FakePreferences
+import es.topophone.app.ui.receiver.FakeGearRepository
+import es.topophone.app.ui.receiver.fakeCurrentGear
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
@@ -129,13 +131,13 @@ class StakeoutViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel(): StakeoutViewModel {
+    private fun viewModel(gear: CurrentGear = CurrentGear.NONE): StakeoutViewModel {
         val vm = StakeoutViewModel(
             projects,
             points,
             stakeoutPreferences,
             FakeCollectorPreferences(),
-            FakePreferences(),
+            gear,
             session,
             object : Alerts {
                 override fun connectionLost() = Unit
@@ -204,6 +206,42 @@ class StakeoutViewModelTest {
         sendEpoch(0)
         sendEpoch(1)
         runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving && it.epoch != null } } }
+    }
+
+    private fun tipHeight(vm: StakeoutViewModel): Double {
+        val ui = (await(vm) { it.guidance is GuidanceState.On }.guidance as GuidanceState.On).ui
+        return ui.tip.shouldNotBeNull().ellipsoidalHeightM.shouldNotBeNull()
+    }
+
+    @Test
+    fun `S046 RF-20 y RF-23 la punta del replanteo usa el desplazamiento del perfil activo`() {
+        val point = addPoint("12")
+        val rs3 = viewModel().also { it.open(projectId, point.id) }
+        await(rs3) { it.target != null }
+        connect()
+        sendEpoch(2)
+        tipHeight(rs3) shouldBe (650.123 + 51.234 - 1.934 plusOrMinus 1e-9)
+
+        val gear = fakeCurrentGear(FakeGearRepository())
+        runBlocking { gear.setProfile("catalog:RS4") }
+        val rs4 = viewModel(gear).also { it.open(projectId, point.id) }
+        await(rs4) { it.target != null }
+        sendEpoch(3)
+
+        tipHeight(rs4) shouldBe (650.123 + 51.234 - 1.895 plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S046 RF-28 sin ningun jalon el replanteo no da guia`() {
+        val point = addPoint("12")
+        val vm = viewModel(fakeCurrentGear(FakeGearRepository(poles = emptyList())))
+        vm.open(projectId, point.id)
+        await(vm) { it.target != null }
+        connect()
+        sendEpoch(2)
+
+        Thread.sleep(300)
+        vm.state.value.guidance.shouldBeInstanceOf<GuidanceState.Off>()
     }
 
     @Test

@@ -6,9 +6,9 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
+import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.ui.cad.DesignSelection
 import es.topophone.app.ui.collector.MeasurementInProgress
-import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.model.cad.CadColor
 import es.topophone.core.model.cad.CadDrawing
@@ -147,7 +147,7 @@ class LineStakeoutViewModelSurfaceTest {
             cad,
             FakeStakeoutPreferences(),
             FakeCollectorPreferences(),
-            FakePreferences(),
+            CurrentGear.NONE,
             session,
             object : Alerts {
                 override fun connectionLost() = Unit
