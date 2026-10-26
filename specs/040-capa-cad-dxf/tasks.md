@@ -18,7 +18,7 @@
       Hecho cuando: `DxfEntitiesTest` en verde, con bulge, polilíneas cerradas, 3D y la extrusión (0, 0, −1) frente a lo esperado de `fixtures/`.
 - [x] T8. `core:formats`: `CadCurves`, arcos, círculos, bulges y splines como polilíneas a menos de 1 cm. (RF-15)
       Hecho cuando: `CadCurvesTest` en verde frente a los puntos exactos de `tools`, con un radio muy grande, uno menor que la tolerancia y una spline racional.
-- [ ] T9. `core:formats`: `DxfBlocks`, el despliegue de los INSERT con escala, giro, anidados y `MINSERT`. (RF-14, RF-15)
+- [x] T9. `core:formats`: `DxfBlocks`, el despliegue de los INSERT con escala, giro, anidados y `MINSERT`. (RF-14, RF-15)
       Hecho cuando: `DxfBlocksTest` en verde: escala negativa, ciclos, profundidad máxima, capa `0` y BYBLOCK, y el punto de inserción.
 - [ ] T10. `core:formats`: `DxfReader` y `DxfSink`, el recorrido completo, los ignorados por tipo y el fichero cortado. (RF-13, RF-14, RF-16)
       Hecho cuando: `DxfReaderTest` en verde con los fixtures R12, R2000, R2010 y R2018, un fichero cortado, un elemento roto y un fichero sin ningún elemento.

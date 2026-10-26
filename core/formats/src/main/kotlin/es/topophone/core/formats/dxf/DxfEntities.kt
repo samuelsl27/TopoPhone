@@ -75,6 +75,25 @@ data class DxfSpline(
     val hasZ: Boolean get() = (controlPoints + fitPoints).any { it.z != null }
 }
 
+/**
+ * Un `INSERT`: la colocación de un bloque (o, con [columns] y [rows] mayores que 1, un `MINSERT`: una rejilla de ellos). La
+ * posición, la escala y el giro están en el OCS de [normal] (S040/RF-14).
+ */
+data class DxfInsert(
+    override val style: DxfStyle,
+    val blockName: String,
+    val x: Double,
+    val y: Double,
+    val z: Double?,
+    val scale: Triple<Double, Double, Double>,
+    val rotationDegrees: Double,
+    val columns: Int,
+    val rows: Int,
+    val columnSpacing: Double,
+    val rowSpacing: Double,
+    val normal: Triple<Double, Double, Double>,
+) : DxfEntity
+
 /** Lo que sale de leer un elemento (S040/RF-13, RF-16). */
 sealed interface DxfItem {
     data class Entity(val entity: DxfEntity) : DxfItem
@@ -149,6 +168,7 @@ class DxfEntityStream(private val tags: DxfTagReader) {
             "ARC" -> parseArc(group)
             "CIRCLE" -> parseCircle(group)
             "SPLINE" -> parseSpline(group)
+            "INSERT" -> parseInsert(group)
             else -> DxfItem.Ignored(type)
         }
     }
@@ -263,6 +283,21 @@ class DxfEntityStream(private val tags: DxfTagReader) {
             }
         }
         return xs.indices.map { DxfVertex(xs[it], ys[it] ?: throw Invalid, zs[it]) }
+    }
+
+    private fun parseInsert(group: List<DxfTag>) = guard("INSERT") {
+        val name = group.firstOrNull { it.code == 2 }?.value?.trim()?.takeIf { it.isNotEmpty() } ?: throw Invalid
+        val columns = group.firstOrNull { it.code == 70 }?.let { it.int() ?: throw Invalid } ?: 1
+        val rows = group.firstOrNull { it.code == 71 }?.let { it.int() ?: throw Invalid } ?: 1
+        val scale = Triple(number(group, 41) ?: 1.0, number(group, 42) ?: 1.0, number(group, 43) ?: 1.0)
+        val rotation = number(group, 50) ?: 0.0
+        val columnSpacing = number(group, 44) ?: 0.0
+        val rowSpacing = number(group, 45) ?: 0.0
+        val insert = DxfInsert(
+            style(group), name, required(group, 10), required(group, 20), number(group, 30), scale, rotation,
+            maxOf(columns, 1), maxOf(rows, 1), columnSpacing, rowSpacing, normal(group),
+        )
+        DxfItem.Entity(insert)
     }
 
     private fun parseSpline(group: List<DxfTag>) = guard("SPLINE") {
