@@ -144,6 +144,12 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Capa de diseño | `DesignLayer` | Una capa del DXF separada por tipo (puntos o líneas), con su color y su interruptor (S040) |
 | Elemento del dibujo | `CadEntity` | Un punto o una línea (polilínea, arco, círculo, spline) del dibujo, con los bloques ya desplegados (S040) |
 | Con cota / sin cota | `hasElevation` | Un elemento del dibujo con altura propia, o sin ella (S040) |
+| PK | `Chainage` | Distancia a lo largo de una línea desde su primer vértice, en el SC del proyecto (S041) |
+| Desplazamiento lateral | `LateralOffset` | Distancia perpendicular a la línea a la que se quiere estar; positiva a la derecha del sentido de la línea (S041) |
+| Distancia lateral | `CrossTrack` | Distancia perpendicular con signo entre la punta y la línea (S041) |
+| Error lateral | `CrossTrackError` | Distancia lateral menos el desplazamiento lateral (S041) |
+| Replanteo de línea | `LineStakeout` | Replanteo de una línea del dibujo con sus cinco modos (S041) |
+| Modo de línea | `LineStakeoutMode` | Por segmentos, A la línea, A lo largo de la línea, Tramo A–B o Intervalos (S041) |
 | Copia de seguridad | `Backup` | Copia completa de los datos de la app en un ZIP (S013) |
 | Exportar | `export` | Sacar los puntos de un proyecto a un fichero (S012) |
 | Formato de exportación | `ExportFormat` | Todas las columnas, PENZD, PNEZD o personalizado (S012) |
