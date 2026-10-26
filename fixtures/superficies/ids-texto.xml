@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LandXML xmlns="http://www.landxml.org/schema/LandXML-1.2" version="1.2" date="2026-10-26" time="12:00:00">
+  <Units><Metric areaUnit="squareMeter" linearUnit="meter" volumeUnit="cubicMeter" temperatureUnit="celsius" pressureUnit="HPA"/></Units>
+  <Surfaces>
+    <Surface name="texto">
+      <Definition surfType="TIN">
+        <Pnts>
+          <P id="A1">2000.000 1000.000 10.000</P>
+          <P id="B2">2000.000 1010.000 11.000</P>
+          <P id="C3">2010.000 1010.000 12.000</P>
+          <P id="D4">2010.000 1000.000 13.000</P>
+        </Pnts>
+        <Faces>
+          <F>A1 B2 C3</F>
+          <F>A1 C3 D4</F>
+        </Faces>
+      </Definition>
+    </Surface>
+  </Surfaces>
+</LandXML>

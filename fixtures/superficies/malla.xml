@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LandXML xmlns="http://www.landxml.org/schema/LandXML-1.2" version="1.2" date="2026-10-26" time="12:00:00">
+  <Units><Metric areaUnit="squareMeter" linearUnit="meter" volumeUnit="cubicMeter" temperatureUnit="celsius" pressureUnit="HPA"/></Units>
+  <Surfaces>
+    <Surface name="malla">
+      <Definition surfType="grid">
+        <Grid rowCount="2" colCount="2" cellSize="10"><Pnts><P>10.0</P><P>11.0</P></Pnts></Grid>
+      </Definition>
+    </Surface>
+  </Surfaces>
+</LandXML>

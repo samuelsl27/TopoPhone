@@ -11,6 +11,7 @@ Datos compartidos por los tests de todos los módulos. Los ficheros de más de 5
 | `geodesia/` | Vectores de referencia generados por `tools/geodesia` (CSV) |
 | `promediado/` | Promediados simulados de 60 min a 10 Hz y lo esperado (media, desviación típica y estabilidad), generados por `tools/promediado` (S017) |
 | `replanteo/` | Diseño y punta del jalón con la distancia, las diferencias de Norte y Este y el rumbo calculados con pyproj, generados por `tools/replanteo` (S018) |
+| `superficies/` | Superficies LandXML (metros, pies, UTM 29, identificadores de texto, malla, sin superficies, mal formado) y la cota esperada y la conversión de sus vértices calculadas con pyproj y con un cálculo aparte, generadas por `tools/superficies` (S042) |
 | `formatos/` | Ejemplos de CSV, DXF, SHP, KML, LandXML y GetCapabilities |
 
 ## Descriptor de escenario (`.yaml`)
