@@ -30,7 +30,7 @@
       Hecho cuando: `BackupGearTest` en verde: copia y restauración con perfiles, jalones y activos, y un paquete que no los lleva.
 - [x] T14. `app`: el `ActiveGear` de cada receptor con la clave de `CurrentTilt`, y `ReceiverViewModel`, `TiltViewModel` y `TiltStatusCard` leen de él en lugar de `poleHeightM`. (RF-8, RF-15, RF-20)
       Hecho cuando: los tests de `ReceiverViewModel` y `TiltViewModel` en verde con el jalón y la altura de antena nuevos.
-- [ ] T15. `app`: `CollectorViewModel` con el equipo activo: medir y guardar, el bloqueo sin equipo, el bloqueo durante un promediado o un modo automático y el aviso del cambio a mitad de sesión. (RF-15, RF-24 a RF-28)
+- [x] T15. `app`: `CollectorViewModel` con el equipo activo: medir y guardar, el bloqueo sin equipo, el bloqueo durante un promediado o un modo automático y el aviso del cambio a mitad de sesión. (RF-15, RF-24 a RF-28)
       Hecho cuando: `CollectorViewModelGearTest` en verde.
 - [ ] T16. `app`: `StakeoutViewModel` y `LineStakeoutViewModel` con el mismo equipo activo. (RF-23)
       Hecho cuando: `StakeoutViewModelGearTest` y `LineStakeoutViewModelGearTest` en verde, y los tests de S018, S019 y S041 sin cambios.

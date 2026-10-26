@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.receiver.BaseNotices
+import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.VisibleNotices
@@ -22,6 +23,7 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
@@ -39,7 +41,7 @@ import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.surface.SurfaceGuide
 import es.topophone.core.model.surface.SurfaceHeight
-import es.topophone.core.survey.AntennaProfile
+import es.topophone.core.survey.ActiveGear
 import es.topophone.core.survey.AutoAction
 import es.topophone.core.survey.AutoOutcome
 import es.topophone.core.survey.AverageStatsSnapshot
@@ -52,7 +54,6 @@ import es.topophone.core.survey.MeasurementFailure
 import es.topophone.core.survey.MeasurementResult
 import es.topophone.core.survey.MeasurementUpdate
 import es.topophone.core.survey.PointMeasurement
-import es.topophone.core.survey.PoleGeometry
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPositionCalculator
@@ -64,7 +65,6 @@ import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
-import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.surface.SurfaceGuides
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
@@ -99,6 +99,9 @@ enum class MeasureBlocker {
     INVALID_NAME,
     NAME_TAKEN,
     INVALID_POLE,
+
+    /** No hay un jalón válido o el perfil de antena no permite medir con él (S046/RF-28). */
+    NO_GEAR,
     INVALID_SECONDS,
     NO_POSITION,
     OUTSIDE_CRS_AREA,
@@ -190,6 +193,12 @@ data class CollectorUiState(
     val autoIntervalValid: Boolean = true,
     val autoDistanceText: String = "1,000",
     val autoDistanceValid: Boolean = true,
+    /** El equipo activo del receptor: perfil de antena y jalón (S046/RF-15). */
+    val gear: ActiveGear = CurrentGear.DEFAULT,
+    /** Con una medida o el modo automático en curso no se cambia de jalón ni de perfil (S046/RF-27). */
+    val gearLocked: Boolean = false,
+    /** El equipo cambió desde el último punto guardado de la sesión: afecta solo a los siguientes (S046/RF-25, RF-26). */
+    val gearChanged: Boolean = false,
 )
 
 /**
@@ -202,7 +211,6 @@ class CollectorViewModel @Inject constructor(
     private val projects: ProjectRepository,
     private val points: PointRepository,
     private val collectorPreferences: CollectorPreferences,
-    private val receiverPreferences: ReceiverPreferences,
     private val session: ReceiverSession,
     private val alerts: Alerts,
     private val calculator: Lazy<ProjectPositionCalculator>,
@@ -211,6 +219,7 @@ class CollectorViewModel @Inject constructor(
     private val baseNotices: BaseNotices = BaseNotices(),
     private val tilt: CurrentTilt = CurrentTilt.NONE,
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
+    private val gear: CurrentGear = CurrentGear.NONE,
 ) : ViewModel() {
     private data class Form(
         val loaded: Boolean = false,
@@ -263,6 +272,9 @@ class CollectorViewModel @Inject constructor(
     internal var statsIntervalMs = STATS_INTERVAL_MS
     private var measuringReplay = false
     private val autoEnabled = MutableStateFlow(false)
+
+    /** El equipo del último punto guardado de esta sesión, para avisar de que un cambio no lo toca (S046/RF-26). */
+    private val lastSavedGear = MutableStateFlow<GearUsed?>(null)
     private val autoCollector = AutoCollector(log, alerts)
     private var lastEpochAtMs = 0L
     private var autoRevision: Int? = null
@@ -384,9 +396,10 @@ class CollectorViewModel @Inject constructor(
         ->
         if (guide == null || project == null || snapshot.connection !is ConnectionState.Receiving) return@combine null
         val fix = snapshot.gga?.takeIf { it.hasPosition } ?: return@combine null
-        val pole = PoleHeight.parse(f.poleText) ?: return@combine null
+        val g = gear.state.value
+        val pole = g.verticalPoleM ?: return@combine null
         val epochTilt = snapshot.epoch?.tilt
-        val tip = LiveTip.of(fix, epochTilt, tiltState.settings.mode, pole) ?: return@combine null
+        val tip = LiveTip.of(fix, epochTilt, tiltState.settings.mode, pole, g.profile) ?: return@combine null
         val position = calculator.get().fromGround(tip.ground, project.crs, project.heightSystem)
         val easting = position.easting
         val northing = position.northing
@@ -399,15 +412,20 @@ class CollectorViewModel @Inject constructor(
         projectFlow,
         session.state,
         baseNotices.dismissed,
-        tilt.state,
-    ) { state, project, snapshot, dismissed, tiltState ->
+        combine(tilt.state, gear.state, lastSavedGear) { tilt, gear, last -> Triple(tilt, gear, last) },
+    ) { state, project, snapshot, dismissed, (tiltState, gearState, savedGear) ->
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
         val mode = tiltState.settings.mode
-        val live = gga?.let { liveQuality(it.status, snapshot, mode, epochTilt, state.poleHeightText) }
+        val live = gga?.let { liveQuality(it.status, snapshot, mode, epochTilt, gearState.antennaHeightM) }
         state.copy(
             live = live,
-            blocker = state.blocker ?: positionBlocker(snapshot, project, state.poleHeightText) ?: tiltBlocker(tiltState, epochTilt),
+            blocker =
+            state.blocker ?: gearBlocker(gearState) ?: positionBlocker(snapshot, project, state.poleHeightText)
+                ?: tiltBlocker(tiltState, epochTilt),
+            gear = gearState,
+            gearLocked = state.measuring || state.auto.running,
+            gearChanged = savedGear != null && gearState.toUsed() != savedGear,
             notices = BaseNotices.visible(gga, snapshot.base, dismissed), // S015/RF-15, RF-17
             tiltMode = mode,
             tiltGuide = if (mode?.usesTilt == true) TiltEpoch.guide(epochTilt) else null, // S016/RF-12
@@ -436,7 +454,7 @@ class CollectorViewModel @Inject constructor(
         if (projectId.value != null) return
         projectId.value = id
         viewModelScope.launch {
-            val pole = receiverPreferences.poleHeightM.first()
+            val pole = gear.state.value.pole?.enteredM ?: PoleHeight.DEFAULT_M
             form.value = Form(loaded = true, name = PointNames.next(points.lastName(id)), poleText = formatPole(pole)) // S010/RF-2
             checkName()
         }
@@ -507,7 +525,8 @@ class CollectorViewModel @Inject constructor(
     /** La misma altura del jalón que en Coordenadas (S010/RF-5). */
     fun setPoleHeight(text: String) {
         form.update { it.copy(poleText = text) }
-        PoleHeight.parse(text)?.let { pole -> viewModelScope.launch { receiverPreferences.savePoleHeight(pole) } }
+        if (gearLocked()) return // S046/RF-27
+        PoleHeight.parse(text)?.let { pole -> viewModelScope.launch { gear.editActivePoleHeight(pole) } } // S046/RF-10
     }
 
     /** Se escribe en minutos y segundos (o en segundos) y solo se guarda de 1 s a 60 min; fuera de eso no se puede promediar (S017/RF-1). */
@@ -572,6 +591,7 @@ class CollectorViewModel @Inject constructor(
         val current = state.value
         project ?: return
         PoleHeight.parse(current.poleHeightText) ?: return
+        if (!gear.state.value.usable) return // S046/RF-28
         if (autoCollector.running || current.blocker != null || current.measuring || current.pending != null) return
         startPoint(auto = false)
     }
@@ -579,7 +599,8 @@ class CollectorViewModel @Inject constructor(
     /** Empieza un punto con los datos del recolector de ahora, a mano o desde el modo automático (S010/RF-8, RF-9; S017/RF-19). */
     private fun startPoint(auto: Boolean) {
         val project = project ?: return
-        val pole = PoleHeight.parse(form.value.poleText) ?: return
+        val equipment = gear.state.value
+        val pole = equipment.verticalPoleM ?: return // S046/RF-28
         val settings = state.value.settings
         // S016/RF-13, RF-14: el modo del receptor al empezar; sin modo, sin ETC o con la inclinación apagada, jalón vertical.
         val tiltState = tilt.state.value
@@ -597,6 +618,8 @@ class CollectorViewModel @Inject constructor(
                 startedAtMs = System.currentTimeMillis(),
                 calculator = calculator.get(),
                 tilt = tiltSetup,
+                profile = equipment.profile,
+                gear = equipment.toUsed(), // S046/RF-24
             )
         }
         newMeasurement = factory
@@ -631,11 +654,12 @@ class CollectorViewModel @Inject constructor(
         if (!current.autoEnabled || autoCollector.running || current.blocker != null || current.measuring || current.pending != null) return
         if (stake != null) return // el modo automático no se mezcla con un replanteo (S018)
         val project = project ?: return
-        val pole = PoleHeight.parse(current.poleHeightText) ?: return
+        val equipment = gear.state.value
+        val pole = equipment.verticalPoleM ?: return // S046/RF-28
         val epoch = session.state.value.epoch ?: return
         autoRevision = tilt.state.value.revision
         lastEpochAtMs = System.currentTimeMillis()
-        val ground = autoCollector.ground(epoch, tilt.state.value.settings.mode, pole, project, calculator.get())
+        val ground = autoCollector.ground(epoch, tilt.state.value.settings.mode, pole, project, calculator.get(), equipment.profile)
         lastAutoGround = ground
         run.value = Run()
         applyAuto(autoCollector.start(current.settings, epoch.utcMillisOfDay, ground))
@@ -678,8 +702,9 @@ class CollectorViewModel @Inject constructor(
     private fun onAutoEpoch(epoch: Epoch) {
         if (autoCollector.paused) autoCollector.resume(epoch.utcMillisOfDay)
         val project = project ?: return
-        val pole = PoleHeight.parse(form.value.poleText) ?: return
-        val ground = autoCollector.ground(epoch, tilt.state.value.settings.mode, pole, project, calculator.get())
+        val equipment = gear.state.value
+        val pole = equipment.verticalPoleM ?: return
+        val ground = autoCollector.ground(epoch, tilt.state.value.settings.mode, pole, project, calculator.get(), equipment.profile)
         lastAutoGround = ground
         applyAuto(autoCollector.onEpoch(epoch.utcMillisOfDay, ground))
     }
@@ -923,7 +948,9 @@ class CollectorViewModel @Inject constructor(
             coordinates = PointCoordinates(result.ground, result.position.easting, result.position.northing, result.position.height),
             base = measurementBase?.let { pointBase(it, result.antenna) }, // S015/RF-20
             tilt = result.tilt, // S016/RF-22
+            gear = result.gear, // S046/RF-24
         )
+        lastSavedGear.value = result.gear // S046/RF-26
         // S018/RF-28: el diseño por valor y lo que se desvió lo medido (medido menos diseño). S019/RF-13, RF-14: contra la cota
         // usada, con las tolerancias vigentes y si cumple.
         val staked = stake?.let { target ->
@@ -1076,6 +1103,12 @@ class CollectorViewModel @Inject constructor(
 
     private fun parseSeconds(text: String): Int? = DurationText.parse(text, CollectorSettings.AVERAGING_SECONDS)
 
+    /** S046/RF-28: sin jalón o con un perfil que no permite medir con el jalón activo. */
+    private fun gearBlocker(equipment: ActiveGear): MeasureBlocker? = if (equipment.usable) null else MeasureBlocker.NO_GEAR
+
+    /** Con una medida o el modo automático en curso no se cambia el equipo (S046/RF-27). */
+    private fun gearLocked(): Boolean = measurement != null || autoCollector.running
+
     private fun formBlocker(form: Form, taken: Boolean): MeasureBlocker? = when {
         !PointNames.isValid(form.name) -> MeasureBlocker.INVALID_NAME
         taken -> MeasureBlocker.NAME_TAKEN
@@ -1101,11 +1134,10 @@ class CollectorViewModel @Inject constructor(
         snapshot: ReceiverSnapshot,
         mode: TiltMode?,
         epochTilt: TiltData?,
-        poleText: String,
+        antennaHeightM: Double?,
     ): LiveQuality {
-        val pole = PoleHeight.parse(poleText)
-        val accuracy = if (mode == TiltMode.APP && pole != null) {
-            TiltEpoch.accuracy(epochTilt?.takeIf(TiltEpoch::isCompensating), PoleGeometry.antennaHeightM(pole, AntennaProfile.RS3.offsetM))
+        val accuracy = if (mode == TiltMode.APP && antennaHeightM != null) {
+            TiltEpoch.accuracy(epochTilt?.takeIf(TiltEpoch::isCompensating), antennaHeightM)
         } else {
             null
         }

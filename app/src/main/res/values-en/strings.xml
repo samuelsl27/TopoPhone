@@ -1279,4 +1279,5 @@
     <!-- S046: jalones guardados -->
     <string name="gear_pole_standard">Standard pole</string>
     <string name="gear_pole_previous">Previous pole</string>
+    <string name="collector_gear_missing">There is no valid pole. Set it up in Antenna and pole, in the receiver menu.</string>
 </resources>

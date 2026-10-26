@@ -227,7 +227,6 @@ class TiltReplayTest {
                 projects = projects,
                 points = points,
                 collectorPreferences = preferences,
-                receiverPreferences = FakePreferences(),
                 session = session,
                 alerts = alerts,
                 calculator = { ProjectPositionCalculator() },

@@ -6,7 +6,10 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
+import es.topophone.app.receiver.CurrentGear
+import es.topophone.app.ui.receiver.FakeGearRepository
 import es.topophone.app.ui.receiver.FakePreferences
+import es.topophone.app.ui.receiver.fakeCurrentGear
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.geodesy.Ecef
 import es.topophone.core.gnss.nmea.SolutionStatus
@@ -14,7 +17,9 @@ import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.log.LogLevel
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.PoleKind
 import es.topophone.core.model.point.PrecisionControl
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.project.ProjectCrs
@@ -23,6 +28,7 @@ import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.Baseline
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.SavedPole
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.RoomPointRepository
@@ -131,11 +137,11 @@ class CollectorViewModelTest {
     private val inProgress = MeasurementInProgress()
     private val log = RecordingLog()
 
-    private fun viewModel(projectId: String): CollectorViewModel {
+    private fun viewModel(projectId: String, gear: CurrentGear = CurrentGear.NONE): CollectorViewModel {
         val vm =
-            CollectorViewModel(projects, points, collectorPreferences, receiverPreferences, session, alerts, {
+            CollectorViewModel(projects, points, collectorPreferences, session, alerts, {
                 ProjectPositionCalculator()
-            }, inProgress, log)
+            }, inProgress, log, gear = gear)
         viewModels += vm
         vm.start(projectId)
         CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
@@ -181,16 +187,87 @@ class CollectorViewModelTest {
     }
 
     @Test
-    fun `S010 RF-5 el jalon es el de la pantalla Coordenadas y cambiarlo aqui lo cambia alli`() {
-        receiverPreferences.poleFlow.value = 2.05
-        val vm = viewModel(project())
+    fun `S010 RF-5 y S046 RF-10 el jalon es el activo del equipo y cambiarlo aqui lo cambia alli`() {
+        val repository = FakeGearRepository(listOf(SavedPole("p1", "Jalón estándar", PoleKind.VERTICAL, 2.05)))
+        val vm = viewModel(project(), fakeCurrentGear(repository))
         await(vm) { it.poleHeightText == "2,050" || it.poleHeightText == "2.050" }
 
         vm.setPoleHeight("1,5")
 
-        runBlocking { withTimeout(5_000) { receiverPreferences.poleFlow.first { it == 1.5 } } }
+        runBlocking { withTimeout(5_000) { repository.polesFlow.first { poles -> poles.single().enteredM == 1.5 } } }
         vm.setPoleHeight("12")
         await(vm) { !it.poleHeightValid }.blocker shouldBe MeasureBlocker.INVALID_POLE
+    }
+
+    @Test
+    fun `S046 RF-24 el punto guarda el jalon y la antena con los que se midio`() {
+        val projectId = project()
+        val repository = FakeGearRepository(listOf(SavedPole("p1", "Jalón corto", PoleKind.VERTICAL, 1.2)))
+        val gear = fakeCurrentGear(repository)
+        runBlocking { gear.setProfile("catalog:RS4") }
+        val vm = viewModel(projectId, gear)
+        receiving(vm)
+        await(vm) { it.blocker == null }
+
+        vm.measure()
+        sendEpoch(2)
+        sendEpoch(3)
+        await(vm) { it.savedName == "1" }
+
+        val measurement = runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull()
+        measurement.gear shouldBe GearUsed("Jalón corto", PoleKind.VERTICAL, 1.2, "Reach RS4 y RS4 Pro", 0.095, 1.295)
+        measurement.poleHeightM shouldBe 1.2
+        // S046/RF-20: el suelo está a la altura de antena del perfil por debajo de la antena.
+        (measurement.antenna.ellipsoidalHeightM!! - measurement.coordinates.ground.ellipsoidalHeightM!!) shouldBe (1.295 plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S046 RF-28 sin ningun jalon no se puede medir`() {
+        val vm = viewModel(project(), fakeCurrentGear(FakeGearRepository(poles = emptyList())))
+        receiving(vm)
+
+        await(vm) { it.blocker == MeasureBlocker.NO_GEAR }
+        vm.measure()
+        vm.state.value.measuring shouldBe false
+    }
+
+    @Test
+    fun `S046 RF-27 con una medida en curso no se cambia el jalon`() {
+        collectorPreferences.settings.value = CollectorSettings(MeasurementMode.AVERAGED, averagingSeconds = 30)
+        val repository = FakeGearRepository()
+        val vm = viewModel(project(), fakeCurrentGear(repository))
+        receiving(vm)
+        await(vm) { it.blocker == null }
+
+        vm.measure()
+        await(vm) { it.measuring && it.gearLocked }
+        vm.setPoleHeight("2")
+
+        repository.polesFlow.value.single().enteredM shouldBe 1.8
+    }
+
+    @Test
+    fun `S046 RF-25 y RF-26 un cambio de jalon avisa y solo afecta a los puntos siguientes`() {
+        val projectId = project()
+        val repository = FakeGearRepository(
+            listOf(SavedPole("p1", "Jalón estándar", PoleKind.VERTICAL, 1.8), SavedPole("p2", "Jalón corto", PoleKind.VERTICAL, 1.2)),
+        )
+        val gear = fakeCurrentGear(repository)
+        val vm = viewModel(projectId, gear)
+        receiving(vm)
+        await(vm) { it.blocker == null }
+        vm.measure()
+        sendEpoch(2)
+        sendEpoch(3)
+        await(vm) { it.savedName == "1" }
+        vm.state.value.gearChanged shouldBe false
+
+        runBlocking { gear.setActivePole("p2") }
+
+        await(vm) { it.gearChanged && it.gear.pole?.id == "p2" }
+        val first = runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull()
+        first.gear!!.poleName shouldBe "Jalón estándar"
+        first.poleHeightM shouldBe 1.8
     }
 
     @Test

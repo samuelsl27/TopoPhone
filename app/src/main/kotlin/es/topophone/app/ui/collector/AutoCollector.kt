@@ -9,6 +9,7 @@ import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.AntennaProfile
 import es.topophone.core.survey.AutoAction
 import es.topophone.core.survey.AutoMeasure
 import es.topophone.core.survey.AutoOutcome
@@ -122,9 +123,16 @@ internal class AutoCollector(private val log: AppLog, private val alerts: Alerts
     }
 
     /** El suelo de la época en planta, en el SC del proyecto, o en el plano local si es geográfico (S017/RF-21). */
-    fun ground(epoch: Epoch, tiltMode: TiltMode?, poleHeightM: Double, project: Project, calculator: ProjectPositionCalculator): GroundEN? {
+    fun ground(
+        epoch: Epoch,
+        tiltMode: TiltMode?,
+        poleHeightM: Double,
+        project: Project,
+        calculator: ProjectPositionCalculator,
+        profile: AntennaProfile = AntennaProfile.RS3,
+    ): GroundEN? {
         val fix = epoch.gga?.takeIf { it.hasPosition } ?: return null
-        val tip = LiveTip.of(fix, epoch.tilt, tiltMode, poleHeightM)?.ground ?: return null
+        val tip = LiveTip.of(fix, epoch.tilt, tiltMode, poleHeightM, profile)?.ground ?: return null
         val position = calculator.fromGround(tip, project.crs, project.heightSystem)
         val east = position.easting
         val north = position.northing

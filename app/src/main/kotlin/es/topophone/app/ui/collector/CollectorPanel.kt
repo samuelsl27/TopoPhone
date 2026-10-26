@@ -305,6 +305,7 @@ internal fun Messages(state: CollectorUiState, actions: CollectorActions) {
         MeasureBlocker.NO_POSITION -> R.string.project_no_position
         MeasureBlocker.OUTSIDE_CRS_AREA -> R.string.project_outside_crs
         MeasureBlocker.TILT_MODE_MISSING -> R.string.collector_tilt_mode_missing // S016/RF-2
+        MeasureBlocker.NO_GEAR -> R.string.collector_gear_missing // S046/RF-28
         MeasureBlocker.AUTO_INTERVAL_TOO_SHORT -> R.string.collector_auto_interval_too_short // S017/RF-18
         else -> null
     }

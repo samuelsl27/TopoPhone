@@ -1291,4 +1291,5 @@
     <!-- S046: jalones guardados -->
     <string name="gear_pole_standard">Jalón estándar</string>
     <string name="gear_pole_previous">Jalón anterior</string>
+    <string name="collector_gear_missing">No hay un jalón válido. Configúralo en Antena y jalón, en el menú del receptor.</string>
 </resources>

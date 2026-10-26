@@ -6,7 +6,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
-import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.repositoryRoot
 import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
@@ -169,7 +168,6 @@ class AdvancedReplayTest {
             projects,
             points,
             collectorPreferences,
-            FakePreferences(),
             session,
             alerts,
             { ProjectPositionCalculator() },

@@ -6,7 +6,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
-import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.app.ui.stakeout.StakeSaveInfo
 import es.topophone.app.ui.stakeout.StakeTarget
@@ -131,7 +130,6 @@ class CollectorViewModelStakeoutTest {
             projects,
             points,
             collectorPreferences,
-            FakePreferences(),
             session,
             alerts,
             { ProjectPositionCalculator() },

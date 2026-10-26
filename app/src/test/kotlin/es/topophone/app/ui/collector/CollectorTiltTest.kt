@@ -134,7 +134,6 @@ class CollectorTiltTest {
             projects = projects,
             points = points,
             collectorPreferences = collectorPreferences,
-            receiverPreferences = receiverPreferences,
             session = session,
             alerts = alerts,
             calculator = { ProjectPositionCalculator() },

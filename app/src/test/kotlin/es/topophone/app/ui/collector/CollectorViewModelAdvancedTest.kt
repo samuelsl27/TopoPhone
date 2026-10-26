@@ -172,7 +172,6 @@ class CollectorViewModelAdvancedTest {
             projects,
             points,
             collectorPreferences,
-            receiverPreferences,
             session,
             alerts,
             { ProjectPositionCalculator() },
