@@ -1288,4 +1288,7 @@
     <string name="surface_offset_label">Desplazamiento (%1$s)</string>
     <string name="surface_offset_apply">Aplicar</string>
     <string name="surface_offset_invalid">Escribe un número.</string>
+    <!-- S046: jalones guardados -->
+    <string name="gear_pole_standard">Jalón estándar</string>
+    <string name="gear_pole_previous">Jalón anterior</string>
 </resources>

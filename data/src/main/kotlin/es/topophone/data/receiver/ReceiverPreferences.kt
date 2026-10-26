@@ -84,6 +84,12 @@ interface ReceiverPreferences {
 
     /** Los datos de S002 ya son un perfil: se borran y no se vuelven a importar. */
     suspend fun markLegacyNtripImported()
+
+    /** La altura de jalón de antes de S046 aún sin pasar a un jalón guardado, o `null` si no hay o ya se pasó (S046/RF-29). */
+    suspend fun legacyPoleHeightM(): Double?
+
+    /** La altura de jalón de antes ya es un jalón guardado: se borra y no se vuelve a importar. */
+    suspend fun markLegacyPoleHeightImported()
 }
 
 @Qualifier
@@ -184,6 +190,19 @@ class DataStoreReceiverPreferences @Inject constructor(@param:ReceiverDataStoreQ
         }
     }
 
+    override suspend fun legacyPoleHeightM(): Double? {
+        val p = data.first()
+        if (p[LEGACY_POLE_IMPORTED] == true) return null
+        return p[POLE_HEIGHT]
+    }
+
+    override suspend fun markLegacyPoleHeightImported() {
+        dataStore.edit {
+            it[LEGACY_POLE_IMPORTED] = true
+            it.remove(POLE_HEIGHT)
+        }
+    }
+
     private companion object {
         val HOST = stringPreferencesKey("ntrip_host")
         val PORT = intPreferencesKey("ntrip_port")
@@ -198,5 +217,6 @@ class DataStoreReceiverPreferences @Inject constructor(@param:ReceiverDataStoreQ
         val NTRIP_WAS_ACTIVE = booleanPreferencesKey("ntrip_was_active")
         val CORRECTIONS_ALARM = intPreferencesKey("corrections_alarm_s")
         val LEGACY_NTRIP_IMPORTED = booleanPreferencesKey("ntrip_legacy_imported")
+        val LEGACY_POLE_IMPORTED = booleanPreferencesKey("pole_legacy_imported")
     }
 }

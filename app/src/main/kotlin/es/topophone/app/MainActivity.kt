@@ -34,6 +34,7 @@ import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.AppLanguage
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.data.backup.BackupChanges
+import es.topophone.data.gear.GearLegacyImport
 import es.topophone.data.ntrip.NtripLegacyImport
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -59,6 +60,8 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var ntripLegacyImport: NtripLegacyImport
 
+    @Inject lateinit var gearLegacyImport: GearLegacyImport
+
     @Inject lateinit var autoBackups: AutoBackupScheduler
 
     @Inject lateinit var backupChanges: BackupChanges
@@ -77,6 +80,10 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch { connections.autoConnect() } // S004/RF-25: una sola vez por arranque
         lifecycleScope.launch { trashPurge.runOnce() } // S006/RF-27: la papelera se purga al abrir la app
         lifecycleScope.launch { ntripLegacyImport.run() } // S007/RF-10: los datos de caster de S002 pasan a un perfil
+        lifecycleScope.launch {
+            // S046/RF-29: la altura del jalón de antes pasa a un jalón guardado
+            gearLegacyImport.run(getString(R.string.gear_pole_standard), getString(R.string.gear_pole_previous))
+        }
         autoBackups.start() // S013/RF-18: una vez por proceso
         receiverLog.start() // S014/RF-1, RF-2: una vez por proceso
         // Al recrearse la actividad, la navegación ya está restaurada: el extra solo cuenta la primera vez.

@@ -22,7 +22,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 15 → 16 en verde con puntos antiguos que se leen con el equipo vacío.
 - [x] T10. `data`: `GearRepository` con las operaciones y los resultados de A4. (RF-5, RF-6, RF-9 a RF-13)
       Hecho cuando: `GearRepositoryTest` en verde: altas, ediciones, nombre repetido, `InUse`, `LastPole`, `ActiveElsewhere` y una transacción por operación.
-- [ ] T11. `data`: `GearLegacyImport` (A6). (RF-29)
+- [x] T11. `data`: `GearLegacyImport` (A6). (RF-29)
       Hecho cuando: `GearLegacyImportTest` en verde: 1,8 m, otra altura, sin valor, que no se repite y que los puntos no cambian.
 - [ ] T12. `data`: leer y escribir `GearUsed` en los puntos y en la consulta de la ficha. (RF-24)
       Hecho cuando: `PointRepositoryGearTest` en verde: se guarda y se lee sin redondear, y un punto de antes se lee sin equipo.

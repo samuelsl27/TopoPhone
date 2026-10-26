@@ -20,6 +20,7 @@ import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.DataStoreExportPreferences
 import es.topophone.data.export.ExportDataStoreQualifier
 import es.topophone.data.export.ExportPreferences
+import es.topophone.data.gear.GearLegacyImport
 import es.topophone.data.gear.GearRepository
 import es.topophone.data.gear.RoomGearRepository
 import es.topophone.data.log.DataStoreLogPreferences
@@ -173,6 +174,10 @@ object DatabaseModule {
 
     @Provides
     fun provideCadDrawingImporter(repository: CadRepository): CadDrawingImporter = CadDrawingImporter(repository)
+
+    @Provides
+    fun provideGearLegacyImport(preferences: ReceiverPreferences, repository: GearRepository): GearLegacyImport =
+        GearLegacyImport(preferences, repository)
 
     @Provides
     fun provideNtripLegacyImport(preferences: ReceiverPreferences, profiles: NtripProfileRepository): NtripLegacyImport =

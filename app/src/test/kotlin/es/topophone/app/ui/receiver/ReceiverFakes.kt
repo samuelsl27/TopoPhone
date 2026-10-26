@@ -100,6 +100,10 @@ internal class FakePreferences : ReceiverPreferences {
     override suspend fun legacyNtrip(): NtripPreferences? = null
 
     override suspend fun markLegacyNtripImported() = Unit
+
+    override suspend fun legacyPoleHeightM(): Double? = null
+
+    override suspend fun markLegacyPoleHeightImported() = Unit
 }
 
 internal fun nmea(body: String) = "$" + body + "*" + "%02X".format(NmeaChecksum.compute(body)) + "\r\n"

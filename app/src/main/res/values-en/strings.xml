@@ -1276,4 +1276,7 @@
     <string name="surface_offset_label">Offset (%1$s)</string>
     <string name="surface_offset_apply">Apply</string>
     <string name="surface_offset_invalid">Enter a number.</string>
+    <!-- S046: jalones guardados -->
+    <string name="gear_pole_standard">Standard pole</string>
+    <string name="gear_pole_previous">Previous pole</string>
 </resources>
