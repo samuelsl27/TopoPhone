@@ -1,11 +1,14 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.StakeoutReport
 import es.topophone.core.model.point.StakeoutReportRow
@@ -41,11 +44,13 @@ class StakeoutReportCsvTest {
     private val utmHeader =
         "Design name,Stakeout number,Staked name,Description,Design easting,Design northing,Design elevation," +
             "Measured easting,Measured northing,Measured elevation,Delta northing,Delta easting,Horizontal distance," +
-            "Delta elevation,Horizontal tolerance,Vertical tolerance,Within tolerance,Last,Solution,Measured from"
+            "Delta elevation,Horizontal tolerance,Vertical tolerance,Within tolerance,Last,Solution,Measured from," +
+            "Drawing,Layer,Element type,Mode,Chainage,Lateral offset"
     private val geographicHeader =
         "Design name,Stakeout number,Staked name,Description,Design latitude,Design longitude,Design elevation," +
             "Measured latitude,Measured longitude,Measured elevation,Delta northing,Delta easting,Horizontal distance," +
-            "Delta elevation,Horizontal tolerance,Vertical tolerance,Within tolerance,Last,Solution,Measured from"
+            "Delta elevation,Horizontal tolerance,Vertical tolerance,Within tolerance,Last,Solution,Measured from," +
+            "Drawing,Layer,Element type,Mode,Chainage,Lateral offset"
 
     /** Un replanteo con números que redondean sin dudas a 4 decimales. */
     private fun row(
@@ -110,7 +115,7 @@ class StakeoutReportCsvTest {
     fun `S019 RF-21 cada fila lleva las columnas por el orden de la spec con 4 decimales`() {
         lines(csv(listOf(row())))[1] shouldBe
             "P1,2,P1_stkd2,\"Esquina, norte\",440000.1234,4470000.5000,700.0000," +
-            "440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,0.0200,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z"
+            "440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,0.0200,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z,,,,,,"
     }
 
     @Test
@@ -129,7 +134,7 @@ class StakeoutReportCsvTest {
         val line = lines(csv(listOf(row(description = "Eje", elevation = null, dHeight = null))))[1]
 
         line shouldBe
-            "P1,2,P1_stkd2,Eje,440000.1234,4470000.5000,,440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z"
+            "P1,2,P1_stkd2,Eje,440000.1234,4470000.5000,,440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z,,,,,,"
     }
 
     @Test
@@ -137,7 +142,7 @@ class StakeoutReportCsvTest {
         val line = lines(csv(listOf(row(description = "Antes", tolerances = null, within = null))))[1]
 
         line shouldBe
-            "P1,2,P1_stkd2,Antes,440000.1234,4470000.5000,700.0000,440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,0.0200,,,,true,FIX,2026-10-18T18:03:34Z"
+            "P1,2,P1_stkd2,Antes,440000.1234,4470000.5000,700.0000,440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,0.0200,,,,true,FIX,2026-10-18T18:03:34Z,,,,,,"
     }
 
     @Test
@@ -155,7 +160,7 @@ class StakeoutReportCsvTest {
         lines[0] shouldBe geographicHeader
         lines[1] shouldBe
             "P1,2,P1_stkd2,Eje,40.416800000,-3.703800000,700.0000," +
-            "40.416810000,-3.703790000,700.0200,-0.0100,0.0166,0.0193,0.0200,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z"
+            "40.416810000,-3.703790000,700.0200,-0.0100,0.0166,0.0193,0.0200,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z,,,,,,"
     }
 
     @Test
@@ -172,14 +177,14 @@ class StakeoutReportCsvTest {
         val line = lines(csv(listOf(row(description = "Eje")), separator = ColumnSeparator.SEMICOLON, decimal = DecimalSeparator.COMMA))[1]
 
         line shouldBe
-            "P1;2;P1_stkd2;Eje;440000,1234;4470000,5000;700,0000;440000,1400;4470000,4900;700,0200;-0,0100;0,0166;0,0193;0,0200;0,0250;0,0300;true;true;FIX;2026-10-18T18:03:34Z"
+            "P1;2;P1_stkd2;Eje;440000,1234;4470000,5000;700,0000;440000,1400;4470000,4900;700,0200;-0,0100;0,0166;0,0193;0,0200;0,0250;0,0300;true;true;FIX;2026-10-18T18:03:34Z;;;;;;"
     }
 
     @Test
     fun `S019 RF-23 con tabulador de separador`() {
         val line = lines(csv(listOf(row(description = "Eje")), separator = ColumnSeparator.TAB))[1]
 
-        line.split("\t").size shouldBe 20
+        line.split("\t").size shouldBe 26
     }
 
     @Test
@@ -235,5 +240,71 @@ class StakeoutReportCsvTest {
             }
             cells[17] shouldBe if (expected.getValue("ultimo") == "1") "true" else "false"
         }
+    }
+
+    private val drawingSource = StakeSource.CadElement("calle.dxf", "Eje, norte", CadEntityKind.POLYLINE)
+
+    private fun drawingRow(mode: LineStakeoutMode?, chainage: Double?, offset: Double?): StakeoutReportRow {
+        val base = row(description = "Eje")
+        val ref = base.ref.copy(source = drawingSource, mode = mode, chainageM = chainage, lateralOffsetM = offset, dLateralM = 0.012)
+        return base.copy(ref = ref, point = base.point.copy(staked = ref))
+    }
+
+    @Test
+    fun `S041 RF-30 el CSV lleva al final las columnas del dibujo, la capa, el tipo de elemento, el modo, el PK y el desplazamiento`() {
+        lines(csv(listOf(row())))[0].split(",").takeLast(6) shouldBe
+            listOf("Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset")
+        lines(csv(emptyList(), project(ProjectCrs.ETRS89_GEOGRAPHIC)))[0].split(",").takeLast(6) shouldBe
+            listOf("Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset")
+    }
+
+    @Test
+    fun `S041 RF-30 un replanteo de un punto del proyecto deja vacias las seis columnas del dibujo`() {
+        val cells = lines(csv(listOf(row(description = "Eje"))))[1].split(",")
+
+        cells.size shouldBe 26
+        cells.takeLast(6) shouldBe List(6) { "" }
+    }
+
+    @Test
+    fun `S041 RF-30 un replanteo de un elemento de un dibujo escribe el dibujo, la capa, el tipo, el modo, el PK y el desplazamiento`() {
+        val line = lines(csv(listOf(drawingRow(LineStakeoutMode.ALONG, 45.25, -1.5))))[1]
+
+        line.endsWith(",calle.dxf,\"Eje, norte\",POLYLINE,ALONG,45.2500,-1.5000") shouldBe true
+    }
+
+    @Test
+    fun `S041 RF-30 un punto fijo de un dibujo escribe su origen y deja vacios el modo, el PK y el desplazamiento`() {
+        val cells = lines(csv(listOf(drawingRow(null, null, null)), separator = ColumnSeparator.TAB))[1].split("\t")
+
+        cells.takeLast(6) shouldBe listOf("calle.dxf", "Eje, norte", "POLYLINE", "", "", "")
+    }
+
+    @Test
+    fun `S041 RF-30 el PK y el desplazamiento salen en la unidad del proyecto y con la coma decimal elegida`() {
+        val feet = lines(
+            csv(listOf(drawingRow(LineStakeoutMode.SEGMENT_AB, 30.48, 3.048)), project(unit = LinearUnit.INTERNATIONAL_FOOT)),
+        )[1]
+        val commas = lines(
+            csv(
+                listOf(drawingRow(LineStakeoutMode.INTERVALS, 45.25, -1.5)),
+                separator = ColumnSeparator.SEMICOLON,
+                decimal = DecimalSeparator.COMMA,
+            ),
+        )[1]
+
+        feet.endsWith(",SEGMENT_AB,100.0000,10.0000") shouldBe true
+        commas.endsWith(";INTERVALS;45,2500;-1,5000") shouldBe true
+    }
+
+    @Test
+    fun `S041 RF-30 el informe incluye los puntos replanteados de un dibujo junto a los del proyecto`() {
+        val rows = listOf(row(), drawingRow(LineStakeoutMode.TO_LINE, 12.0, 0.0))
+
+        val lines = lines(csv(rows, separator = ColumnSeparator.TAB))
+
+        lines.size shouldBe 3
+        lines[1].split("	").takeLast(6) shouldBe List(6) { "" }
+        lines[2].split("	").takeLast(6).take(4) shouldBe listOf("calle.dxf", "Eje, norte", "POLYLINE", "TO_LINE")
     }
 }

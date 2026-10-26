@@ -1,5 +1,7 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.point.StakeSource
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.StakeoutReportRow
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
@@ -24,13 +26,16 @@ object StakeoutReportCsv {
         "Measured from",
     )
 
+    /** Si el punto de diseño era un elemento de un dibujo: el dibujo, la capa, el tipo de elemento, el modo, el PK y el desplazamiento (S041/RF-30). */
+    private val DRAWING_HEADERS = listOf("Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset")
+
     /** Las cabeceras: con un SC geográfico, la latitud y la longitud en lugar del Este y el Norte (S019/RF-22). */
     fun headers(crs: ProjectCrs): List<String> {
         val first = if (crs.isUtm) "easting" to "northing" else "latitude" to "longitude"
         return listOf("Design name", "Stakeout number", "Staked name", "Description") +
             listOf("Design ${first.first}", "Design ${first.second}", "Design elevation") +
             listOf("Measured ${first.first}", "Measured ${first.second}", "Measured elevation") +
-            TAIL_HEADERS
+            TAIL_HEADERS + DRAWING_HEADERS
     }
 
     /** Escribe el informe de [rows] en [out]; falla si el separador y el signo decimal son los dos la coma (S012/RF-14). */
@@ -43,6 +48,19 @@ object StakeoutReportCsv {
         for (row in rows) {
             out.append(values(row, project, decimal).joinToString(sep.toString()) { CsvExport.quoted(it, sep) }).append(CsvExport.LINE_END)
         }
+    }
+
+    /** Las seis columnas del dibujo, vacías en un punto replanteado que viene de un punto del proyecto (S041/RF-30). */
+    private fun drawingValues(ref: StakeoutRef, length: (Double?) -> String): List<String> {
+        val source = ref.source as? StakeSource.CadElement ?: return List(DRAWING_HEADERS.size) { "" }
+        return listOf(
+            source.drawingName,
+            source.layerName,
+            source.kind.name,
+            ref.mode?.name.orEmpty(),
+            length(ref.chainageM),
+            length(ref.lateralOffsetM),
+        )
     }
 
     private fun values(row: StakeoutReportRow, project: Project, decimal: DecimalSeparator): List<String> {
@@ -74,6 +92,6 @@ object StakeoutReportCsv {
                 row.last.toString(),
                 measurement?.quality?.solution.orEmpty(),
                 measurement?.measuredFromMs?.let(CsvExport::utc).orEmpty(),
-            )
+            ) + drawingValues(ref, ::length)
     }
 }

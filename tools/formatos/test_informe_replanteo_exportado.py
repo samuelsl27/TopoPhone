@@ -26,6 +26,7 @@ UTM_HEADER = [
     "Design name", "Stakeout number", "Staked name", "Description", "Design easting", "Design northing", "Design elevation",
     "Measured easting", "Measured northing", "Measured elevation", "Delta northing", "Delta easting", "Horizontal distance",
     "Delta elevation", "Horizontal tolerance", "Vertical tolerance", "Within tolerance", "Last", "Solution", "Measured from",
+    "Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset",
 ]  # fmt: skip
 
 
