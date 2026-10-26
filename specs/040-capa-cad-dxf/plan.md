@@ -137,7 +137,7 @@ CadImportOptions(
 
 ### A9. Importar: explorar, escribir por tandas y cancelar (RF-9 a RF-13, RF-18 a RF-20, RF-33)
 - **Exploración** (al elegir el fichero): una pasada con el `DxfSink` de extensión. Da el recuadro del dibujo en coordenadas del origen, el número de elementos y la unidad declarada, en segundo plano y con progreso. Cambiar el sistema o la unidad no la repite: se convierten las esquinas del recuadro y su centro (RF-9). Es una pasada completa del lector, de coste parecido a la importación.
-- **Centro del proyecto** (RF-9, RF-10): el centro de sus puntos y, sin puntos, el de su encuadre guardado (S009) o el del ámbito de su SC. La distancia es la de la gran circunferencia entre ese centro y el del dibujo.
+- **Centro del proyecto** (RF-9, RF-10): el centro de sus puntos y, sin puntos, el de su encuadre guardado (S009); sin ninguno de los dos no se conoce su posición y no se avisa, porque el ámbito de España entera daría falsos avisos. La distancia es la de la gran circunferencia entre ese centro y el del dibujo.
 - **Importación**:
   1. Se crea la fila del dibujo con `status = 'IMPORTING'` y se leen los elementos por la ruta A7.
   2. Cada elemento pasa por `CadProjector` (A8) y por la regla de la cota: con `useElevations` y una Z presente, se guarda con `hasZ`; si no, sin Z. Se apunta si alguna Z es distinta de 0.

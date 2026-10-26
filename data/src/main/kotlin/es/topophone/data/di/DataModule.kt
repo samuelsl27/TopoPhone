@@ -13,6 +13,9 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.BackupDataStoreQualifier
 import es.topophone.data.backup.DataStoreAutoBackupPreferences
+import es.topophone.data.cad.CadDrawingImporter
+import es.topophone.data.cad.CadRepository
+import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.DataStoreExportPreferences
 import es.topophone.data.export.ExportDataStoreQualifier
@@ -133,6 +136,14 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideMapViewportRepository(database: TopoPhoneDatabase): MapViewportRepository = RoomMapViewportRepository(database)
+
+    /** Los dibujos importados de un DXF (S040). */
+    @Provides
+    @Singleton
+    fun provideCadRepository(database: TopoPhoneDatabase): CadRepository = RoomCadRepository(database)
+
+    @Provides
+    fun provideCadDrawingImporter(repository: CadRepository): CadDrawingImporter = CadDrawingImporter(repository)
 
     @Provides
     fun provideNtripLegacyImport(preferences: ReceiverPreferences, profiles: NtripProfileRepository): NtripLegacyImport =
