@@ -12,7 +12,7 @@
       Hecho cuando: `DxfFileKindTest` en verde con DWG renombrado, DXF binario, vacío, texto cualquiera, las versiones R12 a R2018 y más de 100 MB.
 - [x] T5. `core:formats`: `DxfTagReader` y `DxfHeader`, los pares código/valor por flujo, la codificación y la cabecera. (RF-2, RF-7, RNF-T9)
       Hecho cuando: `DxfTagReaderTest` en verde: CRLF, LF y CR, punto decimal con otra región, UTF-8 y página de códigos, nombres con acentos, valor que no es número, y la unidad declarada.
-- [ ] T6. `core:formats`: `DxfTables` y `AciPalette`, las capas con su color y su estado, y la resolución del color de un elemento. (RF-24, RF-25, RF-33)
+- [x] T6. `core:formats`: `DxfTables` y `AciPalette`, las capas con su color y su estado, y la resolución del color de un elemento. (RF-24, RF-25, RF-33)
       Hecho cuando: `DxfTablesTest` en verde: ACI, color verdadero, BYLAYER, BYBLOCK, capa `0` en un bloque, capa apagada y congelada, y el blanco y el negro marcados.
 - [ ] T7. `core:formats`: `DxfEntities`, punto, línea, LWPOLYLINE, POLYLINE con VERTEX y SEQEND, arco y círculo, con la extrusión. (RF-14)
       Hecho cuando: `DxfEntitiesTest` en verde, con bulge, polilíneas cerradas, 3D y la extrusión (0, 0, −1) frente a lo esperado de `fixtures/`.
