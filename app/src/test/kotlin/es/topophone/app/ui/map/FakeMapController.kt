@@ -2,6 +2,7 @@ package es.topophone.app.ui.map
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.LaunchedEffect
+import es.topophone.app.ui.cad.DesignScene
 import es.topophone.app.ui.projects.MapSlot
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.map.MapSettings
@@ -32,6 +33,8 @@ class FakeMapController : MapController {
     var roverCalls = 0
     var base: GeoPoint? = null
     var points: List<MapPoint> = emptyList()
+    var design: DesignScene? = null
+    var designCalls = 0
     var stakeout: StakeoutMarker? = null
     val moves = mutableListOf<MapViewport>()
     var spainShown = false
@@ -50,6 +53,11 @@ class FakeMapController : MapController {
     /** El usuario toca el punto [id] en el mapa. */
     fun clickPoint(id: String) {
         clicks.tryEmit(id)
+    }
+
+    override fun showDesign(scene: DesignScene?) {
+        design = scene
+        designCalls++
     }
 
     override fun setSettings(settings: MapSettings) {

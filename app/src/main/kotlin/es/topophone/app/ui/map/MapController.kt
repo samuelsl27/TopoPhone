@@ -1,5 +1,6 @@
 package es.topophone.app.ui.map
 
+import es.topophone.app.ui.cad.DesignScene
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
@@ -23,6 +24,9 @@ interface MapController {
 
     /** Puntos del proyecto con su nombre (S010/RF-20). */
     fun showPoints(points: List<MapPoint>)
+
+    /** El dibujo importado de un DXF en la vista de ahora; nada sin dibujo (S040/RF-24). */
+    fun showDesign(scene: DesignScene?)
 
     /** El replanteo: el punto de diseño, la punta y la línea entre ellos; nada sin replanteo (S018/RF-14). */
     fun showStakeout(marker: StakeoutMarker?)

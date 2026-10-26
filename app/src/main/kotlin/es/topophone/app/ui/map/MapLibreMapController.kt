@@ -10,6 +10,7 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.os.Handler
 import android.os.Looper
+import es.topophone.app.ui.cad.DesignScene
 import es.topophone.core.geodesy.AccuracyCircle
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.MapGrid
@@ -67,6 +68,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private var rover: RoverMarker? = null
     private var base: GeoPoint? = null
     private var points: List<MapPoint> = emptyList()
+    private var design: DesignScene? = null
     private var stakeout: StakeoutMarker? = null
     private var bottomInsetPx = 0
     private var appliedInsetPx = 0
@@ -123,9 +125,11 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             map.setStyle(builder) { style ->
                 addBackground(style)
                 addPointLayers(style)
+                addDesignLayers(style)
                 addStakeoutLayers(style)
                 addBaseLayer(style)
                 addRoverLayers(style)
+                drawDesign()
                 drawPoints()
                 drawStakeout()
                 drawBase()
@@ -190,6 +194,56 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         val layers = arrayOf(POINTS_LAYER, STAKED_LAYER, POINT_LABELS_LAYER)
         return map.queryRenderedFeatures(box, *layers).firstNotNullOfOrNull { it.getStringProperty(POINT_ID) }
     }
+
+    override fun showDesign(scene: DesignScene?) {
+        design = scene
+        drawDesign()
+    }
+
+    /**
+     * El dibujo de un DXF: líneas de su color y puntos como anillos huecos, para distinguirlos de los puntos del proyecto (círculos
+     * rellenos con nombre), debajo de ellos (S040/RF-24).
+     */
+    private fun addDesignLayers(style: Style) {
+        style.addSource(GeoJsonSource(DESIGN_LINES_SOURCE))
+        style.addSource(GeoJsonSource(DESIGN_POINTS_SOURCE))
+        style.addLayerBelow(
+            LineLayer(DESIGN_LINES_LAYER, DESIGN_LINES_SOURCE).withProperties(
+                PropertyFactory.lineColor(Expression.toColor(Expression.get(DESIGN_COLOR))),
+                PropertyFactory.lineWidth(DESIGN_LINE_DP),
+            ),
+            POINTS_LAYER,
+        )
+        style.addLayerBelow(
+            CircleLayer(DESIGN_POINTS_LAYER, DESIGN_POINTS_SOURCE).withProperties(
+                PropertyFactory.circleRadius(DESIGN_POINT_RADIUS_DP),
+                PropertyFactory.circleColor(Color.TRANSPARENT),
+                PropertyFactory.circleStrokeColor(Expression.toColor(Expression.get(DESIGN_COLOR))),
+                PropertyFactory.circleStrokeWidth(DESIGN_POINT_STROKE_DP),
+            ),
+            POINTS_LAYER,
+        )
+    }
+
+    private fun drawDesign() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val lines = style.getSourceAs<GeoJsonSource>(DESIGN_LINES_SOURCE) ?: return
+        val points = style.getSourceAs<GeoJsonSource>(DESIGN_POINTS_SOURCE) ?: return
+        val scene = design
+        val lineFeatures = scene?.lines.orEmpty().map { line ->
+            val coordinates = List(line.vertexCount) { Point.fromLngLat(line.lonLat[it * 2], line.lonLat[it * 2 + 1]) }
+            Feature.fromGeometry(LineString.fromLngLats(coordinates)).apply { addStringProperty(DESIGN_COLOR, hex(line.argb)) }
+        }
+        val pointFeatures = scene?.points.orEmpty().map { point ->
+            Feature.fromGeometry(Point.fromLngLat(point.longitudeDeg, point.latitudeDeg)).apply {
+                addStringProperty(DESIGN_COLOR, hex(point.argb))
+            }
+        }
+        lines.setGeoJson(FeatureCollection.fromFeatures(lineFeatures))
+        points.setGeoJson(FeatureCollection.fromFeatures(pointFeatures))
+    }
+
+    private fun hex(argb: Int) = String.format(java.util.Locale.ROOT, "#%06X", argb and 0xFFFFFF)
 
     override fun showPoints(points: List<MapPoint>) {
         this.points = points
@@ -543,6 +597,14 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val GRID_LAYER = "topophone-grid"
         const val CADASTRE_SOURCE = "topophone-cadastre"
         const val CADASTRE_LAYER = "topophone-cadastre"
+        const val DESIGN_LINES_SOURCE = "topophone-design-lines"
+        const val DESIGN_LINES_LAYER = "topophone-design-lines"
+        const val DESIGN_POINTS_SOURCE = "topophone-design-points"
+        const val DESIGN_POINTS_LAYER = "topophone-design-points"
+        const val DESIGN_COLOR = "color"
+        const val DESIGN_LINE_DP = 1.5f
+        const val DESIGN_POINT_RADIUS_DP = 4f
+        const val DESIGN_POINT_STROKE_DP = 1.5f
         const val POINTS_SOURCE = "topophone-points"
         const val POINTS_LAYER = "topophone-points"
         const val POINT_LABELS_LAYER = "topophone-point-labels"

@@ -62,6 +62,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.cad.DesignMapViewModel
+import es.topophone.app.ui.cad.DesignScene
 import es.topophone.app.ui.collector.AutoLive
 import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.COLLECT_BUTTON_TAG
@@ -132,6 +134,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -309,6 +312,9 @@ class ProjectViewModel @Inject constructor(
     }
 }
 
+/** Lo que la cámara del mapa espera quieta antes de recargar el dibujo importado (S040/RF-24). */
+private const val DESIGN_DEBOUNCE_MS = 150L
+
 @Composable
 fun ProjectViewRoute(
     projectId: String,
@@ -320,10 +326,12 @@ fun ProjectViewRoute(
     viewModel: ProjectViewModel = hiltViewModel(),
     collectorViewModel: CollectorViewModel = hiltViewModel(),
     stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
+    designViewModel: DesignMapViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
         viewModel.start(projectId)
         collectorViewModel.start(projectId)
+        designViewModel.start(projectId) // S040/RF-24
     }
     // S018/RF-1: el replanteo se abre desde la ficha o la lista con el punto elegido, y se cierra con "Cerrar".
     var stakeoutOpen by rememberSaveable { mutableStateOf(stakeoutPointId != null) }
@@ -336,6 +344,8 @@ fun ProjectViewRoute(
     // S019/RF-13: la cota usada y las tolerancias vigentes viajan con el recolector para guardarse con el replanteo.
     LaunchedEffect(stakeoutOpen, stakeout.saveInfo) { collectorViewModel.setStakeSaveInfo(stakeout.saveInfo.takeIf { stakeoutOpen }) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val design by designViewModel.scene.collectAsStateWithLifecycle()
+    LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
     val collectorAutoLive by collectorViewModel.autoLive.collectAsStateWithLifecycle() // S017/RF-26
@@ -352,6 +362,8 @@ fun ProjectViewRoute(
         viewModel::setMapSettings,
         viewModel::onViewportChanged,
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
+        design = design,
+        onDesignCamera = designViewModel::onCamera,
         collector = collector,
         collectorStats = collectorStats,
         collectorAutoLive = collectorAutoLive,
@@ -418,6 +430,9 @@ fun ProjectViewScreen(
     onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     stakeout: StakeoutUiState? = null,
     stakeoutActions: StakeoutActions = StakeoutActions(),
+    /** El dibujo importado de un DXF en la vista de ahora y el aviso de que la cámara se ha parado (S040/RF-24). */
+    design: DesignScene? = null,
+    onDesignCamera: (MapCamera) -> Unit = {},
 ) {
     var collectorOpen by rememberSaveable { mutableStateOf(false) }
     val policy = remember { CameraPolicy() }
@@ -516,7 +531,7 @@ fun ProjectViewScreen(
             }
         }
     }
-    BindMap(controller, state, stakeout)
+    BindMap(controller, state, stakeout, design, onDesignCamera)
     LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
     controller?.let { FollowRover(it, state, policy, onViewportChanged) }
     // S011/RF-5: tocar un punto del mapa abre su ficha.
@@ -654,13 +669,25 @@ private fun basemapLabel(basemap: Basemap): String = stringResource(
 )
 
 /** Lleva al mapa sus ajustes, la unidad del proyecto y el rover con el color de su solución (S009/RF-6, RF-10, RF-16). */
+@OptIn(FlowPreview::class)
 @Composable
-private fun BindMap(controller: MapController?, state: ProjectViewUiState, stakeout: StakeoutUiState?) {
+private fun BindMap(
+    controller: MapController?,
+    state: ProjectViewUiState,
+    stakeout: StakeoutUiState?,
+    design: DesignScene?,
+    onDesignCamera: (MapCamera) -> Unit,
+) {
     val unit = state.project?.linearUnit
     val palette = LocalStatusPalette.current
     val marker = state.rover?.let { RoverMarker(it.position, it.accuracyM, palette.colorsFor(it.solution.tone()).container.toArgb()) }
     LaunchedEffect(controller, marker) { controller?.showRover(marker) }
     LaunchedEffect(controller, state.points) { controller?.showPoints(MapPoints.from(state.points)) } // S010/RF-20
+    LaunchedEffect(controller, design) { controller?.showDesign(design) } // S040/RF-24
+    LaunchedEffect(controller) {
+        // S040/RF-24: el dibujo se vuelve a cargar cuando la cámara lleva 150 ms quieta.
+        controller?.camera?.filterNotNull()?.debounce(DESIGN_DEBOUNCE_MS)?.collect(onDesignCamera)
+    }
     LaunchedEffect(controller, state.base) { controller?.showBase(state.base) } // S015/RF-19
     val stakeoutMarker = StakeoutMarkers.of(stakeout)
     LaunchedEffect(controller, stakeoutMarker) { controller?.showStakeout(stakeoutMarker) } // S018/RF-14
