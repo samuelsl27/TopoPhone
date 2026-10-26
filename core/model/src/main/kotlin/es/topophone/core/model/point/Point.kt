@@ -93,6 +93,8 @@ data class Measurement(
      * está vacía (S017/RF-12). 0: todas las frases están en [rawNmea].
      */
     val nmeaChunks: Int = 0,
+    /** El jalón y la antena con los que se midió (S046/RF-24); null en los puntos de antes de S046. */
+    val gear: GearUsed? = null,
 )
 
 /**

@@ -1,5 +1,6 @@
 package es.topophone.core.survey
 
+import es.topophone.core.model.point.PoleKind
 /**
  * Un jalón guardado (S046/RF-9, RF-16).
  *

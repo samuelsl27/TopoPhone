@@ -1,9 +1,7 @@
 package es.topophone.core.survey
 
+import es.topophone.core.model.point.PoleKind
 import kotlin.math.sqrt
-
-/** Cómo se mide la altura de un jalón: en vertical o inclinada hasta el borde de la base del receptor (S046/RF-16). */
-enum class PoleKind { VERTICAL, SLANT }
 
 /** Por qué el equipo (jalón y perfil de antena) de un receptor no permite medir (S046/RF-18, RF-28). */
 enum class GearProblem { NO_POLE, NO_RADIUS, SLANT_SHORTER_THAN_RADIUS }

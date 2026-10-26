@@ -1,5 +1,6 @@
 package es.topophone.core.survey
 
+import es.topophone.core.model.point.PoleKind
 import es.topophone.core.model.project.ProjectNames
 
 /** Qué campo de un perfil o de un jalón no es válido (S046/RF-4, RF-10). */

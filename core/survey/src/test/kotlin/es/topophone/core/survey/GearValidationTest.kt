@@ -1,5 +1,6 @@
 package es.topophone.core.survey
 
+import es.topophone.core.model.point.PoleKind
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 

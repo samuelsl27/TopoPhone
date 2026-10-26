@@ -4,6 +4,7 @@ import es.topophone.core.geodesy.Ecef
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.PoleKind
 import es.topophone.core.model.point.PoleVector
 import es.topophone.core.model.point.TiltMode
 import io.kotest.matchers.collections.shouldBeEmpty
