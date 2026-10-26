@@ -11,8 +11,10 @@ import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.cad.CadExtent
 import es.topophone.core.model.cad.CadImportOptions
+import es.topophone.core.model.cad.CadImportSummary
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
@@ -20,25 +22,34 @@ import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.CadProjection
 import es.topophone.core.survey.CadProjector
 import es.topophone.data.cad.CadDrawingImporter
+import es.topophone.data.cad.CadImportFailure
+import es.topophone.data.cad.CadImportResult
 import es.topophone.data.cad.CadRepository
 import es.topophone.data.map.MapViewportRepository
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import java.io.IOException
+import java.io.OutputStream
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Por qué no se abre la pantalla de importación del dibujo (S040/RF-2 a RF-5, RF-13). */
 enum class CadFileProblem { EMPTY, NOT_DXF, DWG, BINARY_DXF, TOO_BIG, UNREADABLE, NO_ELEMENTS }
 
 /** En qué punto está la importación de un DXF. */
 enum class CadImportStage { LOADING, PROBLEM, CONFIG, IMPORTING, RESULT }
+
+/** Lo que dejó una importación: el dibujo nuevo y su resumen (S040/RF-18). */
+data class CadImportOutcome(val drawingId: String, val summary: CadImportSummary)
 
 /** Lo que muestra la pantalla de importar un DXF (S040). */
 data class CadImportUiState(
@@ -67,6 +78,13 @@ data class CadImportUiState(
     val farConfirmed: Boolean = false,
     val duplicateName: Boolean = false,
     val duplicateConfirmed: Boolean = false,
+    /** Los bytes leídos durante la importación, para el progreso (RF-11). */
+    val importBytes: Long = 0,
+    /** Por qué la última importación no guardó nada (RF-12); null si no ha fallado. */
+    val failure: CadImportFailure? = null,
+    /** El usuario canceló la última importación: no se guardó nada (RF-12). */
+    val cancelled: Boolean = false,
+    val result: CadImportOutcome? = null,
 ) {
     /** Hay algo que importar y nada lo impide: se ha explorado, el dibujo cabe en el sistema y los avisos están confirmados. */
     val canImport: Boolean
@@ -237,6 +255,69 @@ class CadImportViewModel @Inject constructor(
                 val km = centre?.let { c -> projectCenter?.let { p -> CadPlacement.distanceKm(p.first, p.second, c.first, c.second) } }
                 mutable.update { it.copy(extent = box, outsideArea = false, distanceKm = km, farWarning = CadPlacement.isFar(km)) }
             }
+        }
+    }
+
+    private var importJob: Job? = null
+
+    /**
+     * Importa el dibujo con las opciones de ahora, en segundo plano y con progreso (RF-11). Si falla o se cancela no queda nada
+     * guardado (RF-12) y se vuelve a la configuración; si acaba, queda el resumen (RF-18).
+     */
+    fun import() {
+        val current = mutable.value
+        if (!current.canImport) return
+        val project = project ?: return
+        val source = source ?: return
+        mutable.update { it.copy(stage = CadImportStage.IMPORTING, importBytes = 0, failure = null, cancelled = false) }
+        importJob = viewModelScope.launch(io) {
+            try {
+                val result = importer.import(
+                    projectId = project.id,
+                    crs = project.crs,
+                    fileName = source.name,
+                    options = current.options,
+                    openStream = { source.open() ?: throw IOException("No se puede abrir el fichero") },
+                    onProgress = { read -> mutable.update { it.copy(importBytes = read) } },
+                )
+                when (result) {
+                    is CadImportResult.Imported -> {
+                        log.info(LogCategory.APP, importedMessage(result.summary))
+                        mutable.update {
+                            it.copy(stage = CadImportStage.RESULT, result = CadImportOutcome(result.drawingId, result.summary))
+                        }
+                    }
+                    is CadImportResult.Failed -> {
+                        log.error(LogCategory.APP, "Importación DXF fallida: ${result.reason.name.lowercase()}")
+                        mutable.update { it.copy(stage = CadImportStage.CONFIG, failure = result.reason) }
+                    }
+                }
+            } catch (cancelled: CancellationException) {
+                log.info(LogCategory.APP, "Importación DXF cancelada: no se ha guardado nada")
+                mutable.update { it.copy(stage = CadImportStage.CONFIG, cancelled = true) }
+                throw cancelled
+            }
+        }
+    }
+
+    /** Cancela la importación en curso (RF-11). */
+    fun cancel() {
+        importJob?.cancel()
+    }
+
+    /** El log no lleva nombres de elementos ni coordenadas, solo los recuentos (RF-32). */
+    private fun importedMessage(summary: CadImportSummary) =
+        "Dibujo DXF importado: ${summary.importedTotal} elementos, ${summary.ignoredTotal} ignorados, ${summary.layers} capas" +
+            if (summary.incomplete) " (incompleto)" else ""
+
+    /** Escribe el resumen de la importación como texto (RF-18); false si no se pudo escribir. */
+    suspend fun writeSummary(out: OutputStream, labels: CadSummaryLabels): Boolean = withContext(io) {
+        val summary = mutable.value.result?.summary ?: return@withContext false
+        try {
+            out.bufferedWriter(Charsets.UTF_8).use { it.write(CadSummaryText.build(summary, labels)) }
+            true
+        } catch (_: IOException) {
+            false
         }
     }
 

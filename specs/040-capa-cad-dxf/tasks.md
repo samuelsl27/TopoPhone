@@ -36,7 +36,7 @@
       Hecho cuando: `BackupCadTest` en verde: la copia y el paquete conservan los dibujos, sus capas y su visibilidad, y la restauración los devuelve.
 - [x] T17. `app`: `CadImportViewModel`, parte 1: leer el tipo de fichero, explorar, y calcular la extensión, la distancia y los avisos. (RF-1 a RF-10, RF-20)
       Hecho cuando: `CadImportViewModelTest` en verde con un `ContentResolver` falso: DWG, binario, vacío, grande, exploración, cambio de sistema y de unidad, aviso de lejanía y nombre repetido.
-- [ ] T18. `app`: `CadImportViewModel`, parte 2: importar, el progreso, cancelar, el resumen, guardarlo y el log. (RF-11, RF-12, RF-13, RF-18, RF-32)
+- [x] T18. `app`: `CadImportViewModel`, parte 2: importar, el progreso, cancelar, el resumen, guardarlo y el log. (RF-11, RF-12, RF-13, RF-18, RF-32)
       Hecho cuando: los tests en verde: progreso, cancelar, fallo de escritura, dibujo incompleto, resumen y log sin nombres ni coordenadas.
 - [ ] T19. `app`: `CadImportScreen`, la configuración (sistema, unidad, cotas), la extensión con sus avisos, el progreso con «Cancelar» y el resumen, con sus textos en es y en. (RF-6 a RF-10, RF-13, RF-18)
       Hecho cuando: `CadImportScreenTest` en verde, con las etiquetas de TalkBack y el estado con icono y texto.
