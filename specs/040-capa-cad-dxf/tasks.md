@@ -26,7 +26,7 @@
       Hecho cuando: `CadProjectorTest` en verde frente a pyproj (≤ 1 mm; ida y vuelta ≤ 0,1 mm) en ETRS89, REGCAN95 y ED50 y otro huso, con metros, pies y pies topográficos, fuera del ámbito y la altura sin convertir.
 - [x] T12. `core:survey`: `DesignHitTest`, el elemento más cercano a un toque. (RF-29)
       Hecho cuando: `DesignHitTestTest` en verde: tolerancia, vértice y segmento, y los puntos del proyecto con preferencia.
-- [ ] T13. `data`: las tablas `cad_drawings`, `cad_layers` y `cad_chunks`, sus DAO y `AutoMigration(12, 13)`. (RNF-T6)
+- [x] T13. `data`: las tablas `cad_drawings`, `cad_layers` y `cad_chunks`, sus DAO y `AutoMigration(12, 13)`. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 12 → 13 en verde: los proyectos, puntos y replanteos conservan sus datos.
 - [ ] T14. `data`: `CadRepository`, la escritura por tandas con `IMPORTING` y `READY`, la limpieza al arrancar, la lectura por zona, la visibilidad y el borrado. (RF-12, RF-19, RF-27, RF-28, RF-30)
       Hecho cuando: `CadRepositoryTest` en verde: lo no terminado no se ve, la visibilidad persiste, borrar un dibujo o un proyecto no deja trozos y los puntos no se tocan.

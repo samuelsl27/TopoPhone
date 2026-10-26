@@ -7,6 +7,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.db.SupportSQLiteDatabase
+import es.topophone.data.cad.CadChunkEntity
+import es.topophone.data.cad.CadDrawingEntity
+import es.topophone.data.cad.CadLayerEntity
 import es.topophone.data.map.MapViewportDao
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.ntrip.NtripProfileDao
@@ -40,11 +43,12 @@ import es.topophone.data.project.ProjectFolderEntity
  * - v10 (S018): el punto de diseño y las diferencias de cada replanteo. Columnas que admiten NULL: migración de Room.
  * - v11 (S019): la cota de diseño usada, las tolerancias y si cumple cada replanteo. Columnas que admiten NULL: migración de Room.
  * - v12 (S028): `import_id` de los puntos importados, con su índice. Columna que admite NULL: migración de Room.
+ * - v13 (S040): dibujos importados de un DXF (`cad_drawings`, `cad_layers` y `cad_chunks`). Solo añade tablas: migración de Room.
  */
 @Database(
     entities = [
         ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class, PointEntity::class,
-        PointHistoryEntity::class, PointNmeaEntity::class,
+        PointHistoryEntity::class, PointNmeaEntity::class, CadDrawingEntity::class, CadLayerEntity::class, CadChunkEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -60,6 +64,7 @@ import es.topophone.data.project.ProjectFolderEntity
         AutoMigration(from = 9, to = 10),
         AutoMigration(from = 10, to = 11),
         AutoMigration(from = 11, to = 12),
+        AutoMigration(from = 12, to = 13),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -76,7 +81,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 12
+        const val VERSION = 13
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

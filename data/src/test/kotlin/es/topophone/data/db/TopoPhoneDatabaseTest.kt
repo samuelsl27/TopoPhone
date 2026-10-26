@@ -482,6 +482,89 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S040 RNF-T6 de la v12 a la v13 los puntos siguen y se anaden las tablas del dibujo`() {
+        createFromExportedSchema(12)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v12 ->
+            v12.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v12.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, ground_lat, ground_lon, easting, northing, " +
+                    "out_of_tolerance, typed_form, typed_first, typed_second, typed_height_kind, created_at) VALUES " +
+                    "(?, ?, 'M1', 'a mano', 'MANUAL', 40.4, -3.7, 440000.123456789, 4474000.987654321, '', " +
+                    "'PROJECT_CRS', 440000.123456789, 4474000.987654321, 'PROJECT', 3000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.map { it.name } shouldBe listOf("M1")
+            points.single().typed.shouldNotBeNull().first shouldBe 440000.123456789
+            val names = mutableListOf<String>()
+            db.openHelper.readableDatabase.query(
+                "SELECT name FROM sqlite_master " +
+                    "WHERE name LIKE '%cad_%' AND name NOT LIKE 'sqlite_autoindex%'",
+            ).use {
+                while (it.moveToNext()) names += it.getString(0)
+            }
+            names.toSet() shouldBe setOf(
+                "cad_drawings",
+                "cad_layers",
+                "cad_chunks",
+                "index_cad_drawings_project_id",
+                "index_cad_layers_drawing_id",
+                "index_cad_chunks_layer_id",
+            )
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun `S040 RF-30 borrar el proyecto borra sus dibujos, capas y trozos`() {
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            runBlocking { db.projects().insert(project) }
+            val sqlite = db.openHelper.writableDatabase
+            sqlite.execSQL(
+                "INSERT INTO cad_drawings (id, project_id, file_name, imported_at_ms, source_crs, source_unit, use_elevations, " +
+                    "has_elevations, incomplete, status, min_e, max_e, min_n, max_n) VALUES " +
+                    "('d1', ?, 'plano.dxf', 1, 'PROJECT', 'METRE', 1, 1, 0, 'READY', 1.0, 2.0, 3.0, 4.0)",
+                arrayOf<Any>(project.id),
+            )
+            sqlite.execSQL(
+                "INSERT INTO cad_layers (id, drawing_id, name, kind, color_argb, auto_contrast, visible, entity_count, position) " +
+                    "VALUES ('l1', 'd1', 'Ejes', 'LINES', -65536, 0, 1, 2, 0)",
+            )
+            sqlite.execSQL(
+                "INSERT INTO cad_chunks (layer_id, min_e, max_e, min_n, max_n, entity_count, data) VALUES " +
+                    "('l1', 1.0, 2.0, 3.0, 4.0, 2, x'0102')",
+            )
+            count(db, "cad_chunks") shouldBe 1
+
+            sqlite.execSQL("DELETE FROM projects WHERE id = ?", arrayOf<Any>(project.id))
+
+            count(db, "cad_drawings") shouldBe 0
+            count(db, "cad_layers") shouldBe 0
+            count(db, "cad_chunks") shouldBe 0
+        } finally {
+            db.close()
+        }
+    }
+
+    private fun count(db: TopoPhoneDatabase, table: String): Int = db.openHelper.readableDatabase.query("SELECT COUNT(*) FROM $table").use {
+        it.moveToFirst()
+        it.getInt(0)
+    }
+
+    @Test
     fun `S028 RF-27 un punto importado se guarda con su origen y su importacion, y se lee igual`() {
         val db = TopoPhoneDatabase.build(context, TEST_DB)
         try {
@@ -558,7 +641,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 12
+        const val CURRENT_VERSION = 13
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
