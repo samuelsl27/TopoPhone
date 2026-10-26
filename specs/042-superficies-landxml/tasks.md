@@ -22,7 +22,7 @@
       Hecho cuando: `SurfaceRepositoryTest` y `PointRepositoryTest` en verde: la primera superficie se activa sola, borrar la activa, el desplazamiento que se conserva y la superficie borrada después de replantear.
 - [x] T10. `data`: `SurfaceImporter`, `scan` e `import` con progreso, cancelación y fallos. (RF-5, RF-8, RF-10, RF-11, RF-13 a RF-15)
       Hecho cuando: `SurfaceImporterTest` en verde: importar, cancelar, fallo de escritura sin dejar nada, varias superficies y el mismo nombre de fichero.
-- [ ] T11. `data`: `ActiveSurface` y `ActiveSurfaceProvider`, el índice de teselas, la caché, `Loading`, la precarga y el vaciado al desactivar. (RF-16, RF-22, RF-23, RF-27)
+- [x] T11. `data`: `ActiveSurface` y `ActiveSurfaceProvider`, el índice de teselas, la caché, `Loading`, la precarga y el vaciado al desactivar. (RF-16, RF-22, RF-23, RF-27)
       Hecho cuando: `ActiveSurfaceTest` en verde: `Loading` y después `Value` o `Outside`, la precarga y la superficie borrada o desactivada.
 - [ ] T12. `data`: copia de seguridad, paquete y restauración con las superficies, la activa y el desplazamiento. (RF-21, RNF-T6)
       Hecho cuando: `SurfaceBackupTest` en verde: copia completa, paquete de un proyecto con identificadores nuevos y restauración, con la activa y el desplazamiento.

@@ -54,6 +54,7 @@ import es.topophone.data.settings.DataStoreSettingsRepository
 import es.topophone.data.settings.SettingsDataStore
 import es.topophone.data.settings.SettingsDataStoreQualifier
 import es.topophone.data.settings.SettingsRepository
+import es.topophone.data.surface.ActiveSurfaceProvider
 import es.topophone.data.surface.RoomSurfaceRepository
 import es.topophone.data.surface.SurfaceImporter
 import es.topophone.data.surface.SurfaceRepository
@@ -149,6 +150,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideSurfaceRepository(database: TopoPhoneDatabase): SurfaceRepository = RoomSurfaceRepository(database)
+
+    /** La superficie activa de cada proyecto, con sus teselas a demanda (S042). */
+    @Provides
+    @Singleton
+    fun provideActiveSurfaceProvider(repository: SurfaceRepository): ActiveSurfaceProvider = ActiveSurfaceProvider(repository)
 
     @Provides
     fun provideSurfaceImporter(repository: SurfaceRepository): SurfaceImporter = SurfaceImporter(repository)
