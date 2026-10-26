@@ -139,7 +139,12 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Círculo de precisión | `AccuracyCircle` | Radio = precisión horizontal (S002/RF-14) |
 | Panel de posición | `PositionPanel` | Parte inferior del mapa del proyecto (S009) |
 | Datos del proyecto | `ProjectInfo` | SC, altura, unidades y datum de las correcciones (S009) |
-| Superficie (MDT/TIN) | `Surface` | |
+| Superficie (MDT/TIN) | `Surface` | Modelo de triángulos importado de un LandXML; un proyecto puede tener varias (S042) |
+| Superficie activa | `ActiveSurface` | La que usan el replanteo y el recolector; una o ninguna por proyecto (S042) |
+| Desplazamiento vertical | `VerticalOffset` | Distancia sobre (positiva) o bajo la superficie a la que se quiere estar; uno por proyecto (S042) |
+| Cota de la superficie | `SurfaceElevation` | Cota de la superficie en una posición Este y Norte, interpolada en su triángulo (S042) |
+| Fuera de la superficie | `OutsideSurface` | Posición sin triángulo: fuera del contorno o en un hueco; no tiene cota (S042) |
+| Origen de la cota | `ElevationSource` | `POINT` («Cota del punto») o `SURFACE` («Superficie») (S042) |
 | Dibujo CAD | `CadDrawing` | Un DXF importado en un proyecto; un proyecto puede tener varios (S040) |
 | Capa de diseño | `DesignLayer` | Una capa del DXF separada por tipo (puntos o líneas), con su color y su interruptor (S040) |
 | Elemento del dibujo | `CadEntity` | Un punto o una línea (polilínea, arco, círculo, spline) del dibujo, con los bloques ya desplegados (S040) |
