@@ -1,6 +1,6 @@
 # Spec 006 — Proyectos
 
-> Hito: H1 · Depende de: S005 · Estado: aprobada
+> Hito: H1 · Depende de: S005 · Estado: aprobada (ampliada el 26/10/2026 con el punto central: RF-32 a RF-38, pendiente de implementar)
 
 ## Contexto y objetivo
 Todo levantamiento empieza con un proyecto. Hoy la sección Levantamiento está vacía y no se pueden crear trabajos, que es lo primero que echa en falta quien viene de Emlid Flow.
@@ -22,6 +22,7 @@ Los proyectos se agrupan en carpetas, y uno borrado pasa 30 días en la papelera
 - H3: Como topógrafo quiero cambiar los datos de un proyecto, duplicarlo y agruparlo en carpetas.
 - H4: Como topógrafo quiero recuperar un proyecto que he borrado por error.
 - H5: Como topógrafo quiero abrir un proyecto y ver dónde estoy en su sistema de coordenadas.
+- H6: Como topógrafo quiero fijar un punto central del proyecto, al crearlo o después, para que las importaciones con recorte a una zona y los avisos de distancia se refieran a él y no a un centro supuesto.
 
 ## Requisitos funcionales (criterios de aceptación en EARS)
 ### Lista de proyectos (H1)
@@ -65,6 +66,16 @@ Los proyectos se agrupan en carpetas, y uno borrado pasa 30 días en la papelera
 - RF-30: SI el punto del suelo queda fuera del ámbito del sistema de coordenadas del proyecto o del modelo de geoide, ENTONCES EL SISTEMA mostrará esas coordenadas como no disponibles e indicará el motivo.
 - RF-31: MIENTRAS el proyecto no tenga puntos, los datos del proyecto mostrarán que todavía no hay puntos.
 
+### Punto central (H6)
+Término: el **centro del proyecto** es su punto central si lo tiene; si no, el centro de sus puntos; si no tiene puntos, el de su último encuadre (S009); y si no tiene ninguno de los tres, no tiene centro.
+- RF-32: EL SISTEMA ofrecerá en el formulario de proyecto nuevo y en el de edición un "Punto central" opcional, que por defecto no está fijado.
+- RF-33: CUANDO el usuario fije el punto central, EL SISTEMA le permitirá hacerlo tocando un mapa, escribiendo sus coordenadas en el sistema de coordenadas del proyecto o tomando la posición actual del receptor o de una reproducción.
+- RF-34: SI la posición actual no está disponible o el punto queda fuera del ámbito del sistema de coordenadas del proyecto, ENTONCES EL SISTEMA no fijará el punto e indicará el motivo.
+- RF-35: CUANDO el usuario borre el punto central, EL SISTEMA volverá a calcular el centro del proyecto sin él.
+- RF-36: MIENTRAS el proyecto tenga punto central, EL SISTEMA lo mostrará en los datos del proyecto con sus coordenadas y en el mapa con un símbolo propio.
+- RF-37: EL SISTEMA usará el centro del proyecto en todas las funciones que se refieran a él (el aviso de distancia de S040/RF-10 y las importaciones con recorte a una zona de S048).
+- RF-38: EL SISTEMA conservará el punto central al duplicar el proyecto, en las copias de seguridad y en los paquetes de proyecto (S013).
+
 ## Requisitos no funcionales
 - Transversales que aplican: RNF-T6, RNF-T7, RNF-T8, RNF-T9 y RNF-T13.
 - Un proyecto creado, editado o movido a la papelera se conserva aunque Android cierre la app justo después de confirmarlo (RNF-T6).
@@ -86,6 +97,9 @@ Los proyectos se agrupan en carpetas, y uno borrado pasa 30 días en la papelera
 | Posición fuera del huso o del geoide | RF-30 |
 | Sin receptor ni reproducción en la vista de proyecto | RF-29 |
 | La app se cierra justo después de crear un proyecto | RNF de la spec |
+| Punto central sin posición del receptor, o fuera del ámbito del SC | RF-34 |
+| Proyecto sin punto central, sin puntos y sin encuadre | RF-37 (no tiene centro) |
+| Borrar el punto central | RF-35 |
 
 ## Fuera de alcance
 - El mapa en la vista de proyecto → S009.
@@ -96,6 +110,7 @@ Los proyectos se agrupan en carpetas, y uno borrado pasa 30 días en la papelera
 - Base shift → S020; localización → S039; biblioteca mundial de SC → S034.
 - Subcarpetas → no previstas.
 - Sincronización o nube → nunca (constitución nº 4).
+- Varios puntos centrales o un radio de trabajo del proyecto → no previstos.
 
 ## Criterios de finalización
 - Cada RF tiene un test automático en verde que lo cita, y `rf_report` no muestra RF huérfanos.
@@ -112,4 +127,5 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S006: "base de datos v1 con todos los tipos de objeto" pasa a ser "almacenamiento de proyectos con banco de pruebas de migraciones; cada spec posterior añade sus datos con una migración probada", y se añade "papelera de 30 días".
 - `docs/arquitectura.md`, ADR-8: se anota (15/10/2026) que el esquema crece spec a spec, cada una con su migración y su test.
+- `docs/glosario.md`: se añaden "Punto central" (`centralPoint`) y "Centro del proyecto" (`projectCenter`).
 - `docs/glosario.md`: se añaden "Carpeta", "Papelera", "Vista de proyecto", "Datum de las correcciones", "Unidades lineales" y "Unidades angulares".

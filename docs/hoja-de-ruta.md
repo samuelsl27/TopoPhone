@@ -2,6 +2,8 @@
 
 Las specs se implementan **en el orden de las tablas**, no por su número: los números son identificadores estables y desde S017b no van seguidos (el replanteo y la importación de diseño pasan delante de las fotos). Cada hito termina con una puerta de validación de campo (`docs/validacion-campo/protocolo.md`).
 
+Ampliación pendiente de S006 (punto central del proyecto, RF-32 a RF-38): va antes de S048 y S049.
+
 Orden de trabajo actual del diseño importado: S019 → S028 → S040 → S041 → S042 → S045 (S017b, fotos, aparcada).
 
 Estados: `pendiente` → `spec` → `plan` → `tareas` → `en curso` → `implementada`.
@@ -51,6 +53,8 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 020 base-shift | Desplazamiento ECEF (conocido − medido) aplicado a los puntos siguientes, registrado en cada punto y desactivable. Orden fijo: bruto → shift → SC → localización | 011, 010 | pendiente |
 | 021 conexion-wifi-tcp | Cliente TCP (hotspot 192.168.42.1:9001 o IP de la red local), tráfico del receptor por Wi-Fi y NTRIP por datos móviles, descubrimiento mDNS, correcciones al puerto TCP de entrada del receptor, permiso de red local | 015 | pendiente |
 | 022 gnss-movil-y-receptor-virtual | GNSS del propio móvil (nunca se presenta como FIX) y receptor virtual con escenarios guionizados | 021 | pendiente |
+| 046 antena-y-jalon | Catálogo de modelos Reach con su desplazamiento al centro de fase (valores de Emlid) y perfiles de antena propios, jalones guardados con nombre y jalón activo por receptor, medida vertical o inclinada, selector rápido en el recolector, el replanteo y el receptor; el jalón y la antena se guardan en cada punto y un cambio solo afecta a los siguientes | 016, 011 | aprobada |
+| 047 tipos-de-solucion | Tipos de solución admitidos (FIX, FLOAT, SINGLE) en lugar de "solo FIX", con confirmación al admitir FLOAT o SINGLE, promediado con las épocas del mejor tipo, aviso de solución degradada y tipo guardado en cada punto | 010, 017, 018 | aprobada |
 
 ## H3 · Códigos y líneas
 
@@ -69,6 +73,8 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 029 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 025 | pendiente |
 | 030 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 025 | pendiente |
 | 031 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 025, 017b | pendiente |
+| 048 geopackage | Importar un `.gpkg` de QGIS como capa de diseño (capas marcables, SC leído y reproyectado, recorte a una zona alrededor del centro del proyecto, atributos y campo de nombre, replanteo con S041) | 040, 006 (punto central) | aprobada |
+| 053 exportar-geopackage | Exportar los puntos del proyecto, y sus líneas y polígonos cuando exista S025, a un `.gpkg` con su SC declarado y los datos de calidad como atributos | 012 (líneas y polígonos: 025) | aprobada |
 
 ## H5 · Sistemas de coordenadas mundiales y capas
 
@@ -94,6 +100,16 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 |---|---|---|---|
 | 043 receptor-guiado | Listas de configuración del receptor, comprobaciones previas, Reach Panel en un WebView, perfil de equipo | 016 | pendiente |
 | 044 modulo-experimental-reach | Flavor `experimental` con aviso legal: lectura de información, batería y configuración, estado por Socket.IO, escritura de altura de antena e inicio/parada de logs | 043 | pendiente |
+
+## H8 · Obra lineal
+
+| Spec | Alcance | Depende de | Estado |
+|---|---|---|---|
+| 049 ejes-y-rasantes | Ejes en planta (rectas, arcos y clotoides) y rasantes con acuerdos desde LandXML, polilíneas de un DXF, CSV de PK y cota o a mano; varios ejes por proyecto con uno activo; marcas de PK en el mapa; puntos sobre eje | 040, 042, 006 | aprobada |
+| 054 replanteo-por-eje | Replanteo por PK y desplazamiento con intervalo, puntos singulares, espesor y cota de la rasante, y análisis en vivo de la posición del jalón respecto al eje | 049, 018, 019 | aprobada |
+| 050 peraltes-y-transversales | Peraltes y perfiles transversales (secciones tipo con códigos), cota con peralte y replanteo por PK y código con interpolación entre PK | 054 | pendiente |
+| 051 taludes | Replanteo de cabezas y pies de talud contra los perfiles transversales o una sección manual, con seguimiento en alzado | 050 | pendiente |
+| 052 toma-de-datos-lineal | Tomar un eje con el receptor, perfil longitudinal y perfil transversal a lo largo del eje | 054, 050 | pendiente |
 
 ## Puertas de validación
 | Puerta | Al cerrar | Qué se demuestra |
