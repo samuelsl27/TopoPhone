@@ -8,7 +8,7 @@
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto (los puntos de S018 a S041 no cambian).
 - [x] T3. `core:model`: `SurfaceTileCodec`, la tesela binaria autosuficiente de hasta 256 kB. (RF-14, plan A3)
       Hecho cuando: `SurfaceTileCodecTest` en verde: ida y vuelta sin redondear, una tesela vacía y una de 256 kB.
-- [ ] T4. `core:formats`: `XmlStreamReader`, el tokenizador XML por streaming. (RF-2, RF-3)
+- [x] T4. `core:formats`: `XmlStreamReader`, el tokenizador XML por streaming. (RF-2, RF-3)
       Hecho cuando: `XmlStreamReaderTest` en verde: entidades, `CDATA`, comentarios, `DOCTYPE`, BOM, UTF-8 e ISO-8859-1, XML mal formado y un fichero que no es XML.
 - [ ] T5. `core:formats`: `LandXmlReader`, `scan` y `read` de una superficie, con el orden Norte-Este-cota, las caras invisibles y la unidad. (RF-2, RF-3, RF-5, RF-7, RF-12)
       Hecho cuando: `LandXmlReaderTest` en verde con las versiones 1.0 a 1.2, identificadores no consecutivos y de texto, `GRID`, sin superficies, varias superficies y las tres unidades.
