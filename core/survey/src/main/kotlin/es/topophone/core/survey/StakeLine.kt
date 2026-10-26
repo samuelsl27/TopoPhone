@@ -34,6 +34,9 @@ class StakeLine private constructor(
 
     val hasHeight: Boolean get() = height != null
 
+    /** La línea sabe qué vértices son originales y cuáles de la aproximación de una curva (S040/RF-34). */
+    val hasOriginalMarks: Boolean get() = original != null
+
     fun easting(vertex: Int): Double = east[vertex]
 
     fun northing(vertex: Int): Double = north[vertex]

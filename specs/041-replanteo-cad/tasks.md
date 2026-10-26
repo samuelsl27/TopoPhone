@@ -20,7 +20,7 @@
       Hecho cuando: `LineObjectiveTest` en verde con desplazamientos a derecha e izquierda, esquinas, la cota interpolada y el extremo más cercano fuera del tramo.
 - [x] T9. `core:survey`: `LineSeries`, el tramo A–B, «Invertir», «Mi posición», los intervalos y todas las validaciones. (RF-16 a RF-21)
       Hecho cuando: `LineSeriesTest` en verde: B fuera de múltiplo, intervalo mayor que el tramo, 0 y negativo, A igual a B, PK fuera de la línea, no numérico y sentido inverso.
-- [ ] T10. `core:survey`: `LineVertices`, los vértices de «Por segmentos» por tipo de línea, el siguiente y el anterior, y el aviso de un dibujo antiguo. (RF-6 a RF-9, RF-33, RF-34)
+- [x] T10. `core:survey`: `LineVertices`, los vértices de «Por segmentos» por tipo de línea, el siguiente y el anterior, y el aviso de un dibujo antiguo. (RF-6 a RF-9, RF-33, RF-34)
       Hecho cuando: `LineVerticesTest` en verde: polilínea, cerrada, arco, spline, círculo y un dibujo sin marcas.
 - [ ] T11. `data`: columnas nuevas de `points`, sus DAO y `AutoMigration(13, 14)`. (RNF-T6, RF-28)
       Hecho cuando: `TopoPhoneDatabaseTest` 13 → 14 en verde: los proyectos, los puntos, los replanteos y los dibujos conservan sus datos.
