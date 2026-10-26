@@ -18,7 +18,7 @@
       Hecho cuando: `LineLocatorTest` en verde frente a `fixtures/replanteo/lineas/` (≤ 1 mm) con rectas, polilíneas, cerradas, ambos lados, extremos y 100.000 vértices.
 - [x] T8. `core:survey`: `LineObjective`, el objetivo de «A la línea», «A lo largo» y «Tramo A–B» con el desplazamiento y el error lateral. (RF-10, RF-11, RF-17, RF-23, RF-25)
       Hecho cuando: `LineObjectiveTest` en verde con desplazamientos a derecha e izquierda, esquinas, la cota interpolada y el extremo más cercano fuera del tramo.
-- [ ] T9. `core:survey`: `LineSeries`, el tramo A–B, «Invertir», «Mi posición», los intervalos y todas las validaciones. (RF-16 a RF-21)
+- [x] T9. `core:survey`: `LineSeries`, el tramo A–B, «Invertir», «Mi posición», los intervalos y todas las validaciones. (RF-16 a RF-21)
       Hecho cuando: `LineSeriesTest` en verde: B fuera de múltiplo, intervalo mayor que el tramo, 0 y negativo, A igual a B, PK fuera de la línea, no numérico y sentido inverso.
 - [ ] T10. `core:survey`: `LineVertices`, los vértices de «Por segmentos» por tipo de línea, el siguiente y el anterior, y el aviso de un dibujo antiguo. (RF-6 a RF-9, RF-33, RF-34)
       Hecho cuando: `LineVerticesTest` en verde: polilínea, cerrada, arco, spline, círculo y un dibujo sin marcas.
