@@ -5,10 +5,12 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeightKind
+import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
@@ -22,6 +24,7 @@ import es.topophone.core.model.point.PointSnapshot
 import es.topophone.core.model.point.PointTilt
 import es.topophone.core.model.point.PoleVector
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.TiltAngles
 import es.topophone.core.model.point.TiltMode
@@ -290,6 +293,13 @@ internal fun Point.toEntity(): PointEntity {
         stakeTolH = staked?.toleranceHM,
         stakeTolV = staked?.toleranceVM,
         stakeWithin = staked?.withinTolerance,
+        stakeCadDrawing = (staked?.source as? StakeSource.CadElement)?.drawingName,
+        stakeCadLayer = (staked?.source as? StakeSource.CadElement)?.layerName,
+        stakeCadKind = (staked?.source as? StakeSource.CadElement)?.kind?.name,
+        stakeMode = staked?.mode?.name,
+        stakeChainage = staked?.chainageM,
+        stakeOffset = staked?.lateralOffsetM,
+        stakeDLateral = staked?.dLateralM,
         importId = importId,
     )
 }
@@ -331,7 +341,19 @@ private fun PointEntity.staked(): StakeoutRef? = StakeoutRef(
     toleranceHM = stakeTolH,
     toleranceVM = stakeTolV,
     withinTolerance = stakeWithin,
+    source = cadSource(),
+    mode = stakeMode?.let { name -> LineStakeoutMode.entries.firstOrNull { it.name == name } },
+    chainageM = stakeChainage,
+    lateralOffsetM = stakeOffset,
+    dLateralM = stakeDLateral,
 )
+
+/** El dibujo, la capa y el tipo del elemento replanteado; el punto del proyecto si no vino de un dibujo (S041/RF-28). */
+private fun PointEntity.cadSource(): StakeSource {
+    val drawing = stakeCadDrawing ?: return StakeSource.ProjectPoint
+    val kind = CadEntityKind.entries.firstOrNull { it.name == stakeCadKind } ?: return StakeSource.ProjectPoint
+    return StakeSource.CadElement(drawing, stakeCadLayer.orEmpty(), kind)
+}
 
 /** La medida de un punto medido o replanteado; null en uno manual (sin antena ni NMEA). */
 private fun PointEntity.measurement(): Measurement? {

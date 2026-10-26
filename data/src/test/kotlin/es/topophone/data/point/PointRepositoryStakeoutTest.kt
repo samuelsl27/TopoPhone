@@ -4,15 +4,22 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.core.model.cad.CadDrawing
+import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutRef
+import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
@@ -297,5 +304,88 @@ class PointRepositoryStakeoutTest {
 
         exported.origin shouldBe PointOrigin.STAKED
         exported.staked shouldBe ref
+    }
+
+    private val cadRef = ref.copy(
+        designId = "cad:l1:7:3",
+        designName = "Eje",
+        source = StakeSource.CadElement("calle.dxf", "Eje", CadEntityKind.POLYLINE),
+        mode = LineStakeoutMode.ALONG,
+        chainageM = 45.123456789,
+        lateralOffsetM = -1.5,
+        dLateralM = 0.012345678,
+    )
+
+    @Test
+    fun `S041 RF-28 un replanteo de un elemento de dibujo guarda y lee origen modo PK desplazamiento y error lateral`() {
+        runBlocking { points.create(staked("Eje_1_stkd", cadRef)) } shouldBe PointSaveResult.Saved
+
+        val read = runBlocking { points.point("id-Eje_1_stkd").first() }.shouldNotBeNull()
+
+        read.staked shouldBe cadRef
+        read.staked.shouldNotBeNull().fromDrawing shouldBe true
+        read.staked.shouldNotBeNull().chainageM shouldBe 45.123456789
+        read.staked.shouldNotBeNull().dLateralM shouldBe 0.012345678
+        read.origin shouldBe PointOrigin.STAKED
+        read.measurement.shouldNotBeNull().coordinates shouldBe measuredCoordinates
+    }
+
+    @Test
+    fun `S041 RF-28 un replanteo de un punto del proyecto sigue sin origen de dibujo ni datos de linea`() {
+        runBlocking { points.create(staked("12_stkd", ref)) }
+
+        val read = runBlocking { points.point("id-12_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull()
+
+        read.source shouldBe StakeSource.ProjectPoint
+        read.mode.shouldBeNull()
+        read.chainageM.shouldBeNull()
+        read.lateralOffsetM.shouldBeNull()
+        read.dLateralM.shouldBeNull()
+    }
+
+    @Test
+    fun `S041 RF-28 un replanteo de un punto fijo de un dibujo no tiene PK ni desplazamiento si el modo no los da`() {
+        val fixed = cadRef.copy(mode = LineStakeoutMode.BY_SEGMENTS, lateralOffsetM = null, dLateralM = null)
+        runBlocking { points.create(staked("Eje_1_stkd", fixed)) }
+
+        val read = runBlocking { points.point("id-Eje_1_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull()
+
+        read shouldBe fixed
+        read.lateralOffsetM.shouldBeNull()
+    }
+
+    @Test
+    fun `S041 RF-27 y RF-32 el punto y su replanteo se guardan juntos o no se guarda nada`() {
+        runBlocking { points.create(staked("Eje_1_stkd", cadRef)) }
+        val duplicate = runBlocking { points.create(staked("Eje_1_stkd", cadRef.copy(designName = "otro"))) }
+
+        duplicate shouldBe PointSaveResult.DuplicateName
+        runBlocking { points.point("id-Eje_1_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull().designName shouldBe "Eje"
+    }
+
+    @Test
+    fun `S041 RF-32 al borrar el dibujo el punto replanteado conserva el origen y lo guardado`() {
+        val cad = RoomCadRepository(db)
+        runBlocking {
+            cad.begin(CadDrawing("d1", project, "calle.dxf", 1L, CadSourceCrs.Project, LinearUnit.METRE, true, true))
+            points.create(staked("Eje_1_stkd", cadRef))
+
+            cad.deleteDrawing("d1")
+        }
+
+        val read = runBlocking { points.point("id-Eje_1_stkd").first() }.shouldNotBeNull()
+
+        read.staked shouldBe cadRef
+        read.staked.shouldNotBeNull().source shouldBe StakeSource.CadElement("calle.dxf", "Eje", CadEntityKind.POLYLINE)
+    }
+
+    @Test
+    fun `S041 RF-28 la exportacion de los puntos lee tambien las columnas del replanteo de un dibujo`() {
+        runBlocking { points.create(staked("Eje_1_stkd", cadRef)) }
+
+        val exported = runBlocking { db.points().forExport(project) }.single()
+
+        exported.stakeCadDrawing shouldBe "calle.dxf"
+        exported.stakeChainage shouldBe 45.123456789
     }
 }
