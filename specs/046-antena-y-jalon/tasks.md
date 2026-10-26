@@ -36,7 +36,7 @@
       Hecho cuando: `StakeoutViewModelGearTest` y `LineStakeoutViewModelGearTest` en verde, y los tests de S018, S019 y S041 sin cambios.
 - [x] T17. `app`: `GearViewModel` con la lista de perfiles y jalones, las altas, ediciones y borrados, el cambio de perfil y de jalón activo, y los avisos. (RF-3 a RF-13, RF-16 a RF-19)
       Hecho cuando: `GearViewModelTest` en verde.
-- [ ] T18. `app`: `GearScreen` y «Antena y jalón» en el menú del receptor, con sus textos en es y en. (RF-1, RF-3 a RF-12, RF-16 a RF-19, RNF-T7, RNF-T8)
+- [x] T18. `app`: `GearScreen` y «Antena y jalón» en el menú del receptor, con sus textos en es y en. (RF-1, RF-3 a RF-12, RF-16 a RF-19, RNF-T7, RNF-T8)
       Hecho cuando: `GearScreenTest` en verde, con las zonas táctiles de 56 dp y las etiquetas de TalkBack.
 - [ ] T19. `app`: el selector rápido del jalón activo en el recolector, el replanteo y las coordenadas, con el nombre, la altura y la altura de antena. (RF-14, RF-15, RF-22, RF-23)
       Hecho cuando: `GearSelectorTest` en verde: dos toques, el bloqueo durante una medida y el rótulo del modo compensado.

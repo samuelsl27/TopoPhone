@@ -52,7 +52,7 @@ class PointMeasurementGearTest {
     @Test
     fun `S046 RF-24 la medida lleva el equipo con el que se hizo`() {
         val gear = ActiveGear(rs4, SavedPole("p", "Jalón corto", PoleKind.VERTICAL, 1.2), 1.2, 1.295, null).toUsed()
-        gear shouldBe GearUsed("Jalón corto", PoleKind.VERTICAL, 1.2, "Reach RS4 y RS4 Pro", 0.095, 1.295)
+        gear shouldBe GearUsed("Jalón corto", PoleKind.VERTICAL, 1.2, "Reach RS4/RS4 Pro", 0.095, 1.295)
 
         val measured = result(rs4, 1.2, gear)
 

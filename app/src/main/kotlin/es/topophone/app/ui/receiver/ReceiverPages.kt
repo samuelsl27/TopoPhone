@@ -20,10 +20,11 @@ const val RECEIVER_STATUS_SCREEN_TAG = "receiver_status_screen"
 const val RECEIVER_COORDINATES_SCREEN_TAG = "receiver_coordinates_screen"
 const val RECEIVER_CORRECTIONS_SCREEN_TAG = "receiver_corrections_screen"
 const val RECEIVER_TILT_SCREEN_TAG = "receiver_tilt_screen_page"
+const val RECEIVER_GEAR_SCREEN_TAG = "receiver_gear_screen"
 const val NO_RECEIVER_TAG = "receiver_no_receiver"
 
 /** Pantallas de la sección Receptor: la raíz y las del menú (S005/RF-14; S016/RF-1). Las sesiones grabadas son de S003. */
-enum class ReceiverPage { HOME, STATUS, COORDINATES, TILT, CORRECTIONS }
+enum class ReceiverPage { HOME, STATUS, COORDINATES, GEAR, TILT, CORRECTIONS }
 
 /** Lo que la sección Receptor necesita de la navegación de la app (S005/RF-14, RF-15; perfiles NTRIP, S007). */
 class ReceiverNavigation(
@@ -47,6 +48,8 @@ fun ReceiverPageScreen(
     correctionsActions: CorrectionsActions = CorrectionsActions(),
     tilt: TiltUiState = TiltUiState(),
     tiltActions: TiltActions = TiltActions(),
+    gear: GearUiState = GearUiState(),
+    gearActions: GearActions = GearActions(),
 ) {
     when (page) {
         ReceiverPage.HOME -> ReceiverScreen(themeState, onToggleSun, state, actions)
@@ -74,6 +77,14 @@ fun ReceiverPageScreen(
             onToggleSun,
             onBack,
         ) { CoordinatesCard(state, actions.onPoleHeightChange) } // S002/RF-29 a RF-41
+        ReceiverPage.GEAR -> ChildScreen(
+            R.string.receiver_menu_gear,
+            RECEIVER_GEAR_SCREEN_TAG,
+            state,
+            themeState,
+            onToggleSun,
+            onBack,
+        ) { GearCard(gear, gearActions) } // S046
         ReceiverPage.TILT -> ChildScreen(
             R.string.receiver_menu_tilt,
             RECEIVER_TILT_SCREEN_TAG,

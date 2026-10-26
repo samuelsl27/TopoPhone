@@ -51,7 +51,7 @@ class PointCorrectionsGearTest {
 
     @Test
     fun `S046 RF-24 un punto medido con otro perfil se corrige con el desplazamiento de ese perfil`() {
-        val rs4 = GearUsed("Jalón", PoleKind.VERTICAL, 1.8, "Reach RS4 y RS4 Pro", 0.095, 1.895)
+        val rs4 = GearUsed("Jalón", PoleKind.VERTICAL, 1.8, "Reach RS4/RS4 Pro", 0.095, 1.895)
 
         val corrected = correct(measured(rs4), 2.0)
 

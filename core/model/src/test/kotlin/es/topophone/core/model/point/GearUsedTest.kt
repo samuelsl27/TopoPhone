@@ -25,7 +25,7 @@ class GearUsedTest {
 
     @Test
     fun `S046 RF-24 la medida guarda una copia del jalon y de la antena sin redondear`() {
-        val gear = GearUsed("Jalón corto", PoleKind.SLANT, 1.95, "Reach RS4 y RS4 Pro", 0.095, 2.044076)
+        val gear = GearUsed("Jalón corto", PoleKind.SLANT, 1.95, "Reach RS4/RS4 Pro", 0.095, 2.044076)
         val saved = measurement().copy(poleHeightM = 1.949076, gear = gear)
 
         saved.gear shouldBe gear

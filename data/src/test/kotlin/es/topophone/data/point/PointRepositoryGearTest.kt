@@ -45,7 +45,7 @@ class PointRepositoryGearTest {
         projects.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12")).shouldBeInstanceOf<SaveResult.Saved>().id
     }
 
-    private val gear = GearUsed("Jalón corto", PoleKind.SLANT, 1.9500000000001, "Reach RS4 y RS4 Pro", 0.095, 2.0440760000001)
+    private val gear = GearUsed("Jalón corto", PoleKind.SLANT, 1.9500000000001, "Reach RS4/RS4 Pro", 0.095, 2.0440760000001)
 
     private fun point(name: String, gear: GearUsed?) = Point.measured(
         id = "id-$name",

@@ -13,9 +13,9 @@ class AntennaCatalogTest {
     fun `S046 RF-1 el catalogo trae los desplazamientos de la documentacion de Emlid`() {
         val offsets = AntennaCatalog.ALL.associate { it.name to it.offsetM }
         offsets["Reach RS3"] shouldBe 0.134
-        offsets["Reach RS2 y RS2+"] shouldBe 0.134
-        offsets["Reach RS y RS+"] shouldBe 0.065
-        offsets["Reach RS4 y RS4 Pro"] shouldBe 0.095
+        offsets["Reach RS2/RS2+"] shouldBe 0.134
+        offsets["Reach RS/RS+"] shouldBe 0.065
+        offsets["Reach RS4/RS4 Pro"] shouldBe 0.095
         offsets["Reach RX"] shouldBe 0.1471
         AntennaCatalog.ALL shouldHaveSize 5
     }

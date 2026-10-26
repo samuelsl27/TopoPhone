@@ -52,13 +52,14 @@ class ReceiverMenuTest {
     private fun entry(tag: String) = compose.onNodeWithTag(tag).performScrollTo()
 
     @Test
-    fun `S005 RF-9 bajo la cabecera hay cinco entradas en orden, con Inclinacion tras Coordenadas`() {
+    fun `S005 RF-9 bajo la cabecera hay seis entradas en orden, con Antena y jalon e Inclinacion tras Coordenadas`() {
         show(receiving)
 
         val header = compose.onNodeWithTag(RECEIVER_HEADER_TAG).getBoundsInRoot()
         val tops = listOf(
             MENU_STATUS_TAG to R.string.receiver_menu_status,
             MENU_COORDINATES_TAG to R.string.receiver_menu_coordinates,
+            MENU_GEAR_TAG to R.string.receiver_menu_gear,
             MENU_TILT_TAG to R.string.receiver_menu_tilt,
             MENU_CORRECTIONS_TAG to R.string.receiver_menu_corrections,
             MENU_SESSIONS_TAG to R.string.receiver_menu_sessions,
@@ -94,6 +95,17 @@ class ReceiverMenuTest {
         show(receiving, poleHeightText = "2,000")
 
         entry(MENU_COORDINATES_TAG).assert(hasText(text(R.string.receiver_menu_pole_height, "2,000")))
+    }
+
+    @Test
+    fun `S046 RF-8 y RF-15 la entrada Antena y jalon resume el jalon, la altura de antena y el perfil`() {
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ReceiverScreen(ThemeState.DEFAULT, {}, ReceiverUiState(snapshot = receiving), ReceiverActions())
+            }
+        }
+
+        entry(MENU_GEAR_TAG).assert(hasText(text(R.string.gear_summary, "Jalón estándar", "1,934 m", "Reach RS3")))
     }
 
     @Test

@@ -215,7 +215,7 @@ class CollectorViewModelTest {
         await(vm) { it.savedName == "1" }
 
         val measurement = runBlocking { points.points(projectId).first() }.single().measurement.shouldNotBeNull()
-        measurement.gear shouldBe GearUsed("Jalón corto", PoleKind.VERTICAL, 1.2, "Reach RS4 y RS4 Pro", 0.095, 1.295)
+        measurement.gear shouldBe GearUsed("Jalón corto", PoleKind.VERTICAL, 1.2, "Reach RS4/RS4 Pro", 0.095, 1.295)
         measurement.poleHeightM shouldBe 1.2
         // S046/RF-20: el suelo está a la altura de antena del perfil por debajo de la antena.
         (measurement.antenna.ellipsoidalHeightM!! - measurement.coordinates.ground.ellipsoidalHeightM!!) shouldBe (1.295 plusOrMinus 1e-9)

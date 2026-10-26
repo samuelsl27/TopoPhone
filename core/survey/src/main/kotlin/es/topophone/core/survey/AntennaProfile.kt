@@ -21,9 +21,9 @@ data class AntennaProfile(val ref: String, val name: String, val offsetM: Double
  */
 object AntennaCatalog {
     val RS3 = AntennaProfile("catalog:RS3", "Reach RS3", 0.134, null, builtIn = true)
-    private val RS2 = AntennaProfile("catalog:RS2", "Reach RS2 y RS2+", 0.134, null, builtIn = true)
-    private val RS = AntennaProfile("catalog:RS", "Reach RS y RS+", 0.065, null, builtIn = true)
-    private val RS4 = AntennaProfile("catalog:RS4", "Reach RS4 y RS4 Pro", 0.095, null, builtIn = true)
+    private val RS2 = AntennaProfile("catalog:RS2", "Reach RS2/RS2+", 0.134, null, builtIn = true)
+    private val RS = AntennaProfile("catalog:RS", "Reach RS/RS+", 0.065, null, builtIn = true)
+    private val RS4 = AntennaProfile("catalog:RS4", "Reach RS4/RS4 Pro", 0.095, null, builtIn = true)
     private val RX = AntennaProfile("catalog:RX", "Reach RX", 0.1471, null, builtIn = true)
 
     val ALL: List<AntennaProfile> = listOf(RS3, RS2, RS, RS4, RX)

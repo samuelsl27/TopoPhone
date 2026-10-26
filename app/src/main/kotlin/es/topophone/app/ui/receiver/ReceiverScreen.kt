@@ -89,6 +89,7 @@ class ReceiverActions(
     val onOpenCorrections: () -> Unit = {},
     /** S016/RF-1. */
     val onOpenTilt: () -> Unit = {},
+    val onOpenGear: () -> Unit = {},
     val onOpenBluetoothSettings: () -> Unit = {},
     /** S015/RF-17. */
     val onDismissBaseChange: (Int) -> Unit = {},
@@ -170,6 +171,8 @@ fun ReceiverRoute(
     val correctionsViewModel: CorrectionsViewModel? = if (page == ReceiverPage.CORRECTIONS) hiltViewModel() else null
     val corrections = correctionsViewModel?.state?.collectAsStateWithLifecycle()?.value ?: CorrectionsUiState()
     // Y el apartado "Inclinación", el suyo (S016/RF-1).
+    val gearViewModel: GearViewModel? = if (page == ReceiverPage.GEAR) hiltViewModel() else null
+    val gear = gearViewModel?.state?.collectAsStateWithLifecycle()?.value ?: GearUiState()
     val tiltViewModel: TiltViewModel? = if (page == ReceiverPage.TILT) hiltViewModel() else null
     val tilt = tiltViewModel?.state?.collectAsStateWithLifecycle()?.value ?: TiltUiState()
     ReceiverPageScreen(
@@ -201,6 +204,19 @@ fun ReceiverRoute(
                 onCloseWizard = vm::closeWizard,
             )
         } ?: TiltActions(),
+        gear = gear,
+        gearActions = gearViewModel?.let { vm ->
+            GearActions(
+                onSelectProfile = vm::selectProfile,
+                onSelectPole = vm::selectPole,
+                onDraftProfile = vm::profileDraft,
+                onSaveProfile = { id, name, offset, radius, done -> vm.saveProfile(id, name, offset, radius, done) },
+                onDeleteProfile = { vm.deleteProfile(it) },
+                onSavePole = { id, name, kind, height, done -> vm.savePole(id, name, kind, height, done) },
+                onDeletePole = { vm.deletePole(it) },
+                onDismissMessage = vm::dismissMessage,
+            )
+        } ?: GearActions(),
         actions = ReceiverActions(
             onRequestPermission = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) permissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
@@ -220,6 +236,7 @@ fun ReceiverRoute(
             onOpenCoordinates = { navigation.onOpen(ReceiverPage.COORDINATES) },
             onOpenCorrections = { navigation.onOpen(ReceiverPage.CORRECTIONS) },
             onOpenTilt = { navigation.onOpen(ReceiverPage.TILT) }, // S016/RF-1
+            onOpenGear = { navigation.onOpen(ReceiverPage.GEAR) }, // S046
             onReplaySpeed = viewModel::setReplaySpeed,
             onReplayLoop = viewModel::setReplayLoop,
             onStopReplay = viewModel::stopReplay,

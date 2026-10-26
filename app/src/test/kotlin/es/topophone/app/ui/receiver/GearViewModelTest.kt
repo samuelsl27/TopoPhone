@@ -82,7 +82,7 @@ class GearViewModelTest {
     fun `S046 RF-5 un modelo del catalogo da los datos de un perfil propio con el nombre de copia`() {
         val draft = vm.profileDraft("catalog:RS4", "copia").shouldNotBeNull()
 
-        draft shouldBe ProfileDraft("Reach RS4 y RS4 Pro (copia)", "0.095", "")
+        draft shouldBe ProfileDraft("Reach RS4/RS4 Pro (copia)", "0.095", "")
         vm.profileDraft("own:no-existe", "copia").shouldBeNull()
     }
 

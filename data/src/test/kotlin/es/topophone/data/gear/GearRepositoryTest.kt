@@ -142,7 +142,7 @@ class GearRepositoryTest {
         repository.setProfile("AA:BB", "catalog:RS4") shouldBe GearResult.Saved("AA:BB")
         repository.setActivePole("AA:BB", short)
         val gear = repository.gear("AA:BB").first()
-        gear.profile.name shouldBe "Reach RS4 y RS4 Pro"
+        gear.profile.name shouldBe "Reach RS4/RS4 Pro"
         gear.pole.shouldNotBeNull().id shouldBe short
         gear.antennaHeightM.shouldNotBeNull() shouldBe (1.295 plusOrMinus 1e-12)
 

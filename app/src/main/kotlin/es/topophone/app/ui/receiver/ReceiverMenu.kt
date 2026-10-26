@@ -20,6 +20,7 @@ const val MENU_STATUS_TAG = "menu_status"
 const val MENU_COORDINATES_TAG = "menu_coordinates"
 const val MENU_CORRECTIONS_TAG = "menu_corrections"
 const val MENU_TILT_TAG = "menu_tilt"
+const val MENU_GEAR_TAG = "menu_gear"
 const val MENU_SESSIONS_TAG = "menu_sessions"
 
 /** Menú de la pantalla del receptor: cinco entradas, cada una con su resumen (S005/RF-9 a RF-13; S016/RF-1). */
@@ -42,6 +43,10 @@ internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
         ListRow(stringResource(R.string.receiver_menu_coordinates), actions.onOpenCoordinates, Modifier.testTag(MENU_COORDINATES_TAG)) {
             Text(stringResource(R.string.receiver_menu_pole_height, state.poleHeightText))
         } // S005/RF-11
+        HorizontalDivider()
+        ListRow(stringResource(R.string.receiver_menu_gear), actions.onOpenGear, Modifier.testTag(MENU_GEAR_TAG)) {
+            Text(gearSummary(GearUiState(gear = state.gear)))
+        } // S046/RF-8, RF-15
         HorizontalDivider()
         ListRow(stringResource(R.string.receiver_menu_tilt), actions.onOpenTilt, Modifier.testTag(MENU_TILT_TAG)) {
             Text(tiltSummary(state.tilt.settings))
