@@ -112,3 +112,6 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S010: "promediado de hasta 60 s" en lugar de "promediado", para distinguirlo de S017.
 - `docs/glosario.md`: se añaden "Medida instantánea" (`InstantMeasurement`), "Fuera de tolerancia" (`OutOfTolerance`) y "Descripción (del punto)" (`description`).
+
+## Cambios posteriores
+- S046 (26/10/2026): la altura del jalón de RF-5 y RF-17 es la del jalón activo del receptor, y cada punto guarda además el jalón (nombre, tipo y altura escrita) y la antena (perfil, desplazamiento y altura de antena) con los que se midió.

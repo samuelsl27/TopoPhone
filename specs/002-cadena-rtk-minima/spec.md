@@ -143,3 +143,6 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - [SUPOSICIÓN: se envía la GGA al caster cada 5 s siempre, aunque el punto de montaje no la necesite; los casters de estación única la ignoran.]
 - [SUPOSICIÓN: la contraseña NTRIP se escribe en cada sesión hasta S007, que la guardará cifrada.]
 - [SUPOSICIÓN: las coordenadas se tratan como ETRS89 (redes NTRIP españolas). El datum por proyecto llega en S006.]
+
+## Cambios posteriores
+- S046 (26/10/2026): la altura del jalón de RF-29 a RF-32 pasa a ser el jalón activo del receptor (con su tipo de medida), y el 0,134 m de RF-32, el desplazamiento al centro de fase del perfil de antena del receptor (0,134 m en el RS3). Con el RS3 y el jalón de 1,800 m el resultado no cambia.
