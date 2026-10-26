@@ -54,6 +54,8 @@ import es.topophone.data.settings.DataStoreSettingsRepository
 import es.topophone.data.settings.SettingsDataStore
 import es.topophone.data.settings.SettingsDataStoreQualifier
 import es.topophone.data.settings.SettingsRepository
+import es.topophone.data.surface.RoomSurfaceRepository
+import es.topophone.data.surface.SurfaceRepository
 import javax.inject.Singleton
 
 @Module
@@ -141,6 +143,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideCadRepository(database: TopoPhoneDatabase): CadRepository = RoomCadRepository(database)
+
+    /** Las superficies importadas de un LandXML (S042). */
+    @Provides
+    @Singleton
+    fun provideSurfaceRepository(database: TopoPhoneDatabase): SurfaceRepository = RoomSurfaceRepository(database)
 
     @Provides
     fun provideCadDrawingImporter(repository: CadRepository): CadDrawingImporter = CadDrawingImporter(repository)

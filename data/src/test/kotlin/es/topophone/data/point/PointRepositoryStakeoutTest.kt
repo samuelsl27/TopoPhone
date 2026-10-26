@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.model.cad.CadDrawing
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.cad.CadSourceCrs
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.Measurement
@@ -23,6 +24,8 @@ import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
+import es.topophone.data.surface.RoomSurfaceRepository
+import es.topophone.data.surface.SurfaceDraft
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -387,5 +390,79 @@ class PointRepositoryStakeoutTest {
 
         exported.stakeCadDrawing shouldBe "calle.dxf"
         exported.stakeChainage shouldBe 45.123456789
+    }
+
+    private val surfaceRef = ref.copy(
+        designElevationM = 601.5512345678,
+        dHeightM = -0.0112345678,
+        toleranceHM = 0.025,
+        toleranceVM = 0.03,
+        withinTolerance = true,
+        elevationSource = ElevationSource.SURFACE,
+        surfaceName = "terreno",
+        surfaceImportedAtMs = 1_792_080_000_000L,
+        surfaceElevationM = 601.2512345678,
+        verticalOffsetM = 0.3,
+    )
+
+    @Test
+    fun `S042 RF-28 el origen de la cota, la superficie, su cota y el desplazamiento se guardan y se leen sin redondear`() {
+        runBlocking { points.create(staked("12_stkd", surfaceRef)) }
+
+        val read = runBlocking { points.point("id-12_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull()
+
+        read shouldBe surfaceRef
+        read.usedSurface shouldBe true
+        read.surfaceElevationM shouldBe 601.2512345678
+        read.verticalOffsetM shouldBe 0.3
+    }
+
+    @Test
+    fun `S042 RF-29 fuera de la superficie se guarda el nombre sin ninguna cota`() {
+        val outside = ref.copy(
+            designElevationM = null,
+            dHeightM = null,
+            surfaceName = "terreno",
+            surfaceImportedAtMs = 1_792_080_000_000L,
+            verticalOffsetM = 0.3,
+        )
+        runBlocking { points.create(staked("12_stkd", outside)) }
+
+        val read = runBlocking { points.point("id-12_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull()
+
+        read.outsideSurface shouldBe true
+        read.elevationSource.shouldBeNull()
+        read.surfaceElevationM.shouldBeNull()
+        read.dHeightM.shouldBeNull()
+        read.designElevationM.shouldBeNull()
+    }
+
+    @Test
+    fun `S042 RF-32 al borrar la superficie el punto replanteado conserva lo guardado`() {
+        val surfaces = RoomSurfaceRepository(db)
+        runBlocking {
+            surfaces.begin(SurfaceDraft("s1", project, "terreno", "obra.xml", 1L, CadSourceCrs.Project, LinearUnit.METRE))
+            points.create(staked("12_stkd", surfaceRef))
+
+            surfaces.delete("s1")
+        }
+
+        val read = runBlocking { points.point("id-12_stkd").first() }.shouldNotBeNull()
+
+        read.staked shouldBe surfaceRef
+        read.staked.shouldNotBeNull().surfaceName shouldBe "terreno"
+    }
+
+    @Test
+    fun `S042 RF-28 un replanteo sin superficie no guarda nada de ella y los de antes se leen igual`() {
+        runBlocking { points.create(staked("12_stkd", ref)) }
+
+        val read = runBlocking { points.point("id-12_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull()
+
+        read.elevationSource.shouldBeNull()
+        read.surfaceName.shouldBeNull()
+        read.verticalOffsetM.shouldBeNull()
+        read.usedSurface shouldBe false
+        read.outsideSurface shouldBe false
     }
 }

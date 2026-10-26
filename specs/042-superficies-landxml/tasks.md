@@ -18,7 +18,7 @@
       Hecho cuando: `SurfaceProjectorTest` en verde frente a pyproj (≤ 1 mm) con pies, pies topográficos de EE. UU. y otro SC.
 - [x] T8. `data`: las tablas `surfaces` y `surface_tiles`, las columnas nuevas de `projects` y de `points`, sus DAO y `AutoMigration(14, 15)`. (RNF-T6, RF-14, RF-19, RF-28)
       Hecho cuando: `TopoPhoneDatabaseTest` 14 → 15 en verde: los proyectos, los puntos, los replanteos y los dibujos conservan sus datos y el desplazamiento queda en 0.
-- [ ] T9. `data`: `SurfaceRepository` (`begin`, `addTiles`, `finish`, `abort`, la limpieza, la lista, activar, borrar y el desplazamiento) y `PointRepository` con los datos de la superficie en la misma transacción. (RF-11, RF-16 a RF-19, RF-28, RF-32)
+- [x] T9. `data`: `SurfaceRepository` (`begin`, `addTiles`, `finish`, `abort`, la limpieza, la lista, activar, borrar y el desplazamiento) y `PointRepository` con los datos de la superficie en la misma transacción. (RF-11, RF-16 a RF-19, RF-28, RF-32)
       Hecho cuando: `SurfaceRepositoryTest` y `PointRepositoryTest` en verde: la primera superficie se activa sola, borrar la activa, el desplazamiento que se conserva y la superficie borrada después de replantear.
 - [ ] T10. `data`: `SurfaceImporter`, `scan` e `import` con progreso, cancelación y fallos. (RF-5, RF-8, RF-10, RF-11, RF-13 a RF-15)
       Hecho cuando: `SurfaceImporterTest` en verde: importar, cancelar, fallo de escritura sin dejar nada, varias superficies y el mismo nombre de fichero.

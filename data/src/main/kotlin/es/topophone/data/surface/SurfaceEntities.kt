@@ -128,6 +128,12 @@ interface SurfaceDao {
     @Query("SELECT * FROM surface_tiles WHERE id = :tileId")
     suspend fun tile(tileId: Long): SurfaceTileEntity?
 
+    @Query("SELECT project_id FROM surfaces WHERE id = :surfaceId")
+    suspend fun projectOf(surfaceId: String): String?
+
+    @Query("SELECT active_surface_id FROM projects WHERE id = :projectId")
+    suspend fun activeId(projectId: String): String?
+
     @Query("SELECT active_surface_id FROM projects WHERE id = :projectId")
     fun activeSurfaceId(projectId: String): Flow<String?>
 
