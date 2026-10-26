@@ -38,8 +38,8 @@ class GroundPointCalculatorTest {
 
     @Test
     fun `S002 RF-32 el desplazamiento del RS3 es 0,134 m de la base a su centro de referencia`() {
-        ReceiverModel.RS3.baseToReferenceM shouldBe 0.134
-        VerticalPole.antennaHeightM(poleHeightM = 2.0, model = ReceiverModel.RS3) shouldBe (2.134 plusOrMinus 1e-12)
+        AntennaProfile.RS3.offsetM shouldBe 0.134
+        PoleGeometry.antennaHeightM(2.0, AntennaProfile.RS3.offsetM) shouldBe (2.134 plusOrMinus 1e-12)
     }
 
     @Test

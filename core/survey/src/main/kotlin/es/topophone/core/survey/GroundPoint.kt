@@ -9,17 +9,6 @@ import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.project.CrsArea
 
-/** Modelos de receptor con la distancia de su base al centro de referencia de la posición. */
-enum class ReceiverModel(val baseToReferenceM: Double) {
-    /** Reach RS3: 0,134 m según la especificación ETC_rev_3 de Emlid (se valida en G0). */
-    RS3(0.134),
-}
-
-/** Jalón vertical: altura de antena = jalón + desplazamiento del modelo (S002/RF-32). */
-object VerticalPole {
-    fun antennaHeightM(poleHeightM: Double, model: ReceiverModel): Double = poleHeightM + model.baseToReferenceM
-}
-
 /** Altura del jalón introducida por el usuario (S002/RF-29, S002/RF-31). */
 object PoleHeight {
     const val DEFAULT_M = 1.8
@@ -63,7 +52,7 @@ data class GroundPoint(
 class GroundPointCalculator(
     private val peninsulaGeoid: () -> GeoidModel = { GeoidModels.egm08RednapPeninsula },
     private val canariasGeoid: () -> GeoidModel = { GeoidModels.egm08RednapCanarias },
-    private val model: ReceiverModel = ReceiverModel.RS3,
+    private val profile: AntennaProfile = AntennaProfile.RS3,
     private val utmZones: IntRange = SUPPORTED_UTM_ZONES,
 ) {
     fun compute(fix: GgaFix, poleHeightM: Double): GroundPoint? {
@@ -72,7 +61,7 @@ class GroundPointCalculator(
         val altitude = fix.altitudeM
         val separation = fix.geoidSeparationM
         val receiverHeight = if (altitude != null && separation != null) altitude + separation else null
-        val groundHeight = receiverHeight?.minus(VerticalPole.antennaHeightM(poleHeightM, model))
+        val groundHeight = receiverHeight?.minus(PoleGeometry.antennaHeightM(poleHeightM, profile.offsetM))
         return fromGround(GeodeticPosition(fix.latitudeDeg, fix.longitudeDeg, groundHeight), fix.status)
     }
 

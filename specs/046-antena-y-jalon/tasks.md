@@ -12,7 +12,7 @@
       Hecho cuando: `GearValidationTest` en verde: nombres repetidos, vacíos y largos, rangos, punto y coma decimal, 0 y 10,001 m.
 - [x] T5. `core:survey`: `SavedPole`, `ActiveGear` y `resolve` (A3) con su estado. (RF-7, RF-13, RF-28)
       Hecho cuando: `ActiveGearTest` en verde: sin fila, perfil borrado, sin jalón, jalón inclinado sin radio y menor que el radio.
-- [ ] T6. `core:survey`: `LiveTip`, `GroundPoint` y `ProjectPosition` reciben un `AntennaProfile` en lugar de `ReceiverModel`; el modo compensado no resta nada. (RF-20, RF-21, RF-22)
+- [x] T6. `core:survey`: `LiveTip`, `GroundPoint` y `ProjectPosition` reciben un `AntennaProfile` en lugar de `ReceiverModel`; el modo compensado no resta nada. (RF-20, RF-21, RF-22)
       Hecho cuando: los tests de punta del jalón en verde contra `fixtures/antena/` (≤ 1 mm) y los de antes sin cambios (RS3: ≤ 0,1 mm).
 - [ ] T7. `core:survey`: `PointMeasurement` y `PointCorrections` con el perfil y el jalón; las correcciones usan el equipo guardado en el punto. (RF-20, RF-24, RF-25)
       Hecho cuando: `PointMeasurementGearTest` y `PointCorrectionsGearTest` en verde, y `ReceiverModel` borrado con todo en verde.

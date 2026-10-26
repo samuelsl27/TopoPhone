@@ -26,7 +26,7 @@ class ProjectPositionCalculatorTest {
         SolutionStatus.FIX,
         24,
         0.6,
-        groundHeight?.let { it + pole + ReceiverModel.RS3.baseToReferenceM - separation },
+        groundHeight?.let { it + pole + AntennaProfile.RS3.offsetM - separation },
         separation,
         1.0,
         "",

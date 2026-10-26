@@ -117,7 +117,7 @@ class PointMeasurement(
     private val epochIntervalS: Double,
     startedAtMs: Long,
     private val calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
-    private val model: ReceiverModel = ReceiverModel.RS3,
+    private val profile: AntennaProfile = AntennaProfile.RS3,
     private val tilt: TiltSetup = TiltSetup.VERTICAL,
 ) {
     private val requiredS = averagingSeconds.toDouble()
@@ -143,7 +143,7 @@ class PointMeasurement(
     private val includedGst = HashSet<String>()
 
     /** Con la inclinación (S016/RF-22): mientras todas las épocas usadas estén en estado 30. */
-    private val antennaHeightM = VerticalPole.antennaHeightM(poleHeightM, model)
+    private val antennaHeightM = PoleGeometry.antennaHeightM(poleHeightM, profile.offsetM)
     private var allCompensating = true
     private var lastTilt: TiltData? = null
     private var maxTilt = 0.0

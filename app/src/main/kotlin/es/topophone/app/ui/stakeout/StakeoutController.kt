@@ -14,6 +14,7 @@ import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.surface.SurfaceGuide
 import es.topophone.core.model.surface.SurfaceHeight
+import es.topophone.core.survey.AntennaProfile
 import es.topophone.core.survey.DianaScale
 import es.topophone.core.survey.Guidance
 import es.topophone.core.survey.HeadingResult
@@ -27,8 +28,8 @@ import es.topophone.core.survey.LineObjectives
 import es.topophone.core.survey.LineRange
 import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.PlanePoint
+import es.topophone.core.survey.PoleGeometry
 import es.topophone.core.survey.ProjectPositionCalculator
-import es.topophone.core.survey.ReceiverModel
 import es.topophone.core.survey.StakeAlert
 import es.topophone.core.survey.StakeLine
 import es.topophone.core.survey.StakeZone
@@ -36,7 +37,6 @@ import es.topophone.core.survey.StakeoutGeometry
 import es.topophone.core.survey.StakeoutLevel
 import es.topophone.core.survey.StakeoutZones
 import es.topophone.core.survey.TiltEpoch
-import es.topophone.core.survey.VerticalPole
 import es.topophone.receiver.platform.Alerts
 import kotlin.math.abs
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -397,7 +397,7 @@ class StakeoutController(
         if (context.tiltMode != TiltMode.APP || uncompensated) return gst
         val extra = TiltEpoch.accuracy(
             epoch.tilt?.takeIf(TiltEpoch::isCompensating),
-            VerticalPole.antennaHeightM(context.poleHeightM, ReceiverModel.RS3),
+            PoleGeometry.antennaHeightM(context.poleHeightM, AntennaProfile.RS3.offsetM),
         )
         return gst + (extra?.horizontalM ?: 0.0)
     }

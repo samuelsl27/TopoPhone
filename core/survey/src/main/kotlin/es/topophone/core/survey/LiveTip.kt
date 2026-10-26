@@ -22,7 +22,13 @@ data class LiveTipResult(
 /** Del fix GGA, el ETC de su época y el modo del receptor, a la punta del jalón que se muestra. */
 object LiveTip {
 
-    fun of(fix: GgaFix, tilt: TiltData?, mode: TiltMode?, poleHeightM: Double, model: ReceiverModel = ReceiverModel.RS3): LiveTipResult? {
+    fun of(
+        fix: GgaFix,
+        tilt: TiltData?,
+        mode: TiltMode?,
+        poleHeightM: Double,
+        profile: AntennaProfile = AntennaProfile.RS3,
+    ): LiveTipResult? {
         if (!fix.hasPosition) return null
         val altitude = fix.altitudeM
         val separation = fix.geoidSeparationM
@@ -37,7 +43,7 @@ object LiveTip {
                 null
             },
         )
-        val antennaHeight = VerticalPole.antennaHeightM(poleHeightM, model)
+        val antennaHeight = PoleGeometry.antennaHeightM(poleHeightM, profile.offsetM)
         val compensating = TiltEpoch.isCompensating(tilt)
         return when (mode) {
             TiltMode.APP -> {

@@ -7,9 +7,9 @@ import es.topophone.app.receiver.CurrentTilt
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.TiltMode
-import es.topophone.core.survey.ReceiverModel
+import es.topophone.core.survey.AntennaProfile
+import es.topophone.core.survey.PoleGeometry
 import es.topophone.core.survey.TiltModeWizard
-import es.topophone.core.survey.VerticalPole
 import es.topophone.core.survey.WizardInconclusive
 import es.topophone.core.survey.WizardState
 import es.topophone.data.receiver.ReceiverPreferences
@@ -57,7 +57,7 @@ class TiltViewModel @Inject constructor(
         tilt.openWizard()
         wizardJob?.cancel()
         wizardJob = viewModelScope.launch {
-            val antennaHeight = VerticalPole.antennaHeightM(preferences.poleHeightM.first(), ReceiverModel.RS3)
+            val antennaHeight = PoleGeometry.antennaHeightM(preferences.poleHeightM.first(), AntennaProfile.RS3.offsetM)
             val created = TiltModeWizard(antennaHeight)
             wizard = created
             wizardState.value = created.state

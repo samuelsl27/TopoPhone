@@ -45,7 +45,7 @@ data class ProjectPosition(
 class ProjectPositionCalculator(
     private val peninsulaGeoid: () -> GeoidModel = { GeoidModels.egm08RednapPeninsula },
     private val canariasGeoid: () -> GeoidModel = { GeoidModels.egm08RednapCanarias },
-    private val model: ReceiverModel = ReceiverModel.RS3,
+    private val profile: AntennaProfile = AntennaProfile.RS3,
 ) {
     fun compute(
         fix: GgaFix,
@@ -58,7 +58,7 @@ class ProjectPositionCalculator(
         val altitude = fix.altitudeM
         val separation = fix.geoidSeparationM
         val groundHeight = if (altitude != null && separation != null) {
-            altitude + separation - VerticalPole.antennaHeightM(poleHeightM, model)
+            altitude + separation - PoleGeometry.antennaHeightM(poleHeightM, profile.offsetM)
         } else {
             null
         }

@@ -21,7 +21,7 @@ data class PoleCorrection(val point: Point, val keptEditedCoordinates: Boolean)
  */
 class PointCorrections(
     private val calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
-    private val model: ReceiverModel = ReceiverModel.RS3,
+    private val profile: AntennaProfile = AntennaProfile.RS3,
 ) {
     /**
      * El punto con otra altura del jalón: el suelo, bajo la antena guardada (jalón vertical, S002/RF-32) o a lo largo
@@ -51,13 +51,13 @@ class PointCorrections(
         val angles = measurement.tilt?.angles
         return when {
             measurement.tilt?.mode == TiltMode.APP && angles != null ->
-                PoleTip.fromAntenna(antenna, angles.pole, VerticalPole.antennaHeightM(poleHeightM, model))
+                PoleTip.fromAntenna(antenna, angles.pole, PoleGeometry.antennaHeightM(poleHeightM, profile.offsetM))
             measurement.tilt?.mode == TiltMode.RECEIVER && angles != null ->
                 PoleTip.alongPole(antenna, angles.pole, -(poleHeightM - (angles.receiverPoleHeightM ?: poleHeightM)))
             else -> GeodeticPosition(
                 antenna.latitudeDeg,
                 antenna.longitudeDeg,
-                antenna.ellipsoidalHeightM?.minus(VerticalPole.antennaHeightM(poleHeightM, model)),
+                antenna.ellipsoidalHeightM?.minus(PoleGeometry.antennaHeightM(poleHeightM, profile.offsetM)),
             )
         }
     }

@@ -141,7 +141,7 @@ class ManualCoordinatesTest {
     fun `S011 RF-14 fromGround da lo mismo que compute desde la GGA con el jalon restado`() {
         val calculator = ProjectPositionCalculator()
         val fix = GgaFix("101530.20", 40.41668, -3.70371, SolutionStatus.FIX, 24, 0.6, 650.123, 51.234, 1.0, "")
-        val ground = GeodeticPosition(40.41668, -3.70371, 650.123 + 51.234 - 1.8 - ReceiverModel.RS3.baseToReferenceM)
+        val ground = GeodeticPosition(40.41668, -3.70371, 650.123 + 51.234 - 1.8 - AntennaProfile.RS3.offsetM)
 
         for (crs in ProjectCrs.entries) {
             for (heights in crs.heightSystems) {

@@ -49,7 +49,7 @@ class PoleTipTest {
     @Test
     fun `S016 RF-13 con 0 grados la punta es la del jalon vertical`() {
         val antenna = GeodeticPosition(40.4168, -3.7038, 700.123)
-        val antennaHeight = VerticalPole.antennaHeightM(1.8, ReceiverModel.RS3)
+        val antennaHeight = PoleGeometry.antennaHeightM(1.8, AntennaProfile.RS3.offsetM)
 
         val tip = PoleTip.fromAntenna(antenna, PoleVector.VERTICAL, antennaHeight)
 

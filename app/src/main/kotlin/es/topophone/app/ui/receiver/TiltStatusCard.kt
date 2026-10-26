@@ -6,9 +6,9 @@ import es.topophone.app.R
 import es.topophone.core.gnss.nmea.TiltNotification
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.LengthFormat
-import es.topophone.core.survey.ReceiverModel
+import es.topophone.core.survey.AntennaProfile
+import es.topophone.core.survey.PoleGeometry
 import es.topophone.core.survey.TiltEpoch
-import es.topophone.core.survey.VerticalPole
 import es.topophone.receiver.session.ConnectionState
 
 const val STATUS_TILT_STATE_TAG = "status_tilt_state"
@@ -56,7 +56,7 @@ internal fun TiltStatusCard(state: ReceiverUiState) {
                 STATUS_TILT_HEADING_TAG,
             )
         }
-        val antennaHeight = VerticalPole.antennaHeightM(state.poleHeightM, ReceiverModel.RS3)
+        val antennaHeight = PoleGeometry.antennaHeightM(state.poleHeightM, AntennaProfile.RS3.offsetM)
         val accuracy = TiltEpoch.accuracy(tilt, antennaHeight) ?: return@ReceiverCard
         LabeledValue(
             stringResource(R.string.status_tilt_horizontal),

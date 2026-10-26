@@ -39,6 +39,7 @@ import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.surface.SurfaceGuide
 import es.topophone.core.model.surface.SurfaceHeight
+import es.topophone.core.survey.AntennaProfile
 import es.topophone.core.survey.AutoAction
 import es.topophone.core.survey.AutoOutcome
 import es.topophone.core.survey.AverageStatsSnapshot
@@ -51,15 +52,14 @@ import es.topophone.core.survey.MeasurementFailure
 import es.topophone.core.survey.MeasurementResult
 import es.topophone.core.survey.MeasurementUpdate
 import es.topophone.core.survey.PointMeasurement
+import es.topophone.core.survey.PoleGeometry
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPositionCalculator
-import es.topophone.core.survey.ReceiverModel
 import es.topophone.core.survey.StakeoutDiff
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.TiltGuide
 import es.topophone.core.survey.TiltSetup
-import es.topophone.core.survey.VerticalPole
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
@@ -1105,7 +1105,7 @@ class CollectorViewModel @Inject constructor(
     ): LiveQuality {
         val pole = PoleHeight.parse(poleText)
         val accuracy = if (mode == TiltMode.APP && pole != null) {
-            TiltEpoch.accuracy(epochTilt?.takeIf(TiltEpoch::isCompensating), VerticalPole.antennaHeightM(pole, ReceiverModel.RS3))
+            TiltEpoch.accuracy(epochTilt?.takeIf(TiltEpoch::isCompensating), PoleGeometry.antennaHeightM(pole, AntennaProfile.RS3.offsetM))
         } else {
             null
         }
