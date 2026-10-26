@@ -12,6 +12,7 @@ import es.topophone.data.cad.CadDao
 import es.topophone.data.cad.CadDrawingEntity
 import es.topophone.data.cad.CadLayerEntity
 import es.topophone.data.gear.AntennaProfileEntity
+import es.topophone.data.gear.GearDao
 import es.topophone.data.gear.ReceiverGearEntity
 import es.topophone.data.gear.SavedPoleEntity
 import es.topophone.data.map.MapViewportDao
@@ -96,6 +97,8 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
     abstract fun cad(): CadDao
 
     abstract fun surfaces(): SurfaceDao
+
+    abstract fun gear(): GearDao
 
     companion object {
         const val NAME = "topophone.db"

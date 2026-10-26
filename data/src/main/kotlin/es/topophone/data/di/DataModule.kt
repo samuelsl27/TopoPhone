@@ -20,6 +20,8 @@ import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.DataStoreExportPreferences
 import es.topophone.data.export.ExportDataStoreQualifier
 import es.topophone.data.export.ExportPreferences
+import es.topophone.data.gear.GearRepository
+import es.topophone.data.gear.RoomGearRepository
 import es.topophone.data.log.DataStoreLogPreferences
 import es.topophone.data.log.LogPreferences
 import es.topophone.data.map.DataStoreMapPreferences
@@ -151,6 +153,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideSurfaceRepository(database: TopoPhoneDatabase): SurfaceRepository = RoomSurfaceRepository(database)
+
+    /** Perfiles de antena, jalones guardados y el equipo de cada receptor (S046). */
+    @Provides
+    @Singleton
+    fun provideGearRepository(database: TopoPhoneDatabase): GearRepository = RoomGearRepository(database)
 
     /** La superficie activa de cada proyecto, con sus teselas a demanda (S042). */
     @Provides
