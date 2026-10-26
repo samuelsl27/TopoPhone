@@ -155,6 +155,8 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
                 "WHERE layer_id IN (SELECT l.id FROM cad_layers l JOIN cad_drawings d ON d.id = l.drawing_id " +
                     "WHERE d.project_id = ? AND d.status = 'READY')",
             ),
+            Table("surfaces", "WHERE project_id = ? AND status = 'READY'"),
+            Table("surface_tiles", "WHERE surface_id IN (SELECT id FROM surfaces WHERE project_id = ? AND status = 'READY')"),
             Table("ntrip_profiles", projectFilter = null),
         )
     }

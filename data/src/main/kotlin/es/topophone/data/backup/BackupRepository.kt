@@ -388,9 +388,12 @@ class BackupRepository(
         project: (android.content.ContentValues) -> Unit,
     ) {
         val args = arrayOf(oldId)
+        val surfaceIds = surfaceIds(source, args, keepIds)
         source("SELECT * FROM projects WHERE id = ?", args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "projects") {
                 it.put("id", newProjectId)
+                val active = it.getAsString("active_surface_id")?.let(surfaceIds::get)
+                if (active == null) it.putNull("active_surface_id") else it.put("active_surface_id", active)
                 project(it)
             }
         }
@@ -415,6 +418,7 @@ class BackupRepository(
             }
         }
         copyDrawings(source, sink, args, newProjectId, keepIds)
+        copySurfaces(source, sink, args, newProjectId, surfaceIds)
     }
 
     /**
@@ -454,6 +458,41 @@ class BackupRepository(
             DatabaseSnapshot.copyRows(cursor, sink, "cad_chunks") { chunk ->
                 chunk.remove("id")
                 chunk.put("layer_id", layerIds.getValue(chunk.getAsString("layer_id")))
+            }
+        }
+    }
+
+    /** De los ids de las superficies terminadas del proyecto a los que tendrán al copiarlas: los mismos con [keepIds], nuevos si no. */
+    private fun surfaceIds(
+        source: (String, Array<String>) -> android.database.Cursor,
+        args: Array<String>,
+        keepIds: Boolean,
+    ): Map<String, String> = source("SELECT id FROM surfaces WHERE project_id = ? AND status = 'READY'", args).use { cursor ->
+        buildMap { while (cursor.moveToNext()) cursor.getString(0).let { old -> put(old, if (keepIds) old else newId()) } }
+    }
+
+    /**
+     * Las superficies terminadas del proyecto con sus teselas (S042/RF-21). La superficie activa y el desplazamiento vertical van en
+     * la fila del proyecto. Los trozos reciben siempre un id propio, porque el suyo es de la base de datos de cada móvil.
+     */
+    private fun copySurfaces(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        surfaceIds: Map<String, String>,
+    ) {
+        source("SELECT * FROM surfaces WHERE project_id = ? AND status = 'READY' ORDER BY imported_at_ms, id", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "surfaces") { surface ->
+                surface.put("id", surfaceIds.getValue(surface.getAsString("id")))
+                surface.put("project_id", newProjectId)
+            }
+        }
+        val tiles = "SELECT * FROM surface_tiles WHERE surface_id IN (SELECT id FROM surfaces WHERE project_id = ? AND status = 'READY')"
+        source(tiles, args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "surface_tiles") { tile ->
+                tile.remove("id")
+                tile.put("surface_id", surfaceIds.getValue(tile.getAsString("surface_id")))
             }
         }
     }

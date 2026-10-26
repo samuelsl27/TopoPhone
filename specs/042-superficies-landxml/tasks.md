@@ -24,7 +24,7 @@
       Hecho cuando: `SurfaceImporterTest` en verde: importar, cancelar, fallo de escritura sin dejar nada, varias superficies y el mismo nombre de fichero.
 - [x] T11. `data`: `ActiveSurface` y `ActiveSurfaceProvider`, el índice de teselas, la caché, `Loading`, la precarga y el vaciado al desactivar. (RF-16, RF-22, RF-23, RF-27)
       Hecho cuando: `ActiveSurfaceTest` en verde: `Loading` y después `Value` o `Outside`, la precarga y la superficie borrada o desactivada.
-- [ ] T12. `data`: copia de seguridad, paquete y restauración con las superficies, la activa y el desplazamiento. (RF-21, RNF-T6)
+- [x] T12. `data`: copia de seguridad, paquete y restauración con las superficies, la activa y el desplazamiento. (RF-21, RNF-T6)
       Hecho cuando: `SurfaceBackupTest` en verde: copia completa, paquete de un proyecto con identificadores nuevos y restauración, con la activa y el desplazamiento.
 - [ ] T13. `app`: `SurfaceImportViewModel`, los pasos, los rechazos, la elección de superficie, el SC y la unidad, la lejanía y el nombre repetido. (RF-1 a RF-10, RF-15)
       Hecho cuando: `SurfaceImportViewModelTest` en verde.
