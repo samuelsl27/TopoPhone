@@ -99,6 +99,39 @@ class DxfReaderTest {
         closedWithBulge.hasVertex(440060.0, 4474020.0) shouldBe true
     }
 
+    @Test
+    fun `S040 RF-34 solo los extremos de un arco y de una spline y la partida de un circulo son originales`() {
+        val elements = read("r2000.dxf").first.elements.map { it.second }
+
+        listOf(CadEntityKind.ARC, CadEntityKind.SPLINE).forEach { kind ->
+            elements.filter { it.kind == kind }.forEach { e ->
+                (e.vertexCount > 2) shouldBe true
+                (0 until e.vertexCount).filter { e.isOriginal(it) } shouldBe listOf(0, e.vertexCount - 1)
+            }
+        }
+        elements.filter { it.kind == CadEntityKind.CIRCLE && it.vertexCount > 1 }.forEach { e ->
+            (0 until e.vertexCount).filter { e.isOriginal(it) } shouldBe listOf(0)
+        }
+    }
+
+    @Test
+    fun `S040 RF-34 en una polilinea con bulge son originales los vertices escritos y no los del arco`() {
+        val e = read("r2000.dxf").first.elements.map { it.second }.first { it.kind == CadEntityKind.POLYLINE && it.vertexCount > 5 }
+
+        (0 until e.vertexCount).filter { e.isOriginal(it) }.size shouldBe 5 // 4 vértices y el de cierre
+        e.isOriginal(0) shouldBe true
+        e.isOriginal(e.vertexCount - 1) shouldBe true
+        e.hasOriginalMarks shouldBe true
+    }
+
+    @Test
+    fun `S040 RF-34 una linea y un punto no llevan marcas y todos sus vertices son originales`() {
+        val line = read("r2000.dxf").first.elements.map { it.second }.first { it.kind == CadEntityKind.LINE }
+
+        line.hasOriginalMarks shouldBe false
+        line.isOriginal(0) shouldBe true
+    }
+
     private fun CadEntity.hasVertex(e: Double, n: Double) = easting.indices.any { easting[it] == e && northing[it] == n }
 
     @Test

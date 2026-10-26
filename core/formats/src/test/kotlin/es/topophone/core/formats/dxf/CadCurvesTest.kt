@@ -83,6 +83,16 @@ class CadCurvesTest {
     }
 
     @Test
+    fun `S040 RF-34 un arco marca como originales solo sus extremos y un circulo solo su partida`() {
+        val arc = CadCurves.arc(0.0, 0.0, 50.0, 0.0, 90.0, tol)
+        val circle = CadCurves.circle(0.0, 0.0, 50.0, tol)
+
+        arc.original!!.indices.filter { arc.original!![it] } shouldBe listOf(0, arc.x.size - 1)
+        circle.original!!.indices.filter { circle.original!![it] } shouldBe listOf(0)
+        CadCurves.bulge(0.0, 0.0, 30.0, 0.0, 0.5, tol).original shouldBe null
+    }
+
+    @Test
     fun `S040 RF-15 un arco que cruza el angulo 0 barre solo la diferencia`() {
         val curve = CadCurves.arc(0.0, 0.0, 50.0, 350.0, 10.0, tol)
 

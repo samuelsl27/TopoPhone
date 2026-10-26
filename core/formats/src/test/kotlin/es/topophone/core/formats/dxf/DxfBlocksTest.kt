@@ -214,6 +214,19 @@ class DxfBlocksTest {
     }
 
     @Test
+    fun `S040 RF-34 las marcas de vertice original sobreviven al despliegue de un bloque escalado`() {
+        val arc = "0\nARC\n8\n0\n10\n0.0\n20\n0.0\n30\n0.0\n40\n10.0\n50\n0.0\n51\n90.0"
+        val blocks = block("B", arc)
+
+        val (sink, _) = expand(doc(blocks, insert("B", 100.0, 200.0, "41\n2.0\n42\n2.0\n43\n1.0")))
+
+        val placed = sink.elements.map { it.second }.first { it.kind == CadEntityKind.ARC }
+        (placed.vertexCount > 2) shouldBe true
+        (0 until placed.vertexCount).filter { placed.isOriginal(it) } shouldBe listOf(0, placed.vertexCount - 1)
+        placed.easting.first() shouldBe (120.0 plusOrMinus 1e-9)
+    }
+
+    @Test
     fun `S040 RF-14 una cadena de bloques de mas de 16 niveles se corta`() {
         val chain = (0 until 20).joinToString("\n") { i ->
             block(

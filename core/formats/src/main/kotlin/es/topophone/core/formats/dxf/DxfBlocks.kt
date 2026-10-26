@@ -137,15 +137,15 @@ class DxfExpander(
             is DxfPolyline -> polyline(entity, tolerance, out)
             is DxfArc -> {
                 val c = CadCurves.arc(entity.centerX, entity.centerY, entity.radius, entity.startDegrees, entity.endDegrees, tolerance)
-                out.ocs(CadEntityKind.ARC, c.x, c.y, entity.centerZ, entity.normal, entity.hasZ)
+                out.ocs(CadEntityKind.ARC, c.x, c.y, entity.centerZ, entity.normal, entity.hasZ, c.original)
             }
             is DxfCircle -> {
                 val c = CadCurves.circle(entity.centerX, entity.centerY, entity.radius, tolerance)
-                out.ocs(CadEntityKind.CIRCLE, c.x, c.y, entity.centerZ, entity.normal, entity.hasZ)
+                out.ocs(CadEntityKind.CIRCLE, c.x, c.y, entity.centerZ, entity.normal, entity.hasZ, c.original)
             }
             is DxfSpline -> {
                 val c = CadCurves.spline(entity, tolerance)
-                out.global(CadEntityKind.SPLINE, c.x, c.y, c.z)
+                out.global(CadEntityKind.SPLINE, c.x, c.y, c.z, c.original)
             }
             is DxfInsert -> insert(entity, ctx, layer, color, out)
         }
@@ -154,12 +154,14 @@ class DxfExpander(
     private fun polyline(e: DxfPolyline, tolerance: Double, out: Out) {
         val xs = DoubleBuf()
         val ys = DoubleBuf()
+        val originals = BitBuf() // S040/RF-34: los vértices de los tramos con bulge no son originales
         val v = e.vertices
         val z = e.elevation ?: 0.0
         val count = v.size
         for (i in 0 until count) {
             xs.add(v[i].x)
             ys.add(v[i].y)
+            originals.add(true)
             val nextIndex = when {
                 i < count - 1 -> i + 1
                 e.closed -> 0
@@ -170,20 +172,22 @@ class DxfExpander(
                 for (k in c.x.indices) {
                     xs.add(c.x[k])
                     ys.add(c.y[k])
+                    originals.add(false)
                 }
             }
         }
         if (e.closed) {
             xs.add(v[0].x)
             ys.add(v[0].y)
+            originals.add(true)
         }
         if (e.is3d) {
             val zs = DoubleBuf()
             for (i in 0 until count) zs.add(v[i].z ?: 0.0)
             if (e.closed) zs.add(v[0].z ?: 0.0)
-            out.global(CadEntityKind.POLYLINE, xs.toArray(), ys.toArray(), zs.toArray())
+            out.global(CadEntityKind.POLYLINE, xs.toArray(), ys.toArray(), zs.toArray(), originals.toArray())
         } else {
-            out.ocs(CadEntityKind.POLYLINE, xs.toArray(), ys.toArray(), z, e.normal, e.hasZ)
+            out.ocs(CadEntityKind.POLYLINE, xs.toArray(), ys.toArray(), z, e.normal, e.hasZ, originals.toArray())
         }
     }
 
@@ -240,7 +244,7 @@ class DxfExpander(
 
     /** Escribe un elemento ya con su transformación, su capa y su color. */
     private inner class Out(val layer: String, val color: CadColor, val layerColor: CadColor, val xf: DxfTransform) {
-        private fun finish(kind: CadEntityKind, xs: DoubleArray, ys: DoubleArray, zs: DoubleArray?) {
+        private fun finish(kind: CadEntityKind, xs: DoubleArray, ys: DoubleArray, zs: DoubleArray?, original: BooleanArray? = null) {
             val ex = DoubleArray(xs.size)
             val ey = DoubleArray(xs.size)
             val ez = if (zs != null) DoubleArray(xs.size) else null
@@ -250,7 +254,7 @@ class DxfExpander(
                 ey[i] = xf.y(xs[i], ys[i], z)
                 if (ez != null) ez[i] = xf.z(xs[i], ys[i], z)
             }
-            sink.element(layer, CadEntity(kind, ex, ey, ez, if (color == layerColor) null else color))
+            sink.element(layer, CadEntity(kind, ex, ey, ez, if (color == layerColor) null else color, original))
         }
 
         fun single(kind: CadEntityKind, x: Double, y: Double, z: Double?) =
@@ -267,10 +271,19 @@ class DxfExpander(
         }
 
         /** Puntos ya en el sistema global; [zs] es null si no traen Z. */
-        fun global(kind: CadEntityKind, xs: DoubleArray, ys: DoubleArray, zs: DoubleArray?) = finish(kind, xs, ys, zs)
+        fun global(kind: CadEntityKind, xs: DoubleArray, ys: DoubleArray, zs: DoubleArray?, original: BooleanArray? = null) =
+            finish(kind, xs, ys, zs, original)
 
         /** Puntos en el OCS de [normal] con la Z común [z]; [hasZ] dice si el elemento trae Z. */
-        fun ocs(kind: CadEntityKind, xs: DoubleArray, ys: DoubleArray, z: Double, normal: Triple<Double, Double, Double>, hasZ: Boolean) {
+        fun ocs(
+            kind: CadEntityKind,
+            xs: DoubleArray,
+            ys: DoubleArray,
+            z: Double,
+            normal: Triple<Double, Double, Double>,
+            hasZ: Boolean,
+            original: BooleanArray? = null,
+        ) {
             val wx = DoubleArray(xs.size)
             val wy = DoubleArray(xs.size)
             val wz = DoubleArray(xs.size)
@@ -280,8 +293,21 @@ class DxfExpander(
                 wy[i] = w.second
                 wz[i] = w.third
             }
-            finish(kind, wx, wy, if (hasZ) wz else null)
+            finish(kind, wx, wy, if (hasZ) wz else null, original)
         }
+    }
+
+    /** Un vector de `Boolean` que crece. */
+    private class BitBuf {
+        private var data = BooleanArray(16)
+        private var size = 0
+
+        fun add(v: Boolean) {
+            if (size == data.size) data = data.copyOf(size * 2)
+            data[size++] = v
+        }
+
+        fun toArray(): BooleanArray = data.copyOf(size)
     }
 
     /** Un vector de `Double` que crece, sin empaquetar cada número. */

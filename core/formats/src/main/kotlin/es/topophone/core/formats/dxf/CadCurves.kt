@@ -10,11 +10,14 @@ import kotlin.math.cos
 import kotlin.math.hypot
 import kotlin.math.sin
 
-/** Una curva como polilínea en el plano: sus vértices, de la forma `x[i]`, `y[i]`. */
-class Curve2(val x: DoubleArray, val y: DoubleArray)
+/**
+ * Una curva como polilínea en el plano: sus vértices, de la forma `x[i]`, `y[i]`. [original] marca los que están escritos en el DXF
+ * y no son de la aproximación (S040/RF-34); null, todos.
+ */
+class Curve2(val x: DoubleArray, val y: DoubleArray, val original: BooleanArray? = null)
 
 /** Una curva como polilínea en el espacio; [z] es null si ninguno de sus puntos de control traía Z. */
-class Curve3(val x: DoubleArray, val y: DoubleArray, val z: DoubleArray?)
+class Curve3(val x: DoubleArray, val y: DoubleArray, val z: DoubleArray?, val original: BooleanArray? = null)
 
 /**
  * Arcos, círculos, bulges y splines como polilíneas que no se apartan de la curva más de la tolerancia (S040/RF-15). La tolerancia
@@ -37,14 +40,19 @@ object CadCurves {
         var sweep = Math.toRadians(endDegrees) - start
         sweep %= TWO_PI
         if (sweep <= 0.0) sweep += TWO_PI
-        return sweepPoints(cx, cy, radius, start, sweep, tolerance, minSegments = 1)
+        return sweepPoints(cx, cy, radius, start, sweep, tolerance, minSegments = 1).endsOnly()
     }
 
     /** Un `CIRCLE` como anillo cerrado (el último vértice repite el primero); un radio ≤ [tolerance] es un punto en su centro. */
     fun circle(cx: Double, cy: Double, radius: Double, tolerance: Double): Curve2 {
         if (radius <= tolerance) return Curve2(doubleArrayOf(cx), doubleArrayOf(cy))
-        return sweepPoints(cx, cy, radius, 0.0, TWO_PI, tolerance, MIN_CIRCLE_SEGMENTS)
+        return sweepPoints(cx, cy, radius, 0.0, TWO_PI, tolerance, MIN_CIRCLE_SEGMENTS).startOnly()
     }
+
+    // S040/RF-34: de un arco son originales sus dos extremos; de un círculo, su punto de partida (el cierre repite ese vértice).
+    private fun Curve2.endsOnly() = Curve2(x, y, BooleanArray(x.size) { it == 0 || it == x.size - 1 })
+
+    private fun Curve2.startOnly() = Curve2(x, y, BooleanArray(x.size) { it == 0 })
 
     private fun sweepPoints(cx: Double, cy: Double, r: Double, start: Double, sweep: Double, tolerance: Double, minSegments: Int): Curve2 {
         val n = if (r <= tolerance) 1 else maxOf(minSegments, ceil(abs(sweep) / maxStep(r, tolerance)).toInt())
@@ -96,7 +104,7 @@ object CadCurves {
         if (spline.controlPoints.isEmpty()) {
             val fit = spline.fitPoints
             val z = if (fit.any { it.z != null }) DoubleArray(fit.size) { fit[it].z ?: 0.0 } else null
-            return Curve3(DoubleArray(fit.size) { fit[it].x }, DoubleArray(fit.size) { fit[it].y }, z)
+            return Curve3(DoubleArray(fit.size) { fit[it].x }, DoubleArray(fit.size) { fit[it].y }, z, endsOnly(fit.size))
         }
         val evaluator = SplineEvaluator(spline)
         val points = ArrayList<DoubleArray>()
@@ -119,8 +127,11 @@ object CadCurves {
             DoubleArray(points.size) { points[it][0] },
             DoubleArray(points.size) { points[it][1] },
             if (hasZ) DoubleArray(points.size) { points[it][2] } else null,
+            endsOnly(points.size),
         )
     }
+
+    private fun endsOnly(n: Int) = BooleanArray(n) { it == 0 || it == n - 1 }
 
     private fun subdivide(
         e: SplineEvaluator,
