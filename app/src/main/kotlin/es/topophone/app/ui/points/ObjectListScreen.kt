@@ -51,6 +51,7 @@ import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.SurveyNavigation
@@ -126,6 +127,8 @@ class ObjectListActions(
     val onStakeoutReport: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, el asistente de importación de puntos (S028/RF-1). */
     val onImportPoints: () -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, la importación de un DXF (S040/RF-1). */
+    val onImportDxf: () -> Unit = {},
     val onStakeoutReportSelected: () -> Unit = {},
     val onToggleSelection: (String) -> Unit = {},
     val onClearSelection: () -> Unit = {},
@@ -247,6 +250,7 @@ fun ObjectListRoute(
 ) {
     LaunchedEffect(projectId) { viewModel.start(projectId) }
     val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
+    val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
     val state by viewModel.state.collectAsStateWithLifecycle()
     ObjectListScreen(
         themeState,
@@ -260,6 +264,7 @@ fun ObjectListRoute(
             onExport = { navigation.onExport(projectId, false) }, // S012/RF-1
             onStakeoutReport = { navigation.onStakeoutReport(projectId, false) }, // S019/RF-17
             onImportPoints = { importPoints(projectId) },
+            onImportDxf = { importDxf(projectId) },
             onStakeoutReportSelected = {
                 viewModel.exportSelected()
                 navigation.onStakeoutReport(projectId, true) // S019/RF-18
@@ -300,7 +305,9 @@ fun ObjectListScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
-        actions = { ObjectsMenu(actions.onOpenTrash, actions.onExport, actions.onStakeoutReport, actions.onImportPoints) },
+        actions = {
+            ObjectsMenu(actions.onOpenTrash, actions.onExport, actions.onStakeoutReport, actions.onImportPoints, actions.onImportDxf)
+        },
         floatingActionButton = {
             if (state.selected.isEmpty()) {
                 ExtendedFloatingActionButton(
@@ -352,7 +359,13 @@ fun ObjectListScreen(
 
 /** Menú "⋮" de la lista de objetos: la papelera de puntos (S011/RF-23). */
 @Composable
-private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit, onStakeoutReport: () -> Unit, onImportPoints: () -> Unit) {
+private fun ObjectsMenu(
+    onOpenTrash: () -> Unit,
+    onExport: () -> Unit,
+    onStakeoutReport: () -> Unit,
+    onImportPoints: () -> Unit,
+    onImportDxf: () -> Unit,
+) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
         Icon(painterResource(R.drawable.ic_more_vert), contentDescription = stringResource(R.string.projects_menu))
@@ -374,6 +387,14 @@ private fun ObjectsMenu(onOpenTrash: () -> Unit, onExport: () -> Unit, onStakeou
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S028/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.cad_import_title)) },
+            onClick = {
+                open = false
+                onImportDxf()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S040/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.stakeout_report_title)) },
             onClick = {

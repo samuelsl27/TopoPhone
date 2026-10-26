@@ -40,7 +40,7 @@
       Hecho cuando: los tests en verde: progreso, cancelar, fallo de escritura, dibujo incompleto, resumen y log sin nombres ni coordenadas.
 - [x] T19. `app`: `CadImportScreen`, la configuración (sistema, unidad, cotas), la extensión con sus avisos, el progreso con «Cancelar» y el resumen, con sus textos en es y en. (RF-6 a RF-10, RF-13, RF-18)
       Hecho cuando: `CadImportScreenTest` en verde, con las etiquetas de TalkBack y el estado con icono y texto.
-- [ ] T20. `app`: «Importar DXF» en el menú del proyecto y en el de la lista de objetos, la navegación y el selector de ficheros. (RF-1)
+- [x] T20. `app`: «Importar DXF» en el menú del proyecto y en el de la lista de objetos, la navegación y el selector de ficheros. (RF-1)
       Hecho cuando: `CadImportEntriesTest` en verde, con el aviso de cada fichero que no se puede abrir.
 - [ ] T21. `app`: `MapController.showDesign`, `DesignSceneBuilder` y las capas de MapLibre: lo que cae en la vista, la simplificación por zoom y el color de contraste. (RF-24, RF-25, RF-27)
       Hecho cuando: `DesignSceneBuilderTest` en verde con capas ocultas, el recorte a la vista, el umbral por zoom y el blanco y el negro; el doble del mapa recoge la escena.

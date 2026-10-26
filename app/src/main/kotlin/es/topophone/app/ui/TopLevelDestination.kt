@@ -80,6 +80,9 @@ import kotlinx.serialization.Serializable
 /** El asistente de importación de puntos de un CSV o TXT: el proyecto y el fichero elegido, como dirección (S028/RF-1). */
 @Serializable data class ImportPointsDestination(val projectId: String, val fileUri: String)
 
+/** La importación de un DXF: el proyecto y el fichero elegido, como dirección (S040/RF-1). */
+@Serializable data class ImportDxfDestination(val projectId: String, val fileUri: String)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

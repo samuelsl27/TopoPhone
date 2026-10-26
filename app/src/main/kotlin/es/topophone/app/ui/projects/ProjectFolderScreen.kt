@@ -24,6 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.backup.rememberPackageHost
+import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.points.rememberImportPointsLauncher
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
@@ -103,6 +104,7 @@ fun ProjectFolderRoute(
     val copyLabel = stringResource(R.string.project_copy_label)
     val packages = rememberPackageHost()
     val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
+    val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
     ProjectFolderScreen(
         themeState,
         onToggleSun,
@@ -117,6 +119,7 @@ fun ProjectFolderRoute(
                 onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
                 onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
                 onImportPoints = importPoints,
+                onImportDxf = importDxf,
                 onExportPackage = packages.export, // S013/RF-24
             ),
             onNewProject = navigation.onNewProject,
