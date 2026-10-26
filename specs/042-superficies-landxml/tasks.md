@@ -50,3 +50,4 @@
       Hecho cuando: el test en verde con la cota, el desmonte o terraplén esperados y el paso por «Fuera de la superficie».
 - [x] T24. Validación: revisión de los cambios en documentos anteriores (hoja de ruta, glosario, S018/S019/S041), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo (puerta G2b) quedan para el usuario.
+      Demo en el emulador: importación de `dos-superficies.xml` (dos superficies, elegida «terreno», 42 puntos, 58 triángulos, 2 huecos, extensión y «activa del proyecto»). El replanteo, el desplazamiento vertical y el paso por el hueco no se recorrieron a mano (el proyecto de la demo queda a 31 km de la superficie); los cubre la reproducción `rs3-superficie` en `StakeoutSurfaceReplayTest`.
