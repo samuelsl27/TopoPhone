@@ -334,6 +334,44 @@ class StakeoutControllerLineTest {
     }
 
     @Test
+    fun `S041 RF-24 en una linea sin cota una cota escrita a mano da nivel desmonte y terraplen`() {
+        controller.onEpoch(epoch(east = 20.0, north = 0.0, up = 0.0), context(guide(eastLine(z = false))))
+        val tipHeight = 650.0 // la cota de diseño que se escribe; la de la punta es la que sale de la época
+        controller.onEpoch(
+            epoch(east = 20.0, north = 0.0, up = 0.0, index = 1),
+            context(guide(eastLine(z = false)), designElevationM = tipHeight),
+        )
+
+        val level = on().level.shouldNotBeNull()
+        on().levelUnavailable.shouldBeNull()
+        level.dzM shouldBe (on().guidance.dHeightM.shouldNotBeNull() plusOrMinus 1e-9)
+        on().line.shouldNotBeNull().heightM.shouldBeNull()
+    }
+
+    @Test
+    fun `S041 RF-24 cambiar la cota escrita en una linea reinicia el nivel y vuelve a avisar de la entrada en cota`() {
+        val g = guide(eastLine(z = false))
+        val probe = StakeoutController(alerts, publishIntervalMs = 0, now = { 0L })
+        probe.onEpoch(epoch(east = 20.0, north = 0.0), context(g, designElevationM = 0.0))
+        val tipHeight = (probe.state.value as GuidanceState.On).ui.guidance.dHeightM.shouldNotBeNull() // punta menos 0
+
+        controller.onEpoch(epoch(east = 20.0, north = 0.0, index = 0), context(g, designElevationM = tipHeight))
+        controller.onEpoch(epoch(east = 21.0, north = 0.0, index = 1), context(g, designElevationM = tipHeight + 5.0))
+        controller.onEpoch(epoch(east = 22.0, north = 0.0, index = 2), context(g, designElevationM = tipHeight))
+
+        // al cambiar la cota el nivel empieza de cero: no avisa de la salida y vuelve a avisar de la entrada
+        alerts.levelEvents shouldBe listOf("levelArrived", "levelArrived")
+    }
+
+    @Test
+    fun `S041 RF-24 una cota escrita gana a la de una linea con cota y la interpolada sigue disponible en el objetivo`() {
+        controller.onEpoch(epoch(east = 0.0, north = 0.0, up = 0.0), context(guide(eastLine(z = true)), designElevationM = 650.0))
+
+        on().line.shouldNotBeNull().heightM.shouldNotBeNull() shouldBe (105.0 plusOrMinus 0.02)
+        on().guidance.dHeightM.shouldNotBeNull() shouldBe (on().level.shouldNotBeNull().dzM plusOrMinus 1e-9)
+    }
+
+    @Test
     fun `S041 RF-24 una linea sin cota no tiene nivel y dice que falta la cota de diseno`() {
         controller.onEpoch(epoch(east = 20.0, north = 0.0), context(guide(eastLine(z = false))))
 

@@ -28,8 +28,8 @@
       Hecho cuando: `PointRepositoryTest` en verde: punto y replanteo juntos, nombres copiados, dibujo borrado después, y un punto del proyecto que no cambia.
 - [x] T13. `app`: `StakeTarget` con su origen y `StakeContext.line`; `StakeoutController` con el objetivo que se mueve, el rumbo respecto a un origen fijo y `LineGuidanceUi`. (RF-6, RF-10, RF-12, RF-13, RF-25, RF-26)
       Hecho cuando: `StakeoutControllerLineTest` en verde: el objetivo que se mueve, la diana, las zonas con el error lateral, los avisos y el apagado en todos los casos de S018; los tests de S018 y S019 siguen en verde.
-- [ ] T14. `app`: la cota de diseño en las líneas: la interpolada, y la escrita a mano si el elemento o el dibujo no tienen cota. (RF-23, RF-24, RF-25)
-      Hecho cuando: `StakeoutControllerLineTest` y `LineStakeoutViewModelTest` en verde con una línea con cota, otra sin cota y el nivel de S019.
+- [x] T14. `app`: la cota de diseño en las líneas: la interpolada, y la escrita a mano si el elemento o el dibujo no tienen cota, con el nivel de S019. (RF-23, RF-24, RF-25)
+      Hecho cuando: `StakeoutControllerLineTest` en verde con una línea con cota, otra sin cota, una cota escrita a mano y el reinicio del nivel al cambiarla. (La cota escrita en el ViewModel se prueba en T15.)
 - [ ] T15. `app`: `LineStakeoutViewModel`, parte 1: abrir un elemento, el modo recordado, los campos, las validaciones, los bloqueos con una medida en marcha y el cierre si se borra el dibujo. (RF-1 a RF-3, RF-16 a RF-22, RF-31)
       Hecho cuando: `LineStakeoutViewModelTest` en verde, con el modo que se recuerda entre proyectos y los campos que no.
 - [ ] T16. `app`: `LineStakeoutViewModel`, parte 2: medir y guardar, el nombre `<capa>_<n>_stkd` y el replanteo con el origen, el modo, el PK y las diferencias. (RF-27, RF-28)
