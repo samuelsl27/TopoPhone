@@ -9,6 +9,7 @@ import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.EntryForm
+import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.LineStakeoutMode
@@ -23,6 +24,7 @@ import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PointSnapshot
 import es.topophone.core.model.point.PointTilt
+import es.topophone.core.model.point.PoleKind
 import es.topophone.core.model.point.PoleVector
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeSource
@@ -321,6 +323,12 @@ internal fun Point.toEntity(): PointEntity {
         stakeSurfaceElev = staked?.surfaceElevationM,
         stakeVerticalOffset = staked?.verticalOffsetM,
         importId = importId,
+        poleName = m?.gear?.poleName,
+        poleKind = m?.gear?.poleKind?.name,
+        poleEnteredM = m?.gear?.poleEnteredM,
+        antennaProfile = m?.gear?.antennaProfile,
+        antennaOffsetM = m?.gear?.antennaOffsetM,
+        antennaHeightM = m?.gear?.antennaHeightM,
     )
 }
 
@@ -413,8 +421,19 @@ private fun PointEntity.measurement(): Measurement? {
         base = base(),
         tilt = tilt(),
         nmeaChunks = nmeaChunks,
+        gear = gear(),
     )
 }
+
+/** El jalón y la antena con los que se midió; null en los puntos de antes de S046 (S046/RF-24, RF-29). */
+private fun PointEntity.gear(): GearUsed? = GearUsed(
+    poleName = poleName ?: return null,
+    poleKind = enumOr(poleKind, PoleKind.VERTICAL),
+    poleEnteredM = poleEnteredM ?: return null,
+    antennaProfile = antennaProfile ?: return null,
+    antennaOffsetM = antennaOffsetM ?: return null,
+    antennaHeightM = antennaHeightM ?: return null,
+)
 
 /** El modo de inclinación y la inclinación de la medida; null en los puntos sin modo (S016/RF-22). */
 private fun PointEntity.tilt(): PointTilt? {

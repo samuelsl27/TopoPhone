@@ -24,7 +24,7 @@
       Hecho cuando: `GearRepositoryTest` en verde: altas, ediciones, nombre repetido, `InUse`, `LastPole`, `ActiveElsewhere` y una transacción por operación.
 - [x] T11. `data`: `GearLegacyImport` (A6). (RF-29)
       Hecho cuando: `GearLegacyImportTest` en verde: 1,8 m, otra altura, sin valor, que no se repite y que los puntos no cambian.
-- [ ] T12. `data`: leer y escribir `GearUsed` en los puntos y en la consulta de la ficha. (RF-24)
+- [x] T12. `data`: leer y escribir `GearUsed` en los puntos y en la consulta de la ficha. (RF-24)
       Hecho cuando: `PointRepositoryGearTest` en verde: se guarda y se lee sin redondear, y un punto de antes se lee sin equipo.
 - [ ] T13. `data`: la copia completa con las tablas nuevas y el paquete de un proyecto sin ellas. (RF-30)
       Hecho cuando: `BackupGearTest` en verde: copia y restauración con perfiles, jalones y activos, y un paquete que no los lleva.
