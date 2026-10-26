@@ -42,7 +42,7 @@
       Hecho cuando: `GearSelectorTest` en verde: dos toques, el bloqueo durante una medida y el rótulo del modo compensado.
 - [x] T20. `app`: el jalón y la antena usados en la ficha del punto. (RF-24)
       Hecho cuando: `PointDetailsGearTest` en verde: punto con equipo, punto de antes y punto manual.
-- [ ] T21. Reproducción de una medida con el RS3 y el jalón de 1,800 m y con un perfil propio, con el resultado esperado calculado aparte. (RF-20, RF-21)
+- [x] T21. Reproducción de una medida con el RS3 y el jalón de 1,800 m y con un perfil propio, con el resultado esperado calculado aparte. (RF-20, RF-21)
       Hecho cuando: el test en verde: el mismo punto que antes con el RS3 (≤ 0,1 mm) y el distinto con el otro perfil.
 - [ ] T22. Validación: revisión de los cambios en documentos anteriores (hoja de ruta, glosario, S002, S010), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
