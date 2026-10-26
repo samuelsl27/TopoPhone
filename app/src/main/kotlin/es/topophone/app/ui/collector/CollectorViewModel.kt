@@ -11,6 +11,7 @@ import es.topophone.app.receiver.VisibleNotices
 import es.topophone.app.ui.stakeout.StakeObjectiveProvider
 import es.topophone.app.ui.stakeout.StakeSaveInfo
 import es.topophone.app.ui.stakeout.StakeTarget
+import es.topophone.app.ui.stakeout.SurfaceStake
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
@@ -884,7 +885,10 @@ class CollectorViewModel @Inject constructor(
             val info = stakeSaveInfo
             val provider = stakeObjective
             val objective = provider?.current()
-            if (provider != null && objective == null) {
+            // S042/RF-28, RF-29: contra la superficie, la cota de diseño es la de la superficie en la posición medida, con el
+            // desplazamiento; fuera de ella no hay cota ni diferencia vertical.
+            val surface = SurfaceStake.of(info, measurement.coordinates)
+            val staked = if (provider != null && objective == null) {
                 null // S041: una línea que aún no ha dado objetivo no tiene qué comparar
             } else if (objective != null) {
                 // S041/RF-28: el objetivo en el momento de terminar la medida, con su origen, su modo, su PK y su error lateral.
@@ -893,7 +897,7 @@ class CollectorViewModel @Inject constructor(
                     target.name,
                     objective.design,
                     measurement.coordinates,
-                    elevationM = objective.elevationM,
+                    elevationM = if (surface != null) surface.elevationOr(objective.elevationM) else objective.elevationM,
                     toleranceHM = info?.toleranceHM,
                     toleranceVM = info?.toleranceVM,
                 ).copy(
@@ -911,11 +915,12 @@ class CollectorViewModel @Inject constructor(
                     target.name,
                     target.coordinates,
                     measurement.coordinates,
-                    elevationM = info.elevationM,
+                    elevationM = if (surface != null) surface.elevationOr(info.elevationM) else info.elevationM,
                     toleranceHM = info.toleranceHM,
                     toleranceVM = info.toleranceVM,
                 ).copy(source = target.source)
             }
+            if (staked != null && surface != null) surface.applyTo(staked) else staked
         }
         val point = Point.measured(
             id = UUID.randomUUID().toString(),

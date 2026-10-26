@@ -53,9 +53,17 @@ import kotlinx.coroutines.launch
 
 /**
  * Lo que se guarda con el punto replanteado de S019 (RF-13): la cota de diseño usada y las dos tolerancias vigentes, en metros.
- * [elevationM] es null si no hay cota de diseño.
+* [elevationM] es null si no hay cota de diseño. Contra la superficie, [elevationSource] es `SURFACE` y la cota sale de [surface] en la
+ * posición medida (S042/RF-28).
  */
-data class StakeSaveInfo(val elevationM: Double?, val toleranceHM: Double, val toleranceVM: Double)
+data class StakeSaveInfo(
+    val elevationM: Double?,
+    val toleranceHM: Double,
+    val toleranceVM: Double,
+    /** Con una superficie activa, contra qué cota se replantea y la superficie, para guardarlo con el punto (S042/RF-28, RF-29). */
+    val elevationSource: ElevationSource? = null,
+    val surface: SurfaceGuide? = null,
+)
 
 /**
  * Lo que muestra el replanteo (S018/RF-1 a RF-8, RF-13 a RF-19, RF-30, RF-35; S019/RF-1 a RF-4, RF-10, RF-13, RF-16).
@@ -189,7 +197,15 @@ class StakeoutViewModel @Inject constructor(
             notFound = live.notFound,
             designElevationM = elevation,
             elevationOverridden = live.elevationOverride != null,
-            saveInfo = target?.let { StakeSaveInfo(elevation, live.settings.validToleranceM, live.settings.validToleranceVM) },
+            saveInfo = target?.let {
+                StakeSaveInfo(
+                    elevation,
+                    live.settings.validToleranceM,
+                    live.settings.validToleranceVM,
+                    resolution.source.takeIf { surface.guide != null },
+                    surface.guide,
+                )
+            },
             surfaceActive = surface.guide != null,
             elevationSource = resolution.source,
             canChooseSource = resolution.canChoose,
