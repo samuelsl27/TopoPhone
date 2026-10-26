@@ -109,7 +109,7 @@ class TiltReplayTest {
     private fun wizardProposes(name: String): WizardState.Proposed {
         val tilt = currentTilt(scope, MemoryTiltPreferences(), replaying = true)
         runBlocking { withTimeout(5_000) { tilt.state.first { it.key == TiltPreferences.REPLAY } } }
-        val vm = TiltViewModel(tilt, RecordingLog(), session, FakePreferences())
+        val vm = TiltViewModel(tilt, RecordingLog(), session, fakeCurrentGear())
         collectors.launch { vm.state.collect {} }
         val groups = epochs(name)
         vm.openWizard()

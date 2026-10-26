@@ -28,7 +28,7 @@
       Hecho cuando: `PointRepositoryGearTest` en verde: se guarda y se lee sin redondear, y un punto de antes se lee sin equipo.
 - [x] T13. `data`: la copia completa con las tablas nuevas y el paquete de un proyecto sin ellas. (RF-30)
       Hecho cuando: `BackupGearTest` en verde: copia y restauración con perfiles, jalones y activos, y un paquete que no los lleva.
-- [ ] T14. `app`: el `ActiveGear` de cada receptor con la clave de `CurrentTilt`, y `ReceiverViewModel`, `TiltViewModel` y `TiltStatusCard` leen de él en lugar de `poleHeightM`. (RF-8, RF-15, RF-20)
+- [x] T14. `app`: el `ActiveGear` de cada receptor con la clave de `CurrentTilt`, y `ReceiverViewModel`, `TiltViewModel` y `TiltStatusCard` leen de él en lugar de `poleHeightM`. (RF-8, RF-15, RF-20)
       Hecho cuando: los tests de `ReceiverViewModel` y `TiltViewModel` en verde con el jalón y la altura de antena nuevos.
 - [ ] T15. `app`: `CollectorViewModel` con el equipo activo: medir y guardar, el bloqueo sin equipo, el bloqueo durante un promediado o un modo automático y el aviso del cambio a mitad de sesión. (RF-15, RF-24 a RF-28)
       Hecho cuando: `CollectorViewModelGearTest` en verde.

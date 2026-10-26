@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.receiver.BaseNotices
+import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.DismissedNotices
@@ -16,6 +17,7 @@ import es.topophone.app.receiver.ReceiverService
 import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.core.survey.ActiveGear
 import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.LiveTip
@@ -82,6 +84,10 @@ data class ReceiverUiState(
     val poleHeightValid: Boolean = true,
     /** La altura del jalón en uso, para la precisión de la inclinación (S016/RF-11). */
     val poleHeightM: Double = PoleHeight.DEFAULT_M,
+    /** La altura de antena del equipo activo: el jalón vertical más el desplazamiento del perfil (S046/RF-8, RF-15). */
+    val antennaHeightM: Double = CurrentGear.DEFAULT.antennaHeightM!!,
+    /** El equipo activo del receptor: perfil de antena y jalón (S046/RF-15). */
+    val gear: ActiveGear = CurrentGear.DEFAULT,
     val groundPoint: GroundPoint? = null,
     /** El modo usa la inclinación pero la época no está en estado 30: "Punta sin compensar" (S016/RF-17). */
     val tipUncompensated: Boolean = false,
@@ -123,13 +129,13 @@ class ReceiverViewModel @Inject constructor(
     private val projectPreferences: ProjectPreferences = ProjectPreferences.FACTORY,
     private val baseNotices: BaseNotices = BaseNotices(),
     private val tilt: CurrentTilt = CurrentTilt.NONE,
+    private val gear: CurrentGear = CurrentGear.NONE,
 ) : ViewModel() {
 
     private val bluetoothUi = MutableStateFlow(readBluetooth())
     private val lastAddress = MutableStateFlow<String?>(null)
     private val internet = MutableStateFlow(true)
-    private val poleText = MutableStateFlow(formatPoleHeight(PoleHeight.DEFAULT_M))
-    private val poleValue = MutableStateFlow(PoleHeight.DEFAULT_M)
+    private val poleText = MutableStateFlow(formatPoleHeight(gear.state.value.pole?.enteredM ?: PoleHeight.DEFAULT_M))
     private val notificationsGranted = MutableStateFlow(notifications.isGranted())
     private val notificationsAnsweredNow = MutableStateFlow(false)
     private val pairingSupported = pairing.isSupported
@@ -144,12 +150,12 @@ class ReceiverViewModel @Inject constructor(
 
     private val snapshots: Flow<ReceiverSnapshot> = if (samplePeriodMs > 0) session.state.sample(samplePeriodMs) else session.state
 
-    private data class PoleState(val text: String, val value: Double)
     private data class Shown(
         val snapshot: ReceiverSnapshot,
         val angularUnit: AngularUnit,
         val notices: DismissedNotices,
         val tilt: CurrentTiltState,
+        val gear: ActiveGear,
     )
     private data class Extras(
         val nowMs: Long,
@@ -162,10 +168,10 @@ class ReceiverViewModel @Inject constructor(
     private val angularUnits: Flow<AngularUnit> = projectPreferences.defaults.map { it.angularUnit }.distinctUntilChanged()
 
     val uiState: StateFlow<ReceiverUiState> = combine(
-        combine(snapshots, angularUnits, baseNotices.dismissed, tilt.state, ::Shown),
+        combine(snapshots, angularUnits, baseNotices.dismissed, tilt.state, gear.state, ::Shown),
         bluetoothUi,
         internet,
-        combine(poleText, poleValue, ::PoleState),
+        poleText,
         combine(
             ticker,
             combine(lastAddress, preferences.lastReceiver.map { it?.address }) { last, saved -> last to saved },
@@ -173,13 +179,14 @@ class ReceiverViewModel @Inject constructor(
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
             pairingUi,
         ) { now, addresses, granted, asked, pairing -> Extras(now, addresses, granted, asked, pairing) },
-    ) { (snapshot, angularUnit, notices, tiltState), bt, internetAvailable, pole, extras ->
+    ) { (snapshot, angularUnit, notices, tiltState, gearState), bt, internetAvailable, poleTyped, extras ->
         // S016/RF-16, RF-17: con la inclinación, la GGA y el ETC de la misma época; si no, la última GGA.
         val mode = tiltState.settings.mode
         val epoch = snapshot.epoch
         val tipFix = if (mode?.usesTilt == true && epoch?.gga != null) epoch.gga else snapshot.gga
         val tipTilt = if (mode?.usesTilt == true) epoch?.tilt else null
-        val tip = tipFix?.let { LiveTip.of(it, tipTilt, mode, pole.value) }
+        val poleValue = gearState.verticalPoleM
+        val tip = if (poleValue == null) null else tipFix?.let { LiveTip.of(it, tipTilt, mode, poleValue, gearState.profile) }
         // Solo con un receptor real: una reproducción no usa el servicio ni la notificación.
         val realReceiver = ReceiverService.needsService(snapshot)
         val missingPermission = notifications.required && !extras.notificationsGranted
@@ -189,9 +196,11 @@ class ReceiverViewModel @Inject constructor(
             lastAddress = extras.addresses.first,
             lastReceiverAddress = extras.addresses.second,
             internetAvailable = internetAvailable,
-            poleHeightText = pole.text,
-            poleHeightValid = PoleHeight.parse(pole.text) != null,
-            poleHeightM = pole.value,
+            poleHeightText = poleTyped,
+            poleHeightValid = PoleHeight.parse(poleTyped) != null,
+            poleHeightM = poleValue ?: PoleHeight.DEFAULT_M,
+            antennaHeightM = gearState.antennaHeightM ?: CurrentGear.DEFAULT.antennaHeightM!!,
+            gear = gearState,
             groundPoint = tip?.let { calculator.get().fromGround(it.ground, checkNotNull(tipFix).status) },
             tipUncompensated = tip?.uncompensated == true,
             nowMs = extras.nowMs,
@@ -228,9 +237,10 @@ class ReceiverViewModel @Inject constructor(
         // primera GGA, para no bloquear la interfaz ni retrasar las primeras coordenadas (RNF-T13).
         viewModelScope.launch(Dispatchers.Default) { calculator.get() }
         viewModelScope.launch {
-            val pole = preferences.poleHeightM.first()
-            poleValue.value = pole
-            poleText.value = formatPoleHeight(pole)
+            // S046/RF-13, RF-14: un cambio de jalón fuera de este campo (el selector) lo actualiza; lo que se está escribiendo no.
+            gear.state.map { it.pole?.enteredM }.distinctUntilChanged().collect { entered ->
+                if (entered != null && PoleHeight.parse(poleText.value) != entered) poleText.value = formatPoleHeight(entered)
+            }
         }
         viewModelScope.launch {
             // S002/RF-9
@@ -315,8 +325,7 @@ class ReceiverViewModel @Inject constructor(
     fun updatePoleHeight(text: String) {
         poleText.value = text
         PoleHeight.parse(text)?.let { value ->
-            poleValue.value = value
-            viewModelScope.launch { preferences.savePoleHeight(value) } // S002/RF-30
+            viewModelScope.launch { gear.editActivePoleHeight(value) } // S046/RF-10, S002/RF-30
         }
     }
 

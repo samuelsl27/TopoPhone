@@ -3,16 +3,14 @@ package es.topophone.app.ui.receiver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.TiltMode
-import es.topophone.core.survey.AntennaProfile
-import es.topophone.core.survey.PoleGeometry
 import es.topophone.core.survey.TiltModeWizard
 import es.topophone.core.survey.WizardInconclusive
 import es.topophone.core.survey.WizardState
-import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.receiver.session.ReceiverSession
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -21,7 +19,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -31,7 +28,7 @@ class TiltViewModel @Inject constructor(
     private val tilt: CurrentTilt,
     private val log: AppLog,
     private val session: ReceiverSession,
-    private val preferences: ReceiverPreferences,
+    private val gear: CurrentGear,
 ) : ViewModel() {
 
     private val wizardState = MutableStateFlow<WizardState?>(null)
@@ -57,7 +54,7 @@ class TiltViewModel @Inject constructor(
         tilt.openWizard()
         wizardJob?.cancel()
         wizardJob = viewModelScope.launch {
-            val antennaHeight = PoleGeometry.antennaHeightM(preferences.poleHeightM.first(), AntennaProfile.RS3.offsetM)
+            val antennaHeight = gear.state.value.antennaHeightM ?: CurrentGear.DEFAULT.antennaHeightM!!
             val created = TiltModeWizard(antennaHeight)
             wizard = created
             wizardState.value = created.state

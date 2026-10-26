@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.receiver.AndroidNotificationPermission
 import es.topophone.app.receiver.CorrectionsController
+import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
@@ -20,6 +21,7 @@ import es.topophone.core.ntrip.SourcetableClient
 import es.topophone.core.ntrip.SourcetableSource
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.gear.GearRepository
 import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.SessionSpace
@@ -104,6 +106,15 @@ object ReceiverModule {
         replaying = session.state.map { it.replay != null }.distinctUntilChanged(),
         address = connections.currentAddress,
         preferences = preferences,
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+    )
+
+    /** El equipo (perfil de antena y jalón) del receptor en uso, uno para toda la app (S046/RF-13; plan A3). */
+    @Provides
+    @Singleton
+    fun currentGear(currentTilt: CurrentTilt, repository: GearRepository): CurrentGear = CurrentGear(
+        key = currentTilt.state.map { it.key }.distinctUntilChanged(),
+        repository = repository,
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     )
 

@@ -66,7 +66,7 @@ class TiltViewModelTest {
     private fun viewModel(preferences: MemoryTiltPreferences = MemoryTiltPreferences()): TiltViewModel {
         tilt = currentTilt(scope, preferences, address = rs3)
         runBlocking { withTimeout(5_000) { tilt.state.first { it.key == rs3 } } }
-        val vm = TiltViewModel(tilt, log, session, FakePreferences())
+        val vm = TiltViewModel(tilt, log, session, fakeCurrentGear())
         CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         return vm
     }

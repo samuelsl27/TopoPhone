@@ -1,16 +1,19 @@
 package es.topophone.app.ui.receiver
 
 import es.topophone.app.receiver.ReceiverConnections
+import es.topophone.core.model.point.PoleKind
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.GroundPointCalculator
+import es.topophone.core.survey.SavedPole
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.NtripState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.transport.StreamTransport
+import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -78,6 +81,9 @@ class ReceiverViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private val gearRepository = FakeGearRepository()
+    private val gear = fakeCurrentGear(gearRepository)
+
     private fun viewModel() = ReceiverViewModel(
         session = session,
         bluetooth = bluetooth,
@@ -89,6 +95,7 @@ class ReceiverViewModelTest {
         samplePeriodMs = 0,
         replay = ReplayController(session) { emptyList() },
         connections = ReceiverConnections(session, bluetooth, preferences, CoroutineScope(Dispatchers.Default)),
+        gear = gear,
     )
 
     private fun ReceiverViewModel.awaitState(predicate: (ReceiverUiState) -> Boolean): ReceiverUiState = runBlocking {
@@ -170,21 +177,45 @@ class ReceiverViewModelTest {
         vm.awaitState { true }
 
         vm.updatePoleHeight("2,05")
-        runBlocking { withTimeout(2_000) { preferences.poleFlow.first { it == 2.05 } } }
+        runBlocking { withTimeout(2_000) { gearRepository.polesFlow.first { poles -> poles.single().enteredM == 2.05 } } }
 
         vm.updatePoleHeight("12")
         vm.awaitState { !it.poleHeightValid }.poleHeightText shouldBe "12"
-        preferences.poleFlow.value shouldBe 2.05
+        gearRepository.polesFlow.value.single().enteredM shouldBe 2.05
     }
 
     @Test
     fun `S002 RF-30 al abrir la pantalla se recupera la altura del jalon guardada`() {
-        preferences.poleFlow.value = 2.0
+        gearRepository.polesFlow.value = listOf(SavedPole("p1", "Jalón estándar", PoleKind.VERTICAL, 2.0))
 
         val state = viewModel().awaitState { it.poleHeightText.replace(',', '.') == "2.000" }
 
         state.poleHeightText.replace(',', '.') shouldBe "2.000"
         state.snapshot.connection.shouldBeInstanceOf<ConnectionState.Disconnected>()
+    }
+
+    @Test
+    fun `S046 RF-8 RF-15 el estado trae el equipo activo y la altura de antena con el desplazamiento del perfil`() {
+        val vm = viewModel()
+        vm.awaitState { it.gear.pole?.id == "p1" }.antennaHeightM shouldBe (1.934 plusOrMinus 1e-12)
+
+        runBlocking { gear.setProfile("catalog:RS4") }
+
+        val state = vm.awaitState { it.gear.profile.ref == "catalog:RS4" }
+        state.antennaHeightM shouldBe (1.895 plusOrMinus 1e-12)
+        state.poleHeightM shouldBe 1.8
+    }
+
+    @Test
+    fun `S046 RF-13 cambiar de jalon fuera del campo actualiza la altura que se ve`() {
+        val vm = viewModel()
+        vm.awaitState { true }
+        runBlocking { gearRepository.savePole(null, "Corto", PoleKind.VERTICAL, "1,2") }
+
+        runBlocking { gear.setActivePole(gearRepository.polesFlow.value.last().id) }
+
+        val state = vm.awaitState { it.gear.pole?.name == "Corto" && it.poleHeightText.replace(',', '.') == "1.200" }
+        state.poleHeightM shouldBe 1.2
     }
 
     @Test
