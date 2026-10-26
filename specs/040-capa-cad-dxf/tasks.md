@@ -16,7 +16,7 @@
       Hecho cuando: `DxfTablesTest` en verde: ACI, color verdadero, BYLAYER, BYBLOCK, capa `0` en un bloque, capa apagada y congelada, y el blanco y el negro marcados.
 - [x] T7. `core:formats`: `DxfEntities`, punto, línea, LWPOLYLINE, POLYLINE con VERTEX y SEQEND, arco y círculo, con la extrusión. (RF-14)
       Hecho cuando: `DxfEntitiesTest` en verde, con bulge, polilíneas cerradas, 3D y la extrusión (0, 0, −1) frente a lo esperado de `fixtures/`.
-- [ ] T8. `core:formats`: `CadCurves`, arcos, círculos, bulges y splines como polilíneas a menos de 1 cm. (RF-15)
+- [x] T8. `core:formats`: `CadCurves`, arcos, círculos, bulges y splines como polilíneas a menos de 1 cm. (RF-15)
       Hecho cuando: `CadCurvesTest` en verde frente a los puntos exactos de `tools`, con un radio muy grande, uno menor que la tolerancia y una spline racional.
 - [ ] T9. `core:formats`: `DxfBlocks`, el despliegue de los INSERT con escala, giro, anidados y `MINSERT`. (RF-14, RF-15)
       Hecho cuando: `DxfBlocksTest` en verde: escala negativa, ciclos, profundidad máxima, capa `0` y BYBLOCK, y el punto de inserción.

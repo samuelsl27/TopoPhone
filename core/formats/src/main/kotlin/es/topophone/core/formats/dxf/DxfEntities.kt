@@ -60,6 +60,21 @@ data class DxfCircle(
     val hasZ: Boolean,
 ) : DxfEntity
 
+/**
+ * Una `SPLINE`, en el sistema global. [weights] es null si no es racional; [fitPoints] se usa solo si no trae puntos de control.
+ */
+data class DxfSpline(
+    override val style: DxfStyle,
+    val degree: Int,
+    val knots: List<Double>,
+    val controlPoints: List<DxfVertex>,
+    val weights: List<Double>?,
+    val fitPoints: List<DxfVertex>,
+    val closed: Boolean,
+) : DxfEntity {
+    val hasZ: Boolean get() = (controlPoints + fitPoints).any { it.z != null }
+}
+
 /** Lo que sale de leer un elemento (S040/RF-13, RF-16). */
 sealed interface DxfItem {
     data class Entity(val entity: DxfEntity) : DxfItem
@@ -133,6 +148,7 @@ class DxfEntityStream(private val tags: DxfTagReader) {
             "POLYLINE" -> parsePolyline(group) ?: return finish(null)
             "ARC" -> parseArc(group)
             "CIRCLE" -> parseCircle(group)
+            "SPLINE" -> parseSpline(group)
             else -> DxfItem.Ignored(type)
         }
     }
@@ -228,6 +244,41 @@ class DxfEntityStream(private val tags: DxfTagReader) {
                 hasZ = z != null,
             ),
         )
+    }
+
+    /** Los puntos que empiezan en el código [xCode] (10 los de control, 11 los de ajuste): X, Y y Z en los tres códigos siguientes. */
+    private fun points(group: List<DxfTag>, xCode: Int): List<DxfVertex> {
+        val xs = ArrayList<Double>()
+        val ys = ArrayList<Double?>()
+        val zs = ArrayList<Double?>()
+        for (tag in group) {
+            when (tag.code) {
+                xCode -> {
+                    xs += tag.double() ?: throw Invalid
+                    ys += null
+                    zs += null
+                }
+                xCode + 10 -> if (ys.isEmpty()) throw Invalid else ys[ys.lastIndex] = tag.double() ?: throw Invalid
+                xCode + 20 -> if (zs.isEmpty()) throw Invalid else zs[zs.lastIndex] = tag.double() ?: throw Invalid
+            }
+        }
+        return xs.indices.map { DxfVertex(xs[it], ys[it] ?: throw Invalid, zs[it]) }
+    }
+
+    private fun parseSpline(group: List<DxfTag>) = guard("SPLINE") {
+        val flags = group.firstOrNull { it.code == 70 }?.int() ?: 0
+        val degree = group.firstOrNull { it.code == 71 }?.int() ?: throw Invalid
+        val knots = group.filter { it.code == 40 }.map { it.double() ?: throw Invalid }
+        val weights = group.filter { it.code == 41 }.map { it.double() ?: throw Invalid }.takeIf { it.isNotEmpty() }
+        val control = points(group, 10)
+        val fit = points(group, 11)
+        if (degree < 1 || (control.isEmpty() && fit.size < 2)) throw Invalid
+        if (control.isNotEmpty() &&
+            (knots.size != control.size + degree + 1 || (weights != null && weights.size != control.size))
+        ) {
+            throw Invalid
+        }
+        DxfItem.Entity(DxfSpline(style(group), degree, knots, control, weights, fit, closed = flags and 1 != 0))
     }
 
     private fun parseLwPolyline(group: List<DxfTag>) = guard("LWPOLYLINE") {
