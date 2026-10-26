@@ -12,7 +12,7 @@
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [x] T5. `core:model`: `LineStakeoutMode`, `StakeSource`, `LineInputError` y las ampliaciones de `StakeoutRef` (origen, modo, PK, desplazamiento y error lateral). (RF-3, RF-28, RF-29)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto (los puntos de S018 y S019 no cambian).
-- [ ] T6. `core:survey`: `StakeLine`, el PK acumulado, las líneas cerradas y la cota interpolada. (RF-15, RF-23)
+- [x] T6. `core:survey`: `StakeLine`, el PK acumulado, las líneas cerradas y la cota interpolada. (RF-15, RF-23)
       Hecho cuando: `StakeLineTest` en verde con la línea abierta y cerrada, con y sin cota, y los vértices originales.
 - [ ] T7. `core:survey`: `LineLocator`, el punto más cercano, el PK, la distancia lateral con signo, antes del inicio y después del final, con la rejilla de segmentos. (RF-10, RF-14, RF-15)
       Hecho cuando: `LineLocatorTest` en verde frente a `fixtures/replanteo/lineas/` (≤ 1 mm) con rectas, polilíneas, cerradas, ambos lados, extremos y 100.000 vértices.
