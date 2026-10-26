@@ -6,7 +6,7 @@
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [x] T2. `core:model`: `Surface`, `SurfaceHeight`, `ElevationSource` y las ampliaciones de `StakeoutRef` (origen, superficie, fecha, cota de la superficie y desplazamiento). (RF-14, RF-28, RF-29)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto (los puntos de S018 a S041 no cambian).
-- [ ] T3. `core:model`: `SurfaceTileCodec`, la tesela binaria autosuficiente de hasta 256 kB. (RF-14, plan A3)
+- [x] T3. `core:model`: `SurfaceTileCodec`, la tesela binaria autosuficiente de hasta 256 kB. (RF-14, plan A3)
       Hecho cuando: `SurfaceTileCodecTest` en verde: ida y vuelta sin redondear, una tesela vacía y una de 256 kB.
 - [ ] T4. `core:formats`: `XmlStreamReader`, el tokenizador XML por streaming. (RF-2, RF-3)
       Hecho cuando: `XmlStreamReaderTest` en verde: entidades, `CDATA`, comentarios, `DOCTYPE`, BOM, UTF-8 e ISO-8859-1, XML mal formado y un fichero que no es XML.
