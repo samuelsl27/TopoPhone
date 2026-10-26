@@ -11,6 +11,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.points.PointFixtures.measured
 import es.topophone.app.ui.points.PointFixtures.staked
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.point.LineStakeoutMode
+import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
@@ -173,5 +177,77 @@ class PointDetailsStakeoutTest {
         show(PointDetailsUiState(project(), measured("12")))
 
         compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).assertDoesNotExist()
+    }
+
+    private fun fromDrawing(mode: LineStakeoutMode?, withLine: Boolean = true): Point {
+        val base = staked("Eje_1_stkd")
+        val ref = base.staked!!.copy(
+            designName = "Eje",
+            source = StakeSource.CadElement("calle.dxf", "Eje", CadEntityKind.POLYLINE),
+            mode = mode,
+            chainageM = 45.25.takeIf { withLine },
+            lateralOffsetM = (-1.5).takeIf { withLine },
+            dLateralM = 0.012.takeIf { withLine },
+        )
+        return base.copy(staked = ref)
+    }
+
+    @Test
+    fun `S041 RF-29 la ficha del replanteado de un elemento da el dibujo, la capa, el tipo, el modo, el PK y el desplazamiento`() {
+        show(PointDetailsUiState(project(), fromDrawing(LineStakeoutMode.ALONG)))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+            .shows("calle.dxf")
+            .shows("Eje")
+            .shows("Polilínea")
+            .shows("A lo largo de la línea")
+            .shows("45,250 m")
+            .shows("-1,500 m")
+        compose.onNodeWithTag("point_stakeout_drawing").performScrollTo().shows("calle.dxf")
+        compose.onNodeWithTag("point_stakeout_layer").performScrollTo().shows("Eje")
+        compose.onNodeWithTag("point_stakeout_element").performScrollTo().shows("Polilínea")
+        compose.onNodeWithTag("point_stakeout_mode").performScrollTo().shows("A lo largo de la línea")
+        compose.onNodeWithTag("point_stakeout_chainage").performScrollTo().shows("45,250 m")
+        compose.onNodeWithTag("point_stakeout_offset").performScrollTo().shows("-1,500 m")
+    }
+
+    @Test
+    fun `S041 RF-29 la ficha da el error lateral con su signo junto a la desviacion respecto al diseno`() {
+        show(PointDetailsUiState(project(), fromDrawing(LineStakeoutMode.TO_LINE)))
+
+        compose.onNodeWithTag("point_stakeout_diff_lateral").performScrollTo().shows("+0,012 m")
+        compose.onNodeWithTag("point_stakeout_diff_n").performScrollTo().shows("+0,012 m")
+    }
+
+    @Test
+    fun `S041 RF-29 el error lateral y el PK van en las unidades del proyecto`() {
+        show(PointDetailsUiState(project(LinearUnit.INTERNATIONAL_FOOT), fromDrawing(LineStakeoutMode.ALONG)))
+
+        compose.onNodeWithTag("point_stakeout_chainage").performScrollTo().shows("148,458 ft")
+        compose.onNodeWithTag("point_stakeout_diff_lateral").performScrollTo().shows("+0,039 ft")
+    }
+
+    @Test
+    fun `S041 RF-29 un punto fijo de un dibujo da su origen pero no modo, PK ni desplazamiento`() {
+        show(PointDetailsUiState(project(), fromDrawing(mode = null, withLine = false)))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_drawing").performScrollTo().shows("calle.dxf")
+        compose.onNodeWithTag("point_stakeout_mode").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_chainage").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_offset").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_diff_lateral").assertDoesNotExist()
+    }
+
+    @Test
+    fun `S041 RF-29 un replanteo de un punto del proyecto no tiene filas de dibujo ni de linea`() {
+        show(PointDetailsUiState(project(), staked("12_stkd")))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_drawing").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_layer").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_element").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_mode").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_diff_lateral").assertDoesNotExist()
     }
 }

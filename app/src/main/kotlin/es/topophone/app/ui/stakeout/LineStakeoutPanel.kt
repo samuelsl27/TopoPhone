@@ -265,7 +265,7 @@ private fun ModeChoice(state: LineStakeoutUiState, actions: LineStakeoutActions)
                 selected = state.mode == mode,
                 onClick = { actions.onMode(mode) },
                 enabled = !state.measuring,
-                label = { Text(stringResource(mode.textRes())) },
+                label = { Text(stringResource(mode.labelRes())) },
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(lineModeTag(mode)),
             )
         }
@@ -536,7 +536,7 @@ private fun errorPhrase(error: Double, numbers: Numbers): String = when {
     else -> stringResource(R.string.stakeout_line_error_lateral_none)
 }
 
-private fun LineStakeoutMode.textRes(): Int = when (this) {
+internal fun LineStakeoutMode.labelRes(): Int = when (this) {
     LineStakeoutMode.BY_SEGMENTS -> R.string.stakeout_line_mode_by_segments
     LineStakeoutMode.TO_LINE -> R.string.stakeout_line_mode_to_line
     LineStakeoutMode.ALONG -> R.string.stakeout_line_mode_along

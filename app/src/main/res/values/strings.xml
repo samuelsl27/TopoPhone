@@ -1199,4 +1199,11 @@
     <string name="stakeout_line_closed_drawing">Se ha borrado el dibujo y el replanteo se ha cerrado.</string>
     <string name="stakeout_line_unsupported">Este elemento no se puede replantear como una línea.</string>
     <string name="design_element_stakeout">Replantear</string>
+    <string name="point_stakeout_drawing">Dibujo</string>
+    <string name="point_stakeout_layer">Capa</string>
+    <string name="point_stakeout_element">Elemento</string>
+    <string name="point_stakeout_mode">Modo</string>
+    <string name="point_stakeout_chainage">PK</string>
+    <string name="point_stakeout_offset">Desplazamiento lateral</string>
+    <string name="point_stakeout_diff_lateral">Error lateral</string>
 </resources>

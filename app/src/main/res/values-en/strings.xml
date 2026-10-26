@@ -1187,4 +1187,11 @@
     <string name="stakeout_line_closed_drawing">The drawing was deleted and the stakeout was closed.</string>
     <string name="stakeout_line_unsupported">This element cannot be staked out as a line.</string>
     <string name="design_element_stakeout">Stake out</string>
+    <string name="point_stakeout_drawing">Drawing</string>
+    <string name="point_stakeout_layer">Layer</string>
+    <string name="point_stakeout_element">Element</string>
+    <string name="point_stakeout_mode">Mode</string>
+    <string name="point_stakeout_chainage">Chainage</string>
+    <string name="point_stakeout_offset">Lateral offset</string>
+    <string name="point_stakeout_diff_lateral">Lateral error</string>
 </resources>

@@ -40,7 +40,7 @@
       Hecho cuando: `DesignElementSheetTest` en verde: un punto, un centro de bloque, una línea, un círculo y un elemento sin cota.
 - [x] T19. `app`: el mapa con la línea elegida más gruesa, el objetivo y la línea de la punta. (RF-5)
       Hecho cuando: `LineMapMarkersTest` en verde, con la capa del dibujo oculta y el modo «Por segmentos».
-- [ ] T20. `app`: la ficha del punto replanteado con el elemento, el modo, el PK y la desviación. (RF-29)
+- [x] T20. `app`: la ficha del punto replanteado con el elemento, el modo, el PK y la desviación. (RF-29)
       Hecho cuando: `StakeoutMeasureLineTest` y el test de la ficha en verde con un punto de línea y un punto de dibujo.
 - [ ] T21. `app`: el informe de replanteo con los puntos de un dibujo y las seis columnas nuevas del CSV. (RF-30)
       Hecho cuando: `StakeoutReportCsvTest` en verde: columnas vacías en un punto del proyecto, `Locale.ROOT` y unidades del proyecto.

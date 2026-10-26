@@ -41,6 +41,7 @@ import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.cad.elementKindLabel
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.CoordinateRow
 import es.topophone.app.ui.projects.SurveyNavigation
@@ -51,6 +52,7 @@ import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.tiltSummary
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.app.ui.stakeout.labelRes
 import es.topophone.app.ui.stakeout.levelText
 import es.topophone.app.ui.stakeout.withinText
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -71,6 +73,7 @@ import es.topophone.core.model.point.PointHistory
 import es.topophone.core.model.point.PointHistoryEntry
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.TiltAngles
 import es.topophone.core.model.point.TiltMode
@@ -518,6 +521,21 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
     }
     DetailsCard(stringResource(R.string.point_stakeout_title), POINT_STAKEOUT_INFO_TAG) {
         CoordinateRow(stringResource(R.string.point_stakeout_design), ref.designName, "point_stakeout_design")
+        // S041/RF-29: de qué elemento, capa y dibujo viene, el modo, el PK y el desplazamiento lateral.
+        (ref.source as? StakeSource.CadElement)?.let { source ->
+            CoordinateRow(stringResource(R.string.point_stakeout_drawing), source.drawingName, "point_stakeout_drawing")
+            CoordinateRow(stringResource(R.string.point_stakeout_layer), source.layerName, "point_stakeout_layer")
+            CoordinateRow(
+                stringResource(R.string.point_stakeout_element),
+                stringResource(elementKindLabel(source.kind)),
+                "point_stakeout_element",
+            )
+        }
+        ref.mode?.let { mode ->
+            CoordinateRow(stringResource(R.string.point_stakeout_mode), stringResource(mode.labelRes()), "point_stakeout_mode")
+        }
+        ref.chainageM?.let { CoordinateRow(stringResource(R.string.point_stakeout_chainage), length(it), "point_stakeout_chainage") }
+        ref.lateralOffsetM?.let { CoordinateRow(stringResource(R.string.point_stakeout_offset), signed(it), "point_stakeout_offset") }
         ref.design.easting?.let {
             CoordinateRow(stringResource(R.string.point_stakeout_design_easting), length(it), "point_stakeout_design_e")
         }
@@ -532,6 +550,9 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
         CoordinateRow(stringResource(R.string.point_stakeout_diff_north), signed(ref.dNorthM), "point_stakeout_diff_n")
         CoordinateRow(stringResource(R.string.point_stakeout_diff_east), signed(ref.dEastM), "point_stakeout_diff_e")
         CoordinateRow(stringResource(R.string.point_stakeout_diff_distance), length(ref.dHorizontalM), "point_stakeout_diff_d")
+        ref.dLateralM?.let {
+            CoordinateRow(stringResource(R.string.point_stakeout_diff_lateral), signed(it), "point_stakeout_diff_lateral")
+        }
         CoordinateRow(
             stringResource(R.string.point_stakeout_diff_height),
             ref.dHeightM?.let(::signed) ?: stringResource(R.string.point_stakeout_no_height),
