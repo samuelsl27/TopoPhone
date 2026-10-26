@@ -73,6 +73,7 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointHistory
 import es.topophone.core.model.point.PointHistoryEntry
 import es.topophone.core.model.point.PointNames
+import es.topophone.core.model.point.PoleKind
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutRef
@@ -614,6 +615,35 @@ private fun MeasurementCard(project: Project, measurement: Measurement, loadNmea
     var nmea by remember { mutableStateOf(false) }
     DetailsCard(stringResource(R.string.point_measurement), POINT_MEASUREMENT_TAG) {
         CoordinateRow(stringResource(R.string.objects_pole), LengthFormat.metres(measurement.poleHeightM, locale), "point_pole_height")
+        // S046/RF-24: el jalón y la antena con los que se midió; los puntos de antes no los tienen.
+        measurement.gear?.let { gear ->
+            val entered = LengthFormat.metres(gear.poleEnteredM, locale)
+            CoordinateRow(
+                stringResource(R.string.point_gear_pole),
+                stringResource(
+                    if (gear.poleKind ==
+                        PoleKind.SLANT
+                    ) {
+                        R.string.point_gear_pole_slant
+                    } else {
+                        R.string.point_gear_pole_vertical
+                    },
+                    gear.poleName,
+                    entered,
+                ),
+                "point_gear_pole",
+            )
+            CoordinateRow(
+                stringResource(R.string.point_gear_profile),
+                stringResource(R.string.point_gear_profile_value, gear.antennaProfile, LengthFormat.metres(gear.antennaOffsetM, locale)),
+                "point_gear_profile",
+            )
+            CoordinateRow(
+                stringResource(R.string.point_gear_antenna_height),
+                LengthFormat.metres(gear.antennaHeightM, locale),
+                "point_gear_antenna_height",
+            )
+        }
         measurement.tilt?.let { tilt ->
             CoordinateRow(
                 stringResource(R.string.point_tilt_mode),

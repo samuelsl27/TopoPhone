@@ -1329,4 +1329,10 @@
     <string name="gear_selector_item">%1$s · %2$s</string>
     <string name="gear_selector_compensated">The receiver compensates the position: the real antenna height is the one configured in the receiver.</string>
     <string name="gear_selector_changed">You changed the pole or the antenna: it only affects the points you measure now, not the ones already saved.</string>
+    <string name="point_gear_pole">Pole used</string>
+    <string name="point_gear_pole_vertical">%1$s · vertical %2$s</string>
+    <string name="point_gear_pole_slant">%1$s · slant %2$s</string>
+    <string name="point_gear_profile">Antenna profile</string>
+    <string name="point_gear_profile_value">%1$s · to the phase centre %2$s</string>
+    <string name="point_gear_antenna_height">Antenna height</string>
 </resources>

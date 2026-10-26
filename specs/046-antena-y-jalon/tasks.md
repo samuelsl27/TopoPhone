@@ -40,7 +40,7 @@
       Hecho cuando: `GearScreenTest` en verde, con las zonas táctiles de 56 dp y las etiquetas de TalkBack.
 - [x] T19. `app`: el selector rápido del jalón activo en el recolector, el replanteo y las coordenadas, con el nombre, la altura y la altura de antena. (RF-14, RF-15, RF-22, RF-23)
       Hecho cuando: `GearSelectorTest` en verde: dos toques, el bloqueo durante una medida y el rótulo del modo compensado.
-- [ ] T20. `app`: el jalón y la antena usados en la ficha del punto. (RF-24)
+- [x] T20. `app`: el jalón y la antena usados en la ficha del punto. (RF-24)
       Hecho cuando: `PointDetailsGearTest` en verde: punto con equipo, punto de antes y punto manual.
 - [ ] T21. Reproducción de una medida con el RS3 y el jalón de 1,800 m y con un perfil propio, con el resultado esperado calculado aparte. (RF-20, RF-21)
       Hecho cuando: el test en verde: el mismo punto que antes con el RS3 (≤ 0,1 mm) y el distinto con el otro perfil.
