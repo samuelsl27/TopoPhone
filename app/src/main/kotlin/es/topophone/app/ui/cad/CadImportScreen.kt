@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -190,7 +191,7 @@ private fun ConfigSections(state: CadImportUiState, actions: CadImportActions) {
         Text(stringResource(R.string.cad_scanning), modifier = Modifier.testTag(CAD_SCANNING_TAG))
         ProgressBar(state.bytesRead, state.totalBytes)
     } else {
-        Text(stringResource(R.string.cad_file_summary, state.projectName, state.elementCount))
+        Text(pluralStringResource(R.plurals.cad_layer_count, state.elementCount, state.elementCount))
         if (!state.scanComplete) {
             Text(
                 stringResource(R.string.cad_file_incomplete),
@@ -367,12 +368,9 @@ private fun ResultSection(state: CadImportUiState, actions: CadImportActions, su
             val label = stringResource(kindLabel(kind))
             Text(stringResource(R.string.cad_label_count, label, count), modifier = Modifier.padding(start = 28.dp))
         }
-        StatusMark(
-            R.drawable.ic_warning,
-            stringResource(R.string.cad_result_ignored, summary.ignoredTotal),
-            error =
-            summary.ignoredTotal > 0,
-        )
+        val ignoredIcon = if (summary.ignoredTotal > 0) R.drawable.ic_warning else R.drawable.ic_check
+        val ignoredText = stringResource(R.string.cad_result_ignored, summary.ignoredTotal)
+        StatusMark(ignoredIcon, ignoredText, error = summary.ignoredTotal > 0)
         summary.ignored.entries.forEach { (item, count) ->
             Text(stringResource(R.string.cad_label_count, ignoredLabel(item), count), modifier = Modifier.padding(start = 28.dp))
         }

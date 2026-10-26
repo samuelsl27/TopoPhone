@@ -134,6 +134,14 @@ class CadImportScreenTest {
     }
 
     @Test
+    fun `S040 RF-9 el fichero dice cuantos elementos tiene y no el nombre del proyecto`() {
+        show(ready)
+
+        compose.onNodeWithText("1234 elementos").assertIsDisplayed()
+        compose.onNodeWithText("Calle Mayor 12", substring = true).assertDoesNotExist()
+    }
+
+    @Test
     fun `S040 RF-6 el sistema del proyecto viene elegido y Otro sistema ofrece los UTM de la app`() {
         show(ready)
 

@@ -1059,7 +1059,6 @@
     <string name="cad_problem_no_elements">The drawing has no points or lines that can be imported.</string>
     <string name="cad_scanning">Scanning the drawing…</string>
     <string name="cad_section_file">File</string>
-    <string name="cad_file_summary">%1$s · %2$d elements</string>
     <string name="cad_file_incomplete">The file is incomplete: whatever can be read will be imported.</string>
     <string name="cad_section_crs">Coordinate system</string>
     <string name="cad_crs_project">The project\'s (%1$s)</string>

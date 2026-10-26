@@ -1,6 +1,6 @@
 # Spec 040 — Capa de diseño desde un DXF
 
-> Hito: H2 · Depende de: S009 · Estado: aprobada
+> Hito: H2 · Depende de: S009 · Estado: implementada
 
 ## Contexto y objetivo
 El diseño de una obra casi siempre llega como un plano en DXF: líneas de eje, bordes de calzada, parcelas, redes, puntos de replanteo. Hoy ese plano se mira en otro programa y los puntos se teclean o se pasan a un CSV (S028), con lo que se pierden las líneas. Esta spec trae el DXF al proyecto: se elige el fichero, se dice en qué sistema de coordenadas está, se importa en segundo plano y su contenido se ve en el mapa como una capa de diseño, ordenada por capas del DXF y por tipo (puntos y líneas), con cada capa con su color y un interruptor para mostrarla u ocultarla.
