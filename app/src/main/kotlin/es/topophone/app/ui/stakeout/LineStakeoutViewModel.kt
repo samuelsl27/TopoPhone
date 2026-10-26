@@ -13,6 +13,7 @@ import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.HeightKind
@@ -26,7 +27,9 @@ import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.model.surface.SurfaceGuide
 import es.topophone.core.survey.CadPlacement
+import es.topophone.core.survey.ElevationSources
 import es.topophone.core.survey.LineCheck
 import es.topophone.core.survey.LineInputs
 import es.topophone.core.survey.LineLocator
@@ -46,6 +49,7 @@ import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.StakeoutPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.surface.SurfaceGuides
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
@@ -117,6 +121,12 @@ data class LineStakeoutUiState(
     val target: StakeTarget? = null,
     /** Las tolerancias que se guardan con el punto replanteado; la cota es la escrita, y la de la línea la da el objetivo (RF-28). */
     val saveInfo: StakeSaveInfo? = null,
+    /** Hay una superficie activa, contra qué cota se replantea y si se ofrece el conmutador (S042/RF-24, RF-25). */
+    val surfaceActive: Boolean = false,
+    val elevationSource: ElevationSource = ElevationSource.POINT,
+    val canChooseSource: Boolean = false,
+    /** La superficie con la que se replanteaba ya no está activa (S042/RF-27). */
+    val surfaceRemoved: Boolean = false,
 )
 
 /**
@@ -138,6 +148,7 @@ class LineStakeoutViewModel @Inject constructor(
     private val inProgress: MeasurementInProgress = MeasurementInProgress(),
     private val log: AppLog = AppLog.NONE,
     private val tilt: CurrentTilt = CurrentTilt.NONE,
+    private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
 ) : ViewModel() {
     private val controller = StakeoutController(alerts, log)
 
@@ -197,6 +208,19 @@ class LineStakeoutViewModel @Inject constructor(
 
     private val projectFlow = projectId.flatMapLatest { id -> if (id == null) flowOf(null) else projects.observe(id) }
 
+    /** Lo que eligió el usuario con el conmutador de la cota; null es que no ha elegido y manda la regla (S042/RF-25). */
+    private val sourceChoice = MutableStateFlow<ElevationSource?>(null)
+
+    /** La superficie con la que se replanteaba ya no está activa (S042/RF-27). */
+    private val surfaceRemoved = MutableStateFlow(false)
+
+    /** La superficie activa del proyecto con su desplazamiento vertical, o null (S042/RF-24). */
+    private val surfaceGuide: StateFlow<SurfaceGuide?> = projectId
+        .flatMapLatest { id -> if (id == null) flowOf(null) else surfaces.guide(id) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    private data class SurfaceLive(val guide: SurfaceGuide?, val choice: ElevationSource?, val removed: Boolean)
+
     private data class Live(val settings: StakeoutSettings, val guidance: GuidanceState, val measuring: Boolean, val unsupported: Boolean)
 
     private val chosenGeometry = MutableStateFlow<List<GeoPoint>>(emptyList())
@@ -214,7 +238,8 @@ class LineStakeoutViewModel @Inject constructor(
         projectFlow,
         model,
         combine(stakeoutPreferences.settings, controller.state, inProgress.active, unsupported, ::Live),
-    ) { project, model, live ->
+        combine(surfaceGuide, sourceChoice, surfaceRemoved, ::SurfaceLive),
+    ) { project, model, live, surface ->
         if (model == null) {
             return@combine LineStakeoutUiState(
                 project = project,
@@ -224,6 +249,12 @@ class LineStakeoutViewModel @Inject constructor(
             )
         }
         val line = model.line
+        val resolution = ElevationSources.resolve(
+            surfaceActive = surface.guide != null,
+            hasOwnElevation = line.hasHeight,
+            hasManualElevation = model.elevationOverrideM != null,
+            choice = surface.choice,
+        )
         val heights = (0 until line.vertexCount).mapNotNull { line.height(it) }
         val series = model.series
         LineStakeoutUiState(
@@ -257,11 +288,24 @@ class LineStakeoutViewModel @Inject constructor(
             unsupported = live.unsupported,
             target = project?.let { designTarget(it, model, live.settings.lineMode) },
             saveInfo = StakeSaveInfo(model.elevationOverrideM, live.settings.validToleranceM, live.settings.validToleranceVM),
+            surfaceActive = surface.guide != null,
+            elevationSource = resolution.source,
+            canChooseSource = resolution.canChoose,
+            surfaceRemoved = surface.removed,
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, LineStakeoutUiState())
 
     init {
         viewModelScope.launch { projectFlow.collect { project = it } }
+        viewModelScope.launch {
+            // S042/RF-27: si la superficie con la que se replanteaba deja de estar activa, se avisa y se sigue con la cota de la línea.
+            var previous: SurfaceGuide? = null
+            surfaceGuide.collect { guide ->
+                if (previous != null && guide == null && resolution(previous).source == ElevationSource.SURFACE) surfaceRemoved.value = true
+                if (guide != null) surfaceRemoved.value = false
+                previous = guide
+            }
+        }
         viewModelScope.launch { stakeoutPreferences.settings.collect { settings = it } }
         viewModelScope.launch { collectorPreferences.settings.collect { fixOnly = it.precision.fixOnly } }
         viewModelScope.launch { receiverPreferences.poleHeightM.collect { poleHeightM = it } }
@@ -288,6 +332,8 @@ class LineStakeoutViewModel @Inject constructor(
         this.projectId.value = projectId
         controller.reset()
         lastLine = null
+        sourceChoice.value = null
+        surfaceRemoved.value = false
         val line = StakeLine.of(selection.entity, withHeight = selection.hasElevation)
         if (line == null) {
             model.value = null
@@ -349,6 +395,8 @@ class LineStakeoutViewModel @Inject constructor(
         drawingWatcher?.cancel()
         model.value = null
         unsupported.value = false
+        sourceChoice.value = null
+        surfaceRemoved.value = false
         controller.reset()
     }
 
@@ -496,11 +544,36 @@ class LineStakeoutViewModel @Inject constructor(
     fun setDesignElevation(text: String): Boolean {
         val unit = project?.linearUnit ?: LinearUnit.METRE
         val metres = NumberInput.parse(text)?.let(unit::toMetres)?.takeIf { it.isFinite() } ?: return false
-        return edit { m, _ -> m.copy(elevationOverrideM = metres) }
+        val applied = edit { m, _ -> m.copy(elevationOverrideM = metres) }
+        // S042/RF-23: escribir una cota es elegir la cota a mano, también fuera de la superficie.
+        if (applied) sourceChoice.value = ElevationSource.POINT
+        return applied
     }
 
     /** Descarta la cota escrita y vuelve a la de la línea (S019/RF-3). */
-    fun useLineElevation(): Boolean = edit { m, _ -> m.copy(elevationOverrideM = null) }
+    fun useLineElevation(): Boolean {
+        val applied = edit { m, _ -> m.copy(elevationOverrideM = null) }
+        if (applied) sourceChoice.value = null
+        return applied
+    }
+
+    /** Elige contra qué cota se replantea, con el conmutador; no cambia con una medida en marcha (S042/RF-22, RF-25). */
+    fun setElevationSource(source: ElevationSource): Boolean {
+        if (inProgress.active.value || model.value?.closed != null || model.value == null) return false
+        sourceChoice.value = source
+        return true
+    }
+
+    /** El origen de la cota con la superficie [guide] y la línea de ahora (S042/RF-24, RF-25). */
+    private fun resolution(guide: SurfaceGuide?): ElevationSources.Resolution {
+        val m = model.value
+        return ElevationSources.resolve(
+            surfaceActive = guide != null,
+            hasOwnElevation = m?.line?.hasHeight == true,
+            hasManualElevation = m?.elevationOverrideM != null,
+            choice = sourceChoice.value,
+        )
+    }
 
     /** Con una medida en marcha no se cambia nada (RF-22). */
     private fun edit(resetGuidance: Boolean = false, transform: (Model, LinearUnit) -> Model): Boolean {
@@ -550,7 +623,20 @@ class LineStakeoutViewModel @Inject constructor(
             LineStakeoutMode.SEGMENT_AB -> LineGuide(m.line, m.locator, LineStakeoutMode.SEGMENT_AB, m.offsetM, m.range)
             else -> null
         }
-        return StakeContext(settings, design, fixOnly, mode, poleHeightM, project, calculator.get(), m.elevationOverrideM, guide)
+        val surface = surfaceGuide.value
+        return StakeContext(
+            settings,
+            design,
+            fixOnly,
+            mode,
+            poleHeightM,
+            project,
+            calculator.get(),
+            m.elevationOverrideM,
+            guide,
+            surface,
+            resolution(surface).source,
+        )
     }
 
     /**

@@ -18,6 +18,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 
@@ -129,6 +130,17 @@ class ActiveSurface(
     }
 }
 
+/** Quien da la superficie activa de un proyecto con su desplazamiento vertical; los replanteos y el recolector la piden por aquí (S042). */
+fun interface SurfaceGuides {
+    /** La superficie activa del proyecto lista para el replanteo, o null si no hay (S042/RF-24 a RF-26). */
+    fun guide(projectId: String): Flow<SurfaceGuide?>
+
+    companion object {
+        /** Sin superficies: para los tests y las vistas previas. */
+        val NONE = SurfaceGuides { flowOf(null) }
+    }
+}
+
 /**
  * La superficie activa de cada proyecto, siempre al día (S042/RF-16, RF-18, RF-19, RF-27): la que marca el proyecto con su desplazamiento
  * vertical, o nada. Al cambiar de superficie, desactivarla o borrarla cierra la anterior y vacía su caché.
@@ -137,7 +149,7 @@ class ActiveSurfaceProvider(
     private val repository: SurfaceRepository,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val cacheSize: Int = ActiveSurface.CACHE_TILES,
-) {
+) : SurfaceGuides {
     /** La superficie activa del proyecto con sus cotas a demanda; null si no hay ninguna. Las teselas no se leen hasta que se piden. */
     fun active(projectId: String): Flow<ActiveSurface?> =
         combine(repository.activeSurfaceId(projectId), repository.surfaces(projectId)) { id, list -> list.firstOrNull { it.id == id } }
@@ -157,7 +169,8 @@ class ActiveSurfaceProvider(
             }
 
     /** La superficie activa con el desplazamiento vertical del proyecto, lista para el replanteo (S042/RF-24 a RF-26). */
-    fun guide(projectId: String): Flow<SurfaceGuide?> = combine(active(projectId), repository.verticalOffset(projectId)) { active, offset ->
-        active?.let { SurfaceGuide(it.surface, it, offset) }
-    }
+    override fun guide(projectId: String): Flow<SurfaceGuide?> =
+        combine(active(projectId), repository.verticalOffset(projectId)) { active, offset ->
+            active?.let { SurfaceGuide(it.surface, it, offset) }
+        }
 }

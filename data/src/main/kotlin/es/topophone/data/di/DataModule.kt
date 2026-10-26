@@ -56,6 +56,7 @@ import es.topophone.data.settings.SettingsDataStoreQualifier
 import es.topophone.data.settings.SettingsRepository
 import es.topophone.data.surface.ActiveSurfaceProvider
 import es.topophone.data.surface.RoomSurfaceRepository
+import es.topophone.data.surface.SurfaceGuides
 import es.topophone.data.surface.SurfaceImporter
 import es.topophone.data.surface.SurfaceRepository
 import javax.inject.Singleton
@@ -155,6 +156,10 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideActiveSurfaceProvider(repository: SurfaceRepository): ActiveSurfaceProvider = ActiveSurfaceProvider(repository)
+
+    /** La misma, vista como quien da la superficie activa a los replanteos y al recolector (S042). */
+    @Provides
+    fun provideSurfaceGuides(provider: ActiveSurfaceProvider): SurfaceGuides = provider
 
     @Provides
     fun provideSurfaceImporter(repository: SurfaceRepository): SurfaceImporter = SurfaceImporter(repository)

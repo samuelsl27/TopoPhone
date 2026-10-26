@@ -10,6 +10,7 @@ import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.HeightKind
@@ -23,6 +24,8 @@ import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.model.surface.SurfaceGuide
+import es.topophone.core.survey.ElevationSources
 import es.topophone.core.survey.ManualCoordinates
 import es.topophone.core.survey.ManualResult
 import es.topophone.core.survey.PoleHeight
@@ -32,6 +35,7 @@ import es.topophone.data.point.PointRepository
 import es.topophone.data.point.StakeoutPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.surface.SurfaceGuides
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
@@ -61,6 +65,10 @@ data class StakeSaveInfo(val elevationM: Double?, val toleranceHM: Double, val t
  * @property designElevationM la cota de diseño que se replantea: la escrita o la del punto de diseño; null si no hay (S019/RF-1).
  * @property elevationOverridden la cota de diseño es la que escribió el usuario y no la del punto (S019/RF-2).
  * @property saveInfo lo que se guardará con el punto replanteado (S019/RF-13).
+ * @property surfaceActive hay una superficie activa en el proyecto (S042/RF-24).
+ * @property elevationSource contra qué cota se replantea: la del punto o la de la superficie (S042/RF-24, RF-25).
+ * @property canChooseSource se ofrece el conmutador «Cota del punto» / «Superficie» (S042/RF-25).
+ * @property surfaceRemoved la superficie con la que se replanteaba se desactivó o se borró (S042/RF-27).
  */
 data class StakeoutUiState(
     val project: Project? = null,
@@ -74,6 +82,10 @@ data class StakeoutUiState(
     val designElevationM: Double? = null,
     val elevationOverridden: Boolean = false,
     val saveInfo: StakeSaveInfo? = null,
+    val surfaceActive: Boolean = false,
+    val elevationSource: ElevationSource = ElevationSource.POINT,
+    val canChooseSource: Boolean = false,
+    val surfaceRemoved: Boolean = false,
 )
 
 /**
@@ -95,6 +107,7 @@ class StakeoutViewModel @Inject constructor(
     private val inProgress: MeasurementInProgress = MeasurementInProgress(),
     private val log: AppLog = AppLog.NONE,
     private val tilt: CurrentTilt = CurrentTilt.NONE,
+    private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
 ) : ViewModel() {
     private val controller = StakeoutController(alerts, log)
 
@@ -110,6 +123,12 @@ class StakeoutViewModel @Inject constructor(
     /** La cota de diseño escrita por el usuario, en metros; solo vive aquí y se descarta al cambiar de punto o cerrar (S019/RF-2, RF-3). */
     private val elevationOverride = MutableStateFlow<Double?>(null)
 
+    /** Lo que eligió el usuario con el conmutador de la cota; null es que no ha elegido y manda la regla (S042/RF-25). */
+    private val sourceChoice = MutableStateFlow<ElevationSource?>(null)
+
+    /** La superficie con la que se replanteaba ya no está activa (S042/RF-27). */
+    private val surfaceRemoved = MutableStateFlow(false)
+
     @Volatile private var project: Project? = null
 
     @Volatile private var settings = StakeoutSettings()
@@ -119,6 +138,11 @@ class StakeoutViewModel @Inject constructor(
     @Volatile private var poleHeightM = PoleHeight.DEFAULT_M
 
     private val projectFlow = projectId.flatMapLatest { id -> if (id == null) flowOf(null) else projects.observe(id) }
+
+    /** La superficie activa del proyecto con su desplazamiento vertical, o null (S042/RF-24). */
+    private val surfaceGuide: StateFlow<SurfaceGuide?> = projectId
+        .flatMapLatest { id -> if (id == null) flowOf(null) else surfaces.guide(id) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     /** Los puntos del proyecto que se recorren con "Siguiente" y "Anterior": los de la lista con su búsqueda, por nombre en orden natural. */
     private val ordered: StateFlow<List<PointSummary>> = combine(
@@ -136,14 +160,24 @@ class StakeoutViewModel @Inject constructor(
         val elevationOverride: Double?,
     )
 
+    /** Lo de la superficie que cambia con el panel abierto (agrupado para el `combine`). */
+    private data class SurfaceLive(val guide: SurfaceGuide?, val choice: ElevationSource?, val removed: Boolean)
+
     val state: StateFlow<StakeoutUiState> = combine(
         projectFlow,
         target,
         ordered,
         combine(stakeoutPreferences.settings, controller.state, inProgress.active, notFound, elevationOverride, ::Live),
-    ) { project, target, list, live ->
+        combine(surfaceGuide, sourceChoice, surfaceRemoved, ::SurfaceLive),
+    ) { project, target, list, live, surface ->
         val index = target?.let { t -> list.indexOfFirst { it.id == t.id } } ?: -1
         val elevation = live.elevationOverride ?: target?.coordinates?.height
+        val resolution = ElevationSources.resolve(
+            surfaceActive = surface.guide != null,
+            hasOwnElevation = target?.coordinates?.height != null,
+            hasManualElevation = live.elevationOverride != null,
+            choice = surface.choice,
+        )
         StakeoutUiState(
             project = project,
             target = target,
@@ -156,11 +190,24 @@ class StakeoutViewModel @Inject constructor(
             designElevationM = elevation,
             elevationOverridden = live.elevationOverride != null,
             saveInfo = target?.let { StakeSaveInfo(elevation, live.settings.validToleranceM, live.settings.validToleranceVM) },
+            surfaceActive = surface.guide != null,
+            elevationSource = resolution.source,
+            canChooseSource = resolution.canChoose,
+            surfaceRemoved = surface.removed,
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, StakeoutUiState())
 
     init {
         viewModelScope.launch { projectFlow.collect { project = it } }
+        viewModelScope.launch {
+            // S042/RF-27: si la superficie con la que se replanteaba deja de estar activa, se avisa y se sigue con la cota del punto.
+            var previous: SurfaceGuide? = null
+            surfaceGuide.collect { guide ->
+                if (previous != null && guide == null && resolution(previous).source == ElevationSource.SURFACE) surfaceRemoved.value = true
+                if (guide != null) surfaceRemoved.value = false
+                previous = guide
+            }
+        }
         viewModelScope.launch { stakeoutPreferences.settings.collect { settings = it } }
         viewModelScope.launch { collectorPreferences.settings.collect { fixOnly = it.precision.fixOnly } }
         viewModelScope.launch { receiverPreferences.poleHeightM.collect { poleHeightM = it } }
@@ -210,6 +257,8 @@ class StakeoutViewModel @Inject constructor(
         notFound.value = false
         elevationOverride.value = null
         fromDrawing = true
+        sourceChoice.value = null
+        surfaceRemoved.value = false
         targetId.value = null
         target.value = null
         viewModelScope.launch {
@@ -238,6 +287,8 @@ class StakeoutViewModel @Inject constructor(
         target.value = null
         notFound.value = false
         elevationOverride.value = null // S019/RF-3
+        sourceChoice.value = null
+        surfaceRemoved.value = false
         controller.reset()
     }
 
@@ -260,6 +311,8 @@ class StakeoutViewModel @Inject constructor(
         controller.reset()
         notFound.value = false
         elevationOverride.value = null // S019/RF-3: la cota escrita no pasa al punto siguiente
+        sourceChoice.value = null // S042/RF-25: cada replanteo empieza en «Cota del punto» si el punto la tiene
+        surfaceRemoved.value = false
         targetId.value = pointId
     }
 
@@ -294,6 +347,7 @@ class StakeoutViewModel @Inject constructor(
         val unit = project?.linearUnit ?: LinearUnit.METRE
         val metres = NumberInput.parse(text)?.let(unit::toMetres)?.takeIf { it.isFinite() } ?: return false
         elevationOverride.value = metres
+        sourceChoice.value = ElevationSource.POINT // S042/RF-23: escribir una cota es elegir la cota a mano, también fuera de la superficie
         return true
     }
 
@@ -301,7 +355,22 @@ class StakeoutViewModel @Inject constructor(
     fun useDesignPointElevation() {
         if (inProgress.active.value) return
         elevationOverride.value = null
+        sourceChoice.value = null
     }
+
+    /** Elige contra qué cota se replantea, con el conmutador; no cambia con una medida en marcha (S042/RF-25). */
+    fun setElevationSource(source: ElevationSource) {
+        if (inProgress.active.value) return
+        sourceChoice.value = source
+    }
+
+    /** El origen de la cota con la superficie [guide] y el punto de diseño de ahora (S042/RF-24, RF-25). */
+    private fun resolution(guide: SurfaceGuide?) = ElevationSources.resolve(
+        surfaceActive = guide != null,
+        hasOwnElevation = target.value?.coordinates?.height != null,
+        hasManualElevation = elevationOverride.value != null,
+        choice = sourceChoice.value,
+    )
 
     private fun change(transform: (StakeoutSettings) -> StakeoutSettings) {
         if (inProgress.active.value) return // S018/RF-30
@@ -312,6 +381,18 @@ class StakeoutViewModel @Inject constructor(
         val project = project ?: return null
         val design = target.value ?: return null
         val mode: TiltMode? = tilt.state.value.settings.mode
-        return StakeContext(settings, design, fixOnly, mode, poleHeightM, project, calculator.get(), elevationOverride.value)
+        val guide = surfaceGuide.value
+        return StakeContext(
+            settings,
+            design,
+            fixOnly,
+            mode,
+            poleHeightM,
+            project,
+            calculator.get(),
+            elevationOverride.value,
+            surface = guide,
+            elevationSource = resolution(guide).source,
+        )
     }
 }
