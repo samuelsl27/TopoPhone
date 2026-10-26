@@ -1254,4 +1254,25 @@
     <string name="surface_result_dropped">Se han descartado %1$d caras que citaban puntos que no existen.</string>
     <string name="surface_result_active">Es la superficie activa del proyecto.</string>
     <string name="surface_result_inactive">No es la superficie activa: actívala en la lista de superficies.</string>
+
+    <!-- S042: lista de superficies del proyecto -->
+    <string name="surfaces_open">Superficies</string>
+    <string name="surfaces_title">Superficies</string>
+    <string name="surfaces_empty">Este proyecto no tiene superficies. Impórtalas desde el menú del proyecto.</string>
+    <string name="surface_imported_at">Importada el %1$s</string>
+    <string name="surface_summary">%1$d puntos · %2$d triángulos · %3$d huecos</string>
+    <string name="surface_size">%1$s × %2$s m · cota de %3$s a %4$s m</string>
+    <string name="surface_state_active">Activa</string>
+    <string name="surface_state_inactive">Inactiva</string>
+    <string name="surface_activate">Activar</string>
+    <string name="surface_deactivate">Desactivar</string>
+    <string name="surface_delete">Borrar</string>
+    <string name="surface_delete_title">Borrar la superficie</string>
+    <string name="surface_delete_message">Se borrará la superficie «%1$s» del fichero «%2$s». Los puntos replanteados contra ella conservan sus datos.</string>
+    <string name="surface_delete_confirm">Borrar</string>
+    <string name="surface_offset_title">Desplazamiento vertical</string>
+    <string name="surface_offset_help">Distancia sobre (+) o bajo (−) la superficie a la que se replantea. Vale para todo el proyecto y se conserva al cambiar de superficie.</string>
+    <string name="surface_offset_label">Desplazamiento (%1$s)</string>
+    <string name="surface_offset_apply">Aplicar</string>
+    <string name="surface_offset_invalid">Escribe un número.</string>
 </resources>

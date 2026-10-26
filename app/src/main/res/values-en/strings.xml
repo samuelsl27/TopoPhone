@@ -1242,4 +1242,25 @@
     <string name="surface_result_dropped">%1$d faces were dropped because they cited points that do not exist.</string>
     <string name="surface_result_active">It is the project\'s active surface.</string>
     <string name="surface_result_inactive">It is not the active surface: activate it in the surfaces list.</string>
+
+    <!-- S042: project surfaces list -->
+    <string name="surfaces_open">Surfaces</string>
+    <string name="surfaces_title">Surfaces</string>
+    <string name="surfaces_empty">This project has no surfaces. Import them from the project menu.</string>
+    <string name="surface_imported_at">Imported on %1$s</string>
+    <string name="surface_summary">%1$d points · %2$d triangles · %3$d holes</string>
+    <string name="surface_size">%1$s × %2$s m · elevation from %3$s to %4$s m</string>
+    <string name="surface_state_active">Active</string>
+    <string name="surface_state_inactive">Inactive</string>
+    <string name="surface_activate">Activate</string>
+    <string name="surface_deactivate">Deactivate</string>
+    <string name="surface_delete">Delete</string>
+    <string name="surface_delete_title">Delete the surface</string>
+    <string name="surface_delete_message">The surface \"%1$s\" from file \"%2$s\" will be deleted. Points staked out against it keep their data.</string>
+    <string name="surface_delete_confirm">Delete</string>
+    <string name="surface_offset_title">Vertical offset</string>
+    <string name="surface_offset_help">Distance above (+) or below (−) the surface that you stake out to. It applies to the whole project and is kept when you switch surface.</string>
+    <string name="surface_offset_label">Offset (%1$s)</string>
+    <string name="surface_offset_apply">Apply</string>
+    <string name="surface_offset_invalid">Enter a number.</string>
 </resources>

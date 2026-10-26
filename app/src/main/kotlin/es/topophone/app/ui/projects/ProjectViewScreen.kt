@@ -103,6 +103,11 @@ import es.topophone.app.ui.stakeout.StakeoutMarkers
 import es.topophone.app.ui.stakeout.StakeoutPanel
 import es.topophone.app.ui.stakeout.StakeoutUiState
 import es.topophone.app.ui.stakeout.StakeoutViewModel
+import es.topophone.app.ui.surface.SURFACES_BUTTON_TAG
+import es.topophone.app.ui.surface.SurfacesActions
+import es.topophone.app.ui.surface.SurfacesSheet
+import es.topophone.app.ui.surface.SurfacesUiState
+import es.topophone.app.ui.surface.SurfacesViewModel
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.designsystem.theme.LocalStatusPalette
 import es.topophone.core.geodesy.GeoPoint
@@ -341,11 +346,13 @@ fun ProjectViewRoute(
     stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
     lineStakeoutViewModel: LineStakeoutViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
+    surfacesViewModel: SurfacesViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
         viewModel.start(projectId)
         collectorViewModel.start(projectId)
         designViewModel.start(projectId) // S040/RF-24
+        surfacesViewModel.start(projectId) // S042/RF-16
     }
     // S018/RF-1: el replanteo se abre desde la ficha o la lista con el punto elegido, y se cierra con "Cerrar".
     var stakeoutOpen by rememberSaveable { mutableStateOf(stakeoutPointId != null) }
@@ -368,6 +375,7 @@ fun ProjectViewRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val design by designViewModel.scene.collectAsStateWithLifecycle()
     val drawings by designViewModel.drawings.collectAsStateWithLifecycle()
+    val surfaces by surfacesViewModel.state.collectAsStateWithLifecycle()
     val designSelection by designViewModel.selected.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
@@ -395,6 +403,12 @@ fun ProjectViewRoute(
         drawingsActions = DrawingsActions(
             onLayerVisible = designViewModel::setLayerVisible, // S040/RF-27
             onDeleteDrawing = designViewModel::deleteDrawing, // S040/RF-30
+        ),
+        surfaces = surfaces,
+        surfacesActions = SurfacesActions(
+            onActivate = surfacesViewModel::activate, // S042/RF-16
+            onDelete = surfacesViewModel::delete, // S042/RF-18
+            onOffset = surfacesViewModel::setOffset, // S042/RF-19, RF-20
         ),
         collector = collector,
         collectorStats = collectorStats,
@@ -515,6 +529,9 @@ fun ProjectViewScreen(
     /** Los dibujos importados con sus capas, para el panel «Dibujos» (S040/RF-26 a RF-30). */
     drawings: List<CadDrawingWithLayers> = emptyList(),
     drawingsActions: DrawingsActions = DrawingsActions(),
+    /** Las superficies importadas de un LandXML con la activa y el desplazamiento vertical, para el panel «Superficies» (S042/RF-16 a RF-20). */
+    surfaces: SurfacesUiState = SurfacesUiState(),
+    surfacesActions: SurfacesActions = SurfacesActions(),
     /** El elemento del dibujo tocado en el mapa, los toques en el mapa y el cierre de su ficha (S040/RF-29). */
     designSelection: DesignSelection? = null,
     onMapTap: (MapTap) -> Unit = {},
@@ -526,6 +543,7 @@ fun ProjectViewScreen(
     var controller by remember { mutableStateOf<MapController?>(null) }
     var layersOpen by rememberSaveable { mutableStateOf(false) }
     var drawingsOpen by rememberSaveable { mutableStateOf(false) }
+    var surfacesOpen by rememberSaveable { mutableStateOf(false) }
     var bottomInsetPx by remember { mutableIntStateOf(0) }
     SectionScaffold(
         title = project?.name.orEmpty(),
@@ -572,6 +590,14 @@ fun ProjectViewScreen(
                     ) {
                         Icon(painterResource(R.drawable.ic_drawings), contentDescription = stringResource(R.string.cad_drawings_open))
                     } // S040/RF-26
+                }
+                if (surfaces.surfaces.isNotEmpty()) {
+                    FilledTonalIconButton(
+                        onClick = { surfacesOpen = true },
+                        modifier = Modifier.size(MinTouchTarget).testTag(SURFACES_BUTTON_TAG),
+                    ) {
+                        Icon(painterResource(R.drawable.ic_surface), contentDescription = stringResource(R.string.surfaces_open))
+                    } // S042/RF-16
                 }
                 val rover = state.rover
                 FilledTonalIconButton(
@@ -645,6 +671,7 @@ fun ProjectViewScreen(
     }
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
+    if (surfacesOpen) SurfacesSheet(surfaces, surfacesActions) { surfacesOpen = false }
     if (designSelection != null && project != null) {
         DesignElementSheet(
             designSelection,
