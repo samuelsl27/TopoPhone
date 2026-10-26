@@ -12,7 +12,7 @@
       Hecho cuando: `XmlStreamReaderTest` en verde: entidades, `CDATA`, comentarios, `DOCTYPE`, BOM, UTF-8 e ISO-8859-1, XML mal formado y un fichero que no es XML.
 - [x] T5. `core:formats`: `LandXmlReader`, `scan` y `read` de una superficie, con el orden Norte-Este-cota, las caras invisibles y la unidad. (RF-2, RF-3, RF-5, RF-7, RF-12)
       Hecho cuando: `LandXmlReaderTest` en verde con las versiones 1.0 a 1.2, identificadores no consecutivos y de texto, `GRID`, sin superficies, varias superficies y las tres unidades.
-- [ ] T6. `core:survey`: `TinTiler`, `TinTile` y `TinElevation`, la cota por interpolación lineal en el triángulo que contiene la posición. (RF-22, RF-23, RF-12)
+- [x] T6. `core:survey`: `TinTiler`, `TinTile` y `TinElevation`, la cota por interpolación lineal en el triángulo que contiene la posición. (RF-22, RF-23, RF-12)
       Hecho cuando: `TinTilerTest` y `TinElevationTest` en verde frente a `fixtures/superficies/` (≤ 1 mm): dentro, arista, vértice, fuera, hueco, triángulo que cruza hojas y hoja partida por tamaño.
 - [ ] T7. `core:survey`: `SurfaceProjector`, la conversión de los puntos al SC y a la unidad del proyecto y la extensión de las cuatro esquinas. (RF-6, RF-7, RF-8)
       Hecho cuando: `SurfaceProjectorTest` en verde frente a pyproj (≤ 1 mm) con pies, pies topográficos de EE. UU. y otro SC.
