@@ -10,7 +10,7 @@
       Hecho cuando: `CadChunkCodecTest` en verde: cada tipo, con y sin Z y con color, sin redondear, y un trozo de 256 kB.
 - [x] T4. `core:formats`: `DxfFileKind`, el tipo de fichero por su contenido y el límite de 100 MB. (RF-2, RF-3, RF-4, RF-5)
       Hecho cuando: `DxfFileKindTest` en verde con DWG renombrado, DXF binario, vacío, texto cualquiera, las versiones R12 a R2018 y más de 100 MB.
-- [ ] T5. `core:formats`: `DxfTagReader` y `DxfHeader`, los pares código/valor por flujo, la codificación y la cabecera. (RF-2, RF-7, RNF-T9)
+- [x] T5. `core:formats`: `DxfTagReader` y `DxfHeader`, los pares código/valor por flujo, la codificación y la cabecera. (RF-2, RF-7, RNF-T9)
       Hecho cuando: `DxfTagReaderTest` en verde: CRLF, LF y CR, punto decimal con otra región, UTF-8 y página de códigos, nombres con acentos, valor que no es número, y la unidad declarada.
 - [ ] T6. `core:formats`: `DxfTables` y `AciPalette`, las capas con su color y su estado, y la resolución del color de un elemento. (RF-24, RF-25, RF-33)
       Hecho cuando: `DxfTablesTest` en verde: ACI, color verdadero, BYLAYER, BYBLOCK, capa `0` en un bloque, capa apagada y congelada, y el blanco y el negro marcados.
