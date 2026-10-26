@@ -107,7 +107,13 @@ class RoomProjectRepository(
         val current = dao.byId(id) ?: error("No existe el proyecto $id")
         ProjectNames.validate(draft.name, dao.activeNames(exceptId = id))?.let { return@withTransaction SaveResult.Invalid(it) }
         // S006/RF-15: cambiar el SC solo cambia cómo se muestran las coordenadas; las medidas no se tocan.
-        dao.update(draft.toEntity(id, current.folderId, current.createdAt, clock()).copy(openedAt = current.openedAt))
+        dao.update(
+            draft.toEntity(id, current.folderId, current.createdAt, clock()).copy(
+                openedAt = current.openedAt,
+                activeSurfaceId = current.activeSurfaceId,
+                verticalOffsetM = current.verticalOffsetM,
+            ),
+        )
         SaveResult.Saved(id)
     }
 
@@ -125,7 +131,19 @@ class RoomProjectRepository(
         val now = clock()
         val copy = newId()
         val name = ProjectNames.copyName(original.name, dao.activeNames(), copyLabel)
-        dao.insert(original.copy(id = copy, name = name, createdAt = now, modifiedAt = now, openedAt = null, deletedAt = null))
+        // S042: las superficies no se duplican, así que la copia empieza sin superficie activa y sin desplazamiento.
+        dao.insert(
+            original.copy(
+                id = copy,
+                name = name,
+                createdAt = now,
+                modifiedAt = now,
+                openedAt = null,
+                deletedAt = null,
+                activeSurfaceId = null,
+                verticalOffsetM = 0.0,
+            ),
+        )
         SaveResult.Saved(copy)
     }
 

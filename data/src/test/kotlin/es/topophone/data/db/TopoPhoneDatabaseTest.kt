@@ -8,6 +8,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointTilt
@@ -595,6 +596,101 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S042 RNF-T6 de la v14 a la v15 los puntos y los dibujos siguen y lo nuevo queda vacio`() {
+        createFromExportedSchema(14)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v14 ->
+            v14.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v14.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at, " +
+                    "stake_design_id, stake_design_name, stake_design_east, stake_design_north, stake_design_height, " +
+                    "stake_design_lat, stake_design_lon, stake_design_ground_h, stake_d_east, stake_d_north, " +
+                    "stake_d_horizontal, stake_d_height, stake_design_elevation, stake_tol_h, stake_tol_v, stake_within, " +
+                    "stake_cad_drawing, stake_cad_layer, stake_cad_kind, stake_mode, stake_chainage, stake_offset, " +
+                    "stake_d_lateral) VALUES " +
+                    "(?, ?, 'Eje_1_stkd', '', 'STAKED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', 'INSTANT', " +
+                    "1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000, 'cad:l1:1:0', 'Eje', 440290.45805, 4474257.38189, 648.35, " +
+                    "40.4168, -3.7038, 699.428, -0.0236, 0.0323, 0.04, -0.009, 648.35, 0.025, 0.03, 0, " +
+                    "'plano.dxf', 'Eje', 'POLYLINE', 'ALONG', 45.0, -1.5, 0.012)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+            v14.execSQL(
+                "INSERT INTO cad_drawings (id, project_id, file_name, imported_at_ms, source_crs, source_unit, use_elevations, " +
+                    "has_elevations, incomplete, status, min_e, max_e, min_n, max_n) VALUES " +
+                    "('d1', ?, 'plano.dxf', 1, 'PROJECT', 'METRE', 1, 1, 0, 'READY', 1.0, 2.0, 3.0, 4.0)",
+                arrayOf<Any>(project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val staked = runBlocking { RoomPointRepository(db).points(project.id).first() }.single().staked.shouldNotBeNull()
+            staked.designId shouldBe "cad:l1:1:0"
+            staked.mode shouldBe LineStakeoutMode.ALONG
+            staked.chainageM shouldBe 45.0
+            staked.dLateralM shouldBe 0.012
+            staked.elevationSource shouldBe null
+            staked.surfaceName shouldBe null
+            staked.surfaceElevationM shouldBe null
+            staked.verticalOffsetM shouldBe null
+            staked.usedSurface shouldBe false
+            staked.outsideSurface shouldBe false
+            count(db, "cad_drawings") shouldBe 1
+            count(db, "surfaces") shouldBe 0
+            count(db, "surface_tiles") shouldBe 0
+            db.openHelper.readableDatabase.query("SELECT active_surface_id, vertical_offset_m FROM projects").use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                cursor.isNull(0) shouldBe true
+                cursor.getDouble(1) shouldBe 0.0
+            }
+            db.openHelper.readableDatabase.query(
+                "SELECT stake_elev_source, stake_surface_name, stake_surface_imported_ms, stake_surface_elev, stake_vertical_offset FROM points",
+            ).use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                (0 until 5).all { cursor.isNull(it) } shouldBe true
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun `S042 RNF-T6 borrar el proyecto borra sus superficies y sus teselas`() {
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            runBlocking { db.projects().insert(project) }
+            val sqlite = db.openHelper.writableDatabase
+            sqlite.execSQL(
+                "INSERT INTO surfaces (id, project_id, name, file_name, imported_at_ms, source_crs, source_unit, status, min_e, max_e, " +
+                    "min_n, max_n, min_z, max_z, vertex_count, triangle_count, hole_count) VALUES " +
+                    "('s1', ?, 'terreno', 'obra.xml', 1, 'PROJECT', 'METRE', 'READY', 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 3, 1, 0)",
+                arrayOf<Any>(project.id),
+            )
+            sqlite.execSQL(
+                "INSERT INTO surface_tiles (surface_id, min_e, max_e, min_n, max_n, triangle_count, data) VALUES " +
+                    "('s1', 1.0, 2.0, 3.0, 4.0, 1, x'0102')",
+            )
+            count(db, "surface_tiles") shouldBe 1
+
+            sqlite.execSQL("DELETE FROM projects WHERE id = ?", arrayOf<Any>(project.id))
+
+            count(db, "surfaces") shouldBe 0
+            count(db, "surface_tiles") shouldBe 0
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S040 RF-30 borrar el proyecto borra sus dibujos, capas y trozos`() {
         val db = TopoPhoneDatabase.build(context, TEST_DB)
         try {
@@ -708,7 +804,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 14
+        const val CURRENT_VERSION = 15
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

@@ -22,6 +22,9 @@ import es.topophone.data.point.PointNmeaEntity
 import es.topophone.data.project.ProjectDao
 import es.topophone.data.project.ProjectEntity
 import es.topophone.data.project.ProjectFolderEntity
+import es.topophone.data.surface.SurfaceDao
+import es.topophone.data.surface.SurfaceEntity
+import es.topophone.data.surface.SurfaceTileEntity
 
 /**
  * Base de datos de la app (ADR-8). El esquema crece spec a spec: cada versión nueva lleva su
@@ -45,11 +48,15 @@ import es.topophone.data.project.ProjectFolderEntity
  * - v11 (S019): la cota de diseño usada, las tolerancias y si cumple cada replanteo. Columnas que admiten NULL: migración de Room.
  * - v12 (S028): `import_id` de los puntos importados, con su índice. Columna que admite NULL: migración de Room.
  * - v13 (S040): dibujos importados de un DXF (`cad_drawings`, `cad_layers` y `cad_chunks`). Solo añade tablas: migración de Room.
+ * - v14 (S041): de qué elemento de un dibujo viene cada replanteo (columnas que admiten NULL). Migración de Room.
+ * - v15 (S042): superficies LandXML (`surfaces` y `surface_tiles`), la superficie activa y el desplazamiento vertical de cada proyecto, y contra
+ *   qué cota se replanteó cada punto. Solo añade tablas y columnas con valor por defecto o NULL: migración de Room.
  */
 @Database(
     entities = [
         ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class, PointEntity::class,
         PointHistoryEntity::class, PointNmeaEntity::class, CadDrawingEntity::class, CadLayerEntity::class, CadChunkEntity::class,
+        SurfaceEntity::class, SurfaceTileEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -67,6 +74,7 @@ import es.topophone.data.project.ProjectFolderEntity
         AutoMigration(from = 11, to = 12),
         AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14),
+        AutoMigration(from = 14, to = 15),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -81,11 +89,13 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun cad(): CadDao
 
+    abstract fun surfaces(): SurfaceDao
+
     companion object {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 14
+        const val VERSION = 15
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

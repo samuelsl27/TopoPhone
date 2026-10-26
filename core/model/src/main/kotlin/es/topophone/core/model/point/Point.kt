@@ -162,6 +162,9 @@ data class StakeoutRef(
     /** Se replanteó contra la superficie activa: guarda su nombre, su cota en la punta y el desplazamiento (S042/RF-28). */
     val usedSurface: Boolean get() = elevationSource == ElevationSource.SURFACE
 
+    /** Se replanteó con la punta fuera de la superficie activa: guarda su nombre y su fecha pero ninguna cota (S042/RF-29, RF-30). */
+    val outsideSurface: Boolean get() = surfaceName != null && surfaceElevationM == null
+
     /** El punto de diseño es un elemento de un dibujo y no un punto del proyecto (S041/RF-28). */
     val fromDrawing: Boolean get() = source is StakeSource.CadElement
 

@@ -16,7 +16,7 @@
       Hecho cuando: `TinTilerTest` y `TinElevationTest` en verde frente a `fixtures/superficies/` (≤ 1 mm): dentro, arista, vértice, fuera, hueco, triángulo que cruza hojas y hoja partida por tamaño.
 - [x] T7. `core:survey`: `SurfaceProjector`, la conversión de los puntos al SC y a la unidad del proyecto y la extensión de las cuatro esquinas. (RF-6, RF-7, RF-8)
       Hecho cuando: `SurfaceProjectorTest` en verde frente a pyproj (≤ 1 mm) con pies, pies topográficos de EE. UU. y otro SC.
-- [ ] T8. `data`: las tablas `surfaces` y `surface_tiles`, las columnas nuevas de `projects` y de `points`, sus DAO y `AutoMigration(14, 15)`. (RNF-T6, RF-14, RF-19, RF-28)
+- [x] T8. `data`: las tablas `surfaces` y `surface_tiles`, las columnas nuevas de `projects` y de `points`, sus DAO y `AutoMigration(14, 15)`. (RNF-T6, RF-14, RF-19, RF-28)
       Hecho cuando: `TopoPhoneDatabaseTest` 14 → 15 en verde: los proyectos, los puntos, los replanteos y los dibujos conservan sus datos y el desplazamiento queda en 0.
 - [ ] T9. `data`: `SurfaceRepository` (`begin`, `addTiles`, `finish`, `abort`, la limpieza, la lista, activar, borrar y el desplazamiento) y `PointRepository` con los datos de la superficie en la misma transacción. (RF-11, RF-16 a RF-19, RF-28, RF-32)
       Hecho cuando: `SurfaceRepositoryTest` y `PointRepositoryTest` en verde: la primera superficie se activa sola, borrar la activa, el desplazamiento que se conserva y la superficie borrada después de replantear.

@@ -91,4 +91,18 @@ class SurfaceTypesTest {
     fun `S042 RF-29 un replanteo con la cota del punto no usa la superficie`() {
         ref().copy(elevationSource = ElevationSource.POINT).usedSurface shouldBe false
     }
+
+    @Test
+    fun `S042 RF-29 y RF-30 un replanteo fuera de la superficie guarda su nombre pero ninguna cota`() {
+        val outside = ref().copy(surfaceName = "terreno", surfaceImportedAtMs = 1_000L, verticalOffsetM = 0.3)
+
+        outside.outsideSurface shouldBe true
+        outside.usedSurface shouldBe false
+        ref().outsideSurface shouldBe false
+        ref().copy(
+            elevationSource = ElevationSource.SURFACE,
+            surfaceName = "terreno",
+            surfaceElevationM = 601.25,
+        ).outsideSurface shouldBe false
+    }
 }

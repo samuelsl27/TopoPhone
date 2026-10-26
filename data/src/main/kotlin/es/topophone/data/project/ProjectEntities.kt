@@ -38,6 +38,10 @@ data class ProjectEntity(
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
     /** Altitud o altura elipsoidal (S008/RF-2); los proyectos de la v2 quedan con altitud. */
     @ColumnInfo(name = "height_system", defaultValue = "ORTHOMETRIC") val heightSystem: String = "ORTHOMETRIC",
+    /** La superficie activa del proyecto, o NULL si no hay (S042/RF-16); sin clave foránea, borrarla la pone a NULL a mano. */
+    @ColumnInfo(name = "active_surface_id") val activeSurfaceId: String? = null,
+    /** El desplazamiento vertical sobre la superficie, en metros, positivo hacia arriba (S042/RF-19). */
+    @ColumnInfo(name = "vertical_offset_m", defaultValue = "0") val verticalOffsetM: Double = 0.0,
 )
 
 /** Una carpeta de proyectos; un solo nivel (S006/RF-17). */

@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.BaseSource
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeightKind
@@ -150,6 +151,13 @@ data class PointEntity(
     @ColumnInfo(name = "stake_chainage") val stakeChainage: Double? = null,
     @ColumnInfo(name = "stake_offset") val stakeOffset: Double? = null,
     @ColumnInfo(name = "stake_d_lateral") val stakeDLateral: Double? = null,
+    // S042/RF-28, RF-29: contra qué cota se replanteó y, con la superficie, su nombre y la fecha de su importación (copiados: la
+    // superficie puede borrarse), su cota en la punta y el desplazamiento vertical; NULL en los demás.
+    @ColumnInfo(name = "stake_elev_source") val stakeElevSource: String? = null,
+    @ColumnInfo(name = "stake_surface_name") val stakeSurfaceName: String? = null,
+    @ColumnInfo(name = "stake_surface_imported_ms") val stakeSurfaceImportedMs: Long? = null,
+    @ColumnInfo(name = "stake_surface_elev") val stakeSurfaceElev: Double? = null,
+    @ColumnInfo(name = "stake_vertical_offset") val stakeVerticalOffset: Double? = null,
     // S028/RF-29: la importación de la que viene un punto importado, para deshacerla; NULL en los demás.
     @ColumnInfo(name = "import_id") val importId: String? = null,
 )
@@ -300,6 +308,11 @@ internal fun Point.toEntity(): PointEntity {
         stakeChainage = staked?.chainageM,
         stakeOffset = staked?.lateralOffsetM,
         stakeDLateral = staked?.dLateralM,
+        stakeElevSource = staked?.elevationSource?.name,
+        stakeSurfaceName = staked?.surfaceName,
+        stakeSurfaceImportedMs = staked?.surfaceImportedAtMs,
+        stakeSurfaceElev = staked?.surfaceElevationM,
+        stakeVerticalOffset = staked?.verticalOffsetM,
         importId = importId,
     )
 }
@@ -346,6 +359,11 @@ private fun PointEntity.staked(): StakeoutRef? = StakeoutRef(
     chainageM = stakeChainage,
     lateralOffsetM = stakeOffset,
     dLateralM = stakeDLateral,
+    elevationSource = stakeElevSource?.let { name -> ElevationSource.entries.firstOrNull { it.name == name } },
+    surfaceName = stakeSurfaceName,
+    surfaceImportedAtMs = stakeSurfaceImportedMs,
+    surfaceElevationM = stakeSurfaceElev,
+    verticalOffsetM = stakeVerticalOffset,
 )
 
 /** El dibujo, la capa y el tipo del elemento replanteado; el punto del proyecto si no vino de un dibujo (S041/RF-28). */

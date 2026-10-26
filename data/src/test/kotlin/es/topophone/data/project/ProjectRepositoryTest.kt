@@ -213,6 +213,36 @@ class ProjectRepositoryTest {
     }
 
     @Test
+    fun `S042 RF-16 y RF-19 editar un proyecto conserva su superficie activa y su desplazamiento vertical`() = runBlocking<Unit> {
+        val id = create("Parcela 23", at = 1_000)
+        db.surfaces().setActive(id, "s-1")
+        db.surfaces().setVerticalOffset(id, 0.3)
+
+        repository.update(id, draft("Parcela 23 bis")).shouldBeInstanceOf<SaveResult.Saved>()
+
+        db.projects().byId(id).shouldNotBeNull().let {
+            it.name shouldBe "Parcela 23 bis"
+            it.activeSurfaceId shouldBe "s-1"
+            it.verticalOffsetM shouldBe 0.3
+        }
+    }
+
+    @Test
+    fun `S042 RF-16 y RF-19 duplicar un proyecto no copia la superficie activa ni el desplazamiento`() = runBlocking<Unit> {
+        val original = create("Parcela 23", at = 1_000)
+        db.surfaces().setActive(original, "s-1")
+        db.surfaces().setVerticalOffset(original, 0.3)
+
+        val copy = repository.duplicate(original, copyLabel = "copia").shouldBeInstanceOf<SaveResult.Saved>().id
+
+        db.projects().byId(copy).shouldNotBeNull().let {
+            it.activeSurfaceId shouldBe null
+            it.verticalOffsetM shouldBe 0.0
+        }
+        db.projects().byId(original).shouldNotBeNull().activeSurfaceId shouldBe "s-1"
+    }
+
+    @Test
     fun `S006 RF-17 una carpeta necesita un nombre no vacio y distinto del de las demas`() = runBlocking<Unit> {
         createFolder("Obras 2026")
 

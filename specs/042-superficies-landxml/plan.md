@@ -50,7 +50,7 @@ points    +     stake_elev_source TEXT NULL, stake_surface_name TEXT NULL, stake
 - `AutoMigration(14, 15)` sin especificación: solo tablas y columnas con valor por defecto o anulables. S017b (fotos) pasa de la 15 a la 16 cuando se retome (aviso en su `plan.md`, que requiere permiso para tocar `specs/`).
 - La superficie activa y el desplazamiento son del proyecto, así que viven en `projects`: una sola columna garantiza que hay una activa o ninguna (RF-16, RF-19). Borrar la superficie activa pone `active_surface_id` a NULL en la misma transacción (RF-18).
 - Un punto replanteado copia el nombre y la fecha de la superficie en lugar de una clave foránea: borrar la superficie no deja el punto sin origen (RF-32). Las cuatro cotas y el desplazamiento se guardan sin redondear. La cota de diseño y la diferencia vertical ya tienen columna desde S019 (`stake_design_elevation`, `stake_d_height`).
-- Fuera de la superficie con el origen vacío (RF-29): las cinco columnas quedan en NULL y no se escribe ninguna cota.
+- Fuera de la superficie con el origen vacío (RF-29): `stake_elev_source`, `stake_surface_elev` y las columnas de cota y diferencia de S019 quedan en NULL; `stake_surface_name` y `stake_surface_imported_ms` sí se guardan, y con ellos la ficha sabe que fue «Fuera de la superficie» (RF-30).
 - La medida bruta no se toca (RNF-T6): lo de la superficie es un añadido del punto, en la misma transacción que lo guarda.
 
 ### Formato de una tesela (`SurfaceTileCodec`)
@@ -97,7 +97,7 @@ points    +     stake_elev_source TEXT NULL, stake_surface_name TEXT NULL, stake
 
 ### A6. Medir y guardar (RF-28, RF-29, RF-32)
 - `StakeObjective` y `StakeoutDiff.ref` reciben, en el momento de la medida, el origen, la superficie (nombre y fecha), la cota de la superficie en la punta, el desplazamiento, la cota de diseño y la tolerancia. La diferencia de cota sale con la convención de S019: medido menos diseño.
-- Si en ese instante la punta está fuera de la superficie con origen «Superficie», se guarda sin ninguna de las cinco columnas ni diferencia vertical (RF-29).
+- Si en ese instante la punta está fuera de la superficie con origen «Superficie», se guarda sin origen de la cota, sin cota de la superficie, sin cota de diseño y sin diferencia vertical (RF-29); solo se guardan el nombre y la fecha de la superficie (y el desplazamiento), que son lo que dice a la ficha que fue «Fuera de la superficie» (RF-30).
 - Un solo `PointRepository.save(point, stakeoutRef)`: el punto y todo lo del replanteo en una transacción (RNF-T6).
 
 ### A7. Informe, ficha y recolector (RF-30, RF-31, RF-33)
