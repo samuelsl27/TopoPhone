@@ -48,7 +48,7 @@
       Hecho cuando: una línea de 100.000 vértices empieza a guiar en menos de 1 s, el punto más cercano a 10 Hz no pasa de 16 ms por consulta y la guía refleja una época en menos de 300 ms.
 - [x] T23. Reproducción sintética de un recorrido paralelo a una línea con desplazamiento y su resultado esperado calculado aparte. (Criterios de finalización)
       Hecho cuando: el test en verde con desplazamientos a derecha e izquierda y el PK y el error lateral esperados.
-- [ ] T24. Copia, paquete y restauración con los puntos replanteados de un dibujo; revisión de los cambios en documentos anteriores (S018/RF-28, S019/RF-21, hoja de ruta). (RF-32, RNF-T6)
+- [x] T24. Copia, paquete y restauración con los puntos replanteados de un dibujo; revisión de los cambios en documentos anteriores (S018/RF-28, S019/RF-21, hoja de ruta). (RF-32, RNF-T6)
       Hecho cuando: `BackupCadTest` ampliado en verde y los documentos al día (se muestra el diff).
 - [ ] T25. Validación: recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo (puerta G2b) quedan para el usuario.

@@ -13,6 +13,13 @@ import es.topophone.core.model.cad.CadExtent
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.cad.DesignLayer
 import es.topophone.core.model.cad.DesignLayerKind
+import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.LineStakeoutMode
+import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.PointOrigin
+import es.topophone.core.model.point.StakeSource
+import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectDefaults
@@ -21,7 +28,9 @@ import es.topophone.data.backup.BackupFixture.Companion.rows
 import es.topophone.data.cad.CadChunkWrite
 import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.SaveResult
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayOutputStream
@@ -35,7 +44,10 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 
-/** Los dibujos viajan en las copias y los paquetes con sus capas, su visibilidad y sus trozos (S040/RF-31). */
+/**
+ * Los dibujos viajan en las copias y los paquetes con sus capas, su visibilidad y sus trozos (S040/RF-31), y los puntos replanteados
+ * de un dibujo con su origen, su modo, su PK y su error lateral aunque el dibujo ya no esté (S041/RF-32).
+ */
 @RunWith(AndroidJUnit4::class)
 class CadBackupTest {
 
@@ -237,5 +249,83 @@ class CadBackupTest {
         count(theirs, "cad_drawings") shouldBe 0
         count(theirs, "cad_layers") shouldBe 0
         count(theirs, "cad_chunks") shouldBe 0
+    }
+
+    /** Un punto replanteado de un elemento del dibujo d1, con su modo, su PK, su desplazamiento y su error lateral (S041/RF-28). */
+    private fun stakedFromDrawing(): Point {
+        val base = fixture.measured("Eje_1_stkd", project)
+        val ref = StakeoutRef(
+            designId = "cad:l1-d1:1:0",
+            designName = "Ejes",
+            design = PointCoordinates(GeodeticPosition(40.4168, -3.7038, 699.4), 440_000.123456789012, 4_474_000.987654321098, 648.19),
+            dEastM = -0.004,
+            dNorthM = 0.012,
+            dHorizontalM = 0.0126,
+            dHeightM = -0.021,
+            designElevationM = 648.19,
+            toleranceHM = 0.025,
+            toleranceVM = 0.03,
+            withinTolerance = true,
+            source = StakeSource.CadElement("uno.dxf", "Ejes", CadEntityKind.POLYLINE),
+            mode = LineStakeoutMode.ALONG,
+            chainageM = 45.123456789,
+            lateralOffsetM = -1.5,
+            dLateralM = 0.012345678,
+        )
+        return base.copy(origin = PointOrigin.STAKED, staked = ref)
+    }
+
+    private fun stakeRow(db: String): Map<String, Any?> {
+        val cols = columns(file(db), "points")
+        val row = rows(file(db), "points").first { it[cols.indexOf("name")] == "Eje_1_stkd" }
+        return cols.zip(row).toMap()
+    }
+
+    @Test
+    fun `S041 RF-32 el paquete lleva el punto replanteado de un dibujo con su origen, su modo, su PK y su error lateral`() {
+        runBlocking { fixture.points.create(stakedFromDrawing()) }
+        val pkg = ByteArrayOutputStream().also { runBlocking { repository.writePackage(project, it) } shouldBe true }.toByteArray()
+
+        val valid = runBlocking { otherRepository.read({ pkg.inputStream() }, BackupKind.PACKAGE) }.shouldBeInstanceOf<BackupRead.Valid>()
+        runBlocking { otherRepository.importPackage(valid, null, importedLabel = "importado") }
+
+        val row = stakeRow(theirs)
+        row["stake_cad_drawing"] shouldBe "uno.dxf"
+        row["stake_cad_layer"] shouldBe "Ejes"
+        row["stake_cad_kind"] shouldBe "POLYLINE"
+        row["stake_mode"] shouldBe "ALONG"
+        row["stake_chainage"] shouldBe 45.123456789
+        row["stake_offset"] shouldBe -1.5
+        row["stake_d_lateral"] shouldBe 0.012345678
+    }
+
+    @Test
+    fun `S041 RF-32 la copia completa restaura el replanteo de un dibujo aunque el dibujo se haya borrado despues`() {
+        runBlocking { fixture.points.create(stakedFromDrawing()) }
+        val backup = ByteArrayOutputStream().also { runBlocking { repository.writeBackup(it) } shouldBe true }.toByteArray()
+        runBlocking { cad.deleteDrawing("d1") }
+        // Borrar el dibujo no toca el punto ni lo que guarda de su origen
+        val afterDelete = runBlocking { RoomPointRepository(db).point("id-Eje_1_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull()
+        afterDelete.source shouldBe StakeSource.CadElement("uno.dxf", "Ejes", CadEntityKind.POLYLINE)
+
+        val valid = runBlocking { repository.read({ backup.inputStream() }, BackupKind.BACKUP) }.shouldBeInstanceOf<BackupRead.Valid>()
+        runBlocking { repository.restore(valid) }.shouldBeInstanceOf<RestoreResult.Restored>()
+
+        val restored = runBlocking { RoomPointRepository(db).point("id-Eje_1_stkd").first() }.shouldNotBeNull().staked.shouldNotBeNull()
+        restored shouldBe stakedFromDrawing().staked
+        runBlocking { cad.drawings(project).first() }.map { it.drawing.id } shouldBe listOf("d1", "d2")
+    }
+
+    @Test
+    fun `S041 RF-32 un paquete de un proyecto cuyo dibujo ya no esta conserva el punto replanteado con lo que guardo`() {
+        runBlocking { fixture.points.create(stakedFromDrawing()) }
+        runBlocking { cad.deleteDrawing("d1") }
+        val pkg = ByteArrayOutputStream().also { runBlocking { repository.writePackage(project, it) } shouldBe true }.toByteArray()
+
+        val valid = runBlocking { otherRepository.read({ pkg.inputStream() }, BackupKind.PACKAGE) }.shouldBeInstanceOf<BackupRead.Valid>()
+        runBlocking { otherRepository.importPackage(valid, null, importedLabel = "importado") }
+
+        stakeRow(theirs)["stake_cad_drawing"] shouldBe "uno.dxf"
+        count(theirs, "cad_drawings") shouldBe 1
     }
 }
