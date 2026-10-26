@@ -44,7 +44,7 @@
       Hecho cuando: `CadImportEntriesTest` en verde, con el aviso de cada fichero que no se puede abrir.
 - [x] T21. `app`: `MapController.showDesign`, `DesignSceneBuilder` y las capas de MapLibre: lo que cae en la vista, la simplificación por zoom y el color de contraste. (RF-24, RF-25, RF-27)
       Hecho cuando: `DesignSceneBuilderTest` en verde con capas ocultas, el recorte a la vista, el umbral por zoom y el blanco y el negro; el doble del mapa recoge la escena.
-- [ ] T22. `app`: el panel «Dibujos» del mapa con las capas por tipo, sus interruptores, y el borrado de un dibujo. (RF-26, RF-28, RF-30)
+- [x] T22. `app`: el panel «Dibujos» del mapa con las capas por tipo, sus interruptores, y el borrado de un dibujo. (RF-26, RF-28, RF-30)
       Hecho cuando: `DesignLayersPanelTest` en verde: capas con el mismo nombre de dos dibujos, la visibilidad que se recuerda y el borrado con confirmación sin tocar los puntos.
 - [ ] T23. `app`: el toque en el mapa y la ficha del elemento. (RF-23, RF-29)
       Hecho cuando: `DesignElementSheetTest` en verde con un punto, una línea y un elemento sin cota.

@@ -62,8 +62,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.cad.DRAWINGS_BUTTON_TAG
 import es.topophone.app.ui.cad.DesignMapViewModel
 import es.topophone.app.ui.cad.DesignScene
+import es.topophone.app.ui.cad.DrawingsActions
+import es.topophone.app.ui.cad.DrawingsSheet
 import es.topophone.app.ui.collector.AutoLive
 import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.COLLECT_BUTTON_TAG
@@ -116,6 +119,7 @@ import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.cad.CadDrawingWithLayers
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.map.MapViewportRepository
 import es.topophone.data.point.PointRepository
@@ -345,6 +349,7 @@ fun ProjectViewRoute(
     LaunchedEffect(stakeoutOpen, stakeout.saveInfo) { collectorViewModel.setStakeSaveInfo(stakeout.saveInfo.takeIf { stakeoutOpen }) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val design by designViewModel.scene.collectAsStateWithLifecycle()
+    val drawings by designViewModel.drawings.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
@@ -364,6 +369,11 @@ fun ProjectViewRoute(
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
         design = design,
         onDesignCamera = designViewModel::onCamera,
+        drawings = drawings,
+        drawingsActions = DrawingsActions(
+            onLayerVisible = designViewModel::setLayerVisible, // S040/RF-27
+            onDeleteDrawing = designViewModel::deleteDrawing, // S040/RF-30
+        ),
         collector = collector,
         collectorStats = collectorStats,
         collectorAutoLive = collectorAutoLive,
@@ -433,12 +443,16 @@ fun ProjectViewScreen(
     /** El dibujo importado de un DXF en la vista de ahora y el aviso de que la cámara se ha parado (S040/RF-24). */
     design: DesignScene? = null,
     onDesignCamera: (MapCamera) -> Unit = {},
+    /** Los dibujos importados con sus capas, para el panel «Dibujos» (S040/RF-26 a RF-30). */
+    drawings: List<CadDrawingWithLayers> = emptyList(),
+    drawingsActions: DrawingsActions = DrawingsActions(),
 ) {
     var collectorOpen by rememberSaveable { mutableStateOf(false) }
     val policy = remember { CameraPolicy() }
     val project = state.project
     var controller by remember { mutableStateOf<MapController?>(null) }
     var layersOpen by rememberSaveable { mutableStateOf(false) }
+    var drawingsOpen by rememberSaveable { mutableStateOf(false) }
     var bottomInsetPx by remember { mutableIntStateOf(0) }
     SectionScaffold(
         title = project?.name.orEmpty(),
@@ -478,6 +492,14 @@ fun ProjectViewScreen(
                 ) {
                     Icon(painterResource(R.drawable.ic_layers), contentDescription = stringResource(R.string.map_layers))
                 } // S009/RF-6, RF-7
+                if (drawings.isNotEmpty()) {
+                    FilledTonalIconButton(
+                        onClick = { drawingsOpen = true },
+                        modifier = Modifier.size(MinTouchTarget).testTag(DRAWINGS_BUTTON_TAG),
+                    ) {
+                        Icon(painterResource(R.drawable.ic_drawings), contentDescription = stringResource(R.string.cad_drawings_open))
+                    } // S040/RF-26
+                }
                 val rover = state.rover
                 FilledTonalIconButton(
                     onClick = { if (rover != null) controller?.run { execute(policy.onCenterPressed(rover.position, camera.value)) } },
@@ -542,6 +564,7 @@ fun ProjectViewScreen(
         if (projectId != null) map.pointClicks.collect { pointId -> openPoint(projectId, pointId) }
     }
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
+    if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
 }
 
 /** Cámara del mapa según [CameraPolicy], y su encuadre al ViewModel una vez colocado (S009/RF-19 a RF-21). */

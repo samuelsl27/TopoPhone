@@ -1124,4 +1124,23 @@
     <string name="cad_summary_saved">Resumen guardado.</string>
     <string name="cad_summary_failed">No se ha podido guardar el resumen.</string>
     <string name="cad_summary_chooser">Compartir el resumen de la importación</string>
+    <string name="cad_drawings_title">Dibujos</string>
+    <string name="cad_drawings_open">Dibujos importados</string>
+    <string name="cad_drawings_empty">Este proyecto no tiene dibujos. Impórtalos desde el menú del proyecto.</string>
+    <string name="cad_layers_points">Puntos</string>
+    <string name="cad_layers_lines">Líneas</string>
+    <plurals name="cad_layer_count">
+        <item quantity="one">%1$d elemento</item>
+        <item quantity="other">%1$d elementos</item>
+    </plurals>
+    <string name="cad_layer_visible">Visible</string>
+    <string name="cad_layer_hidden">Oculta</string>
+    <string name="cad_layer_summary">%1$s · %2$s</string>
+    <string name="cad_layer_description">%1$s, dibujo %2$s, %3$s, %4$s</string>
+    <string name="cad_drawing_imported_at">Importado el %1$s</string>
+    <string name="cad_drawing_incomplete">Incompleto</string>
+    <string name="cad_drawing_delete">Borrar dibujo</string>
+    <string name="cad_drawing_delete_title">¿Borrar este dibujo?</string>
+    <string name="cad_drawing_delete_message">Se borra el dibujo «%1$s» con todas sus capas. Los puntos del proyecto no se tocan.</string>
+    <string name="cad_drawing_delete_confirm">Borrar</string>
 </resources>

@@ -1112,4 +1112,23 @@
     <string name="cad_summary_saved">Summary saved.</string>
     <string name="cad_summary_failed">The summary could not be saved.</string>
     <string name="cad_summary_chooser">Share the import summary</string>
+    <string name="cad_drawings_title">Drawings</string>
+    <string name="cad_drawings_open">Imported drawings</string>
+    <string name="cad_drawings_empty">This project has no drawings. Import them from the project menu.</string>
+    <string name="cad_layers_points">Points</string>
+    <string name="cad_layers_lines">Lines</string>
+    <plurals name="cad_layer_count">
+        <item quantity="one">%1$d element</item>
+        <item quantity="other">%1$d elements</item>
+    </plurals>
+    <string name="cad_layer_visible">Visible</string>
+    <string name="cad_layer_hidden">Hidden</string>
+    <string name="cad_layer_summary">%1$s · %2$s</string>
+    <string name="cad_layer_description">%1$s, drawing %2$s, %3$s, %4$s</string>
+    <string name="cad_drawing_imported_at">Imported on %1$s</string>
+    <string name="cad_drawing_incomplete">Incomplete</string>
+    <string name="cad_drawing_delete">Delete drawing</string>
+    <string name="cad_drawing_delete_title">Delete this drawing?</string>
+    <string name="cad_drawing_delete_message">The drawing “%1$s” is deleted with all its layers. The project\'s points are not touched.</string>
+    <string name="cad_drawing_delete_confirm">Delete</string>
 </resources>

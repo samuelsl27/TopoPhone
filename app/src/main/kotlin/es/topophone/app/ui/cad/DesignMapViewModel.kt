@@ -8,6 +8,7 @@ import es.topophone.app.ui.map.MapCamera
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.model.cad.DesignLayer
 import es.topophone.core.model.map.Basemap
+import es.topophone.data.cad.CadDrawingWithLayers
 import es.topophone.data.cad.CadRepository
 import es.topophone.data.project.ProjectRepository
 import javax.inject.Inject
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 /**
  * Lo que el mapa dibuja de los dibujos importados del proyecto (S040/RF-24, RF-25, RF-27): con la cámara quieta, los trozos de las
@@ -57,11 +59,27 @@ class DesignMapViewModel @Inject constructor(
         .flowOn(io)
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** Los dibujos terminados del proyecto con sus capas, para el panel «Dibujos» (RF-26, RF-28). */
+    val drawings: StateFlow<List<CadDrawingWithLayers>> = projectId.filterNotNull()
+        .flatMapLatest { cad.drawings(it) }
+        .flowOn(io)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     private class Inputs(val layers: List<DesignLayer>, val camera: MapCamera, val contrast: Int)
 
     /** Los dibujos del proyecto [id]; solo la primera vez. */
     fun start(id: String) {
         projectId.value = id
+    }
+
+    /** Muestra u oculta una capa de diseño; se recuerda para el proyecto, también al cerrar la app (RF-27). */
+    fun setLayerVisible(layerId: String, visible: Boolean) {
+        viewModelScope.launch(io) { cad.setLayerVisible(layerId, visible) }
+    }
+
+    /** Borra un dibujo entero con sus capas, sin tocar los puntos del proyecto (RF-30). */
+    fun deleteDrawing(drawingId: String) {
+        viewModelScope.launch(io) { cad.deleteDrawing(drawingId) }
     }
 
     /** La cámara del mapa ha dejado de moverse (RF-24). */
