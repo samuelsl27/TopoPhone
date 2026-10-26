@@ -124,4 +124,69 @@ class CadChunkCodecTest {
         shouldThrow<IllegalArgumentException> { CadChunkCodec.decode(bytes.copyOf(bytes.size - 3)) }
         shouldThrow<IllegalArgumentException> { CadChunkCodec.decode(byteArrayOf(5, 99, 0)) }
     }
+
+    private fun marked(original: BooleanArray?) = CadEntity(
+        CadEntityKind.ARC,
+        doubleArrayOf(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0),
+        doubleArrayOf(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9),
+        null,
+        null,
+        original,
+    )
+
+    @Test
+    fun `S040 RF-34 la marca de vertice original de cada vertice vuelve igual`() {
+        val marks = booleanArrayOf(true, false, false, false, false, false, false, false, false, true)
+
+        val back = CadChunkCodec.decode(CadChunkCodec.encode(listOf(marked(marks)))).single()
+
+        List(10) { back.isOriginal(it) } shouldBe marks.toList()
+        back.hasOriginalMarks shouldBe true
+    }
+
+    @Test
+    fun `S040 RF-34 un trozo de antes de las marcas se lee con todos los vertices originales`() {
+        // count=1, ARC, sin marcas, 2 vertices: el formato anterior a S041
+        val old = byteArrayOf(1, CadEntityKind.ARC.ordinal.toByte(), 0, 2) +
+            java.nio.ByteBuffer.allocate(32).putDouble(1.0).putDouble(2.0).putDouble(3.0).putDouble(4.0).array()
+
+        val back = CadChunkCodec.decode(old).single()
+
+        back.hasOriginalMarks shouldBe false
+        List(2) { back.isOriginal(it) } shouldBe listOf(true, true)
+        back.easting.toList() shouldBe listOf(1.0, 2.0)
+    }
+
+    @Test
+    fun `S040 RF-34 sin marcas o con todo original el bloque es el del formato anterior`() {
+        val plain = marked(null)
+        val allOriginal = marked(BooleanArray(10) { true })
+
+        CadChunkCodec.encode(listOf(allOriginal)).toList() shouldBe CadChunkCodec.encode(listOf(plain)).toList()
+        CadChunkCodec.encodedSize(listOf(allOriginal)) shouldBe CadChunkCodec.encode(listOf(allOriginal)).size
+    }
+
+    @Test
+    fun `S040 RF-34 el tamano con marcas es el del bloque y suma un bit por vertice`() {
+        val withMarks = listOf(marked(BooleanArray(10) { it == 0 }), marked(null))
+
+        CadChunkCodec.encodedSize(withMarks) shouldBe CadChunkCodec.encode(withMarks).size
+        CadChunkCodec.entitySize(withMarks[0]) shouldBe CadChunkCodec.entitySize(withMarks[1]) + 2
+    }
+
+    @Test
+    fun `S040 RF-34 las marcas no cambian la coordenadas ni la igualdad por tipo y vertices`() {
+        val marks = BooleanArray(10) { it % 3 == 0 }
+        val back = CadChunkCodec.decode(CadChunkCodec.encode(listOf(marked(marks)))).single()
+
+        back shouldBe marked(marks)
+        (back == marked(null)) shouldBe false
+    }
+
+    @Test
+    fun `S040 RF-34 un bloque con marcas cortado da un error`() {
+        val bytes = CadChunkCodec.encode(listOf(marked(BooleanArray(10) { it == 0 })))
+
+        shouldThrow<IllegalArgumentException> { CadChunkCodec.decode(bytes.copyOf(bytes.size - 1)) }
+    }
 }

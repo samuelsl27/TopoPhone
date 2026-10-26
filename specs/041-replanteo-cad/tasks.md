@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. S040/RF-34: añadir RF-34 a `specs/040-capa-cad-dxf/spec.md` y la nota en su `plan.md` (se muestra el diff); `core:model`: `CadChunkCodec` con la marca de vértice original por bit y la lectura de un trozo antiguo con todo original. (S040/RF-34, RF-33, RF-34)
+- [x] T1. S040/RF-34: añadir RF-34 a `specs/040-capa-cad-dxf/spec.md` y la nota en su `plan.md` (se muestra el diff); `core:model`: `CadChunkCodec` con la marca de vértice original por bit y la lectura de un trozo antiguo con todo original. (S040/RF-34, RF-33, RF-34)
       Hecho cuando: `CadChunkCodecTest` en verde: ida y vuelta con marcas, un trozo sin el bit nuevo con todo original y un trozo de 256 kB; los tests de S040 siguen en verde.
 - [ ] T2. `core:formats`: `CadCurves`, `DxfBlocks` y `DxfReader` marcan los vértices originales y los de la aproximación de arcos, círculos, splines y bulges. (S040/RF-34, RF-33)
       Hecho cuando: `CadCurvesTest`, `DxfBlocksTest` y `DxfReaderTest` en verde: extremos de arco y de spline, punto de partida del círculo, vértices de bulge y bloques escalados.

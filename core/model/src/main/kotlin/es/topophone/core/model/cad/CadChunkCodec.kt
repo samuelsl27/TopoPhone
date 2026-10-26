@@ -5,7 +5,8 @@ import java.nio.ByteBuffer
 
 /**
  * Un elemento del dibujo con sus vértices en el sistema del proyecto, sin redondear (S040/RF-19). [height] es null si el
- * elemento no trae Z (RF-23); [color] es null si es el de su capa (RF-24).
+ * elemento no trae Z (RF-23); [color] es null si es el de su capa (RF-24). [original] marca qué vértices están escritos en el
+ * DXF y cuáles son de la aproximación de una curva (S040/RF-34); null es que todos son originales.
  */
 class CadEntity(
     val kind: CadEntityKind,
@@ -13,14 +14,25 @@ class CadEntity(
     val northing: DoubleArray,
     val height: DoubleArray?,
     val color: CadColor?,
+    original: BooleanArray? = null,
 ) {
+    // Las marcas solo existen si alguna es falsa: "todo original" y "sin marcas" son lo mismo y se guardan igual.
+    private val marks: BooleanArray? = original?.takeIf { m -> m.any { !it } }
+
     init {
+        require(original == null || original.size == easting.size) { "Una marca por vértice, o ninguna" }
         require(easting.size == northing.size && easting.isNotEmpty()) { "Los vértices necesitan Este y Norte" }
         require(height == null || height.size == easting.size) { "Una altura por vértice, o ninguna" }
     }
 
     val vertexCount: Int get() = easting.size
     val hasZ: Boolean get() = height != null
+
+    /** Algún vértice es de la aproximación de una curva (S040/RF-34). */
+    val hasOriginalMarks: Boolean get() = marks != null
+
+    /** El vértice [index] está escrito en el DXF (S040/RF-34, S041/RF-33). */
+    fun isOriginal(index: Int): Boolean = marks?.get(index) ?: true
 
     /** El recuadro del elemento (RF-29). */
     val bounds: CadExtent
@@ -31,13 +43,15 @@ class CadEntity(
         color == other.color &&
         easting.contentEquals(other.easting) &&
         northing.contentEquals(other.northing) &&
-        height.contentEquals(other.height)
+        height.contentEquals(other.height) &&
+        marks.contentEquals(other.marks)
 
     override fun hashCode(): Int {
         var result = kind.hashCode()
         result = 31 * result + easting.contentHashCode()
         result = 31 * result + northing.contentHashCode()
         result = 31 * result + height.contentHashCode()
+        result = 31 * result + marks.contentHashCode()
         return 31 * result + (color?.hashCode() ?: 0)
     }
 
@@ -47,7 +61,8 @@ class CadEntity(
 /**
  * El bloque binario de un trozo del dibujo (S040/RF-19, RF-22, RF-23). Por elemento: tipo (1 byte), marcas (1 byte: con altura,
  * con color propio, color de contraste), el color ARGB si lo trae (4 bytes), el número de vértices (entero de longitud variable)
- * y los `Double` de Este y Norte de cada vértice, y los de la altura si la lleva. Un trozo no pasa de [MAX_CHUNK_BYTES].
+ * y los `Double` de Este y Norte de cada vértice, los de la altura si la lleva y, si hay vértices de la aproximación de una curva
+ * (S040/RF-34), un bit por vértice (1 = original) empaquetado en bytes. Un trozo de antes de las marcas se lee con todo original. Un trozo no pasa de [MAX_CHUNK_BYTES].
  */
 object CadChunkCodec {
     /** Lo que puede pesar un trozo: el `CursorWindow` de Android no admite filas de más de 2 MB. */
@@ -56,6 +71,7 @@ object CadChunkCodec {
     private const val HAS_Z = 1
     private const val HAS_COLOR = 2
     private const val AUTO_CONTRAST = 4
+    private const val ORIGINAL_MARKS = 8
 
     fun encode(entities: List<CadEntity>): ByteArray {
         val out = ByteArrayOutputStream(encodedSize(entities))
@@ -67,12 +83,14 @@ object CadChunkCodec {
             if (e.hasZ) flags = flags or HAS_Z
             if (color != null) flags = flags or HAS_COLOR
             if (color?.autoContrast == true) flags = flags or AUTO_CONTRAST
+            if (e.hasOriginalMarks) flags = flags or ORIGINAL_MARKS
             out.write(flags)
             if (color != null && !color.autoContrast) out.write(ByteBuffer.allocate(4).putInt(color.argb).array())
             writeVarint(out, e.vertexCount)
             writeDoubles(out, e.easting)
             writeDoubles(out, e.northing)
             e.height?.let { writeDoubles(out, it) }
+            if (e.hasOriginalMarks) writeMarks(out, e)
         }
         return out.toByteArray()
     }
@@ -85,7 +103,8 @@ object CadChunkCodec {
         val color = e.color
         val colorBytes = if (color != null && !color.autoContrast) 4 else 0
         val doubles = e.vertexCount * (if (e.hasZ) 3 else 2) * Double.SIZE_BYTES
-        return 2 + colorBytes + varintSize(e.vertexCount) + doubles
+        val marksBytes = if (e.hasOriginalMarks) (e.vertexCount + 7) / 8 else 0
+        return 2 + colorBytes + varintSize(e.vertexCount) + doubles + marksBytes
     }
 
     /** Los elementos de un bloque; [IllegalArgumentException] si está cortado o no es de este formato (RF-13). */
@@ -108,7 +127,8 @@ object CadChunkCodec {
                 val easting = readDoubles(buffer, n)
                 val northing = readDoubles(buffer, n)
                 val height = if (flags and HAS_Z != 0) readDoubles(buffer, n) else null
-                out += CadEntity(kind, easting, northing, height, color)
+                val original = if (flags and ORIGINAL_MARKS != 0) readMarks(buffer, n) else null
+                out += CadEntity(kind, easting, northing, height, color, original)
             }
             require(!buffer.hasRemaining()) { "Sobran bytes al final del bloque" }
             return out
@@ -121,6 +141,17 @@ object CadChunkCodec {
         val buffer = ByteBuffer.allocate(values.size * Double.SIZE_BYTES)
         values.forEach { buffer.putDouble(it) }
         out.write(buffer.array())
+    }
+
+    private fun writeMarks(out: ByteArrayOutputStream, e: CadEntity) {
+        val bytes = ByteArray((e.vertexCount + 7) / 8)
+        for (i in 0 until e.vertexCount) if (e.isOriginal(i)) bytes[i / 8] = (bytes[i / 8].toInt() or (1 shl (i % 8))).toByte()
+        out.write(bytes)
+    }
+
+    private fun readMarks(buffer: ByteBuffer, n: Int): BooleanArray {
+        val bytes = ByteArray((n + 7) / 8).also { buffer.get(it) }
+        return BooleanArray(n) { bytes[it / 8].toInt() and (1 shl (it % 8)) != 0 }
     }
 
     private fun readDoubles(buffer: ByteBuffer, n: Int) = DoubleArray(n) { buffer.getDouble() }

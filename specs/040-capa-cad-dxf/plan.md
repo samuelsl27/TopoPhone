@@ -59,6 +59,7 @@ cad_chunks    id INTEGER PK AUTOINCREMENT, layer_id → cad_layers (CASCADE),
 ### Bloque binario de un trozo (`CadChunkCodec`)
 - Sin tablas por elemento: un trozo agrupa unos cientos de elementos de una capa, de la misma zona, y no pasa de 256 kB (el límite de una fila de `CursorWindow` es de 2 MB).
 - Por elemento: tipo (1 byte), marcas (con altura, con color propio, punto de inserción de bloque; 1 byte), el color si lo trae (4 bytes), el número de vértices (entero de longitud variable) y los `Double` de Este y Norte, y los de la altura si la lleva.
+- Desde S041 (S040/RF-34), un bit más en las marcas (`ORIGINAL_MARKS = 8`) añade tras las coordenadas un bit por vértice (1 = original del DXF); sin él, todos los vértices son originales, así que los dibujos ya importados se leen igual.
 - Un elemento se identifica por `CadEntityRef(layerId, chunkId, index)`, estable mientras no se borre el dibujo (S041 lo usará).
 
 ### Opciones de la importación

@@ -64,6 +64,7 @@ Términos de esta spec:
 - RF-28: EL SISTEMA no mezclará las capas de dos dibujos que se llamen igual: las listará aparte, cada una con su dibujo.
 - RF-29: CUANDO el usuario toque un elemento visible del dibujo en el mapa, EL SISTEMA mostrará su ficha: tipo, capa, dibujo, coordenadas del punto o longitud y número de vértices de la línea, y su cota o «Sin cota».
 - RF-33: DONDE una capa del DXF esté apagada o congelada en el propio fichero, EL SISTEMA la importará oculta.
+- RF-34: EL SISTEMA marcará en cada elemento qué vértices son originales del DXF y cuáles son de la aproximación de una curva, y lo guardará con el elemento; un dibujo importado antes se leerá con todos sus vértices como originales (lo usa S041/RF-33).
 
 ### Borrar un dibujo (H5)
 - RF-30: CUANDO el usuario borre un dibujo y confirme, EL SISTEMA lo quitará entero, con sus capas, y no modificará ningún punto del proyecto.
