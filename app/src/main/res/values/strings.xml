@@ -456,6 +456,12 @@
     <string name="stakeout_level_no_tip_height">Sin cota: la punta no tiene altura</string>
     <string name="stakeout_level_outside_surface">Fuera de la superficie</string>
     <string name="stakeout_level_surface_loading">Calculando la cota de la superficie…</string>
+    <string name="stakeout_source_title">Replantear contra</string>
+    <string name="stakeout_source_point">Cota del punto</string>
+    <string name="stakeout_source_surface">Superficie</string>
+    <string name="stakeout_surface_height">Cota de la superficie: %1$s</string>
+    <string name="stakeout_surface_offset">Desplazamiento vertical: %1$s</string>
+    <string name="stakeout_surface_removed">La superficie ya no está activa: se replantea con la cota del punto o solo en planta.</string>
     <string name="stakeout_level_description_cut">Nivel vertical: desmonte de %1$s, hay que excavar</string>
     <string name="stakeout_level_description_fill">Nivel vertical: terraplén de %1$s, hay que rellenar</string>
     <string name="stakeout_level_description_on_grade">Nivel vertical: en cota</string>

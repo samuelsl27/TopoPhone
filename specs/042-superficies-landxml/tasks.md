@@ -36,7 +36,7 @@
       Hecho cuando: `StakeoutControllerSurfaceTest` en verde y los tests de S018, S019 y S041 siguen en verde.
 - [x] T17. `app`: el origen de la cota en `StakeoutViewModel` y `LineStakeoutViewModel`: la regla de A5, el conmutador, la cota a mano fuera de la superficie y la desactivación con el replanteo abierto. (RF-23, RF-24, RF-25, RF-27)
       Hecho cuando: `StakeoutViewModelSurfaceTest` y `LineStakeoutViewModelSurfaceTest` en verde.
-- [ ] T18. `app`: el conmutador en `StakeoutPanel` y `LineStakeoutPanel`, «Fuera de la superficie» en el nivel vertical, y las etiquetas de TalkBack, con sus textos en es y en. (RF-23, RF-25, RF-26, RNF-T7, RNF-T8)
+- [x] T18. `app`: el conmutador en `StakeoutPanel` y `LineStakeoutPanel`, «Fuera de la superficie» en el nivel vertical, y las etiquetas de TalkBack, con sus textos en es y en. (RF-23, RF-25, RF-26, RNF-T7, RNF-T8)
       Hecho cuando: los tests de los paneles en verde, con el estado en texto además del color y las zonas táctiles de 56 dp.
 - [ ] T19. `app`: medir y guardar con la superficie: `StakeObjective`, `StakeoutDiff.ref` y los dos `ViewModel`, también fuera de la superficie. (RF-28, RF-29, RF-32)
       Hecho cuando: `StakeoutMeasureSurfaceTest` y `StakeoutDiffTest` en verde: origen, superficie, cota, desplazamiento, diferencia, y las cinco columnas vacías fuera.

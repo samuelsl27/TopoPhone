@@ -48,6 +48,7 @@ import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.StakeMode
@@ -97,6 +98,8 @@ class StakeoutActions(
     val onToleranceV: (String) -> Boolean = { false },
     val onElevation: (String) -> Boolean = { false },
     val onUseDesignElevation: () -> Unit = {},
+    /** Contra qué cota se replantea, con el conmutador (S042/RF-25). */
+    val onElevationSource: (ElevationSource) -> Unit = {},
 )
 
 /**
@@ -133,6 +136,16 @@ fun StakeoutPanel(
                 // Lo que se desvió el último punto, arriba: es lo que se mira al medir y no debe quedar bajo el pliegue.
                 collector?.savedStake?.let { Result(collector.savedName, it, state) }
                 ModeChoice(state, actions)
+                ElevationSourceSection(
+                    state.surfaceActive,
+                    state.elevationSource,
+                    state.canChooseSource,
+                    state.surfaceRemoved,
+                    state.measuring,
+                    state.guidance,
+                    state.project?.linearUnit ?: LinearUnit.METRE,
+                    actions.onElevationSource,
+                ) // S042/RF-23 a RF-27
                 Guidance(state.project, state.settings, state.guidance)
                 collector?.let { Messages(it, collectorActions) } // los motivos por los que no se puede medir, avisos y el punto guardado
             }

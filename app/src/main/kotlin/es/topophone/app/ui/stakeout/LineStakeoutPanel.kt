@@ -52,6 +52,7 @@ import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.LineInputError
 import es.topophone.core.model.point.LineStakeoutMode
@@ -112,6 +113,8 @@ class LineStakeoutActions(
     val onToleranceV: (String) -> Boolean = { false },
     val onElevation: (String) -> Boolean = { false },
     val onUseLineElevation: () -> Unit = {},
+    /** Contra qué cota se replantea, con el conmutador (S042/RF-25). */
+    val onElevationSource: (ElevationSource) -> Unit = {},
 )
 
 /**
@@ -170,6 +173,16 @@ fun LineStakeoutPanel(
                 Inputs(state, actions, unit)
                 Lists(state, actions, unit)
                 StakeModeChoice(state.settings, state.measuring, actions.onGuideMode)
+                ElevationSourceSection(
+                    state.surfaceActive,
+                    state.elevationSource,
+                    state.canChooseSource,
+                    state.surfaceRemoved,
+                    state.measuring,
+                    state.guidance,
+                    unit,
+                    actions.onElevationSource,
+                ) // S042/RF-23 a RF-27
                 Guidance(state.project, state.settings, state.guidance) { ui, numbers -> LineFigures(state, ui, numbers) }
                 collector?.let { Messages(it, collectorActions) }
             }

@@ -444,6 +444,12 @@
     <string name="stakeout_level_no_tip_height">No elevation: the tip has no height</string>
     <string name="stakeout_level_outside_surface">Outside the surface</string>
     <string name="stakeout_level_surface_loading">Calculating the surface elevation…</string>
+    <string name="stakeout_source_title">Stake out against</string>
+    <string name="stakeout_source_point">Point elevation</string>
+    <string name="stakeout_source_surface">Surface</string>
+    <string name="stakeout_surface_height">Surface elevation: %1$s</string>
+    <string name="stakeout_surface_offset">Vertical offset: %1$s</string>
+    <string name="stakeout_surface_removed">The surface is no longer active: staking out with the point elevation or in plan only.</string>
     <string name="stakeout_level_description_cut">Vertical level: cut of %1$s, dig</string>
     <string name="stakeout_level_description_fill">Vertical level: fill of %1$s, add material</string>
     <string name="stakeout_level_description_on_grade">Vertical level: on grade</string>

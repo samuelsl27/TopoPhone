@@ -462,6 +462,7 @@ fun ProjectViewRoute(
             onToleranceV = lineStakeoutViewModel::setToleranceV,
             onElevation = lineStakeoutViewModel::setDesignElevation,
             onUseLineElevation = { lineStakeoutViewModel.useLineElevation() },
+            onElevationSource = { lineStakeoutViewModel.setElevationSource(it) }, // S042/RF-25
         ),
         onStakeoutElement = {
             // S041/RF-1, RF-2: "Replantear" en la ficha de un elemento del dibujo.
@@ -494,6 +495,7 @@ fun ProjectViewRoute(
             onToleranceV = stakeoutViewModel::setToleranceV,
             onElevation = stakeoutViewModel::setDesignElevation,
             onUseDesignElevation = stakeoutViewModel::useDesignPointElevation,
+            onElevationSource = stakeoutViewModel::setElevationSource, // S042/RF-25
         ),
     )
 }
