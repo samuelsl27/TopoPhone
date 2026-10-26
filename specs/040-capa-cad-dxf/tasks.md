@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/formatos`: `generar_dxf.py` con los ficheros de `fixtures/formatos/dxf/` (R12, R2000, R2010 y R2018; con y sin bloques anidados, arcos, círculos, splines y polilíneas con bulge; capas apagadas y congeladas; un DWG y un DXF binario) y lo esperado de cada uno, con las conversiones de sistema (ETRS89, REGCAN95 y ED50, otro huso) calculadas con pyproj y los puntos exactos de las curvas. (RF-2 a RF-4, RF-6, RF-14, RF-15, RF-33)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `CadDrawing`, `DesignLayer`, `DesignLayerKind`, `CadEntityKind`, `CadEntityRef`, `CadColor`, `CadImportOptions`, `CadSourceCrs`, `CadImportSummary` y `CadIgnoredReason`. (RF-7, RF-8, RF-16, RF-18, RF-23)
+- [x] T2. `core:model`: `CadDrawing`, `DesignLayer`, `DesignLayerKind`, `CadEntityKind`, `CadEntityRef`, `CadColor`, `CadImportOptions`, `CadSourceCrs`, `CadImportSummary` y `CadIgnoredReason`. (RF-7, RF-8, RF-16, RF-18, RF-23)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto de la spec (sistema del proyecto, usar las cotas).
 - [ ] T3. `core:model`: `CadChunkCodec`, los elementos de un trozo a bytes y al revés. (RF-19, RF-22, RF-23)
       Hecho cuando: `CadChunkCodecTest` en verde: cada tipo, con y sin Z y con color, sin redondear, y un trozo de 256 kB.
