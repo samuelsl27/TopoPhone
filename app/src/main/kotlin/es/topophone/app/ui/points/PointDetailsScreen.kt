@@ -61,6 +61,7 @@ import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.BaseSource
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.HistoryItem
 import es.topophone.core.model.point.HistoryLine
 import es.topophone.core.model.point.Measurement
@@ -552,6 +553,22 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
         CoordinateRow(stringResource(R.string.point_stakeout_diff_distance), length(ref.dHorizontalM), "point_stakeout_diff_d")
         ref.dLateralM?.let {
             CoordinateRow(stringResource(R.string.point_stakeout_diff_lateral), signed(it), "point_stakeout_diff_lateral")
+        }
+        // S042/RF-30: contra qué cota se replanteó y, con la superficie, de cuál, su cota en lo medido y el desplazamiento vertical.
+        ref.elevationSource?.let { source ->
+            val label = if (source == ElevationSource.SURFACE) R.string.stakeout_source_surface else R.string.stakeout_source_point
+            CoordinateRow(stringResource(R.string.point_stakeout_source), stringResource(label), "point_stakeout_source")
+        }
+        if (ref.usedSurface || ref.outsideSurface) {
+            CoordinateRow(stringResource(R.string.point_stakeout_surface), ref.surfaceName.orEmpty(), "point_stakeout_surface")
+            CoordinateRow(
+                stringResource(R.string.point_stakeout_surface_elevation),
+                ref.surfaceElevationM?.let(::length) ?: stringResource(R.string.stakeout_level_outside_surface),
+                "point_stakeout_surface_elevation",
+            )
+            ref.verticalOffsetM?.let {
+                CoordinateRow(stringResource(R.string.point_stakeout_vertical_offset), signed(it), "point_stakeout_vertical_offset")
+            }
         }
         CoordinateRow(
             stringResource(R.string.point_stakeout_diff_height),

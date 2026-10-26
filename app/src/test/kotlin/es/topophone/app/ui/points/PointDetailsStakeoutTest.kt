@@ -12,6 +12,7 @@ import es.topophone.app.ui.points.PointFixtures.measured
 import es.topophone.app.ui.points.PointFixtures.staked
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.StakeSource
@@ -249,5 +250,73 @@ class PointDetailsStakeoutTest {
         compose.onNodeWithTag("point_stakeout_element").assertDoesNotExist()
         compose.onNodeWithTag("point_stakeout_mode").assertDoesNotExist()
         compose.onNodeWithTag("point_stakeout_diff_lateral").assertDoesNotExist()
+    }
+
+    private fun againstSurface(project: Project = project()): PointDetailsUiState {
+        val base = staked("12_stkd")
+        val ref = base.staked!!.copy(
+            designElevationM = 601.55,
+            dHeightM = -0.0123,
+            toleranceHM = 0.025,
+            toleranceVM = 0.03,
+            withinTolerance = true,
+            elevationSource = ElevationSource.SURFACE,
+            surfaceName = "terreno",
+            surfaceImportedAtMs = 1_000L,
+            surfaceElevationM = 601.25,
+            verticalOffsetM = 0.3,
+        )
+        return PointDetailsUiState(project, base.copy(staked = ref))
+    }
+
+    @Test
+    fun `S042 RF-30 la ficha de un replanteo contra la superficie da el origen, la superficie, su cota y el desplazamiento`() {
+        show(againstSurface())
+
+        compose.onNodeWithTag("point_stakeout_source").performScrollTo().shows("Superficie")
+        compose.onNodeWithTag("point_stakeout_surface").performScrollTo().shows("terreno")
+        compose.onNodeWithTag("point_stakeout_surface_elevation").performScrollTo().shows("601,250 m")
+        compose.onNodeWithTag("point_stakeout_vertical_offset").performScrollTo().shows("+0,300 m")
+        compose.onNodeWithTag("point_stakeout_elevation").performScrollTo().shows("601,550 m")
+        compose.onNodeWithTag("point_stakeout_level").performScrollTo().shows("En cota")
+    }
+
+    @Test
+    fun `S042 RF-30 la cota de la superficie y el desplazamiento van en la unidad del proyecto`() {
+        show(againstSurface(project(LinearUnit.INTERNATIONAL_FOOT)))
+
+        compose.onNodeWithTag("point_stakeout_vertical_offset").performScrollTo().shows("+0,984 ft")
+    }
+
+    @Test
+    fun `S042 RF-30 fuera de la superficie la ficha lo dice y no da ninguna cota`() {
+        val base = staked("12_stkd", dHeightM = null)
+        val ref = base.staked!!.copy(surfaceName = "terreno", surfaceImportedAtMs = 1_000L, verticalOffsetM = 0.3)
+        show(PointDetailsUiState(project(), base.copy(staked = ref)))
+
+        compose.onNodeWithTag("point_stakeout_surface").performScrollTo().shows("terreno")
+        compose.onNodeWithTag("point_stakeout_surface_elevation").performScrollTo().shows("Fuera de la superficie")
+        compose.onNodeWithTag("point_stakeout_source").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_elevation").performScrollTo().shows("Sin cota")
+    }
+
+    @Test
+    fun `S042 RF-30 con la cota del punto y una superficie activa solo se ve el origen`() {
+        val base = staked("12_stkd")
+        show(PointDetailsUiState(project(), base.copy(staked = base.staked!!.copy(elevationSource = ElevationSource.POINT))))
+
+        compose.onNodeWithTag("point_stakeout_source").performScrollTo().shows("Cota del punto")
+        compose.onNodeWithTag("point_stakeout_surface").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_surface_elevation").assertDoesNotExist()
+    }
+
+    @Test
+    fun `S042 RF-30 un replanteo sin superficie no tiene filas de superficie`() {
+        show(PointDetailsUiState(project(), staked("12_stkd")))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_source").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_surface").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_vertical_offset").assertDoesNotExist()
     }
 }

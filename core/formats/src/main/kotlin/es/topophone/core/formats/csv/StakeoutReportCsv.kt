@@ -29,13 +29,16 @@ object StakeoutReportCsv {
     /** Si el punto de diseño era un elemento de un dibujo: el dibujo, la capa, el tipo de elemento, el modo, el PK y el desplazamiento (S041/RF-30). */
     private val DRAWING_HEADERS = listOf("Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset")
 
+    /** Si se replanteó con una superficie activa: el origen de la cota, la superficie, su cota en lo medido y el desplazamiento vertical (S042/RF-31). */
+    private val SURFACE_HEADERS = listOf("Elevation source", "Surface", "Surface elevation", "Vertical offset")
+
     /** Las cabeceras: con un SC geográfico, la latitud y la longitud en lugar del Este y el Norte (S019/RF-22). */
     fun headers(crs: ProjectCrs): List<String> {
         val first = if (crs.isUtm) "easting" to "northing" else "latitude" to "longitude"
         return listOf("Design name", "Stakeout number", "Staked name", "Description") +
             listOf("Design ${first.first}", "Design ${first.second}", "Design elevation") +
             listOf("Measured ${first.first}", "Measured ${first.second}", "Measured elevation") +
-            TAIL_HEADERS + DRAWING_HEADERS
+            TAIL_HEADERS + DRAWING_HEADERS + SURFACE_HEADERS
     }
 
     /** Escribe el informe de [rows] en [out]; falla si el separador y el signo decimal son los dos la coma (S012/RF-14). */
@@ -62,6 +65,14 @@ object StakeoutReportCsv {
             length(ref.lateralOffsetM),
         )
     }
+
+    /** Las cuatro columnas de la superficie, vacías en un replanteo sin superficie activa (S042/RF-31). */
+    private fun surfaceValues(ref: StakeoutRef, length: (Double?) -> String): List<String> = listOf(
+        ref.elevationSource?.name.orEmpty(),
+        ref.surfaceName.orEmpty(),
+        length(ref.surfaceElevationM),
+        length(ref.verticalOffsetM),
+    )
 
     private fun values(row: StakeoutReportRow, project: Project, decimal: DecimalSeparator): List<String> {
         val unit = project.linearUnit
@@ -92,6 +103,6 @@ object StakeoutReportCsv {
                 row.last.toString(),
                 measurement?.quality?.solution.orEmpty(),
                 measurement?.measuredFromMs?.let(CsvExport::utc).orEmpty(),
-            ) + drawingValues(ref, ::length)
+            ) + drawingValues(ref, ::length) + surfaceValues(ref, ::length)
     }
 }

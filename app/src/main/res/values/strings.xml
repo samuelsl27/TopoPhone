@@ -1214,6 +1214,10 @@
     <string name="point_stakeout_chainage">PK</string>
     <string name="point_stakeout_offset">Desplazamiento lateral</string>
     <string name="point_stakeout_diff_lateral">Error lateral</string>
+    <string name="point_stakeout_source">Origen de la cota</string>
+    <string name="point_stakeout_surface">Superficie</string>
+    <string name="point_stakeout_surface_elevation">Cota de la superficie</string>
+    <string name="point_stakeout_vertical_offset">Desplazamiento vertical</string>
 
     <!-- S042: importar una superficie de un LandXML -->
     <string name="surface_import_title">Importar superficie</string>

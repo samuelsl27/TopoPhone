@@ -1202,6 +1202,10 @@
     <string name="point_stakeout_chainage">Chainage</string>
     <string name="point_stakeout_offset">Lateral offset</string>
     <string name="point_stakeout_diff_lateral">Lateral error</string>
+    <string name="point_stakeout_source">Elevation source</string>
+    <string name="point_stakeout_surface">Surface</string>
+    <string name="point_stakeout_surface_elevation">Surface elevation</string>
+    <string name="point_stakeout_vertical_offset">Vertical offset</string>
 
     <!-- S042: import a surface from a LandXML -->
     <string name="surface_import_title">Import surface</string>
