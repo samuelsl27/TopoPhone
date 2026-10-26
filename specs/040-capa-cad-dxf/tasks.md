@@ -22,7 +22,7 @@
       Hecho cuando: `DxfBlocksTest` en verde: escala negativa, ciclos, profundidad máxima, capa `0` y BYBLOCK, y el punto de inserción.
 - [x] T10. `core:formats`: `DxfReader` y `DxfSink`, el recorrido completo, los ignorados por tipo y el fichero cortado. (RF-13, RF-14, RF-16)
       Hecho cuando: `DxfReaderTest` en verde con los fixtures R12, R2000, R2010 y R2018, un fichero cortado, un elemento roto y un fichero sin ningún elemento.
-- [ ] T11. `core:survey`: `CadProjector`, de las coordenadas del dibujo a las del proyecto. (RF-6, RF-7, RF-17, RF-21)
+- [x] T11. `core:survey`: `CadProjector`, de las coordenadas del dibujo a las del proyecto. (RF-6, RF-7, RF-17, RF-21)
       Hecho cuando: `CadProjectorTest` en verde frente a pyproj (≤ 1 mm; ida y vuelta ≤ 0,1 mm) en ETRS89, REGCAN95 y ED50 y otro huso, con metros, pies y pies topográficos, fuera del ámbito y la altura sin convertir.
 - [ ] T12. `core:survey`: `DesignHitTest`, el elemento más cercano a un toque. (RF-29)
       Hecho cuando: `DesignHitTestTest` en verde: tolerancia, vértice y segmento, y los puntos del proyecto con preferencia.
