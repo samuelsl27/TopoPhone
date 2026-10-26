@@ -18,7 +18,7 @@ import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.CadProjection
 import es.topophone.core.survey.CadProjector
-import java.io.FilterInputStream
+import es.topophone.data.io.CountingInputStream
 import java.io.InputStream
 import java.util.UUID
 import kotlin.math.floor
@@ -66,7 +66,7 @@ class CadDrawingImporter(
         withContext(Dispatchers.IO) {
             val job = currentCoroutineContext()
             val sink = DxfExtentSink()
-            val result = Counting(openStream(), onProgress, job::ensureActive).use { DxfReader.read(it, unit, sink) }
+            val result = CountingInputStream(openStream(), onProgress, job::ensureActive).use { DxfReader.read(it, unit, sink) }
             CadScan(sink.extent, sink.count, result.header.declaredUnit, result.complete)
         }
 
@@ -99,7 +99,7 @@ class CadDrawingImporter(
             writing { repository.begin(drawing) }
             begun = true
             val sink = ImportSink(drawingId, CadProjector(crs, options), geographic = crs.utmZone == null, onCheck = job::ensureActive)
-            val read = Counting(openStream(), onProgress, job::ensureActive).use { DxfReader.read(it, options.unit, sink) }
+            val read = CountingInputStream(openStream(), onProgress, job::ensureActive).use { DxfReader.read(it, options.unit, sink) }
             job.ensureActive()
             sink.flushAll()
             peakBufferedBytes = sink.peakBuffered
@@ -132,31 +132,6 @@ class CadDrawingImporter(
         throw e
     } catch (e: Exception) {
         throw WriteFailure(e)
-    }
-
-    /** Cuenta los bytes leídos, los avisa y comprueba la cancelación cada vez que se rellena el búfer. */
-    private class Counting(input: InputStream, private val onProgress: (Long) -> Unit, private val check: () -> Unit) :
-        FilterInputStream(input) {
-        private var total = 0L
-        private var lastReported = 0L
-
-        override fun read(): Int = super.read().also { if (it >= 0) advance(1) }
-
-        override fun read(b: ByteArray, off: Int, len: Int): Int = super.read(b, off, len).also { if (it > 0) advance(it.toLong()) }
-
-        private fun advance(n: Long) {
-            total += n
-            if (total - lastReported >= REPORT_EVERY || n < 0) {
-                lastReported = total
-                check()
-                onProgress(total)
-            }
-        }
-
-        override fun close() {
-            onProgress(total) // el último aviso es siempre el tamaño leído entero
-            super.close()
-        }
     }
 
     private class LayerState(val id: String, val position: Int, var count: Int = 0)
@@ -349,6 +324,5 @@ class CadDrawingImporter(
 
         /** Lo que el bloque de un trozo gasta en su cabecera (el número de elementos). */
         private const val CHUNK_HEADER_BYTES = 8
-        private const val REPORT_EVERY = 64 * 1024
     }
 }

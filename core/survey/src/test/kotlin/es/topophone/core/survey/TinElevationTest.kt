@@ -4,6 +4,7 @@ import es.topophone.core.model.surface.SurfaceExtent
 import es.topophone.core.model.surface.SurfaceTile
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
@@ -95,6 +96,24 @@ class TinElevationTest {
         TinElevation.at(tile, 9.0, 9.0).shouldBeNull()
         TinElevation.at(tile, -0.5, 1.0).shouldBeNull()
         TinElevation.at(tile, 6.0, 6.0).shouldBeNull()
+    }
+
+    @Test
+    fun `S042 RF-22 un punto a menos de 1 mm del borde cuenta como dentro y a mas de 1 mm no`() {
+        val tile = SurfaceTile(
+            doubleArrayOf(0.0, 100.0, 0.0),
+            doubleArrayOf(0.0, 0.0, 100.0),
+            doubleArrayOf(100.0, 110.0, 120.0),
+            intArrayOf(0, 1, 2),
+        )
+
+        TinElevation.at(tile, 50.0, -0.0004).shouldNotBeNull()
+        TinElevation.at(tile, -0.0004, 50.0).shouldNotBeNull()
+        TinElevation.at(tile, -0.0003, -0.0003).shouldNotBeNull()
+        TinElevation.at(tile, 50.0, -0.005).shouldBeNull()
+        TinElevation.at(tile, -0.005, 50.0).shouldBeNull()
+        TinElevation.at(tile, 50.003, 50.003).shouldBeNull()
+        TinElevation.at(tile, 50.0, -0.0004)!! shouldBe (105.0 plusOrMinus 1e-3)
     }
 
     @Test

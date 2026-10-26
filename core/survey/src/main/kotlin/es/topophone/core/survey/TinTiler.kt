@@ -3,6 +3,8 @@ package es.topophone.core.survey
 import es.topophone.core.model.surface.SurfaceExtent
 import es.topophone.core.model.surface.SurfaceTile
 import es.topophone.core.model.surface.SurfaceTileCodec
+import kotlin.math.abs
+import kotlin.math.hypot
 
 /** Una tesela con el recuadro de su celda: la zona del plano de la que da la cota (S042, plan A3). */
 class TinCell(val region: SurfaceExtent, val tile: SurfaceTile)
@@ -176,8 +178,11 @@ class TinDirectory(private val regions: List<SurfaceExtent>) {
 
 /** La cota de una tesela en una posición, por interpolación lineal en el triángulo que la contiene (S042/RF-22). */
 object TinElevation {
-    /** Holgura de las coordenadas baricéntricas en los bordes: una arista o un vértice compartido no caen en un hueco. */
-    private const val EDGE_TOLERANCE = 1e-9
+    /**
+     * Un punto a menos de esta distancia del borde de un triángulo cuenta como dentro: una arista o un vértice compartido no caen en un
+     * hueco ni un vértice del contorno queda fuera por unas micras de redondeo al convertir. 1 mm, como las tolerancias del proyecto.
+     */
+    private const val EDGE_TOLERANCE_M = 1e-3
 
     /** La cota de la superficie en la posición, o null si ningún triángulo de la tesela la contiene. */
     fun at(tile: SurfaceTile, easting: Double, northing: Double): Double? {
@@ -205,10 +210,13 @@ object TinElevation {
         val w1 = ((nb - nc) * (e - ec) + (ec - eb) * (n - nc)) / det
         val w2 = ((nc - na) * (e - ec) + (ea - ec) * (n - nc)) / det
         val w3 = 1.0 - w1 - w2
-        if (w1 < -EDGE_TOLERANCE || w2 < -EDGE_TOLERANCE || w3 < -EDGE_TOLERANCE) return null
+        val area2 = abs(det)
+        if (w1 < 0 && -w1 * area2 > EDGE_TOLERANCE_M * hypot(eb - ec, nb - nc)) return null
+        if (w2 < 0 && -w2 * area2 > EDGE_TOLERANCE_M * hypot(ec - ea, nc - na)) return null
+        if (w3 < 0 && -w3 * area2 > EDGE_TOLERANCE_M * hypot(ea - eb, na - nb)) return null
         return w1 * tile.height[a] + w2 * tile.height[b] + w3 * tile.height[c]
     }
 
-    /** Un margen de un milímetro en el recuadro del triángulo, para no descartar de antemano un punto del borde. */
-    private const val EDGE_BOX = 1e-3
+    /** El margen del recuadro del triángulo, para no descartar de antemano un punto del borde. */
+    private const val EDGE_BOX = EDGE_TOLERANCE_M
 }
