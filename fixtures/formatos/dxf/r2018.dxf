@@ -1,0 +1,760 @@
+999
+Generado por tools/formatos/generar_dxf.py
+  0
+SECTION
+  2
+HEADER
+  9
+$ACADVER
+  1
+AC1032
+  9
+$INSUNITS
+ 70
+6
+  9
+$DWGCODEPAGE
+  3
+ANSI_1252
+  9
+$EXTMIN
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$EXTMAX
+ 10
+1.0
+ 20
+1.0
+ 30
+0.0
+  0
+ENDSEC
+  0
+SECTION
+  2
+TABLES
+  0
+TABLE
+  2
+LAYER
+  5
+101
+100
+AcDbSymbolTable
+ 70
+5
+  0
+LAYER
+  5
+102
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+0
+ 70
+0
+ 62
+7
+  6
+CONTINUOUS
+  0
+LAYER
+  5
+103
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+Eje-Zanja
+ 70
+0
+ 62
+1
+  6
+CONTINUOUS
+  0
+LAYER
+  5
+104
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+Acera ñandú
+ 70
+0
+ 62
+5
+  6
+CONTINUOUS
+  0
+LAYER
+  5
+105
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+Pozos
+ 70
+0
+ 62
+3
+  6
+CONTINUOUS
+  0
+LAYER
+  5
+106
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+Curvas
+ 70
+0
+ 62
+6
+  6
+CONTINUOUS
+  0
+ENDTAB
+  0
+ENDSEC
+  0
+SECTION
+  2
+BLOCKS
+  0
+BLOCK
+  5
+107
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+*Model_Space
+ 70
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+*Model_Space
+  1
+
+  0
+ENDBLK
+  5
+108
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+109
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+*Paper_Space
+ 70
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+*Paper_Space
+  1
+
+  0
+ENDBLK
+  5
+10A
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+10B
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+POZO
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+POZO
+  1
+
+  0
+LINE
+  5
+10C
+100
+AcDbEntity
+  8
+0
+ 62
+0
+100
+AcDbLine
+ 10
+0.0
+ 20
+0.0
+ 11
+2.0
+ 21
+0.0
+  0
+POINT
+  5
+10D
+100
+AcDbEntity
+  8
+0
+100
+AcDbPoint
+ 10
+0.0
+ 20
+0.0
+  0
+ENDBLK
+  5
+10E
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+ENDSEC
+  0
+SECTION
+  2
+ENTITIES
+  0
+POINT
+  5
+10F
+100
+AcDbEntity
+  8
+Pozos
+100
+AcDbPoint
+ 10
+440010.0
+ 20
+4474010.0
+ 30
+646.5
+  0
+POINT
+  5
+110
+100
+AcDbEntity
+  8
+Pozos
+100
+AcDbPoint
+ 10
+440020.0
+ 20
+4474015.0
+  0
+LINE
+  5
+111
+100
+AcDbEntity
+  8
+Eje-Zanja
+100
+AcDbLine
+ 10
+440000.0
+ 20
+4474000.0
+ 11
+440100.0
+ 21
+4474050.0
+  0
+LINE
+  5
+112
+100
+AcDbEntity
+  8
+Eje-Zanja
+100
+AcDbLine
+ 10
+440100.0
+ 20
+4474050.0
+ 30
+650.0
+ 11
+440150.0
+ 21
+4474060.0
+ 31
+652.5
+  0
+LWPOLYLINE
+  5
+113
+100
+AcDbEntity
+  8
+Acera ñandú
+100
+AcDbPolyline
+ 90
+4
+ 70
+1
+ 10
+440030.0
+ 20
+4474000.0
+ 42
+0.5
+ 10
+440060.0
+ 20
+4474000.0
+ 10
+440060.0
+ 20
+4474020.0
+ 42
+-0.25
+ 10
+440030.0
+ 20
+4474020.0
+  0
+POLYLINE
+  5
+114
+100
+AcDbEntity
+  8
+Acera ñandú
+100
+AcDb3dPolyline
+ 66
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 70
+8
+  0
+VERTEX
+  5
+115
+100
+AcDbEntity
+  8
+Acera ñandú
+100
+AcDbVertex
+100
+AcDb3dPolylineVertex
+ 10
+440000.0
+ 20
+4474080.0
+ 30
+640.0
+ 70
+32
+  0
+VERTEX
+  5
+116
+100
+AcDbEntity
+  8
+Acera ñandú
+100
+AcDbVertex
+100
+AcDb3dPolylineVertex
+ 10
+440040.0
+ 20
+4474090.0
+ 30
+641.25
+ 70
+32
+  0
+VERTEX
+  5
+117
+100
+AcDbEntity
+  8
+Acera ñandú
+100
+AcDbVertex
+100
+AcDb3dPolylineVertex
+ 10
+440080.0
+ 20
+4474085.0
+ 30
+643.5
+ 70
+32
+  0
+SEQEND
+  5
+118
+100
+AcDbEntity
+  8
+Acera ñandú
+  0
+ARC
+  5
+119
+100
+AcDbEntity
+  8
+Curvas
+100
+AcDbCircle
+ 10
+440050.0
+ 20
+4474120.0
+ 30
+0.0
+ 40
+120.0
+100
+AcDbArc
+ 50
+20.0
+ 51
+140.0
+  0
+CIRCLE
+  5
+11A
+100
+AcDbEntity
+  8
+Curvas
+100
+AcDbCircle
+ 10
+440100.0
+ 20
+4474100.0
+ 30
+0.0
+ 40
+25.0
+  0
+INSERT
+  5
+11B
+100
+AcDbEntity
+  8
+Pozos
+ 62
+3
+100
+AcDbBlockReference
+  2
+POZO
+ 10
+440070.0
+ 20
+4474070.0
+  0
+LWPOLYLINE
+  5
+11C
+100
+AcDbEntity
+  8
+Acera ñandú
+100
+AcDbPolyline
+ 90
+3
+ 70
+0
+ 38
+645.0
+ 10
+440010.0
+ 20
+4474130.0
+ 42
+0.3
+ 10
+440050.0
+ 20
+4474130.0
+ 10
+440070.0
+ 20
+4474150.0
+  0
+SPLINE
+  5
+11D
+100
+AcDbEntity
+  8
+Curvas
+100
+AcDbSpline
+210
+0.0
+220
+0.0
+230
+1.0
+ 70
+8
+ 71
+3
+ 72
+10
+ 73
+6
+ 74
+0
+ 40
+0.0
+ 40
+0.0
+ 40
+0.0
+ 40
+0.0
+ 40
+1.0
+ 40
+2.0
+ 40
+3.0
+ 40
+3.0
+ 40
+3.0
+ 40
+3.0
+ 10
+440000.0
+ 20
+4474150.0
+ 30
+0.0
+ 10
+440020.0
+ 20
+4474190.0
+ 30
+0.0
+ 10
+440050.0
+ 20
+4474170.0
+ 30
+0.0
+ 10
+440080.0
+ 20
+4474200.0
+ 30
+0.0
+ 10
+440110.0
+ 20
+4474175.0
+ 30
+0.0
+ 10
+440140.0
+ 20
+4474190.0
+ 30
+0.0
+  0
+SPLINE
+  5
+11E
+100
+AcDbEntity
+  8
+Curvas
+100
+AcDbSpline
+210
+0.0
+220
+0.0
+230
+1.0
+ 70
+12
+ 71
+3
+ 72
+10
+ 73
+6
+ 74
+0
+ 40
+0.0
+ 40
+0.0
+ 40
+0.0
+ 40
+0.0
+ 40
+1.0
+ 40
+2.0
+ 40
+3.0
+ 40
+3.0
+ 40
+3.0
+ 40
+3.0
+ 41
+1.0
+ 41
+2.0
+ 41
+1.0
+ 41
+0.5
+ 41
+1.0
+ 41
+1.0
+ 10
+440000.0
+ 20
+4474210.0
+ 30
+0.0
+ 10
+440020.0
+ 20
+4474250.0
+ 30
+0.0
+ 10
+440050.0
+ 20
+4474230.0
+ 30
+0.0
+ 10
+440080.0
+ 20
+4474260.0
+ 30
+0.0
+ 10
+440110.0
+ 20
+4474235.0
+ 30
+0.0
+ 10
+440140.0
+ 20
+4474250.0
+ 30
+0.0
+  0
+CIRCLE
+  5
+11F
+100
+AcDbEntity
+  8
+Curvas
+100
+AcDbCircle
+ 10
+440200.0
+ 20
+4474010.0
+ 30
+0.0
+ 40
+0.005
+  0
+ENDSEC
+  0
+EOF

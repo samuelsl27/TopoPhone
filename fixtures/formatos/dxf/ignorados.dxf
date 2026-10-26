@@ -1,0 +1,462 @@
+  0
+SECTION
+  2
+HEADER
+  9
+$ACADVER
+  1
+AC1015
+  9
+$INSUNITS
+ 70
+6
+  9
+$DWGCODEPAGE
+  3
+ANSI_1252
+  9
+$EXTMIN
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$EXTMAX
+ 10
+1.0
+ 20
+1.0
+ 30
+0.0
+  0
+ENDSEC
+  0
+SECTION
+  2
+TABLES
+  0
+TABLE
+  2
+LAYER
+  5
+101
+100
+AcDbSymbolTable
+ 70
+2
+  0
+LAYER
+  5
+102
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+0
+ 70
+0
+ 62
+7
+  6
+CONTINUOUS
+  0
+LAYER
+  5
+103
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+Ejes
+ 70
+0
+ 62
+1
+  6
+CONTINUOUS
+  0
+ENDTAB
+  0
+ENDSEC
+  0
+SECTION
+  2
+BLOCKS
+  0
+BLOCK
+  5
+104
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+*Model_Space
+ 70
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+*Model_Space
+  1
+
+  0
+ENDBLK
+  5
+105
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+106
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+*Paper_Space
+ 70
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+*Paper_Space
+  1
+
+  0
+ENDBLK
+  5
+107
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+ENDSEC
+  0
+SECTION
+  2
+ENTITIES
+  0
+LINE
+  5
+108
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbLine
+ 10
+440000.0
+ 20
+4474000.0
+ 11
+440010.0
+ 21
+4474000.0
+  0
+TEXT
+  5
+109
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbText
+ 10
+440005.0
+ 20
+4474005.0
+ 30
+0.0
+ 40
+2.5
+  1
+P-1
+100
+AcDbText
+  0
+MTEXT
+  5
+10A
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbMText
+ 10
+440006.0
+ 20
+4474006.0
+ 30
+0.0
+ 40
+2.5
+  1
+Cota\P12,5
+  0
+DIMENSION
+  5
+10B
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbDimension
+ 10
+440010.0
+ 20
+4474010.0
+ 30
+0.0
+ 13
+440000.0
+ 23
+4474000.0
+ 33
+0.0
+ 14
+440020.0
+ 24
+4474000.0
+ 34
+0.0
+  0
+HATCH
+  5
+10C
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbHatch
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+210
+0.0
+220
+0.0
+230
+1.0
+  2
+SOLID
+ 91
+1
+ 92
+1
+ 93
+2
+ 72
+1
+ 10
+440000.0
+ 20
+4474000.0
+ 11
+440010.0
+ 21
+4474000.0
+  0
+ELLIPSE
+  5
+10D
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbEllipse
+ 10
+440050.0
+ 20
+4474050.0
+ 30
+0.0
+ 11
+20.0
+ 21
+0.0
+ 31
+0.0
+210
+0.0
+220
+0.0
+230
+1.0
+ 40
+0.5
+ 41
+0.0
+ 42
+6.283185307
+  0
+SOLID
+  5
+10E
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbTrace
+ 10
+440000.0
+ 20
+4474000.0
+ 30
+0.0
+ 11
+440001.0
+ 21
+4474000.0
+ 31
+0.0
+ 12
+440000.0
+ 22
+4474001.0
+ 32
+0.0
+ 13
+440001.0
+ 23
+4474001.0
+ 33
+0.0
+  0
+3DFACE
+  5
+10F
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbFace
+ 10
+440000.0
+ 20
+4474000.0
+ 30
+5.0
+ 11
+440001.0
+ 21
+4474000.0
+ 31
+5.0
+ 12
+440000.0
+ 22
+4474001.0
+ 32
+5.0
+ 13
+440000.0
+ 23
+4474001.0
+ 33
+5.0
+  0
+LEADER
+  5
+110
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbLeader
+  3
+Standard
+ 71
+1
+ 72
+0
+ 76
+2
+ 10
+440000.0
+ 20
+4474000.0
+ 30
+0.0
+ 10
+440010.0
+ 20
+4474010.0
+ 30
+0.0
+  0
+TEXT
+  5
+111
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbText
+ 10
+440005.0
+ 20
+4474005.0
+ 30
+0.0
+ 40
+2.5
+  1
+P-1
+100
+AcDbText
+  0
+POINT
+  5
+112
+100
+AcDbEntity
+  8
+Ejes
+100
+AcDbPoint
+ 10
+440003.0
+ 20
+4474003.0
+  0
+ENDSEC
+  0
+EOF

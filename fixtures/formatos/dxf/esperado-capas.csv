@@ -1,0 +1,53 @@
+# Capas de diseño esperadas de cada DXF (S040). Generado por tools/formatos/generar_dxf.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1; rejilla=es_ign_SPED2ETV2.tif
+archivo,capa,tipo_capa,color,visible,elementos
+r12.dxf,Pozos,POINTS,FF00FF00,SI,4
+r12.dxf,Eje-Zanja,LINES,FFFF0000,SI,2
+r12.dxf,Acera ñandú,LINES,FF0000FF,SI,2
+r12.dxf,Curvas,LINES,FFFF00FF,SI,2
+r12.dxf,Pozos,LINES,FF00FF00,SI,1
+r2000.dxf,Pozos,POINTS,FF00FF00,SI,4
+r2000.dxf,Eje-Zanja,LINES,FFFF0000,SI,2
+r2000.dxf,Acera ñandú,LINES,FF0000FF,SI,3
+r2000.dxf,Curvas,LINES,FFFF00FF,SI,5
+r2000.dxf,Pozos,LINES,FF00FF00,SI,1
+r2010.dxf,Pozos,POINTS,FF00FF00,SI,4
+r2010.dxf,Eje-Zanja,LINES,FFFF0000,SI,2
+r2010.dxf,Acera ñandú,LINES,FF0000FF,SI,3
+r2010.dxf,Curvas,LINES,FFFF00FF,SI,5
+r2010.dxf,Pozos,LINES,FF00FF00,SI,1
+r2018.dxf,Pozos,POINTS,FF00FF00,SI,4
+r2018.dxf,Eje-Zanja,LINES,FFFF0000,SI,2
+r2018.dxf,Acera ñandú,LINES,FF0000FF,SI,3
+r2018.dxf,Curvas,LINES,FFFF00FF,SI,5
+r2018.dxf,Pozos,LINES,FF00FF00,SI,1
+bloques.dxf,Mobiliario,POINTS,FFFFFF00,SI,2
+bloques.dxf,Mobiliario,LINES,FFFFFF00,SI,3
+bloques.dxf,Redes,POINTS,FF00FFFF,SI,17
+bloques.dxf,Redes,LINES,FF00FFFF,SI,8
+capas.dxf,Roja,LINES,FFFF0000,SI,3
+capas.dxf,Apagada,LINES,FF00FF00,NO,1
+capas.dxf,Congelada,LINES,FF0000FF,NO,1
+capas.dxf,Blanca,LINES,AUTO,SI,2
+capas.dxf,Verdadera,LINES,FF336699,SI,1
+capas.dxf,Naranja,LINES,FFFF7F00,SI,2
+capas.dxf,Apagada,POINTS,FF00FF00,NO,1
+capas.dxf,Roja,POINTS,FFFF0000,SI,1
+extrusion-espejo.dxf,Espejo,LINES,FF00FFFF,SI,3
+cotas.dxf,Cotas,POINTS,FFFFFF00,SI,2
+cotas.dxf,Cotas,LINES,FFFFFF00,SI,5
+todo-z-cero.dxf,Plano,POINTS,FFFFFF00,SI,1
+todo-z-cero.dxf,Plano,LINES,FFFFFF00,SI,3
+ignorados.dxf,Ejes,LINES,FFFF0000,SI,1
+ignorados.dxf,Ejes,POINTS,FFFF0000,SI,1
+cortado.dxf,Capa,LINES,FFFF0000,SI,3
+elemento-roto.dxf,Capa,LINES,FFFF0000,SI,4
+fuera-de-ambito.dxf,Capa,LINES,FFFF0000,SI,3
+origen-ed50-utm30.dxf,Origen,POINTS,FF00FF00,SI,4
+origen-ed50-utm30.dxf,Origen,LINES,FF00FF00,SI,1
+origen-etrs89-utm29.dxf,Origen,POINTS,FF00FF00,SI,4
+origen-etrs89-utm29.dxf,Origen,LINES,FF00FF00,SI,1
+origen-etrs89-utm30-pies.dxf,Origen,POINTS,FF00FF00,SI,4
+origen-etrs89-utm30-pies.dxf,Origen,LINES,FF00FF00,SI,1
+origen-etrs89-utm30-pies-us.dxf,Origen,POINTS,FF00FF00,SI,4
+origen-etrs89-utm30-pies-us.dxf,Origen,LINES,FF00FF00,SI,1

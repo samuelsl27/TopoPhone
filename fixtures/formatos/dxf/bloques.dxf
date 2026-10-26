@@ -1,0 +1,554 @@
+  0
+SECTION
+  2
+HEADER
+  9
+$ACADVER
+  1
+AC1015
+  9
+$INSUNITS
+ 70
+6
+  9
+$DWGCODEPAGE
+  3
+ANSI_1252
+  9
+$EXTMIN
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$EXTMAX
+ 10
+1.0
+ 20
+1.0
+ 30
+0.0
+  0
+ENDSEC
+  0
+SECTION
+  2
+TABLES
+  0
+TABLE
+  2
+LAYER
+  5
+101
+100
+AcDbSymbolTable
+ 70
+3
+  0
+LAYER
+  5
+102
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+0
+ 70
+0
+ 62
+7
+  6
+CONTINUOUS
+  0
+LAYER
+  5
+103
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+Mobiliario
+ 70
+0
+ 62
+2
+  6
+CONTINUOUS
+  0
+LAYER
+  5
+104
+100
+AcDbSymbolTableRecord
+100
+AcDbLayerTableRecord
+  2
+Redes
+ 70
+0
+ 62
+4
+  6
+CONTINUOUS
+  0
+ENDTAB
+  0
+ENDSEC
+  0
+SECTION
+  2
+BLOCKS
+  0
+BLOCK
+  5
+105
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+*Model_Space
+ 70
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+*Model_Space
+  1
+
+  0
+ENDBLK
+  5
+106
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+107
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+*Paper_Space
+ 70
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+*Paper_Space
+  1
+
+  0
+ENDBLK
+  5
+108
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+109
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+UNIDAD
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+UNIDAD
+  1
+
+  0
+LINE
+  5
+10A
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.0
+ 20
+0.0
+ 11
+3.0
+ 21
+1.0
+  0
+POINT
+  5
+10B
+100
+AcDbEntity
+  8
+Redes
+100
+AcDbPoint
+ 10
+1.0
+ 20
+1.0
+  0
+ENDBLK
+  5
+10C
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+10D
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+CONJUNTO
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+CONJUNTO
+  1
+
+  0
+LINE
+  5
+10E
+100
+AcDbEntity
+  8
+0
+ 62
+0
+100
+AcDbLine
+ 10
+0.0
+ 20
+0.0
+ 11
+1.0
+ 21
+0.0
+  0
+LINE
+  5
+10F
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+1.0
+ 20
+0.0
+ 11
+1.0
+ 21
+1.0
+  0
+INSERT
+  5
+110
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockReference
+  2
+UNIDAD
+ 10
+1.0
+ 20
+1.0
+ 41
+1.0
+ 42
+0.5
+ 43
+1.0
+ 50
+90.0
+  0
+ENDBLK
+  5
+111
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+112
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+CICLO_A
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+CICLO_A
+  1
+
+  0
+LINE
+  5
+113
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.0
+ 20
+0.0
+ 11
+1.0
+ 21
+1.0
+  0
+INSERT
+  5
+114
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockReference
+  2
+CICLO_B
+ 10
+2.0
+ 20
+0.0
+  0
+ENDBLK
+  5
+115
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+116
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+CICLO_B
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+CICLO_B
+  1
+
+  0
+INSERT
+  5
+117
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockReference
+  2
+CICLO_A
+ 10
+1.0
+ 20
+1.0
+  0
+ENDBLK
+  5
+118
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+ENDSEC
+  0
+SECTION
+  2
+ENTITIES
+  0
+INSERT
+  5
+119
+100
+AcDbEntity
+  8
+Mobiliario
+ 62
+1
+100
+AcDbBlockReference
+  2
+CONJUNTO
+ 10
+440000.0
+ 20
+4474000.0
+ 41
+2.0
+ 42
+2.0
+ 43
+1.0
+ 50
+90.0
+  0
+INSERT
+  5
+11A
+100
+AcDbEntity
+  8
+Redes
+100
+AcDbBlockReference
+  2
+UNIDAD
+ 10
+440050.0
+ 20
+4474000.0
+ 41
+-1.0
+ 42
+1.0
+ 43
+1.0
+  0
+INSERT
+  5
+11B
+100
+AcDbEntity
+  8
+Redes
+100
+AcDbBlockReference
+  2
+UNIDAD
+ 10
+440100.0
+ 20
+4474000.0
+ 30
+10.0
+ 50
+30.0
+ 70
+2
+ 71
+3
+ 44
+5.0
+ 45
+4.0
+  0
+INSERT
+  5
+11C
+100
+AcDbEntity
+  8
+Redes
+100
+AcDbBlockReference
+  2
+CICLO_A
+ 10
+440150.0
+ 20
+4474000.0
+  0
+ENDSEC
+  0
+EOF

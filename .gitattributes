@@ -13,6 +13,8 @@ gradlew text eol=lf
 fixtures/formatos/csv/*.csv -text
 # Ficheros de ejemplo de la importación: BOM, Windows-1252 y CRLF o LF tal como están, byte a byte (S028)
 fixtures/formatos/csv-importacion/* -text
+# DXF de ejemplo de la capa de diseño: CRLF y LF, Windows-1252 y UTF-8, ficheros cortados y binarios, byte a byte (S040)
+fixtures/formatos/dxf/* -text
 
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.nmea.gz filter=lfs diff=lfs merge=lfs -text

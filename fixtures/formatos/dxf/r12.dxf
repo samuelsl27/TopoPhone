@@ -1,0 +1,354 @@
+  0
+SECTION
+  2
+HEADER
+  9
+$ACADVER
+  1
+AC1009
+  9
+$DWGCODEPAGE
+  3
+ANSI_1252
+  9
+$EXTMIN
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  9
+$EXTMAX
+ 10
+1.0
+ 20
+1.0
+ 30
+0.0
+  0
+ENDSEC
+  0
+SECTION
+  2
+TABLES
+  0
+TABLE
+  2
+LAYER
+ 70
+5
+  0
+LAYER
+  2
+0
+ 70
+0
+ 62
+7
+  6
+CONTINUOUS
+  0
+LAYER
+  2
+Eje-Zanja
+ 70
+0
+ 62
+1
+  6
+CONTINUOUS
+  0
+LAYER
+  2
+Acera ñandú
+ 70
+0
+ 62
+5
+  6
+CONTINUOUS
+  0
+LAYER
+  2
+Pozos
+ 70
+0
+ 62
+3
+  6
+CONTINUOUS
+  0
+LAYER
+  2
+Curvas
+ 70
+0
+ 62
+6
+  6
+CONTINUOUS
+  0
+ENDTAB
+  0
+ENDSEC
+  0
+SECTION
+  2
+BLOCKS
+  0
+BLOCK
+  8
+0
+  2
+POZO
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+POZO
+  1
+
+  0
+LINE
+  8
+0
+ 62
+0
+ 10
+0.0
+ 20
+0.0
+ 11
+2.0
+ 21
+0.0
+  0
+POINT
+  8
+0
+ 10
+0.0
+ 20
+0.0
+  0
+ENDBLK
+  8
+0
+  0
+ENDSEC
+  0
+SECTION
+  2
+ENTITIES
+  0
+POINT
+  8
+Pozos
+ 10
+440010.0
+ 20
+4474010.0
+ 30
+646.5
+  0
+POINT
+  8
+Pozos
+ 10
+440020.0
+ 20
+4474015.0
+  0
+LINE
+  8
+Eje-Zanja
+ 10
+440000.0
+ 20
+4474000.0
+ 11
+440100.0
+ 21
+4474050.0
+  0
+LINE
+  8
+Eje-Zanja
+ 10
+440100.0
+ 20
+4474050.0
+ 30
+650.0
+ 11
+440150.0
+ 21
+4474060.0
+ 31
+652.5
+  0
+POLYLINE
+  8
+Acera ñandú
+ 66
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 70
+1
+  0
+VERTEX
+  8
+Acera ñandú
+ 10
+440030.0
+ 20
+4474000.0
+ 30
+0.0
+ 42
+0.5
+  0
+VERTEX
+  8
+Acera ñandú
+ 10
+440060.0
+ 20
+4474000.0
+ 30
+0.0
+  0
+VERTEX
+  8
+Acera ñandú
+ 10
+440060.0
+ 20
+4474020.0
+ 30
+0.0
+ 42
+-0.25
+  0
+VERTEX
+  8
+Acera ñandú
+ 10
+440030.0
+ 20
+4474020.0
+ 30
+0.0
+  0
+SEQEND
+  8
+Acera ñandú
+  0
+POLYLINE
+  8
+Acera ñandú
+ 66
+1
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+ 70
+8
+  0
+VERTEX
+  8
+Acera ñandú
+ 10
+440000.0
+ 20
+4474080.0
+ 30
+640.0
+ 70
+32
+  0
+VERTEX
+  8
+Acera ñandú
+ 10
+440040.0
+ 20
+4474090.0
+ 30
+641.25
+ 70
+32
+  0
+VERTEX
+  8
+Acera ñandú
+ 10
+440080.0
+ 20
+4474085.0
+ 30
+643.5
+ 70
+32
+  0
+SEQEND
+  8
+Acera ñandú
+  0
+ARC
+  8
+Curvas
+ 10
+440050.0
+ 20
+4474120.0
+ 30
+0.0
+ 40
+120.0
+ 50
+20.0
+ 51
+140.0
+  0
+CIRCLE
+  8
+Curvas
+ 10
+440100.0
+ 20
+4474100.0
+ 30
+0.0
+ 40
+25.0
+  0
+INSERT
+  8
+Pozos
+ 62
+3
+  2
+POZO
+ 10
+440070.0
+ 20
+4474070.0
+  0
+ENDSEC
+  0
+EOF
