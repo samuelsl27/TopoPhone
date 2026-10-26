@@ -14,7 +14,7 @@
       Hecho cuando: `LandXmlReaderTest` en verde con las versiones 1.0 a 1.2, identificadores no consecutivos y de texto, `GRID`, sin superficies, varias superficies y las tres unidades.
 - [x] T6. `core:survey`: `TinTiler`, `TinTile` y `TinElevation`, la cota por interpolación lineal en el triángulo que contiene la posición. (RF-22, RF-23, RF-12)
       Hecho cuando: `TinTilerTest` y `TinElevationTest` en verde frente a `fixtures/superficies/` (≤ 1 mm): dentro, arista, vértice, fuera, hueco, triángulo que cruza hojas y hoja partida por tamaño.
-- [ ] T7. `core:survey`: `SurfaceProjector`, la conversión de los puntos al SC y a la unidad del proyecto y la extensión de las cuatro esquinas. (RF-6, RF-7, RF-8)
+- [x] T7. `core:survey`: `SurfaceProjector`, la conversión de los puntos al SC y a la unidad del proyecto y la extensión de las cuatro esquinas. (RF-6, RF-7, RF-8)
       Hecho cuando: `SurfaceProjectorTest` en verde frente a pyproj (≤ 1 mm) con pies, pies topográficos de EE. UU. y otro SC.
 - [ ] T8. `data`: las tablas `surfaces` y `surface_tiles`, las columnas nuevas de `projects` y de `points`, sus DAO y `AutoMigration(14, 15)`. (RNF-T6, RF-14, RF-19, RF-28)
       Hecho cuando: `TopoPhoneDatabaseTest` 14 → 15 en verde: los proyectos, los puntos, los replanteos y los dibujos conservan sus datos y el desplazamiento queda en 0.
