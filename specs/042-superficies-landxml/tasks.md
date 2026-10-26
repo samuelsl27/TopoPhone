@@ -28,7 +28,7 @@
       Hecho cuando: `SurfaceBackupTest` en verde: copia completa, paquete de un proyecto con identificadores nuevos y restauración, con la activa y el desplazamiento.
 - [x] T13. `app`: `SurfaceImportViewModel`, los pasos, los rechazos, la elección de superficie, el SC y la unidad, la lejanía y el nombre repetido. (RF-1 a RF-10, RF-15)
       Hecho cuando: `SurfaceImportViewModelTest` en verde.
-- [ ] T14. `app`: `SurfaceImportScreen`, `SurfaceImportRoute` y «Importar superficie» en los menús, con sus textos en es y en. (RF-1, RF-5, RF-8, RF-13, RNF-T7, RNF-T8)
+- [x] T14. `app`: `SurfaceImportScreen`, `SurfaceImportRoute` y «Importar superficie» en los menús, con sus textos en es y en. (RF-1, RF-5, RF-8, RF-13, RNF-T7, RNF-T8)
       Hecho cuando: `SurfaceImportScreenTest` en verde, con las zonas táctiles de 56 dp y el resumen.
 - [ ] T15. `app`: `SurfacesSheet` y `SurfacesViewModel`, la lista, activar, borrar con confirmación y el desplazamiento vertical. (RF-16 a RF-20)
       Hecho cuando: `SurfacesSheetTest` en verde: activar otra y ninguna, borrar la activa y un desplazamiento que no es un número.

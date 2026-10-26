@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -117,7 +118,7 @@ class TrashTest {
         }
 
         compose.onNodeWithTag(projectMenuTag("p1")).performClick()
-        compose.onNodeWithText(text(R.string.project_delete)).performClick()
+        compose.onNodeWithText(text(R.string.project_delete)).performScrollTo().performClick() // el menú, con más elementos, se desplaza
         compose.onNodeWithText(text(R.string.project_delete_confirm, "Parcela 23")).assertIsDisplayed()
         deleted shouldBe null
         compose.onNodeWithTag(CONFIRM_TAG).performClick()

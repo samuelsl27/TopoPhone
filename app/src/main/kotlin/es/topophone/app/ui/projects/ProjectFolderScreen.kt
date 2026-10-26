@@ -26,6 +26,7 @@ import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.backup.rememberPackageHost
 import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.points.rememberImportPointsLauncher
+import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.Project
@@ -105,6 +106,7 @@ fun ProjectFolderRoute(
     val packages = rememberPackageHost()
     val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
     val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
+    val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
     ProjectFolderScreen(
         themeState,
         onToggleSun,
@@ -120,6 +122,7 @@ fun ProjectFolderRoute(
                 onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
                 onImportPoints = importPoints,
                 onImportDxf = importDxf,
+                onImportSurface = importSurface,
                 onExportPackage = packages.export, // S013/RF-24
             ),
             onNewProject = navigation.onNewProject,

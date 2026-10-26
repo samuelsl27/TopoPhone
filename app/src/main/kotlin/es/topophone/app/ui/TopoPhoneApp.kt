@@ -62,6 +62,7 @@ import es.topophone.app.ui.settings.ProjectDefaultsRoute
 import es.topophone.app.ui.settings.SettingsScreen
 import es.topophone.app.ui.stakeout.StakeoutReportRoute
 import es.topophone.app.ui.status.StatusIndicatorRoute
+import es.topophone.app.ui.surface.SurfaceImportRoute
 import es.topophone.core.model.preferences.ThemeState
 
 /**
@@ -132,6 +133,14 @@ fun TopoPhoneApp(
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.ImportDxf -> CadImportRoute(
+                    page.projectId,
+                    Uri.parse(page.fileUri),
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.ImportSurface -> SurfaceImportRoute(
                     page.projectId,
                     Uri.parse(page.fileUri),
                     theme,
@@ -246,6 +255,8 @@ private fun AppNavHost(
                 onStakeoutReport = { projectId, selection -> navController.navigate(StakeoutReportDestination(projectId, selection)) },
                 onImportPoints = { projectId, fileUri -> navController.navigate(ImportPointsDestination(projectId, fileUri)) }, // S028/RF-1
                 onImportDxf = { projectId, fileUri -> navController.navigate(ImportDxfDestination(projectId, fileUri)) }, // S040/RF-1
+                // S042/RF-1
+                onImportSurface = { projectId, fileUri -> navController.navigate(ImportSurfaceDestination(projectId, fileUri)) },
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onOpenTilt = {
@@ -312,6 +323,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ImportDxfDestination>()
                 surveySection(
                     SurveyPage.ImportDxf(args.projectId, args.fileUri),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ImportSurfaceDestination> { entry ->
+                val args = entry.toRoute<ImportSurfaceDestination>()
+                surveySection(
+                    SurveyPage.ImportSurface(args.projectId, args.fileUri),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

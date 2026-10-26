@@ -25,6 +25,9 @@ import es.topophone.app.ui.points.PointTrashUiState
 import es.topophone.app.ui.stakeout.StakeoutReportActions
 import es.topophone.app.ui.stakeout.StakeoutReportScreen
 import es.topophone.app.ui.stakeout.StakeoutReportUiState
+import es.topophone.app.ui.surface.SurfaceImportActions
+import es.topophone.app.ui.surface.SurfaceImportScreen
+import es.topophone.app.ui.surface.SurfaceImportUiState
 import es.topophone.core.model.preferences.ThemeState
 
 /** Pantallas de la sección Levantamiento (S006). */
@@ -70,6 +73,9 @@ sealed interface SurveyPage {
 
     /** Importar un DXF: el proyecto y la dirección del fichero elegido (S040/RF-1). */
     data class ImportDxf(val projectId: String, val fileUri: String) : SurveyPage
+
+    /** Importar una superficie de un LandXML: el proyecto y la dirección del fichero elegido (S042/RF-1). */
+    data class ImportSurface(val projectId: String, val fileUri: String) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -97,6 +103,8 @@ class SurveyNavigation(
     val onImportPoints: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de importación de un DXF, con el fichero que eligió el usuario (S040/RF-1). */
     val onImportDxf: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
+    /** La pantalla de importación de una superficie, con el fichero que eligió el usuario (S042/RF-1). */
+    val onImportSurface: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
@@ -119,6 +127,7 @@ data class SurveyUiState(
     val stakeoutReport: StakeoutReportUiState = StakeoutReportUiState(loaded = true),
     val import: PointImportUiState = PointImportUiState(),
     val cadImport: CadImportUiState = CadImportUiState(),
+    val surfaceImport: SurfaceImportUiState = SurfaceImportUiState(),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -167,6 +176,8 @@ fun SurveyPageScreen(
         is SurveyPage.Export -> ExportScreen(themeState, onToggleSun, state.export, ExportActions(), navigation.onBack)
         is SurveyPage.ImportPoints -> PointImportScreen(themeState, onToggleSun, state.import, PointImportActions(), navigation.onBack)
         is SurveyPage.ImportDxf -> CadImportScreen(themeState, onToggleSun, state.cadImport, CadImportActions(), navigation.onBack)
+        is SurveyPage.ImportSurface ->
+            SurfaceImportScreen(themeState, onToggleSun, state.surfaceImport, SurfaceImportActions(), navigation.onBack)
         is SurveyPage.StakeoutReport ->
             StakeoutReportScreen(themeState, onToggleSun, state.stakeoutReport, StakeoutReportActions(), navigation.onBack)
     }

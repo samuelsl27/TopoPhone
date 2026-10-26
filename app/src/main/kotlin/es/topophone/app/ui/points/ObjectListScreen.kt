@@ -55,6 +55,7 @@ import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.SurveyNavigation
+import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.point.PointChange
 import es.topophone.core.model.point.PointOrigin
@@ -129,6 +130,8 @@ class ObjectListActions(
     val onImportPoints: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de un DXF (S040/RF-1). */
     val onImportDxf: () -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, la importación de una superficie LandXML (S042/RF-1). */
+    val onImportSurface: () -> Unit = {},
     val onStakeoutReportSelected: () -> Unit = {},
     val onToggleSelection: (String) -> Unit = {},
     val onClearSelection: () -> Unit = {},
@@ -251,6 +254,7 @@ fun ObjectListRoute(
     LaunchedEffect(projectId) { viewModel.start(projectId) }
     val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
     val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
+    val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
     val state by viewModel.state.collectAsStateWithLifecycle()
     ObjectListScreen(
         themeState,
@@ -265,6 +269,7 @@ fun ObjectListRoute(
             onStakeoutReport = { navigation.onStakeoutReport(projectId, false) }, // S019/RF-17
             onImportPoints = { importPoints(projectId) },
             onImportDxf = { importDxf(projectId) },
+            onImportSurface = { importSurface(projectId) },
             onStakeoutReportSelected = {
                 viewModel.exportSelected()
                 navigation.onStakeoutReport(projectId, true) // S019/RF-18
@@ -306,7 +311,14 @@ fun ObjectListScreen(
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
         actions = {
-            ObjectsMenu(actions.onOpenTrash, actions.onExport, actions.onStakeoutReport, actions.onImportPoints, actions.onImportDxf)
+            ObjectsMenu(
+                actions.onOpenTrash,
+                actions.onExport,
+                actions.onStakeoutReport,
+                actions.onImportPoints,
+                actions.onImportDxf,
+                actions.onImportSurface,
+            )
         },
         floatingActionButton = {
             if (state.selected.isEmpty()) {
@@ -365,6 +377,7 @@ private fun ObjectsMenu(
     onStakeoutReport: () -> Unit,
     onImportPoints: () -> Unit,
     onImportDxf: () -> Unit,
+    onImportSurface: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
@@ -395,6 +408,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S040/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.surface_import_title)) },
+            onClick = {
+                open = false
+                onImportSurface()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S042/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.stakeout_report_title)) },
             onClick = {
