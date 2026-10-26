@@ -13,10 +13,12 @@ import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.EntryForm
+import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.LineInputError
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.StakeMode
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TiltMode
@@ -348,6 +350,32 @@ class LineStakeoutViewModel @Inject constructor(
             is LineCheck.Valid -> m.copy(offsetText = text, offsetM = unit.toMetres(check.value), errors = m.errors - LineField.OFFSET)
             is LineCheck.Invalid -> m.copy(offsetText = text, errors = m.errors + (LineField.OFFSET to check.error))
         }
+    }
+
+    /** "Por dirección" o "Por distancia": el mismo ajuste que el replanteo de un punto (S018/RF-5, RF-30; S041/RF-12). */
+    fun setGuideMode(mode: StakeMode): Boolean = change { it.copy(mode = mode) }
+
+    /** El origen del rumbo del usuario (S018/RF-8). */
+    fun setHeading(choice: HeadingChoice): Boolean = change { it.copy(heading = choice) }
+
+    /** La tolerancia escrita en la unidad del proyecto; false si no vale o no se puede cambiar ahora (S018/RF-18, RF-30). */
+    fun setTolerance(text: String): Boolean {
+        if (inProgress.active.value) return false
+        val metres = StakeoutSettings.parseTolerance(text, project?.linearUnit ?: LinearUnit.METRE) ?: return false
+        return change { it.copy(toleranceM = metres) }
+    }
+
+    /** La tolerancia vertical escrita en la unidad del proyecto (S019/RF-10). */
+    fun setToleranceV(text: String): Boolean {
+        if (inProgress.active.value) return false
+        val metres = StakeoutSettings.parseTolerance(text, project?.linearUnit ?: LinearUnit.METRE) ?: return false
+        return change { it.copy(toleranceVM = metres) }
+    }
+
+    private fun change(transform: (StakeoutSettings) -> StakeoutSettings): Boolean {
+        if (inProgress.active.value) return false
+        viewModelScope.launch { stakeoutPreferences.save(transform(stakeoutPreferences.settings.first())) }
+        return true
     }
 
     /** El PK de A escrito en la unidad del proyecto (RF-16). */

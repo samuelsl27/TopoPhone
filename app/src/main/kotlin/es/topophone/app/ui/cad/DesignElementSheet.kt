@@ -94,7 +94,7 @@ private fun length(entity: CadEntity): Double = (0 until entity.vertexCount - 1)
 }
 
 @StringRes
-private fun elementKindLabel(kind: CadEntityKind) = when (kind) {
+internal fun elementKindLabel(kind: CadEntityKind) = when (kind) {
     CadEntityKind.POINT -> R.string.cad_element_point
     CadEntityKind.LINE -> R.string.cad_element_line
     CadEntityKind.POLYLINE -> R.string.cad_element_polyline

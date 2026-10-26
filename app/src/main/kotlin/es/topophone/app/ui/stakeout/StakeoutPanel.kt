@@ -52,8 +52,10 @@ import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.StakeMode
 import es.topophone.core.model.point.StakeoutRef
+import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.model.project.Project
 import es.topophone.core.survey.HeadingResult
 import es.topophone.core.survey.HeadingUnavailable
 import es.topophone.core.survey.StakeZone
@@ -131,7 +133,7 @@ fun StakeoutPanel(
                 // Lo que se desvió el último punto, arriba: es lo que se mira al medir y no debe quedar bajo el pliegue.
                 collector?.savedStake?.let { Result(collector.savedName, it, state) }
                 ModeChoice(state, actions)
-                Guidance(state)
+                Guidance(state.project, state.settings, state.guidance)
                 collector?.let { Messages(it, collectorActions) } // los motivos por los que no se puede medir, avisos y el punto guardado
             }
             if (collector != null) {
@@ -293,13 +295,17 @@ private fun designText(coordinates: PointCoordinates, unit: LinearUnit, symbol: 
 
 /** "Por dirección" o "Por distancia" (S018/RF-5). */
 @Composable
-private fun ModeChoice(state: StakeoutUiState, actions: StakeoutActions) {
+private fun ModeChoice(state: StakeoutUiState, actions: StakeoutActions) = StakeModeChoice(state.settings, state.measuring, actions.onMode)
+
+/** Los dos modos de guía, también en el replanteo de una línea (S041/RF-12). */
+@Composable
+internal fun StakeModeChoice(settings: StakeoutSettings, measuring: Boolean, onMode: (StakeMode) -> Unit) {
     Row(modifier = Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         StakeMode.entries.forEach { mode ->
             FilterChip(
-                selected = state.settings.mode == mode,
-                onClick = { actions.onMode(mode) },
-                enabled = !state.measuring, // S018/RF-30
+                selected = settings.mode == mode,
+                onClick = { onMode(mode) },
+                enabled = !measuring, // S018/RF-30
                 label = { Text(stringResource(mode.textRes())) },
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(stakeModeTag(mode)),
             )
@@ -307,11 +313,20 @@ private fun ModeChoice(state: StakeoutUiState, actions: StakeoutActions) {
     }
 }
 
+/**
+ * La guía con la distancia, la flecha, la diana, el nivel y el estado de la solución (S018/RF-6 a RF-19, S019/RF-6 a RF-8). [extra]
+ * pone lo suyo bajo la distancia: en el replanteo de una línea, el PK, el lado y lo que falta (S041/RF-10 a RF-14).
+ */
 @Composable
-private fun Guidance(state: StakeoutUiState) {
-    val unit = state.project?.linearUnit ?: LinearUnit.METRE
-    val angular = state.project?.angularUnit ?: AngularUnit.DECIMAL_DEGREES
-    when (val guidance = state.guidance) {
+internal fun Guidance(
+    project: Project?,
+    settings: StakeoutSettings,
+    guidance: GuidanceState,
+    extra: (@Composable (GuidanceUi, Numbers) -> Unit)? = null,
+) {
+    val unit = project?.linearUnit ?: LinearUnit.METRE
+    val angular = project?.angularUnit ?: AngularUnit.DECIMAL_DEGREES
+    when (guidance) {
         is GuidanceState.Off -> Text(
             stringResource(guidance.reason.textRes()),
             color = MaterialTheme.colorScheme.error,
@@ -326,7 +341,8 @@ private fun Guidance(state: StakeoutUiState) {
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.testTag(STAKEOUT_DISTANCE_TAG),
             )
-            val byDirection = state.settings.mode == StakeMode.BY_DIRECTION
+            extra?.invoke(ui, numbers)
+            val byDirection = settings.mode == StakeMode.BY_DIRECTION
             val ahead = ui.guidance.aheadM
             val right = ui.guidance.rightM
             val hasArrow = byDirection && ahead != null && right != null // S018/RF-7
@@ -339,15 +355,15 @@ private fun Guidance(state: StakeoutUiState) {
                 if (hasDiana) {
                     // En la zona de ayuda, la diana; con el rumbo del usuario arriba si hay flecha.
                     val headingUp = (ui.heading as? HeadingResult.Available)?.rad?.takeIf { byDirection }
-                    StakeoutDiana(ui, state.settings.validToleranceM, headingUp, Modifier.size(DIANA_SIZE))
+                    StakeoutDiana(ui, settings.validToleranceM, headingUp, Modifier.size(DIANA_SIZE))
                 }
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    GuidanceFigures(state, ui, numbers)
+                    GuidanceFigures(settings, ui, numbers)
                 }
                 // S019/RF-7: el nivel vertical al lado de la diana o de la flecha, a cualquier distancia del punto.
                 ui.level?.let { StakeoutLevelView(it, numbers, Modifier.width(LEVEL_WIDTH).height(DIANA_SIZE)) }
             }
-            GuidanceNotes(state, ui, numbers, angular)
+            GuidanceNotes(settings, ui, numbers, angular)
             Text(
                 stringResource(
                     R.string.stakeout_status,
@@ -365,7 +381,7 @@ private fun Guidance(state: StakeoutUiState) {
  * Lo que dice la guía con cifras, al lado de la flecha y la diana: la llegada y las diferencias (S018/RF-6, RF-7, RF-11, RF-19).
  */
 @Composable
-private fun GuidanceFigures(state: StakeoutUiState, ui: GuidanceUi, numbers: Numbers) {
+private fun GuidanceFigures(settings: StakeoutSettings, ui: GuidanceUi, numbers: Numbers) {
     if (ui.zone == StakeZone.INSIDE) {
         Text(
             stringResource(R.string.stakeout_inside),
@@ -374,7 +390,7 @@ private fun GuidanceFigures(state: StakeoutUiState, ui: GuidanceUi, numbers: Num
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.testTag(STAKEOUT_INSIDE_TAG),
         ) // S018/RF-19: con texto, no solo con color (RNF-T8)
     }
-    if (state.settings.mode == StakeMode.BY_DISTANCE) {
+    if (settings.mode == StakeMode.BY_DISTANCE) {
         Text(
             stringResource(R.string.stakeout_north, numbers.signed(ui.guidance.dNorthM)),
             style = MaterialTheme.typography.titleMedium,
@@ -412,9 +428,9 @@ private fun GuidanceFigures(state: StakeoutUiState, ui: GuidanceUi, numbers: Num
 
 /** El rumbo de la flecha y la diferencia de cota, a todo el ancho: su texto es más largo que el de las cifras (S018/RF-9 a RF-12). */
 @Composable
-private fun GuidanceNotes(state: StakeoutUiState, ui: GuidanceUi, numbers: Numbers, angular: AngularUnit) {
-    if (state.settings.mode == StakeMode.BY_DIRECTION) {
-        Text(headingText(ui.heading, state.settings.heading, angular), modifier = Modifier.testTag(STAKEOUT_HEADING_TAG))
+private fun GuidanceNotes(settings: StakeoutSettings, ui: GuidanceUi, numbers: Numbers, angular: AngularUnit) {
+    if (settings.mode == StakeMode.BY_DIRECTION) {
+        Text(headingText(ui.heading, settings.heading, angular), modifier = Modifier.testTag(STAKEOUT_HEADING_TAG))
     }
     // S019/RF-6, RF-8: "Desmonte", "Terraplén" o "En cota"; sin nivel, por qué falta (RF-5). Sustituye al dato de S018/RF-12.
     ui.level?.let { StakeoutLevelReading(it, numbers) }
@@ -459,7 +475,7 @@ private fun StakeMode.textRes(): Int = when (this) {
     StakeMode.BY_DISTANCE -> R.string.stakeout_mode_distance
 }
 
-private fun GuidanceOff.textRes(): Int = when (this) {
+internal fun GuidanceOff.textRes(): Int = when (this) {
     GuidanceOff.NO_POSITION -> R.string.stakeout_off_no_position
     GuidanceOff.NO_DATA -> R.string.stakeout_off_no_data
     GuidanceOff.NO_FIX -> R.string.stakeout_off_no_fix
@@ -468,7 +484,7 @@ private fun GuidanceOff.textRes(): Int = when (this) {
 
 /** S018 y RNF-T2: la pantalla no se apaga con el replanteo abierto. */
 @Composable
-private fun KeepScreenOn() {
+internal fun KeepScreenOn() {
     val view = LocalView.current
     DisposableEffect(view) {
         view.keepScreenOn = true
