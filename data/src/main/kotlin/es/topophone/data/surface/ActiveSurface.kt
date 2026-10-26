@@ -7,7 +7,9 @@ import es.topophone.core.model.surface.SurfaceHeightSource
 import es.topophone.core.model.surface.SurfaceTile
 import es.topophone.core.survey.TinDirectory
 import es.topophone.core.survey.TinElevation
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -40,15 +43,41 @@ class ActiveSurface(
 ) : SurfaceHeightSource {
     private val directory = TinDirectory(cells.map { it.region })
     private val scope = CoroutineScope(SupervisorJob() + ioDispatcher)
-    private val lock = Any()
-    private val cache = object : LinkedHashMap<Int, SurfaceTile>(cacheSize + 1, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Int, SurfaceTile>?): Boolean = size > cacheSize
+
+    // La lectura de la caché no espera a nadie: [heightAt] se llama con cada época y no puede quedarse esperando a un hilo de carga que
+    // tiene el cerrojo (en Windows, un cuanto del planificador son ~16 ms). Solo escribir (guardar una tesela y expulsar la más antigua) lo usa.
+    private class Entry(val tile: SurfaceTile) {
+        @Volatile var lastUse = 0L
     }
-    private val loading = HashSet<Int>()
+
+    private val writeLock = Any()
+    private val cache = ConcurrentHashMap<Int, Entry>()
+    private val loading: MutableSet<Int> = ConcurrentHashMap.newKeySet()
+    private val clock = AtomicLong()
     private val closed = AtomicBoolean(false)
 
+    // Lo que [heightAt] pide a quien lanza las lecturas: solo una señal sin espera. Lanzar una corrutina al pool de E/S cuesta del orden de
+    // milisegundos, y a la consulta no le corresponde pagarlo (RNF-T13: menos de 16 ms).
+    private sealed interface Request {
+        data class Load(val index: Int) : Request
+
+        data object Neighbours : Request
+    }
+
+    private val requests = Channel<Request>(Channel.UNLIMITED)
+
+    @Volatile private var tipEasting = 0.0
+
+    @Volatile private var tipNorthing = 0.0
+
+    @Volatile private var lastCell = -1
+
+    init {
+        scope.launch { for (request in requests) handle(request) }
+    }
+
     /** Cuántas teselas hay en memoria ahora. */
-    val cachedTiles: Int get() = synchronized(lock) { cache.size }
+    val cachedTiles: Int get() = cache.size
 
     override fun heightAt(easting: Double, northing: Double): SurfaceHeight {
         val candidates = directory.candidates(easting, northing)
@@ -61,47 +90,69 @@ class ActiveSurface(
                 continue
             }
             TinElevation.at(tile, easting, northing)?.let {
-                preload(easting, northing)
+                announce(easting, northing, candidates, urgent = false)
                 return SurfaceHeight.Value(it)
             }
         }
         if (!missing) {
-            preload(easting, northing)
+            announce(easting, northing, candidates, urgent = false)
             return SurfaceHeight.Outside
         }
-        candidates.forEach(::request)
-        preload(easting, northing)
+        for (index in candidates) if (!cache.containsKey(index)) requests.trySend(Request.Load(index))
+        announce(easting, northing, candidates, urgent = true)
         return SurfaceHeight.Loading
     }
 
-    private fun cached(index: Int): SurfaceTile? = synchronized(lock) { cache[index] }
+    private fun cached(index: Int): SurfaceTile? = cache[index]?.also { it.lastUse = clock.incrementAndGet() }?.tile
 
-    /** Pide en segundo plano las teselas vecinas que aún no están, sin pasar de la mitad de la caché de una vez. */
-    private fun preload(easting: Double, northing: Double) {
-        var budget = cacheSize / 2
-        for (index in directory.near(easting, northing, preloadRadiusM)) {
-            if (budget == 0) return
-            if (request(index)) budget--
+    /** Avisa de por dónde va la punta para que se pidan las teselas vecinas, solo si cambió de celda o falta alguna tesela. */
+    private fun announce(easting: Double, northing: Double, candidates: IntArray, urgent: Boolean) {
+        tipEasting = easting
+        tipNorthing = northing
+        if (urgent || candidates[0] != lastCell) {
+            lastCell = candidates[0]
+            requests.trySend(Request.Neighbours)
+        }
+    }
+
+    private fun handle(request: Request) {
+        when (request) {
+            is Request.Load -> launchLoad(request.index)
+            Request.Neighbours -> {
+                // Sin pasar de la mitad de la caché de una vez: lo ya cargado no se expulsa por precargar.
+                var budget = cacheSize / 2
+                for (index in directory.near(tipEasting, tipNorthing, preloadRadiusM)) {
+                    if (budget == 0) break
+                    if (launchLoad(index)) budget--
+                }
+            }
+        }
+    }
+
+    /** Guarda una tesela y, si la caché pasa de su tamaño, expulsa las usadas hace más. */
+    private fun store(index: Int, tile: SurfaceTile) = synchronized(writeLock) {
+        cache[index] = Entry(tile).also { it.lastUse = clock.incrementAndGet() }
+        while (cache.size > cacheSize) {
+            val eldest = cache.entries.minByOrNull { it.value.lastUse } ?: break
+            cache.remove(eldest.key)
         }
     }
 
     /** Lanza la lectura de la tesela [index] si no está en memoria ni se está leyendo; devuelve si la lanzó. */
-    private fun request(index: Int): Boolean {
+    private fun launchLoad(index: Int): Boolean {
         if (closed.get()) return false
-        synchronized(lock) {
-            if (cache.containsKey(index) || !loading.add(index)) return false
-        }
+        if (cache.containsKey(index) || !loading.add(index)) return false
         scope.launch {
             try {
                 val tile = loadTile(cells[index].tileId)
-                if (tile != null) synchronized(lock) { cache[index] = tile }
+                if (tile != null) store(index, tile)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 // Una tesela ilegible no se reintenta en cada época: queda como vacía (sin cota) en lugar de cargando para siempre.
-                synchronized(lock) { cache[index] = EMPTY_TILE }
+                store(index, EMPTY_TILE)
             } finally {
-                synchronized(lock) { loading.remove(index) }
+                loading.remove(index)
             }
         }
         return true
@@ -110,11 +161,10 @@ class ActiveSurface(
     /** Libera la caché y cancela las lecturas en curso. */
     fun close() {
         if (!closed.compareAndSet(false, true)) return
+        requests.close()
         scope.cancel()
-        synchronized(lock) {
-            cache.clear()
-            loading.clear()
-        }
+        cache.clear()
+        loading.clear()
     }
 
     val isClosed: Boolean get() = closed.get()

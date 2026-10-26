@@ -44,7 +44,7 @@
       Hecho cuando: el test de la ficha y `StakeoutReportCsvTest` en verde: columnas vacías sin superficie, `Locale.ROOT`, unidades del proyecto y goldens regenerados.
 - [x] T21. `app`: la cota de la superficie bajo la punta en el recolector, sin guardarla en el punto. (RF-33)
       Hecho cuando: `CollectorSurfaceTest` en verde: dentro, fuera y que el punto medido no lleva nada de la superficie.
-- [ ] T22. Rendimiento: `SurfacePerformanceTest`. (RNF)
+- [x] T22. Rendimiento: `SurfacePerformanceTest`. (RNF)
       Hecho cuando: activar una superficie de 1.000.000 de triángulos da la primera cota en menos de 1 s, la consulta a 10 Hz no pasa de 16 ms y un LandXML de 100 MB generado al vuelo se importa en menos de 90 s sin quedarse sin memoria.
 - [ ] T23. Reproducción sintética `rs3-superficie`: un recorrido que cruza una superficie con un hueco y su resultado esperado calculado aparte. (Criterios de finalización)
       Hecho cuando: el test en verde con la cota, el desmonte o terraplén esperados y el paso por «Fuera de la superficie».

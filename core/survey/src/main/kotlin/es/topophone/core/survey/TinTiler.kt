@@ -79,7 +79,7 @@ object TinTiler {
                 SurfaceExtent(region.minEasting, midE, midN, region.maxNorthing),
                 SurfaceExtent(midE, region.maxEasting, midN, region.maxNorthing),
             )
-            val parts = children.map { child -> ids.filter { touches(it, child) }.toIntArray() }
+            val parts = children.map { child -> touching(ids, child) }
             if (parts.all { it.size == ids.size }) {
                 emit(region, ids, null)
                 return
@@ -105,6 +105,16 @@ object TinTiler {
                 cells += TinCell(region, tile)
                 from += part.size
             }
+        }
+
+        /** Los triángulos de [ids] cuyo recuadro toca [region], sin pasar por listas de enteros en caja (con millones de triángulos son mucha basura). */
+        private fun touching(ids: IntArray, region: SurfaceExtent): IntArray {
+            var count = 0
+            for (id in ids) if (touches(id, region)) count++
+            val out = IntArray(count)
+            var k = 0
+            for (id in ids) if (touches(id, region)) out[k++] = id
+            return out
         }
 
         private fun touches(triangle: Int, region: SurfaceExtent): Boolean {
