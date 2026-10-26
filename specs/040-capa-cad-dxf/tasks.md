@@ -14,7 +14,7 @@
       Hecho cuando: `DxfTagReaderTest` en verde: CRLF, LF y CR, punto decimal con otra región, UTF-8 y página de códigos, nombres con acentos, valor que no es número, y la unidad declarada.
 - [x] T6. `core:formats`: `DxfTables` y `AciPalette`, las capas con su color y su estado, y la resolución del color de un elemento. (RF-24, RF-25, RF-33)
       Hecho cuando: `DxfTablesTest` en verde: ACI, color verdadero, BYLAYER, BYBLOCK, capa `0` en un bloque, capa apagada y congelada, y el blanco y el negro marcados.
-- [ ] T7. `core:formats`: `DxfEntities`, punto, línea, LWPOLYLINE, POLYLINE con VERTEX y SEQEND, arco y círculo, con la extrusión. (RF-14)
+- [x] T7. `core:formats`: `DxfEntities`, punto, línea, LWPOLYLINE, POLYLINE con VERTEX y SEQEND, arco y círculo, con la extrusión. (RF-14)
       Hecho cuando: `DxfEntitiesTest` en verde, con bulge, polilíneas cerradas, 3D y la extrusión (0, 0, −1) frente a lo esperado de `fixtures/`.
 - [ ] T8. `core:formats`: `CadCurves`, arcos, círculos, bulges y splines como polilíneas a menos de 1 cm. (RF-15)
       Hecho cuando: `CadCurvesTest` en verde frente a los puntos exactos de `tools`, con un radio muy grande, uno menor que la tolerancia y una spline racional.

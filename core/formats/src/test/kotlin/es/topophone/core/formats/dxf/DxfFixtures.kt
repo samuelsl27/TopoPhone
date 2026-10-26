@@ -15,6 +15,23 @@ object DxfFixtures {
 
     fun size(name: String): Long = File(folder, name).length()
 
+    /** Lee la cabecera (si la hay) y deja el lector justo después de abrir la sección ENTITIES. */
+    fun skipToEntities(tags: DxfTagReader) {
+        while (true) {
+            val tag = tags.next() ?: return
+            if (tag.code != 0 || tag.value != "SECTION") continue
+            val name = tags.next()?.value ?: return
+            when (name) {
+                "ENTITIES" -> return
+                "HEADER" -> DxfHeaderParser.parse(tags)
+                else -> while (true) {
+                    val inner = tags.next() ?: return
+                    if (inner.code == 0 && inner.value == "ENDSEC") break
+                }
+            }
+        }
+    }
+
     /** Las filas de un CSV de lo esperado, sin los comentarios, como mapas columna → valor. */
     fun expected(name: String): List<Map<String, String>> {
         val lines = File(folder, name).readText().lines().filter { it.isNotEmpty() && !it.startsWith("#") }
