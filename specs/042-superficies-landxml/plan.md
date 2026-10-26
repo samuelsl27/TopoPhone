@@ -76,12 +76,12 @@ points    +     stake_elev_source TEXT NULL, stake_surface_name TEXT NULL, stake
 
 ### A3. Teselas y cota (RF-22)
 - `TinTiler` reparte los triángulos con un árbol cuaternario sobre la extensión: una hoja guarda a lo sumo 4.000 triángulos. Un triángulo va a todas las hojas que cubre su caja; así cada hoja es autosuficiente y consultar no cruza hojas. Una hoja cuyo bloque codificado pasara de 256 kB se parte aunque tenga menos triángulos. Las cajas de las hojas se guardan en `surface_tiles` para encontrarlas sin leer los bloques.
-- `TinElevation.at(tile, e, n)` recorre los triángulos de la hoja (a lo sumo 4.000) y devuelve la cota del primero que contiene la posición, por coordenadas baricéntricas con una holgura de 1e-12 en los bordes para que una arista o un vértice compartido no caigan en un hueco. En una arista la cota es la misma en los dos triángulos (continuidad), así que el resultado no depende de cuál se elija a menos de 1 mm.
+- `TinElevation.at(tile, e, n)` recorre los triángulos de la hoja (a lo sumo 4.000) y devuelve la cota del primero que contiene la posición, por coordenadas baricéntricas. Un punto a menos de 1 mm del borde de un triángulo cuenta como dentro, para que una arista o un vértice compartido no caigan en un hueco y un vértice del contorno no quede fuera por unas micras de redondeo al convertir. En una arista la cota es la misma en los dos triángulos (continuidad), así que el resultado no depende de cuál se elija a menos de 1 mm.
 - Una posición que no está en ningún triángulo es `Outside` (borde o hueco); si no cae en la caja de ninguna hoja también (RF-23). Con un SC geográfico se usa el plano local, como S018 (caso límite de la spec).
 
 ### A4. La superficie activa en memoria (RF-16, RF-22, RF-23, RNF-T13)
 - `ActiveSurfaceProvider` observa `projects.active_surface_id` y carga el índice de teselas de la superficie activa (solo las cajas y los identificadores, unos pocos kB incluso con un millón de triángulos). No lee ningún bloque al activar: por eso la primera cota tarda menos de 1 s.
-- `ActiveSurface.heightAt(e, n)` es síncrona y no bloquea: mira una caché de 16 teselas, y si la hoja que contiene la posición no está, devuelve `Loading`, lanza su lectura en segundo plano y precarga las hojas vecinas hacia donde se mueve la punta. Cuando llega, la siguiente época ya responde `Value` o `Outside`. `Loading` nunca se presenta como «Fuera de la superficie» (en el nivel vertical se mantiene el último valor hasta 1 s y después muestra «Calculando…»).
+- `ActiveSurface.heightAt(e, n)` es síncrona y no bloquea: mira una caché de 16 teselas, y si la hoja que contiene la posición no está, devuelve `Loading`, avisa por una cola sin espera a un único corutina de fondo y este lanza las lecturas, también las de las hojas vecinas hacia donde se mueve la punta (la consulta no lanza nada: una tarea al pool de E/S cuesta del orden de milisegundos en Windows). La caché es concurrente y se lee sin cerrojo. Cuando llega, la siguiente época ya responde `Value` o `Outside`. `Loading` nunca se presenta como «Fuera de la superficie» (en el nivel vertical se mantiene el último valor hasta 1 s y después muestra «Calculando…»).
 - Una superficie borrada o desactivada vacía la caché y avisa a los que observan (RF-27).
 
 ### A5. La cota de diseño en el replanteo (RF-24 a RF-27)
@@ -203,3 +203,11 @@ Campos, conmutador y botones de 56 dp; «Fuera de la superficie», el desmonte y
 - S045 (ráster) reutiliza `ElevationSource`, `SurfaceHeight`, `SurfaceGuide` y el desplazamiento vertical: el ráster será otra fuente de `heightAt` bajo la misma superficie activa.
 - S017b (fotos) pasa a la versión 16 de la base de datos (`AutoMigration(15, 16)`); su `plan.md` aún habla de una versión anterior y solo se corrige con permiso para tocar `specs/`.
 - S019/S041: sus `spec.md` no cambian en el texto; los RF que amplía esta spec están en «Cambios en documentos anteriores» de la spec 042.
+
+## Cambios al implementar (S042)
+- `TinElevation` tolera 1 mm en el borde de un triángulo en lugar de una holgura baricéntrica de 1e-12: la conversión de otro SC o de pies deja unas micras de diferencia en los vértices del contorno.
+- La regla de qué cota manda es `ElevationSources` en `core:survey` (pura y con su tabla de casos), no código de los `ViewModel`.
+- `ActiveSurface.heightAt` no lanza corutinas ni toma cerrojos: una cola sin espera avisa a un solo corutina de fondo. Con millones de triángulos la consulta cuesta microsegundos (mediana 3 µs), la activación 23 ms y la importación de 103 MB unos 3 s con 145 MB de memoria viva en la JVM de pruebas.
+- `TinTiler` reparte con arrays primitivos y no con listas de enteros en caja (con 2 millones de triángulos eran mucha basura).
+- Un replanteo fuera de la superficie guarda el nombre y la fecha de la superficie y el desplazamiento pero ningún origen ni cota (RF-29): así la ficha puede decir «Fuera de la superficie» (RF-30).
+- Con la cota del punto como origen y una superficie activa, el punto guarda ese origen (`POINT`) y nada más de la superficie; sin superficie activa no guarda ningún origen.

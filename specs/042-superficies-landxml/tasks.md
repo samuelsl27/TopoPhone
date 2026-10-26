@@ -48,5 +48,5 @@
       Hecho cuando: activar una superficie de 1.000.000 de triángulos da la primera cota en menos de 1 s, la consulta a 10 Hz no pasa de 16 ms y un LandXML de 100 MB generado al vuelo se importa en menos de 90 s sin quedarse sin memoria.
 - [x] T23. Reproducción sintética `rs3-superficie`: un recorrido que cruza una superficie con un hueco y su resultado esperado calculado aparte. (Criterios de finalización)
       Hecho cuando: el test en verde con la cota, el desmonte o terraplén esperados y el paso por «Fuera de la superficie».
-- [ ] T24. Validación: revisión de los cambios en documentos anteriores (hoja de ruta, glosario, S018/S019/S041), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
+- [x] T24. Validación: revisión de los cambios en documentos anteriores (hoja de ruta, glosario, S018/S019/S041), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo (puerta G2b) quedan para el usuario.
