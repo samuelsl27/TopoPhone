@@ -23,6 +23,8 @@ import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineInputError
 import es.topophone.core.model.point.LineStakeoutMode
+import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectDefaults
@@ -498,5 +500,116 @@ class LineStakeoutViewModelTest {
 
         val state = await(vm) { it.errors.isEmpty() && it.bText == "100" }
         state.errors shouldBe emptyMap() // 100 ft = 30,48 m: dentro de la línea de 100 m
+    }
+
+    @Test
+    fun `S041 RF-27 el punto de diseno para el recolector es un elemento del dibujo con el nombre de la capa y sus tolerancias`() {
+        val vm = viewModel()
+
+        val state = open(vm)
+
+        val target = state.target.shouldNotBeNull()
+        target.name shouldBe "Eje"
+        target.id shouldBe "cad:l1:7:3"
+        target.source shouldBe StakeSource.CadElement("calle.dxf", "Eje", CadEntityKind.POLYLINE)
+        state.saveInfo.shouldNotBeNull().toleranceHM shouldBe 0.025
+        state.saveInfo.shouldNotBeNull().toleranceVM shouldBe 0.03
+        state.saveInfo.shouldNotBeNull().elevationM.shouldBeNull()
+    }
+
+    @Test
+    fun `S041 RF-28 el objetivo de una linea que guia es el de la ultima epoca con su PK, su modo y su desplazamiento`() {
+        val vm = viewModel()
+        open(vm)
+        vm.setMode(LineStakeoutMode.ALONG)
+        vm.setOffset("2")
+        connect()
+        await(vm) { (it.guidance as? GuidanceState.On)?.ui?.line != null && it.mode == LineStakeoutMode.ALONG }
+
+        val objective = vm.objectiveProvider.current().shouldNotBeNull()
+
+        objective.mode shouldBe LineStakeoutMode.ALONG
+        objective.chainageM.shouldNotBeNull() shouldBe (50.0 plusOrMinus 0.5)
+        objective.lateralOffsetM shouldBe 2.0
+        objective.design.northing.shouldNotBeNull() shouldBe (n0 - 2.0 plusOrMinus 0.01) // 2 m a la derecha de una línea hacia el este
+        objective.elevationM.shouldBeNull()
+    }
+
+    @Test
+    fun `S041 RF-28 el error lateral de un punto medido es su distancia lateral menos el desplazamiento y vacio fuera de la linea`() {
+        val vm = viewModel()
+        open(vm)
+        vm.setMode(LineStakeoutMode.ALONG)
+        vm.setOffset("2")
+        connect()
+        await(vm) { (it.guidance as? GuidanceState.On)?.ui?.line != null && it.mode == LineStakeoutMode.ALONG }
+        val objective = vm.objectiveProvider.current().shouldNotBeNull()
+        val ground = GeodeticPosition(40.4168, -3.7037, 700.0)
+
+        // 3,5 m al sur de la línea (a la derecha) con un desplazamiento de 2 m: faltan 1,5 m
+        objective.lateralErrorOf(PointCoordinates(ground, e0, n0 - 3.5, null)).shouldNotBeNull() shouldBe (1.5 plusOrMinus 1e-6)
+        // 1 m al norte (a la izquierda): −1 − 2
+        objective.lateralErrorOf(PointCoordinates(ground, e0, n0 + 1.0, null)).shouldNotBeNull() shouldBe (-3.0 plusOrMinus 1e-6)
+        // pasado el final de la línea no hay lado
+        objective.lateralErrorOf(PointCoordinates(ground, e0 + 80.0, n0, null)).shouldBeNull()
+    }
+
+    @Test
+    fun `S041 RF-28 con Por segmentos el objetivo es el vertice elegido con su PK y sin desplazamiento`() {
+        val vm = viewModel()
+        open(vm)
+        vm.setMode(LineStakeoutMode.BY_SEGMENTS)
+        await(vm) { it.mode == LineStakeoutMode.BY_SEGMENTS }
+        vm.selectVertex(1)
+        await(vm) { it.vertexIndex == 1 }
+
+        val objective = vm.objectiveProvider.current().shouldNotBeNull()
+
+        objective.mode shouldBe LineStakeoutMode.BY_SEGMENTS
+        objective.chainageM.shouldNotBeNull() shouldBe (100.0 plusOrMinus 1e-6)
+        objective.lateralOffsetM.shouldBeNull()
+        objective.design.easting.shouldNotBeNull() shouldBe (e0 + 50.0 plusOrMinus 1e-6)
+    }
+
+    @Test
+    fun `S041 RF-28 con Intervalos el objetivo es el punto de la serie con su PK y el desplazamiento`() {
+        val vm = viewModel()
+        open(vm)
+        vm.setMode(LineStakeoutMode.INTERVALS)
+        vm.setInterval("30")
+        vm.setOffset("1")
+        await(vm) { it.mode == LineStakeoutMode.INTERVALS && it.series != null && it.errors.isEmpty() }
+        vm.selectSeriesPoint(2)
+        await(vm) { it.seriesIndex == 2 }
+
+        val objective = vm.objectiveProvider.current().shouldNotBeNull()
+
+        objective.chainageM.shouldNotBeNull() shouldBe (60.0 plusOrMinus 1e-6)
+        objective.lateralOffsetM shouldBe 1.0
+        objective.design.northing.shouldNotBeNull() shouldBe (n0 - 1.0 plusOrMinus 1e-6)
+    }
+
+    @Test
+    fun `S041 RF-28 sin ninguna epoca con guia una linea que se mueve no tiene objetivo todavia`() {
+        val vm = viewModel()
+        open(vm)
+
+        vm.objectiveProvider.current().shouldBeNull()
+    }
+
+    @Test
+    fun `S041 RF-24 la cota escrita es la que se guarda como cota de diseno del objetivo`() {
+        val vm = viewModel()
+        open(vm)
+        vm.setMode(LineStakeoutMode.BY_SEGMENTS)
+        await(vm) { it.mode == LineStakeoutMode.BY_SEGMENTS }
+        vm.setDesignElevation("650,25")
+        await(vm) { it.elevationOverridden }
+
+        val objective = vm.objectiveProvider.current().shouldNotBeNull()
+
+        objective.elevationM shouldBe 650.25
+        objective.design.height shouldBe 650.25
+        vm.state.value.saveInfo.shouldNotBeNull().elevationM shouldBe 650.25
     }
 }

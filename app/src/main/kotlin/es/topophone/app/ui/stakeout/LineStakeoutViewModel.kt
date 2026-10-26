@@ -26,6 +26,8 @@ import es.topophone.core.model.project.Project
 import es.topophone.core.survey.LineCheck
 import es.topophone.core.survey.LineInputs
 import es.topophone.core.survey.LineLocator
+import es.topophone.core.survey.LineObjective
+import es.topophone.core.survey.LineObjectives
 import es.topophone.core.survey.LineRange
 import es.topophone.core.survey.LineSeries
 import es.topophone.core.survey.LineVertices
@@ -106,6 +108,10 @@ data class LineStakeoutUiState(
     val designElevationM: Double? = null,
     val elevationOverridden: Boolean = false,
     val closed: LineClosedReason? = null,
+    /** El punto de diseño para el recolector: el vértice o el punto de la serie elegido, o el primer vértice con una línea que guía. */
+    val target: StakeTarget? = null,
+    /** Las tolerancias que se guardan con el punto replanteado; la cota es la escrita, y la de la línea la da el objetivo (RF-28). */
+    val saveInfo: StakeSaveInfo? = null,
 )
 
 /**
@@ -188,6 +194,12 @@ class LineStakeoutViewModel @Inject constructor(
 
     private data class Live(val settings: StakeoutSettings, val guidance: GuidanceState, val measuring: Boolean, val unsupported: Boolean)
 
+    /** El objetivo de línea de la última época con guía, para guardarlo si la guía se apaga justo al medir (S041/RF-28). */
+    @Volatile private var lastLine: LineObjective? = null
+
+    /** Da el objetivo de ahora al recolector cuando termina la medida (S041/RF-27, RF-28). */
+    val objectiveProvider: StakeObjectiveProvider = StakeObjectiveProvider { currentObjective() }
+
     val state: StateFlow<LineStakeoutUiState> = combine(
         projectFlow,
         model,
@@ -233,6 +245,8 @@ class LineStakeoutViewModel @Inject constructor(
             elevationOverridden = model.elevationOverrideM != null,
             closed = model.closed,
             unsupported = live.unsupported,
+            target = project?.let { designTarget(it, model, live.settings.lineMode) },
+            saveInfo = StakeSaveInfo(model.elevationOverrideM, live.settings.validToleranceM, live.settings.validToleranceVM),
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, LineStakeoutUiState())
 
@@ -245,6 +259,7 @@ class LineStakeoutViewModel @Inject constructor(
             session.epochs.collect { received ->
                 val context = context() ?: return@collect
                 controller.onEpoch(received.epoch, context)
+                (controller.state.value as? GuidanceState.On)?.ui?.line?.let { lastLine = it }
             }
         }
         // S018/RF-25 y S041/RF-26: sin épocas la guía se apaga hasta que vuelvan.
@@ -262,6 +277,7 @@ class LineStakeoutViewModel @Inject constructor(
     fun open(projectId: String, selection: DesignSelection) {
         this.projectId.value = projectId
         controller.reset()
+        lastLine = null
         val line = StakeLine.of(selection.entity, withHeight = selection.hasElevation)
         if (line == null) {
             model.value = null
@@ -467,7 +483,7 @@ class LineStakeoutViewModel @Inject constructor(
         val project = project ?: return null
         val m = model.value ?: return null
         if (m.closed != null) return null
-        val design = designTarget(project, m) ?: return null
+        val design = designTarget(project, m, settings.lineMode) ?: return null
         val mode: TiltMode? = tilt.state.value.settings.mode
         val guide = when (settings.lineMode) {
             LineStakeoutMode.TO_LINE -> LineGuide(m.line, m.locator, LineStakeoutMode.TO_LINE)
@@ -478,9 +494,48 @@ class LineStakeoutViewModel @Inject constructor(
         return StakeContext(settings, design, fixOnly, mode, poleHeightM, project, calculator.get(), m.elevationOverrideM, guide)
     }
 
-    /** El objetivo de ahora: el vértice o el punto de la serie elegido, o el primer vértice, que solo da nombre y origen a una línea que guía. */
-    private fun designTarget(project: Project, m: Model): StakeTarget? {
+    /**
+     * El objetivo de ahora para guardar el punto replanteado (S041/RF-28): con un punto fijo, el vértice o el punto de la serie;
+     * con una línea que guía, el de la última época. Null si la guía aún no ha dado ninguno.
+     */
+    private fun currentObjective(): StakeObjective? {
+        val project = project ?: return null
+        val m = model.value ?: return null
+        if (m.closed != null) return null
         val mode = settings.lineMode
+        val storedOffset = when (mode) {
+            LineStakeoutMode.BY_SEGMENTS -> null
+            LineStakeoutMode.TO_LINE -> 0.0
+            else -> m.offsetM
+        }
+        val range = if (mode == LineStakeoutMode.SEGMENT_AB) m.range else LineRange.whole(m.line)
+        val lateralErrorOf = { measured: PointCoordinates ->
+            val e = measured.easting
+            val n = measured.northing
+            if (e == null || n == null) {
+                null
+            } else {
+                LineObjectives.of(m.line, m.locator.locate(e, n), storedOffset ?: 0.0, range).lateralErrorM
+            }
+        }
+        if (mode == LineStakeoutMode.BY_SEGMENTS || mode == LineStakeoutMode.INTERVALS) {
+            val target = designTarget(project, m, mode) ?: return null
+            val chainage = if (mode == LineStakeoutMode.BY_SEGMENTS) {
+                m.vertices.entries.getOrNull(m.vertexIndex)?.chainageM
+            } else {
+                m.series?.let { it.chainageOf(m.seriesIndex.coerceIn(0, it.size - 1)) }
+            }
+            val elevation = m.elevationOverrideM ?: target.coordinates.height
+            return StakeObjective(target.coordinates.copy(height = elevation), elevation, mode, chainage, storedOffset, lateralErrorOf)
+        }
+        val line = lastLine ?: return null
+        val elevation = m.elevationOverrideM ?: line.heightM
+        val design = coordinatesOf(project, line.point.easting, line.point.northing, elevation) ?: return null
+        return StakeObjective(design.copy(height = elevation), elevation, mode, line.chainageM, storedOffset, lateralErrorOf)
+    }
+
+    /** El objetivo de ahora: el vértice o el punto de la serie elegido, o el primer vértice, que solo da nombre y origen a una línea que guía. */
+    private fun designTarget(project: Project, m: Model, mode: LineStakeoutMode): StakeTarget? {
         val key = TargetKey(
             vertex = m.vertexIndex.takeIf { mode == LineStakeoutMode.BY_SEGMENTS },
             series = m.seriesIndex.takeIf { mode == LineStakeoutMode.INTERVALS },

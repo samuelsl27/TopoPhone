@@ -8,6 +8,7 @@ import es.topophone.app.receiver.BaseNotices
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.VisibleNotices
+import es.topophone.app.ui.stakeout.StakeObjectiveProvider
 import es.topophone.app.ui.stakeout.StakeSaveInfo
 import es.topophone.app.ui.stakeout.StakeTarget
 import es.topophone.core.gnss.nmea.Epoch
@@ -29,6 +30,7 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutNames
 import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.TiltMode
@@ -233,6 +235,9 @@ class CollectorViewModel @Inject constructor(
 
     /** La cota de diseño usada y las tolerancias vigentes que se guardan con el replanteo (S019/RF-13); null: como en S018. */
     private var stakeSaveInfo: StakeSaveInfo? = null
+
+    /** De una línea del dibujo, quien da el objetivo de ahora al terminar la medida (S041/RF-28); null con un punto fijo. */
+    private var stakeObjective: StakeObjectiveProvider? = null
     private val statsFlow = MutableStateFlow<AverageStatsUi?>(null)
     private var lastStatsAtMs = 0L
 
@@ -409,6 +414,7 @@ class CollectorViewModel @Inject constructor(
             stake = null
             stakeBackup = null
             stakeSaveInfo = null
+            stakeObjective = null
             run.value = Run()
             if (backup != null) form.update { it.copy(name = backup.first, description = backup.second) }
             checkName()
@@ -419,7 +425,7 @@ class CollectorViewModel @Inject constructor(
         run.value = Run()
         viewModelScope.launch {
             val taken = points.names(id)
-            form.update { it.copy(name = StakeoutNames.next(target.name, taken), description = target.description) }
+            form.update { it.copy(name = stakeName(target, taken), description = target.description) }
             checkName()
         }
     }
@@ -431,6 +437,22 @@ class CollectorViewModel @Inject constructor(
     @Synchronized
     fun setStakeSaveInfo(info: StakeSaveInfo?) {
         stakeSaveInfo = info
+    }
+
+    /** Quien da el objetivo de una línea del dibujo en el momento de guardar, o null con un punto fijo (S041/RF-28). */
+    @Synchronized
+    fun setStakeObjective(provider: StakeObjectiveProvider?) {
+        stakeObjective = provider
+    }
+
+    /** `<capa>_<n>_stkd` con un elemento de un dibujo (S041/RF-27) y `<diseño>_stkd` con un punto del proyecto (S018/RF-27). */
+    private fun stakeName(target: StakeTarget, taken: Set<String>): String = if (target.source is StakeSource.CadElement) {
+        StakeoutNames.nextForLayer(
+            target.name,
+            taken,
+        )
+    } else {
+        StakeoutNames.next(target.name, taken)
     }
 
     /** La descripción se conserva para el siguiente punto (S010/RF-4). */
@@ -860,8 +882,29 @@ class CollectorViewModel @Inject constructor(
         // usada, con las tolerancias vigentes y si cumple.
         val staked = stake?.let { target ->
             val info = stakeSaveInfo
-            if (info == null) {
-                StakeoutDiff.ref(target.id, target.name, target.coordinates, measurement.coordinates)
+            val provider = stakeObjective
+            val objective = provider?.current()
+            if (provider != null && objective == null) {
+                null // S041: una línea que aún no ha dado objetivo no tiene qué comparar
+            } else if (objective != null) {
+                // S041/RF-28: el objetivo en el momento de terminar la medida, con su origen, su modo, su PK y su error lateral.
+                StakeoutDiff.ref(
+                    target.id,
+                    target.name,
+                    objective.design,
+                    measurement.coordinates,
+                    elevationM = objective.elevationM,
+                    toleranceHM = info?.toleranceHM,
+                    toleranceVM = info?.toleranceVM,
+                ).copy(
+                    source = target.source,
+                    mode = objective.mode,
+                    chainageM = objective.chainageM,
+                    lateralOffsetM = objective.lateralOffsetM,
+                    dLateralM = objective.lateralErrorOf(measurement.coordinates),
+                )
+            } else if (info == null) {
+                StakeoutDiff.ref(target.id, target.name, target.coordinates, measurement.coordinates).copy(source = target.source)
             } else {
                 StakeoutDiff.ref(
                     target.id,
@@ -871,7 +914,7 @@ class CollectorViewModel @Inject constructor(
                     elevationM = info.elevationM,
                     toleranceHM = info.toleranceHM,
                     toleranceVM = info.toleranceVM,
-                )
+                ).copy(source = target.source)
             }
         }
         val point = Point.measured(
@@ -896,7 +939,7 @@ class CollectorViewModel @Inject constructor(
                     if (target != null) {
                         // S018/RF-27: el replanteo siguiente del mismo punto de diseño, `_stkd2`…
                         val taken = points.names(projectId)
-                        form.update { it.copy(name = StakeoutNames.next(target.name, taken)) }
+                        form.update { it.copy(name = stakeName(target, taken)) }
                     } else if (!auto) {
                         form.update { it.copy(name = PointNames.next(name)) }
                     }

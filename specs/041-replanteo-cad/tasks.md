@@ -32,7 +32,7 @@
       Hecho cuando: `StakeoutControllerLineTest` en verde con una línea con cota, otra sin cota, una cota escrita a mano y el reinicio del nivel al cambiarla. (La cota escrita en el ViewModel se prueba en T15.)
 - [x] T15. `app`: `LineStakeoutViewModel`, parte 1: abrir un elemento, el modo recordado, los campos, las validaciones, los bloqueos con una medida en marcha y el cierre si se borra el dibujo. (RF-1 a RF-3, RF-16 a RF-22, RF-31)
       Hecho cuando: `LineStakeoutViewModelTest` en verde, con el modo que se recuerda entre proyectos y los campos que no.
-- [ ] T16. `app`: `LineStakeoutViewModel`, parte 2: medir y guardar, el nombre `<capa>_<n>_stkd` y el replanteo con el origen, el modo, el PK y las diferencias. (RF-27, RF-28)
+- [x] T16. `app`: `LineStakeoutViewModel`, parte 2: medir y guardar, el nombre `<capa>_<n>_stkd` y el replanteo con el origen, el modo, el PK y las diferencias. (RF-27, RF-28)
       Hecho cuando: `StakeoutMeasureLineTest` en verde: dos veces el mismo elemento, el objetivo de cuando se midió, el error lateral con su signo y un punto de dibujo con cota.
 - [ ] T17. `app`: `LineStakeoutPanel`, los cinco modos, las listas de vértices y de puntos de la serie, los textos de RF-14 y las etiquetas de TalkBack, con sus textos en es y en. (RF-4, RF-8, RF-14, RF-20, RNF-T7, RNF-T8)
       Hecho cuando: `LineStakeoutPanelTest` en verde, con el lado y «Dentro de la tolerancia» en texto y las zonas táctiles de 56 dp.
