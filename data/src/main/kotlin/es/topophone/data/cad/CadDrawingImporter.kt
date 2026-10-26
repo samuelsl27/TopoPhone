@@ -330,13 +330,7 @@ class CadDrawingImporter(
         var start = 0
         while (start < entity.vertexCount - 1) {
             val end = min(start + maxVertices, entity.vertexCount)
-            out += CadEntity(
-                entity.kind,
-                entity.easting.copyOfRange(start, end),
-                entity.northing.copyOfRange(start, end),
-                entity.height?.copyOfRange(start, end),
-                entity.color,
-            )
+            out += entity.slice(start, end)
             start = end - 1
         }
         return out

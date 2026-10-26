@@ -155,6 +155,7 @@ class DxfExpander(
         val xs = DoubleBuf()
         val ys = DoubleBuf()
         val originals = BitBuf() // S040/RF-34: los vértices de los tramos con bulge no son originales
+        var curved = false
         val v = e.vertices
         val z = e.elevation ?: 0.0
         val count = v.size
@@ -173,6 +174,7 @@ class DxfExpander(
                     xs.add(c.x[k])
                     ys.add(c.y[k])
                     originals.add(false)
+                    curved = true
                 }
             }
         }
@@ -185,9 +187,9 @@ class DxfExpander(
             val zs = DoubleBuf()
             for (i in 0 until count) zs.add(v[i].z ?: 0.0)
             if (e.closed) zs.add(v[0].z ?: 0.0)
-            out.global(CadEntityKind.POLYLINE, xs.toArray(), ys.toArray(), zs.toArray(), originals.toArray())
+            out.global(CadEntityKind.POLYLINE, xs.toArray(), ys.toArray(), zs.toArray(), if (curved) originals.toArray() else null)
         } else {
-            out.ocs(CadEntityKind.POLYLINE, xs.toArray(), ys.toArray(), z, e.normal, e.hasZ, originals.toArray())
+            out.ocs(CadEntityKind.POLYLINE, xs.toArray(), ys.toArray(), z, e.normal, e.hasZ, if (curved) originals.toArray() else null)
         }
     }
 

@@ -158,12 +158,26 @@ class CadChunkCodecTest {
     }
 
     @Test
-    fun `S040 RF-34 sin marcas o con todo original el bloque es el del formato anterior`() {
+    fun `S040 RF-34 sin marcas el bloque es el del formato anterior y con todo original guarda las marcas igualmente`() {
         val plain = marked(null)
         val allOriginal = marked(BooleanArray(10) { true })
 
-        CadChunkCodec.encode(listOf(allOriginal)).toList() shouldBe CadChunkCodec.encode(listOf(plain)).toList()
+        plain.hasOriginalMarks shouldBe false
+        allOriginal.hasOriginalMarks shouldBe true
+        CadChunkCodec.encode(listOf(allOriginal)).size shouldBe CadChunkCodec.encode(listOf(plain)).size + 2
         CadChunkCodec.encodedSize(listOf(allOriginal)) shouldBe CadChunkCodec.encode(listOf(allOriginal)).size
+        CadChunkCodec.decode(CadChunkCodec.encode(listOf(allOriginal))).single().hasOriginalMarks shouldBe true
+    }
+
+    @Test
+    fun `S040 RF-34 un trozo de un elemento conserva las marcas de sus vertices`() {
+        val e = marked(BooleanArray(10) { it == 0 || it == 9 || it == 4 })
+
+        val piece = e.slice(3, 8)
+
+        List(5) { piece.isOriginal(it) } shouldBe listOf(false, true, false, false, false)
+        piece.easting.toList() shouldBe listOf(3.0, 4.0, 5.0, 6.0, 7.0)
+        e.withVertices(e.easting, e.northing, null).isOriginal(4) shouldBe true
     }
 
     @Test

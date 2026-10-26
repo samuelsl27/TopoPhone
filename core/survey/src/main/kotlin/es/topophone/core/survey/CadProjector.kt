@@ -47,7 +47,7 @@ class CadProjector(
             if (rejected != null) return CadProjection.Rejected(rejected)
         }
         val height = if (options.useElevations) entity.height?.let { source -> DoubleArray(n) { source[it] * metres } } else null
-        return CadProjection.Converted(CadEntity(entity.kind, east, north, height, entity.color))
+        return CadProjection.Converted(entity.withVertices(east, north, height))
     }
 
     /** Escribe el vértice [i] ya en el proyecto; devuelve por qué se rechaza, o null. */

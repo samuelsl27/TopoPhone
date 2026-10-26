@@ -438,4 +438,54 @@ class CadDrawingImporterTest {
         pieces.all { CadChunkCodec.entitySize(it) <= CadDrawingImporter.MAX_ENTITY_BYTES } shouldBe true
         pieces.zipWithNext().all { (a, b) -> a.easting.last() == b.easting.first() } shouldBe true
     }
+
+    @Test
+    fun `S040 RF-34 un arco un circulo y una spline importados guardan solo sus extremos como originales`() {
+        imported(import("r2000.dxf"))
+
+        val all = drawings().single().layers.flatMap { entitiesOf(it.id) }
+        val curves = all.filter { it.kind == CadEntityKind.ARC || it.kind == CadEntityKind.SPLINE }
+
+        curves.isNotEmpty() shouldBe true
+        curves.forEach { e ->
+            e.hasOriginalMarks shouldBe true
+            (0 until e.vertexCount).filter { e.isOriginal(it) } shouldBe listOf(0, e.vertexCount - 1)
+        }
+        all.filter { it.kind == CadEntityKind.POINT || it.kind == CadEntityKind.LINE }.none { it.hasOriginalMarks } shouldBe true
+    }
+
+    @Test
+    fun `S040 RF-34 el tramo con bulge de una polilinea y su proyeccion al sistema del proyecto conservan las marcas`() {
+        imported(import("r2000.dxf", crs = ProjectCrs.ETRS89_UTM30))
+
+        val bulged = drawings().single().layers.flatMap { entitiesOf(it.id) }
+            .first { it.kind == CadEntityKind.POLYLINE && it.hasOriginalMarks && it.easting.first() == 440030.0 }
+
+        (0 until bulged.vertexCount).count { bulged.isOriginal(it) } shouldBe 5
+        (bulged.vertexCount > 5) shouldBe true
+    }
+
+    @Test
+    fun `S040 RF-34 una polilinea con bulge partida en trozos conserva las marcas en cada trozo`() {
+        val sb = StringBuilder("0\nSECTION\n2\nENTITIES\n0\nLWPOLYLINE\n8\nL\n90\n150000\n70\n0\n")
+        for (i in 0 until 150_000) {
+            val x = 440_000.0 + i * 0.001 + if (i > 100) 20.0 else 0.0
+            sb.append("10\n").append(x).append("\n20\n").append(4_474_000.0).append('\n')
+            if (i == 100) sb.append("42\n1.0\n")
+        }
+        sb.append("0\nENDSEC\n0\nEOF\n")
+
+        val result = runBlocking {
+            importer().import(project, ProjectCrs.ETRS89_UTM30, "grande.dxf", CadImportOptions(), {
+                ByteArrayInputStream(sb.toString().toByteArray())
+            }) {}
+        }
+
+        imported(result)
+        val pieces = entitiesOf(drawings().single().layers.single().id)
+        (pieces.size > 1) shouldBe true
+        pieces.all { it.hasOriginalMarks } shouldBe true
+        pieces.sumOf { p -> (0 until p.vertexCount).count { !p.isOriginal(it) } } shouldBe
+            pieces.sumOf { p -> p.vertexCount } - 150_000 - (pieces.size - 1)
+    }
 }

@@ -16,8 +16,9 @@ class CadEntity(
     val color: CadColor?,
     original: BooleanArray? = null,
 ) {
-    // Las marcas solo existen si alguna es falsa: "todo original" y "sin marcas" son lo mismo y se guardan igual.
-    private val marks: BooleanArray? = original?.takeIf { m -> m.any { !it } }
+    // Sin marcas es un elemento de antes de S041, o uno sin curvas: todos sus vértices son originales. Un arco, un círculo o una
+    // spline siempre las traen, aunque todas valgan "original", para distinguirlos de un dibujo importado antes (S041/RF-34).
+    private val marks: BooleanArray? = original
 
     init {
         require(original == null || original.size == easting.size) { "Una marca por vértice, o ninguna" }
@@ -28,7 +29,7 @@ class CadEntity(
     val vertexCount: Int get() = easting.size
     val hasZ: Boolean get() = height != null
 
-    /** Algún vértice es de la aproximación de una curva (S040/RF-34). */
+    /** El elemento guarda qué vértices son originales (S040/RF-34); si no, todos lo son. */
     val hasOriginalMarks: Boolean get() = marks != null
 
     /** El vértice [index] está escrito en el DXF (S040/RF-34, S041/RF-33). */
@@ -37,6 +38,20 @@ class CadEntity(
     /** El recuadro del elemento (RF-29). */
     val bounds: CadExtent
         get() = CadExtent(easting.min(), easting.max(), northing.min(), northing.max())
+
+    /** El mismo elemento con otros vértices y alturas, con su tipo, su color y las marcas de vértice original. */
+    fun withVertices(easting: DoubleArray, northing: DoubleArray, height: DoubleArray?) =
+        CadEntity(kind, easting, northing, height, color, marks?.copyOf())
+
+    /** Los vértices de [from] (incluido) a [to] (excluido) como un elemento nuevo, con sus marcas. */
+    fun slice(from: Int, to: Int) = CadEntity(
+        kind,
+        easting.copyOfRange(from, to),
+        northing.copyOfRange(from, to),
+        height?.copyOfRange(from, to),
+        color,
+        marks?.copyOfRange(from, to),
+    )
 
     override fun equals(other: Any?): Boolean = other is CadEntity &&
         kind == other.kind &&

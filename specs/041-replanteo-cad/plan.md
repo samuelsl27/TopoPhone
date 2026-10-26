@@ -51,7 +51,7 @@ stake_d_lateral     REAL     error lateral en el momento de medir, en metros
 ### Formato de los trozos (cambio de S040/RF-34)
 - Por vértice, una marca de un bit «original»; los bits van empaquetados tras la lista de coordenadas de cada elemento y solo si el elemento lo declara con un bit nuevo en el byte de marcas (`ORIGINAL_VERTICES = 8`; las marcas actuales son `HAS_Z = 1`, `HAS_COLOR = 2`, `AUTO_CONTRAST = 4`).
 - Un trozo sin el bit nuevo es un trozo de antes de S041: todos sus vértices son originales (RF-34). No hay migración de datos ni se reescriben los dibujos existentes.
-- Un dibujo importado antes se reconoce porque sus trozos no traen el bit; `CadRepository` lo expone en `CadDrawing.hasOriginalMarks` (cualquier trozo lo tiene) para el aviso de RF-34.
+- Un arco, un círculo o una spline importados desde S041 llevan siempre las marcas, aunque todos sus vértices valgan «original» (un arco diminuto de dos vértices); sin ellas, el elemento viene de un dibujo anterior y se muestra el aviso de RF-34. Las polilíneas solo las llevan si tienen tramos con bulge, y los puntos y las líneas no. No hace falta una marca del dibujo entero.
 
 ## Algoritmos
 

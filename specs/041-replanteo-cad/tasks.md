@@ -6,8 +6,8 @@
       Hecho cuando: `CadChunkCodecTest` en verde: ida y vuelta con marcas, un trozo sin el bit nuevo con todo original y un trozo de 256 kB; los tests de S040 siguen en verde.
 - [x] T2. `core:formats`: `CadCurves`, `DxfBlocks` y `DxfReader` marcan los vértices originales y los de la aproximación de arcos, círculos, splines y bulges. (S040/RF-34, RF-33)
       Hecho cuando: `CadCurvesTest`, `DxfBlocksTest` y `DxfReaderTest` en verde: extremos de arco y de spline, punto de partida del círculo, vértices de bulge y bloques escalados.
-- [ ] T3. `data`: `CadDrawingImporter` y `CadRepository` guardan y leen las marcas; `CadDrawing.hasOriginalMarks` y la lectura de un elemento entero. (S040/RF-34, RF-34)
-      Hecho cuando: `CadDrawingImporterTest` y `CadRepositoryTest` en verde: dibujo nuevo con marcas, dibujo antiguo sin ellas y una polilínea partida en trozos.
+- [x] T3. `core:survey` y `data`: `CadProjector` y `CadDrawingImporter` conservan las marcas al convertir y al partir una polilínea en trozos; `CadEntity.withVertices` y `slice`. (S040/RF-34, RF-34)
+      Hecho cuando: `CadDrawingImporterTest` en verde: arco, spline, círculo y bulge con sus marcas tras importar, y una polilínea partida en trozos.
 - [ ] T4. `tools/replanteo`: `generar_lineas.py` con los casos de `fixtures/replanteo/lineas/` (rectas, polilíneas, cerradas, antes y después, ambos lados, A–B e intervalos) y lo esperado con pyproj y con un cálculo geométrico aparte. (Constitución nº 2, RF-10, RF-11, RF-15, RF-18)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [ ] T5. `core:model`: `LineStakeoutMode`, `StakeSource`, `LineInputError` y las ampliaciones de `StakeoutRef` (origen, modo, PK, desplazamiento y error lateral). (RF-3, RF-28, RF-29)
