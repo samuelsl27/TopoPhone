@@ -22,7 +22,7 @@
       Hecho cuando: `LineSeriesTest` en verde: B fuera de múltiplo, intervalo mayor que el tramo, 0 y negativo, A igual a B, PK fuera de la línea, no numérico y sentido inverso.
 - [x] T10. `core:survey`: `LineVertices`, los vértices de «Por segmentos» por tipo de línea, el siguiente y el anterior, y el aviso de un dibujo antiguo. (RF-6 a RF-9, RF-33, RF-34)
       Hecho cuando: `LineVerticesTest` en verde: polilínea, cerrada, arco, spline, círculo y un dibujo sin marcas.
-- [ ] T11. `data`: columnas nuevas de `points`, sus DAO y `AutoMigration(13, 14)`. (RNF-T6, RF-28)
+- [x] T11. `data`: columnas nuevas de `points`, sus DAO y `AutoMigration(13, 14)`. (RNF-T6, RF-28)
       Hecho cuando: `TopoPhoneDatabaseTest` 13 → 14 en verde: los proyectos, los puntos, los replanteos y los dibujos conservan sus datos.
 - [ ] T12. `data`: `PointRepository` guarda y lee el replanteo de un elemento en una transacción; borrar el dibujo no toca el punto. (RF-27, RF-28, RF-32)
       Hecho cuando: `PointRepositoryTest` en verde: punto y replanteo juntos, nombres copiados, dibujo borrado después, y un punto del proyecto que no cambia.

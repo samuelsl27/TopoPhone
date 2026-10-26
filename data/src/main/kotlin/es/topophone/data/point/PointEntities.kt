@@ -138,6 +138,15 @@ data class PointEntity(
     @ColumnInfo(name = "stake_tol_h") val stakeTolH: Double? = null,
     @ColumnInfo(name = "stake_tol_v") val stakeTolV: Double? = null,
     @ColumnInfo(name = "stake_within") val stakeWithin: Boolean? = null,
+    // S041/RF-28: si el punto de diseño era un elemento de un dibujo, sus nombres (copiados: el dibujo puede borrarse), el modo de
+    // línea, el PK, el desplazamiento lateral y el error lateral al medir; NULL en los demás.
+    @ColumnInfo(name = "stake_cad_drawing") val stakeCadDrawing: String? = null,
+    @ColumnInfo(name = "stake_cad_layer") val stakeCadLayer: String? = null,
+    @ColumnInfo(name = "stake_cad_kind") val stakeCadKind: String? = null,
+    @ColumnInfo(name = "stake_mode") val stakeMode: String? = null,
+    @ColumnInfo(name = "stake_chainage") val stakeChainage: Double? = null,
+    @ColumnInfo(name = "stake_offset") val stakeOffset: Double? = null,
+    @ColumnInfo(name = "stake_d_lateral") val stakeDLateral: Double? = null,
     // S028/RF-29: la importación de la que viene un punto importado, para deshacerla; NULL en los demás.
     @ColumnInfo(name = "import_id") val importId: String? = null,
 )
