@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/antena`: `generar_vectores.py` con la punta del jalón para cada perfil del catálogo, el RS3 con 1,800 m (igual que los fixtures de antes), un perfil propio y jalones inclinados con radio, calculados con pyproj y Python; y su test. (RF-17, RF-20, RF-21)
+- [x] T1. `tools/antena`: `generar_vectores.py` con la punta del jalón para cada perfil del catálogo, el RS3 con 1,800 m (igual que los fixtures de antes), un perfil propio y jalones inclinados con radio, calculados con pyproj y Python; y su test. (RF-17, RF-20, RF-21)
       Hecho cuando: el script genera `fixtures/antena/` y su test de `tools` está en verde.
 - [ ] T2. `core:survey`: `AntennaProfile` y `AntennaCatalog` con los modelos de RF-1 (`ReceiverModel` se conserva hasta T6); los términos nuevos en `docs/glosario.md`. (RF-1, RF-2)
       Hecho cuando: `AntennaCatalogTest` en verde con los desplazamientos de RF-1, el RS3 en 0,134 m y que el catálogo no trae radios.
