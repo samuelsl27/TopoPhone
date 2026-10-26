@@ -140,7 +140,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Panel de posición | `PositionPanel` | Parte inferior del mapa del proyecto (S009) |
 | Datos del proyecto | `ProjectInfo` | SC, altura, unidades y datum de las correcciones (S009) |
 | Superficie (MDT/TIN) | `Surface` | |
-| Dibujo CAD | `CadDrawing` | |
+| Dibujo CAD | `CadDrawing` | Un DXF importado en un proyecto; un proyecto puede tener varios (S040) |
+| Capa de diseño | `DesignLayer` | Una capa del DXF separada por tipo (puntos o líneas), con su color y su interruptor (S040) |
+| Elemento del dibujo | `CadEntity` | Un punto o una línea (polilínea, arco, círculo, spline) del dibujo, con los bloques ya desplegados (S040) |
+| Con cota / sin cota | `hasElevation` | Un elemento del dibujo con altura propia, o sin ella (S040) |
 | Copia de seguridad | `Backup` | Copia completa de los datos de la app en un ZIP (S013) |
 | Exportar | `export` | Sacar los puntos de un proyecto a un fichero (S012) |
 | Formato de exportación | `ExportFormat` | Todas las columnas, PENZD, PNEZD o personalizado (S012) |
