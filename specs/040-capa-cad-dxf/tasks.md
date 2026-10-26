@@ -6,7 +6,7 @@
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [x] T2. `core:model`: `CadDrawing`, `DesignLayer`, `DesignLayerKind`, `CadEntityKind`, `CadEntityRef`, `CadColor`, `CadImportOptions`, `CadSourceCrs`, `CadImportSummary` y `CadIgnoredReason`. (RF-7, RF-8, RF-16, RF-18, RF-23)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto de la spec (sistema del proyecto, usar las cotas).
-- [ ] T3. `core:model`: `CadChunkCodec`, los elementos de un trozo a bytes y al revés. (RF-19, RF-22, RF-23)
+- [x] T3. `core:model`: `CadChunkCodec`, los elementos de un trozo a bytes y al revés. (RF-19, RF-22, RF-23)
       Hecho cuando: `CadChunkCodecTest` en verde: cada tipo, con y sin Z y con color, sin redondear, y un trozo de 256 kB.
 - [ ] T4. `core:formats`: `DxfFileKind`, el tipo de fichero por su contenido y el límite de 100 MB. (RF-2, RF-3, RF-4, RF-5)
       Hecho cuando: `DxfFileKindTest` en verde con DWG renombrado, DXF binario, vacío, texto cualquiera, las versiones R12 a R2018 y más de 100 MB.
