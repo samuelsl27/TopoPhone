@@ -30,6 +30,7 @@ import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.db.TopoPhoneDatabase
@@ -611,5 +612,46 @@ class LineStakeoutViewModelTest {
         objective.elevationM shouldBe 650.25
         objective.design.height shouldBe 650.25
         vm.state.value.saveInfo.shouldNotBeNull().elevationM shouldBe 650.25
+    }
+
+    @Test
+    fun `S041 RF-5 la linea elegida se pasa a latitud y longitud para dibujarla mas gruesa`() {
+        val vm = viewModel()
+
+        open(vm, selection(xs = doubleArrayOf(e0 - 50.0, e0, e0 + 50.0), ys = doubleArrayOf(n0, n0 + 10.0, n0)))
+
+        val points = runBlocking { withTimeout(10_000) { vm.highlight.first { it.size == 3 } } }
+        val first = CadPlacement.geographic(draft.crs, e0 - 50.0, n0).shouldNotBeNull()
+        points.first().latitudeDeg shouldBe (first.first plusOrMinus 1e-9)
+        points.first().longitudeDeg shouldBe (first.second plusOrMinus 1e-9)
+        (points[1].latitudeDeg > points[0].latitudeDeg) shouldBe true
+    }
+
+    @Test
+    fun `S041 RF-5 una linea de 100000 vertices se aligera a unos miles y conserva el primero y el ultimo`() {
+        val vm = viewModel()
+        val n = 100_000
+        val xs = DoubleArray(n) { e0 + it * 0.01 }
+        val ys = DoubleArray(n) { n0 + if (it % 2 == 0) 0.0 else 0.005 }
+
+        open(vm, selection(xs = xs, ys = ys))
+
+        val points = runBlocking { withTimeout(20_000) { vm.highlight.first { it.isNotEmpty() } } }
+        (points.size in 2..4_100) shouldBe true
+        val last = CadPlacement.geographic(draft.crs, xs.last(), ys.last()).shouldNotBeNull()
+        points.last().longitudeDeg shouldBe (last.second plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S041 RF-5 una linea cerrada vuelve a su primer vertice y cerrar el replanteo borra la linea elegida`() {
+        val vm = viewModel()
+        open(vm, selection(xs = doubleArrayOf(e0, e0 + 10.0, e0 + 10.0, e0), ys = doubleArrayOf(n0, n0, n0 + 10.0, n0)))
+        val points = runBlocking { withTimeout(10_000) { vm.highlight.first { it.isNotEmpty() } } }
+        points.size shouldBe 4
+        points.last() shouldBe points.first()
+
+        vm.close()
+
+        vm.highlight.value shouldBe emptyList()
     }
 }

@@ -67,9 +67,10 @@ data class RoverMarker(val position: GeoPoint, val accuracyM: Double?, val color
 
 /**
  * El replanteo en el mapa: el punto de diseño, la punta del jalón si hay guía y, con [line], la línea entre ellos, que solo se
- * dibuja mientras queda a más de 40 cm (S018/RF-14).
+ * dibuja mientras queda a más de 40 cm (S018/RF-14). Con una línea del dibujo, [chosen] es esa línea, que se dibuja más gruesa
+ * que las demás (S041/RF-5). Sin [design] la guía de la línea está apagada y solo se ve la línea elegida.
  */
-data class StakeoutMarker(val design: GeoPoint, val tip: GeoPoint?, val line: Boolean)
+data class StakeoutMarker(val design: GeoPoint?, val tip: GeoPoint?, val line: Boolean, val chosen: List<GeoPoint> = emptyList())
 
 /** Un toque en el mapa: dónde, y a cuántos metros equivalen 24 dp en ese punto para acertar con el dedo (S040/RF-29). */
 data class MapTap(val latitudeDeg: Double, val longitudeDeg: Double, val toleranceM: Double)

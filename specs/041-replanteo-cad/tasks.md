@@ -38,7 +38,7 @@
       Hecho cuando: `LineStakeoutPanelTest` en verde, con el lado y «Dentro de la tolerancia» en texto y las zonas táctiles de 56 dp.
 - [x] T18. `app`: «Replantear» en `DesignElementSheet`, la navegación a S018 para un punto y a la línea para una línea. (RF-1, RF-2)
       Hecho cuando: `DesignElementSheetTest` en verde: un punto, un centro de bloque, una línea, un círculo y un elemento sin cota.
-- [ ] T19. `app`: el mapa con la línea elegida más gruesa, el objetivo y la línea de la punta. (RF-5)
+- [x] T19. `app`: el mapa con la línea elegida más gruesa, el objetivo y la línea de la punta. (RF-5)
       Hecho cuando: `LineMapMarkersTest` en verde, con la capa del dibujo oculta y el modo «Por segmentos».
 - [ ] T20. `app`: la ficha del punto replanteado con el elemento, el modo, el PK y la desviación. (RF-29)
       Hecho cuando: `StakeoutMeasureLineTest` y el test de la ficha en verde con un punto de línea y un punto de dibujo.

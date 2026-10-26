@@ -94,6 +94,7 @@ import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.tone
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.app.ui.stakeout.LineStakeoutActions
+import es.topophone.app.ui.stakeout.LineStakeoutMarkers
 import es.topophone.app.ui.stakeout.LineStakeoutPanel
 import es.topophone.app.ui.stakeout.LineStakeoutUiState
 import es.topophone.app.ui.stakeout.LineStakeoutViewModel
@@ -355,6 +356,7 @@ fun ProjectViewRoute(
     // S041/RF-2: el replanteo de una línea del dibujo, en el mismo hueco, con su propio modelo.
     var lineOpen by rememberSaveable { mutableStateOf(false) }
     val line by lineStakeoutViewModel.state.collectAsStateWithLifecycle()
+    val lineHighlight by lineStakeoutViewModel.highlight.collectAsStateWithLifecycle()
     // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5, S041/RF-27).
     val activeTarget = if (stakeoutOpen) stakeout.target else line.target.takeIf { lineOpen }
     LaunchedEffect(stakeoutOpen, lineOpen, activeTarget) { collectorViewModel.setStakeTarget(activeTarget) }
@@ -423,6 +425,7 @@ fun ProjectViewRoute(
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,
         lineStakeout = line.takeIf { lineOpen },
+        lineHighlight = lineHighlight,
         lineStakeoutActions = LineStakeoutActions(
             onClose = {
                 lineOpen = false
@@ -504,6 +507,7 @@ fun ProjectViewScreen(
     /** El replanteo de una línea del dibujo y el botón "Replantear" de la ficha de un elemento (S041/RF-1, RF-2). */
     lineStakeout: LineStakeoutUiState? = null,
     lineStakeoutActions: LineStakeoutActions = LineStakeoutActions(),
+    lineHighlight: List<GeoPoint> = emptyList(),
     onStakeoutElement: () -> Unit = {},
     /** El dibujo importado de un DXF en la vista de ahora y el aviso de que la cámara se ha parado (S040/RF-24). */
     design: DesignScene? = null,
@@ -629,7 +633,7 @@ fun ProjectViewScreen(
             }
         }
     }
-    BindMap(controller, state, stakeout, design, onDesignCamera)
+    BindMap(controller, state, stakeout, design, onDesignCamera, lineStakeout, lineHighlight)
     LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
     controller?.let { FollowRover(it, state, policy, onViewportChanged) }
     // S011/RF-5: tocar un punto del mapa abre su ficha.
@@ -787,6 +791,8 @@ private fun BindMap(
     stakeout: StakeoutUiState?,
     design: DesignScene?,
     onDesignCamera: (MapCamera) -> Unit,
+    lineStakeout: LineStakeoutUiState?,
+    lineHighlight: List<GeoPoint>,
 ) {
     val unit = state.project?.linearUnit
     val palette = LocalStatusPalette.current
@@ -799,7 +805,7 @@ private fun BindMap(
         controller?.camera?.filterNotNull()?.debounce(DESIGN_DEBOUNCE_MS)?.collect(onDesignCamera)
     }
     LaunchedEffect(controller, state.base) { controller?.showBase(state.base) } // S015/RF-19
-    val stakeoutMarker = StakeoutMarkers.of(stakeout)
+    val stakeoutMarker = LineStakeoutMarkers.of(lineStakeout, lineHighlight) ?: StakeoutMarkers.of(stakeout) // S041/RF-5
     LaunchedEffect(controller, stakeoutMarker) { controller?.showStakeout(stakeoutMarker) } // S018/RF-14
     LaunchedEffect(controller, state.mapSettings) { controller?.setSettings(state.mapSettings) }
     LaunchedEffect(controller, unit) { if (unit != null) controller?.setLinearUnit(unit) }

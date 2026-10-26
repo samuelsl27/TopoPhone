@@ -324,8 +324,20 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     /** La línea punta-diseño y los dos puntos, debajo del rover y encima de los puntos (S018/RF-14). */
     private fun addStakeoutLayers(style: Style) {
         style.addSource(GeoJsonSource(STAKEOUT_SOURCE))
-        val lines = Expression.eq(Expression.geometryType(), "LineString")
+        val lines = Expression.all(
+            Expression.eq(Expression.geometryType(), "LineString"),
+            Expression.eq(Expression.get(STAKEOUT_ROLE), STAKEOUT_GUIDE),
+        )
+        val chosen = Expression.eq(Expression.get(STAKEOUT_ROLE), STAKEOUT_CHOSEN)
         val designs = Expression.eq(Expression.get(STAKEOUT_ROLE), STAKEOUT_DESIGN)
+        // S041/RF-5: la línea elegida, más gruesa que las del dibujo, debajo de la guía y de los puntos
+        style.addLayer(
+            LineLayer(STAKEOUT_CHOSEN_LAYER, STAKEOUT_SOURCE).withFilter(chosen).withProperties(
+                PropertyFactory.lineColor(Color.parseColor(STAKEOUT_COLOR)),
+                PropertyFactory.lineWidth(STAKEOUT_CHOSEN_DP),
+                PropertyFactory.lineOpacity(STAKEOUT_CHOSEN_OPACITY),
+            ),
+        )
         val tips = Expression.eq(Expression.get(STAKEOUT_ROLE), STAKEOUT_TIP)
         style.addLayer(
             LineLayer(STAKEOUT_LINE_LAYER, STAKEOUT_SOURCE).withFilter(lines).withProperties(
@@ -360,12 +372,21 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             source.setGeoJson(FeatureCollection.fromFeatures(emptyList()))
             return
         }
-        val design = Point.fromLngLat(marker.design.longitudeDeg, marker.design.latitudeDeg)
-        val features = mutableListOf(Feature.fromGeometry(design).apply { addStringProperty(STAKEOUT_ROLE, STAKEOUT_DESIGN) })
+        val design = marker.design?.let { Point.fromLngLat(it.longitudeDeg, it.latitudeDeg) }
+        val features = mutableListOf<Feature>()
+        if (marker.chosen.size >= 2) {
+            val chosen = LineString.fromLngLats(marker.chosen.map { Point.fromLngLat(it.longitudeDeg, it.latitudeDeg) })
+            features += Feature.fromGeometry(chosen).apply { addStringProperty(STAKEOUT_ROLE, STAKEOUT_CHOSEN) }
+        }
+        if (design != null) features += Feature.fromGeometry(design).apply { addStringProperty(STAKEOUT_ROLE, STAKEOUT_DESIGN) }
         marker.tip?.let { tip ->
             val tipPoint = Point.fromLngLat(tip.longitudeDeg, tip.latitudeDeg)
             features += Feature.fromGeometry(tipPoint).apply { addStringProperty(STAKEOUT_ROLE, STAKEOUT_TIP) }
-            if (marker.line) features += Feature.fromGeometry(LineString.fromLngLats(listOf(tipPoint, design)))
+            if (marker.line && design != null) {
+                features += Feature.fromGeometry(LineString.fromLngLats(listOf(tipPoint, design))).apply {
+                    addStringProperty(STAKEOUT_ROLE, STAKEOUT_GUIDE)
+                }
+            }
         }
         source.setGeoJson(FeatureCollection.fromFeatures(features))
     }
@@ -636,10 +657,15 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val STAKED_COLOR = "#2E7D32"
         const val STAKEOUT_SOURCE = "topophone-stakeout"
         const val STAKEOUT_LINE_LAYER = "topophone-stakeout-line"
+        const val STAKEOUT_CHOSEN_LAYER = "topophone-stakeout-chosen"
         const val STAKEOUT_DESIGN_LAYER = "topophone-stakeout-design"
         const val STAKEOUT_TIP_LAYER = "topophone-stakeout-tip"
         const val STAKEOUT_ROLE = "role"
         const val STAKEOUT_DESIGN = "design"
+        const val STAKEOUT_GUIDE = "guide"
+        const val STAKEOUT_CHOSEN = "chosen"
+        const val STAKEOUT_CHOSEN_DP = 6f
+        const val STAKEOUT_CHOSEN_OPACITY = 0.6f
         const val STAKEOUT_TIP = "tip"
         const val STAKEOUT_COLOR = "#C62828"
         const val STAKEOUT_LINE_DP = 2f

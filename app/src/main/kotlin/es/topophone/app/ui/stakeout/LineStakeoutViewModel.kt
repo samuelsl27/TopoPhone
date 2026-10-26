@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.cad.DesignSelection
 import es.topophone.app.ui.collector.MeasurementInProgress
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.format.NumberInput
@@ -25,6 +26,7 @@ import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.LineCheck
 import es.topophone.core.survey.LineInputs
 import es.topophone.core.survey.LineLocator
@@ -49,6 +51,7 @@ import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import java.util.Locale
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -196,6 +199,11 @@ class LineStakeoutViewModel @Inject constructor(
 
     private data class Live(val settings: StakeoutSettings, val guidance: GuidanceState, val measuring: Boolean, val unsupported: Boolean)
 
+    private val chosenGeometry = MutableStateFlow<List<GeoPoint>>(emptyList())
+
+    /** La línea elegida en geográficas, aligerada, para dibujarla más gruesa en el mapa (S041/RF-5). */
+    val highlight: StateFlow<List<GeoPoint>> = chosenGeometry
+
     /** El objetivo de línea de la última época con guía, para guardarlo si la guía se apaga justo al medir (S041/RF-28). */
     @Volatile private var lastLine: LineObjective? = null
 
@@ -309,12 +317,35 @@ class LineStakeoutViewModel @Inject constructor(
         )
         anchor = null
         cached = null
+        chosenGeometry.value = emptyList()
+        viewModelScope.launch(Dispatchers.Default) { chosenGeometry.value = highlightOf(projectId, line) }
         watchDrawing(projectId, selection.ref.layerId)
         log.info(LogCategory.POINTS, "Replanteo de una línea abierto") // S014/RF-5
     }
 
+    /** Hasta [HIGHLIGHT_MAX] vértices repartidos por la línea, más el primero y el último, pasados a latitud y longitud. */
+    private suspend fun highlightOf(projectId: String, line: StakeLine): List<GeoPoint> {
+        val crs = projects.project(projectId)?.crs ?: return emptyList()
+        val closedExtra = if (line.closed) 1 else 0
+        val total = line.vertexCount + closedExtra
+        val step = ((total - 1) / HIGHLIGHT_MAX) + 1
+        val out = ArrayList<GeoPoint>()
+        var i = 0
+        while (i < total) {
+            val v = if (i >= line.vertexCount) 0 else i
+            CadPlacement.geographic(crs, line.easting(v), line.northing(v))?.let { out += GeoPoint(it.first, it.second) }
+            i += step
+        }
+        if ((total - 1) % step != 0) {
+            val v = if (closedExtra == 1) 0 else line.vertexCount - 1
+            CadPlacement.geographic(crs, line.easting(v), line.northing(v))?.let { out += GeoPoint(it.first, it.second) }
+        }
+        return out
+    }
+
     /** Cierra el replanteo y empieza de cero. */
     fun close() {
+        chosenGeometry.value = emptyList()
         drawingWatcher?.cancel()
         model.value = null
         unsupported.value = false
@@ -599,3 +630,6 @@ class LineStakeoutViewModel @Inject constructor(
         return target
     }
 }
+
+/** Los vértices que se dibujan de la línea elegida: de sobra para el mapa, y no miles de ellos en el hilo de la interfaz. */
+private const val HIGHLIGHT_MAX = 4_000
