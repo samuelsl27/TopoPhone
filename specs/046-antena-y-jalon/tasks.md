@@ -8,7 +8,7 @@
       Hecho cuando: `AntennaCatalogTest` en verde con los desplazamientos de RF-1, el RS3 en 0,134 m y que el catálogo no trae radios.
 - [x] T3. `core:survey`: `PoleGeometry` (altura vertical desde la inclinada y altura de antena). (RF-16 a RF-19, RF-20)
       Hecho cuando: `PoleGeometryTest` en verde: vertical, inclinada con radio (≤ 0,1 mm contra √(i² − r²)), sin radio, menor y igual que el radio.
-- [ ] T4. `core:survey`: `GearValidation` con nombres únicos sin distinguir mayúsculas ni tildes y los rangos de perfiles y jalones. (RF-3, RF-4, RF-9, RF-10)
+- [x] T4. `core:survey`: `GearValidation` con nombres únicos sin distinguir mayúsculas ni tildes y los rangos de perfiles y jalones. (RF-3, RF-4, RF-9, RF-10)
       Hecho cuando: `GearValidationTest` en verde: nombres repetidos, vacíos y largos, rangos, punto y coma decimal, 0 y 10,001 m.
 - [ ] T5. `core:survey`: `SavedPole`, `ActiveGear` y `resolve` (A3) con su estado. (RF-7, RF-13, RF-28)
       Hecho cuando: `ActiveGearTest` en verde: sin fila, perfil borrado, sin jalón, jalón inclinado sin radio y menor que el radio.
