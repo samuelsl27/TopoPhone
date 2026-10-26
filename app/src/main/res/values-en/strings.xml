@@ -444,6 +444,7 @@
     <string name="stakeout_level_no_tip_height">No elevation: the tip has no height</string>
     <string name="stakeout_level_outside_surface">Outside the surface</string>
     <string name="stakeout_level_surface_loading">Calculating the surface elevation…</string>
+    <string name="collector_surface">Surface: %1$s (offset %2$s)</string>
     <string name="stakeout_source_title">Stake out against</string>
     <string name="stakeout_source_point">Point elevation</string>
     <string name="stakeout_source_surface">Surface</string>

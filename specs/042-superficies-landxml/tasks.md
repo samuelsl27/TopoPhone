@@ -42,7 +42,7 @@
       Hecho cuando: `StakeoutMeasureSurfaceTest` y `StakeoutDiffTest` en verde: origen, superficie, cota, desplazamiento, diferencia, y las cinco columnas vacías fuera.
 - [x] T20. La ficha del punto replanteado y el informe de replanteo con las cuatro columnas nuevas del CSV. (RF-30, RF-31)
       Hecho cuando: el test de la ficha y `StakeoutReportCsvTest` en verde: columnas vacías sin superficie, `Locale.ROOT`, unidades del proyecto y goldens regenerados.
-- [ ] T21. `app`: la cota de la superficie bajo la punta en el recolector, sin guardarla en el punto. (RF-33)
+- [x] T21. `app`: la cota de la superficie bajo la punta en el recolector, sin guardarla en el punto. (RF-33)
       Hecho cuando: `CollectorSurfaceTest` en verde: dentro, fuera y que el punto medido no lleva nada de la superficie.
 - [ ] T22. Rendimiento: `SurfacePerformanceTest`. (RNF)
       Hecho cuando: activar una superficie de 1.000.000 de triángulos da la primera cota en menos de 1 s, la consulta a 10 Hz no pasa de 16 ms y un LandXML de 100 MB generado al vuelo se importa en menos de 90 s sin quedarse sin memoria.

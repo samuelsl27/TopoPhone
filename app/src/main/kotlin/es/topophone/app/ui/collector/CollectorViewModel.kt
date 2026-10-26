@@ -37,6 +37,8 @@ import es.topophone.core.model.point.StakeoutRef
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.model.surface.SurfaceGuide
+import es.topophone.core.model.surface.SurfaceHeight
 import es.topophone.core.survey.AutoAction
 import es.topophone.core.survey.AutoOutcome
 import es.topophone.core.survey.AverageStatsSnapshot
@@ -44,6 +46,7 @@ import es.topophone.core.survey.BaseFix
 import es.topophone.core.survey.Baseline
 import es.topophone.core.survey.Dispersion
 import es.topophone.core.survey.GroundEN
+import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.MeasurementFailure
 import es.topophone.core.survey.MeasurementResult
 import es.topophone.core.survey.MeasurementUpdate
@@ -62,6 +65,7 @@ import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.surface.SurfaceGuides
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
@@ -109,6 +113,18 @@ enum class MeasureBlocker {
 
 /** Por qué una medida se ha cancelado sola (S010/RF-12; al cambiar el modo de inclinación, S016/RF-28). */
 enum class CollectorError { NO_DATA, OUTSIDE_CRS_AREA, TILT_MODE_CHANGED }
+
+/**
+ * La cota de la superficie activa bajo la punta mientras se recolecta, sin replantear (S042/RF-33): [height] es su cota, fuera de la
+ * superficie o cargando; [offsetM] el desplazamiento vertical del proyecto; [tipHeightM] la cota de la punta. No se guarda en el punto.
+ */
+data class SurfaceReading(val height: SurfaceHeight, val offsetM: Double, val tipHeightM: Double?) {
+    /** La cota de la superficie con el desplazamiento, o null fuera de la superficie o cargando. */
+    val designM: Double? get() = height.withOffset(offsetM).metresOrNull
+
+    /** La cota de la punta menos la de la superficie con desplazamiento: positiva es desmonte y negativa terraplén (S019/RF-6). */
+    val dzM: Double? get() = designM?.let { design -> tipHeightM?.minus(design) }
+}
 
 /** Solución y precisiones de la GST del receptor (S010/RF-6). */
 data class LiveQuality(val solution: SolutionStatus, val horizontalM: Double?, val verticalM: Double?)
@@ -194,6 +210,7 @@ class CollectorViewModel @Inject constructor(
     private val log: AppLog = AppLog.NONE,
     private val baseNotices: BaseNotices = BaseNotices(),
     private val tilt: CurrentTilt = CurrentTilt.NONE,
+    private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
 ) : ViewModel() {
     private data class Form(
         val loaded: Boolean = false,
@@ -348,6 +365,34 @@ class CollectorViewModel @Inject constructor(
 
     /** Lo que falta para el siguiente punto del modo automático (S017/RF-26). */
     val autoLive: StateFlow<AutoLive?> = autoCollector.live
+
+    /** La superficie activa del proyecto con su desplazamiento vertical, o null (S042/RF-33). */
+    private val surfaceGuide: StateFlow<SurfaceGuide?> = projectId
+        .flatMapLatest { id -> if (id == null) flowOf(null) else surfaces.guide(id) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /**
+     * La cota de la superficie bajo la punta, con la época de ahora y sin guardar nada en el punto (S042/RF-33). Null sin superficie
+     * activa, sin posición o sin altura del jalón válida. Sale en su propio flujo para que [CollectorUiState] solo cambie con los sucesos.
+     */
+    val surfaceReading: StateFlow<SurfaceReading?> = combine(session.state, surfaceGuide, projectFlow, tilt.state, form) {
+            snapshot,
+            guide,
+            project,
+            tiltState,
+            f,
+        ->
+        if (guide == null || project == null || snapshot.connection !is ConnectionState.Receiving) return@combine null
+        val fix = snapshot.gga?.takeIf { it.hasPosition } ?: return@combine null
+        val pole = PoleHeight.parse(f.poleText) ?: return@combine null
+        val epochTilt = snapshot.epoch?.tilt
+        val tip = LiveTip.of(fix, epochTilt, tiltState.settings.mode, pole) ?: return@combine null
+        val position = calculator.get().fromGround(tip.ground, project.crs, project.heightSystem)
+        val easting = position.easting
+        val northing = position.northing
+        val height = if (easting != null && northing != null) guide.heightAt(easting, northing) else SurfaceHeight.Outside
+        SurfaceReading(height, guide.verticalOffsetM, position.height)
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     val state: StateFlow<CollectorUiState> = combine(
         formState,

@@ -76,6 +76,7 @@ import es.topophone.app.ui.collector.CollectorActions
 import es.topophone.app.ui.collector.CollectorPanel
 import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.collector.CollectorViewModel
+import es.topophone.app.ui.collector.SurfaceReading
 import es.topophone.app.ui.map.AttributionSource
 import es.topophone.app.ui.map.CameraCommand
 import es.topophone.app.ui.map.CameraPolicy
@@ -381,6 +382,7 @@ fun ProjectViewRoute(
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
     val collectorAutoLive by collectorViewModel.autoLive.collectAsStateWithLifecycle() // S017/RF-26
+    val collectorSurface by collectorViewModel.surfaceReading.collectAsStateWithLifecycle() // S042/RF-33
     val context = LocalContext.current
     val environment =
         remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
@@ -413,6 +415,7 @@ fun ProjectViewRoute(
         collector = collector,
         collectorStats = collectorStats,
         collectorAutoLive = collectorAutoLive,
+        collectorSurface = collectorSurface,
         collectorActions = CollectorActions(
             onName = collectorViewModel::setName,
             onDescription = collectorViewModel::setDescription,
@@ -515,6 +518,8 @@ fun ProjectViewScreen(
     collector: CollectorUiState? = null,
     collectorStats: AverageStatsUi? = null,
     collectorAutoLive: AutoLive? = null,
+    /** La cota de la superficie activa bajo la punta, en el recolector sin replantear (S042/RF-33). */
+    collectorSurface: SurfaceReading? = null,
     collectorActions: CollectorActions = CollectorActions(),
     onObjects: (projectId: String) -> Unit = {},
     onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
@@ -655,7 +660,7 @@ fun ProjectViewScreen(
                     collector != null && collectorOpen -> CollectorPanel(collector, project.linearUnit, collectorActions, onClose = {
                         collectorOpen =
                             false
-                    }, stats = collectorStats, autoLive = collectorAutoLive)
+                    }, stats = collectorStats, autoLive = collectorAutoLive, surface = collectorSurface)
                     else -> PositionPanel(project, state.position, state.accuracyM, state.uncompensated, onInfo, Modifier)
                 }
             }

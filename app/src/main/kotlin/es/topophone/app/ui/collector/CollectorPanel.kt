@@ -41,9 +41,12 @@ import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.model.surface.SurfaceHeight
 
 const val COLLECT_BUTTON_TAG = "collect"
 const val COLLECTOR_PANEL_TAG = "collector_panel"
+const val COLLECTOR_SURFACE_TAG = "collector_surface"
+const val COLLECTOR_SURFACE_LEVEL_TAG = "collector_surface_level"
 const val COLLECTOR_CLOSE_TAG = "collector_close"
 const val COLLECTOR_NAME_TAG = "collector_name"
 const val COLLECTOR_DESCRIPTION_TAG = "collector_description"
@@ -107,6 +110,8 @@ fun CollectorPanel(
     modifier: Modifier = Modifier,
     stats: AverageStatsUi? = null,
     autoLive: AutoLive? = null,
+    /** La cota de la superficie activa bajo la punta, sin replantear (S042/RF-33). */
+    surface: SurfaceReading? = null,
 ) {
     KeepScreenOn()
     Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(COLLECTOR_PANEL_TAG)) {
@@ -133,6 +138,7 @@ fun CollectorPanel(
             ) { Form(state, unit, actions) }
             BaseNoticeBanners(state.notices, actions.onDismissBaseChange, actions.onDismissLongBaseline) // S015/RF-15, RF-17
             LiveQualityText(state.live, unit)
+            SurfaceReadingText(surface, unit) // S042/RF-33
             Messages(state, actions)
             when {
                 state.autoEnabled || state.auto.running -> AutoControls(state, unit, autoLive, actions) // S017/RF-15
@@ -253,6 +259,43 @@ private fun LiveQualityText(live: LiveQuality?, unit: LinearUnit) {
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(COLLECTOR_LIVE_TAG),
     )
+}
+
+/**
+ * La cota de la superficie con el desplazamiento bajo la punta y la diferencia con la cota de la punta como desmonte o terraplén, o
+ * «Fuera de la superficie» o «Calculando…» (S042/RF-33). Solo informa: no se guarda nada en el punto que se mide.
+ */
+@Composable
+private fun SurfaceReadingText(reading: SurfaceReading?, unit: LinearUnit) {
+    if (reading == null) return
+    val locale = uiLocale()
+    val symbol = unitSymbol(unit)
+
+    fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, unit, locale)} $symbol"
+    val design = reading.designM
+    val dz = reading.dzM
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        when {
+            reading.height == SurfaceHeight.Loading ->
+                Text(stringResource(R.string.stakeout_level_surface_loading), modifier = Modifier.testTag(COLLECTOR_SURFACE_TAG))
+            design == null ->
+                Text(stringResource(R.string.stakeout_level_outside_surface), modifier = Modifier.testTag(COLLECTOR_SURFACE_TAG))
+            else -> {
+                Text(
+                    stringResource(R.string.collector_surface, length(design), length(reading.offsetM)),
+                    modifier = Modifier.testTag(COLLECTOR_SURFACE_TAG),
+                )
+                if (dz != null) {
+                    val text = when {
+                        dz > 0.0 -> stringResource(R.string.stakeout_level_cut, length(dz))
+                        dz < 0.0 -> stringResource(R.string.stakeout_level_fill, length(-dz))
+                        else -> stringResource(R.string.stakeout_level_on_grade)
+                    }
+                    Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag(COLLECTOR_SURFACE_LEVEL_TAG))
+                }
+            }
+        }
+    }
 }
 
 /** Por qué no se puede medir, la guía de la inclinación, avisos de la medida y punto guardado (S010/RF-10, RF-12, RF-19; S016). */

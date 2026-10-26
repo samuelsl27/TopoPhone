@@ -456,6 +456,7 @@
     <string name="stakeout_level_no_tip_height">Sin cota: la punta no tiene altura</string>
     <string name="stakeout_level_outside_surface">Fuera de la superficie</string>
     <string name="stakeout_level_surface_loading">Calculando la cota de la superficie…</string>
+    <string name="collector_surface">Superficie: %1$s (desplazamiento %2$s)</string>
     <string name="stakeout_source_title">Replantear contra</string>
     <string name="stakeout_source_point">Cota del punto</string>
     <string name="stakeout_source_surface">Superficie</string>
