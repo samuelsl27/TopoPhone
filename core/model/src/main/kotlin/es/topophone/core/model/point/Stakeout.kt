@@ -20,6 +20,8 @@ data class StakeoutSettings(
     val heading: HeadingChoice = HeadingChoice.WALKING,
     val toleranceM: Double = DEFAULT_TOLERANCE_M,
     val toleranceVM: Double = DEFAULT_TOLERANCE_V_M,
+    /** El último modo del replanteo de una línea, el mismo para todos los proyectos (S041/RF-3). */
+    val lineMode: LineStakeoutMode = LineStakeoutMode.DEFAULT,
 ) {
     /** La tolerancia dentro de [TOLERANCE_M]; 2,5 cm si no es un número. */
     val validToleranceM: Double get() = if (toleranceM.isNaN()) DEFAULT_TOLERANCE_M else toleranceM.coerceIn(TOLERANCE_M)

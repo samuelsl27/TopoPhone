@@ -1,5 +1,6 @@
 package es.topophone.core.survey
 
+import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.point.LineInputError
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -20,7 +21,7 @@ data class SeriesPoint(val index: Int, val chainageM: Double, val point: PlanePo
  */
 object LineInputs {
     /** Un número escrito con punto o con coma decimal, o null si no lo es o no es finito (RF-21). */
-    fun parse(text: String): Double? = text.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it.isFinite() }
+    fun parse(text: String): Double? = NumberInput.parse(text)?.takeIf { it.isFinite() }
 
     /** El desplazamiento lateral: cualquier número, positivo a la derecha y negativo a la izquierda (RF-11). */
     fun offset(text: String): LineCheck<Double> = parse(text)?.let { LineCheck.Valid(it) } ?: LineCheck.Invalid(LineInputError.NOT_A_NUMBER)

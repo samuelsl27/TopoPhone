@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import es.topophone.core.model.point.HeadingChoice
+import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.StakeMode
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.data.settings.SettingsDataStore
@@ -52,6 +53,23 @@ class StakeoutPreferencesTest {
         withPreferences { prefs, _ -> prefs.save(chosen) }
 
         withPreferences { prefs, _ -> prefs.settings.first() } shouldBe chosen
+    }
+
+    @Test
+    fun `S041 RF-3 de fabrica el modo de linea es A la linea y el ultimo elegido se recuerda`() {
+        withPreferences { prefs, _ -> prefs.settings.first() }.lineMode shouldBe LineStakeoutMode.TO_LINE
+
+        withPreferences { prefs, _ -> prefs.save(StakeoutSettings(lineMode = LineStakeoutMode.INTERVALS)) }
+
+        withPreferences { prefs, _ -> prefs.settings.first() }.lineMode shouldBe LineStakeoutMode.INTERVALS
+    }
+
+    @Test
+    fun `S041 RF-3 un modo guardado que ya no existe vuelve a A la linea`() {
+        withPreferences { prefs, store ->
+            store.edit { it[stringPreferencesKey("stakeout_line_mode")] = "OTRO" }
+            prefs.settings.first().lineMode shouldBe LineStakeoutMode.TO_LINE
+        }
     }
 
     @Test

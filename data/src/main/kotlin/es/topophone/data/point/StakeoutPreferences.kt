@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import es.topophone.core.model.point.HeadingChoice
+import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.StakeMode
 import es.topophone.core.model.point.StakeoutSettings
 import java.io.IOException
@@ -42,6 +43,7 @@ class DataStoreStakeoutPreferences @Inject constructor(@param:StakeoutDataStoreQ
                 heading = HeadingChoice.entries.firstOrNull { it.name == p[HEADING] } ?: factory.heading,
                 toleranceM = p[TOLERANCE_M] ?: factory.toleranceM,
                 toleranceVM = p[TOLERANCE_V_M] ?: factory.toleranceVM,
+                lineMode = LineStakeoutMode.fromName(p[LINE_MODE]),
             ).let { it.copy(toleranceM = it.validToleranceM, toleranceVM = it.validToleranceVM) }
         }.distinctUntilChanged()
 
@@ -51,6 +53,7 @@ class DataStoreStakeoutPreferences @Inject constructor(@param:StakeoutDataStoreQ
             it[HEADING] = settings.heading.name
             it[TOLERANCE_M] = settings.validToleranceM
             it[TOLERANCE_V_M] = settings.validToleranceVM
+            it[LINE_MODE] = settings.lineMode.name
         }
     }
 
@@ -59,5 +62,6 @@ class DataStoreStakeoutPreferences @Inject constructor(@param:StakeoutDataStoreQ
         val HEADING = stringPreferencesKey("stakeout_heading")
         val TOLERANCE_M = doublePreferencesKey("stakeout_tolerance_m")
         val TOLERANCE_V_M = doublePreferencesKey("stakeout_tolerance_v_m") // S019/RF-10
+        val LINE_MODE = stringPreferencesKey("stakeout_line_mode") // S041/RF-3
     }
 }
