@@ -8,7 +8,7 @@
       Hecho cuando: `CadCurvesTest`, `DxfBlocksTest` y `DxfReaderTest` en verde: extremos de arco y de spline, punto de partida del círculo, vértices de bulge y bloques escalados.
 - [x] T3. `core:survey` y `data`: `CadProjector` y `CadDrawingImporter` conservan las marcas al convertir y al partir una polilínea en trozos; `CadEntity.withVertices` y `slice`. (S040/RF-34, RF-34)
       Hecho cuando: `CadDrawingImporterTest` en verde: arco, spline, círculo y bulge con sus marcas tras importar, y una polilínea partida en trozos.
-- [ ] T4. `tools/replanteo`: `generar_lineas.py` con los casos de `fixtures/replanteo/lineas/` (rectas, polilíneas, cerradas, antes y después, ambos lados, A–B e intervalos) y lo esperado con pyproj y con un cálculo geométrico aparte. (Constitución nº 2, RF-10, RF-11, RF-15, RF-18)
+- [x] T4. `tools/replanteo`: `generar_lineas.py` con los casos de `fixtures/replanteo/lineas/` (rectas, polilíneas, cerradas, antes y después, ambos lados, A–B e intervalos) y lo esperado con pyproj y con un cálculo geométrico aparte. (Constitución nº 2, RF-10, RF-11, RF-15, RF-18)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [ ] T5. `core:model`: `LineStakeoutMode`, `StakeSource`, `LineInputError` y las ampliaciones de `StakeoutRef` (origen, modo, PK, desplazamiento y error lateral). (RF-3, RF-28, RF-29)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto (los puntos de S018 y S019 no cambian).
