@@ -12,8 +12,12 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.cad.CadChunkContent
+import kotlin.math.ceil
 import kotlin.math.cos
+import kotlin.math.floor
 import kotlin.math.hypot
+import kotlin.math.max
+import kotlin.math.min
 
 /** Una línea del dibujo lista para el mapa: longitud y latitud de cada vértice, una tras otra, y su color ARGB (S040/RF-24). */
 class DesignLine(val lonLat: DoubleArray, val argb: Int) {
@@ -30,9 +34,11 @@ class DesignScene(val lines: List<DesignLine>, val points: List<DesignPoint>) {
 }
 
 /**
- * De los trozos que cortan la vista a lo que se dibuja (S040/RF-24, RF-25, RNF): recorta a la vista, simplifica los vértices que
- * quedan a menos de un píxel del anterior —y sube el umbral de píxel en píxel hasta que caben— y pasa el blanco y el negro del DXF
- * al color de contraste del mapa.
+ * De los trozos que cortan la vista a lo que se dibuja (S040/RF-24, RF-25, RNF): recorta a la vista; no dibuja lo que mide menos de
+ * un píxel y aclara los puntos que caen en el mismo píxel; simplifica los vértices que quedan a menos de un píxel del anterior; y,
+ * si aun así hay más de [MAX_VERTICES], sube el umbral de píxel en píxel hasta que caben. Pasa el blanco y el negro del DXF al color
+ * de contraste del mapa. Recorre los trozos dos veces, decodificándolos uno a uno, para no tener a la vez en memoria todos los
+ * elementos de una vista enorme.
  */
 object DesignSceneBuilder {
     /** Como mucho este número de vértices y puntos por escena, para no frenar el mapa (RNF-T13). */
@@ -43,6 +49,7 @@ object DesignSceneBuilder {
     private const val MARGIN = 1.5
     private const val METRES_PER_DEGREE = 111_320.0
     private const val MAX_PX_THRESHOLD = 400
+    private const val MIN_LINE_BUDGET = 1_000
 
     /**
      * El recuadro, en el sistema del proyecto, de lo que se carga con la cámara [camera]: 1,5 veces la pantalla. null si el centro
@@ -61,44 +68,73 @@ object DesignSceneBuilder {
         return CadExtent(east - half, east + half, north - half, north + half)
     }
 
+    fun build(crs: ProjectCrs, layers: List<DesignLayer>, chunks: List<CadChunkContent>, metresPerPixel: Double, contrastArgb: Int) =
+        build(crs, layers, chunks.asSequence(), metresPerPixel, contrastArgb)
+
     /**
      * La escena de los [chunks] de las capas visibles [layers] con [metresPerPixel] metros por píxel; el blanco y el negro del DXF
-     * se pintan de [contrastArgb].
+     * se pintan de [contrastArgb]. [chunks] se recorre dos veces.
      */
     fun build(
         crs: ProjectCrs,
         layers: List<DesignLayer>,
-        chunks: List<CadChunkContent>,
+        chunks: Sequence<CadChunkContent>,
         metresPerPixel: Double,
         contrastArgb: Int,
     ): DesignScene {
         val byId = layers.associateBy { it.id }
-        val lines = ArrayList<Pair<CadEntity, Int>>()
+        val unit = metresPerPixel * if (crs.utmZone == null) 1.0 / METRES_PER_DEGREE else 1.0
+
+        // Primera pasada: los puntos (uno por píxel) y, de cada línea, cuánto mide, cuánto recorre y cuántos vértices tiene.
         val points = ArrayList<DesignPoint>()
+        val cells = HashSet<Long>()
+        val stats = LineStats()
         for (chunk in chunks) {
             val layer = byId[chunk.layerId] ?: continue
             for (entity in chunk.entities) {
-                val argb = argbOf(entity.color ?: layer.color, contrastArgb)
-                if (entity.kind == CadEntityKind.POINT || entity.kind == CadEntityKind.BLOCK_INSERT) {
-                    CadPlacement.geographic(crs, entity.easting[0], entity.northing[0])?.let {
-                        points +=
-                            DesignPoint(it.first, it.second, argb)
-                    }
+                if (isPoint(entity)) {
+                    val key = cellKey(entity.easting[0], entity.northing[0], unit)
+                    if (cells.add(key)) addPoint(crs, entity, layer, contrastArgb, points)
                 } else if (entity.vertexCount >= 2) {
-                    lines += entity to argb
+                    stats.add(entity)
                 }
             }
         }
-        val unitsPerMetre = if (crs.utmZone == null) 1.0 / METRES_PER_DEGREE else 1.0
-        var kept = decimateAll(lines, metresPerPixel * unitsPerMetre, 1)
-        var px = 1
-        while (kept.sumOf { it.first.size } + points.size > MAX_VERTICES && px < MAX_PX_THRESHOLD) {
-            px++
-            kept = decimateAll(lines, metresPerPixel * unitsPerMetre, px)
+        val capped = cap(points)
+
+        // El menor umbral de píxeles con el que las líneas que se ven caben en lo que queda del límite.
+        val budget = max(MAX_VERTICES - capped.size, MIN_LINE_BUDGET)
+        var low = 1
+        var high = MAX_PX_THRESHOLD
+        while (low < high) {
+            val mid = (low + high) / 2
+            if (stats.estimate(mid * unit) <= budget) high = mid else low = mid + 1
         }
-        val drawn = kept.mapNotNull { (xy, argb) -> toGeographic(crs, xy)?.let { DesignLine(it, argb) } }
-        return DesignScene(drawn, cap(points))
+        val threshold = low * unit
+
+        // Segunda pasada: solo las líneas que se ven, con sus vértices simplificados.
+        val lines = ArrayList<DesignLine>()
+        for (chunk in chunks) {
+            val layer = byId[chunk.layerId] ?: continue
+            for (entity in chunk.entities) {
+                if (isPoint(entity) || entity.vertexCount < 2 || diagonal(entity) < threshold) continue
+                val xy = decimate(entity, threshold)
+                val argb = argbOf(entity.color ?: layer.color, contrastArgb)
+                toGeographic(crs, xy)?.let { lines += DesignLine(it, argb) }
+            }
+        }
+        return DesignScene(lines, capped)
     }
+
+    private fun isPoint(entity: CadEntity) = entity.kind == CadEntityKind.POINT || entity.kind == CadEntityKind.BLOCK_INSERT
+
+    private fun addPoint(crs: ProjectCrs, entity: CadEntity, layer: DesignLayer, contrastArgb: Int, out: MutableList<DesignPoint>) {
+        val g = CadPlacement.geographic(crs, entity.easting[0], entity.northing[0]) ?: return
+        out += DesignPoint(g.first, g.second, argbOf(entity.color ?: layer.color, contrastArgb))
+    }
+
+    private fun cellKey(east: Double, north: Double, unit: Double): Long =
+        (floor(east / unit).toLong() shl 32) xor (floor(north / unit).toLong() and 0xFFFFFFFFL)
 
     private fun cap(points: List<DesignPoint>): List<DesignPoint> {
         if (points.size <= MAX_VERTICES) return points
@@ -108,8 +144,62 @@ object DesignSceneBuilder {
 
     private fun argbOf(color: CadColor, contrastArgb: Int) = if (color.autoContrast) contrastArgb else color.argb
 
-    private fun decimateAll(lines: List<Pair<CadEntity, Int>>, unit: Double, px: Int): List<Pair<DoubleArray, Int>> =
-        lines.map { (entity, argb) -> decimate(entity, unit * px) to argb }
+    /** Lo que mide el recuadro del elemento en diagonal. */
+    private fun diagonal(entity: CadEntity): Double {
+        var minE = Double.MAX_VALUE
+        var maxE = -Double.MAX_VALUE
+        var minN = Double.MAX_VALUE
+        var maxN = -Double.MAX_VALUE
+        for (i in 0 until entity.vertexCount) {
+            minE = min(minE, entity.easting[i])
+            maxE = max(maxE, entity.easting[i])
+            minN = min(minN, entity.northing[i])
+            maxN = max(maxN, entity.northing[i])
+        }
+        return hypot(maxE - minE, maxN - minN)
+    }
+
+    private fun pathLength(entity: CadEntity): Double {
+        var total = 0.0
+        for (i in 0 until entity.vertexCount - 1) {
+            total += hypot(entity.easting[i + 1] - entity.easting[i], entity.northing[i + 1] - entity.northing[i])
+        }
+        return total
+    }
+
+    /** De cada línea, lo justo para saber cuántos vértices quedarían con un umbral dado, sin guardar las líneas. */
+    private class LineStats {
+        private var diagonals = DoubleArray(INITIAL)
+        private var lengths = DoubleArray(INITIAL)
+        private var vertices = IntArray(INITIAL)
+        private var count = 0
+
+        fun add(entity: CadEntity) {
+            if (count == diagonals.size) {
+                diagonals = diagonals.copyOf(count * 2)
+                lengths = lengths.copyOf(count * 2)
+                vertices = vertices.copyOf(count * 2)
+            }
+            diagonals[count] = diagonal(entity)
+            lengths[count] = pathLength(entity)
+            vertices[count] = entity.vertexCount
+            count++
+        }
+
+        /** Los vértices que como mucho quedan con [threshold]: las líneas menores se quitan y las otras se simplifican. */
+        fun estimate(threshold: Double): Long {
+            var total = 0L
+            for (i in 0 until count) {
+                if (diagonals[i] < threshold) continue
+                total += min(vertices[i].toLong(), 2L + ceil(lengths[i] / threshold).toLong())
+            }
+            return total
+        }
+
+        private companion object {
+            const val INITIAL = 1_024
+        }
+    }
 
     /** Los vértices separados al menos [threshold] del anterior que se quedó, más siempre el primero y el último; este/norte seguidos. */
     private fun decimate(entity: CadEntity, threshold: Double): DoubleArray {

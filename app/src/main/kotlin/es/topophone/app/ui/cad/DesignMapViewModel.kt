@@ -70,7 +70,7 @@ class DesignMapViewModel @Inject constructor(
             }.mapLatest { input ->
                 if (input.layers.isEmpty()) return@mapLatest null
                 val area = DesignSceneBuilder.viewport(input.camera, crs) ?: return@mapLatest null
-                val chunks = cad.chunksIn(input.layers.map { it.id }, area)
+                val chunks = cad.chunkSequenceIn(input.layers.map { it.id }, area)
                 val mpp = WebMercator.metresPerPixel(input.camera.latitudeDeg, input.camera.zoom)
                 DesignSceneBuilder.build(crs, input.layers, chunks, mpp, input.contrast).takeUnless { it.isEmpty }
             }

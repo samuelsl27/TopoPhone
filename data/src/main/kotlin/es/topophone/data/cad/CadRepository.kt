@@ -62,6 +62,12 @@ interface CadRepository {
     suspend fun chunksIn(layerIds: Collection<String>, area: CadExtent): List<CadChunkContent>
 
     suspend fun chunk(chunkId: Long): CadChunkContent?
+
+    /**
+     * Como [chunksIn], pero los trozos se decodifican uno a uno al recorrer la secuencia (y otra vez en cada recorrido), para no tener
+     * en memoria a la vez todos los elementos de una vista enorme (S040, RNF).
+     */
+    suspend fun chunkSequenceIn(layerIds: Collection<String>, area: CadExtent): Sequence<CadChunkContent>
 }
 
 @Dao
@@ -185,6 +191,12 @@ class RoomCadRepository(private val database: TopoPhoneDatabase) : CadRepository
     }
 
     override suspend fun chunk(chunkId: Long): CadChunkContent? = dao.chunk(chunkId)?.toContent()
+
+    override suspend fun chunkSequenceIn(layerIds: Collection<String>, area: CadExtent): Sequence<CadChunkContent> {
+        if (layerIds.isEmpty()) return emptySequence()
+        val rows = dao.chunksIn(layerIds, area.minEasting, area.maxEasting, area.minNorthing, area.maxNorthing)
+        return rows.asSequence().map { it.toContent() }
+    }
 
     private companion object {
         const val IMPORTING = "IMPORTING"

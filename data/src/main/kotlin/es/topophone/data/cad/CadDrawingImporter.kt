@@ -56,6 +56,11 @@ class CadDrawingImporter(
     private val newId: () -> String = { UUID.randomUUID().toString() },
     private val maxBufferedBytes: Long = MAX_BUFFERED_BYTES,
 ) {
+    /** Lo máximo que hubo en los buffers de la última importación, en bytes: nunca pasa de [maxBufferedBytes] más un trozo (RNF). */
+    @Volatile
+    var peakBufferedBytes: Long = 0
+        private set
+
     /** La exploración que da la extensión antes de importar: una pasada completa del lector que no guarda nada (RF-9). */
     suspend fun scan(openStream: () -> InputStream, unit: LinearUnit = LinearUnit.METRE, onProgress: (Long) -> Unit = {}): CadScan =
         withContext(Dispatchers.IO) {
@@ -97,6 +102,7 @@ class CadDrawingImporter(
             val read = Counting(openStream(), onProgress, job::ensureActive).use { DxfReader.read(it, options.unit, sink) }
             job.ensureActive()
             sink.flushAll()
+            peakBufferedBytes = sink.peakBuffered
             if (sink.importedTotal == 0) {
                 writing { repository.abort(drawingId) }
                 return@withContext CadImportResult.Failed(CadImportFailure.NO_ELEMENTS)
@@ -195,6 +201,9 @@ class CadDrawingImporter(
         var importedTotal = 0
             private set
 
+        var peakBuffered = 0L
+            private set
+
         override fun tables(tables: DxfTables) {
             this.tables = tables
         }
@@ -267,6 +276,7 @@ class CadDrawingImporter(
             current.minN = min(current.minN, box.minNorthing)
             current.maxN = max(current.maxN, box.maxNorthing)
             buffered += size
+            if (buffered > peakBuffered) peakBuffered = buffered
             state.count++
             if (buffered > maxBufferedBytes) flushLargest()
         }

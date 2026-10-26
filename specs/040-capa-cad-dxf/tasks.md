@@ -48,7 +48,7 @@
       Hecho cuando: `DesignLayersPanelTest` en verde: capas con el mismo nombre de dos dibujos, la visibilidad que se recuerda y el borrado con confirmación sin tocar los puntos.
 - [x] T23. `app`: el toque en el mapa y la ficha del elemento. (RF-23, RF-29)
       Hecho cuando: `DesignElementSheetTest` en verde con un punto, una línea y un elemento sin cota.
-- [ ] T24. Rendimiento: `CadPerformanceTest`. (RNF)
+- [x] T24. Rendimiento: `CadPerformanceTest`. (RNF)
       Hecho cuando: un DXF sintético de 100 MB se explora en menos de 20 s y se importa en menos de 60 s sin pasar de 256 MB, el proyecto lo muestra en menos de 3 s y reconstruir la escena tarda menos de 200 ms.
 - [ ] T25. Validación: recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo (puerta G2b) quedan para el usuario.
