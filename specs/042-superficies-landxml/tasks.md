@@ -32,7 +32,7 @@
       Hecho cuando: `SurfaceImportScreenTest` en verde, con las zonas táctiles de 56 dp y el resumen.
 - [x] T15. `app`: `SurfacesSheet` y `SurfacesViewModel`, la lista, activar, borrar con confirmación y el desplazamiento vertical. (RF-16 a RF-20)
       Hecho cuando: `SurfacesSheetTest` en verde: activar otra y ninguna, borrar la activa y un desplazamiento que no es un número.
-- [ ] T16. `app`: `StakeContext` con la superficie y el origen, y `StakeoutController` con la cota de cada época, el nivel que no se reinicia, `SurfaceUi` y «Fuera de la superficie». (RF-23, RF-24, RF-26)
+- [x] T16. `app`: `StakeContext` con la superficie y el origen, y `StakeoutController` con la cota de cada época, el nivel que no se reinicia, `SurfaceUi` y «Fuera de la superficie». (RF-23, RF-24, RF-26)
       Hecho cuando: `StakeoutControllerSurfaceTest` en verde y los tests de S018, S019 y S041 siguen en verde.
 - [ ] T17. `app`: el origen de la cota en `StakeoutViewModel` y `LineStakeoutViewModel`: la regla de A5, el conmutador, la cota a mano fuera de la superficie y la desactivación con el replanteo abierto. (RF-23, RF-24, RF-25, RF-27)
       Hecho cuando: `StakeoutViewModelSurfaceTest` y `LineStakeoutViewModelSurfaceTest` en verde.

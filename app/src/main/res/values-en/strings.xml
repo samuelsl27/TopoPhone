@@ -442,6 +442,8 @@
     <string name="stakeout_level_on_grade">On grade</string>
     <string name="stakeout_level_no_elevation">No design elevation: the point has no height</string>
     <string name="stakeout_level_no_tip_height">No elevation: the tip has no height</string>
+    <string name="stakeout_level_outside_surface">Outside the surface</string>
+    <string name="stakeout_level_surface_loading">Calculating the surface elevation…</string>
     <string name="stakeout_level_description_cut">Vertical level: cut of %1$s, dig</string>
     <string name="stakeout_level_description_fill">Vertical level: fill of %1$s, add material</string>
     <string name="stakeout_level_description_on_grade">Vertical level: on grade</string>

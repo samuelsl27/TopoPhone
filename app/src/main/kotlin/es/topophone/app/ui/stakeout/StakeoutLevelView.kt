@@ -80,6 +80,8 @@ fun StakeoutLevelUnavailable(reason: LevelUnavailable, modifier: Modifier = Modi
             when (reason) {
                 LevelUnavailable.NO_DESIGN_ELEVATION -> R.string.stakeout_level_no_elevation
                 LevelUnavailable.TIP_WITHOUT_HEIGHT -> R.string.stakeout_level_no_tip_height
+                LevelUnavailable.OUTSIDE_SURFACE -> R.string.stakeout_level_outside_surface
+                LevelUnavailable.SURFACE_LOADING -> R.string.stakeout_level_surface_loading
             },
         ),
         style = MaterialTheme.typography.bodyMedium,

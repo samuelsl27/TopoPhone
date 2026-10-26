@@ -4,6 +4,7 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
@@ -11,6 +12,8 @@ import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.Project
+import es.topophone.core.model.surface.SurfaceGuide
+import es.topophone.core.model.surface.SurfaceHeight
 import es.topophone.core.survey.DianaScale
 import es.topophone.core.survey.Guidance
 import es.topophone.core.survey.HeadingResult
@@ -77,13 +80,17 @@ class StakeContext(
     val calculator: ProjectPositionCalculator,
     val designElevationM: Double? = null,
     val line: LineGuide? = null,
+    /** La superficie activa con el desplazamiento vertical, o null si no hay (S042/RF-24). */
+    val surface: SurfaceGuide? = null,
+    /** Contra qué cota se replantea; con [ElevationSource.SURFACE] la cota de diseño sale de [surface] en la punta (S042/RF-24, RF-25). */
+    val elevationSource: ElevationSource = ElevationSource.POINT,
 ) {
     /** La cota de diseño que se replantea: la escrita, o la altura del punto de diseño (S019/RF-1, RF-2). */
     val elevationM: Double? get() = designElevationM ?: target.coordinates.height
 }
 
 /** Por qué no hay nivel vertical aunque la guía esté encendida (S019/RF-5). */
-enum class LevelUnavailable { NO_DESIGN_ELEVATION, TIP_WITHOUT_HEIGHT }
+enum class LevelUnavailable { NO_DESIGN_ELEVATION, TIP_WITHOUT_HEIGHT, OUTSIDE_SURFACE, SURFACE_LOADING }
 
 /**
  * El nivel vertical con una época (S019/RF-6 a RF-9): la diferencia de cota [dzM] (punta menos cota de diseño; positiva en
@@ -93,6 +100,14 @@ data class LevelUi(val dzM: Double, val state: LevelState, val radiusM: Double, 
 
 /** Por qué la guía está apagada (S018/RF-22, RF-24, RF-25, RF-35). */
 enum class GuidanceOff { NO_POSITION, NO_DATA, NO_FIX, TILT_NOT_READY }
+
+/**
+ * La cota de la superficie bajo la punta con una época (S042/RF-23, RF-26): [height] es su cota, fuera de la superficie o cargando, y
+ * [offsetM] el desplazamiento vertical del proyecto. [designM] es la cota de la superficie con desplazamiento, o null si no la hay.
+ */
+data class SurfaceUi(val height: SurfaceHeight, val offsetM: Double) {
+    val designM: Double? get() = height.withOffset(offsetM).metresOrNull
+}
 
 /**
  * Lo que se ve de la guía con una época (S018/RF-6 a RF-13, RF-15 a RF-17).
@@ -120,6 +135,8 @@ data class GuidanceUi(
     val line: LineObjective? = null,
     /** El objetivo de la época, para guardar el replanteo y dibujarlo en el mapa (S041/RF-5, RF-28). */
     val objective: PlanePoint? = null,
+    /** La cota de la superficie bajo la punta si se replantea contra ella; null si no (S042/RF-24, RF-26). */
+    val surface: SurfaceUi? = null,
 )
 
 sealed interface GuidanceState {
@@ -153,7 +170,9 @@ class StakeoutController(
     // S019: el nivel vertical; null es "sin estado previo" (al empezar, al volver la guía o al cambiar la cota).
     private var levelState: LevelState? = null
     private var levelRadius: Double? = null
-    private var levelElevation: Double? = null
+    private var levelElevation: Any? = null
+    private var lastLevel: LevelUi? = null
+    private var lastLevelAtMs = Long.MIN_VALUE
 
     /** Una época nueva con lo que hay ahora fuera (S018/RF-5 a RF-25, RF-35). */
     @Synchronized
@@ -194,7 +213,22 @@ class StakeoutController(
             null
         }
         // S019/RF-1, RF-2: la cota de diseño es la escrita o la del punto; la diferencia de cota sale contra ella.
-        val elevation = context.designElevationM ?: lineObjective?.heightM ?: context.target.coordinates.height
+        // S042/RF-24, RF-26: contra la superficie, la cota de diseño es la de la superficie con desplazamiento en la posición de la punta.
+        val surfaceGuide = context.surface.takeIf { context.elevationSource == ElevationSource.SURFACE }
+        val surfaceHeight = surfaceGuide?.let {
+            if (tipEast != null &&
+                tipNorth != null
+            ) {
+                it.heightAt(tipEast, tipNorth)
+            } else {
+                SurfaceHeight.Outside
+            }
+        }
+        val elevation = if (surfaceGuide != null && surfaceHeight != null) {
+            surfaceHeight.withOffset(surfaceGuide.verticalOffsetM).metresOrNull
+        } else {
+            context.designElevationM ?: lineObjective?.heightM ?: context.target.coordinates.height
+        }
         val design = if (lineObjective != null) {
             context.target.coordinates.copy(
                 ground = tip.ground,
@@ -231,11 +265,21 @@ class StakeoutController(
         }
         val radius = DianaScale.radius(dianaRadius, guidance.distanceM, tolerance).also { dianaRadius = it }
         // S019/RF-2: otra cota, el nivel empieza de cero; con una línea la cota cambia con el PK, y solo cuenta la que escribe el usuario.
-        val levelKey = if (lineObjective != null) context.designElevationM else elevation
+        // Con la superficie la cota cambia en cada época: lo que reinicia el nivel es cambiar de superficie o de desplazamiento, no la cota.
+        val levelKey: Any? = when {
+            surfaceGuide != null -> SurfaceLevelKey(surfaceGuide.surface.id, surfaceGuide.verticalOffsetM)
+            lineObjective != null -> context.designElevationM
+            else -> elevation
+        }
         if (levelKey != levelElevation) levelState = null
         levelElevation = levelKey
         val levelBefore = levelState
-        val level = levelOf(guidance.dHeightM, context)
+        // Mientras la teselas de la superficie cargan se mantiene el último nivel un instante en lugar de apagarlo y reiniciarlo.
+        val level = if (surfaceHeight == SurfaceHeight.Loading) heldLevel() else levelOf(guidance.dHeightM, context)
+        if (level != null) {
+            lastLevel = level
+            lastLevelAtMs = now()
+        }
         val levelChanged = levelBefore != levelState
         val ui = GuidanceUi(
             guidance = guidance,
@@ -249,17 +293,16 @@ class StakeoutController(
             tipUncompensated = tip.uncompensated,
             tip = tip.ground,
             level = level,
-            levelUnavailable = if (level !=
-                null
-            ) {
-                null
-            } else if (elevation == null) {
-                LevelUnavailable.NO_DESIGN_ELEVATION
-            } else {
-                LevelUnavailable.TIP_WITHOUT_HEIGHT
+            levelUnavailable = when {
+                level != null -> null
+                surfaceHeight == SurfaceHeight.Outside -> LevelUnavailable.OUTSIDE_SURFACE
+                surfaceHeight == SurfaceHeight.Loading -> LevelUnavailable.SURFACE_LOADING
+                elevation == null -> LevelUnavailable.NO_DESIGN_ELEVATION
+                else -> LevelUnavailable.TIP_WITHOUT_HEIGHT
             },
             line = lineObjective,
             objective = lineObjective?.point,
+            surface = if (surfaceGuide != null && surfaceHeight != null) SurfaceUi(surfaceHeight, surfaceGuide.verticalOffsetM) else null,
         )
         val becameOn = !wasOn
         wasOn = true
@@ -309,7 +352,12 @@ class StakeoutController(
         levelState = null
         levelRadius = null
         levelElevation = null
+        lastLevel = null
+        lastLevelAtMs = Long.MIN_VALUE
     }
+
+    /** El último nivel si es de hace menos de [HOLD_LEVEL_MS]; null si no (S042, plan A4). */
+    private fun heldLevel(): LevelUi? = lastLevel.takeIf { now() - lastLevelAtMs <= HOLD_LEVEL_MS }
 
     /**
      * El nivel vertical de la época (S019/A1): su estado con el margen de 5 mm, el aviso si entra o sale de la cota, y la escala.
@@ -372,7 +420,13 @@ class StakeoutController(
         GuidanceOff.TILT_NOT_READY -> "la inclinación no está en estado 30"
     }
 
+    /** Lo que identifica a la superficie y su desplazamiento: mientras no cambie, el nivel vertical conserva su estado (S042/RF-26). */
+    private data class SurfaceLevelKey(val surfaceId: String, val offsetM: Double)
+
     private companion object {
         const val PUBLISH_INTERVAL_MS = 200L
+
+        /** Lo que se mantiene el último nivel mientras la superficie carga, en ms (S042, plan A4). */
+        const val HOLD_LEVEL_MS = 1_000L
     }
 }

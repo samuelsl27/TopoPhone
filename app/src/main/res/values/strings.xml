@@ -454,6 +454,8 @@
     <string name="stakeout_level_on_grade">En cota</string>
     <string name="stakeout_level_no_elevation">Sin cota de diseño: el punto no tiene altura</string>
     <string name="stakeout_level_no_tip_height">Sin cota: la punta no tiene altura</string>
+    <string name="stakeout_level_outside_surface">Fuera de la superficie</string>
+    <string name="stakeout_level_surface_loading">Calculando la cota de la superficie…</string>
     <string name="stakeout_level_description_cut">Nivel vertical: desmonte de %1$s, hay que excavar</string>
     <string name="stakeout_level_description_fill">Nivel vertical: terraplén de %1$s, hay que rellenar</string>
     <string name="stakeout_level_description_on_grade">Nivel vertical: en cota</string>
