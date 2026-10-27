@@ -127,7 +127,7 @@ class GpkgImportCrsScreenTest {
         show(config(GpkgLayerRow(layer("sin", 0), crs = GpkgCrs.Undeclared, chosen = ProjectCrs.ETRS89_UTM30)))
 
         compose.onNodeWithTag(GPKG_IMPORT_BUTTON_TAG).performScrollTo().assertIsEnabled()
-        compose.onNode(hasText("Sistema:", substring = true)).assertIsDisplayed()
+        compose.onNode(hasText("Sistema:", substring = true)).performScrollTo().assertIsDisplayed()
     }
 
     @Test

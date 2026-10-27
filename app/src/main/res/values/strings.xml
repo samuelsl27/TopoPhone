@@ -1404,6 +1404,15 @@
     <string name="gpkg_outside_area">La capa no cabe en el sistema del proyecto con este sistema. Revisa el sistema de la capa.</string>
     <string name="gpkg_far_warning">Alguna capa queda a más de 100 km del centro del proyecto. Comprueba el sistema de coordenadas.</string>
     <string name="gpkg_far_confirm">Importarlas igualmente</string>
+    <string name="gpkg_section_zone">Zona de importación</string>
+    <string name="gpkg_zone_radius">Radio</string>
+    <string name="gpkg_zone_all">Todo el contenido</string>
+    <string name="gpkg_radius_m">Radio: %1$s m</string>
+    <string name="gpkg_radius_km">Radio: %1$s km</string>
+    <string name="gpkg_zone_counting">Contando los objetos de la zona…</string>
+    <string name="gpkg_zone_count">Objetos en la zona: %1$s</string>
+    <string name="gpkg_zone_limit">Hay más de 500.000 objetos en la zona. Reduce la zona o las capas.</string>
+    <string name="gpkg_no_center">El proyecto no tiene centro. Fija el punto central o elige «Todo el contenido».</string>
     <string name="gpkg_no_layer_marked">Marca al menos una capa para importar.</string>
     <string name="gpkg_layer_detail">%1$s · %2$s</string>
     <string name="gpkg_kind_points">Puntos</string>

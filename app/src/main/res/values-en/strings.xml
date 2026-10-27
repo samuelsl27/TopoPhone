@@ -1392,6 +1392,15 @@
     <string name="gpkg_outside_area">The layer does not fit in the project coordinate system with this system. Check the system of the layer.</string>
     <string name="gpkg_far_warning">A layer is more than 100 km from the project centre. Check the coordinate system.</string>
     <string name="gpkg_far_confirm">Import them anyway</string>
+    <string name="gpkg_section_zone">Import area</string>
+    <string name="gpkg_zone_radius">Radius</string>
+    <string name="gpkg_zone_all">All content</string>
+    <string name="gpkg_radius_m">Radius: %1$s m</string>
+    <string name="gpkg_radius_km">Radius: %1$s km</string>
+    <string name="gpkg_zone_counting">Counting the objects in the area…</string>
+    <string name="gpkg_zone_count">Objects in the area: %1$s</string>
+    <string name="gpkg_zone_limit">There are more than 500,000 objects in the area. Reduce the area or the layers.</string>
+    <string name="gpkg_no_center">The project has no centre. Set the central point or choose "All content".</string>
     <string name="gpkg_no_layer_marked">Tick at least one layer to import.</string>
     <string name="gpkg_layer_detail">%1$s · %2$s</string>
     <string name="gpkg_kind_points">Points</string>

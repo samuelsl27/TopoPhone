@@ -4,14 +4,12 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import es.topophone.app.ui.map.FakePointRepository
-import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.formats.gpkg.GpkgFileKind
 import es.topophone.core.model.cad.GpkgLayerKind
+import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.data.db.TopoPhoneDatabase
-import es.topophone.data.gpkg.GeoPackageReader
 import es.topophone.data.map.RoomMapViewportRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
@@ -47,7 +45,13 @@ class GpkgImportViewModelTest {
     private val viewports = RoomMapViewportRepository(db)
     private val dispatcher = UnconfinedTestDispatcher()
     private val projectId = runBlocking {
-        projects.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12", crs = ProjectCrs.ETRS89_UTM30))
+        projects.create(
+            ProjectDefaults().toDraft().copy(
+                name = "Calle Mayor 12",
+                crs = ProjectCrs.ETRS89_UTM30,
+                centralPoint = CentralPoint(40.4168, -3.7038),
+            ),
+        )
             .shouldBeInstanceOf<SaveResult.Saved>().id
     }
     private val opened = mutableListOf<GpkgImportViewModel>()
@@ -63,8 +67,7 @@ class GpkgImportViewModelTest {
 
     private val cache: File by lazy { folder.newFolder("cache") }
 
-    private fun viewModel(): GpkgImportViewModel =
-        GpkgImportViewModel(GeoPackageReader(cache), projects, ProjectCenterProvider(FakePointRepository(), viewports), dispatcher)
+    private fun viewModel(): GpkgImportViewModel = gpkgViewModel(cache, projects, viewports, dispatcher)
 
     private fun open(name: String, size: Long? = GpkgTestFiles.bytes(name).size.toLong()): GpkgImportViewModel {
         val viewModel = viewModel()
@@ -149,12 +152,12 @@ class GpkgImportViewModelTest {
 
         viewModel.setMarked("mixta", false)
         viewModel.state.value.markedLayers.map { it.info.table } shouldBe listOf("multipuntos", "multilineas")
-        viewModel.state.value.canImport shouldBe true
+        viewModel.settled().canImport shouldBe true
 
         viewModel.setMarked("multipuntos", false)
         viewModel.setMarked("multilineas", false)
         viewModel.state.value.markedLayers shouldBe emptyList()
-        viewModel.state.value.canImport shouldBe false
+        viewModel.settled().canImport shouldBe false
 
         viewModel.setMarked("mixta", true)
         viewModel.state.value.markedLayers.map { it.info.table } shouldBe listOf("mixta")

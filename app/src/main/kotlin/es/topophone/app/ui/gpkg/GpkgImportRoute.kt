@@ -7,11 +7,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.EntryPointAccessors
+import es.topophone.app.ui.map.MapEntryPoint
+import es.topophone.app.ui.map.MapLibreMap
 import es.topophone.app.ui.points.importSourceOf
 import es.topophone.core.model.preferences.ThemeState
 
@@ -28,12 +32,27 @@ fun GpkgImportRoute(
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(projectId, fileUri) { viewModel.start(projectId, importSourceOf(context.contentResolver, fileUri)) }
+    val environment =
+        remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
     GpkgImportScreen(
         themeState = themeState,
         onToggleSun = onToggleSun,
         state = state,
-        actions = GpkgImportActions(onMarked = viewModel::setMarked),
+        actions = GpkgImportActions(
+            onMarked = viewModel::setMarked,
+            onCrs = viewModel::setCrs,
+            onConfirmFar = viewModel::confirmFar,
+            onAllContent = viewModel::setAllContent,
+            onRadius = viewModel::setRadius,
+            onCentralTyped = viewModel::fixCentralTyped,
+            onCentralRemove = viewModel::clearCentralPoint,
+            onCentralPosition = viewModel::fixCentralFromReceiver,
+            onCentralTap = viewModel::resolveCentralTap,
+            onCentralPicked = viewModel::setCentralPoint,
+            pickerStart = viewModel::pickerStart,
+        ),
         onBack = onBack,
+        map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
     )
 }
 

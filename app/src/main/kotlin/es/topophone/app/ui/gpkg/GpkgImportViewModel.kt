@@ -11,23 +11,41 @@ import es.topophone.core.formats.gpkg.GpkgCrsCatalog
 import es.topophone.core.formats.gpkg.GpkgFileKind
 import es.topophone.core.model.cad.CadExtent
 import es.topophone.core.model.cad.GpkgLayerInfo
+import es.topophone.core.model.cad.ImportArea
+import es.topophone.core.model.format.AngleAxis
+import es.topophone.core.model.format.AngleInput
+import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.map.MapSettings
+import es.topophone.core.model.map.MapViewport
+import es.topophone.core.model.point.EntryForm
+import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CentralPoint
+import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.CadPlacement
+import es.topophone.core.survey.CentralPointRejection
+import es.topophone.core.survey.CentralPointResolver
+import es.topophone.core.survey.CentralPointResult
 import es.topophone.data.gpkg.GeoPackageReader
 import es.topophone.data.gpkg.GeoPackageScan
 import es.topophone.data.gpkg.GpkgLayerIndex
 import es.topophone.data.gpkg.GpkgOpenFailure
 import es.topophone.data.gpkg.GpkgOpenResult
 import es.topophone.data.gpkg.GpkgSession
+import es.topophone.data.map.MapPreferences
 import es.topophone.data.project.ProjectRepository
+import es.topophone.data.project.SaveResult
+import es.topophone.receiver.session.ConnectionState
+import es.topophone.receiver.session.ReceiverSession
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -76,17 +94,39 @@ data class GpkgImportUiState(
     /** Alguna capa marcada queda a más de 100 km del centro del proyecto y hay que confirmarlo (RF-12). */
     val farWarning: Boolean = false,
     val farConfirmed: Boolean = false,
+    /** La zona: «Todo el contenido» o un radio alrededor del centro del proyecto (RF-13). */
+    val areaAll: Boolean = false,
+    val radiusM: Double = ImportArea.DEFAULT_RADIUS_M,
+    /** El proyecto tiene centro (punto central, media de sus puntos o última vista del mapa) (RF-14). */
+    val hasCenter: Boolean = true,
+    /** Cuántos objetos entrarían en la zona (RF-16). */
+    val zone: GpkgZoneUi = GpkgZoneUi(),
+    /** El punto central fijado del proyecto, con el que se fija desde esta pantalla (S006/RF-33). */
+    val centralPoint: CentralPoint? = null,
+    val centralError: CentralPointRejection? = null,
+    val linearUnit: LinearUnit = LinearUnit.METRE,
+    val angularUnit: AngularUnit = AngularUnit.DMS,
+    val mapSettings: MapSettings = MapSettings(),
 ) {
     val markedLayers: List<GpkgLayerRow> get() = layers.filter { it.marked }
 
-    /** Hay capas marcadas, todas con sistema, y los avisos están confirmados. */
+    /** Con un radio hace falta el centro del proyecto; sin él hay que fijarlo o elegir «Todo el contenido» (RF-14). */
+    val needsCenter: Boolean get() = !areaAll && !hasCenter
+
+    /** Hay capas marcadas, todas con sistema, la zona está clara y bajo el límite, y los avisos están confirmados. */
     val canImport: Boolean
         get() = stage == GpkgImportStage.CONFIG &&
             !scanning &&
             markedLayers.isNotEmpty() &&
             markedLayers.all { it.effective != null } &&
+            !needsCenter &&
+            !zone.counting &&
+            !zone.exceeded &&
             (!farWarning || farConfirmed)
 }
+
+/** El recuento de los objetos de la zona: en marcha, cuántos son y si pasan del límite de 500.000 (RF-16). */
+data class GpkgZoneUi(val counting: Boolean = false, val objects: Int = 0, val exceeded: Boolean = false)
 
 /**
  * La importación de un GeoPackage a un proyecto (S048): reconoce el fichero por su contenido, lo abre de solo lectura y lista sus
@@ -99,6 +139,8 @@ class GpkgImportViewModel @Inject constructor(
     private val reader: GeoPackageReader,
     private val projects: ProjectRepository,
     private val centers: ProjectCenterProvider,
+    private val receiver: ReceiverSession,
+    private val mapPreferences: MapPreferences,
     @param:IoDispatcher private val io: CoroutineDispatcher,
     private val log: AppLog = AppLog.NONE,
 ) : ViewModel() {
@@ -111,12 +153,21 @@ class GpkgImportViewModel @Inject constructor(
     private var center: CentralPoint? = null
     private var scan: GeoPackageScan? = null
     private val indexes = ConcurrentHashMap<String, GpkgLayerIndex>()
+    private val resolver = CentralPointResolver()
+    private var countJob: Job? = null
+
+    /** La espera antes de recontar al cambiar el radio, para no recontar en cada paso del control (RNF); los tests la quitan. */
+    internal var debounceMs: Long = DEBOUNCE_MS
+
+    /** El límite de objetos de la zona (RF-16); los tests lo bajan. */
+    internal var maxObjects: Int = ImportArea.MAX_OBJECTS
 
     /** Prepara la importación de [source] en el proyecto [projectId]; solo la primera vez (RF-1). */
     fun start(projectId: String, source: ImportSource) {
         if (started) return
         started = true
         mutable.value = GpkgImportUiState(fileName = source.name)
+        viewModelScope.launch { mapPreferences.settings.collect { settings -> mutable.update { it.copy(mapSettings = settings) } } }
         viewModelScope.launch(io) { load(projectId, source) }
     }
 
@@ -144,17 +195,24 @@ class GpkgImportViewModel @Inject constructor(
             is GpkgOpenResult.Opened -> {
                 val opened = result.session
                 session = opened
-                scan = GeoPackageScan(opened)
+                scan = GeoPackageScan(opened, maxObjects = maxObjects)
                 center = centers.center(project) // S006/RF-37: un único cálculo
-                mutable.value = GpkgImportUiState(
-                    stage = GpkgImportStage.CONFIG,
-                    fileName = source.name,
-                    projectName = project.name,
-                    projectCrs = project.crs,
-                    layers = opened.layers.map { GpkgLayerRow(it, crs = opened.crs(it)) },
-                    leftOutTables = opened.leftOutTables,
-                    scanning = true,
-                )
+                mutable.update {
+                    GpkgImportUiState(
+                        stage = GpkgImportStage.CONFIG,
+                        fileName = source.name,
+                        projectName = project.name,
+                        projectCrs = project.crs,
+                        layers = opened.layers.map { GpkgLayerRow(it, crs = opened.crs(it)) },
+                        leftOutTables = opened.leftOutTables,
+                        scanning = true,
+                        hasCenter = center != null,
+                        centralPoint = project.centralPoint,
+                        linearUnit = project.linearUnit,
+                        angularUnit = project.angularUnit,
+                        mapSettings = it.mapSettings,
+                    )
+                }
                 index(opened)
             }
         }
@@ -166,6 +224,7 @@ class GpkgImportViewModel @Inject constructor(
         for (layer in opened.layers) indexes[layer.table] = scan.index(layer)
         recompute()
         mutable.update { it.copy(scanning = false) }
+        recount()
     }
 
     private fun GpkgOpenFailure.toProblem() = when (this) {
@@ -184,6 +243,7 @@ class GpkgImportViewModel @Inject constructor(
             state.copy(layers = state.layers.map { if (it.info.table == table) it.copy(marked = marked) else it }, farConfirmed = false)
         }
         recompute()
+        recount()
     }
 
     /** El usuario elige el sistema de coordenadas de la capa [table]; con null vuelve al que declara el fichero (RF-8, RF-9). */
@@ -192,9 +252,135 @@ class GpkgImportViewModel @Inject constructor(
             state.copy(layers = state.layers.map { if (it.info.table == table) it.copy(chosen = crs) else it }, farConfirmed = false)
         }
         recompute()
+        recount()
     }
 
     fun confirmFar() = mutable.update { it.copy(farConfirmed = true) }
+
+    /** «Todo el contenido» o un radio alrededor del centro del proyecto (RF-13). */
+    fun setAllContent(all: Boolean) {
+        mutable.update { it.copy(areaAll = all) }
+        recount()
+    }
+
+    /** El radio de la zona, entre 100 m y 100 km (RF-13). */
+    fun setRadius(radiusM: Double) {
+        mutable.update { it.copy(radiusM = radiusM.coerceIn(ImportArea.MIN_RADIUS_M, ImportArea.MAX_RADIUS_M)) }
+        recount()
+    }
+
+    /** La zona de ahora: todo, o el círculo alrededor del centro del proyecto; null si pide el centro y el proyecto no lo tiene (RF-14). */
+    private fun currentArea(): ImportArea? {
+        val state = mutable.value
+        if (state.areaAll) return ImportArea.All
+        val center = center ?: return null
+        return ImportArea.Circle(center, state.radiusM)
+    }
+
+    /**
+     * Cuenta los objetos que entrarían en la zona con las capas marcadas y sus sistemas, en segundo plano y cancelando el cálculo
+     * anterior tras una espera corta (RF-13, RF-16).
+     */
+    private fun recount() {
+        countJob?.cancel()
+        val project = project ?: return
+        val scan = scan ?: return
+        if (mutable.value.stage != GpkgImportStage.CONFIG || mutable.value.scanning) return
+        mutable.update { it.copy(zone = it.zone.copy(counting = true)) }
+        countJob = viewModelScope.launch(io) {
+            if (debounceMs > 0) delay(debounceMs)
+            val area = currentArea()
+            val rows = mutable.value.markedLayers
+            var objects = 0
+            var exceeded = false
+            if (area != null) {
+                for (row in rows) {
+                    val source = row.effective?.source ?: continue
+                    val index = indexes[row.info.table] ?: continue
+                    val count = scan.count(index, source, project.crs, area)
+                    objects += count.inZone
+                    if (count.exceeded || objects > maxObjects) {
+                        exceeded = true
+                        break
+                    }
+                }
+            }
+            mutable.update { it.copy(zone = GpkgZoneUi(counting = false, objects = objects, exceeded = exceeded)) }
+        }
+    }
+
+    // ---- El punto central del proyecto, fijado desde esta pantalla (S006/RF-33, S048/RF-14) ----
+
+    /** Fija el punto central con lo escrito en el SC del proyecto; si no vale, no cambia nada y dice por qué. */
+    fun fixCentralTyped(first: String, second: String) {
+        val project = project ?: return
+        val projected = project.crs.isUtm
+        val a = if (projected) {
+            NumberInput.parse(
+                first,
+            )?.let(project.linearUnit::toMetres)
+        } else {
+            AngleInput.parse(first, project.angularUnit, AngleAxis.LATITUDE)
+        }
+        val b = if (projected) {
+            NumberInput.parse(
+                second,
+            )?.let(project.linearUnit::toMetres)
+        } else {
+            AngleInput.parse(second, project.angularUnit, AngleAxis.LONGITUDE)
+        }
+        val result = if (a == null || b == null) {
+            CentralPointResult.Rejected(CentralPointRejection.INVALID_NUMBER)
+        } else {
+            resolver.fromTyped(if (projected) EntryForm.PROJECT_CRS else EntryForm.GEOGRAPHIC, a, b, project.crs)
+        }
+        applyCentral(result)
+    }
+
+    /** Fija el punto central con la posición actual del receptor o de una reproducción; sin ella, dice por qué. */
+    fun fixCentralFromReceiver() {
+        val project = project ?: return
+        val snapshot = receiver.state.value
+        val fix = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving }
+        applyCentral(resolver.fromFix(fix, project.crs))
+    }
+
+    /** Un toque del selector del mapa: el punto, si cae en el ámbito del SC del proyecto, o el motivo. */
+    fun resolveCentralTap(latitudeDeg: Double, longitudeDeg: Double): CentralPointResult =
+        resolver.fromTap(latitudeDeg, longitudeDeg, project?.crs ?: ProjectCrs.ETRS89_UTM30)
+
+    /** El punto aceptado en el selector del mapa. */
+    fun setCentralPoint(point: CentralPoint) = applyCentral(CentralPointResult.Fixed(point))
+
+    /** Quita el punto central: el centro del proyecto vuelve a calcularse sin él (S006/RF-35). */
+    fun clearCentralPoint() = applyCentral(null)
+
+    /** Donde empieza el mapa del selector: el punto central si lo hay; si no, la posición del receptor; si no, España entera. */
+    fun pickerStart(): MapViewport? {
+        mutable.value.centralPoint?.let { return MapViewport(it.latitudeDeg, it.longitudeDeg, PICKER_ZOOM) }
+        val snapshot = receiver.state.value
+        val fix = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition } ?: return null
+        return MapViewport(fix.latitudeDeg, fix.longitudeDeg, PICKER_ZOOM)
+    }
+
+    private fun applyCentral(result: CentralPointResult?) {
+        if (result is CentralPointResult.Rejected) {
+            mutable.update { it.copy(centralError = result.reason) }
+            return
+        }
+        val point = (result as? CentralPointResult.Fixed)?.point
+        val current = project ?: return
+        viewModelScope.launch(io) {
+            val saved = projects.update(current.id, current.toDraft().copy(centralPoint = point))
+            if (saved !is SaveResult.Saved) return@launch
+            val updated = projects.project(current.id) ?: return@launch
+            project = updated
+            center = centers.center(updated)
+            mutable.update { it.copy(centralPoint = point, centralError = null, hasCenter = center != null) }
+            recompute()
+            recount()
+        }
+    }
 
     /** La extensión de cada capa marcada en el sistema del proyecto y su distancia al centro, con los sistemas de ahora (RF-12). */
     private fun recompute() {
@@ -222,5 +408,7 @@ class GpkgImportViewModel @Inject constructor(
 
     private companion object {
         const val METRES_PER_KM = 1000.0
+        const val DEBOUNCE_MS = 150L
+        const val PICKER_ZOOM = 16.0
     }
 }

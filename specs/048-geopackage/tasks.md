@@ -32,7 +32,7 @@
       Hecho cuando: `GpkgImportViewModelTest` y `GpkgImportScreenTest` en verde para esos casos.
 - [x] T15. `app`: sistema de coordenadas de cada capa (propuesto, elegido, WGS 84), extensión, distancia y aviso de 100 km. (RF-8 a RF-12)
       Hecho cuando: los mismos tests en verde para esos casos.
-- [ ] T16. `app`: zona de importación (radio, «Todo el contenido», recuento, límite) y «Fijar el punto central» con el selector de S006 si el proyecto no tiene centro. (RF-13, RF-14, RF-16)
+- [x] T16. `app`: zona de importación (radio, «Todo el contenido», recuento, límite) y «Fijar el punto central» con el selector de S006 si el proyecto no tiene centro. (RF-13, RF-14, RF-16)
       Hecho cuando: los mismos tests en verde, con el recuento actualizado en menos de 2 s.
 - [ ] T17. `app`: campo de nombre, cotas, «Importar» con progreso y cancelar, y resumen por capa con guardar y compartir. (RF-19, RF-21, RF-22, RF-25, RF-29, RF-30)
       Hecho cuando: los mismos tests en verde y el resumen se guarda como texto.

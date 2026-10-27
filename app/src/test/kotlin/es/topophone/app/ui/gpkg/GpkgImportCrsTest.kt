@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import es.topophone.app.ui.map.FakePointRepository
-import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsUnit
 import es.topophone.core.geodesy.Utm
@@ -15,7 +13,6 @@ import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.data.db.TopoPhoneDatabase
-import es.topophone.data.gpkg.GeoPackageReader
 import es.topophone.data.map.RoomMapViewportRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
@@ -74,12 +71,7 @@ class GpkgImportCrsTest {
     }
 
     private fun open(file: String, project: String = newProject(madrid)): GpkgImportViewModel {
-        val viewModel = GpkgImportViewModel(
-            GeoPackageReader(folder.newFolder()),
-            projects,
-            ProjectCenterProvider(FakePointRepository(), viewports),
-            dispatcher,
-        )
+        val viewModel = gpkgViewModel(folder.newFolder(), projects, viewports, dispatcher)
         viewModel.start(project, GpkgTestFiles.source(file))
         return viewModel
     }
@@ -127,21 +119,21 @@ class GpkgImportCrsTest {
         // Sin las dos primeras marcadas basta elegir la tercera.
         viewModel.setMarked("indefinido_cartesiano", false)
         viewModel.setMarked("indefinido_geografico", false)
-        viewModel.state.value.canImport shouldBe false
+        viewModel.settled().canImport shouldBe false
         viewModel.setCrs("srs_inexistente", ProjectCrs.ETRS89_UTM30)
-        viewModel.state.value.canImport shouldBe true
+        viewModel.settled().canImport shouldBe true
     }
 
     @Test
     fun `S048 RF-9 un sistema no disponible de la app se dice y se puede sustituir`() {
         val viewModel = open("no-disponible-3857.gpkg")
         viewModel.settled().layers.single().crs shouldBe GpkgCrs.Unavailable("EPSG", 3857)
-        viewModel.state.value.canImport shouldBe false
+        viewModel.settled().canImport shouldBe false
 
         viewModel.setCrs("puntos", ProjectCrs.ETRS89_UTM30)
 
         viewModel.state.value.layers.single().effective.shouldNotBeNull().source shouldBe CadSourceCrs.Utm(GeodeticDatum.ETRS89, 30)
-        viewModel.state.value.canImport shouldBe true
+        viewModel.settled().canImport shouldBe true
     }
 
     @Test
@@ -203,7 +195,7 @@ class GpkgImportCrsTest {
         viewModel.confirmFar()
 
         viewModel.state.value.farConfirmed shouldBe true
-        viewModel.state.value.canImport shouldBe true
+        viewModel.settled().canImport shouldBe true
     }
 
     @Test
