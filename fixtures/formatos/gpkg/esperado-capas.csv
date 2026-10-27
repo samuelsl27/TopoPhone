@@ -1,0 +1,34 @@
+# Capas con geometría esperadas de cada GeoPackage (S048). Generado por tools/formatos/generar_geopackage.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1; rejilla=es_ign_SPED2ETV2.tif
+archivo,tabla,tipo_geometria,srs_id,objetos,sistema_app,unidad,rtree,envolvente,z,columnas
+puntos-25830.gpkg,vertices,POINT,25830,5,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT;cota:REAL;codigo:INTEGER;fecha:DATE;activo:BOOLEAN;foto:BLOB
+lineas-4258.gpkg,ejes,LINESTRING,4258,3,ETRS89-GEOGRAFICAS,deg,SI,SI,0,nombre:TEXT;ancho:REAL
+poligonos-25830.gpkg,parcelas,POLYGON,25830,2,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+poligonos-25830.gpkg,manzanas,MULTIPOLYGON,25830,2,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+multiples-25830.gpkg,multipuntos,MULTIPOINT,25830,1,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+multiples-25830.gpkg,multilineas,MULTILINESTRING,25830,1,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+multiples-25830.gpkg,mixta,GEOMETRY,25830,3,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+altura-25830.gpkg,puntos_z,POINT,25830,2,ETRS89-UTM30,m,SI,SI,1,nombre:TEXT
+altura-25830.gpkg,lineas_z,LINESTRING,25830,1,ETRS89-UTM30,m,SI,SI,1,nombre:TEXT
+altura-25830.gpkg,lineas_m,LINESTRING,25830,1,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+altura-25830.gpkg,lineas_zm,LINESTRING,25830,1,ETRS89-UTM30,m,SI,SI,2,nombre:TEXT
+altura-25830.gpkg,poligonos_z,POLYGON,25830,1,ETRS89-UTM30,m,SI,SI,1,nombre:TEXT
+codificaciones-25830.gpkg,wkb_big_endian,GEOMETRY,25830,3,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+codificaciones-25830.gpkg,ewkb_z,GEOMETRY,25830,3,ETRS89-UTM30,m,SI,SI,2,nombre:TEXT
+codificaciones-25830.gpkg,cabecera_big_endian,GEOMETRY,25830,3,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+curvas-y-vacios-25830.gpkg,raros,GEOMETRY,25830,8,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+wgs84-4326.gpkg,puntos,POINT,4326,3,ETRS89-GEOGRAFICAS,deg,SI,SI,0,nombre:TEXT
+no-disponible-3857.gpkg,puntos,POINT,3857,3,NO_DISPONIBLE,m,SI,SI,0,nombre:TEXT
+sin-sistema.gpkg,indefinido_cartesiano,POINT,-1,3,SIN_SISTEMA,,SI,SI,0,nombre:TEXT
+sin-sistema.gpkg,indefinido_geografico,POINT,0,3,SIN_SISTEMA,,SI,SI,0,nombre:TEXT
+sin-sistema.gpkg,srs_inexistente,POINT,99999,3,NO_DECLARADO,,SI,SI,0,nombre:TEXT
+sistemas-mixtos.gpkg,utm29,POINT,25829,3,ETRS89-UTM29,m,SI,SI,0,nombre:TEXT
+sistemas-mixtos.gpkg,utm31,POINT,25831,3,ETRS89-UTM31,m,SI,SI,0,nombre:TEXT
+sistemas-mixtos.gpkg,ed50_utm30,POINT,23030,3,ED50-UTM30,m,SI,SI,0,nombre:TEXT
+sistemas-mixtos.gpkg,canarias_utm28,POINT,4083,3,REGCAN95-UTM28,m,SI,SI,0,nombre:TEXT
+sistemas-mixtos.gpkg,utm33,POINT,25833,3,NO_DISPONIBLE,m,SI,SI,0,nombre:TEXT
+sistemas-mixtos.gpkg,geograficas_4258,POINT,4258,3,ETRS89-GEOGRAFICAS,deg,SI,SI,0,nombre:TEXT
+sin-rtree-25830.gpkg,con_rtree,POINT,25830,3,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT
+sin-rtree-25830.gpkg,sin_rtree,LINESTRING,25830,3,ETRS89-UTM30,m,NO,SI,0,nombre:TEXT
+sin-rtree-25830.gpkg,sin_envolvente,POLYGON,25830,2,ETRS89-UTM30,m,NO,NO,0,nombre:TEXT
+con-ajenas-25830.gpkg,puntos,POINT,25830,3,ETRS89-UTM30,m,SI,SI,0,nombre:TEXT

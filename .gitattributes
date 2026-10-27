@@ -15,6 +15,8 @@ fixtures/formatos/csv/*.csv -text
 fixtures/formatos/csv-importacion/* -text
 # DXF de ejemplo de la capa de diseño: CRLF y LF, Windows-1252 y UTF-8, ficheros cortados y binarios, byte a byte (S040)
 fixtures/formatos/dxf/* -text
+# GeoPackage de ejemplo de la importación: binarios y un texto con CRLF, byte a byte (S048)
+fixtures/formatos/gpkg/* -text
 
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.nmea.gz filter=lfs diff=lfs merge=lfs -text
