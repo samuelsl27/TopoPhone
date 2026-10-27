@@ -19,7 +19,7 @@ Sin dependencias nuevas, ni Gradle ni Python:
 - `core:model` (`alignment/`)
   - `Alignment` (id, nombre, fichero, fecha, origen, PK inicial, longitud, visible) con `AlignmentElement`: `Line`, `Arc` y `Clothoid` (PK de inicio, punto de inicio, azimut de inicio, longitud, curvatura de inicio y de fin, sentido) y `VerticalProfile` con sus `VerticalVertex` (PK, cota, `VerticalCurve`: `None`, `Parabola(length)`, `Circular(radius, length)`).
   - `AlignmentCodec`: el formato binario de la planta y de la rasante (un bloque cada una, `Double` sin redondear, número de formato en la cabecera).
-  - `AlignmentSource { LANDXML, DRAWING, CSV, MANUAL }`; `PointOrigin.ON_ALIGNMENT` («Calculado sobre eje», RF-22); `ChainageFormat` («1+240,50» con el formato del proyecto, RNF-T9) y `OffsetText` («3,50 m a la derecha», RNF-T8).
+  - `AlignmentSource { LANDXML, DRAWING, CSV, MANUAL }`; `PointOrigin.ON_ALIGNMENT` («Calculado sobre eje», RF-22); `ChainageFormat` («1+240,50» con el formato del proyecto, RNF-T9) y `OffsetFormat` (el lado `OffsetSide` y el valor absoluto; la palabra «izquierda» o «derecha» es un texto de `app`, RNF-T7 y RNF-T8).
 - `core:formats`
   - `landxml/LandXmlAlignmentReader`: `scan` (alineaciones con nombre, longitud, PK inicial, si traen rasante y la unidad) y `read` (tramos y perfil de las elegidas), por streaming sobre `XmlStreamReader` (RF-2 a RF-5).
   - `alignment/ProfileCsvReader`: PK, cota y Kv de un CSV con `DelimitedReader`, `TextDecoding` y `DecimalDetector` de S028 (RF-9).
@@ -103,7 +103,7 @@ Accesibilidad (RNF-T8): botones y campos de 56 dp; el desplazamiento con la pala
 | Generalizar el PK de S041 con tramos curvos | El PK de una línea de S041 es el caso de solo rectas | Dos conceptos de PK |
 
 ## Estrategia de tests
-- **JVM `core:model`:** `AlignmentCodecTest` (ida y vuelta sin redondear), `ChainageFormatTest`, `OffsetTextTest`.
+- **JVM `core:model`:** `AlignmentCodecTest` (ida y vuelta sin redondear), `ChainageFormatTest` (PK y desplazamiento).
 - **JVM `core:formats`:** `LandXmlAlignmentReaderTest` (versiones, unidad, orden Norte-Este, tipos no admitidos, `StaEquation`, 100 MB al vuelo), `ProfileCsvReaderTest`.
 - **JVM `core:survey`:** `AlignmentGeometryTest` (recta, arco, clotoide de entrada y salida, curva en S, PK inicial distinto de 0, desplazamiento 0 y a ambos lados) contra `fixtures/ejes/` a 1 mm; `AlignmentLocateTest` (PK y desplazamiento a 1 mm y ida y vuelta); `VerticalProfileEvalTest` (parábola, círculo y vértices); `AlignmentValidatorTest`, `ProfileValidatorTest`; `PiAlignmentBuilderTest`, `PolylineAlignmentBuilderTest` (con arcos, spline y sin cotas); `AlignmentProjectorTest` (unidad, ámbito y SC distinto con pyproj); `ChainageMarksTest`.
 - **`tools`:** `generar_ejes.py` y su test.

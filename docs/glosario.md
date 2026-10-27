@@ -164,7 +164,7 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Contorno de polígono | `POLYGON_RING` | Línea cerrada que sale del exterior o de un hueco de un polígono importado (S048) |
 | Campo de nombre | `nameField` | Columna de la capa con la que se etiqueta y se nombra cada objeto; sin ella, su número en la capa (S048) |
 | Atributos del objeto | `GpkgValue` | Valores de las columnas de un objeto del GeoPackage, que se ven en su ficha (S048) |
-| PK | `Chainage` | Distancia a lo largo de una línea desde su primer vértice, en el SC del proyecto (S041) |
+| PK | `Chainage` | Distancia a lo largo de una línea (S041) o de un eje (S049) desde su primer punto más el PK inicial del eje, en el SC del proyecto |
 | Desplazamiento lateral | `LateralOffset` | Distancia perpendicular a la línea a la que se quiere estar; positiva a la derecha del sentido de la línea (S041) |
 | Distancia lateral | `CrossTrack` | Distancia perpendicular con signo entre la punta y la línea (S041) |
 | Error lateral | `CrossTrackError` | Distancia lateral menos el desplazamiento lateral (S041) |
@@ -185,3 +185,12 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Modo sol | `ThemeMode.SUN` | Tema claro de alto contraste (≥ 7:1); el acceso rápido es `ThemeState.toggleSun()` |
 | Idioma (Sistema, Español, English) | `AppLanguage` (`SYSTEM`, `SPANISH`, `ENGLISH`) | Se guarda con etiquetas BCP 47 |
 | Perfil de equipo | `EquipmentProfile` | Modelo, n.º de serie, firmware (lo introduce el usuario) |
+| Eje | `Alignment` | Trazado en planta de una obra lineal con rectas, arcos y clotoides, y su rasante si la tiene; referencia de diseño, no dato de campo (S049) |
+| Tramo del eje | `AlignmentElement` | Recta, arco o clotoide de un eje, con su curvatura de inicio y de fin (positiva a la izquierda) (S049) |
+| Rasante | `VerticalProfile` | Perfil vertical de un eje: vértices con PK y cota y acuerdos verticales (S049) |
+| Acuerdo vertical | `VerticalCurve` | Parábola simétrica o círculo que suaviza un vértice de la rasante (S049) |
+| Kv | `Kv` | Parámetro de una parábola vertical: su longitud es Kv · \|Δi\| (S049) |
+| Eje activo | `ActiveAlignment` | El eje del proyecto sobre el que se trabaja; uno o ninguno (S049) |
+| Punto singular | `KeyStation` | PK en el que cambia el tipo de tramo del eje o el vértice de la rasante (S049, S054) |
+| Espesor | `Thickness` | Capa de material sobre o bajo la rasante que se descuenta del desmonte o terraplén (S054) |
+| Calculado sobre eje | `PointOrigin.ON_ALIGNMENT` | Origen de un punto guardado desde un PK y un desplazamiento de un eje (S049) |

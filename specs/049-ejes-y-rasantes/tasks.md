@@ -4,8 +4,8 @@
 
 - [x] T1. `tools/ejes`: `generar_ejes.py` con LandXML sintéticos (rectas, arcos, clotoides de entrada y salida, curva en S, PK inicial ≠ 0, rasante con acuerdos parabólicos y circulares, tipos no admitidos, hueco, `StaEquation`), un CSV de rasante y lo esperado por PK y desplazamiento con series de Fresnel y fórmulas analíticas; y su test. (RF-2 a RF-5, RF-9, RF-20, constitución nº 2)
       Hecho cuando: el script genera `fixtures/ejes/` y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `Alignment`, `AlignmentElement`, `VerticalProfile`, `AlignmentCodec`, `AlignmentSource`, `ChainageFormat` y `OffsetText`; los términos nuevos en `docs/glosario.md`. (RF-13, RNF-T7, RNF-T9)
-      Hecho cuando: `AlignmentCodecTest`, `ChainageFormatTest` y `OffsetTextTest` en verde.
+- [x] T2. `core:model`: `Alignment`, `AlignmentElement`, `VerticalProfile`, `AlignmentCodec`, `AlignmentSource`, `ChainageFormat` y `OffsetFormat`; los términos nuevos en `docs/glosario.md`. (RF-13, RNF-T7, RNF-T9)
+      Hecho cuando: `AlignmentCodecTest` y `ChainageFormatTest` en verde.
 - [ ] T3. `core:survey`: `Clothoid` y `AlignmentGeometry.pointAt` (recta, arco y clotoide, PK inicial, desplazamiento a ambos lados). (RF-4, RF-20)
       Hecho cuando: `AlignmentGeometryTest` en verde contra `fixtures/ejes/` a menos de 1 mm.
 - [ ] T4. `core:survey`: `AlignmentGeometry.locate` (PK y desplazamiento de una posición, también en clotoides). (RF-18, RF-21)
