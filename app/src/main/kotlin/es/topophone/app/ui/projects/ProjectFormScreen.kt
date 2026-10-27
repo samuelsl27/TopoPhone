@@ -32,6 +32,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.format.AngleAxis
+import es.topophone.core.model.format.AngleInput
+import es.topophone.core.model.format.NumberInput
+import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
@@ -43,6 +47,9 @@ import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.model.project.ProjectDraft
+import es.topophone.core.survey.CentralPointRejection
+import es.topophone.core.survey.CentralPointResolver
+import es.topophone.core.survey.CentralPointResult
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.project.SaveResult
@@ -86,10 +93,19 @@ data class ProjectFormUiState(
     val error: NameError? = null,
     val savedId: String? = null,
     val proposedCrs: ProjectCrs? = null,
+    /** Por qué no se fijó el punto central en el último intento (S006/RF-34). */
+    val centralPointError: CentralPointRejection? = null,
 )
 
 /** Acciones del formulario de proyecto. */
-class ProjectFormActions(val onChange: (ProjectDraft) -> Unit = {}, val onSave: () -> Unit = {}, val onBack: () -> Unit = {})
+class ProjectFormActions(
+    val onChange: (ProjectDraft) -> Unit = {},
+    val onSave: () -> Unit = {},
+    val onBack: () -> Unit = {},
+    /** Este y Norte, o latitud y longitud, tal como se escribieron (S006/RF-33). */
+    val onCentralTyped: (String, String) -> Unit = { _, _ -> },
+    val onCentralRemove: () -> Unit = {},
+)
 
 /**
  * Proyecto nuevo, desde los valores por defecto de Ajustes (S006/RF-5, RF-6, RF-12) con el huso de la posición
@@ -107,6 +123,7 @@ class ProjectFormViewModel @Inject constructor(
     private var projectId: String? = null
     private var folderId: String? = null
     private var started = false
+    private val resolver = CentralPointResolver()
 
     fun start(projectId: String?, folderId: String?) {
         if (started) return
@@ -132,7 +149,44 @@ class ProjectFormViewModel @Inject constructor(
         return ProjectFormUiState(draft = defaults.withProposedCrs(proposed), loaded = true, proposedCrs = proposed)
     }
 
-    fun update(draft: ProjectDraft) = mutableState.update { it.copy(draft = draft, error = null) }
+    fun update(draft: ProjectDraft) = mutableState.update { it.copy(draft = draft, error = null, centralPointError = null) }
+
+    /** Fija el punto central con lo escrito en el SC del proyecto; si no vale, no cambia nada y dice por qué (S006/RF-33, RF-34). */
+    fun fixCentralTyped(first: String, second: String) {
+        val draft = mutableState.value.draft
+        val crs = draft.crs
+        val projected = crs.isUtm
+        val a = if (projected) {
+            NumberInput.parse(
+                first,
+            )?.let(draft.linearUnit::toMetres)
+        } else {
+            AngleInput.parse(first, draft.angularUnit, AngleAxis.LATITUDE)
+        }
+        val b = if (projected) {
+            NumberInput.parse(
+                second,
+            )?.let(draft.linearUnit::toMetres)
+        } else {
+            AngleInput.parse(second, draft.angularUnit, AngleAxis.LONGITUDE)
+        }
+        val result = if (a == null || b == null) {
+            CentralPointResult.Rejected(CentralPointRejection.INVALID_NUMBER)
+        } else {
+            resolver.fromTyped(if (projected) EntryForm.PROJECT_CRS else EntryForm.GEOGRAPHIC, a, b, crs)
+        }
+        applyCentral(result)
+    }
+
+    /** Borra el punto central: el centro del proyecto vuelve a calcularse sin él (S006/RF-35). */
+    fun clearCentralPoint() = mutableState.update { it.copy(draft = it.draft.copy(centralPoint = null), centralPointError = null) }
+
+    private fun applyCentral(result: CentralPointResult) = mutableState.update {
+        when (result) {
+            is CentralPointResult.Fixed -> it.copy(draft = it.draft.copy(centralPoint = result.point), centralPointError = null)
+            is CentralPointResult.Rejected -> it.copy(centralPointError = result.reason)
+        }
+    }
 
     fun save() {
         val draft = mutableState.value.draft
@@ -170,7 +224,18 @@ fun ProjectFormRoute(
             else -> navigation.onProjectSaved(saved)
         }
     }
-    ProjectFormScreen(themeState, onToggleSun, state, ProjectFormActions(viewModel::update, viewModel::save, navigation.onBack))
+    ProjectFormScreen(
+        themeState,
+        onToggleSun,
+        state,
+        ProjectFormActions(
+            viewModel::update,
+            viewModel::save,
+            navigation.onBack,
+            viewModel::fixCentralTyped,
+            viewModel::clearCentralPoint,
+        ),
+    )
 }
 
 /** Formulario de proyecto nuevo o editado (S006/RF-5 a RF-11). */
@@ -241,6 +306,15 @@ fun ProjectFormScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
             } // S006/RF-10
             // S006/RF-11, S008/RF-18
             if (DatumCheck.mismatch(draft.crs, draft.correctionsDatum)) DatumWarning(draft.crs, draft.correctionsDatum)
+            CentralPointSection(
+                draft.crs,
+                draft.linearUnit,
+                draft.angularUnit,
+                draft.centralPoint,
+                state.centralPointError,
+                actions.onCentralTyped,
+                actions.onCentralRemove,
+            ) // S006/RF-32, RF-33, RF-34, RF-35
             Button(onClick = actions.onSave, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(FORM_SAVE_TAG)) {
                 Text(stringResource(R.string.project_save))
             }

@@ -57,7 +57,7 @@
       Hecho cuando: `CentralPointBackupTest` en verde: copia y restauración, y exportar e importar un paquete conservan el punto; una copia de la v17 se restaura sin él.
 - [x] T26. `app`: `ProjectCenterProvider` como único sitio que calcula el centro; los ViewModels de importación de S040 y S042 lo usan en lugar de su `centerOf`. (RF-37)
       Hecho cuando: `ProjectCenterProviderTest` en verde y los tests de S040 y S042 sin cambios de comportamiento, con un caso de aviso de distancia medido desde el punto central.
-- [ ] T27. `app`: sección «Punto central» del formulario (sin fijar, fijado, quitar) y escribir coordenadas, con sus textos en es y en. (RF-32, RF-33, RF-34, RF-35, RNF-T7, RNF-T8)
+- [x] T27. `app`: sección «Punto central» del formulario (sin fijar, fijado, quitar) y escribir coordenadas, con sus textos en es y en. (RF-32, RF-33, RF-34, RF-35, RNF-T7, RNF-T8)
       Hecho cuando: `ProjectFormCentralPointTest` en verde para nuevo y edición, con rechazo y motivo, zonas de 56 dp y etiquetas de TalkBack.
 - [ ] T28. `app`: «Usar mi posición» con el receptor y con una reproducción, y el motivo sin posición. (RF-33, RF-34)
       Hecho cuando: `ProjectFormCentralPointTest` en verde para la posición, con fix, sin fix y fuera del ámbito.

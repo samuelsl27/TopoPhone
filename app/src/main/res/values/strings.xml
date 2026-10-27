@@ -1360,4 +1360,14 @@
     <string name="point_gear_profile">Perfil de antena</string>
     <string name="point_gear_profile_value">%1$s · al centro de fase %2$s</string>
     <string name="point_gear_antenna_height">Altura de antena</string>
+    <string name="central_point_title">Punto central (opcional)</string>
+    <string name="central_point_unset">Sin fijar</string>
+    <string name="central_point_type">Escribir coordenadas</string>
+    <string name="central_point_remove">Quitar</string>
+    <string name="central_point_dialog_title">Punto central</string>
+    <string name="central_point_dialog_fix">Fijar</string>
+    <string name="central_point_no_position">No se puede usar la posición: el receptor no la da ahora.</string>
+    <string name="central_point_outside_crs">El punto queda fuera del ámbito del sistema de coordenadas del proyecto.</string>
+    <string name="central_point_outside_ed50">El punto queda fuera de la rejilla de ED50.</string>
+    <string name="central_point_invalid">Escribe las dos coordenadas como números.</string>
 </resources>

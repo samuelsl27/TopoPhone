@@ -1348,4 +1348,14 @@
     <string name="point_gear_profile">Antenna profile</string>
     <string name="point_gear_profile_value">%1$s · to the phase centre %2$s</string>
     <string name="point_gear_antenna_height">Antenna height</string>
+    <string name="central_point_title">Central point (optional)</string>
+    <string name="central_point_unset">Not set</string>
+    <string name="central_point_type">Type coordinates</string>
+    <string name="central_point_remove">Remove</string>
+    <string name="central_point_dialog_title">Central point</string>
+    <string name="central_point_dialog_fix">Set</string>
+    <string name="central_point_no_position">The position cannot be used: the receiver has none right now.</string>
+    <string name="central_point_outside_crs">The point is outside the area of the coordinate system of the project.</string>
+    <string name="central_point_outside_ed50">The point is outside the ED50 grid.</string>
+    <string name="central_point_invalid">Enter both coordinates as numbers.</string>
 </resources>
