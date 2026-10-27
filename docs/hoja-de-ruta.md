@@ -2,7 +2,7 @@
 
 Las specs se implementan **en el orden de las tablas**, no por su número: los números son identificadores estables y desde S017b no van seguidos (el replanteo y la importación de diseño pasan delante de las fotos). Cada hito termina con una puerta de validación de campo (`docs/validacion-campo/protocolo.md`).
 
-Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18; S017b pasará a la v19). S048 y S049 pueden usarla.
+Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18). S048 (GeoPackage) está implementada (Room v19) y la usa; S049 puede usarla. S017b (fotos) pasará a la v20.
 
 Orden de trabajo actual del diseño importado: S019 → S028 → S040 → S041 → S042 → S045 (S017b, fotos, aparcada).
 
@@ -45,7 +45,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 018 replanteo-puntos | Replanteo por dirección (rumbo de marcha o del IMU) y por distancia (N/E), zoom automático, diana métrica (verde ≤ 2,5 cm, configurable), ayuda visual ≤ 40 cm, anterior/siguiente, avisos de FIX y de inclinación, sonido, punto replanteado `_stkd`, pantalla siempre encendida (RNF-T2) | 016 | implementada |
 | 019 replanteo-cota-e-informe | Cota de diseño (desmonte/terraplén con tolerancia) e informe de replanteo CSV | 018 | implementada |
 | 028 importar-csv-txt | Asignación de columnas, PENZD/PNEZD, UTF-8 o Windows-1252, coma decimal, vista previa, informe de errores, nombres repetidos | 011 | implementada |
-| 040 capa-cad-dxf | Lectura de DXF por streaming (R12–R2018, ≤ 100 MB), bloques (INSERT), arcos, círculos y splines como polilíneas, índice espacial; sus puntos y líneas se ven en el mapa como capa de diseño; los DWG no se leen (licencia, RNF-T14): se avisa y se convierten a DXF fuera; capas por tipo (puntos y líneas), varios dibujos por proyecto y cota opcional | 009 | implementada (su aviso de distancia usa el centro del proyecto de S006/RF-37) |
+| 040 capa-cad-dxf | Lectura de DXF por streaming (R12–R2018, ≤ 100 MB), bloques (INSERT), arcos, círculos y splines como polilíneas, índice espacial; sus puntos y líneas se ven en el mapa como capa de diseño; los DWG no se leen (licencia, RNF-T14): se avisa y se convierten a DXF fuera; capas por tipo (puntos y líneas), varios dibujos por proyecto y cota opcional; su aviso de distancia usa el centro del proyecto de S006/RF-37; S048 le añade el origen del dibujo (DXF o GeoPackage), el nombre de cada elemento, la marca de contorno de polígono y los atributos | 009 | implementada |
 | 041 replanteo-cad | Replanteo de puntos, vértices, centros de bloque, líneas y segmentos del DXF; por segmentos, a la línea, a lo largo de la línea con desplazamiento, encadenamiento hasta A/B e intervalos (el motor de líneas, que S027 reutiliza para las líneas propias); con cota interpolada y vértices originales marcados por S040 | 040, 019 | implementada |
 | 042 superficies-landxml | Importar superficies TIN de un LandXML (varias por proyecto, una activa), desplazamiento vertical, desmonte/terraplén respecto a la superficie en la posición del jalón, cota de diseño de la superficie para puntos y líneas sin cota, y cota bajo la punta en el recolector | 019, 041 | implementada |
 | 045 raster-mdt | Importar un raster de cotas (GeoTIFF y ASCII Grid) como superficie, con su SC y su datum vertical, y replantear solo la cota: desmonte/terraplén contra el raster en la posición del jalón, con tolerancia; una superficie activa por proyecto, como las de LandXML | 042 | pendiente |
@@ -73,7 +73,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 029 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 025 | pendiente |
 | 030 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 025 | pendiente |
 | 031 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 025, 017b | pendiente |
-| 048 geopackage | Importar un `.gpkg` de QGIS como capa de diseño (capas marcables, SC leído y reproyectado, recorte a una zona alrededor del centro del proyecto, atributos y campo de nombre, replanteo con S041) | 040, 006 (punto central) | aprobada |
+| 048 geopackage | Importar un `.gpkg` de QGIS como capa de diseño (capas marcables, SC leído y reproyectado, recorte a una zona alrededor del centro del proyecto, atributos y campo de nombre, replanteo con S041) | 040, 006 (punto central) | implementada |
 | 053 exportar-geopackage | Exportar los puntos del proyecto, y sus líneas y polígonos cuando exista S025, a un `.gpkg` con su SC declarado y los datos de calidad como atributos | 012 (líneas y polígonos: 025) | aprobada |
 
 ## H5 · Sistemas de coordenadas mundiales y capas

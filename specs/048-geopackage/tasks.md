@@ -42,5 +42,6 @@
       Hecho cuando: `GpkgStakeoutTest` en verde.
 - [x] T20. Rendimiento: un `.gpkg` de 100 MB se lee y recorta en menos de 20 s y cambiar el radio recuenta en menos de 2 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.
-- [ ] T21. Validación: cambios en documentos anteriores (hoja de ruta, glosario, S040, S017b a la v20), recorrer la spec RF por RF, comparar con QGIS un `.gpkg` en EPSG:25830 y otro en 4258 (≤ 1 mm), `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
+- [x] T21. Validación: cambios en documentos anteriores (hoja de ruta, glosario, S040, S017b a la v20), recorrer la spec RF por RF, comparar con QGIS un `.gpkg` en EPSG:25830 y otro en 4258 (≤ 1 mm), `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
+      Nota de la demo (27/10/2026, emulador): abrir, capas, sistema, extensión, distancia, zona de 5 km, importar, resumen y «Origen: GeoPackage» en Dibujos funcionan con el R-tree real de Android; el zoom del mapa no se pudo accionar por adb, así que las etiquetas y los contornos a trazos de MapLibre quedan para la demo de campo del usuario. QGIS coincide con lo esperado a 1e-9 m en 25830 y 4258.
