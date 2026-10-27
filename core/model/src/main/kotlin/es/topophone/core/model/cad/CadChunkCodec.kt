@@ -6,7 +6,8 @@ import java.nio.ByteBuffer
 /**
  * Un elemento del dibujo con sus vértices en el sistema del proyecto, sin redondear (S040/RF-19). [height] es null si el
  * elemento no trae Z (RF-23); [color] es null si es el de su capa (RF-24). [original] marca qué vértices están escritos en el
- * DXF y cuáles son de la aproximación de una curva (S040/RF-34); null es que todos son originales.
+ * DXF y cuáles son de la aproximación de una curva (S040/RF-34); null es que todos son originales. [name] es el nombre del
+ * objeto de un GeoPackage (S048/RF-22) y [polygonRing] marca la línea que es el exterior o un hueco de un polígono (S048/RF-17).
  */
 class CadEntity(
     val kind: CadEntityKind,
@@ -15,6 +16,8 @@ class CadEntity(
     val height: DoubleArray?,
     val color: CadColor?,
     original: BooleanArray? = null,
+    val name: String? = null,
+    val polygonRing: Boolean = false,
 ) {
     // Sin marcas es un elemento de antes de S041, o uno sin curvas: todos sus vértices son originales. Un arco, un círculo o una
     // spline siempre las traen, aunque todas valgan "original", para distinguirlos de un dibujo importado antes (S041/RF-34).
@@ -41,7 +44,7 @@ class CadEntity(
 
     /** El mismo elemento con otros vértices y alturas, con su tipo, su color y las marcas de vértice original. */
     fun withVertices(easting: DoubleArray, northing: DoubleArray, height: DoubleArray?) =
-        CadEntity(kind, easting, northing, height, color, marks?.copyOf())
+        CadEntity(kind, easting, northing, height, color, marks?.copyOf(), name, polygonRing)
 
     /** Los vértices de [from] (incluido) a [to] (excluido) como un elemento nuevo, con sus marcas. */
     fun slice(from: Int, to: Int) = CadEntity(
@@ -51,6 +54,8 @@ class CadEntity(
         height?.copyOfRange(from, to),
         color,
         marks?.copyOfRange(from, to),
+        name,
+        polygonRing,
     )
 
     override fun equals(other: Any?): Boolean = other is CadEntity &&
@@ -59,7 +64,9 @@ class CadEntity(
         easting.contentEquals(other.easting) &&
         northing.contentEquals(other.northing) &&
         height.contentEquals(other.height) &&
-        marks.contentEquals(other.marks)
+        marks.contentEquals(other.marks) &&
+        name == other.name &&
+        polygonRing == other.polygonRing
 
     override fun hashCode(): Int {
         var result = kind.hashCode()
@@ -67,6 +74,8 @@ class CadEntity(
         result = 31 * result + northing.contentHashCode()
         result = 31 * result + height.contentHashCode()
         result = 31 * result + marks.contentHashCode()
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + polygonRing.hashCode()
         return 31 * result + (color?.hashCode() ?: 0)
     }
 
@@ -77,7 +86,9 @@ class CadEntity(
  * El bloque binario de un trozo del dibujo (S040/RF-19, RF-22, RF-23). Por elemento: tipo (1 byte), marcas (1 byte: con altura,
  * con color propio, color de contraste), el color ARGB si lo trae (4 bytes), el número de vértices (entero de longitud variable)
  * y los `Double` de Este y Norte de cada vértice, los de la altura si la lleva y, si hay vértices de la aproximación de una curva
- * (S040/RF-34), un bit por vértice (1 = original) empaquetado en bytes. Un trozo de antes de las marcas se lee con todo original. Un trozo no pasa de [MAX_CHUNK_BYTES].
+ * (S040/RF-34), un bit por vértice (1 = original) empaquetado en bytes. Con la marca de nombre (S048/RF-22) el nombre en UTF-8, con su
+ * longitud en un entero de longitud variable, tras todo lo anterior; la marca de contorno (S048/RF-17) no añade bytes. Un trozo de antes
+ * de las marcas se lee con todo original, sin nombre y sin contorno. Un trozo no pasa de [MAX_CHUNK_BYTES].
  */
 object CadChunkCodec {
     /** Lo que puede pesar un trozo: el `CursorWindow` de Android no admite filas de más de 2 MB. */
@@ -87,6 +98,8 @@ object CadChunkCodec {
     private const val HAS_COLOR = 2
     private const val AUTO_CONTRAST = 4
     private const val ORIGINAL_MARKS = 8
+    private const val NAME = 16
+    private const val POLYGON_RING = 32
 
     fun encode(entities: List<CadEntity>): ByteArray {
         val out = ByteArrayOutputStream(encodedSize(entities))
@@ -99,6 +112,8 @@ object CadChunkCodec {
             if (color != null) flags = flags or HAS_COLOR
             if (color?.autoContrast == true) flags = flags or AUTO_CONTRAST
             if (e.hasOriginalMarks) flags = flags or ORIGINAL_MARKS
+            if (e.name != null) flags = flags or NAME
+            if (e.polygonRing) flags = flags or POLYGON_RING
             out.write(flags)
             if (color != null && !color.autoContrast) out.write(ByteBuffer.allocate(4).putInt(color.argb).array())
             writeVarint(out, e.vertexCount)
@@ -106,6 +121,11 @@ object CadChunkCodec {
             writeDoubles(out, e.northing)
             e.height?.let { writeDoubles(out, it) }
             if (e.hasOriginalMarks) writeMarks(out, e)
+            e.name?.let { name ->
+                val bytes = name.toByteArray(Charsets.UTF_8)
+                writeVarint(out, bytes.size)
+                out.write(bytes)
+            }
         }
         return out.toByteArray()
     }
@@ -119,7 +139,11 @@ object CadChunkCodec {
         val colorBytes = if (color != null && !color.autoContrast) 4 else 0
         val doubles = e.vertexCount * (if (e.hasZ) 3 else 2) * Double.SIZE_BYTES
         val marksBytes = if (e.hasOriginalMarks) (e.vertexCount + 7) / 8 else 0
-        return 2 + colorBytes + varintSize(e.vertexCount) + doubles + marksBytes
+        val nameBytes = e.name?.let {
+            val size = it.toByteArray(Charsets.UTF_8).size
+            varintSize(size) + size
+        } ?: 0
+        return 2 + colorBytes + varintSize(e.vertexCount) + doubles + marksBytes + nameBytes
     }
 
     /** Los elementos de un bloque; [IllegalArgumentException] si está cortado o no es de este formato (RF-13). */
@@ -143,7 +167,8 @@ object CadChunkCodec {
                 val northing = readDoubles(buffer, n)
                 val height = if (flags and HAS_Z != 0) readDoubles(buffer, n) else null
                 val original = if (flags and ORIGINAL_MARKS != 0) readMarks(buffer, n) else null
-                out += CadEntity(kind, easting, northing, height, color, original)
+                val name = if (flags and NAME != 0) readName(buffer) else null
+                out += CadEntity(kind, easting, northing, height, color, original, name, flags and POLYGON_RING != 0)
             }
             require(!buffer.hasRemaining()) { "Sobran bytes al final del bloque" }
             return out
@@ -167,6 +192,12 @@ object CadChunkCodec {
     private fun readMarks(buffer: ByteBuffer, n: Int): BooleanArray {
         val bytes = ByteArray((n + 7) / 8).also { buffer.get(it) }
         return BooleanArray(n) { bytes[it / 8].toInt() and (1 shl (it % 8)) != 0 }
+    }
+
+    private fun readName(buffer: ByteBuffer): String {
+        val size = readVarint(buffer)
+        require(size >= 0 && size <= buffer.remaining()) { "Nombre imposible" }
+        return ByteArray(size).also { buffer.get(it) }.toString(Charsets.UTF_8)
     }
 
     private fun readDoubles(buffer: ByteBuffer, n: Int) = DoubleArray(n) { buffer.getDouble() }

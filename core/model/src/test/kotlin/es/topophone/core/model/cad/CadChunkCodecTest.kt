@@ -203,4 +203,105 @@ class CadChunkCodecTest {
 
         shouldThrow<IllegalArgumentException> { CadChunkCodec.decode(bytes.copyOf(bytes.size - 1)) }
     }
+
+    private fun named(name: String?, ring: Boolean = false, zs: DoubleArray? = null, color: CadColor? = null, marks: BooleanArray? = null) =
+        CadEntity(
+            CadEntityKind.POLYLINE,
+            doubleArrayOf(1.5, 2.5, 3.5),
+            doubleArrayOf(4.5, 5.5, 6.5),
+            zs,
+            color,
+            marks,
+            name = name,
+            polygonRing = ring,
+        )
+
+    @Test
+    fun `S048 RF-22 el nombre vuelve en UTF-8 con sus acentos`() {
+        val entities = listOf(named("Árbol ñandú — 東京"), named("Farola"), named(null))
+
+        val back = CadChunkCodec.decode(CadChunkCodec.encode(entities))
+
+        back.map { it.name } shouldBe listOf("Árbol ñandú — 東京", "Farola", null)
+        back shouldBe entities
+    }
+
+    @Test
+    fun `S048 RF-22 un nombre vacio se conserva como vacio y no como sin nombre`() {
+        val back = CadChunkCodec.decode(CadChunkCodec.encode(listOf(named("")))).single()
+
+        back.name shouldBe ""
+        (back == named(null)) shouldBe false
+    }
+
+    @Test
+    fun `S048 RF-17 la marca de contorno de poligono vuelve y no cambia las coordenadas`() {
+        val entities = listOf(named("Parcela", ring = true), named("Parcela", ring = false), named(null, ring = true))
+
+        val back = CadChunkCodec.decode(CadChunkCodec.encode(entities))
+
+        back.map { it.polygonRing } shouldBe listOf(true, false, true)
+        back[0].easting.toList() shouldBe listOf(1.5, 2.5, 3.5)
+        (back[0] == back[1]) shouldBe false
+    }
+
+    @Test
+    fun `S048 RF-17 el nombre y el contorno conviven con altura color y marcas de vertice`() {
+        val all = named(
+            "Hueco",
+            ring = true,
+            zs = doubleArrayOf(1.0, 2.0, 3.0),
+            color = CadColor.rgb(0x112233),
+            marks = booleanArrayOf(true, false, true),
+        )
+
+        val back = CadChunkCodec.decode(CadChunkCodec.encode(listOf(all, named("Otro")))).first()
+
+        back shouldBe all
+        back.height!!.toList() shouldBe listOf(1.0, 2.0, 3.0)
+        List(3) { back.isOriginal(it) } shouldBe listOf(true, false, true)
+    }
+
+    @Test
+    fun `S048 RF-22 el tamano calculado incluye el nombre`() {
+        val entities = listOf(named("Árbol", ring = true), named(null), named("x".repeat(300)))
+
+        CadChunkCodec.encodedSize(entities) shouldBe CadChunkCodec.encode(entities).size
+        CadChunkCodec.entitySize(named("abc")) shouldBe CadChunkCodec.entitySize(named(null)) + 1 + 3
+        CadChunkCodec.entitySize(named("x".repeat(300))) shouldBe CadChunkCodec.entitySize(named(null)) + 2 + 300
+    }
+
+    @Test
+    fun `S048 RF-22 un trozo con el nombre cortado o imposible da un error`() {
+        val bytes = CadChunkCodec.encode(listOf(named("Farola")))
+
+        shouldThrow<IllegalArgumentException> { CadChunkCodec.decode(bytes.copyOf(bytes.size - 2)) }
+        val tooLong = bytes.copyOf(bytes.size - 7) + byteArrayOf(0x7F) + "Farola".toByteArray()
+        shouldThrow<IllegalArgumentException> { CadChunkCodec.decode(tooLong) }
+    }
+
+    @Test
+    fun `S048 los trozos de S040 sin nombre ni contorno se leen igual`() {
+        val old = byteArrayOf(1, CadEntityKind.LINE.ordinal.toByte(), 0, 2) +
+            java.nio.ByteBuffer.allocate(32).putDouble(1.0).putDouble(2.0).putDouble(3.0).putDouble(4.0).array()
+
+        val back = CadChunkCodec.decode(old).single()
+
+        back.name shouldBe null
+        back.polygonRing shouldBe false
+        CadChunkCodec.encode(listOf(back)).toList() shouldBe old.toList()
+    }
+
+    @Test
+    fun `S048 un trozo cortado o con el nombre a un lado se parte conservando nombre y contorno`() {
+        val e = named("Hueco", ring = true, marks = booleanArrayOf(true, true, false))
+
+        val piece = e.slice(1, 3)
+        val moved = e.withVertices(doubleArrayOf(9.0, 8.0, 7.0), doubleArrayOf(6.0, 5.0, 4.0), null)
+
+        piece.name shouldBe "Hueco"
+        piece.polygonRing shouldBe true
+        moved.name shouldBe "Hueco"
+        moved.polygonRing shouldBe true
+    }
 }
