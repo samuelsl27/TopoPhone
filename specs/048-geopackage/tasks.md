@@ -14,7 +14,7 @@
       Hecho cuando: `GpkgGeometryTest` en verde contra los blobs de `tools`.
 - [x] T6. `core:formats`: `GpkgCrsCatalog` (EPSG a `CadSourceCrs`, unidad y «no disponible»; WGS 84 como ETRS89 con aviso). (RF-8, RF-9, RF-10)
       Hecho cuando: `GpkgCrsCatalogTest` en verde contra la lista de pyproj.
-- [ ] T7. `core:survey`: `CadProjector` con origen geográfico y motivos de ignorado por vértice. (RF-8, RF-11)
+- [x] T7. `core:survey`: `CadProjector` con origen geográfico y motivos de ignorado por vértice. (RF-8, RF-11)
       Hecho cuando: `CadProjectorGeographicTest` en verde (≤ 1 mm con pyproj, ida y vuelta < 0,1 mm) y los tests de S040 sin cambios.
 - [ ] T8. `core:survey`: `ImportAreaFilter` (recuadro en el SC de la capa, distancia, algún vértice dentro). (RF-13, RF-15)
       Hecho cuando: `ImportAreaFilterTest` en verde.
