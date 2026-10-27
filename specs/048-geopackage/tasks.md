@@ -10,7 +10,7 @@
       Hecho cuando: `CadChunkCodecTest` en verde con nombre y contorno, y los trozos de S040 se leen igual.
 - [x] T4. `core:formats`: `GpkgFileKind` (cabecera SQLite y 100 MB). (RF-2, RF-3, RF-4)
       Hecho cuando: `GpkgFileKindTest` en verde: GeoPackage, SQLite que no lo es, texto, vacío, dañado y más de 100 MB.
-- [ ] T5. `core:formats`: `GpkgGeometry` (cabecera del blob y WKB ISO y EWKB, Z/M/ZM, múltiples, vacío y curvas). (RF-17, RF-18, RF-19)
+- [x] T5. `core:formats`: `GpkgGeometry` (cabecera del blob y WKB ISO y EWKB, Z/M/ZM, múltiples, vacío y curvas). (RF-17, RF-18, RF-19)
       Hecho cuando: `GpkgGeometryTest` en verde contra los blobs de `tools`.
 - [ ] T6. `core:formats`: `GpkgCrsCatalog` (EPSG a `CadSourceCrs`, unidad y «no disponible»; WGS 84 como ETRS89 con aviso). (RF-8, RF-9, RF-10)
       Hecho cuando: `GpkgCrsCatalogTest` en verde contra la lista de pyproj.

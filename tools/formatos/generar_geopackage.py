@@ -10,6 +10,8 @@ lo son (texto, vacío, SQLite común, dañado) y cuatro ficheros de lo esperado:
   geometrías traen envolvente, columnas.
 - esperado-resumen.csv: clave/valor por fichero: tipo de fichero, capas con geometría y tablas que se dejan fuera.
 - esperado-crs.csv: EPSG → sistema de la app (S008), unidad y estado, comprobado contra pyproj en el test.
+- blobs.csv: la geometría de cada objeto tal como está en el .gpkg, en hexadecimal (vacío si es NULL), para los tests de la app, que no
+  pueden abrir SQLite en JVM.
 
 Reglas de este conjunto que la spec no fija y que quedan escritas en lo esperado (se confirman al hacer cada tarea):
 - Las coordenadas de proyecto se calculan como las calcula la app: del sistema de la capa al datum base con `ManualCrs` de
@@ -642,7 +644,7 @@ def banner(what: str) -> list[str]:
 
 def generate() -> dict[str, bytes | str]:
     files: dict[str, bytes | str] = {}
-    elements, layer_rows, summary = [], [], []
+    elements, layer_rows, summary, blobs = [], [], [], []
     for file, (layers, extras, undeclared) in files_spec().items():
         files[file] = build(layers, extras, undeclared)
         if file.endswith(".dat"):
@@ -652,6 +654,9 @@ def generate() -> dict[str, bytes | str]:
         for layer in layers:
             describe(file, layer, elements)
             layer_rows.append(layer_row(file, layer))
+            for fid, feat in enumerate(layer.feats, 1):
+                blob = gpkg_blob(written(layer, feat.geom), layer.srs, layer.env, layer.big_header)
+                blobs.append([file, layer.table, fid, "" if blob is None else blob.hex()])
         summary.append([file, "tipo_fichero", "GEOPACKAGE"])
         summary.append([file, "capas_con_geometria", len(layers)])
         foreign = [name for name, on in (("censo", extras.attributes), ("teselas", extras.tiles), ("notas", extras.foreign)) if on]
@@ -677,6 +682,9 @@ def generate() -> dict[str, bytes | str]:
     files["esperado-crs.csv"] = "\n".join(banner("Sistemas de coordenadas: EPSG de la capa → sistema de la app") + [
         "epsg,sistema_app,estado,tipo,datum,huso,unidad",
     ] + csv_rows(crs_rows())) + "\n"
+    files["blobs.csv"] = "\n".join(banner("Geometría de cada objeto, tal como está en el GeoPackage") + [
+        "archivo,tabla,fid,blob_hex",
+    ] + csv_rows(blobs)) + "\n"
     return files
 
 

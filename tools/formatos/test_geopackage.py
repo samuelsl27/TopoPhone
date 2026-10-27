@@ -142,7 +142,7 @@ def test_s048_rf2_los_ficheros_guardados_son_los_que_genera_el_script() -> None:
     generated = g.generate()
     for name, content in generated.items():
         path = DATOS / name
-        if name == "esperado.csv" or name.startswith("esperado-"):
+        if name == "esperado.csv" or name == "blobs.csv" or name.startswith("esperado-"):
             assert path.read_text(encoding="utf-8") == content, name
         elif name in g.NOT_GPKG:
             assert path.read_bytes() == content, name
@@ -394,3 +394,16 @@ def test_s048_rf13_el_rtree_y_la_envolvente_coinciden_con_las_geometrias() -> No
                     assert all(abs(a - b) <= 1e-6 * max(1.0, abs(b)) for a, b in zip(got, box)), (file, table, fid)  # el R-tree guarda float32
                 checked += 1
     assert checked > 60
+
+
+def test_s048_rf17_los_blobs_del_csv_son_los_guardados_en_los_gpkg() -> None:
+    rows = rows_of("blobs.csv")
+    stored = 0
+    for file in FEATURE_FILES:
+        for layer in stored_layers(file):
+            con, table = layer["con"], layer["table"]
+            csv_blobs = {int(r["fid"]): r["blob_hex"] for r in rows if (r["archivo"], r["tabla"]) == (file, table)}
+            sql_blobs = {fid: ("" if blob is None else bytes(blob).hex()) for fid, blob in con.execute(f'SELECT fid, geom FROM "{table}"')}
+            assert csv_blobs == sql_blobs, (file, table)
+            stored += len(sql_blobs)
+    assert stored == len(rows)

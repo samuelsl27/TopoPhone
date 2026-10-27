@@ -15,6 +15,12 @@ object GpkgFixtures {
 
     fun size(name: String): Long = File(folder, name).length()
 
+    /** La geometría de cada objeto tal como está en el .gpkg, por (archivo, tabla, fid); null si el campo es NULL. */
+    fun blobs(): Map<Triple<String, String, Int>, ByteArray?> = expected("blobs.csv").associate {
+        Triple(it.getValue("archivo"), it.getValue("tabla"), it.getValue("fid").toInt()) to
+            it.getValue("blob_hex").takeIf { hex -> hex.isNotEmpty() }?.chunked(2)?.map { pair -> pair.toInt(16).toByte() }?.toByteArray()
+    }
+
     /** Las filas de un CSV de lo esperado, sin los comentarios, como mapas columna → valor (sin comillas ni saltos dentro de las celdas). */
     fun expected(name: String): List<Map<String, String>> {
         val lines = File(folder, name).readText().lines().filter { it.isNotEmpty() && !it.startsWith("#") }
