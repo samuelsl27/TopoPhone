@@ -34,6 +34,9 @@ interface MapController {
     /** La base con su símbolo, o nada sin posición de la base (S015/RF-19). */
     fun showBase(position: GeoPoint?)
 
+    /** El punto central del proyecto con su símbolo y su texto, o nada sin punto central (S006/RF-36). */
+    fun showCentralPoint(position: GeoPoint?, label: String)
+
     /** Lleva el mapa a un encuadre (S009/RF-19, RF-21). */
     fun moveTo(viewport: MapViewport)
 

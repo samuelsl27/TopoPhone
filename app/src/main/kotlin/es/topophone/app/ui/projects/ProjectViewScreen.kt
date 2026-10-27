@@ -840,6 +840,11 @@ private fun BindMap(
         controller?.camera?.filterNotNull()?.debounce(DESIGN_DEBOUNCE_MS)?.collect(onDesignCamera)
     }
     LaunchedEffect(controller, state.base) { controller?.showBase(state.base) } // S015/RF-19
+    val centralLabel = stringResource(R.string.central_point_map_label)
+    val central = state.project?.centralPoint
+    LaunchedEffect(controller, central, centralLabel) {
+        controller?.showCentralPoint(central?.let { GeoPoint(it.latitudeDeg, it.longitudeDeg) }, centralLabel) // S006/RF-36
+    }
     val stakeoutMarker = LineStakeoutMarkers.of(lineStakeout, lineHighlight) ?: StakeoutMarkers.of(stakeout) // S041/RF-5
     LaunchedEffect(controller, stakeoutMarker) { controller?.showStakeout(stakeoutMarker) } // S018/RF-14
     LaunchedEffect(controller, state.mapSettings) { controller?.setSettings(state.mapSettings) }

@@ -1352,6 +1352,7 @@
     <string name="central_point_unset">Not set</string>
     <string name="central_point_type">Type coordinates</string>
     <string name="central_point_use_position">Use my position</string>
+    <string name="central_point_map_label">Project center</string>
     <string name="central_point_remove">Remove</string>
     <string name="central_point_dialog_title">Central point</string>
     <string name="central_point_dialog_fix">Set</string>

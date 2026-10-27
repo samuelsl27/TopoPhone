@@ -1364,6 +1364,7 @@
     <string name="central_point_unset">Sin fijar</string>
     <string name="central_point_type">Escribir coordenadas</string>
     <string name="central_point_use_position">Usar mi posición</string>
+    <string name="central_point_map_label">Centro del proyecto</string>
     <string name="central_point_remove">Quitar</string>
     <string name="central_point_dialog_title">Punto central</string>
     <string name="central_point_dialog_fix">Fijar</string>

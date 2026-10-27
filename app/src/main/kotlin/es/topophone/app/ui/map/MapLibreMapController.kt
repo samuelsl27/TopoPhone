@@ -67,6 +67,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private val requestCadastre = Runnable { loadCadastre() }
     private var rover: RoverMarker? = null
     private var base: GeoPoint? = null
+    private var central: GeoPoint? = null
+    private var centralLabel = ""
     private var points: List<MapPoint> = emptyList()
     private var design: DesignScene? = null
     private var stakeout: StakeoutMarker? = null
@@ -140,11 +142,13 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 addDesignLayers(style)
                 addStakeoutLayers(style)
                 addBaseLayer(style)
+                addCentralLayer(style)
                 addRoverLayers(style)
                 drawDesign()
                 drawPoints()
                 drawStakeout()
                 drawBase()
+                drawCentral()
                 drawRover()
                 updateGrid()
                 scheduleCadastre(0)
@@ -427,6 +431,71 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         drawBase()
     }
 
+    override fun showCentralPoint(position: GeoPoint?, label: String) {
+        central = position
+        centralLabel = label
+        drawCentral()
+    }
+
+    /** El punto central del proyecto: una diana con su texto, encima de la base y debajo del rover (S006/RF-36). */
+    private fun addCentralLayer(style: Style) {
+        style.addImage(CENTRAL_ICON, centralIcon())
+        style.addSource(GeoJsonSource(CENTRAL_SOURCE))
+        style.addLayer(
+            SymbolLayer(CENTRAL_LAYER, CENTRAL_SOURCE).withProperties(
+                PropertyFactory.iconImage(CENTRAL_ICON),
+                PropertyFactory.iconAllowOverlap(true),
+                PropertyFactory.iconIgnorePlacement(true),
+                PropertyFactory.textField(Expression.get(NAME)),
+                PropertyFactory.textFont(arrayOf(MapStyles.LABEL_FONT)),
+                PropertyFactory.textSize(LABEL_SIZE_SP),
+                PropertyFactory.textAnchor(Property.TEXT_ANCHOR_TOP),
+                PropertyFactory.textOffset(arrayOf(0f, 1.2f)),
+                PropertyFactory.textAllowOverlap(true),
+                PropertyFactory.textHaloColor(Color.WHITE),
+                PropertyFactory.textHaloWidth(1.5f),
+            ),
+        )
+    }
+
+    private fun drawCentral() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val source = style.getSourceAs<GeoJsonSource>(CENTRAL_SOURCE) ?: return
+        val position = central
+        if (position == null) {
+            source.setGeoJson(FeatureCollection.fromFeatures(emptyList()))
+        } else {
+            source.setGeoJson(
+                Feature.fromGeometry(Point.fromLngLat(position.longitudeDeg, position.latitudeDeg)).apply {
+                    addStringProperty(NAME, centralLabel)
+                },
+            )
+        }
+    }
+
+    /** Un círculo con una cruz dentro, oscuro con borde blanco: distinto del triángulo de la base, el rombo, el círculo del rover y los puntos. */
+    private fun centralIcon(): Bitmap {
+        val density = mapView.resources.displayMetrics.density
+        val size = (CENTRAL_ICON_DP * density).roundToInt()
+        val stroke = CENTRAL_STROKE_DP * density
+        val c = size / 2f
+        val radius = c - stroke
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        fun paint(color: Int, width: Float) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            style = Paint.Style.STROKE
+            strokeWidth = width
+        }
+        // Primero el borde blanco, más ancho, y encima el trazo oscuro: se ve sobre cualquier mapa base.
+        for ((color, width) in listOf(Color.WHITE to stroke * 2.5f, CENTRAL_COLOR to stroke)) {
+            canvas.drawCircle(c, c, radius, paint(color, width))
+            canvas.drawLine(c, stroke, c, size - stroke, paint(color, width))
+            canvas.drawLine(stroke, c, size - stroke, c, paint(color, width))
+        }
+        return bitmap
+    }
+
     /** La base, con un triángulo propio, encima de los puntos y debajo del rover (S015/RF-19). */
     private fun addBaseLayer(style: Style) {
         style.addImage(BASE_ICON, baseIcon())
@@ -683,6 +752,12 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val BASE_ICON_DP = 22f
         const val BASE_STROKE_DP = 2f
         const val BASE_COLOR = 0xFF263238.toInt()
+        const val CENTRAL_SOURCE = "topophone-central"
+        const val CENTRAL_LAYER = "topophone-central"
+        const val CENTRAL_ICON = "topophone-central-icon"
+        const val CENTRAL_ICON_DP = 28f
+        const val CENTRAL_STROKE_DP = 2f
+        const val CENTRAL_COLOR = 0xFF6A1B9A.toInt()
         const val ACCURACY_OPACITY = 0.25f
 
         /** Desplazamiento suave al seguir al rover, que llega a 5 Hz como mucho (RNF-T13). */

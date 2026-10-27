@@ -32,6 +32,8 @@ class FakeMapController : MapController {
     var rover: RoverMarker? = null
     var roverCalls = 0
     var base: GeoPoint? = null
+    var centralPoint: GeoPoint? = null
+    var centralLabel: String = ""
     var points: List<MapPoint> = emptyList()
     var design: DesignScene? = null
     var designCalls = 0
@@ -78,6 +80,11 @@ class FakeMapController : MapController {
 
     override fun showBase(position: GeoPoint?) {
         base = position
+    }
+
+    override fun showCentralPoint(position: GeoPoint?, label: String) {
+        centralPoint = position
+        centralLabel = label
     }
 
     override fun showRover(marker: RoverMarker?) {
