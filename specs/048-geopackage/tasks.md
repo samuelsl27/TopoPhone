@@ -8,7 +8,7 @@
       Hecho cuando: `ImportAreaTest` en verde (radio de 100 m a 100 km, «Todo el contenido») y `core:model` compila con los usos adaptados.
 - [x] T3. `core:model`: `CadChunkCodec` con las marcas `NAME` y `POLYGON_RING`. (RF-17, RF-22)
       Hecho cuando: `CadChunkCodecTest` en verde con nombre y contorno, y los trozos de S040 se leen igual.
-- [ ] T4. `core:formats`: `GpkgFileKind` (cabecera SQLite y 100 MB). (RF-2, RF-3, RF-4)
+- [x] T4. `core:formats`: `GpkgFileKind` (cabecera SQLite y 100 MB). (RF-2, RF-3, RF-4)
       Hecho cuando: `GpkgFileKindTest` en verde: GeoPackage, SQLite que no lo es, texto, vacío, dañado y más de 100 MB.
 - [ ] T5. `core:formats`: `GpkgGeometry` (cabecera del blob y WKB ISO y EWKB, Z/M/ZM, múltiples, vacío y curvas). (RF-17, RF-18, RF-19)
       Hecho cuando: `GpkgGeometryTest` en verde contra los blobs de `tools`.
