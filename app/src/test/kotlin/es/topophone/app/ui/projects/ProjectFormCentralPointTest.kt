@@ -17,6 +17,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
+import es.topophone.app.ui.receiver.nmea
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.geodesy.Utm
@@ -31,13 +32,19 @@ import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
+import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
+import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import java.io.ByteArrayOutputStream
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
 import java.util.Locale
+import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -83,11 +90,13 @@ class ProjectFormCentralPointTest {
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
 
+    private val toApp = PipedOutputStream()
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val session = ReceiverSession(sessionScope, NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
 
     @After
     fun tearDown() {
+        runCatching { toApp.close() }
         session.disconnect()
         sessionScope.cancel()
         db.close()
@@ -101,6 +110,25 @@ class ProjectFormCentralPointTest {
         } finally {
             collector.cancel()
         }
+    }
+
+    /** GGA en FIX en [latitudeDeg], [longitudeDeg]. */
+    private fun gga(latitudeDeg: Double, longitudeDeg: Double): String {
+        fun dm(value: Double, degreeDigits: Int): String {
+            val degrees = abs(value).toInt()
+            return "%0${degreeDigits}d%010.7f".format(Locale.ROOT, degrees, (abs(value) - degrees) * 60.0)
+        }
+        val ns = if (latitudeDeg >= 0) "N" else "S"
+        val ew = if (longitudeDeg >= 0) "E" else "W"
+        return "GNGGA,101530.00,${dm(latitudeDeg, 2)},$ns,${dm(longitudeDeg, 3)},$ew,4,24,0.6,650.123,M,51.234,M,1.0,0001"
+    }
+
+    /** Receptor (o reproducción) recibiendo en la posición dada. */
+    private fun receiverAt(latitudeDeg: Double, longitudeDeg: Double) {
+        session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
+        toApp.write(nmea(gga(latitudeDeg, longitudeDeg)).toByteArray())
+        toApp.flush()
+        runBlocking { withTimeout(5_000) { session.state.first { it.connection is ConnectionState.Receiving && it.gga != null } } }
     }
 
     /** El formulario conectado a su ViewModel, como en la app. */
@@ -121,6 +149,7 @@ class ProjectFormCentralPointTest {
                         {},
                         onCentralTyped = vm::fixCentralTyped,
                         onCentralRemove = vm::clearCentralPoint,
+                        onCentralPosition = vm::fixCentralFromReceiver,
                     ),
                 )
             }
@@ -238,6 +267,48 @@ class ProjectFormCentralPointTest {
 
         val id = vm.awaitState { it.savedId != null }.savedId!!
         runBlocking { repository.project(id) }!!.centralPoint.shouldNotBeNull().latitudeDeg shouldBe (40.4168 plusOrMinus 1e-8)
+    }
+
+    @Test
+    fun `S006 RF-33 usar mi posicion fija el punto central con la del receptor sin redondear`() {
+        receiverAt(40.4168123, -3.7038456)
+        val vm = open()
+
+        compose.onNodeWithTag(CENTRAL_POINT_POSITION_TAG).performScrollTo().performClick()
+
+        val point = vm.state.value.draft.centralPoint.shouldNotBeNull()
+        point.latitudeDeg shouldBe (40.4168123 plusOrMinus 1e-9)
+        point.longitudeDeg shouldBe (-3.7038456 plusOrMinus 1e-9)
+        vm.state.value.centralPointError.shouldBeNull()
+    }
+
+    @Test
+    fun `S006 RF-34 sin posicion del receptor no se fija e indica el motivo`() {
+        val vm = open()
+
+        compose.onNodeWithTag(CENTRAL_POINT_POSITION_TAG).performScrollTo().performClick()
+
+        vm.state.value.draft.centralPoint.shouldBeNull()
+        vm.state.value.centralPointError shouldBe CentralPointRejection.NO_POSITION
+        compose.onNodeWithTag(CENTRAL_POINT_ERROR_TAG).performScrollTo().assert(hasText(text(R.string.central_point_no_position)))
+    }
+
+    @Test
+    fun `S006 RF-34 una posicion fuera del ambito del SC no se fija e indica el motivo`() {
+        receiverAt(-34.6, -58.4) // Buenos Aires, con un proyecto en ETRS89 / UTM 30
+        val vm = open()
+
+        compose.onNodeWithTag(CENTRAL_POINT_POSITION_TAG).performScrollTo().performClick()
+
+        vm.state.value.draft.centralPoint.shouldBeNull()
+        vm.state.value.centralPointError shouldBe CentralPointRejection.OUTSIDE_CRS_AREA
+    }
+
+    @Test
+    fun `S006 RNF-T8 el boton de usar mi posicion mide al menos 56 dp`() {
+        open()
+
+        compose.onNodeWithTag(CENTRAL_POINT_POSITION_TAG).performScrollTo().assertHeightIsAtLeast(56.dp)
     }
 
     @Test

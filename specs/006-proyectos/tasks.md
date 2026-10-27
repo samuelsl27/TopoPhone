@@ -59,7 +59,7 @@
       Hecho cuando: `ProjectCenterProviderTest` en verde y los tests de S040 y S042 sin cambios de comportamiento, con un caso de aviso de distancia medido desde el punto central.
 - [x] T27. `app`: sección «Punto central» del formulario (sin fijar, fijado, quitar) y escribir coordenadas, con sus textos en es y en. (RF-32, RF-33, RF-34, RF-35, RNF-T7, RNF-T8)
       Hecho cuando: `ProjectFormCentralPointTest` en verde para nuevo y edición, con rechazo y motivo, zonas de 56 dp y etiquetas de TalkBack.
-- [ ] T28. `app`: «Usar mi posición» con el receptor y con una reproducción, y el motivo sin posición. (RF-33, RF-34)
+- [x] T28. `app`: «Usar mi posición» con el receptor y con una reproducción, y el motivo sin posición. (RF-33, RF-34)
       Hecho cuando: `ProjectFormCentralPointTest` en verde para la posición, con fix, sin fix y fuera del ámbito.
 - [ ] T29. `app`: «Elegir en el mapa»: selector a pantalla completa con el doble de `MapController`. (RF-33, RF-34)
       Hecho cuando: `CentralPointPickerTest` en verde: un toque coloca el punto, «Aceptar» lo pasa al formulario, «Cancelar» no cambia nada y un toque fuera del ámbito indica el motivo.

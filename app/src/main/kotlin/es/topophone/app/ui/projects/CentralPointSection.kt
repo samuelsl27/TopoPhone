@@ -38,6 +38,7 @@ import es.topophone.core.survey.ProjectPositionCalculator
 
 const val CENTRAL_POINT_EMPTY_TAG = "project_central_point_empty"
 const val CENTRAL_POINT_TYPE_TAG = "project_central_point_type"
+const val CENTRAL_POINT_POSITION_TAG = "project_central_point_position"
 const val CENTRAL_POINT_REMOVE_TAG = "project_central_point_remove"
 const val CENTRAL_POINT_ERROR_TAG = "project_central_point_error"
 const val CENTRAL_POINT_FIRST_TAG = "project_central_point_first"
@@ -63,6 +64,7 @@ internal fun CentralPointSection(
     error: CentralPointRejection?,
     onTyped: (String, String) -> Unit,
     onRemove: () -> Unit,
+    onPosition: () -> Unit,
 ) {
     var typing by remember { mutableStateOf(false) }
     Text(stringResource(R.string.central_point_title), style = MaterialTheme.typography.titleMedium)
@@ -83,6 +85,10 @@ internal fun CentralPointSection(
             onClick = { typing = true },
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(CENTRAL_POINT_TYPE_TAG),
         ) { Text(stringResource(R.string.central_point_type)) }
+        OutlinedButton(
+            onClick = onPosition,
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(CENTRAL_POINT_POSITION_TAG),
+        ) { Text(stringResource(R.string.central_point_use_position)) }
         if (point != null) {
             OutlinedButton(
                 onClick = onRemove,

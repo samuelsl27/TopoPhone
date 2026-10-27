@@ -105,6 +105,8 @@ class ProjectFormActions(
     /** Este y Norte, o latitud y longitud, tal como se escribieron (S006/RF-33). */
     val onCentralTyped: (String, String) -> Unit = { _, _ -> },
     val onCentralRemove: () -> Unit = {},
+    /** La posición actual del receptor o de una reproducción (S006/RF-33). */
+    val onCentralPosition: () -> Unit = {},
 )
 
 /**
@@ -178,6 +180,13 @@ class ProjectFormViewModel @Inject constructor(
         applyCentral(result)
     }
 
+    /** Fija el punto central con la posición actual del receptor o de una reproducción; sin ella, no cambia nada y dice por qué (S006/RF-33, RF-34). */
+    fun fixCentralFromReceiver() {
+        val snapshot = session.state.value
+        val fix = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving }
+        applyCentral(resolver.fromFix(fix, mutableState.value.draft.crs))
+    }
+
     /** Borra el punto central: el centro del proyecto vuelve a calcularse sin él (S006/RF-35). */
     fun clearCentralPoint() = mutableState.update { it.copy(draft = it.draft.copy(centralPoint = null), centralPointError = null) }
 
@@ -234,6 +243,7 @@ fun ProjectFormRoute(
             navigation.onBack,
             viewModel::fixCentralTyped,
             viewModel::clearCentralPoint,
+            viewModel::fixCentralFromReceiver,
         ),
     )
 }
@@ -314,6 +324,7 @@ fun ProjectFormScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
                 state.centralPointError,
                 actions.onCentralTyped,
                 actions.onCentralRemove,
+                actions.onCentralPosition,
             ) // S006/RF-32, RF-33, RF-34, RF-35
             Button(onClick = actions.onSave, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(FORM_SAVE_TAG)) {
                 Text(stringResource(R.string.project_save))
