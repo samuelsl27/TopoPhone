@@ -52,6 +52,9 @@ data class PointQuality(
     val deviationVerticalM: Double? = null,
     /** Medido por el modo automático; null en los puntos de antes de S017 y en los manuales (S017/RF-14). */
     val auto: Boolean? = null,
+    /** Los tipos de solución admitidos al medir y las épocas descartadas por tipo (S047/RF-15); null en los puntos de antes de S047. */
+    val admitted: AdmittedSolutions? = null,
+    val epochsDiscardedByType: Int? = null,
 )
 
 /**

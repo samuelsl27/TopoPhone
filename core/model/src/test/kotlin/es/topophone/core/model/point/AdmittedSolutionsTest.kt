@@ -84,4 +84,14 @@ class AdmittedSolutionsTest {
         control.check(SolutionType.FLOAT, horizontalM = 0.05, verticalM = 0.04) shouldBe
             setOf(PrecisionFailure.NOT_FIX, PrecisionFailure.HORIZONTAL, PrecisionFailure.VERTICAL)
     }
+
+    @Test
+    fun `S047 RF-15 la calidad de un punto guarda los tipos admitidos y las descartadas por tipo, y los puntos de antes no los tienen`() {
+        val old = PointQuality("FIX", 24, 0.6, 1.0, 0.01, 0.02, MeasurementMode.INSTANT, 1, 0, fromReplay = false)
+        old.admitted shouldBe null
+        old.epochsDiscardedByType shouldBe null
+        val now = old.copy(admitted = AdmittedSolutions.ALL, epochsDiscardedByType = 7)
+        now.admitted shouldBe AdmittedSolutions.ALL
+        now.epochsDiscardedByType shouldBe 7
+    }
 }

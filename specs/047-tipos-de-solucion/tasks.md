@@ -12,7 +12,7 @@
       Hecho cuando: `PointMeasurementAdmittedTest` (instantánea) en verde y los tests de S010 adaptados.
 - [x] T5. `core:survey`: `PointMeasurement` promediada con la regla del mejor tipo: descarte de lo acumulado, épocas peores descartadas, contadores, `SolutionDegraded`. (RF-9, RF-10, RF-15)
       Hecho cuando: `PointMeasurementAdmittedTest` (promediada) en verde, incluida la reproducción de `tipos-mezclados.nmea` contra su CSV (≤ 0,1 mm), y los tests de S017 sin cambios.
-- [ ] T6. `core:model`: `PointQuality` con `admitted` y `epochsDiscardedByType`; `MeasurementResult` los entrega. (RF-15)
+- [x] T6. `core:model`: `PointQuality` con `admitted` y `epochsDiscardedByType`; `MeasurementResult` los entrega. (RF-15)
       Hecho cuando: los tests de `core:model` y `core:survey` en verde y `PointQuality` sin cambios para quien no los pasa.
 - [ ] T7. `data`: Room v17 con las columnas `admitted_solutions` y `epochs_discarded_by_type` y `AutoMigration(16, 17)`. (RF-15, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 16 → 17 en verde con puntos antiguos que se leen sin tipos admitidos.

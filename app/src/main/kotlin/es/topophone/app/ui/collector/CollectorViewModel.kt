@@ -961,6 +961,8 @@ class CollectorViewModel @Inject constructor(
                 deviationHorizontalM = result.deviationHorizontalM,
                 deviationVerticalM = result.deviationVerticalM,
                 auto = measuringAuto,
+                admitted = result.admitted, // S047/RF-15
+                epochsDiscardedByType = result.epochsDiscardedByType,
             ),
             rawNmea = result.rawNmea,
             outOfTolerance = failures,
