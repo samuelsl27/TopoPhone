@@ -54,7 +54,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 021 conexion-wifi-tcp | Cliente TCP (hotspot 192.168.42.1:9001 o IP de la red local), tráfico del receptor por Wi-Fi y NTRIP por datos móviles, descubrimiento mDNS, correcciones al puerto TCP de entrada del receptor, permiso de red local | 015 | pendiente |
 | 022 gnss-movil-y-receptor-virtual | GNSS del propio móvil (nunca se presenta como FIX) y receptor virtual con escenarios guionizados | 021 | pendiente |
 | 046 antena-y-jalon | Catálogo de modelos Reach con su desplazamiento al centro de fase (valores de Emlid) y perfiles de antena propios, jalones guardados con nombre y jalón activo por receptor, medida vertical o inclinada, selector rápido en el recolector, el replanteo y el receptor; el jalón y la antena se guardan en cada punto y un cambio solo afecta a los siguientes | 016, 011 | implementada |
-| 047 tipos-de-solucion | Tipos de solución admitidos (FIX, FLOAT, SINGLE) en lugar de "solo FIX", con confirmación al admitir FLOAT o SINGLE, promediado con las épocas del mejor tipo, aviso de solución degradada y tipo guardado en cada punto | 010, 017, 018 | aprobada |
+| 047 tipos-de-solucion | Tipos de solución admitidos (FIX, FLOAT, SINGLE) en lugar de "solo FIX", con confirmación al admitir FLOAT o SINGLE, promediado con las épocas del mejor tipo, aviso de solución degradada y tipo guardado en cada punto | 010, 017, 018 | implementada |
 
 ## H3 · Códigos y líneas
 

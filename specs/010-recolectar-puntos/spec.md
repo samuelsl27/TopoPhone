@@ -115,3 +115,4 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 
 ## Cambios posteriores
 - S046 (26/10/2026): la altura del jalón de RF-5 y RF-17 es la del jalón activo del receptor, y cada punto guarda además el jalón (nombre, tipo y altura escrita) y la antena (perfil, desplazamiento y altura de antena) con los que se midió.
+- S047 (27/10/2026): la condición "solo FIX" de RF-10, RF-13 y RF-14 pasa a ser la elección de tipos de solución admitidos (FIX, FLOAT y SINGLE; por defecto solo FIX). El promediado sigue con el mejor tipo admitido visto, y el punto guarda los tipos admitidos y las épocas descartadas por tipo (RF-18). "Solución perdida" pasa a llamarse "Solución degradada".

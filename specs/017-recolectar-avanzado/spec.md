@@ -172,3 +172,6 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - `specs/011-objetos-y-puntos-manuales/spec.md`, RF-7: se añade "y, si se promedió, el tiempo promediado y las desviaciones típicas (S017/RF-13)".
 - `specs/012-exportar-csv/spec.md`, RF-6: en el grupo "de la medida" se añade "el tiempo promediado, las desviaciones típicas y si se midió en automático (S017/RF-14)".
 - `docs/glosario.md`: se añaden "Modo automático" (`AutoMode`), "Disparo" (`trigger`), "Medida en pausa" (`MeasurementPaused`), "Desviación típica (de una medida)" (`standardDeviation`) y "Estabilidad de la media" (`meanStability`).
+
+## Cambios posteriores
+- S047 (27/10/2026): el promediado de RF-2 a RF-5 y RF-12 solo reúne épocas del mejor tipo admitido visto, y el modo automático de RF-24 omite el punto cuya época no es de un tipo admitido, como el que no cumple el control de precisión.

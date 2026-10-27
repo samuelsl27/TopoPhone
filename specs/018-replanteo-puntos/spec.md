@@ -150,3 +150,6 @@ Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te 
 - [SUPOSICIÓN: el punto replanteado recibe la descripción del punto de diseño, sin añadir texto propio.]
 - [SUPOSICIÓN: el mapa de replanteo no gira con el rumbo (S009/RF-11); el inventario hablaba de orientar el mapa con el IMU y aquí lo hace solo la diana.]
 - [SUPOSICIÓN: con una reproducción se puede replantear y los puntos quedan marcados como de reproducción (S010/RF-18).]
+
+## Cambios posteriores
+- S047 (27/10/2026): "sin FIX con Solo FIX" de RF-22 y RF-23 se lee con los tipos admitidos: la guía se apaga con un tipo no admitido ("Tipo de solución no admitido") y sigue con cualquiera de los admitidos, mostrando el tipo.
