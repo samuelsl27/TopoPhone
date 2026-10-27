@@ -630,6 +630,8 @@
     <string name="point_mode">Mode</string>
     <string name="point_epochs">Epochs</string>
     <string name="point_epochs_value">Used: %1$d, discarded: %2$d</string>
+    <string name="point_admitted">Admitted types when measured</string>
+    <string name="point_epochs_by_type">Discarded by solution type</string>
     <string name="point_from_replay">Measured in a replay.</string>
     <string name="point_measured_at">Date and time</string>
     <string name="point_nmea">Show NMEA sentences</string>

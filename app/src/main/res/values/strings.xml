@@ -642,6 +642,8 @@
     <string name="point_mode">Modo</string>
     <string name="point_epochs">Épocas</string>
     <string name="point_epochs_value">Usadas: %1$d, descartadas: %2$d</string>
+    <string name="point_admitted">Tipos admitidos al medir</string>
+    <string name="point_epochs_by_type">Descartadas por tipo de solución</string>
     <string name="point_from_replay">Medido en una reproducción.</string>
     <string name="point_measured_at">Fecha y hora</string>
     <string name="point_nmea">Ver frases NMEA</string>

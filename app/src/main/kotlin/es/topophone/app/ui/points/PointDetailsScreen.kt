@@ -709,6 +709,17 @@ private fun MeasurementCard(project: Project, measurement: Measurement, loadNmea
             stringResource(R.string.point_epochs_value, quality.epochsUsed, quality.epochsDiscarded),
             "point_epochs",
         )
+        // S047/RF-16: los tipos de solución admitidos al medir y las épocas descartadas por tipo; los puntos de antes no los tienen.
+        quality.admitted?.let { admitted ->
+            CoordinateRow(
+                stringResource(R.string.point_admitted),
+                admitted.types.sorted().joinToString(", ") { it.name },
+                "point_admitted",
+            )
+        }
+        quality.epochsDiscardedByType?.let {
+            CoordinateRow(stringResource(R.string.point_epochs_by_type), it.toString(), "point_epochs_by_type")
+        }
         // S017/RF-13, RF-14: lo que dejó el promediado, y si lo midió el modo automático.
         quality.averagedTimeS?.let {
             CoordinateRow(stringResource(R.string.point_averaged_time), DurationText.format(it.roundToInt()), "point_averaged_time")

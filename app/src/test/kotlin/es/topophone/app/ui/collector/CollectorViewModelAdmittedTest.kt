@@ -184,6 +184,18 @@ class CollectorViewModelAdmittedTest {
     private fun stored(projectId: String) = runBlocking { points.points(projectId).first() }
 
     @Test
+    fun `S047 RNF cambiar los tipos admitidos se refleja en el recolector en menos de 200 ms`() {
+        val vm = viewModel(CollectorSettings(), project())
+        val admitted = AdmittedSolutions.of(setOf(SolutionType.FIX, SolutionType.FLOAT))
+
+        val start = System.nanoTime()
+        vm.setSettings(CollectorSettings(precision = PrecisionControl(admitted = admitted)))
+        await(vm) { it.settings.precision.admitted == admitted }
+
+        ((System.nanoTime() - start) / 1_000_000 < 200) shouldBe true
+    }
+
+    @Test
     fun `S047 RF-15 con FLOAT admitido la instantanea en FLOAT se guarda con los tipos admitidos`() {
         val projectId = project()
         val admitted = AdmittedSolutions.of(setOf(SolutionType.FIX, SolutionType.FLOAT))

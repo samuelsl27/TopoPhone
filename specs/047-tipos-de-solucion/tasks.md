@@ -28,7 +28,7 @@
       Hecho cuando: `PrecisionDialogTest` en verde, con zonas de 56 dp y etiquetas de TalkBack.
 - [x] T13. `app`: el indicador «No solo FIX» en el recolector y en el replanteo, con icono y texto. (RF-14, RNF-T8)
       Hecho cuando: `AdmittedBadgeTest` en verde y el cambio de tipos se refleja en menos de 200 ms.
-- [ ] T14. `app`: los tipos admitidos al medir en la ficha del punto. (RF-16)
+- [x] T14. `app`: los tipos admitidos al medir en la ficha del punto. (RF-16)
       Hecho cuando: `PointDetailsAdmittedTest` en verde: punto con tipos, punto de antes y punto manual.
 - [ ] T15. Validación: revisión de los cambios en documentos anteriores (hoja de ruta, glosario, S010, S017, S018), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona (marcar FLOAT con su confirmación, medir, ver el indicador y la ficha, y ver la guía apagarse con SINGLE). La demo de campo queda para el usuario.
