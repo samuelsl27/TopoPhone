@@ -22,7 +22,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 18 → 19 en verde con dibujos de DXF que se leen como `DXF`, y el esquema 19 en `data/schemas/`.
 - [x] T10. `data`: `GeoPackageReader` (copia temporal, solo lectura, capas, columnas, tablas ajenas y limpieza). (RF-1 a RF-7)
       Hecho cuando: `GeoPackageReaderTest` en verde con los `.gpkg` de `tools`, sin dejar el temporal.
-- [ ] T11. `data`: `GeoPackageScan` (extensión, distancia y recuento por capa para un radio, con R-tree o con envolventes). (RF-12, RF-13, RF-16)
+- [x] T11. `data`: `GeoPackageScan` (extensión, distancia y recuento por capa para un radio, con R-tree o con envolventes). (RF-12, RF-13, RF-16)
       Hecho cuando: `GeoPackageScanTest` en verde, incluida la capa sin R-tree y el límite de 500.000.
 - [ ] T12. `data`: `GeoPackageImporter` (reproyección, zona, polígonos como líneas, cotas, nombre, atributos, tandas, cancelar y fallar sin dejar nada). (RF-11, RF-15 a RF-22, RF-26, RF-29, RF-30)
       Hecho cuando: `GeoPackageImporterTest` en verde con el resumen por capa y los valores contra pyproj.

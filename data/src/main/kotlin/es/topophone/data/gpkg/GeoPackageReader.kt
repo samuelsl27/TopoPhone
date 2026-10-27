@@ -249,8 +249,62 @@ class GpkgSession internal constructor(
         }
     }
 
+    /**
+     * Recorre la clave y los primeros 40 bytes de la geometría de cada objeto —la cabecera con su envolvente—, sin leer el resto del
+     * blob (S048/RF-13). [head] es null si la geometría es NULL.
+     */
+    fun forEachHead(layer: GpkgLayerInfo, action: (fid: Long, head: ByteArray?) -> Unit) {
+        val key = GeoPackageReader.quote(keyByTable.getValue(layer.table))
+        val sql = "SELECT $key, substr(${GeoPackageReader.quote(
+            layer.geometryColumn,
+        )}, 1, $HEAD_BYTES) FROM ${GeoPackageReader.quote(layer.table)}"
+        db.rawQuery(sql, null).use { cursor ->
+            while (cursor.moveToNext()) action(cursor.getLong(0), if (cursor.isNull(1)) null else cursor.getBlob(1))
+        }
+    }
+
+    /**
+     * Recorre las envolventes del índice espacial de la capa, sin tocar las geometrías. Devuelve false si no hay índice o este SQLite no
+     * lo puede consultar, y entonces no se ha llamado a [action]. El R-tree guarda coordenadas de 32 bits redondeadas hacia fuera.
+     */
+    fun forEachIndexRow(
+        layer: GpkgLayerInfo,
+        action: (fid: Long, minX: Double, maxX: Double, minY: Double, maxY: Double) -> Unit,
+    ): Boolean {
+        if (!layer.hasSpatialIndex) return false
+        val rtree = GeoPackageReader.quote("rtree_${layer.table}_${layer.geometryColumn}")
+        val cursor = try {
+            db.rawQuery("SELECT id, minx, maxx, miny, maxy FROM $rtree", null)
+        } catch (e: SQLiteException) {
+            return false
+        }
+        cursor.use {
+            while (it.moveToNext()) action(it.getLong(0), it.getDouble(1), it.getDouble(2), it.getDouble(3), it.getDouble(4))
+        }
+        return true
+    }
+
+    /** Las geometrías completas de esos objetos, de [BATCH] en [BATCH]. [geometry] es null si es NULL. */
+    fun forEachGeometry(layer: GpkgLayerInfo, ids: LongArray, action: (fid: Long, geometry: ByteArray?) -> Unit) {
+        val key = GeoPackageReader.quote(keyByTable.getValue(layer.table))
+        val select = "SELECT $key, ${GeoPackageReader.quote(
+            layer.geometryColumn,
+        )} FROM ${GeoPackageReader.quote(layer.table)} WHERE $key IN ("
+        for (start in ids.indices step BATCH) {
+            val batch = ids.copyOfRange(start, minOf(start + BATCH, ids.size)).joinToString(",")
+            db.rawQuery("$select$batch)", null).use { cursor ->
+                while (cursor.moveToNext()) action(cursor.getLong(0), if (cursor.isNull(1)) null else cursor.getBlob(1))
+            }
+        }
+    }
+
     // Double.toString escribe siempre con punto y sin separadores, sea cual sea la configuración regional del móvil.
     private fun num(value: Double): String = value.toString()
+
+    private companion object {
+        const val HEAD_BYTES = 40
+        const val BATCH = 500
+    }
 
     private fun Cursor.value(index: Int, declaredType: String): GpkgValue {
         val type = declaredType.uppercase(Locale.ROOT)

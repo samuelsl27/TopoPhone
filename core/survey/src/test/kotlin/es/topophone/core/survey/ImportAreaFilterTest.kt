@@ -40,6 +40,13 @@ class ImportAreaFilterTest {
     }
 
     @Test
+    fun `S048 RF-12 la distancia al centro es la del plano y la del gran circulo en geograficas`() {
+        filter(1_000.0).distanceM(e0 + 300.0, n0 + 400.0) shouldBe (500.0 plusOrMinus 1e-9)
+        filter(1_000.0, ProjectCrs.ETRS89_GEOGRAPHIC).distanceM(center.longitudeDeg, center.latitudeDeg + 0.01) shouldBe
+            (1_111.95 plusOrMinus 1.0)
+    }
+
+    @Test
     fun `S048 RF-15 el vertice justo en el radio cuenta como dentro`() {
         val zone = filter(500.0)
 

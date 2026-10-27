@@ -40,8 +40,11 @@ class ImportAreaFilter private constructor(
     val radiusM: Double get() = circle.radiusM
 
     /** El punto (Este, Norte) —o (longitud, latitud) en un SC geográfico— está a [radiusM] o menos del centro. */
-    fun contains(x: Double, y: Double): Boolean =
-        if (geographicProject) greatCircleM(centerY, centerX, y, x) <= radiusM else hypot(x - centerX, y - centerY) <= radiusM
+    fun contains(x: Double, y: Double): Boolean = distanceM(x, y) <= radiusM
+
+    /** La distancia del punto (Este, Norte) —o (longitud, latitud)— al centro de la zona, en metros (S048/RF-12). */
+    fun distanceM(x: Double, y: Double): Double =
+        if (geographicProject) greatCircleM(centerY, centerX, y, x) else hypot(x - centerX, y - centerY)
 
     /** Algún vértice está dentro. */
     fun anyInside(x: DoubleArray, y: DoubleArray): Boolean = x.indices.any { contains(x[it], y[it]) }
