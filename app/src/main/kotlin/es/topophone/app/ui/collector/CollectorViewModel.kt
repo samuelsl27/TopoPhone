@@ -624,7 +624,7 @@ class CollectorViewModel @Inject constructor(
             PointMeasurement(
                 mode = settings.mode,
                 averagingSeconds = settings.validAveragingSeconds,
-                fixOnly = settings.precision.fixOnly,
+                admitted = settings.precision.admitted,
                 poleHeightM = pole,
                 crs = project.crs,
                 heightSystem = project.heightSystem,

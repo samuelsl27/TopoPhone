@@ -8,7 +8,7 @@
       Hecho cuando: `AdmittedSolutionsTest` y `PrecisionControlTest` en verde y `core:model` compila con los usos adaptados.
 - [x] T3. `core:survey`: `SolutionTypes.of(SolutionStatus)`. (RF-18)
       Hecho cuando: `SolutionTypesTest` en verde: FIX, FLOAT, SINGLE, DGPS como SINGLE y ESTIMATED y NONE sin tipo.
-- [ ] T4. `core:survey`: `PointMeasurement` instantánea con `admitted` en lugar de `fixOnly`. (RF-8; D1)
+- [x] T4. `core:survey`: `PointMeasurement` instantánea con `admitted` en lugar de `fixOnly`. (RF-8; D1)
       Hecho cuando: `PointMeasurementAdmittedTest` (instantánea) en verde y los tests de S010 adaptados.
 - [ ] T5. `core:survey`: `PointMeasurement` promediada con la regla del mejor tipo: descarte de lo acumulado, épocas peores descartadas, contadores, `SolutionDegraded`. (RF-9, RF-10, RF-15)
       Hecho cuando: `PointMeasurementAdmittedTest` (promediada) en verde, incluida la reproducción de `tipos-mezclados.nmea` contra su CSV (≤ 0,1 mm), y los tests de S017 sin cambios.

@@ -8,6 +8,7 @@ import es.topophone.core.gnss.nmea.TiltAccuracyCoefficients
 import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.gnss.nmea.TiltNotification
 import es.topophone.core.gnss.nmea.TiltState
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.HeightSystem
@@ -50,7 +51,7 @@ class TiltPerformanceTest {
         val measurement = PointMeasurement(
             MeasurementMode.AVERAGED,
             averagingSeconds = 60,
-            fixOnly = true,
+            admitted = AdmittedSolutions.FIX_ONLY,
             poleHeightM = 1.8,
             crs = ProjectCrs.ETRS89_UTM30,
             heightSystem = HeightSystem.ORTHOMETRIC,

@@ -7,6 +7,7 @@ import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.MeasurementMode
@@ -96,7 +97,7 @@ data class MeasurementResult(
  * Medida de un punto a partir de las épocas del receptor, sin Android (S010/RF-8 a RF-12):
  * - instantánea: la primera época con posición;
  * - promediada: las épocas válidas hasta reunir el tiempo pedido, contando cada una como el intervalo del
- *   receptor ([epochIntervalS]). Con [fixOnly], las épocas sin FIX se descartan y se avisa una vez;
+ *   receptor ([epochIntervalS]). Con [admitted], las épocas sin FIX se descartan y se avisa una vez;
  * - sin ninguna época en 2 s, la instantánea se cancela y la promediada se pausa, conserva lo reunido y sigue sola al
  *   volver las épocas (S017/RF-8, RF-9); a los 5 min de corte se pregunta qué hacer (RF-10). Fuera del ámbito del SC del
  *   proyecto, no hay punto.
@@ -113,7 +114,7 @@ data class MeasurementResult(
 class PointMeasurement(
     private val mode: MeasurementMode,
     averagingSeconds: Int,
-    private val fixOnly: Boolean,
+    private val admitted: AdmittedSolutions,
     private val poleHeightM: Double,
     private val crs: ProjectCrs,
     private val heightSystem: HeightSystem,
@@ -194,7 +195,8 @@ class PointMeasurement(
                 if (!tiltWarned) updates += MeasurementUpdate.TiltLost(checkNotNull(TiltEpoch.guide(epoch.tilt)))
                 tiltWarned = true
             }
-            mode == MeasurementMode.AVERAGED && fixOnly && fix.status != SolutionStatus.FIX -> {
+            // Provisional hasta S047 T5: solo FIX.
+            mode == MeasurementMode.AVERAGED && admitted.onlyFix && fix.status != SolutionStatus.FIX -> {
                 discarded++
                 if (!lostWarned) updates += MeasurementUpdate.SolutionLost
                 lostWarned = true

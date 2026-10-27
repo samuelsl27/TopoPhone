@@ -9,6 +9,7 @@ import es.topophone.core.gnss.nmea.TiltAccuracyCoefficients
 import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.gnss.nmea.TiltNotification
 import es.topophone.core.gnss.nmea.TiltState
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.TiltMode
@@ -86,7 +87,7 @@ class PointMeasurementTiltTest {
     private fun measurement(tiltMode: TiltMode, mode: MeasurementMode = MeasurementMode.AVERAGED, seconds: Int = 3) = PointMeasurement(
         mode,
         seconds,
-        fixOnly = true,
+        admitted = AdmittedSolutions.FIX_ONLY,
         poleHeightM = 1.8,
         crs = ProjectCrs.ETRS89_UTM30,
         heightSystem = HeightSystem.ORTHOMETRIC,

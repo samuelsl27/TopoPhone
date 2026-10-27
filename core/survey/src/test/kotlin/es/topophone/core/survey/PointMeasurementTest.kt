@@ -4,6 +4,7 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectCrs
@@ -61,7 +62,7 @@ class PointMeasurementTest {
     ) = PointMeasurement(
         mode,
         seconds,
-        fixOnly,
+        if (fixOnly) AdmittedSolutions.FIX_ONLY else AdmittedSolutions.ALL,
         poleHeightM = 1.8,
         crs,
         HeightSystem.ORTHOMETRIC,

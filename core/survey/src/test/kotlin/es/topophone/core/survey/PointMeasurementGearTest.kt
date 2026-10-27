@@ -4,6 +4,7 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PoleKind
@@ -38,7 +39,7 @@ class PointMeasurementGearTest {
     private fun result(profile: AntennaProfile, poleM: Double, gear: GearUsed?) = PointMeasurement(
         MeasurementMode.INSTANT,
         5,
-        true,
+        AdmittedSolutions.FIX_ONLY,
         poleM,
         ProjectCrs.ETRS89_UTM30,
         HeightSystem.ORTHOMETRIC,
