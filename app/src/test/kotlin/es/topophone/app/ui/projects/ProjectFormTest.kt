@@ -13,6 +13,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
+import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -89,7 +90,7 @@ class ProjectFormTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel() = ProjectFormViewModel(repository, FakeProjectPreferences(defaults), session)
+    private fun viewModel() = ProjectFormViewModel(repository, FakeProjectPreferences(defaults), session, FakeMapPreferences())
 
     private fun ProjectFormViewModel.awaitState(predicate: (ProjectFormUiState) -> Boolean): ProjectFormUiState = runBlocking {
         val collector = CoroutineScope(Dispatchers.Unconfined).launch { state.collect {} }

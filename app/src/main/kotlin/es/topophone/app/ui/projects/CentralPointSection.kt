@@ -65,6 +65,7 @@ internal fun CentralPointSection(
     onTyped: (String, String) -> Unit,
     onRemove: () -> Unit,
     onPosition: () -> Unit,
+    onPick: (() -> Unit)?,
 ) {
     var typing by remember { mutableStateOf(false) }
     Text(stringResource(R.string.central_point_title), style = MaterialTheme.typography.titleMedium)
@@ -89,6 +90,12 @@ internal fun CentralPointSection(
             onClick = onPosition,
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(CENTRAL_POINT_POSITION_TAG),
         ) { Text(stringResource(R.string.central_point_use_position)) }
+        if (onPick != null) {
+            OutlinedButton(
+                onClick = onPick,
+                modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(CENTRAL_POINT_PICK_TAG),
+            ) { Text(stringResource(R.string.central_point_pick)) }
+        }
         if (point != null) {
             OutlinedButton(
                 onClick = onRemove,

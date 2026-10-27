@@ -17,6 +17,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
+import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -133,7 +134,7 @@ class ProjectFormCentralPointTest {
 
     /** El formulario conectado a su ViewModel, como en la app. */
     private fun open(projectId: String? = null): ProjectFormViewModel {
-        val vm = ProjectFormViewModel(repository, FakeProjectPreferences(), session)
+        val vm = ProjectFormViewModel(repository, FakeProjectPreferences(), session, FakeMapPreferences())
         vm.start(projectId, folderId = null)
         vm.awaitState { it.loaded }
         compose.setContent {

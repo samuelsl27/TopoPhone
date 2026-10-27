@@ -18,8 +18,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -28,16 +33,22 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.map.MapEntryPoint
+import es.topophone.app.ui.map.MapLibreMap
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.AngleAxis
 import es.topophone.core.model.format.AngleInput
 import es.topophone.core.model.format.NumberInput
+import es.topophone.core.model.map.MapSettings
+import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
+import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.DatumCheck
 import es.topophone.core.model.project.GeodeticDatum
@@ -50,6 +61,7 @@ import es.topophone.core.model.project.ProjectDraft
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResolver
 import es.topophone.core.survey.CentralPointResult
+import es.topophone.data.map.MapPreferences
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.project.SaveResult
@@ -95,6 +107,8 @@ data class ProjectFormUiState(
     val proposedCrs: ProjectCrs? = null,
     /** Por qué no se fijó el punto central en el último intento (S006/RF-34). */
     val centralPointError: CentralPointRejection? = null,
+    /** El mapa base elegido en Ajustes, para el selector del punto central (S006/RF-33). */
+    val mapSettings: MapSettings = MapSettings(),
 )
 
 /** Acciones del formulario de proyecto. */
@@ -107,6 +121,11 @@ class ProjectFormActions(
     val onCentralRemove: () -> Unit = {},
     /** La posición actual del receptor o de una reproducción (S006/RF-33). */
     val onCentralPosition: () -> Unit = {},
+    /** Un toque del selector del mapa: dónde cae, o por qué no vale (S006/RF-33, RF-34). */
+    val onCentralTap: (Double, Double) -> CentralPointResult = { _, _ -> CentralPointResult.Rejected(CentralPointRejection.NO_POSITION) },
+    val onCentralPicked: (CentralPoint) -> Unit = {},
+    /** Dónde empieza el mapa del selector (S006/RF-33). */
+    val pickerStart: () -> MapViewport? = { null },
 )
 
 /**
@@ -118,6 +137,7 @@ class ProjectFormViewModel @Inject constructor(
     private val repository: ProjectRepository,
     private val preferences: ProjectPreferences,
     private val session: ReceiverSession,
+    private val mapPreferences: MapPreferences,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ProjectFormUiState())
     val state: StateFlow<ProjectFormUiState> = mutableState.asStateFlow()
@@ -127,18 +147,24 @@ class ProjectFormViewModel @Inject constructor(
     private var started = false
     private val resolver = CentralPointResolver()
 
+    private companion object {
+        const val PICKER_ZOOM = 16.0
+    }
+
     fun start(projectId: String?, folderId: String?) {
         if (started) return
         started = true
+        viewModelScope.launch { mapPreferences.settings.collect { settings -> mutableState.update { it.copy(mapSettings = settings) } } }
         this.projectId = projectId
         this.folderId = folderId
         viewModelScope.launch {
             val project = projectId?.let { repository.project(it) }
-            mutableState.value = if (project != null) {
+            val loaded = if (project != null) {
                 ProjectFormUiState(draft = project.toDraft(), loaded = true, editing = true) // S006/RF-14
             } else {
                 newProject(preferences.defaults.first().toDraft()) // S006/RF-6
             }
+            mutableState.update { loaded.copy(mapSettings = it.mapSettings) }
         }
     }
 
@@ -178,6 +204,21 @@ class ProjectFormViewModel @Inject constructor(
             resolver.fromTyped(if (projected) EntryForm.PROJECT_CRS else EntryForm.GEOGRAPHIC, a, b, crs)
         }
         applyCentral(result)
+    }
+
+    /** Un toque del selector del mapa: el punto, si cae en el ámbito del SC del proyecto, o el motivo (S006/RF-33, RF-34). */
+    fun resolveCentralTap(latitudeDeg: Double, longitudeDeg: Double): CentralPointResult =
+        resolver.fromTap(latitudeDeg, longitudeDeg, mutableState.value.draft.crs)
+
+    /** El punto aceptado en el selector del mapa (S006/RF-33). */
+    fun setCentralPoint(point: CentralPoint) = applyCentral(CentralPointResult.Fixed(point))
+
+    /** Donde empieza el mapa del selector: el punto central si lo hay; si no, la posición del receptor; si no, España entera. */
+    fun pickerStart(): MapViewport? {
+        mutableState.value.draft.centralPoint?.let { return MapViewport(it.latitudeDeg, it.longitudeDeg, PICKER_ZOOM) }
+        val snapshot = session.state.value
+        val fix = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition } ?: return null
+        return MapViewport(fix.latitudeDeg, fix.longitudeDeg, PICKER_ZOOM)
     }
 
     /** Fija el punto central con la posición actual del receptor o de una reproducción; sin ella, no cambia nada y dice por qué (S006/RF-33, RF-34). */
@@ -224,6 +265,9 @@ fun ProjectFormRoute(
     viewModel: ProjectFormViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(Unit) { viewModel.start(projectId, folderId) }
+    val context = LocalContext.current
+    val environment =
+        remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val saved = state.savedId
     LaunchedEffect(saved) {
@@ -244,14 +288,43 @@ fun ProjectFormRoute(
             viewModel::fixCentralTyped,
             viewModel::clearCentralPoint,
             viewModel::fixCentralFromReceiver,
+            viewModel::resolveCentralTap,
+            viewModel::setCentralPoint,
+            viewModel::pickerStart,
         ),
+        map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
     )
 }
 
 /** Formulario de proyecto nuevo o editado (S006/RF-5 a RF-11). */
 @Composable
-fun ProjectFormScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: ProjectFormUiState, actions: ProjectFormActions) {
+fun ProjectFormScreen(
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    state: ProjectFormUiState,
+    actions: ProjectFormActions,
+    /** El mapa del selector del punto central; sin él no se ofrece «Elegir en el mapa» (S006/RF-33). */
+    map: MapSlot? = null,
+) {
     val draft = state.draft
+    var picking by rememberSaveable { mutableStateOf(false) }
+    if (picking && map != null) {
+        CentralPointPicker(
+            themeState,
+            onToggleSun,
+            map,
+            state.mapSettings,
+            start = remember { actions.pickerStart() },
+            current = draft.centralPoint,
+            resolve = actions.onCentralTap,
+            onAccept = {
+                actions.onCentralPicked(it)
+                picking = false
+            },
+            onCancel = { picking = false },
+        )
+        return
+    }
     SectionScaffold(
         title = stringResource(if (state.editing) R.string.project_edit else R.string.project_new),
         themeState = themeState,
@@ -325,6 +398,7 @@ fun ProjectFormScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
                 actions.onCentralTyped,
                 actions.onCentralRemove,
                 actions.onCentralPosition,
+                onPick = if (map != null) ({ picking = true }) else null,
             ) // S006/RF-32, RF-33, RF-34, RF-35
             Button(onClick = actions.onSave, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(FORM_SAVE_TAG)) {
                 Text(stringResource(R.string.project_save))

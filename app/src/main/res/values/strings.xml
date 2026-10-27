@@ -1365,6 +1365,10 @@
     <string name="central_point_type">Escribir coordenadas</string>
     <string name="central_point_use_position">Usar mi posición</string>
     <string name="central_point_map_label">Centro del proyecto</string>
+    <string name="central_point_pick">Elegir en el mapa</string>
+    <string name="central_point_pick_title">Elegir el punto central</string>
+    <string name="central_point_pick_hint">Toca el mapa para colocar el punto central.</string>
+    <string name="central_point_pick_accept">Aceptar</string>
     <string name="central_point_remove">Quitar</string>
     <string name="central_point_dialog_title">Punto central</string>
     <string name="central_point_dialog_fix">Fijar</string>

@@ -16,6 +16,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
+import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -226,7 +227,7 @@ class ProjectFormCrsTest {
 
     /** Abre el formulario (proyecto nuevo, o [projectId] para editar) con [defaults] en Ajustes. */
     private fun openForm(defaults: ProjectDefaults, projectId: String? = null): ProjectFormUiState {
-        val vm = ProjectFormViewModel(RoomProjectRepository(db), FixedPreferences(defaults), session)
+        val vm = ProjectFormViewModel(RoomProjectRepository(db), FixedPreferences(defaults), session, FakeMapPreferences())
         vm.start(projectId = projectId, folderId = null)
         return runBlocking { withTimeout(5_000) { vm.state.first { it.loaded } } }
     }
