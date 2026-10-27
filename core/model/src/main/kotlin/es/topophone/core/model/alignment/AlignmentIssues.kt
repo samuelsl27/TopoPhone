@@ -16,8 +16,11 @@ sealed interface AlignmentIssue {
     /** El eje tiene ecuaciones de PK, que esta versión no admite (decisión D3). */
     data object StationEquation : AlignmentIssue
 
-    /** Un trozo de la polilínea con vértices intermedios no es un arco de circunferencia (decisión D1, RF-6). */
+    /** Un trozo de la polilínea con vértices intermedios no es un arco de circunferencia (decisión D1, RF-6): [element] es el número, desde 1, del vértice original donde empieza. */
     data class NonCircularCurve(val element: Int) : AlignmentIssue
+
+    /** El elemento del dibujo no es una polilínea con longitud (RF-6). */
+    data object NotAPolyline : AlignmentIssue
 
     /** Un vértice del eje queda fuera del ámbito del sistema del proyecto (RF-12). */
     data object OutsideCrsArea : AlignmentIssue

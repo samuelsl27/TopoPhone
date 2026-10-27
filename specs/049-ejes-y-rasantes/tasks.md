@@ -16,7 +16,7 @@
       Hecho cuando: `AlignmentValidatorTest` y `ProfileValidatorTest` en verde con el tramo o el vértice y el motivo.
 - [x] T7. `core:survey`: `PiAlignmentBuilder` (vértices con radio y clotoides) y rasante a mano con Kv (D4). (RF-8)
       Hecho cuando: `PiAlignmentBuilderTest` en verde contra `tools`.
-- [ ] T8. `core:survey`: `PolylineAlignmentBuilder` (inicio en el extremo más cercano, reconstrucción de arcos de D1, rasante sin acuerdos). (RF-6, RF-7)
+- [x] T8. `core:survey`: `PolylineAlignmentBuilder` (inicio en el extremo más cercano, reconstrucción de arcos de D1, rasante sin acuerdos). (RF-6, RF-7)
       Hecho cuando: `PolylineAlignmentBuilderTest` en verde con arcos, una spline rechazada y una polilínea sin cotas.
 - [ ] T9. `core:formats`: `LandXmlAlignmentReader.scan` (alineaciones, longitud, PK inicial, rasante, unidad; sin alineaciones, no válido y más de 100 MB). (RF-2, RF-3)
       Hecho cuando: `LandXmlAlignmentReaderTest` en verde para esos casos.
