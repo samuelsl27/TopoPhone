@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +23,7 @@ import es.topophone.app.R
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.cad.GpkgValue
 import es.topophone.core.model.project.LinearUnit
 import java.text.NumberFormat
 import kotlin.math.hypot
@@ -29,6 +32,11 @@ const val DESIGN_SHEET_TAG = "design_element_sheet"
 const val DESIGN_NO_ELEVATION_TAG = "design_element_no_elevation"
 const val DESIGN_ELEVATION_TAG = "design_element_elevation"
 const val DESIGN_STAKEOUT_TAG = "design_element_stakeout"
+const val DESIGN_NAME_TAG = "design_element_name"
+const val DESIGN_RING_TAG = "design_element_ring"
+const val DESIGN_ATTRIBUTES_TAG = "design_element_attributes"
+
+fun designAttributeTag(column: String) = "design_attribute_$column"
 
 /**
  * La ficha de un elemento del dibujo que se ha tocado en el mapa: su tipo original, su capa y su dibujo, sus coordenadas o su
@@ -52,11 +60,17 @@ fun DesignElementSheet(
     }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 24.dp).testTag(DESIGN_SHEET_TAG),
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).padding(bottom = 24.dp)
+                .testTag(DESIGN_SHEET_TAG), // se desplaza: un objeto de GeoPackage puede traer muchos atributos
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(stringResource(R.string.cad_element_title), style = MaterialTheme.typography.titleLarge)
             Text(stringResource(elementKindLabel(entity.kind)), style = MaterialTheme.typography.titleMedium)
+            // S048/RF-22
+            entity.name?.let { Text(stringResource(R.string.cad_element_name, it), modifier = Modifier.testTag(DESIGN_NAME_TAG)) }
+            if (entity.polygonRing) {
+                Text(stringResource(R.string.cad_element_ring), modifier = Modifier.testTag(DESIGN_RING_TAG)) // S048/RF-17, RNF-T8
+            }
             Text(stringResource(R.string.cad_element_layer, selection.layerName))
             Text(stringResource(R.string.cad_element_drawing, selection.drawingName))
             if (entity.vertexCount == 1) {
@@ -76,6 +90,7 @@ fun DesignElementSheet(
                 Text(stringResource(R.string.cad_element_vertices, entity.vertexCount))
             }
             Elevation(selection, unit, unitSymbol, number)
+            Attributes(selection.attributes)
             // S041/RF-1, RF-2: un punto o un centro de bloque abre el replanteo de siempre y una línea, el de línea.
             Button(
                 onClick = onStakeout,
@@ -120,3 +135,36 @@ internal fun elementKindLabel(kind: CadEntityKind) = when (kind) {
     CadEntityKind.SPLINE -> R.string.cad_element_spline
     CadEntityKind.BLOCK_INSERT -> R.string.cad_element_block_insert
 }
+
+/** Todos los atributos del objeto de un GeoPackage, uno por línea, con su columna; nada si el elemento viene de un DXF (S048/RF-20). */
+@Composable
+private fun Attributes(attributes: Map<String, GpkgValue>) {
+    if (attributes.isEmpty()) return
+    Column(modifier = Modifier.testTag(DESIGN_ATTRIBUTES_TAG), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(stringResource(R.string.cad_element_attributes), style = MaterialTheme.typography.titleSmall)
+        attributes.forEach { (column, value) ->
+            Text(
+                stringResource(R.string.cad_element_attribute, column, valueText(value)),
+                modifier = Modifier.testTag(designAttributeTag(column)),
+            )
+        }
+    }
+}
+
+@Composable
+private fun valueText(value: GpkgValue): String = when (value) {
+    GpkgValue.Null -> stringResource(R.string.cad_attribute_null)
+    is GpkgValue.Integer -> NumberFormat.getIntegerInstance().apply { isGroupingUsed = false }.format(value.value)
+    is GpkgValue.Real -> NumberFormat.getNumberInstance().apply {
+        isGroupingUsed = false
+        maximumFractionDigits = REAL_DIGITS
+    }.format(value.value)
+    is GpkgValue.Text -> value.value
+    is GpkgValue.Date -> value.value
+    is GpkgValue.Bool -> stringResource(if (value.value) R.string.cad_attribute_true else R.string.cad_attribute_false)
+    is GpkgValue.Blob -> stringResource(R.string.cad_attribute_blob, value.bytes.size)
+    is GpkgValue.Omitted -> stringResource(R.string.cad_attribute_omitted, value.bytes / BYTES_PER_KB)
+}
+
+private const val REAL_DIGITS = 9
+private const val BYTES_PER_KB = 1024

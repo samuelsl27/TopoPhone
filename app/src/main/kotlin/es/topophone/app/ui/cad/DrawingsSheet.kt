@@ -40,6 +40,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.cad.CadOrigin
 import es.topophone.core.model.cad.DesignLayer
 import es.topophone.core.model.cad.DesignLayerKind
 import es.topophone.data.cad.CadDrawingWithLayers
@@ -54,6 +55,8 @@ const val DRAWING_DELETE_CONFIRM_TAG = "drawing_delete_confirm"
 fun drawingDeleteTag(drawingId: String) = "drawing_delete_$drawingId"
 
 fun layerSwitchTag(layerId: String) = "layer_switch_$layerId"
+
+fun drawingOriginTag(drawingId: String) = "drawing_origin_$drawingId"
 
 fun layerGroupTag(drawingId: String, kind: DesignLayerKind) = "layer_group_${drawingId}_${kind.name}"
 
@@ -115,6 +118,14 @@ private fun DrawingSection(entry: CadDrawingWithLayers, actions: DrawingsActions
     val drawing = entry.drawing
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(drawing.fileName, style = MaterialTheme.typography.titleMedium)
+        Text(
+            stringResource(
+                R.string.cad_drawing_origin,
+                stringResource(if (drawing.origin == CadOrigin.GEOPACKAGE) R.string.cad_origin_gpkg else R.string.cad_origin_dxf),
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.testTag(drawingOriginTag(drawing.id)),
+        ) // S048/RF-26, RNF-T8: la procedencia va en texto
         val date = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(drawing.importedAtMs))
         Text(stringResource(R.string.cad_drawing_imported_at, date), style = MaterialTheme.typography.bodySmall)
         if (drawing.incomplete) {

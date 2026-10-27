@@ -19,13 +19,17 @@ import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 
-/** Una línea del dibujo lista para el mapa: longitud y latitud de cada vértice, una tras otra, y su color ARGB (S040/RF-24). */
-class DesignLine(val lonLat: DoubleArray, val argb: Int) {
+/**
+ * Una línea del dibujo lista para el mapa: longitud y latitud de cada vértice, una tras otra, y su color ARGB (S040/RF-24). [name] es el
+ * nombre del objeto de un GeoPackage, para etiquetarla (S048/RF-22); [ring] es que es el exterior o un hueco de un polígono, que se
+ * dibuja a trazos (S048/RF-17, RF-23).
+ */
+class DesignLine(val lonLat: DoubleArray, val argb: Int, val name: String? = null, val ring: Boolean = false) {
     val vertexCount: Int get() = lonLat.size / 2
 }
 
-/** Un punto del dibujo (un `POINT` o el punto de inserción de un bloque) listo para el mapa (S040/RF-24). */
-data class DesignPoint(val latitudeDeg: Double, val longitudeDeg: Double, val argb: Int)
+/** Un punto del dibujo (un `POINT` o el punto de inserción de un bloque) listo para el mapa; [name] lo etiqueta (S040/RF-24, S048/RF-22). */
+data class DesignPoint(val latitudeDeg: Double, val longitudeDeg: Double, val argb: Int, val name: String? = null)
 
 /** Lo que el mapa dibuja del dibujo importado en la vista de ahora (S040/RF-24). */
 class DesignScene(val lines: List<DesignLine>, val points: List<DesignPoint>) {
@@ -120,7 +124,7 @@ object DesignSceneBuilder {
                 if (isPoint(entity) || entity.vertexCount < 2 || diagonal(entity) < threshold) continue
                 val xy = decimate(entity, threshold)
                 val argb = argbOf(entity.color ?: layer.color, contrastArgb)
-                toGeographic(crs, xy)?.let { lines += DesignLine(it, argb) }
+                toGeographic(crs, xy)?.let { lines += DesignLine(it, argb, entity.name, entity.polygonRing) }
             }
         }
         return DesignScene(lines, capped)
@@ -130,7 +134,7 @@ object DesignSceneBuilder {
 
     private fun addPoint(crs: ProjectCrs, entity: CadEntity, layer: DesignLayer, contrastArgb: Int, out: MutableList<DesignPoint>) {
         val g = CadPlacement.geographic(crs, entity.easting[0], entity.northing[0]) ?: return
-        out += DesignPoint(g.first, g.second, argbOf(entity.color ?: layer.color, contrastArgb))
+        out += DesignPoint(g.first, g.second, argbOf(entity.color ?: layer.color, contrastArgb), entity.name)
     }
 
     private fun cellKey(east: Double, north: Double, unit: Double): Long =

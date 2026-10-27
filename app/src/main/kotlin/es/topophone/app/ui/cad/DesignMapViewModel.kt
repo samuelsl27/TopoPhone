@@ -10,7 +10,11 @@ import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityRef
 import es.topophone.core.model.cad.CadExtent
+import es.topophone.core.model.cad.CadOrigin
 import es.topophone.core.model.cad.DesignLayer
+import es.topophone.core.model.cad.GpkgValue
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.map.Basemap
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.survey.DesignCandidate
@@ -43,6 +47,8 @@ data class DesignSelection(
     val drawingName: String,
     /** El dibujo tiene cotas y este elemento trae Z; si no, la ficha dice «Sin cota». */
     val hasElevation: Boolean,
+    /** Los atributos del objeto de un GeoPackage, por columna; vacíos en un dibujo de DXF (S048/RF-20). */
+    val attributes: Map<String, GpkgValue> = emptyMap(),
 )
 
 /**
@@ -56,6 +62,7 @@ class DesignMapViewModel @Inject constructor(
     private val cad: CadRepository,
     private val projects: ProjectRepository,
     @param:IoDispatcher private val io: CoroutineDispatcher,
+    private val log: AppLog = AppLog.NONE,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
     private val camera = MutableStateFlow<MapCamera?>(null)
@@ -128,7 +135,8 @@ class DesignMapViewModel @Inject constructor(
         }
         val hit = DesignHitTest.nearest(east, north, tolerance, candidates) ?: return null
         val (layer, drawing) = byLayer.getValue(hit.ref.layerId)
-        return DesignSelection(hit.ref, hit.entity, layer.name, drawing.fileName, drawing.hasElevation(hit.entity.hasZ))
+        val attributes = if (drawing.origin == CadOrigin.GEOPACKAGE) cad.attributes(hit.ref) else emptyMap()
+        return DesignSelection(hit.ref, hit.entity, layer.name, drawing.fileName, drawing.hasElevation(hit.entity.hasZ), attributes)
     }
 
     /** Muestra u oculta una capa de diseño; se recuerda para el proyecto, también al cerrar la app (RF-27). */
@@ -138,7 +146,12 @@ class DesignMapViewModel @Inject constructor(
 
     /** Borra un dibujo entero con sus capas, sin tocar los puntos del proyecto (RF-30). */
     fun deleteDrawing(drawingId: String) {
-        viewModelScope.launch(io) { cad.deleteDrawing(drawingId) }
+        val origin = drawings.value.firstOrNull { it.drawing.id == drawingId }?.drawing?.origin
+        viewModelScope.launch(io) {
+            cad.deleteDrawing(drawingId)
+            // S048/RF-28: se anota el borrado sin nombres ni coordenadas.
+            log.info(LogCategory.APP, "Dibujo borrado (${origin?.name?.lowercase() ?: "desconocido"})")
+        }
     }
 
     /** La cámara del mapa ha dejado de moverse (RF-24). */

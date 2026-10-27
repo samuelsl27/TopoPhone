@@ -223,10 +223,19 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private fun addDesignLayers(style: Style) {
         style.addSource(GeoJsonSource(DESIGN_LINES_SOURCE))
         style.addSource(GeoJsonSource(DESIGN_POINTS_SOURCE))
+        // Las líneas de siempre, de su color, y los contornos de polígono de un GeoPackage a trazos (S048/RF-17, RF-23).
         style.addLayerBelow(
-            LineLayer(DESIGN_LINES_LAYER, DESIGN_LINES_SOURCE).withProperties(
+            LineLayer(DESIGN_LINES_LAYER, DESIGN_LINES_SOURCE).withFilter(Expression.not(Expression.get(DESIGN_RING))).withProperties(
                 PropertyFactory.lineColor(Expression.toColor(Expression.get(DESIGN_COLOR))),
                 PropertyFactory.lineWidth(DESIGN_LINE_DP),
+            ),
+            POINTS_LAYER,
+        )
+        style.addLayerBelow(
+            LineLayer(DESIGN_RINGS_LAYER, DESIGN_LINES_SOURCE).withFilter(Expression.get(DESIGN_RING)).withProperties(
+                PropertyFactory.lineColor(Expression.toColor(Expression.get(DESIGN_COLOR))),
+                PropertyFactory.lineWidth(DESIGN_LINE_DP),
+                PropertyFactory.lineDasharray(arrayOf(DESIGN_DASH_ON, DESIGN_DASH_OFF)),
             ),
             POINTS_LAYER,
         )
@@ -239,6 +248,32 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             ),
             POINTS_LAYER,
         )
+        // El nombre de los objetos de un GeoPackage (S048/RF-22): junto al punto y a lo largo de la línea.
+        style.addLayerBelow(
+            SymbolLayer(DESIGN_POINT_LABELS_LAYER, DESIGN_POINTS_SOURCE).withFilter(Expression.has(DESIGN_NAME)).withProperties(
+                PropertyFactory.textField(Expression.get(DESIGN_NAME)),
+                PropertyFactory.textFont(arrayOf(MapStyles.LABEL_FONT)),
+                PropertyFactory.textSize(LABEL_SIZE_SP),
+                PropertyFactory.textAnchor(Property.TEXT_ANCHOR_TOP),
+                PropertyFactory.textOffset(arrayOf(0f, DESIGN_LABEL_OFFSET_EM)),
+                PropertyFactory.textColor(Expression.toColor(Expression.get(DESIGN_COLOR))),
+                PropertyFactory.textHaloColor(Color.WHITE),
+                PropertyFactory.textHaloWidth(DESIGN_LABEL_HALO_DP),
+            ),
+            POINTS_LAYER,
+        )
+        style.addLayerBelow(
+            SymbolLayer(DESIGN_LINE_LABELS_LAYER, DESIGN_LINES_SOURCE).withFilter(Expression.has(DESIGN_NAME)).withProperties(
+                PropertyFactory.symbolPlacement(Property.SYMBOL_PLACEMENT_LINE),
+                PropertyFactory.textField(Expression.get(DESIGN_NAME)),
+                PropertyFactory.textFont(arrayOf(MapStyles.LABEL_FONT)),
+                PropertyFactory.textSize(LABEL_SIZE_SP),
+                PropertyFactory.textColor(Expression.toColor(Expression.get(DESIGN_COLOR))),
+                PropertyFactory.textHaloColor(Color.WHITE),
+                PropertyFactory.textHaloWidth(DESIGN_LABEL_HALO_DP),
+            ),
+            POINTS_LAYER,
+        )
     }
 
     private fun drawDesign() {
@@ -248,11 +283,16 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         val scene = design
         val lineFeatures = scene?.lines.orEmpty().map { line ->
             val coordinates = List(line.vertexCount) { Point.fromLngLat(line.lonLat[it * 2], line.lonLat[it * 2 + 1]) }
-            Feature.fromGeometry(LineString.fromLngLats(coordinates)).apply { addStringProperty(DESIGN_COLOR, hex(line.argb)) }
+            Feature.fromGeometry(LineString.fromLngLats(coordinates)).apply {
+                addStringProperty(DESIGN_COLOR, hex(line.argb))
+                addBooleanProperty(DESIGN_RING, line.ring)
+                line.name?.let { addStringProperty(DESIGN_NAME, it) }
+            }
         }
         val pointFeatures = scene?.points.orEmpty().map { point ->
             Feature.fromGeometry(Point.fromLngLat(point.longitudeDeg, point.latitudeDeg)).apply {
                 addStringProperty(DESIGN_COLOR, hex(point.argb))
+                point.name?.let { addStringProperty(DESIGN_NAME, it) }
             }
         }
         lines.setGeoJson(FeatureCollection.fromFeatures(lineFeatures))
@@ -703,6 +743,15 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val DESIGN_LINES_LAYER = "topophone-design-lines"
         const val DESIGN_POINTS_SOURCE = "topophone-design-points"
         const val DESIGN_POINTS_LAYER = "topophone-design-points"
+        const val DESIGN_RINGS_LAYER = "topophone-design-rings"
+        const val DESIGN_POINT_LABELS_LAYER = "topophone-design-point-labels"
+        const val DESIGN_LINE_LABELS_LAYER = "topophone-design-line-labels"
+        const val DESIGN_NAME = "design_name"
+        const val DESIGN_RING = "design_ring"
+        const val DESIGN_DASH_ON = 4f
+        const val DESIGN_DASH_OFF = 2f
+        const val DESIGN_LABEL_OFFSET_EM = 0.6f
+        const val DESIGN_LABEL_HALO_DP = 1.5f
         const val DESIGN_COLOR = "color"
         const val DESIGN_TOUCH_DP = 24f
         const val DESIGN_LINE_DP = 1.5f
