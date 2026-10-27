@@ -22,7 +22,7 @@
       Hecho cuando: `LandXmlAlignmentReaderTest` en verde para esos casos.
 - [x] T10. `core:formats`: `LandXmlAlignmentReader.read` (tramos, rasante, orden Norte-Este, tipos no admitidos y D3). (RF-4, RF-5, RF-10)
       Hecho cuando: el mismo test en verde y los ejes de `tools` dan sus tramos.
-- [ ] T11. `core:formats`: `ProfileCsvReader` (columnas PK, cota y Kv con las opciones de S028). (RF-9)
+- [x] T11. `core:formats`: `ProfileCsvReader` (columnas PK, cota y Kv con las opciones de S028). (RF-9)
       Hecho cuando: `ProfileCsvReaderTest` en verde.
 - [ ] T12. `core:survey`: `AlignmentProjector` (unidad, ámbito y SC distinto por muestreo, D2). (RF-11, RF-12)
       Hecho cuando: `AlignmentProjectorTest` en verde contra pyproj (≤ 1 mm).
