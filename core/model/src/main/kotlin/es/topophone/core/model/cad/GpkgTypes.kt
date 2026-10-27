@@ -97,3 +97,38 @@ data class GpkgImportSummary(
     val outsideAreaTotal: Int get() = layers.sumOf { it.outsideArea }
     val ignoredTotal: Int get() = layers.sumOf { it.ignoredTotal }
 }
+
+/**
+ * El valor de una columna de atributos de un objeto de GeoPackage (S048/RF-20): lo que se ve en su ficha. Un blob de más de
+ * [BLOB_LIMIT_BYTES] no se guarda y queda como [Omitted], que el resumen cuenta como atributo omitido (S048/RF-25).
+ */
+sealed interface GpkgValue {
+    data object Null : GpkgValue
+
+    data class Integer(val value: Long) : GpkgValue
+
+    data class Real(val value: Double) : GpkgValue
+
+    data class Text(val value: String) : GpkgValue
+
+    /** Una columna `DATE` o `DATETIME`, tal como la escribe el fichero (texto ISO 8601). */
+    data class Date(val value: String) : GpkgValue
+
+    /** Una columna `BOOLEAN`: 0 es falso y cualquier otro entero, verdadero. */
+    data class Bool(val value: Boolean) : GpkgValue
+
+    class Blob(val bytes: ByteArray) : GpkgValue {
+        override fun equals(other: Any?): Boolean = other is Blob && bytes.contentEquals(other.bytes)
+
+        override fun hashCode(): Int = bytes.contentHashCode()
+
+        override fun toString(): String = "Blob(${bytes.size} bytes)"
+    }
+
+    /** Un blob mayor de [BLOB_LIMIT_BYTES]: se conoce su tamaño, no su contenido. */
+    data class Omitted(val bytes: Int) : GpkgValue
+
+    companion object {
+        const val BLOB_LIMIT_BYTES = 64 * 1024
+    }
+}

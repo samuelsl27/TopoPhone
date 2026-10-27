@@ -20,7 +20,7 @@
       Hecho cuando: `ImportAreaFilterTest` en verde.
 - [x] T9. `data`: Room v19 (`origin`, `source_table`, `name_field` y `cad_chunk_attributes`) y `AutoMigration(18, 19)`; las tablas nuevas en `DatabaseSnapshot.TABLES`. (RF-20, RF-26, RF-28, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 18 → 19 en verde con dibujos de DXF que se leen como `DXF`, y el esquema 19 en `data/schemas/`.
-- [ ] T10. `data`: `GeoPackageReader` (copia temporal, solo lectura, capas, columnas, tablas ajenas y limpieza). (RF-1 a RF-7)
+- [x] T10. `data`: `GeoPackageReader` (copia temporal, solo lectura, capas, columnas, tablas ajenas y limpieza). (RF-1 a RF-7)
       Hecho cuando: `GeoPackageReaderTest` en verde con los `.gpkg` de `tools`, sin dejar el temporal.
 - [ ] T11. `data`: `GeoPackageScan` (extensión, distancia y recuento por capa para un radio, con R-tree o con envolventes). (RF-12, RF-13, RF-16)
       Hecho cuando: `GeoPackageScanTest` en verde, incluida la capa sin R-tree y el límite de 500.000.
