@@ -6,6 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.EntryForm
@@ -296,6 +297,8 @@ internal fun Point.toEntity(): PointEntity {
         devH = quality?.deviationHorizontalM,
         devV = quality?.deviationVerticalM,
         autoMode = quality?.auto,
+        admittedSolutions = quality?.admitted?.encode(),
+        epochsDiscardedByType = quality?.epochsDiscardedByType,
         nmeaChunks = m?.nmeaChunks ?: 0,
         stakeDesignId = staked?.designId,
         stakeDesignName = staked?.designName,
@@ -414,6 +417,8 @@ private fun PointEntity.measurement(): Measurement? {
             deviationHorizontalM = devH,
             deviationVerticalM = devV,
             auto = autoMode,
+            admitted = AdmittedSolutions.decode(admittedSolutions),
+            epochsDiscardedByType = epochsDiscardedByType,
         ),
         rawNmea = rawNmea.orEmpty(),
         outOfTolerance = outOfTolerance.split(',').mapNotNull { name -> PrecisionFailure.entries.firstOrNull { it.name == name } }.toSet(),

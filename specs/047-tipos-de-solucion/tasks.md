@@ -16,7 +16,7 @@
       Hecho cuando: los tests de `core:model` y `core:survey` en verde y `PointQuality` sin cambios para quien no los pasa.
 - [x] T7. `data`: Room v17 con las columnas `admitted_solutions` y `epochs_discarded_by_type` y `AutoMigration(16, 17)`. (RF-15, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 16 → 17 en verde con puntos antiguos que se leen sin tipos admitidos.
-- [ ] T8. `data`: guardar y leer los tipos admitidos y las épocas descartadas por tipo, (`NOT_FIX` se sigue guardando igual). (RF-7, RF-15)
+- [x] T8. `data`: guardar y leer los tipos admitidos y las épocas descartadas por tipo, (`NOT_FIX` se sigue guardando igual). (RF-7, RF-15)
       Hecho cuando: `PointRepositoryAdmittedTest` en verde: se guarda y se lee, un punto de antes sin tipos y un `NOT_FIX` guardado.
 - [ ] T9. `data`: `CollectorPreferences` con `collector_admitted_solutions` y la lectura de `collector_fix_only`. (RF-5, RF-17)
       Hecho cuando: `CollectorPreferencesTest` en verde: clave nueva, antigua `true` y `false`, ninguna y valores desconocidos; la clave antigua se borra al guardar.
