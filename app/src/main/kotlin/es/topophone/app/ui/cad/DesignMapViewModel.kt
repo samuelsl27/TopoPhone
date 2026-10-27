@@ -49,6 +49,9 @@ data class DesignSelection(
     val hasElevation: Boolean,
     /** Los atributos del objeto de un GeoPackage, por columna; vacíos en un dibujo de DXF (S048/RF-20). */
     val attributes: Map<String, GpkgValue> = emptyMap(),
+    /** Dónde se tocó, en el sistema del proyecto: el extremo más cercano es el inicio de un eje (S049/RF-6). */
+    val tapEasting: Double? = null,
+    val tapNorthing: Double? = null,
 ) {
     /** El nombre con el que se replantea: el del objeto de un GeoPackage, o, sin él, el de su capa (S048/RF-22, RF-24). */
     val stakeoutName: String get() = entity.name?.takeIf { it.isNotBlank() } ?: layerName
@@ -139,7 +142,16 @@ class DesignMapViewModel @Inject constructor(
         val hit = DesignHitTest.nearest(east, north, tolerance, candidates) ?: return null
         val (layer, drawing) = byLayer.getValue(hit.ref.layerId)
         val attributes = if (drawing.origin == CadOrigin.GEOPACKAGE) cad.attributes(hit.ref) else emptyMap()
-        return DesignSelection(hit.ref, hit.entity, layer.name, drawing.fileName, drawing.hasElevation(hit.entity.hasZ), attributes)
+        return DesignSelection(
+            hit.ref,
+            hit.entity,
+            layer.name,
+            drawing.fileName,
+            drawing.hasElevation(hit.entity.hasZ),
+            attributes,
+            east,
+            north,
+        )
     }
 
     /** Muestra u oculta una capa de diseño; se recuerda para el proyecto, también al cerrar la app (RF-27). */

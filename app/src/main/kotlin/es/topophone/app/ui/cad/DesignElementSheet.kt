@@ -12,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -35,6 +36,7 @@ const val DESIGN_STAKEOUT_TAG = "design_element_stakeout"
 const val DESIGN_NAME_TAG = "design_element_name"
 const val DESIGN_RING_TAG = "design_element_ring"
 const val DESIGN_ATTRIBUTES_TAG = "design_element_attributes"
+const val DESIGN_CONVERT_TAG = "design_element_convert"
 
 fun designAttributeTag(column: String) = "design_attribute_$column"
 
@@ -52,6 +54,8 @@ fun DesignElementSheet(
     geographic: Boolean,
     onDismiss: () -> Unit,
     onStakeout: () -> Unit = {},
+    /** «Convertir en eje» de una polilínea; null si no se ofrece (S049/RF-6). */
+    onConvertToAxis: (() -> Unit)? = null,
 ) {
     val entity = selection.entity
     val number = NumberFormat.getNumberInstance().apply {
@@ -96,6 +100,15 @@ fun DesignElementSheet(
                 onClick = onStakeout,
                 modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(DESIGN_STAKEOUT_TAG),
             ) { Text(stringResource(R.string.design_element_stakeout)) }
+            if (onConvertToAxis != null &&
+                (entity.kind == CadEntityKind.POLYLINE || entity.kind == CadEntityKind.LINE) &&
+                entity.vertexCount >= 2
+            ) {
+                OutlinedButton(
+                    onClick = onConvertToAxis,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(DESIGN_CONVERT_TAG),
+                ) { Text(stringResource(R.string.alignment_convert_button)) } // S049/RF-6
+            }
         }
     }
 }

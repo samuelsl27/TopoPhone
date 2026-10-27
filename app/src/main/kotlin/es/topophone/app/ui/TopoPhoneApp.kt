@@ -35,6 +35,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import es.topophone.app.ui.alignment.AlignmentImportRoute
+import es.topophone.app.ui.alignment.ProfileCsvImportRoute
 import es.topophone.app.ui.backup.BackupsRoute
 import es.topophone.app.ui.cad.CadImportRoute
 import es.topophone.app.ui.export.ExportRoute
@@ -166,6 +167,14 @@ fun TopoPhoneApp(
                     navigation.onBack,
                     viewModel = hiltViewModel(owner),
                 )
+                is SurveyPage.ImportProfileCsv -> ProfileCsvImportRoute(
+                    page.projectId,
+                    Uri.parse(page.fileUri),
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
                 is SurveyPage.StakeoutReport -> StakeoutReportRoute(
                     page.projectId,
                     page.selection,
@@ -279,6 +288,9 @@ private fun AppNavHost(
                 onImportAlignment = { projectId, fileUri ->
                     navController.navigate(ImportAlignmentDestination(projectId, fileUri)) // S049/RF-1
                 },
+                onImportProfileCsv = { projectId, fileUri ->
+                    navController.navigate(ImportProfileCsvDestination(projectId, fileUri)) // S049/RF-9
+                },
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onOpenTilt = {
@@ -375,6 +387,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ImportAlignmentDestination>()
                 surveySection(
                     SurveyPage.ImportAlignment(args.projectId, args.fileUri),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ImportProfileCsvDestination> { entry ->
+                val args = entry.toRoute<ImportProfileCsvDestination>()
+                surveySection(
+                    SurveyPage.ImportProfileCsv(args.projectId, args.fileUri),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

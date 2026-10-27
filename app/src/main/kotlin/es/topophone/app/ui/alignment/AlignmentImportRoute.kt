@@ -36,6 +36,7 @@ const val ALIGNMENT_SOURCE_LANDXML_TAG = "alignment_source_landxml"
 const val ALIGNMENT_SOURCE_DRAWING_TAG = "alignment_source_drawing"
 const val ALIGNMENT_SOURCE_DRAWING_OPEN_TAG = "alignment_source_drawing_open"
 const val ALIGNMENT_SOURCE_CANCEL_TAG = "alignment_source_cancel"
+const val ALIGNMENT_SOURCE_CSV_TAG = "alignment_source_csv"
 
 /** La pantalla de importar los ejes del LandXML [fileUri] al proyecto [projectId] (S049/RF-1, RF-2). */
 @Composable
@@ -74,10 +75,15 @@ fun AlignmentImportRoute(
 fun rememberImportAlignmentLauncher(navigation: SurveyNavigation): (projectId: String) -> Unit {
     var pending by rememberSaveable { mutableStateOf<String?>(null) }
     var picking by rememberSaveable { mutableStateOf<String?>(null) }
+    var pickingCsv by rememberSaveable { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         val projectId = picking
+        val csv = pickingCsv
         picking = null
-        if (uri != null && projectId != null) navigation.onImportAlignment(projectId, uri.toString())
+        pickingCsv = false
+        if (uri != null && projectId != null) {
+            if (csv) navigation.onImportProfileCsv(projectId, uri.toString()) else navigation.onImportAlignment(projectId, uri.toString())
+        }
     }
     pending?.let { projectId ->
         ImportAlignmentDialog(
@@ -85,6 +91,12 @@ fun rememberImportAlignmentLauncher(navigation: SurveyNavigation): (projectId: S
                 pending = null
                 picking = projectId
                 picker.launch(arrayOf("*/*")) // RNF-T5: cualquier tipo; el contenido decide si es un LandXML
+            },
+            onCsv = {
+                pending = null
+                picking = projectId
+                pickingCsv = true
+                picker.launch(arrayOf("*/*")) // RNF-T5: cualquier tipo; el contenido decide si es un CSV
             },
             onOpenMap = {
                 pending = null
@@ -97,7 +109,7 @@ fun rememberImportAlignmentLauncher(navigation: SurveyNavigation): (projectId: S
 }
 
 @Composable
-private fun ImportAlignmentDialog(onLandXml: () -> Unit, onOpenMap: () -> Unit, onDismiss: () -> Unit) {
+private fun ImportAlignmentDialog(onLandXml: () -> Unit, onCsv: () -> Unit, onOpenMap: () -> Unit, onDismiss: () -> Unit) {
     var showDrawingHelp by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -110,6 +122,10 @@ private fun ImportAlignmentDialog(onLandXml: () -> Unit, onOpenMap: () -> Unit, 
                 ) {
                     Text(stringResource(R.string.alignment_source_landxml))
                 }
+                OutlinedButton(
+                    onClick = onCsv,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_SOURCE_CSV_TAG),
+                ) { Text(stringResource(R.string.alignment_source_csv)) }
                 OutlinedButton(
                     onClick = { showDrawingHelp = true },
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_SOURCE_DRAWING_TAG),

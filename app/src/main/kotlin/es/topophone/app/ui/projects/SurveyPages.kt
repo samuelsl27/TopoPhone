@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import es.topophone.app.ui.alignment.AlignmentImportActions
 import es.topophone.app.ui.alignment.AlignmentImportScreen
 import es.topophone.app.ui.alignment.AlignmentImportUiState
+import es.topophone.app.ui.alignment.ProfileCsvImportActions
+import es.topophone.app.ui.alignment.ProfileCsvImportScreen
+import es.topophone.app.ui.alignment.ProfileCsvUiState
 import es.topophone.app.ui.cad.CadImportActions
 import es.topophone.app.ui.cad.CadImportScreen
 import es.topophone.app.ui.cad.CadImportUiState
@@ -88,6 +91,9 @@ sealed interface SurveyPage {
 
     /** Importar los ejes de un LandXML: el proyecto y la dirección del fichero elegido (S049/RF-1). */
     data class ImportAlignment(val projectId: String, val fileUri: String) : SurveyPage
+
+    /** Asociar a un eje la rasante de un CSV: el proyecto y la dirección del fichero elegido (S049/RF-9). */
+    data class ImportProfileCsv(val projectId: String, val fileUri: String) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -121,6 +127,8 @@ class SurveyNavigation(
     val onImportGpkg: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de importación de los ejes de un LandXML, con el fichero que eligió el usuario (S049/RF-1). */
     val onImportAlignment: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
+    /** La pantalla de la rasante de un CSV, con el fichero que eligió el usuario (S049/RF-9). */
+    val onImportProfileCsv: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
@@ -145,6 +153,7 @@ data class SurveyUiState(
     val cadImport: CadImportUiState = CadImportUiState(),
     val gpkgImport: GpkgImportUiState = GpkgImportUiState(),
     val alignmentImport: AlignmentImportUiState = AlignmentImportUiState(),
+    val profileCsv: ProfileCsvUiState = ProfileCsvUiState(),
     val surfaceImport: SurfaceImportUiState = SurfaceImportUiState(),
 )
 
@@ -197,6 +206,8 @@ fun SurveyPageScreen(
         is SurveyPage.ImportSurface ->
             SurfaceImportScreen(themeState, onToggleSun, state.surfaceImport, SurfaceImportActions(), navigation.onBack)
         is SurveyPage.ImportGpkg -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
+        is SurveyPage.ImportProfileCsv ->
+            ProfileCsvImportScreen(themeState, onToggleSun, state.profileCsv, ProfileCsvImportActions(), navigation.onBack)
         is SurveyPage.ImportAlignment ->
             AlignmentImportScreen(themeState, onToggleSun, state.alignmentImport, AlignmentImportActions(), navigation.onBack)
         is SurveyPage.StakeoutReport ->

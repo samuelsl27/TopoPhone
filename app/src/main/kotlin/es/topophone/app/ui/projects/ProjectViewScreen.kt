@@ -62,6 +62,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.alignment.AlignmentFromDrawingUiState
+import es.topophone.app.ui.alignment.AlignmentFromDrawingViewModel
+import es.topophone.app.ui.alignment.ConvertToAlignmentDialog
 import es.topophone.app.ui.cad.DRAWINGS_BUTTON_TAG
 import es.topophone.app.ui.cad.DesignElementSheet
 import es.topophone.app.ui.cad.DesignMapViewModel
@@ -348,6 +351,7 @@ fun ProjectViewRoute(
     lineStakeoutViewModel: LineStakeoutViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
+    alignmentFromDrawingViewModel: AlignmentFromDrawingViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
         viewModel.start(projectId)
@@ -378,6 +382,7 @@ fun ProjectViewRoute(
     val drawings by designViewModel.drawings.collectAsStateWithLifecycle()
     val surfaces by surfacesViewModel.state.collectAsStateWithLifecycle()
     val designSelection by designViewModel.selected.collectAsStateWithLifecycle()
+    val alignmentFromDrawing by alignmentFromDrawingViewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
@@ -402,6 +407,9 @@ fun ProjectViewRoute(
         designSelection = designSelection,
         onMapTap = designViewModel::onTap,
         onDismissDesignSelection = designViewModel::dismissSelection,
+        alignmentFromDrawing = alignmentFromDrawing,
+        onConvertToAlignment = { selection, name, start -> alignmentFromDrawingViewModel.convert(projectId, selection, name, start) },
+        onDismissAlignmentConversion = alignmentFromDrawingViewModel::dismiss,
         drawingsActions = DrawingsActions(
             onLayerVisible = designViewModel::setLayerVisible, // S040/RF-27
             onDeleteDrawing = designViewModel::deleteDrawing, // S040/RF-30
@@ -544,6 +552,10 @@ fun ProjectViewScreen(
     designSelection: DesignSelection? = null,
     onMapTap: (MapTap) -> Unit = {},
     onDismissDesignSelection: () -> Unit = {},
+    /** Convertir la línea tocada en un eje, y cómo va (S049/RF-6, RF-7). */
+    alignmentFromDrawing: AlignmentFromDrawingUiState = AlignmentFromDrawingUiState(),
+    onConvertToAlignment: (selection: DesignSelection, name: String, startChainageM: Double) -> Unit = { _, _, _ -> },
+    onDismissAlignmentConversion: () -> Unit = {},
 ) {
     var collectorOpen by rememberSaveable { mutableStateOf(false) }
     val policy = remember { CameraPolicy() }
@@ -552,6 +564,7 @@ fun ProjectViewScreen(
     var layersOpen by rememberSaveable { mutableStateOf(false) }
     var drawingsOpen by rememberSaveable { mutableStateOf(false) }
     var surfacesOpen by rememberSaveable { mutableStateOf(false) }
+    var convertOpen by rememberSaveable { mutableStateOf(false) }
     var bottomInsetPx by remember { mutableIntStateOf(0) }
     SectionScaffold(
         title = project?.name.orEmpty(),
@@ -688,6 +701,21 @@ fun ProjectViewScreen(
             geographic = project.crs.utmZone == null,
             onDismiss = onDismissDesignSelection,
             onStakeout = onStakeoutElement,
+            onConvertToAxis = { convertOpen = true },
+        )
+    }
+    if (convertOpen && designSelection != null && project != null) {
+        ConvertToAlignmentDialog(
+            defaultName = designSelection.layerName,
+            unit = project.linearUnit,
+            unitSymbol = unitSymbol(project.linearUnit),
+            state = alignmentFromDrawing,
+            onConvert = { name, start -> onConvertToAlignment(designSelection, name, start) },
+            onDismiss = {
+                convertOpen = false
+                onDismissAlignmentConversion()
+                onDismissDesignSelection()
+            },
         )
     }
     LaunchedEffect(controller) { controller?.mapTaps?.collect { onMapTap(it) } } // S040/RF-29

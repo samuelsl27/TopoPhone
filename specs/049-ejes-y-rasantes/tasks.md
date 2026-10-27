@@ -36,7 +36,7 @@
       Hecho cuando: `PointOnAxisTest` en verde.
 - [x] T17. `app`: «Importar eje» en los dos menús, `AlignmentImportViewModel` y pantalla con el origen LandXML (lista de alineaciones, rechazos y selección). (RF-1 a RF-3)
       Hecho cuando: `AlignmentImportViewModelTest` y `AlignmentImportScreenTest` en verde para esos casos.
-- [ ] T18. `app`: los orígenes polilínea de un dibujo y CSV de rasante. (RF-6, RF-7, RF-9, RF-10)
+- [x] T18. `app`: los orígenes polilínea de un dibujo y CSV de rasante. (RF-6, RF-7, RF-9, RF-10)
       Hecho cuando: los mismos tests en verde para esos casos.
 - [ ] T19. `app`: definición a mano del eje y de la rasante. (RF-8)
       Hecho cuando: `ManualAlignmentTest` en verde.

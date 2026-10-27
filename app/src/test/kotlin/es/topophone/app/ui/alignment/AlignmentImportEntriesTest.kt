@@ -111,7 +111,7 @@ class AlignmentImportEntriesTest {
     }
 
     @Test
-    fun `S049 RF-1 el dialogo de origen ofrece un LandXML y una polilinea de un dibujo`() {
+    fun `S049 RF-1 el dialogo de origen ofrece un LandXML un CSV y una polilinea`() {
         var opened: String? = null
         val navigation = SurveyNavigation(onOpenProject = { opened = it })
         var launch: ((String) -> Unit)? = null
@@ -121,6 +121,7 @@ class AlignmentImportEntriesTest {
 
         compose.runOnIdle { launch!!("p1") }
         compose.onNodeWithTag(ALIGNMENT_SOURCE_LANDXML_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(ALIGNMENT_SOURCE_CSV_TAG).assertIsDisplayed()
         compose.onNodeWithTag(ALIGNMENT_SOURCE_DRAWING_TAG).assertIsDisplayed().performClick()
         compose.onNodeWithText("Convertir en eje", substring = true).assertIsDisplayed()
         compose.onNodeWithTag(ALIGNMENT_SOURCE_DRAWING_OPEN_TAG).performClick()

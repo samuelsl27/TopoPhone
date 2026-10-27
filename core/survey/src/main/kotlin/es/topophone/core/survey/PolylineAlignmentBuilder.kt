@@ -83,7 +83,7 @@ object PolylineAlignmentBuilder {
         val dN = n[to] - n[from]
         val length = hypot(dE, dN)
         if (length == 0.0) return null
-        return AlignmentElement.line(chainage, length, e[from], n[from], atan2(dE, dN))
+        return AlignmentElement.line(chainage, length, e[from], n[from], positive(atan2(dE, dN)))
     }
 
     /** El arco que pasa por los vértices de [from] a [to]; null si no son de un arco, o una recta si la flecha es despreciable. */
@@ -112,8 +112,11 @@ object PolylineAlignmentBuilder {
         val tangentE = if (counterClockwise) -vy else vy
         val tangentN = if (counterClockwise) vx else -vx
         val curvature = (if (counterClockwise) 1.0 else -1.0) / radius
-        return AlignmentElement.arc(chainage, radius * sweep, e[from], n[from], atan2(tangentE, tangentN), curvature)
+        return AlignmentElement.arc(chainage, radius * sweep, e[from], n[from], positive(atan2(tangentE, tangentN)), curvature)
     }
+
+    /** El azimut en [0, 2π). */
+    private fun positive(azimuth: Double): Double = if (azimuth < 0.0) azimuth + 2 * PI else azimuth
 
     private fun circumcenter(ax: Double, ay: Double, bx: Double, by: Double, cx: Double, cy: Double): Pair<Double, Double>? {
         // Respecto a (ax, ay) para no perder cifras con coordenadas UTM de millones de metros.
