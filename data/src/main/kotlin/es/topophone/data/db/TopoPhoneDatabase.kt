@@ -57,6 +57,8 @@ import es.topophone.data.surface.SurfaceTileEntity
  *   qué cota se replanteó cada punto. Solo añade tablas y columnas con valor por defecto o NULL: migración de Room.
  * - v16 (S046): perfiles de antena propios, jalones guardados y el equipo de cada receptor (`antenna_profiles`, `saved_poles` y
  *   `receiver_gear`), y el jalón y la antena de cada punto (columnas que admiten NULL). Migración de Room.
+ * - v17 (S047): los tipos de solución admitidos al medir y las épocas descartadas por tipo de cada punto (columnas que admiten NULL).
+ *   Migración de Room.
  */
 @Database(
     entities = [
@@ -82,6 +84,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 13, to = 14),
         AutoMigration(from = 14, to = 15),
         AutoMigration(from = 15, to = 16),
+        AutoMigration(from = 16, to = 17),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -104,7 +107,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 16
+        const val VERSION = 17
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

@@ -169,6 +169,9 @@ data class PointEntity(
     @ColumnInfo(name = "antenna_profile") val antennaProfile: String? = null,
     @ColumnInfo(name = "antenna_offset_m") val antennaOffsetM: Double? = null,
     @ColumnInfo(name = "antenna_height_m") val antennaHeightM: Double? = null,
+    // S047/RF-15: los tipos de solución admitidos al medir (`FIX,FLOAT`) y las épocas descartadas por tipo; NULL en los demás.
+    @ColumnInfo(name = "admitted_solutions") val admittedSolutions: String? = null,
+    @ColumnInfo(name = "epochs_discarded_by_type") val epochsDiscardedByType: Int? = null,
 )
 
 /**

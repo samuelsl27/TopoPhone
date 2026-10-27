@@ -844,9 +844,52 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S047 RNF-T6 de la v16 a la v17 los puntos siguen y los tipos admitidos quedan vacios`() {
+        createFromExportedSchema(16)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v16 ->
+            v16.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v16.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FLOAT', 24, 'NOT_FIX', " +
+                    "'INSTANT', 1, 3, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.single().name shouldBe "P1"
+            val measurement = points.single().measurement.shouldNotBeNull()
+            measurement.quality.solution shouldBe "FLOAT"
+            measurement.quality.epochsDiscarded shouldBe 3
+            measurement.outOfTolerance shouldBe setOf(PrecisionFailure.NOT_FIX)
+            db.openHelper.readableDatabase.query("SELECT admitted_solutions, epochs_discarded_by_type, epochs_discarded FROM points")
+                .use { cursor ->
+                    cursor.moveToFirst() shouldBe true
+                    cursor.isNull(0) shouldBe true
+                    cursor.isNull(1) shouldBe true
+                    cursor.getInt(2) shouldBe 3
+                }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 16
+        const val CURRENT_VERSION = 17
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
