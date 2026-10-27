@@ -1,11 +1,15 @@
 package es.topophone.app.ui.gpkg
 
+import androidx.lifecycle.viewModelScope
 import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.points.ImportSource
 import es.topophone.app.ui.projects.ProjectCenterProvider
+import es.topophone.core.model.log.AppLog
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.data.cad.CadRepository
+import es.topophone.data.gpkg.GeoPackageImporter
 import es.topophone.data.gpkg.GeoPackageReader
 import es.topophone.data.map.MapViewportRepository
 import es.topophone.data.project.ProjectRepository
@@ -16,6 +20,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -47,21 +52,41 @@ object GpkgTestFiles {
 fun idleReceiver(): ReceiverSession =
     ReceiverSession(CoroutineScope(SupervisorJob() + Dispatchers.IO), NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
 
+private val created = java.util.concurrent.ConcurrentLinkedQueue<GpkgImportViewModel>()
+
+/** Cancela el trabajo en vuelo de los ViewModel que creó el test y cierra sus ficheros, como hace el ciclo de vida al salir de la pantalla. */
+fun disposeGpkgViewModels() {
+    while (true) {
+        val viewModel = created.poll() ?: break
+        viewModel.viewModelScope.cancel()
+        val onCleared = androidx.lifecycle.ViewModel::class.java.getDeclaredMethod("onCleared")
+        onCleared.isAccessible = true
+        onCleared.invoke(viewModel)
+    }
+}
+
 /** El ViewModel de la importación con sus dependencias de prueba; sin espera para recontar la zona. */
 fun gpkgViewModel(
     cache: File,
     projects: ProjectRepository,
     viewports: MapViewportRepository,
     dispatcher: CoroutineDispatcher,
+    cad: CadRepository,
     receiver: ReceiverSession = idleReceiver(),
+    log: AppLog = AppLog.NONE,
 ): GpkgImportViewModel = GpkgImportViewModel(
     GeoPackageReader(cache),
+    GeoPackageImporter(cad),
     projects,
     ProjectCenterProvider(FakePointRepository(), viewports),
     receiver,
     FakeMapPreferences(),
     dispatcher,
-).also { it.debounceMs = 0 }
+    log,
+).also {
+    it.debounceMs = 0
+    created += it
+}
 
 /** Espera a que el fichero esté leído y contado: Room y SQLite contestan desde otro hilo. Un test no debe acabar con la carga en vuelo. */
 fun GpkgImportViewModel.settled(): GpkgImportUiState = runBlocking {

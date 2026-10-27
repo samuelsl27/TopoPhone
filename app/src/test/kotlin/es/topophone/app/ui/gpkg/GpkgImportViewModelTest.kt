@@ -9,6 +9,7 @@ import es.topophone.core.model.cad.GpkgLayerKind
 import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.map.RoomMapViewportRepository
 import es.topophone.data.project.RoomProjectRepository
@@ -43,6 +44,7 @@ class GpkgImportViewModelTest {
     ).build()
     private val projects = RoomProjectRepository(db)
     private val viewports = RoomMapViewportRepository(db)
+    private val cad = RoomCadRepository(db)
     private val dispatcher = UnconfinedTestDispatcher()
     private val projectId = runBlocking {
         projects.create(
@@ -61,13 +63,14 @@ class GpkgImportViewModelTest {
 
     @After
     fun tearDown() {
+        disposeGpkgViewModels()
         Dispatchers.resetMain()
         db.close()
     }
 
     private val cache: File by lazy { folder.newFolder("cache") }
 
-    private fun viewModel(): GpkgImportViewModel = gpkgViewModel(cache, projects, viewports, dispatcher)
+    private fun viewModel(): GpkgImportViewModel = gpkgViewModel(cache, projects, viewports, dispatcher, cad)
 
     private fun open(name: String, size: Long? = GpkgTestFiles.bytes(name).size.toLong()): GpkgImportViewModel {
         val viewModel = viewModel()

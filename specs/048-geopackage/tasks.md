@@ -34,7 +34,7 @@
       Hecho cuando: los mismos tests en verde para esos casos.
 - [x] T16. `app`: zona de importación (radio, «Todo el contenido», recuento, límite) y «Fijar el punto central» con el selector de S006 si el proyecto no tiene centro. (RF-13, RF-14, RF-16)
       Hecho cuando: los mismos tests en verde, con el recuento actualizado en menos de 2 s.
-- [ ] T17. `app`: campo de nombre, cotas, «Importar» con progreso y cancelar, y resumen por capa con guardar y compartir. (RF-19, RF-21, RF-22, RF-25, RF-29, RF-30)
+- [x] T17. `app`: campo de nombre, cotas, «Importar» con progreso y cancelar, y resumen por capa con guardar y compartir. (RF-19, RF-21, RF-22, RF-25, RF-29, RF-30)
       Hecho cuando: los mismos tests en verde y el resumen se guarda como texto.
 - [ ] T18. `app`: las capas en «Dibujos» con su procedencia, etiquetas de nombre y contornos marcados en el mapa, y la ficha con atributos al tocar. (RF-20, RF-22, RF-23, RF-27, RNF-T8)
       Hecho cuando: `DesignLabelsTest` y `GpkgFeatureSheetTest` en verde.

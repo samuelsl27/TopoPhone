@@ -12,6 +12,7 @@ import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.map.RoomMapViewportRepository
 import es.topophone.data.project.RoomProjectRepository
@@ -49,6 +50,7 @@ class GpkgImportCrsTest {
     ).build()
     private val projects = RoomProjectRepository(db)
     private val viewports = RoomMapViewportRepository(db)
+    private val cad = RoomCadRepository(db)
     private val dispatcher = UnconfinedTestDispatcher()
     private val e0 = 440_000.0
     private val n0 = 4_474_000.0
@@ -66,12 +68,13 @@ class GpkgImportCrsTest {
 
     @After
     fun tearDown() {
+        disposeGpkgViewModels()
         Dispatchers.resetMain()
         db.close()
     }
 
     private fun open(file: String, project: String = newProject(madrid)): GpkgImportViewModel {
-        val viewModel = gpkgViewModel(folder.newFolder(), projects, viewports, dispatcher)
+        val viewModel = gpkgViewModel(folder.newFolder(), projects, viewports, dispatcher, cad)
         viewModel.start(project, GpkgTestFiles.source(file))
         return viewModel
     }

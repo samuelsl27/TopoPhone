@@ -10,6 +10,8 @@ import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsCatalog
 import es.topophone.core.formats.gpkg.GpkgFileKind
 import es.topophone.core.model.cad.CadExtent
+import es.topophone.core.model.cad.GpkgColumn
+import es.topophone.core.model.cad.GpkgImportSummary
 import es.topophone.core.model.cad.GpkgLayerInfo
 import es.topophone.core.model.cad.ImportArea
 import es.topophone.core.model.format.AngleAxis
@@ -29,8 +31,13 @@ import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResolver
 import es.topophone.core.survey.CentralPointResult
+import es.topophone.data.gpkg.GeoPackageImporter
 import es.topophone.data.gpkg.GeoPackageReader
 import es.topophone.data.gpkg.GeoPackageScan
+import es.topophone.data.gpkg.GpkgImportFailure
+import es.topophone.data.gpkg.GpkgImportOptions
+import es.topophone.data.gpkg.GpkgImportResult
+import es.topophone.data.gpkg.GpkgLayerChoice
 import es.topophone.data.gpkg.GpkgLayerIndex
 import es.topophone.data.gpkg.GpkgOpenFailure
 import es.topophone.data.gpkg.GpkgOpenResult
@@ -41,8 +48,10 @@ import es.topophone.data.project.SaveResult
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import java.io.IOException
+import java.io.OutputStream
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -51,6 +60,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Por qué no se abre la pantalla de importación del GeoPackage (S048/RF-2 a RF-4). */
 enum class GpkgFileProblem { EMPTY, NOT_GEOPACKAGE, DAMAGED, NO_LAYERS, TOO_BIG, NO_SPACE, UNREADABLE }
@@ -74,6 +84,8 @@ data class GpkgLayerRow(
     /** La capa tiene objetos y su extensión no cabe en el sistema del proyecto con el sistema elegido. */
     val outsideArea: Boolean = false,
     val distanceKm: Double? = null,
+    /** La columna con la que se nombra cada objeto (RF-21); null es «Sin nombre»: se nombra por su número en la capa (RF-22). */
+    val nameField: String? = null,
 ) {
     /** El sistema con el que se importa: el elegido, o el del fichero si es uno de la app; null mientras falte (RF-9). */
     val effective: GpkgCrs.Supported? get() = chosen?.let(GpkgCrsCatalog::supported) ?: (crs as? GpkgCrs.Supported)
@@ -107,6 +119,16 @@ data class GpkgImportUiState(
     val linearUnit: LinearUnit = LinearUnit.METRE,
     val angularUnit: AngularUnit = AngularUnit.DMS,
     val mapSettings: MapSettings = MapSettings(),
+    /** ¿Usar las cotas de la capa? Sí por defecto (RF-19). */
+    val useElevations: Boolean = true,
+    /** Los objetos leídos y los que hay en total durante la importación (RF-29). */
+    val importDone: Long = 0,
+    val importTotal: Long = 0,
+    /** Por qué la última importación no guardó nada (RF-30); null si no ha fallado. */
+    val failure: GpkgImportFailure? = null,
+    /** El usuario canceló la última importación: no se guardó nada (RF-30). */
+    val cancelled: Boolean = false,
+    val result: GpkgImportOutcome? = null,
 ) {
     val markedLayers: List<GpkgLayerRow> get() = layers.filter { it.marked }
 
@@ -125,6 +147,9 @@ data class GpkgImportUiState(
             (!farWarning || farConfirmed)
 }
 
+/** Lo que dejó una importación: el dibujo nuevo y su resumen (S048/RF-25). */
+data class GpkgImportOutcome(val drawingId: String, val summary: GpkgImportSummary)
+
 /** El recuento de los objetos de la zona: en marcha, cuántos son y si pasan del límite de 500.000 (RF-16). */
 data class GpkgZoneUi(val counting: Boolean = false, val objects: Int = 0, val exceeded: Boolean = false)
 
@@ -137,6 +162,7 @@ data class GpkgZoneUi(val counting: Boolean = false, val objects: Int = 0, val e
 @HiltViewModel
 class GpkgImportViewModel @Inject constructor(
     private val reader: GeoPackageReader,
+    private val importer: GeoPackageImporter,
     private val projects: ProjectRepository,
     private val centers: ProjectCenterProvider,
     private val receiver: ReceiverSession,
@@ -203,9 +229,11 @@ class GpkgImportViewModel @Inject constructor(
                         fileName = source.name,
                         projectName = project.name,
                         projectCrs = project.crs,
-                        layers = opened.layers.map { GpkgLayerRow(it, crs = opened.crs(it)) },
+                        layers = opened.layers.map { GpkgLayerRow(it, crs = opened.crs(it), nameField = suggestNameField(it.columns)) },
                         leftOutTables = opened.leftOutTables,
                         scanning = true,
+                        // El recuento está pendiente desde el principio: no hay un instante en que se pueda importar sin contar.
+                        zone = GpkgZoneUi(counting = true),
                         hasCenter = center != null,
                         centralPoint = project.centralPoint,
                         linearUnit = project.linearUnit,
@@ -256,6 +284,87 @@ class GpkgImportViewModel @Inject constructor(
     }
 
     fun confirmFar() = mutable.update { it.copy(farConfirmed = true) }
+
+    /** El campo de nombre de la capa [table]; null es «Sin nombre» (RF-21). */
+    fun setNameField(table: String, field: String?) {
+        mutable.update { state -> state.copy(layers = state.layers.map { if (it.info.table == table) it.copy(nameField = field) else it }) }
+    }
+
+    /** ¿Usar las cotas de la capa? (RF-19). */
+    fun setUseElevations(use: Boolean) = mutable.update { it.copy(useElevations = use) }
+
+    private var importJob: Job? = null
+
+    /**
+     * Importa las capas marcadas con las opciones de ahora, en segundo plano y con progreso (RF-29). Si falla o se cancela no queda
+     * nada guardado (RF-30) y se vuelve a la configuración; si acaba, queda el resumen (RF-25).
+     */
+    fun import() {
+        val current = mutable.value
+        if (!current.canImport) return
+        val project = project ?: return
+        val opened = session ?: return
+        val area = currentArea() ?: return
+        val choices = current.markedLayers.map { row ->
+            val effective = checkNotNull(row.effective)
+            GpkgLayerChoice(row.info, effective.source, row.nameField, wgs84 = effective.wgs84 && row.chosen == null)
+        }
+        mutable.update { it.copy(stage = GpkgImportStage.IMPORTING, importDone = 0, importTotal = 0, failure = null, cancelled = false) }
+        importJob = viewModelScope.launch(io) {
+            try {
+                val result = importer.import(
+                    projectId = project.id,
+                    crs = project.crs,
+                    fileName = current.fileName,
+                    options = GpkgImportOptions(choices, current.useElevations, area),
+                    session = opened,
+                    onProgress = { done, total -> mutable.update { it.copy(importDone = done, importTotal = total) } },
+                )
+                when (result) {
+                    is GpkgImportResult.Imported -> {
+                        log.info(LogCategory.APP, importedMessage(result.summary))
+                        closeSession() // el fichero ya está leído: la copia temporal no hace falta más (RNF-T5)
+                        mutable.update {
+                            it.copy(stage = GpkgImportStage.RESULT, result = GpkgImportOutcome(result.drawingId, result.summary))
+                        }
+                    }
+                    is GpkgImportResult.Failed -> {
+                        log.error(LogCategory.APP, "Importación de GeoPackage fallida: ${result.reason.name.lowercase()}")
+                        mutable.update { it.copy(stage = GpkgImportStage.CONFIG, failure = result.reason) }
+                    }
+                }
+            } catch (cancelled: CancellationException) {
+                log.info(LogCategory.APP, "Importación de GeoPackage cancelada: no se ha guardado nada")
+                mutable.update { it.copy(stage = GpkgImportStage.CONFIG, cancelled = true) }
+                throw cancelled
+            }
+        }
+    }
+
+    /** Cancela la importación en curso (RF-29, RF-30). */
+    fun cancel() {
+        importJob?.cancel()
+    }
+
+    /** El log no lleva nombres de capas ni de objetos ni coordenadas, solo los recuentos (RF-28). */
+    private fun importedMessage(summary: GpkgImportSummary) =
+        "GeoPackage importado: ${summary.importedTotal} objetos, ${summary.ignoredTotal} ignorados, ${summary.layers.size} capas"
+
+    /** Escribe el resumen de la importación como texto (RF-25); false si no se pudo escribir. */
+    suspend fun writeSummary(out: OutputStream, labels: GpkgSummaryLabels): Boolean = withContext(io) {
+        val summary = mutable.value.result?.summary ?: return@withContext false
+        try {
+            out.bufferedWriter(Charsets.UTF_8).use { it.write(GpkgSummaryText.build(summary, labels)) }
+            true
+        } catch (_: IOException) {
+            false
+        }
+    }
+
+    private fun closeSession() {
+        session?.close()
+        session = null
+    }
 
     /** «Todo el contenido» o un radio alrededor del centro del proyecto (RF-13). */
     fun setAllContent(all: Boolean) {
@@ -402,8 +511,8 @@ class GpkgImportViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        session?.close()
-        session = null
+        importJob?.cancel()
+        closeSession()
     }
 
     private companion object {
@@ -411,4 +520,15 @@ class GpkgImportViewModel @Inject constructor(
         const val DEBOUNCE_MS = 150L
         const val PICKER_ZOOM = 16.0
     }
+}
+
+private val NAME_FIELDS = listOf("name", "nombre", "id", "codigo", "código")
+
+/**
+ * El campo de nombre propuesto de una capa: el que se llame `name`, `nombre`, `id` o `codigo` (con o sin tilde), sin distinguir
+ * mayúsculas y por ese orden; null si no hay ninguno (S048/RF-21).
+ */
+internal fun suggestNameField(columns: List<GpkgColumn>): String? {
+    for (wanted in NAME_FIELDS) columns.firstOrNull { it.name.equals(wanted, ignoreCase = true) }?.let { return it.name }
+    return null
 }
