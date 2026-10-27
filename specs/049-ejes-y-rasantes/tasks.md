@@ -8,7 +8,7 @@
       Hecho cuando: `AlignmentCodecTest` y `ChainageFormatTest` en verde.
 - [x] T3. `core:survey`: `Clothoid` y `AlignmentGeometry.pointAt` (recta, arco y clotoide, PK inicial, desplazamiento a ambos lados). (RF-4, RF-20)
       Hecho cuando: `AlignmentGeometryTest` en verde contra `fixtures/ejes/` a menos de 1 mm.
-- [ ] T4. `core:survey`: `AlignmentGeometry.locate` (PK y desplazamiento de una posición, también en clotoides). (RF-18, RF-21)
+- [x] T4. `core:survey`: `AlignmentGeometry.locate` (PK y desplazamiento de una posición, también en clotoides). (RF-18, RF-21)
       Hecho cuando: `AlignmentLocateTest` en verde a menos de 1 mm y ida y vuelta con `pointAt`.
 - [ ] T5. `core:survey`: `VerticalProfileEval` (cota y pendiente con parábola, círculo y vértices). (RF-18, RF-20)
       Hecho cuando: `VerticalProfileEvalTest` en verde a menos de 1 mm.
