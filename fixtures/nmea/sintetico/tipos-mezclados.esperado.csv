@@ -1,0 +1,11 @@
+# Lo esperado de tipos-mezclados.nmea (S047). Generado por tools/nmea/generar_tipos_mezclados.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1; EPSG:4258 → EPSG:25830; jalon_m=1.8; receptor=RS3 (0.134 m)
+# Tramos: FIX 0 a 49; FLOAT 50 a 99; SINGLE 100 a 149; DGPS 150 a 169; FLOAT 170 a 219; FIX 220 a 269; FLOAT 270 a 299; FIX 300 a 399. 400 épocas a 5 Hz.
+# usadas: épocas en la media; descartadas_tipo: épocas tiradas por no ser de un tipo admitido, ser peores que el mejor visto o ser reunidas antes de que llegara uno mejor; avisos: «Solución degradada»; epoca_fin: la época que cierra la medida.
+# media_*: suelo en ETRS89 / UTM 30 (E, N) y altura elipsoidal, math.fsum.
+escenario,admitidos,inicio,pedidos_s,solucion,usadas,descartadas_tipo,avisos,epoca_fin,media_e,media_n,media_h
+solo-fix,FIX,0,20,FIX,100,170,1,269,440290.457886932,4474257.381517482,697.489050000
+fix-y-float,FIX+FLOAT,50,20,FLOAT,100,70,1,219,440290.609678503,4474257.280652353,697.692570000
+los-tres,FIX+FLOAT+SINGLE,100,20,FIX,100,150,1,349,440290.457991346,4474257.381311288,697.488610000
+solo-float,FLOAT,0,20,FLOAT,100,120,1,219,440290.609678503,4474257.280652353,697.692570000
+solo-single-con-dgps,SINGLE,120,10,SINGLE,50,0,0,169,440291.415668889,4474257.676894934,696.901440000
