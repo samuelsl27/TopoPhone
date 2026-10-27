@@ -156,3 +156,97 @@ Unidades en pantalla: "m", "ft" y "ft EE. UU.".
 | RF-17 a RF-21 | Carpetas | `ProjectFolderTest` |
 | RF-22 a RF-27 | Papelera | `TrashTest`, `ProjectRepositoryTest` |
 | RF-28 a RF-31 | Vista de proyecto | `ProjectViewTest`, `ProjectPositionCalculatorTest` |
+| RF-32, RF-35 | Punto central en el formulario, borrarlo | `ProjectCenterTest`, `ProjectFormCentralPointTest` |
+| RF-33, RF-34 | Fijarlo por coordenadas, posición o mapa; motivos | `CentralPointResolverTest`, `ProjectFormCentralPointTest`, `CentralPointPickerTest` |
+| RF-36 | Datos del proyecto y símbolo en el mapa | `ProjectInfoCentralPointTest`, `MapCentralPointTest` |
+| RF-37 | Un único cálculo del centro | `ProjectCenterTest`, `ProjectCenterProviderTest` |
+| RF-38 | Duplicar, copias de seguridad y paquetes | `ProjectRepositoryCentralPointTest`, `CentralPointBackupTest` |
+
+---
+
+## Ampliación: punto central del proyecto (RF-32 a RF-38)
+
+> Solo añade a lo anterior. Room pasa a la **v18** (S017b pasará a la v19).
+
+### Estructura de módulos
+| Módulo | Qué añade | RF |
+|---|---|---|
+| `core:model` | `CentralPoint(latitudeDeg, longitudeDeg)`; `ProjectDraft.centralPoint` y `Project.centralPoint` (opcionales, `null` por defecto); `ProjectCenter.of(central, points, viewport)`: la regla de «centro del proyecto» | RF-32, RF-35, RF-37 |
+| `core:survey` | `CentralPointResolver`: de unas coordenadas escritas, un toque del mapa o una posición del receptor al `CentralPoint`, o el motivo de rechazo | RF-33, RF-34 |
+| `data` | Room v18 (`central_latitude`, `central_longitude`), `AutoMigration(17, 18)`, el repositorio lo guarda, lo conserva al duplicar y viaja en copias y paquetes | RF-32, RF-38; RNF-T6 |
+| `app` | `ProjectCenterProvider` (el único sitio que calcula el centro, con los puntos y el encuadre del proyecto); sección «Punto central» del formulario; selector en el mapa; `MapController.showCentralPoint`; fila en los datos del proyecto | RF-32 a RF-37 |
+
+Sin dependencias nuevas.
+
+### Modelo de datos
+```kotlin
+data class CentralPoint(val latitudeDeg: Double, val longitudeDeg: Double)   // geográficas ETRS89/REGCAN95 del punto del suelo
+ProjectDraft(..., val centralPoint: CentralPoint? = null)
+Project(..., val centralPoint: CentralPoint? = null)
+```
+Room v18, tabla `projects`: `central_latitude REAL NULL` y `central_longitude REAL NULL` (ambas nulas o ambas con valor). `AutoMigration(17, 18)`: añadir columnas nulables no necesita especificación; los proyectos de antes quedan sin punto central.
+
+**Decisión D1 (pendiente de tu confirmación): se guarda en geográficas, no en Este/Norte.** El punto se guarda como latitud y longitud del suelo sin redondear (como las coordenadas de los puntos de S010), y se muestra en el SC del proyecto con `ProjectPositionCalculator.fromGround`. Motivo: los SC de S008 incluyen ED50 y geográficas, y el usuario puede cambiar el SC del proyecto (RF-15); un Este/Norte guardado exigiría guardar también el SC y reconvertir. Lo escrito en el SC del proyecto se convierte una vez con `ManualCoordinates` (la misma ruta que los puntos manuales de S011). Alternativa descartada: guardar Este/Norte y el SC en que se fijó.
+
+### Algoritmos
+**Centro del proyecto (RF-37)**, `ProjectCenter.of`:
+```
+1. Si el proyecto tiene punto central → ese.
+2. Si no, y tiene puntos → la media de latitudes y de longitudes de sus puntos (como hoy).
+3. Si no, y tiene encuadre (S009) → su centro.
+4. Si no → null (sin centro).
+```
+`ProjectCenterProvider` (`app`) reúne el proyecto, sus puntos y su encuadre y llama a `ProjectCenter.of`. `CadImportViewModel` y `SurfaceImportViewModel` dejan de tener cada una su `centerOf` y usan el proveedor; S048 lo reutilizará.
+
+**Fijar el punto (RF-33, RF-34)**, `CentralPointResolver`:
+```
+fromTyped(first, second, crs)  → ManualCoordinates.compute sin altura (EntryForm.PROJECT_CRS o geográficas, según el SC)
+fromTap(lat, lon, crs)         → solo el control de ámbito
+fromFix(gga, crs)              → NO_POSITION si !fix.hasPosition; si no, el suelo (jalón vertical, como RF-29) y el control de ámbito
+ámbito: crs.area.contains(lat, lon) (el mismo criterio que RF-30) → si no, OUTSIDE_CRS_AREA
+        ED50 sin rejilla → OUTSIDE_ED50_GRID
+Resultado: CentralPoint o CentralPointRejected(NO_POSITION | OUTSIDE_CRS_AREA | OUTSIDE_ED50_GRID | INVALID_NUMBER)
+```
+El punto central es solo horizontal: no lleva altura, así que el geoide no interviene.
+
+### Contratos
+- `ProjectCenter.of(central: CentralPoint?, points: List<CentralPoint>, viewport: MapViewport?): CentralPoint?`
+- `CentralPointResolver.fromTyped / fromTap / fromFix(...) : CentralPointResult` (`Fixed(point)` o `Rejected(reason)`).
+- `ProjectCenterProvider.center(projectId): CentralPoint?` (`suspend`).
+- `MapController.showCentralPoint(position: GeoPoint?)`, como `showBase`.
+- `ProjectFormUiState.centralPointError: CentralPointRejected?` para el motivo bajo el campo.
+
+### Interfaz
+- **Formulario (nuevo y edición):** sección «Punto central (opcional)». Sin fijar: «Sin fijar» y tres botones de 56 dp: «Escribir coordenadas», «Usar mi posición» y «Elegir en el mapa». Fijado: sus coordenadas en el SC y unidades del proyecto y los botones «Cambiar» y «Quitar».
+- **Escribir coordenadas:** diálogo con Este/Norte (o latitud/longitud si el SC es geográfico), con el formato de coordenadas de S011.
+- **Elegir en el mapa:** pantalla completa con el mapa del proyecto (`MapSlot`), sin puntos del proyecto; un toque coloca el símbolo, «Aceptar» confirma y «Cancelar» vuelve. Empieza en el punto central, o en la posición del receptor, o en España. Se abre desde el formulario sin salir de él, para no perder lo escrito. Un proyecto nuevo aún no existe, por eso el selector no depende de `ProjectRoute`.
+- **Datos del proyecto (S009/RF-5):** fila «Punto central» con Este, Norte (o latitud y longitud) o «Sin fijar».
+- **Símbolo en el mapa:** una cruz dentro de un círculo, distinta de la base, el rover y los puntos; en la leyenda y en la descripción de accesibilidad: «Punto central del proyecto» (icono y texto, RNF-T8).
+
+Textos nuevos (es y en, en `strings.xml`):
+
+| Caso | Texto |
+|---|---|
+| Sección | «Punto central (opcional)» |
+| Sin fijar | «Sin fijar» |
+| Acciones | «Escribir coordenadas» · «Usar mi posición» · «Elegir en el mapa» · «Cambiar» · «Quitar» |
+| Sin posición | «No se puede usar la posición: el receptor no la da ahora.» |
+| Fuera del ámbito | «El punto queda fuera del ámbito del sistema de coordenadas del proyecto.» |
+| Fuera de la rejilla ED50 | «El punto queda fuera de la rejilla de ED50.» |
+| Número no válido | «Escribe las dos coordenadas como números.» |
+| Accesibilidad del símbolo | «Punto central del proyecto» |
+
+### Decisiones técnicas
+| Decisión | Motivo | Alternativa descartada |
+|---|---|---|
+| Dos columnas nulables en `projects` | RF-38: duplicar copia la fila entera, las copias y los paquetes copian `SELECT *`; sin tabla nueva | Tabla `project_central_points` (otra clave ajena, otro `TABLES` y otra migración para dos números) |
+| Geográficas del suelo (D1) | Sirve a todos los SC de S008 y al cambio de SC (RF-15) | Este/Norte + SC en que se fijó |
+| `ProjectCenter` en `core:model`, puro | Un solo cálculo, probado en JVM, sin `android.*` | Dejar un `centerOf` en cada ViewModel de importación |
+| Selector a pantalla completa dentro del formulario | El proyecto nuevo aún no tiene vista de proyecto; no se pierde lo escrito | Navegar a otra ruta y devolver el resultado por el back stack |
+| `CentralPointResolver` en `core:survey` | `survey` ya usa geodesia (ED50, UTM) y `ManualCoordinates` | Convertir en el ViewModel |
+
+### Estrategia de tests
+- **JVM `core:model`:** `ProjectCenterTest`: las cuatro ramas de la regla, el punto central manda sobre puntos y encuadre, borrarlo vuelve a la regla anterior, sin nada no hay centro.
+- **JVM `core:survey`:** `CentralPointResolverTest`: escrito en UTM contra el vector de pyproj (≤ 1 mm en la ida y vuelta), geográficas, ED50, toque, posición sin fix, fuera del huso de ámbito y fuera de la rejilla ED50.
+- **Robolectric `data`:** `TopoPhoneDatabaseTest` 17 → 18 (proyectos de antes sin punto central); `ProjectRepositoryCentralPointTest` (guardar sin redondear, editar, quitar, duplicar); `CentralPointBackupTest` (copia de seguridad y paquete `.topoproj`, ida y vuelta). Nombres de test de ≤ 60 caracteres.
+- **Robolectric `app` (Compose):** `ProjectFormCentralPointTest`, `CentralPointPickerTest` (con el doble de `MapController`), `ProjectInfoCentralPointTest`, `MapCentralPointTest`, `ProjectCenterProviderTest`; los tests de importación de S040 y S042 se adaptan al proveedor.

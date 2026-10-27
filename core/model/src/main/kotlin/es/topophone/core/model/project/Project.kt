@@ -11,6 +11,8 @@ data class ProjectDraft(
     val correctionsDatum: CorrectionsDatum,
     /** S008/RF-2. */
     val heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
+    /** S006/RF-32: opcional; no depende del SC, así que sobrevive a cambiarlo. */
+    val centralPoint: CentralPoint? = null,
 ) {
     /**
      * Con el SC [newCrs]: su datum de las correcciones (S008/RF-17) y una altura que admita (S008/RF-3).
@@ -45,8 +47,10 @@ data class Project(
     val openedAtMs: Long?,
     val deletedAtMs: Long?,
     val heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
+    /** S006/RF-32. */
+    val centralPoint: CentralPoint? = null,
 ) {
-    fun toDraft() = ProjectDraft(name, author, description, crs, linearUnit, angularUnit, correctionsDatum, heightSystem)
+    fun toDraft() = ProjectDraft(name, author, description, crs, linearUnit, angularUnit, correctionsDatum, heightSystem, centralPoint)
 }
 
 /**

@@ -42,3 +42,30 @@
       Hecho cuando: el test de rendimiento en verde.
 - [x] T20. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona.
+
+## Ampliación: punto central (RF-32 a RF-38)
+
+- [x] T21. `core:model`: `CentralPoint`, `ProjectDraft.centralPoint` y `Project.centralPoint`, y `ProjectCenter.of` con la regla del centro del proyecto. (RF-32, RF-35, RF-37)
+      Hecho cuando: `ProjectCenterTest` en verde (las cuatro ramas y el borrado) y `core:model` compila con los usos adaptados.
+- [ ] T22. `core:survey`: `CentralPointResolver` (coordenadas escritas, toque y posición del receptor, con sus motivos de rechazo). (RF-33, RF-34)
+      Hecho cuando: `CentralPointResolverTest` en verde: UTM contra pyproj (≤ 1 mm), geográficas, ED50, sin posición, fuera del ámbito y fuera de la rejilla ED50.
+- [ ] T23. `data`: Room v18 con `central_latitude` y `central_longitude` y `AutoMigration(17, 18)`; nota en la cabecera de `TopoPhoneDatabase`. (RF-32, RNF-T6)
+      Hecho cuando: `TopoPhoneDatabaseTest` 17 → 18 en verde con proyectos de antes que se leen sin punto central y el esquema 18 en `data/schemas/`.
+- [ ] T24. `data`: el repositorio guarda, edita, quita y duplica el punto central, sin redondear. (RF-32, RF-35, RF-38)
+      Hecho cuando: `ProjectRepositoryCentralPointTest` en verde, incluida la copia con el mismo punto.
+- [ ] T25. `data`: el punto central en las copias de seguridad y en los paquetes `.topoproj`. (RF-38)
+      Hecho cuando: `CentralPointBackupTest` en verde: copia y restauración, y exportar e importar un paquete conservan el punto; una copia de la v17 se restaura sin él.
+- [ ] T26. `app`: `ProjectCenterProvider` como único sitio que calcula el centro; los ViewModels de importación de S040 y S042 lo usan en lugar de su `centerOf`. (RF-37)
+      Hecho cuando: `ProjectCenterProviderTest` en verde y los tests de S040 y S042 sin cambios de comportamiento, con un caso de aviso de distancia medido desde el punto central.
+- [ ] T27. `app`: sección «Punto central» del formulario (sin fijar, fijado, quitar) y escribir coordenadas, con sus textos en es y en. (RF-32, RF-33, RF-34, RF-35, RNF-T7, RNF-T8)
+      Hecho cuando: `ProjectFormCentralPointTest` en verde para nuevo y edición, con rechazo y motivo, zonas de 56 dp y etiquetas de TalkBack.
+- [ ] T28. `app`: «Usar mi posición» con el receptor y con una reproducción, y el motivo sin posición. (RF-33, RF-34)
+      Hecho cuando: `ProjectFormCentralPointTest` en verde para la posición, con fix, sin fix y fuera del ámbito.
+- [ ] T29. `app`: «Elegir en el mapa»: selector a pantalla completa con el doble de `MapController`. (RF-33, RF-34)
+      Hecho cuando: `CentralPointPickerTest` en verde: un toque coloca el punto, «Aceptar» lo pasa al formulario, «Cancelar» no cambia nada y un toque fuera del ámbito indica el motivo.
+- [ ] T30. `app`: `MapController.showCentralPoint` y su símbolo propio en el mapa del proyecto, con icono y texto de accesibilidad. (RF-36, RNF-T8)
+      Hecho cuando: `MapCentralPointTest` en verde: aparece con punto central, desaparece al quitarlo y no se confunde con la base ni con el rover.
+- [ ] T31. `app`: «Punto central» en los datos del proyecto, con sus coordenadas en el SC y las unidades del proyecto. (RF-36)
+      Hecho cuando: `ProjectInfoCentralPointTest` en verde: fijado, sin fijar y con otro SC tras cambiarlo.
+- [ ] T32. Validación de la ampliación: `rf_report` con S006 en 38 de 38, `check`, `pytest tools`, `forbidden_files`, demo en el emulador (tocando el mapa, escribiendo coordenadas y con una reproducción; símbolo en el mapa y coordenadas en los datos; borrarlo; duplicar el proyecto), S006 «implementada» en la hoja de ruta, nota en S040/RF-10 y memoria. (Todos)
+      Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona.
