@@ -728,6 +728,20 @@ class StakeoutViewModelTest {
     }
 
     @Test
+    fun `S048 RF-24 un punto de un GeoPackage se replantea con el nombre de su objeto`() {
+        val vm = viewModel()
+        val named = cadPoint(z = 12.5).let {
+            it.copy(entity = CadEntity(it.entity.kind, it.entity.easting, it.entity.northing, it.entity.height, null, name = "Farola"))
+        }
+
+        vm.openElement(projectId, named)
+
+        val target = await(vm) { it.target != null }.target.shouldNotBeNull()
+        target.name shouldBe "Farola"
+        target.source shouldBe StakeSource.CadElement("calle.dxf", "Pozos", CadEntityKind.POINT)
+    }
+
+    @Test
     fun `S041 RF-1 un centro de bloque sin cota se replantea solo en planta`() {
         val vm = viewModel()
 

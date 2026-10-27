@@ -49,7 +49,10 @@ data class DesignSelection(
     val hasElevation: Boolean,
     /** Los atributos del objeto de un GeoPackage, por columna; vacíos en un dibujo de DXF (S048/RF-20). */
     val attributes: Map<String, GpkgValue> = emptyMap(),
-)
+) {
+    /** El nombre con el que se replantea: el del objeto de un GeoPackage, o, sin él, el de su capa (S048/RF-22, RF-24). */
+    val stakeoutName: String get() = entity.name?.takeIf { it.isNotBlank() } ?: layerName
+}
 
 /**
  * Lo que el mapa dibuja de los dibujos importados del proyecto (S040/RF-24, RF-25, RF-27): con la cámara quieta, los trozos de las

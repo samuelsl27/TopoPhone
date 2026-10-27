@@ -38,7 +38,7 @@
       Hecho cuando: los mismos tests en verde y el resumen se guarda como texto.
 - [x] T18. `app`: las capas en «Dibujos» con su procedencia, etiquetas de nombre y contornos marcados en el mapa, y la ficha con atributos al tocar. (RF-20, RF-22, RF-23, RF-27, RNF-T8)
       Hecho cuando: `DesignLabelsTest` y `GpkgFeatureSheetTest` en verde.
-- [ ] T19. `app`: replanteo de los puntos y las líneas importados con S041, con su nombre. (RF-24)
+- [x] T19. `app`: replanteo de los puntos y las líneas importados con S041, con su nombre. (RF-24)
       Hecho cuando: `GpkgStakeoutTest` en verde.
 - [ ] T20. Rendimiento: un `.gpkg` de 100 MB se lee y recorta en menos de 20 s y cambiar el radio recuenta en menos de 2 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.

@@ -86,6 +86,8 @@ data class LineElementInfo(
     val closed: Boolean,
     val minHeightM: Double?,
     val maxHeightM: Double?,
+    /** El nombre del objeto de un GeoPackage, o null si es de un DXF o no lo tiene (S048/RF-22, RF-24). */
+    val name: String? = null,
 )
 
 /**
@@ -274,6 +276,7 @@ class LineStakeoutViewModel @Inject constructor(
                 line.closed,
                 heights.minOrNull(),
                 heights.maxOrNull(),
+                model.selection.entity.name?.takeIf { it.isNotBlank() },
             ),
             mode = live.settings.lineMode,
             offsetText = model.offsetText,
@@ -731,7 +734,7 @@ class LineStakeoutViewModel @Inject constructor(
         val selection = m.selection
         val target = StakeTarget(
             id = "cad:${selection.ref.layerId}:${selection.ref.chunkId}:${selection.ref.index}",
-            name = selection.layerName,
+            name = selection.stakeoutName,
             description = "",
             coordinates = coordinates,
             source = StakeSource.CadElement(selection.drawingName, selection.layerName, selection.entity.kind),

@@ -302,7 +302,7 @@ class StakeoutViewModel @Inject constructor(
             if (!fromDrawing) return@launch // se cerró o se abrió otro punto mientras tanto
             target.value = StakeTarget(
                 id = "cad:${selection.ref.layerId}:${selection.ref.chunkId}:${selection.ref.index}",
-                name = selection.layerName,
+                name = selection.stakeoutName,
                 description = "",
                 coordinates = coordinates,
                 source = StakeSource.CadElement(selection.drawingName, selection.layerName, entity.kind),

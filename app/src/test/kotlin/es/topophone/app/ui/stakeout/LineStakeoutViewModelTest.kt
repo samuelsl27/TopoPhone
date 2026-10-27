@@ -518,6 +518,28 @@ class LineStakeoutViewModelTest {
     }
 
     @Test
+    fun `S048 RF-24 una linea de un GeoPackage se replantea con el nombre de su objeto`() {
+        val vm = viewModel()
+        val named = selection().let {
+            it.copy(entity = CadEntity(it.entity.kind, it.entity.easting, it.entity.northing, null, null, name = "Calle Mayor"))
+        }
+
+        val state = open(vm, named)
+
+        state.target.shouldNotBeNull().name shouldBe "Calle Mayor"
+        state.element.shouldNotBeNull().name shouldBe "Calle Mayor"
+        state.target.shouldNotBeNull().source shouldBe StakeSource.CadElement("calle.dxf", "Eje", CadEntityKind.POLYLINE)
+    }
+
+    @Test
+    fun `S048 RF-24 una linea sin nombre se replantea con el de su capa como siempre`() {
+        val state = open(viewModel())
+
+        state.element.shouldNotBeNull().name.shouldBeNull()
+        state.target.shouldNotBeNull().name shouldBe "Eje"
+    }
+
+    @Test
     fun `S041 RF-27 el punto de diseno para el recolector es un elemento del dibujo con el nombre de la capa y sus tolerancias`() {
         val vm = viewModel()
 

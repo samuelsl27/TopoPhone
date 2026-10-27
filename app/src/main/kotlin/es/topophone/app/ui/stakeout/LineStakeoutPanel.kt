@@ -231,7 +231,7 @@ fun LineStakeoutPanel(
 private fun Header(state: LineStakeoutUiState, actions: LineStakeoutActions) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            stringResource(R.string.stakeout_line_title, state.element?.layerName.orEmpty()),
+            stringResource(R.string.stakeout_line_title, state.element?.let { it.name ?: it.layerName }.orEmpty()),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.weight(1f).testTag(LINE_TITLE_TAG),
         )
