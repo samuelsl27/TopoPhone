@@ -122,6 +122,14 @@ private fun ProjectInfoCard(project: Project) {
             LabeledValue(stringResource(R.string.project_corrections_datum), datumLabel(project.correctionsDatum))
         }
         if (DatumCheck.mismatch(project.crs, project.correctionsDatum)) DatumWarning(project.crs, project.correctionsDatum)
+        // S006/RF-36: fuera de la columna que TalkBack lee entera, para que cada fila siga siendo localizable.
+        Text(stringResource(R.string.central_point_info_title), style = MaterialTheme.typography.titleSmall)
+        val central = project.centralPoint
+        if (central == null) {
+            Text(stringResource(R.string.central_point_unset), modifier = Modifier.testTag(CENTRAL_POINT_EMPTY_TAG))
+        } else {
+            CentralPointValues(central, project.crs, project.linearUnit, project.angularUnit)
+        }
     }
 }
 
