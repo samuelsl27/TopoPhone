@@ -13,9 +13,11 @@ import es.topophone.core.gnss.nmea.TiltNotification
 import es.topophone.core.gnss.nmea.TiltState
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.log.LogLevel
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.PointCoordinates
+import es.topophone.core.model.point.SolutionType
 import es.topophone.core.model.point.StakeMode
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TiltMode
@@ -124,7 +126,16 @@ class StakeoutControllerTest {
         tiltMode: TiltMode? = null,
         designElevationM: Double? = null,
         design: StakeTarget = target,
-    ) = StakeContext(settings, design, fixOnly, tiltMode, poleHeight, project, calculator, designElevationM)
+    ) = StakeContext(
+        settings,
+        design,
+        if (fixOnly) AdmittedSolutions.FIX_ONLY else AdmittedSolutions.ALL,
+        tiltMode,
+        poleHeight,
+        project,
+        calculator,
+        designElevationM,
+    )
 
     /** El punto de diseño sin altura (S019/RF-5). */
     private val targetWithoutHeight = target.copy(coordinates = designCoordinates.copy(height = null))
@@ -421,7 +432,7 @@ class StakeoutControllerTest {
 
         controller.onEpoch(epoch(0.5, 0.0, 1, status = SolutionStatus.FLOAT, up = 0.5), context())
 
-        off() shouldBe GuidanceOff.NO_FIX
+        off() shouldBe GuidanceOff.SOLUTION_NOT_ADMITTED
         alerts.levelEvents shouldBe listOf("levelArrived") // ni salir de la cota, ni entrar: no hay guia
     }
 
@@ -505,13 +516,63 @@ class StakeoutControllerTest {
         controller.onEpoch(epoch(-1.0, 0.0, 1, status = SolutionStatus.FLOAT), context())
         controller.onEpoch(epoch(-1.0, 0.0, 2, status = SolutionStatus.FLOAT), context())
 
-        off() shouldBe GuidanceOff.NO_FIX
+        off() shouldBe GuidanceOff.SOLUTION_NOT_ADMITTED
         alerts.events shouldBe listOf("solutionLost")
 
         controller.onEpoch(epoch(-1.0, 0.0, 3), context())
 
         on().ui.solution shouldBe SolutionStatus.FIX
         alerts.events shouldBe listOf("solutionLost")
+    }
+
+    private fun admittedOf(vararg types: SolutionType) = AdmittedSolutions.of(types.toSet())
+
+    private fun contextWith(admitted: AdmittedSolutions) =
+        StakeContext(StakeoutSettings(), target, admitted, null, poleHeight, project, calculator)
+
+    @Test
+    fun `S047 RF-12 con solo FLOAT admitido un FIX apaga la guia y un FLOAT la mantiene`() {
+        val onlyFloat = contextWith(admittedOf(SolutionType.FLOAT))
+
+        controller.onEpoch(epoch(-1.0, 0.0, 0), onlyFloat)
+        off() shouldBe GuidanceOff.SOLUTION_NOT_ADMITTED
+
+        controller.onEpoch(epoch(-1.0, 0.0, 1, status = SolutionStatus.FLOAT), onlyFloat)
+        on().ui.solution shouldBe SolutionStatus.FLOAT
+    }
+
+    @Test
+    fun `S047 RF-12 la guia se apaga y avisa una vez al caer a un tipo no admitido y vuelve con uno admitido`() {
+        val fixAndFloat = contextWith(admittedOf(SolutionType.FIX, SolutionType.FLOAT))
+
+        controller.onEpoch(epoch(-1.0, 0.0, 0, status = SolutionStatus.FLOAT), fixAndFloat)
+        on().ui.solution shouldBe SolutionStatus.FLOAT
+        controller.onEpoch(epoch(-1.0, 0.0, 1, status = SolutionStatus.SINGLE), fixAndFloat)
+        controller.onEpoch(epoch(-1.0, 0.0, 2, status = SolutionStatus.SINGLE), fixAndFloat)
+
+        off() shouldBe GuidanceOff.SOLUTION_NOT_ADMITTED
+        alerts.events shouldBe listOf("solutionLost")
+
+        controller.onEpoch(epoch(-1.0, 0.0, 3), fixAndFloat)
+        on().ui.solution shouldBe SolutionStatus.FIX
+    }
+
+    @Test
+    fun `S047 RF-13 con los tres tipos admitidos la guia sigue con cualquiera y muestra el tipo`() {
+        for ((i, status) in listOf(SolutionStatus.FIX, SolutionStatus.FLOAT, SolutionStatus.SINGLE).withIndex()) {
+            controller.onEpoch(epoch(-1.0, 0.0, i, status = status), contextWith(AdmittedSolutions.ALL))
+            on().ui.solution shouldBe status
+        }
+        alerts.events shouldBe emptyList()
+    }
+
+    @Test
+    fun `S047 RF-18 una solucion DGPS se trata como SINGLE`() {
+        controller.onEpoch(epoch(-1.0, 0.0, 0, status = SolutionStatus.DGPS), contextWith(admittedOf(SolutionType.SINGLE)))
+        on().ui.solution shouldBe SolutionStatus.DGPS
+
+        controller.onEpoch(epoch(-1.0, 0.0, 1, status = SolutionStatus.DGPS), contextWith(AdmittedSolutions.FIX_ONLY))
+        off() shouldBe GuidanceOff.SOLUTION_NOT_ADMITTED
     }
 
     @Test
@@ -654,7 +715,7 @@ class StakeoutControllerTest {
         logged.onSilence(context())
 
         log.messages.filterNot { "cota" in it } shouldBe listOf(
-            "Replanteo de 12: guía apagada, sin FIX",
+            "Replanteo de 12: guía apagada, tipo de solución no admitido",
             "Replanteo de 12: guía apagada, la inclinación no está en estado 30",
             "Replanteo de 12: guía apagada, sin datos del receptor",
         )

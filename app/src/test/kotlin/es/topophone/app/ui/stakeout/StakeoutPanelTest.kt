@@ -373,9 +373,9 @@ class StakeoutPanelTest {
 
     @Test
     fun `S019 RF-11 con la guia apagada no hay nivel y se dice el motivo de la guia`() {
-        show(state(GuidanceState.Off(GuidanceOff.NO_FIX)))
+        show(state(GuidanceState.Off(GuidanceOff.SOLUTION_NOT_ADMITTED)))
 
-        compose.onNodeWithTag(STAKEOUT_OFF_TAG).assertTextContains("Sin FIX", substring = true)
+        compose.onNodeWithTag(STAKEOUT_OFF_TAG).assertTextContains("Tipo de solución no admitido", substring = true)
         compose.onNodeWithTag(STAKEOUT_LEVEL_TAG).assertDoesNotExist()
         compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertDoesNotExist()
         compose.onNodeWithTag(STAKEOUT_LEVEL_UNAVAILABLE_TAG).assertDoesNotExist()
@@ -422,9 +422,9 @@ class StakeoutPanelTest {
 
     @Test
     fun `S018 RF-22 sin FIX con Solo FIX la guia esta apagada y lo dice`() {
-        show(state(GuidanceState.Off(GuidanceOff.NO_FIX)))
+        show(state(GuidanceState.Off(GuidanceOff.SOLUTION_NOT_ADMITTED)))
 
-        compose.onNodeWithTag(STAKEOUT_OFF_TAG).assertTextContains("Sin FIX", substring = true)
+        compose.onNodeWithTag(STAKEOUT_OFF_TAG).assertTextContains("Tipo de solución no admitido", substring = true)
     }
 
     @Test

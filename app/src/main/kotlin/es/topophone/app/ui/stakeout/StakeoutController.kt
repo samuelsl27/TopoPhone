@@ -4,6 +4,7 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineStakeoutMode
@@ -30,6 +31,7 @@ import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.PlanePoint
 import es.topophone.core.survey.PoleGeometry
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.SolutionTypes
 import es.topophone.core.survey.StakeAlert
 import es.topophone.core.survey.StakeLine
 import es.topophone.core.survey.StakeZone
@@ -73,7 +75,7 @@ class LineGuide(
 class StakeContext(
     val settings: StakeoutSettings,
     val target: StakeTarget,
-    val fixOnly: Boolean,
+    val admitted: AdmittedSolutions,
     val tiltMode: TiltMode?,
     val poleHeightM: Double,
     val project: Project,
@@ -100,8 +102,8 @@ enum class LevelUnavailable { NO_DESIGN_ELEVATION, TIP_WITHOUT_HEIGHT, OUTSIDE_S
  */
 data class LevelUi(val dzM: Double, val state: LevelState, val radiusM: Double, val toleranceM: Double)
 
-/** Por qué la guía está apagada (S018/RF-22, RF-24, RF-25, RF-35). */
-enum class GuidanceOff { NO_POSITION, NO_DATA, NO_FIX, TILT_NOT_READY }
+/** Por qué la guía está apagada (S018/RF-22, RF-24, RF-25, RF-35; S047/RF-12). */
+enum class GuidanceOff { NO_POSITION, NO_DATA, SOLUTION_NOT_ADMITTED, TILT_NOT_READY }
 
 /**
  * La cota de la superficie bajo la punta con una época (S042/RF-23, RF-26): [height] es su cota, fuera de la superficie o cargando, y
@@ -184,8 +186,9 @@ class StakeoutController(
             switchOff(GuidanceOff.NO_POSITION, context)
             return
         }
-        if (context.fixOnly && fix.status != SolutionStatus.FIX) {
-            switchOff(GuidanceOff.NO_FIX, context)
+        // S047/RF-12, RF-13: la guía sigue con cualquier tipo admitido y se apaga con los demás.
+        if (SolutionTypes.of(fix.status) !in context.admitted) {
+            switchOff(GuidanceOff.SOLUTION_NOT_ADMITTED, context)
             return
         }
         if (context.tiltMode?.usesTilt == true && !TiltEpoch.isCompensating(epoch.tilt)) {
@@ -333,7 +336,7 @@ class StakeoutController(
     private fun switchOff(reason: GuidanceOff, context: StakeContext?) {
         val current = flow.value
         val alreadyOff = current is GuidanceState.Off && current.reason == reason
-        if (wasOn && (reason == GuidanceOff.NO_FIX || reason == GuidanceOff.NO_DATA)) {
+        if (wasOn && (reason == GuidanceOff.SOLUTION_NOT_ADMITTED || reason == GuidanceOff.NO_DATA)) {
             alerts.solutionLost() // S010/RF-10; el mismo aviso para el FIX perdido y para el corte (S018/RF-22, RF-25)
         }
         if (!alreadyOff && wasOn) {
@@ -418,7 +421,7 @@ class StakeoutController(
     private fun GuidanceOff.logText() = when (this) {
         GuidanceOff.NO_POSITION -> "sin posición"
         GuidanceOff.NO_DATA -> "sin datos del receptor"
-        GuidanceOff.NO_FIX -> "sin FIX"
+        GuidanceOff.SOLUTION_NOT_ADMITTED -> "tipo de solución no admitido"
         GuidanceOff.TILT_NOT_READY -> "la inclinación no está en estado 30"
     }
 

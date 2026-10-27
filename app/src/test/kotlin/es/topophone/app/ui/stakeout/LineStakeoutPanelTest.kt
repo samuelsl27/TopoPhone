@@ -362,7 +362,7 @@ class LineStakeoutPanelTest {
 
     @Test
     fun `S041 RF-16 Mi posicion no se puede usar con la guia apagada`() {
-        show(state(mode = LineStakeoutMode.SEGMENT_AB, guidance = GuidanceState.Off(GuidanceOff.NO_FIX)))
+        show(state(mode = LineStakeoutMode.SEGMENT_AB, guidance = GuidanceState.Off(GuidanceOff.SOLUTION_NOT_ADMITTED)))
 
         compose.onNodeWithTag(LINE_HERE_TAG).performScrollTo().assertIsNotEnabled()
     }
@@ -445,9 +445,9 @@ class LineStakeoutPanelTest {
 
     @Test
     fun `S041 RF-26 con la guia apagada dice por que`() {
-        show(state(guidance = GuidanceState.Off(GuidanceOff.NO_FIX)))
+        show(state(guidance = GuidanceState.Off(GuidanceOff.SOLUTION_NOT_ADMITTED)))
 
-        compose.onNodeWithTag(STAKEOUT_OFF_TAG).assertTextContains("FIX", substring = true)
+        compose.onNodeWithTag(STAKEOUT_OFF_TAG).assertTextContains("Tipo de solución no admitido", substring = true)
     }
 
     @Test

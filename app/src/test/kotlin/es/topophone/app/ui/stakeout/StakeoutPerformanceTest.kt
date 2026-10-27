@@ -12,6 +12,7 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.StakeoutSettings
@@ -63,7 +64,7 @@ class StakeoutPerformanceTest {
         PointCoordinates(ground, position.easting, position.northing, position.height)
     }
     private val target = StakeTarget("d1", "12", "esquina", design)
-    private val context = StakeContext(StakeoutSettings(), target, true, null, 1.8, project, calculator)
+    private val context = StakeContext(StakeoutSettings(), target, AdmittedSolutions.FIX_ONLY, null, 1.8, project, calculator)
     private val silent = object : Alerts {
         override fun connectionLost() = Unit
 

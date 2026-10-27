@@ -2,6 +2,7 @@ package es.topophone.app.ui.stakeout
 
 import es.topophone.app.ui.receiver.repositoryRoot
 import es.topophone.core.model.cad.CadSourceCrs
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.PointCoordinates
@@ -205,7 +206,7 @@ class StakeoutSurfaceReplayTest {
         val context = StakeContext(
             StakeoutSettings(),
             target,
-            fixOnly = true,
+            admitted = AdmittedSolutions.FIX_ONLY,
             tiltMode = null,
             poleHeightM = 1.8,
             project = project(),
@@ -232,7 +233,7 @@ class StakeoutSurfaceReplayTest {
             val row = rows[i]
             if (row["guia"] == "NO_FIX") {
                 // S019/RF-11: sin FIX, ni guía ni nivel.
-                state.shouldBeInstanceOf<GuidanceState.Off>().reason shouldBe GuidanceOff.NO_FIX
+                state.shouldBeInstanceOf<GuidanceState.Off>().reason shouldBe GuidanceOff.SOLUTION_NOT_ADMITTED
                 return@forEachIndexed
             }
             val ui = state.shouldBeInstanceOf<GuidanceState.On>().ui

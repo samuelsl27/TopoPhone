@@ -2,6 +2,7 @@ package es.topophone.app.ui.stakeout
 
 import es.topophone.app.ui.receiver.repositoryRoot
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
@@ -176,7 +177,7 @@ class LineStakeoutReplayTest {
                 // El desplazamiento que se pide va cambiando como en la reproducción: el que dice la fila de esta época.
                 val offset = rows[index.coerceAtMost(rows.size - 1)]["desplazamiento_m"].toDouble()
                 val guide = LineGuide(line, locator, LineStakeoutMode.ALONG, offset)
-                val context = StakeContext(settings, target, true, null, 1.8, project, calculator, null, guide)
+                val context = StakeContext(settings, target, AdmittedSolutions.FIX_ONLY, null, 1.8, project, calculator, null, guide)
                 controller.onEpoch(received.epoch, context)
                 index++
                 synchronized(states) { states += controller.state.value }
@@ -197,7 +198,7 @@ class LineStakeoutReplayTest {
         synchronized(states) { states.toList() }.take(closed).forEachIndexed { i, state ->
             val row = rows[i]
             if (row["guia"] == "NO_FIX") {
-                state.shouldBeInstanceOf<GuidanceState.Off>().reason shouldBe GuidanceOff.NO_FIX
+                state.shouldBeInstanceOf<GuidanceState.Off>().reason shouldBe GuidanceOff.SOLUTION_NOT_ADMITTED
                 return@forEachIndexed
             }
             val ui = state.shouldBeInstanceOf<GuidanceState.On>().ui

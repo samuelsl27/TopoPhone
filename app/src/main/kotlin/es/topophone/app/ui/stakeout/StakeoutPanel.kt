@@ -493,7 +493,7 @@ private fun StakeMode.textRes(): Int = when (this) {
 internal fun GuidanceOff.textRes(): Int = when (this) {
     GuidanceOff.NO_POSITION -> R.string.stakeout_off_no_position
     GuidanceOff.NO_DATA -> R.string.stakeout_off_no_data
-    GuidanceOff.NO_FIX -> R.string.stakeout_off_no_fix
+    GuidanceOff.SOLUTION_NOT_ADMITTED -> R.string.stakeout_off_not_admitted
     GuidanceOff.TILT_NOT_READY -> R.string.stakeout_off_tilt
 }
 

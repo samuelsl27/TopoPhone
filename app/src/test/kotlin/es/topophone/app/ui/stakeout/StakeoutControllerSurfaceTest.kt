@@ -7,6 +7,7 @@ import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.cad.CadSourceCrs
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineStakeoutMode
@@ -120,7 +121,7 @@ class StakeoutControllerSurfaceTest {
     ) = StakeContext(
         StakeoutSettings(mode = StakeMode.BY_DISTANCE),
         target,
-        true,
+        AdmittedSolutions.FIX_ONLY,
         null,
         poleHeight,
         project,
@@ -308,7 +309,7 @@ class StakeoutControllerSurfaceTest {
 
         controller.onEpoch(epoch(0.0, 0.0, index = 1, status = SolutionStatus.FLOAT), context())
 
-        controller.state.value.shouldBeInstanceOf<GuidanceState.Off>().reason shouldBe GuidanceOff.NO_FIX
+        controller.state.value.shouldBeInstanceOf<GuidanceState.Off>().reason shouldBe GuidanceOff.SOLUTION_NOT_ADMITTED
         alerts.events shouldBe listOf("solutionLost")
     }
 }

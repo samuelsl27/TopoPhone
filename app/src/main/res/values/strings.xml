@@ -504,7 +504,7 @@
     <string name="stakeout_result_height">Punto %1$s guardado · diferencia con el diseño: Norte %2$s · Este %3$s · distancia %4$s · cota %5$s</string>
     <string name="stakeout_off_no_position">Sin posición del receptor.</string>
     <string name="stakeout_off_no_data">Sin datos del receptor: guía apagada.</string>
-    <string name="stakeout_off_no_fix">Sin FIX: guía apagada.</string>
+    <string name="stakeout_off_not_admitted">Tipo de solución no admitido: guía apagada.</string>
     <string name="stakeout_off_tilt">La inclinación no está en estado 30: guía apagada.</string>
     <string name="collector_title">Recolector</string>
     <string name="collector_close">Cerrar</string>

@@ -144,7 +144,10 @@ class LineMapMarkersTest {
 
     @Test
     fun `S041 RF-5 con la guia apagada se ve la linea elegida y no hay objetivo ni punta`() {
-        val marker = LineStakeoutMarkers.of(state(GuidanceState.Off(GuidanceOff.NO_FIX), LineStakeoutMode.ALONG), chosen).shouldNotBeNull()
+        val marker = LineStakeoutMarkers.of(
+            state(GuidanceState.Off(GuidanceOff.SOLUTION_NOT_ADMITTED), LineStakeoutMode.ALONG),
+            chosen,
+        ).shouldNotBeNull()
 
         marker.chosen shouldBe chosen
         marker.design.shouldBeNull()

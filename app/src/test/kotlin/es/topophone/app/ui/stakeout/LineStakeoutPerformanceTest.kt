@@ -14,6 +14,7 @@ import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
@@ -103,7 +104,8 @@ class LineStakeoutPerformanceTest {
         return Epoch(36_000_000 + index * 100, null, fix, gst, null, null, null, null, null, emptyMap(), emptyMap(), 0)
     }
 
-    private fun context(guide: LineGuide) = StakeContext(StakeoutSettings(), target, true, null, 1.8, project, calculator, null, guide)
+    private fun context(guide: LineGuide) =
+        StakeContext(StakeoutSettings(), target, AdmittedSolutions.FIX_ONLY, null, 1.8, project, calculator, null, guide)
 
     @Test
     fun `S041 RNF elegir una linea de 100000 vertices y empezar a guiar tarda menos de 1 s`() {

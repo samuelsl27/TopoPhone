@@ -14,6 +14,7 @@ import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.HeadingChoice
@@ -203,7 +204,7 @@ class LineStakeoutViewModel @Inject constructor(
 
     @Volatile private var settings = StakeoutSettings()
 
-    @Volatile private var fixOnly = true
+    @Volatile private var admitted = AdmittedSolutions.FIX_ONLY
 
     @Volatile private var poleHeightM = PoleHeight.DEFAULT_M
 
@@ -316,7 +317,7 @@ class LineStakeoutViewModel @Inject constructor(
             }
         }
         viewModelScope.launch { stakeoutPreferences.settings.collect { settings = it } }
-        viewModelScope.launch { collectorPreferences.settings.collect { fixOnly = it.precision.fixOnly } }
+        viewModelScope.launch { collectorPreferences.settings.collect { admitted = it.precision.admitted } }
         viewModelScope.launch {
             // S046/RF-23: el mismo equipo activo que el recolector.
             gear.state.collect { g ->
@@ -643,7 +644,7 @@ class LineStakeoutViewModel @Inject constructor(
         return StakeContext(
             settings,
             design,
-            fixOnly,
+            admitted,
             mode,
             poleHeightM,
             project,

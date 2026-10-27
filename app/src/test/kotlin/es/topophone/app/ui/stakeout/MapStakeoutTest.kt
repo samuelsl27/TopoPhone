@@ -99,7 +99,7 @@ class MapStakeoutTest {
 
     @Test
     fun `S018 RF-14 con la guia apagada el mapa solo lleva el punto de diseno`() {
-        val marker = StakeoutMarkers.of(state(GuidanceState.Off(GuidanceOff.NO_FIX))).shouldNotBeNull()
+        val marker = StakeoutMarkers.of(state(GuidanceState.Off(GuidanceOff.SOLUTION_NOT_ADMITTED))).shouldNotBeNull()
 
         marker.design shouldBe GeoPoint(40.4168, -3.7038)
         marker.tip.shouldBeNull()

@@ -6,6 +6,7 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.LineStakeoutMode
@@ -143,7 +144,17 @@ class StakeoutControllerLineTest {
         settings: StakeoutSettings = StakeoutSettings(mode = StakeMode.BY_DISTANCE),
         fixOnly: Boolean = true,
         designElevationM: Double? = null,
-    ) = StakeContext(settings, target, fixOnly, null, poleHeight, project, calculator, designElevationM, guide)
+    ) = StakeContext(
+        settings,
+        target,
+        if (fixOnly) AdmittedSolutions.FIX_ONLY else AdmittedSolutions.ALL,
+        null,
+        poleHeight,
+        project,
+        calculator,
+        designElevationM,
+        guide,
+    )
 
     private fun epoch(east: Double, north: Double, index: Int = 0, status: SolutionStatus = SolutionStatus.FIX, up: Double = 0.0): Epoch {
         val tip = LocalTangentPlane.offset(origin, east, north, up)
@@ -385,7 +396,7 @@ class StakeoutControllerLineTest {
         controller.onEpoch(epoch(east = 20.0, north = -1.0, index = 1, status = SolutionStatus.FLOAT), context())
         controller.onEpoch(epoch(east = 20.0, north = -1.0, index = 2, status = SolutionStatus.FLOAT), context())
 
-        off() shouldBe GuidanceOff.NO_FIX
+        off() shouldBe GuidanceOff.SOLUTION_NOT_ADMITTED
         alerts.events.count { it == "solutionLost" } shouldBe 1
 
         controller.onEpoch(epoch(east = 20.0, north = -1.0, index = 3), context())
