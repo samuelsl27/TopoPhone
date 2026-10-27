@@ -51,7 +51,7 @@
       Hecho cuando: `CentralPointResolverTest` en verde: UTM contra pyproj (≤ 1 mm), geográficas, ED50, sin posición, fuera del ámbito y fuera de la rejilla ED50.
 - [x] T23. `data`: Room v18 con `central_latitude` y `central_longitude` y `AutoMigration(17, 18)`; nota en la cabecera de `TopoPhoneDatabase`. (RF-32, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 17 → 18 en verde con proyectos de antes que se leen sin punto central y el esquema 18 en `data/schemas/`.
-- [ ] T24. `data`: el repositorio guarda, edita, quita y duplica el punto central, sin redondear. (RF-32, RF-35, RF-38)
+- [x] T24. `data`: el repositorio guarda, edita, quita y duplica el punto central, sin redondear. (RF-32, RF-35, RF-38)
       Hecho cuando: `ProjectRepositoryCentralPointTest` en verde, incluida la copia con el mismo punto.
 - [ ] T25. `data`: el punto central en las copias de seguridad y en los paquetes `.topoproj`. (RF-38)
       Hecho cuando: `CentralPointBackupTest` en verde: copia y restauración, y exportar e importar un paquete conservan el punto; una copia de la v17 se restaura sin él.
