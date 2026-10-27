@@ -42,6 +42,25 @@ class AlignmentValidatorTest {
         AlignmentValidator.validate(elements).shouldBeNull()
     }
 
+    @Test
+    fun `S049 RF-5 el final declarado de cada tramo coincide con su geometria a menos de 1 cm`() {
+        for (axis in AlignmentFixtures.axes) {
+            AlignmentValidator.validate(AlignmentFixtures.alignment(axis).elements, AlignmentFixtures.endsOf(axis)).shouldBeNull()
+        }
+    }
+
+    @Test
+    fun `S049 RF-5 un final declarado a 2 cm de la geometria da el tramo`() {
+        val ends = AlignmentFixtures.endsOf("Eje A").toMutableList()
+        ends[2] = ends[2]!!.first + 0.02 to ends[2]!!.second
+
+        val issue = AlignmentValidator.validate(AlignmentFixtures.alignment("Eje A").elements, ends)
+            .shouldBeInstanceOf<AlignmentIssue.InconsistentElement>()
+
+        issue.element shouldBe 3
+        issue.differenceM shouldBe (0.02 plusOrMinus 1e-6)
+    }
+
     private fun v(pk: Double, z: Double, curve: VerticalCurve = VerticalCurve.None) = VerticalVertex(pk, z, curve)
 
     @Test

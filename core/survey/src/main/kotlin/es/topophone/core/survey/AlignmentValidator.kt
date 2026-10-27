@@ -16,6 +16,25 @@ object AlignmentValidator {
     /** La separación máxima entre el final de un tramo y el principio del siguiente: 1 cm (RF-5, suposición de la spec). */
     const val MAX_GAP_M = 0.01
 
+    /**
+     * Lo mismo, y además que el final de cada tramo calculado con su geometría quede a menos de 1 cm del que declara el fichero
+     * (RF-5): [declaredEnds] son los finales (Este, Norte) en metros, uno por tramo, o null donde el fichero no lo trae.
+     */
+    fun validate(elements: List<AlignmentElement>, declaredEnds: List<Pair<Double, Double>?>): AlignmentIssue? {
+        for (i in elements.indices) {
+            val declared = declaredEnds.getOrNull(i) ?: continue
+            val end = ElementGeometry.stateAt(elements[i], elements[i].length)
+            val difference = hypot(end.easting - declared.first, end.northing - declared.second)
+            if (difference > MAX_GAP_M) return AlignmentIssue.InconsistentElement(element = i + 1, differenceM = difference)
+            if (i < elements.size - 1) {
+                val next = elements[i + 1]
+                val gap = hypot(end.easting - next.startEasting, end.northing - next.startNorthing)
+                if (gap > MAX_GAP_M) return AlignmentIssue.Gap(element = i + 2, gapM = gap)
+            }
+        }
+        return validate(elements)
+    }
+
     /** El primer hueco entre dos tramos, con el número (desde 1) del segundo; null si el eje se encadena. */
     fun validate(elements: List<AlignmentElement>): AlignmentIssue? {
         for (i in 0 until elements.size - 1) {

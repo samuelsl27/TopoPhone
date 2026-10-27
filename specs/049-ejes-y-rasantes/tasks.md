@@ -20,7 +20,7 @@
       Hecho cuando: `PolylineAlignmentBuilderTest` en verde con arcos, una spline rechazada y una polilínea sin cotas.
 - [x] T9. `core:formats`: `LandXmlAlignmentReader.scan` (alineaciones, longitud, PK inicial, rasante, unidad; sin alineaciones, no válido y más de 100 MB). (RF-2, RF-3)
       Hecho cuando: `LandXmlAlignmentReaderTest` en verde para esos casos.
-- [ ] T10. `core:formats`: `LandXmlAlignmentReader.read` (tramos, rasante, orden Norte-Este, tipos no admitidos y D3). (RF-4, RF-5, RF-10)
+- [x] T10. `core:formats`: `LandXmlAlignmentReader.read` (tramos, rasante, orden Norte-Este, tipos no admitidos y D3). (RF-4, RF-5, RF-10)
       Hecho cuando: el mismo test en verde y los ejes de `tools` dan sus tramos.
 - [ ] T11. `core:formats`: `ProfileCsvReader` (columnas PK, cota y Kv con las opciones de S028). (RF-9)
       Hecho cuando: `ProfileCsvReaderTest` en verde.

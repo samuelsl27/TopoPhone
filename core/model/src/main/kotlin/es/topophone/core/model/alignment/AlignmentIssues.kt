@@ -42,3 +42,17 @@ sealed interface ProfileIssue {
     /** Un acuerdo vertical que no cabe entre sus vértices vecinos, o un acuerdo en un extremo, o sin parámetro válido. */
     data class CurveDoesNotFit(override val vertex: Int, override val chainage: Double) : ProfileIssue
 }
+
+/**
+ * Por qué un eje se importa sin su rasante (S049, decisión D3): el eje en planta vale, pero la rasante del fichero no se puede usar.
+ */
+sealed interface ProfileOmission {
+    /** El eje trae más de una rasante y no hay forma de saber cuál es la de diseño. */
+    data object MultipleProfiles : ProfileOmission
+
+    /** Un acuerdo vertical de una clase no admitida (por ejemplo `UnsymParaCurve`, una parábola asimétrica). */
+    data class UnsupportedCurve(val name: String) : ProfileOmission
+
+    /** La rasante no vale para el eje (RF-10): el motivo, con el vértice. */
+    data class Invalid(val issue: ProfileIssue) : ProfileOmission
+}

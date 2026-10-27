@@ -59,6 +59,10 @@ object AlignmentFixtures {
         )
     }
 
+    /** El final (Este, Norte) de cada tramo, como lo declara el fichero. */
+    fun endsOf(axis: String): List<Pair<Double, Double>?> =
+        rows("esperado-tramos.csv").filter { it[0] == axis }.map { it[9].toDouble() to it[10].toDouble() }
+
     fun alignment(axis: String, withProfile: Boolean = true) = Alignment(
         id = axis,
         projectId = "p",
