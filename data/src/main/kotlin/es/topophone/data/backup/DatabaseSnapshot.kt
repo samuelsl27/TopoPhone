@@ -110,17 +110,26 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             where: String = "",
             args: Array<String>? = null,
             transform: (ContentValues) -> Unit = {},
-        ): Int = from.rawQuery("SELECT * FROM $table $where", args).use { copyRows(it, sink, table, transform) }
+        ): Int = from.rawQuery("SELECT * FROM $table $where", args).use { copyRows(it, sink, table, transform = transform) }
 
-        /** Como el anterior, con las filas de [cursor] (por ejemplo, de la propia base de datos de la app). */
-        internal fun copyRows(cursor: Cursor, sink: SupportSQLiteDatabase, table: String, transform: (ContentValues) -> Unit = {}): Int {
+        /**
+         * Como el anterior, con las filas de [cursor] (por ejemplo, de la propia base de datos de la app). [onInserted] recibe el id de
+         * cada fila al insertarla, en el orden de las filas: sirve para enlazar las tablas hijas con un id nuevo (S048/RF-28).
+         */
+        internal fun copyRows(
+            cursor: Cursor,
+            sink: SupportSQLiteDatabase,
+            table: String,
+            onInserted: (Long) -> Unit = {},
+            transform: (ContentValues) -> Unit = {},
+        ): Int {
             var count = 0
             val columns = cursor.columnNames
             while (cursor.moveToNext()) {
                 val values = ContentValues(columns.size)
                 columns.forEachIndexed { i, column -> values.put(column, cursor, i) }
                 transform(values)
-                sink.insert(table, SQLiteDatabase.CONFLICT_ABORT, values)
+                onInserted(sink.insert(table, SQLiteDatabase.CONFLICT_ABORT, values))
                 count++
             }
             return count

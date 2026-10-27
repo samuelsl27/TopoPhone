@@ -454,10 +454,21 @@ class BackupRepository(
             }
         }
         val chunks = "SELECT * FROM cad_chunks WHERE layer_id IN (SELECT id FROM cad_layers WHERE drawing_id IN ($ready))"
+        val oldChunkIds = ArrayDeque<Long>()
+        val chunkIds = mutableMapOf<Long, Long>()
         source(chunks, args).use { cursor ->
-            DatabaseSnapshot.copyRows(cursor, sink, "cad_chunks") { chunk ->
+            DatabaseSnapshot.copyRows(cursor, sink, "cad_chunks", onInserted = { chunkIds[oldChunkIds.removeFirst()] = it }) { chunk ->
+                oldChunkIds.addLast(chunk.getAsLong("id"))
                 chunk.remove("id")
                 chunk.put("layer_id", layerIds.getValue(chunk.getAsString("layer_id")))
+            }
+        }
+        // S048/RF-28: los atributos de los objetos de un GeoPackage siguen a su trozo, que recibe un id nuevo.
+        val attributes = "SELECT * FROM cad_chunk_attributes WHERE chunk_id IN " +
+            "(SELECT c.id FROM cad_chunks c JOIN cad_layers l ON l.id = c.layer_id WHERE l.drawing_id IN ($ready))"
+        source(attributes, args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "cad_chunk_attributes") { row ->
+                row.put("chunk_id", chunkIds.getValue(row.getAsLong("chunk_id")))
             }
         }
     }

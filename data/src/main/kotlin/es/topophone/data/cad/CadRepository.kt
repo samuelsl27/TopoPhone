@@ -8,11 +8,14 @@ import es.topophone.core.model.cad.CadChunkCodec
 import es.topophone.core.model.cad.CadColor
 import es.topophone.core.model.cad.CadDrawing
 import es.topophone.core.model.cad.CadEntity
+import es.topophone.core.model.cad.CadEntityRef
 import es.topophone.core.model.cad.CadExtent
 import es.topophone.core.model.cad.CadOrigin
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.cad.DesignLayer
 import es.topophone.core.model.cad.DesignLayerKind
+import es.topophone.core.model.cad.GpkgAttributesCodec
+import es.topophone.core.model.cad.GpkgValue
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.data.db.TopoPhoneDatabase
@@ -72,6 +75,12 @@ interface CadRepository {
     suspend fun chunksIn(layerIds: Collection<String>, area: CadExtent): List<CadChunkContent>
 
     suspend fun chunk(chunkId: Long): CadChunkContent?
+
+    /**
+     * Los atributos del elemento [ref] de un dibujo de GeoPackage, por nombre de columna y en su orden (S048/RF-20). Vacío si el
+     * elemento viene de un DXF, si no tiene atributos o si su bloque no se puede leer.
+     */
+    suspend fun attributes(ref: CadEntityRef): Map<String, GpkgValue>
 
     /**
      * Como [chunksIn], pero los trozos se decodifican uno a uno al recorrer la secuencia (y otra vez en cada recorrido), para no tener
@@ -137,6 +146,9 @@ interface CadDao {
 
     @Query("SELECT * FROM cad_chunks WHERE id = :chunkId")
     suspend fun chunk(chunkId: Long): CadChunkEntity?
+
+    @Query("SELECT * FROM cad_chunk_attributes WHERE chunk_id = :chunkId")
+    suspend fun attributes(chunkId: Long): CadChunkAttributesEntity?
 }
 
 class RoomCadRepository(private val database: TopoPhoneDatabase) : CadRepository {
@@ -208,6 +220,15 @@ class RoomCadRepository(private val database: TopoPhoneDatabase) : CadRepository
     }
 
     override suspend fun chunk(chunkId: Long): CadChunkContent? = dao.chunk(chunkId)?.toContent()
+
+    override suspend fun attributes(ref: CadEntityRef): Map<String, GpkgValue> {
+        val block = dao.attributes(ref.chunkId) ?: return emptyMap()
+        return try {
+            GpkgAttributesCodec.decode(block.data).takeIf { ref.index in 0 until it.rowCount }?.row(ref.index).orEmpty()
+        } catch (e: IllegalArgumentException) {
+            emptyMap()
+        }
+    }
 
     override suspend fun chunkSequenceIn(layerIds: Collection<String>, area: CadExtent): Sequence<CadChunkContent> {
         if (layerIds.isEmpty()) return emptySequence()
