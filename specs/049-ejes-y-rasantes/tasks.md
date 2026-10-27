@@ -32,7 +32,7 @@
       Hecho cuando: `AlignmentRepositoryTest` y `AlignmentImporterTest` en verde, incluido fallar sin dejar nada.
 - [x] T15. `data`: copias de seguridad, paquetes y log sin nombres ni coordenadas. (RF-16)
       Hecho cuando: `AlignmentBackupTest` en verde.
-- [ ] T16. `data`: guardar un punto calculado sobre el eje con su PK y desplazamiento, en una transacción. (RF-22)
+- [x] T16. `data`: guardar un punto calculado sobre el eje con su PK y desplazamiento, en una transacción. (RF-22)
       Hecho cuando: `PointOnAxisTest` en verde.
 - [ ] T17. `app`: «Importar eje» en los dos menús, `AlignmentImportViewModel` y pantalla con el origen LandXML (lista de alineaciones, rechazos y selección). (RF-1 a RF-3)
       Hecho cuando: `AlignmentImportViewModelTest` y `AlignmentImportScreenTest` en verde para esos casos.
