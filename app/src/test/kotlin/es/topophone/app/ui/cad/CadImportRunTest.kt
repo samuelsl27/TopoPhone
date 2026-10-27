@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.points.ImportSource
+import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.cad.CadIgnored
 import es.topophone.core.model.cad.CadIgnoredReason
@@ -73,7 +74,8 @@ class CadImportRunTest {
     }
 
     private fun open(source: ImportSource, repository: CadRepository = cad): CadImportViewModel {
-        val vm = CadImportViewModel(cad, CadDrawingImporter(repository), projects, points, viewports, dispatcher, log)
+        val vm =
+            CadImportViewModel(cad, CadDrawingImporter(repository), projects, ProjectCenterProvider(points, viewports), dispatcher, log)
         vm.start(projectId, source)
         vm.settled()
         return vm

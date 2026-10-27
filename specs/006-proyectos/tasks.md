@@ -55,7 +55,7 @@
       Hecho cuando: `ProjectRepositoryCentralPointTest` en verde, incluida la copia con el mismo punto.
 - [x] T25. `data`: el punto central en las copias de seguridad y en los paquetes `.topoproj`. (RF-38)
       Hecho cuando: `CentralPointBackupTest` en verde: copia y restauración, y exportar e importar un paquete conservan el punto; una copia de la v17 se restaura sin él.
-- [ ] T26. `app`: `ProjectCenterProvider` como único sitio que calcula el centro; los ViewModels de importación de S040 y S042 lo usan en lugar de su `centerOf`. (RF-37)
+- [x] T26. `app`: `ProjectCenterProvider` como único sitio que calcula el centro; los ViewModels de importación de S040 y S042 lo usan en lugar de su `centerOf`. (RF-37)
       Hecho cuando: `ProjectCenterProviderTest` en verde y los tests de S040 y S042 sin cambios de comportamiento, con un caso de aviso de distancia medido desde el punto central.
 - [ ] T27. `app`: sección «Punto central» del formulario (sin fijar, fijado, quitar) y escribir coordenadas, con sus textos en es y en. (RF-32, RF-33, RF-34, RF-35, RNF-T7, RNF-T8)
       Hecho cuando: `ProjectFormCentralPointTest` en verde para nuevo y edición, con rechazo y motivo, zonas de 56 dp y etiquetas de TalkBack.

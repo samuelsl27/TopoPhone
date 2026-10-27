@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.points.ImportSource
+import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.model.cad.CadColor
 import es.topophone.core.model.cad.CadDrawing
 import es.topophone.core.model.cad.CadSourceCrs
@@ -18,6 +19,7 @@ import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
+import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
@@ -76,7 +78,7 @@ class CadImportViewModelTest {
     }
 
     private fun open(source: ImportSource, project: String = projectId): CadImportViewModel {
-        val vm = CadImportViewModel(cad, CadDrawingImporter(cad), projects, pointsRepository, viewports, dispatcher)
+        val vm = CadImportViewModel(cad, CadDrawingImporter(cad), projects, ProjectCenterProvider(pointsRepository, viewports), dispatcher)
         vm.start(project, source)
         vm.settled()
         return vm
@@ -129,7 +131,7 @@ class CadImportViewModelTest {
                 }
             }
         }
-        val vm = CadImportViewModel(cad, CadDrawingImporter(cad), projects, pointsRepository, viewports, dispatcher)
+        val vm = CadImportViewModel(cad, CadDrawingImporter(cad), projects, ProjectCenterProvider(pointsRepository, viewports), dispatcher)
         vm.maxBytes = 200_000
 
         vm.start(projectId, endless)
@@ -292,6 +294,27 @@ class CadImportViewModelTest {
     }
 
     @Test
+    fun `S006 RF-37 el aviso de distancia se mide desde el punto central y no desde los puntos`() {
+        pointsRepository.points.value = listOf(point(37.3891, -5.9845)) // sus puntos están en Sevilla
+        setCentralPoint(CentralPoint(40.4168, -3.7038)) // pero el centro que fijó el usuario está en Madrid
+
+        val state = open("r2000.dxf").state.value
+
+        (state.distanceKm!! < 1.0) shouldBe true
+        state.farWarning shouldBe false
+    }
+
+    @Test
+    fun `S006 RF-37 sin puntos ni encuadre el punto central basta para medir la distancia`() {
+        setCentralPoint(CentralPoint(37.3891, -5.9845))
+
+        val state = open("r2000.dxf").state.value
+
+        (state.distanceKm!! > 300.0) shouldBe true
+        state.farWarning shouldBe true
+    }
+
+    @Test
     fun `S040 RF-20 un fichero ya importado con el mismo nombre avisa y pide confirmar`() {
         runBlocking {
             cad.begin(CadDrawing("d1", projectId, "r2000.dxf", 1, CadSourceCrs.Project, LinearUnit.METRE, true, true))
@@ -350,6 +373,11 @@ class CadImportViewModelTest {
 
         state.outsideArea shouldBe true
         state.canImport shouldBe false
+    }
+
+    /** Fija el punto central del proyecto (S006/RF-37). */
+    private fun setCentralPoint(centralPoint: CentralPoint, project: String = projectId) = runBlocking {
+        projects.update(project, projects.project(project)!!.toDraft().copy(centralPoint = centralPoint))
     }
 
     private fun point(lat: Double, lon: Double) = Point.measured(

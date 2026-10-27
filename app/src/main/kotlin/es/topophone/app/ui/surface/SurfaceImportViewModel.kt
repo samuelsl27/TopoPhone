@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
 import es.topophone.app.ui.points.ImportSource
+import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.formats.landxml.LandXmlSurfaceInfo
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.log.AppLog
@@ -15,8 +16,6 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.surface.SurfaceExtent
 import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.SurfaceProjector
-import es.topophone.data.map.MapViewportRepository
-import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.surface.SurfaceImportFailure
 import es.topophone.data.surface.SurfaceImportResult
@@ -104,8 +103,7 @@ class SurfaceImportViewModel @Inject constructor(
     private val surfaces: SurfaceRepository,
     private val importer: SurfaceImporter,
     private val projects: ProjectRepository,
-    private val points: PointRepository,
-    private val viewports: MapViewportRepository,
+    private val centers: ProjectCenterProvider,
     @param:IoDispatcher private val io: CoroutineDispatcher,
     private val log: AppLog = AppLog.NONE,
 ) : ViewModel() {
@@ -141,7 +139,7 @@ class SurfaceImportViewModel @Inject constructor(
         if (size != null && size > maxBytes) return problem(SurfaceFileProblem.TOO_BIG)
         if (size == 0L) return problem(SurfaceFileProblem.EMPTY)
         val taken = surfaces.surfaces(projectId).first().map { it.fileName }
-        projectCenter = centerOf(project)
+        projectCenter = centers.center(project)?.let { it.latitudeDeg to it.longitudeDeg } // S006/RF-37: un único cálculo
         mutable.value = SurfaceImportUiState(
             stage = SurfaceImportStage.CONFIG,
             fileName = source.name,
@@ -203,14 +201,6 @@ class SurfaceImportViewModel @Inject constructor(
         SurfaceImportFailure.MALFORMED -> SurfaceFileProblem.NOT_XML
         SurfaceImportFailure.NO_SURFACE -> SurfaceFileProblem.NO_SURFACE
         else -> SurfaceFileProblem.UNREADABLE
-    }
-
-    /** La posición del proyecto: el centro de sus puntos o el de su encuadre del mapa; sin ninguno no se conoce y no se avisa (RF-9). */
-    private suspend fun centerOf(project: Project): Pair<Double, Double>? {
-        val grounds = points.points(project.id).first().map { it.coordinates.ground }
-        if (grounds.isNotEmpty()) return grounds.map { it.latitudeDeg }.average() to grounds.map { it.longitudeDeg }.average()
-        viewports.viewport(project.id)?.let { return it.latitudeDeg to it.longitudeDeg }
-        return null
     }
 
     /** Elige la superficie [index] de las del fichero (RF-5). */

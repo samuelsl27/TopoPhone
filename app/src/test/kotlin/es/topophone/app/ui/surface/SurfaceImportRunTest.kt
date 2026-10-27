@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.points.ImportSource
+import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.log.LogLevel
 import es.topophone.core.model.project.ProjectDefaults
@@ -69,7 +70,15 @@ class SurfaceImportRunTest {
     }
 
     private fun open(source: ImportSource, repository: SurfaceRepository = surfaces): SurfaceImportViewModel {
-        val vm = SurfaceImportViewModel(surfaces, SurfaceImporter(repository), projects, points, viewports, dispatcher, log)
+        val vm =
+            SurfaceImportViewModel(
+                surfaces,
+                SurfaceImporter(repository),
+                projects,
+                ProjectCenterProvider(points, viewports),
+                dispatcher,
+                log,
+            )
         vm.start(projectId, source)
         vm.settled()
         return vm

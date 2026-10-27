@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
 import es.topophone.app.ui.points.ImportSource
+import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.formats.dxf.DxfFileKind
 import es.topophone.core.formats.dxf.DxfProbe
 import es.topophone.core.model.cad.CadEntity
@@ -25,8 +26,6 @@ import es.topophone.data.cad.CadDrawingImporter
 import es.topophone.data.cad.CadImportFailure
 import es.topophone.data.cad.CadImportResult
 import es.topophone.data.cad.CadRepository
-import es.topophone.data.map.MapViewportRepository
-import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import java.io.IOException
 import java.io.OutputStream
@@ -105,8 +104,7 @@ class CadImportViewModel @Inject constructor(
     private val cad: CadRepository,
     private val importer: CadDrawingImporter,
     private val projects: ProjectRepository,
-    private val points: PointRepository,
-    private val viewports: MapViewportRepository,
+    private val centers: ProjectCenterProvider,
     @param:IoDispatcher private val io: CoroutineDispatcher,
     private val log: AppLog = AppLog.NONE,
 ) : ViewModel() {
@@ -155,7 +153,7 @@ class CadImportViewModel @Inject constructor(
             is DxfProbe.Dwg -> return problem(CadFileProblem.DWG, probe.version)
         }
         val taken = cad.drawings(projectId).first().map { it.drawing.fileName }
-        projectCenter = centerOf(project)
+        projectCenter = centers.center(project)?.let { it.latitudeDeg to it.longitudeDeg } // S006/RF-37: un único cálculo
         mutable.value = CadImportUiState(
             stage = CadImportStage.CONFIG,
             fileName = source.name,
@@ -201,14 +199,6 @@ class CadImportViewModel @Inject constructor(
         recompute()
         // La exploración acaba cuando ya están la extensión y los avisos, para que nadie vea un dibujo a medias calcular.
         mutable.update { it.copy(scanning = false) }
-    }
-
-    /** La posición del proyecto: el centro de sus puntos o el de su encuadre del mapa; sin ninguno no se conoce y no se avisa (RF-10). */
-    private suspend fun centerOf(project: Project): Pair<Double, Double>? {
-        val grounds = points.points(project.id).first().map { it.coordinates.ground }
-        if (grounds.isNotEmpty()) return grounds.map { it.latitudeDeg }.average() to grounds.map { it.longitudeDeg }.average()
-        viewports.viewport(project.id)?.let { return it.latitudeDeg to it.longitudeDeg }
-        return null
     }
 
     fun setSource(source: CadSourceCrs) = change { it.copy(source = source) }

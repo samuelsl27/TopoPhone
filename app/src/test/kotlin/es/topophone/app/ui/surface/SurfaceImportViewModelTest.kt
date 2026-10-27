@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.points.ImportSource
+import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.point.GeodeticPosition
@@ -14,6 +15,7 @@ import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointQuality
+import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
@@ -76,7 +78,14 @@ class SurfaceImportViewModelTest {
     }
 
     private fun open(source: ImportSource, project: String = projectId): SurfaceImportViewModel {
-        val vm = SurfaceImportViewModel(surfaces, SurfaceImporter(surfaces), projects, pointsRepository, viewports, dispatcher)
+        val vm =
+            SurfaceImportViewModel(
+                surfaces,
+                SurfaceImporter(surfaces),
+                projects,
+                ProjectCenterProvider(pointsRepository, viewports),
+                dispatcher,
+            )
         vm.start(project, source)
         vm.settled()
         return vm
@@ -144,7 +153,14 @@ class SurfaceImportViewModelTest {
                 }
             }
         }
-        val vm = SurfaceImportViewModel(surfaces, SurfaceImporter(surfaces), projects, pointsRepository, viewports, dispatcher)
+        val vm =
+            SurfaceImportViewModel(
+                surfaces,
+                SurfaceImporter(surfaces),
+                projects,
+                ProjectCenterProvider(pointsRepository, viewports),
+                dispatcher,
+            )
         vm.maxBytes = 200_000
 
         vm.start(projectId, endless)
@@ -275,6 +291,22 @@ class SurfaceImportViewModelTest {
     fun `S042 RF-9 el centro del proyecto puede salir de su encuadre del mapa`() {
         runBlocking { viewports.save(projectId, MapViewport(37.3891, -5.9845, 15.0)) }
 
+        open("dos-superficies.xml").state.value.farWarning shouldBe true
+    }
+
+    @Test
+    fun `S006 RF-37 el aviso de distancia se mide desde el punto central`() {
+        pointsRepository.points.value = listOf(point(37.3891, -5.9845))
+        runBlocking {
+            projects.update(projectId, projects.project(projectId)!!.toDraft().copy(centralPoint = CentralPoint(40.4169, -3.7038)))
+        }
+
+        open("dos-superficies.xml").state.value.farWarning shouldBe false
+
+        runBlocking {
+            projects.update(projectId, projects.project(projectId)!!.toDraft().copy(centralPoint = CentralPoint(37.3891, -5.9845)))
+        }
+        pointsRepository.points.value = emptyList()
         open("dos-superficies.xml").state.value.farWarning shouldBe true
     }
 
