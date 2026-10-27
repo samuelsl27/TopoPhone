@@ -6,7 +6,7 @@
       Hecho cuando: el script genera `fixtures/nmea/sintetico/tipos-mezclados.nmea` y su `.esperado.csv`, y su test de `tools` está en verde.
 - [x] T2. `core:model`: `SolutionType`, `AdmittedSolutions` (toggle con confirmación, último tipo, codificación) y `PrecisionControl.admitted` con `check` por tipo (`PrecisionFailure.NOT_FIX` conserva su nombre); los términos nuevos en `docs/glosario.md`. (RF-1 a RF-4, RF-6, RF-7)
       Hecho cuando: `AdmittedSolutionsTest` y `PrecisionControlTest` en verde y `core:model` compila con los usos adaptados.
-- [ ] T3. `core:survey`: `SolutionTypes.of(SolutionStatus)`. (RF-18)
+- [x] T3. `core:survey`: `SolutionTypes.of(SolutionStatus)`. (RF-18)
       Hecho cuando: `SolutionTypesTest` en verde: FIX, FLOAT, SINGLE, DGPS como SINGLE y ESTIMATED y NONE sin tipo.
 - [ ] T4. `core:survey`: `PointMeasurement` instantánea con `admitted` en lugar de `fixOnly`. (RF-8; D1)
       Hecho cuando: `PointMeasurementAdmittedTest` (instantánea) en verde y los tests de S010 adaptados.
