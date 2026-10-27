@@ -539,7 +539,7 @@
     <string name="collector_no_accuracy">—</string>
     <string name="collector_name_taken">There is already a point with that name.</string>
     <string name="collector_name_invalid">Enter a name for the point.</string>
-    <string name="collector_solution_lost">Solution lost: epochs without FIX are not counted.</string>
+    <string name="collector_solution_lost">Degraded solution: epochs of a worse or non-admitted type are not counted.</string>
     <string name="collector_no_data">No data from the receiver: the measurement was cancelled.</string>
     <string name="collector_saved">Point %1$s saved.</string>
     <string name="precision_title">Precision control</string>

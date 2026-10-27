@@ -33,7 +33,6 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
-import es.topophone.core.model.point.SolutionType
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutNames
 import es.topophone.core.model.point.StakeoutRef
@@ -59,6 +58,7 @@ import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.SavedPole
+import es.topophone.core.survey.SolutionTypes
 import es.topophone.core.survey.StakeoutDiff
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.TiltGuide
@@ -857,8 +857,8 @@ class CollectorViewModel @Inject constructor(
                 )
             }
             MeasurementUpdate.SolutionDegraded -> {
-                log.warning(LogCategory.POINTS, "Solución perdida durante la medida de ${measuredName()}") // S014/RF-5
-                alerts.solutionLost() // S010/RF-10
+                log.warning(LogCategory.POINTS, "Solución degradada durante la medida de ${measuredName()}") // S014/RF-5
+                alerts.solutionLost() // S010/RF-10; S047/RF-10: el mismo sonido y vibración para la solución degradada
                 run.update { it.copy(solutionLost = true) }
             }
             is MeasurementUpdate.TiltLost -> {
@@ -909,7 +909,7 @@ class CollectorViewModel @Inject constructor(
                 stopMeasuring()
                 val result = update.result
                 val failures = state.value.settings.precision.check(
-                    provisionalType(result.solution), // S047 T11
+                    SolutionTypes.of(result.solution), // S047/RF-6, RF-7: null (sin tipo) tampoco se admite
                     result.horizontalM,
                     result.verticalM,
                     result.maxTiltRad, // S016/RF-20: null si el modo no usa la inclinación
@@ -929,13 +929,6 @@ class CollectorViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    /** Provisional hasta S047 T3 y T11: FIX y FLOAT son ellos mismos y lo demás cuenta como SINGLE. */
-    private fun provisionalType(status: SolutionStatus): SolutionType = when (status) {
-        SolutionStatus.FIX -> SolutionType.FIX
-        SolutionStatus.FLOAT -> SolutionType.FLOAT
-        else -> SolutionType.SINGLE
     }
 
     private fun save(result: MeasurementResult, failures: Set<PrecisionFailure>) {

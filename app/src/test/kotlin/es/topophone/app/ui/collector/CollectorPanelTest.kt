@@ -229,7 +229,7 @@ class CollectorPanelTest {
     fun `S010 RF-10 si se pierde el FIX se avisa`() {
         show(ready.copy(measuring = true, progress = MeasureProgress(1.0, 5.0), solutionLost = true))
 
-        compose.onNodeWithText("Solución perdida: no cuentan las épocas sin FIX.").assertIsDisplayed()
+        compose.onNodeWithText("Solución degradada: no cuentan las épocas de un tipo peor o no admitido.").assertIsDisplayed()
     }
 
     @Test

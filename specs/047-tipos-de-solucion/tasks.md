@@ -22,7 +22,7 @@
       Hecho cuando: `CollectorPreferencesTest` en verde: clave nueva, antigua `true` y `false`, ninguna y valores desconocidos; la clave antigua se borra al guardar.
 - [x] T10. `app`: `StakeoutController`, `StakeoutViewModel` y `LineStakeoutViewModel` con `admitted`; la guía se apaga con `SOLUTION_NOT_ADMITTED`. (RF-12, RF-13)
       Hecho cuando: `StakeoutControllerAdmittedTest` en verde y los tests de S018, S019 y S041 adaptados.
-- [ ] T11. `app`: `CollectorViewModel` con `admitted`: la comprobación del punto, el aviso «Solución degradada», el modo automático que omite y los datos que se guardan. (RF-6, RF-7, RF-10, RF-11, RF-15)
+- [x] T11. `app`: `CollectorViewModel` con `admitted`: la comprobación del punto, el aviso «Solución degradada», el modo automático que omite y los datos que se guardan. (RF-6, RF-7, RF-10, RF-11, RF-15)
       Hecho cuando: `CollectorViewModelAdmittedTest` en verde y los tests de S010 y S017 adaptados.
 - [ ] T12. `app`: el control de precisión con las tres casillas, la confirmación de FLOAT y SINGLE y el último tipo, con sus textos en es y en. (RF-1, RF-3, RF-4, RNF-T7, RNF-T8)
       Hecho cuando: `PrecisionDialogTest` en verde, con zonas de 56 dp y etiquetas de TalkBack.

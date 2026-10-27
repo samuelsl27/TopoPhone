@@ -526,7 +526,7 @@ class CollectorViewModelTest {
         sendEpoch(2, status = 5)
 
         runBlocking { withTimeout(5_000) { while (log.messages.isEmpty()) kotlinx.coroutines.delay(10) } }
-        log.entries.first() shouldBe Triple(LogLevel.WARNING, LogCategory.POINTS, "Solución perdida durante la medida de 1")
+        log.entries.first() shouldBe Triple(LogLevel.WARNING, LogCategory.POINTS, "Solución degradada durante la medida de 1")
         vm.cancel()
     }
 
