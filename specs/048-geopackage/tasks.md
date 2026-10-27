@@ -12,7 +12,7 @@
       Hecho cuando: `GpkgFileKindTest` en verde: GeoPackage, SQLite que no lo es, texto, vacío, dañado y más de 100 MB.
 - [x] T5. `core:formats`: `GpkgGeometry` (cabecera del blob y WKB ISO y EWKB, Z/M/ZM, múltiples, vacío y curvas). (RF-17, RF-18, RF-19)
       Hecho cuando: `GpkgGeometryTest` en verde contra los blobs de `tools`.
-- [ ] T6. `core:formats`: `GpkgCrsCatalog` (EPSG a `CadSourceCrs`, unidad y «no disponible»; WGS 84 como ETRS89 con aviso). (RF-8, RF-9, RF-10)
+- [x] T6. `core:formats`: `GpkgCrsCatalog` (EPSG a `CadSourceCrs`, unidad y «no disponible»; WGS 84 como ETRS89 con aviso). (RF-8, RF-9, RF-10)
       Hecho cuando: `GpkgCrsCatalogTest` en verde contra la lista de pyproj.
 - [ ] T7. `core:survey`: `CadProjector` con origen geográfico y motivos de ignorado por vértice. (RF-8, RF-11)
       Hecho cuando: `CadProjectorGeographicTest` en verde (≤ 1 mm con pyproj, ida y vuelta < 0,1 mm) y los tests de S040 sin cambios.
