@@ -10,6 +10,8 @@ un CSV de rasante y los ficheros de lo esperado:
   la posición al PK y al desplazamiento).
 - esperado-rasantes.csv: por eje y vértice de la rasante, PK, cota, el acuerdo (`none`, `para` o `circ`), su longitud horizontal (parábola)
   o la de su arco (círculo) y su radio.
+- pi-vertices.csv y esperado-pi.csv: un eje dado por vértices con su radio y la longitud de sus clotoides (RF-8), sus tramos con inicio y
+  fin (PK inicial 250), calculados por geometría de tangentes y comprobados en el propio script.
 - esperado-resumen.csv: por fichero y alineación, longitud, PK inicial, si trae rasante y el estado que debe dar la importación.
 
 Cómo se calcula (otro algoritmo que el del móvil, para que la coincidencia no sea una tautología):
@@ -226,6 +228,70 @@ AXIS_C = Axis("Eje C", 441000.0, 4474000.0, 90.0, 0.0, (Element("line", 200.0),)
 AXES = (AXIS_A, AXIS_B, AXIS_C)
 
 
+# ------------------------------------------------------------------------------------------- definición por vértices (RF-8)
+PI_VERTICES = (
+    (440000.0, 4474000.0, 0.0, 0.0),
+    (440300.0, 4474100.0, 150.0, 60.0),
+    (440500.0, 4473900.0, 200.0, 0.0),
+    (440900.0, 4473950.0, 100.0, 40.0),
+    (441200.0, 4474300.0, 0.0, 0.0),
+)
+PI_START_PK = 250.0
+
+
+def pi_elements() -> list[tuple[Element, State]]:
+    """Los tramos de un eje dado por vértices con radio y clotoides simétricas, con su estado de inicio.
+
+    Cada curva se coloca por geometría: el inicio de la entrada está a la tangente T del vértice, con T = (R + p)·tan(Δ/2) + k, y se
+    comprueba que el final de la salida cae sobre la alineación siguiente a T del vértice (el cálculo de T es independiente del encadenado).
+    """
+    pts = PI_VERTICES
+    az = [math.atan2(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:])]
+    dist = [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:])]
+    tangents = [0.0] * len(pts)
+    curves = {}
+    for i in range(1, len(pts) - 1):
+        _, _, radius, ls = pts[i]
+        delta = az[i - 1] - az[i]  # positivo a la izquierda
+        sign = 1.0 if delta > 0 else -1.0
+        ang = abs(delta)
+        if radius == 0.0:
+            continue
+        theta_s = ls / (2 * radius)
+        p = k = 0.0
+        if ls > 0:
+            sx, sy, _ = local(Element("spiral", ls, 0.0, 1 / radius), ls)
+            p, k = sy - radius * (1 - math.cos(theta_s)), sx - radius * math.sin(theta_s)
+        tangents[i] = (radius + p) * math.tan(ang / 2) + k
+        curves[i] = (sign, ang, radius, ls, theta_s)
+    out: list[tuple[Element, State]] = []
+    pk = PI_START_PK
+    state = State(pts[0][0], pts[0][1], math.pi / 2 - az[0], pk)
+    for seg in range(len(pts) - 1):
+        line_len = dist[seg] - tangents[seg] - tangents[seg + 1]
+        assert line_len >= 0, "las tangentes se solapan"
+        if line_len > 1e-9:
+            e = Element("line", line_len)
+            out.append((e, state))
+            state = advance(state, e, e.length)
+        nxt = seg + 1
+        if nxt in curves:
+            sign, ang, radius, ls, theta_s = curves[nxt]
+            k = sign / radius
+            parts = []
+            if ls > 0:
+                parts.append(Element("spiral", ls, 0.0, k))
+            parts.append(Element("arc", radius * (ang - 2 * theta_s), k, k))
+            if ls > 0:
+                parts.append(Element("spiral", ls, k, 0.0))
+            for e in parts:
+                out.append((e, state))
+                state = advance(state, e, e.length)
+            end_vertex = (pts[nxt][0] + tangents[nxt] * math.sin(az[nxt]), pts[nxt][1] + tangents[nxt] * math.cos(az[nxt]))
+            assert math.hypot(state.east - end_vertex[0], state.north - end_vertex[1]) < 1e-8, "la salida no cae sobre la alineación"
+    return out
+
+
 def sample_pks(axis: Axis) -> list[float]:
     states = boundaries(axis)
     pks = [st.pk for st in states]
@@ -407,10 +473,17 @@ def expected() -> dict[str, str]:
             d = _curve_span(a.profile, i)[2] if v.curve else None
             kind = "none" if v.curve is None else v.curve[0]
             rasantes.append(",".join([a.name, str(i + 1), A(v.pk), A(v.z), kind, "" if d is None else A(d["length"]), "" if kind != "circ" else A(d["r"])]))
+    pi_rows = ["tramo,tipo,pk_inicio,longitud,k_inicio,k_fin,este_inicio,norte_inicio,este_fin,norte_fin"]
+    for i, (e, st) in enumerate(pi_elements()):
+        end = advance(st, e, e.length)
+        pi_rows.append(",".join([str(i + 1), e.kind, A(st.pk), A(e.length), A(e.k0), A(e.k1), A(st.east), A(st.north), A(end.east), A(end.north)]))
+    pi_vertices = ["vertice,este,norte,radio,longitud_clotoide"] + [",".join([str(i + 1)] + [A(v) for v in row]) for i, row in enumerate(PI_VERTICES)]
     resumen = ["archivo,alineacion,longitud,pk_inicial,rasante,estado"] + [",".join(r) for r in summary_rows()]
     return {
         "esperado-tramos.csv": "\n".join(tramos) + "\n",
         "esperado-puntos.csv": "\n".join(puntos) + "\n",
+        "pi-vertices.csv": "\n".join(pi_vertices) + "\n",
+        "esperado-pi.csv": "\n".join(pi_rows) + "\n",
         "esperado-rasantes.csv": "\n".join(rasantes) + "\n",
         "esperado-resumen.csv": "\n".join(resumen) + "\n",
     }

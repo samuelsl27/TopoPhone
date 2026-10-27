@@ -14,7 +14,7 @@
       Hecho cuando: `VerticalProfileEvalTest` en verde a menos de 1 mm.
 - [x] T6. `core:survey`: `AlignmentValidator` y `ProfileValidator`. (RF-5, RF-10)
       Hecho cuando: `AlignmentValidatorTest` y `ProfileValidatorTest` en verde con el tramo o el vértice y el motivo.
-- [ ] T7. `core:survey`: `PiAlignmentBuilder` (vértices con radio y clotoides) y rasante a mano con Kv (D4). (RF-8)
+- [x] T7. `core:survey`: `PiAlignmentBuilder` (vértices con radio y clotoides) y rasante a mano con Kv (D4). (RF-8)
       Hecho cuando: `PiAlignmentBuilderTest` en verde contra `tools`.
 - [ ] T8. `core:survey`: `PolylineAlignmentBuilder` (inicio en el extremo más cercano, reconstrucción de arcos de D1, rasante sin acuerdos). (RF-6, RF-7)
       Hecho cuando: `PolylineAlignmentBuilderTest` en verde con arcos, una spline rechazada y una polilínea sin cotas.

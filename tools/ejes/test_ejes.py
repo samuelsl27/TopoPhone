@@ -155,3 +155,13 @@ def test_el_csv_de_rasante_lleva_la_coma_decimal_y_el_kv_solo_en_el_vertice_con_
     assert lines[0] == "PK;Cota;Kv"
     assert lines[1] == "1000,5;50,0;"
     assert lines[2] == "1200,0;52,0;2000,0"
+
+
+def test_el_eje_por_vertices_se_encadena_y_acaba_en_el_ultimo_vertice():
+    rows = rows_of("esperado-pi.csv")
+    for a, b in zip(rows, rows[1:]):
+        assert math.hypot(float(a["este_fin"]) - float(b["este_inicio"]), float(a["norte_fin"]) - float(b["norte_inicio"])) < 1e-6
+        assert float(a["pk_inicio"]) + float(a["longitud"]) == pytest.approx(float(b["pk_inicio"]), abs=1e-9)
+    last_vertex = rows_of("pi-vertices.csv")[-1]
+    assert float(rows[-1]["este_fin"]) == pytest.approx(float(last_vertex["este"]), abs=1e-6)
+    assert float(rows[-1]["norte_fin"]) == pytest.approx(float(last_vertex["norte"]), abs=1e-6)
