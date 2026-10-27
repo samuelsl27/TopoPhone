@@ -1,6 +1,9 @@
 package es.topophone.app.ui.projects
 
 import androidx.compose.runtime.Composable
+import es.topophone.app.ui.alignment.AlignmentImportActions
+import es.topophone.app.ui.alignment.AlignmentImportScreen
+import es.topophone.app.ui.alignment.AlignmentImportUiState
 import es.topophone.app.ui.cad.CadImportActions
 import es.topophone.app.ui.cad.CadImportScreen
 import es.topophone.app.ui.cad.CadImportUiState
@@ -82,6 +85,9 @@ sealed interface SurveyPage {
 
     /** Importar un GeoPackage: el proyecto y la dirección del fichero elegido (S048/RF-1). */
     data class ImportGpkg(val projectId: String, val fileUri: String) : SurveyPage
+
+    /** Importar los ejes de un LandXML: el proyecto y la dirección del fichero elegido (S049/RF-1). */
+    data class ImportAlignment(val projectId: String, val fileUri: String) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -113,6 +119,8 @@ class SurveyNavigation(
     val onImportSurface: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de importación de un GeoPackage, con el fichero que eligió el usuario (S048/RF-1). */
     val onImportGpkg: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
+    /** La pantalla de importación de los ejes de un LandXML, con el fichero que eligió el usuario (S049/RF-1). */
+    val onImportAlignment: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
@@ -136,6 +144,7 @@ data class SurveyUiState(
     val import: PointImportUiState = PointImportUiState(),
     val cadImport: CadImportUiState = CadImportUiState(),
     val gpkgImport: GpkgImportUiState = GpkgImportUiState(),
+    val alignmentImport: AlignmentImportUiState = AlignmentImportUiState(),
     val surfaceImport: SurfaceImportUiState = SurfaceImportUiState(),
 )
 
@@ -188,6 +197,8 @@ fun SurveyPageScreen(
         is SurveyPage.ImportSurface ->
             SurfaceImportScreen(themeState, onToggleSun, state.surfaceImport, SurfaceImportActions(), navigation.onBack)
         is SurveyPage.ImportGpkg -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
+        is SurveyPage.ImportAlignment ->
+            AlignmentImportScreen(themeState, onToggleSun, state.alignmentImport, AlignmentImportActions(), navigation.onBack)
         is SurveyPage.StakeoutReport ->
             StakeoutReportScreen(themeState, onToggleSun, state.stakeoutReport, StakeoutReportActions(), navigation.onBack)
     }

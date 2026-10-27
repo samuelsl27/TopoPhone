@@ -10,6 +10,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.export.ExportResult
 import es.topophone.app.ui.points.OBJECTS_MENU_TAG
@@ -233,7 +234,7 @@ class StakeoutReportScreenTest {
         }
 
         compose.onNodeWithTag(projectMenuTag("p1")).performClick()
-        compose.onNodeWithText("Informe de replanteo").performClick()
+        compose.onNodeWithText("Informe de replanteo").performScrollTo().performClick()
 
         opened shouldBe "p1"
     }

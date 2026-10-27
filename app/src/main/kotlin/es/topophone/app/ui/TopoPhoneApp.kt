@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import es.topophone.app.ui.alignment.AlignmentImportRoute
 import es.topophone.app.ui.backup.BackupsRoute
 import es.topophone.app.ui.cad.CadImportRoute
 import es.topophone.app.ui.export.ExportRoute
@@ -157,6 +158,14 @@ fun TopoPhoneApp(
                     navigation.onBack,
                     viewModel = hiltViewModel(owner),
                 )
+                is SurveyPage.ImportAlignment -> AlignmentImportRoute(
+                    page.projectId,
+                    Uri.parse(page.fileUri),
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
                 is SurveyPage.StakeoutReport -> StakeoutReportRoute(
                     page.projectId,
                     page.selection,
@@ -267,6 +276,9 @@ private fun AppNavHost(
                 // S042/RF-1
                 onImportSurface = { projectId, fileUri -> navController.navigate(ImportSurfaceDestination(projectId, fileUri)) },
                 onImportGpkg = { projectId, fileUri -> navController.navigate(ImportGpkgDestination(projectId, fileUri)) }, // S048/RF-1
+                onImportAlignment = { projectId, fileUri ->
+                    navController.navigate(ImportAlignmentDestination(projectId, fileUri)) // S049/RF-1
+                },
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onOpenTilt = {
@@ -353,6 +365,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ImportGpkgDestination>()
                 surveySection(
                     SurveyPage.ImportGpkg(args.projectId, args.fileUri),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ImportAlignmentDestination> { entry ->
+                val args = entry.toRoute<ImportAlignmentDestination>()
+                surveySection(
+                    SurveyPage.ImportAlignment(args.projectId, args.fileUri),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

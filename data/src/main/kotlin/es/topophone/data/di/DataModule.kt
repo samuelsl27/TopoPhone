@@ -10,6 +10,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.core.model.log.AppLog
+import es.topophone.data.alignment.AlignmentImporter
+import es.topophone.data.alignment.AlignmentRepository
+import es.topophone.data.alignment.RoomAlignmentRepository
 import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.BackupDataStoreQualifier
 import es.topophone.data.backup.DataStoreAutoBackupPreferences
@@ -173,6 +176,14 @@ object DatabaseModule {
 
     @Provides
     fun provideSurfaceImporter(repository: SurfaceRepository): SurfaceImporter = SurfaceImporter(repository)
+
+    /** Los ejes y rasantes de los proyectos (S049). */
+    @Provides
+    @Singleton
+    fun provideAlignmentRepository(database: TopoPhoneDatabase, log: AppLog): AlignmentRepository = RoomAlignmentRepository(database, log)
+
+    @Provides
+    fun provideAlignmentImporter(repository: AlignmentRepository): AlignmentImporter = AlignmentImporter(repository)
 
     @Provides
     fun provideCadDrawingImporter(repository: CadRepository): CadDrawingImporter = CadDrawingImporter(repository)

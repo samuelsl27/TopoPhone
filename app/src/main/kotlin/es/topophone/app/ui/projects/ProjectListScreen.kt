@@ -52,6 +52,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.alignment.rememberImportAlignmentLauncher
 import es.topophone.app.ui.backup.BackupNotice
 import es.topophone.app.ui.backup.BackupNoticeViewModel
 import es.topophone.app.ui.backup.rememberPackageHost
@@ -158,6 +159,8 @@ class ProjectListActions(
     val onImportSurface: (String) -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage al proyecto (S048/RF-1). */
     val onImportGpkg: (String) -> Unit = {},
+    /** Pregunta de dónde sale el eje y lo importa al proyecto (S049/RF-1). */
+    val onImportAlignment: (String) -> Unit = {},
     /** S013/RF-24. */
     val onExportPackage: (Project) -> Unit = {},
     /** S013/RF-25: abre el selector de ficheros para elegir el paquete. */
@@ -263,6 +266,7 @@ fun ProjectListRoute(
     val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
     val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
     val importGpkg = rememberImportGpkgLauncher(navigation.onImportGpkg) // S048/RF-1
+    val importAlignment = rememberImportAlignmentLauncher(navigation) // S049/RF-1
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) noticeViewModel.folderChosen(uri.toString()) // S013/RF-22
     }
@@ -291,6 +295,7 @@ fun ProjectListRoute(
             onImportDxf = importDxf,
             onImportSurface = importSurface,
             onImportGpkg = importGpkg,
+            onImportAlignment = importAlignment,
             onExportPackage = packages.export,
             onImportPackage = packages.import,
             onChooseBackupFolder = { chooseFolder.launch(null) },
@@ -543,6 +548,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onImportGpkg(project.id)
         } // S048/RF-1
+        MenuItem(R.string.alignment_import_title) {
+            open = false
+            actions.onImportAlignment(project.id)
+        } // S049/RF-1
         MenuItem(R.string.stakeout_report_title) {
             open = false
             actions.onStakeoutReport(project.id)
