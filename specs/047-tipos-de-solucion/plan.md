@@ -56,7 +56,8 @@ promediada:
         mejor = tipo
     si tipo == mejor: usar la época
     si no (tipo peor que mejor): descartadasPorTipo++; avisar "Solución degradada" una vez (RF-10)
-  época con posición no valida: descartadasPorTipo++; si había mejor != null, avisar una vez
+  época con posición no valida: descartadasPorTipo++; avisar una vez si es una degradación (sin tipo, o peor que mejor o,
+  si aún no hay mejor, que el mejor admitido); una época mejor pero no admitida se descarta sin aviso
 ```
 - El aviso se repite solo cuando el tipo ha vuelto a `mejor` y se pierde otra vez, como el `SolutionLost` actual.
 - Reiniciar lo acumulado exige poder vaciar las sumas y `AverageStats`: se agrupan en un acumulador interno que se recrea (sin guardar épocas, S017/RF-12).

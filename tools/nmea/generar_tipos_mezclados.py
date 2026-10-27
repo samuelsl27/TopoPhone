@@ -12,8 +12,9 @@ de 1,800 m y el RS3 como en S002):
 
 Las reglas son las de la spec: solo valen las épocas de un tipo admitido (una DGPS cuenta como SINGLE, RF-18); la medida sigue con
 el mejor tipo visto, y una época de un tipo mejor descarta lo reunido (RF-9) y una de un tipo peor se descarta (RF-10). Cada época
-descartada por tipo se cuenta, también las reunidas que se tiran. El aviso sale una vez al descartar una época por tipo con algo ya
-reunido, y vuelve a poder salir cuando se usa una época del mejor tipo. Cada época usada vale 0,2 s.
+descartada por tipo se cuenta, también las reunidas que se tiran. El aviso sale una vez al descartar una época peor que el mejor visto
+(o que el mejor admitido, si aún no hay nada reunido) y vuelve a poder salir cuando se usa una época del mejor tipo; una época mejor
+que la medida pero no admitida se descarta sin aviso. Cada época usada vale 0,2 s.
 
 Uso: uv run --project tools tools/nmea/generar_tipos_mezclados.py
 """
@@ -71,6 +72,12 @@ def fixes() -> list[a.Fix]:
     return out
 
 
+def degradation(kind: str | None, best: str | None, admitted: tuple[str, ...]) -> bool:
+    """Una época descartada que es peor que el mejor visto, o que el mejor admitido si aún no hay nada reunido; sin tipo, siempre."""
+    reference = best if best is not None else min(admitted, key=lambda t: RANK[t])
+    return kind is None or RANK[kind] > RANK[reference]
+
+
 def run(parsed: list[a.Parsed], admitted: tuple[str, ...], start: int, requested_s: float) -> dict[str, object]:
     best: str | None = None
     used: list[a.Parsed] = []
@@ -82,7 +89,7 @@ def run(parsed: list[a.Parsed], admitted: tuple[str, ...], start: int, requested
         kind = TYPE_OF.get(epoch.status)
         if kind is None or kind not in admitted:
             discarded += 1
-            if used and not warned:
+            if degradation(kind, best, admitted) and not warned:
                 warnings += 1
                 warned = True
         elif best is None or RANK[kind] < RANK[best]:

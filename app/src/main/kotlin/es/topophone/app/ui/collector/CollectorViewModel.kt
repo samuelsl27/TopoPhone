@@ -856,7 +856,7 @@ class CollectorViewModel @Inject constructor(
                     noEpochsYet = false,
                 )
             }
-            MeasurementUpdate.SolutionLost -> {
+            MeasurementUpdate.SolutionDegraded -> {
                 log.warning(LogCategory.POINTS, "Solución perdida durante la medida de ${measuredName()}") // S014/RF-5
                 alerts.solutionLost() // S010/RF-10
                 run.update { it.copy(solutionLost = true) }

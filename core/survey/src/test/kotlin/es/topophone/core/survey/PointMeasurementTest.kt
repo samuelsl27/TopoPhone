@@ -153,7 +153,7 @@ class PointMeasurementTest {
 
         val updates = statuses.withIndex().flatMap { (i, status) -> m.feed(epoch(i, status = status)) }
 
-        updates.filterIsInstance<MeasurementUpdate.SolutionLost>().size shouldBe 1
+        updates.filterIsInstance<MeasurementUpdate.SolutionDegraded>().size shouldBe 1
         val result = updates.done()
         result.epochsUsed shouldBe 3
         result.epochsDiscarded shouldBe 2
@@ -161,15 +161,15 @@ class PointMeasurementTest {
     }
 
     @Test
-    fun `S010 RF-10 sin el control de solo FIX cuentan todas las epocas y la solucion es la peor`() {
+    fun `S047 RF-10 con todos los tipos admitidos la epoca peor que el mejor tipo visto ya no se mezcla`() {
         val m = measurement(MeasurementMode.AVERAGED, seconds = 3, fixOnly = false)
-        val statuses = listOf(SolutionStatus.FIX, SolutionStatus.FLOAT, SolutionStatus.FIX)
+        val statuses = listOf(SolutionStatus.FIX, SolutionStatus.FLOAT, SolutionStatus.FIX, SolutionStatus.FIX)
 
         val result = statuses.withIndex().flatMap { (i, status) -> m.feed(epoch(i, status = status)) }.done()
 
         result.epochsUsed shouldBe 3
-        result.epochsDiscarded shouldBe 0
-        result.solution shouldBe SolutionStatus.FLOAT
+        result.epochsDiscarded shouldBe 1
+        result.solution shouldBe SolutionStatus.FIX
     }
 
     @Test

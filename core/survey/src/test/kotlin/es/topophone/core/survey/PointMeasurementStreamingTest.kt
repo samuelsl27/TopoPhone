@@ -85,7 +85,7 @@ class PointMeasurementStreamingTest {
     private fun List<MeasurementUpdate>.result() = filterIsInstance<MeasurementUpdate.Done>().single().result
 
     @Test
-    fun `S017 RF-12 la media de 3000 epocas es la aritmetica de siempre, con la peor solucion y los menos satelites`() {
+    fun `S017 RF-12 la media de 3000 epocas es la aritmetica de siempre, con la solucion y los menos satelites`() {
         val random = Random(7)
         val lats = List(3000) { 40.4168 + random.nextDouble(-2e-8, 2e-8) }
         val lons = List(3000) { -3.7038 + random.nextDouble(-2e-8, 2e-8) }
@@ -94,8 +94,7 @@ class PointMeasurementStreamingTest {
         val m = measurement(seconds = 300, fixOnly = false)
 
         val updates = (0 until 3000).flatMap { i ->
-            val status = if (i == 1500) SolutionStatus.FLOAT else SolutionStatus.FIX
-            m.feed(epoch(i, lats[i], lons[i], alts[i], seps[i], status, satellites = if (i == 2000) 17 else 24))
+            m.feed(epoch(i, lats[i], lons[i], alts[i], seps[i], SolutionStatus.FLOAT, satellites = if (i == 2000) 17 else 24))
         }
         val result = updates.result()
 

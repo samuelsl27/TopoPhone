@@ -232,7 +232,7 @@ class PointMeasurementTiltTest {
 
         val updates = m.feed(epoch(0, etc(), status = SolutionStatus.FLOAT))
 
-        updates.filterIsInstance<MeasurementUpdate.SolutionLost>().size shouldBe 1
+        updates.filterIsInstance<MeasurementUpdate.SolutionDegraded>().size shouldBe 1
         updates.filterIsInstance<MeasurementUpdate.TiltLost>().shouldBeEmpty()
     }
 }

@@ -13,6 +13,7 @@ import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PointTilt
 import es.topophone.core.model.point.PoleVector
+import es.topophone.core.model.point.SolutionType
 import es.topophone.core.model.point.TiltAngles
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.HeightSystem
@@ -26,8 +27,8 @@ sealed interface MeasurementUpdate {
     /** Promediado: tiempo reunido con épocas válidas y épocas usadas y descartadas (S010/RF-9). */
     data class Progress(val elapsedS: Double, val requiredS: Double, val epochsUsed: Int, val epochsDiscarded: Int) : MeasurementUpdate
 
-    /** Se ha perdido el FIX: una vez hasta que vuelve (S010/RF-10). */
-    data object SolutionLost : MeasurementUpdate
+    /** Llega una época de un tipo peor que el mejor visto en la medida o no admitido: una vez hasta que vuelve el mejor (S047/RF-10). */
+    data object SolutionDegraded : MeasurementUpdate
 
     /** Se descartan épocas por la inclinación, con la guía de la primera: una vez hasta que vuelve (S016/RF-19). */
     data class TiltLost(val guide: TiltGuide) : MeasurementUpdate
@@ -81,6 +82,10 @@ data class MeasurementResult(
     val mode: MeasurementMode,
     val epochsUsed: Int,
     val epochsDiscarded: Int,
+    /** Las descartadas por tipo de solución, también las reunidas que se tiraron al llegar un tipo mejor (S047/RF-9, RF-15). */
+    val epochsDiscardedByType: Int = 0,
+    /** Los tipos admitidos al medir (S047/RF-15). */
+    val admitted: AdmittedSolutions = AdmittedSolutions.FIX_ONLY,
     val rawNmea: String,
     val measuredFromMs: Long,
     val measuredToMs: Long,
@@ -97,7 +102,8 @@ data class MeasurementResult(
  * Medida de un punto a partir de las épocas del receptor, sin Android (S010/RF-8 a RF-12):
  * - instantánea: la primera época con posición;
  * - promediada: las épocas válidas hasta reunir el tiempo pedido, contando cada una como el intervalo del
- *   receptor ([epochIntervalS]). Con [admitted], las épocas sin FIX se descartan y se avisa una vez;
+ *   receptor ([epochIntervalS]). Solo valen las épocas de un tipo de [admitted]; la medida sigue con el mejor tipo visto: una época
+ *   de un tipo mejor descarta lo reunido y una de un tipo peor se descarta, con un aviso una vez (S047/RF-9, RF-10);
  * - sin ninguna época en 2 s, la instantánea se cancela y la promediada se pausa, conserva lo reunido y sigue sola al
  *   volver las épocas (S017/RF-8, RF-9); a los 5 min de corte se pregunta qué hacer (RF-10). Fuera del ámbito del SC del
  *   proyecto, no hay punto.
@@ -128,7 +134,7 @@ class PointMeasurement(
     private val requiredS = averagingSeconds.toDouble()
 
     /** Las estadísticas del promediado (S017/RF-3 a RF-5); la instantánea no las lleva. */
-    private val stats = if (mode == MeasurementMode.AVERAGED) AverageStats(epochIntervalS) else null
+    private var stats = newStats()
     private var statsOrigin: GeodeticPoint? = null
 
     /** Lo acumulado de las épocas usadas (plan A1). */
@@ -161,8 +167,12 @@ class PointMeasurement(
     /** La última GST de menos de 3 s que había al llegar la última época usada (S010/RF-22). */
     private var usedGst: GstAccuracy? = null
     private var discarded = 0
+    private var discardedByType = 0
+
+    /** El mejor tipo de solución visto en el promediado (S047/RF-9, RF-10). */
+    private var bestType: SolutionType? = null
     private var lastEpochAtMs = startedAtMs
-    private var lostWarned = false
+    private var degradedWarned = false
     private var tiltWarned = false
     private var finished = false
 
@@ -185,6 +195,7 @@ class PointMeasurement(
             updates += MeasurementUpdate.Resumed // S017/RF-9
         }
         val fix = epoch.gga?.takeIf { it.hasPosition }
+        val type = fix?.let { SolutionTypes.of(it.status) }
         val tiltReady = !tilt.mode.usesTilt || TiltEpoch.isClean(epoch.tilt)
         if (tiltReady) tiltWarned = false
         when {
@@ -195,15 +206,18 @@ class PointMeasurement(
                 if (!tiltWarned) updates += MeasurementUpdate.TiltLost(checkNotNull(TiltEpoch.guide(epoch.tilt)))
                 tiltWarned = true
             }
-            // Provisional hasta S047 T5: solo FIX.
-            mode == MeasurementMode.AVERAGED && admitted.onlyFix && fix.status != SolutionStatus.FIX -> {
+            mode == MeasurementMode.AVERAGED && isWorseThanBest(type) -> {
                 discarded++
-                if (!lostWarned) updates += MeasurementUpdate.SolutionLost
-                lostWarned = true
+                discardedByType++
+                if (isDegradation(type)) {
+                    if (!degradedWarned) updates += MeasurementUpdate.SolutionDegraded
+                    degradedWarned = true
+                }
             }
             else -> {
+                if (mode == MeasurementMode.AVERAGED) startBetterType(checkNotNull(type))
                 use(epoch, fix, receivedAtMs, latestGst)
-                if (fix.status == SolutionStatus.FIX) lostWarned = false
+                degradedWarned = false
             }
         }
         val elapsedS = usedCount * epochIntervalS
@@ -217,6 +231,63 @@ class PointMeasurement(
         }
         return updates
     }
+
+    /** La época no vale en un promediado: su tipo no está admitido o es peor que el mejor visto (S047/RF-10; plan A1). */
+    private fun isWorseThanBest(type: SolutionType?): Boolean {
+        val best = bestType
+        return type == null || type !in admitted || (best != null && type > best)
+    }
+
+    /**
+     * La época descartada es una degradación: no tiene tipo o es peor que el mejor visto, o que el mejor admitido si aún no se ha
+     * reunido nada. Una época mejor que la medida pero no admitida se descarta sin aviso (S047/RF-10).
+     */
+    private fun isDegradation(type: SolutionType?): Boolean = type == null || type > (bestType ?: admitted.best)
+
+    /**
+     * Una época admitida entra en el promediado: si su tipo es mejor que el visto hasta ahora, lo reunido se descarta y la medida
+     * sigue solo con este tipo (S047/RF-9).
+     */
+    private fun startBetterType(type: SolutionType) {
+        val best = bestType
+        if (best != null && type < best) {
+            discarded += usedCount
+            discardedByType += usedCount
+            resetAccumulators()
+        }
+        bestType = type
+    }
+
+    /** Vuelve a cero lo acumulado de las épocas usadas, para seguir con un tipo mejor (S047/RF-9). */
+    private fun resetAccumulators() {
+        usedCount = 0
+        lastFix = null
+        sumLatitude = 0.0
+        sumLongitude = 0.0
+        sumAltitude = 0.0
+        altitudeCount = 0
+        sumSeparation = 0.0
+        separationCount = 0
+        minSatellites = Int.MAX_VALUE
+        worstSolution = null
+        firstUsedAtMs = 0L
+        lastUsedAtMs = 0L
+        raw.setLength(0)
+        includedGst.clear()
+        usedGst = null
+        allCompensating = true
+        lastTilt = null
+        maxTilt = 0.0
+        maxHorizontalAccuracy = 0.0
+        maxVerticalAccuracy = 0.0
+        poleEast = 0.0
+        poleNorth = 0.0
+        poleUp = 0.0
+        stats = newStats()
+        statsOrigin = null
+    }
+
+    private fun newStats() = if (mode == MeasurementMode.AVERAGED) AverageStats(epochIntervalS) else null
 
     /** Suma una época usada a lo acumulado (plan A1). */
     private fun use(epoch: Epoch, fix: GgaFix, receivedAtMs: Long, latestGst: GstAccuracy?) {
@@ -391,6 +462,8 @@ class PointMeasurement(
                 mode = mode,
                 epochsUsed = n,
                 epochsDiscarded = discarded,
+                epochsDiscardedByType = discardedByType,
+                admitted = admitted,
                 rawNmea = rawNmea(lastGst),
                 measuredFromMs = firstUsedAtMs,
                 measuredToMs = lastUsedAtMs,
