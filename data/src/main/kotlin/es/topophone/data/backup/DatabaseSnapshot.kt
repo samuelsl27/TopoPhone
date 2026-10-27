@@ -172,6 +172,8 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             ),
             Table("surfaces", "WHERE project_id = ? AND status = 'READY'"),
             Table("surface_tiles", "WHERE surface_id IN (SELECT id FROM surfaces WHERE project_id = ? AND status = 'READY')"),
+            // S049/RF-16: los ejes y sus rasantes viajan con el proyecto.
+            Table("alignments", "WHERE project_id = ?"),
             Table("ntrip_profiles", projectFilter = null),
             // S046/RF-30: el equipo (perfiles de antena, jalones y el de cada receptor) viaja en la copia, no en los paquetes.
             Table("antenna_profiles", projectFilter = null),

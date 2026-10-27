@@ -583,4 +583,5 @@ internal fun PointOrigin.labelRes(): Int = when (this) {
     PointOrigin.STAKED -> R.string.point_origin_staked
     PointOrigin.MANUAL -> R.string.point_origin_manual
     PointOrigin.IMPORTED -> R.string.point_origin_imported
+    PointOrigin.ON_ALIGNMENT -> R.string.point_origin_on_alignment
 }

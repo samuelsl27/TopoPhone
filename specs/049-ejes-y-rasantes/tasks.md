@@ -26,7 +26,7 @@
       Hecho cuando: `ProfileCsvReaderTest` en verde.
 - [x] T12. `core:survey`: `AlignmentProjector` (unidad, ámbito y SC distinto por muestreo, D2). (RF-11, RF-12)
       Hecho cuando: `AlignmentProjectorTest` en verde contra pyproj (≤ 1 mm).
-- [ ] T13. `data`: Room v20 (`alignments`, `active_alignment_id` y las tres columnas de `points`), `AutoMigration(19, 20)`, `PointOrigin.ON_ALIGNMENT` y la tabla en `DatabaseSnapshot.TABLES`. (RF-14, RF-16, RF-22, RNF-T6)
+- [x] T13. `data`: Room v20 (`alignments`, `active_alignment_id` y las tres columnas de `points`), `AutoMigration(19, 20)`, `PointOrigin.ON_ALIGNMENT` y la tabla en `DatabaseSnapshot.TABLES`. (RF-14, RF-16, RF-22, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 19 → 20 en verde con proyectos y puntos que se conservan, y el esquema 20 en `data/schemas/`.
 - [ ] T14. `data`: `AlignmentRepository` y `AlignmentImporter` (una transacción, varios ejes, el primero activo, renombrar, mostrar u ocultar, borrar sin tocar puntos, resumen). (RF-13 a RF-15, RF-19)
       Hecho cuando: `AlignmentRepositoryTest` y `AlignmentImporterTest` en verde, incluido fallar sin dejar nada.

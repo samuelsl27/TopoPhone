@@ -45,6 +45,8 @@ data class ProjectEntity(
     /** El punto central opcional, latitud y longitud del suelo sin redondear; ambas NULL si no lo hay (S006/RF-32). */
     @ColumnInfo(name = "central_latitude") val centralLatitude: Double? = null,
     @ColumnInfo(name = "central_longitude") val centralLongitude: Double? = null,
+    /** El eje activo del proyecto, o NULL si no hay (S049/RF-14); sin clave foránea, borrarlo la pone a NULL a mano. */
+    @ColumnInfo(name = "active_alignment_id") val activeAlignmentId: String? = null,
 )
 
 /** Una carpeta de proyectos; un solo nivel (S006/RF-17). */

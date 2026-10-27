@@ -7,6 +7,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.db.SupportSQLiteDatabase
+import es.topophone.data.alignment.AlignmentDao
+import es.topophone.data.alignment.AlignmentEntity
 import es.topophone.data.cad.CadChunkAttributesEntity
 import es.topophone.data.cad.CadChunkEntity
 import es.topophone.data.cad.CadDao
@@ -63,13 +65,15 @@ import es.topophone.data.surface.SurfaceTileEntity
  * - v18 (S006): el punto central opcional de cada proyecto (`central_latitude` y `central_longitude`, que admiten NULL). Migración de Room.
  * - v19 (S048): de qué fichero viene cada dibujo (`cad_drawings.origin`, `DXF` por defecto), la tabla y el campo de nombre de cada capa
  *   (`cad_layers.source_table` y `name_field`, que admiten NULL) y los atributos de cada trozo (`cad_chunk_attributes`). Migración de Room.
+ * - v20 (S049): ejes y rasantes (`alignments`), el eje activo de cada proyecto (`active_alignment_id`) y de qué eje, PK y desplazamiento
+ *   viene un punto calculado sobre un eje (`axis_name`, `axis_chainage` y `axis_offset`, que admiten NULL). Migración de Room.
  */
 @Database(
     entities = [
         ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class, PointEntity::class,
         PointHistoryEntity::class, PointNmeaEntity::class, CadDrawingEntity::class, CadLayerEntity::class, CadChunkEntity::class,
         SurfaceEntity::class, SurfaceTileEntity::class, AntennaProfileEntity::class, SavedPoleEntity::class, ReceiverGearEntity::class,
-        CadChunkAttributesEntity::class,
+        CadChunkAttributesEntity::class, AlignmentEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -92,6 +96,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 16, to = 17),
         AutoMigration(from = 17, to = 18),
         AutoMigration(from = 18, to = 19),
+        AutoMigration(from = 19, to = 20),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -110,11 +115,13 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun gear(): GearDao
 
+    abstract fun alignments(): AlignmentDao
+
     companion object {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 19
+        const val VERSION = 20
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

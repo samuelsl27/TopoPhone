@@ -965,9 +965,52 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S049 RNF-T6 de la v19 a la v20 los puntos y proyectos siguen y los ejes quedan vacios`() {
+        createFromExportedSchema(19)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v19 ->
+            v19.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v19.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.single().name shouldBe "P1"
+            points.single().onAxis.shouldBeNull()
+            runBlocking { RoomProjectRepository(db).project(project.id) }.shouldNotBeNull().name shouldBe project.name
+            count(db, "alignments") shouldBe 0
+            db.openHelper.readableDatabase.query("SELECT active_alignment_id FROM projects").use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                cursor.isNull(0) shouldBe true
+            }
+            db.openHelper.readableDatabase.query("SELECT axis_name, axis_chainage, axis_offset FROM points").use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                (0 until 3).all { cursor.isNull(it) } shouldBe true
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 19
+        const val CURRENT_VERSION = 20
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

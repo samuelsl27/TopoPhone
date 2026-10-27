@@ -200,6 +200,7 @@ object CsvExport {
             // Un replanteado es un punto medido; S019 le añade sus columnas propias.
             ExportColumn.ORIGIN -> when {
                 point.origin == PointOrigin.IMPORTED -> "Imported" // S028/RF-32
+                point.origin == PointOrigin.ON_ALIGNMENT -> "OnAlignment" // S049/RF-22
                 point.origin.hasMeasurement -> "Measured"
                 else -> "Manual"
             }

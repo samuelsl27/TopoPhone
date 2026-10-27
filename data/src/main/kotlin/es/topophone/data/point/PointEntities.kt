@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.AdmittedSolutions
+import es.topophone.core.model.point.AxisRef
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.EntryForm
@@ -173,6 +174,10 @@ data class PointEntity(
     // S047/RF-15: los tipos de solución admitidos al medir (`FIX,FLOAT`) y las épocas descartadas por tipo; NULL en los demás.
     @ColumnInfo(name = "admitted_solutions") val admittedSolutions: String? = null,
     @ColumnInfo(name = "epochs_discarded_by_type") val epochsDiscardedByType: Int? = null,
+    // S049/RF-22: el eje (por nombre, copiado: puede borrarse), el PK y el desplazamiento de un punto calculado sobre un eje; NULL en los demás.
+    @ColumnInfo(name = "axis_name") val axisName: String? = null,
+    @ColumnInfo(name = "axis_chainage") val axisChainage: Double? = null,
+    @ColumnInfo(name = "axis_offset") val axisOffset: Double? = null,
 )
 
 /**
@@ -335,6 +340,9 @@ internal fun Point.toEntity(): PointEntity {
         antennaProfile = m?.gear?.antennaProfile,
         antennaOffsetM = m?.gear?.antennaOffsetM,
         antennaHeightM = m?.gear?.antennaHeightM,
+        axisName = onAxis?.alignmentName,
+        axisChainage = onAxis?.chainageM,
+        axisOffset = onAxis?.offsetM,
     )
 }
 
@@ -354,6 +362,7 @@ internal fun PointEntity.toPoint(): Point = Point(
     deletedAtMs = deletedAt,
     staked = staked(),
     importId = importId,
+    onAxis = axisName?.let { AxisRef(it, axisChainage ?: 0.0, axisOffset ?: 0.0) },
 )
 
 /** De qué punto de diseño viene un punto replanteado; null en los demás (S018/RF-28). */

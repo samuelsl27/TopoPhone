@@ -28,6 +28,12 @@ object PointNames {
     fun isValid(name: String): Boolean = clean(name).isNotEmpty()
 }
 
+/**
+ * Dónde del eje se calculó un punto (S049/RF-22): el nombre del eje (copiado: el eje puede borrarse), el PK y el desplazamiento con
+ * signo (negativo a la izquierda), en metros y sin redondear.
+ */
+data class AxisRef(val alignmentName: String, val chainageM: Double, val offsetM: Double)
+
 /** Posición geodésica en grados y altura elipsoidal en metros, sin redondear (AGENTS.md). */
 data class GeodeticPosition(val latitudeDeg: Double, val longitudeDeg: Double, val ellipsoidalHeightM: Double?)
 
@@ -59,12 +65,13 @@ data class PointQuality(
 
 /**
  * Medido con el recolector (S010), escrito a mano o duplicado (S011), medido al replantear un punto de diseño (S018/RF-27) o
- * importado de un fichero (S028/RF-31).
+ * importado de un fichero (S028/RF-31) o calculado sobre un eje con un PK y un desplazamiento (S049/RF-22).
  */
-enum class PointOrigin { MEASURED, MANUAL, STAKED, IMPORTED }
+enum class PointOrigin { MEASURED, MANUAL, STAKED, IMPORTED, ON_ALIGNMENT }
 
 /** Un punto con medida del receptor: el medido y el replanteado; el manual y el importado solo tienen lo escrito (S011, S018, S028). */
-val PointOrigin.hasMeasurement: Boolean get() = this != PointOrigin.MANUAL && this != PointOrigin.IMPORTED
+val PointOrigin.hasMeasurement: Boolean
+    get() = this != PointOrigin.MANUAL && this != PointOrigin.IMPORTED && this != PointOrigin.ON_ALIGNMENT
 
 /**
  * Coordenadas de un punto del suelo: [ground] en geográficas del datum de los cálculos (ETRS89 o REGCAN95), con la
@@ -209,6 +216,8 @@ data class Point(
     val deletedAtMs: Long?,
     val staked: StakeoutRef? = null,
     val importId: String? = null,
+    /** De qué eje, PK y desplazamiento se calculó un punto de origen [PointOrigin.ON_ALIGNMENT] (S049/RF-22); null en los demás. */
+    val onAxis: AxisRef? = null,
 ) {
     /** Sin altura elipsoidal no hay altura en ningún sistema (S011/RF-18). */
     val hasHeight: Boolean get() = coordinates.ground.ellipsoidalHeightM != null

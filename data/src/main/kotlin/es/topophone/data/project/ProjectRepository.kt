@@ -113,6 +113,7 @@ class RoomProjectRepository(
                 openedAt = current.openedAt,
                 activeSurfaceId = current.activeSurfaceId,
                 verticalOffsetM = current.verticalOffsetM,
+                activeAlignmentId = current.activeAlignmentId,
             ),
         )
         SaveResult.Saved(id)
@@ -132,6 +133,7 @@ class RoomProjectRepository(
         val now = clock()
         val copy = newId()
         val name = ProjectNames.copyName(original.name, dao.activeNames(), copyLabel)
+        // S049: los ejes tampoco se duplican, así que la copia empieza sin eje activo.
         // S042: las superficies no se duplican, así que la copia empieza sin superficie activa y sin desplazamiento.
         dao.insert(
             original.copy(
@@ -143,6 +145,7 @@ class RoomProjectRepository(
                 deletedAt = null,
                 activeSurfaceId = null,
                 verticalOffsetM = 0.0,
+                activeAlignmentId = null,
             ),
         )
         SaveResult.Saved(copy)

@@ -29,7 +29,8 @@ class PointImportedTest {
 
     @Test
     fun `S028 RF-31 el origen importado existe y es distinto del manual y del medido`() {
-        PointOrigin.entries.toSet() shouldBe setOf(PointOrigin.MEASURED, PointOrigin.MANUAL, PointOrigin.STAKED, PointOrigin.IMPORTED)
+        PointOrigin.entries.toSet() shouldBe
+            setOf(PointOrigin.MEASURED, PointOrigin.MANUAL, PointOrigin.STAKED, PointOrigin.IMPORTED, PointOrigin.ON_ALIGNMENT)
         PointOrigin.IMPORTED shouldBe PointOrigin.valueOf("IMPORTED")
     }
 
@@ -37,6 +38,7 @@ class PointImportedTest {
     fun `S028 RF-33 un punto importado no tiene medida, como el manual`() {
         PointOrigin.IMPORTED.hasMeasurement shouldBe false
         PointOrigin.MANUAL.hasMeasurement shouldBe false
+        PointOrigin.ON_ALIGNMENT.hasMeasurement shouldBe false // S049/RF-22
         PointOrigin.MEASURED.hasMeasurement shouldBe true
         PointOrigin.STAKED.hasMeasurement shouldBe true
     }
