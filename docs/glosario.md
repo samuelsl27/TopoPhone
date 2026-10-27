@@ -157,6 +157,13 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Capa de diseño | `DesignLayer` | Una capa del DXF separada por tipo (puntos o líneas), con su color y su interruptor (S040) |
 | Elemento del dibujo | `CadEntity` | Un punto o una línea (polilínea, arco, círculo, spline) del dibujo, con los bloques ya desplegados (S040) |
 | Con cota / sin cota | `hasElevation` | Un elemento del dibujo con altura propia, o sin ella (S040) |
+| GeoPackage | `GeoPackage` (`.gpkg`) | Fichero SQLite con capas vectoriales (QGIS); se importa como un dibujo CAD, solo lectura (S048) |
+| Capa de GeoPackage | `GpkgLayerInfo` | Una tabla del GeoPackage con geometría: su tipo, número de objetos, SRS y columnas (S048) |
+| Origen del dibujo | `CadOrigin` | `DXF` o `GEOPACKAGE`: de qué fichero viene un dibujo (S048) |
+| Zona de importación | `ImportArea` | «Todo el contenido» o un radio de 100 m a 100 km alrededor del centro del proyecto (S048) |
+| Contorno de polígono | `POLYGON_RING` | Línea cerrada que sale del exterior o de un hueco de un polígono importado (S048) |
+| Campo de nombre | `nameField` | Columna de la capa con la que se etiqueta y se nombra cada objeto; sin ella, su número en la capa (S048) |
+| Atributos del objeto | `GpkgValue` | Valores de las columnas de un objeto del GeoPackage, que se ven en su ficha (S048) |
 | PK | `Chainage` | Distancia a lo largo de una línea desde su primer vértice, en el SC del proyecto (S041) |
 | Desplazamiento lateral | `LateralOffset` | Distancia perpendicular a la línea a la que se quiere estar; positiva a la derecha del sentido de la línea (S041) |
 | Distancia lateral | `CrossTrack` | Distancia perpendicular con signo entre la punta y la línea (S041) |

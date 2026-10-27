@@ -62,8 +62,12 @@ class CadProjector(
                 north[i] = n
                 null
             }
-            is CadSourceCrs.Utm -> {
-                val ground = ground(source.datum, x * metres, y * metres, source.zone) ?: return CadIgnoredReason.OUTSIDE_ED50_GRID
+            is CadSourceCrs.Utm, is CadSourceCrs.Geographic -> {
+                val ground = when (source) {
+                    is CadSourceCrs.Utm -> ground(source.datum, x * metres, y * metres, source.zone)
+                    is CadSourceCrs.Geographic -> ground(source.datum, x, y, null)
+                    CadSourceCrs.Project -> null
+                } ?: return CadIgnoredReason.OUTSIDE_ED50_GRID
                 val position = calculator.fromGround(GeodeticPosition(ground.first, ground.second, null), crs)
                 when {
                     PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable -> CadIgnoredReason.OUTSIDE_CRS_AREA

@@ -10,7 +10,13 @@ sealed interface CadSourceCrs {
 
     /** UTM de un datum y un huso de los que ofrece la app. */
     data class Utm(val datum: GeodeticDatum, val zone: Int) : CadSourceCrs
+
+    /** Coordenadas geográficas (longitud y latitud en grados) de un datum de los que ofrece la app (S048/RF-8). */
+    data class Geographic(val datum: GeodeticDatum) : CadSourceCrs
 }
+
+/** De qué fichero viene un dibujo: un DXF (S040) o un GeoPackage (S048/RF-26). */
+enum class CadOrigin { DXF, GEOPACKAGE }
 
 /** Lo que el usuario decide al importar un DXF (S040/RF-6, RF-7, RF-8). */
 data class CadImportOptions(
@@ -56,6 +62,7 @@ data class CadDrawing(
     val hasElevations: Boolean,
     val incomplete: Boolean = false,
     val extent: CadExtent? = null,
+    val origin: CadOrigin = CadOrigin.DXF,
 ) {
     /** Un elemento está con cota si el dibujo la tiene y el elemento trae Z (S040/RF-23). */
     fun hasElevation(entityHasZ: Boolean): Boolean = hasElevations && entityHasZ

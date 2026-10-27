@@ -208,10 +208,12 @@ private fun SurfaceEntity.toModel() = Surface(
 private fun CadSourceCrs.encode(): String = when (this) {
     CadSourceCrs.Project -> "PROJECT"
     is CadSourceCrs.Utm -> "UTM:${datum.name}:$zone"
+    is CadSourceCrs.Geographic -> "GEO:${datum.name}"
 }
 
 private fun decodeSurfaceSource(text: String): CadSourceCrs {
     if (text == "PROJECT") return CadSourceCrs.Project
+    if (text.startsWith("GEO:")) return CadSourceCrs.Geographic(GeodeticDatum.valueOf(text.removePrefix("GEO:")))
     val (_, datum, zone) = text.split(":")
     return CadSourceCrs.Utm(GeodeticDatum.valueOf(datum), zone.toInt())
 }

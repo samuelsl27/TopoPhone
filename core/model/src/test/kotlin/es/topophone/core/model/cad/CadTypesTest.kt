@@ -32,6 +32,14 @@ class CadTypesTest {
     }
 
     @Test
+    fun `S048 RF-8 una capa geografica lleva solo su datum`() {
+        val source = CadSourceCrs.Geographic(GeodeticDatum.ETRS89)
+
+        source.datum shouldBe GeodeticDatum.ETRS89
+        CadImportOptions(source = source).source shouldBe CadSourceCrs.Geographic(GeodeticDatum.ETRS89)
+    }
+
+    @Test
     fun `S040 RF-26 una capa de diseno es de puntos o de lineas`() {
         DesignLayerKind.entries.toSet() shouldBe setOf(DesignLayerKind.POINTS, DesignLayerKind.LINES)
     }

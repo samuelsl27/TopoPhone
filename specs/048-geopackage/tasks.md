@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/formatos`: `generar_geopackage.py` con los `.gpkg` de ejemplo (puntos, líneas, polígonos con huecos, múltiples, EPSG 25830, 4258, 4326 y 3857, con y sin R-tree, con altura, tabla sin geometría, tabla de teselas, dañado y no GeoPackage) y lo esperado con pyproj; y su test. (RF-2 a RF-9, RF-17, RF-19, constitución nº 2)
       Hecho cuando: el script genera `fixtures/formatos/gpkg/` y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `CadSourceCrs.Geographic`, `CadOrigin`, `ImportArea`, `GpkgLayerInfo`, `GpkgImportSummary`; los términos nuevos en `docs/glosario.md`. (RF-8, RF-13, RF-26)
+- [x] T2. `core:model`: `CadSourceCrs.Geographic`, `CadOrigin`, `ImportArea`, `GpkgLayerInfo`, `GpkgImportSummary`; los términos nuevos en `docs/glosario.md`. (RF-8, RF-13, RF-26)
       Hecho cuando: `ImportAreaTest` en verde (radio de 100 m a 100 km, «Todo el contenido») y `core:model` compila con los usos adaptados.
 - [ ] T3. `core:model`: `CadChunkCodec` con las marcas `NAME` y `POLYGON_RING`. (RF-17, RF-22)
       Hecho cuando: `CadChunkCodecTest` en verde con nombre y contorno, y los trozos de S040 se leen igual.
