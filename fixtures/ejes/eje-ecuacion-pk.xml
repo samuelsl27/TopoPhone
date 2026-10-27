@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LandXML xmlns="http://www.landxml.org/schema/LandXML-1.2" version="1.2" date="2026-10-27" time="00:00:00">
+<Units><Metric areaUnit="squareMeter" linearUnit="meter" volumeUnit="cubicMeter" angularUnit="decimal degrees" directionUnit="decimal degrees"/></Units>
+<Alignments>
+<Alignment name="Eje C" length="200.0" staStart="0.0"><StaEquation staAhead="500.0" staBack="200.0" staInternal="200.0"/><CoordGeom><Line dir="90.0" length="200.0"><Start>4474000.0 441000.0</Start><End>4474000.0 441200.0</End></Line></CoordGeom></Alignment>
+</Alignments>
+</LandXML>

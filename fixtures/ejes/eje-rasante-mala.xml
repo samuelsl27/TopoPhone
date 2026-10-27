@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LandXML xmlns="http://www.landxml.org/schema/LandXML-1.2" version="1.2" date="2026-10-27" time="00:00:00">
+<Units><Metric areaUnit="squareMeter" linearUnit="meter" volumeUnit="cubicMeter" angularUnit="decimal degrees" directionUnit="decimal degrees"/></Units>
+<Alignments>
+<Alignment name="Repetido" length="200.0" staStart="0.0"><CoordGeom><Line dir="90.0" length="200.0"><Start>4474000.0 441000.0</Start><End>4474000.0 441200.0</End></Line></CoordGeom><Profile name="Perfil"><ProfAlign name="Rasante"><PVI>0.0 10.0</PVI><PVI>100.0 11.0</PVI><PVI>100.0 12.0</PVI><PVI>200.0 13.0</PVI></ProfAlign></Profile></Alignment>
+<Alignment name="FueraDelEje" length="200.0" staStart="0.0"><CoordGeom><Line dir="90.0" length="200.0"><Start>4474000.0 441000.0</Start><End>4474000.0 441200.0</End></Line></CoordGeom><Profile name="Perfil"><ProfAlign name="Rasante"><PVI>0.0 10.0</PVI><PVI>100.0 11.0</PVI><PVI>250.0 12.0</PVI></ProfAlign></Profile></Alignment>
+<Alignment name="NoCabe" length="200.0" staStart="0.0"><CoordGeom><Line dir="90.0" length="200.0"><Start>4474000.0 441000.0</Start><End>4474000.0 441200.0</End></Line></CoordGeom><Profile name="Perfil"><ProfAlign name="Rasante"><PVI>0.0 10.0</PVI><ParaCurve length="36.0">100.0 12.0</ParaCurve><PVI>110.0 11.0</PVI><PVI>200.0 13.0</PVI></ProfAlign></Profile></Alignment>
+</Alignments>
+</LandXML>

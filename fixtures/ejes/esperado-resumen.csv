@@ -1,0 +1,13 @@
+archivo,alineacion,longitud,pk_inicial,rasante,estado
+ejes.xml,Eje A,420.0,0.0,si,OK
+ejes.xml,Eje B,380.0,1000.5,si,OK
+ejes.xml,Eje C,200.0,0.0,no,OK
+eje-a-pies.xml,Eje A,420.0,0.0,si,OK
+eje-hueco.xml,Eje A,420.0,0.0,si,hueco_tramo_2
+eje-irregular.xml,Eje C,200.0,0.0,no,tipo_no_admitido_tramo_1
+eje-espiral-cubica.xml,Eje A,420.0,0.0,si,tipo_no_admitido_tramo_2
+eje-ecuacion-pk.xml,Eje C,200.0,0.0,no,ecuacion_de_pk
+eje-acuerdo-asimetrico.xml,Eje A,420.0,0.0,si,OK_sin_rasante_acuerdo_no_admitido
+eje-rasante-mala.xml,Repetido,200.0,0.0,si,OK_sin_rasante_pk_repetido
+eje-rasante-mala.xml,FueraDelEje,200.0,0.0,si,OK_sin_rasante_fuera_del_eje
+eje-rasante-mala.xml,NoCabe,200.0,0.0,si,OK_sin_rasante_acuerdo_no_cabe
