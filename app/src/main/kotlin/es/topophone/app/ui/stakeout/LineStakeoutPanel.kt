@@ -184,7 +184,7 @@ fun LineStakeoutPanel(
                     unit,
                     actions.onElevationSource,
                 ) // S042/RF-23 a RF-27
-                Guidance(state.project, state.settings, state.guidance) { ui, numbers -> LineFigures(state, ui, numbers) }
+                Guidance(state.project, state.settings, state.guidance, state.admitted) { ui, numbers -> LineFigures(state, ui, numbers) }
                 collector?.let { CollectorGearSelector(it, collectorActions) } // S046/RF-23
                 collector?.let { Messages(it, collectorActions) }
             }

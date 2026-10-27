@@ -129,6 +129,8 @@ data class LineStakeoutUiState(
     val canChooseSource: Boolean = false,
     /** La superficie con la que se replanteaba ya no está activa (S042/RF-27). */
     val surfaceRemoved: Boolean = false,
+    /** Los tipos de solución admitidos, para el indicador junto a la guía (S047/RF-14). */
+    val admitted: AdmittedSolutions = AdmittedSolutions.FIX_ONLY,
 )
 
 /**
@@ -204,7 +206,7 @@ class LineStakeoutViewModel @Inject constructor(
 
     @Volatile private var settings = StakeoutSettings()
 
-    @Volatile private var admitted = AdmittedSolutions.FIX_ONLY
+    private val admittedFlow = MutableStateFlow(AdmittedSolutions.FIX_ONLY)
 
     @Volatile private var poleHeightM = PoleHeight.DEFAULT_M
 
@@ -238,7 +240,7 @@ class LineStakeoutViewModel @Inject constructor(
     /** Da el objetivo de ahora al recolector cuando termina la medida (S041/RF-27, RF-28). */
     val objectiveProvider: StakeObjectiveProvider = StakeObjectiveProvider { currentObjective() }
 
-    val state: StateFlow<LineStakeoutUiState> = combine(
+    private val coreState = combine(
         projectFlow,
         model,
         combine(stakeoutPreferences.settings, controller.state, inProgress.active, unsupported, ::Live),
@@ -303,7 +305,11 @@ class LineStakeoutViewModel @Inject constructor(
             canChooseSource = resolution.canChoose,
             surfaceRemoved = surface.removed,
         )
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, LineStakeoutUiState())
+    }
+
+    /** Lo de arriba más los tipos admitidos, que se muestran junto a la guía (S047/RF-14). */
+    val state: StateFlow<LineStakeoutUiState> = combine(coreState, admittedFlow) { state, admitted -> state.copy(admitted = admitted) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, LineStakeoutUiState())
 
     init {
         viewModelScope.launch { projectFlow.collect { project = it } }
@@ -317,7 +323,7 @@ class LineStakeoutViewModel @Inject constructor(
             }
         }
         viewModelScope.launch { stakeoutPreferences.settings.collect { settings = it } }
-        viewModelScope.launch { collectorPreferences.settings.collect { admitted = it.precision.admitted } }
+        viewModelScope.launch { collectorPreferences.settings.collect { admittedFlow.value = it.precision.admitted } }
         viewModelScope.launch {
             // S046/RF-23: el mismo equipo activo que el recolector.
             gear.state.collect { g ->
@@ -644,7 +650,7 @@ class LineStakeoutViewModel @Inject constructor(
         return StakeContext(
             settings,
             design,
-            admitted,
+            admittedFlow.value,
             mode,
             poleHeightM,
             project,

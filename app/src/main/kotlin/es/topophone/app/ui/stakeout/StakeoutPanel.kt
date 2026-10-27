@@ -33,6 +33,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.app.ui.collector.AdmittedBadge
 import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.CollectorActions
 import es.topophone.app.ui.collector.CollectorGearSelector
@@ -49,6 +50,7 @@ import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.PointCoordinates
@@ -147,7 +149,7 @@ fun StakeoutPanel(
                     state.project?.linearUnit ?: LinearUnit.METRE,
                     actions.onElevationSource,
                 ) // S042/RF-23 a RF-27
-                Guidance(state.project, state.settings, state.guidance)
+                Guidance(state.project, state.settings, state.guidance, state.admitted)
                 collector?.let { CollectorGearSelector(it, collectorActions) } // S046/RF-23
                 collector?.let { Messages(it, collectorActions) } // los motivos por los que no se puede medir, avisos y el punto guardado
             }
@@ -337,10 +339,12 @@ internal fun Guidance(
     project: Project?,
     settings: StakeoutSettings,
     guidance: GuidanceState,
+    admitted: AdmittedSolutions = AdmittedSolutions.FIX_ONLY,
     extra: (@Composable (GuidanceUi, Numbers) -> Unit)? = null,
 ) {
     val unit = project?.linearUnit ?: LinearUnit.METRE
     val angular = project?.angularUnit ?: AngularUnit.DECIMAL_DEGREES
+    AdmittedBadge(admitted) // S047/RF-14
     when (guidance) {
         is GuidanceState.Off -> Text(
             stringResource(guidance.reason.textRes()),

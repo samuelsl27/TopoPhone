@@ -26,7 +26,7 @@
       Hecho cuando: `CollectorViewModelAdmittedTest` en verde y los tests de S010 y S017 adaptados.
 - [x] T12. `app`: el control de precisión con las tres casillas, la confirmación de FLOAT y SINGLE y el último tipo, con sus textos en es y en. (RF-1, RF-3, RF-4, RNF-T7, RNF-T8)
       Hecho cuando: `PrecisionDialogTest` en verde, con zonas de 56 dp y etiquetas de TalkBack.
-- [ ] T13. `app`: el indicador «No solo FIX» en el recolector y en el replanteo, con icono y texto. (RF-14, RNF-T8)
+- [x] T13. `app`: el indicador «No solo FIX» en el recolector y en el replanteo, con icono y texto. (RF-14, RNF-T8)
       Hecho cuando: `AdmittedBadgeTest` en verde y el cambio de tipos se refleja en menos de 200 ms.
 - [ ] T14. `app`: los tipos admitidos al medir en la ficha del punto. (RF-16)
       Hecho cuando: `PointDetailsAdmittedTest` en verde: punto con tipos, punto de antes y punto manual.

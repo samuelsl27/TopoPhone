@@ -567,6 +567,7 @@
     <string name="precision_confirm_float">Con una solución FLOAT la precisión es submétrica: no es la de un FIX. ¿Admitirla para medir y replantear?</string>
     <string name="precision_confirm_single">Con una solución SINGLE la precisión es de varios metros. ¿Admitirla para medir y replantear?</string>
     <string name="precision_confirm_admit">Admitir</string>
+    <string name="admitted_badge">No solo FIX: se admite %1$s</string>
     <string name="precision_summary_h">H ≤ %1$s</string>
     <string name="precision_summary_v">V ≤ %1$s</string>
     <string name="precision_none">sin límites</string>

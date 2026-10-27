@@ -96,6 +96,7 @@ data class StakeoutUiState(
     val elevationSource: ElevationSource = ElevationSource.POINT,
     val canChooseSource: Boolean = false,
     val surfaceRemoved: Boolean = false,
+    val admitted: AdmittedSolutions = AdmittedSolutions.FIX_ONLY,
 )
 
 /**
@@ -143,7 +144,7 @@ class StakeoutViewModel @Inject constructor(
 
     @Volatile private var settings = StakeoutSettings()
 
-    @Volatile private var admitted = AdmittedSolutions.FIX_ONLY
+    private val admittedFlow = MutableStateFlow(AdmittedSolutions.FIX_ONLY)
 
     @Volatile private var poleHeightM = PoleHeight.DEFAULT_M
 
@@ -175,7 +176,7 @@ class StakeoutViewModel @Inject constructor(
     /** Lo de la superficie que cambia con el panel abierto (agrupado para el `combine`). */
     private data class SurfaceLive(val guide: SurfaceGuide?, val choice: ElevationSource?, val removed: Boolean)
 
-    val state: StateFlow<StakeoutUiState> = combine(
+    private val coreState = combine(
         projectFlow,
         target,
         ordered,
@@ -215,7 +216,11 @@ class StakeoutViewModel @Inject constructor(
             canChooseSource = resolution.canChoose,
             surfaceRemoved = surface.removed,
         )
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, StakeoutUiState())
+    }
+
+    /** Lo de arriba más los tipos admitidos, que se muestran junto a la guía (S047/RF-14). */
+    val state: StateFlow<StakeoutUiState> = combine(coreState, admittedFlow) { state, admitted -> state.copy(admitted = admitted) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, StakeoutUiState())
 
     init {
         viewModelScope.launch { projectFlow.collect { project = it } }
@@ -229,7 +234,7 @@ class StakeoutViewModel @Inject constructor(
             }
         }
         viewModelScope.launch { stakeoutPreferences.settings.collect { settings = it } }
-        viewModelScope.launch { collectorPreferences.settings.collect { admitted = it.precision.admitted } }
+        viewModelScope.launch { collectorPreferences.settings.collect { admittedFlow.value = it.precision.admitted } }
         viewModelScope.launch {
             // S046/RF-23: el mismo equipo activo que el recolector.
             gear.state.collect { g ->
@@ -412,7 +417,7 @@ class StakeoutViewModel @Inject constructor(
         return StakeContext(
             settings,
             design,
-            admitted,
+            admittedFlow.value,
             mode,
             poleHeightM,
             project,

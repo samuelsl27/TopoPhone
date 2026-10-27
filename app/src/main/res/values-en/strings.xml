@@ -555,6 +555,7 @@
     <string name="precision_confirm_float">With a FLOAT solution the accuracy is sub-metre: it is not that of a FIX. Admit it for measuring and staking out?</string>
     <string name="precision_confirm_single">With a SINGLE solution the accuracy is several metres. Admit it for measuring and staking out?</string>
     <string name="precision_confirm_admit">Admit</string>
+    <string name="admitted_badge">Not only FIX: %1$s admitted</string>
     <string name="precision_summary_h">H ≤ %1$s</string>
     <string name="precision_summary_v">V ≤ %1$s</string>
     <string name="precision_none">no limits</string>

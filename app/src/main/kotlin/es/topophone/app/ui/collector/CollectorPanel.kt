@@ -142,6 +142,7 @@ fun CollectorPanel(
             ) { Form(state, unit, actions) }
             BaseNoticeBanners(state.notices, actions.onDismissBaseChange, actions.onDismissLongBaseline) // S015/RF-15, RF-17
             LiveQualityText(state.live, unit)
+            AdmittedBadge(state.settings.precision.admitted) // S047/RF-14
             SurfaceReadingText(surface, unit) // S042/RF-33
             Messages(state, actions)
             when {
