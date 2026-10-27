@@ -10,7 +10,7 @@
       Hecho cuando: `AlignmentGeometryTest` en verde contra `fixtures/ejes/` a menos de 1 mm.
 - [x] T4. `core:survey`: `AlignmentGeometry.locate` (PK y desplazamiento de una posición, también en clotoides). (RF-18, RF-21)
       Hecho cuando: `AlignmentLocateTest` en verde a menos de 1 mm y ida y vuelta con `pointAt`.
-- [ ] T5. `core:survey`: `VerticalProfileEval` (cota y pendiente con parábola, círculo y vértices). (RF-18, RF-20)
+- [x] T5. `core:survey`: `VerticalProfileEval` (cota y pendiente con parábola, círculo y vértices). (RF-18, RF-20)
       Hecho cuando: `VerticalProfileEvalTest` en verde a menos de 1 mm.
 - [ ] T6. `core:survey`: `AlignmentValidator` y `ProfileValidator`. (RF-5, RF-10)
       Hecho cuando: `AlignmentValidatorTest` y `ProfileValidatorTest` en verde con el tramo o el vértice y el motivo.
