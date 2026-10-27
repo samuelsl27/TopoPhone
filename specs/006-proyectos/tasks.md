@@ -53,7 +53,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 17 → 18 en verde con proyectos de antes que se leen sin punto central y el esquema 18 en `data/schemas/`.
 - [x] T24. `data`: el repositorio guarda, edita, quita y duplica el punto central, sin redondear. (RF-32, RF-35, RF-38)
       Hecho cuando: `ProjectRepositoryCentralPointTest` en verde, incluida la copia con el mismo punto.
-- [ ] T25. `data`: el punto central en las copias de seguridad y en los paquetes `.topoproj`. (RF-38)
+- [x] T25. `data`: el punto central en las copias de seguridad y en los paquetes `.topoproj`. (RF-38)
       Hecho cuando: `CentralPointBackupTest` en verde: copia y restauración, y exportar e importar un paquete conservan el punto; una copia de la v17 se restaura sin él.
 - [ ] T26. `app`: `ProjectCenterProvider` como único sitio que calcula el centro; los ViewModels de importación de S040 y S042 lo usan en lugar de su `centerOf`. (RF-37)
       Hecho cuando: `ProjectCenterProviderTest` en verde y los tests de S040 y S042 sin cambios de comportamiento, con un caso de aviso de distancia medido desde el punto central.
