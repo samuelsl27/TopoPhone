@@ -2,6 +2,7 @@ package es.topophone.data.project
 
 import androidx.room.withTransaction
 import es.topophone.core.model.project.AngularUnit
+import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
@@ -207,6 +208,8 @@ private fun ProjectDraft.toEntity(id: String, folderId: String?, createdAt: Long
     openedAt = null,
     deletedAt = null,
     heightSystem = heightSystem.name,
+    centralLatitude = centralPoint?.latitudeDeg,
+    centralLongitude = centralPoint?.longitudeDeg,
 )
 
 internal fun ProjectEntity.toProject() = Project(
@@ -224,4 +227,5 @@ internal fun ProjectEntity.toProject() = Project(
     openedAtMs = openedAt,
     deletedAtMs = deletedAt,
     heightSystem = HeightSystem.entries.firstOrNull { it.name == heightSystem } ?: HeightSystem.ORTHOMETRIC,
+    centralPoint = centralLatitude?.let { lat -> centralLongitude?.let { lon -> CentralPoint(lat, lon) } },
 )

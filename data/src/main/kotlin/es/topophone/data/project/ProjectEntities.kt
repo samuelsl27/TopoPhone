@@ -42,6 +42,9 @@ data class ProjectEntity(
     @ColumnInfo(name = "active_surface_id") val activeSurfaceId: String? = null,
     /** El desplazamiento vertical sobre la superficie, en metros, positivo hacia arriba (S042/RF-19). */
     @ColumnInfo(name = "vertical_offset_m", defaultValue = "0") val verticalOffsetM: Double = 0.0,
+    /** El punto central opcional, latitud y longitud del suelo sin redondear; ambas NULL si no lo hay (S006/RF-32). */
+    @ColumnInfo(name = "central_latitude") val centralLatitude: Double? = null,
+    @ColumnInfo(name = "central_longitude") val centralLongitude: Double? = null,
 )
 
 /** Una carpeta de proyectos; un solo nivel (S006/RF-17). */

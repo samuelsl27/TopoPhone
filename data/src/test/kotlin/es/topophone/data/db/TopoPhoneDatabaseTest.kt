@@ -19,7 +19,9 @@ import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.point.PointEntity
 import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.ProjectEntity
+import es.topophone.data.project.RoomProjectRepository
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -887,9 +889,38 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S006 RNF-T6 de la v17 a la v18 los proyectos siguen sin punto central`() {
+        createFromExportedSchema(17)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v17 ->
+            v17.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val migrated = runBlocking { RoomProjectRepository(db).project(project.id) }.shouldNotBeNull()
+            migrated.name shouldBe project.name
+            migrated.centralPoint.shouldBeNull()
+            db.openHelper.readableDatabase.query("SELECT central_latitude, central_longitude FROM projects").use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                cursor.isNull(0) shouldBe true
+                cursor.isNull(1) shouldBe true
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 17
+        const val CURRENT_VERSION = 18
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

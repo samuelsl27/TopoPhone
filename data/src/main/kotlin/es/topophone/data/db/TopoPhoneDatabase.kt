@@ -59,6 +59,7 @@ import es.topophone.data.surface.SurfaceTileEntity
  *   `receiver_gear`), y el jalón y la antena de cada punto (columnas que admiten NULL). Migración de Room.
  * - v17 (S047): los tipos de solución admitidos al medir y las épocas descartadas por tipo de cada punto (columnas que admiten NULL).
  *   Migración de Room.
+ * - v18 (S006): el punto central opcional de cada proyecto (`central_latitude` y `central_longitude`, que admiten NULL). Migración de Room.
  */
 @Database(
     entities = [
@@ -85,6 +86,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 14, to = 15),
         AutoMigration(from = 15, to = 16),
         AutoMigration(from = 16, to = 17),
+        AutoMigration(from = 17, to = 18),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -107,7 +109,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 17
+        const val VERSION = 18
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

@@ -49,7 +49,7 @@
       Hecho cuando: `ProjectCenterTest` en verde (las cuatro ramas y el borrado) y `core:model` compila con los usos adaptados.
 - [x] T22. `core:survey`: `CentralPointResolver` (coordenadas escritas, toque y posición del receptor, con sus motivos de rechazo). (RF-33, RF-34)
       Hecho cuando: `CentralPointResolverTest` en verde: UTM contra pyproj (≤ 1 mm), geográficas, ED50, sin posición, fuera del ámbito y fuera de la rejilla ED50.
-- [ ] T23. `data`: Room v18 con `central_latitude` y `central_longitude` y `AutoMigration(17, 18)`; nota en la cabecera de `TopoPhoneDatabase`. (RF-32, RNF-T6)
+- [x] T23. `data`: Room v18 con `central_latitude` y `central_longitude` y `AutoMigration(17, 18)`; nota en la cabecera de `TopoPhoneDatabase`. (RF-32, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 17 → 18 en verde con proyectos de antes que se leen sin punto central y el esquema 18 en `data/schemas/`.
 - [ ] T24. `data`: el repositorio guarda, edita, quita y duplica el punto central, sin redondear. (RF-32, RF-35, RF-38)
       Hecho cuando: `ProjectRepositoryCentralPointTest` en verde, incluida la copia con el mismo punto.
