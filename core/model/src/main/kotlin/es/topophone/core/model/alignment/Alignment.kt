@@ -104,3 +104,21 @@ data class Alignment(
 
     val endChainage: Double get() = startChainage + lengthM
 }
+
+/** Un eje sin sus tramos ni su rasante: lo que necesita la lista de ejes del proyecto (S049/RF-14, RF-19). */
+data class AlignmentSummary(
+    val id: String,
+    val projectId: String,
+    val name: String,
+    val fileName: String?,
+    val importedAtMs: Long,
+    val source: AlignmentSource,
+    val startChainage: Double,
+    val lengthM: Double,
+    val visible: Boolean,
+    val hasProfile: Boolean,
+    val approximated: Boolean,
+    val extent: AlignmentExtent,
+) {
+    val endChainage: Double get() = startChainage + lengthM
+}

@@ -87,19 +87,22 @@ interface AlignmentDao {
     @Query("UPDATE alignments SET name = :name WHERE id = :id")
     suspend fun rename(id: String, name: String)
 
+    @Query("UPDATE alignments SET profile = :profile WHERE id = :id")
+    suspend fun setProfile(id: String, profile: ByteArray?)
+
     @Query("UPDATE alignments SET visible = :visible WHERE id = :id")
     suspend fun setVisible(id: String, visible: Boolean)
 
     @Query(
         "SELECT id, project_id, name, file_name, imported_at_ms, source, start_chainage, length_m, visible, min_e, max_e, min_n, max_n, " +
-            "approximated, profile IS NOT NULL AS has_profile FROM alignments WHERE project_id = :projectId ORDER BY imported_at_ms, id",
+            "approximated, profile IS NOT NULL AS has_profile FROM alignments WHERE project_id = :projectId ORDER BY imported_at_ms, rowid",
     )
     fun rows(projectId: String): Flow<List<AlignmentRow>>
 
     @Query("SELECT * FROM alignments WHERE id = :id")
     suspend fun byId(id: String): AlignmentEntity?
 
-    @Query("SELECT * FROM alignments WHERE project_id = :projectId ORDER BY imported_at_ms, id")
+    @Query("SELECT * FROM alignments WHERE project_id = :projectId ORDER BY imported_at_ms, rowid")
     fun all(projectId: String): Flow<List<AlignmentEntity>>
 
     @Query("SELECT name FROM alignments WHERE project_id = :projectId")
