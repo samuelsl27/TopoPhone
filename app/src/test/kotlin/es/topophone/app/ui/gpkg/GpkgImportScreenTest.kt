@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.formats.gpkg.GpkgCrsCatalog
 import es.topophone.core.model.cad.GpkgColumn
 import es.topophone.core.model.cad.GpkgLayerInfo
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -40,11 +41,17 @@ class GpkgImportScreenTest {
     private val polygons = GpkgLayerInfo("parcelas", "geom", "MULTIPOLYGON", 1, 25830, columns)
     private val mixed = GpkgLayerInfo("mixta", "geom", "GEOMETRY", 0, 4258, columns)
 
+    private val utm30 = GpkgCrsCatalog.resolveEpsg(25830)!!
+
     private val config = GpkgImportUiState(
         stage = GpkgImportStage.CONFIG,
         fileName = "capas.gpkg",
         projectName = "Calle Mayor 12",
-        layers = listOf(GpkgLayerRow(points), GpkgLayerRow(polygons, marked = false), GpkgLayerRow(mixed)),
+        layers = listOf(
+            GpkgLayerRow(points, crs = utm30),
+            GpkgLayerRow(polygons, marked = false, crs = utm30),
+            GpkgLayerRow(mixed, crs = utm30),
+        ),
     )
 
     private fun show(state: GpkgImportUiState, actions: GpkgImportActions = GpkgImportActions()) {
@@ -102,11 +109,11 @@ class GpkgImportScreenTest {
     fun `S048 RF-5 la lista da el nombre, el tipo y el numero de objetos de cada capa`() {
         show(config)
 
-        compose.onNodeWithText("vertices").assertIsDisplayed()
-        compose.onNodeWithText("Puntos · 1.234.567 objetos").assertIsDisplayed()
-        compose.onNodeWithText("Polígonos · 1 objeto").assertIsDisplayed()
-        compose.onNodeWithText("Varios tipos · 0 objetos").assertIsDisplayed()
         compose.onNodeWithText("3 capas con geometría").assertIsDisplayed()
+        compose.onNodeWithText("vertices").assertIsDisplayed()
+        compose.onNodeWithText("Puntos · 1.234.567 objetos").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Polígonos · 1 objeto").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Varios tipos · 0 objetos").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -124,7 +131,7 @@ class GpkgImportScreenTest {
         show(config, GpkgImportActions(onMarked = { table, marked -> calls += table to marked }))
 
         compose.onNodeWithTag(gpkgLayerTag("vertices")).performClick()
-        compose.onNodeWithTag(gpkgLayerTag("parcelas")).performClick()
+        compose.onNodeWithTag(gpkgLayerTag("parcelas")).performScrollTo().performClick()
 
         calls shouldBe listOf("vertices" to false, "parcelas" to true)
     }

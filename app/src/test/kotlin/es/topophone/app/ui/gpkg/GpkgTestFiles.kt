@@ -26,6 +26,6 @@ object GpkgTestFiles {
 /** Espera a que el fichero esté leído: Room y SQLite contestan desde otro hilo. Un test no debe acabar con la carga en vuelo. */
 fun GpkgImportViewModel.settled(): GpkgImportUiState = runBlocking {
     withTimeout(10_000) {
-        state.first { it.stage != GpkgImportStage.LOADING && it.stage != GpkgImportStage.IMPORTING }
+        state.first { it.stage != GpkgImportStage.LOADING && it.stage != GpkgImportStage.IMPORTING && !it.scanning }
     }
 }

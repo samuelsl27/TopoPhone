@@ -4,12 +4,15 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.map.FakePointRepository
+import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.formats.gpkg.GpkgFileKind
 import es.topophone.core.model.cad.GpkgLayerKind
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.gpkg.GeoPackageReader
+import es.topophone.data.map.RoomMapViewportRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
 import io.kotest.matchers.shouldBe
@@ -41,6 +44,7 @@ class GpkgImportViewModelTest {
         TopoPhoneDatabase::class.java,
     ).build()
     private val projects = RoomProjectRepository(db)
+    private val viewports = RoomMapViewportRepository(db)
     private val dispatcher = UnconfinedTestDispatcher()
     private val projectId = runBlocking {
         projects.create(ProjectDefaults().toDraft().copy(name = "Calle Mayor 12", crs = ProjectCrs.ETRS89_UTM30))
@@ -59,8 +63,11 @@ class GpkgImportViewModelTest {
 
     private val cache: File by lazy { folder.newFolder("cache") }
 
+    private fun viewModel(): GpkgImportViewModel =
+        GpkgImportViewModel(GeoPackageReader(cache), projects, ProjectCenterProvider(FakePointRepository(), viewports), dispatcher)
+
     private fun open(name: String, size: Long? = GpkgTestFiles.bytes(name).size.toLong()): GpkgImportViewModel {
-        val viewModel = GpkgImportViewModel(GeoPackageReader(cache), projects, dispatcher)
+        val viewModel = viewModel()
         opened += viewModel
         viewModel.start(projectId, GpkgTestFiles.source(name, size))
         return viewModel
@@ -115,7 +122,7 @@ class GpkgImportViewModelTest {
 
     @Test
     fun `S048 RF-1 un proyecto que no existe no deja abrir el fichero`() {
-        val viewModel = GpkgImportViewModel(GeoPackageReader(cache), projects, dispatcher)
+        val viewModel = viewModel()
         viewModel.start("no-existe", GpkgTestFiles.source("puntos-25830.gpkg"))
 
         val state = viewModel.settled()
@@ -168,7 +175,7 @@ class GpkgImportViewModelTest {
             it[18] = 2
             it[19] = 2
         }
-        val viewModel = GpkgImportViewModel(GeoPackageReader(cache), projects, dispatcher)
+        val viewModel = viewModel()
         viewModel.start(projectId, es.topophone.app.ui.points.ImportSource("wal.gpkg", wal.size.toLong()) { wal.inputStream() })
 
         val state = viewModel.settled()

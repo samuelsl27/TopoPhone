@@ -30,7 +30,7 @@
       Hecho cuando: `CadRepositoryAttributesTest` y `GpkgBackupTest` en verde.
 - [x] T14. `app`: «Importar GeoPackage» en los dos menús, `GpkgImportViewModel` y la pantalla con el fichero, sus errores y la lista de capas marcables. (RF-1 a RF-7)
       Hecho cuando: `GpkgImportViewModelTest` y `GpkgImportScreenTest` en verde para esos casos.
-- [ ] T15. `app`: sistema de coordenadas de cada capa (propuesto, elegido, WGS 84), extensión, distancia y aviso de 100 km. (RF-8 a RF-12)
+- [x] T15. `app`: sistema de coordenadas de cada capa (propuesto, elegido, WGS 84), extensión, distancia y aviso de 100 km. (RF-8 a RF-12)
       Hecho cuando: los mismos tests en verde para esos casos.
 - [ ] T16. `app`: zona de importación (radio, «Todo el contenido», recuento, límite) y «Fijar el punto central» con el selector de S006 si el proyecto no tiene centro. (RF-13, RF-14, RF-16)
       Hecho cuando: los mismos tests en verde, con el recuento actualizado en menos de 2 s.
