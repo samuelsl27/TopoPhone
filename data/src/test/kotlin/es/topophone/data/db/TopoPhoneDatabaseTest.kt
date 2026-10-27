@@ -7,6 +7,8 @@ import androidx.room.testing.MigrationTestHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import es.topophone.core.model.cad.CadOrigin
+import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
@@ -15,6 +17,8 @@ import es.topophone.core.model.point.PointTilt
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.TiltMode
+import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.point.PointEntity
 import es.topophone.data.point.RoomPointRepository
@@ -525,6 +529,7 @@ class TopoPhoneDatabaseTest {
                 "index_cad_drawings_project_id",
                 "index_cad_layers_drawing_id",
                 "index_cad_chunks_layer_id",
+                "cad_chunk_attributes", // S048 (v19): se añade al migrar hasta la versión actual
             )
         } finally {
             db.close()
@@ -918,9 +923,51 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S048 RNF-T6 de la v18 a la v19 los dibujos de DXF siguen y lo nuevo queda vacio`() {
+        createFromExportedSchema(18)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v18 ->
+            v18.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v18.execSQL(
+                "INSERT INTO cad_drawings (id, project_id, file_name, imported_at_ms, source_crs, source_unit, use_elevations, " +
+                    "has_elevations, incomplete, status, min_e, max_e, min_n, max_n) VALUES " +
+                    "('d1', ?, 'plano.dxf', 1, 'UTM:ED50:30', 'METRE', 1, 1, 0, 'READY', 1.0, 2.0, 3.0, 4.0)",
+                arrayOf<Any>(project.id),
+            )
+            v18.execSQL(
+                "INSERT INTO cad_layers (id, drawing_id, name, kind, color_argb, auto_contrast, visible, entity_count, position) " +
+                    "VALUES ('l1', 'd1', 'Ejes', 'LINES', -65536, 0, 1, 2, 0)",
+            )
+            v18.execSQL(
+                "INSERT INTO cad_chunks (layer_id, min_e, max_e, min_n, max_n, entity_count, data) VALUES " +
+                    "('l1', 1.0, 2.0, 3.0, 4.0, 2, x'0102')",
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val drawing = runBlocking { RoomCadRepository(db).drawings(project.id).first() }.single()
+            drawing.drawing.origin shouldBe CadOrigin.DXF
+            drawing.drawing.source shouldBe CadSourceCrs.Utm(GeodeticDatum.ED50, 30)
+            drawing.layers.single().sourceTable.shouldBeNull()
+            drawing.layers.single().nameField.shouldBeNull()
+            count(db, "cad_chunks") shouldBe 1
+            count(db, "cad_chunk_attributes") shouldBe 0
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 18
+        const val CURRENT_VERSION = 19
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

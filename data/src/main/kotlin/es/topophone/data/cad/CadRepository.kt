@@ -9,6 +9,7 @@ import es.topophone.core.model.cad.CadColor
 import es.topophone.core.model.cad.CadDrawing
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadExtent
+import es.topophone.core.model.cad.CadOrigin
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.cad.DesignLayer
 import es.topophone.core.model.cad.DesignLayerKind
@@ -218,6 +219,7 @@ private fun CadDrawing.toEntity(status: String) = CadDrawingEntity(
     maxEasting = extent?.maxEasting,
     minNorthing = extent?.minNorthing,
     maxNorthing = extent?.maxNorthing,
+    origin = origin.name,
 )
 
 private fun CadDrawingEntity.toModel() = CadDrawing(
@@ -235,6 +237,7 @@ private fun CadDrawingEntity.toModel() = CadDrawing(
     } else {
         null
     },
+    origin = CadOrigin.valueOf(origin),
 )
 
 private fun DesignLayer.toEntity() = CadLayerEntity(
@@ -247,6 +250,8 @@ private fun DesignLayer.toEntity() = CadLayerEntity(
     visible = visible,
     entityCount = entityCount,
     position = position,
+    sourceTable = sourceTable,
+    nameField = nameField,
 )
 
 private fun CadLayerEntity.toModel() = DesignLayer(
@@ -258,6 +263,8 @@ private fun CadLayerEntity.toModel() = DesignLayer(
     visible = visible,
     entityCount = entityCount,
     position = position,
+    sourceTable = sourceTable,
+    nameField = nameField,
 )
 
 private fun CadChunkEntity.toContent() =

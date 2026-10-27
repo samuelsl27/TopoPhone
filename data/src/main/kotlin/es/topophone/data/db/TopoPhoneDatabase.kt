@@ -7,6 +7,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.db.SupportSQLiteDatabase
+import es.topophone.data.cad.CadChunkAttributesEntity
 import es.topophone.data.cad.CadChunkEntity
 import es.topophone.data.cad.CadDao
 import es.topophone.data.cad.CadDrawingEntity
@@ -60,12 +61,15 @@ import es.topophone.data.surface.SurfaceTileEntity
  * - v17 (S047): los tipos de solución admitidos al medir y las épocas descartadas por tipo de cada punto (columnas que admiten NULL).
  *   Migración de Room.
  * - v18 (S006): el punto central opcional de cada proyecto (`central_latitude` y `central_longitude`, que admiten NULL). Migración de Room.
+ * - v19 (S048): de qué fichero viene cada dibujo (`cad_drawings.origin`, `DXF` por defecto), la tabla y el campo de nombre de cada capa
+ *   (`cad_layers.source_table` y `name_field`, que admiten NULL) y los atributos de cada trozo (`cad_chunk_attributes`). Migración de Room.
  */
 @Database(
     entities = [
         ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class, PointEntity::class,
         PointHistoryEntity::class, PointNmeaEntity::class, CadDrawingEntity::class, CadLayerEntity::class, CadChunkEntity::class,
         SurfaceEntity::class, SurfaceTileEntity::class, AntennaProfileEntity::class, SavedPoleEntity::class, ReceiverGearEntity::class,
+        CadChunkAttributesEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -87,6 +91,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 15, to = 16),
         AutoMigration(from = 16, to = 17),
         AutoMigration(from = 17, to = 18),
+        AutoMigration(from = 18, to = 19),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -109,7 +114,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 18
+        const val VERSION = 19
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

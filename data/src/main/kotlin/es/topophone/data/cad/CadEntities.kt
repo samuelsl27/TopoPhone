@@ -34,6 +34,8 @@ data class CadDrawingEntity(
     @ColumnInfo(name = "max_e") val maxEasting: Double?,
     @ColumnInfo(name = "min_n") val minNorthing: Double?,
     @ColumnInfo(name = "max_n") val maxNorthing: Double?,
+    /** `DXF` o `GEOPACKAGE` (S048/RF-26). */
+    @ColumnInfo(defaultValue = "'DXF'") val origin: String = "DXF",
 )
 
 /** Una capa de diseño: una capa del DXF de un solo tipo, con su color y su interruptor (S040/RF-26, RF-27). */
@@ -54,6 +56,9 @@ data class CadLayerEntity(
     val visible: Boolean,
     @ColumnInfo(name = "entity_count") val entityCount: Int,
     val position: Int,
+    /** La tabla del GeoPackage de la que viene la capa y su campo de nombre; NULL en un dibujo de DXF (S048/RF-21). */
+    @ColumnInfo(name = "source_table") val sourceTable: String? = null,
+    @ColumnInfo(name = "name_field") val nameField: String? = null,
 )
 
 /** Un trozo de una capa: unos cientos de elementos de la misma zona en un bloque binario de hasta 256 kB (S040, plan). */
@@ -80,4 +85,21 @@ data class CadChunkEntity(
     private fun key() = listOf(id, layerId, minEasting, maxEasting, minNorthing, maxNorthing, entityCount)
 
     override fun hashCode(): Int = 31 * id.hashCode() + data.contentHashCode()
+}
+
+/**
+ * Los atributos de los objetos de un trozo de un dibujo de GeoPackage, en un solo bloque en el mismo orden que sus elementos (S048/RF-20).
+ * Se lee solo al tocar un objeto, así dibujar el mapa no paga por ellos. Se borra con su trozo.
+ */
+@Entity(
+    tableName = "cad_chunk_attributes",
+    foreignKeys = [
+        ForeignKey(entity = CadChunkEntity::class, parentColumns = ["id"], childColumns = ["chunk_id"], onDelete = ForeignKey.CASCADE),
+    ],
+)
+data class CadChunkAttributesEntity(@PrimaryKey @ColumnInfo(name = "chunk_id") val chunkId: Long, val data: ByteArray) {
+    override fun equals(other: Any?): Boolean =
+        other is CadChunkAttributesEntity && chunkId == other.chunkId && data.contentEquals(other.data)
+
+    override fun hashCode(): Int = 31 * chunkId.hashCode() + data.contentHashCode()
 }

@@ -68,7 +68,10 @@ data class CadDrawing(
     fun hasElevation(entityHasZ: Boolean): Boolean = hasElevations && entityHasZ
 }
 
-/** Una capa del DXF de un solo tipo, con su color y su interruptor (S040/RF-26, RF-27). */
+/**
+ * Una capa del DXF de un solo tipo, con su color y su interruptor (S040/RF-26, RF-27). En un dibujo de GeoPackage, [sourceTable] es la
+ * tabla de la que viene y [nameField] la columna que da el nombre de cada objeto, o null si se importó sin ella (S048/RF-21).
+ */
 data class DesignLayer(
     val id: String,
     val drawingId: String,
@@ -78,6 +81,8 @@ data class DesignLayer(
     val visible: Boolean = true,
     val entityCount: Int = 0,
     val position: Int = 0,
+    val sourceTable: String? = null,
+    val nameField: String? = null,
 )
 
 /** Un elemento: su capa, el trozo que lo guarda y su posición en él (S040/RF-29; S041 lo usa para elegir qué replantear). */

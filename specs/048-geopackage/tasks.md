@@ -18,7 +18,7 @@
       Hecho cuando: `CadProjectorGeographicTest` en verde (≤ 1 mm con pyproj, ida y vuelta < 0,1 mm) y los tests de S040 sin cambios.
 - [x] T8. `core:survey`: `ImportAreaFilter` (recuadro en el SC de la capa, distancia, algún vértice dentro). (RF-13, RF-15)
       Hecho cuando: `ImportAreaFilterTest` en verde.
-- [ ] T9. `data`: Room v19 (`origin`, `source_table`, `name_field` y `cad_chunk_attributes`) y `AutoMigration(18, 19)`; las tablas nuevas en `DatabaseSnapshot.TABLES`. (RF-20, RF-26, RF-28, RNF-T6)
+- [x] T9. `data`: Room v19 (`origin`, `source_table`, `name_field` y `cad_chunk_attributes`) y `AutoMigration(18, 19)`; las tablas nuevas en `DatabaseSnapshot.TABLES`. (RF-20, RF-26, RF-28, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 18 → 19 en verde con dibujos de DXF que se leen como `DXF`, y el esquema 19 en `data/schemas/`.
 - [ ] T10. `data`: `GeoPackageReader` (copia temporal, solo lectura, capas, columnas, tablas ajenas y limpieza). (RF-1 a RF-7)
       Hecho cuando: `GeoPackageReaderTest` en verde con los `.gpkg` de `tools`, sin dejar el temporal.
