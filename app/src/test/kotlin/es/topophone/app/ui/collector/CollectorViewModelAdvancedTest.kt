@@ -8,6 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.app.ui.receiver.nmea
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
@@ -311,7 +312,7 @@ class CollectorViewModelAdvancedTest {
     @Test
     fun `S017 RF-6 Terminar pasa por el control de precision y pide confirmar si no se cumple`() {
         val projectId = project()
-        val vm = averagedViewModel(600, PrecisionControl(fixOnly = false, horizontalLimitM = 0.001), projectId)
+        val vm = averagedViewModel(600, PrecisionControl(admitted = AdmittedSolutions.ALL, horizontalLimitM = 0.001), projectId)
         receiving(vm)
 
         startMeasuring(vm)
@@ -705,7 +706,7 @@ class CollectorViewModelAdvancedTest {
         receiving(vm)
         startAuto(vm)
 
-        vm.setSettings(settings.copy(precision = PrecisionControl(fixOnly = false)))
+        vm.setSettings(settings.copy(precision = PrecisionControl(admitted = AdmittedSolutions.ALL)))
 
         collectorPreferences.settings.value.precision.fixOnly shouldBe false
     }

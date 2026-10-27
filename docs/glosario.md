@@ -81,6 +81,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Base / rover | `Base` / `Rover` | |
 | Línea base | `Baseline` | |
 | Solución: autónoma / flotante / fija | `SolutionStatus.SINGLE` / `.FLOAT` / `.FIX` | También `DGPS`, `NONE` |
+| Tipo de solución | `SolutionType` | FIX, FLOAT o SINGLE, de mejor a peor; una GGA con calidad DGPS cuenta como SINGLE (S047) |
+| Tipo de solución admitido | `AdmittedSolution` (`AdmittedSolutions`) | Los tipos con los que la app deja medir y replantear; por defecto solo FIX (S047) |
+| Solución degradada | `DegradedSolution` | Durante un promediado, llega una época de un tipo peor que el mejor visto y se descarta (S047) |
 | Edad de las correcciones | `correctionAge` | |
 | Época | `Epoch` | Frases con la misma hora UTC; la completa `EpochAssembler` (S003) |
 | Constelación | `Constellation` | GPS, GLONASS, Galileo, BeiDou, QZSS, NavIC; por talker o por *system ID* |

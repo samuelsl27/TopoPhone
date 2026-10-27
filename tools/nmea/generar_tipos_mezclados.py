@@ -6,7 +6,7 @@ de 1,800 m y el RS3 como en S002):
   verdadero y con su ruido, para que una época de más o de menos de otro tipo se note en la media: FIX (3 mm), FLOAT (3 cm),
   SINGLE (30 cm) y DGPS (15 cm). Tramos: FIX 0 a 49, FLOAT 50 a 99, SINGLE 100 a 149, DGPS 150 a 169, FLOAT 170 a 219,
   FIX 220 a 269, FLOAT 270 a 299 y FIX 300 a 399.
-- tipos-mezclados.esperado.csv: por escenario (tipos admitidos, época de la que se empieza y segundos que se piden), con qué
+- tipos-mezclados.promedios.csv: por escenario (tipos admitidos, época de la que se empieza y segundos que se piden), con qué
   tipo acaba la medida, cuántas épocas usa, cuántas descarta por tipo, cuántas veces avisa «Solución degradada», en qué época
   termina y la media del suelo en ETRS89 / UTM 30 con `math.fsum`, desde la GGA tal como la lee la app.
 
@@ -133,7 +133,7 @@ def expected(parsed: list[a.Parsed]) -> str:
 
 def generate() -> dict[str, bytes | str]:
     nmea, parsed = a.write(fixes())
-    return {"tipos-mezclados.nmea": nmea, "tipos-mezclados.esperado.csv": expected(parsed)}
+    return {"tipos-mezclados.nmea": nmea, "tipos-mezclados.promedios.csv": expected(parsed)}
 
 
 def main() -> int:

@@ -15,6 +15,7 @@ import es.topophone.core.geodesy.Ecef
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.log.LogLevel
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.GearUsed
@@ -461,7 +462,7 @@ class CollectorViewModelTest {
     @Test
     fun `S010 RF-13 los ajustes del control de precision se guardan para todos los proyectos`() {
         val vm = viewModel(project())
-        val chosen = CollectorSettings(precision = PrecisionControl(fixOnly = false, horizontalLimitM = 0.02))
+        val chosen = CollectorSettings(precision = PrecisionControl(admitted = AdmittedSolutions.ALL, horizontalLimitM = 0.02))
 
         vm.setSettings(chosen)
 

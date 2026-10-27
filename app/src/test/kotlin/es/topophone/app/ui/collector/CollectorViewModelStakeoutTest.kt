@@ -9,6 +9,7 @@ import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.app.ui.stakeout.StakeSaveInfo
 import es.topophone.app.ui.stakeout.StakeTarget
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.MeasurementMode
@@ -461,7 +462,7 @@ class CollectorViewModelStakeoutTest {
 
     @Test
     fun `S018 RF-26 el control de precision pide confirmar y al confirmar se guarda replanteado y fuera de tolerancia`() {
-        val vm = viewModel(CollectorSettings(precision = PrecisionControl(fixOnly = false, horizontalLimitM = 0.001)))
+        val vm = viewModel(CollectorSettings(precision = PrecisionControl(admitted = AdmittedSolutions.ALL, horizontalLimitM = 0.001)))
         receiving(vm)
         // Con el límite de 1 mm la medida normal tampoco cumple: se confirma para tener un punto de donde sacar el diseño.
         sendEpoch(next++)

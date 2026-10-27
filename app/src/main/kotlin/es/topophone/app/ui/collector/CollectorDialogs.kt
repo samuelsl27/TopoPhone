@@ -30,6 +30,7 @@ import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.PrecisionControl
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.project.LinearUnit
@@ -156,7 +157,16 @@ private fun PrecisionDialog(
                 onClick = {
                     val chosenTilt = tiltDeg?.takeIf { tiltOn }?.let { Math.toRadians(it.toDouble()) }
                     val maxTilt = if (showTilt) chosenTilt else precision.maxTiltRad
-                    onSave(PrecisionControl(fixOnly, horizontalM.takeIf { horizontalOn }, verticalM.takeIf { verticalOn }, maxTilt))
+                    onSave(
+                        PrecisionControl(
+                            if (fixOnly) AdmittedSolutions.FIX_ONLY else AdmittedSolutions.ALL,
+                            horizontalM.takeIf {
+                                horizontalOn
+                            },
+                            verticalM.takeIf { verticalOn },
+                            maxTilt,
+                        ),
+                    )
                 },
                 enabled = valid,
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(PRECISION_SAVE_TAG),

@@ -6,31 +6,39 @@ import es.topophone.core.model.project.LinearUnit
 /** Instantánea (primera época que llega) o promediada (S010/RF-8, RF-9). */
 enum class MeasurementMode { INSTANT, AVERAGED }
 
-/** Condición del control de precisión que una medida no cumple (S010/RF-14; inclinación máxima, S016/RF-20). */
+/**
+ * Condición del control de precisión que una medida no cumple (S010/RF-14; inclinación máxima, S016/RF-20). [NOT_FIX] es que el tipo
+ * de solución no está entre los admitidos (S047/RF-7); conserva su nombre porque se guarda y se exporta así.
+ */
 enum class PrecisionFailure { NOT_FIX, HORIZONTAL, VERTICAL, NO_ACCURACY, TILT }
 
 /**
- * Control de precisión (S010/RF-13): solo FIX, activo por defecto, y límites de precisión horizontal y vertical
+ * Control de precisión (S010/RF-13): los tipos de solución admitidos, solo FIX por defecto (S047/RF-1, RF-2), y límites de precisión horizontal y vertical
  * en metros, desactivados (null) por defecto. Con la inclinación, también la inclinación máxima en radianes, activa
  * por defecto con 60° (S016/RF-20).
  */
 data class PrecisionControl(
-    val fixOnly: Boolean = true,
+    val admitted: AdmittedSolutions = AdmittedSolutions.FIX_ONLY,
     val horizontalLimitM: Double? = null,
     val verticalLimitM: Double? = null,
     val maxTiltRad: Double? = DEFAULT_MAX_TILT_RAD,
 ) {
+    /** Solo se admite FIX. Provisional: lo usan los sitios que aún no leen [admitted] (S047 T4, T10, T11). */
+    val fixOnly: Boolean get() = admitted.onlyFix
+
     /**
      * Condiciones que incumple una medida; vacío si cumple (S010/RF-14). Con la precisión igual al límite, cumple.
+     * [solution] es el tipo de solución de la medida, o null si no tiene (S047/RF-6, RF-7); si no está admitido, falla [PrecisionFailure.NOT_FIX].
      * [tiltRad] es la mayor inclinación de las épocas usadas, o null si el modo no usa la inclinación (S016/RF-20).
      */
-    fun check(isFix: Boolean, horizontalM: Double?, verticalM: Double?, tiltRad: Double? = null): Set<PrecisionFailure> = buildSet {
-        if (fixOnly && !isFix) add(PrecisionFailure.NOT_FIX)
-        checkLimit(horizontalLimitM, horizontalM, PrecisionFailure.HORIZONTAL)
-        checkLimit(verticalLimitM, verticalM, PrecisionFailure.VERTICAL)
-        val maxTilt = maxTiltRad
-        if (maxTilt != null && tiltRad != null && tiltRad > maxTilt) add(PrecisionFailure.TILT)
-    }
+    fun check(solution: SolutionType?, horizontalM: Double?, verticalM: Double?, tiltRad: Double? = null): Set<PrecisionFailure> =
+        buildSet {
+            if (solution !in admitted) add(PrecisionFailure.NOT_FIX)
+            checkLimit(horizontalLimitM, horizontalM, PrecisionFailure.HORIZONTAL)
+            checkLimit(verticalLimitM, verticalM, PrecisionFailure.VERTICAL)
+            val maxTilt = maxTiltRad
+            if (maxTilt != null && tiltRad != null && tiltRad > maxTilt) add(PrecisionFailure.TILT)
+        }
 
     private fun MutableSet<PrecisionFailure>.checkLimit(limit: Double?, value: Double?, failure: PrecisionFailure) {
         when {

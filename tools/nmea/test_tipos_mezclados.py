@@ -14,7 +14,7 @@ from pyproj import Transformer  # noqa: E402
 UTM = Transformer.from_crs("EPSG:4258", "EPSG:25830", always_xy=True)
 ANTENNA_HEIGHT = g.POLE_M + g.RS3_BASE_TO_REFERENCE_M
 NAME = "tipos-mezclados.nmea"
-CSV = "tipos-mezclados.esperado.csv"
+CSV = "tipos-mezclados.promedios.csv"
 QUALITY_TYPE = {"1": "SINGLE", "2": "SINGLE", "4": "FIX", "5": "FLOAT"}  # una DGPS cuenta como SINGLE (S047/RF-18)
 
 

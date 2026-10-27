@@ -5,7 +5,7 @@
 ## Estructura de módulos
 - `core:model`
   - `SolutionType` (`FIX`, `FLOAT`, `SINGLE`, de mejor a peor) y `AdmittedSolutions`: el conjunto de tipos admitidos, nunca vacío (RF-2, RF-3).
-  - `PrecisionControl.fixOnly: Boolean` pasa a `admitted: AdmittedSolutions` (por defecto solo FIX). `check` recibe el `SolutionType?` de la medida en lugar de `isFix` (RF-7). `PrecisionFailure.NOT_FIX` pasa a `SOLUTION_TYPE`.
+  - `PrecisionControl.fixOnly: Boolean` pasa a `admitted: AdmittedSolutions` (por defecto solo FIX). `check` recibe el `SolutionType?` de la medida en lugar de `isFix` (RF-7). `PrecisionFailure.NOT_FIX` conserva su nombre (ahora significa «tipo de solución no admitido»), porque se guarda en `out_of_tolerance` y se escribe así en el CSV (S012).
   - `PointQuality` gana `admitted: AdmittedSolutions?` y `epochsDiscardedByType: Int?` (RF-15); `solution` se conserva tal como está.
 - `core:survey`
   - `SolutionTypes.of(SolutionStatus): SolutionType?` (RF-18: `DGPS` → `SINGLE`; `ESTIMATED` y `NONE` → null, nunca se admiten). Vive aquí porque `core:model` no conoce `SolutionStatus` (de `core:gnss`).
@@ -38,7 +38,7 @@ Al guardar se escribe la clave nueva y se borra la antigua, en una sola `edit` (
 
 Los puntos anteriores quedan con NULL y la ficha no muestra los tipos admitidos (RF-16). `epochs_discarded` se conserva y cuenta todas las descartadas, de las que `epochs_discarded_by_type` son las debidas al tipo. S017b pasa a v18 y S048 a v19 si cambia el esquema.
 
-`out_of_tolerance` guarda `NOT_FIX` en los puntos de antes: al leer, `NOT_FIX` se interpreta como `SOLUTION_TYPE`. No se reescribe ninguna fila (RNF-T6, constitución nº 1).
+`out_of_tolerance` sigue guardando `NOT_FIX` en los puntos de antes y en los nuevos: no se reescribe ninguna fila (RNF-T6, constitución nº 1).
 
 ## Algoritmos
 ### A1. Medir con tipos admitidos (RF-8 a RF-10)
@@ -64,7 +64,7 @@ promediada:
 - Con los tres tipos admitidos, una medida promediada ya no mezcla FIX con FLOAT: es el cambio buscado (H3). Con la antigua opción apagada (RF-17) cambia el comportamiento del promediado; la spec lo pide.
 
 ### A2. Control de precisión (RF-6, RF-7)
-`PrecisionControl.check(solution: SolutionType?, ...)` añade `SOLUTION_TYPE` si `solution == null` o no está en `admitted`; el resto de condiciones no cambia. Con tipos admitidos, `PointMeasurement` solo produce `Done` con tipos admitidos salvo en la medida confirmada de D1; el flujo «fuera de tolerancia → confirmar → guardar marcado» de S010/RF-14, RF-15 se conserva tal cual.
+`PrecisionControl.check(solution: SolutionType?, ...)` añade `NOT_FIX` si `solution == null` o no está en `admitted`; el resto de condiciones no cambia. Con tipos admitidos, `PointMeasurement` solo produce `Done` con tipos admitidos salvo en la medida confirmada de D1; el flujo «fuera de tolerancia → confirmar → guardar marcado» de S010/RF-14, RF-15 se conserva tal cual.
 
 ### A3. Replanteo (RF-12, RF-13)
 `StakeContext.fixOnly` pasa a `admitted`. En `StakeoutController.onEpoch`, si el tipo de la época no está en `admitted` (incluido sin tipo), la guía se apaga con `GuidanceOff.SOLUTION_NOT_ADMITTED` (antes `NO_FIX`) y con el mismo aviso de S018/RF-22. Si está, sigue con cualquiera de ellos, y `GuidanceUi.solution` ya lleva el tipo a la interfaz (RF-13).
@@ -89,7 +89,7 @@ Casillas de 56 dp con etiqueta de TalkBack; el indicador lleva icono y texto; el
 | Conjunto de tipos admitidos, no un nivel mínimo | La spec los marca uno a uno (RF-1) y permite, por ejemplo, FLOAT sin FIX (RF-6) | Un único «tipo mínimo» (no permite el caso «solo FLOAT») |
 | `SolutionType` en `core:model` y el mapeo en `core:survey` | `core:model` no conoce `SolutionStatus`; `core:survey` conoce los dos | Mover `SolutionStatus` a `core:model` (arrastra `core:gnss`) |
 | Leer la clave antigua sin migrar | RF-17 sin efectos visibles y sin escribir al actualizar | Migración que reescribe el DataStore al arrancar |
-| `NOT_FIX` se lee como `SOLUTION_TYPE` | No se tocan filas antiguas (RNF-T6) | `UPDATE` de los puntos en la migración |
+| `NOT_FIX` conserva su nombre | Se guarda y se exporta así (CSV de S012, ficheros de oro): renombrarlo cambiaría un formato | Renombrar a `SOLUTION_TYPE` con lectura del valor antiguo |
 | Dos columnas nuevas, no una cadena JSON | Consultables y exportables más adelante | Un campo único con todo |
 | Sin dependencias nuevas | `AGENTS.md` | — |
 

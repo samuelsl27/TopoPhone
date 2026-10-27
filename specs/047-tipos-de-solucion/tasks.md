@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/nmea`: `generar_tipos_mezclados.py` con una grabación sintética de FIX, FLOAT y SINGLE alternados (también una época DGPS) y, calculado aparte, el punto esperado con cada combinación de tipos admitidos; y su test. (RF-8, RF-9, RF-10, RF-18, RNF)
       Hecho cuando: el script genera `fixtures/nmea/sintetico/tipos-mezclados.nmea` y su `.esperado.csv`, y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `SolutionType`, `AdmittedSolutions` (toggle con confirmación, último tipo, codificación) y `PrecisionControl.admitted` con `check` por tipo y `PrecisionFailure.SOLUTION_TYPE`; los términos nuevos en `docs/glosario.md`. (RF-1 a RF-4, RF-6, RF-7)
+- [x] T2. `core:model`: `SolutionType`, `AdmittedSolutions` (toggle con confirmación, último tipo, codificación) y `PrecisionControl.admitted` con `check` por tipo (`PrecisionFailure.NOT_FIX` conserva su nombre); los términos nuevos en `docs/glosario.md`. (RF-1 a RF-4, RF-6, RF-7)
       Hecho cuando: `AdmittedSolutionsTest` y `PrecisionControlTest` en verde y `core:model` compila con los usos adaptados.
 - [ ] T3. `core:survey`: `SolutionTypes.of(SolutionStatus)`. (RF-18)
       Hecho cuando: `SolutionTypesTest` en verde: FIX, FLOAT, SINGLE, DGPS como SINGLE y ESTIMATED y NONE sin tipo.
@@ -16,8 +16,8 @@
       Hecho cuando: los tests de `core:model` y `core:survey` en verde y `PointQuality` sin cambios para quien no los pasa.
 - [ ] T7. `data`: Room v17 con las columnas `admitted_solutions` y `epochs_discarded_by_type` y `AutoMigration(16, 17)`. (RF-15, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 16 → 17 en verde con puntos antiguos que se leen sin tipos admitidos.
-- [ ] T8. `data`: guardar y leer los tipos admitidos y las épocas descartadas por tipo, y leer `NOT_FIX` como `SOLUTION_TYPE`. (RF-7, RF-15)
-      Hecho cuando: `PointRepositoryAdmittedTest` en verde: se guarda y se lee, un punto de antes sin tipos y un `NOT_FIX` antiguo.
+- [ ] T8. `data`: guardar y leer los tipos admitidos y las épocas descartadas por tipo, (`NOT_FIX` se sigue guardando igual). (RF-7, RF-15)
+      Hecho cuando: `PointRepositoryAdmittedTest` en verde: se guarda y se lee, un punto de antes sin tipos y un `NOT_FIX` guardado.
 - [ ] T9. `data`: `CollectorPreferences` con `collector_admitted_solutions` y la lectura de `collector_fix_only`. (RF-5, RF-17)
       Hecho cuando: `CollectorPreferencesTest` en verde: clave nueva, antigua `true` y `false`, ninguna y valores desconocidos; la clave antigua se borra al guardar.
 - [ ] T10. `app`: `StakeoutController`, `StakeoutViewModel` y `LineStakeoutViewModel` con `admitted`; la guía se apaga con `SOLUTION_NOT_ADMITTED`. (RF-12, RF-13)

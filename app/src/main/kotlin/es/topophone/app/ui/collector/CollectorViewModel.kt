@@ -33,6 +33,7 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointQuality
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.SolutionType
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutNames
 import es.topophone.core.model.point.StakeoutRef
@@ -908,7 +909,7 @@ class CollectorViewModel @Inject constructor(
                 stopMeasuring()
                 val result = update.result
                 val failures = state.value.settings.precision.check(
-                    result.solution == SolutionStatus.FIX,
+                    provisionalType(result.solution), // S047 T11
                     result.horizontalM,
                     result.verticalM,
                     result.maxTiltRad, // S016/RF-20: null si el modo no usa la inclinación
@@ -928,6 +929,13 @@ class CollectorViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /** Provisional hasta S047 T3 y T11: FIX y FLOAT son ellos mismos y lo demás cuenta como SINGLE. */
+    private fun provisionalType(status: SolutionStatus): SolutionType = when (status) {
+        SolutionStatus.FIX -> SolutionType.FIX
+        SolutionStatus.FLOAT -> SolutionType.FLOAT
+        else -> SolutionType.SINGLE
     }
 
     private fun save(result: MeasurementResult, failures: Set<PrecisionFailure>) {

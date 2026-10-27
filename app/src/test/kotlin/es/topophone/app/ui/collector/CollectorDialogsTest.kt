@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.PrecisionControl
 import es.topophone.core.model.point.PrecisionFailure
@@ -92,7 +93,9 @@ class CollectorDialogsTest {
     fun `S010 RF-13 con limites el resumen los da en la unidad del proyecto`() {
         show(
             ready.copy(
-                settings = CollectorSettings(precision = PrecisionControl(fixOnly = true, horizontalLimitM = 0.02, verticalLimitM = 0.03)),
+                settings = CollectorSettings(
+                    precision = PrecisionControl(admitted = AdmittedSolutions.FIX_ONLY, horizontalLimitM = 0.02, verticalLimitM = 0.03),
+                ),
             ),
         )
 

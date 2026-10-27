@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
@@ -47,7 +48,8 @@ class DataStoreCollectorPreferences @Inject constructor(@param:CollectorDataStor
                 mode = MeasurementMode.entries.firstOrNull { it.name == p[MODE] } ?: factory.mode,
                 averagingSeconds = p[AVERAGING_SECONDS] ?: factory.averagingSeconds,
                 precision = PrecisionControl(
-                    fixOnly = p[FIX_ONLY] ?: factory.precision.fixOnly,
+                    // Provisional hasta S047 T9: la clave antigua decide.
+                    admitted = if (p[FIX_ONLY] ?: factory.precision.fixOnly) AdmittedSolutions.FIX_ONLY else AdmittedSolutions.ALL,
                     horizontalLimitM = p[HORIZONTAL_LIMIT],
                     verticalLimitM = p[VERTICAL_LIMIT],
                     // S016/RF-20: activa por defecto, así que se guarda si está activa además del valor.

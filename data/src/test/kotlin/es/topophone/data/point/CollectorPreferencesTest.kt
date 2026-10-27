@@ -1,5 +1,6 @@
 package es.topophone.data.point
 
+import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
@@ -46,7 +47,7 @@ class CollectorPreferencesTest {
             CollectorSettings(
                 MeasurementMode.AVERAGED,
                 30,
-                PrecisionControl(fixOnly = false, horizontalLimitM = 0.02, verticalLimitM = 0.035),
+                PrecisionControl(admitted = AdmittedSolutions.ALL, horizontalLimitM = 0.02, verticalLimitM = 0.035),
             )
         withPreferences { it.save(chosen) }
         withPreferences { it.settings.first() } shouldBe chosen

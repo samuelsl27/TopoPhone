@@ -33,32 +33,34 @@ class PointModelTest {
 
     @Test
     fun `S010 RF-13 por defecto solo FIX y sin limites de precision`() {
-        PrecisionControl() shouldBe PrecisionControl(fixOnly = true, horizontalLimitM = null, verticalLimitM = null)
+        PrecisionControl() shouldBe PrecisionControl(admitted = AdmittedSolutions.FIX_ONLY, horizontalLimitM = null, verticalLimitM = null)
         CollectorSettings() shouldBe CollectorSettings(MeasurementMode.INSTANT, averagingSeconds = 5, precision = PrecisionControl())
     }
 
     @Test
     fun `S010 RF-14 una medida en FIX sin limites cumple y fuera de FIX no, salvo sin el control de solo FIX`() {
-        PrecisionControl().check(isFix = true, horizontalM = 0.012, verticalM = 0.020).shouldBeEmpty()
-        PrecisionControl().check(isFix = false, horizontalM = 0.3, verticalM = 0.5) shouldBe setOf(PrecisionFailure.NOT_FIX)
-        PrecisionControl(fixOnly = false).check(isFix = false, horizontalM = 0.3, verticalM = 0.5).shouldBeEmpty()
+        PrecisionControl().check(solution = SolutionType.FIX, horizontalM = 0.012, verticalM = 0.020).shouldBeEmpty()
+        PrecisionControl().check(solution = SolutionType.FLOAT, horizontalM = 0.3, verticalM = 0.5) shouldBe setOf(PrecisionFailure.NOT_FIX)
+        PrecisionControl(
+            admitted = AdmittedSolutions.ALL,
+        ).check(solution = SolutionType.FLOAT, horizontalM = 0.3, verticalM = 0.5).shouldBeEmpty()
     }
 
     @Test
     fun `S010 RF-14 los limites se cumplen con la precision igual o menor y se dice cual falla`() {
         val control = PrecisionControl(horizontalLimitM = 0.02, verticalLimitM = 0.03)
 
-        control.check(isFix = true, horizontalM = 0.02, verticalM = 0.03).shouldBeEmpty()
-        control.check(isFix = true, horizontalM = 0.021, verticalM = 0.03) shouldBe setOf(PrecisionFailure.HORIZONTAL)
-        control.check(isFix = false, horizontalM = 0.05, verticalM = 0.04) shouldBe
+        control.check(solution = SolutionType.FIX, horizontalM = 0.02, verticalM = 0.03).shouldBeEmpty()
+        control.check(solution = SolutionType.FIX, horizontalM = 0.021, verticalM = 0.03) shouldBe setOf(PrecisionFailure.HORIZONTAL)
+        control.check(solution = SolutionType.FLOAT, horizontalM = 0.05, verticalM = 0.04) shouldBe
             setOf(PrecisionFailure.NOT_FIX, PrecisionFailure.HORIZONTAL, PrecisionFailure.VERTICAL)
     }
 
     @Test
     fun `S010 RF-14 con un limite activo y sin precision del receptor la condicion no se cumple`() {
-        PrecisionControl(verticalLimitM = 0.03).check(isFix = true, horizontalM = null, verticalM = null) shouldBe
+        PrecisionControl(verticalLimitM = 0.03).check(solution = SolutionType.FIX, horizontalM = null, verticalM = null) shouldBe
             setOf(PrecisionFailure.NO_ACCURACY)
-        PrecisionControl().check(isFix = true, horizontalM = null, verticalM = null).shouldBeEmpty()
+        PrecisionControl().check(solution = SolutionType.FIX, horizontalM = null, verticalM = null).shouldBeEmpty()
     }
 
     @Test
@@ -71,12 +73,14 @@ class PointModelTest {
     fun `S016 RF-20 la inclinacion maxima no se cumple si alguna epoca la supera`() {
         val control = PrecisionControl(maxTiltRad = Math.toRadians(30.0))
 
-        control.check(isFix = true, horizontalM = 0.01, verticalM = 0.02, tiltRad = Math.toRadians(30.0)).shouldBeEmpty()
-        control.check(isFix = true, horizontalM = 0.01, verticalM = 0.02, tiltRad = Math.toRadians(30.5)) shouldBe
+        control.check(solution = SolutionType.FIX, horizontalM = 0.01, verticalM = 0.02, tiltRad = Math.toRadians(30.0)).shouldBeEmpty()
+        control.check(solution = SolutionType.FIX, horizontalM = 0.01, verticalM = 0.02, tiltRad = Math.toRadians(30.5)) shouldBe
             setOf(PrecisionFailure.TILT)
         // Sin inclinación (jalón vertical, S016/RF-20) o con la condición desactivada, no se mira.
-        control.check(isFix = true, horizontalM = 0.01, verticalM = 0.02, tiltRad = null).shouldBeEmpty()
-        PrecisionControl(maxTiltRad = null).check(isFix = true, horizontalM = 0.01, verticalM = 0.02, tiltRad = 1.2).shouldBeEmpty()
+        control.check(solution = SolutionType.FIX, horizontalM = 0.01, verticalM = 0.02, tiltRad = null).shouldBeEmpty()
+        PrecisionControl(
+            maxTiltRad = null,
+        ).check(solution = SolutionType.FIX, horizontalM = 0.01, verticalM = 0.02, tiltRad = 1.2).shouldBeEmpty()
     }
 
     @Test
