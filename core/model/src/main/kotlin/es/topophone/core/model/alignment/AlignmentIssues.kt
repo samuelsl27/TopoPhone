@@ -22,6 +22,9 @@ sealed interface AlignmentIssue {
     /** El elemento del dibujo no es una polilínea con longitud (RF-6). */
     data object NotAPolyline : AlignmentIssue
 
+    /** El proyecto está en coordenadas geográficas: un eje con PK en metros necesita un plano. */
+    data object GeographicProject : AlignmentIssue
+
     /** Un vértice del eje queda fuera del ámbito del sistema del proyecto (RF-12). */
     data object OutsideCrsArea : AlignmentIssue
 }

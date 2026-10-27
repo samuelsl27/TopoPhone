@@ -12,6 +12,7 @@ un CSV de rasante y los ficheros de lo esperado:
   o la de su arco (círculo) y su radio.
 - pi-vertices.csv y esperado-pi.csv: un eje dado por vértices con su radio y la longitud de sus clotoides (RF-8), sus tramos con inicio y
   fin (PK inicial 250), calculados por geometría de tangentes y comprobados en el propio script.
+- esperado-crs.csv: los puntos del eje A, escrito en ETRS89 UTM 31, en ETRS89 UTM 30 con pyproj (RF-11).
 - esperado-resumen.csv: por fichero y alineación, longitud, PK inicial, si trae rasante y el estado que debe dar la importación.
 
 Cómo se calcula (otro algoritmo que el del móvil, para que la coincidencia no sea una tautología):
@@ -449,6 +450,19 @@ def summary_rows() -> list[tuple]:
     return rows
 
 
+def crs_rows() -> list[str]:
+    """El eje A tomado como ETRS89 UTM 31 y sus puntos en ETRS89 UTM 30 (el del proyecto), con pyproj (RF-11)."""
+    from pyproj import Transformer
+
+    transformer = Transformer.from_crs("EPSG:25831", "EPSG:25830", always_xy=True)
+    rows = ["eje,pk,este_origen,norte_origen,este_proyecto,norte_proyecto"]
+    for pk in sample_pks(AXIS_A):
+        state, _ = point_at(AXIS_A, pk)
+        e, n = transformer.transform(state.east, state.north)
+        rows.append(",".join([AXIS_A.name, A(pk), A(state.east), A(state.north), A(e), A(n)]))
+    return rows
+
+
 def expected() -> dict[str, str]:
     tramos = ["eje,tramo,tipo,pk_inicio,longitud,k_inicio,k_fin,este_inicio,norte_inicio,este_fin,norte_fin,azimut_inicio_deg"]
     for a in AXES:
@@ -484,6 +498,7 @@ def expected() -> dict[str, str]:
         "esperado-puntos.csv": "\n".join(puntos) + "\n",
         "pi-vertices.csv": "\n".join(pi_vertices) + "\n",
         "esperado-pi.csv": "\n".join(pi_rows) + "\n",
+        "esperado-crs.csv": "\n".join(crs_rows()) + "\n",
         "esperado-rasantes.csv": "\n".join(rasantes) + "\n",
         "esperado-resumen.csv": "\n".join(resumen) + "\n",
     }

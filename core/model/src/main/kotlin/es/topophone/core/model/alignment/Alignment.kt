@@ -77,7 +77,8 @@ data class AlignmentExtent(val minEasting: Double, val maxEasting: Double, val m
 
 /**
  * Un eje en un proyecto (S049): su planta, su rasante si la tiene y lo necesario para listarlo (RF-13, RF-14, RF-19). [fileName] es
- * null si se definió a mano. [visible] es la elección de mostrarlo en el mapa (RF-19).
+ * null si se definió a mano. [visible] es la elección de mostrarlo en el mapa (RF-19). [approximated] es que el eje se importó de otro
+ * sistema de coordenadas y se guardó como rectas cortas (decisión D2): su radio no se conoce.
  */
 data class Alignment(
     val id: String,
@@ -90,6 +91,7 @@ data class Alignment(
     val profile: VerticalProfile?,
     val visible: Boolean,
     val extent: AlignmentExtent,
+    val approximated: Boolean = false,
 ) {
     init {
         require(elements.isNotEmpty()) { "Un eje tiene al menos un tramo" }
