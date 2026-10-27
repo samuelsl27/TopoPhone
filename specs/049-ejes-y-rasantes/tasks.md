@@ -18,7 +18,7 @@
       Hecho cuando: `PiAlignmentBuilderTest` en verde contra `tools`.
 - [x] T8. `core:survey`: `PolylineAlignmentBuilder` (inicio en el extremo más cercano, reconstrucción de arcos de D1, rasante sin acuerdos). (RF-6, RF-7)
       Hecho cuando: `PolylineAlignmentBuilderTest` en verde con arcos, una spline rechazada y una polilínea sin cotas.
-- [ ] T9. `core:formats`: `LandXmlAlignmentReader.scan` (alineaciones, longitud, PK inicial, rasante, unidad; sin alineaciones, no válido y más de 100 MB). (RF-2, RF-3)
+- [x] T9. `core:formats`: `LandXmlAlignmentReader.scan` (alineaciones, longitud, PK inicial, rasante, unidad; sin alineaciones, no válido y más de 100 MB). (RF-2, RF-3)
       Hecho cuando: `LandXmlAlignmentReaderTest` en verde para esos casos.
 - [ ] T10. `core:formats`: `LandXmlAlignmentReader.read` (tramos, rasante, orden Norte-Este, tipos no admitidos y D3). (RF-4, RF-5, RF-10)
       Hecho cuando: el mismo test en verde y los ejes de `tools` dan sus tramos.
