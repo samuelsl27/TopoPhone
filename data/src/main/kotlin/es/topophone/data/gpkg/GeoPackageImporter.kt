@@ -1,5 +1,6 @@
 package es.topophone.data.gpkg
 
+import es.topophone.core.formats.gpkg.GpkgGeometryReader
 import es.topophone.core.model.cad.CadColor
 import es.topophone.core.model.cad.CadDrawing
 import es.topophone.core.model.cad.CadEntity
@@ -19,6 +20,7 @@ import es.topophone.core.model.cad.ImportArea
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.ImportAreaFilter
+import es.topophone.core.survey.LayerBox
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.cad.CadChunkWriter
 import es.topophone.data.cad.CadDrawingImporter
@@ -191,9 +193,12 @@ class GeoPackageImporter(
                 val ignored = HashMap<GpkgIgnoredReason, Int>()
                 var imported = 0
                 var omitted = 0
-                session.forEachFeature(layer, filter?.candidateBox(choice.source)) { feature ->
+                val box = filter?.candidateBox(choice.source)
+                session.forEachFeature(layer, box) { feature ->
                     check()
                     if (++done % PROGRESS_EVERY == 0L) onProgress(done, total)
+                    // Sin índice espacial se leen todos los objetos, pero uno cuya envolvente no toca la zona se descarta sin convertirlo.
+                    if (box != null && isOutside(feature.geometry, box)) return@forEachFeature
                     val name = nameOf(feature.values.getOrNull(nameIndex ?: -1), feature.fid)
                     when (val conversion = converter.convert(feature.geometry, name)) {
                         is GpkgConversion.Ignored -> ignored.merge(conversion.reason, 1, Int::plus)
@@ -215,6 +220,12 @@ class GeoPackageImporter(
             }
             onProgress(done, total)
             writer.flushAll()
+        }
+
+        /** La envolvente de la cabecera del blob no toca el recuadro de la zona: el objeto no puede tener ningún vértice dentro. */
+        private fun isOutside(blob: ByteArray?, box: LayerBox): Boolean {
+            val envelope = blob?.let(GpkgGeometryReader::header)?.takeIf { !it.empty }?.envelope ?: return false
+            return !box.intersects(envelope.minX, envelope.maxX, envelope.minY, envelope.maxY)
         }
 
         private fun nameOf(value: GpkgValue?, fid: Long): String {

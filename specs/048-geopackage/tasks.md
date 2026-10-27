@@ -40,7 +40,7 @@
       Hecho cuando: `DesignLabelsTest` y `GpkgFeatureSheetTest` en verde.
 - [x] T19. `app`: replanteo de los puntos y las líneas importados con S041, con su nombre. (RF-24)
       Hecho cuando: `GpkgStakeoutTest` en verde.
-- [ ] T20. Rendimiento: un `.gpkg` de 100 MB se lee y recorta en menos de 20 s y cambiar el radio recuenta en menos de 2 s. (RNF)
+- [x] T20. Rendimiento: un `.gpkg` de 100 MB se lee y recorta en menos de 20 s y cambiar el radio recuenta en menos de 2 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.
 - [ ] T21. Validación: cambios en documentos anteriores (hoja de ruta, glosario, S040, S017b a la v20), recorrer la spec RF por RF, comparar con QGIS un `.gpkg` en EPSG:25830 y otro en 4258 (≤ 1 mm), `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
