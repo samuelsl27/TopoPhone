@@ -1365,4 +1365,37 @@
     <string name="central_point_outside_crs">The point is outside the area of the coordinate system of the project.</string>
     <string name="central_point_outside_ed50">The point is outside the ED50 grid.</string>
     <string name="central_point_invalid">Enter both coordinates as numbers.</string>
+
+    <!-- S048: import a GeoPackage -->
+    <string name="gpkg_import_title">Import GeoPackage</string>
+    <string name="gpkg_import_loading">Reading the file…</string>
+    <string name="gpkg_import_close">Close</string>
+    <string name="gpkg_import_button">Import</string>
+    <string name="gpkg_section_file">File</string>
+    <string name="gpkg_section_layers">Layers</string>
+    <string name="gpkg_problem_empty">The file is empty.</string>
+    <string name="gpkg_problem_not_gpkg">The file is not a GeoPackage.</string>
+    <string name="gpkg_problem_damaged">The GeoPackage is damaged and cannot be read.</string>
+    <string name="gpkg_problem_no_layers">The GeoPackage has no layer with geometry.</string>
+    <string name="gpkg_problem_too_big">The file exceeds the 100 MB limit.</string>
+    <string name="gpkg_problem_no_space">There is not enough free space on the phone to read the file.</string>
+    <string name="gpkg_problem_unreadable">The file could not be read.</string>
+    <string name="gpkg_no_layer_marked">Tick at least one layer to import.</string>
+    <string name="gpkg_layer_detail">%1$s · %2$s</string>
+    <string name="gpkg_kind_points">Points</string>
+    <string name="gpkg_kind_lines">Lines</string>
+    <string name="gpkg_kind_polygons">Polygons</string>
+    <string name="gpkg_kind_mixed">Mixed types</string>
+    <plurals name="gpkg_layer_count">
+        <item quantity="one">%1$d layer with geometry</item>
+        <item quantity="other">%1$d layers with geometry</item>
+    </plurals>
+    <plurals name="gpkg_object_count">
+        <item quantity="one">%1$s object</item>
+        <item quantity="other">%1$s objects</item>
+    </plurals>
+    <plurals name="gpkg_left_out">
+        <item quantity="one">%1$d table without geometry or with tiles is left out: %2$s.</item>
+        <item quantity="other">%1$d tables without geometry or with tiles are left out: %2$s.</item>
+    </plurals>
 </resources>

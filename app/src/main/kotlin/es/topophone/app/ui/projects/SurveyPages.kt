@@ -7,6 +7,9 @@ import es.topophone.app.ui.cad.CadImportUiState
 import es.topophone.app.ui.export.ExportActions
 import es.topophone.app.ui.export.ExportScreen
 import es.topophone.app.ui.export.ExportUiState
+import es.topophone.app.ui.gpkg.GpkgImportActions
+import es.topophone.app.ui.gpkg.GpkgImportScreen
+import es.topophone.app.ui.gpkg.GpkgImportUiState
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -76,6 +79,9 @@ sealed interface SurveyPage {
 
     /** Importar una superficie de un LandXML: el proyecto y la dirección del fichero elegido (S042/RF-1). */
     data class ImportSurface(val projectId: String, val fileUri: String) : SurveyPage
+
+    /** Importar un GeoPackage: el proyecto y la dirección del fichero elegido (S048/RF-1). */
+    data class ImportGpkg(val projectId: String, val fileUri: String) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -105,6 +111,8 @@ class SurveyNavigation(
     val onImportDxf: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de importación de una superficie, con el fichero que eligió el usuario (S042/RF-1). */
     val onImportSurface: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
+    /** La pantalla de importación de un GeoPackage, con el fichero que eligió el usuario (S048/RF-1). */
+    val onImportGpkg: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
@@ -127,6 +135,7 @@ data class SurveyUiState(
     val stakeoutReport: StakeoutReportUiState = StakeoutReportUiState(loaded = true),
     val import: PointImportUiState = PointImportUiState(),
     val cadImport: CadImportUiState = CadImportUiState(),
+    val gpkgImport: GpkgImportUiState = GpkgImportUiState(),
     val surfaceImport: SurfaceImportUiState = SurfaceImportUiState(),
 )
 
@@ -178,6 +187,7 @@ fun SurveyPageScreen(
         is SurveyPage.ImportDxf -> CadImportScreen(themeState, onToggleSun, state.cadImport, CadImportActions(), navigation.onBack)
         is SurveyPage.ImportSurface ->
             SurfaceImportScreen(themeState, onToggleSun, state.surfaceImport, SurfaceImportActions(), navigation.onBack)
+        is SurveyPage.ImportGpkg -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
         is SurveyPage.StakeoutReport ->
             StakeoutReportScreen(themeState, onToggleSun, state.stakeoutReport, StakeoutReportActions(), navigation.onBack)
     }

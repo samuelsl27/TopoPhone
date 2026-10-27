@@ -56,6 +56,7 @@ import es.topophone.app.ui.backup.BackupNotice
 import es.topophone.app.ui.backup.BackupNoticeViewModel
 import es.topophone.app.ui.backup.rememberPackageHost
 import es.topophone.app.ui.cad.rememberImportDxfLauncher
+import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
 import es.topophone.app.ui.points.rememberImportPointsLauncher
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
@@ -155,6 +156,8 @@ class ProjectListActions(
     val onImportDxf: (String) -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de una superficie LandXML al proyecto (S042/RF-1). */
     val onImportSurface: (String) -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage al proyecto (S048/RF-1). */
+    val onImportGpkg: (String) -> Unit = {},
     /** S013/RF-24. */
     val onExportPackage: (Project) -> Unit = {},
     /** S013/RF-25: abre el selector de ficheros para elegir el paquete. */
@@ -259,6 +262,7 @@ fun ProjectListRoute(
     val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
     val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
     val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
+    val importGpkg = rememberImportGpkgLauncher(navigation.onImportGpkg) // S048/RF-1
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) noticeViewModel.folderChosen(uri.toString()) // S013/RF-22
     }
@@ -286,6 +290,7 @@ fun ProjectListRoute(
             onImportPoints = importPoints,
             onImportDxf = importDxf,
             onImportSurface = importSurface,
+            onImportGpkg = importGpkg,
             onExportPackage = packages.export,
             onImportPackage = packages.import,
             onChooseBackupFolder = { chooseFolder.launch(null) },
@@ -534,6 +539,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onImportSurface(project.id)
         } // S042/RF-1
+        MenuItem(R.string.gpkg_import_title) {
+            open = false
+            actions.onImportGpkg(project.id)
+        } // S048/RF-1
         MenuItem(R.string.stakeout_report_title) {
             open = false
             actions.onStakeoutReport(project.id)

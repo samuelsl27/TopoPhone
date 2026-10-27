@@ -28,7 +28,7 @@
       Hecho cuando: `GeoPackageImporterTest` en verde con el resumen por capa y los valores contra pyproj.
 - [x] T13. `data`: `CadRepository.attributes` y las copias de seguridad y los paquetes con las tablas nuevas. (RF-20, RF-28)
       Hecho cuando: `CadRepositoryAttributesTest` y `GpkgBackupTest` en verde.
-- [ ] T14. `app`: «Importar GeoPackage» en los dos menús, `GpkgImportViewModel` y la pantalla con el fichero, sus errores y la lista de capas marcables. (RF-1 a RF-7)
+- [x] T14. `app`: «Importar GeoPackage» en los dos menús, `GpkgImportViewModel` y la pantalla con el fichero, sus errores y la lista de capas marcables. (RF-1 a RF-7)
       Hecho cuando: `GpkgImportViewModelTest` y `GpkgImportScreenTest` en verde para esos casos.
 - [ ] T15. `app`: sistema de coordenadas de cada capa (propuesto, elegido, WGS 84), extensión, distancia y aviso de 100 km. (RF-8 a RF-12)
       Hecho cuando: los mismos tests en verde para esos casos.

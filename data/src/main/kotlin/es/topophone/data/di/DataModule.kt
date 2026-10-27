@@ -23,6 +23,8 @@ import es.topophone.data.export.ExportPreferences
 import es.topophone.data.gear.GearLegacyImport
 import es.topophone.data.gear.GearRepository
 import es.topophone.data.gear.RoomGearRepository
+import es.topophone.data.gpkg.GeoPackageImporter
+import es.topophone.data.gpkg.GeoPackageReader
 import es.topophone.data.log.DataStoreLogPreferences
 import es.topophone.data.log.LogPreferences
 import es.topophone.data.map.DataStoreMapPreferences
@@ -174,6 +176,13 @@ object DatabaseModule {
 
     @Provides
     fun provideCadDrawingImporter(repository: CadRepository): CadDrawingImporter = CadDrawingImporter(repository)
+
+    /** La copia temporal de los GeoPackage que se leen va a la caché de la app y se borra al cerrar (S048/RNF-T5). */
+    @Provides
+    fun provideGeoPackageReader(@ApplicationContext context: Context): GeoPackageReader = GeoPackageReader(context.cacheDir)
+
+    @Provides
+    fun provideGeoPackageImporter(repository: CadRepository): GeoPackageImporter = GeoPackageImporter(repository)
 
     @Provides
     fun provideGearLegacyImport(preferences: ReceiverPreferences, repository: GearRepository): GearLegacyImport =

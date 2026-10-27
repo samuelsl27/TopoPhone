@@ -1377,4 +1377,37 @@
     <string name="central_point_outside_crs">El punto queda fuera del ámbito del sistema de coordenadas del proyecto.</string>
     <string name="central_point_outside_ed50">El punto queda fuera de la rejilla de ED50.</string>
     <string name="central_point_invalid">Escribe las dos coordenadas como números.</string>
+
+    <!-- S048: importar un GeoPackage -->
+    <string name="gpkg_import_title">Importar GeoPackage</string>
+    <string name="gpkg_import_loading">Leyendo el fichero…</string>
+    <string name="gpkg_import_close">Cerrar</string>
+    <string name="gpkg_import_button">Importar</string>
+    <string name="gpkg_section_file">Fichero</string>
+    <string name="gpkg_section_layers">Capas</string>
+    <string name="gpkg_problem_empty">El fichero está vacío.</string>
+    <string name="gpkg_problem_not_gpkg">El fichero no es un GeoPackage.</string>
+    <string name="gpkg_problem_damaged">El GeoPackage está dañado y no se puede leer.</string>
+    <string name="gpkg_problem_no_layers">El GeoPackage no tiene ninguna capa con geometría.</string>
+    <string name="gpkg_problem_too_big">El fichero supera el límite de 100 MB.</string>
+    <string name="gpkg_problem_no_space">No hay espacio libre en el móvil para leer el fichero.</string>
+    <string name="gpkg_problem_unreadable">No se ha podido leer el fichero.</string>
+    <string name="gpkg_no_layer_marked">Marca al menos una capa para importar.</string>
+    <string name="gpkg_layer_detail">%1$s · %2$s</string>
+    <string name="gpkg_kind_points">Puntos</string>
+    <string name="gpkg_kind_lines">Líneas</string>
+    <string name="gpkg_kind_polygons">Polígonos</string>
+    <string name="gpkg_kind_mixed">Varios tipos</string>
+    <plurals name="gpkg_layer_count">
+        <item quantity="one">%1$d capa con geometría</item>
+        <item quantity="other">%1$d capas con geometría</item>
+    </plurals>
+    <plurals name="gpkg_object_count">
+        <item quantity="one">%1$s objeto</item>
+        <item quantity="other">%1$s objetos</item>
+    </plurals>
+    <plurals name="gpkg_left_out">
+        <item quantity="one">Se deja fuera %1$d tabla sin geometría o de teselas: %2$s.</item>
+        <item quantity="other">Se dejan fuera %1$d tablas sin geometría o de teselas: %2$s.</item>
+    </plurals>
 </resources>

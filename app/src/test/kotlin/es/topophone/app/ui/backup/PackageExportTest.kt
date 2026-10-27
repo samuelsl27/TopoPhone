@@ -9,6 +9,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.core.content.IntentCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.test.core.app.ApplicationProvider
@@ -79,7 +80,8 @@ class PackageExportTest {
         }
 
         compose.onNodeWithTag(projectMenuTag("p1")).performClick()
-        compose.onNodeWithText("Exportar paquete").performClick()
+        // El menú se desplaza: cada importación nueva añade una entrada y esta queda más abajo.
+        compose.onNodeWithText("Exportar paquete").performScrollTo().performClick()
 
         chosen shouldBe project
     }

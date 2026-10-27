@@ -53,6 +53,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.export.ExportSelection
+import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
@@ -132,6 +133,8 @@ class ObjectListActions(
     val onImportDxf: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de una superficie LandXML (S042/RF-1). */
     val onImportSurface: () -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage (S048/RF-1). */
+    val onImportGpkg: () -> Unit = {},
     val onStakeoutReportSelected: () -> Unit = {},
     val onToggleSelection: (String) -> Unit = {},
     val onClearSelection: () -> Unit = {},
@@ -255,6 +258,7 @@ fun ObjectListRoute(
     val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
     val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
     val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
+    val importGpkg = rememberImportGpkgLauncher(navigation.onImportGpkg) // S048/RF-1
     val state by viewModel.state.collectAsStateWithLifecycle()
     ObjectListScreen(
         themeState,
@@ -270,6 +274,7 @@ fun ObjectListRoute(
             onImportPoints = { importPoints(projectId) },
             onImportDxf = { importDxf(projectId) },
             onImportSurface = { importSurface(projectId) },
+            onImportGpkg = { importGpkg(projectId) },
             onStakeoutReportSelected = {
                 viewModel.exportSelected()
                 navigation.onStakeoutReport(projectId, true) // S019/RF-18
@@ -318,6 +323,7 @@ fun ObjectListScreen(
                 actions.onImportPoints,
                 actions.onImportDxf,
                 actions.onImportSurface,
+                actions.onImportGpkg,
             )
         },
         floatingActionButton = {
@@ -378,6 +384,7 @@ private fun ObjectsMenu(
     onImportPoints: () -> Unit,
     onImportDxf: () -> Unit,
     onImportSurface: () -> Unit,
+    onImportGpkg: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
@@ -416,6 +423,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S042/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.gpkg_import_title)) },
+            onClick = {
+                open = false
+                onImportGpkg()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S048/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.stakeout_report_title)) },
             onClick = {

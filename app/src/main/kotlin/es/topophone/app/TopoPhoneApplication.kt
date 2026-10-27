@@ -6,6 +6,7 @@ import es.topophone.app.log.CrashLog
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.data.cad.CadRepository
+import es.topophone.data.gpkg.GeoPackageReader
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,11 +19,15 @@ class TopoPhoneApplication : Application() {
 
     @Inject lateinit var cad: CadRepository
 
+    @Inject lateinit var gpkgReader: GeoPackageReader
+
     override fun onCreate() {
         super.onCreate()
         CrashLog.install(log) // S014/RF-6: lo antes posible, para que ningún cierre se quede sin anotar.
         log.info(LogCategory.APP, "App iniciada: versión ${BuildConfig.VERSION_NAME} (${BuildConfig.GIT_COMMIT})")
         // S040/RF-12: un dibujo a medias de una importación que no acabó (la app se cerró) no se queda en la base de datos.
         CoroutineScope(Dispatchers.IO).launch { runCatching { cad.cleanUpUnfinished() } }
+        // S048/RNF-T5: la copia temporal de un GeoPackage de una importación interrumpida tampoco se queda en la caché.
+        CoroutineScope(Dispatchers.IO).launch { runCatching { gpkgReader.cleanUpStale() } }
     }
 }
