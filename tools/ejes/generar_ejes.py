@@ -3,11 +3,13 @@
 Genera en fixtures/ejes/ los LandXML (rectas, arcos y clotoides; rasantes con acuerdos parabólicos y circulares; casos que se rechazan),
 un CSV de rasante y los ficheros de lo esperado:
 
-- esperado-tramos.csv: por eje y tramo, el PK de inicio, la longitud, las curvaturas de inicio y de fin (positiva a la izquierda) y los
-  puntos de inicio y de fin.
+- esperado-tramos.csv: por eje y tramo, el PK de inicio, la longitud, las curvaturas de inicio y de fin (positiva a la izquierda), los
+  puntos de inicio y de fin y el azimut de inicio en grados.
 - esperado-puntos.csv: por eje, PK y desplazamiento (negativo a la izquierda, positivo a la derecha): Este, Norte, azimut en grados, radio
   del eje (`inf` en una recta), cota y pendiente en porcentaje (vacías si el eje no tiene rasante). La Kotlin los lee también al revés (de
   la posición al PK y al desplazamiento).
+- esperado-rasantes.csv: por eje y vértice de la rasante, PK, cota, el acuerdo (`none`, `para` o `circ`), su longitud horizontal (parábola)
+  o la de su arco (círculo) y su radio.
 - esperado-resumen.csv: por fichero y alineación, longitud, PK inicial, si trae rasante y el estado que debe dar la importación.
 
 Cómo se calcula (otro algoritmo que el del móvil, para que la coincidencia no sea una tautología):
@@ -382,12 +384,12 @@ def summary_rows() -> list[tuple]:
 
 
 def expected() -> dict[str, str]:
-    tramos = ["eje,tramo,tipo,pk_inicio,longitud,k_inicio,k_fin,este_inicio,norte_inicio,este_fin,norte_fin"]
+    tramos = ["eje,tramo,tipo,pk_inicio,longitud,k_inicio,k_fin,este_inicio,norte_inicio,este_fin,norte_fin,azimut_inicio_deg"]
     for a in AXES:
         states = boundaries(a)
         for i, e in enumerate(a.elements):
             s0, s1 = states[i], states[i + 1]
-            tramos.append(",".join([a.name, str(i + 1), e.kind, A(s0.pk), A(e.length), A(e.k0), A(e.k1), A(s0.east), A(s0.north), A(s1.east), A(s1.north)]))
+            tramos.append(",".join([a.name, str(i + 1), e.kind, A(s0.pk), A(e.length), A(e.k0), A(e.k1), A(s0.east), A(s0.north), A(s1.east), A(s1.north), A(math.degrees(s0.azimuth))]))
     puntos = ["eje,pk,desplazamiento,este,norte,azimut_deg,radio,cota,pendiente_pct"]
     for a in AXES:
         for pk in sample_pks(a):
@@ -399,10 +401,17 @@ def expected() -> dict[str, str]:
                 puntos.append(
                     ",".join([a.name, A(pk), A(d), A(e), A(n), A(math.degrees(st.azimuth)), radius, "" if z is None else A(z), "" if g is None else A(g * 100)])
                 )
+    rasantes = ["eje,vertice,pk,cota,curva,longitud,radio"]
+    for a in AXES:
+        for i, v in enumerate(a.profile):
+            d = _curve_span(a.profile, i)[2] if v.curve else None
+            kind = "none" if v.curve is None else v.curve[0]
+            rasantes.append(",".join([a.name, str(i + 1), A(v.pk), A(v.z), kind, "" if d is None else A(d["length"]), "" if kind != "circ" else A(d["r"])]))
     resumen = ["archivo,alineacion,longitud,pk_inicial,rasante,estado"] + [",".join(r) for r in summary_rows()]
     return {
         "esperado-tramos.csv": "\n".join(tramos) + "\n",
         "esperado-puntos.csv": "\n".join(puntos) + "\n",
+        "esperado-rasantes.csv": "\n".join(rasantes) + "\n",
         "esperado-resumen.csv": "\n".join(resumen) + "\n",
     }
 
