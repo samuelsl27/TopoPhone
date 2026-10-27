@@ -16,7 +16,7 @@
       Hecho cuando: `GpkgCrsCatalogTest` en verde contra la lista de pyproj.
 - [x] T7. `core:survey`: `CadProjector` con origen geográfico y motivos de ignorado por vértice. (RF-8, RF-11)
       Hecho cuando: `CadProjectorGeographicTest` en verde (≤ 1 mm con pyproj, ida y vuelta < 0,1 mm) y los tests de S040 sin cambios.
-- [ ] T8. `core:survey`: `ImportAreaFilter` (recuadro en el SC de la capa, distancia, algún vértice dentro). (RF-13, RF-15)
+- [x] T8. `core:survey`: `ImportAreaFilter` (recuadro en el SC de la capa, distancia, algún vértice dentro). (RF-13, RF-15)
       Hecho cuando: `ImportAreaFilterTest` en verde.
 - [ ] T9. `data`: Room v19 (`origin`, `source_table`, `name_field` y `cad_chunk_attributes`) y `AutoMigration(18, 19)`; las tablas nuevas en `DatabaseSnapshot.TABLES`. (RF-20, RF-26, RF-28, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 18 → 19 en verde con dibujos de DXF que se leen como `DXF`, y el esquema 19 en `data/schemas/`.
