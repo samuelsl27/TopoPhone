@@ -24,7 +24,7 @@
       Hecho cuando: `StakeoutControllerAdmittedTest` en verde y los tests de S018, S019 y S041 adaptados.
 - [x] T11. `app`: `CollectorViewModel` con `admitted`: la comprobación del punto, el aviso «Solución degradada», el modo automático que omite y los datos que se guardan. (RF-6, RF-7, RF-10, RF-11, RF-15)
       Hecho cuando: `CollectorViewModelAdmittedTest` en verde y los tests de S010 y S017 adaptados.
-- [ ] T12. `app`: el control de precisión con las tres casillas, la confirmación de FLOAT y SINGLE y el último tipo, con sus textos en es y en. (RF-1, RF-3, RF-4, RNF-T7, RNF-T8)
+- [x] T12. `app`: el control de precisión con las tres casillas, la confirmación de FLOAT y SINGLE y el último tipo, con sus textos en es y en. (RF-1, RF-3, RF-4, RNF-T7, RNF-T8)
       Hecho cuando: `PrecisionDialogTest` en verde, con zonas de 56 dp y etiquetas de TalkBack.
 - [ ] T13. `app`: el indicador «No solo FIX» en el recolector y en el replanteo, con icono y texto. (RF-14, RNF-T8)
       Hecho cuando: `AdmittedBadgeTest` en verde y el cambio de tipos se refleja en menos de 200 ms.

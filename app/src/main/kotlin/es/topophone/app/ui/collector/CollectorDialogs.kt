@@ -5,9 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -33,11 +37,17 @@ import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.PrecisionControl
 import es.topophone.core.model.point.PrecisionFailure
+import es.topophone.core.model.point.SolutionType
 import es.topophone.core.model.project.LinearUnit
 
 const val PRECISION_SUMMARY_TAG = "precision_summary"
 const val PRECISION_ADJUST_TAG = "precision_adjust"
-const val PRECISION_FIX_ONLY_TAG = "precision_fix_only"
+const val PRECISION_CONFIRM_TAG = "precision_confirm"
+const val PRECISION_CONFIRM_CANCEL_TAG = "precision_confirm_cancel"
+const val PRECISION_LAST_TYPE_TAG = "precision_last_type"
+
+/** La casilla de un tipo de solución admitido (S047/RF-1). */
+fun precisionAdmittedTag(type: SolutionType) = "precision_admitted_${type.name}"
 const val PRECISION_HORIZONTAL_SWITCH_TAG = "precision_horizontal_switch"
 const val PRECISION_HORIZONTAL_VALUE_TAG = "precision_horizontal_value"
 const val PRECISION_VERTICAL_SWITCH_TAG = "precision_vertical_switch"
@@ -61,7 +71,11 @@ internal fun PrecisionControlRow(
     val symbol = unitSymbol(unit)
     fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, unit, locale)} $symbol"
     val parts = listOfNotNull(
-        stringResource(R.string.precision_fix_only).takeIf { precision.fixOnly },
+        if (precision.admitted.onlyFix) {
+            stringResource(R.string.precision_fix_only)
+        } else {
+            stringResource(R.string.precision_admitted_summary, precision.admitted.types.sorted().joinToString(", ") { it.name })
+        },
         precision.horizontalLimitM?.let { stringResource(R.string.precision_summary_h, length(it)) },
         precision.verticalLimitM?.let { stringResource(R.string.precision_summary_v, length(it)) },
         // S016/RF-20
@@ -103,7 +117,10 @@ private fun PrecisionDialog(
 ) {
     val locale = uiLocale()
     fun text(valueM: Double?) = valueM?.let { LengthFormat.inUnit(it, unit, locale) }.orEmpty()
-    var fixOnly by rememberSaveable { mutableStateOf(precision.fixOnly) }
+    var admittedText by rememberSaveable { mutableStateOf(precision.admitted.encode()) }
+    val admitted = AdmittedSolutions.decode(admittedText) ?: AdmittedSolutions.FIX_ONLY
+    var confirming by rememberSaveable { mutableStateOf<String?>(null) }
+    var lastTypeWarning by rememberSaveable { mutableStateOf(false) }
     var horizontalOn by rememberSaveable { mutableStateOf(precision.horizontalLimitM != null) }
     var horizontal by rememberSaveable { mutableStateOf(text(precision.horizontalLimitM)) }
     var verticalOn by rememberSaveable { mutableStateOf(precision.verticalLimitM != null) }
@@ -116,12 +133,39 @@ private fun PrecisionDialog(
     val valid = (!horizontalOn || horizontalM != null) &&
         (!verticalOn || verticalM != null) &&
         (!showTilt || !tiltOn || tiltDeg != null)
+    confirming?.let { name ->
+        AdmitConfirmDialog(
+            SolutionType.valueOf(name),
+            onCancel = { confirming = null },
+            onConfirm = {
+                admittedText = admitted.with(SolutionType.valueOf(name)).encode()
+                confirming = null
+            },
+        )
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.precision_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                SwitchRow(stringResource(R.string.precision_fix_only), fixOnly, PRECISION_FIX_ONLY_TAG) { fixOnly = it }
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.precision_admitted_title), style = MaterialTheme.typography.titleSmall)
+                for (type in SolutionType.entries) {
+                    CheckRow(stringResource(type.labelRes()), type in admitted, precisionAdmittedTag(type)) {
+                        lastTypeWarning = false
+                        when (val result = admitted.toggle(type)) {
+                            is AdmittedSolutions.Toggle.Changed -> admittedText = result.admitted.encode()
+                            is AdmittedSolutions.Toggle.NeedsConfirmation -> confirming = result.type.name
+                            AdmittedSolutions.Toggle.LastOne -> lastTypeWarning = true
+                        }
+                    }
+                }
+                if (lastTypeWarning) {
+                    Text(
+                        stringResource(R.string.precision_last_type),
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.testTag(PRECISION_LAST_TYPE_TAG),
+                    )
+                }
                 LimitRow(
                     LimitFields(R.string.precision_horizontal_limit, PRECISION_HORIZONTAL_SWITCH_TAG, PRECISION_HORIZONTAL_VALUE_TAG),
                     unit,
@@ -159,7 +203,7 @@ private fun PrecisionDialog(
                     val maxTilt = if (showTilt) chosenTilt else precision.maxTiltRad
                     onSave(
                         PrecisionControl(
-                            if (fixOnly) AdmittedSolutions.FIX_ONLY else AdmittedSolutions.ALL,
+                            admitted,
                             horizontalM.takeIf {
                                 horizontalOn
                             },
@@ -178,6 +222,49 @@ private fun PrecisionDialog(
             }
         },
     )
+}
+
+/** La confirmación de admitir FLOAT o SINGLE, con la precisión que cabe esperar (S047/RF-4). */
+@Composable
+private fun AdmitConfirmDialog(type: SolutionType, onCancel: () -> Unit, onConfirm: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = { Text(stringResource(R.string.precision_confirm_title, type.name)) },
+        text = {
+            Text(stringResource(if (type == SolutionType.FLOAT) R.string.precision_confirm_float else R.string.precision_confirm_single))
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(PRECISION_CONFIRM_TAG)) {
+                Text(stringResource(R.string.precision_confirm_admit))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancel, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(PRECISION_CONFIRM_CANCEL_TAG)) {
+                Text(stringResource(R.string.collector_cancel))
+            }
+        },
+    )
+}
+
+private fun SolutionType.labelRes(): Int = when (this) {
+    SolutionType.FIX -> R.string.solution_type_fix
+    SolutionType.FLOAT -> R.string.solution_type_float
+    SolutionType.SINGLE -> R.string.solution_type_single
+}
+
+@Composable
+private fun CheckRow(label: String, checked: Boolean, tag: String, onToggle: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = MinTouchTarget)
+            .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onToggle() })
+            .testTag(tag),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(checked = checked, onCheckedChange = null)
+        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 8.dp))
+    }
 }
 
 @Composable

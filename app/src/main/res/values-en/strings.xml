@@ -545,6 +545,16 @@
     <string name="precision_title">Precision control</string>
     <string name="precision_summary">Precision control: %1$s</string>
     <string name="precision_fix_only">FIX only</string>
+    <string name="precision_admitted_title">Admitted solution types</string>
+    <string name="precision_admitted_summary">Types: %1$s</string>
+    <string name="solution_type_fix">Fixed (FIX)</string>
+    <string name="solution_type_float">Float (FLOAT)</string>
+    <string name="solution_type_single">Single (SINGLE)</string>
+    <string name="precision_last_type">At least one type must be admitted.</string>
+    <string name="precision_confirm_title">Admit %1$s?</string>
+    <string name="precision_confirm_float">With a FLOAT solution the accuracy is sub-metre: it is not that of a FIX. Admit it for measuring and staking out?</string>
+    <string name="precision_confirm_single">With a SINGLE solution the accuracy is several metres. Admit it for measuring and staking out?</string>
+    <string name="precision_confirm_admit">Admit</string>
     <string name="precision_summary_h">H ≤ %1$s</string>
     <string name="precision_summary_v">V ≤ %1$s</string>
     <string name="precision_none">no limits</string>

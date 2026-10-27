@@ -59,9 +59,9 @@ class CollectorTiltDialogTest {
         show(ready.copy(tiltMode = TiltMode.APP))
 
         compose.onNodeWithTag(PRECISION_ADJUST_TAG).performScrollTo().performClick()
-        compose.onNodeWithTag(PRECISION_TILT_VALUE_TAG).performTextReplacement("61")
+        compose.onNodeWithTag(PRECISION_TILT_VALUE_TAG).performScrollTo().performTextReplacement("61")
         compose.onNodeWithTag(PRECISION_SAVE_TAG).assertIsNotEnabled()
-        compose.onNodeWithTag(PRECISION_TILT_VALUE_TAG).performTextReplacement("25")
+        compose.onNodeWithTag(PRECISION_TILT_VALUE_TAG).performScrollTo().performTextReplacement("25")
         compose.onNodeWithTag(PRECISION_SAVE_TAG).performClick()
 
         chosen.shouldNotBeNull().precision.maxTiltRad.shouldNotBeNull() shouldBe (Math.toRadians(25.0) plusOrMinus 1e-12)
@@ -72,7 +72,7 @@ class CollectorTiltDialogTest {
         show(ready.copy(tiltMode = TiltMode.RECEIVER))
 
         compose.onNodeWithTag(PRECISION_ADJUST_TAG).performScrollTo().performClick()
-        compose.onNodeWithTag(PRECISION_TILT_SWITCH_TAG).performClick()
+        compose.onNodeWithTag(PRECISION_TILT_SWITCH_TAG).performScrollTo().performClick()
         compose.onNodeWithTag(PRECISION_SAVE_TAG).performClick()
 
         chosen.shouldNotBeNull().precision.maxTiltRad shouldBe null
