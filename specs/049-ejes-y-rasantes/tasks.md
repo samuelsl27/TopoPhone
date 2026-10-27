@@ -30,7 +30,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 19 → 20 en verde con proyectos y puntos que se conservan, y el esquema 20 en `data/schemas/`.
 - [x] T14. `data`: `AlignmentRepository` y `AlignmentImporter` (una transacción, varios ejes, el primero activo, renombrar, mostrar u ocultar, borrar sin tocar puntos, resumen). (RF-13 a RF-15, RF-19)
       Hecho cuando: `AlignmentRepositoryTest` y `AlignmentImporterTest` en verde, incluido fallar sin dejar nada.
-- [ ] T15. `data`: copias de seguridad, paquetes y log sin nombres ni coordenadas. (RF-16)
+- [x] T15. `data`: copias de seguridad, paquetes y log sin nombres ni coordenadas. (RF-16)
       Hecho cuando: `AlignmentBackupTest` en verde.
 - [ ] T16. `data`: guardar un punto calculado sobre el eje con su PK y desplazamiento, en una transacción. (RF-22)
       Hecho cuando: `PointOnAxisTest` en verde.

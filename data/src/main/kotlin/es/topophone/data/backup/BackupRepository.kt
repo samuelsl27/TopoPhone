@@ -389,11 +389,14 @@ class BackupRepository(
     ) {
         val args = arrayOf(oldId)
         val surfaceIds = surfaceIds(source, args, keepIds)
+        val alignmentIds = alignmentIds(source, args, keepIds)
         source("SELECT * FROM projects WHERE id = ?", args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "projects") {
                 it.put("id", newProjectId)
                 val active = it.getAsString("active_surface_id")?.let(surfaceIds::get)
                 if (active == null) it.putNull("active_surface_id") else it.put("active_surface_id", active)
+                val activeAlignment = it.getAsString("active_alignment_id")?.let(alignmentIds::get)
+                if (activeAlignment == null) it.putNull("active_alignment_id") else it.put("active_alignment_id", activeAlignment)
                 project(it)
             }
         }
@@ -419,6 +422,32 @@ class BackupRepository(
         }
         copyDrawings(source, sink, args, newProjectId, keepIds)
         copySurfaces(source, sink, args, newProjectId, surfaceIds)
+        copyAlignments(source, sink, args, newProjectId, alignmentIds)
+    }
+
+    /** De los ids de los ejes del proyecto a los que tendrán al copiarlos: los mismos con [keepIds], nuevos si no (S049/RF-16). */
+    private fun alignmentIds(
+        source: (String, Array<String>) -> android.database.Cursor,
+        args: Array<String>,
+        keepIds: Boolean,
+    ): Map<String, String> = source("SELECT id FROM alignments WHERE project_id = ?", args).use { cursor ->
+        buildMap { while (cursor.moveToNext()) cursor.getString(0).let { old -> put(old, if (keepIds) old else newId()) } }
+    }
+
+    /** Los ejes del proyecto con su planta y su rasante (S049/RF-16). El eje activo va en la fila del proyecto. */
+    private fun copyAlignments(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        alignmentIds: Map<String, String>,
+    ) {
+        source("SELECT * FROM alignments WHERE project_id = ? ORDER BY imported_at_ms, rowid", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "alignments") { alignment ->
+                alignment.put("id", alignmentIds.getValue(alignment.getAsString("id")))
+                alignment.put("project_id", newProjectId)
+            }
+        }
     }
 
     /**
