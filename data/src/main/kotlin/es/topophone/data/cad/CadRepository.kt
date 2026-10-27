@@ -22,8 +22,17 @@ import kotlinx.coroutines.flow.combine
 /** Un dibujo terminado con sus capas de diseño, por orden de aparición (S040/RF-26). */
 data class CadDrawingWithLayers(val drawing: CadDrawing, val layers: List<DesignLayer>)
 
-/** Un trozo que se va a guardar: los elementos ya codificados con [CadChunkCodec] y su recuadro (S040/RF-19). */
-class CadChunkWrite(val layerId: String, val bounds: CadExtent, val entityCount: Int, val bytes: ByteArray)
+/**
+ * Un trozo que se va a guardar: los elementos ya codificados con [CadChunkCodec] y su recuadro (S040/RF-19). [attributes] es el
+ * bloque de atributos de un trozo de GeoPackage, codificado con `GpkgAttributesCodec` (S048/RF-20), o null.
+ */
+class CadChunkWrite(
+    val layerId: String,
+    val bounds: CadExtent,
+    val entityCount: Int,
+    val bytes: ByteArray,
+    val attributes: ByteArray? = null,
+)
 
 /** Un trozo leído, con sus elementos ya decodificados (S040/RF-27, RF-29). */
 class CadChunkContent(val chunkId: Long, val layerId: String, val bounds: CadExtent, val entities: List<CadEntity>)
@@ -80,7 +89,10 @@ interface CadDao {
     suspend fun insertLayer(layer: CadLayerEntity)
 
     @Insert
-    suspend fun insertChunks(chunks: List<CadChunkEntity>)
+    suspend fun insertChunks(chunks: List<CadChunkEntity>): List<Long>
+
+    @Insert
+    suspend fun insertAttributes(attributes: List<CadChunkAttributesEntity>)
 
     @Query("UPDATE cad_layers SET entity_count = :count WHERE id = :layerId")
     suspend fun setLayerCount(layerId: String, count: Int)
@@ -136,19 +148,23 @@ class RoomCadRepository(private val database: TopoPhoneDatabase) : CadRepository
 
     override suspend fun addChunks(chunks: List<CadChunkWrite>) {
         if (chunks.isEmpty()) return
-        dao.insertChunks(
-            chunks.map {
-                CadChunkEntity(
-                    layerId = it.layerId,
-                    minEasting = it.bounds.minEasting,
-                    maxEasting = it.bounds.maxEasting,
-                    minNorthing = it.bounds.minNorthing,
-                    maxNorthing = it.bounds.maxNorthing,
-                    entityCount = it.entityCount,
-                    data = it.bytes,
-                )
-            },
-        )
+        database.withTransaction {
+            val ids = dao.insertChunks(
+                chunks.map {
+                    CadChunkEntity(
+                        layerId = it.layerId,
+                        minEasting = it.bounds.minEasting,
+                        maxEasting = it.bounds.maxEasting,
+                        minNorthing = it.bounds.minNorthing,
+                        maxNorthing = it.bounds.maxNorthing,
+                        entityCount = it.entityCount,
+                        data = it.bytes,
+                    )
+                },
+            )
+            val attributes = chunks.zip(ids).mapNotNull { (chunk, id) -> chunk.attributes?.let { CadChunkAttributesEntity(id, it) } }
+            if (attributes.isNotEmpty()) dao.insertAttributes(attributes)
+        }
     }
 
     override suspend fun finish(

@@ -4,7 +4,6 @@ import es.topophone.core.formats.dxf.DxfExtentSink
 import es.topophone.core.formats.dxf.DxfReader
 import es.topophone.core.formats.dxf.DxfSink
 import es.topophone.core.formats.dxf.DxfTables
-import es.topophone.core.model.cad.CadChunkCodec
 import es.topophone.core.model.cad.CadDrawing
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
@@ -21,7 +20,6 @@ import es.topophone.core.survey.CadProjector
 import es.topophone.data.io.CountingInputStream
 import java.io.InputStream
 import java.util.UUID
-import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.CancellationException
@@ -134,20 +132,7 @@ class CadDrawingImporter(
         throw WriteFailure(e)
     }
 
-    private class LayerState(val id: String, val position: Int, var count: Int = 0)
-
-    private class Buffer(val layerId: String) {
-        val entities = ArrayList<CadEntity>()
-        var bytes = 0
-        var minE = Double.POSITIVE_INFINITY
-        var maxE = Double.NEGATIVE_INFINITY
-        var minN = Double.POSITIVE_INFINITY
-        var maxN = Double.NEGATIVE_INFINITY
-    }
-
     private data class LayerKey(val name: String, val kind: DesignLayerKind)
-
-    private data class Cell(val layerId: String, val x: Long, val y: Long)
 
     /** El receptor de los elementos del lector: los convierte, los agrupa y los escribe por tandas. */
     private inner class ImportSink(
@@ -156,12 +141,9 @@ class CadDrawingImporter(
         geographic: Boolean,
         private val onCheck: () -> Unit,
     ) : DxfSink {
-        private val cellSize = if (geographic) CELL_DEGREES else CELL_METRES
         private var tables = DxfTables(emptyMap())
-        private val layers = LinkedHashMap<LayerKey, LayerState>()
-        private val buffers = HashMap<Cell, Buffer>()
-        private val pending = ArrayList<CadChunkWrite>()
-        private var buffered = 0L
+        private val layers = LinkedHashMap<LayerKey, CadChunkWriter.LayerState>()
+        private val writer = CadChunkWriter(geographic, maxBufferedBytes) { batch -> write { repository.addChunks(batch) } }
         private val imported = HashMap<CadEntityKind, Int>()
         private val ignored = HashMap<CadIgnored, Int>()
         private var minE = Double.POSITIVE_INFINITY
@@ -176,8 +158,7 @@ class CadDrawingImporter(
         var importedTotal = 0
             private set
 
-        var peakBuffered = 0L
-            private set
+        val peakBuffered: Long get() = writer.peakBuffered
 
         override fun tables(tables: DxfTables) {
             this.tables = tables
@@ -219,11 +200,11 @@ class CadDrawingImporter(
             maxE = max(maxE, box.maxEasting)
             minN = min(minN, box.minNorthing)
             maxN = max(maxN, box.maxNorthing)
-            for (piece in split(entity)) add(state, piece)
+            for (piece in CadChunkWriter.split(entity)) writer.add(state, piece)
         }
 
-        private fun createLayer(name: String, kind: DesignLayerKind): LayerState {
-            val state = LayerState(newId(), layers.size)
+        private fun createLayer(name: String, kind: DesignLayerKind): CadChunkWriter.LayerState {
+            val state = CadChunkWriter.LayerState(newId(), layers.size)
             val layer = DesignLayer(
                 id = state.id,
                 drawingId = drawingId,
@@ -237,54 +218,7 @@ class CadDrawingImporter(
             return state
         }
 
-        private fun add(state: LayerState, entity: CadEntity) {
-            val box = entity.bounds
-            val cell = Cell(state.id, floor(box.minEasting / cellSize).toLong(), floor(box.minNorthing / cellSize).toLong())
-            val buffer = buffers.getOrPut(cell) { Buffer(state.id) }
-            val size = CadChunkCodec.entitySize(entity)
-            if (buffer.entities.isNotEmpty() && buffer.bytes + size > CadChunkCodec.MAX_CHUNK_BYTES - CHUNK_HEADER_BYTES) flush(cell)
-            val current = buffers.getOrPut(cell) { Buffer(state.id) }
-            current.entities += entity
-            current.bytes += size
-            current.minE = min(current.minE, box.minEasting)
-            current.maxE = max(current.maxE, box.maxEasting)
-            current.minN = min(current.minN, box.minNorthing)
-            current.maxN = max(current.maxN, box.maxNorthing)
-            buffered += size
-            if (buffered > peakBuffered) peakBuffered = buffered
-            state.count++
-            if (buffered > maxBufferedBytes) flushLargest()
-        }
-
-        private fun flush(cell: Cell) {
-            val buffer = buffers.remove(cell) ?: return
-            buffered -= buffer.bytes
-            if (buffer.entities.isEmpty()) return
-            val bounds = CadExtent(buffer.minE, buffer.maxE, buffer.minN, buffer.maxN)
-            pending += CadChunkWrite(buffer.layerId, bounds, buffer.entities.size, CadChunkCodec.encode(buffer.entities))
-            if (pending.size >= BATCH_CHUNKS) writePending()
-        }
-
-        /** Vacía los buffers más grandes hasta quedar a la mitad del límite. */
-        private fun flushLargest() {
-            val order = buffers.entries.sortedByDescending { it.value.bytes }
-            for ((cell, _) in order) {
-                if (buffered <= maxBufferedBytes / 2) break
-                flush(cell)
-            }
-        }
-
-        fun flushAll() {
-            buffers.keys.toList().forEach { flush(it) }
-            writePending()
-        }
-
-        private fun writePending() {
-            if (pending.isEmpty()) return
-            val batch = pending.toList()
-            pending.clear()
-            write { repository.addChunks(batch) }
-        }
+        fun flushAll() = writer.flushAll()
 
         /** La escritura es suspendida y el lector no: se espera en el hilo de entrada y salida, que no es el principal. */
         private fun write(block: suspend () -> Unit) = runBlocking { writing(block) }
@@ -296,33 +230,11 @@ class CadDrawingImporter(
         fun summary(incomplete: Boolean) = CadImportSummary(imported.toMap(), ignored.toMap(), layers.size, incomplete)
     }
 
-    /** Una polilínea con más vértices de los que caben en una fila se parte en trozos que comparten el vértice de unión. */
-    private fun split(entity: CadEntity): List<CadEntity> {
-        if (CadChunkCodec.entitySize(entity) <= MAX_ENTITY_BYTES) return listOf(entity)
-        val perVertex = Double.SIZE_BYTES * (if (entity.hasZ) 3 else 2)
-        val maxVertices = (MAX_ENTITY_BYTES - 16) / perVertex
-        val out = ArrayList<CadEntity>()
-        var start = 0
-        while (start < entity.vertexCount - 1) {
-            val end = min(start + maxVertices, entity.vertexCount)
-            out += entity.slice(start, end)
-            start = end - 1
-        }
-        return out
-    }
-
     companion object {
         /** Lo que se guarda en memoria antes de escribir los buffers más grandes. */
         const val MAX_BUFFERED_BYTES = 32L * 1024 * 1024
 
         /** Lo que puede pesar un solo elemento: el `CursorWindow` de Android admite filas de hasta 2 MB. */
-        const val MAX_ENTITY_BYTES = 1_500_000
-
-        private const val CELL_METRES = 500.0
-        private const val CELL_DEGREES = 0.005
-        private const val BATCH_CHUNKS = 64
-
-        /** Lo que el bloque de un trozo gasta en su cabecera (el número de elementos). */
-        private const val CHUNK_HEADER_BYTES = 8
+        const val MAX_ENTITY_BYTES = CadChunkWriter.MAX_ENTITY_BYTES
     }
 }

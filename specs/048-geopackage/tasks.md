@@ -24,7 +24,7 @@
       Hecho cuando: `GeoPackageReaderTest` en verde con los `.gpkg` de `tools`, sin dejar el temporal.
 - [x] T11. `data`: `GeoPackageScan` (extensión, distancia y recuento por capa para un radio, con R-tree o con envolventes). (RF-12, RF-13, RF-16)
       Hecho cuando: `GeoPackageScanTest` en verde, incluida la capa sin R-tree y el límite de 500.000.
-- [ ] T12. `data`: `GeoPackageImporter` (reproyección, zona, polígonos como líneas, cotas, nombre, atributos, tandas, cancelar y fallar sin dejar nada). (RF-11, RF-15 a RF-22, RF-26, RF-29, RF-30)
+- [x] T12. `data`: `GeoPackageImporter` (reproyección, zona, polígonos como líneas, cotas, nombre, atributos, tandas, cancelar y fallar sin dejar nada). (RF-11, RF-15 a RF-22, RF-26, RF-29, RF-30)
       Hecho cuando: `GeoPackageImporterTest` en verde con el resumen por capa y los valores contra pyproj.
 - [ ] T13. `data`: `CadRepository.attributes` y las copias de seguridad y los paquetes con las tablas nuevas. (RF-20, RF-28)
       Hecho cuando: `CadRepositoryAttributesTest` y `GpkgBackupTest` en verde.
