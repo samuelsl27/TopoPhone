@@ -48,8 +48,7 @@ class DataStoreCollectorPreferences @Inject constructor(@param:CollectorDataStor
                 mode = MeasurementMode.entries.firstOrNull { it.name == p[MODE] } ?: factory.mode,
                 averagingSeconds = p[AVERAGING_SECONDS] ?: factory.averagingSeconds,
                 precision = PrecisionControl(
-                    // Provisional hasta S047 T9: la clave antigua decide.
-                    admitted = if (p[FIX_ONLY] ?: factory.precision.fixOnly) AdmittedSolutions.FIX_ONLY else AdmittedSolutions.ALL,
+                    admitted = admittedFrom(p),
                     horizontalLimitM = p[HORIZONTAL_LIMIT],
                     verticalLimitM = p[VERTICAL_LIMIT],
                     // S016/RF-20: activa por defecto, así que se guarda si está activa además del valor.
@@ -66,7 +65,9 @@ class DataStoreCollectorPreferences @Inject constructor(@param:CollectorDataStor
         dataStore.edit {
             it[MODE] = settings.mode.name
             it[AVERAGING_SECONDS] = settings.validAveragingSeconds
-            it[FIX_ONLY] = settings.precision.fixOnly
+            // S047/RF-17: se escribe la clave nueva y se borra la de "solo FIX", en la misma edición.
+            it[ADMITTED] = settings.precision.admitted.encode()
+            it.remove(FIX_ONLY)
             // Un límite desactivado no se guarda (S010/RF-13).
             settings.precision.horizontalLimitM?.let { limit -> it[HORIZONTAL_LIMIT] = limit } ?: it.remove(HORIZONTAL_LIMIT)
             settings.precision.verticalLimitM?.let { limit -> it[VERTICAL_LIMIT] = limit } ?: it.remove(VERTICAL_LIMIT)
@@ -78,7 +79,17 @@ class DataStoreCollectorPreferences @Inject constructor(@param:CollectorDataStor
         }
     }
 
+    /**
+     * Los tipos admitidos (S047/RF-5): la clave nueva; si no existe, la de "solo FIX" de la versión anterior, activada → solo FIX y
+     * apagada → los tres (RF-17); si tampoco, solo FIX (RF-2). Leer no reescribe nada.
+     */
+    private fun admittedFrom(p: Preferences): AdmittedSolutions = AdmittedSolutions.decode(p[ADMITTED]) ?: when (p[FIX_ONLY]) {
+        false -> AdmittedSolutions.ALL
+        else -> AdmittedSolutions.FIX_ONLY
+    }
+
     private companion object {
+        val ADMITTED = stringPreferencesKey("collector_admitted_solutions")
         val MODE = stringPreferencesKey("collector_mode")
         val AVERAGING_SECONDS = intPreferencesKey("collector_averaging_seconds")
         val FIX_ONLY = booleanPreferencesKey("collector_fix_only")

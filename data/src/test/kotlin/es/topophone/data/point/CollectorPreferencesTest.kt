@@ -1,10 +1,14 @@
 package es.topophone.data.point
 
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.PrecisionControl
+import es.topophone.core.model.point.SolutionType
 import es.topophone.data.settings.SettingsDataStore
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -33,6 +37,72 @@ class CollectorPreferencesTest {
             block(DataStoreCollectorPreferences(SettingsDataStore.create(scope) { file }))
         } finally {
             scope.coroutineContext.job.cancelAndJoin()
+        }
+    }
+
+    /** Escribe a mano las claves tal como las dejaba la versión anterior o una futura. */
+    private fun withStored(edit: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) = runBlocking {
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        try {
+            SettingsDataStore.create(scope) { file }.edit { edit(it) }
+        } finally {
+            scope.coroutineContext.job.cancelAndJoin()
+        }
+    }
+
+    @Test
+    fun `S047 RF-2 de fabrica solo se admite FIX`() {
+        withPreferences { it.settings.first() }.precision.admitted shouldBe AdmittedSolutions.FIX_ONLY
+    }
+
+    @Test
+    fun `S047 RF-5 los tipos admitidos se recuerdan al volver a abrir la app`() {
+        val admitted = AdmittedSolutions.of(setOf(SolutionType.FIX, SolutionType.FLOAT))
+        withPreferences { it.save(CollectorSettings(precision = PrecisionControl(admitted = admitted))) }
+
+        withPreferences { it.settings.first() }.precision.admitted shouldBe admitted
+    }
+
+    @Test
+    fun `S047 RF-17 al actualizar con solo FIX activado se admite solo FIX`() {
+        withStored { it[booleanPreferencesKey("collector_fix_only")] = true }
+
+        withPreferences { it.settings.first() }.precision.admitted shouldBe AdmittedSolutions.FIX_ONLY
+    }
+
+    @Test
+    fun `S047 RF-17 al actualizar con solo FIX apagado se admiten los tres tipos`() {
+        withStored { it[booleanPreferencesKey("collector_fix_only")] = false }
+
+        withPreferences { it.settings.first() }.precision.admitted shouldBe AdmittedSolutions.ALL
+    }
+
+    @Test
+    fun `S047 RF-17 la clave nueva manda sobre la antigua y los valores desconocidos se ignoran`() {
+        withStored {
+            it[booleanPreferencesKey("collector_fix_only")] = false
+            it[stringPreferencesKey("collector_admitted_solutions")] = "FLOAT,RTK"
+        }
+        withPreferences { it.settings.first() }.precision.admitted shouldBe AdmittedSolutions.of(setOf(SolutionType.FLOAT))
+
+        withStored { it[stringPreferencesKey("collector_admitted_solutions")] = "RTK" }
+        withPreferences { it.settings.first() }.precision.admitted shouldBe AdmittedSolutions.FIX_ONLY
+    }
+
+    @Test
+    fun `S047 RF-17 al guardar se escribe la clave nueva y se borra la antigua`() {
+        withStored { it[booleanPreferencesKey("collector_fix_only")] = false }
+        withPreferences { it.save(it.settings.first()) }
+
+        runBlocking {
+            val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+            try {
+                val stored = SettingsDataStore.create(scope) { file }.data.first()
+                stored[booleanPreferencesKey("collector_fix_only")] shouldBe null
+                stored[stringPreferencesKey("collector_admitted_solutions")] shouldBe "FIX,FLOAT,SINGLE"
+            } finally {
+                scope.coroutineContext.job.cancelAndJoin()
+            }
         }
     }
 
