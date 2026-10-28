@@ -34,7 +34,7 @@
       Hecho cuando: `AxisAnalysisViewModelTest` y `AxisAnalysisPanelTest` en verde.
 - [x] T16. `app`: «Analizar» en `AlignmentsSheet` y `AlignmentFicha`, y «Medir» con el `AxisRef` y la diferencia de cota. (RF-12, RF-13)
       Hecho cuando: los mismos tests y `AxisMeasuredPointTest` en verde.
-- [ ] T17. Rendimiento: la guía de una época en un eje de 5.000 tramos en menos de 16 ms. (RNF-T13)
+- [x] T17. Rendimiento: la guía de una época en un eje de 5.000 tramos en menos de 16 ms. (RNF-T13)
       Hecho cuando: `AxisStakeoutPerformanceTest` en verde.
 - [ ] T18. Validación: cambios en documentos anteriores (hoja de ruta, S017b a la v22), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
