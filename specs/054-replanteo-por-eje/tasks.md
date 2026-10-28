@@ -6,7 +6,7 @@
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [x] T2. `core:model`: `StakeSource.Alignment`, `StakeoutRef` con `dChainageM` y `thicknessM`, `AxisRef` con `dHeightM` y `heightRef`, `Point.measured` con `AxisRef`. (RF-10, RF-13)
       Hecho cuando: los tests de `core:model` ampliados en verde.
-- [ ] T3. `core:survey`: `AxisStakeTarget` y `AxisStakeInputs` (punto de diseño, cota con espesor, sin rasante, PK fuera del eje con su inicio y final). (RF-1, RF-7, RF-9)
+- [x] T3. `core:survey`: `AxisStakeTarget` y `AxisStakeInputs` (punto de diseño, cota con espesor, sin rasante, PK fuera del eje con su inicio y final). (RF-1, RF-7, RF-9)
       Hecho cuando: `AxisStakeTargetTest` y `AxisStakeInputsTest` en verde contra `fixtures/ejes/replanteo/` a menos de 1 mm.
 - [ ] T4. `core:survey`: `KeyStations` y `AxisChainageSeries` (intervalo, PK final, singulares sin repetidos, hacia atrás, siguiente y anterior). (RF-2 a RF-4)
       Hecho cuando: `KeyStationsTest` y `AxisChainageSeriesTest` en verde.
