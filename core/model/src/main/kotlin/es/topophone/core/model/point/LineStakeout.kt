@@ -30,6 +30,9 @@ sealed interface StakeSource {
 
     /** Un elemento de un dibujo: se guardan sus nombres, no sus identificadores, para que sobrevivan al borrado del dibujo (RF-32). */
     data class CadElement(val drawingName: String, val layerName: String, val kind: CadEntityKind) : StakeSource
+
+    /** Un PK y un desplazamiento de un eje: se guarda su nombre, no su identificador, para que sobreviva al borrado del eje (S054/RF-10). */
+    data class Alignment(val alignmentName: String) : StakeSource
 }
 
 /**

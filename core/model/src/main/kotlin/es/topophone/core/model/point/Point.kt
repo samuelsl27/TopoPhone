@@ -31,8 +31,20 @@ object PointNames {
 /**
  * Dónde del eje se calculó un punto (S049/RF-22): el nombre del eje (copiado: el eje puede borrarse), el PK y el desplazamiento con
  * signo (negativo a la izquierda), en metros y sin redondear.
+ *
+ * Desde S054, una medida de "Analizar" guarda también la diferencia de cota ([dHeightM], medida menos referencia) y contra qué se
+ * calculó ([heightRef]); vacías en un punto calculado sobre el eje o si no había referencia (S054/RF-13).
  */
-data class AxisRef(val alignmentName: String, val chainageM: Double, val offsetM: Double)
+data class AxisRef(
+    val alignmentName: String,
+    val chainageM: Double,
+    val offsetM: Double,
+    val dHeightM: Double? = null,
+    val heightRef: AxisHeightRef? = null,
+)
+
+/** Contra qué se calculó la diferencia de cota de una medida sobre un eje: la rasante o la superficie activa (S054/RF-12). */
+enum class AxisHeightRef { PROFILE, SURFACE }
 
 /** Posición geodésica en grados y altura elipsoidal en metros, sin redondear (AGENTS.md). */
 data class GeodeticPosition(val latitudeDeg: Double, val longitudeDeg: Double, val ellipsoidalHeightM: Double?)
@@ -147,6 +159,10 @@ data class TypedCoordinates(val form: EntryForm, val first: Double, val second: 
  * Desde S042 guarda también contra qué cota se replanteó ([elevationSource]) y, con la superficie, su nombre y la fecha de su
  * importación (copiados, para que sobrevivan al borrado de la superficie), la cota de la superficie en la punta y el desplazamiento
  * vertical (S042/RF-28, RF-32). Sin superficie, o fuera de ella (RF-29), quedan vacíos.
+ *
+ * Desde S054, si el punto de diseño era un PK y un desplazamiento de un eje ([source] es [StakeSource.Alignment]), [chainageM] y
+ * [lateralOffsetM] son los de diseño, [dLateralM] es la diferencia de desplazamiento al medir, [dChainageM] la de PK (medido menos
+ * diseño, positiva hacia delante) y [thicknessM] el espesor sumado a la rasante (S054/RF-10). No tiene [mode].
  */
 data class StakeoutRef(
     val designId: String,
@@ -170,6 +186,8 @@ data class StakeoutRef(
     val surfaceImportedAtMs: Long? = null,
     val surfaceElevationM: Double? = null,
     val verticalOffsetM: Double? = null,
+    val dChainageM: Double? = null,
+    val thicknessM: Double? = null,
 ) {
     /** Se replanteó contra la superficie activa: guarda su nombre, su cota en la punta y el desplazamiento (S042/RF-28). */
     val usedSurface: Boolean get() = elevationSource == ElevationSource.SURFACE
@@ -179,6 +197,9 @@ data class StakeoutRef(
 
     /** El punto de diseño es un elemento de un dibujo y no un punto del proyecto (S041/RF-28). */
     val fromDrawing: Boolean get() = source is StakeSource.CadElement
+
+    /** El punto de diseño es un PK y un desplazamiento de un eje (S054/RF-10). */
+    val fromAlignment: Boolean get() = source is StakeSource.Alignment
 
     /** Replanteado antes de S019, sin tolerancias ni veredicto guardados (S019/RF-26). */
     val notEvaluated: Boolean get() = withinTolerance == null
@@ -249,6 +270,7 @@ data class Point(
             measurement: Measurement,
             createdAtMs: Long,
             staked: StakeoutRef? = null,
+            onAxis: AxisRef? = null,
         ) = Point(
             id = id,
             projectId = projectId,
@@ -264,6 +286,7 @@ data class Point(
             createdAtMs = createdAtMs,
             deletedAtMs = null,
             staked = staked,
+            onAxis = onAxis,
         )
     }
 }

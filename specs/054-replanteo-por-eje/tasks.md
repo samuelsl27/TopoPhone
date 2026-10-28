@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/ejes`: ampliar `generar_ejes.py` con `fixtures/ejes/replanteo/`: PK y desplazamiento a ambos lados con espesor, series con intervalo y puntos singulares, guía adelante/atrás y dentro/fuera, y una reproducción NMEA que recorre un eje con sus épocas esperadas (series de Fresnel); y su test. (RF-2 a RF-7, constitución nº 2)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `StakeSource.Alignment`, `StakeoutRef` con `dChainageM` y `thicknessM`, `AxisRef` con `dHeightM` y `heightRef`, `Point.measured` con `AxisRef`. (RF-10, RF-13)
+- [x] T2. `core:model`: `StakeSource.Alignment`, `StakeoutRef` con `dChainageM` y `thicknessM`, `AxisRef` con `dHeightM` y `heightRef`, `Point.measured` con `AxisRef`. (RF-10, RF-13)
       Hecho cuando: los tests de `core:model` ampliados en verde.
 - [ ] T3. `core:survey`: `AxisStakeTarget` y `AxisStakeInputs` (punto de diseño, cota con espesor, sin rasante, PK fuera del eje con su inicio y final). (RF-1, RF-7, RF-9)
       Hecho cuando: `AxisStakeTargetTest` y `AxisStakeInputsTest` en verde contra `fixtures/ejes/replanteo/` a menos de 1 mm.
