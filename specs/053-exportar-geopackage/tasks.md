@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/formatos`: `generar_gpkg_exportado.py` con las definiciones WKT de los sistemas (pyproj), las coordenadas geográficas esperadas de unos puntos en cada sistema y un `.gpkg` de referencia leído con `sqlite3`; y su test. (RF-5 a RF-7, constitución nº 2)
       Hecho cuando: el script genera `fixtures/formatos/gpkg-exportado/` y su test de `tools` está en verde.
-- [ ] T2. `core:formats`: `GpkgAttributeType` y `GpkgPointAttributes` (tipo y valor tipado sin redondear de cada columna, vacío lo que no hay). (RF-4, RF-5)
+- [x] T2. `core:formats`: `GpkgAttributeType` y `GpkgPointAttributes` (tipo y valor tipado sin redondear de cada columna, vacío lo que no hay). (RF-4, RF-5)
       Hecho cuando: `GpkgPointAttributesTest` en verde, incluido cada valor frente a la celda del CSV.
 - [ ] T3. `core:formats`: `GpkgGeometryWriter` (blob con `Point` y `Point Z`, geometría vacía). (RF-5)
       Hecho cuando: `GpkgGeometryWriterTest` en verde con ida y vuelta por `GpkgGeometryReader`.
