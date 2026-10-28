@@ -133,7 +133,10 @@ interface SurfaceDao {
     @Insert
     suspend fun insertRasterTiles(tiles: List<RasterTileEntity>)
 
-    @Query("SELECT data FROM raster_tiles WHERE surface_id = :surfaceId AND tile_col = :tileColumn AND tile_row = :tileRow")
+    @Query(
+        "SELECT data FROM raster_tiles WHERE surface_id = :surfaceId AND tile_col = :tileColumn AND tile_row = :tileRow " +
+            "AND surface_id IN (SELECT id FROM surfaces WHERE status = 'READY')",
+    )
     suspend fun rasterTile(surfaceId: String, tileColumn: Int, tileRow: Int): ByteArray?
 
     @Query("SELECT COUNT(*) FROM raster_tiles WHERE surface_id = :surfaceId")

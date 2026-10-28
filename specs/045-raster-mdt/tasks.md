@@ -18,7 +18,7 @@
       Hecho cuando: `RasterElevationTest` en verde contra `fixtures/raster/` a menos de 1 mm.
 - [x] T8. `data`: Room v22 (columnas de `surfaces`, `raster_tiles`), sus DAO, `AutoMigration(21, 22)` y el esquema 22 en `data/schemas/`. (RNF-T6, RF-14)
       Hecho cuando: `TopoPhoneDatabaseTest` 21 → 22 en verde: proyectos, superficies, puntos y replanteos conservan sus datos.
-- [ ] T9. `data`: `SurfaceRepository` con `beginRaster`, `addRasterTiles` y `finishRaster`, la lista con el tipo, y activar, borrar y la limpieza para los rásteres. (RF-13, RF-17, RF-18)
+- [x] T9. `data`: `SurfaceRepository` con `beginRaster`, `addRasterTiles` y `finishRaster`, la lista con el tipo, y activar, borrar y la limpieza para los rásteres. (RF-13, RF-17, RF-18)
       Hecho cuando: `RasterRepositoryTest` en verde: activar un ráster con un TIN activo y a la inversa, borrar el activo y el desplazamiento que se conserva.
 - [ ] T10. `data`: `RasterImporter`, `scan` e `import` por bandas con el temporal en la caché, el progreso, la cancelación, el límite de tamaño y de anchura y los fallos. (RF-3, RF-5, RF-7, RF-13 a RF-16)
       Hecho cuando: `RasterImporterTest` en verde: cada formato, cancelar sin dejar nada ni el temporal, fallo de escritura, sin celdas con dato y los límites.

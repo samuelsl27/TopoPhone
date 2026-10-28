@@ -3,9 +3,15 @@ package es.topophone.data.surface
 import androidx.room.withTransaction
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.model.surface.RasterInfo
+import es.topophone.core.model.surface.RasterTile
+import es.topophone.core.model.surface.RasterTileCodec
+import es.topophone.core.model.surface.RasterValueType
 import es.topophone.core.model.surface.Surface
 import es.topophone.core.model.surface.SurfaceExtent
+import es.topophone.core.model.surface.SurfaceKind
 import es.topophone.core.model.surface.SurfaceTile
 import es.topophone.core.model.surface.SurfaceTileCodec
 import es.topophone.data.db.TopoPhoneDatabase
@@ -36,6 +42,36 @@ data class SurfaceSummary(
     val holeCount: Int,
 )
 
+/**
+ * Un ráster de cotas que se empieza a importar (S045/RF-14): lo que se sabe antes de leer sus celdas. [grid] da la malla en el sistema
+ * [source] (los recuentos de celdas se fijan al terminar) y [unit] es la unidad de las cotas.
+ */
+data class RasterDraft(
+    val id: String,
+    val projectId: String,
+    val name: String,
+    val fileName: String,
+    val importedAtMs: Long,
+    val source: CadSourceCrs,
+    val unit: LinearUnit,
+    val grid: RasterInfo,
+)
+
+/** Un bloque que se va a guardar: su posición en la cuadrícula de bloques y su contenido ya codificado con `RasterTileCodec`. */
+class RasterTileWrite(val tileColumn: Int, val tileRow: Int, val bytes: ByteArray)
+
+/**
+ * Lo que se sabe de un ráster al terminar de importarlo (S045/RF-16): [extent] en el sistema del proyecto, y las cotas mínima y máxima en
+ * metros tal como vienen, con las celdas con y sin dato.
+ */
+data class RasterSummary(
+    val extent: SurfaceExtent,
+    val minElevationM: Double,
+    val maxElevationM: Double,
+    val dataCells: Long,
+    val noDataCells: Long,
+)
+
 /** La celda de una tesela guardada, sin su bloque (S042, plan A4). */
 class SurfaceCell(val tileId: Long, val region: SurfaceExtent, val triangleCount: Int)
 
@@ -50,6 +86,18 @@ interface SurfaceRepository {
 
     /** Guarda una tanda de teselas en una sola transacción. */
     suspend fun addTiles(surfaceId: String, tiles: List<SurfaceTileWrite>)
+
+    /** Abre un ráster de cotas en estado `IMPORTING` (S045/RF-13); la extensión, las cotas y los recuentos se fijan en [finishRaster]. */
+    suspend fun beginRaster(draft: RasterDraft)
+
+    /** Guarda una tanda de bloques de un ráster en una sola transacción. */
+    suspend fun addRasterTiles(surfaceId: String, tiles: List<RasterTileWrite>)
+
+    /** Cierra el ráster como [finish] cierra una superficie: pasa a `READY` y, si el proyecto no tenía activa, la deja activa (RF-17). */
+    suspend fun finishRaster(surfaceId: String, summary: RasterSummary): Boolean
+
+    /** El bloque de la columna [tileColumn] y la fila [tileRow] de un ráster terminado; null si no existe (S045, plan A4). */
+    suspend fun rasterTile(surfaceId: String, tileColumn: Int, tileRow: Int): RasterTile?
 
     /**
      * Cierra la superficie: pasa a `READY` en una transacción y, si el proyecto no tenía superficie activa, la deja activa (RF-17).
@@ -144,9 +192,71 @@ class RoomSurfaceRepository(private val database: TopoPhoneDatabase) : SurfaceRe
             summary.triangleCount,
             summary.holeCount,
         )
+        activateIfFirst(projectId, surfaceId)
+    }
+
+    override suspend fun beginRaster(draft: RasterDraft) = dao.insertSurface(
+        SurfaceEntity(
+            id = draft.id,
+            projectId = draft.projectId,
+            name = draft.name,
+            fileName = draft.fileName,
+            importedAtMs = draft.importedAtMs,
+            sourceCrs = draft.source.encode(),
+            sourceUnit = draft.unit.name,
+            status = IMPORTING,
+            minEasting = null,
+            maxEasting = null,
+            minNorthing = null,
+            maxNorthing = null,
+            minHeight = null,
+            maxHeight = null,
+            vertexCount = 0,
+            triangleCount = 0,
+            holeCount = 0,
+            kind = SurfaceKind.RASTER.name,
+            heightSystem = draft.grid.heightSystem.name,
+            valueType = draft.grid.valueType.name,
+            columnCount = draft.grid.columns,
+            rowCount = draft.grid.rows,
+            originX = draft.grid.originX,
+            originY = draft.grid.originY,
+            stepX = draft.grid.stepX,
+            stepY = draft.grid.stepY,
+        ),
+    )
+
+    override suspend fun addRasterTiles(surfaceId: String, tiles: List<RasterTileWrite>) {
+        if (tiles.isEmpty()) return
+        dao.insertRasterTiles(
+            tiles.map { RasterTileEntity(surfaceId = surfaceId, tileColumn = it.tileColumn, tileRow = it.tileRow, data = it.bytes) },
+        )
+    }
+
+    override suspend fun finishRaster(surfaceId: String, summary: RasterSummary): Boolean = database.withTransaction {
+        val projectId = dao.projectOf(surfaceId) ?: return@withTransaction false
+        dao.markRasterReady(
+            surfaceId,
+            summary.extent.minEasting,
+            summary.extent.maxEasting,
+            summary.extent.minNorthing,
+            summary.extent.maxNorthing,
+            summary.minElevationM,
+            summary.maxElevationM,
+            summary.dataCells,
+            summary.noDataCells,
+        )
+        activateIfFirst(projectId, surfaceId)
+    }
+
+    override suspend fun rasterTile(surfaceId: String, tileColumn: Int, tileRow: Int): RasterTile? =
+        dao.rasterTile(surfaceId, tileColumn, tileRow)?.let { RasterTileCodec.decode(it) }
+
+    /** Deja activa la superficie [surfaceId] si el proyecto no tenía ninguna (RF-17); devuelve si quedó activa. */
+    private suspend fun activateIfFirst(projectId: String, surfaceId: String): Boolean {
         val firstActive = dao.activeId(projectId) == null
         if (firstActive) dao.setActive(projectId, surfaceId)
-        firstActive
+        return firstActive
     }
 
     override suspend fun abort(surfaceId: String) = dao.deleteSurface(surfaceId)
@@ -203,7 +313,26 @@ private fun SurfaceEntity.toModel() = Surface(
     vertexCount = vertexCount,
     triangleCount = triangleCount,
     holeCount = holeCount,
+    kind = SurfaceKind.valueOf(kind),
+    raster = rasterInfo(),
 )
+
+/** La malla del ráster de la fila, o null si es un TIN (S045). */
+private fun SurfaceEntity.rasterInfo(): RasterInfo? {
+    if (kind != SurfaceKind.RASTER.name) return null
+    return RasterInfo(
+        columns = columnCount ?: 1,
+        rows = rowCount ?: 1,
+        originX = originX ?: 0.0,
+        originY = originY ?: 0.0,
+        stepX = stepX ?: 1.0,
+        stepY = stepY ?: 1.0,
+        valueType = RasterValueType.valueOf(valueType ?: RasterValueType.FLOAT32.name),
+        heightSystem = HeightSystem.valueOf(heightSystem ?: HeightSystem.ORTHOMETRIC.name),
+        dataCells = dataCells ?: 0,
+        noDataCells = noDataCells ?: 0,
+    )
+}
 
 private fun CadSourceCrs.encode(): String = when (this) {
     CadSourceCrs.Project -> "PROJECT"
