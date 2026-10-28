@@ -50,7 +50,7 @@
       Hecho cuando: `AlignmentFichaTest` en verde.
 - [x] T24. `app`: «Punto sobre eje» (PK y desplazamiento, resultado, PK fuera del eje y «Guardar punto»). (RF-20 a RF-22, RNF-T8)
       Hecho cuando: `AlignmentPointViewModelTest` en verde.
-- [ ] T25. Rendimiento: LandXML de 100 MB con un eje de 50 km en menos de 10 s y el dibujo del eje en menos de 16 ms. (RNF)
+- [x] T25. Rendimiento: LandXML de 100 MB con un eje de 50 km en menos de 10 s y el dibujo del eje en menos de 16 ms. (RNF)
       Hecho cuando: los tests de rendimiento en verde.
 - [ ] T26. Validación: cambios en documentos anteriores (hoja de ruta, glosario, S017b a la v21), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.

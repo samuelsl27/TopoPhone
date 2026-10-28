@@ -166,19 +166,31 @@ class AlignmentGeometry(private val elements: List<AlignmentElement>) {
      * ese pie, para que quien llama decida si la posición está "sobre" el eje.
      */
     fun locate(easting: Double, northing: Double): AxisLocation? {
-        var best: Foot? = null
-        var bestIndex = -1
+        // El tramo cuyo inicio queda más cerca (restando su longitud) es el más prometedor: se evalúa primero para que el resto, con su
+        // distancia mínima ya superada por este, se descarte sin calcularlo (un eje de miles de tramos no se recorre entero).
+        var first = 0
+        var firstBound = Double.MAX_VALUE
         for ((i, e) in elements.withIndex()) {
+            val bound = hypot(easting - e.startEasting, northing - e.startNorthing) - e.length
+            if (bound < firstBound) {
+                firstBound = bound
+                first = i
+            }
+        }
+        var best: Foot = footOn(elements[first], easting, northing)
+        var bestIndex = first
+        for ((i, e) in elements.withIndex()) {
+            if (i == first) continue
             // Un punto del tramo nunca está a más de su longitud de su inicio: si ni así llega, no puede ser el más cercano.
             val toStart = hypot(easting - e.startEasting, northing - e.startNorthing)
-            if (best != null && toStart - e.length > best.distance) continue
+            if (toStart - e.length > best.distance) continue
             val foot = footOn(e, easting, northing)
-            if (best == null || foot.distance < best.distance) {
+            if (foot.distance < best.distance) {
                 best = foot
                 bestIndex = i
             }
         }
-        val foot = best ?: return null
+        val foot = best
         if (bestIndex == 0 && foot.beforeStart) return null
         if (bestIndex == elements.lastIndex && foot.afterEnd) return null
         val element = elements[bestIndex]
