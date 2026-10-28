@@ -69,7 +69,7 @@ class AlignmentImportEntriesTest {
         }
 
         compose.onNodeWithTag(projectMenuTag("p1")).performClick()
-        compose.onNodeWithText("Importar eje").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Importar eje").performScrollTo().assertIsDisplayed().performClick()
 
         imported shouldBe "p1"
     }
@@ -107,7 +107,7 @@ class AlignmentImportEntriesTest {
 
         compose.onNodeWithText("Importar superficie").assertIsDisplayed()
         compose.onNodeWithText("Importar GeoPackage").assertIsDisplayed()
-        compose.onNodeWithText("Importar eje").assertIsDisplayed()
+        compose.onNodeWithText("Importar eje").performScrollTo().assertIsDisplayed()
     }
 
     @Test

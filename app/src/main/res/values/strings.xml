@@ -1748,6 +1748,7 @@
     <string name="point_axis_diff_height">Diferencia de cota</string>
     <string name="point_axis_reference">Referencia de cota</string>
     <string name="gpkg_export_title">Exportar GeoPackage</string>
+    <string name="gpkg_export_selected">GeoPackage</string>
     <string name="gpkg_export_system">Sistema de coordenadas</string>
     <string name="gpkg_export_system_project">Del proyecto (EPSG:%1$d)</string>
     <string name="gpkg_export_system_geographic">Geográficas del datum (EPSG:%1$d)</string>

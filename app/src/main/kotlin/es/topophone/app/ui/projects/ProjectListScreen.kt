@@ -149,6 +149,8 @@ class ProjectListActions(
     val onDismissFolderDialog: () -> Unit = {},
     val onDelete: (String) -> Unit = {},
     val onExport: (String) -> Unit = {},
+    /** Exportar los puntos del proyecto a un GeoPackage (S053/RF-1). */
+    val onExportGeoPackage: (String) -> Unit = {},
     /** El informe de replanteo del proyecto (S019/RF-17). */
     val onStakeoutReport: (String) -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, el asistente de importación de puntos del proyecto (S028/RF-1). */
@@ -290,6 +292,7 @@ fun ProjectListRoute(
             onDismissFolderDialog = viewModel::dismissFolderDialog,
             onDelete = viewModel::delete,
             onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
+            onExportGeoPackage = { id -> navigation.onExportGeoPackage(id, false) }, // S053/RF-1
             onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
             onImportPoints = importPoints,
             onImportDxf = importDxf,
@@ -532,6 +535,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onExport(project.id)
         } // S012/RF-1
+        MenuItem(R.string.gpkg_export_title) {
+            open = false
+            actions.onExportGeoPackage(project.id)
+        } // S053/RF-1
         MenuItem(R.string.import_title) {
             open = false
             actions.onImportPoints(project.id)

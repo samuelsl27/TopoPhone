@@ -41,6 +41,7 @@ import es.topophone.app.ui.alignment.ProfileCsvImportRoute
 import es.topophone.app.ui.backup.BackupsRoute
 import es.topophone.app.ui.cad.CadImportRoute
 import es.topophone.app.ui.export.ExportRoute
+import es.topophone.app.ui.export.GpkgExportRoute
 import es.topophone.app.ui.gpkg.GpkgImportRoute
 import es.topophone.app.ui.points.ObjectListRoute
 import es.topophone.app.ui.points.PointDetailsRoute
@@ -122,6 +123,14 @@ fun TopoPhoneApp(
                 is SurveyPage.Objects -> ObjectListRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.PointTrash -> PointTrashRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
                 is SurveyPage.Export -> ExportRoute(
+                    page.projectId,
+                    page.selection,
+                    theme,
+                    toggleSun,
+                    navigation,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.ExportGeoPackage -> GpkgExportRoute(
                     page.projectId,
                     page.selection,
                     theme,
@@ -295,6 +304,8 @@ private fun AppNavHost(
                 onStakeout = { projectId, pointId, query -> navController.navigate(ProjectViewDestination(projectId, pointId, query)) },
                 onOpenBackups = { navController.navigate(BackupsDestination) }, // S013/RF-21
                 onExport = { projectId, selection -> navController.navigate(ExportDestination(projectId, selection)) }, // S012/RF-1, RF-2
+                // S053/RF-1, RF-2
+                onExportGeoPackage = { projectId, selection -> navController.navigate(ExportGeoPackageDestination(projectId, selection)) },
                 // S019/RF-17, RF-18
                 onStakeoutReport = { projectId, selection -> navController.navigate(StakeoutReportDestination(projectId, selection)) },
                 onImportPoints = { projectId, fileUri -> navController.navigate(ImportPointsDestination(projectId, fileUri)) }, // S028/RF-1
@@ -358,6 +369,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ExportDestination>()
                 surveySection(
                     SurveyPage.Export(args.projectId, args.selection),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ExportGeoPackageDestination> { entry ->
+                val args = entry.toRoute<ExportGeoPackageDestination>()
+                surveySection(
+                    SurveyPage.ExportGeoPackage(args.projectId, args.selection),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,
