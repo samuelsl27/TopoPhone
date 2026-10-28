@@ -10,6 +10,7 @@ Genera en fixtures/raster/:
 - Rechazos: BigTIFF, girado, de color, con una compresión que no se lee, sin georreferencia, sin ninguna celda con dato, un texto que
   no es un ráster y un fichero vacío.
 - ASCII Grid con la esquina y con el centro, sin NODATA_value (-9999 por defecto) y con valores que no son un número.
+- extensiones.csv (el recuadro de los centros de celda de cada ráster en UTM 30).
 - ficheros.csv (qué es cada fichero y lo que debe decir el escaneo), celdas.csv (el valor de algunas celdas) y consultas.csv (la cota
   esperada en el sistema del proyecto, UTM 30, y en el sistema de alturas del proyecto).
 
@@ -602,6 +603,27 @@ def files_csv() -> str:
     return "\n".join(rows) + "\n"
 
 
+def extents_csv() -> str:
+    """La extensión de los centros de celda de cada ráster en UTM 30, con pyproj: el recuadro de sus cuatro esquinas."""
+    rows = ["fichero,min_este,max_este,min_norte,max_norte"]
+    rasters = geotiff_rasters() + [r for r, _, _, _ in ascii_rasters()]
+    for r in rasters:
+        xs = (r.x0, r.x0 + (r.cols - 1) * r.step_x)
+        ys = (r.y0 - (r.rows - 1) * r.step_y, r.y0)
+        corners = []
+        for x in xs:
+            for y in ys:
+                if r.epsg == 25829:
+                    corners.append(FROM_UTM29.transform(x, y))
+                elif r.geographic:
+                    corners.append(GEO_TO_UTM30.transform(x, y))
+                else:
+                    corners.append((x, y))
+        es, ns = [c[0] for c in corners], [c[1] for c in corners]
+        rows.append(f"{r.name},{min(es)!r},{max(es)!r},{min(ns)!r},{max(ns)!r}")
+    return "\n".join(rows) + "\n"
+
+
 def generate(out: Path) -> dict[str, bytes]:
     """Todos los ficheros que hay en `out`, por nombre."""
     files: dict[str, bytes] = {}
@@ -614,6 +636,7 @@ def generate(out: Path) -> dict[str, bytes]:
     files["ficheros.csv"] = files_csv().encode("utf-8")
     files["celdas.csv"] = cells_csv().encode("utf-8")
     files["consultas.csv"] = queries_csv().encode("utf-8")
+    files["extensiones.csv"] = extents_csv().encode("utf-8")
     return files
 
 

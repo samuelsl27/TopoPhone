@@ -12,7 +12,7 @@
       Hecho cuando: `GeoTiffRasterReaderTest` en verde con cada rechazo y cada caso de `fixtures/raster/`.
 - [x] T5. `core:formats`: `AsciiGridReader`, `RasterReader` (reconocer por contenido) y `RasterCrsResolver`. (RF-2, RF-3, RF-7, RF-8)
       Hecho cuando: `AsciiGridReaderTest`, `RasterReaderTest` y `RasterCrsResolverTest` en verde.
-- [ ] T6. `core:survey`: `RasterTiler` y `RasterExtent`. (RF-11, RF-12, RF-14, RF-16)
+- [x] T6. `core:survey`: `RasterTiler` y `RasterExtent`. (RF-11, RF-12, RF-14, RF-16)
       Hecho cuando: `RasterTilerTest` y los tests de la extensión en verde.
 - [ ] T7. `core:survey`: `RasterElevation`: de la posición del proyecto a la cota del ráster, con el cambio de SC, la bilineal estricta, la unidad y la conversión con el geoide. (RF-9, RF-10, RF-21 a RF-23)
       Hecho cuando: `RasterElevationTest` en verde contra `fixtures/raster/` a menos de 1 mm.
