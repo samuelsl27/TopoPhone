@@ -20,7 +20,7 @@
       Hecho cuando: `AxisStakePointTest` y `AxisMeasuredPointTest` en verde (nombres de 60 caracteres o menos).
 - [x] T9. `core:formats`: `StakeoutReportCsv` con `Alignment`, `Thickness` y `Delta chainage`. (RF-10)
       Hecho cuando: `StakeoutReportCsvTest` ampliado en verde.
-- [ ] T10. `app`: `AxisStakeoutViewModel` (eje activo, campos, serie, validaciones, cambio de eje que cambia el activo, cierre por borrado del eje) y su guía con el `StakeoutController`. (RF-1 a RF-3, RF-5, RF-7, RF-9, RF-11)
+- [x] T10. `app`: `AxisStakeoutViewModel` (eje activo, campos, serie, validaciones, cambio de eje que cambia el activo, cierre por borrado del eje) y su guía con el `StakeoutController`. (RF-1 a RF-3, RF-5, RF-7, RF-9, RF-11)
       Hecho cuando: `AxisStakeoutViewModelTest` en verde.
 - [ ] T11. `app`: `AxisStakeoutPanel` (campos, PK siguiente y anterior, adelante/atrás y dentro/fuera, Norte y Este, desmonte y terraplén, fuera del eje, TalkBack). (RF-1, RF-4, RF-6, RF-7, RF-9, RNF-T8)
       Hecho cuando: `AxisStakeoutPanelTest` en verde.
