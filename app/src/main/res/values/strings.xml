@@ -1718,4 +1718,23 @@
     <string name="axis_stakeout_a11y">%1$s, %2$s</string>
     <string name="axis_stakeout_no_projection">La punta queda antes del inicio o después del final del eje: no hay PK ni desplazamiento. Se muestran solo el Norte y el Este.</string>
     <string name="axis_stakeout_closed">Se ha borrado el eje y el replanteo se ha cerrado.</string>
+    <string name="axis_analysis_title">Analizar el eje %1$s</string>
+    <string name="axis_analysis_pk">PK %1$s</string>
+    <string name="axis_analysis_choose">Cota de referencia</string>
+    <string name="axis_analysis_ref_profile">Rasante</string>
+    <string name="axis_analysis_ref_surface">Superficie</string>
+    <string name="axis_analysis_the_profile">la rasante</string>
+    <string name="axis_analysis_the_surface">la superficie</string>
+    <string name="axis_analysis_diff">Diferencia de cota con %1$s: %2$s (%3$s)</string>
+    <string name="axis_analysis_reference_elevation">Cota de %1$s: %2$s</string>
+    <string name="axis_analysis_above">por encima</string>
+    <string name="axis_analysis_below">por debajo</string>
+    <string name="axis_analysis_level">a la misma cota</string>
+    <string name="axis_analysis_note_no_reference">Sin referencia de cota: solo el PK y el desplazamiento.</string>
+    <string name="axis_analysis_note_no_height">La punta no tiene altura.</string>
+    <string name="axis_analysis_note_outside_profile">La rasante no llega a este PK.</string>
+    <string name="axis_analysis_note_outside_surface">La punta está fuera de la superficie.</string>
+    <string name="axis_analysis_note_loading_surface">Cargando la superficie…</string>
+    <string name="axis_analysis_no_projection">La punta queda antes del inicio o después del final del eje: no hay PK ni desplazamiento.</string>
+    <string name="axis_analysis_a11y">%1$s, %2$s. %3$s</string>
 </resources>

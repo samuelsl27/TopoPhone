@@ -30,7 +30,7 @@
       Hecho cuando: `AxisStakeoutMeasureTest` y `PointDetailsScreenTest` ampliado en verde.
 - [x] T14. `app`: reproducción que recorre un eje, guía época a época contra el cálculo aparte. (RF-6, RF-7, RNF)
       Hecho cuando: `AxisStakeoutReplayTest` en verde a menos de 1 mm.
-- [ ] T15. `app`: `AxisAnalysisViewModel` y `AxisAnalysisPanel` (PK, desplazamiento y diferencia de cota en vivo, referencia rasante o superficie, sin proyección). (RF-8, RF-12, RF-14)
+- [x] T15. `app`: `AxisAnalysisViewModel` y `AxisAnalysisPanel` (PK, desplazamiento y diferencia de cota en vivo, referencia rasante o superficie, sin proyección). (RF-8, RF-12, RF-14)
       Hecho cuando: `AxisAnalysisViewModelTest` y `AxisAnalysisPanelTest` en verde.
 - [ ] T16. `app`: «Analizar» en `AlignmentsSheet` y `AlignmentFicha`, y «Medir» con el `AxisRef` y la diferencia de cota. (RF-12, RF-13)
       Hecho cuando: los mismos tests y `AxisMeasuredPointTest` en verde.

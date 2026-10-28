@@ -408,7 +408,7 @@ private fun Started(
         )
         return
     }
-    val side = sidePhrase(target.offsetM, unit, symbol)
+    val side = axisSidePhrase(target.offsetM, unit, symbol)
     Text(
         stringResource(R.string.axis_stakeout_design, ChainageFormat.format(target.chainageM, unit, locale), side),
         style = MaterialTheme.typography.titleSmall,
@@ -430,7 +430,7 @@ private fun Started(
 
 /** "a 3,500 m a la derecha del eje", con la palabra y no solo el signo (S054/RNF-T8). */
 @Composable
-private fun sidePhrase(offsetM: Double, unit: LinearUnit, symbol: String): String {
+internal fun axisSidePhrase(offsetM: Double, unit: LinearUnit, symbol: String): String {
     val magnitude = "${OffsetFormat.magnitude(offsetM, unit, uiLocale())} $symbol"
     return when (OffsetFormat.side(offsetM)) {
         OffsetSide.LEFT -> stringResource(R.string.axis_stakeout_side_left, magnitude)

@@ -1706,4 +1706,23 @@
     <string name="axis_stakeout_a11y">%1$s, %2$s</string>
     <string name="axis_stakeout_no_projection">The tip is before the start or after the end of the alignment: there is no chainage or offset. Only the northing and easting are shown.</string>
     <string name="axis_stakeout_closed">The alignment has been deleted and the stakeout has been closed.</string>
+    <string name="axis_analysis_title">Analyse alignment %1$s</string>
+    <string name="axis_analysis_pk">Chainage %1$s</string>
+    <string name="axis_analysis_choose">Reference elevation</string>
+    <string name="axis_analysis_ref_profile">Profile</string>
+    <string name="axis_analysis_ref_surface">Surface</string>
+    <string name="axis_analysis_the_profile">the profile</string>
+    <string name="axis_analysis_the_surface">the surface</string>
+    <string name="axis_analysis_diff">Elevation difference with %1$s: %2$s (%3$s)</string>
+    <string name="axis_analysis_reference_elevation">Elevation of %1$s: %2$s</string>
+    <string name="axis_analysis_above">above</string>
+    <string name="axis_analysis_below">below</string>
+    <string name="axis_analysis_level">at the same elevation</string>
+    <string name="axis_analysis_note_no_reference">No reference elevation: only the chainage and the offset.</string>
+    <string name="axis_analysis_note_no_height">The tip has no height.</string>
+    <string name="axis_analysis_note_outside_profile">The profile does not reach this chainage.</string>
+    <string name="axis_analysis_note_outside_surface">The tip is outside the surface.</string>
+    <string name="axis_analysis_note_loading_surface">Loading the surface…</string>
+    <string name="axis_analysis_no_projection">The tip is before the start or after the end of the alignment: there is no chainage or offset.</string>
+    <string name="axis_analysis_a11y">%1$s, %2$s. %3$s</string>
 </resources>
