@@ -138,4 +138,16 @@ class AxisStakePointTest {
         read.onAxis.shouldNotBeNull().dHeightM.shouldBeNull()
         read.onAxis.shouldNotBeNull().heightRef.shouldBeNull()
     }
+
+    @Test
+    fun `S054 RF-10 la consulta del informe y de la exportacion trae el eje, el espesor y la diferencia de PK`() {
+        runBlocking { points.create(Point.measured("a1", project, "Eje A_1_stkd", "", measurement(), 1_000, ref)) }
+
+        val exported = runBlocking { points.pointsForExport(project) }.single().staked.shouldNotBeNull()
+
+        exported.source shouldBe StakeSource.Alignment("Eje A")
+        exported.thicknessM shouldBe 0.1
+        exported.dChainageM shouldBe -0.034567891
+        exported.chainageM.shouldNotBeNull().toRawBits() shouldBe 150.0000000001.toRawBits()
+    }
 }

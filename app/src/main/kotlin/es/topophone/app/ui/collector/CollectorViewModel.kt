@@ -517,8 +517,11 @@ class CollectorViewModel @Inject constructor(
         stakeObjective = provider
     }
 
-    /** `<capa>_<n>_stkd` con un elemento de un dibujo (S041/RF-27) y `<diseño>_stkd` con un punto del proyecto (S018/RF-27). */
-    private fun stakeName(target: StakeTarget, taken: Set<String>): String = if (target.source is StakeSource.CadElement) {
+    /**
+     * `<capa>_<n>_stkd` con un elemento de un dibujo (S041/RF-27), `<eje>_<n>_stkd` con un PK de un eje (S054/RF-10) y `<diseño>_stkd` con
+     * un punto del proyecto (S018/RF-27).
+     */
+    private fun stakeName(target: StakeTarget, taken: Set<String>): String = if (target.source !is StakeSource.ProjectPoint) {
         StakeoutNames.nextForLayer(
             target.name,
             taken,
@@ -994,6 +997,8 @@ class CollectorViewModel @Inject constructor(
                     chainageM = objective.chainageM,
                     lateralOffsetM = objective.lateralOffsetM,
                     dLateralM = objective.lateralErrorOf(measurement.coordinates),
+                    dChainageM = objective.chainageErrorOf?.invoke(measurement.coordinates), // S054/RF-10
+                    thicknessM = objective.thicknessM,
                 )
             } else if (info == null) {
                 StakeoutDiff.ref(target.id, target.name, target.coordinates, measurement.coordinates).copy(source = target.source)

@@ -319,4 +319,42 @@ class PointDetailsStakeoutTest {
         compose.onNodeWithTag("point_stakeout_surface").assertDoesNotExist()
         compose.onNodeWithTag("point_stakeout_vertical_offset").assertDoesNotExist()
     }
+
+    private fun fromAxis(): Point {
+        val base = staked("Eje A_1_stkd")
+        val ref = base.staked!!.copy(
+            designName = "Eje A",
+            source = StakeSource.Alignment("Eje A"),
+            chainageM = 150.0,
+            lateralOffsetM = 3.5,
+            dLateralM = 0.012,
+            dChainageM = -0.034,
+            thicknessM = 0.1,
+        )
+        return base.copy(staked = ref)
+    }
+
+    @Test
+    fun `S054 RF-10 la ficha del replanteado por PK da el eje, el PK, el desplazamiento, el espesor y las diferencias`() {
+        show(PointDetailsUiState(project(), fromAxis()))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_axis").performScrollTo().shows("Eje A")
+        compose.onNodeWithTag("point_stakeout_chainage").performScrollTo().shows("150,000 m")
+        compose.onNodeWithTag("point_stakeout_offset").performScrollTo().shows("+3,500 m")
+        compose.onNodeWithTag("point_stakeout_thickness").performScrollTo().shows("+0,100 m")
+        compose.onNodeWithTag("point_stakeout_diff_chainage").performScrollTo().shows("-0,034 m")
+        compose.onNodeWithTag("point_stakeout_diff_lateral").performScrollTo().shows("+0,012 m")
+        compose.onNodeWithTag("point_stakeout_drawing").assertDoesNotExist()
+    }
+
+    @Test
+    fun `S054 RF-10 un replanteo de un punto o de un dibujo no tiene filas de eje`() {
+        show(PointDetailsUiState(project(), fromDrawing(LineStakeoutMode.ALONG)))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_axis").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_thickness").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_diff_chainage").assertDoesNotExist()
+    }
 }

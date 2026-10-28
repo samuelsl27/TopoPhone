@@ -98,7 +98,8 @@ interface PointDao {
             "stake_design_north, stake_design_height, stake_design_lat, stake_design_lon, stake_design_ground_h, stake_d_east, " +
             "stake_d_north, stake_d_horizontal, stake_d_height, stake_design_elevation, stake_tol_h, stake_tol_v, " +
             "stake_within, stake_cad_drawing, stake_cad_layer, stake_cad_kind, stake_mode, stake_chainage, stake_offset, " +
-            "stake_d_lateral, import_id FROM points " +
+            "stake_d_lateral, stake_axis, stake_thickness, stake_d_chainage, stake_elev_source, stake_surface_name, " +
+            "stake_surface_imported_ms, stake_surface_elev, stake_vertical_offset, import_id FROM points " +
             "WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at",
     )
     suspend fun forExport(projectId: String): List<PointEntity>

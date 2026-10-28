@@ -533,6 +533,10 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
                 "point_stakeout_element",
             )
         }
+        // S054/RF-10: de qué eje viene el PK y el desplazamiento, y el espesor.
+        (ref.source as? StakeSource.Alignment)?.let { source ->
+            CoordinateRow(stringResource(R.string.point_stakeout_axis), source.alignmentName, "point_stakeout_axis")
+        }
         ref.mode?.let { mode ->
             CoordinateRow(stringResource(R.string.point_stakeout_mode), stringResource(mode.labelRes()), "point_stakeout_mode")
         }
@@ -555,6 +559,10 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
         ref.dLateralM?.let {
             CoordinateRow(stringResource(R.string.point_stakeout_diff_lateral), signed(it), "point_stakeout_diff_lateral")
         }
+        ref.dChainageM?.let {
+            CoordinateRow(stringResource(R.string.point_stakeout_diff_chainage), signed(it), "point_stakeout_diff_chainage")
+        }
+        ref.thicknessM?.let { CoordinateRow(stringResource(R.string.point_stakeout_thickness), signed(it), "point_stakeout_thickness") }
         // S042/RF-30: contra qué cota se replanteó y, con la superficie, de cuál, su cota en lo medido y el desplazamiento vertical.
         ref.elevationSource?.let { source ->
             val label = if (source == ElevationSource.SURFACE) R.string.stakeout_source_surface else R.string.stakeout_source_point

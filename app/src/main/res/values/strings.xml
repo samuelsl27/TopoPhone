@@ -1229,6 +1229,9 @@
     <string name="point_stakeout_chainage">PK</string>
     <string name="point_stakeout_offset">Desplazamiento lateral</string>
     <string name="point_stakeout_diff_lateral">Error lateral</string>
+    <string name="point_stakeout_axis">Eje</string>
+    <string name="point_stakeout_diff_chainage">Diferencia de PK</string>
+    <string name="point_stakeout_thickness">Espesor</string>
     <string name="point_stakeout_source">Origen de la cota</string>
     <string name="point_stakeout_surface">Superficie</string>
     <string name="point_stakeout_surface_elevation">Cota de la superficie</string>
