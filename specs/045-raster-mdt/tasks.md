@@ -8,7 +8,7 @@
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto (las superficies TIN no cambian).
 - [x] T3. `core:formats`: `RasterSource`, `RasterSink`, `TiffDecoder` (sin comprimir, LZW, Deflate, predictores 2 y 3, big y little endian). (RF-2)
       Hecho cuando: `TiffDecoderTest` en verde con los bloques de `fixtures/raster/`.
-- [ ] T4. `core:formats`: `GeoTiffRasterReader` (`scan` y lectura por bandas, georreferencia, `PixelIs*`, sin dato, unidad de la cota, tipos de muestra, tiras y teselas, rechazos). (RF-2 a RF-4, RF-6, RF-7, RF-9)
+- [x] T4. `core:formats`: `GeoTiffRasterReader` (`scan` y lectura por bandas, georreferencia, `PixelIs*`, sin dato, unidad de la cota, tipos de muestra, tiras y teselas, rechazos). (RF-2 a RF-4, RF-6, RF-7, RF-9)
       Hecho cuando: `GeoTiffRasterReaderTest` en verde con cada rechazo y cada caso de `fixtures/raster/`.
 - [ ] T5. `core:formats`: `AsciiGridReader`, `RasterReader` (reconocer por contenido) y `RasterCrsResolver`. (RF-2, RF-3, RF-7, RF-8)
       Hecho cuando: `AsciiGridReaderTest`, `RasterReaderTest` y `RasterCrsResolverTest` en verde.
