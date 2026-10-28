@@ -36,7 +36,7 @@
       Hecho cuando: esos tests en verde y los de S018, S019, S041 y S042 siguen en verde.
 - [x] T17. Rendimiento: `RasterPerformanceTest`. (RNF)
       Hecho cuando: un ráster de 250 MB generado al vuelo se importa en menos de 180 s sin quedarse sin memoria, la primera cota tras activarlo tarda menos de 1 s y la consulta a 10 Hz no pasa de 16 ms.
-- [ ] T18. Reproducción sintética `rs3-raster`: un recorrido que cruza un ráster con un hueco sin dato y su resultado esperado calculado aparte. (Criterios de finalización)
+- [x] T18. Reproducción sintética `rs3-raster`: un recorrido que cruza un ráster con un hueco sin dato y su resultado esperado calculado aparte. (Criterios de finalización)
       Hecho cuando: el test en verde con la cota, el desmonte o terraplén esperados y el paso por «Fuera de la superficie».
 - [ ] T19. Validación: cambios en documentos anteriores (hoja de ruta con S017b a la v23, glosario), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files`, ficheros de GDAL comprobados con QGIS (`sample_raster_values`, bilineal) y el trozo de MDT05, y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo (puerta G2b) quedan para el usuario.

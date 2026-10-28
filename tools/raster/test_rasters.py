@@ -74,7 +74,8 @@ def test_s045_rf2_lzw_de_tiff_ida_y_vuelta_con_reinicio_de_tabla() -> None:
 def test_s045_rf2_ficheros_al_dia() -> None:
     """S045/RF-2: los ficheros de fixtures/raster/ son los que genera el script."""
     expected = gr.generate(gr.OUT)
-    assert {p.name for p in gr.OUT.iterdir()} == set(expected)
+    # replay-rs3.tif lo genera generar_replay_raster.py, con la reproducción NMEA que lo cruza.
+    assert {p.name for p in gr.OUT.iterdir()} - {"replay-rs3.tif"} == set(expected)
     for name, data in expected.items():
         assert (gr.OUT / name).read_bytes() == data, name
 
