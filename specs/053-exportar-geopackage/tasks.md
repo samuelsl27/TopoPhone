@@ -6,7 +6,7 @@
       Hecho cuando: el script genera `fixtures/formatos/gpkg-exportado/` y su test de `tools` está en verde.
 - [x] T2. `core:formats`: `GpkgAttributeType` y `GpkgPointAttributes` (tipo y valor tipado sin redondear de cada columna, vacío lo que no hay). (RF-4, RF-5)
       Hecho cuando: `GpkgPointAttributesTest` en verde, incluido cada valor frente a la celda del CSV.
-- [ ] T3. `core:formats`: `GpkgGeometryWriter` (blob con `Point` y `Point Z`, geometría vacía). (RF-5)
+- [x] T3. `core:formats`: `GpkgGeometryWriter` (blob con `Point` y `Point Z`, geometría vacía). (RF-5)
       Hecho cuando: `GpkgGeometryWriterTest` en verde con ida y vuelta por `GpkgGeometryReader`.
 - [ ] T4. `core:formats`: `GpkgExportSchema` y `GpkgSrsDefinitions` (tablas, filas obligatorias, SC con su WKT y la definición completa sin código). (RF-6, RF-8)
       Hecho cuando: `GpkgExportSchemaTest` y `GpkgSrsDefinitionsTest` en verde contra `esperado-srs.csv`.
