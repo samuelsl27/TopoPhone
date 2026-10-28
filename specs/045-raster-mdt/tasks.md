@@ -6,7 +6,7 @@
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [x] T2. `core:model`: `SurfaceKind`, `RasterInfo`, `Surface` ampliada, `RasterTile` y `RasterTileCodec` (float32 y float64 sin redondear, `NaN` sin dato). (RF-14, RF-17)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto (las superficies TIN no cambian).
-- [ ] T3. `core:formats`: `RasterSource`, `RasterSink`, `TiffDecoder` (sin comprimir, LZW, Deflate, predictores 2 y 3, big y little endian). (RF-2)
+- [x] T3. `core:formats`: `RasterSource`, `RasterSink`, `TiffDecoder` (sin comprimir, LZW, Deflate, predictores 2 y 3, big y little endian). (RF-2)
       Hecho cuando: `TiffDecoderTest` en verde con los bloques de `fixtures/raster/`.
 - [ ] T4. `core:formats`: `GeoTiffRasterReader` (`scan` y lectura por bandas, georreferencia, `PixelIs*`, sin dato, unidad de la cota, tipos de muestra, tiras y teselas, rechazos). (RF-2 a RF-4, RF-6, RF-7, RF-9)
       Hecho cuando: `GeoTiffRasterReaderTest` en verde con cada rechazo y cada caso de `fixtures/raster/`.
