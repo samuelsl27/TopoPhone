@@ -12,7 +12,7 @@
       Hecho cuando: `GpkgExportSchemaTest` y `GpkgSrsDefinitionsTest` en verde contra `esperado-srs.csv`.
 - [x] T5. `data`: `GeoPackageWriter` (fichero temporal, una transacción, sistema del proyecto o geográficas, selección, sin puntos, fallo sin dejar fichero, punto sin Este y Norte con geometría vacía, el punto de extensión de capas). (RF-1 a RF-8, RF-11 a RF-13)
       Hecho cuando: `GeoPackageWriterTest` en verde, con el fichero abierto por el `GeoPackageReader` de S048.
-- [ ] T6. `data`: el `.gpkg` dorado de cada caso y 10.000 puntos en menos de 5 s. (RF-5 a RF-7, RNF)
+- [x] T6. `data`: el `.gpkg` dorado de cada caso y 10.000 puntos en menos de 5 s. (RF-5 a RF-7, RNF)
       Hecho cuando: `GeoPackageWriterPerformanceTest` en verde y los dorados leídos por el test de `tools`.
 - [ ] T7. `app`: `GpkgExportViewModel` (puntos o selección, sistema, nombre del fichero, escribir en la caché y copiar, resultado y resumen). (RF-1, RF-2, RF-7, RF-9 a RF-13)
       Hecho cuando: `GpkgExportViewModelTest` en verde.

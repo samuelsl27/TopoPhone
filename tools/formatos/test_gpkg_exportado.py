@@ -99,3 +99,84 @@ def test_los_vacios_se_leen_como_nulos_y_los_valores_no_se_redondean(reference):
     assert a["Easting"] == 440000.123456789 and a["Elevation"] == 648.25
     assert b["Elevation"] is None and b["Replay"] == 1
     assert c["Satellites"] is None and c["Replay"] is None
+
+
+# ---------------------------------------------------------------------------------------- los GeoPackage dorados de la app
+# (fichero, EPSG de los puntos de esperado-puntos.csv, EPSG de la capa)
+GOLDEN = (
+    ("exportado-25829.gpkg", 25829, 25829),
+    ("exportado-25830.gpkg", 25830, 25830),
+    ("exportado-25831.gpkg", 25831, 25831),
+    ("exportado-4082.gpkg", 4082, 4082),
+    ("exportado-4083.gpkg", 4083, 4083),
+    ("exportado-25830-geograficas.gpkg", 25830, 4258),
+    ("exportado-4083-geograficas.gpkg", 4083, 4081),
+)
+
+
+def samples_of(epsg: int) -> list[dict[str, str]]:
+    return [r for r in rows_of("esperado-puntos.csv") if int(r["epsg"]) == epsg]
+
+
+@pytest.mark.parametrize(("name", "points_epsg", "layer_epsg"), GOLDEN)
+def test_el_dorado_se_declara_geopackage_con_el_sistema_de_la_capa_y_su_definicion(name, points_epsg, layer_epsg):
+    info = g.read_gpkg(g.OUT / name)
+
+    assert info.application_id == g.APPLICATION_ID and info.user_version == g.USER_VERSION
+    assert {"gpkg_spatial_ref_sys", "gpkg_contents", "gpkg_geometry_columns", g.LAYER} <= info.tables
+    assert set(info.srs) == {-1, 0, 4326, layer_epsg}
+    organization, code, definition = info.srs[layer_epsg]
+    assert (organization, code) == ("EPSG", layer_epsg)
+    assert CRS.from_wkt(definition).to_epsg() == layer_epsg or CRS.from_wkt(definition).equals(CRS.from_epsg(layer_epsg), ignore_axis_order=True)
+    assert [c[0] for c in info.contents] == [g.LAYER] and info.contents[0][7] == layer_epsg
+    assert info.geometry_columns == [("points", "geom", "POINT", layer_epsg, 2, 0)]
+
+
+@pytest.mark.parametrize(("name", "points_epsg", "layer_epsg"), GOLDEN)
+def test_el_dorado_tiene_los_mismos_puntos_con_las_coordenadas_de_pyproj_a_menos_de_1_mm(name, points_epsg, layer_epsg):
+    info = g.read_gpkg(g.OUT / name)
+    expected = samples_of(points_epsg)
+    to_projected = Transformer.from_crs(f"EPSG:{g.GEOGRAPHIC_OF[points_epsg]}", f"EPSG:{points_epsg}", always_xy=True)
+    assert [r["Name"] for r in info.rows] == [r["punto"] for r in expected]
+    geographic = layer_epsg != points_epsg
+    for row, sample in zip(info.rows, expected):
+        lat, lon = float(sample["latitud"]), float(sample["longitud"])
+        east, north = to_projected.transform(lon, lat)
+        # lo que guarda la app son las coordenadas del punto, sin redondear
+        assert row["Easting"] == float(sample["este"]) and row["Northing"] == float(sample["norte"])
+        assert row["Latitude"] == lat and row["Longitude"] == lon
+        # y cada una coincide con la de pyproj
+        assert abs(row["Easting"] - east) < 1e-3 and abs(row["Northing"] - north) < 1e-3
+        geom = row["geom"]
+        assert not geom.empty and geom.srs_id == layer_epsg
+        x, y = geom.coords[0], geom.coords[1]
+        assert (x, y) == ((lon, lat) if geographic else (row["Easting"], row["Northing"]))
+
+
+@pytest.mark.parametrize(("name", "points_epsg", "layer_epsg"), GOLDEN)
+def test_el_dorado_lleva_la_altura_como_tercera_coordenada_solo_en_los_puntos_que_la_tienen(name, points_epsg, layer_epsg):
+    info = g.read_gpkg(g.OUT / name)
+    for index, row in enumerate(info.rows):
+        geom = row["geom"]
+        if index % 2 == 0:
+            assert geom.kind == 1001 and geom.coords[2] == row["Elevation"] == 500.5 + index
+        else:
+            assert geom.kind == 1 and row["Elevation"] is None
+
+
+def test_el_dorado_declara_el_tipo_de_cada_atributo_y_deja_vacio_lo_que_el_punto_no_tiene():
+    info = g.read_gpkg(g.OUT / "exportado-25830.gpkg")
+    declared = dict(info.columns)
+
+    assert declared["Name"] == "TEXT" and declared["Easting"] == "REAL" and declared["Satellites"] == "INTEGER"
+    assert declared["Replay"] == "BOOLEAN" and declared["Ellipsoidal height"] == "REAL" and declared["geom"] == "POINT"
+    first = info.rows[0]
+    assert first["Origin"] == "Manual" and first["CRS"] == "EPSG:25830" and first["Edited"] == 0
+    assert first["Satellites"] is None and first["Solution"] is None and first["Replay"] is None
+
+
+def test_la_extension_de_la_capa_es_la_de_los_puntos():
+    info = g.read_gpkg(g.OUT / "exportado-25830.gpkg")
+    xs = [r["geom"].coords[0] for r in info.rows]
+    ys = [r["geom"].coords[1] for r in info.rows]
+    assert (info.contents[0][3], info.contents[0][4], info.contents[0][5], info.contents[0][6]) == (min(xs), min(ys), max(xs), max(ys))
