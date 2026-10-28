@@ -14,7 +14,7 @@
       Hecho cuando: `GeoPackageWriterTest` en verde, con el fichero abierto por el `GeoPackageReader` de S048.
 - [x] T6. `data`: el `.gpkg` dorado de cada caso y 10.000 puntos en menos de 5 s. (RF-5 a RF-7, RNF)
       Hecho cuando: `GeoPackageWriterPerformanceTest` en verde y los dorados leídos por el test de `tools`.
-- [ ] T7. `app`: `GpkgExportViewModel` (puntos o selección, sistema, nombre del fichero, escribir en la caché y copiar, resultado y resumen). (RF-1, RF-2, RF-7, RF-9 a RF-13)
+- [x] T7. `app`: `GpkgExportViewModel` (puntos o selección, sistema, nombre del fichero, escribir en la caché y copiar, resultado y resumen). (RF-1, RF-2, RF-7, RF-9 a RF-13)
       Hecho cuando: `GpkgExportViewModelTest` en verde.
 - [ ] T8. `app`: `GpkgExportScreen` (recuento, selector de sistema, resumen, guardar y compartir, mensajes, 56 dp). (RF-7, RF-10, RF-11, RF-12, RNF-T7, RNF-T8)
       Hecho cuando: `GpkgExportScreenTest` en verde.
