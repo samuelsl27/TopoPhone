@@ -12,6 +12,8 @@ import es.topophone.app.ui.stakeout.GuidanceOff
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.point.AxisHeightRef
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.GeodeticPosition
+import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
@@ -333,5 +335,73 @@ class AxisAnalysisViewModelTest {
         vm.close()
 
         await(vm) { !it.loaded }.analysis.shouldBeNull()
+    }
+
+    // El eje A en el PK 150 y a 3,5 m a la derecha, de esperado-puntos.csv de tools: el Este, el Norte y la cota de la rasante.
+    private fun measuredAt(height: Double?) = PointCoordinates(
+        GeodeticPosition(40.4168, -3.7038, 700.0),
+        440131.7435931394,
+        4474071.448550662,
+        height,
+    )
+
+    @Test
+    fun `S054 RF-13 la referencia de una medida lleva el eje, el PK, el desplazamiento y la diferencia de cota con la rasante`() {
+        val vm = open("Eje A")
+
+        val axis = vm.referenceProvider.at(measuredAt(102.58333333333333 + 0.12)).shouldNotBeNull()
+
+        axis.alignmentName shouldBe "Eje A"
+        axis.chainageM shouldBe (150.0 plusOrMinus 1e-4)
+        axis.offsetM shouldBe (3.5 plusOrMinus 1e-4)
+        axis.dHeightM.shouldNotBeNull() shouldBe (0.12 plusOrMinus 1e-4)
+        axis.heightRef shouldBe AxisHeightRef.PROFILE
+    }
+
+    @Test
+    fun `S054 RF-13 con la superficie elegida la diferencia es contra la superficie con su desplazamiento vertical`() {
+        surface.value = surfaceGuide(SurfaceHeight.Value(100.0), offset = 0.25)
+        val vm = open("Eje A")
+        vm.setReference(AxisHeightRef.SURFACE)
+
+        val axis = vm.referenceProvider.at(measuredAt(101.0)).shouldNotBeNull()
+
+        axis.dHeightM.shouldNotBeNull() shouldBe (0.75 plusOrMinus 1e-9)
+        axis.heightRef shouldBe AxisHeightRef.SURFACE
+    }
+
+    @Test
+    fun `S054 RF-13 fuera de la superficie o sin altura se guarda el eje con la diferencia y su referencia vacias`() {
+        surface.value = surfaceGuide(SurfaceHeight.Outside)
+        val vm = open("Eje C")
+        vm.setReference(AxisHeightRef.SURFACE)
+        val outside = vm.referenceProvider.at(
+            PointCoordinates(GeodeticPosition(40.4, -3.7, 700.0), 441100.0, 4474010.0, 5.0),
+        ).shouldNotBeNull()
+        outside.dHeightM.shouldBeNull()
+        outside.heightRef.shouldBeNull()
+        outside.chainageM shouldBe (100.0 plusOrMinus 1e-9)
+        outside.offsetM shouldBe (-10.0 plusOrMinus 1e-9)
+
+        surface.value = null
+        val withoutHeight = open("Eje A").referenceProvider.at(measuredAt(null)).shouldNotBeNull()
+        withoutHeight.dHeightM.shouldBeNull()
+        withoutHeight.heightRef.shouldBeNull()
+        withoutHeight.chainageM shouldBe (150.0 plusOrMinus 1e-4)
+    }
+
+    @Test
+    fun `S054 RF-14 una medida sin proyeccion sobre el eje no lleva referencia`() {
+        val vm = open("Eje C")
+
+        vm.referenceProvider.at(PointCoordinates(GeodeticPosition(40.4, -3.7, 700.0), 440990.0, 4474000.0, 5.0)).shouldBeNull()
+    }
+
+    @Test
+    fun `S054 RF-13 sin eje abierto no hay referencia`() {
+        val vm = open("Eje A")
+        vm.close()
+
+        vm.referenceProvider.at(measuredAt(102.0)).shouldBeNull()
     }
 }

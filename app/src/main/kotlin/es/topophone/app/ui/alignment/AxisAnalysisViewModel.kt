@@ -13,8 +13,11 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.AxisHeightRef
+import es.topophone.core.model.point.AxisRef
+import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.surface.SurfaceGuide
+import es.topophone.core.model.surface.SurfaceHeight
 import es.topophone.core.survey.AlignmentGeometry
 import es.topophone.core.survey.AxisAnalysis
 import es.topophone.core.survey.AxisAnalysisValue
@@ -188,6 +191,32 @@ class AxisAnalysisViewModel @Inject constructor(
         if (!available) return false
         choice.value = reference
         return true
+    }
+
+    /**
+     * Dónde cae una medida respecto al eje, para guardarla con su PK, su desplazamiento y su diferencia de cota (S054/RF-13). Calcula con la
+     * posición medida y con la referencia de cota de ese momento; sin proyección sobre el eje, null (RF-14).
+     */
+    val referenceProvider: AxisReferenceProvider = AxisReferenceProvider { measured -> reference(measured) }
+
+    private fun reference(measured: PointCoordinates): AxisRef? {
+        val m = model.value ?: return null
+        val easting = measured.easting ?: return null
+        val northing = measured.northing ?: return null
+        val location = m.geometry.locate(easting, northing) ?: return null
+        val height = measured.height
+        val kind = resolved(m, surfaceGuide.value, choice.value)
+        val diff = if (height == null) {
+            null
+        } else {
+            when (kind) {
+                AxisHeightRef.PROFILE -> m.profile?.at(location.chainage)?.let { height - it.elevation }
+                AxisHeightRef.SURFACE ->
+                    (surfaceGuide.value?.designAt(easting, northing) as? SurfaceHeight.Value)?.let { height - it.metres }
+                null -> null
+            }
+        }
+        return AxisRef(m.alignment.name, location.chainage, location.offset, diff, kind.takeIf { diff != null })
     }
 
     private fun onEpoch(epoch: Epoch) {

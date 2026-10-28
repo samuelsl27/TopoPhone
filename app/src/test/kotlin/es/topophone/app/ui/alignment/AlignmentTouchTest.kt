@@ -172,10 +172,26 @@ class AlignmentTouchTest {
         },
         onCalculate: (() -> Unit)? = null,
         onStake: (() -> Unit)? = null,
+        onAnalyze: (() -> Unit)? = null,
     ) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                AlignmentTouchSheet(touch, unit, if (unit == LinearUnit.METRE) "m" else "ft", onActivate, {}, onCalculate, onStake)
+                AlignmentTouchSheet(
+                    touch,
+                    unit,
+                    if (unit ==
+                        LinearUnit.METRE
+                    ) {
+                        "m"
+                    } else {
+                        "ft"
+                    },
+                    onActivate,
+                    {},
+                    onCalculate,
+                    onStake,
+                    onAnalyze,
+                )
             }
         }
     }
@@ -245,5 +261,22 @@ class AlignmentTouchTest {
         showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
 
         compose.onNodeWithTag(ALIGNMENT_TOUCH_STAKE_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S054 RF-12 la ficha ofrece Analizar si se le da la accion y no lo ofrece si no`() {
+        var analyse = 0
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true), onAnalyze = { analyse++ })
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_ANALYZE_TAG).performClick()
+
+        analyse shouldBe 1
+    }
+
+    @Test
+    fun `S054 RF-12 sin la accion la ficha no muestra Analizar`() {
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_ANALYZE_TAG).assertDoesNotExist()
     }
 }

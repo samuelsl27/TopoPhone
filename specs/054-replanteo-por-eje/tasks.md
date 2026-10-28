@@ -32,7 +32,7 @@
       Hecho cuando: `AxisStakeoutReplayTest` en verde a menos de 1 mm.
 - [x] T15. `app`: `AxisAnalysisViewModel` y `AxisAnalysisPanel` (PK, desplazamiento y diferencia de cota en vivo, referencia rasante o superficie, sin proyección). (RF-8, RF-12, RF-14)
       Hecho cuando: `AxisAnalysisViewModelTest` y `AxisAnalysisPanelTest` en verde.
-- [ ] T16. `app`: «Analizar» en `AlignmentsSheet` y `AlignmentFicha`, y «Medir» con el `AxisRef` y la diferencia de cota. (RF-12, RF-13)
+- [x] T16. `app`: «Analizar» en `AlignmentsSheet` y `AlignmentFicha`, y «Medir» con el `AxisRef` y la diferencia de cota. (RF-12, RF-13)
       Hecho cuando: los mismos tests y `AxisMeasuredPointTest` en verde.
 - [ ] T17. Rendimiento: la guía de una época en un eje de 5.000 tramos en menos de 16 ms. (RNF-T13)
       Hecho cuando: `AxisStakeoutPerformanceTest` en verde.

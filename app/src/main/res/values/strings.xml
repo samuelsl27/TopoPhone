@@ -1683,6 +1683,7 @@
     <string name="alignment_point_outside_area">El punto queda fuera del ámbito del sistema de coordenadas del proyecto y no se puede guardar.</string>
     <string name="alignment_point_phrase">PK %1$s, %2$s</string>
     <string name="alignment_stake_open">Replantear eje</string>
+    <string name="alignment_analyze_open">Analizar</string>
     <string name="axis_stakeout_title">Replantear el eje %1$s</string>
     <string name="axis_stakeout_choose">Eje</string>
     <string name="axis_stakeout_limits">El eje va del PK %1$s al PK %2$s.</string>
@@ -1737,4 +1738,13 @@
     <string name="axis_analysis_note_loading_surface">Cargando la superficie…</string>
     <string name="axis_analysis_no_projection">La punta queda antes del inicio o después del final del eje: no hay PK ni desplazamiento.</string>
     <string name="axis_analysis_a11y">%1$s, %2$s. %3$s</string>
+    <string name="point_axis_title">Posición respecto al eje</string>
+    <string name="point_axis_name">Eje</string>
+    <string name="point_axis_chainage">PK</string>
+    <string name="point_axis_offset">Desplazamiento</string>
+    <string name="point_axis_left">%1$s a la izquierda</string>
+    <string name="point_axis_right">%1$s a la derecha</string>
+    <string name="point_axis_on">Sobre el eje</string>
+    <string name="point_axis_diff_height">Diferencia de cota</string>
+    <string name="point_axis_reference">Referencia de cota</string>
 </resources>

@@ -140,4 +140,16 @@ class AlignmentsSheetTest {
 
         staked shouldBe listOf("a", "b")
     }
+
+    @Test
+    fun `S054 RF-12 cada eje ofrece Analizar y lleva su identificador a la accion`() {
+        val analysed = mutableListOf<String>()
+        show(actions = AlignmentsActions(onAnalyze = { analysed += it }))
+
+        compose.onNodeWithTag(alignmentAnalyzeTag("a")).performScrollTo().assertTextContains("Analizar")
+        compose.onNodeWithTag(alignmentAnalyzeTag("a")).performClick()
+        compose.onNodeWithTag(alignmentAnalyzeTag("b")).performScrollTo().performClick()
+
+        analysed shouldBe listOf("a", "b")
+    }
 }

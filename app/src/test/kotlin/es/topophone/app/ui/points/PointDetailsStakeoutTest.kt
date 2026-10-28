@@ -12,6 +12,8 @@ import es.topophone.app.ui.points.PointFixtures.measured
 import es.topophone.app.ui.points.PointFixtures.staked
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.point.AxisHeightRef
+import es.topophone.core.model.point.AxisRef
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.Point
@@ -356,5 +358,36 @@ class PointDetailsStakeoutTest {
         compose.onNodeWithTag("point_stakeout_axis").assertDoesNotExist()
         compose.onNodeWithTag("point_stakeout_thickness").assertDoesNotExist()
         compose.onNodeWithTag("point_stakeout_diff_chainage").assertDoesNotExist()
+    }
+
+    private fun onAxis(ref: AxisRef?): Point = measured("7").copy(onAxis = ref)
+
+    @Test
+    fun `S054 RF-13 la ficha de un punto medido desde Analizar da el eje, el PK, el desplazamiento y la diferencia de cota`() {
+        show(PointDetailsUiState(project(), onAxis(AxisRef("Eje A", 150.0, -3.5, dHeightM = 0.12, heightRef = AxisHeightRef.PROFILE))))
+
+        compose.onNodeWithTag(POINT_AXIS_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_axis_name").performScrollTo().shows("Eje A")
+        compose.onNodeWithTag("point_axis_chainage").performScrollTo().shows("150,000 m")
+        compose.onNodeWithTag("point_axis_offset").performScrollTo().shows("3,500 m a la izquierda")
+        compose.onNodeWithTag("point_axis_diff_height").performScrollTo().shows("+0,120 m")
+        compose.onNodeWithTag("point_axis_reference").performScrollTo().shows("Rasante")
+    }
+
+    @Test
+    fun `S054 RF-13 una medida sin diferencia de cota no tiene fila de diferencia ni de referencia`() {
+        show(PointDetailsUiState(project(), onAxis(AxisRef("Eje A", 150.0, 3.5))))
+
+        compose.onNodeWithTag(POINT_AXIS_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_axis_offset").performScrollTo().shows("3,500 m a la derecha")
+        compose.onNodeWithTag("point_axis_diff_height").assertDoesNotExist()
+        compose.onNodeWithTag("point_axis_reference").assertDoesNotExist()
+    }
+
+    @Test
+    fun `S054 RF-13 un punto sin eje no tiene tarjeta de eje`() {
+        show(PointDetailsUiState(project(), measured("12")))
+
+        compose.onNodeWithTag(POINT_AXIS_INFO_TAG).assertDoesNotExist()
     }
 }

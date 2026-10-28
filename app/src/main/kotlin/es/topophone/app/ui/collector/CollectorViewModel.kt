@@ -9,6 +9,7 @@ import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.VisibleNotices
+import es.topophone.app.ui.alignment.AxisReferenceProvider
 import es.topophone.app.ui.stakeout.StakeObjectiveProvider
 import es.topophone.app.ui.stakeout.StakeSaveInfo
 import es.topophone.app.ui.stakeout.StakeTarget
@@ -272,6 +273,7 @@ class CollectorViewModel @Inject constructor(
 
     /** De una línea del dibujo, quien da el objetivo de ahora al terminar la medida (S041/RF-28); null con un punto fijo. */
     private var stakeObjective: StakeObjectiveProvider? = null
+    private var axisReference: AxisReferenceProvider? = null
     private val statsFlow = MutableStateFlow<AverageStatsUi?>(null)
     private var lastStatsAtMs = 0L
 
@@ -515,6 +517,15 @@ class CollectorViewModel @Inject constructor(
     @Synchronized
     fun setStakeObjective(provider: StakeObjectiveProvider?) {
         stakeObjective = provider
+    }
+
+    /**
+     * Quien da, con la posición medida, el eje, el PK, el desplazamiento y la diferencia de cota con que se guarda el punto medido desde
+     * «Analizar», o null si no hay análisis abierto (S054/RF-13).
+     */
+    @Synchronized
+    fun setAxisReference(provider: AxisReferenceProvider?) {
+        axisReference = provider
     }
 
     /**
@@ -1023,6 +1034,7 @@ class CollectorViewModel @Inject constructor(
             measurement = measurement,
             createdAtMs = System.currentTimeMillis(),
             staked = staked,
+            onAxis = axisReference?.at(measurement.coordinates), // S054/RF-13
         )
         // S017/RF-22: el modo automático propone ya el nombre siguiente, que la época que sigue puede necesitar enseguida.
         if (auto) form.update { if (PointNames.clean(it.name) == name) it.copy(name = PointNames.next(name)) else it }

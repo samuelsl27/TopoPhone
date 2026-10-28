@@ -57,9 +57,13 @@ import es.topophone.app.ui.stakeout.levelText
 import es.topophone.app.ui.stakeout.withinText
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.alignment.OffsetFormat
+import es.topophone.core.model.alignment.OffsetSide
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.AxisHeightRef
+import es.topophone.core.model.point.AxisRef
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.HistoryItem
@@ -91,6 +95,7 @@ import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverTiltSettings
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -122,6 +127,7 @@ const val POINT_POLE_TAG = "point_pole"
 const val POINT_DUPLICATE_TAG = "point_duplicate"
 const val POINT_STAKEOUT_TAG = "point_stakeout"
 const val POINT_STAKEOUT_INFO_TAG = "point_stakeout_info"
+const val POINT_AXIS_INFO_TAG = "point_axis_info"
 const val POINT_HISTORY_TAG = "point_history"
 const val POINT_DELETE_TAG = "point_delete"
 const val POINT_NOTICE_DISMISS_TAG = "point_notice_dismiss"
@@ -318,6 +324,7 @@ fun PointDetailsScreen(
                 CoordinateRows(project, point.coordinates)
             } // S011/RF-6
             point.staked?.let { StakeoutCard(project, it) } // S018/RF-32
+            point.onAxis?.let { AxisCard(project, it) } // S049/RF-22, S054/RF-13
             val measurement = point.measurement
             if (point.edited && measurement != null) {
                 DetailsCard(stringResource(R.string.point_measured_coordinates), POINT_MEASURED_COORDINATES_TAG) {
@@ -876,3 +883,38 @@ private fun NmeaText(text: String) {
 
 private const val NMEA_SINGLE_TEXT_MAX = 20_000
 private val NMEA_LIST_MAX_HEIGHT = 360.dp
+
+/**
+ * Dónde cae un punto respecto a un eje (S054/RF-13): el eje, el PK y el desplazamiento con la palabra «izquierda» o «derecha» y, si se
+ * midió con «Analizar», la diferencia de cota y contra qué se calculó, en las unidades del proyecto.
+ */
+@Composable
+private fun AxisCard(project: Project, ref: AxisRef) {
+    val locale = uiLocale()
+    val unit = unitSymbol(project.linearUnit)
+    fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
+
+    DetailsCard(stringResource(R.string.point_axis_title), POINT_AXIS_INFO_TAG) {
+        CoordinateRow(stringResource(R.string.point_axis_name), ref.alignmentName, "point_axis_name")
+        CoordinateRow(stringResource(R.string.point_axis_chainage), length(ref.chainageM), "point_axis_chainage")
+        val magnitude = length(abs(ref.offsetM))
+        val offset = when (OffsetFormat.side(ref.offsetM)) {
+            OffsetSide.LEFT -> stringResource(R.string.point_axis_left, magnitude)
+            OffsetSide.RIGHT -> stringResource(R.string.point_axis_right, magnitude)
+            OffsetSide.ON_AXIS -> stringResource(R.string.point_axis_on)
+        }
+        CoordinateRow(stringResource(R.string.point_axis_offset), offset, "point_axis_offset")
+        ref.dHeightM?.let {
+            val text = length(it)
+            CoordinateRow(
+                stringResource(R.string.point_axis_diff_height),
+                if (it > 0.0 && !text.startsWith("-")) "+$text" else text,
+                "point_axis_diff_height",
+            )
+        }
+        ref.heightRef?.let {
+            val label = if (it == AxisHeightRef.SURFACE) R.string.axis_analysis_ref_surface else R.string.axis_analysis_ref_profile
+            CoordinateRow(stringResource(R.string.point_axis_reference), stringResource(label), "point_axis_reference")
+        }
+    }
+}

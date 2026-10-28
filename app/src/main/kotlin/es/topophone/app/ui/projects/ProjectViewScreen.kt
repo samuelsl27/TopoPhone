@@ -73,6 +73,10 @@ import es.topophone.app.ui.alignment.AlignmentsActions
 import es.topophone.app.ui.alignment.AlignmentsSheet
 import es.topophone.app.ui.alignment.AlignmentsUiState
 import es.topophone.app.ui.alignment.AlignmentsViewModel
+import es.topophone.app.ui.alignment.AxisAnalysisActions
+import es.topophone.app.ui.alignment.AxisAnalysisPanel
+import es.topophone.app.ui.alignment.AxisAnalysisUiState
+import es.topophone.app.ui.alignment.AxisAnalysisViewModel
 import es.topophone.app.ui.alignment.ConvertToAlignmentDialog
 import es.topophone.app.ui.cad.DRAWINGS_BUTTON_TAG
 import es.topophone.app.ui.cad.DesignElementSheet
@@ -364,6 +368,7 @@ fun ProjectViewRoute(
     stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
     lineStakeoutViewModel: LineStakeoutViewModel = hiltViewModel(),
     axisStakeoutViewModel: AxisStakeoutViewModel = hiltViewModel(),
+    axisAnalysisViewModel: AxisAnalysisViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
     alignmentFromDrawingViewModel: AlignmentFromDrawingViewModel = hiltViewModel(),
@@ -391,6 +396,11 @@ fun ProjectViewRoute(
     // S054/RF-1: el replanteo por PK y desplazamiento de un eje, en el mismo hueco, con su propio modelo.
     var axisOpen by rememberSaveable { mutableStateOf(false) }
     val axis by axisStakeoutViewModel.state.collectAsStateWithLifecycle()
+    // S054/RF-12: «Analizar» la posición del jalón respecto a un eje, en el mismo hueco.
+    var analysisOpen by rememberSaveable { mutableStateOf(false) }
+    val analysis by axisAnalysisViewModel.state.collectAsStateWithLifecycle()
+    // S054/RF-13: con el análisis abierto, el recolector guarda lo que mide con su PK, su desplazamiento y su diferencia de cota.
+    LaunchedEffect(analysisOpen) { collectorViewModel.setAxisReference(axisAnalysisViewModel.referenceProvider.takeIf { analysisOpen }) }
     // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5, S041/RF-27, S054/RF-10).
     val activeTarget = when {
         stakeoutOpen -> stakeout.target
@@ -472,9 +482,30 @@ fun ProjectViewRoute(
             stakeoutViewModel.close()
             lineOpen = false
             lineStakeoutViewModel.close()
+            analysisOpen = false
+            axisAnalysisViewModel.close()
             axisStakeoutViewModel.open(projectId, alignmentId)
             axisOpen = true
         },
+        onAnalyzeAxis = { alignmentId ->
+            // S054/RF-12: «Analizar» en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
+            stakeoutOpen = false
+            stakeoutViewModel.close()
+            lineOpen = false
+            lineStakeoutViewModel.close()
+            axisOpen = false
+            axisStakeoutViewModel.close()
+            axisAnalysisViewModel.open(projectId, alignmentId)
+            analysisOpen = true
+        },
+        axisAnalysis = analysis.takeIf { analysisOpen },
+        axisAnalysisActions = AxisAnalysisActions(
+            onClose = {
+                analysisOpen = false
+                axisAnalysisViewModel.close()
+            },
+            onReference = { axisAnalysisViewModel.setReference(it) },
+        ),
         axisStakeout = axis.takeIf { axisOpen },
         axisStakeoutActions = AxisStakeoutActions(
             onClose = {
@@ -572,6 +603,8 @@ fun ProjectViewRoute(
                 designViewModel.dismissSelection()
                 axisOpen = false
                 axisStakeoutViewModel.close()
+                analysisOpen = false
+                axisAnalysisViewModel.close()
                 if (selection.entity.kind == CadEntityKind.POINT || selection.entity.kind == CadEntityKind.BLOCK_INSERT) {
                     lineOpen = false
                     lineStakeoutViewModel.close()
@@ -635,6 +668,10 @@ fun ProjectViewScreen(
     axisStakeout: AxisStakeoutUiState? = null,
     axisStakeoutActions: AxisStakeoutActions = AxisStakeoutActions(),
     onStakeAxis: (String) -> Unit = {},
+    /** «Analizar» la posición del jalón respecto a un eje y el botón «Analizar» (S054/RF-12). */
+    axisAnalysis: AxisAnalysisUiState? = null,
+    axisAnalysisActions: AxisAnalysisActions = AxisAnalysisActions(),
+    onAnalyzeAxis: (String) -> Unit = {},
     /** El dibujo importado de un DXF en la vista de ahora y el aviso de que la cámara se ha parado (S040/RF-24). */
     design: DesignScene? = null,
     onDesignCamera: (MapCamera) -> Unit = {},
@@ -767,7 +804,8 @@ fun ProjectViewScreen(
                         !collectorOpen &&
                         stakeout == null &&
                         lineStakeout == null &&
-                        axisStakeout == null
+                        axisStakeout == null &&
+                        axisAnalysis == null
                     ) {
                         Spacer(Modifier.weight(1f))
                         ExtendedFloatingActionButton(
@@ -799,6 +837,13 @@ fun ProjectViewScreen(
                         collectorActions = collectorActions,
                         stats = collectorStats,
                     ) // S054/RF-1
+                    axisAnalysis != null -> AxisAnalysisPanel(
+                        axisAnalysis,
+                        axisAnalysisActions,
+                        collector = collector,
+                        collectorActions = collectorActions,
+                        stats = collectorStats,
+                    ) // S054/RF-12
                     collector != null && collectorOpen -> CollectorPanel(collector, project.linearUnit, collectorActions, onClose = {
                         collectorOpen =
                             false
@@ -837,6 +882,10 @@ fun ProjectViewScreen(
                     alignmentsOpen = false
                     onStakeAxis(it)
                 },
+                onAnalyze = {
+                    alignmentsOpen = false
+                    onAnalyzeAxis(it)
+                },
             ),
         ) { alignmentsOpen = false }
     }
@@ -857,6 +906,10 @@ fun ProjectViewScreen(
             onStake = {
                 onDismissAlignmentTouch()
                 onStakeAxis(alignmentTouch.alignment.id)
+            },
+            onAnalyze = {
+                onDismissAlignmentTouch()
+                onAnalyzeAxis(alignmentTouch.alignment.id)
             },
         )
     } else if (designSelection != null && project != null) {
