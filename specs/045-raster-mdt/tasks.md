@@ -34,7 +34,7 @@
       Hecho cuando: `SurfacesSheetTest` ampliado en verde.
 - [x] T16. `app`: el ráster en el replanteo y el recolector sin tocar su código: `StakeoutControllerRasterTest`, `StakeoutViewModelRasterTest`, `StakeoutMeasureRasterTest`, `CollectorRasterTest` y la ficha y el informe con un ráster. (RF-19, RF-24, RF-25)
       Hecho cuando: esos tests en verde y los de S018, S019, S041 y S042 siguen en verde.
-- [ ] T17. Rendimiento: `RasterPerformanceTest`. (RNF)
+- [x] T17. Rendimiento: `RasterPerformanceTest`. (RNF)
       Hecho cuando: un ráster de 250 MB generado al vuelo se importa en menos de 180 s sin quedarse sin memoria, la primera cota tras activarlo tarda menos de 1 s y la consulta a 10 Hz no pasa de 16 ms.
 - [ ] T18. Reproducción sintética `rs3-raster`: un recorrido que cruza un ráster con un hueco sin dato y su resultado esperado calculado aparte. (Criterios de finalización)
       Hecho cuando: el test en verde con la cota, el desmonte o terraplén esperados y el paso por «Fuera de la superficie».
