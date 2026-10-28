@@ -26,6 +26,9 @@ object StakeoutReportCsv {
         "Measured from",
     )
 
+    /** Si el punto de diseño era un PK de un eje: el eje, el espesor y la diferencia de PK; el PK y el desplazamiento van en las dos últimas del dibujo (S054/RF-10). */
+    private val AXIS_HEADERS = listOf("Alignment", "Thickness", "Delta chainage")
+
     /** Si el punto de diseño era un elemento de un dibujo: el dibujo, la capa, el tipo de elemento, el modo, el PK y el desplazamiento (S041/RF-30). */
     private val DRAWING_HEADERS = listOf("Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset")
 
@@ -38,7 +41,7 @@ object StakeoutReportCsv {
         return listOf("Design name", "Stakeout number", "Staked name", "Description") +
             listOf("Design ${first.first}", "Design ${first.second}", "Design elevation") +
             listOf("Measured ${first.first}", "Measured ${first.second}", "Measured elevation") +
-            TAIL_HEADERS + DRAWING_HEADERS + SURFACE_HEADERS
+            TAIL_HEADERS + AXIS_HEADERS + DRAWING_HEADERS + SURFACE_HEADERS
     }
 
     /** Escribe el informe de [rows] en [out]; falla si el separador y el signo decimal son los dos la coma (S012/RF-14). */
@@ -53,8 +56,16 @@ object StakeoutReportCsv {
         }
     }
 
+    /** Las tres columnas del eje, vacías en un replanteo que no viene de un PK de un eje (S054/RF-10). */
+    private fun axisValues(ref: StakeoutRef, length: (Double?) -> String): List<String> {
+        val source = ref.source as? StakeSource.Alignment ?: return List(AXIS_HEADERS.size) { "" }
+        return listOf(source.alignmentName, length(ref.thicknessM), length(ref.dChainageM))
+    }
+
     /** Las seis columnas del dibujo, vacías en un punto replanteado que viene de un punto del proyecto (S041/RF-30). */
     private fun drawingValues(ref: StakeoutRef, length: (Double?) -> String): List<String> {
+        // Un PK de un eje no tiene dibujo, capa, tipo ni modo, pero sí PK y desplazamiento en las mismas dos últimas columnas (S054/RF-10).
+        if (ref.source is StakeSource.Alignment) return List(4) { "" } + listOf(length(ref.chainageM), length(ref.lateralOffsetM))
         val source = ref.source as? StakeSource.CadElement ?: return List(DRAWING_HEADERS.size) { "" }
         return listOf(
             source.drawingName,
@@ -103,6 +114,6 @@ object StakeoutReportCsv {
                 row.last.toString(),
                 measurement?.quality?.solution.orEmpty(),
                 measurement?.measuredFromMs?.let(CsvExport::utc).orEmpty(),
-            ) + drawingValues(ref, ::length) + surfaceValues(ref, ::length)
+            ) + axisValues(ref, ::length) + drawingValues(ref, ::length) + surfaceValues(ref, ::length)
     }
 }

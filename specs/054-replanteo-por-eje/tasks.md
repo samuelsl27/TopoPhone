@@ -18,7 +18,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 20 → 21 en verde con proyectos, ejes y puntos que se conservan.
 - [x] T8. `data`: guardar el punto replanteado por PK y el punto medido con su `AxisRef` en una transacción, y borrar el eje sin tocarlos. (RF-10, RF-13, RF-15 de S049)
       Hecho cuando: `AxisStakePointTest` y `AxisMeasuredPointTest` en verde (nombres de 60 caracteres o menos).
-- [ ] T9. `core:formats`: `StakeoutReportCsv` con `Alignment`, `Thickness` y `Delta chainage`. (RF-10)
+- [x] T9. `core:formats`: `StakeoutReportCsv` con `Alignment`, `Thickness` y `Delta chainage`. (RF-10)
       Hecho cuando: `StakeoutReportCsvTest` ampliado en verde.
 - [ ] T10. `app`: `AxisStakeoutViewModel` (eje activo, campos, serie, validaciones, cambio de eje que cambia el activo, cierre por borrado del eje) y su guía con el `StakeoutController`. (RF-1 a RF-3, RF-5, RF-7, RF-9, RF-11)
       Hecho cuando: `AxisStakeoutViewModelTest` en verde.
