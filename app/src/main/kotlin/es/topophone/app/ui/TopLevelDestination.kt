@@ -98,6 +98,9 @@ import kotlinx.serialization.Serializable
 /** La rasante de un CSV para un eje: el proyecto y el fichero elegido, como dirección (S049/RF-9). */
 @Serializable data class ImportProfileCsvDestination(val projectId: String, val fileUri: String)
 
+/** La definición a mano de un eje del proyecto (S049/RF-8). */
+@Serializable data class DefineAlignmentDestination(val projectId: String)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

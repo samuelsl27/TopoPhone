@@ -38,7 +38,7 @@
       Hecho cuando: `AlignmentImportViewModelTest` y `AlignmentImportScreenTest` en verde para esos casos.
 - [x] T18. `app`: los orígenes polilínea de un dibujo y CSV de rasante. (RF-6, RF-7, RF-9, RF-10)
       Hecho cuando: los mismos tests en verde para esos casos.
-- [ ] T19. `app`: definición a mano del eje y de la rasante. (RF-8)
+- [x] T19. `app`: definición a mano del eje y de la rasante. (RF-8)
       Hecho cuando: `ManualAlignmentTest` en verde.
 - [ ] T20. `app`: sistema y unidad del eje, aviso de D2 y resumen de lo importado e ignorado. (RF-11 a RF-13)
       Hecho cuando: los mismos tests en verde.

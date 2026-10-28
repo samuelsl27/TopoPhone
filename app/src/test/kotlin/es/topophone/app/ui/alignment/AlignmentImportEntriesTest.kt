@@ -111,7 +111,7 @@ class AlignmentImportEntriesTest {
     }
 
     @Test
-    fun `S049 RF-1 el dialogo de origen ofrece un LandXML un CSV y una polilinea`() {
+    fun `S049 RF-1 el dialogo ofrece LandXML CSV polilinea y definirlo a mano`() {
         var opened: String? = null
         val navigation = SurveyNavigation(onOpenProject = { opened = it })
         var launch: ((String) -> Unit)? = null
@@ -122,12 +122,28 @@ class AlignmentImportEntriesTest {
         compose.runOnIdle { launch!!("p1") }
         compose.onNodeWithTag(ALIGNMENT_SOURCE_LANDXML_TAG).assertIsDisplayed()
         compose.onNodeWithTag(ALIGNMENT_SOURCE_CSV_TAG).assertIsDisplayed()
-        compose.onNodeWithTag(ALIGNMENT_SOURCE_DRAWING_TAG).assertIsDisplayed().performClick()
+        compose.onNodeWithTag(ALIGNMENT_SOURCE_MANUAL_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(ALIGNMENT_SOURCE_DRAWING_TAG).performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Convertir en eje", substring = true).assertIsDisplayed()
-        compose.onNodeWithTag(ALIGNMENT_SOURCE_DRAWING_OPEN_TAG).performClick()
+        compose.onNodeWithTag(ALIGNMENT_SOURCE_DRAWING_OPEN_TAG).performScrollTo().performClick()
 
         opened shouldBe "p1"
         compose.onNodeWithTag(ALIGNMENT_SOURCE_DRAWING_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S049 RF-8 la opcion de definirlo a mano abre la pantalla del proyecto`() {
+        var defined: String? = null
+        val navigation = SurveyNavigation(onDefineAlignment = { defined = it })
+        var launch: ((String) -> Unit)? = null
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) { launch = rememberImportAlignmentLauncher(navigation) }
+        }
+
+        compose.runOnIdle { launch!!("p1") }
+        compose.onNodeWithTag(ALIGNMENT_SOURCE_MANUAL_TAG).performScrollTo().performClick()
+
+        defined shouldBe "p1"
     }
 
     @Test

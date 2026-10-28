@@ -35,6 +35,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import es.topophone.app.ui.alignment.AlignmentImportRoute
+import es.topophone.app.ui.alignment.ManualAlignmentRoute
 import es.topophone.app.ui.alignment.ProfileCsvImportRoute
 import es.topophone.app.ui.backup.BackupsRoute
 import es.topophone.app.ui.cad.CadImportRoute
@@ -175,6 +176,13 @@ fun TopoPhoneApp(
                     navigation.onBack,
                     viewModel = hiltViewModel(owner),
                 )
+                is SurveyPage.DefineAlignment -> ManualAlignmentRoute(
+                    page.projectId,
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
                 is SurveyPage.StakeoutReport -> StakeoutReportRoute(
                     page.projectId,
                     page.selection,
@@ -291,6 +299,7 @@ private fun AppNavHost(
                 onImportProfileCsv = { projectId, fileUri ->
                     navController.navigate(ImportProfileCsvDestination(projectId, fileUri)) // S049/RF-9
                 },
+                onDefineAlignment = { projectId -> navController.navigate(DefineAlignmentDestination(projectId)) }, // S049/RF-8
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
                 onOpenTilt = {
@@ -397,6 +406,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ImportProfileCsvDestination>()
                 surveySection(
                     SurveyPage.ImportProfileCsv(args.projectId, args.fileUri),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<DefineAlignmentDestination> { entry ->
+                val args = entry.toRoute<DefineAlignmentDestination>()
+                surveySection(
+                    SurveyPage.DefineAlignment(args.projectId),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

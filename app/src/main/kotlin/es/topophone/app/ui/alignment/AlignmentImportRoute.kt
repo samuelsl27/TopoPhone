@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +39,7 @@ const val ALIGNMENT_SOURCE_DRAWING_TAG = "alignment_source_drawing"
 const val ALIGNMENT_SOURCE_DRAWING_OPEN_TAG = "alignment_source_drawing_open"
 const val ALIGNMENT_SOURCE_CANCEL_TAG = "alignment_source_cancel"
 const val ALIGNMENT_SOURCE_CSV_TAG = "alignment_source_csv"
+const val ALIGNMENT_SOURCE_MANUAL_TAG = "alignment_source_manual"
 
 /** La pantalla de importar los ejes del LandXML [fileUri] al proyecto [projectId] (S049/RF-1, RF-2). */
 @Composable
@@ -98,6 +101,10 @@ fun rememberImportAlignmentLauncher(navigation: SurveyNavigation): (projectId: S
                 pickingCsv = true
                 picker.launch(arrayOf("*/*")) // RNF-T5: cualquier tipo; el contenido decide si es un CSV
             },
+            onManual = {
+                pending = null
+                navigation.onDefineAlignment(projectId)
+            },
             onOpenMap = {
                 pending = null
                 navigation.onOpenProject(projectId)
@@ -109,13 +116,19 @@ fun rememberImportAlignmentLauncher(navigation: SurveyNavigation): (projectId: S
 }
 
 @Composable
-private fun ImportAlignmentDialog(onLandXml: () -> Unit, onCsv: () -> Unit, onOpenMap: () -> Unit, onDismiss: () -> Unit) {
+private fun ImportAlignmentDialog(
+    onLandXml: () -> Unit,
+    onCsv: () -> Unit,
+    onManual: () -> Unit,
+    onOpenMap: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     var showDrawingHelp by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.alignment_source_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = onLandXml,
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_SOURCE_LANDXML_TAG),
@@ -126,6 +139,10 @@ private fun ImportAlignmentDialog(onLandXml: () -> Unit, onCsv: () -> Unit, onOp
                     onClick = onCsv,
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_SOURCE_CSV_TAG),
                 ) { Text(stringResource(R.string.alignment_source_csv)) }
+                OutlinedButton(
+                    onClick = onManual,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_SOURCE_MANUAL_TAG),
+                ) { Text(stringResource(R.string.alignment_source_manual)) }
                 OutlinedButton(
                     onClick = { showDrawingHelp = true },
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_SOURCE_DRAWING_TAG),
