@@ -2,7 +2,7 @@
 
 Las specs se implementan **en el orden de las tablas**, no por su número: los números son identificadores estables y desde S017b no van seguidos (el replanteo y la importación de diseño pasan delante de las fotos). Cada hito termina con una puerta de validación de campo (`docs/validacion-campo/protocolo.md`).
 
-Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18). S048 (GeoPackage) está implementada (Room v19) y la usa. S049 (ejes y rasantes) está implementada (Room v20). S054 (replanteo por eje) está implementada (Room v21). S017b (fotos) pasará a la v22.
+Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18). S048 (GeoPackage) está implementada (Room v19) y la usa. S049 (ejes y rasantes) está implementada (Room v20). S054 (replanteo por eje) está implementada (Room v21). S053 (exportar GeoPackage) está implementada (sin cambios de Room). S017b (fotos) pasará a la v22.
 
 Orden de trabajo actual del diseño importado: S019 → S028 → S040 → S041 → S042 → S045 (S017b, fotos, aparcada).
 
@@ -74,7 +74,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 030 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 025 | pendiente |
 | 031 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 025, 017b | pendiente |
 | 048 geopackage | Importar un `.gpkg` de QGIS como capa de diseño (capas marcables, SC leído y reproyectado, recorte a una zona alrededor del centro del proyecto, atributos y campo de nombre, replanteo con S041) | 040, 006 (punto central) | implementada |
-| 053 exportar-geopackage | Exportar los puntos del proyecto, y sus líneas y polígonos cuando exista S025, a un `.gpkg` con su SC declarado y los datos de calidad como atributos | 012 (líneas y polígonos: 025) | aprobada |
+| 053 exportar-geopackage | Exportar los puntos del proyecto, y sus líneas y polígonos cuando exista S025, a un `.gpkg` con su SC declarado y los datos de calidad como atributos | 012 (líneas y polígonos: 025) | implementada |
 
 ## H5 · Sistemas de coordenadas mundiales y capas
 
