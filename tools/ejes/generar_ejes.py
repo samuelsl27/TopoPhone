@@ -504,13 +504,168 @@ def expected() -> dict[str, str]:
     }
 
 
+# ------------------------------------------------------------------------------------------------------ replanteo por eje (S054)
+THICKNESSES = (0.0, -0.25, 0.4)
+GUIDE_DELTAS = ((1.25, -0.4), (-2.0, 0.75))  # (adelante, derecha) que hay que moverse: diseño menos punta
+SAME_PK_M = 1e-3  # dos PK a menos de 1 mm son el mismo
+REPLAY_TARGET = (150.0, 3.5, 0.10)  # PK, desplazamiento y espesor del punto que se replantea en la reproducción
+
+
+def merge_close(items: list[tuple[float, str]]) -> list[tuple[float, str]]:
+    """Funde los PK que distan menos de 1 mm: se queda el primero que llegó y se juntan los motivos."""
+    merged: list[tuple[float, str]] = []
+    for pk, why in sorted(items, key=lambda t: t[0]):
+        if merged and abs(pk - merged[-1][0]) < SAME_PK_M:
+            if why not in merged[-1][1].split("+"):
+                merged[-1] = (merged[-1][0], merged[-1][1] + "+" + why)
+        else:
+            merged.append((pk, why))
+    return merged
+
+
+def key_stations(axis: Axis) -> list[tuple[float, str]]:
+    """Los puntos singulares (D2): donde cambia la clase de tramo y cada vértice de la rasante."""
+    states = boundaries(axis)
+    items = [(states[i].pk, "tramo") for i in range(1, len(axis.elements)) if axis.elements[i].kind != axis.elements[i - 1].kind]
+    items += [(v.pk, "rasante") for v in axis.profile]
+    return merge_close(items)
+
+
+def stake_series(axis: Axis, start: float, end: float | None, interval: float | None, singular: bool) -> list[float]:
+    """Los PK del replanteo (RF-2 a RF-4): sin intervalo, el inicial (más los singulares si se piden); con intervalo, de uno en uno."""
+    axis_end = axis.start_pk + length_of(axis)
+    final = end if end is not None else (axis_end if interval is not None or singular else start)
+    direction = 1.0 if final >= start else -1.0
+    span = abs(final - start)
+    # prioridad: el inicial, los del intervalo, el final y por último los singulares
+    items: list[tuple[float, int]] = [(start, 0)]
+    if interval is not None:
+        k = 1
+        while k * interval < span - 1e-9:
+            items.append((start + direction * k * interval, 1))
+            k += 1
+        items.append((final, 2))
+    elif singular and end is not None:
+        items.append((final, 2))
+    if singular:
+        low, high = min(start, final), max(start, final)
+        items += [(pk, 3) for pk, _ in key_stations(axis) if low - 1e-9 <= pk <= high + 1e-9]
+    items.sort(key=lambda t: (t[0], t[1]))
+    kept: list[tuple[float, int]] = []
+    for pk, prio in items:
+        if kept and abs(pk - kept[-1][0]) < SAME_PK_M:
+            if prio < kept[-1][1]:
+                kept[-1] = (pk, prio)
+        else:
+            kept.append((pk, prio))
+    pks = [pk for pk, _ in kept]
+    return pks if direction > 0 else pks[::-1]
+
+
+SERIES_CASES = (
+    ("A-solo-inicial", AXIS_A, 100.0, None, None, False),
+    ("A-intervalo", AXIS_A, 0.0, 420.0, 100.0, False),
+    ("A-intervalo-singulares", AXIS_A, 0.0, 420.0, 100.0, True),
+    ("A-intervalo-mayor-que-el-tramo", AXIS_A, 100.0, 300.0, 250.0, True),
+    ("A-hacia-atras", AXIS_A, 420.0, 0.0, 150.0, False),
+    ("A-coinciden-con-singulares", AXIS_A, 0.0, 420.0, 150.0, True),
+    ("A-hacia-atras-singulares", AXIS_A, 420.0, 0.0, 150.0, True),
+    ("A-sin-final", AXIS_A, 300.0, None, 60.0, False),
+    ("A-singulares-sin-intervalo", AXIS_A, 100.0, None, None, True),
+    ("B-singulares", AXIS_B, 1000.5, 1380.5, 100.0, True),
+    ("C-sin-rasante", AXIS_C, 0.0, 200.0, 80.0, True),
+)
+
+
+def stakeout_files() -> dict[str, str]:
+    from pyproj import Transformer
+
+    objetivos = ["eje,pk,desplazamiento,espesor,este,norte,azimut_deg,cota_diseno"]
+    for a in AXES:
+        for pk in sample_pks(a):
+            st, _ = point_at(a, pk)
+            z = profile_at(a.profile, pk)[0] if a.profile else None
+            for d in OFFSETS:
+                e, n = offset_point(st, d)
+                for t in THICKNESSES:
+                    objetivos.append(",".join([a.name, A(pk), A(d), A(t), A(e), A(n), A(math.degrees(st.azimuth)), "" if z is None else A(z + t)]))
+    singulares = ["eje,pk,motivo"] + [f"{a.name},{A(pk)},{why}" for a in AXES for pk, why in key_stations(a)]
+    series = ["caso,eje,pk_inicial,pk_final,intervalo,singulares,indice,pk"]
+    for name, a, start, end, interval, singular in SERIES_CASES:
+        head = [name, a.name, A(start), "" if end is None else A(end), "" if interval is None else A(interval), "si" if singular else "no"]
+        series += [",".join(head + [str(i), A(pk)]) for i, pk in enumerate(stake_series(a, start, end, interval, singular))]
+    guia = ["eje,pk,desplazamiento,adelante,derecha,diseno_este,diseno_norte,punta_este,punta_norte,sentido"]
+    for a in (AXIS_A, AXIS_B):
+        for pk in sample_pks(a):
+            st, _ = point_at(a, pk)
+            tx, ty = math.sin(st.azimuth), math.cos(st.azimuth)
+            nx, ny = math.cos(st.azimuth), -math.sin(st.azimuth)
+            for d in OFFSETS:
+                de, dn = offset_point(st, d)
+                for ahead, right in GUIDE_DELTAS:
+                    # la guía es diseño menos punta: la punta está atrás y a un lado de lo que hay que moverse
+                    te, tn = de - ahead * tx - right * nx, dn - ahead * ty - right * ny
+                    guia.append(",".join([a.name, A(pk), A(d), A(ahead), A(right), A(de), A(dn), A(te), A(tn), side_of(d, right)]))
+    return {
+        "replanteo/esperado-objetivos.csv": "\n".join(objetivos) + "\n",
+        "replanteo/esperado-singulares.csv": "\n".join(singulares) + "\n",
+        "replanteo/esperado-series.csv": "\n".join(series) + "\n",
+        "replanteo/esperado-guia.csv": "\n".join(guia) + "\n",
+        "replanteo/reproduccion-eje-a.csv": "\n".join(replay_rows(Transformer)) + "\n",
+    }
+
+
+def side_of(offset: float, right: float) -> str:
+    """Hacia dónde hay que moverse a través del eje: dentro o fuera si el diseño no está en el eje; izquierda o derecha si lo está."""
+    if right == 0.0:
+        return ""
+    if offset == 0.0:
+        return "derecha" if right > 0 else "izquierda"
+    return "dentro" if offset * right < 0 else "fuera"
+
+
+def replay_rows(transformer_class) -> list[str]:
+    """Una reproducción que recorre el eje A de 10 en 10 m, ondulando alrededor de +3,5 m, con la guía hacia REPLAY_TARGET.
+
+    La punta de cada época es el punto del eje en su PK desplazado, así que su PK y su desplazamiento se conocen por construcción;
+    se pasa a latitud y longitud (ETRS89) y vuelve al plano con los mismos redondeos que usará el móvil.
+    """
+    to_geo = transformer_class.from_crs("EPSG:25830", "EPSG:4258", always_xy=True)
+    to_utm = transformer_class.from_crs("EPSG:4258", "EPSG:25830", always_xy=True)
+    t_pk, t_offset, t_thickness = REPLAY_TARGET
+    t_state, _ = point_at(AXIS_A, t_pk)
+    t_east, t_north = offset_point(t_state, t_offset)
+    t_z = profile_at(AXIS_A.profile, t_pk)[0] + t_thickness
+    tx, ty = math.sin(t_state.azimuth), math.cos(t_state.azimuth)
+    nx, ny = math.cos(t_state.azimuth), -math.sin(t_state.azimuth)
+    rows = ["epoca,pk,desplazamiento,lat,lon,altura,punta_este,punta_norte,adelante,derecha,distancia,d_cota,sentido"]
+    for i in range(43):
+        pk = 10.0 * i
+        offset = 3.5 + 0.8 * math.sin(i / 3.0)
+        state, _ = point_at(AXIS_A, pk)
+        e, n = offset_point(state, offset)
+        lon, lat = to_geo.transform(e, n)
+        lat, lon = float(f"{lat:.11f}"), float(f"{lon:.11f}")
+        height = round(profile_at(AXIS_A.profile, pk)[0] + 0.05 * math.cos(i / 2.0), 5)
+        pe, pn = (round(v, 5) for v in to_utm.transform(lon, lat))
+        de, dn = t_east - pe, t_north - pn
+        ahead, right = de * tx + dn * ty, de * nx + dn * ny
+        rows.append(
+            ",".join(
+                [str(i + 1), A(pk), A(offset), f"{lat:.11f}", f"{lon:.11f}", f"{height:.5f}", f"{pe:.5f}", f"{pn:.5f}", A(ahead), A(right), A(math.hypot(de, dn)), A(height - t_z), side_of(t_offset, right)]
+            )
+        )
+    return rows
+
+
 def all_files() -> dict[str, str]:
-    return {**files(), **expected()}
+    return {**files(), **expected(), **stakeout_files()}
 
 
 def main(out: Path = OUT) -> int:
     out.mkdir(parents=True, exist_ok=True)
     for name, text in all_files().items():
+        (out / name).parent.mkdir(parents=True, exist_ok=True)
         (out / name).write_text(text, encoding="utf-8", newline="\n")
     print(f"{len(all_files())} ficheros en {out}")
     return 0

@@ -165,3 +165,73 @@ def test_el_eje_por_vertices_se_encadena_y_acaba_en_el_ultimo_vertice():
     last_vertex = rows_of("pi-vertices.csv")[-1]
     assert float(rows[-1]["este_fin"]) == pytest.approx(float(last_vertex["este"]), abs=1e-6)
     assert float(rows[-1]["norte_fin"]) == pytest.approx(float(last_vertex["norte"]), abs=1e-6)
+
+
+# ---------------------------------------------------------------------------------------------------- replanteo por eje (S054)
+def series_of(case: str) -> list[float]:
+    return [float(r["pk"]) for r in rows_of("replanteo/esperado-series.csv") if r["caso"] == case]
+
+
+def test_los_puntos_singulares_son_el_cambio_de_clase_de_tramo_y_los_vertices_de_la_rasante():
+    sing = {(r["eje"], float(r["pk"])): r["motivo"] for r in rows_of("replanteo/esperado-singulares.csv")}
+    assert [pk for (eje, pk) in sing if eje == "Eje A"] == [0.0, 120.0, 150.0, 180.0, 280.0, 300.0, 340.0, 420.0]
+    assert sing[("Eje A", 120.0)] == "tramo" and sing[("Eje A", 150.0)] == "rasante" and sing[("Eje A", 0.0)] == "rasante"
+    # en el eje B la unión de dos clotoides no cambia la clase de tramo
+    assert 1180.5 not in [pk for (eje, pk) in sing if eje == "Eje B"]
+    assert not [1 for (eje, _) in sing if eje == "Eje C"]
+
+
+def test_las_series_de_pk_siguen_las_reglas_de_la_spec():
+    assert series_of("A-solo-inicial") == [100.0]
+    assert series_of("A-intervalo") == [0.0, 100.0, 200.0, 300.0, 400.0, 420.0]
+    assert series_of("A-intervalo-singulares") == [0.0, 100.0, 120.0, 150.0, 180.0, 200.0, 280.0, 300.0, 340.0, 400.0, 420.0]
+    assert series_of("A-intervalo-mayor-que-el-tramo") == [100.0, 120.0, 150.0, 180.0, 280.0, 300.0]
+    assert series_of("A-hacia-atras") == [420.0, 270.0, 120.0, 0.0]
+    assert series_of("A-coinciden-con-singulares") == [0.0, 120.0, 150.0, 180.0, 280.0, 300.0, 340.0, 420.0]
+    assert series_of("A-hacia-atras-singulares") == [420.0, 340.0, 300.0, 280.0, 270.0, 180.0, 150.0, 120.0, 0.0]
+    assert series_of("A-sin-final") == [300.0, 360.0, 420.0]
+    assert series_of("A-singulares-sin-intervalo") == [100.0, 120.0, 150.0, 180.0, 280.0, 300.0, 340.0, 420.0]
+    assert series_of("C-sin-rasante") == [0.0, 80.0, 160.0, 200.0]
+
+
+def test_la_cota_de_diseno_es_la_rasante_mas_el_espesor_y_vacia_sin_rasante():
+    for r in rows_of("replanteo/esperado-objetivos.csv"):
+        axis = next(a for a in g.AXES if a.name == r["eje"])
+        if not axis.profile:
+            assert r["cota_diseno"] == ""
+        else:
+            z, _ = g.profile_at(axis.profile, float(r["pk"]))
+            assert float(r["cota_diseno"]) == pytest.approx(z + float(r["espesor"]), abs=1e-12)
+
+
+def test_la_punta_de_la_guia_esta_donde_la_construccion_dice():
+    rows = rows_of("replanteo/esperado-guia.csv")
+    assert len(rows) > 100
+    for r in rows:
+        axis = next(a for a in g.AXES if a.name == r["eje"])
+        st, _ = g.point_at(axis, float(r["pk"]))
+        de, dn = float(r["diseno_este"]) - float(r["punta_este"]), float(r["diseno_norte"]) - float(r["punta_norte"])
+        tx, ty = math.sin(st.azimuth), math.cos(st.azimuth)
+        assert de * tx + dn * ty == pytest.approx(float(r["adelante"]), abs=1e-9)
+        assert de * math.cos(st.azimuth) - dn * math.sin(st.azimuth) == pytest.approx(float(r["derecha"]), abs=1e-9)
+
+
+def test_dentro_y_fuera_dependen_del_lado_del_diseno_respecto_al_eje():
+    sides = {(float(r["desplazamiento"]), float(r["derecha"])): r["sentido"] for r in rows_of("replanteo/esperado-guia.csv")}
+    assert sides[(3.5, -0.4)] == "dentro" and sides[(3.5, 0.75)] == "fuera"
+    assert sides[(-3.5, -0.4)] == "fuera" and sides[(-3.5, 0.75)] == "dentro"
+    assert sides[(0.0, -0.4)] == "izquierda" and sides[(0.0, 0.75)] == "derecha"
+
+
+def test_la_reproduccion_recorre_el_eje_a_y_la_punta_vuelve_a_su_pk_y_desplazamiento():
+    rows = rows_of("replanteo/reproduccion-eje-a.csv")
+    assert [float(r["pk"]) for r in rows][:3] == [0.0, 10.0, 20.0] and float(rows[-1]["pk"]) == 420.0
+    for r in rows:
+        st, _ = g.point_at(g.AXIS_A, float(r["pk"]))
+        e, n = g.offset_point(st, float(r["desplazamiento"]))
+        # la punta redondeada (latitud y longitud a 11 decimales, plano a 5) dista de la construida menos de 1 mm
+        assert math.hypot(float(r["punta_este"]) - e, float(r["punta_norte"]) - n) < 1e-3
+        assert math.hypot(float(r["adelante"]), float(r["derecha"])) == pytest.approx(float(r["distancia"]), abs=1e-9)
+    # en el PK del objetivo (150) la guia no manda nada adelante ni atras
+    at_target = next(r for r in rows if float(r["pk"]) == 150.0)
+    assert abs(float(at_target["adelante"])) < 1e-3
