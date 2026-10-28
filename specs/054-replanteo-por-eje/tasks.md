@@ -36,5 +36,6 @@
       Hecho cuando: los mismos tests y `AxisMeasuredPointTest` en verde.
 - [x] T17. Rendimiento: la guía de una época en un eje de 5.000 tramos en menos de 16 ms. (RNF-T13)
       Hecho cuando: `AxisStakeoutPerformanceTest` en verde.
-- [ ] T18. Validación: cambios en documentos anteriores (hoja de ruta, S017b a la v22), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
+- [x] T18. Validación: cambios en documentos anteriores (hoja de ruta, S017b a la v22), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
+      Nota de la demo (28/10/2026, emulador, Room v20 → v21 sobre datos existentes): «Replantear eje» del eje A con PK 150, desplazamiento 3,5 y espesor 0,1 abre con «PK 0+150,00, a 3,500 m a la derecha del eje» y cota de diseño 102,683 m (igual que lo esperado de `tools`); con la reproducción `reproduccion-eje-a.nmea` la guía da «Adelante en PK» y «Hacia fuera del eje» en vivo; «Analizar» da el PK, el desplazamiento con su palabra y la diferencia de cota con la rasante, y «Medir» guarda el punto. Quedan para el usuario el avance de PK con intervalo y singulares en campo y el caso sin proyección.
