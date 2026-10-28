@@ -7,6 +7,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.AdmittedSolutions
+import es.topophone.core.model.point.AxisHeightRef
 import es.topophone.core.model.point.AxisRef
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.ElevationSource
@@ -335,6 +336,9 @@ internal fun Point.toEntity(): PointEntity {
         stakeChainage = staked?.chainageM,
         stakeOffset = staked?.lateralOffsetM,
         stakeDLateral = staked?.dLateralM,
+        stakeAxis = (staked?.source as? StakeSource.Alignment)?.alignmentName,
+        stakeThickness = staked?.thicknessM,
+        stakeDChainage = staked?.dChainageM,
         stakeElevSource = staked?.elevationSource?.name,
         stakeSurfaceName = staked?.surfaceName,
         stakeSurfaceImportedMs = staked?.surfaceImportedAtMs,
@@ -350,6 +354,8 @@ internal fun Point.toEntity(): PointEntity {
         axisName = onAxis?.alignmentName,
         axisChainage = onAxis?.chainageM,
         axisOffset = onAxis?.offsetM,
+        axisDHeight = onAxis?.dHeightM,
+        axisHeightRef = onAxis?.heightRef?.name,
     )
 }
 
@@ -369,7 +375,15 @@ internal fun PointEntity.toPoint(): Point = Point(
     deletedAtMs = deletedAt,
     staked = staked(),
     importId = importId,
-    onAxis = axisName?.let { AxisRef(it, axisChainage ?: 0.0, axisOffset ?: 0.0) },
+    onAxis = axisName?.let { name ->
+        AxisRef(
+            name,
+            axisChainage ?: 0.0,
+            axisOffset ?: 0.0,
+            axisDHeight,
+            axisHeightRef?.let { ref -> AxisHeightRef.entries.firstOrNull { it.name == ref } },
+        )
+    },
 )
 
 /** De qué punto de diseño viene un punto replanteado; null en los demás (S018/RF-28). */
@@ -401,10 +415,13 @@ private fun PointEntity.staked(): StakeoutRef? = StakeoutRef(
     surfaceImportedAtMs = stakeSurfaceImportedMs,
     surfaceElevationM = stakeSurfaceElev,
     verticalOffsetM = stakeVerticalOffset,
+    dChainageM = stakeDChainage,
+    thicknessM = stakeThickness,
 )
 
 /** El dibujo, la capa y el tipo del elemento replanteado; el punto del proyecto si no vino de un dibujo (S041/RF-28). */
 private fun PointEntity.cadSource(): StakeSource {
+    stakeAxis?.let { return StakeSource.Alignment(it) } // S054/RF-10
     val drawing = stakeCadDrawing ?: return StakeSource.ProjectPoint
     val kind = CadEntityKind.entries.firstOrNull { it.name == stakeCadKind } ?: return StakeSource.ProjectPoint
     return StakeSource.CadElement(drawing, stakeCadLayer.orEmpty(), kind)
