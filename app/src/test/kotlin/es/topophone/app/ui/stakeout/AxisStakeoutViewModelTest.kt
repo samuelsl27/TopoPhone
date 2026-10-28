@@ -12,7 +12,6 @@ import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.point.CollectorSettings
-import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.project.LinearUnit
@@ -422,24 +421,61 @@ class AxisStakeoutViewModelTest {
 
     @Test
     fun `S054 RF-6 la guia sigue a la sesion y da lo que hay que moverse a lo largo y a traves del eje`() {
-        val vm = open("Eje C")
-        vm.begin("100", offset = "0")
+        val vm = open("Eje A")
+        vm.begin("150", offset = "3,5", thickness = "0,1")
+        await(vm) { it.target != null }
+        val replay = replayRows()
+        connect()
+        var checked = 0
+        // La reproducción de tools recorre el eje A de 10 en 10 m; se envían épocas de tres PK distintos (antes, sobre y después del objetivo).
+        for (row in listOf(replay[12], replay[15], replay[19])) {
+            sendEpoch(10 + checked, row.lat, row.lon)
+            val state = await(vm) { s -> s.axisGuidance != null && Math.abs(s.axisGuidance.alongM - row.ahead) < 0.01 }
+
+            val guidance = state.axisGuidance.shouldNotBeNull()
+            guidance.alongM shouldBe (row.ahead plusOrMinus 1e-3)
+            guidance.acrossM shouldBe (row.right plusOrMinus 1e-3)
+            guidance.across shouldBe when (row.side) {
+                "dentro" -> AcrossMove.INWARD
+                "fuera" -> AcrossMove.OUTWARD
+                else -> AcrossMove.NONE
+            }
+            state.noProjection shouldBe false
+            checked++
+        }
+        checked shouldBe 3
+    }
+
+    @Test
+    fun `S054 RF-8 una punta antes del inicio del eje no tiene proyeccion y no da guia a lo largo`() {
+        val vm = open("Eje C") // empieza en el Este 441000; la punta de las épocas está en el 440290
+        vm.begin("100")
         await(vm) { it.target != null }
         connect()
 
-        val state = await(vm) { it.axisGuidance != null }
+        val state = await(vm) { it.noProjection }
 
-        val guidance = state.axisGuidance.shouldNotBeNull()
-        val target = state.target.shouldNotBeNull()
-        val tip = calculator.fromGround(
-            GeodeticPosition(40.416800, -3.7037133333333, 650.123 + 51.234),
-            ProjectDefaults().toDraft().crs,
-            ProjectDefaults().toDraft().heightSystem,
-        )
-        // El eje C va hacia el Este desde (441000, 4474000): adelante es hacia el Este y la derecha hacia el Sur.
-        guidance.alongM shouldBe (target.point.easting - tip.easting!! plusOrMinus 1e-3)
-        guidance.acrossM shouldBe (-(target.point.northing - tip.northing!!) plusOrMinus 1e-3)
-        (guidance.across in setOf(AcrossMove.LEFT, AcrossMove.RIGHT)) shouldBe true
+        state.axisGuidance.shouldBeNull()
+        state.guidance.shouldBeInstanceOf<GuidanceState.On>() // la guía sigue: se muestran el Norte y el Este
+    }
+
+    private class ReplayRow(val lat: String, val lon: String, val ahead: Double, val right: Double, val side: String)
+
+    /** Las épocas de `fixtures/ejes/replanteo/reproduccion-eje-a.csv` con la latitud y la longitud en el formato de NMEA. */
+    private fun replayRows(): List<ReplayRow> {
+        val root = generateSequence(java.io.File("").absoluteFile) { it.parentFile }
+            .first { java.io.File(it, "settings.gradle.kts").exists() && java.io.File(it, "fixtures").isDirectory }
+        return java.io.File(root, "fixtures/ejes/replanteo/reproduccion-eje-a.csv").readLines().drop(1).filter { it.isNotBlank() }.map {
+            val c = it.split(",")
+            ReplayRow(nmeaAngle(c[3].toDouble(), 2), nmeaAngle(-c[4].toDouble(), 3), c[8].toDouble(), c[9].toDouble(), c[12])
+        }
+    }
+
+    /** Grados decimales positivos en `ddmm.mmmmmmm` (o `dddmm.mmmmmmm`) de NMEA. */
+    private fun nmeaAngle(degrees: Double, degreeDigits: Int): String {
+        val whole = degrees.toInt()
+        val minutes = (degrees - whole) * 60.0
+        return "%0${degreeDigits}d%010.7f".format(java.util.Locale.ROOT, whole, minutes)
     }
 
     @Test

@@ -22,7 +22,7 @@
       Hecho cuando: `StakeoutReportCsvTest` ampliado en verde.
 - [x] T10. `app`: `AxisStakeoutViewModel` (eje activo, campos, serie, validaciones, cambio de eje que cambia el activo, cierre por borrado del eje) y su guía con el `StakeoutController`. (RF-1 a RF-3, RF-5, RF-7, RF-9, RF-11)
       Hecho cuando: `AxisStakeoutViewModelTest` en verde.
-- [ ] T11. `app`: `AxisStakeoutPanel` (campos, PK siguiente y anterior, adelante/atrás y dentro/fuera, Norte y Este, desmonte y terraplén, fuera del eje, TalkBack). (RF-1, RF-4, RF-6, RF-7, RF-9, RNF-T8)
+- [x] T11. `app`: `AxisStakeoutPanel` (campos, PK siguiente y anterior, adelante/atrás y dentro/fuera, Norte y Este, desmonte y terraplén, fuera del eje, TalkBack). (RF-1, RF-4, RF-6, RF-7, RF-9, RNF-T8)
       Hecho cuando: `AxisStakeoutPanelTest` en verde.
 - [ ] T12. `app`: «Replantear eje» en `AlignmentsSheet` y `AlignmentFicha`, el estado único `StakeMode` en `ProjectViewScreen` y el objetivo en el mapa. (RF-1, RF-11)
       Hecho cuando: `AlignmentsSheetTest`, `AlignmentFichaTest` y `AxisStakeoutPanelTest` ampliados en verde.

@@ -106,6 +106,8 @@ data class AxisStakeoutUiState(
     val settings: StakeoutSettings = StakeoutSettings(),
     val guidance: GuidanceState = GuidanceState.Off(GuidanceOff.NO_POSITION),
     val axisGuidance: AxisGuidanceValue? = null,
+    /** La punta no se proyecta sobre el eje: está antes de su inicio o después de su final, y se muestran solo el Norte y el Este (RF-8). */
+    val noProjection: Boolean = false,
     val measuring: Boolean = false,
     val closed: AxisClosedReason? = null,
     /** El punto de diseño para el recolector (RF-10). */
@@ -194,6 +196,15 @@ class AxisStakeoutViewModel @Inject constructor(
         val target = if (model.started) targetOf(model) else null
         val stakeTarget = project?.let { p -> target?.let { designTarget(p, model, it) } }
         val on = live.guidance as? GuidanceState.On
+        // S054/RF-8: la punta se proyecta sobre el eje si cae entre su inicio y su final; si no, no hay PK ni guía a lo largo.
+        val tip = if (target != null &&
+            on != null
+        ) {
+            (target.point.easting + on.ui.tipEastM) to (target.point.northing + on.ui.tipNorthM)
+        } else {
+            null
+        }
+        val projects = tip?.let { model.geometry.locate(it.first, it.second) != null }
         AxisStakeoutUiState(
             project = project,
             loaded = true,
@@ -217,11 +228,8 @@ class AxisStakeoutViewModel @Inject constructor(
             target = target,
             settings = live.settings,
             guidance = live.guidance,
-            axisGuidance = if (target != null && on != null) {
-                AxisGuidance.of(target, target.point.easting + on.ui.tipEastM, target.point.northing + on.ui.tipNorthM)
-            } else {
-                null
-            },
+            axisGuidance = if (target != null && tip != null && projects == true) AxisGuidance.of(target, tip.first, tip.second) else null,
+            noProjection = projects == false,
             measuring = live.measuring,
             closed = model.closed,
             stakeTarget = stakeTarget,
