@@ -62,8 +62,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.alignment.ALIGNMENTS_BUTTON_TAG
 import es.topophone.app.ui.alignment.AlignmentFromDrawingUiState
 import es.topophone.app.ui.alignment.AlignmentFromDrawingViewModel
+import es.topophone.app.ui.alignment.AlignmentsActions
+import es.topophone.app.ui.alignment.AlignmentsSheet
+import es.topophone.app.ui.alignment.AlignmentsUiState
+import es.topophone.app.ui.alignment.AlignmentsViewModel
 import es.topophone.app.ui.alignment.ConvertToAlignmentDialog
 import es.topophone.app.ui.cad.DRAWINGS_BUTTON_TAG
 import es.topophone.app.ui.cad.DesignElementSheet
@@ -352,12 +357,14 @@ fun ProjectViewRoute(
     designViewModel: DesignMapViewModel = hiltViewModel(),
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
     alignmentFromDrawingViewModel: AlignmentFromDrawingViewModel = hiltViewModel(),
+    alignmentsViewModel: AlignmentsViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
         viewModel.start(projectId)
         collectorViewModel.start(projectId)
         designViewModel.start(projectId) // S040/RF-24
         surfacesViewModel.start(projectId) // S042/RF-16
+        alignmentsViewModel.start(projectId) // S049/RF-14
     }
     // S018/RF-1: el replanteo se abre desde la ficha o la lista con el punto elegido, y se cierra con "Cerrar".
     var stakeoutOpen by rememberSaveable { mutableStateOf(stakeoutPointId != null) }
@@ -383,6 +390,7 @@ fun ProjectViewRoute(
     val surfaces by surfacesViewModel.state.collectAsStateWithLifecycle()
     val designSelection by designViewModel.selected.collectAsStateWithLifecycle()
     val alignmentFromDrawing by alignmentFromDrawingViewModel.state.collectAsStateWithLifecycle()
+    val alignmentsState by alignmentsViewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
@@ -407,6 +415,13 @@ fun ProjectViewRoute(
         designSelection = designSelection,
         onMapTap = designViewModel::onTap,
         onDismissDesignSelection = designViewModel::dismissSelection,
+        alignments = alignmentsState,
+        alignmentsActions = AlignmentsActions(
+            onActivate = alignmentsViewModel::activate, // S049/RF-14
+            onRename = alignmentsViewModel::rename, // S049/RF-14
+            onVisible = alignmentsViewModel::setVisible, // S049/RF-19
+            onDelete = alignmentsViewModel::delete, // S049/RF-15
+        ),
         alignmentFromDrawing = alignmentFromDrawing,
         onConvertToAlignment = { selection, name, start -> alignmentFromDrawingViewModel.convert(projectId, selection, name, start) },
         onDismissAlignmentConversion = alignmentFromDrawingViewModel::dismiss,
@@ -553,6 +568,9 @@ fun ProjectViewScreen(
     onMapTap: (MapTap) -> Unit = {},
     onDismissDesignSelection: () -> Unit = {},
     /** Convertir la línea tocada en un eje, y cómo va (S049/RF-6, RF-7). */
+    /** Los ejes del proyecto con el activo, para el panel «Ejes» (S049/RF-14, RF-15, RF-19). */
+    alignments: AlignmentsUiState = AlignmentsUiState(),
+    alignmentsActions: AlignmentsActions = AlignmentsActions(),
     alignmentFromDrawing: AlignmentFromDrawingUiState = AlignmentFromDrawingUiState(),
     onConvertToAlignment: (selection: DesignSelection, name: String, startChainageM: Double) -> Unit = { _, _, _ -> },
     onDismissAlignmentConversion: () -> Unit = {},
@@ -565,6 +583,7 @@ fun ProjectViewScreen(
     var drawingsOpen by rememberSaveable { mutableStateOf(false) }
     var surfacesOpen by rememberSaveable { mutableStateOf(false) }
     var convertOpen by rememberSaveable { mutableStateOf(false) }
+    var alignmentsOpen by rememberSaveable { mutableStateOf(false) }
     var bottomInsetPx by remember { mutableIntStateOf(0) }
     SectionScaffold(
         title = project?.name.orEmpty(),
@@ -619,6 +638,14 @@ fun ProjectViewScreen(
                     ) {
                         Icon(painterResource(R.drawable.ic_surface), contentDescription = stringResource(R.string.surfaces_open))
                     } // S042/RF-16
+                }
+                if (alignments.alignments.isNotEmpty()) {
+                    FilledTonalIconButton(
+                        onClick = { alignmentsOpen = true },
+                        modifier = Modifier.size(MinTouchTarget).testTag(ALIGNMENTS_BUTTON_TAG),
+                    ) {
+                        Icon(painterResource(R.drawable.ic_alignment), contentDescription = stringResource(R.string.alignments_open))
+                    } // S049/RF-14
                 }
                 val rover = state.rover
                 FilledTonalIconButton(
@@ -693,6 +720,7 @@ fun ProjectViewScreen(
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
     if (surfacesOpen) SurfacesSheet(surfaces, surfacesActions) { surfacesOpen = false }
+    if (alignmentsOpen) AlignmentsSheet(alignments, alignmentsActions) { alignmentsOpen = false }
     if (designSelection != null && project != null) {
         DesignElementSheet(
             designSelection,

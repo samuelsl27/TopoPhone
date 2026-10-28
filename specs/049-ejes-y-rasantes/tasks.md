@@ -42,7 +42,7 @@
       Hecho cuando: `ManualAlignmentTest` en verde.
 - [x] T20. `app`: sistema y unidad del eje, aviso de D2 y resumen de lo importado e ignorado. (RF-11 a RF-13)
       Hecho cuando: los mismos tests en verde.
-- [ ] T21. `app`: `AlignmentsSheet` (eje activo, renombrar, borrar con confirmación, mostrar u ocultar y recordarlo). (RF-14, RF-15, RF-19)
+- [x] T21. `app`: `AlignmentsSheet` (eje activo, renombrar, borrar con confirmación, mostrar u ocultar y recordarlo). (RF-14, RF-15, RF-19)
       Hecho cuando: `AlignmentsSheetTest` en verde.
 - [ ] T22. `app`: los ejes en el mapa con el activo destacado y las marcas rotuladas de PK. (RF-17, RNF-T13)
       Hecho cuando: `ChainageMarksTest` y `AlignmentSceneTest` en verde.

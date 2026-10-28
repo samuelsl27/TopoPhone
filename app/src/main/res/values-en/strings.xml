@@ -1609,4 +1609,26 @@
     <string name="alignment_manual_field_elevation">elevation</string>
     <string name="alignment_manual_field_kv">Kv</string>
     <string name="alignment_manual_with_profile">It has a profile.</string>
+    <string name="alignments_open">Alignments</string>
+    <string name="alignments_title">Alignments</string>
+    <string name="alignments_empty">This project has no alignments. Import or define them from the project menu.</string>
+    <string name="alignment_imported_at">Imported on %1$s</string>
+    <string name="alignment_summary">%1$s · from chainage %2$s to %3$s</string>
+    <string name="alignment_state_active">Active alignment</string>
+    <string name="alignment_state_inactive">Inactive</string>
+    <string name="alignment_visibility_visible">Visible on the map</string>
+    <string name="alignment_visibility_hidden">Hidden on the map</string>
+    <string name="alignment_activate">Activate</string>
+    <string name="alignment_deactivate">Deactivate</string>
+    <string name="alignment_show">Show</string>
+    <string name="alignment_hide">Hide</string>
+    <string name="alignment_rename">Rename</string>
+    <string name="alignment_rename_title">Rename the alignment</string>
+    <string name="alignment_rename_confirm">Save</string>
+    <string name="alignment_delete">Delete</string>
+    <string name="alignment_delete_title">Delete the alignment</string>
+    <string name="alignment_delete_message">The alignment \"%1$s\" will be deleted with its profile. The points of the project are not touched.</string>
+    <string name="alignment_delete_confirm">Delete</string>
+    <string name="alignment_has_profile">With profile</string>
+    <string name="alignment_no_profile">Without profile</string>
 </resources>

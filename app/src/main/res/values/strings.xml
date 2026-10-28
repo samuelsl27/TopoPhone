@@ -1621,4 +1621,26 @@
     <string name="alignment_manual_field_elevation">cota</string>
     <string name="alignment_manual_field_kv">Kv</string>
     <string name="alignment_manual_with_profile">Lleva rasante.</string>
+    <string name="alignments_open">Ejes</string>
+    <string name="alignments_title">Ejes</string>
+    <string name="alignments_empty">Este proyecto no tiene ejes. Impórtalos o defínelos desde el menú del proyecto.</string>
+    <string name="alignment_imported_at">Importado el %1$s</string>
+    <string name="alignment_summary">%1$s · del PK %2$s al %3$s</string>
+    <string name="alignment_state_active">Eje activo</string>
+    <string name="alignment_state_inactive">Inactivo</string>
+    <string name="alignment_visibility_visible">Visible en el mapa</string>
+    <string name="alignment_visibility_hidden">Oculto en el mapa</string>
+    <string name="alignment_activate">Activar</string>
+    <string name="alignment_deactivate">Desactivar</string>
+    <string name="alignment_show">Mostrar</string>
+    <string name="alignment_hide">Ocultar</string>
+    <string name="alignment_rename">Renombrar</string>
+    <string name="alignment_rename_title">Renombrar el eje</string>
+    <string name="alignment_rename_confirm">Guardar</string>
+    <string name="alignment_delete">Borrar</string>
+    <string name="alignment_delete_title">Borrar el eje</string>
+    <string name="alignment_delete_message">Se borrará el eje «%1$s» con su rasante. Los puntos del proyecto no se tocan.</string>
+    <string name="alignment_delete_confirm">Borrar</string>
+    <string name="alignment_has_profile">Con rasante</string>
+    <string name="alignment_no_profile">Sin rasante</string>
 </resources>
