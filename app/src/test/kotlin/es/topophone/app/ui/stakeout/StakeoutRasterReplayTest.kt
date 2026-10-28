@@ -249,7 +249,7 @@ class StakeoutRasterReplayTest {
             level.state.name shouldBe row["nivel"]
             level.toleranceM shouldBe 0.03
         }
-        // Los avisos, en su orden: entrar en cota, sin FIX, entrar de nuevo, entrar tras el hueco y salir (S045/RF-26 vía S042).
+        // Los avisos, en su orden: entrar en cota, sin FIX, entrar de nuevo, entrar tras el hueco y salir (S045/RF-24 vía S042).
         val expectedEvents = rows.take(closed).flatMap { listOf(it["aviso_nivel"], it["aviso"]) }.filter { it.isNotEmpty() }
         synchronized(events) { events.toList() } shouldBe expectedEvents
         synchronized(events) { events.toList() } shouldBe listOf("LEVEL_ARRIVED", "PERDIDO", "LEVEL_ARRIVED", "LEVEL_ARRIVED", "LEVEL_LEFT")

@@ -233,6 +233,35 @@ class RasterElevationTest {
         elevation.heightAt(header.originX + 300 * header.stepX, header.originY) shouldBe SurfaceHeight.Outside
     }
 
+    /** Un trozo real de MDT05 del IGN (`fixtures/raster/ORIGEN.md`) y lo esperado calculado con GDAL, no con TopoPhone. */
+    @Test
+    fun `S045 RF-21 un trozo real de MDT05 del IGN coincide con GDAL`() {
+        val raster = RasterTestFiles.load("mdt05-ign-madrid.tif")
+        val expected = RasterTestFiles.table("mdt05-ign-madrid-gdal.csv")
+
+        raster.header.columns shouldBe 100
+        raster.header.rows shouldBe 100
+        raster.header.epsg shouldBe 25830
+        raster.header.stepX shouldBe 5.0
+        raster.header.valueType shouldBe RasterValueType.FLOAT32
+        val surface = surface(raster, CadSourceCrs.Project, LinearUnit.METRE, HeightSystem.ORTHOMETRIC, RasterValueType.FLOAT32)
+        val elevation = RasterElevation(
+            ProjectCrs.ETRS89_UTM30,
+            HeightSystem.ORTHOMETRIC,
+            surface,
+            InMemoryTiles(raster, RasterValueType.FLOAT32),
+        )
+        for (row in expected.filter { it["tipo"] == "celda" }) {
+            raster.value(row.getValue("a").toInt(), row.getValue("b").toInt()) shouldBe row.getValue("valor_esperado").toDouble()
+        }
+        val bilinear = expected.filter { it["tipo"] == "bilineal" }
+        bilinear.size shouldBe 10
+        for (row in bilinear) {
+            val result = elevation.heightAt(row.getValue("a").toDouble(), row.getValue("b").toDouble())
+            (result as SurfaceHeight.Value).metres shouldBe (row.getValue("valor_esperado").toDouble() plusOrMinus 1e-6)
+        }
+    }
+
     @Test
     fun `S045 RF-8 un raster que declara el sistema del proyecto y uno que no dan la misma cota`() {
         val declared =

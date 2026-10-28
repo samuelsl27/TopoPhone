@@ -12,6 +12,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import generar_rasters as gr  # noqa: E402
 
 
+# replay-rs3.tif lo genera generar_replay_raster.py; el trozo de MDT05 del IGN y sus valores de GDAL vienen de fuera (ORIGEN.md).
+NOT_GENERATED_HERE = {"replay-rs3.tif", "mdt05-ign-madrid.tif", "mdt05-ign-madrid-gdal.csv", "ORIGEN.md"}
+
+
 def rows_of(name: str) -> list[dict[str, str]]:
     return list(csv.DictReader(io.StringIO((gr.OUT / name).read_text(encoding="utf-8"), newline="")))
 
@@ -74,8 +78,7 @@ def test_s045_rf2_lzw_de_tiff_ida_y_vuelta_con_reinicio_de_tabla() -> None:
 def test_s045_rf2_ficheros_al_dia() -> None:
     """S045/RF-2: los ficheros de fixtures/raster/ son los que genera el script."""
     expected = gr.generate(gr.OUT)
-    # replay-rs3.tif lo genera generar_replay_raster.py, con la reproducción NMEA que lo cruza.
-    assert {p.name for p in gr.OUT.iterdir()} - {"replay-rs3.tif"} == set(expected)
+    assert {p.name for p in gr.OUT.iterdir()} - NOT_GENERATED_HERE == set(expected)
     for name, data in expected.items():
         assert (gr.OUT / name).read_bytes() == data, name
 

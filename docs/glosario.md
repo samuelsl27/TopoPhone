@@ -147,8 +147,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Círculo de precisión | `AccuracyCircle` | Radio = precisión horizontal (S002/RF-14) |
 | Panel de posición | `PositionPanel` | Parte inferior del mapa del proyecto (S009) |
 | Datos del proyecto | `ProjectInfo` | SC, altura, unidades y datum de las correcciones (S009) |
-| Superficie (MDT/TIN) | `Surface` | Modelo de triángulos importado de un LandXML; un proyecto puede tener varias (S042) |
-| Superficie activa | `ActiveSurface` | La que usan el replanteo y el recolector; una o ninguna por proyecto (S042) |
+| Superficie (MDT/TIN) | `Surface` | Modelo de triángulos importado de un LandXML, o ráster de cotas (S045); un proyecto puede tener varias (S042) |
+| Superficie activa | `ActiveSurface` | La que usan el replanteo y el recolector, TIN o ráster; una o ninguna por proyecto (S042, S045) |
+| Ráster de cotas | `ElevationRaster` | Malla regular de celdas con una cota por celda (GeoTIFF o ASCII Grid), importada como una superficie más; se consulta por interpolación bilineal entre centros de celda y se convierte entre altitud ortométrica y altura elipsoidal con el geoide (S045) |
+| Celda sin dato | `NoDataCell` | La que el fichero declara sin valor, o no es un número; no tiene cota y su posición es «Fuera de la superficie» (S045) |
 | Desplazamiento vertical | `VerticalOffset` | Distancia sobre (positiva) o bajo la superficie a la que se quiere estar; uno por proyecto (S042) |
 | Cota de la superficie | `SurfaceElevation` | Cota de la superficie en una posición Este y Norte, interpolada en su triángulo (S042) |
 | Fuera de la superficie | `OutsideSurface` | Posición sin triángulo: fuera del contorno o en un hueco; no tiene cota (S042) |

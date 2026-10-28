@@ -273,7 +273,7 @@ class StakeoutControllerRasterTest {
     }
 
     @Test
-    fun `S045 RF-26 el nivel no se reinicia con cada epoch aunque la cota del raster cambie al caminar unos milimetros`() {
+    fun `S045 RF-24 el nivel no se reinicia con cada epoch aunque la cota del raster cambie al caminar unos milimetros`() {
         repeat(10) { controller.onEpoch(epoch(0.0, 0.0, index = it), context()) }
 
         alerts.levelEvents shouldBe listOf("levelArrived")
@@ -281,7 +281,7 @@ class StakeoutControllerRasterTest {
     }
 
     @Test
-    fun `S045 RF-26 cambiar de desplazamiento si reinicia el nivel`() {
+    fun `S045 RF-24 cambiar de desplazamiento si reinicia el nivel`() {
         repeat(3) { controller.onEpoch(epoch(0.0, 0.0, index = it), context()) }
         on().level.shouldNotBeNull().state shouldBe LevelState.ON_GRADE
 

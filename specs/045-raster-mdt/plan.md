@@ -164,6 +164,18 @@ Campos, selectores y botones de 56 dp; el aviso de lejanía, el progreso y los r
 - S017b (fotos) pasa a la versión 23 de la base de datos (`AutoMigration(22, 23)`); su `plan.md` aún habla de una versión anterior y solo se corrige con permiso para tocar `specs/`.
 - S026 (información geométrica): pendientes y volúmenes entre superficies siguen fuera.
 
+## Cambios al implementar (S045)
+- D6 acaba en **65.536 celdas de ancho** (una banda de 128 filas en `Double` son 64 MB) y en bloques de fichero de **16 MB** como máximo, en lugar de las 125.000 celdas y los 64 MB de bloque que decía el plan: `RasterLimits`. El rechazo es `TOO_WIDE`.
+- Las columnas de `surfaces` son `column_count` y `row_count` (no `columns` y `rows`) y no hay `source_epsg_unit`: la unidad de la cota ya está en `source_unit`.
+- El importador gana `measure`: una pasada que da las celdas con y sin dato y las cotas mínima y máxima que enseña la pantalla (RF-11) y que detecta «sin ninguna celda con dato» al abrirla (RF-3). La pantalla copia, explora y mide antes de dejar importar; el temporal lo cierra el `ViewModel` al salir.
+- `RasterElevation` interpola con dos interpolaciones lineales (`lerp`) en lugar de cuatro pesos: en un ráster constante, o en el centro de una celda, el resultado es exactamente el de la celda (con los pesos salía `99,99999999999999` en lugar de `100,0`).
+- `ActiveSurfaceProvider` gana `projectContext` (el sistema de coordenadas y el de alturas del proyecto) y `activeRaster`; `guide` elige TIN o ráster por el tipo de la superficie activa. `ActiveSurface.active` solo devuelve TIN.
+- El ráster sin sistema declarado (ASCII Grid) y el declarado igual al del proyecto se guardan como `CadSourceCrs.Project`.
+- En un GeoTIFF el centro de la celda 0, 0 sale del punto de enlace, la escala y `PixelIsArea` o `PixelIsPoint`; en un ASCII Grid, de `xllcorner` o `xllcenter` y `cellsize`. Los dos dan el mismo centro para el mismo terreno (`fixtures/raster/`, comprobado con GDAL).
+- Los números del rendimiento (RNF): un ráster de 238 MiB y 62,5 millones de celdas se importa en 1 s en la JVM de pruebas (copiar, leer por bandas, bloques y SQLite), se activa y da la primera cota en 108 ms y la consulta a 10 Hz tiene p99 de 0 ms. El móvil de referencia lo medirá la demo.
+- Comprobado con GDAL a través de QGIS: los 56 valores bilineales de `consultas.csv` sin geoide ni vecinos sin dato coinciden con `gdal.ReprojectImage` (`GRA_Bilinear`) a 1·10⁻⁹ m, incluidos el UTM 29 y las geográficas; las 169 celdas de `celdas.csv`, las geotransformaciones y los sistemas coinciden con lo que lee GDAL de los GeoTIFF escritos por `tools/raster`. Un trozo real de MDT05 del IGN (`fixtures/raster/ORIGEN.md`) coincide con GDAL.
+- La reproducción `rs3-raster` y su generador están en `tools/raster/generar_replay_raster.py`.
+
 ## Cambios en documentos anteriores
 - `docs/hoja-de-ruta.md`: la fila S045 pasó a `spec` (con la conversión ortométrica/elipsoidal) y pasa a «implementada» al final; S017b pasa a la v23.
 - `docs/glosario.md`: «Ráster de cotas» (`ElevationRaster`), «Celda sin dato» (`NoDataCell`); «Superficie (MDT/TIN)» y «Superficie activa» incluyen el ráster.

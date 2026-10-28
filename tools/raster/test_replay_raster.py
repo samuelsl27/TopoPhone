@@ -68,7 +68,7 @@ def test_s045_rf22_el_recorrido_empieza_fuera_cruza_el_hueco_y_sale() -> None:
     assert (inside[0], inside[-1]) == (inside[0], inside[-1]) and inside[0] > 30 and inside[-1] < 330
 
 
-def test_s045_rf26_los_avisos_del_nivel_van_en_su_orden() -> None:
-    """S045/RF-26: entrar en cota, sin FIX, entrar de nuevo, entrar tras el hueco y salir."""
+def test_s045_rf24_los_avisos_del_nivel_van_en_su_orden() -> None:
+    """S045/RF-24: entrar en cota, sin FIX, entrar de nuevo, entrar tras el hueco y salir."""
     events = [e for r in rows() for e in (r["aviso_nivel"], r["aviso"]) if e]
     assert events == ["LEVEL_ARRIVED", "PERDIDO", "LEVEL_ARRIVED", "LEVEL_ARRIVED", "LEVEL_LEFT"]
