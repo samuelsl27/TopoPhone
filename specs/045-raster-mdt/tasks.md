@@ -24,7 +24,7 @@
       Hecho cuando: `RasterImporterTest` en verde: cada formato, cancelar sin dejar nada ni el temporal, fallo de escritura, sin celdas con dato y los límites.
 - [x] T11. `data`: `ActiveRaster` y el `ActiveSurfaceProvider` que elige la fuente por tipo, con la caché, `Loading`, la precarga y el vaciado al desactivar. (RF-17, RF-21, RF-22)
       Hecho cuando: `ActiveRasterTest` en verde y `ActiveSurfaceTest` de S042 sigue en verde.
-- [ ] T12. `data`: copia de seguridad, paquete y restauración con los rásteres, con el aviso del espacio. (RF-20, RNF-T6)
+- [x] T12. `data`: copia de seguridad, paquete y restauración con los rásteres, con el aviso del espacio. (RF-20, RNF-T6)
       Hecho cuando: `RasterBackupTest` en verde: copia completa, paquete con identificadores nuevos y restauración, con el activo y el desplazamiento.
 - [ ] T13. `app`: `RasterImportViewModel`: pasos, rechazos, SC, unidad, sistema de alturas, extensión y lejanía, nombre repetido, cancelar. (RF-1 a RF-12, RF-15)
       Hecho cuando: `RasterImportViewModelTest` en verde.

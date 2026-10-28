@@ -512,7 +512,7 @@ class BackupRepository(
     }
 
     /**
-     * Las superficies terminadas del proyecto con sus teselas (S042/RF-21). La superficie activa y el desplazamiento vertical van en
+     * Las superficies terminadas del proyecto con sus teselas o sus bloques (S042/RF-21, S045/RF-20). La superficie activa y el desplazamiento vertical van en
      * la fila del proyecto. Los trozos reciben siempre un id propio, porque el suyo es de la base de datos de cada móvil.
      */
     private fun copySurfaces(
@@ -531,6 +531,15 @@ class BackupRepository(
         val tiles = "SELECT * FROM surface_tiles WHERE surface_id IN (SELECT id FROM surfaces WHERE project_id = ? AND status = 'READY')"
         source(tiles, args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "surface_tiles") { tile ->
+                tile.remove("id")
+                tile.put("surface_id", surfaceIds.getValue(tile.getAsString("surface_id")))
+            }
+        }
+        // S045/RF-20: los bloques de los rásteres, con el id de su superficie en la copia y uno propio.
+        val rasterTiles =
+            "SELECT * FROM raster_tiles WHERE surface_id IN (SELECT id FROM surfaces WHERE project_id = ? AND status = 'READY')"
+        source(rasterTiles, args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "raster_tiles") { tile ->
                 tile.remove("id")
                 tile.put("surface_id", surfaceIds.getValue(tile.getAsString("surface_id")))
             }
