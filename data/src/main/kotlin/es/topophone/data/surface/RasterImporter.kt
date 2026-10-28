@@ -4,6 +4,7 @@ import es.topophone.core.formats.raster.FileRasterSource
 import es.topophone.core.formats.raster.RasterFormatException
 import es.topophone.core.formats.raster.RasterHeader
 import es.topophone.core.formats.raster.RasterLimits
+import es.topophone.core.formats.raster.RasterReadStats
 import es.topophone.core.formats.raster.RasterReader
 import es.topophone.core.formats.raster.RasterScan
 import es.topophone.core.model.cad.CadIgnoredReason
@@ -81,6 +82,13 @@ data class RasterImportSummary(
     val stepY: Double,
     val activated: Boolean,
 )
+
+/** Lo que da una pasada por las celdas del fichero (S045/RF-11): los recuentos y las cotas mínima y máxima, sin guardar nada. */
+sealed interface RasterMeasureResult {
+    data class Measured(val stats: RasterReadStats) : RasterMeasureResult
+
+    data class Failed(val reason: RasterImportFailure) : RasterMeasureResult
+}
 
 /** Cómo acabó una importación. Cancelarla lanza `CancellationException` y no deja nada (RF-13). */
 sealed interface RasterImportResult {
@@ -173,6 +181,35 @@ class RasterImporter(
     } catch (e: IOException) {
         RasterScanResult.Failed(RasterImportFailure.READ_ERROR)
     }
+
+    /**
+     * Lee todas las celdas del fichero copiado sin guardar nada y da el recuento de celdas con y sin dato y las cotas mínima y máxima
+     * (RF-3, RF-11): es lo que enseña la pantalla de importación. [onProgress] recibe las filas leídas y las totales. Lanza
+     * `CancellationException` si se cancela.
+     */
+    suspend fun measure(staged: StagedRaster, onProgress: (Long, Long) -> Unit = { _, _ -> }): RasterMeasureResult =
+        withContext(Dispatchers.IO) {
+            val job = currentCoroutineContext()
+            try {
+                FileRasterSource(staged.file).use { source ->
+                    val header = when (val scan = RasterReader.scan(source)) {
+                        is RasterScan.Found -> scan.header
+                        is RasterScan.Rejected -> return@withContext RasterMeasureResult.Failed(
+                            RasterImportFailure.valueOf(scan.reason.name),
+                        )
+                    }
+                    val stats = RasterReader.readBands(source, { first, rows, _ ->
+                        job.ensureActive()
+                        onProgress((first + rows).toLong(), header.rows.toLong())
+                    })
+                    RasterMeasureResult.Measured(stats)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                RasterMeasureResult.Failed(RasterImportFailure.READ_ERROR)
+            }
+        }
 
     /**
      * Importa el ráster de [staged] al proyecto [projectId] con las [options] elegidas. [onProgress] recibe las filas leídas y las filas

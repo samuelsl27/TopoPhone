@@ -386,6 +386,43 @@ class RasterImporterTest {
     }
 
     @Test
+    fun `S045 RF-11 medir da los recuentos y las cotas sin guardar nada`() = runBlocking<Unit> {
+        val importer = importer()
+        for (row in table("ficheros.csv").filter { it["resultado"] == "OK" }) {
+            val staged = stage(importer, row.getValue("fichero"))
+
+            val measured = importer.measure(staged).shouldBeInstanceOf<RasterMeasureResult.Measured>().stats
+
+            measured.dataCells shouldBe row.getValue("con_dato").toLong()
+            measured.noDataCells shouldBe row.getValue("sin_dato_celdas").toLong()
+            measured.minValue shouldBe row.getValue("cota_min").toDouble()
+            measured.maxValue shouldBe row.getValue("cota_max").toDouble()
+            staged.close()
+        }
+        count("surfaces") shouldBe 0
+        count("raster_tiles") shouldBe 0
+    }
+
+    @Test
+    fun `S045 RF-3 medir un raster sin ninguna celda con dato lo cuenta y no falla`() = runBlocking<Unit> {
+        val importer = importer()
+        val staged = stage(importer, "todo-sin-dato.tif")
+
+        importer.measure(staged).shouldBeInstanceOf<RasterMeasureResult.Measured>().stats.dataCells shouldBe 0
+    }
+
+    @Test
+    fun `S045 RF-3 medir un fichero cortado da un fallo de lectura`() = runBlocking<Unit> {
+        val importer = importer()
+        val bytes = fixture("esquina.asc")
+        val staged = importer.stage({
+            ByteArrayInputStream(bytes.copyOf(bytes.size / 2))
+        }) {}.shouldBeInstanceOf<RasterStageResult.Staged>().staged
+
+        importer.measure(staged) shouldBe RasterMeasureResult.Failed(RasterImportFailure.READ_ERROR)
+    }
+
+    @Test
     fun `S045 RF-17 el segundo raster no se activa solo`() = runBlocking<Unit> {
         val importer = importer()
         val first = imported(import(importer, stage(importer, "esquina.asc"), "esquina.asc"))

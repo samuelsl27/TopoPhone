@@ -26,7 +26,7 @@
       Hecho cuando: `ActiveRasterTest` en verde y `ActiveSurfaceTest` de S042 sigue en verde.
 - [x] T12. `data`: copia de seguridad, paquete y restauración con los rásteres, con el aviso del espacio. (RF-20, RNF-T6)
       Hecho cuando: `RasterBackupTest` en verde: copia completa, paquete con identificadores nuevos y restauración, con el activo y el desplazamiento.
-- [ ] T13. `app`: `RasterImportViewModel`: pasos, rechazos, SC, unidad, sistema de alturas, extensión y lejanía, nombre repetido, cancelar. (RF-1 a RF-12, RF-15)
+- [x] T13. `app`: `RasterImportViewModel`: pasos, rechazos, SC, unidad, sistema de alturas, extensión y lejanía, nombre repetido, cancelar. (RF-1 a RF-12, RF-15)
       Hecho cuando: `RasterImportViewModelTest` en verde.
 - [ ] T14. `app`: `RasterImportScreen`, `RasterImportRoute` y «Importar ráster» en los menús, con sus textos en es y en. (RF-1, RF-6, RF-11, RF-13, RF-16, RNF-T7, RNF-T8)
       Hecho cuando: `RasterImportScreenTest` en verde, con las zonas táctiles de 56 dp y el resumen.

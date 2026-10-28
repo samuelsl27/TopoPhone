@@ -63,11 +63,13 @@ import es.topophone.data.settings.SettingsDataStore
 import es.topophone.data.settings.SettingsDataStoreQualifier
 import es.topophone.data.settings.SettingsRepository
 import es.topophone.data.surface.ActiveSurfaceProvider
+import es.topophone.data.surface.RasterImporter
 import es.topophone.data.surface.RasterProjectContext
 import es.topophone.data.surface.RoomSurfaceRepository
 import es.topophone.data.surface.SurfaceGuides
 import es.topophone.data.surface.SurfaceImporter
 import es.topophone.data.surface.SurfaceRepository
+import java.io.File
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.map
 
@@ -184,6 +186,11 @@ object DatabaseModule {
 
     @Provides
     fun provideSurfaceImporter(repository: SurfaceRepository): SurfaceImporter = SurfaceImporter(repository)
+
+    /** Importa un ráster de cotas; copia el fichero elegido a la caché mientras se lee (S045). */
+    @Provides
+    fun provideRasterImporter(repository: SurfaceRepository, @ApplicationContext context: Context): RasterImporter =
+        RasterImporter(repository, File(context.cacheDir, "raster-import"))
 
     /** Los ejes y rasantes de los proyectos (S049). */
     @Provides
