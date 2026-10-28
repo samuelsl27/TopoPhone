@@ -56,6 +56,7 @@ import es.topophone.app.ui.projects.ProjectViewRoute
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.projects.SurveyPage
 import es.topophone.app.ui.projects.TrashRoute
+import es.topophone.app.ui.raster.RasterImportRoute
 import es.topophone.app.ui.receiver.NtripProfileFormRoute
 import es.topophone.app.ui.receiver.ReceiverNavigation
 import es.topophone.app.ui.receiver.ReceiverPage
@@ -155,6 +156,14 @@ fun TopoPhoneApp(
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.ImportSurface -> SurfaceImportRoute(
+                    page.projectId,
+                    Uri.parse(page.fileUri),
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.ImportRaster -> RasterImportRoute(
                     page.projectId,
                     Uri.parse(page.fileUri),
                     theme,
@@ -312,6 +321,8 @@ private fun AppNavHost(
                 onImportDxf = { projectId, fileUri -> navController.navigate(ImportDxfDestination(projectId, fileUri)) }, // S040/RF-1
                 // S042/RF-1
                 onImportSurface = { projectId, fileUri -> navController.navigate(ImportSurfaceDestination(projectId, fileUri)) },
+                // S045/RF-1
+                onImportRaster = { projectId, fileUri -> navController.navigate(ImportRasterDestination(projectId, fileUri)) },
                 onImportGpkg = { projectId, fileUri -> navController.navigate(ImportGpkgDestination(projectId, fileUri)) }, // S048/RF-1
                 onImportAlignment = { projectId, fileUri ->
                     navController.navigate(ImportAlignmentDestination(projectId, fileUri)) // S049/RF-1
@@ -409,6 +420,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ImportSurfaceDestination>()
                 surveySection(
                     SurveyPage.ImportSurface(args.projectId, args.fileUri),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ImportRasterDestination> { entry ->
+                val args = entry.toRoute<ImportRasterDestination>()
+                surveySection(
+                    SurveyPage.ImportRaster(args.projectId, args.fileUri),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

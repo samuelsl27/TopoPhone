@@ -28,7 +28,7 @@
       Hecho cuando: `RasterBackupTest` en verde: copia completa, paquete con identificadores nuevos y restauración, con el activo y el desplazamiento.
 - [x] T13. `app`: `RasterImportViewModel`: pasos, rechazos, SC, unidad, sistema de alturas, extensión y lejanía, nombre repetido, cancelar. (RF-1 a RF-12, RF-15)
       Hecho cuando: `RasterImportViewModelTest` en verde.
-- [ ] T14. `app`: `RasterImportScreen`, `RasterImportRoute` y «Importar ráster» en los menús, con sus textos en es y en. (RF-1, RF-6, RF-11, RF-13, RF-16, RNF-T7, RNF-T8)
+- [x] T14. `app`: `RasterImportScreen`, `RasterImportRoute` y «Importar ráster» en los menús, con sus textos en es y en. (RF-1, RF-6, RF-11, RF-13, RF-16, RNF-T7, RNF-T8)
       Hecho cuando: `RasterImportScreenTest` en verde, con las zonas táctiles de 56 dp y el resumen.
 - [ ] T15. `app`: `SurfacesSheet` y `SurfacesViewModel` con el tipo, el tamaño de celda, la extensión y las cotas del ráster. (RF-17, RF-18)
       Hecho cuando: `SurfacesSheetTest` ampliado en verde.

@@ -92,6 +92,9 @@ import kotlinx.serialization.Serializable
 /** La importación de una superficie de un LandXML: el proyecto y el fichero elegido, como dirección (S042/RF-1). */
 @Serializable data class ImportSurfaceDestination(val projectId: String, val fileUri: String)
 
+/** La importación de un ráster de cotas: el proyecto y el fichero elegido, como dirección (S045/RF-1). */
+@Serializable data class ImportRasterDestination(val projectId: String, val fileUri: String)
+
 /** La importación de un GeoPackage: el proyecto y el fichero elegido, como dirección (S048/RF-1). */
 @Serializable data class ImportGpkgDestination(val projectId: String, val fileUri: String)
 

@@ -57,6 +57,7 @@ import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.SurveyNavigation
+import es.topophone.app.ui.raster.rememberImportRasterLauncher
 import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.point.PointChange
@@ -138,6 +139,8 @@ class ObjectListActions(
     val onImportDxf: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de una superficie LandXML (S042/RF-1). */
     val onImportSurface: () -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, la importación de un ráster de cotas (S045/RF-1). */
+    val onImportRaster: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage (S048/RF-1). */
     val onImportGpkg: () -> Unit = {},
     /** Pregunta de dónde sale el eje y lo importa (S049/RF-1). */
@@ -265,6 +268,7 @@ fun ObjectListRoute(
     val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
     val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
     val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
+    val importRaster = rememberImportRasterLauncher(navigation.onImportRaster) // S045/RF-1
     val importGpkg = rememberImportGpkgLauncher(navigation.onImportGpkg) // S048/RF-1
     val importAlignment = rememberImportAlignmentLauncher(navigation) // S049/RF-1
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -282,6 +286,7 @@ fun ObjectListRoute(
             onImportPoints = { importPoints(projectId) },
             onImportDxf = { importDxf(projectId) },
             onImportSurface = { importSurface(projectId) },
+            onImportRaster = { importRaster(projectId) },
             onImportGpkg = { importGpkg(projectId) },
             onImportAlignment = { importAlignment(projectId) },
             onStakeoutReportSelected = {
@@ -338,6 +343,7 @@ fun ObjectListScreen(
                 actions.onImportPoints,
                 actions.onImportDxf,
                 actions.onImportSurface,
+                actions.onImportRaster,
                 actions.onImportGpkg,
                 actions.onImportAlignment,
             )
@@ -401,6 +407,7 @@ private fun ObjectsMenu(
     onImportPoints: () -> Unit,
     onImportDxf: () -> Unit,
     onImportSurface: () -> Unit,
+    onImportRaster: () -> Unit,
     onImportGpkg: () -> Unit,
     onImportAlignment: () -> Unit,
 ) {
@@ -449,6 +456,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S042/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.raster_import_title)) },
+            onClick = {
+                open = false
+                onImportRaster()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S045/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.gpkg_import_title)) },
             onClick = {

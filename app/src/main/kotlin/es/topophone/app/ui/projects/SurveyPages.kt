@@ -40,6 +40,9 @@ import es.topophone.app.ui.points.PointImportUiState
 import es.topophone.app.ui.points.PointTrashActions
 import es.topophone.app.ui.points.PointTrashScreen
 import es.topophone.app.ui.points.PointTrashUiState
+import es.topophone.app.ui.raster.RasterImportActions
+import es.topophone.app.ui.raster.RasterImportScreen
+import es.topophone.app.ui.raster.RasterImportUiState
 import es.topophone.app.ui.stakeout.StakeoutReportActions
 import es.topophone.app.ui.stakeout.StakeoutReportScreen
 import es.topophone.app.ui.stakeout.StakeoutReportUiState
@@ -98,6 +101,9 @@ sealed interface SurveyPage {
     /** Importar una superficie de un LandXML: el proyecto y la dirección del fichero elegido (S042/RF-1). */
     data class ImportSurface(val projectId: String, val fileUri: String) : SurveyPage
 
+    /** Importar un ráster de cotas: el proyecto y la dirección del fichero elegido (S045/RF-1). */
+    data class ImportRaster(val projectId: String, val fileUri: String) : SurveyPage
+
     /** Importar un GeoPackage: el proyecto y la dirección del fichero elegido (S048/RF-1). */
     data class ImportGpkg(val projectId: String, val fileUri: String) : SurveyPage
 
@@ -143,6 +149,8 @@ class SurveyNavigation(
     val onImportDxf: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de importación de una superficie, con el fichero que eligió el usuario (S042/RF-1). */
     val onImportSurface: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
+    /** La pantalla de importación de un ráster de cotas, con el fichero que eligió el usuario (S045/RF-1). */
+    val onImportRaster: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de importación de un GeoPackage, con el fichero que eligió el usuario (S048/RF-1). */
     val onImportGpkg: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de importación de los ejes de un LandXML, con el fichero que eligió el usuario (S049/RF-1). */
@@ -182,6 +190,7 @@ data class SurveyUiState(
     val manualAlignment: ManualAlignmentUiState = ManualAlignmentUiState(),
     val alignmentPoint: AlignmentPointUiState = AlignmentPointUiState(),
     val surfaceImport: SurfaceImportUiState = SurfaceImportUiState(),
+    val rasterImport: RasterImportUiState = RasterImportUiState(),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -239,6 +248,8 @@ fun SurveyPageScreen(
         is SurveyPage.ImportDxf -> CadImportScreen(themeState, onToggleSun, state.cadImport, CadImportActions(), navigation.onBack)
         is SurveyPage.ImportSurface ->
             SurfaceImportScreen(themeState, onToggleSun, state.surfaceImport, SurfaceImportActions(), navigation.onBack)
+        is SurveyPage.ImportRaster ->
+            RasterImportScreen(themeState, onToggleSun, state.rasterImport, RasterImportActions(), navigation.onBack)
         is SurveyPage.ImportGpkg -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
         is SurveyPage.AlignmentPoint ->
             AlignmentPointScreen(themeState, onToggleSun, state.alignmentPoint, AlignmentPointActions(), navigation.onBack)

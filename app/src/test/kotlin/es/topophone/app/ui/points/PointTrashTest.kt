@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.map.FakePointRepository
@@ -182,7 +183,7 @@ class PointTrashTest {
         }
 
         compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithText("Papelera de puntos").performClick()
+        compose.onNodeWithText("Papelera de puntos").performScrollTo().performClick()
 
         opened shouldBe true
         calls.shouldBeEmpty()

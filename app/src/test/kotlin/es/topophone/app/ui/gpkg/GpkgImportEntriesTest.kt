@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.points.OBJECTS_MENU_TAG
 import es.topophone.app.ui.points.ObjectListActions
@@ -71,7 +72,7 @@ class GpkgImportEntriesTest {
         }
 
         compose.onNodeWithTag(projectMenuTag("p1")).performClick()
-        compose.onNodeWithText("Importar GeoPackage").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Importar GeoPackage").performScrollTo().assertIsDisplayed().performClick()
 
         imported shouldBe "p1"
     }
@@ -92,7 +93,7 @@ class GpkgImportEntriesTest {
         }
 
         compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithText("Importar GeoPackage").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Importar GeoPackage").performScrollTo().assertIsDisplayed().performClick()
 
         imported shouldBe 1
     }
@@ -107,9 +108,9 @@ class GpkgImportEntriesTest {
 
         compose.onNodeWithTag(projectMenuTag("p1")).performClick()
 
-        compose.onNodeWithText("Importar DXF").assertIsDisplayed()
-        compose.onNodeWithText("Importar superficie").assertIsDisplayed()
-        compose.onNodeWithText("Importar GeoPackage").assertIsDisplayed()
+        compose.onNodeWithText("Importar DXF").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Importar superficie").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Importar GeoPackage").performScrollTo().assertIsDisplayed()
     }
 
     @Test

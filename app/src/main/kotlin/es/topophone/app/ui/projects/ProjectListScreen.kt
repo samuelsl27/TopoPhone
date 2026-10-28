@@ -59,6 +59,7 @@ import es.topophone.app.ui.backup.rememberPackageHost
 import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
 import es.topophone.app.ui.points.rememberImportPointsLauncher
+import es.topophone.app.ui.raster.rememberImportRasterLauncher
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -159,6 +160,8 @@ class ProjectListActions(
     val onImportDxf: (String) -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de una superficie LandXML al proyecto (S042/RF-1). */
     val onImportSurface: (String) -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, la importación de un ráster de cotas al proyecto (S045/RF-1). */
+    val onImportRaster: (String) -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage al proyecto (S048/RF-1). */
     val onImportGpkg: (String) -> Unit = {},
     /** Pregunta de dónde sale el eje y lo importa al proyecto (S049/RF-1). */
@@ -267,6 +270,7 @@ fun ProjectListRoute(
     val importPoints = rememberImportPointsLauncher(navigation.onImportPoints) // S028/RF-1
     val importDxf = rememberImportDxfLauncher(navigation.onImportDxf) // S040/RF-1
     val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
+    val importRaster = rememberImportRasterLauncher(navigation.onImportRaster) // S045/RF-1
     val importGpkg = rememberImportGpkgLauncher(navigation.onImportGpkg) // S048/RF-1
     val importAlignment = rememberImportAlignmentLauncher(navigation) // S049/RF-1
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -297,6 +301,7 @@ fun ProjectListRoute(
             onImportPoints = importPoints,
             onImportDxf = importDxf,
             onImportSurface = importSurface,
+            onImportRaster = importRaster,
             onImportGpkg = importGpkg,
             onImportAlignment = importAlignment,
             onExportPackage = packages.export,
@@ -551,6 +556,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onImportSurface(project.id)
         } // S042/RF-1
+        MenuItem(R.string.raster_import_title) {
+            open = false
+            actions.onImportRaster(project.id)
+        } // S045/RF-1
         MenuItem(R.string.gpkg_import_title) {
             open = false
             actions.onImportGpkg(project.id)
