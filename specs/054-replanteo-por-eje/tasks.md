@@ -14,7 +14,7 @@
       Hecho cuando: `AxisGuidanceTest` en verde contra `fixtures/ejes/replanteo/` en recta, arco y clotoide.
 - [x] T6. `core:survey`: `AxisAnalysis` (PK, desplazamiento y diferencia de cota con la rasante o la superficie; sin proyección). (RF-8, RF-12, RF-14)
       Hecho cuando: `AxisAnalysisTest` en verde.
-- [ ] T7. `data`: Room v21 (cinco columnas de `points`), `AutoMigration(20, 21)` y el esquema 21 en `data/schemas/`. (RF-10, RF-13, RNF-T6)
+- [x] T7. `data`: Room v21 (cinco columnas de `points`), `AutoMigration(20, 21)` y el esquema 21 en `data/schemas/`. (RF-10, RF-13, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 20 → 21 en verde con proyectos, ejes y puntos que se conservan.
 - [ ] T8. `data`: guardar el punto replanteado por PK y el punto medido con su `AxisRef` en una transacción, y borrar el eje sin tocarlos. (RF-10, RF-13, RF-15 de S049)
       Hecho cuando: `AxisStakePointTest` y `AxisMeasuredPointTest` en verde (nombres de 60 caracteres o menos).

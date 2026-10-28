@@ -49,13 +49,13 @@ class BackupMigrationTest {
         context.deleteDatabase(name)
     }
 
-    /** Proyecto en la forma de cada versión: v1–v2 sin `height_system`, v3 en adelante con él, y desde la v18 con el punto central. */
+    /** Proyecto en la forma de cada versión: v1–v2 sin `height_system`, v3 en adelante con él, desde la v18 con el punto central y desde la v20 con el eje activo. */
     private fun oldDatabase(version: Int): File {
         val file = File(folder.root, "v$version.db")
         ExportedSchemas.create(file, version)
         SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { old ->
             val heightSystem = (if (version >= 3) ", 'ORTHOMETRIC'" else "") + (if (version >= 15) ", NULL, 0" else "") +
-                (if (version >= 18) ", NULL, NULL" else "")
+                (if (version >= 18) ", NULL, NULL" else "") + (if (version >= 20) ", NULL" else "")
             old.execSQL(
                 "INSERT INTO projects VALUES ('p1', 'Calle Mayor 12', 'S. S.', '', 'ETRS89_UTM30', 'METRE', 'DMS', 'ETRS89', NULL, " +
                     "1792080000000, 1792080000000, NULL, NULL$heightSystem)",

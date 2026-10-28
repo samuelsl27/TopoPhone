@@ -9,6 +9,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import es.topophone.core.model.cad.CadOrigin
 import es.topophone.core.model.cad.CadSourceCrs
+import es.topophone.core.model.point.AxisRef
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
@@ -1008,9 +1009,56 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S054 RNF-T6 de la v20 a la v21 los puntos y los ejes siguen y las columnas nuevas quedan vacias`() {
+        createFromExportedSchema(20)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v20 ->
+            v20.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, 'a1')",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v20.execSQL(
+                "INSERT INTO alignments (id, project_id, name, file_name, imported_at_ms, source, start_chainage, length_m, visible, " +
+                    "min_e, max_e, min_n, max_n, geometry, profile) VALUES ('a1', ?, 'Eje A', NULL, 1, 'LANDXML', 0.0, 100.0, 1, " +
+                    "0.0, 1.0, 0.0, 1.0, x'0102', NULL)",
+                arrayOf<Any>(project.id),
+            )
+            v20.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at, " +
+                    "axis_name, axis_chainage, axis_offset) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000, 'Eje A', 150.5, -3.5)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.single().name shouldBe "P1"
+            points.single().onAxis shouldBe AxisRef("Eje A", 150.5, -3.5)
+            count(db, "alignments") shouldBe 1
+            db.openHelper.readableDatabase.query(
+                "SELECT stake_axis, stake_thickness, stake_d_chainage, axis_d_height, axis_height_ref FROM points",
+            ).use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                (0 until 5).all { cursor.isNull(it) } shouldBe true
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 20
+        const val CURRENT_VERSION = 21
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

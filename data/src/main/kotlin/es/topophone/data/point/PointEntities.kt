@@ -178,6 +178,13 @@ data class PointEntity(
     @ColumnInfo(name = "axis_name") val axisName: String? = null,
     @ColumnInfo(name = "axis_chainage") val axisChainage: Double? = null,
     @ColumnInfo(name = "axis_offset") val axisOffset: Double? = null,
+    // S054/RF-10: si el punto de diseño era un PK de un eje, su nombre (copiado: el eje puede borrarse), el espesor y la diferencia de PK;
+    // y en una medida de "Analizar", la diferencia de cota y contra qué se calculó (RF-13); NULL en los demás.
+    @ColumnInfo(name = "stake_axis") val stakeAxis: String? = null,
+    @ColumnInfo(name = "stake_thickness") val stakeThickness: Double? = null,
+    @ColumnInfo(name = "stake_d_chainage") val stakeDChainage: Double? = null,
+    @ColumnInfo(name = "axis_d_height") val axisDHeight: Double? = null,
+    @ColumnInfo(name = "axis_height_ref") val axisHeightRef: String? = null,
 )
 
 /**
