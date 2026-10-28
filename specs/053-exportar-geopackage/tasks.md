@@ -16,7 +16,7 @@
       Hecho cuando: `GeoPackageWriterPerformanceTest` en verde y los dorados leídos por el test de `tools`.
 - [x] T7. `app`: `GpkgExportViewModel` (puntos o selección, sistema, nombre del fichero, escribir en la caché y copiar, resultado y resumen). (RF-1, RF-2, RF-7, RF-9 a RF-13)
       Hecho cuando: `GpkgExportViewModelTest` en verde.
-- [ ] T8. `app`: `GpkgExportScreen` (recuento, selector de sistema, resumen, guardar y compartir, mensajes, 56 dp). (RF-7, RF-10, RF-11, RF-12, RNF-T7, RNF-T8)
+- [x] T8. `app`: `GpkgExportScreen` (recuento, selector de sistema, resumen, guardar y compartir, mensajes, 56 dp). (RF-7, RF-10, RF-11, RF-12, RNF-T7, RNF-T8)
       Hecho cuando: `GpkgExportScreenTest` en verde.
 - [ ] T9. `app`: «Exportar GeoPackage» en el menú del proyecto, en el de su lista de objetos y con una selección, y la navegación. (RF-1, RF-2)
       Hecho cuando: las pruebas de las tres entradas en verde.

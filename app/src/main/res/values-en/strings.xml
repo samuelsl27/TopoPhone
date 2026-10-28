@@ -1735,4 +1735,20 @@
     <string name="point_axis_on">On the alignment</string>
     <string name="point_axis_diff_height">Elevation difference</string>
     <string name="point_axis_reference">Reference elevation</string>
+    <string name="gpkg_export_title">Export GeoPackage</string>
+    <string name="gpkg_export_system">Coordinate system</string>
+    <string name="gpkg_export_system_project">Project (EPSG:%1$d)</string>
+    <string name="gpkg_export_system_geographic">Geographic of the datum (EPSG:%1$d)</string>
+    <string name="gpkg_export_system_fixed">Geographic (EPSG:%1$d)</string>
+    <string name="gpkg_export_units">Coordinates and attributes are in metres and degrees, unrounded.</string>
+    <string name="gpkg_share_chooser">Share GeoPackage</string>
+    <plurals name="gpkg_export_done">
+        <item quantity="one">%1$d point exported in EPSG:%2$d.</item>
+        <item quantity="other">%1$d points exported in EPSG:%2$d.</item>
+    </plurals>
+    <plurals name="gpkg_export_no_geometry">
+        <item quantity="one">%1$d point has no geometry because it has no easting and northing in the project system.</item>
+        <item quantity="other">%1$d points have no geometry because they have no easting and northing in the project system.</item>
+    </plurals>
+    <string name="gpkg_export_custom">The system carries its full definition because it has no recognised code.</string>
 </resources>

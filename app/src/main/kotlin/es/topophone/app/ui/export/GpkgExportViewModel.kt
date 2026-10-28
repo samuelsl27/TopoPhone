@@ -52,6 +52,9 @@ data class GpkgExportUiState(
     val crs: GpkgExportCrs = GpkgExportCrs.PROJECT,
     val canChooseCrs: Boolean = false,
     val srsId: Int = 0,
+    /** Los códigos de las dos opciones de sistema, para ofrecerlas con su código (RF-6, RF-7). */
+    val projectSrsId: Int = 0,
+    val geographicSrsId: Int = 0,
     val summary: GpkgExportSummary? = null,
     val result: ExportResult? = null,
 ) {
@@ -91,6 +94,14 @@ class GpkgExportViewModel @Inject constructor(
             crs = if (project.crs.isUtm) chosen else GpkgExportCrs.GEOGRAPHIC,
             canChooseCrs = project.crs.isUtm,
             srsId = (if (geographic) GpkgSrsDefinitions.geographicOf(project.crs) else GpkgSrsDefinitions.of(project.crs)).srsId,
+            projectSrsId = if (project.crs.isUtm) {
+                GpkgSrsDefinitions.of(
+                    project.crs,
+                ).srsId
+            } else {
+                GpkgSrsDefinitions.geographicOf(project.crs).srsId
+            },
+            geographicSrsId = GpkgSrsDefinitions.geographicOf(project.crs).srsId,
             summary = last,
             result = outcome,
         )

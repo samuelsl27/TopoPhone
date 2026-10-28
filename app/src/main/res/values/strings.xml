@@ -1747,4 +1747,20 @@
     <string name="point_axis_on">Sobre el eje</string>
     <string name="point_axis_diff_height">Diferencia de cota</string>
     <string name="point_axis_reference">Referencia de cota</string>
+    <string name="gpkg_export_title">Exportar GeoPackage</string>
+    <string name="gpkg_export_system">Sistema de coordenadas</string>
+    <string name="gpkg_export_system_project">Del proyecto (EPSG:%1$d)</string>
+    <string name="gpkg_export_system_geographic">Geográficas del datum (EPSG:%1$d)</string>
+    <string name="gpkg_export_system_fixed">Geográficas (EPSG:%1$d)</string>
+    <string name="gpkg_export_units">Las coordenadas y los atributos van en metros y grados, sin redondear.</string>
+    <string name="gpkg_share_chooser">Compartir GeoPackage</string>
+    <plurals name="gpkg_export_done">
+        <item quantity="one">Se ha exportado %1$d punto en EPSG:%2$d.</item>
+        <item quantity="other">Se han exportado %1$d puntos en EPSG:%2$d.</item>
+    </plurals>
+    <plurals name="gpkg_export_no_geometry">
+        <item quantity="one">%1$d punto va sin geometría porque no tiene Este y Norte en el sistema del proyecto.</item>
+        <item quantity="other">%1$d puntos van sin geometría porque no tienen Este y Norte en el sistema del proyecto.</item>
+    </plurals>
+    <string name="gpkg_export_custom">El sistema va con su definición completa porque no tiene un código reconocido.</string>
 </resources>
