@@ -14,7 +14,7 @@
       Hecho cuando: `AsciiGridReaderTest`, `RasterReaderTest` y `RasterCrsResolverTest` en verde.
 - [x] T6. `core:survey`: `RasterTiler` y `RasterExtent`. (RF-11, RF-12, RF-14, RF-16)
       Hecho cuando: `RasterTilerTest` y los tests de la extensión en verde.
-- [ ] T7. `core:survey`: `RasterElevation`: de la posición del proyecto a la cota del ráster, con el cambio de SC, la bilineal estricta, la unidad y la conversión con el geoide. (RF-9, RF-10, RF-21 a RF-23)
+- [x] T7. `core:survey`: `RasterElevation`: de la posición del proyecto a la cota del ráster, con el cambio de SC, la bilineal estricta, la unidad y la conversión con el geoide. (RF-9, RF-10, RF-21 a RF-23)
       Hecho cuando: `RasterElevationTest` en verde contra `fixtures/raster/` a menos de 1 mm.
 - [ ] T8. `data`: Room v22 (columnas de `surfaces`, `raster_tiles`), sus DAO, `AutoMigration(21, 22)` y el esquema 22 en `data/schemas/`. (RNF-T6, RF-14)
       Hecho cuando: `TopoPhoneDatabaseTest` 21 → 22 en verde: proyectos, superficies, puntos y replanteos conservan sus datos.
