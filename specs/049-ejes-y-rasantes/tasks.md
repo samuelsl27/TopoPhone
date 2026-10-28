@@ -52,5 +52,6 @@
       Hecho cuando: `AlignmentPointViewModelTest` en verde.
 - [x] T25. Rendimiento: LandXML de 100 MB con un eje de 50 km en menos de 10 s y el dibujo del eje en menos de 16 ms. (RNF)
       Hecho cuando: los tests de rendimiento en verde.
-- [ ] T26. Validación: cambios en documentos anteriores (hoja de ruta, glosario, S017b a la v21), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
+- [x] T26. Validación: cambios en documentos anteriores (hoja de ruta, glosario, S017b a la v21), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
+      Nota de la demo (28/10/2026, emulador): importar el LandXML de `fixtures/ejes/` (3 ejes, resumen, el primero activo), el panel «Ejes» y calcular un punto sobre el eje A (PK 150, desplazamiento −3,5: Este 440128,551 y Norte 4474077,678, igual que lo esperado de `tools`) y guardarlo funcionan. El zoom del mapa no se pudo acercar al eje por adb, así que el dibujo del eje, sus marcas de PK, tocar un eje, convertir una polilínea de un DXF y definir un eje a mano quedan para la demo de campo del usuario (los tres últimos, con tests de ViewModel y de pantalla).

@@ -2,7 +2,7 @@
 
 Las specs se implementan **en el orden de las tablas**, no por su número: los números son identificadores estables y desde S017b no van seguidos (el replanteo y la importación de diseño pasan delante de las fotos). Cada hito termina con una puerta de validación de campo (`docs/validacion-campo/protocolo.md`).
 
-Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18). S048 (GeoPackage) está implementada (Room v19) y la usa; S049 puede usarla. S017b (fotos) pasará a la v20.
+Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18). S048 (GeoPackage) está implementada (Room v19) y la usa. S049 (ejes y rasantes) está implementada (Room v20). S017b (fotos) pasará a la v21.
 
 Orden de trabajo actual del diseño importado: S019 → S028 → S040 → S041 → S042 → S045 (S017b, fotos, aparcada).
 
@@ -105,7 +105,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 049 ejes-y-rasantes | Ejes en planta (rectas, arcos y clotoides) y rasantes con acuerdos desde LandXML, polilíneas de un DXF, CSV de PK y cota o a mano; varios ejes por proyecto con uno activo; marcas de PK en el mapa; puntos sobre eje | 040, 042, 006 | aprobada |
+| 049 ejes-y-rasantes | Ejes en planta (rectas, arcos y clotoides) y rasantes con acuerdos desde LandXML, polilíneas de un DXF, CSV de PK y cota o a mano; varios ejes por proyecto con uno activo; marcas de PK en el mapa; puntos sobre eje | 040, 042, 006 | implementada |
 | 054 replanteo-por-eje | Replanteo por PK y desplazamiento con intervalo, puntos singulares, espesor y cota de la rasante, y análisis en vivo de la posición del jalón respecto al eje | 049, 018, 019 | aprobada |
 | 050 peraltes-y-transversales | Peraltes y perfiles transversales (secciones tipo con códigos), cota con peralte y replanteo por PK y código con interpolación entre PK | 054 | pendiente |
 | 051 taludes | Replanteo de cabezas y pies de talud contra los perfiles transversales o una sección manual, con seguimiento en alzado | 050 | pendiente |
