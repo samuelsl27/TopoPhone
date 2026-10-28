@@ -48,7 +48,7 @@
       Hecho cuando: `ChainageMarksTest` y `AlignmentSceneTest` en verde.
 - [x] T23. `app`: la ficha al tocar un eje, con el PK del punto tocado y la cota de la rasante, y la opción de activarlo. (RF-18)
       Hecho cuando: `AlignmentFichaTest` en verde.
-- [ ] T24. `app`: «Punto sobre eje» (PK y desplazamiento, resultado, PK fuera del eje y «Guardar punto»). (RF-20 a RF-22, RNF-T8)
+- [x] T24. `app`: «Punto sobre eje» (PK y desplazamiento, resultado, PK fuera del eje y «Guardar punto»). (RF-20 a RF-22, RNF-T8)
       Hecho cuando: `AlignmentPointViewModelTest` en verde.
 - [ ] T25. Rendimiento: LandXML de 100 MB con un eje de 50 km en menos de 10 s y el dibujo del eje en menos de 16 ms. (RNF)
       Hecho cuando: los tests de rendimiento en verde.

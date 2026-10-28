@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import es.topophone.app.ui.alignment.AlignmentImportActions
 import es.topophone.app.ui.alignment.AlignmentImportScreen
 import es.topophone.app.ui.alignment.AlignmentImportUiState
+import es.topophone.app.ui.alignment.AlignmentPointActions
+import es.topophone.app.ui.alignment.AlignmentPointScreen
+import es.topophone.app.ui.alignment.AlignmentPointUiState
 import es.topophone.app.ui.alignment.ManualAlignmentActions
 import es.topophone.app.ui.alignment.ManualAlignmentScreen
 import es.topophone.app.ui.alignment.ManualAlignmentUiState
@@ -100,6 +103,9 @@ sealed interface SurveyPage {
 
     /** Definir un eje a mano en el proyecto (S049/RF-8). */
     data class DefineAlignment(val projectId: String) : SurveyPage
+
+    /** Calcular un punto sobre un eje del proyecto (S049/RF-20). */
+    data class AlignmentPoint(val projectId: String, val alignmentId: String) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -137,6 +143,8 @@ class SurveyNavigation(
     val onImportProfileCsv: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de definir un eje a mano (S049/RF-8). */
     val onDefineAlignment: (projectId: String) -> Unit = {},
+    /** La pantalla de calcular un punto sobre un eje (S049/RF-20). */
+    val onAlignmentPoint: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
     /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
@@ -163,6 +171,7 @@ data class SurveyUiState(
     val alignmentImport: AlignmentImportUiState = AlignmentImportUiState(),
     val profileCsv: ProfileCsvUiState = ProfileCsvUiState(),
     val manualAlignment: ManualAlignmentUiState = ManualAlignmentUiState(),
+    val alignmentPoint: AlignmentPointUiState = AlignmentPointUiState(),
     val surfaceImport: SurfaceImportUiState = SurfaceImportUiState(),
 )
 
@@ -215,6 +224,8 @@ fun SurveyPageScreen(
         is SurveyPage.ImportSurface ->
             SurfaceImportScreen(themeState, onToggleSun, state.surfaceImport, SurfaceImportActions(), navigation.onBack)
         is SurveyPage.ImportGpkg -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
+        is SurveyPage.AlignmentPoint ->
+            AlignmentPointScreen(themeState, onToggleSun, state.alignmentPoint, AlignmentPointActions(), navigation.onBack)
         is SurveyPage.DefineAlignment ->
             ManualAlignmentScreen(themeState, onToggleSun, state.manualAlignment, ManualAlignmentActions(), navigation.onBack)
         is SurveyPage.ImportProfileCsv ->

@@ -57,12 +57,15 @@ fun alignmentStateTag(id: String) = "alignment_state_$id"
 
 fun alignmentShownTag(id: String) = "alignment_shown_$id"
 
+fun alignmentCalculateTag(id: String) = "alignment_calculate_$id"
+
 /** Acciones del panel «Ejes» (S049/RF-14, RF-15, RF-19). [onRename] da false si el nombre está en blanco. */
 class AlignmentsActions(
     val onActivate: (alignmentId: String?) -> Unit = {},
     val onRename: (alignmentId: String, name: String) -> Boolean = { _, _ -> true },
     val onVisible: (alignmentId: String, visible: Boolean) -> Unit = { _, _ -> },
     val onDelete: (alignmentId: String) -> Unit = {},
+    val onCalculate: (alignmentId: String) -> Unit = {},
 )
 
 /**
@@ -206,6 +209,10 @@ private fun AlignmentSection(
             modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(alignmentVisibilityTag(alignment.id)),
         ) { Text(stringResource(if (alignment.visible) R.string.alignment_hide else R.string.alignment_show)) }
     }
+    OutlinedButton(
+        onClick = { actions.onCalculate(alignment.id) },
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(alignmentCalculateTag(alignment.id)),
+    ) { Text(stringResource(R.string.alignment_point_open)) } // S049/RF-20
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = onRename,

@@ -101,6 +101,9 @@ import kotlinx.serialization.Serializable
 /** La definición a mano de un eje del proyecto (S049/RF-8). */
 @Serializable data class DefineAlignmentDestination(val projectId: String)
 
+/** El cálculo de un punto sobre un eje del proyecto (S049/RF-20). */
+@Serializable data class AlignmentPointDestination(val projectId: String, val alignmentId: String)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

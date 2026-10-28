@@ -426,6 +426,7 @@ fun ProjectViewRoute(
         alignmentTouch = alignmentTouch,
         onDismissAlignmentTouch = alignmentMapViewModel::dismissTouch,
         onActivateAlignment = alignmentsViewModel::activate,
+        onCalculateOnAlignment = { alignmentId -> navigation.onAlignmentPoint(projectId, alignmentId) }, // S049/RF-20
         drawings = drawings,
         designSelection = designSelection,
         onMapTap = {
@@ -594,6 +595,7 @@ fun ProjectViewScreen(
     alignmentTouch: AlignmentTouch? = null,
     onDismissAlignmentTouch: () -> Unit = {},
     onActivateAlignment: (String?) -> Unit = {},
+    onCalculateOnAlignment: (String) -> Unit = {},
     alignmentsActions: AlignmentsActions = AlignmentsActions(),
     alignmentFromDrawing: AlignmentFromDrawingUiState = AlignmentFromDrawingUiState(),
     onConvertToAlignment: (selection: DesignSelection, name: String, startChainageM: Double) -> Unit = { _, _, _ -> },
@@ -744,7 +746,21 @@ fun ProjectViewScreen(
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
     if (surfacesOpen) SurfacesSheet(surfaces, surfacesActions) { surfacesOpen = false }
-    if (alignmentsOpen) AlignmentsSheet(alignments, alignmentsActions) { alignmentsOpen = false }
+    if (alignmentsOpen) {
+        AlignmentsSheet(
+            alignments,
+            AlignmentsActions(
+                alignmentsActions.onActivate,
+                alignmentsActions.onRename,
+                alignmentsActions.onVisible,
+                alignmentsActions.onDelete,
+                onCalculate = {
+                    alignmentsOpen = false
+                    onCalculateOnAlignment(it)
+                },
+            ),
+        ) { alignmentsOpen = false }
+    }
     if (alignmentTouch != null && project != null) {
         AlignmentTouchSheet(
             touch = alignmentTouch,
@@ -755,6 +771,10 @@ fun ProjectViewScreen(
                 onDismissAlignmentTouch()
             },
             onDismiss = onDismissAlignmentTouch,
+            onCalculate = {
+                onDismissAlignmentTouch()
+                onCalculateOnAlignment(alignmentTouch.alignment.id)
+            },
         )
     } else if (designSelection != null && project != null) {
         DesignElementSheet(

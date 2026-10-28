@@ -1,5 +1,6 @@
 package es.topophone.core.model.alignment
 
+import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.project.LinearUnit
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -55,4 +56,27 @@ object OffsetFormat {
         val text = rounded.toPlainString()
         return if (symbols.decimalSeparator == '.') text else text.replace('.', symbols.decimalSeparator)
     }
+}
+
+/**
+ * Un PK escrito por el usuario (S049/RF-20): `1+240,5` (kilómetros y metros, o estaciones de 100 pies y pies) o un número suelto en la
+ * unidad del proyecto (`1240,5`). Con coma o punto decimal. El resultado va en metros.
+ */
+object ChainageInput {
+    fun parse(text: String, unit: LinearUnit): Double? {
+        val compact = text.trim()
+        if (compact.isEmpty()) return null
+        val plus = compact.indexOf('+', startIndex = 1)
+        if (plus < 0) return NumberInput.parse(compact)?.let(unit::toMetres)
+        val perStation = if (unit == LinearUnit.METRE) METRES_PER_KILOMETRE else FEET_PER_STATION
+        val stations = NumberInput.parse(compact.substring(0, plus)) ?: return null
+        val rest = NumberInput.parse(compact.substring(plus + 1)) ?: return null
+        if (rest < 0 || compact.substring(plus + 1).startsWith('-')) return null
+        val negative = compact.startsWith('-')
+        val value = abs(stations) * perStation + rest
+        return unit.toMetres(if (negative) -value else value)
+    }
+
+    private const val METRES_PER_KILOMETRE = 1000.0
+    private const val FEET_PER_STATION = 100.0
 }
