@@ -606,12 +606,14 @@ def stakeout_files() -> dict[str, str]:
                     # la guía es diseño menos punta: la punta está atrás y a un lado de lo que hay que moverse
                     te, tn = de - ahead * tx - right * nx, dn - ahead * ty - right * ny
                     guia.append(",".join([a.name, A(pk), A(d), A(ahead), A(right), A(de), A(dn), A(te), A(tn), side_of(d, right)]))
+    replay = replay_rows(Transformer)
     return {
         "replanteo/esperado-objetivos.csv": "\n".join(objetivos) + "\n",
         "replanteo/esperado-singulares.csv": "\n".join(singulares) + "\n",
         "replanteo/esperado-series.csv": "\n".join(series) + "\n",
         "replanteo/esperado-guia.csv": "\n".join(guia) + "\n",
-        "replanteo/reproduccion-eje-a.csv": "\n".join(replay_rows(Transformer)) + "\n",
+        "replanteo/reproduccion-eje-a.csv": "\n".join(replay) + "\n",
+        "replanteo/reproduccion-eje-a.nmea": replay_nmea(replay),
     }
 
 
@@ -656,6 +658,43 @@ def replay_rows(transformer_class) -> list[str]:
             )
         )
     return rows
+
+
+
+def nmea_sentence(body: str) -> str:
+    checksum = 0
+    for char in body:
+        checksum ^= ord(char)
+    return f"${body}*{checksum:02X}\r\n"
+
+
+def nmea_angle(degrees: float, degree_digits: int) -> str:
+    """Grados decimales positivos como `ddmm.mmmmmmm` (latitud) o `dddmm.mmmmmmm` (longitud) de NMEA."""
+    whole = int(degrees)
+    minutes = (degrees - whole) * 60.0
+    return f"{whole:0{degree_digits}d}{minutes:010.7f}"
+
+
+ANTENNA_ABOVE_TIP_M = 1.8 + 0.134  # el jalón por omisión (1,8 m) más el desplazamiento de la antena del RS3 (S046)
+
+
+def replay_nmea(rows: list[str]) -> str:
+    """Las épocas de `reproduccion-eje-a.csv` como GGA y GST de un FIX por segundo desde las 10:00:00 UTC.
+
+    La altura de la GGA es la de la punta más el jalón y el desplazamiento de la antena, con separación del geoide 0: así la altura
+    elipsoidal de la antena menos esa suma es la altura de la punta de la fila.
+    """
+    out = []
+    for row in rows[1:]:
+        cells = row.split(",")
+        i = int(cells[0]) - 1
+        lat, lon, height = float(cells[3]), float(cells[4]), float(cells[5])
+        time = f"10{i // 60:02d}{i % 60:02d}.00"
+        alt = f"{height + ANTENNA_ABOVE_TIP_M:.3f}"
+        out.append(nmea_sentence(f"GNGGA,{time},{nmea_angle(lat, 2)},N,{nmea_angle(-lon, 3)},W,4,24,0.6,{alt},M,0.000,M,1.0,0001"))
+        out.append(nmea_sentence(f"GNGST,{time},0.012,0.010,0.007,45.0,0.008,0.006,0.015"))
+    return "".join(out)
+
 
 
 def all_files() -> dict[str, str]:

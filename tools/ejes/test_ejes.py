@@ -235,3 +235,25 @@ def test_la_reproduccion_recorre_el_eje_a_y_la_punta_vuelve_a_su_pk_y_desplazami
     # en el PK del objetivo (150) la guia no manda nada adelante ni atras
     at_target = next(r for r in rows if float(r["pk"]) == 150.0)
     assert abs(float(at_target["adelante"])) < 1e-3
+
+
+def test_la_reproduccion_nmea_tiene_gga_y_gst_con_checksum_y_vuelve_a_las_posiciones_del_csv():
+    text = (g.OUT / "replanteo" / "reproduccion-eje-a.nmea").read_bytes().decode("ascii")
+    lines = text.split("\r\n")[:-1]
+    assert len(lines) == 86  # 43 épocas: una GGA y una GST cada una
+    for line in lines:
+        body, _, check = line[1:].partition("*")
+        value = 0
+        for char in body:
+            value ^= ord(char)
+        assert f"{value:02X}" == check, line
+    rows = rows_of("replanteo/reproduccion-eje-a.csv")
+    for gga, row in zip(lines[0::2], rows):
+        fields = gga.split(",")
+        assert fields[0] == "$GNGGA" and fields[6] == "4"
+        lat = int(fields[2][:2]) + float(fields[2][2:]) / 60.0
+        lon = -(int(fields[4][:3]) + float(fields[4][3:]) / 60.0)
+        # 1e-7 minutos son 0,2 mm: la posición sale de la del CSV a menos de 0,3 mm
+        assert abs(lat - float(row["lat"])) * 111_320.0 < 3e-4
+        assert abs(lon - float(row["lon"])) * 111_320.0 * math.cos(math.radians(40.4)) < 3e-4
+        assert float(fields[9]) - g.ANTENNA_ABOVE_TIP_M == pytest.approx(float(row["altura"]), abs=5e-4)

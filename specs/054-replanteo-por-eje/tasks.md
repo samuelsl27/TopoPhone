@@ -28,7 +28,7 @@
       Hecho cuando: `AlignmentsSheetTest`, `AlignmentFichaTest` y `AxisStakeoutPanelTest` ampliados en verde.
 - [x] T13. `app`: medir y guardar el punto replanteado con el eje, el PK, el desplazamiento, la cota de diseño y las diferencias; la ficha del punto y el informe. (RF-10)
       Hecho cuando: `AxisStakeoutMeasureTest` y `PointDetailsScreenTest` ampliado en verde.
-- [ ] T14. `app`: reproducción que recorre un eje, guía época a época contra el cálculo aparte. (RF-6, RF-7, RNF)
+- [x] T14. `app`: reproducción que recorre un eje, guía época a época contra el cálculo aparte. (RF-6, RF-7, RNF)
       Hecho cuando: `AxisStakeoutReplayTest` en verde a menos de 1 mm.
 - [ ] T15. `app`: `AxisAnalysisViewModel` y `AxisAnalysisPanel` (PK, desplazamiento y diferencia de cota en vivo, referencia rasante o superficie, sin proyección). (RF-8, RF-12, RF-14)
       Hecho cuando: `AxisAnalysisViewModelTest` y `AxisAnalysisPanelTest` en verde.
