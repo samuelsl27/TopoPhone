@@ -1,0 +1,73 @@
+# Specs pendientes de TopoPhone
+
+Borradores de spec de todo lo que falta por hacer (28/10/2026). Cada carpeta tiene **solo `spec.md`**, sin plan ni tareas: se escribieron sin entrevista, a partir de la fila de `docs/hoja-de-ruta.md`, del inventario funcional y de las specs ya implementadas. Cada decisión que no estaba en esas fuentes va como `[SUPOSICIÓN: …]` en «Dudas abiertas» y es una pregunta para la entrevista.
+
+`rf_report` solo mira `specs/NNN-*/spec.md`, así que esta carpeta no cuenta como trabajo en curso.
+
+## Cómo se empieza una
+1. Entrevista sobre sus suposiciones (skill `spec-generator`) y cambios al borrador.
+2. `git mv specs/pendientes/NNN-slug specs/NNN-slug` y su fila de la hoja de ruta pasa de `pendiente` a `spec`.
+3. Plan y tareas con las plantillas de `docs/plantillas/`, y desde ahí el flujo de siempre (una tarea por prompt).
+
+## Índice (25 specs, 520 RF, 129 suposiciones)
+La columna «Depende» es la que dice el borrador, que corrige o completa la de la hoja de ruta (en negrita lo que la hoja no tiene).
+
+| Spec | Hito | Depende | RF | Supos. | Qué es |
+|---|---|---|---|---|---|
+| [020 base-shift](020-base-shift/spec.md) | H2 | S011, S010, **S008, S015, S016, S018, S046, S047** | 16 | 4 | Desplazamiento ECEF conocido − medido aplicado a los puntos siguientes |
+| [021 conexion-wifi-tcp](021-conexion-wifi-tcp/spec.md) | H2 | S015, **S004, S005, S007** | 19 | 4 | Cliente TCP al receptor (hotspot o red local), NTRIP por datos móviles |
+| [022 gnss-movil-y-receptor-virtual](022-gnss-movil-y-receptor-virtual/spec.md) | H2 | **S003, S005, S047** (la hoja dice S021) | 19 | 4 | GNSS del móvil (nunca FIX) y receptor virtual con escenarios |
+| [045 raster-mdt](045-raster-mdt/spec.md) | H2 | S042 | 25 | 7 | Ráster de cotas como superficie y replanteo de cota (cierra la puerta G2b) |
+| [023 bibliotecas-codigos](023-bibliotecas-codigos/spec.md) | H3 | S006, **S028, S013** | 22 | 5 | Bibliotecas de códigos con atributos, importar y exportar |
+| [024 recolectar-con-codigos](024-recolectar-con-codigos/spec.md) | H3 | S023, **S010, S011** | 21 | 6 | Selector de códigos y atributos al medir |
+| [025 lineas-y-poligonos](025-lineas-y-poligonos/spec.md) | H3 | S024, **S011** | 26 | 6 | Líneas y polígonos del proyecto con vértices que son puntos |
+| [026 informacion-geometrica](026-informacion-geometrica/spec.md) | H3 | S025, **S040, S008** | 15 | 6 | Longitud, área, azimut, pendiente, ángulos; también de líneas de un DXF |
+| [027 replanteo-lineas](027-replanteo-lineas/spec.md) | H3 | S025, S041, **S049** | 18 | 5 | Replantear las líneas propias con el motor de S041 y crear un eje |
+| [029 exportar-dxf](029-exportar-dxf/spec.md) | H4 | S025 (los puntos solo S012) | 21 | 6 | DXF ASCII R12 con capas por código y etiquetas |
+| [030 shapefile](030-shapefile/spec.md) | H4 | S025 (importar: S048; puntos: S012) | 25 | 6 | Importar ZIP y exportar PointZ, PolyLineZ y PolygonZ |
+| [031 kml-kmz-y-fotos](031-kml-kmz-y-fotos/spec.md) | H4 | S025, S017b (importar: S048; puntos: S012) | 28 | 7 | KML/KMZ y fotos en un ZIP (reúne tres funciones) |
+| [038 cogo](038-cogo/spec.md) | H6 | S011 | 25 | 6 | Inversa, poligonal e intersecciones; resultados como puntos |
+| [032 proyecciones-completas](032-proyecciones-completas/spec.md) | H5 | S008 | 11 | 4 | LCC 1SP/2SP y Oblique Mercator |
+| [033 transformaciones-datum](033-transformaciones-datum/spec.md) | H5 | S032, S008 | 14 | 4 | Helmert 3/4/6/7, Molodensky-Badekas y rejillas |
+| [034 biblioteca-sc-mundial](034-biblioteca-sc-mundial/spec.md) | H5 | S033, S032, S008, **S006** | 21 | 5 | Catálogo de SC con búsqueda, datums verticales y geoides |
+| [035 sc-personalizado](035-sc-personalizado/spec.md) | H5 | S034, S033, S032 | 24 | 5 | Editor de SC, «Mis SC», cambio del SC del proyecto |
+| [036 capas-wms](036-capas-wms/spec.md) | H5 | S009 | 26 | 6 | Biblioteca WMS con presets españoles |
+| [037 mapas-sin-conexion](037-mapas-sin-conexion/spec.md) | H5 | S036, S009, **S006** | 19 | 5 | Descarga del mapa base y de capas WMS de la zona |
+| [039 localizacion](039-localizacion/spec.md) | H6 | S035, **S011, S008** | 22 | 5 | Semejanza 2D por mínimos cuadrados con pares H/V |
+| [043 receptor-guiado](043-receptor-guiado/spec.md) | H7 | S016, **S015, S021, S005, S046** | 21 | 4 | Listas de configuración, comprobaciones previas y Reach Panel en un WebView |
+| [044 modulo-experimental-reach](044-modulo-experimental-reach/spec.md) | H7 | S043, **S021, S046** | 20 | 4 | Flavor `experimental` con interfaz no documentada |
+| [050 peraltes-y-transversales](050-peraltes-y-transversales/spec.md) | H8 | S054, S049 | 21 | 5 | Secciones, peraltes y cota de cualquier punto de la sección |
+| [051 taludes](051-taludes/spec.md) | H8 | S050, **S054, S042** | 18 | 5 | Cabezas y pies de talud contra el terreno |
+| [052 toma-de-datos-lineal](052-toma-de-datos-lineal/spec.md) | H8 | S054, S050, **S049, S010, S017** | 23 | 5 | Tomar un eje con el receptor y perfiles longitudinal y transversal |
+
+## Conflictos y huecos que han salido al redactarlas
+Son los que habrá que resolver al tomar cada spec; ninguno está aplicado.
+
+**Hoja de ruta y dependencias**
+- Dependencias que faltan o sobran: las de la tabla de arriba en negrita. S029, S030 y S031 dependen de S025 solo para líneas y polígonos: sus puntos ya se pueden exportar con S012. S031 depende de S017b, que sigue en `tareas`, y S052 de S017, que consta «en curso».
+- S050 define el perfil de terreno que usan S051 y S052 y no figura en su fila.
+- La hoja pone el orden `bruto → shift → SC` en S020, pero `docs/arquitectura.md` coloca la punta del jalón antes del shift (el borrador de S020 sigue la arquitectura).
+- S031 reúne KML/KMZ y fotos y podría dividirse. S026 solapa con S038 (inversa y ángulo) y con S035 (cuadrícula o terreno); el inventario cita S026 donde parece que quería decir S035.
+
+**Sistemas de coordenadas**
+- `ProjectCrs` es hoy un enum cerrado y `GpkgCrsCatalog` (S048) solo reconoce esos sistemas: S034 obliga a generalizarlos y a migrar Room.
+- La descarga de rejillas de desplazamiento no tiene dueño (S034 solo descarga geoides). S032 se llama «completas» pero solo añade LCC y Oblique Mercator.
+- El «fuera de alcance» de S008 dice que cambiar de datum es de S035, y la hoja dice «mismo datum».
+- S039 choca con S053 y S012: con una localización activa, el «sistema del proyecto» ya no corresponde al EPSG que se declara al exportar.
+- S045 convierte entre altitud ortométrica y elipsoidal en un ráster, y S042 lo deja fuera para LandXML.
+
+**Receptor**
+- La búsqueda mDNS de S021 usa un nombre de servicio que el material de referencia da como no documentado, y la constitución nº 5 lo pasa a S044 si no hay otro documentado.
+- S043 añade «Guía» y «Equipo» a las cinco entradas del menú del receptor de S005/RF-9.
+
+**Specs ya implementadas que habría que tocar**
+- S012 (columna `Photos` de S031, columnas de código de S024, coordenadas localizadas de S039) y S053 (columnas de código de S024).
+- S019 (informe de replanteo de S027) y S049 (importación de ejes desde las líneas de S027).
+- S009 (la política del Catastro «una imagen, sin guardar» choca con S037), S008 y S005.
+- El glosario dice que el eje es «referencia de diseño, no dato de campo»; S052 crea ejes tomados en campo.
+- Cada spec que añada columnas desplaza los números de versión de Room: S017b pasa a la v22 o más.
+
+**Información que falta**
+- `docs/referencias/formatos/` solo tiene un `.gitkeep`: las reglas de DXF, Shapefile, KML y GeoTIFF de los borradores salen del conocimiento del redactor y habría que contrastarlas con la norma (o con ficheros de ejemplo) antes de implementar.
+- S023 necesita un CSV real de bibliotecas de códigos de la app de referencia, que tendrías que aportar tú.
+- Está por comprobar contra LandXML 1.2 si trae peraltes (S050 supone que solo trae secciones transversales).
