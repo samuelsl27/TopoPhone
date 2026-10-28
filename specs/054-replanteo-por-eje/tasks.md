@@ -8,7 +8,7 @@
       Hecho cuando: los tests de `core:model` ampliados en verde.
 - [x] T3. `core:survey`: `AxisStakeTarget` y `AxisStakeInputs` (punto de diseño, cota con espesor, sin rasante, PK fuera del eje con su inicio y final). (RF-1, RF-7, RF-9)
       Hecho cuando: `AxisStakeTargetTest` y `AxisStakeInputsTest` en verde contra `fixtures/ejes/replanteo/` a menos de 1 mm.
-- [ ] T4. `core:survey`: `KeyStations` y `AxisChainageSeries` (intervalo, PK final, singulares sin repetidos, hacia atrás, siguiente y anterior). (RF-2 a RF-4)
+- [x] T4. `core:survey`: `KeyStations` y `AxisChainageSeries` (intervalo, PK final, singulares sin repetidos, hacia atrás, siguiente y anterior). (RF-2 a RF-4)
       Hecho cuando: `KeyStationsTest` y `AxisChainageSeriesTest` en verde.
 - [ ] T5. `core:survey`: `AxisGuidance` (adelante o atrás y dentro o fuera con el azimut del eje; desplazamiento 0). (RF-6)
       Hecho cuando: `AxisGuidanceTest` en verde contra `fixtures/ejes/replanteo/` en recta, arco y clotoide.

@@ -541,7 +541,7 @@ def stake_series(axis: Axis, start: float, end: float | None, interval: float | 
     items: list[tuple[float, int]] = [(start, 0)]
     if interval is not None:
         k = 1
-        while k * interval < span - 1e-9:
+        while k * interval < span - SAME_PK_M:
             items.append((start + direction * k * interval, 1))
             k += 1
         items.append((final, 2))
