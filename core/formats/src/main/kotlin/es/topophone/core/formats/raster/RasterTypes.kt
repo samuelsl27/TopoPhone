@@ -92,3 +92,44 @@ fun interface RasterSink {
 
 /** Lo que salió de leer un ráster entero (S045/RF-16): celdas con y sin dato y las cotas mínima y máxima, en la unidad del fichero. */
 data class RasterReadStats(val dataCells: Long, val noDataCells: Long, val minValue: Double, val maxValue: Double)
+
+/** Un fichero de ráster que no se puede leer: está corrupto, cortado o usa algo que la app no admite (S045/RF-3, RF-4). */
+open class RasterFormatException(message: String, cause: Throwable? = null) : IllegalArgumentException(message, cause)
+
+/**
+ * Pasa a `NaN` lo que no tiene dato (el valor declarado y lo que no es un número) y cuenta las celdas de cada banda (S045/RF-7,
+ * RF-16). Con celdas de 32 bits el valor declarado se compara como `Float`.
+ */
+internal class RasterCellCounter(private val declaredNoData: Double?, private val float32: Boolean) {
+    private var dataCells = 0L
+    private var noDataCells = 0L
+    private var min = Double.POSITIVE_INFINITY
+    private var max = Double.NEGATIVE_INFINITY
+
+    fun apply(band: DoubleArray, cells: Int) {
+        val declared = declaredNoData?.takeUnless { it.isNaN() }
+        for (k in 0 until cells) {
+            var v = band[k]
+            if (!v.isFinite() || (declared != null && same(v, declared))) {
+                v = Double.NaN
+                band[k] = v
+            }
+            if (v.isNaN()) {
+                noDataCells++
+            } else {
+                dataCells++
+                if (v < min) min = v
+                if (v > max) max = v
+            }
+        }
+    }
+
+    fun stats() = RasterReadStats(
+        dataCells,
+        noDataCells,
+        if (dataCells == 0L) Double.NaN else min,
+        if (dataCells == 0L) Double.NaN else max,
+    )
+
+    private fun same(v: Double, declared: Double) = if (float32) v.toFloat() == declared.toFloat() else v == declared
+}

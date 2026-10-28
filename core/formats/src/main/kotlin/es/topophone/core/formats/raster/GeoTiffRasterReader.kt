@@ -328,16 +328,10 @@ object GeoTiffRasterReader {
         private val width = header.columns
         private val height = header.rows
         private val channels = if (layout.separatePlanes) 1 else layout.samples
-        private val noData = header.noDataValue
-        private val float32 = layout.type == TiffSampleType.FLOAT32
+        private val counter = RasterCellCounter(header.noDataValue, layout.type == TiffSampleType.FLOAT32)
 
         private var cachedBlock = -1
         private var cachedValues = DoubleArray(0)
-
-        private var dataCells = 0L
-        private var noDataCells = 0L
-        private var min = Double.POSITIVE_INFINITY
-        private var max = Double.NEGATIVE_INFINITY
 
         fun read(sink: RasterSink, bandRows: Int): RasterReadStats {
             val band = DoubleArray(minOf(bandRows, height) * width)
@@ -345,22 +339,11 @@ object GeoTiffRasterReader {
             while (first < height) {
                 val rows = minOf(bandRows, height - first)
                 if (layout.tiled) fillFromTiles(band, first, rows) else fillFromStrips(band, first, rows)
-                count(band, rows * width)
+                counter.apply(band, rows * width)
                 sink.accept(first, rows, band)
                 first += rows
             }
-            return RasterReadStats(
-                dataCells,
-                noDataCells,
-                if (dataCells ==
-                    0L
-                ) {
-                    Double.NaN
-                } else {
-                    min
-                },
-                if (dataCells == 0L) Double.NaN else max,
-            )
+            return counter.stats()
         }
 
         private fun fillFromStrips(band: DoubleArray, first: Int, rows: Int) {
@@ -416,26 +399,5 @@ object GeoTiffRasterReader {
         private fun copyRow(from: DoubleArray, fromAt: Int, columns: Int, to: DoubleArray, toAt: Int) {
             System.arraycopy(from, fromAt, to, toAt, columns)
         }
-
-        /** Pasa a `NaN` lo que no tiene dato y cuenta las celdas de la banda. */
-        private fun count(band: DoubleArray, cells: Int) {
-            val declared = noData
-            for (k in 0 until cells) {
-                var v = band[k]
-                if (!v.isFinite() || (declared != null && !declared.isNaN() && sameValue(v, declared))) {
-                    v = Double.NaN
-                    band[k] = v
-                }
-                if (v.isNaN()) {
-                    noDataCells++
-                } else {
-                    dataCells++
-                    if (v < min) min = v
-                    if (v > max) max = v
-                }
-            }
-        }
-
-        private fun sameValue(v: Double, declared: Double) = if (float32) v.toFloat() == declared.toFloat() else v == declared
     }
 }

@@ -7,7 +7,7 @@ import java.util.zip.DataFormatException
 import java.util.zip.Inflater
 
 /** Un fichero TIFF que no se puede leer: el bloque está corrupto o usa algo que la app no admite (S045/RF-3, RF-4). */
-class TiffFormatException(message: String, cause: Throwable? = null) : IllegalArgumentException(message, cause)
+class TiffFormatException(message: String, cause: Throwable? = null) : RasterFormatException(message, cause)
 
 /** El tipo de las muestras de un TIFF que la app lee (S045/RF-2): enteros de 16 y 32 bits y reales de 32 y 64. */
 enum class TiffSampleType(val bits: Int, val isFloat: Boolean) {

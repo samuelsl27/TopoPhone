@@ -10,7 +10,7 @@
       Hecho cuando: `TiffDecoderTest` en verde con los bloques de `fixtures/raster/`.
 - [x] T4. `core:formats`: `GeoTiffRasterReader` (`scan` y lectura por bandas, georreferencia, `PixelIs*`, sin dato, unidad de la cota, tipos de muestra, tiras y teselas, rechazos). (RF-2 a RF-4, RF-6, RF-7, RF-9)
       Hecho cuando: `GeoTiffRasterReaderTest` en verde con cada rechazo y cada caso de `fixtures/raster/`.
-- [ ] T5. `core:formats`: `AsciiGridReader`, `RasterReader` (reconocer por contenido) y `RasterCrsResolver`. (RF-2, RF-3, RF-7, RF-8)
+- [x] T5. `core:formats`: `AsciiGridReader`, `RasterReader` (reconocer por contenido) y `RasterCrsResolver`. (RF-2, RF-3, RF-7, RF-8)
       Hecho cuando: `AsciiGridReaderTest`, `RasterReaderTest` y `RasterCrsResolverTest` en verde.
 - [ ] T6. `core:survey`: `RasterTiler` y `RasterExtent`. (RF-11, RF-12, RF-14, RF-16)
       Hecho cuando: `RasterTilerTest` y los tests de la extensión en verde.
