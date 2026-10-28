@@ -10,6 +10,7 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.os.Handler
 import android.os.Looper
+import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
 import es.topophone.core.geodesy.AccuracyCircle
 import es.topophone.core.geodesy.GeoPoint
@@ -71,6 +72,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private var centralLabel = ""
     private var points: List<MapPoint> = emptyList()
     private var design: DesignScene? = null
+    private var alignmentScene: AlignmentScene? = null
     private var stakeout: StakeoutMarker? = null
     private var bottomInsetPx = 0
     private var appliedInsetPx = 0
@@ -140,11 +142,13 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 addBackground(style)
                 addPointLayers(style)
                 addDesignLayers(style)
+                addAlignmentLayers(style)
                 addStakeoutLayers(style)
                 addBaseLayer(style)
                 addCentralLayer(style)
                 addRoverLayers(style)
                 drawDesign()
+                drawAlignments()
                 drawPoints()
                 drawStakeout()
                 drawBase()
@@ -274,6 +278,92 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             ),
             POINTS_LAYER,
         )
+    }
+
+    override fun showAlignments(scene: AlignmentScene?) {
+        alignmentScene = scene
+        drawAlignments()
+    }
+
+    /**
+     * Los ejes: líneas más gruesas y de otro color que las del dibujo, el activo aún más grueso y de color vivo (el estado también va en
+     * texto en el panel, RNF-T8), con una marca y el rótulo del PK en cada marca (S049/RF-17). Debajo de los puntos del proyecto.
+     */
+    private fun addAlignmentLayers(style: Style) {
+        style.addSource(GeoJsonSource(ALIGNMENT_LINES_SOURCE))
+        style.addSource(GeoJsonSource(ALIGNMENT_MARKS_SOURCE))
+        style.addLayerBelow(
+            LineLayer(ALIGNMENT_LINES_LAYER, ALIGNMENT_LINES_SOURCE).withProperties(
+                PropertyFactory.lineColor(
+                    Expression.switchCase(
+                        Expression.get(ALIGNMENT_ACTIVE),
+                        Expression.color(Color.parseColor(ALIGNMENT_ACTIVE_COLOR)),
+                        Expression.color(Color.parseColor(ALIGNMENT_COLOR)),
+                    ),
+                ),
+                PropertyFactory.lineWidth(
+                    Expression.switchCase(
+                        Expression.get(ALIGNMENT_ACTIVE),
+                        Expression.literal(ALIGNMENT_ACTIVE_DP),
+                        Expression.literal(ALIGNMENT_DP),
+                    ),
+                ),
+            ),
+            POINTS_LAYER,
+        )
+        style.addLayerBelow(
+            CircleLayer(ALIGNMENT_MARKS_LAYER, ALIGNMENT_MARKS_SOURCE).withProperties(
+                PropertyFactory.circleRadius(ALIGNMENT_MARK_RADIUS_DP),
+                PropertyFactory.circleColor(Color.WHITE),
+                PropertyFactory.circleStrokeColor(
+                    Expression.switchCase(
+                        Expression.get(ALIGNMENT_ACTIVE),
+                        Expression.color(Color.parseColor(ALIGNMENT_ACTIVE_COLOR)),
+                        Expression.color(Color.parseColor(ALIGNMENT_COLOR)),
+                    ),
+                ),
+                PropertyFactory.circleStrokeWidth(ALIGNMENT_MARK_STROKE_DP),
+            ),
+            POINTS_LAYER,
+        )
+        style.addLayerBelow(
+            SymbolLayer(ALIGNMENT_LABELS_LAYER, ALIGNMENT_MARKS_SOURCE).withProperties(
+                PropertyFactory.textField(Expression.get(ALIGNMENT_LABEL)),
+                PropertyFactory.textFont(arrayOf(MapStyles.LABEL_FONT)),
+                PropertyFactory.textSize(LABEL_SIZE_SP),
+                PropertyFactory.textAnchor(Property.TEXT_ANCHOR_TOP),
+                PropertyFactory.textOffset(arrayOf(0f, DESIGN_LABEL_OFFSET_EM)),
+                PropertyFactory.textColor(
+                    Expression.switchCase(
+                        Expression.get(ALIGNMENT_ACTIVE),
+                        Expression.color(Color.parseColor(ALIGNMENT_ACTIVE_COLOR)),
+                        Expression.color(Color.parseColor(ALIGNMENT_COLOR)),
+                    ),
+                ),
+                PropertyFactory.textHaloColor(Color.WHITE),
+                PropertyFactory.textHaloWidth(DESIGN_LABEL_HALO_DP),
+            ),
+            POINTS_LAYER,
+        )
+    }
+
+    private fun drawAlignments() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val lines = style.getSourceAs<GeoJsonSource>(ALIGNMENT_LINES_SOURCE) ?: return
+        val marks = style.getSourceAs<GeoJsonSource>(ALIGNMENT_MARKS_SOURCE) ?: return
+        val scene = alignmentScene
+        val lineFeatures = scene?.lines.orEmpty().map { line ->
+            val coordinates = List(line.vertexCount) { Point.fromLngLat(line.lonLat[it * 2], line.lonLat[it * 2 + 1]) }
+            Feature.fromGeometry(LineString.fromLngLats(coordinates)).apply { addBooleanProperty(ALIGNMENT_ACTIVE, line.active) }
+        }
+        val markFeatures = scene?.marks.orEmpty().map { mark ->
+            Feature.fromGeometry(Point.fromLngLat(mark.longitudeDeg, mark.latitudeDeg)).apply {
+                addStringProperty(ALIGNMENT_LABEL, mark.label)
+                addBooleanProperty(ALIGNMENT_ACTIVE, mark.active)
+            }
+        }
+        lines.setGeoJson(FeatureCollection.fromFeatures(lineFeatures))
+        marks.setGeoJson(FeatureCollection.fromFeatures(markFeatures))
     }
 
     private fun drawDesign() {
@@ -739,6 +829,19 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val GRID_LAYER = "topophone-grid"
         const val CADASTRE_SOURCE = "topophone-cadastre"
         const val CADASTRE_LAYER = "topophone-cadastre"
+        const val ALIGNMENT_LINES_SOURCE = "topophone-alignment-lines"
+        const val ALIGNMENT_LINES_LAYER = "topophone-alignment-lines"
+        const val ALIGNMENT_MARKS_SOURCE = "topophone-alignment-marks"
+        const val ALIGNMENT_MARKS_LAYER = "topophone-alignment-marks"
+        const val ALIGNMENT_LABELS_LAYER = "topophone-alignment-labels"
+        const val ALIGNMENT_ACTIVE = "alignment_active"
+        const val ALIGNMENT_LABEL = "alignment_label"
+        const val ALIGNMENT_COLOR = "#6A1B9A"
+        const val ALIGNMENT_ACTIVE_COLOR = "#C62828"
+        const val ALIGNMENT_DP = 3f
+        const val ALIGNMENT_ACTIVE_DP = 5f
+        const val ALIGNMENT_MARK_RADIUS_DP = 3.5f
+        const val ALIGNMENT_MARK_STROKE_DP = 2f
         const val DESIGN_LINES_SOURCE = "topophone-design-lines"
         const val DESIGN_LINES_LAYER = "topophone-design-lines"
         const val DESIGN_POINTS_SOURCE = "topophone-design-points"

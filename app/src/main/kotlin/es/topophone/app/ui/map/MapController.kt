@@ -1,5 +1,6 @@
 package es.topophone.app.ui.map
 
+import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.map.MapSettings
@@ -27,6 +28,9 @@ interface MapController {
 
     /** El dibujo importado de un DXF en la vista de ahora; nada sin dibujo (S040/RF-24). */
     fun showDesign(scene: DesignScene?)
+
+    /** Los ejes visibles con el activo destacado y sus marcas de PK en la vista de ahora; nada sin ejes (S049/RF-17). */
+    fun showAlignments(scene: AlignmentScene?)
 
     /** El replanteo: el punto de diseño, la punta y la línea entre ellos; nada sin replanteo (S018/RF-14). */
     fun showStakeout(marker: StakeoutMarker?)

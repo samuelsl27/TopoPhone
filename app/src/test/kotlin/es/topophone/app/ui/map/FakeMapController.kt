@@ -2,6 +2,7 @@ package es.topophone.app.ui.map
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.LaunchedEffect
+import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
 import es.topophone.app.ui.projects.MapSlot
 import es.topophone.core.geodesy.GeoPoint
@@ -37,6 +38,8 @@ class FakeMapController : MapController {
     var points: List<MapPoint> = emptyList()
     var design: DesignScene? = null
     var designCalls = 0
+    var alignments: AlignmentScene? = null
+    var alignmentCalls = 0
     var stakeout: StakeoutMarker? = null
     val moves = mutableListOf<MapViewport>()
     var spainShown = false
@@ -60,6 +63,11 @@ class FakeMapController : MapController {
     override fun showDesign(scene: DesignScene?) {
         design = scene
         designCalls++
+    }
+
+    override fun showAlignments(scene: AlignmentScene?) {
+        alignments = scene
+        alignmentCalls++
     }
 
     private val taps = MutableSharedFlow<MapTap>(extraBufferCapacity = 8)

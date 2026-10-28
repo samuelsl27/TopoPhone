@@ -65,6 +65,8 @@ import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.alignment.ALIGNMENTS_BUTTON_TAG
 import es.topophone.app.ui.alignment.AlignmentFromDrawingUiState
 import es.topophone.app.ui.alignment.AlignmentFromDrawingViewModel
+import es.topophone.app.ui.alignment.AlignmentMapViewModel
+import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.alignment.AlignmentsActions
 import es.topophone.app.ui.alignment.AlignmentsSheet
 import es.topophone.app.ui.alignment.AlignmentsUiState
@@ -358,6 +360,7 @@ fun ProjectViewRoute(
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
     alignmentFromDrawingViewModel: AlignmentFromDrawingViewModel = hiltViewModel(),
     alignmentsViewModel: AlignmentsViewModel = hiltViewModel(),
+    alignmentMapViewModel: AlignmentMapViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
         viewModel.start(projectId)
@@ -365,6 +368,7 @@ fun ProjectViewRoute(
         designViewModel.start(projectId) // S040/RF-24
         surfacesViewModel.start(projectId) // S042/RF-16
         alignmentsViewModel.start(projectId) // S049/RF-14
+        alignmentMapViewModel.start(projectId) // S049/RF-17
     }
     // S018/RF-1: el replanteo se abre desde la ficha o la lista con el punto elegido, y se cierra con "Cerrar".
     var stakeoutOpen by rememberSaveable { mutableStateOf(stakeoutPointId != null) }
@@ -391,6 +395,7 @@ fun ProjectViewRoute(
     val designSelection by designViewModel.selected.collectAsStateWithLifecycle()
     val alignmentFromDrawing by alignmentFromDrawingViewModel.state.collectAsStateWithLifecycle()
     val alignmentsState by alignmentsViewModel.state.collectAsStateWithLifecycle()
+    val alignmentScene by alignmentMapViewModel.scene.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
@@ -410,7 +415,11 @@ fun ProjectViewRoute(
         viewModel::onViewportChanged,
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
         design = design,
-        onDesignCamera = designViewModel::onCamera,
+        onDesignCamera = {
+            designViewModel.onCamera(it)
+            alignmentMapViewModel.onCamera(it) // S049/RF-17
+        },
+        alignmentScene = alignmentScene,
         drawings = drawings,
         designSelection = designSelection,
         onMapTap = designViewModel::onTap,
@@ -570,6 +579,8 @@ fun ProjectViewScreen(
     /** Convertir la línea tocada en un eje, y cómo va (S049/RF-6, RF-7). */
     /** Los ejes del proyecto con el activo, para el panel «Ejes» (S049/RF-14, RF-15, RF-19). */
     alignments: AlignmentsUiState = AlignmentsUiState(),
+    /** Los ejes visibles con sus marcas de PK en la vista de ahora (S049/RF-17). */
+    alignmentScene: AlignmentScene? = null,
     alignmentsActions: AlignmentsActions = AlignmentsActions(),
     alignmentFromDrawing: AlignmentFromDrawingUiState = AlignmentFromDrawingUiState(),
     onConvertToAlignment: (selection: DesignSelection, name: String, startChainageM: Double) -> Unit = { _, _, _ -> },
@@ -707,7 +718,7 @@ fun ProjectViewScreen(
             }
         }
     }
-    BindMap(controller, state, stakeout, design, onDesignCamera, lineStakeout, lineHighlight)
+    BindMap(controller, state, stakeout, design, onDesignCamera, lineStakeout, lineHighlight, alignmentScene)
     LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
     controller?.let { FollowRover(it, state, policy, onViewportChanged) }
     // S011/RF-5: tocar un punto del mapa abre su ficha.
@@ -884,6 +895,7 @@ private fun BindMap(
     onDesignCamera: (MapCamera) -> Unit,
     lineStakeout: LineStakeoutUiState?,
     lineHighlight: List<GeoPoint>,
+    alignmentScene: AlignmentScene?,
 ) {
     val unit = state.project?.linearUnit
     val palette = LocalStatusPalette.current
@@ -891,6 +903,7 @@ private fun BindMap(
     LaunchedEffect(controller, marker) { controller?.showRover(marker) }
     LaunchedEffect(controller, state.points) { controller?.showPoints(MapPoints.from(state.points)) } // S010/RF-20
     LaunchedEffect(controller, design) { controller?.showDesign(design) } // S040/RF-24
+    LaunchedEffect(controller, alignmentScene) { controller?.showAlignments(alignmentScene) } // S049/RF-17
     LaunchedEffect(controller) {
         // S040/RF-24: el dibujo se vuelve a cargar cuando la cámara lleva 150 ms quieta.
         controller?.camera?.filterNotNull()?.debounce(DESIGN_DEBOUNCE_MS)?.collect(onDesignCamera)
