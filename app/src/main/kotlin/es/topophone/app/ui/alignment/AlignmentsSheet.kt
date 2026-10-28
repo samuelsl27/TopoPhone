@@ -59,6 +59,8 @@ fun alignmentShownTag(id: String) = "alignment_shown_$id"
 
 fun alignmentCalculateTag(id: String) = "alignment_calculate_$id"
 
+fun alignmentStakeTag(id: String) = "alignment_stake_$id"
+
 /** Acciones del panel «Ejes» (S049/RF-14, RF-15, RF-19). [onRename] da false si el nombre está en blanco. */
 class AlignmentsActions(
     val onActivate: (alignmentId: String?) -> Unit = {},
@@ -66,6 +68,8 @@ class AlignmentsActions(
     val onVisible: (alignmentId: String, visible: Boolean) -> Unit = { _, _ -> },
     val onDelete: (alignmentId: String) -> Unit = {},
     val onCalculate: (alignmentId: String) -> Unit = {},
+    /** "Replantear eje" por PK y desplazamiento (S054/RF-1). */
+    val onStake: (alignmentId: String) -> Unit = {},
 )
 
 /**
@@ -213,6 +217,10 @@ private fun AlignmentSection(
         onClick = { actions.onCalculate(alignment.id) },
         modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(alignmentCalculateTag(alignment.id)),
     ) { Text(stringResource(R.string.alignment_point_open)) } // S049/RF-20
+    OutlinedButton(
+        onClick = { actions.onStake(alignment.id) },
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(alignmentStakeTag(alignment.id)),
+    ) { Text(stringResource(R.string.alignment_stake_open)) } // S054/RF-1
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = onRename,

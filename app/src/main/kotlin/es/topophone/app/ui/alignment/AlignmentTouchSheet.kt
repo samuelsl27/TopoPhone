@@ -34,6 +34,7 @@ const val ALIGNMENT_TOUCH_NO_PROFILE_TAG = "alignment_touch_no_profile"
 const val ALIGNMENT_TOUCH_ACTIVE_TAG = "alignment_touch_active"
 const val ALIGNMENT_TOUCH_ACTIVATE_TAG = "alignment_touch_activate"
 const val ALIGNMENT_TOUCH_POINT_TAG = "alignment_touch_point"
+const val ALIGNMENT_TOUCH_STAKE_TAG = "alignment_touch_stake"
 
 /**
  * La ficha de un eje que se ha tocado en el mapa (S049/RF-18): su nombre, su longitud, su PK inicial y final, el PK del punto tocado y la
@@ -49,6 +50,7 @@ fun AlignmentTouchSheet(
     onActivate: () -> Unit,
     onDismiss: () -> Unit,
     onCalculate: (() -> Unit)? = null,
+    onStake: (() -> Unit)? = null,
 ) {
     val locale = uiLocale()
     val alignment = touch.alignment
@@ -97,6 +99,12 @@ fun AlignmentTouchSheet(
                     onClick = onCalculate,
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_TOUCH_POINT_TAG),
                 ) { Text(stringResource(R.string.alignment_point_open)) }
+            }
+            if (onStake != null) {
+                OutlinedButton(
+                    onClick = onStake,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_TOUCH_STAKE_TAG),
+                ) { Text(stringResource(R.string.alignment_stake_open)) } // S054/RF-1
             }
         }
     }

@@ -106,6 +106,11 @@ import es.topophone.app.ui.points.OBJECTS_BUTTON_TAG
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.tone
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.app.ui.stakeout.AxisStakeoutActions
+import es.topophone.app.ui.stakeout.AxisStakeoutMarkers
+import es.topophone.app.ui.stakeout.AxisStakeoutPanel
+import es.topophone.app.ui.stakeout.AxisStakeoutUiState
+import es.topophone.app.ui.stakeout.AxisStakeoutViewModel
 import es.topophone.app.ui.stakeout.LineStakeoutActions
 import es.topophone.app.ui.stakeout.LineStakeoutMarkers
 import es.topophone.app.ui.stakeout.LineStakeoutPanel
@@ -358,6 +363,7 @@ fun ProjectViewRoute(
     collectorViewModel: CollectorViewModel = hiltViewModel(),
     stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
     lineStakeoutViewModel: LineStakeoutViewModel = hiltViewModel(),
+    axisStakeoutViewModel: AxisStakeoutViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
     alignmentFromDrawingViewModel: AlignmentFromDrawingViewModel = hiltViewModel(),
@@ -382,14 +388,33 @@ fun ProjectViewRoute(
     var lineOpen by rememberSaveable { mutableStateOf(false) }
     val line by lineStakeoutViewModel.state.collectAsStateWithLifecycle()
     val lineHighlight by lineStakeoutViewModel.highlight.collectAsStateWithLifecycle()
-    // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5, S041/RF-27).
-    val activeTarget = if (stakeoutOpen) stakeout.target else line.target.takeIf { lineOpen }
-    LaunchedEffect(stakeoutOpen, lineOpen, activeTarget) { collectorViewModel.setStakeTarget(activeTarget) }
+    // S054/RF-1: el replanteo por PK y desplazamiento de un eje, en el mismo hueco, con su propio modelo.
+    var axisOpen by rememberSaveable { mutableStateOf(false) }
+    val axis by axisStakeoutViewModel.state.collectAsStateWithLifecycle()
+    // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5, S041/RF-27, S054/RF-10).
+    val activeTarget = when {
+        stakeoutOpen -> stakeout.target
+        axisOpen -> axis.stakeTarget
+        else -> line.target.takeIf { lineOpen }
+    }
+    LaunchedEffect(stakeoutOpen, lineOpen, axisOpen, activeTarget) { collectorViewModel.setStakeTarget(activeTarget) }
     // S019/RF-13: la cota usada y las tolerancias vigentes viajan con el recolector para guardarse con el replanteo.
-    val activeInfo = if (stakeoutOpen) stakeout.saveInfo else line.saveInfo.takeIf { lineOpen }
-    LaunchedEffect(stakeoutOpen, lineOpen, activeInfo) { collectorViewModel.setStakeSaveInfo(activeInfo) }
-    // S041/RF-28: con una línea, el recolector pide el objetivo de ese momento al terminar la medida.
-    LaunchedEffect(lineOpen) { collectorViewModel.setStakeObjective(lineStakeoutViewModel.objectiveProvider.takeIf { lineOpen }) }
+    val activeInfo = when {
+        stakeoutOpen -> stakeout.saveInfo
+        axisOpen -> axis.saveInfo
+        else -> line.saveInfo.takeIf { lineOpen }
+    }
+    LaunchedEffect(stakeoutOpen, lineOpen, axisOpen, activeInfo) { collectorViewModel.setStakeSaveInfo(activeInfo) }
+    // S041/RF-28 y S054/RF-10: con una línea o un eje, el recolector pide el objetivo de ese momento al terminar la medida.
+    LaunchedEffect(lineOpen, axisOpen) {
+        collectorViewModel.setStakeObjective(
+            when {
+                axisOpen -> axisStakeoutViewModel.objectiveProvider
+                lineOpen -> lineStakeoutViewModel.objectiveProvider
+                else -> null
+            },
+        )
+    }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val design by designViewModel.scene.collectAsStateWithLifecycle()
     val drawings by designViewModel.drawings.collectAsStateWithLifecycle()
@@ -440,6 +465,37 @@ fun ProjectViewRoute(
             onRename = alignmentsViewModel::rename, // S049/RF-14
             onVisible = alignmentsViewModel::setVisible, // S049/RF-19
             onDelete = alignmentsViewModel::delete, // S049/RF-15
+        ),
+        onStakeAxis = { alignmentId ->
+            // S054/RF-1: "Replantear eje" en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
+            stakeoutOpen = false
+            stakeoutViewModel.close()
+            lineOpen = false
+            lineStakeoutViewModel.close()
+            axisStakeoutViewModel.open(projectId, alignmentId)
+            axisOpen = true
+        },
+        axisStakeout = axis.takeIf { axisOpen },
+        axisStakeoutActions = AxisStakeoutActions(
+            onClose = {
+                axisOpen = false
+                axisStakeoutViewModel.close()
+            },
+            onStart = { axisStakeoutViewModel.start() },
+            onAlignment = { axisStakeoutViewModel.setAlignment(it) }, // S054/RF-11
+            onStartText = { axisStakeoutViewModel.setStart(it) },
+            onEndText = { axisStakeoutViewModel.setEnd(it) },
+            onIntervalText = { axisStakeoutViewModel.setInterval(it) },
+            onSingular = { axisStakeoutViewModel.setSingular(it) },
+            onChainage = { axisStakeoutViewModel.setChainage(it) }, // S054/RF-5
+            onOffset = { axisStakeoutViewModel.setOffset(it) },
+            onThickness = { axisStakeoutViewModel.setThickness(it) },
+            onPrevious = { axisStakeoutViewModel.previous() },
+            onNext = { axisStakeoutViewModel.next() },
+            onGuideMode = { axisStakeoutViewModel.setGuideMode(it) },
+            onHeading = { axisStakeoutViewModel.setHeading(it) },
+            onTolerance = axisStakeoutViewModel::setTolerance,
+            onToleranceV = axisStakeoutViewModel::setToleranceV,
         ),
         alignmentFromDrawing = alignmentFromDrawing,
         onConvertToAlignment = { selection, name, start -> alignmentFromDrawingViewModel.convert(projectId, selection, name, start) },
@@ -514,6 +570,8 @@ fun ProjectViewRoute(
             // S041/RF-1, RF-2: "Replantear" en la ficha de un elemento del dibujo.
             designSelection?.let { selection ->
                 designViewModel.dismissSelection()
+                axisOpen = false
+                axisStakeoutViewModel.close()
                 if (selection.entity.kind == CadEntityKind.POINT || selection.entity.kind == CadEntityKind.BLOCK_INSERT) {
                     lineOpen = false
                     lineStakeoutViewModel.close()
@@ -573,6 +631,10 @@ fun ProjectViewScreen(
     lineStakeoutActions: LineStakeoutActions = LineStakeoutActions(),
     lineHighlight: List<GeoPoint> = emptyList(),
     onStakeoutElement: () -> Unit = {},
+    /** El replanteo por PK y desplazamiento de un eje y el botón "Replantear eje" (S054/RF-1). */
+    axisStakeout: AxisStakeoutUiState? = null,
+    axisStakeoutActions: AxisStakeoutActions = AxisStakeoutActions(),
+    onStakeAxis: (String) -> Unit = {},
     /** El dibujo importado de un DXF en la vista de ahora y el aviso de que la cámara se ha parado (S040/RF-24). */
     design: DesignScene? = null,
     onDesignCamera: (MapCamera) -> Unit = {},
@@ -700,7 +762,13 @@ fun ProjectViewScreen(
                     val camera = controller?.camera?.collectAsStateWithLifecycle()?.value
                     if (project != null && camera != null) ScaleBarView(camera, project.linearUnit)
                     Attribution(state.mapSettings)
-                    if (project != null && collector != null && !collectorOpen && stakeout == null && lineStakeout == null) {
+                    if (project != null &&
+                        collector != null &&
+                        !collectorOpen &&
+                        stakeout == null &&
+                        lineStakeout == null &&
+                        axisStakeout == null
+                    ) {
                         Spacer(Modifier.weight(1f))
                         ExtendedFloatingActionButton(
                             onClick = { collectorOpen = true },
@@ -724,6 +792,13 @@ fun ProjectViewScreen(
                         collectorActions = collectorActions,
                         stats = collectorStats,
                     ) // S041/RF-2
+                    axisStakeout != null -> AxisStakeoutPanel(
+                        axisStakeout,
+                        axisStakeoutActions,
+                        collector = collector,
+                        collectorActions = collectorActions,
+                        stats = collectorStats,
+                    ) // S054/RF-1
                     collector != null && collectorOpen -> CollectorPanel(collector, project.linearUnit, collectorActions, onClose = {
                         collectorOpen =
                             false
@@ -733,7 +808,7 @@ fun ProjectViewScreen(
             }
         }
     }
-    BindMap(controller, state, stakeout, design, onDesignCamera, lineStakeout, lineHighlight, alignmentScene)
+    BindMap(controller, state, stakeout, design, onDesignCamera, lineStakeout, lineHighlight, alignmentScene, axisStakeout)
     LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
     controller?.let { FollowRover(it, state, policy, onViewportChanged) }
     // S011/RF-5: tocar un punto del mapa abre su ficha.
@@ -758,6 +833,10 @@ fun ProjectViewScreen(
                     alignmentsOpen = false
                     onCalculateOnAlignment(it)
                 },
+                onStake = {
+                    alignmentsOpen = false
+                    onStakeAxis(it)
+                },
             ),
         ) { alignmentsOpen = false }
     }
@@ -774,6 +853,10 @@ fun ProjectViewScreen(
             onCalculate = {
                 onDismissAlignmentTouch()
                 onCalculateOnAlignment(alignmentTouch.alignment.id)
+            },
+            onStake = {
+                onDismissAlignmentTouch()
+                onStakeAxis(alignmentTouch.alignment.id)
             },
         )
     } else if (designSelection != null && project != null) {
@@ -940,6 +1023,7 @@ private fun BindMap(
     lineStakeout: LineStakeoutUiState?,
     lineHighlight: List<GeoPoint>,
     alignmentScene: AlignmentScene?,
+    axisStakeout: AxisStakeoutUiState?,
 ) {
     val unit = state.project?.linearUnit
     val palette = LocalStatusPalette.current
@@ -958,7 +1042,10 @@ private fun BindMap(
     LaunchedEffect(controller, central, centralLabel) {
         controller?.showCentralPoint(central?.let { GeoPoint(it.latitudeDeg, it.longitudeDeg) }, centralLabel) // S006/RF-36
     }
-    val stakeoutMarker = LineStakeoutMarkers.of(lineStakeout, lineHighlight) ?: StakeoutMarkers.of(stakeout) // S041/RF-5
+    // S041/RF-5, S054/RF-1: la línea, el eje o el punto que se replantea
+    val stakeoutMarker = LineStakeoutMarkers.of(lineStakeout, lineHighlight)
+        ?: AxisStakeoutMarkers.of(axisStakeout)
+        ?: StakeoutMarkers.of(stakeout)
     LaunchedEffect(controller, stakeoutMarker) { controller?.showStakeout(stakeoutMarker) } // S018/RF-14
     LaunchedEffect(controller, state.mapSettings) { controller?.setSettings(state.mapSettings) }
     LaunchedEffect(controller, unit) { if (unit != null) controller?.setLinearUnit(unit) }

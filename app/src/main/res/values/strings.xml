@@ -1679,6 +1679,7 @@
     <string name="alignment_point_duplicate">Ya hay un punto con ese nombre.</string>
     <string name="alignment_point_outside_area">El punto queda fuera del ámbito del sistema de coordenadas del proyecto y no se puede guardar.</string>
     <string name="alignment_point_phrase">PK %1$s, %2$s</string>
+    <string name="alignment_stake_open">Replantear eje</string>
     <string name="axis_stakeout_title">Replantear el eje %1$s</string>
     <string name="axis_stakeout_choose">Eje</string>
     <string name="axis_stakeout_limits">El eje va del PK %1$s al PK %2$s.</string>

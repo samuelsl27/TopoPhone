@@ -1667,6 +1667,7 @@
     <string name="alignment_point_duplicate">There is already a point with that name.</string>
     <string name="alignment_point_outside_area">The point lies outside the area of the project coordinate system and cannot be saved.</string>
     <string name="alignment_point_phrase">Chainage %1$s, %2$s</string>
+    <string name="alignment_stake_open">Stake out alignment</string>
     <string name="axis_stakeout_title">Stake out alignment %1$s</string>
     <string name="axis_stakeout_choose">Alignment</string>
     <string name="axis_stakeout_limits">The alignment runs from chainage %1$s to chainage %2$s.</string>

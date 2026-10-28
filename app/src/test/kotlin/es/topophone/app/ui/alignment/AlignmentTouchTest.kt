@@ -171,10 +171,11 @@ class AlignmentTouchTest {
         onActivate: () -> Unit = {
         },
         onCalculate: (() -> Unit)? = null,
+        onStake: (() -> Unit)? = null,
     ) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                AlignmentTouchSheet(touch, unit, if (unit == LinearUnit.METRE) "m" else "ft", onActivate, {}, onCalculate)
+                AlignmentTouchSheet(touch, unit, if (unit == LinearUnit.METRE) "m" else "ft", onActivate, {}, onCalculate, onStake)
             }
         }
     }
@@ -227,5 +228,22 @@ class AlignmentTouchTest {
         compose.onNodeWithTag(ALIGNMENT_TOUCH_POINT_TAG).performClick()
 
         calculate shouldBe 1
+    }
+
+    @Test
+    fun `S054 RF-1 la ficha ofrece Replantear eje si se le da la accion y no lo ofrece si no`() {
+        var stake = 0
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true), onStake = { stake++ })
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_STAKE_TAG).performClick()
+
+        stake shouldBe 1
+    }
+
+    @Test
+    fun `S054 RF-1 sin la accion la ficha no muestra Replantear eje`() {
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_STAKE_TAG).assertDoesNotExist()
     }
 }

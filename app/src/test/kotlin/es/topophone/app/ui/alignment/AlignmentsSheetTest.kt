@@ -1,6 +1,7 @@
 package es.topophone.app.ui.alignment
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -126,5 +127,17 @@ class AlignmentsSheetTest {
         compose.onNodeWithTag(alignmentDeleteTag("a")).performScrollTo().performClick()
         compose.onNodeWithTag(ALIGNMENT_DELETE_CONFIRM_TAG).performClick()
         deleted shouldBe listOf("a")
+    }
+
+    @Test
+    fun `S054 RF-1 cada eje ofrece Replantear eje y lleva su identificador a la accion`() {
+        val staked = mutableListOf<String>()
+        show(actions = AlignmentsActions(onStake = { staked += it }))
+
+        compose.onNodeWithTag(alignmentStakeTag("a")).performScrollTo().assertTextContains("Replantear eje")
+        compose.onNodeWithTag(alignmentStakeTag("a")).performClick()
+        compose.onNodeWithTag(alignmentStakeTag("b")).performScrollTo().performClick()
+
+        staked shouldBe listOf("a", "b")
     }
 }

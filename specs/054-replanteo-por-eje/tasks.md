@@ -24,7 +24,7 @@
       Hecho cuando: `AxisStakeoutViewModelTest` en verde.
 - [x] T11. `app`: `AxisStakeoutPanel` (campos, PK siguiente y anterior, adelante/atrás y dentro/fuera, Norte y Este, desmonte y terraplén, fuera del eje, TalkBack). (RF-1, RF-4, RF-6, RF-7, RF-9, RNF-T8)
       Hecho cuando: `AxisStakeoutPanelTest` en verde.
-- [ ] T12. `app`: «Replantear eje» en `AlignmentsSheet` y `AlignmentFicha`, el estado único `StakeMode` en `ProjectViewScreen` y el objetivo en el mapa. (RF-1, RF-11)
+- [x] T12. `app`: «Replantear eje» en `AlignmentsSheet` y `AlignmentFicha`, el estado único `StakeMode` en `ProjectViewScreen` y el objetivo en el mapa. (RF-1, RF-11)
       Hecho cuando: `AlignmentsSheetTest`, `AlignmentFichaTest` y `AxisStakeoutPanelTest` ampliados en verde.
 - [ ] T13. `app`: medir y guardar el punto replanteado con el eje, el PK, el desplazamiento, la cota de diseño y las diferencias; la ficha del punto y el informe. (RF-10)
       Hecho cuando: `AxisStakeoutMeasureTest` y `PointDetailsScreenTest` ampliado en verde.
