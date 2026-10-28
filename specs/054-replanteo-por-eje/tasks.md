@@ -10,7 +10,7 @@
       Hecho cuando: `AxisStakeTargetTest` y `AxisStakeInputsTest` en verde contra `fixtures/ejes/replanteo/` a menos de 1 mm.
 - [x] T4. `core:survey`: `KeyStations` y `AxisChainageSeries` (intervalo, PK final, singulares sin repetidos, hacia atrás, siguiente y anterior). (RF-2 a RF-4)
       Hecho cuando: `KeyStationsTest` y `AxisChainageSeriesTest` en verde.
-- [ ] T5. `core:survey`: `AxisGuidance` (adelante o atrás y dentro o fuera con el azimut del eje; desplazamiento 0). (RF-6)
+- [x] T5. `core:survey`: `AxisGuidance` (adelante o atrás y dentro o fuera con el azimut del eje; desplazamiento 0). (RF-6)
       Hecho cuando: `AxisGuidanceTest` en verde contra `fixtures/ejes/replanteo/` en recta, arco y clotoide.
 - [ ] T6. `core:survey`: `AxisAnalysis` (PK, desplazamiento y diferencia de cota con la rasante o la superficie; sin proyección). (RF-8, RF-12, RF-14)
       Hecho cuando: `AxisAnalysisTest` en verde.
