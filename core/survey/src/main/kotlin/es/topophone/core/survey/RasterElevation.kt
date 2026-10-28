@@ -121,7 +121,9 @@ class RasterElevation(
         val c01 = cell(i, j1) ?: return SurfaceHeight.Loading
         val c11 = cell(i1, j1) ?: return SurfaceHeight.Loading
         if (c00.isNaN() || c10.isNaN() || c01.isNaN() || c11.isNaN()) return SurfaceHeight.Outside
-        val value = (1 - fx) * (1 - fy) * c00 + fx * (1 - fy) * c10 + (1 - fx) * fy * c01 + fx * fy * c11
+        // Dos interpolaciones lineales en lugar de cuatro pesos: en un ráster constante, o en el centro de una celda, el resultado es
+        // exactamente el valor de la celda, sin el error de redondeo de sumar los pesos.
+        val value = lerp(lerp(c00, c10, fx), lerp(c01, c11, fx), fy)
 
         // 5. A metros y al sistema de alturas del proyecto.
         var metres = value * unitMetres
@@ -131,6 +133,14 @@ class RasterElevation(
             metres = if (info.heightSystem == HeightSystem.ELLIPSOIDAL) metres - undulation else metres + undulation
         }
         return SurfaceHeight.Value(metres)
+    }
+
+    private fun lerp(a: Double, b: Double, t: Double): Double = if (t == 0.0) {
+        a
+    } else if (t == 1.0) {
+        b
+    } else {
+        a + t * (b - a)
     }
 
     /** El valor de la celda ([col], [row]); null si su bloque no está en memoria, `NaN` si no tiene dato. */
