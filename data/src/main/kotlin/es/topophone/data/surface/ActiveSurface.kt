@@ -4,6 +4,7 @@ import es.topophone.core.model.surface.Surface
 import es.topophone.core.model.surface.SurfaceGuide
 import es.topophone.core.model.surface.SurfaceHeight
 import es.topophone.core.model.surface.SurfaceHeightSource
+import es.topophone.core.model.surface.SurfaceKind
 import es.topophone.core.model.surface.SurfaceTile
 import es.topophone.core.survey.TinDirectory
 import es.topophone.core.survey.TinElevation
@@ -199,28 +200,63 @@ class ActiveSurfaceProvider(
     private val repository: SurfaceRepository,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val cacheSize: Int = ActiveSurface.CACHE_TILES,
+    /** El sistema de coordenadas y el de alturas del proyecto, que un ráster necesita para dar su cota (S045/RF-9, RF-10). */
+    private val projectContext: (String) -> Flow<RasterProjectContext?> = { flowOf(null) },
 ) : SurfaceGuides {
     /** La superficie activa del proyecto con sus cotas a demanda; null si no hay ninguna. Las teselas no se leen hasta que se piden. */
-    fun active(projectId: String): Flow<ActiveSurface?> =
+    fun active(projectId: String): Flow<ActiveSurface?> = chosen(projectId)
+        .transformLatest { surface ->
+            if (surface == null || surface.kind != SurfaceKind.TIN) {
+                emit(null)
+                return@transformLatest
+            }
+            val active = ActiveSurface(surface, repository.cells(surface.id), repository::tile, ioDispatcher, cacheSize)
+            try {
+                emit(active)
+                awaitCancellation()
+            } finally {
+                active.close()
+            }
+        }
+
+    /** La superficie activa del proyecto, sea TIN o ráster, o null si no hay ninguna (S042/RF-16, S045/RF-18). */
+    private fun chosen(projectId: String): Flow<Surface?> =
         combine(repository.activeSurfaceId(projectId), repository.surfaces(projectId)) { id, list -> list.firstOrNull { it.id == id } }
             .distinctUntilChanged()
-            .transformLatest { surface ->
-                if (surface == null) {
-                    emit(null)
-                    return@transformLatest
-                }
-                val active = ActiveSurface(surface, repository.cells(surface.id), repository::tile, ioDispatcher, cacheSize)
-                try {
-                    emit(active)
-                    awaitCancellation()
-                } finally {
-                    active.close()
-                }
-            }
 
-    /** La superficie activa con el desplazamiento vertical del proyecto, lista para el replanteo (S042/RF-24 a RF-26). */
+    /**
+     * El ráster activo del proyecto con sus bloques a demanda; null si la activa no es un ráster o aún no se conoce el sistema del
+     * proyecto (S045/RF-17, RF-21). Al cambiar de superficie, desactivarla o borrarla cierra el anterior y vacía su caché.
+     */
+    fun activeRaster(projectId: String): Flow<ActiveRaster?> = combine(chosen(projectId), projectContext(projectId)) { surface, context ->
+        surface to context
+    }.distinctUntilChanged().transformLatest { (surface, context) ->
+        if (surface == null || surface.kind != SurfaceKind.RASTER || context == null) {
+            emit(null)
+            return@transformLatest
+        }
+        val active = ActiveRaster(surface, context, { column, row -> repository.rasterTile(surface.id, column, row) }, ioDispatcher)
+        try {
+            emit(active)
+            awaitCancellation()
+        } finally {
+            active.close()
+        }
+    }
+
+    /** La superficie activa con el desplazamiento vertical del proyecto, lista para el replanteo (S042/RF-24 a RF-26, S045/RF-19). */
     override fun guide(projectId: String): Flow<SurfaceGuide?> =
-        combine(active(projectId), repository.verticalOffset(projectId)) { active, offset ->
-            active?.let { SurfaceGuide(it.surface, it, offset) }
+        combine(chosen(projectId), active(projectId), activeRaster(projectId), repository.verticalOffset(projectId)) {
+                surface,
+                tin,
+                raster,
+                offset,
+            ->
+            when {
+                surface == null -> null
+                surface.kind == SurfaceKind.TIN && tin?.surface?.id == surface.id -> SurfaceGuide(tin.surface, tin, offset)
+                surface.kind == SurfaceKind.RASTER && raster?.surface?.id == surface.id -> SurfaceGuide(raster.surface, raster, offset)
+                else -> null
+            }
         }
 }

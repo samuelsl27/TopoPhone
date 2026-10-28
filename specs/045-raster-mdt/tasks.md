@@ -22,7 +22,7 @@
       Hecho cuando: `RasterRepositoryTest` en verde: activar un ráster con un TIN activo y a la inversa, borrar el activo y el desplazamiento que se conserva.
 - [x] T10. `data`: `RasterImporter`, `scan` e `import` por bandas con el temporal en la caché, el progreso, la cancelación, el límite de tamaño y de anchura y los fallos. (RF-3, RF-5, RF-7, RF-13 a RF-16)
       Hecho cuando: `RasterImporterTest` en verde: cada formato, cancelar sin dejar nada ni el temporal, fallo de escritura, sin celdas con dato y los límites.
-- [ ] T11. `data`: `ActiveRaster` y el `ActiveSurfaceProvider` que elige la fuente por tipo, con la caché, `Loading`, la precarga y el vaciado al desactivar. (RF-17, RF-21, RF-22)
+- [x] T11. `data`: `ActiveRaster` y el `ActiveSurfaceProvider` que elige la fuente por tipo, con la caché, `Loading`, la precarga y el vaciado al desactivar. (RF-17, RF-21, RF-22)
       Hecho cuando: `ActiveRasterTest` en verde y `ActiveSurfaceTest` de S042 sigue en verde.
 - [ ] T12. `data`: copia de seguridad, paquete y restauración con los rásteres, con el aviso del espacio. (RF-20, RNF-T6)
       Hecho cuando: `RasterBackupTest` en verde: copia completa, paquete con identificadores nuevos y restauración, con el activo y el desplazamiento.

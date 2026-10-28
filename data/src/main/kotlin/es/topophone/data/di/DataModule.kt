@@ -63,11 +63,13 @@ import es.topophone.data.settings.SettingsDataStore
 import es.topophone.data.settings.SettingsDataStoreQualifier
 import es.topophone.data.settings.SettingsRepository
 import es.topophone.data.surface.ActiveSurfaceProvider
+import es.topophone.data.surface.RasterProjectContext
 import es.topophone.data.surface.RoomSurfaceRepository
 import es.topophone.data.surface.SurfaceGuides
 import es.topophone.data.surface.SurfaceImporter
 import es.topophone.data.surface.SurfaceRepository
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.map
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -168,7 +170,13 @@ object DatabaseModule {
     /** La superficie activa de cada proyecto, con sus teselas a demanda (S042). */
     @Provides
     @Singleton
-    fun provideActiveSurfaceProvider(repository: SurfaceRepository): ActiveSurfaceProvider = ActiveSurfaceProvider(repository)
+    fun provideActiveSurfaceProvider(repository: SurfaceRepository, projects: ProjectRepository): ActiveSurfaceProvider =
+        ActiveSurfaceProvider(
+            repository,
+            projectContext = { id ->
+                projects.observe(id).map { project -> project?.let { RasterProjectContext(it.crs, it.heightSystem) } }
+            },
+        )
 
     /** La misma, vista como quien da la superficie activa a los replanteos y al recolector (S042). */
     @Provides
