@@ -1631,4 +1631,13 @@
     <string name="alignment_delete_confirm">Delete</string>
     <string name="alignment_has_profile">With profile</string>
     <string name="alignment_no_profile">Without profile</string>
+    <string name="alignment_ficha_title">Alignment</string>
+    <string name="alignment_ficha_length">Length: %1$s</string>
+    <string name="alignment_ficha_range">Start chainage %1$s · end chainage %2$s</string>
+    <string name="alignment_ficha_touched">Chainage of the touched point: %1$s</string>
+    <string name="alignment_ficha_elevation">Profile elevation at that chainage: %1$s %2$s</string>
+    <string name="alignment_ficha_no_profile">No profile: there is no elevation at that chainage.</string>
+    <string name="alignment_ficha_is_active">It is the active alignment of the project.</string>
+    <string name="alignment_ficha_activate">Activate this alignment</string>
+    <string name="alignment_point_open">Calculate a point on the alignment</string>
 </resources>

@@ -46,7 +46,7 @@
       Hecho cuando: `AlignmentsSheetTest` en verde.
 - [x] T22. `app`: los ejes en el mapa con el activo destacado y las marcas rotuladas de PK. (RF-17, RNF-T13)
       Hecho cuando: `ChainageMarksTest` y `AlignmentSceneTest` en verde.
-- [ ] T23. `app`: la ficha al tocar un eje, con el PK del punto tocado y la cota de la rasante, y la opción de activarlo. (RF-18)
+- [x] T23. `app`: la ficha al tocar un eje, con el PK del punto tocado y la cota de la rasante, y la opción de activarlo. (RF-18)
       Hecho cuando: `AlignmentFichaTest` en verde.
 - [ ] T24. `app`: «Punto sobre eje» (PK y desplazamiento, resultado, PK fuera del eje y «Guardar punto»). (RF-20 a RF-22, RNF-T8)
       Hecho cuando: `AlignmentPointViewModelTest` en verde.

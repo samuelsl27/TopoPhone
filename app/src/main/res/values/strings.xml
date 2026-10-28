@@ -1643,4 +1643,13 @@
     <string name="alignment_delete_confirm">Borrar</string>
     <string name="alignment_has_profile">Con rasante</string>
     <string name="alignment_no_profile">Sin rasante</string>
+    <string name="alignment_ficha_title">Eje</string>
+    <string name="alignment_ficha_length">Longitud: %1$s</string>
+    <string name="alignment_ficha_range">PK inicial %1$s · PK final %2$s</string>
+    <string name="alignment_ficha_touched">PK del punto tocado: %1$s</string>
+    <string name="alignment_ficha_elevation">Cota de la rasante en ese PK: %1$s %2$s</string>
+    <string name="alignment_ficha_no_profile">Sin rasante: no hay cota en ese PK.</string>
+    <string name="alignment_ficha_is_active">Es el eje activo del proyecto.</string>
+    <string name="alignment_ficha_activate">Activar este eje</string>
+    <string name="alignment_point_open">Calcular un punto sobre el eje</string>
 </resources>

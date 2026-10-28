@@ -67,6 +67,8 @@ import es.topophone.app.ui.alignment.AlignmentFromDrawingUiState
 import es.topophone.app.ui.alignment.AlignmentFromDrawingViewModel
 import es.topophone.app.ui.alignment.AlignmentMapViewModel
 import es.topophone.app.ui.alignment.AlignmentScene
+import es.topophone.app.ui.alignment.AlignmentTouch
+import es.topophone.app.ui.alignment.AlignmentTouchSheet
 import es.topophone.app.ui.alignment.AlignmentsActions
 import es.topophone.app.ui.alignment.AlignmentsSheet
 import es.topophone.app.ui.alignment.AlignmentsUiState
@@ -396,6 +398,7 @@ fun ProjectViewRoute(
     val alignmentFromDrawing by alignmentFromDrawingViewModel.state.collectAsStateWithLifecycle()
     val alignmentsState by alignmentsViewModel.state.collectAsStateWithLifecycle()
     val alignmentScene by alignmentMapViewModel.scene.collectAsStateWithLifecycle()
+    val alignmentTouch by alignmentMapViewModel.touched.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
@@ -420,9 +423,15 @@ fun ProjectViewRoute(
             alignmentMapViewModel.onCamera(it) // S049/RF-17
         },
         alignmentScene = alignmentScene,
+        alignmentTouch = alignmentTouch,
+        onDismissAlignmentTouch = alignmentMapViewModel::dismissTouch,
+        onActivateAlignment = alignmentsViewModel::activate,
         drawings = drawings,
         designSelection = designSelection,
-        onMapTap = designViewModel::onTap,
+        onMapTap = {
+            designViewModel.onTap(it)
+            alignmentMapViewModel.onTap(it) // S049/RF-18
+        },
         onDismissDesignSelection = designViewModel::dismissSelection,
         alignments = alignmentsState,
         alignmentsActions = AlignmentsActions(
@@ -581,6 +590,10 @@ fun ProjectViewScreen(
     alignments: AlignmentsUiState = AlignmentsUiState(),
     /** Los ejes visibles con sus marcas de PK en la vista de ahora (S049/RF-17). */
     alignmentScene: AlignmentScene? = null,
+    /** El eje tocado en el mapa, el cierre de su ficha y activarlo (S049/RF-18). */
+    alignmentTouch: AlignmentTouch? = null,
+    onDismissAlignmentTouch: () -> Unit = {},
+    onActivateAlignment: (String?) -> Unit = {},
     alignmentsActions: AlignmentsActions = AlignmentsActions(),
     alignmentFromDrawing: AlignmentFromDrawingUiState = AlignmentFromDrawingUiState(),
     onConvertToAlignment: (selection: DesignSelection, name: String, startChainageM: Double) -> Unit = { _, _, _ -> },
@@ -732,7 +745,18 @@ fun ProjectViewScreen(
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
     if (surfacesOpen) SurfacesSheet(surfaces, surfacesActions) { surfacesOpen = false }
     if (alignmentsOpen) AlignmentsSheet(alignments, alignmentsActions) { alignmentsOpen = false }
-    if (designSelection != null && project != null) {
+    if (alignmentTouch != null && project != null) {
+        AlignmentTouchSheet(
+            touch = alignmentTouch,
+            unit = project.linearUnit,
+            unitSymbol = unitSymbol(project.linearUnit),
+            onActivate = {
+                onActivateAlignment(alignmentTouch.alignment.id)
+                onDismissAlignmentTouch()
+            },
+            onDismiss = onDismissAlignmentTouch,
+        )
+    } else if (designSelection != null && project != null) {
         DesignElementSheet(
             designSelection,
             project.linearUnit,
