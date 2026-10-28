@@ -58,6 +58,7 @@ SRS = (
     (23029, "ED50 / UTM 29"),
     (23030, "ED50 / UTM 30"),
     (23031, "ED50 / UTM 31"),
+    (4326, "WGS 84"),  # la tercera fila obligatoria de gpkg_spatial_ref_sys
 )
 
 # (id, latitud, longitud) en el datum del sistema; las geográficas de cada punto son las de su datum.
@@ -246,11 +247,37 @@ def build_reference(path: Path, epsg: int, rows: list[tuple]) -> None:
     con.close()
 
 
+def kotlin_source() -> str:
+    """El `GpkgSrsDefinitionsData.kt` de `core:formats`: las definiciones WKT1 de pyproj como constantes, para que el móvil no necesite PROJ."""
+    lines = [
+        "package es.topophone.core.formats.gpkg",
+        "",
+        "// Generado por tools/formatos/generar_gpkg_exportado.py --kotlin con pyproj " + pyproj.__version__ + " (PROJ " + pyproj.proj_version_str + "); no editar a mano.",
+        "internal object GpkgSrsDefinitionsData {",
+        "    /** El código EPSG, el nombre y la definición WKT1 de cada sistema de la exportación. */",
+        "    val ALL: List<Triple<Int, String, String>> = listOf(",
+    ]
+    for code, name in SRS:
+        text = wkt(code)
+        chunks = [text[i : i + 100].replace('"', '\\"') for i in range(0, len(text), 100)]
+        lines.append("        Triple(")
+        lines.append(f"            {code},")
+        lines.append(f'            "{name}",')
+        lines.append("            " + " +\n                ".join(f'"{chunk}"' for chunk in chunks) + ",")
+        lines.append("        ),")
+    lines += ["    )", "}", ""]
+    return "\n".join(lines)
+
+
 def all_files() -> dict[str, str]:
     return expected()
 
 
 def main(out: Path = OUT) -> int:
+    if len(sys.argv) > 2 and sys.argv[1] == "--kotlin":
+        Path(sys.argv[2]).write_text(kotlin_source(), encoding="utf-8", newline="\n")
+        print(f"Kotlin en {sys.argv[2]}")
+        return 0
     out.mkdir(parents=True, exist_ok=True)
     for name, text in all_files().items():
         (out / name).write_text(text, encoding="utf-8", newline="\n")
