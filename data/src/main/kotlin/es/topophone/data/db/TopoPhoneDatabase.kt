@@ -29,6 +29,7 @@ import es.topophone.data.point.PointNmeaEntity
 import es.topophone.data.project.ProjectDao
 import es.topophone.data.project.ProjectEntity
 import es.topophone.data.project.ProjectFolderEntity
+import es.topophone.data.surface.RasterTileEntity
 import es.topophone.data.surface.SurfaceDao
 import es.topophone.data.surface.SurfaceEntity
 import es.topophone.data.surface.SurfaceTileEntity
@@ -67,13 +68,16 @@ import es.topophone.data.surface.SurfaceTileEntity
  *   (`cad_layers.source_table` y `name_field`, que admiten NULL) y los atributos de cada trozo (`cad_chunk_attributes`). Migración de Room.
  * - v20 (S049): ejes y rasantes (`alignments`), el eje activo de cada proyecto (`active_alignment_id`) y de qué eje, PK y desplazamiento
  *   viene un punto calculado sobre un eje (`axis_name`, `axis_chainage` y `axis_offset`, que admiten NULL). Migración de Room.
+ * - v21 (S054): lo que guarda un punto replanteado por PK y un punto medido desde «Analizar» (columnas que admiten NULL). Migración de Room.
+ * - v22 (S045): los rásteres de cotas como superficies: `surfaces.kind` (`TIN` por defecto) y los datos de la malla (columnas que admiten
+ *   NULL) y la tabla `raster_tiles` con sus bloques. Migración de Room.
  */
 @Database(
     entities = [
         ProjectEntity::class, ProjectFolderEntity::class, NtripProfileEntity::class, MapViewportEntity::class, PointEntity::class,
         PointHistoryEntity::class, PointNmeaEntity::class, CadDrawingEntity::class, CadLayerEntity::class, CadChunkEntity::class,
         SurfaceEntity::class, SurfaceTileEntity::class, AntennaProfileEntity::class, SavedPoleEntity::class, ReceiverGearEntity::class,
-        CadChunkAttributesEntity::class, AlignmentEntity::class,
+        CadChunkAttributesEntity::class, AlignmentEntity::class, RasterTileEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -98,6 +102,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 18, to = 19),
         AutoMigration(from = 19, to = 20),
         AutoMigration(from = 20, to = 21),
+        AutoMigration(from = 21, to = 22),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -122,7 +127,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 21
+        const val VERSION = 22
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

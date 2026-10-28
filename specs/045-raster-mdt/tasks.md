@@ -16,7 +16,7 @@
       Hecho cuando: `RasterTilerTest` y los tests de la extensión en verde.
 - [x] T7. `core:survey`: `RasterElevation`: de la posición del proyecto a la cota del ráster, con el cambio de SC, la bilineal estricta, la unidad y la conversión con el geoide. (RF-9, RF-10, RF-21 a RF-23)
       Hecho cuando: `RasterElevationTest` en verde contra `fixtures/raster/` a menos de 1 mm.
-- [ ] T8. `data`: Room v22 (columnas de `surfaces`, `raster_tiles`), sus DAO, `AutoMigration(21, 22)` y el esquema 22 en `data/schemas/`. (RNF-T6, RF-14)
+- [x] T8. `data`: Room v22 (columnas de `surfaces`, `raster_tiles`), sus DAO, `AutoMigration(21, 22)` y el esquema 22 en `data/schemas/`. (RNF-T6, RF-14)
       Hecho cuando: `TopoPhoneDatabaseTest` 21 → 22 en verde: proyectos, superficies, puntos y replanteos conservan sus datos.
 - [ ] T9. `data`: `SurfaceRepository` con `beginRaster`, `addRasterTiles` y `finishRaster`, la lista con el tipo, y activar, borrar y la limpieza para los rásteres. (RF-13, RF-17, RF-18)
       Hecho cuando: `RasterRepositoryTest` en verde: activar un ráster con un TIN activo y a la inversa, borrar el activo y el desplazamiento que se conserva.

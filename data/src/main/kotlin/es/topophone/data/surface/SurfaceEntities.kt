@@ -41,7 +41,47 @@ data class SurfaceEntity(
     @ColumnInfo(name = "vertex_count") val vertexCount: Int,
     @ColumnInfo(name = "triangle_count") val triangleCount: Int,
     @ColumnInfo(name = "hole_count") val holeCount: Int,
+    /** `TIN` (un LandXML, S042) o `RASTER` (un ráster de cotas, S045); las columnas siguientes son solo del ráster. */
+    @ColumnInfo(defaultValue = "TIN") val kind: String = "TIN",
+    @ColumnInfo(name = "height_system") val heightSystem: String? = null,
+    @ColumnInfo(name = "value_type") val valueType: String? = null,
+    @ColumnInfo(name = "column_count") val columnCount: Int? = null,
+    @ColumnInfo(name = "row_count") val rowCount: Int? = null,
+    @ColumnInfo(name = "origin_x") val originX: Double? = null,
+    @ColumnInfo(name = "origin_y") val originY: Double? = null,
+    @ColumnInfo(name = "step_x") val stepX: Double? = null,
+    @ColumnInfo(name = "step_y") val stepY: Double? = null,
+    @ColumnInfo(name = "data_cells") val dataCells: Long? = null,
+    @ColumnInfo(name = "nodata_cells") val noDataCells: Long? = null,
 )
+
+/**
+ * Un bloque de 128 × 128 celdas de un ráster de cotas, en la columna [tileColumn] y la fila [tileRow] de la cuadrícula de bloques
+ * (S045, plan «Room v22»): [data] es el bloque binario de `RasterTileCodec`, de hasta 128 kB. Se borra con su superficie.
+ */
+@Entity(
+    tableName = "raster_tiles",
+    foreignKeys = [
+        ForeignKey(entity = SurfaceEntity::class, parentColumns = ["id"], childColumns = ["surface_id"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index(value = ["surface_id", "tile_col", "tile_row"], unique = true)],
+)
+data class RasterTileEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @ColumnInfo(name = "surface_id") val surfaceId: String,
+    @ColumnInfo(name = "tile_col") val tileColumn: Int,
+    @ColumnInfo(name = "tile_row") val tileRow: Int,
+    val data: ByteArray,
+) {
+    override fun equals(other: Any?): Boolean = other is RasterTileEntity &&
+        id == other.id &&
+        surfaceId == other.surfaceId &&
+        tileColumn == other.tileColumn &&
+        tileRow == other.tileRow &&
+        data.contentEquals(other.data)
+
+    override fun hashCode(): Int = 31 * (31 * id.hashCode() + surfaceId.hashCode()) + data.contentHashCode()
+}
 
 /**
  * Una tesela de una superficie: su celda y su bloque binario de hasta 256 kB, autosuficiente (S042, plan A3). Varias teselas pueden
@@ -89,6 +129,31 @@ interface SurfaceDao {
 
     @Insert
     suspend fun insertTiles(tiles: List<SurfaceTileEntity>)
+
+    @Insert
+    suspend fun insertRasterTiles(tiles: List<RasterTileEntity>)
+
+    @Query("SELECT data FROM raster_tiles WHERE surface_id = :surfaceId AND tile_col = :tileColumn AND tile_row = :tileRow")
+    suspend fun rasterTile(surfaceId: String, tileColumn: Int, tileRow: Int): ByteArray?
+
+    @Query("SELECT COUNT(*) FROM raster_tiles WHERE surface_id = :surfaceId")
+    suspend fun rasterTileCount(surfaceId: String): Int
+
+    @Query(
+        "UPDATE surfaces SET status = 'READY', min_e = :minE, max_e = :maxE, min_n = :minN, max_n = :maxN, min_z = :minZ, max_z = :maxZ, " +
+            "data_cells = :dataCells, nodata_cells = :noDataCells WHERE id = :surfaceId",
+    )
+    suspend fun markRasterReady(
+        surfaceId: String,
+        minE: Double,
+        maxE: Double,
+        minN: Double,
+        maxN: Double,
+        minZ: Double,
+        maxZ: Double,
+        dataCells: Long,
+        noDataCells: Long,
+    )
 
     @Query(
         "UPDATE surfaces SET status = 'READY', min_e = :minE, max_e = :maxE, min_n = :minN, max_n = :maxN, min_z = :minZ, max_z = :maxZ, " +

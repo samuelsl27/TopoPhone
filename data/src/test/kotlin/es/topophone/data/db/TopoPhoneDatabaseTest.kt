@@ -19,12 +19,14 @@ import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.core.model.surface.SurfaceKind
 import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.point.PointEntity
 import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.ProjectEntity
 import es.topophone.data.project.RoomProjectRepository
+import es.topophone.data.surface.RoomSurfaceRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -1056,9 +1058,56 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S045 RNF-T6 v21 a v22 las superficies siguen siendo TIN`() {
+        createFromExportedSchema(21)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v21 ->
+            v21.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', 's1', 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v21.execSQL(
+                "INSERT INTO surfaces (id, project_id, name, file_name, imported_at_ms, source_crs, source_unit, status, min_e, max_e, " +
+                    "min_n, max_n, min_z, max_z, vertex_count, triangle_count, hole_count) VALUES " +
+                    "('s1', ?, 'terreno', 'obra.xml', 1, 'PROJECT', 'METRE', 'READY', 0.0, 10.0, 0.0, 10.0, 600.0, 610.0, 4, 2, 0)",
+                arrayOf<Any>(project.id),
+            )
+            v21.execSQL(
+                "INSERT INTO surface_tiles (surface_id, min_e, max_e, min_n, max_n, triangle_count, data) VALUES " +
+                    "('s1', 0.0, 10.0, 0.0, 10.0, 2, x'0102')",
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            count(db, "surfaces") shouldBe 1
+            count(db, "surface_tiles") shouldBe 1
+            count(db, "raster_tiles") shouldBe 0
+            db.openHelper.readableDatabase.query(
+                "SELECT kind, height_system, value_type, column_count, row_count, origin_x, origin_y, step_x, step_y, data_cells, " +
+                    "nodata_cells, triangle_count FROM surfaces",
+            ).use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                cursor.getString(0) shouldBe "TIN"
+                (1..10).all { cursor.isNull(it) } shouldBe true
+                cursor.getInt(11) shouldBe 2
+            }
+            val surfaces = runBlocking { RoomSurfaceRepository(db).surfaces(project.id).first() }
+            surfaces.single().name shouldBe "terreno"
+            surfaces.single().kind shouldBe SurfaceKind.TIN
+            surfaces.single().raster shouldBe null
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 21
+        const val CURRENT_VERSION = 22
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
