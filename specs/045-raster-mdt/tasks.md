@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/raster`: `generar_rasters.py` con un escritor TIFF en Python puro y los casos de `fixtures/raster/` (GeoTIFF sin comprimir, LZW y Deflate con y sin predictor, por tiras y por teselas, int16, int32, float32 y float64, celda como área y como punto, BigTIFF, girado, de color, multibanda y sin georreferencia; ASCII Grid con esquina y con centro) y los valores esperados con `pyproj` y una bilineal aparte (centro de celda, medio camino, borde, celda sin dato, otro SC, pies y el geoide en los dos sentidos). (Constitución nº 2, RF-7 a RF-10, RF-21 a RF-23)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `SurfaceKind`, `RasterInfo`, `Surface` ampliada, `RasterTile` y `RasterTileCodec` (float32 y float64 sin redondear, `NaN` sin dato). (RF-14, RF-17)
+- [x] T2. `core:model`: `SurfaceKind`, `RasterInfo`, `Surface` ampliada, `RasterTile` y `RasterTileCodec` (float32 y float64 sin redondear, `NaN` sin dato). (RF-14, RF-17)
       Hecho cuando: los tests de `core:model` en verde, con los valores por defecto (las superficies TIN no cambian).
 - [ ] T3. `core:formats`: `RasterSource`, `RasterSink`, `TiffDecoder` (sin comprimir, LZW, Deflate, predictores 2 y 3, big y little endian). (RF-2)
       Hecho cuando: `TiffDecoderTest` en verde con los bloques de `fixtures/raster/`.
