@@ -30,7 +30,7 @@
       Hecho cuando: `RasterImportViewModelTest` en verde.
 - [x] T14. `app`: `RasterImportScreen`, `RasterImportRoute` y «Importar ráster» en los menús, con sus textos en es y en. (RF-1, RF-6, RF-11, RF-13, RF-16, RNF-T7, RNF-T8)
       Hecho cuando: `RasterImportScreenTest` en verde, con las zonas táctiles de 56 dp y el resumen.
-- [ ] T15. `app`: `SurfacesSheet` y `SurfacesViewModel` con el tipo, el tamaño de celda, la extensión y las cotas del ráster. (RF-17, RF-18)
+- [x] T15. `app`: `SurfacesSheet` y `SurfacesViewModel` con el tipo, el tamaño de celda, la extensión y las cotas del ráster. (RF-17, RF-18)
       Hecho cuando: `SurfacesSheetTest` ampliado en verde.
 - [ ] T16. `app`: el ráster en el replanteo y el recolector sin tocar su código: `StakeoutControllerRasterTest`, `StakeoutViewModelRasterTest`, `StakeoutMeasureRasterTest`, `CollectorRasterTest` y la ficha y el informe con un ráster. (RF-19, RF-24, RF-25)
       Hecho cuando: esos tests en verde y los de S018, S019, S041 y S042 siguen en verde.

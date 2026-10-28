@@ -1831,4 +1831,7 @@
     <string name="raster_result_heights">Cota: de %1$s a %2$s m</string>
     <string name="raster_result_active">Es la superficie activa del proyecto.</string>
     <string name="raster_result_inactive">No es la superficie activa: actívala en la lista de superficies.</string>
+    <string name="surface_kind_tin">TIN</string>
+    <string name="surface_kind_raster">Ráster</string>
+    <string name="surface_raster_summary">%1$s × %2$s celdas · celda de %3$s</string>
 </resources>

@@ -5,14 +5,23 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.model.cad.CadSourceCrs
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.core.model.surface.RasterInfo
+import es.topophone.core.model.surface.RasterTile
+import es.topophone.core.model.surface.RasterTileCodec
+import es.topophone.core.model.surface.RasterValueType
 import es.topophone.core.model.surface.SurfaceExtent
+import es.topophone.core.model.surface.SurfaceKind
 import es.topophone.core.model.surface.SurfaceTile
 import es.topophone.core.model.surface.SurfaceTileCodec
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
+import es.topophone.data.surface.RasterDraft
+import es.topophone.data.surface.RasterSummary
+import es.topophone.data.surface.RasterTileWrite
 import es.topophone.data.surface.RoomSurfaceRepository
 import es.topophone.data.surface.SurfaceDraft
 import es.topophone.data.surface.SurfaceSummary
@@ -78,6 +87,38 @@ class SurfacesViewModelTest {
         surfaces.finish(id, SurfaceSummary(extent, 600.0, 602.0, 3, 1, 0))
     }
 
+    private fun writeRaster(id: String, project: String = projectId, at: Long = 1_500L) = runBlocking {
+        surfaces.beginRaster(
+            RasterDraft(
+                id,
+                project,
+                "mdt $id",
+                "mdt.tif",
+                at,
+                CadSourceCrs.Project,
+                LinearUnit.METRE,
+                RasterInfo(128, 128, 440_005.0, 4_474_005.0, 10.0, 10.0, RasterValueType.FLOAT32, HeightSystem.ORTHOMETRIC, 0, 0),
+            ),
+        )
+        surfaces.addRasterTiles(
+            id,
+            listOf(
+                RasterTileWrite(
+                    0,
+                    0,
+                    RasterTileCodec.encode(
+                        RasterTile.ofFloats(
+                            FloatArray(RasterTile.CELLS) {
+                                600f
+                            },
+                        ),
+                    ),
+                ),
+            ),
+        )
+        surfaces.finishRaster(id, RasterSummary(extent, 600.0, 600.0, 16_384, 0))
+    }
+
     private fun open(project: String = projectId): SurfacesViewModel {
         val vm = SurfacesViewModel(surfaces, projects, dispatcher)
         vm.start(project)
@@ -103,6 +144,55 @@ class SurfacesViewModelTest {
         state.activeId shouldBe "s1"
         state.offsetM shouldBe 0.0
         state.unit shouldBe LinearUnit.METRE
+    }
+
+    @Test
+    fun `S045 RF-17 la lista muestra un raster junto a las TIN con su tipo`() {
+        write("s1")
+        writeRaster("r1")
+
+        val state = open().until { it.surfaces.size == 2 }
+
+        state.surfaces.map { it.kind } shouldBe listOf(SurfaceKind.TIN, SurfaceKind.RASTER)
+        state.surfaces.last().raster!!.columns shouldBe 128
+    }
+
+    @Test
+    fun `S045 RF-18 activar un raster deja inactivo el TIN y a la inversa y nunca hay dos activas`() {
+        write("s1")
+        writeRaster("r1")
+        val vm = open()
+        vm.until { it.activeId == "s1" }
+
+        vm.activate("r1")
+        vm.until { it.activeId == "r1" }.activeId shouldBe "r1"
+        vm.activate("s1")
+        vm.until { it.activeId == "s1" }.activeId shouldBe "s1"
+    }
+
+    @Test
+    fun `S045 RF-17 borrar el raster activo deja el proyecto sin superficie activa`() {
+        writeRaster("r1")
+        val vm = open()
+        vm.until { it.activeId == "r1" }
+
+        vm.delete("r1")
+
+        vm.until { it.surfaces.isEmpty() }.activeId shouldBe null
+    }
+
+    @Test
+    fun `S045 RF-19 el desplazamiento vertical es el mismo para el TIN y para el raster`() {
+        write("s1")
+        writeRaster("r1")
+        val vm = open()
+        vm.until { it.activeId == "s1" }
+
+        vm.setOffset("0,3")
+        vm.until { it.offsetM == 0.3 }
+        vm.activate("r1")
+
+        vm.until { it.activeId == "r1" }.offsetM shouldBe (0.3 plusOrMinus 1e-9)
     }
 
     @Test

@@ -33,6 +33,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.surface.Surface
 import java.text.DateFormat
@@ -54,6 +55,8 @@ fun surfaceDeactivateTag(surfaceId: String) = "surface_deactivate_$surfaceId"
 fun surfaceDeleteTag(surfaceId: String) = "surface_delete_$surfaceId"
 
 fun surfaceStateTag(surfaceId: String) = "surface_state_$surfaceId"
+
+fun surfaceKindTag(surfaceId: String) = "surface_kind_$surfaceId"
 
 /** Acciones del panel «Superficies» (S042/RF-16, RF-18 a RF-20). [onOffset] da false si lo escrito no es un número. */
 class SurfacesActions(
@@ -125,7 +128,30 @@ private fun SurfaceSection(surface: Surface, active: Boolean, actions: SurfacesA
         Text(surface.name, style = MaterialTheme.typography.titleMedium)
         Text(surface.fileName, style = MaterialTheme.typography.bodySmall)
         Text(stringResource(R.string.surface_imported_at, date), style = MaterialTheme.typography.bodySmall)
-        Text(stringResource(R.string.surface_summary, surface.vertexCount, surface.triangleCount, surface.holeCount))
+        val raster = surface.raster
+        // S045/RF-17: el tipo de cada superficie va en texto, y un ráster da su malla y el tamaño de su celda en lugar de los triángulos.
+        Text(
+            stringResource(if (raster != null) R.string.surface_kind_raster else R.string.surface_kind_tin),
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.testTag(surfaceKindTag(surface.id)),
+        )
+        if (raster != null) {
+            val cell = if (surface.source is CadSourceCrs.Geographic) {
+                "${NumberFormat.getNumberInstance().apply { maximumFractionDigits = 6 }.format(raster.stepX)}°"
+            } else {
+                "${number.format(raster.stepX)} m"
+            }
+            Text(
+                stringResource(
+                    R.string.surface_raster_summary,
+                    NumberFormat.getIntegerInstance().format(raster.columns),
+                    NumberFormat.getIntegerInstance().format(raster.rows),
+                    cell,
+                ),
+            )
+        } else {
+            Text(stringResource(R.string.surface_summary, surface.vertexCount, surface.triangleCount, surface.holeCount))
+        }
         Text(
             stringResource(
                 R.string.surface_size,

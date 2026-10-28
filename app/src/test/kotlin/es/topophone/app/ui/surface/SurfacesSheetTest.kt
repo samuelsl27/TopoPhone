@@ -18,9 +18,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.preferences.EffectiveTheme
+import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.model.surface.RasterInfo
+import es.topophone.core.model.surface.RasterValueType
 import es.topophone.core.model.surface.Surface
 import es.topophone.core.model.surface.SurfaceExtent
+import es.topophone.core.model.surface.SurfaceKind
 import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
@@ -62,6 +67,19 @@ class SurfacesSheetTest {
         holeCount = 2,
     )
 
+    private fun raster(id: String, name: String, source: CadSourceCrs = CadSourceCrs.Project, step: Double = 10.0) =
+        surface(id, name, "$name.tif").copy(
+            source = source,
+            vertexCount = 0,
+            triangleCount = 0,
+            holeCount = 0,
+            kind = SurfaceKind.RASTER,
+            raster = RasterInfo(
+                columns = 1_500, rows = 1_000, originX = 440_005.0, originY = 4_474_005.0, stepX = step, stepY = step,
+                valueType = RasterValueType.FLOAT32, heightSystem = HeightSystem.ORTHOMETRIC, dataCells = 1_499_990, noDataCells = 10,
+            ),
+        )
+
     private val two = SurfacesUiState(listOf(surface("s1", "terreno"), surface("s2", "rasante", "diseno.xml")), activeId = "s1")
 
     private fun show(state: SurfacesUiState) {
@@ -92,6 +110,38 @@ class SurfacesSheetTest {
         compose.onAllNodesWithText("42 puntos · 58 triángulos · 2 huecos").assertCountEquals(2)
         compose.onAllNodesWithText("120,5 × 100,0 m · cota de 600,0 a 608,7 m").assertCountEquals(2)
         compose.onAllNodesWithText("Importada el", substring = true).assertCountEquals(2)
+    }
+
+    @Test
+    fun `S045 RF-17 un raster sale entre las superficies con su tipo su celda su extension y sus cotas`() {
+        show(SurfacesUiState(listOf(surface("s1", "terreno"), raster("r1", "mdt05")), activeId = "r1"))
+
+        compose.onNodeWithTag(surfaceKindTag("s1")).performScrollTo().assertTextEquals("TIN")
+        compose.onNodeWithTag(surfaceKindTag("r1")).performScrollTo().assertTextEquals("Ráster")
+        shown("1.500 × 1.000 celdas · celda de 10,0 m")
+        shown("mdt05.tif")
+        compose.onAllNodesWithText("120,5 × 100,0 m · cota de 600,0 a 608,7 m").assertCountEquals(2)
+        compose.onNodeWithTag(surfaceStateTag("r1")).assertTextEquals("Activa")
+        compose.onAllNodesWithText("42 puntos · 58 triángulos · 2 huecos").assertCountEquals(1)
+    }
+
+    @Test
+    fun `S045 RF-17 un raster en geograficas da la celda en grados`() {
+        show(SurfacesUiState(listOf(raster("r1", "mdt", CadSourceCrs.Geographic(GeodeticDatum.ETRS89), 0.0001)), activeId = null))
+
+        shown("celda de 0,0001°")
+    }
+
+    @Test
+    fun `S045 RF-17 y RF-18 un raster se activa borra y desactiva como una superficie TIN`() {
+        show(SurfacesUiState(listOf(surface("s1", "terreno"), raster("r1", "mdt")), activeId = "s1"))
+
+        tap(surfaceActivateTag("r1"))
+        tap(surfaceDeleteTag("r1"))
+        compose.onNodeWithTag(SURFACE_DELETE_CONFIRM_TAG).performClick()
+        tap(surfaceDeactivateTag("s1"))
+
+        calls shouldBe listOf("activate:r1", "delete:r1", "activate:null")
     }
 
     @Test

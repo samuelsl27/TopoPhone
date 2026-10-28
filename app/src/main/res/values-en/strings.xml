@@ -1819,4 +1819,7 @@
     <string name="raster_result_heights">Elevation: from %1$s to %2$s m</string>
     <string name="raster_result_active">It is the active surface of the project.</string>
     <string name="raster_result_inactive">It is not the active surface: activate it in the surfaces list.</string>
+    <string name="surface_kind_tin">TIN</string>
+    <string name="surface_kind_raster">Raster</string>
+    <string name="surface_raster_summary">%1$s × %2$s cells · cell of %3$s</string>
 </resources>
