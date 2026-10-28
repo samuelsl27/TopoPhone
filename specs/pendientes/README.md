@@ -17,7 +17,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 | [020 base-shift](020-base-shift/spec.md) | H2 | S011, S010, **S008, S015, S016, S018, S046, S047** | 16 | 4 | Desplazamiento ECEF conocido − medido aplicado a los puntos siguientes |
 | [021 conexion-wifi-tcp](021-conexion-wifi-tcp/spec.md) | H2 | S015, **S004, S005, S007** | 19 | 4 | Cliente TCP al receptor (hotspot o red local), NTRIP por datos móviles |
 | [022 gnss-movil-y-receptor-virtual](022-gnss-movil-y-receptor-virtual/spec.md) | H2 | **S003, S005, S047** (la hoja dice S021) | 19 | 4 | GNSS del móvil (nunca FIX) y receptor virtual con escenarios |
-| [045 raster-mdt](045-raster-mdt/spec.md) | H2 | S042 | 25 | 7 | Ráster de cotas como superficie y replanteo de cota (cierra la puerta G2b) |
+| [045 raster-mdt](../045-raster-mdt/spec.md) | H2 | S042 | 25 | 7 | Ráster de cotas como superficie y replanteo de cota (cierra la puerta G2b) |
 | [023 bibliotecas-codigos](023-bibliotecas-codigos/spec.md) | H3 | S006, **S028, S013** | 22 | 5 | Bibliotecas de códigos con atributos, importar y exportar |
 | [024 recolectar-con-codigos](024-recolectar-con-codigos/spec.md) | H3 | S023, **S010, S011** | 21 | 6 | Selector de códigos y atributos al medir |
 | [025 lineas-y-poligonos](025-lineas-y-poligonos/spec.md) | H3 | S024, **S011** | 26 | 6 | Líneas y polígonos del proyecto con vértices que son puntos |

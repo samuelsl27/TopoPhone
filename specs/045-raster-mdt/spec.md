@@ -1,6 +1,6 @@
 # Spec 045 — Ráster de cotas (GeoTIFF y ASCII Grid) como superficie
 
-> Hito: H2 · Depende de: S042 · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H2 · Depende de: S042 · Estado: spec (entrevistada el 28/10/2026, pendiente de aprobación)
 
 ## Contexto y objetivo
 Muchas veces el terreno o el diseño no llega como un modelo de triángulos (S042) sino como un **ráster de cotas**: una malla regular con una altura por celda. Es el formato de los modelos digitales del terreno (el MDT del IGN se distribuye en GeoTIFF y en ASCII Grid), de los levantamientos con dron y de muchos proyectos de explanación. Con S042 el topógrafo ya sabe cuánto desmontar o terraplenar respecto a una superficie TIN; esta spec le da lo mismo con un ráster.
@@ -28,7 +28,7 @@ Términos de esta spec (los de S042 más):
 - RF-2: EL SISTEMA reconocerá el fichero por su contenido, no por su extensión, y aceptará GeoTIFF (TIFF clásico, sin comprimir, LZW o Deflate, por bandas o por teselas, con enteros de 16 o 32 bits o reales de 32 o 64) y ASCII Grid de Esri.
 - RF-3: SI el fichero no es un ráster, está vacío, no está georreferenciado o no tiene ninguna celda con dato, ENTONCES EL SISTEMA no lo importará e indicará el motivo.
 - RF-4: SI el fichero es un BigTIFF, tiene una compresión que no se lee, está girado o inclinado, o es de color (8 bits con 3 o más bandas), ENTONCES EL SISTEMA no lo importará e indicará cuál es el motivo.
-- RF-5: SI el fichero supera los 100 MB o las 100 millones de celdas, ENTONCES EL SISTEMA no lo importará e indicará el límite.
+- RF-5: SI el fichero supera los 250 MB o las 250 millones de celdas, ENTONCES EL SISTEMA no lo importará e indicará el límite.
 - RF-6: DONDE el GeoTIFF tenga varias bandas, EL SISTEMA usará la primera e indicará en la pantalla cuántas hay.
 - RF-7: EL SISTEMA colocará cada celda según la convención del fichero (celda como área o como punto en el GeoTIFF; esquina o centro en el ASCII Grid) y tratará como sin dato el valor declarado para ello (por defecto -9999 en un ASCII Grid) y los que no sean un número.
 - RF-8: EL SISTEMA propondrá el sistema de coordenadas que declare el GeoTIFF, si es uno de los disponibles en la app (S008), y si no, o en un ASCII Grid, el del proyecto, y permitirá elegir otro de los disponibles.
@@ -63,7 +63,7 @@ Términos de esta spec (los de S042 más):
   - RNF-T13: la cota del ráster a 10 Hz no bloquea el hilo principal más de 16 ms.
   - RNF-T14: la lectura de GeoTIFF y ASCII Grid es propia, sin librerías incompatibles con GPL-3.0.
 - Constitución nº 2: la cota bilineal, la conversión de altura con el geoide y el desmonte o terraplén coinciden con un cálculo aparte (GDAL o NumPy, y pyproj para el cambio de sistema) a menos de 1 mm.
-- Un ráster de 100 MB (unos 25 millones de celdas de 32 bits) se importa en menos de 60 s sin cerrar la app por falta de memoria, y activarlo y obtener la primera cota tarda menos de 1 s en el móvil de referencia.
+- Un ráster de 250 MB (unos 62 millones de celdas de 32 bits) se importa en menos de 180 s sin cerrar la app por falta de memoria, y activarlo y obtener la primera cota tarda menos de 1 s en el móvil de referencia.
 - La lectura va por flujo: no se carga el ráster entero en memoria al importar ni al consultarlo.
 
 ## Casos límite
@@ -71,7 +71,7 @@ Términos de esta spec (los de S042 más):
 |---|---|
 | Fichero que no es un ráster o no está georreferenciado | RF-3 |
 | BigTIFF, compresión no admitida, girado, de color | RF-4 |
-| Fichero de más de 100 MB o de 100 millones de celdas | RF-5 |
+| Fichero de más de 250 MB o de 250 millones de celdas | RF-5 |
 | GeoTIFF multibanda | RF-6 |
 | Celdas sin dato, NaN o -9999 | RF-7, RF-22 |
 | Celda como punto o como área, esquina o centro | RF-7 |
@@ -104,14 +104,17 @@ Términos de esta spec (los de S042 más):
 - Demo en el emulador: importar un GeoTIFF y un ASCII Grid, activar el ráster y un TIN alternativamente, replantear un punto sin cota y ver el desmonte y el terraplén, cruzar el hueco y ver "Fuera de la superficie", y la ficha y el informe con el ráster.
 - Pruebas de campo con el RS3 (del usuario, puerta G2b, junto con S042): una cota replanteada contra una superficie LandXML y contra un ráster, y puntos de un CSV y líneas de un DXF ya replanteados, comprobados después (≤ 2,5 cm H, ≤ 3 cm V).
 
+## Decisiones de la entrevista (28/10/2026)
+- Alturas: el ráster convierte entre altitud ortométrica y altura elipsoidal con el geoide de S008 (RF-10); S042 sigue sin convertir el TIN, que se lee en el sistema de alturas del proyecto.
+- Superficie activa: el ráster es una superficie más de S042, una sola activa por proyecto (TIN o ráster) y un único desplazamiento vertical compartido (RF-17 a RF-19).
+- Interpolación: bilineal estricta entre centros de celda; fuera de la superficie la media celda del borde y toda posición con una celda vecina sin dato (RF-21, RF-22).
+- Formatos: se queda como está (GeoTIFF clásico sin comprimir, LZW o Deflate, y ASCII Grid; una sola banda; sin BigTIFF ni ZIP con `.prj`) (RF-2, RF-4, RF-6).
+- Límites: 250 MB y 250 millones de celdas; importación de 250 MB en menos de 180 s; umbrales de partida que se ajustan tras medirlos en el móvil de referencia (RF-5).
+- Sistema: sin `.prj` ni sistema declarado, el ASCII Grid se interpreta en el del proyecto y el usuario puede cambiarlo (RF-8).
+- El ráster no se remuestrea ni se reproyecta: lo que se convierte es la posición de la punta a su sistema (RF-14, RF-21).
+
 ## Dudas abiertas
-- [SUPOSICIÓN: el ráster es una superficie más de S042 y no tiene lista ni activación propia; una sola activa por proyecto, sea TIN o ráster (RF-17, RF-18).]
-- [SUPOSICIÓN: la interpolación es bilineal entre centros de celda, y la media celda del borde y toda celda vecina sin dato se tratan como fuera de la superficie, para no inventar cotas (RF-21, RF-22).]
-- [SUPOSICIÓN: el ráster no se remuestrea ni se reproyecta: lo que se convierte es la posición de la punta a su sistema (RF-14, RF-21).]
-- [SUPOSICIÓN: el ráster sí convierte entre altitud ortométrica y altura elipsoidal con el geoide (RF-10), cosa que S042 deja fuera para el LandXML; las cotas del TIN se leen siempre en el sistema de alturas del proyecto.]
-- [SUPOSICIÓN: los límites de 100 MB y de 100 millones de celdas, y los 60 s de importación, son umbrales de partida que se ajustan tras medirlos en el móvil de referencia.]
-- [SUPOSICIÓN: una sola banda (la primera) y solo TIFF clásico con LZW, Deflate o sin comprimir; los demás formatos y compresiones se rechazan con su motivo (RF-4, RF-6).]
-- [SUPOSICIÓN: sin `.prj` ni sistema declarado, el ASCII Grid se interpreta en el del proyecto, y se deja al usuario cambiarlo (RF-8).]
+Ninguna.
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S045: pasa a `spec`; se añade «conversión entre altitud ortométrica y elipsoidal con el geoide».
