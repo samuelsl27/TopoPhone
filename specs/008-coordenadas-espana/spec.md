@@ -82,7 +82,7 @@ Las coordenadas que se calculan tienen que coincidir con una referencia independ
 
 ## Fuera de alcance
 - ED50 geográficas, el antiguo datum de Canarias (Pico de las Nieves) y otros datums → S033 y S034.
-- Cambiar el SC de un proyecto por otro de distinto datum → S035.
+- Cambiar el SC de un proyecto por otro de distinto datum → no previsto (S035 cambia el SC dentro del mismo datum).
 - Aplicar el factor combinado a distancias (cuadrícula o terreno) → S026.
 - Introducir o importar puntos en estos SC → S011 y S027.
 - ETRS89 / UTM 28 → no previsto: no hay territorio español en ETRS89 en ese huso (Canarias usa REGCAN95).

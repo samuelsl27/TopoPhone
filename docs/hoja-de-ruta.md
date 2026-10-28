@@ -6,6 +6,8 @@ Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el
 
 Orden de trabajo actual del diseño importado: S019 → S028 → S040 → S041 → S042 → S045 (S017b, fotos, aparcada).
 
+Las specs `pendiente` tienen un borrador sin entrevista en `specs/pendientes/` (índice y conflictos en su `README.md`); al tomar una se mueve a `specs/NNN-slug` y pasa a `spec`.
+
 Estados: `pendiente` → `spec` → `plan` → `tareas` → `en curso` → `implementada`.
 
 Las secciones "Fuera de alcance" de cada spec apuntan a la spec posterior que cubre cada exclusión (`→ S0NN`).
@@ -50,9 +52,9 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 042 superficies-landxml | Importar superficies TIN de un LandXML (varias por proyecto, una activa), desplazamiento vertical, desmonte/terraplén respecto a la superficie en la posición del jalón, cota de diseño de la superficie para puntos y líneas sin cota, y cota bajo la punta en el recolector | 019, 041 | implementada |
 | 045 raster-mdt | Importar un raster de cotas (GeoTIFF y ASCII Grid) como superficie, con su SC y su datum vertical, y replantear solo la cota: desmonte/terraplén contra el raster en la posición del jalón, con tolerancia; una superficie activa por proyecto, como las de LandXML | 042 | pendiente |
 | 017b fotos-de-puntos | Fotos de los puntos, varias por punto: desde el recolector, durante la medida o justo después de guardar, y desde la ficha (ver, añadir y borrar con rastro en el historial); viajan con el punto en la papelera, las copias de seguridad y los paquetes | 017 | tareas |
-| 020 base-shift | Desplazamiento ECEF (conocido − medido) aplicado a los puntos siguientes, registrado en cada punto y desactivable. Orden fijo: bruto → shift → SC → localización | 011, 010 | pendiente |
-| 021 conexion-wifi-tcp | Cliente TCP (hotspot 192.168.42.1:9001 o IP de la red local), tráfico del receptor por Wi-Fi y NTRIP por datos móviles, descubrimiento mDNS, correcciones al puerto TCP de entrada del receptor, permiso de red local | 015 | pendiente |
-| 022 gnss-movil-y-receptor-virtual | GNSS del propio móvil (nunca se presenta como FIX) y receptor virtual con escenarios guionizados | 021 | pendiente |
+| 020 base-shift | Desplazamiento ECEF (conocido − medido) aplicado a los puntos siguientes, registrado en cada punto y desactivable. Orden fijo: bruto → punta del jalón → shift → SC → localización | 010, 011, 008, 015, 016, 018, 046, 047 | pendiente |
+| 021 conexion-wifi-tcp | Cliente TCP (hotspot 192.168.42.1:9001 o IP de la red local), tráfico del receptor por Wi-Fi y NTRIP por datos móviles, descubrimiento mDNS (solo con un nombre de servicio documentado; si no, en S044), correcciones al puerto TCP de entrada del receptor, permiso de red local | 015, 004, 005, 007 | pendiente |
+| 022 gnss-movil-y-receptor-virtual | GNSS del propio móvil (nunca se presenta como FIX) y receptor virtual con escenarios guionizados | 003, 005, 047 | pendiente |
 | 046 antena-y-jalon | Catálogo de modelos Reach con su desplazamiento al centro de fase (valores de Emlid) y perfiles de antena propios, jalones guardados con nombre y jalón activo por receptor, medida vertical o inclinada, selector rápido en el recolector, el replanteo y el receptor; el jalón y la antena se guardan en cada punto y un cambio solo afecta a los siguientes | 016, 011 | implementada |
 | 047 tipos-de-solucion | Tipos de solución admitidos (FIX, FLOAT, SINGLE) en lugar de "solo FIX", con confirmación al admitir FLOAT o SINGLE, promediado con las épocas del mejor tipo, aviso de solución degradada y tipo guardado en cada punto | 010, 017, 018 | implementada |
 
@@ -60,19 +62,19 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 023 bibliotecas-codigos | Bibliotecas de códigos gestionadas en el móvil (código, descripción, geometría, color, atributos Text/Integer/Number/List), importar y exportar CSV, bibliotecas por defecto, códigos sin duplicados, biblioteca vinculada al proyecto | 006 | pendiente |
-| 024 recolectar-con-codigos | Selector de códigos con recientes, códigos creados sobre la marcha (solo para el proyecto), formulario de atributos, cambio de código, símbolos por código | 023 | pendiente |
-| 025 lineas-y-poligonos | Empezar o continuar una línea, cerrarla en polígono, crear una línea desde puntos existentes, editar vértices | 024 | pendiente |
-| 026 informacion-geometrica | Longitud 2D/3D, área, perímetro, azimut, pendiente, tabla por segmento, ángulo entre 3 puntos, distancias de cuadrícula o de terreno | 025 | pendiente |
-| 027 replanteo-lineas | Replanteo de las líneas propias del proyecto con el motor de líneas de S041: por segmentos, a la línea, a lo largo de la línea con desplazamiento, encadenamiento hasta A/B, intervalos | 025, 041 | pendiente |
+| 023 bibliotecas-codigos | Bibliotecas de códigos gestionadas en el móvil (código, descripción, geometría, color, atributos Text/Integer/Number/List), importar y exportar CSV, bibliotecas por defecto, códigos sin duplicados, biblioteca vinculada al proyecto | 006, 013, 028 | pendiente |
+| 024 recolectar-con-codigos | Selector de códigos con recientes, códigos creados sobre la marcha (solo para el proyecto), formulario de atributos, cambio de código, símbolos por código | 023, 010, 011 | pendiente |
+| 025 lineas-y-poligonos | Empezar o continuar una línea, cerrarla en polígono, crear una línea desde puntos existentes, editar vértices | 024, 011 | pendiente |
+| 026 informacion-geometrica | Longitud 2D/3D, área, perímetro, azimut, pendiente, tabla por segmento, ángulo entre 3 puntos, distancias de cuadrícula o de terreno | 025, 040, 008 | pendiente |
+| 027 replanteo-lineas | Replanteo de las líneas propias del proyecto con el motor de líneas de S041: por segmentos, a la línea, a lo largo de la línea con desplazamiento, encadenamiento hasta A/B, intervalos | 025, 041, 049 | pendiente |
 
 ## H4 · Intercambio de datos
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 029 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 025 | pendiente |
-| 030 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 025 | pendiente |
-| 031 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 025, 017b | pendiente |
+| 029 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 025 (líneas y polígonos; los puntos, con S012) | pendiente |
+| 030 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 025 (líneas y polígonos; importar, S048; los puntos, S012) | pendiente |
+| 031 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 025 (líneas y polígonos), 017b (fotos); importar, S048 | pendiente |
 | 048 geopackage | Importar un `.gpkg` de QGIS como capa de diseño (capas marcables, SC leído y reproyectado, recorte a una zona alrededor del centro del proyecto, atributos y campo de nombre, replanteo con S041) | 040, 006 (punto central) | implementada |
 | 053 exportar-geopackage | Exportar los puntos del proyecto, y sus líneas y polígonos cuando exista S025, a un `.gpkg` con su SC declarado y los datos de calidad como atributos | 012 (líneas y polígonos: 025) | implementada |
 
@@ -81,25 +83,25 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
 | 032 proyecciones-completas | LCC 1SP/2SP y Oblique Mercator A/B (otras solo si el catálogo las necesita) | 008 | pendiente |
-| 033 transformaciones-datum | Helmert 3/4/6/7 (PV y CF), Molodensky-Badekas 10, rejillas de desplazamiento horizontal (ED50 con SPED2ETV2 ya está en S008) | 032 | pendiente |
-| 034 biblioteca-sc-mundial | Catálogo con búsqueda por país, código o nombre; ficha del SC; datums verticales; descarga de geoides con SHA-256 | 033 | pendiente |
-| 035 sc-personalizado | Editor de SC personalizado, "Mis SC", importar y exportar JSON, cambio del SC del proyecto (mismo datum), cuadrícula o terreno | 034 | pendiente |
+| 033 transformaciones-datum | Helmert 3/4/6/7 (PV y CF), Molodensky-Badekas 10, rejillas de desplazamiento horizontal (ED50 con SPED2ETV2 ya está en S008) | 032, 008 | pendiente |
+| 034 biblioteca-sc-mundial | Catálogo con búsqueda por país, código o nombre; ficha del SC; datums verticales; descarga de geoides con SHA-256 | 033, 032, 006 | pendiente |
+| 035 sc-personalizado | Editor de SC personalizado, "Mis SC", importar y exportar JSON, cambio del SC del proyecto (mismo datum), cuadrícula o terreno | 034, 033, 032 | pendiente |
 | 036 capas-wms | Biblioteca WMS en el móvil (GetCapabilities 1.1.1/1.3.0), presets españoles (IGN, Catastro, ICV, ICGC, GRAFCAN…), orden, visibilidad y opacidad por proyecto | 009 | pendiente |
-| 037 mapas-sin-conexion | Descarga del mapa base y de capas WMS de la zona del proyecto, gestión del almacenamiento | 036 | pendiente |
+| 037 mapas-sin-conexion | Descarga del mapa base y de capas WMS de la zona del proyecto, gestión del almacenamiento | 036, 009, 006 | pendiente |
 
 ## H6 · Herramientas Pro
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
 | 038 cogo | Inversa, poligonal, intersecciones (distancia-distancia, dirección-dirección, distancia-dirección); los resultados se guardan como puntos de origen COGO | 011 | pendiente |
-| 039 localizacion | Hasta 50 pares H/V, semejanza 2D por mínimos cuadrados con plano inclinado, residuos, exclusión de componentes, aplicar al proyecto y guardar como SC | 035 | pendiente |
+| 039 localizacion | Hasta 50 pares H/V, semejanza 2D por mínimos cuadrados con plano inclinado, residuos, exclusión de componentes, aplicar al proyecto y guardar como SC | 035, 011, 008, 020 (orden de cálculo) | pendiente |
 
 ## H7 · Receptor avanzado
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 043 receptor-guiado | Listas de configuración del receptor, comprobaciones previas, Reach Panel en un WebView, perfil de equipo | 016 | pendiente |
-| 044 modulo-experimental-reach | Flavor `experimental` con aviso legal: lectura de información, batería y configuración, estado por Socket.IO, escritura de altura de antena e inicio/parada de logs | 043 | pendiente |
+| 043 receptor-guiado | Listas de configuración del receptor, comprobaciones previas, Reach Panel en un WebView, perfil de equipo | 016, 015, 021, 046, 005 | pendiente |
+| 044 modulo-experimental-reach | Flavor `experimental` con aviso legal: lectura de información, batería y configuración, estado por Socket.IO, escritura de altura de antena e inicio/parada de logs | 043, 021, 046 | pendiente |
 
 ## H8 · Obra lineal
 
@@ -107,9 +109,9 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 |---|---|---|---|
 | 049 ejes-y-rasantes | Ejes en planta (rectas, arcos y clotoides) y rasantes con acuerdos desde LandXML, polilíneas de un DXF, CSV de PK y cota o a mano; varios ejes por proyecto con uno activo; marcas de PK en el mapa; puntos sobre eje | 040, 042, 006 | implementada |
 | 054 replanteo-por-eje | Replanteo por PK y desplazamiento con intervalo, puntos singulares, espesor y cota de la rasante, y análisis en vivo de la posición del jalón respecto al eje | 049, 018, 019 | implementada |
-| 050 peraltes-y-transversales | Peraltes y perfiles transversales (secciones tipo con códigos), cota con peralte y replanteo por PK y código con interpolación entre PK | 054 | pendiente |
-| 051 taludes | Replanteo de cabezas y pies de talud contra los perfiles transversales o una sección manual, con seguimiento en alzado | 050 | pendiente |
-| 052 toma-de-datos-lineal | Tomar un eje con el receptor, perfil longitudinal y perfil transversal a lo largo del eje | 054, 050 | pendiente |
+| 050 peraltes-y-transversales | Peraltes y perfiles transversales (secciones tipo con códigos), cota con peralte y replanteo por PK y código con interpolación entre PK, y el perfil de terreno que usan S051 y S052 | 054, 049 | pendiente |
+| 051 taludes | Replanteo de cabezas y pies de talud contra los perfiles transversales o una sección manual, con seguimiento en alzado | 050, 054, 042 (opcional) | pendiente |
+| 052 toma-de-datos-lineal | Tomar un eje con el receptor, perfil longitudinal y perfil transversal a lo largo del eje | 054, 050, 049, 010, 017 | pendiente |
 
 ## Puertas de validación
 | Puerta | Al cerrar | Qué se demuestra |

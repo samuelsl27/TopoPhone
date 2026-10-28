@@ -41,30 +41,28 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 | [052 toma-de-datos-lineal](052-toma-de-datos-lineal/spec.md) | H8 | S054, S050, **S049, S010, S017** | 23 | 5 | Tomar un eje con el receptor y perfiles longitudinal y transversal |
 
 ## Conflictos y huecos que han salido al redactarlas
-Son los que habrá que resolver al tomar cada spec; ninguno está aplicado.
+**Ya corregido (28/10/2026):** las dependencias de la hoja de ruta (la columna «Depende» de la tabla de arriba es la de la hoja), el orden de cálculo de S020 (la punta del jalón va antes del shift, como dice `docs/arquitectura.md`), la nota de mDNS de S021 (solo con un nombre de servicio documentado; si no, S044), el perfil de terreno en la fila de S050, el «fuera de alcance» de S008 (cambiar de datum ya no apunta a S035, que cambia el SC dentro del mismo datum) y la definición de «Eje» del glosario (también puede tomarse en campo, S052).
+
+**Sigue abierto:** lo que sigue es decisión de diseño que se toma en la entrevista de cada spec, o un cambio a una spec implementada que se aplica al aprobar la que lo pide (cada borrador lo lista en «Cambios en documentos anteriores»).
 
 **Hoja de ruta y dependencias**
-- Dependencias que faltan o sobran: las de la tabla de arriba en negrita. S029, S030 y S031 dependen de S025 solo para líneas y polígonos: sus puntos ya se pueden exportar con S012. S031 depende de S017b, que sigue en `tareas`, y S052 de S017, que consta «en curso».
-- S050 define el perfil de terreno que usan S051 y S052 y no figura en su fila.
-- La hoja pone el orden `bruto → shift → SC` en S020, pero `docs/arquitectura.md` coloca la punta del jalón antes del shift (el borrador de S020 sigue la arquitectura).
+- S029, S030 y S031 dependen de S025 solo para líneas y polígonos (sus puntos ya se pueden exportar con S012). S031 depende de S017b, que sigue en `tareas`, y S052 de S017, que consta «en curso».
 - S031 reúne KML/KMZ y fotos y podría dividirse. S026 solapa con S038 (inversa y ángulo) y con S035 (cuadrícula o terreno); el inventario cita S026 donde parece que quería decir S035.
 
 **Sistemas de coordenadas**
 - `ProjectCrs` es hoy un enum cerrado y `GpkgCrsCatalog` (S048) solo reconoce esos sistemas: S034 obliga a generalizarlos y a migrar Room.
 - La descarga de rejillas de desplazamiento no tiene dueño (S034 solo descarga geoides). S032 se llama «completas» pero solo añade LCC y Oblique Mercator.
-- El «fuera de alcance» de S008 dice que cambiar de datum es de S035, y la hoja dice «mismo datum».
 - S039 choca con S053 y S012: con una localización activa, el «sistema del proyecto» ya no corresponde al EPSG que se declara al exportar.
 - S045 convierte entre altitud ortométrica y elipsoidal en un ráster, y S042 lo deja fuera para LandXML.
 
 **Receptor**
-- La búsqueda mDNS de S021 usa un nombre de servicio que el material de referencia da como no documentado, y la constitución nº 5 lo pasa a S044 si no hay otro documentado.
+- Si no hay un nombre de servicio mDNS documentado, la búsqueda de S021 pasa a S044 (constitución nº 5); está anotado en la hoja de ruta, falta decidirlo en la entrevista.
 - S043 añade «Guía» y «Equipo» a las cinco entradas del menú del receptor de S005/RF-9.
 
 **Specs ya implementadas que habría que tocar**
 - S012 (columna `Photos` de S031, columnas de código de S024, coordenadas localizadas de S039) y S053 (columnas de código de S024).
 - S019 (informe de replanteo de S027) y S049 (importación de ejes desde las líneas de S027).
 - S009 (la política del Catastro «una imagen, sin guardar» choca con S037), S008 y S005.
-- El glosario dice que el eje es «referencia de diseño, no dato de campo»; S052 crea ejes tomados en campo.
 - Cada spec que añada columnas desplaza los números de versión de Room: S017b pasa a la v22 o más.
 
 **Información que falta**

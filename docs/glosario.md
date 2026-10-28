@@ -185,7 +185,7 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Modo sol | `ThemeMode.SUN` | Tema claro de alto contraste (≥ 7:1); el acceso rápido es `ThemeState.toggleSun()` |
 | Idioma (Sistema, Español, English) | `AppLanguage` (`SYSTEM`, `SPANISH`, `ENGLISH`) | Se guarda con etiquetas BCP 47 |
 | Perfil de equipo | `EquipmentProfile` | Modelo, n.º de serie, firmware (lo introduce el usuario) |
-| Eje | `Alignment` | Trazado en planta de una obra lineal con rectas, arcos y clotoides, y su rasante si la tiene; referencia de diseño, no dato de campo (S049) |
+| Eje | `Alignment` | Trazado en planta de una obra lineal con rectas, arcos y clotoides, y su rasante si la tiene; referencia de diseño, importada o definida a mano (S049); también puede tomarse en campo con el receptor (S052) |
 | Tramo del eje | `AlignmentElement` | Recta, arco o clotoide de un eje, con su curvatura de inicio y de fin (positiva a la izquierda) (S049) |
 | Rasante | `VerticalProfile` | Perfil vertical de un eje: vértices con PK y cota y acuerdos verticales (S049) |
 | Acuerdo vertical | `VerticalCurve` | Parábola simétrica o círculo que suaviza un vértice de la rasante (S049) |
