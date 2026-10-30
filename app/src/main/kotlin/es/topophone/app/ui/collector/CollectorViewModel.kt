@@ -191,6 +191,10 @@ data class CollectorUiState(
     val tiltMode: TiltMode? = null,
     /** El nombre del punto conocido del desplazamiento de base activo, o null sin él (S020/RF-11). */
     val baseShiftName: String? = null,
+    /** La base cambió con ese desplazamiento activo: puede haber dejado de valer (S020/RF-15). */
+    val baseShiftBaseChanged: Boolean = false,
+    /** Un cambio de datum desactivó este desplazamiento y el usuario aún no lo ha visto (S020/RF-16). */
+    val baseShiftDatumNotice: String? = null,
     /** La guía de la inclinación, mientras el modo la use y la época no esté en estado 30 sin aviso (S016/RF-12). */
     val tiltGuide: TiltGuide? = null,
     /** La opción "Automático" está encendida; no se guarda y el recolector abre siempre en manual (S017/RF-15). */
@@ -244,12 +248,14 @@ class CollectorViewModel @Inject constructor(
     )
 
     /** El modo de inclinación, el equipo, los jalones y el equipo del último punto guardado, juntos para el `combine` (S046). */
+    private data class ShiftUi(val shift: BaseShift?, val baseChanged: Boolean, val datumNotice: String?)
+
     private data class Equipment(
         val tilt: CurrentTiltState,
         val gear: ActiveGear,
         val poles: List<SavedPole>,
         val last: GearUsed?,
-        val shift: BaseShift?,
+        val shift: ShiftUi,
     )
 
     private data class Run(
@@ -346,6 +352,15 @@ class CollectorViewModel @Inject constructor(
         if (id == null) flowOf(null) else baseShift.shift(id)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** El cambio de base que se ha visto con el desplazamiento activo, por su id (S020/RF-15). */
+    private val staleShiftId = MutableStateFlow<String?>(null)
+    private var shiftBaseCount: Int? = session.state.value.base.change?.count
+    private val datumNotice: StateFlow<BaseShift?> = baseShift.datumNotice(projectId, viewModelScope)
+
+    private val shiftUi = combine(activeShift, staleShiftId, datumNotice) { shift, stale, notice ->
+        ShiftUi(shift, shift != null && stale == shift.id, notice?.knownName)
+    }
+
     private val projectFlow = projectId.flatMapLatest { id ->
         if (id ==
             null
@@ -441,7 +456,7 @@ class CollectorViewModel @Inject constructor(
         projectFlow,
         session.state,
         baseNotices.dismissed,
-        combine(tilt.state, gear.state, gear.poles, lastSavedGear, activeShift, ::Equipment),
+        combine(tilt.state, gear.state, gear.poles, lastSavedGear, shiftUi, ::Equipment),
     ) { state, project, snapshot, dismissed, (tiltState, gearState, poles, savedGear, shift) ->
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
@@ -459,7 +474,9 @@ class CollectorViewModel @Inject constructor(
             notices = BaseNotices.visible(gga, snapshot.base, dismissed), // S015/RF-15, RF-17
             tiltMode = mode,
             tiltGuide = if (mode?.usesTilt == true) TiltEpoch.guide(epochTilt) else null, // S016/RF-12
-            baseShiftName = shift?.knownName, // S020/RF-11
+            baseShiftName = shift.shift?.knownName, // S020/RF-11
+            baseShiftBaseChanged = shift.baseChanged, // S020/RF-15
+            baseShiftDatumNotice = shift.datumNotice, // S020/RF-16
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, CollectorUiState())
 
@@ -882,6 +899,12 @@ class CollectorViewModel @Inject constructor(
         viewModelScope.launch { baseShift.deactivate(id) }
     }
 
+    /** «Entendido» del aviso de que un cambio de datum desactivó el base shift (S020/RF-16). */
+    fun acknowledgeBaseShiftDatum() {
+        val id = datumNotice.value?.id ?: return
+        viewModelScope.launch { baseShift.acknowledgeDatumNotice(id) }
+    }
+
     /** Cierra "La base ha cambiado" de ese cambio (S015/RF-17). */
     fun dismissBaseChange(count: Int) = baseNotices.dismissChange(count)
 
@@ -894,6 +917,11 @@ class CollectorViewModel @Inject constructor(
         // S015/RF-18: la época llega con la base que había al emitirla; si cambió, la medida empieza de nuevo antes de usarla.
         val baseChange = received.base.change?.count
         if (baseChange != null) lastBaseChange = baseChange
+        // S020/RF-15: una base nueva con un desplazamiento activo; un cambio anterior a abrir el recolector no cuenta.
+        if (baseChange != null && baseChange != shiftBaseCount) {
+            shiftBaseCount = baseChange
+            activeShift.value?.let { staleShiftId.value = it.id }
+        }
         if (measurement != null && baseChange != null && baseChange != measurementBaseChange) restartMeasurement(baseChange)
         // Intervalo del receptor: la menor separación entre épocas seguidas, de 0,05 a 1 s.
         lastEpochUtc?.let { previous ->

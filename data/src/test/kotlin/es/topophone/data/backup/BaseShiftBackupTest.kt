@@ -135,7 +135,7 @@ class BaseShiftBackupTest {
     }
 
     @Test
-    fun `S020 RF-12 el paquete lleva los desplazamientos y el activo sin redondear`() {
+    fun `S020 RF-12 el paquete lleva los shifts y el activo`() {
         import(writePackage()).shouldBeInstanceOf<ImportResult.Imported>()
 
         count(theirs, "base_shifts") shouldBe 2
@@ -147,7 +147,7 @@ class BaseShiftBackupTest {
     }
 
     @Test
-    fun `S020 RF-8 el paquete como nuevo remapea el calculo de cada punto`() {
+    fun `S020 RF-8 como nuevo remapea el calculo de cada punto`() {
         val pkg = writePackage()
         import(pkg).shouldBeInstanceOf<ImportResult.Imported>()
 
@@ -167,7 +167,7 @@ class BaseShiftBackupTest {
     }
 
     @Test
-    fun `S020 RF-12 sustituir deja los desplazamientos del paquete`() {
+    fun `S020 RF-12 sustituir deja los shifts del paquete`() {
         val pkg = writePackage()
         runBlocking { shifts.delete("s1") }
         runBlocking { shifts.deactivate(project) }
@@ -182,7 +182,7 @@ class BaseShiftBackupTest {
     }
 
     @Test
-    fun `S020 RF-12 la copia completa restaura los desplazamientos y el activo`() {
+    fun `S020 RF-12 la copia restaura los shifts y el activo`() {
         val backup = ByteArrayOutputStream().also { runBlocking { repository.writeBackup(it) } shouldBe true }.toByteArray()
         runBlocking { shifts.delete("s2") }
         runBlocking { shifts.active(project).first() }.shouldBeNull()

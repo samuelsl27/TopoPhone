@@ -574,6 +574,8 @@ fun ProjectViewRoute(
             onStartAuto = collectorViewModel::startAuto, // S017/RF-19
             onStopAuto = collectorViewModel::stopAuto, // S017/RF-27
             onDeactivateBaseShift = collectorViewModel::deactivateBaseShift, // S020/RF-11
+            onRepeatBaseShift = { navigation.onBaseShift(projectId) }, // S020/RF-15
+            onAcknowledgeBaseShiftDatum = collectorViewModel::acknowledgeBaseShiftDatum, // S020/RF-16
         ),
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,

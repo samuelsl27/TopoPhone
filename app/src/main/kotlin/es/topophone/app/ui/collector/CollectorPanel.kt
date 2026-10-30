@@ -30,6 +30,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.baseshift.BaseShiftActiveBanner
+import es.topophone.app.ui.baseshift.BaseShiftBaseChangedBanner
+import es.topophone.app.ui.baseshift.BaseShiftDatumBanner
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.BaseNoticeBanners
 import es.topophone.app.ui.receiver.GearSelector
@@ -101,6 +103,10 @@ class CollectorActions(
     val onStopAuto: () -> Unit = {},
     /** "Desactivar" del aviso «Base shift activo» (S020/RF-11). */
     val onDeactivateBaseShift: () -> Unit = {},
+    /** «Repetir» del aviso de cambio de base: abre el base shift (S020/RF-15). */
+    val onRepeatBaseShift: () -> Unit = {},
+    /** «Entendido» del aviso de que un cambio de datum desactivó el base shift (S020/RF-16). */
+    val onAcknowledgeBaseShiftDatum: () -> Unit = {},
 )
 
 /**
@@ -326,6 +332,10 @@ private fun SurfaceReadingText(reading: SurfaceReading?, unit: LinearUnit) {
 @Composable
 internal fun Messages(state: CollectorUiState, actions: CollectorActions) {
     state.baseShiftName?.let { BaseShiftActiveBanner(it, actions.onDeactivateBaseShift) } // S020/RF-11
+    if (state.baseShiftBaseChanged) {
+        state.baseShiftName?.let { BaseShiftBaseChangedBanner(it, actions.onDeactivateBaseShift, actions.onRepeatBaseShift) } // S020/RF-15
+    }
+    state.baseShiftDatumNotice?.let { BaseShiftDatumBanner(it, actions.onAcknowledgeBaseShiftDatum) } // S020/RF-16
     val blocker = when (state.blocker) {
         MeasureBlocker.NO_POSITION -> R.string.project_no_position
         MeasureBlocker.OUTSIDE_CRS_AREA -> R.string.project_outside_crs

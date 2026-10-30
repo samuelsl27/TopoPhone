@@ -75,7 +75,7 @@ class GearBackupTest {
     private fun count(db: String, table: String) = rows(file(db), table).size
 
     @Test
-    fun `S046 RF-30 la copia completa restaura perfiles, jalones y activos sin redondear`() {
+    fun `S046 RF-30 la copia restaura perfiles, jalones y activos`() {
         val backup = ByteArrayOutputStream().also { runBlocking { repository.writeBackup(it) } shouldBe true }.toByteArray()
         runBlocking {
             gear.setProfile("AA:BB:CC", "catalog:RX")

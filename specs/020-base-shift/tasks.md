@@ -28,7 +28,7 @@
       Hecho cuando: `StakeoutBaseShiftTest` en verde y los de S018, S019, S041 y S054 siguen en verde.
 - [x] T13. `app`: la tarjeta «Base shift» de la ficha del punto y el recálculo del jalón con el vector del punto desde la ficha y el lote. (RF-10, RF-13)
       Hecho cuando: `PointDetailsShiftTest` en verde.
-- [ ] T14. `app`: los avisos de cambio de base y de cambio de datum, con «Desactivar» y «Repetir». (RF-15, RF-16)
+- [x] T14. `app`: los avisos de cambio de base y de cambio de datum, con «Desactivar» y «Repetir». (RF-15, RF-16)
       Hecho cuando: `BaseShiftNoticeTest` en verde.
 - [ ] T15. Rendimiento y reproducción sintética `rs3-base-shift`: `BaseShiftPerformanceTest` y un recorrido que mide un conocido, activa, mide dos puntos y desactiva, con el resultado esperado calculado aparte. (RNF, criterios de finalización)
       Hecho cuando: aplicar el vector no añade más de 1 ms por época y el test de la reproducción en verde.

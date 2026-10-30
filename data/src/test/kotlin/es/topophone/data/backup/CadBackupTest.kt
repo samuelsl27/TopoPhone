@@ -282,7 +282,7 @@ class CadBackupTest {
     }
 
     @Test
-    fun `S041 RF-32 el paquete lleva el punto replanteado de un dibujo con su origen, su modo, su PK y su error lateral`() {
+    fun `S041 RF-32 el paquete lleva el replanteo de un dibujo`() {
         runBlocking { fixture.points.create(stakedFromDrawing()) }
         val pkg = ByteArrayOutputStream().also { runBlocking { repository.writePackage(project, it) } shouldBe true }.toByteArray()
 
@@ -300,7 +300,7 @@ class CadBackupTest {
     }
 
     @Test
-    fun `S041 RF-32 la copia completa restaura el replanteo de un dibujo aunque el dibujo se haya borrado despues`() {
+    fun `S041 RF-32 la copia restaura el replanteo sin dibujo`() {
         runBlocking { fixture.points.create(stakedFromDrawing()) }
         val backup = ByteArrayOutputStream().also { runBlocking { repository.writeBackup(it) } shouldBe true }.toByteArray()
         runBlocking { cad.deleteDrawing("d1") }
@@ -317,7 +317,7 @@ class CadBackupTest {
     }
 
     @Test
-    fun `S041 RF-32 un paquete de un proyecto cuyo dibujo ya no esta conserva el punto replanteado con lo que guardo`() {
+    fun `S041 RF-32 sin el dibujo el replanteo conserva lo guardado`() {
         runBlocking { fixture.points.create(stakedFromDrawing()) }
         runBlocking { cad.deleteDrawing("d1") }
         val pkg = ByteArrayOutputStream().also { runBlocking { repository.writePackage(project, it) } shouldBe true }.toByteArray()

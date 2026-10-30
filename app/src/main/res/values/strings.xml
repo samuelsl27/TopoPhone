@@ -1886,4 +1886,8 @@
     <string name="base_shift_active_banner">Base shift activo · %1$s</string>
     <string name="base_shift_card_known">Punto conocido</string>
     <string name="base_shift_none">Sin base shift</string>
+    <string name="base_shift_base_changed">La base ha cambiado: el base shift «%1$s» puede haber dejado de valer.</string>
+    <string name="base_shift_repeat">Repetir</string>
+    <string name="base_shift_datum_notice">Se desactivó el base shift «%1$s»: ha cambiado el datum de las correcciones.</string>
+    <string name="base_shift_understood">Entendido</string>
 </resources>

@@ -97,6 +97,21 @@ class ActiveBaseShift(private val repository: BaseShiftRepository) {
         projectId.flatMapLatest { id -> if (id == null) flowOf(null) else repository.active(id) }
             .stateIn(scope, SharingStarted.Eagerly, null)
 
+    /** El primer desplazamiento del proyecto que un cambio de datum desactivó y el usuario aún no ha visto (RF-16). */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun datumNotice(projectId: Flow<String?>, scope: CoroutineScope): StateFlow<BaseShift?> = projectId.flatMapLatest { id ->
+        if (id ==
+            null
+        ) {
+            flowOf(null)
+        } else {
+            repository.shifts(id).map { list -> list.firstOrNull { it.datumNotice } }
+        }
+    }
+        .stateIn(scope, SharingStarted.Eagerly, null)
+
+    suspend fun acknowledgeDatumNotice(id: String) = repository.acknowledgeDatumNotice(id)
+
     /** Desactiva el desplazamiento activo del proyecto, desde el recolector o el replanteo (RF-11). */
     suspend fun deactivate(projectId: String) = repository.deactivate(projectId)
 
