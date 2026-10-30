@@ -13,6 +13,7 @@ Datos compartidos por los tests de todos los módulos. Los ficheros de más de 5
 | `replanteo/` | Diseño y punta del jalón con la distancia, las diferencias de Norte y Este y el rumbo calculados con pyproj, generados por `tools/replanteo` (S018) |
 | `superficies/` | Superficies LandXML (metros, pies, UTM 29, identificadores de texto, malla, sin superficies, mal formado) y la cota esperada y la conversión de sus vértices calculadas con pyproj y con un cálculo aparte, generadas por `tools/superficies` (S042) |
 | `raster/` | Rásteres de cotas (GeoTIFF sin comprimir, LZW y Deflate con y sin predictor, tiras y teselas, uint16, int16, int32, float32 y float64, celda como área y como punto, en pies, multibanda, en UTM 29 y geográficas, sin geoide; ASCII Grid con esquina y centro), los rechazos y las celdas y la cota esperada calculadas con pyproj y un cálculo aparte, generados por `tools/raster` (S045) |
+| `base_shift/` | Desplazamiento de base: vector ECEF conocido − medido, equivalente en el SC, módulo y clasificación, y puntos nuevos con el vector aplicado, en ETRS89, REGCAN95 y con correcciones en ITRF; generados por `tools/base_shift` con pyproj (S020) |
 | `ejes/` | Ejes y rasantes LandXML (rectas, arcos, clotoides, acuerdos parabólicos y circulares, en metros y en pies, y los casos que se rechazan), un CSV de rasante y lo esperado (tramos, puntos por PK y desplazamiento, resumen) calculado con series de Fresnel y fórmulas analíticas, generados por `tools/ejes` (S049) |
 | `formatos/` | Ejemplos de CSV, DXF, SHP, KML, LandXML y GetCapabilities |
 

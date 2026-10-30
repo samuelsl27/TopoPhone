@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/base_shift`: `generar_base_shift.py` y `fixtures/base_shift/` con el vector, su ENU y las coordenadas de dos puntos tras aplicarlo, para ETRS89, REGCAN95 y correcciones ITRF, el caso sin altura y los módulos límite, todo con `pyproj`. (Constitución nº 2, RF-3 a RF-7)
+- [x] T1. `tools/base_shift`: `generar_base_shift.py` y `fixtures/base_shift/` con el vector, su ENU y las coordenadas de dos puntos tras aplicarlo, para ETRS89, REGCAN95 y correcciones ITRF, el caso sin altura y los módulos límite, todo con `pyproj`. (Constitución nº 2, RF-3 a RF-7)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [ ] T2. `core:geodesy` y `core:model`: `Ecef.plus/minus/length`, `BaseShiftVector`, `BaseShift`, `BaseShiftLimits` y `Measurement.shift`. (RF-3, RF-5, RF-8, RF-12)
       Hecho cuando: los tests de `core:geodesy` y `core:model` en verde, con los valores por defecto (los puntos sin desplazamiento no cambian).

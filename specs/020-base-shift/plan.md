@@ -63,7 +63,7 @@ points      + shift_id TEXT NULL, shift_name TEXT NULL, shift_dx REAL NULL, shif
 2. Conocido: de E, N, h del proyecto a φ, λ, h con la inversa de `ProjectPositionCalculator` (ED50 y UTM inversos, geoide si la altura es ortométrica). Es ETRS89/REGCAN95/ED50 según el proyecto.
 3. Ambos a ECEF con GRS80; **sin transformar entre datums** (RF-3).
 4. Con altura: Δ = conocido − medido. Sin altura y con el «solo horizontal» aceptado: ΔENU = (Este y Norte del conocido menos los del medido, tomados en el plano local del medido; Up = 0) y se vuelve a ECEF con `LocalTangentPlane` (D9).
-5. Equivalente en el SC: Δ aplicado a la punta medida y proyectado; E, N, h menos los del conocido. Módulo: `‖Δ‖`.
+5. Equivalente en el SC: (E, N, h de la punta medida con Δ aplicado) menos (E, N, h de la punta medida sin Δ), ambas proyectadas sin transformar entre datums. Módulo: `‖Δ‖`.
 6. Clasificación: `‖Δ‖ ≤ 10 m` → `Ok`; `10 < ‖Δ‖ ≤ 1.000 m` → `NeedsConfirmation` (segunda confirmación aparte); `> 1.000 m` → `Rejected` (RF-5).
 
 ### A2. Aplicar (RF-7, RF-9, RF-14; D3)
