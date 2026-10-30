@@ -8,6 +8,7 @@ import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.data.db.TopoPhoneDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 /** Qué pasó al activar un desplazamiento (S020/RF-12, RF-16). */
@@ -83,6 +84,30 @@ class ActiveBaseShift(private val repository: BaseShiftRepository) {
     fun vector(projectId: String): Flow<BaseShiftVector?> = repository.active(projectId).map { it?.vector }
 
     suspend fun current(projectId: String): BaseShift? = repository.active(projectId).first()
+
+    /** Desactiva el desplazamiento activo del proyecto, desde el recolector o el replanteo (RF-11). */
+    suspend fun deactivate(projectId: String) = repository.deactivate(projectId)
+
+    companion object {
+        /** Sin desplazamientos: para los tests y las vistas previas que no los usan. */
+        val NONE = ActiveBaseShift(NoShifts)
+    }
+}
+
+private object NoShifts : BaseShiftRepository {
+    override fun shifts(projectId: String): Flow<List<BaseShift>> = flowOf(emptyList())
+
+    override fun active(projectId: String): Flow<BaseShift?> = flowOf(null)
+
+    override suspend fun add(shift: BaseShift, activate: Boolean) = Unit
+
+    override suspend fun activate(id: String): ActivateResult = ActivateResult.NOT_FOUND
+
+    override suspend fun deactivate(projectId: String) = Unit
+
+    override suspend fun delete(id: String) = Unit
+
+    override suspend fun acknowledgeDatumNotice(id: String) = Unit
 }
 
 internal fun BaseShiftEntity.toModel() = BaseShift(

@@ -1883,4 +1883,5 @@
     <string name="base_shift_reactivate">Reactivar</string>
     <string name="base_shift_delete">Borrar</string>
     <string name="base_shift_from_replay">Calculado en una reproducción</string>
+    <string name="base_shift_active_banner">Base shift activo · %1$s</string>
 </resources>

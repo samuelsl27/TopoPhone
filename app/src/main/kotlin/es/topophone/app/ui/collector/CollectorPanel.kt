@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.app.ui.baseshift.BaseShiftActiveBanner
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.BaseNoticeBanners
 import es.topophone.app.ui.receiver.GearSelector
@@ -98,6 +99,8 @@ class CollectorActions(
     val onAutoDistance: (String) -> Unit = {},
     val onStartAuto: () -> Unit = {},
     val onStopAuto: () -> Unit = {},
+    /** "Desactivar" del aviso «Base shift activo» (S020/RF-11). */
+    val onDeactivateBaseShift: () -> Unit = {},
 )
 
 /**
@@ -141,6 +144,7 @@ fun CollectorPanel(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) { Form(state, unit, actions) }
             BaseNoticeBanners(state.notices, actions.onDismissBaseChange, actions.onDismissLongBaseline) // S015/RF-15, RF-17
+            state.baseShiftName?.let { BaseShiftActiveBanner(it, actions.onDeactivateBaseShift) } // S020/RF-11
             LiveQualityText(state.live, unit)
             AdmittedBadge(state.settings.precision.admitted) // S047/RF-14
             SurfaceReadingText(surface, unit) // S042/RF-33

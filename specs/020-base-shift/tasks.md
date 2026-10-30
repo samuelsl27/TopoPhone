@@ -22,7 +22,7 @@
       Hecho cuando: `BaseShiftViewModelTest` en verde.
 - [x] T10. `app`: `BaseShiftScreen`, `BaseShiftRoute`, `SurveyPage.BaseShift` y la entrada en el menú, con sus textos en es y en. (RF-1, RF-4, RF-12, RNF-T7, RNF-T8)
       Hecho cuando: `BaseShiftScreenTest` en verde, con las zonas táctiles de 56 dp y el resumen.
-- [ ] T11. `app`: el recolector con el desplazamiento (en vivo, medida final y automático), el aviso «Base shift activo» y desactivar desde allí. (RF-7, RF-9, RF-11, RF-14)
+- [x] T11. `app`: el recolector con el desplazamiento (en vivo, medida final y automático), el aviso «Base shift activo» y desactivar desde allí. (RF-7, RF-9, RF-11, RF-14)
       Hecho cuando: `CollectorBaseShiftTest` en verde y los tests del recolector siguen en verde.
 - [ ] T12. `app`: el replanteo (puntos, CAD y eje) con el desplazamiento y el mismo aviso. (RF-7, RF-11)
       Hecho cuando: `StakeoutBaseShiftTest` en verde y los de S018, S019, S041 y S054 siguen en verde.

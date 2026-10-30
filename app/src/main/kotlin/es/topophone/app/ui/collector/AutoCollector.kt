@@ -6,6 +6,7 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AutoTrigger
+import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.Project
@@ -130,9 +131,10 @@ internal class AutoCollector(private val log: AppLog, private val alerts: Alerts
         project: Project,
         calculator: ProjectPositionCalculator,
         profile: AntennaProfile = AntennaProfile.RS3,
+        shift: BaseShiftVector? = null,
     ): GroundEN? {
         val fix = epoch.gga?.takeIf { it.hasPosition } ?: return null
-        val tip = LiveTip.of(fix, epoch.tilt, tiltMode, poleHeightM, profile)?.ground ?: return null
+        val tip = LiveTip.of(fix, epoch.tilt, tiltMode, poleHeightM, profile, shift)?.ground ?: return null
         val position = calculator.fromGround(tip, project.crs, project.heightSystem)
         val east = position.easting
         val north = position.northing

@@ -22,7 +22,9 @@ import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.AutoTrigger
+import es.topophone.core.model.point.BaseShift
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.GeodeticPosition
@@ -64,6 +66,7 @@ import es.topophone.core.survey.StakeoutDiff
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.TiltGuide
 import es.topophone.core.survey.TiltSetup
+import es.topophone.data.baseshift.ActiveBaseShift
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
@@ -186,6 +189,8 @@ data class CollectorUiState(
     val restartedDiscardedS: Double? = null,
     /** El modo de inclinación del receptor en uso (S016/RF-15). */
     val tiltMode: TiltMode? = null,
+    /** El nombre del punto conocido del desplazamiento de base activo, o null sin él (S020/RF-11). */
+    val baseShiftName: String? = null,
     /** La guía de la inclinación, mientras el modo la use y la época no esté en estado 30 sin aviso (S016/RF-12). */
     val tiltGuide: TiltGuide? = null,
     /** La opción "Automático" está encendida; no se guarda y el recolector abre siempre en manual (S017/RF-15). */
@@ -225,6 +230,7 @@ class CollectorViewModel @Inject constructor(
     private val tilt: CurrentTilt = CurrentTilt.NONE,
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
     private val gear: CurrentGear = CurrentGear.NONE,
+    private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
 ) : ViewModel() {
     private data class Form(
         val loaded: Boolean = false,
@@ -238,7 +244,13 @@ class CollectorViewModel @Inject constructor(
     )
 
     /** El modo de inclinación, el equipo, los jalones y el equipo del último punto guardado, juntos para el `combine` (S046). */
-    private data class Equipment(val tilt: CurrentTiltState, val gear: ActiveGear, val poles: List<SavedPole>, val last: GearUsed?)
+    private data class Equipment(
+        val tilt: CurrentTiltState,
+        val gear: ActiveGear,
+        val poles: List<SavedPole>,
+        val last: GearUsed?,
+        val shift: BaseShift?,
+    )
 
     private data class Run(
         val measuring: Boolean = false,
@@ -280,6 +292,9 @@ class CollectorViewModel @Inject constructor(
     /** Los milisegundos entre dos publicaciones de las estadísticas; los tests mandan las épocas sin pausa y lo ponen a 0. */
     internal var statsIntervalMs = STATS_INTERVAL_MS
     private var measuringReplay = false
+
+    /** El desplazamiento de base activo al empezar el punto: la medida lo conserva hasta el final (S020/RF-9). */
+    private var measuringShift: BaseShift? = null
     private val autoEnabled = MutableStateFlow(false)
 
     /** El equipo del último punto guardado de esta sesión, para avisar de que un cambio no lo toca (S046/RF-26). */
@@ -325,6 +340,11 @@ class CollectorViewModel @Inject constructor(
     override fun onCleared() {
         inProgress.set(false)
     }
+
+    /** El desplazamiento de base activo del proyecto (S020/RF-7, RF-11). */
+    private val activeShift: StateFlow<BaseShift?> = projectId.flatMapLatest { id ->
+        if (id == null) flowOf(null) else baseShift.shift(id)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val projectFlow = projectId.flatMapLatest { id ->
         if (id ==
@@ -408,7 +428,7 @@ class CollectorViewModel @Inject constructor(
         val g = gear.state.value
         val pole = g.verticalPoleM ?: return@combine null
         val epochTilt = snapshot.epoch?.tilt
-        val tip = LiveTip.of(fix, epochTilt, tiltState.settings.mode, pole, g.profile) ?: return@combine null
+        val tip = LiveTip.of(fix, epochTilt, tiltState.settings.mode, pole, g.profile, activeShift.value?.vector) ?: return@combine null
         val position = calculator.get().fromGround(tip.ground, project.crs, project.heightSystem)
         val easting = position.easting
         val northing = position.northing
@@ -421,8 +441,8 @@ class CollectorViewModel @Inject constructor(
         projectFlow,
         session.state,
         baseNotices.dismissed,
-        combine(tilt.state, gear.state, gear.poles, lastSavedGear, ::Equipment),
-    ) { state, project, snapshot, dismissed, (tiltState, gearState, poles, savedGear) ->
+        combine(tilt.state, gear.state, gear.poles, lastSavedGear, activeShift, ::Equipment),
+    ) { state, project, snapshot, dismissed, (tiltState, gearState, poles, savedGear, shift) ->
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
         val mode = tiltState.settings.mode
@@ -439,6 +459,7 @@ class CollectorViewModel @Inject constructor(
             notices = BaseNotices.visible(gga, snapshot.base, dismissed), // S015/RF-15, RF-17
             tiltMode = mode,
             tiltGuide = if (mode?.usesTilt == true) TiltEpoch.guide(epochTilt) else null, // S016/RF-12
+            baseShiftName = shift?.knownName, // S020/RF-11
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, CollectorUiState())
 
@@ -634,6 +655,8 @@ class CollectorViewModel @Inject constructor(
         val tiltState = tilt.state.value
         val tiltSetup = TiltSetup(tiltState.settings.mode ?: TiltMode.VERTICAL, tiltState.settings.verified)
         measurementRevision = tiltState.revision
+        val shiftAtStart = activeShift.value // S020/RF-9
+        measuringShift = shiftAtStart
         val factory = {
             PointMeasurement(
                 mode = settings.mode,
@@ -648,6 +671,7 @@ class CollectorViewModel @Inject constructor(
                 tilt = tiltSetup,
                 profile = equipment.profile,
                 gear = equipment.toUsed(), // S046/RF-24
+                shift = shiftAtStart?.vector, // S020/RF-7
             )
         }
         newMeasurement = factory
@@ -687,7 +711,15 @@ class CollectorViewModel @Inject constructor(
         val epoch = session.state.value.epoch ?: return
         autoRevision = tilt.state.value.revision
         lastEpochAtMs = System.currentTimeMillis()
-        val ground = autoCollector.ground(epoch, tilt.state.value.settings.mode, pole, project, calculator.get(), equipment.profile)
+        val ground = autoCollector.ground(
+            epoch,
+            tilt.state.value.settings.mode,
+            pole,
+            project,
+            calculator.get(),
+            equipment.profile,
+            activeShift.value?.vector,
+        )
         lastAutoGround = ground
         run.value = Run()
         applyAuto(autoCollector.start(current.settings, epoch.utcMillisOfDay, ground))
@@ -732,7 +764,15 @@ class CollectorViewModel @Inject constructor(
         val project = project ?: return
         val equipment = gear.state.value
         val pole = equipment.verticalPoleM ?: return
-        val ground = autoCollector.ground(epoch, tilt.state.value.settings.mode, pole, project, calculator.get(), equipment.profile)
+        val ground = autoCollector.ground(
+            epoch,
+            tilt.state.value.settings.mode,
+            pole,
+            project,
+            calculator.get(),
+            equipment.profile,
+            activeShift.value?.vector,
+        )
         lastAutoGround = ground
         applyAuto(autoCollector.onEpoch(epoch.utcMillisOfDay, ground))
     }
@@ -834,6 +874,12 @@ class CollectorViewModel @Inject constructor(
         log.info(LogCategory.POINTS, "Medida de ${measuredName()} descartada") // S014/RF-5
         pendingResult = null
         run.value = Run()
+    }
+
+    /** "Desactivar" del aviso «Base shift activo»: los puntos siguientes ya no lo llevan; la medida en curso termina con el suyo (S020/RF-9, RF-11). */
+    fun deactivateBaseShift() {
+        val id = projectId.value ?: return
+        viewModelScope.launch { baseShift.deactivate(id) }
     }
 
     /** Cierra "La base ha cambiado" de ese cambio (S015/RF-17). */
@@ -979,6 +1025,10 @@ class CollectorViewModel @Inject constructor(
             base = measurementBase?.let { pointBase(it, result.antenna) }, // S015/RF-20
             tilt = result.tilt, // S016/RF-22
             gear = result.gear, // S046/RF-24
+            // S020/RF-8: el vector, el punto conocido y la punta sin desplazar; las coordenadas ya llevan el desplazamiento.
+            shift = result.shift?.let { vector ->
+                measuringShift?.let { AppliedShift(it.id, it.knownName, vector, result.unshiftedGround) }
+            },
         )
         lastSavedGear.value = result.gear // S046/RF-26
         // S018/RF-28: el diseño por valor y lo que se desvió lo medido (medido menos diseño). S019/RF-13, RF-14: contra la cota

@@ -568,6 +568,7 @@ fun ProjectViewRoute(
             onAutoDistance = collectorViewModel::setAutoDistance,
             onStartAuto = collectorViewModel::startAuto, // S017/RF-19
             onStopAuto = collectorViewModel::stopAuto, // S017/RF-27
+            onDeactivateBaseShift = collectorViewModel::deactivateBaseShift, // S020/RF-11
         ),
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,
