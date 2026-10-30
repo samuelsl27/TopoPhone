@@ -241,18 +241,21 @@ class BaseShiftViewModel @Inject constructor(
     }
 
     private fun refreshBlocker() {
-        val s = state.value
         val snapshot = session.state.value
         val receiving = snapshot.connection is ConnectionState.Receiving && snapshot.epoch != null
-        val known = knownPoint(s)
-        val blocker = when {
-            known == null -> BaseShiftBlocker.NO_KNOWN_POINT
-            !s.secondsValid -> BaseShiftBlocker.INVALID_SECONDS
-            !gear.state.value.usable -> BaseShiftBlocker.NO_GEAR
-            !receiving -> BaseShiftBlocker.NO_POSITION
-            else -> null
+        val gearUsable = gear.state.value.usable
+        // Dentro del update: otra corrutina (puntos, sesión, equipo) puede cambiar el estado mientras se calcula el bloqueo.
+        mutable.update { s ->
+            val known = knownPoint(s)
+            val blocker = when {
+                known == null -> BaseShiftBlocker.NO_KNOWN_POINT
+                !s.secondsValid -> BaseShiftBlocker.INVALID_SECONDS
+                !gearUsable -> BaseShiftBlocker.NO_GEAR
+                !receiving -> BaseShiftBlocker.NO_POSITION
+                else -> null
+            }
+            s.copy(knownValid = known != null, blocker = blocker)
         }
-        mutable.update { it.copy(knownValid = known != null, blocker = blocker) }
     }
 
     /** "Medir": empieza el promediado del punto conocido, sin guardarlo como punto (RF-2). */

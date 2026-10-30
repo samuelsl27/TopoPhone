@@ -24,7 +24,7 @@
       Hecho cuando: `BaseShiftScreenTest` en verde, con las zonas táctiles de 56 dp y el resumen.
 - [x] T11. `app`: el recolector con el desplazamiento (en vivo, medida final y automático), el aviso «Base shift activo» y desactivar desde allí. (RF-7, RF-9, RF-11, RF-14)
       Hecho cuando: `CollectorBaseShiftTest` en verde y los tests del recolector siguen en verde.
-- [ ] T12. `app`: el replanteo (puntos, CAD y eje) con el desplazamiento y el mismo aviso. (RF-7, RF-11)
+- [x] T12. `app`: el replanteo (puntos, CAD y eje) con el desplazamiento y el mismo aviso. (RF-7, RF-11)
       Hecho cuando: `StakeoutBaseShiftTest` en verde y los de S018, S019, S041 y S054 siguen en verde.
 - [ ] T13. `app`: la tarjeta «Base shift» de la ficha del punto y el recálculo del jalón con el vector del punto desde la ficha y el lote. (RF-10, RF-13)
       Hecho cuando: `PointDetailsShiftTest` en verde.

@@ -4,6 +4,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -12,6 +13,8 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextReplacement
@@ -541,6 +544,21 @@ class StakeoutPanelTest {
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertIsEnabled().performClick()
 
         calls shouldBe listOf("measure")
+    }
+
+    @Test
+    fun `S020 RF-11 el panel de replanteo avisa de que hay un base shift activo`() {
+        show(state(), CollectorUiState(loaded = true, baseShiftName = "V-12"))
+
+        compose.onAllNodesWithTag(es.topophone.app.ui.baseshift.BASE_SHIFT_BANNER_TAG).assertCountEquals(1)
+        compose.onAllNodesWithText("Base shift activo · V-12").assertCountEquals(1)
+    }
+
+    @Test
+    fun `S020 RF-11 sin base shift activo el panel no lleva el aviso`() {
+        show(state())
+
+        compose.onAllNodesWithTag(es.topophone.app.ui.baseshift.BASE_SHIFT_BANNER_TAG).assertCountEquals(0)
     }
 
     @Test

@@ -131,7 +131,10 @@ class StakeoutViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel(gear: CurrentGear = CurrentGear.NONE): StakeoutViewModel {
+    private fun viewModel(
+        gear: CurrentGear = CurrentGear.NONE,
+        shifts: es.topophone.data.baseshift.ActiveBaseShift = es.topophone.data.baseshift.ActiveBaseShift.NONE,
+    ): StakeoutViewModel {
         val vm = StakeoutViewModel(
             projects,
             points,
@@ -153,6 +156,7 @@ class StakeoutViewModelTest {
             { calculator },
             inProgress,
             RecordingLog(),
+            baseShift = shifts,
         )
         viewModels += vm
         CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
@@ -774,5 +778,76 @@ class StakeoutViewModelTest {
         vm.open(projectId, point.id)
 
         await(vm) { it.target?.id == point.id }.target.shouldNotBeNull().source shouldBe StakeSource.ProjectPoint
+    }
+
+    private fun distanceOf(vm: StakeoutViewModel, predicate: (Double) -> Boolean): Double {
+        val ui = (
+            await(vm) {
+                (it.guidance as? GuidanceState.On)?.ui?.guidance?.distanceM?.let(predicate) == true
+            }.guidance as GuidanceState.On
+            ).ui
+        return ui.guidance.distanceM
+    }
+
+    private fun activeShiftEast3(): es.topophone.data.baseshift.RoomBaseShiftRepository {
+        val origin = es.topophone.core.geodesy.GeodeticPoint(40.4168, -3.703713, 699.0)
+        val moved = es.topophone.core.geodesy.LocalTangentPlane.offset(origin, 3.0, 0.0, 0.0)
+        val v = es.topophone.core.geodesy.Ecef.fromGeodetic(moved.latitudeDeg, moved.longitudeDeg, moved.ellipsoidalHeightM) -
+            es.topophone.core.geodesy.Ecef.fromGeodetic(origin.latitudeDeg, origin.longitudeDeg, origin.ellipsoidalHeightM)
+        val repository = es.topophone.data.baseshift.RoomBaseShiftRepository(db)
+        runBlocking {
+            repository.add(
+                es.topophone.core.model.point.BaseShift(
+                    id = "s1",
+                    projectId = projectId,
+                    createdAtMs = 1,
+                    fromReplay = false,
+                    knownName = "V-12",
+                    knownPointId = null,
+                    knownEasting = 1.0,
+                    knownNorthing = 2.0,
+                    knownHeightM = 3.0,
+                    measured = GeodeticPosition(40.0, -3.0, 700.0),
+                    epochsUsed = 5,
+                    vector = es.topophone.core.model.point.BaseShiftVector(v.x, v.y, v.z),
+                    horizontalOnly = false,
+                    correctionsDatum = es.topophone.core.model.project.CorrectionsDatum.ETRS89,
+                    active = false,
+                    base = null,
+                ),
+                activate = true,
+            )
+        }
+        return repository
+    }
+
+    @Test
+    fun `S020 RF-7 la guia del replanteo lleva el desplazamiento activo`() {
+        val point = addPoint("12")
+        val repository = activeShiftEast3()
+        val vm = viewModel(shifts = es.topophone.data.baseshift.ActiveBaseShift(repository))
+        vm.open(projectId, point.id)
+        await(vm) { it.target != null }
+        connect()
+        sendEpoch(2)
+
+        distanceOf(vm) { it > 1.0 } shouldBe (3.0 plusOrMinus 0.05)
+    }
+
+    @Test
+    fun `S020 RF-11 al desactivarlo la guia vuelve a la punta sin desplazar`() {
+        val point = addPoint("12")
+        val repository = activeShiftEast3()
+        val vm = viewModel(shifts = es.topophone.data.baseshift.ActiveBaseShift(repository))
+        vm.open(projectId, point.id)
+        await(vm) { it.target != null }
+        connect()
+        sendEpoch(2)
+        distanceOf(vm) { it > 1.0 }
+
+        runBlocking { repository.deactivate(projectId) }
+        sendEpoch(3)
+
+        distanceOf(vm) { it < 1.0 } shouldBe (0.0 plusOrMinus 0.05)
     }
 }

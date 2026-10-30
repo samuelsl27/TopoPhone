@@ -155,6 +155,7 @@ import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.baseshift.ActiveBaseShift
 import es.topophone.data.cad.CadDrawingWithLayers
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.map.MapViewportRepository
@@ -258,8 +259,12 @@ class ProjectViewModel @Inject constructor(
     points: PointRepository,
     @param:Named(ReceiverViewModel.UI_SAMPLE_MS) samplePeriodMs: Long,
     tilt: CurrentTilt = CurrentTilt.NONE,
+    baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
+
+    /** El desplazamiento de base activo: el rover del mapa y las coordenadas lo llevan (S020/RF-7). */
+    private val activeShift = baseShift.track(projectId, viewModelScope)
 
     /** Encuadre guardado del proyecto: null hasta que se lee (S009/RF-21). */
     private val savedViewport = MutableStateFlow<SavedViewport?>(null)
@@ -299,7 +304,7 @@ class ProjectViewModel @Inject constructor(
         // S016/RF-16, RF-17: la punta del jalón, con la GGA y el ETC de la misma época si el modo usa la inclinación.
         val usesTilt = mode?.usesTilt == true
         val gga = fix?.let { if (usesTilt && it.epochGga != null) it.epochGga else it.gga }
-        val tip = gga?.let { LiveTip.of(it, if (usesTilt) fix?.tilt else null, mode, pole) }
+        val tip = gga?.let { LiveTip.of(it, if (usesTilt) fix?.tilt else null, mode, pole, shift = activeShift.value?.vector) }
         // Con el SC del proyecto: si se cambia, la posición se recalcula en el nuevo (S006/RF-15).
         val position = tip?.let { project?.let { p -> calculator.get().fromGround(it.ground, p.crs, p.heightSystem) } }
         // S016/RF-21: el círculo mide la precisión de la GST más la de la inclinación.

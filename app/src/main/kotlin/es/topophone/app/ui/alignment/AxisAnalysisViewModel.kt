@@ -28,6 +28,7 @@ import es.topophone.core.survey.SolutionTypes
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.VerticalProfileEval
 import es.topophone.data.alignment.AlignmentRepository
+import es.topophone.data.baseshift.ActiveBaseShift
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.surface.SurfaceGuides
@@ -85,6 +86,7 @@ class AxisAnalysisViewModel @Inject constructor(
     private val log: AppLog = AppLog.NONE,
     private val tilt: CurrentTilt = CurrentTilt.NONE,
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
+    private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
 ) : ViewModel() {
     /** El eje abierto con lo que hace falta para calcular sobre él. */
     private class Model(val projectId: String, val alignment: Alignment) {
@@ -94,6 +96,9 @@ class AxisAnalysisViewModel @Inject constructor(
 
     private val model = MutableStateFlow<Model?>(null)
     private val projectId = MutableStateFlow<String?>(null)
+
+    /** El desplazamiento de base activo del proyecto (S020/RF-7). */
+    private val activeShift = baseShift.track(projectId, viewModelScope)
 
     @Volatile private var project: Project? = null
 
@@ -244,7 +249,7 @@ class AxisAnalysisViewModel @Inject constructor(
             live.update { null to GuidanceOff.NO_POSITION }
             return
         }
-        val tip = LiveTip.of(fix, epoch.tilt, tiltMode, g.verticalPoleM ?: PoleHeight.DEFAULT_M, g.profile)
+        val tip = LiveTip.of(fix, epoch.tilt, tiltMode, g.verticalPoleM ?: PoleHeight.DEFAULT_M, g.profile, activeShift.value?.vector)
         val position = tip?.let { calculator.get().fromGround(it.ground, project.crs, project.heightSystem) }
         val easting = position?.easting
         val northing = position?.northing

@@ -33,6 +33,7 @@ import es.topophone.core.survey.ManualCoordinates
 import es.topophone.core.survey.ManualResult
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.baseshift.ActiveBaseShift
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.StakeoutPreferences
@@ -119,10 +120,14 @@ class StakeoutViewModel @Inject constructor(
     private val log: AppLog = AppLog.NONE,
     private val tilt: CurrentTilt = CurrentTilt.NONE,
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
+    private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
 ) : ViewModel() {
     private val controller = StakeoutController(alerts, log)
 
     private val projectId = MutableStateFlow<String?>(null)
+
+    /** El desplazamiento de base activo del proyecto (S020/RF-7). */
+    private val activeShift = baseShift.track(projectId, viewModelScope)
     private val targetId = MutableStateFlow<String?>(null)
     private val searchText = MutableStateFlow("")
     private val notFound = MutableStateFlow(false)
@@ -426,6 +431,7 @@ class StakeoutViewModel @Inject constructor(
             surface = guide,
             elevationSource = resolution(guide).source,
             profile = profile,
+            shift = activeShift.value?.vector, // S020/RF-7
         )
     }
 }

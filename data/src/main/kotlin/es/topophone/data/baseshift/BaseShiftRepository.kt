@@ -6,10 +6,16 @@ import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.data.db.TopoPhoneDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 /** Qué pasó al activar un desplazamiento (S020/RF-12, RF-16). */
 enum class ActivateResult {
@@ -84,6 +90,12 @@ class ActiveBaseShift(private val repository: BaseShiftRepository) {
     fun vector(projectId: String): Flow<BaseShiftVector?> = repository.active(projectId).map { it?.vector }
 
     suspend fun current(projectId: String): BaseShift? = repository.active(projectId).first()
+
+    /** El desplazamiento activo del proyecto que dé [projectId] en cada momento, siempre al día (S020/RF-7, RF-11). */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun track(projectId: Flow<String?>, scope: CoroutineScope): StateFlow<BaseShift?> =
+        projectId.flatMapLatest { id -> if (id == null) flowOf(null) else repository.active(id) }
+            .stateIn(scope, SharingStarted.Eagerly, null)
 
     /** Desactiva el desplazamiento activo del proyecto, desde el recolector o el replanteo (RF-11). */
     suspend fun deactivate(projectId: String) = repository.deactivate(projectId)

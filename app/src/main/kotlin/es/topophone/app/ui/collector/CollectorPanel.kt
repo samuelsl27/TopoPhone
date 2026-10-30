@@ -144,7 +144,6 @@ fun CollectorPanel(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) { Form(state, unit, actions) }
             BaseNoticeBanners(state.notices, actions.onDismissBaseChange, actions.onDismissLongBaseline) // S015/RF-15, RF-17
-            state.baseShiftName?.let { BaseShiftActiveBanner(it, actions.onDeactivateBaseShift) } // S020/RF-11
             LiveQualityText(state.live, unit)
             AdmittedBadge(state.settings.precision.admitted) // S047/RF-14
             SurfaceReadingText(surface, unit) // S042/RF-33
@@ -326,6 +325,7 @@ private fun SurfaceReadingText(reading: SurfaceReading?, unit: LinearUnit) {
 /** Por qué no se puede medir, la guía de la inclinación, avisos de la medida y punto guardado (S010/RF-10, RF-12, RF-19; S016). */
 @Composable
 internal fun Messages(state: CollectorUiState, actions: CollectorActions) {
+    state.baseShiftName?.let { BaseShiftActiveBanner(it, actions.onDeactivateBaseShift) } // S020/RF-11
     val blocker = when (state.blocker) {
         MeasureBlocker.NO_POSITION -> R.string.project_no_position
         MeasureBlocker.OUTSIDE_CRS_AREA -> R.string.project_outside_crs

@@ -5,6 +5,7 @@ import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
+import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.LineStakeoutMode
@@ -88,6 +89,8 @@ class StakeContext(
     val elevationSource: ElevationSource = ElevationSource.POINT,
     /** El perfil de antena del receptor: su desplazamiento al centro de fase (S046/RF-20, RF-23). */
     val profile: AntennaProfile = AntennaProfile.RS3,
+    /** El desplazamiento de base activo: la punta lo lleva antes de pasar al SC (S020/RF-7). */
+    val shift: BaseShiftVector? = null,
 ) {
     /** La cota de diseño que se replantea: la escrita, o la altura del punto de diseño (S019/RF-1, RF-2). */
     val elevationM: Double? get() = designElevationM ?: target.coordinates.height
@@ -195,7 +198,7 @@ class StakeoutController(
             switchOff(GuidanceOff.TILT_NOT_READY, context)
             return
         }
-        val tip = LiveTip.of(fix, epoch.tilt, context.tiltMode, context.poleHeightM, context.profile)
+        val tip = LiveTip.of(fix, epoch.tilt, context.tiltMode, context.poleHeightM, context.profile, context.shift)
         if (tip == null) {
             switchOff(GuidanceOff.NO_POSITION, context)
             return
