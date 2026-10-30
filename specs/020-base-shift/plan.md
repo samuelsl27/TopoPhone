@@ -139,3 +139,14 @@ Campos y botones de 56 dp; los avisos de módulo y el de «Base shift activo» e
 - `docs/hoja-de-ruta.md`: la fila S020 ya está en `spec`; pasa a «implementada» al final y S017b pasa a la v24.
 - `docs/glosario.md`: «Punto conocido» y «Desplazamiento activo».
 - S012 (`ExportColumn`), S053 (columnas del GeoPackage), S011 (recálculo del jalón con el vector del punto) y S010/S018 (aviso «Base shift activo») cambian en el código; **sus `spec.md` no se tocan sin que lo pidas**.
+
+## Cambios al implementar (S020)
+- `base_shifts` gana la columna `datum_notice` (aviso de que un cambio de datum lo desactivó y el usuario aún no lo ha visto): RF-16 pide «indicarlo» y hacía falta guardarlo. Reactivar un cálculo hecho con otro datum se rechaza (`ActivateResult.DATUM_MISMATCH`); no estaba en la spec.
+- D5 se cumple en `RoomProjectRepository.update`, en la misma transacción que guarda el proyecto (`BaseShiftDao.deactivateOtherDatum`).
+- `ActiveBaseShift` es el único punto de acceso del recolector, los replanteos, el análisis de eje y el mapa (`track`, `datumNotice`, `deactivate`, `NONE`); la lectura instantánea de RF-9 la hace `PointMeasurement` al construirse (recibe el vector), no `ActiveBaseShift.current`.
+- «Base shift activo» (RF-11) y los avisos de RF-15 y RF-16 viven en `Messages` de `CollectorPanel`, que ya comparten el recolector y los paneles de replanteo de puntos, de CAD, de eje y el análisis de eje. El aviso de RF-15 aparece cuando cambia el número de cambios de base (`BaseState.change.count`) con un desplazamiento activo; un cambio anterior a abrir el recolector no cuenta. «Repetir» abre la pantalla de Base shift.
+- RF-7 «las coordenadas, el mapa y el replanteo en vivo»: el mapa y las coordenadas del proyecto (`ProjectViewModel`) y los tres replanteos llevan el vector; la pantalla de Receptor no, porque no tiene proyecto y su desplazamiento es por proyecto.
+- Sin SC UTM (geográficas) el equivalente en el SC de RF-4 se calcula en el plano local de la medida. Las coordenadas escritas del punto conocido se interpretan como latitud y longitud en grados decimales.
+- ΔX, ΔY y ΔZ van también en el GeoPackage (D6); los dorados del CSV (`fixtures/formatos/csv/`) y del GeoPackage (`fixtures/formatos/gpkg-exportado/`) se regeneraron con `TOPOPHONE_REGENERAR_DORADOS=1`.
+- Las pruebas de rendimiento (`BaseShiftPerformanceTest`) miden aplicar el vector: menos de 1 ms en el peor caso.
+- Nombres de test de `CadBackupTest` y `GearBackupTest` acortados: con más de unos 100 caracteres fallaban casi siempre con `SQLITE_CANTOPEN` en Windows.

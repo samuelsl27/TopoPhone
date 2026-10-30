@@ -134,7 +134,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Huso propuesto | `suggestedZone` | Huso de la posición al crear un proyecto (S008) |
 | ED50 | `Ed50` | Datum antiguo; se calcula desde ETRS89 con la rejilla SPED2ETV2 del IGN (S008) |
 | Distancia de cuadrícula / de terreno | `gridDistance` / `groundDistance` | |
-| Base shift (desplazamiento de base) | `BaseShift` | |
+| Base shift (desplazamiento de base) | `BaseShift` | Vector ECEF conocido − medido que se suma a la punta del jalón antes del SC (S020) |
+| Punto conocido | `KnownPoint` | El punto de coordenadas buenas con el que se calcula un base shift; se mide aparte y no se guarda como punto (S020) |
+| Desplazamiento activo | `ActiveBaseShift` | El base shift que llevan los puntos que se midan; uno o ninguno por proyecto (S020) |
 | Localización (calibración local) | `Localization` | |
 | Residuo | `Residual` | |
 | Inversa / poligonal / intersección | `Inverse` / `Traverse` / `Intersection` | COGO |
