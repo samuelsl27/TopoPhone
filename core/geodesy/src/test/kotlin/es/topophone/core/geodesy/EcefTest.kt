@@ -71,4 +71,21 @@ class EcefTest {
             rover.distanceTo(base) shouldBe (row[6].toDouble() plusOrMinus 0.001)
         }
     }
+
+    @Test
+    fun `S020 RF-3 la resta y la suma de geocentricas son componente a componente`() {
+        val known = Ecef(4_800_000.5, -300_000.25, 4_100_000.125)
+        val measured = Ecef(4_799_998.0, -299_999.0, 4_100_000.0)
+
+        val shift = known - measured
+
+        shift shouldBe Ecef(2.5, -1.25, 0.125)
+        (measured + shift) shouldBe known
+    }
+
+    @Test
+    fun `S020 RF-5 el modulo de un vector es la distancia al origen`() {
+        Ecef(3.0, 4.0, 12.0).length() shouldBe (13.0 plusOrMinus 1e-12)
+        Ecef(1.0, 2.0, 2.0).length() shouldBe Ecef(0.0, 0.0, 0.0).distanceTo(Ecef(1.0, 2.0, 2.0))
+    }
 }

@@ -15,6 +15,15 @@ data class GeodeticPoint(val latitudeDeg: Double, val longitudeDeg: Double, val 
  */
 data class Ecef(val x: Double, val y: Double, val z: Double) {
 
+    /** Suma componente a componente: un punto más un vector, o dos vectores (S020/RF-3, RF-7). */
+    operator fun plus(other: Ecef): Ecef = Ecef(x + other.x, y + other.y, z + other.z)
+
+    /** Resta componente a componente: el vector de [other] a este punto (S020/RF-3). */
+    operator fun minus(other: Ecef): Ecef = Ecef(x - other.x, y - other.y, z - other.z)
+
+    /** Módulo del vector, en metros (S020/RF-5). */
+    fun length(): Double = sqrt(x * x + y * y + z * z)
+
     /** Distancia en línea recta, en metros. */
     fun distanceTo(other: Ecef): Double {
         val dx = x - other.x

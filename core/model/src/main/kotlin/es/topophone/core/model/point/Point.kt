@@ -117,6 +117,8 @@ data class Measurement(
     val nmeaChunks: Int = 0,
     /** El jalón y la antena con los que se midió (S046/RF-24); null en los puntos de antes de S046. */
     val gear: GearUsed? = null,
+    /** El desplazamiento de base con el que se midió, si había uno activo (S020/RF-8); null en los demás puntos. */
+    val shift: AppliedShift? = null,
 )
 
 /**
