@@ -41,6 +41,7 @@ object BaseShiftLimits {
  * @property horizontalOnly el vector no corrige la altura (RF-6).
  * @property correctionsDatum el datum de las correcciones con que se calculó (RF-16).
  * @property base la posición de la base cuando se calculó, para avisar si cambia (RF-15).
+ * @property datumNotice se desactivó porque cambió el datum de las correcciones del proyecto y el usuario aún no lo ha visto (RF-16).
  */
 data class BaseShift(
     val id: String,
@@ -59,6 +60,7 @@ data class BaseShift(
     val correctionsDatum: CorrectionsDatum,
     val active: Boolean,
     val base: GeodeticPosition?,
+    val datumNotice: Boolean = false,
 )
 
 /**

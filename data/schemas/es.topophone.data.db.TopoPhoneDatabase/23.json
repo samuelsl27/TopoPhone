@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 23,
-    "identityHash": "a3a806593237b8d119923795391e5702",
+    "identityHash": "4bccd8a1a44af8fb605c4f82b5b8f51c",
     "entities": [
       {
         "tableName": "projects",
@@ -2170,7 +2170,7 @@
       },
       {
         "tableName": "base_shifts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `project_id` TEXT NOT NULL, `created_at_ms` INTEGER NOT NULL, `from_replay` INTEGER NOT NULL, `known_name` TEXT NOT NULL, `known_point_id` TEXT, `known_easting` REAL NOT NULL, `known_northing` REAL NOT NULL, `known_height` REAL, `measured_lat` REAL NOT NULL, `measured_lon` REAL NOT NULL, `measured_h` REAL NOT NULL, `epochs_used` INTEGER NOT NULL, `dx` REAL NOT NULL, `dy` REAL NOT NULL, `dz` REAL NOT NULL, `horizontal_only` INTEGER NOT NULL, `corrections_datum` TEXT NOT NULL, `active` INTEGER NOT NULL, `base_lat` REAL, `base_lon` REAL, `base_h` REAL, PRIMARY KEY(`id`), FOREIGN KEY(`project_id`) REFERENCES `projects`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `project_id` TEXT NOT NULL, `created_at_ms` INTEGER NOT NULL, `from_replay` INTEGER NOT NULL, `known_name` TEXT NOT NULL, `known_point_id` TEXT, `known_easting` REAL NOT NULL, `known_northing` REAL NOT NULL, `known_height` REAL, `measured_lat` REAL NOT NULL, `measured_lon` REAL NOT NULL, `measured_h` REAL NOT NULL, `epochs_used` INTEGER NOT NULL, `dx` REAL NOT NULL, `dy` REAL NOT NULL, `dz` REAL NOT NULL, `horizontal_only` INTEGER NOT NULL, `corrections_datum` TEXT NOT NULL, `active` INTEGER NOT NULL, `base_lat` REAL, `base_lon` REAL, `base_h` REAL, `datum_notice` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`), FOREIGN KEY(`project_id`) REFERENCES `projects`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2298,6 +2298,13 @@
             "fieldPath": "baseH",
             "columnName": "base_h",
             "affinity": "REAL"
+          },
+          {
+            "fieldPath": "datumNotice",
+            "columnName": "datum_notice",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -2334,7 +2341,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a3a806593237b8d119923795391e5702')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4bccd8a1a44af8fb605c4f82b5b8f51c')"
     ]
   }
 }

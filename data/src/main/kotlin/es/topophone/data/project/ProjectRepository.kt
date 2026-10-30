@@ -108,6 +108,10 @@ class RoomProjectRepository(
         val current = dao.byId(id) ?: error("No existe el proyecto $id")
         ProjectNames.validate(draft.name, dao.activeNames(exceptId = id))?.let { return@withTransaction SaveResult.Invalid(it) }
         // S006/RF-15: cambiar el SC solo cambia cómo se muestran las coordenadas; las medidas no se tocan.
+        // S020/RF-16: un desplazamiento de base calculado con otro datum de correcciones ya no vale: se desactiva y queda el aviso.
+        if (current.correctionsDatum != draft.correctionsDatum.name) {
+            db.baseShifts().deactivateOtherDatum(id, draft.correctionsDatum.name)
+        }
         dao.update(
             draft.toEntity(id, current.folderId, current.createdAt, clock()).copy(
                 openedAt = current.openedAt,

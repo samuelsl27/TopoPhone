@@ -16,6 +16,9 @@ import es.topophone.data.alignment.RoomAlignmentRepository
 import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.BackupDataStoreQualifier
 import es.topophone.data.backup.DataStoreAutoBackupPreferences
+import es.topophone.data.baseshift.ActiveBaseShift
+import es.topophone.data.baseshift.BaseShiftRepository
+import es.topophone.data.baseshift.RoomBaseShiftRepository
 import es.topophone.data.cad.CadDrawingImporter
 import es.topophone.data.cad.CadRepository
 import es.topophone.data.cad.RoomCadRepository
@@ -196,6 +199,15 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideAlignmentRepository(database: TopoPhoneDatabase, log: AppLog): AlignmentRepository = RoomAlignmentRepository(database, log)
+
+    /** Los desplazamientos de base de los proyectos y el activo (S020). */
+    @Provides
+    @Singleton
+    fun provideBaseShiftRepository(database: TopoPhoneDatabase): BaseShiftRepository = RoomBaseShiftRepository(database)
+
+    @Provides
+    @Singleton
+    fun provideActiveBaseShift(repository: BaseShiftRepository): ActiveBaseShift = ActiveBaseShift(repository)
 
     @Provides
     fun provideAlignmentImporter(repository: AlignmentRepository): AlignmentImporter = AlignmentImporter(repository)

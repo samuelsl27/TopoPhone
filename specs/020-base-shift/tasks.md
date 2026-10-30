@@ -12,7 +12,7 @@
       Hecho cuando: `BaseShiftApplierTest`, `LiveTipShiftTest`, `PointMeasurementShiftTest` y `PointCorrectionsShiftTest` en verde; los de S010, S011, S016 y S019 siguen en verde.
 - [x] T5. `data`: Room v23 (`base_shifts`, columnas de `points`), sus DAO, `AutoMigration(22, 23)` y el esquema 23 en `data/schemas/`. (RNF-T6, RF-8, RF-12)
       Hecho cuando: `TopoPhoneDatabaseTest` 22 → 23 en verde: proyectos, puntos y replanteos conservan sus datos.
-- [ ] T6. `data`: `BaseShiftRepository` y `ActiveBaseShift` (crear, activar, desactivar, reactivar, borrar, lista, desactivar por cambio de datum). (RF-9, RF-12, RF-16)
+- [x] T6. `data`: `BaseShiftRepository` y `ActiveBaseShift` (crear, activar, desactivar, reactivar, borrar, lista, desactivar por cambio de datum). (RF-9, RF-12, RF-16)
       Hecho cuando: `BaseShiftRepositoryTest` en verde: uno activo por proyecto, borrar sin tocar los puntos y el datum.
 - [ ] T7. `data`: el punto se guarda con el vector, la punta sin desplazar y el conocido; copia de seguridad, paquete y restauración con `base_shifts`. (RF-8, RNF-T6)
       Hecho cuando: `BaseShiftPointSaveTest` y `BaseShiftBackupTest` en verde, con ids nuevos remapeados en el paquete.

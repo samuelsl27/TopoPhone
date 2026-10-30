@@ -15,7 +15,8 @@ import kotlinx.coroutines.flow.Flow
  * Un desplazamiento de base calculado (S020/RF-12): el punto conocido, la posición medida sin desplazar y el vector ECEF, sin
  * redondear (AGENTS.md). Se borra con el proyecto. Solo uno tiene [active] por proyecto; lo garantiza el repositorio al activar,
  * en una transacción. [knownHeight] es NULL si el punto conocido no tenía altura (RF-6); [correctionsDatum] es el datum de las
- * correcciones con que se calculó (RF-16) y la base, la que había entonces (RF-15).
+ * correcciones con que se calculó (RF-16) y la base, la que había entonces (RF-15). [datumNotice] marca que se desactivó por un
+ * cambio de datum y el usuario aún no lo ha visto (RF-16).
  */
 @Entity(
     tableName = "base_shifts",
@@ -47,6 +48,7 @@ data class BaseShiftEntity(
     @ColumnInfo(name = "base_lat") val baseLat: Double?,
     @ColumnInfo(name = "base_lon") val baseLon: Double?,
     @ColumnInfo(name = "base_h") val baseH: Double?,
+    @ColumnInfo(name = "datum_notice", defaultValue = "0") val datumNotice: Boolean = false,
 )
 
 @Dao
@@ -78,6 +80,11 @@ interface BaseShiftDao {
     @Query("SELECT project_id FROM base_shifts WHERE id = :id")
     suspend fun projectOf(id: String): String?
 
-    @Query("UPDATE base_shifts SET active = 0 WHERE project_id = :projectId AND active = 1 AND corrections_datum <> :datum")
+    @Query(
+        "UPDATE base_shifts SET active = 0, datum_notice = 1 WHERE project_id = :projectId AND active = 1 AND corrections_datum <> :datum",
+    )
     suspend fun deactivateOtherDatum(projectId: String, datum: String): Int
+
+    @Query("UPDATE base_shifts SET datum_notice = 0 WHERE id = :id")
+    suspend fun clearDatumNotice(id: String)
 }
