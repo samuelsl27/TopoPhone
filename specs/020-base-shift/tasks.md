@@ -8,7 +8,7 @@
       Hecho cuando: los tests de `core:geodesy` y `core:model` en verde, con los valores por defecto (los puntos sin desplazamiento no cambian).
 - [x] T3. `core:survey`: `BaseShiftCalculator` (conocido a ECEF, vector, ENU, módulo, caso sin altura y clasificación). (RF-3 a RF-6)
       Hecho cuando: `BaseShiftCalculatorTest` en verde contra `fixtures/base_shift/` a menos de 1 mm y la ida y vuelta a menos de 0,1 mm.
-- [ ] T4. `core:survey`: `BaseShiftApplier` y el vector en `LiveTip`, `PointMeasurement` (`finish` y `use`) y `PointCorrections`, con la punta sin desplazar en el resultado. (RF-7, RF-9, RF-10)
+- [x] T4. `core:survey`: `BaseShiftApplier` y el vector en `LiveTip`, `PointMeasurement` (`finish` y `use`) y `PointCorrections`, con la punta sin desplazar en el resultado. (RF-7, RF-9, RF-10)
       Hecho cuando: `BaseShiftApplierTest`, `LiveTipShiftTest`, `PointMeasurementShiftTest` y `PointCorrectionsShiftTest` en verde; los de S010, S011, S016 y S019 siguen en verde.
 - [ ] T5. `data`: Room v23 (`base_shifts`, columnas de `points`), sus DAO, `AutoMigration(22, 23)` y el esquema 23 en `data/schemas/`. (RNF-T6, RF-8, RF-12)
       Hecho cuando: `TopoPhoneDatabaseTest` 22 → 23 en verde: proyectos, puntos y replanteos conservan sus datos.

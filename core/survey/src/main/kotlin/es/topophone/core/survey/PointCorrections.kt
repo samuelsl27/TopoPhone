@@ -44,7 +44,9 @@ class PointCorrections(
     fun withPoleHeight(point: Point, poleHeightM: Double, crs: ProjectCrs, heightSystem: HeightSystem): PoleCorrection? {
         val measurement = point.measurement ?: return null
         val offsetM = measurement.gear?.antennaOffsetM ?: profile.offsetM
-        val ground = ground(measurement, poleHeightM, offsetM)
+        val unshifted = ground(measurement, poleHeightM, offsetM)
+        // S020/RF-10: el vector que guardó el punto, no el activo.
+        val ground = BaseShiftApplier.apply(unshifted, measurement.shift?.vector)
         val position = calculator.fromGround(ground, crs, heightSystem)
         val measured = PointCoordinates(ground, position.easting, position.northing, position.height)
         val corrected = point.copy(
@@ -52,6 +54,7 @@ class PointCorrections(
                 poleHeightM = poleHeightM,
                 coordinates = measured,
                 gear = measurement.gear?.withPole(poleHeightM),
+                shift = measurement.shift?.copy(unshiftedGround = unshifted),
             ),
             coordinates = if (point.edited) point.coordinates else measured,
         )

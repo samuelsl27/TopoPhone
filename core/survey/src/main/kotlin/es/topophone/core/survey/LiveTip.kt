@@ -2,6 +2,7 @@ package es.topophone.core.survey
 
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.TiltData
+import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.TiltMode
 
@@ -28,7 +29,14 @@ object LiveTip {
         mode: TiltMode?,
         poleHeightM: Double,
         profile: AntennaProfile = AntennaProfile.RS3,
+        shift: BaseShiftVector? = null,
     ): LiveTipResult? {
+        val tip = unshifted(fix, tilt, mode, poleHeightM, profile) ?: return null
+        return if (shift == null) tip else tip.copy(ground = BaseShiftApplier.apply(tip.ground, shift))
+    }
+
+    /** La punta sin desplazamiento de base; [of] le suma el vector (S020/RF-7). */
+    private fun unshifted(fix: GgaFix, tilt: TiltData?, mode: TiltMode?, poleHeightM: Double, profile: AntennaProfile): LiveTipResult? {
         if (!fix.hasPosition) return null
         val altitude = fix.altitudeM
         val separation = fix.geoidSeparationM

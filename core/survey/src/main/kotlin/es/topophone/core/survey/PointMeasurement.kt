@@ -8,6 +8,7 @@ import es.topophone.core.gnss.nmea.GstAccuracy
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.model.point.AdmittedSolutions
+import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.MeasurementMode
@@ -96,6 +97,9 @@ data class MeasurementResult(
     val deviationVerticalM: Double? = null,
     /** El jalón y la antena con los que se midió (S046/RF-24); null si quien mide no los da. */
     val gear: GearUsed? = null,
+    /** El desplazamiento de base con que se midió y la punta sin desplazar (S020/RF-8); [ground] ya lo lleva. */
+    val shift: BaseShiftVector? = null,
+    val unshiftedGround: GeodeticPosition = ground,
 )
 
 /**
@@ -130,6 +134,8 @@ class PointMeasurement(
     private val profile: AntennaProfile = AntennaProfile.RS3,
     private val tilt: TiltSetup = TiltSetup.VERTICAL,
     private val gear: GearUsed? = null,
+    /** El desplazamiento de base activo al empezar: la medida lo conserva hasta el final aunque se desactive (S020/RF-9). */
+    private val shift: BaseShiftVector? = null,
 ) {
     private val requiredS = averagingSeconds.toDouble()
 
@@ -333,16 +339,17 @@ class PointMeasurement(
             TiltMode.RECEIVER -> antenna
             TiltMode.VERTICAL -> belowAntenna(antenna)
         }
+        val shifted = BaseShiftApplier.apply(ground, shift)
         if (crs.isUtm) {
-            val position = calculator.fromGround(ground, crs, heightSystem)
+            val position = calculator.fromGround(shifted, crs, heightSystem)
             val east = position.easting
             val north = position.northing
             if (east != null && north != null) stats.add(east, north, position.height)
         } else {
-            val point = GeodeticPoint(ground.latitudeDeg, ground.longitudeDeg, ground.ellipsoidalHeightM ?: 0.0)
+            val point = GeodeticPoint(shifted.latitudeDeg, shifted.longitudeDeg, shifted.ellipsoidalHeightM ?: 0.0)
             val origin = statsOrigin ?: point.also { statsOrigin = it }
             val enu = LocalTangentPlane.between(origin, point)
-            stats.add(enu.east, enu.north, enu.up.takeIf { ground.ellipsoidalHeightM != null })
+            stats.add(enu.east, enu.north, enu.up.takeIf { shifted.ellipsoidalHeightM != null })
         }
     }
 
@@ -433,12 +440,13 @@ class PointMeasurement(
         val antennaH = altitude?.let { a -> separation?.let { a + it } }
         val antenna = GeodeticPosition(latitude, longitude, antennaH)
         val angles = angles()
-        val ground = when (tilt.mode) {
+        val unshiftedGround = when (tilt.mode) {
             // Media de la antena menos H·ū: la media de las puntas de cada época (plan A3.3).
             TiltMode.APP -> PoleTip.fromAntenna(antenna, checkNotNull(angles).pole, antennaHeightM)
             TiltMode.RECEIVER -> antenna // la GGA ya es la punta (S016/RF-14)
             TiltMode.VERTICAL -> belowAntenna(antenna)
         }
+        val ground = BaseShiftApplier.apply(unshiftedGround, shift) // S020/RF-7: antes del SC
         val position = calculator.fromGround(ground, crs, heightSystem)
         if (PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable || PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable) {
             return MeasurementUpdate.Failed(MeasurementFailure.OUTSIDE_CRS_AREA)
@@ -451,6 +459,8 @@ class PointMeasurement(
                 antenna = antenna,
                 poleHeightM = poleHeightM,
                 gear = gear,
+                shift = shift,
+                unshiftedGround = unshiftedGround,
                 ground = ground,
                 position = position,
                 solution = checkNotNull(worstSolution),
