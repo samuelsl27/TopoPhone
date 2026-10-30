@@ -18,7 +18,7 @@
       Hecho cuando: `BaseShiftPointSaveTest` y `BaseShiftBackupTest` en verde, con ids nuevos remapeados en el paquete.
 - [x] T8. `core:formats`: ΔX, ΔY y ΔZ en «Todas las columnas» del CSV y en el GeoPackage. (RF-13)
       Hecho cuando: `CsvExportTest` y `GpkgExportTest` ampliados en verde, con las columnas vacías sin desplazamiento.
-- [ ] T9. `app`: `BaseShiftViewModel`: punto conocido (del proyecto o escrito), medida sin guardar, resultado, confirmaciones, rechazo, sin altura, lista de desplazamientos. (RF-1 a RF-6, RF-12, RF-14)
+- [x] T9. `app`: `BaseShiftViewModel`: punto conocido (del proyecto o escrito), medida sin guardar, resultado, confirmaciones, rechazo, sin altura, lista de desplazamientos. (RF-1 a RF-6, RF-12, RF-14)
       Hecho cuando: `BaseShiftViewModelTest` en verde.
 - [ ] T10. `app`: `BaseShiftScreen`, `BaseShiftRoute`, `SurveyPage.BaseShift` y la entrada en el menú, con sus textos en es y en. (RF-1, RF-4, RF-12, RNF-T7, RNF-T8)
       Hecho cuando: `BaseShiftScreenTest` en verde, con las zonas táctiles de 56 dp y el resumen.
