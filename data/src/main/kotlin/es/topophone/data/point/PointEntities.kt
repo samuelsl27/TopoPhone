@@ -7,8 +7,10 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.AdmittedSolutions
+import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.AxisHeightRef
 import es.topophone.core.model.point.AxisRef
+import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.EntryForm
@@ -366,6 +368,14 @@ internal fun Point.toEntity(): PointEntity {
         axisOffset = onAxis?.offsetM,
         axisDHeight = onAxis?.dHeightM,
         axisHeightRef = onAxis?.heightRef?.name,
+        shiftId = m?.shift?.shiftId,
+        shiftName = m?.shift?.knownName,
+        shiftDx = m?.shift?.vector?.dx,
+        shiftDy = m?.shift?.vector?.dy,
+        shiftDz = m?.shift?.vector?.dz,
+        unshiftedGroundLat = m?.shift?.unshiftedGround?.latitudeDeg,
+        unshiftedGroundLon = m?.shift?.unshiftedGround?.longitudeDeg,
+        unshiftedGroundH = m?.shift?.unshiftedGround?.ellipsoidalHeightM,
     )
 }
 
@@ -473,8 +483,17 @@ private fun PointEntity.measurement(): Measurement? {
         tilt = tilt(),
         nmeaChunks = nmeaChunks,
         gear = gear(),
+        shift = shift(),
     )
 }
+
+/** El desplazamiento de base con que se midió; null en los puntos sin él (S020/RF-8). */
+private fun PointEntity.shift(): AppliedShift? = AppliedShift(
+    shiftId = shiftId ?: return null,
+    knownName = shiftName.orEmpty(),
+    vector = BaseShiftVector(shiftDx ?: return null, shiftDy ?: return null, shiftDz ?: return null),
+    unshiftedGround = GeodeticPosition(unshiftedGroundLat ?: return null, unshiftedGroundLon ?: return null, unshiftedGroundH),
+)
 
 /** El jalón y la antena con los que se midió; null en los puntos de antes de S046 (S046/RF-24, RF-29). */
 private fun PointEntity.gear(): GearUsed? = GearUsed(

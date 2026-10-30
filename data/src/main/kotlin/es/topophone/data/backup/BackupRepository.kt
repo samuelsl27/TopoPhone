@@ -390,6 +390,7 @@ class BackupRepository(
         val args = arrayOf(oldId)
         val surfaceIds = surfaceIds(source, args, keepIds)
         val alignmentIds = alignmentIds(source, args, keepIds)
+        val shiftIds = baseShiftIds(source, args, keepIds)
         source("SELECT * FROM projects WHERE id = ?", args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "projects") {
                 it.put("id", newProjectId)
@@ -412,6 +413,8 @@ class BackupRepository(
                 point.put("id", id)
                 point.put("project_id", newProjectId)
                 if (point.getAsString("trash_key").isNotEmpty()) point.put("trash_key", id)
+                // S020/RF-8: el punto sigue señalando el cálculo de su desplazamiento, que en la copia tiene id nuevo.
+                point.getAsString("shift_id")?.let { oldShift -> point.put("shift_id", shiftIds[oldShift] ?: oldShift) }
             }
         }
         source("SELECT * FROM point_history WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)", args).use { cursor ->
@@ -423,6 +426,32 @@ class BackupRepository(
         copyDrawings(source, sink, args, newProjectId, keepIds)
         copySurfaces(source, sink, args, newProjectId, surfaceIds)
         copyAlignments(source, sink, args, newProjectId, alignmentIds)
+        copyBaseShifts(source, sink, args, newProjectId, shiftIds)
+    }
+
+    /** De los ids de los desplazamientos de base del proyecto a los que tendrán al copiarlos: los mismos con [keepIds], nuevos si no (S020/RF-12). */
+    private fun baseShiftIds(
+        source: (String, Array<String>) -> android.database.Cursor,
+        args: Array<String>,
+        keepIds: Boolean,
+    ): Map<String, String> = source("SELECT id FROM base_shifts WHERE project_id = ?", args).use { cursor ->
+        buildMap { while (cursor.moveToNext()) cursor.getString(0).let { old -> put(old, if (keepIds) old else newId()) } }
+    }
+
+    /** La lista de desplazamientos del proyecto con el activo (S020/RF-12). */
+    private fun copyBaseShifts(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        shiftIds: Map<String, String>,
+    ) {
+        source("SELECT * FROM base_shifts WHERE project_id = ? ORDER BY created_at_ms, rowid", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "base_shifts") { shift ->
+                shift.put("id", shiftIds.getValue(shift.getAsString("id")))
+                shift.put("project_id", newProjectId)
+            }
+        }
     }
 
     /** De los ids de los ejes del proyecto a los que tendrán al copiarlos: los mismos con [keepIds], nuevos si no (S049/RF-16). */
