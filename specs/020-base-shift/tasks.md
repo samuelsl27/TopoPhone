@@ -30,7 +30,7 @@
       Hecho cuando: `PointDetailsShiftTest` en verde.
 - [x] T14. `app`: los avisos de cambio de base y de cambio de datum, con «Desactivar» y «Repetir». (RF-15, RF-16)
       Hecho cuando: `BaseShiftNoticeTest` en verde.
-- [ ] T15. Rendimiento y reproducción sintética `rs3-base-shift`: `BaseShiftPerformanceTest` y un recorrido que mide un conocido, activa, mide dos puntos y desactiva, con el resultado esperado calculado aparte. (RNF, criterios de finalización)
+- [x] T15. Rendimiento y reproducción sintética `rs3-base-shift`: `BaseShiftPerformanceTest` y un recorrido que mide un conocido, activa, mide dos puntos y desactiva, con el resultado esperado calculado aparte. (RNF, criterios de finalización)
       Hecho cuando: aplicar el vector no añade más de 1 ms por época y el test de la reproducción en verde.
 - [ ] T16. Validación: cambios en documentos anteriores (hoja de ruta con S017b a la v24, glosario), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
