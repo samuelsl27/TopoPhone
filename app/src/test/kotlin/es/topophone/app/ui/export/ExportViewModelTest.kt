@@ -223,11 +223,11 @@ class ExportViewModelTest {
 
         // El orden es el de creación: el punto medido sale antes que el replanteado.
         val (header, normal, replanteo) = out.toString(Charsets.UTF_8.name()).trimEnd().split("\r\n").map { it.split(",") }
-        header.takeLast(7) shouldBe stakeColumns.map { it.header }
+        header.takeLast(10).take(7) shouldBe stakeColumns.map { it.header }
         replanteo[header.indexOf("Stake design")] shouldBe "12"
         replanteo[header.indexOf("Stake within tolerance")] shouldBe "true"
         replanteo[header.indexOf("Stake design elevation")] shouldBe "648.1900"
-        normal.takeLast(7).all { it.isEmpty() } shouldBe true
+        normal.takeLast(10).all { it.isEmpty() } shouldBe true
     }
 
     @Test
@@ -247,7 +247,7 @@ class ExportViewModelTest {
 
     @Test
     fun `S019 RF-25 una seleccion personalizada guardada antes no incluye las columnas nuevas hasta marcarlas`() {
-        val before = ExportColumn.entries.filter { it !in stakeColumns }.toSet()
+        val before = ExportColumn.entries.filter { it !in stakeColumns && !it.name.startsWith("SHIFT_") }.toSet() // S020 añade tres más
         preferences.options.value = CsvOptions(format = ExportFormat.CUSTOM, customColumns = before)
         val vm = stakedViewModel()
 

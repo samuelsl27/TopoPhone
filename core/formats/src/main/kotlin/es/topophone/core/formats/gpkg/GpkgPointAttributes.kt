@@ -85,6 +85,9 @@ object GpkgPointAttributes {
         ExportColumn.STAKE_D_EAST,
         ExportColumn.STAKE_D_HORIZONTAL,
         ExportColumn.STAKE_D_ELEVATION,
+        ExportColumn.SHIFT_DX,
+        ExportColumn.SHIFT_DY,
+        ExportColumn.SHIFT_DZ,
         -> GpkgAttributeType.REAL
     }
 
@@ -161,6 +164,9 @@ object GpkgPointAttributes {
             ExportColumn.STAKE_D_HORIZONTAL -> staked?.dHorizontalM
             ExportColumn.STAKE_D_ELEVATION -> staked?.dHeightM
             ExportColumn.STAKE_WITHIN -> staked?.withinTolerance
+            ExportColumn.SHIFT_DX -> measurement?.shift?.vector?.dx
+            ExportColumn.SHIFT_DY -> measurement?.shift?.vector?.dy
+            ExportColumn.SHIFT_DZ -> measurement?.shift?.vector?.dz
         }
     }
 

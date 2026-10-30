@@ -768,6 +768,9 @@
     <string name="export_column_stake_d_horizontal">Horizontal distance (stakeout)</string>
     <string name="export_column_stake_d_elevation">Elevation difference (stakeout)</string>
     <string name="export_column_stake_within">Within tolerance (stakeout)</string>
+    <string name="export_column_shift_dx">Base shift ΔX</string>
+    <string name="export_column_shift_dy">Base shift ΔY</string>
+    <string name="export_column_shift_dz">Base shift ΔZ</string>
     <plurals name="export_count">
         <item quantity="one">%1$d point will be exported</item>
         <item quantity="other">%1$d points will be exported</item>

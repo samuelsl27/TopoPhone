@@ -82,6 +82,11 @@ enum class ExportColumn(val header: String) {
     STAKE_D_HORIZONTAL("Stake horizontal distance"),
     STAKE_D_ELEVATION("Stake delta elevation"),
     STAKE_WITHIN("Stake within tolerance"),
+
+    // S020/RF-13: el desplazamiento de base con que se midió; vacías en los puntos medidos sin él.
+    SHIFT_DX("Base shift dX"),
+    SHIFT_DY("Base shift dY"),
+    SHIFT_DZ("Base shift dZ"),
 }
 
 /** La base de un punto en el SC del proyecto, que calcula quien exporta (S015/RF-22); null lo que no se puede calcular. */
@@ -257,6 +262,9 @@ object CsvExport {
             ExportColumn.STAKE_D_HORIZONTAL -> length(staked?.dHorizontalM)
             ExportColumn.STAKE_D_ELEVATION -> length(staked?.dHeightM)
             ExportColumn.STAKE_WITHIN -> staked?.withinTolerance?.toString().orEmpty()
+            ExportColumn.SHIFT_DX -> length(measurement?.shift?.vector?.dx)
+            ExportColumn.SHIFT_DY -> length(measurement?.shift?.vector?.dy)
+            ExportColumn.SHIFT_DZ -> length(measurement?.shift?.vector?.dz)
         }
     }
 

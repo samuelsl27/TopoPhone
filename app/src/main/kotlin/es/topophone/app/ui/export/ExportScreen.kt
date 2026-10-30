@@ -316,4 +316,7 @@ private fun ExportColumn.labelRes(): Int = when (this) {
     ExportColumn.STAKE_D_HORIZONTAL -> R.string.export_column_stake_d_horizontal
     ExportColumn.STAKE_D_ELEVATION -> R.string.export_column_stake_d_elevation
     ExportColumn.STAKE_WITHIN -> R.string.export_column_stake_within
+    ExportColumn.SHIFT_DX -> R.string.export_column_shift_dx // S020/RF-13
+    ExportColumn.SHIFT_DY -> R.string.export_column_shift_dy
+    ExportColumn.SHIFT_DZ -> R.string.export_column_shift_dz
 }

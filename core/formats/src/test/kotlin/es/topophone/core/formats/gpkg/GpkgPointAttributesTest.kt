@@ -4,6 +4,8 @@ import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.CsvExport
 import es.topophone.core.formats.csv.CsvOptions
 import es.topophone.core.formats.csv.ExportColumn
+import es.topophone.core.model.point.AppliedShift
+import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
@@ -89,6 +91,12 @@ class GpkgPointAttributesTest {
                     pole = PoleVector(0.0, 0.0, 1.0),
                 ),
             ),
+            shift = AppliedShift(
+                "s1",
+                "V-12",
+                BaseShiftVector(-2.147247769869864, -1.9653960830764845, 0.516280195210129),
+                GeodeticPosition(40.4, -3.7, 699.0),
+            ),
         ),
         createdAtMs = 1_792_346_639_419,
         staked = StakeoutRef(
@@ -154,6 +162,18 @@ class GpkgPointAttributesTest {
     }
 
     @Test
+    fun `S020 RF-13 el vector del base shift es REAL, en metros y sin redondear`() {
+        listOf(ExportColumn.SHIFT_DX, ExportColumn.SHIFT_DY, ExportColumn.SHIFT_DZ).forEach {
+            GpkgPointAttributes.typeOf(it) shouldBe GpkgAttributeType.REAL
+        }
+        value(full, ExportColumn.SHIFT_DX) shouldBe -2.147247769869864
+        value(full, ExportColumn.SHIFT_DY) shouldBe -1.9653960830764845
+        value(full, ExportColumn.SHIFT_DZ) shouldBe 0.516280195210129
+        val feet = project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT)
+        GpkgPointAttributes.value(full, ExportColumn.SHIFT_DX, feet, base) shouldBe -2.147247769869864
+    }
+
+    @Test
     fun `S053 RF-5 las coordenadas y los demas decimales salen sin redondear`() {
         value(full, ExportColumn.EASTING) shouldBe 440_313.1221195372
         value(full, ExportColumn.NORTHING) shouldBe 4_474_258.876880059
@@ -183,7 +203,7 @@ class GpkgPointAttributesTest {
             ExportColumn.SATELLITES, ExportColumn.HDOP, ExportColumn.HORIZONTAL_ACCURACY, ExportColumn.MODE, ExportColumn.EPOCHS_USED,
             ExportColumn.REPLAY, ExportColumn.OUT_OF_TOLERANCE, ExportColumn.MEASURED_FROM, ExportColumn.BASE_LATITUDE,
             ExportColumn.TILT_MODE, ExportColumn.TILT, ExportColumn.AUTOMATIC, ExportColumn.COPY_OF, ExportColumn.STAKE_DESIGN,
-            ExportColumn.STAKE_WITHIN,
+            ExportColumn.STAKE_WITHIN, ExportColumn.SHIFT_DX, ExportColumn.SHIFT_DY, ExportColumn.SHIFT_DZ,
         )
 
         empty.forEach { value(manual, it).shouldBeNull() }

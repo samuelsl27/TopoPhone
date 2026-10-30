@@ -16,7 +16,7 @@
       Hecho cuando: `BaseShiftRepositoryTest` en verde: uno activo por proyecto, borrar sin tocar los puntos y el datum.
 - [x] T7. `data`: el punto se guarda con el vector, la punta sin desplazar y el conocido; copia de seguridad, paquete y restauración con `base_shifts`. (RF-8, RNF-T6)
       Hecho cuando: `BaseShiftPointSaveTest` y `BaseShiftBackupTest` en verde, con ids nuevos remapeados en el paquete.
-- [ ] T8. `core:formats`: ΔX, ΔY y ΔZ en «Todas las columnas» del CSV y en el GeoPackage. (RF-13)
+- [x] T8. `core:formats`: ΔX, ΔY y ΔZ en «Todas las columnas» del CSV y en el GeoPackage. (RF-13)
       Hecho cuando: `CsvExportTest` y `GpkgExportTest` ampliados en verde, con las columnas vacías sin desplazamiento.
 - [ ] T9. `app`: `BaseShiftViewModel`: punto conocido (del proyecto o escrito), medida sin guardar, resultado, confirmaciones, rechazo, sin altura, lista de desplazamientos. (RF-1 a RF-6, RF-12, RF-14)
       Hecho cuando: `BaseShiftViewModelTest` en verde.

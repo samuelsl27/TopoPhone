@@ -780,6 +780,9 @@
     <string name="export_column_stake_d_horizontal">Distancia horizontal (replanteo)</string>
     <string name="export_column_stake_d_elevation">Diferencia de cota (replanteo)</string>
     <string name="export_column_stake_within">Dentro de la tolerancia (replanteo)</string>
+    <string name="export_column_shift_dx">Base shift ΔX</string>
+    <string name="export_column_shift_dy">Base shift ΔY</string>
+    <string name="export_column_shift_dz">Base shift ΔZ</string>
     <plurals name="export_count">
         <item quantity="one">Se exportará %1$d punto</item>
         <item quantity="other">Se exportarán %1$d puntos</item>

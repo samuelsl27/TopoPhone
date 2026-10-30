@@ -1,5 +1,7 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.point.AppliedShift
+import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
@@ -91,7 +93,7 @@ class CsvExportTest {
             "Tilt mode,Tilt mode verified,Tilt,Tilt direction,Heading,Maximum tilt,Tilt horizontal accuracy,Tilt vertical accuracy," +
             "Averaged time,Deviation horizontal,Deviation vertical,Automatic," +
             "Edited,Copy of,Stake design,Stake design elevation,Stake delta northing,Stake delta easting,Stake horizontal distance," +
-            "Stake delta elevation,Stake within tolerance"
+            "Stake delta elevation,Stake within tolerance,Base shift dX,Base shift dY,Base shift dZ"
 
     private fun csv(points: List<Point>, options: CsvOptions, project: Project = this.project): String =
         StringBuilder().also { CsvExport.write(points.asSequence(), project, options, it) }.toString()
@@ -106,7 +108,7 @@ class CsvExportTest {
             allHeader,
             "4,,Measured,440313.1221,4474258.8769,648.3114,40.416815094,-3.703533016,699.4230,EPSG:25830,EGM08-REDNAP,m," +
                 "1.8000,FLOAT,24,0.6,1.0,0.1383,0.2100,Instant,1,0,true,NOT_FIX,2026-10-18T18:03:34Z,2026-10-18T18:03:59Z," +
-                ",,,,,,,,,,,,,,,,,,,false,,,,,,,,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
+                ",,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
         )
     }
 
@@ -170,7 +172,7 @@ class CsvExportTest {
     fun `S019 RF-25 las columnas del replanteo van tras las de S012 en todas las columnas`() {
         val header = lines(csv(listOf(stakedPoint), CsvOptions()))[0].split(",")
 
-        header.subList(header.size - 9, header.size) shouldBe listOf("Edited", "Copy of") + stakeColumns.map { it.header }
+        header.subList(header.size - 12, header.size - 3) shouldBe listOf("Edited", "Copy of") + stakeColumns.map { it.header }
         stakeColumns.map { it.header } shouldBe listOf(
             "Stake design",
             "Stake design elevation",
@@ -180,6 +182,53 @@ class CsvExportTest {
             "Stake delta elevation",
             "Stake within tolerance",
         )
+    }
+
+    private val shiftColumns = setOf(ExportColumn.SHIFT_DX, ExportColumn.SHIFT_DY, ExportColumn.SHIFT_DZ)
+
+    private val shifted = measured.copy(
+        measurement = measured.measurement!!.copy(
+            shift = AppliedShift("s1", "V-12", BaseShiftVector(-2.1472477, -1.96539608, 0.5162802), GeodeticPosition(40.4, -3.7, 699.0)),
+        ),
+    )
+
+    private fun shiftCells(point: Point, options: CsvOptions = CsvOptions(), project: Project = this.project): List<String> {
+        val custom = options.copy(format = ExportFormat.CUSTOM, customColumns = shiftColumns)
+        return lines(csv(listOf(point), custom, project))[1].split(options.separator.char)
+    }
+
+    @Test
+    fun `S020 RF-13 las columnas del base shift van al final de todas las columnas`() {
+        val header = lines(csv(listOf(shifted), CsvOptions()))[0].split(",")
+
+        header.takeLast(3) shouldBe listOf("Base shift dX", "Base shift dY", "Base shift dZ")
+        header.takeLast(3) shouldBe shiftColumns.map { it.header }
+    }
+
+    @Test
+    fun `S020 RF-13 un punto con base shift lleva el vector aplicado`() {
+        shiftCells(shifted) shouldBe listOf("-2.1472", "-1.9654", "0.5163")
+    }
+
+    @Test
+    fun `S020 RF-13 un punto sin base shift deja las tres columnas vacias`() {
+        shiftCells(measured) shouldBe List(3) { "" }
+        shiftCells(manual) shouldBe List(3) { "" }
+    }
+
+    @Test
+    fun `S020 RF-13 el vector sale en la unidad del proyecto`() {
+        val feet = shiftCells(shifted, project = project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT))
+
+        feet[0] shouldBe "-7.0448" // -2,1472477 m en pies internacionales
+    }
+
+    @Test
+    fun `S020 RF-13 PENZD y PNEZD no cambian con un punto con base shift`() {
+        val penzd = lines(csv(listOf(shifted), CsvOptions(format = ExportFormat.PENZD)))
+        val plain = lines(csv(listOf(measured), CsvOptions(format = ExportFormat.PENZD)))
+
+        penzd shouldBe plain
     }
 
     @Test
@@ -226,7 +275,7 @@ class CsvExportTest {
 
     @Test
     fun `S019 RF-25 una seleccion personalizada guardada antes no incluye las columnas nuevas hasta que se marcan`() {
-        val before = ExportColumn.entries.filter { it !in stakeColumns }.toSet()
+        val before = ExportColumn.entries.filter { it !in stakeColumns && it !in shiftColumns }.toSet()
         val saved = CsvOptions(format = ExportFormat.CUSTOM, customColumns = before)
 
         saved.columns.none { it in stakeColumns } shouldBe true
@@ -293,8 +342,8 @@ class CsvExportTest {
         // Los 14 campos de la medida, los 7 de la base (S015/RF-22), los 8 de la inclinación (S016/RF-24) y los 4 del
         // promediado (S017/RF-14), vacíos.
         row shouldBe "E1;\"Pozo, \"\"nuevo\"\"\";Manual;440300.0000;4474250.0000;;40.416800000;-3.703600000;;EPSG:25830;EGM08-REDNAP;m;" +
-            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;;;;;;;;"
-        row.split(";").size shouldBe 54
+            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;;;;;;;;;;;"
+        row.split(";").size shouldBe 57
     }
 
     @Test
