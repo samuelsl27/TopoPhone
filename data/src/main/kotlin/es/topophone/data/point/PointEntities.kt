@@ -186,6 +186,16 @@ data class PointEntity(
     @ColumnInfo(name = "stake_d_chainage") val stakeDChainage: Double? = null,
     @ColumnInfo(name = "axis_d_height") val axisDHeight: Double? = null,
     @ColumnInfo(name = "axis_height_ref") val axisHeightRef: String? = null,
+    // S020/RF-8: el desplazamiento de base con que se midió (el cálculo, su nombre y su vector) y la punta sin desplazar; las
+    // coordenadas del punto ya lo llevan. NULL en los demás.
+    @ColumnInfo(name = "shift_id") val shiftId: String? = null,
+    @ColumnInfo(name = "shift_name") val shiftName: String? = null,
+    @ColumnInfo(name = "shift_dx") val shiftDx: Double? = null,
+    @ColumnInfo(name = "shift_dy") val shiftDy: Double? = null,
+    @ColumnInfo(name = "shift_dz") val shiftDz: Double? = null,
+    @ColumnInfo(name = "unshifted_ground_lat") val unshiftedGroundLat: Double? = null,
+    @ColumnInfo(name = "unshifted_ground_lon") val unshiftedGroundLon: Double? = null,
+    @ColumnInfo(name = "unshifted_ground_h") val unshiftedGroundH: Double? = null,
 )
 
 /**

@@ -20,6 +20,7 @@ import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.surface.SurfaceKind
+import es.topophone.data.baseshift.BaseShiftEntity
 import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.point.PointEntity
@@ -1105,9 +1106,61 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S020 RNF-T6 v22 a v23 puntos sin shift y tabla nueva`() {
+        createFromExportedSchema(22)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v22 ->
+            v22.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v22.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.single().name shouldBe "P1"
+            points.single().measurement.shouldNotBeNull().coordinates.northing shouldBe 4474257.414123456
+            count(db, "base_shifts") shouldBe 0
+            db.openHelper.readableDatabase.query(
+                "SELECT shift_id, shift_name, shift_dx, shift_dy, shift_dz, unshifted_ground_lat, unshifted_ground_lon, " +
+                    "unshifted_ground_h FROM points",
+            ).use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                (0 until 8).all { cursor.isNull(it) } shouldBe true
+            }
+            val shift = BaseShiftEntity(
+                id = "s1", projectId = project.id, createdAtMs = 5, fromReplay = false, knownName = "V-12", knownPointId = null,
+                knownEasting = 440290.123456789, knownNorthing = 4474257.987654321, knownHeight = null, measuredLat = 40.4,
+                measuredLon = -3.7, measuredH = 651.3, epochsUsed = 60, dx = -2.1, dy = -2.0, dz = 0.5, horizontalOnly = true,
+                correctionsDatum = "ETRS89", active = true, baseLat = null, baseLon = null, baseH = null,
+            )
+            runBlocking {
+                db.baseShifts().insert(shift)
+                db.baseShifts().byId("s1") shouldBe shift
+                db.baseShifts().all(project.id).first() shouldBe listOf(shift)
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 22
+        const val CURRENT_VERSION = 23
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
