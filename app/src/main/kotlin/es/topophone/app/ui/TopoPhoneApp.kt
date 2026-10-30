@@ -39,6 +39,7 @@ import es.topophone.app.ui.alignment.AlignmentPointRoute
 import es.topophone.app.ui.alignment.ManualAlignmentRoute
 import es.topophone.app.ui.alignment.ProfileCsvImportRoute
 import es.topophone.app.ui.backup.BackupsRoute
+import es.topophone.app.ui.baseshift.BaseShiftRoute
 import es.topophone.app.ui.cad.CadImportRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
@@ -195,6 +196,13 @@ fun TopoPhoneApp(
                     navigation.onBack,
                     viewModel = hiltViewModel(owner),
                 )
+                is SurveyPage.BaseShift -> BaseShiftRoute(
+                    page.projectId,
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
                 is SurveyPage.DefineAlignment -> ManualAlignmentRoute(
                     page.projectId,
                     theme,
@@ -331,6 +339,7 @@ private fun AppNavHost(
                     navController.navigate(ImportProfileCsvDestination(projectId, fileUri)) // S049/RF-9
                 },
                 onDefineAlignment = { projectId -> navController.navigate(DefineAlignmentDestination(projectId)) }, // S049/RF-8
+                onBaseShift = { projectId -> navController.navigate(BaseShiftDestination(projectId)) }, // S020/RF-1
                 onAlignmentPoint = { projectId, alignmentId ->
                     navController.navigate(AlignmentPointDestination(projectId, alignmentId)) // S049/RF-20
                 },
@@ -460,6 +469,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ImportProfileCsvDestination>()
                 surveySection(
                     SurveyPage.ImportProfileCsv(args.projectId, args.fileUri),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<BaseShiftDestination> { entry ->
+                val args = entry.toRoute<BaseShiftDestination>()
+                surveySection(
+                    SurveyPage.BaseShift(args.projectId),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

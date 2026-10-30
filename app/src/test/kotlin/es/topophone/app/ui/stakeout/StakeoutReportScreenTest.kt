@@ -260,7 +260,9 @@ class StakeoutReportScreenTest {
         compose.onNodeWithTag(SELECTION_STAKEOUT_REPORT_TAG).performClick()
         compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
         // La barra de la selección también tiene un botón con ese texto: aquí va el del menú.
-        compose.onNode(hasText("Informe de replanteo").and(hasTestTag(SELECTION_STAKEOUT_REPORT_TAG).not())).performClick()
+        compose.onNode(
+            hasText("Informe de replanteo").and(hasTestTag(SELECTION_STAKEOUT_REPORT_TAG).not()),
+        ).performScrollTo().performClick()
 
         chosen shouldBe listOf("selected", "all")
     }

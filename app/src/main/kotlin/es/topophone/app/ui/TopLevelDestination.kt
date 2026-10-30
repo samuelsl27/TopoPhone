@@ -107,6 +107,9 @@ import kotlinx.serialization.Serializable
 /** La definición a mano de un eje del proyecto (S049/RF-8). */
 @Serializable data class DefineAlignmentDestination(val projectId: String)
 
+/** El desplazamiento de base de un proyecto (S020/RF-1). */
+@Serializable data class BaseShiftDestination(val projectId: String)
+
 /** El cálculo de un punto sobre un eje del proyecto (S049/RF-20). */
 @Serializable data class AlignmentPointDestination(val projectId: String, val alignmentId: String)
 

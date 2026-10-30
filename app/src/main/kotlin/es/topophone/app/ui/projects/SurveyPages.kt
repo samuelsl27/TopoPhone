@@ -13,6 +13,9 @@ import es.topophone.app.ui.alignment.ManualAlignmentUiState
 import es.topophone.app.ui.alignment.ProfileCsvImportActions
 import es.topophone.app.ui.alignment.ProfileCsvImportScreen
 import es.topophone.app.ui.alignment.ProfileCsvUiState
+import es.topophone.app.ui.baseshift.BaseShiftActions
+import es.topophone.app.ui.baseshift.BaseShiftScreen
+import es.topophone.app.ui.baseshift.BaseShiftUiState
 import es.topophone.app.ui.cad.CadImportActions
 import es.topophone.app.ui.cad.CadImportScreen
 import es.topophone.app.ui.cad.CadImportUiState
@@ -116,6 +119,9 @@ sealed interface SurveyPage {
     /** Definir un eje a mano en el proyecto (S049/RF-8). */
     data class DefineAlignment(val projectId: String) : SurveyPage
 
+    /** El desplazamiento de base del proyecto (S020/RF-1). */
+    data class BaseShift(val projectId: String) : SurveyPage
+
     /** Calcular un punto sobre un eje del proyecto (S049/RF-20). */
     data class AlignmentPoint(val projectId: String, val alignmentId: String) : SurveyPage
 }
@@ -159,6 +165,8 @@ class SurveyNavigation(
     val onImportProfileCsv: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de definir un eje a mano (S049/RF-8). */
     val onDefineAlignment: (projectId: String) -> Unit = {},
+    /** La pantalla del desplazamiento de base (S020/RF-1). */
+    val onBaseShift: (projectId: String) -> Unit = {},
     /** La pantalla de calcular un punto sobre un eje (S049/RF-20). */
     val onAlignmentPoint: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     val onOpenTrash: () -> Unit = {},
@@ -191,6 +199,7 @@ data class SurveyUiState(
     val alignmentPoint: AlignmentPointUiState = AlignmentPointUiState(),
     val surfaceImport: SurfaceImportUiState = SurfaceImportUiState(),
     val rasterImport: RasterImportUiState = RasterImportUiState(),
+    val baseShift: BaseShiftUiState = BaseShiftUiState(),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -250,6 +259,7 @@ fun SurveyPageScreen(
             SurfaceImportScreen(themeState, onToggleSun, state.surfaceImport, SurfaceImportActions(), navigation.onBack)
         is SurveyPage.ImportRaster ->
             RasterImportScreen(themeState, onToggleSun, state.rasterImport, RasterImportActions(), navigation.onBack)
+        is SurveyPage.BaseShift -> BaseShiftScreen(themeState, onToggleSun, state.baseShift, BaseShiftActions(), navigation.onBack)
         is SurveyPage.ImportGpkg -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
         is SurveyPage.AlignmentPoint ->
             AlignmentPointScreen(themeState, onToggleSun, state.alignmentPoint, AlignmentPointActions(), navigation.onBack)

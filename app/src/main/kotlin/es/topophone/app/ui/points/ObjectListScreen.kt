@@ -141,6 +141,7 @@ class ObjectListActions(
     val onImportSurface: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de un ráster de cotas (S045/RF-1). */
     val onImportRaster: () -> Unit = {},
+    val onBaseShift: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage (S048/RF-1). */
     val onImportGpkg: () -> Unit = {},
     /** Pregunta de dónde sale el eje y lo importa (S049/RF-1). */
@@ -287,6 +288,7 @@ fun ObjectListRoute(
             onImportDxf = { importDxf(projectId) },
             onImportSurface = { importSurface(projectId) },
             onImportRaster = { importRaster(projectId) },
+            onBaseShift = { navigation.onBaseShift(projectId) }, // S020/RF-1
             onImportGpkg = { importGpkg(projectId) },
             onImportAlignment = { importAlignment(projectId) },
             onStakeoutReportSelected = {
@@ -346,6 +348,7 @@ fun ObjectListScreen(
                 actions.onImportRaster,
                 actions.onImportGpkg,
                 actions.onImportAlignment,
+                actions.onBaseShift,
             )
         },
         floatingActionButton = {
@@ -410,6 +413,7 @@ private fun ObjectsMenu(
     onImportRaster: () -> Unit,
     onImportGpkg: () -> Unit,
     onImportAlignment: () -> Unit,
+    onBaseShift: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
@@ -480,6 +484,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S049/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.base_shift_title)) },
+            onClick = {
+                open = false
+                onBaseShift()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S020/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.stakeout_report_title)) },
             onClick = {
