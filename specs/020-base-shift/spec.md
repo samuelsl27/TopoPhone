@@ -1,6 +1,6 @@
 # Spec 020 — Base shift (desplazamiento de base)
 
-> Hito: H2 · Depende de: S011, S010 (además, de S008, S015, S016, S018, S046 y S047, de las que reutiliza términos) · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H2 · Depende de: S011, S010 (además, de S008, S015, S016, S018, S046 y S047, de las que reutiliza términos) · Estado: aprobada (30/10/2026)
 
 ## Contexto y objetivo
 Cuando la base del rover no está sobre un punto de coordenadas oficiales (por ejemplo, se promedió en SINGLE), todas las posiciones salen desplazadas de forma casi constante respecto a las coordenadas buenas, y las correcciones pueden venir además en un datum distinto al del proyecto (≈ 0,9 m entre ITRF y ETRS89, `docs/arquitectura.md`). La solución rápida es medir un punto de coordenadas conocidas y aplicar la diferencia a todo lo que se mida después. La localización (S039) resuelve lo mismo con más puntos y más parámetros, pero llega mucho más tarde.
@@ -73,11 +73,14 @@ Términos de esta spec:
 - Demo en el emulador con una reproducción: medir un punto conocido, activar, medir dos puntos, desactivar y comprobar la ficha y el CSV.
 - Demo de campo: queda para el usuario (base en SINGLE y un vértice conocido).
 
+## Decisiones de la entrevista (30/10/2026)
+- El punto conocido se mide aparte con el recolector y no se guarda como punto; no se admite elegir un punto ya medido como «medido» (RF-1, RF-2).
+- Un solo desplazamiento activo por proyecto; no uno por base ni por receptor (glosario de la spec, RF-12).
+- Aviso a los 10 m y rechazo a los 1.000 m (RF-5).
+- El desplazamiento se aplica solo a los puntos siguientes y nunca a los ya guardados (RF-9, fuera de alcance).
+
 ## Dudas abiertas
-- [SUPOSICIÓN: el punto conocido se mide aparte con el recolector y no se guarda como punto; no se admite elegir un punto ya medido como «medido».]
-- [SUPOSICIÓN: un solo desplazamiento activo por proyecto; no uno por base ni por receptor.]
-- [SUPOSICIÓN: aviso a los 10 m y rechazo a 1.000 m (RF-5); son cifras de partida.]
-- [SUPOSICIÓN: el desplazamiento se aplica solo a los puntos siguientes y nunca a los ya guardados.]
+Ninguna.
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`: S020 pasa a `spec`; dependencias ampliadas con S015 (cambio de base) y S047 (tipos de solución).
