@@ -26,7 +26,7 @@
       Hecho cuando: `CollectorBaseShiftTest` en verde y los tests del recolector siguen en verde.
 - [x] T12. `app`: el replanteo (puntos, CAD y eje) con el desplazamiento y el mismo aviso. (RF-7, RF-11)
       Hecho cuando: `StakeoutBaseShiftTest` en verde y los de S018, S019, S041 y S054 siguen en verde.
-- [ ] T13. `app`: la tarjeta «Base shift» de la ficha del punto y el recálculo del jalón con el vector del punto desde la ficha y el lote. (RF-10, RF-13)
+- [x] T13. `app`: la tarjeta «Base shift» de la ficha del punto y el recálculo del jalón con el vector del punto desde la ficha y el lote. (RF-10, RF-13)
       Hecho cuando: `PointDetailsShiftTest` en verde.
 - [ ] T14. `app`: los avisos de cambio de base y de cambio de datum, con «Desactivar» y «Repetir». (RF-15, RF-16)
       Hecho cuando: `BaseShiftNoticeTest` en verde.

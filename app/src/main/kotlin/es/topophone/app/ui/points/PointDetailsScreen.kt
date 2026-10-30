@@ -62,6 +62,7 @@ import es.topophone.core.model.alignment.OffsetSide
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.AxisHeightRef
 import es.topophone.core.model.point.AxisRef
 import es.topophone.core.model.point.BaseSource
@@ -114,6 +115,7 @@ const val POINT_COORDINATES_TAG = "point_coordinates"
 const val POINT_MEASURED_COORDINATES_TAG = "point_measured_coordinates"
 const val POINT_REVERT_TAG = "point_revert"
 const val POINT_BASE_TAG = "point_base"
+const val POINT_SHIFT_TAG = "point_shift"
 const val POINT_MEASUREMENT_TAG = "point_measurement"
 const val POINT_ORIGIN_TAG = "point_origin"
 const val POINT_TILT_TAG = "point_tilt"
@@ -338,6 +340,7 @@ fun PointDetailsScreen(
             if (measurement != null) {
                 MeasurementCard(project, measurement, loadNmeaChunk) // S011/RF-7
                 measurement.base?.let { BaseCard(project, it, state.baseCoordinates) } // S015/RF-21
+                ShiftCard(project, measurement.shift) // S020/RF-13
                 measurement.tilt?.angles?.let { TiltCard(project, it) } // S016/RF-23
             } else {
                 Text(
@@ -777,6 +780,24 @@ private fun TiltCard(project: Project, angles: TiltAngles) {
         CoordinateRow(stringResource(R.string.precision_tilt_limit), angle(angles.maxTiltRad), "point_tilt_max")
         CoordinateRow(stringResource(R.string.point_tilt_sigma_h), length(angles.horizontalAccuracyM), "point_tilt_sigma_h")
         CoordinateRow(stringResource(R.string.point_tilt_sigma_v), length(angles.verticalAccuracyM), "point_tilt_sigma_v")
+    }
+}
+
+/** El desplazamiento de base con que se midió el punto: el punto conocido y ΔX, ΔY y ΔZ, o «Sin base shift» (S020/RF-13). */
+@Composable
+private fun ShiftCard(project: Project, shift: AppliedShift?) {
+    val locale = uiLocale()
+    val unit = unitSymbol(project.linearUnit)
+    fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale, decimals = 4)} $unit"
+    DetailsCard(stringResource(R.string.base_shift_title), POINT_SHIFT_TAG) {
+        if (shift == null) {
+            CoordinateRow(stringResource(R.string.base_shift_title), stringResource(R.string.base_shift_none), "point_shift_none")
+        } else {
+            CoordinateRow(stringResource(R.string.base_shift_card_known), shift.knownName, "point_shift_known")
+            CoordinateRow("ΔX", length(shift.vector.dx), "point_shift_dx")
+            CoordinateRow("ΔY", length(shift.vector.dy), "point_shift_dy")
+            CoordinateRow("ΔZ", length(shift.vector.dz), "point_shift_dz")
+        }
     }
 }
 

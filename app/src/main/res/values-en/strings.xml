@@ -1872,4 +1872,6 @@
     <string name="base_shift_delete">Delete</string>
     <string name="base_shift_from_replay">Calculated in a replay</string>
     <string name="base_shift_active_banner">Base shift active · %1$s</string>
+    <string name="base_shift_card_known">Known point</string>
+    <string name="base_shift_none">No base shift</string>
 </resources>
