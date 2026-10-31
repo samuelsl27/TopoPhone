@@ -36,8 +36,16 @@ import org.json.JSONObject
 
 /** Una copia o un paquete leídos y comprobados, listos para restaurar o importar (S013/RF-6, RF-12 a RF-14). */
 sealed interface BackupRead {
-    /** [database] ya está en la versión actual del esquema; [settings] solo en la copia completa. */
-    data class Valid(val manifest: BackupManifest, val database: File, val settings: BackupSettings?) : BackupRead
+    /**
+     * [database] ya está en la versión actual del esquema; [settings] solo en la copia completa; [photos] son los ficheros de foto del
+     * ZIP por id de foto (S017b/RF-28, RF-29).
+     */
+    data class Valid(
+        val manifest: BackupManifest,
+        val database: File,
+        val settings: BackupSettings?,
+        val photos: Map<String, File> = emptyMap(),
+    ) : BackupRead
 
     data object NotTopoPhone : BackupRead
 
@@ -104,6 +112,7 @@ class BackupRepository(
     private val undoDir: File = File(context.filesDir, "backups/undo"),
     private val newId: () -> String = { UUID.randomUUID().toString() },
     private val log: AppLog = AppLog.NONE,
+    private val photosDir: File = File(context.filesDir, "photos"),
 ) : Backups {
     private val lock = Mutex()
 
@@ -203,7 +212,7 @@ class BackupRepository(
                 saveState(secrets, File(undoDir, "$BEFORE_RESTORE.tmp"), File(undoDir, "$NTRIP_SECRETS.tmp"))
             } ?: return@withContext RestoreResult.Failed // S013/RF-10
             attempt { keepCopy(before.zip) } // S013/RF-7: si la carpeta falla, la copia privada ya permite deshacer.
-            if (!apply(valid.database, backupSettings, secrets, rollbackTo = before)) {
+            if (!apply(valid.database, backupSettings, secrets, valid.photos, rollbackTo = before)) {
                 before.delete()
                 return@withContext RestoreResult.Failed
             }
@@ -234,7 +243,9 @@ class BackupRepository(
                 saveState(currentSecrets(), File(dir, BEFORE_RESTORE), File(dir, NTRIP_SECRETS))
             } ?: return@withContext RestoreResult.Failed
             try {
-                if (!apply(before.database, before.settings, before.secrets, rollbackTo = current)) return@withContext RestoreResult.Failed
+                if (!apply(before.database, before.settings, before.secrets, before.photos, rollbackTo = current)) {
+                    return@withContext RestoreResult.Failed
+                }
             } finally {
                 current.delete()
             }
@@ -596,8 +607,14 @@ class BackupRepository(
      * Pone [database], [secrets] y [newSettings]. Si la base de datos falla, su transacción se deshace sola; si fallan los
      * ajustes, se vuelve a [rollbackTo] (S013/RF-10). false si no se ha podido.
      */
-    private suspend fun apply(database: File, newSettings: BackupSettings, secrets: Map<String, Secret>, rollbackTo: SavedState): Boolean {
-        if (attempt { replaceDatabase(database, secrets, withHooks = true) } == null) return false
+    private suspend fun apply(
+        database: File,
+        newSettings: BackupSettings,
+        secrets: Map<String, Secret>,
+        photos: Map<String, File>,
+        rollbackTo: SavedState,
+    ): Boolean {
+        if (attempt { replaceDatabase(database, secrets, photos, withHooks = true) } == null) return false
         val applied = attempt {
             hooks.afterDatabase()
             settings.restore(newSettings)
@@ -605,7 +622,7 @@ class BackupRepository(
         if (applied == null) {
             attempt {
                 val previous = rollbackTo.open(ROLLBACK) ?: return@attempt
-                replaceDatabase(previous.database, previous.secrets, withHooks = false)
+                replaceDatabase(previous.database, previous.secrets, previous.photos, withHooks = false)
                 settings.restore(previous.settings)
             }
             return false
@@ -617,7 +634,24 @@ class BackupRepository(
      * Sustituye todas las tablas por las de [file] en una transacción de Room (los flujos avisan a las pantallas) y vuelve
      * a poner [secrets] en los perfiles que existan. Si algo falla, la transacción se deshace sola.
      */
-    private fun replaceDatabase(file: File, secrets: Map<String, Secret>, withHooks: Boolean) {
+    private fun replaceDatabase(file: File, secrets: Map<String, Secret>, photos: Map<String, File>, withHooks: Boolean) {
+        val incoming = stagePhotos(photos)
+        var swapped: PhotoSwap? = null
+        try {
+            replaceTables(file, secrets) {
+                // S017b/RF-28: las fotos se intercambian dentro de la transacción, que todavía se puede deshacer.
+                swapped = swapPhotos(incoming)
+                if (withHooks) hooks.beforeCommit()
+            }
+        } catch (e: Exception) {
+            swapped?.undo()
+            incoming.deleteRecursively()
+            throw e
+        }
+        swapped?.finish()
+    }
+
+    private fun replaceTables(file: File, secrets: Map<String, Secret>, beforeCommit: () -> Unit) {
         SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READONLY).use { from ->
             db.runInTransaction(
                 Runnable {
@@ -630,10 +664,43 @@ class BackupRepository(
                             arrayOf<Any>(secret.iv, secret.ciphertext, id),
                         )
                     }
-                    if (withHooks) hooks.beforeCommit()
+                    beforeCommit()
                 },
             )
         }
+    }
+
+    /** Copia las fotos extraídas de una copia a `photos.incoming`, al lado de la carpeta de fotos (S017b plan A5). */
+    private fun stagePhotos(photos: Map<String, File>): File {
+        val incoming = File(photosDir.parentFile, PHOTOS_INCOMING)
+        incoming.deleteRecursively()
+        if (!incoming.mkdirs()) throw IOException("No se puede crear la carpeta de fotos")
+        photos.forEach { (id, file) -> file.copyTo(File(incoming, "$id.jpg"), overwrite = true) }
+        return incoming
+    }
+
+    /** Las fotos de antes, apartadas en `photos.old` mientras la restauración no ha terminado (S017b plan A5). */
+    private inner class PhotoSwap(private val old: File, private val hadPhotos: Boolean) {
+        fun undo() {
+            photosDir.deleteRecursively()
+            if (hadPhotos) old.renameTo(photosDir)
+        }
+
+        fun finish() {
+            old.deleteRecursively()
+        }
+    }
+
+    private fun swapPhotos(incoming: File): PhotoSwap {
+        val old = File(photosDir.parentFile, PHOTOS_OLD)
+        old.deleteRecursively()
+        val hadPhotos = photosDir.exists()
+        if (hadPhotos && !photosDir.renameTo(old)) throw IOException("No se pueden apartar las fotos")
+        if (!incoming.renameTo(photosDir)) {
+            if (hadPhotos) old.renameTo(photosDir)
+            throw IOException("No se pueden poner las fotos de la copia")
+        }
+        return PhotoSwap(old, hadPhotos)
     }
 
     /** Una copia completa y sus contraseñas cifradas guardadas en el móvil. */
@@ -655,11 +722,23 @@ class BackupRepository(
             val valid = zip.inputStream().use { BackupArchive.read(it, BackupKind.BACKUP, TopoPhoneDatabase.VERSION, dir(dirName)) }
                 as? BackupReadResult.Valid ?: return null
             val savedSettings = valid.files[BackupArchive.SETTINGS]?.let { BackupSettingsJson.decode(it.readText()) } ?: return null
-            return Opened(valid.manifest, valid.files.getValue(BackupArchive.DATABASE), savedSettings, decode(secretsFile.readText()))
+            return Opened(
+                valid.manifest,
+                valid.files.getValue(BackupArchive.DATABASE),
+                savedSettings,
+                decode(secretsFile.readText()),
+                photosOf(valid.files),
+            )
         }
     }
 
-    private class Opened(val manifest: BackupManifest, val database: File, val settings: BackupSettings, val secrets: Map<String, Secret>)
+    private class Opened(
+        val manifest: BackupManifest,
+        val database: File,
+        val settings: BackupSettings,
+        val secrets: Map<String, Secret>,
+        val photos: Map<String, File>,
+    )
 
     private class Secret(val iv: ByteArray, val ciphertext: ByteArray)
 
@@ -712,8 +791,13 @@ class BackupRepository(
                 ?: return BackupRead.Damaged
         }
         if (valid.manifest.kind == BackupKind.BACKUP && backupSettings == null) return BackupRead.Damaged
-        return BackupRead.Valid(valid.manifest, database, backupSettings)
+        return BackupRead.Valid(valid.manifest, database, backupSettings, photosOf(valid.files))
     }
+
+    /** Las fotos de los ficheros extraídos de un ZIP, por id de foto. */
+    private fun photosOf(files: Map<String, File>): Map<String, File> = files
+        .filterKeys { it.startsWith("${BackupArchive.PHOTOS_DIR}/") }
+        .mapKeys { (name, _) -> name.removePrefix("${BackupArchive.PHOTOS_DIR}/").removeSuffix(".jpg") }
 
     /** null si la base de datos es de TopoPhone y ya está en la versión actual (plan, A3 paso 4). */
     private fun checkDatabase(file: File, manifestVersion: Int): BackupRead? {
@@ -766,7 +850,7 @@ class BackupRepository(
                     mapOf(
                         BackupArchive.DATABASE to database,
                         BackupArchive.SETTINGS to settingsFile,
-                    ),
+                    ) + photoFiles(database),
                     it,
                 )
             }
@@ -775,6 +859,23 @@ class BackupRepository(
             dir.deleteRecursively()
         }
     }
+
+    /**
+     * Los ficheros de foto de todas las filas de `point_photos` de la instantánea [database], también los de los puntos de la papelera
+     * (S017b/RF-28). Una fila sin fichero no lleva nada: esa foto ya no se podía abrir (RF-17).
+     */
+    private fun photoFiles(database: File): Map<String, File> =
+        SQLiteDatabase.openDatabase(database.path, null, SQLiteDatabase.OPEN_READONLY)
+            .use { sqlite ->
+                sqlite.rawQuery("SELECT id FROM point_photos ORDER BY id", null).use { cursor ->
+                    buildMap {
+                        while (cursor.moveToNext()) {
+                            val id = cursor.getString(0)
+                            File(photosDir, "$id.jpg").takeIf { it.isFile }?.let { put(BackupArchive.photoEntry(id), it) }
+                        }
+                    }
+                }
+            }
 
     /** Una base de datos de una copia abierta con Room, sin WAL, para que quede en un solo fichero. */
     private fun archiveDatabase(file: File): TopoPhoneDatabase =
@@ -801,5 +902,7 @@ class BackupRepository(
         private const val UNDO = "undo"
         private const val CURRENT = "current"
         private const val ROLLBACK = "rollback"
+        private const val PHOTOS_INCOMING = "photos.incoming"
+        private const val PHOTOS_OLD = "photos.old"
     }
 }
