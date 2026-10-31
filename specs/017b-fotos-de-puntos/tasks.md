@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/trazabilidad`: `rf_report` entiende las specs con letra (`017b`), que son distintas de las de su número. (RF de todas las specs con letra; S001/RF-26)
       Hecho cuando: los tests de `tools` en verde y `rf_report` lista S017b con sus RF pendientes.
-- [ ] T2. `core:model`: `PhotoPolicy` (10 fotos, 2.048 px, tamaño reducido, cuántas caben), `PointPhoto`, `PhotoOrigin`, `PhotoNames` y `PhotoStats`. (RF-13, RF-14, RF-18)
+- [x] T2. `core:model`: `PhotoPolicy` (10 fotos, 2.048 px, tamaño reducido, cuántas caben), `PointPhoto`, `PhotoOrigin`, `PhotoNames` y `PhotoStats`. (RF-13, RF-14, RF-18)
       Hecho cuando: `PhotoPolicyTest` y `PhotoNamesTest` en verde, con la foto apaisada, la vertical, la menor que el máximo, la selección que no cabe y dos fotos en el mismo segundo.
 - [ ] T3. `core:model`: `PhotoDestination` con las situaciones de A2. (RF-2, RF-5, RF-6, RF-7, RF-8)
       Hecho cuando: `PhotoDestinationTest` en verde, incluido el modo automático con otro punto en medida y el último punto que desaparece.
