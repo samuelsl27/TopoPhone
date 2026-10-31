@@ -57,6 +57,18 @@ data class PhotoUi(
     val pendingCancel: Int? = null,
 )
 
+/** Lo que lanzan «Foto» y «Galería» en el recolector y en la ficha del punto (S017b/RF-1, RF-12). */
+interface PhotoSink {
+    /** Antes de abrir la cámara: el fichero que escribirá, o null si no se puede añadir. */
+    fun beginCapture(): String?
+
+    /** La cámara volvió: con [taken] la foto se añade; sin ella no cambia nada (RF-16). */
+    fun finishCapture(taken: Boolean)
+
+    /** Fotos elegidas de la galería: las que quepan, y se dice cuántas se quedan fuera (RF-13, RF-14). */
+    fun addFromGallery(uris: List<String>)
+}
+
 /** El punto que el recolector guardó el último (RF-5, RF-6). */
 private data class SavedRef(val id: String, val name: String)
 
@@ -79,7 +91,7 @@ class CollectorPhotos(
     private val currentName: () -> String,
     private val handle: SavedStateHandle = SavedStateHandle(),
     private val log: AppLog = AppLog.NONE,
-) {
+) : PhotoSink {
     private data class Inner(
         val staged: List<StagedPhoto> = emptyList(),
         val saved: SavedRef? = null,
@@ -177,7 +189,7 @@ class CollectorPhotos(
      * Antes de abrir la cámara: guarda a dónde irá la foto y devuelve el fichero que escribirá la cámara del sistema; null si no hay
      * destino. Va al `SavedStateHandle` por si Android cierra la app con la cámara abierta (plan, «Cámara y galería»).
      */
-    fun beginCapture(): String? {
+    override fun beginCapture(): String? {
         if (!ui.value.canAdd) return null
         val file = store.newCaptureFile()
         handle[CAPTURE_FILE] = file.path
@@ -190,7 +202,7 @@ class CollectorPhotos(
     }
 
     /** La cámara volvió: con [taken] la foto se añade al destino de antes; sin ella no cambia nada (RF-16). */
-    fun finishCapture(taken: Boolean) {
+    override fun finishCapture(taken: Boolean) {
         val path = handle.get<String>(CAPTURE_FILE) ?: return
         val target = handle.get<String>(CAPTURE_TARGET)
         handle.remove<String>(CAPTURE_FILE)
@@ -203,7 +215,7 @@ class CollectorPhotos(
     }
 
     /** Fotos elegidas de la galería: se añaden las que quepan y se dice cuántas se quedan fuera (RF-13, RF-14). */
-    fun addFromGallery(uris: List<String>) {
+    override fun addFromGallery(uris: List<String>) {
         if (uris.isEmpty()) return // RF-16
         val target = when (val d = ui.value.destination) {
             PhotoDestination.Measuring -> MEASURING

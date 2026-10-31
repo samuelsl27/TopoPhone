@@ -38,7 +38,7 @@
       Hecho cuando: `PointPhotosScreenTest` en verde con las miniaturas en orden con su número, la de un fichero ilegible sustituida por su aviso y el resto intactas.
 - [x] T18. `app`: el visor a pantalla completa con zoom, paso entre fotos y fecha, origen y tamaño. (RF-10, RF-11)
       Hecho cuando: los tests del visor de `PointPhotosScreenTest` en verde, con la foto con otra orientación.
-- [ ] T19. `app`: añadir fotos desde la ficha: cámara, galería con varias, el límite y los errores. (RF-12, RF-13, RF-14, RF-15, RF-16)
+- [x] T19. `app`: añadir fotos desde la ficha: cámara, galería con varias, el límite y los errores. (RF-12, RF-13, RF-14, RF-15, RF-16)
       Hecho cuando: los tests de añadir de `PointPhotosScreenTest` en verde: en un punto medido y en uno manual, con 9 fotos y 3 elegidas, con 10 fotos, con un fallo de espacio y cerrando el selector sin elegir.
 - [ ] T20. `app`: borrar una foto con confirmación y el historial con los sucesos de foto. (RF-22, RF-23)
       Hecho cuando: los tests de borrar y de historial de `PointPhotosScreenTest` en verde, con el punto sin marcar como editado.

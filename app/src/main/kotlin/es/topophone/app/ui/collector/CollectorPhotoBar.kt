@@ -69,7 +69,7 @@ internal fun CollectorPhotoBar(photos: PhotoUi, actions: CollectorActions) {
 }
 
 @Composable
-private fun PhotoError.text(): String = when (this) {
+internal fun PhotoError.text(): String = when (this) {
     PhotoError.Full -> stringResource(R.string.photo_limit)
     is PhotoError.NotAllFit -> pluralStringResource(R.plurals.photo_not_all_fit, count, count)
     is PhotoError.Failed -> stringResource(

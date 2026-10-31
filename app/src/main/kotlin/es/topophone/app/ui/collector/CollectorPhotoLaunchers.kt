@@ -19,7 +19,7 @@ class CollectorPhotoLaunchers(val camera: () -> Unit, val gallery: () -> Unit)
  * medios), con hasta las 10 fotos de un punto (plan, «Cámara y galería»). Cerrar cualquiera sin elegir no cambia nada (RF-16).
  */
 @Composable
-fun rememberCollectorPhotoLaunchers(photos: CollectorPhotos): CollectorPhotoLaunchers {
+fun rememberCollectorPhotoLaunchers(photos: PhotoSink): CollectorPhotoLaunchers {
     val context = LocalContext.current
     val take = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { taken -> photos.finishCapture(taken) }
     val pick = rememberLauncherForActivityResult(

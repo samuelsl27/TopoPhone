@@ -18,6 +18,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.collector.PhotoError
 import es.topophone.app.ui.photos.PhotoImages
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.point.PhotoOrigin
@@ -30,6 +31,7 @@ import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.data.photo.PhotoFailure
 import io.kotest.matchers.shouldBe
 import java.io.File
 import kotlinx.coroutines.runBlocking
@@ -278,5 +280,70 @@ class PointPhotosScreenTest {
         listOf(PHOTO_VIEWER_PREVIOUS_TAG, PHOTO_VIEWER_NEXT_TAG, PHOTO_VIEWER_CLOSE_TAG).forEach {
             compose.onNodeWithTag(it).assertHeightIsAtLeast(56.dp)
         }
+    }
+
+    private val calls = mutableListOf<String>()
+
+    private fun showWithAdd(photos: List<PointPhoto>, add: PhotoAddUi = PhotoAddUi()) {
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                PointDetailsScreen(
+                    ThemeState.DEFAULT,
+                    {},
+                    PointDetailsUiState(project, point, photos = photos, photoAdd = add),
+                    PointDetailsActions(onPhoto = { calls += "photo" }, onGallery = { calls += "gallery" }),
+                    {},
+                    photoImages = images,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `S017b RF-12 Foto y Galeria de la ficha llaman a la camara y a la galeria`() {
+        showWithAdd(emptyList())
+
+        compose.onNodeWithTag(POINT_PHOTO_ADD_TAG).performScrollTo().performClick()
+        compose.onNodeWithTag(POINT_GALLERY_ADD_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("photo", "gallery")
+    }
+
+    @Test
+    fun `S017b RF-14 con 10 fotos los botones se desactivan y se indica el limite`() {
+        val list = (1..10).map { photo("f$it", it % 9 + 1).copy(id = "f$it") }
+        list.forEach { jpeg(it.id) }
+        showWithAdd(list)
+
+        compose.onNodeWithTag(POINT_PHOTO_ADD_TAG).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(POINT_GALLERY_ADD_TAG).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithText("Máximo de 10 fotos por punto").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `S017b RF-13 y RF-15 los avisos de las fotos que no caben o fallan salen en la ficha`() {
+        showWithAdd(emptyList(), PhotoAddUi(error = PhotoError.NotAllFit(2)))
+        compose.onNodeWithText("2 fotos no caben y no se han añadido").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `S017b RF-15 un fallo al guardar dice el motivo`() {
+        showWithAdd(emptyList(), PhotoAddUi(error = PhotoError.Failed(PhotoFailure.NO_SPACE)))
+        compose.onNodeWithText("No se ha podido guardar la foto: no hay espacio").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `S017b RF-12 mientras se anade una foto los botones se desactivan`() {
+        showWithAdd(emptyList(), PhotoAddUi(adding = true))
+
+        compose.onNodeWithTag(POINT_PHOTO_ADD_TAG).performScrollTo().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S017b RNF-T8 Foto y Galeria de la ficha miden 56 dp`() {
+        showWithAdd(emptyList())
+
+        compose.onNodeWithTag(POINT_PHOTO_ADD_TAG).performScrollTo().assertHeightIsAtLeast(56.dp)
+        compose.onNodeWithTag(POINT_GALLERY_ADD_TAG).performScrollTo().assertHeightIsAtLeast(56.dp)
     }
 }

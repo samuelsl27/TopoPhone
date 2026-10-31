@@ -34,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -42,6 +43,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.cad.elementKindLabel
+import es.topophone.app.ui.collector.rememberCollectorPhotoLaunchers
 import es.topophone.app.ui.photos.PhotoImages
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.CoordinateRow
@@ -94,6 +96,7 @@ import es.topophone.core.survey.PointCorrections
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.photo.PhotoRepository
+import es.topophone.data.photo.PhotoStore
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
@@ -154,6 +157,8 @@ data class PointDetailsUiState(
     /** Las fotos del punto en el orden en que se añadieron (S017b/RF-9) y sus sucesos de añadida o borrada (RF-23). */
     val photos: List<PointPhoto> = emptyList(),
     val photoEvents: List<PhotoEvent> = emptyList(),
+    /** Si se están añadiendo fotos desde la ficha y qué ha ido mal (S017b/RF-13 a RF-15). */
+    val photoAdd: PhotoAddUi = PhotoAddUi(),
 )
 
 /** Acciones de la ficha del punto. */
@@ -166,6 +171,9 @@ class PointDetailsActions(
     val onDelete: () -> Unit = {},
     /** "Replantear" este punto (S018/RF-1). */
     val onStakeout: () -> Unit = {},
+    /** «Foto» (la cámara) y «Galería» de la sección de fotos (S017b/RF-12). */
+    val onPhoto: () -> Unit = {},
+    val onGallery: () -> Unit = {},
 )
 
 /** Adónde va la ficha tras una acción: a la de la copia, o fuera si el punto se ha borrado. */
@@ -187,21 +195,26 @@ class PointDetailsViewModel @Inject constructor(
     private val photoRepository: PhotoRepository = PhotoRepository.NONE,
     /** Carga las miniaturas y las fotos enteras, con la caché de la app (S017b/RF-9, RF-10). */
     val images: PhotoImages = PhotoImages.NONE,
+    photoStore: PhotoStore = PhotoStore.NONE,
+    savedState: SavedStateHandle = SavedStateHandle(),
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val ids = MutableStateFlow<Pair<String, String>?>(null)
+
+    /** Añade fotos al punto de la ficha, de la cámara o de la galería (S017b/RF-12). */
+    val photoAdder = PointPhotoAdder(viewModelScope, photoRepository, photoStore, savedState)
     private val keptEdited = MutableStateFlow(false)
     private val eventChannel = Channel<PointDetailsEvent>(Channel.BUFFERED)
     val events: Flow<PointDetailsEvent> = eventChannel.receiveAsFlow()
 
     val state: StateFlow<PointDetailsUiState> = ids.filterNotNull().flatMapLatest { (projectId, pointId) ->
-        val photoState = combine(photoRepository.photos(pointId), photoRepository.events(pointId)) { photos, events -> photos to events }
+        val photoState = combine(photoRepository.photos(pointId), photoRepository.events(pointId), photoAdder.ui, ::Triple)
         combine(projects.observe(projectId), points.point(pointId), points.history(pointId), keptEdited, photoState) {
                 project,
                 point,
                 history,
                 kept,
-                (photos, events),
+                (photos, events, photoAdd),
             ->
             // S015/RF-21: con el SC actual del proyecto; si cambia, la base se calcula en el nuevo.
             val base = point?.measurement?.base
@@ -210,13 +223,14 @@ class PointDetailsViewModel @Inject constructor(
             } else {
                 null
             }
-            PointDetailsUiState(project, point, history, kept, baseCoordinates, photos, events)
+            PointDetailsUiState(project, point, history, kept, baseCoordinates, photos, events, photoAdd)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), PointDetailsUiState())
 
     private val corrections: PointCorrections get() = PointCorrections(calculator.get())
 
     fun start(projectId: String, pointId: String) {
+        photoAdder.start(pointId)
         ids.value = projectId to pointId
     }
 
@@ -287,6 +301,7 @@ fun PointDetailsRoute(
         }
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val photoLaunchers = rememberCollectorPhotoLaunchers(viewModel.photoAdder)
     PointDetailsScreen(
         themeState,
         onToggleSun,
@@ -299,6 +314,8 @@ fun PointDetailsRoute(
             onDuplicate = viewModel::duplicate,
             onDelete = viewModel::delete,
             onStakeout = { navigation.onStakeout(projectId, pointId, "") }, // S018/RF-1
+            onPhoto = photoLaunchers.camera, // S017b/RF-12
+            onGallery = photoLaunchers.gallery,
         ),
         navigation.onBack,
         loadNmeaChunk = viewModel::nmeaChunk, // S017/RF-12
@@ -345,7 +362,9 @@ fun PointDetailsScreen(
             ) // S028/RF-31
             Actions(state, point, actions)
             if (state.keptEdited) Notice(actions.onDismissNotice) // S011/RF-14
-            PointPhotosSection(point.name, state.photos, photoImages, onOpen = { openedPhoto = it }) // S017b/RF-9
+            PointPhotosSection(point.name, state.photos, photoImages, onOpen = { openedPhoto = it }) {
+                PointPhotoButtons(state.photos.size, state.photoAdd, actions) // S017b/RF-12 a RF-16
+            } // S017b/RF-9
             DetailsCard(stringResource(R.string.point_coordinates), POINT_COORDINATES_TAG) {
                 if (point.edited) MarkLine(R.string.point_mark_edited)
                 CoordinateRows(project, point.coordinates)

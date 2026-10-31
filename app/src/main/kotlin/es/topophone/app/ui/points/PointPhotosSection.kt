@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,12 +29,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.app.ui.collector.PhotoError
+import es.topophone.app.ui.collector.text
 import es.topophone.app.ui.photos.PhotoImages
+import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.point.PhotoPolicy
 import es.topophone.core.model.point.PointPhoto
 
 const val POINT_PHOTOS_TAG = "point_photos"
@@ -120,3 +129,33 @@ private fun PhotoThumbnail(pointName: String, index: Int, total: Int, photo: Poi
 }
 
 private const val THUMB_DP = 96
+
+const val POINT_PHOTO_ADD_TAG = "point_photo_add"
+const val POINT_GALLERY_ADD_TAG = "point_gallery_add"
+const val POINT_PHOTO_ERROR_TAG = "point_photo_error"
+
+/** «Foto» y «Galería» de la ficha, con 56 dp, desactivados con las 10 fotos del punto o mientras se añade una (S017b/RF-12, RF-14). */
+@Composable
+internal fun PointPhotoButtons(count: Int, add: PhotoAddUi, actions: PointDetailsActions) {
+    val enabled = count < PhotoPolicy.MAX_PER_POINT && !add.adding
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(
+            onClick = actions.onPhoto,
+            enabled = enabled,
+            modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(POINT_PHOTO_ADD_TAG),
+        ) { Text(stringResource(R.string.photo_button)) }
+        OutlinedButton(
+            onClick = actions.onGallery,
+            enabled = enabled,
+            modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(POINT_GALLERY_ADD_TAG),
+        ) { Text(stringResource(R.string.photo_gallery_button)) }
+    }
+    val error = add.error ?: PhotoError.Full.takeIf { count >= PhotoPolicy.MAX_PER_POINT }
+    error?.let {
+        Text(
+            it.text(),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag(POINT_PHOTO_ERROR_TAG).semantics { liveRegion = LiveRegionMode.Polite }, // RNF-T8
+        )
+    }
+}
