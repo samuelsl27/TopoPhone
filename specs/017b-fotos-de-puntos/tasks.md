@@ -10,8 +10,8 @@
       Hecho cuando: `PhotoDestinationTest` en verde, incluido el modo automático con otro punto en medida y el último punto que desaparece.
 - [ ] T4. `core:model`: los sucesos de foto añadida y borrada en el historial y `PointSummary.photoCount`. (RF-23, RF-26)
       Hecho cuando: `PointHistoryTest` en verde con los sucesos entre las versiones del punto, ordenados del más reciente al más antiguo y sin marcar el punto como editado.
-- [ ] T5. `data`: tablas `point_photos` y `photo_events`, sus DAO, `AutoMigration(9, 10)` con su esquema y `DatabaseSnapshot.TABLES` con ellas. (RF-20, RF-23, RF-28)
-      Hecho cuando: `TopoPhoneDatabaseTest` 9 → 10 en verde (los puntos conservan sus datos y las tablas nuevas quedan vacías), `DatabaseSnapshotTest` copia las filas y las cascadas de las dos tablas funcionan.
+- [ ] T5. `data`: tablas `point_photos` y `photo_events`, sus DAO, `AutoMigration(23, 24)` con su esquema y `DatabaseSnapshot.TABLES` con ellas. (RF-20, RF-23, RF-28)
+      Hecho cuando: `TopoPhoneDatabaseTest` 23 → 24 en verde (los puntos conservan sus datos y las tablas nuevas quedan vacías), `DatabaseSnapshotTest` copia las filas y las cascadas de las dos tablas funcionan.
 - [ ] T6. `data`: `PhotoStore`: reducir y guardar la foto con sus metadatos en `photos/pending/`, con los fallos sin dejar nada. (RF-15, RF-18, RF-19, RF-20)
       Hecho cuando: `PhotoStoreTest` en verde, con gráficos `NATIVE` y JPEG generados en el test: 12 MP baja a 2.048 px, una menor se copia sin recomprimir, la fecha, la orientación y la ubicación se conservan, la foto original no cambia y un fichero ilegible o un fallo de escritura no dejan nada.
 - [ ] T7. `data`: `PointRepository` con fotos: guardar el punto con sus fotos en espera en una transacción, `addPhotos`, `deletePhoto`, `photos(pointId)` y los sucesos. (RF-2, RF-12, RF-14, RF-20, RF-21, RF-22, RF-23)

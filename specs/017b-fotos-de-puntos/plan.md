@@ -2,7 +2,7 @@
 
 > Lee antes: `docs/constitution.md`, `docs/arquitectura.md`, `specs/017b-fotos-de-puntos/spec.md`. Sin código.
 
-> **Aviso al retomarla**: S018 (replanteo) pasó por delante y usa la versión 10 de la base de datos; las tablas de fotos pasan a la versión 11 (`AutoMigration(10, 11)`, `TopoPhoneDatabaseTest` 10 → 11) donde este plan dice 10.
+> **Aviso al retomarla**: otras specs pasaron por delante y la base de datos está en la versión 23 (S020); las tablas de fotos pasan a la versión 24 (`AutoMigration(23, 24)`, `TopoPhoneDatabaseTest` 23 → 24) donde este plan dice 10 (9 → 10). Antes de cada tarea se comprueba contra el código actual (copias, paquetes y `DatabaseSnapshot.TABLES` han crecido).
 
 ## Estructura de módulos
 - `core:model`:
@@ -12,7 +12,7 @@
   - `PointHistory` gana los sucesos de foto añadida y borrada, y `PointSummary.photoCount` (RF-23, RF-26).
 - `core:formats` → `BackupArchive` admite las fotos como entradas `photos/<id>.jpg`, con sus sumas, y el manifiesto un campo opcional `externalPhotos` para las copias automáticas (A5, A6; RF-28 a RF-30).
 - `data`:
-  - tablas `point_photos` y `photo_events`, migración 9 → 10 y `DatabaseSnapshot.TABLES` con ellas (A3; RF-20, RF-23, RF-28);
+  - tablas `point_photos` y `photo_events`, migración 23 → 24 y `DatabaseSnapshot.TABLES` con ellas (A3; RF-20, RF-23, RF-28);
   - `PhotoStore`: reducir y guardar la foto con sus metadatos, ficheros en espera, y barrido de los ficheros sin fila (A1, A4; RF-15 a RF-20);
   - `PointRepository`: guardar el punto con sus fotos en espera, añadir y borrar fotos, sus sucesos, el recuento por punto y por proyecto (A3; RF-2, RF-12, RF-22, RF-23, RF-26, RF-27);
   - papelera de puntos y de proyectos con sus fotos (A4; RF-24, RF-34);
@@ -28,7 +28,7 @@
 
 ## Modelo de datos
 
-### Fotos (Room v10)
+### Fotos (Room v24)
 ```
 point_photos(
   id TEXT PRIMARY KEY,                       // UUID; el fichero es photos/<id>.jpg
@@ -50,7 +50,7 @@ photo_events(
 - El orden de las fotos es el de `added_at` y, si empatan, el de su id (suposición de la spec).
 - `point_photos` no guarda el contenido: el fichero está en `filesDir/photos/<id>.jpg`. Una fila sin fichero es una foto que no se puede abrir (RF-17); un fichero sin fila es huérfano y se barre (A4).
 - Las fotos de una medida en curso no tienen fila: son ficheros en `filesDir/photos/pending/<id>.jpg` hasta que se guarda el punto (A3).
-- `AutoMigration(9, 10)` sin especificación: solo tablas nuevas.
+- `AutoMigration(23, 24)` sin especificación: solo tablas nuevas.
 
 ### Ficheros
 ```
@@ -170,7 +170,7 @@ Foto, Galería, "Foto para el punto %s · %d de %d", "Mide un punto primero", "F
 | `FORMAT_VERSION` sigue en 1; `externalPhotos` es opcional | Un campo nuevo opcional lo ignora una app anterior y no rompe nada | Subir la versión del formato |
 | Intercambio de directorios dentro de `beforeCommit` (A5) | La transacción de Room todavía se puede deshacer y el intercambio también | Copiar sobre `photos/`: un fallo deja una mezcla |
 | Las fotos idénticas duplicadas en un paquete que sustituye un proyecto no se deduplican | Simple y correcto; el coste son unos MB | Hash y enlaces: complejidad sin necesidad |
-| `AutoMigration` 9 → 10 sin especificación | Solo tablas nuevas | `RoomDatabase.Migration` a mano |
+| `AutoMigration` 23 → 24 sin especificación | Solo tablas nuevas | `RoomDatabase.Migration` a mano |
 
 ## Estrategia de tests
 - **Unitarios JVM (`core:model`)**:
@@ -183,7 +183,7 @@ Foto, Galería, "Foto para el punto %s · %d de %d", "Mide un punto primero", "F
   - `PhotoStoreTest`: una foto de 12 MP baja a 2.048 px, una de 1.600 px se copia sin recomprimir, la fecha, la orientación y la ubicación se conservan, la original de la galería no cambia, un fichero ilegible no deja nada y un fallo de escritura tampoco (RF-15, RF-18, RF-19, RF-20).
   - `PointRepositoryPhotosTest`: guardar el punto con sus fotos en una transacción, un fallo a medias no deja ni filas ni ficheros, el límite de 10, borrar con el suceso, añadir sin marcar el punto como editado, duplicar sin fotos (RF-2, RF-12, RF-14, RF-20, RF-22, RF-23, RF-25).
   - `PhotoCleanupTest`: la cascada y el barrido tras borrar un punto de la papelera, vaciar la papelera y borrar un proyecto; restaurar devuelve las fotos (RF-24, RF-34).
-  - `TopoPhoneDatabaseTest` 9 → 10: los puntos conservan sus datos y las tablas nuevas quedan vacías; `DatabaseSnapshotTest` con las tablas nuevas; `PointRepositoryExportTest` sin cambios.
+  - `TopoPhoneDatabaseTest` 23 → 24: los puntos conservan sus datos y las tablas nuevas quedan vacías; `DatabaseSnapshotTest` con las tablas nuevas; `PointRepositoryExportTest` sin cambios.
   - `BackupRepositoryPhotosTest`: copia completa con fotos, restaurar, un fallo en el intercambio que deja las fotos como estaban, deshacer, paquete con fotos importado como nuevo y sustituyendo, un paquete con ids repetidos (RF-28, RF-29).
   - `AutoBackupPhotosTest` con una `BackupFolder` falsa con subcarpeta: copia las fotos nuevas una vez, no repite en la siguiente copia, la retención conserva las que usa algún ZIP y borra las demás, y una foto que falta se cuenta al restaurar (RF-30 a RF-33).
 - **Robolectric (`app`)**:
