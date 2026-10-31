@@ -34,7 +34,7 @@
       Hecho cuando: `CollectorViewModelPhotosTest` en verde con la `ReceiverSession` real: foto durante la medida y al guardar, cancelar con confirmación, medida fallida y fuera de tolerancia, modo automático, sin punto, límite, y el `SavedStateHandle`.
 - [x] T16. `app`: el panel del recolector con "Foto", "Galería", el destino, el recuento y el aviso al cancelar, con textos en es y en. (RF-1, RF-3, RF-7, RF-8)
       Hecho cuando: `CollectorPanelPhotosTest` en verde, con zonas táctiles de 56 dp y las etiquetas de TalkBack.
-- [ ] T17. `app`: carga de miniaturas con orientación y caché, y la sección "Fotos" de la ficha con la foto que no se puede abrir. (RF-9, RF-17)
+- [x] T17. `app`: carga de miniaturas con orientación y caché, y la sección "Fotos" de la ficha con la foto que no se puede abrir. (RF-9, RF-17)
       Hecho cuando: `PointPhotosScreenTest` en verde con las miniaturas en orden con su número, la de un fichero ilegible sustituida por su aviso y el resto intactas.
 - [ ] T18. `app`: el visor a pantalla completa con zoom, paso entre fotos y fecha, origen y tamaño. (RF-10, RF-11)
       Hecho cuando: los tests del visor de `PointPhotosScreenTest` en verde, con la foto con otra orientación.

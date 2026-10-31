@@ -516,6 +516,14 @@
     <string name="collector_measure">Medir</string>
     <string name="collector_measuring">Midiendo…</string>
     <string name="collector_cancel">Cancelar</string>
+    <string name="point_photos_title">Fotos</string>
+    <plurals name="point_photos_count">
+        <item quantity="one">%d foto</item>
+        <item quantity="other">%d fotos</item>
+    </plurals>
+    <string name="point_photo_description">Foto %1$d de %2$d del punto %3$s</string>
+    <string name="point_photo_open">Abrir</string>
+    <string name="point_photo_unreadable">No se puede abrir la foto</string>
     <string name="photo_button">Foto</string>
     <string name="photo_gallery_button">Galería</string>
     <string name="photo_destination">Foto para el punto %1$s · %2$d de %3$d</string>

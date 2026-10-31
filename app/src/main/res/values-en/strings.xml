@@ -504,6 +504,14 @@
     <string name="collector_measure">Measure</string>
     <string name="collector_measuring">Measuring…</string>
     <string name="collector_cancel">Cancel</string>
+    <string name="point_photos_title">Photos</string>
+    <plurals name="point_photos_count">
+        <item quantity="one">%d photo</item>
+        <item quantity="other">%d photos</item>
+    </plurals>
+    <string name="point_photo_description">Photo %1$d of %2$d of point %3$s</string>
+    <string name="point_photo_open">Open</string>
+    <string name="point_photo_unreadable">The photo cannot be opened</string>
     <string name="photo_button">Photo</string>
     <string name="photo_gallery_button">Gallery</string>
     <string name="photo_destination">Photo for point %1$s · %2$d of %3$d</string>

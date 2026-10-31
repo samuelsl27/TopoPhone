@@ -42,6 +42,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.cad.elementKindLabel
+import es.topophone.app.ui.photos.PhotoImages
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.CoordinateRow
 import es.topophone.app.ui.projects.SurveyNavigation
@@ -71,6 +72,7 @@ import es.topophone.core.model.point.HistoryItem
 import es.topophone.core.model.point.HistoryLine
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.PhotoEvent
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointChange
@@ -78,6 +80,7 @@ import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointHistory
 import es.topophone.core.model.point.PointHistoryEntry
 import es.topophone.core.model.point.PointNames
+import es.topophone.core.model.point.PointPhoto
 import es.topophone.core.model.point.PoleKind
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeSource
@@ -90,6 +93,7 @@ import es.topophone.core.model.project.Project
 import es.topophone.core.survey.PointCorrections
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.photo.PhotoRepository
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
@@ -116,6 +120,7 @@ const val POINT_MEASURED_COORDINATES_TAG = "point_measured_coordinates"
 const val POINT_REVERT_TAG = "point_revert"
 const val POINT_BASE_TAG = "point_base"
 const val POINT_SHIFT_TAG = "point_shift"
+private const val NO_PHOTO = -1
 const val POINT_MEASUREMENT_TAG = "point_measurement"
 const val POINT_ORIGIN_TAG = "point_origin"
 const val POINT_TILT_TAG = "point_tilt"
@@ -146,6 +151,9 @@ data class PointDetailsUiState(
     val keptEdited: Boolean = false,
     /** La base del punto en el SC del proyecto, si la tiene (S015/RF-21). */
     val baseCoordinates: ProjectPosition? = null,
+    /** Las fotos del punto en el orden en que se añadieron (S017b/RF-9) y sus sucesos de añadida o borrada (RF-23). */
+    val photos: List<PointPhoto> = emptyList(),
+    val photoEvents: List<PhotoEvent> = emptyList(),
 )
 
 /** Acciones de la ficha del punto. */
@@ -176,6 +184,9 @@ sealed interface PointDetailsEvent {
 class PointDetailsViewModel @Inject constructor(
     private val points: PointRepository,
     projects: ProjectRepository,
+    private val photoRepository: PhotoRepository = PhotoRepository.NONE,
+    /** Carga las miniaturas y las fotos enteras, con la caché de la app (S017b/RF-9, RF-10). */
+    val images: PhotoImages = PhotoImages.NONE,
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val ids = MutableStateFlow<Pair<String, String>?>(null)
@@ -184,7 +195,14 @@ class PointDetailsViewModel @Inject constructor(
     val events: Flow<PointDetailsEvent> = eventChannel.receiveAsFlow()
 
     val state: StateFlow<PointDetailsUiState> = ids.filterNotNull().flatMapLatest { (projectId, pointId) ->
-        combine(projects.observe(projectId), points.point(pointId), points.history(pointId), keptEdited) { project, point, history, kept ->
+        val photoState = combine(photoRepository.photos(pointId), photoRepository.events(pointId)) { photos, events -> photos to events }
+        combine(projects.observe(projectId), points.point(pointId), points.history(pointId), keptEdited, photoState) {
+                project,
+                point,
+                history,
+                kept,
+                (photos, events),
+            ->
             // S015/RF-21: con el SC actual del proyecto; si cambia, la base se calcula en el nuevo.
             val base = point?.measurement?.base
             val baseCoordinates = if (base != null && project != null) {
@@ -192,7 +210,7 @@ class PointDetailsViewModel @Inject constructor(
             } else {
                 null
             }
-            PointDetailsUiState(project, point, history, kept, baseCoordinates)
+            PointDetailsUiState(project, point, history, kept, baseCoordinates, photos, events)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), PointDetailsUiState())
 
@@ -284,6 +302,7 @@ fun PointDetailsRoute(
         ),
         navigation.onBack,
         loadNmeaChunk = viewModel::nmeaChunk, // S017/RF-12
+        photoImages = viewModel.images,
     )
 }
 
@@ -299,7 +318,9 @@ fun PointDetailsScreen(
     actions: PointDetailsActions,
     onBack: () -> Unit,
     loadNmeaChunk: suspend (Int) -> String? = { null },
+    photoImages: PhotoImages = PhotoImages.NONE,
 ) {
+    var openedPhoto by remember { mutableIntStateOf(NO_PHOTO) }
     SectionScaffold(
         title = state.point?.name.orEmpty(),
         themeState = themeState,
@@ -321,6 +342,7 @@ fun PointDetailsScreen(
             ) // S028/RF-31
             Actions(state, point, actions)
             if (state.keptEdited) Notice(actions.onDismissNotice) // S011/RF-14
+            PointPhotosSection(point.name, state.photos, photoImages, onOpen = { openedPhoto = it }) // S017b/RF-9
             DetailsCard(stringResource(R.string.point_coordinates), POINT_COORDINATES_TAG) {
                 if (point.edited) MarkLine(R.string.point_mark_edited)
                 CoordinateRows(project, point.coordinates)
