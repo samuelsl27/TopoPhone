@@ -716,6 +716,10 @@
     <string name="point_copy_of">Copy of %1$s</string>
     <string name="point_delete_confirm">Move %1$s to the trash? It can be recovered for 30 days.</string>
     <string name="point_history_entry">%1$s · %2$s</string>
+    <string name="photo_history_added">Photo added</string>
+    <string name="photo_history_deleted">Photo deleted</string>
+    <string name="photo_history_detail">%1$s · taken on %2$s</string>
+    <string name="photo_delete_confirm">Delete this photo? This cannot be undone.</string>
     <string name="point_history_none">—</string>
     <string name="point_add">Add point</string>
     <string name="point_new">New point</string>

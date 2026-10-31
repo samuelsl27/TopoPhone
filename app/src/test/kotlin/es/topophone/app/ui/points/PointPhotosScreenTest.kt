@@ -2,6 +2,7 @@ package es.topophone.app.ui.points
 
 import android.graphics.Bitmap
 import android.media.ExifInterface
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -20,7 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.collector.PhotoError
 import es.topophone.app.ui.photos.PhotoImages
+import es.topophone.app.ui.projects.CONFIRM_TAG
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.model.point.PhotoAction
+import es.topophone.core.model.point.PhotoEvent
 import es.topophone.core.model.point.PhotoOrigin
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointPhoto
@@ -345,5 +350,71 @@ class PointPhotosScreenTest {
 
         compose.onNodeWithTag(POINT_PHOTO_ADD_TAG).performScrollTo().assertHeightIsAtLeast(56.dp)
         compose.onNodeWithTag(POINT_GALLERY_ADD_TAG).performScrollTo().assertHeightIsAtLeast(56.dp)
+    }
+
+    private fun showWithDelete(initial: List<PointPhoto>, events: List<PhotoEvent> = emptyList(), history: Boolean = false) {
+        photosState = mutableStateOf(initial)
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                PointDetailsScreen(
+                    ThemeState.DEFAULT,
+                    {},
+                    PointDetailsUiState(project, point, photos = photosState.value, photoEvents = events),
+                    PointDetailsActions(onDeletePhoto = { deleted += it.id }),
+                    {},
+                    photoImages = images,
+                )
+            }
+        }
+        if (history) compose.onNodeWithTag(POINT_HISTORY_TAG).performClick()
+    }
+
+    private lateinit var photosState: androidx.compose.runtime.MutableState<List<PointPhoto>>
+    private val deleted = mutableListOf<String>()
+
+    @Test
+    fun `S017b RF-22 borrar una foto del visor pide confirmacion y solo la borra al confirmar`() {
+        val list = (1..2).map { photo("d$it", it).also { _ -> jpeg("d$it") } }
+        showWithDelete(list)
+        compose.onNodeWithTag(photoThumbnailTag(1)).performScrollTo().performClick()
+        compose.waitForIdle()
+
+        compose.onNodeWithTag(PHOTO_VIEWER_DELETE_TAG).performClick()
+        compose.onNodeWithText("¿Borrar esta foto? No se puede deshacer.").assertIsDisplayed()
+        compose.onNodeWithText("Cancelar").performClick()
+        deleted shouldBe emptyList()
+
+        compose.onNodeWithTag(PHOTO_VIEWER_DELETE_TAG).performClick()
+        compose.onNodeWithTag(CONFIRM_TAG).performClick()
+        deleted shouldBe listOf("d2")
+    }
+
+    @Test
+    fun `S017b RF-22 al borrar la ultima foto el visor se cierra`() {
+        val list = listOf(photo("u1", 1).also { jpeg("u1") })
+        showWithDelete(list)
+        compose.onNodeWithTag(photoThumbnailTag(0)).performScrollTo().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag(PHOTO_VIEWER_TAG).assertIsDisplayed()
+
+        photosState.value = emptyList()
+        compose.waitForIdle()
+
+        compose.onNodeWithTag(PHOTO_VIEWER_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S017b RF-23 el historial enseña las fotos anadidas y borradas con su nombre y su fecha`() {
+        val events = listOf(
+            PhotoEvent(atMs = 9_000, action = PhotoAction.DELETED, photoName = "12_20261030-101500.jpg", photoTakenAtMs = 4_000),
+            PhotoEvent(atMs = 3_000, action = PhotoAction.ADDED, photoName = "12_20261030-101500.jpg", photoTakenAtMs = 4_000),
+        )
+        showWithDelete(emptyList(), events, history = true)
+
+        compose.onNodeWithTag(HISTORY_DIALOG_TAG).assertIsDisplayed()
+        compose.onAllNodesWithTag(HISTORY_PHOTO_TAG).assertCountEquals(2)
+        compose.onAllNodesWithText("Foto borrada", substring = true).assertCountEquals(1)
+        compose.onAllNodesWithText("Foto añadida", substring = true).assertCountEquals(1)
+        compose.onAllNodesWithText("12_20261030-101500.jpg", substring = true).assertCountEquals(2)
     }
 }

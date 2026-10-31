@@ -728,6 +728,10 @@
     <string name="point_copy_of">Copia de %1$s</string>
     <string name="point_delete_confirm">¿Mover %1$s a la papelera? Se puede recuperar durante 30 días.</string>
     <string name="point_history_entry">%1$s · %2$s</string>
+    <string name="photo_history_added">Foto añadida</string>
+    <string name="photo_history_deleted">Foto borrada</string>
+    <string name="photo_history_detail">%1$s · hecha el %2$s</string>
+    <string name="photo_delete_confirm">¿Borrar esta foto? No se puede deshacer.</string>
     <string name="point_history_none">—</string>
     <string name="point_add">Añadir punto</string>
     <string name="point_new">Nuevo punto</string>

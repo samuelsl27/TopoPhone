@@ -70,10 +70,11 @@ import es.topophone.core.model.point.AxisHeightRef
 import es.topophone.core.model.point.AxisRef
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.ElevationSource
-import es.topophone.core.model.point.HistoryItem
 import es.topophone.core.model.point.HistoryLine
+import es.topophone.core.model.point.HistoryRecord
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.PhotoAction
 import es.topophone.core.model.point.PhotoEvent
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointBase
@@ -142,6 +143,7 @@ const val POINT_HISTORY_TAG = "point_history"
 const val POINT_DELETE_TAG = "point_delete"
 const val POINT_NOTICE_DISMISS_TAG = "point_notice_dismiss"
 const val HISTORY_DIALOG_TAG = "history_dialog"
+const val HISTORY_PHOTO_TAG = "history_photo"
 
 /**
  * Lo que muestra la ficha de un punto (S011/RF-5 a RF-7, RF-11): el punto, su proyecto, su historial y si una
@@ -174,6 +176,8 @@ class PointDetailsActions(
     /** «Foto» (la cámara) y «Galería» de la sección de fotos (S017b/RF-12). */
     val onPhoto: () -> Unit = {},
     val onGallery: () -> Unit = {},
+    /** Borra una foto, ya confirmado (S017b/RF-22). */
+    val onDeletePhoto: (PointPhoto) -> Unit = {},
 )
 
 /** Adónde va la ficha tras una acción: a la de la copia, o fuera si el punto se ha borrado. */
@@ -268,6 +272,13 @@ class PointDetailsViewModel @Inject constructor(
         }
     }
 
+    /** S017b/RF-22: borra la foto de forma definitiva y anota el suceso; la confirmación la pide la pantalla. */
+    fun deletePhoto(photo: PointPhoto) {
+        viewModelScope.launch {
+            if (photoRepository.deletePhoto(photo.id)) images.forget(photo.id)
+        }
+    }
+
     /** S011/RF-22: la confirmación la pide la pantalla. */
     fun delete() {
         val point = state.value.point ?: return
@@ -316,6 +327,7 @@ fun PointDetailsRoute(
             onStakeout = { navigation.onStakeout(projectId, pointId, "") }, // S018/RF-1
             onPhoto = photoLaunchers.camera, // S017b/RF-12
             onGallery = photoLaunchers.gallery,
+            onDeletePhoto = viewModel::deletePhoto, // S017b/RF-22
         ),
         navigation.onBack,
         loadNmeaChunk = viewModel::nmeaChunk, // S017/RF-12
@@ -338,8 +350,28 @@ fun PointDetailsScreen(
     photoImages: PhotoImages = PhotoImages.NONE,
 ) {
     var openedPhoto by remember { mutableIntStateOf(NO_PHOTO) }
+    var photoToDelete by remember { mutableStateOf<PointPhoto?>(null) }
+    // Si se borra la última foto, el visor ya no tiene nada que enseñar.
+    LaunchedEffect(state.photos.isEmpty()) { if (state.photos.isEmpty()) openedPhoto = NO_PHOTO }
     if (openedPhoto != NO_PHOTO) {
-        PointPhotoViewer(state.photos, openedPhoto, photoImages, onClose = { openedPhoto = NO_PHOTO }) // S017b/RF-10, RF-11
+        PointPhotoViewer(
+            state.photos,
+            openedPhoto,
+            photoImages,
+            onClose = { openedPhoto = NO_PHOTO },
+            onDelete = { photoToDelete = it }, // S017b/RF-22
+        ) // S017b/RF-10, RF-11
+    }
+    photoToDelete?.let { photo ->
+        ConfirmDialog(
+            message = stringResource(R.string.photo_delete_confirm),
+            confirm = stringResource(R.string.photo_viewer_delete),
+            onConfirm = {
+                photoToDelete = null
+                actions.onDeletePhoto(photo)
+            },
+            onDismiss = { photoToDelete = null },
+        )
     }
     SectionScaffold(
         title = state.point?.name.orEmpty(),
@@ -420,7 +452,9 @@ private fun Actions(state: PointDetailsUiState, point: Point, actions: PointDeta
             onDismiss = { pole = false },
         )
     }
-    if (history) HistoryDialog(PointHistory.items(state.history, point)) { history = false }
+    if (history) {
+        HistoryDialog(HistoryRecord.timeline(PointHistory.items(state.history, point), state.photoEvents)) { history = false }
+    }
     if (confirmDelete) {
         ConfirmDialog(
             message = stringResource(R.string.point_delete_confirm, point.name),
@@ -453,7 +487,7 @@ private fun Notice(onDismiss: () -> Unit) {
 
 /** Los cambios del punto, del más reciente al más antiguo, con su fecha en hora local (S011/RF-11; RNF-T10). */
 @Composable
-private fun HistoryDialog(items: List<HistoryItem>, onDismiss: () -> Unit) {
+private fun HistoryDialog(items: List<HistoryRecord>, onDismiss: () -> Unit) {
     val locale = uiLocale()
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -464,17 +498,45 @@ private fun HistoryDialog(items: List<HistoryItem>, onDismiss: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 if (items.isEmpty()) Text(stringResource(R.string.point_history_empty))
-                items.forEach { item ->
+                items.forEach { record ->
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(
-                            stringResource(
-                                R.string.point_history_entry,
-                                formatDateTime(item.changedAtMs, locale),
-                                stringResource(item.change.titleRes()),
-                            ),
-                            style = MaterialTheme.typography.labelLarge,
-                        )
-                        item.lines.forEach { line -> Text(historyLine(line)) }
+                        when (record) {
+                            is HistoryRecord.Version -> {
+                                val item = record.item
+                                Text(
+                                    stringResource(
+                                        R.string.point_history_entry,
+                                        formatDateTime(item.changedAtMs, locale),
+                                        stringResource(item.change.titleRes()),
+                                    ),
+                                    style = MaterialTheme.typography.labelLarge,
+                                )
+                                item.lines.forEach { line -> Text(historyLine(line)) }
+                            }
+                            // S017b/RF-23: la foto añadida o borrada, con la fecha del cambio y el nombre y la fecha de la foto.
+                            is HistoryRecord.Photo -> {
+                                val event = record.event
+                                val title = if (event.action ==
+                                    PhotoAction.ADDED
+                                ) {
+                                    R.string.photo_history_added
+                                } else {
+                                    R.string.photo_history_deleted
+                                }
+                                Text(
+                                    stringResource(R.string.point_history_entry, formatDateTime(event.atMs, locale), stringResource(title)),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    modifier = Modifier.testTag(HISTORY_PHOTO_TAG),
+                                )
+                                Text(
+                                    stringResource(
+                                        R.string.photo_history_detail,
+                                        event.photoName,
+                                        formatDateTime(event.photoTakenAtMs, locale),
+                                    ),
+                                )
+                            }
+                        }
                     }
                 }
             }
