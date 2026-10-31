@@ -516,6 +516,26 @@
     <string name="collector_measure">Medir</string>
     <string name="collector_measuring">Midiendo…</string>
     <string name="collector_cancel">Cancelar</string>
+    <string name="photo_button">Foto</string>
+    <string name="photo_gallery_button">Galería</string>
+    <string name="photo_destination">Foto para el punto %1$s · %2$d de %3$d</string>
+    <string name="photo_no_destination">Mide un punto primero para añadirle fotos</string>
+    <string name="photo_limit">Máximo de 10 fotos por punto</string>
+    <plurals name="photo_not_all_fit">
+        <item quantity="one">%d foto no cabe y no se ha añadido</item>
+        <item quantity="other">%d fotos no caben y no se han añadido</item>
+    </plurals>
+    <string name="photo_failed">No se ha podido guardar la foto: %s</string>
+    <string name="photo_failed_unreadable">no se puede leer</string>
+    <string name="photo_failed_no_space">no hay espacio</string>
+    <string name="photo_failed_write">error al escribir</string>
+    <plurals name="photo_discard_title">
+        <item quantity="one">¿Descartar %d foto?</item>
+        <item quantity="other">¿Descartar %d fotos?</item>
+    </plurals>
+    <string name="photo_discard_text">La medida se cancela y sus fotos no se guardan.</string>
+    <string name="photo_discard_confirm">Descartar</string>
+    <string name="photo_keep">Seguir midiendo</string>
     <string name="collector_progress_time">Tiempo %1$s de %2$s</string>
     <string name="collector_auto">Automático</string>
     <string name="collector_auto_time">Por tiempo</string>

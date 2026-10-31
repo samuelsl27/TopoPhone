@@ -107,6 +107,11 @@ class CollectorActions(
     val onRepeatBaseShift: () -> Unit = {},
     /** «Entendido» del aviso de que un cambio de datum desactivó el base shift (S020/RF-16). */
     val onAcknowledgeBaseShiftDatum: () -> Unit = {},
+    /** «Foto» (la cámara) y «Galería»; «Descartar» y «Seguir midiendo» de la pregunta al cancelar con fotos (S017b/RF-1, RF-3). */
+    val onPhoto: () -> Unit = {},
+    val onGallery: () -> Unit = {},
+    val onDiscardPhotos: () -> Unit = {},
+    val onKeepPhotos: () -> Unit = {},
 )
 
 /**
@@ -398,6 +403,7 @@ internal fun Messages(state: CollectorUiState, actions: CollectorActions) {
         null -> Unit
     }
     state.savedName?.let { Text(stringResource(R.string.collector_saved, it), style = MaterialTheme.typography.bodyLarge) }
+    CollectorPhotoBar(state.photos, actions) // S017b/RF-1, RF-7, RF-8
 }
 
 @Composable

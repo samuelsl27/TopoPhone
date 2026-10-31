@@ -3,4 +3,6 @@
 <paths>
     <files-path name="sessions" path="sessions/" />
     <cache-path name="exports" path="exports/" />
+    <!-- Lo que escribe la cámara del sistema al hacer una foto desde el recolector o la ficha (S017b). -->
+    <cache-path name="photo_capture" path="photo-capture/" />
 </paths>

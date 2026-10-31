@@ -90,7 +90,7 @@ class ShareSessionTest {
     }
 
     @Test
-    fun `S002 RF-43 y S012 RF-18 el FileProvider no es publico y solo expone las sesiones y los CSV exportados`() {
+    fun `S002 RF-43 y S012 RF-18 el FileProvider no es publico y solo expone sesiones, CSV y capturas`() {
         val info = context.packageManager
             .resolveContentProvider(fileProviderAuthority(context), PackageManager.GET_META_DATA)
             .shouldNotBeNull()
@@ -109,6 +109,8 @@ class ShareSessionTest {
         roots shouldBe listOf(
             Triple("files-path", "sessions", "${ReceiverModule.SESSIONS_DIR}/"),
             Triple("cache-path", "exports", "${ExportFiles.DIR}/"),
+            // S017b: donde la cámara del sistema escribe la foto que se hace desde el recolector o la ficha.
+            Triple("cache-path", "photo_capture", "photo-capture/"),
         )
     }
 

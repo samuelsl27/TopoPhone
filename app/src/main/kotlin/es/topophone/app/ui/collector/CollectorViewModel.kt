@@ -217,6 +217,8 @@ data class CollectorUiState(
     val gearLocked: Boolean = false,
     /** El equipo cambió desde el último punto guardado de la sesión: afecta solo a los siguientes (S046/RF-25, RF-26). */
     val gearChanged: Boolean = false,
+    /** A qué punto irán las fotos y cuántas lleva, con los avisos de las fotos (S017b/RF-1, RF-3, RF-7, RF-8). */
+    val photos: PhotoUi = PhotoUi(),
 )
 
 /**
@@ -477,8 +479,11 @@ class CollectorViewModel @Inject constructor(
         projectFlow,
         session.state,
         baseNotices.dismissed,
-        combine(tilt.state, gear.state, gear.poles, lastSavedGear, shiftUi, ::Equipment),
-    ) { state, project, snapshot, dismissed, (tiltState, gearState, poles, savedGear, shift) ->
+        combine(combine(tilt.state, gear.state, gear.poles, lastSavedGear, shiftUi, ::Equipment), photos.ui) { equipment, photoUi ->
+            equipment to photoUi
+        },
+    ) { state, project, snapshot, dismissed, (equipment, photoUi) ->
+        val (tiltState, gearState, poles, savedGear, shift) = equipment
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
         val mode = tiltState.settings.mode
@@ -498,6 +503,7 @@ class CollectorViewModel @Inject constructor(
             baseShiftName = shift.shift?.knownName, // S020/RF-11
             baseShiftBaseChanged = shift.baseChanged, // S020/RF-15
             baseShiftDatumNotice = shift.datumNotice, // S020/RF-16
+            photos = photoUi, // S017b/RF-8
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, CollectorUiState())
 

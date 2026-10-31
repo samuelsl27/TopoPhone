@@ -93,6 +93,7 @@ import es.topophone.app.ui.collector.CollectorPanel
 import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.collector.CollectorViewModel
 import es.topophone.app.ui.collector.SurfaceReading
+import es.topophone.app.ui.collector.rememberCollectorPhotoLaunchers
 import es.topophone.app.ui.map.AttributionSource
 import es.topophone.app.ui.map.CameraCommand
 import es.topophone.app.ui.map.CameraPolicy
@@ -444,6 +445,7 @@ fun ProjectViewRoute(
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
     val collectorAutoLive by collectorViewModel.autoLive.collectAsStateWithLifecycle() // S017/RF-26
     val collectorSurface by collectorViewModel.surfaceReading.collectAsStateWithLifecycle() // S042/RF-33
+    val photoLaunchers = rememberCollectorPhotoLaunchers(collectorViewModel.photos) // S017b/RF-1
     val context = LocalContext.current
     val environment =
         remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
@@ -576,6 +578,10 @@ fun ProjectViewRoute(
             onDeactivateBaseShift = collectorViewModel::deactivateBaseShift, // S020/RF-11
             onRepeatBaseShift = { navigation.onBaseShift(projectId) }, // S020/RF-15
             onAcknowledgeBaseShiftDatum = collectorViewModel::acknowledgeBaseShiftDatum, // S020/RF-16
+            onPhoto = photoLaunchers.camera, // S017b/RF-1
+            onGallery = photoLaunchers.gallery,
+            onDiscardPhotos = collectorViewModel::confirmCancelWithPhotos, // S017b/RF-3
+            onKeepPhotos = collectorViewModel.photos::keepPhotos,
         ),
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,

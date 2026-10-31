@@ -32,7 +32,7 @@
       Hecho cuando: `AutoBackupPhotosTest` y `BackupsScreenTest` en verde: se recuperan las fotos de la carpeta, una foto que falta o con otra suma se cuenta y se dice cuántas, y sin carpeta todas cuentan como no recuperadas.
 - [x] T15. `app`: `CollectorViewModel` con las fotos: destino, fotos en espera, añadir de cámara y de galería, descartar al cancelar o fallar, guardar con el punto y cierre de la app con la cámara abierta. (RF-1 a RF-8, RF-13 a RF-16)
       Hecho cuando: `CollectorViewModelPhotosTest` en verde con la `ReceiverSession` real: foto durante la medida y al guardar, cancelar con confirmación, medida fallida y fuera de tolerancia, modo automático, sin punto, límite, y el `SavedStateHandle`.
-- [ ] T16. `app`: el panel del recolector con "Foto", "Galería", el destino, el recuento y el aviso al cancelar, con textos en es y en. (RF-1, RF-3, RF-7, RF-8)
+- [x] T16. `app`: el panel del recolector con "Foto", "Galería", el destino, el recuento y el aviso al cancelar, con textos en es y en. (RF-1, RF-3, RF-7, RF-8)
       Hecho cuando: `CollectorPanelPhotosTest` en verde, con zonas táctiles de 56 dp y las etiquetas de TalkBack.
 - [ ] T17. `app`: carga de miniaturas con orientación y caché, y la sección "Fotos" de la ficha con la foto que no se puede abrir. (RF-9, RF-17)
       Hecho cuando: `PointPhotosScreenTest` en verde con las miniaturas en orden con su número, la de un fichero ilegible sustituida por su aviso y el resto intactas.
