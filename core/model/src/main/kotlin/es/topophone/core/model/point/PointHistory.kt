@@ -43,3 +43,28 @@ object PointHistory {
         }
     }
 }
+
+/** Qué pasó con una foto de un punto ya guardado (S017b/RF-23). */
+enum class PhotoAction { ADDED, DELETED }
+
+/** Un suceso de foto: no es una versión del punto y no lo marca como editado (S011/RF-12). */
+data class PhotoEvent(val atMs: Long, val action: PhotoAction, val photoName: String, val photoTakenAtMs: Long)
+
+/** Una línea del historial completo: una versión del punto o un suceso de foto (S017b/RF-23). */
+sealed interface HistoryRecord {
+    val atMs: Long
+
+    data class Version(val item: HistoryItem) : HistoryRecord {
+        override val atMs: Long get() = item.changedAtMs
+    }
+
+    data class Photo(val event: PhotoEvent) : HistoryRecord {
+        override val atMs: Long get() = event.atMs
+    }
+
+    companion object {
+        /** Versiones y sucesos de foto juntos, del más reciente al más antiguo; a igual fecha, la versión primero. */
+        fun timeline(items: List<HistoryItem>, events: List<PhotoEvent>): List<HistoryRecord> =
+            (items.map(::Version) + events.map(::Photo)).sortedByDescending { it.atMs }
+    }
+}

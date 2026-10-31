@@ -8,7 +8,7 @@
       Hecho cuando: `PhotoPolicyTest` y `PhotoNamesTest` en verde, con la foto apaisada, la vertical, la menor que el máximo, la selección que no cabe y dos fotos en el mismo segundo.
 - [x] T3. `core:model`: `PhotoDestination` con las situaciones de A2. (RF-2, RF-5, RF-6, RF-7, RF-8)
       Hecho cuando: `PhotoDestinationTest` en verde, incluido el modo automático con otro punto en medida y el último punto que desaparece.
-- [ ] T4. `core:model`: los sucesos de foto añadida y borrada en el historial y `PointSummary.photoCount`. (RF-23, RF-26)
+- [x] T4. `core:model`: los sucesos de foto añadida y borrada en el historial y `PointSummary.photoCount`. (RF-23, RF-26)
       Hecho cuando: `PointHistoryTest` en verde con los sucesos entre las versiones del punto, ordenados del más reciente al más antiguo y sin marcar el punto como editado.
 - [ ] T5. `data`: tablas `point_photos` y `photo_events`, sus DAO, `AutoMigration(23, 24)` con su esquema y `DatabaseSnapshot.TABLES` con ellas. (RF-20, RF-23, RF-28)
       Hecho cuando: `TopoPhoneDatabaseTest` 23 → 24 en verde (los puntos conservan sus datos y las tablas nuevas quedan vacías), `DatabaseSnapshotTest` copia las filas y las cascadas de las dos tablas funcionan.

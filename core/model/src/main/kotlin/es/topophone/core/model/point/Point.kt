@@ -343,6 +343,8 @@ data class PointSummary(
     val createdAtMs: Long,
     /** Cuántas veces se ha replantado este punto de diseño (S018/RF-33); lo rellena el repositorio. */
     val stakeCount: Int = 0,
+    /** Cuántas fotos tiene el punto (S017b/RF-26); lo rellena el repositorio. */
+    val photoCount: Int = 0,
 )
 
 /** Búsqueda de la lista de objetos por nombre o descripción, sin distinguir mayúsculas ni acentos (S011/RF-2). */

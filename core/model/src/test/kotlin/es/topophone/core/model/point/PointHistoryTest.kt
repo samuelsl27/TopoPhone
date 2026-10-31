@@ -57,4 +57,35 @@ class PointHistoryTest {
     fun `S011 RF-11 sin cambios el historial esta vacio`() {
         PointHistory.items(emptyList(), current = v1).shouldBeEmpty()
     }
+
+    @Test
+    fun `S017b RF-23 los sucesos de foto se mezclan con las versiones del mas reciente al mas antiguo`() {
+        val items = PointHistory.items(
+            listOf(entry(4_000, PointChange.EDIT, v1)),
+            current = v2,
+        )
+        val events = listOf(
+            PhotoEvent(5_000, PhotoAction.DELETED, "P1_a.jpg", 900),
+            PhotoEvent(3_000, PhotoAction.ADDED, "P1_a.jpg", 900),
+        )
+
+        val timeline = HistoryRecord.timeline(items, events)
+
+        timeline.map { it.atMs } shouldBe listOf(5_000L, 4_000L, 3_000L)
+        (timeline[0] as HistoryRecord.Photo).event.action shouldBe PhotoAction.DELETED
+        (timeline[1] as HistoryRecord.Version).item.change shouldBe PointChange.EDIT
+        (timeline[2] as HistoryRecord.Photo).event.photoName shouldBe "P1_a.jpg"
+    }
+
+    @Test
+    fun `S017b RF-23 un suceso de foto no es una version ni marca el punto como editado`() {
+        PointHistory.items(emptyList(), current = v1).shouldBeEmpty()
+        v1.edited shouldBe false
+        HistoryRecord.timeline(emptyList(), listOf(PhotoEvent(1, PhotoAction.ADDED, "x.jpg", 0))).size shouldBe 1
+    }
+
+    @Test
+    fun `S017b RF-26 un resumen sin fotos tiene cero`() {
+        PointSummary("a", "P", "", PointOrigin.MEASURED, 0.0, 0.0, true, false, false, false, 0).photoCount shouldBe 0
+    }
 }
