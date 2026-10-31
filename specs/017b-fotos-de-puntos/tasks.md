@@ -6,7 +6,7 @@
       Hecho cuando: los tests de `tools` en verde y `rf_report` lista S017b con sus RF pendientes.
 - [x] T2. `core:model`: `PhotoPolicy` (10 fotos, 2.048 px, tamaño reducido, cuántas caben), `PointPhoto`, `PhotoOrigin`, `PhotoNames` y `PhotoStats`. (RF-13, RF-14, RF-18)
       Hecho cuando: `PhotoPolicyTest` y `PhotoNamesTest` en verde, con la foto apaisada, la vertical, la menor que el máximo, la selección que no cabe y dos fotos en el mismo segundo.
-- [ ] T3. `core:model`: `PhotoDestination` con las situaciones de A2. (RF-2, RF-5, RF-6, RF-7, RF-8)
+- [x] T3. `core:model`: `PhotoDestination` con las situaciones de A2. (RF-2, RF-5, RF-6, RF-7, RF-8)
       Hecho cuando: `PhotoDestinationTest` en verde, incluido el modo automático con otro punto en medida y el último punto que desaparece.
 - [ ] T4. `core:model`: los sucesos de foto añadida y borrada en el historial y `PointSummary.photoCount`. (RF-23, RF-26)
       Hecho cuando: `PointHistoryTest` en verde con los sucesos entre las versiones del punto, ordenados del más reciente al más antiguo y sin marcar el punto como editado.
