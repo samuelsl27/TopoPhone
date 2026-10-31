@@ -321,6 +321,9 @@ fun PointDetailsScreen(
     photoImages: PhotoImages = PhotoImages.NONE,
 ) {
     var openedPhoto by remember { mutableIntStateOf(NO_PHOTO) }
+    if (openedPhoto != NO_PHOTO) {
+        PointPhotoViewer(state.photos, openedPhoto, photoImages, onClose = { openedPhoto = NO_PHOTO }) // S017b/RF-10, RF-11
+    }
     SectionScaffold(
         title = state.point?.name.orEmpty(),
         themeState = themeState,

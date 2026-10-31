@@ -2,14 +2,21 @@ package es.topophone.app.ui.points
 
 import android.graphics.Bitmap
 import android.media.ExifInterface
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.photos.PhotoImages
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -175,5 +182,101 @@ class PointPhotosScreenTest {
             Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888).compress(Bitmap.CompressFormat.JPEG, 90, it)
         }
         (runBlocking { images.thumbnail("rota") } != null) shouldBe true
+    }
+
+    private fun openViewer(count: Int, first: Int = 0): List<PointPhoto> {
+        val list = (1..count).map { photo("v$it", it).also { _ -> jpeg("v$it") } }
+        show(list)
+        compose.onNodeWithTag(photoThumbnailTag(first)).performScrollTo().performClick()
+        compose.waitForIdle()
+        return list
+    }
+
+    @Test
+    fun `S017b RF-10 tocar una miniatura abre la foto a pantalla completa y se puede pasar a las otras`() {
+        openViewer(count = 3)
+
+        compose.onNodeWithTag(PHOTO_VIEWER_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(PHOTO_VIEWER_POSITION_TAG).assertTextEquals("Foto 1 de 3")
+        compose.onNodeWithTag(PHOTO_VIEWER_PREVIOUS_TAG).assertIsNotEnabled()
+
+        compose.onNodeWithTag(PHOTO_VIEWER_NEXT_TAG).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag(PHOTO_VIEWER_POSITION_TAG).assertTextEquals("Foto 2 de 3")
+
+        compose.onNodeWithTag(PHOTO_VIEWER_NEXT_TAG).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag(PHOTO_VIEWER_POSITION_TAG).assertTextEquals("Foto 3 de 3")
+        compose.onNodeWithTag(PHOTO_VIEWER_NEXT_TAG).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S017b RF-10 se abre la foto tocada y no la primera`() {
+        openViewer(count = 3, first = 2)
+
+        compose.onNodeWithTag(PHOTO_VIEWER_POSITION_TAG).assertTextEquals("Foto 3 de 3")
+    }
+
+    @Test
+    fun `S017b RF-10 el visor se cierra y vuelve a la ficha`() {
+        openViewer(count = 2)
+
+        compose.onNodeWithTag(PHOTO_VIEWER_CLOSE_TAG).performClick()
+
+        compose.onNodeWithTag(PHOTO_VIEWER_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(POINT_PHOTOS_TAG).assertExists()
+    }
+
+    @Test
+    fun `S017b RF-11 con la foto abierta se ven su fecha y hora, su origen y su tamano`() {
+        val list = listOf(
+            photo("c1", 1).copy(origin = PhotoOrigin.CAMERA, sizeBytes = 850_000L),
+            photo("g1", 2).copy(origin = PhotoOrigin.GALLERY, sizeBytes = 1_250_000L),
+        )
+        list.forEach { jpeg(it.id) }
+        show(list)
+        compose.onNodeWithTag(photoThumbnailTag(0)).performScrollTo().performClick()
+        compose.waitForIdle()
+
+        compose.onNodeWithTag(PHOTO_VIEWER_INFO_TAG).assert(hasText("Cámara", substring = true) and hasText("850 kB", substring = true))
+        compose.onNodeWithTag(PHOTO_VIEWER_INFO_TAG).assert(hasText(list[0].name, substring = true))
+
+        compose.onNodeWithTag(PHOTO_VIEWER_NEXT_TAG).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag(PHOTO_VIEWER_INFO_TAG).assert(hasText("Galería", substring = true) and hasText("1,3 MB", substring = true))
+    }
+
+    @Test
+    fun `S017b RF-17 en el visor una foto ilegible muestra su aviso y las demas se siguen viendo`() {
+        val list = listOf(photo("buena", 1), photo("rota", 2))
+        jpeg("buena")
+        files["rota"] = folder.newFile("rota.jpg").apply { writeBytes(ByteArray(300) { (it * 5).toByte() }) }
+        show(list)
+        compose.onNodeWithTag(photoThumbnailTag(1)).performScrollTo().performClick()
+        compose.waitForIdle()
+
+        compose.onNodeWithTag(PHOTO_VIEWER_UNREADABLE_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(PHOTO_VIEWER_PREVIOUS_TAG).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag(PHOTO_VIEWER_UNREADABLE_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(PHOTO_VIEWER_POSITION_TAG).assertTextEquals("Foto 1 de 2")
+    }
+
+    @Test
+    fun `S017b RF-10 la foto con otra orientacion se ve entera en el visor`() {
+        jpeg("girada", width = 400, height = 200, orientation = ExifInterface.ORIENTATION_ROTATE_90)
+
+        val full = runBlocking { images.full("girada", 2_048) }!!
+
+        (full.height > full.width) shouldBe true
+    }
+
+    @Test
+    fun `S017b RNF-T8 los botones del visor miden 56 dp`() {
+        openViewer(count = 2)
+
+        listOf(PHOTO_VIEWER_PREVIOUS_TAG, PHOTO_VIEWER_NEXT_TAG, PHOTO_VIEWER_CLOSE_TAG).forEach {
+            compose.onNodeWithTag(it).assertHeightIsAtLeast(56.dp)
+        }
     }
 }

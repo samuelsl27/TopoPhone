@@ -36,7 +36,7 @@
       Hecho cuando: `CollectorPanelPhotosTest` en verde, con zonas táctiles de 56 dp y las etiquetas de TalkBack.
 - [x] T17. `app`: carga de miniaturas con orientación y caché, y la sección "Fotos" de la ficha con la foto que no se puede abrir. (RF-9, RF-17)
       Hecho cuando: `PointPhotosScreenTest` en verde con las miniaturas en orden con su número, la de un fichero ilegible sustituida por su aviso y el resto intactas.
-- [ ] T18. `app`: el visor a pantalla completa con zoom, paso entre fotos y fecha, origen y tamaño. (RF-10, RF-11)
+- [x] T18. `app`: el visor a pantalla completa con zoom, paso entre fotos y fecha, origen y tamaño. (RF-10, RF-11)
       Hecho cuando: los tests del visor de `PointPhotosScreenTest` en verde, con la foto con otra orientación.
 - [ ] T19. `app`: añadir fotos desde la ficha: cámara, galería con varias, el límite y los errores. (RF-12, RF-13, RF-14, RF-15, RF-16)
       Hecho cuando: los tests de añadir de `PointPhotosScreenTest` en verde: en un punto medido y en uno manual, con 9 fotos y 3 elegidas, con 10 fotos, con un fallo de espacio y cerrando el selector sin elegir.

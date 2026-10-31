@@ -523,6 +523,13 @@
     </plurals>
     <string name="point_photo_description">Foto %1$d de %2$d del punto %3$s</string>
     <string name="point_photo_open">Abrir</string>
+    <string name="photo_viewer_position">Foto %1$d de %2$d</string>
+    <string name="photo_viewer_info">%1$s · %2$s · %3$s · %4$s</string>
+    <string name="photo_viewer_previous">Anterior</string>
+    <string name="photo_viewer_next">Siguiente</string>
+    <string name="photo_viewer_delete">Borrar</string>
+    <string name="photo_origin_camera">Cámara</string>
+    <string name="photo_origin_gallery">Galería</string>
     <string name="point_photo_unreadable">No se puede abrir la foto</string>
     <string name="photo_button">Foto</string>
     <string name="photo_gallery_button">Galería</string>
