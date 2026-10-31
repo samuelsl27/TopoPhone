@@ -22,7 +22,7 @@
       Hecho cuando: `BackupArchiveTest` en verde: ida y vuelta con fotos, un nombre con `..` o absoluto, una suma cambiada, una foto de más y un manifiesto con `externalPhotos` o sin él; los ZIP de antes se siguen leyendo.
 - [x] T10. `data`: la copia completa con fotos, la restauración con el intercambio de directorios y vuelta atrás, y deshacer. (RF-28)
       Hecho cuando: `BackupRepositoryPhotosTest` en verde: restaurar devuelve fotos y filas, un fallo en el intercambio deja las fotos como estaban, deshacer las recupera y la copia del estado anterior lleva las fotos.
-- [ ] T11. `data`: el paquete con las fotos de los puntos y de su papelera, y su importación con ids nuevos o sustituyendo un proyecto. (RF-29)
+- [x] T11. `data`: el paquete con las fotos de los puntos y de su papelera, y su importación con ids nuevos o sustituyendo un proyecto. (RF-29)
       Hecho cuando: los tests de paquete de `BackupRepositoryPhotosTest` en verde: importado en otro móvil, como nuevo, sustituyendo al del móvil y con ids de foto repetidos, y las fotos abren.
 - [ ] T12. `data`: `BackupFolder` con la subcarpeta de fotos (escribir, listar, borrar y abrir) y `ExternalPhotos`. (RF-30, RF-31, RF-32)
       Hecho cuando: los tests de `BackupFolder` en verde con el proveedor falso y los fallos del proveedor tratados como "no se ha podido".

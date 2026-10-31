@@ -275,7 +275,9 @@ class BackupRepository(
                     projectName = name,
                 )
                 val zip = File(dir, "package.zip")
-                zip.outputStream().use { BackupArchive.write(manifest, mapOf(BackupArchive.DATABASE to database), it) }
+                zip.outputStream().use {
+                    BackupArchive.write(manifest, mapOf(BackupArchive.DATABASE to database) + photoFiles(database), it)
+                }
                 zip.inputStream().use { it.copyTo(out) }
                 out.flush()
                 log.info(LogCategory.BACKUPS, "Paquete exportado: «$name»") // S014/RF-4
@@ -320,44 +322,60 @@ class BackupRepository(
             withContext(Dispatchers.IO) {
                 val projectId = valid.manifest.projectId
                 if (valid.manifest.kind != BackupKind.PACKAGE || projectId == null) return@withContext ImportResult.Failed
-                attempt { importLocked(valid.database, projectId, choice, importedLabel) } ?: ImportResult.Failed
+                // S017b/RF-29: las fotos copiadas por una importación que falla no se quedan en el móvil.
+                val created = mutableListOf<File>()
+                attempt { importLocked(valid.database, valid.photos, created, projectId, choice, importedLabel) }
+                    ?: ImportResult.Failed.also { created.forEach(File::delete) }
             }
         }
 
-    private fun importLocked(database: File, projectId: String, choice: ImportChoice?, importedLabel: String): ImportResult =
-        SQLiteDatabase.openDatabase(database.path, null, SQLiteDatabase.OPEN_READONLY).use { from ->
-            val packageName = from.rawQuery("SELECT name FROM projects WHERE id = ?", arrayOf(projectId))
-                .use { if (it.moveToFirst()) it.getString(0) else null } ?: return ImportResult.Failed
-            val main = db.openHelper.writableDatabase
-            val existing = main.query("SELECT name FROM projects WHERE id = ? AND deleted_at IS NULL", arrayOf(projectId))
-                .use { if (it.moveToFirst()) it.getString(0) else null }
-            if (existing != null && choice == null) return ImportResult.NeedsChoice(existing)
-            if (existing != null && choice == ImportChoice.REPLACE) return replaceProject(from, main, projectId, packageName, importedLabel)
-            val idTaken = main.query("SELECT 1 FROM projects WHERE id = ?", arrayOf(projectId)).use { it.moveToFirst() }
-            val activeNames = main.query("SELECT name FROM projects WHERE deleted_at IS NULL").use { cursor ->
-                buildList { while (cursor.moveToNext()) add(cursor.getString(0)) }
-            }
-            val name = if (choice == ImportChoice.AS_NEW) {
-                ProjectNames.copyName(packageName, activeNames, importedLabel)
-            } else {
-                ProjectNames.restoredName(packageName, activeNames, importedLabel)
-            }
-            val newProjectId = if (idTaken) newId() else projectId
-            db.runInTransaction(
-                Runnable {
-                    copyProject({ sql, args -> from.rawQuery(sql, args) }, main, projectId, newProjectId, keepIds = !idTaken) { project ->
-                        project.put("name", name)
-                        project.putNull("folder_id") // S013: el paquete no lleva la carpeta.
-                    }
-                },
-            )
-            ImportResult.Imported(newProjectId, name)
+    private fun importLocked(
+        database: File,
+        photos: Map<String, File>,
+        created: MutableList<File>,
+        projectId: String,
+        choice: ImportChoice?,
+        importedLabel: String,
+    ): ImportResult = SQLiteDatabase.openDatabase(database.path, null, SQLiteDatabase.OPEN_READONLY).use { from ->
+        val packageName = from.rawQuery("SELECT name FROM projects WHERE id = ?", arrayOf(projectId))
+            .use { if (it.moveToFirst()) it.getString(0) else null } ?: return ImportResult.Failed
+        val main = db.openHelper.writableDatabase
+        val existing = main.query("SELECT name FROM projects WHERE id = ? AND deleted_at IS NULL", arrayOf(projectId))
+            .use { if (it.moveToFirst()) it.getString(0) else null }
+        if (existing != null && choice == null) return ImportResult.NeedsChoice(existing)
+        if (existing != null && choice == ImportChoice.REPLACE) {
+            return replaceProject(from, main, photos, created, projectId, packageName, importedLabel)
         }
+        val idTaken = main.query("SELECT 1 FROM projects WHERE id = ?", arrayOf(projectId)).use { it.moveToFirst() }
+        val activeNames = main.query("SELECT name FROM projects WHERE deleted_at IS NULL").use { cursor ->
+            buildList { while (cursor.moveToNext()) add(cursor.getString(0)) }
+        }
+        val name = if (choice == ImportChoice.AS_NEW) {
+            ProjectNames.copyName(packageName, activeNames, importedLabel)
+        } else {
+            ProjectNames.restoredName(packageName, activeNames, importedLabel)
+        }
+        val newProjectId = if (idTaken) newId() else projectId
+        db.runInTransaction(
+            Runnable {
+                val photoSource = PhotoSource({ photos[it] }, created)
+                copyProject({ sql, args ->
+                    from.rawQuery(sql, args)
+                }, main, projectId, newProjectId, !idTaken, photoSource) { project ->
+                    project.put("name", name)
+                    project.putNull("folder_id") // S013: el paquete no lleva la carpeta.
+                }
+            },
+        )
+        ImportResult.Imported(newProjectId, name)
+    }
 
     /** S013/RF-27: el proyecto del móvil, con ids nuevos, a la papelera (S006/RF-22); el del paquete, en su sitio. */
     private fun replaceProject(
         from: SQLiteDatabase,
         main: androidx.sqlite.db.SupportSQLiteDatabase,
+        photos: Map<String, File>,
+        created: MutableList<File>,
         projectId: String,
         packageName: String,
         importedLabel: String,
@@ -372,11 +390,14 @@ class BackupRepository(
         val now = clock()
         db.runInTransaction(
             Runnable {
+                // S017b/RF-29: el del móvil, a la papelera, se lleva copias de sus fotos con ids nuevos (los ids no se repiten en la base).
+                val ownPhotos = PhotoSource({ id -> File(photosDir, "$id.jpg").takeIf { it.isFile } }, created)
                 copyProject({ sql, args ->
                     main.query(sql, args)
-                }, main, projectId, trashedId, keepIds = false) { it.put("deleted_at", now) }
+                }, main, projectId, trashedId, false, ownPhotos) { it.put("deleted_at", now) }
                 main.execSQL("DELETE FROM projects WHERE id = ?", arrayOf(projectId)) // Sus puntos, historial y encuadre se van con él.
-                copyProject({ sql, args -> from.rawQuery(sql, args) }, main, projectId, projectId, keepIds = true) { project ->
+                val packagePhotos = PhotoSource({ photos[it] }, created)
+                copyProject({ sql, args -> from.rawQuery(sql, args) }, main, projectId, projectId, true, packagePhotos) { project ->
                     project.put("name", name)
                     if (folderId == null) project.putNull("folder_id") else project.put("folder_id", folderId)
                 }
@@ -396,6 +417,7 @@ class BackupRepository(
         oldId: String,
         newProjectId: String,
         keepIds: Boolean,
+        photoSource: PhotoSource,
         project: (android.content.ContentValues) -> Unit,
     ) {
         val args = arrayOf(oldId)
@@ -434,10 +456,51 @@ class BackupRepository(
                 change.put("point_id", pointIds.getValue(change.getAsString("point_id")))
             }
         }
+        copyPhotos(source, sink, args, pointIds, photoSource)
         copyDrawings(source, sink, args, newProjectId, keepIds)
         copySurfaces(source, sink, args, newProjectId, surfaceIds)
         copyAlignments(source, sink, args, newProjectId, alignmentIds)
         copyBaseShifts(source, sink, args, newProjectId, shiftIds)
+    }
+
+    /** De dónde sacar el fichero de una foto al copiarla y qué ficheros se han creado, para borrarlos si la importación falla. */
+    private class PhotoSource(val file: (String) -> File?, val created: MutableList<File>)
+
+    /**
+     * Copia las filas de las fotos y sus sucesos con los puntos ya copiados ([pointIds]) y los ficheros de las fotos a `photos/`
+     * (S017b/RF-29). Una foto cuyo id ya existe en la base de datos recibe uno nuevo; su fichero se copia con el nombre nuevo, sin
+     * deduplicar. La foto de una fila sin fichero se copia sin fichero (se abrirá como RF-17).
+     */
+    private fun copyPhotos(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        pointIds: Map<String, String>,
+        photoSource: PhotoSource,
+    ) {
+        val inProject = "point_id IN (SELECT id FROM points WHERE project_id = ?)"
+        source("SELECT * FROM point_photos WHERE $inProject", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "point_photos") { photo ->
+                val old = photo.getAsString("id")
+                val taken = sink.query("SELECT 1 FROM point_photos WHERE id = ?", arrayOf(old)).use { it.moveToFirst() }
+                val id = if (taken) newId() else old
+                photo.put("id", id)
+                photo.put("point_id", pointIds.getValue(photo.getAsString("point_id")))
+                val from = photoSource.file(old)
+                if (from != null) {
+                    photosDir.mkdirs()
+                    val target = File(photosDir, "$id.jpg")
+                    photoSource.created += target
+                    from.copyTo(target, overwrite = true)
+                }
+            }
+        }
+        source("SELECT * FROM photo_events WHERE $inProject", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "photo_events") { event ->
+                event.put("id", newId())
+                event.put("point_id", pointIds.getValue(event.getAsString("point_id")))
+            }
+        }
     }
 
     /** De los ids de los desplazamientos de base del proyecto a los que tendrán al copiarlos: los mismos con [keepIds], nuevos si no (S020/RF-12). */
