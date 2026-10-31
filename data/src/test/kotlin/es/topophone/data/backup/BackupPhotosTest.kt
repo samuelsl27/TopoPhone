@@ -170,4 +170,21 @@ class BackupPhotosTest {
         photoFiles() shouldBe emptyMap()
         valid(backup).manifest.files.keys.none { it.startsWith("${BackupArchive.PHOTOS_DIR}/") } shouldBe true
     }
+
+    @Test
+    fun `S017b RF-30 la copia automatica no lleva las fotos dentro y su manifiesto las nombra con su suma`() {
+        addPhoto("id-1", "f-uno", "uno")
+        addPhoto("id-2", "f-dos", "dos")
+        val target = File(folder.root, "auto.zip")
+
+        val external = runBlocking { repository.photoFilesByName() }
+        external.keys shouldBe setOf("f-uno.jpg", "f-dos.jpg")
+        val manifest = runBlocking { repository.createBackupFile(target, external) }
+
+        zipNames(target.readBytes()).none { it.startsWith("photos/") } shouldBe true
+        manifest.externalPhotos.keys shouldBe setOf("f-uno.jpg", "f-dos.jpg")
+        manifest.externalPhotos.getValue("f-uno.jpg") shouldBe
+            java.security.MessageDigest.getInstance("SHA-256").digest("uno".toByteArray()).joinToString("") { "%02x".format(it) }
+        BackupArchive.readManifest(target.inputStream())!!.externalPhotos shouldBe manifest.externalPhotos
+    }
 }

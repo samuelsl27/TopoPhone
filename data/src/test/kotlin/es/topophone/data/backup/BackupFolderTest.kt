@@ -168,4 +168,13 @@ class BackupFolderTest {
         runBlocking { backupFolder.deletePhoto(tree, "aaa-111.jpg") } shouldBe false
         runBlocking { backupFolder.openPhoto(tree, "aaa-111.jpg") } shouldBe null
     }
+
+    @Test
+    fun `S017b RF-31 un fichero de la carpeta se abre y uno que falta da null`() {
+        File(dir, "TopoPhone_auto_20261019-0802.zip").writeText("contenido")
+
+        runBlocking { backupFolder.openFile(tree, "TopoPhone_auto_20261019-0802.zip") }!!.use { it.readBytes().decodeToString() } shouldBe
+            "contenido"
+        runBlocking { backupFolder.openFile(tree, "no-esta.zip") } shouldBe null
+    }
 }

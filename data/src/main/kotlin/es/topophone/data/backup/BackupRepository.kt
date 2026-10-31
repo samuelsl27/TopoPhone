@@ -152,9 +152,24 @@ class BackupRepository(
         }
     }
 
-    /** Escribe la copia completa en [target] y devuelve su manifiesto. */
-    suspend fun createBackupFile(target: File): BackupManifest =
-        lock.withLock { withContext(Dispatchers.IO) { createBackupFileLocked(target) } }
+    /**
+     * Escribe la copia completa en [target] y devuelve su manifiesto. Con [externalPhotos] (`<id>.jpg` → fichero) es una copia
+     * automática: el ZIP no lleva fotos y su manifiesto nombra esas, con su suma (S017b/RF-30, plan A6).
+     */
+    suspend fun createBackupFile(target: File, externalPhotos: Map<String, File>? = null): BackupManifest =
+        lock.withLock { withContext(Dispatchers.IO) { createBackupFileLocked(target, externalPhotos) } }
+
+    /** Las fotos de todas las filas que tienen fichero, por nombre de fichero (`<id>.jpg`) (S017b/RF-30). */
+    suspend fun photoFilesByName(): Map<String, File> = withContext(Dispatchers.IO) {
+        db.openHelper.readableDatabase.query("SELECT id FROM point_photos ORDER BY id").use { cursor ->
+            buildMap {
+                while (cursor.moveToNext()) {
+                    val name = "${cursor.getString(0)}.jpg"
+                    File(photosDir, name).takeIf { it.isFile }?.let { put(name, it) }
+                }
+            }
+        }
+    }
 
     /**
      * S013/RF-6, RF-12 a RF-14: lee una copia ([kind] = copia) o un paquete y lo comprueba. La base de datos se pasa a
@@ -891,7 +906,28 @@ class BackupRepository(
         return null
     }
 
-    private suspend fun createBackupFileLocked(target: File): BackupManifest {
+    /** Sumas SHA-256 de las fotos ya calculadas: una foto guardada no cambia, así que la suma sirve mientras no cambie su fichero. */
+    private val photoSums = HashMap<String, Triple<Long, Long, String>>()
+
+    private fun photoSum(name: String, file: File): String {
+        val known = photoSums[name]
+        if (known != null && known.first == file.length() && known.second == file.lastModified()) return known.third
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input ->
+            val buffer = ByteArray(64 * 1024)
+            while (true) {
+                val read = input.read(buffer)
+                if (read < 0) break
+                digest.update(buffer, 0, read)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }.also {
+            photoSums[name] =
+                Triple(file.length(), file.lastModified(), it)
+        }
+    }
+
+    private suspend fun createBackupFileLocked(target: File, externalPhotos: Map<String, File>? = null): BackupManifest {
         val dir = dir(SNAPSHOT)
         try {
             val database = File(dir, BackupArchive.DATABASE)
@@ -905,6 +941,7 @@ class BackupRepository(
                 createdAt = Instant.ofEpochMilli(clock()),
                 projectCount = counts.projects,
                 pointCount = counts.points,
+                externalPhotos = externalPhotos?.mapValues { (name, file) -> photoSum(name, file) } ?: emptyMap(),
             )
             target.parentFile?.mkdirs()
             target.outputStream().use {
@@ -913,7 +950,7 @@ class BackupRepository(
                     mapOf(
                         BackupArchive.DATABASE to database,
                         BackupArchive.SETTINGS to settingsFile,
-                    ) + photoFiles(database),
+                    ) + if (externalPhotos == null) photoFiles(database) else emptyMap(),
                     it,
                 )
             }

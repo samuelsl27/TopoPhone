@@ -27,6 +27,9 @@ interface BackupFolder {
 
     suspend fun delete(treeUri: String, name: String): Boolean
 
+    /** Abre el fichero [name] de la carpeta; null si falta o el proveedor falla (S017b/RF-31: la retención lee el manifiesto de cada copia). */
+    suspend fun openFile(treeUri: String, name: String): InputStream?
+
     /**
      * Las fotos de las copias automáticas viven en una subcarpeta propia, `TopoPhone_fotos` (S017b/RF-30). [writePhoto] la crea la
      * primera vez, guarda [from] como [name] (`<id>.jpg`) sin dejarlo a medias y no repite una foto que ya está; false si no se ha podido.
@@ -117,6 +120,12 @@ class DocumentsBackupFolder(private val resolver: ContentResolver) : BackupFolde
         val tree = Uri.parse(treeUri)
         val id = children(tree)?.get(name) ?: return@withContext false
         attempt { DocumentsContract.deleteDocument(resolver, DocumentsContract.buildDocumentUriUsingTree(tree, id)) } == true
+    }
+
+    override suspend fun openFile(treeUri: String, name: String): InputStream? = withContext(Dispatchers.IO) {
+        val tree = Uri.parse(treeUri)
+        val id = children(tree)?.get(name) ?: return@withContext null
+        attempt { resolver.openInputStream(DocumentsContract.buildDocumentUriUsingTree(tree, id)) }
     }
 
     override fun persist(treeUri: String) {

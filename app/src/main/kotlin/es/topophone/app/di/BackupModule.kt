@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.backup.AppCompatLanguageStore
+import es.topophone.app.backup.AutoBackupPhotos
 import es.topophone.app.backup.AutoBackupScheduler
 import es.topophone.core.model.log.AppLog
 import es.topophone.data.backup.AppLanguageStore
@@ -79,5 +80,12 @@ object BackupModule {
         scope = scope,
         onStart = { changes.start(it) },
         log = log,
+        photos = object : AutoBackupPhotos {
+            override suspend fun current() = repository.photoFilesByName()
+
+            override suspend fun createBackup(target: File, photos: Map<String, File>) {
+                repository.createBackupFile(target, externalPhotos = photos)
+            }
+        },
     )
 }

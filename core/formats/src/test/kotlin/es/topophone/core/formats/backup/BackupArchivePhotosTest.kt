@@ -156,4 +156,15 @@ class BackupArchivePhotosTest {
         valid.manifest.externalPhotos shouldBe emptyMap()
         entries(written(files = baseFiles())).first().second.decodeToString().contains("externalPhotos") shouldBe false
     }
+
+    @Test
+    fun `S017b RF-31 el manifiesto se lee de la primera entrada sin leer el resto`() {
+        val external = mapOf("aaa-111.jpg" to "ab".repeat(32))
+        val bytes = written(backup.copy(externalPhotos = external), baseFiles())
+
+        BackupArchive.readManifest(bytes.inputStream())!!.externalPhotos shouldBe external
+        BackupArchive.readManifest(bytes.copyOf(60).inputStream()) shouldBe null
+        BackupArchive.readManifest("no es un zip".toByteArray().inputStream()) shouldBe null
+        BackupArchive.readManifest(zip(listOf("otra.txt" to "x".toByteArray())).inputStream()) shouldBe null
+    }
 }

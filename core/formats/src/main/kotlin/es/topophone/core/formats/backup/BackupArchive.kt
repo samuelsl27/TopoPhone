@@ -114,6 +114,20 @@ object BackupArchive {
     }
 
     /**
+     * El manifiesto de un ZIP, que va en la primera entrada, sin leer lo demás; null si no es de TopoPhone, está dañado o es de una
+     * versión más nueva (S017b/RF-31: la retención de las fotos de las copias automáticas mira qué fotos nombra cada copia).
+     */
+    fun readManifest(input: InputStream): BackupManifest? = try {
+        ZipInputStream(input.buffered(BUFFER)).use { zip ->
+            val entry = zip.nextEntry
+            val bytes = if (entry?.name == MANIFEST) readLimited(zip, MAX_MANIFEST_BYTES) else null
+            (bytes?.let { decode(it.decodeToString()) } as? Decoded.Ok)?.manifest
+        }
+    } catch (_: IOException) {
+        null
+    }
+
+    /**
      * Lee y comprueba una copia o un paquete, y extrae sus ficheros en [extractTo]. Solo se extraen los ficheros
      * conocidos; si no es válido, no deja nada en [extractTo]. [schemaVersion] es la versión de los datos de la app.
      */

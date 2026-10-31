@@ -43,14 +43,23 @@ class FakeFolder : BackupFolder {
 
     /** La subcarpeta de fotos (S017b/RF-30): nombre → contenido. */
     val photos = linkedMapOf<String, String>()
+
+    /** Las veces que se ha escrito una foto, en orden: una foto no debe subirse dos veces. */
+    val photoWrites = mutableListOf<String>()
     var failPhotoWrites = false
     var photoFolderUnreadable = false
 
+    /** Ficheros de la carpeta que el proveedor no deja abrir. */
+    val unreadable = mutableSetOf<String>()
+
     override suspend fun write(treeUri: String, name: String, from: File): Boolean {
         if (failWrites) return false
-        files[name] = from.readText()
+        files[name] = from.readText(Charsets.ISO_8859_1) // Sin pérdida: así también guarda ZIP reales.
         return true
     }
+
+    override suspend fun openFile(treeUri: String, name: String): InputStream? =
+        if (name in unreadable) null else files[name]?.toByteArray(Charsets.ISO_8859_1)?.inputStream()
 
     override suspend fun list(treeUri: String): List<String> = files.keys.toList()
 
@@ -58,7 +67,8 @@ class FakeFolder : BackupFolder {
 
     override suspend fun writePhoto(treeUri: String, name: String, from: File): Boolean {
         if (failPhotoWrites) return false
-        photos.getOrPut(name) { from.readText() }
+        photoWrites += name
+        photos.getOrPut(name) { from.readText(Charsets.ISO_8859_1) }
         return true
     }
 
@@ -66,7 +76,8 @@ class FakeFolder : BackupFolder {
 
     override suspend fun deletePhoto(treeUri: String, name: String): Boolean = photos.remove(name) != null
 
-    override suspend fun openPhoto(treeUri: String, name: String): InputStream? = photos[name]?.byteInputStream()
+    override suspend fun openPhoto(treeUri: String, name: String): InputStream? =
+        photos[name]?.toByteArray(Charsets.ISO_8859_1)?.inputStream()
 
     override fun persist(treeUri: String) {
         if (failPersist) throw SecurityException("sin permiso")

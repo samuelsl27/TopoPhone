@@ -1,6 +1,7 @@
 package es.topophone.app.backup
 
 import es.topophone.core.formats.backup.AutoBackupPolicy
+import es.topophone.core.formats.backup.BackupArchive
 import es.topophone.core.formats.backup.BackupFileNames
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
@@ -19,6 +20,18 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
+ * Las fotos de los puntos en las copias automáticas (S017b/RF-30, plan A6): las fotos van aparte, en una subcarpeta, y el ZIP solo
+ * las nombra en su manifiesto.
+ */
+interface AutoBackupPhotos {
+    /** Las fotos de todas las filas que tienen fichero, por nombre de fichero (`<id>.jpg`). */
+    suspend fun current(): Map<String, File>
+
+    /** Escribe en [target] la copia sin fotos dentro y con [photos] nombradas, con su suma, en el manifiesto. */
+    suspend fun createBackup(target: File, photos: Map<String, File>)
+}
+
+/**
  * Copias automáticas en la carpeta elegida (S013/RF-17 a RF-21; plan, A7). Comprueba cada 5 min mientras vive el
  * proceso (en campo lo mantiene el servicio del receptor) y al pasar la app a segundo plano; toca con cambios sin copiar
  * y una hora después de la última buena. [createBackup] escribe la copia completa en un fichero: el cerrojo del
@@ -34,6 +47,7 @@ class AutoBackupScheduler(
     private val zone: () -> ZoneId = ZoneId::systemDefault,
     private val onStart: (CoroutineScope) -> Unit = {},
     private val log: AppLog = AppLog.NONE,
+    private val photos: AutoBackupPhotos? = null,
 ) {
     private val started = AtomicBoolean(false)
     private val mutex = Mutex()
@@ -90,7 +104,15 @@ class AutoBackupScheduler(
         val saved = try {
             attempt {
                 workDir.mkdirs()
-                createBackup(file)
+                if (photos == null) {
+                    createBackup(file)
+                } else {
+                    // S017b/RF-30, plan A6: primero las fotos nuevas a la subcarpeta y luego el ZIP que las nombra, que nunca
+                    // nombra una foto que no esté ya en ella.
+                    val current = photos.current()
+                    if (!uploadPhotos(treeUri, current)) return@attempt false
+                    photos.createBackup(file, current)
+                }
                 folder.write(treeUri, name, file)
             } == true
         } finally {
@@ -104,7 +126,35 @@ class AutoBackupScheduler(
         log.info(LogCategory.BACKUPS, "Copia automática guardada: $name") // S014/RF-4
         preferences.recordSuccess(now)
         folder.list(treeUri)?.let { names -> AutoBackupPolicy.surplus(names).forEach { folder.delete(treeUri, it) } }
+        if (photos != null) attempt { sweepPhotos(treeUri) }
         true
+    }
+
+    /** Copia a la subcarpeta las fotos que aún no están, una sola vez cada una; false si alguna falla (RF-30). */
+    private suspend fun uploadPhotos(treeUri: String, current: Map<String, File>): Boolean {
+        val present = folder.listPhotos(treeUri)?.toSet() ?: return false
+        for ((name, file) in current) {
+            if (name !in present && !folder.writePhoto(treeUri, name, file)) {
+                log.warning(LogCategory.BACKUPS, "No se pudo copiar una foto a la carpeta de copias") // S014/RF-5
+                return false
+            }
+        }
+        return true
+    }
+
+    /**
+     * Retención de las fotos (S017b/RF-31): borra de la subcarpeta las que ninguna de las copias automáticas guardadas nombra. Si una
+     * copia no se puede abrir no se sabe qué fotos usa y no se borra ninguna; los demás ficheros de la carpeta no se tocan.
+     */
+    private suspend fun sweepPhotos(treeUri: String) {
+        val names = folder.list(treeUri) ?: return
+        val used = mutableSetOf<String>()
+        for (zip in names.filter(BackupFileNames::isAutomatic)) {
+            val stream = folder.openFile(treeUri, zip) ?: return
+            stream.use { BackupArchive.readManifest(it) }?.let { used += it.externalPhotos.keys }
+        }
+        val kept = folder.listPhotos(treeUri) ?: return
+        kept.filter { it !in used }.forEach { folder.deletePhoto(treeUri, it) }
     }
 
     /**
