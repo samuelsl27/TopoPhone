@@ -19,6 +19,7 @@ import java.io.IOException
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.withLock
 
 /** Resultado de guardar un punto con las fotos de su medida (S017b plan A3). */
 sealed interface PointWithPhotosResult {
@@ -68,10 +69,36 @@ interface PhotoRepository {
     fun stats(projectId: String): Flow<PhotoStats>
 
     /**
-     * Borra los ficheros que no tienen fila y lo que quede en espera salvo [pendingInUse]; se llama al arrancar y tras borrar puntos o
-     * proyectos (plan A4). Devuelve cuántos ficheros borró.
+     * Borra los ficheros que no tienen fila y lo que quede en espera salvo [pendingInUse] (nulo: no toca lo que espera a su punto); solo
+     * los de más de [minAgeMs], para no pisar una foto recién movida (plan A4). Devuelve cuántos ficheros borró.
      */
-    suspend fun sweep(pendingInUse: Set<String> = emptySet()): Int
+    suspend fun sweep(pendingInUse: Set<String>? = emptySet(), minAgeMs: Long = 0): Int
+
+    /** Cuántas fotos con fila hay; cada cambio avisa de que puede haber ficheros sin fila (plan A4). */
+    fun rowCount(): Flow<Int>
+
+    companion object {
+        /** Sin fotos: para los tests y las pantallas que no las usan. Nada se guarda y las listas están vacías. */
+        val NONE: PhotoRepository = object : PhotoRepository {
+            override suspend fun createWithPhotos(point: Point, photos: List<StagedPhoto>) = PointWithPhotosResult.FileError
+
+            override suspend fun addPhotos(pointId: String, photos: List<StagedPhoto>) = AddPhotosResult.PointNotFound
+
+            override suspend fun deletePhoto(photoId: String) = false
+
+            override fun photos(pointId: String): Flow<List<PointPhoto>> = kotlinx.coroutines.flow.flowOf(emptyList())
+
+            override fun events(pointId: String): Flow<List<PhotoEvent>> = kotlinx.coroutines.flow.flowOf(emptyList())
+
+            override fun file(photoId: String): File? = null
+
+            override fun stats(projectId: String): Flow<PhotoStats> = kotlinx.coroutines.flow.flowOf(PhotoStats.NONE)
+
+            override suspend fun sweep(pendingInUse: Set<String>?, minAgeMs: Long) = 0
+
+            override fun rowCount(): Flow<Int> = kotlinx.coroutines.flow.flowOf(0)
+        }
+    }
 }
 
 class RoomPhotoRepository(
@@ -83,9 +110,15 @@ class RoomPhotoRepository(
 ) : PhotoRepository {
     private val dao = database.photos()
 
+    /** Una operación de ficheros y filas a la vez: el barrido no puede borrar una foto que está a mitad de guardarse. */
+    private val files = kotlinx.coroutines.sync.Mutex()
+
     private class Rollback(val result: PointWithPhotosResult) : RuntimeException()
 
-    override suspend fun createWithPhotos(point: Point, photos: List<StagedPhoto>): PointWithPhotosResult {
+    override suspend fun createWithPhotos(point: Point, photos: List<StagedPhoto>): PointWithPhotosResult =
+        files.withLock { createLocked(point, photos) }
+
+    private suspend fun createLocked(point: Point, photos: List<StagedPhoto>): PointWithPhotosResult {
         if (photos.isEmpty()) {
             return when (points.create(point)) {
                 PointSaveResult.Saved -> PointWithPhotosResult.Saved
@@ -116,7 +149,10 @@ class RoomPhotoRepository(
         }
     }
 
-    override suspend fun addPhotos(pointId: String, photos: List<StagedPhoto>): AddPhotosResult {
+    override suspend fun addPhotos(pointId: String, photos: List<StagedPhoto>): AddPhotosResult =
+        files.withLock { addLocked(pointId, photos) }
+
+    private suspend fun addLocked(pointId: String, photos: List<StagedPhoto>): AddPhotosResult {
         val point = database.points().byId(pointId) ?: return AddPhotosResult.PointNotFound
         return try {
             val added = mutableListOf<PointPhoto>()
@@ -151,7 +187,9 @@ class RoomPhotoRepository(
         }
     }
 
-    override suspend fun deletePhoto(photoId: String): Boolean {
+    override suspend fun deletePhoto(photoId: String): Boolean = files.withLock { deleteLocked(photoId) }
+
+    private suspend fun deleteLocked(photoId: String): Boolean {
         val photo = dao.byId(photoId) ?: return false
         database.withTransaction {
             dao.delete(photoId)
@@ -173,10 +211,12 @@ class RoomPhotoRepository(
 
     override fun stats(projectId: String): Flow<PhotoStats> = dao.stats(projectId).map { PhotoStats(it.count, it.bytes) }
 
-    override suspend fun sweep(pendingInUse: Set<String>): Int {
-        val deleted = store.sweep(dao.allIds().toSet(), pendingInUse)
+    override fun rowCount(): Flow<Int> = dao.countFlow()
+
+    override suspend fun sweep(pendingInUse: Set<String>?, minAgeMs: Long): Int = files.withLock {
+        val deleted = store.sweep(dao.allIds().toSet(), pendingInUse, minAgeMs)
         if (deleted > 0) log.info(LogCategory.POINTS, "Barrido de fotos: $deleted ficheros sin punto borrados")
-        return deleted
+        deleted
     }
 
     private fun moveToFinal(photos: List<StagedPhoto>): Boolean {

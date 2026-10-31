@@ -92,6 +92,10 @@ interface PhotoDao {
     )
     fun stats(projectId: String): Flow<PhotoStatsRow>
 
+    /** Cuántas fotos con fila hay en total; cambia al borrar un punto, un proyecto o una foto, y avisa al barrido (plan A4). */
+    @Query("SELECT COUNT(*) FROM point_photos")
+    fun countFlow(): Flow<Int>
+
     /** Los ids de todas las fotos con fila; el barrido borra los ficheros que no estén aquí (plan A4). */
     @Query("SELECT id FROM point_photos")
     suspend fun allIds(): List<String>

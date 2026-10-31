@@ -1,5 +1,6 @@
 package es.topophone.app.ui.collector
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
@@ -67,6 +68,9 @@ import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.TiltGuide
 import es.topophone.core.survey.TiltSetup
 import es.topophone.data.baseshift.ActiveBaseShift
+import es.topophone.data.photo.PhotoRepository
+import es.topophone.data.photo.PhotoStore
+import es.topophone.data.photo.PointWithPhotosResult
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
@@ -235,6 +239,9 @@ class CollectorViewModel @Inject constructor(
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
     private val gear: CurrentGear = CurrentGear.NONE,
     private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
+    private val photoRepository: PhotoRepository = PhotoRepository.NONE,
+    photoStore: PhotoStore = PhotoStore.NONE,
+    savedState: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
     private data class Form(
         val loaded: Boolean = false,
@@ -316,6 +323,19 @@ class CollectorViewModel @Inject constructor(
     private var ticker: Job? = null
     private var nameCheck: Job? = null
 
+    /** Las fotos del recolector: a qué punto irán, las que esperan a su punto y las del último guardado (S017b). */
+    val photos = CollectorPhotos(
+        scope = viewModelScope,
+        repository = photoRepository,
+        store = photoStore,
+        points = points,
+        busy = run.map { it.measuring || it.pending != null },
+        autoRunning = autoCollector.ui.map { it.running },
+        currentName = { PointNames.clean(form.value.name) },
+        handle = savedState,
+        log = log,
+    )
+
     @Volatile private var lastEpochUtc: Int? = null
 
     /** La hora UTC de la última época que el recolector ha recibido; los tests esperan a ella antes de medir. */
@@ -344,6 +364,7 @@ class CollectorViewModel @Inject constructor(
     }
 
     override fun onCleared() {
+        photos.discardStaged()
         inProgress.set(false)
     }
 
@@ -697,6 +718,7 @@ class CollectorViewModel @Inject constructor(
         measurement = factory()
         measuringReplay = session.state.value.replay != null
         measuringAuto = auto
+        photos.measurementStarted(auto) // S017b/RF-5
         run.value = Run(measuring = true)
         ensureTicker()
     }
@@ -812,6 +834,7 @@ class CollectorViewModel @Inject constructor(
         measurement?.cancel()
         log.warning(LogCategory.POINTS, "Medida de ${measuredName()} cancelada: ha cambiado el modo de inclinación") // S014/RF-5
         run.value = Run(error = CollectorError.TILT_MODE_CHANGED)
+        photos.discardStaged() // S017b/RF-4
         if (autoCollector.running) {
             autoCollector.stop() // S017/RF-29: como "Parar"
             stopAutoState()
@@ -871,9 +894,22 @@ class CollectorViewModel @Inject constructor(
             if (run.value.paused != PauseState.LONG_PAUSE) return
             autoCollector.onPointCancelled()
         }
+        // S017b/RF-3: con fotos en espera se pide confirmación antes de cancelar; la medida sigue mientras tanto.
+        if (photos.needsCancelConfirmation()) return
         measurement?.cancel()
         stopMeasuring()
         run.value = Run()
+        photos.discardStaged() // S017b/RF-4
+    }
+
+    /** «Descartar» del aviso de las fotos al cancelar: se cancela la medida y sus fotos se descartan (S017b/RF-3, RF-4). */
+    @Synchronized
+    fun confirmCancelWithPhotos() {
+        photos.keepPhotos()
+        measurement?.cancel()
+        stopMeasuring()
+        run.value = Run()
+        photos.discardStaged()
     }
 
     /** S010/RF-15: se guarda marcado como fuera de tolerancia. */
@@ -891,6 +927,7 @@ class CollectorViewModel @Inject constructor(
         log.info(LogCategory.POINTS, "Medida de ${measuredName()} descartada") // S014/RF-5
         pendingResult = null
         run.value = Run()
+        photos.discardStaged() // S017b/RF-4
     }
 
     /** "Desactivar" del aviso «Base shift activo»: los puntos siguientes ya no lo llevan; la medida en curso termina con el suyo (S020/RF-9, RF-11). */
@@ -974,6 +1011,7 @@ class CollectorViewModel @Inject constructor(
             MeasurementUpdate.NoEpochsYet -> run.update { it.copy(noEpochsYet = true) } // S017/RF-7
             is MeasurementUpdate.Failed -> {
                 stopMeasuring()
+                photos.discardStaged() // S017b/RF-4
                 if (measuringAuto && autoCollector.running) {
                     // S017/RF-24, RF-28: un corte no es un punto omitido; lo demás, sí.
                     if (update.reason == MeasurementFailure.NO_DATA) {
@@ -1116,12 +1154,24 @@ class CollectorViewModel @Inject constructor(
         )
         // S017/RF-22: el modo automático propone ya el nombre siguiente, que la época que sigue puede necesitar enseguida.
         if (auto) form.update { if (PointNames.clean(it.name) == name) it.copy(name = PointNames.next(name)) else it }
+        val staged = photos.staged() // S017b/RF-2: las fotos de la medida se guardan con su punto
         viewModelScope.launch {
             // S017/RF-23: si el nombre ya existe, el modo automático usa el siguiente libre.
             val taken = if (auto) points.names(projectId) else emptySet()
             val finalName = if (name in taken) PointNames.nextFree(name, taken) else name
-            when (points.create(if (finalName == name) point else point.copy(name = finalName))) {
+            val toSave = if (finalName == name) point else point.copy(name = finalName)
+            val saved = if (staged.isEmpty()) {
+                points.create(toSave)
+            } else {
+                when (photoRepository.createWithPhotos(toSave, staged)) {
+                    PointWithPhotosResult.Saved -> PointSaveResult.Saved
+                    PointWithPhotosResult.DuplicateName -> PointSaveResult.DuplicateName
+                    PointWithPhotosResult.FileError -> PointSaveResult.NotFound
+                }
+            }
+            when (saved) {
                 PointSaveResult.Saved -> {
+                    photos.saved(toSave.id, finalName) // S017b/RF-5, RF-6
                     alerts.pointSaved() // S010/RF-19
                     val target = stake
                     if (target != null) {
@@ -1138,8 +1188,12 @@ class CollectorViewModel @Inject constructor(
                     log.warning(LogCategory.POINTS, "No se guardó ${measuredName()}: ya hay un punto con ese nombre") // S014/RF-5
                     nameTaken.value = true
                     run.value = Run()
+                    photos.discardStaged() // S017b/RF-4
                 }
-                PointSaveResult.NotFound -> run.value = Run()
+                PointSaveResult.NotFound -> {
+                    run.value = Run()
+                    photos.discardStaged()
+                }
             }
         }
     }

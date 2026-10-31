@@ -41,6 +41,9 @@ import es.topophone.data.map.RoomMapViewportRepository
 import es.topophone.data.ntrip.NtripLegacyImport
 import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.ntrip.RoomNtripProfileRepository
+import es.topophone.data.photo.PhotoRepository
+import es.topophone.data.photo.PhotoStore
+import es.topophone.data.photo.RoomPhotoRepository
 import es.topophone.data.point.CollectorDataStoreQualifier
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.DataStoreCollectorPreferences
@@ -151,6 +154,29 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun providePointRepository(database: TopoPhoneDatabase, log: AppLog): PointRepository = RoomPointRepository(database, log = log)
+
+    /**
+     * Las fotos de los puntos (S017b): ficheros en `filesDir/photos`. El origen es un `content://` de la galería o un fichero que ha
+     * escrito la cámara del sistema en la caché.
+     */
+    @Provides
+    @Singleton
+    fun providePhotoStore(@ApplicationContext context: Context): PhotoStore = PhotoStore(
+        root = context.filesDir,
+        open = { source ->
+            if (source.startsWith("content://") || source.startsWith("file://")) {
+                context.contentResolver.openInputStream(android.net.Uri.parse(source))
+            } else {
+                java.io.File(source).inputStream()
+            }
+        },
+        captureDir = java.io.File(context.cacheDir, "photo-capture"),
+    )
+
+    @Provides
+    @Singleton
+    fun providePhotoRepository(database: TopoPhoneDatabase, points: PointRepository, store: PhotoStore, log: AppLog): PhotoRepository =
+        RoomPhotoRepository(database, points, store, log = log)
 
     /** Último encuadre del mapa de cada proyecto (S009/RF-21). */
     @Provides

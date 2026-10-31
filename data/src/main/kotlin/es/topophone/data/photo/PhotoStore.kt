@@ -37,9 +37,16 @@ class PhotoStore(
     private val root: File,
     private val open: (String) -> InputStream?,
     private val clock: () -> Long = System::currentTimeMillis,
+    private val captureDir: File = File(root, "photo-capture"),
 ) {
 
     val photosDir: File get() = File(root, "photos")
+
+    /** Un fichero nuevo para que la cámara del sistema escriba la foto; se borra al terminar (plan, «Ficheros»). */
+    fun newCaptureFile(): File {
+        captureDir.mkdirs()
+        return File(captureDir, "${UUID.randomUUID()}.jpg")
+    }
     val pendingDir: File get() = File(photosDir, "pending")
 
     fun photoFile(id: String) = File(photosDir, "$id.jpg")
@@ -96,13 +103,16 @@ class PhotoStore(
      * Borra los ficheros sin fila: los de `photos/` cuyo id no está en [keepIds] y los de `photos/pending/` que no son de las fotos en
      * espera [keepPending]; también los temporales sueltos. Devuelve cuántos borró (plan A4).
      */
-    fun sweep(keepIds: Set<String>, keepPending: Set<String> = emptySet()): Int {
+    fun sweep(keepIds: Set<String>, keepPending: Set<String>? = emptySet(), minAgeMs: Long = 0): Int {
+        val limit = clock() - minAgeMs
+        fun orphan(file: File, keep: Set<String>) =
+            (file.name.removeSuffix(".jpg") !in keep || !file.name.endsWith(".jpg")) && file.lastModified() <= limit
+
         var deleted = 0
-        photosDir.listFiles().orEmpty().filter { it.isFile }.forEach {
-            if (it.name.removeSuffix(".jpg") !in keepIds || !it.name.endsWith(".jpg")) if (it.delete()) deleted++
-        }
-        pendingDir.listFiles().orEmpty().filter { it.isFile }.forEach {
-            if (it.name.removeSuffix(".jpg") !in keepPending || !it.name.endsWith(".jpg")) if (it.delete()) deleted++
+        photosDir.listFiles().orEmpty().filter { it.isFile && orphan(it, keepIds) }.forEach { if (it.delete()) deleted++ }
+        // Con [keepPending] nulo no se toca lo que espera a su punto: una medida larga puede estar en marcha.
+        if (keepPending != null) {
+            pendingDir.listFiles().orEmpty().filter { it.isFile && orphan(it, keepPending) }.forEach { if (it.delete()) deleted++ }
         }
         return deleted
     }
@@ -170,10 +180,13 @@ class PhotoStore(
         }
     }
 
-    private companion object {
-        const val JPEG_QUALITY = 85
-        const val OFFSET_TIME_ORIGINAL = "OffsetTimeOriginal"
-        val TAGS = listOf(
+    companion object {
+        /** Sin fotos: para los tests y las pantallas que no las usan; con [PhotoRepository.NONE] no se llega a escribir nada. */
+        val NONE = PhotoStore(File(System.getProperty("java.io.tmpdir") ?: ".", "topophone-no-photos"), { null })
+
+        private const val JPEG_QUALITY = 85
+        private const val OFFSET_TIME_ORIGINAL = "OffsetTimeOriginal"
+        private val TAGS = listOf(
             ExifInterface.TAG_DATETIME,
             ExifInterface.TAG_DATETIME_ORIGINAL,
             ExifInterface.TAG_DATETIME_DIGITIZED,

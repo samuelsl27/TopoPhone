@@ -167,4 +167,18 @@ class PhotoCleanupTest {
         files(store.pendingDir) shouldBe listOf("${inProgress.id}.jpg")
         store.pendingFile(abandoned.id).exists() shouldBe false
     }
+
+    @Test
+    fun `S017b RF-20 el barrido respeta lo reciente y lo en espera`() = runBlocking<Unit> {
+        store.photosDir.mkdirs()
+        val old = File(store.photosDir, "vieja.jpg").apply { writeBytes(ByteArray(10)) }
+        old.setLastModified(System.currentTimeMillis() - 120_000)
+        File(store.photosDir, "recien.jpg").writeBytes(ByteArray(10))
+        val waiting = staged()
+
+        photos.sweep(pendingInUse = null, minAgeMs = 60_000) shouldBe 1
+
+        files(store.photosDir) shouldBe listOf("recien.jpg")
+        files(store.pendingDir) shouldBe listOf("${waiting.id}.jpg")
+    }
 }
