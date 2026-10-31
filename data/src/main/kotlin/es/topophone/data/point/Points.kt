@@ -37,6 +37,8 @@ data class PointSummaryRow(
     @ColumnInfo(name = "created_at") val createdAt: Long,
     /** Cuántos puntos activos del proyecto son replanteos de este (S018/RF-33). */
     @ColumnInfo(name = "stake_count") val stakeCount: Int,
+    /** Cuántas fotos tiene el punto (S017b/RF-26). */
+    @ColumnInfo(name = "photo_count") val photoCount: Int,
 )
 
 /** Los puntos activos de un proyecto son los que no están en la papelera (S011/RF-22). */
@@ -69,11 +71,14 @@ interface PointDao {
     @Query(
         "SELECT points.id, points.name, points.description, points.origin, points.ground_lat, points.ground_lon, " +
             "points.ground_h IS NOT NULL AS has_height, points.out_of_tolerance <> '' AS out_of_tolerance, points.edited, " +
-            "points.hidden, points.created_at, COALESCE(stakes.n, 0) AS stake_count FROM points " +
+            "points.hidden, points.created_at, COALESCE(stakes.n, 0) AS stake_count, " +
+            "COALESCE(shots.n, 0) AS photo_count FROM points " +
             // Una sola agregación de los replanteos del proyecto: una subconsulta por fila sería cuadrática (S011 RNF, 10.000 puntos).
             "LEFT JOIN (SELECT project_id AS p, stake_design_id AS d, COUNT(*) AS n FROM points " +
             "WHERE project_id = :projectId AND deleted_at IS NULL AND stake_design_id IS NOT NULL " +
             "GROUP BY project_id, stake_design_id) stakes ON stakes.d = points.id AND stakes.p = points.project_id " +
+            "LEFT JOIN (SELECT point_id, COUNT(*) AS n FROM point_photos WHERE point_id IN " +
+            "(SELECT id FROM points WHERE project_id = :projectId) GROUP BY point_id) shots ON shots.point_id = points.id " +
             "WHERE points.project_id = :projectId AND points.deleted_at IS NULL ORDER BY points.created_at DESC",
     )
     fun summaries(projectId: String): Flow<List<PointSummaryRow>>
@@ -271,6 +276,7 @@ class RoomPointRepository(
                 hidden = row.hidden,
                 createdAtMs = row.createdAt,
                 stakeCount = row.stakeCount,
+                photoCount = row.photoCount,
             )
         }
     }

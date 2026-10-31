@@ -89,6 +89,21 @@ class PhotoStore(
         }
     }
 
+    /**
+     * Borra los ficheros sin fila: los de `photos/` cuyo id no está en [keepIds] y los de `photos/pending/` que no son de las fotos en
+     * espera [keepPending]; también los temporales sueltos. Devuelve cuántos borró (plan A4).
+     */
+    fun sweep(keepIds: Set<String>, keepPending: Set<String> = emptySet()): Int {
+        var deleted = 0
+        photosDir.listFiles().orEmpty().filter { it.isFile }.forEach {
+            if (it.name.removeSuffix(".jpg") !in keepIds || !it.name.endsWith(".jpg")) if (it.delete()) deleted++
+        }
+        pendingDir.listFiles().orEmpty().filter { it.isFile }.forEach {
+            if (it.name.removeSuffix(".jpg") !in keepPending || !it.name.endsWith(".jpg")) if (it.delete()) deleted++
+        }
+        return deleted
+    }
+
     /** Descarta una foto en espera (RF-4). */
     fun discard(id: String) {
         pendingFile(id).delete()

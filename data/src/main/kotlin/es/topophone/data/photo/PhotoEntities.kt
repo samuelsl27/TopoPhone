@@ -55,6 +55,9 @@ data class PhotoEventEntity(
     @ColumnInfo(name = "photo_taken_at") val photoTakenAt: Long,
 )
 
+/** Cuántas fotos tiene un proyecto y cuánto ocupan sus ficheros (S017b/RF-27). */
+data class PhotoStatsRow(val count: Int, val bytes: Long)
+
 @Dao
 interface PhotoDao {
     @Insert
@@ -81,6 +84,13 @@ interface PhotoDao {
 
     @Query("SELECT * FROM photo_events WHERE point_id = :pointId ORDER BY at DESC, rowid DESC")
     fun events(pointId: String): Flow<List<PhotoEventEntity>>
+
+    /** Las fotos de todos los puntos del proyecto, también los de la papelera, y lo que ocupan (S017b/RF-27). */
+    @Query(
+        "SELECT COUNT(*) AS count, COALESCE(SUM(size_bytes), 0) AS bytes FROM point_photos " +
+            "WHERE point_id IN (SELECT id FROM points WHERE project_id = :projectId)",
+    )
+    fun stats(projectId: String): Flow<PhotoStatsRow>
 
     /** Los ids de todas las fotos con fila; el barrido borra los ficheros que no estén aquí (plan A4). */
     @Query("SELECT id FROM point_photos")

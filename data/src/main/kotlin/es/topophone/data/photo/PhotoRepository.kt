@@ -8,6 +8,7 @@ import es.topophone.core.model.point.PhotoEvent
 import es.topophone.core.model.point.PhotoNames
 import es.topophone.core.model.point.PhotoOrigin
 import es.topophone.core.model.point.PhotoPolicy
+import es.topophone.core.model.point.PhotoStats
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointPhoto
 import es.topophone.data.db.TopoPhoneDatabase
@@ -62,6 +63,15 @@ interface PhotoRepository {
 
     /** El fichero de la foto [photoId] si existe. */
     fun file(photoId: String): File?
+
+    /** Cuántas fotos tiene el proyecto, con los puntos de su papelera, y cuánto ocupan (RF-27). */
+    fun stats(projectId: String): Flow<PhotoStats>
+
+    /**
+     * Borra los ficheros que no tienen fila y lo que quede en espera salvo [pendingInUse]; se llama al arrancar y tras borrar puntos o
+     * proyectos (plan A4). Devuelve cuántos ficheros borró.
+     */
+    suspend fun sweep(pendingInUse: Set<String> = emptySet()): Int
 }
 
 class RoomPhotoRepository(
@@ -160,6 +170,14 @@ class RoomPhotoRepository(
     override fun events(pointId: String): Flow<List<PhotoEvent>> = dao.events(pointId).map { rows -> rows.map { it.toModel() } }
 
     override fun file(photoId: String): File? = store.photoFile(photoId).takeIf { it.isFile }
+
+    override fun stats(projectId: String): Flow<PhotoStats> = dao.stats(projectId).map { PhotoStats(it.count, it.bytes) }
+
+    override suspend fun sweep(pendingInUse: Set<String>): Int {
+        val deleted = store.sweep(dao.allIds().toSet(), pendingInUse)
+        if (deleted > 0) log.info(LogCategory.POINTS, "Barrido de fotos: $deleted ficheros sin punto borrados")
+        return deleted
+    }
 
     private fun moveToFinal(photos: List<StagedPhoto>): Boolean {
         val moved = mutableListOf<StagedPhoto>()
