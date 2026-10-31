@@ -505,6 +505,11 @@
     <string name="collector_measuring">Measuring…</string>
     <string name="collector_cancel">Cancel</string>
     <string name="point_photos_title">Photos</string>
+    <string name="project_no_photos">No photos</string>
+    <plurals name="project_photos_stats">
+        <item quantity="one">%1$d photo (%2$s)</item>
+        <item quantity="other">%1$d photos (%2$s)</item>
+    </plurals>
     <plurals name="point_photos_count">
         <item quantity="one">%d photo</item>
         <item quantity="other">%d photos</item>

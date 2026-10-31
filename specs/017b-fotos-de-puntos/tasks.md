@@ -42,7 +42,7 @@
       Hecho cuando: los tests de añadir de `PointPhotosScreenTest` en verde: en un punto medido y en uno manual, con 9 fotos y 3 elegidas, con 10 fotos, con un fallo de espacio y cerrando el selector sin elegir.
 - [x] T20. `app`: borrar una foto con confirmación y el historial con los sucesos de foto. (RF-22, RF-23)
       Hecho cuando: los tests de borrar y de historial de `PointPhotosScreenTest` en verde, con el punto sin marcar como editado.
-- [ ] T21. `app`: la lista de objetos con la marca de fotos y los datos del proyecto con el recuento y el espacio. (RF-26, RF-27)
+- [x] T21. `app`: la lista de objetos con la marca de fotos y los datos del proyecto con el recuento y el espacio. (RF-26, RF-27)
       Hecho cuando: `ObjectListPhotosTest` y `ProjectDataPhotosTest` en verde, con el icono y el texto y en las unidades de RNF-T9.
 - [ ] T22. Extremo a extremo y rendimiento: `PhotosEndToEndTest` y `PhotoPerformanceTest`. (RNF, RF-2, RF-5, RF-22, RF-24, RF-28)
       Hecho cuando: ambos en verde: una medida con foto, guardar, foto tras guardar, ficha, papelera, restaurar, copia completa, restaurar y deshacer con las fotos presentes; reducir 12 MP en menos de 2 s y la ficha con 10 fotos en menos de 1 s.

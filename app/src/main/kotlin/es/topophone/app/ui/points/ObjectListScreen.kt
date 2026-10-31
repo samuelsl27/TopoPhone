@@ -526,13 +526,18 @@ private fun PointRow(point: PointSummary, selected: Boolean, onClick: () -> Unit
                     if (point.edited) add(R.drawable.ic_edit to R.string.point_mark_edited)
                     if (!point.hasHeight) add(R.drawable.ic_no_height to R.string.point_mark_no_height)
                 }
-                if (marks.isNotEmpty() || point.stakeCount > 0) {
+                if (marks.isNotEmpty() || point.stakeCount > 0 || point.photoCount > 0) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         marks.forEach { (icon, text) -> Mark(icon, stringResource(text)) }
                         // S018/RF-33: los puntos de diseño con replanteos, y cuántos
                         if (point.stakeCount > 0) {
                             val count = point.stakeCount
                             Mark(R.drawable.ic_stakeout, pluralStringResource(R.plurals.objects_stake_count, count, count))
+                        }
+                        // S017b/RF-26: los puntos con fotos, y cuántas, con icono y texto
+                        if (point.photoCount > 0) {
+                            val count = point.photoCount
+                            Mark(R.drawable.ic_photo, pluralStringResource(R.plurals.point_photos_count, count, count))
                         }
                     }
                 }

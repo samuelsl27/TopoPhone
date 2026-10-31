@@ -25,9 +25,13 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.points.fileSizeText
+import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.core.model.point.PhotoStats
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.DatumCheck
 import es.topophone.core.model.project.Project
+import es.topophone.data.photo.PhotoRepository
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import javax.inject.Inject
@@ -42,14 +46,24 @@ import kotlinx.coroutines.flow.stateIn
 
 const val PROJECT_INFO_TAG = "project_info"
 const val NO_POINTS_TAG = "project_no_points"
+const val PROJECT_PHOTOS_TAG = "project_photos"
 
 /** Lo que muestran los datos del proyecto (S009/RF-5). */
-data class ProjectInfoUiState(val project: Project? = null, val pointCount: Int = 0)
+data class ProjectInfoUiState(
+    val project: Project? = null,
+    val pointCount: Int = 0,
+    /** Cuántas fotos tiene el proyecto y cuánto ocupan (S017b/RF-27). */
+    val photos: PhotoStats = PhotoStats.NONE,
+)
 
 /** El proyecto cuyos datos se ven, al día si se edita (S009/RF-5). */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class ProjectInfoViewModel @Inject constructor(repository: ProjectRepository, points: PointRepository) : ViewModel() {
+class ProjectInfoViewModel @Inject constructor(
+    repository: ProjectRepository,
+    points: PointRepository,
+    photos: PhotoRepository = PhotoRepository.NONE,
+) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
 
     val state: StateFlow<ProjectInfoUiState> = projectId
@@ -59,7 +73,9 @@ class ProjectInfoViewModel @Inject constructor(repository: ProjectRepository, po
             ) {
                 flowOf(ProjectInfoUiState())
             } else {
-                combine(repository.observe(id), points.count(id)) { project, count -> ProjectInfoUiState(project, count) }
+                combine(repository.observe(id), points.count(id), photos.stats(id)) { project, count, stats ->
+                    ProjectInfoUiState(project, count, stats)
+                }
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectInfoUiState())
@@ -101,7 +117,7 @@ fun ProjectInfoScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
         ) {
             state.project?.let { project ->
                 ProjectInfoCard(project)
-                PointsCard(state.pointCount)
+                PointsCard(state.pointCount, state.photos)
             }
         }
     }
@@ -135,7 +151,7 @@ private fun ProjectInfoCard(project: Project) {
 
 /** Cuántos puntos tiene el proyecto, o que todavía no tiene (S006/RF-31, S010/RF-21). */
 @Composable
-private fun PointsCard(count: Int) {
+private fun PointsCard(count: Int, photos: PhotoStats) {
     ViewCard(stringResource(R.string.project_points_title)) {
         val text = if (count ==
             0
@@ -145,6 +161,13 @@ private fun PointsCard(count: Int) {
             pluralStringResource(R.plurals.project_points_count, count, count)
         }
         Text(text, modifier = Modifier.testTag(NO_POINTS_TAG))
+        // S017b/RF-27: cuántas fotos y cuánto ocupan
+        val photoText = if (photos.count == 0) {
+            stringResource(R.string.project_no_photos)
+        } else {
+            pluralStringResource(R.plurals.project_photos_stats, photos.count, photos.count, fileSizeText(photos.bytes, uiLocale()))
+        }
+        Text(photoText, modifier = Modifier.testTag(PROJECT_PHOTOS_TAG))
     }
 }
 

@@ -517,6 +517,11 @@
     <string name="collector_measuring">Midiendo…</string>
     <string name="collector_cancel">Cancelar</string>
     <string name="point_photos_title">Fotos</string>
+    <string name="project_no_photos">Sin fotos</string>
+    <plurals name="project_photos_stats">
+        <item quantity="one">%1$d foto (%2$s)</item>
+        <item quantity="other">%1$d fotos (%2$s)</item>
+    </plurals>
     <plurals name="point_photos_count">
         <item quantity="one">%d foto</item>
         <item quantity="other">%d fotos</item>
