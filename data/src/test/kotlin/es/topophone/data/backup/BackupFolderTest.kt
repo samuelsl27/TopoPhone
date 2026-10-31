@@ -93,4 +93,79 @@ class BackupFolderTest {
         runBlocking { backupFolder.write(tree, "TopoPhone_auto_20261019-0802.zip", source("zip")) } shouldBe false
         runBlocking { backupFolder.list(tree) } shouldBe null
     }
+
+    private fun photoFile(text: String) = File(folder.root, "foto-${System.nanoTime()}.jpg").apply { writeText(text) }
+
+    @Test
+    fun `S017b RF-30 la foto se guarda en la subcarpeta de fotos, que se crea la primera vez`() {
+        runBlocking { backupFolder.writePhoto(tree, "aaa-111.jpg", photoFile("uno")) } shouldBe true
+        runBlocking { backupFolder.writePhoto(tree, "bbb-222.jpg", photoFile("dos")) } shouldBe true
+
+        File(dir, "TopoPhone_fotos/aaa-111.jpg").readText() shouldBe "uno"
+        File(dir, "TopoPhone_fotos/bbb-222.jpg").readText() shouldBe "dos"
+        dir.list()!!.toList() shouldBe listOf("TopoPhone_fotos")
+    }
+
+    @Test
+    fun `S017b RF-30 una foto que ya esta no se repite ni se duplica`() {
+        runBlocking { backupFolder.writePhoto(tree, "aaa-111.jpg", photoFile("uno")) } shouldBe true
+        runBlocking { backupFolder.writePhoto(tree, "aaa-111.jpg", photoFile("otra")) } shouldBe true
+
+        File(dir, "TopoPhone_fotos").list()!!.toList() shouldBe listOf("aaa-111.jpg")
+        File(dir, "TopoPhone_fotos/aaa-111.jpg").readText() shouldBe "uno"
+    }
+
+    @Test
+    fun `S017b RF-31 se listan las fotos y sin subcarpeta la lista esta vacia`() {
+        runBlocking { backupFolder.listPhotos(tree) } shouldBe emptyList()
+
+        runBlocking { backupFolder.writePhoto(tree, "aaa-111.jpg", photoFile("uno")) }
+        File(dir, "TopoPhone_auto_20261019-0802.zip").writeText("zip")
+
+        runBlocking { backupFolder.listPhotos(tree) } shouldBe listOf("aaa-111.jpg")
+    }
+
+    @Test
+    fun `S017b RF-31 borrar una foto no toca los demas ficheros de la carpeta`() {
+        runBlocking { backupFolder.writePhoto(tree, "aaa-111.jpg", photoFile("uno")) }
+        runBlocking { backupFolder.writePhoto(tree, "bbb-222.jpg", photoFile("dos")) }
+        File(dir, "TopoPhone_auto_20261019-0802.zip").writeText("zip")
+        File(dir, "notas.txt").writeText("x")
+
+        runBlocking { backupFolder.deletePhoto(tree, "aaa-111.jpg") } shouldBe true
+        runBlocking { backupFolder.deletePhoto(tree, "zzz.jpg") } shouldBe false
+        runBlocking { backupFolder.deletePhoto(tree, "notas.txt") } shouldBe false
+
+        File(dir, "TopoPhone_fotos").list()!!.toList() shouldBe listOf("bbb-222.jpg")
+        dir.list()!!.toSet() shouldBe setOf("TopoPhone_fotos", "TopoPhone_auto_20261019-0802.zip", "notas.txt")
+    }
+
+    @Test
+    fun `S017b RF-32 una foto se abre y las que faltan dan null`() {
+        runBlocking { backupFolder.writePhoto(tree, "aaa-111.jpg", photoFile("uno")) }
+
+        runBlocking { backupFolder.openPhoto(tree, "aaa-111.jpg") }!!.use { it.readBytes().decodeToString() } shouldBe "uno"
+        runBlocking { backupFolder.openPhoto(tree, "nada.jpg") } shouldBe null
+        runBlocking { backupFolder.externalPhotos(tree).open("aaa-111.jpg") }!!.use { it.readBytes().decodeToString() } shouldBe "uno"
+    }
+
+    @Test
+    fun `S017b RF-30 si no se puede escribir la foto no queda a medias`() {
+        runBlocking { backupFolder.writePhoto(tree, "aaa-111.jpg", photoFile("uno")) }
+        FolderDocumentsProvider.failWrites = true
+
+        runBlocking { backupFolder.writePhoto(tree, "bbb-222.jpg", photoFile("dos")) } shouldBe false
+
+        File(dir, "TopoPhone_fotos").list()!!.toList() shouldBe listOf("aaa-111.jpg")
+    }
+
+    @Test
+    fun `S017b RF-30 una carpeta que ya no existe da un fallo en las fotos, no un cierre`() {
+        dir.deleteRecursively()
+
+        runBlocking { backupFolder.writePhoto(tree, "aaa-111.jpg", photoFile("uno")) } shouldBe false
+        runBlocking { backupFolder.listPhotos(tree) } shouldBe null
+        runBlocking { backupFolder.deletePhoto(tree, "aaa-111.jpg") } shouldBe false
+        runBlocking { backupFolder.openPhoto(tree, "aaa-111.jpg") } shouldBe null
+    }
 }

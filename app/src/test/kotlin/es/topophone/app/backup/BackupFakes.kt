@@ -41,6 +41,11 @@ class FakeFolder : BackupFolder {
     var failPersist = false
     val persisted = mutableListOf<String>()
 
+    /** La subcarpeta de fotos (S017b/RF-30): nombre → contenido. */
+    val photos = linkedMapOf<String, String>()
+    var failPhotoWrites = false
+    var photoFolderUnreadable = false
+
     override suspend fun write(treeUri: String, name: String, from: File): Boolean {
         if (failWrites) return false
         files[name] = from.readText()
@@ -50,6 +55,18 @@ class FakeFolder : BackupFolder {
     override suspend fun list(treeUri: String): List<String> = files.keys.toList()
 
     override suspend fun delete(treeUri: String, name: String): Boolean = files.remove(name) != null
+
+    override suspend fun writePhoto(treeUri: String, name: String, from: File): Boolean {
+        if (failPhotoWrites) return false
+        photos.getOrPut(name) { from.readText() }
+        return true
+    }
+
+    override suspend fun listPhotos(treeUri: String): List<String>? = if (photoFolderUnreadable) null else photos.keys.toList()
+
+    override suspend fun deletePhoto(treeUri: String, name: String): Boolean = photos.remove(name) != null
+
+    override suspend fun openPhoto(treeUri: String, name: String): InputStream? = photos[name]?.byteInputStream()
 
     override fun persist(treeUri: String) {
         if (failPersist) throw SecurityException("sin permiso")

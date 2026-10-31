@@ -24,7 +24,7 @@
       Hecho cuando: `BackupRepositoryPhotosTest` en verde: restaurar devuelve fotos y filas, un fallo en el intercambio deja las fotos como estaban, deshacer las recupera y la copia del estado anterior lleva las fotos.
 - [x] T11. `data`: el paquete con las fotos de los puntos y de su papelera, y su importación con ids nuevos o sustituyendo un proyecto. (RF-29)
       Hecho cuando: los tests de paquete de `BackupRepositoryPhotosTest` en verde: importado en otro móvil, como nuevo, sustituyendo al del móvil y con ids de foto repetidos, y las fotos abren.
-- [ ] T12. `data`: `BackupFolder` con la subcarpeta de fotos (escribir, listar, borrar y abrir) y `ExternalPhotos`. (RF-30, RF-31, RF-32)
+- [x] T12. `data`: `BackupFolder` con la subcarpeta de fotos (escribir, listar, borrar y abrir) y `ExternalPhotos`. (RF-30, RF-31, RF-32)
       Hecho cuando: los tests de `BackupFolder` en verde con el proveedor falso y los fallos del proveedor tratados como "no se ha podido".
 - [ ] T13. `app`: `AutoBackupScheduler` copia las fotos nuevas una sola vez y aplica la retención. (RF-30, RF-31)
       Hecho cuando: `AutoBackupPhotosTest` en verde: la segunda copia no repite fotos, la retención conserva las que nombra algún ZIP y borra las demás, un fallo al copiar una foto hace fallar la copia y no se toca ningún otro fichero de la carpeta.

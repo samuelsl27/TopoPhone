@@ -46,8 +46,9 @@ class FolderDocumentsProvider : DocumentsProvider() {
         if (!dir.isDirectory) throw FileNotFoundException(parentDocumentId)
         var name = displayName
         var n = 1
-        while (File(dir, name).exists()) name = displayName.replace(".zip", " (${n++}).zip")
-        File(dir, name).createNewFile()
+        val dot = displayName.lastIndexOf('.').takeIf { it > 0 } ?: displayName.length
+        while (File(dir, name).exists()) name = displayName.substring(0, dot) + " (${n++})" + displayName.substring(dot)
+        if (mimeType == Document.MIME_TYPE_DIR) File(dir, name).mkdir() else File(dir, name).createNewFile()
         return "$parentDocumentId/$name"
     }
 
@@ -64,7 +65,7 @@ class FolderDocumentsProvider : DocumentsProvider() {
         cursor.newRow().apply {
             add(Document.COLUMN_DOCUMENT_ID, documentId)
             add(Document.COLUMN_DISPLAY_NAME, file.name)
-            add(Document.COLUMN_MIME_TYPE, if (file.isDirectory) Document.MIME_TYPE_DIR else "application/zip")
+            add(Document.COLUMN_MIME_TYPE, if (file.isDirectory) Document.MIME_TYPE_DIR else "application/octet-stream")
             add(Document.COLUMN_SIZE, file.length())
             add(Document.COLUMN_LAST_MODIFIED, file.lastModified())
             add(Document.COLUMN_FLAGS, Document.FLAG_SUPPORTS_DELETE or Document.FLAG_SUPPORTS_WRITE or Document.FLAG_DIR_SUPPORTS_CREATE)
