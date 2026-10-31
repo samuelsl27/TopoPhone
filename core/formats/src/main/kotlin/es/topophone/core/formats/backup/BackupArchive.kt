@@ -41,6 +41,11 @@ data class BackupManifest(
     val projectName: String? = null,
     val formatVersion: Int = FORMAT_VERSION,
     val files: Map<String, String> = emptyMap(),
+    /**
+     * Las fotos que usan los puntos de una copia automática y que están fuera del ZIP, en la subcarpeta de fotos de la carpeta de
+     * copias: nombre (`<id>.jpg`) → suma SHA-256 (S017b/RF-30, plan A6). Opcional: las copias de antes no lo llevan.
+     */
+    val externalPhotos: Map<String, String> = emptyMap(),
 ) {
     companion object {
         const val FORMAT = "topophone"
@@ -72,6 +77,18 @@ object BackupArchive {
     const val DATABASE = "data.db"
     const val SETTINGS = "settings.json"
 
+    /** Carpeta del ZIP con las fotos de los puntos: `photos/<id>.jpg` (S017b/RF-28, RF-29). */
+    const val PHOTOS_DIR = "photos"
+
+    private val PHOTO_FILE = Regex("""[A-Za-z0-9-]{1,64}\.jpg""")
+    private val PHOTO_ENTRY = Regex("""photos/[A-Za-z0-9-]{1,64}\.jpg""")
+
+    /** El nombre de la entrada del ZIP de la foto [id]. */
+    fun photoEntry(id: String): String = "$PHOTOS_DIR/$id.jpg"
+
+    /** Si [name] es el nombre de un fichero de foto de la subcarpeta de fotos externas (S017b/RF-30). */
+    fun isPhotoFile(name: String): Boolean = PHOTO_FILE.matches(name)
+
     /** Ningún fichero de una copia pasa de 2 GiB: evita llenar el disco con un ZIP malicioso. */
     const val MAX_ENTRY_BYTES = 2L shl 30
     private const val MAX_MANIFEST_BYTES = 1L shl 20
@@ -81,6 +98,7 @@ object BackupArchive {
 
     /** Escribe [manifest] con las sumas de [files] y después cada fichero. No cierra [out]. */
     fun write(manifest: BackupManifest, files: Map<String, File>, out: OutputStream) {
+        require(files.keys.all { !it.startsWith("$PHOTOS_DIR/") || PHOTO_ENTRY.matches(it) }) { "Nombre de foto no válido" }
         val sums = files.mapValues { (_, file) -> file.inputStream().use { sha256(it, OutputStream.nullOutputStream(), Long.MAX_VALUE)!! } }
         val zip = ZipOutputStream(out)
         zip.putNextEntry(ZipEntry(MANIFEST))
@@ -139,7 +157,15 @@ object BackupArchive {
                         val sum = file.outputStream().use { sha256(zip, it, maxEntryBytes) } ?: return BackupReadResult.Damaged
                         extracted[entry.name] = file to sum
                     }
-                    else -> Unit // S013/RF-12: lo que no es de la copia no se extrae.
+                    else -> {
+                        if (!entry.name.startsWith("$PHOTOS_DIR/")) continue // S013/RF-12: lo que no es de la copia no se extrae.
+                        // S017b/RF-28: una foto con un nombre raro (`..`, subcarpetas) es una copia dañada, no se extrae.
+                        if (!PHOTO_ENTRY.matches(entry.name) || entry.name in extracted) return BackupReadResult.Damaged
+                        val file = File(extractTo, entry.name)
+                        file.parentFile.mkdirs()
+                        val sum = file.outputStream().use { sha256(zip, it, maxEntryBytes) } ?: return BackupReadResult.Damaged
+                        extracted[entry.name] = file to sum
+                    }
                 }
             }
         }
@@ -154,6 +180,9 @@ object BackupArchive {
         if (manifest.schemaVersion > schemaVersion) return BackupReadResult.Newer // S013/RF-13
         val required = if (manifest.kind == BackupKind.BACKUP) setOf(DATABASE, SETTINGS) else setOf(DATABASE)
         if (!manifest.files.keys.containsAll(required)) return BackupReadResult.Damaged
+        // Una foto de más (en el ZIP y no en el manifiesto) o con un nombre que no vale es una copia dañada (S017b/RF-28).
+        if (extracted.keys.any { it.startsWith("$PHOTOS_DIR/") && it !in manifest.files }) return BackupReadResult.Damaged
+        if (manifest.files.keys.any { it.startsWith("$PHOTOS_DIR/") && !PHOTO_ENTRY.matches(it) }) return BackupReadResult.Damaged
         val files = manifest.files.mapValues { (name, sum) ->
             val (file, actual) = extracted[name] ?: return BackupReadResult.Damaged
             if (actual != sum) return BackupReadResult.Damaged
@@ -176,6 +205,9 @@ object BackupArchive {
             put("projectId", manifest.projectId?.let(::JsonPrimitive) ?: JsonNull)
             put("projectName", manifest.projectName?.let(::JsonPrimitive) ?: JsonNull)
             put("files", JsonObject(manifest.files.mapValues { JsonPrimitive(it.value) }))
+            if (manifest.externalPhotos.isNotEmpty()) {
+                put("externalPhotos", JsonObject(manifest.externalPhotos.toSortedMap().mapValues { JsonPrimitive(it.value) }))
+            }
         },
     )
 
@@ -196,6 +228,8 @@ object BackupArchive {
             else -> {
                 val kind = BackupKind.entries.firstOrNull { it.id == string("kind") }
                 val files = (root["files"] as? JsonObject)?.mapValues { it.value.jsonPrimitive.content }
+                val external = (root["externalPhotos"] as? JsonObject)?.mapValues { it.value.jsonPrimitive.content } ?: emptyMap()
+                if (!external.keys.all { isPhotoFile(it) }) return Decoded.Invalid
                 val manifest = BackupManifest(
                     kind = kind ?: return Decoded.Invalid,
                     schemaVersion = int("schemaVersion") ?: return Decoded.Invalid,
@@ -207,6 +241,7 @@ object BackupArchive {
                     projectName = string("projectName"),
                     formatVersion = int("formatVersion") ?: return Decoded.Invalid,
                     files = files ?: return Decoded.Invalid,
+                    externalPhotos = external,
                 )
                 if (manifest.kind == BackupKind.PACKAGE && manifest.projectId == null) Decoded.Invalid else Decoded.Ok(manifest)
             }

@@ -18,7 +18,7 @@
       Hecho cuando: `PointRepositoryPhotosTest` en verde: un fallo a medias no deja ni filas ni ficheros, el límite de 10 se comprueba en la transacción, la misma foto añadida dos veces cuenta como dos, borrar deja su suceso y añadir no marca el punto como editado.
 - [x] T8. `data`: el barrido de ficheros sin fila, la papelera de puntos y de proyectos con sus fotos, duplicar sin fotos, `photoCount` en los resúmenes y `PhotoStats` del proyecto. (RF-24, RF-25, RF-26, RF-27, RF-34)
       Hecho cuando: `PhotoCleanupTest` en verde: borrar un punto de la papelera, vaciarla, y borrar un proyecto dejan sin ficheros las fotos; restaurar las devuelve; el barrido de arranque borra un fichero huérfano y lo vacío de `pending/`.
-- [ ] T9. `core:formats`: `BackupArchive` con las entradas `photos/<id>.jpg`, sus sumas y `externalPhotos` en el manifiesto. (RF-28, RF-29, RF-30)
+- [x] T9. `core:formats`: `BackupArchive` con las entradas `photos/<id>.jpg`, sus sumas y `externalPhotos` en el manifiesto. (RF-28, RF-29, RF-30)
       Hecho cuando: `BackupArchiveTest` en verde: ida y vuelta con fotos, un nombre con `..` o absoluto, una suma cambiada, una foto de más y un manifiesto con `externalPhotos` o sin él; los ZIP de antes se siguen leyendo.
 - [ ] T10. `data`: la copia completa con fotos, la restauración con el intercambio de directorios y vuelta atrás, y deshacer. (RF-28)
       Hecho cuando: `BackupRepositoryPhotosTest` en verde: restaurar devuelve fotos y filas, un fallo en el intercambio deja las fotos como estaban, deshacer las recupera y la copia del estado anterior lleva las fotos.
