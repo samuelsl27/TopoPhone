@@ -233,3 +233,16 @@ Foto, Galería, "Foto para el punto %s · %d de %d", "Mide un punto primero", "F
 | RF-32 | A7 | `AutoBackupPhotosTest` |
 | RF-33 | A7 | `AutoBackupPhotosTest`, `BackupsScreenTest` |
 | RF-34 | A4 | `PhotoCleanupTest` |
+
+## Cambios al implementar (S017b)
+Lo que se hizo distinto de lo previsto arriba, y por qué:
+- **Room v24** (`AutoMigration(23, 24)`): el plan hablaba de la v10; entre medias pasaron las demás specs.
+- **`PhotoRepository` aparte de `PointRepository`**: `createWithPhotos`, `addPhotos`, `deletePhoto`, `photos`, `events`, `stats`, `sweep` y `rowCount` viven en `data/photo` y envuelven al repositorio de puntos en una transacción de Room. Así no cambian los `FakePointRepository` de los tests. Un `Mutex` impide que el barrido borre una foto a mitad de guardarse. `PhotoRepository.NONE` y `PhotoStore.NONE` hacen de valor por defecto en los constructores de los ViewModel.
+- **Barrido (A4)**: se llama al arrancar la app (borra también lo que quedó en `pending/`) y, en marcha, cada vez que baja el número de filas de `point_photos` (borrar un punto, un proyecto o una foto), solo con ficheros de más de 60 s y sin tocar `pending/`. No se llama a mano tras cada borrado ni en la restauración: el intercambio de directorios ya deja el conjunto exacto.
+- **Fotos del recolector**: la lógica está en `CollectorPhotos` (ni el `CollectorViewModel` ni `CollectorUiState` la llevan dentro, salvo `CollectorUiState.photos`), y comparte la interfaz `PhotoSink` con `PointPhotoAdder`, que hace lo mismo en la ficha. Al empezar otra medida (no automática) el último punto guardado deja de ser el destino, como dice RF-5 («hasta que empiece otra medida»).
+- **Copias automáticas (A6)**: el planificador recibe un `AutoBackupPhotos` (qué fotos hay y cómo escribir la copia sin ellas). `BackupFolder` gana `openFile` y `BackupArchive.readManifest` para la retención. Si una copia de la carpeta no se puede abrir, no se borra ninguna foto ese día.
+- **Restaurar (A7)**: `Backups.restore(valid, external, keepCopy)`, con `RestoreResult.Restored.missingPhotos`; la pantalla de copias no vuelve a la lista de proyectos cuando faltan fotos, para que se lea el aviso (`BackupMessage.RESTORED_MISSING_PHOTOS`).
+- **Paquetes (A5)**: las fotos se copian dentro de la transacción de la importación y, si falla, se borran. Al sustituir un proyecto, el del móvil va a la papelera con copias de sus fotos con ids nuevos.
+- **Cámara**: sin permiso `CAMERA` (la hace la app de cámara del sistema); `file_paths.xml` gana `photo-capture/` y `ShareSessionTest` lo fija.
+- **Lint**: se usa `android.media.ExifInterface` del framework (decisión técnica del plan) y se silencia el aviso `ExifInterface` en `PhotoStore` y `PhotoImages`; `OutputStream.nullOutputStream()` (API 33) se evitó.
+- **`PointDetailsViewModel`**: `calculator` pasa a ser el último parámetro (los tests lo pasan como lambda al final).

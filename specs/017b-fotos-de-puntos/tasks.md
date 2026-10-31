@@ -46,5 +46,7 @@
       Hecho cuando: `ObjectListPhotosTest` y `ProjectDataPhotosTest` en verde, con el icono y el texto y en las unidades de RNF-T9.
 - [x] T22. Extremo a extremo y rendimiento: `PhotosEndToEndTest` y `PhotoPerformanceTest`. (RNF, RF-2, RF-5, RF-22, RF-24, RF-28)
       Hecho cuando: ambos en verde: una medida con foto, guardar, foto tras guardar, ficha, papelera, restaurar, copia completa, restaurar y deshacer con las fotos presentes; reducir 12 MP en menos de 2 s y la ficha con 10 fotos en menos de 1 s.
-- [ ] T23. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
+- [x] T23. Validación: recorrer la spec RF por RF, `rf_report`, demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. Las pruebas de campo quedan para el usuario.
+
+Validación (T23): 34 de 34 RF con test, `check`, `pytest tools` y `forbidden_files` en verde. Demo en el emulador (31/10/2026) de los 7 puntos de los criterios de finalización, sin crashes: foto durante la medida y tras guardar, varias desde la galería con el límite de 10, visor con borrado e historial, papelera, copia manual con restaurar y deshacer, cancelar con fotos, marca en la lista y cifras del proyecto. No probados en el emulador: zoom con dos dedos, metadatos EXIF y reducción a 2.048 px con fotos reales, copias automáticas con carpeta (RF-30 a RF-33) y paquetes (RF-29); los cubren los tests.
