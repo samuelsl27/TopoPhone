@@ -23,6 +23,8 @@ import es.topophone.core.model.surface.SurfaceKind
 import es.topophone.data.baseshift.BaseShiftEntity
 import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.map.MapViewportEntity
+import es.topophone.data.photo.PhotoEventEntity
+import es.topophone.data.photo.PointPhotoEntity
 import es.topophone.data.point.PointEntity
 import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.ProjectEntity
@@ -1158,9 +1160,54 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S017b RNF-T6 v23 a v24 los puntos conservan sus datos y las tablas de fotos nacen vacias`() {
+        createFromExportedSchema(23)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v23 ->
+            v23.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v23.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.single().measurement.shouldNotBeNull().coordinates.northing shouldBe 4474257.414123456
+            count(db, "point_photos") shouldBe 0
+            count(db, "photo_events") shouldBe 0
+            runBlocking {
+                db.photos().insert(PointPhotoEntity("f1", "punto-1", "P1_1.jpg", "CAMERA", 1, 2, 300_000, 2_048, 1_536))
+                db.photos().insertEvent(PhotoEventEntity("e1", "punto-1", 3, "ADDED", "P1_1.jpg", 1))
+                db.photos().count("punto-1") shouldBe 1
+                db.photos().photos("punto-1").first().single().name shouldBe "P1_1.jpg"
+                db.photos().events("punto-1").first().single().action shouldBe "ADDED"
+                // La cascada: borrar el punto se lleva las filas de sus fotos y sus sucesos.
+                db.openHelper.writableDatabase.execSQL("DELETE FROM points WHERE id = 'punto-1'")
+                count(db, "point_photos") shouldBe 0
+                count(db, "photo_events") shouldBe 0
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 23
+        const val CURRENT_VERSION = 24
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

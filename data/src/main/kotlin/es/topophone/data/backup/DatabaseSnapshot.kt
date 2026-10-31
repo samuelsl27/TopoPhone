@@ -157,6 +157,9 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("points", "WHERE project_id = ?"),
             Table("point_nmea", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
             Table("point_history", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
+            // S017b/RF-28: las filas de las fotos y sus sucesos viajan con el punto (los ficheros, aparte).
+            Table("point_photos", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
+            Table("photo_events", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
             Table("cad_drawings", "WHERE project_id = ? AND status = 'READY'"),
             Table("cad_layers", "WHERE drawing_id IN (SELECT id FROM cad_drawings WHERE project_id = ? AND status = 'READY')"),
             Table(

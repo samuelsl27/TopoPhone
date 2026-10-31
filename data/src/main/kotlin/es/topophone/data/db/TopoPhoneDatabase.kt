@@ -24,6 +24,9 @@ import es.topophone.data.map.MapViewportDao
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.ntrip.NtripProfileDao
 import es.topophone.data.ntrip.NtripProfileEntity
+import es.topophone.data.photo.PhotoDao
+import es.topophone.data.photo.PhotoEventEntity
+import es.topophone.data.photo.PointPhotoEntity
 import es.topophone.data.point.PointDao
 import es.topophone.data.point.PointEntity
 import es.topophone.data.point.PointHistoryEntity
@@ -75,6 +78,7 @@ import es.topophone.data.surface.SurfaceTileEntity
  *   NULL) y la tabla `raster_tiles` con sus bloques. Migración de Room.
  * - v23 (S020): los desplazamientos de base de cada proyecto (`base_shifts`) y, en cada punto, el vector con que se midió, el punto
  *   conocido y la punta sin desplazar (columnas que admiten NULL). Migración de Room.
+ * - v24 (S017b): las fotos de los puntos (`point_photos`) y sus sucesos (`photo_events`). Solo añade tablas: migración de Room.
  */
 @Database(
     entities = [
@@ -82,6 +86,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         PointHistoryEntity::class, PointNmeaEntity::class, CadDrawingEntity::class, CadLayerEntity::class, CadChunkEntity::class,
         SurfaceEntity::class, SurfaceTileEntity::class, AntennaProfileEntity::class, SavedPoleEntity::class, ReceiverGearEntity::class,
         CadChunkAttributesEntity::class, AlignmentEntity::class, RasterTileEntity::class, BaseShiftEntity::class,
+        PointPhotoEntity::class, PhotoEventEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -108,6 +113,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 20, to = 21),
         AutoMigration(from = 21, to = 22),
         AutoMigration(from = 22, to = 23),
+        AutoMigration(from = 23, to = 24),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -130,11 +136,13 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun baseShifts(): BaseShiftDao
 
+    abstract fun photos(): PhotoDao
+
     companion object {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 23
+        const val VERSION = 24
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =
