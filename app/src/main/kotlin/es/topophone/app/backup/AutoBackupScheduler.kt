@@ -7,6 +7,7 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.data.backup.AutoBackupPreferences
 import es.topophone.data.backup.BackupFolder
+import es.topophone.data.backup.ExternalPhotos
 import java.io.File
 import java.time.Instant
 import java.time.ZoneId
@@ -84,6 +85,9 @@ class AutoBackupScheduler(
         preferences.setFolder(treeUri)
         return backupNow()
     }
+
+    /** Las fotos de la subcarpeta de la carpeta de copias, para restaurar una copia automática; null si no hay carpeta (S017b/RF-32). */
+    suspend fun externalPhotos(): ExternalPhotos? = preferences.state.first().folderUri?.let(folder::externalPhotos)
 
     /** S013/RF-17: sin carpeta no hay copias automáticas. */
     suspend fun folderRemoved() {

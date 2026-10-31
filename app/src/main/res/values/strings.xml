@@ -807,6 +807,10 @@
     <string name="backup_saved">Copia de seguridad guardada.</string>
     <string name="backup_not_saved">No se ha podido guardar la copia de seguridad.</string>
     <string name="backup_restored">Copia restaurada.</string>
+    <plurals name="backup_photos_missing">
+        <item quantity="one">Copia restaurada. Una foto no se ha podido recuperar de la carpeta de copias.</item>
+        <item quantity="other">Copia restaurada. %d fotos no se han podido recuperar de la carpeta de copias.</item>
+    </plurals>
     <string name="backup_undone">Restauración deshecha.</string>
     <string name="backup_not_topophone">Ese fichero no es una copia de seguridad de TopoPhone.</string>
     <string name="backup_is_package">Ese fichero es un paquete de proyecto: impórtalo desde el menú de la lista de proyectos.</string>

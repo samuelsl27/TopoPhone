@@ -157,4 +157,19 @@ class BackupsScreenTest {
 
         compose.onNodeWithTag(BACKUP_CREATE_TAG).assertIsDisplayed()
     }
+
+    @Test
+    fun `S017b RF-33 la copia restaurada dice cuantas fotos no se han podido recuperar`() {
+        show(BackupsUiState(message = BackupMessage.RESTORED_MISSING_PHOTOS, missingPhotos = 3))
+
+        compose.onNodeWithTag(BACKUP_MESSAGE_TAG).assertIsDisplayed()
+        compose.onNodeWithText("Copia restaurada. 3 fotos no se han podido recuperar de la carpeta de copias.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S017b RF-33 con una sola foto el aviso va en singular`() {
+        show(BackupsUiState(message = BackupMessage.RESTORED_MISSING_PHOTOS, missingPhotos = 1))
+
+        compose.onNodeWithText("Copia restaurada. Una foto no se ha podido recuperar de la carpeta de copias.").assertIsDisplayed()
+    }
 }

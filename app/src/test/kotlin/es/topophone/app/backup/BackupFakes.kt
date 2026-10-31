@@ -6,6 +6,7 @@ import es.topophone.data.backup.AutoBackupState
 import es.topophone.data.backup.BackupFolder
 import es.topophone.data.backup.BackupRead
 import es.topophone.data.backup.Backups
+import es.topophone.data.backup.ExternalPhotos
 import es.topophone.data.backup.ImportChoice
 import es.topophone.data.backup.ImportResult
 import es.topophone.data.backup.RestoreResult
@@ -117,7 +118,8 @@ class FakePackageBackups : Backups {
 
     override suspend fun writeBackup(out: OutputStream): Boolean = false
 
-    override suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult = RestoreResult.Failed
+    override suspend fun restore(valid: BackupRead.Valid, external: ExternalPhotos?, keepCopy: suspend (File) -> Unit): RestoreResult =
+        RestoreResult.Failed
 
     override suspend fun undoRestore(): RestoreResult = RestoreResult.Failed
 }

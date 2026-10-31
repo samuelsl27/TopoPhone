@@ -155,7 +155,7 @@ fun BackupsScreen(
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 Text(stringResource(R.string.backup_working), modifier = Modifier.padding(16.dp))
             }
-            state.message?.let { message -> MessageCard(message, actions.onDismissMessage) }
+            state.message?.let { message -> MessageCard(message, state.missingPhotos, actions.onDismissMessage) }
             SettingsSectionHeader(stringResource(R.string.backup_section_full))
             SettingsItem(
                 title = stringResource(R.string.backup_create),
@@ -231,14 +231,19 @@ fun BackupsScreen(
 }
 
 @Composable
-private fun MessageCard(message: BackupMessage, onDismiss: () -> Unit) {
+private fun MessageCard(message: BackupMessage, missingPhotos: Int, onDismiss: () -> Unit) {
     Surface(
         tonalElevation = 2.dp,
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier.fillMaxWidth().padding(16.dp).testTag(BACKUP_MESSAGE_TAG),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(stringResource(message.textRes()), style = MaterialTheme.typography.bodyLarge)
+            val text = if (message == BackupMessage.RESTORED_MISSING_PHOTOS) {
+                pluralStringResource(R.plurals.backup_photos_missing, missingPhotos, missingPhotos)
+            } else {
+                stringResource(message.textRes())
+            }
+            Text(text, style = MaterialTheme.typography.bodyLarge)
             TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) {
                 Text(stringResource(R.string.backup_dismiss))
             }
@@ -250,6 +255,7 @@ private fun BackupMessage.textRes(): Int = when (this) {
     BackupMessage.SAVED -> R.string.backup_saved
     BackupMessage.NOT_SAVED -> R.string.backup_not_saved
     BackupMessage.RESTORED -> R.string.backup_restored
+    BackupMessage.RESTORED_MISSING_PHOTOS -> R.string.backup_restored
     BackupMessage.UNDONE -> R.string.backup_undone
     BackupMessage.NOT_TOPOPHONE -> R.string.backup_not_topophone
     BackupMessage.IS_PACKAGE -> R.string.backup_is_package

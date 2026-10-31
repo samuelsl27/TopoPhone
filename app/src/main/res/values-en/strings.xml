@@ -795,6 +795,10 @@
     <string name="backup_saved">Backup saved.</string>
     <string name="backup_not_saved">The backup could not be saved.</string>
     <string name="backup_restored">Backup restored.</string>
+    <plurals name="backup_photos_missing">
+        <item quantity="one">Backup restored. One photo could not be recovered from the backup folder.</item>
+        <item quantity="other">Backup restored. %d photos could not be recovered from the backup folder.</item>
+    </plurals>
     <string name="backup_undone">Restore undone.</string>
     <string name="backup_not_topophone">That file is not a TopoPhone backup.</string>
     <string name="backup_is_package">That file is a project package: import it from the project list menu.</string>

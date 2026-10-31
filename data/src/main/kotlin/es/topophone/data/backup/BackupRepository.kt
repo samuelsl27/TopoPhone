@@ -58,7 +58,8 @@ sealed interface BackupRead {
 
 /** Resultado de restaurar una copia o de deshacer una restauración (S013/RF-8, RF-10, RF-11). */
 sealed interface RestoreResult {
-    data class Restored(val projects: Int, val points: Int) : RestoreResult
+    /** [missingPhotos]: las fotos de una copia automática que no estaban en la carpeta de fotos o no coincidían (S017b/RF-33). */
+    data class Restored(val projects: Int, val points: Int, val missingPhotos: Int = 0) : RestoreResult
 
     data object Failed : RestoreResult
 }
@@ -85,7 +86,7 @@ interface Backups {
 
     suspend fun read(input: () -> InputStream, kind: BackupKind): BackupRead
 
-    suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit = {}): RestoreResult
+    suspend fun restore(valid: BackupRead.Valid, external: ExternalPhotos? = null, keepCopy: suspend (File) -> Unit = {}): RestoreResult
 
     suspend fun undoRestore(): RestoreResult
 
@@ -206,18 +207,23 @@ class BackupRepository(
      * ajustes. Si algo falla, los datos quedan como estaban y se conserva lo que había para deshacer. Los perfiles NTRIP
      * que siguen en el móvil conservan su contraseña (S013/RF-9); los que solo estaban en la copia la pedirán (S013/RF-15).
      */
-    override suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult =
-        restoreUnlogged(valid, keepCopy).also { result ->
+    override suspend fun restore(valid: BackupRead.Valid, external: ExternalPhotos?, keepCopy: suspend (File) -> Unit): RestoreResult =
+        restoreUnlogged(valid, keepCopy, external).also { result ->
             // S014/RF-4
             val createdAt = valid.manifest.createdAt
             if (result is RestoreResult.Restored) {
-                log.info(LogCategory.BACKUPS, "Restaurada la copia del $createdAt: ${counts(result.projects, result.points)}")
+                val missing = if (result.missingPhotos > 0) "; fotos no recuperadas: ${result.missingPhotos}" else ""
+                log.info(LogCategory.BACKUPS, "Restaurada la copia del $createdAt: ${counts(result.projects, result.points)}$missing")
             } else {
                 log.error(LogCategory.BACKUPS, "No se pudo restaurar la copia del $createdAt; los datos siguen como estaban")
             }
         }
 
-    private suspend fun restoreUnlogged(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult = lock.withLock {
+    private suspend fun restoreUnlogged(
+        valid: BackupRead.Valid,
+        keepCopy: suspend (File) -> Unit,
+        external: ExternalPhotos?,
+    ): RestoreResult = lock.withLock {
         withContext(Dispatchers.IO) {
             val backupSettings = valid.settings
             if (valid.manifest.kind != BackupKind.BACKUP || backupSettings == null) return@withContext RestoreResult.Failed
@@ -227,13 +233,15 @@ class BackupRepository(
                 saveState(secrets, File(undoDir, "$BEFORE_RESTORE.tmp"), File(undoDir, "$NTRIP_SECRETS.tmp"))
             } ?: return@withContext RestoreResult.Failed // S013/RF-10
             attempt { keepCopy(before.zip) } // S013/RF-7: si la carpeta falla, la copia privada ya permite deshacer.
-            if (!apply(valid.database, backupSettings, secrets, valid.photos, rollbackTo = before)) {
+            // S017b/RF-32, RF-33: las fotos de una copia automática se recuperan de la carpeta de fotos; las que faltan se cuentan.
+            val fetched = fetchExternalPhotos(valid.manifest, external)
+            if (!apply(valid.database, backupSettings, secrets, valid.photos + fetched.photos, rollbackTo = before)) {
                 before.delete()
                 return@withContext RestoreResult.Failed
             }
             before.moveTo(undoState())
             undo.value = true
-            RestoreResult.Restored(valid.manifest.projectCount, valid.manifest.pointCount)
+            RestoreResult.Restored(valid.manifest.projectCount, valid.manifest.pointCount, fetched.missing)
         }
     }
 
@@ -906,25 +914,48 @@ class BackupRepository(
         return null
     }
 
+    private class FetchedPhotos(val photos: Map<String, File>, val missing: Int)
+
+    /**
+     * Trae de [external] las fotos que el manifiesto de una copia automática nombra (S017b/RF-32, plan A7): cada una se guarda en una
+     * carpeta de trabajo y se comprueba contra su suma. Una que falta, que no se puede leer o cuya suma no coincide se cuenta como no
+     * recuperada (RF-33); sin [external] cuentan todas.
+     */
+    private suspend fun fetchExternalPhotos(manifest: BackupManifest, external: ExternalPhotos?): FetchedPhotos {
+        if (manifest.externalPhotos.isEmpty()) return FetchedPhotos(emptyMap(), 0)
+        val dir = dir(EXTERNAL)
+        val got = mutableMapOf<String, File>()
+        var missing = 0
+        for ((name, sum) in manifest.externalPhotos) {
+            val file = File(dir, name)
+            val ok = attempt {
+                external?.open(name)?.use { input -> file.outputStream().use { out -> sha256(input, out) } == sum } == true
+            } == true
+            if (ok) got[name.removeSuffix(".jpg")] = file else missing++.also { file.delete() }
+        }
+        return FetchedPhotos(got, missing)
+    }
+
+    private fun sha256(input: java.io.InputStream, out: OutputStream?): String {
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        val buffer = ByteArray(64 * 1024)
+        while (true) {
+            val read = input.read(buffer)
+            if (read < 0) break
+            digest.update(buffer, 0, read)
+            out?.write(buffer, 0, read)
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
     /** Sumas SHA-256 de las fotos ya calculadas: una foto guardada no cambia, así que la suma sirve mientras no cambie su fichero. */
     private val photoSums = HashMap<String, Triple<Long, Long, String>>()
 
     private fun photoSum(name: String, file: File): String {
         val known = photoSums[name]
         if (known != null && known.first == file.length() && known.second == file.lastModified()) return known.third
-        val digest = java.security.MessageDigest.getInstance("SHA-256")
-        file.inputStream().use { input ->
-            val buffer = ByteArray(64 * 1024)
-            while (true) {
-                val read = input.read(buffer)
-                if (read < 0) break
-                digest.update(buffer, 0, read)
-            }
-        }
-        return digest.digest().joinToString("") { "%02x".format(it) }.also {
-            photoSums[name] =
-                Triple(file.length(), file.lastModified(), it)
-        }
+        return file.inputStream().use { sha256(it, null) }
+            .also { photoSums[name] = Triple(file.length(), file.lastModified(), it) }
     }
 
     private suspend fun createBackupFileLocked(target: File, externalPhotos: Map<String, File>? = null): BackupManifest {
@@ -1002,6 +1033,7 @@ class BackupRepository(
         private const val UNDO = "undo"
         private const val CURRENT = "current"
         private const val ROLLBACK = "rollback"
+        private const val EXTERNAL = "external-photos"
         private const val PHOTOS_INCOMING = "photos.incoming"
         private const val PHOTOS_OLD = "photos.old"
     }

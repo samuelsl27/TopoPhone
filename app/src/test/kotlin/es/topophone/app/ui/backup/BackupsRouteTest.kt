@@ -15,6 +15,7 @@ import es.topophone.core.formats.backup.BackupSettings
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.data.backup.BackupRead
+import es.topophone.data.backup.ExternalPhotos
 import es.topophone.data.backup.RestoreResult
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -46,7 +47,7 @@ class BackupsRouteTest {
             BackupSettings(emptyMap(), ""),
         )
 
-        override suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult =
+        override suspend fun restore(valid: BackupRead.Valid, external: ExternalPhotos?, keepCopy: suspend (File) -> Unit): RestoreResult =
             RestoreResult.Restored(1, 1)
     }
 

@@ -11,6 +11,7 @@ import es.topophone.core.formats.backup.BackupSettings
 import es.topophone.data.backup.AutoBackupState
 import es.topophone.data.backup.BackupRead
 import es.topophone.data.backup.Backups
+import es.topophone.data.backup.ExternalPhotos
 import es.topophone.data.backup.ImportChoice
 import es.topophone.data.backup.ImportResult
 import es.topophone.data.backup.RestoreResult
@@ -53,6 +54,7 @@ class BackupsViewModelTest {
         var undoResult: RestoreResult = RestoreResult.Restored(3, 4)
         var writeOk = true
         val restored = mutableListOf<BackupRead.Valid>()
+        val externalUsed = mutableListOf<ExternalPhotos?>()
         var undone = 0
         var readKind: BackupKind? = null
 
@@ -66,8 +68,9 @@ class BackupsViewModelTest {
             return readResult
         }
 
-        override suspend fun restore(valid: BackupRead.Valid, keepCopy: suspend (File) -> Unit): RestoreResult {
+        override suspend fun restore(valid: BackupRead.Valid, external: ExternalPhotos?, keepCopy: suspend (File) -> Unit): RestoreResult {
             restored += valid
+            externalUsed += external
             keepCopy(folder.newFile().apply { writeText("antes") })
             return restoreResult
         }
@@ -174,6 +177,37 @@ class BackupsViewModelTest {
         backupFolder.files shouldBe mapOf("TopoPhone_antes-de-restaurar_20261019-0602.zip" to "antes")
         state().message shouldBe BackupMessage.RESTORED
         state().step shouldBe BackupStep.Idle
+    }
+
+    @Test
+    fun `S017b RF-33 si faltan fotos de una copia automatica se dice cuantas`() {
+        backups.restoreResult = RestoreResult.Restored(2, 4, missingPhotos = 3)
+        vm.open { "zip".byteInputStream() }
+
+        vm.confirmRestore()
+
+        state().message shouldBe BackupMessage.RESTORED_MISSING_PHOTOS
+        state().missingPhotos shouldBe 3
+    }
+
+    @Test
+    fun `S017b RF-32 la restauracion recibe las fotos de la carpeta de copias si hay`() {
+        runBlocking { preferences.setFolder("content://tree/copias") }
+        backupFolder.photos["aaa.jpg"] = "uno"
+        vm.open { "zip".byteInputStream() }
+
+        vm.confirmRestore()
+
+        backups.externalUsed.single()!!.let { runBlocking { it.open("aaa.jpg") }!!.readBytes().decodeToString() } shouldBe "uno"
+    }
+
+    @Test
+    fun `S017b RF-33 sin carpeta configurada no hay fotos que recuperar`() {
+        vm.open { "zip".byteInputStream() }
+
+        vm.confirmRestore()
+
+        backups.externalUsed shouldBe listOf(null)
     }
 
     @Test

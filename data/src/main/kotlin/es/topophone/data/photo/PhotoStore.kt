@@ -1,5 +1,6 @@
 package es.topophone.data.photo
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.ExifInterface
@@ -30,6 +31,8 @@ sealed interface StageResult {
  * guarda su punto; el repositorio la mueve a `photos/<id>.jpg`. [open] da el contenido de la fuente (la cámara o la galería) y solo se
  * lee: nunca se escribe en la foto original (RF-19). Todo se escribe en un fichero temporal y se renombra al terminar (RF-20).
  */
+// El ExifInterface del framework basta con minSdk 26 y evita una dependencia nueva (S017b plan, decisiones técnicas).
+@SuppressLint("ExifInterface")
 class PhotoStore(
     private val root: File,
     private val open: (String) -> InputStream?,

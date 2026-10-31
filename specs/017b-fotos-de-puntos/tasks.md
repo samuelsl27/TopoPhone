@@ -28,7 +28,7 @@
       Hecho cuando: los tests de `BackupFolder` en verde con el proveedor falso y los fallos del proveedor tratados como "no se ha podido".
 - [x] T13. `app`: `AutoBackupScheduler` copia las fotos nuevas una sola vez y aplica la retención. (RF-30, RF-31)
       Hecho cuando: `AutoBackupPhotosTest` en verde: la segunda copia no repite fotos, la retención conserva las que nombra algún ZIP y borra las demás, un fallo al copiar una foto hace fallar la copia y no se toca ningún otro fichero de la carpeta.
-- [ ] T14. `data` y `app`: restaurar una copia automática con las fotos de la subcarpeta y el aviso de las que faltan. (RF-32, RF-33)
+- [x] T14. `data` y `app`: restaurar una copia automática con las fotos de la subcarpeta y el aviso de las que faltan. (RF-32, RF-33)
       Hecho cuando: `AutoBackupPhotosTest` y `BackupsScreenTest` en verde: se recuperan las fotos de la carpeta, una foto que falta o con otra suma se cuenta y se dice cuántas, y sin carpeta todas cuentan como no recuperadas.
 - [ ] T15. `app`: `CollectorViewModel` con las fotos: destino, fotos en espera, añadir de cámara y de galería, descartar al cancelar o fallar, guardar con el punto y cierre de la app con la cámara abierta. (RF-1 a RF-8, RF-13 a RF-16)
       Hecho cuando: `CollectorViewModelPhotosTest` en verde con la `ReceiverSession` real: foto durante la medida y al guardar, cancelar con confirmación, medida fallida y fuera de tolerancia, modo automático, sin punto, límite, y el `SavedStateHandle`.

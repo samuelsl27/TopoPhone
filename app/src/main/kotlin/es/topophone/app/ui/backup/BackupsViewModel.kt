@@ -35,6 +35,9 @@ enum class BackupMessage {
     /** S013/RF-8. */
     RESTORED,
 
+    /** S017b/RF-33: restaurada, pero [BackupsUiState.missingPhotos] fotos no se han podido recuperar. */
+    RESTORED_MISSING_PHOTOS,
+
     /** S013/RF-11. */
     UNDONE,
 
@@ -77,6 +80,7 @@ data class BackupsUiState(
     val lastAutoBackupMs: Long? = null,
     val autoFailing: Boolean = false,
     val message: BackupMessage? = null,
+    val missingPhotos: Int = 0,
 )
 
 /** Pantalla "Copias de seguridad" de Ajustes (S013/RF-1, RF-5, RF-6, RF-11 a RF-13, RF-16, RF-17, RF-20, RF-21). */
@@ -90,9 +94,16 @@ class BackupsViewModel @Inject constructor(
 ) : ViewModel() {
     private val step = MutableStateFlow<BackupStep>(BackupStep.Idle)
     private val message = MutableStateFlow<BackupMessage?>(null)
+    private val missingPhotos = MutableStateFlow(0)
     private var chosen: BackupRead.Valid? = null
 
-    val state: StateFlow<BackupsUiState> = combine(step, message, backups.undoAvailable, preferences.state) { step, message, undo, auto ->
+    val state: StateFlow<BackupsUiState> = combine(
+        step,
+        message,
+        backups.undoAvailable,
+        preferences.state,
+        missingPhotos,
+    ) { step, message, undo, auto, missing ->
         BackupsUiState(
             step = step,
             undoAvailable = undo,
@@ -100,6 +111,7 @@ class BackupsViewModel @Inject constructor(
             lastAutoBackupMs = auto.lastSuccessMs,
             autoFailing = auto.failing,
             message = message,
+            missingPhotos = missing,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), BackupsUiState())
 
@@ -139,9 +151,15 @@ class BackupsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             step.value = BackupStep.Working
-            val result = backups.restore(valid, scheduler::keepBeforeRestore)
+            val result = backups.restore(valid, scheduler.externalPhotos(), scheduler::keepBeforeRestore)
             step.value = BackupStep.Idle
-            message.value = if (result is RestoreResult.Restored) BackupMessage.RESTORED else BackupMessage.NOT_RESTORED
+            val missing = (result as? RestoreResult.Restored)?.missingPhotos ?: 0
+            missingPhotos.value = missing
+            message.value = when {
+                result !is RestoreResult.Restored -> BackupMessage.NOT_RESTORED
+                missing > 0 -> BackupMessage.RESTORED_MISSING_PHOTOS // S017b/RF-33
+                else -> BackupMessage.RESTORED
+            }
         }
     }
 

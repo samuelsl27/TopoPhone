@@ -187,4 +187,75 @@ class BackupPhotosTest {
             java.security.MessageDigest.getInstance("SHA-256").digest("uno".toByteArray()).joinToString("") { "%02x".format(it) }
         BackupArchive.readManifest(target.inputStream())!!.externalPhotos shouldBe manifest.externalPhotos
     }
+
+    /** Una copia automatica de ahora y las fotos de la "carpeta" por nombre; devuelve el ZIP leido. */
+    private fun automatic(folderPhotos: MutableMap<String, ByteArray>): BackupRead.Valid {
+        val target = File(folder.root, "auto-${System.nanoTime()}.zip")
+        val external = runBlocking { repository.photoFilesByName() }
+        runBlocking { repository.createBackupFile(target, external) }
+        external.forEach { (name, file) -> folderPhotos[name] = file.readBytes() }
+        return valid(target.readBytes())
+    }
+
+    private fun source(photos: Map<String, ByteArray>) = ExternalPhotos { name -> photos[name]?.inputStream() }
+
+    @Test
+    fun `S017b RF-32 restaurar una copia automatica recupera las fotos de la carpeta`() {
+        addPhoto("id-1", "f-uno", "uno")
+        addPhoto("id-2", "f-dos", "dos")
+        val inFolder = mutableMapOf<String, ByteArray>()
+        val auto = automatic(inFolder)
+        File(photosDir, "f-uno.jpg").delete()
+        File(photosDir, "f-dos.jpg").delete()
+
+        val result = runBlocking { repository.restore(auto, external = source(inFolder)) }
+
+        result shouldBe RestoreResult.Restored(projects = 2, points = 4, missingPhotos = 0)
+        photoFiles() shouldBe mapOf("f-uno.jpg" to "uno", "f-dos.jpg" to "dos")
+    }
+
+    @Test
+    fun `S017b RF-33 una foto que falta o con otra suma se cuenta y el punto se restaura sin ella`() {
+        addPhoto("id-1", "f-uno", "uno")
+        addPhoto("id-2", "f-dos", "dos")
+        addPhoto("id-3", "f-tres", "tres")
+        val inFolder = mutableMapOf<String, ByteArray>()
+        val auto = automatic(inFolder)
+        inFolder.remove("f-uno.jpg") // falta
+        inFolder["f-dos.jpg"] = "otra cosa".toByteArray() // otra suma
+
+        val result = runBlocking { repository.restore(auto, external = source(inFolder)) }
+
+        result shouldBe RestoreResult.Restored(projects = 2, points = 4, missingPhotos = 2)
+        photoFiles() shouldBe mapOf("f-tres.jpg" to "tres")
+        // Las filas de las fotos se restauran igual: se abriran como una foto que no se puede abrir (RF-17).
+        db.openHelper.readableDatabase.query("SELECT COUNT(*) FROM point_photos").use {
+            it.moveToFirst()
+            it.getInt(0) shouldBe 3
+        }
+    }
+
+    @Test
+    fun `S017b RF-33 sin carpeta todas las fotos cuentan como no recuperadas`() {
+        addPhoto("id-1", "f-uno", "uno")
+        addPhoto("id-2", "f-dos", "dos")
+        val auto = automatic(mutableMapOf())
+
+        val result = runBlocking { repository.restore(auto, external = null) }
+
+        result shouldBe RestoreResult.Restored(projects = 2, points = 4, missingPhotos = 2)
+        photoFiles() shouldBe emptyMap()
+    }
+
+    @Test
+    fun `S017b RF-32 una carpeta que falla a mitad cuenta las fotos como no recuperadas sin cerrar la app`() {
+        addPhoto("id-1", "f-uno", "uno")
+        val inFolder = mutableMapOf<String, ByteArray>()
+        val auto = automatic(inFolder)
+        val broken = ExternalPhotos { error("tarjeta retirada") }
+
+        val result = runBlocking { repository.restore(auto, external = broken) }
+
+        result shouldBe RestoreResult.Restored(projects = 2, points = 4, missingPhotos = 1)
+    }
 }
