@@ -120,3 +120,33 @@ fun SectionImportRoute(
         onBack = onBack,
     )
 }
+
+/** La pantalla de calcular un punto de la sección y verla en el eje [alignmentId] del proyecto [projectId] (S050/RF-9 a RF-15). */
+@Composable
+fun SectionPointRoute(
+    projectId: String,
+    alignmentId: String,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: SectionPointViewModel = hiltViewModel(),
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(projectId, alignmentId) { viewModel.start(projectId, alignmentId) }
+    SectionPointScreen(
+        themeState = themeState,
+        onToggleSun = onToggleSun,
+        state = state,
+        actions = SectionPointActions(
+            onChainage = viewModel::setChainage,
+            onMode = viewModel::setMode,
+            onCode = viewModel::setCode,
+            onOffset = viewModel::setOffset,
+            onName = viewModel::setName,
+            onSave = viewModel::save,
+            onAnother = viewModel::another,
+            onShowSection = viewModel::setShowSection,
+        ),
+        onBack = onBack,
+    )
+}

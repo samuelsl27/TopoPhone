@@ -2038,4 +2038,22 @@
     <string name="section_import_error_missing">value missing</string>
     <string name="section_import_error_number">not a number</string>
     <string name="section_import_error_kind">unknown type</string>
+    <string name="section_point_title">Section point</string>
+    <string name="section_point_mode_code">By code</string>
+    <string name="section_point_mode_offset">By offset</string>
+    <string name="section_point_code">Point code</string>
+    <string name="section_point_status_no_section">There is no design section at this chainage.</string>
+    <string name="section_point_status_missing">The two sections around this chainage do not have the same codes: %1$s missing.</string>
+    <string name="section_point_status_mismatch">The two sections around this chainage do not have the same kind of elevation.</string>
+    <string name="section_point_status_no_code">The code does not exist in the section at this chainage.</string>
+    <string name="section_point_status_outside">Outside the section.</string>
+    <string name="section_point_slope">Cross slope: %1$s</string>
+    <string name="section_point_no_elevation">No elevation: the section is relative and the alignment has no profile.</string>
+    <string name="section_point_code_result">Code: %1$s</string>
+    <string name="section_point_view">View section</string>
+    <string name="section_point_hide">Hide section</string>
+    <string name="section_view_title">Section at chainage %1$s</string>
+    <string name="section_view_point">%1$s: %2$s, elevation %3$s</string>
+    <string name="section_view_point_no_elevation">%1$s: %2$s</string>
+    <string name="section_view_ground">Ground</string>
 </resources>

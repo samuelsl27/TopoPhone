@@ -116,6 +116,9 @@ import kotlinx.serialization.Serializable
 /** Las secciones transversales y el peralte de un eje del proyecto (S050/RF-1). */
 @Serializable data class SectionsDestination(val projectId: String, val alignmentId: String)
 
+/** El cálculo de un punto de la sección de un eje y su alzado (S050/RF-9 a RF-15). */
+@Serializable data class SectionPointDestination(val projectId: String, val alignmentId: String)
+
 /** La importación de secciones de un CSV o un LandXML a un eje: el tipo y el fichero elegido, como dirección (S050/RF-4, RF-5). */
 @Serializable data class ImportSectionsDestination(val projectId: String, val alignmentId: String, val kind: String, val fileUri: String)
 

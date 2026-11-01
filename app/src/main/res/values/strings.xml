@@ -2050,4 +2050,22 @@
     <string name="section_import_error_missing">falta el valor</string>
     <string name="section_import_error_number">no es un número</string>
     <string name="section_import_error_kind">tipo desconocido</string>
+    <string name="section_point_title">Punto de la sección</string>
+    <string name="section_point_mode_code">Por código</string>
+    <string name="section_point_mode_offset">Por desplazamiento</string>
+    <string name="section_point_code">Código del punto</string>
+    <string name="section_point_status_no_section">No hay sección de diseño en este PK.</string>
+    <string name="section_point_status_missing">Las dos secciones que rodean este PK no tienen los mismos códigos: faltan %1$s.</string>
+    <string name="section_point_status_mismatch">Las dos secciones que rodean este PK no tienen el mismo tipo de cota.</string>
+    <string name="section_point_status_no_code">El código no existe en la sección de este PK.</string>
+    <string name="section_point_status_outside">Fuera de la sección.</string>
+    <string name="section_point_slope">Pendiente transversal: %1$s</string>
+    <string name="section_point_no_elevation">Sin cota: la sección es relativa y el eje no tiene rasante.</string>
+    <string name="section_point_code_result">Código: %1$s</string>
+    <string name="section_point_view">Ver sección</string>
+    <string name="section_point_hide">Ocultar sección</string>
+    <string name="section_view_title">Sección en el PK %1$s</string>
+    <string name="section_view_point">%1$s: %2$s, cota %3$s</string>
+    <string name="section_view_point_no_elevation">%1$s: %2$s</string>
+    <string name="section_view_ground">Terreno</string>
 </resources>

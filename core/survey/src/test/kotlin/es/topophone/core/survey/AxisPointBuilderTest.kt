@@ -71,4 +71,23 @@ class AxisPointBuilderTest {
 
         AxisPointBuilder().build("id", project, "1", "Eje", far, null, 1L).shouldBeInstanceOf<AxisPointResult.Rejected>()
     }
+
+    @Test
+    fun `S050 RF-15 un punto de una seccion lleva su codigo de seccion y los demas no`() {
+        val point = AxisPointBuilder().build(
+            "id-2",
+            project,
+            "11",
+            "Eje A",
+            geometry.pointAt(100.0, 3.5)!!,
+            101.0,
+            5_000L,
+            sectionCode = "BD",
+        )
+            .shouldBeInstanceOf<AxisPointResult.Built>().point
+
+        point.origin shouldBe PointOrigin.ON_ALIGNMENT
+        point.onAxis.shouldNotBeNull().sectionCode shouldBe "BD"
+        built(100.0, 3.5, 101.0).onAxis.shouldNotBeNull().sectionCode.shouldBeNull()
+    }
 }

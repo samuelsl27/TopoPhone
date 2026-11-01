@@ -49,6 +49,9 @@ import es.topophone.app.ui.raster.RasterImportUiState
 import es.topophone.app.ui.section.SectionImportActions
 import es.topophone.app.ui.section.SectionImportScreen
 import es.topophone.app.ui.section.SectionImportUiState
+import es.topophone.app.ui.section.SectionPointActions
+import es.topophone.app.ui.section.SectionPointScreen
+import es.topophone.app.ui.section.SectionPointUiState
 import es.topophone.app.ui.section.SectionsActions
 import es.topophone.app.ui.section.SectionsScreen
 import es.topophone.app.ui.section.SectionsUiState
@@ -134,6 +137,9 @@ sealed interface SurveyPage {
     /** Las secciones transversales y el peralte de un eje (S050/RF-1). */
     data class Sections(val projectId: String, val alignmentId: String) : SurveyPage
 
+    /** Calcular un punto de la sección de un eje y ver la sección (S050/RF-9 a RF-15). */
+    data class SectionPoint(val projectId: String, val alignmentId: String) : SurveyPage
+
     /** Importar las secciones de un CSV o un LandXML a un eje: [kind] es `CSV` o `LANDXML` (S050/RF-4, RF-5). */
     data class ImportSections(val projectId: String, val alignmentId: String, val kind: String, val fileUri: String) : SurveyPage
 }
@@ -183,6 +189,8 @@ class SurveyNavigation(
     val onAlignmentPoint: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     /** La pantalla de las secciones y el peralte de un eje (S050/RF-1). */
     val onSections: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
+    /** La pantalla de calcular un punto de la sección y verla (S050/RF-9 a RF-15). */
+    val onSectionPoint: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     /** La pantalla de importar secciones de un CSV o un LandXML, con el fichero elegido (S050/RF-4, RF-5). */
     val onImportSections: (projectId: String, alignmentId: String, kind: String, fileUri: String) -> Unit = { _, _, _, _ -> },
     val onOpenTrash: () -> Unit = {},
@@ -218,6 +226,7 @@ data class SurveyUiState(
     val baseShift: BaseShiftUiState = BaseShiftUiState(),
     val sections: SectionsUiState = SectionsUiState(),
     val sectionImport: SectionImportUiState = SectionImportUiState(),
+    val sectionPoint: SectionPointUiState = SectionPointUiState(),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -282,6 +291,8 @@ fun SurveyPageScreen(
         is SurveyPage.AlignmentPoint ->
             AlignmentPointScreen(themeState, onToggleSun, state.alignmentPoint, AlignmentPointActions(), navigation.onBack)
         is SurveyPage.Sections -> SectionsScreen(themeState, onToggleSun, state.sections, SectionsActions(), navigation.onBack)
+        is SurveyPage.SectionPoint ->
+            SectionPointScreen(themeState, onToggleSun, state.sectionPoint, SectionPointActions(), navigation.onBack)
         is SurveyPage.ImportSections ->
             SectionImportScreen(themeState, onToggleSun, state.sectionImport, SectionImportActions(), navigation.onBack)
         is SurveyPage.DefineAlignment ->

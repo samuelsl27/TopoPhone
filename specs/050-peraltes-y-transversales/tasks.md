@@ -36,9 +36,9 @@
       Hecho cuando: `SectionsViewModelTest` en verde.
 - [x] T17. `app`: `SectionsScreen` y «Secciones» en `AlignmentsSheet` y `AlignmentFicha`. (RF-1, RNF-T7, RNF-T8)
       Hecho cuando: `SectionsScreenTest`, `AlignmentsSheetTest` y `AlignmentFichaTest` ampliados en verde.
-- [ ] T18. `app` y `data`: `SectionPointViewModel` y su pantalla: calcular por código o por desplazamiento y «Guardar punto» como «Calculado sobre eje» con su código. (RF-9, RF-10, RF-11, RF-15)
+- [x] T18. `app` y `data`: `SectionPointViewModel` y su pantalla: calcular por código o por desplazamiento y «Guardar punto» como «Calculado sobre eje» con su código. (RF-9, RF-10, RF-11, RF-15)
       Hecho cuando: `SectionPointViewModelTest` y `SectionPointTest` en verde.
-- [ ] T19. `app`: «Ver sección» (alzado con códigos, desplazamientos, cotas y perfil de terreno). (RF-13)
+- [x] T19. `app`: «Ver sección» (alzado con códigos, desplazamientos, cotas y perfil de terreno). (RF-13)
       Hecho cuando: `SectionViewScreenTest` en verde.
 - [ ] T20. `app`: líneas por código en el mapa, activables desde la ficha. (RF-14)
       Hecho cuando: `AlignmentSceneTest` ampliado en verde.

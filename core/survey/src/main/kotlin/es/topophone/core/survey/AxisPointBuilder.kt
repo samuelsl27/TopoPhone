@@ -18,7 +18,8 @@ sealed interface AxisPointResult {
 /**
  * El punto del proyecto que se guarda desde un PK y un desplazamiento de un eje (S049/RF-22, plan A7): de origen `ON_ALIGNMENT`, con su
  * Este y Norte escritos en el sistema del proyecto (se guardan tal cual, sin ida y vuelta, como un punto manual), la cota de la rasante en
- * el sistema de alturas del proyecto, o sin altura si el eje no tiene rasante, y el eje, el PK y el desplazamiento de donde salió.
+ * el sistema de alturas del proyecto, o sin altura si el eje no tiene rasante, y el eje, el PK y el desplazamiento de donde salió. Si sale
+ * de un punto de una sección, lleva también su código de sección (S050/RF-15).
  */
 class AxisPointBuilder(private val manual: ManualCoordinates = ManualCoordinates()) {
     fun build(
@@ -29,6 +30,7 @@ class AxisPointBuilder(private val manual: ManualCoordinates = ManualCoordinates
         point: AxisPoint,
         elevationM: Double?,
         createdAtMs: Long,
+        sectionCode: String? = null,
     ): AxisPointResult {
         val typed = TypedCoordinates(EntryForm.PROJECT_CRS, point.easting, point.northing, elevationM, HeightKind.PROJECT)
         val coordinates = when (val result = manual.compute(typed, project.crs, project.heightSystem)) {
@@ -50,7 +52,7 @@ class AxisPointBuilder(private val manual: ManualCoordinates = ManualCoordinates
                 copyOf = null,
                 createdAtMs = createdAtMs,
                 deletedAtMs = null,
-                onAxis = AxisRef(alignmentName, point.chainage, point.offset),
+                onAxis = AxisRef(alignmentName, point.chainage, point.offset, sectionCode = sectionCode),
             ),
         )
     }
