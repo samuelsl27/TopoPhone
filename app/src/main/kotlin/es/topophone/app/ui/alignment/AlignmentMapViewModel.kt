@@ -8,10 +8,14 @@ import es.topophone.app.ui.cad.DesignSceneBuilder
 import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.MapTap
 import es.topophone.core.geodesy.WebMercator
+import es.topophone.core.model.alignment.Alignment
+import es.topophone.core.model.alignment.section.Superelevation
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.SectionResolver
 import es.topophone.data.alignment.AlignmentRepository
 import es.topophone.data.project.ProjectRepository
+import es.topophone.data.section.SectionRepository
 import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
@@ -40,9 +44,19 @@ import kotlinx.coroutines.launch
 class AlignmentMapViewModel @Inject constructor(
     private val alignments: AlignmentRepository,
     private val projects: ProjectRepository,
+    private val sections: SectionRepository,
     @param:IoDispatcher private val io: CoroutineDispatcher,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
+    private val sectionLinesOn = MutableStateFlow<Set<String>>(emptySet())
+
+    /** Los ejes con las líneas de sección dibujadas en el mapa; no se recuerdan entre sesiones (S050/RF-14, plan D7). */
+    val sectionLines: StateFlow<Set<String>> = sectionLinesOn.asStateFlow()
+
+    /** Activa o desactiva las líneas de sección del eje [alignmentId] (S050/RF-14). */
+    fun setSectionLines(alignmentId: String, on: Boolean) {
+        sectionLinesOn.value = if (on) sectionLinesOn.value + alignmentId else sectionLinesOn.value - alignmentId
+    }
     private val camera = MutableStateFlow<MapCamera?>(null)
 
     /** La escena de ahora; null mientras no hay cámara, eje visible ni nada que cargar en la vista. */
@@ -50,16 +64,40 @@ class AlignmentMapViewModel @Inject constructor(
         .flatMapLatest { id ->
             val project = projects.project(id) ?: return@flatMapLatest flowOf(null)
             if (project.crs.utmZone == null) return@flatMapLatest flowOf(null)
-            combine(alignments.alignments(id), alignments.activeAlignmentId(id), camera.filterNotNull()) { list, active, cam ->
-                Triple(list, active, cam)
-            }.mapLatest { (list, active, cam) ->
+            combine(alignments.alignments(id), alignments.activeAlignmentId(id), camera.filterNotNull(), sectionLinesOn) {
+                    list,
+                    active,
+                    cam,
+                    on,
+                ->
+                SceneInput(list, active, cam, on)
+            }.mapLatest { (list, active, cam, on) ->
                 val metresPerPixel = WebMercator.metresPerPixel(cam.latitudeDeg, cam.zoom)
                 val viewport = DesignSceneBuilder.viewport(cam, project.crs) ?: return@mapLatest null
-                AlignmentSceneBuilder.build(list, active, project.crs, project.linearUnit, Locale.getDefault(), metresPerPixel, viewport)
+                val resolvers = on.associateWith { alignmentId -> resolverOf(alignmentId) }
+                AlignmentSceneBuilder.build(
+                    list,
+                    active,
+                    project.crs,
+                    project.linearUnit,
+                    Locale.getDefault(),
+                    metresPerPixel,
+                    viewport,
+                    resolvers,
+                )
             }
         }
         .flowOn(io)
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    private data class SceneInput(val list: List<Alignment>, val active: String?, val cam: MapCamera, val on: Set<String>)
+
+    /** Las secciones del eje, juntas para evaluar la de cada PK (S050/RF-14). */
+    private suspend fun resolverOf(alignmentId: String): SectionResolver = SectionResolver(
+        sections.templates(alignmentId).first().map { it.template },
+        Superelevation(sections.superelevation(alignmentId).first()),
+        sections.sections(alignmentId).first().map { it.section },
+    )
 
     private val touch = MutableStateFlow<AlignmentTouch?>(null)
 

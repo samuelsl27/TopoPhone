@@ -30,6 +30,10 @@ class SectionResolver(templates: List<SectionTemplate>, private val superelevati
     private val templates = templates.sortedBy { it.fromChainage }
     private val designs = sections.filter { it.kind == SectionKind.DESIGN }.sortedBy { it.chainage }
 
+    /** Los PK del rango [from, to] donde cambia la sección: los extremos de las secciones tipo y los de las explícitas de diseño (S050/RF-14). */
+    fun keyStations(from: Double, to: Double): List<Double> =
+        (templates.flatMap { listOf(it.fromChainage, it.toChainage) } + designs.map { it.chainage }).filter { it in from..to }
+
     fun at(chainage: Double): SectionResolution {
         explicitAt(chainage)?.let { return it }
         val template = templates.firstOrNull { chainage >= it.fromChainage - EPS && chainage <= it.toChainage + EPS }

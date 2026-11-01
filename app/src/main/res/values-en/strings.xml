@@ -2056,4 +2056,5 @@
     <string name="section_view_point">%1$s: %2$s, elevation %3$s</string>
     <string name="section_view_point_no_elevation">%1$s: %2$s</string>
     <string name="section_view_ground">Ground</string>
+    <string name="section_lines_on_map">Section lines on the map</string>
 </resources>

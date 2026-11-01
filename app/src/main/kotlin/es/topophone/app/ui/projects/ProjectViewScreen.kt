@@ -440,6 +440,7 @@ fun ProjectViewRoute(
     val alignmentsState by alignmentsViewModel.state.collectAsStateWithLifecycle()
     val alignmentScene by alignmentMapViewModel.scene.collectAsStateWithLifecycle()
     val alignmentTouch by alignmentMapViewModel.touched.collectAsStateWithLifecycle()
+    val sectionLinesOn by alignmentMapViewModel.sectionLines.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
     val collector by collectorViewModel.state.collectAsStateWithLifecycle()
     val collectorStats by collectorViewModel.stats.collectAsStateWithLifecycle() // S017/RF-3 a RF-5
@@ -467,6 +468,8 @@ fun ProjectViewRoute(
         alignmentScene = alignmentScene,
         alignmentTouch = alignmentTouch,
         onDismissAlignmentTouch = alignmentMapViewModel::dismissTouch,
+        sectionLinesOn = sectionLinesOn,
+        onSectionLines = alignmentMapViewModel::setSectionLines, // S050/RF-14
         onActivateAlignment = alignmentsViewModel::activate,
         onCalculateOnAlignment = { alignmentId -> navigation.onAlignmentPoint(projectId, alignmentId) }, // S049/RF-20
         onSectionsOfAxis = { alignmentId -> navigation.onSections(projectId, alignmentId) }, // S050/RF-1
@@ -707,6 +710,8 @@ fun ProjectViewScreen(
     alignmentScene: AlignmentScene? = null,
     /** El eje tocado en el mapa, el cierre de su ficha y activarlo (S049/RF-18). */
     alignmentTouch: AlignmentTouch? = null,
+    sectionLinesOn: Set<String> = emptySet(),
+    onSectionLines: (alignmentId: String, on: Boolean) -> Unit = { _, _ -> },
     onDismissAlignmentTouch: () -> Unit = {},
     onActivateAlignment: (String?) -> Unit = {},
     onCalculateOnAlignment: (String) -> Unit = {},
@@ -935,6 +940,8 @@ fun ProjectViewScreen(
                 onDismissAlignmentTouch()
                 onSectionsOfAxis(alignmentTouch.alignment.id)
             },
+            sectionLines = alignmentTouch.alignment.id in sectionLinesOn,
+            onSectionLines = { on -> onSectionLines(alignmentTouch.alignment.id, on) },
         )
     } else if (designSelection != null && project != null) {
         DesignElementSheet(

@@ -40,7 +40,7 @@
       Hecho cuando: `SectionPointViewModelTest` y `SectionPointTest` en verde.
 - [x] T19. `app`: «Ver sección» (alzado con códigos, desplazamientos, cotas y perfil de terreno). (RF-13)
       Hecho cuando: `SectionViewScreenTest` en verde.
-- [ ] T20. `app`: líneas por código en el mapa, activables desde la ficha. (RF-14)
+- [x] T20. `app`: líneas por código en el mapa, activables desde la ficha. (RF-14)
       Hecho cuando: `AlignmentSceneTest` ampliado en verde.
 - [ ] T21. `app`: el modo «Por código» en `AxisStakeoutViewModel` (códigos, orden de recorrido, serie, motivos de no abrir). (RF-16, RF-17, RF-21)
       Hecho cuando: `AxisStakeoutViewModelTest` ampliado en verde.

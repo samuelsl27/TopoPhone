@@ -142,7 +142,7 @@ class AlignmentTouchTest {
                     1L,
                 )
             }
-            val vm = AlignmentMapViewModel(repository, projects, dispatcher)
+            val vm = AlignmentMapViewModel(repository, projects, es.topophone.data.section.RoomSectionRepository(db), dispatcher)
             vm.start(projectId)
             val (lat, lon) = CadPlacement.geographic(crs, 440200.0, 4474003.0)!!
 
@@ -174,6 +174,8 @@ class AlignmentTouchTest {
         onStake: (() -> Unit)? = null,
         onAnalyze: (() -> Unit)? = null,
         onSections: (() -> Unit)? = null,
+        sectionLines: Boolean = false,
+        onSectionLines: ((Boolean) -> Unit)? = null,
     ) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
@@ -193,6 +195,8 @@ class AlignmentTouchTest {
                     onStake,
                     onAnalyze,
                     onSections,
+                    sectionLines,
+                    onSectionLines,
                 )
             }
         }
@@ -297,5 +301,26 @@ class AlignmentTouchTest {
         showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
 
         compose.onNodeWithTag(ALIGNMENT_TOUCH_SECTIONS_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S050 RF-14 la ficha ofrece el interruptor de las lineas de seccion con su estado`() {
+        val calls = mutableListOf<Boolean>()
+        showSheet(
+            AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true),
+            sectionLines = false,
+            onSectionLines = { calls += it },
+        )
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_SECTION_LINES_TAG).performClick()
+
+        calls shouldBe listOf(true)
+    }
+
+    @Test
+    fun `S050 RF-14 sin la accion la ficha no ofrece las lineas de seccion`() {
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_SECTION_LINES_TAG).assertDoesNotExist()
     }
 }

@@ -292,6 +292,26 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private fun addAlignmentLayers(style: Style) {
         style.addSource(GeoJsonSource(ALIGNMENT_LINES_SOURCE))
         style.addSource(GeoJsonSource(ALIGNMENT_MARKS_SOURCE))
+        style.addSource(GeoJsonSource(SECTION_LINES_SOURCE))
+        style.addLayerBelow(
+            LineLayer(SECTION_LINES_LAYER, SECTION_LINES_SOURCE).withProperties(
+                PropertyFactory.lineColor(Color.parseColor(SECTION_LINE_COLOR)),
+                PropertyFactory.lineWidth(SECTION_LINE_DP),
+            ),
+            POINTS_LAYER,
+        )
+        style.addLayerBelow(
+            SymbolLayer(SECTION_LINE_LABELS_LAYER, SECTION_LINES_SOURCE).withProperties(
+                PropertyFactory.symbolPlacement(Property.SYMBOL_PLACEMENT_LINE),
+                PropertyFactory.textField(Expression.get(SECTION_CODE)),
+                PropertyFactory.textFont(arrayOf(MapStyles.LABEL_FONT)),
+                PropertyFactory.textSize(LABEL_SIZE_SP),
+                PropertyFactory.textColor(Color.parseColor(SECTION_LINE_COLOR)),
+                PropertyFactory.textHaloColor(Color.WHITE),
+                PropertyFactory.textHaloWidth(DESIGN_LABEL_HALO_DP),
+            ),
+            POINTS_LAYER,
+        )
         style.addLayerBelow(
             LineLayer(ALIGNMENT_LINES_LAYER, ALIGNMENT_LINES_SOURCE).withProperties(
                 PropertyFactory.lineColor(
@@ -364,6 +384,15 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         }
         lines.setGeoJson(FeatureCollection.fromFeatures(lineFeatures))
         marks.setGeoJson(FeatureCollection.fromFeatures(markFeatures))
+        // S050/RF-14: una línea por código de sección, con el código como rótulo.
+        style.getSourceAs<GeoJsonSource>(SECTION_LINES_SOURCE)?.setGeoJson(
+            FeatureCollection.fromFeatures(
+                scene?.sectionLines.orEmpty().map { line ->
+                    val coordinates = List(line.vertexCount) { Point.fromLngLat(line.lonLat[it * 2], line.lonLat[it * 2 + 1]) }
+                    Feature.fromGeometry(LineString.fromLngLats(coordinates)).apply { addStringProperty(SECTION_CODE, line.code) }
+                },
+            ),
+        )
     }
 
     private fun drawDesign() {
@@ -836,6 +865,12 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val ALIGNMENT_LABELS_LAYER = "topophone-alignment-labels"
         const val ALIGNMENT_ACTIVE = "alignment_active"
         const val ALIGNMENT_LABEL = "alignment_label"
+        const val SECTION_LINES_SOURCE = "topophone-section-lines"
+        const val SECTION_LINES_LAYER = "topophone-section-lines"
+        const val SECTION_LINE_LABELS_LAYER = "topophone-section-line-labels"
+        const val SECTION_CODE = "section_code"
+        const val SECTION_LINE_COLOR = "#00695C"
+        const val SECTION_LINE_DP = 1.5f
         const val ALIGNMENT_COLOR = "#6A1B9A"
         const val ALIGNMENT_ACTIVE_COLOR = "#C62828"
         const val ALIGNMENT_DP = 3f

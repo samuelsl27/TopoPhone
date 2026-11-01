@@ -2,22 +2,27 @@ package es.topophone.app.ui.alignment
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.receiver.uiLocale
@@ -37,6 +42,7 @@ const val ALIGNMENT_TOUCH_POINT_TAG = "alignment_touch_point"
 const val ALIGNMENT_TOUCH_STAKE_TAG = "alignment_touch_stake"
 const val ALIGNMENT_TOUCH_ANALYZE_TAG = "alignment_touch_analyze"
 const val ALIGNMENT_TOUCH_SECTIONS_TAG = "alignment_touch_sections"
+const val ALIGNMENT_TOUCH_SECTION_LINES_TAG = "alignment_touch_section_lines"
 
 /**
  * La ficha de un eje que se ha tocado en el mapa (S049/RF-18): su nombre, su longitud, su PK inicial y final, el PK del punto tocado y la
@@ -55,6 +61,8 @@ fun AlignmentTouchSheet(
     onStake: (() -> Unit)? = null,
     onAnalyze: (() -> Unit)? = null,
     onSections: (() -> Unit)? = null,
+    sectionLines: Boolean = false,
+    onSectionLines: ((Boolean) -> Unit)? = null,
 ) {
     val locale = uiLocale()
     val alignment = touch.alignment
@@ -115,6 +123,20 @@ fun AlignmentTouchSheet(
                     onClick = onAnalyze,
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_TOUCH_ANALYZE_TAG),
                 ) { Text(stringResource(R.string.alignment_analyze_open)) } // S054/RF-12
+            }
+            if (onSectionLines != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = MinTouchTarget)
+                        .toggleable(value = sectionLines, role = Role.Switch, onValueChange = onSectionLines)
+                        .testTag(ALIGNMENT_TOUCH_SECTION_LINES_TAG),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(stringResource(R.string.section_lines_on_map))
+                    Switch(checked = sectionLines, onCheckedChange = null)
+                }
             }
             if (onSections != null) {
                 OutlinedButton(
