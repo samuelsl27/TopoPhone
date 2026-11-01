@@ -8,7 +8,7 @@
       Hecho cuando: `SectionPolicyTest` en verde.
 - [x] T3. `core:model`: `SectionCodec` (un bloque por sección tipo y por sección explícita, sin redondear). (RF-8)
       Hecho cuando: `SectionCodecTest` en verde (ida y vuelta exacta).
-- [ ] T4. `core:survey`: `SectionValidator` y `SuperelevationValidator` (códigos repetidos, desordenados, pendiente mayor de 100 %, PK fuera del eje, PK repetidos, rangos solapados). (RF-7)
+- [x] T4. `core:survey`: `SectionValidator` y `SuperelevationValidator` (códigos repetidos, desordenados, pendiente mayor de 100 %, PK fuera del eje, PK repetidos, rangos solapados). (RF-7)
       Hecho cuando: `SectionValidatorTest` y `SuperelevationValidatorTest` en verde.
 - [ ] T5. `core:survey`: `SectionBuilder` (sección tipo, peralte lineal, una fila, fuera de la tabla, punto de rasante). (RF-2, RF-9)
       Hecho cuando: `SectionBuilderTest` en verde contra `fixtures/ejes/secciones/` a 1 mm y 1e-9.
