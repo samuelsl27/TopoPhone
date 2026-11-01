@@ -30,9 +30,9 @@
       Hecho cuando: `SectionStakeTargetTest` y `SectionStationSeriesTest` en verde.
 - [x] T14. `core:survey`: `AxisAnalysis` con la referencia «Sección» en el desplazamiento real de la punta. (RF-20)
       Hecho cuando: `AxisAnalysisTest` ampliado en verde.
-- [ ] T15. `app`: `SectionImportViewModel` (CSV de secciones, LandXML con lista, diseño o terreno, asignación de columnas, rechazos). (RF-4, RF-5)
+- [x] T15. `app`: `SectionImportViewModel` (CSV de secciones, LandXML con lista, diseño o terreno, asignación de columnas, rechazos). (RF-4, RF-5)
       Hecho cuando: `SectionImportViewModelTest` en verde.
-- [ ] T16. `app`: `SectionsViewModel` (sección tipo a mano, peralte a mano o por CSV, validaciones con punto y motivo). (RF-2, RF-3, RF-6, RF-7)
+- [x] T16. `app`: `SectionsViewModel` (sección tipo a mano, peralte a mano o por CSV, validaciones con punto y motivo). (RF-2, RF-3, RF-6, RF-7)
       Hecho cuando: `SectionsViewModelTest` en verde.
 - [ ] T17. `app`: `SectionsScreen` y «Secciones» en `AlignmentsSheet` y `AlignmentFicha`. (RF-1, RNF-T7, RNF-T8)
       Hecho cuando: `SectionsScreenTest`, `AlignmentsSheetTest` y `AlignmentFichaTest` ampliados en verde.
