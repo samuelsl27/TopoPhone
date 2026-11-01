@@ -20,7 +20,7 @@
       Hecho cuando: `SectionCsvReaderTest` y `SuperelevationCsvReaderTest` en verde.
 - [x] T9. `core:formats`: `LandXmlCrossSectReader` (`scan` y `read`, diseño y terreno, `P1`, `P2`…, unidad, rechazos). (RF-5)
       Hecho cuando: `LandXmlCrossSectReaderTest` en verde.
-- [ ] T10. `data`: Room v25 (tres tablas y `points.section_code`), `AutoMigration(24, 25)` y el esquema 25 en `data/schemas/`. (RF-8, RNF-T6)
+- [x] T10. `data`: Room v25 (tres tablas y `points.section_code`), `AutoMigration(24, 25)` y el esquema 25 en `data/schemas/`. (RF-8, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 24 → 25 en verde con proyectos, ejes y puntos que se conservan.
 - [ ] T11. `data`: `SectionRepository` y `SectionImporter` (altas y bajas en una transacción, log sin nombres ni coordenadas, borrar el eje). (RF-8)
       Hecho cuando: `SectionRepositoryTest` en verde (nombres de 60 caracteres o menos).

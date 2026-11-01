@@ -198,6 +198,8 @@ data class PointEntity(
     @ColumnInfo(name = "unshifted_ground_lat") val unshiftedGroundLat: Double? = null,
     @ColumnInfo(name = "unshifted_ground_lon") val unshiftedGroundLon: Double? = null,
     @ColumnInfo(name = "unshifted_ground_h") val unshiftedGroundH: Double? = null,
+    // S050/RF-15, RF-19: el código de sección de un punto calculado sobre un eje o replanteado por código (copiado); NULL en los demás.
+    @ColumnInfo(name = "section_code") val sectionCode: String? = null,
 )
 
 /**
@@ -368,6 +370,7 @@ internal fun Point.toEntity(): PointEntity {
         axisOffset = onAxis?.offsetM,
         axisDHeight = onAxis?.dHeightM,
         axisHeightRef = onAxis?.heightRef?.name,
+        sectionCode = onAxis?.sectionCode ?: staked?.sectionCode,
         shiftId = m?.shift?.shiftId,
         shiftName = m?.shift?.knownName,
         shiftDx = m?.shift?.vector?.dx,
@@ -402,6 +405,7 @@ internal fun PointEntity.toPoint(): Point = Point(
             axisOffset ?: 0.0,
             axisDHeight,
             axisHeightRef?.let { ref -> AxisHeightRef.entries.firstOrNull { it.name == ref } },
+            sectionCode,
         )
     },
 )
@@ -437,6 +441,7 @@ private fun PointEntity.staked(): StakeoutRef? = StakeoutRef(
     verticalOffsetM = stakeVerticalOffset,
     dChainageM = stakeDChainage,
     thicknessM = stakeThickness,
+    sectionCode = sectionCode.takeIf { axisName == null },
 )
 
 /** El dibujo, la capa y el tipo del elemento replanteado; el punto del proyecto si no vino de un dibujo (S041/RF-28). */

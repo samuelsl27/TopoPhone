@@ -20,6 +20,7 @@ import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.surface.SurfaceKind
+import es.topophone.data.alignment.AlignmentEntity
 import es.topophone.data.baseshift.BaseShiftEntity
 import es.topophone.data.cad.RoomCadRepository
 import es.topophone.data.map.MapViewportEntity
@@ -29,6 +30,9 @@ import es.topophone.data.point.PointEntity
 import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.ProjectEntity
 import es.topophone.data.project.RoomProjectRepository
+import es.topophone.data.section.SectionProfileEntity
+import es.topophone.data.section.SectionTemplateEntity
+import es.topophone.data.section.SuperelevationRowEntity
 import es.topophone.data.surface.RoomSurfaceRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldBeNull
@@ -1205,9 +1209,68 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S050 RNF-T6 v24 a v25 los ejes y puntos siguen y las tablas de secciones nacen vacias`() {
+        createFromExportedSchema(24)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v24 ->
+            v24.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v24.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.single().measurement.shouldNotBeNull().coordinates.northing shouldBe 4474257.414123456
+            points.single().onAxis shouldBe null
+            count(db, "section_templates") shouldBe 0
+            count(db, "section_profiles") shouldBe 0
+            count(db, "superelevation_rows") shouldBe 0
+            val axis = AlignmentEntity(
+                "e1", project.id, "Eje A", null, 1, "MANUAL", 0.0, 100.0, true, 0.0, 1.0, 0.0, 1.0, false, ByteArray(1), null,
+            )
+            val template = SectionTemplateEntity("t1", "e1", 0.0, 100.0, null, byteArrayOf(1, 2), 5)
+            val profile = SectionProfileEntity("s1", "e1", "DESIGN", 50.0, "RELATIVE", byteArrayOf(3), 6)
+            val row = SuperelevationRowEntity("r1", "e1", 40.0, -0.06, 0.06, 7)
+            runBlocking {
+                db.alignments().insert(axis)
+                db.sections().insertTemplate(template)
+                db.sections().insertProfile(profile)
+                db.sections().insertRow(row)
+                db.sections().templates("e1").first() shouldBe listOf(template)
+                db.sections().profiles("e1").first() shouldBe listOf(profile)
+                db.sections().rows("e1").first() shouldBe listOf(row)
+                // Un PK de peralte repetido en el mismo eje no entra.
+                shouldThrow<SQLiteConstraintException> { db.sections().insertRow(row.copy(id = "r2")) }
+                // La cascada: borrar el eje se lleva sus secciones y su peralte, y el punto sigue.
+                db.alignments().delete("e1")
+                count(db, "section_templates") shouldBe 0
+                count(db, "section_profiles") shouldBe 0
+                count(db, "superelevation_rows") shouldBe 0
+                count(db, "points") shouldBe 1
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 24
+        const val CURRENT_VERSION = 25
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

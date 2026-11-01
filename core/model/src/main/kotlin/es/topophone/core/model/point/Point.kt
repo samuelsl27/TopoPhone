@@ -33,7 +33,8 @@ object PointNames {
  * signo (negativo a la izquierda), en metros y sin redondear.
  *
  * Desde S054, una medida de "Analizar" guarda también la diferencia de cota ([dHeightM], medida menos referencia) y contra qué se
- * calculó ([heightRef]); vacías en un punto calculado sobre el eje o si no había referencia (S054/RF-13).
+ * calculó ([heightRef]); vacías en un punto calculado sobre el eje o si no había referencia (S054/RF-13). [sectionCode] es el código
+ * de sección de un punto calculado sobre una sección (S050/RF-15).
  */
 data class AxisRef(
     val alignmentName: String,
@@ -41,6 +42,7 @@ data class AxisRef(
     val offsetM: Double,
     val dHeightM: Double? = null,
     val heightRef: AxisHeightRef? = null,
+    val sectionCode: String? = null,
 )
 
 /** Contra qué se calculó la diferencia de cota de una medida sobre un eje: la rasante o la superficie activa (S054/RF-12). */
@@ -190,6 +192,7 @@ data class StakeoutRef(
     val verticalOffsetM: Double? = null,
     val dChainageM: Double? = null,
     val thicknessM: Double? = null,
+    val sectionCode: String? = null,
 ) {
     /** Se replanteó contra la superficie activa: guarda su nombre, su cota en la punta y el desplazamiento (S042/RF-28). */
     val usedSurface: Boolean get() = elevationSource == ElevationSource.SURFACE
