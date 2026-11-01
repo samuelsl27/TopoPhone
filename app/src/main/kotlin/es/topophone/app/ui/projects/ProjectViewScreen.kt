@@ -529,6 +529,9 @@ fun ProjectViewRoute(
             onEndText = { axisStakeoutViewModel.setEnd(it) },
             onIntervalText = { axisStakeoutViewModel.setInterval(it) },
             onSingular = { axisStakeoutViewModel.setSingular(it) },
+            onByCode = { axisStakeoutViewModel.setByCode(it) }, // S050/RF-16
+            onToggleCode = { axisStakeoutViewModel.toggleCode(it) },
+            onOrder = { axisStakeoutViewModel.setOrder(it) },
             onChainage = { axisStakeoutViewModel.setChainage(it) }, // S054/RF-5
             onOffset = { axisStakeoutViewModel.setOffset(it) },
             onThickness = { axisStakeoutViewModel.setThickness(it) },

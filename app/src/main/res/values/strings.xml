@@ -2069,4 +2069,17 @@
     <string name="section_view_point_no_elevation">%1$s: %2$s</string>
     <string name="section_view_ground">Terreno</string>
     <string name="section_lines_on_map">Líneas de sección en el mapa</string>
+    <string name="axis_stakeout_mode_offset">Por desplazamiento</string>
+    <string name="axis_stakeout_mode_code">Por código</string>
+    <string name="axis_stakeout_codes">Códigos a replantear</string>
+    <string name="axis_stakeout_order_chainage">De PK en PK</string>
+    <string name="axis_stakeout_order_code">De código en código</string>
+    <string name="axis_stakeout_code">Código: %1$s</string>
+    <string name="axis_stakeout_slope">Pendiente transversal: %1$s</string>
+    <string name="axis_stakeout_section_summary">%1$s · PK %2$s · %3$s</string>
+    <string name="axis_stakeout_section_error_no_codes">Elige al menos un código.</string>
+    <string name="axis_stakeout_section_error_no_section">No hay sección de diseño en el PK %1$s.</string>
+    <string name="axis_stakeout_section_error_missing">Entre las secciones que rodean el PK %1$s faltan los códigos %2$s.</string>
+    <string name="axis_stakeout_section_error_mismatch">Las secciones que rodean el PK %1$s no tienen el mismo tipo de cota.</string>
+    <string name="axis_stakeout_section_error_no_code">El código «%1$s» no existe en la sección del PK %2$s.</string>
 </resources>

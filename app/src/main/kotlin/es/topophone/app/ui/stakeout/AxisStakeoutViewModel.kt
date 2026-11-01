@@ -9,6 +9,8 @@ import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.model.alignment.Alignment
 import es.topophone.core.model.alignment.ChainageFormat
+import es.topophone.core.model.alignment.section.SectionCode
+import es.topophone.core.model.alignment.section.Superelevation
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
@@ -38,12 +40,20 @@ import es.topophone.core.survey.ManualCoordinates
 import es.topophone.core.survey.ManualResult
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.SectionKeyStations
+import es.topophone.core.survey.SectionResolver
+import es.topophone.core.survey.SectionStakeResult
+import es.topophone.core.survey.SectionStakeTarget
+import es.topophone.core.survey.SectionStationItem
+import es.topophone.core.survey.SectionStationOrder
+import es.topophone.core.survey.SectionStationSeries
 import es.topophone.core.survey.VerticalProfileEval
 import es.topophone.data.alignment.AlignmentRepository
 import es.topophone.data.baseshift.ActiveBaseShift
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.StakeoutPreferences
 import es.topophone.data.project.ProjectRepository
+import es.topophone.data.section.SectionRepository
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
@@ -67,6 +77,21 @@ enum class AxisField { START, END, INTERVAL, OFFSET, THICKNESS, CHAINAGE }
 
 /** Por qué se cierra el replanteo por PK sin que el usuario lo pida (S054/RF-11). */
 enum class AxisClosedReason { ALIGNMENT_DELETED, }
+
+/** Por qué no se abre un replanteo por código (S050/RF-21). */
+sealed interface AxisSectionError {
+    /** No se ha elegido ningún código. */
+    data object NoCodes : AxisSectionError
+
+    /** El PK no tiene sección. */
+    data class NoSection(val chainageM: Double) : AxisSectionError
+
+    /** El PK queda entre dos secciones que no se pueden interpolar. */
+    data class Missing(val chainageM: Double, val codes: List<String>, val heightKindMismatch: Boolean) : AxisSectionError
+
+    /** Ningún par PK y código de la serie existe: el código no está en la sección de ese PK. */
+    data class NoCode(val code: String, val chainageM: Double) : AxisSectionError
+}
 
 /** Un eje del proyecto que se puede elegir en el replanteo (S054/RF-11). */
 data class AxisChoice(val id: String, val name: String)
@@ -117,6 +142,18 @@ data class AxisStakeoutUiState(
     val saveInfo: StakeSaveInfo? = null,
     /** Los tipos de solución admitidos, para el indicador junto a la guía (S047/RF-14). */
     val admitted: AdmittedSolutions = AdmittedSolutions.FIX_ONLY,
+    /** El modo «Por código» (S050/RF-16): los códigos del eje, los elegidos, el orden de recorrido y el código y la pendiente de ahora. */
+    val byCode: Boolean = false,
+    val availableCodes: List<String> = emptyList(),
+    val selectedCodes: List<String> = emptyList(),
+    val order: SectionStationOrder = SectionStationOrder.BY_CHAINAGE,
+    val code: String? = null,
+    val sectionSlope: Double? = null,
+    val codePosition: Int = 0,
+    val codeCount: Int = 0,
+    val sectionError: AxisSectionError? = null,
+    /** Hay secciones o sección tipo en el eje: se ofrece el modo «Por código». */
+    val hasSections: Boolean = false,
 )
 
 /**
@@ -129,6 +166,7 @@ data class AxisStakeoutUiState(
 class AxisStakeoutViewModel @Inject constructor(
     private val projects: ProjectRepository,
     private val alignments: AlignmentRepository,
+    private val sections: SectionRepository,
     private val stakeoutPreferences: StakeoutPreferences,
     private val collectorPreferences: CollectorPreferences,
     private val gear: CurrentGear,
@@ -166,7 +204,20 @@ class AxisStakeoutViewModel @Inject constructor(
         val thicknessM: Double,
         val errors: Map<AxisField, AxisInputError>,
         val closed: AxisClosedReason?,
+        val resolver: SectionResolver?,
+        val sectionKeys: List<Double>,
+        val allCodes: List<String>,
+        val byCode: Boolean,
+        val selectedCodes: List<String>,
+        val order: SectionStationOrder,
+        val codeSeries: SectionStationSeries?,
+        val codeIndex: Int,
+        val code: String?,
+        val sectionError: AxisSectionError?,
     )
+
+    /** Lo que hace falta de las secciones de un eje para el modo «Por código» (S050/RF-16, RF-17). */
+    private class SectionData(val resolver: SectionResolver?, val keys: List<Double>, val codes: List<String>)
 
     private val model = MutableStateFlow<Model?>(null)
     private val projectId = MutableStateFlow<String?>(null)
@@ -238,6 +289,16 @@ class AxisStakeoutViewModel @Inject constructor(
             closed = model.closed,
             stakeTarget = stakeTarget,
             saveInfo = target?.let { StakeSaveInfo(it.elevationM, live.settings.validToleranceM, live.settings.validToleranceVM) },
+            byCode = model.byCode,
+            availableCodes = model.allCodes,
+            selectedCodes = model.selectedCodes,
+            order = model.order,
+            code = model.code,
+            sectionSlope = sectionSlopeOf(model),
+            codePosition = if (model.codeSeries != null) model.codeIndex + 1 else 0,
+            codeCount = model.codeSeries?.size ?: 0,
+            sectionError = model.sectionError,
+            hasSections = model.resolver != null,
         )
     }
 
@@ -295,12 +356,33 @@ class AxisStakeoutViewModel @Inject constructor(
             if (alignment.projectId != projectId) return@launch
             val project = projects.project(projectId)
             this@AxisStakeoutViewModel.project = project
-            model.value = newModel(projectId, alignment, null)
+            model.value = newModel(projectId, alignment, null, sectionData(alignment))
             log.info(LogCategory.POINTS, "Replanteo por PK de un eje abierto") // S014/RF-5
         }
     }
 
-    private fun newModel(projectId: String, alignment: Alignment, previous: Model?): Model {
+    /** Las secciones del eje: el resolvedor, los PK singulares de la sección y el peralte, y los códigos que hay (S050/RF-16, RF-17). */
+    private suspend fun sectionData(alignment: Alignment): SectionData {
+        val templates = sections.templates(alignment.id).first().map { it.template }
+        val stored = sections.sections(alignment.id).first().map { it.section }
+        val rows = sections.superelevation(alignment.id).first()
+        val designs = stored.filter { it.kind == es.topophone.core.model.alignment.section.SectionKind.DESIGN }
+        if (templates.isEmpty() && designs.isEmpty()) return SectionData(null, emptyList(), emptyList())
+        val codes = LinkedHashSet<String>()
+        templates.forEach { t ->
+            t.left.reversed().forEach { codes += it.code }
+            codes += SectionCode.AXIS
+            t.right.forEach { codes += it.code }
+        }
+        designs.forEach { s -> s.points.forEach { codes += it.code } }
+        return SectionData(
+            SectionResolver(templates, Superelevation(rows), stored),
+            SectionKeyStations.of(templates, stored, rows),
+            codes.toList(),
+        )
+    }
+
+    private fun newModel(projectId: String, alignment: Alignment, previous: Model?, data: SectionData): Model {
         val profile = alignment.profile?.let { VerticalProfileEval(it) }
         return Model(
             projectId = projectId,
@@ -323,6 +405,16 @@ class AxisStakeoutViewModel @Inject constructor(
             thicknessM = previous?.thicknessM ?: 0.0,
             errors = emptyMap(),
             closed = null,
+            resolver = data.resolver,
+            sectionKeys = data.keys,
+            allCodes = data.codes,
+            byCode = previous?.byCode == true && data.resolver != null,
+            selectedCodes = previous?.selectedCodes.orEmpty().filter { it in data.codes },
+            order = previous?.order ?: SectionStationOrder.BY_CHAINAGE,
+            codeSeries = null,
+            codeIndex = 0,
+            code = null,
+            sectionError = null,
         )
     }
 
@@ -333,9 +425,17 @@ class AxisStakeoutViewModel @Inject constructor(
         val current = model.value ?: return
         controller.reset()
         model.value = if (reason != null) {
-            current.copy(started = false, series = null, closed = reason)
+            current.copy(started = false, series = null, codeSeries = null, closed = reason)
         } else {
-            current.copy(started = false, series = null, seriesIndex = 0, errors = emptyMap())
+            current.copy(
+                started = false,
+                series = null,
+                seriesIndex = 0,
+                codeSeries = null,
+                codeIndex = 0,
+                code = null,
+                errors = emptyMap(),
+            )
         }
         if (reason != null) log.info(LogCategory.POINTS, "Replanteo por PK de un eje cerrado: se borró el eje")
     }
@@ -349,6 +449,24 @@ class AxisStakeoutViewModel @Inject constructor(
     fun setInterval(text: String): Boolean = setup { it.copy(intervalText = text, errors = it.errors - AxisField.INTERVAL) }
 
     fun setSingular(value: Boolean): Boolean = setup { it.copy(singular = value) }
+
+    /** Pasa al modo «Por código» o vuelve a «Por desplazamiento» (S050/RF-16); solo antes de abrir y si el eje tiene secciones. */
+    fun setByCode(value: Boolean): Boolean = setup { if (it.resolver == null) it else it.copy(byCode = value, sectionError = null) }
+
+    /** Elige o quita un código del replanteo por código; el orden de elección es el de recorrido dentro de cada PK (S050/RF-16). */
+    fun toggleCode(code: String): Boolean = setup {
+        if (code !in it.allCodes) {
+            it
+        } else {
+            it.copy(
+                selectedCodes = if (code in it.selectedCodes) it.selectedCodes - code else it.selectedCodes + code,
+                sectionError = null,
+            )
+        }
+    }
+
+    /** El orden de recorrido: de PK en PK con todos los códigos, o de código en código (S050/RF-16). */
+    fun setOrder(order: SectionStationOrder): Boolean = setup { it.copy(order = order) }
 
     private fun setup(transform: (Model) -> Model): Boolean {
         val current = model.value ?: return false
@@ -385,6 +503,7 @@ class AxisStakeoutViewModel @Inject constructor(
             model.value = m.copy(errors = errors)
             return false
         }
+        if (m.byCode) return startByCode(m, startCheck.value, endCheck.value, intervalCheck.value, thicknessCheck.value)
         val series = AxisChainageSeries(
             startCheck.value,
             endCheck.value,
@@ -406,6 +525,60 @@ class AxisStakeoutViewModel @Inject constructor(
         return true
     }
 
+    /**
+     * Abre el replanteo por código (S050/RF-16, RF-21): la serie de pares PK y código; el primero que tiene punto de diseño es el de partida.
+     * Si no hay códigos, o el PK inicial no tiene sección, o el código no existe en ella, no se abre y se dice el motivo.
+     */
+    private fun startByCode(m: Model, start: Double, end: Double?, interval: Double?, thickness: Double): Boolean {
+        val resolver = m.resolver
+        if (resolver == null || m.selectedCodes.isEmpty()) {
+            model.value = m.copy(sectionError = AxisSectionError.NoCodes)
+            return false
+        }
+        val series = SectionStationSeries(
+            m.order,
+            m.selectedCodes,
+            start,
+            end,
+            interval,
+            (m.keyStations + m.sectionKeys).takeIf { m.singular },
+            m.geometry.endChainage,
+        )
+        var firstError: AxisSectionError? = null
+        for (i in 0 until series.size) {
+            val item = series.itemAt(i)
+            when (val r = SectionStakeTarget.of(m.geometry, m.profile, resolver, item.chainageM, item.code, thickness)) {
+                is SectionStakeResult.Target -> {
+                    controller.reset()
+                    model.value = m.copy(
+                        started = true,
+                        series = null,
+                        codeSeries = series,
+                        codeIndex = i,
+                        code = item.code,
+                        chainageM = item.chainageM,
+                        chainageText = chainageFormat(item.chainageM),
+                        offsetM = r.target.offsetM,
+                        thicknessM = thickness,
+                        errors = emptyMap(),
+                        sectionError = null,
+                    )
+                    return true
+                }
+                else -> if (firstError == null) firstError = errorOf(r)
+            }
+        }
+        model.value = m.copy(sectionError = firstError ?: AxisSectionError.NoCodes)
+        return false
+    }
+
+    private fun errorOf(r: SectionStakeResult): AxisSectionError? = when (r) {
+        is SectionStakeResult.OutsideRange -> AxisSectionError.NoSection(r.chainageM)
+        is SectionStakeResult.Missing -> AxisSectionError.Missing(r.chainageM, r.codes, r.heightKindMismatch)
+        is SectionStakeResult.NoCode -> AxisSectionError.NoCode(r.code, r.chainageM)
+        else -> null
+    }
+
     // ---- con el replanteo abierto (RF-5)
 
     /** El PK escrito a mano (RF-5); false con una medida en marcha. Si no vale no se aplica y conserva el anterior (RF-9). */
@@ -420,6 +593,7 @@ class AxisStakeoutViewModel @Inject constructor(
     fun setOffset(text: String): Boolean {
         val current = model.value
         if (current != null && !current.started) return setup { it.copy(offsetText = text, errors = it.errors - AxisField.OFFSET) }
+        if (current?.byCode == true) return false // S050/RF-16: en «Por código» el desplazamiento es el de la sección
         return edit(resetGuidance = true) { m ->
             when (val check = AxisStakeInputs.offset(text, unit)) {
                 is AxisCheck.Valid -> m.copy(offsetText = text, offsetM = check.value, errors = m.errors - AxisField.OFFSET)
@@ -441,10 +615,36 @@ class AxisStakeoutViewModel @Inject constructor(
     }
 
     /** El PK siguiente de la serie (RF-3); no pasa del último. Reescribe el PK con el de la serie aunque se hubiera cambiado a mano. */
-    fun next(): Boolean = move { it.next(it.indexFrom(model.value)) }
+    fun next(): Boolean = if (model.value?.byCode == true) moveCode(1) else move { it.next(it.indexFrom(model.value)) }
 
     /** El PK anterior de la serie (RF-3); no pasa del primero. */
-    fun previous(): Boolean = move { it.previous(it.indexFrom(model.value)) }
+    fun previous(): Boolean = if (model.value?.byCode == true) moveCode(-1) else move { it.previous(it.indexFrom(model.value)) }
+
+    /**
+     * El par siguiente o anterior de la serie por código que tiene punto de diseño (S050/RF-16, RF-21): los pares cuyo código no existe en
+     * la sección de ese PK se saltan. Sin ninguno más allá, se queda donde está.
+     */
+    private fun moveCode(step: Int): Boolean = edit(resetGuidance = true) { m ->
+        val series = m.codeSeries ?: return@edit m
+        val resolver = m.resolver ?: return@edit m
+        var i = m.codeIndex + step
+        while (i in 0 until series.size) {
+            val item: SectionStationItem = series.itemAt(i)
+            val r = SectionStakeTarget.of(m.geometry, m.profile, resolver, item.chainageM, item.code, m.thicknessM)
+            if (r is SectionStakeResult.Target) {
+                return@edit m.copy(
+                    codeIndex = i,
+                    code = item.code,
+                    chainageM = item.chainageM,
+                    chainageText = chainageFormat(item.chainageM),
+                    offsetM = r.target.offsetM,
+                    errors = m.errors - AxisField.CHAINAGE,
+                )
+            }
+            i += step
+        }
+        m
+    }
 
     private fun AxisChainageSeries.indexFrom(m: Model?): Int = (m?.seriesIndex ?: 0).coerceIn(0, size - 1)
 
@@ -469,7 +669,7 @@ class AxisStakeoutViewModel @Inject constructor(
             alignments.activate(current.projectId, alignmentId)
             controller.reset()
             val latest = model.value ?: return@launch
-            model.value = rebuilt(newModel(latest.projectId, alignment, latest))
+            model.value = rebuilt(newModel(latest.projectId, alignment, latest, sectionData(alignment)))
         }
         return true
     }
@@ -534,24 +734,49 @@ class AxisStakeoutViewModel @Inject constructor(
     private fun targetOf(m: Model): AxisStakeResult.Target? {
         val chainage = m.chainageM ?: return null
         if (AxisField.CHAINAGE in m.errors && !m.geometry.contains(chainage)) return null
+        if (m.byCode) {
+            val code = m.code ?: return null
+            val resolver = m.resolver ?: return null
+            return (
+                SectionStakeTarget.of(
+                    m.geometry,
+                    m.profile,
+                    resolver,
+                    chainage,
+                    code,
+                    m.thicknessM,
+                ) as? SectionStakeResult.Target
+                )?.target
+        }
         return AxisStakeTarget.of(m.geometry, m.profile, chainage, m.offsetM, m.thicknessM) as? AxisStakeResult.Target
+    }
+
+    /** La pendiente transversal en el punto de diseño del replanteo por código (S050/RF-18). */
+    private fun sectionSlopeOf(m: Model): Double? {
+        if (!m.byCode || !m.started) return null
+        val chainage = m.chainageM ?: return null
+        val code = m.code ?: return null
+        val resolver = m.resolver ?: return null
+        return (SectionStakeTarget.of(m.geometry, m.profile, resolver, chainage, code, m.thicknessM) as? SectionStakeResult.Target)?.slope
     }
 
     private fun chainageFormat(chainageM: Double): String = ChainageFormat.format(chainageM, unit, Locale.getDefault())
 
-    private data class TargetKey(val alignmentId: String, val chainageM: Double, val offsetM: Double)
+    private data class TargetKey(val alignmentId: String, val chainageM: Double, val offsetM: Double, val code: String?)
 
     @Volatile private var cached: Pair<TargetKey, StakeTarget?>? = null
 
     private fun designTarget(project: Project, m: Model, target: AxisStakeResult.Target): StakeTarget? {
-        val key = TargetKey(m.alignment.id, target.chainageM, target.offsetM)
+        val key = TargetKey(m.alignment.id, target.chainageM, target.offsetM, m.code.takeIf { m.byCode })
         cached?.let { (k, t) -> if (k == key && t != null) return t }
         val typed = TypedCoordinates(EntryForm.PROJECT_CRS, target.point.easting, target.point.northing, null, HeightKind.PROJECT)
         val coordinates = (ManualCoordinates(calculator.get()).compute(typed, project.crs, project.heightSystem) as? ManualResult.Computed)
             ?.coordinates
         val result = coordinates?.let {
             StakeTarget(
-                id = "axis:${m.alignment.name}:${(target.chainageM * MILLIMETRES).roundToLong()}",
+                id =
+                "axis:${m.alignment.name}:${(target.chainageM * MILLIMETRES).roundToLong()}" +
+                    (m.code.takeIf { m.byCode }?.let { ":$it" } ?: ""),
                 name = m.alignment.name,
                 description = "",
                 coordinates = it,

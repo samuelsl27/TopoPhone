@@ -153,6 +153,9 @@ class AxisStakeoutPanelTest {
                     onThickness = { calls += "thickness:$it" },
                     onPrevious = { calls += "previous" },
                     onNext = { calls += "next" },
+                    onByCode = { calls += "byCode:$it" },
+                    onToggleCode = { calls += "code:$it" },
+                    onOrder = { calls += "order:${it.name}" },
                 ),
                 collector = collector,
                 collectorActions = CollectorActions(onMeasure = { calls += "measure" }),
@@ -363,5 +366,104 @@ class AxisStakeoutPanelTest {
 
         compose.onNodeWithTag(AXIS_PK_TAG).performScrollTo().assertIsNotEnabled()
         compose.onAllNodes(hasTestTag(AXIS_OPEN_TAG)).assertCountEquals(0)
+    }
+
+    // ---- S050: replanteo por código
+
+    private fun coded(byCode: Boolean = true, selected: List<String> = emptyList(), error: AxisSectionError? = null) = setup().copy(
+        hasSections = true,
+        byCode = byCode,
+        availableCodes = listOf("BI", "EJE", "BD"),
+        selectedCodes = selected,
+        sectionError = error,
+    )
+
+    private fun codedStarted(position: Int = 2, count: Int = 4) = started().copy(
+        hasSections = true,
+        byCode = true,
+        code = "BD",
+        sectionSlope = 0.02,
+        codePosition = position,
+        codeCount = count,
+        series = null,
+    )
+
+    @Test
+    fun `S050 RF-16 un eje con secciones ofrece Por desplazamiento y Por codigo y uno sin ellas no`() {
+        show(coded(byCode = false))
+        compose.onNodeWithTag(AXIS_MODE_CODE_TAG).performClick()
+        compose.onNodeWithTag(AXIS_MODE_OFFSET_TAG).performClick()
+        calls shouldBe listOf("byCode:true", "byCode:false")
+    }
+
+    @Test
+    fun `S050 RF-16 sin secciones no se ofrece el modo por codigo`() {
+        show(setup())
+
+        compose.onNodeWithTag(AXIS_MODE_CODE_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S050 RF-16 por codigo se eligen los codigos y el orden de recorrido y no se pide el desplazamiento`() {
+        show(coded(selected = listOf("BD")))
+
+        compose.onNodeWithTag(axisCodeTag("BI")).performScrollTo().performClick()
+        compose.onNodeWithTag(axisCodeTag("BD")).performScrollTo().performClick()
+        compose.onNodeWithTag(AXIS_ORDER_CODE_TAG).performScrollTo().performClick()
+        compose.onNodeWithTag(AXIS_ORDER_CHAINAGE_TAG).performScrollTo().performClick()
+
+        compose.onNodeWithTag(AXIS_OFFSET_TAG).assertDoesNotExist()
+        calls shouldBe listOf("code:BI", "code:BD", "order:BY_CODE", "order:BY_CHAINAGE")
+    }
+
+    @Test
+    fun `S050 RF-21 si no se abre el replanteo se dice el motivo`() {
+        show(coded(error = AxisSectionError.NoCode("BD", 150.0)))
+
+        compose.onNodeWithTag(
+            AXIS_SECTION_ERROR_TAG,
+        ).performScrollTo().assertTextContains("El código «BD» no existe en la sección del PK 0+150,00.")
+    }
+
+    @Test
+    fun `S050 RF-21 sin codigos o sin seccion o con codigos que faltan cada motivo tiene su texto`() {
+        show(coded(error = AxisSectionError.NoCodes))
+        compose.onNodeWithTag(AXIS_SECTION_ERROR_TAG).performScrollTo().assertTextContains("Elige al menos un código.")
+    }
+
+    @Test
+    fun `S050 RF-21 un PK sin seccion se dice con el PK`() {
+        show(coded(error = AxisSectionError.NoSection(500.0)))
+        compose.onNodeWithTag(AXIS_SECTION_ERROR_TAG).performScrollTo().assertTextContains("No hay sección de diseño en el PK 0+500,00.")
+    }
+
+    @Test
+    fun `S050 RF-21 los codigos que faltan entre dos secciones se nombran`() {
+        show(coded(error = AxisSectionError.Missing(125.0, listOf("CD", "CI"), false)))
+        compose.onNodeWithTag(AXIS_SECTION_ERROR_TAG).performScrollTo()
+            .assertTextContains("Entre las secciones que rodean el PK 0+125,00 faltan los códigos CD, CI.")
+    }
+
+    @Test
+    fun `S050 RF-18 abierto por codigo se ve el codigo el desplazamiento con palabra la cota con el espesor y la pendiente con baja`() {
+        show(codedStarted())
+
+        compose.onNodeWithTag(AXIS_CODE_TAG).performScrollTo().assertTextContains("Código: BD")
+        compose.onNodeWithTag(AXIS_SECTION_SUMMARY_TAG).performScrollTo().assertTextContains("BD · PK 0+150,00", substring = true)
+        compose.onNodeWithTag(AXIS_SECTION_SUMMARY_TAG).assertTextContains("a 3,500 m a la derecha del eje", substring = true)
+        compose.onNodeWithTag(AXIS_SECTION_SUMMARY_TAG).assertTextContains("Pendiente transversal: baja 2 %", substring = true)
+        compose.onNodeWithTag(AXIS_SLOPE_TAG).performScrollTo().assertTextContains("Pendiente transversal: baja 2 %")
+        compose.onNodeWithTag(AXIS_OFFSET_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S050 RF-18 por codigo la posicion cuenta los pares y los botones respetan los extremos`() {
+        show(codedStarted(position = 1, count = 4))
+
+        compose.onNodeWithTag(AXIS_POSITION_TAG).performScrollTo().assertTextContains("Punto 1 de 4")
+        compose.onNodeWithTag(AXIS_PREVIOUS_TAG).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(AXIS_NEXT_TAG).performScrollTo().assertIsEnabled().performClick()
+
+        calls shouldBe listOf("next")
     }
 }

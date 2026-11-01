@@ -42,9 +42,9 @@
       Hecho cuando: `SectionViewScreenTest` en verde.
 - [x] T20. `app`: líneas por código en el mapa, activables desde la ficha. (RF-14)
       Hecho cuando: `AlignmentSceneTest` ampliado en verde.
-- [ ] T21. `app`: el modo «Por código» en `AxisStakeoutViewModel` (códigos, orden de recorrido, serie, motivos de no abrir). (RF-16, RF-17, RF-21)
+- [x] T21. `app`: el modo «Por código» en `AxisStakeoutViewModel` (códigos, orden de recorrido, serie, motivos de no abrir). (RF-16, RF-17, RF-21)
       Hecho cuando: `AxisStakeoutViewModelTest` ampliado en verde.
-- [ ] T22. `app`: el modo «Por código» en `AxisStakeoutPanel` (guía, desmonte o terraplén con cota de la sección y espesor, desplazamiento, cota y pendiente al cambiar de objetivo). (RF-18, RNF-T8)
+- [x] T22. `app`: el modo «Por código» en `AxisStakeoutPanel` (guía, desmonte o terraplén con cota de la sección y espesor, desplazamiento, cota y pendiente al cambiar de objetivo). (RF-18, RNF-T8)
       Hecho cuando: `AxisStakeoutPanelTest` ampliado en verde.
 - [ ] T23. `app` y `core:formats`: guardar el punto replanteado por código con su código de sección y la columna `Section code` del informe de replanteo. (RF-19)
       Hecho cuando: `SectionStakeMeasureTest` y `StakeoutReportCsvTest` ampliado en verde.

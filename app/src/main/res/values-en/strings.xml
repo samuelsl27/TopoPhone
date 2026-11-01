@@ -2057,4 +2057,17 @@
     <string name="section_view_point_no_elevation">%1$s: %2$s</string>
     <string name="section_view_ground">Ground</string>
     <string name="section_lines_on_map">Section lines on the map</string>
+    <string name="axis_stakeout_mode_offset">By offset</string>
+    <string name="axis_stakeout_mode_code">By code</string>
+    <string name="axis_stakeout_codes">Codes to stake out</string>
+    <string name="axis_stakeout_order_chainage">Chainage by chainage</string>
+    <string name="axis_stakeout_order_code">Code by code</string>
+    <string name="axis_stakeout_code">Code: %1$s</string>
+    <string name="axis_stakeout_slope">Cross slope: %1$s</string>
+    <string name="axis_stakeout_section_summary">%1$s · chainage %2$s · %3$s</string>
+    <string name="axis_stakeout_section_error_no_codes">Choose at least one code.</string>
+    <string name="axis_stakeout_section_error_no_section">There is no design section at chainage %1$s.</string>
+    <string name="axis_stakeout_section_error_missing">The codes %2$s are missing between the sections around chainage %1$s.</string>
+    <string name="axis_stakeout_section_error_mismatch">The sections around chainage %1$s do not have the same kind of elevation.</string>
+    <string name="axis_stakeout_section_error_no_code">The code “%1$s” does not exist in the section at chainage %2$s.</string>
 </resources>

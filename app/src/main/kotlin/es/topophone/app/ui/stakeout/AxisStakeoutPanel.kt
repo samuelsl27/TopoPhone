@@ -3,6 +3,8 @@ package es.topophone.app.ui.stakeout
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -50,6 +52,7 @@ import es.topophone.app.ui.collector.OutOfToleranceDialog
 import es.topophone.app.ui.collector.PauseState
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.app.ui.section.slopeLabel
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.alignment.ChainageFormat
 import es.topophone.core.model.alignment.OffsetFormat
@@ -60,6 +63,7 @@ import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.survey.AcrossMove
 import es.topophone.core.survey.AxisGuidanceValue
 import es.topophone.core.survey.AxisInputError
+import es.topophone.core.survey.SectionStationOrder
 import es.topophone.core.survey.StakeZone
 import kotlin.math.abs
 
@@ -88,6 +92,16 @@ const val AXIS_NO_PROJECTION_TAG = "axis_stakeout_no_projection"
 const val AXIS_OUTSIDE_TAG = "axis_stakeout_outside"
 const val AXIS_CLOSED_TAG = "axis_stakeout_closed"
 const val AXIS_ANNOUNCE_TAG = "axis_stakeout_announce"
+const val AXIS_MODE_OFFSET_TAG = "axis_stakeout_mode_offset"
+const val AXIS_MODE_CODE_TAG = "axis_stakeout_mode_code"
+const val AXIS_ORDER_CHAINAGE_TAG = "axis_stakeout_order_chainage"
+const val AXIS_ORDER_CODE_TAG = "axis_stakeout_order_code"
+const val AXIS_SECTION_ERROR_TAG = "axis_stakeout_section_error"
+const val AXIS_CODE_TAG = "axis_stakeout_code"
+const val AXIS_SLOPE_TAG = "axis_stakeout_slope"
+const val AXIS_SECTION_SUMMARY_TAG = "axis_stakeout_section_summary"
+
+fun axisCodeTag(code: String) = "axis_stakeout_code_$code"
 
 fun axisChoiceTag(id: String) = "axis_stakeout_choice_$id"
 
@@ -111,6 +125,10 @@ class AxisStakeoutActions(
     val onHeading: (HeadingChoice) -> Unit = {},
     val onTolerance: (String) -> Boolean = { false },
     val onToleranceV: (String) -> Boolean = { false },
+    /** El modo «Por código» (S050/RF-16): pasar a él, elegir los códigos y el orden de recorrido. */
+    val onByCode: (Boolean) -> Unit = {},
+    val onToggleCode: (String) -> Unit = {},
+    val onOrder: (SectionStationOrder) -> Unit = {},
 )
 
 /**
@@ -210,6 +228,7 @@ private fun AlignmentChoice(state: AxisStakeoutUiState, actions: AxisStakeoutAct
 private fun Setup(state: AxisStakeoutUiState, actions: AxisStakeoutActions, unit: LinearUnit) {
     val symbol = unitSymbol(unit)
     val locale = uiLocale()
+    if (state.hasSections) ModeChoice(state, actions)
     Text(
         stringResource(
             R.string.axis_stakeout_limits,
@@ -252,17 +271,21 @@ private fun Setup(state: AxisStakeoutUiState, actions: AxisStakeoutActions, unit
             Text(stringResource(R.string.axis_stakeout_singular_help), style = MaterialTheme.typography.bodySmall)
         }
     }
-    AxisNumberField(
-        state.offsetText,
-        R.string.axis_stakeout_offset_label,
-        symbol,
-        state,
-        AxisField.OFFSET,
-        AXIS_OFFSET_TAG,
-        actions.onOffset,
-        unit,
-        helpRes = R.string.axis_stakeout_offset_help,
-    )
+    if (state.byCode) {
+        CodeChoice(state, actions)
+    } else {
+        AxisNumberField(
+            state.offsetText,
+            R.string.axis_stakeout_offset_label,
+            symbol,
+            state,
+            AxisField.OFFSET,
+            AXIS_OFFSET_TAG,
+            actions.onOffset,
+            unit,
+            helpRes = R.string.axis_stakeout_offset_help,
+        )
+    }
     AxisNumberField(
         state.thicknessText,
         R.string.axis_stakeout_thickness_label,
@@ -274,8 +297,88 @@ private fun Setup(state: AxisStakeoutUiState, actions: AxisStakeoutActions, unit
         unit,
         helpRes = R.string.axis_stakeout_thickness_help,
     )
+    state.sectionError?.let { error ->
+        Text(
+            sectionErrorText(error, unit),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.testTag(AXIS_SECTION_ERROR_TAG),
+        )
+    }
     Button(onClick = actions.onStart, modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(AXIS_OPEN_TAG)) {
         Text(stringResource(R.string.axis_stakeout_open))
+    }
+}
+
+/** «Por desplazamiento» o «Por código», si el eje tiene secciones (S050/RF-16). */
+@Composable
+private fun ModeChoice(state: AxisStakeoutUiState, actions: AxisStakeoutActions) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(
+            selected = !state.byCode,
+            onClick = { actions.onByCode(false) },
+            label = { Text(stringResource(R.string.axis_stakeout_mode_offset)) },
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(AXIS_MODE_OFFSET_TAG),
+        )
+        FilterChip(
+            selected = state.byCode,
+            onClick = { actions.onByCode(true) },
+            label = { Text(stringResource(R.string.axis_stakeout_mode_code)) },
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(AXIS_MODE_CODE_TAG),
+        )
+    }
+}
+
+/** Los códigos que se replantean y el orden de recorrido: de PK en PK o de código en código (S050/RF-16). */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CodeChoice(state: AxisStakeoutUiState, actions: AxisStakeoutActions) {
+    Text(stringResource(R.string.axis_stakeout_codes), style = MaterialTheme.typography.titleSmall)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        state.availableCodes.forEach { code ->
+            FilterChip(
+                selected = code in state.selectedCodes,
+                onClick = { actions.onToggleCode(code) },
+                label = { Text(code) },
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(axisCodeTag(code)),
+            )
+        }
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(
+            selected = state.order == SectionStationOrder.BY_CHAINAGE,
+            onClick = { actions.onOrder(SectionStationOrder.BY_CHAINAGE) },
+            label = { Text(stringResource(R.string.axis_stakeout_order_chainage)) },
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(AXIS_ORDER_CHAINAGE_TAG),
+        )
+        FilterChip(
+            selected = state.order == SectionStationOrder.BY_CODE,
+            onClick = { actions.onOrder(SectionStationOrder.BY_CODE) },
+            label = { Text(stringResource(R.string.axis_stakeout_order_code)) },
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(AXIS_ORDER_CODE_TAG),
+        )
+    }
+}
+
+/** Por qué no se abre el replanteo por código (S050/RF-21). */
+@Composable
+private fun sectionErrorText(error: AxisSectionError, unit: LinearUnit): String {
+    val locale = uiLocale()
+    return when (error) {
+        AxisSectionError.NoCodes -> stringResource(R.string.axis_stakeout_section_error_no_codes)
+        is AxisSectionError.NoSection ->
+            stringResource(R.string.axis_stakeout_section_error_no_section, ChainageFormat.format(error.chainageM, unit, locale))
+        is AxisSectionError.Missing ->
+            if (error.heightKindMismatch) {
+                stringResource(R.string.axis_stakeout_section_error_mismatch, ChainageFormat.format(error.chainageM, unit, locale))
+            } else {
+                stringResource(
+                    R.string.axis_stakeout_section_error_missing,
+                    ChainageFormat.format(error.chainageM, unit, locale),
+                    error.codes.joinToString(", "),
+                )
+            }
+        is AxisSectionError.NoCode ->
+            stringResource(R.string.axis_stakeout_section_error_no_code, error.code, ChainageFormat.format(error.chainageM, unit, locale))
     }
 }
 
@@ -357,16 +460,18 @@ private fun Started(
         actions.onChainage,
         unit,
     )
-    AxisNumberField(
-        state.offsetText,
-        R.string.axis_stakeout_offset_label,
-        symbol,
-        state,
-        AxisField.OFFSET,
-        AXIS_OFFSET_TAG,
-        actions.onOffset,
-        unit,
-    )
+    if (!state.byCode) {
+        AxisNumberField(
+            state.offsetText,
+            R.string.axis_stakeout_offset_label,
+            symbol,
+            state,
+            AxisField.OFFSET,
+            AXIS_OFFSET_TAG,
+            actions.onOffset,
+            unit,
+        )
+    }
     AxisNumberField(
         state.thicknessText,
         R.string.axis_stakeout_thickness_label,
@@ -378,20 +483,19 @@ private fun Started(
         unit,
     )
     val series = state.series
-    if (series != null && series.size > 1) {
-        Text(
-            stringResource(R.string.axis_stakeout_position, state.seriesIndex + 1, series.size),
-            modifier = Modifier.testTag(AXIS_POSITION_TAG),
-        )
+    val position = if (state.byCode) state.codePosition else state.seriesIndex + 1
+    val count = if (state.byCode) state.codeCount else series?.size ?: 0
+    if (count > 1) {
+        Text(stringResource(R.string.axis_stakeout_position, position, count), modifier = Modifier.testTag(AXIS_POSITION_TAG))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(
                 onClick = actions.onPrevious,
-                enabled = !state.measuring && state.seriesIndex > 0,
+                enabled = !state.measuring && position > 1,
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(AXIS_PREVIOUS_TAG),
             ) { Text(stringResource(R.string.stakeout_previous)) }
             OutlinedButton(
                 onClick = actions.onNext,
-                enabled = !state.measuring && state.seriesIndex < series.size - 1,
+                enabled = !state.measuring && position < count,
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(AXIS_NEXT_TAG),
             ) { Text(stringResource(R.string.stakeout_next)) }
         }
@@ -420,12 +524,58 @@ private fun Started(
     } else if (!state.hasProfile) {
         Text(stringResource(R.string.axis_stakeout_no_profile), modifier = Modifier.testTag(AXIS_NO_PROFILE_TAG))
     }
+    if (state.byCode) SectionObjective(state, target.chainageM, target.offsetM, target.elevationM, unit, symbol)
     StakeModeChoice(state.settings, state.measuring, actions.onGuideMode)
     // S054/RF-8: sin proyección sobre el eje solo se muestran el Norte y el Este, que son las cifras de "Por distancia".
     val settings = if (state.noProjection) state.settings.copy(mode = StakeMode.BY_DISTANCE) else state.settings
     Guidance(state.project, settings, state.guidance, state.admitted) { ui, _ -> AxisFigures(state, ui, unit) }
     collector?.let { CollectorGearSelector(it, collectorActions) } // S046/RF-23
     collector?.let { Messages(it, collectorActions) }
+}
+
+/**
+ * El objetivo del replanteo por código (S050/RF-18): su código, su desplazamiento con la palabra, su cota con el espesor y su pendiente,
+ * en una frase que TalkBack lee al cambiar de objetivo (RNF-T8).
+ */
+@Composable
+private fun SectionObjective(
+    state: AxisStakeoutUiState,
+    chainageM: Double,
+    offsetM: Double,
+    elevationM: Double?,
+    unit: LinearUnit,
+    symbol: String,
+) {
+    val locale = uiLocale()
+    val numbers = Numbers(unit, symbol, locale)
+    val code = state.code.orEmpty()
+    val parts = buildList {
+        add(axisSidePhrase(offsetM, unit, symbol))
+        elevationM?.let { add(stringResource(R.string.axis_stakeout_elevation, numbers.length(it))) }
+        state.sectionSlope?.let { add(stringResource(R.string.axis_stakeout_slope, slopeLabel(it))) }
+    }
+    val summary =
+        stringResource(
+            R.string.axis_stakeout_section_summary,
+            code,
+            ChainageFormat.format(chainageM, unit, locale),
+            parts.joinToString(" · "),
+        )
+    Text(
+        stringResource(R.string.axis_stakeout_code, code),
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.testTag(AXIS_CODE_TAG),
+    )
+    Text(
+        summary,
+        modifier = Modifier.semantics {
+            contentDescription = summary
+            liveRegion = LiveRegionMode.Polite
+        }.testTag(AXIS_SECTION_SUMMARY_TAG),
+    )
+    state.sectionSlope?.let {
+        Text(stringResource(R.string.axis_stakeout_slope, slopeLabel(it)), modifier = Modifier.testTag(AXIS_SLOPE_TAG))
+    }
 }
 
 /** "a 3,500 m a la derecha del eje", con la palabra y no solo el signo (S054/RNF-T8). */

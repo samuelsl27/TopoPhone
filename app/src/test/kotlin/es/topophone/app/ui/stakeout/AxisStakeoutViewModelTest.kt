@@ -10,6 +10,9 @@ import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.ui.alignment.AlignmentTestFiles
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.app.ui.receiver.nmea
+import es.topophone.core.model.alignment.section.SectionTemplate
+import es.topophone.core.model.alignment.section.SuperelevationRow
+import es.topophone.core.model.alignment.section.TemplateSegment
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.StakeSource
@@ -22,6 +25,7 @@ import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.AcrossMove
 import es.topophone.core.survey.AxisInputError
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.SectionStationOrder
 import es.topophone.data.alignment.AlignmentImportResult
 import es.topophone.data.alignment.AlignmentImporter
 import es.topophone.data.alignment.RoomAlignmentRepository
@@ -76,6 +80,7 @@ class AxisStakeoutViewModelTest {
         .build()
     private val projects = RoomProjectRepository(db)
     private val alignments = RoomAlignmentRepository(db)
+    private val sections = es.topophone.data.section.RoomSectionRepository(db)
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val session = ReceiverSession(
         sessionScope,
@@ -137,6 +142,7 @@ class AxisStakeoutViewModelTest {
         val vm = AxisStakeoutViewModel(
             projects,
             alignments,
+            sections,
             FakeStakeoutPreferences(),
             FakeCollectorPreferences(),
             CurrentGear.NONE,
@@ -490,5 +496,186 @@ class AxisStakeoutViewModelTest {
         state.startText shouldBe "100"
         state.offsetText shouldBe "3"
         state.target.shouldBeNull()
+    }
+
+    // ---- S050: replanteo por código
+
+    private fun template(from: Double, to: Double, vararg right: String) = SectionTemplate(
+        from,
+        to,
+        "EJE",
+        listOf(TemplateSegment("BI", 3.5, 0.02, true)),
+        right.map { TemplateSegment(it, 3.5, 0.02, true) },
+    )
+
+    private fun addTemplates(axis: String = "Eje A", vararg templates: SectionTemplate) = runBlocking {
+        templates.forEach { sections.addTemplate(ids.getValue(axis), it) }
+    }
+
+    private fun AxisStakeoutViewModel.beginByCode(
+        start: String,
+        codes: List<String>,
+        order: SectionStationOrder = SectionStationOrder.BY_CHAINAGE,
+        end: String = "",
+        interval: String = "",
+        singular: Boolean = false,
+    ): Boolean {
+        setByCode(true)
+        codes.forEach(::toggleCode)
+        setOrder(order)
+        setStart(start)
+        setEnd(end)
+        setInterval(interval)
+        setSingular(singular)
+        return start()
+    }
+
+    private fun AxisStakeoutViewModel.pair() = state.value.let { it.target?.chainageM?.let(Math::round) to it.code }
+
+    private fun AxisStakeoutViewModel.walk(steps: Int): List<Pair<Long?, String?>> {
+        val seen = mutableListOf(pair())
+        repeat(steps) {
+            next()
+            seen += pair()
+        }
+        return seen
+    }
+
+    @Test
+    fun `S050 RF-16 un eje con secciones ofrece Por codigo con sus codigos y uno sin ellas no`() {
+        addTemplates("Eje A", template(0.0, 420.0, "BD"))
+
+        val withSections = open("Eje A").state.value
+        val plain = open("Eje C")
+        plain.setByCode(true)
+
+        withSections.hasSections shouldBe true
+        withSections.availableCodes shouldBe listOf("BI", "EJE", "BD")
+        plain.state.value.hasSections shouldBe false
+        plain.state.value.byCode shouldBe false
+    }
+
+    @Test
+    fun `S050 RF-16 sin ningun codigo elegido no se abre el replanteo y se dice`() {
+        addTemplates("Eje A", template(0.0, 420.0, "BD"))
+        val vm = open("Eje A")
+
+        vm.beginByCode("100", emptyList()) shouldBe false
+
+        await(vm) { it.sectionError == AxisSectionError.NoCodes }.started shouldBe false
+    }
+
+    @Test
+    fun `S050 RF-18 por codigo el punto de diseno es el del codigo con su desplazamiento su cota y su pendiente`() {
+        addTemplates("Eje A", template(0.0, 420.0, "BD"))
+        val vm = open("Eje A")
+
+        vm.beginByCode("0", listOf("BD")) shouldBe true
+
+        val state = await(vm) { it.started }
+        state.code shouldBe "BD"
+        state.target.shouldNotBeNull().offsetM shouldBe 3.5
+        state.target.shouldNotBeNull().elevationM.shouldNotBeNull() shouldBe (99.93 plusOrMinus 1e-9)
+        state.sectionSlope.shouldNotBeNull() shouldBe (0.02 plusOrMinus 1e-12)
+        state.codePosition shouldBe 1
+    }
+
+    @Test
+    fun `S050 RF-18 el espesor se suma a la cota de la seccion`() {
+        addTemplates("Eje A", template(0.0, 420.0, "BD"))
+        val vm = open("Eje A")
+        vm.setThickness("0,15")
+
+        vm.beginByCode("0", listOf("BD")) shouldBe true
+
+        await(vm) { it.started }.target.shouldNotBeNull().elevationM.shouldNotBeNull() shouldBe (99.93 + 0.15 plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S050 RF-16 de PK en PK recorre todos los codigos de cada PK y de codigo en codigo todos los PK de cada codigo`() {
+        addTemplates("Eje A", template(0.0, 420.0, "BD"))
+        val byChainage = open("Eje A")
+        byChainage.beginByCode("100", listOf("BI", "BD"), SectionStationOrder.BY_CHAINAGE, end = "140", interval = "20") shouldBe true
+        val byCode = open("Eje A")
+        byCode.beginByCode("100", listOf("BI", "BD"), SectionStationOrder.BY_CODE, end = "140", interval = "20") shouldBe true
+
+        byChainage.walk(5) shouldBe
+            listOf(100L to "BI", 100L to "BD", 120L to "BI", 120L to "BD", 140L to "BI", 140L to "BD")
+        byCode.walk(5) shouldBe
+            listOf(100L to "BI", 120L to "BI", 140L to "BI", 100L to "BD", 120L to "BD", 140L to "BD")
+    }
+
+    @Test
+    fun `S050 RF-16 anterior y siguiente no pasan de los extremos`() {
+        addTemplates("Eje A", template(0.0, 420.0, "BD"))
+        val vm = open("Eje A")
+        vm.beginByCode("100", listOf("BD"), end = "120", interval = "20") shouldBe true
+
+        vm.previous()
+        vm.pair().first shouldBe 100L
+        vm.next()
+        vm.next()
+        vm.next()
+        vm.pair().first shouldBe 120L
+    }
+
+    @Test
+    fun `S050 RF-21 un PK sin seccion no abre el replanteo y dice el PK`() {
+        addTemplates("Eje A", template(0.0, 100.0, "BD"))
+        val vm = open("Eje A")
+
+        vm.beginByCode("150", listOf("BD")) shouldBe false
+
+        await(vm) { it.sectionError != null }.sectionError shouldBe AxisSectionError.NoSection(150.0)
+    }
+
+    @Test
+    fun `S050 RF-21 un codigo que no existe en la seccion de ese PK no abre el replanteo`() {
+        addTemplates("Eje A", template(0.0, 100.0, "BD"), template(100.0, 200.0, "CD"))
+        val vm = open("Eje A")
+
+        vm.beginByCode("150", listOf("BD")) shouldBe false
+
+        await(vm) { it.sectionError != null }.sectionError shouldBe AxisSectionError.NoCode("BD", 150.0)
+    }
+
+    @Test
+    fun `S050 RF-21 siguiente salta los pares cuyo codigo no existe en la seccion de ese PK`() {
+        addTemplates("Eje A", template(0.0, 100.0, "BD"), template(100.0, 200.0, "CD"))
+        val vm = open("Eje A")
+        vm.beginByCode("50", listOf("BD", "CD"), end = "150", interval = "50") shouldBe true
+
+        // PK 50: solo BD existe; PK 100 (el límite entre las dos secciones tipo, que manda la primera): BD y CD no existe; PK 150: solo CD.
+        vm.walk(6).distinct() shouldBe listOf(50L to "BD", 100L to "BD", 150L to "CD")
+    }
+
+    @Test
+    fun `S050 RF-17 con la casilla de singulares entran los PK donde cambia el peralte`() {
+        addTemplates("Eje A", template(0.0, 420.0, "BD"))
+        runBlocking {
+            sections.setSuperelevation(
+                ids.getValue("Eje A"),
+                listOf(SuperelevationRow(120.0, 0.02, 0.02), SuperelevationRow(180.0, -0.06, 0.06)),
+            )
+        }
+        val vm = open("Eje A")
+
+        vm.beginByCode("100", listOf("BD"), end = "200", singular = true) shouldBe true
+
+        val count = await(vm) { it.started }.codeCount
+        vm.walk(count - 1).map { it.first }.containsAll(listOf(120L, 180L)) shouldBe true
+    }
+
+    @Test
+    fun `S050 RF-16 en el modo por codigo el desplazamiento no se escribe a mano pero el PK y el espesor si`() {
+        addTemplates("Eje A", template(0.0, 420.0, "BD"))
+        val vm = open("Eje A")
+        vm.beginByCode("100", listOf("BD")) shouldBe true
+
+        vm.setOffset("9") shouldBe false
+        vm.setThickness("0,05") shouldBe true
+        vm.setChainage("120") shouldBe true
+
+        await(vm) { it.target?.chainageM?.let(Math::round) == 120L }.target.shouldNotBeNull().offsetM shouldBe 3.5
     }
 }
