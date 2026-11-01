@@ -198,3 +198,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Punto singular | `KeyStation` | PK en el que cambia el tipo de tramo del eje o el vértice de la rasante (S049, S054) |
 | Espesor | `Thickness` | Capa de material sobre o bajo la rasante que se descuenta del desmonte o terraplén (S054) |
 | Calculado sobre eje | `PointOrigin.ON_ALIGNMENT` | Origen de un punto guardado desde un PK y un desplazamiento de un eje (S049) |
+| Sección de diseño | `CrossSection` (`SectionKind.DESIGN`) | Puntos con nombre de la plataforma en un PK, de izquierda a derecha del eje (S050) |
+| Código de sección | `SectionCode` | Nombre de un punto de sección (hasta 12 caracteres); independiente de los códigos de levantamiento (S050) |
+| Sección tipo | `SectionTemplate` | Sección definida por tramos desde el eje: ancho, pendiente y si sigue el peralte (S050) |
+| Peralte | `Superelevation` | Tabla de PK con la pendiente transversal de cada lado; varía linealmente entre filas (S050) |
+| Punto de rasante | `SectionTemplate.gradeCode` | Punto de la sección al que se refiere la rasante: el eje o un código; la sección gira alrededor de él (S050) |
+| Perfil de terreno | `CrossSection` (`SectionKind.GROUND`) | Sección de terreno natural en un PK; la produce S052 y la usa S051 (S050) |
