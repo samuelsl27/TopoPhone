@@ -4,9 +4,9 @@
 
 - [x] T1. `tools/ejes`: `generar_secciones.py` con `fixtures/ejes/secciones/`: sección tipo con bombeo, peralte en curva, giro en un borde, interpolación entre secciones explícitas, CSV y LandXML sintéticos y lo esperado en aritmética racional. (RF-9 a RF-12)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `SectionPoint`, `DesignSection`, `GroundProfile`, `SectionTemplate`, `Superelevation`, `SectionCode`, `SectionSlope`, `HeightKind`, `SectionKind` y los términos en `docs/glosario.md`. (RF-2, RF-3, RF-6)
+- [x] T2. `core:model`: `SectionPoint`, `DesignSection`, `GroundProfile`, `SectionTemplate`, `Superelevation`, `SectionCode`, `SectionSlope`, `HeightKind`, `SectionKind` y los términos en `docs/glosario.md`. (RF-2, RF-3, RF-6)
       Hecho cuando: `SectionPolicyTest` en verde.
-- [ ] T3. `core:model`: `SectionCodec` (un bloque por sección tipo y por sección explícita, sin redondear). (RF-8)
+- [x] T3. `core:model`: `SectionCodec` (un bloque por sección tipo y por sección explícita, sin redondear). (RF-8)
       Hecho cuando: `SectionCodecTest` en verde (ida y vuelta exacta).
 - [ ] T4. `core:survey`: `SectionValidator` y `SuperelevationValidator` (códigos repetidos, desordenados, pendiente mayor de 100 %, PK fuera del eje, PK repetidos, rangos solapados). (RF-7)
       Hecho cuando: `SectionValidatorTest` y `SuperelevationValidatorTest` en verde.
