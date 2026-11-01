@@ -50,9 +50,9 @@
       Hecho cuando: `SectionStakeMeasureTest` y `StakeoutReportCsvTest` ampliado en verde.
 - [x] T24. `app`: la referencia «Sección» en `AxisAnalysisViewModel` y `AxisAnalysisPanel`. (RF-20)
       Hecho cuando: `AxisAnalysisViewModelTest` ampliado en verde.
-- [ ] T25. `app`: reproducción que recorre el borde derecho de un eje con peralte, época a época contra el cálculo aparte. (RF-18, RNF-T13)
+- [x] T25. `app`: reproducción que recorre el borde derecho de un eje con peralte, época a época contra el cálculo aparte. (RF-18, RNF-T13)
       Hecho cuando: `SectionStakeReplayTest` en verde a menos de 1 mm.
-- [ ] T26. Rendimiento: un LandXML con 2.000 secciones se importa en menos de 5 s y la guía de una época por código no pasa de 16 ms.
+- [x] T26. Rendimiento: un LandXML con 2.000 secciones se importa en menos de 5 s y la guía de una época por código no pasa de 16 ms.
       Hecho cuando: `SectionImportPerformanceTest` y `SectionStakePerformanceTest` en verde.
 - [ ] T27. Validación: cambios en documentos anteriores (hoja de ruta, Room v25), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.

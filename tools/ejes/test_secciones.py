@@ -98,6 +98,16 @@ def test_mas_alla_de_los_puntos_exteriores_esta_fuera_de_la_seccion():
     assert by[0.0] == "100.0"
 
 
+def test_la_guia_de_la_reproduccion_cambia_la_cota_de_diseno_por_la_diferencia_de_la_seccion():
+    guide = rows_of("esperado-guia-seccion.csv")
+    assert len(guide) == 43
+    design = float(guide[0]["cota_diseno"])
+    # rasante en el PK 150 (102,5833...) menos 3,5 x 4 % del peralte de ese PK, más 10 cm de espesor
+    assert design == pytest.approx(102.58333333333333 - 0.14 + 0.1, abs=1e-12)
+    for row in guide:
+        assert float(row["d_cota"]) == pytest.approx(float(row["altura"]) - design, abs=1e-12)
+
+
 def test_el_landxml_sintetico_tiene_diseno_terreno_y_puntos_sin_nombre():
     root = ElementTree.fromstring((s.OUT / "secciones-eje-c.xml").read_bytes())
     ns = {"l": s.g.NS}

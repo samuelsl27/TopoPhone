@@ -14,6 +14,9 @@ Genera en fixtures/ejes/secciones/:
   y la pendiente transversal en porcentaje (positiva si baja al alejarse del eje). Vale para tipo y para explícitas interpoladas.
 - esperado-resolucion.csv: por eje y PK, `ok`, `faltan` (con los códigos que faltan) o `fuera`.
 - esperado-desplazamientos.csv: por eje, PK y desplazamiento, la cota de la sección o `fuera` (RF-10).
+- esperado-guia-seccion.csv: la reproducción del eje A (`fixtures/ejes/replanteo/reproduccion-eje-a.csv`, S054) replanteando el borde
+  derecho `BD` del PK 150 con el peralte del eje A y 10 cm de espesor: por época, la cota de la punta, la cota de diseño (rasante más
+  diferencia de la sección más espesor) y la diferencia de cota (positiva en desmonte). La planta es la de S054 (BD está a 3,5 m).
 
 Cómo se calcula (otro algoritmo que el del móvil, para que la coincidencia no sea una tautología):
 - Todo lo vertical, en aritmética racional con `fractions`: pendientes interpoladas con el PK, desplazamientos y diferencias de cota. Solo
@@ -28,6 +31,7 @@ Uso: uv run --project tools tools/ejes/generar_secciones.py
 
 from __future__ import annotations
 
+import csv
 import sys
 from dataclasses import dataclass
 from fractions import Fraction
@@ -199,6 +203,25 @@ def height_at(pts, offset: Fraction) -> Fraction | None:
     return None
 
 
+REPLAY = g.ROOT / "fixtures" / "ejes" / "replanteo" / "reproduccion-eje-a.csv"
+STAKE_PK = 150
+STAKE_THICKNESS = Fraction("0.1")
+
+
+def replay_guide() -> str:
+    """La diferencia de cota de cada época de la reproducción del eje A contra el borde derecho del PK 150 con peralte (RF-18)."""
+    template = TEMPLATES[0]
+    dz = next(dz for code, _, dz, _ in template_points(template, F(STAKE_PK)) if code == "BD")
+    ground = F(g.profile_at(g.AXIS_A.profile, float(STAKE_PK))[0])
+    design = ground + dz + STAKE_THICKNESS
+    lines = ["epoca,altura,cota_diseno,d_cota"]
+    with REPLAY.open(encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            height = F(row["altura"])
+            lines.append(f"{row['epoca']},{row['altura']},{fl(design)},{fl(height - design)}")
+    return "\n".join(lines) + "\n"
+
+
 def expected() -> dict[str, str]:
     typ = ["eje,pk,codigo,desplazamiento,dz"]
     pts = ["eje,pk,codigo,desplazamiento,este,norte,cota,pendiente_pct"]
@@ -254,6 +277,7 @@ def expected() -> dict[str, str]:
         "esperado-puntos.csv": "\n".join(pts) + "\n",
         "esperado-resolucion.csv": "\n".join(res) + "\n",
         "esperado-desplazamientos.csv": "\n".join(off) + "\n",
+        "esperado-guia-seccion.csv": replay_guide(),
     }
 
 
