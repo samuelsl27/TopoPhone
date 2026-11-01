@@ -48,7 +48,7 @@
       Hecho cuando: `AxisStakeoutPanelTest` ampliado en verde.
 - [x] T23. `app` y `core:formats`: guardar el punto replanteado por código con su código de sección y la columna `Section code` del informe de replanteo. (RF-19)
       Hecho cuando: `SectionStakeMeasureTest` y `StakeoutReportCsvTest` ampliado en verde.
-- [ ] T24. `app`: la referencia «Sección» en `AxisAnalysisViewModel` y `AxisAnalysisPanel`. (RF-20)
+- [x] T24. `app`: la referencia «Sección» en `AxisAnalysisViewModel` y `AxisAnalysisPanel`. (RF-20)
       Hecho cuando: `AxisAnalysisViewModelTest` ampliado en verde.
 - [ ] T25. `app`: reproducción que recorre el borde derecho de un eje con peralte, época a época contra el cálculo aparte. (RF-18, RNF-T13)
       Hecho cuando: `SectionStakeReplayTest` en verde a menos de 1 mm.

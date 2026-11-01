@@ -9,6 +9,8 @@ import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.app.ui.receiver.repositoryRoot
 import es.topophone.app.ui.stakeout.GuidanceOff
+import es.topophone.core.model.alignment.section.SectionTemplate
+import es.topophone.core.model.alignment.section.TemplateSegment
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.point.AxisHeightRef
 import es.topophone.core.model.point.CollectorSettings
@@ -82,6 +84,7 @@ class AxisAnalysisViewModelTest {
         .build()
     private val projects = RoomProjectRepository(db)
     private val alignments = RoomAlignmentRepository(db)
+    private val sections = es.topophone.data.section.RoomSectionRepository(db)
     private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val session = ReceiverSession(
         sessionScope,
@@ -145,6 +148,7 @@ class AxisAnalysisViewModelTest {
         val vm = AxisAnalysisViewModel(
             projects,
             alignments,
+            sections,
             FakeCollectorPreferences(),
             CurrentGear.NONE,
             session,
@@ -403,5 +407,96 @@ class AxisAnalysisViewModelTest {
         vm.close()
 
         vm.referenceProvider.at(measuredAt(102.0)).shouldBeNull()
+    }
+
+    // ---- S050: referencia «Sección»
+
+    private fun addSection(axis: String, width: Double) = runBlocking {
+        sections.addTemplate(
+            ids.getValue(axis),
+            SectionTemplate(
+                0.0,
+                if (axis == "Eje A") 420.0 else 200.0,
+                "EJE",
+                listOf(TemplateSegment("BI", width, 0.02, false)),
+                listOf(TemplateSegment("BD", width, 0.02, false)),
+            ),
+        )
+    }
+
+    @Test
+    fun `S050 RF-20 con rasante y seccion se ofrece elegir Seccion y empieza la rasante`() {
+        addSection("Eje A", 8.0)
+        val vm = open("Eje A")
+
+        val state = vm.state.value
+
+        state.hasSection shouldBe true
+        state.canChoose shouldBe true
+        state.reference shouldBe AxisHeightRef.PROFILE
+        vm.setReference(AxisHeightRef.SECTION) shouldBe true
+        await(vm) { it.reference == AxisHeightRef.SECTION }
+    }
+
+    @Test
+    fun `S050 RF-20 un eje sin secciones no ofrece Seccion y elegirla no se aplica`() {
+        val vm = open("Eje A")
+
+        vm.state.value.hasSection shouldBe false
+        vm.setReference(AxisHeightRef.SECTION) shouldBe false
+    }
+
+    @Test
+    fun `S050 RF-20 sin rasante ni superficie pero con seccion la referencia es la seccion`() {
+        addSection("Eje C", 8.0)
+
+        val state = open("Eje C").state.value
+
+        state.hasProfile shouldBe false
+        state.reference shouldBe AxisHeightRef.SECTION
+    }
+
+    @Test
+    fun `S050 RF-20 la diferencia de cota en vivo es contra la cota de la seccion en el desplazamiento de la punta`() {
+        addSection("Eje A", 8.0)
+        val vm = open("Eje A")
+        vm.setReference(AxisHeightRef.SECTION)
+        val epoch = replay()[16]
+        connect(epoch.lat, epoch.lon, epoch.altitude)
+
+        val state = await(vm) { it.analysis is AxisAnalysisValue.Projected && it.reference == AxisHeightRef.SECTION }
+
+        val value = state.analysis.shouldBeInstanceOf<AxisAnalysisValue.Projected>()
+        value.heightRef shouldBe AxisHeightRef.SECTION
+        val diff = value.height.shouldBeInstanceOf<AxisHeightDiff.Diff>()
+        // La rasante en ese PK menos 2 % del desplazamiento de la punta.
+        diff.dHeightM.shouldNotBeNull() shouldBe (epoch.height - diff.referenceM plusOrMinus 2e-3)
+        (diff.referenceM < 105.0 && diff.referenceM > 95.0) shouldBe true
+    }
+
+    @Test
+    fun `S050 RF-20 una medida contra la seccion guarda la diferencia con la cota de la seccion y la referencia Seccion`() {
+        addSection("Eje A", 8.0)
+        val vm = open("Eje A")
+        vm.setReference(AxisHeightRef.SECTION)
+
+        // PK 150, 3,5 m a la derecha: rasante 102,58333 menos 2 % de 3,5 m.
+        val axis = vm.referenceProvider.at(measuredAt(102.58333333333333 - 0.07 + 0.12)).shouldNotBeNull()
+
+        axis.dHeightM.shouldNotBeNull() shouldBe (0.12 plusOrMinus 1e-4)
+        axis.heightRef shouldBe AxisHeightRef.SECTION
+    }
+
+    @Test
+    fun `S050 RF-20 una medida mas alla de los puntos exteriores de la seccion se guarda sin diferencia ni referencia`() {
+        addSection("Eje A", 3.0) // la medida cae a 3,5 m: fuera de la sección
+        val vm = open("Eje A")
+        vm.setReference(AxisHeightRef.SECTION)
+
+        val axis = vm.referenceProvider.at(measuredAt(102.0)).shouldNotBeNull()
+
+        axis.dHeightM.shouldBeNull()
+        axis.heightRef.shouldBeNull()
+        axis.chainageM shouldBe (150.0 plusOrMinus 1e-4)
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -63,6 +64,7 @@ class AxisAnalysisPanelTest {
         reference: AxisHeightRef? = AxisHeightRef.PROFILE,
         hasProfile: Boolean = true,
         hasSurface: Boolean = false,
+        hasSection: Boolean = false,
         off: GuidanceOff? = null,
     ) = AxisAnalysisUiState(
         project = project,
@@ -71,6 +73,7 @@ class AxisAnalysisPanelTest {
         alignmentName = "Eje A",
         hasProfile = hasProfile,
         hasSurface = hasSurface,
+        hasSection = hasSection,
         reference = reference,
         analysis = analysis,
         off = off,
@@ -210,5 +213,53 @@ class AxisAnalysisPanelTest {
         compose.onNodeWithTag(ANALYSIS_CLOSE_TAG).performClick()
 
         calls shouldBe listOf("measure", "close")
+    }
+
+    @Test
+    fun `S050 RF-20 con rasante y seccion se ofrece la referencia Seccion y se puede elegir`() {
+        show(state(hasSection = true))
+
+        compose.onNodeWithTag(ANALYSIS_REF_PROFILE_TAG).performScrollTo().assertIsSelected()
+        compose.onNodeWithTag(ANALYSIS_REF_SECTION_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("ref:SECTION")
+    }
+
+    @Test
+    fun `S050 RF-20 la referencia Seccion elegida aparece marcada y la cota se nombra como la seccion`() {
+        show(
+            state(
+                projected(ref = AxisHeightRef.SECTION, height = AxisHeightDiff.Diff(102.0, 0.12)),
+                reference = AxisHeightRef.SECTION,
+                hasSection = true,
+            ),
+        )
+
+        compose.onNodeWithTag(ANALYSIS_REF_SECTION_TAG).performScrollTo().assertIsSelected()
+        compose.onNodeWithText("Cota de la sección", substring = true).assertExists()
+    }
+
+    @Test
+    fun `S050 RF-20 mas alla de los puntos exteriores y sin seccion en el PK se dice`() {
+        show(
+            state(
+                projected(ref = AxisHeightRef.SECTION, height = AxisHeightDiff.OutsideSection),
+                reference = AxisHeightRef.SECTION,
+                hasSection = true,
+            ),
+        )
+        compose.onNodeWithText("Fuera de la sección.", substring = true).assertExists()
+    }
+
+    @Test
+    fun `S050 RF-20 un PK sin seccion de diseno se dice`() {
+        show(
+            state(
+                projected(ref = AxisHeightRef.SECTION, height = AxisHeightDiff.NoSection),
+                reference = AxisHeightRef.SECTION,
+                hasSection = true,
+            ),
+        )
+        compose.onNodeWithText("No hay sección de diseño en este PK.", substring = true).assertExists()
     }
 }

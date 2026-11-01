@@ -9,6 +9,8 @@ import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.ui.stakeout.GuidanceOff
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.model.alignment.Alignment
+import es.topophone.core.model.alignment.section.SectionKind
+import es.topophone.core.model.alignment.section.Superelevation
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
@@ -24,6 +26,10 @@ import es.topophone.core.survey.AxisAnalysisValue
 import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.SectionEval
+import es.topophone.core.survey.SectionPointResult
+import es.topophone.core.survey.SectionResolution
+import es.topophone.core.survey.SectionResolver
 import es.topophone.core.survey.SolutionTypes
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.VerticalProfileEval
@@ -31,6 +37,7 @@ import es.topophone.data.alignment.AlignmentRepository
 import es.topophone.data.baseshift.ActiveBaseShift
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.project.ProjectRepository
+import es.topophone.data.section.SectionRepository
 import es.topophone.data.surface.SurfaceGuides
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
@@ -40,6 +47,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -62,11 +70,13 @@ data class AxisAnalysisUiState(
     val alignmentName: String = "",
     val hasProfile: Boolean = false,
     val hasSurface: Boolean = false,
+    /** El eje tiene secciones de diseño o sección tipo: se puede calcular contra «Sección» (S050/RF-20). */
+    val hasSection: Boolean = false,
     val reference: AxisHeightRef? = null,
     val analysis: AxisAnalysisValue? = null,
     val off: GuidanceOff? = GuidanceOff.NO_POSITION,
 ) {
-    val canChoose: Boolean get() = hasProfile && hasSurface
+    val canChoose: Boolean get() = listOf(hasProfile, hasSurface, hasSection).count { it } >= 2
 }
 
 /**
@@ -79,6 +89,7 @@ data class AxisAnalysisUiState(
 class AxisAnalysisViewModel @Inject constructor(
     private val projects: ProjectRepository,
     private val alignments: AlignmentRepository,
+    private val sections: SectionRepository,
     private val collectorPreferences: CollectorPreferences,
     private val gear: CurrentGear,
     private val session: ReceiverSession,
@@ -89,7 +100,7 @@ class AxisAnalysisViewModel @Inject constructor(
     private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
 ) : ViewModel() {
     /** El eje abierto con lo que hace falta para calcular sobre él. */
-    private class Model(val projectId: String, val alignment: Alignment) {
+    private class Model(val projectId: String, val alignment: Alignment, val resolver: SectionResolver?) {
         val geometry = AlignmentGeometry(alignment)
         val profile = alignment.profile?.let { VerticalProfileEval(it) }
     }
@@ -123,11 +134,14 @@ class AxisAnalysisViewModel @Inject constructor(
     private fun resolved(m: Model?, guide: SurfaceGuide?, chosen: AxisHeightRef?): AxisHeightRef? {
         val hasProfile = m?.profile != null
         val hasSurface = guide != null
+        val hasSection = m?.resolver != null
         return when {
             chosen == AxisHeightRef.PROFILE && hasProfile -> AxisHeightRef.PROFILE
             chosen == AxisHeightRef.SURFACE && hasSurface -> AxisHeightRef.SURFACE
+            chosen == AxisHeightRef.SECTION && hasSection -> AxisHeightRef.SECTION
             hasProfile -> AxisHeightRef.PROFILE
             hasSurface -> AxisHeightRef.SURFACE
+            hasSection -> AxisHeightRef.SECTION
             else -> null
         }
     }
@@ -147,6 +161,7 @@ class AxisAnalysisViewModel @Inject constructor(
             alignmentName = m.alignment.name,
             hasProfile = m.profile != null,
             hasSurface = guide != null,
+            hasSection = m.resolver != null,
             reference = resolved(m, guide, chosen),
             analysis = liveValue.first,
             off = liveValue.second,
@@ -175,9 +190,17 @@ class AxisAnalysisViewModel @Inject constructor(
             val alignment = alignments.alignment(alignmentId) ?: return@launch
             if (alignment.projectId != projectId) return@launch
             project = projects.project(projectId)
-            model.value = Model(projectId, alignment)
+            model.value = Model(projectId, alignment, resolverOf(alignment))
             log.info(LogCategory.POINTS, "Análisis de un eje abierto") // S014/RF-5
         }
+    }
+
+    /** Las secciones del eje para calcular contra «Sección» (S050/RF-20); null si no tiene ninguna. */
+    private suspend fun resolverOf(alignment: Alignment): SectionResolver? {
+        val templates = sections.templates(alignment.id).first().map { it.template }
+        val stored = sections.sections(alignment.id).first().map { it.section }
+        if (templates.isEmpty() && stored.none { it.kind == SectionKind.DESIGN }) return null
+        return SectionResolver(templates, Superelevation(sections.superelevation(alignment.id).first()), stored)
     }
 
     /** Cierra el análisis. */
@@ -192,7 +215,7 @@ class AxisAnalysisViewModel @Inject constructor(
         val available = when (reference) {
             AxisHeightRef.PROFILE -> m.profile != null
             AxisHeightRef.SURFACE -> surfaceGuide.value != null
-            AxisHeightRef.SECTION -> false // S050/T24: aún sin secciones en el análisis
+            AxisHeightRef.SECTION -> m.resolver != null // S050/RF-20
         }
         if (!available) return false
         choice.value = reference
@@ -219,11 +242,17 @@ class AxisAnalysisViewModel @Inject constructor(
                 AxisHeightRef.PROFILE -> m.profile?.at(location.chainage)?.let { height - it.elevation }
                 AxisHeightRef.SURFACE ->
                     (surfaceGuide.value?.designAt(easting, northing) as? SurfaceHeight.Value)?.let { height - it.metres }
-                AxisHeightRef.SECTION -> null // S050/T24
+                AxisHeightRef.SECTION -> sectionElevation(m, location.chainage, location.offset)?.let { height - it }
                 null -> null
             }
         }
         return AxisRef(m.alignment.name, location.chainage, location.offset, diff, kind.takeIf { diff != null })
+    }
+
+    /** La cota de la sección de diseño en el PK y el desplazamiento reales de la punta; null si no hay o queda fuera de ella (S050/RF-20). */
+    private fun sectionElevation(m: Model, chainage: Double, offset: Double): Double? {
+        val section = (m.resolver?.at(chainage) as? SectionResolution.Found)?.section ?: return null
+        return (SectionEval.byOffset(section, m.geometry, m.profile, offset) as? SectionPointResult.Value)?.elevationM
     }
 
     private fun onEpoch(epoch: Epoch) {
@@ -262,6 +291,15 @@ class AxisAnalysisViewModel @Inject constructor(
         val reference = resolved(m, surfaceGuide.value, choice.value)
         // La superficie con su desplazamiento vertical: es la cota de diseño que la rasante no da (S042/RF-24).
         val surfaceHeight = surfaceGuide.value?.takeIf { reference == AxisHeightRef.SURFACE }?.designAt(easting, northing)
-        live.value = AxisAnalysis.of(m.geometry, m.profile, reference, surfaceHeight, easting, northing, position.height) to null
+        live.value = AxisAnalysis.of(
+            m.geometry,
+            m.profile,
+            reference,
+            surfaceHeight,
+            easting,
+            northing,
+            position.height,
+            m.resolver.takeIf { reference == AxisHeightRef.SECTION },
+        ) to null
     }
 }

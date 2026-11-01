@@ -56,6 +56,7 @@ const val ANALYSIS_TITLE_TAG = "axis_analysis_title"
 const val ANALYSIS_CLOSE_TAG = "axis_analysis_close"
 const val ANALYSIS_REF_PROFILE_TAG = "axis_analysis_ref_profile"
 const val ANALYSIS_REF_SURFACE_TAG = "axis_analysis_ref_surface"
+const val ANALYSIS_REF_SECTION_TAG = "axis_analysis_ref_section"
 const val ANALYSIS_RESULT_TAG = "axis_analysis_result"
 const val ANALYSIS_PK_TAG = "axis_analysis_pk"
 const val ANALYSIS_OFFSET_TAG = "axis_analysis_offset"
@@ -117,24 +118,36 @@ fun AxisAnalysisPanel(
     }
 }
 
-/** Con rasante y superficie activa, se elige contra cuál se calcula la diferencia de cota (S054/RF-12). */
+/** Con dos o más de rasante, superficie activa y sección, se elige contra cuál se calcula la diferencia de cota (S054/RF-12, S050/RF-20). */
 @Composable
 private fun ReferenceChoice(state: AxisAnalysisUiState, actions: AxisAnalysisActions) {
     if (!state.canChoose) return
     Text(stringResource(R.string.axis_analysis_choose), style = MaterialTheme.typography.titleSmall)
     Row(modifier = Modifier.selectableGroup().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        FilterChip(
-            selected = state.reference == AxisHeightRef.PROFILE,
-            onClick = { actions.onReference(AxisHeightRef.PROFILE) },
-            label = { Text(stringResource(R.string.axis_analysis_ref_profile)) },
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ANALYSIS_REF_PROFILE_TAG),
-        )
-        FilterChip(
-            selected = state.reference == AxisHeightRef.SURFACE,
-            onClick = { actions.onReference(AxisHeightRef.SURFACE) },
-            label = { Text(stringResource(R.string.axis_analysis_ref_surface)) },
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ANALYSIS_REF_SURFACE_TAG),
-        )
+        if (state.hasProfile) {
+            FilterChip(
+                selected = state.reference == AxisHeightRef.PROFILE,
+                onClick = { actions.onReference(AxisHeightRef.PROFILE) },
+                label = { Text(stringResource(R.string.axis_analysis_ref_profile)) },
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ANALYSIS_REF_PROFILE_TAG),
+            )
+        }
+        if (state.hasSurface) {
+            FilterChip(
+                selected = state.reference == AxisHeightRef.SURFACE,
+                onClick = { actions.onReference(AxisHeightRef.SURFACE) },
+                label = { Text(stringResource(R.string.axis_analysis_ref_surface)) },
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ANALYSIS_REF_SURFACE_TAG),
+            )
+        }
+        if (state.hasSection) {
+            FilterChip(
+                selected = state.reference == AxisHeightRef.SECTION,
+                onClick = { actions.onReference(AxisHeightRef.SECTION) },
+                label = { Text(stringResource(R.string.axis_analysis_ref_section)) },
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ANALYSIS_REF_SECTION_TAG),
+            )
+        }
     }
 }
 
