@@ -64,6 +64,8 @@ import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.TiltPreferences
 import es.topophone.data.secret.AesGcmCipher
 import es.topophone.data.secret.AndroidKeystoreKeyProvider
+import es.topophone.data.section.RoomSectionRepository
+import es.topophone.data.section.SectionRepository
 import es.topophone.data.settings.DataStoreSettingsRepository
 import es.topophone.data.settings.SettingsDataStore
 import es.topophone.data.settings.SettingsDataStoreQualifier
@@ -225,6 +227,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideAlignmentRepository(database: TopoPhoneDatabase, log: AppLog): AlignmentRepository = RoomAlignmentRepository(database, log)
+
+    /** Las secciones transversales y los peraltes de los ejes (S050). */
+    @Provides
+    @Singleton
+    fun provideSectionRepository(database: TopoPhoneDatabase, log: AppLog): SectionRepository = RoomSectionRepository(database, log)
 
     /** Los desplazamientos de base de los proyectos y el activo (S020). */
     @Provides
