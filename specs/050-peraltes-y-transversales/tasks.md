@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/ejes`: `generar_secciones.py` con `fixtures/ejes/secciones/`: sección tipo con bombeo, peralte en curva, giro en un borde, interpolación entre secciones explícitas, CSV y LandXML sintéticos y lo esperado en aritmética racional. (RF-9 a RF-12)
+- [x] T1. `tools/ejes`: `generar_secciones.py` con `fixtures/ejes/secciones/`: sección tipo con bombeo, peralte en curva, giro en un borde, interpolación entre secciones explícitas, CSV y LandXML sintéticos y lo esperado en aritmética racional. (RF-9 a RF-12)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [ ] T2. `core:model`: `SectionPoint`, `DesignSection`, `GroundProfile`, `SectionTemplate`, `Superelevation`, `SectionCode`, `SectionSlope`, `HeightKind`, `SectionKind` y los términos en `docs/glosario.md`. (RF-2, RF-3, RF-6)
       Hecho cuando: `SectionPolicyTest` en verde.

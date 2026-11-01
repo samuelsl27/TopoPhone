@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LandXML xmlns="http://www.landxml.org/schema/LandXML-1.2" version="1.2" date="2026-11-01" time="00:00:00">
+<Units><Metric areaUnit="squareMeter" linearUnit="meter" volumeUnit="cubicMeter" angularUnit="decimal degrees" directionUnit="decimal degrees"/></Units>
+<CrossSects name="Secciones" alignmentRef="Eje C">
+<CrossSect sta="0" name="PK 0"><CrossSectSurf name="Rasante" state="proposed"><CrossSectPnt code="CI">-8.0 99.80</CrossSectPnt><CrossSectPnt code="BI">-6.0 100.10</CrossSectPnt><CrossSectPnt code="EJE">0.0 100.30</CrossSectPnt><CrossSectPnt code="BD">6.0 100.10</CrossSectPnt><CrossSectPnt code="CD">8.0 99.80</CrossSectPnt></CrossSectSurf></CrossSect>
+<CrossSect sta="100" name="PK 100"><DesignCrossSectSurf name="Rasante"><CrossSectPnt code="CI">-9.0 101.00</CrossSectPnt><CrossSectPnt code="BI">-7.0 101.40</CrossSectPnt><CrossSectPnt code="EJE">0.0 101.70</CrossSectPnt><CrossSectPnt code="BD">7.0 101.40</CrossSectPnt><CrossSectPnt code="CD">9.0 101.00</CrossSectPnt></DesignCrossSectSurf></CrossSect>
+<CrossSect sta="150" name="PK 150"><CrossSectSurf name="Rasante" state="proposed"><CrossSectPnt>-7.0 102.00</CrossSectPnt><CrossSectPnt>0.0 102.30</CrossSectPnt><CrossSectPnt>7.0 102.00</CrossSectPnt></CrossSectSurf></CrossSect>
+<CrossSect sta="190" name="PK 190"><CrossSectSurf name="Rasante" state="proposed"><CrossSectPnt code="BI">-7.0 102.50</CrossSectPnt><CrossSectPnt code="EJE">0.0 102.80</CrossSectPnt><CrossSectPnt code="BD">7.0 102.50</CrossSectPnt></CrossSectSurf></CrossSect>
+<CrossSect sta="50" name="PK 50"><CrossSectSurf name="Terreno" state="existing"><CrossSectPnt code="T1">-10.0 99.00</CrossSectPnt><CrossSectPnt code="T2">-2.0 100.20</CrossSectPnt><CrossSectPnt code="T3">5.0 100.60</CrossSectPnt><CrossSectPnt code="T4">12.0 101.10</CrossSectPnt></CrossSectSurf></CrossSect>
+</CrossSects>
+</LandXML>

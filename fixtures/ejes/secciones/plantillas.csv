@@ -1,0 +1,13 @@
+eje,desde,hasta,punto_rasante,lado,orden,codigo,ancho,pendiente,sigue_peralte
+Eje A,0.0,420.0,EJE,izquierda,1,BI,3.5,0.02,1
+Eje A,0.0,420.0,EJE,izquierda,2,AI,1.5,0.04,0
+Eje A,0.0,420.0,EJE,izquierda,3,CI,1.0,-0.5,0
+Eje A,0.0,420.0,EJE,derecha,1,BD,3.5,0.02,1
+Eje A,0.0,420.0,EJE,derecha,2,AD,1.5,0.04,0
+Eje A,0.0,420.0,EJE,derecha,3,CD,1.0,-0.5,0
+Eje B,1000.5,1380.5,BD,izquierda,1,BI,3.5,0.02,1
+Eje B,1000.5,1380.5,BD,izquierda,2,AI,1.5,0.04,0
+Eje B,1000.5,1380.5,BD,izquierda,3,CI,1.0,-0.5,0
+Eje B,1000.5,1380.5,BD,derecha,1,BD,3.5,0.02,1
+Eje B,1000.5,1380.5,BD,derecha,2,AD,1.5,0.04,0
+Eje B,1000.5,1380.5,BD,derecha,3,CD,1.0,-0.5,0
