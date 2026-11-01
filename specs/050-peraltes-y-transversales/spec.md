@@ -1,6 +1,6 @@
 # Spec 050 — Peraltes y secciones transversales
 
-> Hito: H8 · Depende de: S054, S049 · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H8 · Depende de: S054, S049 · Estado: borrador entrevistado (1/11/2026), pendiente de aprobación
 
 ## Contexto y objetivo
 S054 replantea por PK y desplazamiento con la cota de la rasante, que es la cota **del eje**. Pero en una carretera nadie replantea el eje solo: se replantea «el borde de la calzada derecha en el PK 1+240», y su cota no es la de la rasante: depende del ancho, del bombeo y, en las curvas, del **peralte**. S054 y S049 lo dejaron para esta spec (→ S050).
@@ -81,6 +81,7 @@ Términos de esta spec (los de S049 y S054 más):
 - Cunetas con pendiente variable, bermas escalonadas, ensanches calculados por fórmula → no previsto (se entran como puntos de sección).
 - Peraltes calculados por norma (sin tabla) → no previsto.
 - Exportar secciones → no previsto.
+- Importar peraltes desde un LandXML → no previsto hasta disponer de un fichero real con peraltes con el que probarlo.
 
 ## Criterios de finalización
 - Todos los RF con test en verde, informe de trazabilidad sin RF huérfanos, `./gradlew check` y `uv run --project tools pytest tools` en verde.
@@ -89,11 +90,9 @@ Términos de esta spec (los de S049 y S054 más):
 - Demo de campo: queda para el usuario.
 
 ## Dudas abiertas
-- [SUPOSICIÓN: el peralte varía linealmente entre filas de la tabla y la sección gira alrededor del punto de rasante.]
-- [SUPOSICIÓN: el LandXML solo se usa para secciones (`CrossSects`); los peraltes entran a mano o por CSV. A comprobar contra LandXML 1.2.]
-- [SUPOSICIÓN: la sección se define por tramos (ancho y pendiente) o por puntos con cota; el formato de entrega habitual del proyectista no está confirmado.]
+Confirmado en la entrevista (1/11/2026): el peralte varía linealmente entre filas y la sección gira alrededor del punto de rasante; la sección se entrega habitualmente por tramos (ancho y pendiente), con la entrada por puntos como alternativa; el replanteo por código admite recorrido por PK y por código.
+- Decidido (1/11/2026): el LandXML solo se usa para secciones; los peraltes entran a mano o por CSV, porque no hay ningún LandXML con peraltes con el que comprobar el formato.
 - [SUPOSICIÓN: «código de sección» es una etiqueta propia, sin relación con las bibliotecas de S023.]
-- [SUPOSICIÓN: el replanteo por código admite el recorrido por PK o por código.]
 
 ## Cambios en documentos anteriores
 - `docs/hoja-de-ruta.md`: S050 depende además de S049; hay que indicar que produce perfiles de terreno para S051 y S052.
