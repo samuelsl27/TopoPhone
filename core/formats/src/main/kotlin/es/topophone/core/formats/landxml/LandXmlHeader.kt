@@ -14,10 +14,17 @@ internal class LandXmlHeader {
 
         /**
          * Recorre el fichero: comprueba la raíz y la versión, toma la unidad y llama a [onItem] con cada `<[item]>` de dentro de
-         * `<[container]>` ya abierto (con su posición y su nombre); [onItem] debe dejar el lector tras el `END` del elemento y devuelve
+         * `<[container]>` ya abierto (llamando a [onContainer] al abrirlo, para leer sus atributos) (con su posición y su nombre); [onItem] debe dejar el lector tras el `END` del elemento y devuelve
          * true si ya no hace falta seguir leyendo. [LandXmlException] si no es un LandXML 1.0 a 1.2.
          */
-        fun walk(xml: XmlStreamReader, header: LandXmlHeader, container: String, item: String, onItem: (Int, String) -> Boolean) {
+        fun walk(
+            xml: XmlStreamReader,
+            header: LandXmlHeader,
+            container: String,
+            item: String,
+            onContainer: () -> Unit = {},
+            onItem: (Int, String) -> Boolean,
+        ) {
             var rootSeen = false
             var index = 0
             while (true) {
@@ -43,7 +50,7 @@ internal class LandXmlHeader {
                                     val name = xml.attribute("name") ?: ""
                                     if (onItem(index++, name)) return
                                 }
-                                container -> Unit
+                                container -> onContainer()
                                 else -> if (xml.depth == 2) xml.skipElement()
                             }
                         }

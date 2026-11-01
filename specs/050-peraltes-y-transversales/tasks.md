@@ -16,9 +16,9 @@
       Hecho cuando: `SectionResolverTest` en verde.
 - [x] T7. `core:survey`: `SectionEval` (por código y por desplazamiento, pendiente, «Fuera de la sección», sin rasante). (RF-9 a RF-11)
       Hecho cuando: `SectionEvalTest` en verde contra `fixtures/ejes/secciones/` a 1 mm.
-- [ ] T8. `core:formats`: `SectionCsvReader` y `SuperelevationCsvReader`. (RF-4, RF-6)
+- [x] T8. `core:formats`: `SectionCsvReader` y `SuperelevationCsvReader`. (RF-4, RF-6)
       Hecho cuando: `SectionCsvReaderTest` y `SuperelevationCsvReaderTest` en verde.
-- [ ] T9. `core:formats`: `LandXmlCrossSectReader` (`scan` y `read`, diseño y terreno, `P1`, `P2`…, unidad, rechazos). (RF-5)
+- [x] T9. `core:formats`: `LandXmlCrossSectReader` (`scan` y `read`, diseño y terreno, `P1`, `P2`…, unidad, rechazos). (RF-5)
       Hecho cuando: `LandXmlCrossSectReaderTest` en verde.
 - [ ] T10. `data`: Room v25 (tres tablas y `points.section_code`), `AutoMigration(24, 25)` y el esquema 25 en `data/schemas/`. (RF-8, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 24 → 25 en verde con proyectos, ejes y puntos que se conservan.
