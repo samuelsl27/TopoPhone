@@ -10,7 +10,7 @@
       Hecho cuando: `SectionCodecTest` en verde (ida y vuelta exacta).
 - [x] T4. `core:survey`: `SectionValidator` y `SuperelevationValidator` (códigos repetidos, desordenados, pendiente mayor de 100 %, PK fuera del eje, PK repetidos, rangos solapados). (RF-7)
       Hecho cuando: `SectionValidatorTest` y `SuperelevationValidatorTest` en verde.
-- [ ] T5. `core:survey`: `SectionBuilder` (sección tipo, peralte lineal, una fila, fuera de la tabla, punto de rasante). (RF-2, RF-9)
+- [x] T5. `core:survey`: `SectionBuilder` (sección tipo, peralte lineal, una fila, fuera de la tabla, punto de rasante). (RF-2, RF-9)
       Hecho cuando: `SectionBuilderTest` en verde contra `fixtures/ejes/secciones/` a 1 mm y 1e-9.
 - [ ] T6. `core:survey`: `SectionResolver` (explícita interpolada, tipo, códigos que faltan, fuera de rango, D1 y D4). (RF-3, RF-12)
       Hecho cuando: `SectionResolverTest` en verde.
