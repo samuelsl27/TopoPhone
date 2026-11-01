@@ -50,7 +50,7 @@ class AxisStakeoutTypesTest {
 
         analysed.dHeightM shouldBe -0.12
         analysed.heightRef shouldBe AxisHeightRef.PROFILE
-        AxisHeightRef.entries.map { it.name } shouldBe listOf("PROFILE", "SURFACE")
+        AxisHeightRef.entries.map { it.name } shouldBe listOf("PROFILE", "SURFACE", "SECTION") // S050/RF-20 añade SECTION
     }
 
     @Test

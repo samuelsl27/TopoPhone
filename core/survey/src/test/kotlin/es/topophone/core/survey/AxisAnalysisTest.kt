@@ -95,4 +95,84 @@ class AxisAnalysisTest {
         inside.chainageM shouldBe (100.0 plusOrMinus 1e-9)
         inside.offsetM shouldBe (-10.0 plusOrMinus 1e-9) // a la izquierda de ir al Este es el Norte
     }
+
+    private fun resolver(axis: String) = SectionResolver(
+        listOfNotNull(SectionFixtures.template(axis)),
+        SectionFixtures.superelevation(axis),
+        if (axis == "Eje C") SectionFixtures.explicit() else emptyList(),
+    )
+
+    private fun analyseSection(axis: String, chainage: Double, offset: Double, height: Double?): AxisAnalysisValue {
+        val alignment = AlignmentFixtures.alignment(axis)
+        val geometry = AlignmentGeometry(alignment)
+        val tip = geometry.pointAt(chainage, offset)!!
+        return AxisAnalysis.of(
+            geometry,
+            alignment.profile?.let { VerticalProfileEval(it) },
+            AxisHeightRef.SECTION,
+            null,
+            tip.easting,
+            tip.northing,
+            height,
+            resolver(axis),
+        )
+    }
+
+    @Test
+    fun `S050 RF-20 la referencia Seccion da la cota de la seccion en el desplazamiento real de la punta`() {
+        for (p in SectionFixtures.points().filter { it.axis == "Eje A" && it.code in setOf("BI", "BD") }) {
+            val got = projected(analyseSection("Eje A", p.chainage, p.offset, p.elevation!! + 0.12))
+
+            got.heightRef shouldBe AxisHeightRef.SECTION
+            val diff = got.height.shouldBeInstanceOf<AxisHeightDiff.Diff>()
+            diff.referenceM shouldBe (p.elevation!! plusOrMinus 1e-5)
+            diff.dHeightM.shouldNotBeNull() shouldBe (0.12 plusOrMinus 1e-5)
+        }
+    }
+
+    @Test
+    fun `S050 RF-20 entre dos puntos de la seccion la cota se interpola en el desplazamiento de la punta`() {
+        // Eje A, PK 0: EJE 100,00 y BD 99,93 (3,5 m): a 1,75 m, 99,965.
+        val diff = projected(analyseSection("Eje A", 0.0, 1.75, 99.0)).height.shouldBeInstanceOf<AxisHeightDiff.Diff>()
+
+        diff.referenceM shouldBe (99.965 plusOrMinus 1e-6)
+        diff.dHeightM.shouldNotBeNull() shouldBe (-0.965 plusOrMinus 1e-6)
+    }
+
+    @Test
+    fun `S050 RF-20 mas alla de los puntos exteriores de la seccion se indica`() {
+        projected(analyseSection("Eje A", 0.0, 9.0, 99.0)).height shouldBe AxisHeightDiff.OutsideSection
+    }
+
+    @Test
+    fun `S050 RF-20 un PK sin seccion o entre secciones que no se interpolan se indica`() {
+        projected(analyseSection("Eje C", 195.0, 0.0, 5.0)).height shouldBe AxisHeightDiff.NoSection
+        projected(analyseSection("Eje C", 125.0, 0.0, 5.0)).height shouldBe AxisHeightDiff.NoSection
+    }
+
+    @Test
+    fun `S050 RF-20 una seccion absoluta da cota aunque el eje no tenga rasante`() {
+        val diff = projected(analyseSection("Eje C", 25.0, 0.0, 101.0)).height.shouldBeInstanceOf<AxisHeightDiff.Diff>()
+
+        diff.referenceM shouldBe (100.65 plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S050 RF-20 sin secciones en el eje la referencia Seccion no da diferencia`() {
+        val alignment = AlignmentFixtures.alignment("Eje A")
+        val tip = AlignmentGeometry(alignment).pointAt(100.0, 0.0)!!
+        val value = AxisAnalysis.of(AlignmentGeometry(alignment), null, AxisHeightRef.SECTION, null, tip.easting, tip.northing, 1.0, null)
+
+        projected(value).height shouldBe AxisHeightDiff.None
+    }
+
+    @Test
+    fun `S050 RF-20 una seccion relativa sin rasante no da cota y se indica sin referencia`() {
+        val alignment = AlignmentFixtures.alignment("Eje A")
+        val geometry = AlignmentGeometry(alignment)
+        val tip = geometry.pointAt(100.0, 0.0)!!
+        val value = AxisAnalysis.of(geometry, null, AxisHeightRef.SECTION, null, tip.easting, tip.northing, 1.0, resolver("Eje A"))
+
+        projected(value).height shouldBe AxisHeightDiff.None
+    }
 }

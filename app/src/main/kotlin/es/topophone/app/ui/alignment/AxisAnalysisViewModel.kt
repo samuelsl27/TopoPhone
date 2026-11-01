@@ -192,6 +192,7 @@ class AxisAnalysisViewModel @Inject constructor(
         val available = when (reference) {
             AxisHeightRef.PROFILE -> m.profile != null
             AxisHeightRef.SURFACE -> surfaceGuide.value != null
+            AxisHeightRef.SECTION -> false // S050/T24: aún sin secciones en el análisis
         }
         if (!available) return false
         choice.value = reference
@@ -218,6 +219,7 @@ class AxisAnalysisViewModel @Inject constructor(
                 AxisHeightRef.PROFILE -> m.profile?.at(location.chainage)?.let { height - it.elevation }
                 AxisHeightRef.SURFACE ->
                     (surfaceGuide.value?.designAt(easting, northing) as? SurfaceHeight.Value)?.let { height - it.metres }
+                AxisHeightRef.SECTION -> null // S050/T24
                 null -> null
             }
         }

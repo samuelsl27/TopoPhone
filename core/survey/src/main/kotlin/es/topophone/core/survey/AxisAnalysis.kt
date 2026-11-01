@@ -14,6 +14,12 @@ sealed interface AxisHeightDiff {
     /** La punta está fuera de la superficie activa. */
     data object OutsideSurface : AxisHeightDiff
 
+    /** El desplazamiento de la punta queda más allá de los puntos exteriores de la sección: "Fuera de la sección" (S050/RF-20). */
+    data object OutsideSection : AxisHeightDiff
+
+    /** No hay sección de diseño en este PK, o no se puede interpolar entre las dos que lo rodean (S050/RF-20). */
+    data object NoSection : AxisHeightDiff
+
     /** La superficie aún se está cargando en este lugar. */
     data object LoadingSurface : AxisHeightDiff
 
@@ -40,6 +46,7 @@ object AxisAnalysis {
      * @param ref la referencia de cota elegida: la rasante, la superficie o ninguna.
      * @param surfaceHeight la cota de la superficie activa en la posición (con su desplazamiento vertical), o null si no hay superficie.
      * @param tipHeightM la cota de la punta en el sistema de alturas del proyecto, o null si no tiene.
+     * @param sections las secciones del eje, para la referencia "Sección" (S050/RF-20); null si no tiene.
      */
     fun of(
         geometry: AlignmentGeometry,
@@ -49,6 +56,7 @@ object AxisAnalysis {
         easting: Double,
         northing: Double,
         tipHeightM: Double?,
+        sections: SectionResolver? = null,
     ): AxisAnalysisValue {
         val location = geometry.locate(easting, northing) ?: return AxisAnalysisValue.NoProjection
         val height = when (ref) {
@@ -61,9 +69,29 @@ object AxisAnalysis {
                 SurfaceHeight.Loading -> AxisHeightDiff.LoadingSurface
                 is SurfaceHeight.Value -> diff(surfaceHeight.metres, tipHeightM)
             }
+            AxisHeightRef.SECTION -> sections?.let { sectionDiff(it, geometry, profile, location, tipHeightM) } ?: AxisHeightDiff.None
             null -> AxisHeightDiff.None
         }
         return AxisAnalysisValue.Projected(location.chainage, location.offset, ref, height)
+    }
+
+    /** La cota de la sección de diseño en el PK y el desplazamiento reales de la punta (S050/RF-20). */
+    private fun sectionDiff(
+        sections: SectionResolver,
+        geometry: AlignmentGeometry,
+        profile: VerticalProfileEval?,
+        location: AxisLocation,
+        tipHeightM: Double?,
+    ): AxisHeightDiff {
+        val section = when (val r = sections.at(location.chainage)) {
+            is SectionResolution.Found -> r.section
+            else -> return AxisHeightDiff.NoSection
+        }
+        return when (val v = SectionEval.byOffset(section, geometry, profile, location.offset)) {
+            SectionPointResult.OutsideSection -> AxisHeightDiff.OutsideSection
+            is SectionPointResult.Value -> v.elevationM?.let { diff(it, tipHeightM) } ?: AxisHeightDiff.None
+            else -> AxisHeightDiff.NoSection
+        }
     }
 
     private fun diff(referenceM: Double, tipHeightM: Double?) = AxisHeightDiff.Diff(referenceM, tipHeightM?.minus(referenceM))

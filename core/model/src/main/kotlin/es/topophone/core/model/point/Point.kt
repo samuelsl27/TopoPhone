@@ -45,8 +45,11 @@ data class AxisRef(
     val sectionCode: String? = null,
 )
 
-/** Contra qué se calculó la diferencia de cota de una medida sobre un eje: la rasante o la superficie activa (S054/RF-12). */
-enum class AxisHeightRef { PROFILE, SURFACE }
+/**
+ * Contra qué se calculó la diferencia de cota de una medida sobre un eje: la rasante, la superficie activa (S054/RF-12) o la sección de
+ * diseño en el desplazamiento real de la punta (S050/RF-20).
+ */
+enum class AxisHeightRef { PROFILE, SURFACE, SECTION }
 
 /** Posición geodésica en grados y altura elipsoidal en metros, sin redondear (AGENTS.md). */
 data class GeodeticPosition(val latitudeDeg: Double, val longitudeDeg: Double, val ellipsoidalHeightM: Double?)

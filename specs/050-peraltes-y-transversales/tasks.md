@@ -26,9 +26,9 @@
       Hecho cuando: `SectionRepositoryTest` en verde (nombres de 60 caracteres o menos).
 - [x] T12. `data`: copias de seguridad y paquetes con las tablas nuevas. (RF-8)
       Hecho cuando: `SectionBackupTest` en verde.
-- [ ] T13. `core:survey`: `SectionStakeTarget` y `SectionStationSeries` (los dos órdenes, singulares de la sección y del peralte, sin repetidos). (RF-16, RF-17, RF-21)
+- [x] T13. `core:survey`: `SectionStakeTarget` y `SectionStationSeries` (los dos órdenes, singulares de la sección y del peralte, sin repetidos). (RF-16, RF-17, RF-21)
       Hecho cuando: `SectionStakeTargetTest` y `SectionStationSeriesTest` en verde.
-- [ ] T14. `core:survey`: `AxisAnalysis` con la referencia «Sección» en el desplazamiento real de la punta. (RF-20)
+- [x] T14. `core:survey`: `AxisAnalysis` con la referencia «Sección» en el desplazamiento real de la punta. (RF-20)
       Hecho cuando: `AxisAnalysisTest` ampliado en verde.
 - [ ] T15. `app`: `SectionImportViewModel` (CSV de secciones, LandXML con lista, diseño o terreno, asignación de columnas, rechazos). (RF-4, RF-5)
       Hecho cuando: `SectionImportViewModelTest` en verde.

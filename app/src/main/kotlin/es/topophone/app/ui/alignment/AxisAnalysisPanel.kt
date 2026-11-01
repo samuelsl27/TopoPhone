@@ -190,13 +190,19 @@ private fun heightLines(value: AxisAnalysisValue.Projected, unit: LinearUnit): H
     fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, unit, locale)} $symbol"
 
     val refName = stringResource(
-        if (value.heightRef == AxisHeightRef.SURFACE) R.string.axis_analysis_the_surface else R.string.axis_analysis_the_profile,
+        when (value.heightRef) {
+            AxisHeightRef.SURFACE -> R.string.axis_analysis_the_surface
+            AxisHeightRef.SECTION -> R.string.axis_analysis_the_section
+            else -> R.string.axis_analysis_the_profile
+        },
     )
     return when (val h = value.height) {
         AxisHeightDiff.None -> HeightLines(null, null, stringResource(R.string.axis_analysis_note_no_reference))
         AxisHeightDiff.OutsideProfile -> HeightLines(null, null, stringResource(R.string.axis_analysis_note_outside_profile))
         AxisHeightDiff.OutsideSurface -> HeightLines(null, null, stringResource(R.string.axis_analysis_note_outside_surface))
         AxisHeightDiff.LoadingSurface -> HeightLines(null, null, stringResource(R.string.axis_analysis_note_loading_surface))
+        AxisHeightDiff.OutsideSection -> HeightLines(null, null, stringResource(R.string.axis_analysis_note_outside_section))
+        AxisHeightDiff.NoSection -> HeightLines(null, null, stringResource(R.string.axis_analysis_note_no_section))
         is AxisHeightDiff.Diff -> {
             val reference = stringResource(R.string.axis_analysis_reference_elevation, refName, length(h.referenceM))
             val d = h.dHeightM

@@ -1765,6 +1765,7 @@
     <string name="axis_analysis_ref_surface">Surface</string>
     <string name="axis_analysis_the_profile">the profile</string>
     <string name="axis_analysis_the_surface">the surface</string>
+    <string name="axis_analysis_the_section">the section</string>
     <string name="axis_analysis_diff">Elevation difference with %1$s: %2$s (%3$s)</string>
     <string name="axis_analysis_reference_elevation">Elevation of %1$s: %2$s</string>
     <string name="axis_analysis_above">above</string>
@@ -1774,6 +1775,8 @@
     <string name="axis_analysis_note_no_height">The tip has no height.</string>
     <string name="axis_analysis_note_outside_profile">The profile does not reach this chainage.</string>
     <string name="axis_analysis_note_outside_surface">The tip is outside the surface.</string>
+    <string name="axis_analysis_note_outside_section">Outside the section.</string>
+    <string name="axis_analysis_note_no_section">There is no design section at this chainage.</string>
     <string name="axis_analysis_note_loading_surface">Loading the surface…</string>
     <string name="axis_analysis_no_projection">The tip is before the start or after the end of the alignment: there is no chainage or offset.</string>
     <string name="axis_analysis_a11y">%1$s, %2$s. %3$s</string>
