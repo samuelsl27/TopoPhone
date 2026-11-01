@@ -483,6 +483,7 @@ class BackupRepository(
         copyDrawings(source, sink, args, newProjectId, keepIds)
         copySurfaces(source, sink, args, newProjectId, surfaceIds)
         copyAlignments(source, sink, args, newProjectId, alignmentIds)
+        copySections(source, sink, args, alignmentIds, keepIds)
         copyBaseShifts(source, sink, args, newProjectId, shiftIds)
     }
 
@@ -572,6 +573,25 @@ class BackupRepository(
             DatabaseSnapshot.copyRows(cursor, sink, "alignments") { alignment ->
                 alignment.put("id", alignmentIds.getValue(alignment.getAsString("id")))
                 alignment.put("project_id", newProjectId)
+            }
+        }
+    }
+
+    /** Las secciones tipo, las secciones y el peralte de los ejes del proyecto, con el id de su eje en la copia (S050/RF-8). */
+    private fun copySections(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        alignmentIds: Map<String, String>,
+        keepIds: Boolean,
+    ) {
+        val inProject = "alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"
+        for (table in listOf("section_templates", "section_profiles", "superelevation_rows")) {
+            source("SELECT * FROM $table WHERE $inProject", args).use { cursor ->
+                DatabaseSnapshot.copyRows(cursor, sink, table) { row ->
+                    if (!keepIds) row.put("id", newId())
+                    row.put("alignment_id", alignmentIds.getValue(row.getAsString("alignment_id")))
+                }
             }
         }
     }

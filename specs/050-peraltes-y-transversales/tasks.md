@@ -22,9 +22,9 @@
       Hecho cuando: `LandXmlCrossSectReaderTest` en verde.
 - [x] T10. `data`: Room v25 (tres tablas y `points.section_code`), `AutoMigration(24, 25)` y el esquema 25 en `data/schemas/`. (RF-8, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 24 → 25 en verde con proyectos, ejes y puntos que se conservan.
-- [ ] T11. `data`: `SectionRepository` y `SectionImporter` (altas y bajas en una transacción, log sin nombres ni coordenadas, borrar el eje). (RF-8)
+- [x] T11. `data`: `SectionRepository` y `SectionImporter` (altas y bajas en una transacción, log sin nombres ni coordenadas, borrar el eje). (RF-8)
       Hecho cuando: `SectionRepositoryTest` en verde (nombres de 60 caracteres o menos).
-- [ ] T12. `data`: copias de seguridad y paquetes con las tablas nuevas. (RF-8)
+- [x] T12. `data`: copias de seguridad y paquetes con las tablas nuevas. (RF-8)
       Hecho cuando: `SectionBackupTest` en verde.
 - [ ] T13. `core:survey`: `SectionStakeTarget` y `SectionStationSeries` (los dos órdenes, singulares de la sección y del peralte, sin repetidos). (RF-16, RF-17, RF-21)
       Hecho cuando: `SectionStakeTargetTest` y `SectionStationSeriesTest` en verde.

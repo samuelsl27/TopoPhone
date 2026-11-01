@@ -179,6 +179,10 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("raster_tiles", "WHERE surface_id IN (SELECT id FROM surfaces WHERE project_id = ? AND status = 'READY')"),
             // S049/RF-16: los ejes y sus rasantes viajan con el proyecto.
             Table("alignments", "WHERE project_id = ?"),
+            // S050/RF-8: las secciones, las secciones tipo y los peraltes de los ejes viajan con ellos.
+            Table("section_templates", "WHERE alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"),
+            Table("section_profiles", "WHERE alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"),
+            Table("superelevation_rows", "WHERE alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"),
             // S020/RF-12: los desplazamientos de base viajan con el proyecto.
             Table("base_shifts", "WHERE project_id = ?"),
             Table("ntrip_profiles", projectFilter = null),
