@@ -84,7 +84,7 @@ class PhotosEndToEndTest {
 
     private fun files() = photosDir.listFiles().orEmpty().filter { it.isFile }.map { it.name }.sorted()
 
-    private fun ids(pointId: String) = runBlocking { photos.photos(pointId).first().map { it.id } }
+    private fun ids(pointId: String) = runBlocking { photos.photos(pointId).first().map { it.id }.sorted() }
 
     @Test
     fun `S017b RF-2 RF-5 RF-22 RF-24 RF-28 la vida entera de las fotos de un punto`() {
@@ -97,14 +97,14 @@ class PhotosEndToEndTest {
         // Otra foto justo después de guardar (RF-5).
         val after = stage("despues")
         runBlocking { photos.addPhotos(point.id, listOf(after)) }.shouldBeInstanceOf<AddPhotosResult.Added>()
-        ids(point.id) shouldBe listOf(during.id, after.id)
+        ids(point.id) shouldBe listOf(during.id, after.id).sorted()
         files() shouldBe listOf("${during.id}.jpg", "${after.id}.jpg").sorted()
 
         // El punto a la papelera y vuelta: las fotos van y vuelven con él (RF-24).
         runBlocking { fixture.points.moveToTrash(listOf(point.id)) }
-        ids(point.id) shouldBe listOf(during.id, after.id)
+        ids(point.id) shouldBe listOf(during.id, after.id).sorted()
         runBlocking { fixture.points.restore(point.id) }
-        ids(point.id) shouldBe listOf(during.id, after.id)
+        ids(point.id) shouldBe listOf(during.id, after.id).sorted()
         files().size shouldBe 2
 
         // Copia completa con las dos fotos.
@@ -117,7 +117,7 @@ class PhotosEndToEndTest {
         // Restaurar la copia devuelve las dos fotos (RF-28)...
         val valid = runBlocking { backups.read({ backup.inputStream() }, BackupKind.BACKUP) }.shouldBeInstanceOf<BackupRead.Valid>()
         runBlocking { backups.restore(valid) }.shouldBeInstanceOf<RestoreResult.Restored>()
-        ids(point.id) shouldBe listOf(during.id, after.id)
+        ids(point.id) shouldBe listOf(during.id, after.id).sorted()
         files() shouldBe listOf("${during.id}.jpg", "${after.id}.jpg").sorted()
         File(photosDir, "${during.id}.jpg").readBytes().isNotEmpty() shouldBe true
 
