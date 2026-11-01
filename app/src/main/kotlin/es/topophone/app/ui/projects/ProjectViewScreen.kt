@@ -469,6 +469,7 @@ fun ProjectViewRoute(
         onDismissAlignmentTouch = alignmentMapViewModel::dismissTouch,
         onActivateAlignment = alignmentsViewModel::activate,
         onCalculateOnAlignment = { alignmentId -> navigation.onAlignmentPoint(projectId, alignmentId) }, // S049/RF-20
+        onSectionsOfAxis = { alignmentId -> navigation.onSections(projectId, alignmentId) }, // S050/RF-1
         drawings = drawings,
         designSelection = designSelection,
         onMapTap = {
@@ -709,6 +710,7 @@ fun ProjectViewScreen(
     onDismissAlignmentTouch: () -> Unit = {},
     onActivateAlignment: (String?) -> Unit = {},
     onCalculateOnAlignment: (String) -> Unit = {},
+    onSectionsOfAxis: (String) -> Unit = {},
     alignmentsActions: AlignmentsActions = AlignmentsActions(),
     alignmentFromDrawing: AlignmentFromDrawingUiState = AlignmentFromDrawingUiState(),
     onConvertToAlignment: (selection: DesignSelection, name: String, startChainageM: Double) -> Unit = { _, _, _ -> },
@@ -900,6 +902,10 @@ fun ProjectViewScreen(
                     alignmentsOpen = false
                     onAnalyzeAxis(it)
                 },
+                onSections = {
+                    alignmentsOpen = false
+                    onSectionsOfAxis(it)
+                },
             ),
         ) { alignmentsOpen = false }
     }
@@ -924,6 +930,10 @@ fun ProjectViewScreen(
             onAnalyze = {
                 onDismissAlignmentTouch()
                 onAnalyzeAxis(alignmentTouch.alignment.id)
+            },
+            onSections = {
+                onDismissAlignmentTouch()
+                onSectionsOfAxis(alignmentTouch.alignment.id)
             },
         )
     } else if (designSelection != null && project != null) {

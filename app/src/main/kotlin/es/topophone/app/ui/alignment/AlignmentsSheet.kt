@@ -63,6 +63,8 @@ fun alignmentStakeTag(id: String) = "alignment_stake_$id"
 
 fun alignmentAnalyzeTag(id: String) = "alignment_analyze_$id"
 
+fun alignmentSectionsTag(id: String) = "alignment_sections_$id"
+
 /** Acciones del panel «Ejes» (S049/RF-14, RF-15, RF-19). [onRename] da false si el nombre está en blanco. */
 class AlignmentsActions(
     val onActivate: (alignmentId: String?) -> Unit = {},
@@ -74,6 +76,8 @@ class AlignmentsActions(
     val onStake: (alignmentId: String) -> Unit = {},
     /** "Analizar" la posición del jalón respecto al eje (S054/RF-12). */
     val onAnalyze: (alignmentId: String) -> Unit = {},
+    /** «Secciones» del eje: secciones tipo, secciones importadas y peralte (S050/RF-1). */
+    val onSections: (alignmentId: String) -> Unit = {},
 )
 
 /**
@@ -229,6 +233,10 @@ private fun AlignmentSection(
         onClick = { actions.onAnalyze(alignment.id) },
         modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(alignmentAnalyzeTag(alignment.id)),
     ) { Text(stringResource(R.string.alignment_analyze_open)) } // S054/RF-12
+    OutlinedButton(
+        onClick = { actions.onSections(alignment.id) },
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(alignmentSectionsTag(alignment.id)),
+    ) { Text(stringResource(R.string.section_open)) } // S050/RF-1
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = onRename,

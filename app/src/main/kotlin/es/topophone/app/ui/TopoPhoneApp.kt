@@ -62,6 +62,9 @@ import es.topophone.app.ui.receiver.NtripProfileFormRoute
 import es.topophone.app.ui.receiver.ReceiverNavigation
 import es.topophone.app.ui.receiver.ReceiverPage
 import es.topophone.app.ui.receiver.ReceiverRoute as ReceiverSectionRoute
+import es.topophone.app.ui.section.SectionImportKind
+import es.topophone.app.ui.section.SectionImportRoute
+import es.topophone.app.ui.section.SectionsRoute
 import es.topophone.app.ui.sessions.SessionsSection
 import es.topophone.app.ui.settings.AboutScreen
 import es.topophone.app.ui.settings.BackgroundHelpScreen
@@ -218,6 +221,26 @@ fun TopoPhoneApp(
                     navigation.onBack,
                     viewModel = hiltViewModel(owner),
                 )
+                is SurveyPage.Sections -> SectionsRoute(
+                    page.projectId,
+                    page.alignmentId,
+                    theme,
+                    toggleSun,
+                    onImportSections = { kind, uri -> navigation.onImportSections(page.projectId, page.alignmentId, kind.name, uri) },
+                    onCalculate = { navigation.onAlignmentPoint(page.projectId, page.alignmentId) },
+                    onBack = navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.ImportSections -> SectionImportRoute(
+                    page.projectId,
+                    page.alignmentId,
+                    SectionImportKind.valueOf(page.kind),
+                    Uri.parse(page.fileUri),
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
                 is SurveyPage.StakeoutReport -> StakeoutReportRoute(
                     page.projectId,
                     page.selection,
@@ -342,6 +365,10 @@ private fun AppNavHost(
                 onBaseShift = { projectId -> navController.navigate(BaseShiftDestination(projectId)) }, // S020/RF-1
                 onAlignmentPoint = { projectId, alignmentId ->
                     navController.navigate(AlignmentPointDestination(projectId, alignmentId)) // S049/RF-20
+                },
+                onSections = { projectId, alignmentId -> navController.navigate(SectionsDestination(projectId, alignmentId)) }, // S050/RF-1
+                onImportSections = { projectId, alignmentId, kind, fileUri ->
+                    navController.navigate(ImportSectionsDestination(projectId, alignmentId, kind, fileUri)) // S050/RF-4, RF-5
                 },
                 onOpenFolder = { id -> navController.navigate(ProjectFolderDestination(id)) }, // S006/RF-20
                 onOpenTrash = { navController.navigate(TrashDestination) }, // S006/RF-23
@@ -499,6 +526,26 @@ private fun AppNavHost(
                 val args = entry.toRoute<AlignmentPointDestination>()
                 surveySection(
                     SurveyPage.AlignmentPoint(args.projectId, args.alignmentId),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<SectionsDestination> { entry ->
+                val args = entry.toRoute<SectionsDestination>()
+                surveySection(
+                    SurveyPage.Sections(args.projectId, args.alignmentId),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ImportSectionsDestination> { entry ->
+                val args = entry.toRoute<ImportSectionsDestination>()
+                surveySection(
+                    SurveyPage.ImportSections(args.projectId, args.alignmentId, args.kind, args.fileUri),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

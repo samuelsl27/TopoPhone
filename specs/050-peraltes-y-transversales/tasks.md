@@ -34,7 +34,7 @@
       Hecho cuando: `SectionImportViewModelTest` en verde.
 - [x] T16. `app`: `SectionsViewModel` (sección tipo a mano, peralte a mano o por CSV, validaciones con punto y motivo). (RF-2, RF-3, RF-6, RF-7)
       Hecho cuando: `SectionsViewModelTest` en verde.
-- [ ] T17. `app`: `SectionsScreen` y «Secciones» en `AlignmentsSheet` y `AlignmentFicha`. (RF-1, RNF-T7, RNF-T8)
+- [x] T17. `app`: `SectionsScreen` y «Secciones» en `AlignmentsSheet` y `AlignmentFicha`. (RF-1, RNF-T7, RNF-T8)
       Hecho cuando: `SectionsScreenTest`, `AlignmentsSheetTest` y `AlignmentFichaTest` ampliados en verde.
 - [ ] T18. `app` y `data`: `SectionPointViewModel` y su pantalla: calcular por código o por desplazamiento y «Guardar punto» como «Calculado sobre eje» con su código. (RF-9, RF-10, RF-11, RF-15)
       Hecho cuando: `SectionPointViewModelTest` y `SectionPointTest` en verde.

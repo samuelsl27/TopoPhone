@@ -173,6 +173,7 @@ class AlignmentTouchTest {
         onCalculate: (() -> Unit)? = null,
         onStake: (() -> Unit)? = null,
         onAnalyze: (() -> Unit)? = null,
+        onSections: (() -> Unit)? = null,
     ) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
@@ -191,6 +192,7 @@ class AlignmentTouchTest {
                     onCalculate,
                     onStake,
                     onAnalyze,
+                    onSections,
                 )
             }
         }
@@ -278,5 +280,22 @@ class AlignmentTouchTest {
         showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
 
         compose.onNodeWithTag(ALIGNMENT_TOUCH_ANALYZE_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S050 RF-1 la ficha ofrece Secciones si se le da la accion y no lo ofrece si no`() {
+        var sections = 0
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true), onSections = { sections++ })
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_SECTIONS_TAG).performClick()
+
+        sections shouldBe 1
+    }
+
+    @Test
+    fun `S050 RF-1 sin la accion la ficha no muestra Secciones`() {
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_SECTIONS_TAG).assertDoesNotExist()
     }
 }

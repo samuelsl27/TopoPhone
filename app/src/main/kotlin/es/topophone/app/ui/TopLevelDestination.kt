@@ -113,6 +113,12 @@ import kotlinx.serialization.Serializable
 /** El cálculo de un punto sobre un eje del proyecto (S049/RF-20). */
 @Serializable data class AlignmentPointDestination(val projectId: String, val alignmentId: String)
 
+/** Las secciones transversales y el peralte de un eje del proyecto (S050/RF-1). */
+@Serializable data class SectionsDestination(val projectId: String, val alignmentId: String)
+
+/** La importación de secciones de un CSV o un LandXML a un eje: el tipo y el fichero elegido, como dirección (S050/RF-4, RF-5). */
+@Serializable data class ImportSectionsDestination(val projectId: String, val alignmentId: String, val kind: String, val fileUri: String)
+
 /** Las tres secciones de la navegación principal, en este orden (S001/RF-2). */
 enum class TopLevelDestination(val graph: Any, @param:StringRes val label: Int, @param:DrawableRes val icon: Int) {
     SURVEY(SurveyGraph, R.string.nav_survey, R.drawable.ic_nav_survey),

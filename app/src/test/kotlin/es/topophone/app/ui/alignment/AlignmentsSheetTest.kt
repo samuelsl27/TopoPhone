@@ -152,4 +152,15 @@ class AlignmentsSheetTest {
 
         analysed shouldBe listOf("a", "b")
     }
+
+    @Test
+    fun `S050 RF-1 cada eje ofrece Secciones y lleva su identificador a la accion`() {
+        val calls = mutableListOf<String>()
+        show(actions = AlignmentsActions(onSections = { calls += it }))
+
+        compose.onNodeWithTag(alignmentSectionsTag("a")).performScrollTo().performClick()
+        compose.onNodeWithTag(alignmentSectionsTag("b")).performScrollTo().performClick()
+
+        calls shouldBe listOf("a", "b")
+    }
 }

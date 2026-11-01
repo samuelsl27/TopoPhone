@@ -46,6 +46,12 @@ import es.topophone.app.ui.points.PointTrashUiState
 import es.topophone.app.ui.raster.RasterImportActions
 import es.topophone.app.ui.raster.RasterImportScreen
 import es.topophone.app.ui.raster.RasterImportUiState
+import es.topophone.app.ui.section.SectionImportActions
+import es.topophone.app.ui.section.SectionImportScreen
+import es.topophone.app.ui.section.SectionImportUiState
+import es.topophone.app.ui.section.SectionsActions
+import es.topophone.app.ui.section.SectionsScreen
+import es.topophone.app.ui.section.SectionsUiState
 import es.topophone.app.ui.stakeout.StakeoutReportActions
 import es.topophone.app.ui.stakeout.StakeoutReportScreen
 import es.topophone.app.ui.stakeout.StakeoutReportUiState
@@ -124,6 +130,12 @@ sealed interface SurveyPage {
 
     /** Calcular un punto sobre un eje del proyecto (S049/RF-20). */
     data class AlignmentPoint(val projectId: String, val alignmentId: String) : SurveyPage
+
+    /** Las secciones transversales y el peralte de un eje (S050/RF-1). */
+    data class Sections(val projectId: String, val alignmentId: String) : SurveyPage
+
+    /** Importar las secciones de un CSV o un LandXML a un eje: [kind] es `CSV` o `LANDXML` (S050/RF-4, RF-5). */
+    data class ImportSections(val projectId: String, val alignmentId: String, val kind: String, val fileUri: String) : SurveyPage
 }
 
 /** Lo que Levantamiento necesita de la navegación de la app (S006). */
@@ -169,6 +181,10 @@ class SurveyNavigation(
     val onBaseShift: (projectId: String) -> Unit = {},
     /** La pantalla de calcular un punto sobre un eje (S049/RF-20). */
     val onAlignmentPoint: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
+    /** La pantalla de las secciones y el peralte de un eje (S050/RF-1). */
+    val onSections: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
+    /** La pantalla de importar secciones de un CSV o un LandXML, con el fichero elegido (S050/RF-4, RF-5). */
+    val onImportSections: (projectId: String, alignmentId: String, kind: String, fileUri: String) -> Unit = { _, _, _, _ -> },
     val onOpenTrash: () -> Unit = {},
     /** El apartado "Inclinación" del receptor, desde el recolector (S016/RF-2, RF-18). */
     val onOpenTilt: () -> Unit = {},
@@ -200,6 +216,8 @@ data class SurveyUiState(
     val surfaceImport: SurfaceImportUiState = SurfaceImportUiState(),
     val rasterImport: RasterImportUiState = RasterImportUiState(),
     val baseShift: BaseShiftUiState = BaseShiftUiState(),
+    val sections: SectionsUiState = SectionsUiState(),
+    val sectionImport: SectionImportUiState = SectionImportUiState(),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -263,6 +281,9 @@ fun SurveyPageScreen(
         is SurveyPage.ImportGpkg -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
         is SurveyPage.AlignmentPoint ->
             AlignmentPointScreen(themeState, onToggleSun, state.alignmentPoint, AlignmentPointActions(), navigation.onBack)
+        is SurveyPage.Sections -> SectionsScreen(themeState, onToggleSun, state.sections, SectionsActions(), navigation.onBack)
+        is SurveyPage.ImportSections ->
+            SectionImportScreen(themeState, onToggleSun, state.sectionImport, SectionImportActions(), navigation.onBack)
         is SurveyPage.DefineAlignment ->
             ManualAlignmentScreen(themeState, onToggleSun, state.manualAlignment, ManualAlignmentActions(), navigation.onBack)
         is SurveyPage.ImportProfileCsv ->
