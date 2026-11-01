@@ -184,7 +184,12 @@ class AxisStakeoutMeasureTest {
      * El objetivo a (+2 cm Este, −3 cm Norte, +5 mm de cota) de lo medido, en el PK 150 a 3,5 m a la derecha del eje y con 10 cm de
      * espesor. Las diferencias de PK y de desplazamiento de lo medido las pone el test.
      */
-    private fun objectiveOf(measured: Point, lateralError: Double? = 0.012, chainageError: Double? = -0.034): StakeObjective {
+    private fun objectiveOf(
+        measured: Point,
+        lateralError: Double? = 0.012,
+        chainageError: Double? = -0.034,
+        sectionCode: String? = null,
+    ): StakeObjective {
         val c = measured.coordinates
         return StakeObjective(
             design = PointCoordinates(c.ground, c.easting!! + 0.02, c.northing!! - 0.03, c.height!! + 0.005),
@@ -195,6 +200,7 @@ class AxisStakeoutMeasureTest {
             lateralErrorOf = { lateralError },
             thicknessM = 0.1,
             chainageErrorOf = { chainageError },
+            sectionCode = sectionCode,
         )
     }
 
@@ -352,5 +358,31 @@ class AxisStakeoutMeasureTest {
 
         point.staked.shouldBeNull()
         point.origin shouldBe PointOrigin.MEASURED
+    }
+
+    @Test
+    fun `S050 RF-19 un punto replanteado por codigo se guarda con el codigo de seccion y el resto igual`() {
+        val vm = viewModel()
+        receiving(vm)
+        val measured = measureNormalPoint(vm, "1")
+        stakeAxis(vm, measured.coordinates, StakeObjectiveProvider { objectiveOf(measured, sectionCode = "BD") })
+
+        val ref = measureStaked(vm).staked.shouldNotBeNull()
+
+        ref.sectionCode shouldBe "BD"
+        ref.source shouldBe source
+        ref.thicknessM shouldBe 0.1
+        ref.chainageM.shouldNotBeNull() shouldBe (150.0 plusOrMinus 1e-6)
+        ref.lateralOffsetM shouldBe 3.5
+    }
+
+    @Test
+    fun `S050 RF-19 un punto replanteado por PK y desplazamiento no lleva codigo de seccion`() {
+        val vm = viewModel()
+        receiving(vm)
+        val measured = measureNormalPoint(vm, "1")
+        stakeAxis(vm, measured.coordinates, StakeObjectiveProvider { objectiveOf(measured) })
+
+        measureStaked(vm).staked.shouldNotBeNull().sectionCode.shouldBeNull()
     }
 }

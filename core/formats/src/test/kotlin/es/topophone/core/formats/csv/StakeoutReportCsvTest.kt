@@ -46,14 +46,14 @@ class StakeoutReportCsvTest {
         "Design name,Stakeout number,Staked name,Description,Design easting,Design northing,Design elevation," +
             "Measured easting,Measured northing,Measured elevation,Delta northing,Delta easting,Horizontal distance," +
             "Delta elevation,Horizontal tolerance,Vertical tolerance,Within tolerance,Last,Solution,Measured from," +
-            "Alignment,Thickness,Delta chainage,Drawing,Layer,Element type,Mode,Chainage,Lateral offset,Elevation source,Surface," +
-            "Surface elevation,Vertical offset"
+            "Alignment,Thickness,Delta chainage,Section code,Drawing,Layer,Element type,Mode,Chainage,Lateral offset," +
+            "Elevation source,Surface,Surface elevation,Vertical offset"
     private val geographicHeader =
         "Design name,Stakeout number,Staked name,Description,Design latitude,Design longitude,Design elevation," +
             "Measured latitude,Measured longitude,Measured elevation,Delta northing,Delta easting,Horizontal distance," +
             "Delta elevation,Horizontal tolerance,Vertical tolerance,Within tolerance,Last,Solution,Measured from," +
-            "Alignment,Thickness,Delta chainage,Drawing,Layer,Element type,Mode,Chainage,Lateral offset,Elevation source,Surface," +
-            "Surface elevation,Vertical offset"
+            "Alignment,Thickness,Delta chainage,Section code,Drawing,Layer,Element type,Mode,Chainage,Lateral offset," +
+            "Elevation source,Surface,Surface elevation,Vertical offset"
 
     /** Un replanteo con números que redondean sin dudas a 4 decimales. */
     private fun row(
@@ -118,7 +118,7 @@ class StakeoutReportCsvTest {
     fun `S019 RF-21 cada fila lleva las columnas por el orden de la spec con 4 decimales`() {
         lines(csv(listOf(row())))[1] shouldBe
             "P1,2,P1_stkd2,\"Esquina, norte\",440000.1234,4470000.5000,700.0000," +
-            "440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,0.0200,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z,,,,,,,,,,,,,"
+            "440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,0.0200,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z,,,,,,,,,,,,,,"
     }
 
     @Test
@@ -137,7 +137,7 @@ class StakeoutReportCsvTest {
         val line = lines(csv(listOf(row(description = "Eje", elevation = null, dHeight = null))))[1]
 
         line shouldBe
-            "P1,2,P1_stkd2,Eje,440000.1234,4470000.5000,,440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z,,,,,,,,,,,,,"
+            "P1,2,P1_stkd2,Eje,440000.1234,4470000.5000,,440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z,,,,,,,,,,,,,,"
     }
 
     @Test
@@ -145,7 +145,7 @@ class StakeoutReportCsvTest {
         val line = lines(csv(listOf(row(description = "Antes", tolerances = null, within = null))))[1]
 
         line shouldBe
-            "P1,2,P1_stkd2,Antes,440000.1234,4470000.5000,700.0000,440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,0.0200,,,,true,FIX,2026-10-18T18:03:34Z,,,,,,,,,,,,,"
+            "P1,2,P1_stkd2,Antes,440000.1234,4470000.5000,700.0000,440000.1400,4470000.4900,700.0200,-0.0100,0.0166,0.0193,0.0200,,,,true,FIX,2026-10-18T18:03:34Z,,,,,,,,,,,,,,"
     }
 
     @Test
@@ -163,7 +163,7 @@ class StakeoutReportCsvTest {
         lines[0] shouldBe geographicHeader
         lines[1] shouldBe
             "P1,2,P1_stkd2,Eje,40.416800000,-3.703800000,700.0000," +
-            "40.416810000,-3.703790000,700.0200,-0.0100,0.0166,0.0193,0.0200,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z,,,,,,,,,,,,,"
+            "40.416810000,-3.703790000,700.0200,-0.0100,0.0166,0.0193,0.0200,0.0250,0.0300,true,true,FIX,2026-10-18T18:03:34Z,,,,,,,,,,,,,,"
     }
 
     @Test
@@ -180,14 +180,14 @@ class StakeoutReportCsvTest {
         val line = lines(csv(listOf(row(description = "Eje")), separator = ColumnSeparator.SEMICOLON, decimal = DecimalSeparator.COMMA))[1]
 
         line shouldBe
-            "P1;2;P1_stkd2;Eje;440000,1234;4470000,5000;700,0000;440000,1400;4470000,4900;700,0200;-0,0100;0,0166;0,0193;0,0200;0,0250;0,0300;true;true;FIX;2026-10-18T18:03:34Z;;;;;;;;;;;;;"
+            "P1;2;P1_stkd2;Eje;440000,1234;4470000,5000;700,0000;440000,1400;4470000,4900;700,0200;-0,0100;0,0166;0,0193;0,0200;0,0250;0,0300;true;true;FIX;2026-10-18T18:03:34Z;;;;;;;;;;;;;;"
     }
 
     @Test
     fun `S019 RF-23 con tabulador de separador`() {
         val line = lines(csv(listOf(row(description = "Eje")), separator = ColumnSeparator.TAB))[1]
 
-        line.split("\t").size shouldBe 33
+        line.split("\t").size shouldBe 34
     }
 
     @Test
@@ -271,7 +271,7 @@ class StakeoutReportCsvTest {
     fun `S041 RF-30 un replanteo de un punto del proyecto deja vacias las seis columnas del dibujo`() {
         val cells = lines(csv(listOf(row(description = "Eje"))))[1].split(",")
 
-        cells.size shouldBe 33
+        cells.size shouldBe 34
         cells.takeLast(10).take(6) shouldBe List(6) { "" }
     }
 
@@ -413,6 +413,7 @@ class StakeoutReportCsvTest {
         offset: Double? = 3.5,
         thickness: Double? = 0.1,
         dChainage: Double? = -0.034,
+        sectionCode: String? = null,
     ): StakeoutReportRow {
         val base = row(description = "Eje")
         val ref = base.ref.copy(
@@ -422,25 +423,27 @@ class StakeoutReportCsvTest {
             dLateralM = 0.012,
             dChainageM = dChainage,
             thicknessM = thickness,
+            sectionCode = sectionCode,
         )
         return base.copy(ref = ref, point = base.point.copy(staked = ref))
     }
 
     @Test
     fun `S054 RF-10 el CSV lleva antes de las columnas del dibujo las del eje, el espesor y la diferencia de PK`() {
-        lines(csv(listOf(row())))[0].split(",").takeLast(13).take(3) shouldBe listOf("Alignment", "Thickness", "Delta chainage")
+        lines(csv(listOf(row())))[0].split(",").takeLast(14).take(4) shouldBe
+            listOf("Alignment", "Thickness", "Delta chainage", "Section code")
     }
 
     @Test
     fun `S054 RF-10 un replanteo de un punto del proyecto deja vacias las tres columnas del eje`() {
-        lines(csv(listOf(row())))[1].split(",").takeLast(13).take(3) shouldBe List(3) { "" }
+        lines(csv(listOf(row())))[1].split(",").takeLast(14).take(4) shouldBe List(4) { "" }
     }
 
     @Test
     fun `S054 RF-10 un replanteo por PK escribe el eje, el espesor, la diferencia de PK, el PK y el desplazamiento`() {
         val cells = lines(csv(listOf(axisRow()), separator = ColumnSeparator.TAB))[1].split("\t")
 
-        cells.takeLast(13) shouldBe listOf("Eje A, norte", "0.1000", "-0.0340", "", "", "", "", "150.0000", "3.5000", "", "", "", "")
+        cells.takeLast(14) shouldBe listOf("Eje A, norte", "0.1000", "-0.0340", "", "", "", "", "", "150.0000", "3.5000", "", "", "", "")
     }
 
     @Test
@@ -450,14 +453,30 @@ class StakeoutReportCsvTest {
             csv(listOf(axisRow()), separator = ColumnSeparator.SEMICOLON, decimal = DecimalSeparator.COMMA),
         )[1]
 
-        feet.contains(",\"Eje A, norte\",1.0000,1.0000,,,,,100.0000,10.0000,,,,") shouldBe true
-        commas.contains(";Eje A, norte;0,1000;-0,0340;;;;;150,0000;3,5000;") shouldBe true
+        feet.contains(",\"Eje A, norte\",1.0000,1.0000,,,,,,100.0000,10.0000,,,,") shouldBe true
+        commas.contains(";Eje A, norte;0,1000;-0,0340;;;;;;150,0000;3,5000;") shouldBe true
     }
 
     @Test
     fun `S054 RF-10 un replanteo por PK sin intervalo ni espesor deja vacias sus celdas`() {
         val cells = lines(csv(listOf(axisRow(thickness = null, dChainage = null)), separator = ColumnSeparator.TAB))[1].split("\t")
 
-        cells.takeLast(13).take(3) shouldBe listOf("Eje A, norte", "", "")
+        cells.takeLast(14).take(4) shouldBe listOf("Eje A, norte", "", "", "")
+    }
+
+    @Test
+    fun `S050 RF-19 un replanteo por codigo escribe el codigo de seccion tras la diferencia de PK`() {
+        val cells = lines(csv(listOf(axisRow(sectionCode = "BD")), separator = ColumnSeparator.TAB))[1].split("	")
+
+        cells.takeLast(14).take(4) shouldBe listOf("Eje A, norte", "0.1000", "-0.0340", "BD")
+    }
+
+    @Test
+    fun `S050 RF-19 un replanteo por PK sin codigo y uno de un punto dejan vacia la columna del codigo`() {
+        val byOffset = lines(csv(listOf(axisRow()), separator = ColumnSeparator.TAB))[1].split("	")
+        val ofPoint = lines(csv(listOf(row()), separator = ColumnSeparator.TAB))[1].split("	")
+
+        byOffset.takeLast(14)[3] shouldBe ""
+        ofPoint.takeLast(14)[3] shouldBe ""
     }
 }

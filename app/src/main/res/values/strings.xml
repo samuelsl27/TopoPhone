@@ -2082,4 +2082,6 @@
     <string name="axis_stakeout_section_error_missing">Entre las secciones que rodean el PK %1$s faltan los códigos %2$s.</string>
     <string name="axis_stakeout_section_error_mismatch">Las secciones que rodean el PK %1$s no tienen el mismo tipo de cota.</string>
     <string name="axis_stakeout_section_error_no_code">El código «%1$s» no existe en la sección del PK %2$s.</string>
+    <string name="point_section_code">Código de sección</string>
+    <string name="axis_analysis_ref_section">Sección</string>
 </resources>

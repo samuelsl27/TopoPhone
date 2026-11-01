@@ -390,4 +390,38 @@ class PointDetailsStakeoutTest {
 
         compose.onNodeWithTag(POINT_AXIS_INFO_TAG).assertDoesNotExist()
     }
+
+    @Test
+    fun `S050 RF-19 la ficha de un punto replanteado por codigo da el codigo de seccion`() {
+        val point = fromAxis().let { it.copy(staked = it.staked!!.copy(sectionCode = "BD")) }
+        show(PointDetailsUiState(project(), point))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_section_code").performScrollTo().shows("BD")
+    }
+
+    @Test
+    fun `S050 RF-19 sin codigo de seccion la ficha no tiene esa fila`() {
+        show(PointDetailsUiState(project(), fromAxis()))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_section_code").assertDoesNotExist()
+    }
+
+    @Test
+    fun `S050 RF-15 la ficha de un punto calculado sobre una seccion da el codigo y la tarjeta del eje`() {
+        show(PointDetailsUiState(project(), onAxis(AxisRef("Eje A", 150.0, 3.5, sectionCode = "BD"))))
+
+        compose.onNodeWithTag(POINT_AXIS_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_axis_section_code").performScrollTo().shows("BD")
+        compose.onNodeWithTag("point_axis_offset").performScrollTo().shows("3,500 m a la derecha")
+    }
+
+    @Test
+    fun `S050 RF-20 una medida contra la seccion dice en la ficha que la referencia fue la seccion`() {
+        show(PointDetailsUiState(project(), onAxis(AxisRef("Eje A", 150.0, 3.5, dHeightM = 0.02, heightRef = AxisHeightRef.SECTION))))
+
+        compose.onNodeWithTag(POINT_AXIS_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_axis_reference").performScrollTo().shows("Sección")
+    }
 }

@@ -679,6 +679,7 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
             CoordinateRow(stringResource(R.string.point_stakeout_diff_chainage), signed(it), "point_stakeout_diff_chainage")
         }
         ref.thicknessM?.let { CoordinateRow(stringResource(R.string.point_stakeout_thickness), signed(it), "point_stakeout_thickness") }
+        ref.sectionCode?.let { CoordinateRow(stringResource(R.string.point_section_code), it, "point_stakeout_section_code") } // S050/RF-19
         // S042/RF-30: contra qué cota se replanteó y, con la superficie, de cuál, su cota en lo medido y el desplazamiento vertical.
         ref.elevationSource?.let { source ->
             val label = if (source == ElevationSource.SURFACE) R.string.stakeout_source_surface else R.string.stakeout_source_point
@@ -1031,6 +1032,7 @@ private fun AxisCard(project: Project, ref: AxisRef) {
             OffsetSide.ON_AXIS -> stringResource(R.string.point_axis_on)
         }
         CoordinateRow(stringResource(R.string.point_axis_offset), offset, "point_axis_offset")
+        ref.sectionCode?.let { CoordinateRow(stringResource(R.string.point_section_code), it, "point_axis_section_code") } // S050/RF-15
         ref.dHeightM?.let {
             val text = length(it)
             CoordinateRow(
@@ -1040,7 +1042,11 @@ private fun AxisCard(project: Project, ref: AxisRef) {
             )
         }
         ref.heightRef?.let {
-            val label = if (it == AxisHeightRef.SURFACE) R.string.axis_analysis_ref_surface else R.string.axis_analysis_ref_profile
+            val label = when (it) {
+                AxisHeightRef.SURFACE -> R.string.axis_analysis_ref_surface
+                AxisHeightRef.SECTION -> R.string.axis_analysis_ref_section // S050/RF-20
+                AxisHeightRef.PROFILE -> R.string.axis_analysis_ref_profile
+            }
             CoordinateRow(stringResource(R.string.point_axis_reference), stringResource(label), "point_axis_reference")
         }
     }

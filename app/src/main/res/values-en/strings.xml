@@ -2070,4 +2070,6 @@
     <string name="axis_stakeout_section_error_missing">The codes %2$s are missing between the sections around chainage %1$s.</string>
     <string name="axis_stakeout_section_error_mismatch">The sections around chainage %1$s do not have the same kind of elevation.</string>
     <string name="axis_stakeout_section_error_no_code">The code “%1$s” does not exist in the section at chainage %2$s.</string>
+    <string name="point_section_code">Section code</string>
+    <string name="axis_analysis_ref_section">Section</string>
 </resources>

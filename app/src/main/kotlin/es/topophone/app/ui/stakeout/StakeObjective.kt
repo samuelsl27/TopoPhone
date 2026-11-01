@@ -14,6 +14,7 @@ import es.topophone.core.model.point.PointCoordinates
  * @property thicknessM el espesor sumado a la rasante en un replanteo por PK; null en una línea (S054/RF-10).
  * @property chainageErrorOf la diferencia de PK de un punto medido respecto al PK de diseño, positiva hacia delante; solo en un
  *   replanteo por PK de un eje, donde [lateralErrorOf] es la diferencia de desplazamiento (S054/RF-10).
+ * @property sectionCode el código de sección del punto de diseño en un replanteo por código (S050/RF-19).
  */
 class StakeObjective(
     val design: PointCoordinates,
@@ -24,6 +25,7 @@ class StakeObjective(
     val lateralErrorOf: (PointCoordinates) -> Double?,
     val thicknessM: Double? = null,
     val chainageErrorOf: ((PointCoordinates) -> Double?)? = null,
+    val sectionCode: String? = null,
 )
 
 /** Da el objetivo de ahora cuando el recolector termina una medida; null si la guía aún no ha dado ninguno (S041/RF-27, RF-28). */

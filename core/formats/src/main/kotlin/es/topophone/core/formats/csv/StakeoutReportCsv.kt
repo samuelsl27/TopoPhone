@@ -26,8 +26,11 @@ object StakeoutReportCsv {
         "Measured from",
     )
 
-    /** Si el punto de diseño era un PK de un eje: el eje, el espesor y la diferencia de PK; el PK y el desplazamiento van en las dos últimas del dibujo (S054/RF-10). */
-    private val AXIS_HEADERS = listOf("Alignment", "Thickness", "Delta chainage")
+    /**
+     * Si el punto de diseño era un PK de un eje: el eje, el espesor, la diferencia de PK y, si se replanteó por código, el código de
+     * sección; el PK y el desplazamiento van en las dos últimas del dibujo (S054/RF-10, S050/RF-19).
+     */
+    private val AXIS_HEADERS = listOf("Alignment", "Thickness", "Delta chainage", "Section code")
 
     /** Si el punto de diseño era un elemento de un dibujo: el dibujo, la capa, el tipo de elemento, el modo, el PK y el desplazamiento (S041/RF-30). */
     private val DRAWING_HEADERS = listOf("Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset")
@@ -56,10 +59,10 @@ object StakeoutReportCsv {
         }
     }
 
-    /** Las tres columnas del eje, vacías en un replanteo que no viene de un PK de un eje (S054/RF-10). */
+    /** Las cuatro columnas del eje, vacías en un replanteo que no viene de un PK de un eje (S054/RF-10, S050/RF-19). */
     private fun axisValues(ref: StakeoutRef, length: (Double?) -> String): List<String> {
         val source = ref.source as? StakeSource.Alignment ?: return List(AXIS_HEADERS.size) { "" }
-        return listOf(source.alignmentName, length(ref.thicknessM), length(ref.dChainageM))
+        return listOf(source.alignmentName, length(ref.thicknessM), length(ref.dChainageM), ref.sectionCode.orEmpty())
     }
 
     /** Las seis columnas del dibujo, vacías en un punto replanteado que viene de un punto del proyecto (S041/RF-30). */

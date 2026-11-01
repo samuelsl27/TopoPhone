@@ -678,4 +678,29 @@ class AxisStakeoutViewModelTest {
 
         await(vm) { it.target?.chainageM?.let(Math::round) == 120L }.target.shouldNotBeNull().offsetM shouldBe 3.5
     }
+
+    @Test
+    fun `S050 RF-19 el objetivo por codigo lleva el codigo, el desplazamiento de la seccion y el espesor`() {
+        addTemplates("Eje A", template(0.0, 420.0, "BD"))
+        val vm = open("Eje A")
+        vm.setThickness("0,1")
+        vm.beginByCode("100", listOf("BD")) shouldBe true
+        await(vm) { it.started }
+
+        val objective = vm.objectiveProvider.current().shouldNotBeNull()
+
+        objective.sectionCode shouldBe "BD"
+        objective.lateralOffsetM shouldBe 3.5
+        objective.thicknessM shouldBe 0.1
+        objective.chainageM.shouldNotBeNull() shouldBe (100.0 plusOrMinus 1e-9)
+    }
+
+    @Test
+    fun `S050 RF-19 el objetivo por PK y desplazamiento no lleva codigo de seccion`() {
+        val vm = open("Eje A")
+        vm.begin("100", "3,5")
+        await(vm) { it.started }
+
+        vm.objectiveProvider.current().shouldNotBeNull().sectionCode.shouldBeNull()
+    }
 }

@@ -833,6 +833,7 @@ class AxisStakeoutViewModel @Inject constructor(
             lateralErrorOf = { measured -> locate(measured)?.let { it.offset - target.offsetM } },
             thicknessM = target.thicknessM,
             chainageErrorOf = { measured -> locate(measured)?.let { it.chainage - target.chainageM } },
+            sectionCode = m.code.takeIf { m.byCode }, // S050/RF-19
         )
     }
 

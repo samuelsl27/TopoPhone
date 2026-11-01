@@ -46,7 +46,7 @@
       Hecho cuando: `AxisStakeoutViewModelTest` ampliado en verde.
 - [x] T22. `app`: el modo «Por código» en `AxisStakeoutPanel` (guía, desmonte o terraplén con cota de la sección y espesor, desplazamiento, cota y pendiente al cambiar de objetivo). (RF-18, RNF-T8)
       Hecho cuando: `AxisStakeoutPanelTest` ampliado en verde.
-- [ ] T23. `app` y `core:formats`: guardar el punto replanteado por código con su código de sección y la columna `Section code` del informe de replanteo. (RF-19)
+- [x] T23. `app` y `core:formats`: guardar el punto replanteado por código con su código de sección y la columna `Section code` del informe de replanteo. (RF-19)
       Hecho cuando: `SectionStakeMeasureTest` y `StakeoutReportCsvTest` ampliado en verde.
 - [ ] T24. `app`: la referencia «Sección» en `AxisAnalysisViewModel` y `AxisAnalysisPanel`. (RF-20)
       Hecho cuando: `AxisAnalysisViewModelTest` ampliado en verde.
