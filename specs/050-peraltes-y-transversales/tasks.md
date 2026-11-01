@@ -12,9 +12,9 @@
       Hecho cuando: `SectionValidatorTest` y `SuperelevationValidatorTest` en verde.
 - [x] T5. `core:survey`: `SectionBuilder` (sección tipo, peralte lineal, una fila, fuera de la tabla, punto de rasante). (RF-2, RF-9)
       Hecho cuando: `SectionBuilderTest` en verde contra `fixtures/ejes/secciones/` a 1 mm y 1e-9.
-- [ ] T6. `core:survey`: `SectionResolver` (explícita interpolada, tipo, códigos que faltan, fuera de rango, D1 y D4). (RF-3, RF-12)
+- [x] T6. `core:survey`: `SectionResolver` (explícita interpolada, tipo, códigos que faltan, fuera de rango, D1 y D4). (RF-3, RF-12)
       Hecho cuando: `SectionResolverTest` en verde.
-- [ ] T7. `core:survey`: `SectionEval` (por código y por desplazamiento, pendiente, «Fuera de la sección», sin rasante). (RF-9 a RF-11)
+- [x] T7. `core:survey`: `SectionEval` (por código y por desplazamiento, pendiente, «Fuera de la sección», sin rasante). (RF-9 a RF-11)
       Hecho cuando: `SectionEvalTest` en verde contra `fixtures/ejes/secciones/` a 1 mm.
 - [ ] T8. `core:formats`: `SectionCsvReader` y `SuperelevationCsvReader`. (RF-4, RF-6)
       Hecho cuando: `SectionCsvReaderTest` y `SuperelevationCsvReaderTest` en verde.
