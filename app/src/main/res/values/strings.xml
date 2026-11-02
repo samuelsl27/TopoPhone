@@ -2255,4 +2255,26 @@
     <string name="long_row">%1$s · %2$s</string>
     <string name="long_row_difference">%1$s · %2$s · %3$s %4$s</string>
     <string name="long_no_chainage">sin PK</string>
+    <!-- S052: perfil transversal -->
+    <string name="cross_title">Perfil transversal: %1$s</string>
+    <string name="cross_open">Perfil transversal</string>
+    <string name="cross_intro">Elige el PK de la sección: la guía de replanteo te lleva a ese PK del eje y mides los puntos del terreno de lado a lado.</string>
+    <string name="cross_chainage">PK de la sección (%1$s)</string>
+    <string name="cross_tolerance">Tolerancia de sección (%1$s), vacío: 0,10 m</string>
+    <string name="cross_begin">Empezar perfil</string>
+    <string name="cross_summary">%1$d puntos en el perfil, %2$d fuera de sección</string>
+    <string name="cross_no_design">No hay sección de diseño en este PK: solo se dibuja el terreno.</string>
+    <string name="cross_next_code">Código del siguiente punto (opcional)</string>
+    <string name="cross_row_code">%1$s (%2$s) · %3$s</string>
+    <string name="cross_save">Guardar perfil</string>
+    <string name="cross_saved_title">Perfil guardado</string>
+    <string name="cross_saved_body">El perfil de terreno de este PK se ha guardado con %1$d puntos.</string>
+    <string name="cross_saved_history">El perfil anterior de este PK queda en el historial.</string>
+    <string name="cross_file_label">perfil-transversal</string>
+    <string name="cross_field_chainage">PK de la sección</string>
+    <string name="cross_field_tolerance">Tolerancia de sección</string>
+    <string name="cross_problem_no_points">No hay puntos en el perfil: mide al menos uno dentro de la tolerancia de sección.</string>
+    <string name="cross_problem_same_offset">Dos puntos del perfil están en el mismo desplazamiento: quita uno.</string>
+    <string name="cross_problem_missing_height">Un punto del perfil no tiene cota.</string>
+    <string name="cross_problem_rejected">No se ha podido guardar el perfil como perfil de terreno del eje.</string>
 </resources>

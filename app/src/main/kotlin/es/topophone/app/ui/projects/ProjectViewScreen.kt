@@ -99,6 +99,10 @@ import es.topophone.app.ui.linear.AxisSurveyMarkers
 import es.topophone.app.ui.linear.AxisSurveyPanel
 import es.topophone.app.ui.linear.AxisSurveyUiState
 import es.topophone.app.ui.linear.AxisSurveyViewModel
+import es.topophone.app.ui.linear.CrossActions
+import es.topophone.app.ui.linear.CrossPanel
+import es.topophone.app.ui.linear.CrossUiState
+import es.topophone.app.ui.linear.CrossViewModel
 import es.topophone.app.ui.linear.LongitudinalActions
 import es.topophone.app.ui.linear.LongitudinalPanel
 import es.topophone.app.ui.linear.LongitudinalUiState
@@ -391,6 +395,7 @@ fun ProjectViewRoute(
     slopeStakeViewModel: SlopeStakeViewModel = hiltViewModel(),
     axisSurveyViewModel: AxisSurveyViewModel = hiltViewModel(),
     longitudinalViewModel: LongitudinalViewModel = hiltViewModel(),
+    crossViewModel: CrossViewModel = hiltViewModel(),
     axisAnalysisViewModel: AxisAnalysisViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
@@ -413,11 +418,15 @@ fun ProjectViewRoute(
     // S052/RF-10: el perfil longitudinal de un eje, en el mismo hueco; guiado, usa además el replanteo por PK de ese eje.
     var longitudinalOpen by rememberSaveable { mutableStateOf(false) }
     val longitudinal by longitudinalViewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(axisSurveyOpen, longitudinalOpen) {
+    // S052/RF-16: el perfil transversal de un PK de un eje, en el mismo hueco, con la guía de replanteo hacia ese PK.
+    var crossOpen by rememberSaveable { mutableStateOf(false) }
+    val cross by crossViewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(axisSurveyOpen, longitudinalOpen, crossOpen) {
         collectorViewModel.setPointSavedListener(
             when {
                 axisSurveyOpen -> axisSurveyViewModel.pointListener // S052/RF-2
                 longitudinalOpen -> longitudinalViewModel.pointListener // S052/RF-11
+                crossOpen -> crossViewModel.pointListener // S052/RF-17
                 else -> null
             },
         )
@@ -432,6 +441,7 @@ fun ProjectViewRoute(
         if (stakeoutPointId != null) {
             axisSurveyOpen = false
             longitudinalOpen = false
+            crossOpen = false
             slopeOpen = false
             slopeStakeViewModel.close()
             stakeoutViewModel.open(projectId, stakeoutPointId, stakeoutQuery)
@@ -538,6 +548,7 @@ fun ProjectViewRoute(
             // S054/RF-1: "Replantear eje" en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
             axisSurveyOpen = false
             longitudinalOpen = false
+            crossOpen = false
             stakeoutOpen = false
             stakeoutViewModel.close()
             lineOpen = false
@@ -553,6 +564,7 @@ fun ProjectViewRoute(
             // S051/RF-9: "Replantear taludes" en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
             axisSurveyOpen = false
             longitudinalOpen = false
+            crossOpen = false
             stakeoutOpen = false
             stakeoutViewModel.close()
             lineOpen = false
@@ -577,6 +589,7 @@ fun ProjectViewRoute(
             slopeOpen = false
             slopeStakeViewModel.close()
             longitudinalOpen = false
+            crossOpen = false
             axisSurveyOpen = true
         },
         onLongitudinal = { alignmentId ->
@@ -592,13 +605,68 @@ fun ProjectViewRoute(
             slopeOpen = false
             slopeStakeViewModel.close()
             axisSurveyOpen = false
+            crossOpen = false
             longitudinalViewModel.start(projectId, alignmentId)
             longitudinalOpen = true
         },
+        onCross = { alignmentId ->
+            // S052/RF-16: «Perfil transversal» en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro panel abierto.
+            stakeoutOpen = false
+            stakeoutViewModel.close()
+            lineOpen = false
+            lineStakeoutViewModel.close()
+            analysisOpen = false
+            axisAnalysisViewModel.close()
+            axisOpen = false
+            axisStakeoutViewModel.close()
+            slopeOpen = false
+            slopeStakeViewModel.close()
+            axisSurveyOpen = false
+            longitudinalOpen = false
+            crossOpen = false
+            crossViewModel.start(projectId, alignmentId)
+            crossOpen = true
+        },
+        cross = cross.takeIf { crossOpen },
+        crossActions = CrossActions(
+            onClose = {
+                crossOpen = false
+                axisOpen = false
+                axisStakeoutViewModel.close()
+            },
+            onSetup = crossViewModel::updateSetup,
+            onBegin = {
+                crossViewModel.begin { survey ->
+                    // S052/RF-16: la guía de replanteo por PK lleva hasta el PK de la sección, sobre el eje.
+                    axisStakeoutViewModel.open(projectId, survey.alignmentId, ProfileGuide.of(survey))
+                    axisOpen = true
+                }
+            },
+            onOpenGuide = {
+                cross.survey?.let { survey ->
+                    axisStakeoutViewModel.open(projectId, survey.alignmentId, ProfileGuide.of(survey))
+                    axisOpen = true
+                }
+            },
+            onRemove = crossViewModel::removePoint,
+            onSave = crossViewModel::save,
+            onDiscard = {
+                crossViewModel.discard()
+                axisOpen = false
+                axisStakeoutViewModel.close()
+            },
+            onDismissSaved = {
+                crossViewModel.dismissSaved()
+                axisOpen = false
+                axisStakeoutViewModel.close()
+            },
+        ),
+        crossWriteCsv = crossViewModel::writeCsv,
         longitudinal = longitudinal.takeIf { longitudinalOpen },
         longitudinalActions = LongitudinalActions(
             onClose = {
                 longitudinalOpen = false
+                crossOpen = false
                 axisOpen = false
                 axisStakeoutViewModel.close()
             },
@@ -648,6 +716,7 @@ fun ProjectViewRoute(
             // S054/RF-12: «Analizar» en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
             axisSurveyOpen = false
             longitudinalOpen = false
+            crossOpen = false
             stakeoutOpen = false
             stakeoutViewModel.close()
             lineOpen = false
@@ -794,6 +863,7 @@ fun ProjectViewRoute(
                 designViewModel.dismissSelection()
                 axisSurveyOpen = false
                 longitudinalOpen = false
+                crossOpen = false
                 axisOpen = false
                 axisStakeoutViewModel.close()
                 analysisOpen = false
@@ -872,6 +942,11 @@ fun ProjectViewScreen(
     longitudinalActions: LongitudinalActions = LongitudinalActions(),
     longitudinalWriteCsv: suspend (java.io.OutputStream) -> Boolean = { false },
     onLongitudinal: (String) -> Unit = {},
+    /** El perfil transversal de un PK de un eje y su botón «Perfil transversal» (S052/RF-16). */
+    cross: CrossUiState? = null,
+    crossActions: CrossActions = CrossActions(),
+    crossWriteCsv: suspend (java.io.OutputStream) -> Boolean = { false },
+    onCross: (String) -> Unit = {},
     /** «Tomar eje» con el receptor y su panel (S052/RF-1). */
     axisSurvey: AxisSurveyUiState? = null,
     axisSurveyActions: AxisSurveyActions = AxisSurveyActions(),
@@ -1057,6 +1132,28 @@ fun ProjectViewScreen(
                         collectorActions = collectorActions,
                         stats = collectorStats,
                     ) // S051/RF-9, RF-15
+                    cross != null -> Column {
+                        CrossPanel(cross, project.name, crossActions, crossWriteCsv) // S052/RF-16
+                        if (axisStakeout != null) {
+                            AxisStakeoutPanel(
+                                axisStakeout,
+                                axisStakeoutActions,
+                                collector = collector,
+                                collectorActions = collectorActions,
+                                stats = collectorStats,
+                            )
+                        } else if (collector != null) {
+                            CollectorPanel(
+                                collector,
+                                project.linearUnit,
+                                collectorActions,
+                                onClose = crossActions.onClose,
+                                stats = collectorStats,
+                                autoLive = collectorAutoLive,
+                                surface = collectorSurface,
+                            )
+                        }
+                    }
                     longitudinal != null -> Column {
                         LongitudinalPanel(longitudinal, project.name, longitudinalActions, longitudinalWriteCsv) // S052/RF-10
                         if (axisStakeout != null) {
@@ -1162,6 +1259,10 @@ fun ProjectViewScreen(
                     alignmentsOpen = false
                     onLongitudinal(it)
                 },
+                onCross = {
+                    alignmentsOpen = false
+                    onCross(it)
+                },
             ),
         ) { alignmentsOpen = false }
     }
@@ -1202,6 +1303,10 @@ fun ProjectViewScreen(
             onLongitudinal = {
                 onDismissAlignmentTouch()
                 onLongitudinal(alignmentTouch.alignment.id)
+            },
+            onCross = {
+                onDismissAlignmentTouch()
+                onCross(alignmentTouch.alignment.id)
             },
             sectionLines = alignmentTouch.alignment.id in sectionLinesOn,
             onSectionLines = { on -> onSectionLines(alignmentTouch.alignment.id, on) },

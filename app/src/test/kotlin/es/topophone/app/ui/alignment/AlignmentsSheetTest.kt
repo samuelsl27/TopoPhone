@@ -206,4 +206,15 @@ class AlignmentsSheetTest {
 
         calls shouldBe listOf("a", "b")
     }
+
+    @Test
+    fun `S052 RF-16 cada eje ofrece Perfil transversal y lleva su identificador a la accion`() {
+        val calls = mutableListOf<String>()
+        show(actions = AlignmentsActions(onCross = { calls += it }))
+
+        compose.onNodeWithTag(alignmentCrossTag("a")).performScrollTo().performClick()
+        compose.onNodeWithTag(alignmentCrossTag("b")).performScrollTo().performClick()
+
+        calls shouldBe listOf("a", "b")
+    }
 }

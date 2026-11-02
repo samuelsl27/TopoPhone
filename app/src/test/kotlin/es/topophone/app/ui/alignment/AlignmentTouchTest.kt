@@ -179,6 +179,7 @@ class AlignmentTouchTest {
         onSlopes: (() -> Unit)? = null,
         onStakeSlopes: (() -> Unit)? = null,
         onLongitudinal: (() -> Unit)? = null,
+        onCross: (() -> Unit)? = null,
     ) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
@@ -203,6 +204,7 @@ class AlignmentTouchTest {
                     onSlopes,
                     onStakeSlopes,
                     onLongitudinal,
+                    onCross,
                 )
             }
         }
@@ -373,5 +375,20 @@ class AlignmentTouchTest {
         showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
 
         compose.onNodeWithTag(ALIGNMENT_TOUCH_LONGITUDINAL_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S052 RF-16 la ficha ofrece Perfil transversal si se le da la accion y no lo ofrece si no`() {
+        var opened = 0
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true), onCross = { opened++ })
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_CROSS_TAG).performClick()
+        opened shouldBe 1
+    }
+
+    @Test
+    fun `S052 RF-16 sin la accion la ficha no muestra Perfil transversal`() {
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_CROSS_TAG).assertDoesNotExist()
     }
 }

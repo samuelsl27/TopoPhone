@@ -26,6 +26,7 @@ import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.survey.linear.LinearSurvey
+import es.topophone.core.model.survey.linear.LinearSurveyKind
 import es.topophone.core.survey.AlignmentGeometry
 import es.topophone.core.survey.AntennaProfile
 import es.topophone.core.survey.AxisChainageSeries
@@ -79,14 +80,20 @@ import kotlinx.coroutines.launch
  * La serie de PK con que se abre el replanteo para guiar un perfil longitudinal (S052/RF-10): del PK inicial al final cada intervalo, en
  * metros.
  */
-class ProfileGuide(val fromM: Double, val toM: Double, val intervalM: Double) {
+class ProfileGuide(val fromM: Double, val toM: Double? = null, val intervalM: Double? = null) {
     companion object {
-        /** La guía de una toma guiada, o null si no tiene PK inicial, final e intervalo. */
-        fun of(survey: LinearSurvey): ProfileGuide? {
-            val from = survey.chainageFrom ?: return null
-            val to = survey.chainageTo ?: return null
-            val interval = survey.intervalM ?: return null
-            return ProfileGuide(from, to, interval)
+        /**
+         * La guía de una toma guiada: del PK inicial al final cada intervalo en un perfil longitudinal, o el PK de la sección en un perfil
+         * transversal; null si la toma no tiene PK que guiar.
+         */
+        fun of(survey: LinearSurvey): ProfileGuide? = when (survey.kind) {
+            LinearSurveyKind.CROSS -> survey.chainage?.let { ProfileGuide(it) }
+            else -> {
+                val from = survey.chainageFrom
+                val to = survey.chainageTo
+                val interval = survey.intervalM
+                if (from == null || to == null || interval == null) null else ProfileGuide(from, to, interval)
+            }
         }
     }
 }
@@ -384,7 +391,11 @@ class AxisStakeoutViewModel @Inject constructor(
             if (guide != null) {
                 // S052/RF-10: un perfil longitudinal guiado empieza ya con su serie de PK, del inicial al final cada intervalo.
                 setup {
-                    it.copy(startText = unitText(guide.fromM), endText = unitText(guide.toM), intervalText = unitText(guide.intervalM))
+                    it.copy(
+                        startText = unitText(guide.fromM),
+                        endText = guide.toM?.let(::unitText) ?: it.endText,
+                        intervalText = guide.intervalM?.let(::unitText) ?: it.intervalText,
+                    )
                 }
                 start()
             }

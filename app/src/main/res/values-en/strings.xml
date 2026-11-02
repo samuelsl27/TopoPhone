@@ -2243,4 +2243,26 @@
     <string name="long_row">%1$s · %2$s</string>
     <string name="long_row_difference">%1$s · %2$s · %3$s %4$s</string>
     <string name="long_no_chainage">no chainage</string>
+    <!-- S052: cross profile -->
+    <string name="cross_title">Cross profile: %1$s</string>
+    <string name="cross_open">Cross profile</string>
+    <string name="cross_intro">Choose the section chainage: the stakeout guide leads you to that chainage of the axis and you measure the ground points from side to side.</string>
+    <string name="cross_chainage">Section chainage (%1$s)</string>
+    <string name="cross_tolerance">Section tolerance (%1$s), empty: 0.10 m</string>
+    <string name="cross_begin">Start profile</string>
+    <string name="cross_summary">%1$d points in the profile, %2$d off the section</string>
+    <string name="cross_no_design">There is no design section at this chainage: only the ground is drawn.</string>
+    <string name="cross_next_code">Code of the next point (optional)</string>
+    <string name="cross_row_code">%1$s (%2$s) · %3$s</string>
+    <string name="cross_save">Save profile</string>
+    <string name="cross_saved_title">Profile saved</string>
+    <string name="cross_saved_body">The ground profile of this chainage was saved with %1$d points.</string>
+    <string name="cross_saved_history">The previous profile of this chainage is kept in the history.</string>
+    <string name="cross_file_label">cross-profile</string>
+    <string name="cross_field_chainage">Section chainage</string>
+    <string name="cross_field_tolerance">Section tolerance</string>
+    <string name="cross_problem_no_points">There are no points in the profile: measure at least one within the section tolerance.</string>
+    <string name="cross_problem_same_offset">Two profile points are at the same offset: remove one.</string>
+    <string name="cross_problem_missing_height">A profile point has no elevation.</string>
+    <string name="cross_problem_rejected">The profile could not be saved as the axis ground profile.</string>
 </resources>

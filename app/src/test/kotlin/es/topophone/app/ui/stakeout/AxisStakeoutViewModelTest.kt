@@ -20,6 +20,8 @@ import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.core.model.survey.linear.LinearSurvey
+import es.topophone.core.model.survey.linear.LinearSurveyKind
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.AcrossMove
@@ -751,5 +753,28 @@ class AxisStakeoutViewModelTest {
 
         vm.state.value.started shouldBe false
         vm.state.value.errors.keys shouldBe setOf(AxisField.END)
+    }
+
+    @Test
+    fun `S052 RF-16 la guia de un perfil transversal lleva solo al PK de la seccion sin intervalo ni final`() {
+        val vm = viewModel()
+
+        vm.open(projectId, ids.getValue("Eje A"), ProfileGuide(150.0))
+
+        val series = await(vm) { it.started && it.series != null }.series.shouldNotBeNull()
+        series.size shouldBe 1
+        vm.state.value.target.shouldNotBeNull().chainageM shouldBe 150.0
+    }
+
+    @Test
+    fun `S052 RF-16 la guia de un perfil transversal sale de la toma con su PK y la de un longitudinal con sus tres datos`() {
+        val cross = LinearSurvey("c", projectId, LinearSurveyKind.CROSS, null, "x", chainage = 105.0, createdAtMs = 1)
+        val longitudinal = LinearSurvey("l", projectId, LinearSurveyKind.LONGITUDINAL, null, "x", 0.0, 100.0, 10.0, createdAtMs = 1)
+
+        ProfileGuide.of(cross).shouldNotBeNull().fromM shouldBe 105.0
+        ProfileGuide.of(cross)!!.toM shouldBe null
+        ProfileGuide.of(longitudinal).shouldNotBeNull().intervalM shouldBe 10.0
+        ProfileGuide.of(longitudinal.copy(intervalM = null)) shouldBe null
+        ProfileGuide.of(cross.copy(chainage = null)) shouldBe null
     }
 }
