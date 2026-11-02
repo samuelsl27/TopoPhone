@@ -34,7 +34,7 @@
       Hecho cuando: `SlopeStakePanelTest` y `SlopeElevationViewTest` en verde.
 - [x] T16. `app`: «Punto de talud encontrado» con sonido y vibración. (RF-13)
       Hecho cuando: el test del panel y del ViewModel en verde.
-- [ ] T17. `app`: «Replantear taludes» en la hoja y la ficha del eje y `StakeMode.SLOPE` en `ProjectView`. (RF-9)
+- [x] T17. `app`: «Replantear taludes» en la hoja y la ficha del eje y `StakeMode.SLOPE` en `ProjectView`. (RF-9)
       Hecho cuando: los tests de la hoja y de la ficha ampliados en verde.
 - [ ] T18. `app`: medir y guardar el punto de talud y mostrarlo en la ficha del punto. (RF-15)
       Hecho cuando: `SlopeStakeMeasureTest` y `PointDetails` ampliado en verde.

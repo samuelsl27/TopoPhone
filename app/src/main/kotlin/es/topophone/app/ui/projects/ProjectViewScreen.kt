@@ -111,6 +111,10 @@ import es.topophone.app.ui.points.OBJECTS_BUTTON_TAG
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.tone
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.app.ui.slope.SlopeStakeActions
+import es.topophone.app.ui.slope.SlopeStakePanel
+import es.topophone.app.ui.slope.SlopeStakeUiState
+import es.topophone.app.ui.slope.SlopeStakeViewModel
 import es.topophone.app.ui.stakeout.AxisStakeoutActions
 import es.topophone.app.ui.stakeout.AxisStakeoutMarkers
 import es.topophone.app.ui.stakeout.AxisStakeoutPanel
@@ -374,6 +378,7 @@ fun ProjectViewRoute(
     stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
     lineStakeoutViewModel: LineStakeoutViewModel = hiltViewModel(),
     axisStakeoutViewModel: AxisStakeoutViewModel = hiltViewModel(),
+    slopeStakeViewModel: SlopeStakeViewModel = hiltViewModel(),
     axisAnalysisViewModel: AxisAnalysisViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
@@ -389,10 +394,17 @@ fun ProjectViewRoute(
         alignmentsViewModel.start(projectId) // S049/RF-14
         alignmentMapViewModel.start(projectId) // S049/RF-17
     }
+    // S051/RF-9: el replanteo de los taludes de un eje, en el mismo hueco, con su propio modelo.
+    var slopeOpen by rememberSaveable { mutableStateOf(false) }
+    val slope by slopeStakeViewModel.state.collectAsStateWithLifecycle()
     // S018/RF-1: el replanteo se abre desde la ficha o la lista con el punto elegido, y se cierra con "Cerrar".
     var stakeoutOpen by rememberSaveable { mutableStateOf(stakeoutPointId != null) }
     LaunchedEffect(stakeoutPointId) {
-        if (stakeoutPointId != null) stakeoutViewModel.open(projectId, stakeoutPointId, stakeoutQuery)
+        if (stakeoutPointId != null) {
+            slopeOpen = false
+            slopeStakeViewModel.close()
+            stakeoutViewModel.open(projectId, stakeoutPointId, stakeoutQuery)
+        }
     }
     val stakeout by stakeoutViewModel.state.collectAsStateWithLifecycle()
     // S041/RF-2: el replanteo de una línea del dibujo, en el mismo hueco, con su propio modelo.
@@ -496,8 +508,23 @@ fun ProjectViewRoute(
             lineStakeoutViewModel.close()
             analysisOpen = false
             axisAnalysisViewModel.close()
+            slopeOpen = false
+            slopeStakeViewModel.close()
             axisStakeoutViewModel.open(projectId, alignmentId)
             axisOpen = true
+        },
+        onStakeSlopes = { alignmentId ->
+            // S051/RF-9: "Replantear taludes" en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
+            stakeoutOpen = false
+            stakeoutViewModel.close()
+            lineOpen = false
+            lineStakeoutViewModel.close()
+            analysisOpen = false
+            axisAnalysisViewModel.close()
+            axisOpen = false
+            axisStakeoutViewModel.close()
+            slopeStakeViewModel.open(projectId, alignmentId)
+            slopeOpen = true
         },
         onAnalyzeAxis = { alignmentId ->
             // S054/RF-12: «Analizar» en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
@@ -507,6 +534,8 @@ fun ProjectViewRoute(
             lineStakeoutViewModel.close()
             axisOpen = false
             axisStakeoutViewModel.close()
+            slopeOpen = false
+            slopeStakeViewModel.close()
             axisAnalysisViewModel.open(projectId, alignmentId)
             analysisOpen = true
         },
@@ -517,6 +546,26 @@ fun ProjectViewRoute(
                 axisAnalysisViewModel.close()
             },
             onReference = { axisAnalysisViewModel.setReference(it) },
+        ),
+        slopeStake = slope.takeIf { slopeOpen },
+        slopeStakeActions = SlopeStakeActions(
+            onClose = {
+                slopeOpen = false
+                slopeStakeViewModel.close()
+            },
+            onStart = { slopeStakeViewModel.start() },
+            onStartText = { slopeStakeViewModel.setStart(it) },
+            onEndText = { slopeStakeViewModel.setEnd(it) },
+            onIntervalText = { slopeStakeViewModel.setInterval(it) },
+            onSingular = { slopeStakeViewModel.setSingular(it) },
+            onSide = { slopeStakeViewModel.toggleSide(it) },
+            onStakeOffset = { slopeStakeViewModel.setStakeOffset(it) },
+            onPrevious = { slopeStakeViewModel.previous() },
+            onNext = { slopeStakeViewModel.next() },
+            onGuideMode = { slopeStakeViewModel.setGuideMode(it) },
+            onHeading = { slopeStakeViewModel.setHeading(it) },
+            onTolerance = slopeStakeViewModel::setTolerance,
+            onToleranceV = slopeStakeViewModel::setToleranceV,
         ),
         axisStakeout = axis.takeIf { axisOpen },
         axisStakeoutActions = AxisStakeoutActions(
@@ -627,6 +676,8 @@ fun ProjectViewRoute(
                 axisStakeoutViewModel.close()
                 analysisOpen = false
                 axisAnalysisViewModel.close()
+                slopeOpen = false
+                slopeStakeViewModel.close()
                 if (selection.entity.kind == CadEntityKind.POINT || selection.entity.kind == CadEntityKind.BLOCK_INSERT) {
                     lineOpen = false
                     lineStakeoutViewModel.close()
@@ -690,6 +741,10 @@ fun ProjectViewScreen(
     axisStakeout: AxisStakeoutUiState? = null,
     axisStakeoutActions: AxisStakeoutActions = AxisStakeoutActions(),
     onStakeAxis: (String) -> Unit = {},
+    /** El replanteo de los taludes de un eje y el botón «Replantear taludes» (S051/RF-9). */
+    slopeStake: SlopeStakeUiState? = null,
+    slopeStakeActions: SlopeStakeActions = SlopeStakeActions(),
+    onStakeSlopes: (String) -> Unit = {},
     /** «Analizar» la posición del jalón respecto a un eje y el botón «Analizar» (S054/RF-12). */
     axisAnalysis: AxisAnalysisUiState? = null,
     axisAnalysisActions: AxisAnalysisActions = AxisAnalysisActions(),
@@ -831,6 +886,7 @@ fun ProjectViewScreen(
                         stakeout == null &&
                         lineStakeout == null &&
                         axisStakeout == null &&
+                        slopeStake == null &&
                         axisAnalysis == null
                     ) {
                         Spacer(Modifier.weight(1f))
@@ -863,6 +919,7 @@ fun ProjectViewScreen(
                         collectorActions = collectorActions,
                         stats = collectorStats,
                     ) // S054/RF-1
+                    slopeStake != null -> SlopeStakePanel(slopeStake, slopeStakeActions) // S051/RF-9
                     axisAnalysis != null -> AxisAnalysisPanel(
                         axisAnalysis,
                         axisAnalysisActions,
@@ -920,6 +977,10 @@ fun ProjectViewScreen(
                     alignmentsOpen = false
                     onSlopesOfAxis(it)
                 },
+                onStakeSlopes = {
+                    alignmentsOpen = false
+                    onStakeSlopes(it)
+                },
             ),
         ) { alignmentsOpen = false }
     }
@@ -952,6 +1013,10 @@ fun ProjectViewScreen(
             onSlopes = {
                 onDismissAlignmentTouch()
                 onSlopesOfAxis(alignmentTouch.alignment.id)
+            },
+            onStakeSlopes = {
+                onDismissAlignmentTouch()
+                onStakeSlopes(alignmentTouch.alignment.id)
             },
             sectionLines = alignmentTouch.alignment.id in sectionLinesOn,
             onSectionLines = { on -> onSectionLines(alignmentTouch.alignment.id, on) },

@@ -2137,6 +2137,7 @@
     <string name="slope_point_height">Altura de talud %1$s %2$s</string>
     <string name="slope_point_source_profile">Terreno: perfil de terreno</string>
     <string name="slope_point_source_surface">Terreno: superficie activa</string>
+    <string name="slope_stake_open">Replantear taludes</string>
     <string name="slope_stake_title">Replantear taludes del eje %1$s</string>
     <string name="slope_stake_sides">Lados que se replantean</string>
     <string name="slope_stake_stake_offset">Desplazamiento de estaca (%1$s), positivo hacia fuera</string>

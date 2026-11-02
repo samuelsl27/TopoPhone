@@ -43,6 +43,7 @@ const val ALIGNMENT_TOUCH_STAKE_TAG = "alignment_touch_stake"
 const val ALIGNMENT_TOUCH_ANALYZE_TAG = "alignment_touch_analyze"
 const val ALIGNMENT_TOUCH_SECTIONS_TAG = "alignment_touch_sections"
 const val ALIGNMENT_TOUCH_SLOPES_TAG = "alignment_touch_slopes"
+const val ALIGNMENT_TOUCH_STAKE_SLOPES_TAG = "alignment_touch_stake_slopes"
 const val ALIGNMENT_TOUCH_SECTION_LINES_TAG = "alignment_touch_section_lines"
 
 /**
@@ -65,6 +66,7 @@ fun AlignmentTouchSheet(
     sectionLines: Boolean = false,
     onSectionLines: ((Boolean) -> Unit)? = null,
     onSlopes: (() -> Unit)? = null,
+    onStakeSlopes: (() -> Unit)? = null,
 ) {
     val locale = uiLocale()
     val alignment = touch.alignment
@@ -145,6 +147,12 @@ fun AlignmentTouchSheet(
                     onClick = onSlopes,
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_TOUCH_SLOPES_TAG),
                 ) { Text(stringResource(R.string.slope_open)) } // S051/RF-1
+            }
+            if (onStakeSlopes != null) {
+                OutlinedButton(
+                    onClick = onStakeSlopes,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ALIGNMENT_TOUCH_STAKE_SLOPES_TAG),
+                ) { Text(stringResource(R.string.slope_stake_open)) } // S051/RF-9
             }
             if (onSections != null) {
                 OutlinedButton(

@@ -177,6 +177,7 @@ class AlignmentTouchTest {
         sectionLines: Boolean = false,
         onSectionLines: ((Boolean) -> Unit)? = null,
         onSlopes: (() -> Unit)? = null,
+        onStakeSlopes: (() -> Unit)? = null,
     ) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
@@ -199,6 +200,7 @@ class AlignmentTouchTest {
                     sectionLines,
                     onSectionLines,
                     onSlopes,
+                    onStakeSlopes,
                 )
             }
         }
@@ -339,5 +341,20 @@ class AlignmentTouchTest {
         showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
 
         compose.onNodeWithTag(ALIGNMENT_TOUCH_SLOPES_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S051 RF-9 la ficha ofrece Replantear taludes si se le da la accion y no lo ofrece si no`() {
+        var stake = 0
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true), onStakeSlopes = { stake++ })
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_STAKE_SLOPES_TAG).performClick()
+        stake shouldBe 1
+    }
+
+    @Test
+    fun `S051 RF-9 sin la accion la ficha no muestra Replantear taludes`() {
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_STAKE_SLOPES_TAG).assertDoesNotExist()
     }
 }

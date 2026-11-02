@@ -174,4 +174,15 @@ class AlignmentsSheetTest {
 
         calls shouldBe listOf("a", "b")
     }
+
+    @Test
+    fun `S051 RF-9 cada eje ofrece Replantear taludes y lleva su identificador a la accion`() {
+        val calls = mutableListOf<String>()
+        show(actions = AlignmentsActions(onStakeSlopes = { calls += it }))
+
+        compose.onNodeWithTag(alignmentStakeSlopesTag("a")).performScrollTo().performClick()
+        compose.onNodeWithTag(alignmentStakeSlopesTag("b")).performScrollTo().performClick()
+
+        calls shouldBe listOf("a", "b")
+    }
 }

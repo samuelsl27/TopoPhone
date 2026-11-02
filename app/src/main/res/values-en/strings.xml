@@ -2125,6 +2125,7 @@
     <string name="slope_point_height">Slope height %1$s %2$s</string>
     <string name="slope_point_source_profile">Terrain: ground profile</string>
     <string name="slope_point_source_surface">Terrain: active surface</string>
+    <string name="slope_stake_open">Stake out slopes</string>
     <string name="slope_stake_title">Stake out slopes of alignment %1$s</string>
     <string name="slope_stake_sides">Sides to stake out</string>
     <string name="slope_stake_stake_offset">Stake offset (%1$s), positive outward</string>
