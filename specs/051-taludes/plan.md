@@ -119,3 +119,17 @@ Accesibilidad (RNF-T8): campos y botones de 56 dp; cabeza, pie, dentro y fuera c
 - `docs/glosario.md`: «Talud», «Punto de talud», «Cabeza», «Pie», «Borde de explanación», «Altura de talud» y «Desplazamiento de estaca».
 - S050: sin cambios; los perfiles de terreno ya se guardan como `CrossSection` de terreno. S019: el informe gana las columnas de talud. S054: sin cambios.
 - La cabecera de estado de `specs/051-*/spec.md` no se toca sin que lo pidas.
+
+## Cambios al implementar (S051)
+Lo que se hizo distinto de lo previsto arriba, y por qué:
+- **`SlopeSolver`** (app, `ui/slope`) reúne taludes, secciones y terreno: lo usan a la vez la pantalla del punto teórico y el replanteo, y calcula fuera del hilo principal (hasta 2.000 consultas del terreno por punto).
+- **`SlopeElevation`** es el modelo puro del alzado (borde, talud de diseño, punto de talud y punta) y `SlopeElevationView` solo lo dibuja; el texto de TalkBack lo pone el panel.
+- **`StakeMode.SLOPE` no existe**: `ProjectView` no tiene un enum de modos, sino un indicador por replanteo (`slopeOpen` junto a `axisOpen` y `lineOpen`); abrir uno cierra los demás.
+- **«Encontrado»** avisa con `Alerts.slopePointFound()` (sonido y vibración propios) solo al encontrarlo; vuelve a avisar tras perderlo o al cambiar de punto. No hay filtro contra entradas y salidas seguidas en el borde de la tolerancia.
+- **`StakeObjective.slopeOf`** lleva lo propio del talud (tipo, lado, relación, altura de talud, diferencia de cota, estaca) hasta el recolector, que lo guarda en `StakeoutRef.slope`. Sin terreno la altura de talud guardada es la distancia vertical de la punta al borde.
+- **Mapa**: `PointSummary.slopeKind` (consulta de resúmenes con `slope_kind`, sin cambiar el esquema) y `MapPoint.slope` dibujan un triángulo hacia arriba en la cabeza y hacia abajo en el pie.
+- **Informe en pantalla**: una línea «Puntos de talud» con cuántas cabezas y cuántos pies; las columnas completas van en el CSV (T10).
+- **`SlopeStakeViewModel`** gana `setGuideMode` y `setHeading` para los ajustes de la guía, igual que el replanteo de un eje.
+- **Reproducción**: 30 épocas que suben por la sección del PK 105 de la derecha del eje C; lo esperado sale de `tools/ejes/generar_taludes.py` en el plano, sin el código del móvil. La prueba usa la `ReceiverSession` y el `StakeoutController` reales con el mismo cálculo en vivo que el ViewModel.
+- **Rendimiento** (eje de 5.000 tramos, 2.000 épocas): media 82 µs y peor época 490 µs frente a los 16 ms.
+- **Room v26**: `slope_rules` y seis columnas anulables en `points`; la siguiente spec que toque Room pasa a la v27.
