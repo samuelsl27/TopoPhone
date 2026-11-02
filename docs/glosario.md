@@ -209,3 +209,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Borde de explanación | `SlopeEdge`, `ManualEdge` | Punto exterior de la sección de diseño de un lado, o el escrito a mano, desde el que parte el talud (S051) |
 | Altura de talud | `SlopeStakeInfo.heightM` | Diferencia de cota entre el borde de explanación y el punto de talud (S051) |
 | Desplazamiento de estaca | `SlopeStakeInfo.stakeOffsetM` | Distancia, hacia fuera sobre la sección, a la que se clava la estaca respecto al punto de talud (S051) |
+| Toma | `LinearSurvey` | Sesión de medida de un eje, de un perfil longitudinal o de un perfil transversal; agrupa puntos normales del proyecto (S052) |
+| Eje tomado | `AlignmentSource.FIELD` | Eje cuyas rectas pasan por los puntos medidos de una toma, con arcos solo donde se da el radio; origen «Tomado en campo» (S052) |
+| Perfil longitudinal | `LinearSurveyKind.LONGITUDINAL` | Puntos del terreno con su PK y su cota a lo largo de un eje, comparados con su rasante (S052) |
+| Perfil transversal | `LinearSurveyKind.CROSS` | Puntos del terreno de un PK ordenados por desplazamiento; al guardarlo es un perfil de terreno de S050 (S052) |
+| Tolerancia de eje | `LinearSurvey.DEFAULT_AXIS_TOLERANCE_M` | Distancia máxima al eje (0,50 m por defecto) con que un punto entra en un perfil longitudinal (S052) |
+| Tolerancia de sección | `LinearSurvey.DEFAULT_SECTION_TOLERANCE_M` | Distancia máxima a la línea de la sección (0,10 m por defecto) con que un punto es del PK (S052) |
