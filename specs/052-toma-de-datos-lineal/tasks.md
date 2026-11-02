@@ -32,7 +32,7 @@
       Hecho cuando: `LongitudinalViewModelTest` en verde.
 - [x] T15. `app`: `ProfilePanel` del longitudinal, exportar CSV y «Perfil longitudinal» en la hoja y la ficha del eje. (RF-10, RF-13, RF-15)
       Hecho cuando: `ProfilePanelTest`, `AlignmentsSheetTest` y `AlignmentTouchTest` ampliados en verde.
-- [ ] T16. `app`: `CrossViewModel` (guía al PK, tolerancia de sección, marcas, guardar perfil con historial, quitar punto). (RF-16 a RF-18, RF-20, RF-21)
+- [x] T16. `app`: `CrossViewModel` (guía al PK, tolerancia de sección, marcas, guardar perfil con historial, quitar punto). (RF-16 a RF-18, RF-20, RF-21)
       Hecho cuando: `CrossViewModelTest` en verde.
 - [ ] T17. `app`: panel del transversal y «Perfil transversal» en la hoja y la ficha del eje. (RF-16, RF-19)
       Hecho cuando: los tests del panel, de la hoja y de la ficha en verde.
