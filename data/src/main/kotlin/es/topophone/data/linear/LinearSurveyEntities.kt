@@ -83,6 +83,28 @@ interface LinearSurveyDao {
     @Query("SELECT * FROM linear_surveys WHERE project_id = :projectId ORDER BY created_at_ms, rowid")
     fun surveys(projectId: String): Flow<List<LinearSurveyEntity>>
 
-    @Query("SELECT * FROM linear_survey_points WHERE survey_id = :surveyId ORDER BY ordinal")
+    @Query("SELECT * FROM linear_surveys WHERE id = :id")
+    suspend fun byId(id: String): LinearSurveyEntity?
+
+    /** Los puntos de la toma que existen: uno que está en la papelera no cuenta mientras esté en ella. */
+    @Query(
+        "SELECT s.* FROM linear_survey_points s JOIN points p ON p.id = s.point_id " +
+            "WHERE s.survey_id = :surveyId AND p.deleted_at IS NULL ORDER BY s.ordinal",
+    )
     fun points(surveyId: String): Flow<List<LinearSurveyPointEntity>>
+
+    @Query("SELECT COALESCE(MAX(ordinal), -1) FROM linear_survey_points WHERE survey_id = :surveyId")
+    suspend fun maxOrdinal(surveyId: String): Int
+
+    @Query("SELECT COUNT(*) FROM linear_survey_points WHERE survey_id = :surveyId AND point_id = :pointId")
+    suspend fun contains(surveyId: String, pointId: String): Int
+
+    @Query("UPDATE linear_survey_points SET included = :included WHERE survey_id = :surveyId AND point_id = :pointId")
+    suspend fun setIncluded(surveyId: String, pointId: String, included: Boolean): Int
+
+    @Query("UPDATE linear_surveys SET alignment_id = :alignmentId, finished_at_ms = :finishedAtMs WHERE id = :id")
+    suspend fun finish(id: String, alignmentId: String?, finishedAtMs: Long)
+
+    @Query("DELETE FROM linear_surveys WHERE id = :id")
+    suspend fun delete(id: String)
 }
