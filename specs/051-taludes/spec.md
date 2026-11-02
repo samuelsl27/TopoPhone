@@ -1,6 +1,6 @@
 # Spec 051 — Taludes
 
-> Hito: H8 · Depende de: S050, S054, S042 (opcional) · Estado: borrador entrevistado (2/11/2026), pendiente de aprobación
+> Hito: H8 · Depende de: S050, S054, S042 (opcional) · Estado: spec aprobada (2/11/2026)
 
 ## Contexto y objetivo
 Al borde de la plataforma de una obra lineal empieza el talud: en desmonte baja hacia la plataforma, en terraplén sube desde el terreno. Donde el talud de diseño encuentra el terreno natural está el punto que marca el inicio del movimiento de tierras: la **cabeza** del talud en desmonte y el **pie** en terraplén. Ese punto no se conoce de antemano con exactitud (depende del terreno real), así que se busca en el campo: «me desplazo hacia fuera hasta que la cota de mi punta coincide con la del talud». S050 deja la plataforma; esta spec añade el talud y su replanteo.
