@@ -586,7 +586,7 @@ class BackupRepository(
         keepIds: Boolean,
     ) {
         val inProject = "alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"
-        for (table in listOf("section_templates", "section_profiles", "superelevation_rows")) {
+        for (table in listOf("section_templates", "section_profiles", "superelevation_rows", "slope_rules")) {
             source("SELECT * FROM $table WHERE $inProject", args).use { cursor ->
                 DatabaseSnapshot.copyRows(cursor, sink, table) { row ->
                     if (!keepIds) row.put("id", newId())

@@ -183,6 +183,8 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("section_templates", "WHERE alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"),
             Table("section_profiles", "WHERE alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"),
             Table("superelevation_rows", "WHERE alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"),
+            // S051/RF-4: los taludes de los ejes viajan con ellos.
+            Table("slope_rules", "WHERE alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"),
             // S020/RF-12: los desplazamientos de base viajan con el proyecto.
             Table("base_shifts", "WHERE project_id = ?"),
             Table("ntrip_profiles", projectFilter = null),

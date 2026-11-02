@@ -70,6 +70,8 @@ import es.topophone.data.settings.DataStoreSettingsRepository
 import es.topophone.data.settings.SettingsDataStore
 import es.topophone.data.settings.SettingsDataStoreQualifier
 import es.topophone.data.settings.SettingsRepository
+import es.topophone.data.slope.RoomSlopeRepository
+import es.topophone.data.slope.SlopeRepository
 import es.topophone.data.surface.ActiveSurfaceProvider
 import es.topophone.data.surface.RasterImporter
 import es.topophone.data.surface.RasterProjectContext
@@ -232,6 +234,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideSectionRepository(database: TopoPhoneDatabase, log: AppLog): SectionRepository = RoomSectionRepository(database, log)
+
+    /** Los taludes de los ejes (S051). */
+    @Provides
+    @Singleton
+    fun provideSlopeRepository(database: TopoPhoneDatabase, log: AppLog): SlopeRepository = RoomSlopeRepository(database, log)
 
     /** Los desplazamientos de base de los proyectos y el activo (S020). */
     @Provides
