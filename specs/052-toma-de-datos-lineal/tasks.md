@@ -28,7 +28,7 @@
       Hecho cuando: `AxisSurveyPanelTest` en verde.
 - [x] T13. `app`: `ProfileView` (alzado, zoom y desplazamiento, rasante, diferencia, sección de diseño). (RF-13, RF-19, RNF-T13)
       Hecho cuando: `ProfileViewTest` en verde.
-- [ ] T14. `app`: `LongitudinalViewModel` (guiado, libre y desde selección, marcas, quitar punto). (RF-10 a RF-12, RF-14, RF-21)
+- [x] T14. `app`: `LongitudinalViewModel` (guiado, libre y desde selección, marcas, quitar punto). (RF-10 a RF-12, RF-14, RF-21)
       Hecho cuando: `LongitudinalViewModelTest` en verde.
 - [ ] T15. `app`: `ProfilePanel` del longitudinal, exportar CSV y «Perfil longitudinal» en la hoja y la ficha del eje. (RF-10, RF-13, RF-15)
       Hecho cuando: `ProfilePanelTest`, `AlignmentsSheetTest` y `AlignmentTouchTest` ampliados en verde.
