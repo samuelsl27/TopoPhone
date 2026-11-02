@@ -72,6 +72,7 @@ import es.topophone.app.ui.settings.BackgroundHelpScreen
 import es.topophone.app.ui.settings.LicensesScreen
 import es.topophone.app.ui.settings.ProjectDefaultsRoute
 import es.topophone.app.ui.settings.SettingsScreen
+import es.topophone.app.ui.slope.SlopesRoute
 import es.topophone.app.ui.stakeout.StakeoutReportRoute
 import es.topophone.app.ui.status.StatusIndicatorRoute
 import es.topophone.app.ui.surface.SurfaceImportRoute
@@ -232,6 +233,14 @@ fun TopoPhoneApp(
                     onBack = navigation.onBack,
                     viewModel = hiltViewModel(owner),
                 )
+                is SurveyPage.Slopes -> SlopesRoute(
+                    page.projectId,
+                    page.alignmentId,
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
                 is SurveyPage.SectionPoint -> SectionPointRoute(
                     page.projectId,
                     page.alignmentId,
@@ -376,6 +385,7 @@ private fun AppNavHost(
                     navController.navigate(AlignmentPointDestination(projectId, alignmentId)) // S049/RF-20
                 },
                 onSections = { projectId, alignmentId -> navController.navigate(SectionsDestination(projectId, alignmentId)) }, // S050/RF-1
+                onSlopes = { projectId, alignmentId -> navController.navigate(SlopesDestination(projectId, alignmentId)) }, // S051/RF-1
                 onSectionPoint = { projectId, alignmentId ->
                     navController.navigate(SectionPointDestination(projectId, alignmentId)) // S050/RF-9
                 },
@@ -548,6 +558,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<SectionsDestination>()
                 surveySection(
                     SurveyPage.Sections(args.projectId, args.alignmentId),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<SlopesDestination> { entry ->
+                val args = entry.toRoute<SlopesDestination>()
+                surveySection(
+                    SurveyPage.Slopes(args.projectId, args.alignmentId),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

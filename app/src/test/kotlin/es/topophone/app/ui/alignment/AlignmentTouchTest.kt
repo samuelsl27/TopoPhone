@@ -176,6 +176,7 @@ class AlignmentTouchTest {
         onSections: (() -> Unit)? = null,
         sectionLines: Boolean = false,
         onSectionLines: ((Boolean) -> Unit)? = null,
+        onSlopes: (() -> Unit)? = null,
     ) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
@@ -197,6 +198,7 @@ class AlignmentTouchTest {
                     onSections,
                     sectionLines,
                     onSectionLines,
+                    onSlopes,
                 )
             }
         }
@@ -322,5 +324,20 @@ class AlignmentTouchTest {
         showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
 
         compose.onNodeWithTag(ALIGNMENT_TOUCH_SECTION_LINES_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S051 RF-1 la ficha ofrece Taludes si se le da la accion y no lo ofrece si no`() {
+        var slopes = 0
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true), onSlopes = { slopes++ })
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_SLOPES_TAG).performClick()
+        slopes shouldBe 1
+    }
+
+    @Test
+    fun `S051 RF-1 sin la accion la ficha no muestra Taludes`() {
+        showSheet(AlignmentTouch(axis("a", 4474000.0), 1250.5, null, active = true))
+
+        compose.onNodeWithTag(ALIGNMENT_TOUCH_SLOPES_TAG).assertDoesNotExist()
     }
 }

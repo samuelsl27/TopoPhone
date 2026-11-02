@@ -22,9 +22,9 @@
       Hecho cuando: `SlopeRepositoryTest` y `SlopeBackupTest` en verde.
 - [x] T10. `core:formats`: columnas de talud en `StakeoutReportCsv` y dorados regenerados. (RF-16)
       Hecho cuando: `StakeoutReportCsvTest` y el golden en verde.
-- [ ] T11. `app`: `SlopesViewModel` (definir por lado y rango, sección manual, rechazos). (RF-1 a RF-3)
+- [x] T11. `app`: `SlopesViewModel` (definir por lado y rango, sección manual, rechazos). (RF-1 a RF-3)
       Hecho cuando: `SlopesViewModelTest` en verde.
-- [ ] T12. `app`: `SlopesScreen`, «Taludes» en `AlignmentsSheet` y `AlignmentFicha`, y la navegación. (RF-1, RNF-T7, RNF-T8)
+- [x] T12. `app`: `SlopesScreen`, «Taludes» en `AlignmentsSheet` y `AlignmentFicha`, y la navegación. (RF-1, RNF-T7, RNF-T8)
       Hecho cuando: `SlopesScreenTest`, `AlignmentsSheetTest` y `AlignmentTouchTest` ampliados en verde.
 - [ ] T13. `app`: punto de talud teórico (PK y lado, terreno de perfiles o superficie). (RF-5 a RF-8)
       Hecho cuando: `SlopePointViewModelTest` y su test de pantalla en verde.

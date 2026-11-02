@@ -55,6 +55,9 @@ import es.topophone.app.ui.section.SectionPointUiState
 import es.topophone.app.ui.section.SectionsActions
 import es.topophone.app.ui.section.SectionsScreen
 import es.topophone.app.ui.section.SectionsUiState
+import es.topophone.app.ui.slope.SlopesActions
+import es.topophone.app.ui.slope.SlopesScreen
+import es.topophone.app.ui.slope.SlopesUiState
 import es.topophone.app.ui.stakeout.StakeoutReportActions
 import es.topophone.app.ui.stakeout.StakeoutReportScreen
 import es.topophone.app.ui.stakeout.StakeoutReportUiState
@@ -137,6 +140,9 @@ sealed interface SurveyPage {
     /** Las secciones transversales y el peralte de un eje (S050/RF-1). */
     data class Sections(val projectId: String, val alignmentId: String) : SurveyPage
 
+    /** Los taludes de un eje (S051/RF-1). */
+    data class Slopes(val projectId: String, val alignmentId: String) : SurveyPage
+
     /** Calcular un punto de la sección de un eje y ver la sección (S050/RF-9 a RF-15). */
     data class SectionPoint(val projectId: String, val alignmentId: String) : SurveyPage
 
@@ -189,6 +195,8 @@ class SurveyNavigation(
     val onAlignmentPoint: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     /** La pantalla de las secciones y el peralte de un eje (S050/RF-1). */
     val onSections: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
+    /** La pantalla de los taludes de un eje (S051/RF-1). */
+    val onSlopes: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     /** La pantalla de calcular un punto de la sección y verla (S050/RF-9 a RF-15). */
     val onSectionPoint: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     /** La pantalla de importar secciones de un CSV o un LandXML, con el fichero elegido (S050/RF-4, RF-5). */
@@ -227,6 +235,7 @@ data class SurveyUiState(
     val sections: SectionsUiState = SectionsUiState(),
     val sectionImport: SectionImportUiState = SectionImportUiState(),
     val sectionPoint: SectionPointUiState = SectionPointUiState(),
+    val slopes: SlopesUiState = SlopesUiState(),
 )
 
 /** Pinta una pantalla de Levantamiento sin estado propio. */
@@ -291,6 +300,7 @@ fun SurveyPageScreen(
         is SurveyPage.AlignmentPoint ->
             AlignmentPointScreen(themeState, onToggleSun, state.alignmentPoint, AlignmentPointActions(), navigation.onBack)
         is SurveyPage.Sections -> SectionsScreen(themeState, onToggleSun, state.sections, SectionsActions(), navigation.onBack)
+        is SurveyPage.Slopes -> SlopesScreen(themeState, onToggleSun, state.slopes, SlopesActions(), navigation.onBack)
         is SurveyPage.SectionPoint ->
             SectionPointScreen(themeState, onToggleSun, state.sectionPoint, SectionPointActions(), navigation.onBack)
         is SurveyPage.ImportSections ->

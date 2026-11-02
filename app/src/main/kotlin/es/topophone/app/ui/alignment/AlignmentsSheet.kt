@@ -65,6 +65,8 @@ fun alignmentAnalyzeTag(id: String) = "alignment_analyze_$id"
 
 fun alignmentSectionsTag(id: String) = "alignment_sections_$id"
 
+fun alignmentSlopesTag(id: String) = "alignment_slopes_$id"
+
 /** Acciones del panel «Ejes» (S049/RF-14, RF-15, RF-19). [onRename] da false si el nombre está en blanco. */
 class AlignmentsActions(
     val onActivate: (alignmentId: String?) -> Unit = {},
@@ -78,6 +80,8 @@ class AlignmentsActions(
     val onAnalyze: (alignmentId: String) -> Unit = {},
     /** «Secciones» del eje: secciones tipo, secciones importadas y peralte (S050/RF-1). */
     val onSections: (alignmentId: String) -> Unit = {},
+    /** «Taludes» del eje (S051/RF-1). */
+    val onSlopes: (alignmentId: String) -> Unit = {},
 )
 
 /**
@@ -237,6 +241,10 @@ private fun AlignmentSection(
         onClick = { actions.onSections(alignment.id) },
         modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(alignmentSectionsTag(alignment.id)),
     ) { Text(stringResource(R.string.section_open)) } // S050/RF-1
+    OutlinedButton(
+        onClick = { actions.onSlopes(alignment.id) },
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(alignmentSlopesTag(alignment.id)),
+    ) { Text(stringResource(R.string.slope_open)) } // S051/RF-1
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = onRename,

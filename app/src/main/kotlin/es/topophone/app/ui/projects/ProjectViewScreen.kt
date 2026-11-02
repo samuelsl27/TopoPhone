@@ -473,6 +473,7 @@ fun ProjectViewRoute(
         onActivateAlignment = alignmentsViewModel::activate,
         onCalculateOnAlignment = { alignmentId -> navigation.onAlignmentPoint(projectId, alignmentId) }, // S049/RF-20
         onSectionsOfAxis = { alignmentId -> navigation.onSections(projectId, alignmentId) }, // S050/RF-1
+        onSlopesOfAxis = { alignmentId -> navigation.onSlopes(projectId, alignmentId) }, // S051/RF-1
         drawings = drawings,
         designSelection = designSelection,
         onMapTap = {
@@ -719,6 +720,7 @@ fun ProjectViewScreen(
     onActivateAlignment: (String?) -> Unit = {},
     onCalculateOnAlignment: (String) -> Unit = {},
     onSectionsOfAxis: (String) -> Unit = {},
+    onSlopesOfAxis: (String) -> Unit = {},
     alignmentsActions: AlignmentsActions = AlignmentsActions(),
     alignmentFromDrawing: AlignmentFromDrawingUiState = AlignmentFromDrawingUiState(),
     onConvertToAlignment: (selection: DesignSelection, name: String, startChainageM: Double) -> Unit = { _, _, _ -> },
@@ -914,6 +916,10 @@ fun ProjectViewScreen(
                     alignmentsOpen = false
                     onSectionsOfAxis(it)
                 },
+                onSlopes = {
+                    alignmentsOpen = false
+                    onSlopesOfAxis(it)
+                },
             ),
         ) { alignmentsOpen = false }
     }
@@ -942,6 +948,10 @@ fun ProjectViewScreen(
             onSections = {
                 onDismissAlignmentTouch()
                 onSectionsOfAxis(alignmentTouch.alignment.id)
+            },
+            onSlopes = {
+                onDismissAlignmentTouch()
+                onSlopesOfAxis(alignmentTouch.alignment.id)
             },
             sectionLines = alignmentTouch.alignment.id in sectionLinesOn,
             onSectionLines = { on -> onSectionLines(alignmentTouch.alignment.id, on) },
