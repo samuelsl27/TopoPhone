@@ -40,6 +40,7 @@ const val ALIGNMENTS_BUTTON_TAG = "alignments_button"
 const val ALIGNMENTS_SHEET_TAG = "alignments_sheet"
 const val ALIGNMENTS_EMPTY_TAG = "alignments_empty"
 const val ALIGNMENTS_TAKE_AXIS_TAG = "alignments_take_axis"
+const val ALIGNMENTS_PROFILES_TAG = "alignments_profiles"
 
 fun alignmentLongitudinalTag(id: String) = "alignment_longitudinal_$id"
 
@@ -97,6 +98,8 @@ class AlignmentsActions(
     val onLongitudinal: (alignmentId: String) -> Unit = {},
     /** «Perfil transversal» del eje (S052/RF-16). */
     val onCross: (alignmentId: String) -> Unit = {},
+    /** «Perfiles tomados»: la lista de tomas del proyecto (S052/RF-22). */
+    val onProfiles: () -> Unit = {},
 )
 
 /**
@@ -123,6 +126,10 @@ fun AlignmentsSheet(state: AlignmentsUiState, actions: AlignmentsActions, onDism
                 onClick = actions.onTakeAxis,
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ALIGNMENTS_TAKE_AXIS_TAG),
             ) { Text(stringResource(R.string.axis_survey_take)) } // S052/RF-1
+            OutlinedButton(
+                onClick = actions.onProfiles,
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ALIGNMENTS_PROFILES_TAG),
+            ) { Text(stringResource(R.string.lsurveys_title)) } // S052/RF-22
             if (state.alignments.isEmpty()) {
                 Text(stringResource(R.string.alignments_empty), modifier = Modifier.testTag(ALIGNMENTS_EMPTY_TAG))
             }

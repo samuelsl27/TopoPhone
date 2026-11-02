@@ -36,7 +36,7 @@
       Hecho cuando: `CrossViewModelTest` en verde.
 - [x] T17. `app`: panel del transversal y «Perfil transversal» en la hoja y la ficha del eje. (RF-16, RF-19)
       Hecho cuando: los tests del panel, de la hoja y de la ficha en verde.
-- [ ] T18. `app`: `LinearSurveysScreen` (lista de perfiles tomados, ver, exportar, borrar con confirmación) y la navegación. (RF-22)
+- [x] T18. `app`: `LinearSurveysScreen` (lista de perfiles tomados, ver, exportar, borrar con confirmación) y la navegación. (RF-22)
       Hecho cuando: `LinearSurveysScreenTest` en verde.
 - [ ] T19. Reproducción longitudinal y transversal, época a época contra el cálculo aparte. (RF-11, RF-12, RF-17, RF-18)
       Hecho cuando: `LongitudinalReplayTest` y `CrossReplayTest` en verde a 1 mm.

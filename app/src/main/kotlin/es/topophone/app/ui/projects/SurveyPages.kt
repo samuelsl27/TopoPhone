@@ -28,6 +28,9 @@ import es.topophone.app.ui.export.GpkgExportUiState
 import es.topophone.app.ui.gpkg.GpkgImportActions
 import es.topophone.app.ui.gpkg.GpkgImportScreen
 import es.topophone.app.ui.gpkg.GpkgImportUiState
+import es.topophone.app.ui.linear.LinearSurveysActions
+import es.topophone.app.ui.linear.LinearSurveysScreen
+import es.topophone.app.ui.linear.LinearSurveysUiState
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -143,6 +146,9 @@ sealed interface SurveyPage {
     /** Las secciones transversales y el peralte de un eje (S050/RF-1). */
     data class Sections(val projectId: String, val alignmentId: String) : SurveyPage
 
+    /** Las tomas y los perfiles tomados de un proyecto (S052/RF-22). */
+    data class LinearSurveys(val projectId: String) : SurveyPage
+
     /** Los taludes de un eje (S051/RF-1). */
     data class Slopes(val projectId: String, val alignmentId: String) : SurveyPage
 
@@ -201,6 +207,8 @@ class SurveyNavigation(
     val onAlignmentPoint: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     /** La pantalla de las secciones y el peralte de un eje (S050/RF-1). */
     val onSections: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
+    /** La pantalla de las tomas y los perfiles tomados (S052/RF-22). */
+    val onLinearSurveys: (projectId: String) -> Unit = {},
     /** La pantalla de los taludes de un eje (S051/RF-1). */
     val onSlopes: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     /** La pantalla del punto de talud teórico (S051/RF-5 a RF-8). */
@@ -244,6 +252,7 @@ data class SurveyUiState(
     val sectionImport: SectionImportUiState = SectionImportUiState(),
     val sectionPoint: SectionPointUiState = SectionPointUiState(),
     val slopes: SlopesUiState = SlopesUiState(),
+    val linearSurveys: LinearSurveysUiState = LinearSurveysUiState(),
     val slopePoint: SlopePointUiState = SlopePointUiState(),
 )
 
@@ -310,6 +319,8 @@ fun SurveyPageScreen(
             AlignmentPointScreen(themeState, onToggleSun, state.alignmentPoint, AlignmentPointActions(), navigation.onBack)
         is SurveyPage.Sections -> SectionsScreen(themeState, onToggleSun, state.sections, SectionsActions(), navigation.onBack)
         is SurveyPage.Slopes -> SlopesScreen(themeState, onToggleSun, state.slopes, SlopesActions(), navigation.onBack)
+        is SurveyPage.LinearSurveys ->
+            LinearSurveysScreen(themeState, onToggleSun, state.linearSurveys, LinearSurveysActions(), { false }, navigation.onBack)
         is SurveyPage.SlopePoint ->
             SlopePointScreen(themeState, onToggleSun, state.slopePoint, SlopePointActions(), navigation.onBack)
         is SurveyPage.SectionPoint ->

@@ -2277,4 +2277,17 @@
     <string name="cross_problem_same_offset">Dos puntos del perfil están en el mismo desplazamiento: quita uno.</string>
     <string name="cross_problem_missing_height">Un punto del perfil no tiene cota.</string>
     <string name="cross_problem_rejected">No se ha podido guardar el perfil como perfil de terreno del eje.</string>
+    <!-- S052: lista de tomas y perfiles tomados -->
+    <string name="lsurveys_title">Perfiles tomados</string>
+    <string name="lsurveys_empty">Aún no hay tomas en este proyecto. Toma un eje o un perfil desde la hoja «Ejes».</string>
+    <string name="lsurveys_kind_axis">Eje tomado</string>
+    <string name="lsurveys_axis_deleted">Eje borrado</string>
+    <string name="lsurveys_chainage">PK %1$s</string>
+    <string name="lsurveys_range">De PK %1$s a PK %2$s</string>
+    <string name="lsurveys_points">%1$d puntos en el perfil</string>
+    <string name="lsurveys_unfinished">Sin terminar</string>
+    <string name="lsurveys_view">Ver</string>
+    <string name="lsurveys_delete">Borrar</string>
+    <string name="lsurveys_delete_title">¿Borrar la toma?</string>
+    <string name="lsurveys_delete_message">Se borra la toma «%1$s», no los puntos medidos.</string>
 </resources>

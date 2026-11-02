@@ -52,6 +52,9 @@ interface LinearSurveyRepository {
 
     suspend fun survey(id: String): LinearSurvey?
 
+    /** Por toma del proyecto, cuántos puntos forman su perfil: los incluidos, sin marca y que no están en la papelera (RF-22). */
+    fun profileCounts(projectId: String): Flow<Map<String, Int>>
+
     suspend fun open(survey: LinearSurvey)
 
     suspend fun addPoint(surveyId: String, point: SurveyPoint): SurveyAddResult
@@ -88,6 +91,9 @@ class RoomLinearSurveyRepository(
     override fun points(surveyId: String): Flow<List<SurveyPoint>> = dao.points(surveyId).map { rows -> rows.map { it.toModel() } }
 
     override suspend fun survey(id: String): LinearSurvey? = dao.byId(id)?.toModel()
+
+    override fun profileCounts(projectId: String): Flow<Map<String, Int>> =
+        dao.profileCounts(projectId).map { rows -> rows.associate { it.surveyId to it.count } }
 
     override suspend fun open(survey: LinearSurvey) {
         dao.insertSurvey(survey.toEntity())

@@ -217,4 +217,14 @@ class AlignmentsSheetTest {
 
         calls shouldBe listOf("a", "b")
     }
+
+    @Test
+    fun `S052 RF-22 la hoja ofrece Perfiles tomados aunque no haya ejes y avisa al pulsarlo`() {
+        val calls = mutableListOf<String>()
+        show(AlignmentsUiState(), AlignmentsActions(onProfiles = { calls += "profiles" }))
+
+        compose.onNodeWithTag(ALIGNMENTS_PROFILES_TAG).performClick()
+
+        calls shouldBe listOf("profiles")
+    }
 }

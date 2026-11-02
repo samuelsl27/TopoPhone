@@ -2265,4 +2265,17 @@
     <string name="cross_problem_same_offset">Two profile points are at the same offset: remove one.</string>
     <string name="cross_problem_missing_height">A profile point has no elevation.</string>
     <string name="cross_problem_rejected">The profile could not be saved as the axis ground profile.</string>
+    <!-- S052: surveys list and surveyed profiles -->
+    <string name="lsurveys_title">Surveyed profiles</string>
+    <string name="lsurveys_empty">There are no surveys in this project yet. Take an axis or a profile from the “Axes” sheet.</string>
+    <string name="lsurveys_kind_axis">Surveyed axis</string>
+    <string name="lsurveys_axis_deleted">Deleted axis</string>
+    <string name="lsurveys_chainage">Chainage %1$s</string>
+    <string name="lsurveys_range">From chainage %1$s to %2$s</string>
+    <string name="lsurveys_points">%1$d points in the profile</string>
+    <string name="lsurveys_unfinished">Not finished</string>
+    <string name="lsurveys_view">View</string>
+    <string name="lsurveys_delete">Delete</string>
+    <string name="lsurveys_delete_title">Delete the survey?</string>
+    <string name="lsurveys_delete_message">The survey “%1$s” is deleted, not the measured points.</string>
 </resources>

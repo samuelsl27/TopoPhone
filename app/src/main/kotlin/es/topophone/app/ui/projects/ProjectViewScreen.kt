@@ -530,6 +530,7 @@ fun ProjectViewRoute(
         onCalculateOnAlignment = { alignmentId -> navigation.onAlignmentPoint(projectId, alignmentId) }, // S049/RF-20
         onSectionsOfAxis = { alignmentId -> navigation.onSections(projectId, alignmentId) }, // S050/RF-1
         onSlopesOfAxis = { alignmentId -> navigation.onSlopes(projectId, alignmentId) }, // S051/RF-1
+        onProfiles = { navigation.onLinearSurveys(projectId) }, // S052/RF-22
         drawings = drawings,
         designSelection = designSelection,
         onMapTap = {
@@ -982,6 +983,7 @@ fun ProjectViewScreen(
     onCalculateOnAlignment: (String) -> Unit = {},
     onSectionsOfAxis: (String) -> Unit = {},
     onSlopesOfAxis: (String) -> Unit = {},
+    onProfiles: () -> Unit = {},
     alignmentsActions: AlignmentsActions = AlignmentsActions(),
     alignmentFromDrawing: AlignmentFromDrawingUiState = AlignmentFromDrawingUiState(),
     onConvertToAlignment: (selection: DesignSelection, name: String, startChainageM: Double) -> Unit = { _, _, _ -> },
@@ -1262,6 +1264,10 @@ fun ProjectViewScreen(
                 onCross = {
                     alignmentsOpen = false
                     onCross(it)
+                },
+                onProfiles = {
+                    alignmentsOpen = false
+                    onProfiles()
                 },
             ),
         ) { alignmentsOpen = false }

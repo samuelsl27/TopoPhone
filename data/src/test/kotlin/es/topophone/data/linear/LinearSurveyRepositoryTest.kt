@@ -309,4 +309,28 @@ class LinearSurveyRepositoryTest {
             it.toleranceM shouldBe 0.3
         }
     }
+
+    @Test
+    fun `S052 RF-22 cada toma cuenta los puntos de su perfil sin los excluidos ni los marcados ni los de la papelera`() =
+        runBlocking<Unit> {
+            listOf("p1", "p2", "p3", "p4", "p5").forEach { saved(it) }
+            surveys.open(survey("t1"))
+            surveys.open(survey("t2").copy(createdAtMs = 6))
+            surveys.addPoint("t1", member("p1"))
+            surveys.addPoint("t1", member("p2"))
+            surveys.addPoint("t1", member("p3").copy(flag = SurveyFlag.OUT_OF_AXIS))
+            surveys.addPoint("t1", member("p4"))
+            surveys.addPoint("t2", member("p5"))
+            surveys.setIncluded("t1", "p2", false)
+            points.moveToTrash(listOf("p4"))
+
+            surveys.profileCounts(project).first() shouldBe mapOf("t1" to 1, "t2" to 1)
+        }
+
+    @Test
+    fun `S052 RF-22 una toma sin puntos en el perfil no sale en el recuento`() = runBlocking<Unit> {
+        surveys.open(survey("t1"))
+
+        surveys.profileCounts(project).first() shouldBe emptyMap()
+    }
 }

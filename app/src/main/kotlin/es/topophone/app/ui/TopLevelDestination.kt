@@ -116,6 +116,9 @@ import kotlinx.serialization.Serializable
 /** Las secciones transversales y el peralte de un eje del proyecto (S050/RF-1). */
 @Serializable data class SectionsDestination(val projectId: String, val alignmentId: String)
 
+/** Las tomas y los perfiles tomados de un proyecto (S052/RF-22). */
+@Serializable data class LinearSurveysDestination(val projectId: String)
+
 /** Los taludes de un eje del proyecto (S051/RF-1). */
 @Serializable data class SlopesDestination(val projectId: String, val alignmentId: String)
 

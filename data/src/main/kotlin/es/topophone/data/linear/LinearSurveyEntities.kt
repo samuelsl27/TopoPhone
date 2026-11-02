@@ -72,6 +72,9 @@ data class LinearSurveyPointEntity(
     val code: String?,
 )
 
+/** Cuántos puntos entran en el perfil de una toma (S052/RF-22). */
+data class SurveyProfileCount(@ColumnInfo(name = "survey_id") val surveyId: String, @ColumnInfo(name = "n") val count: Int)
+
 @Dao
 interface LinearSurveyDao {
     @Insert
@@ -92,6 +95,14 @@ interface LinearSurveyDao {
             "WHERE s.survey_id = :surveyId AND p.deleted_at IS NULL ORDER BY s.ordinal",
     )
     fun points(surveyId: String): Flow<List<LinearSurveyPointEntity>>
+
+    /** Por toma del proyecto, los puntos incluidos y sin marca que existen: los que forman su perfil. */
+    @Query(
+        "SELECT s.survey_id AS survey_id, COUNT(*) AS n FROM linear_survey_points s " +
+            "JOIN points p ON p.id = s.point_id JOIN linear_surveys v ON v.id = s.survey_id " +
+            "WHERE v.project_id = :projectId AND s.included = 1 AND s.flag = 'NONE' AND p.deleted_at IS NULL GROUP BY s.survey_id",
+    )
+    fun profileCounts(projectId: String): Flow<List<SurveyProfileCount>>
 
     @Query("SELECT COALESCE(MAX(ordinal), -1) FROM linear_survey_points WHERE survey_id = :surveyId")
     suspend fun maxOrdinal(surveyId: String): Int

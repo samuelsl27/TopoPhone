@@ -44,6 +44,7 @@ import es.topophone.app.ui.cad.CadImportRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
 import es.topophone.app.ui.gpkg.GpkgImportRoute
+import es.topophone.app.ui.linear.LinearSurveysRoute
 import es.topophone.app.ui.points.ObjectListRoute
 import es.topophone.app.ui.points.PointDetailsRoute
 import es.topophone.app.ui.points.PointFormRoute
@@ -234,6 +235,13 @@ fun TopoPhoneApp(
                     onBack = navigation.onBack,
                     viewModel = hiltViewModel(owner),
                 )
+                is SurveyPage.LinearSurveys -> LinearSurveysRoute(
+                    page.projectId,
+                    theme,
+                    toggleSun,
+                    onBack = navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
                 is SurveyPage.Slopes -> SlopesRoute(
                     page.projectId,
                     page.alignmentId,
@@ -395,6 +403,7 @@ private fun AppNavHost(
                     navController.navigate(AlignmentPointDestination(projectId, alignmentId)) // S049/RF-20
                 },
                 onSections = { projectId, alignmentId -> navController.navigate(SectionsDestination(projectId, alignmentId)) }, // S050/RF-1
+                onLinearSurveys = { projectId -> navController.navigate(LinearSurveysDestination(projectId)) }, // S052/RF-22
                 onSlopes = { projectId, alignmentId -> navController.navigate(SlopesDestination(projectId, alignmentId)) }, // S051/RF-1
                 onSlopePoint = { projectId, alignmentId ->
                     navController.navigate(SlopePointDestination(projectId, alignmentId)) // S051/RF-5
@@ -571,6 +580,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<SectionsDestination>()
                 surveySection(
                     SurveyPage.Sections(args.projectId, args.alignmentId),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<LinearSurveysDestination> { entry ->
+                val args = entry.toRoute<LinearSurveysDestination>()
+                surveySection(
+                    SurveyPage.LinearSurveys(args.projectId),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,
