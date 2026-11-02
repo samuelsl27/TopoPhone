@@ -51,6 +51,7 @@ const val STAKEOUT_REPORT_OUTSIDE_TAG = "stakeout_report_outside"
 const val STAKEOUT_REPORT_NOT_EVALUATED_TAG = "stakeout_report_not_evaluated"
 const val STAKEOUT_REPORT_HORIZONTAL_TAG = "stakeout_report_horizontal"
 const val STAKEOUT_REPORT_VERTICAL_TAG = "stakeout_report_vertical"
+const val STAKEOUT_REPORT_SLOPES_TAG = "stakeout_report_slopes"
 const val STAKEOUT_REPORT_NONE_TAG = "stakeout_report_none"
 const val STAKEOUT_REPORT_FILE_TAG = "stakeout_report_file"
 const val STAKEOUT_REPORT_SAVE_TAG = "stakeout_report_save"
@@ -195,6 +196,14 @@ private fun Summary(state: StakeoutReportUiState) {
                 stringResource(R.string.stakeout_report_not_evaluated, summary.notEvaluated),
                 modifier = Modifier.testTag(STAKEOUT_REPORT_NOT_EVALUATED_TAG),
             ) // S019/RF-26
+        }
+        val cuts = state.report.slopeCuts
+        val fills = state.report.slopeFills
+        if (cuts + fills > 0) {
+            Text(
+                stringResource(R.string.stakeout_report_slopes, cuts + fills, cuts, fills),
+                modifier = Modifier.testTag(STAKEOUT_REPORT_SLOPES_TAG),
+            ) // S051/RF-16
         }
         val horizontalMax = summary.horizontalMaxM
         val horizontalMean = summary.horizontalMeanM

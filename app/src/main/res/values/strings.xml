@@ -2145,6 +2145,7 @@
     <string name="point_slope_height">Altura de talud</string>
     <string name="point_slope_dheight">Diferencia de cota con el talud</string>
     <string name="point_slope_stake">Desplazamiento de estaca</string>
+    <string name="stakeout_report_slopes">Puntos de talud: %1$d (cabezas de desmonte: %2$d, pies de terraplén: %3$d)</string>
     <string name="slope_stake_open">Replantear taludes</string>
     <string name="slope_stake_title">Replantear taludes del eje %1$s</string>
     <string name="slope_stake_sides">Lados que se replantean</string>

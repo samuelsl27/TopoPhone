@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import androidx.room.withTransaction
+import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.Point
@@ -39,6 +40,8 @@ data class PointSummaryRow(
     @ColumnInfo(name = "stake_count") val stakeCount: Int,
     /** Cuántas fotos tiene el punto (S017b/RF-26). */
     @ColumnInfo(name = "photo_count") val photoCount: Int,
+    /** El tipo del punto de talud replanteado, o null (S051/RF-16). */
+    @ColumnInfo(name = "slope_kind") val slopeKind: String? = null,
 )
 
 /** Los puntos activos de un proyecto son los que no están en la papelera (S011/RF-22). */
@@ -72,7 +75,7 @@ interface PointDao {
         "SELECT points.id, points.name, points.description, points.origin, points.ground_lat, points.ground_lon, " +
             "points.ground_h IS NOT NULL AS has_height, points.out_of_tolerance <> '' AS out_of_tolerance, points.edited, " +
             "points.hidden, points.created_at, COALESCE(stakes.n, 0) AS stake_count, " +
-            "COALESCE(shots.n, 0) AS photo_count FROM points " +
+            "COALESCE(shots.n, 0) AS photo_count, points.slope_kind FROM points " +
             // Una sola agregación de los replanteos del proyecto: una subconsulta por fila sería cuadrática (S011 RNF, 10.000 puntos).
             "LEFT JOIN (SELECT project_id AS p, stake_design_id AS d, COUNT(*) AS n FROM points " +
             "WHERE project_id = :projectId AND deleted_at IS NULL AND stake_design_id IS NOT NULL " +
@@ -277,6 +280,7 @@ class RoomPointRepository(
                 createdAtMs = row.createdAt,
                 stakeCount = row.stakeCount,
                 photoCount = row.photoCount,
+                slopeKind = SlopeKind.entries.firstOrNull { it.name == row.slopeKind },
             )
         }
     }

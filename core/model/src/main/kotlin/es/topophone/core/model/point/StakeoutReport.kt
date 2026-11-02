@@ -1,5 +1,6 @@
 package es.topophone.core.model.point
 
+import es.topophone.core.model.alignment.slope.SlopeKind
 import kotlin.math.abs
 
 /**
@@ -36,6 +37,10 @@ data class StakeoutSummary(
 data class StakeoutReport(val rows: List<StakeoutReportRow>, val summary: StakeoutSummary) {
     /** No hay ningún punto replanteado que informar (S019/RF-20). */
     val isEmpty: Boolean get() = rows.isEmpty()
+
+    /** Cuántos puntos de talud replanteados hay, cabezas de desmonte y pies de terraplén (S051/RF-16). */
+    val slopeCuts: Int get() = rows.count { it.ref.slope?.kind == SlopeKind.CUT }
+    val slopeFills: Int get() = rows.count { it.ref.slope?.kind == SlopeKind.FILL }
 
     companion object {
         /**

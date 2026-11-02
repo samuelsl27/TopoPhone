@@ -28,7 +28,11 @@ import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.formats.csv.ColumnSeparator
 import es.topophone.core.formats.csv.CsvOptions
 import es.topophone.core.formats.csv.DecimalSeparator
+import es.topophone.core.model.alignment.slope.SlopeKind
+import es.topophone.core.model.alignment.slope.SlopeSide
+import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.point.Point
+import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutReport
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
@@ -123,6 +127,36 @@ class StakeoutReportScreenTest {
         compose.onNodeWithTag(STAKEOUT_REPORT_DESIGNS_TAG).assertTextEquals("Puntos de diseño replanteados: 2")
         compose.onNodeWithTag(STAKEOUT_REPORT_WITHIN_TAG).assertTextEquals("Dentro de la tolerancia: 1")
         compose.onNodeWithTag(STAKEOUT_REPORT_OUTSIDE_TAG).assertTextEquals("Fuera de la tolerancia: 0")
+    }
+
+    private fun slopePoint(name: String, kind: SlopeKind, at: Long) = staked(name).let { base ->
+        base.copy(
+            staked = base.staked!!.copy(
+                designId = "slope:$name",
+                designName = "Eje C",
+                source = StakeSource.Alignment("Eje C"),
+                slope = SlopeStakeInfo(kind, SlopeSide.RIGHT, 1.5, 1.0, 0.01),
+            ),
+            createdAtMs = at,
+        )
+    }
+
+    @Test
+    fun `S051 RF-16 el informe en pantalla cuenta los puntos de talud con sus cabezas y sus pies`() {
+        val slopes =
+            points + slopePoint("a", SlopeKind.CUT, 4_000) + slopePoint("b", SlopeKind.CUT, 5_000) + slopePoint("c", SlopeKind.FILL, 6_000)
+        show(state(report = StakeoutReport.of(slopes)))
+
+        compose.onNodeWithTag(
+            STAKEOUT_REPORT_SLOPES_TAG,
+        ).assertTextEquals("Puntos de talud: 3 (cabezas de desmonte: 2, pies de terraplén: 1)")
+    }
+
+    @Test
+    fun `S051 RF-16 sin puntos de talud el informe no tiene esa linea`() {
+        show(state())
+
+        compose.onNodeWithTag(STAKEOUT_REPORT_SLOPES_TAG).assertDoesNotExist()
     }
 
     @Test

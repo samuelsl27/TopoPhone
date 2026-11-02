@@ -1,5 +1,6 @@
 package es.topophone.core.model.point
 
+import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import java.math.BigInteger
 import java.text.Normalizer
@@ -268,6 +269,7 @@ data class Point(
         edited = edited,
         hidden = hidden,
         createdAtMs = createdAtMs,
+        slopeKind = staked?.slope?.kind,
     )
 
     companion object {
@@ -353,6 +355,8 @@ data class PointSummary(
     val stakeCount: Int = 0,
     /** Cuántas fotos tiene el punto (S017b/RF-26); lo rellena el repositorio. */
     val photoCount: Int = 0,
+    /** Si es un punto de talud replanteado, su tipo, para su símbolo en el mapa (S051/RF-16). */
+    val slopeKind: SlopeKind? = null,
 )
 
 /** Búsqueda de la lista de objetos por nombre o descripción, sin distinguir mayúsculas ni acentos (S011/RF-2). */

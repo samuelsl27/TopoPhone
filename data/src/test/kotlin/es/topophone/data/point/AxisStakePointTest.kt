@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.core.model.alignment.slope.SlopeKind
+import es.topophone.core.model.alignment.slope.SlopeSide
+import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.point.AxisHeightRef
 import es.topophone.core.model.point.AxisRef
 import es.topophone.core.model.point.GeodeticPosition
@@ -109,6 +112,18 @@ class AxisStakePointTest {
         val summaries = runBlocking { points.summaries(project).first() }
 
         summaries.single().stakeCount shouldBe 0
+    }
+
+    @Test
+    fun `S051 RF-16 el resumen de un punto de talud trae su tipo para el mapa y el de otro replanteo no`() {
+        val slope = SlopeStakeInfo(SlopeKind.FILL, SlopeSide.LEFT, 2.0, 1.7, 0.004)
+        runBlocking { points.create(Point.measured("s1", project, "Eje A_1_stkd", "", measurement(), 1_000, ref.copy(slope = slope))) }
+        runBlocking { points.create(Point.measured("s2", project, "Eje A_2_stkd", "", measurement(), 2_000, ref)) }
+
+        val summaries = runBlocking { points.summaries(project).first() }.associateBy { it.id }
+
+        summaries.getValue("s1").slopeKind shouldBe SlopeKind.FILL
+        summaries.getValue("s2").slopeKind.shouldBeNull()
     }
 
     @Test

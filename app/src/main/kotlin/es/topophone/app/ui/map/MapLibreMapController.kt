@@ -16,6 +16,7 @@ import es.topophone.core.geodesy.AccuracyCircle
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.MapGrid
 import es.topophone.core.geodesy.WebMercator
+import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.map.ScaleBar
@@ -211,7 +212,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private fun pointAt(screen: PointF): String? {
         val half = POINT_TOUCH_DP * mapView.resources.displayMetrics.density / 2
         val box = RectF(screen.x - half, screen.y - half, screen.x + half, screen.y + half)
-        val layers = arrayOf(POINTS_LAYER, STAKED_LAYER, POINT_LABELS_LAYER)
+        val layers = arrayOf(POINTS_LAYER, STAKED_LAYER, SLOPE_LAYER, POINT_LABELS_LAYER)
         return map.queryRenderedFeatures(box, *layers).firstNotNullOfOrNull { it.getStringProperty(POINT_ID) }
     }
 
@@ -445,11 +446,31 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         // S018/RF-34: un punto replanteado es un rombo, distinto del círculo de los medidos.
         style.addImage(STAKED_ICON, stakedIcon())
         style.addLayer(
-            SymbolLayer(STAKED_LAYER, POINTS_SOURCE).withFilter(Expression.get(STAKED)).withProperties(
-                PropertyFactory.iconImage(STAKED_ICON),
-                PropertyFactory.iconAllowOverlap(true),
-                PropertyFactory.iconIgnorePlacement(true),
-            ),
+            SymbolLayer(STAKED_LAYER, POINTS_SOURCE)
+                .withFilter(Expression.all(Expression.get(STAKED), Expression.eq(Expression.get(SLOPE_KIND), Expression.literal(""))))
+                .withProperties(
+                    PropertyFactory.iconImage(STAKED_ICON),
+                    PropertyFactory.iconAllowOverlap(true),
+                    PropertyFactory.iconIgnorePlacement(true),
+                ),
+        )
+        // S051/RF-16: un punto de talud es un triángulo: hacia arriba la cabeza de desmonte, hacia abajo el pie de terraplén.
+        style.addImage(SLOPE_CUT_ICON, slopeIcon(up = true))
+        style.addImage(SLOPE_FILL_ICON, slopeIcon(up = false))
+        style.addLayer(
+            SymbolLayer(SLOPE_LAYER, POINTS_SOURCE)
+                .withFilter(Expression.neq(Expression.get(SLOPE_KIND), Expression.literal("")))
+                .withProperties(
+                    PropertyFactory.iconImage(
+                        Expression.switchCase(
+                            Expression.eq(Expression.get(SLOPE_KIND), Expression.literal(SlopeKind.CUT.name)),
+                            Expression.literal(SLOPE_CUT_ICON),
+                            Expression.literal(SLOPE_FILL_ICON),
+                        ),
+                    ),
+                    PropertyFactory.iconAllowOverlap(true),
+                    PropertyFactory.iconIgnorePlacement(true),
+                ),
         )
         style.addLayer(
             SymbolLayer(POINT_LABELS_LAYER, POINTS_SOURCE).withProperties(
@@ -473,6 +494,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 addStringProperty(NAME, point.name)
                 addBooleanProperty(OUT_OF_TOLERANCE, point.outOfTolerance)
                 addBooleanProperty(STAKED, point.staked)
+                addStringProperty(SLOPE_KIND, point.slope?.name.orEmpty())
             }
         }
         source.setGeoJson(FeatureCollection.fromFeatures(features))
@@ -569,6 +591,38 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         }
         val canvas = Canvas(bitmap)
         canvas.drawPath(path, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.parseColor(STAKED_COLOR) })
+        canvas.drawPath(
+            path,
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.WHITE
+                style = Paint.Style.STROKE
+                strokeWidth = inset
+            },
+        )
+        return bitmap
+    }
+
+    /** Un triángulo con borde blanco para los puntos de talud: apunta arriba en la cabeza y abajo en el pie (S051/RF-16). */
+    private fun slopeIcon(up: Boolean): Bitmap {
+        val density = mapView.resources.displayMetrics.density
+        val size = (STAKED_ICON_DP * density).roundToInt()
+        val inset = STAKED_STROKE_DP * density
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val tip = if (up) inset else size - inset
+        val base = if (up) size - inset else inset
+        val path = Path().apply {
+            moveTo(size / 2f, tip)
+            lineTo(size - inset, base)
+            lineTo(inset, base)
+            close()
+        }
+        val canvas = Canvas(bitmap)
+        canvas.drawPath(
+            path,
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor(if (up) SLOPE_CUT_COLOR else SLOPE_FILL_COLOR)
+            },
+        )
         canvas.drawPath(
             path,
             Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -911,6 +965,12 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val STAKED_ICON_DP = 20f
         const val STAKED_STROKE_DP = 1.5f
         const val STAKED_COLOR = "#2E7D32"
+        const val SLOPE_KIND = "slopeKind"
+        const val SLOPE_LAYER = "topophone-slope"
+        const val SLOPE_CUT_ICON = "topophone-slope-cut-icon"
+        const val SLOPE_FILL_ICON = "topophone-slope-fill-icon"
+        const val SLOPE_CUT_COLOR = "#6A1B9A"
+        const val SLOPE_FILL_COLOR = "#EF6C00"
         const val STAKEOUT_SOURCE = "topophone-stakeout"
         const val STAKEOUT_LINE_LAYER = "topophone-stakeout-line"
         const val STAKEOUT_CHOSEN_LAYER = "topophone-stakeout-chosen"

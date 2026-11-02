@@ -2,6 +2,7 @@ package es.topophone.app.ui.map
 
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.WebMercator
+import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointSummary
 
@@ -13,6 +14,8 @@ data class MapPoint(
     val outOfTolerance: Boolean,
     /** Un punto replanteado, con su propio símbolo (S018/RF-34). */
     val staked: Boolean = false,
+    /** Un punto de talud replanteado (cabeza o pie), con su propio símbolo (S051/RF-16). */
+    val slope: SlopeKind? = null,
 )
 
 /** Puntos del proyecto para el mapa (S010/RF-20, RF-21). */
@@ -31,6 +34,7 @@ object MapPoints {
             position = GeoPoint(point.latitudeDeg, point.longitudeDeg),
             outOfTolerance = point.outOfTolerance,
             staked = point.origin == PointOrigin.STAKED, // S018/RF-34
+            slope = point.slopeKind, // S051/RF-16
         )
     }
 
