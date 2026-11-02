@@ -65,9 +65,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -145,7 +148,7 @@ class SlopeStakeViewModel @Inject constructor(
     private val collectorPreferences: CollectorPreferences,
     private val gear: CurrentGear,
     private val session: ReceiverSession,
-    alerts: Alerts,
+    private val alerts: Alerts,
     private val calculator: Lazy<ProjectPositionCalculator>,
     @param:IoDispatcher private val io: CoroutineDispatcher,
     private val inProgress: MeasurementInProgress = MeasurementInProgress(),
@@ -301,6 +304,12 @@ class SlopeStakeViewModel @Inject constructor(
                 val context = context() ?: return@collect
                 controller.onEpoch(received.epoch, context)
             }
+        }
+        // S051/RF-13: un aviso al encontrar el punto de talud; otro cuando se vuelve a encontrar tras perderlo o al cambiar de punto.
+        viewModelScope.launch {
+            state.map { s ->
+                s.item.takeIf { s.live?.found == true }
+            }.distinctUntilChanged().filterNotNull().collect { alerts.slopePointFound() }
         }
         // S018/RF-25: sin épocas la guía se apaga hasta que vuelvan.
         viewModelScope.launch {

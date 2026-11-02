@@ -21,13 +21,18 @@ import es.topophone.core.model.alignment.slope.SlopeRule
 import es.topophone.core.model.alignment.slope.SlopeSide
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.StakeoutSettings
+import es.topophone.core.model.point.TypedCoordinates
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.AxisInputError
+import es.topophone.core.survey.ManualCoordinates
+import es.topophone.core.survey.ManualResult
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.alignment.AlignmentImporter
 import es.topophone.data.alignment.RoomAlignmentRepository
@@ -44,6 +49,7 @@ import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
 import io.kotest.matchers.doubles.plusOrMinus
+import io.kotest.matchers.doubles.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -52,6 +58,8 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
+import java.util.Locale
+import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,6 +68,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -111,6 +120,7 @@ class SlopeStakeViewModelTest {
         }
     }
 
+    private val found = MutableStateFlow(0)
     private val viewModels = mutableListOf<SlopeStakeViewModel>()
     private val projectId: String = runBlocking {
         (projects.create(ProjectDefaults().toDraft().copy(name = "Obra")) as SaveResult.Saved).id
@@ -188,6 +198,8 @@ class SlopeStakeViewModelTest {
                 override fun solutionLost() = Unit
 
                 override fun tiltLost() = Unit
+
+                override fun slopePointFound() = found.update { it + 1 }
             },
             { calculator },
             dispatcher,
@@ -228,6 +240,32 @@ class SlopeStakeViewModelTest {
         toApp.write(nmea("GNGST,$time,0.012,0.010,0.007,45.0,0.008,0.006,0.015").toByteArray())
         toApp.flush()
     }
+
+    /** Una época en el Este y el Norte del SC del proyecto, con la altitud dada: la latitud y la longitud salen de la UTM inversa. */
+    private fun sendEpochAt(second: Int, easting: Double, northing: Double, altitudeM: Double) {
+        val typed = TypedCoordinates(EntryForm.PROJECT_CRS, easting, northing, null, es.topophone.core.model.point.HeightKind.PROJECT)
+        val ground = (
+            ManualCoordinates(
+                calculator,
+            ).compute(typed, ProjectCrs.ETRS89_UTM30, HeightSystem.ORTHOMETRIC) as ManualResult.Computed
+            )
+            .coordinates.ground
+
+        fun degrees(value: Double, digits: Int): String {
+            val whole = abs(value).toInt()
+            return "%0${digits}d%010.7f".format(Locale.ROOT, whole, (abs(value) - whole) * 60.0)
+        }
+        val t = 36_930 + second
+        val time = "%02d%02d%02d.00".format(t / 3_600, t / 60 % 60, t % 60)
+        val lat = degrees(ground.latitudeDeg, 2) + "," + if (ground.latitudeDeg >= 0) "N" else "S"
+        val lon = degrees(ground.longitudeDeg, 3) + "," + if (ground.longitudeDeg >= 0) "E" else "W"
+        val altitude = "%.4f".format(Locale.ROOT, altitudeM)
+        toApp.write(nmea("GNGGA,$time,$lat,$lon,4,24,0.6,$altitude,M,51.234,M,1.0,0001").toByteArray())
+        toApp.write(nmea("GNGST,$time,0.012,0.010,0.007,45.0,0.008,0.006,0.015").toByteArray())
+        toApp.flush()
+    }
+
+    private fun awaitFoundAlerts(count: Int) = runBlocking { withTimeout(10_000) { found.first { it >= count } } }
 
     private fun connect() {
         session.connect(StreamTransport("reach-RS3", PipedInputStream(toApp, 64 * 1024), ByteArrayOutputStream()))
@@ -434,5 +472,57 @@ class SlopeStakeViewModelTest {
         state.startText shouldBe "100"
         state.intervalText shouldBe "10"
         state.position shouldBe 0
+    }
+
+    @Test
+    fun `S051 RF-13 encontrar el punto de talud avisa una vez y vuelve a avisar al perderlo y recuperarlo`() {
+        design()
+        ground()
+        rules()
+        val vm = open()
+        vm.toggleSide(SlopeSide.LEFT)
+        vm.begin("105")
+        val point = checkNotNull(await(vm) { it.objective != null }.objective).point
+        connect()
+
+        // Primero con una altitud cualquiera, para saber cuánto falta; la altitud llega a la punta una a una.
+        sendEpochAt(2, point.easting, point.northing, 650.0)
+        val dz = checkNotNull(await(vm) { it.live != null }.live).dHeightM
+        val altitude = 650.0 - dz
+        sendEpochAt(3, point.easting, point.northing, altitude)
+        val atPoint = checkNotNull(await(vm) { it.live?.found == true }.live)
+        awaitFoundAlerts(1)
+
+        abs(atPoint.dHeightM) shouldBeLessThan 0.005
+        abs(atPoint.dChainageM) shouldBeLessThan 0.005
+        sendEpochAt(4, point.easting, point.northing, altitude) // sigue encontrado: no vuelve a sonar
+        sendEpochAt(5, point.easting, point.northing, altitude + 1.0)
+        await(vm) { it.live?.found == false && (it.live?.dHeightM ?: 0.0) > 0.5 }
+        found.value shouldBe 1
+
+        sendEpochAt(6, point.easting, point.northing, altitude)
+        await(vm) { it.live?.found == true }
+        awaitFoundAlerts(2)
+        found.value shouldBe 2
+    }
+
+    @Test
+    fun `S051 RF-13 en cota pero fuera de la linea de la seccion no se encuentra el punto`() {
+        design()
+        ground()
+        rules()
+        val vm = open()
+        vm.toggleSide(SlopeSide.LEFT)
+        vm.begin("105")
+        val point = checkNotNull(await(vm) { it.objective != null }.objective).point
+        connect()
+        sendEpochAt(2, point.easting, point.northing, 650.0)
+        val altitude = 650.0 - checkNotNull(await(vm) { it.live != null }.live).dHeightM
+
+        sendEpochAt(3, point.easting + 1.0, point.northing, altitude) // un metro adelante en PK: fuera de la línea de la sección
+        val state = await(vm) { (it.live?.dChainageM ?: 0.0) > 0.5 }
+
+        checkNotNull(state.live).found shouldBe false
+        found.value shouldBe 0
     }
 }

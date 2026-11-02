@@ -293,4 +293,23 @@ class SlopeStakePanelTest {
         compose.onNodeWithTag(SLOPE_STAKE_CLOSE_TAG).performClick()
         calls shouldBe listOf("close")
     }
+
+    @Test
+    fun `S051 RF-13 con el punto encontrado el panel lo dice con su tipo`() {
+        show(started(live = SlopeLiveValue(SlopeKind.CUT, 100.6, 0.0, 0.0, 0.0, onLine = true, found = true)))
+        compose.onNodeWithTag(SLOPE_STAKE_FOUND_TAG).performScrollTo()
+            .assertTextContains("Punto de talud encontrado: cabeza de desmonte")
+    }
+
+    @Test
+    fun `S051 RF-13 en un terraplen el punto encontrado es un pie`() {
+        show(started(live = SlopeLiveValue(SlopeKind.FILL, 98.3, 0.0, 0.0, 0.0, onLine = true, found = true)))
+        compose.onNodeWithTag(SLOPE_STAKE_FOUND_TAG).performScrollTo().assertTextContains("pie de terraplén", substring = true)
+    }
+
+    @Test
+    fun `S051 RF-13 sin estar en cota y en la linea no se dice que se haya encontrado`() {
+        show(started(live = SlopeLiveValue(SlopeKind.CUT, 100.6, 0.2, 0.3, 0.0, onLine = true, found = false)))
+        compose.onAllNodesWithTag(SLOPE_STAKE_FOUND_TAG).assertCountEquals(0)
+    }
 }

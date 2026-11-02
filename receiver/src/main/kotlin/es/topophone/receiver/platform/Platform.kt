@@ -63,6 +63,9 @@ interface Alerts {
 
     /** La punta sale de la cota de diseño, más allá de la tolerancia vertical (S019/RF-9). */
     fun stakeoutLevelLeft() = Unit
+
+    /** La punta está en el punto de talud: en cota con el talud y en la línea de la sección (S051/RF-13). */
+    fun slopePointFound() = Unit
 }
 
 class VibrationAlerts(private val context: Context) : Alerts {
@@ -133,6 +136,11 @@ class VibrationAlerts(private val context: Context) : Alerts {
         vibrate(LEVEL_LEFT_PATTERN_MS)
     }
 
+    override fun slopePointFound() {
+        tones?.startTone(ToneGenerator.TONE_CDMA_ABBR_ALERT, TONE_MS)
+        vibrate(SLOPE_FOUND_PATTERN_MS)
+    }
+
     private fun vibrate(pattern: LongArray) {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             context.getSystemService(VibratorManager::class.java)?.defaultVibrator
@@ -156,6 +164,7 @@ class VibrationAlerts(private val context: Context) : Alerts {
         val LEFT_PATTERN_MS = longArrayOf(0, 100, 60, 100, 60, 100)
         val LEVEL_ARRIVED_PATTERN_MS = longArrayOf(0, 90, 50, 90, 50, 200) // S019/RF-9
         val LEVEL_LEFT_PATTERN_MS = longArrayOf(0, 60, 40, 60, 40, 60, 40, 60)
+        val SLOPE_FOUND_PATTERN_MS = longArrayOf(0, 120, 60, 120, 60, 320) // S051/RF-13
 
         /** Todas las vibraciones, para comprobar que cada aviso se distingue de los demás. */
         val ALL_PATTERNS_MS = listOf(
@@ -171,6 +180,7 @@ class VibrationAlerts(private val context: Context) : Alerts {
             LEFT_PATTERN_MS,
             LEVEL_ARRIVED_PATTERN_MS,
             LEVEL_LEFT_PATTERN_MS,
+            SLOPE_FOUND_PATTERN_MS,
         )
         const val TONE_VOLUME = 100
         const val TONE_MS = 600

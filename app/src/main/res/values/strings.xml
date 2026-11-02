@@ -2151,5 +2151,7 @@
     <string name="slope_stake_pk_ahead">Error en PK: %1$s por delante</string>
     <string name="slope_stake_pk_back">Error en PK: %1$s por detrás</string>
     <string name="slope_stake_pk_none">En el PK de diseño</string>
+    <string name="slope_stake_found_cut">Punto de talud encontrado: cabeza de desmonte</string>
+    <string name="slope_stake_found_fill">Punto de talud encontrado: pie de terraplén</string>
     <string name="slope_stake_a11y">%1$s, %2$s, %3$s</string>
 </resources>

@@ -2139,5 +2139,7 @@
     <string name="slope_stake_pk_ahead">Chainage error: %1$s ahead</string>
     <string name="slope_stake_pk_back">Chainage error: %1$s behind</string>
     <string name="slope_stake_pk_none">At the design chainage</string>
+    <string name="slope_stake_found_cut">Slope point found: cut top</string>
+    <string name="slope_stake_found_fill">Slope point found: fill toe</string>
     <string name="slope_stake_a11y">%1$s, %2$s, %3$s</string>
 </resources>

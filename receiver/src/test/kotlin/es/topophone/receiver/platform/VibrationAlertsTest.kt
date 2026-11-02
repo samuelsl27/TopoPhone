@@ -21,7 +21,7 @@ class VibrationAlertsTest {
     fun `S017 RF-8, RF-24 y RF-30 la pausa, la omision y el reinicio vibran distinto de los demas avisos`() {
         val patterns = VibrationAlerts.ALL_PATTERNS_MS.map { it.toList() }
 
-        patterns.size shouldBe 12
+        patterns.size shouldBe 13
         patterns.toSet().size shouldBe patterns.size
         VibrationAlerts.PAUSED_PATTERN_MS.toList() shouldBe listOf(0L, 250L, 120L, 250L)
     }
@@ -81,6 +81,15 @@ class VibrationAlertsTest {
 
         fake.stakeoutLevelArrived()
         fake.stakeoutLevelLeft()
+    }
+
+    @Test
+    fun `S051 RF-13 el aviso de punto de talud encontrado vibra distinto de los demas y se puede lanzar`() {
+        val patterns = VibrationAlerts.ALL_PATTERNS_MS.map { it.toList() }
+
+        VibrationAlerts.SLOPE_FOUND_PATTERN_MS.toList() shouldBe listOf(0L, 120L, 60L, 120L, 60L, 320L)
+        patterns.count { it == VibrationAlerts.SLOPE_FOUND_PATTERN_MS.toList() } shouldBe 1
+        alerts.slopePointFound()
     }
 
     @Test

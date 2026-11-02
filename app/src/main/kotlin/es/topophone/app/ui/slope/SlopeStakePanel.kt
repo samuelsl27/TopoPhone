@@ -77,6 +77,7 @@ const val SLOPE_STAKE_KIND_TAG = "slope_stake_kind"
 const val SLOPE_STAKE_HEIGHT_TAG = "slope_stake_height"
 const val SLOPE_STAKE_STATUS_TAG = "slope_stake_status"
 const val SLOPE_STAKE_LIVE_TAG = "slope_stake_live"
+const val SLOPE_STAKE_FOUND_TAG = "slope_stake_found"
 const val SLOPE_STAKE_DZ_TAG = "slope_stake_dz"
 const val SLOPE_STAKE_MOVE_TAG = "slope_stake_move"
 const val SLOPE_STAKE_CHAINAGE_TAG = "slope_stake_chainage"
@@ -378,6 +379,14 @@ private fun Live(state: SlopeStakeUiState, numbers: Numbers) {
     val move = movePhrase(live, numbers)
     val chainage = chainagePhrase(live, numbers)
     val phrase = stringResource(R.string.slope_stake_a11y, dz, move, chainage)
+    if (live.found) {
+        Text(
+            stringResource(if (live.kind == SlopeKind.CUT) R.string.slope_stake_found_cut else R.string.slope_stake_found_fill),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }.testTag(SLOPE_STAKE_FOUND_TAG),
+        ) // con texto, no solo con color (RNF-T8)
+    }
     SlopeElevation.of(state)?.let { SlopeElevationView(it, phrase) }
     Column(
         modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = phrase }.testTag(SLOPE_STAKE_LIVE_TAG),
