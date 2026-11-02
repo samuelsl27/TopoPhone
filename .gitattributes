@@ -17,6 +17,8 @@ fixtures/formatos/csv-importacion/* -text
 fixtures/formatos/dxf/* -text
 # GeoPackage de ejemplo de la importación: binarios y un texto con CRLF, byte a byte (S048)
 fixtures/formatos/gpkg/* -text
+# CSV esperados de los perfiles tomados: CRLF, byte a byte (S052)
+fixtures/ejes/toma/esperado-perfil-*.csv -text
 
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.nmea.gz filter=lfs diff=lfs merge=lfs -text

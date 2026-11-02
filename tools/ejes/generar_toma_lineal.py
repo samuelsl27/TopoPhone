@@ -17,6 +17,8 @@ Genera en fixtures/ejes/toma/:
 - seccion-diseno.csv, transversal-puntos.csv y esperado-transversal.csv: puntos medidos en la sección del PK 105 del Eje C, con el error en
   PK, la diferencia de cota con la sección de diseño (interpolada, vacía fuera de ella), la marca con la tolerancia de sección de 0,10 m
   y el orden y el código con que quedan en el perfil de terreno.
+- esperado-perfil-longitudinal.csv y esperado-perfil-transversal.csv: el CSV de exportación de los puntos que entran en cada perfil
+  (S052/RF-15, RF-22): coma, punto decimal, CRLF, 4 decimales con redondeo hacia arriba en el empate y las cabeceras en inglés.
 
 Cómo se calcula (otro algoritmo que el del móvil, para que la coincidencia no sea una tautología):
 - Los puntos de los perfiles se generan desde su PK y su desplazamiento con la geometría de S049 (`generar_ejes`), así que lo esperado
@@ -31,6 +33,7 @@ from __future__ import annotations
 
 import math
 import sys
+from decimal import ROUND_HALF_UP, Decimal
 from fractions import Fraction
 from pathlib import Path
 
@@ -252,14 +255,42 @@ def cross_files() -> dict[str, str]:
     }
 
 
+def num(x: float | Fraction | None) -> str:
+    if x is None:
+        return ""
+    exact = Decimal(x.numerator) / Decimal(x.denominator) if isinstance(x, Fraction) else Decimal(x)
+    text = str(exact.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP))
+    return "0.0000" if float(text) == 0.0 else text
+
+
+def profile_csv_files() -> dict[str, str]:
+    longitudinal = ["Chainage,Offset,Ground elevation,Grade elevation,Delta elevation"]
+    for name, pk, d, z in LONGITUDINAL:
+        if pk < 0.0 or pk > g.length_of(g.AXIS_A) or abs(d) > AXIS_TOLERANCE:
+            continue
+        grade = g.profile_at(g.AXIS_A.profile, pk)[0]
+        longitudinal.append(",".join([num(pk), num(d), num(z), num(grade), num(z - grade)]))
+    cross = ["Code,Chainage,Offset,Ground elevation,Design elevation,Delta elevation"]
+    kept = sorted((d, pk, z) for _, pk, d, z in CROSS if abs(pk - SECTION_PK) <= SECTION_TOLERANCE + 1e-12)
+    for n, (d, pk, z) in enumerate(kept, 1):
+        base = design_at(Fraction(str(d)))
+        zf = Fraction(str(z))
+        cross.append(",".join([f"P{n}", num(pk), num(d), num(z), num(base), num(None if base is None else zf - base)]))
+    crlf = chr(13) + chr(10)
+    return {
+        "esperado-perfil-longitudinal.csv": crlf.join(longitudinal) + crlf,
+        "esperado-perfil-transversal.csv": crlf.join(cross) + crlf,
+    }
+
+
 def all_files() -> dict[str, str]:
-    return {**axis_files(), **rejection_files(), **longitudinal_files(), **cross_files()}
+    return {**axis_files(), **rejection_files(), **longitudinal_files(), **cross_files(), **profile_csv_files()}
 
 
 def main(out: Path = OUT) -> int:
     out.mkdir(parents=True, exist_ok=True)
     for name, text in all_files().items():
-        (out / name).write_text(text, encoding="utf-8", newline="\n")
+        (out / name).write_bytes(text.encode("utf-8"))
     print(f"{len(all_files())} ficheros en {out}")
     return 0
 

@@ -12,7 +12,7 @@
       Hecho cuando: `ProfileSamplerTest` en verde a 1 mm.
 - [x] T5. `core:survey`: `CrossProfileBuilder` (a perfil de terreno de S050). (RF-17, RF-19, RF-20)
       Hecho cuando: `CrossProfileBuilderTest` en verde.
-- [ ] T6. `core:formats`: `ProfileCsv` con dorado. (RF-15, RF-22)
+- [x] T6. `core:formats`: `ProfileCsv` con dorado. (RF-15, RF-22)
       Hecho cuando: `ProfileCsvTest` en verde.
 - [ ] T7. `data`: Room v27 (`linear_surveys`, `linear_survey_points`), `AutoMigration(26, 27)` y el esquema 27. (RF-8, RF-9, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 26 a 27 en verde.
