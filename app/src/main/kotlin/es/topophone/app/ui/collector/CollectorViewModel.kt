@@ -1133,6 +1133,7 @@ class CollectorViewModel @Inject constructor(
                     dChainageM = objective.chainageErrorOf?.invoke(measurement.coordinates), // S054/RF-10
                     thicknessM = objective.thicknessM,
                     sectionCode = objective.sectionCode, // S050/RF-19
+                    slope = objective.slopeOf?.invoke(measurement.coordinates), // S051/RF-15
                 )
             } else if (info == null) {
                 StakeoutDiff.ref(target.id, target.name, target.coordinates, measurement.coordinates).copy(source = target.source)

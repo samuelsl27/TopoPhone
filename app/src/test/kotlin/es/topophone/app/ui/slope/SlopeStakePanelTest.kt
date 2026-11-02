@@ -12,6 +12,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.collector.COLLECTOR_MEASURE_TAG
+import es.topophone.app.ui.collector.CollectorActions
+import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.stakeout.AxisField
 import es.topophone.app.ui.stakeout.GuidanceState
 import es.topophone.app.ui.stakeout.GuidanceUi
@@ -122,7 +125,7 @@ class SlopeStakePanelTest {
 
     private val calls = mutableListOf<String>()
 
-    private fun show(state: SlopeStakeUiState) = compose.setContent {
+    private fun show(state: SlopeStakeUiState, collector: CollectorUiState? = null) = compose.setContent {
         TopoPhoneTheme(EffectiveTheme.LIGHT) {
             SlopeStakePanel(
                 state,
@@ -138,6 +141,8 @@ class SlopeStakePanelTest {
                     onPrevious = { calls += "previous" },
                     onNext = { calls += "next" },
                 ),
+                collector = collector,
+                collectorActions = CollectorActions(onMeasure = { calls += "measure" }),
             )
         }
     }
@@ -311,5 +316,21 @@ class SlopeStakePanelTest {
     fun `S051 RF-13 sin estar en cota y en la linea no se dice que se haya encontrado`() {
         show(started(live = SlopeLiveValue(SlopeKind.CUT, 100.6, 0.2, 0.3, 0.0, onLine = true, found = false)))
         compose.onAllNodesWithTag(SLOPE_STAKE_FOUND_TAG).assertCountEquals(0)
+    }
+
+    @Test
+    fun `S051 RF-15 con el replanteo abierto y el recolector el panel ofrece Medir`() {
+        show(started(), CollectorUiState(loaded = true))
+
+        compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).performClick()
+
+        calls shouldBe listOf("measure")
+    }
+
+    @Test
+    fun `S051 RF-15 antes de abrir el replanteo no se puede medir`() {
+        show(setup(), CollectorUiState(loaded = true))
+
+        compose.onAllNodesWithTag(COLLECTOR_MEASURE_TAG).assertCountEquals(0)
     }
 }

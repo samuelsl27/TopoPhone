@@ -525,4 +525,63 @@ class SlopeStakeViewModelTest {
         checkNotNull(state.live).found shouldBe false
         found.value shouldBe 0
     }
+
+    @Test
+    fun `S051 RF-15 el objetivo al guardar es el punto de talud con su PK su desplazamiento y lo propio del talud`() {
+        design()
+        ground()
+        rules()
+        val vm = open()
+        vm.toggleSide(SlopeSide.LEFT)
+        vm.begin("105")
+        val state = await(vm) { it.objective != null && it.saveInfo != null }
+        val point = checkNotNull(state.objective).point
+
+        val objective = checkNotNull(vm.objectiveProvider.current())
+        val slope = checkNotNull(objective.slopeOf).invoke(objective.design)
+
+        objective.chainageM shouldBe 105.0
+        objective.lateralOffsetM shouldBe point.offset
+        objective.elevationM shouldBe state.objective?.heightM
+        objective.design.easting shouldBe (point.easting plusOrMinus 1e-6)
+        objective.lateralErrorOf(objective.design) shouldBe (0.0 plusOrMinus 1e-6)
+        checkNotNull(objective.chainageErrorOf).invoke(objective.design) shouldBe (0.0 plusOrMinus 1e-6)
+        slope.shouldNotBeNull()
+        slope.kind shouldBe SlopeKind.CUT
+        slope.side shouldBe SlopeSide.RIGHT
+        slope.ratio shouldBe 1.5
+        slope.heightM shouldBe (1.0 plusOrMinus 1e-6)
+        slope.dHeightM.shouldNotBeNull() shouldBe (0.0 plusOrMinus 1e-6)
+        slope.stakeOffsetM shouldBe 0.0
+        state.saveInfo?.elevationM shouldBe state.objective?.heightM
+    }
+
+    @Test
+    fun `S051 RF-15 la diferencia de cota es la medida menos el talud de diseno y la estaca va con el punto`() {
+        design()
+        ground()
+        rules()
+        val vm = open()
+        vm.toggleSide(SlopeSide.LEFT)
+        vm.setStakeOffset("0.5")
+        vm.begin("105")
+        await(vm) { it.objective?.stake != null }
+
+        val objective = checkNotNull(vm.objectiveProvider.current())
+        val slope = checkNotNull(checkNotNull(objective.slopeOf).invoke(objective.design.copy(height = objective.design.height!! + 0.03)))
+
+        slope.stakeOffsetM shouldBe 0.5
+        // El terreno en la estaca (a 5,5 m) está a 101,1667 y el talud de diseño pasa ahí por 101,3333: con +3 cm en la punta, -13,67 cm.
+        slope.dHeightM.shouldNotBeNull() shouldBe (-0.136667 plusOrMinus 1e-3)
+    }
+
+    @Test
+    fun `S051 RF-15 sin el replanteo abierto no hay objetivo que guardar`() {
+        design()
+        ground()
+        rules()
+        val vm = open()
+
+        vm.objectiveProvider.current().shouldBeNull()
+    }
 }

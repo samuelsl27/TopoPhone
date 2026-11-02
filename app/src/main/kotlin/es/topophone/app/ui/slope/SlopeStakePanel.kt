@@ -38,6 +38,16 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.app.ui.collector.AverageStatsUi
+import es.topophone.app.ui.collector.CollectorActions
+import es.topophone.app.ui.collector.CollectorGearSelector
+import es.topophone.app.ui.collector.CollectorUiState
+import es.topophone.app.ui.collector.LongPauseDialog
+import es.topophone.app.ui.collector.MeasureButton
+import es.topophone.app.ui.collector.Measuring
+import es.topophone.app.ui.collector.Messages
+import es.topophone.app.ui.collector.OutOfToleranceDialog
+import es.topophone.app.ui.collector.PauseState
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.app.ui.stakeout.AxisField
@@ -112,7 +122,14 @@ class SlopeStakeActions(
  * abierto (RNF-T2).
  */
 @Composable
-fun SlopeStakePanel(state: SlopeStakeUiState, actions: SlopeStakeActions, modifier: Modifier = Modifier) {
+fun SlopeStakePanel(
+    state: SlopeStakeUiState,
+    actions: SlopeStakeActions,
+    modifier: Modifier = Modifier,
+    collector: CollectorUiState? = null,
+    collectorActions: CollectorActions = CollectorActions(),
+    stats: AverageStatsUi? = null,
+) {
     KeepScreenOn()
     var settingsOpen by remember { mutableStateOf(false) }
     val unit = state.project?.linearUnit ?: LinearUnit.METRE
@@ -133,7 +150,14 @@ fun SlopeStakePanel(state: SlopeStakeUiState, actions: SlopeStakeActions, modifi
                 modifier = Modifier.weight(1f, fill = false).heightIn(max = BODY_MAX_HEIGHT).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (state.started) Started(state, actions, unit) else Setup(state, actions, unit)
+                if (state.started) Started(state, actions, unit, collector, collectorActions) else Setup(state, actions, unit)
+            }
+            if (state.started && collector != null) {
+                if (collector.measuring) {
+                    Measuring(collector, unit, stats, collectorActions)
+                } else {
+                    MeasureButton(collector, collectorActions) // S051/RF-15
+                }
             }
             if (state.started) {
                 TextButton(
@@ -146,6 +170,10 @@ fun SlopeStakePanel(state: SlopeStakeUiState, actions: SlopeStakeActions, modifi
     }
     if (settingsOpen && !state.measuring) {
         StakeoutSettingsDialog(state.settings, unit, actions.onHeading, actions.onTolerance, { settingsOpen = false }, actions.onToleranceV)
+    }
+    collector?.pending?.let { OutOfToleranceDialog(it, collectorActions.onConfirm, collectorActions.onDiscard) }
+    if (collector?.paused == PauseState.LONG_PAUSE) {
+        LongPauseDialog(collectorActions.onFinish, collectorActions.onCancel, collectorActions.onKeepWaiting)
     }
 }
 
@@ -286,7 +314,13 @@ private fun errorText(error: AxisInputError, start: String, end: String): String
 
 /** Con el replanteo abierto: el lugar de la serie, el punto de talud, el desplazamiento de estaca, la guía y el alzado en vivo (S051/RF-9 a RF-12). */
 @Composable
-private fun Started(state: SlopeStakeUiState, actions: SlopeStakeActions, unit: LinearUnit) {
+private fun Started(
+    state: SlopeStakeUiState,
+    actions: SlopeStakeActions,
+    unit: LinearUnit,
+    collector: CollectorUiState?,
+    collectorActions: CollectorActions,
+) {
     val locale = uiLocale()
     val symbol = unitSymbol(unit)
     val numbers = Numbers(unit, symbol, locale)
@@ -322,6 +356,8 @@ private fun Started(state: SlopeStakeUiState, actions: SlopeStakeActions, unit: 
     val settings = if (state.noProjection) state.settings.copy(mode = StakeMode.BY_DISTANCE) else state.settings
     Guidance(state.project, settings, state.guidance, state.admitted)
     Live(state, numbers)
+    collector?.let { CollectorGearSelector(it, collectorActions) } // S046/RF-23
+    collector?.let { Messages(it, collectorActions) }
 }
 
 /** El punto de talud teórico del lugar de ahora, o por qué no lo hay (S051/RF-5 a RF-8). */

@@ -11,6 +11,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.points.PointFixtures.measured
 import es.topophone.app.ui.points.PointFixtures.staked
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.model.alignment.slope.SlopeKind
+import es.topophone.core.model.alignment.slope.SlopeSide
+import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.AxisHeightRef
 import es.topophone.core.model.point.AxisRef
@@ -423,5 +426,41 @@ class PointDetailsStakeoutTest {
 
         compose.onNodeWithTag(POINT_AXIS_INFO_TAG).performScrollTo()
         compose.onNodeWithTag("point_axis_reference").performScrollTo().shows("Sección")
+    }
+
+    private fun fromSlope(info: SlopeStakeInfo): Point = fromAxis().let {
+        it.copy(staked = it.staked!!.copy(thicknessM = null, slope = info))
+    }
+
+    @Test
+    fun `S051 RF-15 la ficha de un punto de talud da el tipo el lado la relacion la altura la diferencia de cota y la estaca`() {
+        show(PointDetailsUiState(project(), fromSlope(SlopeStakeInfo(SlopeKind.CUT, SlopeSide.RIGHT, 1.5, 1.0, -0.004, 0.5))))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_slope_kind").performScrollTo().shows("Cabeza de desmonte")
+        compose.onNodeWithTag("point_stakeout_slope_side").performScrollTo().shows("Derecha")
+        compose.onNodeWithTag("point_stakeout_slope_ratio").performScrollTo().shows("1,5 : 1")
+        compose.onNodeWithTag("point_stakeout_slope_height").performScrollTo().shows("1,000 m")
+        compose.onNodeWithTag("point_stakeout_slope_dheight").performScrollTo().shows("-0,004 m")
+        compose.onNodeWithTag("point_stakeout_slope_stake").performScrollTo().shows("0,500 m")
+    }
+
+    @Test
+    fun `S051 RF-15 un pie de terraplen se dice con su palabra y sin estaca ni diferencia no hay esas filas`() {
+        show(PointDetailsUiState(project(), fromSlope(SlopeStakeInfo(SlopeKind.FILL, SlopeSide.LEFT, 2.0, 1.7, null))))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_slope_kind").performScrollTo().shows("Pie de terraplén")
+        compose.onNodeWithTag("point_stakeout_slope_side").performScrollTo().shows("Izquierda")
+        compose.onNodeWithTag("point_stakeout_slope_dheight").assertDoesNotExist()
+        compose.onNodeWithTag("point_stakeout_slope_stake").assertDoesNotExist()
+    }
+
+    @Test
+    fun `S051 RF-15 un replanteo que no es de talud no tiene filas de talud`() {
+        show(PointDetailsUiState(project(), fromAxis()))
+
+        compose.onNodeWithTag(POINT_STAKEOUT_INFO_TAG).performScrollTo()
+        compose.onNodeWithTag("point_stakeout_slope_kind").assertDoesNotExist()
     }
 }

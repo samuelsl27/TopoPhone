@@ -36,7 +36,7 @@
       Hecho cuando: el test del panel y del ViewModel en verde.
 - [x] T17. `app`: «Replantear taludes» en la hoja y la ficha del eje y `StakeMode.SLOPE` en `ProjectView`. (RF-9)
       Hecho cuando: los tests de la hoja y de la ficha ampliados en verde.
-- [ ] T18. `app`: medir y guardar el punto de talud y mostrarlo en la ficha del punto. (RF-15)
+- [x] T18. `app`: medir y guardar el punto de talud y mostrarlo en la ficha del punto. (RF-15)
       Hecho cuando: `SlopeStakeMeasureTest` y `PointDetails` ampliado en verde.
 - [ ] T19. `app`: el símbolo propio en el mapa y la columna en el informe de la pantalla. (RF-16)
       Hecho cuando: los tests de escena y de informe en verde.

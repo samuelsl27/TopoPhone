@@ -2137,6 +2137,14 @@
     <string name="slope_point_height">Altura de talud %1$s %2$s</string>
     <string name="slope_point_source_profile">Terreno: perfil de terreno</string>
     <string name="slope_point_source_surface">Terreno: superficie activa</string>
+    <string name="point_slope_kind">Punto de talud</string>
+    <string name="point_slope_kind_cut">Cabeza de desmonte</string>
+    <string name="point_slope_kind_fill">Pie de terraplén</string>
+    <string name="point_slope_side">Lado del talud</string>
+    <string name="point_slope_ratio">Talud</string>
+    <string name="point_slope_height">Altura de talud</string>
+    <string name="point_slope_dheight">Diferencia de cota con el talud</string>
+    <string name="point_slope_stake">Desplazamiento de estaca</string>
     <string name="slope_stake_open">Replantear taludes</string>
     <string name="slope_stake_title">Replantear taludes del eje %1$s</string>
     <string name="slope_stake_sides">Lados que se replantean</string>

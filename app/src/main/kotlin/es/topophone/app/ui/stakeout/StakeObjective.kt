@@ -1,5 +1,6 @@
 package es.topophone.app.ui.stakeout
 
+import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
 
@@ -15,6 +16,8 @@ import es.topophone.core.model.point.PointCoordinates
  * @property chainageErrorOf la diferencia de PK de un punto medido respecto al PK de diseño, positiva hacia delante; solo en un
  *   replanteo por PK de un eje, donde [lateralErrorOf] es la diferencia de desplazamiento (S054/RF-10).
  * @property sectionCode el código de sección del punto de diseño en un replanteo por código (S050/RF-19).
+ * @property slopeOf lo propio del talud de un punto medido: tipo, lado, relación, altura de talud y diferencia de cota con el talud de diseño;
+ *   solo en un replanteo de taludes (S051/RF-15).
  */
 class StakeObjective(
     val design: PointCoordinates,
@@ -26,6 +29,7 @@ class StakeObjective(
     val thicknessM: Double? = null,
     val chainageErrorOf: ((PointCoordinates) -> Double?)? = null,
     val sectionCode: String? = null,
+    val slopeOf: ((PointCoordinates) -> SlopeStakeInfo?)? = null,
 )
 
 /** Da el objetivo de ahora cuando el recolector termina una medida; null si la guía aún no ha dado ninguno (S041/RF-27, RF-28). */

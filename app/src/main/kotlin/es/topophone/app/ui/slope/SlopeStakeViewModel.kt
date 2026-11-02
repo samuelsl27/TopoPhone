@@ -12,18 +12,23 @@ import es.topophone.app.ui.stakeout.AxisField
 import es.topophone.app.ui.stakeout.GuidanceOff
 import es.topophone.app.ui.stakeout.GuidanceState
 import es.topophone.app.ui.stakeout.StakeContext
+import es.topophone.app.ui.stakeout.StakeObjective
+import es.topophone.app.ui.stakeout.StakeObjectiveProvider
+import es.topophone.app.ui.stakeout.StakeSaveInfo
 import es.topophone.app.ui.stakeout.StakeTarget
 import es.topophone.app.ui.stakeout.StakeoutController
 import es.topophone.core.model.alignment.Alignment
 import es.topophone.core.model.alignment.ChainageFormat
 import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.alignment.slope.SlopeSide
+import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.HeightKind
+import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.StakeMode
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutSettings
@@ -57,6 +62,7 @@ import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.math.abs
 import kotlin.math.roundToLong
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -129,6 +135,7 @@ data class SlopeStakeUiState(
     val measuring: Boolean = false,
     val admitted: AdmittedSolutions = AdmittedSolutions.FIX_ONLY,
     val stakeTarget: StakeTarget? = null,
+    val saveInfo: StakeSaveInfo? = null,
 )
 
 /**
@@ -283,6 +290,7 @@ class SlopeStakeViewModel @Inject constructor(
             noProjection = noProjection,
             measuring = live.measuring,
             stakeTarget = if (project != null && objective != null) designTarget(project, model, objective) else null,
+            saveInfo = objective?.let { StakeSaveInfo(it.heightM, live.settings.validToleranceM, live.settings.validToleranceVM) },
         )
     }
 
@@ -542,6 +550,56 @@ class SlopeStakeViewModel @Inject constructor(
             designElevationM = objective.heightM,
             profile = profile,
             shift = activeShift.value?.vector, // S020/RF-7
+        )
+    }
+
+    // ---- el objetivo al guardar el punto (S051/RF-15)
+
+    /** El objetivo de cuando el recolector termina una medida: el punto de diseño, el PK y el desplazamiento y lo propio del talud. */
+    val objectiveProvider: StakeObjectiveProvider = StakeObjectiveProvider { currentObjective() }
+
+    private fun currentObjective(): StakeObjective? {
+        val project = project ?: return null
+        val m = model.value ?: return null
+        if (!m.started) return null
+        val item = m.item ?: return null
+        val objective = objectiveOf(m) ?: return null
+        val edge = m.outcome?.edgeOrNull() ?: return null
+        val design = designTarget(project, m, objective)?.coordinates ?: return null
+        val geometry = m.solver.geometry
+        val locate = { measured: PointCoordinates ->
+            val e = measured.easting
+            val n = measured.northing
+            if (e == null || n == null) null else geometry.locate(e, n)
+        }
+        val tolerance = settings
+        return StakeObjective(
+            design = design.copy(height = objective.heightM),
+            elevationM = objective.heightM,
+            mode = null,
+            chainageM = item.chainageM,
+            lateralOffsetM = objective.point.offset,
+            lateralErrorOf = { measured -> locate(measured)?.let { it.offset - objective.point.offset } },
+            chainageErrorOf = { measured -> locate(measured)?.let { it.chainage - item.chainageM } },
+            slopeOf = { measured ->
+                val e = measured.easting
+                val n = measured.northing
+                val height = measured.height
+                val value = if (e != null && n != null && height != null) {
+                    SlopeLive.of(edge, objective.kind, e, n, height, geometry, tolerance.validToleranceM, tolerance.validToleranceVM)
+                } else {
+                    null
+                }
+                val kind = value?.kind ?: objective.kind ?: SlopeKind.CUT
+                SlopeStakeInfo(
+                    kind,
+                    item.side,
+                    edge.rule.ratioOf(kind),
+                    objective.slopeHeightM ?: abs((height ?: edge.heightM) - edge.heightM),
+                    value?.dHeightM,
+                    m.stakeOffsetM,
+                )
+            },
         )
     }
 

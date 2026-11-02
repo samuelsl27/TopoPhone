@@ -423,21 +423,24 @@ fun ProjectViewRoute(
     val activeTarget = when {
         stakeoutOpen -> stakeout.target
         axisOpen -> axis.stakeTarget
+        slopeOpen -> slope.stakeTarget
         else -> line.target.takeIf { lineOpen }
     }
-    LaunchedEffect(stakeoutOpen, lineOpen, axisOpen, activeTarget) { collectorViewModel.setStakeTarget(activeTarget) }
+    LaunchedEffect(stakeoutOpen, lineOpen, axisOpen, slopeOpen, activeTarget) { collectorViewModel.setStakeTarget(activeTarget) }
     // S019/RF-13: la cota usada y las tolerancias vigentes viajan con el recolector para guardarse con el replanteo.
     val activeInfo = when {
         stakeoutOpen -> stakeout.saveInfo
         axisOpen -> axis.saveInfo
+        slopeOpen -> slope.saveInfo
         else -> line.saveInfo.takeIf { lineOpen }
     }
-    LaunchedEffect(stakeoutOpen, lineOpen, axisOpen, activeInfo) { collectorViewModel.setStakeSaveInfo(activeInfo) }
+    LaunchedEffect(stakeoutOpen, lineOpen, axisOpen, slopeOpen, activeInfo) { collectorViewModel.setStakeSaveInfo(activeInfo) }
     // S041/RF-28 y S054/RF-10: con una línea o un eje, el recolector pide el objetivo de ese momento al terminar la medida.
-    LaunchedEffect(lineOpen, axisOpen) {
+    LaunchedEffect(lineOpen, axisOpen, slopeOpen) {
         collectorViewModel.setStakeObjective(
             when {
                 axisOpen -> axisStakeoutViewModel.objectiveProvider
+                slopeOpen -> slopeStakeViewModel.objectiveProvider
                 lineOpen -> lineStakeoutViewModel.objectiveProvider
                 else -> null
             },
@@ -919,7 +922,13 @@ fun ProjectViewScreen(
                         collectorActions = collectorActions,
                         stats = collectorStats,
                     ) // S054/RF-1
-                    slopeStake != null -> SlopeStakePanel(slopeStake, slopeStakeActions) // S051/RF-9
+                    slopeStake != null -> SlopeStakePanel(
+                        slopeStake,
+                        slopeStakeActions,
+                        collector = collector,
+                        collectorActions = collectorActions,
+                        stats = collectorStats,
+                    ) // S051/RF-9, RF-15
                     axisAnalysis != null -> AxisAnalysisPanel(
                         axisAnalysis,
                         axisAnalysisActions,

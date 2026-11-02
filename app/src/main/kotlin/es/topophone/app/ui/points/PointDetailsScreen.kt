@@ -55,6 +55,8 @@ import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.tiltSummary
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.app.ui.slope.ratioLabel
+import es.topophone.app.ui.slope.sideLabel
 import es.topophone.app.ui.stakeout.labelRes
 import es.topophone.app.ui.stakeout.levelText
 import es.topophone.app.ui.stakeout.withinText
@@ -62,6 +64,8 @@ import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.alignment.OffsetFormat
 import es.topophone.core.model.alignment.OffsetSide
+import es.topophone.core.model.alignment.slope.SlopeKind
+import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
@@ -627,6 +631,20 @@ private fun CoordinateRows(project: Project, coordinates: PointCoordinates) {
  * De qué punto de diseño viene un punto replanteado, sus coordenadas de diseño y lo que se desvió lo medido (medido menos
  * diseño), en las unidades del proyecto (S018/RF-32).
  */
+/** Lo propio de un punto de talud replanteado: el tipo, el lado, la relación, la altura de talud, la diferencia de cota y la estaca (S051/RF-15). */
+@Composable
+private fun SlopeRows(slope: SlopeStakeInfo, length: (Double) -> String, signed: (Double) -> String) {
+    val kind = if (slope.kind == SlopeKind.CUT) R.string.point_slope_kind_cut else R.string.point_slope_kind_fill
+    CoordinateRow(stringResource(R.string.point_slope_kind), stringResource(kind), "point_stakeout_slope_kind")
+    CoordinateRow(stringResource(R.string.point_slope_side), sideLabel(slope.side), "point_stakeout_slope_side")
+    CoordinateRow(stringResource(R.string.point_slope_ratio), ratioLabel(slope.ratio), "point_stakeout_slope_ratio")
+    CoordinateRow(stringResource(R.string.point_slope_height), length(slope.heightM), "point_stakeout_slope_height")
+    slope.dHeightM?.let { CoordinateRow(stringResource(R.string.point_slope_dheight), signed(it), "point_stakeout_slope_dheight") }
+    if (slope.stakeOffsetM != 0.0) {
+        CoordinateRow(stringResource(R.string.point_slope_stake), length(slope.stakeOffsetM), "point_stakeout_slope_stake")
+    }
+}
+
 @Composable
 private fun StakeoutCard(project: Project, ref: StakeoutRef) {
     val locale = uiLocale()
@@ -680,6 +698,7 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
         }
         ref.thicknessM?.let { CoordinateRow(stringResource(R.string.point_stakeout_thickness), signed(it), "point_stakeout_thickness") }
         ref.sectionCode?.let { CoordinateRow(stringResource(R.string.point_section_code), it, "point_stakeout_section_code") } // S050/RF-19
+        ref.slope?.let { slope -> SlopeRows(slope, ::length, ::signed) } // S051/RF-15
         // S042/RF-30: contra qué cota se replanteó y, con la superficie, de cuál, su cota en lo medido y el desplazamiento vertical.
         ref.elevationSource?.let { source ->
             val label = if (source == ElevationSource.SURFACE) R.string.stakeout_source_surface else R.string.stakeout_source_point
