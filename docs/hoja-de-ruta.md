@@ -110,7 +110,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 049 ejes-y-rasantes | Ejes en planta (rectas, arcos y clotoides) y rasantes con acuerdos desde LandXML, polilíneas de un DXF, CSV de PK y cota o a mano; varios ejes por proyecto con uno activo; marcas de PK en el mapa; puntos sobre eje | 040, 042, 006 | implementada |
 | 054 replanteo-por-eje | Replanteo por PK y desplazamiento con intervalo, puntos singulares, espesor y cota de la rasante, y análisis en vivo de la posición del jalón respecto al eje | 049, 018, 019 | implementada |
 | 050 peraltes-y-transversales | Peraltes y perfiles transversales (secciones tipo con códigos), cota con peralte y replanteo por PK y código con interpolación entre PK, y el perfil de terreno que usan S051 y S052 | 054, 049 | implementada |
-| 051 taludes | Replanteo de cabezas y pies de talud contra los perfiles transversales o una sección manual, con seguimiento en alzado | 050, 054, 042 (opcional) | pendiente |
+| 051 taludes | Replanteo de cabezas y pies de talud contra los perfiles transversales o una sección manual, con seguimiento en alzado | 050, 054, 042 (opcional) | spec |
 | 052 toma-de-datos-lineal | Tomar un eje con el receptor, perfil longitudinal y perfil transversal a lo largo del eje | 054, 050, 049, 010, 017 | pendiente |
 
 ## Puertas de validación

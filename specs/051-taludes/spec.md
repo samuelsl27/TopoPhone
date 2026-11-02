@@ -1,6 +1,6 @@
 # Spec 051 — Taludes
 
-> Hito: H8 · Depende de: S050, S054, S042 (opcional) · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H8 · Depende de: S050, S054, S042 (opcional) · Estado: borrador entrevistado (2/11/2026), pendiente de aprobación
 
 ## Contexto y objetivo
 Al borde de la plataforma de una obra lineal empieza el talud: en desmonte baja hacia la plataforma, en terraplén sube desde el terreno. Donde el talud de diseño encuentra el terreno natural está el punto que marca el inicio del movimiento de tierras: la **cabeza** del talud en desmonte y el **pie** en terraplén. Ese punto no se conoce de antemano con exactitud (depende del terreno real), así que se busca en el campo: «me desplazo hacia fuera hasta que la cota de mi punta coincide con la del talud». S050 deja la plataforma; esta spec añade el talud y su replanteo.
@@ -81,11 +81,9 @@ Términos de esta spec (los de S049, S050 y S054 más):
 - Demo de campo: queda para el usuario.
 
 ## Dudas abiertas
-- [SUPOSICIÓN: el terreno de partida es, por este orden, el perfil de terreno de S050 o la superficie activa de S042; sin ambos solo hay seguimiento en vivo.]
+Confirmado en la entrevista (2/11/2026): una sola pendiente de desmonte y otra de terraplén por lado y rango de PK (las bermas quedan fuera); el terreno de partida es, por este orden, el perfil de terreno de S050 o la superficie activa de S042, y sin ninguno solo hay seguimiento en vivo; se admite un desplazamiento de estaca con valor por defecto 0.
 - [SUPOSICIÓN: la sección manual también necesita un eje (para el PK y el lado).]
-- [SUPOSICIÓN: se admite un desplazamiento de estaca; el valor por defecto es 0.]
-- [SUPOSICIÓN: una sola pendiente de desmonte y otra de terraplén por lado y rango de PK, y búsqueda del terreno hasta 100 m.]
-- [SUPOSICIÓN: las tolerancias son las de S018 (horizontal) y S019 (vertical).]
+- [SUPOSICIÓN: las tolerancias son las de S018 (horizontal) y S019 (vertical), y el terreno se busca hasta 100 m del borde.]
 
 ## Cambios en documentos anteriores
 - `docs/hoja-de-ruta.md`: S051 depende además de S054 (replanteo) y, de forma opcional, de S042; el «perfil de terreno» sale de S050 y S052.
