@@ -204,3 +204,8 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Peralte | `Superelevation` | Tabla de PK con la pendiente transversal de cada lado; varía linealmente entre filas (S050) |
 | Punto de rasante | `SectionTemplate.gradeCode` | Punto de la sección al que se refiere la rasante: el eje o un código; la sección gira alrededor de él (S050) |
 | Perfil de terreno | `CrossSection` (`SectionKind.GROUND`) | Sección de terreno natural en un PK; la produce S052 y la usa S051 (S050) |
+| Talud | `SlopeRule` | Plano inclinado que parte del borde de explanación; su relación es metros horizontales por cada metro vertical (1,5 es 3:2) (S051) |
+| Punto de talud | `SlopeCatch` | Donde el talud corta el terreno: cabeza (`SlopeKind.CUT`, desmonte) o pie (`SlopeKind.FILL`, terraplén) (S051) |
+| Borde de explanación | `SlopeEdge`, `ManualEdge` | Punto exterior de la sección de diseño de un lado, o el escrito a mano, desde el que parte el talud (S051) |
+| Altura de talud | `SlopeStakeInfo.heightM` | Diferencia de cota entre el borde de explanación y el punto de talud (S051) |
+| Desplazamiento de estaca | `SlopeStakeInfo.stakeOffsetM` | Distancia, hacia fuera sobre la sección, a la que se clava la estaca respecto al punto de talud (S051) |

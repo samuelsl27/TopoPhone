@@ -1,5 +1,6 @@
 package es.topophone.core.model.point
 
+import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import java.math.BigInteger
 import java.text.Normalizer
 import java.util.Locale
@@ -196,6 +197,7 @@ data class StakeoutRef(
     val dChainageM: Double? = null,
     val thicknessM: Double? = null,
     val sectionCode: String? = null,
+    val slope: SlopeStakeInfo? = null,
 ) {
     /** Se replanteó contra la superficie activa: guarda su nombre, su cota en la punta y el desplazamiento (S042/RF-28). */
     val usedSurface: Boolean get() = elevationSource == ElevationSource.SURFACE
