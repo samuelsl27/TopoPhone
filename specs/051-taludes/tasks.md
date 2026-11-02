@@ -12,9 +12,9 @@
       Hecho cuando: `SlopeEdgeTest` en verde.
 - [x] T5. `core:survey`: `TerrainAt` (perfiles de terreno interpolados entre PK y superficie, por orden). (RF-6)
       Hecho cuando: `TerrainAtTest` en verde.
-- [ ] T6. `core:survey`: `SlopeCatch` (tipo, punto de talud, altura, altura cero, sin intersección, sin terreno). (RF-5, RF-7, RF-8)
+- [x] T6. `core:survey`: `SlopeCatch` (tipo, punto de talud, altura, altura cero, sin intersección, sin terreno). (RF-5, RF-7, RF-8)
       Hecho cuando: `SlopeCatchTest` en verde contra `fixtures/ejes/taludes/` a 1 mm.
-- [ ] T7. `core:survey`: `SlopeLive` (diferencia de cota, distancia a moverse, error en PK, encontrado y estaca). (RF-11 a RF-14)
+- [x] T7. `core:survey`: `SlopeLive` (diferencia de cota, distancia a moverse, error en PK, encontrado y estaca). (RF-11 a RF-14)
       Hecho cuando: `SlopeLiveTest` en verde a 1 mm.
 - [ ] T8. `data`: Room v26 (`slope_rules` y seis columnas de `points`), `AutoMigration(25, 26)` y el esquema 26. (RF-4, RF-15, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 25 a 26 en verde.
