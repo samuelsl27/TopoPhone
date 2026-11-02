@@ -8,9 +8,9 @@
       Hecho cuando: los tests de `core:model` en verde.
 - [x] T3. `core:survey`: `SlopeValidator` (pendiente no válida, rangos solapados, PK fuera del eje). (RF-3)
       Hecho cuando: `SlopeValidatorTest` en verde.
-- [ ] T4. `core:survey`: `SlopeEdge` (borde de la sección de S050, código elegido o borde manual). (RF-1, RF-2, RF-5)
+- [x] T4. `core:survey`: `SlopeEdge` (borde de la sección de S050, código elegido o borde manual). (RF-1, RF-2, RF-5)
       Hecho cuando: `SlopeEdgeTest` en verde.
-- [ ] T5. `core:survey`: `TerrainAt` (perfiles de terreno interpolados entre PK y superficie, por orden). (RF-6)
+- [x] T5. `core:survey`: `TerrainAt` (perfiles de terreno interpolados entre PK y superficie, por orden). (RF-6)
       Hecho cuando: `TerrainAtTest` en verde.
 - [ ] T6. `core:survey`: `SlopeCatch` (tipo, punto de talud, altura, altura cero, sin intersección, sin terreno). (RF-5, RF-7, RF-8)
       Hecho cuando: `SlopeCatchTest` en verde contra `fixtures/ejes/taludes/` a 1 mm.
