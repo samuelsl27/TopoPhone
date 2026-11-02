@@ -189,7 +189,7 @@ class AlignmentProjector(
         VerticalVertex(v.chainage * metres, v.elevation * metres, curve)
     }
 
-    private companion object {
+    internal companion object {
         /** La flecha del muestreo con el que se calcula la extensión y se comprueba el ámbito: la del mapa (1 cm). */
         const val EXTENT_SAGITTA_M = 0.01
         const val CHECK_STEP_M = 100.0

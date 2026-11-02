@@ -1,6 +1,7 @@
 package es.topophone.core.survey
 
 import es.topophone.core.model.alignment.AlignmentElement
+import es.topophone.core.model.alignment.AlignmentExtent
 import es.topophone.core.model.alignment.VerticalProfile
 import es.topophone.core.model.alignment.VerticalVertex
 import kotlin.math.PI
@@ -25,8 +26,11 @@ sealed interface FieldAxisIssue {
 }
 
 sealed interface FieldAxisResult {
-    /** [profile] es la rasante con las cotas de los puntos, solo si se pidió y todos tienen cota (RF-7). */
-    data class Built(val elements: List<AlignmentElement>, val profile: VerticalProfile?) : FieldAxisResult
+    /**
+     * [profile] es la rasante con las cotas de los puntos, solo si se pidió y todos tienen cota (RF-7). [extent] es el recuadro del eje en
+     * el sistema del proyecto.
+     */
+    data class Built(val elements: List<AlignmentElement>, val profile: VerticalProfile?, val extent: AlignmentExtent) : FieldAxisResult
 
     data class Failed(val issue: FieldAxisIssue) : FieldAxisResult
 }
@@ -69,7 +73,9 @@ object FieldAxisBuilder {
             )
         }
         val profile = if (withGrade && vertices.all { it.heightM != null }) grade(vertices, elements, startChainage) else null
-        return FieldAxisResult.Built(elements, profile)
+        val samples = AlignmentSampler.sample(elements, AlignmentProjector.EXTENT_SAGITTA_M, AlignmentProjector.CHECK_STEP_M)
+        val extent = AlignmentExtent(samples.easting.min(), samples.easting.max(), samples.northing.min(), samples.northing.max())
+        return FieldAxisResult.Built(elements, profile, extent)
     }
 
     private fun grade(vertices: List<FieldVertex>, elements: List<AlignmentElement>, startChainage: Double): VerticalProfile? {

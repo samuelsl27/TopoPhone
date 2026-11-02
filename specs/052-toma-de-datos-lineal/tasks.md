@@ -22,7 +22,7 @@
       Hecho cuando: `LinearSurveyBackupTest` en verde.
 - [x] T10. `app`: `CollectorViewModel.setPointSavedListener`. (RF-2)
       Hecho cuando: `CollectorSavedListenerTest` en verde.
-- [ ] T11. `app`: `AxisSurveyViewModel` (abrir, añadir, quitar último, terminar, rechazos, reanudar). (RF-1 a RF-9)
+- [x] T11. `app`: `AxisSurveyViewModel` (abrir, añadir, quitar último, terminar, rechazos, reanudar). (RF-1 a RF-9)
       Hecho cuando: `AxisSurveyViewModelTest` en verde.
 - [ ] T12. `app`: panel de «Tomar eje», la línea de la toma en el mapa y «Tomar eje» en `ProjectView`. (RF-1, RF-3, RNF-T7, RNF-T8)
       Hecho cuando: `AxisSurveyPanelTest` en verde.

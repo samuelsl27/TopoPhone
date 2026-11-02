@@ -31,6 +31,8 @@ import es.topophone.data.gear.GearRepository
 import es.topophone.data.gear.RoomGearRepository
 import es.topophone.data.gpkg.GeoPackageImporter
 import es.topophone.data.gpkg.GeoPackageReader
+import es.topophone.data.linear.LinearSurveyRepository
+import es.topophone.data.linear.RoomLinearSurveyRepository
 import es.topophone.data.log.DataStoreLogPreferences
 import es.topophone.data.log.LogPreferences
 import es.topophone.data.map.DataStoreMapPreferences
@@ -239,6 +241,16 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideSlopeRepository(database: TopoPhoneDatabase, log: AppLog): SlopeRepository = RoomSlopeRepository(database, log)
+
+    /** Las tomas lineales: ejes, perfiles longitudinales y transversales tomados con el receptor (S052). */
+    @Provides
+    @Singleton
+    fun provideLinearSurveyRepository(
+        database: TopoPhoneDatabase,
+        alignments: AlignmentRepository,
+        sections: SectionRepository,
+        log: AppLog,
+    ): LinearSurveyRepository = RoomLinearSurveyRepository(database, alignments, sections, log)
 
     /** Los desplazamientos de base de los proyectos y el activo (S020). */
     @Provides
