@@ -484,6 +484,7 @@ class BackupRepository(
         copySurfaces(source, sink, args, newProjectId, surfaceIds)
         copyAlignments(source, sink, args, newProjectId, alignmentIds)
         copySections(source, sink, args, alignmentIds, keepIds)
+        copyLinearSurveys(source, sink, args, newProjectId, alignmentIds, pointIds, keepIds)
         copyBaseShifts(source, sink, args, newProjectId, shiftIds)
     }
 
@@ -592,6 +593,39 @@ class BackupRepository(
                     if (!keepIds) row.put("id", newId())
                     row.put("alignment_id", alignmentIds.getValue(row.getAsString("alignment_id")))
                 }
+            }
+        }
+    }
+
+    /**
+     * Las tomas lineales del proyecto con los puntos de cada una (S052/RF-23): el eje de la toma y sus puntos con los ids que tienen en la
+     * copia. Una toma cuyo eje se borró sigue sin eje.
+     */
+    private fun copyLinearSurveys(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        alignmentIds: Map<String, String>,
+        pointIds: Map<String, String>,
+        keepIds: Boolean,
+    ) {
+        val surveyIds = mutableMapOf<String, String>()
+        source("SELECT * FROM linear_surveys WHERE project_id = ? ORDER BY created_at_ms, rowid", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "linear_surveys") { survey ->
+                val old = survey.getAsString("id")
+                val id = if (keepIds) old else newId()
+                surveyIds[old] = id
+                survey.put("id", id)
+                survey.put("project_id", newProjectId)
+                survey.getAsString("alignment_id")?.let { survey.put("alignment_id", alignmentIds.getValue(it)) }
+            }
+        }
+        val inProject = "survey_id IN (SELECT id FROM linear_surveys WHERE project_id = ?)"
+        source("SELECT * FROM linear_survey_points WHERE $inProject ORDER BY survey_id, ordinal", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "linear_survey_points") { member ->
+                member.put("survey_id", surveyIds.getValue(member.getAsString("survey_id")))
+                member.put("point_id", pointIds.getValue(member.getAsString("point_id")))
             }
         }
     }

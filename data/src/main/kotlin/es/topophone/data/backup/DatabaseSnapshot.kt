@@ -185,6 +185,9 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("superelevation_rows", "WHERE alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"),
             // S051/RF-4: los taludes de los ejes viajan con ellos.
             Table("slope_rules", "WHERE alignment_id IN (SELECT id FROM alignments WHERE project_id = ?)"),
+            // S052/RF-23: las tomas lineales y los puntos de cada una (después de los puntos y de los ejes) viajan con el proyecto.
+            Table("linear_surveys", "WHERE project_id = ?"),
+            Table("linear_survey_points", "WHERE survey_id IN (SELECT id FROM linear_surveys WHERE project_id = ?)"),
             // S020/RF-12: los desplazamientos de base viajan con el proyecto.
             Table("base_shifts", "WHERE project_id = ?"),
             Table("ntrip_profiles", projectFilter = null),

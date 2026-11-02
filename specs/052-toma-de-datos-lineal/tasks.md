@@ -18,7 +18,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 26 a 27 en verde.
 - [x] T8. `data`: `LinearSurveyRepository` (alta atómica de puntos, excluir, terminar eje, terminar transversal con historial, borrar, reanudar, log). (RF-2, RF-4, RF-8, RF-9, RF-20, RF-22, RF-23)
       Hecho cuando: `LinearSurveyRepositoryTest` en verde.
-- [ ] T9. `data`: copias de seguridad y paquetes con las tomas. (RF-23)
+- [x] T9. `data`: copias de seguridad y paquetes con las tomas. (RF-23)
       Hecho cuando: `LinearSurveyBackupTest` en verde.
 - [ ] T10. `app`: `CollectorViewModel.setPointSavedListener`. (RF-2)
       Hecho cuando: `CollectorSavedListenerTest` en verde.
