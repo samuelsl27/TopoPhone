@@ -2137,4 +2137,19 @@
     <string name="slope_point_height">Altura de talud %1$s %2$s</string>
     <string name="slope_point_source_profile">Terreno: perfil de terreno</string>
     <string name="slope_point_source_surface">Terreno: superficie activa</string>
+    <string name="slope_stake_title">Replantear taludes del eje %1$s</string>
+    <string name="slope_stake_sides">Lados que se replantean</string>
+    <string name="slope_stake_stake_offset">Desplazamiento de estaca (%1$s), positivo hacia fuera</string>
+    <string name="slope_stake_stake_offset_help">Distancia hacia fuera del punto de talud donde se clava la estaca. Con 0 se clava en el propio punto.</string>
+    <string name="slope_stake_design">PK %1$s, lado %2$s</string>
+    <string name="slope_stake_dz_above">Punta %1$s por encima del talud</string>
+    <string name="slope_stake_dz_below">Punta %1$s por debajo del talud</string>
+    <string name="slope_stake_dz_none">Punta en la cota del talud</string>
+    <string name="slope_stake_move_outward">Muévete %1$s hacia fuera del eje</string>
+    <string name="slope_stake_move_inward">Muévete %1$s hacia dentro del eje</string>
+    <string name="slope_stake_move_none">No hace falta moverse</string>
+    <string name="slope_stake_pk_ahead">Error en PK: %1$s por delante</string>
+    <string name="slope_stake_pk_back">Error en PK: %1$s por detrás</string>
+    <string name="slope_stake_pk_none">En el PK de diseño</string>
+    <string name="slope_stake_a11y">%1$s, %2$s, %3$s</string>
 </resources>

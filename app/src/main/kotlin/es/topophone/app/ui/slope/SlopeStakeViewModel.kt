@@ -22,7 +22,9 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.EntryForm
+import es.topophone.core.model.point.HeadingChoice
 import es.topophone.core.model.point.HeightKind
+import es.topophone.core.model.point.StakeMode
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutSettings
 import es.topophone.core.model.point.TypedCoordinates
@@ -438,6 +440,10 @@ class SlopeStakeViewModel @Inject constructor(
     }
 
     // ---- ajustes de la guía, los mismos que en el replanteo de un punto
+
+    fun setGuideMode(mode: StakeMode): Boolean = change { it.copy(mode = mode) }
+
+    fun setHeading(choice: HeadingChoice): Boolean = change { it.copy(heading = choice) }
 
     fun setTolerance(text: String): Boolean {
         if (inProgress.active.value) return false

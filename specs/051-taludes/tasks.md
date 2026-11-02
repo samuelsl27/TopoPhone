@@ -30,7 +30,7 @@
       Hecho cuando: `SlopePointViewModelTest` y su test de pantalla en verde.
 - [x] T14. `app`: `SlopeStakeViewModel` (abrir, serie de PK, objetivo fijo, estaca, bloqueos y motivos de apagado). (RF-9, RF-14, RF-17, RF-18)
       Hecho cuando: `SlopeStakeViewModelTest` en verde.
-- [ ] T15. `app`: `SlopeStakePanel` y `SlopeElevationView` (alzado en vivo, diferencia de cota, distancia a moverse, error en PK). (RF-10 a RF-12, RNF-T8)
+- [x] T15. `app`: `SlopeStakePanel` y `SlopeElevationView` (alzado en vivo, diferencia de cota, distancia a moverse, error en PK). (RF-10 a RF-12, RNF-T8)
       Hecho cuando: `SlopeStakePanelTest` y `SlopeElevationViewTest` en verde.
 - [ ] T16. `app`: «Punto de talud encontrado» con sonido y vibración. (RF-13)
       Hecho cuando: el test del panel y del ViewModel en verde.

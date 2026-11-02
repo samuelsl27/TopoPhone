@@ -2125,4 +2125,19 @@
     <string name="slope_point_height">Slope height %1$s %2$s</string>
     <string name="slope_point_source_profile">Terrain: ground profile</string>
     <string name="slope_point_source_surface">Terrain: active surface</string>
+    <string name="slope_stake_title">Stake out slopes of alignment %1$s</string>
+    <string name="slope_stake_sides">Sides to stake out</string>
+    <string name="slope_stake_stake_offset">Stake offset (%1$s), positive outward</string>
+    <string name="slope_stake_stake_offset_help">Distance outward from the slope point where the stake is driven. With 0 it is driven at the point itself.</string>
+    <string name="slope_stake_design">Chainage %1$s, %2$s side</string>
+    <string name="slope_stake_dz_above">Tip %1$s above the slope</string>
+    <string name="slope_stake_dz_below">Tip %1$s below the slope</string>
+    <string name="slope_stake_dz_none">Tip at the slope height</string>
+    <string name="slope_stake_move_outward">Move %1$s away from the alignment</string>
+    <string name="slope_stake_move_inward">Move %1$s towards the alignment</string>
+    <string name="slope_stake_move_none">No need to move</string>
+    <string name="slope_stake_pk_ahead">Chainage error: %1$s ahead</string>
+    <string name="slope_stake_pk_back">Chainage error: %1$s behind</string>
+    <string name="slope_stake_pk_none">At the design chainage</string>
+    <string name="slope_stake_a11y">%1$s, %2$s, %3$s</string>
 </resources>

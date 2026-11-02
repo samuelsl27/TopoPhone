@@ -161,7 +161,7 @@ private fun Status(text: String, error: Boolean = true) {
 }
 
 @Composable
-private fun unavailableText(reason: SlopeEdgeResult): String = when (reason) {
+internal fun unavailableText(reason: SlopeEdgeResult): String = when (reason) {
     SlopeEdgeResult.NoRule -> stringResource(R.string.slope_point_status_no_rule)
     SlopeEdgeResult.NoSection -> stringResource(R.string.slope_point_status_no_section)
     is SlopeEdgeResult.NoEdge -> stringResource(R.string.slope_point_status_no_edge, reason.code)
