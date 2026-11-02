@@ -20,7 +20,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 25 a 26 en verde.
 - [x] T9. `data`: `SlopeRepository` (altas y bajas en una transacción, log, borrar el eje) y copias y paquetes. (RF-4)
       Hecho cuando: `SlopeRepositoryTest` y `SlopeBackupTest` en verde.
-- [ ] T10. `core:formats`: columnas de talud en `StakeoutReportCsv` y dorados regenerados. (RF-16)
+- [x] T10. `core:formats`: columnas de talud en `StakeoutReportCsv` y dorados regenerados. (RF-16)
       Hecho cuando: `StakeoutReportCsvTest` y el golden en verde.
 - [ ] T11. `app`: `SlopesViewModel` (definir por lado y rango, sección manual, rechazos). (RF-1 a RF-3)
       Hecho cuando: `SlopesViewModelTest` en verde.

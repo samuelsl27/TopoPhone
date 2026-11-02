@@ -32,6 +32,12 @@ object StakeoutReportCsv {
      */
     private val AXIS_HEADERS = listOf("Alignment", "Thickness", "Delta chainage", "Section code")
 
+    /**
+     * Si el punto es un punto de talud: el tipo (`CUT` cabeza o `FILL` pie), el lado, la relación H:V, la altura de talud, la diferencia de
+     * cota con el talud y el desplazamiento de estaca (S051/RF-16).
+     */
+    private val SLOPE_HEADERS = listOf("Slope kind", "Slope side", "Slope ratio", "Slope height", "Slope delta elevation", "Stake offset")
+
     /** Si el punto de diseño era un elemento de un dibujo: el dibujo, la capa, el tipo de elemento, el modo, el PK y el desplazamiento (S041/RF-30). */
     private val DRAWING_HEADERS = listOf("Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset")
 
@@ -44,7 +50,7 @@ object StakeoutReportCsv {
         return listOf("Design name", "Stakeout number", "Staked name", "Description") +
             listOf("Design ${first.first}", "Design ${first.second}", "Design elevation") +
             listOf("Measured ${first.first}", "Measured ${first.second}", "Measured elevation") +
-            TAIL_HEADERS + AXIS_HEADERS + DRAWING_HEADERS + SURFACE_HEADERS
+            TAIL_HEADERS + AXIS_HEADERS + SLOPE_HEADERS + DRAWING_HEADERS + SURFACE_HEADERS
     }
 
     /** Escribe el informe de [rows] en [out]; falla si el separador y el signo decimal son los dos la coma (S012/RF-14). */
@@ -63,6 +69,19 @@ object StakeoutReportCsv {
     private fun axisValues(ref: StakeoutRef, length: (Double?) -> String): List<String> {
         val source = ref.source as? StakeSource.Alignment ?: return List(AXIS_HEADERS.size) { "" }
         return listOf(source.alignmentName, length(ref.thicknessM), length(ref.dChainageM), ref.sectionCode.orEmpty())
+    }
+
+    /** Las seis columnas del talud, vacías en un punto replanteado que no es de talud (S051/RF-16). */
+    private fun slopeValues(ref: StakeoutRef, length: (Double?) -> String, decimal: DecimalSeparator): List<String> {
+        val slope = ref.slope ?: return List(SLOPE_HEADERS.size) { "" }
+        return listOf(
+            slope.kind.name,
+            slope.side.name,
+            CsvExport.number(slope.ratio, CsvExport.LENGTH_DECIMALS, decimal),
+            length(slope.heightM),
+            length(slope.dHeightM),
+            length(slope.stakeOffsetM),
+        )
     }
 
     /** Las seis columnas del dibujo, vacías en un punto replanteado que viene de un punto del proyecto (S041/RF-30). */
@@ -117,6 +136,7 @@ object StakeoutReportCsv {
                 row.last.toString(),
                 measurement?.quality?.solution.orEmpty(),
                 measurement?.measuredFromMs?.let(CsvExport::utc).orEmpty(),
-            ) + axisValues(ref, ::length) + drawingValues(ref, ::length) + surfaceValues(ref, ::length)
+            ) + axisValues(ref, ::length) + slopeValues(ref, ::length, decimal) + drawingValues(ref, ::length) +
+            surfaceValues(ref, ::length)
     }
 }

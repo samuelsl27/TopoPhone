@@ -27,6 +27,7 @@ UTM_HEADER = [
     "Measured easting", "Measured northing", "Measured elevation", "Delta northing", "Delta easting", "Horizontal distance",
     "Delta elevation", "Horizontal tolerance", "Vertical tolerance", "Within tolerance", "Last", "Solution", "Measured from",
     "Alignment", "Thickness", "Delta chainage", "Section code",
+    "Slope kind", "Slope side", "Slope ratio", "Slope height", "Slope delta elevation", "Stake offset",
     "Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset",
     "Elevation source", "Surface", "Surface elevation", "Vertical offset",
 ]  # fmt: skip
