@@ -23,6 +23,8 @@ import es.topophone.core.model.surface.SurfaceKind
 import es.topophone.data.alignment.AlignmentEntity
 import es.topophone.data.baseshift.BaseShiftEntity
 import es.topophone.data.cad.RoomCadRepository
+import es.topophone.data.linear.LinearSurveyEntity
+import es.topophone.data.linear.LinearSurveyPointEntity
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.photo.PhotoEventEntity
 import es.topophone.data.photo.PointPhotoEntity
@@ -1316,9 +1318,65 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S052 RNF-T6 v26 a v27 los ejes y puntos siguen y las tomas nacen vacias`() {
+        createFromExportedSchema(26)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v26 ->
+            v26.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v26.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.single().measurement.shouldNotBeNull().coordinates.northing shouldBe 4474257.414123456
+            count(db, "linear_surveys") shouldBe 0
+            count(db, "linear_survey_points") shouldBe 0
+            val axis = AlignmentEntity(
+                "e1", project.id, "Eje A", null, 1, "FIELD", 0.0, 100.0, true, 0.0, 1.0, 0.0, 1.0, false, ByteArray(1), null,
+            )
+            val survey = LinearSurveyEntity("t1", project.id, "LONGITUDINAL", "e1", "Perfil", 0.0, 100.0, 10.0, null, true, 0.5, 5, null)
+            val member = LinearSurveyPointEntity("t1", "punto-1", 0, true, 12.345678901234, -0.123456789012, null, "NONE", null)
+            runBlocking {
+                db.alignments().insert(axis)
+                db.linearSurveys().insertSurvey(survey)
+                db.linearSurveys().insertPoint(member)
+                db.linearSurveys().surveys(project.id).first() shouldBe listOf(survey)
+                db.linearSurveys().points("t1").first() shouldBe listOf(member)
+                // Un punto no entra dos veces en la misma toma.
+                shouldThrow<SQLiteConstraintException> { db.linearSurveys().insertPoint(member.copy(ordinal = 1)) }
+                // Borrar el eje deja la toma sin eje y el punto sigue.
+                db.alignments().delete("e1")
+                db.linearSurveys().surveys(project.id).first() shouldBe listOf(survey.copy(alignmentId = null))
+                count(db, "points") shouldBe 1
+                // Purgar el punto lo quita de la toma, pero la toma sigue.
+                db.openHelper.writableDatabase.execSQL("DELETE FROM points WHERE id = 'punto-1'")
+                count(db, "linear_survey_points") shouldBe 0
+                count(db, "linear_surveys") shouldBe 1
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 26
+        const val CURRENT_VERSION = 27
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

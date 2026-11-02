@@ -20,6 +20,9 @@ import es.topophone.data.gear.AntennaProfileEntity
 import es.topophone.data.gear.GearDao
 import es.topophone.data.gear.ReceiverGearEntity
 import es.topophone.data.gear.SavedPoleEntity
+import es.topophone.data.linear.LinearSurveyDao
+import es.topophone.data.linear.LinearSurveyEntity
+import es.topophone.data.linear.LinearSurveyPointEntity
 import es.topophone.data.map.MapViewportDao
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.ntrip.NtripProfileDao
@@ -85,6 +88,7 @@ import es.topophone.data.surface.SurfaceTileEntity
  * - v23 (S020): los desplazamientos de base de cada proyecto (`base_shifts`) y, en cada punto, el vector con que se midió, el punto
  *   conocido y la punta sin desplazar (columnas que admiten NULL). Migración de Room.
  * - v24 (S017b): las fotos de los puntos (`point_photos`) y sus sucesos (`photo_events`). Solo añade tablas: migración de Room.
+ * - v27 (S052): las tomas lineales (`linear_surveys`) y los puntos de cada una (`linear_survey_points`). Solo añade tablas: migración de Room.
  */
 @Database(
     entities = [
@@ -93,7 +97,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         SurfaceEntity::class, SurfaceTileEntity::class, AntennaProfileEntity::class, SavedPoleEntity::class, ReceiverGearEntity::class,
         CadChunkAttributesEntity::class, AlignmentEntity::class, RasterTileEntity::class, BaseShiftEntity::class,
         PointPhotoEntity::class, PhotoEventEntity::class, SectionTemplateEntity::class, SectionProfileEntity::class,
-        SuperelevationRowEntity::class, SlopeRuleEntity::class,
+        SuperelevationRowEntity::class, SlopeRuleEntity::class, LinearSurveyEntity::class, LinearSurveyPointEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -123,6 +127,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 23, to = 24),
         AutoMigration(from = 24, to = 25),
         AutoMigration(from = 25, to = 26),
+        AutoMigration(from = 26, to = 27),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -151,11 +156,13 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun slopes(): SlopeDao
 
+    abstract fun linearSurveys(): LinearSurveyDao
+
     companion object {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 26
+        const val VERSION = 27
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

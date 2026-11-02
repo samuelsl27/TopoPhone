@@ -14,7 +14,7 @@
       Hecho cuando: `CrossProfileBuilderTest` en verde.
 - [x] T6. `core:formats`: `ProfileCsv` con dorado. (RF-15, RF-22)
       Hecho cuando: `ProfileCsvTest` en verde.
-- [ ] T7. `data`: Room v27 (`linear_surveys`, `linear_survey_points`), `AutoMigration(26, 27)` y el esquema 27. (RF-8, RF-9, RNF-T6)
+- [x] T7. `data`: Room v27 (`linear_surveys`, `linear_survey_points`), `AutoMigration(26, 27)` y el esquema 27. (RF-8, RF-9, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 26 a 27 en verde.
 - [ ] T8. `data`: `LinearSurveyRepository` (alta atómica de puntos, excluir, terminar eje, terminar transversal con historial, borrar, reanudar, log). (RF-2, RF-4, RF-8, RF-9, RF-20, RF-22, RF-23)
       Hecho cuando: `LinearSurveyRepositoryTest` en verde.
