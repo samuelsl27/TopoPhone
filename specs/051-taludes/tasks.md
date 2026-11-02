@@ -40,9 +40,9 @@
       Hecho cuando: `SlopeStakeMeasureTest` y `PointDetails` ampliado en verde.
 - [x] T19. `app`: el símbolo propio en el mapa y la columna en el informe de la pantalla. (RF-16)
       Hecho cuando: los tests de escena y de informe en verde.
-- [ ] T20. Reproducción que sube por una sección, época a época contra el cálculo aparte. (RF-10 a RF-13, RNF-T13)
+- [x] T20. Reproducción que sube por una sección, época a época contra el cálculo aparte. (RF-10 a RF-13, RNF-T13)
       Hecho cuando: `SlopeStakeReplayTest` en verde a 1 mm.
-- [ ] T21. Rendimiento: el alzado y la guía de una época en menos de 16 ms. (RNF-T13)
+- [x] T21. Rendimiento: el alzado y la guía de una época en menos de 16 ms. (RNF-T13)
       Hecho cuando: `SlopeStakePerformanceTest` en verde.
 - [ ] T22. Validación: cambios en documentos anteriores (hoja de ruta, Room v26), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.
