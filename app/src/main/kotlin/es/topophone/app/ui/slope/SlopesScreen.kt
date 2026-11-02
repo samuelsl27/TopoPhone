@@ -41,6 +41,7 @@ import es.topophone.core.model.preferences.ThemeState
 const val SLOPES_LIST_TAG = "slopes_list"
 const val SLOPES_EMPTY_TAG = "slopes_empty"
 const val SLOPES_ADD_TAG = "slopes_add"
+const val SLOPES_CALCULATE_TAG = "slopes_calculate"
 const val SLOPES_PROBLEM_TAG = "slopes_problem"
 const val SLOPES_EDITOR_TAG = "slopes_editor"
 const val SLOPES_FROM_TAG = "slopes_from"
@@ -66,6 +67,7 @@ class SlopesActions(
     val onDraft: ((SlopeDraft) -> SlopeDraft) -> Unit = {},
     val onSave: () -> Unit = {},
     val onDelete: (String) -> Unit = {},
+    val onCalculate: () -> Unit = {},
 )
 
 /**
@@ -129,6 +131,12 @@ private fun Rules(state: SlopesUiState, actions: SlopesActions) {
         onClick = actions.onAdd,
         modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(SLOPES_ADD_TAG),
     ) { Text(stringResource(R.string.slope_add)) }
+    if (state.rules.isNotEmpty()) {
+        OutlinedButton(
+            onClick = actions.onCalculate,
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(SLOPES_CALCULATE_TAG),
+        ) { Text(stringResource(R.string.slope_point_calculate)) }
+    }
 }
 
 @Composable

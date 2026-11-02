@@ -119,6 +119,9 @@ import kotlinx.serialization.Serializable
 /** Los taludes de un eje del proyecto (S051/RF-1). */
 @Serializable data class SlopesDestination(val projectId: String, val alignmentId: String)
 
+/** El cálculo del punto de talud teórico de un eje (S051/RF-5 a RF-8). */
+@Serializable data class SlopePointDestination(val projectId: String, val alignmentId: String)
+
 /** El cálculo de un punto de la sección de un eje y su alzado (S050/RF-9 a RF-15). */
 @Serializable data class SectionPointDestination(val projectId: String, val alignmentId: String)
 

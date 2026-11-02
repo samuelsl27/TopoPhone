@@ -2121,4 +2121,20 @@
     <string name="slope_issue_overlap">El rango de PK %2$s a %3$s se solapa con otro talud del lado %1$s.</string>
     <string name="slope_issue_outside">El PK %1$s queda fuera del eje.</string>
     <string name="slope_issue_manual">El borde manual no vale: el desplazamiento y la cota tienen que ser números.</string>
+    <string name="slope_point_title">Punto de talud</string>
+    <string name="slope_point_calculate">Calcular punto de talud</string>
+    <string name="slope_point_status_no_rule">No hay talud definido en este PK y lado.</string>
+    <string name="slope_point_status_no_section">No hay sección en este PK.</string>
+    <string name="slope_point_status_no_edge">La sección no tiene el código %1$s del borde.</string>
+    <string name="slope_point_status_no_height">La sección no tiene cota en este PK.</string>
+    <string name="slope_point_status_outside">El PK queda fuera del eje.</string>
+    <string name="slope_point_no_terrain">Sin terreno conocido: el punto de talud solo se puede buscar en vivo.</string>
+    <string name="slope_point_no_intersection">Sin intersección con el terreno.</string>
+    <string name="slope_point_at_edge">El terreno está a la cota del borde: el punto de talud es el borde, con altura cero.</string>
+    <string name="slope_point_edge">Borde a %1$s %2$s, cota %3$s</string>
+    <string name="slope_point_kind_cut">Cabeza de desmonte, talud %1$s</string>
+    <string name="slope_point_kind_fill">Pie de terraplén, talud %1$s</string>
+    <string name="slope_point_height">Altura de talud %1$s %2$s</string>
+    <string name="slope_point_source_profile">Terreno: perfil de terreno</string>
+    <string name="slope_point_source_surface">Terreno: superficie activa</string>
 </resources>

@@ -26,7 +26,7 @@
       Hecho cuando: `SlopesViewModelTest` en verde.
 - [x] T12. `app`: `SlopesScreen`, «Taludes» en `AlignmentsSheet` y `AlignmentFicha`, y la navegación. (RF-1, RNF-T7, RNF-T8)
       Hecho cuando: `SlopesScreenTest`, `AlignmentsSheetTest` y `AlignmentTouchTest` ampliados en verde.
-- [ ] T13. `app`: punto de talud teórico (PK y lado, terreno de perfiles o superficie). (RF-5 a RF-8)
+- [x] T13. `app`: punto de talud teórico (PK y lado, terreno de perfiles o superficie). (RF-5 a RF-8)
       Hecho cuando: `SlopePointViewModelTest` y su test de pantalla en verde.
 - [ ] T14. `app`: `SlopeStakeViewModel` (abrir, serie de PK, objetivo fijo, estaca, bloqueos y motivos de apagado). (RF-9, RF-14, RF-17, RF-18)
       Hecho cuando: `SlopeStakeViewModelTest` en verde.

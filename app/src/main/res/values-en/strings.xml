@@ -2109,4 +2109,20 @@
     <string name="slope_issue_overlap">The chainage range %2$s to %3$s overlaps another slope on the %1$s side.</string>
     <string name="slope_issue_outside">Chainage %1$s is outside the alignment.</string>
     <string name="slope_issue_manual">The manual edge is not valid: the offset and the elevation must be numbers.</string>
+    <string name="slope_point_title">Slope point</string>
+    <string name="slope_point_calculate">Calculate slope point</string>
+    <string name="slope_point_status_no_rule">There is no slope defined at this chainage and side.</string>
+    <string name="slope_point_status_no_section">There is no section at this chainage.</string>
+    <string name="slope_point_status_no_edge">The section has no edge code %1$s.</string>
+    <string name="slope_point_status_no_height">The section has no elevation at this chainage.</string>
+    <string name="slope_point_status_outside">The chainage is outside the alignment.</string>
+    <string name="slope_point_no_terrain">No known terrain: the slope point can only be searched live.</string>
+    <string name="slope_point_no_intersection">No intersection with the terrain.</string>
+    <string name="slope_point_at_edge">The terrain is at the edge elevation: the slope point is the edge, with zero height.</string>
+    <string name="slope_point_edge">Edge at %1$s %2$s, elevation %3$s</string>
+    <string name="slope_point_kind_cut">Cut top, slope %1$s</string>
+    <string name="slope_point_kind_fill">Fill toe, slope %1$s</string>
+    <string name="slope_point_height">Slope height %1$s %2$s</string>
+    <string name="slope_point_source_profile">Terrain: ground profile</string>
+    <string name="slope_point_source_surface">Terrain: active surface</string>
 </resources>

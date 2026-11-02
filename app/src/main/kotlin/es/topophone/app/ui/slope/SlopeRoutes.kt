@@ -14,6 +14,7 @@ fun SlopesRoute(
     alignmentId: String,
     themeState: ThemeState,
     onToggleSun: () -> Unit,
+    onCalculate: () -> Unit,
     onBack: () -> Unit,
     viewModel: SlopesViewModel = hiltViewModel(),
 ) {
@@ -29,7 +30,29 @@ fun SlopesRoute(
             onDraft = { change -> viewModel.updateDraft(change) },
             onSave = viewModel::save,
             onDelete = viewModel::delete,
+            onCalculate = onCalculate,
         ),
+        onBack = onBack,
+    )
+}
+
+/** La pantalla del punto de talud teórico del eje [alignmentId] del proyecto [projectId] (S051/RF-5 a RF-8). */
+@Composable
+fun SlopePointRoute(
+    projectId: String,
+    alignmentId: String,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: SlopePointViewModel = hiltViewModel(),
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(projectId, alignmentId) { viewModel.start(projectId, alignmentId) }
+    SlopePointScreen(
+        themeState = themeState,
+        onToggleSun = onToggleSun,
+        state = state,
+        actions = SlopePointActions(onChainage = viewModel::setChainage, onSide = viewModel::setSide),
         onBack = onBack,
     )
 }
