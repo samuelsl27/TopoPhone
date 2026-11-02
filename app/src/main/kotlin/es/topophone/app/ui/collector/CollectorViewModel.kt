@@ -84,6 +84,7 @@ import es.topophone.receiver.session.SessionEpoch
 import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -301,6 +302,9 @@ class CollectorViewModel @Inject constructor(
     /** De una línea del dibujo, quien da el objetivo de ahora al terminar la medida (S041/RF-28); null con un punto fijo. */
     private var stakeObjective: StakeObjectiveProvider? = null
     private var axisReference: AxisReferenceProvider? = null
+
+    /** Quien quiere saber de cada punto que se guarda, o null (S052/RF-2). */
+    private var pointSavedListener: PointSavedListener? = null
     private val statsFlow = MutableStateFlow<AverageStatsUi?>(null)
     private var lastStatsAtMs = 0L
 
@@ -591,6 +595,15 @@ class CollectorViewModel @Inject constructor(
     @Synchronized
     fun setAxisReference(provider: AxisReferenceProvider?) {
         axisReference = provider
+    }
+
+    /**
+     * Avisa a [listener] de cada punto que el recolector guarda, para añadirlo a una toma lineal (S052/RF-2), o null para dejar de avisar.
+     * Un fallo del aviso no impide guardar el punto: queda en el log.
+     */
+    @Synchronized
+    fun setPointSavedListener(listener: PointSavedListener?) {
+        pointSavedListener = listener
     }
 
     /**
@@ -1181,6 +1194,15 @@ class CollectorViewModel @Inject constructor(
                 PointSaveResult.Saved -> {
                     photos.saved(toSave.id, finalName) // S017b/RF-5, RF-6
                     alerts.pointSaved() // S010/RF-19
+                    pointSavedListener?.let { listener ->
+                        try {
+                            listener.onSaved(SavedPoint(toSave.id, finalName, measurement.coordinates)) // S052/RF-2
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            log.warning(LogCategory.POINTS, "No se pudo añadir el punto guardado a la toma: ${e::class.simpleName}")
+                        }
+                    }
                     val target = stake
                     if (target != null) {
                         // S018/RF-27: el replanteo siguiente del mismo punto de diseño, `_stkd2`…

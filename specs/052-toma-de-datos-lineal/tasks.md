@@ -20,7 +20,7 @@
       Hecho cuando: `LinearSurveyRepositoryTest` en verde.
 - [x] T9. `data`: copias de seguridad y paquetes con las tomas. (RF-23)
       Hecho cuando: `LinearSurveyBackupTest` en verde.
-- [ ] T10. `app`: `CollectorViewModel.setPointSavedListener`. (RF-2)
+- [x] T10. `app`: `CollectorViewModel.setPointSavedListener`. (RF-2)
       Hecho cuando: `CollectorSavedListenerTest` en verde.
 - [ ] T11. `app`: `AxisSurveyViewModel` (abrir, añadir, quitar último, terminar, rechazos, reanudar). (RF-1 a RF-9)
       Hecho cuando: `AxisSurveyViewModelTest` en verde.
