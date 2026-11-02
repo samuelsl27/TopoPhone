@@ -4,9 +4,9 @@
 
 - [x] T1. `tools/ejes`: `generar_taludes.py` con `fixtures/ejes/taludes/`: desmonte, terraplén, altura cero y sin intersección contra un perfil de terreno poligonal y contra un TIN pequeño, con lo esperado en aritmética racional. (RF-5 a RF-8)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
-- [ ] T2. `core:model`: `SlopeSide`, `SlopeKind`, `SlopeRule`, `ManualEdge`, `SlopeIssue`, `SlopeStakeInfo` en `StakeoutRef` y los términos en `docs/glosario.md`. (RF-1, RF-2, RF-15)
+- [x] T2. `core:model`: `SlopeSide`, `SlopeKind`, `SlopeRule`, `ManualEdge`, `SlopeIssue`, `SlopeStakeInfo` en `StakeoutRef` y los términos en `docs/glosario.md`. (RF-1, RF-2, RF-15)
       Hecho cuando: los tests de `core:model` en verde.
-- [ ] T3. `core:survey`: `SlopeValidator` (pendiente no válida, rangos solapados, PK fuera del eje). (RF-3)
+- [x] T3. `core:survey`: `SlopeValidator` (pendiente no válida, rangos solapados, PK fuera del eje). (RF-3)
       Hecho cuando: `SlopeValidatorTest` en verde.
 - [ ] T4. `core:survey`: `SlopeEdge` (borde de la sección de S050, código elegido o borde manual). (RF-1, RF-2, RF-5)
       Hecho cuando: `SlopeEdgeTest` en verde.
