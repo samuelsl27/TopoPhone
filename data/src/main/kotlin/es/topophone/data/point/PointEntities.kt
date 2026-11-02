@@ -5,6 +5,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import es.topophone.core.model.alignment.slope.SlopeKind
+import es.topophone.core.model.alignment.slope.SlopeSide
+import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.AppliedShift
@@ -200,6 +203,13 @@ data class PointEntity(
     @ColumnInfo(name = "unshifted_ground_h") val unshiftedGroundH: Double? = null,
     // S050/RF-15, RF-19: el código de sección de un punto calculado sobre un eje o replanteado por código (copiado); NULL en los demás.
     @ColumnInfo(name = "section_code") val sectionCode: String? = null,
+    // S051/RF-15: lo propio del talud de un punto replanteado (cabeza o pie); NULL en los demás.
+    @ColumnInfo(name = "slope_kind") val slopeKind: String? = null,
+    @ColumnInfo(name = "slope_side") val slopeSide: String? = null,
+    @ColumnInfo(name = "slope_ratio") val slopeRatio: Double? = null,
+    @ColumnInfo(name = "slope_height") val slopeHeight: Double? = null,
+    @ColumnInfo(name = "slope_d_height") val slopeDHeight: Double? = null,
+    @ColumnInfo(name = "slope_stake_offset") val slopeStakeOffset: Double? = null,
 )
 
 /**
@@ -371,6 +381,12 @@ internal fun Point.toEntity(): PointEntity {
         axisDHeight = onAxis?.dHeightM,
         axisHeightRef = onAxis?.heightRef?.name,
         sectionCode = onAxis?.sectionCode ?: staked?.sectionCode,
+        slopeKind = staked?.slope?.kind?.name,
+        slopeSide = staked?.slope?.side?.name,
+        slopeRatio = staked?.slope?.ratio,
+        slopeHeight = staked?.slope?.heightM,
+        slopeDHeight = staked?.slope?.dHeightM,
+        slopeStakeOffset = staked?.slope?.stakeOffsetM,
         shiftId = m?.shift?.shiftId,
         shiftName = m?.shift?.knownName,
         shiftDx = m?.shift?.vector?.dx,
@@ -442,7 +458,15 @@ private fun PointEntity.staked(): StakeoutRef? = StakeoutRef(
     dChainageM = stakeDChainage,
     thicknessM = stakeThickness,
     sectionCode = sectionCode.takeIf { axisName == null },
+    slope = slopeInfo(),
 )
+
+/** Lo propio del talud de un punto replanteado; null en los demás (S051/RF-15). */
+private fun PointEntity.slopeInfo(): SlopeStakeInfo? {
+    val kind = SlopeKind.entries.firstOrNull { it.name == slopeKind } ?: return null
+    val side = SlopeSide.entries.firstOrNull { it.name == slopeSide } ?: return null
+    return SlopeStakeInfo(kind, side, slopeRatio ?: return null, slopeHeight ?: return null, slopeDHeight, slopeStakeOffset ?: 0.0)
+}
 
 /** El dibujo, la capa y el tipo del elemento replanteado; el punto del proyecto si no vino de un dibujo (S041/RF-28). */
 private fun PointEntity.cadSource(): StakeSource {

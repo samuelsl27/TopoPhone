@@ -16,7 +16,7 @@
       Hecho cuando: `SlopeCatchTest` en verde contra `fixtures/ejes/taludes/` a 1 mm.
 - [x] T7. `core:survey`: `SlopeLive` (diferencia de cota, distancia a moverse, error en PK, encontrado y estaca). (RF-11 a RF-14)
       Hecho cuando: `SlopeLiveTest` en verde a 1 mm.
-- [ ] T8. `data`: Room v26 (`slope_rules` y seis columnas de `points`), `AutoMigration(25, 26)` y el esquema 26. (RF-4, RF-15, RNF-T6)
+- [x] T8. `data`: Room v26 (`slope_rules` y seis columnas de `points`), `AutoMigration(25, 26)` y el esquema 26. (RF-4, RF-15, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 25 a 26 en verde.
 - [ ] T9. `data`: `SlopeRepository` (altas y bajas en una transacción, log, borrar el eje) y copias y paquetes. (RF-4)
       Hecho cuando: `SlopeRepositoryTest` y `SlopeBackupTest` en verde.

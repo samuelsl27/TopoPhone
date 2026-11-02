@@ -38,6 +38,8 @@ import es.topophone.data.section.SectionDao
 import es.topophone.data.section.SectionProfileEntity
 import es.topophone.data.section.SectionTemplateEntity
 import es.topophone.data.section.SuperelevationRowEntity
+import es.topophone.data.slope.SlopeDao
+import es.topophone.data.slope.SlopeRuleEntity
 import es.topophone.data.surface.RasterTileEntity
 import es.topophone.data.surface.SurfaceDao
 import es.topophone.data.surface.SurfaceEntity
@@ -91,7 +93,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         SurfaceEntity::class, SurfaceTileEntity::class, AntennaProfileEntity::class, SavedPoleEntity::class, ReceiverGearEntity::class,
         CadChunkAttributesEntity::class, AlignmentEntity::class, RasterTileEntity::class, BaseShiftEntity::class,
         PointPhotoEntity::class, PhotoEventEntity::class, SectionTemplateEntity::class, SectionProfileEntity::class,
-        SuperelevationRowEntity::class,
+        SuperelevationRowEntity::class, SlopeRuleEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -120,6 +122,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 22, to = 23),
         AutoMigration(from = 23, to = 24),
         AutoMigration(from = 24, to = 25),
+        AutoMigration(from = 25, to = 26),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -146,11 +149,13 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun sections(): SectionDao
 
+    abstract fun slopes(): SlopeDao
+
     companion object {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 25
+        const val VERSION = 26
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

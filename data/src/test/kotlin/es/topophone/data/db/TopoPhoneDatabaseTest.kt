@@ -33,6 +33,7 @@ import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.section.SectionProfileEntity
 import es.topophone.data.section.SectionTemplateEntity
 import es.topophone.data.section.SuperelevationRowEntity
+import es.topophone.data.slope.SlopeRuleEntity
 import es.topophone.data.surface.RoomSurfaceRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldBeNull
@@ -1268,9 +1269,56 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S051 RNF-T6 v25 a v26 los ejes y puntos siguen y los taludes nacen vacios`() {
+        createFromExportedSchema(25)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v25 ->
+            v25.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v25.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val points = runBlocking { RoomPointRepository(db).points(project.id).first() }
+            points.single().measurement.shouldNotBeNull().coordinates.northing shouldBe 4474257.414123456
+            points.single().staked shouldBe null
+            count(db, "slope_rules") shouldBe 0
+            val axis = AlignmentEntity(
+                "e1", project.id, "Eje A", null, 1, "MANUAL", 0.0, 100.0, true, 0.0, 1.0, 0.0, 1.0, false, ByteArray(1), null,
+            )
+            val rule = SlopeRuleEntity("r1", "e1", "RIGHT", 0.0, 100.0, 1.5, 2.0, "BD", 3.5, -0.07, "RELATIVE", 5)
+            runBlocking {
+                db.alignments().insert(axis)
+                db.slopes().insert(rule)
+                db.slopes().rules("e1").first() shouldBe listOf(rule)
+                // La cascada: borrar el eje se lleva sus taludes y el punto sigue.
+                db.alignments().delete("e1")
+                count(db, "slope_rules") shouldBe 0
+                count(db, "points") shouldBe 1
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 25
+        const val CURRENT_VERSION = 26
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
