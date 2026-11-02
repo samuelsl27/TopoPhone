@@ -5,20 +5,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
 import es.topophone.core.model.alignment.ChainageInput
-import es.topophone.core.model.alignment.section.SectionKind
-import es.topophone.core.model.alignment.section.Superelevation
 import es.topophone.core.model.alignment.slope.SlopeSide
 import es.topophone.core.model.project.LinearUnit
-import es.topophone.core.model.surface.SurfaceHeightSource
-import es.topophone.core.survey.AlignmentGeometry
-import es.topophone.core.survey.SectionResolver
-import es.topophone.core.survey.SlopeCatch
 import es.topophone.core.survey.SlopeCatchResult
-import es.topophone.core.survey.SlopeEdge
 import es.topophone.core.survey.SlopeEdgeResult
-import es.topophone.core.survey.TerrainAt
 import es.topophone.core.survey.TerrainSource
-import es.topophone.core.survey.VerticalProfileEval
 import es.topophone.data.alignment.AlignmentRepository
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.section.SectionRepository
@@ -30,7 +21,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -85,11 +75,7 @@ class SlopePointViewModel @Inject constructor(
     val state: StateFlow<SlopePointUiState> = mutable.asStateFlow()
 
     private var started = false
-    private var geometry: AlignmentGeometry? = null
-    private var profile: VerticalProfileEval? = null
-    private var resolver: SectionResolver? = null
-    private var terrain: TerrainAt? = null
-    private var rules: List<es.topophone.core.model.alignment.slope.SlopeRule> = emptyList()
+    private var solver: SlopeSolver? = null
     private var job: Job? = null
 
     /** Prepara el cálculo sobre el eje [alignmentId] del proyecto [projectId]; solo la primera vez. */
@@ -99,18 +85,7 @@ class SlopePointViewModel @Inject constructor(
         viewModelScope.launch(io) {
             val project = projects.project(projectId) ?: return@launch
             val alignment = alignments.alignment(alignmentId) ?: return@launch
-            val axis = AlignmentGeometry(alignment)
-            val ground = alignment.profile?.let { VerticalProfileEval(it) }
-            val stored = sections.sections(alignmentId).first().map { it.section }
-            val templates = sections.templates(alignmentId).first().map { it.template }
-            val hasSections = templates.isNotEmpty() || stored.any { it.kind == SectionKind.DESIGN }
-            geometry = axis
-            profile = ground
-            resolver =
-                if (hasSections) SectionResolver(templates, Superelevation(sections.superelevation(alignmentId).first()), stored) else null
-            rules = slopes.rules(alignmentId).first().map { it.rule }
-            val guide = surfaces.guide(projectId).first()
-            terrain = TerrainAt(stored, axis, ground, guide?.let { g -> SurfaceHeightSource { e, n -> g.heightAt(e, n) } })
+            solver = SlopeSolver.load(projectId, alignment, slopes, sections, surfaces)
             mutable.update {
                 it.copy(
                     loaded = true,
@@ -131,28 +106,15 @@ class SlopePointViewModel @Inject constructor(
         val chainage = ChainageInput.parse(next.chainageText, next.unit)
         mutable.value = next.copy(chainageInvalid = next.chainageText.isNotBlank() && chainage == null, outside = false, outcome = null)
         job?.cancel()
-        val axis = geometry ?: return
+        val current = solver ?: return
         if (chainage == null) return
-        if (!axis.contains(chainage)) {
+        if (!current.geometry.contains(chainage)) {
             mutable.update { it.copy(outside = true) }
             return
         }
         job = viewModelScope.launch(io) {
-            val outcome = compute(axis, chainage, next.side)
+            val outcome = current.outcome(chainage, next.side)
             mutable.update { if (it.chainageText == next.chainageText && it.side == next.side) it.copy(outcome = outcome) else it }
-        }
-    }
-
-    private fun compute(axis: AlignmentGeometry, chainage: Double, side: SlopeSide): SlopePointOutcome {
-        val edge = when (val e = SlopeEdge.of(rules, side, chainage, axis, profile, resolver)) {
-            is SlopeEdgeResult.Edge -> e
-            else -> return SlopePointOutcome.Unavailable(e)
-        }
-        return when (val result = SlopeCatch.of(edge, terrain, axis)) {
-            is SlopeCatchResult.Found -> SlopePointOutcome.Found(edge, result, terrain?.heightAt(chainage, result.offsetM)?.source)
-            is SlopeCatchResult.AtEdge -> SlopePointOutcome.AtEdge(edge)
-            SlopeCatchResult.NoIntersection -> SlopePointOutcome.NoIntersection(edge)
-            SlopeCatchResult.NoTerrain -> SlopePointOutcome.NoTerrain(edge)
         }
     }
 }

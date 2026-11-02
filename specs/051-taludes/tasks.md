@@ -28,7 +28,7 @@
       Hecho cuando: `SlopesScreenTest`, `AlignmentsSheetTest` y `AlignmentTouchTest` ampliados en verde.
 - [x] T13. `app`: punto de talud teórico (PK y lado, terreno de perfiles o superficie). (RF-5 a RF-8)
       Hecho cuando: `SlopePointViewModelTest` y su test de pantalla en verde.
-- [ ] T14. `app`: `SlopeStakeViewModel` (abrir, serie de PK, objetivo fijo, estaca, bloqueos y motivos de apagado). (RF-9, RF-14, RF-17, RF-18)
+- [x] T14. `app`: `SlopeStakeViewModel` (abrir, serie de PK, objetivo fijo, estaca, bloqueos y motivos de apagado). (RF-9, RF-14, RF-17, RF-18)
       Hecho cuando: `SlopeStakeViewModelTest` en verde.
 - [ ] T15. `app`: `SlopeStakePanel` y `SlopeElevationView` (alzado en vivo, diferencia de cota, distancia a moverse, error en PK). (RF-10 a RF-12, RNF-T8)
       Hecho cuando: `SlopeStakePanelTest` y `SlopeElevationViewTest` en verde.
