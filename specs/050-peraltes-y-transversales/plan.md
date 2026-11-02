@@ -160,3 +160,16 @@ Accesibilidad (RNF-T8): campos y botones de 56 dp; izquierda y derecha con la pa
 - S054: `AxisStakeoutViewModel`, `AxisStakeoutPanel`, `AxisAnalysis` y `KeyStations` se amplían sin cambiar lo que ya hacen; su `spec.md` no se toca sin que lo pidas.
 - S049: sin cambios (su «Fuera de alcance» ya apunta aquí).
 - La cabecera de estado de `specs/050-*/spec.md` no se toca sin que lo pidas.
+
+## Cambios al implementar (S050)
+Lo que se hizo distinto de lo previsto arriba, y por qué:
+- **`CrossSection`** en lugar de `DesignSection` y `GroundProfile` por separado: una sola clase con `SectionKind { DESIGN, GROUND }`; el glosario nombra las dos cosas con ese tipo.
+- **`SectionCode` y `SectionSlope` son `object`** con las reglas (12 caracteres, pendiente de módulo menor o igual que 1), y los códigos viajan como `String`: así el validador puede decir qué código no vale en lugar de que el modelo lance la excepción.
+- **`SectionSaveResult`** y la validación en `SectionRepository`: el repositorio valida (con `SectionValidator`) y guarda en una sola transacción; el `SectionImporter` del plan no hizo falta. Una sección explícita nueva en el mismo PK y tipo sustituye a la anterior; el peralte se guarda entero (`setSuperelevation`) y sustituye al anterior.
+- **Modo «Por código»**: lo lleva `AxisStakeoutViewModel` (con `SectionRepository`) y `SectionStationSeries` no salta pares sin código: lo hace quien recorre la serie (`moveCode`), que ya sabe si el código existe en la sección de ese PK (RF-21).
+- **Columna `Section code`** del informe de replanteo: va tras `Delta chainage` (en el grupo del eje) y no al final, para no mover las columnas del dibujo y la superficie; los dorados se regeneraron.
+- **`AxisHeightRef.SECTION`** se guarda en `axis_height_ref` (texto): la referencia «Sección» del análisis llega a la ficha del punto.
+- **El código de sección del punto** vive en `points.section_code`, que lee `AxisRef` (calculado sobre eje) y `StakeoutRef` (replanteado); un punto nunca tiene los dos.
+- **Pantallas**: `SectionsScreen` (listas y editores de sección tipo y de peralte), `SectionImportScreen`, `SectionPointScreen` con «Ver sección» (`SectionDrawing`); las líneas por código del mapa se activan con un interruptor en la ficha del eje y no se recuerdan (D7).
+- **`AlignmentMapViewModel`** y **`AxisStakeoutViewModel`** ganan el parámetro `SectionRepository`; `AxisAnalysisViewModel` también.
+- **D8** se mantiene: el lector de `CrossSects` solo se ha probado con ficheros sintéticos.

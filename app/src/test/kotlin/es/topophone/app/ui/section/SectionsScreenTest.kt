@@ -192,7 +192,7 @@ class SectionsScreenTest {
             ),
         )
 
-        compose.onNodeWithTag(SECTIONS_PROBLEM_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(SECTIONS_PROBLEM_TAG).performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("El rango de PK 0+050,00 a 0+150,00 se solapa con otra sección tipo.").assertExists()
     }
 

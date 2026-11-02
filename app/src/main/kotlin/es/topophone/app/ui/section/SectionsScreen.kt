@@ -120,13 +120,7 @@ fun SectionsScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Secti
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             state.alignment?.let { Text(it.name, style = MaterialTheme.typography.titleMedium) }
-            state.problem?.let { problem ->
-                Text(
-                    sectionsProblemText(problem, state.unit),
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.testTag(SECTIONS_PROBLEM_TAG).semantics { liveRegion = LiveRegionMode.Polite },
-                )
-            }
+            if (state.templateDraft == null && state.superelevationDraft == null) ProblemText(state)
             when {
                 state.templateDraft != null -> TemplateEditor(state, state.templateDraft, actions)
                 state.superelevationDraft != null -> SuperelevationEditor(state, state.superelevationDraft, actions)
@@ -134,6 +128,17 @@ fun SectionsScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Secti
             }
         }
     }
+}
+
+/** El motivo por el que no se guardó lo escrito, junto al botón Guardar para que se vea al pulsarlo (S050/RF-7). */
+@Composable
+private fun ProblemText(state: SectionsUiState) {
+    val problem = state.problem ?: return
+    Text(
+        sectionsProblemText(problem, state.unit),
+        color = MaterialTheme.colorScheme.error,
+        modifier = Modifier.testTag(SECTIONS_PROBLEM_TAG).semantics { liveRegion = LiveRegionMode.Polite },
+    )
 }
 
 @Composable
@@ -264,6 +269,7 @@ private fun TemplateEditor(state: SectionsUiState, draft: TemplateDraft, actions
         )
         Side(true, stringResource(R.string.section_editor_left), draft.left, symbol, actions)
         Side(false, stringResource(R.string.section_editor_right), draft.right, symbol, actions)
+        ProblemText(state)
         Button(
             onClick = actions.onSaveTemplate,
             enabled = !state.saving,
@@ -371,6 +377,7 @@ private fun SuperelevationEditor(state: SectionsUiState, rows: List<Superelevati
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(SECTIONS_SUPER_CSV_TAG),
         ) { Text(stringResource(R.string.section_superelevation_csv)) }
         state.csv?.let { Csv(it, actions) }
+        ProblemText(state)
         Button(
             onClick = actions.onSaveSuperelevation,
             enabled = !state.saving,
