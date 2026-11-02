@@ -48,6 +48,8 @@ data class AxisSurveyRow(
     val easting: Double,
     val northing: Double,
     val heightM: Double?,
+    val latitudeDeg: Double,
+    val longitudeDeg: Double,
     val included: Boolean,
 )
 
@@ -150,7 +152,16 @@ class AxisSurveyViewModel @Inject constructor(
                     val c = point.coordinates
                     val easting = c.easting ?: return@mapNotNull null
                     val northing = c.northing ?: return@mapNotNull null
-                    AxisSurveyRow(point.id, point.name, easting, northing, c.height, member.included)
+                    AxisSurveyRow(
+                        point.id,
+                        point.name,
+                        easting,
+                        northing,
+                        c.height,
+                        c.ground.latitudeDeg,
+                        c.ground.longitudeDeg,
+                        member.included,
+                    )
                 }
                 val included = rows.filter { it.included }
                 mutable.update {

@@ -2164,4 +2164,39 @@
     <string name="slope_stake_found_cut">Punto de talud encontrado: cabeza de desmonte</string>
     <string name="slope_stake_found_fill">Punto de talud encontrado: pie de terraplén</string>
     <string name="slope_stake_a11y">%1$s, %2$s, %3$s</string>
+
+    <!-- S052: tomar un eje con el receptor -->
+    <string name="axis_survey_title">Tomar eje</string>
+    <string name="axis_survey_take">Tomar eje</string>
+    <string name="axis_survey_intro">Mide con el receptor los puntos del eje, en orden. Cada punto es un punto normal del proyecto.</string>
+    <string name="axis_survey_begin">Empezar toma</string>
+    <string name="axis_survey_summary">%1$d puntos, longitud %2$s %3$s</string>
+    <string name="axis_survey_last">Último punto: %1$s</string>
+    <string name="axis_survey_remove_last">Quitar último</string>
+    <string name="axis_survey_finish">Terminar</string>
+    <string name="axis_survey_discard">Descartar toma</string>
+    <string name="axis_survey_default_name">Eje tomado</string>
+    <string name="axis_survey_finish_title">Crear el eje</string>
+    <string name="axis_survey_name">Nombre del eje</string>
+    <string name="axis_survey_start_chainage">PK inicial (%1$s)</string>
+    <string name="axis_survey_radii_help">Radio de la curva en cada vértice (vacío: sin curva)</string>
+    <string name="axis_survey_radius">Radio del vértice %1$d (%2$s)</string>
+    <string name="axis_survey_grade">Crear también la rasante con las cotas de los puntos</string>
+    <string name="axis_survey_grade_unavailable">Algún punto no tiene cota: no se puede crear la rasante</string>
+    <string name="axis_survey_create">Crear eje</string>
+    <string name="axis_survey_cancel">Cancelar</string>
+    <string name="axis_survey_done_title">Eje creado</string>
+    <string name="axis_survey_done_body">«%1$s», longitud %2$s %3$s.</string>
+    <string name="axis_survey_done_active">Queda como eje activo.</string>
+    <string name="axis_survey_done_grade">Incluye la rasante de los puntos.</string>
+    <string name="axis_survey_done_ok">Aceptar</string>
+    <string name="axis_survey_problem_empty_name">Escribe un nombre para el eje.</string>
+    <string name="axis_survey_problem_name_taken">Ya hay un eje con ese nombre.</string>
+    <string name="axis_survey_problem_start_number">El PK inicial no es un número (%1$s).</string>
+    <string name="axis_survey_problem_radius_number">El radio del vértice %1$d no es un número (%2$s).</string>
+    <string name="axis_survey_problem_few_points">Hacen falta al menos 2 puntos para crear el eje.</string>
+    <string name="axis_survey_problem_coincident">El vértice %1$d está a menos de 1 cm del anterior.</string>
+    <string name="axis_survey_problem_radius">El radio del vértice %1$d no es válido.</string>
+    <string name="axis_survey_problem_radius_fit">El radio del vértice %1$d no cabe entre sus vecinos.</string>
+    <string name="axis_survey_problem_write">No se pudo crear el eje. Inténtalo otra vez.</string>
 </resources>

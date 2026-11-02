@@ -2152,4 +2152,39 @@
     <string name="slope_stake_found_cut">Slope point found: cut top</string>
     <string name="slope_stake_found_fill">Slope point found: fill toe</string>
     <string name="slope_stake_a11y">%1$s, %2$s, %3$s</string>
+
+    <!-- S052: taking an axis with the receiver -->
+    <string name="axis_survey_title">Take axis</string>
+    <string name="axis_survey_take">Take axis</string>
+    <string name="axis_survey_intro">Measure the axis points with the receiver, in order. Each point is an ordinary project point.</string>
+    <string name="axis_survey_begin">Start survey</string>
+    <string name="axis_survey_summary">%1$d points, length %2$s %3$s</string>
+    <string name="axis_survey_last">Last point: %1$s</string>
+    <string name="axis_survey_remove_last">Remove last</string>
+    <string name="axis_survey_finish">Finish</string>
+    <string name="axis_survey_discard">Discard survey</string>
+    <string name="axis_survey_default_name">Surveyed axis</string>
+    <string name="axis_survey_finish_title">Create the axis</string>
+    <string name="axis_survey_name">Axis name</string>
+    <string name="axis_survey_start_chainage">Start chainage (%1$s)</string>
+    <string name="axis_survey_radii_help">Curve radius at each vertex (empty: no curve)</string>
+    <string name="axis_survey_radius">Radius of vertex %1$d (%2$s)</string>
+    <string name="axis_survey_grade">Also create the grade line from the point elevations</string>
+    <string name="axis_survey_grade_unavailable">A point has no elevation: the grade line cannot be created</string>
+    <string name="axis_survey_create">Create axis</string>
+    <string name="axis_survey_cancel">Cancel</string>
+    <string name="axis_survey_done_title">Axis created</string>
+    <string name="axis_survey_done_body">“%1$s”, length %2$s %3$s.</string>
+    <string name="axis_survey_done_active">It is now the active axis.</string>
+    <string name="axis_survey_done_grade">It includes the grade line from the points.</string>
+    <string name="axis_survey_done_ok">OK</string>
+    <string name="axis_survey_problem_empty_name">Enter a name for the axis.</string>
+    <string name="axis_survey_problem_name_taken">There is already an axis with that name.</string>
+    <string name="axis_survey_problem_start_number">The start chainage is not a number (%1$s).</string>
+    <string name="axis_survey_problem_radius_number">The radius of vertex %1$d is not a number (%2$s).</string>
+    <string name="axis_survey_problem_few_points">At least 2 points are needed to create the axis.</string>
+    <string name="axis_survey_problem_coincident">Vertex %1$d is less than 1 cm from the previous one.</string>
+    <string name="axis_survey_problem_radius">The radius of vertex %1$d is not valid.</string>
+    <string name="axis_survey_problem_radius_fit">The radius of vertex %1$d does not fit between its neighbours.</string>
+    <string name="axis_survey_problem_write">The axis could not be created. Try again.</string>
 </resources>

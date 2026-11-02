@@ -24,7 +24,7 @@
       Hecho cuando: `CollectorSavedListenerTest` en verde.
 - [x] T11. `app`: `AxisSurveyViewModel` (abrir, añadir, quitar último, terminar, rechazos, reanudar). (RF-1 a RF-9)
       Hecho cuando: `AxisSurveyViewModelTest` en verde.
-- [ ] T12. `app`: panel de «Tomar eje», la línea de la toma en el mapa y «Tomar eje» en `ProjectView`. (RF-1, RF-3, RNF-T7, RNF-T8)
+- [x] T12. `app`: panel de «Tomar eje», la línea de la toma en el mapa y «Tomar eje» en `ProjectView`. (RF-1, RF-3, RNF-T7, RNF-T8)
       Hecho cuando: `AxisSurveyPanelTest` en verde.
 - [ ] T13. `app`: `ProfileView` (alzado, zoom y desplazamiento, rasante, diferencia, sección de diseño). (RF-13, RF-19, RNF-T13)
       Hecho cuando: `ProfileViewTest` en verde.

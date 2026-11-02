@@ -94,6 +94,11 @@ import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.collector.CollectorViewModel
 import es.topophone.app.ui.collector.SurfaceReading
 import es.topophone.app.ui.collector.rememberCollectorPhotoLaunchers
+import es.topophone.app.ui.linear.AxisSurveyActions
+import es.topophone.app.ui.linear.AxisSurveyMarkers
+import es.topophone.app.ui.linear.AxisSurveyPanel
+import es.topophone.app.ui.linear.AxisSurveyUiState
+import es.topophone.app.ui.linear.AxisSurveyViewModel
 import es.topophone.app.ui.map.AttributionSource
 import es.topophone.app.ui.map.CameraCommand
 import es.topophone.app.ui.map.CameraPolicy
@@ -379,6 +384,7 @@ fun ProjectViewRoute(
     lineStakeoutViewModel: LineStakeoutViewModel = hiltViewModel(),
     axisStakeoutViewModel: AxisStakeoutViewModel = hiltViewModel(),
     slopeStakeViewModel: SlopeStakeViewModel = hiltViewModel(),
+    axisSurveyViewModel: AxisSurveyViewModel = hiltViewModel(),
     axisAnalysisViewModel: AxisAnalysisViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
@@ -393,6 +399,13 @@ fun ProjectViewRoute(
         surfacesViewModel.start(projectId) // S042/RF-16
         alignmentsViewModel.start(projectId) // S049/RF-14
         alignmentMapViewModel.start(projectId) // S049/RF-17
+        axisSurveyViewModel.start(projectId) // S052/RF-9
+    }
+    // S052/RF-1: la toma de un eje con el receptor, en el mismo hueco; el recolector mide y la toma recoge cada punto guardado.
+    var axisSurveyOpen by rememberSaveable { mutableStateOf(false) }
+    val axisSurvey by axisSurveyViewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(axisSurveyOpen) {
+        collectorViewModel.setPointSavedListener(axisSurveyViewModel.pointListener.takeIf { axisSurveyOpen }) // S052/RF-2
     }
     // S051/RF-9: el replanteo de los taludes de un eje, en el mismo hueco, con su propio modelo.
     var slopeOpen by rememberSaveable { mutableStateOf(false) }
@@ -401,6 +414,7 @@ fun ProjectViewRoute(
     var stakeoutOpen by rememberSaveable { mutableStateOf(stakeoutPointId != null) }
     LaunchedEffect(stakeoutPointId) {
         if (stakeoutPointId != null) {
+            axisSurveyOpen = false
             slopeOpen = false
             slopeStakeViewModel.close()
             stakeoutViewModel.open(projectId, stakeoutPointId, stakeoutQuery)
@@ -505,6 +519,7 @@ fun ProjectViewRoute(
         ),
         onStakeAxis = { alignmentId ->
             // S054/RF-1: "Replantear eje" en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
+            axisSurveyOpen = false
             stakeoutOpen = false
             stakeoutViewModel.close()
             lineOpen = false
@@ -518,6 +533,7 @@ fun ProjectViewRoute(
         },
         onStakeSlopes = { alignmentId ->
             // S051/RF-9: "Replantear taludes" en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
+            axisSurveyOpen = false
             stakeoutOpen = false
             stakeoutViewModel.close()
             lineOpen = false
@@ -529,8 +545,35 @@ fun ProjectViewRoute(
             slopeStakeViewModel.open(projectId, alignmentId)
             slopeOpen = true
         },
+        onTakeAxis = {
+            // S052/RF-1: «Tomar eje» en la hoja «Ejes»; sustituye a cualquier otro panel abierto y recupera la toma abierta, si la hay (RF-9).
+            stakeoutOpen = false
+            stakeoutViewModel.close()
+            lineOpen = false
+            lineStakeoutViewModel.close()
+            analysisOpen = false
+            axisAnalysisViewModel.close()
+            axisOpen = false
+            axisStakeoutViewModel.close()
+            slopeOpen = false
+            slopeStakeViewModel.close()
+            axisSurveyOpen = true
+        },
+        axisSurvey = axisSurvey.takeIf { axisSurveyOpen },
+        axisSurveyActions = AxisSurveyActions(
+            onClose = { axisSurveyOpen = false },
+            onBegin = axisSurveyViewModel::begin,
+            onRemoveLast = axisSurveyViewModel::removeLast,
+            onStartFinish = axisSurveyViewModel::startFinish,
+            onFinishDraft = axisSurveyViewModel::updateFinish,
+            onCancelFinish = axisSurveyViewModel::cancelFinish,
+            onCreate = axisSurveyViewModel::finish,
+            onDiscard = axisSurveyViewModel::discard,
+            onDismissResult = axisSurveyViewModel::dismissResult,
+        ),
         onAnalyzeAxis = { alignmentId ->
             // S054/RF-12: «Analizar» en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
+            axisSurveyOpen = false
             stakeoutOpen = false
             stakeoutViewModel.close()
             lineOpen = false
@@ -675,6 +718,7 @@ fun ProjectViewRoute(
             // S041/RF-1, RF-2: "Replantear" en la ficha de un elemento del dibujo.
             designSelection?.let { selection ->
                 designViewModel.dismissSelection()
+                axisSurveyOpen = false
                 axisOpen = false
                 axisStakeoutViewModel.close()
                 analysisOpen = false
@@ -748,6 +792,10 @@ fun ProjectViewScreen(
     slopeStake: SlopeStakeUiState? = null,
     slopeStakeActions: SlopeStakeActions = SlopeStakeActions(),
     onStakeSlopes: (String) -> Unit = {},
+    /** «Tomar eje» con el receptor y su panel (S052/RF-1). */
+    axisSurvey: AxisSurveyUiState? = null,
+    axisSurveyActions: AxisSurveyActions = AxisSurveyActions(),
+    onTakeAxis: () -> Unit = {},
     /** «Analizar» la posición del jalón respecto a un eje y el botón «Analizar» (S054/RF-12). */
     axisAnalysis: AxisAnalysisUiState? = null,
     axisAnalysisActions: AxisAnalysisActions = AxisAnalysisActions(),
@@ -929,6 +977,20 @@ fun ProjectViewScreen(
                         collectorActions = collectorActions,
                         stats = collectorStats,
                     ) // S051/RF-9, RF-15
+                    axisSurvey != null -> Column {
+                        AxisSurveyPanel(axisSurvey, axisSurveyActions) // S052/RF-1
+                        if (collector != null) {
+                            CollectorPanel(
+                                collector,
+                                project.linearUnit,
+                                collectorActions,
+                                onClose = axisSurveyActions.onClose,
+                                stats = collectorStats,
+                                autoLive = collectorAutoLive,
+                                surface = collectorSurface,
+                            )
+                        }
+                    }
                     axisAnalysis != null -> AxisAnalysisPanel(
                         axisAnalysis,
                         axisAnalysisActions,
@@ -945,7 +1007,7 @@ fun ProjectViewScreen(
             }
         }
     }
-    BindMap(controller, state, stakeout, design, onDesignCamera, lineStakeout, lineHighlight, alignmentScene, axisStakeout)
+    BindMap(controller, state, stakeout, design, onDesignCamera, lineStakeout, lineHighlight, alignmentScene, axisStakeout, axisSurvey)
     LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
     controller?.let { FollowRover(it, state, policy, onViewportChanged) }
     // S011/RF-5: tocar un punto del mapa abre su ficha.
@@ -989,6 +1051,10 @@ fun ProjectViewScreen(
                 onStakeSlopes = {
                     alignmentsOpen = false
                     onStakeSlopes(it)
+                },
+                onTakeAxis = {
+                    alignmentsOpen = false
+                    onTakeAxis()
                 },
             ),
         ) { alignmentsOpen = false }
@@ -1195,6 +1261,7 @@ private fun BindMap(
     lineHighlight: List<GeoPoint>,
     alignmentScene: AlignmentScene?,
     axisStakeout: AxisStakeoutUiState?,
+    axisSurvey: AxisSurveyUiState?,
 ) {
     val unit = state.project?.linearUnit
     val palette = LocalStatusPalette.current
@@ -1216,6 +1283,7 @@ private fun BindMap(
     // S041/RF-5, S054/RF-1: la línea, el eje o el punto que se replantea
     val stakeoutMarker = LineStakeoutMarkers.of(lineStakeout, lineHighlight)
         ?: AxisStakeoutMarkers.of(axisStakeout)
+        ?: AxisSurveyMarkers.of(axisSurvey) // S052/RF-3
         ?: StakeoutMarkers.of(stakeout)
     LaunchedEffect(controller, stakeoutMarker) { controller?.showStakeout(stakeoutMarker) } // S018/RF-14
     LaunchedEffect(controller, state.mapSettings) { controller?.setSettings(state.mapSettings) }

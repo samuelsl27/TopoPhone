@@ -185,4 +185,14 @@ class AlignmentsSheetTest {
 
         calls shouldBe listOf("a", "b")
     }
+
+    @Test
+    fun `S052 RF-1 la hoja ofrece Tomar eje aunque no haya ejes y avisa al pulsarlo`() {
+        val calls = mutableListOf<String>()
+        show(AlignmentsUiState(), AlignmentsActions(onTakeAxis = { calls += "take" }))
+
+        compose.onNodeWithTag(ALIGNMENTS_TAKE_AXIS_TAG).performClick()
+
+        calls shouldBe listOf("take")
+    }
 }

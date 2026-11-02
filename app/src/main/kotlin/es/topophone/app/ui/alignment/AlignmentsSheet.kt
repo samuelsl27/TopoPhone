@@ -39,6 +39,7 @@ import java.util.Date
 const val ALIGNMENTS_BUTTON_TAG = "alignments_button"
 const val ALIGNMENTS_SHEET_TAG = "alignments_sheet"
 const val ALIGNMENTS_EMPTY_TAG = "alignments_empty"
+const val ALIGNMENTS_TAKE_AXIS_TAG = "alignments_take_axis"
 const val ALIGNMENT_DELETE_CONFIRM_TAG = "alignment_delete_confirm"
 const val ALIGNMENT_RENAME_FIELD_TAG = "alignment_rename_field"
 const val ALIGNMENT_RENAME_CONFIRM_TAG = "alignment_rename_confirm"
@@ -86,6 +87,8 @@ class AlignmentsActions(
     val onSlopes: (alignmentId: String) -> Unit = {},
     /** «Replantear taludes» del eje (S051/RF-9). */
     val onStakeSlopes: (alignmentId: String) -> Unit = {},
+    /** «Tomar eje»: medir con el receptor un eje nuevo (S052/RF-1). */
+    val onTakeAxis: () -> Unit = {},
 )
 
 /**
@@ -108,6 +111,10 @@ fun AlignmentsSheet(state: AlignmentsUiState, actions: AlignmentsActions, onDism
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(stringResource(R.string.alignments_title), style = MaterialTheme.typography.titleLarge)
+            OutlinedButton(
+                onClick = actions.onTakeAxis,
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ALIGNMENTS_TAKE_AXIS_TAG),
+            ) { Text(stringResource(R.string.axis_survey_take)) } // S052/RF-1
             if (state.alignments.isEmpty()) {
                 Text(stringResource(R.string.alignments_empty), modifier = Modifier.testTag(ALIGNMENTS_EMPTY_TAG))
             }
