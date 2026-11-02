@@ -1,6 +1,6 @@
 # Spec 052 — Toma de datos lineal
 
-> Hito: H8 · Depende de: S054, S050, S049, S010, S017 · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H8 · Depende de: S054, S050, S049, S010, S017 · Estado: pendiente de aprobación (entrevistada 02/11/2026)
 
 ## Contexto y objetivo
 Hasta ahora el eje venía siempre de fuera (S049) y el trabajo era replantearlo (S054, S050, S051). Pero en muchos trabajos el camino inverso: no hay proyecto y hay que **levantar lo que existe**: el eje de un camino, de una tubería o de un canal; el perfil longitudinal del terreno a lo largo de un eje; o la sección transversal del terreno en un PK, para que el proyectista diseñe o para calcular el talud (S051). Hoy esto se haría midiendo puntos sueltos y calculando PK y desplazamiento a mano.
@@ -21,8 +21,8 @@ Términos de esta spec (los de S049, S050 y S054 más):
 - **Eje tomado**: un eje cuyas rectas pasan por los puntos medidos de una toma, en el orden en que se tomaron.
 - **Perfil longitudinal**: lista de puntos del terreno con su PK y su cota, a lo largo de un eje, con sus desplazamientos pequeños.
 - **Perfil transversal**: puntos del terreno de un PK ordenados por desplazamiento; al guardarlo es un **perfil de terreno** de S050.
-- **Tolerancia de eje**: distancia máxima al eje (0,50 m por defecto) con que un punto entra en un perfil longitudinal.
-- **Tolerancia de sección**: distancia máxima a la línea de la sección (0,10 m por defecto) con que un punto se considera del PK.
+- **Tolerancia de eje**: distancia máxima al eje (0,50 m por defecto, editable en cada toma) con que un punto entra en un perfil longitudinal.
+- **Tolerancia de sección**: distancia máxima a la línea de la sección (0,10 m por defecto, editable en cada toma) con que un punto se considera del PK.
 
 ### Tomar un eje (H1)
 - RF-1: CUANDO el usuario elija «Tomar eje», EL SISTEMA abrirá el recolector (S010) en una toma de eje, con el nombre propuesto del siguiente punto, los modos de medida de S010 y S017 (instantáneo, promediado, automático por distancia) y el control de precisión del proyecto.
@@ -88,12 +88,14 @@ Términos de esta spec (los de S049, S050 y S054 más):
 - Demo en el emulador: tomar un eje con una reproducción, activarlo y replantearlo; tomar un perfil longitudinal guiado y uno transversal y verlos en alzado.
 - Demo de campo: queda para el usuario.
 
-## Dudas abiertas
-- [SUPOSICIÓN: el eje tomado pasa por los puntos con rectas, con arcos solo si el usuario da el radio de un vértice; no hay ajuste automático.]
-- [SUPOSICIÓN: los puntos de una toma son puntos medidos normales; la toma solo los agrupa.]
-- [SUPOSICIÓN: tolerancia de eje de 0,50 m y de sección de 0,10 m por defecto.]
-- [SUPOSICIÓN: un perfil transversal guardado se convierte en perfil de terreno de S050 para S051.]
-- [SUPOSICIÓN: no se crea la rasante del eje tomado salvo petición.]
+## Decisiones de la entrevista (02/11/2026)
+- El eje tomado pasa por los puntos con rectas, con arcos solo si el usuario da el radio de un vértice; no hay ajuste automático.
+- Los puntos de una toma son puntos medidos normales; la toma solo los agrupa.
+- Tolerancia de eje de 0,50 m y de sección de 0,10 m por defecto, editables al empezar cada toma.
+- Un perfil transversal guardado se convierte en perfil de terreno de S050 para S051; el anterior del mismo PK queda en el historial.
+- La rasante del eje tomado solo se crea si el usuario lo pide al terminar la toma.
+- Se mantienen los modos guiado, libre y desde selección de puntos del perfil longitudinal.
+- Sin dudas abiertas.
 
 ## Cambios en documentos anteriores
 - `docs/hoja-de-ruta.md`: S052 depende además de S049, S010 y S017.
