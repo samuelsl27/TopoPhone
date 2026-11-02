@@ -2187,4 +2187,25 @@
     <string name="axis_survey_problem_radius">The radius of vertex %1$d is not valid.</string>
     <string name="axis_survey_problem_radius_fit">The radius of vertex %1$d does not fit between its neighbours.</string>
     <string name="axis_survey_problem_write">The axis could not be created. Try again.</string>
+
+    <!-- S052: elevation view of a surveyed profile -->
+    <string name="profile_empty">There are no points in the profile yet.</string>
+    <string name="profile_select_hint">Tap a point on the chart to see its elevations.</string>
+    <string name="profile_chart_description">Profile with %1$d points, from %2$s to %3$s</string>
+    <string name="profile_zoom">Zoom ×%1$s</string>
+    <string name="profile_zoom_in">Zoom in</string>
+    <string name="profile_zoom_out">Zoom out</string>
+    <string name="profile_pan_left">← Left</string>
+    <string name="profile_pan_right">Right →</string>
+    <string name="profile_fit">Show all</string>
+    <string name="profile_selected_chainage">Chainage %1$s</string>
+    <string name="profile_selected_ground">Ground %1$s</string>
+    <string name="profile_selected_grade">Grade %1$s</string>
+    <string name="profile_selected_design">Design section %1$s</string>
+    <string name="profile_cut">Cut %1$s</string>
+    <string name="profile_fill">Fill %1$s</string>
+    <string name="profile_on_reference">At the reference elevation</string>
+    <string name="profile_flag_out_axis">Off the axis</string>
+    <string name="profile_flag_no_projection">No projection on the axis</string>
+    <string name="profile_flag_out_section">Off the section</string>
 </resources>

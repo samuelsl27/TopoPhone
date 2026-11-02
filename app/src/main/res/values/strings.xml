@@ -2199,4 +2199,25 @@
     <string name="axis_survey_problem_radius">El radio del vértice %1$d no es válido.</string>
     <string name="axis_survey_problem_radius_fit">El radio del vértice %1$d no cabe entre sus vecinos.</string>
     <string name="axis_survey_problem_write">No se pudo crear el eje. Inténtalo otra vez.</string>
+
+    <!-- S052: alzado de un perfil tomado -->
+    <string name="profile_empty">Aún no hay puntos en el perfil.</string>
+    <string name="profile_select_hint">Toca un punto del gráfico para ver sus cotas.</string>
+    <string name="profile_chart_description">Perfil con %1$d puntos, de %2$s a %3$s</string>
+    <string name="profile_zoom">Zoom ×%1$s</string>
+    <string name="profile_zoom_in">Acercar</string>
+    <string name="profile_zoom_out">Alejar</string>
+    <string name="profile_pan_left">← Izquierda</string>
+    <string name="profile_pan_right">Derecha →</string>
+    <string name="profile_fit">Ver todo</string>
+    <string name="profile_selected_chainage">PK %1$s</string>
+    <string name="profile_selected_ground">Terreno %1$s</string>
+    <string name="profile_selected_grade">Rasante %1$s</string>
+    <string name="profile_selected_design">Sección de diseño %1$s</string>
+    <string name="profile_cut">Desmonte %1$s</string>
+    <string name="profile_fill">Terraplén %1$s</string>
+    <string name="profile_on_reference">A la cota de referencia</string>
+    <string name="profile_flag_out_axis">Fuera del eje</string>
+    <string name="profile_flag_no_projection">Sin proyección sobre el eje</string>
+    <string name="profile_flag_out_section">Fuera de sección</string>
 </resources>
