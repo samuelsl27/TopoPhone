@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/ejes`: `generar_taludes.py` con `fixtures/ejes/taludes/`: desmonte, terraplén, altura cero y sin intersección contra un perfil de terreno poligonal y contra un TIN pequeño, con lo esperado en aritmética racional. (RF-5 a RF-8)
+- [x] T1. `tools/ejes`: `generar_taludes.py` con `fixtures/ejes/taludes/`: desmonte, terraplén, altura cero y sin intersección contra un perfil de terreno poligonal y contra un TIN pequeño, con lo esperado en aritmética racional. (RF-5 a RF-8)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [ ] T2. `core:model`: `SlopeSide`, `SlopeKind`, `SlopeRule`, `ManualEdge`, `SlopeIssue`, `SlopeStakeInfo` en `StakeoutRef` y los términos en `docs/glosario.md`. (RF-1, RF-2, RF-15)
       Hecho cuando: los tests de `core:model` en verde.

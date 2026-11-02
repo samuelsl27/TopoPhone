@@ -1,0 +1,11 @@
+caso,terreno,lado,pk,borde_desp,borde_cota,razon_desmonte,razon_terraplen,estado,tipo,t,desp_talud,cota_talud,altura,este,norte
+desmonte-derecha,desmonte,derecha,105.0,3.5,100.0,1.5,2.0,found,CUT,1.5,5.0,101.0,1.0,441105.0,4473995.0
+terraplen-derecha,terraplen,derecha,105.0,3.5,100.0,1.5,2.0,found,FILL,3.4285714285714284,6.928571428571429,98.28571428571429,1.7142857142857142,441105.0,4473993.071428572
+borde-derecha,borde,derecha,105.0,3.5,100.0,1.5,2.0,edge,,0.0,3.5,100.0,0.0,441105.0,4473996.5
+sin-interseccion,paralelo,derecha,105.0,3.5,100.0,1.5,2.0,sin_interseccion,CUT,,,,,,
+desmonte-izquierda,izquierda,izquierda,105.0,-3.5,100.0,1.5,2.0,found,CUT,1.5,-5.0,101.0,1.0,441105.0,4474005.0
+sin-terreno-perfil,corto,derecha,105.0,3.5,100.0,1.5,2.0,sin_terreno,CUT,,,,,,
+desmonte-tin,TIN,derecha,105.0,3.5,100.0,1.5,2.0,found,CUT,5.77710843373494,9.27710843373494,103.85140562248996,3.8514056224899598,441105.0,4473990.722891566
+terraplen-tin,TIN,derecha,105.0,3.5,105.0,1.5,2.0,found,FILL,3.6573604060913705,7.157360406091371,103.17131979695432,1.8286802030456852,441105.0,4473992.842639594
+sin-terreno-tin,TIN,derecha,105.0,3.5,100.0,100.0,2.0,sin_terreno,CUT,,,,,,
+borde-tin,TIN,derecha,105.0,3.5,102.03541666666666,1.5,2.0,edge,,0.0,3.5,102.03541666666666,0.0,441105.0,4473996.5
