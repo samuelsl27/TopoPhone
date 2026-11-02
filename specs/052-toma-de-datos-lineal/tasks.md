@@ -6,7 +6,7 @@
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [x] T2. `core:model`: `LinearSurveyKind`, `LinearSurvey`, `SurveyPoint`, `SurveyFlag`, `AlignmentSource.FIELD` y los términos en `docs/glosario.md`. (RF-8)
       Hecho cuando: los tests de `core:model` en verde.
-- [ ] T3. `core:survey`: `FieldAxisBuilder` (rectas, radios, rechazos, rasante opcional) y `PolylineLength`. (RF-3, RF-5 a RF-7)
+- [x] T3. `core:survey`: `FieldAxisBuilder` (rectas, radios, rechazos, rasante opcional) y `PolylineLength`. (RF-3, RF-5 a RF-7)
       Hecho cuando: `FieldAxisBuilderTest` y `PolylineLengthTest` en verde a 1 mm.
 - [ ] T4. `core:survey`: `ProfileSampler` (PK, desplazamiento, diferencia de cota y marcas) y `ProfileSeries`. (RF-10 a RF-12, RF-17, RF-18)
       Hecho cuando: `ProfileSamplerTest` y `ProfileSeriesTest` en verde a 1 mm.

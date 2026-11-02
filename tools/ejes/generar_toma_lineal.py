@@ -95,6 +95,8 @@ def built(points: list[tuple[float, float]], radii: list[float], start_pk: float
             state = g.advance(state, e, e.length)
         else:
             vertex_pk.append(state.pk)
+            if nxt < len(az):  # una esquina sin curva: la recta siguiente sale del vértice con su propio rumbo
+                state = g.State(points[nxt][0], points[nxt][1], math.pi / 2 - az[nxt], state.pk)
     return out, vertex_pk
 
 
