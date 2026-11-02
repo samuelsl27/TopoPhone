@@ -1,0 +1,8 @@
+caso,vertice,este,norte,radio
+pocos_puntos,1,440000.0,4474000.0,0.0
+duplicado,1,440000.0,4474000.0,0.0
+duplicado,2,440000.005,4474000.0,0.0
+duplicado,3,440100.0,4474000.0,0.0
+radio_no_cabe,1,440000.0,4474000.0,0.0
+radio_no_cabe,2,440100.0,4474000.0,150.0
+radio_no_cabe,3,440100.0,4474100.0,0.0

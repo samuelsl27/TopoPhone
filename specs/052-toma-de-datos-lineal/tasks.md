@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/ejes`: `generar_toma_lineal.py` con `fixtures/ejes/toma/`: eje tomado con y sin radios (contra `pi-vertices.csv`), longitudinal con desplazamientos y alturas dados, transversal con puntos dentro y fuera de sección; todo en aritmética racional. (RF-5 a RF-7, RF-11, RF-12, RF-17, RF-18)
+- [x] T1. `tools/ejes`: `generar_toma_lineal.py` con `fixtures/ejes/toma/`: eje tomado con y sin radios (contra `pi-vertices.csv`), longitudinal con desplazamientos y alturas dados, transversal con puntos dentro y fuera de sección; todo en aritmética racional. (RF-5 a RF-7, RF-11, RF-12, RF-17, RF-18)
       Hecho cuando: el script genera los ficheros y su test de `tools` está en verde.
 - [ ] T2. `core:model`: `LinearSurveyKind`, `LinearSurvey`, `SurveyPoint`, `SurveyFlag`, `AlignmentSource.FIELD` y los términos en `docs/glosario.md`. (RF-8)
       Hecho cuando: los tests de `core:model` en verde.

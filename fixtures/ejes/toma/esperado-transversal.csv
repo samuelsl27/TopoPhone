@@ -1,0 +1,9 @@
+nombre,error_pk,desplazamiento,d_cota,marca,orden,codigo
+X1,0.0,8.0,0.09230769230769231,ninguna,6,P6
+X2,0.02,3.5,0.1,ninguna,5,P5
+X3,-0.05,-2.0,0.08571428571428572,ninguna,3,P3
+X4,0.15,5.0,0.13076923076923078,fuera_de_seccion,,
+X5,0.0,-6.0,-0.6153846153846154,ninguna,2,P2
+X6,0.0,0.0,-0.05,ninguna,4,P4
+X7,0.0,-12.0,,ninguna,1,P1
+X8,-0.15,1.0,0.24285714285714285,fuera_de_seccion,,
