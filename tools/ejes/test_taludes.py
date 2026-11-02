@@ -96,3 +96,31 @@ def test_el_punto_del_tin_esta_sobre_el_plano_de_uno_de_sus_triangulos():
         assert z == pytest.approx(float(c["cota_talud"]), abs=1e-9), c["caso"]
         checked += 1
     assert checked == 2
+
+
+def replay() -> list[dict[str, str]]:
+    return rows_of("reproduccion-talud.csv")
+
+
+def test_la_reproduccion_tiene_treinta_epocas_y_su_nmea_dos_frases_por_epoca():
+    assert len(replay()) == 30
+    assert (t.OUT / "reproduccion-talud.nmea").read_bytes().count(b"\r\n") == 60
+
+
+def test_la_reproduccion_sube_por_la_seccion_y_cruza_el_talud_de_diseno():
+    dz = [float(r["d_cota"]) for r in replay()]
+    assert dz[0] < 0 < dz[29]
+    assert float(replay()[29]["desplazamiento"]) > float(replay()[0]["desplazamiento"])
+
+
+def test_la_distancia_a_moverse_es_la_relacion_por_la_diferencia_de_cota():
+    for r in replay():
+        assert float(r["mover"]) == pytest.approx(1.5 * float(r["d_cota"]), abs=1e-12)
+
+
+def test_solo_se_encuentra_el_punto_en_cota_y_en_la_linea_de_la_seccion():
+    found = [int(r["epoca"]) for r in replay() if r["encontrado"] == "true"]
+    assert found == [15, 16, 17]  # las épocas 21 a 23 están en cota pero fuera de la línea
+    assert all(abs(float(r["d_pk"])) > 0.025 for r in replay() if r["en_linea"] == "false")
+    off_line_in_height = [r for r in replay() if r["en_linea"] == "false" and abs(float(r["d_cota"])) <= 0.03]
+    assert len(off_line_in_height) >= 3

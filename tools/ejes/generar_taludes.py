@@ -19,6 +19,12 @@ Cómo se calcula (otro algoritmo que el del móvil, para que la coincidencia no 
 - La planta es la del eje C de S049 (recta al Este desde el PK 0 en 441000; la derecha es el Sur): Este = 441000 + PK y Norte = 4474000
   menos el desplazamiento.
 
+- reproduccion-talud.nmea y reproduccion-talud.csv: una reproducción de 30 épocas que sube por la sección del PK 105 de la derecha
+  (desmonte, relación 1,5 : 1, borde a 3,5 m y cota 100) y, época a época, lo esperado de la punta frente al talud de diseño: la
+  diferencia de cota, lo que hay que moverse, el error en PK, si está en la línea de la sección y si el punto está encontrado
+  (tolerancias de S018 y S019: 2,5 cm y 3 cm). Se calcula en el plano con la posición que recupera el móvil de la latitud y la
+  longitud escritas, y las cotas van a milímetros para que la GGA las represente sin pérdida.
+
 Uso: uv run --project tools tools/ejes/generar_taludes.py
 """
 
@@ -209,13 +215,76 @@ def rows() -> list[str]:
     return lines
 
 
+REPLAY_EPOCHS = 30
+REPLAY_TOLERANCE_H = 0.025
+REPLAY_TOLERANCE_V = 0.03
+REPLAY_RATIO_CUT = 1.5
+REPLAY_EDGE_OFFSET = 3.5
+REPLAY_EDGE_HEIGHT = 100.0
+
+
+def replay_epoch(i: int) -> tuple[float, float, float, float]:
+    """(desplazamiento, PK, cota de la punta, diferencia de cota pretendida) de la época i: sube 0,35 m hacia fuera por época."""
+    offset = REPLAY_EDGE_OFFSET + 0.35 * i
+    slope = REPLAY_EDGE_HEIGHT + (offset - REPLAY_EDGE_OFFSET) / REPLAY_RATIO_CUT
+    if 20 <= i < 23:
+        dz = 0.0  # en cota pero fuera de la línea de la sección
+    else:
+        dz = 0.02 * (i - 15)
+    pk = float(PK) + (0.01 if i < 20 else 0.2)
+    return offset, pk, round(slope + dz, 3), dz
+
+
+def replay_rows() -> list[str]:
+    from pyproj import Transformer
+
+    to_geo = Transformer.from_crs("EPSG:25830", "EPSG:4258", always_xy=True)
+    to_utm = Transformer.from_crs("EPSG:4258", "EPSG:25830", always_xy=True)
+    rows = ["epoca,desplazamiento,lat,lon,altura,punta_este,punta_norte,d_cota,mover,d_pk,en_linea,encontrado"]
+    for i in range(REPLAY_EPOCHS):
+        offset, pk, height, _ = replay_epoch(i)
+        lon, lat = to_geo.transform(float(EAST0) + pk, float(NORTH0) - offset)
+        lat, lon = float(f"{lat:.11f}"), float(f"{lon:.11f}")
+        pe, pn = (round(v, 5) for v in to_utm.transform(lon, lat))
+        tip_offset = float(NORTH0) - pn
+        tip_pk = pe - float(EAST0)
+        slope = REPLAY_EDGE_HEIGHT + (tip_offset - REPLAY_EDGE_OFFSET) / REPLAY_RATIO_CUT
+        dz = height - slope
+        move = REPLAY_RATIO_CUT * dz  # desmonte: positivo hacia fuera del eje
+        dpk = tip_pk - float(PK)
+        on_line = abs(dpk) <= REPLAY_TOLERANCE_H
+        found = on_line and abs(dz) <= REPLAY_TOLERANCE_V
+        rows.append(
+            ",".join(
+                [str(i + 1), g.A(offset), f"{lat:.11f}", f"{lon:.11f}", f"{height:.3f}", f"{pe:.5f}", f"{pn:.5f}", g.A(dz), g.A(move), g.A(dpk), str(on_line).lower(), str(found).lower()]
+            )
+        )
+    return rows
+
+
+def replay_nmea(rows: list[str]) -> str:
+    out = []
+    for row in rows[1:]:
+        cells = row.split(",")
+        i = int(cells[0]) - 1
+        lat, lon, height = float(cells[2]), float(cells[3]), float(cells[4])
+        time = f"10{i // 60:02d}{i % 60:02d}.00"
+        alt = f"{height + g.ANTENNA_ABOVE_TIP_M:.3f}"
+        out.append(g.nmea_sentence(f"GNGGA,{time},{g.nmea_angle(lat, 2)},N,{g.nmea_angle(-lon, 3)},W,4,24,0.6,{alt},M,0.000,M,1.0,0001"))
+        out.append(g.nmea_sentence(f"GNGST,{time},0.012,0.010,0.007,45.0,0.008,0.006,0.015"))
+    return "".join(out)
+
+
 def all_files() -> dict[str, str]:
+    replay = replay_rows()
     profiles = ["perfil,desplazamiento,cota"] + [f"{n},{g.A(float(d))},{g.A(float(z))}" for n, pts in PROFILES.items() for d, z in pts]
     tin = ["x1,y1,z1,x2,y2,z2,x3,y3,z3"] + [",".join(fl(v) for p in tri for v in p) for tri in tin_triangles()]
     return {
         "perfiles.csv": "\n".join(profiles) + "\n",
         "tin.csv": "\n".join(tin) + "\n",
         "casos.csv": "\n".join(rows()) + "\n",
+        "reproduccion-talud.csv": "\n".join(replay) + "\n",
+        "reproduccion-talud.nmea": replay_nmea(replay),
     }
 
 
