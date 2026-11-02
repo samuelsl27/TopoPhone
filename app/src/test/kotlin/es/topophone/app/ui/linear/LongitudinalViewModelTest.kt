@@ -7,7 +7,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.alignment.AlignmentTestFiles
 import es.topophone.app.ui.collector.SavedPoint
+import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.receiver.repositoryRoot
+import es.topophone.core.formats.csv.ColumnSeparator
+import es.topophone.core.formats.csv.CsvOptions
+import es.topophone.core.formats.csv.DecimalSeparator
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
@@ -23,6 +27,7 @@ import es.topophone.core.model.survey.linear.SurveyFlag
 import es.topophone.data.alignment.AlignmentImporter
 import es.topophone.data.alignment.RoomAlignmentRepository
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.export.ExportPreferences
 import es.topophone.data.linear.RoomLinearSurveyRepository
 import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.RoomProjectRepository
@@ -34,11 +39,13 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -63,6 +70,13 @@ class LongitudinalViewModelTest {
     private val alignments = RoomAlignmentRepository(db)
     private val surveys = RoomLinearSurveyRepository(db, alignments, RoomSectionRepository(db))
     private val dispatcher = UnconfinedTestDispatcher()
+    private var options = CsvOptions()
+    private val exportPreferences = object : ExportPreferences {
+        override val options get() = flowOf(this@LongitudinalViewModelTest.options)
+
+        override suspend fun save(options: CsvOptions) = Unit
+    }
+    private val selection = ExportSelection()
     private val viewModels = mutableListOf<LongitudinalViewModel>()
 
     @Before
@@ -98,7 +112,7 @@ class LongitudinalViewModelTest {
             )
             alignments.summaries(projectId).first().single().id
         }
-        val vm = LongitudinalViewModel(surveys, alignments, points, projects, dispatcher)
+        val vm = LongitudinalViewModel(surveys, alignments, points, projects, exportPreferences, selection, dispatcher)
         viewModels += vm
         vm.start(projectId, axis)
         runBlocking { withTimeout(10_000) { vm.state.first { !it.loading && it.alignment != null } } }
@@ -421,12 +435,55 @@ class LongitudinalViewModelTest {
         vm.beginAndWait()
         measure(vm, "L2")
 
-        val again = LongitudinalViewModel(surveys, alignments, points, projects, dispatcher)
+        val again = LongitudinalViewModel(surveys, alignments, points, projects, exportPreferences, selection, dispatcher)
         viewModels += again
         again.start(projectId, vm.state.value.alignment!!.id)
         runBlocking { withTimeout(10_000) { again.state.first { it.survey != null && it.rows.size == 1 } } }
 
         again.state.value.survey.shouldNotBeNull().toleranceM shouldBe 0.3
         again.state.value.rows.single().name shouldBe "L2"
+    }
+
+    @Test
+    fun `S052 RF-15 el CSV escrito es el de tools byte a byte con el separador de la exportacion`() {
+        val vm = open()
+        vm.configure()
+        vm.beginAndWait()
+        measureAll(vm)
+
+        val out = ByteArrayOutputStream()
+        runBlocking { vm.writeCsv(out) } shouldBe true
+
+        out.toByteArray().toList() shouldBe File(fixture, "esperado-perfil-longitudinal.csv").readBytes().toList()
+        options = CsvOptions(separator = ColumnSeparator.SEMICOLON, decimal = DecimalSeparator.COMMA)
+        val spanish = ByteArrayOutputStream()
+        runBlocking { vm.writeCsv(spanish) } shouldBe true
+        spanish.toString(Charsets.UTF_8).lines().first() shouldBe "Chainage;Offset;Ground elevation;Grade elevation;Delta elevation"
+    }
+
+    @Test
+    fun `S052 RF-15 sin puntos en el perfil o con coma en separador y decimal no se exporta nada`() {
+        val vm = open()
+        vm.configure()
+        vm.beginAndWait()
+
+        runBlocking { vm.writeCsv(ByteArrayOutputStream()) } shouldBe false
+        measure(vm, "L2")
+        options = CsvOptions(separator = ColumnSeparator.COMMA, decimal = DecimalSeparator.COMMA)
+        runBlocking { vm.writeCsv(ByteArrayOutputStream()) } shouldBe false
+    }
+
+    @Test
+    fun `S052 RF-14 los puntos elegidos en la lista de objetos se pueden usar para el perfil`() {
+        val vm = open()
+        runBlocking { listOf("L2", "L4").forEach { points.create(point(it)) } }
+        selection.ids = setOf("id-L2", "id-L4")
+        vm.refreshSelection()
+        vm.state.value.selectionCount shouldBe 2
+
+        vm.addSelected()
+        runBlocking { withTimeout(10_000) { vm.state.first { it.rows.size == 2 } } }
+
+        vm.state.value.rows.map { it.name }.toSet() shouldBe setOf("L2", "L4")
     }
 }

@@ -40,6 +40,8 @@ const val ALIGNMENTS_BUTTON_TAG = "alignments_button"
 const val ALIGNMENTS_SHEET_TAG = "alignments_sheet"
 const val ALIGNMENTS_EMPTY_TAG = "alignments_empty"
 const val ALIGNMENTS_TAKE_AXIS_TAG = "alignments_take_axis"
+
+fun alignmentLongitudinalTag(id: String) = "alignment_longitudinal_$id"
 const val ALIGNMENT_DELETE_CONFIRM_TAG = "alignment_delete_confirm"
 const val ALIGNMENT_RENAME_FIELD_TAG = "alignment_rename_field"
 const val ALIGNMENT_RENAME_CONFIRM_TAG = "alignment_rename_confirm"
@@ -89,6 +91,8 @@ class AlignmentsActions(
     val onStakeSlopes: (alignmentId: String) -> Unit = {},
     /** «Tomar eje»: medir con el receptor un eje nuevo (S052/RF-1). */
     val onTakeAxis: () -> Unit = {},
+    /** «Perfil longitudinal» del eje (S052/RF-10). */
+    val onLongitudinal: (alignmentId: String) -> Unit = {},
 )
 
 /**
@@ -260,6 +264,10 @@ private fun AlignmentSection(
         onClick = { actions.onStakeSlopes(alignment.id) },
         modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(alignmentStakeSlopesTag(alignment.id)),
     ) { Text(stringResource(R.string.slope_stake_open)) } // S051/RF-9
+    OutlinedButton(
+        onClick = { actions.onLongitudinal(alignment.id) },
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(alignmentLongitudinalTag(alignment.id)),
+    ) { Text(stringResource(R.string.long_open)) } // S052/RF-10
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
         OutlinedButton(
             onClick = onRename,

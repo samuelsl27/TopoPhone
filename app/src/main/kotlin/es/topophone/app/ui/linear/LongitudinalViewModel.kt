@@ -6,6 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
 import es.topophone.app.ui.collector.PointSavedListener
 import es.topophone.app.ui.collector.SavedPoint
+import es.topophone.app.ui.export.ExportSelection
+import es.topophone.core.formats.csv.ProfileCsv
 import es.topophone.core.formats.csv.ProfileCsvRow
 import es.topophone.core.model.alignment.Alignment
 import es.topophone.core.model.format.NumberInput
@@ -14,6 +16,7 @@ import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.model.project.Project
 import es.topophone.core.model.survey.linear.LinearSurvey
 import es.topophone.core.model.survey.linear.LinearSurveyKind
 import es.topophone.core.model.survey.linear.SurveyFlag
@@ -22,13 +25,19 @@ import es.topophone.core.survey.AlignmentGeometry
 import es.topophone.core.survey.ProfileSampler
 import es.topophone.core.survey.VerticalProfileEval
 import es.topophone.data.alignment.AlignmentRepository
+import es.topophone.data.export.ExportPreferences
 import es.topophone.data.linear.LinearSurveyRepository
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
+import java.io.BufferedWriter
+import java.io.IOException
+import java.io.OutputStream
+import java.io.OutputStreamWriter
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +49,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Un punto del perfil longitudinal con lo que se calculó al medirlo (S052/RF-11, RF-12): PK, desplazamiento, cotas y marca. */
 data class LongitudinalRow(
@@ -98,6 +108,8 @@ data class LongitudinalUiState(
     val chart: ProfileChart = ProfileChart(ProfileAxis.CHAINAGE, emptyList(), emptyList()),
     val setup: LongitudinalSetup = LongitudinalSetup(),
     val problem: LongitudinalProblem? = null,
+    /** Cuántos puntos hay elegidos en la lista de objetos para construir el perfil con ellos (RF-14). */
+    val selectionCount: Int = 0,
 ) {
     /** Los puntos incluidos que no entran en el perfil, con su marca (RF-12). */
     val rejected: List<LongitudinalRow> get() = rows.filter { it.included && it.flag != SurveyFlag.NONE }
@@ -117,6 +129,8 @@ class LongitudinalViewModel @Inject constructor(
     private val alignments: AlignmentRepository,
     private val points: PointRepository,
     private val projects: ProjectRepository,
+    private val exports: ExportPreferences,
+    private val selection: ExportSelection,
     @param:IoDispatcher private val io: CoroutineDispatcher,
     private val log: AppLog = AppLog.NONE,
 ) : ViewModel() {
@@ -125,6 +139,7 @@ class LongitudinalViewModel @Inject constructor(
 
     private var projectId: String? = null
     private var alignmentId: String? = null
+    private var project: Project? = null
     private var geometry: AlignmentGeometry? = null
     private var grade: VerticalProfileEval? = null
 
@@ -137,11 +152,12 @@ class LongitudinalViewModel @Inject constructor(
         projectId = project
         alignmentId = alignment
         viewModelScope.launch(io) {
-            val unit = projects.project(project)?.linearUnit ?: LinearUnit.METRE
+            this@LongitudinalViewModel.project = projects.project(project)
+            val unit = this@LongitudinalViewModel.project?.linearUnit ?: LinearUnit.METRE
             val axis = alignments.alignment(alignment)
             geometry = axis?.let { AlignmentGeometry(it.elements) }
             grade = axis?.profile?.let { VerticalProfileEval(it) }
-            mutable.update { it.copy(unit = unit, alignment = axis, hasGrade = axis?.profile != null) }
+            mutable.update { it.copy(unit = unit, alignment = axis, hasGrade = axis?.profile != null, selectionCount = selection.ids.size) }
             surveys.surveys(project).map { list ->
                 list.firstOrNull { it.kind == LinearSurveyKind.LONGITUDINAL && it.alignmentId == alignment && it.isOpen }
             }.flatMapLatest { survey ->
@@ -189,6 +205,9 @@ class LongitudinalViewModel @Inject constructor(
         }
         return ProfileChart(ProfileAxis.CHAINAGE, drawn, reference)
     }
+
+    /** Vuelve a contar los puntos elegidos en la lista de objetos, que cambian fuera de este panel (RF-14). */
+    fun refreshSelection() = mutable.update { it.copy(selectionCount = selection.ids.size) }
 
     fun updateSetup(change: (LongitudinalSetup) -> LongitudinalSetup) = mutable.update { it.copy(setup = change(it.setup), problem = null) }
 
@@ -265,6 +284,9 @@ class LongitudinalViewModel @Inject constructor(
         return SurveyPoint(pointId, 0, true, sampled.chainageM, sampled.offsetM, sampled.dHeightM, sampled.flag)
     }
 
+    /** Construye el perfil con los puntos elegidos en la lista de objetos (RF-14). */
+    fun addSelected(onOpened: (LinearSurvey) -> Unit = {}) = addFromSelection(selection.ids.toList(), onOpened)
+
     /**
      * Construye el perfil con unos puntos del proyecto ya medidos, proyectados sobre el eje (RF-14): abre un perfil libre con ellos si no hay
      * uno abierto, o los añade al abierto. Los que ya están en el perfil se saltan.
@@ -322,6 +344,30 @@ class LongitudinalViewModel @Inject constructor(
     fun csvRows(): List<ProfileCsvRow> = mutable.value.inProfile.filter { it.chainageM != null && it.offsetM != null }
         .sortedBy { it.chainageM }
         .map { ProfileCsvRow(null, it.chainageM!!, it.offsetM!!, it.groundM, it.referenceM, it.dHeightM) }
+
+    /**
+     * Escribe el CSV del perfil en [out], en UTF-8 sin BOM y con el separador y el signo decimal de la exportación (RF-15); false si no hay
+     * puntos en el perfil, las opciones no se distinguen o no se pudo escribir.
+     */
+    suspend fun writeCsv(out: OutputStream): Boolean {
+        val project = project ?: return false
+        val rows = csvRows()
+        val options = exports.options.first()
+        if (rows.isEmpty() || !options.valid) return false
+        return withContext(Dispatchers.IO) {
+            try {
+                BufferedWriter(OutputStreamWriter(out, Charsets.UTF_8)).use { writer ->
+                    ProfileCsv.write(LinearSurveyKind.LONGITUDINAL, rows, project, options.separator, options.decimal, writer)
+                }
+                log.info(LogCategory.APP, "Perfil longitudinal exportado: ${rows.size} puntos")
+                true
+            } catch (_: IOException) {
+                false
+            } catch (_: SecurityException) {
+                false
+            }
+        }
+    }
 
     private companion object {
         /** Los puntos con que se dibuja la rasante entre el primero y el último punto del perfil. */

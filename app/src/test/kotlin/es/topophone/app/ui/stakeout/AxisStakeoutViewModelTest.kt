@@ -703,4 +703,53 @@ class AxisStakeoutViewModelTest {
 
         vm.objectiveProvider.current().shouldNotBeNull().sectionCode.shouldBeNull()
     }
+
+    @Test
+    fun `S052 RF-10 abrir con la guia de un perfil longitudinal empieza ya la serie de PK del inicial al final cada intervalo`() {
+        val vm = viewModel()
+
+        vm.open(projectId, ids.getValue("Eje A"), ProfileGuide(0.0, 250.0, 100.0))
+
+        val series = await(vm) { it.started && it.series != null }.series.shouldNotBeNull()
+        series.size shouldBe 4 // 0, 100, 200 y 250
+        vm.state.value.target.shouldNotBeNull().chainageM shouldBe 0.0
+        vm.next()
+        await(vm) { it.seriesIndex == 1 }.target.shouldNotBeNull().chainageM shouldBe 100.0
+    }
+
+    @Test
+    fun `S052 RF-10 la guia de un perfil lleva los PK en la unidad del proyecto`() {
+        val feet = runBlocking {
+            val draft = ProjectDefaults().toDraft().copy(name = "Pies", linearUnit = LinearUnit.INTERNATIONAL_FOOT)
+            (projects.create(draft) as SaveResult.Saved).id
+        }
+        val axis = runBlocking {
+            AlignmentImporter(alignments).importLandXml(
+                feet,
+                ProjectCrs.ETRS89_UTM30,
+                "ejes.xml",
+                setOf(0),
+                CadSourceCrs.Project,
+                LinearUnit.METRE,
+                { ByteArrayInputStream(AlignmentTestFiles.bytes("ejes.xml")) },
+            ).shouldBeInstanceOf<AlignmentImportResult.Done>().summary.imported.single().id
+        }
+        val vm = viewModel()
+
+        vm.open(feet, axis, ProfileGuide(0.0, 304.8, 30.48))
+
+        val state = await(vm) { it.started && it.series != null }
+        state.series.shouldNotBeNull().size shouldBe 11 // cada 100 ft hasta 1000 ft
+    }
+
+    @Test
+    fun `S052 RF-10 una guia con el PK final fuera del eje no abre el replanteo`() {
+        val vm = viewModel()
+
+        vm.open(projectId, ids.getValue("Eje A"), ProfileGuide(0.0, 99_999.0, 100.0))
+        await(vm) { it.loaded && it.project != null }
+
+        vm.state.value.started shouldBe false
+        vm.state.value.errors.keys shouldBe setOf(AxisField.END)
+    }
 }

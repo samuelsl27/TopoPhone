@@ -195,4 +195,15 @@ class AlignmentsSheetTest {
 
         calls shouldBe listOf("take")
     }
+
+    @Test
+    fun `S052 RF-10 cada eje ofrece Perfil longitudinal y lleva su identificador a la accion`() {
+        val calls = mutableListOf<String>()
+        show(actions = AlignmentsActions(onLongitudinal = { calls += it }))
+
+        compose.onNodeWithTag(alignmentLongitudinalTag("a")).performScrollTo().performClick()
+        compose.onNodeWithTag(alignmentLongitudinalTag("b")).performScrollTo().performClick()
+
+        calls shouldBe listOf("a", "b")
+    }
 }

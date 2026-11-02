@@ -25,6 +25,7 @@ import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.model.survey.linear.LinearSurvey
 import es.topophone.core.survey.AlignmentGeometry
 import es.topophone.core.survey.AntennaProfile
 import es.topophone.core.survey.AxisChainageSeries
@@ -57,6 +58,8 @@ import es.topophone.data.section.SectionRepository
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.math.roundToLong
@@ -71,6 +74,22 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+/**
+ * La serie de PK con que se abre el replanteo para guiar un perfil longitudinal (S052/RF-10): del PK inicial al final cada intervalo, en
+ * metros.
+ */
+class ProfileGuide(val fromM: Double, val toM: Double, val intervalM: Double) {
+    companion object {
+        /** La guía de una toma guiada, o null si no tiene PK inicial, final e intervalo. */
+        fun of(survey: LinearSurvey): ProfileGuide? {
+            val from = survey.chainageFrom ?: return null
+            val to = survey.chainageTo ?: return null
+            val interval = survey.intervalM ?: return null
+            return ProfileGuide(from, to, interval)
+        }
+    }
+}
 
 /** Los campos del replanteo por PK que se validan (S054/RF-1, RF-5, RF-9). */
 enum class AxisField { START, END, INTERVAL, OFFSET, THICKNESS, CHAINAGE }
@@ -343,11 +362,15 @@ class AxisStakeoutViewModel @Inject constructor(
 
     private val unit: LinearUnit get() = project?.linearUnit ?: LinearUnit.METRE
 
+    /** Una longitud en metros como se escribe en el campo, en la unidad del proyecto y con punto decimal. */
+    private fun unitText(valueM: Double): String =
+        BigDecimal(unit.fromMetres(valueM)).setScale(UNIT_TEXT_DECIMALS, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString()
+
     /**
      * Abre el replanteo por PK del eje [alignmentId] del proyecto [projectId], o del eje activo si es null (S054/RF-1, RF-11). Empieza con
      * los campos vacíos, desplazamiento 0 y sin intervalo.
      */
-    fun open(projectId: String, alignmentId: String?) {
+    fun open(projectId: String, alignmentId: String?, guide: ProfileGuide? = null) {
         this.projectId.value = projectId
         controller.reset()
         viewModelScope.launch {
@@ -358,6 +381,13 @@ class AxisStakeoutViewModel @Inject constructor(
             this@AxisStakeoutViewModel.project = project
             model.value = newModel(projectId, alignment, null, sectionData(alignment))
             log.info(LogCategory.POINTS, "Replanteo por PK de un eje abierto") // S014/RF-5
+            if (guide != null) {
+                // S052/RF-10: un perfil longitudinal guiado empieza ya con su serie de PK, del inicial al final cada intervalo.
+                setup {
+                    it.copy(startText = unitText(guide.fromM), endText = unitText(guide.toM), intervalText = unitText(guide.intervalM))
+                }
+                start()
+            }
         }
     }
 
@@ -838,6 +868,8 @@ class AxisStakeoutViewModel @Inject constructor(
     }
 
     private companion object {
+        const val UNIT_TEXT_DECIMALS = 6
+
         const val MILLIMETRES = 1_000.0
     }
 }

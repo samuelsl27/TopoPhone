@@ -99,6 +99,10 @@ import es.topophone.app.ui.linear.AxisSurveyMarkers
 import es.topophone.app.ui.linear.AxisSurveyPanel
 import es.topophone.app.ui.linear.AxisSurveyUiState
 import es.topophone.app.ui.linear.AxisSurveyViewModel
+import es.topophone.app.ui.linear.LongitudinalActions
+import es.topophone.app.ui.linear.LongitudinalPanel
+import es.topophone.app.ui.linear.LongitudinalUiState
+import es.topophone.app.ui.linear.LongitudinalViewModel
 import es.topophone.app.ui.map.AttributionSource
 import es.topophone.app.ui.map.CameraCommand
 import es.topophone.app.ui.map.CameraPolicy
@@ -130,6 +134,7 @@ import es.topophone.app.ui.stakeout.LineStakeoutMarkers
 import es.topophone.app.ui.stakeout.LineStakeoutPanel
 import es.topophone.app.ui.stakeout.LineStakeoutUiState
 import es.topophone.app.ui.stakeout.LineStakeoutViewModel
+import es.topophone.app.ui.stakeout.ProfileGuide
 import es.topophone.app.ui.stakeout.StakeoutActions
 import es.topophone.app.ui.stakeout.StakeoutMarkers
 import es.topophone.app.ui.stakeout.StakeoutPanel
@@ -385,6 +390,7 @@ fun ProjectViewRoute(
     axisStakeoutViewModel: AxisStakeoutViewModel = hiltViewModel(),
     slopeStakeViewModel: SlopeStakeViewModel = hiltViewModel(),
     axisSurveyViewModel: AxisSurveyViewModel = hiltViewModel(),
+    longitudinalViewModel: LongitudinalViewModel = hiltViewModel(),
     axisAnalysisViewModel: AxisAnalysisViewModel = hiltViewModel(),
     designViewModel: DesignMapViewModel = hiltViewModel(),
     surfacesViewModel: SurfacesViewModel = hiltViewModel(),
@@ -404,9 +410,19 @@ fun ProjectViewRoute(
     // S052/RF-1: la toma de un eje con el receptor, en el mismo hueco; el recolector mide y la toma recoge cada punto guardado.
     var axisSurveyOpen by rememberSaveable { mutableStateOf(false) }
     val axisSurvey by axisSurveyViewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(axisSurveyOpen) {
-        collectorViewModel.setPointSavedListener(axisSurveyViewModel.pointListener.takeIf { axisSurveyOpen }) // S052/RF-2
+    // S052/RF-10: el perfil longitudinal de un eje, en el mismo hueco; guiado, usa además el replanteo por PK de ese eje.
+    var longitudinalOpen by rememberSaveable { mutableStateOf(false) }
+    val longitudinal by longitudinalViewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(axisSurveyOpen, longitudinalOpen) {
+        collectorViewModel.setPointSavedListener(
+            when {
+                axisSurveyOpen -> axisSurveyViewModel.pointListener // S052/RF-2
+                longitudinalOpen -> longitudinalViewModel.pointListener // S052/RF-11
+                else -> null
+            },
+        )
     }
+    LaunchedEffect(longitudinalOpen) { if (longitudinalOpen) longitudinalViewModel.refreshSelection() }
     // S051/RF-9: el replanteo de los taludes de un eje, en el mismo hueco, con su propio modelo.
     var slopeOpen by rememberSaveable { mutableStateOf(false) }
     val slope by slopeStakeViewModel.state.collectAsStateWithLifecycle()
@@ -415,6 +431,7 @@ fun ProjectViewRoute(
     LaunchedEffect(stakeoutPointId) {
         if (stakeoutPointId != null) {
             axisSurveyOpen = false
+            longitudinalOpen = false
             slopeOpen = false
             slopeStakeViewModel.close()
             stakeoutViewModel.open(projectId, stakeoutPointId, stakeoutQuery)
@@ -520,6 +537,7 @@ fun ProjectViewRoute(
         onStakeAxis = { alignmentId ->
             // S054/RF-1: "Replantear eje" en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
             axisSurveyOpen = false
+            longitudinalOpen = false
             stakeoutOpen = false
             stakeoutViewModel.close()
             lineOpen = false
@@ -534,6 +552,7 @@ fun ProjectViewRoute(
         onStakeSlopes = { alignmentId ->
             // S051/RF-9: "Replantear taludes" en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
             axisSurveyOpen = false
+            longitudinalOpen = false
             stakeoutOpen = false
             stakeoutViewModel.close()
             lineOpen = false
@@ -557,8 +576,62 @@ fun ProjectViewRoute(
             axisStakeoutViewModel.close()
             slopeOpen = false
             slopeStakeViewModel.close()
+            longitudinalOpen = false
             axisSurveyOpen = true
         },
+        onLongitudinal = { alignmentId ->
+            // S052/RF-10: «Perfil longitudinal» en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro panel abierto.
+            stakeoutOpen = false
+            stakeoutViewModel.close()
+            lineOpen = false
+            lineStakeoutViewModel.close()
+            analysisOpen = false
+            axisAnalysisViewModel.close()
+            axisOpen = false
+            axisStakeoutViewModel.close()
+            slopeOpen = false
+            slopeStakeViewModel.close()
+            axisSurveyOpen = false
+            longitudinalViewModel.start(projectId, alignmentId)
+            longitudinalOpen = true
+        },
+        longitudinal = longitudinal.takeIf { longitudinalOpen },
+        longitudinalActions = LongitudinalActions(
+            onClose = {
+                longitudinalOpen = false
+                axisOpen = false
+                axisStakeoutViewModel.close()
+            },
+            onSetup = longitudinalViewModel::updateSetup,
+            onBegin = {
+                longitudinalViewModel.begin { survey ->
+                    // S052/RF-10: guiado, la guía de replanteo por PK lleva del PK inicial al final cada intervalo.
+                    if (survey.guided) {
+                        axisStakeoutViewModel.open(projectId, survey.alignmentId, ProfileGuide.of(survey))
+                        axisOpen = true
+                    }
+                }
+            },
+            onUseSelection = { longitudinalViewModel.addSelected() },
+            onOpenGuide = {
+                longitudinal.survey?.let { survey ->
+                    axisStakeoutViewModel.open(projectId, survey.alignmentId, ProfileGuide.of(survey))
+                    axisOpen = true
+                }
+            },
+            onRemove = longitudinalViewModel::removePoint,
+            onFinish = {
+                longitudinalViewModel.finish()
+                axisOpen = false
+                axisStakeoutViewModel.close()
+            },
+            onDiscard = {
+                longitudinalViewModel.discard()
+                axisOpen = false
+                axisStakeoutViewModel.close()
+            },
+        ),
+        longitudinalWriteCsv = longitudinalViewModel::writeCsv,
         axisSurvey = axisSurvey.takeIf { axisSurveyOpen },
         axisSurveyActions = AxisSurveyActions(
             onClose = { axisSurveyOpen = false },
@@ -574,6 +647,7 @@ fun ProjectViewRoute(
         onAnalyzeAxis = { alignmentId ->
             // S054/RF-12: «Analizar» en la hoja «Ejes» y en la ficha de un eje; sustituye a cualquier otro replanteo abierto.
             axisSurveyOpen = false
+            longitudinalOpen = false
             stakeoutOpen = false
             stakeoutViewModel.close()
             lineOpen = false
@@ -719,6 +793,7 @@ fun ProjectViewRoute(
             designSelection?.let { selection ->
                 designViewModel.dismissSelection()
                 axisSurveyOpen = false
+                longitudinalOpen = false
                 axisOpen = false
                 axisStakeoutViewModel.close()
                 analysisOpen = false
@@ -792,6 +867,11 @@ fun ProjectViewScreen(
     slopeStake: SlopeStakeUiState? = null,
     slopeStakeActions: SlopeStakeActions = SlopeStakeActions(),
     onStakeSlopes: (String) -> Unit = {},
+    /** El perfil longitudinal de un eje y su botón «Perfil longitudinal» (S052/RF-10). */
+    longitudinal: LongitudinalUiState? = null,
+    longitudinalActions: LongitudinalActions = LongitudinalActions(),
+    longitudinalWriteCsv: suspend (java.io.OutputStream) -> Boolean = { false },
+    onLongitudinal: (String) -> Unit = {},
     /** «Tomar eje» con el receptor y su panel (S052/RF-1). */
     axisSurvey: AxisSurveyUiState? = null,
     axisSurveyActions: AxisSurveyActions = AxisSurveyActions(),
@@ -977,6 +1057,28 @@ fun ProjectViewScreen(
                         collectorActions = collectorActions,
                         stats = collectorStats,
                     ) // S051/RF-9, RF-15
+                    longitudinal != null -> Column {
+                        LongitudinalPanel(longitudinal, project.name, longitudinalActions, longitudinalWriteCsv) // S052/RF-10
+                        if (axisStakeout != null) {
+                            AxisStakeoutPanel(
+                                axisStakeout,
+                                axisStakeoutActions,
+                                collector = collector,
+                                collectorActions = collectorActions,
+                                stats = collectorStats,
+                            )
+                        } else if (collector != null) {
+                            CollectorPanel(
+                                collector,
+                                project.linearUnit,
+                                collectorActions,
+                                onClose = longitudinalActions.onClose,
+                                stats = collectorStats,
+                                autoLive = collectorAutoLive,
+                                surface = collectorSurface,
+                            )
+                        }
+                    }
                     axisSurvey != null -> Column {
                         AxisSurveyPanel(axisSurvey, axisSurveyActions) // S052/RF-1
                         if (collector != null) {
@@ -1056,6 +1158,10 @@ fun ProjectViewScreen(
                     alignmentsOpen = false
                     onTakeAxis()
                 },
+                onLongitudinal = {
+                    alignmentsOpen = false
+                    onLongitudinal(it)
+                },
             ),
         ) { alignmentsOpen = false }
     }
@@ -1092,6 +1198,10 @@ fun ProjectViewScreen(
             onStakeSlopes = {
                 onDismissAlignmentTouch()
                 onStakeSlopes(alignmentTouch.alignment.id)
+            },
+            onLongitudinal = {
+                onDismissAlignmentTouch()
+                onLongitudinal(alignmentTouch.alignment.id)
             },
             sectionLines = alignmentTouch.alignment.id in sectionLinesOn,
             onSectionLines = { on -> onSectionLines(alignmentTouch.alignment.id, on) },
