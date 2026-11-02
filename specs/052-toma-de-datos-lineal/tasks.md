@@ -8,8 +8,8 @@
       Hecho cuando: los tests de `core:model` en verde.
 - [x] T3. `core:survey`: `FieldAxisBuilder` (rectas, radios, rechazos, rasante opcional) y `PolylineLength`. (RF-3, RF-5 a RF-7)
       Hecho cuando: `FieldAxisBuilderTest` y `PolylineLengthTest` en verde a 1 mm.
-- [ ] T4. `core:survey`: `ProfileSampler` (PK, desplazamiento, diferencia de cota y marcas) y `ProfileSeries`. (RF-10 a RF-12, RF-17, RF-18)
-      Hecho cuando: `ProfileSamplerTest` y `ProfileSeriesTest` en verde a 1 mm.
+- [x] T4. `core:survey`: `ProfileSampler` (PK, desplazamiento, diferencia de cota y marcas); la serie guiada es `AxisChainageSeries` de S054, sin clase nueva. (RF-10 a RF-12, RF-17, RF-18)
+      Hecho cuando: `ProfileSamplerTest` en verde a 1 mm.
 - [ ] T5. `core:survey`: `CrossProfileBuilder` (a perfil de terreno de S050). (RF-17, RF-19, RF-20)
       Hecho cuando: `CrossProfileBuilderTest` en verde.
 - [ ] T6. `core:formats`: `ProfileCsv` con dorado. (RF-15, RF-22)
