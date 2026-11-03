@@ -2,7 +2,7 @@
 
 Las specs se implementan **en el orden de las tablas**, no por su número: los números son identificadores estables y desde S017b no van seguidos (el replanteo y la importación de diseño pasan delante de las fotos). Cada hito termina con una puerta de validación de campo (`docs/validacion-campo/protocolo.md`).
 
-Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18). S048 (GeoPackage) está implementada (Room v19) y la usa. S049 (ejes y rasantes) está implementada (Room v20). S054 (replanteo por eje) está implementada (Room v21). S053 (exportar GeoPackage) está implementada (sin cambios de Room). S045 (ráster de cotas) está implementada (Room v22). S020 (base shift) está implementada (Room v23). S017b (fotos) está implementada (Room v24). S050 (peraltes y secciones transversales) está implementada (Room v25). S051 (taludes) está implementada (Room v26).
+Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18). S048 (GeoPackage) está implementada (Room v19) y la usa. S049 (ejes y rasantes) está implementada (Room v20). S054 (replanteo por eje) está implementada (Room v21). S053 (exportar GeoPackage) está implementada (sin cambios de Room). S045 (ráster de cotas) está implementada (Room v22). S020 (base shift) está implementada (Room v23). S017b (fotos) está implementada (Room v24). S050 (peraltes y secciones transversales) está implementada (Room v25). S051 (taludes) está implementada (Room v26). S052 (toma de datos lineal) está implementada (Room v27).
 
 Orden de trabajo actual del diseño importado: S019 → S028 → S040 → S041 → S042 → S045 (S017b, fotos, hecha después).
 
@@ -111,7 +111,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 054 replanteo-por-eje | Replanteo por PK y desplazamiento con intervalo, puntos singulares, espesor y cota de la rasante, y análisis en vivo de la posición del jalón respecto al eje | 049, 018, 019 | implementada |
 | 050 peraltes-y-transversales | Peraltes y perfiles transversales (secciones tipo con códigos), cota con peralte y replanteo por PK y código con interpolación entre PK, y el perfil de terreno que usan S051 y S052 | 054, 049 | implementada |
 | 051 taludes | Replanteo de cabezas y pies de talud contra los perfiles transversales o una sección manual, con seguimiento en alzado | 050, 054, 042 (opcional) | implementada |
-| 052 toma-de-datos-lineal | Tomar un eje con el receptor, perfil longitudinal y perfil transversal a lo largo del eje | 054, 050, 049, 010, 017 | spec |
+| 052 toma-de-datos-lineal | Tomar un eje con el receptor, perfil longitudinal y perfil transversal a lo largo del eje | 054, 050, 049, 010, 017 | implementada |
 
 ## Puertas de validación
 | Puerta | Al cerrar | Qué se demuestra |

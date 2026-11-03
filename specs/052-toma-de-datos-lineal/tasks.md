@@ -44,5 +44,5 @@
       Hecho cuando: `ProfilePerformanceTest` en verde.
 - [x] T21. Pantalla encendida y accesibilidad de las tres tomas (frases de TalkBack, 56 dp). (RNF-T2, RNF-T8)
       Hecho cuando: los tests de las pantallas ampliados en verde.
-- [ ] T22. Validación: cambios en documentos anteriores (hoja de ruta, Room v27), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador. (Todos)
+- [x] T22. Validación: cambios en documentos anteriores (hoja de ruta, Room v27), recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files` y la demo en el emulador. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.

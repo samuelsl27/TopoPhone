@@ -125,3 +125,19 @@ Accesibilidad (RNF-T8): campos y botones de 56 dp; izquierda y derecha con palab
 - `docs/glosario.md`: «Toma» (`LinearSurvey`), «Eje tomado», «Perfil longitudinal», «Perfil transversal», «Tolerancia de eje» y «Tolerancia de sección».
 - S049: el origen `FIELD` («Tomado en campo»); S050: sin cambios (usa `addSections`); S054: sin cambios. Sus `spec.md` no se tocan sin que lo pidas.
 - La cabecera de estado de `specs/052-*/spec.md` no se toca sin que lo pidas.
+
+## Cambios al implementar (S052)
+Lo que se hizo distinto de lo previsto arriba, y por qué:
+- **`ProfileSeries` no existe**: la serie guiada de PK (desde, hasta, intervalo) es `AxisChainageSeries` de S054, que ya hace justo eso; el replanteo por PK se abre con `ProfileGuide` (`AxisStakeoutViewModel.open(..., guide)`), que le escribe los PK en la unidad del proyecto y lo arranca. En el perfil transversal la guía lleva un solo PK.
+- **PK de los vértices de la rasante del eje tomado**: el del pie de la perpendicular desde cada punto sobre el eje construido, que es el punto medio del arco en un vértice con curva y el final de la recta anterior en el resto. El plan decía «PK acumulado»; esta es la definición exacta y la que calcula `tools`.
+- **`FieldAxisResult.Built` lleva también el recuadro** (`extent`) del eje, que el repositorio guarda con él.
+- **`LinearSurveyRepository`** gana `profileCounts(projectId)` (cuántos puntos forman el perfil de cada toma) para la lista de RF-22 y `finishLongitudinal`/`finishCross` no devuelven el historial: el historial son las propias tomas cerradas (D7). Un perfil de terreno de S050 que no vino de una toma (importado) y que un perfil nuevo sustituye en el mismo PK no queda en el historial.
+- **`ProfileSampler`** reúne el muestreo de los dos perfiles (`longitudinal` y `cross`); el error en PK del transversal es la diferencia de PK del punto con el de la sección.
+- **Entrada de los puntos elegidos (RF-14)**: el perfil usa los puntos que hay elegidos en la lista de objetos (`ExportSelection`); el panel ofrece «Usar los N puntos elegidos». No se tocó la lista de objetos.
+- **Códigos del perfil transversal (RF-17)**: el que escribe el usuario para el siguiente punto, o el del punto de la sección de diseño de S050 a menos de 10 cm de desplazamiento, o `P1`, `P2`… al guardar (`CrossProfileBuilder`).
+- **`PointSavedListener`** (`CollectorViewModel.setPointSavedListener`) avisa de cada punto guardado; lo usan los tres modelos. Un fallo del aviso no impide guardar el punto.
+- **`ProfileView`** es un modelo puro (`ProfileChart`, `ProfileViewport`, `CutFill`) y un lienzo que solo lo dibuja; el texto del punto elegido es lo que lee TalkBack. `ProfileExportButtons` reúne «Guardar» y «Compartir» del CSV (`ProfileCsv`) para los tres usos.
+- **Pantallas**: `AxisSurveyPanel` + `CollectorPanel` debajo, `LongitudinalPanel` + (`AxisStakeoutPanel` si es guiado o `CollectorPanel`), `CrossPanel` + `AxisStakeoutPanel`; la lista de tomas es `LinearSurveysScreen` (SurveyPage.LinearSurveys, «Perfiles tomados» en la hoja «Ejes»).
+- **Reproducciones**: `ProfileReplayTest` agrupa las dos (longitudinal de 46 épocas y transversal de 20) y ninguna época cae justo en un extremo del eje ni de la sección, donde el redondeo de la latitud y la longitud decidiría el resultado.
+- **Rendimiento**: el muestreo de un punto en un eje de 5.000 tramos tarda de media 66 µs (peor época 362 µs) frente a 16 ms; el alzado de 2.000 puntos se prepara en 24 ms y se redibuja en 13–17 ms frente a 100 ms.
+- **Room v27**: `linear_surveys` y `linear_survey_points`; la siguiente spec que toque Room pasa a la v28.
