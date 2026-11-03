@@ -44,6 +44,9 @@ import kotlinx.serialization.Serializable
 /** "Proyectos nuevos" en Ajustes (S006/RF-13). */
 @Serializable data object ProjectDefaultsDestination
 
+/** "Bibliotecas de códigos" en Ajustes (S023/RF-1). */
+@Serializable data object CodeLibrariesDestination
+
 /** "Copias de seguridad" en Ajustes (S013). */
 @Serializable data object BackupsDestination
 

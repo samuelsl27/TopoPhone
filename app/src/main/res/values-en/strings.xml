@@ -2319,4 +2319,22 @@
     <string name="default_code_urban_mur">Wall</string>
     <string name="default_code_urban_zve">Green area</string>
     <string name="default_code_urban_esc">Stairs</string>
+
+    <string name="codes_libraries_title">Code libraries</string>
+    <string name="codes_library_new">New library</string>
+    <string name="codes_library_default_tag">Default</string>
+    <plurals name="codes_count">
+        <item quantity="one">%d code</item>
+        <item quantity="other">%d codes</item>
+    </plurals>
+    <string name="codes_library_menu">Options for library %1$s</string>
+    <string name="codes_library_rename">Rename</string>
+    <string name="codes_library_duplicate">Duplicate</string>
+    <string name="codes_library_delete">Delete</string>
+    <string name="codes_library_name">Library name</string>
+    <string name="codes_library_name_empty">Enter a name for the library.</string>
+    <string name="codes_library_name_duplicate">There is already a library with that name.</string>
+    <string name="codes_library_copy_label">copy</string>
+    <string name="codes_library_delete_message">Library “%1$s” will be deleted. Projects that use it keep their copy and no point is changed.</string>
+    <string name="settings_code_libraries">Code libraries</string>
 </resources>

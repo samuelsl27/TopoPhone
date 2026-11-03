@@ -41,6 +41,7 @@ import es.topophone.app.ui.alignment.ProfileCsvImportRoute
 import es.topophone.app.ui.backup.BackupsRoute
 import es.topophone.app.ui.baseshift.BaseShiftRoute
 import es.topophone.app.ui.cad.CadImportRoute
+import es.topophone.app.ui.codes.CodeLibraryListRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
 import es.topophone.app.ui.gpkg.GpkgImportRoute
@@ -708,7 +709,11 @@ private fun AppNavHost(
                     onOpenBackgroundHelp = { navController.navigate(BackgroundHelpRoute) },
                     onOpenProjectDefaults = { navController.navigate(ProjectDefaultsDestination) }, // S006/RF-13
                     onOpenBackups = { navController.navigate(BackupsDestination) }, // S013
+                    onOpenCodeLibraries = { navController.navigate(CodeLibrariesDestination) }, // S023/RF-1
                 )
+            }
+            composable<CodeLibrariesDestination> {
+                CodeLibraryListRoute(uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<BackupsDestination> {
                 backupsSection(uiState.themeState, actions.onToggleSun, { navController.popBackStack() }) {

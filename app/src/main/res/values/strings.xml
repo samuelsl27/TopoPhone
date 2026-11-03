@@ -2331,4 +2331,22 @@
     <string name="default_code_urban_mur">Muro</string>
     <string name="default_code_urban_zve">Zona verde</string>
     <string name="default_code_urban_esc">Escalera</string>
+
+    <string name="codes_libraries_title">Bibliotecas de códigos</string>
+    <string name="codes_library_new">Nueva biblioteca</string>
+    <string name="codes_library_default_tag">Por defecto</string>
+    <plurals name="codes_count">
+        <item quantity="one">%d código</item>
+        <item quantity="other">%d códigos</item>
+    </plurals>
+    <string name="codes_library_menu">Opciones de la biblioteca %1$s</string>
+    <string name="codes_library_rename">Renombrar</string>
+    <string name="codes_library_duplicate">Duplicar</string>
+    <string name="codes_library_delete">Borrar</string>
+    <string name="codes_library_name">Nombre de la biblioteca</string>
+    <string name="codes_library_name_empty">Escribe un nombre para la biblioteca.</string>
+    <string name="codes_library_name_duplicate">Ya hay una biblioteca con ese nombre.</string>
+    <string name="codes_library_copy_label">copia</string>
+    <string name="codes_library_delete_message">Se borra la biblioteca «%1$s». Los proyectos que la usan conservan su copia y no se modifica ningún punto.</string>
+    <string name="settings_code_libraries">Bibliotecas de códigos</string>
 </resources>
