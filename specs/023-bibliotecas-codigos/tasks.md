@@ -16,7 +16,7 @@
       Hecho cuando: `CodeLibraryCsvReaderTest` en verde.
 - [x] T7. `core:formats`: ida y vuelta y rendimiento de 2.000 códigos. (RF-18, RNF)
       Hecho cuando: `CodeLibraryRoundTripTest` en verde, con la lectura en menos de 3 s.
-- [ ] T8. `data`: Room v28 (cuatro tablas), `AutoMigration(27, 28)` y el esquema 28. (RNF-T6)
+- [x] T8. `data`: Room v28 (cuatro tablas), `AutoMigration(27, 28)` y el esquema 28. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 27 a 28 en verde.
 - [ ] T9. `data`: `CodeLibraryRepository`, bibliotecas (crear, renombrar, duplicar, borrar, por defecto de solo lectura) y `DefaultLibrarySource`. (RF-1 a RF-4)
       Hecho cuando: `CodeLibraryRepositoryTest` en verde.

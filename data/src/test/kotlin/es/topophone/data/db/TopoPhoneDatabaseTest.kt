@@ -23,6 +23,10 @@ import es.topophone.core.model.surface.SurfaceKind
 import es.topophone.data.alignment.AlignmentEntity
 import es.topophone.data.baseshift.BaseShiftEntity
 import es.topophone.data.cad.RoomCadRepository
+import es.topophone.data.codes.AttributeOptionEntity
+import es.topophone.data.codes.CodeAttributeEntity
+import es.topophone.data.codes.CodeLibraryEntity
+import es.topophone.data.codes.LibraryCodeEntity
 import es.topophone.data.linear.LinearSurveyEntity
 import es.topophone.data.linear.LinearSurveyPointEntity
 import es.topophone.data.map.MapViewportEntity
@@ -1374,9 +1378,57 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S023 RNF-T6 v27 a v28 los proyectos y puntos siguen y las bibliotecas nacen vacias`() {
+        createFromExportedSchema(27)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v27 ->
+            v27.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            runBlocking { RoomProjectRepository(db).project(project.id).shouldNotBeNull().name shouldBe project.name }
+            listOf("code_libraries", "library_codes", "code_attributes", "attribute_options").forEach { count(db, it) shouldBe 0 }
+
+            val dao = db.codeLibraries()
+            runBlocking {
+                dao.insertLibrary(CodeLibraryEntity("l1", "Mis codigos", "mis codigos", null, null, 1))
+                dao.insertLibrary(CodeLibraryEntity("l2", "Copia", "copia", project.id, "Mis codigos", 2))
+                dao.insertCode(LibraryCodeEntity("c1", "l2", "ARQ", "arq", "Arqueta", "POINT", 0x1E88E5))
+                dao.insertAttribute(CodeAttributeEntity("a1", "c1", 0, "Material", "LIST", "PVC"))
+                dao.insertOption(AttributeOptionEntity("a1", 0, "PVC"))
+                dao.insertOption(AttributeOptionEntity("a1", 1, "Hormigón"))
+                dao.copyOf(project.id).shouldNotBeNull().sourceName shouldBe "Mis codigos"
+                dao.userLibraries().first().map { it.id } shouldBe listOf("l1")
+                // Un proyecto tiene como mucho una copia, y un código no se repite en su biblioteca.
+                shouldThrow<SQLiteConstraintException> { dao.insertLibrary(CodeLibraryEntity("l3", "Otra", "otra", project.id, null, 3)) }
+                shouldThrow<SQLiteConstraintException> {
+                    dao.insertCode(LibraryCodeEntity("c2", "l2", "arq", "arq", "", "LINE", 0))
+                }
+                // Dos bibliotecas del usuario sí pueden tener el mismo código.
+                dao.insertCode(LibraryCodeEntity("c3", "l1", "ARQ", "arq", "", "POINT", 0))
+                // Borrar el proyecto borra su copia entera, y la biblioteca del usuario sigue.
+                db.openHelper.writableDatabase.execSQL("DELETE FROM projects WHERE id = ?", arrayOf<Any>(project.id))
+                count(db, "code_libraries") shouldBe 1
+                count(db, "library_codes") shouldBe 1
+                count(db, "code_attributes") shouldBe 0
+                count(db, "attribute_options") shouldBe 0
+            }
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 27
+        const val CURRENT_VERSION = 28
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
