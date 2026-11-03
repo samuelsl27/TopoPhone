@@ -92,9 +92,11 @@ data class CodeLibraryUiState(
     val query: String = "",
     val codes: List<SurveyCode> = emptyList(),
     val message: ExportMessage? = null,
+    /** Es la copia de un proyecto (RF-20): se consulta y se exporta, pero no se edita. */
+    val projectCopy: Boolean = false,
 ) {
     /** Solo las bibliotecas del usuario se editan (S023/RF-3). */
-    val editable: Boolean get() = library != null && !library.isDefault
+    val editable: Boolean get() = library != null && !library.isDefault && !projectCopy
 }
 
 data class CodeLibraryActions(
@@ -106,30 +108,34 @@ data class CodeLibraryActions(
     val onDismissMessage: () -> Unit = {},
 )
 
-/** Una biblioteca con su buscador (S023/RF-11) y su exportación a CSV (S023/RF-17). */
+/** De dónde sale lo que se muestra: una biblioteca por su id o la copia que lleva un proyecto (S023/RF-20). */
+private sealed interface Source {
+    data class Library(val id: String) : Source
+
+    data class ProjectCopy(val projectId: String) : Source
+}
+
+/** Una biblioteca con su buscador (S023/RF-11) y su exportación a CSV (S023/RF-17); la copia de un proyecto solo se consulta. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CodeLibraryViewModel @Inject constructor(private val repository: CodeLibraryRepository) : ViewModel() {
-    private val libraryId = MutableStateFlow<String?>(null)
+    private val source = MutableStateFlow<Source?>(null)
     private val query = MutableStateFlow("")
     private val message = MutableStateFlow<ExportMessage?>(null)
 
-    private val indexed = libraryId.flatMapLatest { id ->
-        if (id ==
-            null
-        ) {
-            flowOf<Pair<CodeLibrary?, CodeIndex?>>(null to null)
-        } else {
-            repository.library(id).map {
-                it to
-                    it?.let { lib -> CodeSearch.index(lib.codes) }
-            }
+    private val indexed = source.flatMapLatest { from ->
+        val library = when (from) {
+            null -> return@flatMapLatest flowOf<Pair<CodeLibrary?, CodeIndex?>>(null to null)
+            is Source.Library -> repository.library(from.id)
+            is Source.ProjectCopy -> repository.projectCopy(from.projectId)
         }
+        library.map { it to it?.let { lib -> CodeSearch.index(lib.codes) } }
     }
 
-    val state: StateFlow<CodeLibraryUiState> = combine(libraryId, indexed, query, message) { id, (library, index), text, export ->
+    val state: StateFlow<CodeLibraryUiState> = combine(source, indexed, query, message) { from, (library, index), text, export ->
         CodeLibraryUiState(
-            loaded = id != null,
+            loaded = from != null,
+            projectCopy = from is Source.ProjectCopy,
             library = library,
             query = text,
             codes = index?.filter(text).orEmpty(),
@@ -138,7 +144,12 @@ class CodeLibraryViewModel @Inject constructor(private val repository: CodeLibra
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), CodeLibraryUiState())
 
     fun open(id: String) {
-        libraryId.value = id
+        source.value = Source.Library(id)
+    }
+
+    /** Abre la copia de la biblioteca que lleva el proyecto, solo de consulta (S023/RF-20). */
+    fun openProject(projectId: String) {
+        source.value = Source.ProjectCopy(projectId)
     }
 
     fun search(text: String) {
@@ -215,6 +226,38 @@ fun CodeLibraryRoute(
     )
 }
 
+/** Los códigos de la biblioteca que lleva el proyecto [projectId], solo de consulta (S023/RF-20). */
+@Composable
+fun ProjectCodesRoute(
+    projectId: String,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    viewModel: CodeLibraryViewModel = hiltViewModel(),
+    onBack: () -> Unit,
+) {
+    LaunchedEffect(projectId) { viewModel.openProject(projectId) }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val resolver = LocalContext.current.contentResolver
+    val scope = rememberCoroutineScope()
+    val create = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+        if (uri != null) scope.launch { viewModel.exported(writeToUri(resolver, uri, viewModel::writeCsv)) }
+    }
+    CodeLibraryScreen(
+        themeState,
+        onToggleSun,
+        state,
+        CodeLibraryActions(
+            onQueryChange = viewModel::search,
+            onExport = {
+                viewModel.dismissMessage()
+                create.launch(viewModel.fileName())
+            },
+            onDismissMessage = viewModel::dismissMessage,
+        ),
+        onBack,
+    )
+}
+
 @Composable
 fun CodeLibraryScreen(
     themeState: ThemeState,
@@ -232,14 +275,18 @@ fun CodeLibraryScreen(
         val library = state.library
         if (library == null) {
             if (state.loaded) {
-                Text(stringResource(R.string.codes_not_found), modifier = Modifier.padding(padding).padding(16.dp))
+                val text = if (state.projectCopy) R.string.codes_project_none else R.string.codes_not_found
+                Text(stringResource(text), modifier = Modifier.padding(padding).padding(16.dp).testTag(CODE_EMPTY_TAG))
             }
             return@SectionScaffold
         }
         Column(modifier = Modifier.padding(padding).fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (library.isDefault) {
-                    Text(stringResource(R.string.codes_readonly_note), modifier = Modifier.testTag(CODE_READONLY_TAG))
+                if (library.isDefault || state.projectCopy) {
+                    Text(
+                        stringResource(if (state.projectCopy) R.string.codes_project_copy_note else R.string.codes_readonly_note),
+                        modifier = Modifier.testTag(CODE_READONLY_TAG),
+                    )
                 }
                 state.message?.let { ExportBanner(it, actions.onDismissMessage) }
                 OutlinedTextField(

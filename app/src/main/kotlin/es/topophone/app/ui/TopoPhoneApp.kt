@@ -45,6 +45,7 @@ import es.topophone.app.ui.codes.CodeEditorRoute
 import es.topophone.app.ui.codes.CodeImportRoute
 import es.topophone.app.ui.codes.CodeLibraryListRoute
 import es.topophone.app.ui.codes.CodeLibraryRoute
+import es.topophone.app.ui.codes.ProjectCodesRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
 import es.topophone.app.ui.gpkg.GpkgImportRoute
@@ -375,6 +376,7 @@ private fun AppNavHost(
                 },
                 onEditProject = { id -> navController.navigate(ProjectFormDestination(projectId = id)) }, // S006/RF-14
                 onOpenProjectInfo = { id -> navController.navigate(ProjectInfoDestination(id)) }, // S009/RF-5
+                onOpenProjectCodes = { id -> navController.navigate(ProjectCodesDestination(id)) }, // S023/RF-20
                 onOpenObjects = { id -> navController.navigate(ObjectListDestination(id)) }, // S011/RF-1
                 onOpenPoint = { projectId, pointId -> navController.navigate(PointDestination(projectId, pointId)) }, // S011/RF-5
                 onNewPoint = { projectId -> navController.navigate(PointFormDestination(projectId)) }, // S011/RF-16
@@ -589,6 +591,10 @@ private fun AppNavHost(
                     surveyNavigation,
                     entry,
                 )
+            }
+            composable<ProjectCodesDestination> { entry ->
+                val args = entry.toRoute<ProjectCodesDestination>()
+                ProjectCodesRoute(args.projectId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<LinearSurveysDestination> { entry ->
                 val args = entry.toRoute<LinearSurveysDestination>()

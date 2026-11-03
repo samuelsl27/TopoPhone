@@ -56,6 +56,9 @@ import kotlinx.serialization.Serializable
 /** Asistente de importación de una biblioteca desde el CSV [fileUri]; con [libraryId] se añade a esa biblioteca (S023/RF-12). */
 @Serializable data class CodeImportDestination(val fileUri: String, val libraryId: String? = null)
 
+/** Los códigos de la biblioteca que lleva un proyecto, solo de consulta (S023/RF-20). */
+@Serializable data class ProjectCodesDestination(val projectId: String)
+
 /** "Copias de seguridad" en Ajustes (S013). */
 @Serializable data object BackupsDestination
 

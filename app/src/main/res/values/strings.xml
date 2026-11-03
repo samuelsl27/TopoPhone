@@ -2466,4 +2466,8 @@
     <string name="project_library_change_confirm">Cambiar</string>
     <string name="project_library_remove_confirm">Quitar</string>
     <string name="settings_project_defaults_library">Biblioteca de códigos de los proyectos nuevos</string>
+
+    <string name="project_codes">Códigos del proyecto</string>
+    <string name="codes_project_copy_note">Copia de la biblioteca que lleva el proyecto: solo se puede consultar.</string>
+    <string name="codes_project_none">Este proyecto no tiene ninguna biblioteca de códigos vinculada.</string>
 </resources>

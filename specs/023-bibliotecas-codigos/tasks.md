@@ -42,7 +42,7 @@
       Hecho cuando: `CodeImportScreenTest` en verde.
 - [x] T20. `app`: selector de biblioteca en el formulario de proyecto con confirmación y la biblioteca de los proyectos nuevos en Ajustes. (RF-19, RF-21)
       Hecho cuando: `ProjectFormViewModelTest` y `ProjectDefaultsScreenTest` en verde.
-- [ ] T21. `app`: «Códigos» en el menú del proyecto, de solo consulta. (RF-20)
+- [x] T21. `app`: «Códigos» en el menú del proyecto, de solo consulta. (RF-20)
       Hecho cuando: `ProjectCodesViewModelTest` en verde.
 - [ ] T22. `app`: pasada de accesibilidad y textos (56 dp, etiquetas, color con texto, inglés). (RNF-T7, RNF-T8)
       Hecho cuando: los tests de semántica de las pantallas de `ui/codes/` en verde.

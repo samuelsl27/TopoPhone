@@ -171,6 +171,8 @@ class SurveyNavigation(
     val onProjectSaved: (String) -> Unit = {},
     val onEditProject: (String) -> Unit = {},
     val onOpenProjectInfo: (String) -> Unit = {},
+    /** Los códigos de la biblioteca que lleva el proyecto, solo de consulta (S023/RF-20). */
+    val onOpenProjectCodes: (String) -> Unit = {},
     val onOpenObjects: (projectId: String) -> Unit = {},
     val onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     val onNewPoint: (projectId: String) -> Unit = {},
