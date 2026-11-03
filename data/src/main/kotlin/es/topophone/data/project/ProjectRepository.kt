@@ -12,6 +12,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDraft
 import es.topophone.core.model.project.ProjectFolder
 import es.topophone.core.model.project.ProjectNames
+import es.topophone.data.codes.ProjectLibraryLinker
 import es.topophone.data.db.TopoPhoneDatabase
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
@@ -86,6 +87,7 @@ class RoomProjectRepository(
     private val db: TopoPhoneDatabase,
     private val clock: () -> Long = System::currentTimeMillis,
     private val newId: () -> String = { UUID.randomUUID().toString() },
+    private val libraries: ProjectLibraryLinker = ProjectLibraryLinker(db, clock = clock, newId = newId),
 ) : ProjectRepository {
 
     private val dao = db.projects()
@@ -101,6 +103,7 @@ class RoomProjectRepository(
         val now = clock()
         val id = newId()
         dao.insert(draft.toEntity(id, folderId, createdAt = now, modifiedAt = now))
+        libraries.apply(id, draft.libraryChoice) // S023/RF-19
         SaveResult.Saved(id)
     }
 
@@ -120,6 +123,7 @@ class RoomProjectRepository(
                 activeAlignmentId = current.activeAlignmentId,
             ),
         )
+        libraries.apply(id, draft.libraryChoice) // S023/RF-21
         SaveResult.Saved(id)
     }
 
@@ -152,6 +156,7 @@ class RoomProjectRepository(
                 activeAlignmentId = null,
             ),
         )
+        libraries.copyBetweenProjects(id, copy) // S023/RF-20: el duplicado lleva la misma biblioteca
         SaveResult.Saved(copy)
     }
 

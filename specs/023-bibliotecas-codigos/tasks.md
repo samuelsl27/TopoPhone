@@ -24,7 +24,7 @@
       Hecho cuando: `CodeRepositoryTest` en verde.
 - [x] T11. `data`: importación atómica a biblioteca nueva o existente. (RF-14 a RF-16)
       Hecho cuando: `CodeImportRepositoryTest` en verde, con el caso del fallo a medias.
-- [ ] T12. `data` y `core:model`: `ProjectDraft.libraryChoice`, vincular, cambiar y quitar en la transacción del proyecto, duplicar proyecto y `ProjectDefaults.codeLibraryId`. (RF-4, RF-19 a RF-21)
+- [x] T12. `data` y `core:model`: `ProjectDraft.libraryChoice`, vincular, cambiar y quitar en la transacción del proyecto, duplicar proyecto y `ProjectDefaults.codeLibraryId`. (RF-4, RF-19 a RF-21)
       Hecho cuando: `CodeLibraryLinkTest` en verde.
 - [ ] T13. `data`: copias de seguridad y paquetes con las bibliotecas y la copia de cada proyecto. (RF-22)
       Hecho cuando: `CodeLibraryBackupTest` en verde.

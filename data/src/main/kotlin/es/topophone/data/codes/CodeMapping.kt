@@ -56,3 +56,18 @@ internal fun SurveyCode.toRows(libraryId: String, newId: () -> String): CodeRows
 }
 
 internal class CodeRows(val code: LibraryCodeEntity, val attributes: List<CodeAttributeEntity>, val options: List<AttributeOptionEntity>)
+
+/** Una biblioteca del usuario o la copia de un proyecto con todos sus códigos, atributos y opciones; null si no existe (S023, D2). */
+internal suspend fun CodeLibraryDao.loadLibrary(id: String): CodeLibrary? {
+    val library = library(id) ?: return null
+    return assembleLibrary(library, codes(id), attributes(id), options(id))
+}
+
+/** Inserta [library] con [codes], cada uno con un id nuevo, dentro de la transacción que llama. */
+internal suspend fun CodeLibraryDao.insertTree(library: CodeLibraryEntity, codes: List<SurveyCode>, newId: () -> String) {
+    insertLibrary(library)
+    val rows = codes.map { it.copy(id = newId()).toRows(library.id, newId) }
+    insertCodes(rows.map { it.code })
+    insertAttributes(rows.flatMap { it.attributes })
+    insertOptions(rows.flatMap { it.options })
+}

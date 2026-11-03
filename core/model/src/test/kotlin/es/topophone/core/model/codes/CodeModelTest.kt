@@ -1,5 +1,8 @@
 package es.topophone.core.model.codes
 
+import es.topophone.core.model.project.Project
+import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.ProjectDefaults
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
@@ -59,5 +62,21 @@ class CodeModelTest {
 
         (choices[2] as LibraryChoice.Library).id shouldBe "default:general"
         choices.toSet().size shouldBe 3
+    }
+
+    @Test
+    fun `S023 RF-19 un proyecto nuevo propone la biblioteca de Ajustes, o mantiene (ninguna) si no hay`() {
+        ProjectDefaults().toDraft().libraryChoice shouldBe LibraryChoice.Keep
+        ProjectDefaults(codeLibraryId = "L1").toDraft().libraryChoice shouldBe LibraryChoice.Library("L1")
+        ProjectDefaults(codeLibraryId = "L1").withCrs(ProjectCrs.ETRS89_UTM30).codeLibraryId shouldBe "L1"
+    }
+
+    @Test
+    fun `S023 RF-21 editar un proyecto mantiene su copia salvo que se cambie`() {
+        val project = ProjectDefaults().toDraft().let {
+            Project("p", "N", "", "", it.crs, it.linearUnit, it.angularUnit, it.correctionsDatum, null, 0, 0, null, null)
+        }
+
+        project.toDraft().libraryChoice shouldBe LibraryChoice.Keep
     }
 }

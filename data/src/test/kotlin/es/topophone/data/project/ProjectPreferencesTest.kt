@@ -67,6 +67,15 @@ class ProjectPreferencesTest {
     }
 
     @Test
+    fun `S023 RF-19 la biblioteca de los proyectos nuevos se recuerda y se puede quitar`() {
+        withPreferences { it.saveDefaults(ProjectDefaults(codeLibraryId = "default:general")) }
+        withPreferences { it.defaults.first().codeLibraryId } shouldBe "default:general"
+
+        withPreferences { it.saveDefaults(ProjectDefaults(codeLibraryId = null)) }
+        withPreferences { it.defaults.first().codeLibraryId } shouldBe null
+    }
+
+    @Test
     fun `S006 RF-6 el formulario nuevo parte de los valores por defecto, sin nombre ni descripcion`() {
         val defaults = ProjectDefaults(author = "S. S.", crs = ProjectCrs.ETRS89_UTM29)
 

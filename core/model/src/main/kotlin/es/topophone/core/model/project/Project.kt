@@ -1,5 +1,7 @@
 package es.topophone.core.model.project
 
+import es.topophone.core.model.codes.LibraryChoice
+
 /** Datos de un proyecto que el usuario escribe al crearlo o editarlo (S006/RF-5, RF-14). */
 data class ProjectDraft(
     val name: String,
@@ -13,6 +15,8 @@ data class ProjectDraft(
     val heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
     /** S006/RF-32: opcional; no depende del SC, así que sobrevive a cambiarlo. */
     val centralPoint: CentralPoint? = null,
+    /** S023/RF-19: qué hacer con la biblioteca de códigos vinculada al guardar; no es un dato del proyecto (la copia va aparte). */
+    val libraryChoice: LibraryChoice = LibraryChoice.Keep,
 ) {
     /**
      * Con el SC [newCrs]: su datum de las correcciones (S008/RF-17) y una altura que admita (S008/RF-3).
@@ -65,9 +69,14 @@ data class ProjectDefaults(
     val correctionsDatum: CorrectionsDatum = CorrectionsDatum.ETRS89,
     /** S008/RF-10. */
     val heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
+    /** S023/RF-19: la biblioteca de códigos que se propone en los proyectos nuevos, o null si ninguna. */
+    val codeLibraryId: String? = null,
 ) {
     /** El formulario de proyecto nuevo, sin nombre ni descripción (S006/RF-6). */
-    fun toDraft() = ProjectDraft("", author, "", crs, linearUnit, angularUnit, correctionsDatum, heightSystem)
+    fun toDraft() = ProjectDraft(
+        "", author, "", crs, linearUnit, angularUnit, correctionsDatum, heightSystem,
+        libraryChoice = codeLibraryId?.let { LibraryChoice.Library(it) } ?: LibraryChoice.Keep,
+    )
 
     /** Con el SC [newCrs], como en el formulario de proyecto (S008/RF-10, RF-3, RF-17). */
     fun withCrs(newCrs: ProjectCrs): ProjectDefaults =

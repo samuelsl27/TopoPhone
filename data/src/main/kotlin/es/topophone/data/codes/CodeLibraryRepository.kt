@@ -15,9 +15,12 @@ import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.ProjectNames
 import es.topophone.data.db.TopoPhoneDatabase
 import java.util.UUID
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 /** Las bibliotecas que vienen con la app (S023/RF-3, plan D3); las pone `app`, que tiene los textos. */
 fun interface DefaultLibrarySource {
@@ -98,6 +101,9 @@ interface CodeLibraryRepository {
 
     suspend fun rename(id: String, name: String): LibraryResult
 
+    /** La copia de la biblioteca que lleva el proyecto, o null si no tiene (RF-20); se consulta, no se edita. */
+    fun projectCopy(projectId: String): Flow<CodeLibrary?>
+
     /** Una copia editable con el nombre «N (copia)» y ids nuevos; vale para las por defecto (RF-3). */
     suspend fun duplicate(id: String, copyLabel: String): LibraryResult
 
@@ -146,6 +152,11 @@ class RoomCodeLibraryRepository(
         return combine(dao.observeLibrary(id), rows) { library, (codes, attributes, options) ->
             library?.let { assembleLibrary(it, codes, attributes, options) }
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun projectCopy(projectId: String): Flow<CodeLibrary?> = dao.observeCopyOf(projectId).flatMapLatest { copy ->
+        if (copy == null) flowOf(null) else library(copy.id).map { it?.copy(name = copy.sourceName ?: copy.name) }
     }
 
     override suspend fun create(name: String): LibraryResult = database.withTransaction {
@@ -273,19 +284,8 @@ class RoomCodeLibraryRepository(
     private suspend fun allNames(exceptId: String = ""): List<String> =
         defaults.libraries().map { it.name } + dao.userLibraryNames(exceptId)
 
-    internal suspend fun loadUserLibrary(id: String): CodeLibrary? {
-        val library = dao.library(id) ?: return null
-        return assembleLibrary(library, dao.codes(id), dao.attributes(id), dao.options(id))
-    }
+    internal suspend fun loadUserLibrary(id: String): CodeLibrary? = dao.loadLibrary(id)
 
     /** Inserta [library] con [codes], cada uno con un id nuevo, dentro de la transacción que llama. */
-    internal suspend fun insertTree(library: CodeLibraryEntity, codes: List<SurveyCode>) {
-        dao.insertLibrary(library)
-        for (code in codes) {
-            val rows = code.copy(id = newId()).toRows(library.id, newId)
-            dao.insertCode(rows.code)
-            rows.attributes.forEach { dao.insertAttribute(it) }
-            rows.options.forEach { dao.insertOption(it) }
-        }
-    }
+    internal suspend fun insertTree(library: CodeLibraryEntity, codes: List<SurveyCode>) = dao.insertTree(library, codes, newId)
 }
