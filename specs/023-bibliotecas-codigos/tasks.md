@@ -44,7 +44,7 @@
       Hecho cuando: `ProjectFormViewModelTest` y `ProjectDefaultsScreenTest` en verde.
 - [x] T21. `app`: «Códigos» en el menú del proyecto, de solo consulta. (RF-20)
       Hecho cuando: `ProjectCodesViewModelTest` en verde.
-- [ ] T22. `app`: pasada de accesibilidad y textos (56 dp, etiquetas, color con texto, inglés). (RNF-T7, RNF-T8)
+- [x] T22. `app`: pasada de accesibilidad y textos (56 dp, etiquetas, color con texto, inglés). (RNF-T7, RNF-T8)
       Hecho cuando: los tests de semántica de las pantallas de `ui/codes/` en verde.
 - [ ] T23. Validación final: recorrer la spec RF por RF, ejecutar el informe de trazabilidad y hacer la demo del emulador. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos y la demo funciona.
