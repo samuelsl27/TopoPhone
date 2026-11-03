@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `core:model`: `CodeGeometry`, `AttributeType`, `CodeAttribute`, `SurveyCode`, `CodeLibrary`, `LibraryChoice`, `CodePalette` y los términos en `docs/glosario.md`. (RF-5, RF-8, RF-9)
+- [x] T1. `core:model`: `CodeGeometry`, `AttributeType`, `CodeAttribute`, `SurveyCode`, `CodeLibrary`, `LibraryChoice`, `CodePalette` y los términos en `docs/glosario.md`. (RF-5, RF-8, RF-9)
       Hecho cuando: los tests de `core:model` en verde.
 - [ ] T2. `core:model`: `CodeKey`, `CodeValidator` (código y atributos) y `LibraryNames`. (RF-2, RF-6, RF-7, RF-9)
       Hecho cuando: `CodeKeyTest` y `CodeValidatorTest` en verde.

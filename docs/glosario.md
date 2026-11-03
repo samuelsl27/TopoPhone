@@ -31,7 +31,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Reseña | `MarkSheet` | |
 | Clavo de nivelación (REDNAP) | `LevellingBenchmark` | |
 | Código de levantamiento | `SurveyCode` | |
-| Biblioteca de códigos | `CodeLibrary` | |
+| Biblioteca de códigos | `CodeLibrary` | Conjunto de códigos con nombre; se gestiona en Ajustes (S023) |
+| Geometría (del código) | `CodeGeometry` | Punto, Línea o Polígono; un código tiene una sola (S023) |
+| Biblioteca por defecto | `CodeLibrary.isDefault` | La que viene con la app: «Topografía general» y «Urbanización»; de solo lectura (S023) |
+| Biblioteca vinculada | `LibraryChoice` | La copia de una biblioteca que lleva un proyecto; no cambia si cambia la original (S023) |
 | Atributo | `Attribute` | Text, Integer, Number, List |
 | Recolector | `Collector` | |
 | Recolectar / medir punto | `collectPoint` | |
