@@ -22,7 +22,7 @@
       Hecho cuando: `CodeLibraryRepositoryTest` en verde.
 - [x] T10. `data`: códigos y atributos (alta, edición, borrado, orden, rechazos). (RF-5 a RF-7, RF-9, RF-10)
       Hecho cuando: `CodeRepositoryTest` en verde.
-- [ ] T11. `data`: importación atómica a biblioteca nueva o existente. (RF-14 a RF-16)
+- [x] T11. `data`: importación atómica a biblioteca nueva o existente. (RF-14 a RF-16)
       Hecho cuando: `CodeImportRepositoryTest` en verde, con el caso del fallo a medias.
 - [ ] T12. `data` y `core:model`: `ProjectDraft.libraryChoice`, vincular, cambiar y quitar en la transacción del proyecto, duplicar proyecto y `ProjectDefaults.codeLibraryId`. (RF-4, RF-19 a RF-21)
       Hecho cuando: `CodeLibraryLinkTest` en verde.

@@ -100,6 +100,15 @@ interface CodeLibraryDao {
     @Insert
     suspend fun insertOption(option: AttributeOptionEntity)
 
+    @Insert
+    suspend fun insertCodes(codes: List<LibraryCodeEntity>)
+
+    @Insert
+    suspend fun insertAttributes(attributes: List<CodeAttributeEntity>)
+
+    @Insert
+    suspend fun insertOptions(options: List<AttributeOptionEntity>)
+
     @Query("SELECT * FROM code_libraries WHERE project_id IS NULL ORDER BY name_key")
     fun userLibraries(): Flow<List<CodeLibraryEntity>>
 

@@ -4,7 +4,9 @@ import androidx.room.withTransaction
 import es.topophone.core.model.codes.CodeError
 import es.topophone.core.model.codes.CodeKey
 import es.topophone.core.model.codes.CodeLibrary
+import es.topophone.core.model.codes.CodeMerge
 import es.topophone.core.model.codes.CodeValidator
+import es.topophone.core.model.codes.DuplicatePolicy
 import es.topophone.core.model.codes.LibraryNames
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.log.AppLog
@@ -58,6 +60,28 @@ sealed interface CodeSaveResult {
     data object NotFound : CodeSaveResult
 }
 
+/** Adónde van los códigos importados (S023/RF-14): una biblioteca nueva con ese nombre base o una del usuario. */
+sealed interface ImportTarget {
+    data class NewLibrary(val baseName: String) : ImportTarget
+
+    data class Existing(val libraryId: String) : ImportTarget
+}
+
+/** Cómo acabó una importación (S023/RF-14 a RF-16): todo o nada. */
+sealed interface CodeImportResult {
+    /** [added] y [replaced] son los códigos que entraron; [skipped], los del fichero que no. */
+    data class Imported(val libraryId: String, val added: Int, val replaced: Int, val skipped: Int) : CodeImportResult {
+        val entered: Int get() = added + replaced
+    }
+
+    /** Un código no vale y no se importó nada. */
+    data class Rejected(val code: String, val error: CodeError) : CodeImportResult
+
+    data object NotEditable : CodeImportResult
+
+    data object NotFound : CodeImportResult
+}
+
 /**
  * Las bibliotecas de códigos (S023). Cada alta, edición, borrado o importación es una transacción única con durabilidad completa
  * (RNF-T6). Borrar una biblioteca nunca toca un proyecto ni un punto (RF-4): la copia de un proyecto es otra fila. El log lleva el hecho,
@@ -86,6 +110,11 @@ interface CodeLibraryRepository {
 
     /** Pone los atributos del código en el orden [order] (posiciones actuales); si no es una permutación no hace nada (RF-10). */
     suspend fun reorderAttributes(libraryId: String, codeId: String, order: List<Int>): CodeSaveResult
+
+    /**
+     * Importa [incoming] (ya leídos del CSV) en [target] aplicando [policy] a los repetidos (RF-16). Se hace entera o no se hace (RF-14).
+     */
+    suspend fun importCodes(target: ImportTarget, incoming: List<SurveyCode>, policy: DuplicatePolicy): CodeImportResult
 
     companion object {
         const val DEFAULT_PREFIX = "default:"
@@ -188,6 +217,50 @@ class RoomCodeLibraryRepository(
         if (order.sorted() != code.attributes.indices.toList()) return@withTransaction CodeSaveResult.Saved(codeId)
         saveCode(libraryId, code.copy(attributes = order.map { code.attributes[it] }))
     }
+
+    override suspend fun importCodes(target: ImportTarget, incoming: List<SurveyCode>, policy: DuplicatePolicy): CodeImportResult =
+        database.withTransaction {
+            incoming.forEach { code ->
+                CodeValidator.validate(code.code, code.attributes, emptyList())?.let {
+                    return@withTransaction CodeImportResult.Rejected(code.code, it)
+                }
+            }
+            val libraryId: String
+            val existing: List<SurveyCode>
+            when (target) {
+                is ImportTarget.NewLibrary -> {
+                    libraryId = newId()
+                    existing = emptyList()
+                    val name = LibraryNames.uniqueName(target.baseName, allNames())
+                    dao.insertLibrary(CodeLibraryEntity(libraryId, name, CodeKey.of(name), null, null, clock()))
+                }
+                is ImportTarget.Existing -> {
+                    editable(target.libraryId)?.let {
+                        return@withTransaction if (it ==
+                            CodeSaveResult.NotFound
+                        ) {
+                            CodeImportResult.NotFound
+                        } else {
+                            CodeImportResult.NotEditable
+                        }
+                    }
+                    libraryId = target.libraryId
+                    existing = loadUserLibrary(libraryId)!!.codes
+                }
+            }
+            val plan = CodeMerge.plan(existing, incoming, policy)
+            val rows = (plan.toAdd.map { it.copy(id = newId()) } + plan.toReplace).map { it.toRows(libraryId, newId) }
+            plan.toReplace.forEach { replaced ->
+                dao.deleteAttributesOf(replaced.id)
+                dao.updateCode(rows.first { it.code.id == replaced.id }.code)
+            }
+            val replacedIds = plan.toReplace.mapTo(HashSet()) { it.id }
+            dao.insertCodes(rows.map { it.code }.filter { it.id !in replacedIds })
+            dao.insertAttributes(rows.flatMap { it.attributes })
+            dao.insertOptions(rows.flatMap { it.options })
+            log.info(LogCategory.APP, "Importados ${plan.toAdd.size + plan.toReplace.size} códigos de biblioteca")
+            CodeImportResult.Imported(libraryId, plan.toAdd.size, plan.toReplace.size, plan.skipped)
+        }
 
     /** Por qué no se puede editar [libraryId], o null si es una biblioteca del usuario. */
     private suspend fun editable(libraryId: String): CodeSaveResult? {
