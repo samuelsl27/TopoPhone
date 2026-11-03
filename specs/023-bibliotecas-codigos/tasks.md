@@ -20,7 +20,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 27 a 28 en verde.
 - [x] T9. `data`: `CodeLibraryRepository`, bibliotecas (crear, renombrar, duplicar, borrar, por defecto de solo lectura) y `DefaultLibrarySource`. (RF-1 a RF-4)
       Hecho cuando: `CodeLibraryRepositoryTest` en verde.
-- [ ] T10. `data`: códigos y atributos (alta, edición, borrado, orden, rechazos). (RF-5 a RF-7, RF-9, RF-10)
+- [x] T10. `data`: códigos y atributos (alta, edición, borrado, orden, rechazos). (RF-5 a RF-7, RF-9, RF-10)
       Hecho cuando: `CodeRepositoryTest` en verde.
 - [ ] T11. `data`: importación atómica a biblioteca nueva o existente. (RF-14 a RF-16)
       Hecho cuando: `CodeImportRepositoryTest` en verde, con el caso del fallo a medias.

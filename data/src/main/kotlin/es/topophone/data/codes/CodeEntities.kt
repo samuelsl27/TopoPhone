@@ -8,6 +8,7 @@ import androidx.room.Index
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Update
 import es.topophone.data.project.ProjectEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -149,6 +150,18 @@ interface CodeLibraryDao {
             "JOIN library_codes c ON c.id = a.code_id WHERE c.library_id = :libraryId ORDER BY o.attribute_id, o.ordinal",
     )
     fun observeOptions(libraryId: String): Flow<List<AttributeOptionEntity>>
+
+    @Update
+    suspend fun updateCode(code: LibraryCodeEntity)
+
+    @Query("SELECT * FROM library_codes WHERE id = :id")
+    suspend fun code(id: String): LibraryCodeEntity?
+
+    @Query("DELETE FROM library_codes WHERE id = :id")
+    suspend fun deleteCode(id: String)
+
+    @Query("DELETE FROM code_attributes WHERE code_id = :codeId")
+    suspend fun deleteAttributesOf(codeId: String)
 
     @Query("UPDATE code_libraries SET name = :name, name_key = :nameKey WHERE id = :id")
     suspend fun rename(id: String, name: String, nameKey: String): Int

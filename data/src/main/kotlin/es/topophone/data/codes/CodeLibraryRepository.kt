@@ -1,8 +1,10 @@
 package es.topophone.data.codes
 
 import androidx.room.withTransaction
+import es.topophone.core.model.codes.CodeError
 import es.topophone.core.model.codes.CodeKey
 import es.topophone.core.model.codes.CodeLibrary
+import es.topophone.core.model.codes.CodeValidator
 import es.topophone.core.model.codes.LibraryNames
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.log.AppLog
@@ -41,6 +43,21 @@ sealed interface LibraryResult {
     data object NotFound : LibraryResult
 }
 
+/** Cómo acabó guardar o borrar un código (S023/RF-5 a RF-7, RF-9, RF-10). */
+sealed interface CodeSaveResult {
+    data class Saved(val id: String) : CodeSaveResult
+
+    data object Deleted : CodeSaveResult
+
+    /** No se guardó nada: el primer motivo (código vacío, largo, repetido, atributos). */
+    data class Invalid(val error: CodeError) : CodeSaveResult
+
+    /** La biblioteca es una por defecto o la copia de un proyecto: no se modifica. */
+    data object NotEditable : CodeSaveResult
+
+    data object NotFound : CodeSaveResult
+}
+
 /**
  * Las bibliotecas de códigos (S023). Cada alta, edición, borrado o importación es una transacción única con durabilidad completa
  * (RNF-T6). Borrar una biblioteca nunca toca un proyecto ni un punto (RF-4): la copia de un proyecto es otra fila. El log lleva el hecho,
@@ -61,6 +78,14 @@ interface CodeLibraryRepository {
     suspend fun duplicate(id: String, copyLabel: String): LibraryResult
 
     suspend fun delete(id: String): LibraryResult
+
+    /** Añade el código, o sustituye el que tenga el mismo id (también sus atributos), en una transacción (RF-5, RF-6, RF-7, RF-9). */
+    suspend fun saveCode(libraryId: String, code: SurveyCode): CodeSaveResult
+
+    suspend fun deleteCode(libraryId: String, codeId: String): CodeSaveResult
+
+    /** Pone los atributos del código en el orden [order] (posiciones actuales); si no es una permutación no hace nada (RF-10). */
+    suspend fun reorderAttributes(libraryId: String, codeId: String, order: List<Int>): CodeSaveResult
 
     companion object {
         const val DEFAULT_PREFIX = "default:"
@@ -129,6 +154,46 @@ class RoomCodeLibraryRepository(
         dao.deleteLibrary(id)
         log.info(LogCategory.APP, "Borrada 1 biblioteca de códigos")
         LibraryResult.Deleted
+    }
+
+    override suspend fun saveCode(libraryId: String, code: SurveyCode): CodeSaveResult = database.withTransaction {
+        editable(libraryId)?.let { return@withTransaction it }
+        val id = code.id.ifBlank { newId() }
+        val others = loadUserLibrary(libraryId)!!.codes.filter { it.id != id }
+        CodeValidator.validate(code.code, code.attributes, others)?.let { return@withTransaction CodeSaveResult.Invalid(it) }
+        val rows = code.copy(id = id).toRows(libraryId, newId)
+        if (dao.code(id) == null) {
+            dao.insertCode(rows.code)
+        } else {
+            dao.updateCode(rows.code)
+            dao.deleteAttributesOf(id)
+        }
+        rows.attributes.forEach { dao.insertAttribute(it) }
+        rows.options.forEach { dao.insertOption(it) }
+        log.info(LogCategory.APP, "Guardado 1 código de biblioteca")
+        CodeSaveResult.Saved(id)
+    }
+
+    override suspend fun deleteCode(libraryId: String, codeId: String): CodeSaveResult = database.withTransaction {
+        editable(libraryId)?.let { return@withTransaction it }
+        if (dao.code(codeId)?.libraryId != libraryId) return@withTransaction CodeSaveResult.NotFound
+        dao.deleteCode(codeId)
+        log.info(LogCategory.APP, "Borrado 1 código de biblioteca")
+        CodeSaveResult.Deleted
+    }
+
+    override suspend fun reorderAttributes(libraryId: String, codeId: String, order: List<Int>): CodeSaveResult = database.withTransaction {
+        editable(libraryId)?.let { return@withTransaction it }
+        val code = loadUserLibrary(libraryId)!!.codes.firstOrNull { it.id == codeId } ?: return@withTransaction CodeSaveResult.NotFound
+        if (order.sorted() != code.attributes.indices.toList()) return@withTransaction CodeSaveResult.Saved(codeId)
+        saveCode(libraryId, code.copy(attributes = order.map { code.attributes[it] }))
+    }
+
+    /** Por qué no se puede editar [libraryId], o null si es una biblioteca del usuario. */
+    private suspend fun editable(libraryId: String): CodeSaveResult? {
+        if (CodeLibraryRepository.isDefault(libraryId)) return CodeSaveResult.NotEditable
+        val library = dao.library(libraryId) ?: return CodeSaveResult.NotFound
+        return if (library.projectId != null) CodeSaveResult.NotEditable else null
     }
 
     /** Los nombres que ya no se pueden usar: los de las por defecto y los del usuario, salvo la biblioteca [exceptId]. */
