@@ -2278,4 +2278,45 @@
     <string name="lsurveys_delete">Delete</string>
     <string name="lsurveys_delete_title">Delete the survey?</string>
     <string name="lsurveys_delete_message">The survey “%1$s” is deleted, not the measured points.</string>
+
+    <!-- S023: bibliotecas de códigos por defecto -->
+    <string name="default_library_general">General surveying</string>
+    <string name="default_library_urban">Urban development</string>
+    <string name="default_attr_material">Material</string>
+    <string name="default_attr_diameter">Diameter (m)</string>
+    <string name="default_opt_concrete">Concrete</string>
+    <string name="default_opt_pvc">PVC</string>
+    <string name="default_opt_cast_iron">Cast iron</string>
+    <string name="default_opt_brick">Brick</string>
+    <string name="default_opt_other">Other</string>
+    <string name="default_code_general_ver">Vertex</string>
+    <string name="default_code_general_base">Stakeout base</string>
+    <string name="default_code_general_est">Station</string>
+    <string name="default_code_general_ctl">Control point</string>
+    <string name="default_code_general_ter">Ground</string>
+    <string name="default_code_general_arb">Tree</string>
+    <string name="default_code_general_pos">Pole</string>
+    <string name="default_code_general_pie">Slope toe</string>
+    <string name="default_code_general_cab">Slope top</string>
+    <string name="default_code_general_cam">Track</string>
+    <string name="default_code_general_val">Fence</string>
+    <string name="default_code_general_arr">Stream</string>
+    <string name="default_code_general_edi">Building</string>
+    <string name="default_code_general_par">Plot</string>
+    <string name="default_code_general_bal">Pond</string>
+    <string name="default_code_urban_arq">Manhole box</string>
+    <string name="default_code_urban_poz">Inspection well</string>
+    <string name="default_code_urban_sum">Drain inlet</string>
+    <string name="default_code_urban_far">Street lamp</string>
+    <string name="default_code_urban_sem">Traffic light</string>
+    <string name="default_code_urban_hid">Hydrant</string>
+    <string name="default_code_urban_vad">Valve</string>
+    <string name="default_code_urban_bor">Kerb</string>
+    <string name="default_code_urban_ace">Pavement</string>
+    <string name="default_code_urban_cal">Carriageway</string>
+    <string name="default_code_urban_eje">Street axis</string>
+    <string name="default_code_urban_col">Sewer</string>
+    <string name="default_code_urban_mur">Wall</string>
+    <string name="default_code_urban_zve">Green area</string>
+    <string name="default_code_urban_esc">Stairs</string>
 </resources>

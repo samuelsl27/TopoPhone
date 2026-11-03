@@ -102,7 +102,7 @@ class CodeLibraryBackupTest {
     }
 
     @Test
-    fun `S023 RF-22 un proyecto restaurado en otro movil conserva su copia aunque no tenga la biblioteca original`() {
+    fun `S023 RF-22 el paquete lleva la copia sin la original`() {
         val imported = import(writePackage()).shouldBeInstanceOf<ImportResult.Imported>()
 
         val copy = runBlocking { RoomCodeLibraryRepository(other).projectCopy(imported.projectId).first() }.shouldNotBeNull()
@@ -118,7 +118,7 @@ class CodeLibraryBackupTest {
     }
 
     @Test
-    fun `S023 RF-22 importar como nuevo da a cada copia sus propios ids`() {
+    fun `S023 RF-22 importar como nuevo da ids propios`() {
         val pkg = writePackage()
         import(pkg).shouldBeInstanceOf<ImportResult.Imported>()
 
@@ -133,7 +133,7 @@ class CodeLibraryBackupTest {
     }
 
     @Test
-    fun `S023 RF-22 sustituir un proyecto deja su copia vigente y la del anterior va con el en la papelera`() {
+    fun `S023 RF-22 sustituir deja la copia vigente y la vieja en papelera`() {
         val pkg = writePackage()
         val first = import(pkg).shouldBeInstanceOf<ImportResult.Imported>()
 
@@ -145,7 +145,7 @@ class CodeLibraryBackupTest {
     }
 
     @Test
-    fun `S023 RF-22 la copia completa lleva las bibliotecas del usuario y la copia del proyecto`() {
+    fun `S023 RF-22 la copia completa lleva bibliotecas y copias`() {
         val backup = ByteArrayOutputStream().also { runBlocking { repository.writeBackup(it) } shouldBe true }.toByteArray()
         runBlocking { libraries.delete(library) }
         db.openHelper.writableDatabase.execSQL("DELETE FROM code_libraries")
@@ -162,7 +162,7 @@ class CodeLibraryBackupTest {
     }
 
     @Test
-    fun `S023 RF-22 el paquete no lleva la biblioteca del usuario, solo la copia`() {
+    fun `S023 RF-22 el paquete no lleva la biblioteca del usuario`() {
         writePackage()
         import(writePackage()).shouldBeInstanceOf<ImportResult.Imported>()
 

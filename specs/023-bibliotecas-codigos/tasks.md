@@ -28,7 +28,7 @@
       Hecho cuando: `CodeLibraryLinkTest` en verde.
 - [x] T13. `data`: copias de seguridad y paquetes con las bibliotecas y la copia de cada proyecto. (RF-22)
       Hecho cuando: `CodeLibraryBackupTest` en verde.
-- [ ] T14. `app`: `DefaultCodeLibraries` (es y en) y su enlace con Hilt. (RF-3)
+- [x] T14. `app`: `DefaultCodeLibraries` (es y en) y su enlace con Hilt. (RF-3)
       Hecho cuando: `DefaultCodeLibrariesTest` en verde (códigos válidos y sin duplicados).
 - [ ] T15. `app`: lista de bibliotecas y entrada en Ajustes. (RF-1 a RF-4)
       Hecho cuando: `CodeLibraryListViewModelTest` y `CodeLibraryListScreenTest` en verde.

@@ -22,6 +22,10 @@ import es.topophone.data.baseshift.RoomBaseShiftRepository
 import es.topophone.data.cad.CadDrawingImporter
 import es.topophone.data.cad.CadRepository
 import es.topophone.data.cad.RoomCadRepository
+import es.topophone.data.codes.CodeLibraryRepository
+import es.topophone.data.codes.DefaultLibrarySource
+import es.topophone.data.codes.ProjectLibraryLinker
+import es.topophone.data.codes.RoomCodeLibraryRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.DataStoreExportPreferences
 import es.topophone.data.export.ExportDataStoreQualifier
@@ -148,7 +152,14 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideProjectRepository(database: TopoPhoneDatabase): ProjectRepository = RoomProjectRepository(database)
+    fun provideProjectRepository(database: TopoPhoneDatabase, defaults: DefaultLibrarySource, log: AppLog): ProjectRepository =
+        RoomProjectRepository(database, libraries = ProjectLibraryLinker(database, defaults, log))
+
+    /** Las bibliotecas de códigos; las por defecto las pone `app`, que tiene los textos (S023). */
+    @Provides
+    @Singleton
+    fun provideCodeLibraryRepository(database: TopoPhoneDatabase, defaults: DefaultLibrarySource, log: AppLog): CodeLibraryRepository =
+        RoomCodeLibraryRepository(database, defaults, log)
 
     /** Perfiles NTRIP con la contraseña cifrada con una clave del Android Keystore (S007, RNF-T11). */
     @Provides

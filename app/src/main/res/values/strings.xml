@@ -2290,4 +2290,45 @@
     <string name="lsurveys_delete">Borrar</string>
     <string name="lsurveys_delete_title">¿Borrar la toma?</string>
     <string name="lsurveys_delete_message">Se borra la toma «%1$s», no los puntos medidos.</string>
+
+    <!-- S023: bibliotecas de códigos por defecto -->
+    <string name="default_library_general">Topografía general</string>
+    <string name="default_library_urban">Urbanización</string>
+    <string name="default_attr_material">Material</string>
+    <string name="default_attr_diameter">Diámetro (m)</string>
+    <string name="default_opt_concrete">Hormigón</string>
+    <string name="default_opt_pvc">PVC</string>
+    <string name="default_opt_cast_iron">Fundición</string>
+    <string name="default_opt_brick">Ladrillo</string>
+    <string name="default_opt_other">Otro</string>
+    <string name="default_code_general_ver">Vértice</string>
+    <string name="default_code_general_base">Base de replanteo</string>
+    <string name="default_code_general_est">Estación</string>
+    <string name="default_code_general_ctl">Punto de control</string>
+    <string name="default_code_general_ter">Terreno</string>
+    <string name="default_code_general_arb">Árbol</string>
+    <string name="default_code_general_pos">Poste</string>
+    <string name="default_code_general_pie">Pie de talud</string>
+    <string name="default_code_general_cab">Cabeza de talud</string>
+    <string name="default_code_general_cam">Camino</string>
+    <string name="default_code_general_val">Valla</string>
+    <string name="default_code_general_arr">Arroyo</string>
+    <string name="default_code_general_edi">Edificio</string>
+    <string name="default_code_general_par">Parcela</string>
+    <string name="default_code_general_bal">Balsa</string>
+    <string name="default_code_urban_arq">Arqueta</string>
+    <string name="default_code_urban_poz">Pozo de registro</string>
+    <string name="default_code_urban_sum">Sumidero</string>
+    <string name="default_code_urban_far">Farola</string>
+    <string name="default_code_urban_sem">Semáforo</string>
+    <string name="default_code_urban_hid">Hidrante</string>
+    <string name="default_code_urban_vad">Válvula</string>
+    <string name="default_code_urban_bor">Bordillo</string>
+    <string name="default_code_urban_ace">Acera</string>
+    <string name="default_code_urban_cal">Calzada</string>
+    <string name="default_code_urban_eje">Eje de calle</string>
+    <string name="default_code_urban_col">Colector</string>
+    <string name="default_code_urban_mur">Muro</string>
+    <string name="default_code_urban_zve">Zona verde</string>
+    <string name="default_code_urban_esc">Escalera</string>
 </resources>
