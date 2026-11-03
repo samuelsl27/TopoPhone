@@ -1,6 +1,6 @@
 # Spec 023 — Bibliotecas de códigos
 
-> Hito: H3 · Depende de: S006, S028, S013 · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H3 · Depende de: S006, S028, S013 · Estado: pendiente de aprobación (entrevistada 03/11/2026)
 
 ## Contexto y objetivo
 Un levantamiento útil no es una nube de puntos con nombres: cada punto dice qué es (una arqueta, un bordillo, una farola) y, a veces, qué datos hay que anotar (diámetro, material, estado). Hoy un punto solo lleva su nombre y una descripción libre (S010/RF-4), y eso obliga a escribir lo mismo cientos de veces y a limpiarlo después en la oficina.
@@ -28,7 +28,7 @@ Términos de esta spec:
 ### Gestionar bibliotecas (H1)
 - RF-1: CUANDO el usuario abra "Bibliotecas de códigos" en Ajustes, EL SISTEMA listará las bibliotecas con su nombre y su número de códigos, y marcará con un texto las que son por defecto.
 - RF-2: EL SISTEMA permitirá crear, renombrar, duplicar y borrar bibliotecas, con confirmación al borrar, y exigirá un nombre no vacío y distinto del de las demás.
-- RF-3: EL SISTEMA incluirá bibliotecas por defecto, en español, y permitirá duplicarlas para editar la copia, pero no modificarlas ni borrarlas.
+- RF-3: EL SISTEMA incluirá dos bibliotecas por defecto, «Topografía general» y «Urbanización», en español y con el contenido del anexo, y permitirá duplicarlas para editar la copia, pero no modificarlas ni borrarlas.
 - RF-4: CUANDO el usuario borre una biblioteca, EL SISTEMA no modificará ningún proyecto ni ningún punto (RF-20).
 
 ### Definir códigos (H2)
@@ -42,7 +42,7 @@ Términos de esta spec:
 
 ### Importar y exportar CSV (H3)
 - RF-12: CUANDO el usuario elija "Importar CSV" en una biblioteca, EL SISTEMA abrirá el fichero con el selector de documentos, lo reconocerá por su contenido (RNF-T5), ofrecerá la codificación, el separador y el signo decimal de S028/RF-4 a RF-9 y mostrará una vista previa antes de importar.
-- RF-13: EL SISTEMA reconocerá las columnas por su cabecera: `Code`, `Description`, `Type` (Point, Line o Polygon), `Color` y las de los atributos; SI falta `Code`, ENTONCES no importará nada e indicará el motivo.
+- RF-13: EL SISTEMA reconocerá las columnas por su cabecera: `Code`, `Description`, `Type` (Point, Line o Polygon), `Color` (#RRGGBB) y, por cada atributo N de 1 a 100, `Attribute_N_Name`, `Attribute_N_Type` (Text, Integer, Number o List), `Attribute_N_Default` y `Attribute_N_Options` (las opciones de una Lista separadas por `|`); SI falta `Code`, ENTONCES no importará nada e indicará el motivo.
 - RF-14: CUANDO el usuario confirme la importación, EL SISTEMA la hará en una biblioteca nueva con el nombre del fichero o añadiéndola a una editable, y mostrará cuántos códigos entraron.
 - RF-15: SI una fila es inválida (código vacío o demasiado largo, tipo o color desconocido, atributo mal definido), ENTONCES EL SISTEMA no la importará y la listará con su línea y su motivo, e importará las demás (como S028).
 - RF-16: SI un código del fichero ya está en la biblioteca de destino o repetido en el propio fichero, ENTONCES EL SISTEMA los listará y permitirá elegir entre omitirlos y reemplazarlos, sin crear nunca dos códigos iguales (RF-6).
@@ -92,12 +92,19 @@ Términos de esta spec:
   - vincular la biblioteca a un proyecto, borrarla y comprobar que el proyecto conserva su copia.
 - Demo de campo: queda para el usuario (importar la biblioteca que usa hoy con la app de referencia).
 
-## Dudas abiertas
-- [SUPOSICIÓN: un código es único en su biblioteca con una sola geometría; no puede haber el mismo código como Punto y como Línea.]
-- [SUPOSICIÓN: el proyecto lleva una copia de la biblioteca vinculada, no una referencia viva (RF-20); así viaja en los paquetes y borrar la biblioteca no afecta.]
-- [SUPOSICIÓN: las bibliotecas por defecto son propias de TopoPhone (por ejemplo, topografía general y urbanización), en español, con códigos cortos; su contenido lo decide el usuario.]
-- [SUPOSICIÓN: el formato exacto de las columnas de atributos del CSV se fija con un CSV real de la app de referencia que aporte el usuario; hasta entonces solo se asegura la ida y vuelta propia (RF-18).]
-- [SUPOSICIÓN: 32 caracteres como máximo por código, 100 atributos por código y 50 opciones por lista.]
+## Decisiones de la entrevista (03/11/2026)
+- Un código es único en su biblioteca con una sola geometría: no puede haber el mismo código como Punto y como Línea (RF-6, RF-16).
+- Hay dos bibliotecas por defecto: «Topografía general» y «Urbanización» (RF-3; contenido en el anexo, ajustable por el usuario al aprobar).
+- La copia que lleva el proyecto es fija: actualizarla desde la biblioteca original queda fuera; para usar una versión nueva se cambia la biblioteca vinculada con confirmación (RF-20, RF-21).
+- La copia del proyecto es solo de consulta; añadir códigos sobre la marcha es S024 (RF-20).
+- Columnas de atributos del CSV: formato propio `Attribute_N_Name/Type/Default/Options` con las opciones separadas por `|`; se ajustará si el usuario aporta un CSV real de la app de referencia (RF-13, RF-18).
+- Sin preguntar, por defecto razonable: 32 caracteres como máximo por código, 100 atributos por código y 50 opciones por lista (RF-7, RF-9); ninguna biblioteca se propone en los proyectos nuevos hasta que el usuario la elija en Ajustes (RF-19).
+
+## Anexo · Contenido de las bibliotecas por defecto
+| Biblioteca | Códigos (código · descripción · geometría) |
+|---|---|
+| Topografía general | VER vértice · Punto; BASE base de replanteo · Punto; EST estación · Punto; CTL punto de control · Punto; TER terreno · Punto; ARB árbol · Punto; POS poste · Punto; PIE pie de talud · Línea; CAB cabeza de talud · Línea; CAM camino · Línea; VAL valla · Línea; ARR arroyo · Línea; EDI edificio · Polígono; PAR parcela · Polígono; BAL balsa · Polígono |
+| Urbanización | ARQ arqueta · Punto (atributos: Material lista, Diámetro Número); POZ pozo de registro · Punto; SUM sumidero · Punto; FAR farola · Punto; SEM semáforo · Punto; HID hidrante · Punto; VAD válvula · Punto; BOR bordillo · Línea; ACE acera · Línea; CAL calzada · Línea; EJE eje de calle · Línea; COL colector · Línea (atributos: Material lista, Diámetro Número); MUR muro · Línea; ZVE zona verde · Polígono; ESC escalera · Polígono |
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S023: dependencias «006, 028, 013» en lugar de «006».
