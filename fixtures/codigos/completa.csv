@@ -1,0 +1,5 @@
+Code,Description,Type,Color,Attribute_1_Name,Attribute_1_Type,Attribute_1_Default,Attribute_1_Options,Attribute_2_Name,Attribute_2_Type,Attribute_2_Default,Attribute_2_Options
+ARQ,Arqueta,Point,#1E88E5,Material,List,PVC,PVC|Hormigón,Diámetro,Number,0.25,
+BOR,Bordillo,Line,#E64A19,,,,,,,,
+EDI,"Edificio, con ""patio""",Polygon,#689F38,Plantas,Integer,2,,Uso,Text,,
+FAR,Farola,Point,,,,,,,,,

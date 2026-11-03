@@ -12,7 +12,7 @@
       Hecho cuando: `CodeMergeTest` en verde.
 - [x] T5. `core:formats`: `CodeLibraryCsvWriter` con el escape de opciones. (RF-17, RF-18)
       Hecho cuando: `CodeLibraryCsvWriterTest` en verde.
-- [ ] T6. `core:formats`: `CodeLibraryCsvReader` con `fixtures/codigos/` (Windows-1252, coma decimal, sin `Code`, filas inválidas). (RF-12, RF-13, RF-15)
+- [x] T6. `core:formats`: `CodeLibraryCsvReader` con `fixtures/codigos/` (Windows-1252, coma decimal, sin `Code`, filas inválidas). (RF-12, RF-13, RF-15)
       Hecho cuando: `CodeLibraryCsvReaderTest` en verde.
 - [ ] T7. `core:formats`: ida y vuelta y rendimiento de 2.000 códigos. (RF-18, RNF)
       Hecho cuando: `CodeLibraryRoundTripTest` en verde, con la lectura en menos de 3 s.

@@ -1,0 +1,13 @@
+Code,Description,Type,Color,Attribute_1_Name,Attribute_1_Type,Attribute_1_Default,Attribute_1_Options
+OK1,Valido,Point,#1E88E5,,,,
+,Sin codigo,Point,#1E88E5,,,,
+LARGO_LARGO_LARGO_LARGO_LARGO_LARGO,Demasiado largo,Point,#1E88E5,,,,
+TIPO,Tipo desconocido,Arco,#1E88E5,,,,
+COLOR,Color desconocido,Point,rojo,,,,
+ATRTIPO,Tipo de atributo desconocido,Point,#1E88E5,A,Fecha,,
+ATRNOMBRE,Atributo sin nombre,Point,#1E88E5,,Text,x,
+ATRNUM,Numero malo,Point,#1E88E5,N,Number,abc,
+ATRLISTA,Lista sin opciones,Point,#1E88E5,L,List,,
+ATRDEF,Defecto fuera de la lista,Point,#1E88E5,L,List,Z,A|B
+OK2,Valido 2,Line,,,,,
+ok1,Repetido,Point,#1E88E5,,,,

@@ -1,0 +1,3 @@
+Code;Description;Type;Color;Attribute_1_Name;Attribute_1_Type;Attribute_1_Default;Attribute_1_Options
+ÁRB;Árbol con ñ;Point;#00796b;Diámetro;Number;1,5;
+POZ;Pozo de registro;Point;#1E88E5;Estado;List;Bueno;Bueno|Malo
