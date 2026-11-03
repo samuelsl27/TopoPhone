@@ -6,7 +6,7 @@
       Hecho cuando: los tests de `core:model` en verde.
 - [x] T2. `core:model`: `CodeKey`, `CodeValidator` (código y atributos) y `LibraryNames`. (RF-2, RF-6, RF-7, RF-9)
       Hecho cuando: `CodeKeyTest` y `CodeValidatorTest` en verde.
-- [ ] T3. `core:model`: `CodeSearch` y orden de la lista. (RF-11)
+- [x] T3. `core:model`: `CodeSearch` y orden de la lista. (RF-11)
       Hecho cuando: `CodeSearchTest` en verde, con 2.000 códigos en menos de 1 s.
 - [ ] T4. `core:model`: `CodeMerge` (nuevos, duplicados del fichero y de la biblioteca; omitir y reemplazar). (RF-16)
       Hecho cuando: `CodeMergeTest` en verde.
