@@ -36,7 +36,7 @@
       Hecho cuando: `CodeLibraryViewModelTest` en verde.
 - [x] T17. `app`: editor de código con paleta y atributos. (RF-5 a RF-10)
       Hecho cuando: `CodeEditorViewModelTest` y `CodeEditorScreenTest` en verde.
-- [ ] T18. `app`: ViewModel del asistente de importación (selector, vista previa, informe, duplicados). (RF-12 a RF-16)
+- [x] T18. `app`: ViewModel del asistente de importación (selector, vista previa, informe, duplicados). (RF-12 a RF-16)
       Hecho cuando: `CodeImportViewModelTest` en verde.
 - [ ] T19. `app`: pantalla del asistente de importación. (RF-12 a RF-16)
       Hecho cuando: `CodeImportScreenTest` en verde.
