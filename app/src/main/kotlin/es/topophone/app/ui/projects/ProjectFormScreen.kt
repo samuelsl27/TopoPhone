@@ -37,9 +37,11 @@ import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.codes.ProjectLibraryChoice
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.codes.LibraryChoice
 import es.topophone.core.model.format.AngleAxis
 import es.topophone.core.model.format.AngleInput
 import es.topophone.core.model.format.NumberInput
@@ -61,6 +63,8 @@ import es.topophone.core.model.project.ProjectDraft
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResolver
 import es.topophone.core.survey.CentralPointResult
+import es.topophone.data.codes.CodeLibraryRepository
+import es.topophone.data.codes.LibrarySummary
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.ProjectRepository
@@ -109,6 +113,9 @@ data class ProjectFormUiState(
     val centralPointError: CentralPointRejection? = null,
     /** El mapa base elegido en Ajustes, para el selector del punto central (S006/RF-33). */
     val mapSettings: MapSettings = MapSettings(),
+    /** Las bibliotecas de códigos que se pueden vincular y el nombre de la que el proyecto lleva ya (S023/RF-19, RF-21). */
+    val libraries: List<LibrarySummary> = emptyList(),
+    val linkedLibraryName: String? = null,
 )
 
 /** Acciones del formulario de proyecto. */
@@ -138,6 +145,7 @@ class ProjectFormViewModel @Inject constructor(
     private val preferences: ProjectPreferences,
     private val session: ReceiverSession,
     private val mapPreferences: MapPreferences,
+    private val codeLibraries: CodeLibraryRepository,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ProjectFormUiState())
     val state: StateFlow<ProjectFormUiState> = mutableState.asStateFlow()
@@ -159,12 +167,26 @@ class ProjectFormViewModel @Inject constructor(
         this.folderId = folderId
         viewModelScope.launch {
             val project = projectId?.let { repository.project(it) }
+            val libraries = codeLibraries.libraries().first()
             val loaded = if (project != null) {
                 ProjectFormUiState(draft = project.toDraft(), loaded = true, editing = true) // S006/RF-14
+                    .copy(linkedLibraryName = codeLibraries.projectCopy(project.id).first()?.name)
             } else {
-                newProject(preferences.defaults.first().toDraft()) // S006/RF-6
+                newProject(preferences.defaults.first().toDraft().withExistingLibrary(libraries)) // S006/RF-6, S023/RF-19
             }
-            mutableState.update { loaded.copy(mapSettings = it.mapSettings) }
+            mutableState.update { loaded.copy(mapSettings = it.mapSettings, libraries = libraries) }
+        }
+    }
+
+    /** Una biblioteca de Ajustes que ya no existe cuenta como ninguna (S023/RF-19). */
+    private fun ProjectDraft.withExistingLibrary(libraries: List<LibrarySummary>): ProjectDraft {
+        val choice = libraryChoice
+        return if (choice is LibraryChoice.Library &&
+            libraries.none { it.id == choice.id }
+        ) {
+            copy(libraryChoice = LibraryChoice.Keep)
+        } else {
+            this
         }
     }
 
@@ -400,6 +422,11 @@ fun ProjectFormScreen(
                 actions.onCentralPosition,
                 onPick = if (map != null) ({ picking = true }) else null,
             ) // S006/RF-32, RF-33, RF-34, RF-35
+            ProjectLibraryChoice(
+                state.libraries,
+                draft.libraryChoice,
+                state.linkedLibraryName,
+            ) { actions.onChange(draft.copy(libraryChoice = it)) } // S023/RF-19, RF-21
             Button(onClick = actions.onSave, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(FORM_SAVE_TAG)) {
                 Text(stringResource(R.string.project_save))
             }

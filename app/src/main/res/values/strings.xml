@@ -2456,4 +2456,14 @@
     <string name="codes_import_open">Abrir biblioteca</string>
     <string name="codes_import_fallback_name">Biblioteca importada</string>
     <string name="codes_import_close">Cerrar</string>
+
+    <string name="project_library">Biblioteca de códigos</string>
+    <string name="project_library_none">Ninguna</string>
+    <string name="project_library_current">Mantener la actual: %1$s</string>
+    <string name="project_library_help">El proyecto lleva una copia de la biblioteca: los cambios posteriores de la biblioteca no la modifican.</string>
+    <string name="project_library_change_message">Se cambia la biblioteca vinculada por «%1$s». El proyecto guarda una copia nueva y no se modifica ningún punto.</string>
+    <string name="project_library_remove_message">Se quita la biblioteca vinculada del proyecto. No se modifica ningún punto.</string>
+    <string name="project_library_change_confirm">Cambiar</string>
+    <string name="project_library_remove_confirm">Quitar</string>
+    <string name="settings_project_defaults_library">Biblioteca de códigos de los proyectos nuevos</string>
 </resources>

@@ -1,5 +1,6 @@
 package es.topophone.app.ui.settings
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,9 +11,14 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
+import androidx.lifecycle.viewModelScope
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.StatefulTestApp
 import es.topophone.app.ui.TopLevelDestination
+import es.topophone.app.ui.codes.PROJECT_LIBRARY_NONE_TAG
+import es.topophone.app.ui.codes.projectLibraryTag
 import es.topophone.app.ui.navItem
 import es.topophone.app.ui.projects.FORM_AUTHOR_TAG
 import es.topophone.app.ui.projects.angularOptionTag
@@ -31,6 +37,9 @@ import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.data.codes.LibrarySummary
+import es.topophone.data.codes.RoomCodeLibraryRepository
+import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.ProjectPreferences
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.CoroutineScope
@@ -78,6 +87,23 @@ class ProjectDefaultsTest {
     }
 
     @Test
+    fun `S023 RF-19 Ajustes ofrece la biblioteca de codigos de los proyectos nuevos`() {
+        var changed = ProjectDefaults(codeLibraryId = "u1")
+        val libraries = listOf(LibrarySummary("default:general", "Topografía general", true, 15), LibrarySummary("u1", "Mía", false, 2))
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ProjectDefaultsScreen(ThemeState.DEFAULT, {}, changed, onChange = { changed = it }, onBack = {}, libraries = libraries)
+            }
+        }
+
+        compose.onNodeWithTag(projectLibraryTag("u1")).performScrollTo().assertIsSelected()
+        compose.onNodeWithTag(projectLibraryTag("default:general")).performScrollTo().performClick()
+        changed.codeLibraryId shouldBe "default:general"
+        compose.onNodeWithTag(PROJECT_LIBRARY_NONE_TAG).performScrollTo().performClick()
+        changed.codeLibraryId shouldBe null
+    }
+
+    @Test
     fun `S006 RF-13 cambiar autor, SC, unidades y datum avisa del valor nuevo`() {
         var changed = ProjectDefaults()
         compose.setContent {
@@ -103,7 +129,11 @@ class ProjectDefaultsTest {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         try {
             val preferences = FakeProjectPreferences()
-            val vm = ProjectDefaultsViewModel(preferences)
+            val db = Room.inMemoryDatabaseBuilder(
+                ApplicationProvider.getApplicationContext<Context>(),
+                TopoPhoneDatabase::class.java,
+            ).build()
+            val vm = ProjectDefaultsViewModel(preferences, RoomCodeLibraryRepository(db))
             val chosen = ProjectDefaults(author = "S. S.", crs = ProjectCrs.ETRS89_UTM31, linearUnit = LinearUnit.US_SURVEY_FOOT)
 
             vm.update(chosen)
@@ -115,6 +145,8 @@ class ProjectDefaultsTest {
                     withTimeout(5_000) { vm.state.first { it == chosen } } shouldBe chosen
                 } finally {
                     collector.cancel()
+                    vm.viewModelScope.cancel()
+                    db.close()
                 }
             }
         } finally {

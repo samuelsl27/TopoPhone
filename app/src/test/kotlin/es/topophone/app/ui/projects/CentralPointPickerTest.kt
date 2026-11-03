@@ -32,6 +32,7 @@ import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
+import es.topophone.data.codes.RoomCodeLibraryRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.RoomProjectRepository
@@ -95,7 +96,7 @@ class CentralPointPickerTest {
     }
 
     private fun open(central: CentralPoint? = null): ProjectFormViewModel {
-        val vm = ProjectFormViewModel(repository, FakeProjectPreferences(), session, mapPreferences)
+        val vm = ProjectFormViewModel(repository, FakeProjectPreferences(), session, mapPreferences, RoomCodeLibraryRepository(db))
         vm.start(null, folderId = null)
         runBlocking { withTimeout(5_000) { vm.state.first { it.loaded } } }
         if (central != null) vm.update(vm.state.value.draft.copy(centralPoint = central))

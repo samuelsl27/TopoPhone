@@ -2444,4 +2444,14 @@
     <string name="codes_import_open">Open library</string>
     <string name="codes_import_fallback_name">Imported library</string>
     <string name="codes_import_close">Close</string>
+
+    <string name="project_library">Code library</string>
+    <string name="project_library_none">None</string>
+    <string name="project_library_current">Keep the current one: %1$s</string>
+    <string name="project_library_help">The project carries a copy of the library: later changes to the library do not alter it.</string>
+    <string name="project_library_change_message">The linked library is changed to “%1$s”. The project keeps a new copy and no point is changed.</string>
+    <string name="project_library_remove_message">The linked library is removed from the project. No point is changed.</string>
+    <string name="project_library_change_confirm">Change</string>
+    <string name="project_library_remove_confirm">Remove</string>
+    <string name="settings_project_defaults_library">Code library for new projects</string>
 </resources>

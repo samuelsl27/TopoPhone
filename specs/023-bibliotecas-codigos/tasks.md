@@ -40,7 +40,7 @@
       Hecho cuando: `CodeImportViewModelTest` en verde.
 - [x] T19. `app`: pantalla del asistente de importación. (RF-12 a RF-16)
       Hecho cuando: `CodeImportScreenTest` en verde.
-- [ ] T20. `app`: selector de biblioteca en el formulario de proyecto con confirmación y la biblioteca de los proyectos nuevos en Ajustes. (RF-19, RF-21)
+- [x] T20. `app`: selector de biblioteca en el formulario de proyecto con confirmación y la biblioteca de los proyectos nuevos en Ajustes. (RF-19, RF-21)
       Hecho cuando: `ProjectFormViewModelTest` y `ProjectDefaultsScreenTest` en verde.
 - [ ] T21. `app`: «Códigos» en el menú del proyecto, de solo consulta. (RF-20)
       Hecho cuando: `ProjectCodesViewModelTest` en verde.

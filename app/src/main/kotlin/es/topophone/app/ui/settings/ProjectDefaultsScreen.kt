@@ -22,6 +22,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.codes.PROJECT_LIBRARY_NONE_TAG
+import es.topophone.app.ui.codes.projectLibraryTag
 import es.topophone.app.ui.projects.ChoiceGroup
 import es.topophone.app.ui.projects.CrsChoices
 import es.topophone.app.ui.projects.FORM_AUTHOR_TAG
@@ -36,6 +38,8 @@ import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.data.codes.CodeLibraryRepository
+import es.topophone.data.codes.LibrarySummary
 import es.topophone.data.project.ProjectPreferences
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,9 +51,14 @@ const val PROJECT_DEFAULTS_TAG = "project_defaults"
 
 /** Valores por defecto de los proyectos nuevos; cada cambio se guarda al momento (S006/RF-13). */
 @HiltViewModel
-class ProjectDefaultsViewModel @Inject constructor(private val preferences: ProjectPreferences) : ViewModel() {
+class ProjectDefaultsViewModel @Inject constructor(private val preferences: ProjectPreferences, codeLibraries: CodeLibraryRepository) :
+    ViewModel() {
     val state: StateFlow<ProjectDefaults> =
         preferences.defaults.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectDefaults())
+
+    /** Las bibliotecas entre las que se elige la de los proyectos nuevos (S023/RF-19). */
+    val libraries: StateFlow<List<LibrarySummary>> =
+        codeLibraries.libraries().stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), emptyList())
 
     fun update(defaults: ProjectDefaults) {
         viewModelScope.launch { preferences.saveDefaults(defaults) }
@@ -68,7 +77,8 @@ fun ProjectDefaultsRoute(
     viewModel: ProjectDefaultsViewModel = hiltViewModel(),
 ) {
     val defaults by viewModel.state.collectAsStateWithLifecycle()
-    ProjectDefaultsScreen(themeState, onToggleSun, defaults, viewModel::update, onBack)
+    val libraries by viewModel.libraries.collectAsStateWithLifecycle()
+    ProjectDefaultsScreen(themeState, onToggleSun, defaults, viewModel::update, onBack, libraries)
 }
 
 /** "Proyectos nuevos" en Ajustes: autor, SC, altura, unidades y datum con que empieza cada proyecto (S006/RF-13, S008/RF-10). */
@@ -79,6 +89,7 @@ fun ProjectDefaultsScreen(
     defaults: ProjectDefaults,
     onChange: (ProjectDefaults) -> Unit,
     onBack: () -> Unit,
+    libraries: List<LibrarySummary> = emptyList(),
 ) {
     SectionScaffold(
         title = stringResource(R.string.settings_project_defaults),
@@ -118,6 +129,35 @@ fun ProjectDefaultsScreen(
                 ::datumOptionTag,
                 { datumLabel(it) },
             ) { onChange(defaults.copy(correctionsDatum = it)) }
+            if (libraries.isNotEmpty()) {
+                DefaultLibraryChoice(libraries, defaults.codeLibraryId) {
+                    onChange(defaults.copy(codeLibraryId = it))
+                } // S023/RF-19
+            }
         }
     }
+}
+
+/** La biblioteca de códigos con que empieza cada proyecto nuevo: ninguna o una de las bibliotecas (S023/RF-19). */
+@Composable
+private fun DefaultLibraryChoice(libraries: List<LibrarySummary>, selectedId: String?, onSelect: (String?) -> Unit) {
+    val none = stringResource(R.string.project_library_none)
+    val options = listOf<LibrarySummary?>(null) + libraries
+    val selected = libraries.firstOrNull { it.id == selectedId }
+    val defaultTag = stringResource(R.string.codes_library_default_tag)
+    ChoiceGroup(
+        stringResource(R.string.settings_project_defaults_library),
+        options,
+        selected,
+        { if (it == null) PROJECT_LIBRARY_NONE_TAG else projectLibraryTag(it.id) },
+        {
+            if (it == null) {
+                none
+            } else if (it.isDefault) {
+                "${it.name} · $defaultTag"
+            } else {
+                it.name
+            }
+        },
+    ) { onSelect(it?.id) }
 }
