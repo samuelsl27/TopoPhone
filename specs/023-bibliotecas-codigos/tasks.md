@@ -10,7 +10,7 @@
       Hecho cuando: `CodeSearchTest` en verde, con 2.000 códigos en menos de 1 s.
 - [x] T4. `core:model`: `CodeMerge` (nuevos, duplicados del fichero y de la biblioteca; omitir y reemplazar). (RF-16)
       Hecho cuando: `CodeMergeTest` en verde.
-- [ ] T5. `core:formats`: `CodeLibraryCsvWriter` con el escape de opciones. (RF-17, RF-18)
+- [x] T5. `core:formats`: `CodeLibraryCsvWriter` con el escape de opciones. (RF-17, RF-18)
       Hecho cuando: `CodeLibraryCsvWriterTest` en verde.
 - [ ] T6. `core:formats`: `CodeLibraryCsvReader` con `fixtures/codigos/` (Windows-1252, coma decimal, sin `Code`, filas inválidas). (RF-12, RF-13, RF-15)
       Hecho cuando: `CodeLibraryCsvReaderTest` en verde.
