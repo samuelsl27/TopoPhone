@@ -38,8 +38,8 @@
       Hecho cuando: los tests del panel, de la hoja y de la ficha en verde.
 - [x] T18. `app`: `LinearSurveysScreen` (lista de perfiles tomados, ver, exportar, borrar con confirmación) y la navegación. (RF-22)
       Hecho cuando: `LinearSurveysScreenTest` en verde.
-- [ ] T19. Reproducción longitudinal y transversal, época a época contra el cálculo aparte. (RF-11, RF-12, RF-17, RF-18)
-      Hecho cuando: `LongitudinalReplayTest` y `CrossReplayTest` en verde a 1 mm.
+- [x] T19. Reproducción longitudinal y transversal, época a época contra el cálculo aparte. (RF-11, RF-12, RF-17, RF-18)
+      Hecho cuando: `ProfileReplayTest` (las dos reproducciones) en verde a 1 mm.
 - [ ] T20. Rendimiento: 2.000 puntos dibujados en menos de 100 ms y la guía en menos de 16 ms. (RNF-T13)
       Hecho cuando: `ProfilePerformanceTest` en verde.
 - [ ] T21. Pantalla encendida y accesibilidad de las tres tomas (frases de TalkBack, 56 dp). (RNF-T2, RNF-T8)

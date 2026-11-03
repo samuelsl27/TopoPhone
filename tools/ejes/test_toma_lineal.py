@@ -96,3 +96,33 @@ def test_la_diferencia_con_la_seccion_de_diseno_se_interpola_y_queda_vacia_fuera
     assert float(rows["X1"]["d_cota"]) == pytest.approx(99.40 - (100.0 - 1.0 * (8.0 - 3.5) / 6.5), abs=1e-12)
     assert float(rows["X6"]["d_cota"]) == pytest.approx(-0.05, abs=1e-12)
     assert rows["X7"]["d_cota"] == ""
+
+
+def test_la_reproduccion_longitudinal_tiene_42_pk_en_el_eje_3_epocas_a_0_75_m_y_4_mas_alla_del_final():
+    rows = rows_of("reproduccion-longitudinal.csv")
+    assert len(rows) == t.LONG_EPOCHS == 46
+    assert [r["marca"] for r in rows].count("fuera_del_eje") == 3
+    assert [r["marca"] for r in rows].count("sin_proyeccion") == 4
+    assert sum(1 for r in rows if r["marca"] == "ninguna") == 39
+    assert all(r["pk"] == "" for r in rows if r["marca"] == "sin_proyeccion")
+
+
+def test_la_diferencia_de_cota_del_recorrido_es_la_altura_menos_la_rasante():
+    for r in rows_of("reproduccion-longitudinal.csv"):
+        if r["d_cota"]:
+            assert float(r["d_cota"]) == pytest.approx(float(r["altura"]) - float(r["cota_rasante"]), abs=1e-9)
+
+
+def test_la_reproduccion_transversal_cruza_la_seccion_de_menos_9_5_a_9_5_m_con_tres_epocas_fuera_de_seccion():
+    rows = rows_of("reproduccion-transversal.csv")
+    assert [float(r["desplazamiento"]) for r in rows] == [-9.5 + i for i in range(20)]
+    assert [r["marca"] for r in rows].count("fuera_de_seccion") == 3
+    assert all(r["cota_diseno"] != "" for r in rows)  # la seccion de diseno llega de -10 a 10
+    assert [r["marca"] for r in rows].index("fuera_de_seccion") == 3
+
+
+def test_cada_reproduccion_escribe_una_gga_y_una_gst_por_epoca_con_cr_lf():
+    for name, count in (("reproduccion-longitudinal.nmea", 46), ("reproduccion-transversal.nmea", 20)):
+        data = (t.OUT / name).read_bytes()
+        assert data.count(b"\r\n") == 2 * count
+        assert data.count(b"$GNGGA") == data.count(b"$GNGST") == count

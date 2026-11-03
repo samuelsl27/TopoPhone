@@ -20,6 +20,12 @@ Genera en fixtures/ejes/toma/:
 - esperado-perfil-longitudinal.csv y esperado-perfil-transversal.csv: el CSV de exportación de los puntos que entran en cada perfil
   (S052/RF-15, RF-22): coma, punto decimal, CRLF, 4 decimales con redondeo hacia arriba en el empate y las cabeceras en inglés.
 
+- reproduccion-longitudinal.csv/.nmea y reproduccion-transversal.csv/.nmea: reproducciones de un FIX por segundo con la punta recorriendo
+  el Eje A (42 PK de 10 en 10 m desde el 5, con tres épocas a 0,75 m del eje y cuatro más allá del final) y la sección del PK 105 del
+  Eje C (de -9,5 a +9,5 m de metro en metro, con tres épocas a 12, 15 y 20 cm del PK); ninguna cae justo en un extremo, donde el redondeo
+  de la latitud y la longitud decidiría si el punto cae dentro o fuera; en cada época, lo esperado del perfil (PK, desplazamiento, cota de la referencia, diferencia
+  de cota y marca), calculado por construcción en el plano con la posición que recupera el móvil de la latitud y la longitud escritas.
+
 Cómo se calcula (otro algoritmo que el del móvil, para que la coincidencia no sea una tautología):
 - Los puntos de los perfiles se generan desde su PK y su desplazamiento con la geometría de S049 (`generar_ejes`), así que lo esperado
   es el dato de partida y no el resultado de una proyección.
@@ -283,8 +289,102 @@ def profile_csv_files() -> dict[str, str]:
     }
 
 
+LONG_EPOCHS = 46
+LONG_WIDE = (10, 11, 12)  # épocas a 0,75 m del eje: fuera de la tolerancia de 0,50 m
+CROSS_PKS = {3: 105.15, 8: 105.2, 14: 104.88}  # épocas fuera de la tolerancia de sección de 0,10 m
+CROSS_EPOCHS = 20
+
+
+def geo_transformers():
+    from pyproj import Transformer
+
+    return (
+        Transformer.from_crs("EPSG:25830", "EPSG:4258", always_xy=True),
+        Transformer.from_crs("EPSG:4258", "EPSG:25830", always_xy=True),
+    )
+
+
+def recovered(to_geo, e: float, n: float) -> tuple[float, float]:
+    """La latitud y la longitud con 11 decimales, como se escriben en el fichero."""
+    lon, lat = to_geo.transform(e, n)
+    return float(f"{lat:.11f}"), float(f"{lon:.11f}")
+
+
+def long_epoch(i: int) -> tuple[float, float, float]:
+    """(PK, desplazamiento, cota de la punta) de la época i del recorrido del Eje A; después del final del eje, nada que proyectar."""
+    pk = 10.0 * i + 5.0
+    offset = 0.75 if i in LONG_WIDE else round(0.2 * math.sin(i / 3.0), 3)
+    if pk > g.length_of(g.AXIS_A):
+        return pk, offset, round(102.0 + 0.05 * math.cos(i / 2.0), 3)
+    return pk, offset, round(g.profile_at(g.AXIS_A.profile, pk)[0] + 0.05 * math.cos(i / 2.0), 3)
+
+
+def long_replay_rows() -> list[str]:
+    to_geo, _ = geo_transformers()
+    rows = ["epoca,pk,desplazamiento,lat,lon,altura,cota_rasante,d_cota,marca"]
+    for i in range(LONG_EPOCHS):
+        pk, offset, height = long_epoch(i)
+        e, n = axis_a_point(pk, offset)
+        lat, lon = recovered(to_geo, e, n)
+        if pk > g.length_of(g.AXIS_A):
+            rows.append(",".join([str(i + 1), "", "", f"{lat:.11f}", f"{lon:.11f}", f"{height:.3f}", "", "", "sin_proyeccion"]))
+            continue
+        grade = g.profile_at(g.AXIS_A.profile, pk)[0]
+        flag = "fuera_del_eje" if abs(offset) > AXIS_TOLERANCE else "ninguna"
+        rows.append(",".join([str(i + 1), A(pk), A(offset), f"{lat:.11f}", f"{lon:.11f}", f"{height:.3f}", A(grade), A(height - grade), flag]))
+    return rows
+
+
+def cross_epoch(i: int) -> tuple[float, float, float]:
+    """(PK, desplazamiento, cota de la punta) de la época i de la sección: de -9,5 a +9,5 m, de metro en metro."""
+    offset = -9.5 + i
+    pk = CROSS_PKS.get(i, SECTION_PK + (0.04 if i % 2 else -0.03))
+    design = design_at(Fraction(str(offset)))
+    return pk, offset, round(float(design) + 0.12 * math.sin(i / 2.0), 3)
+
+
+def cross_replay_rows() -> list[str]:
+    to_geo, _ = geo_transformers()
+    rows = ["epoca,pk,desplazamiento,lat,lon,altura,error_pk,cota_diseno,d_cota,marca"]
+    for i in range(CROSS_EPOCHS):
+        pk, offset, height = cross_epoch(i)
+        lat, lon = recovered(to_geo, g.AXIS_C.east + pk, g.AXIS_C.north - offset)
+        error = Fraction(str(pk)) - Fraction(str(SECTION_PK))
+        flag = "ninguna" if abs(error) <= Fraction(str(SECTION_TOLERANCE)) else "fuera_de_seccion"
+        base = design_at(Fraction(str(offset)))
+        reference = "" if base is None else A(float(base))
+        dz = "" if base is None else A(float(Fraction(str(height)) - base))
+        rows.append(",".join([str(i + 1), A(pk), A(offset), f"{lat:.11f}", f"{lon:.11f}", f"{height:.3f}", A(float(error)), reference, dz, flag]))
+    return rows
+
+
+def replay_nmea(rows: list[str]) -> str:
+    """Las épocas de una reproducción como GGA y GST de un FIX por segundo desde las 10:00:00 UTC, con la antena sobre la punta."""
+    out = []
+    for row in rows[1:]:
+        cells = row.split(",")
+        i = int(cells[0]) - 1
+        lat, lon, height = float(cells[3]), float(cells[4]), float(cells[5])
+        time = f"10{i // 60:02d}{i % 60:02d}.00"
+        alt = f"{height + g.ANTENNA_ABOVE_TIP_M:.3f}"
+        out.append(g.nmea_sentence(f"GNGGA,{time},{g.nmea_angle(lat, 2)},N,{g.nmea_angle(-lon, 3)},W,4,24,0.6,{alt},M,0.000,M,1.0,0001"))
+        out.append(g.nmea_sentence(f"GNGST,{time},0.012,0.010,0.007,45.0,0.008,0.006,0.015"))
+    return "".join(out)
+
+
+def replay_files() -> dict[str, str]:
+    long_rows = long_replay_rows()
+    cross_rows = cross_replay_rows()
+    return {
+        "reproduccion-longitudinal.csv": "\n".join(long_rows) + "\n",
+        "reproduccion-longitudinal.nmea": replay_nmea(long_rows),
+        "reproduccion-transversal.csv": "\n".join(cross_rows) + "\n",
+        "reproduccion-transversal.nmea": replay_nmea(cross_rows),
+    }
+
+
 def all_files() -> dict[str, str]:
-    return {**axis_files(), **rejection_files(), **longitudinal_files(), **cross_files(), **profile_csv_files()}
+    return {**axis_files(), **rejection_files(), **longitudinal_files(), **cross_files(), **profile_csv_files(), **replay_files()}
 
 
 def main(out: Path = OUT) -> int:
