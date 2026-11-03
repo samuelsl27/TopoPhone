@@ -42,6 +42,7 @@ import es.topophone.app.ui.backup.BackupsRoute
 import es.topophone.app.ui.baseshift.BaseShiftRoute
 import es.topophone.app.ui.cad.CadImportRoute
 import es.topophone.app.ui.codes.CodeEditorRoute
+import es.topophone.app.ui.codes.CodeImportRoute
 import es.topophone.app.ui.codes.CodeLibraryListRoute
 import es.topophone.app.ui.codes.CodeLibraryRoute
 import es.topophone.app.ui.export.ExportRoute
@@ -719,6 +720,7 @@ private fun AppNavHost(
                     uiState.themeState,
                     actions.onToggleSun,
                     onOpenLibrary = { navController.navigate(CodeLibraryDestination(it)) },
+                    onImport = { navController.navigate(CodeImportDestination(it)) },
                 ) { navController.popBackStack() }
             }
             composable<CodeLibraryDestination> { entry ->
@@ -729,7 +731,21 @@ private fun AppNavHost(
                     actions.onToggleSun,
                     onAdd = { navController.navigate(CodeEditorDestination(it)) },
                     onEdit = { libraryId, codeId -> navController.navigate(CodeEditorDestination(libraryId, codeId)) },
+                    onImport = { libraryId, fileUri -> navController.navigate(CodeImportDestination(fileUri, libraryId)) },
                 ) { navController.popBackStack() }
+            }
+            composable<CodeImportDestination> { entry ->
+                val args = entry.toRoute<CodeImportDestination>()
+                CodeImportRoute(
+                    args.fileUri,
+                    args.libraryId,
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    onOpenLibrary = { id ->
+                        navController.navigate(CodeLibraryDestination(id)) { popUpTo<CodeImportDestination> { inclusive = true } }
+                    },
+                    onBack = { navController.popBackStack() },
+                )
             }
             composable<CodeEditorDestination> { entry ->
                 val args = entry.toRoute<CodeEditorDestination>()

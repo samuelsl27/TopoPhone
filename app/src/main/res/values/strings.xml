@@ -2402,4 +2402,58 @@
     <string name="codes_error_attribute_name">El atributo %1$d necesita un nombre distinto del de los demás.</string>
     <string name="codes_error_list_options">El atributo %1$d (Lista) necesita de 1 a 50 opciones distintas y sin dejar ninguna vacía.</string>
     <string name="codes_error_default_value">El valor por defecto del atributo %1$d no vale para su tipo.</string>
+
+    <string name="codes_import_missing_code">El fichero no tiene la columna «Code», así que no se importa nada.</string>
+    <string name="codes_import_decimal_conflict">El separador de columnas y el signo decimal no pueden ser los dos la coma.</string>
+    <plurals name="codes_import_valid">
+        <item quantity="one">%d código válido</item>
+        <item quantity="other">%d códigos válidos</item>
+    </plurals>
+    <plurals name="codes_import_discarded">
+        <item quantity="one">%d fila descartada</item>
+        <item quantity="other">%d filas descartadas</item>
+    </plurals>
+    <string name="codes_import_preview">Vista previa</string>
+    <plurals name="codes_attributes_count">
+        <item quantity="one">%d atributo</item>
+        <item quantity="other">%d atributos</item>
+    </plurals>
+    <string name="codes_import_invalid_title">Filas descartadas</string>
+    <string name="codes_import_invalid_line">Línea %1$d: %2$s</string>
+    <string name="codes_import_invalid_more">… y %1$d más</string>
+    <string name="codes_reason_empty">el código está vacío</string>
+    <string name="codes_reason_too_long">el código pasa de 32 caracteres</string>
+    <string name="codes_reason_newline">el código tiene saltos de línea</string>
+    <string name="codes_reason_unknown_type">tipo desconocido «%1$s»</string>
+    <string name="codes_reason_unknown_color">color desconocido «%1$s»</string>
+    <string name="codes_reason_unknown_attribute_type">atributo %1$d: tipo desconocido «%2$s»</string>
+    <string name="codes_reason_attribute_name">atributo %1$d: el nombre está vacío o repetido</string>
+    <string name="codes_reason_attribute_list">atributo %1$d: la lista necesita de 1 a 50 opciones distintas</string>
+    <string name="codes_reason_attribute_default">atributo %1$d: el valor por defecto no vale para su tipo</string>
+    <string name="codes_reason_too_many_attributes">más de 100 atributos</string>
+    <string name="codes_import_conflicts_title">Códigos repetidos</string>
+    <string name="codes_import_conflicts_library">Ya están en la biblioteca de destino: %1$s</string>
+    <string name="codes_import_conflicts_file">Repetidos en el propio fichero: %1$s</string>
+    <string name="codes_import_policy_skip">Omitir los repetidos</string>
+    <string name="codes_import_policy_replace">Reemplazar los repetidos</string>
+    <string name="codes_import_target">Destino</string>
+    <string name="codes_import_target_new">Biblioteca nueva con el nombre del fichero</string>
+    <string name="codes_import_confirm">Importar</string>
+    <string name="codes_import_write_failed">No se ha podido escribir en la base de datos: no se ha importado nada.</string>
+    <string name="codes_import_working">Importando…</string>
+    <plurals name="codes_import_result">
+        <item quantity="one">Se ha importado %d código.</item>
+        <item quantity="other">Se han importado %d códigos.</item>
+    </plurals>
+    <plurals name="codes_import_result_skipped">
+        <item quantity="one">%d código del fichero no ha entrado por estar repetido.</item>
+        <item quantity="other">%d códigos del fichero no han entrado por estar repetidos.</item>
+    </plurals>
+    <plurals name="codes_import_result_invalid">
+        <item quantity="one">%d fila se ha descartado.</item>
+        <item quantity="other">%d filas se han descartado.</item>
+    </plurals>
+    <string name="codes_import_open">Abrir biblioteca</string>
+    <string name="codes_import_fallback_name">Biblioteca importada</string>
+    <string name="codes_import_close">Cerrar</string>
 </resources>

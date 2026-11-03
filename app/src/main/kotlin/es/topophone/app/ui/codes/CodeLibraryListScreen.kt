@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -58,6 +59,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 const val CODE_LIBRARY_NEW_TAG = "code_library_new"
+const val CODE_LIBRARY_IMPORT_TAG = "code_library_import"
 const val CODE_LIBRARY_NAME_TAG = "code_library_name"
 const val CODE_LIBRARY_SAVE_TAG = "code_library_save"
 
@@ -86,6 +88,7 @@ data class CodeLibraryListUiState(
 data class CodeLibraryListActions(
     val onOpen: (String) -> Unit = {},
     val onNew: () -> Unit = {},
+    val onImport: () -> Unit = {},
     val onRename: (LibrarySummary) -> Unit = {},
     val onDuplicate: (String) -> Unit = {},
     val onAskDelete: (LibrarySummary) -> Unit = {},
@@ -163,11 +166,13 @@ fun CodeLibraryListRoute(
     themeState: ThemeState,
     onToggleSun: () -> Unit,
     onOpenLibrary: (String) -> Unit = {},
+    onImport: (fileUri: String) -> Unit = {},
     viewModel: CodeLibraryListViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val copyLabel = stringResource(R.string.codes_library_copy_label)
+    val pickFile = rememberCodeImportLauncher(onImport)
     CodeLibraryListScreen(
         themeState,
         onToggleSun,
@@ -175,6 +180,7 @@ fun CodeLibraryListRoute(
         CodeLibraryListActions(
             onOpen = onOpenLibrary,
             onNew = viewModel::openNew,
+            onImport = pickFile,
             onRename = viewModel::openRename,
             onDuplicate = { viewModel.duplicate(it, copyLabel) },
             onAskDelete = viewModel::askDelete,
@@ -212,6 +218,12 @@ fun CodeLibraryListScreen(
                     onClick = actions.onNew,
                     modifier = Modifier.padding(bottom = 16.dp).fillMaxWidth().heightIn(min = MinTouchTarget).testTag(CODE_LIBRARY_NEW_TAG),
                 ) { Text(stringResource(R.string.codes_library_new)) }
+                OutlinedButton(
+                    onClick = actions.onImport,
+                    modifier = Modifier.padding(
+                        bottom = 16.dp,
+                    ).fillMaxWidth().heightIn(min = MinTouchTarget).testTag(CODE_LIBRARY_IMPORT_TAG),
+                ) { Text(stringResource(R.string.codes_import_csv)) }
             }
             items(state.libraries, key = { it.id }) { library ->
                 LibraryRow(library, actions)

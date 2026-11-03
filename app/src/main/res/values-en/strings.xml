@@ -2390,4 +2390,58 @@
     <string name="codes_error_attribute_name">Attribute %1$d needs a name different from the others.</string>
     <string name="codes_error_list_options">Attribute %1$d (List) needs 1 to 50 distinct options, none of them empty.</string>
     <string name="codes_error_default_value">The default value of attribute %1$d is not valid for its type.</string>
+
+    <string name="codes_import_missing_code">The file has no “Code” column, so nothing is imported.</string>
+    <string name="codes_import_decimal_conflict">The column separator and the decimal sign cannot both be the comma.</string>
+    <plurals name="codes_import_valid">
+        <item quantity="one">%d valid code</item>
+        <item quantity="other">%d valid codes</item>
+    </plurals>
+    <plurals name="codes_import_discarded">
+        <item quantity="one">%d row discarded</item>
+        <item quantity="other">%d rows discarded</item>
+    </plurals>
+    <string name="codes_import_preview">Preview</string>
+    <plurals name="codes_attributes_count">
+        <item quantity="one">%d attribute</item>
+        <item quantity="other">%d attributes</item>
+    </plurals>
+    <string name="codes_import_invalid_title">Discarded rows</string>
+    <string name="codes_import_invalid_line">Line %1$d: %2$s</string>
+    <string name="codes_import_invalid_more">… and %1$d more</string>
+    <string name="codes_reason_empty">the code is empty</string>
+    <string name="codes_reason_too_long">the code exceeds 32 characters</string>
+    <string name="codes_reason_newline">the code has line breaks</string>
+    <string name="codes_reason_unknown_type">unknown type “%1$s”</string>
+    <string name="codes_reason_unknown_color">unknown colour “%1$s”</string>
+    <string name="codes_reason_unknown_attribute_type">attribute %1$d: unknown type “%2$s”</string>
+    <string name="codes_reason_attribute_name">attribute %1$d: the name is empty or repeated</string>
+    <string name="codes_reason_attribute_list">attribute %1$d: a list needs 1 to 50 distinct options</string>
+    <string name="codes_reason_attribute_default">attribute %1$d: the default value is not valid for its type</string>
+    <string name="codes_reason_too_many_attributes">more than 100 attributes</string>
+    <string name="codes_import_conflicts_title">Repeated codes</string>
+    <string name="codes_import_conflicts_library">Already in the destination library: %1$s</string>
+    <string name="codes_import_conflicts_file">Repeated in the file itself: %1$s</string>
+    <string name="codes_import_policy_skip">Skip repeated codes</string>
+    <string name="codes_import_policy_replace">Replace repeated codes</string>
+    <string name="codes_import_target">Destination</string>
+    <string name="codes_import_target_new">New library named after the file</string>
+    <string name="codes_import_confirm">Import</string>
+    <string name="codes_import_write_failed">The database could not be written: nothing was imported.</string>
+    <string name="codes_import_working">Importing…</string>
+    <plurals name="codes_import_result">
+        <item quantity="one">%d code was imported.</item>
+        <item quantity="other">%d codes were imported.</item>
+    </plurals>
+    <plurals name="codes_import_result_skipped">
+        <item quantity="one">%d code in the file was not imported because it is repeated.</item>
+        <item quantity="other">%d codes in the file were not imported because they are repeated.</item>
+    </plurals>
+    <plurals name="codes_import_result_invalid">
+        <item quantity="one">%d row was discarded.</item>
+        <item quantity="other">%d rows were discarded.</item>
+    </plurals>
+    <string name="codes_import_open">Open library</string>
+    <string name="codes_import_fallback_name">Imported library</string>
+    <string name="codes_import_close">Close</string>
 </resources>

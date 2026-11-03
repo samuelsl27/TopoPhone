@@ -183,7 +183,7 @@ fun CodeLibraryRoute(
     onToggleSun: () -> Unit,
     onAdd: (String) -> Unit = {},
     onEdit: (libraryId: String, codeId: String) -> Unit = { _, _ -> },
-    onImport: (String) -> Unit = {},
+    onImport: (libraryId: String, fileUri: String) -> Unit = { _, _ -> },
     viewModel: CodeLibraryViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
@@ -195,6 +195,7 @@ fun CodeLibraryRoute(
     val create = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         if (uri != null) scope.launch { viewModel.exported(writeToUri(resolver, uri, viewModel::writeCsv)) }
     }
+    val pickFile = rememberCodeImportLauncher { onImport(libraryId, it) }
     CodeLibraryScreen(
         themeState,
         onToggleSun,
@@ -203,7 +204,7 @@ fun CodeLibraryRoute(
             onQueryChange = viewModel::search,
             onAdd = { onAdd(libraryId) },
             onEdit = { onEdit(libraryId, it) },
-            onImport = { onImport(libraryId) },
+            onImport = pickFile,
             onExport = {
                 viewModel.dismissMessage()
                 create.launch(viewModel.fileName())

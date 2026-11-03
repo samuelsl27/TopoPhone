@@ -38,7 +38,7 @@
       Hecho cuando: `CodeEditorViewModelTest` y `CodeEditorScreenTest` en verde.
 - [x] T18. `app`: ViewModel del asistente de importación (selector, vista previa, informe, duplicados). (RF-12 a RF-16)
       Hecho cuando: `CodeImportViewModelTest` en verde.
-- [ ] T19. `app`: pantalla del asistente de importación. (RF-12 a RF-16)
+- [x] T19. `app`: pantalla del asistente de importación. (RF-12 a RF-16)
       Hecho cuando: `CodeImportScreenTest` en verde.
 - [ ] T20. `app`: selector de biblioteca en el formulario de proyecto con confirmación y la biblioteca de los proyectos nuevos en Ajustes. (RF-19, RF-21)
       Hecho cuando: `ProjectFormViewModelTest` y `ProjectDefaultsScreenTest` en verde.
