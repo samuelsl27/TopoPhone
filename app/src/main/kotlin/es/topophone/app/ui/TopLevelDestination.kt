@@ -47,6 +47,9 @@ import kotlinx.serialization.Serializable
 /** "Bibliotecas de códigos" en Ajustes (S023/RF-1). */
 @Serializable data object CodeLibrariesDestination
 
+/** Una biblioteca de códigos con sus códigos (S023/RF-5, RF-11). */
+@Serializable data class CodeLibraryDestination(val libraryId: String)
+
 /** "Copias de seguridad" en Ajustes (S013). */
 @Serializable data object BackupsDestination
 

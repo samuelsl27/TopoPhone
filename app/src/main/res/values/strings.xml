@@ -2349,4 +2349,19 @@
     <string name="codes_library_copy_label">copia</string>
     <string name="codes_library_delete_message">Se borra la biblioteca «%1$s». Los proyectos que la usan conservan su copia y no se modifica ningún punto.</string>
     <string name="settings_code_libraries">Bibliotecas de códigos</string>
+
+    <string name="codes_library_search">Buscar por código o descripción</string>
+    <string name="codes_geometry_point">Punto</string>
+    <string name="codes_geometry_line">Línea</string>
+    <string name="codes_geometry_polygon">Polígono</string>
+    <string name="codes_add">Añadir código</string>
+    <string name="codes_import_csv">Importar CSV</string>
+    <string name="codes_export_csv">Exportar CSV</string>
+    <string name="codes_export_saved">Biblioteca exportada.</string>
+    <string name="codes_export_failed">No se ha podido guardar el fichero.</string>
+    <string name="codes_readonly_note">Biblioteca por defecto: es de solo lectura. Duplícala para editarla.</string>
+    <string name="codes_none">Esta biblioteca no tiene códigos.</string>
+    <string name="codes_no_match">Ningún código coincide con «%1$s».</string>
+    <string name="codes_dismiss">Entendido</string>
+    <string name="codes_not_found">La biblioteca ya no existe.</string>
 </resources>

@@ -2337,4 +2337,19 @@
     <string name="codes_library_copy_label">copy</string>
     <string name="codes_library_delete_message">Library “%1$s” will be deleted. Projects that use it keep their copy and no point is changed.</string>
     <string name="settings_code_libraries">Code libraries</string>
+
+    <string name="codes_library_search">Search by code or description</string>
+    <string name="codes_geometry_point">Point</string>
+    <string name="codes_geometry_line">Line</string>
+    <string name="codes_geometry_polygon">Polygon</string>
+    <string name="codes_add">Add code</string>
+    <string name="codes_import_csv">Import CSV</string>
+    <string name="codes_export_csv">Export CSV</string>
+    <string name="codes_export_saved">Library exported.</string>
+    <string name="codes_export_failed">The file could not be saved.</string>
+    <string name="codes_readonly_note">Default library: read-only. Duplicate it to edit it.</string>
+    <string name="codes_none">This library has no codes.</string>
+    <string name="codes_no_match">No code matches “%1$s”.</string>
+    <string name="codes_dismiss">Got it</string>
+    <string name="codes_not_found">The library no longer exists.</string>
 </resources>

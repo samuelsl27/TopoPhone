@@ -32,7 +32,7 @@
       Hecho cuando: `DefaultCodeLibrariesTest` en verde (códigos válidos y sin duplicados).
 - [x] T15. `app`: lista de bibliotecas y entrada en Ajustes. (RF-1 a RF-4)
       Hecho cuando: `CodeLibraryListViewModelTest` y `CodeLibraryListScreenTest` en verde.
-- [ ] T16. `app`: pantalla de una biblioteca con buscador y exportar CSV. (RF-11, RF-17)
+- [x] T16. `app`: pantalla de una biblioteca con buscador y exportar CSV. (RF-11, RF-17)
       Hecho cuando: `CodeLibraryViewModelTest` en verde.
 - [ ] T17. `app`: editor de código con paleta y atributos. (RF-5 a RF-10)
       Hecho cuando: `CodeEditorViewModelTest` y `CodeEditorScreenTest` en verde.
