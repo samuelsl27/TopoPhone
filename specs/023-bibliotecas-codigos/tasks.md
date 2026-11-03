@@ -8,7 +8,7 @@
       Hecho cuando: `CodeKeyTest` y `CodeValidatorTest` en verde.
 - [x] T3. `core:model`: `CodeSearch` y orden de la lista. (RF-11)
       Hecho cuando: `CodeSearchTest` en verde, con 2.000 códigos en menos de 1 s.
-- [ ] T4. `core:model`: `CodeMerge` (nuevos, duplicados del fichero y de la biblioteca; omitir y reemplazar). (RF-16)
+- [x] T4. `core:model`: `CodeMerge` (nuevos, duplicados del fichero y de la biblioteca; omitir y reemplazar). (RF-16)
       Hecho cuando: `CodeMergeTest` en verde.
 - [ ] T5. `core:formats`: `CodeLibraryCsvWriter` con el escape de opciones. (RF-17, RF-18)
       Hecho cuando: `CodeLibraryCsvWriterTest` en verde.
