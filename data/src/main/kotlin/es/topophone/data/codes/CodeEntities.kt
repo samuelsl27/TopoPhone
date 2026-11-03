@@ -82,6 +82,9 @@ data class CodeAttributeEntity(
 )
 data class AttributeOptionEntity(@ColumnInfo(name = "attribute_id") val attributeId: String, val ordinal: Int, val value: String)
 
+/** Cuántos códigos tiene una biblioteca (S023/RF-1). */
+data class LibraryCodeCount(@ColumnInfo(name = "library_id") val libraryId: String, @ColumnInfo(name = "n") val count: Int)
+
 @Dao
 interface CodeLibraryDao {
     @Insert
@@ -99,9 +102,57 @@ interface CodeLibraryDao {
     @Query("SELECT * FROM code_libraries WHERE project_id IS NULL ORDER BY name_key")
     fun userLibraries(): Flow<List<CodeLibraryEntity>>
 
+    @Query("SELECT name FROM code_libraries WHERE project_id IS NULL AND id != :exceptId")
+    suspend fun userLibraryNames(exceptId: String = ""): List<String>
+
+    @Query("SELECT library_id, COUNT(*) AS n FROM library_codes GROUP BY library_id")
+    fun codeCounts(): Flow<List<LibraryCodeCount>>
+
+    @Query("SELECT * FROM code_libraries WHERE id = :id")
+    suspend fun library(id: String): CodeLibraryEntity?
+
+    @Query("SELECT * FROM code_libraries WHERE id = :id")
+    fun observeLibrary(id: String): Flow<CodeLibraryEntity?>
+
     @Query("SELECT * FROM code_libraries WHERE project_id = :projectId")
     suspend fun copyOf(projectId: String): CodeLibraryEntity?
 
+    @Query("SELECT * FROM code_libraries WHERE project_id = :projectId")
+    fun observeCopyOf(projectId: String): Flow<CodeLibraryEntity?>
+
     @Query("SELECT * FROM library_codes WHERE library_id = :libraryId ORDER BY code_key")
     suspend fun codes(libraryId: String): List<LibraryCodeEntity>
+
+    @Query("SELECT * FROM library_codes WHERE library_id = :libraryId ORDER BY code_key")
+    fun observeCodes(libraryId: String): Flow<List<LibraryCodeEntity>>
+
+    @Query(
+        "SELECT a.* FROM code_attributes a JOIN library_codes c ON c.id = a.code_id " +
+            "WHERE c.library_id = :libraryId ORDER BY a.code_id, a.ordinal",
+    )
+    suspend fun attributes(libraryId: String): List<CodeAttributeEntity>
+
+    @Query(
+        "SELECT a.* FROM code_attributes a JOIN library_codes c ON c.id = a.code_id " +
+            "WHERE c.library_id = :libraryId ORDER BY a.code_id, a.ordinal",
+    )
+    fun observeAttributes(libraryId: String): Flow<List<CodeAttributeEntity>>
+
+    @Query(
+        "SELECT o.* FROM attribute_options o JOIN code_attributes a ON a.id = o.attribute_id " +
+            "JOIN library_codes c ON c.id = a.code_id WHERE c.library_id = :libraryId ORDER BY o.attribute_id, o.ordinal",
+    )
+    suspend fun options(libraryId: String): List<AttributeOptionEntity>
+
+    @Query(
+        "SELECT o.* FROM attribute_options o JOIN code_attributes a ON a.id = o.attribute_id " +
+            "JOIN library_codes c ON c.id = a.code_id WHERE c.library_id = :libraryId ORDER BY o.attribute_id, o.ordinal",
+    )
+    fun observeOptions(libraryId: String): Flow<List<AttributeOptionEntity>>
+
+    @Query("UPDATE code_libraries SET name = :name, name_key = :nameKey WHERE id = :id")
+    suspend fun rename(id: String, name: String, nameKey: String): Int
+
+    @Query("DELETE FROM code_libraries WHERE id = :id")
+    suspend fun deleteLibrary(id: String)
 }
