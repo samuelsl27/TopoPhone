@@ -14,7 +14,7 @@
       Hecho cuando: `CodeLibraryCsvWriterTest` en verde.
 - [x] T6. `core:formats`: `CodeLibraryCsvReader` con `fixtures/codigos/` (Windows-1252, coma decimal, sin `Code`, filas inválidas). (RF-12, RF-13, RF-15)
       Hecho cuando: `CodeLibraryCsvReaderTest` en verde.
-- [ ] T7. `core:formats`: ida y vuelta y rendimiento de 2.000 códigos. (RF-18, RNF)
+- [x] T7. `core:formats`: ida y vuelta y rendimiento de 2.000 códigos. (RF-18, RNF)
       Hecho cuando: `CodeLibraryRoundTripTest` en verde, con la lectura en menos de 3 s.
 - [ ] T8. `data`: Room v28 (cuatro tablas), `AutoMigration(27, 28)` y el esquema 28. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 27 a 28 en verde.
