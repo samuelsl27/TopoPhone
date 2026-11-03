@@ -26,7 +26,7 @@
       Hecho cuando: `CodeImportRepositoryTest` en verde, con el caso del fallo a medias.
 - [x] T12. `data` y `core:model`: `ProjectDraft.libraryChoice`, vincular, cambiar y quitar en la transacción del proyecto, duplicar proyecto y `ProjectDefaults.codeLibraryId`. (RF-4, RF-19 a RF-21)
       Hecho cuando: `CodeLibraryLinkTest` en verde.
-- [ ] T13. `data`: copias de seguridad y paquetes con las bibliotecas y la copia de cada proyecto. (RF-22)
+- [x] T13. `data`: copias de seguridad y paquetes con las bibliotecas y la copia de cada proyecto. (RF-22)
       Hecho cuando: `CodeLibraryBackupTest` en verde.
 - [ ] T14. `app`: `DefaultCodeLibraries` (es y en) y su enlace con Hilt. (RF-3)
       Hecho cuando: `DefaultCodeLibrariesTest` en verde (códigos válidos y sin duplicados).

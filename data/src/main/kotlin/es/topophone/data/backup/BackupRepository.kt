@@ -486,6 +486,7 @@ class BackupRepository(
         copySections(source, sink, args, alignmentIds, keepIds)
         copyLinearSurveys(source, sink, args, newProjectId, alignmentIds, pointIds, keepIds)
         copyBaseShifts(source, sink, args, newProjectId, shiftIds)
+        copyCodeLibrary(source, sink, args, newProjectId, keepIds)
     }
 
     /** De dónde sacar el fichero de una foto al copiarla y qué ficheros se han creado, para borrarlos si la importación falla. */
@@ -524,6 +525,58 @@ class BackupRepository(
             DatabaseSnapshot.copyRows(cursor, sink, "photo_events") { event ->
                 event.put("id", newId())
                 event.put("point_id", pointIds.getValue(event.getAsString("point_id")))
+            }
+        }
+    }
+
+    /**
+     * La biblioteca de códigos que lleva el proyecto, con sus códigos, atributos y opciones (S023/RF-22): una copia propia, así que el
+     * móvil que la recibe no necesita la biblioteca original. Los ids son los mismos con [keepIds] y nuevos si no.
+     */
+    private fun copyCodeLibrary(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        keepIds: Boolean,
+    ) {
+        val libraryIds = mutableMapOf<String, String>()
+        source("SELECT * FROM code_libraries WHERE project_id = ?", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "code_libraries") { library ->
+                val old = library.getAsString("id")
+                val id = if (keepIds) old else newId()
+                libraryIds[old] = id
+                library.put("id", id)
+                library.put("project_id", newProjectId)
+            }
+        }
+        if (libraryIds.isEmpty()) return
+        val codeIds = mutableMapOf<String, String>()
+        val inLibrary = "SELECT id FROM code_libraries WHERE project_id = ?"
+        source("SELECT * FROM library_codes WHERE library_id IN ($inLibrary) ORDER BY code_key", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "library_codes") { code ->
+                val old = code.getAsString("id")
+                val id = if (keepIds) old else newId()
+                codeIds[old] = id
+                code.put("id", id)
+                code.put("library_id", libraryIds.getValue(code.getAsString("library_id")))
+            }
+        }
+        val attributeIds = mutableMapOf<String, String>()
+        val inCodes = "SELECT c.id FROM library_codes c JOIN code_libraries l ON l.id = c.library_id WHERE l.project_id = ?"
+        source("SELECT * FROM code_attributes WHERE code_id IN ($inCodes) ORDER BY code_id, ordinal", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "code_attributes") { attribute ->
+                val old = attribute.getAsString("id")
+                val id = if (keepIds) old else newId()
+                attributeIds[old] = id
+                attribute.put("id", id)
+                attribute.put("code_id", codeIds.getValue(attribute.getAsString("code_id")))
+            }
+        }
+        val inAttributes = "SELECT a.id FROM code_attributes a WHERE a.code_id IN ($inCodes)"
+        source("SELECT * FROM attribute_options WHERE attribute_id IN ($inAttributes) ORDER BY attribute_id, ordinal", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "attribute_options") { option ->
+                option.put("attribute_id", attributeIds.getValue(option.getAsString("attribute_id")))
             }
         }
     }

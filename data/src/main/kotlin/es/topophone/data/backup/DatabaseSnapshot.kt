@@ -188,6 +188,18 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             // S052/RF-23: las tomas lineales y los puntos de cada una (después de los puntos y de los ejes) viajan con el proyecto.
             Table("linear_surveys", "WHERE project_id = ?"),
             Table("linear_survey_points", "WHERE survey_id IN (SELECT id FROM linear_surveys WHERE project_id = ?)"),
+            // S023/RF-22: las bibliotecas del usuario van en la copia completa; en el paquete solo la copia que lleva el proyecto.
+            Table("code_libraries", "WHERE project_id = ?"),
+            Table("library_codes", "WHERE library_id IN (SELECT id FROM code_libraries WHERE project_id = ?)"),
+            Table(
+                "code_attributes",
+                "WHERE code_id IN (SELECT c.id FROM library_codes c JOIN code_libraries l ON l.id = c.library_id WHERE l.project_id = ?)",
+            ),
+            Table(
+                "attribute_options",
+                "WHERE attribute_id IN (SELECT a.id FROM code_attributes a JOIN library_codes c ON c.id = a.code_id " +
+                    "JOIN code_libraries l ON l.id = c.library_id WHERE l.project_id = ?)",
+            ),
             // S020/RF-12: los desplazamientos de base viajan con el proyecto.
             Table("base_shifts", "WHERE project_id = ?"),
             Table("ntrip_profiles", projectFilter = null),
