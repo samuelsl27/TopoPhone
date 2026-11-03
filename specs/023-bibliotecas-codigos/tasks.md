@@ -34,7 +34,7 @@
       Hecho cuando: `CodeLibraryListViewModelTest` y `CodeLibraryListScreenTest` en verde.
 - [x] T16. `app`: pantalla de una biblioteca con buscador y exportar CSV. (RF-11, RF-17)
       Hecho cuando: `CodeLibraryViewModelTest` en verde.
-- [ ] T17. `app`: editor de código con paleta y atributos. (RF-5 a RF-10)
+- [x] T17. `app`: editor de código con paleta y atributos. (RF-5 a RF-10)
       Hecho cuando: `CodeEditorViewModelTest` y `CodeEditorScreenTest` en verde.
 - [ ] T18. `app`: ViewModel del asistente de importación (selector, vista previa, informe, duplicados). (RF-12 a RF-16)
       Hecho cuando: `CodeImportViewModelTest` en verde.

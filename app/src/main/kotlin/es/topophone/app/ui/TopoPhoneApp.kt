@@ -41,6 +41,7 @@ import es.topophone.app.ui.alignment.ProfileCsvImportRoute
 import es.topophone.app.ui.backup.BackupsRoute
 import es.topophone.app.ui.baseshift.BaseShiftRoute
 import es.topophone.app.ui.cad.CadImportRoute
+import es.topophone.app.ui.codes.CodeEditorRoute
 import es.topophone.app.ui.codes.CodeLibraryListRoute
 import es.topophone.app.ui.codes.CodeLibraryRoute
 import es.topophone.app.ui.export.ExportRoute
@@ -722,7 +723,17 @@ private fun AppNavHost(
             }
             composable<CodeLibraryDestination> { entry ->
                 val args = entry.toRoute<CodeLibraryDestination>()
-                CodeLibraryRoute(args.libraryId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
+                CodeLibraryRoute(
+                    args.libraryId,
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    onAdd = { navController.navigate(CodeEditorDestination(it)) },
+                    onEdit = { libraryId, codeId -> navController.navigate(CodeEditorDestination(libraryId, codeId)) },
+                ) { navController.popBackStack() }
+            }
+            composable<CodeEditorDestination> { entry ->
+                val args = entry.toRoute<CodeEditorDestination>()
+                CodeEditorRoute(args.libraryId, args.codeId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<BackupsDestination> {
                 backupsSection(uiState.themeState, actions.onToggleSun, { navController.popBackStack() }) {

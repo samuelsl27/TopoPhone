@@ -50,6 +50,9 @@ import kotlinx.serialization.Serializable
 /** Una biblioteca de códigos con sus códigos (S023/RF-5, RF-11). */
 @Serializable data class CodeLibraryDestination(val libraryId: String)
 
+/** Alta o edición de un código de una biblioteca: nuevo si [codeId] es null (S023/RF-5). */
+@Serializable data class CodeEditorDestination(val libraryId: String, val codeId: String? = null)
+
 /** "Copias de seguridad" en Ajustes (S013). */
 @Serializable data object BackupsDestination
 
