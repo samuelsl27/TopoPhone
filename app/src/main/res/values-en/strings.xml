@@ -2480,4 +2480,13 @@
     <string name="collector_attr_not_integer">Enter a whole number</string>
     <string name="collector_attr_not_number">Enter a number</string>
     <string name="collector_attr_not_in_options">Choose one of the options</string>
+    <string name="collector_code_edit">Edit</string>
+    <string name="codes_field_symbol">Map symbol</string>
+    <string name="codes_symbol_circle">Circle</string>
+    <string name="codes_symbol_square">Square</string>
+    <string name="codes_symbol_triangle">Triangle</string>
+    <string name="codes_symbol_diamond">Diamond</string>
+    <string name="codes_symbol_cross">Cross</string>
+    <string name="codes_symbol_star">Star</string>
+    <string name="codes_use_existing">Use the existing one</string>
 </resources>

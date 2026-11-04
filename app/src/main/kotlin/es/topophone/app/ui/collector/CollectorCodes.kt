@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
@@ -35,6 +36,9 @@ interface CollectorCodeSource {
 
     /** Los códigos usados por los puntos del proyecto, del más reciente al más antiguo (S024/RF-1). */
     fun recent(projectId: String): Flow<List<String>>
+
+    /** Los ids de los códigos creados en el proyecto, los únicos que se editan desde el recolector (S024/RF-7). */
+    fun ownIds(projectId: String): Flow<Set<String>> = flowOf(emptySet())
 
     companion object {
         val NONE = object : CollectorCodeSource {
@@ -53,6 +57,10 @@ class RoomCollectorCodeSource @Inject constructor(private val codes: CodeLibrary
         }
 
     override fun recent(projectId: String): Flow<List<String>> = points.recentCodes(projectId)
+
+    override fun ownIds(projectId: String): Flow<Set<String>> = codes.projectCodes(projectId).map { list ->
+        list.mapTo(HashSet()) { it.id }
+    }
 }
 
 /** Un campo del formulario de atributos del recolector (S024/RF-8, RF-9). */
@@ -74,6 +82,8 @@ data class CollectorCodeUi(
     val options: List<SurveyCode> = emptyList(),
     val recentCount: Int = 0,
     val totalCodes: Int = 0,
+    /** Los códigos creados en el proyecto, que se pueden editar y borrar (S024/RF-7). */
+    val ownIds: Set<String> = emptySet(),
     val fields: List<AttributeFieldUi> = emptyList(),
 ) {
     /** Todos los atributos tienen un valor válido; sin código no hay atributos (S024/RF-9). */
@@ -103,6 +113,7 @@ class CollectorCodes(
 
     private val available = projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else source.available(id) }
     private val recent = projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else source.recent(id) }
+    private val own = projectId.flatMapLatest { id -> if (id == null) flowOf(emptySet()) else source.ownIds(id) }
 
     private class Choices(val available: List<SurveyCode>, val selector: CodeSelector, val recentCount: Int)
 
@@ -110,7 +121,7 @@ class CollectorCodes(
         Choices(available, CodeSelector(available, recent), RecentCodes.resolve(recent, available).size)
     }
 
-    val ui: StateFlow<CollectorCodeUi> = combine(choices, selectedKey, query, typed) { choices, key, query, typed ->
+    val ui: StateFlow<CollectorCodeUi> = combine(choices, selectedKey, query, typed, own) { choices, key, query, typed, own ->
         val selected = key?.let { k -> choices.available.firstOrNull { CodeKey.of(it.code) == k } }
         val texts = selected?.let { s ->
             typed?.takeIf { it.first == s.attributes }?.second
@@ -123,6 +134,7 @@ class CollectorCodes(
             options = choices.selector.filter(query),
             recentCount = if (CodeKey.of(query).isEmpty()) choices.recentCount else 0,
             totalCodes = choices.available.size,
+            ownIds = own,
             fields = selected?.attributes.orEmpty().mapIndexed { i, a ->
                 AttributeFieldUi(a.name, a.type, a.options, texts.orEmpty().getOrElse(i) { "" }, result?.errors?.getOrNull(i))
             },

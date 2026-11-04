@@ -19,6 +19,7 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.gnss.nmea.TiltState
+import es.topophone.core.model.codes.CodeKey
 import es.topophone.core.model.codes.DescriptionProposal
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.format.DurationText
@@ -252,6 +253,7 @@ class CollectorViewModel @Inject constructor(
     private val photoRepository: PhotoRepository = PhotoRepository.NONE,
     photoStore: PhotoStore = PhotoStore.NONE,
     codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
+    private val codeChoice: CollectorCodeChoice = CollectorCodeChoice(),
     savedState: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
     private data class Form(
@@ -380,6 +382,18 @@ class CollectorViewModel @Inject constructor(
         viewModelScope.launch {
             combine(run, autoCollector.ui) { run, auto -> run.measuring || run.pending != null || auto.running }
                 .distinctUntilChanged().collect(inProgress::set)
+        }
+    }
+
+    init {
+        // S024/RF-5, RF-6: al volver del editor de códigos del proyecto se elige el código creado o el existente.
+        viewModelScope.launch {
+            combine(codeChoice.key, codes.ui) { key, ui -> key to ui }.collect { (key, ui) ->
+                if (key == null) return@collect
+                val code = ui.options.firstOrNull { CodeKey.of(it.code) == key } ?: return@collect
+                codeChoice.key.value = null
+                selectCode(code)
+            }
         }
     }
 

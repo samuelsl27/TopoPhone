@@ -130,6 +130,7 @@ class CollectorCodeViewModelTest {
     }
 
     private val viewModels = mutableListOf<CollectorViewModel>()
+    private val choice = CollectorCodeChoice()
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -163,6 +164,7 @@ class CollectorCodeViewModelTest {
             MeasurementInProgress(),
             log,
             codeSource = RoomCollectorCodeSource(libraries, points),
+            codeChoice = choice,
         )
         viewModels += vm
         vm.statsIntervalMs = 0
@@ -441,5 +443,32 @@ class CollectorCodeViewModelTest {
         measure(vm, "1")
 
         savedPoint("1").code.shouldNotBeNull().code shouldBe "ARB"
+    }
+
+    @Test
+    fun `S024 RF-5 al volver del editor el recolector elige el codigo creado`() {
+        val vm = viewModel()
+        await(vm) { it.code.totalCodes > 0 }
+
+        runBlocking {
+            libraries.saveProjectCode(projectId, SurveyCode("", "VAL", "Valla", CodeGeometry.POINT, 0x123456, symbol = CodeSymbol.STAR))
+        }
+        choice.key.value = "val"
+
+        val ui = await(vm) { it.code.selected?.code == "VAL" && it.description == "Valla" }
+        ui.description shouldBe "Valla"
+        ui.code.selected?.symbol shouldBe CodeSymbol.STAR
+        ui.code.ownIds.size shouldBe 1
+        choice.key.value shouldBe null
+    }
+
+    @Test
+    fun `S024 RF-6 usar el existente elige el codigo de la biblioteca`() {
+        val vm = viewModel()
+        await(vm) { it.code.totalCodes > 0 }
+
+        choice.key.value = "arb"
+
+        await(vm) { it.code.selected?.code == "ARB" }
     }
 }

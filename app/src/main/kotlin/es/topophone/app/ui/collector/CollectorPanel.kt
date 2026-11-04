@@ -119,6 +119,8 @@ class CollectorActions(
     val onCodeAttribute: (Int, String) -> Unit = { _, _ -> },
     /** «Nuevo código» del selector; null mientras no se pueda crear (S024/RF-5). */
     val onNewCode: (() -> Unit)? = null,
+    /** «Editar» de un código creado en el proyecto (S024/RF-7). */
+    val onEditCode: ((SurveyCode) -> Unit)? = null,
 )
 
 /**

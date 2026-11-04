@@ -87,6 +87,12 @@ internal fun CodeSelectorRow(code: CollectorCodeUi, enabled: Boolean, actions: C
                 actions.onSelectCode(it)
                 open = false
             },
+            onEdit = actions.onEditCode?.let { edit ->
+                { code ->
+                    open = false
+                    edit(code)
+                }
+            },
             onNew = actions.onNewCode?.let { create ->
                 {
                     open = false
@@ -117,6 +123,7 @@ private fun CodePickerDialog(
     onQuery: (String) -> Unit,
     onSelect: (SurveyCode?) -> Unit,
     onNew: (() -> Unit)?,
+    onEdit: ((SurveyCode) -> Unit)?,
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
@@ -158,11 +165,15 @@ private fun CodePickerDialog(
                     }
                     if (code.recentCount > 0) {
                         item(key = "recent") { SectionTitle(stringResource(R.string.collector_code_recent)) }
-                        items(code.options.take(code.recentCount), key = { "r-" + it.id }) { option -> CodeOption(option, onSelect) }
+                        items(code.options.take(code.recentCount), key = {
+                            "r-" + it.id
+                        }) { option -> CodeOption(option, code.ownIds, onSelect, onEdit) }
                         item(key = "all") { SectionTitle(stringResource(R.string.collector_code_all)) }
-                        items(code.options.drop(code.recentCount), key = { it.id }) { option -> CodeOption(option, onSelect) }
+                        items(code.options.drop(code.recentCount), key = {
+                            it.id
+                        }) { option -> CodeOption(option, code.ownIds, onSelect, onEdit) }
                     } else {
-                        items(code.options, key = { it.id }) { option -> CodeOption(option, onSelect) }
+                        items(code.options, key = { it.id }) { option -> CodeOption(option, code.ownIds, onSelect, onEdit) }
                     }
                 }
             }
@@ -193,14 +204,20 @@ private fun SectionTitle(text: String) {
 }
 
 @Composable
-private fun CodeOption(option: SurveyCode, onSelect: (SurveyCode?) -> Unit) {
+private fun CodeOption(option: SurveyCode, ownIds: Set<String>, onSelect: (SurveyCode?) -> Unit, onEdit: ((SurveyCode) -> Unit)?) {
     val description = codeText(option.code, option.description)
+    val editable = onEdit != null && option.id in ownIds
     OptionRow(
         label = option.code,
         description = description,
         rgb = option.color,
         tag = codeOptionTag(option.code),
         detail = option.description,
+        trailing = if (editable) {
+            { EditButton(option, onEdit) }
+        } else {
+            null
+        },
     ) {
         onSelect(option)
     }
@@ -208,7 +225,15 @@ private fun CodeOption(option: SurveyCode, onSelect: (SurveyCode?) -> Unit) {
 
 /** Una fila de 56 dp con el color y el texto del código: nunca distingue solo por el color (S024/RNF-T8). */
 @Composable
-private fun OptionRow(label: String, description: String, rgb: Int?, tag: String, detail: String = "", onClick: () -> Unit) {
+private fun OptionRow(
+    label: String,
+    description: String,
+    rgb: Int?,
+    tag: String,
+    detail: String = "",
+    trailing: (@Composable () -> Unit)? = null,
+    onClick: () -> Unit,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -220,5 +245,18 @@ private fun OptionRow(label: String, description: String, rgb: Int?, tag: String
             Text(label, style = MaterialTheme.typography.titleMedium)
             if (detail.isNotBlank()) Text(detail, style = MaterialTheme.typography.bodyMedium)
         }
+        trailing?.invoke()
+    }
+}
+
+fun codeEditTag(code: String) = "collector_code_edit_$code"
+
+@Composable
+private fun EditButton(option: SurveyCode, onEdit: ((SurveyCode) -> Unit)?) {
+    TextButton(
+        onClick = { onEdit?.invoke(option) },
+        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(codeEditTag(option.code)),
+    ) {
+        Text(stringResource(R.string.collector_code_edit))
     }
 }

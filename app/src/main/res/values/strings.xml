@@ -2492,4 +2492,13 @@
     <string name="collector_attr_not_integer">Escribe un número entero</string>
     <string name="collector_attr_not_number">Escribe un número</string>
     <string name="collector_attr_not_in_options">Elige una de las opciones</string>
+    <string name="collector_code_edit">Editar</string>
+    <string name="codes_field_symbol">Símbolo en el mapa</string>
+    <string name="codes_symbol_circle">Círculo</string>
+    <string name="codes_symbol_square">Cuadrado</string>
+    <string name="codes_symbol_triangle">Triángulo</string>
+    <string name="codes_symbol_diamond">Rombo</string>
+    <string name="codes_symbol_cross">Cruz</string>
+    <string name="codes_symbol_star">Estrella</string>
+    <string name="codes_use_existing">Usar el existente</string>
 </resources>

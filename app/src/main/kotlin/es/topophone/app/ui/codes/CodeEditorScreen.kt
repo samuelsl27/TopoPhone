@@ -53,6 +53,7 @@ import es.topophone.core.model.codes.AttributeType
 import es.topophone.core.model.codes.CodeError
 import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.CodePalette
+import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.preferences.ThemeState
 
 const val CODE_FIELD_TAG = "code_field"
@@ -61,6 +62,9 @@ const val CODE_SAVE_TAG = "code_save"
 const val CODE_DELETE_TAG = "code_delete"
 const val CODE_ERROR_TAG = "code_error"
 const val CODE_COLOR_AUTO_TAG = "code_color_auto"
+const val CODE_USE_EXISTING_TAG = "code_use_existing"
+
+fun symbolTag(symbol: CodeSymbol) = "code_symbol_${symbol.name}"
 const val ATTRIBUTE_ADD_TAG = "attribute_add"
 const val OPTION_ADD_TAG_PREFIX = "option_add_"
 
@@ -105,6 +109,9 @@ data class CodeEditorActions(
     val onAskDelete: () -> Unit = {},
     val onConfirmDelete: () -> Unit = {},
     val onCancelDelete: () -> Unit = {},
+    /** Solo en los códigos del proyecto (S024/RF-5, RF-6). */
+    val onSymbol: (CodeSymbol) -> Unit = {},
+    val onUseExisting: () -> Unit = {},
 )
 
 @Composable
@@ -114,9 +121,12 @@ fun CodeEditorRoute(
     themeState: ThemeState,
     onToggleSun: () -> Unit,
     viewModel: CodeEditorViewModel = hiltViewModel(),
+    projectId: String? = null,
     onBack: () -> Unit,
 ) {
-    LaunchedEffect(libraryId, codeId) { viewModel.open(libraryId, codeId) }
+    LaunchedEffect(libraryId, codeId, projectId) {
+        if (projectId != null) viewModel.openProject(projectId, codeId) else viewModel.open(libraryId, codeId)
+    }
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(state.finished) { if (state.finished) onBack() }
     CodeEditorScreen(
@@ -141,6 +151,8 @@ fun CodeEditorRoute(
             onAskDelete = viewModel::askDelete,
             onConfirmDelete = viewModel::confirmDelete,
             onCancelDelete = viewModel::cancelDelete,
+            onSymbol = viewModel::setSymbol,
+            onUseExisting = viewModel::useExisting,
         ),
         onBack,
     )
@@ -184,11 +196,20 @@ fun CodeEditorScreen(
                 label = { Text(stringResource(R.string.codes_field_description)) },
                 modifier = Modifier.fillMaxWidth().testTag(CODE_DESCRIPTION_TAG),
             )
-            Text(stringResource(R.string.codes_field_geometry), style = MaterialTheme.typography.titleSmall)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                CodeGeometry.entries.forEach { geometry ->
-                    Choice(stringResource(geometryLabel(geometry)), geometryTag(geometry), state.geometry == geometry) {
-                        actions.onGeometry(geometry)
+            if (state.forProject) {
+                Text(stringResource(R.string.codes_field_symbol), style = MaterialTheme.typography.titleSmall)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CodeSymbol.entries.forEach { symbol ->
+                        Choice(stringResource(symbolLabel(symbol)), symbolTag(symbol), state.symbol == symbol) { actions.onSymbol(symbol) }
+                    }
+                }
+            } else {
+                Text(stringResource(R.string.codes_field_geometry), style = MaterialTheme.typography.titleSmall)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CodeGeometry.entries.forEach { geometry ->
+                        Choice(stringResource(geometryLabel(geometry)), geometryTag(geometry), state.geometry == geometry) {
+                            actions.onGeometry(geometry)
+                        }
                     }
                 }
             }
@@ -210,6 +231,14 @@ fun CodeEditorScreen(
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.testTag(CODE_ERROR_TAG),
                 )
+                if (state.forProject && it is CodeError.Duplicate) {
+                    OutlinedButton(
+                        onClick = actions.onUseExisting,
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CODE_USE_EXISTING_TAG),
+                    ) {
+                        Text(stringResource(R.string.codes_use_existing))
+                    }
+                }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = actions.onSave, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CODE_SAVE_TAG)) {
@@ -409,4 +438,13 @@ internal fun codeErrorText(error: CodeError): String = when (error) {
     is CodeError.AttributeName -> stringResource(R.string.codes_error_attribute_name, error.index + 1)
     is CodeError.ListOptions -> stringResource(R.string.codes_error_list_options, error.index + 1)
     is CodeError.DefaultValue -> stringResource(R.string.codes_error_default_value, error.index + 1)
+}
+
+private fun symbolLabel(symbol: CodeSymbol): Int = when (symbol) {
+    CodeSymbol.CIRCLE -> R.string.codes_symbol_circle
+    CodeSymbol.SQUARE -> R.string.codes_symbol_square
+    CodeSymbol.TRIANGLE -> R.string.codes_symbol_triangle
+    CodeSymbol.DIAMOND -> R.string.codes_symbol_diamond
+    CodeSymbol.CROSS -> R.string.codes_symbol_cross
+    CodeSymbol.STAR -> R.string.codes_symbol_star
 }

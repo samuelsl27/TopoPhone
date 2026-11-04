@@ -3,12 +3,15 @@ package es.topophone.app.ui.codes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.app.ui.collector.CollectorCodeChoice
 import es.topophone.core.model.codes.AttributeType
 import es.topophone.core.model.codes.AttributeValues
 import es.topophone.core.model.codes.CodeAttribute
 import es.topophone.core.model.codes.CodeError
 import es.topophone.core.model.codes.CodeGeometry
+import es.topophone.core.model.codes.CodeKey
 import es.topophone.core.model.codes.CodePalette
+import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.data.codes.CodeLibraryRepository
 import es.topophone.data.codes.CodeSaveResult
@@ -35,6 +38,9 @@ data class CodeEditorUiState(
     val code: String = "",
     val description: String = "",
     val geometry: CodeGeometry = CodeGeometry.POINT,
+    /** Un código del proyecto: siempre de geometría Punto, con símbolo (S024/RF-5). */
+    val forProject: Boolean = false,
+    val symbol: CodeSymbol = CodeSymbol.CIRCLE,
     /** null: sin color elegido, que toma el de la geometría (S023/RF-8). */
     val color: Int? = null,
     val attributes: List<AttributeDraft> = emptyList(),
@@ -48,12 +54,49 @@ data class CodeEditorUiState(
 
 /** Alta y edición de un código con sus atributos (S023/RF-5 a RF-10). */
 @HiltViewModel
-class CodeEditorViewModel @Inject constructor(private val repository: CodeLibraryRepository) : ViewModel() {
+class CodeEditorViewModel @Inject constructor(
+    private val repository: CodeLibraryRepository,
+    private val choice: CollectorCodeChoice = CollectorCodeChoice(),
+) : ViewModel() {
     private val _state = MutableStateFlow(CodeEditorUiState())
     val state: StateFlow<CodeEditorUiState> = _state
 
     private var libraryId = ""
     private var codeId: String? = null
+    private var projectId: String? = null
+
+    /** Abre el editor de un código del proyecto [projectId], o uno nuevo (S024/RF-5, RF-7). */
+    fun openProject(projectId: String, codeId: String?) {
+        if (this.projectId == projectId && this.codeId == codeId && _state.value.loaded) return
+        this.projectId = projectId
+        this.codeId = codeId
+        viewModelScope.launch {
+            val code = codeId?.let { id -> repository.projectCodes(projectId).first().firstOrNull { it.id == id } }
+            _state.value = when {
+                codeId != null && code == null -> CodeEditorUiState(loaded = true, available = false)
+                code == null -> CodeEditorUiState(loaded = true, forProject = true)
+                else -> CodeEditorUiState(
+                    loaded = true,
+                    isNew = false,
+                    forProject = true,
+                    code = code.code,
+                    description = code.description,
+                    color = code.color,
+                    symbol = code.symbol,
+                    attributes = code.attributes.map { AttributeDraft(it.name, it.type, it.defaultValue.orEmpty(), it.options) },
+                )
+            }
+        }
+    }
+
+    fun setSymbol(symbol: CodeSymbol) = edit { copy(symbol = symbol) }
+
+    /** El código ya existe: se vuelve al recolector con él elegido (S024/RF-6). */
+    fun useExisting() {
+        val error = _state.value.error as? CodeError.Duplicate ?: return
+        choice.key.value = CodeKey.of(error.code)
+        _state.update { it.copy(finished = true) }
+    }
 
     fun open(libraryId: String, codeId: String?) {
         if (this.libraryId == libraryId && this.codeId == codeId && _state.value.loaded) return
@@ -135,9 +178,15 @@ class CodeEditorViewModel @Inject constructor(private val repository: CodeLibrar
                 geometry = current.geometry,
                 color = current.effectiveColor,
                 attributes = current.attributes.map { it.toAttribute() },
+                symbol = current.symbol,
             )
-            when (val result = repository.saveCode(libraryId, code)) {
-                is CodeSaveResult.Saved -> _state.update { it.copy(error = null, finished = true) }
+            val project = projectId
+            val result = if (project != null) repository.saveProjectCode(project, code) else repository.saveCode(libraryId, code)
+            when (result) {
+                is CodeSaveResult.Saved -> {
+                    if (project != null && current.isNew) choice.key.value = CodeKey.of(code.code) // S024/RF-5: se elige el nuevo
+                    _state.update { it.copy(error = null, finished = true) }
+                }
                 is CodeSaveResult.Invalid -> _state.update { it.copy(error = result.error) }
                 else -> _state.update { it.copy(available = false) }
             }
@@ -151,7 +200,8 @@ class CodeEditorViewModel @Inject constructor(private val repository: CodeLibrar
     fun confirmDelete() {
         val id = codeId ?: return
         viewModelScope.launch {
-            repository.deleteCode(libraryId, id)
+            val project = projectId
+            if (project != null) repository.deleteProjectCode(project, id) else repository.deleteCode(libraryId, id)
             _state.update { it.copy(confirmDelete = false, finished = true) }
         }
     }

@@ -34,7 +34,7 @@
       Hecho cuando: `CollectorCodeScreenTest` en verde.
 - [x] T16. `app`: formulario de atributos en el recolector con errores por campo. (RF-8, RF-9)
       Hecho cuando: test de pantalla en verde con los cuatro tipos y un valor inválido.
-- [ ] T17. `app`: editor de código parametrizado (destino, geometría fija Punto, símbolo) y «Nuevo código» desde el selector con editar y borrar. (RF-5, RF-6, RF-7)
+- [x] T17. `app`: editor de código parametrizado (destino, geometría fija Punto, símbolo) y «Nuevo código» desde el selector con editar y borrar. (RF-5, RF-6, RF-7)
       Hecho cuando: `CodeEditorViewModelTest` y el test de pantalla en verde.
 - [ ] T18. `app`: ficha del punto con código y atributos, y edición con rastro. (RF-12)
       Hecho cuando: `PointDetailsCodeTest` en verde.

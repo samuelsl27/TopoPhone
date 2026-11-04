@@ -53,6 +53,9 @@ import kotlinx.serialization.Serializable
 /** Alta o edición de un código de una biblioteca: nuevo si [codeId] es null (S023/RF-5). */
 @Serializable data class CodeEditorDestination(val libraryId: String, val codeId: String? = null)
 
+/** El editor de un código creado en el proyecto, desde el recolector (S024/RF-5, RF-7). */
+@Serializable data class ProjectCodeEditorDestination(val projectId: String, val codeId: String? = null)
+
 /** Asistente de importación de una biblioteca desde el CSV [fileUri]; con [libraryId] se añade a esa biblioteca (S023/RF-12). */
 @Serializable data class CodeImportDestination(val fileUri: String, val libraryId: String? = null)
 

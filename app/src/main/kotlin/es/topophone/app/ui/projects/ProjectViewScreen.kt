@@ -803,6 +803,8 @@ fun ProjectViewRoute(
             onName = collectorViewModel::setName,
             onDescription = collectorViewModel::setDescription,
             onSelectCode = collectorViewModel::selectCode,
+            onNewCode = { navigation.onNewProjectCode(projectId) },
+            onEditCode = { navigation.onEditProjectCode(projectId, it.id) },
             onCodeQuery = collectorViewModel::setCodeQuery,
             onCodeAttribute = collectorViewModel::setCodeAttribute,
             onPoleHeight = collectorViewModel::setPoleHeight,

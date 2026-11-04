@@ -377,6 +377,8 @@ private fun AppNavHost(
                 onEditProject = { id -> navController.navigate(ProjectFormDestination(projectId = id)) }, // S006/RF-14
                 onOpenProjectInfo = { id -> navController.navigate(ProjectInfoDestination(id)) }, // S009/RF-5
                 onOpenProjectCodes = { id -> navController.navigate(ProjectCodesDestination(id)) }, // S023/RF-20
+                onNewProjectCode = { id -> navController.navigate(ProjectCodeEditorDestination(id)) }, // S024/RF-5
+                onEditProjectCode = { id, codeId -> navController.navigate(ProjectCodeEditorDestination(id, codeId)) }, // S024/RF-7
                 onOpenObjects = { id -> navController.navigate(ObjectListDestination(id)) }, // S011/RF-1
                 onOpenPoint = { projectId, pointId -> navController.navigate(PointDestination(projectId, pointId)) }, // S011/RF-5
                 onNewPoint = { projectId -> navController.navigate(PointFormDestination(projectId)) }, // S011/RF-16
@@ -752,6 +754,12 @@ private fun AppNavHost(
                     },
                     onBack = { navController.popBackStack() },
                 )
+            }
+            composable<ProjectCodeEditorDestination> { entry ->
+                val args = entry.toRoute<ProjectCodeEditorDestination>()
+                CodeEditorRoute("", args.codeId, uiState.themeState, actions.onToggleSun, projectId = args.projectId) {
+                    navController.popBackStack()
+                }
             }
             composable<CodeEditorDestination> { entry ->
                 val args = entry.toRoute<CodeEditorDestination>()

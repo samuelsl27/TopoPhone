@@ -219,4 +219,25 @@ class CollectorCodeScreenTest {
 
         compose.onNodeWithTag(attributeFieldTag(0)).assertDoesNotExist()
     }
+
+    @Test
+    fun `S024 RF-7 solo los codigos creados en el proyecto tienen Editar`() {
+        val ui = withCodes(options = listOf(pos, arb)).let { it.copy(code = it.code.copy(ownIds = setOf(pos.id))) }
+        show(ui, CollectorActions(onEditCode = { calls += "edit:${it.code}" }))
+        openSelector()
+
+        compose.onNodeWithTag(codeEditTag("ARB")).assertDoesNotExist()
+        compose.onNodeWithTag(codeEditTag("POS")).performClick()
+
+        calls shouldBe listOf("edit:POS")
+    }
+
+    @Test
+    fun `S024 RF-7 sin accion de editar no se ofrece`() {
+        val ui = withCodes(options = listOf(pos)).let { it.copy(code = it.code.copy(ownIds = setOf(pos.id))) }
+        show(ui)
+        openSelector()
+
+        compose.onNodeWithTag(codeEditTag("POS")).assertDoesNotExist()
+    }
 }
