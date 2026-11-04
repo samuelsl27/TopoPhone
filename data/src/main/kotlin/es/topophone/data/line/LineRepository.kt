@@ -72,6 +72,9 @@ data class LineUpdate(val name: String? = null, val pointIds: List<String>? = nu
 /** Una línea en la papelera con los días que le quedan antes de borrarse del todo (S025/RF-24). */
 data class TrashedLine(val line: ProjectLine, val daysLeft: Int)
 
+/** El punto de un vértice con su nombre y sus coordenadas planas, para la ficha de la línea (S025/RF-16). */
+data class VertexPoint(val pointId: String, val name: String, val easting: Double?, val northing: Double?)
+
 /** Una línea nueva a partir de puntos que ya existen (S025/RF-12 a RF-15). [name] vacío usa el nombre propuesto. */
 data class NewLine(
     val projectId: String,
@@ -101,6 +104,9 @@ interface LineRepository {
 
     /** El historial de la línea, del cambio más reciente al más antiguo (RF-18). */
     fun history(id: String): Flow<List<LineHistoryEntry>>
+
+    /** Los puntos de los vértices de la línea en orden, solo con lo que enseña la ficha, sin cargar los puntos enteros (RF-16). */
+    fun vertexPoints(id: String): Flow<List<VertexPoint>>
 
     /**
      * Guarda el punto medido y, en la misma transacción, lo añade a la línea activa o crea una línea nueva con él según
@@ -208,6 +214,10 @@ class RoomLineRepository(
 
     override fun active(projectId: String): Flow<ProjectLine?> = snapshot("project_lines", "line_vertices", "line_attributes", "points") {
         dao.activeNow(projectId)?.let { it.toLine(dao.visibleVerticesOfNow(it.id), dao.attributesOfNow(it.id)) }
+    }
+
+    override fun vertexPoints(id: String): Flow<List<VertexPoint>> = snapshot("line_vertices", "points") {
+        dao.vertexPointsNow(id).map { VertexPoint(it.pointId, it.name, it.easting, it.northing) }
     }
 
     override fun history(id: String): Flow<List<LineHistoryEntry>> =

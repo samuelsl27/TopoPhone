@@ -14,12 +14,12 @@ import es.topophone.core.model.line.LineHistory
 import es.topophone.core.model.line.LineHistoryItem
 import es.topophone.core.model.line.LineSnapshot
 import es.topophone.core.model.line.ProjectLine
-import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointSearch
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.data.line.LineRepository
 import es.topophone.data.line.LineSaveResult
 import es.topophone.data.line.LineUpdate
+import es.topophone.data.line.VertexPoint
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import javax.inject.Inject
@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -97,7 +98,7 @@ class LineDetailsViewModel @Inject constructor(
 
     private data class Source(
         val line: ProjectLine?,
-        val points: List<Point>,
+        val vertexPoints: List<VertexPoint>,
         val unit: LinearUnit,
         val history: List<es.topophone.core.model.line.LineHistoryEntry>,
     )
@@ -106,29 +107,42 @@ class LineDetailsViewModel @Inject constructor(
         if (pair == null) {
             flowOf(Source(null, emptyList(), LinearUnit.METRE, emptyList()))
         } else {
-            combine(lines.line(pair.second), points.points(pair.first), projects.observe(pair.first), lines.history(pair.second)) {
+            combine(lines.line(pair.second), lines.vertexPoints(pair.second), projects.observe(pair.first), lines.history(pair.second)) {
                     line,
-                    all,
+                    vertexPoints,
                     project,
                     history,
                 ->
-                Source(line, all, project?.linearUnit ?: LinearUnit.METRE, history)
+                Source(line, vertexPoints, project?.linearUnit ?: LinearUnit.METRE, history)
             }
         }
     }
 
-    val state: StateFlow<LineDetailsUi> = combine(source.map { it.toUi() }.flowOn(Dispatchers.Default), own) { base, own ->
-        val pickable = base.candidates
+    /** Los puntos del proyecto entre los que se elige, solo mientras el selector está abierto: no se cargan al abrir la ficha. */
+    private val candidates = combine(ids, own.map { it.pick != null }.distinctUntilChanged()) { pair, picking -> pair to picking }
+        .flatMapLatest { (pair, picking) ->
+            if (pair == null ||
+                !picking
+            ) {
+                flowOf(emptyList())
+            } else {
+                points.summaries(pair.first).map { all -> all.map { WizardPoint(it.id, it.name) } }
+            }
+        }
+
+    val state: StateFlow<LineDetailsUi> = combine(
+        source.map {
+            it.toUi()
+        }.flowOn(Dispatchers.Default),
+        own,
+        candidates,
+    ) { base, own, pickable ->
         base.copy(
             pick = own.pick,
             pickQuery = own.pickQuery,
-            candidates = if (own.pick == null) {
-                emptyList()
-            } else {
-                pickable.filter { c ->
-                    own.pickQuery.isBlank() ||
-                        PointSearch.normalize(c.name).contains(PointSearch.normalize(own.pickQuery.trim()))
-                }
+            candidates = pickable.filter { c ->
+                own.pickQuery.isBlank() ||
+                    PointSearch.normalize(c.name).contains(PointSearch.normalize(own.pickQuery.trim()))
             },
             renaming = own.renaming,
             attributes = own.attributes?.let { texts -> attributeForm(base.line, texts) },
@@ -139,19 +153,16 @@ class LineDetailsViewModel @Inject constructor(
 
     private fun Source.toUi(): LineDetailsUi {
         val line = line ?: return LineDetailsUi(loaded = true)
-        val byId = points.associateBy { it.id }
-        val rows = line.vertices.mapIndexedNotNull { i, vertex -> byId[vertex.pointId]?.let { i to it } }
-        val chainage = LineChainage.of(rows.map { (_, p) -> (p.coordinates.easting ?: 0.0) to (p.coordinates.northing ?: 0.0) })
-        val vertices = rows.mapIndexed { n, (i, p) -> VertexRow(i, p.id, p.name, chainage[n]) }
-        val names = points.associate { it.id to it.name }
+        val chainage = LineChainage.of(vertexPoints.map { (it.easting ?: 0.0) to (it.northing ?: 0.0) })
+        val vertices = vertexPoints.mapIndexed { i, p -> VertexRow(i, p.pointId, p.name, chainage[i]) }
+        val names = HashMap<String, String>(vertexPoints.size * 2)
+        vertexPoints.forEach { names[it.pointId] = it.name }
         return LineDetailsUi(
             loaded = true,
             line = line,
             unit = unit,
             vertices = vertices,
             history = LineHistory.items(history, LineSnapshot.of(line, names)),
-            // Los candidatos del selector: todos los puntos del proyecto, que ya vienen sin los de la papelera.
-            candidates = points.map { WizardPoint(it.id, it.name) },
         )
     }
 
@@ -186,8 +197,10 @@ class LineDetailsViewModel @Inject constructor(
     // --- Vértices (RF-16 a RF-19) ----------------------------------------------------------------------------------------------------
 
     private fun edit(change: (List<String>) -> List<String>) {
-        val line = current() ?: return
-        apply(LineUpdate(pointIds = change(line.pointIds)))
+        // Lo que se edita es la lista que se está viendo, para que cada edición parta de lo que el usuario tiene delante.
+        val shown = state.value.vertices.map { it.pointId }
+        if (current() == null) return
+        apply(LineUpdate(pointIds = change(shown)))
     }
 
     /** La posición en la línea del vértice número [row] de la ficha (los vértices de puntos en la papelera no se enseñan). */

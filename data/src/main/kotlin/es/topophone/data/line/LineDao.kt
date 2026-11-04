@@ -9,6 +9,14 @@ import androidx.room.Update
 /** Una línea con el número de vértices cuyo punto no está en la papelera (S025/RF-21). */
 data class LineSummaryRow(@Embedded val line: ProjectLineEntity, @androidx.room.ColumnInfo(name = "vertex_count") val vertexCount: Int)
 
+/** Un vértice con lo que hace falta para enseñarlo en la ficha: el nombre de su punto y su Este y Norte (S025/RF-16). */
+data class VertexPointRow(
+    @androidx.room.ColumnInfo(name = "point_id") val pointId: String,
+    val name: String,
+    val easting: Double?,
+    val northing: Double?,
+)
+
 /** El nombre de un punto, para el historial y las comprobaciones de la línea. */
 data class PointNameRow(val id: String, val name: String)
 
@@ -87,6 +95,12 @@ interface LineDao {
 
     @Query("DELETE FROM line_attributes WHERE line_id = :lineId")
     suspend fun deleteAttributes(lineId: String)
+
+    @Query(
+        "SELECT p.id AS point_id, p.name AS name, p.easting AS easting, p.northing AS northing FROM line_vertices v " +
+            "JOIN points p ON p.id = v.point_id WHERE v.line_id = :lineId AND p.deleted_at IS NULL ORDER BY v.ordinal",
+    )
+    suspend fun vertexPointsNow(lineId: String): List<VertexPointRow>
 
     @Query("UPDATE project_lines SET hidden = :hidden WHERE id = :id AND deleted_at IS NULL")
     suspend fun setHidden(id: String, hidden: Boolean)
