@@ -126,6 +126,8 @@ internal fun CodePickerDialog(
     onNew: (() -> Unit)?,
     onEdit: ((SurveyCode) -> Unit)?,
     onDismiss: () -> Unit,
+    /** Si se ofrece «Sin código»; una línea siempre lleva código (S025/RF-20). */
+    allowNone: Boolean = true,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -140,13 +142,15 @@ internal fun CodePickerDialog(
                     modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_CODE_SEARCH_TAG),
                 )
                 LazyColumn(modifier = Modifier.heightIn(max = 360.dp)) {
-                    item(key = "none") {
-                        OptionRow(
-                            label = stringResource(R.string.collector_code_none),
-                            description = stringResource(R.string.collector_code_none),
-                            rgb = null,
-                            tag = COLLECTOR_CODE_NONE_TAG,
-                        ) { onSelect(null) }
+                    if (allowNone) {
+                        item(key = "none") {
+                            OptionRow(
+                                label = stringResource(R.string.collector_code_none),
+                                description = stringResource(R.string.collector_code_none),
+                                rgb = null,
+                                tag = COLLECTOR_CODE_NONE_TAG,
+                            ) { onSelect(null) }
+                        }
                     }
                     if (code.options.isEmpty()) {
                         item(key = "empty") {

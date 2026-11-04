@@ -358,7 +358,7 @@ class CollectorLineViewModelTest {
 
         vm.finishLine()
 
-        await(vm) { it.line == null }.openLines shouldBe emptyList()
+        await(vm) { it.line == null && it.openLines.isEmpty() }
         runBlocking { lines.lines(projectId).first() }.single().closed shouldBe true
     }
 

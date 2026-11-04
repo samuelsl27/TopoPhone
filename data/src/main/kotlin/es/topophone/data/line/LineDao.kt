@@ -5,7 +5,6 @@ import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import kotlinx.coroutines.flow.Flow
 
 /** Una línea con el número de vértices cuyo punto no está en la papelera (S025/RF-21). */
 data class LineSummaryRow(@Embedded val line: ProjectLineEntity, @androidx.room.ColumnInfo(name = "vertex_count") val vertexCount: Int)
@@ -37,45 +36,35 @@ interface LineDao {
     suspend fun insertHistoryVertices(vertices: List<LineHistoryVertexEntity>)
 
     @Query("SELECT * FROM project_lines WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at")
-    fun lines(projectId: String): Flow<List<ProjectLineEntity>>
-
-    @Query("SELECT * FROM project_lines WHERE project_id = :projectId AND deleted_at IS NULL ORDER BY created_at")
     suspend fun linesNow(projectId: String): List<ProjectLineEntity>
+
+    @Query(
+        "SELECT v.* FROM line_vertices v JOIN project_lines l ON l.id = v.line_id JOIN points p ON p.id = v.point_id " +
+            "WHERE l.project_id = :projectId AND l.deleted_at IS NULL AND p.deleted_at IS NULL ORDER BY v.line_id, v.ordinal",
+    )
+    suspend fun visibleVerticesNow(projectId: String): List<LineVertexEntity>
+
+    @Query(
+        "SELECT a.* FROM line_attributes a JOIN project_lines l ON l.id = a.line_id " +
+            "WHERE l.project_id = :projectId AND l.deleted_at IS NULL ORDER BY a.line_id, a.ordinal",
+    )
+    suspend fun attributesOfProjectNow(projectId: String): List<LineAttributeEntity>
 
     @Query(
         "SELECT l.*, (SELECT COUNT(*) FROM line_vertices v JOIN points p ON p.id = v.point_id " +
             "WHERE v.line_id = l.id AND p.deleted_at IS NULL) AS vertex_count " +
             "FROM project_lines l WHERE l.project_id = :projectId AND l.deleted_at IS NULL ORDER BY l.created_at",
     )
-    fun summaries(projectId: String): Flow<List<LineSummaryRow>>
-
-    @Query("SELECT * FROM project_lines WHERE id = :id")
-    fun observe(id: String): Flow<ProjectLineEntity?>
+    suspend fun summariesNow(projectId: String): List<LineSummaryRow>
 
     @Query("SELECT * FROM project_lines WHERE id = :id")
     suspend fun byId(id: String): ProjectLineEntity?
-
-    @Query("SELECT * FROM project_lines WHERE project_id = :projectId AND active = 1 AND deleted_at IS NULL LIMIT 1")
-    fun active(projectId: String): Flow<ProjectLineEntity?>
 
     @Query("SELECT * FROM project_lines WHERE project_id = :projectId AND active = 1 AND deleted_at IS NULL LIMIT 1")
     suspend fun activeNow(projectId: String): ProjectLineEntity?
 
     @Query("UPDATE project_lines SET active = 0 WHERE project_id = :projectId AND active = 1")
     suspend fun clearActive(projectId: String)
-
-    /** Los vértices de las líneas activas del proyecto cuyo punto no está en la papelera, por línea y orden (S025/D7). */
-    @Query(
-        "SELECT v.* FROM line_vertices v JOIN project_lines l ON l.id = v.line_id JOIN points p ON p.id = v.point_id " +
-            "WHERE l.project_id = :projectId AND l.deleted_at IS NULL AND p.deleted_at IS NULL ORDER BY v.line_id, v.ordinal",
-    )
-    fun visibleVertices(projectId: String): Flow<List<LineVertexEntity>>
-
-    @Query(
-        "SELECT v.* FROM line_vertices v JOIN points p ON p.id = v.point_id " +
-            "WHERE v.line_id = :lineId AND p.deleted_at IS NULL ORDER BY v.ordinal",
-    )
-    fun visibleVerticesOf(lineId: String): Flow<List<LineVertexEntity>>
 
     @Query(
         "SELECT v.* FROM line_vertices v JOIN points p ON p.id = v.point_id " +
@@ -93,15 +82,6 @@ interface LineDao {
     @Query("DELETE FROM line_vertices WHERE line_id = :lineId")
     suspend fun deleteVertices(lineId: String)
 
-    @Query(
-        "SELECT a.* FROM line_attributes a JOIN project_lines l ON l.id = a.line_id " +
-            "WHERE l.project_id = :projectId AND l.deleted_at IS NULL ORDER BY a.line_id, a.ordinal",
-    )
-    fun attributesOfProject(projectId: String): Flow<List<LineAttributeEntity>>
-
-    @Query("SELECT * FROM line_attributes WHERE line_id = :lineId ORDER BY ordinal")
-    fun attributesOf(lineId: String): Flow<List<LineAttributeEntity>>
-
     @Query("SELECT * FROM line_attributes WHERE line_id = :lineId ORDER BY ordinal")
     suspend fun attributesOfNow(lineId: String): List<LineAttributeEntity>
 
@@ -115,19 +95,19 @@ interface LineDao {
     suspend fun moveToTrash(id: String, now: Long): Int
 
     @Query("SELECT * FROM project_lines WHERE project_id = :projectId AND deleted_at IS NOT NULL ORDER BY deleted_at DESC")
-    fun trash(projectId: String): Flow<List<ProjectLineEntity>>
+    suspend fun trashNow(projectId: String): List<ProjectLineEntity>
 
     @Query(
         "SELECT v.* FROM line_vertices v JOIN project_lines l ON l.id = v.line_id JOIN points p ON p.id = v.point_id " +
             "WHERE l.project_id = :projectId AND l.deleted_at IS NOT NULL AND p.deleted_at IS NULL ORDER BY v.line_id, v.ordinal",
     )
-    fun trashVertices(projectId: String): Flow<List<LineVertexEntity>>
+    suspend fun trashVerticesNow(projectId: String): List<LineVertexEntity>
 
     @Query(
         "SELECT a.* FROM line_attributes a JOIN project_lines l ON l.id = a.line_id " +
             "WHERE l.project_id = :projectId AND l.deleted_at IS NOT NULL ORDER BY a.line_id, a.ordinal",
     )
-    fun trashAttributes(projectId: String): Flow<List<LineAttributeEntity>>
+    suspend fun trashAttributesNow(projectId: String): List<LineAttributeEntity>
 
     @Query("UPDATE project_lines SET deleted_at = NULL, trash_key = '', name = :name WHERE id = :id AND deleted_at IS NOT NULL")
     suspend fun restore(id: String, name: String): Int
@@ -157,17 +137,17 @@ interface LineDao {
     suspend fun names(projectId: String): List<String>
 
     @Query("SELECT * FROM line_history WHERE line_id = :lineId ORDER BY changed_at DESC")
-    fun history(lineId: String): Flow<List<LineHistoryEntity>>
+    suspend fun historyNow(lineId: String): List<LineHistoryEntity>
 
     @Query(
         "SELECT a.* FROM line_history_attributes a JOIN line_history h ON h.id = a.history_id " +
             "WHERE h.line_id = :lineId ORDER BY a.history_id, a.ordinal",
     )
-    fun historyAttributes(lineId: String): Flow<List<LineHistoryAttributeEntity>>
+    suspend fun historyAttributesNow(lineId: String): List<LineHistoryAttributeEntity>
 
     @Query(
         "SELECT v.* FROM line_history_vertices v JOIN line_history h ON h.id = v.history_id " +
             "WHERE h.line_id = :lineId ORDER BY v.history_id, v.ordinal",
     )
-    fun historyVertices(lineId: String): Flow<List<LineHistoryVertexEntity>>
+    suspend fun historyVerticesNow(lineId: String): List<LineHistoryVertexEntity>
 }

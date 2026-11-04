@@ -25,7 +25,7 @@ import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 /** Qué pasó con las líneas al guardar un punto medido (S025/RF-2, RF-3, RF-7, RF-8). */
@@ -171,52 +171,51 @@ class RoomLineRepository(
     private val dao = database.lines()
     private val history = LineHistoryWriter(dao, clock, newId)
 
+    /**
+     * Una lectura coherente: cada vez que cambia alguna de las [tables] se vuelve a leer todo dentro de una transacción, así nunca se ve una
+     * línea con los vértices o el historial de antes del cambio.
+     */
+    private fun <T> snapshot(vararg tables: String, read: suspend () -> T): Flow<T> =
+        database.invalidationTracker.createFlow(*tables).map { database.withTransaction { read() } }.distinctUntilChanged()
+
     override fun lines(projectId: String): Flow<List<ProjectLine>> =
-        combine(dao.lines(projectId), dao.visibleVertices(projectId), dao.attributesOfProject(projectId)) { lines, vertices, attributes ->
-            val verticesByLine = vertices.groupBy { it.lineId }
-            val attributesByLine = attributes.groupBy { it.lineId }
-            lines.map { it.toLine(verticesByLine[it.id].orEmpty(), attributesByLine[it.id].orEmpty()) }
+        snapshot("project_lines", "line_vertices", "line_attributes", "points") {
+            val verticesByLine = dao.visibleVerticesNow(projectId).groupBy { it.lineId }
+            val attributesByLine = dao.attributesOfProjectNow(projectId).groupBy { it.lineId }
+            dao.linesNow(projectId).map { it.toLine(verticesByLine[it.id].orEmpty(), attributesByLine[it.id].orEmpty()) }
         }
 
-    override fun summaries(projectId: String): Flow<List<LineSummary>> = combine(
-        dao.summaries(projectId),
-        dao.attributesOfProject(projectId),
-    ) { rows, attributes ->
-        val attributesByLine = attributes.groupBy { it.lineId }
-        rows.map { row ->
-            val line = row.line
-            LineSummary(
-                id = line.id,
-                name = line.name,
-                code = lineCode(line.code, line.codeDescription, line.codeColor, line.codeSymbol, attributesByLine[line.id].orEmpty()),
-                closed = line.closed,
-                hidden = line.hidden,
-                active = line.active,
-                vertexCount = row.vertexCount,
-            )
+    override fun summaries(projectId: String): Flow<List<LineSummary>> =
+        snapshot("project_lines", "line_vertices", "line_attributes", "points") {
+            val attributesByLine = dao.attributesOfProjectNow(projectId).groupBy { it.lineId }
+            dao.summariesNow(projectId).map { row ->
+                val line = row.line
+                LineSummary(
+                    id = line.id,
+                    name = line.name,
+                    code = lineCode(line.code, line.codeDescription, line.codeColor, line.codeSymbol, attributesByLine[line.id].orEmpty()),
+                    closed = line.closed,
+                    hidden = line.hidden,
+                    active = line.active,
+                    vertexCount = row.vertexCount,
+                )
+            }
         }
+
+    override fun line(id: String): Flow<ProjectLine?> = snapshot("project_lines", "line_vertices", "line_attributes", "points") {
+        dao.byId(id)?.toLine(dao.visibleVerticesOfNow(id), dao.attributesOfNow(id))
     }
 
-    override fun line(id: String): Flow<ProjectLine?> = combine(dao.observe(id), dao.visibleVerticesOf(id), dao.attributesOf(id)) {
-            entity,
-            vertices,
-            attributes,
-        ->
-        entity?.toLine(vertices, attributes)
-    }
-
-    override fun active(projectId: String): Flow<ProjectLine?> = dao.active(projectId).let { active ->
-        combine(active, dao.visibleVertices(projectId), dao.attributesOfProject(projectId)) { entity, vertices, attributes ->
-            entity?.toLine(vertices.filter { it.lineId == entity.id }, attributes.filter { it.lineId == entity.id })
-        }
+    override fun active(projectId: String): Flow<ProjectLine?> = snapshot("project_lines", "line_vertices", "line_attributes", "points") {
+        dao.activeNow(projectId)?.let { it.toLine(dao.visibleVerticesOfNow(it.id), dao.attributesOfNow(it.id)) }
     }
 
     override fun history(id: String): Flow<List<LineHistoryEntry>> =
-        combine(dao.history(id), dao.historyAttributes(id), dao.historyVertices(id)) { entries, attributes, vertices ->
-            val attributesByEntry = attributes.groupBy { it.historyId }
-            val verticesByEntry = vertices.groupBy { it.historyId }
-            entries.map { it.toEntry(attributesByEntry[it.id].orEmpty(), verticesByEntry[it.id].orEmpty()) }
-        }.map { it }
+        snapshot("line_history", "line_history_attributes", "line_history_vertices") {
+            val attributesByEntry = dao.historyAttributesNow(id).groupBy { it.historyId }
+            val verticesByEntry = dao.historyVerticesNow(id).groupBy { it.historyId }
+            dao.historyNow(id).map { it.toEntry(attributesByEntry[it.id].orEmpty(), verticesByEntry[it.id].orEmpty()) }
+        }
 
     override suspend fun saveMeasured(point: Point, geometry: CodeGeometry?, save: (suspend (Point) -> PointSaveResult)?): MeasuredResult =
         database.withTransaction {
@@ -284,10 +283,10 @@ class RoomLineRepository(
     }
 
     override fun trash(projectId: String): Flow<List<TrashedLine>> =
-        combine(dao.trash(projectId), dao.trashVertices(projectId), dao.trashAttributes(projectId)) { lines, vertices, attributes ->
-            val verticesByLine = vertices.groupBy { it.lineId }
-            val attributesByLine = attributes.groupBy { it.lineId }
-            lines.map { entity ->
+        snapshot("project_lines", "line_vertices", "line_attributes", "points") {
+            val verticesByLine = dao.trashVerticesNow(projectId).groupBy { it.lineId }
+            val attributesByLine = dao.trashAttributesNow(projectId).groupBy { it.lineId }
+            dao.trashNow(projectId).map { entity ->
                 val daysIn = ((clock() - (entity.deletedAt ?: clock())) / DAY_MS).toInt()
                 TrashedLine(
                     entity.toLine(verticesByLine[entity.id].orEmpty(), attributesByLine[entity.id].orEmpty()),

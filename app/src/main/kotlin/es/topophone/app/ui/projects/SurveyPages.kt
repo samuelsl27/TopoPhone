@@ -179,6 +179,8 @@ class SurveyNavigation(
     val onOpenObjects: (projectId: String) -> Unit = {},
     /** El asistente «Línea desde puntos» (S025/RF-12). */
     val onLineFromPoints: (projectId: String) -> Unit = {},
+    /** La ficha de una línea (S025/RF-22). */
+    val onOpenLine: (projectId: String, lineId: String) -> Unit = { _, _ -> },
     val onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     val onNewPoint: (projectId: String) -> Unit = {},
     val onEditPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },

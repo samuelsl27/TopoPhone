@@ -38,7 +38,7 @@
       Hecho cuando: `CollectorLineScreenTest` en verde.
 - [x] T18. `app`: asistente «Línea desde puntos». (RF-12, RF-13, RF-14, RF-15)
       Hecho cuando: `LineFromPointsTest` en verde.
-- [ ] T19. `app`: ficha de la línea con vértices y PK, edición, cierre, apertura, cambio de código, atributos e historial. (RF-10, RF-16 a RF-20, RF-22)
+- [x] T19. `app`: ficha de la línea con vértices y PK, edición, cierre, apertura, cambio de código, atributos e historial. (RF-10, RF-16 a RF-20, RF-22)
       Hecho cuando: `LineDetailsTest` en verde.
 - [ ] T20. `app`: lista de objetos con líneas, búsqueda, ocultar, borrar a la papelera, restaurar y el aviso al borrar un punto vértice. (RF-21, RF-23, RF-24, RF-25)
       Hecho cuando: `ObjectListLinesTest` en verde.

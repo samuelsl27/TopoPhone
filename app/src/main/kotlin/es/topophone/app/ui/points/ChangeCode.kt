@@ -103,7 +103,7 @@ class ChangeCode(private val scope: CoroutineScope, source: CollectorCodeSource,
 
 /** El selector y el aviso de «Cambiar código» (S024/RF-13, RF-15). */
 @Composable
-fun ChangeCodeDialogs(state: ChangeCodeUi, actions: ChangeCodeActions) {
+fun ChangeCodeDialogs(state: ChangeCodeUi, actions: ChangeCodeActions, allowNone: Boolean = true) {
     val warning = state.warning
     if (state.open && warning == null) {
         CodePickerDialog(
@@ -113,6 +113,7 @@ fun ChangeCodeDialogs(state: ChangeCodeUi, actions: ChangeCodeActions) {
             onNew = null,
             onEdit = null,
             onDismiss = actions.onCancel,
+            allowNone = allowNone,
         )
     }
     if (warning != null) {
