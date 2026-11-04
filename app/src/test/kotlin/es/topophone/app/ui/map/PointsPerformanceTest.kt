@@ -7,6 +7,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.formats.csv.CsvExport
 import es.topophone.core.formats.csv.CsvOptions
+import es.topophone.core.model.codes.CodeStyle
+import es.topophone.core.model.codes.CodeSymbol
+import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
 import es.topophone.core.model.point.MeasurementMode
@@ -19,6 +22,7 @@ import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.point.RoomPointRepository
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
+import io.kotest.matchers.ints.shouldBeGreaterThan
 import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -49,7 +53,7 @@ class PointsPerformanceTest {
     @After
     fun close() = db.close()
 
-    private fun tenThousandPoints(): String {
+    private fun tenThousandPoints(withCode: Boolean = false): String {
         val projectId = runBlocking { (projects.create(ProjectDefaults().toDraft().copy(name = "Parcelaria")) as SaveResult.Saved).id }
         runBlocking {
             db.withTransaction {
@@ -73,6 +77,19 @@ class PointsPerformanceTest {
                                 coordinates = PointCoordinates(GeodeticPosition(lat, lon, 698.066), 440_000.0 + i, 4_474_000.0 + i, 650.0),
                             ),
                             createdAtMs = i.toLong(),
+                            code = if (withCode) {
+                                PointCode(
+                                    "C${i % CODES}",
+                                    "",
+                                    0x100000 * (i % CODES),
+                                    CodeSymbol.entries[
+                                        i %
+                                            CodeSymbol.entries.size,
+                                    ],
+                                )
+                            } else {
+                                null
+                            },
                         ),
                     )
                 }
@@ -126,7 +143,23 @@ class PointsPerformanceTest {
         elapsed.inWholeMilliseconds shouldBeLessThan 3_000
     }
 
+    @Test
+    fun `S024 RNF con 10 000 puntos con codigo el proyecto se lee y se prepara para el mapa con sus simbolos en menos de 2 s`() {
+        val projectId = tenThousandPoints(withCode = true)
+        val styles = (0 until CODES).associate { "c$it" to CodeStyle(0x100000 * it, CodeSymbol.entries[it % CodeSymbol.entries.size]) }
+
+        val (mapPoints, elapsed) = measureTimedValue {
+            val list = runBlocking { points.summaries(projectId).first() }
+            MapPoints.from(list, styles).also { MapPoints.labelMinZoom(it) }
+        }
+
+        mapPoints.size shouldBe POINTS
+        mapPoints.count { it.symbol != CodeSymbol.CIRCLE } shouldBeGreaterThan 0
+        elapsed.inWholeMilliseconds shouldBeLessThan 2_000
+    }
+
     private companion object {
         const val POINTS = 10_000
+        const val CODES = 6
     }
 }

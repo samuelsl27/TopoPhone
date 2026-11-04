@@ -17,6 +17,7 @@ import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.MapGrid
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.model.alignment.slope.SlopeKind
+import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.map.ScaleBar
@@ -212,7 +213,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private fun pointAt(screen: PointF): String? {
         val half = POINT_TOUCH_DP * mapView.resources.displayMetrics.density / 2
         val box = RectF(screen.x - half, screen.y - half, screen.x + half, screen.y + half)
-        val layers = arrayOf(POINTS_LAYER, STAKED_LAYER, SLOPE_LAYER, POINT_LABELS_LAYER)
+        val layers = arrayOf(POINTS_LAYER, CODE_LAYER, STAKED_LAYER, SLOPE_LAYER, POINT_LABELS_LAYER)
         return map.queryRenderedFeatures(box, *layers).firstNotNullOfOrNull { it.getStringProperty(POINT_ID) }
     }
 
@@ -429,19 +430,45 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     /** Puntos y sus nombres, encima del Catastro y debajo del rover (S010/RF-20). */
     private fun addPointLayers(style: Style) {
         style.addSource(GeoJsonSource(POINTS_SOURCE))
+        codeIcons.clear() // un estilo nuevo no trae los iconos de los codigos
+        // S024/RF-17: los puntos sin codigo y los de simbolo circulo, con el color de su codigo; fuera de tolerancia conservan el suyo.
         style.addLayer(
-            CircleLayer(POINTS_LAYER, POINTS_SOURCE).withFilter(Expression.not(Expression.get(STAKED))).withProperties(
-                PropertyFactory.circleRadius(POINT_RADIUS_DP),
-                PropertyFactory.circleColor(
-                    Expression.switchCase(
-                        Expression.get(OUT_OF_TOLERANCE),
-                        Expression.color(Color.parseColor(OUT_OF_TOLERANCE_COLOR)),
-                        Expression.color(Color.parseColor(POINT_COLOR)),
+            CircleLayer(POINTS_LAYER, POINTS_SOURCE)
+                .withFilter(
+                    Expression.all(
+                        Expression.not(Expression.get(STAKED)),
+                        Expression.eq(Expression.get(SYMBOL), Expression.literal(CIRCLE)),
                     ),
+                )
+                .withProperties(
+                    PropertyFactory.circleRadius(POINT_RADIUS_DP),
+                    PropertyFactory.circleColor(
+                        Expression.switchCase(
+                            Expression.get(OUT_OF_TOLERANCE),
+                            Expression.color(Color.parseColor(OUT_OF_TOLERANCE_COLOR)),
+                            Expression.neq(Expression.get(COLOR), Expression.literal("")),
+                            Expression.toColor(Expression.get(COLOR)),
+                            Expression.color(Color.parseColor(POINT_COLOR)),
+                        ),
+                    ),
+                    PropertyFactory.circleStrokeColor(Color.WHITE),
+                    PropertyFactory.circleStrokeWidth(1.5f),
                 ),
-                PropertyFactory.circleStrokeColor(Color.WHITE),
-                PropertyFactory.circleStrokeWidth(1.5f),
-            ),
+        )
+        // S024/RF-17: el resto de simbolos (cuadrado, triangulo, rombo, cruz, estrella) con un icono por simbolo y color.
+        style.addLayer(
+            SymbolLayer(CODE_LAYER, POINTS_SOURCE)
+                .withFilter(
+                    Expression.all(
+                        Expression.not(Expression.get(STAKED)),
+                        Expression.neq(Expression.get(SYMBOL), Expression.literal(CIRCLE)),
+                    ),
+                )
+                .withProperties(
+                    PropertyFactory.iconImage(Expression.get(ICON)),
+                    PropertyFactory.iconAllowOverlap(true),
+                    PropertyFactory.iconIgnorePlacement(true),
+                ),
         )
         // S018/RF-34: un punto replanteado es un rombo, distinto del círculo de los medidos.
         style.addImage(STAKED_ICON, stakedIcon())
@@ -495,6 +522,15 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 addBooleanProperty(OUT_OF_TOLERANCE, point.outOfTolerance)
                 addBooleanProperty(STAKED, point.staked)
                 addStringProperty(SLOPE_KIND, point.slope?.name.orEmpty())
+                addStringProperty(SYMBOL, point.symbol.name)
+                addStringProperty(COLOR, point.color?.let { "#%06X".format(java.util.Locale.ROOT, it and 0xFFFFFF) }.orEmpty())
+                if (point.symbol != CodeSymbol.CIRCLE) {
+                    // El icono lleva el color de su codigo, o el del aviso si el punto esta fuera de tolerancia (S024/RF-17).
+                    val rgb = SymbolShapes.effectiveColor(point.color, point.outOfTolerance)
+                    val id = SymbolShapes.iconId(point.symbol, rgb)
+                    if (codeIcons.add(id)) style.addImage(id, codeIcon(point.symbol, rgb))
+                    addStringProperty(ICON, id)
+                }
             }
         }
         source.setGeoJson(FeatureCollection.fromFeatures(features))
@@ -574,6 +610,32 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             }
         }
         source.setGeoJson(FeatureCollection.fromFeatures(features))
+    }
+
+    /** Los iconos de simbolo y color que ya estan en el estilo (S024/RF-17). */
+    private val codeIcons = HashSet<String>()
+
+    /** Una forma de [SymbolShapes] de color [rgb] con borde blanco, para los puntos con codigo que no son circulos (S024/RF-17). */
+    private fun codeIcon(symbol: CodeSymbol, rgb: Int): Bitmap {
+        val density = mapView.resources.displayMetrics.density
+        val size = (CODE_ICON_DP * density).roundToInt()
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val path = Path()
+        SymbolShapes.polygon(symbol).forEachIndexed { i, (x, y) ->
+            if (i == 0) path.moveTo(x * size, y * size) else path.lineTo(x * size, y * size)
+        }
+        path.close()
+        val canvas = Canvas(bitmap)
+        canvas.drawPath(path, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(Color.red(rgb), Color.green(rgb), Color.blue(rgb)) })
+        canvas.drawPath(
+            path,
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.WHITE
+                style = Paint.Style.STROKE
+                strokeWidth = STAKED_STROKE_DP * density
+            },
+        )
+        return bitmap
     }
 
     /** Un rombo con borde blanco para los puntos replanteados, distinto del círculo de los medidos y del triángulo de la base. */
@@ -960,6 +1022,12 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val OUT_OF_TOLERANCE_COLOR = "#E65100"
         const val POINT_RADIUS_DP = 5f
         const val STAKED = "staked"
+        const val CODE_LAYER = "topophone-code"
+        const val SYMBOL = "symbol"
+        const val COLOR = "color"
+        const val ICON = "icon"
+        const val CIRCLE = "CIRCLE"
+        const val CODE_ICON_DP = 18f
         const val STAKED_LAYER = "topophone-staked"
         const val STAKED_ICON = "topophone-staked-icon"
         const val STAKED_ICON_DP = 20f
