@@ -1,6 +1,6 @@
 # Spec 024 — Recolectar con códigos
 
-> Hito: H3 · Depende de: S023, S010, S011 · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H3 · Depende de: S023, S010, S011 · Estado: pendiente de aprobación (entrevistada 04/11/2026)
 
 ## Contexto y objetivo
 Con S023 el topógrafo ya tiene bibliotecas de códigos, pero al medir un punto solo puede escribir un nombre y una descripción (S010/RF-2, RF-4). Esta spec lleva los códigos al recolector: elegir el código del punto con unos toques, rellenar sus atributos, cambiarlos después si se equivocó y ver en el mapa cada punto con el color y el símbolo de su código.
@@ -33,7 +33,7 @@ Términos de esta spec (los de S023 más):
 
 ### Crear códigos sobre la marcha (H2)
 - RF-5: CUANDO el usuario pulse "Nuevo código" en el selector, EL SISTEMA le pedirá código, descripción, color, símbolo y atributos con las reglas de S023/RF-5 a RF-9, con geometría Punto, y lo guardará solo en los códigos del proyecto, sin modificar ninguna biblioteca.
-- RF-6: SI el código nuevo ya existe entre los del proyecto, ENTONCES EL SISTEMA no lo guardará e indicará el conflicto (S023/RF-6).
+- RF-6: SI el código nuevo ya existe entre los del proyecto, ENTONCES EL SISTEMA no lo guardará, indicará el conflicto (S023/RF-6) y ofrecerá usar el existente.
 - RF-7: CUANDO el usuario edite o borre un código creado en el proyecto, EL SISTEMA lo hará con confirmación y no modificará ningún punto ya guardado; los códigos que vienen de la biblioteca vinculada no se editan aquí.
 
 ### Atributos (H3)
@@ -97,13 +97,14 @@ Términos de esta spec (los de S023 más):
   - ver los símbolos en el mapa y el CSV con el código y los atributos.
 - Demo de campo: queda para el usuario (un levantamiento real con su biblioteca).
 
-## Dudas abiertas
-- [SUPOSICIÓN: el recolector mide con códigos de geometría Punto; los de Línea y Polígono no se ofrecen hasta S025.]
-- [SUPOSICIÓN: los atributos se rellenan antes de medir, no después; los valores precargados son los por defecto del código y no se arrastran de un punto al siguiente.]
-- [SUPOSICIÓN: no hay atributos obligatorios; un atributo vacío se guarda vacío.]
-- [SUPOSICIÓN: el mapa pinta con el color y el símbolo actuales del código del proyecto (RF-19); el punto guarda además los que tenía al medir, que usan las exportaciones y el mapa si el código se borró.]
-- [SUPOSICIÓN: un punto replanteado hereda el código y los atributos del punto de diseño (RF-20); en una línea de un dibujo CAD no hay código que heredar.]
-- [SUPOSICIÓN: el símbolo solo se elige para los códigos del proyecto; los de biblioteca usan el círculo, porque el CSV de S023 no lleva símbolo.]
+## Decisiones de la entrevista (04/11/2026)
+- Los atributos se rellenan antes de medir, con los valores por defecto del código y sin arrastrar los del punto anterior; no hay atributos obligatorios y uno vacío se guarda vacío (RF-8, RF-9).
+- Un punto replanteado hereda siempre por valor el código, el color y los atributos de su punto de diseño, aunque el código no sea de geometría Punto o no exista entre los del proyecto; después se puede cambiar como en RF-13. En una línea de un dibujo CAD no hay código que heredar (RF-20).
+- Al cambiar el código, los valores no vacíos que se pierden se avisan y se aplican solo tras confirmar; los anteriores quedan en el historial (RF-14, RF-15).
+- El símbolo se elige solo en los códigos creados en el proyecto; los de biblioteca se dibujan con círculo porque el CSV de S023 no lleva símbolo y S023 no cambia (RF-5, RF-17).
+- El mapa pinta con el color y el símbolo vigentes del código del proyecto; si el código ya no existe, con los que el punto guardó al medir, que son también los que usan las exportaciones (RF-10, RF-19).
+- Un código creado en el proyecto no puede repetir uno de la biblioteca vinculada (sin distinguir mayúsculas ni acentos): se rechaza, se indica el conflicto y se ofrece usar el existente (RF-6).
+- Sin preguntar, por defecto razonable: el recolector solo ofrece códigos de geometría Punto hasta S025 (RF-1).
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S024: dependencias «023, 010, 011».
