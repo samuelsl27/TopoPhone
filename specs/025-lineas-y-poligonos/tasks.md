@@ -16,7 +16,7 @@
       Hecho cuando: `ProjectCodesGeometryTest` en verde y los tests de S024 intactos.
 - [x] T7. `data`: Room v30 (tablas de D1, D2 y D6), `AutoMigration(29, 30)` y el esquema 30. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 29 a 30 en verde.
-- [ ] T8. `data`: `LineRepository` lectura (`lines`, `summaries`, `line`, `active`, `history`) y mapeos. (RF-21)
+- [x] T8. `data`: `LineRepository` lectura (`lines`, `summaries`, `line`, `active`, `history`) y mapeos. (RF-21)
       Hecho cuando: `LineRepositoryTest` de lectura en verde.
 - [ ] T9. `data`: `saveMeasured` en una transacción, una sola línea activa, `finish`, `continueLine` y `undoVertex`. (RF-2 a RF-9, RF-8b)
       Hecho cuando: los tests de medir, terminar, continuar, deshacer y reinicio de la base en verde, con añadir un vértice en menos de 100 ms.

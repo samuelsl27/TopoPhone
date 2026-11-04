@@ -35,6 +35,8 @@ import es.topophone.data.gear.GearRepository
 import es.topophone.data.gear.RoomGearRepository
 import es.topophone.data.gpkg.GeoPackageImporter
 import es.topophone.data.gpkg.GeoPackageReader
+import es.topophone.data.line.LineRepository
+import es.topophone.data.line.RoomLineRepository
 import es.topophone.data.linear.LinearSurveyRepository
 import es.topophone.data.linear.RoomLinearSurveyRepository
 import es.topophone.data.log.DataStoreLogPreferences
@@ -166,6 +168,11 @@ object DatabaseModule {
     @Singleton
     fun provideNtripProfileRepository(database: TopoPhoneDatabase): NtripProfileRepository =
         RoomNtripProfileRepository(database, AesGcmCipher(AndroidKeystoreKeyProvider()))
+
+    /** Las líneas y los polígonos del proyecto (S025). */
+    @Provides
+    @Singleton
+    fun provideLineRepository(database: TopoPhoneDatabase): LineRepository = RoomLineRepository(database)
 
     /** Puntos recolectados (S010). */
     @Provides

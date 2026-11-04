@@ -26,6 +26,7 @@ import es.topophone.data.gear.GearDao
 import es.topophone.data.gear.ReceiverGearEntity
 import es.topophone.data.gear.SavedPoleEntity
 import es.topophone.data.line.LineAttributeEntity
+import es.topophone.data.line.LineDao
 import es.topophone.data.line.LineHistoryAttributeEntity
 import es.topophone.data.line.LineHistoryEntity
 import es.topophone.data.line.LineHistoryVertexEntity
@@ -185,6 +186,8 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
     abstract fun linearSurveys(): LinearSurveyDao
 
     abstract fun codeLibraries(): CodeLibraryDao
+
+    abstract fun lines(): LineDao
 
     companion object {
         const val NAME = "topophone.db"
