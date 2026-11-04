@@ -254,4 +254,32 @@ class PointCodeRepositoryTest {
         val read = runBlocking { points.point("id-1").first() }.shouldNotBeNull()
         read.copy(code = null) shouldBe original.copy(code = null)
     }
+
+    private fun withCode(name: String, code: String?, at: Long) =
+        manual(name, code?.let { PointCode(it, "", 0x1E88E5, CodeSymbol.CIRCLE) }).copy(createdAtMs = at)
+
+    @Test
+    fun `S024 RF-1 los recientes son los codigos distintos de los puntos, el mas reciente primero`() {
+        runBlocking {
+            points.create(withCode("1", "ARB", 1_000))
+            points.create(withCode("2", "POS", 2_000))
+            points.create(withCode("3", "ARB", 3_000))
+            points.create(withCode("4", null, 4_000))
+        }
+
+        runBlocking { points.recentCodes(project).first() } shouldBe listOf("ARB", "POS")
+    }
+
+    @Test
+    fun `S024 RF-1 los recientes no cuentan los puntos de la papelera y paran en 10`() {
+        runBlocking {
+            (1..12).forEach { points.create(withCode("p$it", "C$it", it * 1_000L)) }
+            points.moveToTrash(listOf("id-p12"))
+        }
+
+        val recent = runBlocking { points.recentCodes(project).first() }
+        recent.size shouldBe 10
+        recent.first() shouldBe "C11"
+        recent.last() shouldBe "C2"
+    }
 }

@@ -20,7 +20,7 @@
       Hecho cuando: `PointCodeRepositoryTest` en verde.
 - [x] T9. `data`: `changeCode` atómico con historial, y lectura del historial con el código anterior. (RF-13, RF-14, RF-16)
       Hecho cuando: los tests de cambio de código (entero o nada, coordenadas intactas) en verde.
-- [ ] T10. `data`: `recentCodes(projectId)`. (RF-1)
+- [x] T10. `data`: `recentCodes(projectId)`. (RF-1)
       Hecho cuando: test en verde con papelera, repetidos y límite de 10.
 - [ ] T11. `data`: códigos creados en el proyecto (`project_codes_of`, `saveProjectCode`, `deleteProjectCode`, conflictos, exclusión de las listas de bibliotecas). (RF-5, RF-6, RF-7)
       Hecho cuando: `ProjectCodeRepositoryTest` en verde, incluidos borrar la biblioteca y cambiar de biblioteca vinculada.

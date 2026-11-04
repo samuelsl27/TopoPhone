@@ -11,6 +11,7 @@ import androidx.room.withTransaction
 import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.codes.AttributeCarryOver
 import es.topophone.core.model.codes.CodeSymbol
+import es.topophone.core.model.codes.RecentCodes
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
@@ -176,6 +177,13 @@ interface PointDao {
     @Query("SELECT name FROM points WHERE project_id = :projectId AND deleted_at IS NULL")
     suspend fun names(projectId: String): List<String>
 
+    /** Los codigos de los puntos activos, del mas reciente al mas antiguo (S024/RF-1). */
+    @Query(
+        "SELECT code FROM points WHERE project_id = :projectId AND deleted_at IS NULL AND code IS NOT NULL " +
+            "GROUP BY code ORDER BY MAX(created_at) DESC, MAX(rowid) DESC LIMIT 100",
+    )
+    fun recentCodes(projectId: String): Flow<List<String>>
+
     /** Solo las columnas del codigo: las coordenadas y la medida no se tocan (S024/RF-16). */
     @Query(
         "UPDATE points SET code = :code, code_description = :description, code_color = :color, code_symbol = :symbol WHERE id = :id",
@@ -277,6 +285,9 @@ interface PointRepository {
      * coordenadas, la medida ni el indicador de editado (S024/RF-13, RF-14, RF-16).
      */
     suspend fun changeCode(ids: List<String>, code: SurveyCode?): CodeChangeResult
+
+    /** Los ultimos 10 codigos distintos usados en el proyecto, el mas reciente primero (S024/RF-1). */
+    fun recentCodes(projectId: String): Flow<List<String>>
 
     suspend fun setHidden(ids: List<String>, hidden: Boolean)
 
@@ -414,6 +425,8 @@ class RoomPointRepository(
     } catch (_: MissingPoint) {
         PointSaveResult.NotFound
     }
+
+    override fun recentCodes(projectId: String): Flow<List<String>> = dao.recentCodes(projectId).map { RecentCodes.distinct(it) }
 
     override suspend fun changeCode(ids: List<String>, code: SurveyCode?): CodeChangeResult = try {
         database.withTransaction {

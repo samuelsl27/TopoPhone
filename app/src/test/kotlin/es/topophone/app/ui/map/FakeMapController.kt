@@ -8,6 +8,7 @@ import es.topophone.app.ui.projects.MapSlot
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.codes.AttributeCarryOver
 import es.topophone.core.model.codes.PointCode
+import es.topophone.core.model.codes.RecentCodes
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
@@ -220,6 +221,14 @@ class FakePointRepository(initial: List<Point> = emptyList(), private val clock:
         }
         this.points.value = current.map { byId[it.id] ?: it }
         return PointSaveResult.Saved
+    }
+
+    override fun recentCodes(projectId: String): Flow<List<String>> = points.map { list ->
+        RecentCodes.distinct(
+            list.filter {
+                it.projectId == projectId && it.deletedAtMs == null
+            }.sortedByDescending { it.createdAtMs }.mapNotNull { it.code?.code },
+        )
     }
 
     override suspend fun changeCode(ids: List<String>, code: SurveyCode?): CodeChangeResult {
