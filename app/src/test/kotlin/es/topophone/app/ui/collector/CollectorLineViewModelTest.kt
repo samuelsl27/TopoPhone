@@ -332,4 +332,68 @@ class CollectorLineViewModelTest {
         activeLine().shouldBeNull()
         vm.state.value.line.shouldBeNull()
     }
+
+    @Test
+    fun `S025 RF-4 Terminar linea deja de tener linea activa y la deja entre las abiertas`() {
+        val vm = viewModel()
+        receiving(vm)
+        pick(vm, "BORD")
+        measure(vm, "1")
+        measure(vm, "2")
+
+        vm.finishLine()
+
+        val ui = await(vm) { it.line == null && it.openLines.isNotEmpty() }
+        ui.openLines.single().name shouldBe "BORD_1"
+        ui.openLines.single().vertexCount shouldBe 2
+        activeLine().shouldBeNull()
+    }
+
+    @Test
+    fun `S025 RF-4 un codigo de poligono con 3 vertices se cierra al terminar y ya no se puede continuar`() {
+        val vm = viewModel()
+        receiving(vm)
+        pick(vm, "PARC")
+        listOf("1", "2", "3").forEach { measure(vm, it) }
+
+        vm.finishLine()
+
+        await(vm) { it.line == null }.openLines shouldBe emptyList()
+        runBlocking { lines.lines(projectId).first() }.single().closed shouldBe true
+    }
+
+    @Test
+    fun `S025 RF-5 Continuar linea deja activa la elegida y los nuevos puntos van tras su ultimo vertice`() {
+        val vm = viewModel()
+        receiving(vm)
+        pick(vm, "BORD")
+        measure(vm, "1")
+        vm.finishLine()
+        await(vm) { it.line == null }
+        pick(vm, "TAPIA")
+        measure(vm, "2")
+        val id = await(vm) { it.openLines.size == 1 }.openLines.single().id
+
+        vm.continueLine(id)
+        await(vm) { it.line?.id == id }
+        pick(vm, "BORD")
+        measure(vm, "3")
+
+        runBlocking { lines.line(id).first() }.shouldNotBeNull().pointIds shouldBe
+            runBlocking { points.points(projectId).first() }.filter { it.name in setOf("1", "3") }.sortedBy { it.name }.map { it.id }
+    }
+
+    @Test
+    fun `S025 RF-6 Deshacer vertice quita el ultimo vertice y el punto sigue en el proyecto`() {
+        val vm = viewModel()
+        receiving(vm)
+        pick(vm, "BORD")
+        measure(vm, "1")
+        measure(vm, "2")
+
+        vm.undoLineVertex()
+
+        await(vm) { it.line?.vertexCount == 1 }
+        runBlocking { points.names(projectId) } shouldBe setOf("1", "2")
+    }
 }

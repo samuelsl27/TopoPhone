@@ -121,6 +121,10 @@ class CollectorActions(
     val onNewCode: (() -> Unit)? = null,
     /** «Editar» de un código creado en el proyecto (S024/RF-7). */
     val onEditCode: ((SurveyCode) -> Unit)? = null,
+    /** «Terminar línea», «Deshacer vértice» y «Continuar línea» (elegir una abierta) del recolector (S025/RF-4 a RF-6). */
+    val onFinishLine: () -> Unit = {},
+    val onUndoLineVertex: () -> Unit = {},
+    val onContinueLine: (String) -> Unit = {},
 )
 
 /**
@@ -212,7 +216,7 @@ private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorAc
     if (!CollectorLineRules.appendsToActive(state.code.selected, state.line)) {
         AttributeFields(state.code, enabled = codeEnabled, actions = actions) // S024/RF-8, RF-9
     }
-    CollectorLineStatus(state.line) // S025/RF-3
+    CollectorLineStatus(state.line, state.openLines, enabled = codeEnabled, actions = actions) // S025/RF-3 a RF-6
     CollectorGearSelector(state, actions) // S046/RF-14, RF-15, RF-22
     OutlinedTextField(
         value = state.poleHeightText,

@@ -34,7 +34,7 @@
       Hecho cuando: `GpkgLinesTest` y `GeoPackageWriterLinesTest` en verde.
 - [x] T16. `app`: estado de línea activa en el recolector, el guardado con `saveMeasured` y el formulario de atributos según D11. (RF-1, RF-2, RF-3, RF-7, RF-8, RF-8b, RF-9)
       Hecho cuando: `CollectorLineViewModelTest` en verde, con pantalla encendida con línea activa.
-- [ ] T17. `app`: botones «Terminar línea», «Continuar línea» y «Deshacer vértice» y la lista de líneas abiertas. (RF-4, RF-5, RF-6)
+- [x] T17. `app`: botones «Terminar línea», «Continuar línea» y «Deshacer vértice» y la lista de líneas abiertas. (RF-4, RF-5, RF-6)
       Hecho cuando: `CollectorLineScreenTest` en verde.
 - [ ] T18. `app`: asistente «Línea desde puntos». (RF-12, RF-13, RF-14, RF-15)
       Hecho cuando: `LineFromPointsTest` en verde.

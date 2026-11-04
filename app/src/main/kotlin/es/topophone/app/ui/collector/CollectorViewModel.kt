@@ -25,6 +25,7 @@ import es.topophone.core.model.codes.ProjectCodes
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.line.LineSummary
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AppliedShift
@@ -230,6 +231,8 @@ data class CollectorUiState(
     val photos: PhotoUi = PhotoUi(),
     /** La línea activa del proyecto, si la hay (S025/RF-3). */
     val line: CollectorLineUi? = null,
+    /** Las líneas abiertas del proyecto, para continuarlas (S025/RF-5). */
+    val openLines: List<LineSummary> = emptyList(),
     /** El código elegido para el siguiente punto, el selector y los atributos (S024). */
     val code: CollectorCodeUi = CollectorCodeUi(),
 )
@@ -275,7 +278,13 @@ class CollectorViewModel @Inject constructor(
     /** El modo de inclinación, el equipo, los jalones y el equipo del último punto guardado, juntos para el `combine` (S046). */
     private data class ShiftUi(val shift: BaseShift?, val baseChanged: Boolean, val datumNotice: String?)
 
-    private data class Parts(val equipment: Equipment, val photos: PhotoUi, val code: CollectorCodeUi, val line: CollectorLineUi?)
+    private data class Parts(
+        val equipment: Equipment,
+        val photos: PhotoUi,
+        val code: CollectorCodeUi,
+        val line: CollectorLineUi?,
+        val openLines: List<LineSummary>,
+    )
 
     private data class Equipment(
         val tilt: CurrentTiltState,
@@ -366,6 +375,11 @@ class CollectorViewModel @Inject constructor(
     private val lineUi: StateFlow<CollectorLineUi?> = projectId.flatMapLatest { id ->
         if (id == null) flowOf(null) else lines.active(id).map { line -> line?.let(CollectorLineUi::of) }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** Las líneas abiertas del proyecto (S025/RF-5). */
+    private val openLines: StateFlow<List<LineSummary>> = projectId.flatMapLatest { id ->
+        if (id == null) flowOf(emptyList()) else lines.openLines(id)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     /** La descripción que propuso el último código elegido, para cambiarla por la del siguiente si no se tocó (S024/RF-4). */
     private var proposedDescription: String? = null
@@ -528,10 +542,11 @@ class CollectorViewModel @Inject constructor(
             photos.ui,
             codes.ui,
             lineUi,
-        ) { equipment, photoUi, codeUi, line ->
-            Parts(equipment, photoUi, codeUi, line)
+            openLines,
+        ) { equipment, photoUi, codeUi, line, open ->
+            Parts(equipment, photoUi, codeUi, line, open)
         },
-    ) { state, project, snapshot, dismissed, (equipment, photoUi, codeUi, line) ->
+    ) { state, project, snapshot, dismissed, (equipment, photoUi, codeUi, line, open) ->
         val (tiltState, gearState, poles, savedGear, shift) = equipment
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
@@ -557,6 +572,7 @@ class CollectorViewModel @Inject constructor(
             photos = photoUi, // S017b/RF-8
             code = codeUi, // S024
             line = line, // S025/RF-3
+            openLines = open, // S025/RF-5
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, CollectorUiState())
 
@@ -690,6 +706,26 @@ class CollectorViewModel @Inject constructor(
     }
 
     fun setCodeQuery(text: String) = codes.setQuery(text)
+
+    /** «Terminar línea»: la línea activa deja de recibir puntos y, si su código es de polígono, se cierra (S025/RF-4). */
+    fun finishLine() {
+        if (codeLocked()) return
+        val id = lineUi.value?.id ?: return
+        viewModelScope.launch { lines.finish(id) }
+    }
+
+    /** «Deshacer vértice»: quita el último vértice de la línea activa sin borrar el punto (S025/RF-6). */
+    fun undoLineVertex() {
+        if (codeLocked()) return
+        val id = lineUi.value?.id ?: return
+        viewModelScope.launch { lines.undoVertex(id) }
+    }
+
+    /** «Continuar línea»: la línea abierta elegida pasa a ser la activa y los puntos siguientes se añaden tras su último vértice (S025/RF-5). */
+    fun continueLine(id: String) {
+        if (codeLocked()) return
+        viewModelScope.launch { lines.continueLine(id) }
+    }
 
     fun setCodeAttribute(index: Int, text: String) {
         if (codeLocked()) return

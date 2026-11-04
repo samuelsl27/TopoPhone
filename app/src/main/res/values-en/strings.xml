@@ -2508,4 +2508,10 @@
         <item quantity="one">%d vertex</item>
         <item quantity="other">%d vertices</item>
     </plurals>
+    <string name="collector_line_finish">Finish line</string>
+    <string name="collector_line_undo">Undo vertex</string>
+    <string name="collector_line_continue">Continue line</string>
+    <string name="collector_line_continue_title">Continue a line</string>
+    <string name="collector_line_continue_empty">There are no open lines in the project.</string>
+    <string name="collector_line_open_row">%1$s · %2$s</string>
 </resources>

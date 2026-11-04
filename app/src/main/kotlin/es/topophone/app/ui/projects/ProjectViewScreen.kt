@@ -822,6 +822,9 @@ fun ProjectViewRoute(
             onEditCode = { navigation.onEditProjectCode(projectId, it.id) },
             onCodeQuery = collectorViewModel::setCodeQuery,
             onCodeAttribute = collectorViewModel::setCodeAttribute,
+            onFinishLine = collectorViewModel::finishLine, // S025/RF-4
+            onUndoLineVertex = collectorViewModel::undoLineVertex, // S025/RF-6
+            onContinueLine = collectorViewModel::continueLine, // S025/RF-5
             onPoleHeight = collectorViewModel::setPoleHeight,
             onSelectPole = collectorViewModel::selectPole,
             onMode = { mode -> collectorViewModel.setSettings(collector.settings.copy(mode = mode)) },

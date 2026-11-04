@@ -2520,4 +2520,10 @@
         <item quantity="one">%d vértice</item>
         <item quantity="other">%d vértices</item>
     </plurals>
+    <string name="collector_line_finish">Terminar línea</string>
+    <string name="collector_line_undo">Deshacer vértice</string>
+    <string name="collector_line_continue">Continuar línea</string>
+    <string name="collector_line_continue_title">Continuar una línea</string>
+    <string name="collector_line_continue_empty">No hay líneas abiertas en el proyecto.</string>
+    <string name="collector_line_open_row">%1$s · %2$s</string>
 </resources>
