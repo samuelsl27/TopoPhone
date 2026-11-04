@@ -5,6 +5,7 @@ import es.topophone.core.model.codes.CodeAttribute
 import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.CodeKey
 import es.topophone.core.model.codes.CodeLibrary
+import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.codes.SurveyCode
 
 /** Une las filas de una biblioteca en su modelo (S023, plan D2): los códigos por su clave y los atributos y opciones por su posición. */
@@ -27,6 +28,7 @@ internal fun assembleLibrary(
                 description = code.description,
                 geometry = CodeGeometry.valueOf(code.geometry),
                 color = code.color,
+                symbol = CodeSymbol.entries.firstOrNull { it.name == code.symbol } ?: CodeSymbol.CIRCLE,
                 attributes = attributesByCode[code.id].orEmpty().sortedBy { it.ordinal }.map { attribute ->
                     CodeAttribute(
                         name = attribute.name,
@@ -42,7 +44,7 @@ internal fun assembleLibrary(
 
 /** Las filas de [code] dentro de [libraryId], con ids nuevos para sus atributos (S023, D2). */
 internal fun SurveyCode.toRows(libraryId: String, newId: () -> String): CodeRows {
-    val codeRow = LibraryCodeEntity(id, libraryId, code.trim(), CodeKey.of(code), description, geometry.name, color)
+    val codeRow = LibraryCodeEntity(id, libraryId, code.trim(), CodeKey.of(code), description, geometry.name, color, symbol.name)
     val attributeRows = mutableListOf<CodeAttributeEntity>()
     val optionRows = mutableListOf<AttributeOptionEntity>()
     attributes.forEachIndexed { index, attribute ->

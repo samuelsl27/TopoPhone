@@ -119,10 +119,10 @@ interface CodeLibraryDao {
     @Insert
     suspend fun insertOptions(options: List<AttributeOptionEntity>)
 
-    @Query("SELECT * FROM code_libraries WHERE project_id IS NULL ORDER BY name_key")
+    @Query("SELECT * FROM code_libraries WHERE project_id IS NULL AND project_codes_of IS NULL ORDER BY name_key")
     fun userLibraries(): Flow<List<CodeLibraryEntity>>
 
-    @Query("SELECT name FROM code_libraries WHERE project_id IS NULL AND id != :exceptId")
+    @Query("SELECT name FROM code_libraries WHERE project_id IS NULL AND project_codes_of IS NULL AND id != :exceptId")
     suspend fun userLibraryNames(exceptId: String = ""): List<String>
 
     @Query("SELECT library_id, COUNT(*) AS n FROM library_codes GROUP BY library_id")
@@ -139,6 +139,13 @@ interface CodeLibraryDao {
 
     @Query("SELECT * FROM code_libraries WHERE project_id = :projectId")
     fun observeCopyOf(projectId: String): Flow<CodeLibraryEntity?>
+
+    /** La fila de los codigos creados en el proyecto (S024, plan D1). */
+    @Query("SELECT * FROM code_libraries WHERE project_codes_of = :projectId")
+    suspend fun projectCodesOf(projectId: String): CodeLibraryEntity?
+
+    @Query("SELECT * FROM code_libraries WHERE project_codes_of = :projectId")
+    fun observeProjectCodesOf(projectId: String): Flow<CodeLibraryEntity?>
 
     @Query("SELECT * FROM library_codes WHERE library_id = :libraryId ORDER BY code_key")
     suspend fun codes(libraryId: String): List<LibraryCodeEntity>

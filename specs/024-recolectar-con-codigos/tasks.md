@@ -22,7 +22,7 @@
       Hecho cuando: los tests de cambio de código (entero o nada, coordenadas intactas) en verde.
 - [x] T10. `data`: `recentCodes(projectId)`. (RF-1)
       Hecho cuando: test en verde con papelera, repetidos y límite de 10.
-- [ ] T11. `data`: códigos creados en el proyecto (`project_codes_of`, `saveProjectCode`, `deleteProjectCode`, conflictos, exclusión de las listas de bibliotecas). (RF-5, RF-6, RF-7)
+- [x] T11. `data`: códigos creados en el proyecto (`project_codes_of`, `saveProjectCode`, `deleteProjectCode`, conflictos, exclusión de las listas de bibliotecas). (RF-5, RF-6, RF-7)
       Hecho cuando: `ProjectCodeRepositoryTest` en verde, incluidos borrar la biblioteca y cambiar de biblioteca vinculada.
 - [ ] T12. `data`: copia de seguridad y duplicado de proyecto con las tablas nuevas. (RNF-T6)
       Hecho cuando: `CodeBackupTest` en verde.

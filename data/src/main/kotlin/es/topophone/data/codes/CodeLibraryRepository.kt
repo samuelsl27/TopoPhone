@@ -2,6 +2,7 @@ package es.topophone.data.codes
 
 import androidx.room.withTransaction
 import es.topophone.core.model.codes.CodeError
+import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.CodeKey
 import es.topophone.core.model.codes.CodeLibrary
 import es.topophone.core.model.codes.CodeMerge
@@ -104,6 +105,17 @@ interface CodeLibraryRepository {
     /** La copia de la biblioteca que lleva el proyecto, o null si no tiene (RF-20); se consulta, no se edita. */
     fun projectCopy(projectId: String): Flow<CodeLibrary?>
 
+    /** Los codigos creados en el proyecto (S024/RF-5), de geometria Punto; no son los de la biblioteca vinculada. */
+    fun projectCodes(projectId: String): Flow<List<SurveyCode>>
+
+    /**
+     * Anade el codigo al proyecto, o sustituye el que tenga el mismo id (S024/RF-5, RF-6, RF-7). Es siempre de geometria Punto y no puede
+     * repetir uno de la biblioteca vinculada ni de los del proyecto. No modifica ningun punto ni ninguna biblioteca.
+     */
+    suspend fun saveProjectCode(projectId: String, code: SurveyCode): CodeSaveResult
+
+    suspend fun deleteProjectCode(projectId: String, codeId: String): CodeSaveResult
+
     /** Una copia editable con el nombre «N (copia)» y ids nuevos; vale para las por defecto (RF-3). */
     suspend fun duplicate(id: String, copyLabel: String): LibraryResult
 
@@ -124,6 +136,9 @@ interface CodeLibraryRepository {
 
     companion object {
         const val DEFAULT_PREFIX = "default:"
+
+        /** El nombre interno de la fila de los codigos creados en un proyecto; nunca se muestra (S024, plan D1). */
+        const val PROJECT_CODES_NAME = "project-codes"
 
         fun isDefault(id: String) = id.startsWith(DEFAULT_PREFIX)
     }
@@ -159,6 +174,54 @@ class RoomCodeLibraryRepository(
         if (copy == null) flowOf(null) else library(copy.id).map { it?.copy(name = copy.sourceName ?: copy.name) }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override fun projectCodes(projectId: String): Flow<List<SurveyCode>> = dao.observeProjectCodesOf(projectId).flatMapLatest { row ->
+        if (row == null) flowOf(emptyList()) else library(row.id).map { it?.codes.orEmpty() }
+    }
+
+    override suspend fun saveProjectCode(projectId: String, code: SurveyCode): CodeSaveResult = database.withTransaction {
+        if (database.projects().byId(projectId) == null) return@withTransaction CodeSaveResult.NotFound
+        val row = dao.projectCodesOf(projectId)
+        val own = row?.let { dao.loadLibrary(it.id) }?.codes.orEmpty()
+        val linked = dao.copyOf(projectId)?.let { dao.loadLibrary(it.id) }?.codes.orEmpty()
+        val id = code.id.ifBlank { newId() }
+        CodeValidator.validate(code.code, code.attributes, own.filter { it.id != id } + linked)?.let {
+            return@withTransaction CodeSaveResult.Invalid(it)
+        }
+        val libraryId = row?.id ?: newId().also {
+            dao.insertLibrary(
+                CodeLibraryEntity(
+                    it,
+                    CodeLibraryRepository.PROJECT_CODES_NAME,
+                    CodeKey.of(CodeLibraryRepository.PROJECT_CODES_NAME),
+                    null,
+                    null,
+                    clock(),
+                    projectId,
+                ),
+            )
+        }
+        val rows = code.copy(id = id, geometry = CodeGeometry.POINT).toRows(libraryId, newId)
+        if (dao.code(id) == null) {
+            dao.insertCode(rows.code)
+        } else {
+            dao.updateCode(rows.code)
+            dao.deleteAttributesOf(id)
+        }
+        rows.attributes.forEach { dao.insertAttribute(it) }
+        rows.options.forEach { dao.insertOption(it) }
+        log.info(LogCategory.APP, "Guardado 1 código del proyecto")
+        CodeSaveResult.Saved(id)
+    }
+
+    override suspend fun deleteProjectCode(projectId: String, codeId: String): CodeSaveResult = database.withTransaction {
+        val row = dao.projectCodesOf(projectId) ?: return@withTransaction CodeSaveResult.NotFound
+        if (dao.code(codeId)?.libraryId != row.id) return@withTransaction CodeSaveResult.NotFound
+        dao.deleteCode(codeId)
+        log.info(LogCategory.APP, "Borrado 1 código del proyecto")
+        CodeSaveResult.Deleted
+    }
+
     override suspend fun create(name: String): LibraryResult = database.withTransaction {
         LibraryNames.validate(name, allNames())?.let { return@withTransaction LibraryResult.Invalid(it) }
         val id = newId()
@@ -170,7 +233,7 @@ class RoomCodeLibraryRepository(
     override suspend fun rename(id: String, name: String): LibraryResult = database.withTransaction {
         if (CodeLibraryRepository.isDefault(id)) return@withTransaction LibraryResult.NotEditable
         val current = dao.library(id)
-        if (current == null || current.projectId != null) return@withTransaction LibraryResult.NotFound
+        if (current == null || current.projectId != null || current.projectCodesOf != null) return@withTransaction LibraryResult.NotFound
         LibraryNames.validate(name, allNames(exceptId = id))?.let { return@withTransaction LibraryResult.Invalid(it) }
         dao.rename(id, name.trim(), CodeKey.of(name))
         log.info(LogCategory.APP, "Renombrada 1 biblioteca de códigos")
@@ -190,7 +253,7 @@ class RoomCodeLibraryRepository(
     override suspend fun delete(id: String): LibraryResult = database.withTransaction {
         if (CodeLibraryRepository.isDefault(id)) return@withTransaction LibraryResult.NotEditable
         val current = dao.library(id)
-        if (current == null || current.projectId != null) return@withTransaction LibraryResult.NotFound
+        if (current == null || current.projectId != null || current.projectCodesOf != null) return@withTransaction LibraryResult.NotFound
         dao.deleteLibrary(id)
         log.info(LogCategory.APP, "Borrada 1 biblioteca de códigos")
         LibraryResult.Deleted
@@ -277,7 +340,7 @@ class RoomCodeLibraryRepository(
     private suspend fun editable(libraryId: String): CodeSaveResult? {
         if (CodeLibraryRepository.isDefault(libraryId)) return CodeSaveResult.NotEditable
         val library = dao.library(libraryId) ?: return CodeSaveResult.NotFound
-        return if (library.projectId != null) CodeSaveResult.NotEditable else null
+        return if (library.projectId != null || library.projectCodesOf != null) CodeSaveResult.NotEditable else null
     }
 
     /** Los nombres que ya no se pueden usar: los de las por defecto y los del usuario, salvo la biblioteca [exceptId]. */
