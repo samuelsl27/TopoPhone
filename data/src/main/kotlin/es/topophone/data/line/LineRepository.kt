@@ -136,6 +136,9 @@ interface LineRepository {
     /** Borra las líneas que llevan 30 días en la papelera; devuelve cuántas (RF-24). */
     suspend fun purgeTrash(): Int
 
+    /** Los nombres de las líneas del proyecto (no en la papelera) que tienen alguno de [pointIds] como vértice (RF-25). */
+    suspend fun linesUsing(pointIds: List<String>): List<String>
+
     /** El nombre que se propone para una línea nueva con el código [code] (RF-2, RF-14). */
     suspend fun suggestName(projectId: String, code: String?): String
 
@@ -165,6 +168,7 @@ class RoomLineRepository(
     private val newId: () -> String = { UUID.randomUUID().toString() },
 ) : LineRepository {
     private val dao = database.lines()
+    private val history = LineHistoryWriter(dao, clock, newId)
 
     override fun lines(projectId: String): Flow<List<ProjectLine>> =
         combine(dao.lines(projectId), dao.visibleVertices(projectId), dao.attributesOfProject(projectId)) { lines, vertices, attributes ->
@@ -304,6 +308,9 @@ class RoomLineRepository(
 
     override suspend fun purgeTrash(): Int = dao.purge(limit = clock() - ProjectRepository.TRASH_DAYS * DAY_MS)
 
+    override suspend fun linesUsing(pointIds: List<String>): List<String> =
+        pointIds.distinct().chunked(SQL_CHUNK).flatMap { dao.activeLineNamesUsing(it) }.distinct().sorted()
+
     override suspend fun suggestName(projectId: String, code: String?): String = LineNaming.next(code, dao.names(projectId))
 
     override suspend fun close(id: String): LineSaveResult = setClosed(id, closed = true)
@@ -317,7 +324,7 @@ class RoomLineRepository(
         if (closed) {
             LineRules.validate(visible.map { it.pointId }, closed = true)?.let { return@withTransaction it.toResult() }
         }
-        recordHistory(entity, LineChange.CLOSED)
+        history.record(entity, LineChange.CLOSED)
         dao.update(entity.copy(closed = closed))
         LineSaveResult.Saved(id)
     }
@@ -362,7 +369,7 @@ class RoomLineRepository(
                 update.name != null -> LineChange.NAME
                 else -> LineChange.ATTRIBUTES
             }
-            recordHistory(entity, change)
+            history.record(entity, change)
             update.name?.let { dao.update(entity.copy(name = it)) }
             if (newIds != null) {
                 dao.deleteVertices(id)
@@ -382,7 +389,7 @@ class RoomLineRepository(
         if (!LineTarget.isLineGeometry(code.geometry)) return@withTransaction LineSaveResult.WrongGeometry
         val entity = dao.byId(id)?.takeIf { it.deletedAt == null } ?: return@withTransaction LineSaveResult.NotFound
         val old = dao.attributesOfNow(id).map { PointAttribute(it.name, enumValueOf<AttributeType>(it.type), it.value) }
-        recordHistory(entity, LineChange.CODE)
+        history.record(entity, LineChange.CODE)
         val values = AttributeCarryOver.apply(old, code.attributes).values
         dao.update(
             entity.copy(
@@ -396,25 +403,6 @@ class RoomLineRepository(
         dao.deleteAttributes(id)
         dao.insertAttributes(values.mapIndexed { i, a -> LineAttributeEntity(id, i, a.name, a.type.name, a.value) })
         LineSaveResult.Saved(id)
-    }
-
-    /** Guarda en el historial el estado de [entity] antes del cambio [change], con todos sus vértices y atributos (RF-18, plan D6). */
-    private suspend fun recordHistory(entity: ProjectLineEntity, change: LineChange) {
-        val historyId = newId()
-        dao.insertHistory(
-            LineHistoryEntity(
-                historyId, entity.id, clock(), change.name, entity.name, entity.closed,
-                entity.code, entity.codeDescription, entity.codeColor, entity.codeSymbol,
-            ),
-        )
-        dao.insertHistoryAttributes(
-            dao.attributesOfNow(entity.id).map { LineHistoryAttributeEntity(historyId, it.ordinal, it.name, it.type, it.value) },
-        )
-        val vertices = dao.allVerticesOf(entity.id)
-        val names = vertices.map { it.pointId }.distinct().chunked(SQL_CHUNK).flatMap { dao.pointNames(it) }.associate { it.id to it.name }
-        dao.insertHistoryVertices(
-            vertices.map { LineHistoryVertexEntity(historyId, it.ordinal, it.pointId, names[it.pointId] ?: it.pointId) },
-        )
     }
 
     private fun LineIssue.toResult(): LineSaveResult = when (this) {

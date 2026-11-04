@@ -22,6 +22,7 @@ import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointSnapshot
 import es.topophone.core.model.point.PointSummary
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.line.LineHistoryWriter
 import es.topophone.data.project.ProjectRepository
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
@@ -209,6 +210,9 @@ interface PointDao {
     @Query("DELETE FROM points WHERE id = :id AND deleted_at IS NOT NULL")
     suspend fun deleteFromTrash(id: String)
 
+    @Query("SELECT id FROM points WHERE deleted_at IS NOT NULL AND deleted_at < :limit")
+    suspend fun expiredIds(limit: Long): List<String>
+
     @Query("DELETE FROM points WHERE deleted_at IS NOT NULL AND deleted_at < :limit")
     suspend fun purge(limit: Long): Int
 }
@@ -313,6 +317,7 @@ class RoomPointRepository(
     private val log: AppLog = AppLog.NONE,
 ) : PointRepository {
     private val dao = database.points()
+    private val lineHistory = LineHistoryWriter(database.lines(), clock) { UUID.randomUUID().toString() }
 
     override suspend fun create(point: Point): PointSaveResult = try {
         val entity = point.toEntity()
@@ -477,9 +482,17 @@ class RoomPointRepository(
         }
     }
 
-    override suspend fun deletePermanently(id: String) = dao.deleteFromTrash(id)
+    // S025/RF-25: las líneas que usan el punto lo quitan anotándolo en su historial, en la misma transacción.
+    override suspend fun deletePermanently(id: String) = database.withTransaction {
+        if (dao.byId(id)?.deletedAt != null) lineHistory.recordPointRemoval(listOf(id))
+        dao.deleteFromTrash(id)
+    }
 
-    override suspend fun purgeTrash(): Int = dao.purge(limit = clock() - ProjectRepository.TRASH_DAYS * DAY_MS)
+    override suspend fun purgeTrash(): Int = database.withTransaction {
+        val limit = clock() - ProjectRepository.TRASH_DAYS * DAY_MS
+        lineHistory.recordPointRemoval(dao.expiredIds(limit))
+        dao.purge(limit)
+    }
 
     /** Deshace la transacción de [updateAll] si falta algún punto. */
     private class MissingPoint : RuntimeException()

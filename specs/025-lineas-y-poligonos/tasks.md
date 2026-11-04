@@ -26,7 +26,7 @@
       Hecho cuando: tests en verde con rechazo por menos vértices y vértices anteriores en el historial.
 - [x] T12. `data`: `setHidden`, papelera de líneas, `restore`, `deletePermanently` y `purge`. (RF-23, RF-24)
       Hecho cuando: tests en verde con nombre reutilizado.
-- [ ] T13. `data`: la papelera de puntos con líneas (omitir, recuperar, borrado definitivo con `VERTEX_REMOVED`) y `linesUsing`. (RF-25)
+- [x] T13. `data`: la papelera de puntos con líneas (omitir, recuperar, borrado definitivo con `VERTEX_REMOVED`) y `linesUsing`. (RF-25)
       Hecho cuando: `LinePointTrashTest` en verde.
 - [ ] T14. `data`: copia de seguridad y paquetes con las tablas nuevas. (RF-26, RNF-T6)
       Hecho cuando: `LineBackupTest` en verde.

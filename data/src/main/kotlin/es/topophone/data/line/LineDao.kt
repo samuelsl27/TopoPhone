@@ -138,6 +138,15 @@ interface LineDao {
     @Query("DELETE FROM project_lines WHERE deleted_at IS NOT NULL AND deleted_at < :limit")
     suspend fun purge(limit: Long): Int
 
+    @Query("SELECT DISTINCT l.* FROM project_lines l JOIN line_vertices v ON v.line_id = l.id WHERE v.point_id IN (:pointIds)")
+    suspend fun linesWithPoints(pointIds: List<String>): List<ProjectLineEntity>
+
+    @Query(
+        "SELECT DISTINCT l.name FROM project_lines l JOIN line_vertices v ON v.line_id = l.id " +
+            "WHERE l.deleted_at IS NULL AND v.point_id IN (:pointIds)",
+    )
+    suspend fun activeLineNamesUsing(pointIds: List<String>): List<String>
+
     @Query("SELECT id, name FROM points WHERE id IN (:ids)")
     suspend fun pointNames(ids: List<String>): List<PointNameRow>
 
