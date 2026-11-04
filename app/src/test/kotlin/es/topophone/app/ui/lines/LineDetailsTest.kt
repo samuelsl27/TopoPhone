@@ -354,6 +354,19 @@ class LineDetailsTest {
         await(vm) { it.line?.code?.code == "BORD" }
     }
 
+    @Test
+    fun `S025 RF-24 borrar la linea la mueve a la papelera sin tocar sus puntos`() {
+        val id = lineWith("1", "2", "3")
+        val vm = viewModel(id)
+
+        vm.delete()
+
+        await(vm) { it.deleted }
+        runBlocking { lines.lines(projectId).first() } shouldBe emptyList()
+        runBlocking { lines.trash(projectId).first() }.single().line.id shouldBe id
+        runBlocking { points.points(projectId).first() }.size shouldBe 4
+    }
+
     // --- Pantalla -------------------------------------------------------------------------------------------------------------------
 
     private val line = ProjectLine(
@@ -424,6 +437,18 @@ class LineDetailsTest {
         compose.onNodeWithTag(LINE_ADD_VERTEX_TAG).performScrollTo().performClick()
 
         listOf(closed, reversed, added) shouldBe listOf(1, 1, 1)
+    }
+
+    @Test
+    fun `S025 RF-24 Borrar linea pide confirmar y despues llama a la ficha`() {
+        var deleted = 0
+        show(ui, LineDetailsActions(onDelete = { deleted++ }))
+
+        compose.onNodeWithTag(LINE_DELETE_TAG).performScrollTo().performClick()
+        deleted shouldBe 0
+        compose.onNodeWithTag(es.topophone.app.ui.projects.CONFIRM_TAG).performClick()
+
+        deleted shouldBe 1
     }
 
     @Test

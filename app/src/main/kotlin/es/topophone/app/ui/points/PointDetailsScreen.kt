@@ -125,6 +125,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -173,6 +174,8 @@ data class PointDetailsUiState(
     val photoEvents: List<PhotoEvent> = emptyList(),
     /** Si se están añadiendo fotos desde la ficha y qué ha ido mal (S017b/RF-13 a RF-15). */
     val photoAdd: PhotoAddUi = PhotoAddUi(),
+    /** Las líneas que usan este punto como vértice, para avisar al borrarlo (S025/RF-25). */
+    val usedByLines: List<String> = emptyList(),
 )
 
 /** Acciones de la ficha del punto. */
@@ -216,6 +219,7 @@ class PointDetailsViewModel @Inject constructor(
     photoStore: PhotoStore = PhotoStore.NONE,
     savedState: SavedStateHandle = SavedStateHandle(),
     codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
+    private val lines: ObjectLines = ObjectLines.NONE,
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val ids = MutableStateFlow<Pair<String, String>?>(null)
@@ -234,13 +238,14 @@ class PointDetailsViewModel @Inject constructor(
     val events: Flow<PointDetailsEvent> = eventChannel.receiveAsFlow()
 
     val state: StateFlow<PointDetailsUiState> = ids.filterNotNull().flatMapLatest { (projectId, pointId) ->
-        val photoState = combine(photoRepository.photos(pointId), photoRepository.events(pointId), photoAdder.ui, ::Triple)
+        val usedBy = lines.summaries(projectId).mapLatest { lines.linesUsing(listOf(pointId)) } // S025/RF-25
+        val photoState = combine(photoRepository.photos(pointId), photoRepository.events(pointId), photoAdder.ui, usedBy, ::DetailsExtras)
         combine(projects.observe(projectId), points.point(pointId), points.history(pointId), keptEdited, photoState) {
                 project,
                 point,
                 history,
                 kept,
-                (photos, events, photoAdd),
+                (photos, events, photoAdd, usedByLines),
             ->
             // S015/RF-21: con el SC actual del proyecto; si cambia, la base se calcula en el nuevo.
             val base = point?.measurement?.base
@@ -249,7 +254,7 @@ class PointDetailsViewModel @Inject constructor(
             } else {
                 null
             }
-            PointDetailsUiState(project, point, history, kept, baseCoordinates, photos, events, photoAdd)
+            PointDetailsUiState(project, point, history, kept, baseCoordinates, photos, events, photoAdd, usedByLines)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), PointDetailsUiState())
 
@@ -492,7 +497,13 @@ private fun Actions(state: PointDetailsUiState, point: Point, actions: PointDeta
     }
     if (confirmDelete) {
         ConfirmDialog(
-            message = stringResource(R.string.point_delete_confirm, point.name),
+            message = stringResource(R.string.point_delete_confirm, point.name) +
+                if (state.usedByLines.isEmpty()) {
+                    ""
+                } else {
+                    "\n\n" +
+                        stringResource(R.string.objects_delete_lines_warning, state.usedByLines.joinToString(", "))
+                }, // S025/RF-25
             confirm = stringResource(R.string.objects_move_to_trash),
             onConfirm = {
                 confirmDelete = false
@@ -1134,3 +1145,11 @@ private fun AxisCard(project: Project, ref: AxisRef) {
         }
     }
 }
+
+/** Lo que se suma a la ficha del punto además de sus fotos: el alta de fotos y las líneas que lo usan (S017b/RF-13, S025/RF-25). */
+private data class DetailsExtras(
+    val photos: List<PointPhoto>,
+    val events: List<PhotoEvent>,
+    val photoAdd: PhotoAddUi,
+    val usedByLines: List<String>,
+)

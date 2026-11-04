@@ -2565,4 +2565,13 @@
     <string name="line_change_vertices">Vertices</string>
     <string name="line_change_closed">Closing</string>
     <string name="line_change_removed">Point deleted</string>
+    <string name="objects_lines_title">Lines and polygons</string>
+    <string name="objects_line_row">%1$s · %2$s</string>
+    <string name="objects_hide_line">Hide line %1$s</string>
+    <string name="objects_show_line">Show line %1$s</string>
+    <string name="objects_delete_lines_warning">It is a vertex of: %1$s. While it is in the trash, those lines will skip it.</string>
+    <string name="line_delete">Delete line</string>
+    <string name="line_delete_confirm">The line “%1$s” will go to the trash. Its points do not change.</string>
+    <string name="trash_lines_title">Lines</string>
+    <string name="trash_line_vertices">%1$s · %2$s</string>
 </resources>

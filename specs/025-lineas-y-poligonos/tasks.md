@@ -40,7 +40,7 @@
       Hecho cuando: `LineFromPointsTest` en verde.
 - [x] T19. `app`: ficha de la línea con vértices y PK, edición, cierre, apertura, cambio de código, atributos e historial. (RF-10, RF-16 a RF-20, RF-22)
       Hecho cuando: `LineDetailsTest` en verde.
-- [ ] T20. `app`: lista de objetos con líneas, búsqueda, ocultar, borrar a la papelera, restaurar y el aviso al borrar un punto vértice. (RF-21, RF-23, RF-24, RF-25)
+- [x] T20. `app`: lista de objetos con líneas, búsqueda, ocultar, borrar a la papelera, restaurar y el aviso al borrar un punto vértice. (RF-21, RF-23, RF-24, RF-25)
       Hecho cuando: `ObjectListLinesTest` en verde.
 - [ ] T21. `app`: `MapLines` y capas de línea, relleno y nombre, con toque para abrir la ficha. (RF-22)
       Hecho cuando: `MapLinesTest` y `LinesLayerTest` en verde.

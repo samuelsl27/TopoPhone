@@ -11,6 +11,8 @@ import es.topophone.app.ui.collector.CollectorCodeSource
 import es.topophone.app.ui.collector.CollectorLines
 import es.topophone.app.ui.collector.RoomCollectorCodeSource
 import es.topophone.app.ui.collector.RoomCollectorLines
+import es.topophone.app.ui.points.ObjectLines
+import es.topophone.app.ui.points.RoomObjectLines
 import es.topophone.data.codes.CodeLibraryRepository
 import es.topophone.data.codes.DefaultLibrarySource
 import es.topophone.data.line.LineRepository
@@ -33,4 +35,8 @@ object CodesModule {
     /** Las líneas que ve el recolector: la activa y las abiertas (S025/RF-2 a RF-9). */
     @Provides
     fun provideCollectorLines(lines: LineRepository): CollectorLines = RoomCollectorLines(lines)
+
+    /** Las líneas junto a los puntos en la lista de objetos, la papelera y la ficha del punto (S025/RF-21 a RF-25). */
+    @Provides
+    fun provideObjectLines(lines: LineRepository): ObjectLines = RoomObjectLines(lines)
 }

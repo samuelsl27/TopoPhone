@@ -2577,4 +2577,13 @@
     <string name="line_change_vertices">Vértices</string>
     <string name="line_change_closed">Cierre</string>
     <string name="line_change_removed">Punto borrado</string>
+    <string name="objects_lines_title">Líneas y polígonos</string>
+    <string name="objects_line_row">%1$s · %2$s</string>
+    <string name="objects_hide_line">Ocultar la línea %1$s</string>
+    <string name="objects_show_line">Mostrar la línea %1$s</string>
+    <string name="objects_delete_lines_warning">Se usa como vértice en: %1$s. Mientras esté en la papelera, esas líneas lo omitirán.</string>
+    <string name="line_delete">Borrar línea</string>
+    <string name="line_delete_confirm">La línea «%1$s» irá a la papelera. Sus puntos no cambian.</string>
+    <string name="trash_lines_title">Líneas</string>
+    <string name="trash_line_vertices">%1$s · %2$s</string>
 </resources>

@@ -41,6 +41,7 @@ import es.topophone.app.ui.collector.geometryLabel
 import es.topophone.app.ui.collector.messageRes
 import es.topophone.app.ui.points.ChangeCodeActions
 import es.topophone.app.ui.points.ChangeCodeDialogs
+import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.formatDateTime
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -69,6 +70,7 @@ const val LINE_ISSUE_TAG = "line_issue"
 const val LINE_HISTORY_BUTTON_TAG = "line_history_button"
 const val LINE_HISTORY_TAG = "line_history"
 const val LINE_PICKER_SEARCH_TAG = "line_picker_search"
+const val LINE_DELETE_TAG = "line_delete"
 
 fun lineVertexTag(index: Int) = "line_vertex_$index"
 
@@ -109,6 +111,7 @@ class LineDetailsActions(
     val onAttribute: (Int, String) -> Unit = { _, _ -> },
     val onAttributesSave: () -> Unit = {},
     val onAttributesCancel: () -> Unit = {},
+    val onDelete: () -> Unit = {},
 )
 
 @Composable
@@ -147,9 +150,11 @@ fun LineDetailsRoute(
             onAttribute = viewModel::setAttribute,
             onAttributesSave = viewModel::saveAttributes,
             onAttributesCancel = viewModel::cancelAttributes,
+            onDelete = viewModel::delete,
         ),
         onBack = onBack,
     )
+    LaunchedEffect(state.deleted) { if (state.deleted) onBack() }
     ChangeCodeDialogs(
         change,
         ChangeCodeActions(
@@ -175,6 +180,7 @@ fun LineDetailsScreen(
     onBack: () -> Unit,
 ) {
     var showHistory by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
     SectionScaffold(
         title = state.line?.name ?: stringResource(R.string.line_details_title),
         themeState = themeState,
@@ -190,7 +196,7 @@ fun LineDetailsScreen(
             modifier = Modifier.padding(padding).padding(horizontal = 16.dp).testTag(LINE_DETAILS_TAG),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item(key = "head") { Header(line, state, actions, onHistory = { showHistory = true }) }
+            item(key = "head") { Header(line, state, actions, onHistory = { showHistory = true }, onDelete = { confirmDelete = true }) }
             itemsIndexed(state.vertices, key = { _, row -> "v-${row.index}-${row.pointId}" }) { row, vertex ->
                 VertexItem(row, vertex, state, actions, last = row == state.vertices.lastIndex)
             }
@@ -200,10 +206,22 @@ fun LineDetailsScreen(
     state.renaming?.let { RenameDialog(it, state.issue == LineEditIssue.NAME_TAKEN, actions) }
     state.attributes?.let { AttributesDialog(it, actions) }
     if (showHistory) HistoryDialog(state.history, onDismiss = { showHistory = false })
+    val toDelete = state.line
+    if (confirmDelete && toDelete != null) {
+        ConfirmDialog(
+            message = stringResource(R.string.line_delete_confirm, toDelete.name),
+            confirm = stringResource(R.string.objects_move_to_trash),
+            onConfirm = {
+                confirmDelete = false
+                actions.onDelete()
+            },
+            onDismiss = { confirmDelete = false },
+        )
+    }
 }
 
 @Composable
-private fun Header(line: ProjectLine, state: LineDetailsUi, actions: LineDetailsActions, onHistory: () -> Unit) {
+private fun Header(line: ProjectLine, state: LineDetailsUi, actions: LineDetailsActions, onHistory: () -> Unit, onDelete: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 12.dp)) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -245,6 +263,10 @@ private fun Header(line: ProjectLine, state: LineDetailsUi, actions: LineDetails
             onClick = onHistory,
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_HISTORY_BUTTON_TAG),
         ) { Text(stringResource(R.string.line_history)) }
+        OutlinedButton(
+            onClick = onDelete,
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_DELETE_TAG),
+        ) { Text(stringResource(R.string.line_delete)) }
         Text(stringResource(R.string.line_vertices_title), style = MaterialTheme.typography.titleMedium)
     }
 }

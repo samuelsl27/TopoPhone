@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -67,6 +68,8 @@ import es.topophone.app.ui.raster.rememberImportRasterLauncher
 import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.codes.CodeKey
+import es.topophone.core.model.line.LineSearch
+import es.topophone.core.model.line.LineSummary
 import es.topophone.core.model.point.PointChange
 import es.topophone.core.model.point.PointCodeFilter
 import es.topophone.core.model.point.PointOrigin
@@ -90,6 +93,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -123,6 +127,12 @@ const val POLE_OUTCOME_DISMISS_TAG = "pole_outcome_dismiss"
 
 fun objectRowTag(id: String) = "object_$id"
 
+fun objectLineRowTag(id: String) = "object_line_$id"
+
+fun objectLineVisibilityTag(id: String) = "object_line_visibility_$id"
+
+fun objectLineCodeTag(id: String) = "object_line_code_$id"
+
 fun objectVisibilityTag(id: String) = "object_visibility_$id"
 
 /** Lo que muestra la lista de objetos (S011/RF-1 a RF-4): [points] ya filtrados por la búsqueda; [total], todos. */
@@ -137,6 +147,10 @@ data class ObjectListUiState(
     val codes: List<String> = emptyList(),
     val hasUncoded: Boolean = false,
     val codeFilter: String? = null,
+    /** Las líneas y los polígonos del proyecto que encuentra la búsqueda (S025/RF-21). */
+    val lines: List<LineSummary> = emptyList(),
+    /** Las líneas que usan como vértice alguno de los puntos seleccionados, para avisar al borrarlos (S025/RF-25). */
+    val selectedInLines: List<String> = emptyList(),
 )
 
 /** Lo que pasó al corregir el jalón de una selección (S011/RF-14, RF-15). */
@@ -182,6 +196,9 @@ class ObjectListActions(
     val onChangeCode: () -> Unit = {},
     /** Filtra la lista por código: la clave de un código, [PointCodeFilter.NONE] o null para todos (S024/RF-18). */
     val onCodeFilter: (String?) -> Unit = {},
+    /** Abre la ficha de una línea y oculta o muestra una línea (S025/RF-21, RF-22, RF-23). */
+    val onOpenLine: (String) -> Unit = {},
+    val onSetLineHidden: (id: String, hidden: Boolean) -> Unit = { _, _ -> },
     val onDismissPoleOutcome: () -> Unit = {},
     /** "Replantear" con un solo punto elegido (S018/RF-1). */
     val onStakeout: (pointId: String) -> Unit = {},
@@ -198,6 +215,7 @@ class ObjectListViewModel @Inject constructor(
     private val projects: ProjectRepository,
     private val exportSelection: ExportSelection,
     codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
+    private val lines: ObjectLines = ObjectLines.NONE,
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
@@ -210,7 +228,22 @@ class ObjectListViewModel @Inject constructor(
 
     private val filters = combine(query, codeFilter, ::Pair)
 
-    val state: StateFlow<ObjectListUiState> = combine(summaries, filters, selected, poleOutcome) { all, (text, code), chosen, outcome ->
+    private val lineSummaries = projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else lines.summaries(id) }
+
+    /** Las líneas que usan los puntos seleccionados, para avisar antes de borrarlos (S025/RF-25). */
+    private val selectedInLines = selected.mapLatest { ids -> if (ids.isEmpty()) emptyList() else lines.linesUsing(ids.toList()) }
+
+    private data class Extras(val lines: List<LineSummary>, val selectedInLines: List<String>)
+
+    private val extras = combine(lineSummaries, selectedInLines, ::Extras)
+
+    val state: StateFlow<ObjectListUiState> = combine(summaries, filters, selected, poleOutcome, extras) {
+            all,
+            (text, code),
+            chosen,
+            outcome,
+            extra,
+        ->
         if (all == null) {
             ObjectListUiState()
         } else {
@@ -226,6 +259,8 @@ class ObjectListViewModel @Inject constructor(
                 codes = PointCodeFilter.codesOf(all),
                 hasUncoded = all.any { it.code == null },
                 codeFilter = code,
+                lines = if (text.isBlank()) extra.lines else extra.lines.filter { LineSearch.matches(it, text) }, // S025/RF-21
+                selectedInLines = extra.selectedInLines,
             )
         }
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ObjectListUiState())
@@ -259,6 +294,11 @@ class ObjectListViewModel @Inject constructor(
     /** Solo los puntos de un código, o sin código, o todos con null (S024/RF-18). */
     fun filterByCode(key: String?) {
         codeFilter.value = key
+    }
+
+    /** S025/RF-23: oculta o muestra una línea en el mapa; sus puntos no cambian. */
+    fun setLineHidden(id: String, hidden: Boolean) {
+        viewModelScope.launch { lines.setHidden(id, hidden) }
     }
 
     fun toggleSelection(id: String) {
@@ -380,6 +420,8 @@ fun ObjectListRoute(
             onCorrectPole = viewModel::correctSelectedPole,
             onChangeCode = viewModel::openChangeCode, // S024/RF-13
             onCodeFilter = viewModel::filterByCode, // S024/RF-18
+            onOpenLine = { lineId -> navigation.onOpenLine(projectId, lineId) }, // S025/RF-22
+            onSetLineHidden = viewModel::setLineHidden, // S025/RF-23
             onDismissPoleOutcome = viewModel::dismissPoleOutcome,
             onStakeout = { pointId -> navigation.onStakeout(projectId, pointId, state.query) }, // S018/RF-1
         ),
@@ -461,8 +503,19 @@ fun ObjectListScreen(
                 }
                 if (state.codes.isNotEmpty()) item { CodeFilter(state, actions.onCodeFilter) } // S024/RF-18
                 state.poleOutcome?.let { outcome -> item { PoleOutcomeNotice(outcome, actions.onDismissPoleOutcome) } }
-                if (state.points.isEmpty()) {
+                if (state.points.isEmpty() && state.lines.isEmpty()) {
                     item { Text(stringResource(R.string.objects_search_empty, state.query)) }
+                }
+                if (state.lines.isNotEmpty()) {
+                    item(key = "lines-title") {
+                        Text(stringResource(R.string.objects_lines_title), style = MaterialTheme.typography.titleSmall)
+                    }
+                    items(state.lines, key = { "line-" + it.id }) { line ->
+                        LineRow(line, onClick = {
+                            actions.onOpenLine(line.id)
+                        }, onToggleHidden = { actions.onSetLineHidden(line.id, !line.hidden) })
+                        HorizontalDivider()
+                    }
                 }
                 items(state.points, key = { it.id }) { point ->
                     val selecting = state.selected.isNotEmpty()
@@ -476,7 +529,14 @@ fun ObjectListScreen(
                     HorizontalDivider()
                 }
             }
-            if (state.selected.isNotEmpty()) SelectionBar(state.selected.size, state.selected.singleOrNull(), actions)
+            if (state.selected.isNotEmpty()) {
+                SelectionBar(
+                    state.selected.size,
+                    state.selected.singleOrNull(),
+                    state.selectedInLines,
+                    actions,
+                )
+            }
         }
     }
 }
@@ -663,6 +723,44 @@ private fun PointRow(point: PointSummary, selected: Boolean, onClick: () -> Unit
     )
 }
 
+/** Una línea o un polígono: nombre, código con su color, número de vértices, si es abierta o polígono y el ojo del mapa (S025/RF-21). */
+@Composable
+private fun LineRow(line: LineSummary, onClick: () -> Unit, onToggleHidden: () -> Unit) {
+    val shape = stringResource(if (line.closed) R.string.line_state_polygon else R.string.line_state_open)
+    val vertices = pluralStringResource(R.plurals.collector_line_vertices, line.vertexCount, line.vertexCount)
+    ListItem(
+        headlineContent = { Text(line.name, style = MaterialTheme.typography.titleMedium) },
+        supportingContent = {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    stringResource(R.string.objects_line_row, shape, vertices) +
+                        if (line.active) " · " + stringResource(R.string.line_state_active) else "",
+                )
+                line.code?.let { code ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.testTag(objectLineCodeTag(line.id)),
+                    ) {
+                        Box(modifier = Modifier.size(12.dp).background(rgbColor(code.color), CircleShape))
+                        Text(stringResource(R.string.objects_code_row, code.code), style = MaterialTheme.typography.labelLarge)
+                    }
+                }
+            }
+        },
+        trailingContent = {
+            val description = stringResource(if (line.hidden) R.string.objects_show_line else R.string.objects_hide_line, line.name)
+            IconButton(onClick = onToggleHidden, modifier = Modifier.size(MinTouchTarget).testTag(objectLineVisibilityTag(line.id))) {
+                Icon(
+                    painterResource(if (line.hidden) R.drawable.ic_visibility_off else R.drawable.ic_visibility),
+                    contentDescription = description,
+                )
+            }
+        },
+        modifier = Modifier.heightIn(min = MinTouchTarget).clickable(onClick = onClick).testTag(objectLineRowTag(line.id)),
+    )
+}
+
 /** Los puntos de un código, sin código o todos (S024/RF-18): un chip por cada código del proyecto. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -721,7 +819,7 @@ private fun PoleOutcomeNotice(outcome: PoleOutcome, onDismiss: () -> Unit) {
 
 /** Barra de la selección múltiple, abajo y a mano con el pulgar (S011/RF-4, RF-14, RF-22). */
 @Composable
-private fun SelectionBar(count: Int, single: String?, actions: ObjectListActions) {
+private fun SelectionBar(count: Int, single: String?, usedByLines: List<String>, actions: ObjectListActions) {
     var confirmDelete by remember { mutableStateOf(false) }
     var editPole by remember { mutableStateOf(false) }
     Surface(tonalElevation = 3.dp, modifier = Modifier.fillMaxWidth().testTag(SELECTION_BAR_TAG)) {
@@ -755,7 +853,13 @@ private fun SelectionBar(count: Int, single: String?, actions: ObjectListActions
     }
     if (confirmDelete) {
         ConfirmDialog(
-            message = pluralStringResource(R.plurals.objects_delete_confirm, count, count),
+            message = pluralStringResource(R.plurals.objects_delete_confirm, count, count) +
+                if (usedByLines.isEmpty()) {
+                    ""
+                } else {
+                    "\n\n" +
+                        stringResource(R.string.objects_delete_lines_warning, usedByLines.joinToString(", "))
+                }, // S025/RF-25
             confirm = stringResource(R.string.objects_move_to_trash),
             onConfirm = {
                 confirmDelete = false

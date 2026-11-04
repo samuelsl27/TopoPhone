@@ -68,6 +68,8 @@ data class LineDetailsUi(
     val renaming: String? = null,
     val attributes: LineAttributesEdit? = null,
     val issue: LineEditIssue? = null,
+    /** La línea se ha movido a la papelera y la ficha se puede cerrar (RF-24). */
+    val deleted: Boolean = false,
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -87,6 +89,7 @@ class LineDetailsViewModel @Inject constructor(
         val renaming: String? = null,
         val attributes: List<String>? = null,
         val issue: LineEditIssue? = null,
+        val deleted: Boolean = false,
     )
 
     /** Cambiar el código de esta línea (S025/RF-20). */
@@ -130,6 +133,7 @@ class LineDetailsViewModel @Inject constructor(
             renaming = own.renaming,
             attributes = own.attributes?.let { texts -> attributeForm(base.line, texts) },
             issue = own.issue,
+            deleted = own.deleted,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), LineDetailsUi())
 
@@ -288,6 +292,15 @@ class LineDetailsViewModel @Inject constructor(
             return
         }
         apply(LineUpdate(attributes = result.values))
+    }
+
+    /** «Borrar línea»: va a la papelera del proyecto sin tocar sus puntos; la confirmación la pide la pantalla (RF-24). */
+    fun delete() {
+        val (_, lineId) = ids.value ?: return
+        viewModelScope.launch {
+            lines.moveToTrash(lineId)
+            own.value = own.value.copy(deleted = true)
+        }
     }
 
     fun openChangeCode() {
