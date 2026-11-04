@@ -1,9 +1,13 @@
 package es.topophone.data.line
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.withTransaction
 import es.topophone.core.model.codes.CodeGeometry
+import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.line.LineAction
+import es.topophone.core.model.line.LineChange
 import es.topophone.core.model.line.LineHistoryEntry
+import es.topophone.core.model.line.LineIssue
 import es.topophone.core.model.line.LineNaming
 import es.topophone.core.model.line.LineRules
 import es.topophone.core.model.line.LineSummary
@@ -33,6 +37,33 @@ sealed interface MeasuredResult {
 
 /** Cómo acabó una operación sobre una línea que ya existe. */
 enum class LineActionResult { DONE, NOT_FOUND, NOT_OPEN, NOTHING_TO_UNDO }
+
+/** Cómo acabó guardar, cerrar o crear una línea (S025/RF-11, RF-15, RF-19). */
+sealed interface LineSaveResult {
+    data class Saved(val id: String) : LineSaveResult
+
+    /** Ya hay una línea del proyecto con ese nombre. */
+    data object DuplicateName : LineSaveResult
+
+    /** Menos de 2 vértices (3 en un polígono). */
+    data object TooFewVertices : LineSaveResult
+
+    /** Dos vértices iguales seguidos. */
+    data object RepeatedVertex : LineSaveResult
+
+    /** La línea o alguno de sus puntos no existe. */
+    data object NotFound : LineSaveResult
+}
+
+/** Una línea nueva a partir de puntos que ya existen (S025/RF-12 a RF-15). [name] vacío usa el nombre propuesto. */
+data class NewLine(
+    val projectId: String,
+    val name: String?,
+    val code: PointCode?,
+    val geometry: CodeGeometry,
+    val closed: Boolean,
+    val pointIds: List<String>,
+)
 
 /**
  * Las líneas del proyecto (S025). Cada alta, edición, cierre, borrado o restauración es una transacción única con durabilidad completa
@@ -69,6 +100,18 @@ interface LineRepository {
 
     /** Quita el último vértice de la línea sin borrar el punto (RF-6). */
     suspend fun undoVertex(id: String): LineActionResult
+
+    /** El nombre que se propone para una línea nueva con el código [code] (RF-2, RF-14). */
+    suspend fun suggestName(projectId: String, code: String?): String
+
+    /** Cierra una línea abierta en polígono; con menos de 3 vértices no (RF-10, RF-11). El cambio queda en el historial. */
+    suspend fun close(id: String): LineSaveResult
+
+    /** Vuelve a abrir un polígono, con su sentido y sus vértices intactos (RF-10). El cambio queda en el historial. */
+    suspend fun open(id: String): LineSaveResult
+
+    /** Crea una línea con los puntos de [line], sin modificarlos (RF-14, RF-15). No queda como línea activa. */
+    suspend fun createFromPoints(line: NewLine): LineSaveResult
 }
 
 class RoomLineRepository(
@@ -182,5 +225,78 @@ class RoomLineRepository(
         val last = dao.visibleVerticesOfNow(id).lastOrNull() ?: return@withTransaction LineActionResult.NOTHING_TO_UNDO
         dao.deleteVertex(id, last.ordinal)
         LineActionResult.DONE
+    }
+
+    override suspend fun suggestName(projectId: String, code: String?): String = LineNaming.next(code, dao.names(projectId))
+
+    override suspend fun close(id: String): LineSaveResult = setClosed(id, closed = true)
+
+    override suspend fun open(id: String): LineSaveResult = setClosed(id, closed = false)
+
+    private suspend fun setClosed(id: String, closed: Boolean): LineSaveResult = database.withTransaction {
+        val entity = dao.byId(id)?.takeIf { it.deletedAt == null } ?: return@withTransaction LineSaveResult.NotFound
+        if (entity.closed == closed) return@withTransaction LineSaveResult.Saved(id)
+        val visible = dao.visibleVerticesOfNow(id)
+        if (closed) {
+            LineRules.validate(visible.map { it.pointId }, closed = true)?.let { return@withTransaction it.toResult() }
+        }
+        recordHistory(entity, LineChange.CLOSED)
+        dao.update(entity.copy(closed = closed))
+        LineSaveResult.Saved(id)
+    }
+
+    override suspend fun createFromPoints(line: NewLine): LineSaveResult = try {
+        database.withTransaction {
+            LineRules.validate(line.pointIds, line.closed)?.let { return@withTransaction it.toResult() }
+            val live = line.pointIds.distinct().chunked(SQL_CHUNK).flatMap { dao.livePointIds(line.projectId, it) }.toSet()
+            if (line.pointIds.any { it !in live }) return@withTransaction LineSaveResult.NotFound
+            val created = ProjectLine(
+                id = newId(),
+                projectId = line.projectId,
+                name = line.name?.takeIf { it.isNotBlank() } ?: LineNaming.next(line.code?.code, dao.names(line.projectId)),
+                code = line.code,
+                geometry = line.geometry,
+                closed = line.closed,
+                hidden = false,
+                active = false,
+                vertices = line.pointIds.map { LineVertex(it) },
+                createdAtMs = clock(),
+            )
+            dao.insert(created.toEntity())
+            dao.insertVertices(created.vertexEntities())
+            dao.insertAttributes(created.attributeEntities())
+            LineSaveResult.Saved(created.id)
+        }
+    } catch (_: SQLiteConstraintException) {
+        LineSaveResult.DuplicateName
+    }
+
+    /** Guarda en el historial el estado de [entity] antes del cambio [change], con todos sus vértices y atributos (RF-18, plan D6). */
+    private suspend fun recordHistory(entity: ProjectLineEntity, change: LineChange) {
+        val historyId = newId()
+        dao.insertHistory(
+            LineHistoryEntity(
+                historyId, entity.id, clock(), change.name, entity.name, entity.closed,
+                entity.code, entity.codeDescription, entity.codeColor, entity.codeSymbol,
+            ),
+        )
+        dao.insertHistoryAttributes(
+            dao.attributesOfNow(entity.id).map { LineHistoryAttributeEntity(historyId, it.ordinal, it.name, it.type, it.value) },
+        )
+        val vertices = dao.allVerticesOf(entity.id)
+        val names = vertices.map { it.pointId }.distinct().chunked(SQL_CHUNK).flatMap { dao.pointNames(it) }.associate { it.id to it.name }
+        dao.insertHistoryVertices(
+            vertices.map { LineHistoryVertexEntity(historyId, it.ordinal, it.pointId, names[it.pointId] ?: it.pointId) },
+        )
+    }
+
+    private fun LineIssue.toResult(): LineSaveResult = when (this) {
+        LineIssue.TOO_FEW_VERTICES -> LineSaveResult.TooFewVertices
+        LineIssue.REPEATED_VERTEX -> LineSaveResult.RepeatedVertex
+    }
+
+    private companion object {
+        /** Menos que el límite de variables de una consulta de SQLite. */
+        const val SQL_CHUNK = 500
     }
 }

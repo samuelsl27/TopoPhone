@@ -20,7 +20,7 @@
       Hecho cuando: `LineRepositoryTest` de lectura en verde.
 - [x] T9. `data`: `saveMeasured` en una transacción, una sola línea activa, `finish`, `continueLine` y `undoVertex`. (RF-2 a RF-9, RF-8b)
       Hecho cuando: los tests de medir, terminar, continuar, deshacer y reinicio de la base en verde, con añadir un vértice en menos de 100 ms.
-- [ ] T10. `data`: `close`, `open` y `createFromPoints`. (RF-10, RF-11, RF-14, RF-15)
+- [x] T10. `data`: `close`, `open` y `createFromPoints`. (RF-10, RF-11, RF-14, RF-15)
       Hecho cuando: tests en verde y ningún punto modificado.
 - [ ] T11. `data`: `edit` y `changeCode` con historial. (RF-16 a RF-20)
       Hecho cuando: tests en verde con rechazo por menos vértices y vértices anteriores en el historial.
