@@ -4,7 +4,7 @@
 
 - [x] T1. `core:model`: `CodeSymbol`, `SurveyCode.symbol`, `PointCode`, `PointAttribute`, `Point.code`, campos de código en `PointSummary` y los términos en `docs/glosario.md`. (RF-10, RF-17)
       Hecho cuando: los tests de `core:model` en verde.
-- [ ] T2. `core:model`: `ProjectCodes` (unión, solo Punto, orden) y `RecentCodes`. (RF-1)
+- [x] T2. `core:model`: `ProjectCodes` (unión, solo Punto, orden) y `RecentCodes`. (RF-1)
       Hecho cuando: `ProjectCodesTest` y `RecentCodesTest` en verde.
 - [ ] T3. `core:model`: filtro del selector con `CodeSearch` y `DescriptionProposal`. (RF-2, RF-4)
       Hecho cuando: tests en verde, con 2.000 códigos filtrados en menos de 16 ms de CPU.
