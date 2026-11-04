@@ -2493,4 +2493,8 @@
     <string name="point_code_style">Colour %1$s · symbol %2$s</string>
     <string name="point_history_attribute_value">%1$s: %2$s</string>
     <string name="point_form_code_attributes">Attributes of %1$s</string>
+    <string name="change_code_button">Change code</string>
+    <string name="change_code_apply">Change code</string>
+    <string name="change_code_lost_item">%1$s · %2$s</string>
+    <string name="change_code_lost_message">Changing to “%1$s” will lose these values: %2$s. Change the code?</string>
 </resources>

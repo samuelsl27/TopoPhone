@@ -53,6 +53,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.alignment.rememberImportAlignmentLauncher
 import es.topophone.app.ui.cad.rememberImportDxfLauncher
+import es.topophone.app.ui.collector.CollectorCodeSource
 import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
 import es.topophone.app.ui.projects.ConfirmDialog
@@ -67,6 +68,7 @@ import es.topophone.core.model.point.PointSummary
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.survey.PointCorrections
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.point.CodeChangeResult
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import javax.inject.Inject
@@ -80,6 +82,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -98,6 +101,7 @@ const val SELECTION_EXPORT_TAG = "selection_export"
 const val SELECTION_EXPORT_GPKG_TAG = "selection_export_gpkg"
 const val SELECTION_STAKEOUT_REPORT_TAG = "selection_stakeout_report"
 const val SELECTION_POLE_TAG = "selection_pole"
+const val SELECTION_CODE_TAG = "selection_code"
 const val SELECTION_STAKEOUT_TAG = "selection_stakeout"
 const val POLE_FIELD_TAG = "pole_field"
 const val POLE_APPLY_TAG = "pole_apply"
@@ -154,6 +158,8 @@ class ObjectListActions(
     val onShowSelected: () -> Unit = {},
     val onDeleteSelected: () -> Unit = {},
     val onCorrectPole: (poleHeightM: Double) -> Unit = {},
+    /** «Cambiar código» de los puntos seleccionados (S024/RF-13). */
+    val onChangeCode: () -> Unit = {},
     val onDismissPoleOutcome: () -> Unit = {},
     /** "Replantear" con un solo punto elegido (S018/RF-1). */
     val onStakeout: (pointId: String) -> Unit = {},
@@ -169,6 +175,7 @@ class ObjectListViewModel @Inject constructor(
     private val points: PointRepository,
     private val projects: ProjectRepository,
     private val exportSelection: ExportSelection,
+    codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
@@ -189,6 +196,24 @@ class ObjectListViewModel @Inject constructor(
 
     fun start(id: String) {
         projectId.value = id
+    }
+
+    /** Cambiar el código de los puntos seleccionados (S024/RF-13). */
+    val changeCode = ChangeCode(viewModelScope, codeSource, points)
+
+    init {
+        // Aplicado el cambio, la selección ya no hace falta.
+        viewModelScope.launch {
+            changeCode.ui.map { it.result }.collect { result ->
+                if (result is CodeChangeResult.Changed) selected.value = emptySet()
+                if (result != null) changeCode.dismissResult()
+            }
+        }
+    }
+
+    fun openChangeCode() {
+        val project = projectId.value ?: return
+        changeCode.start(project, selected.value.toList())
     }
 
     fun search(text: String) {
@@ -311,11 +336,22 @@ fun ObjectListRoute(
             onShowSelected = { viewModel.setSelectedHidden(false) },
             onDeleteSelected = viewModel::deleteSelected,
             onCorrectPole = viewModel::correctSelectedPole,
+            onChangeCode = viewModel::openChangeCode, // S024/RF-13
             onDismissPoleOutcome = viewModel::dismissPoleOutcome,
             onStakeout = { pointId -> navigation.onStakeout(projectId, pointId, state.query) }, // S018/RF-1
         ),
         onBack = navigation.onBack,
     )
+    val changeCode by viewModel.changeCode.ui.collectAsStateWithLifecycle()
+    ChangeCodeDialogs(
+        changeCode,
+        ChangeCodeActions(
+            onQuery = viewModel.changeCode::setQuery,
+            onChoose = viewModel.changeCode::choose,
+            onConfirm = viewModel.changeCode::confirm,
+            onCancel = viewModel.changeCode::cancel,
+        ),
+    ) // S024/RF-13, RF-15
 }
 
 /**
@@ -602,6 +638,7 @@ private fun SelectionBar(count: Int, single: String?, actions: ObjectListActions
                     Triple(R.string.objects_hide, SELECTION_HIDE_TAG, actions.onHideSelected),
                     Triple(R.string.objects_show, SELECTION_SHOW_TAG, actions.onShowSelected),
                     Triple(R.string.objects_pole, SELECTION_POLE_TAG) { editPole = true },
+                    Triple(R.string.change_code_button, SELECTION_CODE_TAG, actions.onChangeCode), // S024/RF-13
                     Triple(R.string.export_selected, SELECTION_EXPORT_TAG, actions.onExportSelected),
                     Triple(R.string.gpkg_export_selected, SELECTION_EXPORT_GPKG_TAG, actions.onExportGeoPackageSelected), // S053/RF-2
                     Triple(R.string.objects_stakeout_report, SELECTION_STAKEOUT_REPORT_TAG, actions.onStakeoutReportSelected), // S019/RF-18

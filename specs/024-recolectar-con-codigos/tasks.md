@@ -38,7 +38,7 @@
       Hecho cuando: `CodeEditorViewModelTest` y el test de pantalla en verde.
 - [x] T18. `app`: ficha del punto con código y atributos, y edición con rastro. (RF-12)
       Hecho cuando: `PointDetailsCodeTest` en verde.
-- [ ] T19. `app`: «Cambiar código» en la ficha y en la selección de la lista, con el aviso de valores descartados. (RF-13, RF-15)
+- [x] T19. `app`: «Cambiar código» en la ficha y en la selección de la lista, con el aviso de valores descartados. (RF-13, RF-15)
       Hecho cuando: `ChangeCodeTest` en verde.
 - [ ] T20. `app`: lista de objetos con código visible, filtro y búsqueda por código. (RF-18)
       Hecho cuando: `ObjectListCodeTest` en verde.

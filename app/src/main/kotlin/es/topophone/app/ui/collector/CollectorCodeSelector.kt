@@ -118,7 +118,7 @@ private fun Swatch(rgb: Int) {
 }
 
 @Composable
-private fun CodePickerDialog(
+internal fun CodePickerDialog(
     code: CollectorCodeUi,
     onQuery: (String) -> Unit,
     onSelect: (SurveyCode?) -> Unit,

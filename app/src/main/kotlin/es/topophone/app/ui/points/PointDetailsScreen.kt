@@ -44,6 +44,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.cad.elementKindLabel
 import es.topophone.app.ui.codes.labelRes
+import es.topophone.app.ui.collector.CollectorCodeSource
 import es.topophone.app.ui.collector.rememberCollectorPhotoLaunchers
 import es.topophone.app.ui.photos.PhotoImages
 import es.topophone.app.ui.projects.ConfirmDialog
@@ -130,6 +131,7 @@ import kotlinx.coroutines.launch
 
 const val POINT_COORDINATES_TAG = "point_coordinates"
 const val POINT_CODE_TAG = "point_code"
+const val POINT_CHANGE_CODE_TAG = "point_change_code"
 const val POINT_MEASURED_COORDINATES_TAG = "point_measured_coordinates"
 const val POINT_REVERT_TAG = "point_revert"
 const val POINT_BASE_TAG = "point_base"
@@ -188,6 +190,8 @@ class PointDetailsActions(
     val onGallery: () -> Unit = {},
     /** Borra una foto, ya confirmado (S017b/RF-22). */
     val onDeletePhoto: (PointPhoto) -> Unit = {},
+    /** «Cambiar código» (S024/RF-13). */
+    val onChangeCode: () -> Unit = {},
 )
 
 /** Adónde va la ficha tras una acción: a la de la copia, o fuera si el punto se ha borrado. */
@@ -211,9 +215,17 @@ class PointDetailsViewModel @Inject constructor(
     val images: PhotoImages = PhotoImages.NONE,
     photoStore: PhotoStore = PhotoStore.NONE,
     savedState: SavedStateHandle = SavedStateHandle(),
+    codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val ids = MutableStateFlow<Pair<String, String>?>(null)
+
+    /** Cambiar el código de este punto (S024/RF-13). */
+    val changeCode = ChangeCode(viewModelScope, codeSource, points)
+
+    fun openChangeCode() {
+        ids.value?.let { (projectId, pointId) -> changeCode.start(projectId, listOf(pointId)) }
+    }
 
     /** Añade fotos al punto de la ficha, de la cámara o de la galería (S017b/RF-12). */
     val photoAdder = PointPhotoAdder(viewModelScope, photoRepository, photoStore, savedState)
@@ -338,11 +350,22 @@ fun PointDetailsRoute(
             onPhoto = photoLaunchers.camera, // S017b/RF-12
             onGallery = photoLaunchers.gallery,
             onDeletePhoto = viewModel::deletePhoto, // S017b/RF-22
+            onChangeCode = viewModel::openChangeCode, // S024/RF-13
         ),
         navigation.onBack,
         loadNmeaChunk = viewModel::nmeaChunk, // S017/RF-12
         photoImages = viewModel.images,
     )
+    val changeCode by viewModel.changeCode.ui.collectAsStateWithLifecycle()
+    ChangeCodeDialogs(
+        changeCode,
+        ChangeCodeActions(
+            onQuery = viewModel.changeCode::setQuery,
+            onChoose = viewModel.changeCode::choose,
+            onConfirm = viewModel.changeCode::confirm,
+            onCancel = viewModel.changeCode::cancel,
+        ),
+    ) // S024/RF-13, RF-15
 }
 
 /**
@@ -450,6 +473,7 @@ private fun Actions(state: PointDetailsUiState, point: Point, actions: PointDeta
         ActionButton(R.string.point_edit, POINT_EDIT_TAG, actions.onEdit)
         if (point.measurement != null) ActionButton(R.string.objects_pole, POINT_POLE_TAG) { pole = true }
         ActionButton(R.string.point_stakeout, POINT_STAKEOUT_TAG, actions.onStakeout) // S018/RF-1
+        ActionButton(R.string.change_code_button, POINT_CHANGE_CODE_TAG, actions.onChangeCode) // S024/RF-13
         ActionButton(R.string.point_duplicate, POINT_DUPLICATE_TAG, actions.onDuplicate)
         ActionButton(R.string.point_history, POINT_HISTORY_TAG) { history = true }
         ActionButton(R.string.objects_delete, POINT_DELETE_TAG) { confirmDelete = true }
