@@ -1,6 +1,6 @@
 # Spec 025 — Líneas y polígonos
 
-> Hito: H3 · Depende de: S024, S011 · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H3 · Depende de: S024, S011 · Estado: pendiente de aprobación (entrevistada 04/11/2026)
 
 ## Contexto y objetivo
 Un bordillo, una tapia, una zanja o una parcela no son puntos sueltos: son líneas que se levantan punto a punto y que el técnico necesita ver, exportar y replantear como un solo elemento. Hoy el proyecto solo tiene puntos (S011 anuncia las líneas para esta spec) y las líneas que se ven en el mapa vienen de un dibujo importado (S040), que es referencia de diseño y no se toca.
@@ -34,7 +34,8 @@ Términos de esta spec:
 - RF-5: CUANDO el usuario elija "Continuar línea", EL SISTEMA listará las líneas abiertas del proyecto con su código y su número de vértices y, al elegir una, la dejará como línea activa, de modo que los nuevos puntos se añadan tras su último vértice.
 - RF-6: CUANDO el usuario pulse "Deshacer vértice" con una línea activa, EL SISTEMA quitará de la línea su último vértice sin borrar el punto, que sigue en el proyecto.
 - RF-7: SI el punto que se mide es el mismo que el último vértice de la línea activa, ENTONCES EL SISTEMA no lo repetirá.
-- RF-8: SI la línea activa pasa a medir con otro código distinto del suyo, ENTONCES EL SISTEMA no añadirá el punto a la línea y creará una nueva línea si el código es de línea o de polígono.
+- RF-8: SI se mide un punto con un código distinto del de la línea activa, o sin código, ENTONCES EL SISTEMA no lo añadirá a la línea y esta seguirá activa; y si el código es de línea o de polígono, creará una nueva línea con ese punto y la dejará como línea activa en lugar de la anterior.
+- RF-8b: CUANDO se mida un punto con un código de línea o de polígono, EL SISTEMA pedirá los atributos del código solo al crear la línea, los guardará en la línea, y guardará en el punto el código por valor como en S024/RF-10 sin volver a pedirlos.
 - RF-9: EL SISTEMA conservará la línea activa al cerrar la app y la mantendrá al volver al recolector.
 
 ### Cerrar y abrir (H2)
@@ -81,7 +82,8 @@ Términos de esta spec:
 | Punto vértice de varias líneas, borrado a la papelera | RF-25 |
 | Cierre de la app con una línea activa | RF-9 |
 | Puntos «Calculado sobre eje» (S049/RF-22), importados o manuales como vértices | RF-12 |
-| Polígono con aristas que se cruzan | Dudas abiertas |
+| Polígono con aristas que se cruzan | Decisiones de la entrevista (se permite) |
+| Punto medido con otro código con una línea activa | RF-8 |
 | Proyecto con líneas importadas de un dibujo y líneas propias | RF-21 (solo las propias se editan) |
 
 ## Fuera de alcance
@@ -102,13 +104,12 @@ Términos de esta spec:
   - borrar un punto que es vértice y restaurarlo; ver la historia.
 - Demo de campo: queda para el usuario (levantar una acera con su código de línea).
 
-## Dudas abiertas
-- [SUPOSICIÓN: un vértice es siempre un punto del proyecto, referenciado y no copiado; así editar un punto mueve las líneas y el dato medido sigue siendo uno solo.]
-- [SUPOSICIÓN: solo hay una línea activa a la vez; se sigue añadiendo por el final y no por el principio.]
-- [SUPOSICIÓN: un código de polígono cierra la línea al terminarla, y un código de línea puede cerrarse a mano (RF-4, RF-10); el código sigue siendo el mismo.]
-- [SUPOSICIÓN: no se comprueba que un polígono no se cruce a sí mismo.]
-- [SUPOSICIÓN: la línea guarda el sentido de sus vértices y el PK parte del primero, como en S041; no se ofrece «ordenar por distancia».]
-- [SUPOSICIÓN: la papelera de puntos arrastra a las líneas como en RF-25; se prefiere no borrar una línea por borrar un punto.]
+## Decisiones de la entrevista (04/11/2026)
+- Los atributos del código de una línea se piden una vez, al crearla, y quedan en la línea; cada vértice medido guarda además el código por valor, sin pedirlos otra vez (RF-8b).
+- No se comprueba que un polígono se cruce a sí mismo y no se avisa (aristas que se cruzan: sin límite ni aviso).
+- Al borrar a la papelera un punto que es vértice, se avisa con los nombres de las líneas y estas lo omiten hasta que se restaure (RF-25).
+- Medir con otro código, o sin código, no termina la línea activa: sigue activa; un código de línea o de polígono distinto crea otra línea y la deja activa (RF-8).
+- Sin preguntar, por defecto razonable: un vértice es siempre un punto del proyecto, referenciado y no copiado; solo hay una línea activa y se añade por el final; un código de polígono cierra la línea al terminarla y uno de línea puede cerrarse a mano (RF-4, RF-10); el sentido de la línea y su PK parten del primer vértice como en S041, sin «ordenar por distancia».
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S025: dependencias «024, 011».
