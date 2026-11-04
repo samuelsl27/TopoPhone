@@ -46,7 +46,7 @@
       Hecho cuando: `MapLinesTest` y `LinesLayerTest` en verde.
 - [x] T22. `app`: rendimiento del mapa (1.000 líneas y 100.000 vértices) y de la ficha (100.000 vértices en menos de 1 s). (RNF-T13)
       Hecho cuando: `LinesPerformanceTest` en verde.
-- [ ] T23. `app`: exportar las líneas en las pantallas de GeoPackage. (RF-26)
+- [x] T23. `app`: exportar las líneas en las pantallas de GeoPackage. (RF-26)
       Hecho cuando: tests de exportación en verde.
 - [ ] T24. Accesibilidad y textos: etiquetas, 56 dp, abierta, polígono y activa con texto, es/en. (RNF-T7, RNF-T8)
       Hecho cuando: `LinesAccessibilityTest` en verde y sin textos literales en código.

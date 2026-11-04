@@ -2586,4 +2586,12 @@
     <string name="line_delete_confirm">La línea «%1$s» irá a la papelera. Sus puntos no cambian.</string>
     <string name="trash_lines_title">Líneas</string>
     <string name="trash_line_vertices">%1$s · %2$s</string>
+    <plurals name="gpkg_export_lines">
+        <item quantity="one">%d línea</item>
+        <item quantity="other">%d líneas</item>
+    </plurals>
+    <plurals name="gpkg_export_polygons">
+        <item quantity="one">%d polígono</item>
+        <item quantity="other">%d polígonos</item>
+    </plurals>
 </resources>

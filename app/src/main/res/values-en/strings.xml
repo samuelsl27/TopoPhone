@@ -2574,4 +2574,12 @@
     <string name="line_delete_confirm">The line “%1$s” will go to the trash. Its points do not change.</string>
     <string name="trash_lines_title">Lines</string>
     <string name="trash_line_vertices">%1$s · %2$s</string>
+    <plurals name="gpkg_export_lines">
+        <item quantity="one">%d line</item>
+        <item quantity="other">%d lines</item>
+    </plurals>
+    <plurals name="gpkg_export_polygons">
+        <item quantity="one">%d polygon</item>
+        <item quantity="other">%d polygons</item>
+    </plurals>
 </resources>

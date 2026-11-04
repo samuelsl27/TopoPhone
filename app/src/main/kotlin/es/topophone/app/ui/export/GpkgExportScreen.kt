@@ -42,6 +42,7 @@ import java.time.ZoneId
 import kotlinx.coroutines.launch
 
 const val GPKG_COUNT_TAG = "gpkg_count"
+const val GPKG_LINES_TAG = "gpkg_lines"
 const val GPKG_CRS_PROJECT_TAG = "gpkg_crs_project"
 const val GPKG_CRS_GEOGRAPHIC_TAG = "gpkg_crs_geographic"
 const val GPKG_CRS_FIXED_TAG = "gpkg_crs_fixed"
@@ -151,6 +152,20 @@ fun GpkgExportScreen(
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.testTag(GPKG_COUNT_TAG),
             ) // S053/RF-1, RF-11
+            if (state.lineCount > 0 || state.polygonCount > 0) {
+                // S025/RF-26: las líneas y los polígonos del proyecto van en sus propias capas.
+                Text(
+                    listOfNotNull(
+                        pluralStringResource(R.plurals.gpkg_export_lines, state.lineCount, state.lineCount).takeIf { state.lineCount > 0 },
+                        pluralStringResource(R.plurals.gpkg_export_polygons, state.polygonCount, state.polygonCount).takeIf {
+                            state.polygonCount >
+                                0
+                        },
+                    ).joinToString(" · "),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag(GPKG_LINES_TAG),
+                )
+            }
             Text(stringResource(R.string.gpkg_export_system), style = MaterialTheme.typography.labelLarge)
             if (state.canChooseCrs) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

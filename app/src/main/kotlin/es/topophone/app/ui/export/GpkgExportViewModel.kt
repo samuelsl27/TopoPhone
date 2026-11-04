@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.app.ui.points.ObjectLines
 import es.topophone.core.formats.csv.AttributeColumns
 import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.ExportFileName
 import es.topophone.core.formats.gpkg.GpkgSrsDefinitions
+import es.topophone.core.model.line.ProjectLine
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.GeodeticPosition
@@ -19,6 +21,7 @@ import es.topophone.data.gpkg.GeoPackageWriter
 import es.topophone.data.gpkg.GpkgExportCrs
 import es.topophone.data.gpkg.GpkgExportException
 import es.topophone.data.gpkg.GpkgExportSummary
+import es.topophone.data.gpkg.GpkgLineLayers
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import java.io.File
@@ -33,6 +36,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,6 +62,9 @@ data class GpkgExportUiState(
     val geographicSrsId: Int = 0,
     val summary: GpkgExportSummary? = null,
     val result: ExportResult? = null,
+    /** Cuántas líneas y polígonos del proyecto van al fichero, además de los puntos (S025/RF-26, S053/RF-3). */
+    val lineCount: Int = 0,
+    val polygonCount: Int = 0,
 ) {
     /** Hay puntos que exportar (RF-11). */
     val canExport: Boolean get() = loaded && pointCount > 0
@@ -74,9 +81,11 @@ class GpkgExportViewModel @Inject constructor(
     private val projects: ProjectRepository,
     private val selection: ExportSelection,
     private val log: AppLog = AppLog.NONE,
+    private val lines: ObjectLines = ObjectLines.NONE,
     private val calculator: Lazy<ProjectPositionCalculator> = Lazy { ProjectPositionCalculator() },
 ) : ViewModel() {
-    private data class Content(val project: Project, val points: List<Point>)
+    /** [lines] y [allPoints]: las líneas que van al fichero y todos los puntos del proyecto, de donde salen sus vértices (S025/RF-26). */
+    private data class Content(val project: Project, val points: List<Point>, val lines: List<ProjectLine>, val allPoints: List<Point>)
 
     private val writer = GeoPackageWriter()
     private val content = MutableStateFlow<Content?>(null)
@@ -88,6 +97,7 @@ class GpkgExportViewModel @Inject constructor(
         if (loaded == null) return@combine GpkgExportUiState()
         val project = loaded.project
         val geographic = chosen == GpkgExportCrs.GEOGRAPHIC || !project.crs.isUtm
+        val (lineCount, polygonCount) = GpkgLineLayers(loaded.lines, loaded.allPoints, geographic).counts
         GpkgExportUiState(
             loaded = true,
             projectName = project.name,
@@ -105,6 +115,8 @@ class GpkgExportViewModel @Inject constructor(
             geographicSrsId = GpkgSrsDefinitions.geographicOf(project.crs).srsId,
             summary = last,
             result = outcome,
+            lineCount = lineCount,
+            polygonCount = polygonCount,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), GpkgExportUiState())
 
@@ -115,7 +127,16 @@ class GpkgExportViewModel @Inject constructor(
             val project = projects.project(projectId) ?: return@launch
             val all = points.pointsForExport(projectId)
             val chosen = if (selectionOnly) selection.ids.let { ids -> all.filter { it.id in ids } } else all
-            content.value = Content(project, chosen)
+            // S025/RF-26: con todos los puntos, todas las líneas; con una selección, las líneas cuyos vértices están todos en ella.
+            val projectLines = lines.lines(projectId).first()
+            val exported = if (selectionOnly) {
+                selection.ids.let { ids ->
+                    projectLines.filter { line -> line.pointIds.all { it in ids } }
+                }
+            } else {
+                projectLines
+            }
+            content.value = Content(project, chosen, exported, all)
         }
     }
 
@@ -145,6 +166,7 @@ class GpkgExportViewModel @Inject constructor(
                         into,
                         baseProjection(loaded.project),
                         attributes = AttributeColumns.of(loaded.points), // S024/RF-21
+                        extraLayers = listOf(GpkgLineLayers(loaded.lines, loaded.allPoints, geographic(loaded.project))), // S025/RF-26
                     ) ?: return@withContext false
                 summary.value = written
                 true
@@ -193,6 +215,9 @@ class GpkgExportViewModel @Inject constructor(
             null -> Unit
         }
     }
+
+    /** Si la capa se escribe en geográficas: las eligió el usuario o el proyecto ya está en ellas (S053/RF-6, RF-7). */
+    private fun geographic(project: Project): Boolean = crs.value == GpkgExportCrs.GEOGRAPHIC || !project.crs.isUtm
 
     /** La base de cada punto en el SC actual del proyecto (S015/RF-22); casi todos los puntos comparten base: se calcula una vez por posición. */
     private fun baseProjection(project: Project): (PointBase) -> BaseProjection? {
