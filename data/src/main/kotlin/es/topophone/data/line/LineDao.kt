@@ -108,6 +108,36 @@ interface LineDao {
     @Query("DELETE FROM line_attributes WHERE line_id = :lineId")
     suspend fun deleteAttributes(lineId: String)
 
+    @Query("UPDATE project_lines SET hidden = :hidden WHERE id = :id AND deleted_at IS NULL")
+    suspend fun setHidden(id: String, hidden: Boolean)
+
+    @Query("UPDATE project_lines SET deleted_at = :now, trash_key = id, active = 0 WHERE id = :id AND deleted_at IS NULL")
+    suspend fun moveToTrash(id: String, now: Long): Int
+
+    @Query("SELECT * FROM project_lines WHERE project_id = :projectId AND deleted_at IS NOT NULL ORDER BY deleted_at DESC")
+    fun trash(projectId: String): Flow<List<ProjectLineEntity>>
+
+    @Query(
+        "SELECT v.* FROM line_vertices v JOIN project_lines l ON l.id = v.line_id JOIN points p ON p.id = v.point_id " +
+            "WHERE l.project_id = :projectId AND l.deleted_at IS NOT NULL AND p.deleted_at IS NULL ORDER BY v.line_id, v.ordinal",
+    )
+    fun trashVertices(projectId: String): Flow<List<LineVertexEntity>>
+
+    @Query(
+        "SELECT a.* FROM line_attributes a JOIN project_lines l ON l.id = a.line_id " +
+            "WHERE l.project_id = :projectId AND l.deleted_at IS NOT NULL ORDER BY a.line_id, a.ordinal",
+    )
+    fun trashAttributes(projectId: String): Flow<List<LineAttributeEntity>>
+
+    @Query("UPDATE project_lines SET deleted_at = NULL, trash_key = '', name = :name WHERE id = :id AND deleted_at IS NOT NULL")
+    suspend fun restore(id: String, name: String): Int
+
+    @Query("DELETE FROM project_lines WHERE id = :id AND deleted_at IS NOT NULL")
+    suspend fun deleteFromTrash(id: String)
+
+    @Query("DELETE FROM project_lines WHERE deleted_at IS NOT NULL AND deleted_at < :limit")
+    suspend fun purge(limit: Long): Int
+
     @Query("SELECT id, name FROM points WHERE id IN (:ids)")
     suspend fun pointNames(ids: List<String>): List<PointNameRow>
 

@@ -22,6 +22,7 @@ import es.topophone.core.model.point.Point
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
+import es.topophone.data.project.ProjectRepository
 import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -68,6 +69,9 @@ sealed interface LineSaveResult {
  */
 data class LineUpdate(val name: String? = null, val pointIds: List<String>? = null, val attributes: List<PointAttribute>? = null)
 
+/** Una línea en la papelera con los días que le quedan antes de borrarse del todo (S025/RF-24). */
+data class TrashedLine(val line: ProjectLine, val daysLeft: Int)
+
 /** Una línea nueva a partir de puntos que ya existen (S025/RF-12 a RF-15). [name] vacío usa el nombre propuesto. */
 data class NewLine(
     val projectId: String,
@@ -113,6 +117,24 @@ interface LineRepository {
 
     /** Quita el último vértice de la línea sin borrar el punto (RF-6). */
     suspend fun undoVertex(id: String): LineActionResult
+
+    /** Oculta o muestra la línea en el mapa; sus puntos no cambian (RF-23). */
+    suspend fun setHidden(id: String, hidden: Boolean)
+
+    /** Mueve la línea a la papelera del proyecto sin tocar sus puntos; deja de ser la activa (RF-24). */
+    suspend fun moveToTrash(id: String)
+
+    /** Las líneas de la papelera del proyecto, la más reciente primero (RF-24). */
+    fun trash(projectId: String): Flow<List<TrashedLine>>
+
+    /** Restaura una línea con todos sus datos y su historial; con [newName] si el suyo está ocupado (RF-24). */
+    suspend fun restore(id: String, newName: String? = null): LineSaveResult
+
+    /** Borra del todo una línea de la papelera, con su historial (RF-24). */
+    suspend fun deletePermanently(id: String)
+
+    /** Borra las líneas que llevan 30 días en la papelera; devuelve cuántas (RF-24). */
+    suspend fun purgeTrash(): Int
 
     /** El nombre que se propone para una línea nueva con el código [code] (RF-2, RF-14). */
     suspend fun suggestName(projectId: String, code: String?): String
@@ -249,6 +271,39 @@ class RoomLineRepository(
         LineActionResult.DONE
     }
 
+    override suspend fun setHidden(id: String, hidden: Boolean) = dao.setHidden(id, hidden)
+
+    override suspend fun moveToTrash(id: String) {
+        dao.moveToTrash(id, clock())
+    }
+
+    override fun trash(projectId: String): Flow<List<TrashedLine>> =
+        combine(dao.trash(projectId), dao.trashVertices(projectId), dao.trashAttributes(projectId)) { lines, vertices, attributes ->
+            val verticesByLine = vertices.groupBy { it.lineId }
+            val attributesByLine = attributes.groupBy { it.lineId }
+            lines.map { entity ->
+                val daysIn = ((clock() - (entity.deletedAt ?: clock())) / DAY_MS).toInt()
+                TrashedLine(
+                    entity.toLine(verticesByLine[entity.id].orEmpty(), attributesByLine[entity.id].orEmpty()),
+                    (ProjectRepository.TRASH_DAYS - daysIn).coerceAtLeast(0),
+                )
+            }
+        }
+
+    override suspend fun restore(id: String, newName: String?): LineSaveResult {
+        val current = dao.byId(id)?.takeIf { it.deletedAt != null } ?: return LineSaveResult.NotFound
+        return try {
+            dao.restore(id, newName ?: current.name)
+            LineSaveResult.Saved(id)
+        } catch (_: SQLiteConstraintException) {
+            LineSaveResult.DuplicateName
+        }
+    }
+
+    override suspend fun deletePermanently(id: String) = dao.deleteFromTrash(id)
+
+    override suspend fun purgeTrash(): Int = dao.purge(limit = clock() - ProjectRepository.TRASH_DAYS * DAY_MS)
+
     override suspend fun suggestName(projectId: String, code: String?): String = LineNaming.next(code, dao.names(projectId))
 
     override suspend fun close(id: String): LineSaveResult = setClosed(id, closed = true)
@@ -370,5 +425,6 @@ class RoomLineRepository(
     private companion object {
         /** Menos que el límite de variables de una consulta de SQLite. */
         const val SQL_CHUNK = 500
+        const val DAY_MS = 24L * 60 * 60 * 1000
     }
 }
