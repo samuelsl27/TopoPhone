@@ -36,6 +36,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Biblioteca por defecto | `CodeLibrary.isDefault` | La que viene con la app: «Topografía general» y «Urbanización»; de solo lectura (S023) |
 | Biblioteca vinculada | `LibraryChoice` | La copia de una biblioteca que lleva un proyecto; no cambia si cambia la original (S023) |
 | Atributo | `Attribute` | Text, Integer, Number, List |
+| Código del proyecto | `ProjectCode` | Los de la biblioteca vinculada más los creados en el proyecto; el recolector ofrece los de geometría Punto (S024) |
+| Códigos recientes | `RecentCodes` | Los últimos 10 códigos distintos usados en el proyecto (S024) |
+| Símbolo (del código) | `CodeSymbol` | Círculo, cuadrado, triángulo, rombo, cruz o estrella; solo se elige en los códigos del proyecto (S024) |
+| Código del punto | `PointCode` | El código, color, símbolo y atributos con que se guardó un punto, por valor (S024) |
 | Recolector | `Collector` | |
 | Recolectar / medir punto | `collectPoint` | |
 | Promediado | `Averaging` | |

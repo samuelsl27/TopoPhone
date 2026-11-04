@@ -17,7 +17,10 @@ data class CodeAttribute(
     val options: List<String> = emptyList(),
 )
 
-/** Un código de levantamiento de una biblioteca (S023/RF-5). [color] es 0xRRGGBB. */
+/** La forma con que el mapa dibuja los puntos de un código (S024/RF-5, RF-17). */
+enum class CodeSymbol { CIRCLE, SQUARE, TRIANGLE, DIAMOND, CROSS, STAR }
+
+/** Un código de levantamiento de una biblioteca (S023/RF-5). [color] es 0xRRGGBB; [symbol] solo se elige en los códigos del proyecto (S024). */
 data class SurveyCode(
     val id: String,
     val code: String,
@@ -25,6 +28,7 @@ data class SurveyCode(
     val geometry: CodeGeometry,
     val color: Int,
     val attributes: List<CodeAttribute> = emptyList(),
+    val symbol: CodeSymbol = CodeSymbol.CIRCLE,
 )
 
 /** Una biblioteca de códigos; las [isDefault] vienen con la app y son de solo lectura (S023/RF-3). */
@@ -66,3 +70,18 @@ object CodePalette {
         return t.drop(1).toInt(16)
     }
 }
+
+/** El valor de un atributo tal como se guardó con el punto: con su nombre y su tipo, en texto canónico (S024/RF-10). */
+data class PointAttribute(val name: String, val type: AttributeType, val value: String)
+
+/**
+ * El código con que se guardó un punto, por valor: lo que tenía el código al medir, aunque la biblioteca cambie
+ * o se borre después (S024/RF-10). [color] es 0xRRGGBB.
+ */
+data class PointCode(
+    val code: String,
+    val description: String,
+    val color: Int,
+    val symbol: CodeSymbol,
+    val attributes: List<PointAttribute> = emptyList(),
+)

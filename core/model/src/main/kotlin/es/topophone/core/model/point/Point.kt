@@ -2,6 +2,8 @@ package es.topophone.core.model.point
 
 import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.alignment.slope.SlopeStakeInfo
+import es.topophone.core.model.codes.CodeSymbol
+import es.topophone.core.model.codes.PointCode
 import java.math.BigInteger
 import java.text.Normalizer
 import java.util.Locale
@@ -250,6 +252,8 @@ data class Point(
     val importId: String? = null,
     /** De qué eje, PK y desplazamiento se calculó un punto de origen [PointOrigin.ON_ALIGNMENT] (S049/RF-22); null en los demás. */
     val onAxis: AxisRef? = null,
+    /** El código con que se guardó el punto, por valor; null si no lleva (S024/RF-10). */
+    val code: PointCode? = null,
 ) {
     /** Sin altura elipsoidal no hay altura en ningún sistema (S011/RF-18). */
     val hasHeight: Boolean get() = coordinates.ground.ellipsoidalHeightM != null
@@ -270,6 +274,9 @@ data class Point(
         hidden = hidden,
         createdAtMs = createdAtMs,
         slopeKind = staked?.slope?.kind,
+        code = code?.code,
+        codeColor = code?.color,
+        codeSymbol = code?.symbol,
     )
 
     companion object {
@@ -357,6 +364,10 @@ data class PointSummary(
     val photoCount: Int = 0,
     /** Si es un punto de talud replanteado, su tipo, para su símbolo en el mapa (S051/RF-16). */
     val slopeKind: SlopeKind? = null,
+    /** El código del punto, su color y su símbolo guardados al medir (S024/RF-10, RF-17). */
+    val code: String? = null,
+    val codeColor: Int? = null,
+    val codeSymbol: CodeSymbol? = null,
 )
 
 /** Búsqueda de la lista de objetos por nombre o descripción, sin distinguir mayúsculas ni acentos (S011/RF-2). */
