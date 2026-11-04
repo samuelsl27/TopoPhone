@@ -35,8 +35,10 @@ import es.topophone.data.ntrip.NtripProfileEntity
 import es.topophone.data.photo.PhotoDao
 import es.topophone.data.photo.PhotoEventEntity
 import es.topophone.data.photo.PointPhotoEntity
+import es.topophone.data.point.PointAttributeEntity
 import es.topophone.data.point.PointDao
 import es.topophone.data.point.PointEntity
+import es.topophone.data.point.PointHistoryAttributeEntity
 import es.topophone.data.point.PointHistoryEntity
 import es.topophone.data.point.PointNmeaEntity
 import es.topophone.data.project.ProjectDao
@@ -96,6 +98,9 @@ import es.topophone.data.surface.SurfaceTileEntity
  * - v27 (S052): las tomas lineales (`linear_surveys`) y los puntos de cada una (`linear_survey_points`). Solo añade tablas: migración de Room.
  * - v28 (S023): las bibliotecas de códigos (`code_libraries`, `library_codes`, `code_attributes` y `attribute_options`); una fila con `project_id`
  *   es la copia que lleva un proyecto. Solo añade tablas: migración de Room.
+ * - v29 (S024): el código de cada punto (`code`, `code_description`, `code_color`, `code_symbol`) y sus atributos (`point_attributes`), lo mismo en
+ *   el historial (`point_history_attributes`), el símbolo de cada código y `project_codes_of` en `code_libraries` (los códigos creados en un
+ *   proyecto). Columnas que admiten NULL o con valor por defecto y tablas nuevas: migración de Room.
  */
 @Database(
     entities = [
@@ -106,6 +111,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         PointPhotoEntity::class, PhotoEventEntity::class, SectionTemplateEntity::class, SectionProfileEntity::class,
         SuperelevationRowEntity::class, SlopeRuleEntity::class, LinearSurveyEntity::class, LinearSurveyPointEntity::class,
         CodeLibraryEntity::class, LibraryCodeEntity::class, CodeAttributeEntity::class, AttributeOptionEntity::class,
+        PointAttributeEntity::class, PointHistoryAttributeEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -137,6 +143,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 25, to = 26),
         AutoMigration(from = 26, to = 27),
         AutoMigration(from = 27, to = 28),
+        AutoMigration(from = 28, to = 29),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -173,7 +180,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 28
+        const val VERSION = 29
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

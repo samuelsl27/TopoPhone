@@ -14,7 +14,7 @@
       Hecho cuando: `AttributeCarryOverTest` en verde.
 - [x] T6. `core:model`: `PointSnapshot` con código, `PointChange.CODE`, `HistoryLine.Code` y `PointSearch` por código. (RF-12, RF-14, RF-18)
       Hecho cuando: `PointHistoryCodeTest` y `PointSearchCodeTest` en verde.
-- [ ] T7. `data`: Room v29 (columnas y tablas de D1 a D4), `AutoMigration(28, 29)` y el esquema 29. (RNF-T6)
+- [x] T7. `data`: Room v29 (columnas y tablas de D1 a D4), `AutoMigration(28, 29)` y el esquema 29. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 28 a 29 en verde.
 - [ ] T8. `data`: `PointRepository.create` guarda código y atributos en la misma transacción y los lee (punto, resumen). (RF-10)
       Hecho cuando: `PointCodeRepositoryTest` en verde.

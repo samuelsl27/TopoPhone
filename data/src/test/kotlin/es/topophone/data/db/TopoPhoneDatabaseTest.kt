@@ -1426,9 +1426,69 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S024 RNF-T6 v28 a v29 los puntos y las bibliotecas siguen y el codigo de los puntos nace vacio`() {
+        createFromExportedSchema(28)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v28 ->
+            v28.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v28.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+            v28.execSQL("INSERT INTO code_libraries VALUES ('l1', 'Mis codigos', 'mis codigos', NULL, NULL, 1)")
+            v28.execSQL("INSERT INTO library_codes VALUES ('c1', 'l1', 'ARQ', 'arq', 'Arqueta', 'POINT', 2000000)")
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val point = runBlocking { RoomPointRepository(db).points(project.id).first() }.single()
+            point.measurement.shouldNotBeNull().coordinates.northing shouldBe 4474257.414123456
+            count(db, "point_attributes") shouldBe 0
+            count(db, "point_history_attributes") shouldBe 0
+            // Los codigos de antes siguen y toman el circulo; los puntos no llevan codigo.
+            val sql = db.openHelper.writableDatabase
+            sql.query("SELECT symbol FROM library_codes WHERE id = 'c1'").use {
+                it.moveToFirst() shouldBe true
+                it.getString(0) shouldBe "CIRCLE"
+            }
+            sql.query("SELECT code, code_description, code_color, code_symbol FROM points").use { c ->
+                c.moveToFirst() shouldBe true
+                (0..3).forEach { c.isNull(it) shouldBe true }
+            }
+
+            // Los codigos del proyecto son una biblioteca mas, unica por proyecto, que se borra con el.
+            sql.execSQL("INSERT INTO code_libraries VALUES ('l2', 'Proyecto', 'proyecto', NULL, NULL, 2, ?)", arrayOf<Any>(project.id))
+            shouldThrow<SQLiteConstraintException> {
+                sql.execSQL("INSERT INTO code_libraries VALUES ('l3', 'Otra', 'otra', NULL, NULL, 3, ?)", arrayOf<Any>(project.id))
+            }
+            sql.execSQL("INSERT INTO point_attributes VALUES ('punto-1', 0, 'Diametro', 'NUMBER', '0.123456789012345')")
+            shouldThrow<SQLiteConstraintException> {
+                sql.execSQL("INSERT INTO point_attributes VALUES ('punto-1', 0, 'Otro', 'TEXT', 'x')")
+            }
+            sql.execSQL("DELETE FROM points WHERE id = 'punto-1'")
+            count(db, "point_attributes") shouldBe 0
+            sql.execSQL("DELETE FROM projects WHERE id = ?", arrayOf<Any>(project.id))
+            count(db, "code_libraries") shouldBe 1
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 28
+        const val CURRENT_VERSION = 29
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

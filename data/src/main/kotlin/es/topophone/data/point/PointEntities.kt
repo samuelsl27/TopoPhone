@@ -210,6 +210,11 @@ data class PointEntity(
     @ColumnInfo(name = "slope_height") val slopeHeight: Double? = null,
     @ColumnInfo(name = "slope_d_height") val slopeDHeight: Double? = null,
     @ColumnInfo(name = "slope_stake_offset") val slopeStakeOffset: Double? = null,
+    /** El codigo con que se guardo el punto, por valor (S024/RF-10, plan D3); NULL si no lleva. [codeColor] es 0xRRGGBB. */
+    val code: String? = null,
+    @ColumnInfo(name = "code_description") val codeDescription: String? = null,
+    @ColumnInfo(name = "code_color") val codeColor: Int? = null,
+    @ColumnInfo(name = "code_symbol") val codeSymbol: String? = null,
 )
 
 /**
@@ -259,6 +264,48 @@ data class PointHistoryEntity(
     @ColumnInfo(name = "typed_height") val typedHeight: Double?,
     @ColumnInfo(name = "typed_height_kind") val typedHeightKind: String?,
     val edited: Boolean,
+    /** El codigo que tenia el punto antes del cambio (S024/RF-14, plan D4); NULL si no llevaba. */
+    val code: String? = null,
+    @ColumnInfo(name = "code_description") val codeDescription: String? = null,
+    @ColumnInfo(name = "code_color") val codeColor: Int? = null,
+    @ColumnInfo(name = "code_symbol") val codeSymbol: String? = null,
+)
+
+/** El valor de un atributo del codigo de un punto, con su nombre y su tipo, en texto canonico (S024/RF-10, plan D3). */
+@Entity(
+    tableName = "point_attributes",
+    primaryKeys = ["point_id", "ordinal"],
+    foreignKeys = [
+        ForeignKey(entity = PointEntity::class, parentColumns = ["id"], childColumns = ["point_id"], onDelete = ForeignKey.CASCADE),
+    ],
+)
+data class PointAttributeEntity(
+    @ColumnInfo(name = "point_id") val pointId: String,
+    val ordinal: Int,
+    val name: String,
+    val type: String,
+    val value: String,
+)
+
+/** Los valores de los atributos que tenia un punto en una version del historial (S024/RF-14, plan D4). */
+@Entity(
+    tableName = "point_history_attributes",
+    primaryKeys = ["history_id", "ordinal"],
+    foreignKeys = [
+        ForeignKey(
+            entity = PointHistoryEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["history_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+)
+data class PointHistoryAttributeEntity(
+    @ColumnInfo(name = "history_id") val historyId: String,
+    val ordinal: Int,
+    val name: String,
+    val type: String,
+    val value: String,
 )
 
 internal fun Point.toEntity(): PointEntity {

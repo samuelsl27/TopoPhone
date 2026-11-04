@@ -21,8 +21,14 @@ import kotlinx.coroutines.flow.Flow
     tableName = "code_libraries",
     foreignKeys = [
         ForeignKey(entity = ProjectEntity::class, parentColumns = ["id"], childColumns = ["project_id"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(
+            entity = ProjectEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["project_codes_of"],
+            onDelete = ForeignKey.CASCADE,
+        ),
     ],
-    indices = [Index(value = ["project_id"], unique = true), Index("name_key")],
+    indices = [Index(value = ["project_id"], unique = true), Index("name_key"), Index(value = ["project_codes_of"], unique = true)],
 )
 data class CodeLibraryEntity(
     @PrimaryKey val id: String,
@@ -31,6 +37,8 @@ data class CodeLibraryEntity(
     @ColumnInfo(name = "project_id") val projectId: String?,
     @ColumnInfo(name = "source_name") val sourceName: String?,
     @ColumnInfo(name = "created_at_ms") val createdAtMs: Long,
+    /** Con el, la fila no es una biblioteca ni una copia: son los codigos creados en ese proyecto (S024, plan D1). */
+    @ColumnInfo(name = "project_codes_of") val projectCodesOf: String? = null,
 )
 
 /** Un código de una biblioteca; [codeKey] es único en ella (S023/RF-6). [geometry] es `POINT`, `LINE` o `POLYGON`; [color], 0xRRGGBB. */
@@ -49,6 +57,8 @@ data class LibraryCodeEntity(
     val description: String,
     val geometry: String,
     val color: Int,
+    /** `CIRCLE`, `SQUARE`, `TRIANGLE`, `DIAMOND`, `CROSS` o `STAR`; solo se elige en los codigos del proyecto (S024, plan D2). */
+    @ColumnInfo(defaultValue = "CIRCLE") val symbol: String = "CIRCLE",
 )
 
 /** Un atributo de un código, en su orden. [type] es `TEXT`, `INTEGER`, `NUMBER` o `LIST`; [defaultValue] es texto canónico (D7). */
