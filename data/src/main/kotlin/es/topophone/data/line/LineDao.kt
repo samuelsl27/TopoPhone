@@ -74,6 +74,15 @@ interface LineDao {
     )
     fun visibleVerticesOf(lineId: String): Flow<List<LineVertexEntity>>
 
+    @Query(
+        "SELECT v.* FROM line_vertices v JOIN points p ON p.id = v.point_id " +
+            "WHERE v.line_id = :lineId AND p.deleted_at IS NULL ORDER BY v.ordinal",
+    )
+    suspend fun visibleVerticesOfNow(lineId: String): List<LineVertexEntity>
+
+    @Query("DELETE FROM line_vertices WHERE line_id = :lineId AND ordinal = :ordinal")
+    suspend fun deleteVertex(lineId: String, ordinal: Int)
+
     /** Todos los vértices de la línea, también los de puntos en la papelera: lo que se reescribe al editar (S025/D7). */
     @Query("SELECT * FROM line_vertices WHERE line_id = :lineId ORDER BY ordinal")
     suspend fun allVerticesOf(lineId: String): List<LineVertexEntity>

@@ -37,7 +37,7 @@ class LineRepositoryTest {
     private var now = 1_000L
     private val projects = RoomProjectRepository(db, clock = { now })
     private val points = RoomPointRepository(db, clock = { now })
-    private val lines = RoomLineRepository(db, clock = { now })
+    private val lines = RoomLineRepository(db, points, clock = { now })
     private val dao = db.lines()
 
     @After

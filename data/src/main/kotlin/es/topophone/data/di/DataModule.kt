@@ -172,7 +172,7 @@ object DatabaseModule {
     /** Las líneas y los polígonos del proyecto (S025). */
     @Provides
     @Singleton
-    fun provideLineRepository(database: TopoPhoneDatabase): LineRepository = RoomLineRepository(database)
+    fun provideLineRepository(database: TopoPhoneDatabase, points: PointRepository): LineRepository = RoomLineRepository(database, points)
 
     /** Puntos recolectados (S010). */
     @Provides

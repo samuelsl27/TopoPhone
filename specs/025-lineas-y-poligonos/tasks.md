@@ -18,7 +18,7 @@
       Hecho cuando: `TopoPhoneDatabaseTest` 29 a 30 en verde.
 - [x] T8. `data`: `LineRepository` lectura (`lines`, `summaries`, `line`, `active`, `history`) y mapeos. (RF-21)
       Hecho cuando: `LineRepositoryTest` de lectura en verde.
-- [ ] T9. `data`: `saveMeasured` en una transacción, una sola línea activa, `finish`, `continueLine` y `undoVertex`. (RF-2 a RF-9, RF-8b)
+- [x] T9. `data`: `saveMeasured` en una transacción, una sola línea activa, `finish`, `continueLine` y `undoVertex`. (RF-2 a RF-9, RF-8b)
       Hecho cuando: los tests de medir, terminar, continuar, deshacer y reinicio de la base en verde, con añadir un vértice en menos de 100 ms.
 - [ ] T10. `data`: `close`, `open` y `createFromPoints`. (RF-10, RF-11, RF-14, RF-15)
       Hecho cuando: tests en verde y ningún punto modificado.
