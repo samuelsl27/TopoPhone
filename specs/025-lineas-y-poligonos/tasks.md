@@ -6,7 +6,7 @@
       Hecho cuando: los tests de `core:model` en verde.
 - [x] T2. `core:model`: `LineNaming` y `LineRules` (mínimos de vértices, cierre, abrir, invertir, repetidos seguidos). (RF-2, RF-4, RF-10, RF-11, RF-15, RF-19)
       Hecho cuando: `LineNamingTest` y `LineRulesTest` en verde.
-- [ ] T3. `core:model`: `LineTarget.decide` (añadir, crear o nada). (RF-2, RF-3, RF-7, RF-8)
+- [x] T3. `core:model`: `LineTarget.decide` (añadir, crear o nada). (RF-2, RF-3, RF-7, RF-8)
       Hecho cuando: `LineTargetTest` en verde.
 - [ ] T4. `core:model`: `LineEdit` y `LineChainage` (PK de cada vértice). (RF-16, RF-17)
       Hecho cuando: `LineEditTest` y `LineChainageTest` en verde.
