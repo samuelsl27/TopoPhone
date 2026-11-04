@@ -117,4 +117,19 @@ Igual que S024/A3 (`AttributeCarryOver`), con el aviso de valores que se pierden
 | RNF-T13 y rendimiento | D9 | `LinesPerformanceTest`, pruebas de añadir vértice y de abrir la ficha |
 
 ## Cambios al implementar
-(se rellena durante la implementación)
+- **D1, geometría de la línea:** `project_lines` lleva además `geometry` (`LINE` o `POLYGON`, la del código al crearla), porque RF-4 cierra al terminar solo las líneas de un código de polígono y el código guardado por valor (`PointCode`) no sabe su geometría. `ProjectLine.geometry`.
+- **D4, `saveMeasured`:** recibe un tercer parámetro `save` con el guardado del punto, que el recolector rellena con el de las fotos (`createWithPhotos`) o con `create`, así punto, fotos y vértice siguen en una sola transacción. El recolector no habla con `LineRepository` sino con `CollectorLines` (con `NONE`, como `CollectorCodeSource`) y `CollectorLineRules` decide si los atributos salen de la línea activa (D11).
+- **D5, nombre:** al crear desde puntos, si el usuario no ha escrito el nombre se recalcula `suggestName` al pulsar «Crear línea» con el código y la numeración de ese momento (el propuesto al abrir el asistente salía sin código).
+- **D6, historial:** medir, deshacer un vértice, terminar y el cierre automático de un código de polígono al terminar no se anotan. Editar los vértices parte de la lista que se ve en la ficha; un vértice cuyo punto está en la papelera no se conserva al reescribir los vértices (RF-25 solo vale mientras nadie edite la línea).
+- **D7, papelera de puntos:** `LineHistoryWriter` (compartido por `RoomLineRepository` y `RoomPointRepository`) escribe `VERTEX_REMOVED` antes de `deletePermanently` y de `purgeTrash`.
+- **Lecturas coherentes:** `lines`, `summaries`, `line`, `active`, `history`, `trash` y `vertexPoints` leen una instantánea dentro de una transacción cada vez que cambia alguna de sus tablas (`InvalidationTracker.createFlow`), en vez de combinar consultas independientes que dejaban ver una línea con los vértices o el historial de antes.
+- **Ficha de 100.000 vértices:** la ficha lee `vertexPoints` (nombre, Este y Norte de cada vértice con un `JOIN`) en vez de todos los puntos del proyecto, y los puntos del selector solo se cargan al abrirlo; la ficha abre en menos de 1 s.
+- **D9, mapa:** `MapLines.scene` escribe el GeoJSON de las líneas visibles en `ProjectViewModel` (hilo de fondo) y `showLines` solo se lo pasa a MapLibre (`LineScene`). Las capas son `topophone-lines-fill`, `topophone-lines` y `topophone-line-labels`, debajo de los puntos; tocar una línea emite `lineClicks`.
+- **RF-12, mapa:** el asistente «Línea desde puntos» elige los puntos tocándolos en su lista; elegirlos tocando el mapa no se ha hecho (el RF dice «en la lista o en el mapa»).
+- **RF-24, borrar:** la línea se borra desde su ficha («Borrar línea», con confirmación); la lista de objetos permite abrirla y ocultarla. La papelera de líneas es una sección «Líneas» de la papelera del proyecto.
+- **RF-20, `ChangeLineCode`:** reutiliza `ChangeCodeUi`, `ChangeCodeActions` y `ChangeCodeDialogs`, con `allowNone = false` (una línea siempre lleva código).
+- **RF-26, selección:** con puntos seleccionados el GeoPackage lleva solo las líneas cuyos vértices están todos en la selección.
+- **`ObjectLines`:** una interfaz de la app (con `NONE`) para que la lista de objetos, la papelera, la ficha del punto, el mapa y la exportación vean las líneas sin cambiar el constructor de sus tests.
+- **Deshacer el único vértice:** la línea queda activa y vacía; el siguiente punto con su código se añade a ella.
+- **Tests heredados que cambian:** `CollectorCodeViewModelTest` (el selector del recolector ya ofrece los códigos de línea, S025/RF-1) en dos pruebas; `FakeMapController` y `projectViewModel` ganan líneas.
+- **D12, otras specs:** no se han tocado los `spec.md` de S010, S011, S013, S024 ni S053; el glosario y la hoja de ruta sí. La fila de S025 pasa a `implementada` (Room v30).
