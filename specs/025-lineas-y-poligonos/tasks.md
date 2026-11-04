@@ -30,7 +30,7 @@
       Hecho cuando: `LinePointTrashTest` en verde.
 - [x] T14. `data`: copia de seguridad y paquetes con las tablas nuevas. (RF-26, RNF-T6)
       Hecho cuando: `LineBackupTest` en verde.
-- [ ] T15. `core:formats` y `data`: capas `lines` y `polygons` del GeoPackage. (RF-26)
+- [x] T15. `core:formats` y `data`: capas `lines` y `polygons` del GeoPackage. (RF-26)
       Hecho cuando: `GpkgLinesTest` y `GeoPackageWriterLinesTest` en verde.
 - [ ] T16. `app`: estado de línea activa en el recolector, el guardado con `saveMeasured` y el formulario de atributos según D11. (RF-1, RF-2, RF-3, RF-7, RF-8, RF-8b, RF-9)
       Hecho cuando: `CollectorLineViewModelTest` en verde, con pantalla encendida con línea activa.

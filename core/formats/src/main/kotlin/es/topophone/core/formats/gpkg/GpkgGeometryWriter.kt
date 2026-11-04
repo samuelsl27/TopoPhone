@@ -15,6 +15,10 @@ object GpkgGeometryWriter {
     private const val WKB_LITTLE_ENDIAN: Byte = 1
     private const val WKB_POINT = 1
     private const val WKB_POINT_Z = 1001
+    private const val WKB_LINE = 2
+    private const val WKB_LINE_Z = 1002
+    private const val WKB_POLYGON = 3
+    private const val WKB_POLYGON_Z = 1003
     private const val DOUBLE_BYTES = 8
 
     /** El blob de un punto en ([x], [y]) con la altura [z] como tercera coordenada si la hay, en el sistema [srsId]. */
@@ -44,6 +48,42 @@ object GpkgGeometryWriter {
     fun of(srsId: Int, x: Double?, y: Double?, z: Double?): ByteArray {
         if (x == null || y == null || !x.isFinite() || !y.isFinite()) return empty(srsId)
         return point(srsId, x, y, z?.takeIf { it.isFinite() })
+    }
+
+    /** Un vértice de una línea o de un contorno. */
+    class Vertex(val x: Double, val y: Double, val z: Double?)
+
+    /** El blob de una línea (LineString, o LineString Z si todos los vértices tienen altura) en el sistema [srsId] (S025/RF-26). */
+    fun lineString(srsId: Int, vertices: List<Vertex>): ByteArray {
+        val withZ = vertices.all { it.z != null }
+        val buffer = ByteBuffer.allocate(
+            FIXED_HEADER + 1 + 2 * Int.SIZE_BYTES + vertices.size * (if (withZ) 3 else 2) * DOUBLE_BYTES,
+        ).order(ByteOrder.LITTLE_ENDIAN)
+        header(buffer, srsId, FLAGS_LITTLE_ENDIAN)
+        buffer.put(WKB_LITTLE_ENDIAN).putInt(if (withZ) WKB_LINE_Z else WKB_LINE).putInt(vertices.size)
+        vertices.forEach { putVertex(buffer, it, withZ) }
+        return buffer.array()
+    }
+
+    /**
+     * El blob de un polígono de un solo anillo exterior (Polygon, o Polygon Z si todos tienen altura) en el sistema [srsId]. El anillo se
+     * cierra repitiendo el primer vértice al final, como pide WKB (S025/RF-26).
+     */
+    fun polygon(srsId: Int, vertices: List<Vertex>): ByteArray {
+        val ring = vertices + vertices.first()
+        val withZ = ring.all { it.z != null }
+        val buffer = ByteBuffer.allocate(
+            FIXED_HEADER + 1 + 3 * Int.SIZE_BYTES + ring.size * (if (withZ) 3 else 2) * DOUBLE_BYTES,
+        ).order(ByteOrder.LITTLE_ENDIAN)
+        header(buffer, srsId, FLAGS_LITTLE_ENDIAN)
+        buffer.put(WKB_LITTLE_ENDIAN).putInt(if (withZ) WKB_POLYGON_Z else WKB_POLYGON).putInt(1).putInt(ring.size)
+        ring.forEach { putVertex(buffer, it, withZ) }
+        return buffer.array()
+    }
+
+    private fun putVertex(buffer: ByteBuffer, vertex: Vertex, withZ: Boolean) {
+        buffer.putDouble(vertex.x).putDouble(vertex.y)
+        if (withZ) buffer.putDouble(vertex.z!!)
     }
 
     private fun header(buffer: ByteBuffer, srsId: Int, flags: Int) {

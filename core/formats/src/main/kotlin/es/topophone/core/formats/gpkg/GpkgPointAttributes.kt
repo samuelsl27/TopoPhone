@@ -5,6 +5,7 @@ import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.CsvExport
 import es.topophone.core.formats.csv.ExportColumn
 import es.topophone.core.model.codes.AttributeType
+import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointOrigin
@@ -37,8 +38,11 @@ object GpkgPointAttributes {
     }
 
     /** El valor de [column] en [point], del tipo de la columna y sin redondear, o `null` si no lo tiene o está vacío (S024/RF-21). */
-    fun attributeValue(point: Point, column: AttributeColumn): Any? {
-        val text = column.valueOf(point)?.value?.takeIf { it.isNotEmpty() } ?: return null
+    fun attributeValue(point: Point, column: AttributeColumn): Any? = attributeValue(point.code, column)
+
+    /** El valor de [column] en el [code] de un punto o de una línea, del tipo de la columna y sin redondear, o `null` (S025/RF-26). */
+    fun attributeValue(code: PointCode?, column: AttributeColumn): Any? {
+        val text = column.valueOf(code)?.value?.takeIf { it.isNotEmpty() } ?: return null
         return when (column.type) {
             AttributeType.INTEGER -> text.toLongOrNull()
             AttributeType.NUMBER -> text.toDoubleOrNull()
