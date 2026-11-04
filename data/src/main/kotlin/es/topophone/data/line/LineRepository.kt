@@ -2,8 +2,12 @@ package es.topophone.data.line
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.room.withTransaction
+import es.topophone.core.model.codes.AttributeCarryOver
+import es.topophone.core.model.codes.AttributeType
 import es.topophone.core.model.codes.CodeGeometry
+import es.topophone.core.model.codes.PointAttribute
 import es.topophone.core.model.codes.PointCode
+import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.line.LineAction
 import es.topophone.core.model.line.LineChange
 import es.topophone.core.model.line.LineHistoryEntry
@@ -53,7 +57,16 @@ sealed interface LineSaveResult {
 
     /** La línea o alguno de sus puntos no existe. */
     data object NotFound : LineSaveResult
+
+    /** El código no es de geometría Línea ni Polígono. */
+    data object WrongGeometry : LineSaveResult
 }
+
+/**
+ * Lo que se edita de una línea (S025/RF-16, RF-18): el [name], los vértices ([pointIds], en el orden nuevo) y los valores de los
+ * atributos de su código ([attributes]). Lo que es null no cambia.
+ */
+data class LineUpdate(val name: String? = null, val pointIds: List<String>? = null, val attributes: List<PointAttribute>? = null)
 
 /** Una línea nueva a partir de puntos que ya existen (S025/RF-12 a RF-15). [name] vacío usa el nombre propuesto. */
 data class NewLine(
@@ -109,6 +122,15 @@ interface LineRepository {
 
     /** Vuelve a abrir un polígono, con su sentido y sus vértices intactos (RF-10). El cambio queda en el historial. */
     suspend fun open(id: String): LineSaveResult
+
+    /**
+     * Guarda una edición de nombre, vértices o valores de atributos con el estado anterior en el historial (RF-16 a RF-19). Un vértice
+     * cuyo punto está en la papelera no se conserva al reescribir los vértices. Con menos vértices de los necesarios no se guarda.
+     */
+    suspend fun edit(id: String, update: LineUpdate): LineSaveResult
+
+    /** Cambia el código de la línea (solo Línea o Polígono) con S024/RF-14 y RF-15 para los atributos, y lo anota (RF-20). */
+    suspend fun changeCode(id: String, code: SurveyCode): LineSaveResult
 
     /** Crea una línea con los puntos de [line], sin modificarlos (RF-14, RF-15). No queda como línea activa. */
     suspend fun createFromPoints(line: NewLine): LineSaveResult
@@ -269,6 +291,56 @@ class RoomLineRepository(
         }
     } catch (_: SQLiteConstraintException) {
         LineSaveResult.DuplicateName
+    }
+
+    override suspend fun edit(id: String, update: LineUpdate): LineSaveResult = try {
+        database.withTransaction {
+            val entity = dao.byId(id)?.takeIf { it.deletedAt == null } ?: return@withTransaction LineSaveResult.NotFound
+            val newIds = update.pointIds
+            if (newIds != null) {
+                LineRules.validate(newIds, entity.closed)?.let { return@withTransaction it.toResult() }
+                val live = newIds.distinct().chunked(SQL_CHUNK).flatMap { dao.livePointIds(entity.projectId, it) }.toSet()
+                if (newIds.any { it !in live }) return@withTransaction LineSaveResult.NotFound
+            }
+            val change = when {
+                newIds != null -> LineChange.VERTICES
+                update.name != null -> LineChange.NAME
+                else -> LineChange.ATTRIBUTES
+            }
+            recordHistory(entity, change)
+            update.name?.let { dao.update(entity.copy(name = it)) }
+            if (newIds != null) {
+                dao.deleteVertices(id)
+                dao.insertVertices(newIds.mapIndexed { i, p -> LineVertexEntity(id, i, p) })
+            }
+            update.attributes?.let { values ->
+                dao.deleteAttributes(id)
+                dao.insertAttributes(values.mapIndexed { i, a -> LineAttributeEntity(id, i, a.name, a.type.name, a.value) })
+            }
+            LineSaveResult.Saved(id)
+        }
+    } catch (_: SQLiteConstraintException) {
+        LineSaveResult.DuplicateName
+    }
+
+    override suspend fun changeCode(id: String, code: SurveyCode): LineSaveResult = database.withTransaction {
+        if (!LineTarget.isLineGeometry(code.geometry)) return@withTransaction LineSaveResult.WrongGeometry
+        val entity = dao.byId(id)?.takeIf { it.deletedAt == null } ?: return@withTransaction LineSaveResult.NotFound
+        val old = dao.attributesOfNow(id).map { PointAttribute(it.name, enumValueOf<AttributeType>(it.type), it.value) }
+        recordHistory(entity, LineChange.CODE)
+        val values = AttributeCarryOver.apply(old, code.attributes).values
+        dao.update(
+            entity.copy(
+                code = code.code,
+                codeDescription = code.description,
+                codeColor = code.color,
+                codeSymbol = code.symbol.name,
+                geometry = code.geometry.name,
+            ),
+        )
+        dao.deleteAttributes(id)
+        dao.insertAttributes(values.mapIndexed { i, a -> LineAttributeEntity(id, i, a.name, a.type.name, a.value) })
+        LineSaveResult.Saved(id)
     }
 
     /** Guarda en el historial el estado de [entity] antes del cambio [change], con todos sus vértices y atributos (RF-18, plan D6). */
