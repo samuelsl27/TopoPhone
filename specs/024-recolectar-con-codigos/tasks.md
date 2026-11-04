@@ -8,7 +8,7 @@
       Hecho cuando: `ProjectCodesTest` y `RecentCodesTest` en verde.
 - [x] T3. `core:model`: filtro del selector con `CodeSearch` y `DescriptionProposal`. (RF-2, RF-4)
       Hecho cuando: tests en verde, con 2.000 códigos filtrados en menos de 16 ms de CPU.
-- [ ] T4. `core:model`: `AttributeForm` (valores iniciales y validación por atributo). (RF-8, RF-9)
+- [x] T4. `core:model`: `AttributeForm` (valores iniciales y validación por atributo). (RF-8, RF-9)
       Hecho cuando: `AttributeFormTest` en verde con los cuatro tipos y la coma decimal.
 - [ ] T5. `core:model`: `AttributeCarryOver`. (RF-14, RF-15)
       Hecho cuando: `AttributeCarryOverTest` en verde.
