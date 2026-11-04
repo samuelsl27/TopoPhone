@@ -3,6 +3,9 @@ package es.topophone.app.ui.map
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.model.alignment.slope.SlopeKind
+import es.topophone.core.model.codes.CodeKey
+import es.topophone.core.model.codes.CodeStyle
+import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointSummary
 
@@ -16,6 +19,9 @@ data class MapPoint(
     val staked: Boolean = false,
     /** Un punto de talud replanteado (cabeza o pie), con su propio símbolo (S051/RF-16). */
     val slope: SlopeKind? = null,
+    /** El color (0xRRGGBB) y el símbolo del código del punto; null sin código (S024/RF-17). */
+    val color: Int? = null,
+    val symbol: CodeSymbol = CodeSymbol.CIRCLE,
 )
 
 /** Puntos del proyecto para el mapa (S010/RF-20, RF-21). */
@@ -27,16 +33,23 @@ object MapPoints {
     private const val LABEL_SCALE = 2_500.0
 
     /** Los puntos que se ven en el mapa: los ocultos no van (S011/RF-4). */
-    fun from(points: List<PointSummary>): List<MapPoint> = points.filterNot { it.hidden }.map { point ->
-        MapPoint(
-            id = point.id,
-            name = point.name,
-            position = GeoPoint(point.latitudeDeg, point.longitudeDeg),
-            outOfTolerance = point.outOfTolerance,
-            staked = point.origin == PointOrigin.STAKED, // S018/RF-34
-            slope = point.slopeKind, // S051/RF-16
-        )
-    }
+    fun from(points: List<PointSummary>, styles: Map<String, CodeStyle> = emptyMap()): List<MapPoint> =
+        points.filterNot { it.hidden }.map { point ->
+            // S024/RF-17, RF-19: el color y el símbolo vigentes del código del proyecto; si ya no está, los que guardó el punto.
+            val style = point.code?.let { code ->
+                styles[CodeKey.of(code)] ?: point.codeColor?.let { CodeStyle(it, point.codeSymbol ?: CodeSymbol.CIRCLE) }
+            }
+            MapPoint(
+                id = point.id,
+                name = point.name,
+                position = GeoPoint(point.latitudeDeg, point.longitudeDeg),
+                outOfTolerance = point.outOfTolerance,
+                staked = point.origin == PointOrigin.STAKED, // S018/RF-34
+                slope = point.slopeKind, // S051/RF-16
+                color = style?.color,
+                symbol = style?.symbol ?: CodeSymbol.CIRCLE,
+            )
+        }
 
     /** Zoom de 1:2.500 en la latitud media de los puntos; null sin puntos. */
     fun labelMinZoom(points: List<MapPoint>): Double? =

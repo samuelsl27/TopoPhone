@@ -42,7 +42,7 @@
       Hecho cuando: `ChangeCodeTest` en verde.
 - [x] T20. `app`: lista de objetos con código visible, filtro y búsqueda por código. (RF-18)
       Hecho cuando: `ObjectListCodeTest` en verde.
-- [ ] T21. `app`: `MapPoints` con color y símbolo vigentes o guardados. (RF-17, RF-19)
+- [x] T21. `app`: `MapPoints` con color y símbolo vigentes o guardados. (RF-17, RF-19)
       Hecho cuando: `MapPointsCodeTest` en verde.
 - [ ] T22. `app`: capa de símbolos del mapa con bitmaps SDF y `icon-color`. (RF-17)
       Hecho cuando: `PointsSymbolLayerTest` en verde y `PointsPerformanceTest` con 10.000 puntos con código en menos de 2 s.

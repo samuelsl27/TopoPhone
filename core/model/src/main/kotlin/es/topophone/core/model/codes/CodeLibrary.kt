@@ -71,6 +71,9 @@ object CodePalette {
     }
 }
 
+/** El color (0xRRGGBB) y el símbolo con que el mapa dibuja los puntos de un código (S024/RF-17, RF-19). */
+data class CodeStyle(val color: Int, val symbol: CodeSymbol)
+
 /** El valor de un atributo tal como se guardó con el punto: con su nombre y su tipo, en texto canónico (S024/RF-10). */
 data class PointAttribute(val name: String, val type: AttributeType, val value: String)
 

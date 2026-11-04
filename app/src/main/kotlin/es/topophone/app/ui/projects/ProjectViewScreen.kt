@@ -89,6 +89,7 @@ import es.topophone.app.ui.collector.AutoLive
 import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.COLLECT_BUTTON_TAG
 import es.topophone.app.ui.collector.CollectorActions
+import es.topophone.app.ui.collector.CollectorCodeSource
 import es.topophone.app.ui.collector.CollectorPanel
 import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.collector.CollectorViewModel
@@ -157,6 +158,8 @@ import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.codes.CodeKey
+import es.topophone.core.model.codes.CodeStyle
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.FactorFormat
 import es.topophone.core.model.format.LengthFormat
@@ -252,6 +255,8 @@ data class ProjectViewUiState(
     val mapOffline: Boolean = false,
     /** Puntos del proyecto (S010/RF-20, RF-21). */
     val points: List<PointSummary> = emptyList(),
+    /** El color y el símbolo vigentes de cada código del proyecto, por su clave (S024/RF-17, RF-19). */
+    val codeStyles: Map<String, CodeStyle> = emptyMap(),
     /** La base tal como la da su fuente, mientras la haya (S015/RF-19). */
     val base: GeoPoint? = null,
     /** El modo usa la inclinación pero la época no está en estado 30: "Punta sin compensar" (S016/RF-17). */
@@ -279,6 +284,7 @@ class ProjectViewModel @Inject constructor(
     @param:Named(ReceiverViewModel.UI_SAMPLE_MS) samplePeriodMs: Long,
     tilt: CurrentTilt = CurrentTilt.NONE,
     baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
+    codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
 
@@ -346,6 +352,15 @@ class ProjectViewModel @Inject constructor(
             state.copy(points = list)
         }
         .combine(bases) { state, base -> state.copy(base = base) }
+        .combine(
+            projectId.flatMapLatest { id ->
+                if (id == null) {
+                    flowOf(emptyMap())
+                } else {
+                    codeSource.available(id).map { list -> list.associate { CodeKey.of(it.code) to CodeStyle(it.color, it.symbol) } }
+                }
+            },
+        ) { state, styles -> state.copy(codeStyles = styles) }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
@@ -1493,7 +1508,9 @@ private fun BindMap(
     val palette = LocalStatusPalette.current
     val marker = state.rover?.let { RoverMarker(it.position, it.accuracyM, palette.colorsFor(it.solution.tone()).container.toArgb()) }
     LaunchedEffect(controller, marker) { controller?.showRover(marker) }
-    LaunchedEffect(controller, state.points) { controller?.showPoints(MapPoints.from(state.points)) } // S010/RF-20
+    LaunchedEffect(controller, state.points, state.codeStyles) {
+        controller?.showPoints(MapPoints.from(state.points, state.codeStyles))
+    } // S010/RF-20
     LaunchedEffect(controller, design) { controller?.showDesign(design) } // S040/RF-24
     LaunchedEffect(controller, alignmentScene) { controller?.showAlignments(alignmentScene) } // S049/RF-17
     LaunchedEffect(controller) {
