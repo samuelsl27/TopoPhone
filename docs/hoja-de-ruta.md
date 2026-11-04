@@ -2,7 +2,7 @@
 
 Las specs se implementan **en el orden de las tablas**, no por su número: los números son identificadores estables y desde S017b no van seguidos (el replanteo y la importación de diseño pasan delante de las fotos). Cada hito termina con una puerta de validación de campo (`docs/validacion-campo/protocolo.md`).
 
-Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18). S048 (GeoPackage) está implementada (Room v19) y la usa. S049 (ejes y rasantes) está implementada (Room v20). S054 (replanteo por eje) está implementada (Room v21). S053 (exportar GeoPackage) está implementada (sin cambios de Room). S045 (ráster de cotas) está implementada (Room v22). S020 (base shift) está implementada (Room v23). S017b (fotos) está implementada (Room v24). S050 (peraltes y secciones transversales) está implementada (Room v25). S051 (taludes) está implementada (Room v26). S052 (toma de datos lineal) está implementada (Room v27).
+Ampliación de S006 (punto central del proyecto, RF-32 a RF-38): implementada el 27/10/2026 (Room v18). S048 (GeoPackage) está implementada (Room v19) y la usa. S049 (ejes y rasantes) está implementada (Room v20). S054 (replanteo por eje) está implementada (Room v21). S053 (exportar GeoPackage) está implementada (sin cambios de Room). S045 (ráster de cotas) está implementada (Room v22). S020 (base shift) está implementada (Room v23). S017b (fotos) está implementada (Room v24). S050 (peraltes y secciones transversales) está implementada (Room v25). S051 (taludes) está implementada (Room v26). S052 (toma de datos lineal) está implementada (Room v27). S023 (bibliotecas de códigos) está implementada (Room v28).
 
 Orden de trabajo actual del diseño importado: S019 → S028 → S040 → S041 → S042 → S045 (S017b, fotos, hecha después).
 
@@ -62,7 +62,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 023 bibliotecas-codigos | Bibliotecas de códigos gestionadas en el móvil (código, descripción, geometría, color, atributos Text/Integer/Number/List), importar y exportar CSV, bibliotecas por defecto, códigos sin duplicados, biblioteca vinculada al proyecto | 006, 013, 028 | plan |
+| 023 bibliotecas-codigos | Bibliotecas de códigos gestionadas en el móvil (código, descripción, geometría, color, atributos Text/Integer/Number/List), importar y exportar CSV, bibliotecas por defecto, códigos sin duplicados, biblioteca vinculada al proyecto | 006, 013, 028 | implementada |
 | 024 recolectar-con-codigos | Selector de códigos con recientes, códigos creados sobre la marcha (solo para el proyecto), formulario de atributos, cambio de código, símbolos por código | 023, 010, 011 | pendiente |
 | 025 lineas-y-poligonos | Empezar o continuar una línea, cerrarla en polígono, crear una línea desde puntos existentes, editar vértices | 024, 011 | pendiente |
 | 026 informacion-geometrica | Longitud 2D/3D, área, perímetro, azimut, pendiente, tabla por segmento, ángulo entre 3 puntos, distancias de cuadrícula o de terreno | 025, 040, 008 | pendiente |

@@ -103,4 +103,14 @@ Escribir: `Code, Description, Type, Color, Attribute_1_Name, Attribute_1_Type, A
 | RF-22 | D1 | `CodeLibraryBackupTest` |
 
 ## Cambios al implementar
-(vacío)
+- **D7, texto canónico del Número:** se escribe en plano, sin ceros sobrantes y sin notación científica (`BigDecimal(Double.toString(x)).stripTrailingZeros().toPlainString()`), no con `Double.toString` a secas, porque este da `1.0E-7` y esa forma no la lee el propio lector (RF-9, RF-18). Sigue sin redondear.
+- **D8:** el escape de las opciones del CSV vive en `CodeCsvFormat` (`encodeOptions` y `decodeOptions`), que comparten el escritor y el lector.
+- **D10, nombre de la biblioteca nueva:** sale del nombre del fichero sin la extensión; si el fichero no da nombre se usa «Biblioteca importada».
+- **D12, límites:** la cabecera cuenta como fila, como en S028/RF-3: un fichero admite 49.999 códigos y no 50.000.
+- **A3, separadores:** el asistente solo ofrece coma, punto y coma y tabulador (los espacios no sirven en un texto con descripciones); si la detección de S028 propone espacios, se usa la coma.
+- **D4, selector del proyecto:** `ProjectDraft.libraryChoice` es `Mantener` por defecto, y `ProjectDefaults.toDraft()` pone `Biblioteca(id)` solo si Ajustes tiene una; una biblioteca de Ajustes que ya no existe cuenta como ninguna. La confirmación de RF-21 se pide al elegir la opción (no al guardar) y solo si el proyecto ya lleva copia.
+- **RF-20, dónde se consulta la copia:** «Códigos del proyecto» está en el menú de cada proyecto de la lista de Levantamiento (no en el mapa, que ya tiene demasiados botones) y reutiliza la pantalla de una biblioteca en modo de consulta.
+- **RF-17, exportar:** se guarda con el selector de ficheros (`CreateDocument`); la alternativa de compartir con el FileProvider que admite la spec no se ha construido.
+- **RF-12, importar:** se llega desde la lista de bibliotecas (a una biblioteca nueva) y desde cada biblioteca editable (a esa biblioteca); la elección entre biblioteca nueva o una existente se puede cambiar dentro del asistente.
+- **Identificadores de las por defecto:** `default:general` y `default:urbanizacion`, y el de cada código es `<biblioteca>:<código>`.
+- **S006 y S013:** sus `spec.md` no se han tocado (D14); el glosario sí se actualizó en T1.
