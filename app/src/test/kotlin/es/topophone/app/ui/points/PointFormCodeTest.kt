@@ -61,17 +61,19 @@ class PointFormCodeTest {
         ),
     )
     private val repository = FakePointRepository(listOf(measured("12", projectId = projectId).copy(code = code)), clock = { 9_000 })
+    private var collector: kotlinx.coroutines.Job? = null
     private lateinit var vm: PointFormViewModel
 
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         vm = PointFormViewModel(repository, projects) { ProjectPositionCalculator() }
-        CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+        collector = CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
     }
 
     @After
     fun tearDown() {
+        collector?.cancel()
         Dispatchers.resetMain()
         db.close()
     }

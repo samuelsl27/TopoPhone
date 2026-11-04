@@ -4,6 +4,8 @@ import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.CsvExport
 import es.topophone.core.formats.csv.CsvOptions
 import es.topophone.core.formats.csv.ExportColumn
+import es.topophone.core.model.codes.CodeSymbol
+import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.BaseSource
@@ -112,7 +114,11 @@ class GpkgPointAttributesTest {
             toleranceVM = 0.03,
             withinTolerance = true,
         ),
-    ).copy(edited = true, copyOf = "4")
+    ).copy(
+        edited = true,
+        copyOf = "4",
+        code = PointCode("ARQ", "Arqueta", 0x1E88E5, CodeSymbol.CIRCLE),
+    )
 
     /** Un punto manual sin medida, sin altura y oculto. */
     private val manual = Point(

@@ -2511,4 +2511,5 @@
     <string name="change_code_lost_message">Al cambiar a «%1$s» se perderán estos valores: %2$s. ¿Cambiar el código?</string>
     <string name="objects_code_row">Código: %1$s</string>
     <string name="objects_code_filter_all">Todos los códigos</string>
+    <string name="export_column_code">Código</string>
 </resources>

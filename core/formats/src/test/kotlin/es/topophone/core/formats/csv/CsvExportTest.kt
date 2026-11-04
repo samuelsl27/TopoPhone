@@ -93,7 +93,7 @@ class CsvExportTest {
             "Tilt mode,Tilt mode verified,Tilt,Tilt direction,Heading,Maximum tilt,Tilt horizontal accuracy,Tilt vertical accuracy," +
             "Averaged time,Deviation horizontal,Deviation vertical,Automatic," +
             "Edited,Copy of,Stake design,Stake design elevation,Stake delta northing,Stake delta easting,Stake horizontal distance," +
-            "Stake delta elevation,Stake within tolerance,Base shift dX,Base shift dY,Base shift dZ"
+            "Stake delta elevation,Stake within tolerance,Base shift dX,Base shift dY,Base shift dZ,Code"
 
     private fun csv(points: List<Point>, options: CsvOptions, project: Project = this.project): String =
         StringBuilder().also { CsvExport.write(points.asSequence(), project, options, it) }.toString()
@@ -108,7 +108,7 @@ class CsvExportTest {
             allHeader,
             "4,,Measured,440313.1221,4474258.8769,648.3114,40.416815094,-3.703533016,699.4230,EPSG:25830,EGM08-REDNAP,m," +
                 "1.8000,FLOAT,24,0.6,1.0,0.1383,0.2100,Instant,1,0,true,NOT_FIX,2026-10-18T18:03:34Z,2026-10-18T18:03:59Z," +
-                ",,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
+                ",,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
         )
     }
 
@@ -172,7 +172,7 @@ class CsvExportTest {
     fun `S019 RF-25 las columnas del replanteo van tras las de S012 en todas las columnas`() {
         val header = lines(csv(listOf(stakedPoint), CsvOptions()))[0].split(",")
 
-        header.subList(header.size - 12, header.size - 3) shouldBe listOf("Edited", "Copy of") + stakeColumns.map { it.header }
+        header.subList(header.size - 13, header.size - 4) shouldBe listOf("Edited", "Copy of") + stakeColumns.map { it.header }
         stakeColumns.map { it.header } shouldBe listOf(
             "Stake design",
             "Stake design elevation",
@@ -201,8 +201,9 @@ class CsvExportTest {
     fun `S020 RF-13 las columnas del base shift van al final de todas las columnas`() {
         val header = lines(csv(listOf(shifted), CsvOptions()))[0].split(",")
 
-        header.takeLast(3) shouldBe listOf("Base shift dX", "Base shift dY", "Base shift dZ")
-        header.takeLast(3) shouldBe shiftColumns.map { it.header }
+        // S024/RF-21: tras ellas solo va la columna Code.
+        header.takeLast(4).take(3) shouldBe listOf("Base shift dX", "Base shift dY", "Base shift dZ")
+        header.takeLast(4).take(3) shouldBe shiftColumns.map { it.header }
     }
 
     @Test
@@ -275,7 +276,7 @@ class CsvExportTest {
 
     @Test
     fun `S019 RF-25 una seleccion personalizada guardada antes no incluye las columnas nuevas hasta que se marcan`() {
-        val before = ExportColumn.entries.filter { it !in stakeColumns && it !in shiftColumns }.toSet()
+        val before = ExportColumn.entries.filter { it !in stakeColumns && it !in shiftColumns && it != ExportColumn.CODE }.toSet()
         val saved = CsvOptions(format = ExportFormat.CUSTOM, customColumns = before)
 
         saved.columns.none { it in stakeColumns } shouldBe true
@@ -342,8 +343,8 @@ class CsvExportTest {
         // Los 14 campos de la medida, los 7 de la base (S015/RF-22), los 8 de la inclinación (S016/RF-24) y los 4 del
         // promediado (S017/RF-14), vacíos.
         row shouldBe "E1;\"Pozo, \"\"nuevo\"\"\";Manual;440300.0000;4474250.0000;;40.416800000;-3.703600000;;EPSG:25830;EGM08-REDNAP;m;" +
-            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;;;;;;;;;;;"
-        row.split(";").size shouldBe 57
+            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;;;;;;;;;;;;"
+        row.split(";").size shouldBe 58
     }
 
     @Test

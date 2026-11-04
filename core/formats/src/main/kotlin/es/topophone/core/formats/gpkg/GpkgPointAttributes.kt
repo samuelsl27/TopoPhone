@@ -42,6 +42,7 @@ object GpkgPointAttributes {
         ExportColumn.TILT_MODE,
         ExportColumn.COPY_OF,
         ExportColumn.STAKE_DESIGN,
+        ExportColumn.CODE,
         -> GpkgAttributeType.TEXT
         ExportColumn.SATELLITES,
         ExportColumn.EPOCHS_USED,
@@ -106,6 +107,7 @@ object GpkgPointAttributes {
         fun degrees(valueRad: Double?) = valueRad?.let(Math::toDegrees)
         return when (column) {
             ExportColumn.NAME -> point.name
+            ExportColumn.CODE -> point.code?.code
             ExportColumn.DESCRIPTION -> point.description
             ExportColumn.ORIGIN -> when {
                 point.origin == PointOrigin.IMPORTED -> "Imported"

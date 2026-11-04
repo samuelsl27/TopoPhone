@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.core.formats.csv.AttributeColumns
 import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.ColumnSeparator
 import es.topophone.core.formats.csv.CsvExport
@@ -119,7 +120,14 @@ class ExportViewModel @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 BufferedWriter(OutputStreamWriter(out, Charsets.UTF_8)).use { writer ->
-                    CsvExport.write(loaded.points.asSequence(), loaded.project, options, writer, baseProjection(loaded.project))
+                    CsvExport.write(
+                        loaded.points.asSequence(),
+                        loaded.project,
+                        options,
+                        writer,
+                        AttributeColumns.of(loaded.points), // S024/RF-21
+                        baseProjection(loaded.project),
+                    )
                 }
                 true
             } catch (_: IOException) {

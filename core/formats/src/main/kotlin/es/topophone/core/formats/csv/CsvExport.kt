@@ -1,5 +1,7 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.codes.AttributeType
+import es.topophone.core.model.codes.PointAttribute
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointBase
@@ -87,6 +89,9 @@ enum class ExportColumn(val header: String) {
     SHIFT_DX("Base shift dX"),
     SHIFT_DY("Base shift dY"),
     SHIFT_DZ("Base shift dZ"),
+
+    // S024/RF-21: el código del punto; los atributos de los códigos van en columnas dinámicas a continuación (AttributeColumns).
+    CODE("Code"),
 }
 
 /** La base de un punto en el SC del proyecto, que calcula quien exporta (S015/RF-22); null lo que no se puede calcular. */
@@ -171,12 +176,16 @@ object CsvExport {
         project: Project,
         options: CsvOptions,
         out: Appendable,
+        /** Los atributos de los códigos de los puntos; solo se escriben en «Todas las columnas» (S024/RF-21). */
+        attributes: List<AttributeColumn> = emptyList(),
         baseProjection: (PointBase) -> BaseProjection? = { null },
     ) {
         require(options.valid) { "El separador y el signo decimal no pueden ser los dos la coma" }
         val columns = options.columns
         val separator = options.separator.char
-        out.append(columns.joinToString(separator.toString()) { quoted(it.header, separator) }).append(LINE_END)
+        val extra = if (options.format == ExportFormat.ALL) attributes else emptyList()
+        val headers = columns.map { it.header } + extra.map { it.header }
+        out.append(headers.joinToString(separator.toString()) { quoted(it, separator) }).append(LINE_END)
         val needsProjection = columns.any { it in PROJECTED_BASE_COLUMNS }
         for (point in points) {
             val projected = if (needsProjection) point.measurement?.base?.let(baseProjection) else null
@@ -184,8 +193,19 @@ object CsvExport {
                 if (index > 0) out.append(separator)
                 out.append(quoted(value(point, column, project, options.decimal, projected), separator))
             }
+            extra.forEachIndexed { index, column ->
+                if (columns.isNotEmpty() || index > 0) out.append(separator)
+                out.append(quoted(attributeValue(column.valueOf(point), options.decimal), separator))
+            }
             out.append(LINE_END)
         }
+    }
+
+    /** El valor canónico del atributo, con el signo decimal elegido en los números y sin redondear (S024/RF-21; RNF-T9). */
+    private fun attributeValue(attribute: PointAttribute?, decimal: DecimalSeparator): String = when {
+        attribute == null -> ""
+        attribute.type == AttributeType.NUMBER && decimal == DecimalSeparator.COMMA -> attribute.value.replace('.', decimal.char)
+        else -> attribute.value
     }
 
     private fun value(point: Point, column: ExportColumn, project: Project, decimal: DecimalSeparator, projected: BaseProjection?): String {
@@ -265,6 +285,7 @@ object CsvExport {
             ExportColumn.SHIFT_DX -> length(measurement?.shift?.vector?.dx)
             ExportColumn.SHIFT_DY -> length(measurement?.shift?.vector?.dy)
             ExportColumn.SHIFT_DZ -> length(measurement?.shift?.vector?.dz)
+            ExportColumn.CODE -> point.code?.code.orEmpty()
         }
     }
 

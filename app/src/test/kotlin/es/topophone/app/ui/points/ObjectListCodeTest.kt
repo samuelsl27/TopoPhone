@@ -74,18 +74,20 @@ class ObjectListCodeTest {
         ),
         clock = { 10_000 },
     )
+    private var collector: kotlinx.coroutines.Job? = null
     private lateinit var vm: ObjectListViewModel
 
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         vm = ObjectListViewModel(repository, projects, ExportSelection()) { ProjectPositionCalculator() }
-        CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+        collector = CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         vm.start(projectId)
     }
 
     @After
     fun tearDown() {
+        collector?.cancel()
         Dispatchers.resetMain()
         db.close()
     }

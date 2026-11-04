@@ -319,4 +319,5 @@ private fun ExportColumn.labelRes(): Int = when (this) {
     ExportColumn.SHIFT_DX -> R.string.export_column_shift_dx // S020/RF-13
     ExportColumn.SHIFT_DY -> R.string.export_column_shift_dy
     ExportColumn.SHIFT_DZ -> R.string.export_column_shift_dz
+    ExportColumn.CODE -> R.string.export_column_code
 }
