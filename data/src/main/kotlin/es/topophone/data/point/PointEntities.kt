@@ -9,6 +9,10 @@ import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.alignment.slope.SlopeSide
 import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.codes.AttributeType
+import es.topophone.core.model.codes.CodeSymbol
+import es.topophone.core.model.codes.PointAttribute
+import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.AxisHeightRef
@@ -442,10 +446,18 @@ internal fun Point.toEntity(): PointEntity {
         unshiftedGroundLat = m?.shift?.unshiftedGround?.latitudeDeg,
         unshiftedGroundLon = m?.shift?.unshiftedGround?.longitudeDeg,
         unshiftedGroundH = m?.shift?.unshiftedGround?.ellipsoidalHeightM,
+        code = code?.code,
+        codeDescription = code?.description,
+        codeColor = code?.color,
+        codeSymbol = code?.symbol?.name,
     )
 }
 
-internal fun PointEntity.toPoint(): Point = Point(
+/** Los valores de los atributos del codigo del punto, en su orden (S024/RF-10). */
+internal fun Point.attributeEntities(): List<PointAttributeEntity> =
+    code?.attributes.orEmpty().mapIndexed { i, a -> PointAttributeEntity(id, i, a.name, a.type.name, a.value) }
+
+internal fun PointEntity.toPoint(attributes: List<PointAttributeEntity> = emptyList()): Point = Point(
     id = id,
     projectId = projectId,
     name = name,
@@ -471,7 +483,17 @@ internal fun PointEntity.toPoint(): Point = Point(
             sectionCode,
         )
     },
+    code = pointCode(code, codeDescription, codeColor, codeSymbol, attributes.sortedBy { it.ordinal }.map { it.toAttribute() }),
 )
+
+private fun pointCode(code: String?, description: String?, color: Int?, symbol: String?, attributes: List<PointAttribute>): PointCode? {
+    if (code == null) return null
+    return PointCode(code, description.orEmpty(), color ?: 0, enumOr(symbol, CodeSymbol.CIRCLE), attributes)
+}
+
+private fun PointAttributeEntity.toAttribute() = PointAttribute(name, enumOr(type, AttributeType.TEXT), value)
+
+private fun PointHistoryAttributeEntity.toAttribute() = PointAttribute(name, enumOr(type, AttributeType.TEXT), value)
 
 /** De qué punto de diseño viene un punto replanteado; null en los demás (S018/RF-28). */
 private fun PointEntity.staked(): StakeoutRef? = StakeoutRef(
@@ -637,9 +659,17 @@ internal fun PointSnapshot.toHistoryEntity(id: String, pointId: String, changedA
     typedHeight = typed?.height,
     typedHeightKind = typed?.heightKind?.name,
     edited = edited,
+    code = code?.code,
+    codeDescription = code?.description,
+    codeColor = code?.color,
+    codeSymbol = code?.symbol?.name,
 )
 
-internal fun PointHistoryEntity.toEntry() = PointHistoryEntry(
+/** Los valores de los atributos de esta version anterior (S024/RF-14). */
+internal fun PointSnapshot.historyAttributeEntities(historyId: String): List<PointHistoryAttributeEntity> =
+    code?.attributes.orEmpty().mapIndexed { i, a -> PointHistoryAttributeEntity(historyId, i, a.name, a.type.name, a.value) }
+
+internal fun PointHistoryEntity.toEntry(attributes: List<PointHistoryAttributeEntity> = emptyList()) = PointHistoryEntry(
     id = id,
     pointId = pointId,
     changedAtMs = changedAt,
@@ -659,6 +689,7 @@ internal fun PointHistoryEntity.toEntry() = PointHistoryEntry(
         ),
         typed = typed(typedForm, typedFirst, typedSecond, typedHeight, typedHeightKind),
         edited = edited,
+        code = pointCode(code, codeDescription, codeColor, codeSymbol, attributes.sortedBy { it.ordinal }.map { it.toAttribute() }),
     ),
 )
 

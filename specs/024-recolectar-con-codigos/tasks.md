@@ -16,7 +16,7 @@
       Hecho cuando: `PointHistoryCodeTest` y `PointSearchCodeTest` en verde.
 - [x] T7. `data`: Room v29 (columnas y tablas de D1 a D4), `AutoMigration(28, 29)` y el esquema 29. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 28 a 29 en verde.
-- [ ] T8. `data`: `PointRepository.create` guarda código y atributos en la misma transacción y los lee (punto, resumen). (RF-10)
+- [x] T8. `data`: `PointRepository.create` guarda código y atributos en la misma transacción y los lee (punto, resumen). (RF-10)
       Hecho cuando: `PointCodeRepositoryTest` en verde.
 - [ ] T9. `data`: `changeCode` atómico con historial, y lectura del historial con el código anterior. (RF-13, RF-14, RF-16)
       Hecho cuando: los tests de cambio de código (entero o nada, coordenadas intactas) en verde.
