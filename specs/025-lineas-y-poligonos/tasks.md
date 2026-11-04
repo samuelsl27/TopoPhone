@@ -8,7 +8,7 @@
       Hecho cuando: `LineNamingTest` y `LineRulesTest` en verde.
 - [x] T3. `core:model`: `LineTarget.decide` (añadir, crear o nada). (RF-2, RF-3, RF-7, RF-8)
       Hecho cuando: `LineTargetTest` en verde.
-- [ ] T4. `core:model`: `LineEdit` y `LineChainage` (PK de cada vértice). (RF-16, RF-17)
+- [x] T4. `core:model`: `LineEdit` y `LineChainage` (PK de cada vértice). (RF-16, RF-17)
       Hecho cuando: `LineEditTest` y `LineChainageTest` en verde.
 - [ ] T5. `core:model`: historial de líneas (`LineChange`, `HistoryLine`) y `LineSearch`. (RF-18, RF-21)
       Hecho cuando: `LineHistoryTest` y `LineSearchTest` en verde.
