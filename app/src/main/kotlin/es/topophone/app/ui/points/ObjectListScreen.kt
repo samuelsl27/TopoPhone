@@ -3,8 +3,10 @@ package es.topophone.app.ui.points
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -17,9 +19,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,6 +58,7 @@ import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.alignment.rememberImportAlignmentLauncher
 import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.collector.CollectorCodeSource
+import es.topophone.app.ui.collector.rgbColor
 import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
 import es.topophone.app.ui.projects.ConfirmDialog
@@ -61,7 +66,9 @@ import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.raster.rememberImportRasterLauncher
 import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.codes.CodeKey
 import es.topophone.core.model.point.PointChange
+import es.topophone.core.model.point.PointCodeFilter
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointSearch
 import es.topophone.core.model.point.PointSummary
@@ -102,6 +109,12 @@ const val SELECTION_EXPORT_GPKG_TAG = "selection_export_gpkg"
 const val SELECTION_STAKEOUT_REPORT_TAG = "selection_stakeout_report"
 const val SELECTION_POLE_TAG = "selection_pole"
 const val SELECTION_CODE_TAG = "selection_code"
+const val OBJECT_CODE_FILTER_ALL_TAG = "object_code_filter_all"
+const val OBJECT_CODE_FILTER_NONE_TAG = "object_code_filter_none"
+
+fun objectCodeFilterTag(code: String) = "object_code_filter_$code"
+
+fun objectCodeTag(id: String) = "object_code_$id"
 const val SELECTION_STAKEOUT_TAG = "selection_stakeout"
 const val POLE_FIELD_TAG = "pole_field"
 const val POLE_APPLY_TAG = "pole_apply"
@@ -119,6 +132,10 @@ data class ObjectListUiState(
     val total: Int = 0,
     val selected: Set<String> = emptySet(),
     val poleOutcome: PoleOutcome? = null,
+    /** Los códigos que llevan los puntos del proyecto, si algún punto no lleva ninguno y el filtro elegido (S024/RF-18). */
+    val codes: List<String> = emptyList(),
+    val hasUncoded: Boolean = false,
+    val codeFilter: String? = null,
 )
 
 /** Lo que pasó al corregir el jalón de una selección (S011/RF-14, RF-15). */
@@ -160,6 +177,8 @@ class ObjectListActions(
     val onCorrectPole: (poleHeightM: Double) -> Unit = {},
     /** «Cambiar código» de los puntos seleccionados (S024/RF-13). */
     val onChangeCode: () -> Unit = {},
+    /** Filtra la lista por código: la clave de un código, [PointCodeFilter.NONE] o null para todos (S024/RF-18). */
+    val onCodeFilter: (String?) -> Unit = {},
     val onDismissPoleOutcome: () -> Unit = {},
     /** "Replantear" con un solo punto elegido (S018/RF-1). */
     val onStakeout: (pointId: String) -> Unit = {},
@@ -182,15 +201,29 @@ class ObjectListViewModel @Inject constructor(
     private val query = MutableStateFlow("")
     private val selected = MutableStateFlow<Set<String>>(emptySet())
     private val poleOutcome = MutableStateFlow<PoleOutcome?>(null)
+    private val codeFilter = MutableStateFlow<String?>(null)
 
     private val summaries = projectId.flatMapLatest { id -> if (id == null) flowOf(null) else points.summaries(id) }
 
-    val state: StateFlow<ObjectListUiState> = combine(summaries, query, selected, poleOutcome) { all, text, chosen, outcome ->
+    private val filters = combine(query, codeFilter, ::Pair)
+
+    val state: StateFlow<ObjectListUiState> = combine(summaries, filters, selected, poleOutcome) { all, (text, code), chosen, outcome ->
         if (all == null) {
             ObjectListUiState()
         } else {
-            val visible = if (text.isBlank()) all else all.filter { PointSearch.matches(it, text) } // S011/RF-2
-            ObjectListUiState(loaded = true, query = text, points = visible, total = all.size, selected = chosen, poleOutcome = outcome)
+            val searched = if (text.isBlank()) all else all.filter { PointSearch.matches(it, text) } // S011/RF-2
+            val visible = if (code == null) searched else searched.filter { PointCodeFilter.matches(it, code) } // S024/RF-18
+            ObjectListUiState(
+                loaded = true,
+                query = text,
+                points = visible,
+                total = all.size,
+                selected = chosen,
+                poleOutcome = outcome,
+                codes = PointCodeFilter.codesOf(all),
+                hasUncoded = all.any { it.code == null },
+                codeFilter = code,
+            )
         }
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ObjectListUiState())
 
@@ -218,6 +251,11 @@ class ObjectListViewModel @Inject constructor(
 
     fun search(text: String) {
         query.value = text
+    }
+
+    /** Solo los puntos de un código, o sin código, o todos con null (S024/RF-18). */
+    fun filterByCode(key: String?) {
+        codeFilter.value = key
     }
 
     fun toggleSelection(id: String) {
@@ -337,6 +375,7 @@ fun ObjectListRoute(
             onDeleteSelected = viewModel::deleteSelected,
             onCorrectPole = viewModel::correctSelectedPole,
             onChangeCode = viewModel::openChangeCode, // S024/RF-13
+            onCodeFilter = viewModel::filterByCode, // S024/RF-18
             onDismissPoleOutcome = viewModel::dismissPoleOutcome,
             onStakeout = { pointId -> navigation.onStakeout(projectId, pointId, state.query) }, // S018/RF-1
         ),
@@ -415,6 +454,7 @@ fun ObjectListScreen(
                         modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).testTag(OBJECT_SEARCH_TAG),
                     ) // S011/RF-2
                 }
+                if (state.codes.isNotEmpty()) item { CodeFilter(state, actions.onCodeFilter) } // S024/RF-18
                 state.poleOutcome?.let { outcome -> item { PoleOutcomeNotice(outcome, actions.onDismissPoleOutcome) } }
                 if (state.points.isEmpty()) {
                     item { Text(stringResource(R.string.objects_search_empty, state.query)) }
@@ -557,6 +597,17 @@ private fun PointRow(point: PointSummary, selected: Boolean, onClick: () -> Unit
         supportingContent = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(if (point.description.isEmpty()) origin else "$origin · ${point.description}")
+                point.code?.let { code ->
+                    // S024/RF-18: el código con su color y su texto, nunca solo el color.
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.testTag(objectCodeTag(point.id)),
+                    ) {
+                        point.codeColor?.let { Box(modifier = Modifier.size(12.dp).background(rgbColor(it), CircleShape)) }
+                        Text(stringResource(R.string.objects_code_row, code), style = MaterialTheme.typography.labelLarge)
+                    }
+                }
                 val marks = buildList {
                     if (point.outOfTolerance) add(R.drawable.ic_warning to R.string.point_mark_out_of_tolerance)
                     if (point.edited) add(R.drawable.ic_edit to R.string.point_mark_edited)
@@ -596,6 +647,37 @@ private fun PointRow(point: PointSummary, selected: Boolean, onClick: () -> Unit
             .combinedClickable(onClick = onClick, onLongClick = onLongClick)
             .testTag(objectRowTag(point.id)),
     )
+}
+
+/** Los puntos de un código, sin código o todos (S024/RF-18): un chip por cada código del proyecto. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CodeFilter(state: ObjectListUiState, onFilter: (String?) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 12.dp)) {
+        FilterChip(
+            selected = state.codeFilter == null,
+            onClick = { onFilter(null) },
+            label = { Text(stringResource(R.string.objects_code_filter_all)) },
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECT_CODE_FILTER_ALL_TAG),
+        )
+        state.codes.forEach { code ->
+            val key = CodeKey.of(code)
+            FilterChip(
+                selected = state.codeFilter == key,
+                onClick = { onFilter(key) },
+                label = { Text(code) },
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(objectCodeFilterTag(code)),
+            )
+        }
+        if (state.hasUncoded) {
+            FilterChip(
+                selected = state.codeFilter == PointCodeFilter.NONE,
+                onClick = { onFilter(PointCodeFilter.NONE) },
+                label = { Text(stringResource(R.string.collector_code_none)) },
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECT_CODE_FILTER_NONE_TAG),
+            )
+        }
+    }
 }
 
 @Composable

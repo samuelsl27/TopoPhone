@@ -40,7 +40,7 @@
       Hecho cuando: `PointDetailsCodeTest` en verde.
 - [x] T19. `app`: «Cambiar código» en la ficha y en la selección de la lista, con el aviso de valores descartados. (RF-13, RF-15)
       Hecho cuando: `ChangeCodeTest` en verde.
-- [ ] T20. `app`: lista de objetos con código visible, filtro y búsqueda por código. (RF-18)
+- [x] T20. `app`: lista de objetos con código visible, filtro y búsqueda por código. (RF-18)
       Hecho cuando: `ObjectListCodeTest` en verde.
 - [ ] T21. `app`: `MapPoints` con color y símbolo vigentes o guardados. (RF-17, RF-19)
       Hecho cuando: `MapPointsCodeTest` en verde.

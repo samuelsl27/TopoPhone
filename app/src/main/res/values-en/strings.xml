@@ -2497,4 +2497,6 @@
     <string name="change_code_apply">Change code</string>
     <string name="change_code_lost_item">%1$s · %2$s</string>
     <string name="change_code_lost_message">Changing to “%1$s” will lose these values: %2$s. Change the code?</string>
+    <string name="objects_code_row">Code: %1$s</string>
+    <string name="objects_code_filter_all">All codes</string>
 </resources>
