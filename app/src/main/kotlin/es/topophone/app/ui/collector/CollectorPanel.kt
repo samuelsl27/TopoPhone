@@ -39,6 +39,7 @@ import es.topophone.app.ui.receiver.GearSelectorUi
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.AutoTrigger
@@ -112,6 +113,12 @@ class CollectorActions(
     val onGallery: () -> Unit = {},
     val onDiscardPhotos: () -> Unit = {},
     val onKeepPhotos: () -> Unit = {},
+    /** El selector de códigos: elegir uno (o ninguno), buscar y el valor de un atributo (S024/RF-1 a RF-3, RF-8). */
+    val onSelectCode: (SurveyCode?) -> Unit = {},
+    val onCodeQuery: (String) -> Unit = {},
+    val onCodeAttribute: (Int, String) -> Unit = { _, _ -> },
+    /** «Nuevo código» del selector; null mientras no se pueda crear (S024/RF-5). */
+    val onNewCode: (() -> Unit)? = null,
 )
 
 /**
@@ -197,6 +204,7 @@ private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorAc
         singleLine = true,
         modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_DESCRIPTION_TAG),
     ) // S010/RF-4
+    CodeSelectorRow(state.code, enabled = !state.measuring && state.pending == null && !state.auto.running, actions = actions) // S024/RF-1
     CollectorGearSelector(state, actions) // S046/RF-14, RF-15, RF-22
     OutlinedTextField(
         value = state.poleHeightText,

@@ -2463,4 +2463,16 @@
     <string name="project_codes">Project codes</string>
     <string name="codes_project_copy_note">Copy of the library the project carries: it can only be consulted.</string>
     <string name="codes_project_none">This project has no linked code library.</string>
+    <!-- S024: point code in the collector -->
+    <string name="collector_code_label">Code: %1$s</string>
+    <string name="collector_code_none">No code</string>
+    <string name="collector_code_selected">%1$s · %2$s</string>
+    <string name="collector_code_choose">Choose code. Current: %1$s</string>
+    <string name="collector_code_title">Point code</string>
+    <string name="collector_code_search">Search code or description</string>
+    <string name="collector_code_recent">Recent</string>
+    <string name="collector_code_all">All codes</string>
+    <string name="collector_code_empty">This project has no point codes</string>
+    <string name="collector_code_no_match">No code matches</string>
+    <string name="collector_code_new">New code</string>
 </resources>

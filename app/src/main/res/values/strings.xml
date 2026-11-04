@@ -2475,4 +2475,16 @@
     <string name="project_codes">Códigos del proyecto</string>
     <string name="codes_project_copy_note">Copia de la biblioteca que lleva el proyecto: solo se puede consultar.</string>
     <string name="codes_project_none">Este proyecto no tiene ninguna biblioteca de códigos vinculada.</string>
+    <!-- S024: código del punto en el recolector -->
+    <string name="collector_code_label">Código: %1$s</string>
+    <string name="collector_code_none">Sin código</string>
+    <string name="collector_code_selected">%1$s · %2$s</string>
+    <string name="collector_code_choose">Elegir código. Ahora: %1$s</string>
+    <string name="collector_code_title">Código del punto</string>
+    <string name="collector_code_search">Buscar código o descripción</string>
+    <string name="collector_code_recent">Recientes</string>
+    <string name="collector_code_all">Todos los códigos</string>
+    <string name="collector_code_empty">Este proyecto no tiene códigos de punto</string>
+    <string name="collector_code_no_match">Ningún código coincide</string>
+    <string name="collector_code_new">Nuevo código</string>
 </resources>

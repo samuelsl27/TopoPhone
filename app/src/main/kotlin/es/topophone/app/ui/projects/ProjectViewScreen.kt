@@ -802,6 +802,9 @@ fun ProjectViewRoute(
         collectorActions = CollectorActions(
             onName = collectorViewModel::setName,
             onDescription = collectorViewModel::setDescription,
+            onSelectCode = collectorViewModel::selectCode,
+            onCodeQuery = collectorViewModel::setCodeQuery,
+            onCodeAttribute = collectorViewModel::setCodeAttribute,
             onPoleHeight = collectorViewModel::setPoleHeight,
             onSelectPole = collectorViewModel::selectPole,
             onMode = { mode -> collectorViewModel.setSettings(collector.settings.copy(mode = mode)) },

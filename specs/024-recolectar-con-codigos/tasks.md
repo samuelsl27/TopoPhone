@@ -30,7 +30,7 @@
       Hecho cuando: `CollectorCodeViewModelTest` en verde.
 - [x] T14. `app`: el recolector guarda el código con el punto y el replanteo hereda el del punto de diseño (`StakeTarget.code`). (RF-10, RF-20)
       Hecho cuando: tests del ViewModel de guardado y de replanteo en verde.
-- [ ] T15. `app`: selector de códigos en el recolector (recientes, buscador, «Sin código»). (RF-1, RF-2, RF-3)
+- [x] T15. `app`: selector de códigos en el recolector (recientes, buscador, «Sin código»). (RF-1, RF-2, RF-3)
       Hecho cuando: `CollectorCodeScreenTest` en verde.
 - [ ] T16. `app`: formulario de atributos en el recolector con errores por campo. (RF-8, RF-9)
       Hecho cuando: test de pantalla en verde con los cuatro tipos y un valor inválido.
