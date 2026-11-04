@@ -12,7 +12,7 @@
       Hecho cuando: `AttributeFormTest` en verde con los cuatro tipos y la coma decimal.
 - [x] T5. `core:model`: `AttributeCarryOver`. (RF-14, RF-15)
       Hecho cuando: `AttributeCarryOverTest` en verde.
-- [ ] T6. `core:model`: `PointSnapshot` con código, `PointChange.CODE`, `HistoryLine.Code` y `PointSearch` por código. (RF-12, RF-14, RF-18)
+- [x] T6. `core:model`: `PointSnapshot` con código, `PointChange.CODE`, `HistoryLine.Code` y `PointSearch` por código. (RF-12, RF-14, RF-18)
       Hecho cuando: `PointHistoryCodeTest` y `PointSearchCodeTest` en verde.
 - [ ] T7. `data`: Room v29 (columnas y tablas de D1 a D4), `AutoMigration(28, 29)` y el esquema 29. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 28 a 29 en verde.

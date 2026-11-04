@@ -1,5 +1,7 @@
 package es.topophone.core.model.point
 
+import es.topophone.core.model.codes.PointCode
+
 /** Una cosa que cambió en una versión del punto (S011/RF-11). */
 sealed interface HistoryLine {
     data class Name(val from: String, val to: String) : HistoryLine
@@ -9,12 +11,21 @@ sealed interface HistoryLine {
     /** La altura del jalón, en metros. */
     data class Pole(val fromM: Double?, val toM: Double?) : HistoryLine
 
+    /** El código del punto (S024/RF-14); null es «sin código». */
+    data class Code(val from: String?, val to: String?) : HistoryLine
+
+    /** Valores de atributos corregidos (S024/RF-12). */
+    data class Attributes(val changes: List<AttributeChange>) : HistoryLine
+
     /** Las coordenadas se escribieron a mano. */
     data object Coordinates : HistoryLine
 
     /** Las coordenadas volvieron a las de la medida. */
     data object Reverted : HistoryLine
 }
+
+/** Un atributo cuyo valor cambió; vacío es «sin valor» (S024/RF-12). */
+data class AttributeChange(val name: String, val from: String, val to: String)
 
 /** Un cambio del historial con su fecha y lo que cambió. */
 data class HistoryItem(val changedAtMs: Long, val change: PointChange, val lines: List<HistoryLine>)
@@ -33,6 +44,11 @@ object PointHistory {
                 if (before.name != after.name) add(HistoryLine.Name(before.name, after.name))
                 if (before.description != after.description) add(HistoryLine.Description(before.description, after.description))
                 if (before.poleHeightM != after.poleHeightM) add(HistoryLine.Pole(before.poleHeightM, after.poleHeightM))
+                if (before.code?.code != after.code?.code) {
+                    add(HistoryLine.Code(before.code?.code, after.code?.code))
+                } else {
+                    attributeChanges(before.code, after.code).takeIf { it.isNotEmpty() }?.let { add(HistoryLine.Attributes(it)) }
+                }
                 when {
                     entry.change == PointChange.REVERT -> add(HistoryLine.Reverted)
                     entry.change == PointChange.EDIT && before.coordinates != after.coordinates -> add(HistoryLine.Coordinates)
@@ -41,6 +57,14 @@ object PointHistory {
             after = before
             HistoryItem(entry.changedAtMs, entry.change, lines)
         }
+    }
+}
+
+private fun attributeChanges(before: PointCode?, after: PointCode?): List<AttributeChange> {
+    val old = before?.attributes.orEmpty().associateBy { it.name to it.type }
+    return after?.attributes.orEmpty().mapNotNull { new ->
+        val previous = old[new.name to new.type]?.value.orEmpty()
+        if (previous != new.value) AttributeChange(new.name, previous, new.value) else null
     }
 }
 

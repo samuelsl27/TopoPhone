@@ -557,12 +557,14 @@ private fun PointChange.titleRes(): Int = when (this) {
     PointChange.EDIT -> R.string.point_change_edit
     PointChange.POLE -> R.string.point_change_pole
     PointChange.REVERT -> R.string.point_change_revert
+    PointChange.CODE -> R.string.point_change_code
 }
 
 @Composable
 private fun historyLine(line: HistoryLine): String {
     val locale = uiLocale()
     val empty = stringResource(R.string.point_history_none)
+    val noCode = stringResource(R.string.point_history_no_code)
     return when (line) {
         is HistoryLine.Name -> stringResource(R.string.point_history_name, line.from, line.to)
         is HistoryLine.Description -> stringResource(
@@ -579,6 +581,10 @@ private fun historyLine(line: HistoryLine): String {
         )
         HistoryLine.Coordinates -> stringResource(R.string.point_history_coordinates)
         HistoryLine.Reverted -> stringResource(R.string.point_history_reverted)
+        is HistoryLine.Code -> stringResource(R.string.point_history_code, line.from ?: noCode, line.to ?: noCode)
+        is HistoryLine.Attributes -> line.changes.map {
+            stringResource(R.string.point_history_attribute, it.name, it.from.ifEmpty { empty }, it.to.ifEmpty { empty })
+        }.joinToString("; ")
     }
 }
 

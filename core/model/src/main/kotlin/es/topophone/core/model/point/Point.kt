@@ -310,8 +310,8 @@ data class Point(
     }
 }
 
-/** Qué cambió en una versión del historial (S011/RF-10): una edición, el jalón o la vuelta a la medida. */
-enum class PointChange { EDIT, POLE, REVERT }
+/** Qué cambió en una versión del historial (S011/RF-10): una edición, el jalón, la vuelta a la medida o el código (S024/RF-14). */
+enum class PointChange { EDIT, POLE, REVERT, CODE }
 
 /** Un punto tal como era antes de un cambio (S011/RF-10; RNF-T6). */
 data class PointSnapshot(
@@ -322,6 +322,8 @@ data class PointSnapshot(
     val measuredCoordinates: PointCoordinates?,
     val typed: TypedCoordinates?,
     val edited: Boolean,
+    /** El código y los valores de los atributos que tenía el punto (S024/RF-14). */
+    val code: PointCode? = null,
 ) {
     companion object {
         fun of(point: Point): PointSnapshot = PointSnapshot(
@@ -332,6 +334,7 @@ data class PointSnapshot(
             measuredCoordinates = point.measurement?.coordinates,
             typed = point.typed,
             edited = point.edited,
+            code = point.code,
         )
     }
 }
@@ -379,6 +382,9 @@ object PointSearch {
     /** Si [summary] contiene [query]; una búsqueda vacía los incluye todos. */
     fun matches(summary: PointSummary, query: String): Boolean {
         val needle = normalize(query.trim())
-        return needle.isEmpty() || needle in normalize(summary.name) || needle in normalize(summary.description)
+        return needle.isEmpty() ||
+            needle in normalize(summary.name) ||
+            needle in normalize(summary.description) ||
+            (summary.code != null && needle in normalize(summary.code))
     }
 }

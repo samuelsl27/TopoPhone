@@ -717,6 +717,11 @@
     <string name="point_history_description">Description: %1$s → %2$s</string>
     <string name="point_history_pole">Pole: %1$s → %2$s</string>
     <string name="point_history_coordinates">Coordinates edited</string>
+    <!-- S024: code and attributes in the history -->
+    <string name="point_change_code">Code change</string>
+    <string name="point_history_code">Code: %1$s → %2$s</string>
+    <string name="point_history_attribute">%1$s: %2$s → %3$s</string>
+    <string name="point_history_no_code">No code</string>
     <string name="point_history_reverted">Coordinates set back to the measurement</string>
     <string name="point_copy_of">Copy of %1$s</string>
     <string name="point_delete_confirm">Move %1$s to the trash? It can be recovered for 30 days.</string>

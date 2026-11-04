@@ -729,6 +729,11 @@
     <string name="point_history_description">Descripción: %1$s → %2$s</string>
     <string name="point_history_pole">Jalón: %1$s → %2$s</string>
     <string name="point_history_coordinates">Coordenadas editadas</string>
+    <!-- S024: código y atributos en el historial -->
+    <string name="point_change_code">Cambio de código</string>
+    <string name="point_history_code">Código: %1$s → %2$s</string>
+    <string name="point_history_attribute">%1$s: %2$s → %3$s</string>
+    <string name="point_history_no_code">Sin código</string>
     <string name="point_history_reverted">Coordenadas devueltas a las de la medida</string>
     <string name="point_copy_of">Copia de %1$s</string>
     <string name="point_delete_confirm">¿Mover %1$s a la papelera? Se puede recuperar durante 30 días.</string>
