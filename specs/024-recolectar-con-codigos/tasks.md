@@ -52,5 +52,5 @@
       Hecho cuando: `GpkgCodeAttributesTest` y `GeoPackageWriterTest` en verde.
 - [x] T25. Accesibilidad y textos: etiquetas, 56 dp, TalkBack lee código con descripción, es/en. (RNF-T7, RNF-T8)
       Hecho cuando: los tests de semántica en verde y sin textos literales en código.
-- [ ] T26. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files` y la demo en el emulador. (Todos)
+- [x] T26. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files` y la demo en el emulador. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, la demo de la spec funciona y la hoja de ruta marca S024 como implementada.
