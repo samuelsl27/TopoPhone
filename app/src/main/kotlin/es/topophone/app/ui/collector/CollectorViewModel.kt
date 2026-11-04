@@ -19,6 +19,8 @@ import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.gnss.nmea.TiltState
+import es.topophone.core.model.codes.DescriptionProposal
+import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.log.AppLog
@@ -123,6 +125,9 @@ enum class MeasureBlocker {
     AUTO_INTERVAL_TOO_SHORT,
     INVALID_AUTO_INTERVAL,
     INVALID_AUTO_DISTANCE,
+
+    /** Algún atributo del código elegido tiene un valor no válido (S024/RF-9). */
+    ATTRIBUTES,
 }
 
 /** Por qué una medida se ha cancelado sola (S010/RF-12; al cambiar el modo de inclinación, S016/RF-28). */
@@ -220,6 +225,8 @@ data class CollectorUiState(
     val gearChanged: Boolean = false,
     /** A qué punto irán las fotos y cuántas lleva, con los avisos de las fotos (S017b/RF-1, RF-3, RF-7, RF-8). */
     val photos: PhotoUi = PhotoUi(),
+    /** El código elegido para el siguiente punto, el selector y los atributos (S024). */
+    val code: CollectorCodeUi = CollectorCodeUi(),
 )
 
 /**
@@ -244,6 +251,7 @@ class CollectorViewModel @Inject constructor(
     private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
     private val photoRepository: PhotoRepository = PhotoRepository.NONE,
     photoStore: PhotoStore = PhotoStore.NONE,
+    codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
     savedState: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
     private data class Form(
@@ -341,6 +349,12 @@ class CollectorViewModel @Inject constructor(
         handle = savedState,
         log = log,
     )
+
+    /** El código y los atributos del siguiente punto (S024). */
+    val codes = CollectorCodes(viewModelScope, codeSource, projectId, savedState)
+
+    /** La descripción que propuso el último código elegido, para cambiarla por la del siguiente si no se tocó (S024/RF-4). */
+    private var proposedDescription: String? = null
 
     @Volatile private var lastEpochUtc: Int? = null
 
@@ -483,10 +497,14 @@ class CollectorViewModel @Inject constructor(
         projectFlow,
         session.state,
         baseNotices.dismissed,
-        combine(combine(tilt.state, gear.state, gear.poles, lastSavedGear, shiftUi, ::Equipment), photos.ui) { equipment, photoUi ->
-            equipment to photoUi
+        combine(
+            combine(tilt.state, gear.state, gear.poles, lastSavedGear, shiftUi, ::Equipment),
+            photos.ui,
+            codes.ui,
+        ) { equipment, photoUi, codeUi ->
+            Triple(equipment, photoUi, codeUi)
         },
-    ) { state, project, snapshot, dismissed, (equipment, photoUi) ->
+    ) { state, project, snapshot, dismissed, (equipment, photoUi, codeUi) ->
         val (tiltState, gearState, poles, savedGear, shift) = equipment
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
@@ -496,7 +514,7 @@ class CollectorViewModel @Inject constructor(
             live = live,
             blocker =
             state.blocker ?: gearBlocker(gearState) ?: positionBlocker(snapshot, project, state.poleHeightText)
-                ?: tiltBlocker(tiltState, epochTilt),
+                ?: tiltBlocker(tiltState, epochTilt) ?: MeasureBlocker.ATTRIBUTES.takeIf { !codeUi.valid },
             gear = gearState,
             poles = poles,
             gearLocked = state.measuring || state.auto.running,
@@ -508,6 +526,7 @@ class CollectorViewModel @Inject constructor(
             baseShiftBaseChanged = shift.baseChanged, // S020/RF-15
             baseShiftDatumNotice = shift.datumNotice, // S020/RF-16
             photos = photoUi, // S017b/RF-8
+            code = codeUi, // S024
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, CollectorUiState())
 
@@ -621,6 +640,31 @@ class CollectorViewModel @Inject constructor(
 
     /** La descripción se conserva para el siguiente punto (S010/RF-4). */
     fun setDescription(description: String) = form.update { it.copy(description = description) }
+
+    /** Con una medida en marcha no se cambia de código ni de valores (S024/RF-11). */
+    private fun codeLocked(): Boolean = run.value.measuring || run.value.pending != null || autoCollector.running
+
+    /**
+     * Elige el código del siguiente punto, o ninguno (S024/RF-3). Si la descripción está vacía, o es la que propuso el código anterior,
+     * se propone la del nuevo (RF-4).
+     */
+    fun selectCode(code: SurveyCode?) {
+        if (codeLocked()) return
+        codes.select(code)
+        val previous = proposedDescription
+        form.update { f ->
+            val current = if (f.description == previous) "" else f.description
+            f.copy(description = DescriptionProposal.propose(current, code))
+        }
+        proposedDescription = code?.description?.takeIf { it.isNotBlank() }
+    }
+
+    fun setCodeQuery(text: String) = codes.setQuery(text)
+
+    fun setCodeAttribute(index: Int, text: String) {
+        if (codeLocked()) return
+        codes.setAttribute(index, text)
+    }
 
     /** Cambia el jalón activo desde el selector rápido: con una medida en curso, no (S046/RF-14, RF-27). */
     fun selectPole(id: String) {

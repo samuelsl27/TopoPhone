@@ -26,7 +26,7 @@
       Hecho cuando: `ProjectCodeRepositoryTest` en verde, incluidos borrar la biblioteca y cambiar de biblioteca vinculada.
 - [x] T12. `data`: copia de seguridad y duplicado de proyecto con las tablas nuevas. (RNF-T6)
       Hecho cuando: `CodeBackupTest` en verde.
-- [ ] T13. `app`: estado del recolector con código elegido, recientes, búsqueda, atributos y `MeasureBlocker.ATTRIBUTES`. (RF-1 a RF-4, RF-8, RF-9, RF-11)
+- [x] T13. `app`: estado del recolector con código elegido, recientes, búsqueda, atributos y `MeasureBlocker.ATTRIBUTES`. (RF-1 a RF-4, RF-8, RF-9, RF-11)
       Hecho cuando: `CollectorCodeViewModelTest` en verde.
 - [ ] T14. `app`: el recolector guarda el código con el punto y el replanteo hereda el del punto de diseño (`StakeTarget.code`). (RF-10, RF-20)
       Hecho cuando: tests del ViewModel de guardado y de replanteo en verde.
