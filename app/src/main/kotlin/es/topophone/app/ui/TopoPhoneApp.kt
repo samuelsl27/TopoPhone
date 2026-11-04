@@ -50,6 +50,7 @@ import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
 import es.topophone.app.ui.gpkg.GpkgImportRoute
 import es.topophone.app.ui.linear.LinearSurveysRoute
+import es.topophone.app.ui.lines.LineFromPointsRoute
 import es.topophone.app.ui.points.ObjectListRoute
 import es.topophone.app.ui.points.PointDetailsRoute
 import es.topophone.app.ui.points.PointFormRoute
@@ -380,6 +381,7 @@ private fun AppNavHost(
                 onNewProjectCode = { id -> navController.navigate(ProjectCodeEditorDestination(id)) }, // S024/RF-5
                 onEditProjectCode = { id, codeId -> navController.navigate(ProjectCodeEditorDestination(id, codeId)) }, // S024/RF-7
                 onOpenObjects = { id -> navController.navigate(ObjectListDestination(id)) }, // S011/RF-1
+                onLineFromPoints = { id -> navController.navigate(LineFromPointsDestination(id)) }, // S025/RF-12
                 onOpenPoint = { projectId, pointId -> navController.navigate(PointDestination(projectId, pointId)) }, // S011/RF-5
                 onNewPoint = { projectId -> navController.navigate(PointFormDestination(projectId)) }, // S011/RF-16
                 onEditPoint = { projectId, pointId -> navController.navigate(PointFormDestination(projectId, pointId)) }, // S011/RF-8
@@ -754,6 +756,10 @@ private fun AppNavHost(
                     },
                     onBack = { navController.popBackStack() },
                 )
+            }
+            composable<LineFromPointsDestination> { entry ->
+                val args = entry.toRoute<LineFromPointsDestination>()
+                LineFromPointsRoute(args.projectId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<ProjectCodeEditorDestination> { entry ->
                 val args = entry.toRoute<ProjectCodeEditorDestination>()

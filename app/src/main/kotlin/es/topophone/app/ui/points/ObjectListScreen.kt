@@ -98,6 +98,7 @@ const val OBJECTS_BUTTON_TAG = "objects_button"
 const val OBJECT_LIST_TAG = "object_list"
 const val ADD_POINT_TAG = "add_point"
 const val OBJECTS_MENU_TAG = "objects_menu"
+const val OBJECTS_LINE_FROM_POINTS_TAG = "objects_line_from_points"
 const val OBJECT_SEARCH_TAG = "object_search"
 const val SELECTION_BAR_TAG = "selection_bar"
 const val SELECTION_HIDE_TAG = "selection_hide"
@@ -163,6 +164,8 @@ class ObjectListActions(
     /** Abre el selector de ficheros y, con el fichero, la importación de un ráster de cotas (S045/RF-1). */
     val onImportRaster: () -> Unit = {},
     val onBaseShift: () -> Unit = {},
+    /** El asistente «Línea desde puntos» (S025/RF-12). */
+    val onLineFromPoints: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage (S048/RF-1). */
     val onImportGpkg: () -> Unit = {},
     /** Pregunta de dónde sale el eje y lo importa (S049/RF-1). */
@@ -352,6 +355,7 @@ fun ObjectListRoute(
             onImportSurface = { importSurface(projectId) },
             onImportRaster = { importRaster(projectId) },
             onBaseShift = { navigation.onBaseShift(projectId) }, // S020/RF-1
+            onLineFromPoints = { navigation.onLineFromPoints(projectId) }, // S025/RF-12
             onImportGpkg = { importGpkg(projectId) },
             onImportAlignment = { importAlignment(projectId) },
             onStakeoutReportSelected = {
@@ -424,6 +428,7 @@ fun ObjectListScreen(
                 actions.onImportGpkg,
                 actions.onImportAlignment,
                 actions.onBaseShift,
+                actions.onLineFromPoints,
             )
         },
         floatingActionButton = {
@@ -490,6 +495,7 @@ private fun ObjectsMenu(
     onImportGpkg: () -> Unit,
     onImportAlignment: () -> Unit,
     onBaseShift: () -> Unit,
+    onLineFromPoints: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
@@ -560,6 +566,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S049/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.line_wizard_title)) },
+            onClick = {
+                open = false
+                onLineFromPoints()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECTS_LINE_FROM_POINTS_TAG),
+        ) // S025/RF-12
         DropdownMenuItem(
             text = { Text(stringResource(R.string.base_shift_title)) },
             onClick = {

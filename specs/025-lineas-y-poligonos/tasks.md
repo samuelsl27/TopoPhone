@@ -36,7 +36,7 @@
       Hecho cuando: `CollectorLineViewModelTest` en verde, con pantalla encendida con línea activa.
 - [x] T17. `app`: botones «Terminar línea», «Continuar línea» y «Deshacer vértice» y la lista de líneas abiertas. (RF-4, RF-5, RF-6)
       Hecho cuando: `CollectorLineScreenTest` en verde.
-- [ ] T18. `app`: asistente «Línea desde puntos». (RF-12, RF-13, RF-14, RF-15)
+- [x] T18. `app`: asistente «Línea desde puntos». (RF-12, RF-13, RF-14, RF-15)
       Hecho cuando: `LineFromPointsTest` en verde.
 - [ ] T19. `app`: ficha de la línea con vértices y PK, edición, cierre, apertura, cambio de código, atributos e historial. (RF-10, RF-16 a RF-20, RF-22)
       Hecho cuando: `LineDetailsTest` en verde.

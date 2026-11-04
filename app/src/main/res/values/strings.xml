@@ -2526,4 +2526,21 @@
     <string name="collector_line_continue_title">Continuar una línea</string>
     <string name="collector_line_continue_empty">No hay líneas abiertas en el proyecto.</string>
     <string name="collector_line_open_row">%1$s · %2$s</string>
+    <string name="line_wizard_title">Línea desde puntos</string>
+    <string name="line_wizard_search">Buscar punto</string>
+    <plurals name="line_wizard_selected">
+        <item quantity="one">%d punto elegido</item>
+        <item quantity="other">%d puntos elegidos</item>
+    </plurals>
+    <string name="line_wizard_sort">Ordenar por nombre</string>
+    <string name="line_wizard_reverse">Invertir orden</string>
+    <string name="line_wizard_closed">Cerrar en polígono</string>
+    <string name="line_wizard_name">Nombre de la línea</string>
+    <string name="line_wizard_create">Crear línea</string>
+    <string name="line_wizard_point_chosen">%1$s, elegido en la posición %2$d</string>
+    <string name="line_wizard_issue_few">Una línea necesita al menos 2 puntos y un polígono, al menos 3.</string>
+    <string name="line_wizard_issue_repeated">Hay dos puntos iguales seguidos.</string>
+    <string name="line_wizard_issue_name">Ya hay una línea con ese nombre.</string>
+    <string name="line_wizard_issue_attributes">Corrige los valores de los atributos.</string>
+    <string name="line_wizard_issue_missing">Alguno de los puntos ya no está en el proyecto.</string>
 </resources>

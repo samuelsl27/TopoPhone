@@ -2514,4 +2514,21 @@
     <string name="collector_line_continue_title">Continue a line</string>
     <string name="collector_line_continue_empty">There are no open lines in the project.</string>
     <string name="collector_line_open_row">%1$s · %2$s</string>
+    <string name="line_wizard_title">Line from points</string>
+    <string name="line_wizard_search">Search points</string>
+    <plurals name="line_wizard_selected">
+        <item quantity="one">%d point chosen</item>
+        <item quantity="other">%d points chosen</item>
+    </plurals>
+    <string name="line_wizard_sort">Sort by name</string>
+    <string name="line_wizard_reverse">Reverse order</string>
+    <string name="line_wizard_closed">Close as polygon</string>
+    <string name="line_wizard_name">Line name</string>
+    <string name="line_wizard_create">Create line</string>
+    <string name="line_wizard_point_chosen">%1$s, chosen at position %2$d</string>
+    <string name="line_wizard_issue_few">A line needs at least 2 points and a polygon at least 3.</string>
+    <string name="line_wizard_issue_repeated">Two identical points are next to each other.</string>
+    <string name="line_wizard_issue_name">A line with that name already exists.</string>
+    <string name="line_wizard_issue_attributes">Correct the attribute values.</string>
+    <string name="line_wizard_issue_missing">One of the points is no longer in the project.</string>
 </resources>

@@ -83,6 +83,9 @@ import kotlinx.serialization.Serializable
 /** Lista de objetos de un proyecto (S011/RF-1). */
 @Serializable data class ObjectListDestination(val projectId: String)
 
+/** El asistente «Línea desde puntos» de un proyecto (S025/RF-12). */
+@Serializable data class LineFromPointsDestination(val projectId: String)
+
 /** Ficha de un punto (S011/RF-5). */
 @Serializable data class PointDestination(val projectId: String, val pointId: String)
 
