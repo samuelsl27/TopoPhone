@@ -1,5 +1,6 @@
 package es.topophone.core.model.line
 
+import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.PointCode
 
 /** Un vértice de una línea del proyecto: el punto del proyecto que referencia, sin copiarlo (S025/D1). */
@@ -15,6 +16,8 @@ data class ProjectLine(
     val projectId: String,
     val name: String,
     val code: PointCode?,
+    /** La geometría del código al crear la línea: Línea o Polígono; un código de polígono la cierra al terminarla (RF-4). */
+    val geometry: CodeGeometry,
     val closed: Boolean,
     val hidden: Boolean,
     val active: Boolean,

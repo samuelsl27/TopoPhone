@@ -4,7 +4,7 @@
 
 - [x] T1. `core:model`: `ProjectLine`, `LineVertex`, `LineSummary` y los términos en `docs/glosario.md` («Línea (del proyecto)», «Línea activa», «Línea abierta»). (RF-21)
       Hecho cuando: los tests de `core:model` en verde.
-- [ ] T2. `core:model`: `LineNaming` y `LineRules` (mínimos de vértices, cierre, abrir, invertir, repetidos seguidos). (RF-2, RF-4, RF-10, RF-11, RF-15, RF-19)
+- [x] T2. `core:model`: `LineNaming` y `LineRules` (mínimos de vértices, cierre, abrir, invertir, repetidos seguidos). (RF-2, RF-4, RF-10, RF-11, RF-15, RF-19)
       Hecho cuando: `LineNamingTest` y `LineRulesTest` en verde.
 - [ ] T3. `core:model`: `LineTarget.decide` (añadir, crear o nada). (RF-2, RF-3, RF-7, RF-8)
       Hecho cuando: `LineTargetTest` en verde.

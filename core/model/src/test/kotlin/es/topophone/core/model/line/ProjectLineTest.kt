@@ -1,5 +1,6 @@
 package es.topophone.core.model.line
 
+import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.codes.PointCode
 import io.kotest.matchers.shouldBe
@@ -14,6 +15,7 @@ class ProjectLineTest {
         projectId = "p1",
         name = "BORD_1",
         code = code,
+        geometry = CodeGeometry.LINE,
         closed = false,
         hidden = false,
         active = true,
