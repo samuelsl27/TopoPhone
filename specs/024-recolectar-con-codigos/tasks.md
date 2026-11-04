@@ -10,7 +10,7 @@
       Hecho cuando: tests en verde, con 2.000 códigos filtrados en menos de 16 ms de CPU.
 - [x] T4. `core:model`: `AttributeForm` (valores iniciales y validación por atributo). (RF-8, RF-9)
       Hecho cuando: `AttributeFormTest` en verde con los cuatro tipos y la coma decimal.
-- [ ] T5. `core:model`: `AttributeCarryOver`. (RF-14, RF-15)
+- [x] T5. `core:model`: `AttributeCarryOver`. (RF-14, RF-15)
       Hecho cuando: `AttributeCarryOverTest` en verde.
 - [ ] T6. `core:model`: `PointSnapshot` con código, `PointChange.CODE`, `HistoryLine.Code` y `PointSearch` por código. (RF-12, RF-14, RF-18)
       Hecho cuando: `PointHistoryCodeTest` y `PointSearchCodeTest` en verde.
