@@ -2,12 +2,23 @@ package es.topophone.core.model.codes
 
 /** Los códigos que ofrece el recolector en un proyecto (S024/RF-1). */
 object ProjectCodes {
+    /** Las geometrías del selector del recolector con líneas: todas (S025/RF-1). */
+    val ALL_GEOMETRIES: Set<CodeGeometry> = CodeGeometry.entries.toSet()
+
+    /** Las geometrías de «Cambiar código» de una línea: Línea y Polígono (S025/RF-20). */
+    val LINE_GEOMETRIES: Set<CodeGeometry> = setOf(CodeGeometry.LINE, CodeGeometry.POLYGON)
+
     /**
      * Los códigos de la copia de la biblioteca vinculada ([library]) más los creados en el proyecto ([own]),
-     * solo de geometría Punto, por orden alfabético de su clave y sin repetir clave.
+     * solo de las [geometries] pedidas (Punto por defecto, S024/RF-1; Línea y Polígono para S025/RF-1, RF-20), por
+     * orden alfabético de su clave y sin repetir clave.
      */
-    fun available(library: List<SurveyCode>, own: List<SurveyCode>): List<SurveyCode> = (library + own)
-        .filter { it.geometry == CodeGeometry.POINT }
+    fun available(
+        library: List<SurveyCode>,
+        own: List<SurveyCode>,
+        geometries: Set<CodeGeometry> = setOf(CodeGeometry.POINT),
+    ): List<SurveyCode> = (library + own)
+        .filter { it.geometry in geometries }
         .distinctBy { CodeKey.of(it.code) }
         .sortedBy { CodeKey.of(it.code) }
 }

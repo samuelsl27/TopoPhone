@@ -12,7 +12,7 @@
       Hecho cuando: `LineEditTest` y `LineChainageTest` en verde.
 - [x] T5. `core:model`: historial de líneas (`LineChange`, `HistoryLine`) y `LineSearch`. (RF-18, RF-21)
       Hecho cuando: `LineHistoryTest` y `LineSearchTest` en verde.
-- [ ] T6. `core:model`: `ProjectCodes` con parámetro de geometrías. (RF-1, RF-20)
+- [x] T6. `core:model`: `ProjectCodes` con parámetro de geometrías. (RF-1, RF-20)
       Hecho cuando: `ProjectCodesGeometryTest` en verde y los tests de S024 intactos.
 - [ ] T7. `data`: Room v30 (tablas de D1, D2 y D6), `AutoMigration(29, 30)` y el esquema 30. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 29 a 30 en verde.
