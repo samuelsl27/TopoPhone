@@ -28,7 +28,7 @@
       Hecho cuando: `CodeBackupTest` en verde.
 - [x] T13. `app`: estado del recolector con código elegido, recientes, búsqueda, atributos y `MeasureBlocker.ATTRIBUTES`. (RF-1 a RF-4, RF-8, RF-9, RF-11)
       Hecho cuando: `CollectorCodeViewModelTest` en verde.
-- [ ] T14. `app`: el recolector guarda el código con el punto y el replanteo hereda el del punto de diseño (`StakeTarget.code`). (RF-10, RF-20)
+- [x] T14. `app`: el recolector guarda el código con el punto y el replanteo hereda el del punto de diseño (`StakeTarget.code`). (RF-10, RF-20)
       Hecho cuando: tests del ViewModel de guardado y de replanteo en verde.
 - [ ] T15. `app`: selector de códigos en el recolector (recientes, buscador, «Sin código»). (RF-1, RF-2, RF-3)
       Hecho cuando: `CollectorCodeScreenTest` en verde.

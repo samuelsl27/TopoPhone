@@ -290,6 +290,7 @@ data class Point(
             createdAtMs: Long,
             staked: StakeoutRef? = null,
             onAxis: AxisRef? = null,
+            code: PointCode? = null,
         ) = Point(
             id = id,
             projectId = projectId,
@@ -306,6 +307,7 @@ data class Point(
             deletedAtMs = null,
             staked = staked,
             onAxis = onAxis,
+            code = code,
         )
     }
 }

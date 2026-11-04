@@ -268,7 +268,7 @@ class StakeoutViewModel @Inject constructor(
                     notFound.value = targetId.value != null
                 } else {
                     notFound.value = false
-                    target.value = StakeTarget(point.id, point.name, point.description, point.coordinates)
+                    target.value = StakeTarget(point.id, point.name, point.description, point.coordinates, code = point.code)
                 }
             }
         }

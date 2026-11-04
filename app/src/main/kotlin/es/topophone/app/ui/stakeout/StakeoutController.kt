@@ -2,6 +2,7 @@ package es.topophone.app.ui.stakeout
 
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
@@ -55,6 +56,8 @@ data class StakeTarget(
     val description: String,
     val coordinates: PointCoordinates,
     val source: StakeSource = StakeSource.ProjectPoint,
+    /** El código del punto de diseño, que hereda el punto replanteado por valor (S024/RF-20); null en un dibujo, un eje o sin código. */
+    val code: PointCode? = null,
 )
 
 /**

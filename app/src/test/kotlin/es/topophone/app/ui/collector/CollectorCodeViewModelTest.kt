@@ -7,6 +7,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.log.RecordingLog
 import es.topophone.app.ui.receiver.nmea
+import es.topophone.app.ui.stakeout.StakeTarget
 import es.topophone.core.model.codes.AttributeError
 import es.topophone.core.model.codes.AttributeType
 import es.topophone.core.model.codes.CodeAttribute
@@ -14,6 +15,7 @@ import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.CodeLibrary
 import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.codes.LibraryChoice
+import es.topophone.core.model.codes.PointAttribute
 import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.point.CollectorSettings
@@ -37,6 +39,8 @@ import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.StreamTransport
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.io.ByteArrayOutputStream
 import java.io.PipedInputStream
@@ -326,5 +330,116 @@ class CollectorCodeViewModelTest {
 
         vm.state.value.code.selected?.code shouldBe "ARQ"
         vm.state.value.code.fields[3].text shouldBe ""
+    }
+
+    private fun savedPoint(name: String) = runBlocking { points.points(projectId).first() }.single { it.name == name }
+
+    @Test
+    fun `S024 RF-10 el punto se guarda con el codigo, su color, simbolo, descripcion y atributos sin redondear`() {
+        val vm = viewModel()
+        receiving(vm)
+        await(vm) { it.code.totalCodes > 0 }
+        vm.selectCode(code(vm, "ARQ"))
+        await(vm) { it.code.selected != null }
+        vm.setCodeAttribute(1, "0${interfaceDecimal()}123456789012345")
+        vm.setCodeAttribute(2, "7")
+        vm.setCodeAttribute(3, "  junto al muro ")
+
+        measure(vm, "1")
+
+        val code = savedPoint("1").code.shouldNotBeNull()
+        code.code shouldBe "ARQ"
+        code.description shouldBe "Arqueta"
+        code.color shouldBe 0x1E88E5
+        code.symbol shouldBe CodeSymbol.CIRCLE
+        code.attributes shouldBe listOf(
+            PointAttribute("Material", AttributeType.LIST, "PVC"),
+            PointAttribute("Diametro", AttributeType.NUMBER, "0.123456789012345"),
+            PointAttribute("Unidades", AttributeType.INTEGER, "7"),
+            PointAttribute("Nota", AttributeType.TEXT, "junto al muro"),
+        )
+    }
+
+    @Test
+    fun `S024 RF-3 tras guardar el codigo se conserva y los atributos vuelven a los valores por defecto`() {
+        val vm = viewModel()
+        receiving(vm)
+        await(vm) { it.code.totalCodes > 0 }
+        vm.selectCode(code(vm, "ARQ"))
+        await(vm) { it.code.selected != null }
+        vm.setCodeAttribute(3, "una nota")
+
+        measure(vm, "1")
+
+        val ui = await(vm) { it.savedName == "1" && it.code.fields.getOrNull(3)?.text == "" }.code
+        ui.selected?.code shouldBe "ARQ"
+        ui.fields.map { it.text } shouldBe listOf("PVC", "0${interfaceDecimal()}25", "", "")
+    }
+
+    @Test
+    fun `S024 RF-10 sin codigo el punto se guarda sin codigo ni atributos`() {
+        val vm = viewModel()
+        receiving(vm)
+
+        measure(vm, "1")
+
+        savedPoint("1").code.shouldBeNull()
+    }
+
+    @Test
+    fun `S024 RF-10 el punto guardado no cambia si despues se borra el codigo de la biblioteca`() {
+        val vm = viewModel()
+        receiving(vm)
+        await(vm) { it.code.totalCodes > 0 }
+        vm.selectCode(code(vm, "POS"))
+        await(vm) { it.code.selected != null }
+        measure(vm, "1")
+
+        db.openHelper.writableDatabase.execSQL("DELETE FROM code_libraries")
+
+        savedPoint("1").code.shouldNotBeNull().code shouldBe "POS"
+    }
+
+    @Test
+    fun `S024 RF-20 un punto replanteado hereda por valor el codigo y los atributos del punto de diseno`() {
+        val vm = viewModel()
+        receiving(vm)
+        measure(vm, "1")
+        val design = StakeTarget(
+            id = "design-1",
+            name = "12",
+            description = "",
+            coordinates = savedPoint("1").coordinates,
+            code = PointCode(
+                "ZZZ",
+                "Codigo de otra biblioteca",
+                0x123456,
+                CodeSymbol.STAR,
+                listOf(PointAttribute("Nota", AttributeType.TEXT, "x")),
+            ),
+        )
+
+        vm.setStakeTarget(design)
+        await(vm) { it.name == "12_stkd" }
+        vm.measure()
+        sendEpoch(next++)
+        await(vm) { it.savedName == "12_stkd" }
+
+        val staked = savedPoint("12_stkd")
+        staked.origin shouldBe PointOrigin.STAKED
+        staked.code shouldBe design.code
+    }
+
+    @Test
+    fun `S024 RF-10 una reproduccion en lugar del receptor guarda el codigo igual`() {
+        val vm = viewModel()
+        receiving(vm)
+        await(vm) { it.code.totalCodes > 0 }
+        vm.selectCode(code(vm, "ARB"))
+        await(vm) { it.code.selected != null }
+
+        measure(vm, "1")
+
+        savedPoint("1").code.shouldNotBeNull().code shouldBe "ARB"
     }
 }

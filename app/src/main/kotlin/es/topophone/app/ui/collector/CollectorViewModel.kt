@@ -1216,6 +1216,8 @@ class CollectorViewModel @Inject constructor(
             createdAtMs = System.currentTimeMillis(),
             staked = staked,
             onAxis = axisReference?.at(measurement.coordinates), // S054/RF-13
+            // S024/RF-10, RF-20: el codigo por valor; un replanteo hereda el del punto de diseno.
+            code = if (stake != null) stake?.code else codes.pointCode(),
         )
         // S017/RF-22: el modo automático propone ya el nombre siguiente, que la época que sigue puede necesitar enseguida.
         if (auto) form.update { if (PointNames.clean(it.name) == name) it.copy(name = PointNames.next(name)) else it }
@@ -1237,6 +1239,7 @@ class CollectorViewModel @Inject constructor(
             when (saved) {
                 PointSaveResult.Saved -> {
                     photos.saved(toSave.id, finalName) // S017b/RF-5, RF-6
+                    codes.afterSave() // S024/RF-3: el codigo se conserva y los atributos vuelven a los por defecto
                     alerts.pointSaved() // S010/RF-19
                     pointSavedListener?.let { listener ->
                         try {
