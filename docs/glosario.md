@@ -22,11 +22,13 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Destino de la foto | `PhotoDestination` | El punto al que irá una foto desde el recolector (S017b) |
 | Punto editado | `edited` | Punto medido cuyas coordenadas difieren de las de su medida (S011) |
 | Historial (del punto) | `PointHistory` | Cambios de un punto con su fecha y los valores anteriores (S011) |
-| Lista de objetos | `ObjectList` | Puntos del proyecto; las líneas llegan en S025 (S011) |
+| Lista de objetos | `ObjectList` | Puntos y líneas del proyecto (S011, S025) |
 | Ficha del punto | `PointDetails` | Todo lo guardado de un punto (S011) |
-| Línea / polilínea | `Line` | |
+| Línea (del proyecto) | `ProjectLine` | Sucesión ordenada de vértices con nombre, código de geometría Línea o Polígono y atributos; no es la línea de un dibujo CAD (S025) |
+| Línea activa | `ActiveLine` | La línea que recibe los puntos que se miden con su código (S025) |
+| Línea abierta | `OpenLine` | Línea que no es un polígono (S025) |
 | Polígono (línea cerrada) | `Polygon` | |
-| Vértice (de una línea) | `Vertex` | |
+| Vértice (de una línea) | `Vertex` | Punto del proyecto que la línea referencia, sin copiarlo (S025) |
 | Vértice geodésico (REGENTE/ROI) | `GeodeticMark` | Señal física con reseña |
 | Reseña | `MarkSheet` | |
 | Clavo de nivelación (REDNAP) | `LevellingBenchmark` | |

@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `core:model`: `ProjectLine`, `LineVertex`, `LineSummary` y los términos en `docs/glosario.md` («Línea (del proyecto)», «Línea activa», «Línea abierta»). (RF-21)
+- [x] T1. `core:model`: `ProjectLine`, `LineVertex`, `LineSummary` y los términos en `docs/glosario.md` («Línea (del proyecto)», «Línea activa», «Línea abierta»). (RF-21)
       Hecho cuando: los tests de `core:model` en verde.
 - [ ] T2. `core:model`: `LineNaming` y `LineRules` (mínimos de vértices, cierre, abrir, invertir, repetidos seguidos). (RF-2, RF-4, RF-10, RF-11, RF-15, RF-19)
       Hecho cuando: `LineNamingTest` y `LineRulesTest` en verde.
