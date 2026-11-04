@@ -25,3 +25,32 @@ object RecentCodes {
         return recent.mapNotNull { byKey[CodeKey.of(it)] }
     }
 }
+
+/**
+ * Lo que muestra el selector del recolector: los [recent] primero, en su orden, y después el resto por orden
+ * alfabético (S024/RF-1, RF-2). El índice se calcula una vez.
+ */
+class CodeSelector(available: List<SurveyCode>, recent: List<String>) {
+    private val ordered: List<SurveyCode>
+    private val index: CodeIndex = CodeSearch.index(available)
+
+    init {
+        val first = RecentCodes.resolve(recent, available)
+        val firstIds = first.map { it.id }.toSet()
+        ordered = first + index.filter("").filter { it.id !in firstIds }
+    }
+
+    /** Los códigos cuyo código o descripción contienen [query], sin distinguir mayúsculas ni acentos (S024/RF-2). */
+    fun filter(query: String): List<SurveyCode> {
+        if (CodeKey.of(query).isEmpty()) return ordered
+        val ids = index.filter(query).map { it.id }.toSet()
+        return ordered.filter { it.id in ids }
+    }
+}
+
+/** La descripción que propone el recolector al elegir un código (S024/RF-4). */
+object DescriptionProposal {
+    /** La del [code] si la [current] está vacía; si no, la [current]. */
+    fun propose(current: String, code: SurveyCode?): String =
+        if (current.isBlank() && code != null && code.description.isNotBlank()) code.description else current
+}
