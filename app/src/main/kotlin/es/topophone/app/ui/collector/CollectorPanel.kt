@@ -208,7 +208,11 @@ private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorAc
     ) // S010/RF-4
     val codeEnabled = !state.measuring && state.pending == null && !state.auto.running
     CodeSelectorRow(state.code, enabled = codeEnabled, actions = actions) // S024/RF-1
-    AttributeFields(state.code, enabled = codeEnabled, actions = actions) // S024/RF-8, RF-9
+    // S025/RF-8b: con una línea activa del mismo código los atributos son los de la línea y no se piden otra vez.
+    if (!CollectorLineRules.appendsToActive(state.code.selected, state.line)) {
+        AttributeFields(state.code, enabled = codeEnabled, actions = actions) // S024/RF-8, RF-9
+    }
+    CollectorLineStatus(state.line) // S025/RF-3
     CollectorGearSelector(state, actions) // S046/RF-14, RF-15, RF-22
     OutlinedTextField(
         value = state.poleHeightText,

@@ -2500,4 +2500,12 @@
     <string name="objects_code_row">Code: %1$s</string>
     <string name="objects_code_filter_all">All codes</string>
     <string name="export_column_code">Code</string>
+    <string name="collector_code_geometry_line">Line</string>
+    <string name="collector_code_geometry_polygon">Polygon</string>
+    <string name="collector_code_with_geometry">%1$s (%2$s)</string>
+    <string name="collector_line_active">Active line: %1$s</string>
+    <plurals name="collector_line_vertices">
+        <item quantity="one">%d vertex</item>
+        <item quantity="other">%d vertices</item>
+    </plurals>
 </resources>

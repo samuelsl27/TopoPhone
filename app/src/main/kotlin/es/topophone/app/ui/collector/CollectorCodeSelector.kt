@@ -34,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.SurveyCode
 
 const val COLLECTOR_CODE_TAG = "collector_code"
@@ -205,7 +206,9 @@ private fun SectionTitle(text: String) {
 
 @Composable
 private fun CodeOption(option: SurveyCode, ownIds: Set<String>, onSelect: (SurveyCode?) -> Unit, onEdit: ((SurveyCode) -> Unit)?) {
-    val description = codeText(option.code, option.description)
+    val geometry = geometryLabel(option.geometry)
+    val text = codeText(option.code, option.description)
+    val description = if (geometry == null) text else stringResource(R.string.collector_code_with_geometry, text, geometry)
     val editable = onEdit != null && option.id in ownIds
     OptionRow(
         label = option.code,
@@ -213,6 +216,7 @@ private fun CodeOption(option: SurveyCode, ownIds: Set<String>, onSelect: (Surve
         rgb = option.color,
         tag = codeOptionTag(option.code),
         detail = option.description,
+        geometry = geometry,
         trailing = if (editable) {
             { EditButton(option, onEdit) }
         } else {
@@ -231,6 +235,7 @@ private fun OptionRow(
     rgb: Int?,
     tag: String,
     detail: String = "",
+    geometry: String? = null,
     trailing: (@Composable () -> Unit)? = null,
     onClick: () -> Unit,
 ) {
@@ -244,9 +249,19 @@ private fun OptionRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.titleMedium)
             if (detail.isNotBlank()) Text(detail, style = MaterialTheme.typography.bodyMedium)
+            // S025/RF-1: los códigos de línea y de polígono se marcan con su geometría, con texto y no solo con color.
+            if (geometry != null) Text(geometry, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
         }
         trailing?.invoke()
     }
+}
+
+/** El nombre de la geometría de un código de línea o de polígono; null para un punto (S025/RF-1). */
+@Composable
+internal fun geometryLabel(geometry: CodeGeometry): String? = when (geometry) {
+    CodeGeometry.POINT -> null
+    CodeGeometry.LINE -> stringResource(R.string.collector_code_geometry_line)
+    CodeGeometry.POLYGON -> stringResource(R.string.collector_code_geometry_polygon)
 }
 
 fun codeEditTag(code: String) = "collector_code_edit_$code"

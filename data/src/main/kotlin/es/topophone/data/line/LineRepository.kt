@@ -105,9 +105,10 @@ interface LineRepository {
     /**
      * Guarda el punto medido y, en la misma transacción, lo añade a la línea activa o crea una línea nueva con él según
      * [LineTarget.decide] (RF-2, RF-3, RF-7, RF-8, RF-8b). [geometry] es la geometría del código con que se midió.
-     * Si algo falla no queda ni el punto ni el vértice.
+     * Si algo falla no queda ni el punto ni el vértice. [save] guarda el punto dentro de esa transacción (por defecto, `create`); el
+     * recolector lo usa para guardar a la vez las fotos de la medida.
      */
-    suspend fun saveMeasured(point: Point, geometry: CodeGeometry?): MeasuredResult
+    suspend fun saveMeasured(point: Point, geometry: CodeGeometry?, save: (suspend (Point) -> PointSaveResult)? = null): MeasuredResult
 
     /** Deja de tener línea activa; si el código es de polígono y tiene al menos 3 vértices, la cierra (RF-4). */
     suspend fun finish(id: String): LineActionResult
@@ -217,40 +218,41 @@ class RoomLineRepository(
             entries.map { it.toEntry(attributesByEntry[it.id].orEmpty(), verticesByEntry[it.id].orEmpty()) }
         }.map { it }
 
-    override suspend fun saveMeasured(point: Point, geometry: CodeGeometry?): MeasuredResult = database.withTransaction {
-        val saved = points.create(point)
-        if (saved != PointSaveResult.Saved) return@withTransaction MeasuredResult.PointNotSaved(saved)
-        val activeEntity = dao.activeNow(point.projectId)
-        val active = activeEntity?.toLine(dao.allVerticesOf(activeEntity.id), dao.attributesOfNow(activeEntity.id))
-        when (val action = LineTarget.decide(active, point.code, geometry, point.id)) {
-            LineAction.Nothing -> MeasuredResult.PointOnly
-            is LineAction.Append -> {
-                val ordinal = (dao.allVerticesOf(action.lineId).lastOrNull()?.ordinal ?: -1) + 1
-                dao.insertVertices(listOf(LineVertexEntity(action.lineId, ordinal, point.id)))
-                MeasuredResult.Added(action.lineId, active!!.name, active.vertices.size + 1, created = false)
-            }
-            is LineAction.Create -> {
-                val code = point.code!!
-                val line = ProjectLine(
-                    id = newId(),
-                    projectId = point.projectId,
-                    name = LineNaming.next(code.code, dao.names(point.projectId)),
-                    code = code,
-                    geometry = action.geometry,
-                    closed = false,
-                    hidden = false,
-                    active = true,
-                    vertices = listOf(LineVertex(point.id)),
-                    createdAtMs = clock(),
-                )
-                dao.clearActive(point.projectId)
-                dao.insert(line.toEntity())
-                dao.insertVertices(line.vertexEntities())
-                dao.insertAttributes(line.attributeEntities())
-                MeasuredResult.Added(line.id, line.name, 1, created = true)
+    override suspend fun saveMeasured(point: Point, geometry: CodeGeometry?, save: (suspend (Point) -> PointSaveResult)?): MeasuredResult =
+        database.withTransaction {
+            val saved = if (save != null) save(point) else points.create(point)
+            if (saved != PointSaveResult.Saved) return@withTransaction MeasuredResult.PointNotSaved(saved)
+            val activeEntity = dao.activeNow(point.projectId)
+            val active = activeEntity?.toLine(dao.allVerticesOf(activeEntity.id), dao.attributesOfNow(activeEntity.id))
+            when (val action = LineTarget.decide(active, point.code, geometry, point.id)) {
+                LineAction.Nothing -> MeasuredResult.PointOnly
+                is LineAction.Append -> {
+                    val ordinal = (dao.allVerticesOf(action.lineId).lastOrNull()?.ordinal ?: -1) + 1
+                    dao.insertVertices(listOf(LineVertexEntity(action.lineId, ordinal, point.id)))
+                    MeasuredResult.Added(action.lineId, active!!.name, active.vertices.size + 1, created = false)
+                }
+                is LineAction.Create -> {
+                    val code = point.code!!
+                    val line = ProjectLine(
+                        id = newId(),
+                        projectId = point.projectId,
+                        name = LineNaming.next(code.code, dao.names(point.projectId)),
+                        code = code,
+                        geometry = action.geometry,
+                        closed = false,
+                        hidden = false,
+                        active = true,
+                        vertices = listOf(LineVertex(point.id)),
+                        createdAtMs = clock(),
+                    )
+                    dao.clearActive(point.projectId)
+                    dao.insert(line.toEntity())
+                    dao.insertVertices(line.vertexEntities())
+                    dao.insertAttributes(line.attributeEntities())
+                    MeasuredResult.Added(line.id, line.name, 1, created = true)
+                }
             }
         }
-    }
 
     override suspend fun finish(id: String): LineActionResult = database.withTransaction {
         val entity = dao.byId(id)?.takeIf { it.deletedAt == null } ?: return@withTransaction LineActionResult.NOT_FOUND

@@ -229,11 +229,11 @@ class CollectorCodeViewModelTest {
     )
 
     @Test
-    fun `S024 RF-1 el selector ofrece los codigos Punto por orden alfabetico y no los de linea`() {
+    fun `S024 RF-1 el selector ofrece los codigos por orden alfabetico, y desde S025 tambien los de linea`() {
         val vm = viewModel()
         await(vm) { it.code.totalCodes > 0 }
 
-        vm.state.value.code.options.map { it.code } shouldBe listOf("ARB", "ARQ", "POS")
+        vm.state.value.code.options.map { it.code } shouldBe listOf("ARB", "ARQ", "CAM", "POS")
         vm.state.value.code.selected shouldBe null
         vm.state.value.code.recentCount shouldBe 0
     }
@@ -248,7 +248,7 @@ class CollectorCodeViewModelTest {
 
         val ui = await(vm) { it.code.recentCount == 2 }.code
 
-        ui.options.map { it.code } shouldBe listOf("POS", "ARB", "ARQ")
+        ui.options.map { it.code } shouldBe listOf("POS", "ARB", "ARQ", "CAM")
     }
 
     @Test

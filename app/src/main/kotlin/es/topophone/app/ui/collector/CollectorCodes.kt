@@ -5,6 +5,7 @@ import es.topophone.core.model.codes.AttributeError
 import es.topophone.core.model.codes.AttributeForm
 import es.topophone.core.model.codes.AttributeType
 import es.topophone.core.model.codes.CodeAttribute
+import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.CodeKey
 import es.topophone.core.model.codes.CodeSelector
 import es.topophone.core.model.codes.PointCode
@@ -34,6 +35,9 @@ interface CollectorCodeSource {
     /** Los códigos de geometría Punto del proyecto: los de la biblioteca vinculada y los creados en él (S024/RF-1). */
     fun available(projectId: String): Flow<List<SurveyCode>>
 
+    /** Los códigos del proyecto de las [geometries] pedidas; el recolector con líneas pide también Línea y Polígono (S025/RF-1). */
+    fun availableFor(projectId: String, geometries: Set<CodeGeometry>): Flow<List<SurveyCode>> = available(projectId)
+
     /** Los códigos usados por los puntos del proyecto, del más reciente al más antiguo (S024/RF-1). */
     fun recent(projectId: String): Flow<List<String>>
 
@@ -51,9 +55,11 @@ interface CollectorCodeSource {
 
 class RoomCollectorCodeSource @Inject constructor(private val codes: CodeLibraryRepository, private val points: PointRepository) :
     CollectorCodeSource {
-    override fun available(projectId: String): Flow<List<SurveyCode>> =
+    override fun available(projectId: String): Flow<List<SurveyCode>> = availableFor(projectId, setOf(CodeGeometry.POINT))
+
+    override fun availableFor(projectId: String, geometries: Set<CodeGeometry>): Flow<List<SurveyCode>> =
         combine(codes.projectCopy(projectId), codes.projectCodes(projectId)) { copy, own ->
-            ProjectCodes.available(copy?.codes.orEmpty(), own)
+            ProjectCodes.available(copy?.codes.orEmpty(), own, geometries)
         }
 
     override fun recent(projectId: String): Flow<List<String>> = points.recentCodes(projectId)
@@ -104,6 +110,8 @@ class CollectorCodes(
     projectId: Flow<String?>,
     private val handle: SavedStateHandle = SavedStateHandle(),
     private val decimal: () -> Char = ::interfaceDecimal,
+    /** Las geometrías de los códigos que ofrece: Punto, o también Línea y Polígono en el recolector (S025/RF-1). */
+    geometries: Set<CodeGeometry> = setOf(CodeGeometry.POINT),
 ) {
     private val selectedKey = MutableStateFlow(handle.get<String>(KEY))
     private val query = MutableStateFlow("")
@@ -111,7 +119,7 @@ class CollectorCodes(
     /** Los atributos para los que se escribieron los textos, y los textos; si el código cambia de atributos, se vuelve a los por defecto. */
     private val typed = MutableStateFlow<Pair<List<CodeAttribute>, List<String>>?>(null)
 
-    private val available = projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else source.available(id) }
+    private val available = projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else source.availableFor(id, geometries) }
     private val recent = projectId.flatMapLatest { id -> if (id == null) flowOf(emptyList()) else source.recent(id) }
     private val own = projectId.flatMapLatest { id -> if (id == null) flowOf(emptySet()) else source.ownIds(id) }
 

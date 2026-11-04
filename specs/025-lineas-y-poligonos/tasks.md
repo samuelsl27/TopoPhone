@@ -32,7 +32,7 @@
       Hecho cuando: `LineBackupTest` en verde.
 - [x] T15. `core:formats` y `data`: capas `lines` y `polygons` del GeoPackage. (RF-26)
       Hecho cuando: `GpkgLinesTest` y `GeoPackageWriterLinesTest` en verde.
-- [ ] T16. `app`: estado de línea activa en el recolector, el guardado con `saveMeasured` y el formulario de atributos según D11. (RF-1, RF-2, RF-3, RF-7, RF-8, RF-8b, RF-9)
+- [x] T16. `app`: estado de línea activa en el recolector, el guardado con `saveMeasured` y el formulario de atributos según D11. (RF-1, RF-2, RF-3, RF-7, RF-8, RF-8b, RF-9)
       Hecho cuando: `CollectorLineViewModelTest` en verde, con pantalla encendida con línea activa.
 - [ ] T17. `app`: botones «Terminar línea», «Continuar línea» y «Deshacer vértice» y la lista de líneas abiertas. (RF-4, RF-5, RF-6)
       Hecho cuando: `CollectorLineScreenTest` en verde.

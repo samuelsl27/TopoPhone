@@ -2512,4 +2512,12 @@
     <string name="objects_code_row">Código: %1$s</string>
     <string name="objects_code_filter_all">Todos los códigos</string>
     <string name="export_column_code">Código</string>
+    <string name="collector_code_geometry_line">Línea</string>
+    <string name="collector_code_geometry_polygon">Polígono</string>
+    <string name="collector_code_with_geometry">%1$s (%2$s)</string>
+    <string name="collector_line_active">Línea activa: %1$s</string>
+    <plurals name="collector_line_vertices">
+        <item quantity="one">%d vértice</item>
+        <item quantity="other">%d vértices</item>
+    </plurals>
 </resources>

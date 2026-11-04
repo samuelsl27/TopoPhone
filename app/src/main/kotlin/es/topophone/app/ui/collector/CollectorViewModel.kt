@@ -21,6 +21,7 @@ import es.topophone.core.gnss.nmea.TiltData
 import es.topophone.core.gnss.nmea.TiltState
 import es.topophone.core.model.codes.CodeKey
 import es.topophone.core.model.codes.DescriptionProposal
+import es.topophone.core.model.codes.ProjectCodes
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
@@ -71,6 +72,7 @@ import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.TiltGuide
 import es.topophone.core.survey.TiltSetup
 import es.topophone.data.baseshift.ActiveBaseShift
+import es.topophone.data.line.MeasuredResult
 import es.topophone.data.photo.PhotoRepository
 import es.topophone.data.photo.PhotoStore
 import es.topophone.data.photo.PointWithPhotosResult
@@ -226,6 +228,8 @@ data class CollectorUiState(
     val gearChanged: Boolean = false,
     /** A qué punto irán las fotos y cuántas lleva, con los avisos de las fotos (S017b/RF-1, RF-3, RF-7, RF-8). */
     val photos: PhotoUi = PhotoUi(),
+    /** La línea activa del proyecto, si la hay (S025/RF-3). */
+    val line: CollectorLineUi? = null,
     /** El código elegido para el siguiente punto, el selector y los atributos (S024). */
     val code: CollectorCodeUi = CollectorCodeUi(),
 )
@@ -253,6 +257,7 @@ class CollectorViewModel @Inject constructor(
     private val photoRepository: PhotoRepository = PhotoRepository.NONE,
     photoStore: PhotoStore = PhotoStore.NONE,
     codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
+    private val lines: CollectorLines = CollectorLines.NONE,
     private val codeChoice: CollectorCodeChoice = CollectorCodeChoice(),
     savedState: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
@@ -269,6 +274,8 @@ class CollectorViewModel @Inject constructor(
 
     /** El modo de inclinación, el equipo, los jalones y el equipo del último punto guardado, juntos para el `combine` (S046). */
     private data class ShiftUi(val shift: BaseShift?, val baseChanged: Boolean, val datumNotice: String?)
+
+    private data class Parts(val equipment: Equipment, val photos: PhotoUi, val code: CollectorCodeUi, val line: CollectorLineUi?)
 
     private data class Equipment(
         val tilt: CurrentTiltState,
@@ -353,7 +360,12 @@ class CollectorViewModel @Inject constructor(
     )
 
     /** El código y los atributos del siguiente punto (S024). */
-    val codes = CollectorCodes(viewModelScope, codeSource, projectId, savedState)
+    val codes = CollectorCodes(viewModelScope, codeSource, projectId, savedState, geometries = ProjectCodes.ALL_GEOMETRIES)
+
+    /** La línea activa del proyecto: nombre, vértices y valores de sus atributos (S025/RF-3, RF-9). */
+    private val lineUi: StateFlow<CollectorLineUi?> = projectId.flatMapLatest { id ->
+        if (id == null) flowOf(null) else lines.active(id).map { line -> line?.let(CollectorLineUi::of) }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     /** La descripción que propuso el último código elegido, para cambiarla por la del siguiente si no se tocó (S024/RF-4). */
     private var proposedDescription: String? = null
@@ -515,10 +527,11 @@ class CollectorViewModel @Inject constructor(
             combine(tilt.state, gear.state, gear.poles, lastSavedGear, shiftUi, ::Equipment),
             photos.ui,
             codes.ui,
-        ) { equipment, photoUi, codeUi ->
-            Triple(equipment, photoUi, codeUi)
+            lineUi,
+        ) { equipment, photoUi, codeUi, line ->
+            Parts(equipment, photoUi, codeUi, line)
         },
-    ) { state, project, snapshot, dismissed, (equipment, photoUi, codeUi) ->
+    ) { state, project, snapshot, dismissed, (equipment, photoUi, codeUi, line) ->
         val (tiltState, gearState, poles, savedGear, shift) = equipment
         val gga = snapshot.gga?.takeIf { snapshot.connection is ConnectionState.Receiving && it.hasPosition }
         val epochTilt = snapshot.epoch?.tilt?.takeIf { snapshot.connection is ConnectionState.Receiving }
@@ -528,7 +541,9 @@ class CollectorViewModel @Inject constructor(
             live = live,
             blocker =
             state.blocker ?: gearBlocker(gearState) ?: positionBlocker(snapshot, project, state.poleHeightText)
-                ?: tiltBlocker(tiltState, epochTilt) ?: MeasureBlocker.ATTRIBUTES.takeIf { !codeUi.valid },
+                ?: tiltBlocker(tiltState, epochTilt) ?: MeasureBlocker.ATTRIBUTES.takeIf {
+                !codeUi.valid && !CollectorLineRules.appendsToActive(codeUi.selected, line) // S025/RF-8b
+            },
             gear = gearState,
             poles = poles,
             gearLocked = state.measuring || state.auto.running,
@@ -541,6 +556,7 @@ class CollectorViewModel @Inject constructor(
             baseShiftDatumNotice = shift.datumNotice, // S020/RF-16
             photos = photoUi, // S017b/RF-8
             code = codeUi, // S024
+            line = line, // S025/RF-3
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Eagerly, CollectorUiState())
 
@@ -1231,7 +1247,13 @@ class CollectorViewModel @Inject constructor(
             staked = staked,
             onAxis = axisReference?.at(measurement.coordinates), // S054/RF-13
             // S024/RF-10, RF-20: el codigo por valor; un replanteo hereda el del punto de diseno.
-            code = if (stake != null) stake?.code else codes.pointCode(),
+            code = if (stake !=
+                null
+            ) {
+                stake?.code
+            } else {
+                CollectorLineRules.pointCode(codes.ui.value.selected, lineUi.value, codes::pointCode)
+            },
         )
         // S017/RF-22: el modo automático propone ya el nombre siguiente, que la época que sigue puede necesitar enseguida.
         if (auto) form.update { if (PointNames.clean(it.name) == name) it.copy(name = PointNames.next(name)) else it }
@@ -1241,14 +1263,26 @@ class CollectorViewModel @Inject constructor(
             val taken = if (auto) points.names(projectId) else emptySet()
             val finalName = if (name in taken) PointNames.nextFree(name, taken) else name
             val toSave = if (finalName == name) point else point.copy(name = finalName)
-            val saved = if (staged.isEmpty()) {
-                points.create(toSave)
-            } else {
-                when (photoRepository.createWithPhotos(toSave, staged)) {
-                    PointWithPhotosResult.Saved -> PointSaveResult.Saved
-                    PointWithPhotosResult.DuplicateName -> PointSaveResult.DuplicateName
-                    PointWithPhotosResult.FileError -> PointSaveResult.NotFound
+            val persist: suspend (Point) -> PointSaveResult = { p ->
+                if (staged.isEmpty()) {
+                    points.create(p)
+                } else {
+                    when (photoRepository.createWithPhotos(p, staged)) {
+                        PointWithPhotosResult.Saved -> PointSaveResult.Saved
+                        PointWithPhotosResult.DuplicateName -> PointSaveResult.DuplicateName
+                        PointWithPhotosResult.FileError -> PointSaveResult.NotFound
+                    }
                 }
+            }
+            // S025/RF-2, RF-3: con un código de línea o de polígono el vértice se guarda con el punto, en la misma transacción.
+            val lineGeometry = codes.ui.value.selected?.geometry?.takeIf { stake == null && toSave.code != null }
+            val saved = if (CollectorLineRules.isLineGeometry(lineGeometry)) {
+                when (val result = lines.saveMeasured(toSave, lineGeometry, persist)) {
+                    is MeasuredResult.PointNotSaved -> result.result
+                    else -> PointSaveResult.Saved
+                }
+            } else {
+                persist(toSave)
             }
             when (saved) {
                 PointSaveResult.Saved -> {
