@@ -32,7 +32,7 @@
       Hecho cuando: tests del ViewModel de guardado y de replanteo en verde.
 - [x] T15. `app`: selector de códigos en el recolector (recientes, buscador, «Sin código»). (RF-1, RF-2, RF-3)
       Hecho cuando: `CollectorCodeScreenTest` en verde.
-- [ ] T16. `app`: formulario de atributos en el recolector con errores por campo. (RF-8, RF-9)
+- [x] T16. `app`: formulario de atributos en el recolector con errores por campo. (RF-8, RF-9)
       Hecho cuando: test de pantalla en verde con los cuatro tipos y un valor inválido.
 - [ ] T17. `app`: editor de código parametrizado (destino, geometría fija Punto, símbolo) y «Nuevo código» desde el selector con editar y borrar. (RF-5, RF-6, RF-7)
       Hecho cuando: `CodeEditorViewModelTest` y el test de pantalla en verde.

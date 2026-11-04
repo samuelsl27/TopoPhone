@@ -13,6 +13,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.model.codes.AttributeError
+import es.topophone.core.model.codes.AttributeType
 import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -153,5 +155,68 @@ class CollectorCodeScreenTest {
         compose.onNodeWithTag(COLLECTOR_CODE_NEW_TAG).performClick()
 
         calls shouldBe listOf("new")
+    }
+
+    private val fields = listOf(
+        AttributeFieldUi("Material", AttributeType.LIST, listOf("PVC", "Hormigon"), "PVC", null),
+        AttributeFieldUi("Diametro", AttributeType.NUMBER, emptyList(), "0,25", null),
+        AttributeFieldUi("Unidades", AttributeType.INTEGER, emptyList(), "3,5", AttributeError.NOT_INTEGER),
+        AttributeFieldUi("Nota", AttributeType.TEXT, emptyList(), "", null),
+    )
+
+    private fun withFields(selected: SurveyCode = arq) =
+        base.copy(code = CollectorCodeUi(selected = selected, options = listOf(arq), totalCodes = 1, fields = fields))
+
+    @Test
+    fun `S024 RF-8 hay un campo por atributo con su valor precargado, de los cuatro tipos`() {
+        show(withFields())
+
+        compose.onNodeWithTag(attributeFieldTag(0)).performScrollTo().assert(hasText("Material: PVC", substring = true))
+        compose.onNodeWithTag(attributeFieldTag(1)).performScrollTo().assert(hasText("0,25", substring = true))
+        compose.onNodeWithTag(attributeFieldTag(2)).performScrollTo().assert(hasText("3,5", substring = true))
+        compose.onNodeWithTag(attributeFieldTag(3)).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `S024 RF-8 escribir en un campo comunica su posicion y su texto`() {
+        show(withFields(), CollectorActions(onCodeAttribute = { i, t -> calls += "attr:$i:$t" }))
+
+        compose.onNodeWithTag(attributeFieldTag(3)).performScrollTo().performTextInput("junto al muro")
+
+        calls shouldBe listOf("attr:3:junto al muro")
+    }
+
+    @Test
+    fun `S024 RF-8 una lista se elige entre sus opciones o se deja sin valor`() {
+        show(withFields(), CollectorActions(onCodeAttribute = { i, t -> calls += "attr:$i:$t" }))
+
+        compose.onNodeWithTag(attributeFieldTag(0)).performScrollTo().performClick()
+        compose.onNodeWithTag(attributeOptionTag(0, "Hormigon")).performClick()
+        compose.onNodeWithTag(attributeFieldTag(0)).performScrollTo().performClick()
+        compose.onNodeWithTag(COLLECTOR_ATTR_EMPTY_OPTION).performClick()
+
+        calls shouldBe listOf("attr:0:Hormigon", "attr:0:")
+    }
+
+    @Test
+    fun `S024 RF-9 un valor no valido se marca con su motivo`() {
+        show(withFields())
+
+        compose.onNodeWithText("Escribe un número entero").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun `S024 RF-11 con una medida en marcha los atributos no se pueden cambiar`() {
+        show(withFields().copy(measuring = true))
+
+        compose.onNodeWithTag(attributeFieldTag(3)).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(attributeFieldTag(0)).performScrollTo().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S024 RF-8 sin codigo no hay campos de atributos`() {
+        show(withCodes())
+
+        compose.onNodeWithTag(attributeFieldTag(0)).assertDoesNotExist()
     }
 }

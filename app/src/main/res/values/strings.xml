@@ -2487,4 +2487,9 @@
     <string name="collector_code_empty">Este proyecto no tiene códigos de punto</string>
     <string name="collector_code_no_match">Ningún código coincide</string>
     <string name="collector_code_new">Nuevo código</string>
+    <string name="collector_attr_list_value">%1$s: %2$s</string>
+    <string name="collector_attr_no_value">Sin valor</string>
+    <string name="collector_attr_not_integer">Escribe un número entero</string>
+    <string name="collector_attr_not_number">Escribe un número</string>
+    <string name="collector_attr_not_in_options">Elige una de las opciones</string>
 </resources>

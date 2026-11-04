@@ -2475,4 +2475,9 @@
     <string name="collector_code_empty">This project has no point codes</string>
     <string name="collector_code_no_match">No code matches</string>
     <string name="collector_code_new">New code</string>
+    <string name="collector_attr_list_value">%1$s: %2$s</string>
+    <string name="collector_attr_no_value">No value</string>
+    <string name="collector_attr_not_integer">Enter a whole number</string>
+    <string name="collector_attr_not_number">Enter a number</string>
+    <string name="collector_attr_not_in_options">Choose one of the options</string>
 </resources>

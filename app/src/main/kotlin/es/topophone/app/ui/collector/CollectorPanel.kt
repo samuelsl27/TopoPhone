@@ -204,7 +204,9 @@ private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorAc
         singleLine = true,
         modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_DESCRIPTION_TAG),
     ) // S010/RF-4
-    CodeSelectorRow(state.code, enabled = !state.measuring && state.pending == null && !state.auto.running, actions = actions) // S024/RF-1
+    val codeEnabled = !state.measuring && state.pending == null && !state.auto.running
+    CodeSelectorRow(state.code, enabled = codeEnabled, actions = actions) // S024/RF-1
+    AttributeFields(state.code, enabled = codeEnabled, actions = actions) // S024/RF-8, RF-9
     CollectorGearSelector(state, actions) // S046/RF-14, RF-15, RF-22
     OutlinedTextField(
         value = state.poleHeightText,
