@@ -2501,4 +2501,8 @@
     <string name="codes_symbol_cross">Cruz</string>
     <string name="codes_symbol_star">Estrella</string>
     <string name="codes_use_existing">Usar el existente</string>
+    <string name="point_code_title">Código</string>
+    <string name="point_code_style">Color %1$s · símbolo %2$s</string>
+    <string name="point_history_attribute_value">%1$s: %2$s</string>
+    <string name="point_form_code_attributes">Atributos de %1$s</string>
 </resources>

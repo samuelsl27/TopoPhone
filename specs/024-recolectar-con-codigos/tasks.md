@@ -36,7 +36,7 @@
       Hecho cuando: test de pantalla en verde con los cuatro tipos y un valor inválido.
 - [x] T17. `app`: editor de código parametrizado (destino, geometría fija Punto, símbolo) y «Nuevo código» desde el selector con editar y borrar. (RF-5, RF-6, RF-7)
       Hecho cuando: `CodeEditorViewModelTest` y el test de pantalla en verde.
-- [ ] T18. `app`: ficha del punto con código y atributos, y edición con rastro. (RF-12)
+- [x] T18. `app`: ficha del punto con código y atributos, y edición con rastro. (RF-12)
       Hecho cuando: `PointDetailsCodeTest` en verde.
 - [ ] T19. `app`: «Cambiar código» en la ficha y en la selección de la lista, con el aviso de valores descartados. (RF-13, RF-15)
       Hecho cuando: `ChangeCodeTest` en verde.

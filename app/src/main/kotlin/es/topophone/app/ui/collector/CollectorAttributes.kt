@@ -114,7 +114,7 @@ private fun ListField(index: Int, field: AttributeFieldUi, enabled: Boolean, act
     }
 }
 
-private fun AttributeError.messageRes(): Int = when (this) {
+internal fun AttributeError.messageRes(): Int = when (this) {
     AttributeError.NOT_INTEGER -> R.string.collector_attr_not_integer
     AttributeError.NOT_NUMBER -> R.string.collector_attr_not_number
     AttributeError.NOT_IN_OPTIONS -> R.string.collector_attr_not_in_options

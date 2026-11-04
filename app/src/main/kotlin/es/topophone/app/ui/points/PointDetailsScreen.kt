@@ -43,6 +43,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.cad.elementKindLabel
+import es.topophone.app.ui.codes.labelRes
 import es.topophone.app.ui.collector.rememberCollectorPhotoLaunchers
 import es.topophone.app.ui.photos.PhotoImages
 import es.topophone.app.ui.projects.ConfirmDialog
@@ -66,6 +67,9 @@ import es.topophone.core.model.alignment.OffsetFormat
 import es.topophone.core.model.alignment.OffsetSide
 import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.alignment.slope.SlopeStakeInfo
+import es.topophone.core.model.codes.AttributeForm
+import es.topophone.core.model.codes.CodePalette
+import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
@@ -106,6 +110,7 @@ import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverTiltSettings
+import java.text.DecimalFormatSymbols
 import java.util.UUID
 import javax.inject.Inject
 import kotlin.math.abs
@@ -124,6 +129,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 const val POINT_COORDINATES_TAG = "point_coordinates"
+const val POINT_CODE_TAG = "point_code"
 const val POINT_MEASURED_COORDINATES_TAG = "point_measured_coordinates"
 const val POINT_REVERT_TAG = "point_revert"
 const val POINT_BASE_TAG = "point_base"
@@ -401,6 +407,7 @@ fun PointDetailsScreen(
             PointPhotosSection(point.name, state.photos, photoImages, onOpen = { openedPhoto = it }) {
                 PointPhotoButtons(state.photos.size, state.photoAdd, actions) // S017b/RF-12 a RF-16
             } // S017b/RF-9
+            point.code?.let { CodeCard(it) } // S024/RF-12
             DetailsCard(stringResource(R.string.point_coordinates), POINT_COORDINATES_TAG) {
                 if (point.edited) MarkLine(R.string.point_mark_edited)
                 CoordinateRows(project, point.coordinates)
@@ -585,6 +592,33 @@ private fun historyLine(line: HistoryLine): String {
         is HistoryLine.Attributes -> line.changes.map {
             stringResource(R.string.point_history_attribute, it.name, it.from.ifEmpty { empty }, it.to.ifEmpty { empty })
         }.joinToString("; ")
+    }
+}
+
+/** El código del punto con su color, su símbolo y los valores de sus atributos, tal como se guardaron (S024/RF-12). */
+@Composable
+private fun CodeCard(code: PointCode) {
+    val decimal = DecimalFormatSymbols.getInstance(uiLocale()).decimalSeparator
+    val texts = AttributeForm.texts(code.attributes, decimal)
+    val empty = stringResource(R.string.point_history_none)
+    DetailsCard(stringResource(R.string.point_code_title), POINT_CODE_TAG) {
+        val title = if (code.description.isBlank()) {
+            code.code
+        } else {
+            stringResource(
+                R.string.collector_code_selected,
+                code.code,
+                code.description,
+            )
+        }
+        Text(title, style = MaterialTheme.typography.titleMedium)
+        Text(
+            stringResource(R.string.point_code_style, CodePalette.format(code.color), stringResource(code.symbol.labelRes())),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        code.attributes.forEachIndexed { i, attribute ->
+            Text(stringResource(R.string.point_history_attribute_value, attribute.name, texts[i].ifEmpty { empty }))
+        }
     }
 }
 

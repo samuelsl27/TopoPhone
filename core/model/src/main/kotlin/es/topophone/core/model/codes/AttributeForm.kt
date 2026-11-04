@@ -16,6 +16,20 @@ object AttributeForm {
         if (attribute.type == AttributeType.NUMBER && decimal == ',') default.replace('.', ',') else default
     }
 
+    /** Los valores guardados de un punto como se escriben en pantalla: el número con el signo [decimal] de la interfaz (S024/RF-12). */
+    fun texts(values: List<PointAttribute>, decimal: Char): List<String> =
+        values.map { if (it.type == AttributeType.NUMBER && decimal == ',') it.value.replace('.', ',') else it.value }
+
+    /**
+     * Como [validate] para los valores que ya lleva un punto (S024/RF-12): se guardaron por valor y el código puede haber cambiado o
+     * haber desaparecido, así que una Lista se acepta con cualquier texto.
+     */
+    fun validateValues(values: List<PointAttribute>, raws: List<String>, decimal: Char): AttributeFormResult {
+        val definitions = values.map { CodeAttribute(it.name, if (it.type == AttributeType.LIST) AttributeType.TEXT else it.type) }
+        val result = validate(definitions, raws, decimal)
+        return result.copy(values = result.values.mapIndexed { i, v -> v.copy(type = values[i].type) })
+    }
+
     /**
      * Valida un texto por atributo ([raws], en el orden de [attributes]). Un campo vacío es válido y se guarda vacío;
      * los números no se redondean (S024/RF-9, RF-10).

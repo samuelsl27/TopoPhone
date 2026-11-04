@@ -30,11 +30,14 @@ import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.collector.AttributeFieldUi
+import es.topophone.app.ui.collector.messageRes
 import es.topophone.app.ui.projects.SurveyNavigation
 import es.topophone.app.ui.projects.heightTitle
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.codes.AttributeForm
 import es.topophone.core.model.format.AngleAxis
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.AngleInput
@@ -61,6 +64,7 @@ import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
+import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.UUID
@@ -91,6 +95,8 @@ const val FORM_KIND_PROJECT_TAG = "form_kind_project"
 const val FORM_KIND_ELLIPSOIDAL_TAG = "form_kind_ellipsoidal"
 const val FORM_SAVE_TAG = "form_save"
 
+fun formAttributeTag(index: Int) = "form_attribute_$index"
+
 /** Por qué no vale el nombre (S010/RF-3, S011/RF-9). */
 enum class NameProblem { EMPTY, TAKEN }
 
@@ -119,6 +125,9 @@ data class PointFormUiState(
     val heightInvalid: Boolean = false,
     val rejection: PositionUnavailable? = null,
     val canSave: Boolean = false,
+    /** El código del punto que se edita y los valores de sus atributos, que se corrigen aquí (S024/RF-12). */
+    val codeName: String? = null,
+    val attributes: List<AttributeFieldUi> = emptyList(),
 )
 
 /** Acciones del formulario de punto. */
@@ -131,6 +140,7 @@ class PointFormActions(
     val onHeight: (String) -> Unit = {},
     val onHeightKind: (HeightKind) -> Unit = {},
     val onSave: () -> Unit = {},
+    val onAttribute: (Int, String) -> Unit = { _, _ -> },
 )
 
 /**
@@ -154,6 +164,9 @@ class PointFormViewModel @Inject constructor(
         val height: String = "",
         val heightKind: HeightKind = HeightKind.PROJECT,
         val touched: Boolean = false,
+        /** Los valores de los atributos del código del punto, tal como se escriben (S024/RF-12). */
+        val attributeTexts: List<String> = emptyList(),
+        val decimal: Char = '.',
     )
 
     /** Lo escrito leído: coordenadas válidas o qué campos no valen. */
@@ -200,6 +213,10 @@ class PointFormViewModel @Inject constructor(
 
     fun setDescription(description: String) = form.update { it.copy(description = description) }
 
+    fun setAttribute(index: Int, text: String) = form.update { f ->
+        if (index !in f.attributeTexts.indices) f else f.copy(attributeTexts = f.attributeTexts.toMutableList().also { it[index] = text })
+    }
+
     /** Al cambiar de forma, las coordenadas escritas en la otra no valen: se vacían; la altura se queda. */
     fun setForm(entry: EntryForm) = form.update {
         if (it.form == entry) it else it.copy(form = entry, first = "", second = "", heightKind = HeightKind.PROJECT, touched = true)
@@ -222,6 +239,10 @@ class PointFormViewModel @Inject constructor(
             val description = f.description.trim()
             val original = f.original
             val recompute = original == null || f.touched
+            // S024/RF-12: los valores corregidos de los atributos; el código y su estilo se conservan por valor.
+            val code = original?.code?.let { c ->
+                c.copy(attributes = AttributeForm.validateValues(c.attributes, f.attributeTexts, f.decimal).values)
+            }
             val typed = if (recompute) parse(f, project).typed ?: return@launch else null
             val coordinates = typed?.let { (manual.compute(it, project.crs, project.heightSystem) as? ManualResult.Computed)?.coordinates }
             if (recompute && coordinates == null) return@launch
@@ -229,11 +250,13 @@ class PointFormViewModel @Inject constructor(
                 original == null -> points.create(
                     newPoint(project, name, description, coordinates ?: return@launch, typed),
                 )
-                !recompute && name == original.name && description == original.description -> PointSaveResult.Saved // nada que guardar
+                !recompute && name == original.name && description == original.description && code == original.code ->
+                    PointSaveResult.Saved // nada que guardar
                 else -> points.update(
                     original.copy(
                         name = name,
                         description = description,
+                        code = code,
                         coordinates = coordinates ?: original.coordinates,
                         typed = if (recompute) typed else original.typed,
                         edited = if (recompute) original.origin.hasMeasurement else original.edited, // S011/RF-12
@@ -285,6 +308,8 @@ class PointFormViewModel @Inject constructor(
             else -> null
         }
         val coordinatesOk = (f.original != null && !f.touched) || (parsed.typed != null && rejection == null)
+        val attributes = f.original?.code?.attributes.orEmpty()
+        val checked = AttributeForm.validateValues(attributes, f.attributeTexts, f.decimal)
         return PointFormUiState(
             loaded = true,
             editing = f.original != null,
@@ -305,7 +330,11 @@ class PointFormViewModel @Inject constructor(
             secondInvalid = parsed.secondInvalid,
             heightInvalid = parsed.heightInvalid,
             rejection = rejection,
-            canSave = nameError == null && coordinatesOk,
+            canSave = nameError == null && coordinatesOk && checked.isValid,
+            codeName = f.original?.code?.code,
+            attributes = attributes.mapIndexed { i, a ->
+                AttributeFieldUi(a.name, a.type, emptyList(), f.attributeTexts.getOrElse(i) { "" }, checked.errors.getOrNull(i))
+            },
         )
     }
 
@@ -330,7 +359,15 @@ class PointFormViewModel @Inject constructor(
     private fun prefilled(project: Project, point: Point, locale: Locale): Form {
         fun length(valueM: Double?) = valueM?.let { editableNumber(project.linearUnit.fromMetres(it), locale) }.orEmpty()
         val typed = point.typed
-        val base = Form(project, point, point.name, point.description)
+        val decimal = DecimalFormatSymbols.getInstance(locale).decimalSeparator
+        val base = Form(
+            project,
+            point,
+            point.name,
+            point.description,
+            attributeTexts = AttributeForm.texts(point.code?.attributes.orEmpty(), decimal),
+            decimal = decimal,
+        )
         return when {
             typed != null && typed.form == EntryForm.PROJECT_CRS && project.crs.isUtm ->
                 base.copy(
@@ -394,6 +431,7 @@ fun PointFormRoute(
         PointFormActions(
             onName = viewModel::setName,
             onDescription = viewModel::setDescription,
+            onAttribute = viewModel::setAttribute,
             onForm = viewModel::setForm,
             onFirst = viewModel::setFirst,
             onSecond = viewModel::setSecond,
@@ -443,6 +481,21 @@ fun PointFormScreen(
                 },
             )
             Field(state.description, actions.onDescription, stringResource(R.string.collector_description), FORM_DESCRIPTION_TAG)
+            // S024/RF-12: los valores de los atributos del codigo del punto se corrigen aqui, con rastro en el historial.
+            state.codeName?.let { code ->
+                if (state.attributes.isNotEmpty()) {
+                    Text(stringResource(R.string.point_form_code_attributes, code), style = MaterialTheme.typography.titleSmall)
+                }
+            }
+            state.attributes.forEachIndexed { index, field ->
+                Field(
+                    field.text,
+                    { actions.onAttribute(index, it) },
+                    field.name,
+                    formAttributeTag(index),
+                    error = field.error?.let { stringResource(it.messageRes()) },
+                )
+            }
             if (!state.geographicCrs) {
                 Choice(
                     listOf(

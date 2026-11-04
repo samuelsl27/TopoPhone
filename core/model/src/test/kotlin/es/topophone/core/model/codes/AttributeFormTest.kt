@@ -66,4 +66,31 @@ class AttributeFormTest {
 
         result.values.single().value shouldBe "0.123456789012345"
     }
+
+    @Test
+    fun `S024 RF-12 los valores de un punto se escriben con el signo decimal de la interfaz`() {
+        val values = listOf(PointAttribute("Diametro", AttributeType.NUMBER, "0.25"), PointAttribute("Nota", AttributeType.TEXT, "a.b"))
+
+        AttributeForm.texts(values, ',') shouldBe listOf("0,25", "a.b")
+        AttributeForm.texts(values, '.') shouldBe listOf("0.25", "a.b")
+    }
+
+    @Test
+    fun `S024 RF-12 corregir los valores de un punto se valida como en el recolector y una lista acepta cualquier texto`() {
+        val values = listOf(
+            PointAttribute("Unidades", AttributeType.INTEGER, "3"),
+            PointAttribute("Material", AttributeType.LIST, "PVC"),
+            PointAttribute("Diametro", AttributeType.NUMBER, "0.25"),
+        )
+
+        val ok = AttributeForm.validateValues(values, listOf("4", "Acero", "0,3"), ',')
+        ok.isValid shouldBe true
+        ok.values shouldBe listOf(
+            PointAttribute("Unidades", AttributeType.INTEGER, "4"),
+            PointAttribute("Material", AttributeType.LIST, "Acero"),
+            PointAttribute("Diametro", AttributeType.NUMBER, "0.3"),
+        )
+        AttributeForm.validateValues(values, listOf("x", "", "1,2,3"), ',').errors shouldBe
+            listOf(AttributeError.NOT_INTEGER, null, AttributeError.NOT_NUMBER)
+    }
 }

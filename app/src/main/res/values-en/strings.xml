@@ -2489,4 +2489,8 @@
     <string name="codes_symbol_cross">Cross</string>
     <string name="codes_symbol_star">Star</string>
     <string name="codes_use_existing">Use the existing one</string>
+    <string name="point_code_title">Code</string>
+    <string name="point_code_style">Colour %1$s · symbol %2$s</string>
+    <string name="point_history_attribute_value">%1$s: %2$s</string>
+    <string name="point_form_code_attributes">Attributes of %1$s</string>
 </resources>
