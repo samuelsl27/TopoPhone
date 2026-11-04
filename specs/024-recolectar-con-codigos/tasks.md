@@ -48,7 +48,7 @@
       Hecho cuando: `PointsSymbolLayerTest` en verde y `PointsPerformanceTest` con 10.000 puntos con código en menos de 2 s.
 - [x] T23. `core:formats`: columna `CODE` y atributos dinámicos en «Todas las columnas». (RF-21)
       Hecho cuando: `CsvExportCodeTest` en verde.
-- [ ] T24. GeoPackage: atributos de los códigos como columnas tipadas. (RF-21)
+- [x] T24. GeoPackage: atributos de los códigos como columnas tipadas. (RF-21)
       Hecho cuando: `GpkgCodeAttributesTest` y `GeoPackageWriterTest` en verde.
 - [ ] T25. Accesibilidad y textos: etiquetas, 56 dp, TalkBack lee código con descripción, es/en. (RNF-T7, RNF-T8)
       Hecho cuando: los tests de semántica en verde y sin textos literales en código.

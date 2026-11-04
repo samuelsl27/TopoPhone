@@ -1,6 +1,8 @@
 package es.topophone.core.formats.gpkg
 
+import es.topophone.core.formats.csv.AttributeColumn
 import es.topophone.core.formats.csv.ExportColumn
+import java.util.Locale
 
 /**
  * El esquema del GeoPackage que exporta S053 (plan «Modelo de datos del fichero»): las tablas obligatorias de GeoPackage 1.3 y la capa de
@@ -45,17 +47,39 @@ object GpkgExportSchema {
     const val INSERT_GEOMETRY_COLUMNS = "INSERT INTO gpkg_geometry_columns (table_name, column_name, geometry_type_name, srs_id, z, m) " +
         "VALUES (?, ?, 'POINT', ?, 2, 0)"
 
-    /** La capa de puntos: `fid`, la geometría y una columna con el encabezado del CSV y su tipo por cada atributo (RF-4). */
-    fun createPointsTable(): String {
-        val attributes = columns.joinToString(", ") { "${quote(it.header)} ${GpkgPointAttributes.typeOf(it).sql}" }
-        return "CREATE TABLE ${quote(POINTS_TABLE)} (fid INTEGER PRIMARY KEY AUTOINCREMENT, $GEOMETRY_COLUMN POINT, $attributes)"
+    /**
+     * La capa de puntos: `fid`, la geometría y una columna con el encabezado del CSV y su tipo por cada atributo (RF-4), seguidas de una
+     * columna tipada por cada atributo de los códigos de [codeAttributes] (S024/RF-21).
+     */
+    fun createPointsTable(codeAttributes: List<AttributeColumn> = emptyList()): String {
+        val fixed = columns.map { "${quote(it.header)} ${GpkgPointAttributes.typeOf(it).sql}" }
+        val names = attributeNames(codeAttributes)
+        val dynamic = codeAttributes.mapIndexed { i, a -> "${quote(names[i])} ${GpkgPointAttributes.typeOf(a).sql}" }
+        return "CREATE TABLE ${quote(POINTS_TABLE)} (fid INTEGER PRIMARY KEY AUTOINCREMENT, $GEOMETRY_COLUMN POINT, " +
+            (fixed + dynamic).joinToString(", ") + ")"
     }
 
-    /** La inserción de un punto: la geometría y los atributos en el orden de [columns]. */
-    fun insertPoint(): String {
-        val names = columns.joinToString(", ") { quote(it.header) }
-        val markers = List(columns.size + 1) { "?" }.joinToString(", ")
+    /** La inserción de un punto: la geometría, los atributos en el orden de [columns] y los de [codeAttributes] (S024/RF-21). */
+    fun insertPoint(codeAttributes: List<AttributeColumn> = emptyList()): String {
+        val names = (columns.map { it.header } + attributeNames(codeAttributes)).joinToString(", ") { quote(it) }
+        val markers = List(columns.size + codeAttributes.size + 1) { "?" }.joinToString(", ")
         return "INSERT INTO ${quote(POINTS_TABLE)} ($GEOMETRY_COLUMN, $names) VALUES ($markers)"
+    }
+
+    /**
+     * Los nombres de las columnas de [codeAttributes], distintos entre sí y de las demás de la capa (SQLite no distingue mayúsculas): el
+     * que choca con otra recibe « (atributo)» y, si aún choca, un número (S024/RF-21).
+     */
+    fun attributeNames(codeAttributes: List<AttributeColumn>): List<String> {
+        val taken = (columns.map { it.header } + listOf("fid", GEOMETRY_COLUMN)).mapTo(HashSet()) { it.lowercase(Locale.ROOT) }
+        return codeAttributes.map { column ->
+            var name = column.header
+            if (name.lowercase(Locale.ROOT) in taken) name = "${column.header} (atributo)"
+            var n = 2
+            while (name.lowercase(Locale.ROOT) in taken) name = "${column.header} (atributo $n)".also { n++ }
+            taken += name.lowercase(Locale.ROOT)
+            name
+        }
     }
 
     private fun quote(name: String) = "\"$name\""

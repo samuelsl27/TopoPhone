@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.core.formats.csv.AttributeColumns
 import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.ExportFileName
 import es.topophone.core.formats.gpkg.GpkgSrsDefinitions
@@ -137,7 +138,14 @@ class GpkgExportViewModel @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 val written =
-                    writer.write(loaded.points, loaded.project, crs.value, into, baseProjection(loaded.project)) ?: return@withContext false
+                    writer.write(
+                        loaded.points,
+                        loaded.project,
+                        crs.value,
+                        into,
+                        baseProjection(loaded.project),
+                        attributes = AttributeColumns.of(loaded.points), // S024/RF-21
+                    ) ?: return@withContext false
                 summary.value = written
                 true
             } catch (_: GpkgExportException) {

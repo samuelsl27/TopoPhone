@@ -2,6 +2,7 @@ package es.topophone.data.gpkg
 
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteStatement
+import es.topophone.core.formats.csv.AttributeColumn
 import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.gpkg.GpkgExportSchema
 import es.topophone.core.formats.gpkg.GpkgGeometryWriter
@@ -53,6 +54,8 @@ class GeoPackageWriter(private val clock: () -> Long = System::currentTimeMillis
         baseProjection: (PointBase) -> BaseProjection? = { null },
         srs: GpkgSrsDefinition? = null,
         extraLayers: List<GpkgExtraLayer> = emptyList(),
+        /** Los atributos de los códigos de los puntos, una columna tipada por cada uno (S024/RF-21). */
+        attributes: List<AttributeColumn> = emptyList(),
     ): GpkgExportSummary? {
         if (points.isEmpty()) return null
         val geographic = crs == GpkgExportCrs.GEOGRAPHIC || !project.crs.isUtm
@@ -67,7 +70,7 @@ class GeoPackageWriter(private val clock: () -> Long = System::currentTimeMillis
             db.version = GpkgExportSchema.USER_VERSION
             db.beginTransaction()
             try {
-                val summary = writeAll(db, points, project, geographic, definition, baseProjection, extraLayers)
+                val summary = writeAll(db, points, project, geographic, definition, baseProjection, extraLayers, attributes)
                 db.setTransactionSuccessful()
                 return summary
             } finally {
@@ -92,6 +95,7 @@ class GeoPackageWriter(private val clock: () -> Long = System::currentTimeMillis
         definition: GpkgSrsDefinition,
         baseProjection: (PointBase) -> BaseProjection?,
         extraLayers: List<GpkgExtraLayer>,
+        attributes: List<AttributeColumn>,
     ): GpkgExportSummary {
         GpkgExportSchema.createTables.forEach(db::execSQL)
         val systems = GpkgSrsDefinitions.mandatory.filter { it.srsId != definition.srsId } + definition
@@ -107,10 +111,10 @@ class GeoPackageWriter(private val clock: () -> Long = System::currentTimeMillis
                 insert.executeInsert()
             }
         }
-        db.execSQL(GpkgExportSchema.createPointsTable())
+        db.execSQL(GpkgExportSchema.createPointsTable(attributes))
         val extent = Extent()
         var withoutGeometry = 0
-        db.compileStatement(GpkgExportSchema.insertPoint()).use { insert ->
+        db.compileStatement(GpkgExportSchema.insertPoint(attributes)).use { insert ->
             for (point in points) {
                 val coordinates = point.coordinates
                 val x = if (geographic) coordinates.ground.longitudeDeg else coordinates.easting
@@ -122,6 +126,10 @@ class GeoPackageWriter(private val clock: () -> Long = System::currentTimeMillis
                 val projected = point.measurement?.base?.let(baseProjection)
                 GpkgExportSchema.columns.forEachIndexed { index, column ->
                     bind(insert, index + 2, GpkgPointAttributes.value(point, column, project, projected))
+                }
+                val offset = GpkgExportSchema.columns.size + 2
+                attributes.forEachIndexed { index, column ->
+                    bind(insert, offset + index, GpkgPointAttributes.attributeValue(point, column))
                 }
                 insert.executeInsert()
             }

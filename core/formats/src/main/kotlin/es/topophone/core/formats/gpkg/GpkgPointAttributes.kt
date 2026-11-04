@@ -1,8 +1,10 @@
 package es.topophone.core.formats.gpkg
 
+import es.topophone.core.formats.csv.AttributeColumn
 import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.CsvExport
 import es.topophone.core.formats.csv.ExportColumn
+import es.topophone.core.model.codes.AttributeType
 import es.topophone.core.model.point.MeasurementMode
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointOrigin
@@ -26,6 +28,23 @@ enum class GpkgAttributeType(val sql: String) {
  */
 object GpkgPointAttributes {
     private const val LIST_SEPARATOR = "|"
+
+    /** El tipo de la columna de un atributo de un código: Entero, Número como real, y Texto y Lista como texto (S024/RF-21). */
+    fun typeOf(column: AttributeColumn): GpkgAttributeType = when (column.type) {
+        AttributeType.INTEGER -> GpkgAttributeType.INTEGER
+        AttributeType.NUMBER -> GpkgAttributeType.REAL
+        AttributeType.TEXT, AttributeType.LIST -> GpkgAttributeType.TEXT
+    }
+
+    /** El valor de [column] en [point], del tipo de la columna y sin redondear, o `null` si no lo tiene o está vacío (S024/RF-21). */
+    fun attributeValue(point: Point, column: AttributeColumn): Any? {
+        val text = column.valueOf(point)?.value?.takeIf { it.isNotEmpty() } ?: return null
+        return when (column.type) {
+            AttributeType.INTEGER -> text.toLongOrNull()
+            AttributeType.NUMBER -> text.toDoubleOrNull()
+            AttributeType.TEXT, AttributeType.LIST -> text
+        }
+    }
 
     fun typeOf(column: ExportColumn): GpkgAttributeType = when (column) {
         ExportColumn.NAME,
