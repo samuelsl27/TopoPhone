@@ -1,6 +1,7 @@
 package es.topophone.app.ui.points
 
 import es.topophone.core.model.line.LineSummary
+import es.topophone.core.model.line.ProjectLine
 import es.topophone.data.line.LineRepository
 import es.topophone.data.line.LineSaveResult
 import es.topophone.data.line.TrashedLine
@@ -14,6 +15,9 @@ import kotlinx.coroutines.flow.flowOf
  */
 interface ObjectLines {
     fun summaries(projectId: String): Flow<List<LineSummary>>
+
+    /** Las líneas del proyecto con sus vértices, para dibujarlas en el mapa (RF-22). */
+    fun lines(projectId: String): Flow<List<ProjectLine>>
 
     suspend fun setHidden(id: String, hidden: Boolean)
 
@@ -34,6 +38,8 @@ interface ObjectLines {
         val NONE = object : ObjectLines {
             override fun summaries(projectId: String): Flow<List<LineSummary>> = flowOf(emptyList())
 
+            override fun lines(projectId: String): Flow<List<ProjectLine>> = flowOf(emptyList())
+
             override suspend fun setHidden(id: String, hidden: Boolean) = Unit
 
             override suspend fun linesUsing(pointIds: List<String>): List<String> = emptyList()
@@ -51,6 +57,8 @@ interface ObjectLines {
 
 class RoomObjectLines @Inject constructor(private val lines: LineRepository) : ObjectLines {
     override fun summaries(projectId: String): Flow<List<LineSummary>> = lines.summaries(projectId)
+
+    override fun lines(projectId: String): Flow<List<ProjectLine>> = lines.lines(projectId)
 
     override suspend fun setHidden(id: String, hidden: Boolean) = lines.setHidden(id, hidden)
 

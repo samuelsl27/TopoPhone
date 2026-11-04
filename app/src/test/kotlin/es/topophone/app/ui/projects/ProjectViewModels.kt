@@ -5,6 +5,7 @@ import es.topophone.app.ui.map.FakeMapPreferences
 import es.topophone.app.ui.map.FakeMapViewportRepository
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.map.NetworkFailureMonitor
+import es.topophone.app.ui.points.ObjectLines
 import es.topophone.app.ui.receiver.FakePreferences
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.map.MapPreferences
@@ -23,6 +24,7 @@ internal fun projectViewModel(
     monitor: NetworkFailureMonitor = NetworkFailureMonitor(),
     points: PointRepository = FakePointRepository(),
     tilt: CurrentTilt = CurrentTilt.NONE,
+    lines: ObjectLines = ObjectLines.NONE,
 ) = ProjectViewModel(
     repository,
     session,
@@ -34,4 +36,5 @@ internal fun projectViewModel(
     points,
     samplePeriodMs = 0,
     tilt = tilt,
+    lines = lines,
 )

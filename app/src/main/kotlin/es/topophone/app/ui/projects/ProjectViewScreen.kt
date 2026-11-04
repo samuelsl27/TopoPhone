@@ -111,17 +111,20 @@ import es.topophone.app.ui.linear.LongitudinalViewModel
 import es.topophone.app.ui.map.AttributionSource
 import es.topophone.app.ui.map.CameraCommand
 import es.topophone.app.ui.map.CameraPolicy
+import es.topophone.app.ui.map.LineScene
 import es.topophone.app.ui.map.MapAttribution
 import es.topophone.app.ui.map.MapCamera
 import es.topophone.app.ui.map.MapController
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
+import es.topophone.app.ui.map.MapLines
 import es.topophone.app.ui.map.MapPoints
 import es.topophone.app.ui.map.MapTap
 import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
 import es.topophone.app.ui.points.OBJECTS_BUTTON_TAG
+import es.topophone.app.ui.points.ObjectLines
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.app.ui.receiver.tone
 import es.topophone.app.ui.receiver.uiLocale
@@ -259,6 +262,8 @@ data class ProjectViewUiState(
     val codeStyles: Map<String, CodeStyle> = emptyMap(),
     /** La base tal como la da su fuente, mientras la haya (S015/RF-19). */
     val base: GeoPoint? = null,
+    /** Las líneas y los polígonos del proyecto para el mapa, ya como GeoJSON (S025/RF-22). */
+    val lineScene: LineScene? = null,
     /** El modo usa la inclinación pero la época no está en estado 30: "Punta sin compensar" (S016/RF-17). */
     val uncompensated: Boolean = false,
 )
@@ -285,6 +290,7 @@ class ProjectViewModel @Inject constructor(
     tilt: CurrentTilt = CurrentTilt.NONE,
     baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
     codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
+    lines: ObjectLines = ObjectLines.NONE,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
 
@@ -361,6 +367,16 @@ class ProjectViewModel @Inject constructor(
                 }
             },
         ) { state, styles -> state.copy(codeStyles = styles) }
+        .combine(
+            projectId.flatMapLatest { id ->
+                if (id == null) {
+                    flowOf(null)
+                } else {
+                    // S025/RF-22: el GeoJSON de las lineas se escribe aqui, fuera del hilo principal.
+                    combine(lines.lines(id), points.summaries(id)) { all, summaries -> MapLines.scene(all, summaries) }
+                }
+            },
+        ) { state, scene -> state.copy(lineScene = scene) }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
@@ -855,6 +871,7 @@ fun ProjectViewRoute(
         ),
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,
+        onOpenLine = navigation.onOpenLine, // S025/RF-22
         lineStakeout = line.takeIf { lineOpen },
         lineHighlight = lineHighlight,
         lineStakeoutActions = LineStakeoutActions(
@@ -946,6 +963,7 @@ fun ProjectViewScreen(
     collectorActions: CollectorActions = CollectorActions(),
     onObjects: (projectId: String) -> Unit = {},
     onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
+    onOpenLine: (projectId: String, lineId: String) -> Unit = { _, _ -> },
     stakeout: StakeoutUiState? = null,
     stakeoutActions: StakeoutActions = StakeoutActions(),
     /** El replanteo de una línea del dibujo y el botón "Replantear" de la ficha de un elemento (S041/RF-1, RF-2). */
@@ -1241,6 +1259,12 @@ fun ProjectViewScreen(
         val map = controller ?: return@LaunchedEffect
         if (projectId != null) map.pointClicks.collect { pointId -> openPoint(projectId, pointId) }
     }
+    // S025/RF-22: tocar una linea o un poligono del mapa abre su ficha.
+    val openLine by rememberUpdatedState(onOpenLine)
+    LaunchedEffect(controller, projectId) {
+        val map = controller ?: return@LaunchedEffect
+        if (projectId != null) map.lineClicks.collect { lineId -> openLine(projectId, lineId) }
+    }
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
     if (surfacesOpen) SurfacesSheet(surfaces, surfacesActions) { surfacesOpen = false }
@@ -1514,6 +1538,7 @@ private fun BindMap(
     LaunchedEffect(controller, state.points, state.codeStyles) {
         controller?.showPoints(MapPoints.from(state.points, state.codeStyles))
     } // S010/RF-20
+    LaunchedEffect(controller, state.lineScene) { controller?.showLines(state.lineScene) } // S025/RF-22
     LaunchedEffect(controller, design) { controller?.showDesign(design) } // S040/RF-24
     LaunchedEffect(controller, alignmentScene) { controller?.showAlignments(alignmentScene) } // S049/RF-17
     LaunchedEffect(controller) {

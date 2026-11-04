@@ -26,6 +26,12 @@ interface MapController {
     /** Puntos del proyecto con su nombre (S010/RF-20). */
     fun showPoints(points: List<MapPoint>)
 
+    /** Las líneas y los polígonos del proyecto, ya como GeoJSON; nada sin líneas (S025/RF-22). */
+    fun showLines(scene: LineScene?)
+
+    /** El id de cada línea del proyecto que el usuario toca en el mapa, si no toca un punto (S025/RF-22). */
+    val lineClicks: Flow<String>
+
     /** El dibujo importado de un DXF en la vista de ahora; nada sin dibujo (S040/RF-24). */
     fun showDesign(scene: DesignScene?)
 

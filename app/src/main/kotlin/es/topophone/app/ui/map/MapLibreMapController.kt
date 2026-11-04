@@ -73,6 +73,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private var central: GeoPoint? = null
     private var centralLabel = ""
     private var points: List<MapPoint> = emptyList()
+    private var lineScene: LineScene? = null
     private var design: DesignScene? = null
     private var alignmentScene: AlignmentScene? = null
     private var stakeout: StakeoutMarker? = null
@@ -85,6 +86,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     override val userGestures: Flow<Unit> = gestures
     private val clicks = MutableSharedFlow<String>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val pointClicks: Flow<String> = clicks
+    private val lineTaps = MutableSharedFlow<String>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    override val lineClicks: Flow<String> = lineTaps
     private val taps = MutableSharedFlow<MapTap>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val mapTaps: Flow<MapTap> = taps
 
@@ -108,14 +111,17 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         )
         map.addOnMapClickListener { latLng ->
             val point = pointAt(map.projection.toScreenLocation(latLng))
+            val line = if (point == null) lineAt(map.projection.toScreenLocation(latLng)) else null
             if (point != null) {
                 clicks.tryEmit(point)
+            } else if (line != null) {
+                lineTaps.tryEmit(line) // S025/RF-22: tocar una linea abre su ficha
             } else {
                 // S040/RF-29: sin punto del proyecto bajo el dedo, el toque puede ser sobre un elemento del dibujo.
                 val metres = WebMercator.metresPerPixel(latLng.latitude, map.cameraPosition.zoom)
                 taps.tryEmit(MapTap(latLng.latitude, latLng.longitude, metres * DESIGN_TOUCH_DP * mapView.resources.displayMetrics.density))
             }
-            point != null
+            point != null || line != null
         }
         map.addOnCameraIdleListener {
             publishCamera()
@@ -143,6 +149,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             map.setStyle(builder) { style ->
                 addBackground(style)
                 addPointLayers(style)
+                addLineLayers(style)
                 addDesignLayers(style)
                 addAlignmentLayers(style)
                 addStakeoutLayers(style)
@@ -152,6 +159,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 drawDesign()
                 drawAlignments()
                 drawPoints()
+                drawLines()
                 drawStakeout()
                 drawBase()
                 drawCentral()
@@ -215,6 +223,61 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         val box = RectF(screen.x - half, screen.y - half, screen.x + half, screen.y + half)
         val layers = arrayOf(POINTS_LAYER, CODE_LAYER, STAKED_LAYER, SLOPE_LAYER, POINT_LABELS_LAYER)
         return map.queryRenderedFeatures(box, *layers).firstNotNullOfOrNull { it.getStringProperty(POINT_ID) }
+    }
+
+    /** La linea del proyecto bajo un toque, en un cuadro de 48 dp (S025/RF-22). */
+    private fun lineAt(screen: PointF): String? {
+        val half = POINT_TOUCH_DP * mapView.resources.displayMetrics.density / 2
+        val box = RectF(screen.x - half, screen.y - half, screen.x + half, screen.y + half)
+        return map.queryRenderedFeatures(box, LINES_LAYER, LINES_FILL_LAYER).firstNotNullOfOrNull { it.getStringProperty(LINE_ID) }
+    }
+
+    override fun showLines(scene: LineScene?) {
+        lineScene = scene
+        drawLines()
+    }
+
+    /**
+     * Las lineas y los poligonos del proyecto: un relleno translucido para los poligonos, el trazo con el color de su codigo (mas grueso
+     * en la linea activa) y el nombre a lo largo, todo debajo de los puntos (S025/RF-22).
+     */
+    private fun addLineLayers(style: Style) {
+        style.addSource(GeoJsonSource(LINES_SOURCE))
+        style.addLayerBelow(
+            FillLayer(LINES_FILL_LAYER, LINES_SOURCE).withFilter(Expression.get(LINE_POLYGON)).withProperties(
+                PropertyFactory.fillColor(Expression.toColor(Expression.get(LINE_COLOR))),
+                PropertyFactory.fillOpacity(LINE_FILL_OPACITY),
+            ),
+            POINTS_LAYER,
+        )
+        style.addLayerBelow(
+            LineLayer(LINES_LAYER, LINES_SOURCE).withProperties(
+                PropertyFactory.lineColor(Expression.toColor(Expression.get(LINE_COLOR))),
+                PropertyFactory.lineWidth(
+                    Expression.switchCase(Expression.get(LINE_ACTIVE), Expression.literal(LINE_ACTIVE_DP), Expression.literal(LINE_DP)),
+                ),
+            ),
+            POINTS_LAYER,
+        )
+        style.addLayerBelow(
+            SymbolLayer(LINE_LABELS_LAYER, LINES_SOURCE).withProperties(
+                PropertyFactory.symbolPlacement(Property.SYMBOL_PLACEMENT_LINE),
+                PropertyFactory.textField(Expression.get(NAME)),
+                PropertyFactory.textFont(arrayOf(MapStyles.LABEL_FONT)),
+                PropertyFactory.textSize(LABEL_SIZE_SP),
+                PropertyFactory.textColor(Expression.toColor(Expression.get(LINE_COLOR))),
+                PropertyFactory.textHaloColor(Color.WHITE),
+                PropertyFactory.textHaloWidth(1.5f),
+            ),
+            POINTS_LAYER,
+        )
+    }
+
+    private fun drawLines() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val source = style.getSourceAs<GeoJsonSource>(LINES_SOURCE) ?: return
+        // El GeoJSON ya viene escrito: MapLibre lo lee en su propio hilo y aqui no se crea ni un vertice (RNF-T13).
+        source.setGeoJson(lineScene?.geoJson ?: EMPTY_GEOJSON)
     }
 
     override fun showDesign(scene: DesignScene?) {
@@ -1011,6 +1074,18 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val DESIGN_LINE_DP = 1.5f
         const val DESIGN_POINT_RADIUS_DP = 4f
         const val DESIGN_POINT_STROKE_DP = 1.5f
+        const val LINES_SOURCE = "topophone-lines"
+        const val LINES_LAYER = "topophone-lines"
+        const val LINES_FILL_LAYER = "topophone-lines-fill"
+        const val LINE_LABELS_LAYER = "topophone-line-labels"
+        const val LINE_ID = "id"
+        const val LINE_COLOR = "color"
+        const val LINE_ACTIVE = "active"
+        const val LINE_POLYGON = "polygon"
+        const val LINE_DP = 3f
+        const val LINE_ACTIVE_DP = 5f
+        const val LINE_FILL_OPACITY = 0.25f
+        const val EMPTY_GEOJSON = "{\"type\":\"FeatureCollection\",\"features\":[]}"
         const val POINTS_SOURCE = "topophone-points"
         const val POINTS_LAYER = "topophone-points"
         const val POINT_LABELS_LAYER = "topophone-point-labels"

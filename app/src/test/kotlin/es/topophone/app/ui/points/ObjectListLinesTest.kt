@@ -64,6 +64,8 @@ class FakeObjectLines(initial: List<ProjectLine> = emptyList()) : ObjectLines {
     override fun summaries(projectId: String): Flow<List<LineSummary>> =
         lines.map { all -> all.filter { it.deletedAtMs == null }.map(::summary) }
 
+    override fun lines(projectId: String): Flow<List<ProjectLine>> = lines.map { all -> all.filter { it.deletedAtMs == null } }
+
     override suspend fun setHidden(id: String, hidden: Boolean) {
         lines.value = lines.value.map { if (it.id == id) it.copy(hidden = hidden) else it }
     }

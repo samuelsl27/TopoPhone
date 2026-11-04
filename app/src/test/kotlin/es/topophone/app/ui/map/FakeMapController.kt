@@ -65,6 +65,22 @@ class FakeMapController : MapController {
         clicks.tryEmit(id)
     }
 
+    var lines: LineScene? = null
+    var lineCalls = 0
+
+    override fun showLines(scene: LineScene?) {
+        lines = scene
+        lineCalls++
+    }
+
+    private val lineTaps = MutableSharedFlow<String>(extraBufferCapacity = 8)
+    override val lineClicks: Flow<String> = lineTaps
+
+    /** El usuario toca la línea [id] en el mapa. */
+    fun clickLine(id: String) {
+        lineTaps.tryEmit(id)
+    }
+
     override fun showDesign(scene: DesignScene?) {
         design = scene
         designCalls++

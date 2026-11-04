@@ -42,7 +42,7 @@
       Hecho cuando: `LineDetailsTest` en verde.
 - [x] T20. `app`: lista de objetos con líneas, búsqueda, ocultar, borrar a la papelera, restaurar y el aviso al borrar un punto vértice. (RF-21, RF-23, RF-24, RF-25)
       Hecho cuando: `ObjectListLinesTest` en verde.
-- [ ] T21. `app`: `MapLines` y capas de línea, relleno y nombre, con toque para abrir la ficha. (RF-22)
+- [x] T21. `app`: `MapLines` y capas de línea, relleno y nombre, con toque para abrir la ficha. (RF-22)
       Hecho cuando: `MapLinesTest` y `LinesLayerTest` en verde.
 - [ ] T22. `app`: rendimiento del mapa (1.000 líneas y 100.000 vértices) y de la ficha (100.000 vértices en menos de 1 s). (RNF-T13)
       Hecho cuando: `LinesPerformanceTest` en verde.
