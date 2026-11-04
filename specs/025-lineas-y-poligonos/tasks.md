@@ -10,7 +10,7 @@
       Hecho cuando: `LineTargetTest` en verde.
 - [x] T4. `core:model`: `LineEdit` y `LineChainage` (PK de cada vértice). (RF-16, RF-17)
       Hecho cuando: `LineEditTest` y `LineChainageTest` en verde.
-- [ ] T5. `core:model`: historial de líneas (`LineChange`, `HistoryLine`) y `LineSearch`. (RF-18, RF-21)
+- [x] T5. `core:model`: historial de líneas (`LineChange`, `HistoryLine`) y `LineSearch`. (RF-18, RF-21)
       Hecho cuando: `LineHistoryTest` y `LineSearchTest` en verde.
 - [ ] T6. `core:model`: `ProjectCodes` con parámetro de geometrías. (RF-1, RF-20)
       Hecho cuando: `ProjectCodesGeometryTest` en verde y los tests de S024 intactos.
