@@ -25,6 +25,12 @@ import es.topophone.data.gear.AntennaProfileEntity
 import es.topophone.data.gear.GearDao
 import es.topophone.data.gear.ReceiverGearEntity
 import es.topophone.data.gear.SavedPoleEntity
+import es.topophone.data.line.LineAttributeEntity
+import es.topophone.data.line.LineHistoryAttributeEntity
+import es.topophone.data.line.LineHistoryEntity
+import es.topophone.data.line.LineHistoryVertexEntity
+import es.topophone.data.line.LineVertexEntity
+import es.topophone.data.line.ProjectLineEntity
 import es.topophone.data.linear.LinearSurveyDao
 import es.topophone.data.linear.LinearSurveyEntity
 import es.topophone.data.linear.LinearSurveyPointEntity
@@ -101,6 +107,8 @@ import es.topophone.data.surface.SurfaceTileEntity
  * - v29 (S024): el código de cada punto (`code`, `code_description`, `code_color`, `code_symbol`) y sus atributos (`point_attributes`), lo mismo en
  *   el historial (`point_history_attributes`), el símbolo de cada código y `project_codes_of` en `code_libraries` (los códigos creados en un
  *   proyecto). Columnas que admiten NULL o con valor por defecto y tablas nuevas: migración de Room.
+ * - v30 (S025): las líneas del proyecto (`project_lines`, `line_vertices`, `line_attributes`) y su historial (`line_history`,
+ *   `line_history_attributes` y `line_history_vertices`). Solo añade tablas: migración de Room.
  */
 @Database(
     entities = [
@@ -111,7 +119,8 @@ import es.topophone.data.surface.SurfaceTileEntity
         PointPhotoEntity::class, PhotoEventEntity::class, SectionTemplateEntity::class, SectionProfileEntity::class,
         SuperelevationRowEntity::class, SlopeRuleEntity::class, LinearSurveyEntity::class, LinearSurveyPointEntity::class,
         CodeLibraryEntity::class, LibraryCodeEntity::class, CodeAttributeEntity::class, AttributeOptionEntity::class,
-        PointAttributeEntity::class, PointHistoryAttributeEntity::class,
+        PointAttributeEntity::class, PointHistoryAttributeEntity::class, ProjectLineEntity::class, LineVertexEntity::class,
+        LineAttributeEntity::class, LineHistoryEntity::class, LineHistoryAttributeEntity::class, LineHistoryVertexEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -144,6 +153,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 26, to = 27),
         AutoMigration(from = 27, to = 28),
         AutoMigration(from = 28, to = 29),
+        AutoMigration(from = 29, to = 30),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -180,7 +190,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 29
+        const val VERSION = 30
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

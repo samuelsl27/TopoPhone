@@ -14,7 +14,7 @@
       Hecho cuando: `LineHistoryTest` y `LineSearchTest` en verde.
 - [x] T6. `core:model`: `ProjectCodes` con parámetro de geometrías. (RF-1, RF-20)
       Hecho cuando: `ProjectCodesGeometryTest` en verde y los tests de S024 intactos.
-- [ ] T7. `data`: Room v30 (tablas de D1, D2 y D6), `AutoMigration(29, 30)` y el esquema 30. (RNF-T6)
+- [x] T7. `data`: Room v30 (tablas de D1, D2 y D6), `AutoMigration(29, 30)` y el esquema 30. (RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` 29 a 30 en verde.
 - [ ] T8. `data`: `LineRepository` lectura (`lines`, `summaries`, `line`, `active`, `history`) y mapeos. (RF-21)
       Hecho cuando: `LineRepositoryTest` de lectura en verde.

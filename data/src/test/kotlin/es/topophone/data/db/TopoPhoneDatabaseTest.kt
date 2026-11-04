@@ -1486,9 +1486,75 @@ class TopoPhoneDatabaseTest {
         }
     }
 
+    @Test
+    fun `S025 RNF-T6 v29 a v30 los puntos siguen y las lineas nacen vacias con sus reglas`() {
+        createFromExportedSchema(29)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v29 ->
+            v29.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v29.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val point = runBlocking { RoomPointRepository(db).points(project.id).first() }.single()
+            point.measurement.shouldNotBeNull().coordinates.northing shouldBe 4474257.414123456
+            listOf(
+                "project_lines",
+                "line_vertices",
+                "line_attributes",
+                "line_history",
+                "line_history_attributes",
+                "line_history_vertices",
+            ).forEach { count(db, it) shouldBe 0 }
+
+            val sql = db.openHelper.writableDatabase
+            sql.execSQL(
+                "INSERT INTO project_lines VALUES ('l1', ?, 'BORD_1', 'LINE', 0, 0, 1, 'BORD', '', 0, 'CIRCLE', 1, NULL, '')",
+                arrayOf<Any>(project.id),
+            )
+            sql.execSQL("INSERT INTO line_vertices VALUES ('l1', 0, 'punto-1')")
+            // El nombre es unico entre las lineas activas del proyecto, y la papelera lo deja libre.
+            shouldThrow<SQLiteConstraintException> {
+                sql.execSQL(
+                    "INSERT INTO project_lines VALUES ('l2', ?, 'BORD_1', 'LINE', 0, 0, 0, NULL, NULL, NULL, NULL, 2, NULL, '')",
+                    arrayOf<Any>(project.id),
+                )
+            }
+            sql.execSQL(
+                "INSERT INTO project_lines VALUES ('l3', ?, 'BORD_1', 'LINE', 0, 0, 0, NULL, NULL, NULL, NULL, 3, 9, 'l3')",
+                arrayOf<Any>(project.id),
+            )
+            // Un vertice es un solo punto en una sola posicion de la linea.
+            shouldThrow<SQLiteConstraintException> { sql.execSQL("INSERT INTO line_vertices VALUES ('l1', 0, 'punto-1')") }
+            // Borrar el punto quita su vertice; borrar la linea quita sus filas; borrar el proyecto quita las lineas.
+            sql.execSQL("DELETE FROM points WHERE id = 'punto-1'")
+            count(db, "line_vertices") shouldBe 0
+            count(db, "project_lines") shouldBe 2
+            sql.execSQL("DELETE FROM projects WHERE id = ?", arrayOf<Any>(project.id))
+            count(db, "project_lines") shouldBe 0
+        } finally {
+            db.close()
+        }
+    }
+
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 29
+        const val CURRENT_VERSION = 30
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
