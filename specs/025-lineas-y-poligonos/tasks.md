@@ -48,7 +48,7 @@
       Hecho cuando: `LinesPerformanceTest` en verde.
 - [x] T23. `app`: exportar las líneas en las pantallas de GeoPackage. (RF-26)
       Hecho cuando: tests de exportación en verde.
-- [ ] T24. Accesibilidad y textos: etiquetas, 56 dp, abierta, polígono y activa con texto, es/en. (RNF-T7, RNF-T8)
+- [x] T24. Accesibilidad y textos: etiquetas, 56 dp, abierta, polígono y activa con texto, es/en. (RNF-T7, RNF-T8)
       Hecho cuando: `LinesAccessibilityTest` en verde y sin textos literales en código.
 - [ ] T25. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files` y la demo en el emulador. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, la demo de la spec funciona y la hoja de ruta marca S025 como implementada.

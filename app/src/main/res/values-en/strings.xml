@@ -2582,4 +2582,5 @@
         <item quantity="one">%d polygon</item>
         <item quantity="other">%d polygons</item>
     </plurals>
+    <string name="line_vertex_menu_for">Options for vertex %1$s</string>
 </resources>

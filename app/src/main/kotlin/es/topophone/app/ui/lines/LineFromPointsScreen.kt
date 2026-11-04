@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -145,17 +146,15 @@ fun LineFromPointsScreen(
                     }
                     CodeSelectorRow(state.code, enabled = true, actions = codeActions)
                     AttributeFields(state.code, enabled = true, actions = codeActions)
+                    // La fila entera es el interruptor, con el texto como etiqueta para TalkBack (RNF-T8).
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_WIZARD_CLOSED_TAG)
+                            .toggleable(value = state.closed, role = Role.Switch, onValueChange = actions.onClosed),
                     ) {
                         Text(stringResource(R.string.line_wizard_closed), modifier = Modifier.weight(1f))
-                        Switch(
-                            checked = state.closed,
-                            onCheckedChange = actions.onClosed,
-                            modifier = Modifier.testTag(LINE_WIZARD_CLOSED_TAG),
-                        )
+                        Switch(checked = state.closed, onCheckedChange = null)
                     }
                     OutlinedTextField(
                         value = state.name,

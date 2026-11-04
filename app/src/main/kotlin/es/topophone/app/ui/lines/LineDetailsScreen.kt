@@ -317,6 +317,7 @@ private fun VertexItem(row: Int, vertex: VertexRow, state: LineDetailsUi, action
     var menu by remember { mutableStateOf(false) }
     val locale = uiLocale()
     val chainage = vertex.chainageM?.let { ChainageFormat.format(it, state.unit, locale) }
+    val menuDescription = stringResource(R.string.line_vertex_menu_for, vertex.name)
     val label = if (chainage == null) {
         stringResource(R.string.line_vertex_row, row + 1, vertex.name)
     } else {
@@ -331,7 +332,7 @@ private fun VertexItem(row: Int, vertex: VertexRow, state: LineDetailsUi, action
         TextButton(
             onClick = { menu = true },
             modifier = Modifier.heightIn(min = MinTouchTarget).testTag(lineVertexMenuTag(row)).semantics {
-                contentDescription = vertex.name
+                contentDescription = menuDescription
             },
         ) { Text(stringResource(R.string.line_vertex_menu)) }
         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {

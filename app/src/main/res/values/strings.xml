@@ -2594,4 +2594,5 @@
         <item quantity="one">%d polígono</item>
         <item quantity="other">%d polígonos</item>
     </plurals>
+    <string name="line_vertex_menu_for">Opciones del vértice %1$s</string>
 </resources>
