@@ -9,7 +9,9 @@ import androidx.room.Query
 import androidx.room.Update
 import androidx.room.withTransaction
 import es.topophone.core.model.alignment.slope.SlopeKind
+import es.topophone.core.model.codes.AttributeCarryOver
 import es.topophone.core.model.codes.CodeSymbol
+import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.Point
@@ -174,6 +176,12 @@ interface PointDao {
     @Query("SELECT name FROM points WHERE project_id = :projectId AND deleted_at IS NULL")
     suspend fun names(projectId: String): List<String>
 
+    /** Solo las columnas del codigo: las coordenadas y la medida no se tocan (S024/RF-16). */
+    @Query(
+        "UPDATE points SET code = :code, code_description = :description, code_color = :color, code_symbol = :symbol WHERE id = :id",
+    )
+    suspend fun setCode(id: String, code: String?, description: String?, color: Int?, symbol: String?)
+
     @Query("UPDATE points SET hidden = :hidden WHERE id IN (:ids)")
     suspend fun setHidden(ids: List<String>, hidden: Boolean)
 
@@ -195,6 +203,14 @@ interface PointDao {
 
     @Query("DELETE FROM points WHERE deleted_at IS NOT NULL AND deleted_at < :limit")
     suspend fun purge(limit: Long): Int
+}
+
+/** Resultado de cambiar el codigo de varios puntos (S024/RF-13). */
+sealed interface CodeChangeResult {
+    data class Changed(val count: Int) : CodeChangeResult
+
+    /** Algun punto ya no existe: no se cambio ninguno. */
+    data object NotFound : CodeChangeResult
 }
 
 /** Resultado de guardar un punto. */
@@ -254,6 +270,13 @@ interface PointRepository {
 
     /** Como [update] para varios puntos, todos o ninguno (S011/RF-14). */
     suspend fun updateAll(points: List<Point>, change: PointChange): PointSaveResult
+
+    /**
+     * Pone a los puntos [ids] el [code] (o ninguno), todos o ninguno: en una transaccion guarda el estado anterior de cada uno en el
+     * historial, conserva los atributos que coinciden en nombre y tipo y pone el valor por defecto en los demas. No toca las
+     * coordenadas, la medida ni el indicador de editado (S024/RF-13, RF-14, RF-16).
+     */
+    suspend fun changeCode(ids: List<String>, code: SurveyCode?): CodeChangeResult
 
     suspend fun setHidden(ids: List<String>, hidden: Boolean)
 
@@ -390,6 +413,27 @@ class RoomPointRepository(
         PointSaveResult.DuplicateName
     } catch (_: MissingPoint) {
         PointSaveResult.NotFound
+    }
+
+    override suspend fun changeCode(ids: List<String>, code: SurveyCode?): CodeChangeResult = try {
+        database.withTransaction {
+            val now = clock()
+            for (id in ids) {
+                val current = dao.byId(id) ?: throw MissingPoint()
+                val point = current.toPoint(dao.attributesOfNow(id))
+                val historyId = UUID.randomUUID().toString()
+                val previous = PointSnapshot.of(point)
+                dao.insertHistory(previous.toHistoryEntity(historyId, id, now, PointChange.CODE))
+                dao.insertHistoryAttributes(previous.historyAttributeEntities(historyId))
+                val values = code?.let { AttributeCarryOver.apply(point.code?.attributes.orEmpty(), it.attributes).values }.orEmpty()
+                dao.setCode(id, code?.code, code?.description, code?.color, code?.symbol?.name)
+                dao.deleteAttributes(id)
+                dao.insertAttributes(values.mapIndexed { i, a -> PointAttributeEntity(id, i, a.name, a.type.name, a.value) })
+            }
+        }
+        CodeChangeResult.Changed(ids.size)
+    } catch (_: MissingPoint) {
+        CodeChangeResult.NotFound
     }
 
     override suspend fun setHidden(ids: List<String>, hidden: Boolean) = dao.setHidden(ids, hidden)

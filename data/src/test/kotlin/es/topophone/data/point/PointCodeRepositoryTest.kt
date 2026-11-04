@@ -5,9 +5,12 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.model.codes.AttributeType
+import es.topophone.core.model.codes.CodeAttribute
+import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.codes.PointAttribute
 import es.topophone.core.model.codes.PointCode
+import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointChange
@@ -166,5 +169,89 @@ class PointCodeRepositoryTest {
         db.openHelper.writableDatabase.execSQL("DELETE FROM library_codes")
 
         runBlocking { points.point("id-1").first() }.shouldNotBeNull().code shouldBe arqueta
+    }
+
+    private val pozo = SurveyCode(
+        id = "c-poz",
+        code = "POZ",
+        description = "Pozo",
+        geometry = CodeGeometry.POINT,
+        color = 0xD32F2F,
+        attributes = listOf(
+            CodeAttribute("material", AttributeType.LIST, "Acero", listOf("Acero", "PVC")),
+            CodeAttribute("Profundidad", AttributeType.NUMBER, "2.5"),
+        ),
+        symbol = CodeSymbol.STAR,
+    )
+
+    @Test
+    fun `S024 RF-13 cambiar el codigo de una seleccion lo aplica a todos y conserva los atributos que coinciden`() {
+        runBlocking {
+            points.create(manual("1", arqueta))
+            points.create(manual("2"))
+        }
+        now = 7_000
+
+        val result = runBlocking { points.changeCode(listOf("id-1", "id-2"), pozo) }
+
+        result shouldBe CodeChangeResult.Changed(2)
+        val one = runBlocking { points.point("id-1").first() }.shouldNotBeNull().code.shouldNotBeNull()
+        one.code shouldBe "POZ"
+        one.description shouldBe "Pozo"
+        one.color shouldBe 0xD32F2F
+        one.symbol shouldBe CodeSymbol.STAR
+        one.attributes shouldBe listOf(
+            PointAttribute("material", AttributeType.LIST, "PVC"),
+            PointAttribute("Profundidad", AttributeType.NUMBER, "2.5"),
+        )
+        runBlocking { points.point("id-2").first() }.shouldNotBeNull().code.shouldNotBeNull().attributes shouldBe listOf(
+            PointAttribute("material", AttributeType.LIST, "Acero"),
+            PointAttribute("Profundidad", AttributeType.NUMBER, "2.5"),
+        )
+    }
+
+    @Test
+    fun `S024 RF-14 cada punto guarda en su historial el codigo y los valores anteriores`() {
+        runBlocking { points.create(manual("1", arqueta)) }
+        now = 7_000
+
+        runBlocking { points.changeCode(listOf("id-1"), pozo) }
+
+        val entry = runBlocking { points.history("id-1").first() }.single()
+        entry.change shouldBe PointChange.CODE
+        entry.changedAtMs shouldBe 7_000
+        entry.previous.code shouldBe arqueta
+        count("point_history_attributes") shouldBe 4
+    }
+
+    @Test
+    fun `S024 RF-14 sin codigo nuevo el punto queda sin codigo ni atributos`() {
+        runBlocking { points.create(manual("1", arqueta)) }
+
+        runBlocking { points.changeCode(listOf("id-1"), null) } shouldBe CodeChangeResult.Changed(1)
+
+        runBlocking { points.point("id-1").first() }.shouldNotBeNull().code.shouldBeNull()
+        count("point_attributes") shouldBe 0
+    }
+
+    @Test
+    fun `S024 RF-13 si un punto de la seleccion no existe no se cambia ninguno`() {
+        runBlocking { points.create(manual("1", arqueta)) }
+
+        runBlocking { points.changeCode(listOf("id-1", "no-existe"), pozo) } shouldBe CodeChangeResult.NotFound
+
+        runBlocking { points.point("id-1").first() }.shouldNotBeNull().code shouldBe arqueta
+        runBlocking { points.history("id-1").first() }.size shouldBe 0
+    }
+
+    @Test
+    fun `S024 RF-16 cambiar el codigo no toca las coordenadas ni la medida ni el indicador de editado`() {
+        val original = manual("1", arqueta)
+        runBlocking { points.create(original) }
+
+        runBlocking { points.changeCode(listOf("id-1"), pozo) }
+
+        val read = runBlocking { points.point("id-1").first() }.shouldNotBeNull()
+        read.copy(code = null) shouldBe original.copy(code = null)
     }
 }

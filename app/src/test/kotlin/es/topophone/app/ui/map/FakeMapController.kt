@@ -6,6 +6,9 @@ import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
 import es.topophone.app.ui.projects.MapSlot
 import es.topophone.core.geodesy.GeoPoint
+import es.topophone.core.model.codes.AttributeCarryOver
+import es.topophone.core.model.codes.PointCode
+import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.point.Point
@@ -16,6 +19,7 @@ import es.topophone.core.model.point.PointSummary
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.map.MapViewportRepository
+import es.topophone.data.point.CodeChangeResult
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.point.TrashedPoint
@@ -216,6 +220,34 @@ class FakePointRepository(initial: List<Point> = emptyList(), private val clock:
         }
         this.points.value = current.map { byId[it.id] ?: it }
         return PointSaveResult.Saved
+    }
+
+    override suspend fun changeCode(ids: List<String>, code: SurveyCode?): CodeChangeResult {
+        val current = points.value
+        if (ids.any { id -> current.none { it.id == id } }) return CodeChangeResult.NotFound
+        historyEntries.value = historyEntries.value + ids.map { id ->
+            PointHistoryEntry(
+                "h-${historyEntries.value.size}-$id",
+                id,
+                clock(),
+                PointChange.CODE,
+                PointSnapshot.of(
+                    current.first {
+                        it.id ==
+                            id
+                    },
+                ),
+            )
+        }
+        points.value = current.map { point ->
+            if (point.id !in ids) {
+                point
+            } else {
+                val values = code?.let { AttributeCarryOver.apply(point.code?.attributes.orEmpty(), it.attributes).values }.orEmpty()
+                point.copy(code = code?.let { PointCode(it.code, it.description, it.color, it.symbol, values) })
+            }
+        }
+        return CodeChangeResult.Changed(ids.size)
     }
 
     override suspend fun setHidden(ids: List<String>, hidden: Boolean) {
