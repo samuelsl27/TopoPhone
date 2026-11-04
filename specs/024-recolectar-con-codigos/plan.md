@@ -107,4 +107,7 @@ point_history_attributes  history_id FK(point_history, CASCADE), ordinal, name, 
 | RNF-T6 | Room v29, D12 | `TopoPhoneDatabaseTest`, `CodeBackupTest` |
 
 ## Cambios al implementar
-(Se rellena durante la implementación.)
+- **D12, duplicar un proyecto:** el duplicado de S006 no copia los puntos, así que solo viajan sus códigos creados (`ProjectLibraryLinker.copyBetweenProjects`); los puntos con código viajan en la copia y en los paquetes (`DatabaseSnapshot.TABLES`, `BackupRepository.copyProject`).
+- **D7, `changeCode`:** recibe el `SurveyCode` nuevo (o null) y calcula el traspaso de atributos dentro de la transacción, punto a punto, con `AttributeCarryOver`; solo escribe las columnas del código.
+- **D1, filtros:** las consultas de bibliotecas del usuario excluyen las filas con `project_codes_of`; la copia y los paquetes usan `? IN (project_id, project_codes_of)`.
+(Se sigue rellenando durante la implementación.)

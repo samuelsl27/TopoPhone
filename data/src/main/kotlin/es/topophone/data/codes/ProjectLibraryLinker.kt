@@ -32,9 +32,15 @@ class ProjectLibraryLinker(
 
     /** Da a [toProjectId] una copia de la copia de [fromProjectId], si tiene (al duplicar un proyecto). */
     suspend fun copyBetweenProjects(fromProjectId: String, toProjectId: String) {
-        val copy = dao.copyOf(fromProjectId) ?: return
-        val library = dao.loadLibrary(copy.id) ?: return
-        insertCopy(toProjectId, copy.sourceName ?: copy.name, library.codes, copy.createdAtMs)
+        dao.copyOf(fromProjectId)?.let { copy ->
+            dao.loadLibrary(copy.id)?.let { insertCopy(toProjectId, copy.sourceName ?: copy.name, it.codes, copy.createdAtMs) }
+        }
+        // S024: los codigos creados en el proyecto tambien viajan con el duplicado.
+        dao.projectCodesOf(fromProjectId)?.let { own ->
+            val codes = dao.loadLibrary(own.id)?.codes.orEmpty()
+            val library = own.copy(id = newId(), projectCodesOf = toProjectId, createdAtMs = own.createdAtMs)
+            dao.insertTree(library, codes, newId)
+        }
     }
 
     private suspend fun remove(projectId: String) {

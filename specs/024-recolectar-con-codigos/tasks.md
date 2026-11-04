@@ -24,7 +24,7 @@
       Hecho cuando: test en verde con papelera, repetidos y límite de 10.
 - [x] T11. `data`: códigos creados en el proyecto (`project_codes_of`, `saveProjectCode`, `deleteProjectCode`, conflictos, exclusión de las listas de bibliotecas). (RF-5, RF-6, RF-7)
       Hecho cuando: `ProjectCodeRepositoryTest` en verde, incluidos borrar la biblioteca y cambiar de biblioteca vinculada.
-- [ ] T12. `data`: copia de seguridad y duplicado de proyecto con las tablas nuevas. (RNF-T6)
+- [x] T12. `data`: copia de seguridad y duplicado de proyecto con las tablas nuevas. (RNF-T6)
       Hecho cuando: `CodeBackupTest` en verde.
 - [ ] T13. `app`: estado del recolector con código elegido, recientes, búsqueda, atributos y `MeasureBlocker.ATTRIBUTES`. (RF-1 a RF-4, RF-8, RF-9, RF-11)
       Hecho cuando: `CollectorCodeViewModelTest` en verde.

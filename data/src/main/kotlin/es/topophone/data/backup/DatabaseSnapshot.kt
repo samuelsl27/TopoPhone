@@ -156,7 +156,13 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("map_viewports", "WHERE project_id = ?"),
             Table("points", "WHERE project_id = ?"),
             Table("point_nmea", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
+            // S024/RNF-T6: los valores de los atributos del codigo de cada punto y de cada version de su historial.
+            Table("point_attributes", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
             Table("point_history", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
+            Table(
+                "point_history_attributes",
+                "WHERE history_id IN (SELECT h.id FROM point_history h JOIN points p ON p.id = h.point_id WHERE p.project_id = ?)",
+            ),
             // S017b/RF-28: las filas de las fotos y sus sucesos viajan con el punto (los ficheros, aparte).
             Table("point_photos", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
             Table("photo_events", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
@@ -189,16 +195,17 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("linear_surveys", "WHERE project_id = ?"),
             Table("linear_survey_points", "WHERE survey_id IN (SELECT id FROM linear_surveys WHERE project_id = ?)"),
             // S023/RF-22: las bibliotecas del usuario van en la copia completa; en el paquete solo la copia que lleva el proyecto.
-            Table("code_libraries", "WHERE project_id = ?"),
-            Table("library_codes", "WHERE library_id IN (SELECT id FROM code_libraries WHERE project_id = ?)"),
+            // S024: la fila de los codigos creados en el proyecto (project_codes_of) viaja con el.
+            Table("code_libraries", "WHERE ? IN (project_id, project_codes_of)"),
+            Table("library_codes", "WHERE library_id IN (SELECT id FROM code_libraries WHERE ? IN (project_id, project_codes_of))"),
             Table(
                 "code_attributes",
-                "WHERE code_id IN (SELECT c.id FROM library_codes c JOIN code_libraries l ON l.id = c.library_id WHERE l.project_id = ?)",
+                "WHERE code_id IN (SELECT c.id FROM library_codes c JOIN code_libraries l ON l.id = c.library_id WHERE ? IN (l.project_id, l.project_codes_of))",
             ),
             Table(
                 "attribute_options",
                 "WHERE attribute_id IN (SELECT a.id FROM code_attributes a JOIN library_codes c ON c.id = a.code_id " +
-                    "JOIN code_libraries l ON l.id = c.library_id WHERE l.project_id = ?)",
+                    "JOIN code_libraries l ON l.id = c.library_id WHERE ? IN (l.project_id, l.project_codes_of))",
             ),
             // S020/RF-12: los desplazamientos de base viajan con el proyecto.
             Table("base_shifts", "WHERE project_id = ?"),

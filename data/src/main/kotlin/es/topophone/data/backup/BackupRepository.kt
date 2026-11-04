@@ -473,10 +473,25 @@ class BackupRepository(
                 point.getAsString("shift_id")?.let { oldShift -> point.put("shift_id", shiftIds[oldShift] ?: oldShift) }
             }
         }
+        source("SELECT * FROM point_attributes WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "point_attributes") { attribute ->
+                attribute.put("point_id", pointIds.getValue(attribute.getAsString("point_id")))
+            }
+        }
+        val historyIds = mutableMapOf<String, String>()
         source("SELECT * FROM point_history WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)", args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "point_history") { change ->
-                if (!keepIds) change.put("id", newId())
+                val old = change.getAsString("id")
+                val id = if (keepIds) old else newId()
+                historyIds[old] = id
+                change.put("id", id)
                 change.put("point_id", pointIds.getValue(change.getAsString("point_id")))
+            }
+        }
+        val inHistory = "SELECT h.id FROM point_history h JOIN points p ON p.id = h.point_id WHERE p.project_id = ?"
+        source("SELECT * FROM point_history_attributes WHERE history_id IN ($inHistory)", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "point_history_attributes") { attribute ->
+                attribute.put("history_id", historyIds.getValue(attribute.getAsString("history_id")))
             }
         }
         copyPhotos(source, sink, args, pointIds, photoSource)
@@ -541,18 +556,23 @@ class BackupRepository(
         keepIds: Boolean,
     ) {
         val libraryIds = mutableMapOf<String, String>()
-        source("SELECT * FROM code_libraries WHERE project_id = ?", args).use { cursor ->
+        source("SELECT * FROM code_libraries WHERE ? IN (project_id, project_codes_of)", args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "code_libraries") { library ->
                 val old = library.getAsString("id")
                 val id = if (keepIds) old else newId()
                 libraryIds[old] = id
                 library.put("id", id)
-                library.put("project_id", newProjectId)
+                // S024: la copia de la biblioteca lleva project_id; la fila de los codigos creados en el proyecto, project_codes_of.
+                if (library.getAsString("project_codes_of") == null) {
+                    library.put("project_id", newProjectId)
+                } else {
+                    library.put("project_codes_of", newProjectId)
+                }
             }
         }
         if (libraryIds.isEmpty()) return
         val codeIds = mutableMapOf<String, String>()
-        val inLibrary = "SELECT id FROM code_libraries WHERE project_id = ?"
+        val inLibrary = "SELECT id FROM code_libraries WHERE ? IN (project_id, project_codes_of)"
         source("SELECT * FROM library_codes WHERE library_id IN ($inLibrary) ORDER BY code_key", args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "library_codes") { code ->
                 val old = code.getAsString("id")
@@ -563,7 +583,8 @@ class BackupRepository(
             }
         }
         val attributeIds = mutableMapOf<String, String>()
-        val inCodes = "SELECT c.id FROM library_codes c JOIN code_libraries l ON l.id = c.library_id WHERE l.project_id = ?"
+        val inCodes = "SELECT c.id FROM library_codes c JOIN code_libraries l ON l.id = c.library_id " +
+            "WHERE ? IN (l.project_id, l.project_codes_of)"
         source("SELECT * FROM code_attributes WHERE code_id IN ($inCodes) ORDER BY code_id, ordinal", args).use { cursor ->
             DatabaseSnapshot.copyRows(cursor, sink, "code_attributes") { attribute ->
                 val old = attribute.getAsString("id")
