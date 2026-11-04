@@ -500,6 +500,7 @@ class BackupRepository(
         copyAlignments(source, sink, args, newProjectId, alignmentIds)
         copySections(source, sink, args, alignmentIds, keepIds)
         copyLinearSurveys(source, sink, args, newProjectId, alignmentIds, pointIds, keepIds)
+        copyLines(source, sink, args, newProjectId, pointIds, keepIds)
         copyBaseShifts(source, sink, args, newProjectId, shiftIds)
         copyCodeLibrary(source, sink, args, newProjectId, keepIds)
     }
@@ -700,6 +701,66 @@ class BackupRepository(
             DatabaseSnapshot.copyRows(cursor, sink, "linear_survey_points") { member ->
                 member.put("survey_id", surveyIds.getValue(member.getAsString("survey_id")))
                 member.put("point_id", pointIds.getValue(member.getAsString("point_id")))
+            }
+        }
+    }
+
+    /**
+     * Las líneas del proyecto con sus vértices, atributos e historial (S025/RF-26). Los vértices y el historial señalan los puntos con los
+     * ids que tienen en la copia; un punto del historial que ya no existe conserva el suyo.
+     */
+    private fun copyLines(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        pointIds: Map<String, String>,
+        keepIds: Boolean,
+    ) {
+        val lineIds = mutableMapOf<String, String>()
+        source("SELECT * FROM project_lines WHERE project_id = ? ORDER BY created_at, rowid", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "project_lines") { line ->
+                val old = line.getAsString("id")
+                val id = if (keepIds) old else newId()
+                lineIds[old] = id
+                line.put("id", id)
+                line.put("project_id", newProjectId)
+                if (line.getAsString("trash_key").isNotEmpty()) line.put("trash_key", id)
+            }
+        }
+        val inProject = "line_id IN (SELECT id FROM project_lines WHERE project_id = ?)"
+        source("SELECT * FROM line_vertices WHERE $inProject ORDER BY line_id, ordinal", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "line_vertices") { vertex ->
+                vertex.put("line_id", lineIds.getValue(vertex.getAsString("line_id")))
+                vertex.put("point_id", pointIds.getValue(vertex.getAsString("point_id")))
+            }
+        }
+        source("SELECT * FROM line_attributes WHERE $inProject ORDER BY line_id, ordinal", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "line_attributes") { attribute ->
+                attribute.put("line_id", lineIds.getValue(attribute.getAsString("line_id")))
+            }
+        }
+        val historyIds = mutableMapOf<String, String>()
+        source("SELECT * FROM line_history WHERE $inProject", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "line_history") { change ->
+                val old = change.getAsString("id")
+                val id = if (keepIds) old else newId()
+                historyIds[old] = id
+                change.put("id", id)
+                change.put("line_id", lineIds.getValue(change.getAsString("line_id")))
+            }
+        }
+        val inHistory = "history_id IN (SELECT h.id FROM line_history h JOIN project_lines l ON l.id = h.line_id WHERE l.project_id = ?)"
+        source("SELECT * FROM line_history_attributes WHERE $inHistory ORDER BY history_id, ordinal", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "line_history_attributes") { attribute ->
+                attribute.put("history_id", historyIds.getValue(attribute.getAsString("history_id")))
+            }
+        }
+        source("SELECT * FROM line_history_vertices WHERE $inHistory ORDER BY history_id, ordinal", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "line_history_vertices") { vertex ->
+                vertex.put("history_id", historyIds.getValue(vertex.getAsString("history_id")))
+                val point = vertex.getAsString("point_id")
+                vertex.put("point_id", pointIds[point] ?: point)
             }
         }
     }

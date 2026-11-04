@@ -194,6 +194,19 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             // S052/RF-23: las tomas lineales y los puntos de cada una (después de los puntos y de los ejes) viajan con el proyecto.
             Table("linear_surveys", "WHERE project_id = ?"),
             Table("linear_survey_points", "WHERE survey_id IN (SELECT id FROM linear_surveys WHERE project_id = ?)"),
+            // S025/RF-26: las lineas del proyecto, sus vertices (referencias a puntos), atributos e historial viajan con el proyecto.
+            Table("project_lines", "WHERE project_id = ?"),
+            Table("line_vertices", "WHERE line_id IN (SELECT id FROM project_lines WHERE project_id = ?)"),
+            Table("line_attributes", "WHERE line_id IN (SELECT id FROM project_lines WHERE project_id = ?)"),
+            Table("line_history", "WHERE line_id IN (SELECT id FROM project_lines WHERE project_id = ?)"),
+            Table(
+                "line_history_attributes",
+                "WHERE history_id IN (SELECT h.id FROM line_history h JOIN project_lines l ON l.id = h.line_id WHERE l.project_id = ?)",
+            ),
+            Table(
+                "line_history_vertices",
+                "WHERE history_id IN (SELECT h.id FROM line_history h JOIN project_lines l ON l.id = h.line_id WHERE l.project_id = ?)",
+            ),
             // S023/RF-22: las bibliotecas del usuario van en la copia completa; en el paquete solo la copia que lleva el proyecto.
             // S024: la fila de los codigos creados en el proyecto (project_codes_of) viaja con el.
             Table("code_libraries", "WHERE ? IN (project_id, project_codes_of)"),

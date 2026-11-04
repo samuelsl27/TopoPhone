@@ -28,7 +28,7 @@
       Hecho cuando: tests en verde con nombre reutilizado.
 - [x] T13. `data`: la papelera de puntos con líneas (omitir, recuperar, borrado definitivo con `VERTEX_REMOVED`) y `linesUsing`. (RF-25)
       Hecho cuando: `LinePointTrashTest` en verde.
-- [ ] T14. `data`: copia de seguridad y paquetes con las tablas nuevas. (RF-26, RNF-T6)
+- [x] T14. `data`: copia de seguridad y paquetes con las tablas nuevas. (RF-26, RNF-T6)
       Hecho cuando: `LineBackupTest` en verde.
 - [ ] T15. `core:formats` y `data`: capas `lines` y `polygons` del GeoPackage. (RF-26)
       Hecho cuando: `GpkgLinesTest` y `GeoPackageWriterLinesTest` en verde.
