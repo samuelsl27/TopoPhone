@@ -258,4 +258,20 @@ class LineStakeoutSegmentsTest {
         compose.onNodeWithTag(LINE_MISSING_HEIGHTS_TAG).assertTextContains("A, D", substring = true)
         compose.onNodeWithTag(LINE_NO_HEIGHT_TAG).assertTextContains("Sin cota de diseño", substring = true)
     }
+
+    @Test
+    fun `S027 RF-11 el objetivo de Por segmentos se llama como el punto del vertice y el de los demas modos como la linea`() {
+        val vm = viewModel()
+        open(vm, createLine(closed = false))
+        vm.selectVertex(2)
+
+        val vertex = await(vm) { it.vertexIndex == 2 }.target.shouldNotBeNull()
+        vertex.name shouldBe "C"
+        vertex.namePerTarget shouldBe true
+
+        vm.setMode(LineStakeoutMode.TO_LINE)
+        val line = await(vm) { it.mode == LineStakeoutMode.TO_LINE }.target.shouldNotBeNull()
+        line.name shouldBe "L_1"
+        line.namePerTarget shouldBe false
+    }
 }

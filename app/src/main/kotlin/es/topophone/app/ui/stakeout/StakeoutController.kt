@@ -58,6 +58,8 @@ data class StakeTarget(
     val source: StakeSource = StakeSource.ProjectPoint,
     /** El código del punto de diseño, que hereda el punto replanteado por valor (S024/RF-20); null en un dibujo, un eje o sin código. */
     val code: PointCode? = null,
+    /** El punto replanteado se llama como este objetivo más `_stkd`, y no `<nombre>_n_stkd` (S027/RF-11: un vértice de una línea). */
+    val namePerTarget: Boolean = false,
 )
 
 /**

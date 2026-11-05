@@ -674,9 +674,11 @@ class CollectorViewModel @Inject constructor(
 
     /**
      * `<capa>_<n>_stkd` con un elemento de un dibujo (S041/RF-27), `<eje>_<n>_stkd` con un PK de un eje (S054/RF-10) y `<diseño>_stkd` con
-     * un punto del proyecto (S018/RF-27).
+     * un punto del proyecto (S018/RF-27). Un vértice de una línea del proyecto es como un punto: `<vértice>_stkd` (S027/RF-11).
      */
-    private fun stakeName(target: StakeTarget, taken: Set<String>): String = if (target.source !is StakeSource.ProjectPoint) {
+    private fun stakeName(target: StakeTarget, taken: Set<String>): String = if (target.source !is StakeSource.ProjectPoint &&
+        !target.namePerTarget
+    ) {
         StakeoutNames.nextForLayer(
             target.name,
             taken,

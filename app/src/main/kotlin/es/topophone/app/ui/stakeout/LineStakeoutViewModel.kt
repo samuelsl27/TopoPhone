@@ -904,13 +904,20 @@ class LineStakeoutViewModel @Inject constructor(
         }
         val coordinates = coordinatesOf(project, east, north, height) ?: return null
         if (mode != LineStakeoutMode.BY_SEGMENTS && mode != LineStakeoutMode.INTERVALS) anchor = coordinates
+        // S027/RF-11: en "Por segmentos" de una línea del proyecto el objetivo es el punto de un vértice y se llama como él.
+        val vertexName = if (mode == LineStakeoutMode.BY_SEGMENTS) {
+            m.origin.labels?.let { labels -> m.vertices.entries.getOrNull(m.vertexIndex)?.let { labels.name(it.vertex) } }
+        } else {
+            null
+        }
         val target = StakeTarget(
             id = m.origin.targetId,
-            name = m.origin.targetName,
+            name = vertexName ?: m.origin.targetName,
             description = "",
             coordinates = coordinates,
             source = m.origin.source,
             code = m.origin.code,
+            namePerTarget = vertexName != null,
         )
         cached = key to target
         return target

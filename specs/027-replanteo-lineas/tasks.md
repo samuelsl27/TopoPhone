@@ -20,7 +20,7 @@
       Hecho cuando: `LineStakeoutSegmentsTest` en verde.
 - [x] T9. `app`: cota de diseño por objetivo: interpolada, sin cota en el tramo, cota a mano y superficie activa. (RF-8, RF-9, RF-10)
       Hecho cuando: los tests de cota de `LineStakeoutProjectLineTest` en verde.
-- [ ] T10. `app`: medir y guardar con el nombre de «Por segmentos» o de la línea, la fuente `ProjectLine` y el código y los atributos de la línea. (RF-11, RF-12)
+- [x] T10. `app`: medir y guardar con el nombre de «Por segmentos» o de la línea, la fuente `ProjectLine` y el código y los atributos de la línea. (RF-11, RF-12)
       Hecho cuando: `LineStakeoutSaveTest` en verde, con un solo guardado atómico del punto.
 - [ ] T11. `app`: la ficha del punto replanteado dice de qué línea viene. (RF-13)
       Hecho cuando: `PointDetailsLineTest` en verde.
