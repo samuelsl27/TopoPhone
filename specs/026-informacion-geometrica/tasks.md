@@ -4,7 +4,7 @@
 
 - [x] T1. `core:model`: `DistanceMode`, `AreaFormat`, `SlopeFormat` y los términos de `docs/glosario.md` («Información geométrica», «Segmento», «Perímetro», «Área», «Pendiente», «Ángulo entre tres puntos»). (RF-12, RNF-T9)
       Hecho cuando: `AreaFormatTest` y `SlopeFormatTest` en verde con m², ft² y usft².
-- [ ] T2. `tools`: `generar_referencias.py` con `pyproj` y `fixtures/geometria/` (rectas, polígono cóncavo y con cruces, ángulos; cuadrícula y terreno) y su test de `pytest`. (Constitución nº 2)
+- [x] T2. `tools`: `generar_referencias.py` con `pyproj` y `fixtures/geometria/` (rectas, polígono cóncavo y con cruces, ángulos; cuadrícula y terreno) y su test de `pytest`. (Constitución nº 2)
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros generados en el repositorio.
 - [ ] T3. `core:survey`: `GeometryVertex`, `PlanarFrame` y `GeometryCalculator` en cuadrícula: longitud 2D y 3D, azimut, desnivel, pendiente, PK, alturas que faltan y menos de 2 vértices. (RF-1, RF-2, RF-3, RF-7)
       Hecho cuando: `GeometryCalculatorGridTest` en verde frente a las referencias (≤ 1 mm, 1 µrad).
