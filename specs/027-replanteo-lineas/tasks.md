@@ -8,7 +8,7 @@
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros en el repositorio.
 - [x] T3. `core:survey`: `StakeLine` con altura por vértice (`NaN`), `heightAt` y `height(v)` de D2, y `create` que devuelve el origen de cada vértice. (RF-8, RF-9)
       Hecho cuando: `StakeLinePartialHeightTest` en verde frente a las referencias y los tests de S041 intactos.
-- [ ] T4. `core:survey`: `ProjectStakeLine.of` (nombres, índices de origen, cota interpolada, menos de 2 vértices) y `ProjectLineParityTest` en los cinco modos. (RF-2, RF-3, RF-5, RF-6)
+- [x] T4. `core:survey`: `ProjectStakeLine.of` (nombres, índices de origen, cota interpolada, menos de 2 vértices) y `ProjectLineParityTest` en los cinco modos. (RF-2, RF-3, RF-5, RF-6)
       Hecho cuando: `ProjectStakeLineTest` y `ProjectLineParityTest` en verde (≤ 1 mm).
 - [ ] T5. `data`: Room v31 (`AutoMigration(30, 31)`, `stake_line_id` y `stake_line_name`) y el mapeo de `StakeSource.ProjectLine`. (RF-11, RF-12, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` de la v30 a la v31, `StakeLineSourceMappingTest` y `LineStakeoutBackupTest` en verde.
