@@ -12,7 +12,7 @@
       Hecho cuando: `GeometryAreaTest` y `CrossingFinderTest` en verde (≤ 1 mm²) con el polígono cóncavo y el de cruces.
 - [x] T5. `core:survey`: `SegmentScale` con el factor combinado de S008 por segmento y del polígono, la altura del proyecto como recurso y el SC geográfico con plano local. (RF-10, RF-11)
       Hecho cuando: `GeometryCalculatorGroundTest` y `GeometryGeographicTest` en verde frente a las referencias.
-- [ ] T6. `core:survey`: `ThreePointAngle`. (RF-14, RF-15)
+- [x] T6. `core:survey`: `ThreePointAngle`. (RF-14, RF-15)
       Hecho cuando: `ThreePointAngleTest` en verde, con ángulos cercanos a 0° y 180° y puntos coincidentes.
 - [ ] T7. `core:formats`: `GeometryCsv`. (RF-8, RNF-T9)
       Hecho cuando: `GeometryCsvTest` en verde con `Locale.ROOT`, unidades en la cabecera y fila de totales.
