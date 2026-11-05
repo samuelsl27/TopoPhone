@@ -24,7 +24,7 @@
       Hecho cuando: `GeometryInfoViewModelTest` en verde sin modificar ningún dato.
 - [x] T11. `app`: `GeometryInfoScreen` (totales, selector Cuadrícula/Terreno, avisos, tabla monoespaciada) y los botones «Información» de la ficha de la línea. (RF-1, RF-2, RF-3, RF-6, RF-9, RF-11, RF-12)
       Hecho cuando: `GeometryInfoScreenTest` en verde, con `performScrollToNode` en la tabla.
-- [ ] T12. `app`: «Exportar tabla» con el selector de ficheros y el FileProvider. (RF-8)
+- [x] T12. `app`: «Exportar tabla» con el selector de ficheros y el FileProvider. (RF-8)
       Hecho cuando: `GeometryExportTest` en verde.
 - [ ] T13. `app`: información de una línea de un dibujo desde su hoja, con y sin cota. (RF-1, RF-4)
       Hecho cuando: `CadLineInfoTest` en verde.

@@ -2624,4 +2624,5 @@
     <string name="geometry_notice_factor_no_height">Sin altura elipsoidal en los vértices: el factor de terreno no corrige por altura.</string>
     <string name="geometry_problem_too_few">Hacen falta al menos 2 vértices (3 en un polígono) para calcular.</string>
     <string name="geometry_problem_no_position">Algún vértice no tiene posición: no se puede calcular.</string>
+    <string name="geometry_export_title">Exportar tabla</string>
 </resources>

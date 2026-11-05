@@ -33,6 +33,7 @@ enum class GeometryProblem { TOO_FEW_VERTICES, NO_POSITION }
 /** Lo que muestra la información geométrica de una línea o un polígono (S026/RF-1 a RF-3, RF-6, RF-9, RF-11, RF-12). */
 data class GeometryInfoUi(
     val loaded: Boolean = false,
+    val projectName: String = "",
     val lineName: String = "",
     val closed: Boolean = false,
     val mode: DistanceMode = DistanceMode.GRID,
@@ -60,6 +61,7 @@ class GeometryInfoViewModel @Inject constructor(
     private val ids = MutableStateFlow<Pair<String, String>?>(null)
 
     private data class Source(
+        val projectName: String,
         val name: String,
         val closed: Boolean,
         val vertices: List<VertexPoint>,
@@ -76,7 +78,7 @@ class GeometryInfoViewModel @Inject constructor(
                 if (line == null || project == null) {
                     null
                 } else {
-                    Source(line.name, line.closed, vertices, project.crs, project.linearUnit, project.angularUnit)
+                    Source(project.name, line.name, line.closed, vertices, project.crs, project.linearUnit, project.angularUnit)
                 }
             }
         }
@@ -100,6 +102,7 @@ class GeometryInfoViewModel @Inject constructor(
         val result = GeometryInput.compute(GeometryInput.fromVertexPoints(vertices), closed, mode, crs)
         return GeometryInfoUi(
             loaded = true,
+            projectName = projectName,
             lineName = name,
             closed = closed,
             mode = mode,

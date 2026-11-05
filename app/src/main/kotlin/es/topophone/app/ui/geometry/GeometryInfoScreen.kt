@@ -30,6 +30,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.linear.ProfileExportButtons
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -41,6 +42,8 @@ import es.topophone.core.model.geometry.DistanceMode
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.survey.geometry.GeometryNotice
 import es.topophone.core.survey.geometry.SegmentInfo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 const val GEOMETRY_INFO_TAG = "geometry_info"
 const val GEOMETRY_MODE_GRID_TAG = "geometry_mode_grid"
@@ -121,14 +124,40 @@ fun GeometryInfoScreen(
                     }
                     Text(stringResource(text), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag(GEOMETRY_PROBLEM_TAG))
                 }
-                return@LazyColumn
+            } else {
+                item(key = "totals") { Totals(state, info) }
+                item(key = "notices") { Notices(state, info) }
             }
-            item(key = "totals") { Totals(state, info) }
-            item(key = "notices") { Notices(state, info) }
-            item(key = "table-title") { Text(stringResource(R.string.geometry_table_title), style = MaterialTheme.typography.titleMedium) }
-            item(key = "table-head") { TableHeader(state, tableScroll) }
-            items(info.segments, key = { it.index }) { segment -> SegmentRow(segment, state, tableScroll) }
+            item(key = "export") { Export(state) }
+            if (info != null) {
+                item(key = "table-title") {
+                    Text(stringResource(R.string.geometry_table_title), style = MaterialTheme.typography.titleMedium)
+                }
+                item(key = "table-head") { TableHeader(state, tableScroll) }
+                items(info.segments, key = { it.index }) { segment -> SegmentRow(segment, state, tableScroll) }
+            }
         }
+    }
+}
+
+@Composable
+private fun Export(state: GeometryInfoUi) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(stringResource(R.string.geometry_export_title), style = MaterialTheme.typography.titleMedium)
+        ProfileExportButtons(
+            projectName = state.projectName,
+            label = state.lineName,
+            enabled = state.info != null,
+            write = { out ->
+                withContext(Dispatchers.IO) {
+                    out.bufferedWriter(Charsets.UTF_8).let { writer ->
+                        GeometryExport.write(state, writer)
+                        writer.flush()
+                    }
+                }
+                true
+            },
+        )
     }
 }
 
