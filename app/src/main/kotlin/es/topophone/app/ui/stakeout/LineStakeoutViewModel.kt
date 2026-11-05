@@ -81,7 +81,7 @@ import kotlinx.coroutines.withContext
 enum class LineField { OFFSET, A, B, INTERVAL }
 
 /** Por qué se cierra el replanteo de una línea sin que el usuario lo pida (S041/RF-31). */
-enum class LineClosedReason { DRAWING_DELETED, }
+enum class LineClosedReason { DRAWING_DELETED, LINE_DELETED, LINE_CHANGED }
 
 /** Por qué no se abre el replanteo de una línea (S041/RF-2, S027/RF-3). */
 enum class LineUnsupportedReason { NOT_A_LINE, NOT_FOUND, TOO_FEW_VERTICES, NO_PLANE_POSITION }
@@ -458,7 +458,10 @@ class LineStakeoutViewModel @Inject constructor(
             when (built) {
                 ProjectStakeLineResult.TooFewVertices -> reject(LineUnsupportedReason.TOO_FEW_VERTICES)
                 ProjectStakeLineResult.NoPlanePosition -> reject(LineUnsupportedReason.NO_PLANE_POSITION)
-                is ProjectStakeLineResult.Built -> start(projectId, built.line, projectLineOrigin(data.line, built))
+                is ProjectStakeLineResult.Built -> {
+                    start(projectId, built.line, projectLineOrigin(data.line, built))
+                    watchLine(lineId, data)
+                }
             }
         }
     }
@@ -565,6 +568,44 @@ class LineStakeoutViewModel @Inject constructor(
         sourceChoice.value = null
         surfaceRemoved.value = false
         controller.reset()
+    }
+
+    /** Lo que decide si la línea sigue siendo la misma: ocultarla o marcarla como activa no cuenta (S027/RF-15). */
+    private data class LineSnapshot(val name: String, val code: PointCode?, val closed: Boolean, val vertices: List<VertexSnapshot>)
+
+    private data class VertexSnapshot(
+        val pointId: String,
+        val name: String,
+        val easting: Double?,
+        val northing: Double?,
+        val height: Double?,
+    )
+
+    private fun snapshotOf(data: StakeLineData) = LineSnapshot(
+        data.line.name,
+        data.line.code,
+        data.line.closed,
+        data.vertices.map { VertexSnapshot(it.pointId, it.name, it.easting, it.northing, it.height) },
+    )
+
+    // S027/RF-15: si la línea o uno de sus vértices cambia, o la línea se borra, con el replanteo abierto, se cierra sin recalcular.
+    private fun watchLine(lineId: String, opened: StakeLineData) {
+        drawingWatcher?.cancel()
+        val baseline = snapshotOf(opened)
+        drawingWatcher = viewModelScope.launch {
+            stakeLines.observe(lineId).collect { data ->
+                val reason = when {
+                    data == null -> LineClosedReason.LINE_DELETED
+                    snapshotOf(data) != baseline -> LineClosedReason.LINE_CHANGED
+                    else -> null
+                }
+                if (reason != null && model.value != null && model.value?.closed == null) {
+                    model.value = model.value?.copy(closed = reason)
+                    controller.reset()
+                    log.info(LogCategory.POINTS, "Replanteo de una línea cerrado: la línea cambió o se borró")
+                }
+            }
+        }
     }
 
     // S041/RF-31: si el dibujo de la línea se borra con el replanteo abierto, se cierra y se dice por qué.

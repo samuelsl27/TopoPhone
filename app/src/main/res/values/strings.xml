@@ -2654,4 +2654,6 @@
     <string name="line_stakeout_missing_heights">Sin altura en los vértices: %1$s. Donde no hay cota se puede escribir una o usar la superficie activa.</string>
     <string name="line_stakeout_no_height_here">Sin cota de diseño en este objetivo: escribe una cota a mano o activa una superficie.</string>
     <string name="point_stakeout_line">Línea</string>
+    <string name="stakeout_line_closed_line_deleted">Se ha borrado la línea y el replanteo se ha cerrado.</string>
+    <string name="stakeout_line_closed_line_changed">La línea o uno de sus vértices ha cambiado y el replanteo se ha cerrado: ábrelo de nuevo con la línea nueva.</string>
 </resources>

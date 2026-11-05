@@ -26,7 +26,7 @@
       Hecho cuando: `PointDetailsLineTest` en verde.
 - [x] T12. `core:formats` y `app`: columna «Line» en el informe de replanteo y golden actualizados. (RF-14)
       Hecho cuando: `StakeoutReportCsvLineTest`, `StakeoutReportLineTest` y los golden de S019 y S041 en verde.
-- [ ] T13. `app`: cerrar el replanteo si la línea o un vértice cambia, o la línea se borra, con el motivo. (RF-15, RF-16)
+- [x] T13. `app`: cerrar el replanteo si la línea o un vértice cambia, o la línea se borra, con el motivo. (RF-15, RF-16)
       Hecho cuando: `LineStakeoutClosedTest` y `LineDeletedKeepsPointsTest` en verde.
 - [ ] T14. `app`: «Replantear» en la ficha de la línea, en la hoja que se abre al tocar la línea en el mapa y en el menú «⋮» de la fila de la lista de objetos. (RF-1)
       Hecho cuando: `LineActionsTest` en verde y los tests de S025 de la ficha y del mapa adaptados o intactos.

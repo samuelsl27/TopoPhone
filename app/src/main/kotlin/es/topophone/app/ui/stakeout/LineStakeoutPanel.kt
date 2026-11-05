@@ -145,8 +145,13 @@ fun LineStakeoutPanel(
             Header(state, actions)
             val element = state.element
             if (state.closed != null) {
+                val reason = when (state.closed) {
+                    LineClosedReason.LINE_DELETED -> R.string.stakeout_line_closed_line_deleted
+                    LineClosedReason.LINE_CHANGED -> R.string.stakeout_line_closed_line_changed
+                    else -> R.string.stakeout_line_closed_drawing
+                }
                 Text(
-                    stringResource(R.string.stakeout_line_closed_drawing),
+                    stringResource(reason),
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }.testTag(LINE_CLOSED_TAG),
                 )

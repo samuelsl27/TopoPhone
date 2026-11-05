@@ -2642,4 +2642,6 @@
     <string name="line_stakeout_missing_heights">No height on the vertices: %1$s. Where there is no elevation you can type one or use the active surface.</string>
     <string name="line_stakeout_no_height_here">No design elevation at this target: type one or activate a surface.</string>
     <string name="point_stakeout_line">Line</string>
+    <string name="stakeout_line_closed_line_deleted">The line was deleted and the stakeout was closed.</string>
+    <string name="stakeout_line_closed_line_changed">The line or one of its vertices changed and the stakeout was closed: open it again with the new line.</string>
 </resources>
