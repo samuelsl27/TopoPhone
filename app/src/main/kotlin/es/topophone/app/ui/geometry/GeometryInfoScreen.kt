@@ -108,34 +108,38 @@ fun GeometryInfoScreen(
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
     ) { padding ->
-        if (!state.loaded) return@SectionScaffold
-        val info = state.info
-        val tableScroll = rememberScrollState()
-        LazyColumn(
-            modifier = Modifier.padding(padding).padding(horizontal = 16.dp).testTag(GEOMETRY_INFO_TAG),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            item(key = "mode") { ModeSelector(state, actions) }
-            if (info == null) {
-                item(key = "problem") {
-                    val text = when (state.problem) {
-                        GeometryProblem.NO_POSITION -> R.string.geometry_problem_no_position
-                        else -> R.string.geometry_problem_too_few
-                    }
-                    Text(stringResource(text), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag(GEOMETRY_PROBLEM_TAG))
+        GeometryInfoList(state, actions, Modifier.padding(padding))
+    }
+}
+
+/** El contenido de la información: selector, totales, avisos, exportación y tabla. Lo comparten la pantalla y el diálogo de un dibujo. */
+@Composable
+fun GeometryInfoList(state: GeometryInfoUi, actions: GeometryInfoActions, modifier: Modifier = Modifier) {
+    if (!state.loaded) return
+    val info = state.info
+    val tableScroll = rememberScrollState()
+    LazyColumn(
+        modifier = modifier.padding(horizontal = 16.dp).testTag(GEOMETRY_INFO_TAG),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        item(key = "mode") { ModeSelector(state, actions) }
+        if (info == null) {
+            item(key = "problem") {
+                val text = when (state.problem) {
+                    GeometryProblem.NO_POSITION -> R.string.geometry_problem_no_position
+                    else -> R.string.geometry_problem_too_few
                 }
-            } else {
-                item(key = "totals") { Totals(state, info) }
-                item(key = "notices") { Notices(state, info) }
+                Text(stringResource(text), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag(GEOMETRY_PROBLEM_TAG))
             }
-            item(key = "export") { Export(state) }
-            if (info != null) {
-                item(key = "table-title") {
-                    Text(stringResource(R.string.geometry_table_title), style = MaterialTheme.typography.titleMedium)
-                }
-                item(key = "table-head") { TableHeader(state, tableScroll) }
-                items(info.segments, key = { it.index }) { segment -> SegmentRow(segment, state, tableScroll) }
-            }
+        } else {
+            item(key = "totals") { Totals(state, info) }
+            item(key = "notices") { Notices(state, info) }
+        }
+        item(key = "export") { Export(state) }
+        if (info != null) {
+            item(key = "table-title") { Text(stringResource(R.string.geometry_table_title), style = MaterialTheme.typography.titleMedium) }
+            item(key = "table-head") { TableHeader(state, tableScroll) }
+            items(info.segments, key = { it.index }) { segment -> SegmentRow(segment, state, tableScroll) }
         }
     }
 }
@@ -191,7 +195,7 @@ private fun Totals(state: GeometryInfoUi, info: es.topophone.core.survey.geometr
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             TotalRow(R.string.geometry_length_2d, length(info.length2D), GEOMETRY_LENGTH_2D_TAG)
-            TotalRow(R.string.geometry_length_3d, length(info.length3D), GEOMETRY_LENGTH_3D_TAG)
+            if (!state.planOnly) TotalRow(R.string.geometry_length_3d, length(info.length3D), GEOMETRY_LENGTH_3D_TAG)
             info.perimeter?.let { TotalRow(R.string.geometry_perimeter, length(it), GEOMETRY_PERIMETER_TAG) }
             info.area?.let {
                 val area = "${AreaFormat.inUnit(it, state.linearUnit, locale)} ${AreaFormat.unitSymbol(state.linearUnit)}"
@@ -222,7 +226,7 @@ private fun TotalRow(label: Int, value: String, tag: String) {
 private fun Notices(state: GeometryInfoUi, info: es.topophone.core.survey.geometry.GeometryInfo) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         if (info.crosses) Notice(stringResource(R.string.geometry_notice_crosses), GEOMETRY_NOTICE_CROSSES_TAG)
-        if (info.missingHeightSegments.isNotEmpty()) {
+        if (!state.planOnly && info.missingHeightSegments.isNotEmpty()) {
             val listed = info.missingHeightSegments.take(LISTED_SEGMENTS).joinToString(", ") { (it + 1).toString() }
             val more = if (info.missingHeightSegments.size > LISTED_SEGMENTS) ", …" else ""
             Notice(stringResource(R.string.geometry_notice_missing_height, listed + more), GEOMETRY_NOTICE_MISSING_HEIGHT_TAG)
@@ -257,10 +261,12 @@ private fun TableHeader(state: GeometryInfoUi, scroll: androidx.compose.foundati
         Cell(stringResource(R.string.geometry_col_to), NAME_WIDTH, header = true)
         Cell("${stringResource(R.string.geometry_col_chainage)} ($unit)", VALUE_WIDTH, header = true)
         Cell("${stringResource(R.string.geometry_col_length_2d)} ($unit)", VALUE_WIDTH, header = true)
-        Cell("${stringResource(R.string.geometry_col_length_3d)} ($unit)", VALUE_WIDTH, header = true)
+        if (!state.planOnly) Cell("${stringResource(R.string.geometry_col_length_3d)} ($unit)", VALUE_WIDTH, header = true)
         Cell(stringResource(R.string.geometry_col_azimuth), AZIMUTH_WIDTH, header = true)
-        Cell("${stringResource(R.string.geometry_col_delta)} ($unit)", VALUE_WIDTH, header = true)
-        Cell(stringResource(R.string.geometry_col_slope), SLOPE_WIDTH, header = true)
+        if (!state.planOnly) {
+            Cell("${stringResource(R.string.geometry_col_delta)} ($unit)", VALUE_WIDTH, header = true)
+            Cell(stringResource(R.string.geometry_col_slope), SLOPE_WIDTH, header = true)
+        }
     }
 }
 
@@ -281,10 +287,12 @@ private fun SegmentRow(segment: SegmentInfo, state: GeometryInfoUi, scroll: andr
         Cell(to, NAME_WIDTH)
         Cell(length(segment.chainage), VALUE_WIDTH)
         Cell(length(segment.length2D), VALUE_WIDTH)
-        Cell(length(segment.length3D), VALUE_WIDTH)
+        if (!state.planOnly) Cell(length(segment.length3D), VALUE_WIDTH)
         Cell(AngleFormat.direction(segment.azimuthRad, state.angularUnit, locale), AZIMUTH_WIDTH)
-        Cell(length(segment.deltaHeight), VALUE_WIDTH)
-        Cell(segment.slopePercent?.let { SlopeFormat.percent(it, locale) } ?: MISSING_TEXT, SLOPE_WIDTH)
+        if (!state.planOnly) {
+            Cell(length(segment.deltaHeight), VALUE_WIDTH)
+            Cell(segment.slopePercent?.let { SlopeFormat.percent(it, locale) } ?: MISSING_TEXT, SLOPE_WIDTH)
+        }
     }
 }
 

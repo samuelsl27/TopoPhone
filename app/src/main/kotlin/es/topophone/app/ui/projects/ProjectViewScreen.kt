@@ -95,6 +95,8 @@ import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.collector.CollectorViewModel
 import es.topophone.app.ui.collector.SurfaceReading
 import es.topophone.app.ui.collector.rememberCollectorPhotoLaunchers
+import es.topophone.app.ui.geometry.DesignGeometryDialog
+import es.topophone.app.ui.geometry.DesignGeometryInput
 import es.topophone.app.ui.linear.AxisSurveyActions
 import es.topophone.app.ui.linear.AxisSurveyMarkers
 import es.topophone.app.ui.linear.AxisSurveyPanel
@@ -1038,6 +1040,7 @@ fun ProjectViewScreen(
     var drawingsOpen by rememberSaveable { mutableStateOf(false) }
     var surfacesOpen by rememberSaveable { mutableStateOf(false) }
     var convertOpen by rememberSaveable { mutableStateOf(false) }
+    var designInfoOpen by rememberSaveable { mutableStateOf(false) } // S026/RF-1
     var alignmentsOpen by rememberSaveable { mutableStateOf(false) }
     var bottomInsetPx by remember { mutableIntStateOf(0) }
     SectionScaffold(
@@ -1373,6 +1376,13 @@ fun ProjectViewScreen(
             onDismiss = onDismissDesignSelection,
             onStakeout = onStakeoutElement,
             onConvertToAxis = { convertOpen = true },
+            onInformation = { designInfoOpen = true },
+        )
+    }
+    if (designInfoOpen && designSelection != null && project != null) {
+        DesignGeometryDialog(
+            DesignGeometryInput(designSelection, project.name, project.crs, project.linearUnit, project.angularUnit),
+            onDismiss = { designInfoOpen = false },
         )
     }
     if (convertOpen && designSelection != null && project != null) {

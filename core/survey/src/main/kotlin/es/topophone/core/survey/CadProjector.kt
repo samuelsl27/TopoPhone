@@ -1,8 +1,5 @@
 package es.topophone.core.survey
 
-import es.topophone.core.geodesy.Ed50
-import es.topophone.core.geodesy.Ellipsoid
-import es.topophone.core.geodesy.Utm
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadIgnoredReason
 import es.topophone.core.model.cad.CadImportOptions
@@ -10,6 +7,7 @@ import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.survey.geometry.GroundPosition
 
 /** Lo que sale de pasar un elemento al sistema del proyecto (S040/RF-17). */
 sealed interface CadProjection {
@@ -82,17 +80,7 @@ class CadProjector(
         }
     }
 
-    /**
-     * Latitud y longitud ETRS89 o REGCAN95 del punto (Este, Norte) UTM de [zone], o (longitud, latitud) si [zone] es null; null si
-     * es ED50 y cae fuera de la rejilla.
-     */
-    private fun ground(datum: GeodeticDatum, first: Double, second: Double, zone: Int?): Pair<Double, Double>? {
-        val (lat, lon) = if (zone != null) {
-            val ellipsoid = if (datum == GeodeticDatum.ED50) Ellipsoid.INTERNATIONAL_1924 else Ellipsoid.GRS80
-            Utm.inverse(first, second, zone, ellipsoid).let { it.latitudeDeg to it.longitudeDeg }
-        } else {
-            second to first
-        }
-        return if (datum == GeodeticDatum.ED50) Ed50.toEtrs89(lat, lon) else lat to lon
-    }
+    /** La latitud y la longitud ETRS89 o REGCAN95 del punto; null si es ED50 y cae fuera de la rejilla (S026: [GroundPosition]). */
+    private fun ground(datum: GeodeticDatum, first: Double, second: Double, zone: Int?): Pair<Double, Double>? =
+        GroundPosition.of(datum, first, second, zone)
 }

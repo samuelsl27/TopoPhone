@@ -26,7 +26,7 @@
       Hecho cuando: `GeometryInfoScreenTest` en verde, con `performScrollToNode` en la tabla.
 - [x] T12. `app`: «Exportar tabla» con el selector de ficheros y el FileProvider. (RF-8)
       Hecho cuando: `GeometryExportTest` en verde.
-- [ ] T13. `app`: información de una línea de un dibujo desde su hoja, con y sin cota. (RF-1, RF-4)
+- [x] T13. `app`: información de una línea de un dibujo desde su hoja, con y sin cota. (RF-1, RF-4)
       Hecho cuando: `CadLineInfoTest` en verde.
 - [ ] T14. `app`: «Ángulo entre tres puntos» en la lista de objetos y en la ficha de la línea. (RF-13, RF-14, RF-15)
       Hecho cuando: `ThreePointAngleTest` de `app` en verde.

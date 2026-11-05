@@ -2613,4 +2613,5 @@
     <string name="geometry_problem_too_few">At least 2 vertices (3 for a polygon) are needed to compute.</string>
     <string name="geometry_problem_no_position">A vertex has no position: it cannot be computed.</string>
     <string name="geometry_export_title">Export table</string>
+    <string name="geometry_close">Close</string>
 </resources>

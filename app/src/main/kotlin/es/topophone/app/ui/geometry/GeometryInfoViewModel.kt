@@ -45,6 +45,8 @@ data class GeometryInfoUi(
     /** El nombre de cada vértice, en el orden de la línea. */
     val names: List<String> = emptyList(),
     val problem: GeometryProblem? = null,
+    /** Solo magnitudes en planta: una línea de un dibujo sin cota no tiene longitud 3D, desnivel ni pendiente (S026/RF-4). */
+    val planOnly: Boolean = false,
 )
 
 /**
