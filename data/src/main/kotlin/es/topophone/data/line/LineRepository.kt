@@ -72,8 +72,20 @@ data class LineUpdate(val name: String? = null, val pointIds: List<String>? = nu
 /** Una línea en la papelera con los días que le quedan antes de borrarse del todo (S025/RF-24). */
 data class TrashedLine(val line: ProjectLine, val daysLeft: Int)
 
-/** El punto de un vértice con su nombre y sus coordenadas planas, para la ficha de la línea (S025/RF-16). */
-data class VertexPoint(val pointId: String, val name: String, val easting: Double?, val northing: Double?)
+/**
+ * El punto de un vértice con su nombre, sus coordenadas planas, la altura del proyecto y su posición geodésica, para la ficha de la
+ * línea y su información geométrica (S025/RF-16, S026/RF-3, RF-5).
+ */
+data class VertexPoint(
+    val pointId: String,
+    val name: String,
+    val easting: Double?,
+    val northing: Double?,
+    val height: Double? = null,
+    val latitudeDeg: Double? = null,
+    val longitudeDeg: Double? = null,
+    val ellipsoidalHeightM: Double? = null,
+)
 
 /** Una línea nueva a partir de puntos que ya existen (S025/RF-12 a RF-15). [name] vacío usa el nombre propuesto. */
 data class NewLine(
@@ -217,7 +229,9 @@ class RoomLineRepository(
     }
 
     override fun vertexPoints(id: String): Flow<List<VertexPoint>> = snapshot("line_vertices", "points") {
-        dao.vertexPointsNow(id).map { VertexPoint(it.pointId, it.name, it.easting, it.northing) }
+        dao.vertexPointsNow(id).map {
+            VertexPoint(it.pointId, it.name, it.easting, it.northing, it.height, it.latitudeDeg, it.longitudeDeg, it.ellipsoidalHeightM)
+        }
     }
 
     override fun history(id: String): Flow<List<LineHistoryEntry>> =

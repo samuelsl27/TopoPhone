@@ -18,7 +18,7 @@
       Hecho cuando: `GeometryCsvTest` en verde con `Locale.ROOT`, unidades en la cabecera y fila de totales.
 - [x] T8. `data`: `GeometryPreferences` y su binding. (RF-9)
       Hecho cuando: `GeometryPreferencesTest` en verde con valor por defecto y persistencia.
-- [ ] T9. `data`: `VertexPoint` con altura y posición geodésica. (RF-3, RF-5)
+- [x] T9. `data`: `VertexPoint` con altura y posición geodésica. (RF-3, RF-5)
       Hecho cuando: `VertexPointTest` en verde y los tests de S025 intactos.
 - [ ] T10. `app`: `GeometryInput` (desde `VertexPoint`) y `GeometryInfoViewModel`: modo recordado, cálculo en segundo plano, recalcular al editar un vértice y motivo con menos de 2 vértices. (RF-5, RF-7, RF-9)
       Hecho cuando: `GeometryInfoViewModelTest` en verde sin modificar ningún dato.
