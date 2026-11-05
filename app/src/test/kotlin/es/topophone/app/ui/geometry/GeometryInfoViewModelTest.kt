@@ -26,6 +26,7 @@ import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,6 +74,8 @@ class GeometryInfoViewModelTest {
     @After
     fun tearDown() {
         viewModels.forEach { it.viewModelScope.cancel() }
+        // Esperar a que acabe lo que estaba en vuelo: si no, la consulta falla despues de cerrar la base y rompe otro test.
+        runBlocking { viewModels.forEach { it.viewModelScope.coroutineContext[Job]?.join() } }
         db.close()
         Dispatchers.resetMain()
     }

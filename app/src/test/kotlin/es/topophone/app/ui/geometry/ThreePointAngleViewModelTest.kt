@@ -27,6 +27,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,6 +75,8 @@ class ThreePointAngleViewModelTest {
     @After
     fun tearDown() {
         viewModels.forEach { it.viewModelScope.cancel() }
+        // Esperar a que acabe lo que estaba en vuelo: si no, la consulta falla despues de cerrar la base y rompe otro test.
+        runBlocking { viewModels.forEach { it.viewModelScope.coroutineContext[Job]?.join() } }
         db.close()
         Dispatchers.resetMain()
     }

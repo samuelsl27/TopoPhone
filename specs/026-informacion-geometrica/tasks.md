@@ -34,5 +34,5 @@
       Hecho cuando: `GeometryPerformanceTest` en verde (menos de 1 s, sin bloquear el hilo principal más de 16 ms).
 - [x] T16. Accesibilidad y textos: etiquetas, 56 dp, tabla monoespaciada, es/en y sin literales en código. (RNF-T7, RNF-T8)
       Hecho cuando: `GeometryAccessibilityTest` en verde.
-- [ ] T17. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files` y la demo en el emulador.
+- [x] T17. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files` y la demo en el emulador.
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, la demo de la spec funciona y la hoja de ruta marca S026 como implementada.
