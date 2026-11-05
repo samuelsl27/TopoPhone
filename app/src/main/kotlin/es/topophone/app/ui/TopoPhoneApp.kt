@@ -49,6 +49,7 @@ import es.topophone.app.ui.codes.ProjectCodesRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
 import es.topophone.app.ui.geometry.GeometryInfoRoute
+import es.topophone.app.ui.geometry.ThreePointAngleRoute
 import es.topophone.app.ui.gpkg.GpkgImportRoute
 import es.topophone.app.ui.linear.LinearSurveysRoute
 import es.topophone.app.ui.lines.LineDetailsRoute
@@ -384,6 +385,7 @@ private fun AppNavHost(
                 onEditProjectCode = { id, codeId -> navController.navigate(ProjectCodeEditorDestination(id, codeId)) }, // S024/RF-7
                 onOpenObjects = { id -> navController.navigate(ObjectListDestination(id)) }, // S011/RF-1
                 onLineFromPoints = { id -> navController.navigate(LineFromPointsDestination(id)) }, // S025/RF-12
+                onThreePointAngle = { id -> navController.navigate(ThreePointAngleDestination(id)) }, // S026/RF-13
                 onOpenLine = { projectId, lineId -> navController.navigate(LineDestination(projectId, lineId)) }, // S025/RF-22
                 onOpenPoint = { projectId, pointId -> navController.navigate(PointDestination(projectId, pointId)) }, // S011/RF-5
                 onNewPoint = { projectId -> navController.navigate(PointFormDestination(projectId)) }, // S011/RF-16
@@ -768,7 +770,12 @@ private fun AppNavHost(
                     uiState.themeState,
                     actions.onToggleSun,
                     onInformation = { navController.navigate(GeometryInfoDestination(args.projectId, args.lineId)) }, // S026/RF-1
+                    onAngle = { navController.navigate(ThreePointAngleDestination(args.projectId, args.lineId)) }, // S026/RF-13
                 ) { navController.popBackStack() }
+            }
+            composable<ThreePointAngleDestination> { entry ->
+                val args = entry.toRoute<ThreePointAngleDestination>()
+                ThreePointAngleRoute(args.projectId, args.lineId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<GeometryInfoDestination> { entry ->
                 val args = entry.toRoute<GeometryInfoDestination>()

@@ -92,6 +92,9 @@ import kotlinx.serialization.Serializable
 /** La información geométrica de una línea o un polígono del proyecto (S026/RF-1). */
 @Serializable data class GeometryInfoDestination(val projectId: String, val lineId: String)
 
+/** El ángulo entre tres puntos del proyecto o, con [lineId], de los vértices de una línea (S026/RF-13). */
+@Serializable data class ThreePointAngleDestination(val projectId: String, val lineId: String? = null)
+
 /** Ficha de un punto (S011/RF-5). */
 @Serializable data class PointDestination(val projectId: String, val pointId: String)
 

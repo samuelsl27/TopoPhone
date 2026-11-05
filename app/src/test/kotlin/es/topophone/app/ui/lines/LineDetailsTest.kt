@@ -495,4 +495,14 @@ class LineDetailsTest {
 
         opened shouldBe true
     }
+
+    @Test
+    fun `S026 RF-13 la ficha tiene el boton Angulo con los vertices de la linea`() {
+        var opened = false
+        show(ui, LineDetailsActions(onAngle = { opened = true }))
+
+        compose.onNodeWithTag(LINE_ANGLE_TAG).performScrollTo().performClick()
+
+        opened shouldBe true
+    }
 }

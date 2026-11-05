@@ -69,6 +69,7 @@ const val LINE_ATTRIBUTES_SAVE_TAG = "line_attributes_save"
 const val LINE_ISSUE_TAG = "line_issue"
 const val LINE_HISTORY_BUTTON_TAG = "line_history_button"
 const val LINE_INFORMATION_TAG = "line_information_button"
+const val LINE_ANGLE_TAG = "line_angle_button"
 const val LINE_HISTORY_TAG = "line_history"
 const val LINE_PICKER_SEARCH_TAG = "line_picker_search"
 const val LINE_DELETE_TAG = "line_delete"
@@ -115,6 +116,8 @@ class LineDetailsActions(
     val onDelete: () -> Unit = {},
     /** Abre la información geométrica de la línea (S026/RF-1). */
     val onInformation: () -> Unit = {},
+    /** Abre el ángulo entre tres vértices de la línea (S026/RF-13). */
+    val onAngle: () -> Unit = {},
 )
 
 @Composable
@@ -124,6 +127,7 @@ fun LineDetailsRoute(
     themeState: ThemeState,
     onToggleSun: () -> Unit,
     onInformation: () -> Unit = {},
+    onAngle: () -> Unit = {},
     viewModel: LineDetailsViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
@@ -156,6 +160,7 @@ fun LineDetailsRoute(
             onAttributesCancel = viewModel::cancelAttributes,
             onDelete = viewModel::delete,
             onInformation = onInformation,
+            onAngle = onAngle,
         ),
         onBack = onBack,
     )
@@ -268,6 +273,10 @@ private fun Header(line: ProjectLine, state: LineDetailsUi, actions: LineDetails
             onClick = actions.onInformation,
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_INFORMATION_TAG),
         ) { Text(stringResource(R.string.geometry_button)) }
+        OutlinedButton(
+            onClick = actions.onAngle,
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_ANGLE_TAG),
+        ) { Text(stringResource(R.string.angle_button)) }
         OutlinedButton(
             onClick = onHistory,
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_HISTORY_BUTTON_TAG),

@@ -2626,4 +2626,22 @@
     <string name="geometry_problem_no_position">Algún vértice no tiene posición: no se puede calcular.</string>
     <string name="geometry_export_title">Exportar tabla</string>
     <string name="geometry_close">Cerrar</string>
+    <string name="angle_title">Ángulo entre tres puntos</string>
+    <string name="angle_button">Ángulo</string>
+    <string name="angle_slot_a">Punto A</string>
+    <string name="angle_slot_b">Punto B (vértice)</string>
+    <string name="angle_slot_c">Punto C</string>
+    <string name="angle_choose">Elegir %1$s</string>
+    <string name="angle_slot_value">%1$s: %2$s</string>
+    <string name="angle_hint">Elige los tres puntos para calcular el ángulo en B entre las direcciones a A y a C.</string>
+    <string name="angle_result">Ángulo en B</string>
+    <string name="angle_azimuth_ba">Azimut BA</string>
+    <string name="angle_azimuth_bc">Azimut BC</string>
+    <string name="angle_distance_ba">Distancia BA</string>
+    <string name="angle_distance_bc">Distancia BC</string>
+    <string name="angle_pair">%1$s (%2$s) y %3$s (%4$s)</string>
+    <string name="angle_coincident">Tienen las mismas coordenadas horizontales: %1$s. No se calcula el ángulo.</string>
+    <string name="angle_picker_title">Elige: %1$s</string>
+    <string name="angle_search">Buscar</string>
+    <string name="angle_no_points">No hay puntos que elegir.</string>
 </resources>

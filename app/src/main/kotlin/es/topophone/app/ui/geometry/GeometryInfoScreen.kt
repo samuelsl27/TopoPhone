@@ -122,7 +122,7 @@ fun GeometryInfoList(state: GeometryInfoUi, actions: GeometryInfoActions, modifi
         modifier = modifier.padding(horizontal = 16.dp).testTag(GEOMETRY_INFO_TAG),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        item(key = "mode") { ModeSelector(state, actions) }
+        item(key = "mode") { ModeSelector(state.mode, actions.onMode) }
         if (info == null) {
             item(key = "problem") {
                 val text = when (state.problem) {
@@ -165,24 +165,25 @@ private fun Export(state: GeometryInfoUi) {
     }
 }
 
+/** Elegir cuadrícula o terreno, diciendo siempre cuál está activa (S026/RF-9). */
 @Composable
-private fun ModeSelector(state: GeometryInfoUi, actions: GeometryInfoActions) {
+internal fun ModeSelector(mode: DistanceMode, onMode: (DistanceMode) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.padding(top = 12.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             FilterChip(
-                selected = state.mode == DistanceMode.GRID,
-                onClick = { actions.onMode(DistanceMode.GRID) },
+                selected = mode == DistanceMode.GRID,
+                onClick = { onMode(DistanceMode.GRID) },
                 label = { Text(stringResource(R.string.geometry_mode_grid)) },
                 modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(GEOMETRY_MODE_GRID_TAG),
             )
             FilterChip(
-                selected = state.mode == DistanceMode.GROUND,
-                onClick = { actions.onMode(DistanceMode.GROUND) },
+                selected = mode == DistanceMode.GROUND,
+                onClick = { onMode(DistanceMode.GROUND) },
                 label = { Text(stringResource(R.string.geometry_mode_ground)) },
                 modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(GEOMETRY_MODE_GROUND_TAG),
             )
         }
-        val active = if (state.mode == DistanceMode.GROUND) R.string.geometry_active_ground else R.string.geometry_active_grid
+        val active = if (mode == DistanceMode.GROUND) R.string.geometry_active_ground else R.string.geometry_active_grid
         Text(stringResource(active), style = MaterialTheme.typography.titleSmall, modifier = Modifier.testTag(GEOMETRY_ACTIVE_MODE_TAG))
     }
 }
@@ -231,22 +232,26 @@ private fun Notices(state: GeometryInfoUi, info: es.topophone.core.survey.geomet
             val more = if (info.missingHeightSegments.size > LISTED_SEGMENTS) ", …" else ""
             Notice(stringResource(R.string.geometry_notice_missing_height, listed + more), GEOMETRY_NOTICE_MISSING_HEIGHT_TAG)
         }
-        if (GeometryNotice.LOCAL_PLANE in info.notices || state.geographic) {
+        FactorNotices(info.notices, localPlane = state.geographic)
+    }
+}
+
+/** Los avisos del plano local y del factor combinado, comunes a la información y al ángulo (S026/RF-10, RF-11). */
+@Composable
+internal fun FactorNotices(notices: Set<GeometryNotice>, localPlane: Boolean = false) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (GeometryNotice.LOCAL_PLANE in notices || localPlane) {
             Notice(stringResource(R.string.geometry_notice_local_plane), GEOMETRY_NOTICE_LOCAL_PLANE_TAG)
         }
-        if (GeometryNotice.NO_FACTOR in
-            info.notices
-        ) {
-            Notice(stringResource(R.string.geometry_notice_no_factor), GEOMETRY_NOTICE_NO_FACTOR_TAG)
-        }
-        if (GeometryNotice.FACTOR_WITHOUT_HEIGHT in info.notices) {
+        if (GeometryNotice.NO_FACTOR in notices) Notice(stringResource(R.string.geometry_notice_no_factor), GEOMETRY_NOTICE_NO_FACTOR_TAG)
+        if (GeometryNotice.FACTOR_WITHOUT_HEIGHT in notices) {
             Notice(stringResource(R.string.geometry_notice_factor_no_height), GEOMETRY_NOTICE_FACTOR_NO_HEIGHT_TAG)
         }
     }
 }
 
 @Composable
-private fun Notice(text: String, tag: String) {
+internal fun Notice(text: String, tag: String) {
     Card(modifier = Modifier.fillMaxWidth().testTag(tag).semantics(mergeDescendants = true) {}) {
         Text(text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(12.dp))
     }

@@ -2614,4 +2614,22 @@
     <string name="geometry_problem_no_position">A vertex has no position: it cannot be computed.</string>
     <string name="geometry_export_title">Export table</string>
     <string name="geometry_close">Close</string>
+    <string name="angle_title">Angle between three points</string>
+    <string name="angle_button">Angle</string>
+    <string name="angle_slot_a">Point A</string>
+    <string name="angle_slot_b">Point B (vertex)</string>
+    <string name="angle_slot_c">Point C</string>
+    <string name="angle_choose">Choose %1$s</string>
+    <string name="angle_slot_value">%1$s: %2$s</string>
+    <string name="angle_hint">Choose the three points to compute the angle at B between the directions to A and to C.</string>
+    <string name="angle_result">Angle at B</string>
+    <string name="angle_azimuth_ba">Azimuth BA</string>
+    <string name="angle_azimuth_bc">Azimuth BC</string>
+    <string name="angle_distance_ba">Distance BA</string>
+    <string name="angle_distance_bc">Distance BC</string>
+    <string name="angle_pair">%1$s (%2$s) and %3$s (%4$s)</string>
+    <string name="angle_coincident">They have the same horizontal coordinates: %1$s. The angle is not computed.</string>
+    <string name="angle_picker_title">Choose: %1$s</string>
+    <string name="angle_search">Search</string>
+    <string name="angle_no_points">There are no points to choose from.</string>
 </resources>

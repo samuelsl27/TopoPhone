@@ -103,6 +103,7 @@ const val OBJECT_LIST_TAG = "object_list"
 const val ADD_POINT_TAG = "add_point"
 const val OBJECTS_MENU_TAG = "objects_menu"
 const val OBJECTS_LINE_FROM_POINTS_TAG = "objects_line_from_points"
+const val OBJECTS_ANGLE_TAG = "objects_angle"
 const val OBJECT_SEARCH_TAG = "object_search"
 const val SELECTION_BAR_TAG = "selection_bar"
 const val SELECTION_HIDE_TAG = "selection_hide"
@@ -180,6 +181,8 @@ class ObjectListActions(
     val onBaseShift: () -> Unit = {},
     /** El asistente «Línea desde puntos» (S025/RF-12). */
     val onLineFromPoints: () -> Unit = {},
+    /** El ángulo entre tres puntos (S026/RF-13). */
+    val onThreePointAngle: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage (S048/RF-1). */
     val onImportGpkg: () -> Unit = {},
     /** Pregunta de dónde sale el eje y lo importa (S049/RF-1). */
@@ -396,6 +399,7 @@ fun ObjectListRoute(
             onImportRaster = { importRaster(projectId) },
             onBaseShift = { navigation.onBaseShift(projectId) }, // S020/RF-1
             onLineFromPoints = { navigation.onLineFromPoints(projectId) }, // S025/RF-12
+            onThreePointAngle = { navigation.onThreePointAngle(projectId) }, // S026/RF-13
             onImportGpkg = { importGpkg(projectId) },
             onImportAlignment = { importAlignment(projectId) },
             onStakeoutReportSelected = {
@@ -471,6 +475,7 @@ fun ObjectListScreen(
                 actions.onImportAlignment,
                 actions.onBaseShift,
                 actions.onLineFromPoints,
+                actions.onThreePointAngle,
             )
         },
         floatingActionButton = {
@@ -556,6 +561,7 @@ private fun ObjectsMenu(
     onImportAlignment: () -> Unit,
     onBaseShift: () -> Unit,
     onLineFromPoints: () -> Unit,
+    onThreePointAngle: () -> Unit,
 ) {
     var open by remember { mutableStateOf(false) }
     IconButton(onClick = { open = true }, modifier = Modifier.size(MinTouchTarget).testTag(OBJECTS_MENU_TAG)) {
@@ -634,6 +640,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECTS_LINE_FROM_POINTS_TAG),
         ) // S025/RF-12
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.angle_title)) },
+            onClick = {
+                open = false
+                onThreePointAngle()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECTS_ANGLE_TAG),
+        ) // S026/RF-13
         DropdownMenuItem(
             text = { Text(stringResource(R.string.base_shift_title)) },
             onClick = {

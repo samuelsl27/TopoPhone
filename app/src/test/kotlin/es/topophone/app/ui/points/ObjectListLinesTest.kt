@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -217,6 +218,7 @@ class ObjectListLinesTest {
                         onSetLineHidden = { id, hidden -> calls += "hidden:$id:$hidden" },
                         onDeleteSelected = { calls += "delete" },
                         onLineFromPoints = { calls += "wizard" },
+                        onThreePointAngle = { calls += "angle" },
                     ),
                     onBack = {},
                 )
@@ -283,5 +285,15 @@ class ObjectListLinesTest {
         compose.onNodeWithTag(OBJECTS_LINE_FROM_POINTS_TAG).performClick()
 
         calls shouldBe listOf("wizard")
+    }
+
+    @Test
+    fun `S026 RF-13 el menu de la lista ofrece Angulo entre tres puntos`() {
+        show(uiState)
+
+        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
+        compose.onNodeWithTag(OBJECTS_ANGLE_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("angle")
     }
 }
