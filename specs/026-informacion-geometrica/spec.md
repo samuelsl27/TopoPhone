@@ -1,6 +1,6 @@
 # Spec 026 — Información geométrica
 
-> Hito: H3 · Depende de: S025, S040, S008 · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H3 · Depende de: S025, S040, S008 · Estado: pendiente de aprobación (entrevistada 04/11/2026)
 
 ## Contexto y objetivo
 Después de levantar una línea o una parcela, lo primero que pregunta el cliente es cuánto mide: cuántos metros de bordillo, cuántos metros cuadrados de parcela, qué pendiente tiene la zanja. Hoy la app guarda los vértices (S025) pero no calcula nada con ellos, y el técnico lo hace después en QGIS o en una hoja de cálculo.
@@ -22,7 +22,7 @@ Términos de esta spec:
 - **Segmento**: el trozo de línea entre dos vértices consecutivos; un polígono tiene tantos segmentos como vértices, incluido el de cierre.
 - **Distancia de cuadrícula**: la medida en el plano del SC del proyecto (como S041/RF-15). **Distancia de terreno**: la de cuadrícula dividida por el factor combinado (S008).
 - **Longitud 2D**: la suma de las distancias horizontales de los segmentos; **longitud 3D**: la suma de las distancias inclinadas, con la altura de los vértices. **Perímetro**: la longitud 2D de un polígono.
-- **Área**: la superficie horizontal que encierra un polígono, calculada con la distancia elegida (de terreno: la de cuadrícula entre el factor combinado al cuadrado).
+- **Área**: la superficie horizontal que encierra un polígono, en el plano del SC (de terreno: la de cuadrícula dividida por el cuadrado del factor combinado calculado en el centro del polígono).
 - **Azimut** de un segmento: el ángulo horario desde el norte de cuadrícula, en el sentido de la línea (RNF-T9).
 - **Pendiente** de un segmento: el desnivel entre sus extremos dividido por su distancia horizontal, en porcentaje.
 - **Ángulo entre tres puntos**: el ángulo en el punto central B entre las direcciones a A y a C, de 0° a 180°.
@@ -33,18 +33,18 @@ Términos de esta spec:
 - RF-3: SI algún vértice no tiene altura, ENTONCES EL SISTEMA no mostrará la longitud 3D total ni el desnivel y la pendiente de los segmentos afectados, e indicará los segmentos sin altura; la longitud 2D y el área no dependen de la altura.
 - RF-4: SI una línea de un dibujo no tiene cota (S040), ENTONCES EL SISTEMA mostrará solo las magnitudes en planta.
 - RF-5: MIENTRAS la información de una línea del proyecto esté abierta y se edite un vértice o un punto (S025, S011), EL SISTEMA recalculará todas las cifras.
-- RF-6: SI los segmentos de un polígono se cruzan entre sí, ENTONCES EL SISTEMA lo avisará y mostrará el área sin garantía de ser la de un polígono simple.
+- RF-6: SI los segmentos de un polígono se cruzan entre sí, ENTONCES EL SISTEMA lo avisará y mostrará el área con signo (las zonas recorridas en sentidos opuestos se restan), indicando que no es la de un polígono simple.
 - RF-7: SI la línea tiene menos de 2 vértices, ENTONCES EL SISTEMA no calculará nada e indicará el motivo.
-- RF-8: CUANDO el usuario pulse "Exportar tabla", EL SISTEMA escribirá la tabla de segmentos en un CSV en UTF-8, con punto decimal y las unidades del proyecto indicadas en la cabecera (RNF-T9), y la guardará con el selector de ficheros o la compartirá con el FileProvider (RNF-T5).
+- RF-8: CUANDO el usuario pulse "Exportar tabla", EL SISTEMA escribirá en un CSV en UTF-8, con punto decimal, la tabla de segmentos seguida de una fila de totales (longitud 2D, longitud 3D y, si es un polígono, perímetro y área), con la distancia activa y las unidades del proyecto indicadas en la cabecera (RNF-T9), y la guardará con el selector de ficheros o la compartirá con el FileProvider (RNF-T5).
 
 ### Distancias de cuadrícula o de terreno (H4)
 - RF-9: EL SISTEMA permitirá elegir en la información "Cuadrícula" o "Terreno", recordará la elección para todos los proyectos y mostrará siempre cuál está activa.
-- RF-10: DONDE se elija "Terreno", EL SISTEMA dividirá cada distancia de cuadrícula por el factor combinado de S008 calculado en el centro del segmento, con la altura de los vértices o, si no la tienen, con la del proyecto.
+- RF-10: DONDE se elija "Terreno", EL SISTEMA dividirá la distancia de cuadrícula de cada segmento por el factor combinado de S008 calculado en el centro de ese segmento, con la altura de los vértices o, si no la tienen, con la del proyecto.
 - RF-11: DONDE el SC del proyecto sea geográfico, EL SISTEMA calculará las distancias en el plano local de S041/RF-15 y lo indicará.
 - RF-12: EL SISTEMA mostrará las cifras en las unidades lineales y angulares del proyecto (m², ft² y usft² para el área; el azimut en DD, DMS o gon) y la pendiente siempre en porcentaje.
 
 ### Ángulo entre tres puntos (H3)
-- RF-13: CUANDO el usuario elija "Ángulo" en el menú de la lista de objetos o del mapa, EL SISTEMA le pedirá tres puntos del proyecto (o tres vértices de una línea) como A, B y C, desde la lista o tocándolos.
+- RF-13: CUANDO el usuario elija "Ángulo" en el menú de la lista de objetos o del mapa, EL SISTEMA le pedirá tres puntos del proyecto (o tres vértices de una línea) como A, B y C, desde la lista.
 - RF-14: EL SISTEMA mostrará el ángulo en B entre las direcciones a A y a C, y los azimuts de BA y BC, y la distancia BA y BC con la distancia activa.
 - RF-15: SI dos de los tres puntos tienen las mismas coordenadas horizontales, ENTONCES EL SISTEMA no calculará el ángulo e indicará cuáles.
 
@@ -73,6 +73,7 @@ Términos de esta spec:
 - Inversa, poligonal e intersecciones con resultado guardado como punto → S038.
 - Cambiar el proyecto entero a distancias de terreno (el SC de terreno del proyecto) → S035.
 - Medir sobre el mapa con el dedo sin puntos → no previsto.
+- Elegir A, B y C tocándolos en el mapa (como el RF-12 de S025, aún sin hacer) → no previsto.
 - Área sobre el elipsoide o geodésica → no previsto.
 - Volúmenes y áreas de una superficie → no previsto.
 - Guardar el resultado como informe o añadirlo a la ficha de la línea → no previsto.
@@ -87,12 +88,18 @@ Términos de esta spec:
 - Demo de campo: queda para el usuario (una parcela medida con el RS3 y comparada con su área en catastro).
 
 ## Dudas abiertas
-- [SUPOSICIÓN: la longitud 3D usa la distancia horizontal elegida (cuadrícula o terreno) y el desnivel; la altura es la del proyecto, sin corregir por curvatura.]
-- [SUPOSICIÓN: el factor combinado de terreno se toma en el centro de cada segmento (RF-10); si el usuario prefiere uno único para todo el proyecto, se cambia.]
-- [SUPOSICIÓN: el área es horizontal (plano del SC o de terreno), no el área de la superficie inclinada.]
+- [SUPOSICIÓN: la altura es la de los puntos del proyecto, sin corregir por curvatura terrestre ni refracción.]
 - [SUPOSICIÓN: el azimut es el de cuadrícula, no el geodésico; la diferencia es la convergencia de meridianos (S008).]
 - [SUPOSICIÓN: la información cubre también las líneas de un dibujo CAD (RF-1), porque S041 la dejó aquí; por eso S026 depende además de S040 y S008.]
-- [SUPOSICIÓN: la elección entre cuadrícula y terreno se recuerda para todos los proyectos, no por proyecto.]
+
+## Decisiones de la entrevista (04/11/2026)
+- Elegir A, B y C del ángulo solo desde la lista; tocar el mapa queda fuera de alcance y S025/RF-12 sigue sin hacer (RF-13).
+- En «Terreno» cada segmento usa el factor combinado de su centro, con la altura de sus vértices (RF-10).
+- La longitud 3D usa la distancia horizontal elegida y el desnivel; el área es siempre horizontal, sin área de superficie inclinada (RF-1).
+- La elección Cuadrícula/Terreno es global, para todos los proyectos (RF-9).
+- Con cruces, el área se muestra con signo y un aviso (RF-6).
+- El CSV lleva los segmentos y una fila de totales (RF-8).
+- Sin preguntar, por defecto razonable: el área de terreno usa un único factor, el del centro del polígono, porque un área no se reparte por segmentos; las líneas abiertas no tienen perímetro ni área; la pendiente indefinida de un segmento vertical se muestra «—».
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S026: dependencias «025, 040, 008».
