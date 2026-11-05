@@ -1,6 +1,6 @@
 # Spec 027 — Replanteo de líneas del proyecto
 
-> Hito: H3 · Depende de: S025, S041, S049 · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H3 · Depende de: S025, S041, S049 · Estado: pendiente de aprobación (entrevistada 05/11/2026)
 
 ## Contexto y objetivo
 Con S025 el proyecto tiene líneas y polígonos propios: una alineación de farolas medida el lunes, el borde de una parcela, una zanja replanteada sobre lo levantado. El topógrafo quiere volver a ellos con el jalón: ir a un vértice, acercarse a la línea, caminar a lo largo de ella a una distancia fija o marcar un punto cada cierto número de metros. Todo eso ya lo hace S041 para las líneas de un DXF, con su motor de cinco modos, su PK, su error lateral, su cota y sus avisos.
@@ -19,7 +19,7 @@ Esta spec **no escribe un motor nuevo**: abre el replanteo de línea de S041 con
 Términos de esta spec (los de S025 y S041 más):
 - **Replanteo de línea**, **modos**, **PK**, **desplazamiento lateral**, **distancia lateral**, **error lateral**, **punto más cercano**, **tolerancia**, **zona de ayuda**: los de S041 y S018.
 - **Línea de diseño**: la línea del proyecto (S025) que se replantea; sus vértices son sus puntos, en el orden y el sentido de la línea; un polígono es una línea cerrada.
-- **Línea con cota**: la línea de diseño cuyos vértices tienen todos altura.
+- **Cota de diseño de un objetivo**: la interpolada linealmente en su PK entre los dos vértices con altura que lo rodean; los vértices sin altura entre ellos se saltan. Antes del primer vértice con altura y después del último no hay cota de diseño.
 
 ### Abrir el replanteo (H1)
 - RF-1: CUANDO el usuario pulse "Replantear" en la ficha de una línea o un polígono del proyecto, en su menú de la lista de objetos o en su menú del mapa, EL SISTEMA abrirá el replanteo de línea de S041 con esa línea como línea de diseño y con el último modo elegido (S041/RF-2, RF-3).
@@ -33,16 +33,16 @@ Términos de esta spec (los de S025 y S041 más):
 - RF-7: SI un vértice es un punto en la papelera, ENTONCES EL SISTEMA no lo ofrecerá en la lista ni en la línea (S025/RF-25).
 
 ### La cota (H1)
-- RF-8: DONDE la línea sea de diseño con cota, EL SISTEMA tomará como cota de diseño la altura del punto de cada vértice y, a lo largo de la línea, la interpolada linealmente en el PK del objetivo (S041/RF-23).
-- RF-9: SI algún vértice no tiene altura, ENTONCES EL SISTEMA tratará la línea como sin cota, lo indicará con los vértices afectados y permitirá escribir una cota a mano y replantearla con la tolerancia vertical (S041/RF-24, S019).
-- RF-10: DONDE haya una superficie activa (S042) y la línea no tenga cota, EL SISTEMA tomará como cota de diseño en cada objetivo la de la superficie, como en una línea sin cota de un dibujo (S042/RF-24).
+- RF-8: DONDE el objetivo tenga cota de diseño, EL SISTEMA tomará la altura del punto en un vértice y, en cualquier otro PK, la interpolada de la definición (S041/RF-23); en "Por segmentos", un vértice sin altura tomará la interpolada y se indicará que lo es.
+- RF-9: SI el objetivo no tiene cota de diseño (la línea no tiene ninguna altura, o el objetivo cae antes del primer vértice con altura o después del último), ENTONCES EL SISTEMA lo indicará con los vértices sin altura y permitirá escribir una cota a mano para ese objetivo y replantearla con la tolerancia vertical (S041/RF-24, S019).
+- RF-10: DONDE haya una superficie activa (S042) y el objetivo no tenga cota de diseño, EL SISTEMA tomará como cota de diseño la de la superficie, como en una línea sin cota de un dibujo (S042/RF-24).
 
 ### Medir y guardar (H2)
 - RF-11: CUANDO el usuario pulse "Medir" en "Por segmentos", EL SISTEMA guardará un punto replanteado con el nombre del punto del vértice y `_stkd` (S018/RF-27); en los demás modos, con el nombre de la línea, el siguiente número libre entre los nombres del proyecto y `_stkd` (S041/RF-27).
 - RF-12: CUANDO termine la medida, EL SISTEMA guardará, sin redondear, lo de S041/RF-28 (coordenadas y cota de diseño del objetivo al medir, modo, PK, desplazamiento lateral, diferencias y tolerancias) con la línea de la que viene (su identificador, su nombre y su código) en lugar del dibujo y la capa, y el punto heredará el código y los atributos de la línea (S024/RF-20).
 - RF-13: EL SISTEMA mostrará en la ficha del punto replanteado de qué línea del proyecto viene, el modo, el PK y el desplazamiento lateral, y la desviación respecto al diseño (S041/RF-29).
 - RF-14: EL SISTEMA incluirá los puntos de este replanteo en el informe de S019, con las columnas de S041/RF-30 y una columna «línea» con su nombre y vacías las de dibujo y capa.
-- RF-15: SI se edita o se borra la línea, o uno de sus vértices cambia, mientras el replanteo está abierto, ENTONCES EL SISTEMA cerrará el replanteo e indicará el motivo (S041/RF-31).
+- RF-15: SI se edita o se borra la línea, o cambia uno de sus vértices (se mueve, se edita o se borra el punto), mientras el replanteo está abierto, ENTONCES EL SISTEMA cerrará el replanteo e indicará el motivo, sin recalcular (S041/RF-31).
 - RF-16: CUANDO se borre la línea, EL SISTEMA conservará los puntos replanteados con lo guardado en RF-12 (S041/RF-32).
 
 ### Pasar a un eje (H3)
@@ -65,7 +65,7 @@ Términos de esta spec (los de S025 y S041 más):
 |---|---|
 | Línea de 1 vértice | RF-3 |
 | Polígono: «Siguiente» tras el último vértice, perímetro y PK | RF-5 |
-| Vértices sin altura o con altura mezclada | RF-9 |
+| Vértices sin altura, con altura mezclada o solo en el centro de la línea | RF-8, RF-9 |
 | Vértice a la papelera durante el replanteo | RF-7, RF-15 |
 | Editar un punto-vértice con el replanteo abierto | RF-15 |
 | Replantear dos veces la misma línea | RF-11 (siguiente número libre) |
@@ -94,10 +94,17 @@ Términos de esta spec (los de S025 y S041 más):
 
 ## Dudas abiertas
 - [SUPOSICIÓN: la línea se replantea con vértices rectos; no hay arcos ni curvas y todos los vértices son «originales».]
-- [SUPOSICIÓN: «Por segmentos» da puntos replanteados `nombreVértice_stkd` (como un punto cualquiera, S018/RF-27) y los demás modos `nombreLínea_n_stkd` (como S041/RF-27).]
-- [SUPOSICIÓN: la línea con vértices sin altura se trata entera como sin cota (RF-9), igual que un dibujo mezclado en S041; no se interpola entre los vértices con altura.]
-- [SUPOSICIÓN: S027 depende también de S049, solo por «Crear eje» (RF-17); sin ella, S027 es completa con RF-1 a RF-16.]
-- [SUPOSICIÓN: si la línea cambia con el replanteo abierto se cierra (RF-15) en lugar de recalcular.]
+- [SUPOSICIÓN: S027 depende también de S049, solo por «Crear eje» (RF-17).]
+- [SUPOSICIÓN: la cota escrita a mano (RF-9) vale solo para el objetivo en curso, como en S041/RF-24.]
+
+## Decisiones de la entrevista (05/11/2026)
+- «Crear eje» va dentro de S027 (RF-17 y RF-18).
+- Una línea con alturas en unos vértices y no en otros interpola la cota entre los vértices que la tienen, saltando los que no (RF-8). Es distinto de S041, donde un dibujo mezclado se trata entero como sin cota.
+- Antes del primer vértice con altura y después del último no hay cota de diseño: se avisa y se puede escribir una a mano o usar la superficie activa (RF-9, RF-10).
+- Si la línea o uno de sus vértices cambia con el replanteo abierto, se cierra con el motivo y no se recalcula (RF-15).
+- Los nombres son los del borrador: «Por segmentos», el del punto del vértice más `_stkd`; los demás modos, el de la línea, el siguiente número libre y `_stkd` (RF-11).
+- El punto replanteado hereda el código y los atributos de la línea (RF-12).
+- Sin preguntar, por defecto razonable: el replanteo se abre con el último modo elegido; la base de datos gana una versión (v31 y S017b a v32) para guardar la línea de la que viene el punto replanteado.
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S027: dependencias «025, 041, 049» (la última para «Crear eje»).
