@@ -245,4 +245,17 @@ class LineStakeoutSegmentsTest {
         compose.onNodeWithTag(lineVertexTag(1)).assertTextContains("B", substring = true)
         compose.onNodeWithTag(lineVertexTag(1)).assertTextContains("cota interpolada", substring = true)
     }
+
+    @Test
+    fun `S027 RF-9 el panel dice que vertices no tienen altura y cuando el objetivo no tiene cota`() {
+        val lineId = createLine(closed = false, heights = listOf(null, 650.0, 664.0, null))
+        val vm = viewModel()
+        val state = open(vm, lineId)
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) { LineStakeoutPanel(state, LineStakeoutActions()) }
+        }
+
+        compose.onNodeWithTag(LINE_MISSING_HEIGHTS_TAG).assertTextContains("A, D", substring = true)
+        compose.onNodeWithTag(LINE_NO_HEIGHT_TAG).assertTextContains("Sin cota de diseño", substring = true)
+    }
 }

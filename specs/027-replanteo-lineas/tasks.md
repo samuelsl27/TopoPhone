@@ -18,7 +18,7 @@
       Hecho cuando: `LineStakeoutProjectLineTest` (apertura) en verde.
 - [x] T8. `app`: «Por segmentos» con el nombre del punto de cada vértice, su PK, «Siguiente» y «Anterior» con vuelta en un polígono, y la papelera. (RF-5, RF-6, RF-7)
       Hecho cuando: `LineStakeoutSegmentsTest` en verde.
-- [ ] T9. `app`: cota de diseño por objetivo: interpolada, sin cota en el tramo, cota a mano y superficie activa. (RF-8, RF-9, RF-10)
+- [x] T9. `app`: cota de diseño por objetivo: interpolada, sin cota en el tramo, cota a mano y superficie activa. (RF-8, RF-9, RF-10)
       Hecho cuando: los tests de cota de `LineStakeoutProjectLineTest` en verde.
 - [ ] T10. `app`: medir y guardar con el nombre de «Por segmentos» o de la línea, la fuente `ProjectLine` y el código y los atributos de la línea. (RF-11, RF-12)
       Hecho cuando: `LineStakeoutSaveTest` en verde, con un solo guardado atómico del punto.

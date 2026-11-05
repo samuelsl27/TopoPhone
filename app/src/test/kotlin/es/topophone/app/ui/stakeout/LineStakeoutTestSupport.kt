@@ -10,6 +10,7 @@ import es.topophone.data.cad.CadRepository
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.StakeoutPreferences
 import es.topophone.data.project.ProjectRepository
+import es.topophone.data.surface.SurfaceGuides
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.session.ReceiverSession
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +54,7 @@ object LineStakeoutTestSupport {
         calculator: ProjectPositionCalculator,
         stakeLines: StakeLines,
         inProgress: MeasurementInProgress = MeasurementInProgress(),
+        surfaces: SurfaceGuides = SurfaceGuides.NONE,
     ) = LineStakeoutViewModel(
         projects,
         cad,
@@ -64,6 +66,7 @@ object LineStakeoutTestSupport {
         { calculator },
         inProgress,
         RecordingLog(),
+        surfaces = surfaces,
         stakeLines = stakeLines,
     )
 }

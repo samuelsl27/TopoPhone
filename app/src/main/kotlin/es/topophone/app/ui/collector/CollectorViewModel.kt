@@ -32,6 +32,7 @@ import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.AutoTrigger
 import es.topophone.core.model.point.BaseShift
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.ElevationSource
 import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
@@ -1234,7 +1235,12 @@ class CollectorViewModel @Inject constructor(
             val objective = provider?.current()
             // S042/RF-28, RF-29: contra la superficie, la cota de diseño es la de la superficie en la posición medida, con el
             // desplazamiento; fuera de ella no hay cota ni diferencia vertical.
-            val surface = SurfaceStake.of(info, measurement.coordinates)
+            val surfaceInfo = if (objective?.useSurface == true && info?.surface != null) {
+                info.copy(elevationSource = ElevationSource.SURFACE) // S027/RF-10: donde la línea no tiene cota
+            } else {
+                info
+            }
+            val surface = SurfaceStake.of(surfaceInfo, measurement.coordinates)
             val staked = if (provider != null && objective == null) {
                 null // S041: una línea que aún no ha dado objetivo no tiene qué comparar
             } else if (objective != null) {

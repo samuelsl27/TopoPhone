@@ -94,6 +94,11 @@ class StakeContext(
     val profile: AntennaProfile = AntennaProfile.RS3,
     /** El desplazamiento de base activo: la punta lo lleva antes de pasar al SC (S020/RF-7). */
     val shift: BaseShiftVector? = null,
+    /**
+     * Con una línea que tiene alturas en solo algunos vértices, donde el objetivo no tiene cota de diseño se replantea contra la
+     * superficie activa en lugar de dejarlo sin nivel vertical (S027/RF-10). Solo vale sin cota escrita a mano.
+     */
+    val surfaceWhereNoHeight: Boolean = false,
 ) {
     /** La cota de diseño que se replantea: la escrita, o la altura del punto de diseño (S019/RF-1, RF-2). */
     val elevationM: Double? get() = designElevationM ?: target.coordinates.height
@@ -225,7 +230,12 @@ class StakeoutController(
         }
         // S019/RF-1, RF-2: la cota de diseño es la escrita o la del punto; la diferencia de cota sale contra ella.
         // S042/RF-24, RF-26: contra la superficie, la cota de diseño es la de la superficie con desplazamiento en la posición de la punta.
-        val surfaceGuide = context.surface.takeIf { context.elevationSource == ElevationSource.SURFACE }
+        // S027/RF-9: el objetivo de una línea con alturas solo en algunos vértices no tiene cota donde ninguna le toca; no presta la del primero.
+        val ownHeight = if (lineObjective != null) lineObjective.heightM else context.target.coordinates.height
+        val noOwnHeight = context.designElevationM == null && ownHeight == null
+        val surfaceGuide = context.surface.takeIf {
+            context.elevationSource == ElevationSource.SURFACE || (context.surfaceWhereNoHeight && noOwnHeight)
+        }
         val surfaceHeight = surfaceGuide?.let {
             if (tipEast != null &&
                 tipNorth != null
@@ -238,7 +248,7 @@ class StakeoutController(
         val elevation = if (surfaceGuide != null && surfaceHeight != null) {
             surfaceHeight.withOffset(surfaceGuide.verticalOffsetM).metresOrNull
         } else {
-            context.designElevationM ?: lineObjective?.heightM ?: context.target.coordinates.height
+            context.designElevationM ?: ownHeight
         }
         val design = if (lineObjective != null) {
             context.target.coordinates.copy(

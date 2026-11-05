@@ -129,6 +129,8 @@ data class LineElementInfo(
     val name: String? = null,
     /** Los datos de la línea si es del proyecto y no de un dibujo (S027/RF-4). */
     val projectLine: ProjectLineInfo? = null,
+    /** Los nombres de los vértices sin altura de una línea del proyecto (S027/RF-9). */
+    val missingHeightNames: List<String> = emptyList(),
 )
 
 /** De qué línea del proyecto es el replanteo: su identificador, su nombre y su código (S027/RF-4). */
@@ -159,6 +161,8 @@ data class LineStakeoutUiState(
     val vertices: LineVertices? = null,
     /** Los nombres de los puntos de los vértices de una línea del proyecto; null en una línea de un dibujo (S027/RF-5). */
     val vertexLabels: VertexLabels? = null,
+    /** El objetivo de ahora no tiene cota de diseño ni la escrita ni la de la superficie (S027/RF-9). */
+    val objectiveWithoutHeight: Boolean = false,
     val vertexIndex: Int = 0,
     val series: LineSeries? = null,
     val seriesIndex: Int = 0,
@@ -332,6 +336,10 @@ class LineStakeoutViewModel @Inject constructor(
             errors = model.errors,
             vertices = model.vertices,
             vertexLabels = model.origin.labels,
+            objectiveWithoutHeight = model.origin.labels != null &&
+                model.elevationOverrideM == null &&
+                !(surface.guide != null && surfaceWhereNoHeight(model, surface.guide)) &&
+                objectiveLacksHeight(model, live.guidance, live.settings.lineMode),
             vertexIndex = model.vertexIndex,
             series = series,
             seriesIndex = model.seriesIndex.coerceIn(0, ((series?.size ?: 1) - 1).coerceAtLeast(0)),
@@ -504,6 +512,7 @@ class LineStakeoutViewModel @Inject constructor(
             maxHeightM = heights.maxOrNull(),
             name = line.name,
             projectLine = ProjectLineInfo(line.id, line.name, line.code),
+            missingHeightNames = (0 until current.vertexCount).filter { current.height(it) == null }.map(built::name),
         )
     }
 
@@ -769,6 +778,17 @@ class LineStakeoutViewModel @Inject constructor(
         return (result as? ManualResult.Computed)?.coordinates
     }
 
+    /** El objetivo de ahora no tiene cota de diseño, según el modo; sin objetivo todavía (guía apagada) no se dice nada (S027/RF-9). */
+    private fun objectiveLacksHeight(m: Model, guidance: GuidanceState, mode: LineStakeoutMode): Boolean = when (mode) {
+        LineStakeoutMode.BY_SEGMENTS -> m.vertices.entries.getOrNull(m.vertexIndex)?.let { it.heightM == null } ?: false
+        LineStakeoutMode.INTERVALS -> m.series?.let { it[m.seriesIndex.coerceIn(0, it.size - 1)].heightM == null } ?: false
+        else -> (guidance as? GuidanceState.On)?.ui?.line?.let { it.heightM == null } ?: false
+    }
+
+    /** Una línea con alturas en solo algunos vértices, con superficie activa y sin cota escrita ni elección: la superficie va donde no hay cota (S027/RF-10). */
+    private fun surfaceWhereNoHeight(m: Model, guide: SurfaceGuide?): Boolean =
+        guide != null && sourceChoice.value == null && m.elevationOverrideM == null && m.line.hasHeight && !m.line.hasCompleteHeight
+
     private fun context(): StakeContext? {
         val project = project ?: return null
         val m = model.value ?: return null
@@ -797,6 +817,7 @@ class LineStakeoutViewModel @Inject constructor(
             resolution(surface).source,
             profile = profile,
             shift = activeShift.value?.vector, // S020/RF-7
+            surfaceWhereNoHeight = surfaceWhereNoHeight(m, surface),
         )
     }
 
@@ -832,12 +853,30 @@ class LineStakeoutViewModel @Inject constructor(
                 m.series?.let { it.chainageOf(m.seriesIndex.coerceIn(0, it.size - 1)) }
             }
             val elevation = m.elevationOverrideM ?: target.coordinates.height
-            return StakeObjective(target.coordinates.copy(height = elevation), elevation, mode, chainage, storedOffset, lateralErrorOf)
+            val useSurface = elevation == null && surfaceWhereNoHeight(m, surfaceGuide.value)
+            return StakeObjective(
+                target.coordinates.copy(height = elevation),
+                elevation,
+                mode,
+                chainage,
+                storedOffset,
+                lateralErrorOf,
+                useSurface = useSurface,
+            )
         }
         val line = lastLine ?: return null
         val elevation = m.elevationOverrideM ?: line.heightM
         val design = coordinatesOf(project, line.point.easting, line.point.northing, elevation) ?: return null
-        return StakeObjective(design.copy(height = elevation), elevation, mode, line.chainageM, storedOffset, lateralErrorOf)
+        val useSurface = elevation == null && surfaceWhereNoHeight(m, surfaceGuide.value)
+        return StakeObjective(
+            design.copy(height = elevation),
+            elevation,
+            mode,
+            line.chainageM,
+            storedOffset,
+            lateralErrorOf,
+            useSurface = useSurface,
+        )
     }
 
     /** El objetivo de ahora: el vértice o el punto de la serie elegido, o el primer vértice, que solo da nombre y origen a una línea que guía. */

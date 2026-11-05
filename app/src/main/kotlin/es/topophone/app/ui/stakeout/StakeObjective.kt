@@ -30,6 +30,8 @@ class StakeObjective(
     val chainageErrorOf: ((PointCoordinates) -> Double?)? = null,
     val sectionCode: String? = null,
     val slopeOf: ((PointCoordinates) -> SlopeStakeInfo?)? = null,
+    /** El objetivo no tiene cota de diseño y se replanteó contra la superficie activa (S027/RF-10). */
+    val useSurface: Boolean = false,
 )
 
 /** Da el objetivo de ahora cuando el recolector termina una medida; null si la guía aún no ha dado ninguno (S041/RF-27, RF-28). */

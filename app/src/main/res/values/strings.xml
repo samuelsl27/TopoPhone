@@ -2651,4 +2651,6 @@
     <string name="line_stakeout_project_perimeter">Perímetro: %1$s %2$s</string>
     <string name="stakeout_line_item_named">%1$d · %2$s · PK %3$s</string>
     <string name="stakeout_line_interpolated">cota interpolada</string>
+    <string name="line_stakeout_missing_heights">Sin altura en los vértices: %1$s. Donde no hay cota se puede escribir una o usar la superficie activa.</string>
+    <string name="line_stakeout_no_height_here">Sin cota de diseño en este objetivo: escribe una cota a mano o activa una superficie.</string>
 </resources>

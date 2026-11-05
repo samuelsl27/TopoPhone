@@ -67,6 +67,10 @@ const val LINE_PANEL_TAG = "line_stakeout_panel"
 const val LINE_TITLE_TAG = "line_stakeout_title"
 const val LINE_CLOSE_TAG = "line_stakeout_close"
 const val LINE_ELEMENT_TAG = "line_stakeout_element"
+const val LINE_MISSING_HEIGHTS_TAG = "line_stakeout_missing_heights"
+const val LINE_NO_HEIGHT_TAG = "line_stakeout_no_height"
+
+private const val NOTICE_LISTED = 10
 const val LINE_OFFSET_TAG = "line_stakeout_offset"
 const val LINE_A_TAG = "line_stakeout_a"
 const val LINE_B_TAG = "line_stakeout_b"
@@ -169,6 +173,21 @@ fun LineStakeoutPanel(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 ElementInfo(element, unit)
+                if (element.missingHeightNames.isNotEmpty()) {
+                    val listed = element.missingHeightNames.take(NOTICE_LISTED).joinToString(", ") +
+                        if (element.missingHeightNames.size > NOTICE_LISTED) ", …" else ""
+                    Text(
+                        stringResource(R.string.line_stakeout_missing_heights, listed),
+                        modifier = Modifier.testTag(LINE_MISSING_HEIGHTS_TAG),
+                    )
+                }
+                if (state.objectiveWithoutHeight) {
+                    Text(
+                        stringResource(R.string.line_stakeout_no_height_here),
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.testTag(LINE_NO_HEIGHT_TAG),
+                    )
+                }
                 ModeChoice(state, actions)
                 if (state.mode == LineStakeoutMode.BY_SEGMENTS && state.vertices?.needsReimport == true) {
                     Text(
