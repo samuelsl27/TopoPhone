@@ -2644,4 +2644,9 @@
     <string name="angle_picker_title">Elige: %1$s</string>
     <string name="angle_search">Buscar</string>
     <string name="angle_no_points">No hay puntos que elegir.</string>
+    <string name="stakeout_line_too_few">La línea necesita al menos 2 vértices para replantearla.</string>
+    <string name="stakeout_line_not_found">La línea ya no existe o está en la papelera.</string>
+    <string name="stakeout_line_no_plane">Los puntos de esta línea no tienen Este y Norte: en un SC geográfico no se puede replantear.</string>
+    <string name="line_stakeout_project_code">Código: %1$s</string>
+    <string name="line_stakeout_project_perimeter">Perímetro: %1$s %2$s</string>
 </resources>

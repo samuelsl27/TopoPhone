@@ -13,6 +13,8 @@ import es.topophone.app.ui.collector.RoomCollectorCodeSource
 import es.topophone.app.ui.collector.RoomCollectorLines
 import es.topophone.app.ui.points.ObjectLines
 import es.topophone.app.ui.points.RoomObjectLines
+import es.topophone.app.ui.stakeout.RoomStakeLines
+import es.topophone.app.ui.stakeout.StakeLines
 import es.topophone.data.codes.CodeLibraryRepository
 import es.topophone.data.codes.DefaultLibrarySource
 import es.topophone.data.line.LineRepository
@@ -39,4 +41,8 @@ object CodesModule {
     /** Las líneas junto a los puntos en la lista de objetos, la papelera y la ficha del punto (S025/RF-21 a RF-25). */
     @Provides
     fun provideObjectLines(lines: LineRepository): ObjectLines = RoomObjectLines(lines)
+
+    @Provides
+    @Singleton
+    fun provideStakeLines(lines: LineRepository): StakeLines = RoomStakeLines(lines)
 }

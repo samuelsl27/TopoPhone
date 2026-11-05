@@ -10,8 +10,10 @@ import es.topophone.app.ui.cad.DesignSelection
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.cad.CadEntityKind
+import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.format.NumberInput
+import es.topophone.core.model.line.ProjectLine
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
@@ -45,6 +47,9 @@ import es.topophone.core.survey.ManualCoordinates
 import es.topophone.core.survey.ManualResult
 import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.ProjectStakeLine
+import es.topophone.core.survey.ProjectStakeLineResult
+import es.topophone.core.survey.ProjectStakeVertex
 import es.topophone.core.survey.StakeLine
 import es.topophone.core.survey.inverted
 import es.topophone.data.baseshift.ActiveBaseShift
@@ -70,6 +75,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** Los campos que escribe el usuario en el replanteo de una línea (S041/RF-11, RF-16, RF-18). */
 enum class LineField { OFFSET, A, B, INTERVAL }
@@ -77,9 +83,15 @@ enum class LineField { OFFSET, A, B, INTERVAL }
 /** Por qué se cierra el replanteo de una línea sin que el usuario lo pida (S041/RF-31). */
 enum class LineClosedReason { DRAWING_DELETED, }
 
+/** Por qué no se abre el replanteo de una línea (S041/RF-2, S027/RF-3). */
+enum class LineUnsupportedReason { NOT_A_LINE, NOT_FOUND, TOO_FEW_VERTICES, NO_PLANE_POSITION }
+
 /** De dónde sale la línea que se replantea: un elemento de un dibujo (S041) o, en S027, una línea del proyecto. */
 sealed interface LineSource {
     data class Drawing(val selection: DesignSelection) : LineSource
+
+    /** Una línea o un polígono del proyecto (S025), por su identificador (S027/RF-1). */
+    data class ProjectLine(val lineId: String) : LineSource
 }
 
 /**
@@ -91,6 +103,7 @@ private class Origin(
     val targetId: String,
     val targetName: String,
     val source: StakeSource,
+    val code: PointCode? = null,
     val describe: (StakeLine) -> LineElementInfo,
 )
 
@@ -106,7 +119,12 @@ data class LineElementInfo(
     val maxHeightM: Double?,
     /** El nombre del objeto de un GeoPackage, o null si es de un DXF o no lo tiene (S048/RF-22, RF-24). */
     val name: String? = null,
+    /** Los datos de la línea si es del proyecto y no de un dibujo (S027/RF-4). */
+    val projectLine: ProjectLineInfo? = null,
 )
+
+/** De qué línea del proyecto es el replanteo: su identificador, su nombre y su código (S027/RF-4). */
+data class ProjectLineInfo(val lineId: String, val name: String, val code: PointCode?)
 
 /**
  * Lo que muestra el replanteo de una línea (S041/RF-2 a RF-4, RF-6 a RF-9, RF-16 a RF-22, RF-31).
@@ -123,6 +141,7 @@ data class LineStakeoutUiState(
     val project: Project? = null,
     val element: LineElementInfo? = null,
     val unsupported: Boolean = false,
+    val unsupportedReason: LineUnsupportedReason? = null,
     val mode: LineStakeoutMode = LineStakeoutMode.DEFAULT,
     val offsetText: String = "",
     val aText: String = "",
@@ -174,6 +193,7 @@ class LineStakeoutViewModel @Inject constructor(
     private val tilt: CurrentTilt = CurrentTilt.NONE,
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
     private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
+    private val stakeLines: StakeLines = StakeLines.NONE,
 ) : ViewModel() {
     private val controller = StakeoutController(alerts, log)
 
@@ -221,7 +241,7 @@ class LineStakeoutViewModel @Inject constructor(
     }
 
     private val model = MutableStateFlow<Model?>(null)
-    private val unsupported = MutableStateFlow(false)
+    private val unsupported = MutableStateFlow<LineUnsupportedReason?>(null)
     private val projectId = MutableStateFlow<String?>(null)
     private var drawingWatcher: Job? = null
 
@@ -250,7 +270,12 @@ class LineStakeoutViewModel @Inject constructor(
 
     private data class SurfaceLive(val guide: SurfaceGuide?, val choice: ElevationSource?, val removed: Boolean)
 
-    private data class Live(val settings: StakeoutSettings, val guidance: GuidanceState, val measuring: Boolean, val unsupported: Boolean)
+    private data class Live(
+        val settings: StakeoutSettings,
+        val guidance: GuidanceState,
+        val measuring: Boolean,
+        val unsupported: LineUnsupportedReason?,
+    )
 
     private val chosenGeometry = MutableStateFlow<List<GeoPoint>>(emptyList())
 
@@ -274,7 +299,8 @@ class LineStakeoutViewModel @Inject constructor(
                 project = project,
                 settings = live.settings,
                 mode = live.settings.lineMode,
-                unsupported = live.unsupported,
+                unsupported = live.unsupported != null,
+                unsupportedReason = live.unsupported,
             )
         }
         val line = model.line
@@ -304,7 +330,8 @@ class LineStakeoutViewModel @Inject constructor(
             designElevationM = model.elevationOverrideM,
             elevationOverridden = model.elevationOverrideM != null,
             closed = model.closed,
-            unsupported = live.unsupported,
+            unsupported = live.unsupported != null,
+            unsupportedReason = live.unsupported,
             target = project?.let { designTarget(it, model, live.settings.lineMode) },
             saveInfo = StakeSaveInfo(
                 model.elevationOverrideM,
@@ -372,15 +399,53 @@ class LineStakeoutViewModel @Inject constructor(
         lastLine = null
         sourceChoice.value = null
         surfaceRemoved.value = false
-        val selection = (source as LineSource.Drawing).selection
-        val origin = drawingOrigin(selection)
-        val line = StakeLine.of(selection.entity, withHeight = selection.hasElevation)
-        if (line == null) {
-            model.value = null
-            unsupported.value = true
-            return
+        when (source) {
+            is LineSource.Drawing -> {
+                val selection = source.selection
+                val line = StakeLine.of(selection.entity, withHeight = selection.hasElevation)
+                if (line == null) {
+                    reject(LineUnsupportedReason.NOT_A_LINE)
+                    return
+                }
+                start(projectId, line, drawingOrigin(selection))
+                watchDrawing(projectId, selection.ref.layerId)
+            }
+            is LineSource.ProjectLine -> openProjectLine(projectId, source.lineId)
         }
-        unsupported.value = false
+    }
+
+    private fun reject(reason: LineUnsupportedReason) {
+        model.value = null
+        unsupported.value = reason
+    }
+
+    /** Carga la línea del proyecto fuera del hilo principal y abre el replanteo, o dice por qué no se puede (S027/RF-1, RF-3). */
+    private fun openProjectLine(projectId: String, lineId: String) {
+        drawingWatcher?.cancel()
+        model.value = null
+        unsupported.value = null
+        viewModelScope.launch {
+            val data = stakeLines.observe(lineId).first()
+            if (data == null) {
+                reject(LineUnsupportedReason.NOT_FOUND)
+                return@launch
+            }
+            val built = withContext(Dispatchers.Default) {
+                ProjectStakeLine.of(
+                    data.vertices.map { ProjectStakeVertex(it.name, it.easting, it.northing, it.height) },
+                    data.line.closed,
+                )
+            }
+            when (built) {
+                ProjectStakeLineResult.TooFewVertices -> reject(LineUnsupportedReason.TOO_FEW_VERTICES)
+                ProjectStakeLineResult.NoPlanePosition -> reject(LineUnsupportedReason.NO_PLANE_POSITION)
+                is ProjectStakeLineResult.Built -> start(projectId, built.line, projectLineOrigin(data.line))
+            }
+        }
+    }
+
+    private fun start(projectId: String, line: StakeLine, origin: Origin) {
+        unsupported.value = null
         val unit = project?.linearUnit ?: LinearUnit.METRE
         model.value = Model(
             projectId = projectId,
@@ -405,8 +470,29 @@ class LineStakeoutViewModel @Inject constructor(
         cached = null
         chosenGeometry.value = emptyList()
         viewModelScope.launch(Dispatchers.Default) { chosenGeometry.value = highlightOf(projectId, line) }
-        watchDrawing(projectId, selection.ref.layerId)
         log.info(LogCategory.POINTS, "Replanteo de una línea abierto") // S014/RF-5
+    }
+
+    private fun projectLineOrigin(line: ProjectLine) = Origin(
+        kind = CadEntityKind.POLYLINE,
+        targetId = "line:${line.id}",
+        targetName = line.name,
+        source = StakeSource.ProjectLine(line.id, line.name),
+        code = line.code,
+    ) { current ->
+        val heights = (0 until current.vertexCount).mapNotNull { current.height(it) }
+        LineElementInfo(
+            layerId = "",
+            layerName = "",
+            drawingName = "",
+            kind = CadEntityKind.POLYLINE,
+            lengthM = current.lengthM,
+            closed = current.closed,
+            minHeightM = heights.minOrNull(),
+            maxHeightM = heights.maxOrNull(),
+            name = line.name,
+            projectLine = ProjectLineInfo(line.id, line.name, line.code),
+        )
     }
 
     private fun drawingOrigin(selection: DesignSelection) = Origin(
@@ -454,7 +540,7 @@ class LineStakeoutViewModel @Inject constructor(
         chosenGeometry.value = emptyList()
         drawingWatcher?.cancel()
         model.value = null
-        unsupported.value = false
+        unsupported.value = null
         sourceChoice.value = null
         surfaceRemoved.value = false
         controller.reset()
@@ -773,6 +859,7 @@ class LineStakeoutViewModel @Inject constructor(
             description = "",
             coordinates = coordinates,
             source = m.origin.source,
+            code = m.origin.code,
         )
         cached = key to target
         return target

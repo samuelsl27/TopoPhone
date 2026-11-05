@@ -150,8 +150,14 @@ fun LineStakeoutPanel(
             }
             if (element == null) {
                 if (state.unsupported) {
+                    val reason = when (state.unsupportedReason) {
+                        LineUnsupportedReason.TOO_FEW_VERTICES -> R.string.stakeout_line_too_few
+                        LineUnsupportedReason.NOT_FOUND -> R.string.stakeout_line_not_found
+                        LineUnsupportedReason.NO_PLANE_POSITION -> R.string.stakeout_line_no_plane
+                        else -> R.string.stakeout_line_unsupported
+                    }
                     Text(
-                        stringResource(R.string.stakeout_line_unsupported),
+                        stringResource(reason),
                         color = MaterialTheme.colorScheme.error,
                         modifier = Modifier.testTag(LINE_UNSUPPORTED_TAG),
                     )
@@ -262,12 +268,22 @@ private fun ElementInfo(element: LineElementInfo, unit: LinearUnit) {
         }.testTag(LINE_ELEMENT_TAG),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Text(stringResource(elementKindLabel(element.kind)), style = MaterialTheme.typography.titleSmall)
-        Text(
-            stringResource(R.string.cad_element_layer, element.layerName) + " · " +
-                stringResource(R.string.cad_element_drawing, element.drawingName),
-        )
-        Text(stringResource(R.string.cad_element_length, LengthFormat.inUnit(element.lengthM, unit, locale), symbol) + " · " + height)
+        val project = element.projectLine
+        if (project == null) {
+            Text(stringResource(elementKindLabel(element.kind)), style = MaterialTheme.typography.titleSmall)
+            Text(
+                stringResource(R.string.cad_element_layer, element.layerName) + " · " +
+                    stringResource(R.string.cad_element_drawing, element.drawingName),
+            )
+            Text(stringResource(R.string.cad_element_length, LengthFormat.inUnit(element.lengthM, unit, locale), symbol) + " · " + height)
+        } else {
+            // S027/RF-4: el nombre, el código, la forma y la longitud (o el perímetro) de la línea del proyecto.
+            val shape = stringResource(if (element.closed) R.string.line_state_polygon else R.string.line_state_open)
+            Text(project.name + " · " + shape, style = MaterialTheme.typography.titleSmall)
+            project.code?.let { Text(stringResource(R.string.line_stakeout_project_code, it.code)) }
+            val lengthLabel = if (element.closed) R.string.line_stakeout_project_perimeter else R.string.cad_element_length
+            Text(stringResource(lengthLabel, LengthFormat.inUnit(element.lengthM, unit, locale), symbol) + " · " + height)
+        }
     }
 }
 

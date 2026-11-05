@@ -2632,4 +2632,9 @@
     <string name="angle_picker_title">Choose: %1$s</string>
     <string name="angle_search">Search</string>
     <string name="angle_no_points">There are no points to choose from.</string>
+    <string name="stakeout_line_too_few">The line needs at least 2 vertices to be staked out.</string>
+    <string name="stakeout_line_not_found">The line no longer exists or is in the trash.</string>
+    <string name="stakeout_line_no_plane">The points of this line have no Easting and Northing: it cannot be staked out in a geographic CRS.</string>
+    <string name="line_stakeout_project_code">Code: %1$s</string>
+    <string name="line_stakeout_project_perimeter">Perimeter: %1$s %2$s</string>
 </resources>
