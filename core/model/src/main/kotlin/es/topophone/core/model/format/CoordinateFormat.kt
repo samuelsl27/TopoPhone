@@ -137,6 +137,24 @@ object LengthFormat {
         decimals(unit.fromMetres(valueM), decimals, locale, grouping = true)
 }
 
+/** Superficies en la unidad lineal del proyecto, al cuadrado (S026/RF-12). */
+object AreaFormat {
+    fun inUnit(areaM2: Double, unit: LinearUnit, locale: Locale, decimals: Int = 3): String =
+        decimals(areaM2 / (unit.metres * unit.metres), decimals, locale, grouping = true)
+
+    /** Símbolo de la unidad de área; es un símbolo y no un texto traducible. */
+    fun unitSymbol(unit: LinearUnit): String = when (unit) {
+        LinearUnit.METRE -> "m²"
+        LinearUnit.INTERNATIONAL_FOOT -> "ft²"
+        LinearUnit.US_SURVEY_FOOT -> "usft²"
+    }
+}
+
+/** Pendiente en porcentaje con 2 decimales, sin el símbolo (S026/RF-12). */
+object SlopeFormat {
+    fun percent(value: Double, locale: Locale): String = decimals(value, 2, locale, grouping = false)
+}
+
 /** Factor de escala y factor combinado de la proyección, con 8 decimales (S008/RF-13, RF-15). */
 object FactorFormat {
     private const val FACTOR_DECIMALS = 8

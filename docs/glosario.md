@@ -143,6 +143,12 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Huso propuesto | `suggestedZone` | Huso de la posición al crear un proyecto (S008) |
 | ED50 | `Ed50` | Datum antiguo; se calcula desde ETRS89 con la rejilla SPED2ETV2 del IGN (S008) |
 | Distancia de cuadrícula / de terreno | `gridDistance` / `groundDistance` | |
+| Información geométrica | `GeometryInfo` | Longitud 2D y 3D, perímetro, área y tabla por segmento de una línea o un polígono (S026) |
+| Segmento | `Segment` | Trozo de línea entre dos vértices consecutivos; un polígono incluye el de cierre (S026) |
+| Perímetro | `Perimeter` | Longitud 2D de un polígono (S026) |
+| Área | `Area` | Superficie horizontal que encierra un polígono (S026) |
+| Pendiente | `Slope` | Desnivel de un segmento entre su distancia horizontal, en porcentaje (S026) |
+| Ángulo entre tres puntos | `ThreePointAngle` | Ángulo en B entre las direcciones a A y a C, de 0° a 180° (S026) |
 | Base shift (desplazamiento de base) | `BaseShift` | Vector ECEF conocido − medido que se suma a la punta del jalón antes del SC (S020) |
 | Punto conocido | `KnownPoint` | El punto de coordenadas buenas con el que se calcula un base shift; se mide aparte y no se guarda como punto (S020) |
 | Desplazamiento activo | `ActiveBaseShift` | El base shift que llevan los puntos que se midan; uno o ninguno por proyecto (S020) |
