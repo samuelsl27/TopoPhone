@@ -2653,4 +2653,5 @@
     <string name="stakeout_line_interpolated">cota interpolada</string>
     <string name="line_stakeout_missing_heights">Sin altura en los vértices: %1$s. Donde no hay cota se puede escribir una o usar la superficie activa.</string>
     <string name="line_stakeout_no_height_here">Sin cota de diseño en este objetivo: escribe una cota a mano o activa una superficie.</string>
+    <string name="point_stakeout_line">Línea</string>
 </resources>

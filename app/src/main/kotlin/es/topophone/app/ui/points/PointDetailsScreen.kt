@@ -742,6 +742,10 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
                 "point_stakeout_element",
             )
         }
+        // S027/RF-13: de qué línea del proyecto viene (su nombre queda aunque la línea se borre, RF-16).
+        (ref.source as? StakeSource.ProjectLine)?.let { source ->
+            CoordinateRow(stringResource(R.string.point_stakeout_line), source.lineName, "point_stakeout_line")
+        }
         // S054/RF-10: de qué eje viene el PK y el desplazamiento, y el espesor.
         (ref.source as? StakeSource.Alignment)?.let { source ->
             CoordinateRow(stringResource(R.string.point_stakeout_axis), source.alignmentName, "point_stakeout_axis")
