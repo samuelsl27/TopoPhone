@@ -2649,4 +2649,6 @@
     <string name="stakeout_line_no_plane">Los puntos de esta línea no tienen Este y Norte: en un SC geográfico no se puede replantear.</string>
     <string name="line_stakeout_project_code">Código: %1$s</string>
     <string name="line_stakeout_project_perimeter">Perímetro: %1$s %2$s</string>
+    <string name="stakeout_line_item_named">%1$d · %2$s · PK %3$s</string>
+    <string name="stakeout_line_interpolated">cota interpolada</string>
 </resources>

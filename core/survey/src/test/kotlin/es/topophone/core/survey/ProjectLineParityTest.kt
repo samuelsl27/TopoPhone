@@ -164,4 +164,24 @@ class ProjectLineParityTest {
         built.line.closed shouldBe true
         built.line.lengthM shouldBe (140.0 plusOrMinus 1e-9)
     }
+
+    @Test
+    fun `S027 RF-8 la lista de Por segmentos da al vertice sin altura la cota interpolada`() {
+        val vertices = listOf(
+            ProjectStakeVertex("A", 0.0, 0.0, 10.0),
+            ProjectStakeVertex("B", 30.0, 40.0, null),
+            ProjectStakeVertex("C", 60.0, 80.0, 20.0),
+            ProjectStakeVertex("D", 90.0, 120.0, null),
+        )
+        val built = ProjectStakeLine.of(vertices, closed = false).shouldBeInstanceOf<ProjectStakeLineResult.Built>()
+
+        val entries = LineVertices.of(built.line, CadEntityKind.POLYLINE).entries
+
+        entries.map { it.heightM }.let {
+            it[0] shouldBe 10.0
+            it[1]!! shouldBe (15.0 plusOrMinus 1e-9)
+            it[2] shouldBe 20.0
+            it[3].shouldBeNull()
+        }
+    }
 }

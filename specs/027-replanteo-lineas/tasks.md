@@ -16,7 +16,7 @@
       Hecho cuando: todos los tests de replanteo de línea de S041 siguen en verde.
 - [x] T7. `app`: abrir el replanteo con una línea del proyecto (carga fuera del hilo principal, menos de 2 vértices, motivo, panel con nombre, código, longitud y forma, trazo grueso en el mapa). (RF-1, RF-3, RF-4)
       Hecho cuando: `LineStakeoutProjectLineTest` (apertura) en verde.
-- [ ] T8. `app`: «Por segmentos» con el nombre del punto de cada vértice, su PK, «Siguiente» y «Anterior» con vuelta en un polígono, y la papelera. (RF-5, RF-6, RF-7)
+- [x] T8. `app`: «Por segmentos» con el nombre del punto de cada vértice, su PK, «Siguiente» y «Anterior» con vuelta en un polígono, y la papelera. (RF-5, RF-6, RF-7)
       Hecho cuando: `LineStakeoutSegmentsTest` en verde.
 - [ ] T9. `app`: cota de diseño por objetivo: interpolada, sin cota en el tramo, cota a mano y superficie activa. (RF-8, RF-9, RF-10)
       Hecho cuando: los tests de cota de `LineStakeoutProjectLineTest` en verde.

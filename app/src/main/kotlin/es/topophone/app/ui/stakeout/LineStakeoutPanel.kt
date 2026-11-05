@@ -427,12 +427,24 @@ private fun Lists(state: LineStakeoutUiState, actions: LineStakeoutActions, unit
             LazyColumn(modifier = Modifier.heightIn(max = LIST_MAX_HEIGHT).selectableGroup()) {
                 items(vertices.size) { index ->
                     val entry = vertices.entries[index]
+                    val chainage = "${LengthFormat.inUnit(entry.chainageM, unit, locale)} $symbol"
+                    val labels = state.vertexLabels
+                    val text = if (labels == null) {
+                        stringResource(R.string.stakeout_line_item, entry.number, chainage)
+                    } else {
+                        // S027/RF-5, RF-8: el nombre del punto del vértice y, si su cota es la interpolada, que lo es.
+                        val named = stringResource(R.string.stakeout_line_item_named, entry.number, labels.name(entry.vertex), chainage)
+                        if (labels.isInterpolated(
+                                entry.vertex,
+                            )
+                        ) {
+                            named + " · " + stringResource(R.string.stakeout_line_interpolated)
+                        } else {
+                            named
+                        }
+                    }
                     ListRow(
-                        text = stringResource(
-                            R.string.stakeout_line_item,
-                            entry.number,
-                            "${LengthFormat.inUnit(entry.chainageM, unit, locale)} $symbol",
-                        ),
+                        text = text,
                         selected = index == state.vertexIndex,
                         enabled = !state.measuring,
                         tag = lineVertexTag(index),

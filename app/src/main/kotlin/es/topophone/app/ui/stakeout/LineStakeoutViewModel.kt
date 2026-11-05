@@ -94,6 +94,13 @@ sealed interface LineSource {
     data class ProjectLine(val lineId: String) : LineSource
 }
 
+/** El nombre del punto de cada vértice de una línea del proyecto y si su cota es la interpolada (S027/RF-5, RF-8). */
+class VertexLabels(private val names: (Int) -> String, private val interpolated: (Int) -> Boolean) {
+    fun name(vertex: Int): String = names(vertex)
+
+    fun isInterpolated(vertex: Int): Boolean = interpolated(vertex)
+}
+
 /**
  * Lo que distingue a una fuente de otra una vez abierta (S027/D1): el tipo de elemento para la lista de vértices, cómo se identifica,
  * se llama y se guarda el objetivo, y cómo se describe en el panel. Todo lo demás es el motor de S041.
@@ -104,6 +111,7 @@ private class Origin(
     val targetName: String,
     val source: StakeSource,
     val code: PointCode? = null,
+    val labels: VertexLabels? = null,
     val describe: (StakeLine) -> LineElementInfo,
 )
 
@@ -149,6 +157,8 @@ data class LineStakeoutUiState(
     val intervalText: String = "",
     val errors: Map<LineField, LineInputError> = emptyMap(),
     val vertices: LineVertices? = null,
+    /** Los nombres de los puntos de los vértices de una línea del proyecto; null en una línea de un dibujo (S027/RF-5). */
+    val vertexLabels: VertexLabels? = null,
     val vertexIndex: Int = 0,
     val series: LineSeries? = null,
     val seriesIndex: Int = 0,
@@ -321,6 +331,7 @@ class LineStakeoutViewModel @Inject constructor(
             intervalText = model.intervalText,
             errors = model.errors,
             vertices = model.vertices,
+            vertexLabels = model.origin.labels,
             vertexIndex = model.vertexIndex,
             series = series,
             seriesIndex = model.seriesIndex.coerceIn(0, ((series?.size ?: 1) - 1).coerceAtLeast(0)),
@@ -439,7 +450,7 @@ class LineStakeoutViewModel @Inject constructor(
             when (built) {
                 ProjectStakeLineResult.TooFewVertices -> reject(LineUnsupportedReason.TOO_FEW_VERTICES)
                 ProjectStakeLineResult.NoPlanePosition -> reject(LineUnsupportedReason.NO_PLANE_POSITION)
-                is ProjectStakeLineResult.Built -> start(projectId, built.line, projectLineOrigin(data.line))
+                is ProjectStakeLineResult.Built -> start(projectId, built.line, projectLineOrigin(data.line, built))
             }
         }
     }
@@ -473,12 +484,13 @@ class LineStakeoutViewModel @Inject constructor(
         log.info(LogCategory.POINTS, "Replanteo de una línea abierto") // S014/RF-5
     }
 
-    private fun projectLineOrigin(line: ProjectLine) = Origin(
+    private fun projectLineOrigin(line: ProjectLine, built: ProjectStakeLineResult.Built) = Origin(
         kind = CadEntityKind.POLYLINE,
         targetId = "line:${line.id}",
         targetName = line.name,
         source = StakeSource.ProjectLine(line.id, line.name),
         code = line.code,
+        labels = VertexLabels(built::name, built::isInterpolated),
     ) { current ->
         val heights = (0 until current.vertexCount).mapNotNull { current.height(it) }
         LineElementInfo(

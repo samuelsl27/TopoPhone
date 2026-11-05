@@ -29,6 +29,9 @@ class LineVertices private constructor(private val line: StakeLine, val entries:
     fun indexOfVertex(vertex: Int): Int? = entries.indexOfFirst { it.vertex == vertex }.takeIf { it >= 0 }
 
     companion object {
+        /** La altura del vértice o, si falta en una línea con alturas en otros (S027/RF-8), la interpolada entre los que la tienen. */
+        private fun vertexHeight(line: StakeLine, vertex: Int): Double? = line.height(vertex) ?: line.heightAt(line.chainageOf(vertex))
+
         private val CURVES = setOf(CadEntityKind.ARC, CadEntityKind.CIRCLE, CadEntityKind.SPLINE)
 
         fun of(line: StakeLine, kind: CadEntityKind): LineVertices {
@@ -36,7 +39,7 @@ class LineVertices private constructor(private val line: StakeLine, val entries:
             val unmarkedCurve = curve && !line.hasOriginalMarks
             val offered = (0 until line.vertexCount).filter { line.isOriginal(it) }
             val entries = offered.mapIndexed { i, v ->
-                SegmentVertex(v, i + 1, line.chainageOf(v), PlanePoint(line.easting(v), line.northing(v)), line.height(v))
+                SegmentVertex(v, i + 1, line.chainageOf(v), PlanePoint(line.easting(v), line.northing(v)), vertexHeight(line, v))
             }
             return LineVertices(line, entries, needsReimport = unmarkedCurve && entries.size > 2)
         }
