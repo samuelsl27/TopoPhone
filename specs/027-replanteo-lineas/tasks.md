@@ -6,7 +6,7 @@
       Hecho cuando: `StakeSourceProjectLineTest` y los tests de `core:model` en verde.
 - [x] T2. `tools`: referencias de cota parcial (`generar_cota_parcial.py`, `fixtures/replanteo/cota-parcial/`) con aritmética exacta y su test de `pytest`. (RF-8, RF-9; constitución nº 2)
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros en el repositorio.
-- [ ] T3. `core:survey`: `StakeLine` con altura por vértice (`NaN`), `heightAt` y `height(v)` de D2, y `create` que devuelve el origen de cada vértice. (RF-8, RF-9)
+- [x] T3. `core:survey`: `StakeLine` con altura por vértice (`NaN`), `heightAt` y `height(v)` de D2, y `create` que devuelve el origen de cada vértice. (RF-8, RF-9)
       Hecho cuando: `StakeLinePartialHeightTest` en verde frente a las referencias y los tests de S041 intactos.
 - [ ] T4. `core:survey`: `ProjectStakeLine.of` (nombres, índices de origen, cota interpolada, menos de 2 vértices) y `ProjectLineParityTest` en los cinco modos. (RF-2, RF-3, RF-5, RF-6)
       Hecho cuando: `ProjectStakeLineTest` y `ProjectLineParityTest` en verde (≤ 1 mm).
