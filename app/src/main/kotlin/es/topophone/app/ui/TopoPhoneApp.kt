@@ -133,6 +133,7 @@ fun TopoPhoneApp(
                     navigation,
                     stakeoutPointId = page.stakeoutPointId,
                     stakeoutQuery = page.stakeoutQuery,
+                    stakeoutLineId = page.stakeoutLineId,
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.Info -> ProjectInfoRoute(page.projectId, theme, toggleSun, navigation, viewModel = hiltViewModel(owner))
@@ -387,6 +388,12 @@ private fun AppNavHost(
                 onLineFromPoints = { id -> navController.navigate(LineFromPointsDestination(id)) }, // S025/RF-12
                 onThreePointAngle = { id -> navController.navigate(ThreePointAngleDestination(id)) }, // S026/RF-13
                 onOpenLine = { projectId, lineId -> navController.navigate(LineDestination(projectId, lineId)) }, // S025/RF-22
+                onStakeoutLine = { projectId, lineId ->
+                    navController.navigate(ProjectViewDestination(projectId, stakeoutLineId = lineId)) // S027/RF-1
+                },
+                onLineInformation = { projectId, lineId ->
+                    navController.navigate(GeometryInfoDestination(projectId, lineId)) // S026/RF-1
+                },
                 onOpenPoint = { projectId, pointId -> navController.navigate(PointDestination(projectId, pointId)) }, // S011/RF-5
                 onNewPoint = { projectId -> navController.navigate(PointFormDestination(projectId)) }, // S011/RF-16
                 onEditPoint = { projectId, pointId -> navController.navigate(PointFormDestination(projectId, pointId)) }, // S011/RF-8
@@ -460,7 +467,7 @@ private fun AppNavHost(
             }
             composable<ProjectViewDestination> { entry ->
                 val args = entry.toRoute<ProjectViewDestination>()
-                val page = SurveyPage.View(args.projectId, args.stakeoutPointId, args.stakeoutQuery)
+                val page = SurveyPage.View(args.projectId, args.stakeoutPointId, args.stakeoutQuery, args.stakeoutLineId)
                 surveySection(page, uiState.themeState, actions.onToggleSun, surveyNavigation, entry)
             }
             composable<ProjectInfoDestination> { entry ->
@@ -771,6 +778,9 @@ private fun AppNavHost(
                     actions.onToggleSun,
                     onInformation = { navController.navigate(GeometryInfoDestination(args.projectId, args.lineId)) }, // S026/RF-1
                     onAngle = { navController.navigate(ThreePointAngleDestination(args.projectId, args.lineId)) }, // S026/RF-13
+                    onStakeout = {
+                        navController.navigate(ProjectViewDestination(args.projectId, stakeoutLineId = args.lineId)) // S027/RF-1
+                    },
                 ) { navController.popBackStack() }
             }
             composable<ThreePointAngleDestination> { entry ->

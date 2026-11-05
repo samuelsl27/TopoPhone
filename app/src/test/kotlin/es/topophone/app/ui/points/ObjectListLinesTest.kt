@@ -219,6 +219,7 @@ class ObjectListLinesTest {
                         onDeleteSelected = { calls += "delete" },
                         onLineFromPoints = { calls += "wizard" },
                         onThreePointAngle = { calls += "angle" },
+                        onStakeoutLine = { calls += "stakeout:$it" },
                     ),
                     onBack = {},
                 )
@@ -295,5 +296,15 @@ class ObjectListLinesTest {
         compose.onNodeWithTag(OBJECTS_ANGLE_TAG).performScrollTo().performClick()
 
         calls shouldBe listOf("angle")
+    }
+
+    @Test
+    fun `S027 RF-1 el menu de la fila de una linea ofrece Replantear`() {
+        show(uiState)
+
+        compose.onNodeWithTag(objectLineMenuTag("l1")).performClick()
+        compose.onNodeWithTag(objectLineStakeoutTag("l1")).performClick()
+
+        calls shouldBe listOf("stakeout:l1")
     }
 }

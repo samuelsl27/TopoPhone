@@ -75,7 +75,13 @@ import kotlinx.serialization.Serializable
 @Serializable data class ProjectFolderDestination(val folderId: String)
 
 /** Vista de un proyecto (S006/RF-28). */
-@Serializable data class ProjectViewDestination(val projectId: String, val stakeoutPointId: String? = null, val stakeoutQuery: String = "")
+@Serializable data class ProjectViewDestination(
+    val projectId: String,
+    val stakeoutPointId: String? = null,
+    val stakeoutQuery: String = "",
+    /** Abre el replanteo de esta línea del proyecto (S027/RF-1). */
+    val stakeoutLineId: String? = null,
+)
 
 /** Datos de un proyecto (S009/RF-5). */
 @Serializable data class ProjectInfoDestination(val projectId: String)

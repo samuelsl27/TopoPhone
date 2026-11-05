@@ -2644,4 +2644,7 @@
     <string name="point_stakeout_line">Line</string>
     <string name="stakeout_line_closed_line_deleted">The line was deleted and the stakeout was closed.</string>
     <string name="stakeout_line_closed_line_changed">The line or one of its vertices changed and the stakeout was closed: open it again with the new line.</string>
+    <string name="line_sheet_open">Open details</string>
+    <string name="line_create_axis">Create alignment</string>
+    <string name="objects_line_menu">More options for line %1$s</string>
 </resources>

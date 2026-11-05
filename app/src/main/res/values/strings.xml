@@ -2656,4 +2656,7 @@
     <string name="point_stakeout_line">Línea</string>
     <string name="stakeout_line_closed_line_deleted">Se ha borrado la línea y el replanteo se ha cerrado.</string>
     <string name="stakeout_line_closed_line_changed">La línea o uno de sus vértices ha cambiado y el replanteo se ha cerrado: ábrelo de nuevo con la línea nueva.</string>
+    <string name="line_sheet_open">Abrir ficha</string>
+    <string name="line_create_axis">Crear eje</string>
+    <string name="objects_line_menu">Más opciones de la línea %1$s</string>
 </resources>

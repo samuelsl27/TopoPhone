@@ -70,6 +70,7 @@ const val LINE_ISSUE_TAG = "line_issue"
 const val LINE_HISTORY_BUTTON_TAG = "line_history_button"
 const val LINE_INFORMATION_TAG = "line_information_button"
 const val LINE_ANGLE_TAG = "line_angle_button"
+const val LINE_STAKEOUT_TAG = "line_stakeout_button"
 const val LINE_HISTORY_TAG = "line_history"
 const val LINE_PICKER_SEARCH_TAG = "line_picker_search"
 const val LINE_DELETE_TAG = "line_delete"
@@ -118,6 +119,8 @@ class LineDetailsActions(
     val onInformation: () -> Unit = {},
     /** Abre el ángulo entre tres vértices de la línea (S026/RF-13). */
     val onAngle: () -> Unit = {},
+    /** Abre el replanteo de la línea (S027/RF-1). */
+    val onStakeout: () -> Unit = {},
 )
 
 @Composable
@@ -128,6 +131,7 @@ fun LineDetailsRoute(
     onToggleSun: () -> Unit,
     onInformation: () -> Unit = {},
     onAngle: () -> Unit = {},
+    onStakeout: () -> Unit = {},
     viewModel: LineDetailsViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
@@ -161,6 +165,7 @@ fun LineDetailsRoute(
             onDelete = viewModel::delete,
             onInformation = onInformation,
             onAngle = onAngle,
+            onStakeout = onStakeout,
         ),
         onBack = onBack,
     )
@@ -269,6 +274,10 @@ private fun Header(line: ProjectLine, state: LineDetailsUi, actions: LineDetails
             onClick = actions.onAddVertex,
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_ADD_VERTEX_TAG),
         ) { Text(stringResource(R.string.line_add_vertex)) }
+        Button(
+            onClick = actions.onStakeout,
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_STAKEOUT_TAG),
+        ) { Text(stringResource(R.string.design_element_stakeout)) } // S027/RF-1
         OutlinedButton(
             onClick = actions.onInformation,
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_INFORMATION_TAG),

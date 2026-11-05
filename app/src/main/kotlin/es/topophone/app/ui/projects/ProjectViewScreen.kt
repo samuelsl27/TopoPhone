@@ -110,6 +110,7 @@ import es.topophone.app.ui.linear.LongitudinalActions
 import es.topophone.app.ui.linear.LongitudinalPanel
 import es.topophone.app.ui.linear.LongitudinalUiState
 import es.topophone.app.ui.linear.LongitudinalViewModel
+import es.topophone.app.ui.lines.LineMapSheet
 import es.topophone.app.ui.map.AttributionSource
 import es.topophone.app.ui.map.CameraCommand
 import es.topophone.app.ui.map.CameraPolicy
@@ -139,6 +140,7 @@ import es.topophone.app.ui.stakeout.AxisStakeoutMarkers
 import es.topophone.app.ui.stakeout.AxisStakeoutPanel
 import es.topophone.app.ui.stakeout.AxisStakeoutUiState
 import es.topophone.app.ui.stakeout.AxisStakeoutViewModel
+import es.topophone.app.ui.stakeout.LineSource
 import es.topophone.app.ui.stakeout.LineStakeoutActions
 import es.topophone.app.ui.stakeout.LineStakeoutMarkers
 import es.topophone.app.ui.stakeout.LineStakeoutPanel
@@ -266,6 +268,8 @@ data class ProjectViewUiState(
     val base: GeoPoint? = null,
     /** Las líneas y los polígonos del proyecto para el mapa, ya como GeoJSON (S025/RF-22). */
     val lineScene: LineScene? = null,
+    /** El nombre de cada línea del proyecto, para la hoja que se abre al tocarla en el mapa (S027/RF-1). */
+    val lineNames: Map<String, String> = emptyMap(),
     /** El modo usa la inclinación pero la época no está en estado 30: "Punta sin compensar" (S016/RF-17). */
     val uncompensated: Boolean = false,
 )
@@ -372,13 +376,15 @@ class ProjectViewModel @Inject constructor(
         .combine(
             projectId.flatMapLatest { id ->
                 if (id == null) {
-                    flowOf(null)
+                    flowOf<Pair<LineScene?, Map<String, String>>>(null to emptyMap())
                 } else {
                     // S025/RF-22: el GeoJSON de las lineas se escribe aqui, fuera del hilo principal.
-                    combine(lines.lines(id), points.summaries(id)) { all, summaries -> MapLines.scene(all, summaries) }
+                    combine(lines.lines(id), points.summaries(id)) { all, summaries ->
+                        MapLines.scene(all, summaries) to all.associate { it.id to it.name }
+                    }
                 }
             },
-        ) { state, scene -> state.copy(lineScene = scene) }
+        ) { state, (scene, names) -> state.copy(lineScene = scene, lineNames = names) }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
@@ -420,6 +426,7 @@ fun ProjectViewRoute(
     navigation: SurveyNavigation,
     stakeoutPointId: String? = null,
     stakeoutQuery: String = "",
+    stakeoutLineId: String? = null,
     viewModel: ProjectViewModel = hiltViewModel(),
     collectorViewModel: CollectorViewModel = hiltViewModel(),
     stakeoutViewModel: StakeoutViewModel = hiltViewModel(),
@@ -493,6 +500,24 @@ fun ProjectViewRoute(
     val analysis by axisAnalysisViewModel.state.collectAsStateWithLifecycle()
     // S054/RF-13: con el análisis abierto, el recolector guarda lo que mide con su PK, su desplazamiento y su diferencia de cota.
     LaunchedEffect(analysisOpen) { collectorViewModel.setAxisReference(axisAnalysisViewModel.referenceProvider.takeIf { analysisOpen }) }
+    // S027/RF-1: el replanteo de una línea del proyecto, desde su ficha, su fila de la lista o la hoja del mapa, en el mismo hueco.
+    val startProjectLine: (String) -> Unit = { lineId ->
+        designViewModel.dismissSelection()
+        axisSurveyOpen = false
+        longitudinalOpen = false
+        crossOpen = false
+        axisOpen = false
+        axisStakeoutViewModel.close()
+        analysisOpen = false
+        axisAnalysisViewModel.close()
+        slopeOpen = false
+        slopeStakeViewModel.close()
+        stakeoutOpen = false
+        stakeoutViewModel.close()
+        lineStakeoutViewModel.open(projectId, LineSource.ProjectLine(lineId))
+        lineOpen = true
+    }
+    LaunchedEffect(stakeoutLineId) { if (stakeoutLineId != null) startProjectLine(stakeoutLineId) }
     // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5, S041/RF-27, S054/RF-10).
     val activeTarget = when {
         stakeoutOpen -> stakeout.target
@@ -874,6 +899,8 @@ fun ProjectViewRoute(
         onObjects = navigation.onOpenObjects,
         onOpenPoint = navigation.onOpenPoint,
         onOpenLine = navigation.onOpenLine, // S025/RF-22
+        onStakeoutLine = startProjectLine, // S027/RF-1
+        onLineInformation = navigation.onLineInformation, // S026/RF-1
         lineStakeout = line.takeIf { lineOpen },
         lineHighlight = lineHighlight,
         lineStakeoutActions = LineStakeoutActions(
@@ -966,6 +993,8 @@ fun ProjectViewScreen(
     onObjects: (projectId: String) -> Unit = {},
     onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     onOpenLine: (projectId: String, lineId: String) -> Unit = { _, _ -> },
+    onStakeoutLine: (lineId: String) -> Unit = {},
+    onLineInformation: (projectId: String, lineId: String) -> Unit = { _, _ -> },
     stakeout: StakeoutUiState? = null,
     stakeoutActions: StakeoutActions = StakeoutActions(),
     /** El replanteo de una línea del dibujo y el botón "Replantear" de la ficha de un elemento (S041/RF-1, RF-2). */
@@ -1262,11 +1291,30 @@ fun ProjectViewScreen(
         val map = controller ?: return@LaunchedEffect
         if (projectId != null) map.pointClicks.collect { pointId -> openPoint(projectId, pointId) }
     }
-    // S025/RF-22: tocar una linea o un poligono del mapa abre su ficha.
-    val openLine by rememberUpdatedState(onOpenLine)
+    // S025/RF-22, S027/RF-1: tocar una linea o un poligono del mapa abre una hoja con su ficha, su replanteo y su informacion.
+    var tappedLine by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(controller, projectId) {
         val map = controller ?: return@LaunchedEffect
-        if (projectId != null) map.lineClicks.collect { lineId -> openLine(projectId, lineId) }
+        if (projectId != null) map.lineClicks.collect { lineId -> tappedLine = lineId }
+    }
+    val sheetLine = tappedLine
+    if (sheetLine != null && projectId != null) {
+        LineMapSheet(
+            name = state.lineNames[sheetLine].orEmpty(),
+            onOpen = {
+                tappedLine = null
+                onOpenLine(projectId, sheetLine)
+            },
+            onStakeout = {
+                tappedLine = null
+                onStakeoutLine(sheetLine)
+            },
+            onInformation = {
+                tappedLine = null
+                onLineInformation(projectId, sheetLine)
+            },
+            onDismiss = { tappedLine = null },
+        )
     }
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }

@@ -132,6 +132,10 @@ fun objectLineRowTag(id: String) = "object_line_$id"
 
 fun objectLineVisibilityTag(id: String) = "object_line_visibility_$id"
 
+fun objectLineMenuTag(id: String) = "object_line_menu_$id"
+
+fun objectLineStakeoutTag(id: String) = "object_line_stakeout_$id"
+
 fun objectLineCodeTag(id: String) = "object_line_code_$id"
 
 fun objectVisibilityTag(id: String) = "object_visibility_$id"
@@ -202,6 +206,8 @@ class ObjectListActions(
     /** Abre la ficha de una línea y oculta o muestra una línea (S025/RF-21, RF-22, RF-23). */
     val onOpenLine: (String) -> Unit = {},
     val onSetLineHidden: (id: String, hidden: Boolean) -> Unit = { _, _ -> },
+    /** Abre el replanteo de una línea del proyecto desde el menú de su fila (S027/RF-1). */
+    val onStakeoutLine: (String) -> Unit = {},
     val onDismissPoleOutcome: () -> Unit = {},
     /** "Replantear" con un solo punto elegido (S018/RF-1). */
     val onStakeout: (pointId: String) -> Unit = {},
@@ -426,6 +432,7 @@ fun ObjectListRoute(
             onCodeFilter = viewModel::filterByCode, // S024/RF-18
             onOpenLine = { lineId -> navigation.onOpenLine(projectId, lineId) }, // S025/RF-22
             onSetLineHidden = viewModel::setLineHidden, // S025/RF-23
+            onStakeoutLine = { lineId -> navigation.onStakeoutLine(projectId, lineId) }, // S027/RF-1
             onDismissPoleOutcome = viewModel::dismissPoleOutcome,
             onStakeout = { pointId -> navigation.onStakeout(projectId, pointId, state.query) }, // S018/RF-1
         ),
@@ -516,9 +523,12 @@ fun ObjectListScreen(
                         Text(stringResource(R.string.objects_lines_title), style = MaterialTheme.typography.titleSmall)
                     }
                     items(state.lines, key = { "line-" + it.id }) { line ->
-                        LineRow(line, onClick = {
-                            actions.onOpenLine(line.id)
-                        }, onToggleHidden = { actions.onSetLineHidden(line.id, !line.hidden) })
+                        LineRow(
+                            line,
+                            onClick = { actions.onOpenLine(line.id) },
+                            onToggleHidden = { actions.onSetLineHidden(line.id, !line.hidden) },
+                            onStakeout = { actions.onStakeoutLine(line.id) },
+                        )
                         HorizontalDivider()
                     }
                 }
@@ -739,7 +749,8 @@ private fun PointRow(point: PointSummary, selected: Boolean, onClick: () -> Unit
 
 /** Una línea o un polígono: nombre, código con su color, número de vértices, si es abierta o polígono y el ojo del mapa (S025/RF-21). */
 @Composable
-private fun LineRow(line: LineSummary, onClick: () -> Unit, onToggleHidden: () -> Unit) {
+private fun LineRow(line: LineSummary, onClick: () -> Unit, onToggleHidden: () -> Unit, onStakeout: () -> Unit) {
+    var menuOpen by remember { mutableStateOf(false) }
     val shape = stringResource(if (line.closed) R.string.line_state_polygon else R.string.line_state_open)
     val vertices = pluralStringResource(R.plurals.collector_line_vertices, line.vertexCount, line.vertexCount)
     ListItem(
@@ -764,11 +775,30 @@ private fun LineRow(line: LineSummary, onClick: () -> Unit, onToggleHidden: () -
         },
         trailingContent = {
             val description = stringResource(if (line.hidden) R.string.objects_show_line else R.string.objects_hide_line, line.name)
-            IconButton(onClick = onToggleHidden, modifier = Modifier.size(MinTouchTarget).testTag(objectLineVisibilityTag(line.id))) {
-                Icon(
-                    painterResource(if (line.hidden) R.drawable.ic_visibility_off else R.drawable.ic_visibility),
-                    contentDescription = description,
-                )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onToggleHidden, modifier = Modifier.size(MinTouchTarget).testTag(objectLineVisibilityTag(line.id))) {
+                    Icon(
+                        painterResource(if (line.hidden) R.drawable.ic_visibility_off else R.drawable.ic_visibility),
+                        contentDescription = description,
+                    )
+                }
+                // S027/RF-1: el menú de la fila de una línea ofrece «Replantear».
+                IconButton(onClick = { menuOpen = true }, modifier = Modifier.size(MinTouchTarget).testTag(objectLineMenuTag(line.id))) {
+                    Icon(
+                        painterResource(R.drawable.ic_more_vert),
+                        contentDescription = stringResource(R.string.objects_line_menu, line.name),
+                    )
+                }
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.design_element_stakeout)) },
+                        onClick = {
+                            menuOpen = false
+                            onStakeout()
+                        },
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(objectLineStakeoutTag(line.id)),
+                    )
+                }
             }
         },
         modifier = Modifier.heightIn(min = MinTouchTarget).clickable(onClick = onClick).testTag(objectLineRowTag(line.id)),

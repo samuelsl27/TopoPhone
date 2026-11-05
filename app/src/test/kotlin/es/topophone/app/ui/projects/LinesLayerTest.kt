@@ -5,9 +5,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.lines.LINE_SHEET_INFO_TAG
+import es.topophone.app.ui.lines.LINE_SHEET_OPEN_TAG
+import es.topophone.app.ui.lines.LINE_SHEET_STAKEOUT_TAG
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.FakePointRepository
 import es.topophone.app.ui.map.LineScene
@@ -103,27 +109,64 @@ class LinesLayerTest {
         map.lines.shouldBeNull()
     }
 
-    @Test
-    fun `S025 RF-22 tocar una linea en el mapa abre su ficha`() {
-        var opened: Pair<String, String>? = null
+    private fun showWithLineCallbacks(
+        onOpen: (String, String) -> Unit = { _, _ -> },
+        onStakeout: (String) -> Unit = {},
+        onInformation: (String, String) -> Unit = { _, _ -> },
+    ) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
                 ProjectViewScreen(
                     ThemeState.DEFAULT,
                     {},
-                    ProjectViewUiState(project),
+                    ProjectViewUiState(project, lineNames = mapOf("l1" to "BORD_1")),
                     onBack = {},
                     map = fakeMap(map),
-                    onOpenLine = { projectId, lineId -> opened = projectId to lineId },
+                    onOpenLine = onOpen,
+                    onStakeoutLine = onStakeout,
+                    onLineInformation = onInformation,
                 )
             }
         }
         compose.waitForIdle()
+    }
+
+    @Test
+    fun `S025 RF-22 tocar una linea en el mapa abre una hoja con su nombre y Abrir ficha abre su ficha`() {
+        var opened: Pair<String, String>? = null
+        showWithLineCallbacks(onOpen = { projectId, lineId -> opened = projectId to lineId })
 
         map.clickLine("l1")
         compose.waitForIdle()
+        compose.onNodeWithText("BORD_1").assertExists()
+        opened shouldBe null
+        compose.onNodeWithTag(LINE_SHEET_OPEN_TAG).performClick()
 
         opened shouldBe ("p1" to "l1")
+    }
+
+    @Test
+    fun `S027 RF-1 la hoja del mapa ofrece Replantear la linea tocada`() {
+        var staked: String? = null
+        showWithLineCallbacks(onStakeout = { staked = it })
+
+        map.clickLine("l1")
+        compose.waitForIdle()
+        compose.onNodeWithTag(LINE_SHEET_STAKEOUT_TAG).performClick()
+
+        staked shouldBe "l1"
+    }
+
+    @Test
+    fun `S026 RF-1 la hoja del mapa ofrece la informacion de la linea tocada`() {
+        var info: Pair<String, String>? = null
+        showWithLineCallbacks(onInformation = { projectId, lineId -> info = projectId to lineId })
+
+        map.clickLine("l1")
+        compose.waitForIdle()
+        compose.onNodeWithTag(LINE_SHEET_INFO_TAG).performClick()
+
+        info shouldBe ("p1" to "l1")
     }
 
     private fun line(id: String, closed: Boolean, hidden: Boolean = false, vararg points: String) = ProjectLine(

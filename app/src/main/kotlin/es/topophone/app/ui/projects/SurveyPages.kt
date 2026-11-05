@@ -81,7 +81,12 @@ sealed interface SurveyPage {
     data class Form(val projectId: String?, val folderId: String?) : SurveyPage
 
     /** Vista de un proyecto (S006/RF-28). */
-    data class View(val projectId: String, val stakeoutPointId: String? = null, val stakeoutQuery: String = "") : SurveyPage
+    data class View(
+        val projectId: String,
+        val stakeoutPointId: String? = null,
+        val stakeoutQuery: String = "",
+        val stakeoutLineId: String? = null,
+    ) : SurveyPage
 
     /** Datos de un proyecto (S009/RF-5). */
     data class Info(val projectId: String) : SurveyPage
@@ -183,6 +188,10 @@ class SurveyNavigation(
     val onThreePointAngle: (projectId: String) -> Unit = {},
     /** La ficha de una línea (S025/RF-22). */
     val onOpenLine: (projectId: String, lineId: String) -> Unit = { _, _ -> },
+    /** El replanteo de una línea del proyecto, en la vista del proyecto (S027/RF-1). */
+    val onStakeoutLine: (projectId: String, lineId: String) -> Unit = { _, _ -> },
+    /** La información geométrica de una línea (S026/RF-1). */
+    val onLineInformation: (projectId: String, lineId: String) -> Unit = { _, _ -> },
     val onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     val onNewPoint: (projectId: String) -> Unit = {},
     val onEditPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
