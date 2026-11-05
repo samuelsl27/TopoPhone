@@ -30,7 +30,7 @@
       Hecho cuando: `CadLineInfoTest` en verde.
 - [x] T14. `app`: «Ángulo entre tres puntos» en la lista de objetos y en la ficha de la línea. (RF-13, RF-14, RF-15)
       Hecho cuando: `ThreePointAngleTest` de `app` en verde.
-- [ ] T15. `app`: rendimiento con 100.000 vértices, en cuadrícula y en terreno. (RNF-T13)
+- [x] T15. `app`: rendimiento con 100.000 vértices, en cuadrícula y en terreno. (RNF-T13)
       Hecho cuando: `GeometryPerformanceTest` en verde (menos de 1 s, sin bloquear el hilo principal más de 16 ms).
 - [ ] T16. Accesibilidad y textos: etiquetas, 56 dp, tabla monoespaciada, es/en y sin literales en código. (RNF-T7, RNF-T8)
       Hecho cuando: `GeometryAccessibilityTest` en verde.
