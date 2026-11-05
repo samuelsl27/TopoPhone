@@ -4,7 +4,7 @@
 
 - [x] T1. `core:model`: `StakeSource.ProjectLine` y los términos de `docs/glosario.md` («Línea de diseño»; «Replanteo de línea» y «Modo de línea» citan también S027). (RF-11, RF-12)
       Hecho cuando: `StakeSourceProjectLineTest` y los tests de `core:model` en verde.
-- [ ] T2. `tools`: referencias de cota parcial (`generar_cota_parcial.py`, `fixtures/replanteo/cota-parcial/`) con aritmética exacta y su test de `pytest`. (RF-8, RF-9; constitución nº 2)
+- [x] T2. `tools`: referencias de cota parcial (`generar_cota_parcial.py`, `fixtures/replanteo/cota-parcial/`) con aritmética exacta y su test de `pytest`. (RF-8, RF-9; constitución nº 2)
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros en el repositorio.
 - [ ] T3. `core:survey`: `StakeLine` con altura por vértice (`NaN`), `heightAt` y `height(v)` de D2, y `create` que devuelve el origen de cada vértice. (RF-8, RF-9)
       Hecho cuando: `StakeLinePartialHeightTest` en verde frente a las referencias y los tests de S041 intactos.
