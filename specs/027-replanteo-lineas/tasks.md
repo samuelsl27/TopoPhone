@@ -12,7 +12,7 @@
       Hecho cuando: `ProjectStakeLineTest` y `ProjectLineParityTest` en verde (≤ 1 mm).
 - [x] T5. `data`: Room v31 (`AutoMigration(30, 31)`, `stake_line_id` y `stake_line_name`) y el mapeo de `StakeSource.ProjectLine`. (RF-11, RF-12, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` de la v30 a la v31, `StakeLineSourceMappingTest` y `LineStakeoutBackupTest` en verde.
-- [ ] T6. `app`: `LineSource` y `LineStakeoutViewModel` generalizado sin cambiar el comportamiento de los dibujos; `LineElementInfo` común. (RF-1, RF-2)
+- [x] T6. `app`: `LineSource` y `LineStakeoutViewModel` generalizado sin cambiar el comportamiento de los dibujos; `LineElementInfo` común. (RF-1, RF-2)
       Hecho cuando: todos los tests de replanteo de línea de S041 siguen en verde.
 - [ ] T7. `app`: abrir el replanteo con una línea del proyecto (carga fuera del hilo principal, menos de 2 vértices, motivo, panel con nombre, código, longitud y forma, trazo grueso en el mapa). (RF-1, RF-3, RF-4)
       Hecho cuando: `LineStakeoutProjectLineTest` (apertura) en verde.

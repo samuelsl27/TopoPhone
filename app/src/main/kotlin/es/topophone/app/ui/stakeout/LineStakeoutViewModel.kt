@@ -77,6 +77,23 @@ enum class LineField { OFFSET, A, B, INTERVAL }
 /** Por qué se cierra el replanteo de una línea sin que el usuario lo pida (S041/RF-31). */
 enum class LineClosedReason { DRAWING_DELETED, }
 
+/** De dónde sale la línea que se replantea: un elemento de un dibujo (S041) o, en S027, una línea del proyecto. */
+sealed interface LineSource {
+    data class Drawing(val selection: DesignSelection) : LineSource
+}
+
+/**
+ * Lo que distingue a una fuente de otra una vez abierta (S027/D1): el tipo de elemento para la lista de vértices, cómo se identifica,
+ * se llama y se guarda el objetivo, y cómo se describe en el panel. Todo lo demás es el motor de S041.
+ */
+private class Origin(
+    val kind: CadEntityKind,
+    val targetId: String,
+    val targetName: String,
+    val source: StakeSource,
+    val describe: (StakeLine) -> LineElementInfo,
+)
+
 /** De qué línea del dibujo es el replanteo: capa, dibujo, tipo, longitud y cota (S041/RF-4). */
 data class LineElementInfo(
     val layerId: String,
@@ -165,7 +182,7 @@ class LineStakeoutViewModel @Inject constructor(
     /** Todo lo de la línea abierta; null si no hay replanteo abierto. */
     private class Model(
         val projectId: String,
-        val selection: DesignSelection,
+        val origin: Origin,
         val line: StakeLine,
         val locator: LineLocator,
         val vertices: LineVertices,
@@ -196,7 +213,7 @@ class LineStakeoutViewModel @Inject constructor(
             elevationOverrideM: Double? = this.elevationOverrideM,
             closed: LineClosedReason? = this.closed,
         ) = Model(
-            projectId, selection, line, locator, vertices, offsetText, aText, bText, intervalText, offsetM, range, intervalM, errors,
+            projectId, origin, line, locator, vertices, offsetText, aText, bText, intervalText, offsetM, range, intervalM, errors,
             vertexIndex, seriesIndex, elevationOverrideM, closed,
         )
 
@@ -267,21 +284,10 @@ class LineStakeoutViewModel @Inject constructor(
             hasManualElevation = model.elevationOverrideM != null,
             choice = surface.choice,
         )
-        val heights = (0 until line.vertexCount).mapNotNull { line.height(it) }
         val series = model.series
         LineStakeoutUiState(
             project = project,
-            element = LineElementInfo(
-                model.selection.ref.layerId,
-                model.selection.layerName,
-                model.selection.drawingName,
-                model.selection.entity.kind,
-                line.lengthM,
-                line.closed,
-                heights.minOrNull(),
-                heights.maxOrNull(),
-                model.selection.entity.name?.takeIf { it.isNotBlank() },
-            ),
+            element = model.origin.describe(line),
             mode = live.settings.lineMode,
             offsetText = model.offsetText,
             aText = model.aText,
@@ -353,16 +359,21 @@ class LineStakeoutViewModel @Inject constructor(
         }
     }
 
+    /** Abre el replanteo de la línea del elemento [selection] de un dibujo (S041/RF-2). */
+    fun open(projectId: String, selection: DesignSelection) = open(projectId, LineSource.Drawing(selection))
+
     /**
-     * Abre el replanteo de la línea [selection] del proyecto [projectId] (S041/RF-2): empieza con 0 de desplazamiento, A en el inicio
-     * y B en el final, sin intervalo y con el modo recordado (RF-3).
+     * Abre el replanteo de la línea de [source] del proyecto [projectId] (S041/RF-2, S027/RF-1): empieza con 0 de desplazamiento, A en
+     * el inicio y B en el final, sin intervalo y con el modo recordado (RF-3).
      */
-    fun open(projectId: String, selection: DesignSelection) {
+    fun open(projectId: String, source: LineSource) {
         this.projectId.value = projectId
         controller.reset()
         lastLine = null
         sourceChoice.value = null
         surfaceRemoved.value = false
+        val selection = (source as LineSource.Drawing).selection
+        val origin = drawingOrigin(selection)
         val line = StakeLine.of(selection.entity, withHeight = selection.hasElevation)
         if (line == null) {
             model.value = null
@@ -373,10 +384,10 @@ class LineStakeoutViewModel @Inject constructor(
         val unit = project?.linearUnit ?: LinearUnit.METRE
         model.value = Model(
             projectId = projectId,
-            selection = selection,
+            origin = origin,
             line = line,
             locator = LineLocator(line),
-            vertices = LineVertices.of(line, selection.entity.kind),
+            vertices = LineVertices.of(line, origin.kind),
             offsetText = format(0.0, unit),
             aText = format(0.0, unit),
             bText = format(line.lengthM, unit),
@@ -396,6 +407,26 @@ class LineStakeoutViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) { chosenGeometry.value = highlightOf(projectId, line) }
         watchDrawing(projectId, selection.ref.layerId)
         log.info(LogCategory.POINTS, "Replanteo de una línea abierto") // S014/RF-5
+    }
+
+    private fun drawingOrigin(selection: DesignSelection) = Origin(
+        kind = selection.entity.kind,
+        targetId = "cad:${selection.ref.layerId}:${selection.ref.chunkId}:${selection.ref.index}",
+        targetName = selection.stakeoutName,
+        source = StakeSource.CadElement(selection.drawingName, selection.layerName, selection.entity.kind),
+    ) { line ->
+        val heights = (0 until line.vertexCount).mapNotNull { line.height(it) }
+        LineElementInfo(
+            selection.ref.layerId,
+            selection.layerName,
+            selection.drawingName,
+            selection.entity.kind,
+            line.lengthM,
+            line.closed,
+            heights.minOrNull(),
+            heights.maxOrNull(),
+            selection.entity.name?.takeIf { it.isNotBlank() },
+        )
     }
 
     /** Hasta [HIGHLIGHT_MAX] vértices repartidos por la línea, más el primero y el último, pasados a latitud y longitud. */
@@ -736,13 +767,12 @@ class LineStakeoutViewModel @Inject constructor(
         }
         val coordinates = coordinatesOf(project, east, north, height) ?: return null
         if (mode != LineStakeoutMode.BY_SEGMENTS && mode != LineStakeoutMode.INTERVALS) anchor = coordinates
-        val selection = m.selection
         val target = StakeTarget(
-            id = "cad:${selection.ref.layerId}:${selection.ref.chunkId}:${selection.ref.index}",
-            name = selection.stakeoutName,
+            id = m.origin.targetId,
+            name = m.origin.targetName,
             description = "",
             coordinates = coordinates,
-            source = StakeSource.CadElement(selection.drawingName, selection.layerName, selection.entity.kind),
+            source = m.origin.source,
         )
         cached = key to target
         return target

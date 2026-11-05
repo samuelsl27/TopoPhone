@@ -248,6 +248,23 @@ class LineStakeoutViewModelTest {
     }
 
     @Test
+    fun `S027 RF-1 abrir con la fuente de un dibujo da lo mismo que abrir con su seleccion`() {
+        val a = viewModel()
+        val b = viewModel()
+        val sel = selection(zs = doubleArrayOf(100.0, 110.0))
+        insertDrawing()
+        a.open(projectId, sel)
+        b.open(projectId, LineSource.Drawing(sel))
+
+        val fromSelection = await(a) { it.element != null && it.project != null }
+        val fromSource = await(b) { it.element != null && it.project != null }
+
+        fromSource.element shouldBe fromSelection.element
+        fromSource.target?.id shouldBe fromSelection.target?.id
+        fromSource.target?.source shouldBe fromSelection.target?.source
+    }
+
+    @Test
     fun `S041 RF-2 la primera vez el modo es A la linea y los campos empiezan con 0, el inicio y el final y sin intervalo`() {
         val vm = viewModel()
 
