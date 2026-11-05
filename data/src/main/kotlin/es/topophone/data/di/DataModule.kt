@@ -33,6 +33,9 @@ import es.topophone.data.export.ExportPreferences
 import es.topophone.data.gear.GearLegacyImport
 import es.topophone.data.gear.GearRepository
 import es.topophone.data.gear.RoomGearRepository
+import es.topophone.data.geometry.DataStoreGeometryPreferences
+import es.topophone.data.geometry.GeometryDataStoreQualifier
+import es.topophone.data.geometry.GeometryPreferences
 import es.topophone.data.gpkg.GeoPackageImporter
 import es.topophone.data.gpkg.GeoPackageReader
 import es.topophone.data.line.LineRepository
@@ -123,6 +126,12 @@ object DataStoreModule {
     @ExportDataStoreQualifier
     fun provideExportDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         SettingsDataStore.create(context, name = "export")
+
+    @Provides
+    @Singleton
+    @GeometryDataStoreQualifier
+    fun provideGeometryDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        SettingsDataStore.create(context, name = "geometry")
 
     @Provides
     @Singleton
@@ -328,6 +337,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindExportPreferences(implementation: DataStoreExportPreferences): ExportPreferences
+
+    @Binds
+    abstract fun bindGeometryPreferences(implementation: DataStoreGeometryPreferences): GeometryPreferences
 
     @Binds
     abstract fun bindAutoBackupPreferences(implementation: DataStoreAutoBackupPreferences): AutoBackupPreferences

@@ -16,7 +16,7 @@
       Hecho cuando: `ThreePointAngleTest` en verde, con ángulos cercanos a 0° y 180° y puntos coincidentes.
 - [x] T7. `core:formats`: `GeometryCsv`. (RF-8, RNF-T9)
       Hecho cuando: `GeometryCsvTest` en verde con `Locale.ROOT`, unidades en la cabecera y fila de totales.
-- [ ] T8. `data`: `GeometryPreferences` y su binding. (RF-9)
+- [x] T8. `data`: `GeometryPreferences` y su binding. (RF-9)
       Hecho cuando: `GeometryPreferencesTest` en verde con valor por defecto y persistencia.
 - [ ] T9. `data`: `VertexPoint` con altura y posición geodésica. (RF-3, RF-5)
       Hecho cuando: `VertexPointTest` en verde y los tests de S025 intactos.
