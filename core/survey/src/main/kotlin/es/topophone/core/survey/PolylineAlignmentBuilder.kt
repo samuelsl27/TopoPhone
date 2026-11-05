@@ -34,26 +34,44 @@ object PolylineAlignmentBuilder {
         if (entity.kind != CadEntityKind.POLYLINE && entity.kind != CadEntityKind.LINE) {
             return PolylineResult.Failed(AlignmentIssue.NotAPolyline)
         }
-        val n = entity.vertexCount
-        val first = hypot(entity.easting[0] - nearEasting, entity.northing[0] - nearNorthing)
-        val last = hypot(entity.easting[n - 1] - nearEasting, entity.northing[n - 1] - nearNorthing)
+        val marks = if (entity.hasOriginalMarks) BooleanArray(entity.vertexCount) { entity.isOriginal(it) } else null
+        return buildFromVertices(entity.easting, entity.northing, entity.height, nearEasting, nearNorthing, startChainage, marks)
+    }
+
+    /**
+     * Lo mismo con los vértices sueltos (S027/RF-17): los de una línea del proyecto, todos originales y rectos si [original] es null. Una
+     * altura `NaN` es un vértice sin altura: la rasante usa solo los vértices que la tienen, en su PK, y no hay rasante con menos de dos.
+     */
+    fun buildFromVertices(
+        easting: DoubleArray,
+        northing: DoubleArray,
+        height: DoubleArray?,
+        nearEasting: Double,
+        nearNorthing: Double,
+        startChainage: Double = 0.0,
+        original: BooleanArray? = null,
+    ): PolylineResult {
+        val n = easting.size
+        if (n < 2) return PolylineResult.Failed(AlignmentIssue.NotAPolyline)
+        val first = hypot(easting[0] - nearEasting, northing[0] - nearNorthing)
+        val last = hypot(easting[n - 1] - nearEasting, northing[n - 1] - nearNorthing)
         val order = if (last < first) (n - 1 downTo 0).toList() else (0 until n).toList()
-        val e = DoubleArray(n) { entity.easting[order[it]] }
-        val nn = DoubleArray(n) { entity.northing[order[it]] }
-        val z = entity.height?.let { h -> DoubleArray(n) { h[order[it]] } }
-        val original = BooleanArray(n) { entity.isOriginal(order[it]) }
-        original[0] = true
-        original[n - 1] = true
+        val e = DoubleArray(n) { easting[order[it]] }
+        val nn = DoubleArray(n) { northing[order[it]] }
+        val z = height?.let { h -> DoubleArray(n) { h[order[it]] } }
+        val marks = BooleanArray(n) { original?.get(order[it]) ?: true }
+        marks[0] = true
+        marks[n - 1] = true
 
         val elements = ArrayList<AlignmentElement>()
         val profile = if (z != null) ArrayList<VerticalVertex>() else null
         var chainage = startChainage
         var from = 0
         var originalNumber = 0
-        profile?.add(VerticalVertex(chainage, z!![0]))
+        if (z != null && !z[0].isNaN()) profile?.add(VerticalVertex(chainage, z[0]))
         while (from < n - 1) {
             var to = from + 1
-            while (!original[to]) to++
+            while (!marks[to]) to++
             originalNumber++
             val element = if (to == from + 1) {
                 line(e, nn, from, to, chainage)
@@ -64,11 +82,11 @@ object PolylineAlignmentBuilder {
                 elements += element
                 chainage += element.length
             }
-            profile?.add(VerticalVertex(chainage, z!![to]))
+            if (z != null && !z[to].isNaN()) profile?.add(VerticalVertex(chainage, z[to]))
             from = to
         }
         if (elements.isEmpty()) return PolylineResult.Failed(AlignmentIssue.NotAPolyline)
-        return PolylineResult.Built(elements, profile?.let { dropRepeats(it) })
+        return PolylineResult.Built(elements, profile?.let { dropRepeats(it) }?.takeIf { it.size >= 2 })
     }
 
     /** Un vértice repetido (un tramo sin longitud) no añade un vértice de rasante en el mismo PK. */

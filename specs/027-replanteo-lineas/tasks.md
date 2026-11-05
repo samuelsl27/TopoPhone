@@ -30,7 +30,7 @@
       Hecho cuando: `LineStakeoutClosedTest` y `LineDeletedKeepsPointsTest` en verde.
 - [x] T14. `app`: «Replantear» en la ficha de la línea, en la hoja que se abre al tocar la línea en el mapa y en el menú «⋮» de la fila de la lista de objetos. (RF-1)
       Hecho cuando: `LineActionsTest` en verde y los tests de S025 de la ficha y del mapa adaptados o intactos.
-- [ ] T15. `core:survey`: `PolylineAlignmentBuilder.buildFromVertices` con alturas parciales. (RF-17)
+- [x] T15. `core:survey`: `PolylineAlignmentBuilder.buildFromVertices` con alturas parciales. (RF-17)
       Hecho cuando: `PolylineAlignmentFromVerticesTest` en verde y los tests de S049 intactos.
 - [ ] T16. `app`: «Crear eje» desde la ficha y la hoja del mapa, con la línea y sus puntos intactos. (RF-17, RF-18)
       Hecho cuando: `CreateAxisFromLineTest` en verde.
