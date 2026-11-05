@@ -6,7 +6,7 @@
       Hecho cuando: `AreaFormatTest` y `SlopeFormatTest` en verde con m², ft² y usft².
 - [x] T2. `tools`: `generar_referencias.py` con `pyproj` y `fixtures/geometria/` (rectas, polígono cóncavo y con cruces, ángulos; cuadrícula y terreno) y su test de `pytest`. (Constitución nº 2)
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros generados en el repositorio.
-- [ ] T3. `core:survey`: `GeometryVertex`, `PlanarFrame` y `GeometryCalculator` en cuadrícula: longitud 2D y 3D, azimut, desnivel, pendiente, PK, alturas que faltan y menos de 2 vértices. (RF-1, RF-2, RF-3, RF-7)
+- [x] T3. `core:survey`: `GeometryVertex`, `PlanarFrame` y `GeometryCalculator` en cuadrícula: longitud 2D y 3D, azimut, desnivel, pendiente, PK, alturas que faltan y menos de 2 vértices. (RF-1, RF-2, RF-3, RF-7)
       Hecho cuando: `GeometryCalculatorGridTest` en verde frente a las referencias (≤ 1 mm, 1 µrad).
 - [ ] T4. `core:survey`: perímetro, área (Gauss) y `CrossingFinder`. (RF-1, RF-6)
       Hecho cuando: `GeometryAreaTest` y `CrossingFinderTest` en verde (≤ 1 mm²) con el polígono cóncavo y el de cruces.
