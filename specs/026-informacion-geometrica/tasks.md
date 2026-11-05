@@ -8,7 +8,7 @@
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros generados en el repositorio.
 - [x] T3. `core:survey`: `GeometryVertex`, `PlanarFrame` y `GeometryCalculator` en cuadrícula: longitud 2D y 3D, azimut, desnivel, pendiente, PK, alturas que faltan y menos de 2 vértices. (RF-1, RF-2, RF-3, RF-7)
       Hecho cuando: `GeometryCalculatorGridTest` en verde frente a las referencias (≤ 1 mm, 1 µrad).
-- [ ] T4. `core:survey`: perímetro, área (Gauss) y `CrossingFinder`. (RF-1, RF-6)
+- [x] T4. `core:survey`: perímetro, área (Gauss) y `CrossingFinder`. (RF-1, RF-6)
       Hecho cuando: `GeometryAreaTest` y `CrossingFinderTest` en verde (≤ 1 mm²) con el polígono cóncavo y el de cruces.
 - [ ] T5. `core:survey`: `SegmentScale` con el factor combinado de S008 por segmento y del polígono, la altura del proyecto como recurso y el SC geográfico con plano local. (RF-10, RF-11)
       Hecho cuando: `GeometryCalculatorGroundTest` y `GeometryGeographicTest` en verde frente a las referencias.

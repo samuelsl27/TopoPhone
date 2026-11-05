@@ -106,7 +106,7 @@ def cases() -> list[Case]:
             True,
             tuple(projected(x, y, z) for x, y, z in ((0, 0, 700.0), (200, 0, 701.0), (200, 50, 702.0), (100, 50, 701.5), (100, 150, 703.0), (0, 150, 702.5))),
         ),
-        Case("cruces", True, tuple(projected(x, y, 700.0 + x / 50) for x, y in ((0, 0), (100, 100), (100, 0), (0, 100)))),
+        Case("cruces", True, tuple(projected(x, y, 700.0 + x / 50) for x, y in ((0, 0), (100, 100), (100, 0), (0, 60)))),
         Case(
             "parcela",
             True,
