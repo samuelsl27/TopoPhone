@@ -89,6 +89,9 @@ import kotlinx.serialization.Serializable
 /** La ficha de una línea del proyecto (S025/RF-22). */
 @Serializable data class LineDestination(val projectId: String, val lineId: String)
 
+/** La información geométrica de una línea o un polígono del proyecto (S026/RF-1). */
+@Serializable data class GeometryInfoDestination(val projectId: String, val lineId: String)
+
 /** Ficha de un punto (S011/RF-5). */
 @Serializable data class PointDestination(val projectId: String, val pointId: String)
 

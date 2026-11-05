@@ -22,7 +22,7 @@
       Hecho cuando: `VertexPointTest` en verde y los tests de S025 intactos.
 - [x] T10. `app`: `GeometryInput` (desde `VertexPoint`) y `GeometryInfoViewModel`: modo recordado, cálculo en segundo plano, recalcular al editar un vértice y motivo con menos de 2 vértices. (RF-5, RF-7, RF-9)
       Hecho cuando: `GeometryInfoViewModelTest` en verde sin modificar ningún dato.
-- [ ] T11. `app`: `GeometryInfoScreen` (totales, selector Cuadrícula/Terreno, avisos, tabla monoespaciada) y los botones «Información» de la ficha de la línea. (RF-1, RF-2, RF-3, RF-6, RF-9, RF-11, RF-12)
+- [x] T11. `app`: `GeometryInfoScreen` (totales, selector Cuadrícula/Terreno, avisos, tabla monoespaciada) y los botones «Información» de la ficha de la línea. (RF-1, RF-2, RF-3, RF-6, RF-9, RF-11, RF-12)
       Hecho cuando: `GeometryInfoScreenTest` en verde, con `performScrollToNode` en la tabla.
 - [ ] T12. `app`: «Exportar tabla» con el selector de ficheros y el FileProvider. (RF-8)
       Hecho cuando: `GeometryExportTest` en verde.

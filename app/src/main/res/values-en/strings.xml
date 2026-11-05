@@ -2583,4 +2583,33 @@
         <item quantity="other">%d polygons</item>
     </plurals>
     <string name="line_vertex_menu_for">Options for vertex %1$s</string>
+    <string name="geometry_title">Geometric information</string>
+    <string name="geometry_button">Information</string>
+    <string name="geometry_mode_grid">Grid</string>
+    <string name="geometry_mode_ground">Ground</string>
+    <string name="geometry_active_grid">Grid distances</string>
+    <string name="geometry_active_ground">Ground distances</string>
+    <string name="geometry_length_2d">2D length</string>
+    <string name="geometry_length_3d">3D length</string>
+    <string name="geometry_perimeter">Perimeter</string>
+    <string name="geometry_area">Area</string>
+    <string name="geometry_counts">Vertices: %1$d · Segments: %2$d</string>
+    <string name="geometry_table_title">Segments</string>
+    <string name="geometry_col_number">No.</string>
+    <string name="geometry_col_from">From</string>
+    <string name="geometry_col_to">To</string>
+    <string name="geometry_col_chainage">Chainage</string>
+    <string name="geometry_col_length_2d">2D len.</string>
+    <string name="geometry_col_length_3d">3D len.</string>
+    <string name="geometry_col_azimuth">Azimuth</string>
+    <string name="geometry_col_delta">Height diff.</string>
+    <string name="geometry_col_slope">Slope (%)</string>
+    <string name="geometry_segment_description">Segment %1$d, from %2$s to %3$s</string>
+    <string name="geometry_notice_crosses">The polygon segments cross each other: the area is signed and not that of a simple polygon.</string>
+    <string name="geometry_notice_missing_height">No height on segments %1$s: no total 3D length, height difference or slope for those segments.</string>
+    <string name="geometry_notice_local_plane">The project CRS is geographic: distances are computed in the local plane of the first vertex.</string>
+    <string name="geometry_notice_no_factor">No combined factor for this CRS or position: grid distances are used.</string>
+    <string name="geometry_notice_factor_no_height">No ellipsoidal height on the vertices: the ground factor does not correct for height.</string>
+    <string name="geometry_problem_too_few">At least 2 vertices (3 for a polygon) are needed to compute.</string>
+    <string name="geometry_problem_no_position">A vertex has no position: it cannot be computed.</string>
 </resources>

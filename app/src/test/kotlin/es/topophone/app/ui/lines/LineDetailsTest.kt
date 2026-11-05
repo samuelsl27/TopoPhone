@@ -485,4 +485,14 @@ class LineDetailsTest {
         compose.onNodeWithTag(LINE_CODE_TAG).assertIsDisplayed()
         compose.onNodeWithText("Material: Granito").assertExists()
     }
+
+    @Test
+    fun `S026 RF-1 la ficha tiene el boton Informacion que abre la informacion geometrica`() {
+        var opened = false
+        show(ui, LineDetailsActions(onInformation = { opened = true }))
+
+        compose.onNodeWithTag(LINE_INFORMATION_TAG).performScrollTo().performClick()
+
+        opened shouldBe true
+    }
 }

@@ -48,6 +48,7 @@ import es.topophone.app.ui.codes.CodeLibraryRoute
 import es.topophone.app.ui.codes.ProjectCodesRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
+import es.topophone.app.ui.geometry.GeometryInfoRoute
 import es.topophone.app.ui.gpkg.GpkgImportRoute
 import es.topophone.app.ui.linear.LinearSurveysRoute
 import es.topophone.app.ui.lines.LineDetailsRoute
@@ -761,7 +762,17 @@ private fun AppNavHost(
             }
             composable<LineDestination> { entry ->
                 val args = entry.toRoute<LineDestination>()
-                LineDetailsRoute(args.projectId, args.lineId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
+                LineDetailsRoute(
+                    args.projectId,
+                    args.lineId,
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    onInformation = { navController.navigate(GeometryInfoDestination(args.projectId, args.lineId)) }, // S026/RF-1
+                ) { navController.popBackStack() }
+            }
+            composable<GeometryInfoDestination> { entry ->
+                val args = entry.toRoute<GeometryInfoDestination>()
+                GeometryInfoRoute(args.projectId, args.lineId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<LineFromPointsDestination> { entry ->
                 val args = entry.toRoute<LineFromPointsDestination>()

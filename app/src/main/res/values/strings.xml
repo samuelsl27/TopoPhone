@@ -2595,4 +2595,33 @@
         <item quantity="other">%d polígonos</item>
     </plurals>
     <string name="line_vertex_menu_for">Opciones del vértice %1$s</string>
+    <string name="geometry_title">Información geométrica</string>
+    <string name="geometry_button">Información</string>
+    <string name="geometry_mode_grid">Cuadrícula</string>
+    <string name="geometry_mode_ground">Terreno</string>
+    <string name="geometry_active_grid">Distancias de cuadrícula</string>
+    <string name="geometry_active_ground">Distancias de terreno</string>
+    <string name="geometry_length_2d">Longitud 2D</string>
+    <string name="geometry_length_3d">Longitud 3D</string>
+    <string name="geometry_perimeter">Perímetro</string>
+    <string name="geometry_area">Área</string>
+    <string name="geometry_counts">Vértices: %1$d · Segmentos: %2$d</string>
+    <string name="geometry_table_title">Segmentos</string>
+    <string name="geometry_col_number">N.º</string>
+    <string name="geometry_col_from">Desde</string>
+    <string name="geometry_col_to">Hasta</string>
+    <string name="geometry_col_chainage">PK</string>
+    <string name="geometry_col_length_2d">Long. 2D</string>
+    <string name="geometry_col_length_3d">Long. 3D</string>
+    <string name="geometry_col_azimuth">Azimut</string>
+    <string name="geometry_col_delta">Desnivel</string>
+    <string name="geometry_col_slope">Pendiente (%)</string>
+    <string name="geometry_segment_description">Segmento %1$d, de %2$s a %3$s</string>
+    <string name="geometry_notice_crosses">Los segmentos del polígono se cruzan: el área es con signo y no es la de un polígono simple.</string>
+    <string name="geometry_notice_missing_height">Sin altura en los segmentos %1$s: no hay longitud 3D total ni desnivel ni pendiente de esos segmentos.</string>
+    <string name="geometry_notice_local_plane">El SC del proyecto es geográfico: las distancias se calculan en el plano local del primer vértice.</string>
+    <string name="geometry_notice_no_factor">Sin factor combinado en este SC o posición: se usan las distancias de cuadrícula.</string>
+    <string name="geometry_notice_factor_no_height">Sin altura elipsoidal en los vértices: el factor de terreno no corrige por altura.</string>
+    <string name="geometry_problem_too_few">Hacen falta al menos 2 vértices (3 en un polígono) para calcular.</string>
+    <string name="geometry_problem_no_position">Algún vértice no tiene posición: no se puede calcular.</string>
 </resources>
