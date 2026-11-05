@@ -38,8 +38,11 @@ object StakeoutReportCsv {
      */
     private val SLOPE_HEADERS = listOf("Slope kind", "Slope side", "Slope ratio", "Slope height", "Slope delta elevation", "Stake offset")
 
-    /** Si el punto de diseño era un elemento de un dibujo: el dibujo, la capa, el tipo de elemento, el modo, el PK y el desplazamiento (S041/RF-30). */
-    private val DRAWING_HEADERS = listOf("Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset")
+    /**
+     * Si el punto de diseño era un elemento de un dibujo: el dibujo, la capa, el tipo de elemento, el modo, el PK y el desplazamiento
+     * (S041/RF-30); y si era un objetivo de una línea del proyecto, su nombre en la última, con las del dibujo vacías (S027/RF-14).
+     */
+    private val DRAWING_HEADERS = listOf("Drawing", "Layer", "Element type", "Mode", "Chainage", "Lateral offset", "Line")
 
     /** Si se replanteó con una superficie activa: el origen de la cota, la superficie, su cota en lo medido y el desplazamiento vertical (S042/RF-31). */
     private val SURFACE_HEADERS = listOf("Elevation source", "Surface", "Surface elevation", "Vertical offset")
@@ -84,10 +87,14 @@ object StakeoutReportCsv {
         )
     }
 
-    /** Las seis columnas del dibujo, vacías en un punto replanteado que viene de un punto del proyecto (S041/RF-30). */
+    /** Las siete columnas del dibujo y de la línea, vacías en un punto replanteado que viene de un punto del proyecto (S041/RF-30, S027/RF-14). */
     private fun drawingValues(ref: StakeoutRef, length: (Double?) -> String): List<String> {
         // Un PK de un eje no tiene dibujo, capa, tipo ni modo, pero sí PK y desplazamiento en las mismas dos últimas columnas (S054/RF-10).
-        if (ref.source is StakeSource.Alignment) return List(4) { "" } + listOf(length(ref.chainageM), length(ref.lateralOffsetM))
+        if (ref.source is StakeSource.Alignment) return List(4) { "" } + listOf(length(ref.chainageM), length(ref.lateralOffsetM), "")
+        // S027/RF-14: una línea del proyecto no tiene dibujo, capa ni tipo de elemento; sí modo, PK, desplazamiento y su nombre.
+        (ref.source as? StakeSource.ProjectLine)?.let {
+            return listOf("", "", "", ref.mode?.name.orEmpty(), length(ref.chainageM), length(ref.lateralOffsetM), it.lineName)
+        }
         val source = ref.source as? StakeSource.CadElement ?: return List(DRAWING_HEADERS.size) { "" }
         return listOf(
             source.drawingName,
@@ -96,6 +103,7 @@ object StakeoutReportCsv {
             ref.mode?.name.orEmpty(),
             length(ref.chainageM),
             length(ref.lateralOffsetM),
+            "",
         )
     }
 

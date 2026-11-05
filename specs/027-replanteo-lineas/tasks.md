@@ -24,7 +24,7 @@
       Hecho cuando: `LineStakeoutSaveTest` en verde, con un solo guardado atómico del punto.
 - [x] T11. `app`: la ficha del punto replanteado dice de qué línea viene. (RF-13)
       Hecho cuando: `PointDetailsLineTest` en verde.
-- [ ] T12. `core:formats` y `app`: columna «Line» en el informe de replanteo y golden actualizados. (RF-14)
+- [x] T12. `core:formats` y `app`: columna «Line» en el informe de replanteo y golden actualizados. (RF-14)
       Hecho cuando: `StakeoutReportCsvLineTest`, `StakeoutReportLineTest` y los golden de S019 y S041 en verde.
 - [ ] T13. `app`: cerrar el replanteo si la línea o un vértice cambia, o la línea se borra, con el motivo. (RF-15, RF-16)
       Hecho cuando: `LineStakeoutClosedTest` y `LineDeletedKeepsPointsTest` en verde.
