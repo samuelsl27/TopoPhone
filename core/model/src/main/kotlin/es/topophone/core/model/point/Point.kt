@@ -214,6 +214,9 @@ data class StakeoutRef(
     /** El punto de diseño es un PK y un desplazamiento de un eje (S054/RF-10). */
     val fromAlignment: Boolean get() = source is StakeSource.Alignment
 
+    /** El punto de diseño es un objetivo de una línea del proyecto (S027/RF-12). */
+    val fromProjectLine: Boolean get() = source is StakeSource.ProjectLine
+
     /** Replanteado antes de S019, sin tolerancias ni veredicto guardados (S019/RF-26). */
     val notEvaluated: Boolean get() = withinTolerance == null
 

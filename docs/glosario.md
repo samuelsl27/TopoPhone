@@ -187,8 +187,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Desplazamiento lateral | `LateralOffset` | Distancia perpendicular a la línea a la que se quiere estar; positiva a la derecha del sentido de la línea (S041) |
 | Distancia lateral | `CrossTrack` | Distancia perpendicular con signo entre la punta y la línea (S041) |
 | Error lateral | `CrossTrackError` | Distancia lateral menos el desplazamiento lateral (S041) |
-| Replanteo de línea | `LineStakeout` | Replanteo de una línea del dibujo con sus cinco modos (S041) |
-| Modo de línea | `LineStakeoutMode` | Por segmentos, A la línea, A lo largo de la línea, Tramo A–B o Intervalos (S041) |
+| Replanteo de línea | `LineStakeout` | Replanteo de una línea del dibujo (S041) o del proyecto (S027) con sus cinco modos |
+| Modo de línea | `LineStakeoutMode` | Por segmentos, A la línea, A lo largo de la línea, Tramo A–B o Intervalos (S041, S027) |
+| Línea de diseño | `DesignLine` | La línea del proyecto (S025) que se replantea; sus vértices son sus puntos (S027) |
 | Copia de seguridad | `Backup` | Copia completa de los datos de la app en un ZIP (S013) |
 | Exportar | `export` | Sacar los puntos de un proyecto a un fichero (S012) |
 | Formato de exportación | `ExportFormat` | Todas las columnas, PENZD, PNEZD o personalizado (S012) |

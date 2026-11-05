@@ -33,6 +33,12 @@ sealed interface StakeSource {
 
     /** Un PK y un desplazamiento de un eje: se guarda su nombre, no su identificador, para que sobreviva al borrado del eje (S054/RF-10). */
     data class Alignment(val alignmentName: String) : StakeSource
+
+    /**
+     * Una línea del proyecto (S027/RF-12): se guardan su identificador y su nombre, sin clave foránea, para que el punto sobreviva al
+     * borrado de la línea (RF-16). El código y los atributos van en el punto, no aquí.
+     */
+    data class ProjectLine(val lineId: String, val lineName: String) : StakeSource
 }
 
 /**

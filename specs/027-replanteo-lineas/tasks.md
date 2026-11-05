@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `core:model`: `StakeSource.ProjectLine` y los términos de `docs/glosario.md` («Línea de diseño»; «Replanteo de línea» y «Modo de línea» citan también S027). (RF-11, RF-12)
+- [x] T1. `core:model`: `StakeSource.ProjectLine` y los términos de `docs/glosario.md` («Línea de diseño»; «Replanteo de línea» y «Modo de línea» citan también S027). (RF-11, RF-12)
       Hecho cuando: `StakeSourceProjectLineTest` y los tests de `core:model` en verde.
 - [ ] T2. `tools`: referencias de cota parcial (`generar_cota_parcial.py`, `fixtures/replanteo/cota-parcial/`) con aritmética exacta y su test de `pytest`. (RF-8, RF-9; constitución nº 2)
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros en el repositorio.
