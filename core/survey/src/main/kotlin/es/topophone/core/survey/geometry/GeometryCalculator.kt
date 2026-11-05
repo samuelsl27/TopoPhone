@@ -13,7 +13,7 @@ object GeometryCalculator {
 
     fun of(vertices: List<GeometryVertex>, closed: Boolean, scale: SegmentScale): GeometryResult {
         if (vertices.size < (if (closed) 3 else 2)) return GeometryResult.TooFewVertices
-        val plane = PlanarFrame.of(vertices) ?: return GeometryResult.TooFewVertices
+        val plane = PlanarFrame.of(vertices) ?: return GeometryResult.NoPosition
         val count = if (closed) vertices.size else vertices.size - 1
         val segments = ArrayList<SegmentInfo>(count)
         val missing = ArrayList<Int>()
@@ -54,7 +54,7 @@ object GeometryCalculator {
                 area = if (closed) area(plane, scale.polygon(vertices)) else null,
                 crosses = closed && CrossingFinder.crosses(plane.east, plane.north, true),
                 missingHeightSegments = missing,
-                notices = scale.notices,
+                notices = if (plane.local) scale.notices + GeometryNotice.LOCAL_PLANE else scale.notices,
                 segments = segments,
             ),
         )

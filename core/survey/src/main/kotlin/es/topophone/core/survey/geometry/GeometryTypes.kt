@@ -57,6 +57,9 @@ sealed interface GeometryResult {
 
     /** Menos de 2 vértices, o menos de 3 en un polígono (S026/RF-7). */
     data object TooFewVertices : GeometryResult
+
+    /** Algún vértice no tiene ni Este y Norte ni posición geodésica (S026/RF-11). */
+    data object NoPosition : GeometryResult
 }
 
 /**

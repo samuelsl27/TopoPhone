@@ -10,7 +10,7 @@
       Hecho cuando: `GeometryCalculatorGridTest` en verde frente a las referencias (≤ 1 mm, 1 µrad).
 - [x] T4. `core:survey`: perímetro, área (Gauss) y `CrossingFinder`. (RF-1, RF-6)
       Hecho cuando: `GeometryAreaTest` y `CrossingFinderTest` en verde (≤ 1 mm²) con el polígono cóncavo y el de cruces.
-- [ ] T5. `core:survey`: `SegmentScale` con el factor combinado de S008 por segmento y del polígono, la altura del proyecto como recurso y el SC geográfico con plano local. (RF-10, RF-11)
+- [x] T5. `core:survey`: `SegmentScale` con el factor combinado de S008 por segmento y del polígono, la altura del proyecto como recurso y el SC geográfico con plano local. (RF-10, RF-11)
       Hecho cuando: `GeometryCalculatorGroundTest` y `GeometryGeographicTest` en verde frente a las referencias.
 - [ ] T6. `core:survey`: `ThreePointAngle`. (RF-14, RF-15)
       Hecho cuando: `ThreePointAngleTest` en verde, con ángulos cercanos a 0° y 180° y puntos coincidentes.
