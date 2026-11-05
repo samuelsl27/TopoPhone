@@ -1487,6 +1487,51 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S027 RNF-T6 v30 a v31 los puntos y las lineas siguen y el replanteo de linea nace vacio`() {
+        createFromExportedSchema(30)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v30 ->
+            v30.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v30.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+            v30.execSQL(
+                "INSERT INTO project_lines VALUES ('l1', ?, 'BORD_1', 'LINE', 0, 0, 0, 'BORD', '', 0, 'CIRCLE', 1, NULL, '')",
+                arrayOf<Any>(project.id),
+            )
+            v30.execSQL("INSERT INTO line_vertices VALUES ('l1', 0, 'punto-1')")
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val point = runBlocking { RoomPointRepository(db).points(project.id).first() }.single()
+            point.measurement.shouldNotBeNull().coordinates.northing shouldBe 4474257.414123456
+            point.staked shouldBe null
+            count(db, "project_lines") shouldBe 1
+            count(db, "line_vertices") shouldBe 1
+            db.openHelper.writableDatabase.query("SELECT stake_line_id, stake_line_name FROM points").use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                cursor.isNull(0) shouldBe true
+                cursor.isNull(1) shouldBe true
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S025 RNF-T6 v29 a v30 los puntos siguen y las lineas nacen vacias con sus reglas`() {
         createFromExportedSchema(29)
         SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v29 ->
@@ -1554,7 +1599,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 30
+        const val CURRENT_VERSION = 31
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

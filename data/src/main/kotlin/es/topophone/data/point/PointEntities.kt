@@ -214,6 +214,10 @@ data class PointEntity(
     @ColumnInfo(name = "slope_height") val slopeHeight: Double? = null,
     @ColumnInfo(name = "slope_d_height") val slopeDHeight: Double? = null,
     @ColumnInfo(name = "slope_stake_offset") val slopeStakeOffset: Double? = null,
+    // S027/RF-12: si el punto de diseño era un objetivo de una línea del proyecto, su identificador y su nombre (copiados, sin clave
+    // foránea: la línea puede borrarse y el punto los conserva, RF-16); NULL en los demás.
+    @ColumnInfo(name = "stake_line_id") val stakeLineId: String? = null,
+    @ColumnInfo(name = "stake_line_name") val stakeLineName: String? = null,
     /** El codigo con que se guardo el punto, por valor (S024/RF-10, plan D3); NULL si no lleva. [codeColor] es 0xRRGGBB. */
     val code: String? = null,
     @ColumnInfo(name = "code_description") val codeDescription: String? = null,
@@ -412,6 +416,8 @@ internal fun Point.toEntity(): PointEntity {
         stakeOffset = staked?.lateralOffsetM,
         stakeDLateral = staked?.dLateralM,
         stakeAxis = (staked?.source as? StakeSource.Alignment)?.alignmentName,
+        stakeLineId = (staked?.source as? StakeSource.ProjectLine)?.lineId,
+        stakeLineName = (staked?.source as? StakeSource.ProjectLine)?.lineName,
         stakeThickness = staked?.thicknessM,
         stakeDChainage = staked?.dChainageM,
         stakeElevSource = staked?.elevationSource?.name,
@@ -539,6 +545,7 @@ private fun PointEntity.slopeInfo(): SlopeStakeInfo? {
 
 /** El dibujo, la capa y el tipo del elemento replanteado; el punto del proyecto si no vino de un dibujo (S041/RF-28). */
 private fun PointEntity.cadSource(): StakeSource {
+    stakeLineId?.let { return StakeSource.ProjectLine(it, stakeLineName.orEmpty()) } // S027/RF-12
     stakeAxis?.let { return StakeSource.Alignment(it) } // S054/RF-10
     val drawing = stakeCadDrawing ?: return StakeSource.ProjectPoint
     val kind = CadEntityKind.entries.firstOrNull { it.name == stakeCadKind } ?: return StakeSource.ProjectPoint

@@ -10,7 +10,7 @@
       Hecho cuando: `StakeLinePartialHeightTest` en verde frente a las referencias y los tests de S041 intactos.
 - [x] T4. `core:survey`: `ProjectStakeLine.of` (nombres, índices de origen, cota interpolada, menos de 2 vértices) y `ProjectLineParityTest` en los cinco modos. (RF-2, RF-3, RF-5, RF-6)
       Hecho cuando: `ProjectStakeLineTest` y `ProjectLineParityTest` en verde (≤ 1 mm).
-- [ ] T5. `data`: Room v31 (`AutoMigration(30, 31)`, `stake_line_id` y `stake_line_name`) y el mapeo de `StakeSource.ProjectLine`. (RF-11, RF-12, RNF-T6)
+- [x] T5. `data`: Room v31 (`AutoMigration(30, 31)`, `stake_line_id` y `stake_line_name`) y el mapeo de `StakeSource.ProjectLine`. (RF-11, RF-12, RNF-T6)
       Hecho cuando: `TopoPhoneDatabaseTest` de la v30 a la v31, `StakeLineSourceMappingTest` y `LineStakeoutBackupTest` en verde.
 - [ ] T6. `app`: `LineSource` y `LineStakeoutViewModel` generalizado sin cambiar el comportamiento de los dibujos; `LineElementInfo` común. (RF-1, RF-2)
       Hecho cuando: todos los tests de replanteo de línea de S041 siguen en verde.
