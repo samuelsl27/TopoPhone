@@ -14,7 +14,7 @@
       Hecho cuando: `DxfDocumentBuilderTest` en verde.
 - [x] T6. `core:formats`: ida y vuelta con el `DxfReader` de S040 y 10.000 puntos con dos etiquetas en menos de 5 s y menos de 10 MB. (RF-3, RF-4, RF-10, RNF)
       Hecho cuando: `DxfRoundTripTest` y `DxfExportPerformanceTest` en verde, y el dorado leído por `tools`.
-- [ ] T7. `data`: `DxfExportPreferences` (etiquetas, altura del texto y sistema, para todos los proyectos). (RF-20)
+- [x] T7. `data`: `DxfExportPreferences` (etiquetas, altura del texto y sistema, para todos los proyectos). (RF-20)
       Hecho cuando: `DxfExportPreferencesTest` en verde.
 - [ ] T8. `app`: `DxfExportViewModel` (puntos o selección, opciones, nombre del fichero, escribir en caché y copiar, resultado y resumen). (RF-1, RF-2, RF-8, RF-13, RF-16 a RF-21)
       Hecho cuando: `DxfExportViewModelTest` en verde.

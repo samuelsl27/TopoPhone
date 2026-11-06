@@ -27,7 +27,10 @@ import es.topophone.data.codes.DefaultLibrarySource
 import es.topophone.data.codes.ProjectLibraryLinker
 import es.topophone.data.codes.RoomCodeLibraryRepository
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.export.DataStoreDxfExportPreferences
 import es.topophone.data.export.DataStoreExportPreferences
+import es.topophone.data.export.DxfExportDataStoreQualifier
+import es.topophone.data.export.DxfExportPreferences
 import es.topophone.data.export.ExportDataStoreQualifier
 import es.topophone.data.export.ExportPreferences
 import es.topophone.data.gear.GearLegacyImport
@@ -126,6 +129,12 @@ object DataStoreModule {
     @ExportDataStoreQualifier
     fun provideExportDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         SettingsDataStore.create(context, name = "export")
+
+    @Provides
+    @Singleton
+    @DxfExportDataStoreQualifier
+    fun provideDxfExportDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        SettingsDataStore.create(context, name = "dxf-export")
 
     @Provides
     @Singleton
@@ -337,6 +346,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindExportPreferences(implementation: DataStoreExportPreferences): ExportPreferences
+
+    @Binds
+    abstract fun bindDxfExportPreferences(implementation: DataStoreDxfExportPreferences): DxfExportPreferences
 
     @Binds
     abstract fun bindGeometryPreferences(implementation: DataStoreGeometryPreferences): GeometryPreferences
