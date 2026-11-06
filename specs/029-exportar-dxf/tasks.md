@@ -16,7 +16,7 @@
       Hecho cuando: `DxfRoundTripTest` y `DxfExportPerformanceTest` en verde, y el dorado leído por `tools`.
 - [x] T7. `data`: `DxfExportPreferences` (etiquetas, altura del texto y sistema, para todos los proyectos). (RF-20)
       Hecho cuando: `DxfExportPreferencesTest` en verde.
-- [ ] T8. `app`: `DxfExportViewModel` (puntos o selección, opciones, nombre del fichero, escribir en caché y copiar, resultado y resumen). (RF-1, RF-2, RF-8, RF-13, RF-16 a RF-21)
+- [x] T8. `app`: `DxfExportViewModel` (puntos o selección, opciones, nombre del fichero, escribir en caché y copiar, resultado y resumen). (RF-1, RF-2, RF-8, RF-13, RF-16 a RF-21)
       Hecho cuando: `DxfExportViewModelTest` en verde.
 - [ ] T9. `app`: `DxfExportScreen` (recuento, casillas, altura, sistema, resumen, guardar y compartir, mensajes, 56 dp). (RF-7, RF-8, RF-13, RF-14, RF-17, RF-18, RF-20, RNF-T7, RNF-T8)
       Hecho cuando: `DxfExportScreenTest` en verde.

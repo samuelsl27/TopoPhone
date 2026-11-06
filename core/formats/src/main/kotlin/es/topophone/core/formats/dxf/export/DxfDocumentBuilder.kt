@@ -69,8 +69,7 @@ object DxfDocumentBuilder {
         project: Project,
         options: DxfExportOptions,
     ): DxfBuild {
-        // RF-13: un proyecto geográfico solo tiene globales.
-        val coordinates = if (project.crs.isUtm) options.coordinates else DxfCoordinates.GLOBAL
+        val coordinates = effectiveCoordinates(project, options.coordinates)
         val unit = project.linearUnit
         val names = DxfLayerNames()
         val colors = LinkedHashMap<String, Int>()
@@ -124,7 +123,7 @@ object DxfDocumentBuilder {
             verticesWithoutHeight = verticesWithoutHeight,
             pointsWithoutPosition = withoutPosition,
             replacedChars = 0,
-            unit = if (coordinates == DxfCoordinates.GLOBAL) DxfUnit.DEGREE else unitOf(unit),
+            unit = unitOf(project, coordinates),
             coordinates = coordinates,
         )
         return DxfBuild(DxfDocument(coordinates, layers, entities), summary)
@@ -146,10 +145,16 @@ object DxfDocumentBuilder {
     private fun textHeight(heightM: Double, coordinates: DxfCoordinates, unit: LinearUnit): Double =
         if (coordinates == DxfCoordinates.GLOBAL) heightM / METRES_PER_DEGREE else unit.fromMetres(heightM)
 
-    private fun unitOf(unit: LinearUnit) = when (unit) {
-        LinearUnit.METRE -> DxfUnit.METRE
-        LinearUnit.INTERNATIONAL_FOOT -> DxfUnit.INTERNATIONAL_FOOT
-        LinearUnit.US_SURVEY_FOOT -> DxfUnit.US_SURVEY_FOOT
+    /** Un proyecto geográfico solo tiene coordenadas globales, se pidan las que se pidan (RF-13). */
+    fun effectiveCoordinates(project: Project, requested: DxfCoordinates): DxfCoordinates =
+        if (project.crs.isUtm) requested else DxfCoordinates.GLOBAL
+
+    /** La unidad de las coordenadas del fichero: grados en globales y la unidad lineal del proyecto en locales (RF-11, RF-12, RF-14). */
+    fun unitOf(project: Project, coordinates: DxfCoordinates): DxfUnit = when {
+        coordinates == DxfCoordinates.GLOBAL -> DxfUnit.DEGREE
+        project.linearUnit == LinearUnit.METRE -> DxfUnit.METRE
+        project.linearUnit == LinearUnit.INTERNATIONAL_FOOT -> DxfUnit.INTERNATIONAL_FOOT
+        else -> DxfUnit.US_SURVEY_FOOT
     }
 
     /** La posición del punto en el sistema pedido, o null sin Este y Norte (locales) o sin longitud y latitud (globales). */
