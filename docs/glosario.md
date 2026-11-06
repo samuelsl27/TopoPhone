@@ -231,3 +231,5 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Perfil transversal | `LinearSurveyKind.CROSS` | Puntos del terreno de un PK ordenados por desplazamiento; al guardarlo es un perfil de terreno de S050 (S052) |
 | Tolerancia de eje | `LinearSurvey.DEFAULT_AXIS_TOLERANCE_M` | Distancia máxima al eje (0,50 m por defecto) con que un punto entra en un perfil longitudinal (S052) |
 | Tolerancia de sección | `LinearSurvey.DEFAULT_SECTION_TOLERANCE_M` | Distancia máxima a la línea de la sección (0,10 m por defecto) con que un punto es del PK (S052) |
+| Capa del DXF | `DxfLayer` | Cada capa de dibujo de un DXF exportado: una por código y las de etiquetas (S029) |
+| Color ACI | `AciColor` | Uno de los 255 colores indexados estándar de los CAD (S029) |

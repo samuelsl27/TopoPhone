@@ -24,7 +24,7 @@ Términos de esta spec:
 
 ### Contenido (H1, H3)
 - RF-1: CUANDO el usuario elija "Exportar DXF" en el menú de un proyecto o en el de su lista de objetos, EL SISTEMA preparará la exportación con todos los puntos activos del proyecto, ocultos incluidos, y nunca los de la papelera (como S012/RF-1, RF-3).
-- RF-2: CUANDO el usuario elija "Exportar" con puntos seleccionados en la lista de objetos, EL SISTEMA exportará solo esos puntos, sin líneas ni polígonos, que no se seleccionan en la lista (como S012/RF-2).
+- RF-2: CUANDO el usuario elija "Exportar" con puntos seleccionados en la lista de objetos, EL SISTEMA exportará solo esos puntos y las líneas y polígonos cuyos vértices estén todos entre ellos (como S012/RF-2 y S053).
 - RF-3: DONDE el proyecto tenga líneas o polígonos propios (S025), EL SISTEMA los escribirá como polilíneas 3D, los polígonos como polilíneas cerradas, en la capa de su código.
 - RF-4: EL SISTEMA escribirá cada punto como un punto del DXF en la capa de su código; los puntos sin código, y todos mientras no existan códigos, van a la capa "SIN_CODIGO".
 - RF-5: EL SISTEMA dará a cada capa de código el nombre del código limpiado para el CAD (en mayúsculas, hasta 31 caracteres, solo letras, cifras, "_", "-" y "$", sustituyendo el resto por "_") y sin repetir ninguno.
@@ -97,7 +97,7 @@ Términos de esta spec:
 - Con coordenadas globales, la Z es la altura elipsoidal (RF-12).
 - Los ejes y las superficies no se exportan; solo puntos, líneas y polígonos (Fuera de alcance).
 - Las etiquetas van en capas propias "NOMBRES", "COTAS" y "DESCRIPCIONES" (RF-7).
-- Con selección se exportan solo los puntos seleccionados, sin líneas ni polígonos (RF-2).
+- Con selección se exporta solo lo seleccionado: los puntos y las líneas y polígonos cuyos vértices están todos entre ellos, como en S053 (RF-2). Corregido al escribir el plan: la primera redacción decía «sin líneas», pero S025/RF-26 ya fija este criterio.
 - Sin preguntar, por defecto razonable: con coordenadas globales la altura del texto se da en metros y se convierte a grados al escribirla (RF-8); los puntos se exportan con la dependencia de S012 y las líneas y los códigos se añaden donde existen, como en S053.
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
