@@ -6,7 +6,7 @@
       Hecho cuando: el script genera `fixtures/formatos/dxf-exportado/` y su test de `tools` está en verde.
 - [x] T2. `core:formats`: `AciColor` (tabla de 255 colores y color más cercano). (RF-6)
       Hecho cuando: `AciColorTest` en verde contra `aci.csv`.
-- [ ] T3. `core:formats`: `DxfLayerNames` y `DxfNumberFormat`. (RF-5, RF-10)
+- [x] T3. `core:formats`: `DxfLayerNames` y `DxfNumberFormat`. (RF-5, RF-10)
       Hecho cuando: `DxfLayerNamesTest` y `DxfNumberFormatTest` en verde (acentos, 31 caracteres, repetidos, `Locale.ROOT`).
 - [ ] T4. `core:formats`: `DxfWriter` y `DxfCharset` (cabecera, capas, POINT, TEXT, POLYLINE/VERTEX/SEQEND, Windows-1252 con sustituidos). (RF-3, RF-4, RF-15)
       Hecho cuando: `DxfWriterTest` en verde.
