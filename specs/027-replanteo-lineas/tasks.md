@@ -34,7 +34,7 @@
       Hecho cuando: `PolylineAlignmentFromVerticesTest` en verde y los tests de S049 intactos.
 - [x] T16. `app`: «Crear eje» desde la ficha y la hoja del mapa, con la línea y sus puntos intactos. (RF-17, RF-18)
       Hecho cuando: `CreateAxisFromLineTest` en verde.
-- [ ] T17. `app`: rendimiento: abrir una línea de 100.000 vértices en menos de 1 s. (RNF-T13)
+- [x] T17. `app`: rendimiento: abrir una línea de 100.000 vértices en menos de 1 s. (RNF-T13)
       Hecho cuando: `LineStakeoutPerformanceTest` en verde.
 - [ ] T18. Accesibilidad y textos: etiquetas, 56 dp, lado con texto, es/en y sin literales en código. (RNF-T7, RNF-T8)
       Hecho cuando: `LineStakeoutAccessibilityTest` en verde.
