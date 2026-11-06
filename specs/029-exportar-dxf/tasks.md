@@ -12,7 +12,7 @@
       Hecho cuando: `DxfWriterTest` en verde.
 - [x] T5. `core:formats`: `DxfDocumentBuilder` y `DxfExportSummary` (capas por código, etiquetas, Z, locales y globales, pies, selección, sin altura, sin posición). (RF-1 a RF-4, RF-7 a RF-9, RF-11 a RF-14, RF-20)
       Hecho cuando: `DxfDocumentBuilderTest` en verde.
-- [ ] T6. `core:formats`: ida y vuelta con el `DxfReader` de S040 y 10.000 puntos con dos etiquetas en menos de 5 s y menos de 10 MB. (RF-3, RF-4, RF-10, RNF)
+- [x] T6. `core:formats`: ida y vuelta con el `DxfReader` de S040 y 10.000 puntos con dos etiquetas en menos de 5 s y menos de 10 MB. (RF-3, RF-4, RF-10, RNF)
       Hecho cuando: `DxfRoundTripTest` y `DxfExportPerformanceTest` en verde, y el dorado leído por `tools`.
 - [ ] T7. `data`: `DxfExportPreferences` (etiquetas, altura del texto y sistema, para todos los proyectos). (RF-20)
       Hecho cuando: `DxfExportPreferencesTest` en verde.
