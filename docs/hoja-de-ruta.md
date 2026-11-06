@@ -72,7 +72,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 029 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 025 (líneas y polígonos; los puntos, con S012) | pendiente |
+| 029 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 012 (códigos, líneas y polígonos: 024, 025) | spec |
 | 030 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 025 (líneas y polígonos; importar, S048; los puntos, S012) | pendiente |
 | 031 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 025 (líneas y polígonos), 017b (fotos); importar, S048 | pendiente |
 | 048 geopackage | Importar un `.gpkg` de QGIS como capa de diseño (capas marcables, SC leído y reproyectado, recorte a una zona alrededor del centro del proyecto, atributos y campo de nombre, replanteo con S041) | 040, 006 (punto central) | implementada |

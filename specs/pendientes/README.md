@@ -23,7 +23,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 | [025 lineas-y-poligonos](025-lineas-y-poligonos/spec.md) | H3 | S024, **S011** | 26 | 6 | Líneas y polígonos del proyecto con vértices que son puntos |
 | [026 informacion-geometrica](026-informacion-geometrica/spec.md) | H3 | S025, **S040, S008** | 15 | 6 | Longitud, área, azimut, pendiente, ángulos; también de líneas de un DXF |
 | [027 replanteo-lineas](027-replanteo-lineas/spec.md) | H3 | S025, S041, **S049** | 18 | 5 | Replantear las líneas propias con el motor de S041 y crear un eje |
-| [029 exportar-dxf](029-exportar-dxf/spec.md) | H4 | S025 (los puntos solo S012) | 21 | 6 | DXF ASCII R12 con capas por código y etiquetas |
+| [029 exportar-dxf](../029-exportar-dxf/spec.md) | H4 | S025 (los puntos solo S012) | 21 | 6 | DXF ASCII R12 con capas por código y etiquetas |
 | [030 shapefile](030-shapefile/spec.md) | H4 | S025 (importar: S048; puntos: S012) | 25 | 6 | Importar ZIP y exportar PointZ, PolyLineZ y PolygonZ |
 | [031 kml-kmz-y-fotos](031-kml-kmz-y-fotos/spec.md) | H4 | S025, S017b (importar: S048; puntos: S012) | 28 | 7 | KML/KMZ y fotos en un ZIP (reúne tres funciones) |
 | [038 cogo](038-cogo/spec.md) | H6 | S011 | 25 | 6 | Inversa, poligonal e intersecciones; resultados como puntos |

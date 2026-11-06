@@ -1,6 +1,6 @@
 # Spec 029 — Exportar a DXF
 
-> Hito: H4 · Depende de: S025 (los puntos solo necesitan S012) · Estado: borrador (sin entrevista, 28/10/2026)
+> Hito: H4 · Depende de: S025 (los puntos solo necesitan S012) · Estado: pendiente de aprobación (entrevistada 06/11/2026)
 
 ## Contexto y objetivo
 El trabajo de campo acaba casi siempre en un CAD: el delineante quiere los puntos con su cota y su nombre escritos al lado, las líneas como polilíneas y todo ordenado en capas por código, con colores, para dibujar el plano sin rehacer nada. El CSV (S012) obliga a importar los puntos a mano y no trae líneas; el GeoPackage (S053) y el Shapefile (S030) son para el SIG, no para el CAD.
@@ -24,7 +24,7 @@ Términos de esta spec:
 
 ### Contenido (H1, H3)
 - RF-1: CUANDO el usuario elija "Exportar DXF" en el menú de un proyecto o en el de su lista de objetos, EL SISTEMA preparará la exportación con todos los puntos activos del proyecto, ocultos incluidos, y nunca los de la papelera (como S012/RF-1, RF-3).
-- RF-2: CUANDO el usuario elija "Exportar" con puntos seleccionados en la lista de objetos, EL SISTEMA exportará solo esos puntos (como S012/RF-2).
+- RF-2: CUANDO el usuario elija "Exportar" con puntos seleccionados en la lista de objetos, EL SISTEMA exportará solo esos puntos, sin líneas ni polígonos, que no se seleccionan en la lista (como S012/RF-2).
 - RF-3: DONDE el proyecto tenga líneas o polígonos propios (S025), EL SISTEMA los escribirá como polilíneas 3D, los polígonos como polilíneas cerradas, en la capa de su código.
 - RF-4: EL SISTEMA escribirá cada punto como un punto del DXF en la capa de su código; los puntos sin código, y todos mientras no existan códigos, van a la capa "SIN_CODIGO".
 - RF-5: EL SISTEMA dará a cada capa de código el nombre del código limpiado para el CAD (en mayúsculas, hasta 31 caracteres, solo letras, cifras, "_", "-" y "$", sustituyendo el resto por "_") y sin repetir ninguno.
@@ -33,7 +33,7 @@ Términos de esta spec:
 ### Etiquetas y alturas (H2)
 - RF-7: EL SISTEMA ofrecerá las casillas "Nombre", "Cota" y "Descripción", marcadas "Nombre" y "Cota" por defecto, y escribirá cada etiqueta marcada como un texto junto al punto, en la capa "NOMBRES", "COTAS" o "DESCRIPCIONES".
 - RF-8: EL SISTEMA permitirá elegir la altura del texto, de 0,01 m a 100 m, con 0,5 m por defecto, y la escribirá en las unidades del dibujo.
-- RF-9: EL SISTEMA escribirá la altura del proyecto como Z de cada punto y de cada vértice, y 0 si no tiene, y contará esos casos en el resumen.
+- RF-9: EL SISTEMA escribirá la altura del proyecto como Z de cada punto y de cada vértice, y 0 si no tiene, contará esos casos en el resumen y no escribirá la etiqueta "Cota" de los puntos sin altura.
 - RF-10: EL SISTEMA escribirá los números con el punto decimal, sin redondear por debajo de 0,1 mm (4 decimales en la unidad lineal del proyecto, 9 en grados) y sin usar la configuración regional.
 
 ### Sistema de coordenadas (H3)
@@ -81,6 +81,7 @@ Términos de esta spec:
 - Exportar los dibujos importados (S040, S048) o las superficies → no previsto.
 - Bloques, símbolos por código, tipos de línea y rellenos → no previsto.
 - Texto girado según la línea o colocado por el usuario → no previsto.
+- Ejes (S049), superficies (S042) y rasantes → no previsto.
 - Shapefile → S030; KML/KMZ → S031; GeoPackage → S053.
 
 ## Criterios de finalización
@@ -90,13 +91,14 @@ Términos de esta spec:
 - Demo en el emulador: exportar con y sin selección, locales y globales, con y sin etiquetas, y abrir el fichero en QGIS.
 - Demo de campo: queda para el usuario (abrir el fichero en el CAD de la oficina).
 
-## Dudas abiertas
-- [SUPOSICIÓN: las coordenadas se escriben en la unidad lineal del proyecto, no siempre en metros, porque el CAD del delineante suele trabajar en la unidad del proyecto (RF-11, RF-14).]
-- [SUPOSICIÓN: las coordenadas globales llevan la altura elipsoidal como Z, no la altura del proyecto (RF-12).]
-- [SUPOSICIÓN: un punto o vértice sin altura se escribe con Z = 0 y se avisa en el resumen, en vez de omitirlo (RF-9).]
-- [SUPOSICIÓN: las etiquetas van en capas propias ("NOMBRES", "COTAS", "DESCRIPCIONES"), y no una por código, para poder apagarlas de una vez (RF-7).]
-- [SUPOSICIÓN: con coordenadas globales la altura del texto se da en metros y se convierte a grados (1° ≈ 111.320 m) al escribirla (RF-8).]
-- [SUPOSICIÓN: la dependencia de S025 de la hoja de ruta se mantiene, pero los puntos se exportan ya con S012 y las líneas y los códigos se añaden después, como en S053.]
+## Decisiones de la entrevista (06/11/2026)
+- Las coordenadas locales se escriben en la unidad lineal del proyecto, también en pies, y el resumen la indica (RF-11, RF-14).
+- Un punto o vértice sin altura se escribe con Z = 0, se cuenta en el resumen y no lleva etiqueta de cota (RF-9).
+- Con coordenadas globales, la Z es la altura elipsoidal (RF-12).
+- Los ejes y las superficies no se exportan; solo puntos, líneas y polígonos (Fuera de alcance).
+- Las etiquetas van en capas propias "NOMBRES", "COTAS" y "DESCRIPCIONES" (RF-7).
+- Con selección se exportan solo los puntos seleccionados, sin líneas ni polígonos (RF-2).
+- Sin preguntar, por defecto razonable: con coordenadas globales la altura del texto se da en metros y se convierte a grados al escribirla (RF-8); los puntos se exportan con la dependencia de S012 y las líneas y los códigos se añaden donde existen, como en S053.
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
 - `docs/hoja-de-ruta.md`, fila S029: pasa a `spec`; "Depende de" pasa a "012 (códigos, líneas y polígonos: 024, 025)".
