@@ -36,7 +36,7 @@
       Hecho cuando: `CreateAxisFromLineTest` en verde.
 - [x] T17. `app`: rendimiento: abrir una línea de 100.000 vértices en menos de 1 s. (RNF-T13)
       Hecho cuando: `LineStakeoutPerformanceTest` en verde.
-- [ ] T18. Accesibilidad y textos: etiquetas, 56 dp, lado con texto, es/en y sin literales en código. (RNF-T7, RNF-T8)
+- [x] T18. Accesibilidad y textos: etiquetas, 56 dp, lado con texto, es/en y sin literales en código. (RNF-T7, RNF-T8)
       Hecho cuando: `LineStakeoutAccessibilityTest` en verde.
 - [ ] T19. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files` y la demo en el emulador. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, la demo de la spec funciona y la hoja de ruta marca S027 como implementada con Room v31.
