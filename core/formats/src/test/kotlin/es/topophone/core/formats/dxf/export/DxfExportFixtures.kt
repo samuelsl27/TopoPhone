@@ -12,6 +12,12 @@ object DxfExportFixtures {
 
     fun bytes(name: String): ByteArray = File(folder, name).readBytes()
 
+    /** Un DXF de referencia partido en pares (código, valor). */
+    fun pairs(name: String): List<Pair<String, String>> {
+        val lines = File(folder, name).readText().split("\r\n").dropLast(1)
+        return lines.chunked(2).map { it[0].trim() to it[1] }
+    }
+
     /** Las filas de un CSV de referencia como mapas columna → valor. */
     fun csv(name: String): List<Map<String, String>> {
         val lines = File(folder, name).readText().lines().filter { it.isNotEmpty() }

@@ -139,7 +139,8 @@ def build_dxf(global_coordinates: bool) -> str:
     def position(point: RefPoint) -> tuple[float, float, float]:
         if global_coordinates:
             lon, lat = to_geo.transform(point.east, point.north)
-            return lon, lat, point.ellipsoidal or 0.0
+            # A 9 decimales ya en el origen: así los desplazamientos de las etiquetas parten de lo que ve un lector del fichero.
+            return round(lon, 9), round(lat, 9), point.ellipsoidal or 0.0
         return point.east, point.north, point.height or 0.0
 
     layers = ["0"]

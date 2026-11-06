@@ -10,7 +10,7 @@
       Hecho cuando: `DxfLayerNamesTest` y `DxfNumberFormatTest` en verde (acentos, 31 caracteres, repetidos, `Locale.ROOT`).
 - [x] T4. `core:formats`: `DxfWriter` y `DxfCharset` (cabecera, capas, POINT, TEXT, POLYLINE/VERTEX/SEQEND, Windows-1252 con sustituidos). (RF-3, RF-4, RF-15)
       Hecho cuando: `DxfWriterTest` en verde.
-- [ ] T5. `core:formats`: `DxfDocumentBuilder` y `DxfExportSummary` (capas por código, etiquetas, Z, locales y globales, pies, selección, sin altura, sin posición). (RF-1 a RF-4, RF-7 a RF-9, RF-11 a RF-14, RF-20)
+- [x] T5. `core:formats`: `DxfDocumentBuilder` y `DxfExportSummary` (capas por código, etiquetas, Z, locales y globales, pies, selección, sin altura, sin posición). (RF-1 a RF-4, RF-7 a RF-9, RF-11 a RF-14, RF-20)
       Hecho cuando: `DxfDocumentBuilderTest` en verde.
 - [ ] T6. `core:formats`: ida y vuelta con el `DxfReader` de S040 y 10.000 puntos con dos etiquetas en menos de 5 s y menos de 10 MB. (RF-3, RF-4, RF-10, RNF)
       Hecho cuando: `DxfRoundTripTest` y `DxfExportPerformanceTest` en verde, y el dorado leído por `tools`.
