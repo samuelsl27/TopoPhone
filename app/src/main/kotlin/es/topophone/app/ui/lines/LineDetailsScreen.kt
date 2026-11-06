@@ -189,6 +189,7 @@ fun LineDetailsRoute(
             unitSymbol = unitSymbol(state.unit),
             state = axisState,
             onConvert = { name, start -> alignmentViewModel.convertLine(projectId, lineId, name, start) },
+            fromProjectLine = true,
             onDismiss = {
                 axisOpen = false
                 alignmentViewModel.dismiss()

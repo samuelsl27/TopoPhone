@@ -2659,4 +2659,5 @@
     <string name="line_sheet_open">Abrir ficha</string>
     <string name="line_create_axis">Crear eje</string>
     <string name="objects_line_menu">Más opciones de la línea %1$s</string>
+    <string name="alignment_convert_help_line">El eje empieza en el primer vértice de la línea y sus vértices son tramos rectos. Si tienen altura, se crea la rasante con ellas.</string>
 </resources>

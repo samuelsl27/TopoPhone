@@ -523,7 +523,14 @@ fun ProjectViewRoute(
         lineStakeoutViewModel.open(projectId, LineSource.ProjectLine(lineId))
         lineOpen = true
     }
-    LaunchedEffect(stakeoutLineId) { if (stakeoutLineId != null) startProjectLine(stakeoutLineId) }
+    // Una vez por entrada: volver atrás a esta pantalla no reabre el replanteo pedido, que ya está abierto o cerrado a propósito.
+    var lineRequestHandled by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(stakeoutLineId) {
+        if (stakeoutLineId != null && !lineRequestHandled) {
+            lineRequestHandled = true
+            startProjectLine(stakeoutLineId)
+        }
+    }
     // El recolector mide y guarda el punto replanteado con el punto de diseño de ahora (S018/A5, S041/RF-27, S054/RF-10).
     val activeTarget = when {
         stakeoutOpen -> stakeout.target
@@ -541,7 +548,8 @@ fun ProjectViewRoute(
     }
     LaunchedEffect(stakeoutOpen, lineOpen, axisOpen, slopeOpen, activeInfo) { collectorViewModel.setStakeSaveInfo(activeInfo) }
     // S041/RF-28 y S054/RF-10: con una línea o un eje, el recolector pide el objetivo de ese momento al terminar la medida.
-    LaunchedEffect(lineOpen, axisOpen, slopeOpen) {
+    // S027: setStakeTarget(null) borra el proveedor; si el objetivo pasa por null (al reabrir una línea) se vuelve a dar tras él.
+    LaunchedEffect(lineOpen, axisOpen, slopeOpen, activeTarget) {
         collectorViewModel.setStakeObjective(
             when {
                 axisOpen -> axisStakeoutViewModel.objectiveProvider
@@ -1343,6 +1351,7 @@ fun ProjectViewScreen(
             unitSymbol = unitSymbol(project.linearUnit),
             state = alignmentFromDrawing,
             onConvert = { name, start -> onConvertLineToAlignment(convertLineId, name, start) },
+            fromProjectLine = true,
             onDismiss = {
                 axisLine = null
                 onDismissAlignmentConversion()

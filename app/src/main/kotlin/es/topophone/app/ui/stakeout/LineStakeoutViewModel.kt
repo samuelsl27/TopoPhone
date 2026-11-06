@@ -95,8 +95,15 @@ sealed interface LineSource {
 }
 
 /** El nombre del punto de cada vértice de una línea del proyecto y si su cota es la interpolada (S027/RF-5, RF-8). */
-class VertexLabels(private val names: (Int) -> String, private val interpolated: (Int) -> Boolean) {
+class VertexLabels(
+    private val names: (Int) -> String,
+    private val interpolated: (Int) -> Boolean,
+    private val keys: (Int) -> Int = { it },
+) {
     fun name(vertex: Int): String = names(vertex)
+
+    /** El índice del vértice en la entrada, que no cambia aunque se quiten repetidos: identifica el punto de diseño (S027/RF-12). */
+    fun key(vertex: Int): Int = keys(vertex)
 
     fun isInterpolated(vertex: Int): Boolean = interpolated(vertex)
 }
@@ -501,7 +508,7 @@ class LineStakeoutViewModel @Inject constructor(
         targetName = line.name,
         source = StakeSource.ProjectLine(line.id, line.name),
         code = line.code,
-        labels = VertexLabels(built::name, built::isInterpolated),
+        labels = VertexLabels(built::name, built::isInterpolated) { built.sourceIndex[it] },
     ) { current ->
         val heights = (0 until current.vertexCount).mapNotNull { current.height(it) }
         LineElementInfo(
@@ -946,13 +953,11 @@ class LineStakeoutViewModel @Inject constructor(
         val coordinates = coordinatesOf(project, east, north, height) ?: return null
         if (mode != LineStakeoutMode.BY_SEGMENTS && mode != LineStakeoutMode.INTERVALS) anchor = coordinates
         // S027/RF-11: en "Por segmentos" de una línea del proyecto el objetivo es el punto de un vértice y se llama como él.
-        val vertexName = if (mode == LineStakeoutMode.BY_SEGMENTS) {
-            m.origin.labels?.let { labels -> m.vertices.entries.getOrNull(m.vertexIndex)?.let { labels.name(it.vertex) } }
-        } else {
-            null
-        }
+        val labels = m.origin.labels
+        val vertex = if (mode == LineStakeoutMode.BY_SEGMENTS && labels != null) m.vertices.entries.getOrNull(m.vertexIndex) else null
+        val vertexName = vertex?.let { labels?.name(it.vertex) }
         val target = StakeTarget(
-            id = m.origin.targetId,
+            id = if (vertex != null && labels != null) "${m.origin.targetId}:${labels.key(vertex.vertex)}" else m.origin.targetId,
             name = vertexName ?: m.origin.targetName,
             description = "",
             coordinates = coordinates,

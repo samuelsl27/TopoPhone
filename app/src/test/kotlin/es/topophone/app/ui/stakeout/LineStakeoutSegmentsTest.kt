@@ -274,4 +274,21 @@ class LineStakeoutSegmentsTest {
         line.name shouldBe "L_1"
         line.namePerTarget shouldBe false
     }
+
+    @Test
+    fun `S027 RF-12 en Por segmentos cada vertice es su propio punto de diseno y en los demas modos lo es la linea`() {
+        val vm = viewModel()
+        val lineId = createLine(closed = false)
+        open(vm, lineId)
+
+        val ids = (0..2).map { index ->
+            vm.selectVertex(index)
+            await(vm) { it.vertexIndex == index }.target.shouldNotBeNull().id
+        }
+
+        ids.toSet().size shouldBe 3
+        ids.all { it.startsWith("line:$lineId:") } shouldBe true
+        vm.setMode(LineStakeoutMode.TO_LINE)
+        await(vm) { it.mode == LineStakeoutMode.TO_LINE }.target.shouldNotBeNull().id shouldBe "line:$lineId"
+    }
 }

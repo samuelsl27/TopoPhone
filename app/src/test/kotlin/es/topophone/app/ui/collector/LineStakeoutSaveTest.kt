@@ -274,4 +274,21 @@ class LineStakeoutSaveTest {
         point.code shouldBe bord
         point.origin shouldBe PointOrigin.STAKED
     }
+
+    @Test
+    fun `S027 RF-12 quitar el objetivo borra el proveedor y al ponerlo de nuevo el punto se guarda con el modo y el PK`() {
+        val vm = viewModel()
+        receiving(vm)
+        val measured = measureNormalPoint(vm, "1")
+        val provider = StakeObjectiveProvider { objectiveOf(measured) }
+        stake(vm, lineTarget(measured.coordinates), provider, "BORD_1_1_stkd")
+
+        // Al reabrir una linea el objetivo pasa por null: el recolector olvida el proveedor y la pantalla debe darlo otra vez.
+        vm.setStakeTarget(null)
+        stake(vm, lineTarget(measured.coordinates), provider, "BORD_1_1_stkd")
+
+        val ref = measureStaked(vm, "BORD_1_1_stkd").staked.shouldNotBeNull()
+        ref.mode shouldBe LineStakeoutMode.ALONG
+        ref.chainageM shouldBe 45.25
+    }
 }

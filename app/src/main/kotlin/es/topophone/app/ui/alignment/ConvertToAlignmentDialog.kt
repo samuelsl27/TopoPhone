@@ -48,6 +48,8 @@ fun ConvertToAlignmentDialog(
     state: AlignmentFromDrawingUiState,
     onConvert: (name: String, startChainageM: Double) -> Unit,
     onDismiss: () -> Unit,
+    /** La línea es del proyecto y el eje empieza en su primer vértice, no en un extremo tocado (S027/RF-17). */
+    fromProjectLine: Boolean = false,
 ) {
     val result = state.result
     if (result != null) {
@@ -71,7 +73,10 @@ fun ConvertToAlignmentDialog(
         title = { Text(stringResource(R.string.alignment_convert_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.alignment_convert_help), style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    stringResource(if (fromProjectLine) R.string.alignment_convert_help_line else R.string.alignment_convert_help),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
