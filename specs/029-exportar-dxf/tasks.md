@@ -22,5 +22,5 @@
       Hecho cuando: `DxfExportScreenTest` en verde.
 - [x] T10. `app`: «Exportar DXF» en el menú del proyecto, en el de su lista de objetos y con una selección, y la navegación. (RF-1, RF-2)
       Hecho cuando: las pruebas de las tres entradas en verde.
-- [ ] T11. Validación: hoja de ruta, recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files`, el `.dxf` abierto en QGIS con su herramienta y la demo en el emulador según los criterios de finalización. (Todos)
+- [x] T11. Validación: hoja de ruta, recorrer la spec RF por RF, `rf_report`, `pytest tools`, `forbidden_files`, el `.dxf` abierto en QGIS con su herramienta y la demo en el emulador según los criterios de finalización. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos, QGIS da las mismas coordenadas, capas y colores y la demo funciona. La demo de campo queda para el usuario.

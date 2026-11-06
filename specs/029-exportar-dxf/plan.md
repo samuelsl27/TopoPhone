@@ -121,3 +121,22 @@ Textos nuevos (es y en): Exportar DXF, el recuento de puntos, líneas y polígon
 - `docs/glosario.md`: «Capa del DXF» y «Color ACI» (ya añadidos).
 - Sin cambios de Room: las opciones van a DataStore.
 - Los `spec.md` de otras specs no se tocan; la cabecera «Estado» de S029 no se toca sin que lo pidas.
+
+## Cambios al implementar
+- **D2/D5, capa 0:** la tabla de capas declara siempre la capa `0` primero (color 7), que todos los CAD esperan; el resumen cuenta las capas sin ella. Las capas de código van por orden de aparición (puntos y luego líneas), SIN_CODIGO tras ellas y NOMBRES, COTAS y DESCRIPCIONES solo si tienen algún texto. El texto de una etiqueta lleva la Z de su punto.
+- **D6:** además de las capas de etiquetas y SIN_CODIGO, un código no puede llamarse `0`; el código `nombres` da `NOMBRES_2`. Los espacios de los extremos se quitan antes de limpiar.
+- **D8, controles:** un salto de línea, tabulador u otro carácter de control de un texto pasa a un espacio y no se cuenta como sustituido, porque partiría los pares del fichero. Solo se cuentan los que no caben en Windows-1252 (un `😀` cuenta uno).
+- **D10:** en locales, un punto sin Este y Norte no se escribe y se cuenta; en globales basta con tener longitud y latitud.
+- **RF-2, corrección de la spec:** con selección también van las líneas y polígonos cuyos vértices están todos entre los puntos elegidos (como S053 y S025/RF-26); la primera redacción de la spec decía «sin líneas».
+- **Redondeo:** `DxfNumberFormat` redondea el valor exacto del `Double` (HALF_EVEN), igual que `format` de Python; los datos de prueba evitan empates. `tools/formatos/generar_dxf_exportado.py` redondea longitud y latitud a 9 decimales antes de calcular los desplazamientos de las etiquetas, para que el fichero de referencia sea el que escribe la app a partir de lo que ve un lector.
+- **Ficheros de referencia:** `.gitattributes` marca `fixtures/formatos/dxf-exportado/*` como `-text` (CRLF byte a byte). El test de `core:formats` compara el fichero escrito con `referencia-locales.dxf` y `referencia-globales.dxf` byte a byte.
+- **Opciones:** `DxfExportPreferences` (DataStore «dxf-export») guarda etiquetas, altura y sistema al cambiar cualquiera; una altura fuera de 0,01 a 100 m no se guarda y no deja exportar, y una guardada fuera de rango vuelve a 0,5 m.
+- **Pantalla:** la altura del texto es un campo de texto con coma o punto decimal. «Guardar» y «Compartir» están desactivados con altura no válida (RF-8). El botón de la barra de selección se llama «DXF».
+- **Test de S025 adaptado:** `ObjectListLinesTest` (`Línea desde puntos` en el menú) usa `performScrollTo()` porque el menú de la lista de objetos ganó «Exportar DXF» y el elemento queda fuera de la pantalla de la prueba.
+- **Tests intermitentes vistos (ajenos):** `LineFromPointsTest`, `AxisStakeoutPerformanceTest`, `BaseShiftViewModelTest`, `LineStakeoutSegmentsTest`, `CollectorViewModelPhotosTest`, `DesignMapViewModelTest`, `GeometryPerformanceTest`; se repite el `check`.
+- Sin cambios de Room ni de otras specs; no se tocó la cabecera «Estado» de `spec.md`.
+
+### Validación (06/11/2026)
+- `rf_report`: S029 21 de 21 RF con test. QGIS (OGR) abre `referencia-locales.dxf` con 3 puntos Z, 7 textos en NOMBRES, COTAS y DESCRIPCIONES y 2 polilíneas (la cerrada con 4 puntos), con sus capas y coordenadas; y un DXF sacado del emulador (14 puntos, 25 textos, 2 polilíneas) da 41 elementos.
+- Demo en el emulador (subagente): «Exportar DXF» en los tres sitios; altura 0,005 y 500 avisan y desactivan Guardar y Compartir; todo el proyecto, selección de 3 puntos (con la línea cuyos vértices están entre ellos y sin el polígono), globales (longitud y latitud iguales a pyproj hasta el 9.º decimal, Z elipsoidal, altura del texto 0,5 m / 111 320), sin etiquetas, con descripción y Windows-1252 (`ñ` = 0xF1, la flecha = `?`). Fallos hallados y arreglados: plurales del resumen («1 líneas») y unidad solo fuera del resumen (RF-14): ahora el resumen la repite.
+- No comprobado en el emulador: proyecto en pies, proyecto geográfico, fallo de escritura, nombres de capa con acentos o más de 31 caracteres y código sin color (cubiertos por tests). Queda sin arreglar: el resumen queda bajo «Guardar» y «Compartir» y hay que desplazar; la altura se escribe con punto («0.5») y el error con coma; «Locales» y «Globales» se apilan en dos filas.

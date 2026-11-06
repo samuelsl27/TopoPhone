@@ -2664,10 +2664,21 @@
     <string name="dxf_unit_foot">feet</string>
     <string name="dxf_unit_us_foot">US survey feet</string>
     <string name="dxf_unit_degree">degrees</string>
-    <string name="dxf_export_done">Written: %1$d points · %2$d lines · %3$d polygons · %4$d layers.</string>
+    <string name="dxf_export_done">Written: %1$s.</string>
+    <plurals name="dxf_written_points">
+        <item quantity="one">%d point</item>
+        <item quantity="other">%d points</item>
+    </plurals>
+    <plurals name="dxf_written_layers">
+        <item quantity="one">%d layer</item>
+        <item quantity="other">%d layers</item>
+    </plurals>
     <string name="dxf_export_no_height">No height (Z = 0): %1$d points and %2$d vertices.</string>
     <string name="dxf_export_no_position">%1$d points without a position were not written.</string>
-    <string name="dxf_export_replaced">%1$d characters replaced by \"?\".</string>
+    <plurals name="dxf_export_replaced">
+        <item quantity="one">%1$d character replaced by \"?\".</item>
+        <item quantity="other">%1$d characters replaced by \"?\".</item>
+    </plurals>
     <string name="dxf_share_chooser">Share DXF</string>
     <string name="dxf_export_selected">DXF</string>
 </resources>

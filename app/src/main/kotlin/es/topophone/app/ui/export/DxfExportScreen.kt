@@ -67,6 +67,7 @@ const val DXF_SAVE_TAG = "dxf_save"
 const val DXF_SHARE_TAG = "dxf_share"
 const val DXF_RESULT_TAG = "dxf_result"
 const val DXF_SUMMARY_TAG = "dxf_summary"
+const val DXF_SUMMARY_UNIT_TAG = "dxf_summary_unit"
 const val DXF_NO_HEIGHT_TAG = "dxf_no_height"
 const val DXF_NO_POSITION_TAG = "dxf_no_position"
 const val DXF_REPLACED_TAG = "dxf_replaced"
@@ -253,10 +254,17 @@ fun DxfExportScreen(
                 null -> Unit
             }
             state.summary?.let { summary ->
+                val written = listOf(
+                    pluralStringResource(R.plurals.dxf_written_points, summary.points, summary.points),
+                    pluralStringResource(R.plurals.gpkg_export_lines, summary.lines, summary.lines),
+                    pluralStringResource(R.plurals.gpkg_export_polygons, summary.polygons, summary.polygons),
+                    pluralStringResource(R.plurals.dxf_written_layers, summary.layers, summary.layers),
+                ).joinToString(" · ")
+                Text(stringResource(R.string.dxf_export_done, written), modifier = Modifier.testTag(DXF_SUMMARY_TAG)) // RF-20
                 Text(
-                    stringResource(R.string.dxf_export_done, summary.points, summary.lines, summary.polygons, summary.layers),
-                    modifier = Modifier.testTag(DXF_SUMMARY_TAG),
-                ) // RF-20
+                    stringResource(R.string.dxf_export_unit, stringResource(unitName(summary.unit))),
+                    modifier = Modifier.testTag(DXF_SUMMARY_UNIT_TAG),
+                ) // RF-14
                 if (summary.pointsWithoutHeight > 0 || summary.verticesWithoutHeight > 0) {
                     Text(
                         stringResource(R.string.dxf_export_no_height, summary.pointsWithoutHeight, summary.verticesWithoutHeight),
@@ -271,7 +279,7 @@ fun DxfExportScreen(
                 }
                 if (summary.replacedChars > 0) {
                     Text(
-                        stringResource(R.string.dxf_export_replaced, summary.replacedChars),
+                        pluralStringResource(R.plurals.dxf_export_replaced, summary.replacedChars, summary.replacedChars),
                         modifier = Modifier.testTag(DXF_REPLACED_TAG),
                     ) // RF-15
                 }

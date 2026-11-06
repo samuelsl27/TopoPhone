@@ -245,9 +245,10 @@ class DxfExportScreenTest {
         show(state(result = ExportResult.SAVED, summary = summary()))
 
         compose.onNodeWithTag(DXF_SUMMARY_TAG).assertTextContains("3 puntos", substring = true)
-        compose.onNodeWithTag(DXF_SUMMARY_TAG).assertTextContains("1 líneas", substring = true)
+        compose.onNodeWithTag(DXF_SUMMARY_TAG).assertTextContains("1 línea", substring = true)
         compose.onNodeWithTag(DXF_SUMMARY_TAG).assertTextContains("2 polígonos", substring = true)
         compose.onNodeWithTag(DXF_SUMMARY_TAG).assertTextContains("4 capas", substring = true)
+        compose.onNodeWithTag(DXF_SUMMARY_UNIT_TAG).assertTextContains("metros", substring = true) // RF-14
         compose.onAllNodesWithTag(DXF_NO_HEIGHT_TAG).assertCountEquals(0)
         compose.onAllNodesWithTag(DXF_NO_POSITION_TAG).assertCountEquals(0)
         compose.onAllNodesWithTag(DXF_REPLACED_TAG).assertCountEquals(0)

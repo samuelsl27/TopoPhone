@@ -2676,10 +2676,21 @@
     <string name="dxf_unit_foot">pies</string>
     <string name="dxf_unit_us_foot">pies de EE. UU.</string>
     <string name="dxf_unit_degree">grados</string>
-    <string name="dxf_export_done">Escritos: %1$d puntos · %2$d líneas · %3$d polígonos · %4$d capas.</string>
+    <string name="dxf_export_done">Escritos: %1$s.</string>
+    <plurals name="dxf_written_points">
+        <item quantity="one">%d punto</item>
+        <item quantity="other">%d puntos</item>
+    </plurals>
+    <plurals name="dxf_written_layers">
+        <item quantity="one">%d capa</item>
+        <item quantity="other">%d capas</item>
+    </plurals>
     <string name="dxf_export_no_height">Sin altura (Z = 0): %1$d puntos y %2$d vértices.</string>
     <string name="dxf_export_no_position">%1$d puntos sin posición no se han escrito.</string>
-    <string name="dxf_export_replaced">%1$d caracteres sustituidos por «?».</string>
+    <plurals name="dxf_export_replaced">
+        <item quantity="one">%1$d carácter sustituido por «?».</item>
+        <item quantity="other">%1$d caracteres sustituidos por «?».</item>
+    </plurals>
     <string name="dxf_share_chooser">Compartir DXF</string>
     <string name="dxf_export_selected">DXF</string>
 </resources>
