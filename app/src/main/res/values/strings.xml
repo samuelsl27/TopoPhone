@@ -2660,4 +2660,25 @@
     <string name="line_create_axis">Crear eje</string>
     <string name="objects_line_menu">Más opciones de la línea %1$s</string>
     <string name="alignment_convert_help_line">El eje empieza en el primer vértice de la línea y sus vértices son tramos rectos. Si tienen altura, se crea la rasante con ellas.</string>
+    <string name="dxf_export_title">Exportar DXF</string>
+    <string name="dxf_export_labels">Etiquetas junto a cada punto</string>
+    <string name="dxf_label_name">Nombre</string>
+    <string name="dxf_label_elevation">Cota</string>
+    <string name="dxf_label_description">Descripción</string>
+    <string name="dxf_export_text_height">Altura del texto (m)</string>
+    <string name="dxf_export_text_height_error">Entre 0,01 m y 100 m.</string>
+    <string name="dxf_export_coordinates">Coordenadas</string>
+    <string name="dxf_export_local">Locales (SC del proyecto)</string>
+    <string name="dxf_export_global">Globales (longitud y latitud)</string>
+    <string name="dxf_export_global_fixed">Globales: longitud, latitud y altura elipsoidal.</string>
+    <string name="dxf_export_unit">Unidad de las coordenadas: %1$s. El DXF R12 no puede declararla.</string>
+    <string name="dxf_unit_metre">metros</string>
+    <string name="dxf_unit_foot">pies</string>
+    <string name="dxf_unit_us_foot">pies de EE. UU.</string>
+    <string name="dxf_unit_degree">grados</string>
+    <string name="dxf_export_done">Escritos: %1$d puntos · %2$d líneas · %3$d polígonos · %4$d capas.</string>
+    <string name="dxf_export_no_height">Sin altura (Z = 0): %1$d puntos y %2$d vértices.</string>
+    <string name="dxf_export_no_position">%1$d puntos sin posición no se han escrito.</string>
+    <string name="dxf_export_replaced">%1$d caracteres sustituidos por «?».</string>
+    <string name="dxf_share_chooser">Compartir DXF</string>
 </resources>

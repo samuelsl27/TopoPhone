@@ -2648,4 +2648,25 @@
     <string name="line_create_axis">Create alignment</string>
     <string name="objects_line_menu">More options for line %1$s</string>
     <string name="alignment_convert_help_line">The alignment starts at the first vertex of the line and its vertices are straight segments. If they have heights, the profile is created from them.</string>
+    <string name="dxf_export_title">Export DXF</string>
+    <string name="dxf_export_labels">Labels next to each point</string>
+    <string name="dxf_label_name">Name</string>
+    <string name="dxf_label_elevation">Elevation</string>
+    <string name="dxf_label_description">Description</string>
+    <string name="dxf_export_text_height">Text height (m)</string>
+    <string name="dxf_export_text_height_error">Between 0.01 m and 100 m.</string>
+    <string name="dxf_export_coordinates">Coordinates</string>
+    <string name="dxf_export_local">Local (project CRS)</string>
+    <string name="dxf_export_global">Global (longitude and latitude)</string>
+    <string name="dxf_export_global_fixed">Global: longitude, latitude and ellipsoidal height.</string>
+    <string name="dxf_export_unit">Coordinate unit: %1$s. DXF R12 cannot declare it.</string>
+    <string name="dxf_unit_metre">metres</string>
+    <string name="dxf_unit_foot">feet</string>
+    <string name="dxf_unit_us_foot">US survey feet</string>
+    <string name="dxf_unit_degree">degrees</string>
+    <string name="dxf_export_done">Written: %1$d points · %2$d lines · %3$d polygons · %4$d layers.</string>
+    <string name="dxf_export_no_height">No height (Z = 0): %1$d points and %2$d vertices.</string>
+    <string name="dxf_export_no_position">%1$d points without a position were not written.</string>
+    <string name="dxf_export_replaced">%1$d characters replaced by \"?\".</string>
+    <string name="dxf_share_chooser">Share DXF</string>
 </resources>
