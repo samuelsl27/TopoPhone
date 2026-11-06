@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/formatos`: `generar_dxf_exportado.py` con la tabla ACI, las coordenadas geográficas de unos puntos (pyproj) y un DXF de referencia partido en pares; y su test. (RF-6, RF-10 a RF-12, constitución nº 2)
       Hecho cuando: el script genera `fixtures/formatos/dxf-exportado/` y su test de `tools` está en verde.
-- [ ] T2. `core:formats`: `AciColor` (tabla de 255 colores y color más cercano). (RF-6)
+- [x] T2. `core:formats`: `AciColor` (tabla de 255 colores y color más cercano). (RF-6)
       Hecho cuando: `AciColorTest` en verde contra `aci.csv`.
 - [ ] T3. `core:formats`: `DxfLayerNames` y `DxfNumberFormat`. (RF-5, RF-10)
       Hecho cuando: `DxfLayerNamesTest` y `DxfNumberFormatTest` en verde (acentos, 31 caracteres, repetidos, `Locale.ROOT`).

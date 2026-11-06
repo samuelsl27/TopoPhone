@@ -30,3 +30,5 @@ fixtures/ejes/toma/esperado-perfil-*.csv -text
 # Rejillas geodésicas y grabaciones RTCM cortas (< 5 MB) en git normal, no en LFS: el CI las necesita.
 *.tif binary
 *.rtcm3 binary
+# DXF y tabla ACI de referencia de la exportacion: CRLF byte a byte (S029)
+fixtures/formatos/dxf-exportado/* -text
