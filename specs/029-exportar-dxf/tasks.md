@@ -8,7 +8,7 @@
       Hecho cuando: `AciColorTest` en verde contra `aci.csv`.
 - [x] T3. `core:formats`: `DxfLayerNames` y `DxfNumberFormat`. (RF-5, RF-10)
       Hecho cuando: `DxfLayerNamesTest` y `DxfNumberFormatTest` en verde (acentos, 31 caracteres, repetidos, `Locale.ROOT`).
-- [ ] T4. `core:formats`: `DxfWriter` y `DxfCharset` (cabecera, capas, POINT, TEXT, POLYLINE/VERTEX/SEQEND, Windows-1252 con sustituidos). (RF-3, RF-4, RF-15)
+- [x] T4. `core:formats`: `DxfWriter` y `DxfCharset` (cabecera, capas, POINT, TEXT, POLYLINE/VERTEX/SEQEND, Windows-1252 con sustituidos). (RF-3, RF-4, RF-15)
       Hecho cuando: `DxfWriterTest` en verde.
 - [ ] T5. `core:formats`: `DxfDocumentBuilder` y `DxfExportSummary` (capas por código, etiquetas, Z, locales y globales, pies, selección, sin altura, sin posición). (RF-1 a RF-4, RF-7 a RF-9, RF-11 a RF-14, RF-20)
       Hecho cuando: `DxfDocumentBuilderTest` en verde.
