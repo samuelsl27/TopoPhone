@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`).
 
-- [ ] T1. `tools/formatos`: `generar_dxf_exportado.py` con la tabla ACI, las coordenadas geográficas de unos puntos (pyproj) y un DXF de referencia partido en pares; y su test. (RF-6, RF-10 a RF-12, constitución nº 2)
+- [x] T1. `tools/formatos`: `generar_dxf_exportado.py` con la tabla ACI, las coordenadas geográficas de unos puntos (pyproj) y un DXF de referencia partido en pares; y su test. (RF-6, RF-10 a RF-12, constitución nº 2)
       Hecho cuando: el script genera `fixtures/formatos/dxf-exportado/` y su test de `tools` está en verde.
 - [ ] T2. `core:formats`: `AciColor` (tabla de 255 colores y color más cercano). (RF-6)
       Hecho cuando: `AciColorTest` en verde contra `aci.csv`.
