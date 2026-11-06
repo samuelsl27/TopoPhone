@@ -283,7 +283,7 @@ class ObjectListLinesTest {
         show(uiState)
 
         compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithTag(OBJECTS_LINE_FROM_POINTS_TAG).performClick()
+        compose.onNodeWithTag(OBJECTS_LINE_FROM_POINTS_TAG).performScrollTo().performClick()
 
         calls shouldBe listOf("wizard")
     }

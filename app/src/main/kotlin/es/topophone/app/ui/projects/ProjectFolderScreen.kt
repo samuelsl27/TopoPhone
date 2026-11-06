@@ -126,6 +126,7 @@ fun ProjectFolderRoute(
                 onDelete = viewModel::delete,
                 onExport = { id -> navigation.onExport(id, false) }, // S012/RF-1
                 onExportGeoPackage = { id -> navigation.onExportGeoPackage(id, false) }, // S053/RF-1
+                onExportDxf = { id -> navigation.onExportDxf(id, false) }, // S029/RF-1
                 onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
                 onImportPoints = importPoints,
                 onImportDxf = importDxf,

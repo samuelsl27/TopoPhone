@@ -116,6 +116,9 @@ import kotlinx.serialization.Serializable
 /** Exportar GeoPackage: todos los puntos del proyecto o, con [selection], los elegidos en la lista (S053/RF-1, RF-2). */
 @Serializable data class ExportGeoPackageDestination(val projectId: String, val selection: Boolean = false)
 
+/** Exportar DXF: todos los puntos del proyecto o, con [selection], los elegidos en la lista (S029/RF-1, RF-2). */
+@Serializable data class ExportDxfDestination(val projectId: String, val selection: Boolean = false)
+
 /** Informe de replanteo: de todo el proyecto o, con [selection], de los puntos elegidos en la lista (S019/RF-17, RF-18). */
 @Serializable data class StakeoutReportDestination(val projectId: String, val selection: Boolean = false)
 

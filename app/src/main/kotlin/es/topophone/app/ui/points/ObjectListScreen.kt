@@ -112,6 +112,7 @@ const val SELECTION_DELETE_TAG = "selection_delete"
 const val SELECTION_CANCEL_TAG = "selection_cancel"
 const val SELECTION_EXPORT_TAG = "selection_export"
 const val SELECTION_EXPORT_GPKG_TAG = "selection_export_gpkg"
+const val SELECTION_EXPORT_DXF_TAG = "selection_export_dxf"
 const val SELECTION_STAKEOUT_REPORT_TAG = "selection_stakeout_report"
 const val SELECTION_POLE_TAG = "selection_pole"
 const val SELECTION_CODE_TAG = "selection_code"
@@ -172,6 +173,9 @@ class ObjectListActions(
     /** Exportar a GeoPackage todo el proyecto o los puntos seleccionados (S053/RF-1, RF-2). */
     val onExportGeoPackage: () -> Unit = {},
     val onExportGeoPackageSelected: () -> Unit = {},
+    /** Exportar a DXF todo el proyecto o los puntos seleccionados (S029/RF-1, RF-2). */
+    val onExportDxf: () -> Unit = {},
+    val onExportDxfSelected: () -> Unit = {},
     /** El informe de replanteo de todo el proyecto y de los puntos seleccionados (S019/RF-17, RF-18). */
     val onStakeoutReport: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, el asistente de importación de puntos (S028/RF-1). */
@@ -421,6 +425,11 @@ fun ObjectListRoute(
                 viewModel.exportSelected()
                 navigation.onExportGeoPackage(projectId, true) // S053/RF-2
             },
+            onExportDxf = { navigation.onExportDxf(projectId, false) }, // S029/RF-1
+            onExportDxfSelected = {
+                viewModel.exportSelected()
+                navigation.onExportDxf(projectId, true) // S029/RF-2
+            },
             onToggleSelection = viewModel::toggleSelection,
             onClearSelection = viewModel::clearSelection,
             onSetHidden = viewModel::setHidden,
@@ -473,6 +482,7 @@ fun ObjectListScreen(
                 actions.onOpenTrash,
                 actions.onExport,
                 actions.onExportGeoPackage,
+                actions.onExportDxf,
                 actions.onStakeoutReport,
                 actions.onImportPoints,
                 actions.onImportDxf,
@@ -562,6 +572,7 @@ private fun ObjectsMenu(
     onOpenTrash: () -> Unit,
     onExport: () -> Unit,
     onExportGeoPackage: () -> Unit,
+    onExportDxf: () -> Unit,
     onStakeoutReport: () -> Unit,
     onImportPoints: () -> Unit,
     onImportDxf: () -> Unit,
@@ -594,6 +605,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S053/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.dxf_export_title)) },
+            onClick = {
+                open = false
+                onExportDxf()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S029/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.import_title)) },
             onClick = {
@@ -879,6 +898,7 @@ private fun SelectionBar(count: Int, single: String?, usedByLines: List<String>,
                     Triple(R.string.change_code_button, SELECTION_CODE_TAG, actions.onChangeCode), // S024/RF-13
                     Triple(R.string.export_selected, SELECTION_EXPORT_TAG, actions.onExportSelected),
                     Triple(R.string.gpkg_export_selected, SELECTION_EXPORT_GPKG_TAG, actions.onExportGeoPackageSelected), // S053/RF-2
+                    Triple(R.string.dxf_export_selected, SELECTION_EXPORT_DXF_TAG, actions.onExportDxfSelected), // S029/RF-2
                     Triple(R.string.objects_stakeout_report, SELECTION_STAKEOUT_REPORT_TAG, actions.onStakeoutReportSelected), // S019/RF-18
                     Triple(R.string.objects_delete, SELECTION_DELETE_TAG) { confirmDelete = true },
                     Triple(R.string.objects_cancel_selection, SELECTION_CANCEL_TAG, actions.onClearSelection),

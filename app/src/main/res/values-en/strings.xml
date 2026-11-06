@@ -2669,4 +2669,5 @@
     <string name="dxf_export_no_position">%1$d points without a position were not written.</string>
     <string name="dxf_export_replaced">%1$d characters replaced by \"?\".</string>
     <string name="dxf_share_chooser">Share DXF</string>
+    <string name="dxf_export_selected">DXF</string>
 </resources>
