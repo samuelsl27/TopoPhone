@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,12 +38,15 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.alignment.AlignmentFromDrawingViewModel
+import es.topophone.app.ui.alignment.ConvertToAlignmentDialog
 import es.topophone.app.ui.collector.geometryLabel
 import es.topophone.app.ui.collector.messageRes
 import es.topophone.app.ui.points.ChangeCodeActions
 import es.topophone.app.ui.points.ChangeCodeDialogs
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.formatDateTime
+import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.alignment.ChainageFormat
@@ -71,6 +75,7 @@ const val LINE_HISTORY_BUTTON_TAG = "line_history_button"
 const val LINE_INFORMATION_TAG = "line_information_button"
 const val LINE_ANGLE_TAG = "line_angle_button"
 const val LINE_STAKEOUT_TAG = "line_stakeout_button"
+const val LINE_CREATE_AXIS_TAG = "line_create_axis_button"
 const val LINE_HISTORY_TAG = "line_history"
 const val LINE_PICKER_SEARCH_TAG = "line_picker_search"
 const val LINE_DELETE_TAG = "line_delete"
@@ -121,6 +126,8 @@ class LineDetailsActions(
     val onAngle: () -> Unit = {},
     /** Abre el replanteo de la línea (S027/RF-1). */
     val onStakeout: () -> Unit = {},
+    /** Abre «Crear eje» con esta línea abierta (S027/RF-17). */
+    val onCreateAxis: () -> Unit = {},
 )
 
 @Composable
@@ -133,9 +140,11 @@ fun LineDetailsRoute(
     onAngle: () -> Unit = {},
     onStakeout: () -> Unit = {},
     viewModel: LineDetailsViewModel = hiltViewModel(),
+    alignmentViewModel: AlignmentFromDrawingViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
     LaunchedEffect(projectId, lineId) { viewModel.start(projectId, lineId) }
+    var axisOpen by rememberSaveable { mutableStateOf(false) } // S027/RF-17
     val state by viewModel.state.collectAsStateWithLifecycle()
     val change by viewModel.changeCode.ui.collectAsStateWithLifecycle()
     LineDetailsScreen(
@@ -166,10 +175,26 @@ fun LineDetailsRoute(
             onInformation = onInformation,
             onAngle = onAngle,
             onStakeout = onStakeout,
+            onCreateAxis = { axisOpen = true },
         ),
         onBack = onBack,
     )
     LaunchedEffect(state.deleted) { if (state.deleted) onBack() }
+    val axisState by alignmentViewModel.state.collectAsStateWithLifecycle()
+    val axisLine = state.line
+    if (axisOpen && axisLine != null) {
+        ConvertToAlignmentDialog(
+            defaultName = axisLine.name,
+            unit = state.unit,
+            unitSymbol = unitSymbol(state.unit),
+            state = axisState,
+            onConvert = { name, start -> alignmentViewModel.convertLine(projectId, lineId, name, start) },
+            onDismiss = {
+                axisOpen = false
+                alignmentViewModel.dismiss()
+            },
+        )
+    }
     ChangeCodeDialogs(
         change,
         ChangeCodeActions(
@@ -278,6 +303,12 @@ private fun Header(line: ProjectLine, state: LineDetailsUi, actions: LineDetails
             onClick = actions.onStakeout,
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_STAKEOUT_TAG),
         ) { Text(stringResource(R.string.design_element_stakeout)) } // S027/RF-1
+        if (!line.closed && state.vertices.size >= 2) {
+            OutlinedButton(
+                onClick = actions.onCreateAxis,
+                modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_CREATE_AXIS_TAG),
+            ) { Text(stringResource(R.string.line_create_axis)) } // S027/RF-17
+        }
         OutlinedButton(
             onClick = actions.onInformation,
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LINE_INFORMATION_TAG),

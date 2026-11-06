@@ -270,6 +270,8 @@ data class ProjectViewUiState(
     val lineScene: LineScene? = null,
     /** El nombre de cada línea del proyecto, para la hoja que se abre al tocarla en el mapa (S027/RF-1). */
     val lineNames: Map<String, String> = emptyMap(),
+    /** Las líneas abiertas con al menos dos vértices, a las que se les puede crear un eje (S027/RF-17). */
+    val axisLines: Set<String> = emptySet(),
     /** El modo usa la inclinación pero la época no está en estado 30: "Punta sin compensar" (S016/RF-17). */
     val uncompensated: Boolean = false,
 )
@@ -376,15 +378,19 @@ class ProjectViewModel @Inject constructor(
         .combine(
             projectId.flatMapLatest { id ->
                 if (id == null) {
-                    flowOf<Pair<LineScene?, Map<String, String>>>(null to emptyMap())
+                    flowOf<Triple<LineScene?, Map<String, String>, Set<String>>>(Triple(null, emptyMap(), emptySet()))
                 } else {
                     // S025/RF-22: el GeoJSON de las lineas se escribe aqui, fuera del hilo principal.
                     combine(lines.lines(id), points.summaries(id)) { all, summaries ->
-                        MapLines.scene(all, summaries) to all.associate { it.id to it.name }
+                        Triple(
+                            MapLines.scene(all, summaries),
+                            all.associate { it.id to it.name },
+                            all.filter { !it.closed && it.vertices.size >= 2 }.map { it.id }.toSet(),
+                        )
                     }
                 }
             },
-        ) { state, (scene, names) -> state.copy(lineScene = scene, lineNames = names) }
+        ) { state, (scene, names, axes) -> state.copy(lineScene = scene, lineNames = names, axisLines = axes) }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProjectViewUiState())
 
@@ -900,6 +906,9 @@ fun ProjectViewRoute(
         onOpenPoint = navigation.onOpenPoint,
         onOpenLine = navigation.onOpenLine, // S025/RF-22
         onStakeoutLine = startProjectLine, // S027/RF-1
+        onConvertLineToAlignment = { lineId, name, start ->
+            alignmentFromDrawingViewModel.convertLine(projectId, lineId, name, start) // S027/RF-17
+        },
         onLineInformation = navigation.onLineInformation, // S026/RF-1
         lineStakeout = line.takeIf { lineOpen },
         lineHighlight = lineHighlight,
@@ -994,6 +1003,7 @@ fun ProjectViewScreen(
     onOpenPoint: (projectId: String, pointId: String) -> Unit = { _, _ -> },
     onOpenLine: (projectId: String, lineId: String) -> Unit = { _, _ -> },
     onStakeoutLine: (lineId: String) -> Unit = {},
+    onConvertLineToAlignment: (lineId: String, name: String, startChainageM: Double) -> Unit = { _, _, _ -> },
     onLineInformation: (projectId: String, lineId: String) -> Unit = { _, _ -> },
     stakeout: StakeoutUiState? = null,
     stakeoutActions: StakeoutActions = StakeoutActions(),
@@ -1293,6 +1303,7 @@ fun ProjectViewScreen(
     }
     // S025/RF-22, S027/RF-1: tocar una linea o un poligono del mapa abre una hoja con su ficha, su replanteo y su informacion.
     var tappedLine by remember { mutableStateOf<String?>(null) }
+    var axisLine by rememberSaveable { mutableStateOf<String?>(null) } // S027/RF-17
     LaunchedEffect(controller, projectId) {
         val map = controller ?: return@LaunchedEffect
         if (projectId != null) map.lineClicks.collect { lineId -> tappedLine = lineId }
@@ -1313,7 +1324,29 @@ fun ProjectViewScreen(
                 tappedLine = null
                 onLineInformation(projectId, sheetLine)
             },
+            onCreateAxis = if (sheetLine in state.axisLines) {
+                {
+                    tappedLine = null
+                    axisLine = sheetLine
+                }
+            } else {
+                null
+            },
             onDismiss = { tappedLine = null },
+        )
+    }
+    val convertLineId = axisLine
+    if (convertLineId != null && project != null) {
+        ConvertToAlignmentDialog(
+            defaultName = state.lineNames[convertLineId].orEmpty(),
+            unit = project.linearUnit,
+            unitSymbol = unitSymbol(project.linearUnit),
+            state = alignmentFromDrawing,
+            onConvert = { name, start -> onConvertLineToAlignment(convertLineId, name, start) },
+            onDismiss = {
+                axisLine = null
+                onDismissAlignmentConversion()
+            },
         )
     }
     if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }

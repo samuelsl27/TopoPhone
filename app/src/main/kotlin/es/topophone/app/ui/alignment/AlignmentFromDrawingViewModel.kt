@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
 import es.topophone.app.ui.cad.DesignSelection
+import es.topophone.app.ui.stakeout.StakeLines
 import es.topophone.core.model.alignment.AlignmentIssue
 import es.topophone.core.model.alignment.AlignmentSource
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.AlignmentDraft
 import es.topophone.core.survey.PolylineAlignmentBuilder
 import es.topophone.core.survey.PolylineResult
@@ -20,6 +22,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -46,6 +49,7 @@ class AlignmentFromDrawingViewModel @Inject constructor(
     private val projects: ProjectRepository,
     @param:IoDispatcher private val io: CoroutineDispatcher,
     private val log: AppLog = AppLog.NONE,
+    private val stakeLines: StakeLines = StakeLines.NONE,
 ) : ViewModel() {
     private val mutable = MutableStateFlow(AlignmentFromDrawingUiState())
     val state: StateFlow<AlignmentFromDrawingUiState> = mutable.asStateFlow()
@@ -57,6 +61,49 @@ class AlignmentFromDrawingViewModel @Inject constructor(
         viewModelScope.launch(io) {
             mutable.update { AlignmentFromDrawingUiState(result = run(projectId, selection, name.trim(), startChainageM)) }
         }
+    }
+
+    /**
+     * Crea el eje de la línea abierta [lineId] del proyecto (S027/RF-17): sus vértices son tramos rectos desde el primero, sus alturas son la
+     * rasante sin acuerdos si hay al menos dos, y la línea y sus puntos no se tocan.
+     */
+    fun convertLine(projectId: String, lineId: String, name: String, startChainageM: Double) {
+        if (mutable.value.working || name.isBlank()) return
+        mutable.update { AlignmentFromDrawingUiState(working = true) }
+        viewModelScope.launch(io) {
+            mutable.update { AlignmentFromDrawingUiState(result = runLine(projectId, lineId, name.trim(), startChainageM)) }
+        }
+    }
+
+    private suspend fun runLine(projectId: String, lineId: String, name: String, startChainageM: Double): DrawingAlignmentResult {
+        val project = projects.project(projectId) ?: return DrawingAlignmentResult.WriteError
+        val data = stakeLines.observe(lineId).first()
+        // Un polígono no es un eje; una línea que no existe o sin Este y Norte tampoco tiene con qué (RF-17).
+        if (data == null || data.line.closed || data.vertices.any { it.easting == null || it.northing == null }) {
+            return DrawingAlignmentResult.Rejected(AlignmentIssue.NotAPolyline)
+        }
+        val east = DoubleArray(data.vertices.size) { data.vertices[it].easting!! }
+        val north = DoubleArray(data.vertices.size) { data.vertices[it].northing!! }
+        val height = if (data.vertices.any {
+                it.height != null
+            }
+        ) {
+            DoubleArray(data.vertices.size) { data.vertices[it].height ?: Double.NaN }
+        } else {
+            null
+        }
+        val built = when (val result = PolylineAlignmentBuilder.buildFromVertices(east, north, height, east[0], north[0], startChainageM)) {
+            is PolylineResult.Failed -> return DrawingAlignmentResult.Rejected(result.issue)
+            is PolylineResult.Built -> result
+        }
+        return save(
+            projectId,
+            project.crs,
+            name,
+            null,
+            AlignmentSource.PROJECT_LINE,
+            AlignmentDraft(built.elements, profile = built.profile),
+        )
     }
 
     private suspend fun run(projectId: String, selection: DesignSelection, name: String, startChainageM: Double): DrawingAlignmentResult {
@@ -73,17 +120,25 @@ class AlignmentFromDrawingViewModel @Inject constructor(
             is PolylineResult.Failed -> return DrawingAlignmentResult.Rejected(result.issue)
             is PolylineResult.Built -> result
         }
-        val draft = AlignmentDraft(built.elements, profile = built.profile)
-        return when (
-            val result = importer.importDraft(
-                projectId,
-                project.crs,
-                name,
-                selection.drawingName,
-                AlignmentSource.DRAWING,
-                draft,
-            )
-        ) {
+        return save(
+            projectId,
+            project.crs,
+            name,
+            selection.drawingName,
+            AlignmentSource.DRAWING,
+            AlignmentDraft(built.elements, profile = built.profile),
+        )
+    }
+
+    private suspend fun save(
+        projectId: String,
+        crs: ProjectCrs,
+        name: String,
+        fileName: String?,
+        origin: AlignmentSource,
+        draft: AlignmentDraft,
+    ): DrawingAlignmentResult {
+        return when (val result = importer.importDraft(projectId, crs, name, fileName, origin, draft)) {
             is AlignmentImportResult.Failed -> DrawingAlignmentResult.WriteError
             is AlignmentImportResult.Done -> {
                 val imported = result.summary.imported.firstOrNull()

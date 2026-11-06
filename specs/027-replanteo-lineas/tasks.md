@@ -32,7 +32,7 @@
       Hecho cuando: `LineActionsTest` en verde y los tests de S025 de la ficha y del mapa adaptados o intactos.
 - [x] T15. `core:survey`: `PolylineAlignmentBuilder.buildFromVertices` con alturas parciales. (RF-17)
       Hecho cuando: `PolylineAlignmentFromVerticesTest` en verde y los tests de S049 intactos.
-- [ ] T16. `app`: «Crear eje» desde la ficha y la hoja del mapa, con la línea y sus puntos intactos. (RF-17, RF-18)
+- [x] T16. `app`: «Crear eje» desde la ficha y la hoja del mapa, con la línea y sus puntos intactos. (RF-17, RF-18)
       Hecho cuando: `CreateAxisFromLineTest` en verde.
 - [ ] T17. `app`: rendimiento: abrir una línea de 100.000 vértices en menos de 1 s. (RNF-T13)
       Hecho cuando: `LineStakeoutPerformanceTest` en verde.

@@ -4,7 +4,7 @@ package es.topophone.core.model.alignment
  * De dónde sale un eje (S049/RF-1): un LandXML, una polilínea de un dibujo, un CSV de rasante o la definición a mano. `FIELD` es un eje
  * tomado con el receptor (S052/RF-8).
  */
-enum class AlignmentSource { LANDXML, DRAWING, CSV, MANUAL, FIELD }
+enum class AlignmentSource { LANDXML, DRAWING, CSV, MANUAL, FIELD, PROJECT_LINE }
 
 /** La clase de un tramo del eje en planta (S049/RF-4). */
 enum class ElementKind { LINE, ARC, CLOTHOID }

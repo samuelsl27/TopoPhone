@@ -109,6 +109,54 @@ class LineActionsTest {
 
         calls shouldBe listOf("axis")
     }
+
+    private fun showDetails(line: ProjectLine, actions: LineDetailsActions = LineDetailsActions()) {
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                LineDetailsScreen(
+                    ThemeState.DEFAULT,
+                    {},
+                    LineDetailsUi(
+                        loaded = true,
+                        line = line,
+                        vertices = line.vertices.mapIndexed { i, v ->
+                            VertexRow(
+                                i,
+                                v.pointId,
+                                "P$i",
+                                i * 10.0,
+                            )
+                        },
+                    ),
+                    actions,
+                    onBack = {},
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `S027 RF-17 la ficha de una linea abierta con dos vertices ofrece Crear eje`() {
+        showDetails(line, LineDetailsActions(onCreateAxis = { calls += "axis" }))
+
+        compose.onNodeWithTag(LINE_CREATE_AXIS_TAG).performScrollTo().assertHeightIsAtLeast(56.dp).performClick()
+
+        calls shouldBe listOf("axis")
+    }
+
+    @Test
+    fun `S027 RF-17 un poligono no ofrece Crear eje`() {
+        showDetails(line.copy(closed = true, vertices = listOf(LineVertex("a"), LineVertex("b"), LineVertex("c"))))
+
+        compose.onAllNodesWithTagCount(LINE_CREATE_AXIS_TAG) shouldBe 0
+    }
+
+    @Test
+    fun `S027 RF-17 una linea de un solo vertice no ofrece Crear eje`() {
+        showDetails(line.copy(vertices = listOf(LineVertex("a"))))
+
+        compose.onAllNodesWithTagCount(LINE_CREATE_AXIS_TAG) shouldBe 0
+    }
 }
 
 private fun androidx.compose.ui.test.junit4.ComposeContentTestRule.onAllNodesWithTagCount(tag: String): Int =

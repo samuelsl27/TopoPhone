@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -11,6 +12,8 @@ import androidx.compose.ui.test.performClick
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.alignment.ALIGNMENT_CONVERT_CREATE_TAG
+import es.topophone.app.ui.lines.LINE_SHEET_AXIS_TAG
 import es.topophone.app.ui.lines.LINE_SHEET_INFO_TAG
 import es.topophone.app.ui.lines.LINE_SHEET_OPEN_TAG
 import es.topophone.app.ui.lines.LINE_SHEET_STAKEOUT_TAG
@@ -167,6 +170,41 @@ class LinesLayerTest {
         compose.onNodeWithTag(LINE_SHEET_INFO_TAG).performClick()
 
         info shouldBe ("p1" to "l1")
+    }
+
+    @Test
+    fun `S027 RF-17 la hoja del mapa ofrece Crear eje en una linea abierta y lo convierte con el nombre y el PK escritos`() {
+        var converted: Triple<String, String, Double>? = null
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ProjectViewScreen(
+                    ThemeState.DEFAULT,
+                    {},
+                    ProjectViewUiState(project, lineNames = mapOf("l1" to "BORD_1"), axisLines = setOf("l1")),
+                    onBack = {},
+                    map = fakeMap(map),
+                    onConvertLineToAlignment = { lineId, name, start -> converted = Triple(lineId, name, start) },
+                )
+            }
+        }
+        compose.waitForIdle()
+
+        map.clickLine("l1")
+        compose.waitForIdle()
+        compose.onNodeWithTag(LINE_SHEET_AXIS_TAG).performClick()
+        compose.onNodeWithTag(ALIGNMENT_CONVERT_CREATE_TAG).performClick()
+
+        converted shouldBe Triple("l1", "BORD_1", 0.0)
+    }
+
+    @Test
+    fun `S027 RF-17 la hoja de una linea que no es abierta con dos vertices no ofrece Crear eje`() {
+        showWithLineCallbacks()
+
+        map.clickLine("l1")
+        compose.waitForIdle()
+
+        compose.onAllNodes(hasTestTag(LINE_SHEET_AXIS_TAG)).fetchSemanticsNodes().size shouldBe 0
     }
 
     private fun line(id: String, closed: Boolean, hidden: Boolean = false, vararg points: String) = ProjectLine(
