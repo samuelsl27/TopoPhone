@@ -14,7 +14,7 @@
       Hecho cuando: `ShpReaderTest` en verde contra los ficheros de `tools`, con los vértices a menos de 1e-9 m de lo esperado.
 - [x] T6. `core:formats`: `ShxIndex` (con `.shx`, sin él y con uno roto) y `ShpBlobEncoder` (blob con cabecera y envolvente). (RF-19, RF-13)
       Hecho cuando: `ShxIndexTest` y `ShpBlobEncoderTest` en verde: el blob se lee con `GpkgGeometryReader` y da las mismas partes y envolvente que `ShpReader`.
-- [ ] T7. `core:formats`: `DbfReader` (tipos de campo, borrados, registros que faltan) y `ShpEncoding` (`.cpg`, UTF-8 válido y Windows-1252). (RF-18, RF-19, RF-20, RF-21)
+- [x] T7. `core:formats`: `DbfReader` (tipos de campo, borrados, registros que faltan) y `ShpEncoding` (`.cpg`, UTF-8 válido y Windows-1252). (RF-18, RF-19, RF-20, RF-21)
       Hecho cuando: `DbfReaderTest` y `ShpEncodingTest` en verde con y sin `.cpg`, con tildes y eñes, con un `.cpg` desconocido y con un `.dbf` corto.
 - [ ] T8. `core:formats`: `PrjReader` y `ShpCrsCatalog` (autoridad, estructura, WGS 84, no disponible y sin `.prj`) y el nombre en `GpkgCrs.Unavailable`. (RF-8, RF-9)
       Hecho cuando: `PrjReaderTest` y `ShpCrsCatalogTest` en verde con el WKT de ESRI y el de OGC de cada `ProjectCrs` contra pyproj, y con pies, otro huso y otra proyección como no disponibles.
