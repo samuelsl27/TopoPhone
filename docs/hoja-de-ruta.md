@@ -73,10 +73,11 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
 | 029 exportar-dxf | DXF ASCII R12: capas por código, colores ACI, etiquetas, polilíneas 3D, coordenadas globales o locales | 012 (códigos, líneas y polígonos: 024, 025) | implementada |
-| 030 shapefile | Importar desde ZIP; exportar PointZ, PolyLineZ y PolygonZ con `.prj` y `.cpg` | 025 (líneas y polígonos; importar, S048; los puntos, S012) | pendiente |
+| 030 shapefile | Importar un Shapefile desde un ZIP o desde ficheros sueltos como capa de diseño (capas marcables, SC leído del `.prj` y reproyectado, recorte a una zona alrededor del centro del proyecto, atributos y campo de nombre, replanteo con S041) | 048, 040, 006 (punto central) | spec |
 | 031 kml-kmz-y-fotos | Importar y exportar KML/KMZ (WGS84), fotos en un ZIP | 025 (líneas y polígonos), 017b (fotos); importar, S048 | pendiente |
 | 048 geopackage | Importar un `.gpkg` de QGIS como capa de diseño (capas marcables, SC leído y reproyectado, recorte a una zona alrededor del centro del proyecto, atributos y campo de nombre, replanteo con S041) | 040, 006 (punto central) | implementada |
 | 053 exportar-geopackage | Exportar los puntos del proyecto, y sus líneas y polígonos cuando exista S025, a un `.gpkg` con su SC declarado y los datos de calidad como atributos | 012 (líneas y polígonos: 025) | implementada |
+| 055 exportar-shapefile | Exportar los puntos del proyecto, y sus líneas y polígonos cuando exista S025, a un ZIP con `PointZ`, `PolyLineZ` y `PolygonZ`, con `.prj` y `.cpg`, nombres de columna abreviados y los datos de calidad como atributos | 012, 024, 025, 030 | spec |
 
 ## H5 · Sistemas de coordenadas mundiales y capas
 

@@ -56,7 +56,7 @@ Términos de esta spec (los de S023 más):
 
 ### Herencia y exportación (H1)
 - RF-20: CUANDO se guarde un punto replanteado (S018/RF-27), EL SISTEMA le pondrá el código y los atributos del punto de diseño, con la posibilidad de cambiarlos como en RF-13.
-- RF-21: EL SISTEMA añadirá a la exportación «Todas las columnas» de S012 la columna del código y una columna por cada atributo de los puntos exportados, y los escribirá como atributos tipados en la exportación a GeoPackage (S053/RF-4).
+- RF-21: EL SISTEMA añadirá a la exportación «Todas las columnas» de S012 la columna del código y una columna por cada atributo de los puntos exportados, y los escribirá como atributos tipados en la exportación a GeoPackage (S053/RF-4) y a Shapefile (S055/RF-6).
 
 ## Requisitos no funcionales
 - Transversales que aplican:

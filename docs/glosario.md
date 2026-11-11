@@ -178,7 +178,8 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Con cota / sin cota | `hasElevation` | Un elemento del dibujo con altura propia, o sin ella (S040) |
 | GeoPackage | `GeoPackage` (`.gpkg`) | Fichero SQLite con capas vectoriales (QGIS); se importa como un dibujo CAD, solo lectura (S048); los puntos del proyecto se exportan a uno (S053) |
 | Capa de GeoPackage | `GpkgLayerInfo` | Una tabla del GeoPackage con geometría: su tipo, número de objetos, SRS y columnas (S048) |
-| Origen del dibujo | `CadOrigin` | `DXF` o `GEOPACKAGE`: de qué fichero viene un dibujo (S048) |
+| Shapefile | `Shapefile` | Conjunto de ficheros `.shp`, `.shx`, `.dbf`, `.prj` y `.cpg` con el mismo nombre; se importa de un ZIP o de ficheros sueltos como un dibujo CAD, solo lectura (S030), y los puntos, líneas y polígonos del proyecto se exportan a un ZIP con uno por tipo de geometría (S055) |
+| Origen del dibujo | `CadOrigin` | `DXF`, `GEOPACKAGE` o `SHAPEFILE`: de qué fichero viene un dibujo (S048, S030) |
 | Zona de importación | `ImportArea` | «Todo el contenido» o un radio de 100 m a 100 km alrededor del centro del proyecto (S048) |
 | Contorno de polígono | `POLYGON_RING` | Línea cerrada que sale del exterior o de un hueco de un polígono importado (S048) |
 | Campo de nombre | `nameField` | Columna de la capa con la que se etiqueta y se nombra cada objeto; sin ella, su número en la capa (S048) |

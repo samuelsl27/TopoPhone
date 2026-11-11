@@ -102,7 +102,7 @@ Las claves de fuente se resuelven al final.
 | Dibujos CAD DXF (≤ 100 MB, colores, bloques, arcos → polilíneas) y su replanteo | F-cad | S040, S041 |
 | Superficies LandXML (una activa, desplazamiento vertical, desmonte/terraplén) | F-srf | S042 |
 | Importar: CSV (Point/Easting/Northing/Elevation + atributos), PENZD, PNEZD, DXF, KML, SHP en ZIP | Manual §2.1.4, F-proj | S028, S030, S031, S040 |
-| Exportar: CSV (todas las columnas, PENZD/PNEZD, personalizado), DXF, SHP, KML, fotos en ZIP; global o local | Manual §4, F-exp | S012, S029, S030, S031 |
+| Exportar: CSV (todas las columnas, PENZD/PNEZD, personalizado), DXF, SHP, KML, fotos en ZIP; global o local | Manual §4, F-exp | S012, S029, S055, S031 |
 | Cuenta, espacios de trabajo, equipos, sincronización con Flow 360, rovers en directo | Manual §1, F-team, F-ws | — (solo local). Sustituto: S013 (copias y paquetes) |
 
 ## H. Ajustes y app
