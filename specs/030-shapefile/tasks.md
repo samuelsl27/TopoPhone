@@ -16,7 +16,7 @@
       Hecho cuando: `ShxIndexTest` y `ShpBlobEncoderTest` en verde: el blob se lee con `GpkgGeometryReader` y da las mismas partes y envolvente que `ShpReader`.
 - [x] T7. `core:formats`: `DbfReader` (tipos de campo, borrados, registros que faltan) y `ShpEncoding` (`.cpg`, UTF-8 válido y Windows-1252). (RF-18, RF-19, RF-20, RF-21)
       Hecho cuando: `DbfReaderTest` y `ShpEncodingTest` en verde con y sin `.cpg`, con tildes y eñes, con un `.cpg` desconocido y con un `.dbf` corto.
-- [ ] T8. `core:formats`: `PrjReader` y `ShpCrsCatalog` (autoridad, estructura, WGS 84, no disponible y sin `.prj`) y el nombre en `GpkgCrs.Unavailable`. (RF-8, RF-9)
+- [x] T8. `core:formats`: `PrjReader` y `ShpCrsCatalog` (autoridad, estructura, WGS 84, no disponible y sin `.prj`) y el nombre en `GpkgCrs.Unavailable`. (RF-8, RF-9)
       Hecho cuando: `PrjReaderTest` y `ShpCrsCatalogTest` en verde con el WKT de ESRI y el de OGC de cada `ProjectCrs` contra pyproj, y con pies, otro huso y otra proyección como no disponibles.
 - [ ] T9. `data`: `FeatureSession` extraída de `GpkgSession`, `GpkgFeature.deleted`, y `GeoPackageImporter` y `GeoPackageScan` sobre la interfaz con el origen de la sesión. (RF-16, RF-26)
       Hecho cuando: los tests de S048 (`GeoPackageReaderTest`, `GeoPackageScanTest`, `GeoPackageImporterTest`, `GpkgBackupTest`) siguen en verde sin cambios y un test del importador cuenta un objeto `deleted` como ignorado.

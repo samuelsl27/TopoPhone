@@ -15,8 +15,11 @@ sealed interface GpkgCrs {
      */
     data class Supported(val epsg: Int, val source: CadSourceCrs, val unit: GpkgCrsUnit, val wgs84: Boolean = false) : GpkgCrs
 
-    /** Un sistema con autoridad y código que la app no ofrece: la capa espera a que el usuario elija uno (RF-9). */
-    data class Unavailable(val authority: String, val code: Int) : GpkgCrs
+    /**
+     * Un sistema con autoridad y código que la app no ofrece: la capa espera a que el usuario elija uno (RF-9). [name] es el nombre que
+     * trae el fichero, para mostrarlo (un Shapefile no siempre tiene código: S030/RF-9).
+     */
+    data class Unavailable(val authority: String, val code: Int, val name: String? = null) : GpkgCrs
 
     /** `srs_id` 0 o −1, sin definición o sin fila en `gpkg_spatial_ref_sys`: el fichero no declara el sistema (RF-9). */
     data object Undeclared : GpkgCrs
