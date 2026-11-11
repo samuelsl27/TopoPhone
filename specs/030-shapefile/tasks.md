@@ -8,7 +8,7 @@
       Hecho cuando: los ficheros están en `fixtures/formatos/shp/`, el test de `tools` comprueba lo esperado y el `LEEME` dice cómo se generaron.
 - [x] T3. `core:model`: `CadOrigin.SHAPEFILE`, los motivos `DELETED_RECORD` y `MULTIPATCH` y `GpkgLayerSummary.withoutAttributes`, con los `when` adaptados y el glosario ya al día. (RF-16, RF-20, RF-26)
       Hecho cuando: `core:model` y los módulos que lo usan compilan y sus tests siguen en verde, con un test del resumen que suma los objetos sin atributos.
-- [ ] T4. `core:formats`: `ShpFileKind` (cabecera de 100 bytes) y `ShpSelection` (ZIP, `.shp` por contenido, asociación por nombre, huérfanos, mezcla y límites de 100 MB y 500 MB). (RF-2 a RF-6)
+- [x] T4. `core:formats`: `ShpFileKind` (cabecera de 100 bytes) y `ShpSelection` (ZIP, `.shp` por contenido, asociación por nombre, huérfanos, mezcla y límites de 100 MB y 500 MB). (RF-2 a RF-6)
       Hecho cuando: `ShpFileKindTest` y `ShpSelectionTest` en verde: ZIP, sueltos, `.shp` con otra extensión, mayúsculas, más de un ZIP, ZIP con sueltos, huérfanos, sin `.shp`, y los dos límites.
 - [ ] T5. `core:formats`: `ShpReader` (todos los tipos, Z, M descartada, nulo, `MultiPatch`, envolvente y un anillo por línea cerrada). (RF-15, RF-16, RF-17)
       Hecho cuando: `ShpReaderTest` en verde contra los ficheros de `tools`, con los vértices a menos de 1e-9 m de lo esperado.
