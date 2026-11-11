@@ -1,0 +1,15 @@
+# Resultado de abrir cada ZIP de zip/ (S030). Generado por tools/formatos/generar_shapefile.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1; rejilla=es_ign_SPED2ETV2.tif
+# bomba.zip descomprime 20 MB: con el límite de 500 MB entra; los tests bajan el límite para ver TOO_LARGE.
+archivo,resultado,capas,huerfanos,descartados
+zip/completo.zip,OK,ejes;parcelas;vertices,,
+zip/carpetas-repetidas.zip,OK,norte/parcelas;sur/parcelas,,
+zip/subcarpeta.zip,OK,vertices,,
+zip/mayusculas.zip,OK,PARCELAS,,
+zip/huerfanos.zip,OK,vertices,otro.shx;solo.dbf;solo.prj,
+zip/sin-shp.zip,SIN_SHP,,,
+zip/danado.zip,DANADO,,,
+zip/vacio.zip,VACIO,,,
+zip/texto.zip,NO_ES_SHAPEFILE,,,
+zip/ruta-peligrosa.zip,OK,ok,,../escapa.shp;/ruta/absoluta.dbf
+zip/bomba.zip,TOO_LARGE,,,

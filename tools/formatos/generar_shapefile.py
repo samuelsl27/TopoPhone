@@ -10,6 +10,9 @@ escritos con `struct` de la biblioteca estándar, sin librerías de Shapefile, y
 - esperado-capas.csv: una fila por capa: tipo de geometría, tipo del `.shp`, objetos del `.shp` y registros del `.dbf`, sistema de la app y
   unidad según su `.prj`, codificación que debe usarse para el `.dbf`, si el `.cpg` es de una codificación que no se conoce y las columnas.
 - esperado-atributos.csv: una fila por valor del `.dbf` que se ve en la ficha: escenario, capa, registro, columna, tipo y valor.
+- zip/*.zip: ZIP de ejemplo (varias capas, carpetas, nombres repetidos, huérfanos, sin `.shp`, dañado, vacío, rutas peligrosas y un ZIP que
+  descomprime 20 MB desde 20 kB) y esperado-zip.csv con el resultado de abrir cada uno.
+- esperado-seleccion.csv: lo que debe pasar al elegir cada grupo de ficheros del selector (un ZIP, sueltos, un ZIP con sueltos…).
 - esperado-prj.csv: una fila por `.prj` de prj/ (cada sistema de la app y otros que no lo son, en tres estilos de WKT): el sistema de la app, su
   estado (DISPONIBLE, WGS84, NO_DISPONIBLE o SIN_SISTEMA) y el nombre que trae el WKT.
 
@@ -28,10 +31,12 @@ Uso: uv run --project tools tools/formatos/generar_shapefile.py
 
 from __future__ import annotations
 
+import io
 import math
 import re
 import struct
 import sys
+import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -683,6 +688,97 @@ def attribute_rows(folder: str, layer: Layer) -> list[list]:
     return rows
 
 
+# ---------- ZIP y selecciones ----------
+
+ZIP_DATE = (2026, 10, 27, 0, 0, 0)
+BOMB_BYTES = 20 * 1024 * 1024  # lo que descomprime bomba.zip (los tests bajan el límite de 500 MB para probarlo)
+
+
+def make_zip(entries: dict[str, bytes], deflate: bool = False) -> bytes:
+    """Un ZIP con fecha y sistema fijos: con ZIP_STORED sale el mismo fichero en cualquier máquina."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        for name, data in entries.items():
+            info = zipfile.ZipInfo(name, ZIP_DATE)
+            info.create_system = 3
+            info.external_attr = 0o644 << 16
+            info.compress_type = zipfile.ZIP_DEFLATED if deflate else zipfile.ZIP_STORED
+            archive.writestr(info, data)
+    return buffer.getvalue()
+
+
+def scenario_files(folder: str, name: str | None = None, rename: str | None = None) -> dict[str, bytes]:
+    """Los ficheros de una capa de un escenario (o de todas), con otro nombre si se pide."""
+    out = {}
+    for layer in {**scenarios(), **name_scenarios()}[folder]:
+        if name is not None and layer.name != name:
+            continue
+        for file, data in layer_files(layer).items():
+            out[file if rename is None else rename + file[len(layer.name):]] = data
+    return out
+
+
+def zip_files() -> dict[str, bytes]:
+    vertices = scenario_files("puntos-25830", "vertices")
+    parcelas = scenario_files("poligonos-25830", "parcelas")
+    ejes = scenario_files("lineas-4258", "ejes")
+    complete = {**vertices, **parcelas, **ejes, "LEEME.txt": b"Datos de ejemplo.\r\n", "vertices.sbn": bytes(range(40)),
+                "vertices.shp.xml": b"<metadata/>", "__MACOSX/._vertices.shp": bytes(30), "parcelas.qpj": b'PROJCS["ETRS89 / UTM zone 30N"]'}
+
+    def inside(files: dict[str, bytes], folder: str) -> dict[str, bytes]:
+        return {f"{folder}/{k}": v for k, v in files.items()}
+
+    return {
+        "zip/completo.zip": make_zip(complete),
+        "zip/carpetas-repetidas.zip": make_zip({**inside(parcelas, "norte"), **inside(scenario_files("poligonos-25830", "manzanas", "parcelas"), "sur")}),
+        "zip/subcarpeta.zip": make_zip(inside(vertices, "datos")),
+        "zip/mayusculas.zip": make_zip({"PARCELAS.SHP": vertices["vertices.shp"], "PARCELAS.DBF": vertices["vertices.dbf"],
+                                        "parcelas.prj": vertices["vertices.prj"]}),
+        "zip/huerfanos.zip": make_zip({**vertices, "solo.dbf": vertices["vertices.dbf"], "solo.prj": vertices["vertices.prj"],
+                                       "otro.shx": vertices["vertices.shx"]}),
+        "zip/sin-shp.zip": make_zip({"datos.dbf": vertices["vertices.dbf"], "datos.prj": vertices["vertices.prj"], "LEEME.txt": b"Sin .shp"}),
+        "zip/danado.zip": make_zip(complete)[:300],
+        "zip/vacio.zip": b"PK\x05\x06" + bytes(18),
+        "zip/texto.zip": b"Esto no es un ZIP.\r\nSolo es un texto cualquiera.\r\n",
+        "zip/ruta-peligrosa.zip": make_zip({"../escapa.shp": vertices["vertices.shp"], "/ruta/absoluta.dbf": vertices["vertices.dbf"],
+                                            "ok.shp": vertices["vertices.shp"], "ok.dbf": vertices["vertices.dbf"], "ok.prj": vertices["vertices.prj"]}),
+        "zip/bomba.zip": make_zip({"bomba.shp": bytes(BOMB_BYTES)}, deflate=True),
+    }
+
+
+# (resultado, capas, huérfanos, descartados) de abrir cada ZIP; las capas y los nombres, ordenados.
+ZIP_EXPECTED = {
+    "zip/completo.zip": ("OK", ["ejes", "parcelas", "vertices"], [], []),
+    "zip/carpetas-repetidas.zip": ("OK", ["norte/parcelas", "sur/parcelas"], [], []),
+    "zip/subcarpeta.zip": ("OK", ["vertices"], [], []),
+    "zip/mayusculas.zip": ("OK", ["PARCELAS"], [], []),
+    "zip/huerfanos.zip": ("OK", ["vertices"], ["otro.shx", "solo.dbf", "solo.prj"], []),
+    "zip/sin-shp.zip": ("SIN_SHP", [], [], []),
+    "zip/danado.zip": ("DANADO", [], [], []),
+    "zip/vacio.zip": ("VACIO", [], [], []),
+    "zip/texto.zip": ("NO_ES_SHAPEFILE", [], [], []),
+    "zip/ruta-peligrosa.zip": ("OK", ["ok"], [], ["../escapa.shp", "/ruta/absoluta.dbf"]),
+    "zip/bomba.zip": ("TOO_LARGE", [], [], []),
+}
+
+# id: (ficheros elegidos, resultado, capas, huérfanos)
+SELECTIONS = {
+    "un-zip": (["zip/completo.zip"], "OK", ["ejes", "parcelas", "vertices"], []),
+    "sueltos-completo": ([f"puntos-25830/vertices.{e}" for e in ("shp", "shx", "dbf", "prj", "cpg")], "OK", ["vertices"], []),
+    "sueltos-dos-capas": (["puntos-25830/vertices.shp", "puntos-25830/vertices.dbf", "poligonos-25830/parcelas.shp",
+                           "poligonos-25830/parcelas.dbf"], "OK", ["parcelas", "vertices"], []),
+    "sueltos-sin-shp": (["puntos-25830/vertices.dbf", "puntos-25830/vertices.prj"], "SIN_SHP", [], []),
+    "sueltos-con-huerfano": (["puntos-25830/vertices.shp", "puntos-25830/vertices.dbf", "incompletos/dbf_corto.dbf"], "OK", ["vertices"],
+                             ["dbf_corto.dbf"]),
+    "zip-y-sueltos": (["zip/completo.zip", "puntos-25830/vertices.shp"], "MEZCLA", [], []),
+    "dos-zip": (["zip/completo.zip", "zip/huerfanos.zip"], "MEZCLA", [], []),
+    "otra-extension": (["otra-extension/vertices.dat", "otra-extension/vertices.dbf", "otra-extension/vertices.prj"], "OK", ["vertices"], []),
+    "mayusculas": ([f"mayusculas/{n}" for n in ("PARCELAS.SHP", "PARCELAS.Dbf", "PARCELAS.PRJ", "PARCELAS.Cpg")], "OK", ["PARCELAS"], []),
+    "un-texto": (["zip/texto.zip"], "NO_ES_SHAPEFILE", [], []),
+    "un-fichero-vacio": (["zip/vacio.zip"], "VACIO", [], []),
+}
+
+
 def prj_files() -> dict[str, str]:
     files = {}
     for epsg in [row[0] for row in g.CRS_ROWS] + [2263]:
@@ -730,6 +826,7 @@ def generate() -> dict[str, bytes | str]:
             attributes.extend(attribute_rows(folder, layer))
     for name, text in prj_files().items():
         files[name] = text.encode("ascii")
+    files.update(zip_files())
 
     files["esperado.csv"] = "\n".join(banner("Elementos esperados de cada objeto") + [
         "# vertices_fuente: 'x y z' en el sistema de la capa; vertices_proyecto: 'e n z' en ETRS89 UTM 30; _ si no hay altura.",
@@ -742,6 +839,13 @@ def generate() -> dict[str, bytes | str]:
     files["esperado-atributos.csv"] = "\n".join(banner("Valores del .dbf que se ven en la ficha") + [
         "escenario,capa,registro,columna,tipo,valor",
     ] + csv_text(attributes)) + "\n"
+    files["esperado-zip.csv"] = "\n".join(banner("Resultado de abrir cada ZIP de zip/") + [
+        "# bomba.zip descomprime 20 MB: con el límite de 500 MB entra; los tests bajan el límite para ver TOO_LARGE.",
+        "archivo,resultado,capas,huerfanos,descartados",
+    ] + csv_text([[name, r, ";".join(c), ";".join(h), ";".join(d)] for name, (r, c, h, d) in ZIP_EXPECTED.items()])) + "\n"
+    files["esperado-seleccion.csv"] = "\n".join(banner("Resultado de elegir cada grupo de ficheros en el selector") + [
+        "id,ficheros,resultado,capas,huerfanos",
+    ] + csv_text([[name, ";".join(f), r, ";".join(c), ";".join(h)] for name, (f, r, c, h) in SELECTIONS.items()])) + "\n"
     files["esperado-prj.csv"] = "\n".join(banner("Sistema de la app para cada .prj de prj/") + [
         "archivo,epsg,estilo,sistema_app,estado,unidad,nombre_en_el_prj",
     ] + csv_text(prj_rows())) + "\n"

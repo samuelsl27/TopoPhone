@@ -1,0 +1,4 @@
+Shapefiles escritos por QGIS (exportar a «ESRI Shapefile») tal como salen, sin tocarlos.
+Versiones: QGIS 3.44.6-Solothurn, GDAL 3.12.1.
+Se generan con: python-qgis.bat tools/formatos/qgis_shapefile_ejemplos.py (necesita QGIS instalado).
+Los esperado-qgis-*.csv son lo que QGIS lee al abrir de nuevo esos ficheros.

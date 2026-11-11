@@ -1,0 +1,31 @@
+# Escrito por QGIS 3.44.6-Solothurn, GDAL 3.12.1 con tools/formatos/qgis_shapefile_ejemplos.py; no editar a mano.
+escenario,capa,registro,columna,valor
+catastro-25830,parcelas,1,ref,0001A
+catastro-25830,parcelas,1,nombre,Parcela 1
+catastro-25830,parcelas,1,area_m2,10000.0
+catastro-25830,parcelas,1,uso,1
+catastro-25830,parcelas,2,ref,0002B
+catastro-25830,parcelas,2,nombre,Parcela 2 (con huecos)
+catastro-25830,parcelas,2,area_m2,38800.0
+catastro-25830,parcelas,2,uso,2
+catastro-25830,lindes,1,nombre,Calle Mayor
+catastro-25830,lindes,1,ancho,12.5
+catastro-25830,lindes,2,nombre,Camino de Árboles
+catastro-25830,lindes,2,ancho,
+catastro-25830,mojones,1,nombre,Esquina norte
+catastro-25830,mojones,1,fecha,2026-10-01
+catastro-25830,mojones,1,activo,true
+catastro-25830,mojones,2,nombre,Árbol ñandú
+catastro-25830,mojones,2,fecha,2026-10-02
+catastro-25830,mojones,2,activo,false
+geograficas-4258,ejes,1,nombre,Eje 1
+geograficas-4258,multipuntos,1,nombre,Grupo
+canarias-4083,vertices,1,nombre,Gran Canaria 0
+canarias-4083,vertices,2,nombre,Gran Canaria 1
+canarias-4083,vertices,3,nombre,Gran Canaria 2
+ed50-23030,vertices,1,nombre,Punto 1
+ed50-23030,vertices,2,nombre,Punto 2
+ed50-23030,vertices,3,nombre,Punto 3
+windows-1252,nombres,1,nombre,Árbol ñandú
+windows-1252,nombres,2,nombre,Camión
+windows-1252,nombres,3,nombre,Sin tildes

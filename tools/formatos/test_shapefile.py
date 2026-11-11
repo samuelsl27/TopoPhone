@@ -8,6 +8,7 @@ import math
 import re
 import struct
 import sys
+import zipfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -131,11 +132,15 @@ def test_s030_rf2_los_ficheros_guardados_son_los_que_genera_el_script() -> None:
     for name, content in expected.items():
         path = DATOS / name
         assert path.exists(), name
-        if isinstance(content, bytes):
+        if name == "zip/bomba.zip":
+            with zipfile.ZipFile(path) as stored, zipfile.ZipFile(io.BytesIO(content)) as fresh:
+                assert stored.namelist() == fresh.namelist()
+                assert [i.file_size for i in stored.infolist()] == [i.file_size for i in fresh.infolist()]
+        elif isinstance(content, bytes):
             assert path.read_bytes() == content, name
         else:
             assert path.read_text(encoding="utf-8") == content, name
-    stored = {p.relative_to(DATOS).as_posix() for p in DATOS.rglob("*") if p.is_file()}
+    stored = {p.relative_to(DATOS).as_posix() for p in DATOS.rglob("*") if p.is_file() and not p.relative_to(DATOS).as_posix().startswith("qgis/")}
     assert stored == set(expected)
 
 
@@ -415,3 +420,179 @@ def test_s030_rf7_las_capas_del_escenario_tienen_nombre_tipo_y_objetos() -> None
     assert capas[("puntos-25830", "vertices")]["sistema_app"] == "ETRS89-UTM30"
     assert capas[("lineas-4258", "ejes")]["unidad"] == "deg"
     assert capas[("puntos-25830", "vertices")]["columnas"] == "nombre:TEXT;cota:REAL;codigo:INTEGER;fecha:DATE;activo:BOOLEAN"
+
+
+# ---------- ZIP y selecciones ----------
+
+
+def classify(files: dict[str, bytes]) -> tuple[list[str], list[str], list[str]]:
+    """(capas, huérfanos, descartados) de un conjunto de ficheros: lo que debe salir al abrirlos, calculado aparte de la app."""
+    dropped = [n for n in files if n.startswith("/") or ".." in n.split("/")]
+    kept = {n: d for n, d in files.items() if n not in dropped}
+
+    def is_shp(data: bytes) -> bool:
+        return len(data) >= 100 and struct.unpack(">i", data[:4])[0] == 9994 and struct.unpack("<i", data[28:32])[0] == 1000
+
+    # El .shx tiene la misma cabecera que el .shp: por contenido se reconoce el .shp, pero la extensión .shx es la de su índice.
+    stems = {n.rsplit(".", 1)[0] for n, d in kept.items() if is_shp(d) and not n.lower().endswith(".shx")}
+    lowered = {stem.lower() for stem in stems}
+    names = sorted(stems)
+    short = [stem.rsplit("/", 1)[-1] for stem in names]
+    layers = [stem if short.count(stem.rsplit("/", 1)[-1]) > 1 else stem.rsplit("/", 1)[-1] for stem in names]
+    side = ("shx", "dbf", "prj", "cpg")
+    orphans = [n.rsplit("/", 1)[-1] for n in kept if n.rsplit(".", 1)[-1].lower() in side and n.rsplit(".", 1)[0].lower() not in lowered]
+    return sorted(layers), sorted(orphans), sorted(dropped)
+
+
+def classify_zip(path: Path) -> tuple[str, list[str], list[str], list[str]]:
+    data = path.read_bytes()
+    if not data.startswith(b"PK"):
+        return "NO_ES_SHAPEFILE", [], [], []
+    try:
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            files = {i.filename: archive.read(i) for i in archive.infolist() if not i.is_dir()}
+    except (zipfile.BadZipFile, EOFError):
+        return "DANADO", [], [], []
+    if not files:
+        return "VACIO", [], [], []
+    layers, orphans, dropped = classify(files)
+    return ("OK" if layers else "SIN_SHP"), layers, (orphans if layers else []), dropped  # sin .shp es un error: no se listan los huérfanos
+
+
+def test_s030_rf3_los_zip_se_abren_o_fallan_como_dice_lo_esperado() -> None:
+    """S030/RF-3: cada ZIP de zip/ da el resultado, las capas, los huérfanos y los nombres descartados de esperado-zip.csv."""
+    expected = {r["archivo"]: r for r in rows_of("esperado-zip.csv")}
+    assert set(expected) == {f"zip/{p.name}" for p in (DATOS / "zip").iterdir()}
+    for name, row in expected.items():
+        result, layers, orphans, dropped = classify_zip(DATOS / name)
+        if row["resultado"] == "TOO_LARGE":
+            assert result == "SIN_SHP"  # el ZIP es legible: lo que lo rechaza es el límite de descompresión
+            continue
+        assert result == row["resultado"], name
+        assert layers == [c for c in row["capas"].split(";") if c], name
+        assert orphans == [c for c in row["huerfanos"].split(";") if c], name
+        assert dropped == [c for c in row["descartados"].split(";") if c], name
+
+
+def test_s030_rf6_el_zip_bomba_es_pequeno_y_descomprime_mucho() -> None:
+    """S030/RF-6: bomba.zip pesa unos 20 kB y descomprime 20 MB, así que el límite se mide con los bytes leídos."""
+    path = DATOS / "zip" / "bomba.zip"
+    assert path.stat().st_size < 100_000
+    with zipfile.ZipFile(path) as archive:
+        assert sum(i.file_size for i in archive.infolist()) == s.BOMB_BYTES
+
+
+def test_s030_rf5_los_ficheros_con_su_shp_y_los_huerfanos_se_distinguen() -> None:
+    """S030/RF-5: en huerfanos.zip el .dbf, el .prj y el .shx sin .shp quedan fuera y vertices se asocia con sus cinco ficheros."""
+    with zipfile.ZipFile(DATOS / "zip" / "huerfanos.zip") as archive:
+        names = sorted(archive.namelist())
+    assert {"vertices.shp", "vertices.shx", "vertices.dbf", "vertices.prj", "vertices.cpg", "solo.dbf", "solo.prj", "otro.shx"} == set(names)
+
+
+def test_s030_rf4_las_selecciones_dan_lo_esperado() -> None:
+    """S030/RF-4: un ZIP, ficheros sueltos o una mezcla dan el resultado de esperado-seleccion.csv."""
+    for row in rows_of("esperado-seleccion.csv"):
+        chosen = row["ficheros"].split(";")
+        zips = [f for f in chosen if (DATOS / f).read_bytes().startswith(b"PK")]
+        if len(zips) > 1 or (zips and len(chosen) > 1):
+            result, layers, orphans = "MEZCLA", [], []
+        elif zips:
+            result, layers, orphans, _ = classify_zip(DATOS / zips[0])
+        elif len(chosen) == 1 and not (DATOS / chosen[0]).read_bytes()[:4] == bytes.fromhex("0000270a"):
+            result, layers, orphans = "NO_ES_SHAPEFILE", [], []
+        else:
+            files = {Path(f).name: (DATOS / f).read_bytes() for f in chosen}
+            layers, orphans, _ = classify(files)
+            result = "OK" if layers else "SIN_SHP"
+            orphans = orphans if layers else []  # sin .shp es un error: no se listan los demás ficheros
+        assert result == row["resultado"], row["id"]
+        assert layers == [c for c in row["capas"].split(";") if c], row["id"]
+        assert orphans == [c for c in row["huerfanos"].split(";") if c], row["id"]
+
+
+# ---------- los Shapefiles escritos por QGIS ----------
+
+QGIS = DATOS / "qgis"
+
+
+def qgis_rows(name: str) -> list[dict[str, str]]:
+    lines = [line for line in (QGIS / name).read_text(encoding="utf-8").splitlines() if line and not line.startswith("#")]
+    return list(csv.DictReader(io.StringIO("\n".join(lines), newline="")))
+
+
+def test_s030_rf15_los_vertices_que_lee_otro_lector_son_los_que_lee_qgis() -> None:
+    """S030/RF-15: los vértices del .shp escrito por QGIS, leídos con otro lector, son los que QGIS lee del mismo fichero."""
+    expected: dict[tuple, dict[str, list[str]]] = defaultdict(dict)
+    for row in qgis_rows("esperado-qgis-geometria.csv"):
+        expected[(row["escenario"], row["capa"], int(row["registro"]))][row["parte"]] = row["vertices"].split(";")
+    checked = 0
+    for layer in qgis_rows("esperado-qgis-capas.csv"):
+        _, records = read_shp((QGIS / layer["escenario"] / f"{layer['capa']}.shp").read_bytes())
+        assert len(records) == int(layer["objetos"])
+        for record in records:
+            if record["type"] in (1, 11, 21, 8, 18, 28):
+                parts = [[i] for i in range(len(record["x"]))]
+            else:
+                parts = split_parts(record)
+            got = {
+                str(index): [f"{s.g.num(record['x'][i])} {s.g.num(record['y'][i])} {s.g.num(record['z'][i]) if record['z'] else '_'}" for i in part]
+                for index, part in enumerate(parts)
+            }
+            assert got == expected[(layer["escenario"], layer["capa"], record["number"])], layer
+            checked += 1
+    assert checked == 17
+
+
+def test_s030_rf8_los_prj_de_qgis_se_leen_con_pyproj_como_el_sistema_que_reconoce_qgis() -> None:
+    """S030/RF-8: cada .prj de QGIS es el sistema que QGIS reconoce, comprobado con pyproj (huso, unidad y datum)."""
+    for layer in qgis_rows("esperado-qgis-capas.csv"):
+        text = (QGIS / layer["escenario"] / f"{layer['capa']}.prj").read_text(encoding="ascii")
+        assert text.startswith(("PROJCS", "GEOGCS")), layer
+        assert "AUTHORITY" not in text  # QGIS escribe el .prj sin autoridad: el sistema se reconoce por sus parámetros
+        crs = pyproj.CRS.from_wkt(text)
+        reference = pyproj.CRS.from_user_input(layer["sistema_qgis"])
+        assert crs.is_projected == reference.is_projected
+        assert math.isclose(crs.axis_info[0].unit_conversion_factor, reference.axis_info[0].unit_conversion_factor, rel_tol=1e-9)
+        assert math.isclose(crs.ellipsoid.semi_major_metre, reference.ellipsoid.semi_major_metre)
+        assert math.isclose(crs.ellipsoid.inverse_flattening, reference.ellipsoid.inverse_flattening, rel_tol=1e-6)
+        first = next(r for r in qgis_rows("esperado-qgis-geometria.csv") if (r["escenario"], r["capa"]) == (layer["escenario"], layer["capa"]))
+        x, y = (float(v) for v in first["vertices"].split(";")[0].split()[:2])
+        ours = Transformer.from_crs(crs, crs.geodetic_crs, always_xy=True).transform(x, y)
+        theirs = Transformer.from_crs(reference, reference.geodetic_crs, always_xy=True).transform(x, y)
+        assert math.hypot(ours[0] - theirs[0], ours[1] - theirs[1]) < 1e-9, layer  # la misma proyección: mismos grados
+
+
+def test_s030_rf18_el_cpg_de_qgis_es_utf_8_o_1252_y_el_dbf_se_lee_con_el_que_dice() -> None:
+    """S030/RF-18: QGIS escribe `UTF-8` o `1252` en el .cpg y el .dbf se lee con esa codificación, con las tildes y eñes bien."""
+    capas = {(r["escenario"], r["capa"]): r for r in qgis_rows("esperado-qgis-capas.csv")}
+    assert {r["cpg"] for r in capas.values()} == {"UTF-8", "1252"}
+    attributes = {(r["escenario"], r["capa"], int(r["registro"]), r["columna"]): r["valor"] for r in qgis_rows("esperado-qgis-atributos.csv")}
+    for (scenario, layer), row in capas.items():
+        encoding = "utf-8" if row["cpg"] == "UTF-8" else "cp1252"
+        _, rows = read_dbf((QGIS / scenario / f"{layer}.dbf").read_bytes(), encoding)
+        fields, _ = read_dbf((QGIS / scenario / f"{layer}.dbf").read_bytes(), encoding)
+        for number, (_, values) in enumerate(rows, 1):
+            for (name, kind, length, decimals), text in zip(fields, values):
+                if kind == "C":
+                    assert text.rstrip() == attributes[(scenario, layer, number, name)], (scenario, layer, number, name)
+    assert attributes[("windows-1252", "nombres", 1, "nombre")] == "Árbol ñandú"
+
+
+def test_s030_rf21_los_tipos_de_campo_que_escribe_qgis_son_los_esperados() -> None:
+    """S030/RF-21: QGIS escribe texto (C), número (N), fecha (D) y lógico (L), y el .dbf se lee con otro lector sin error."""
+    kinds = set()
+    for layer in qgis_rows("esperado-qgis-capas.csv"):
+        fields, rows = read_dbf((QGIS / layer["escenario"] / f"{layer['capa']}.dbf").read_bytes(), "utf-8" if layer["cpg"] == "UTF-8" else "cp1252")
+        kinds |= {kind for _, kind, _, _ in fields}
+        assert len(rows) == int(layer["objetos"])
+    assert kinds == {"C", "N", "D", "L"}
+
+
+def test_s030_rf17_qgis_escribe_la_z_de_los_puntos_y_de_las_lineas() -> None:
+    """S030/RF-17: los mojones (PointZ) y los ejes (PolyLineZ) de QGIS traen Z, y la M, si la hay, no cuenta."""
+    capas = {(r["escenario"], r["capa"]): r for r in qgis_rows("esperado-qgis-capas.csv")}
+    assert capas[("catastro-25830", "mojones")]["tipo_wkb"] == "PointZ" and capas[("geograficas-4258", "ejes")]["tipo_wkb"] == "MultiLineStringZ"
+    _, mojones = read_shp((QGIS / "catastro-25830" / "mojones.shp").read_bytes())
+    assert [r["z"] for r in mojones] == [[646.377], [647.125]]
+    _, ejes = read_shp((QGIS / "geograficas-4258" / "ejes.shp").read_bytes())
+    assert ejes[0]["z"] == [650.0, 651.0, 652.0]

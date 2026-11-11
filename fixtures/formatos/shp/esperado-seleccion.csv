@@ -1,0 +1,14 @@
+# Resultado de elegir cada grupo de ficheros en el selector (S030). Generado por tools/formatos/generar_shapefile.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1; rejilla=es_ign_SPED2ETV2.tif
+id,ficheros,resultado,capas,huerfanos
+un-zip,zip/completo.zip,OK,ejes;parcelas;vertices,
+sueltos-completo,puntos-25830/vertices.shp;puntos-25830/vertices.shx;puntos-25830/vertices.dbf;puntos-25830/vertices.prj;puntos-25830/vertices.cpg,OK,vertices,
+sueltos-dos-capas,puntos-25830/vertices.shp;puntos-25830/vertices.dbf;poligonos-25830/parcelas.shp;poligonos-25830/parcelas.dbf,OK,parcelas;vertices,
+sueltos-sin-shp,puntos-25830/vertices.dbf;puntos-25830/vertices.prj,SIN_SHP,,
+sueltos-con-huerfano,puntos-25830/vertices.shp;puntos-25830/vertices.dbf;incompletos/dbf_corto.dbf,OK,vertices,dbf_corto.dbf
+zip-y-sueltos,zip/completo.zip;puntos-25830/vertices.shp,MEZCLA,,
+dos-zip,zip/completo.zip;zip/huerfanos.zip,MEZCLA,,
+otra-extension,otra-extension/vertices.dat;otra-extension/vertices.dbf;otra-extension/vertices.prj,OK,vertices,
+mayusculas,mayusculas/PARCELAS.SHP;mayusculas/PARCELAS.Dbf;mayusculas/PARCELAS.PRJ;mayusculas/PARCELAS.Cpg,OK,PARCELAS,
+un-texto,zip/texto.zip,NO_ES_SHAPEFILE,,
+un-fichero-vacio,zip/vacio.zip,VACIO,,
