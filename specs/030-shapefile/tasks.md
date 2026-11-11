@@ -12,7 +12,7 @@
       Hecho cuando: `ShpFileKindTest` y `ShpSelectionTest` en verde: ZIP, sueltos, `.shp` con otra extensión, mayúsculas, más de un ZIP, ZIP con sueltos, huérfanos, sin `.shp`, y los dos límites.
 - [x] T5. `core:formats`: `ShpReader` (todos los tipos, Z, M descartada, nulo, `MultiPatch`, envolvente y un anillo por línea cerrada). (RF-15, RF-16, RF-17)
       Hecho cuando: `ShpReaderTest` en verde contra los ficheros de `tools`, con los vértices a menos de 1e-9 m de lo esperado.
-- [ ] T6. `core:formats`: `ShxIndex` (con `.shx`, sin él y con uno roto) y `ShpBlobEncoder` (blob con cabecera y envolvente). (RF-19, RF-13)
+- [x] T6. `core:formats`: `ShxIndex` (con `.shx`, sin él y con uno roto) y `ShpBlobEncoder` (blob con cabecera y envolvente). (RF-19, RF-13)
       Hecho cuando: `ShxIndexTest` y `ShpBlobEncoderTest` en verde: el blob se lee con `GpkgGeometryReader` y da las mismas partes y envolvente que `ShpReader`.
 - [ ] T7. `core:formats`: `DbfReader` (tipos de campo, borrados, registros que faltan) y `ShpEncoding` (`.cpg`, UTF-8 válido y Windows-1252). (RF-18, RF-19, RF-20, RF-21)
       Hecho cuando: `DbfReaderTest` y `ShpEncodingTest` en verde con y sin `.cpg`, con tildes y eñes, con un `.cpg` desconocido y con un `.dbf` corto.

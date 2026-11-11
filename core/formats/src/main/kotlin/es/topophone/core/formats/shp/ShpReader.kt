@@ -61,6 +61,19 @@ class ShpReader private constructor(private val source: ShpByteSource, val heade
         return true
     }
 
+    /** Lo que mide el fichero, en bytes. */
+    val sizeBytes: Long get() = source.size
+
+    /** El número y la longitud del contenido en palabras de 16 bits del registro que empieza en [offset], o null si ahí no cabe uno entero. */
+    internal fun recordHeaderAt(offset: Long): Pair<Int, Int>? {
+        val head = ByteArray(RECORD_HEADER)
+        if (offset < FIRST_RECORD || source.read(offset, head) < RECORD_HEADER) return null
+        val buffer = ByteBuffer.wrap(head)
+        val words = buffer.getInt(4)
+        if (words < MIN_CONTENT_WORDS || offset + RECORD_HEADER + words.toLong() * 2 > source.size) return null
+        return buffer.getInt(0) to words
+    }
+
     /** El registro que empieza en [offset] (en bytes), o null si ahí no hay uno entero. [index] es su posición, que sabe quien llama. */
     fun readAt(offset: Long, index: Int): ShpRecord? {
         val head = ByteArray(RECORD_HEADER)
