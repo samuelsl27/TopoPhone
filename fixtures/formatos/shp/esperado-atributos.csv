@@ -1,0 +1,237 @@
+# Valores del .dbf que se ven en la ficha (S030). Generado por tools/formatos/generar_shapefile.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1; rejilla=es_ign_SPED2ETV2.tif
+escenario,capa,registro,columna,tipo,valor
+puntos-25830,vertices,1,nombre,TEXT,Esquina norte
+puntos-25830,vertices,1,cota,REAL,646.377
+puntos-25830,vertices,1,codigo,INTEGER,1
+puntos-25830,vertices,1,fecha,DATE,2026-10-01
+puntos-25830,vertices,1,activo,BOOLEAN,true
+puntos-25830,vertices,2,nombre,TEXT,Árbol ñandú
+puntos-25830,vertices,2,cota,REAL,647.125
+puntos-25830,vertices,2,codigo,INTEGER,2
+puntos-25830,vertices,2,fecha,DATE,2026-10-02
+puntos-25830,vertices,2,activo,BOOLEAN,false
+puntos-25830,vertices,3,nombre,TEXT,
+puntos-25830,vertices,3,cota,REAL,648.0
+puntos-25830,vertices,3,codigo,INTEGER,3
+puntos-25830,vertices,3,fecha,DATE,
+puntos-25830,vertices,3,activo,BOOLEAN,
+puntos-25830,vertices,4,nombre,TEXT,
+puntos-25830,vertices,4,cota,REAL,
+puntos-25830,vertices,4,codigo,INTEGER,4
+puntos-25830,vertices,4,fecha,DATE,
+puntos-25830,vertices,4,activo,BOOLEAN,
+puntos-25830,vertices,5,nombre,TEXT,Farola
+puntos-25830,vertices,5,cota,REAL,649.5
+puntos-25830,vertices,5,codigo,INTEGER,5
+puntos-25830,vertices,5,fecha,DATE,
+puntos-25830,vertices,5,activo,BOOLEAN,
+lineas-4258,ejes,1,nombre,TEXT,Calle Mayor
+lineas-4258,ejes,1,ancho,REAL,12.5
+lineas-4258,ejes,2,nombre,TEXT,Calle Alta
+lineas-4258,ejes,2,ancho,REAL,8.0
+lineas-4258,ejes,3,nombre,TEXT,Camino
+lineas-4258,ejes,3,ancho,REAL,
+poligonos-25830,parcelas,1,nombre,TEXT,Parcela 1
+poligonos-25830,parcelas,2,nombre,TEXT,Parcela 2
+poligonos-25830,manzanas,1,nombre,TEXT,Manzana A
+poligonos-25830,manzanas,2,nombre,TEXT,Manzana B
+multipuntos-25830,multipuntos,1,nombre,TEXT,Grupo
+multipuntos-25830,multipuntos,2,nombre,TEXT,Uno solo
+altura-25830,puntos_z,1,nombre,TEXT,A
+altura-25830,puntos_z,2,nombre,TEXT,B
+altura-25830,puntos_m,1,nombre,TEXT,A
+altura-25830,puntos_zm,1,nombre,TEXT,A
+altura-25830,lineas_z,1,nombre,TEXT,A
+altura-25830,lineas_m,1,nombre,TEXT,A
+altura-25830,lineas_zm,1,nombre,TEXT,A
+altura-25830,poligonos_z,1,nombre,TEXT,A
+altura-25830,poligonos_m,1,nombre,TEXT,A
+altura-25830,multipuntos_z,1,nombre,TEXT,A
+altura-25830,multipuntos_m,1,nombre,TEXT,A
+sistemas,utm29,1,nombre,TEXT,Uno
+sistemas,utm29,2,nombre,TEXT,Dos
+sistemas,utm29,3,nombre,TEXT,Tres
+sistemas,utm31,1,nombre,TEXT,Uno
+sistemas,utm31,2,nombre,TEXT,Dos
+sistemas,utm31,3,nombre,TEXT,Tres
+sistemas,ed50_utm30,1,nombre,TEXT,Uno
+sistemas,ed50_utm30,2,nombre,TEXT,Dos
+sistemas,ed50_utm30,3,nombre,TEXT,Tres
+sistemas,canarias_utm28,1,nombre,TEXT,Gran Canaria 0
+sistemas,canarias_utm28,2,nombre,TEXT,Gran Canaria 1
+sistemas,canarias_utm28,3,nombre,TEXT,Gran Canaria 2
+sistemas,geograficas_4258,1,nombre,TEXT,Uno
+sistemas,geograficas_4258,2,nombre,TEXT,Dos
+sistemas,geograficas_4258,3,nombre,TEXT,Tres
+sistemas,wgs84_4326,1,nombre,TEXT,Uno
+sistemas,wgs84_4326,2,nombre,TEXT,Dos
+sistemas,wgs84_4326,3,nombre,TEXT,Tres
+sistemas,utm33,1,nombre,TEXT,Uno
+sistemas,utm33,2,nombre,TEXT,Dos
+sistemas,utm33,3,nombre,TEXT,Tres
+sistemas,utm28_etrs89,1,nombre,TEXT,Uno
+sistemas,utm28_etrs89,2,nombre,TEXT,Dos
+sistemas,utm28_etrs89,3,nombre,TEXT,Tres
+sistemas,pies_2263,1,nombre,TEXT,Uno
+sistemas,pies_2263,2,nombre,TEXT,Dos
+sistemas,pies_2263,3,nombre,TEXT,Tres
+sistemas,sin_prj,1,nombre,TEXT,Uno
+sistemas,sin_prj,2,nombre,TEXT,Dos
+sistemas,sin_prj,3,nombre,TEXT,Tres
+sistemas,prj_ilegible,1,nombre,TEXT,Uno
+sistemas,prj_ilegible,2,nombre,TEXT,Dos
+sistemas,prj_ilegible,3,nombre,TEXT,Tres
+sistemas,sin_cpg,1,nombre,TEXT,Uno
+sistemas,sin_cpg,2,nombre,TEXT,Dos
+sistemas,sin_cpg,3,nombre,TEXT,Tres
+ambito,fuera,1,nombre,TEXT,Madrid
+ambito,fuera,2,nombre,TEXT,Lejos
+ambito,fuera,3,nombre,TEXT,Madrid 2
+codificaciones,utf8_cpg,1,nombre,TEXT,Árbol ñandú
+codificaciones,utf8_cpg,2,nombre,TEXT,Camión
+codificaciones,utf8_cpg,3,nombre,TEXT,Plaza — Mayor
+codificaciones,utf8_cpg,4,nombre,TEXT,Sin tildes
+codificaciones,utf8_cpg_65001,1,nombre,TEXT,Árbol ñandú
+codificaciones,utf8_cpg_65001,2,nombre,TEXT,Camión
+codificaciones,utf8_cpg_65001,3,nombre,TEXT,Plaza — Mayor
+codificaciones,utf8_cpg_65001,4,nombre,TEXT,Sin tildes
+codificaciones,w1252_cpg,1,nombre,TEXT,Árbol ñandú
+codificaciones,w1252_cpg,2,nombre,TEXT,Camión
+codificaciones,w1252_cpg,3,nombre,TEXT,Plaza Mayor
+codificaciones,w1252_cpg,4,nombre,TEXT,Sin tildes
+codificaciones,w1252_cpg_ansi,1,nombre,TEXT,Árbol ñandú
+codificaciones,w1252_cpg_ansi,2,nombre,TEXT,Camión
+codificaciones,w1252_cpg_ansi,3,nombre,TEXT,Plaza Mayor
+codificaciones,w1252_cpg_ansi,4,nombre,TEXT,Sin tildes
+codificaciones,w1252_cpg_windows,1,nombre,TEXT,Árbol ñandú
+codificaciones,w1252_cpg_windows,2,nombre,TEXT,Camión
+codificaciones,w1252_cpg_windows,3,nombre,TEXT,Plaza Mayor
+codificaciones,w1252_cpg_windows,4,nombre,TEXT,Sin tildes
+codificaciones,w1252_sin_cpg,1,nombre,TEXT,Árbol ñandú
+codificaciones,w1252_sin_cpg,2,nombre,TEXT,Camión
+codificaciones,w1252_sin_cpg,3,nombre,TEXT,Plaza Mayor
+codificaciones,w1252_sin_cpg,4,nombre,TEXT,Sin tildes
+codificaciones,utf8_sin_cpg,1,nombre,TEXT,Árbol ñandú
+codificaciones,utf8_sin_cpg,2,nombre,TEXT,Camión
+codificaciones,utf8_sin_cpg,3,nombre,TEXT,Plaza — Mayor
+codificaciones,utf8_sin_cpg,4,nombre,TEXT,Sin tildes
+codificaciones,ascii_sin_cpg,1,nombre,TEXT,Uno
+codificaciones,ascii_sin_cpg,2,nombre,TEXT,Dos
+codificaciones,ascii_sin_cpg,3,nombre,TEXT,Tres
+codificaciones,ascii_sin_cpg,4,nombre,TEXT,Cuatro
+codificaciones,cpg_desconocido,1,nombre,TEXT,Árbol ñandú
+codificaciones,cpg_desconocido,2,nombre,TEXT,Camión
+codificaciones,cpg_desconocido,3,nombre,TEXT,Plaza Mayor
+codificaciones,cpg_desconocido,4,nombre,TEXT,Sin tildes
+incompletos,sin_shx,1,nombre,TEXT,Esquina norte
+incompletos,sin_shx,1,cota,REAL,646.377
+incompletos,sin_shx,1,codigo,INTEGER,1
+incompletos,sin_shx,1,fecha,DATE,2026-10-01
+incompletos,sin_shx,1,activo,BOOLEAN,true
+incompletos,sin_shx,2,nombre,TEXT,Árbol ñandú
+incompletos,sin_shx,2,cota,REAL,647.125
+incompletos,sin_shx,2,codigo,INTEGER,2
+incompletos,sin_shx,2,fecha,DATE,2026-10-02
+incompletos,sin_shx,2,activo,BOOLEAN,false
+incompletos,sin_shx,3,nombre,TEXT,
+incompletos,sin_shx,3,cota,REAL,648.0
+incompletos,sin_shx,3,codigo,INTEGER,3
+incompletos,sin_shx,3,fecha,DATE,
+incompletos,sin_shx,3,activo,BOOLEAN,
+incompletos,sin_shx,4,nombre,TEXT,
+incompletos,sin_shx,4,cota,REAL,
+incompletos,sin_shx,4,codigo,INTEGER,4
+incompletos,sin_shx,4,fecha,DATE,
+incompletos,sin_shx,4,activo,BOOLEAN,
+incompletos,sin_shx,5,nombre,TEXT,Farola
+incompletos,sin_shx,5,cota,REAL,649.5
+incompletos,sin_shx,5,codigo,INTEGER,5
+incompletos,sin_shx,5,fecha,DATE,
+incompletos,sin_shx,5,activo,BOOLEAN,
+incompletos,dbf_corto,1,nombre,TEXT,Esquina norte
+incompletos,dbf_corto,1,cota,REAL,646.377
+incompletos,dbf_corto,1,codigo,INTEGER,1
+incompletos,dbf_corto,1,fecha,DATE,2026-10-01
+incompletos,dbf_corto,1,activo,BOOLEAN,true
+incompletos,dbf_corto,2,nombre,TEXT,Árbol ñandú
+incompletos,dbf_corto,2,cota,REAL,647.125
+incompletos,dbf_corto,2,codigo,INTEGER,2
+incompletos,dbf_corto,2,fecha,DATE,2026-10-02
+incompletos,dbf_corto,2,activo,BOOLEAN,false
+incompletos,dbf_corto,3,nombre,TEXT,
+incompletos,dbf_corto,3,cota,REAL,648.0
+incompletos,dbf_corto,3,codigo,INTEGER,3
+incompletos,dbf_corto,3,fecha,DATE,
+incompletos,dbf_corto,3,activo,BOOLEAN,
+incompletos,dbf_largo,1,nombre,TEXT,Esquina norte
+incompletos,dbf_largo,1,cota,REAL,646.377
+incompletos,dbf_largo,1,codigo,INTEGER,1
+incompletos,dbf_largo,1,fecha,DATE,2026-10-01
+incompletos,dbf_largo,1,activo,BOOLEAN,true
+incompletos,dbf_largo,2,nombre,TEXT,Árbol ñandú
+incompletos,dbf_largo,2,cota,REAL,647.125
+incompletos,dbf_largo,2,codigo,INTEGER,2
+incompletos,dbf_largo,2,fecha,DATE,2026-10-02
+incompletos,dbf_largo,2,activo,BOOLEAN,false
+incompletos,dbf_largo,3,nombre,TEXT,
+incompletos,dbf_largo,3,cota,REAL,648.0
+incompletos,dbf_largo,3,codigo,INTEGER,3
+incompletos,dbf_largo,3,fecha,DATE,
+incompletos,dbf_largo,3,activo,BOOLEAN,
+incompletos,dbf_largo,4,nombre,TEXT,
+incompletos,dbf_largo,4,cota,REAL,
+incompletos,dbf_largo,4,codigo,INTEGER,4
+incompletos,dbf_largo,4,fecha,DATE,
+incompletos,dbf_largo,4,activo,BOOLEAN,
+incompletos,dbf_largo,5,nombre,TEXT,Farola
+incompletos,dbf_largo,5,cota,REAL,649.5
+incompletos,dbf_largo,5,codigo,INTEGER,5
+incompletos,dbf_largo,5,fecha,DATE,
+incompletos,dbf_largo,5,activo,BOOLEAN,
+incompletos,shx_roto,1,nombre,TEXT,Esquina norte
+incompletos,shx_roto,1,cota,REAL,646.377
+incompletos,shx_roto,1,codigo,INTEGER,1
+incompletos,shx_roto,1,fecha,DATE,2026-10-01
+incompletos,shx_roto,1,activo,BOOLEAN,true
+incompletos,shx_roto,2,nombre,TEXT,Árbol ñandú
+incompletos,shx_roto,2,cota,REAL,647.125
+incompletos,shx_roto,2,codigo,INTEGER,2
+incompletos,shx_roto,2,fecha,DATE,2026-10-02
+incompletos,shx_roto,2,activo,BOOLEAN,false
+incompletos,shx_roto,3,nombre,TEXT,
+incompletos,shx_roto,3,cota,REAL,648.0
+incompletos,shx_roto,3,codigo,INTEGER,3
+incompletos,shx_roto,3,fecha,DATE,
+incompletos,shx_roto,3,activo,BOOLEAN,
+incompletos,shx_roto,4,nombre,TEXT,
+incompletos,shx_roto,4,cota,REAL,
+incompletos,shx_roto,4,codigo,INTEGER,4
+incompletos,shx_roto,4,fecha,DATE,
+incompletos,shx_roto,4,activo,BOOLEAN,
+incompletos,shx_roto,5,nombre,TEXT,Farola
+incompletos,shx_roto,5,cota,REAL,649.5
+incompletos,shx_roto,5,codigo,INTEGER,5
+incompletos,shx_roto,5,fecha,DATE,
+incompletos,shx_roto,5,activo,BOOLEAN,
+borrados-y-nulos,borrados,1,nombre,TEXT,Esquina norte
+borrados-y-nulos,borrados,1,cota,REAL,646.377
+borrados-y-nulos,borrados,1,codigo,INTEGER,1
+borrados-y-nulos,borrados,1,fecha,DATE,2026-10-01
+borrados-y-nulos,borrados,1,activo,BOOLEAN,true
+borrados-y-nulos,borrados,3,nombre,TEXT,
+borrados-y-nulos,borrados,3,cota,REAL,648.0
+borrados-y-nulos,borrados,3,codigo,INTEGER,3
+borrados-y-nulos,borrados,3,fecha,DATE,
+borrados-y-nulos,borrados,3,activo,BOOLEAN,
+borrados-y-nulos,borrados,5,nombre,TEXT,Farola
+borrados-y-nulos,borrados,5,cota,REAL,649.5
+borrados-y-nulos,borrados,5,codigo,INTEGER,5
+borrados-y-nulos,borrados,5,fecha,DATE,
+borrados-y-nulos,borrados,5,activo,BOOLEAN,
+borrados-y-nulos,nulos,1,nombre,TEXT,Uno
+borrados-y-nulos,nulos,2,nombre,TEXT,Nulo
+borrados-y-nulos,nulos,3,nombre,TEXT,Tres
+borrados-y-nulos,nulos,4,nombre,TEXT,Nulo 2
+borrados-y-nulos,multipatch,1,nombre,TEXT,Parche
+borrados-y-nulos,multipatch,2,nombre,TEXT,Parche 2

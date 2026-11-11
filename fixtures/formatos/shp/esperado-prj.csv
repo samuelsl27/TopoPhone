@@ -1,0 +1,60 @@
+# Sistema de la app para cada .prj de prj/ (S030). Generado por tools/formatos/generar_shapefile.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1; rejilla=es_ign_SPED2ETV2.tif
+archivo,epsg,estilo,sistema_app,estado,unidad,nombre_en_el_prj
+prj/esri-25829.prj,25829,esri,ETRS89-UTM29,DISPONIBLE,m,ETRS_1989_UTM_Zone_29N
+prj/gdal-25829.prj,25829,gdal,ETRS89-UTM29,DISPONIBLE,m,ETRS89 / UTM zone 29N
+prj/gdal-sin-autoridad-25829.prj,25829,gdal-sin-autoridad,ETRS89-UTM29,DISPONIBLE,m,ETRS89 / UTM zone 29N
+prj/esri-25830.prj,25830,esri,ETRS89-UTM30,DISPONIBLE,m,ETRS_1989_UTM_Zone_30N
+prj/gdal-25830.prj,25830,gdal,ETRS89-UTM30,DISPONIBLE,m,ETRS89 / UTM zone 30N
+prj/gdal-sin-autoridad-25830.prj,25830,gdal-sin-autoridad,ETRS89-UTM30,DISPONIBLE,m,ETRS89 / UTM zone 30N
+prj/esri-25831.prj,25831,esri,ETRS89-UTM31,DISPONIBLE,m,ETRS_1989_UTM_Zone_31N
+prj/gdal-25831.prj,25831,gdal,ETRS89-UTM31,DISPONIBLE,m,ETRS89 / UTM zone 31N
+prj/gdal-sin-autoridad-25831.prj,25831,gdal-sin-autoridad,ETRS89-UTM31,DISPONIBLE,m,ETRS89 / UTM zone 31N
+prj/esri-4258.prj,4258,esri,ETRS89-GEOGRAFICAS,DISPONIBLE,deg,GCS_ETRS_1989
+prj/gdal-4258.prj,4258,gdal,ETRS89-GEOGRAFICAS,DISPONIBLE,deg,ETRS89
+prj/gdal-sin-autoridad-4258.prj,4258,gdal-sin-autoridad,ETRS89-GEOGRAFICAS,DISPONIBLE,deg,ETRS89
+prj/esri-4082.prj,4082,esri,REGCAN95-UTM27,DISPONIBLE,m,REGCAN95_UTM_Zone_27N
+prj/gdal-4082.prj,4082,gdal,REGCAN95-UTM27,DISPONIBLE,m,REGCAN95 / UTM zone 27N
+prj/gdal-sin-autoridad-4082.prj,4082,gdal-sin-autoridad,REGCAN95-UTM27,DISPONIBLE,m,REGCAN95 / UTM zone 27N
+prj/esri-4083.prj,4083,esri,REGCAN95-UTM28,DISPONIBLE,m,REGCAN95_UTM_Zone_28N
+prj/gdal-4083.prj,4083,gdal,REGCAN95-UTM28,DISPONIBLE,m,REGCAN95 / UTM zone 28N
+prj/gdal-sin-autoridad-4083.prj,4083,gdal-sin-autoridad,REGCAN95-UTM28,DISPONIBLE,m,REGCAN95 / UTM zone 28N
+prj/esri-4081.prj,4081,esri,REGCAN95-GEOGRAFICAS,DISPONIBLE,deg,GCS_REGCAN95
+prj/gdal-4081.prj,4081,gdal,REGCAN95-GEOGRAFICAS,DISPONIBLE,deg,REGCAN95
+prj/gdal-sin-autoridad-4081.prj,4081,gdal-sin-autoridad,REGCAN95-GEOGRAFICAS,DISPONIBLE,deg,REGCAN95
+prj/esri-23029.prj,23029,esri,ED50-UTM29,DISPONIBLE,m,ED_1950_UTM_Zone_29N
+prj/gdal-23029.prj,23029,gdal,ED50-UTM29,DISPONIBLE,m,ED50 / UTM zone 29N
+prj/gdal-sin-autoridad-23029.prj,23029,gdal-sin-autoridad,ED50-UTM29,DISPONIBLE,m,ED50 / UTM zone 29N
+prj/esri-23030.prj,23030,esri,ED50-UTM30,DISPONIBLE,m,ED_1950_UTM_Zone_30N
+prj/gdal-23030.prj,23030,gdal,ED50-UTM30,DISPONIBLE,m,ED50 / UTM zone 30N
+prj/gdal-sin-autoridad-23030.prj,23030,gdal-sin-autoridad,ED50-UTM30,DISPONIBLE,m,ED50 / UTM zone 30N
+prj/esri-23031.prj,23031,esri,ED50-UTM31,DISPONIBLE,m,ED_1950_UTM_Zone_31N
+prj/gdal-23031.prj,23031,gdal,ED50-UTM31,DISPONIBLE,m,ED50 / UTM zone 31N
+prj/gdal-sin-autoridad-23031.prj,23031,gdal-sin-autoridad,ED50-UTM31,DISPONIBLE,m,ED50 / UTM zone 31N
+prj/esri-4326.prj,4326,esri,ETRS89-GEOGRAFICAS,WGS84,deg,GCS_WGS_1984
+prj/gdal-4326.prj,4326,gdal,ETRS89-GEOGRAFICAS,WGS84,deg,WGS 84
+prj/gdal-sin-autoridad-4326.prj,4326,gdal-sin-autoridad,ETRS89-GEOGRAFICAS,WGS84,deg,WGS 84
+prj/esri-3857.prj,3857,esri,,NO_DISPONIBLE,m,WGS_1984_Web_Mercator_Auxiliary_Sphere
+prj/gdal-3857.prj,3857,gdal,,NO_DISPONIBLE,m,WGS 84 / Pseudo-Mercator
+prj/gdal-sin-autoridad-3857.prj,3857,gdal-sin-autoridad,,NO_DISPONIBLE,m,WGS 84 / Pseudo-Mercator
+prj/esri-25833.prj,25833,esri,,NO_DISPONIBLE,m,ETRS_1989_UTM_Zone_33N
+prj/gdal-25833.prj,25833,gdal,,NO_DISPONIBLE,m,ETRS89 / UTM zone 33N
+prj/gdal-sin-autoridad-25833.prj,25833,gdal-sin-autoridad,,NO_DISPONIBLE,m,ETRS89 / UTM zone 33N
+prj/esri-25828.prj,25828,esri,,NO_DISPONIBLE,m,ETRS_1989_UTM_Zone_28N
+prj/gdal-25828.prj,25828,gdal,,NO_DISPONIBLE,m,ETRS89 / UTM zone 28N
+prj/gdal-sin-autoridad-25828.prj,25828,gdal-sin-autoridad,,NO_DISPONIBLE,m,ETRS89 / UTM zone 28N
+prj/esri-23028.prj,23028,esri,,NO_DISPONIBLE,m,ED_1950_UTM_Zone_28N
+prj/gdal-23028.prj,23028,gdal,,NO_DISPONIBLE,m,ED50 / UTM zone 28N
+prj/gdal-sin-autoridad-23028.prj,23028,gdal-sin-autoridad,,NO_DISPONIBLE,m,ED50 / UTM zone 28N
+prj/esri-4230.prj,4230,esri,,NO_DISPONIBLE,deg,GCS_European_1950
+prj/gdal-4230.prj,4230,gdal,,NO_DISPONIBLE,deg,ED50
+prj/gdal-sin-autoridad-4230.prj,4230,gdal-sin-autoridad,,NO_DISPONIBLE,deg,ED50
+prj/esri-32630.prj,32630,esri,,NO_DISPONIBLE,m,WGS_1984_UTM_Zone_30N
+prj/gdal-32630.prj,32630,gdal,,NO_DISPONIBLE,m,WGS 84 / UTM zone 30N
+prj/gdal-sin-autoridad-32630.prj,32630,gdal-sin-autoridad,,NO_DISPONIBLE,m,WGS 84 / UTM zone 30N
+prj/esri-2062.prj,2062,esri,,NO_DISPONIBLE,m,Madrid_1870_Madrid_Spain
+prj/gdal-2062.prj,2062,gdal,,NO_DISPONIBLE,m,Madrid 1870 (Madrid) / Spain LCC
+prj/gdal-sin-autoridad-2062.prj,2062,gdal-sin-autoridad,,NO_DISPONIBLE,m,Madrid 1870 (Madrid) / Spain LCC
+prj/esri-2263.prj,2263,esri,,NO_DISPONIBLE,US_survey_foot,NAD_1983_StatePlane_New_York_Long_Island_FIPS_3104_Feet
+prj/gdal-2263.prj,2263,gdal,,NO_DISPONIBLE,US_survey_foot,NAD83 / New York Long Island (ftUS)
+prj/gdal-sin-autoridad-2263.prj,2263,gdal-sin-autoridad,,NO_DISPONIBLE,US_survey_foot,NAD83 / New York Long Island (ftUS)
