@@ -30,7 +30,7 @@ Términos de esta spec:
 - RF-5: EL SISTEMA escribirá cada polígono con su contorno en sentido horario y su primer vértice repetido al final, como exige el formato.
 
 ### Atributos (H2)
-- RF-6: EL SISTEMA escribirá en el Shapefile de puntos, como columnas, las columnas de "Todas las columnas" de S012/RF-6, la columna del código y una por cada atributo de código (S024/RF-21), con su tipo (texto, entero o decimal), con los valores y formatos de S012 (las fechas como texto en ISO 8601 con la Z de UTC) y vacío el valor que el punto no tiene.
+- RF-6: EL SISTEMA escribirá en el Shapefile de puntos, como columnas, las columnas de "Todas las columnas" de S012/RF-6, la columna del código y una por cada atributo de código (S024/RF-21), con su tipo (texto, entero o decimal), con los valores de S012 sin redondear, las longitudes en metros y los ángulos en grados, sin pasar por la unidad del proyecto (la columna de unidades dice cuál es), las fechas como texto en ISO 8601 con la Z de UTC y vacío el valor que el punto no tiene.
 - RF-7: EL SISTEMA escribirá en los Shapefiles de líneas y de polígonos, como columnas, el nombre, el código, el número de vértices y los atributos del código de cada línea o polígono, con su tipo y vacío el valor que no tiene.
 - RF-8: EL SISTEMA dará a las columnas fijas el nombre abreviado, de hasta 10 caracteres, en mayúsculas, sin acentos ni eñes y de una tabla fija, en el idioma de la interfaz en el momento de exportar.
 - RF-9: EL SISTEMA dará a cada atributo de código un nombre de hasta 10 caracteres, en mayúsculas, con solo letras, cifras y "_" (sustituyendo el resto por "_") y, si coincide con otra columna, lo distinguirá con un número al final, e indicará en el resumen los nombres que ha cambiado.
@@ -38,9 +38,10 @@ Términos de esta spec:
 - RF-11: EL SISTEMA escribirá el `.dbf` en UTF-8 y lo declarará en el `.cpg`.
 
 ### Coordenadas y sistema (H1)
-- RF-12: EL SISTEMA escribirá por defecto coordenadas proyectadas, sin redondear, en metros, con el Este como X, el Norte como Y y la altura del proyecto como Z, o el SC geográfico si el proyecto lo es.
+- RF-12: EL SISTEMA escribirá por defecto coordenadas proyectadas, sin redondear, en metros, con el Este como X, el Norte como Y y la altura del proyecto como Z; y, si el proyecto es geográfico, su longitud como X, su latitud como Y, en grados, y la altura del proyecto como Z.
 - RF-13: DONDE el usuario elija coordenadas geográficas, EL SISTEMA escribirá la longitud como X, la latitud como Y, en grados decimales y sin redondear, y la altura elipsoidal como Z.
 - RF-14: EL SISTEMA escribirá 0 como Z de cada punto y vértice sin altura y contará esos casos en el resumen.
+- RF-14b: SI un punto no tiene Este y Norte, ENTONCES EL SISTEMA lo escribirá como objeto sin geometría, con sus atributos.
 - RF-15: EL SISTEMA declarará en el `.prj` de cada Shapefile el sistema de coordenadas de lo escrito, proyectado del proyecto o geográfico de su datum, e indicará en el resumen el sistema de alturas de la Z, porque el `.prj` no puede declararlo.
 - RF-16: SI el sistema de coordenadas escrito no se puede expresar en un `.prj`, ENTONCES EL SISTEMA no escribirá el `.prj` y lo indicará en el resumen.
 
@@ -50,7 +51,7 @@ Términos de esta spec:
 - RF-19: SI no hay ningún punto que exportar, ENTONCES EL SISTEMA lo indicará y no creará el ZIP (como S012/RF-4).
 - RF-20: SI no se puede escribir el ZIP, ENTONCES EL SISTEMA indicará que no se ha exportado y no dejará un fichero a medias (RNF-T6).
 - RF-21: EL SISTEMA no modificará ningún dato del proyecto al exportar.
-- RF-22: EL SISTEMA mostrará al terminar un resumen con los puntos, líneas y polígonos escritos, los vértices sin altura, los textos recortados, los atributos de código renombrados y los avisos del `.prj`.
+- RF-22: EL SISTEMA mostrará al terminar un resumen con los puntos, líneas y polígonos escritos, los puntos sin posición, los vértices sin altura, los textos recortados, los atributos de código renombrados y los avisos del `.prj`.
 - RF-23: EL SISTEMA recordará para todos los proyectos el sistema elegido (proyectadas o geográficas), como S012/RF-21.
 
 ## Requisitos no funcionales
@@ -74,6 +75,7 @@ Términos de esta spec:
 | Proyecto con sistema geográfico | RF-12, RF-13 |
 | Sistema sin `.prj` posible | RF-16 |
 | Puntos sin altura o manuales sin calidad | RF-6, RF-14 |
+| Punto sin Este y Norte | RF-14b |
 | Nombre de proyecto con espacios, acentos o símbolos | RF-4 |
 | Atributo de código de más de 10 caracteres o que se repite al abreviar | RF-9 |
 | Texto de más de 254 bytes | RF-10 |
