@@ -34,7 +34,7 @@ data class CadDrawingEntity(
     @ColumnInfo(name = "max_e") val maxEasting: Double?,
     @ColumnInfo(name = "min_n") val minNorthing: Double?,
     @ColumnInfo(name = "max_n") val maxNorthing: Double?,
-    /** `DXF` o `GEOPACKAGE` (S048/RF-26). */
+    /** `DXF`, `GEOPACKAGE` o `SHAPEFILE` (S048/RF-26, S030/RF-26). */
     @ColumnInfo(defaultValue = "'DXF'") val origin: String = "DXF",
 )
 

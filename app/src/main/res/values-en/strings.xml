@@ -1482,6 +1482,8 @@
     <string name="gpkg_reason_invalid">Unreadable geometry</string>
     <string name="gpkg_reason_outside_crs">Outside the area of the project coordinate system</string>
     <string name="gpkg_reason_outside_grid">Outside the ED50 grid</string>
+    <string name="gpkg_reason_deleted">Record deleted in the .dbf</string>
+    <string name="gpkg_reason_multipatch">MultiPatch surface</string>
     <string name="gpkg_summary_title">Summary of a GeoPackage import</string>
     <string name="gpkg_summary_layer">Layer</string>
     <string name="gpkg_summary_imported">Imported</string>

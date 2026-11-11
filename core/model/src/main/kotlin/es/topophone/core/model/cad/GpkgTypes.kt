@@ -72,6 +72,12 @@ enum class GpkgIgnoredReason {
     INVALID_GEOMETRY,
     OUTSIDE_CRS_AREA,
     OUTSIDE_ED50_GRID,
+
+    /** Un Shapefile: el registro está marcado como borrado en el `.dbf` (S030/RF-16). */
+    DELETED_RECORD,
+
+    /** Un Shapefile: un objeto `MultiPatch`, una superficie 3D que no se importa (S030/RF-16). */
+    MULTIPATCH,
 }
 
 /** Lo que pasó con los objetos de una capa al importar (S048/RF-25). */
@@ -81,6 +87,8 @@ data class GpkgLayerSummary(
     val outsideArea: Int,
     val ignored: Map<GpkgIgnoredReason, Int> = emptyMap(),
     val omittedAttributes: Int = 0,
+    /** Objetos de un Shapefile sin registro en su `.dbf`, que se importan sin atributos (S030/RF-20). */
+    val withoutAttributes: Int = 0,
 ) {
     val ignoredTotal: Int get() = ignored.values.sum()
 }
@@ -96,6 +104,7 @@ data class GpkgImportSummary(
     val importedTotal: Int get() = layers.sumOf { it.imported }
     val outsideAreaTotal: Int get() = layers.sumOf { it.outsideArea }
     val ignoredTotal: Int get() = layers.sumOf { it.ignoredTotal }
+    val withoutAttributesTotal: Int get() = layers.sumOf { it.withoutAttributes }
 }
 
 /**

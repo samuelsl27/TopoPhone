@@ -6,7 +6,7 @@
       Hecho cuando: el script genera `fixtures/formatos/shp/` y su test de `tools` está en verde.
 - [x] T2. `tools/formatos`: los ZIP de ejemplo (varias capas, dos capas con el mismo nombre en carpetas distintas, huérfanos, sin `.shp`, dañado, tamaño declarado falso, ficheros sueltos) y un Shapefile en ETRS89 UTM 30 y otro en geográficas hechos con QGIS por MCP, con su procedencia anotada y sus valores esperados con pyproj. (RF-2 a RF-7, RF-15, constitución nº 2)
       Hecho cuando: los ficheros están en `fixtures/formatos/shp/`, el test de `tools` comprueba lo esperado y el `LEEME` dice cómo se generaron.
-- [ ] T3. `core:model`: `CadOrigin.SHAPEFILE`, los motivos `DELETED_RECORD` y `MULTIPATCH` y `GpkgLayerSummary.withoutAttributes`, con los `when` adaptados y el glosario ya al día. (RF-16, RF-20, RF-26)
+- [x] T3. `core:model`: `CadOrigin.SHAPEFILE`, los motivos `DELETED_RECORD` y `MULTIPATCH` y `GpkgLayerSummary.withoutAttributes`, con los `when` adaptados y el glosario ya al día. (RF-16, RF-20, RF-26)
       Hecho cuando: `core:model` y los módulos que lo usan compilan y sus tests siguen en verde, con un test del resumen que suma los objetos sin atributos.
 - [ ] T4. `core:formats`: `ShpFileKind` (cabecera de 100 bytes) y `ShpSelection` (ZIP, `.shp` por contenido, asociación por nombre, huérfanos, mezcla y límites de 100 MB y 500 MB). (RF-2 a RF-6)
       Hecho cuando: `ShpFileKindTest` y `ShpSelectionTest` en verde: ZIP, sueltos, `.shp` con otra extensión, mayúsculas, más de un ZIP, ZIP con sueltos, huérfanos, sin `.shp`, y los dos límites.

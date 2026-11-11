@@ -1494,6 +1494,8 @@
     <string name="gpkg_reason_invalid">Geometría ilegible</string>
     <string name="gpkg_reason_outside_crs">Fuera del ámbito del sistema del proyecto</string>
     <string name="gpkg_reason_outside_grid">Fuera de la rejilla de ED50</string>
+    <string name="gpkg_reason_deleted">Registro borrado en el .dbf</string>
+    <string name="gpkg_reason_multipatch">Superficie MultiPatch</string>
     <string name="gpkg_summary_title">Resumen de la importación de un GeoPackage</string>
     <string name="gpkg_summary_layer">Capa</string>
     <string name="gpkg_summary_imported">Importados</string>
