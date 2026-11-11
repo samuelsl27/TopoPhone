@@ -10,7 +10,7 @@
       Hecho cuando: `core:model` y los módulos que lo usan compilan y sus tests siguen en verde, con un test del resumen que suma los objetos sin atributos.
 - [x] T4. `core:formats`: `ShpFileKind` (cabecera de 100 bytes) y `ShpSelection` (ZIP, `.shp` por contenido, asociación por nombre, huérfanos, mezcla y límites de 100 MB y 500 MB). (RF-2 a RF-6)
       Hecho cuando: `ShpFileKindTest` y `ShpSelectionTest` en verde: ZIP, sueltos, `.shp` con otra extensión, mayúsculas, más de un ZIP, ZIP con sueltos, huérfanos, sin `.shp`, y los dos límites.
-- [ ] T5. `core:formats`: `ShpReader` (todos los tipos, Z, M descartada, nulo, `MultiPatch`, envolvente y un anillo por línea cerrada). (RF-15, RF-16, RF-17)
+- [x] T5. `core:formats`: `ShpReader` (todos los tipos, Z, M descartada, nulo, `MultiPatch`, envolvente y un anillo por línea cerrada). (RF-15, RF-16, RF-17)
       Hecho cuando: `ShpReaderTest` en verde contra los ficheros de `tools`, con los vértices a menos de 1e-9 m de lo esperado.
 - [ ] T6. `core:formats`: `ShxIndex` (con `.shx`, sin él y con uno roto) y `ShpBlobEncoder` (blob con cabecera y envolvente). (RF-19, RF-13)
       Hecho cuando: `ShxIndexTest` y `ShpBlobEncoderTest` en verde: el blob se lee con `GpkgGeometryReader` y da las mismas partes y envolvente que `ShpReader`.
