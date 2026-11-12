@@ -16,7 +16,7 @@
       Hecho cuando: `ShpExportBuilderTest` en verde para los puntos, en proyectadas y en geográficas.
 - [x] T7. `core:formats`: `ShpExportBuilder` para las líneas y los polígonos: selección con líneas completas, líneas con pocos vértices, columnas de nombre, código, vértices y atributos, y capas vacías. (RF-2, RF-3, RF-7, RF-22)
       Hecho cuando: `ShpExportBuilderTest` en verde para líneas y polígonos y para la selección.
-- [ ] T8. `core:formats`: `ShapefileZipWriter` (nombres limpios, cinco ficheros por capa, ninguna capa vacía) y la ida y vuelta con los lectores de S030. (RF-3, RF-4, RF-5, RF-10 a RF-14)
+- [x] T8. `core:formats`: `ShapefileZipWriter` (nombres limpios, cinco ficheros por capa, ninguna capa vacía) y la ida y vuelta con los lectores de S030. (RF-3, RF-4, RF-5, RF-10 a RF-14)
       Hecho cuando: `ShapefileZipWriterTest` y `ShpRoundTripTest` en verde: lo escrito se relee con las mismas coordenadas (menos de 0,05 mm), atributos y sistema.
 - [ ] T9. `core:formats`: exportar 10.000 puntos con sus columnas en menos de 5 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.
