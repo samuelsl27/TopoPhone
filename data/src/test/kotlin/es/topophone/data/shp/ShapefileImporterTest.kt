@@ -411,4 +411,33 @@ class ShapefileImporterTest {
         (thrown.exceptionOrNull() is CancellationException) shouldBe true
         nothingSaved()
     }
+
+    @Test
+    fun `S030 RF-8 las capas escritas por QGIS entran en UTM 30 a menos de 1 mm de lo que calcula QGIS`() {
+        val wanted = ShpFixtures.expected("qgis/esperado-qgis-proyecto.csv")
+        val sources = mapOf(
+            "catastro-25830" to utm30,
+            "geograficas-4258" to CadSourceCrs.Geographic(GeodeticDatum.ETRS89),
+        )
+        var checked = 0
+        for ((scenario, source) in sources) {
+            val layers = wanted.filter { it.getValue("escenario") == scenario }.map { it.getValue("capa") }.distinct()
+            val session = session("qgis/$scenario", *layers.toTypedArray())
+
+            imported(import(session, *layers.map { choice(session, it, source) }.toTypedArray()))
+
+            for (layer in layers) {
+                val elements = wanted.filter { it.getValue("escenario") == scenario && it.getValue("capa") == layer }.map { row ->
+                    row.getValue("vertices").split(';').map { v ->
+                        v.split(' ').let { Triple(it[0].toDouble(), it[1].toDouble(), null as Double?) }
+                    }
+                }
+                val kind = if (layer in setOf("mojones", "multipuntos")) DesignLayerKind.POINTS else DesignLayerKind.LINES
+                assertSameElements(entities(layerOf(layer, kind).id), elements)
+                checked += elements.size
+            }
+            runBlocking { repository.drawings(projectId).first() }.forEach { runBlocking { repository.deleteDrawing(it.drawing.id) } }
+        }
+        (checked >= 12) shouldBe true
+    }
 }

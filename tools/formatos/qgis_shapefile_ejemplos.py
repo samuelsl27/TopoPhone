@@ -10,6 +10,9 @@ Escribe en fixtures/formatos/shp/qgis/ una carpeta por escenario con los fichero
 - esperado-qgis-capas.csv: por capa, el tipo de geometría, los objetos, el sistema que QGIS reconoce del `.prj` y el contenido del `.cpg`.
 - esperado-qgis-geometria.csv: por parte de cada objeto, sus vértices ("x y z", `_` si no hay Z), en el sistema de la capa.
 - esperado-qgis-atributos.csv: por valor de cada objeto, su columna y su valor tal como lo ve QGIS.
+- esperado-qgis-proyecto.csv: los vértices de las capas en ETRS89 UTM 30 (EPSG:25830) que calcula QGIS al reproyectar cada capa con su `.prj`
+  (el criterio de finalización: lo que importa la app coincide con QGIS a menos de 1 mm). Solo de las capas en ETRS89, donde la
+  transformación no depende de rejillas.
 
 Las coordenadas de proyecto (ETRS89 UTM 30) de cada vértice las calcula el test con pyproj, que es un cálculo aparte de QGIS. Los ficheros
 guardados no se regeneran en los tests (QGIS no está en `tools`): se comprueban con otro lector y con pyproj. La versión de QGIS y de GDAL que
@@ -189,7 +192,11 @@ def main() -> int:
     qgs.initQgis()
     if OUT.exists():
         shutil.rmtree(OUT)
-    capas, geometria, atributos = [], [], []
+    capas, geometria, atributos, proyecto = [], [], [], []
+    to_project = {
+        "catastro-25830": QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:25830"), QgsCoordinateReferenceSystem("EPSG:25830"), PROJECT),
+        "geograficas-4258": QgsCoordinateTransform(QgsCoordinateReferenceSystem("EPSG:4258"), QgsCoordinateReferenceSystem("EPSG:25830"), PROJECT),
+    }
     for scenario, (build, encoding) in SCENARIOS.items():
         folder = OUT / scenario
         folder.mkdir(parents=True)
@@ -204,6 +211,11 @@ def main() -> int:
                 number = f.id() + 1  # el número de registro del .shp, desde 1
                 for part, verts in vertices(f.geometry()):
                     geometria.append([scenario, layer.name(), number, part, ";".join(verts)])
+                if scenario in to_project:
+                    moved = QgsGeometry(f.geometry())
+                    moved.transform(to_project[scenario])
+                    for part, verts in vertices(moved):
+                        proyecto.append([scenario, layer.name(), number, part, ";".join(verts)])
                 for column, value in zip(written.fields().names(), f.attributes()):
                     atributos.append([scenario, layer.name(), number, column, value_text(value)])
     versions = [f"QGIS {Qgis.version()}", f"GDAL {gdal.VersionInfo('RELEASE_NAME')}"]
@@ -219,6 +231,7 @@ def main() -> int:
     write_csv("esperado-qgis-capas.csv", ["escenario", "capa", "tipo_wkb", "objetos", "sistema_qgis", "cpg"], capas)
     write_csv("esperado-qgis-geometria.csv", ["escenario", "capa", "registro", "parte", "vertices"], geometria)
     write_csv("esperado-qgis-atributos.csv", ["escenario", "capa", "registro", "columna", "valor"], atributos)
+    write_csv("esperado-qgis-proyecto.csv", ["escenario", "capa", "registro", "parte", "vertices"], proyecto)
     (OUT / "LEEME.txt").write_text(
         "Shapefiles escritos por QGIS (exportar a «ESRI Shapefile») tal como salen, sin tocarlos.\n"
         f"Versiones: {', '.join(versions)}.\n"
