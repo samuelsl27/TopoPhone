@@ -35,9 +35,9 @@
       Hecho cuando: el script genera `fixtures/formatos/kml-exportado/` y su test de `tools` está en verde.
 - [x] T15. `core:formats`: `KmlNumber` y `KmlWriter` (XML con entidades escapadas, `CDATA`, estilos por código, datos extendidos vacíos). (RF-21 a RF-23, RF-29, RNF-T9)
       Hecho cuando: `KmlNumberTest` y `KmlWriterTest` en verde y el KML coincide byte a byte con la referencia de `tools`.
-- [ ] T16. `core:formats`: `KmlExportBuilder` para los puntos (posición del datum de los cálculos, columnas de «Todas las columnas», código y atributos, altura y modo, sin posición, resumen) y la selección. (RF-20, RF-21, RF-24 a RF-27, RF-32)
+- [x] T16. `core:formats`: `KmlExportBuilder` para los puntos (posición del datum de los cálculos, columnas de «Todas las columnas», código y atributos, altura y modo, sin posición, resumen) y la selección. (RF-20, RF-21, RF-24 a RF-27, RF-32)
       Hecho cuando: `KmlExportBuilderTest` en verde para los puntos, con y sin «Incluir altura».
-- [ ] T17. `core:formats`: `KmlExportBuilder` para las líneas y los polígonos (contorno antihorario, primer vértice repetido, datos extendidos), las carpetas por código y los colores. (RF-22, RF-23)
+- [x] T17. `core:formats`: `KmlExportBuilder` para las líneas y los polígonos (contorno antihorario, primer vértice repetido, datos extendidos), las carpetas por código y los colores. (RF-22, RF-23)
       Hecho cuando: `KmlExportBuilderTest` en verde para líneas, polígonos y carpetas, y para un proyecto sin códigos.
 - [ ] T18. `core:formats`: la ida y vuelta (exportar e importar con la `KmlSession`) a menos de 0,1 mm y el rendimiento de exportar 10.000 puntos en menos de 5 s. (constitución nº 2, RNF)
       Hecho cuando: `KmlRoundTripTest` y el test de rendimiento en verde.
