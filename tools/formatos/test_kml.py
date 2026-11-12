@@ -44,6 +44,7 @@ def test_resultados_de_abrir_cada_fichero() -> None:
     assert result["vacio.kml"] == "EMPTY" and result["espacios.kml"] == "EMPTY"
     assert result["texto.kml"] == "NOT_KML" and result["no-es-kml.kml"] == "NOT_KML" and result["ns30.kml"] == "NOT_KML"
     assert result["danado.kml"] == "DAMAGED" and result["danado.kmz"] == "DAMAGED"
+    assert result["enlace-danado.kmz"] == "DAMAGED"  # un KML enlazado y cortado deja dañado todo el KMZ
     assert result["sin-marcas.kml"] == "NO_PLACEMARKS" and result["solo-ignorados.kml"] == "NO_PLACEMARKS"
     assert result["sin-kml.kmz"] == "NOT_KML" and result["kml-en-subcarpeta.kmz"] == "NOT_KML" and result["kmz-sin-entradas.kmz"] == "NOT_KML"
     ok = {n for n, r in result.items() if r == "OK"}

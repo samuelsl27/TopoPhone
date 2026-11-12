@@ -4,8 +4,14 @@ package es.topophone.core.formats.kml
  * Los vértices de un `<coordinates>` en longitud y latitud (grados) tal como están en el KML, sin redondear (S031/RF-7). [alt] solo existe
  * si **todos** los vértices traen altitud: una geometría con la altitud a medias no la lleva (S031/RF-13).
  */
-class KmlVertices(val lon: DoubleArray, val lat: DoubleArray, val alt: DoubleArray?) {
+class KmlVertices(val lon: DoubleArray, val lat: DoubleArray, private val altitudes: DoubleArray) {
     val size: Int get() = lon.size
+
+    /** La altitud de cada vértice, o `null` si alguno no la trae (en [altitudes] falta como `NaN`). */
+    val alt: DoubleArray? = if (altitudes.isNotEmpty() && altitudes.none { it.isNaN() }) altitudes else null
+
+    /** Solo el primer vértice, con su altitud si la trae: lo que usa un `Point` cuando escribe más de una tupla (S031/RF-8). */
+    fun first(): KmlVertices = KmlVertices(doubleArrayOf(lon[0]), doubleArrayOf(lat[0]), doubleArrayOf(altitudes[0]))
 }
 
 /**
@@ -24,7 +30,6 @@ object KmlCoordinates {
         var lat = DoubleArray(INITIAL_CAPACITY)
         var alt = DoubleArray(INITIAL_CAPACITY)
         var size = 0
-        var withAltitude = 0
         var i = 0
         val n = text.length
         while (i < n) {
@@ -54,10 +59,10 @@ object KmlCoordinates {
                 from = end + 1
             }
             if (count < MIN_VALUES) return null
-            if (count > ALTITUDE_INDEX) withAltitude++
+            if (count <= ALTITUDE_INDEX) alt[size] = Double.NaN
             size++
         }
-        return KmlVertices(lon.copyOf(size), lat.copyOf(size), if (size > 0 && withAltitude == size) alt.copyOf(size) else null)
+        return KmlVertices(lon.copyOf(size), lat.copyOf(size), alt.copyOf(size))
     }
 
     /** `[+-]? (dígitos [. dígitos*] | . dígitos+) ([eE] [+-]? dígitos+)?` en `text[from, to)`. */

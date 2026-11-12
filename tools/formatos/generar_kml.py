@@ -38,7 +38,8 @@ Reglas de este conjunto que la spec no fija y que quedan escritas en lo esperado
 - Vínculos internos (solo en un KMZ): un `NetworkLink` (con `Link` o `Url`) cuyo `href` es relativo, sin esquema ni `..` que salga del KMZ, y
   apunta a un `.kml` del KMZ (exacto o sin distinguir mayúsculas) se lee como una carpeta con el nombre del vínculo o, sin nombre, el del
   fichero sin extensión: su ruta empieza por la del vínculo y las marcas sueltas del fichero enlazado van a la capa con esa ruta. Hasta 3
-  niveles de vínculos y cada fichero una sola vez; el resto de los vínculos se cuentan como ignorados.
+  niveles de vínculos y cada fichero una sola vez; el resto de los vínculos se cuentan como ignorados. Un fichero enlazado que no es un KML
+  (su raíz no es `kml`, o no es XML) cuenta como vínculo ignorado; uno que empieza como KML y está cortado deja dañado todo el KMZ.
 - Ignorados por fichero: `NetworkLink` (los que no son vínculos internos), `GroundOverlay`, `ScreenOverlay` y `PhotoOverlay` (`NETWORK_LINK` y `OVERLAY`), `Model` (`MODEL`),
   `gx:Track` y `gx:MultiTrack` (`TRACK`, una vez por `MultiTrack`) y `gx:Tour` (`TOUR`).
 - Un fichero sin ningún objeto válido es `NO_PLACEMARKS`. Un KML es XML con raíz `kml` y sin espacio de nombres o con uno `kml/2.x`; un XML
@@ -380,6 +381,7 @@ def kmz_files() -> dict[str, bytes]:
         "varios-kml.kmz": kmz([("otro.kml", one("Otro", 1)), ("doc.kml", one("Principal", 0))]),
         "mayusculas.kmz": kmz([("DOC.KML", one("En mayusculas", 0))]),
         "enlaces-internos.kmz": linked_kmz(),
+        "enlace-danado.kmz": damaged_link_kmz(),
         "sin-kml.kmz": kmz([("imagen.jpg", fake_jpg)]),
         "kml-en-subcarpeta.kmz": kmz([("sub/doc.kml", one("Escondido", 0))]),
         "kmz-sin-entradas.kmz": kmz([]),
@@ -406,7 +408,7 @@ def linked_kmz() -> bytes:
         link("Absoluto", "/layers/a.kml"),
         link("Al doc", "doc.kml"),
         link("Mayusculas", "LAYERS/A.KML"),
-        link("Rota", "layers/rota.kml"),
+        link("No es KML", "layers/gpx.kml"),
     )
     a = doc(folder("Zona", pm("A1", point(*at(1, 0))), pm("A2", point(*at(2, 0)))), pm("Suelta de A", point(*at(3, 0))))
     b = doc(pm("B1", line(at(4, 0), at(5, 0))))
@@ -415,11 +417,17 @@ def linked_kmz() -> bytes:
     d = doc(pm("D1", point(*at(8, 0))), link("Mas hondo", "e.kml"))
     e = doc(pm("E1", point(*at(9, 0))), link("Demasiado hondo", "f.kml"))
     f = doc(pm("F1", point(*at(10, 0))))
-    rota = b"<kml><Document>"
+    gpx = b'<?xml version="1.0"?><gpx version="1.1"><wpt lat="40" lon="-3"/></gpx>'
     return kmz([
         ("doc.kml", root), ("layers/a.kml", a), ("layers/b.kml", b), ("layers/u.kml", u), ("sub/c.kml", c), ("sub/d.kml", d),
-        ("sub/e.kml", e), ("sub/f.kml", f), ("layers/rota.kml", rota),
+        ("sub/e.kml", e), ("sub/f.kml", f), ("layers/gpx.kml", gpx),
     ])
+
+
+def damaged_link_kmz() -> bytes:
+    good = kml(document(pm("Un punto", point(*at(0, 0))), pm("Otro", point(*at(1, 1)))))
+    root = kml(document("<NetworkLink><name>Capa</name><Link><href>layers/capa.kml</href></Link></NetworkLink>"))
+    return kmz([("doc.kml", root), ("layers/capa.kml", good[: len(good) // 2])])
 
 
 def all_files() -> dict[str, bytes]:
@@ -481,6 +489,13 @@ def parse_coordinates(element: ET.Element | None) -> list[tuple[float, float, fl
             return None
         out.append((values[0], values[1], values[2] if len(values) >= 3 else None))
     return out
+
+
+class NestedDamaged(Exception):
+    """Un `.kml` enlazado por un KMZ está cortado: todo el KMZ está dañado."""
+
+
+KML_HEAD = re.compile(rb"(<\?xml[^>]*\?>\s*)?<kml[\s>]")
 
 
 @dataclass
@@ -702,9 +717,12 @@ class Reader:
         target = resolve_href(self.current, href, self.files)
         if target is None or target in self.visited:
             return False
+        data = self.files[target]
         try:
-            root = ET.fromstring(self.files[target])
+            root = ET.fromstring(data)
         except ET.ParseError:
+            if KML_HEAD.match(data.lstrip(BOM).lstrip()[:200]):
+                raise NestedDamaged(target) from None
             return False
         if not is_kml_root(root):
             return False
@@ -777,7 +795,10 @@ def read_kml(data: bytes, stem: str, files: dict[str, bytes] | None = None, curr
         return Doc("DAMAGED" if re.match(rb"(<\?xml[^>]*\?>\s*)?<kml[\s>]", head) else "NOT_KML")
     if not is_kml_root(root):
         return Doc("NOT_KML")
-    doc = Reader(stem, files, current).run(root)
+    try:
+        doc = Reader(stem, files, current).run(root)
+    except NestedDamaged:
+        return Doc("DAMAGED")
     if doc.valid_objects() == 0:
         doc.result = "NO_PLACEMARKS"
     return doc

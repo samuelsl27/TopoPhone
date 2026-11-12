@@ -6,6 +6,7 @@ carpetas-anidadas.kml,KML,OK,,10,NO,
 con-doc.kmz,KMZ,OK,doc.kml,2,NO,
 danado.kml,KML,DAMAGED,,0,NO,
 danado.kmz,KMZ,DAMAGED,,0,NO,
+enlace-danado.kmz,KMZ,DAMAGED,doc.kml,0,NO,
 enlaces-internos.kmz,KMZ,OK,doc.kml,9,NO,NETWORK_LINK=9
 espacios.kml,KML,EMPTY,,0,NO,
 estilos.kml,KML,OK,,16,NO,
