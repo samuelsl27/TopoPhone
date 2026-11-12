@@ -1844,6 +1844,36 @@
         <item quantity="other">%1$d puntos van sin geometría porque no tienen Este y Norte en el sistema del proyecto.</item>
     </plurals>
     <string name="gpkg_export_custom">El sistema va con su definición completa porque no tiene un código reconocido.</string>
+    <string name="shp_export_title">Exportar Shapefile</string>
+    <string name="shp_export_system">Sistema de coordenadas</string>
+    <string name="shp_export_system_project">Del proyecto (EPSG:%1$d)</string>
+    <string name="shp_export_system_geographic">Geográficas del datum (EPSG:%1$d)</string>
+    <string name="shp_export_system_fixed">Geográficas (EPSG:%1$d)</string>
+    <string name="shp_export_units">Las coordenadas van en metros o en grados y los atributos en metros y grados, sin redondear. Los nombres de las columnas se abrevian a 10 letras.</string>
+    <string name="shp_share_chooser">Compartir Shapefile</string>
+    <plurals name="shp_export_done">
+        <item quantity="one">Se ha exportado %1$d punto en EPSG:%2$d.</item>
+        <item quantity="other">Se han exportado %1$d puntos en EPSG:%2$d.</item>
+    </plurals>
+    <plurals name="shp_export_no_position">
+        <item quantity="one">%1$d punto se ha escrito como objeto sin geometría porque no tiene Este y Norte.</item>
+        <item quantity="other">%1$d puntos se han escrito como objetos sin geometría porque no tienen Este y Norte.</item>
+    </plurals>
+    <plurals name="shp_export_no_height">
+        <item quantity="one">%1$d vértice sin altura se ha escrito con Z = 0.</item>
+        <item quantity="other">%1$d vértices sin altura se han escrito con Z = 0.</item>
+    </plurals>
+    <plurals name="shp_export_truncated">
+        <item quantity="one">%1$d texto se ha recortado a 254 bytes.</item>
+        <item quantity="other">%1$d textos se han recortado a 254 bytes.</item>
+    </plurals>
+    <plurals name="shp_export_renamed">
+        <item quantity="one">%1$d atributo de código ha cambiado de nombre: %2$s.</item>
+        <item quantity="other">%1$d atributos de código han cambiado de nombre: %2$s.</item>
+    </plurals>
+    <string name="shp_export_no_prj">El sistema de coordenadas no se puede declarar en un .prj: los Shapefiles van sin él.</string>
+    <string name="shp_export_height_orthometric">La Z es la altitud ortométrica (EGM08-REDNAP); el .prj no puede declararlo.</string>
+    <string name="shp_export_height_ellipsoidal">La Z es la altura elipsoidal; el .prj no puede declararlo.</string>
 
     <!-- S045: importar un ráster de cotas -->
     <string name="raster_import_title">Importar ráster</string>

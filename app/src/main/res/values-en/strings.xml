@@ -1832,6 +1832,36 @@
         <item quantity="other">%1$d points have no geometry because they have no easting and northing in the project system.</item>
     </plurals>
     <string name="gpkg_export_custom">The system carries its full definition because it has no recognised code.</string>
+    <string name="shp_export_title">Export Shapefile</string>
+    <string name="shp_export_system">Coordinate system</string>
+    <string name="shp_export_system_project">Project (EPSG:%1$d)</string>
+    <string name="shp_export_system_geographic">Datum geographic (EPSG:%1$d)</string>
+    <string name="shp_export_system_fixed">Geographic (EPSG:%1$d)</string>
+    <string name="shp_export_units">Coordinates are in metres or degrees and attributes in metres and degrees, unrounded. Column names are shortened to 10 letters.</string>
+    <string name="shp_share_chooser">Share Shapefile</string>
+    <plurals name="shp_export_done">
+        <item quantity="one">%1$d point exported in EPSG:%2$d.</item>
+        <item quantity="other">%1$d points exported in EPSG:%2$d.</item>
+    </plurals>
+    <plurals name="shp_export_no_position">
+        <item quantity="one">%1$d point was written as an object without geometry because it has no Easting and Northing.</item>
+        <item quantity="other">%1$d points were written as objects without geometry because they have no Easting and Northing.</item>
+    </plurals>
+    <plurals name="shp_export_no_height">
+        <item quantity="one">%1$d vertex without height was written with Z = 0.</item>
+        <item quantity="other">%1$d vertices without height were written with Z = 0.</item>
+    </plurals>
+    <plurals name="shp_export_truncated">
+        <item quantity="one">%1$d text was cut to 254 bytes.</item>
+        <item quantity="other">%1$d texts were cut to 254 bytes.</item>
+    </plurals>
+    <plurals name="shp_export_renamed">
+        <item quantity="one">%1$d code attribute was renamed: %2$s.</item>
+        <item quantity="other">%1$d code attributes were renamed: %2$s.</item>
+    </plurals>
+    <string name="shp_export_no_prj">The coordinate system cannot be declared in a .prj: the Shapefiles have none.</string>
+    <string name="shp_export_height_orthometric">Z is the orthometric height (EGM08-REDNAP); the .prj cannot declare it.</string>
+    <string name="shp_export_height_ellipsoidal">Z is the ellipsoidal height; the .prj cannot declare it.</string>
 
     <!-- S045: import an elevation raster -->
     <string name="raster_import_title">Import raster</string>
