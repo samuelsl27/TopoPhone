@@ -6,7 +6,6 @@ import es.topophone.core.model.cad.CadDrawing
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.cad.CadExtent
-import es.topophone.core.model.cad.CadOrigin
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.cad.DesignLayer
 import es.topophone.core.model.cad.DesignLayerKind
@@ -25,6 +24,7 @@ import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.cad.CadChunkWriter
 import es.topophone.data.cad.CadDrawingImporter
 import es.topophone.data.cad.CadRepository
+import es.topophone.data.cad.FeatureSession
 import java.util.UUID
 import kotlin.math.max
 import kotlin.math.min
@@ -81,7 +81,7 @@ class GeoPackageImporter(
         crs: ProjectCrs,
         fileName: String,
         options: GpkgImportOptions,
-        session: GpkgSession,
+        session: FeatureSession,
         onProgress: (done: Long, total: Long) -> Unit = { _, _ -> },
     ): GpkgImportResult = withContext(Dispatchers.IO) {
         val job = currentCoroutineContext()
@@ -95,7 +95,7 @@ class GeoPackageImporter(
             unit = LinearUnit.METRE,
             useElevations = options.useElevations,
             hasElevations = options.useElevations,
-            origin = CadOrigin.GEOPACKAGE,
+            origin = session.origin,
         )
         var begun = false
         try {
@@ -159,7 +159,7 @@ class GeoPackageImporter(
         private val drawingId: String,
         private val crs: ProjectCrs,
         private val options: GpkgImportOptions,
-        private val session: GpkgSession,
+        private val session: FeatureSession,
         private val onProgress: (Long, Long) -> Unit,
         private val check: () -> Unit,
     ) {
@@ -197,6 +197,11 @@ class GeoPackageImporter(
                 session.forEachFeature(layer, box) { feature ->
                     check()
                     if (++done % PROGRESS_EVERY == 0L) onProgress(done, total)
+                    // La sesión ya sabe que este objeto no se importa (un registro borrado, un MultiPatch): se cuenta con su motivo.
+                    feature.ignored?.let { reason ->
+                        ignored.merge(reason, 1, Int::plus)
+                        return@forEachFeature
+                    }
                     // Sin índice espacial se leen todos los objetos, pero uno cuya envolvente no toca la zona se descarta sin convertirlo.
                     if (box != null && isOutside(feature.geometry, box)) return@forEachFeature
                     val name = nameOf(feature.values.getOrNull(nameIndex ?: -1), feature.fid)

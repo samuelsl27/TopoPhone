@@ -10,6 +10,7 @@ import es.topophone.core.model.cad.GpkgLayerKind
 import es.topophone.core.model.cad.GpkgValue
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.survey.LayerBox
+import es.topophone.data.cad.GpkgFeature
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayInputStream

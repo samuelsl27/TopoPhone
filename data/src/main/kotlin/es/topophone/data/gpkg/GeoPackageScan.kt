@@ -12,6 +12,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.ImportAreaFilter
 import es.topophone.core.survey.LayerBox
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.cad.FeatureSession
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
@@ -64,7 +65,7 @@ data class GpkgZoneCount(val inZone: Int, val ignored: Map<GpkgIgnoredReason, In
  * las geometrías de los candidatos del prefiltro y las pasa por el mismo [GpkgFeatureConverter] que la importación.
  */
 class GeoPackageScan(
-    private val session: GpkgSession,
+    private val session: FeatureSession,
     private val calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
     private val maxObjects: Int = ImportArea.MAX_OBJECTS,
 ) {

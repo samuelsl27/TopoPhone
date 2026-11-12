@@ -7,10 +7,13 @@ import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsCatalog
 import es.topophone.core.formats.gpkg.GpkgFileKind
 import es.topophone.core.formats.gpkg.GpkgProbe
+import es.topophone.core.model.cad.CadOrigin
 import es.topophone.core.model.cad.GpkgColumn
 import es.topophone.core.model.cad.GpkgLayerInfo
 import es.topophone.core.model.cad.GpkgValue
 import es.topophone.core.survey.LayerBox
+import es.topophone.data.cad.FeatureSession
+import es.topophone.data.cad.GpkgFeature
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -29,9 +32,6 @@ sealed interface GpkgOpenResult {
 
     data class Failed(val reason: GpkgOpenFailure) : GpkgOpenResult
 }
-
-/** Un objeto de una capa: su clave, su blob de geometría y sus atributos en el orden de [GpkgLayerInfo.columns] (S048/RF-17, RF-20). */
-class GpkgFeature(val fid: Long, val geometry: ByteArray?, val values: List<GpkgValue>)
 
 /**
  * Abre un GeoPackage para leerlo (S048/RF-1 a RF-7, RNF-T5). `SQLiteDatabase` solo abre rutas, así que el flujo del selector de
@@ -200,23 +200,25 @@ class GeoPackageReader(
 class GpkgSession internal constructor(
     private val db: SQLiteDatabase,
     private val file: File,
-    val layers: List<GpkgLayerInfo>,
+    override val layers: List<GpkgLayerInfo>,
     /** Tablas que no son capas con geometría (atributos, teselas, ajenas) y que no se importan (S048/RF-6). */
-    val leftOutTables: List<String>,
+    override val leftOutTables: List<String>,
     private val crsByTable: Map<String, GpkgCrs>,
     private val keyByTable: Map<String, String>,
-) : AutoCloseable {
+) : FeatureSession {
+
+    override val origin: CadOrigin get() = CadOrigin.GEOPACKAGE
 
     val isReadOnly: Boolean get() = db.isReadOnly
 
     /** El sistema de coordenadas que declara la capa, frente a los de la app (RF-8, RF-9). */
-    fun crs(layer: GpkgLayerInfo): GpkgCrs = crsByTable.getValue(layer.table)
+    override fun crs(layer: GpkgLayerInfo): GpkgCrs = crsByTable.getValue(layer.table)
 
     /**
      * Recorre los objetos de [layer], uno a uno y sin cargarlos todos. Con [box] y una capa con índice espacial, solo los objetos
      * cuya envolvente corta el recuadro (en el sistema de la capa); sin índice, todos: el prefiltro es de [GeoPackageScan].
      */
-    fun forEachFeature(layer: GpkgLayerInfo, box: LayerBox? = null, action: (GpkgFeature) -> Unit) {
+    override fun forEachFeature(layer: GpkgLayerInfo, box: LayerBox?, action: (GpkgFeature) -> Unit) {
         val key = GeoPackageReader.quote(keyByTable.getValue(layer.table))
         val table = GeoPackageReader.quote(layer.table)
         val columns = layer.columns.joinToString("") { ", ${GeoPackageReader.quote(it.name)}" }
@@ -253,7 +255,7 @@ class GpkgSession internal constructor(
      * Recorre la clave y los primeros 40 bytes de la geometría de cada objeto —la cabecera con su envolvente—, sin leer el resto del
      * blob (S048/RF-13). [head] es null si la geometría es NULL.
      */
-    fun forEachHead(layer: GpkgLayerInfo, action: (fid: Long, head: ByteArray?) -> Unit) {
+    override fun forEachHead(layer: GpkgLayerInfo, action: (fid: Long, head: ByteArray?) -> Unit) {
         val key = GeoPackageReader.quote(keyByTable.getValue(layer.table))
         val sql = "SELECT $key, substr(${GeoPackageReader.quote(
             layer.geometryColumn,
@@ -267,7 +269,7 @@ class GpkgSession internal constructor(
      * Recorre las envolventes del índice espacial de la capa, sin tocar las geometrías. Devuelve false si no hay índice o este SQLite no
      * lo puede consultar, y entonces no se ha llamado a [action]. El R-tree guarda coordenadas de 32 bits redondeadas hacia fuera.
      */
-    fun forEachIndexRow(
+    override fun forEachIndexRow(
         layer: GpkgLayerInfo,
         action: (fid: Long, minX: Double, maxX: Double, minY: Double, maxY: Double) -> Unit,
     ): Boolean {
@@ -285,7 +287,7 @@ class GpkgSession internal constructor(
     }
 
     /** Las geometrías completas de esos objetos, de [BATCH] en [BATCH]. [geometry] es null si es NULL. */
-    fun forEachGeometry(layer: GpkgLayerInfo, ids: LongArray, action: (fid: Long, geometry: ByteArray?) -> Unit) {
+    override fun forEachGeometry(layer: GpkgLayerInfo, ids: LongArray, action: (fid: Long, geometry: ByteArray?) -> Unit) {
         val key = GeoPackageReader.quote(keyByTable.getValue(layer.table))
         val select = "SELECT $key, ${GeoPackageReader.quote(
             layer.geometryColumn,

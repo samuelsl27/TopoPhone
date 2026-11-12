@@ -18,7 +18,7 @@
       Hecho cuando: `DbfReaderTest` y `ShpEncodingTest` en verde con y sin `.cpg`, con tildes y eñes, con un `.cpg` desconocido y con un `.dbf` corto.
 - [x] T8. `core:formats`: `PrjReader` y `ShpCrsCatalog` (autoridad, estructura, WGS 84, no disponible y sin `.prj`) y el nombre en `GpkgCrs.Unavailable`. (RF-8, RF-9)
       Hecho cuando: `PrjReaderTest` y `ShpCrsCatalogTest` en verde con el WKT de ESRI y el de OGC de cada `ProjectCrs` contra pyproj, y con pies, otro huso y otra proyección como no disponibles.
-- [ ] T9. `data`: `FeatureSession` extraída de `GpkgSession`, `GpkgFeature.deleted`, y `GeoPackageImporter` y `GeoPackageScan` sobre la interfaz con el origen de la sesión. (RF-16, RF-26)
+- [x] T9. `data`: `FeatureSession` extraída de `GpkgSession`, `GpkgFeature.deleted`, y `GeoPackageImporter` y `GeoPackageScan` sobre la interfaz con el origen de la sesión. (RF-16, RF-26)
       Hecho cuando: los tests de S048 (`GeoPackageReaderTest`, `GeoPackageScanTest`, `GeoPackageImporterTest`, `GpkgBackupTest`) siguen en verde sin cambios y un test del importador cuenta un objeto `deleted` como ignorado.
 - [ ] T10. `data`: `ShapefileReader` (ZIP o ficheros sueltos a una carpeta temporal de la caché, límites por bytes leídos, espacio libre, zip-slip, limpieza) y la inyección en `DataModule`. (RF-1 a RF-7, RF-29, RF-30)
       Hecho cuando: `ShapefileReaderTest` en verde con los ZIP y sueltos de `tools`, el tamaño declarado falso, un nombre de entrada con `..`, un ZIP cancelado a mitad, y sin dejar el temporal.
