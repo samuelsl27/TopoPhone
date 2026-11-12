@@ -13,6 +13,7 @@ import es.topophone.data.gpkg.GeoPackageImporter
 import es.topophone.data.gpkg.GeoPackageReader
 import es.topophone.data.map.MapViewportRepository
 import es.topophone.data.project.ProjectRepository
+import es.topophone.data.shp.ShapefileReader
 import es.topophone.receiver.session.ReceiverSession
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -48,6 +49,31 @@ object GpkgTestFiles {
     }
 }
 
+/** Los Shapefiles de ejemplo de `fixtures/formatos/shp/` como fuentes de la importación, sin pasar por el selector de ficheros (S030). */
+object ShpTestFiles {
+    private val root: File by lazy {
+        generateSequence(File("").absoluteFile) { it.parentFile }
+            .first { File(it, "settings.gradle.kts").exists() && File(it, "fixtures").isDirectory }
+    }
+
+    fun file(path: String): File = File(root, "fixtures/formatos/shp/$path")
+
+    /** Las filas de un CSV de lo esperado, sin los comentarios, como mapas columna → valor (sin comillas ni saltos dentro de las celdas). */
+    fun expected(name: String): List<Map<String, String>> {
+        val lines = file(name).readText().lines().filter { it.isNotEmpty() && !it.startsWith("#") }
+        val header = lines.first().split(",")
+        return lines.drop(1).map { line -> header.zip(line.split(",")).toMap() }
+    }
+
+    /** Una fuente que sirve los bytes del fichero cada vez que se abre; [declaredSize] puede mentir o ser null. */
+    fun source(path: String, declaredSize: Long? = file(path).length()): ImportSource {
+        val data = file(path).readBytes()
+        return ImportSource(file(path).name, declaredSize) { ByteArrayInputStream(data) }
+    }
+
+    fun sources(vararg paths: String): List<ImportSource> = paths.map { source(it) }
+}
+
 /** Un receptor sin conexión, que no da posición. */
 fun idleReceiver(): ReceiverSession =
     ReceiverSession(CoroutineScope(SupervisorJob() + Dispatchers.IO), NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
@@ -76,6 +102,7 @@ fun gpkgViewModel(
     log: AppLog = AppLog.NONE,
 ): GpkgImportViewModel = GpkgImportViewModel(
     GeoPackageReader(cache),
+    ShapefileReader(File(cache, "shp")),
     GeoPackageImporter(cad),
     projects,
     ProjectCenterProvider(FakePointRepository(), viewports),

@@ -9,6 +9,7 @@ import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsCatalog
 import es.topophone.core.formats.gpkg.GpkgFileKind
+import es.topophone.core.formats.shp.ShpEncoding
 import es.topophone.core.model.cad.CadExtent
 import es.topophone.core.model.cad.GpkgColumn
 import es.topophone.core.model.cad.GpkgImportSummary
@@ -31,6 +32,7 @@ import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResolver
 import es.topophone.core.survey.CentralPointResult
+import es.topophone.data.cad.FeatureSession
 import es.topophone.data.gpkg.GeoPackageImporter
 import es.topophone.data.gpkg.GeoPackageReader
 import es.topophone.data.gpkg.GeoPackageScan
@@ -41,10 +43,14 @@ import es.topophone.data.gpkg.GpkgLayerChoice
 import es.topophone.data.gpkg.GpkgLayerIndex
 import es.topophone.data.gpkg.GpkgOpenFailure
 import es.topophone.data.gpkg.GpkgOpenResult
-import es.topophone.data.gpkg.GpkgSession
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.project.SaveResult
+import es.topophone.data.shp.ShapefileReader
+import es.topophone.data.shp.ShapefileSession
+import es.topophone.data.shp.ShpInput
+import es.topophone.data.shp.ShpOpenFailure
+import es.topophone.data.shp.ShpOpenResult
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import java.io.IOException
@@ -62,8 +68,26 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Por qué no se abre la pantalla de importación del GeoPackage (S048/RF-2 a RF-4). */
-enum class GpkgFileProblem { EMPTY, NOT_GEOPACKAGE, DAMAGED, NO_LAYERS, TOO_BIG, NO_SPACE, UNREADABLE }
+/**
+ * Por qué no se abre la pantalla de importación del GeoPackage (S048/RF-2 a RF-4) o del Shapefile (S030/RF-3, RF-4, RF-6): un fichero que no
+ * es de ese formato, uno vacío o dañado, sin capas, demasiado grande o sin espacio; y, solo de Shapefile, ficheros sin su `.shp` o un ZIP
+ * mezclado con otros ficheros.
+ */
+enum class GpkgFileProblem {
+    EMPTY,
+    NOT_GEOPACKAGE,
+    DAMAGED,
+    NO_LAYERS,
+    TOO_BIG,
+    NO_SPACE,
+    UNREADABLE,
+    NOT_SHAPEFILE,
+    NO_SHP,
+    MIXED_SELECTION,
+}
+
+/** De qué formato es lo que se importa: la pantalla es la misma y cambian los textos, la apertura y lo que se ve de cada capa (S030, D3 del plan). */
+enum class ImportFormat { GEOPACKAGE, SHAPEFILE }
 
 /** En qué punto está la importación de un GeoPackage. */
 enum class GpkgImportStage { LOADING, PROBLEM, CONFIG, IMPORTING, RESULT }
@@ -86,6 +110,12 @@ data class GpkgLayerRow(
     val distanceKm: Double? = null,
     /** La columna con la que se nombra cada objeto (RF-21); null es «Sin nombre»: se nombra por su número en la capa (RF-22). */
     val nameField: String? = null,
+    /** La codificación con la que se lee el `.dbf` de una capa de Shapefile (S030/RF-18); null si no tiene `.dbf` o es de otro formato. */
+    val encoding: ShpEncoding? = null,
+    /** El `.cpg` declara una codificación que no se conoce y se lee como Windows-1252 (S030/RF-18). */
+    val cpgUnknown: Boolean = false,
+    /** Cuántos objetos del `.shp` no tienen registro en un `.dbf` más corto (S030/RF-20). */
+    val withoutRecords: Int = 0,
 ) {
     /** El sistema con el que se importa: el elegido, o el del fichero si es uno de la app; null mientras falte (RF-9). */
     val effective: GpkgCrs.Supported? get() = chosen?.let(GpkgCrsCatalog::supported) ?: (crs as? GpkgCrs.Supported)
@@ -94,6 +124,7 @@ data class GpkgLayerRow(
 /** Lo que muestra la pantalla de importar un GeoPackage (S048). */
 data class GpkgImportUiState(
     val stage: GpkgImportStage = GpkgImportStage.LOADING,
+    val format: ImportFormat = ImportFormat.GEOPACKAGE,
     val fileName: String = "",
     val problem: GpkgFileProblem? = null,
     val projectName: String = "",
@@ -162,6 +193,7 @@ data class GpkgZoneUi(val counting: Boolean = false, val objects: Int = 0, val e
 @HiltViewModel
 class GpkgImportViewModel @Inject constructor(
     private val reader: GeoPackageReader,
+    private val shapefileReader: ShapefileReader,
     private val importer: GeoPackageImporter,
     private val projects: ProjectRepository,
     private val centers: ProjectCenterProvider,
@@ -174,7 +206,9 @@ class GpkgImportViewModel @Inject constructor(
     val state: StateFlow<GpkgImportUiState> = mutable.asStateFlow()
 
     private var started = false
-    private var session: GpkgSession? = null
+    private var session: FeatureSession? = null
+    private var shapefile: ShapefileSession? = null
+    private var format = ImportFormat.GEOPACKAGE
     private var project: Project? = null
     private var center: CentralPoint? = null
     private var scan: GeoPackageScan? = null
@@ -192,9 +226,20 @@ class GpkgImportViewModel @Inject constructor(
     fun start(projectId: String, source: ImportSource) {
         if (started) return
         started = true
+        format = ImportFormat.GEOPACKAGE
         mutable.value = GpkgImportUiState(fileName = source.name)
         viewModelScope.launch { mapPreferences.settings.collect { settings -> mutable.update { it.copy(mapSettings = settings) } } }
         viewModelScope.launch(io) { load(projectId, source) }
+    }
+
+    /** Prepara la importación de un Shapefile —un ZIP o varios ficheros sueltos— en el proyecto [projectId]; solo la primera vez (S030/RF-1). */
+    fun startShapefile(projectId: String, sources: List<ImportSource>) {
+        if (started) return
+        started = true
+        format = ImportFormat.SHAPEFILE
+        mutable.value = GpkgImportUiState(format = ImportFormat.SHAPEFILE, fileName = sources.firstOrNull()?.name.orEmpty())
+        viewModelScope.launch { mapPreferences.settings.collect { settings -> mutable.update { it.copy(mapSettings = settings) } } }
+        viewModelScope.launch(io) { loadShapefile(projectId, sources) }
     }
 
     private fun problem(problem: GpkgFileProblem) {
@@ -218,41 +263,115 @@ class GpkgImportViewModel @Inject constructor(
                 log.info(LogCategory.APP, "GeoPackage no abierto: ${result.reason.name.lowercase()}")
                 problem(result.reason.toProblem())
             }
-            is GpkgOpenResult.Opened -> {
-                val opened = result.session
-                session = opened
-                scan = GeoPackageScan(opened, maxObjects = maxObjects)
-                center = centers.center(project) // S006/RF-37: un único cálculo
-                mutable.update {
-                    GpkgImportUiState(
-                        stage = GpkgImportStage.CONFIG,
-                        fileName = source.name,
-                        projectName = project.name,
-                        projectCrs = project.crs,
-                        layers = opened.layers.map { GpkgLayerRow(it, crs = opened.crs(it), nameField = suggestNameField(it.columns)) },
-                        leftOutTables = opened.leftOutTables,
-                        scanning = true,
-                        // El recuento está pendiente desde el principio: no hay un instante en que se pueda importar sin contar.
-                        zone = GpkgZoneUi(counting = true),
-                        hasCenter = center != null,
-                        centralPoint = project.centralPoint,
-                        linearUnit = project.linearUnit,
-                        angularUnit = project.angularUnit,
-                        mapSettings = it.mapSettings,
-                    )
-                }
-                index(opened)
+            is GpkgOpenResult.Opened -> configure(result.session, project, source.name)
+        }
+    }
+
+    private suspend fun loadShapefile(projectId: String, sources: List<ImportSource>) {
+        val project = projects.project(projectId) ?: return problem(GpkgFileProblem.UNREADABLE)
+        this.project = project
+        val inputs = sources.map { source ->
+            ShpInput(source.name, source.sizeBytes) {
+                source.open()
+                    ?: throw IOException("No se puede abrir el fichero")
+            }
+        }
+        val result = try {
+            shapefileReader.open(inputs)
+        } catch (_: IOException) {
+            return problem(GpkgFileProblem.UNREADABLE)
+        } catch (_: SecurityException) {
+            return problem(GpkgFileProblem.UNREADABLE)
+        }
+        when (result) {
+            is ShpOpenResult.Failed -> {
+                log.info(LogCategory.APP, "Shapefile no abierto: ${result.reason.name.lowercase()}")
+                problem(result.reason.toProblem())
+            }
+            is ShpOpenResult.Opened -> {
+                shapefile = result.session
+                configure(result.session, project, result.session.drawingName)
             }
         }
     }
 
+    /** La sesión ya está abierta: la lista de capas con su sistema y el recuento pendiente, y se leen las envolventes (RF-5, RF-8, RF-12). */
+    private suspend fun configure(opened: FeatureSession, project: Project, fileName: String) {
+        session = opened
+        scan = GeoPackageScan(opened, maxObjects = maxObjects)
+        center = centers.center(project) // S006/RF-37: un único cálculo
+        mutable.update {
+            GpkgImportUiState(
+                stage = GpkgImportStage.CONFIG,
+                format = format,
+                fileName = fileName,
+                projectName = project.name,
+                projectCrs = project.crs,
+                layers = opened.layers.map { row(opened, it) },
+                leftOutTables = opened.leftOutTables,
+                scanning = true,
+                // El recuento está pendiente desde el principio: no hay un instante en que se pueda importar sin contar.
+                zone = GpkgZoneUi(counting = true),
+                hasCenter = center != null,
+                centralPoint = project.centralPoint,
+                linearUnit = project.linearUnit,
+                angularUnit = project.angularUnit,
+                mapSettings = it.mapSettings,
+            )
+        }
+        index(opened)
+    }
+
+    private fun row(opened: FeatureSession, info: GpkgLayerInfo): GpkgLayerRow {
+        val files = shapefile
+        return GpkgLayerRow(
+            info,
+            crs = opened.crs(info),
+            nameField = suggestNameField(info.columns),
+            encoding = files?.encoding(info),
+            cpgUnknown = files?.cpgUnknown(info) ?: false,
+            withoutRecords = files?.objectsWithoutRecord(info) ?: 0,
+        )
+    }
+
+    /** El usuario elige la codificación con la que se lee el `.dbf` de la capa [table]; se releen sus columnas (S030/RF-18). */
+    fun setEncoding(table: String, encoding: ShpEncoding) {
+        val files = shapefile ?: return
+        val current = mutable.value.layers.firstOrNull { it.info.table == table }?.info ?: return
+        val info = files.withEncoding(current, encoding)
+        mutable.update { state ->
+            state.copy(
+                layers = state.layers.map { row ->
+                    if (row.info.table != table) {
+                        row
+                    } else {
+                        // Si el campo de nombre ya no existe con la codificación nueva (cambió el nombre de la columna), se propone de nuevo.
+                        val keep = row.nameField?.takeIf { field -> info.columns.any { it.name == field } }
+                        row.copy(info = info, encoding = encoding, nameField = keep ?: suggestNameField(info.columns))
+                    }
+                },
+            )
+        }
+    }
+
     /** Las envolventes de cada capa, una vez; con ellas la extensión y la distancia se recalculan al cambiar el sistema (RF-12). */
-    private suspend fun index(opened: GpkgSession) {
+    private suspend fun index(opened: FeatureSession) {
         val scan = scan ?: return
         for (layer in opened.layers) indexes[layer.table] = scan.index(layer)
         recompute()
         mutable.update { it.copy(scanning = false) }
         recount()
+    }
+
+    private fun ShpOpenFailure.toProblem() = when (this) {
+        ShpOpenFailure.EMPTY -> GpkgFileProblem.EMPTY
+        ShpOpenFailure.NOT_SHAPEFILE -> GpkgFileProblem.NOT_SHAPEFILE
+        ShpOpenFailure.NO_SHP -> GpkgFileProblem.NO_SHP
+        ShpOpenFailure.MIXED_SELECTION -> GpkgFileProblem.MIXED_SELECTION
+        ShpOpenFailure.DAMAGED -> GpkgFileProblem.DAMAGED
+        ShpOpenFailure.TOO_LARGE -> GpkgFileProblem.TOO_BIG
+        ShpOpenFailure.NO_SPACE -> GpkgFileProblem.NO_SPACE
+        ShpOpenFailure.READ_ERROR -> GpkgFileProblem.UNREADABLE
     }
 
     private fun GpkgOpenFailure.toProblem() = when (this) {
@@ -329,12 +448,12 @@ class GpkgImportViewModel @Inject constructor(
                         }
                     }
                     is GpkgImportResult.Failed -> {
-                        log.error(LogCategory.APP, "Importación de GeoPackage fallida: ${result.reason.name.lowercase()}")
+                        log.error(LogCategory.APP, "Importación de ${formatName()} fallida: ${result.reason.name.lowercase()}")
                         mutable.update { it.copy(stage = GpkgImportStage.CONFIG, failure = result.reason) }
                     }
                 }
             } catch (cancelled: CancellationException) {
-                log.info(LogCategory.APP, "Importación de GeoPackage cancelada: no se ha guardado nada")
+                log.info(LogCategory.APP, "Importación de ${formatName()} cancelada: no se ha guardado nada")
                 mutable.update { it.copy(stage = GpkgImportStage.CONFIG, cancelled = true) }
                 throw cancelled
             }
@@ -348,7 +467,9 @@ class GpkgImportViewModel @Inject constructor(
 
     /** El log no lleva nombres de capas ni de objetos ni coordenadas, solo los recuentos (RF-28). */
     private fun importedMessage(summary: GpkgImportSummary) =
-        "GeoPackage importado: ${summary.importedTotal} objetos, ${summary.ignoredTotal} ignorados, ${summary.layers.size} capas"
+        "${formatName()} importado: ${summary.importedTotal} objetos, ${summary.ignoredTotal} ignorados, ${summary.layers.size} capas"
+
+    private fun formatName() = if (format == ImportFormat.SHAPEFILE) "Shapefile" else "GeoPackage"
 
     /** Escribe el resumen de la importación como texto (RF-25); false si no se pudo escribir. */
     suspend fun writeSummary(out: OutputStream, labels: GpkgSummaryLabels): Boolean = withContext(io) {
@@ -364,6 +485,7 @@ class GpkgImportViewModel @Inject constructor(
     private fun closeSession() {
         session?.close()
         session = null
+        shapefile = null
     }
 
     /** «Todo el contenido» o un radio alrededor del centro del proyecto (RF-13). */

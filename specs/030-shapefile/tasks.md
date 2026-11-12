@@ -28,7 +28,7 @@
       Hecho cuando: `ShapefileImporterTest` y `ShapefileScanTest` en verde con los valores contra pyproj y el resumen por capa.
 - [x] T13. `data`: las copias de seguridad y los paquetes con un dibujo de Shapefile, y el log sin nombres ni coordenadas. (RF-27, RF-28)
       Hecho cuando: `ShpBackupTest` en verde (copia, restauración, paquete y borrado sin tocar los puntos del proyecto).
-- [ ] T14. `app`: `GpkgImportViewModel` y `GpkgImportScreen` por `ImportFormat` (varias fuentes, problemas de fichero, lista de capas, aviso de huérfanos y textos de Shapefile en es y en). (RF-1 a RF-7)
+- [x] T14. `app`: `GpkgImportViewModel` y `GpkgImportScreen` por `ImportFormat` (varias fuentes, problemas de fichero, lista de capas, aviso de huérfanos y textos de Shapefile en es y en). (RF-1 a RF-7)
       Hecho cuando: `ShpImportViewModelTest` y `ShpImportScreenTest` en verde para esos casos y los de GeoPackage sin cambios.
 - [ ] T15. `app`: «Importar Shapefile» en los tres menús, el selector de varios ficheros, `SurveyPage.ImportShp` y su destino de navegación. (RF-1, RF-3, RF-4)
       Hecho cuando: `ShpImportEntriesTest` en verde con los tres menús y la navegación con varios `Uri`.

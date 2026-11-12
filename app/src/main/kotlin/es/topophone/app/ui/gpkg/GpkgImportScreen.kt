@@ -159,7 +159,7 @@ fun GpkgImportScreen(
         return
     }
     SectionScaffold(
-        title = stringResource(R.string.gpkg_import_title),
+        title = stringResource(if (state.format == ImportFormat.SHAPEFILE) R.string.shp_import_title else R.string.gpkg_import_title),
         themeState = themeState,
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
@@ -178,7 +178,7 @@ fun GpkgImportScreen(
             ) {
                 Text(state.fileName, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    problemText(state.problem),
+                    problemText(state.problem, state.format),
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.testTag(GPKG_PROBLEM_TAG),
                 ) // RF-3, RF-4
@@ -215,10 +215,14 @@ fun GpkgImportScreen(
 }
 
 @Composable
-private fun problemText(problem: GpkgFileProblem?): String = when (problem) {
+private fun problemText(problem: GpkgFileProblem?, format: ImportFormat): String = when (problem) {
     GpkgFileProblem.EMPTY -> stringResource(R.string.gpkg_problem_empty)
     GpkgFileProblem.NOT_GEOPACKAGE -> stringResource(R.string.gpkg_problem_not_gpkg)
-    GpkgFileProblem.DAMAGED -> stringResource(R.string.gpkg_problem_damaged)
+    GpkgFileProblem.NOT_SHAPEFILE -> stringResource(R.string.shp_problem_not_shapefile)
+    GpkgFileProblem.NO_SHP -> stringResource(R.string.shp_problem_no_shp)
+    GpkgFileProblem.MIXED_SELECTION -> stringResource(R.string.shp_problem_mixed)
+    GpkgFileProblem.DAMAGED ->
+        stringResource(if (format == ImportFormat.SHAPEFILE) R.string.shp_problem_damaged else R.string.gpkg_problem_damaged)
     GpkgFileProblem.NO_LAYERS -> stringResource(R.string.gpkg_problem_no_layers)
     GpkgFileProblem.TOO_BIG -> stringResource(R.string.gpkg_problem_too_big)
     GpkgFileProblem.NO_SPACE -> stringResource(R.string.gpkg_problem_no_space)
@@ -233,7 +237,7 @@ private fun ConfigSections(state: GpkgImportUiState, actions: GpkgImportActions,
     if (state.leftOutTables.isNotEmpty()) {
         Text(
             pluralStringResource(
-                R.plurals.gpkg_left_out,
+                if (state.format == ImportFormat.SHAPEFILE) R.plurals.shp_left_out else R.plurals.gpkg_left_out,
                 state.leftOutTables.size,
                 state.leftOutTables.size,
                 state.leftOutTables.joinToString(", "),

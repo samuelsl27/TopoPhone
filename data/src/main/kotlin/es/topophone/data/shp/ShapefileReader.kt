@@ -77,6 +77,7 @@ class ShapefileReader(
 
     /** Copia [inputs] a una carpeta temporal y las reparte en capas. Cancelar la corrutina borra la carpeta. */
     suspend fun extract(inputs: List<ShpInput>): ShpExtractResult = withContext(Dispatchers.IO) {
+        cacheDir.mkdirs() // sin la carpeta, el espacio libre sale a cero
         val directory = File(cacheDir, "$PREFIX${newId()}")
         try {
             val picks = inputs.map { pick(it) }
