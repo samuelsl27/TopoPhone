@@ -230,8 +230,15 @@ private fun problemText(problem: GpkgFileProblem?, format: ImportFormat): String
     GpkgFileProblem.NOT_SHAPEFILE -> stringResource(R.string.shp_problem_not_shapefile)
     GpkgFileProblem.NO_SHP -> stringResource(R.string.shp_problem_no_shp)
     GpkgFileProblem.MIXED_SELECTION -> stringResource(R.string.shp_problem_mixed)
-    GpkgFileProblem.DAMAGED ->
-        stringResource(if (format == ImportFormat.SHAPEFILE) R.string.shp_problem_damaged else R.string.gpkg_problem_damaged)
+    GpkgFileProblem.NOT_KML -> stringResource(R.string.kml_problem_not_kml)
+    GpkgFileProblem.NO_PLACEMARKS -> stringResource(R.string.kml_problem_no_placemarks)
+    GpkgFileProblem.DAMAGED -> stringResource(
+        when (format) {
+            ImportFormat.SHAPEFILE -> R.string.shp_problem_damaged
+            ImportFormat.KML -> R.string.kml_problem_damaged
+            ImportFormat.GEOPACKAGE -> R.string.gpkg_problem_damaged
+        },
+    )
     GpkgFileProblem.NO_LAYERS -> stringResource(R.string.gpkg_problem_no_layers)
     GpkgFileProblem.TOO_BIG -> stringResource(R.string.gpkg_problem_too_big)
     GpkgFileProblem.NO_SPACE -> stringResource(R.string.gpkg_problem_no_space)

@@ -1433,6 +1433,9 @@
     <string name="shp_problem_no_shp">The .shp file is missing. Choose the .shp together with its files, or the whole ZIP.</string>
     <string name="shp_problem_mixed">Choose a single ZIP or several loose files, but not both at once.</string>
     <string name="shp_problem_damaged">The ZIP is damaged and cannot be read.</string>
+    <string name="kml_problem_not_kml">The file is not a KML or a KMZ.</string>
+    <string name="kml_problem_no_placemarks">The file has no placemark with a geometry to import.</string>
+    <string name="kml_problem_damaged">The KML or KMZ is damaged and cannot be read.</string>
     <plurals name="shp_left_out">
         <item quantity="one">%1$d file without its .shp is left out: %2$s.</item>
         <item quantity="other">%1$d files without their .shp are left out: %2$s.</item>

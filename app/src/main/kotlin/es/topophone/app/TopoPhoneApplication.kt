@@ -7,6 +7,7 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.data.cad.CadRepository
 import es.topophone.data.gpkg.GeoPackageReader
+import es.topophone.data.kml.KmlReader
 import es.topophone.data.photo.PhotoRepository
 import es.topophone.data.shp.ShapefileReader
 import javax.inject.Inject
@@ -27,6 +28,8 @@ class TopoPhoneApplication : Application() {
 
     @Inject lateinit var shapefileReader: ShapefileReader
 
+    @Inject lateinit var kmlReader: KmlReader
+
     @Inject lateinit var photos: PhotoRepository
 
     override fun onCreate() {
@@ -40,6 +43,8 @@ class TopoPhoneApplication : Application() {
         CoroutineScope(Dispatchers.IO).launch {
             runCatching { shapefileReader.cleanUpStale() }
         } // S030/RF-30: carpetas de una importación interrumpida
+        // S031/RF-17: la carpeta temporal de un KML o KMZ de una importación interrumpida tampoco se queda en la caché.
+        CoroutineScope(Dispatchers.IO).launch { runCatching { kmlReader.cleanUpStale() } }
         // S017b/A4: los ficheros de fotos sin fila y las fotos en espera de una medida que no acabó (la app se cerró) se borran.
         CoroutineScope(Dispatchers.IO).launch { runCatching { photos.sweep() } }
         // Al borrar un punto, un proyecto o una foto sus ficheros se quedan sin fila: se barren sin tocar lo que espera a su punto ni lo recién movido.

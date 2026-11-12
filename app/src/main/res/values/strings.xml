@@ -1445,6 +1445,9 @@
     <string name="shp_problem_no_shp">Falta el fichero .shp. Elige también el .shp junto a sus ficheros, o el ZIP entero.</string>
     <string name="shp_problem_mixed">Elige un solo ZIP o varios ficheros sueltos, pero no los dos a la vez.</string>
     <string name="shp_problem_damaged">El ZIP está dañado y no se puede leer.</string>
+    <string name="kml_problem_not_kml">El fichero no es un KML ni un KMZ.</string>
+    <string name="kml_problem_no_placemarks">El fichero no tiene ninguna marca con geometría que importar.</string>
+    <string name="kml_problem_damaged">El KML o el KMZ está dañado y no se puede leer.</string>
     <plurals name="shp_left_out">
         <item quantity="one">Se deja fuera %1$d fichero sin su .shp: %2$s.</item>
         <item quantity="other">Se dejan fuera %1$d ficheros sin su .shp: %2$s.</item>

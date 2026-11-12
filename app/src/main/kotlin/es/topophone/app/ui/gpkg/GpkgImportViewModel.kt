@@ -25,6 +25,7 @@ import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CentralPoint
+import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
@@ -43,6 +44,11 @@ import es.topophone.data.gpkg.GpkgLayerChoice
 import es.topophone.data.gpkg.GpkgLayerIndex
 import es.topophone.data.gpkg.GpkgOpenFailure
 import es.topophone.data.gpkg.GpkgOpenResult
+import es.topophone.data.kml.KmlInput
+import es.topophone.data.kml.KmlLayerSuffixes
+import es.topophone.data.kml.KmlOpenFailure
+import es.topophone.data.kml.KmlOpenResult
+import es.topophone.data.kml.KmlReader
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.project.SaveResult
@@ -69,9 +75,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Por qué no se abre la pantalla de importación del GeoPackage (S048/RF-2 a RF-4) o del Shapefile (S030/RF-3, RF-4, RF-6): un fichero que no
- * es de ese formato, uno vacío o dañado, sin capas, demasiado grande o sin espacio; y, solo de Shapefile, ficheros sin su `.shp` o un ZIP
- * mezclado con otros ficheros.
+ * Por qué no se abre la pantalla de importación del GeoPackage (S048/RF-2 a RF-4), del Shapefile (S030/RF-3, RF-4, RF-6) o del KML (S031/RF-3,
+ * RF-4): un fichero que no es de ese formato, uno vacío o dañado, sin capas, demasiado grande o sin espacio; y, solo de Shapefile, ficheros
+ * sin su `.shp` o un ZIP mezclado con otros ficheros, y, solo de KML, uno sin ninguna marca con geometría.
  */
 enum class GpkgFileProblem {
     EMPTY,
@@ -84,10 +90,12 @@ enum class GpkgFileProblem {
     NOT_SHAPEFILE,
     NO_SHP,
     MIXED_SELECTION,
+    NOT_KML,
+    NO_PLACEMARKS,
 }
 
 /** De qué formato es lo que se importa: la pantalla es la misma y cambian los textos, la apertura y lo que se ve de cada capa (S030, D3 del plan). */
-enum class ImportFormat { GEOPACKAGE, SHAPEFILE }
+enum class ImportFormat { GEOPACKAGE, SHAPEFILE, KML }
 
 /** En qué punto está la importación de un GeoPackage. */
 enum class GpkgImportStage { LOADING, PROBLEM, CONFIG, IMPORTING, RESULT }
@@ -150,8 +158,10 @@ data class GpkgImportUiState(
     val linearUnit: LinearUnit = LinearUnit.METRE,
     val angularUnit: AngularUnit = AngularUnit.DMS,
     val mapSettings: MapSettings = MapSettings(),
-    /** ¿Usar las cotas de la capa? Sí por defecto (RF-19). */
+    /** ¿Usar las cotas de la capa? Sí por defecto (RF-19); en un KML, no por defecto (S031/RF-13). */
     val useElevations: Boolean = true,
+    /** Se pregunta por las cotas: siempre, salvo en un KML sin altitudes absolutas (S031/RF-13). */
+    val askElevations: Boolean = true,
     /** Los objetos leídos y los que hay en total durante la importación (RF-29). */
     val importDone: Long = 0,
     val importTotal: Long = 0,
@@ -194,6 +204,7 @@ data class GpkgZoneUi(val counting: Boolean = false, val objects: Int = 0, val e
 class GpkgImportViewModel @Inject constructor(
     private val reader: GeoPackageReader,
     private val shapefileReader: ShapefileReader,
+    private val kmlReader: KmlReader,
     private val importer: GeoPackageImporter,
     private val projects: ProjectRepository,
     private val centers: ProjectCenterProvider,
@@ -240,6 +251,19 @@ class GpkgImportViewModel @Inject constructor(
         mutable.value = GpkgImportUiState(format = ImportFormat.SHAPEFILE, fileName = sources.firstOrNull()?.name.orEmpty())
         viewModelScope.launch { mapPreferences.settings.collect { settings -> mutable.update { it.copy(mapSettings = settings) } } }
         viewModelScope.launch(io) { loadShapefile(projectId, sources) }
+    }
+
+    /**
+     * Prepara la importación de un KML o KMZ en el proyecto [projectId]; solo la primera vez (S031/RF-1). [suffixes] distinguen las dos capas
+     * de una carpeta que tiene puntos y líneas con el texto de la interfaz (RF-5).
+     */
+    fun startKml(projectId: String, source: ImportSource, suffixes: KmlLayerSuffixes = KmlLayerSuffixes()) {
+        if (started) return
+        started = true
+        format = ImportFormat.KML
+        mutable.value = GpkgImportUiState(format = ImportFormat.KML, fileName = source.name, useElevations = false)
+        viewModelScope.launch { mapPreferences.settings.collect { settings -> mutable.update { it.copy(mapSettings = settings) } } }
+        viewModelScope.launch(io) { loadKml(projectId, source, suffixes) }
     }
 
     private fun problem(problem: GpkgFileProblem) {
@@ -295,6 +319,28 @@ class GpkgImportViewModel @Inject constructor(
         }
     }
 
+    private suspend fun loadKml(projectId: String, source: ImportSource, suffixes: KmlLayerSuffixes) {
+        val project = projects.project(projectId) ?: return problem(GpkgFileProblem.UNREADABLE)
+        this.project = project
+        // Un KML va en WGS84, que se toma como el datum de los cálculos del proyecto: ED50 se calcula desde ETRS89 (S031/RF-7).
+        val datum = if (project.crs.datum == GeodeticDatum.REGCAN95) GeodeticDatum.REGCAN95 else GeodeticDatum.ETRS89
+        val input = KmlInput(source.name, source.sizeBytes) { source.open() ?: throw IOException("No se puede abrir el fichero") }
+        val result = try {
+            kmlReader.open(input, datum, suffixes)
+        } catch (_: IOException) {
+            return problem(GpkgFileProblem.UNREADABLE)
+        } catch (_: SecurityException) {
+            return problem(GpkgFileProblem.UNREADABLE)
+        }
+        when (result) {
+            is KmlOpenResult.Failed -> {
+                log.info(LogCategory.APP, "KML no abierto: ${result.reason.name.lowercase()}")
+                problem(result.reason.toProblem())
+            }
+            is KmlOpenResult.Opened -> configure(result.session, project, result.session.drawingName)
+        }
+    }
+
     /** La sesión ya está abierta: la lista de capas con su sistema y el recuento pendiente, y se leen las envolventes (RF-5, RF-8, RF-12). */
     private suspend fun configure(opened: FeatureSession, project: Project, fileName: String) {
         session = opened
@@ -317,6 +363,9 @@ class GpkgImportViewModel @Inject constructor(
                 linearUnit = project.linearUnit,
                 angularUnit = project.angularUnit,
                 mapSettings = it.mapSettings,
+                // Un KML no usa las altitudes por defecto y solo las pregunta si trae absolutas (S031/RF-13).
+                useElevations = format != ImportFormat.KML,
+                askElevations = opened.hasElevations ?: true,
             )
         }
         index(opened)
@@ -361,6 +410,16 @@ class GpkgImportViewModel @Inject constructor(
         recompute()
         mutable.update { it.copy(scanning = false) }
         recount()
+    }
+
+    private fun KmlOpenFailure.toProblem() = when (this) {
+        KmlOpenFailure.EMPTY -> GpkgFileProblem.EMPTY
+        KmlOpenFailure.NOT_KML -> GpkgFileProblem.NOT_KML
+        KmlOpenFailure.NO_PLACEMARKS -> GpkgFileProblem.NO_PLACEMARKS
+        KmlOpenFailure.DAMAGED -> GpkgFileProblem.DAMAGED
+        KmlOpenFailure.TOO_LARGE -> GpkgFileProblem.TOO_BIG
+        KmlOpenFailure.NO_SPACE -> GpkgFileProblem.NO_SPACE
+        KmlOpenFailure.READ_ERROR -> GpkgFileProblem.UNREADABLE
     }
 
     private fun ShpOpenFailure.toProblem() = when (this) {
@@ -469,7 +528,11 @@ class GpkgImportViewModel @Inject constructor(
     private fun importedMessage(summary: GpkgImportSummary) =
         "${formatName()} importado: ${summary.importedTotal} objetos, ${summary.ignoredTotal} ignorados, ${summary.layers.size} capas"
 
-    private fun formatName() = if (format == ImportFormat.SHAPEFILE) "Shapefile" else "GeoPackage"
+    private fun formatName() = when (format) {
+        ImportFormat.SHAPEFILE -> "Shapefile"
+        ImportFormat.KML -> "KML"
+        ImportFormat.GEOPACKAGE -> "GeoPackage"
+    }
 
     /** Escribe el resumen de la importación como texto (RF-25); false si no se pudo escribir. */
     suspend fun writeSummary(out: OutputStream, labels: GpkgSummaryLabels): Boolean = withContext(io) {

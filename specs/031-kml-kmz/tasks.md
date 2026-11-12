@@ -23,7 +23,7 @@
       Hecho cuando: `KmlSessionTest` en verde.
 - [x] T10. `data`: la importación con `KmlSession` (resumen, zona, polígonos como líneas, «Sí» y «No» a las altitudes, color por objeto, nombre y atributos, cancelar sin dejar nada, fallo de escritura) y la copia de seguridad y el paquete con un dibujo KML. (RF-10 a RF-19)
       Hecho cuando: `KmlImporterTest` y `KmlBackupTest` en verde.
-- [ ] T11. `app`: `GpkgImportViewModel` con `ImportFormat.KML` (`startKml`, problemas de fichero, sin selector de sistema ni de codificación, la pregunta de las altitudes con «No» por defecto y solo si hay altitudes absolutas, aviso de datum, elementos ignorados). (RF-1, RF-3, RF-4, RF-13, RF-17, RF-18)
+- [x] T11. `app`: `GpkgImportViewModel` con `ImportFormat.KML` (`startKml`, problemas de fichero, sin selector de sistema ni de codificación, la pregunta de las altitudes con «No» por defecto y solo si hay altitudes absolutas, aviso de datum, elementos ignorados). (RF-1, RF-3, RF-4, RF-13, RF-17, RF-18)
       Hecho cuando: `KmlImportViewModelTest` en verde.
 - [ ] T12. `app`: la pantalla de importar KML/KMZ (capas con su ruta, tipo, objetos y extensión, la pregunta, los avisos y el resumen), «Importar KML/KMZ» en los dos menús con su navegación, «Origen: KML» y atributos en la ficha, y el replanteo de un objeto importado, con los textos en es y en. (RF-1, RF-6, RF-10, RF-11, RF-16, RF-18)
       Hecho cuando: `KmlImportScreenTest`, `KmlImportEntriesTest`, `DrawingsSheetKmlTest` y `KmlStakeoutTest` en verde (ajustar los tests de menús que ya no caben, como en S055).

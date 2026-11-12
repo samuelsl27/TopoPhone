@@ -11,6 +11,7 @@ import es.topophone.core.ntrip.NtripFailure
 import es.topophone.data.cad.CadRepository
 import es.topophone.data.gpkg.GeoPackageImporter
 import es.topophone.data.gpkg.GeoPackageReader
+import es.topophone.data.kml.KmlReader
 import es.topophone.data.map.MapViewportRepository
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.shp.ShapefileReader
@@ -74,6 +75,22 @@ object ShpTestFiles {
     fun sources(vararg paths: String): List<ImportSource> = paths.map { source(it) }
 }
 
+/** Los KML y KMZ de ejemplo de `fixtures/formatos/kml/` como fuentes de la importación, sin pasar por el selector de ficheros (S031). */
+object KmlTestFiles {
+    private val root: File by lazy {
+        generateSequence(File("").absoluteFile) { it.parentFile }
+            .first { File(it, "settings.gradle.kts").exists() && File(it, "fixtures").isDirectory }
+    }
+
+    fun file(path: String): File = File(root, "fixtures/formatos/kml/$path")
+
+    /** Una fuente que sirve los bytes del fichero cada vez que se abre; [declaredSize] puede mentir o ser null. */
+    fun source(path: String, declaredSize: Long? = file(path).length()): ImportSource {
+        val data = file(path).readBytes()
+        return ImportSource(file(path).name, declaredSize) { ByteArrayInputStream(data) }
+    }
+}
+
 /** Un receptor sin conexión, que no da posición. */
 fun idleReceiver(): ReceiverSession =
     ReceiverSession(CoroutineScope(SupervisorJob() + Dispatchers.IO), NtripConnector { _, _, _, _ -> NtripFailure.UNREACHABLE })
@@ -103,6 +120,7 @@ fun gpkgViewModel(
 ): GpkgImportViewModel = GpkgImportViewModel(
     GeoPackageReader(cache),
     ShapefileReader(File(cache, "shp")),
+    KmlReader(File(cache, "kml")),
     GeoPackageImporter(cad),
     projects,
     ProjectCenterProvider(FakePointRepository(), viewports),

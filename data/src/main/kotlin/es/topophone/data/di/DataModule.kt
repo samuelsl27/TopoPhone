@@ -44,6 +44,7 @@ import es.topophone.data.geometry.GeometryDataStoreQualifier
 import es.topophone.data.geometry.GeometryPreferences
 import es.topophone.data.gpkg.GeoPackageImporter
 import es.topophone.data.gpkg.GeoPackageReader
+import es.topophone.data.kml.KmlReader
 import es.topophone.data.line.LineRepository
 import es.topophone.data.line.RoomLineRepository
 import es.topophone.data.linear.LinearSurveyRepository
@@ -323,6 +324,10 @@ object DatabaseModule {
     /** La copia temporal de un ZIP o de unos ficheros de Shapefile va a la caché de la app y se borra al cerrar (S030/RNF-T5, D5). */
     @Provides
     fun provideShapefileReader(@ApplicationContext context: Context): ShapefileReader = ShapefileReader(context.cacheDir)
+
+    /** El almacén temporal de un KML o KMZ va a la caché de la app y se borra al cerrar (S031/RNF-T5, D2). */
+    @Provides
+    fun provideKmlReader(@ApplicationContext context: Context): KmlReader = KmlReader(context.cacheDir)
 
     @Provides
     fun provideGearLegacyImport(preferences: ReceiverPreferences, repository: GearRepository): GearLegacyImport =
