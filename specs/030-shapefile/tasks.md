@@ -24,7 +24,7 @@
       Hecho cuando: `ShapefileReaderTest` en verde con los ZIP y sueltos de `tools`, el tamaño declarado falso, un nombre de entrada con `..`, un ZIP cancelado a mitad, y sin dejar el temporal.
 - [x] T11. `data`: `ShapefileSession` (capas con su tipo, columnas y SC, objetos con acceso aleatorio, cabeceras y geometrías por registro, codificación por capa). (RF-7 a RF-9, RF-15 a RF-21)
       Hecho cuando: `ShapefileSessionTest` en verde: capas con el mismo nombre distinguidas por carpeta, `forEachFeature`, `forEachHead`, `forEachGeometry`, cambio de codificación y `.dbf` corto.
-- [ ] T12. `data`: importar un Shapefile con `GeoPackageImporter` y recontar con `GeoPackageScan` (reproyección, zona, polígonos como líneas, cotas, nombre, atributos, borrados, `.dbf` corto, tandas, cancelar y fallar sin dejar nada, resumen). (RF-10 a RF-17, RF-20 a RF-22, RF-25, RF-26, RF-29, RF-30)
+- [x] T12. `data`: importar un Shapefile con `GeoPackageImporter` y recontar con `GeoPackageScan` (reproyección, zona, polígonos como líneas, cotas, nombre, atributos, borrados, `.dbf` corto, tandas, cancelar y fallar sin dejar nada, resumen). (RF-10 a RF-17, RF-20 a RF-22, RF-25, RF-26, RF-29, RF-30)
       Hecho cuando: `ShapefileImporterTest` y `ShapefileScanTest` en verde con los valores contra pyproj y el resumen por capa.
 - [ ] T13. `data`: las copias de seguridad y los paquetes con un dibujo de Shapefile, y el log sin nombres ni coordenadas. (RF-27, RF-28)
       Hecho cuando: `ShpBackupTest` en verde (copia, restauración, paquete y borrado sin tocar los puntos del proyecto).

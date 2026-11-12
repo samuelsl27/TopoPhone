@@ -193,6 +193,7 @@ class GeoPackageImporter(
                 val ignored = HashMap<GpkgIgnoredReason, Int>()
                 var imported = 0
                 var omitted = 0
+                var withoutAttributes = 0
                 val box = filter?.candidateBox(choice.source)
                 session.forEachFeature(layer, box) { feature ->
                     check()
@@ -213,6 +214,7 @@ class GeoPackageImporter(
                                 if (++importedTotal > maxObjects) throw TooManyObjects()
                                 imported++
                                 omitted += feature.values.count { it is GpkgValue.Omitted }
+                                if (feature.withoutAttributes) withoutAttributes++
                                 store(choice, columns, conversion.parts, GpkgAttributesCodec.encodeRow(feature.values))
                             }
                         }
@@ -221,7 +223,14 @@ class GeoPackageImporter(
                 val ignoredTotal = ignored.values.sum()
                 // Los objetos que el índice espacial dejó fuera ni se han mirado: salen como «fuera de la zona».
                 summaries +=
-                    GpkgLayerSummary(layer.table, imported, max(0L, layer.featureCount - imported - ignoredTotal).toInt(), ignored, omitted)
+                    GpkgLayerSummary(
+                        layer.table,
+                        imported,
+                        max(0L, layer.featureCount - imported - ignoredTotal).toInt(),
+                        ignored,
+                        omitted,
+                        withoutAttributes,
+                    )
             }
             onProgress(done, total)
             writer.flushAll()
