@@ -1,0 +1,8 @@
+doc|Proyecto sin códigos
+folder|Proyecto sin códigos
+mark|point|1|||clamp|
+data|Name|1
+vertex|-3.703800000|40.416800000|
+mark|point|2|Con descripción||clamp|
+data|Name|2
+vertex|-3.703700000|40.416900000|

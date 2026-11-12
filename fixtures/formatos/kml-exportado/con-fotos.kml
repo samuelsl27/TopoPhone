@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Con fotos</name>
+    <Style id="FOTO">
+      <IconStyle><color>ff0000ff</color></IconStyle>
+      <LineStyle><color>ff0000ff</color></LineStyle>
+      <PolyStyle><color>800000ff</color></PolyStyle>
+    </Style>
+    <Folder>
+      <name>FOTO</name>
+      <Placemark>
+        <name>P1</name>
+        <description><![CDATA[Poste &amp; base<br/>muy alto<br/><img src="files/P1_1.jpg" width="400"/><br/><img src="files/P1_2.jpg" width="400"/>]]></description>
+        <styleUrl>#FOTO</styleUrl>
+        <ExtendedData>
+          <Data name="Name"><value>P1</value></Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>-3.703800000,40.416800000</coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>P2</name>
+        <description>Sin fotos</description>
+        <styleUrl>#FOTO</styleUrl>
+        <ExtendedData>
+          <Data name="Name"><value>P2</value></Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>-3.703700000,40.416800000</coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>P3</name>
+        <description><![CDATA[<br/><img src="files/P3_1.jpg" width="400"/>]]></description>
+        <styleUrl>#FOTO</styleUrl>
+        <ExtendedData>
+          <Data name="Name"><value>P3</value></Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>-3.703600000,40.416800000</coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

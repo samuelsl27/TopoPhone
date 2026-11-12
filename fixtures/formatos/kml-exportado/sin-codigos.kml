@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Proyecto sin códigos</name>
+    <Folder>
+      <name>Proyecto sin códigos</name>
+      <Placemark>
+        <name>1</name>
+        <ExtendedData>
+          <Data name="Name"><value>1</value></Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>-3.703800000,40.416800000</coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>2</name>
+        <description>Con descripción</description>
+        <ExtendedData>
+          <Data name="Name"><value>2</value></Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>-3.703700000,40.416900000</coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

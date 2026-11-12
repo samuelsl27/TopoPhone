@@ -37,3 +37,5 @@ fixtures/formatos/dxf-exportado/* -text
 fixtures/formatos/shp-exportado/** -text
 # KML y KMZ de ejemplo de la importacion: BOM, XML cortado, ZIP y CSV tal como estan, byte a byte (S031)
 fixtures/formatos/kml/** -text
+# KML de referencia de la exportacion: LF y UTF-8 tal como estan, byte a byte (S031)
+fixtures/formatos/kml-exportado/** -text

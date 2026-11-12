@@ -1,0 +1,12 @@
+doc|Con fotos
+style|FOTO|ff0000ff
+folder|FOTO
+mark|point|P1|Poste & base\nmuy alto|FOTO|clamp|P1_1.jpg;P1_2.jpg
+data|Name|P1
+vertex|-3.703800000|40.416800000|
+mark|point|P2|Sin fotos|FOTO|clamp|
+data|Name|P2
+vertex|-3.703700000|40.416800000|
+mark|point|P3||FOTO|clamp|P3_1.jpg
+data|Name|P3
+vertex|-3.703600000|40.416800000|

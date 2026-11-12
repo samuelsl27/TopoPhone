@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Obra 1 &amp; Cía</name>
+    <Style id="ARBOL">
+      <IconStyle><color>ff0000ff</color></IconStyle>
+      <LineStyle><color>ff0000ff</color></LineStyle>
+      <PolyStyle><color>800000ff</color></PolyStyle>
+    </Style>
+    <Style id="MURO">
+      <IconStyle><color>ffff0000</color></IconStyle>
+      <LineStyle><color>ffff0000</color></LineStyle>
+      <PolyStyle><color>80ff0000</color></PolyStyle>
+    </Style>
+    <Style id="PARC">
+      <IconStyle><color>ff00ff00</color></IconStyle>
+      <LineStyle><color>ff00ff00</color></LineStyle>
+      <PolyStyle><color>8000ff00</color></PolyStyle>
+    </Style>
+    <Folder>
+      <name>ARBOL</name>
+      <Placemark>
+        <name>P1</name>
+        <description>Un árbol de &lt;10 m
+(segunda línea)</description>
+        <styleUrl>#ARBOL</styleUrl>
+        <ExtendedData>
+          <Data name="Name"><value>P1</value></Data>
+          <Data name="Code"><value>ARBOL</value></Data>
+          <Data name="Easting"><value>440290.4580539461</value></Data>
+          <Data name="Elevation"><value>646.377</value></Data>
+          <Data name="Notes"><value/></Data>
+        </ExtendedData>
+        <Point>
+          <altitudeMode>absolute</altitudeMode>
+          <coordinates>-3.703800000,40.416800000,646.3770</coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>P2</name>
+        <styleUrl>#ARBOL</styleUrl>
+        <ExtendedData>
+          <Data name="Name"><value>P2</value></Data>
+          <Data name="Easting"><value>440300.5</value></Data>
+          <Data name="Elevation"><value/></Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>-3.703700000,40.416800000</coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>MURO</name>
+      <Placemark>
+        <name>Muro 1</name>
+        <description>Tapia</description>
+        <styleUrl>#MURO</styleUrl>
+        <ExtendedData>
+          <Data name="Name"><value>Muro 1</value></Data>
+          <Data name="Vertices"><value>3</value></Data>
+        </ExtendedData>
+        <LineString>
+          <altitudeMode>absolute</altitudeMode>
+          <coordinates>-3.703800000,40.417800000,10.5000 -3.702800000,40.417800000,11.5000 -3.702800000,40.418800000,12.5000</coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark>
+        <name>Muro 2</name>
+        <styleUrl>#MURO</styleUrl>
+        <ExtendedData>
+          <Data name="Name"><value>Muro 2</value></Data>
+        </ExtendedData>
+        <LineString>
+          <coordinates>-3.703800000,40.419800000 -3.702800000,40.419800000,12.0000</coordinates>
+        </LineString>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>PARC</name>
+      <Placemark>
+        <name>Parcela A</name>
+        <description>Linde "norte"</description>
+        <styleUrl>#PARC</styleUrl>
+        <ExtendedData>
+          <Data name="Name"><value>Parcela A</value></Data>
+          <Data name="Vertices"><value>4</value></Data>
+        </ExtendedData>
+        <Polygon>
+          <altitudeMode>absolute</altitudeMode>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>-3.703800000,40.420000000,100.0000 -3.703400000,40.420000000,100.0000 -3.703400000,40.420400000,100.0000 -3.703800000,40.420400000,100.0000 -3.703800000,40.420000000,100.0000</coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>Obra 1 &amp; Cía</name>
+      <Placemark>
+        <name>Suelto</name>
+        <description>Sin código</description>
+        <ExtendedData>
+          <Data name="Name"><value>Suelto</value></Data>
+        </ExtendedData>
+        <Point>
+          <coordinates>-3.704000000,40.416000000</coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

@@ -1,0 +1,41 @@
+doc|Obra 1 & Cía
+style|ARBOL|ff0000ff
+style|MURO|ffff0000
+style|PARC|ff00ff00
+folder|ARBOL
+mark|point|P1|Un árbol de <10 m\n(segunda línea)|ARBOL|absolute|
+data|Name|P1
+data|Code|ARBOL
+data|Easting|440290.4580539461
+data|Elevation|646.377
+data|Notes|
+vertex|-3.703800000|40.416800000|646.3770
+mark|point|P2||ARBOL|clamp|
+data|Name|P2
+data|Easting|440300.5
+data|Elevation|
+vertex|-3.703700000|40.416800000|
+folder|MURO
+mark|line|Muro 1|Tapia|MURO|absolute|
+data|Name|Muro 1
+data|Vertices|3
+vertex|-3.703800000|40.417800000|10.5000
+vertex|-3.702800000|40.417800000|11.5000
+vertex|-3.702800000|40.418800000|12.5000
+mark|line|Muro 2||MURO|clamp|
+data|Name|Muro 2
+vertex|-3.703800000|40.419800000|
+vertex|-3.702800000|40.419800000|12.0000
+folder|PARC
+mark|polygon|Parcela A|Linde "norte"|PARC|absolute|
+data|Name|Parcela A
+data|Vertices|4
+vertex|-3.703800000|40.420000000|100.0000
+vertex|-3.703400000|40.420000000|100.0000
+vertex|-3.703400000|40.420400000|100.0000
+vertex|-3.703800000|40.420400000|100.0000
+vertex|-3.703800000|40.420000000|100.0000
+folder|Obra 1 & Cía
+mark|point|Suelto|Sin código||clamp|
+data|Name|Suelto
+vertex|-3.704000000|40.416000000|
