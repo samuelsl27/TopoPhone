@@ -5,6 +5,7 @@ import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.ExportColumn
 import es.topophone.core.formats.gpkg.GpkgAttributeType
 import es.topophone.core.formats.gpkg.GpkgPointAttributes
+import es.topophone.core.model.line.ProjectLine
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointCoordinates
@@ -22,8 +23,9 @@ import es.topophone.core.model.project.Project
 class ShpExportBuilder(private val prj: ShpPrjDefinitions = ShpPrjDefinitions()) {
 
     /**
-     * Las capas de [points] en el sistema de [options] y el idioma de los nombres [language]. [baseProjection] da la base de un punto en el
-     * sistema del proyecto (S015/RF-22); sin ella esas columnas van vacías.
+     * Las capas de [points], y de [lines] si las hay, en el sistema de [options] y el idioma de los nombres [language]. [allPoints] son
+     * todos los puntos del proyecto, de donde salen los vértices de las líneas (con una selección, [points] son solo algunos).
+     * [baseProjection] da la base de un punto en el sistema del proyecto (S015/RF-22); sin ella esas columnas van vacías.
      */
     fun build(
         points: List<Point>,
@@ -31,15 +33,26 @@ class ShpExportBuilder(private val prj: ShpPrjDefinitions = ShpPrjDefinitions())
         options: ShpExportOptions = ShpExportOptions(),
         baseProjection: (PointBase) -> BaseProjection? = { null },
         language: ShpNameLanguage = ShpNameLanguage.ES,
+        lines: List<ProjectLine> = emptyList(),
+        allPoints: List<Point> = points,
     ): ShpExport {
         val placement = Placement(project, options)
         val counts = Counts()
         val renamed = LinkedHashSet<ShpRenamedColumn>()
         val definition = if (placement.geographic) prj.geographicOf(project.crs) else prj.of(project.crs)
-        val layers = ArrayList<ShpLayer>(1)
+        val layers = ArrayList<ShpLayer>(3)
         if (points.isNotEmpty()) layers += pointLayer(points, project, placement, baseProjection, language, definition, counts, renamed)
+        val features = if (points.isEmpty()) emptyList() else features(lines, allPoints, placement)
+        for (kind in listOf(ShpLayerKind.LINES, ShpLayerKind.POLYGONS)) {
+            val ofKind = features.filter { it.line.closed == (kind == ShpLayerKind.POLYGONS) }
+            if (ofKind.isEmpty()) continue
+            if (kind == ShpLayerKind.LINES) counts.lines = ofKind.size else counts.polygons = ofKind.size
+            layers += lineLayer(kind, ofKind, placement, language, definition, counts, renamed)
+        }
         val summary = ShpExportSummary(
             points = counts.points,
+            lines = counts.lines,
+            polygons = counts.polygons,
             pointsWithoutPosition = counts.withoutPosition,
             verticesWithoutHeight = counts.withoutHeight,
             renamedAttributes = renamed.toList(),
@@ -49,6 +62,22 @@ class ShpExportBuilder(private val prj: ShpPrjDefinitions = ShpPrjDefinitions())
             heightSystem = placement.heightSystem,
         )
         return ShpExport(layers, summary)
+    }
+
+    /**
+     * Cuántas líneas y cuántos polígonos se escribirían con [points] y [lines] en el sistema de [options], para mostrarlos antes de exportar
+     * (S055/RF-3): sin construir las capas.
+     */
+    fun countLines(
+        points: List<Point>,
+        project: Project,
+        options: ShpExportOptions,
+        lines: List<ProjectLine>,
+        allPoints: List<Point> = points,
+    ): Pair<Int, Int> {
+        if (points.isEmpty()) return 0 to 0
+        val all = features(lines, allPoints, Placement(project, options))
+        return all.count { !it.line.closed } to all.count { it.line.closed }
     }
 
     private fun pointLayer(
@@ -90,6 +119,61 @@ class ShpExportBuilder(private val prj: ShpPrjDefinitions = ShpPrjDefinitions())
         return ShpLayer(ShpLayerKind.POINTS, columns, rows, geometries, definition)
     }
 
+    /** Una línea o un polígono con los vértices que tienen posición, y cuántos de ellos no tienen altura. */
+    private class Feature(val line: ProjectLine, val vertices: List<ShpVertex>, val withoutHeight: Int)
+
+    /**
+     * Las líneas que se escriben: sus vértices salen de [allPoints] con sus coordenadas actuales; los puntos sin posición no cuentan, y una
+     * línea con menos de 2 vértices, o un polígono con menos de 3, no se escribe (como S053).
+     */
+    private fun features(lines: List<ProjectLine>, allPoints: List<Point>, placement: Placement): List<Feature> {
+        if (lines.isEmpty()) return emptyList()
+        val byId = allPoints.associateBy { it.id }
+        return lines.mapNotNull { line ->
+            var withoutHeight = 0
+            val vertices = line.vertices.mapNotNull { vertex ->
+                val coordinates = byId[vertex.pointId]?.coordinates ?: return@mapNotNull null
+                placement.vertex(coordinates)?.also { if (!placement.hasHeight(coordinates)) withoutHeight++ }
+            }
+            val minimum = if (line.closed) MIN_POLYGON_VERTICES else MIN_LINE_VERTICES
+            if (vertices.size >= minimum) Feature(line, vertices, withoutHeight) else null
+        }
+    }
+
+    private fun lineLayer(
+        kind: ShpLayerKind,
+        features: List<Feature>,
+        placement: Placement,
+        language: ShpNameLanguage,
+        definition: String?,
+        counts: Counts,
+        renamed: MutableSet<ShpRenamedColumn>,
+    ): ShpLayer {
+        val attributes = AttributeColumns.ofCodes(features.map { it.line.code })
+        val fixedNames = ShpColumnNames.fixedLineNames(language)
+        val attributeNames = ShpColumnNames.forAttributes(attributes, fixedNames)
+        renamed += attributeNames.renamed
+        val columns = listOf(
+            DbfColumn(fixedNames[0], DbfType.TEXT),
+            DbfColumn(fixedNames[1], DbfType.TEXT),
+            DbfColumn(fixedNames[2], DbfType.INTEGER),
+        ) + attributes.mapIndexed { i, column -> DbfColumn(attributeNames.names[i], dbfType(GpkgPointAttributes.typeOf(column))) }
+        val rows = ArrayList<Array<Any?>>(features.size)
+        val geometries = ArrayList<ShpGeometry>(features.size)
+        for (feature in features) {
+            val code = feature.line.code
+            val row = arrayOfNulls<Any?>(columns.size)
+            row[0] = feature.line.name
+            row[1] = code?.code
+            row[2] = feature.vertices.size.toLong()
+            attributes.forEachIndexed { i, column -> row[LINE_FIXED_COLUMNS + i] = cell(GpkgPointAttributes.attributeValue(code, column)) }
+            rows += row
+            geometries += if (kind == ShpLayerKind.POLYGONS) ShpGeometry.Polygon(feature.vertices) else ShpGeometry.Line(feature.vertices)
+            counts.withoutHeight += feature.withoutHeight
+        }
+        return ShpLayer(kind, columns, rows, geometries, definition)
+    }
+
     private fun dbfType(type: GpkgAttributeType): DbfType = when (type) {
         GpkgAttributeType.TEXT -> DbfType.TEXT
         GpkgAttributeType.INTEGER, GpkgAttributeType.BOOLEAN -> DbfType.INTEGER
@@ -101,6 +185,8 @@ class ShpExportBuilder(private val prj: ShpPrjDefinitions = ShpPrjDefinitions())
 
     private class Counts {
         var points = 0
+        var lines = 0
+        var polygons = 0
         var withoutPosition = 0
         var withoutHeight = 0
     }
@@ -127,5 +213,18 @@ class ShpExportBuilder(private val prj: ShpPrjDefinitions = ShpPrjDefinitions())
 
         private fun height(c: PointCoordinates): Double? =
             (if (ellipsoidalZ) c.ground.ellipsoidalHeightM else c.height)?.takeIf { it.isFinite() }
+    }
+
+    companion object {
+        private const val MIN_LINE_VERTICES = 2
+        private const val MIN_POLYGON_VERTICES = 3
+        private const val LINE_FIXED_COLUMNS = 3
+
+        /**
+         * Con una selección (S055/RF-2), las líneas y los polígonos cuyos vértices están todos entre los puntos elegidos [selected]: una
+         * línea con un vértice fuera de la selección no se exporta (como S029/RF-2 y S053).
+         */
+        fun linesOf(lines: List<ProjectLine>, selected: Set<String>): List<ProjectLine> =
+            lines.filter { line -> line.pointIds.all { it in selected } }
     }
 }
