@@ -18,7 +18,7 @@
       Hecho cuando: `ShpExportBuilderTest` en verde para líneas y polígonos y para la selección.
 - [x] T8. `core:formats`: `ShapefileZipWriter` (nombres limpios, cinco ficheros por capa, ninguna capa vacía) y la ida y vuelta con los lectores de S030. (RF-3, RF-4, RF-5, RF-10 a RF-14)
       Hecho cuando: `ShapefileZipWriterTest` y `ShpRoundTripTest` en verde: lo escrito se relee con las mismas coordenadas (menos de 0,05 mm), atributos y sistema.
-- [ ] T9. `core:formats`: exportar 10.000 puntos con sus columnas en menos de 5 s. (RNF)
+- [x] T9. `core:formats`: exportar 10.000 puntos con sus columnas en menos de 5 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.
 - [ ] T10. `data`: `ShpExportPreferences` en DataStore (el sistema elegido, para todos los proyectos) y su inyección. (RF-23)
       Hecho cuando: `ShpExportPreferencesTest` en verde (por defecto, guardar y valor no válido).
