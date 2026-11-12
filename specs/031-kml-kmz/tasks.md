@@ -11,7 +11,7 @@
       Hecho cuando: `KmlFileKindTest` y `KmlColorsTest` en verde con los ficheros de T1.
 - [x] T4. `core:formats`: `KmlCoordinates` (tuplas, separadores, Z solo si todos los vértices la traen) y `KmlHtml`. (RF-7, RF-11, RF-13, RF-14)
       Hecho cuando: `KmlCoordinatesTest` y `KmlHtmlTest` en verde.
-- [ ] T5. `core:formats`: `KmlStyleTable` (estilos en línea, `styleUrl`, `StyleMap`, `IconStyle` frente a `LineStyle`, resolución al terminar la marca). (RF-12)
+- [x] T5. `core:formats`: `KmlStyleTable` (estilos en línea, `styleUrl`, `StyleMap`, `IconStyle` frente a `LineStyle`, resolución al terminar la marca). (RF-12)
       Hecho cuando: `KmlStyleTableTest` en verde con los casos de T1.
 - [ ] T6. `core:formats`: `KmlParser` (carpetas y rutas, marcas sin carpeta, geometrías, datos extendidos, modo de altitud, elementos ignorados y geometrías vacías) por streaming sobre `XmlStreamReader`. (RF-2b, RF-5, RF-8, RF-9, RF-10, RF-11, RF-13, RF-14)
       Hecho cuando: `KmlParserTest` en verde contra lo esperado de `tools`.
