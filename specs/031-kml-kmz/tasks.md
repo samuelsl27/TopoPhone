@@ -39,7 +39,7 @@
       Hecho cuando: `KmlExportBuilderTest` en verde para los puntos, con y sin «Incluir altura».
 - [x] T17. `core:formats`: `KmlExportBuilder` para las líneas y los polígonos (contorno antihorario, primer vértice repetido, datos extendidos), las carpetas por código y los colores. (RF-22, RF-23)
       Hecho cuando: `KmlExportBuilderTest` en verde para líneas, polígonos y carpetas, y para un proyecto sin códigos.
-- [ ] T18. `core:formats`: la ida y vuelta (exportar e importar con la `KmlSession`) a menos de 0,1 mm y el rendimiento de exportar 10.000 puntos en menos de 5 s. (constitución nº 2, RNF)
+- [x] T18. `core:formats`: la ida y vuelta (exportar e importar con la `KmlSession`) a menos de 0,1 mm y el rendimiento de exportar 10.000 puntos en menos de 5 s. (constitución nº 2, RNF)
       Hecho cuando: `KmlRoundTripTest` y el test de rendimiento en verde.
 - [ ] T19. `data`: `KmlExportPreferences` en DataStore (formato, «Incluir altura» e «Incluir fotos») y su inyección. (RF-32)
       Hecho cuando: `KmlExportPreferencesTest` en verde (por defecto, guardar y valor no válido).
