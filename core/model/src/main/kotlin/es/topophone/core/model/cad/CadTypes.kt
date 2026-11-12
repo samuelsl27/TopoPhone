@@ -16,7 +16,7 @@ sealed interface CadSourceCrs {
 }
 
 /** De qué fichero viene un dibujo: un DXF (S040), un GeoPackage (S048/RF-26) o un Shapefile (S030/RF-26). */
-enum class CadOrigin { DXF, GEOPACKAGE, SHAPEFILE }
+enum class CadOrigin { DXF, GEOPACKAGE, SHAPEFILE, KML }
 
 /** Lo que el usuario decide al importar un DXF (S040/RF-6, RF-7, RF-8). */
 data class CadImportOptions(

@@ -125,6 +125,7 @@ private fun DrawingSection(entry: CadDrawingWithLayers, actions: DrawingsActions
                     when (drawing.origin) {
                         CadOrigin.GEOPACKAGE -> R.string.cad_origin_gpkg
                         CadOrigin.SHAPEFILE -> R.string.cad_origin_shp
+                        CadOrigin.KML -> R.string.cad_origin_kml
                         CadOrigin.DXF -> R.string.cad_origin_dxf
                     },
                 ),

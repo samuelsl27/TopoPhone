@@ -19,6 +19,8 @@ class GpkgFeature(
     val ignored: GpkgIgnoredReason? = null,
     /** Un objeto de un Shapefile cuyo registro falta en un `.dbf` más corto: sus valores son nulos y el resumen lo cuenta (S030/RF-20). */
     val withoutAttributes: Boolean = false,
+    /** El color propio del objeto, ARGB opaco: el de su estilo en un KML (S031/RF-12). `null` es el color de su capa. */
+    val color: Int? = null,
 )
 
 /**
@@ -34,6 +36,16 @@ interface FeatureSession : AutoCloseable {
 
     /** Lo que se dejó fuera del fichero y se avisa (tablas sin geometría, ficheros huérfanos…) (S048/RF-6, S030/RF-5). */
     val leftOutTables: List<String>
+
+    /**
+     * Si el fichero trae altitudes que la importación puede guardar como cota: `true` o `false` si la sesión lo sabe (un KML: solo las de
+     * las marcas con altitud absoluta, S031/RF-13) y `null` si no lo sabe, que es lo que hacen el GeoPackage y el Shapefile (S048/RF-19,
+     * S030/RF-17): la pantalla pregunta siempre.
+     */
+    val hasElevations: Boolean? get() = null
+
+    /** Los elementos del fichero que no tienen capa y no se importan, por motivo (S031/RF-9, D6). */
+    val ignoredElements: Map<GpkgIgnoredReason, Int> get() = emptyMap()
 
     /** El sistema de coordenadas que declara la capa, frente a los de la app (S048/RF-8, RF-9). */
     fun crs(layer: GpkgLayerInfo): GpkgCrs

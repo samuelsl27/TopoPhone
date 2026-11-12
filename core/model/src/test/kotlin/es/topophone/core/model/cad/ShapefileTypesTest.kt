@@ -10,7 +10,7 @@ class ShapefileTypesTest {
     @Test
     fun `S030 RF-26 el origen de un dibujo puede ser un Shapefile`() {
         CadOrigin.valueOf("SHAPEFILE") shouldBe CadOrigin.SHAPEFILE
-        CadOrigin.entries.map { it.name } shouldBe listOf("DXF", "GEOPACKAGE", "SHAPEFILE")
+        CadOrigin.entries.map { it.name } shouldBe listOf("DXF", "GEOPACKAGE", "SHAPEFILE", "KML")
     }
 
     @Test

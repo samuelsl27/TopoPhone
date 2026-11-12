@@ -118,6 +118,7 @@ class GeoPackageImporter(
                     options.layers.filter {
                         it.wgs84
                     }.map { it.layer.table },
+                    session.ignoredElements,
                 ),
             )
         } catch (e: CancellationException) {
@@ -206,7 +207,7 @@ class GeoPackageImporter(
                     // Sin índice espacial se leen todos los objetos, pero uno cuya envolvente no toca la zona se descarta sin convertirlo.
                     if (box != null && isOutside(feature.geometry, box)) return@forEachFeature
                     val name = nameOf(feature.values.getOrNull(nameIndex ?: -1), feature.fid)
-                    when (val conversion = converter.convert(feature.geometry, name)) {
+                    when (val conversion = converter.convert(feature.geometry, name, feature.color)) {
                         is GpkgConversion.Ignored -> ignored.merge(conversion.reason, 1, Int::plus)
                         is GpkgConversion.Converted -> {
                             val inside = filter == null || conversion.parts.any { filter.anyInside(it.easting, it.northing) }
@@ -291,7 +292,8 @@ class GeoPackageImporter(
 
         fun extent(): CadExtent? = if (importedTotal == 0) null else CadExtent(minE, maxE, minN, maxN)
 
-        fun summary(leftOut: List<String>, wgs84: List<String>) = GpkgImportSummary(summaries.toList(), leftOut, wgs84)
+        fun summary(leftOut: List<String>, wgs84: List<String>, elements: Map<GpkgIgnoredReason, Int>) =
+            GpkgImportSummary(summaries.toList(), leftOut, wgs84, elements)
     }
 
     companion object {

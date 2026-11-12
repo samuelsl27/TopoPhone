@@ -1502,6 +1502,11 @@
     <string name="gpkg_reason_outside_grid">Outside the ED50 grid</string>
     <string name="gpkg_reason_deleted">Record deleted in the .dbf</string>
     <string name="gpkg_reason_multipatch">MultiPatch surface</string>
+    <string name="gpkg_reason_network_link">Network link</string>
+    <string name="gpkg_reason_overlay">Ground, screen or photo overlay</string>
+    <string name="gpkg_reason_model">3D model</string>
+    <string name="gpkg_reason_track">Recorded track</string>
+    <string name="gpkg_reason_tour">Guided tour</string>
     <string name="gpkg_summary_title">Summary of a GeoPackage import</string>
     <string name="gpkg_summary_layer">Layer</string>
     <string name="gpkg_summary_imported">Imported</string>
@@ -1530,6 +1535,7 @@
     <string name="cad_origin_gpkg">GeoPackage</string>
     <string name="cad_origin_dxf">DXF</string>
     <string name="cad_origin_shp">Shapefile</string>
+    <string name="cad_origin_kml">KML</string>
     <string name="gpkg_no_layer_marked">Tick at least one layer to import.</string>
     <string name="gpkg_layer_detail">%1$s · %2$s</string>
     <string name="gpkg_kind_points">Points</string>

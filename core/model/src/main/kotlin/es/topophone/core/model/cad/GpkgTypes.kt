@@ -78,6 +78,21 @@ enum class GpkgIgnoredReason {
 
     /** Un Shapefile: un objeto `MultiPatch`, una superficie 3D que no se importa (S030/RF-16). */
     MULTIPATCH,
+
+    /** Un KML: un vínculo de red (`NetworkLink`) que no es un vínculo interno de un KMZ (S031/RF-2b, RF-9). */
+    NETWORK_LINK,
+
+    /** Un KML: una imagen sobre el suelo, de pantalla o de foto (`GroundOverlay`, `ScreenOverlay`, `PhotoOverlay`) (S031/RF-9). */
+    OVERLAY,
+
+    /** Un KML: un modelo 3D (`Model`) (S031/RF-9). */
+    MODEL,
+
+    /** Un KML: un recorrido grabado (`gx:Track`, `gx:MultiTrack`) (S031/RF-9). */
+    TRACK,
+
+    /** Un KML: una visita guiada (`gx:Tour`) (S031/RF-9). */
+    TOUR,
 }
 
 /** Lo que pasó con los objetos de una capa al importar (S048/RF-25). */
@@ -100,7 +115,14 @@ data class GpkgImportSummary(
     val leftOutTables: List<String> = emptyList(),
     /** Capas en EPSG:4326 tratadas como ETRS89 (S048, decisión D3). */
     val wgs84Layers: List<String> = emptyList(),
+    /**
+     * Elementos del fichero que no tienen capa y no se importan, contados por motivo: los vínculos de red, imágenes, modelos y recorridos de
+     * un KML (S031/RF-9, D6).
+     */
+    val ignoredElements: Map<GpkgIgnoredReason, Int> = emptyMap(),
 ) {
+    val ignoredElementsTotal: Int get() = ignoredElements.values.sum()
+
     val importedTotal: Int get() = layers.sumOf { it.imported }
     val outsideAreaTotal: Int get() = layers.sumOf { it.outsideArea }
     val ignoredTotal: Int get() = layers.sumOf { it.ignoredTotal }

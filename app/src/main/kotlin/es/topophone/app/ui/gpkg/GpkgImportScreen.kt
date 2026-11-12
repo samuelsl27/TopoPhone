@@ -705,4 +705,9 @@ internal fun reasonLabel(reason: GpkgIgnoredReason): Int = when (reason) {
     GpkgIgnoredReason.OUTSIDE_ED50_GRID -> R.string.gpkg_reason_outside_grid
     GpkgIgnoredReason.DELETED_RECORD -> R.string.gpkg_reason_deleted
     GpkgIgnoredReason.MULTIPATCH -> R.string.gpkg_reason_multipatch
+    GpkgIgnoredReason.NETWORK_LINK -> R.string.gpkg_reason_network_link
+    GpkgIgnoredReason.OVERLAY -> R.string.gpkg_reason_overlay
+    GpkgIgnoredReason.MODEL -> R.string.gpkg_reason_model
+    GpkgIgnoredReason.TRACK -> R.string.gpkg_reason_track
+    GpkgIgnoredReason.TOUR -> R.string.gpkg_reason_tour
 }

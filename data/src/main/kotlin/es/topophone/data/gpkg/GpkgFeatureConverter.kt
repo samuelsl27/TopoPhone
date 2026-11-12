@@ -4,6 +4,7 @@ import es.topophone.core.formats.gpkg.GpkgGeometry
 import es.topophone.core.formats.gpkg.GpkgGeometryReader
 import es.topophone.core.formats.gpkg.GpkgPart
 import es.topophone.core.formats.gpkg.GpkgPartKind
+import es.topophone.core.model.cad.CadColor
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.cad.CadIgnoredReason
@@ -39,8 +40,11 @@ class GpkgFeatureConverter(
     private val projector =
         CadProjector(crs, CadImportOptions(source = source, unit = LinearUnit.METRE, useElevations = useElevations), calculator)
 
-    /** El objeto de [blob] (null es un campo NULL: vacío), con [name] como nombre de cada elemento. */
-    fun convert(blob: ByteArray?, name: String? = null): GpkgConversion {
+    /**
+     * El objeto de [blob] (null es un campo NULL: vacío), con [name] como nombre de cada elemento y [color] (ARGB) como el suyo propio, o
+     * el de su capa si es `null` (S031/RF-12).
+     */
+    fun convert(blob: ByteArray?, name: String? = null, color: Int? = null): GpkgConversion {
         if (blob == null) return GpkgConversion.Ignored(GpkgIgnoredReason.EMPTY_GEOMETRY)
         val parts = when (val geometry = GpkgGeometryReader.read(blob)) {
             GpkgGeometry.Empty -> return GpkgConversion.Ignored(GpkgIgnoredReason.EMPTY_GEOMETRY)
@@ -50,7 +54,7 @@ class GpkgFeatureConverter(
         }
         val out = ArrayList<CadEntity>(parts.size)
         for (part in parts) {
-            when (val projection = projector.convert(part.toEntity(name))) {
+            when (val projection = projector.convert(part.toEntity(name, color))) {
                 is CadProjection.Converted -> out += projection.entity
                 is CadProjection.Rejected -> return GpkgConversion.Ignored(projection.reason.toIgnored())
             }
@@ -65,12 +69,12 @@ class GpkgFeatureConverter(
         return projected.easting[0] to projected.northing[0]
     }
 
-    private fun GpkgPart.toEntity(name: String?) = CadEntity(
+    private fun GpkgPart.toEntity(name: String?, color: Int?) = CadEntity(
         kind = if (kind == GpkgPartKind.POINT) CadEntityKind.POINT else CadEntityKind.POLYLINE,
         easting = x,
         northing = y,
         height = z,
-        color = null,
+        color = color?.let { CadColor(it) },
         name = name,
         polygonRing = isPolygonRing,
     )

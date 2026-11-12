@@ -11,6 +11,8 @@ import es.topophone.core.formats.gpkg.GpkgPart
 import es.topophone.core.formats.gpkg.GpkgPartKind
 import es.topophone.core.formats.shp.ShpBlobEncoder
 import es.topophone.core.formats.shp.ShpShape
+import es.topophone.core.model.cad.CadColor
+import es.topophone.core.model.cad.CadExtent
 import es.topophone.core.model.cad.CadOrigin
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.cad.GpkgColumn
@@ -123,8 +125,69 @@ class FeatureSessionImporterTest {
         index.bounds shouldBe LayerBox(440_100.0, 440_200.0, 4_474_100.0, 4_474_200.0)
     }
 
+    @Test
+    fun `S031 RF-12 el color propio de un objeto llega a su elemento y sin color queda el de su capa`() {
+        val colored = listOf(
+            GpkgFeature(1, point(440_100.0, 4_474_100.0), listOf(GpkgValue.Text("Rojo")), color = 0xFFFF0000.toInt()),
+            GpkgFeature(2, point(440_200.0, 4_474_200.0), listOf(GpkgValue.Text("Sin color"))),
+        )
+        import(FakeSession(CadOrigin.KML, colored)).shouldBeInstanceOf<GpkgImportResult.Imported>()
+
+        val drawing = runBlocking { repository.drawings(projectId).first() }.single()
+        val everywhere = CadExtent(-1e9, 1e9, -1e9, 1e9)
+        val entities = runBlocking { repository.chunksIn(drawing.layers.map { it.id }, everywhere) }.flatMap { it.entities }
+        entities.map { it.name to it.color } shouldBe listOf("Rojo" to CadColor(0xFFFF0000.toInt()), "Sin color" to null)
+    }
+
+    @Test
+    fun `S031 RF-16 el dibujo de un KML guarda el origen KML`() {
+        import(FakeSession(CadOrigin.KML, features())).shouldBeInstanceOf<GpkgImportResult.Imported>()
+
+        runBlocking { repository.drawings(projectId).first() }.single().drawing.origin shouldBe CadOrigin.KML
+    }
+
+    @Test
+    fun `S031 RF-9 el resumen lleva los elementos del fichero que no se importan`() {
+        val ignored = mapOf(GpkgIgnoredReason.NETWORK_LINK to 2, GpkgIgnoredReason.MODEL to 1)
+        val session = FakeSession(CadOrigin.KML, features(), ignoredElements = ignored)
+        val result = import(session).shouldBeInstanceOf<GpkgImportResult.Imported>()
+
+        result.summary.ignoredElements shouldBe ignored
+        result.summary.ignoredElementsTotal shouldBe 3
+    }
+
+    @Test
+    fun `S031 RF-9 sin elementos ignorados el resumen no lleva ninguno`() {
+        val result = import(FakeSession(CadOrigin.SHAPEFILE, features())).shouldBeInstanceOf<GpkgImportResult.Imported>()
+
+        result.summary.ignoredElements shouldBe emptyMap()
+        result.summary.ignoredElementsTotal shouldBe 0
+    }
+
+    @Test
+    fun `S031 RF-13 una sesion que no sabe si hay altitudes lo dice con null`() {
+        FakeSession(CadOrigin.SHAPEFILE, features()).hasElevations shouldBe null
+        FakeSession(CadOrigin.KML, features(), hasElevations = true).hasElevations shouldBe true
+    }
+
+    @Test
+    fun `S031 RF-13 un GeoPackage y un Shapefile no saben si hay altitudes`() {
+        val bytes = GpkgFixtures.bytes("puntos-25830.gpkg")
+        val opened = runBlocking { GeoPackageReader(folder.newFolder()).open(bytes.size.toLong()) { ByteArrayInputStream(bytes) } }
+        val session: FeatureSession = opened.shouldBeInstanceOf<GpkgOpenResult.Opened>().session
+
+        session.hasElevations shouldBe null
+        session.ignoredElements shouldBe emptyMap()
+        session.close()
+    }
+
     /** Una sesión en memoria: cada capa con sus objetos, sin ficheros. */
-    private class FakeSession(override val origin: CadOrigin, private val all: List<GpkgFeature>) : FeatureSession {
+    private class FakeSession(
+        override val origin: CadOrigin,
+        private val all: List<GpkgFeature>,
+        override val ignoredElements: Map<GpkgIgnoredReason, Int> = emptyMap(),
+        override val hasElevations: Boolean? = null,
+    ) : FeatureSession {
         private val info = GpkgLayerInfo("parcelas", "geometry", "POINT", all.size.toLong(), 0, listOf(GpkgColumn("nombre", "TEXT")))
         override val layers: List<GpkgLayerInfo> = listOf(info)
         override val leftOutTables: List<String> = emptyList()
