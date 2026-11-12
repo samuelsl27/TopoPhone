@@ -179,7 +179,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | GeoPackage | `GeoPackage` (`.gpkg`) | Fichero SQLite con capas vectoriales (QGIS); se importa como un dibujo CAD, solo lectura (S048); los puntos del proyecto se exportan a uno (S053) |
 | Capa de GeoPackage | `GpkgLayerInfo` | Una tabla del GeoPackage con geometría: su tipo, número de objetos, SRS y columnas (S048) |
 | Shapefile | `Shapefile` | Conjunto de ficheros `.shp`, `.shx`, `.dbf`, `.prj` y `.cpg` con el mismo nombre; se importa de un ZIP o de ficheros sueltos como un dibujo CAD, solo lectura (S030), y los puntos, líneas y polígonos del proyecto se exportan a un ZIP con uno por tipo de geometría (S055) |
-| Origen del dibujo | `CadOrigin` | `DXF`, `GEOPACKAGE` o `SHAPEFILE`: de qué fichero viene un dibujo (S048, S030) |
+| KML/KMZ | `Kml` | Fichero XML de Google Earth (KMZ: ZIP con un KML y sus imágenes); en WGS84, tomado como el datum del proyecto; se importa como un dibujo CAD, solo lectura, y los puntos, líneas y polígonos del proyecto se exportan a uno (S031) |
+| Carpeta de KML | `KmlFolder` | Un `Folder` o `Document` del KML, salvo el raíz; cada una con marcas es una capa de diseño, con su ruta como nombre (S031) |
+| ZIP de fotos | `PhotoArchive` | ZIP con las fotos de los puntos, byte a byte como están guardadas, y su índice `fotos.csv` (S056) |
+| Origen del dibujo | `CadOrigin` | `DXF`, `GEOPACKAGE`, `SHAPEFILE` o `KML`: de qué fichero viene un dibujo (S048, S030, S031) |
 | Zona de importación | `ImportArea` | «Todo el contenido» o un radio de 100 m a 100 km alrededor del centro del proyecto (S048) |
 | Contorno de polígono | `POLYGON_RING` | Línea cerrada que sale del exterior o de un hueco de un polígono importado (S048) |
 | Campo de nombre | `nameField` | Columna de la capa con la que se etiqueta y se nombra cada objeto; sin ella, su número en la capa (S048) |

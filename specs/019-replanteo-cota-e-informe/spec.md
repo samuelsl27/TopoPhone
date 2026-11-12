@@ -111,7 +111,7 @@ Términos de esta spec (los de S018 siguen valiendo):
 - Cota de diseño de los vértices, centros de bloque y líneas de un DXF → S041.
 - Replanteo de la cota de las líneas propias → S027.
 - Informe en PDF o con firma → no previsto.
-- Informe con fotos de los puntos → S031.
+- Informe con fotos de los puntos → no previsto.
 - Informe de varios proyectos a la vez → no previsto.
 - Medir solo al estar dentro de la tolerancia horizontal o vertical → no previsto.
 - Cota de diseño distinta para un mismo punto de diseño que se conserve entre sesiones → no previsto.

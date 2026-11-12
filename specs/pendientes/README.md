@@ -26,7 +26,8 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 | [029 exportar-dxf](../029-exportar-dxf/spec.md) | H4 | S025 (los puntos solo S012) | 21 | 6 | DXF ASCII R12 con capas por código y etiquetas |
 | [030 shapefile](../030-shapefile/spec.md) | H4 | S048, S040, S006 | 30 | 4 | Importar un Shapefile (ZIP o ficheros sueltos) como capa de diseño |
 | [055 exportar-shapefile](../055-exportar-shapefile/spec.md) | H4 | S012, S024, S025, S030 | 23 | 3 | Exportar a un ZIP con PointZ, PolyLineZ y PolygonZ, con .prj y .cpg |
-| [031 kml-kmz-y-fotos](031-kml-kmz-y-fotos/spec.md) | H4 | S025, S017b (importar: S048; puntos: S012) | 28 | 7 | KML/KMZ y fotos en un ZIP (reúne tres funciones) |
+| [031 kml-kmz](../031-kml-kmz/spec.md) | H4 | S048, S040, S006, S012, S024, S025, S017b | 32 | 7 | Importar un KML o KMZ como capa de diseño y exportar a KML o KMZ, con fotos opcionales en el KMZ |
+| [056 exportar-fotos](../056-exportar-fotos/spec.md) | H4 | S017b, S012 | 14 | 4 | Las fotos de los puntos en un ZIP con un índice `fotos.csv` |
 | [038 cogo](038-cogo/spec.md) | H6 | S011 | 25 | 6 | Inversa, poligonal e intersecciones; resultados como puntos |
 | [032 proyecciones-completas](032-proyecciones-completas/spec.md) | H5 | S008 | 11 | 4 | LCC 1SP/2SP y Oblique Mercator |
 | [033 transformaciones-datum](033-transformaciones-datum/spec.md) | H5 | S032, S008 | 14 | 4 | Helmert 3/4/6/7, Molodensky-Badekas y rejillas |
@@ -48,7 +49,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 
 **Hoja de ruta y dependencias**
 - S029, S030 y S031 dependen de S025 solo para líneas y polígonos (sus puntos ya se pueden exportar con S012). S031 depende de S017b, que sigue en `tareas`, y S052 de S017, que consta «en curso».
-- S031 reúne KML/KMZ y fotos y podría dividirse. S026 solapa con S038 (inversa y ángulo) y con S035 (cuadrícula o terreno); el inventario cita S026 donde parece que quería decir S035.
+- S031 se dividió en KML/KMZ (S031) y las fotos en un ZIP (S056). S026 solapa con S038 (inversa y ángulo) y con S035 (cuadrícula o terreno); el inventario cita S026 donde parece que quería decir S035.
 
 **Sistemas de coordenadas**
 - `ProjectCrs` es hoy un enum cerrado y `GpkgCrsCatalog` (S048) solo reconoce esos sistemas: S034 obliga a generalizarlos y a migrar Room.
@@ -61,7 +62,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 - S043 añade «Guía» y «Equipo» a las cinco entradas del menú del receptor de S005/RF-9.
 
 **Specs ya implementadas que habría que tocar**
-- S012 (columna `Photos` de S031, columnas de código de S024, coordenadas localizadas de S039) y S053 (columnas de código de S024).
+- S012 (columnas de código de S024, coordenadas localizadas de S039) y S053 (columnas de código de S024).
 - S019 (informe de replanteo de S027) y S049 (importación de ejes desde las líneas de S027).
 - S009 (la política del Catastro «una imagen, sin guardar» choca con S037), S008 y S005.
 - Cada spec que añada columnas desplaza los números de versión de Room: S017b pasa a la v22 o más.

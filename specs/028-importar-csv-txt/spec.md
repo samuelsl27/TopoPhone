@@ -129,7 +129,7 @@ Términos de esta spec:
 - Detectar solo el sistema de coordenadas del fichero → no previsto.
 - Guardar la asignación de columnas como plantilla → no previsto.
 - Deshacer la importación después de salir de su pantalla de resultado → no previsto: se borran seleccionando los puntos (S011).
-- Importar las fotos de los puntos → S017b y S031.
+- Importar las fotos de los puntos → S017b.
 
 ## Criterios de finalización
 - Cada RF tiene un test automático en verde que lo cita, y `rf_report` no muestra RF huérfanos.

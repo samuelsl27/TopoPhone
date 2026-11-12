@@ -110,8 +110,8 @@ Términos de esta spec:
 | Proyecto con muchas fotos y poco espacio | RF-15, S013/RF-5 |
 
 ## Fuera de alcance
-- Exportar las fotos en un ZIP, y fotos o enlaces en KML/KMZ → S031.
-- Una columna con las fotos en el CSV → S031.
+- Exportar las fotos en un ZIP → S056; fotos dentro de un KMZ → S031.
+- Una columna con las fotos en el CSV → no previsto; el vínculo va en el índice del ZIP de S056.
 - Compartir una foto suelta desde la ficha → no previsto.
 - Dibujar, anotar, recortar o girar una foto, o ponerle un pie de texto → no previsto.
 - Reordenar las fotos de un punto → no previsto.
