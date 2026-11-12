@@ -26,7 +26,7 @@
       Hecho cuando: `ShapefileSessionTest` en verde: capas con el mismo nombre distinguidas por carpeta, `forEachFeature`, `forEachHead`, `forEachGeometry`, cambio de codificación y `.dbf` corto.
 - [x] T12. `data`: importar un Shapefile con `GeoPackageImporter` y recontar con `GeoPackageScan` (reproyección, zona, polígonos como líneas, cotas, nombre, atributos, borrados, `.dbf` corto, tandas, cancelar y fallar sin dejar nada, resumen). (RF-10 a RF-17, RF-20 a RF-22, RF-25, RF-26, RF-29, RF-30)
       Hecho cuando: `ShapefileImporterTest` y `ShapefileScanTest` en verde con los valores contra pyproj y el resumen por capa.
-- [ ] T13. `data`: las copias de seguridad y los paquetes con un dibujo de Shapefile, y el log sin nombres ni coordenadas. (RF-27, RF-28)
+- [x] T13. `data`: las copias de seguridad y los paquetes con un dibujo de Shapefile, y el log sin nombres ni coordenadas. (RF-27, RF-28)
       Hecho cuando: `ShpBackupTest` en verde (copia, restauración, paquete y borrado sin tocar los puntos del proyecto).
 - [ ] T14. `app`: `GpkgImportViewModel` y `GpkgImportScreen` por `ImportFormat` (varias fuentes, problemas de fichero, lista de capas, aviso de huérfanos y textos de Shapefile en es y en). (RF-1 a RF-7)
       Hecho cuando: `ShpImportViewModelTest` y `ShpImportScreenTest` en verde para esos casos y los de GeoPackage sin cambios.
