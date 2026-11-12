@@ -21,7 +21,7 @@ class ShpPrjDefinitions(private val byCode: Map<Int, String> = ShpPrjDefinitions
      */
     fun geographicOf(crs: ProjectCrs): String? = byCode[geographicEpsg(crs)]
 
-    internal companion object {
+    companion object {
         private const val ETRS89_GEOGRAPHIC = 4258
         private const val REGCAN95_GEOGRAPHIC = 4081
 

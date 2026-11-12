@@ -22,7 +22,7 @@
       Hecho cuando: el test de rendimiento en verde.
 - [x] T10. `data`: `ShpExportPreferences` en DataStore (el sistema elegido, para todos los proyectos) y su inyección. (RF-23)
       Hecho cuando: `ShpExportPreferencesTest` en verde (por defecto, guardar y valor no válido).
-- [ ] T11. `app`: `ShpExportViewModel` (puntos o selección con sus líneas, sistema, idioma de los nombres, escribir entero o nada, nombre del ZIP, resumen y log sin datos). (RF-1, RF-2, RF-12, RF-13, RF-17 a RF-23)
+- [x] T11. `app`: `ShpExportViewModel` (puntos o selección con sus líneas, sistema, idioma de los nombres, escribir entero o nada, nombre del ZIP, resumen y log sin datos). (RF-1, RF-2, RF-12, RF-13, RF-17 a RF-23)
       Hecho cuando: `ShpExportViewModelTest` en verde, incluidos sin puntos y fallo de escritura sin dejar fichero.
 - [ ] T12. `app`: `ShpExportScreen` (sistema, guardar, compartir, mensajes y resumen) con los textos en es y en. (RF-12, RF-13, RF-17, RF-18, RF-22)
       Hecho cuando: `ShpExportScreenTest` en verde y la pantalla solo ofrece elegir sistema en un proyecto proyectado.
