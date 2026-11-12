@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/formatos`: `generar_shp_exportado.py` con las referencias del contenido de cada fichero del ZIP (`.shp`, `.shx`, `.dbf` y `.cpg`) para un proyecto de ejemplo (puntos con y sin altura, con atributos de código, líneas y polígonos), el WKT de cada `.prj` con pyproj y el fichero de datos `ShpPrjDefinitionsData`; y su test. (RF-3, RF-5, RF-6, RF-12 a RF-15, constitución nº 2)
       Hecho cuando: el script genera `fixtures/formatos/shp-exportado/` y su test de `tools` está en verde, con cada `.prj` leído por pyproj como el sistema de su proyecto y las geográficas a menos de 1 mm.
-- [ ] T2. `core:formats`: `ShpColumnNames` (la tabla fija en español y en inglés y los nombres de los atributos de código). (RF-8, RF-9)
+- [x] T2. `core:formats`: `ShpColumnNames` (la tabla fija en español y en inglés y los nombres de los atributos de código). (RF-8, RF-9)
       Hecho cuando: `ShpColumnNamesTest` en verde: hasta 10 caracteres, mayúsculas ASCII, sin repetir, todas las `ExportColumn` en los dos idiomas y atributos de código repetidos, largos o con acentos renombrados.
 - [ ] T3. `core:formats`: `DbfWriter` y `DbfColumn` (texto, entero y decimal, vacíos, recorte a 254 bytes sin partir un carácter, `Locale.ROOT`, cabecera y `.cpg`). (RF-6, RF-7, RF-10, RF-11)
       Hecho cuando: `DbfWriterTest` en verde y el `.dbf` coincide byte a byte con la referencia de `tools`.
