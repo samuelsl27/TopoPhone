@@ -200,7 +200,7 @@ fun GpkgImportScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(state.fileName, style = MaterialTheme.typography.titleMedium)
-                Text(stringResource(R.string.gpkg_importing))
+                Text(stringResource(if (state.format == ImportFormat.SHAPEFILE) R.string.shp_importing else R.string.gpkg_importing))
                 ProgressBar(state.importDone, state.importTotal)
                 OutlinedButton(
                     onClick = actions.onCancel,

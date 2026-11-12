@@ -1439,6 +1439,7 @@
     <string name="central_point_invalid">Escribe las dos coordenadas como números.</string>
 
     <!-- S048: importar un GeoPackage -->
+    <string name="shp_importing">Importando el Shapefile…</string>
     <string name="shp_import_title">Importar Shapefile</string>
     <string name="shp_problem_not_shapefile">Lo elegido no es un Shapefile. Elige un ZIP con sus ficheros, o el .shp junto con los demás.</string>
     <string name="shp_problem_no_shp">Falta el fichero .shp. Elige también el .shp junto a sus ficheros, o el ZIP entero.</string>

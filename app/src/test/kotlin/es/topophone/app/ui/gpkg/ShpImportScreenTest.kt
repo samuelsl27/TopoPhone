@@ -210,4 +210,26 @@ class ShpImportScreenTest {
         compose.onNodeWithText("Ficheros sin su .shp dejados fuera: solo.dbf").assertExists()
         compose.onNodeWithTag(GPKG_SUMMARY_SAVE_TAG).assertExists()
     }
+
+    @Test
+    fun `S030 RF-29 mientras importa el texto dice Shapefile y en un GeoPackage sigue diciendo GeoPackage`() {
+        val shown = mutableStateOf(ImportFormat.SHAPEFILE)
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                GpkgImportScreen(
+                    ThemeState.DEFAULT,
+                    {},
+                    GpkgImportUiState(stage = GpkgImportStage.IMPORTING, format = shown.value, fileName = "grande.zip"),
+                    GpkgImportActions(),
+                    onBack = {},
+                )
+            }
+        }
+
+        compose.onNodeWithText("Importando el Shapefile…").assertIsDisplayed()
+        compose.onNodeWithText("Cancelar").assertIsDisplayed()
+        shown.value = ImportFormat.GEOPACKAGE
+        compose.waitForIdle()
+        compose.onNodeWithText("Importando el GeoPackage…").assertIsDisplayed()
+    }
 }
