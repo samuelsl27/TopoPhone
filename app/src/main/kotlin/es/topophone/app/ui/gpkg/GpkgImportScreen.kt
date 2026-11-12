@@ -118,6 +118,8 @@ class GpkgImportActions(
     val pickerStart: () -> MapViewport? = { null },
     val onNameField: (table: String, field: String?) -> Unit = { _, _ -> },
     val onUseElevations: (Boolean) -> Unit = {},
+    /** Cambia la codificación con la que se lee el `.dbf` de una capa de Shapefile (S030/RF-18). */
+    val onEncoding: (table: String, encoding: es.topophone.core.formats.shp.ShpEncoding) -> Unit = { _, _ -> },
     val onImport: () -> Unit = {},
     val onCancel: () -> Unit = {},
     val onSaveSummary: (fileName: String) -> Unit = {},
@@ -616,21 +618,32 @@ private fun ResultSection(state: GpkgImportUiState, actions: GpkgImportActions, 
                         Modifier.padding(start = 16.dp),
                     )
                 }
+                if (layer.withoutAttributes > 0) { // S030/RF-20
+                    Text(
+                        stringResource(
+                            R.string.gpkg_label_count,
+                            stringResource(R.string.shp_summary_without_attributes),
+                            layer.withoutAttributes,
+                        ),
+                        Modifier.padding(start = 16.dp),
+                    )
+                }
             }
         }
         if (summary.leftOutTables.isNotEmpty()) {
-            Text(stringResource(R.string.gpkg_result_left_out, summary.leftOutTables.joinToString(", ")))
+            val leftOut = if (state.format == ImportFormat.SHAPEFILE) R.string.shp_result_left_out else R.string.gpkg_result_left_out
+            Text(stringResource(leftOut, summary.leftOutTables.joinToString(", ")))
         }
         if (summary.wgs84Layers.isNotEmpty()) {
             Text(stringResource(R.string.gpkg_result_wgs84, summary.wgs84Layers.joinToString(", ")))
         }
     }
     OutlinedButton(
-        onClick = { actions.onSaveSummary(SUMMARY_FILE) },
+        onClick = { actions.onSaveSummary(summaryFile(state.format)) },
         modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(GPKG_SUMMARY_SAVE_TAG),
     ) { Text(stringResource(R.string.gpkg_summary_save)) }
     OutlinedButton(
-        onClick = { actions.onShareSummary(SUMMARY_FILE) },
+        onClick = { actions.onShareSummary(summaryFile(state.format)) },
         modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(GPKG_SUMMARY_SHARE_TAG),
     ) { Text(stringResource(R.string.gpkg_summary_share)) }
     when (summaryOutcome) {
@@ -643,7 +656,7 @@ private fun ResultSection(state: GpkgImportUiState, actions: GpkgImportActions, 
     }
 }
 
-private const val SUMMARY_FILE = "resumen-geopackage.txt"
+private fun summaryFile(format: ImportFormat) = if (format == ImportFormat.SHAPEFILE) "resumen-shapefile.txt" else "resumen-geopackage.txt"
 
 /** El texto del motivo de ignorado de un objeto, de `strings.xml` (S048/RF-11, RF-18). */
 internal fun reasonLabel(reason: GpkgIgnoredReason): Int = when (reason) {

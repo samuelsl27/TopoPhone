@@ -27,6 +27,7 @@ import es.topophone.app.ui.alignment.rememberImportAlignmentLauncher
 import es.topophone.app.ui.backup.rememberPackageHost
 import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
+import es.topophone.app.ui.gpkg.rememberImportShpLauncher
 import es.topophone.app.ui.points.rememberImportPointsLauncher
 import es.topophone.app.ui.raster.rememberImportRasterLauncher
 import es.topophone.app.ui.surface.rememberImportSurfaceLauncher
@@ -112,6 +113,7 @@ fun ProjectFolderRoute(
     val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
     val importRaster = rememberImportRasterLauncher(navigation.onImportRaster) // S045/RF-1
     val importGpkg = rememberImportGpkgLauncher(navigation.onImportGpkg) // S048/RF-1
+    val importShp = rememberImportShpLauncher(navigation.onImportShp) // S030/RF-1
     val importAlignment = rememberImportAlignmentLauncher(navigation) // S049/RF-1
     ProjectFolderScreen(
         themeState,
@@ -133,6 +135,7 @@ fun ProjectFolderRoute(
                 onImportSurface = importSurface,
                 onImportRaster = importRaster,
                 onImportGpkg = importGpkg,
+                onImportShp = importShp,
                 onImportAlignment = importAlignment,
                 onExportPackage = packages.export, // S013/RF-24
             ),

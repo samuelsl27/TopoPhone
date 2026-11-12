@@ -21,6 +21,7 @@ import es.topophone.app.ui.export.ExportFiles
 import es.topophone.app.ui.export.shareExportIntent
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
+import es.topophone.app.ui.points.ImportSource
 import es.topophone.app.ui.points.ReportOutcome
 import es.topophone.app.ui.points.importSourceOf
 import es.topophone.app.ui.points.saveReportTo
@@ -29,22 +30,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Los textos del resumen de la importación, de `strings.xml` (S048/RF-25). */
+/** Los textos del resumen de la importación, de `strings.xml` (S048/RF-25, S030/RF-25). */
 @Composable
-private fun rememberSummaryLabels(): GpkgSummaryLabels {
+private fun rememberSummaryLabels(format: ImportFormat): GpkgSummaryLabels {
     val resources = LocalResources.current
-    return remember(resources) {
+    return remember(resources, format) {
+        val shapefile = format == ImportFormat.SHAPEFILE
         GpkgSummaryLabels(
-            title = resources.getString(R.string.gpkg_summary_title),
+            title = resources.getString(if (shapefile) R.string.shp_summary_title else R.string.gpkg_summary_title),
             layer = resources.getString(R.string.gpkg_summary_layer),
             imported = resources.getString(R.string.gpkg_summary_imported),
             outsideArea = resources.getString(R.string.gpkg_summary_outside),
             ignored = resources.getString(R.string.gpkg_summary_ignored),
             omittedAttributes = resources.getString(R.string.gpkg_summary_omitted),
             total = resources.getString(R.string.gpkg_summary_total),
-            leftOut = resources.getString(R.string.gpkg_summary_left_out),
+            leftOut = resources.getString(if (shapefile) R.string.shp_summary_left_out else R.string.gpkg_summary_left_out),
             wgs84 = resources.getString(R.string.gpkg_summary_wgs84),
             reason = { resources.getString(reasonLabel(it)) },
+            withoutAttributes = resources.getString(R.string.shp_summary_without_attributes),
         )
     }
 }
@@ -60,11 +63,42 @@ fun GpkgImportRoute(
     viewModel: GpkgImportViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    LaunchedEffect(projectId, fileUri) { viewModel.start(projectId, importSourceOf(context.contentResolver, fileUri)) }
+    ImportRoute(ImportFormat.GEOPACKAGE, themeState, onToggleSun, onBack, viewModel)
+}
+
+/** La pantalla de importar el Shapefile de [fileUris] —un ZIP o ficheros sueltos— al proyecto [projectId] (S030/RF-1). */
+@Composable
+fun ShpImportRoute(
+    projectId: String,
+    fileUris: List<Uri>,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: GpkgImportViewModel = hiltViewModel(),
+) {
+    val context = LocalContext.current
+    LaunchedEffect(projectId, fileUris) {
+        val sources: List<ImportSource> = fileUris.map { importSourceOf(context.contentResolver, it) }
+        viewModel.startShapefile(projectId, sources)
+    }
+    ImportRoute(ImportFormat.SHAPEFILE, themeState, onToggleSun, onBack, viewModel)
+}
+
+/** Lo que tienen en común las dos importaciones: el estado, el mapa del selector del punto central y guardar o compartir el resumen. */
+@Composable
+private fun ImportRoute(
+    format: ImportFormat,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: GpkgImportViewModel,
+) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
     var outcome by remember { mutableStateOf<ReportOutcome?>(null) }
-    LaunchedEffect(projectId, fileUri) { viewModel.start(projectId, importSourceOf(context.contentResolver, fileUri)) }
-    val labels = rememberSummaryLabels()
+    val labels = rememberSummaryLabels(format)
     val environment =
         remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
     // S048/RF-25: el selector de ficheros del móvil; si el usuario cancela, no se escribe nada.
@@ -91,6 +125,7 @@ fun GpkgImportRoute(
             onUseElevations = viewModel::setUseElevations,
             onImport = viewModel::import,
             onCancel = viewModel::cancel,
+            onEncoding = viewModel::setEncoding,
             onSaveSummary = { name ->
                 outcome = null
                 save.launch(name)
@@ -134,5 +169,23 @@ fun rememberImportGpkgLauncher(onPicked: (projectId: String, fileUri: String) ->
     return { projectId ->
         pending = projectId
         picker.launch(arrayOf("*/*")) // RF-2: cualquier tipo; el contenido decide si es un GeoPackage
+    }
+}
+
+/**
+ * Abre el selector de ficheros del móvil, que deja marcar un ZIP o varios ficheros sueltos, para importar un Shapefile al proyecto que se
+ * le pase y, con lo elegido, pide la pantalla de importación con [onPicked] (S030/RF-1). Si el usuario cancela, no pasa nada.
+ */
+@Composable
+fun rememberImportShpLauncher(onPicked: (projectId: String, fileUris: List<String>) -> Unit): (projectId: String) -> Unit {
+    var pending by rememberSaveable { mutableStateOf<String?>(null) }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        val projectId = pending
+        pending = null
+        if (uris.isNotEmpty() && projectId != null) onPicked(projectId, uris.map { it.toString() })
+    }
+    return { projectId ->
+        pending = projectId
+        picker.launch(arrayOf("*/*")) // RF-2: cualquier tipo; el contenido decide qué es cada fichero
     }
 }

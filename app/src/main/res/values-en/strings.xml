@@ -1436,6 +1436,10 @@
         <item quantity="one">%1$d file without its .shp is left out: %2$s.</item>
         <item quantity="other">%1$d files without their .shp are left out: %2$s.</item>
     </plurals>
+    <string name="shp_summary_title">Shapefile import summary</string>
+    <string name="shp_summary_left_out">Files without their .shp left out</string>
+    <string name="shp_summary_without_attributes">Objects without a record in the .dbf (no attributes)</string>
+    <string name="shp_result_left_out">Files without their .shp left out: %1$s</string>
     <string name="gpkg_import_title">Import GeoPackage</string>
     <string name="gpkg_import_loading">Reading the file…</string>
     <string name="gpkg_import_close">Close</string>

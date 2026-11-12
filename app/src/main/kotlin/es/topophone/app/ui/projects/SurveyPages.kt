@@ -139,6 +139,10 @@ sealed interface SurveyPage {
     /** Importar un GeoPackage: el proyecto y la dirección del fichero elegido (S048/RF-1). */
     data class ImportGpkg(val projectId: String, val fileUri: String) : SurveyPage
 
+    /** Importar un Shapefile: el proyecto y los ficheros elegidos, un ZIP o varios sueltos (S030/RF-1). */
+    data class ImportShp(val projectId: String, val fileUris: kotlin.collections.List<String>) :
+        SurveyPage // `List` es una página de esta interfaz
+
     /** Importar los ejes de un LandXML: el proyecto y la dirección del fichero elegido (S049/RF-1). */
     data class ImportAlignment(val projectId: String, val fileUri: String) : SurveyPage
 
@@ -223,6 +227,8 @@ class SurveyNavigation(
     val onImportRaster: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de importación de un GeoPackage, con el fichero que eligió el usuario (S048/RF-1). */
     val onImportGpkg: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
+    /** La pantalla de importación de un Shapefile, con los ficheros que eligió el usuario (S030/RF-1). */
+    val onImportShp: (projectId: String, fileUris: List<String>) -> Unit = { _, _ -> },
     /** La pantalla de importación de los ejes de un LandXML, con el fichero que eligió el usuario (S049/RF-1). */
     val onImportAlignment: (projectId: String, fileUri: String) -> Unit = { _, _ -> },
     /** La pantalla de la rasante de un CSV, con el fichero que eligió el usuario (S049/RF-9). */
@@ -345,6 +351,7 @@ fun SurveyPageScreen(
             RasterImportScreen(themeState, onToggleSun, state.rasterImport, RasterImportActions(), navigation.onBack)
         is SurveyPage.BaseShift -> BaseShiftScreen(themeState, onToggleSun, state.baseShift, BaseShiftActions(), navigation.onBack)
         is SurveyPage.ImportGpkg -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
+        is SurveyPage.ImportShp -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
         is SurveyPage.AlignmentPoint ->
             AlignmentPointScreen(themeState, onToggleSun, state.alignmentPoint, AlignmentPointActions(), navigation.onBack)
         is SurveyPage.Sections -> SectionsScreen(themeState, onToggleSun, state.sections, SectionsActions(), navigation.onBack)

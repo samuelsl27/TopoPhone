@@ -52,6 +52,7 @@ import es.topophone.app.ui.export.GpkgExportRoute
 import es.topophone.app.ui.geometry.GeometryInfoRoute
 import es.topophone.app.ui.geometry.ThreePointAngleRoute
 import es.topophone.app.ui.gpkg.GpkgImportRoute
+import es.topophone.app.ui.gpkg.ShpImportRoute
 import es.topophone.app.ui.linear.LinearSurveysRoute
 import es.topophone.app.ui.lines.LineDetailsRoute
 import es.topophone.app.ui.lines.LineFromPointsRoute
@@ -201,6 +202,14 @@ fun TopoPhoneApp(
                 is SurveyPage.ImportGpkg -> GpkgImportRoute(
                     page.projectId,
                     Uri.parse(page.fileUri),
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.ImportShp -> ShpImportRoute(
+                    page.projectId,
+                    page.fileUris.map { Uri.parse(it) },
                     theme,
                     toggleSun,
                     navigation.onBack,
@@ -424,6 +433,7 @@ private fun AppNavHost(
                 // S045/RF-1
                 onImportRaster = { projectId, fileUri -> navController.navigate(ImportRasterDestination(projectId, fileUri)) },
                 onImportGpkg = { projectId, fileUri -> navController.navigate(ImportGpkgDestination(projectId, fileUri)) }, // S048/RF-1
+                onImportShp = { projectId, fileUris -> navController.navigate(ImportShpDestination(projectId, fileUris)) }, // S030/RF-1
                 onImportAlignment = { projectId, fileUri ->
                     navController.navigate(ImportAlignmentDestination(projectId, fileUri)) // S049/RF-1
                 },
@@ -563,6 +573,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ImportGpkgDestination>()
                 surveySection(
                     SurveyPage.ImportGpkg(args.projectId, args.fileUri),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ImportShpDestination> { entry ->
+                val args = entry.toRoute<ImportShpDestination>()
+                surveySection(
+                    SurveyPage.ImportShp(args.projectId, args.fileUris),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

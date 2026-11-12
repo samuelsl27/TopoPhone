@@ -58,6 +58,7 @@ import es.topophone.app.ui.backup.BackupNoticeViewModel
 import es.topophone.app.ui.backup.rememberPackageHost
 import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
+import es.topophone.app.ui.gpkg.rememberImportShpLauncher
 import es.topophone.app.ui.points.rememberImportPointsLauncher
 import es.topophone.app.ui.raster.rememberImportRasterLauncher
 import es.topophone.app.ui.receiver.uiLocale
@@ -166,6 +167,8 @@ class ProjectListActions(
     val onImportRaster: (String) -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage al proyecto (S048/RF-1). */
     val onImportGpkg: (String) -> Unit = {},
+    /** Abre el selector de ficheros y, con lo elegido, la importación de un Shapefile al proyecto (S030/RF-1). */
+    val onImportShp: (String) -> Unit = {},
     /** Pregunta de dónde sale el eje y lo importa al proyecto (S049/RF-1). */
     val onImportAlignment: (String) -> Unit = {},
     /** Los códigos de la biblioteca que lleva el proyecto (S023/RF-20). */
@@ -276,6 +279,7 @@ fun ProjectListRoute(
     val importSurface = rememberImportSurfaceLauncher(navigation.onImportSurface) // S042/RF-1
     val importRaster = rememberImportRasterLauncher(navigation.onImportRaster) // S045/RF-1
     val importGpkg = rememberImportGpkgLauncher(navigation.onImportGpkg) // S048/RF-1
+    val importShp = rememberImportShpLauncher(navigation.onImportShp) // S030/RF-1
     val importAlignment = rememberImportAlignmentLauncher(navigation) // S049/RF-1
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) noticeViewModel.folderChosen(uri.toString()) // S013/RF-22
@@ -308,6 +312,7 @@ fun ProjectListRoute(
             onImportSurface = importSurface,
             onImportRaster = importRaster,
             onImportGpkg = importGpkg,
+            onImportShp = importShp,
             onImportAlignment = importAlignment,
             onProjectCodes = navigation.onOpenProjectCodes,
             onExportPackage = packages.export,
@@ -574,6 +579,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onImportGpkg(project.id)
         } // S048/RF-1
+        MenuItem(R.string.shp_import_title) {
+            open = false
+            actions.onImportShp(project.id)
+        } // S030/RF-1
         MenuItem(R.string.alignment_import_title) {
             open = false
             actions.onImportAlignment(project.id)

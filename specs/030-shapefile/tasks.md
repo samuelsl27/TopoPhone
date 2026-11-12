@@ -30,7 +30,7 @@
       Hecho cuando: `ShpBackupTest` en verde (copia, restauración, paquete y borrado sin tocar los puntos del proyecto).
 - [x] T14. `app`: `GpkgImportViewModel` y `GpkgImportScreen` por `ImportFormat` (varias fuentes, problemas de fichero, lista de capas, aviso de huérfanos y textos de Shapefile en es y en). (RF-1 a RF-7)
       Hecho cuando: `ShpImportViewModelTest` y `ShpImportScreenTest` en verde para esos casos y los de GeoPackage sin cambios.
-- [ ] T15. `app`: «Importar Shapefile» en los tres menús, el selector de varios ficheros, `SurveyPage.ImportShp` y su destino de navegación. (RF-1, RF-3, RF-4)
+- [x] T15. `app`: «Importar Shapefile» en los tres menús, el selector de varios ficheros, `SurveyPage.ImportShp` y su destino de navegación. (RF-1, RF-3, RF-4)
       Hecho cuando: `ShpImportEntriesTest` en verde con los tres menús y la navegación con varios `Uri`.
 - [ ] T16. `app`: sistema de coordenadas de cada capa (el del `.prj`, elegido, sin `.prj`), extensión, distancia y aviso de 100 km, y el selector de codificación por capa. (RF-8 a RF-10, RF-18)
       Hecho cuando: los mismos tests en verde para esos casos, con el nombre del sistema no disponible a la vista.
