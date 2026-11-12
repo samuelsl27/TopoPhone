@@ -27,7 +27,7 @@
       Hecho cuando: `KmlImportViewModelTest` en verde.
 - [x] T12. `app`: la pantalla de importar KML/KMZ (capas con su ruta, tipo, objetos y extensión, la pregunta, los avisos y el resumen), «Importar KML/KMZ» en los dos menús con su navegación, «Origen: KML» y atributos en la ficha, y el replanteo de un objeto importado, con los textos en es y en. (RF-1, RF-6, RF-10, RF-11, RF-16, RF-18)
       Hecho cuando: `KmlImportScreenTest`, `KmlImportEntriesTest`, `DrawingsSheetKmlTest` y `KmlStakeoutTest` en verde (ajustar los tests de menús que ya no caben, como en S055).
-- [ ] T13. Rendimiento: un KML sintético de 100 MB se lee y se recorta en menos de 30 s y cambiar el radio recuenta en menos de 2 s. (RNF)
+- [x] T13. Rendimiento: un KML sintético de 100 MB se lee y se recorta en menos de 30 s y cambiar el radio recuenta en menos de 2 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.
 
 ## Exportar
