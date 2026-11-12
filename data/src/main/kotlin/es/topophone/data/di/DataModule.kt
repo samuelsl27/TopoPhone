@@ -84,6 +84,7 @@ import es.topophone.data.settings.DataStoreSettingsRepository
 import es.topophone.data.settings.SettingsDataStore
 import es.topophone.data.settings.SettingsDataStoreQualifier
 import es.topophone.data.settings.SettingsRepository
+import es.topophone.data.shp.ShapefileReader
 import es.topophone.data.slope.RoomSlopeRepository
 import es.topophone.data.slope.SlopeRepository
 import es.topophone.data.surface.ActiveSurfaceProvider
@@ -309,6 +310,10 @@ object DatabaseModule {
 
     @Provides
     fun provideGeoPackageImporter(repository: CadRepository): GeoPackageImporter = GeoPackageImporter(repository)
+
+    /** La copia temporal de un ZIP o de unos ficheros de Shapefile va a la caché de la app y se borra al cerrar (S030/RNF-T5, D5). */
+    @Provides
+    fun provideShapefileReader(@ApplicationContext context: Context): ShapefileReader = ShapefileReader(context.cacheDir)
 
     @Provides
     fun provideGearLegacyImport(preferences: ReceiverPreferences, repository: GearRepository): GearLegacyImport =

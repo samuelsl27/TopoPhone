@@ -67,7 +67,8 @@ class ShpGrouping(
  * lo elegido y [group] reparte los ficheros en capas por su nombre, sin distinguir mayúsculas y, en un ZIP, dentro de la misma carpeta.
  */
 object ShpSelection {
-    private val SIDE_EXTENSIONS = setOf("shx", "dbf", "prj", "cpg")
+    /** Las extensiones de los ficheros que acompañan al `.shp` y se asocian a él por su nombre. */
+    val SIDE_EXTENSIONS = setOf("shx", "dbf", "prj", "cpg")
     private val WINDOWS_DRIVE = Regex("^[A-Za-z]:")
 
     /** Lo que se hace con [picks], los ficheros que eligió el usuario: abrir el ZIP, mirar los sueltos o rechazarlo con su motivo. */
@@ -126,8 +127,12 @@ object ShpSelection {
     private fun pathWithoutExtension(entry: ShpEntry) = if (entry.directory.isEmpty()) entry.stem else "${entry.directory}/${entry.stem}"
 
     /** Una ruta absoluta, con letra de unidad o que sube de carpeta: no se escribe fuera de la carpeta temporal. */
+    fun isUnsafePath(path: String): Boolean = unsafe(path.replace('\\', '/'))
+
+    /** Lo que añaden los ZIP de macOS: carpetas `__MACOSX` y ficheros `._nombre`; se ignoran sin avisar. */
+    fun isIgnorablePath(path: String): Boolean = ignorable(path.replace('\\', '/'))
+
     private fun unsafe(path: String): Boolean = path.startsWith("/") || WINDOWS_DRIVE.containsMatchIn(path) || ".." in path.split('/')
 
-    /** Lo que añaden los ZIP de macOS: carpetas `__MACOSX` y ficheros `._nombre`. */
     private fun ignorable(path: String): Boolean = path.split('/').any { it == "__MACOSX" || it.startsWith("._") }
 }
