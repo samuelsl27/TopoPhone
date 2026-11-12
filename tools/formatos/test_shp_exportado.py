@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import generar_shp_exportado as g  # noqa: E402
 
 MILLIMETRE_M = 1e-3
+ROOT_REPO = Path(__file__).resolve().parents[2]
 
 
 def text_of(name: str) -> str:
@@ -233,6 +234,19 @@ def test_los_prj_son_wkt1_de_esri_y_ascii():
         text = (g.OUT / "prj" / f"{epsg}.prj").read_text(encoding="ascii")
         assert text.startswith(("PROJCS[", "GEOGCS["))
         assert "AUTHORITY" not in text and "AXIS" not in text and "\n" not in text  # una línea, sin AUTHORITY: es el WKT de ESRI
+
+
+def test_el_fichero_kotlin_de_los_prj_esta_al_dia():
+    kotlin = ROOT_REPO / "core" / "formats" / "src" / "main" / "kotlin" / "es" / "topophone" / "core" / "formats" / "shp" / "export" / "ShpPrjDefinitionsData.kt"
+    assert kotlin.read_text(encoding="utf-8") == g.kotlin_source()
+
+
+def test_cada_prj_de_kotlin_es_el_de_su_fichero_de_referencia():
+    kotlin = (ROOT_REPO / "core" / "formats" / "src" / "main" / "kotlin" / "es" / "topophone" / "core" / "formats" / "shp" / "export" / "ShpPrjDefinitionsData.kt").read_text(encoding="utf-8")
+    for epsg, _ in g.PRJ_SYSTEMS:
+        wkt = (g.OUT / "prj" / f"{epsg}.prj").read_text(encoding="ascii")
+        chunks = [wkt[i : i + 100] for i in range(0, len(wkt), 100)]
+        assert all(chunk.replace(chr(34), chr(92) + chr(34)) in kotlin for chunk in chunks), epsg
 
 
 # ------------------------------------------------------------------------------------------------------------------ la entrada

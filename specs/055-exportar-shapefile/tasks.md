@@ -10,7 +10,7 @@
       Hecho cuando: `DbfWriterTest` en verde y el `.dbf` coincide byte a byte con la referencia de `tools`.
 - [x] T4. `core:formats`: `ShpWriter` (`.shp` y `.shx` de `PointZ`, `PolyLineZ` y `PolygonZ`, envolventes, contorno horario, primer vértice repetido y registro nulo). (RF-3, RF-5, RF-12 a RF-14b)
       Hecho cuando: `ShpWriterTest` en verde y los ficheros coinciden byte a byte con las referencias de `tools`.
-- [ ] T5. `core:formats`: `ShpPrjDefinitions` con los datos generados (sistema del proyecto, geográficas del datum y sin definición). (RF-15, RF-16)
+- [x] T5. `core:formats`: `ShpPrjDefinitions` con los datos generados (sistema del proyecto, geográficas del datum y sin definición). (RF-15, RF-16)
       Hecho cuando: `ShpPrjDefinitionsTest` en verde contra los WKT de `tools` para cada `ProjectCrs`, y el caso sin definición da `null`.
 - [ ] T6. `core:formats`: `ShpExportBuilder` para los puntos: columnas fijas y de atributos de código, Z del proyecto y elipsoidal, Z = 0 con recuento, punto sin posición y resumen. (RF-1, RF-2, RF-6, RF-8, RF-9, RF-12 a RF-14b, RF-22)
       Hecho cuando: `ShpExportBuilderTest` en verde para los puntos, en proyectadas y en geográficas.
