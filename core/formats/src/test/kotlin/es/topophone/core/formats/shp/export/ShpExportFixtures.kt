@@ -54,4 +54,29 @@ object ShpExportFixtures {
         }
         return Entry(columns, geometry, rows)
     }
+
+    /** El tipo de forma de la capa `puntos`, `lineas` o `poligonos`. */
+    fun type(layer: String): ShpType = when (layer) {
+        "puntos" -> ShpType.POINT_Z
+        "lineas" -> ShpType.POLYLINE_Z
+        "poligonos" -> ShpType.POLYGON_Z
+        else -> error("Capa desconocida: $layer")
+    }
+
+    /** La geometría de cada objeto de la capa de ejemplo [layer], tal como se le da al escritor del `.shp`. */
+    fun geometries(layer: String): List<ShpGeometry> = entry(layer).geometry.map { text ->
+        if (text == null) {
+            ShpGeometry.Null
+        } else {
+            val vertices = text.split(";").map { vertex ->
+                val (x, y, z) = vertex.split(" ").map(String::toDouble)
+                ShpVertex(x, y, z)
+            }
+            when (layer) {
+                "puntos" -> ShpGeometry.Point(vertices.single())
+                "lineas" -> ShpGeometry.Line(vertices)
+                else -> ShpGeometry.Polygon(vertices)
+            }
+        }
+    }
 }
