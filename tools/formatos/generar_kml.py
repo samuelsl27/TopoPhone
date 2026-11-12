@@ -32,7 +32,7 @@ Reglas de este conjunto que la spec no fija y que quedan escritas en lo esperado
   `normal`. Los estilos se resuelven al terminar la marca con los declarados hasta entonces: uno declarado después no se aplica, ni uno de otro
   fichero (`otro.kml#id`).
 - Atributos: `name` y `description` (sin etiquetas HTML: `<br>`, `</p>`, `</div>`, `</li>` y `</tr>` son saltos de línea, las demás etiquetas
-  se quitan, se resuelven las entidades y se quitan las líneas vacías y los espacios de los extremos de cada línea) y una columna por cada
+  (las que empiezan por letra, `/`, `!` o `?`) se quitan, se resuelven las entidades y se quitan las líneas vacías y los espacios de los extremos de cada línea) y una columna por cada
   `Data` o `SimpleData`, en orden de aparición en la capa; un nombre que ya existe como columna (incluidos `name` y `description`) lleva `_2`,
   `_3`… Un valor vacío es nulo.
 - Vínculos internos (solo en un KMZ): un `NetworkLink` (con `Link` o `Url`) cuyo `href` es relativo, sin esquema ni `..` que salga del KMZ, y
@@ -461,7 +461,7 @@ def text_of(element: ET.Element | None) -> str:
 
 def strip_html(raw: str) -> str:
     text = re.sub(r"<\s*br\s*/?\s*>|<\s*/\s*(p|div|li|tr)\s*>", "\n", raw, flags=re.IGNORECASE)
-    text = re.sub(r"<[^>]*>", "", text)
+    text = re.sub(r"<[A-Za-z/!?][^>]*>", "", text)
     text = html.unescape(text).replace("\r\n", "\n").replace("\r", "\n")
     return "\n".join(line.strip() for line in text.split("\n") if line.strip())
 

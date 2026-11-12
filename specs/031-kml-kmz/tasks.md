@@ -9,7 +9,7 @@
       Hecho cuando: los tests de S048 y S030 siguen en verde sin cambios y un test nuevo comprueba que un objeto con color lo guarda en su elemento y que sin color toma el de su capa.
 - [x] T3. `core:formats`: `KmlFileKind` (KML y KMZ por contenido, KML principal de un KMZ) y `KmlColors` (`aabbggrr` a ARGB y vuelta). (RF-2, RF-3, RF-12, RF-23)
       Hecho cuando: `KmlFileKindTest` y `KmlColorsTest` en verde con los ficheros de T1.
-- [ ] T4. `core:formats`: `KmlCoordinates` (tuplas, separadores, Z solo si todos los vértices la traen) y `KmlHtml`. (RF-7, RF-11, RF-13, RF-14)
+- [x] T4. `core:formats`: `KmlCoordinates` (tuplas, separadores, Z solo si todos los vértices la traen) y `KmlHtml`. (RF-7, RF-11, RF-13, RF-14)
       Hecho cuando: `KmlCoordinatesTest` y `KmlHtmlTest` en verde.
 - [ ] T5. `core:formats`: `KmlStyleTable` (estilos en línea, `styleUrl`, `StyleMap`, `IconStyle` frente a `LineStyle`, resolución al terminar la marca). (RF-12)
       Hecho cuando: `KmlStyleTableTest` en verde con los casos de T1.

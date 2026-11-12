@@ -247,6 +247,7 @@ def test_geometrias_vacias_son_objetos_ignorados() -> None:
         ("a &amp; b &lt; c", "a & b < c"),
         ("  hueco  \n\n  otra  ", "hueco\notra"),
         ('<a href="http://x/y">enlace</a><img src="f.jpg"/>', "enlace"),
+        ("a < b y c > d", "a < b y c > d"),
         ("", ""),
     ],
 )
