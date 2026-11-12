@@ -20,7 +20,7 @@
       Hecho cuando: `PrjReaderTest` y `ShpCrsCatalogTest` en verde con el WKT de ESRI y el de OGC de cada `ProjectCrs` contra pyproj, y con pies, otro huso y otra proyección como no disponibles.
 - [x] T9. `data`: `FeatureSession` extraída de `GpkgSession`, `GpkgFeature.deleted`, y `GeoPackageImporter` y `GeoPackageScan` sobre la interfaz con el origen de la sesión. (RF-16, RF-26)
       Hecho cuando: los tests de S048 (`GeoPackageReaderTest`, `GeoPackageScanTest`, `GeoPackageImporterTest`, `GpkgBackupTest`) siguen en verde sin cambios y un test del importador cuenta un objeto `deleted` como ignorado.
-- [ ] T10. `data`: `ShapefileReader` (ZIP o ficheros sueltos a una carpeta temporal de la caché, límites por bytes leídos, espacio libre, zip-slip, limpieza) y la inyección en `DataModule`. (RF-1 a RF-7, RF-29, RF-30)
+- [x] T10. `data`: `ShapefileReader` (ZIP o ficheros sueltos a una carpeta temporal de la caché, límites por bytes leídos, espacio libre, zip-slip, limpieza) y la inyección en `DataModule`. (RF-1 a RF-7, RF-29, RF-30)
       Hecho cuando: `ShapefileReaderTest` en verde con los ZIP y sueltos de `tools`, el tamaño declarado falso, un nombre de entrada con `..`, un ZIP cancelado a mitad, y sin dejar el temporal.
 - [x] T11. `data`: `ShapefileSession` (capas con su tipo, columnas y SC, objetos con acceso aleatorio, cabeceras y geometrías por registro, codificación por capa). (RF-7 a RF-9, RF-15 a RF-21)
       Hecho cuando: `ShapefileSessionTest` en verde: capas con el mismo nombre distinguidas por carpeta, `forEachFeature`, `forEachHead`, `forEachGeometry`, cambio de codificación y `.dbf` corto.
