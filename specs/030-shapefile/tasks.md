@@ -34,7 +34,7 @@
       Hecho cuando: `ShpImportEntriesTest` en verde con los tres menús y la navegación con varios `Uri`.
 - [x] T16. `app`: sistema de coordenadas de cada capa (el del `.prj`, elegido, sin `.prj`), extensión, distancia y aviso de 100 km, y el selector de codificación por capa. (RF-8 a RF-10, RF-18)
       Hecho cuando: los mismos tests en verde para esos casos, con el nombre del sistema no disponible a la vista.
-- [ ] T17. `app`: zona de importación, cotas, campo de nombre, «Importar» con progreso y cancelar, y resumen por capa con guardar y compartir. (RF-11 a RF-14, RF-17, RF-22, RF-25, RF-29, RF-30)
+- [x] T17. `app`: zona de importación, cotas, campo de nombre, «Importar» con progreso y cancelar, y resumen por capa con guardar y compartir. (RF-11 a RF-14, RF-17, RF-22, RF-25, RF-29, RF-30)
       Hecho cuando: los mismos tests en verde y el resumen se guarda como texto con las líneas de borrados y objetos sin atributos.
 - [ ] T18. `app`: «Origen: Shapefile» en «Dibujos», las etiquetas y los contornos en el mapa y la ficha con atributos al tocar, y borrar el dibujo. (RF-21, RF-23, RF-26, RF-27, RNF-T8)
       Hecho cuando: `DrawingsSheetShpTest` y `ShpFeatureSheetTest` en verde.

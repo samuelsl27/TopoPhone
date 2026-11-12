@@ -14,7 +14,10 @@ import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsCatalog
 import es.topophone.core.formats.shp.ShpEncoding
 import es.topophone.core.model.cad.GpkgColumn
+import es.topophone.core.model.cad.GpkgIgnoredReason
+import es.topophone.core.model.cad.GpkgImportSummary
 import es.topophone.core.model.cad.GpkgLayerInfo
+import es.topophone.core.model.cad.GpkgLayerSummary
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
 import io.kotest.matchers.shouldBe
@@ -176,5 +179,35 @@ class ShpImportScreenTest {
         show(config.copy(layers = listOf(GpkgLayerRow(points, crs = utm30))))
 
         compose.onNodeWithTag(shpEncodingTag("vertices", ShpEncoding.UTF_8)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S030 RF-25 el resultado dice los objetos sin atributos los ignorados y los ficheros dejados fuera`() {
+        val summary = GpkgImportSummary(
+            layers = listOf(
+                GpkgLayerSummary(
+                    "dbf_corto",
+                    imported = 5,
+                    outsideArea = 0,
+                    ignored = mapOf(GpkgIgnoredReason.DELETED_RECORD to 1),
+                    withoutAttributes = 2,
+                ),
+            ),
+            leftOutTables = listOf("solo.dbf"),
+        )
+        show(
+            GpkgImportUiState(
+                stage = GpkgImportStage.RESULT,
+                format = ImportFormat.SHAPEFILE,
+                fileName = "parcelas.zip",
+                result = GpkgImportOutcome("d1", summary),
+            ),
+        )
+
+        compose.onNodeWithTag(GPKG_RESULT_TAG).assertIsDisplayed()
+        compose.onNodeWithText("Registro borrado en el .dbf: 1").assertExists()
+        compose.onNodeWithText("Objetos sin registro en el .dbf (sin atributos): 2").assertExists()
+        compose.onNodeWithText("Ficheros sin su .shp dejados fuera: solo.dbf").assertExists()
+        compose.onNodeWithTag(GPKG_SUMMARY_SAVE_TAG).assertExists()
     }
 }
