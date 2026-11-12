@@ -38,7 +38,7 @@
       Hecho cuando: los mismos tests en verde y el resumen se guarda como texto con las líneas de borrados y objetos sin atributos.
 - [x] T18. `app`: «Origen: Shapefile» en «Dibujos», las etiquetas y los contornos en el mapa y la ficha con atributos al tocar, y borrar el dibujo. (RF-21, RF-23, RF-26, RF-27, RNF-T8)
       Hecho cuando: `DrawingsSheetShpTest` y `ShpFeatureSheetTest` en verde.
-- [ ] T19. `app`: replanteo de los puntos y las líneas de un dibujo de Shapefile con S041, con su nombre. (RF-24)
+- [x] T19. `app`: replanteo de los puntos y las líneas de un dibujo de Shapefile con S041, con su nombre. (RF-24)
       Hecho cuando: `ShpStakeoutTest` en verde.
 - [ ] T20. Rendimiento: un ZIP de 100 MB se lee y recorta en menos de 20 s y cambiar el radio recuenta en menos de 2 s. (RNF)
       Hecho cuando: el test de rendimiento en verde, con la lectura por flujo (sin cargar el `.shp` entero).
