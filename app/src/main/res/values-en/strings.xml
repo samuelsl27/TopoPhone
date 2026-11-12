@@ -1440,6 +1440,10 @@
     <string name="shp_summary_left_out">Files without their .shp left out</string>
     <string name="shp_summary_without_attributes">Objects without a record in the .dbf (no attributes)</string>
     <string name="shp_result_left_out">Files without their .shp left out: %1$s</string>
+    <string name="shp_crs_undeclared">The layer has no .prj or it cannot be understood: choose its coordinate system.</string>
+    <string name="shp_crs_unavailable">The system %1$s of the .prj is not available in the app: choose one.</string>
+    <string name="shp_encoding_label">.dbf encoding</string>
+    <string name="shp_encoding_unknown">The .cpg declares an encoding the app does not know: it is read as Windows-1252.</string>
     <string name="gpkg_import_title">Import GeoPackage</string>
     <string name="gpkg_import_loading">Reading the file…</string>
     <string name="gpkg_import_close">Close</string>

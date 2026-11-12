@@ -1452,6 +1452,10 @@
     <string name="shp_summary_left_out">Ficheros sin su .shp dejados fuera</string>
     <string name="shp_summary_without_attributes">Objetos sin registro en el .dbf (sin atributos)</string>
     <string name="shp_result_left_out">Ficheros sin su .shp dejados fuera: %1$s</string>
+    <string name="shp_crs_undeclared">La capa no tiene .prj o no se entiende: elige su sistema de coordenadas.</string>
+    <string name="shp_crs_unavailable">El sistema %1$s del .prj no está disponible en la app: elige uno.</string>
+    <string name="shp_encoding_label">Codificación del .dbf</string>
+    <string name="shp_encoding_unknown">El .cpg declara una codificación que la app no conoce: se lee como Windows-1252.</string>
     <string name="gpkg_import_title">Importar GeoPackage</string>
     <string name="gpkg_import_loading">Leyendo el fichero…</string>
     <string name="gpkg_import_close">Cerrar</string>

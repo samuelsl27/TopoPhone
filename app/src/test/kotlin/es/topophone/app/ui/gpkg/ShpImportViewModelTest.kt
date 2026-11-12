@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.core.formats.gpkg.GpkgCrs
+import es.topophone.core.formats.gpkg.GpkgCrsUnit
 import es.topophone.core.formats.shp.ShpEncoding
 import es.topophone.core.formats.shp.ShpFileKind
 import es.topophone.core.model.cad.GpkgLayerKind
@@ -207,5 +209,105 @@ class ShpImportViewModelTest {
         state.format shouldBe ImportFormat.GEOPACKAGE
         state.layers.single().info.table shouldBe "vertices"
         state.layers.single().encoding shouldBe null
+    }
+
+    @Test
+    fun `S030 RF-8 el sistema del prj se propone y su unidad la fija el sistema`() {
+        val state = open("puntos-25830/vertices.shp", "puntos-25830/vertices.prj", "lineas-4258/ejes.shp", "lineas-4258/ejes.prj").settled()
+
+        val rows = state.layers.associateBy { it.info.table }
+        rows.getValue("vertices").crs.shouldBeInstanceOf<GpkgCrs.Supported>().epsg shouldBe 25830
+        rows.getValue("vertices").effective!!.unit shouldBe GpkgCrsUnit.METRE
+        rows.getValue("ejes").crs.shouldBeInstanceOf<GpkgCrs.Supported>().epsg shouldBe 4258
+        rows.getValue("ejes").effective!!.unit shouldBe GpkgCrsUnit.DEGREE
+        state.canImport shouldBe true
+    }
+
+    @Test
+    fun `S030 RF-9 una capa sin prj no se puede importar hasta elegirle un sistema de la app`() {
+        val viewModel = open("sistemas/sin_prj.shp", "sistemas/sin_prj.dbf")
+
+        val state = viewModel.settled()
+
+        state.layers.single().crs shouldBe GpkgCrs.Undeclared
+        state.layers.single().effective shouldBe null
+        state.canImport shouldBe false
+
+        viewModel.setCrs("sin_prj", ProjectCrs.ETRS89_UTM30)
+        val chosen = viewModel.settled()
+        chosen.layers.single().effective!!.epsg shouldBe 25830
+        chosen.canImport shouldBe true
+    }
+
+    @Test
+    fun `S030 RF-9 un sistema que la app no ofrece lleva el nombre del prj y tambien espera a que se elija uno`() {
+        val viewModel = open("sistemas/utm33.shp", "sistemas/utm33.prj", "sistemas/prj_ilegible.shp", "sistemas/prj_ilegible.prj")
+
+        val state = viewModel.settled()
+
+        val rows = state.layers.associateBy { it.info.table }
+        rows.getValue("utm33").crs.shouldBeInstanceOf<GpkgCrs.Unavailable>().name shouldBe "ETRS_1989_UTM_Zone_33N"
+        rows.getValue("prj_ilegible").crs shouldBe GpkgCrs.Undeclared
+        state.canImport shouldBe false
+        viewModel.setCrs("utm33", ProjectCrs.ETRS89_UTM31)
+        viewModel.setCrs("prj_ilegible", ProjectCrs.ETRS89_UTM30)
+        viewModel.settled().canImport shouldBe true
+    }
+
+    @Test
+    fun `S030 RF-10 la extension de cada capa y su distancia al centro del proyecto`() {
+        val state = open("puntos-25830/vertices.shp", "puntos-25830/vertices.prj").settled()
+
+        val row = state.layers.single()
+        (row.extent != null) shouldBe true
+        (row.distanceKm!! < 1.0) shouldBe true
+        row.outsideArea shouldBe false
+        state.farWarning shouldBe false
+    }
+
+    @Test
+    fun `S030 RF-10 a mas de 100 km del centro del proyecto hay que confirmar antes de importar`() {
+        val seville = runBlocking {
+            projects.create(
+                ProjectDefaults().toDraft().copy(
+                    name = "Sevilla",
+                    crs = ProjectCrs.ETRS89_UTM30,
+                    centralPoint = CentralPoint(37.3891, -5.9845),
+                ),
+            ).shouldBeInstanceOf<SaveResult.Saved>().id
+        }
+        val viewModel = gpkgViewModel(cache, projects, viewports, dispatcher, cad)
+        viewModel.startShapefile(seville, ShpTestFiles.sources("puntos-25830/vertices.shp", "puntos-25830/vertices.prj"))
+
+        val state = viewModel.settled()
+
+        state.farWarning shouldBe true
+        state.canImport shouldBe false
+        viewModel.confirmFar()
+        viewModel.settled().canImport shouldBe true
+    }
+
+    @Test
+    fun `S030 RF-18 cambiar la codificacion relee la capa y conserva el campo de nombre`() {
+        val viewModel = open("codificaciones/w1252_sin_cpg.shp", "codificaciones/w1252_sin_cpg.dbf")
+        viewModel.settled().layers.single().encoding shouldBe ShpEncoding.WINDOWS_1252
+
+        viewModel.setEncoding("w1252_sin_cpg", ShpEncoding.UTF_8)
+
+        val row = viewModel.settled().layers.single()
+        row.encoding shouldBe ShpEncoding.UTF_8
+        row.nameField shouldBe "nombre"
+        row.info.columns.map { it.name } shouldBe listOf("nombre")
+    }
+
+    @Test
+    fun `S030 RF-18 cambiar la codificacion de una capa de GeoPackage no hace nada`() {
+        val viewModel = gpkgViewModel(cache, projects, viewports, dispatcher, cad)
+        viewModel.start(projectId, GpkgTestFiles.source("puntos-25830.gpkg"))
+        viewModel.settled()
+
+        viewModel.setEncoding("vertices", ShpEncoding.UTF_8)
+
+        viewModel.settled().layers.single().encoding shouldBe null
     }
 }

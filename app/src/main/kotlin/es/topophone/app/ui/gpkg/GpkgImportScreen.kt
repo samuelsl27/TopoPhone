@@ -48,6 +48,7 @@ import es.topophone.app.ui.projects.crsLabel
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsUnit
+import es.topophone.core.formats.shp.ShpEncoding
 import es.topophone.core.model.cad.GpkgIgnoredReason
 import es.topophone.core.model.cad.GpkgLayerKind
 import es.topophone.core.model.map.MapViewport
@@ -92,6 +93,12 @@ fun gpkgLayerTag(table: String) = "gpkg_layer_$table"
 
 fun gpkgCrsTag(table: String) = "gpkg_crs_$table"
 
+/** La etiqueta de la opción de codificación [encoding] del `.dbf` de la capa [table] (S030/RF-18). */
+fun shpEncodingTag(table: String, encoding: ShpEncoding) = "shp_encoding_${table}_${encoding.name}"
+
+/** El aviso de que el `.cpg` de la capa declara una codificación que no se conoce (S030/RF-18). */
+fun shpCpgUnknownTag(table: String) = "shp_cpg_unknown_$table"
+
 fun gpkgCrsChangeTag(table: String) = "gpkg_crs_change_$table"
 
 fun gpkgCrsChoiceTag(table: String, crs: ProjectCrs) = "gpkg_crs_choice_${table}_${crs.name}"
@@ -119,7 +126,7 @@ class GpkgImportActions(
     val onNameField: (table: String, field: String?) -> Unit = { _, _ -> },
     val onUseElevations: (Boolean) -> Unit = {},
     /** Cambia la codificación con la que se lee el `.dbf` de una capa de Shapefile (S030/RF-18). */
-    val onEncoding: (table: String, encoding: es.topophone.core.formats.shp.ShpEncoding) -> Unit = { _, _ -> },
+    val onEncoding: (table: String, encoding: ShpEncoding) -> Unit = { _, _ -> },
     val onImport: () -> Unit = {},
     val onCancel: () -> Unit = {},
     val onSaveSummary: (fileName: String) -> Unit = {},
@@ -253,7 +260,7 @@ private fun ConfigSections(state: GpkgImportUiState, actions: GpkgImportActions,
         Text(stringResource(R.string.gpkg_scanning), modifier = Modifier.testTag(GPKG_SCANNING_TAG))
     }
     Column(modifier = Modifier.testTag(GPKG_LAYERS_TAG), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        state.layers.forEach { row -> LayerRow(row, state.scanning, actions) }
+        state.layers.forEach { row -> LayerRow(row, state.scanning, state.format, actions) }
     }
     if (state.markedLayers.isEmpty()) {
         Text(
@@ -280,7 +287,7 @@ private fun ConfigSections(state: GpkgImportUiState, actions: GpkgImportActions,
 }
 
 @Composable
-private fun LayerRow(row: GpkgLayerRow, scanning: Boolean, actions: GpkgImportActions) {
+private fun LayerRow(row: GpkgLayerRow, scanning: Boolean, format: ImportFormat, actions: GpkgImportActions) {
     val info = row.info
     val kind = stringResource(
         when (info.kind) {
@@ -312,7 +319,8 @@ private fun LayerRow(row: GpkgLayerRow, scanning: Boolean, actions: GpkgImportAc
             }
         }
         if (row.marked) {
-            CrsBlock(row, actions)
+            CrsBlock(row, format, actions)
+            if (row.encoding != null) EncodingBlock(row, row.encoding, actions)
             NameFieldBlock(row, actions)
             if (!scanning) ExtentBlock(row)
         }
@@ -322,14 +330,14 @@ private fun LayerRow(row: GpkgLayerRow, scanning: Boolean, actions: GpkgImportAc
 /** El sistema de coordenadas de la capa, su unidad (la fija el sistema) y cómo elegir otro (S048/RF-8 a RF-10). */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CrsBlock(row: GpkgLayerRow, actions: GpkgImportActions) {
+private fun CrsBlock(row: GpkgLayerRow, format: ImportFormat, actions: GpkgImportActions) {
     val table = row.info.table
     val effective = row.effective
     var changing by rememberSaveable(table) { mutableStateOf(false) }
     Column(modifier = Modifier.padding(start = 40.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         if (effective == null) {
             Text(
-                undeclaredText(row.crs),
+                undeclaredText(row.crs, format),
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.testTag(gpkgCrsTag(table)),
             ) // RF-9
@@ -366,8 +374,11 @@ private fun CrsBlock(row: GpkgLayerRow, actions: GpkgImportActions) {
 }
 
 @Composable
-private fun undeclaredText(crs: GpkgCrs): String = when (crs) {
-    is GpkgCrs.Unavailable -> stringResource(R.string.gpkg_crs_unavailable, "${crs.authority}:${crs.code}")
+private fun undeclaredText(crs: GpkgCrs, format: ImportFormat): String = when {
+    format == ImportFormat.SHAPEFILE && crs is GpkgCrs.Unavailable ->
+        stringResource(R.string.shp_crs_unavailable, crs.name ?: "${crs.authority}:${crs.code}") // S030/RF-9: el nombre que trae el .prj
+    format == ImportFormat.SHAPEFILE -> stringResource(R.string.shp_crs_undeclared)
+    crs is GpkgCrs.Unavailable -> stringResource(R.string.gpkg_crs_unavailable, "${crs.authority}:${crs.code}")
     else -> stringResource(R.string.gpkg_crs_undeclared)
 }
 
@@ -525,6 +536,33 @@ private fun ProgressBar(done: Long, total: Long) {
         LinearProgressIndicator(progress = { (done.toFloat() / total).coerceIn(0f, 1f) }, modifier = modifier)
     } else {
         LinearProgressIndicator(modifier = modifier)
+    }
+}
+
+/** La codificación con la que se lee el `.dbf` de la capa, UTF-8 o Windows-1252, y el aviso de un `.cpg` desconocido (S030/RF-18). */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun EncodingBlock(row: GpkgLayerRow, encoding: ShpEncoding, actions: GpkgImportActions) {
+    val table = row.info.table
+    Column(modifier = Modifier.padding(start = 40.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(stringResource(R.string.shp_encoding_label), style = MaterialTheme.typography.labelLarge)
+        if (row.cpgUnknown) {
+            Text(
+                stringResource(R.string.shp_encoding_unknown),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag(shpCpgUnknownTag(table)),
+            )
+        }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ShpEncoding.entries.forEach { option ->
+                FilterChip(
+                    selected = encoding == option,
+                    onClick = { actions.onEncoding(table, option) },
+                    label = { Text(option.label) },
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(shpEncodingTag(table, option)),
+                )
+            }
+        }
     }
 }
 

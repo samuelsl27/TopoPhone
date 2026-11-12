@@ -6,13 +6,18 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
+import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsCatalog
+import es.topophone.core.formats.shp.ShpEncoding
 import es.topophone.core.model.cad.GpkgColumn
 import es.topophone.core.model.cad.GpkgLayerInfo
 import es.topophone.core.model.preferences.EffectiveTheme
 import es.topophone.core.model.preferences.ThemeState
+import io.kotest.matchers.shouldBe
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -119,5 +124,57 @@ class ShpImportScreenTest {
         show(config.copy(format = ImportFormat.GEOPACKAGE, leftOutTables = listOf("censo")))
 
         compose.onNodeWithText("Se deja fuera 1 tabla sin geometría o de teselas: censo.").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S030 RF-9 una capa sin prj o con un sistema que la app no ofrece pide elegir uno`() {
+        val unavailable = GpkgCrs.Unavailable("PRJ", 0, "ETRS_1989_UTM_Zone_33N")
+        show(
+            config.copy(
+                layers = listOf(
+                    GpkgLayerRow(points, crs = GpkgCrs.Undeclared),
+                    GpkgLayerRow(polygons, crs = unavailable),
+                ),
+            ),
+        )
+
+        compose.onNodeWithText("La capa no tiene .prj o no se entiende: elige su sistema de coordenadas.").assertExists()
+        compose.onNodeWithText("El sistema ETRS_1989_UTM_Zone_33N del .prj no está disponible en la app: elige uno.").assertExists()
+    }
+
+    @Test
+    fun `S030 RF-8 con un sistema reconocido se ve su nombre y su unidad`() {
+        show(config.copy(layers = listOf(GpkgLayerRow(points, crs = utm30))))
+
+        compose.onNodeWithTag(gpkgCrsTag("vertices")).assertIsDisplayed()
+        compose.onNodeWithTag(gpkgUnitTag("vertices")).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S030 RF-18 una capa con dbf ofrece la codificacion y avisa de un cpg desconocido`() {
+        val chosen = mutableListOf<Pair<String, ShpEncoding>>()
+        show(
+            config.copy(
+                layers = listOf(
+                    GpkgLayerRow(points, crs = utm30, encoding = ShpEncoding.UTF_8),
+                    GpkgLayerRow(polygons, crs = utm30, encoding = ShpEncoding.WINDOWS_1252, cpgUnknown = true),
+                ),
+            ),
+            GpkgImportActions(onEncoding = { table, encoding -> chosen += table to encoding }),
+        )
+
+        compose.onNodeWithTag(shpEncodingTag("vertices", ShpEncoding.UTF_8)).assertExists()
+        compose.onNodeWithTag(shpEncodingTag("vertices", ShpEncoding.WINDOWS_1252)).performScrollTo().performClick()
+        compose.onNodeWithTag(shpCpgUnknownTag("norte/parcelas")).assertExists()
+        compose.onNodeWithTag(shpCpgUnknownTag("vertices")).assertDoesNotExist()
+
+        chosen shouldBe listOf("vertices" to ShpEncoding.WINDOWS_1252)
+    }
+
+    @Test
+    fun `S030 RF-18 una capa sin dbf no ofrece codificacion`() {
+        show(config.copy(layers = listOf(GpkgLayerRow(points, crs = utm30))))
+
+        compose.onNodeWithTag(shpEncodingTag("vertices", ShpEncoding.UTF_8)).assertDoesNotExist()
     }
 }
