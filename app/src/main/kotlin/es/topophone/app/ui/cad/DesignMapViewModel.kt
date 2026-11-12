@@ -47,7 +47,7 @@ data class DesignSelection(
     val drawingName: String,
     /** El dibujo tiene cotas y este elemento trae Z; si no, la ficha dice «Sin cota». */
     val hasElevation: Boolean,
-    /** Los atributos del objeto de un GeoPackage, por columna; vacíos en un dibujo de DXF (S048/RF-20). */
+    /** Los atributos del objeto de un GeoPackage o de un Shapefile, por columna; vacíos en un dibujo de DXF (S048/RF-20, S030/RF-21). */
     val attributes: Map<String, GpkgValue> = emptyMap(),
     /** Dónde se tocó, en el sistema del proyecto: el extremo más cercano es el inicio de un eje (S049/RF-6). */
     val tapEasting: Double? = null,
@@ -141,7 +141,8 @@ class DesignMapViewModel @Inject constructor(
         }
         val hit = DesignHitTest.nearest(east, north, tolerance, candidates) ?: return null
         val (layer, drawing) = byLayer.getValue(hit.ref.layerId)
-        val attributes = if (drawing.origin == CadOrigin.GEOPACKAGE) cad.attributes(hit.ref) else emptyMap()
+        // Un GeoPackage y un Shapefile traen los atributos de sus objetos; un DXF no (S048/RF-20, S030/RF-21).
+        val attributes = if (drawing.origin != CadOrigin.DXF) cad.attributes(hit.ref) else emptyMap()
         return DesignSelection(
             hit.ref,
             hit.entity,

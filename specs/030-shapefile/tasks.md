@@ -36,7 +36,7 @@
       Hecho cuando: los mismos tests en verde para esos casos, con el nombre del sistema no disponible a la vista.
 - [x] T17. `app`: zona de importación, cotas, campo de nombre, «Importar» con progreso y cancelar, y resumen por capa con guardar y compartir. (RF-11 a RF-14, RF-17, RF-22, RF-25, RF-29, RF-30)
       Hecho cuando: los mismos tests en verde y el resumen se guarda como texto con las líneas de borrados y objetos sin atributos.
-- [ ] T18. `app`: «Origen: Shapefile» en «Dibujos», las etiquetas y los contornos en el mapa y la ficha con atributos al tocar, y borrar el dibujo. (RF-21, RF-23, RF-26, RF-27, RNF-T8)
+- [x] T18. `app`: «Origen: Shapefile» en «Dibujos», las etiquetas y los contornos en el mapa y la ficha con atributos al tocar, y borrar el dibujo. (RF-21, RF-23, RF-26, RF-27, RNF-T8)
       Hecho cuando: `DrawingsSheetShpTest` y `ShpFeatureSheetTest` en verde.
 - [ ] T19. `app`: replanteo de los puntos y las líneas de un dibujo de Shapefile con S041, con su nombre. (RF-24)
       Hecho cuando: `ShpStakeoutTest` en verde.

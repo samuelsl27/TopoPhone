@@ -1540,6 +1540,7 @@
     <string name="cad_drawing_origin">Origen: %1$s</string>
     <string name="cad_origin_gpkg">GeoPackage</string>
     <string name="cad_origin_dxf">DXF</string>
+    <string name="cad_origin_shp">Shapefile</string>
     <string name="gpkg_no_layer_marked">Marca al menos una capa para importar.</string>
     <string name="gpkg_layer_detail">%1$s · %2$s</string>
     <string name="gpkg_kind_points">Puntos</string>

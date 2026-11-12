@@ -121,7 +121,13 @@ private fun DrawingSection(entry: CadDrawingWithLayers, actions: DrawingsActions
         Text(
             stringResource(
                 R.string.cad_drawing_origin,
-                stringResource(if (drawing.origin == CadOrigin.GEOPACKAGE) R.string.cad_origin_gpkg else R.string.cad_origin_dxf),
+                stringResource(
+                    when (drawing.origin) {
+                        CadOrigin.GEOPACKAGE -> R.string.cad_origin_gpkg
+                        CadOrigin.SHAPEFILE -> R.string.cad_origin_shp
+                        CadOrigin.DXF -> R.string.cad_origin_dxf
+                    },
+                ),
             ),
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.testTag(drawingOriginTag(drawing.id)),
