@@ -14,7 +14,8 @@ Formato de la entrada, una línea por elemento, campos separados por `|` y `\\n`
 
 Reglas de la plantilla:
 - Sangría de 2 espacios, fin de línea LF y salto de línea final. `<altitudeMode>absolute</altitudeMode>` solo con `absolute`.
-- Las coordenadas van como `lon,lat[,alt]` separadas por un espacio, con el texto de cada vértice tal cual está en la entrada.
+- Las coordenadas van como `lon,lat[,alt]` separadas por un espacio, con el texto de cada vértice tal cual está en la entrada; la altura solo
+  se escribe en las marcas `absolute`.
 - El texto de nombres, descripciones y valores escapa `&`, `<` y `>`; un atributo escapa además `"`.
 - Una marca con fotos lleva la descripción en CDATA: el texto con `&`, `<` y `>` escapados como HTML y sus saltos de línea como `<br/>`, y
   después un `<br/>` y un `<img src="files/<foto>" width="400"/>` por foto.
@@ -99,7 +100,9 @@ def esc_attr(text: str) -> str:
 
 
 def coordinates(mark: Mark) -> str:
-    return " ".join(",".join(c for c in v if c != "") for v in mark.vertices)
+    """Los vértices de la marca: la altura solo va si la marca es `absolute`; una pegada al suelo no la escribe aunque la entrada la traiga."""
+    keep = mark.mode == "absolute"
+    return " ".join(",".join(c for c in (v[0], v[1], v[2] if keep else "") if c != "") for v in mark.vertices)
 
 
 def description(mark: Mark) -> str | None:

@@ -71,7 +71,7 @@
           <Data name="Name"><value>Muro 2</value></Data>
         </ExtendedData>
         <LineString>
-          <coordinates>-3.703800000,40.419800000 -3.702800000,40.419800000,12.0000</coordinates>
+          <coordinates>-3.703800000,40.419800000 -3.702800000,40.419800000</coordinates>
         </LineString>
       </Placemark>
     </Folder>

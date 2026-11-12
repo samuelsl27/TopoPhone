@@ -33,7 +33,7 @@
 ## Exportar
 - [x] T14. `tools/formatos`: `generar_kml_exportado.py` con el KML de referencia de un proyecto de ejemplo (puntos con y sin altura y con código, un punto sin posición, líneas y polígonos, un proyecto sin códigos) y las coordenadas con pyproj en ETRS89 UTM 30 y REGCAN95 UTM 28; y su test. (RF-21 a RF-27, constitución nº 2)
       Hecho cuando: el script genera `fixtures/formatos/kml-exportado/` y su test de `tools` está en verde.
-- [ ] T15. `core:formats`: `KmlNumber` y `KmlWriter` (XML con entidades escapadas, `CDATA`, estilos por código, datos extendidos vacíos). (RF-21 a RF-23, RF-29, RNF-T9)
+- [x] T15. `core:formats`: `KmlNumber` y `KmlWriter` (XML con entidades escapadas, `CDATA`, estilos por código, datos extendidos vacíos). (RF-21 a RF-23, RF-29, RNF-T9)
       Hecho cuando: `KmlNumberTest` y `KmlWriterTest` en verde y el KML coincide byte a byte con la referencia de `tools`.
 - [ ] T16. `core:formats`: `KmlExportBuilder` para los puntos (posición del datum de los cálculos, columnas de «Todas las columnas», código y atributos, altura y modo, sin posición, resumen) y la selección. (RF-20, RF-21, RF-24 a RF-27, RF-32)
       Hecho cuando: `KmlExportBuilderTest` en verde para los puntos, con y sin «Incluir altura».
