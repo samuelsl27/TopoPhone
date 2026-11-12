@@ -25,7 +25,7 @@
       Hecho cuando: `KmlImporterTest` y `KmlBackupTest` en verde.
 - [x] T11. `app`: `GpkgImportViewModel` con `ImportFormat.KML` (`startKml`, problemas de fichero, sin selector de sistema ni de codificación, la pregunta de las altitudes con «No» por defecto y solo si hay altitudes absolutas, aviso de datum, elementos ignorados). (RF-1, RF-3, RF-4, RF-13, RF-17, RF-18)
       Hecho cuando: `KmlImportViewModelTest` en verde.
-- [ ] T12. `app`: la pantalla de importar KML/KMZ (capas con su ruta, tipo, objetos y extensión, la pregunta, los avisos y el resumen), «Importar KML/KMZ» en los dos menús con su navegación, «Origen: KML» y atributos en la ficha, y el replanteo de un objeto importado, con los textos en es y en. (RF-1, RF-6, RF-10, RF-11, RF-16, RF-18)
+- [x] T12. `app`: la pantalla de importar KML/KMZ (capas con su ruta, tipo, objetos y extensión, la pregunta, los avisos y el resumen), «Importar KML/KMZ» en los dos menús con su navegación, «Origen: KML» y atributos en la ficha, y el replanteo de un objeto importado, con los textos en es y en. (RF-1, RF-6, RF-10, RF-11, RF-16, RF-18)
       Hecho cuando: `KmlImportScreenTest`, `KmlImportEntriesTest`, `DrawingsSheetKmlTest` y `KmlStakeoutTest` en verde (ajustar los tests de menús que ya no caben, como en S055).
 - [ ] T13. Rendimiento: un KML sintético de 100 MB se lee y se recorta en menos de 30 s y cambiar el radio recuenta en menos de 2 s. (RNF)
       Hecho cuando: el test de rendimiento en verde.

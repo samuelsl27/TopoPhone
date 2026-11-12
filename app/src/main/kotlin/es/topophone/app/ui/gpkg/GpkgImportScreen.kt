@@ -78,6 +78,9 @@ const val GPKG_ZONE_COUNTING_TAG = "gpkg_zone_counting"
 const val GPKG_ZONE_LIMIT_TAG = "gpkg_zone_limit"
 const val GPKG_NO_CENTER_TAG = "gpkg_no_center"
 const val GPKG_ELEVATIONS_TAG = "gpkg_elevations"
+const val KML_DATUM_TAG = "kml_datum"
+const val KML_ELEVATIONS_NOTICE_TAG = "kml_elevations_notice"
+const val KML_IGNORED_TAG = "kml_ignored"
 const val GPKG_PROGRESS_TAG = "gpkg_progress"
 const val GPKG_CANCEL_TAG = "gpkg_cancel"
 const val GPKG_FAILURE_TAG = "gpkg_failure"
@@ -168,7 +171,7 @@ fun GpkgImportScreen(
         return
     }
     SectionScaffold(
-        title = stringResource(if (state.format == ImportFormat.SHAPEFILE) R.string.shp_import_title else R.string.gpkg_import_title),
+        title = stringResource(importTitle(state.format)),
         themeState = themeState,
         onToggleSun = onToggleSun,
         onNavigateBack = onBack,
@@ -200,7 +203,7 @@ fun GpkgImportScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(state.fileName, style = MaterialTheme.typography.titleMedium)
-                Text(stringResource(if (state.format == ImportFormat.SHAPEFILE) R.string.shp_importing else R.string.gpkg_importing))
+                Text(stringResource(importingText(state.format)))
                 ProgressBar(state.importDone, state.importTotal)
                 OutlinedButton(
                     onClick = actions.onCancel,
@@ -221,6 +224,18 @@ fun GpkgImportScreen(
             }
         }
     }
+}
+
+private fun importTitle(format: ImportFormat): Int = when (format) {
+    ImportFormat.GEOPACKAGE -> R.string.gpkg_import_title
+    ImportFormat.SHAPEFILE -> R.string.shp_import_title
+    ImportFormat.KML -> R.string.kml_import_title
+}
+
+private fun importingText(format: ImportFormat): Int = when (format) {
+    ImportFormat.GEOPACKAGE -> R.string.gpkg_importing
+    ImportFormat.SHAPEFILE -> R.string.shp_importing
+    ImportFormat.KML -> R.string.kml_importing
 }
 
 @Composable
@@ -263,6 +278,13 @@ private fun ConfigSections(state: GpkgImportUiState, actions: GpkgImportActions,
     }
     FailureMessage(state)
     Text(stringResource(R.string.gpkg_section_layers), style = MaterialTheme.typography.titleSmall)
+    if (state.format == ImportFormat.KML) {
+        Text(
+            stringResource(R.string.kml_datum_notice),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.testTag(KML_DATUM_TAG),
+        ) // S031/RF-7
+    }
     if (state.scanning) {
         Text(stringResource(R.string.gpkg_scanning), modifier = Modifier.testTag(GPKG_SCANNING_TAG))
     }
@@ -276,7 +298,18 @@ private fun ConfigSections(state: GpkgImportUiState, actions: GpkgImportActions,
             modifier = Modifier.testTag(GPKG_NO_LAYER_TAG),
         )
     }
-    CheckRow(stringResource(R.string.gpkg_use_elevations), state.useElevations, GPKG_ELEVATIONS_TAG, actions.onUseElevations) // RF-19
+    if (state.askElevations) {
+        val kml = state.format == ImportFormat.KML
+        val label = if (kml) R.string.kml_use_elevations else R.string.gpkg_use_elevations
+        CheckRow(stringResource(label), state.useElevations, GPKG_ELEVATIONS_TAG, actions.onUseElevations) // RF-19, S031/RF-13
+        if (kml) {
+            Text(
+                stringResource(R.string.kml_elevations_notice),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag(KML_ELEVATIONS_NOTICE_TAG),
+            )
+        }
+    }
     ZoneSection(state, actions, onPick)
     if (state.farWarning) {
         Text(
@@ -326,7 +359,7 @@ private fun LayerRow(row: GpkgLayerRow, scanning: Boolean, format: ImportFormat,
             }
         }
         if (row.marked) {
-            CrsBlock(row, format, actions)
+            if (format != ImportFormat.KML) CrsBlock(row, format, actions) // un KML siempre va en WGS84 y no se elige sistema (S031/RF-7)
             if (row.encoding != null) EncodingBlock(row, row.encoding, actions)
             NameFieldBlock(row, actions)
             if (!scanning) ExtentBlock(row)
@@ -679,8 +712,18 @@ private fun ResultSection(state: GpkgImportUiState, actions: GpkgImportActions, 
             val leftOut = if (state.format == ImportFormat.SHAPEFILE) R.string.shp_result_left_out else R.string.gpkg_result_left_out
             Text(stringResource(leftOut, summary.leftOutTables.joinToString(", ")))
         }
+        if (summary.ignoredElements.isNotEmpty()) { // S031/RF-9
+            val elements = summary.ignoredElements.entries.sortedBy { it.key.ordinal }
+                .map { stringResource(R.string.gpkg_label_count, stringResource(reasonLabel(it.key)), it.value) }
+                .joinToString(", ")
+            Text(stringResource(R.string.kml_result_ignored, elements), modifier = Modifier.testTag(KML_IGNORED_TAG))
+        }
         if (summary.wgs84Layers.isNotEmpty()) {
-            Text(stringResource(R.string.gpkg_result_wgs84, summary.wgs84Layers.joinToString(", ")))
+            if (state.format == ImportFormat.KML) {
+                Text(stringResource(R.string.kml_result_datum)) // S031/RF-18
+            } else {
+                Text(stringResource(R.string.gpkg_result_wgs84, summary.wgs84Layers.joinToString(", ")))
+            }
         }
     }
     OutlinedButton(
@@ -701,7 +744,11 @@ private fun ResultSection(state: GpkgImportUiState, actions: GpkgImportActions, 
     }
 }
 
-private fun summaryFile(format: ImportFormat) = if (format == ImportFormat.SHAPEFILE) "resumen-shapefile.txt" else "resumen-geopackage.txt"
+private fun summaryFile(format: ImportFormat) = when (format) {
+    ImportFormat.GEOPACKAGE -> "resumen-geopackage.txt"
+    ImportFormat.SHAPEFILE -> "resumen-shapefile.txt"
+    ImportFormat.KML -> "resumen-kml.txt"
+}
 
 /** El texto del motivo de ignorado de un objeto, de `strings.xml` (S048/RF-11, RF-18). */
 internal fun reasonLabel(reason: GpkgIgnoredReason): Int = when (reason) {

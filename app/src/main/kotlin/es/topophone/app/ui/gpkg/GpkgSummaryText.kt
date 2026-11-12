@@ -17,6 +17,8 @@ class GpkgSummaryLabels(
     val reason: (GpkgIgnoredReason) -> String,
     /** El aviso de los objetos de un Shapefile sin registro en su `.dbf` (S030/RF-20). */
     val withoutAttributes: String = "",
+    /** El título de los elementos de un KML que no se importan (S031/RF-9). */
+    val ignoredElements: String = "",
 )
 
 /** El resumen de una importación de GeoPackage como un fichero de texto, una línea por concepto y capa (S048/RF-25). */
@@ -31,6 +33,10 @@ object GpkgSummaryText {
             layer.ignored.entries.sortedBy { it.key.ordinal }.forEach { appendLine("    ${labels.reason(it.key)}: ${it.value}") }
             if (layer.omittedAttributes > 0) appendLine("  ${labels.omittedAttributes}: ${layer.omittedAttributes}")
             if (layer.withoutAttributes > 0) appendLine("  ${labels.withoutAttributes}: ${layer.withoutAttributes}")
+        }
+        if (summary.ignoredElements.isNotEmpty()) {
+            appendLine(labels.ignoredElements)
+            summary.ignoredElements.entries.sortedBy { it.key.ordinal }.forEach { appendLine("  ${labels.reason(it.key)}: ${it.value}") }
         }
         appendLine("${labels.total}: ${summary.importedTotal}")
         if (summary.leftOutTables.isNotEmpty()) appendLine("${labels.leftOut}: ${summary.leftOutTables.joinToString(", ")}")

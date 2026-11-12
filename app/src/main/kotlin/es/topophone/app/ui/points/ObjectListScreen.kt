@@ -62,6 +62,7 @@ import es.topophone.app.ui.collector.CollectorCodeSource
 import es.topophone.app.ui.collector.rgbColor
 import es.topophone.app.ui.export.ExportSelection
 import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
+import es.topophone.app.ui.gpkg.rememberImportKmlLauncher
 import es.topophone.app.ui.gpkg.rememberImportShpLauncher
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.SurveyNavigation
@@ -199,6 +200,8 @@ class ObjectListActions(
     /** Abre el selector de ficheros y, con el fichero, la importación de un GeoPackage (S048/RF-1). */
     val onImportGpkg: () -> Unit = {},
     val onImportShp: () -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, la importación de un KML o KMZ (S031/RF-1). */
+    val onImportKml: () -> Unit = {},
     /** Pregunta de dónde sale el eje y lo importa (S049/RF-1). */
     val onImportAlignment: () -> Unit = {},
     val onStakeoutReportSelected: () -> Unit = {},
@@ -397,6 +400,7 @@ fun ObjectListRoute(
     val importRaster = rememberImportRasterLauncher(navigation.onImportRaster) // S045/RF-1
     val importGpkg = rememberImportGpkgLauncher(navigation.onImportGpkg) // S048/RF-1
     val importShp = rememberImportShpLauncher(navigation.onImportShp) // S030/RF-1
+    val importKml = rememberImportKmlLauncher(navigation.onImportKml) // S031/RF-1
     val importAlignment = rememberImportAlignmentLauncher(navigation) // S049/RF-1
     val state by viewModel.state.collectAsStateWithLifecycle()
     ObjectListScreen(
@@ -419,6 +423,7 @@ fun ObjectListRoute(
             onThreePointAngle = { navigation.onThreePointAngle(projectId) }, // S026/RF-13
             onImportGpkg = { importGpkg(projectId) },
             onImportShp = { importShp(projectId) },
+            onImportKml = { importKml(projectId) },
             onImportAlignment = { importAlignment(projectId) },
             onStakeoutReportSelected = {
                 viewModel.exportSelected()
@@ -504,6 +509,7 @@ fun ObjectListScreen(
                 actions.onImportRaster,
                 actions.onImportGpkg,
                 actions.onImportShp,
+                actions.onImportKml,
                 actions.onImportAlignment,
                 actions.onBaseShift,
                 actions.onLineFromPoints,
@@ -596,6 +602,7 @@ private fun ObjectsMenu(
     onImportRaster: () -> Unit,
     onImportGpkg: () -> Unit,
     onImportShp: () -> Unit,
+    onImportKml: () -> Unit,
     onImportAlignment: () -> Unit,
     onBaseShift: () -> Unit,
     onLineFromPoints: () -> Unit,
@@ -686,6 +693,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S030/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.kml_import_title)) },
+            onClick = {
+                open = false
+                onImportKml()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S031/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.alignment_import_title)) },
             onClick = {

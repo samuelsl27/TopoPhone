@@ -58,6 +58,7 @@ import es.topophone.app.ui.backup.BackupNoticeViewModel
 import es.topophone.app.ui.backup.rememberPackageHost
 import es.topophone.app.ui.cad.rememberImportDxfLauncher
 import es.topophone.app.ui.gpkg.rememberImportGpkgLauncher
+import es.topophone.app.ui.gpkg.rememberImportKmlLauncher
 import es.topophone.app.ui.gpkg.rememberImportShpLauncher
 import es.topophone.app.ui.points.rememberImportPointsLauncher
 import es.topophone.app.ui.raster.rememberImportRasterLauncher
@@ -171,6 +172,8 @@ class ProjectListActions(
     val onImportGpkg: (String) -> Unit = {},
     /** Abre el selector de ficheros y, con lo elegido, la importación de un Shapefile al proyecto (S030/RF-1). */
     val onImportShp: (String) -> Unit = {},
+    /** Abre el selector de ficheros y, con el fichero, la importación de un KML o KMZ al proyecto (S031/RF-1). */
+    val onImportKml: (String) -> Unit = {},
     /** Pregunta de dónde sale el eje y lo importa al proyecto (S049/RF-1). */
     val onImportAlignment: (String) -> Unit = {},
     /** Los códigos de la biblioteca que lleva el proyecto (S023/RF-20). */
@@ -282,6 +285,7 @@ fun ProjectListRoute(
     val importRaster = rememberImportRasterLauncher(navigation.onImportRaster) // S045/RF-1
     val importGpkg = rememberImportGpkgLauncher(navigation.onImportGpkg) // S048/RF-1
     val importShp = rememberImportShpLauncher(navigation.onImportShp) // S030/RF-1
+    val importKml = rememberImportKmlLauncher(navigation.onImportKml) // S031/RF-1
     val importAlignment = rememberImportAlignmentLauncher(navigation) // S049/RF-1
     val chooseFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) noticeViewModel.folderChosen(uri.toString()) // S013/RF-22
@@ -316,6 +320,7 @@ fun ProjectListRoute(
             onImportRaster = importRaster,
             onImportGpkg = importGpkg,
             onImportShp = importShp,
+            onImportKml = importKml,
             onImportAlignment = importAlignment,
             onProjectCodes = navigation.onOpenProjectCodes,
             onExportPackage = packages.export,
@@ -590,6 +595,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onImportShp(project.id)
         } // S030/RF-1
+        MenuItem(R.string.kml_import_title) {
+            open = false
+            actions.onImportKml(project.id)
+        } // S031/RF-1
         MenuItem(R.string.alignment_import_title) {
             open = false
             actions.onImportAlignment(project.id)

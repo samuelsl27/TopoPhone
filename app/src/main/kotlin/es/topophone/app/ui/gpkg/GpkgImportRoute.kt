@@ -13,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.EntryPointAccessors
@@ -26,6 +27,7 @@ import es.topophone.app.ui.points.ReportOutcome
 import es.topophone.app.ui.points.importSourceOf
 import es.topophone.app.ui.points.saveReportTo
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.data.kml.KmlLayerSuffixes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,8 +38,15 @@ private fun rememberSummaryLabels(format: ImportFormat): GpkgSummaryLabels {
     val resources = LocalResources.current
     return remember(resources, format) {
         val shapefile = format == ImportFormat.SHAPEFILE
+        val kml = format == ImportFormat.KML
         GpkgSummaryLabels(
-            title = resources.getString(if (shapefile) R.string.shp_summary_title else R.string.gpkg_summary_title),
+            title = resources.getString(
+                when {
+                    shapefile -> R.string.shp_summary_title
+                    kml -> R.string.kml_summary_title
+                    else -> R.string.gpkg_summary_title
+                },
+            ),
             layer = resources.getString(R.string.gpkg_summary_layer),
             imported = resources.getString(R.string.gpkg_summary_imported),
             outsideArea = resources.getString(R.string.gpkg_summary_outside),
@@ -45,9 +54,10 @@ private fun rememberSummaryLabels(format: ImportFormat): GpkgSummaryLabels {
             omittedAttributes = resources.getString(R.string.gpkg_summary_omitted),
             total = resources.getString(R.string.gpkg_summary_total),
             leftOut = resources.getString(if (shapefile) R.string.shp_summary_left_out else R.string.gpkg_summary_left_out),
-            wgs84 = resources.getString(R.string.gpkg_summary_wgs84),
+            wgs84 = resources.getString(if (kml) R.string.kml_summary_wgs84 else R.string.gpkg_summary_wgs84),
             reason = { resources.getString(reasonLabel(it)) },
             withoutAttributes = resources.getString(R.string.shp_summary_without_attributes),
+            ignoredElements = resources.getString(R.string.kml_summary_ignored),
         )
     }
 }
@@ -85,7 +95,26 @@ fun ShpImportRoute(
     ImportRoute(ImportFormat.SHAPEFILE, themeState, onToggleSun, onBack, viewModel)
 }
 
-/** Lo que tienen en común las dos importaciones: el estado, el mapa del selector del punto central y guardar o compartir el resumen. */
+/** La pantalla de importar el KML o KMZ [fileUri] al proyecto [projectId] (S031/RF-1). */
+@Composable
+fun KmlImportRoute(
+    projectId: String,
+    fileUri: Uri,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    onBack: () -> Unit,
+    viewModel: GpkgImportViewModel = hiltViewModel(),
+) {
+    val context = LocalContext.current
+    val suffixes = KmlLayerSuffixes(
+        points = stringResource(R.string.kml_layer_suffix_points),
+        lines = stringResource(R.string.kml_layer_suffix_lines),
+    )
+    LaunchedEffect(projectId, fileUri) { viewModel.startKml(projectId, importSourceOf(context.contentResolver, fileUri), suffixes) }
+    ImportRoute(ImportFormat.KML, themeState, onToggleSun, onBack, viewModel)
+}
+
+/** Lo que tienen en común las importaciones: el estado, el mapa del selector del punto central y guardar o compartir el resumen. */
 @Composable
 private fun ImportRoute(
     format: ImportFormat,
@@ -169,6 +198,24 @@ fun rememberImportGpkgLauncher(onPicked: (projectId: String, fileUri: String) ->
     return { projectId ->
         pending = projectId
         picker.launch(arrayOf("*/*")) // RF-2: cualquier tipo; el contenido decide si es un GeoPackage
+    }
+}
+
+/**
+ * Abre el selector de ficheros del móvil para importar un KML o KMZ al proyecto que se le pase y, con el fichero elegido, pide la pantalla de
+ * importación con [onPicked] (S031/RF-1). Si el usuario cancela el selector, no pasa nada.
+ */
+@Composable
+fun rememberImportKmlLauncher(onPicked: (projectId: String, fileUri: String) -> Unit): (projectId: String) -> Unit {
+    var pending by rememberSaveable { mutableStateOf<String?>(null) }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        val projectId = pending
+        pending = null
+        if (uri != null && projectId != null) onPicked(projectId, uri.toString())
+    }
+    return { projectId ->
+        pending = projectId
+        picker.launch(arrayOf("*/*")) // RF-2: cualquier tipo; el contenido decide si es un KML o un KMZ
     }
 }
 

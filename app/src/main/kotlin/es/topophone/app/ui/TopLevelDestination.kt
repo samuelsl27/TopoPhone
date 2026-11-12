@@ -143,6 +143,8 @@ import kotlinx.serialization.Serializable
 /** La importación de un Shapefile: el proyecto y los ficheros elegidos (un ZIP o varios sueltos), como dirección (S030/RF-1). */
 @Serializable data class ImportShpDestination(val projectId: String, val fileUris: List<String>)
 
+@Serializable data class ImportKmlDestination(val projectId: String, val fileUri: String)
+
 /** La importación de los ejes de un LandXML: el proyecto y el fichero elegido, como dirección (S049/RF-1). */
 @Serializable data class ImportAlignmentDestination(val projectId: String, val fileUri: String)
 
