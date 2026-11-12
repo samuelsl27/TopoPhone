@@ -49,6 +49,7 @@ import es.topophone.app.ui.codes.ProjectCodesRoute
 import es.topophone.app.ui.export.DxfExportRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
+import es.topophone.app.ui.export.ShpExportRoute
 import es.topophone.app.ui.geometry.GeometryInfoRoute
 import es.topophone.app.ui.geometry.ThreePointAngleRoute
 import es.topophone.app.ui.gpkg.GpkgImportRoute
@@ -160,6 +161,14 @@ fun TopoPhoneApp(
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.ExportDxf -> DxfExportRoute(
+                    page.projectId,
+                    page.selection,
+                    theme,
+                    toggleSun,
+                    navigation,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.ExportShp -> ShpExportRoute(
                     page.projectId,
                     page.selection,
                     theme,
@@ -424,6 +433,8 @@ private fun AppNavHost(
                 onExportGeoPackage = { projectId, selection -> navController.navigate(ExportGeoPackageDestination(projectId, selection)) },
                 // S029/RF-1, RF-2
                 onExportDxf = { projectId, selection -> navController.navigate(ExportDxfDestination(projectId, selection)) },
+                // S055/RF-1, RF-2
+                onExportShp = { projectId, selection -> navController.navigate(ExportShpDestination(projectId, selection)) },
                 // S019/RF-17, RF-18
                 onStakeoutReport = { projectId, selection -> navController.navigate(StakeoutReportDestination(projectId, selection)) },
                 onImportPoints = { projectId, fileUri -> navController.navigate(ImportPointsDestination(projectId, fileUri)) }, // S028/RF-1
@@ -513,6 +524,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<ExportDxfDestination>()
                 surveySection(
                     SurveyPage.ExportDxf(args.projectId, args.selection),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<ExportShpDestination> { entry ->
+                val args = entry.toRoute<ExportShpDestination>()
+                surveySection(
+                    SurveyPage.ExportShp(args.projectId, args.selection),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

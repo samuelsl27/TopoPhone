@@ -1844,6 +1844,7 @@
         <item quantity="other">%1$d puntos van sin geometría porque no tienen Este y Norte en el sistema del proyecto.</item>
     </plurals>
     <string name="gpkg_export_custom">El sistema va con su definición completa porque no tiene un código reconocido.</string>
+    <string name="shp_export_selected">Shapefile</string>
     <string name="shp_export_title">Exportar Shapefile</string>
     <string name="shp_export_system">Sistema de coordenadas</string>
     <string name="shp_export_system_project">Del proyecto (EPSG:%1$d)</string>

@@ -26,7 +26,7 @@
       Hecho cuando: `ShpExportViewModelTest` en verde, incluidos sin puntos y fallo de escritura sin dejar fichero.
 - [x] T12. `app`: `ShpExportScreen` (sistema, guardar, compartir, mensajes y resumen) con los textos en es y en. (RF-12, RF-13, RF-17, RF-18, RF-22)
       Hecho cuando: `ShpExportScreenTest` en verde y la pantalla solo ofrece elegir sistema en un proyecto proyectado.
-- [ ] T13. `app`: «Exportar Shapefile» en el menú del proyecto y en el de su lista de objetos, «Exportar» con una selección, y la navegación. (RF-1, RF-2)
+- [x] T13. `app`: «Exportar Shapefile» en el menú del proyecto y en el de su lista de objetos, «Exportar» con una selección, y la navegación. (RF-1, RF-2)
       Hecho cuando: `ShpExportEntriesTest` en verde con los tres puntos de entrada.
 - [ ] T14. Validación: recorrer la spec RF por RF, abrir el ZIP exportado en QGIS por MCP (proyectadas y geográficas, español e inglés) y comparar coordenadas, atributos y sistema, `rf_report`, `pytest tools`, `forbidden_files`, la demo en el emulador según los criterios de finalización, y «Cambios al implementar» en `plan.md`, hoja de ruta a `implementada`. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.

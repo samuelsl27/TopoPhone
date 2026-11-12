@@ -1832,6 +1832,7 @@
         <item quantity="other">%1$d points have no geometry because they have no easting and northing in the project system.</item>
     </plurals>
     <string name="gpkg_export_custom">The system carries its full definition because it has no recognised code.</string>
+    <string name="shp_export_selected">Shapefile</string>
     <string name="shp_export_title">Export Shapefile</string>
     <string name="shp_export_system">Coordinate system</string>
     <string name="shp_export_system_project">Project (EPSG:%1$d)</string>

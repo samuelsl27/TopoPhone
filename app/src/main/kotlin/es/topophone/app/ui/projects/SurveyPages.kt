@@ -28,6 +28,9 @@ import es.topophone.app.ui.export.ExportUiState
 import es.topophone.app.ui.export.GpkgExportActions
 import es.topophone.app.ui.export.GpkgExportScreen
 import es.topophone.app.ui.export.GpkgExportUiState
+import es.topophone.app.ui.export.ShpExportActions
+import es.topophone.app.ui.export.ShpExportScreen
+import es.topophone.app.ui.export.ShpExportUiState
 import es.topophone.app.ui.gpkg.GpkgImportActions
 import es.topophone.app.ui.gpkg.GpkgImportScreen
 import es.topophone.app.ui.gpkg.GpkgImportUiState
@@ -120,6 +123,9 @@ sealed interface SurveyPage {
 
     /** Exportar DXF (S029/RF-1, RF-2). */
     data class ExportDxf(val projectId: String, val selection: Boolean) : SurveyPage
+
+    /** Exportar Shapefile (S055/RF-1, RF-2). */
+    data class ExportShp(val projectId: String, val selection: Boolean) : SurveyPage
 
     /** Informe de replanteo (S019/RF-17, RF-18). */
     data class StakeoutReport(val projectId: String, val selection: Boolean) : SurveyPage
@@ -215,6 +221,8 @@ class SurveyNavigation(
     val onExportGeoPackage: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     /** Exportar a DXF todos los puntos de un proyecto o los seleccionados (S029/RF-1, RF-2). */
     val onExportDxf: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
+    /** Exportar a Shapefile todos los puntos de un proyecto o los seleccionados (S055/RF-1, RF-2). */
+    val onExportShp: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     /** El informe de replanteo de un proyecto o de los puntos seleccionados (S019/RF-17, RF-18). */
     val onStakeoutReport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     /** El asistente de importación de puntos, con el fichero que eligió el usuario (S028/RF-1). */
@@ -272,6 +280,7 @@ data class SurveyUiState(
     val export: ExportUiState = ExportUiState(loaded = true),
     val gpkgExport: GpkgExportUiState = GpkgExportUiState(loaded = true),
     val dxfExport: DxfExportUiState = DxfExportUiState(loaded = true),
+    val shpExport: ShpExportUiState = ShpExportUiState(loaded = true),
     val stakeoutReport: StakeoutReportUiState = StakeoutReportUiState(loaded = true),
     val import: PointImportUiState = PointImportUiState(),
     val cadImport: CadImportUiState = CadImportUiState(),
@@ -343,6 +352,7 @@ fun SurveyPageScreen(
             navigation.onBack,
         )
         is SurveyPage.ExportDxf -> DxfExportScreen(themeState, onToggleSun, state.dxfExport, DxfExportActions(), navigation.onBack)
+        is SurveyPage.ExportShp -> ShpExportScreen(themeState, onToggleSun, state.shpExport, ShpExportActions(), navigation.onBack)
         is SurveyPage.ImportPoints -> PointImportScreen(themeState, onToggleSun, state.import, PointImportActions(), navigation.onBack)
         is SurveyPage.ImportDxf -> CadImportScreen(themeState, onToggleSun, state.cadImport, CadImportActions(), navigation.onBack)
         is SurveyPage.ImportSurface ->
