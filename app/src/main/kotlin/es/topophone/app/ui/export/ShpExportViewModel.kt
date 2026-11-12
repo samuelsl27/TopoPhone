@@ -138,10 +138,14 @@ class ShpExportViewModel @Inject constructor(
         }
     }
 
-    /** El sistema de las coordenadas (RF-12, RF-13); se recuerda para todos los proyectos (RF-23). */
+    /**
+     * El sistema de las coordenadas (RF-12, RF-13); se recuerda para todos los proyectos (RF-23). Lo que dijo la exportación anterior, el
+     * resumen y el «Fichero guardado.», ya no vale para el sistema nuevo y se borra.
+     */
     fun setCoordinates(chosen: ShpCoordinates) {
         coordinates.value = chosen
         summary.value = null
+        result.value = null
         viewModelScope.launch { preferences.save(chosen) }
     }
 

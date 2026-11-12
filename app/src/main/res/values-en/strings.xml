@@ -1836,7 +1836,7 @@
     <string name="shp_export_title">Export Shapefile</string>
     <string name="shp_export_system">Coordinate system</string>
     <string name="shp_export_system_project">Project (EPSG:%1$d)</string>
-    <string name="shp_export_system_geographic">Datum geographic (EPSG:%1$d)</string>
+    <string name="shp_export_system_geographic">Geographic of the datum (EPSG:%1$d)</string>
     <string name="shp_export_system_fixed">Geographic (EPSG:%1$d)</string>
     <string name="shp_export_units">Coordinates are in metres or degrees and attributes in metres and degrees, unrounded. Column names are shortened to 10 letters.</string>
     <string name="shp_share_chooser">Share Shapefile</string>

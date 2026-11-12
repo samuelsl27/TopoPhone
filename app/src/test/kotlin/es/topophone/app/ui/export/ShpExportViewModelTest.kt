@@ -403,6 +403,21 @@ class ShpExportViewModelTest {
     }
 
     @Test
+    fun `S055 RF-18 cambiar el sistema borra tambien el Fichero guardado de la exportacion anterior`() {
+        val vm = viewModel()
+        vm.await { it.loaded }
+        runBlocking { vm.writeTo(ByteArrayOutputStream(), work()) } shouldBe true
+        vm.report(ExportResult.SAVED)
+        vm.await { it.result == ExportResult.SAVED && it.summary != null }
+
+        vm.setCoordinates(ShpCoordinates.GEOGRAPHIC)
+
+        val state = vm.await { it.coordinates == ShpCoordinates.GEOGRAPHIC }
+        state.result.shouldBeNull()
+        state.summary.shouldBeNull()
+    }
+
+    @Test
     fun `S055 RF-21 exportar no modifica ningun punto del proyecto`() {
         val vm = viewModel()
         vm.await { it.loaded }
