@@ -106,9 +106,21 @@ class ShapefileReader(
     fun cleanUpStale(): Int = cacheDir.listFiles { f -> f.name.startsWith(PREFIX) }.orEmpty().count { it.deleteRecursively() }
 
     private fun pick(input: ShpInput): ShpPick {
-        val head = input.open().use { it.readNBytes(ShpFileKind.HEAD_BYTES) }
+        val head = input.open().use { readHead(it) }
         val size = input.sizeBytes ?: head.size.toLong()
         return ShpPick(input.name, head, if (head.isEmpty()) 0 else size)
+    }
+
+    /** Los primeros bytes de la cabecera de un Shapefile (`readNBytes` pide la API 33). */
+    private fun readHead(stream: InputStream): ByteArray {
+        val head = ByteArray(ShpFileKind.HEAD_BYTES)
+        var total = 0
+        while (total < head.size) {
+            val read = stream.read(head, total, head.size - total)
+            if (read < 0) break
+            total += read
+        }
+        return head.copyOf(total)
     }
 
     private fun ShpRejection.toFailure() = when (this) {
@@ -172,7 +184,7 @@ class ShapefileReader(
                     entries += ShpEntry(zipEntry.name, ByteArray(0), maxOf(zipEntry.size, 0L))
                     continue
                 }
-                val head = zip.getInputStream(zipEntry).use { it.readNBytes(ShpFileKind.HEAD_BYTES) }
+                val head = zip.getInputStream(zipEntry).use { readHead(it) }
                 val extension = path.substringAfterLast('.', "").lowercase()
                 if (extension == "shp" ||
                     extension in ShpSelection.SIDE_EXTENSIONS ||
