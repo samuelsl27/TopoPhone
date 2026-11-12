@@ -15,10 +15,10 @@ atributos.kml,Atributos,1,POINTS,1,NO,-3.7038 40.4168 _,440290.45805394615 44742
 atributos.kml,Atributos,2,POINTS,1,NO,-3.7028 40.4168 _,440375.2975339152 4474256.70667548 _,,OK
 atributos.kml,Atributos,3,POINTS,1,NO,-3.7018 40.4168 _,440460.13701095094 4474256.032419422 _,,OK
 atributos.kml,Atributos,4,POINTS,1,NO,-3.7008 40.4168 _,440544.97648505756 4474255.359123553 _,,OK
-canarias.kml,Tenerife (puntos),1,POINTS,,,,,,fuera_de_ambito
-canarias.kml,Tenerife (puntos),2,POINTS,,,,,,fuera_de_ambito
-canarias.kml,Tenerife (líneas),1,LINES,,,,,,fuera_de_ambito
-canarias.kml,Tenerife (líneas),2,LINES,,,,,,fuera_de_ambito
+canarias.kml,Tenerife (puntos),1,POINTS,1,NO,-16.25 28.45 _,,,fuera_de_ambito
+canarias.kml,Tenerife (puntos),2,POINTS,1,NO,-16.249 28.451 _,,,fuera_de_ambito
+canarias.kml,Tenerife (líneas),1,LINES,1,NO,-16.25 28.45 _;-16.249 28.451 _;-16.248 28.451 _,,,fuera_de_ambito
+canarias.kml,Tenerife (líneas),2,LINES,1,SI,-16.247 28.453 _;-16.2468 28.453 _;-16.2468 28.4532 _;-16.247 28.4532 _;-16.247 28.453 _,,,fuera_de_ambito
 carpetas-anidadas.kml,carpetas-anidadas (puntos),1,POINTS,1,NO,-3.7038 40.4168 _,440290.45805394615 4474257.381891726 _,,OK
 carpetas-anidadas.kml,Obra (líneas),1,LINES,1,NO,-3.7028 40.4178 _;-3.7018 40.4188 _;-3.7008 40.4178 _,440376.18033291114 4474367.706269582 _;440461.9001146126 4474478.031618929 _;440545.85677150625 4474366.358709992 _,,OK
 carpetas-anidadas.kml,Obra (puntos),1,POINTS,1,NO,-3.7023 40.4178 _,440418.5994436584 4474367.369019612 _,,OK
@@ -57,8 +57,8 @@ estilos.kml,Estilos (líneas),1,LINES,1,NO,-3.7018 40.4168 _;-3.7018 40.4178 _,4
 estilos.kml,Estilos (líneas),2,LINES,1,SI,-3.7008 40.4168 _;-3.7005 40.4168 _;-3.7005 40.4171 _;-3.7008 40.4171 _;-3.7008 40.4168 _,440544.97648505756 4474255.359123553 _;440570.428326719 4474255.15732203 _;440570.69229767966 4474288.457195624 _;440545.240569082 4474288.658997492 _;440544.97648505756 4474255.359123553 _,#0000FF,OK
 estilos.kml,Estilos (líneas),3,LINES,1,NO,-3.6968 40.4168 _;-3.6968 40.4178 _,440884.33435227606 4474252.67554195 _;440885.20961363806 4474363.675113127 _,#FFFF00,OK
 fuera-de-ambito.kml,Ambito (puntos),1,POINTS,1,NO,-3.7038 40.4168 _,440290.45805394615 4474257.381891726 _,,OK
-fuera-de-ambito.kml,Ambito (puntos),2,POINTS,,,,,,fuera_de_ambito
-fuera-de-ambito.kml,Ambito (líneas),1,LINES,,,,,,fuera_de_ambito
+fuera-de-ambito.kml,Ambito (puntos),2,POINTS,1,NO,10.0 50.0 _,,,fuera_de_ambito
+fuera-de-ambito.kml,Ambito (líneas),1,LINES,1,NO,-3.7038 40.4168 _;-3.7028 40.4178 _;10.0 50.0 _,,,fuera_de_ambito
 fuera-de-ambito.kml,Ambito (líneas),2,LINES,1,SI,-3.7018 40.4188 _;-3.7016 40.4188 _;-3.7016 40.419 _;-3.7018 40.419 _;-3.7018 40.4188 _,440461.9001146126 4474478.031618929 _;440478.86750715354 4474477.896881408 _;440479.04377127497 4474500.096805379 _;440462.0764289867 4474500.231543053 _;440461.9001146126 4474478.031618929 _,,OK
 geometrias.kml,Geometrias (puntos),1,POINTS,1,NO,-3.7038 40.4168 _,440290.45805394615 4474257.381891726 _,,OK
 geometrias.kml,Geometrias (puntos),2,POINTS,1,NO,-3.6988 40.4218 _,440719.0444754162 4474809.013496102 _,,OK

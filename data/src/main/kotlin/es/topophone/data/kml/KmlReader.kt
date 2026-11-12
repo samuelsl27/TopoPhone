@@ -6,6 +6,7 @@ import es.topophone.core.formats.kml.KmlParser
 import es.topophone.core.formats.kml.KmzEntries
 import es.topophone.core.formats.xml.XmlFormatException
 import es.topophone.core.model.cad.GpkgIgnoredReason
+import es.topophone.core.model.project.GeodeticDatum
 import java.io.EOFException
 import java.io.File
 import java.io.FilterInputStream
@@ -31,6 +32,13 @@ sealed interface KmlReadResult {
     class Read(val store: KmlStore) : KmlReadResult
 
     data class Failed(val reason: KmlOpenFailure) : KmlReadResult
+}
+
+/** Lo que da [KmlReader.open]: el KML como sesión de capas o por qué no se abre (S031/RF-1 a RF-4). */
+sealed interface KmlOpenResult {
+    class Opened(val session: KmlSession) : KmlOpenResult
+
+    data class Failed(val reason: KmlOpenFailure) : KmlOpenResult
 }
 
 /**
@@ -110,6 +118,21 @@ class KmlReader(
             KmlReadResult.Failed(KmlOpenFailure.READ_ERROR)
         }
     }
+
+    /**
+     * Lee [input] y lo abre como una [KmlSession] con las geográficas de [datum] (el de los cálculos del proyecto: ETRS89 o REGCAN95) y los
+     * sufijos [suffixes] para las capas de una carpeta con puntos y líneas (S031/RF-1 a RF-9).
+     */
+    suspend fun open(input: KmlInput, datum: GeodeticDatum, suffixes: KmlLayerSuffixes = KmlLayerSuffixes()): KmlOpenResult =
+        when (val result = read(input)) {
+            is KmlReadResult.Failed -> KmlOpenResult.Failed(result.reason)
+            is KmlReadResult.Read -> try {
+                KmlOpenResult.Opened(KmlSession(result.store, datum, suffixes))
+            } catch (e: IllegalArgumentException) {
+                result.store.close()
+                throw e
+            }
+        }
 
     /** Borra las carpetas temporales que dejó una importación interrumpida (la app murió a mitad); devuelve cuántas. */
     fun cleanUpStale(): Int = cacheDir.listFiles { f -> f.name.startsWith(PREFIX) }.orEmpty().count { it.deleteRecursively() }

@@ -19,7 +19,7 @@
       Hecho cuando: `KmlGeometryEncoderTest` en verde: el blob se lee igual con `GpkgGeometryReader`, con y sin Z.
 - [x] T8. `data`: `KmlReader` (KML y KMZ desde la fuente elegida, vínculos internos de un KMZ, límites de 100 MB y 500 MB por bytes leídos, zip-slip, espacio, limpieza del temporal) y `KmlStore` (el almacén binario de una sola pasada). (RF-1 a RF-4, RF-2b, RF-17)
       Hecho cuando: `KmlReaderTest` en verde, incluidos KMZ cortado, sin `.kml`, con varios y cuyo tamaño declarado miente.
-- [ ] T9. `data`: `KmlSession : FeatureSession` (capas con ruta y nombres únicos, sistema geográfico del datum con aviso, objetos con color y atributos, cabeceras, geometrías por clave, altitudes solo de las marcas absolutas, elementos ignorados). (RF-5 a RF-9, RF-11 a RF-15)
+- [x] T9. `data`: `KmlSession : FeatureSession` (capas con ruta y nombres únicos, sistema geográfico del datum con aviso, objetos con color y atributos, cabeceras, geometrías por clave, altitudes solo de las marcas absolutas, elementos ignorados). (RF-5 a RF-9, RF-11 a RF-15)
       Hecho cuando: `KmlSessionTest` en verde.
 - [ ] T10. `data`: la importación con `KmlSession` (resumen, zona, polígonos como líneas, «Sí» y «No» a las altitudes, color por objeto, nombre y atributos, cancelar sin dejar nada, fallo de escritura) y la copia de seguridad y el paquete con un dibujo KML. (RF-10 a RF-19)
       Hecho cuando: `KmlImporterTest` y `KmlBackupTest` en verde.

@@ -9,7 +9,7 @@ esperado, que salen de un lector de referencia (`xml.etree`, no el de la app) y 
   cuentan) y las columnas de atributos en su orden.
 - esperado.csv: una fila por parte de cada objeto, con el sistema de la app ETRS89 UTM 30: archivo, capa, fid, tipo, parte, si es contorno
   de polígono, vértices tal como están en el KML ("lon lat alt", `_` si el objeto no lleva Z), vértices en ETRS89 UTM 30 ("este norte alt"),
-  color (#RRGGBB) y estado (OK, ignorado_vacia o fuera_de_ambito).
+  color (#RRGGBB) y estado (OK, ignorado_vacia o fuera_de_ambito: un objeto con algún vértice fuera del ámbito sigue con sus partes y sus vértices del KML, pero sin vértices de proyecto).
 - esperado-regcan95.csv: lo mismo para canarias.kml con el sistema de la app REGCAN95 UTM 28.
 - esperado-atributos.csv: una fila por valor no nulo: archivo, capa, fid, columna y valor.
 
@@ -848,10 +848,12 @@ def describe(name: str, doc: Doc, projector, out: list[list]) -> None:
                 out.append(key + ["", "", "", "", f.color, "ignorado_vacia"])
                 continue
             converted = [[projector(v[1], v[0]) for v in p.vertices] for p in f.parts]
-            if any(c is None for part in converted for c in part):
-                out.append(key + ["", "", "", "", f.color, "fuera_de_ambito"])
-                continue
             z = f.has_z
+            if any(c is None for part in converted for c in part):
+                for index, part in enumerate(f.parts, 1):
+                    source = ";".join(vertex_text(v, z) for v in part.vertices)
+                    out.append(key + [index, "SI" if part.contour else "NO", source, "", f.color, "fuera_de_ambito"])
+                continue
             for index, (part, proj) in enumerate(zip(f.parts, converted), 1):
                 source = ";".join(vertex_text(v, z) for v in part.vertices)
                 target = ";".join(project_text(c, v, z) for c, v in zip(proj, part.vertices))
