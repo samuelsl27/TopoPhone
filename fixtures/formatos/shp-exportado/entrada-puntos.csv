@@ -1,0 +1,5 @@
+geom,NOMBRE:C,CODIGO:C,ESTE:D,NORTE:D,COTA:D,SATELITES:I,REPRODUC:I,MED_INICIO:C,NOTAS:C
+440000.123456789 4474000.987654321 648.25,P1,ARBOL,440000.123456789,4474000.987654321,648.25,24,0,2026-10-28T09:15:30.250Z,Árbol ñandú €
+440100.5 4474100.25 0.0,P2,,440100.5,4474100.25,,18,1,,
+,P3,VALLA,,,12.0,,,,sin posición
+-3.7038 40.4168 -12.5,P4,POSTE,-3.7038,40.4168,-12.5,1234567,0,,xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxéé

@@ -34,3 +34,4 @@ fixtures/ejes/toma/esperado-perfil-*.csv -text
 *.rtcm3 binary
 # DXF y tabla ACI de referencia de la exportacion: CRLF byte a byte (S029)
 fixtures/formatos/dxf-exportado/* -text
+fixtures/formatos/shp-exportado/** -text
