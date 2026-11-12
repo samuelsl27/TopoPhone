@@ -21,7 +21,7 @@
       Hecho cuando: `KmlReaderTest` en verde, incluidos KMZ cortado, sin `.kml`, con varios y cuyo tamaño declarado miente.
 - [x] T9. `data`: `KmlSession : FeatureSession` (capas con ruta y nombres únicos, sistema geográfico del datum con aviso, objetos con color y atributos, cabeceras, geometrías por clave, altitudes solo de las marcas absolutas, elementos ignorados). (RF-5 a RF-9, RF-11 a RF-15)
       Hecho cuando: `KmlSessionTest` en verde.
-- [ ] T10. `data`: la importación con `KmlSession` (resumen, zona, polígonos como líneas, «Sí» y «No» a las altitudes, color por objeto, nombre y atributos, cancelar sin dejar nada, fallo de escritura) y la copia de seguridad y el paquete con un dibujo KML. (RF-10 a RF-19)
+- [x] T10. `data`: la importación con `KmlSession` (resumen, zona, polígonos como líneas, «Sí» y «No» a las altitudes, color por objeto, nombre y atributos, cancelar sin dejar nada, fallo de escritura) y la copia de seguridad y el paquete con un dibujo KML. (RF-10 a RF-19)
       Hecho cuando: `KmlImporterTest` y `KmlBackupTest` en verde.
 - [ ] T11. `app`: `GpkgImportViewModel` con `ImportFormat.KML` (`startKml`, problemas de fichero, sin selector de sistema ni de codificación, la pregunta de las altitudes con «No» por defecto y solo si hay altitudes absolutas, aviso de datum, elementos ignorados). (RF-1, RF-3, RF-4, RF-13, RF-17, RF-18)
       Hecho cuando: `KmlImportViewModelTest` en verde.
