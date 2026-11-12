@@ -17,7 +17,7 @@
       Hecho cuando: `KmlParserTest` en verde contra lo esperado de `tools`.
 - [x] T7. `core:formats`: `KmlGeometryEncoder` (de las partes de una marca al blob de geometría de GeoPackage con envolvente). (RF-7, RF-8)
       Hecho cuando: `KmlGeometryEncoderTest` en verde: el blob se lee igual con `GpkgGeometryReader`, con y sin Z.
-- [ ] T8. `data`: `KmlReader` (KML y KMZ desde la fuente elegida, vínculos internos de un KMZ, límites de 100 MB y 500 MB por bytes leídos, zip-slip, espacio, limpieza del temporal) y `KmlStore` (el almacén binario de una sola pasada). (RF-1 a RF-4, RF-2b, RF-17)
+- [x] T8. `data`: `KmlReader` (KML y KMZ desde la fuente elegida, vínculos internos de un KMZ, límites de 100 MB y 500 MB por bytes leídos, zip-slip, espacio, limpieza del temporal) y `KmlStore` (el almacén binario de una sola pasada). (RF-1 a RF-4, RF-2b, RF-17)
       Hecho cuando: `KmlReaderTest` en verde, incluidos KMZ cortado, sin `.kml`, con varios y cuyo tamaño declarado miente.
 - [ ] T9. `data`: `KmlSession : FeatureSession` (capas con ruta y nombres únicos, sistema geográfico del datum con aviso, objetos con color y atributos, cabeceras, geometrías por clave, altitudes solo de las marcas absolutas, elementos ignorados). (RF-5 a RF-9, RF-11 a RF-15)
       Hecho cuando: `KmlSessionTest` en verde.
