@@ -1,6 +1,7 @@
 package es.topophone.data.shp
 
 import es.topophone.core.formats.gpkg.GpkgCrs
+import es.topophone.core.formats.gpkg.GpkgEnvelope
 import es.topophone.core.formats.shp.DbfReader
 import es.topophone.core.formats.shp.ShpBlobEncoder
 import es.topophone.core.formats.shp.ShpByteSource
@@ -8,6 +9,7 @@ import es.topophone.core.formats.shp.ShpCrsCatalog
 import es.topophone.core.formats.shp.ShpEncoding
 import es.topophone.core.formats.shp.ShpEncodings
 import es.topophone.core.formats.shp.ShpReader
+import es.topophone.core.formats.shp.ShpRecord
 import es.topophone.core.formats.shp.ShpShape
 import es.topophone.core.formats.shp.ShxIndex
 import es.topophone.core.model.cad.CadOrigin
@@ -99,38 +101,45 @@ class ShapefileSession private constructor(private val extracted: ShpExtracted, 
         val state = state(layer)
         val dbf = state.dbf
         val empty = List(state.info.columns.size) { GpkgValue.Null }
-        state.shp.forEachRecord { record ->
+        fun emit(record: ShpRecord) {
             val row = dbf?.record(record.index)
             val values = row?.values ?: empty
             val missing = dbf != null && row == null
+            val fid = record.index.toLong()
             val feature = when {
-                row?.deleted == true -> GpkgFeature(record.index.toLong(), null, values, GpkgIgnoredReason.DELETED_RECORD)
+                row?.deleted == true -> GpkgFeature(fid, null, values, GpkgIgnoredReason.DELETED_RECORD)
                 else -> when (val shape = record.shape) {
-                    is ShpShape.Parts -> GpkgFeature(
-                        record.index.toLong(),
-                        ShpBlobEncoder.encode(shape),
-                        values,
-                        withoutAttributes = missing,
-                    )
-                    ShpShape.Null -> GpkgFeature(record.index.toLong(), null, values, withoutAttributes = missing)
-                    ShpShape.MultiPatch -> GpkgFeature(record.index.toLong(), null, values, GpkgIgnoredReason.MULTIPATCH)
-                    ShpShape.Invalid -> GpkgFeature(record.index.toLong(), null, values, GpkgIgnoredReason.INVALID_GEOMETRY)
+                    is ShpShape.Parts -> GpkgFeature(fid, ShpBlobEncoder.encode(shape), values, withoutAttributes = missing)
+                    ShpShape.Null -> GpkgFeature(fid, null, values, withoutAttributes = missing)
+                    ShpShape.MultiPatch -> GpkgFeature(fid, null, values, GpkgIgnoredReason.MULTIPATCH)
+                    ShpShape.Invalid -> GpkgFeature(fid, null, values, GpkgIgnoredReason.INVALID_GEOMETRY)
                 }
             }
             action(feature)
+        }
+        if (box == null) {
+            state.shp.forEachRecord(::emit)
+            return
+        }
+        // Con una zona solo se decodifican los registros cuyo recuadro la toca: los demás ni se miran, como con un índice espacial.
+        state.shp.forEachEnvelope { index, offset, envelope ->
+            val found = envelope ?: envelopeOf(state, offset, index) ?: return@forEachEnvelope
+            if (box.intersects(found.minX, found.maxX, found.minY, found.maxY)) state.shp.readAt(offset, index)?.let(::emit)
         }
     }
 
     override fun forEachHead(layer: GpkgLayerInfo, action: (fid: Long, head: ByteArray?) -> Unit) {
         val state = state(layer)
         val dbf = state.dbf
-        state.shp.forEachRecord { record ->
-            val shape = record.shape
-            if (shape is ShpShape.Parts && dbf?.isDeleted(record.index) != true) {
-                action(record.index.toLong(), ShpBlobEncoder.header(shape.envelope))
-            }
+        state.shp.forEachEnvelope { index, offset, envelope ->
+            val found = envelope ?: envelopeOf(state, offset, index) ?: return@forEachEnvelope
+            if (dbf?.isDeleted(index) != true) action(index.toLong(), ShpBlobEncoder.header(found))
         }
     }
+
+    /** La envolvente de un registro que no la traía en su cabecera, leyéndolo entero; null si es nulo, un `MultiPatch` o está roto. */
+    private fun envelopeOf(state: LayerState, offset: Long, index: Int): GpkgEnvelope? =
+        (state.shp.readAt(offset, index)?.shape as? ShpShape.Parts)?.envelope
 
     override fun forEachIndexRow(
         layer: GpkgLayerInfo,

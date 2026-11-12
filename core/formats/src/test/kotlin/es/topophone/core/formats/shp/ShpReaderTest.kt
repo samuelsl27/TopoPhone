@@ -195,4 +195,38 @@ class ShpReaderTest {
             }
         }
     }
+
+    @Test
+    fun `S030 RF-13 las envolventes de las cabeceras son las de los vertices y los nulos y MultiPatch no la tienen`() {
+        var checked = 0
+        for (row in ShpFixtures.expected("esperado-capas.csv")) {
+            val path = "${row.getValue("escenario")}/${row.getValue("capa")}.shp"
+            val full = ArrayList<ShpRecord>()
+            reader(path).forEachRecord { full += it }
+            val envelopes = ArrayList<Triple<Int, Long, es.topophone.core.formats.gpkg.GpkgEnvelope?>>()
+
+            reader(path).forEachEnvelope { index, offset, envelope -> envelopes += Triple(index, offset, envelope) } shouldBe true
+
+            envelopes.map { it.first } shouldBe full.map { it.index }
+            envelopes.map { it.second } shouldBe full.map { it.offset }
+            for ((triple, record) in envelopes.zip(full)) {
+                when (val shape = record.shape) {
+                    is ShpShape.Parts -> triple.third shouldBe shape.envelope
+                    else -> triple.third shouldBe null
+                }
+                checked++
+            }
+        }
+        (checked > 100) shouldBe true
+    }
+
+    @Test
+    fun `S030 RF-13 un fichero cortado da las envolventes de los registros enteros y dice que no esta completo`() {
+        val good = ShpFixtures.bytes("poligonos-25830/parcelas.shp")
+        val seen = ArrayList<Int>()
+
+        ShpReader.open(ShpByteSource.of(good.copyOf(good.size - 20)))!!.forEachEnvelope { index, _, _ -> seen += index } shouldBe false
+
+        seen shouldBe listOf(1)
+    }
 }

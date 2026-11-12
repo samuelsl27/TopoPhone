@@ -61,6 +61,63 @@ class ShpReader private constructor(private val source: ShpByteSource, val heade
         return true
     }
 
+    /**
+     * Recorre los registros sin leer sus vértices: da la posición de cada uno y la envolvente que dice su cabecera —el recuadro de una
+     * línea, un polígono o un multipunto, o el propio punto—, o null si el registro es nulo, un `MultiPatch` o no tiene un recuadro válido
+     * (quien llama lo lee entonces con [readAt]). Va por un buffer de 1 MB, así que da el recuadro de un millón de registros en una
+     * fracción de lo que cuesta decodificarlos. Devuelve true si llegó al final y false si un registro está cortado.
+     */
+    fun forEachEnvelope(action: (index: Int, offset: Long, envelope: GpkgEnvelope?) -> Unit): Boolean {
+        val size = source.size
+        val buffer = ByteArray(ENVELOPE_BUFFER_BYTES)
+        val big = ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN)
+        val little = ByteBuffer.wrap(buffer).order(ByteOrder.LITTLE_ENDIAN)
+        var start = -1L
+        var end = -1L
+
+        fun window(offset: Long, need: Int): Boolean {
+            if (offset >= start && offset + need <= end) return true
+            if (offset + need > size) return false
+            val read = source.read(offset, buffer)
+            start = offset
+            end = offset + read
+            return offset + need <= end
+        }
+
+        var position = FIRST_RECORD
+        var index = 0
+        while (position < size) {
+            if (!window(position, RECORD_HEADER + 4)) return false
+            val at = (position - start).toInt()
+            val words = big.getInt(at + 4)
+            val content = words.toLong() * 2
+            if (words < MIN_CONTENT_WORDS || position + RECORD_HEADER + content > size) return false
+            val type = little.getInt(at + RECORD_HEADER)
+            val needed = RECORD_HEADER + minOf(content, ENVELOPE_CONTENT_BYTES.toLong()).toInt()
+            index++
+            var envelope: GpkgEnvelope? = null
+            if (window(position, needed)) {
+                val base = (position - start).toInt() + RECORD_HEADER
+                if (type in POINT_TYPES && content >= 20) {
+                    val x = little.getDouble(base + 4)
+                    val y = little.getDouble(base + 12)
+                    if (x.isFinite() && y.isFinite()) envelope = GpkgEnvelope(x, x, y, y)
+                } else if (type in BOXED_TYPES && content >= 36) {
+                    val minX = little.getDouble(base + 4)
+                    val minY = little.getDouble(base + 12)
+                    val maxX = little.getDouble(base + 20)
+                    val maxY = little.getDouble(base + 28)
+                    if (minX.isFinite() && minY.isFinite() && maxX.isFinite() && maxY.isFinite() && minX <= maxX && minY <= maxY) {
+                        envelope = GpkgEnvelope(minX, maxX, minY, maxY)
+                    }
+                }
+            }
+            action(index, position, envelope)
+            position += RECORD_HEADER + content
+        }
+        return true
+    }
+
     /** Lo que mide el fichero, en bytes. */
     val sizeBytes: Long get() = source.size
 
@@ -185,6 +242,8 @@ class ShpReader private constructor(private val source: ShpByteSource, val heade
         private const val FIRST_RECORD = 100L
         private const val RECORD_HEADER = ShpRecord.RECORD_HEADER_BYTES
         private const val MIN_CONTENT_WORDS = 2 // el tipo de forma, de 4 bytes
+        private const val ENVELOPE_BUFFER_BYTES = 1 shl 20
+        private const val ENVELOPE_CONTENT_BYTES = 36 // el tipo de forma y el recuadro
 
         private const val POINT = 1
         private const val POLYLINE = 3
@@ -200,6 +259,12 @@ class ShpReader private constructor(private val source: ShpByteSource, val heade
         private const val MULTIPOINT_M = 28
         private const val MULTIPATCH = 31
         private val Z_TYPES = setOf(POINT_Z, POLYLINE_Z, POLYGON_Z, MULTIPOINT_Z)
+        private val POINT_TYPES = setOf(POINT, POINT_M, POINT_Z)
+
+        /** Los tipos con un recuadro en su cabecera: líneas, polígonos y multipuntos. */
+        private val BOXED_TYPES = setOf(
+            POLYLINE, POLYLINE_M, POLYLINE_Z, POLYGON, POLYGON_M, POLYGON_Z, MULTIPOINT, MULTIPOINT_M, MULTIPOINT_Z,
+        )
 
         /** Abre el `.shp` de [source], o devuelve null si su cabecera no es la de un Shapefile. */
         fun open(source: ShpByteSource): ShpReader? {
