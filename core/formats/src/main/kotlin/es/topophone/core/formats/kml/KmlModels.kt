@@ -5,9 +5,9 @@ import java.io.InputStream
 
 /**
  * Una parte de la geometría de una marca: un punto, una línea, un anillo o el contorno o un hueco de un polígono (S031/RF-8). [contour] es
- * `true` en el exterior y los huecos de un polígono; [absolute] dice que su `altitudeMode` es `absolute` (RF-14).
+ * `true` en el exterior y los huecos de un polígono; [absolute] dice que su `altitudeMode` es `absolute` (RF-14); [isPoint] es un `Point`.
  */
-class KmlPart(val vertices: KmlVertices, val contour: Boolean, val absolute: Boolean) {
+class KmlPart(val vertices: KmlVertices, val contour: Boolean, val absolute: Boolean, val isPoint: Boolean = false) {
     /** La parte lleva Z: su modo es absoluto y todos sus vértices traen altitud (RF-13, RF-14). */
     val hasZ: Boolean get() = absolute && vertices.alt != null
 }

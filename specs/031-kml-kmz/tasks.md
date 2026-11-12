@@ -15,7 +15,7 @@
       Hecho cuando: `KmlStyleTableTest` en verde con los casos de T1.
 - [x] T6. `core:formats`: `KmlParser` (carpetas y rutas, marcas sin carpeta, geometrías, datos extendidos, modo de altitud, elementos ignorados y geometrías vacías) por streaming sobre `XmlStreamReader`. (RF-2b, RF-5, RF-8, RF-9, RF-10, RF-11, RF-13, RF-14)
       Hecho cuando: `KmlParserTest` en verde contra lo esperado de `tools`.
-- [ ] T7. `core:formats`: `KmlGeometryEncoder` (de las partes de una marca al blob de geometría de GeoPackage con envolvente). (RF-7, RF-8)
+- [x] T7. `core:formats`: `KmlGeometryEncoder` (de las partes de una marca al blob de geometría de GeoPackage con envolvente). (RF-7, RF-8)
       Hecho cuando: `KmlGeometryEncoderTest` en verde: el blob se lee igual con `GpkgGeometryReader`, con y sin Z.
 - [ ] T8. `data`: `KmlReader` (KML y KMZ desde la fuente elegida, vínculos internos de un KMZ, límites de 100 MB y 500 MB por bytes leídos, zip-slip, espacio, limpieza del temporal) y `KmlStore` (el almacén binario de una sola pasada). (RF-1 a RF-4, RF-2b, RF-17)
       Hecho cuando: `KmlReaderTest` en verde, incluidos KMZ cortado, sin `.kml`, con varios y cuyo tamaño declarado miente.

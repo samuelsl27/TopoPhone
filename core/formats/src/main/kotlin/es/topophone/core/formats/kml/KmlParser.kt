@@ -319,7 +319,8 @@ class KmlParser {
                 if (vertices == null || vertices.size < minVertices) {
                     group.empty++
                 } else {
-                    group.parts += KmlPart(if (firstOnly) vertices.first() else vertices, contour = false, absolute = absolute)
+                    val used = if (firstOnly) vertices.first() else vertices
+                    group.parts += KmlPart(used, contour = false, absolute = absolute, isPoint = firstOnly)
                 }
             }
 
