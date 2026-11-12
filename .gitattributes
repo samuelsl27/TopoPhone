@@ -35,3 +35,5 @@ fixtures/ejes/toma/esperado-perfil-*.csv -text
 # DXF y tabla ACI de referencia de la exportacion: CRLF byte a byte (S029)
 fixtures/formatos/dxf-exportado/* -text
 fixtures/formatos/shp-exportado/** -text
+# KML y KMZ de ejemplo de la importacion: BOM, XML cortado, ZIP y CSV tal como estan, byte a byte (S031)
+fixtures/formatos/kml/** -text

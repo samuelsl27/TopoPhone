@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/3.0">
+<Document><name>Documento</name><Placemark><name>Un punto</name><Point><coordinates>-3.7038,40.4168</coordinates></Point></Placemark></Document>
+</kml>

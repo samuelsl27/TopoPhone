@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document id="root_doc">
+    <Schema id="puntos.schema">
+      <SimpleField name="altura" type="double"/>
+      <SimpleField name="codigo" type="string"/>
+      <SimpleField name="n" type="int"/>
+    </Schema>
+    <Schema id="lineas.schema">
+      <SimpleField name="altura" type="double"/>
+      <SimpleField name="codigo" type="string"/>
+      <SimpleField name="n" type="int"/>
+    </Schema>
+    <Schema id="poligonos.schema">
+      <SimpleField name="altura" type="double"/>
+      <SimpleField name="codigo" type="string"/>
+      <SimpleField name="n" type="int"/>
+    </Schema>
+    <Document id="puntos">
+      <name>puntos</name>
+      <Placemark id="puntos.1">
+        <name>Poste</name>
+        <description>Un poste</description>
+        <ExtendedData>
+          <SchemaData schemaUrl="#puntos.schema">
+            <SimpleData name="altura">12.50000</SimpleData>
+            <SimpleData name="codigo">POSTE</SimpleData>
+            <SimpleData name="n">1</SimpleData>
+          </SchemaData>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -3.7038,40.4168,646.377
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark id="puntos.2">
+        <name>Arqueta</name>
+        <description>Tapa rota</description>
+        <ExtendedData>
+          <SchemaData schemaUrl="#puntos.schema">
+            <SimpleData name="altura">1.00000</SimpleData>
+            <SimpleData name="codigo">ARQ</SimpleData>
+            <SimpleData name="n">2</SimpleData>
+          </SchemaData>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -3.7028,40.4168,647.25
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark id="puntos.3">
+        <name>Sin datos</name>
+        <ExtendedData>
+          <SchemaData schemaUrl="#puntos.schema">
+            <SimpleData name="n">3</SimpleData>
+          </SchemaData>
+        </ExtendedData>
+        <Point>
+          <coordinates>
+            -3.7018,40.4168,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Document>
+    <Document id="lineas">
+      <name>lineas</name>
+      <Placemark id="lineas.1">
+        <name>Eje</name>
+        <description>Eje de prueba</description>
+        <ExtendedData>
+          <SchemaData schemaUrl="#lineas.schema">
+            <SimpleData name="altura">0.30000</SimpleData>
+            <SimpleData name="codigo">EJE</SimpleData>
+            <SimpleData name="n">1</SimpleData>
+          </SchemaData>
+        </ExtendedData>
+        <LineString>
+          <coordinates>
+            -3.7038,40.4178,10.5
+            -3.7028,40.4183,11.5
+            -3.7018,40.4178,12.5
+          </coordinates>
+        </LineString>
+      </Placemark>
+      <Placemark id="lineas.2">
+        <name>Muro</name>
+        <ExtendedData>
+          <SchemaData schemaUrl="#lineas.schema">
+            <SimpleData name="altura">2.00000</SimpleData>
+            <SimpleData name="codigo">MURO</SimpleData>
+            <SimpleData name="n">2</SimpleData>
+          </SchemaData>
+        </ExtendedData>
+        <LineString>
+          <coordinates>
+            -3.7038,40.4188,20
+            -3.7028,40.4188,21
+          </coordinates>
+        </LineString>
+      </Placemark>
+    </Document>
+    <Document id="poligonos">
+      <name>poligonos</name>
+      <Placemark id="poligonos.1">
+        <name>Parcela</name>
+        <description>Con hueco</description>
+        <ExtendedData>
+          <SchemaData schemaUrl="#poligonos.schema">
+            <SimpleData name="codigo">PARC</SimpleData>
+            <SimpleData name="n">1</SimpleData>
+          </SchemaData>
+        </ExtendedData>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                -3.7008,40.4168,100
+                -3.7004,40.4168,100
+                -3.7004,40.4172,100
+                -3.7008,40.4172,100
+                -3.7008,40.4168,100
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+          <innerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                -3.7007,40.4169,100
+                -3.7007,40.417,100
+                -3.7006,40.417,100
+                -3.7006,40.4169,100
+                -3.7007,40.4169,100
+              </coordinates>
+            </LinearRing>
+          </innerBoundaryIs>
+        </Polygon>
+      </Placemark>
+      <Placemark id="poligonos.2">
+        <name>Sin hueco</name>
+        <ExtendedData>
+          <SchemaData schemaUrl="#poligonos.schema">
+            <SimpleData name="codigo">PARC</SimpleData>
+            <SimpleData name="n">2</SimpleData>
+          </SchemaData>
+        </ExtendedData>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                -3.6988,40.4168,101
+                -3.6985,40.4168,101
+                -3.6985,40.4171,101
+                -3.6988,40.4171,101
+                -3.6988,40.4168,101
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+    </Document>
+  </Document>
+</kml>

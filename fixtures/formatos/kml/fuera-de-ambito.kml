@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document><name>Documento</name><Folder><name>Ambito</name><Placemark><name>Dentro</name><Point><coordinates>-3.7038,40.4168</coordinates></Point></Placemark><Placemark><name>Fuera</name><Point><coordinates>10.0,50.0</coordinates></Point></Placemark><Placemark><name>Linea con un vertice fuera</name><LineString><coordinates>-3.7038,40.4168 -3.7028,40.4178 10.0,50.0</coordinates></LineString></Placemark><Placemark><name>Parcela dentro</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-3.7018,40.4188 -3.7016,40.4188 -3.7016,40.419 -3.7018,40.419 -3.7018,40.4188</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Folder></Document>
+</kml>

@@ -1,0 +1,38 @@
+archivo,capa,tipo,objetos,columnas
+altitudes.kml,Altitudes (puntos),POINTS,7,name;description
+altitudes.kml,Altitudes (líneas),LINES,3,name;description
+atributos.kml,Atributos,POINTS,4,name;description;altura;material;name_2;diametro;vacio;mezcla;html
+canarias.kml,Tenerife (puntos),POINTS,2,name;description
+canarias.kml,Tenerife (líneas),LINES,2,name;description
+carpetas-anidadas.kml,carpetas-anidadas (puntos),POINTS,1,name;description
+carpetas-anidadas.kml,Obra (líneas),LINES,1,name;description
+carpetas-anidadas.kml,Obra (puntos),POINTS,2,name;description
+carpetas-anidadas.kml,Obra / Parcelas / Norte (puntos),POINTS,2,name;description
+carpetas-anidadas.kml,Obra / Parcelas / Norte (líneas),LINES,1,name;description
+carpetas-anidadas.kml,Obra / Parcelas / Sur,POINTS,1,name;description
+carpetas-anidadas.kml,Obra / Anexo,POINTS,1,name;description
+carpetas-anidadas.kml,carpetas-anidadas (líneas),LINES,1,name;description
+con-doc.kmz,con-doc (puntos),POINTS,1,name;description
+con-doc.kmz,con-doc (líneas),LINES,1,name;description
+enlaces-internos.kmz,Capa A / Zona,POINTS,2,name;description
+enlaces-internos.kmz,Capa A,POINTS,1,name;description
+enlaces-internos.kmz,b,LINES,1,name;description
+enlaces-internos.kmz,Con Url,POINTS,1,name;description
+enlaces-internos.kmz,Carpeta / Anidado,POINTS,1,name;description
+enlaces-internos.kmz,Carpeta / Anidado / Hondo,POINTS,1,name;description
+enlaces-internos.kmz,Carpeta / Anidado / Hondo / Mas hondo,POINTS,1,name;description
+enlaces-internos.kmz,Carpeta,POINTS,1,name;description
+estilos.kml,Estilos (puntos),POINTS,13,name;description
+estilos.kml,Estilos (líneas),LINES,3,name;description
+fuera-de-ambito.kml,Ambito (puntos),POINTS,2,name;description
+fuera-de-ambito.kml,Ambito (líneas),LINES,2,name;description
+geometrias.kml,Geometrias (puntos),POINTS,5,name;description
+geometrias.kml,Geometrias (líneas),LINES,7,name;description
+ignorados.kml,Mezcla (puntos),POINTS,4,name;description
+ignorados.kml,Mezcla (líneas),LINES,3,name;description
+mayusculas.kmz,mayusculas,POINTS,1,name;description
+ns20-bom.kml,ns20-bom,POINTS,1,name;description
+ns22-ogc.kml,ns22-ogc,POINTS,1,name;description
+sin-doc.kmz,sin-doc,POINTS,1,name;description
+sin-ns.kml,sin-ns,POINTS,1,name;description
+varios-kml.kmz,varios-kml,POINTS,1,name;description

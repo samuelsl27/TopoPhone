@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document><name>Documento</name><Folder><name>Tenerife</name><Placemark><name>Faro</name><Point><coordinates>-16.25,28.45</coordinates></Point></Placemark><Placemark><name>Muelle</name><Point><coordinates>-16.249,28.451</coordinates></Point></Placemark><Placemark><name>Camino</name><LineString><coordinates>-16.25,28.45 -16.249,28.451 -16.248,28.451</coordinates></LineString></Placemark><Placemark><name>Parcela</name><Polygon><outerBoundaryIs><LinearRing><coordinates>-16.247,28.453 -16.2468,28.453 -16.2468,28.4532 -16.247,28.4532 -16.247,28.453</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Folder></Document>
+</kml>

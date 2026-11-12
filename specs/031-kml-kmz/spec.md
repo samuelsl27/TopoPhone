@@ -23,13 +23,14 @@ Un KML siempre va en WGS84 y no puede declarar otro sistema. Los proyectos de To
 ## Requisitos funcionales (criterios de aceptación en EARS)
 Términos de esta spec:
 - **KML**: fichero XML de Google Earth; **KMZ**: ZIP con un KML y sus imágenes. Una **marca** (`Placemark`) es un elemento con nombre y geometría.
-- **Carpeta**: un `Folder` o un `Document` del KML, salvo el `Document` raíz. Una **capa** es una carpeta con marcas, y sus puntos y líneas van en capas separadas; los polígonos cuentan como líneas.
+- **Carpeta**: un `Folder` o un `Document` del KML, salvo el `Document` raíz, y el contenido de un vínculo interno (RF-2b). Una **capa** es una carpeta con marcas, y sus puntos y líneas van en capas separadas; los polígonos cuentan como líneas.
 - **Capa de diseño**, **dibujo**, **zona de importación**, **centro del proyecto**, **campo de nombre** y **contorno de polígono**: los de S040, S048 y S030.
 - **Foto**: la de un punto (S017b), tal como está guardada.
 
 ### Elegir el fichero y las capas (H1)
 - RF-1: CUANDO el usuario elija "Importar KML/KMZ" en el menú de un proyecto de la lista de proyectos o en el de su lista de objetos, EL SISTEMA abrirá el selector de ficheros del móvil y, con el fichero elegido, la pantalla de importación (RNF-T5).
 - RF-2: EL SISTEMA reconocerá un KML o un KMZ por su contenido, no por su extensión, y aceptará un KML de la versión 2.x o un KMZ cuyo KML principal sea `doc.kml` o, si no lo hay, el primer `.kml` de la raíz por orden alfabético.
+- RF-2b: DONDE un KMZ tenga un vínculo de red (`NetworkLink`, con `Link` o `Url`) cuyo destino sea un `.kml` del propio KMZ, EL SISTEMA lo leerá como una carpeta con el nombre del vínculo o, sin nombre, el del fichero sin extensión, hasta 3 niveles de vínculos y leyendo cada fichero una sola vez.
 - RF-3: SI el fichero no es un KML o un KMZ, está dañado o vacío, o no tiene ninguna marca con geometría, ENTONCES EL SISTEMA no abrirá la pantalla e indicará el motivo.
 - RF-4: SI el fichero supera los 100 MB o un KMZ descomprime más de 500 MB, ENTONCES EL SISTEMA no lo importará e indicará el límite (como S040/RF-5).
 - RF-5: EL SISTEMA creará una capa de puntos y otra de líneas por cada carpeta que tenga marcas, con la ruta de la carpeta desde la raíz, separada por " / " (por ejemplo «Obra / Parcelas / Norte»), como nombre, y pondrá las marcas que no están en ninguna carpeta en capas con el nombre del fichero sin extensión.
@@ -38,7 +39,7 @@ Términos de esta spec:
 ### Coordenadas y geometrías (H1)
 - RF-7: EL SISTEMA leerá las coordenadas como longitud y latitud WGS84 en grados, las tomará como del datum de los cálculos del proyecto, sin ninguna transformación de datum, y las convertirá al sistema de coordenadas del proyecto.
 - RF-8: EL SISTEMA importará los puntos, las líneas (`LineString`), los anillos (`LinearRing`), los polígonos y las colecciones de geometrías (`MultiGeometry`) de las marcas, y convertirá cada polígono en una línea cerrada para su contorno y en otra para cada hueco, marcadas como contorno de polígono (como S048/RF-17).
-- RF-9: EL SISTEMA no importará los vínculos de red (`NetworkLink`), las imágenes sobre el suelo, de pantalla y de foto (`GroundOverlay`, `ScreenOverlay`, `PhotoOverlay`), los modelos (`Model`), los recorridos (`gx:Tour`, `gx:Track`, `gx:MultiTrack`), las geometrías vacías ni las que tengan un vértice fuera del ámbito del sistema del proyecto, y los contará como ignorados con el motivo (como S048/RF-18 y S040/RF-17).
+- RF-9: EL SISTEMA no importará los vínculos de red que no sean los de RF-2b (a `http`, a otros ficheros, a ficheros que no están en el KMZ o repetidos), las imágenes sobre el suelo, de pantalla y de foto (`GroundOverlay`, `ScreenOverlay`, `PhotoOverlay`), los modelos (`Model`), los recorridos (`gx:Tour`, `gx:Track`, `gx:MultiTrack`), las geometrías vacías ni las que tengan un vértice fuera del ámbito del sistema del proyecto, y los contará como ignorados con el motivo (como S048/RF-18 y S040/RF-17).
 
 ### Nombre, atributos y color (H1)
 - RF-10: EL SISTEMA usará el nombre de la marca como nombre del objeto para etiquetarlo en el mapa y nombrarlo en el replanteo y, si no tiene, su número dentro de la capa (como S048/RF-22).
@@ -98,6 +99,8 @@ Términos de esta spec:
 |---|---|
 | KML dañado, vacío, sin marcas o que no es un KML | RF-3 |
 | KMZ con varios KML, con imágenes o sin KML | RF-2, RF-3 |
+| KMZ de QGIS o de Google Earth cuyo `doc.kml` solo trae vínculos a otros `.kml` del KMZ | RF-2b |
+| Vínculo a `http`, a un fichero que falta, que sale del KMZ o que vuelve a uno ya leído | RF-2b, RF-9 |
 | Fichero de más de 100 MB o KMZ que descomprime más de 500 MB | RF-4 |
 | Carpetas anidadas, o marcas sin carpeta | RF-5 |
 | Coordenadas de España tratadas como WGS84 | RF-7, RF-18, RF-24 |
@@ -121,6 +124,7 @@ Términos de esta spec:
 ## Fuera de alcance
 - Las fotos de los puntos en un ZIP suelto → S056.
 - Estilos de icono propios, imágenes sobre el suelo y recorridos en el KML exportado → no previsto.
+- Seguir vínculos de red a `http` o a ficheros fuera del KMZ, y refrescarlos → no previsto.
 - Fotos o enlaces a fotos en un KML sin comprimir → no previsto; solo van dentro de un KMZ.
 - Importar las fotos o las imágenes de un KMZ → no previsto.
 - Convertir entre WGS84 y ETRS89 con Helmert → S033.
@@ -133,13 +137,14 @@ Términos de esta spec:
 
 ## Criterios de finalización
 - Todos los RF con test en verde, el informe de trazabilidad sin RF huérfanos, `./gradlew check` y `uv run --project tools pytest tools` en verde.
-- KML y KMZ de ejemplo hechos con QGIS (y con Google Earth, si el usuario aporta alguno) que se leen y coinciden con QGIS a menos de 1 mm: carpetas anidadas, marcas sin carpeta, polígonos con hueco, `MultiGeometry`, `ExtendedData`, colores por estilo en la marca, por `styleUrl` y por `StyleMap`, y altitudes en los tres modos.
+- KML y KMZ de ejemplo hechos con QGIS (y con Google Earth, si el usuario aporta alguno) que se leen y coinciden con QGIS a menos de 1 mm: carpetas anidadas, marcas sin carpeta, polígonos con hueco, `MultiGeometry`, `ExtendedData`, colores por estilo en la marca, por `styleUrl` y por `StyleMap`, altitudes en los tres modos y un KMZ de varias capas escrito por QGIS con LIBKML (`doc.kml` con vínculos internos).
 - Las coordenadas exportadas comparadas con pyproj (≤ 1 mm) y la ida y vuelta exportar → importar (< 0,1 mm).
 - Un KML y un KMZ exportados con puntos, líneas, polígonos y fotos se abren en QGIS con las mismas marcas y coordenadas, y las fotos del KMZ coinciden byte a byte con las guardadas.
 - Demo en el emulador:
   - importar un KMZ con carpetas anidadas, marcar solo algunas capas y replantear un punto y una línea;
   - responder «Sí» y «No» a las altitudes y ver la diferencia;
   - exportar KML y KMZ de un proyecto con y sin selección, con y sin altura, con fotos;
+  - importar un KMZ de varias capas hecho con QGIS (vínculos internos);
   - abrir lo exportado en QGIS.
 - Demo de campo: queda para el usuario.
 
@@ -153,6 +158,7 @@ Términos de esta spec:
 - [SUPOSICIÓN: las marcas sin posición no se escriben, aunque el KML admite marcas sin geometría, porque un visor no las muestra (RF-25).]
 
 ## Cambios en documentos anteriores (se aplican al aprobar esta spec)
+- (12/11/2026, al hacer los ejemplos de T1) RF-2b y RF-9 se ampliaron a petición del usuario para leer los KMZ de varias capas de QGIS (LIBKML), cuyo `doc.kml` solo trae vínculos de red a `layers/<capa>.kml`; sin esto daban «sin marcas».
 - `docs/hoja-de-ruta.md`: la fila S031 pasa a `spec` y a solo KML/KMZ ("Importar un KML o KMZ como capa de diseño… y exportar a KML o KMZ, con fotos opcionales en el KMZ"), con "Depende de" 048, 040, 006, 012, 024, 025, 017b; las fotos en un ZIP pasan a una fila nueva, S056.
 - `docs/glosario.md`: se añaden "KML/KMZ" (`Kml`) y "Carpeta de KML" (`KmlFolder`); "Origen del dibujo" (`CadOrigin`) gana el valor `KML`.
 - `docs/inventario-funcional.md`: las fotos en ZIP pasan de S031 a S056.

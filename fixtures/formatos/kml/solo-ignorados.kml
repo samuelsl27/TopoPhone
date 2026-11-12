@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document><name>Documento</name><NetworkLink><name>V</name><Link><href>http://example.org/a.kml</href></Link></NetworkLink></Document>
+</kml>

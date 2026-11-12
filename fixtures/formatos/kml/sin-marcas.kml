@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document><name>Documento</name><Folder><name>Vacia</name></Folder><Folder><name>Notas</name><Placemark><name>Solo una nota</name><description>sin geometria</description></Placemark></Folder></Document>
+</kml>

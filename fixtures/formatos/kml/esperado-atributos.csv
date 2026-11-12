@@ -1,0 +1,92 @@
+archivo,capa,fid,columna,valor
+altitudes.kml,Altitudes (puntos),1,name,Abs punto
+altitudes.kml,Altitudes (puntos),2,name,Clamp con z
+altitudes.kml,Altitudes (puntos),3,name,Relativa
+altitudes.kml,Altitudes (puntos),4,name,Sin modo con z
+altitudes.kml,Altitudes (puntos),5,name,Fondo marino
+altitudes.kml,Altitudes (puntos),6,name,Abs sin z
+altitudes.kml,Altitudes (puntos),7,name,Mixta
+altitudes.kml,Altitudes (líneas),1,name,Abs linea
+altitudes.kml,Altitudes (líneas),2,name,Abs parcial
+altitudes.kml,Altitudes (líneas),3,name,Abs poligono
+atributos.kml,Atributos,1,name,Poste
+atributos.kml,Atributos,1,description,"Poste de hormigón
+Línea 2
+Línea 3 & fin"
+atributos.kml,Atributos,1,altura,12.5
+atributos.kml,Atributos,1,material,hormigón
+atributos.kml,Atributos,1,name_2,dup
+atributos.kml,Atributos,2,name,Arqueta
+atributos.kml,Atributos,2,description,Tapa rota
+atributos.kml,Atributos,2,diametro,0.60
+atributos.kml,Atributos,2,altura,1
+atributos.kml,Atributos,3,name,Sin datos
+atributos.kml,Atributos,4,name,Escapes
+atributos.kml,Atributos,4,description,"Uno
+Dos"
+atributos.kml,Atributos,4,mezcla,a & b
+atributos.kml,Atributos,4,html,<b>negrita</b>
+canarias.kml,Tenerife (puntos),1,name,Faro
+canarias.kml,Tenerife (puntos),2,name,Muelle
+canarias.kml,Tenerife (líneas),1,name,Camino
+canarias.kml,Tenerife (líneas),2,name,Parcela
+carpetas-anidadas.kml,carpetas-anidadas (puntos),1,name,Suelto A
+carpetas-anidadas.kml,Obra (líneas),1,name,Eje
+carpetas-anidadas.kml,Obra (puntos),1,name,Hito
+carpetas-anidadas.kml,Obra (puntos),2,name,En carpeta sin nombre
+carpetas-anidadas.kml,Obra / Parcelas / Norte (puntos),1,name,P1
+carpetas-anidadas.kml,Obra / Parcelas / Norte (puntos),2,name,P2
+carpetas-anidadas.kml,Obra / Parcelas / Norte (líneas),1,name,L1
+carpetas-anidadas.kml,Obra / Parcelas / Sur,1,name,S1
+carpetas-anidadas.kml,Obra / Anexo,1,name,En documento anidado
+carpetas-anidadas.kml,carpetas-anidadas (líneas),1,name,Suelto B
+con-doc.kmz,con-doc (puntos),1,name,Punto del KMZ
+con-doc.kmz,con-doc (líneas),1,name,Linea del KMZ
+enlaces-internos.kmz,Capa A / Zona,1,name,A1
+enlaces-internos.kmz,Capa A / Zona,2,name,A2
+enlaces-internos.kmz,Capa A,1,name,Suelta de A
+enlaces-internos.kmz,b,1,name,B1
+enlaces-internos.kmz,Con Url,1,name,U1
+enlaces-internos.kmz,Carpeta / Anidado,1,name,C1
+enlaces-internos.kmz,Carpeta / Anidado / Hondo,1,name,D1
+enlaces-internos.kmz,Carpeta / Anidado / Hondo / Mas hondo,1,name,E1
+enlaces-internos.kmz,Carpeta,1,name,Marca de doc
+estilos.kml,Estilos (puntos),1,name,Rojo
+estilos.kml,Estilos (puntos),2,name,Punto con estilo de linea
+estilos.kml,Estilos (puntos),3,name,Con StyleMap
+estilos.kml,Estilos (puntos),4,name,StyleMap en linea
+estilos.kml,Estilos (puntos),5,name,Estilo en la marca
+estilos.kml,Estilos (puntos),6,name,Punto y linea
+estilos.kml,Estilos (puntos),7,name,Sin estilo
+estilos.kml,Estilos (puntos),8,name,Estilo sin color
+estilos.kml,Estilos (puntos),9,name,Con alfa
+estilos.kml,Estilos (puntos),10,name,Estilo declarado despues
+estilos.kml,Estilos (puntos),11,name,Estilo de otro fichero
+estilos.kml,Estilos (puntos),12,name,Estilo que no existe
+estilos.kml,Estilos (puntos),13,name,Color que no vale
+estilos.kml,Estilos (líneas),1,name,Linea azul
+estilos.kml,Estilos (líneas),2,name,Poligono azul
+estilos.kml,Estilos (líneas),3,name,Punto y linea
+fuera-de-ambito.kml,Ambito (puntos),1,name,Dentro
+fuera-de-ambito.kml,Ambito (puntos),2,name,Fuera
+fuera-de-ambito.kml,Ambito (líneas),1,name,Linea con un vertice fuera
+fuera-de-ambito.kml,Ambito (líneas),2,name,Parcela dentro
+geometrias.kml,Geometrias (puntos),1,name,Punto
+geometrias.kml,Geometrias (puntos),2,name,Dos puntos
+geometrias.kml,Geometrias (puntos),3,name,Mixta
+geometrias.kml,Geometrias (puntos),5,name,Anidada
+geometrias.kml,Geometrias (líneas),1,name,Linea
+geometrias.kml,Geometrias (líneas),2,name,Anillo
+geometrias.kml,Geometrias (líneas),3,name,Parcela
+geometrias.kml,Geometrias (líneas),4,name,Parcela con dos huecos
+geometrias.kml,Geometrias (líneas),5,name,Mixta
+geometrias.kml,Geometrias (líneas),6,name,Dos lineas
+geometrias.kml,Geometrias (líneas),7,name,Anidada
+ignorados.kml,Mezcla (puntos),1,name,Valido
+ignorados.kml,Mezcla (puntos),2,name,Modelo y punto
+mayusculas.kmz,mayusculas,1,name,En mayusculas
+ns20-bom.kml,ns20-bom,1,name,Un punto
+ns22-ogc.kml,ns22-ogc,1,name,Un punto
+sin-doc.kmz,sin-doc,1,name,A
+sin-ns.kml,sin-ns,1,name,Un punto
+varios-kml.kmz,varios-kml,1,name,Principal

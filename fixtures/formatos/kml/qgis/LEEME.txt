@@ -1,0 +1,2 @@
+Ficheros escritos por QGIS 3.44.6-Solothurn (GDAL 3.12.1) con tools/formatos/qgis_kml_ejemplos.py.
+Controladores: KML y LIBKML. Los esperado-qgis-*.csv son lo que QGIS lee de ellos.

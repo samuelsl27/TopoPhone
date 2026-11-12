@@ -1,0 +1,193 @@
+archivo,capa,objeto,columna,valor
+qgis-kml.kml,puntos,1,id,puntos.1
+qgis-kml.kml,puntos,1,Name,Poste
+qgis-kml.kml,puntos,1,description,Un poste
+qgis-kml.kml,puntos,1,tessellate,-1
+qgis-kml.kml,puntos,1,extrude,0
+qgis-kml.kml,puntos,1,visibility,-1
+qgis-kml.kml,puntos,1,altura,12.5
+qgis-kml.kml,puntos,1,codigo,POSTE
+qgis-kml.kml,puntos,1,n,1
+qgis-kml.kml,puntos,2,id,puntos.2
+qgis-kml.kml,puntos,2,Name,Arqueta
+qgis-kml.kml,puntos,2,description,Tapa rota
+qgis-kml.kml,puntos,2,tessellate,-1
+qgis-kml.kml,puntos,2,extrude,0
+qgis-kml.kml,puntos,2,visibility,-1
+qgis-kml.kml,puntos,2,altura,1.0
+qgis-kml.kml,puntos,2,codigo,ARQ
+qgis-kml.kml,puntos,2,n,2
+qgis-kml.kml,puntos,3,id,puntos.3
+qgis-kml.kml,puntos,3,Name,Sin datos
+qgis-kml.kml,puntos,3,tessellate,-1
+qgis-kml.kml,puntos,3,extrude,0
+qgis-kml.kml,puntos,3,visibility,-1
+qgis-kml.kml,puntos,3,n,3
+qgis-kml.kml,lineas,1,id,lineas.1
+qgis-kml.kml,lineas,1,Name,Eje
+qgis-kml.kml,lineas,1,description,Eje de prueba
+qgis-kml.kml,lineas,1,tessellate,-1
+qgis-kml.kml,lineas,1,extrude,0
+qgis-kml.kml,lineas,1,visibility,-1
+qgis-kml.kml,lineas,1,altura,0.3
+qgis-kml.kml,lineas,1,codigo,EJE
+qgis-kml.kml,lineas,1,n,1
+qgis-kml.kml,lineas,2,id,lineas.2
+qgis-kml.kml,lineas,2,Name,Muro
+qgis-kml.kml,lineas,2,tessellate,-1
+qgis-kml.kml,lineas,2,extrude,0
+qgis-kml.kml,lineas,2,visibility,-1
+qgis-kml.kml,lineas,2,altura,2.0
+qgis-kml.kml,lineas,2,codigo,MURO
+qgis-kml.kml,lineas,2,n,2
+qgis-kml.kml,poligonos,1,id,poligonos.1
+qgis-kml.kml,poligonos,1,Name,Parcela
+qgis-kml.kml,poligonos,1,description,Con hueco
+qgis-kml.kml,poligonos,1,tessellate,-1
+qgis-kml.kml,poligonos,1,extrude,0
+qgis-kml.kml,poligonos,1,visibility,-1
+qgis-kml.kml,poligonos,1,codigo,PARC
+qgis-kml.kml,poligonos,1,n,1
+qgis-kml.kml,poligonos,2,id,poligonos.2
+qgis-kml.kml,poligonos,2,Name,Sin hueco
+qgis-kml.kml,poligonos,2,tessellate,-1
+qgis-kml.kml,poligonos,2,extrude,0
+qgis-kml.kml,poligonos,2,visibility,-1
+qgis-kml.kml,poligonos,2,codigo,PARC
+qgis-kml.kml,poligonos,2,n,2
+qgis-libkml.kml,puntos,1,id,puntos.1
+qgis-libkml.kml,puntos,1,Name,Poste
+qgis-libkml.kml,puntos,1,description,Un poste
+qgis-libkml.kml,puntos,1,tessellate,-1
+qgis-libkml.kml,puntos,1,extrude,0
+qgis-libkml.kml,puntos,1,visibility,-1
+qgis-libkml.kml,puntos,1,altura,12.5
+qgis-libkml.kml,puntos,1,codigo,POSTE
+qgis-libkml.kml,puntos,1,n,1
+qgis-libkml.kml,puntos,2,id,puntos.2
+qgis-libkml.kml,puntos,2,Name,Arqueta
+qgis-libkml.kml,puntos,2,description,Tapa rota
+qgis-libkml.kml,puntos,2,tessellate,-1
+qgis-libkml.kml,puntos,2,extrude,0
+qgis-libkml.kml,puntos,2,visibility,-1
+qgis-libkml.kml,puntos,2,altura,1.0
+qgis-libkml.kml,puntos,2,codigo,ARQ
+qgis-libkml.kml,puntos,2,n,2
+qgis-libkml.kml,puntos,3,id,puntos.3
+qgis-libkml.kml,puntos,3,Name,Sin datos
+qgis-libkml.kml,puntos,3,tessellate,-1
+qgis-libkml.kml,puntos,3,extrude,0
+qgis-libkml.kml,puntos,3,visibility,-1
+qgis-libkml.kml,puntos,3,n,3
+qgis-libkml.kml,lineas,1,id,lineas.1
+qgis-libkml.kml,lineas,1,Name,Eje
+qgis-libkml.kml,lineas,1,description,Eje de prueba
+qgis-libkml.kml,lineas,1,tessellate,-1
+qgis-libkml.kml,lineas,1,extrude,0
+qgis-libkml.kml,lineas,1,visibility,-1
+qgis-libkml.kml,lineas,1,altura,0.3
+qgis-libkml.kml,lineas,1,codigo,EJE
+qgis-libkml.kml,lineas,1,n,1
+qgis-libkml.kml,lineas,2,id,lineas.2
+qgis-libkml.kml,lineas,2,Name,Muro
+qgis-libkml.kml,lineas,2,tessellate,-1
+qgis-libkml.kml,lineas,2,extrude,0
+qgis-libkml.kml,lineas,2,visibility,-1
+qgis-libkml.kml,lineas,2,altura,2.0
+qgis-libkml.kml,lineas,2,codigo,MURO
+qgis-libkml.kml,lineas,2,n,2
+qgis-libkml.kml,poligonos,1,id,poligonos.1
+qgis-libkml.kml,poligonos,1,Name,Parcela
+qgis-libkml.kml,poligonos,1,description,Con hueco
+qgis-libkml.kml,poligonos,1,tessellate,-1
+qgis-libkml.kml,poligonos,1,extrude,0
+qgis-libkml.kml,poligonos,1,visibility,-1
+qgis-libkml.kml,poligonos,1,codigo,PARC
+qgis-libkml.kml,poligonos,1,n,1
+qgis-libkml.kml,poligonos,2,id,poligonos.2
+qgis-libkml.kml,poligonos,2,Name,Sin hueco
+qgis-libkml.kml,poligonos,2,tessellate,-1
+qgis-libkml.kml,poligonos,2,extrude,0
+qgis-libkml.kml,poligonos,2,visibility,-1
+qgis-libkml.kml,poligonos,2,codigo,PARC
+qgis-libkml.kml,poligonos,2,n,2
+qgis-libkml.kmz,puntos,1,id,puntos.1
+qgis-libkml.kmz,puntos,1,Name,Poste
+qgis-libkml.kmz,puntos,1,description,Un poste
+qgis-libkml.kmz,puntos,1,tessellate,-1
+qgis-libkml.kmz,puntos,1,extrude,0
+qgis-libkml.kmz,puntos,1,visibility,-1
+qgis-libkml.kmz,puntos,1,altura,12.5
+qgis-libkml.kmz,puntos,1,codigo,POSTE
+qgis-libkml.kmz,puntos,1,n,1
+qgis-libkml.kmz,puntos,2,id,puntos.2
+qgis-libkml.kmz,puntos,2,Name,Arqueta
+qgis-libkml.kmz,puntos,2,description,Tapa rota
+qgis-libkml.kmz,puntos,2,tessellate,-1
+qgis-libkml.kmz,puntos,2,extrude,0
+qgis-libkml.kmz,puntos,2,visibility,-1
+qgis-libkml.kmz,puntos,2,altura,1.0
+qgis-libkml.kmz,puntos,2,codigo,ARQ
+qgis-libkml.kmz,puntos,2,n,2
+qgis-libkml.kmz,puntos,3,id,puntos.3
+qgis-libkml.kmz,puntos,3,Name,Sin datos
+qgis-libkml.kmz,puntos,3,tessellate,-1
+qgis-libkml.kmz,puntos,3,extrude,0
+qgis-libkml.kmz,puntos,3,visibility,-1
+qgis-libkml.kmz,puntos,3,n,3
+qgis-libkml-multicapa.kmz,puntos,1,id,puntos.1
+qgis-libkml-multicapa.kmz,puntos,1,Name,Poste
+qgis-libkml-multicapa.kmz,puntos,1,description,Un poste
+qgis-libkml-multicapa.kmz,puntos,1,tessellate,-1
+qgis-libkml-multicapa.kmz,puntos,1,extrude,0
+qgis-libkml-multicapa.kmz,puntos,1,visibility,-1
+qgis-libkml-multicapa.kmz,puntos,1,altura,12.5
+qgis-libkml-multicapa.kmz,puntos,1,codigo,POSTE
+qgis-libkml-multicapa.kmz,puntos,1,n,1
+qgis-libkml-multicapa.kmz,puntos,2,id,puntos.2
+qgis-libkml-multicapa.kmz,puntos,2,Name,Arqueta
+qgis-libkml-multicapa.kmz,puntos,2,description,Tapa rota
+qgis-libkml-multicapa.kmz,puntos,2,tessellate,-1
+qgis-libkml-multicapa.kmz,puntos,2,extrude,0
+qgis-libkml-multicapa.kmz,puntos,2,visibility,-1
+qgis-libkml-multicapa.kmz,puntos,2,altura,1.0
+qgis-libkml-multicapa.kmz,puntos,2,codigo,ARQ
+qgis-libkml-multicapa.kmz,puntos,2,n,2
+qgis-libkml-multicapa.kmz,puntos,3,id,puntos.3
+qgis-libkml-multicapa.kmz,puntos,3,Name,Sin datos
+qgis-libkml-multicapa.kmz,puntos,3,tessellate,-1
+qgis-libkml-multicapa.kmz,puntos,3,extrude,0
+qgis-libkml-multicapa.kmz,puntos,3,visibility,-1
+qgis-libkml-multicapa.kmz,puntos,3,n,3
+qgis-libkml-multicapa.kmz,lineas,1,id,lineas.1
+qgis-libkml-multicapa.kmz,lineas,1,Name,Eje
+qgis-libkml-multicapa.kmz,lineas,1,description,Eje de prueba
+qgis-libkml-multicapa.kmz,lineas,1,tessellate,-1
+qgis-libkml-multicapa.kmz,lineas,1,extrude,0
+qgis-libkml-multicapa.kmz,lineas,1,visibility,-1
+qgis-libkml-multicapa.kmz,lineas,1,altura,0.3
+qgis-libkml-multicapa.kmz,lineas,1,codigo,EJE
+qgis-libkml-multicapa.kmz,lineas,1,n,1
+qgis-libkml-multicapa.kmz,lineas,2,id,lineas.2
+qgis-libkml-multicapa.kmz,lineas,2,Name,Muro
+qgis-libkml-multicapa.kmz,lineas,2,tessellate,-1
+qgis-libkml-multicapa.kmz,lineas,2,extrude,0
+qgis-libkml-multicapa.kmz,lineas,2,visibility,-1
+qgis-libkml-multicapa.kmz,lineas,2,altura,2.0
+qgis-libkml-multicapa.kmz,lineas,2,codigo,MURO
+qgis-libkml-multicapa.kmz,lineas,2,n,2
+qgis-libkml-multicapa.kmz,poligonos,1,id,poligonos.1
+qgis-libkml-multicapa.kmz,poligonos,1,Name,Parcela
+qgis-libkml-multicapa.kmz,poligonos,1,description,Con hueco
+qgis-libkml-multicapa.kmz,poligonos,1,tessellate,-1
+qgis-libkml-multicapa.kmz,poligonos,1,extrude,0
+qgis-libkml-multicapa.kmz,poligonos,1,visibility,-1
+qgis-libkml-multicapa.kmz,poligonos,1,codigo,PARC
+qgis-libkml-multicapa.kmz,poligonos,1,n,1
+qgis-libkml-multicapa.kmz,poligonos,2,id,poligonos.2
+qgis-libkml-multicapa.kmz,poligonos,2,Name,Sin hueco
+qgis-libkml-multicapa.kmz,poligonos,2,tessellate,-1
+qgis-libkml-multicapa.kmz,poligonos,2,extrude,0
+qgis-libkml-multicapa.kmz,poligonos,2,visibility,-1
+qgis-libkml-multicapa.kmz,poligonos,2,codigo,PARC
+qgis-libkml-multicapa.kmz,poligonos,2,n,2

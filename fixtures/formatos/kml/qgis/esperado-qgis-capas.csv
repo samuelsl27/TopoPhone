@@ -1,0 +1,11 @@
+archivo,capa,tipo,objetos,columnas
+qgis-kml.kml,puntos,PointZ,3,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
+qgis-kml.kml,lineas,LineStringZ,2,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
+qgis-kml.kml,poligonos,PolygonZ,2,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
+qgis-libkml.kml,puntos,PointZ,3,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
+qgis-libkml.kml,lineas,LineStringZ,2,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
+qgis-libkml.kml,poligonos,PolygonZ,2,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
+qgis-libkml.kmz,puntos,PointZ,3,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
+qgis-libkml-multicapa.kmz,puntos,PointZ,3,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
+qgis-libkml-multicapa.kmz,lineas,LineStringZ,2,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
+qgis-libkml-multicapa.kmz,poligonos,PolygonZ,2,id;Name;description;timestamp;begin;end;altitudeMode;tessellate;extrude;visibility;drawOrder;icon;altura;codigo;n
