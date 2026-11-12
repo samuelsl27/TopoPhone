@@ -7,7 +7,7 @@
       Hecho cuando: el script genera `fixtures/formatos/kml/` y su test de `tools` está en verde, con las coordenadas esperadas de cada marca calculadas con pyproj.
 - [x] T2. `core:model` y `data`: `CadOrigin.KML`, los motivos de ignorado nuevos, `GpkgImportSummary.ignoredElements`, `GpkgFeature.color` (el convertidor y el importador lo pasan al `CadEntity`) y `FeatureSession.hasElevations`. (RF-9, RF-12, RF-13, RF-16)
       Hecho cuando: los tests de S048 y S030 siguen en verde sin cambios y un test nuevo comprueba que un objeto con color lo guarda en su elemento y que sin color toma el de su capa.
-- [ ] T3. `core:formats`: `KmlFileKind` (KML y KMZ por contenido, KML principal de un KMZ) y `KmlColors` (`aabbggrr` a ARGB y vuelta). (RF-2, RF-3, RF-12, RF-23)
+- [x] T3. `core:formats`: `KmlFileKind` (KML y KMZ por contenido, KML principal de un KMZ) y `KmlColors` (`aabbggrr` a ARGB y vuelta). (RF-2, RF-3, RF-12, RF-23)
       Hecho cuando: `KmlFileKindTest` y `KmlColorsTest` en verde con los ficheros de T1.
 - [ ] T4. `core:formats`: `KmlCoordinates` (tuplas, separadores, Z solo si todos los vértices la traen) y `KmlHtml`. (RF-7, RF-11, RF-13, RF-14)
       Hecho cuando: `KmlCoordinatesTest` y `KmlHtmlTest` en verde.
