@@ -12,7 +12,14 @@ import es.topophone.core.survey.LayerBox
  * RF-20). [ignored] es el motivo por el que la sesión ya sabe que no se puede importar —un registro borrado en el `.dbf` o un `MultiPatch`
  * de un Shapefile (S030/RF-16)—; entonces no hace falta su geometría.
  */
-class GpkgFeature(val fid: Long, val geometry: ByteArray?, val values: List<GpkgValue>, val ignored: GpkgIgnoredReason? = null)
+class GpkgFeature(
+    val fid: Long,
+    val geometry: ByteArray?,
+    val values: List<GpkgValue>,
+    val ignored: GpkgIgnoredReason? = null,
+    /** Un objeto de un Shapefile cuyo registro falta en un `.dbf` más corto: sus valores son nulos y el resumen lo cuenta (S030/RF-20). */
+    val withoutAttributes: Boolean = false,
+)
 
 /**
  * Lo que necesitan el importador y el recuento por zona de un fichero abierto de solo lectura (S048/RF-5 a RF-16, S030/D1): las capas con

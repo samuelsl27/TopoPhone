@@ -44,6 +44,12 @@ class ShpExtracted(
     }
 }
 
+sealed interface ShpOpenResult {
+    class Opened(val session: ShapefileSession) : ShpOpenResult
+
+    data class Failed(val reason: ShpOpenFailure) : ShpOpenResult
+}
+
 sealed interface ShpExtractResult {
     class Extracted(val extracted: ShpExtracted) : ShpExtractResult
 
@@ -99,6 +105,23 @@ class ShapefileReader(
         } catch (e: SecurityException) {
             directory.deleteRecursively()
             ShpExtractResult.Failed(ShpOpenFailure.READ_ERROR)
+        }
+    }
+
+    /** Copia [inputs] y abre el Shapefile para leerlo (S030/RF-1 a RF-9): [extract] y, de ahí, una [ShapefileSession]. */
+    suspend fun open(inputs: List<ShpInput>): ShpOpenResult {
+        val extracted = when (val result = extract(inputs)) {
+            is ShpExtractResult.Failed -> return ShpOpenResult.Failed(result.reason)
+            is ShpExtractResult.Extracted -> result.extracted
+        }
+        return try {
+            ShpOpenResult.Opened(ShapefileSession.open(extracted))
+        } catch (e: CancellationException) {
+            extracted.close()
+            throw e
+        } catch (e: Exception) {
+            extracted.close()
+            ShpOpenResult.Failed(ShpOpenFailure.READ_ERROR)
         }
     }
 

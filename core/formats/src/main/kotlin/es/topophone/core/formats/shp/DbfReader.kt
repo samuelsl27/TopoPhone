@@ -53,6 +53,13 @@ class DbfReader private constructor(
         return if (ShpEncodings.isValidUtf8(source, from, to)) ShpEncoding.UTF_8 else ShpEncoding.WINDOWS_1252
     }
 
+    /** Si el registro [index], desde 1, está marcado como borrado: lee solo su primer byte. */
+    fun isDeleted(index: Int): Boolean {
+        if (index < 1 || index > recordCount) return false
+        val flag = ByteArray(1)
+        return source.read(headerLength.toLong() + (index - 1).toLong() * recordLength, flag) == 1 && flag[0] == DELETED
+    }
+
     /** El registro [index], desde 1, o null si no existe (RF-20). */
     fun record(index: Int): DbfRecord? {
         if (index < 1 || index > recordCount) return null

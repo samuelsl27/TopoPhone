@@ -22,7 +22,7 @@
       Hecho cuando: los tests de S048 (`GeoPackageReaderTest`, `GeoPackageScanTest`, `GeoPackageImporterTest`, `GpkgBackupTest`) siguen en verde sin cambios y un test del importador cuenta un objeto `deleted` como ignorado.
 - [ ] T10. `data`: `ShapefileReader` (ZIP o ficheros sueltos a una carpeta temporal de la caché, límites por bytes leídos, espacio libre, zip-slip, limpieza) y la inyección en `DataModule`. (RF-1 a RF-7, RF-29, RF-30)
       Hecho cuando: `ShapefileReaderTest` en verde con los ZIP y sueltos de `tools`, el tamaño declarado falso, un nombre de entrada con `..`, un ZIP cancelado a mitad, y sin dejar el temporal.
-- [ ] T11. `data`: `ShapefileSession` (capas con su tipo, columnas y SC, objetos con acceso aleatorio, cabeceras y geometrías por registro, codificación por capa). (RF-7 a RF-9, RF-15 a RF-21)
+- [x] T11. `data`: `ShapefileSession` (capas con su tipo, columnas y SC, objetos con acceso aleatorio, cabeceras y geometrías por registro, codificación por capa). (RF-7 a RF-9, RF-15 a RF-21)
       Hecho cuando: `ShapefileSessionTest` en verde: capas con el mismo nombre distinguidas por carpeta, `forEachFeature`, `forEachHead`, `forEachGeometry`, cambio de codificación y `.dbf` corto.
 - [ ] T12. `data`: importar un Shapefile con `GeoPackageImporter` y recontar con `GeoPackageScan` (reproyección, zona, polígonos como líneas, cotas, nombre, atributos, borrados, `.dbf` corto, tandas, cancelar y fallar sin dejar nada, resumen). (RF-10 a RF-17, RF-20 a RF-22, RF-25, RF-26, RF-29, RF-30)
       Hecho cuando: `ShapefileImporterTest` y `ShapefileScanTest` en verde con los valores contra pyproj y el resumen por capa.

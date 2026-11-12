@@ -20,6 +20,15 @@ object ShpBlobEncoder {
     private const val MULTILINESTRING = 5
     private const val Z_OFFSET = 1000
 
+    /** Solo la cabecera de 40 bytes del blob de una forma con esa envolvente: lo que lee el recuento por zona sin leer los vértices. */
+    fun header(envelope: es.topophone.core.formats.gpkg.GpkgEnvelope): ByteArray {
+        val out = ByteBuffer.allocate(HEADER_BYTES).order(ByteOrder.LITTLE_ENDIAN)
+        out.put('G'.code.toByte()).put('P'.code.toByte()).put(0).put(FLAGS)
+        out.putInt(0)
+        out.putDouble(envelope.minX).putDouble(envelope.maxX).putDouble(envelope.minY).putDouble(envelope.maxY)
+        return out.array()
+    }
+
     /** El blob de [shape], con la envolvente en la cabecera. */
     fun encode(shape: ShpShape.Parts): ByteArray {
         val parts = shape.parts
