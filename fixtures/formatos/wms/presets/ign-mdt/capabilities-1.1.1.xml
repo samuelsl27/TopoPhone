@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd" [ 
+<!ELEMENT VendorSpecificCapabilities (inspire_vs:ExtendedCapabilities)>
+<!-- Escenario 1: Elemento MetadataURL obligatorio que apunta a un documento de metadatos que cumple con la especificación de Metadatos Inspire más parámetros de idioma-->]>
+<WMT_MS_Capabilities version="1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Service>
+    <Name>WMS</Name>
+    <Title>Modelo Digital de Terreno de España</Title>
+    <Abstract>Representación de los Modelos Digitales de Elevaciones de España: curvas de nivel y puntos acotados procedentes de BTN, y Modelo Digital del Terreno de España 2ª Cobertura con paso de malla de 2 m, salvo en Castilla y León SW donde está disponible la 1ª Cobertura con paso de malla 5 m, en diversos sistemas de referencia. Las capas pertenecen al Tema de Elevaciones del Anexo II de Inspire y del Anexo I de LISIGE. Sus denominaciones son conformes con la Directiva Inspire 2007/2/EC así como su estilo. Además tienen asociado un estilo de visualización definido por el IGN. Servicio de visualización WMS 1.1.1.</Abstract>
+    <KeywordList>
+		<Keyword>Sistema Cartográfico Nacional</Keyword>
+		<Keyword>SCNE</Keyword>
+		<Keyword>Infraestructura de Datos Espaciales</Keyword>
+		<Keyword>IDEE</Keyword>
+		<Keyword>España</Keyword>
+		<Keyword>Lidar</Keyword>
+		<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">infoMapAccessService</Keyword>
+		<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">infoManagementService</Keyword>
+		<Keyword>MDT</Keyword>
+    </KeywordList>
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es/"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson/>
+        <ContactOrganization>Infraestructura de Datos Espaciales de España</ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition>Punto de contacto</ContactPosition>
+      <ContactAddress>
+        <AddressType>Postal</AddressType>
+        <Address>C/ General Ibáñez de Ibero, 3</Address>
+        <City>Madrid</City>
+        <StateOrProvince/>
+        <PostCode>28003</PostCode>
+        <Country>España</Country>
+      </ContactAddress>
+      <ContactVoiceTelephone>+34 91 597 96 46</ContactVoiceTelephone>
+      <ContactFacsimileTelephone>+34 91 597 97 64</ContactFacsimileTelephone>
+      <ContactElectronicMailAddress>ign@transporte.gob.es</ContactElectronicMailAddress>
+    </ContactInformation>
+    <Fees>No se aplican condiciones</Fees>
+	<AccessConstraints>CC BY 4.0 scne.es</AccessConstraints>
+	<MaxWidth>2048</MaxWidth>
+	<MaxHeight>2048</MaxHeight>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom xml</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/openlayers</Format>
+        <Format>application/pdf</Format>
+        <Format>application/rss xml</Format>
+        <Format>application/rss+xml</Format>
+        <Format>application/vnd.google-earth.kml</Format>
+        <Format>application/vnd.google-earth.kml xml</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>application/vnd.google-earth.kmz xml</Format>
+        <Format>application/vnd.google-earth.kmz+xml</Format>
+        <Format>atom</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png8</Format>
+        <Format>image/svg</Format>
+        <Format>image/svg xml</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <Format>kml</Format>
+        <Format>kmz</Format>
+        <Format>openlayers</Format>
+        <Format>rss</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+		<Format>text/plain</Format>
+		<Format>application/vnd.ogc.gml</Format>
+		<Format>text/xml</Format>
+		<Format>application/vnd.ogc.gml/3.1.1</Format>
+		<Format>text/xml; subtype=gml/3.1.1</Format>
+		<Format>text/html</Format>
+		<Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+      <DescribeLayer>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </DescribeLayer>
+      <GetLegendGraphic>
+        <Format>image/png</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/gif</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetLegendGraphic>
+      <GetStyles>
+        <Format>application/vnd.ogc.sld+xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetStyles>
+    </Request>
+    <Exception>
+      <Format>application/vnd.ogc.se_xml</Format>
+							  
+      <Format>application/vnd.ogc.se_inimage</Format>
+    </Exception>  
+	<VendorSpecificCapabilities>
+		<inspire_vs:ExtendedCapabilities>
+			<inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+				<inspire_common:URL>https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignwms_mdt</inspire_common:URL>
+				<inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+			</inspire_common:MetadataUrl>
+			<inspire_common:SupportedLanguages>
+				<inspire_common:DefaultLanguage>
+					<inspire_common:Language>spa</inspire_common:Language>
+				</inspire_common:DefaultLanguage>
+			</inspire_common:SupportedLanguages>
+			<inspire_common:ResponseLanguage>
+				<inspire_common:Language>spa</inspire_common:Language>
+			</inspire_common:ResponseLanguage>
+		</inspire_vs:ExtendedCapabilities>
+	</VendorSpecificCapabilities>
+    <UserDefinedSymbolization SupportSLD="1" UserLayer="1" UserStyle="1" RemoteWFS="1"/>
+    <Layer>
+      <Title>Modelos Digitales de Elevaciones de España</Title>
+      <Abstract>Representación de curvas de nivel y puntos acotados procedentes de BTN con paso de malla de 5m y cobertura grid procedente de puntos capturadas con sensores LiDAR aerotransportados del proyecto PNOA-LiDAR con paso de malla de 2m del Sistema Cartográfico Nacional, salvo en la zona de Castilla y León SW que se ha empleado el MDT de la primera cobertura con un paso de malla de 5 m ya que no se dispone de información de la 2º cobertura en esta zona.</Abstract>
+      <SRS>EPSG:25828</SRS>
+      <SRS>EPSG:25829</SRS>
+      <SRS>EPSG:25830</SRS>
+      <SRS>EPSG:25831</SRS>
+      <SRS>EPSG:3035</SRS>
+      <SRS>EPSG:32628</SRS>
+      <SRS>EPSG:32629</SRS>
+      <SRS>EPSG:32630</SRS>
+      <SRS>EPSG:32631</SRS>
+      <SRS>EPSG:3857</SRS>
+      <SRS>EPSG:4258</SRS>
+      <SRS>EPSG:4326</SRS>
+	  <SRS>EPSG:4081</SRS>
+	  <SRS>EPSG:4080</SRS>
+	  <SRS>EPSG:4082</SRS>
+	  <SRS>EPSG:4083</SRS>
+					
+							 
+												  
+												
+												 
+												 
+							  
+      <LatLonBoundingBox minx="-18.211" miny="27.628" maxx="5.838" maxy="44.208"/>
+																																		
+																																		 
+																																		  
+																																		
+																																		
+																																		
+																																		  
+																																		 
+																																	   
+																						 
+																														  
+																																	 
+        <Layer queryable="1">
+          <Name>EL.SpotElevation</Name>
+          <Title>Puntos acotados</Title>
+          <Abstract>Representación de datos espaciales correspondientes la capa Puntos Acotados del tema Elevaciones del Anexo II de la Directiva Inspire. Puntos de la superficie con cota sobre el terreno o elevada. Origen de datos: BTN.</Abstract>
+          <KeywordList>
+            <Keyword>Elevaciones</Keyword>
+            <Keyword>Collado</Keyword>
+            <Keyword>Relieve</Keyword>
+            <Keyword>Cerro</Keyword>
+          </KeywordList>
+          <SRS>EPSG:4258</SRS>
+						   
+									
+														  
+														
+														 
+														 
+									 
+		<LatLonBoundingBox minx="-19.00" miny="27.00" maxx="5.00" maxy="44.00"/>
+		<BoundingBox SRS="EPSG:4258" minx="-19.00" miny="27.00" maxx="5.00" maxy="44.00"/>
+																														   
+																																		
+																																		
+																																		
+																																		  
+																																		
+																																			
+																																		
+																																		
+																																	  
+																																		 
+          <Attribution>
+            <Title>Instituto Geográfico Nacional</Title>
+            <OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+          </Attribution>
+          <AuthorityURL name="IGN">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+          </AuthorityURL>
+          <Identifier authority="IGN">EL.SpotElevation</Identifier>
+		  <MetadataURL type="ISO19115:2003">
+			<Format>text/plain</Format>
+			<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMDT05"/>
+		</MetadataURL>
+          <Style>
+            <Name>puntosacotados</Name>
+            <Title>IGN: Estilo de puntos acotados</Title>
+            <Abstract>Los puntos acotados se representan con un símbolo puntual circular de tamaño 1.0 p. en color naranja-marrón (CC6600) con borde marrón (996600). La cota asociada, en Times New Roman de tamaño 12, estilo italic y color marrón (996600). Se visualizan a escalas mayores de 1:50.000. </Abstract>
+            <LegendURL width="18" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/puntos_acotados.png"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>EL.SpotElevation.Default</Name>
+            <Title>Estilo por defecto Inspire de Puntos Acotados</Title>
+            <Abstract>Los puntos acotados son círculos negros (#000000) de tamaño 10 píxeles y con un ancho de 1 píxel. Los valores de altitud se representan como etiquetas: en Arial 10 negro (#000000).</Abstract>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/EL.SpotElevation.Default.png"/>
+            </LegendURL>
+          </Style>
+		<MaxScaleDenominator>50000</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1">
+          <Name>EL.ContourLine</Name>
+          <Title>Curvas de nivel</Title>
+          <Abstract>Representación de datos espaciales correspondientes la capa Curvas de nivel del tema Elevaciones del Anexo II de la Directiva Inspire. Equidistancia 50 metros. Datos procedentes de BTN.</Abstract>
+          <KeywordList>
+            <Keyword>Elevaciones</Keyword>
+            <Keyword>Relieve</Keyword>
+          </KeywordList>
+          <SRS>EPSG:4258</SRS>
+						   
+									
+														  
+														
+														 
+														 
+									 
+		<LatLonBoundingBox minx="-19.00" miny="27.00" maxx="5.00" maxy="44.00"/>
+		<BoundingBox SRS="EPSG:4258" minx="-19.00" miny="27.00" maxx="5.00" maxy="44.00"/>
+																														   
+																																		
+																																		
+																																		
+																																		  
+																																		
+																																			
+																																		
+																																		
+																																	  
+																																		 
+          <Attribution>
+            <Title>Instituto Geográfico Nacional</Title>
+            <OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+          </Attribution>
+          <AuthorityURL name="IGN">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+          </AuthorityURL>
+          <Identifier authority="IGN">EL.ContourLine</Identifier>
+		  <MetadataURL type="ISO19115:2003">
+			<Format>text/plain</Format>
+			<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMDT05"/>
+		  </MetadataURL>
+          <Style>
+            <Name>curvasnivel</Name>
+            <Title>IGN: Estilo de curvas de nivel</Title>
+            <Abstract>Las curvas de nivel se representan a escalas mayores a 1:200.000 a través de una línea continua en color marrón (#996600) y de grosor 0.025 píxeles. La cota se etiqueta en Arial 10 normal.</Abstract>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/curvas_nivel.png"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>EL.ContourLine.Default</Name>
+            <Title>Estilo por defecto Inspire de Curvas de Nivel</Title>
+            <Abstract>Las curvas de nivel son líneas marrones (#A47916) con un ancho de 1 píxel.</Abstract>
+            <LegendURL width="20" height="21">
+              <Format>image/png</Format>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/EL.ContourLine.Default.png"/>
+            </LegendURL>
+          </Style>
+		<MaxScaleDenominator>200000</MaxScaleDenominator>
+       </Layer>
+       <Layer queryable="1">
+        <Name>EL.ElevationGridCoverage</Name>
+        <Title>Modelo Digital del Terreno</Title>
+        <Abstract>Modelo Digital del Terreno generado a partir de las nubes de puntos LiDAR correspondientes a la segunda cobertura del proyecto PNOA-LiDAR. Para generar los modelos se han empleado los puntos de la clase terreno (clase 2) con un paso de malla de 2 m. Además de las nubes de puntos, se han utilizado las capas de hidrografía de Información Geográfica de Referencia del Sistema Cartográfico Nacional (http://www.scne.es) como información auxiliar. En la zona de Castilla y León SW se ha empleado el MDT de la primera cobertura con un paso de malla de 5 m ya que no se dispone de información de la 2º cobertura en esta zona.</Abstract>
+		<KeywordList>
+            <Keyword>Elevaciones</Keyword>
+            <Keyword>Cobertura</Keyword>
+            <Keyword>Grid</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4258</SRS>
+				   
+								  
+														  
+														
+														 
+														 
+									 
+        <LatLonBoundingBox minx="-18.211" miny="27.63399999922409" maxx="4.779" maxy="43.943999999057354"/>
+        <BoundingBox SRS="EPSG:4258" minx="-18.211" miny="27.634" maxx="4.779" maxy="43.944"/>
+																																		 
+																																		  
+																																		
+																																		
+																																		
+																																		  
+																																		 
+																																	   
+																						 
+																														  
+																																	 
+		<Attribution>
+			<Title>Instituto Geográfico Nacional</Title> 
+			<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/> 
+		</Attribution>
+		<AuthorityURL name="IGN">
+			<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/> 
+		</AuthorityURL>
+		<Identifier authority="IGN">EL.ElevationGridCoverage</Identifier>
+		<MetadataURL type="ISO19115:2003">
+			<Format>text/plain</Format>
+			<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMDT05"/>
+		</MetadataURL>
+		<MetadataURL type="ISO19115:2003">
+			<Format>text/plain</Format>
+			<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMDT02"/>
+		</MetadataURL>
+		<Style> 
+			<Name>Elevaciones</Name>
+			<Title>IGN: Estilo de elevaciones del terreno</Title>
+			<Abstract>Estilo de representación de elevaciones del terreno. Se simboliza con una escala de grises.</Abstract>
+			<LegendURL width="408" height="51">
+				<Format>image/png</Format>
+				<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/Elevaciones.png"/>
+			</LegendURL>
+		</Style>
+		<Style> 
+			<Name>EL.ElevationGridCoverage.Default</Name>
+			<Title>Estilo por defecto de coberturas grid</Title>
+			<Abstract>Las coberturas grid se simbolizan a través de un raster coloreado. Se visualiza para escalas mayores a 1:3.000.000.</Abstract>
+			<LegendURL width="370" height="358">
+				<Format>image/png</Format>
+				<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/EL.ElevationGridCoverage.Default.png"/>
+			</LegendURL>
+		</Style>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMT_MS_Capabilities>

@@ -1,0 +1,1141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<WMS_Capabilities xmlns="http://www.opengis.net/wms" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:esri_wms="http://www.esri.com/wms" version="1.3.0" xsi:schemaLocation="http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd">
+	<Service>
+		<Name><![CDATA[Servei de visualització WMS de topografia territorial]]></Name>
+		<Title><![CDATA[Servei de visualització WMS de topografia territorial]]></Title>
+		<Abstract><![CDATA[Servei de visualització WMS de topografia territorial]]></Abstract>
+		<KeywordList><Keyword><![CDATA[]]></Keyword></KeywordList>
+		<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geoserveis.icgc.cat/servei/catalunya/topografia-territorial/wms?"/>
+		<ContactInformation>
+			<ContactPersonPrimary>
+				<ContactPerson/>
+				<ContactOrganization><![CDATA[Institut Cartogràfic i Geològic de Catalunya]]></ContactOrganization>
+			</ContactPersonPrimary>
+			<ContactPosition><![CDATA[webmaster]]></ContactPosition>
+			<ContactAddress>
+				<AddressType><![CDATA[postal]]></AddressType>
+				<Address><![CDATA[Parc de Montjuïc]]></Address>
+				<City><![CDATA[Barcelona]]></City>
+				<StateOrProvince><![CDATA[Catalunya]]></StateOrProvince>
+				<PostCode><![CDATA[08038]]></PostCode>
+				<Country><![CDATA[Spain]]></Country>
+			</ContactAddress>
+			<ContactVoiceTelephone><![CDATA[+34 93 567 15 00]]></ContactVoiceTelephone>
+			<ContactFacsimileTelephone><![CDATA[+34 93 567 15 67]]></ContactFacsimileTelephone>
+			<ContactElectronicMailAddress><![CDATA[icgc@icgc.cat]]></ContactElectronicMailAddress>
+		</ContactInformation>
+		<Fees><![CDATA[http://www.icgc.cat/condicions]]></Fees>
+		<AccessConstraints><![CDATA[Copyright]]></AccessConstraints>
+		<MaxWidth>4096</MaxWidth>
+		<MaxHeight>4096</MaxHeight>
+	</Service>
+	<Capability>
+		<Request>
+			<GetCapabilities>
+				<Format>application/vnd.ogc.wms_xml</Format>
+				<Format>text/xml</Format>
+				<DCPType>
+					<HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geoserveis.icgc.cat/servei/catalunya/topografia-territorial/wms?"/></Get></HTTP>
+				</DCPType>
+			</GetCapabilities>
+			<GetMap>
+				<Format>image/bmp</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/tiff</Format>
+				<Format>image/png</Format>
+				<Format>image/png8</Format>
+				<Format>image/png24</Format>
+				<Format>image/png32</Format>
+				<Format>image/gif</Format>
+				<Format>image/svg+xml</Format>
+				<DCPType>
+					<HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geoserveis.icgc.cat/servei/catalunya/topografia-territorial/wms?"/></Get></HTTP>
+				</DCPType>
+			</GetMap>
+			<GetFeatureInfo>
+				<Format>application/vnd.esri.wms_raw_xml</Format>
+				<Format>application/vnd.esri.wms_featureinfo_xml</Format>
+				<Format>application/vnd.ogc.wms_xml</Format>
+				<Format>application/geojson</Format>
+				<Format>text/xml</Format>
+				<Format>text/html</Format>
+				<Format>text/plain</Format>
+				<DCPType>
+					<HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://geoserveis.icgc.cat/servei/catalunya/topografia-territorial/wms?"/></Get></HTTP>
+				</DCPType>
+			</GetFeatureInfo>
+		</Request>
+		<Exception>
+			<Format>application/vnd.ogc.se_xml</Format>
+			<Format>application/vnd.ogc.se_inimage</Format>
+			<Format>application/vnd.ogc.se_blank</Format>
+			<Format>text/xml</Format>
+			<Format>XML</Format>
+		</Exception>
+		<Layer>
+			<Title><![CDATA[Referencial topogràfic territorial]]></Title>
+			<CRS>CRS:84</CRS>
+			<CRS>EPSG:4326</CRS>
+			<CRS>EPSG:25831</CRS>
+			<CRS>EPSG:23031</CRS>
+			<CRS>EPSG:4258</CRS>
+			<CRS>EPSG:4230</CRS>
+			<CRS>EPSG:3857</CRS>
+			<!-- alias 3857 -->
+			<CRS>EPSG:102100</CRS>
+			<CRS>EPSG:32631</CRS>
+			<EX_GeographicBoundingBox><westBoundLongitude>0.048476</westBoundLongitude><eastBoundLongitude>3.357659</eastBoundLongitude><southBoundLatitude>40.511374</southBoundLatitude><northBoundLatitude>42.899324</northBoundLatitude></EX_GeographicBoundingBox>
+			<BoundingBox CRS="CRS:84" minx="0.048476" miny="40.511374" maxx="3.357659" maxy="42.899324"/>
+			<BoundingBox CRS="EPSG:4326" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+			<BoundingBox CRS="EPSG:25831" minx="258877.500000" miny="4488409.000000" maxx="529200.000000" maxy="4749635.000000"/>
+			<BoundingBox CRS="EPSG:23031" minx="258866.427057" miny="4488486.636934" maxx="529201.328376" maxy="4749720.466014"/>
+			<BoundingBox CRS="EPSG:4258" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+			<BoundingBox CRS="EPSG:4230" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+			<BoundingBox CRS="EPSG:3857" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+			<BoundingBox CRS="EPSG:102100" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+			<BoundingBox CRS="EPSG:32631" minx="258877.500002" miny="4488409.000115" maxx="529200.000000" maxy="4749635.000118"/>
+			<Layer queryable="1">
+				<Name>topografia-territorial</Name>
+				<Title><![CDATA[Referencial topogràfic territorial]]></Title>
+				<Abstract><![CDATA[Referencial topogràfic territorial]]></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25831</CRS>
+				<CRS>EPSG:23031</CRS>
+				<CRS>EPSG:4258</CRS>
+				<CRS>EPSG:4230</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<CRS>EPSG:32631</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>0.048476</westBoundLongitude><eastBoundLongitude>3.357659</eastBoundLongitude><southBoundLatitude>40.511374</southBoundLatitude><northBoundLatitude>42.899324</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="0.048476" miny="40.511374" maxx="3.357659" maxy="42.899324"/>
+				<BoundingBox CRS="EPSG:4326" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:25831" minx="258877.500000" miny="4488409.000000" maxx="529200.000000" maxy="4749635.000000"/>
+				<BoundingBox CRS="EPSG:23031" minx="258866.427057" miny="4488486.636934" maxx="529201.328376" maxy="4749720.466014"/>
+				<BoundingBox CRS="EPSG:4258" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:4230" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:3857" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+				<BoundingBox CRS="EPSG:102100" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+				<BoundingBox CRS="EPSG:32631" minx="258877.500002" miny="4488409.000115" maxx="529200.000000" maxy="4749635.000118"/>
+				<Style>
+					<Name>default</Name>
+					<Title><![CDATA[topografia-territorial]]></Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>topografia-territorial_gris</Name>
+				<Title><![CDATA[Referencial topogràfic territorial gris]]></Title>
+				<Abstract><![CDATA[Referencial topogràfic territorial gris]]></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25831</CRS>
+				<CRS>EPSG:23031</CRS>
+				<CRS>EPSG:4258</CRS>
+				<CRS>EPSG:4230</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<CRS>EPSG:32631</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>0.048476</westBoundLongitude><eastBoundLongitude>3.357659</eastBoundLongitude><southBoundLatitude>40.511374</southBoundLatitude><northBoundLatitude>42.899324</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="0.048476" miny="40.511374" maxx="3.357659" maxy="42.899324"/>
+				<BoundingBox CRS="EPSG:4326" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:25831" minx="258877.500000" miny="4488409.000000" maxx="529200.000000" maxy="4749635.000000"/>
+				<BoundingBox CRS="EPSG:23031" minx="258866.427057" miny="4488486.636934" maxx="529201.328376" maxy="4749720.466014"/>
+				<BoundingBox CRS="EPSG:4258" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:4230" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:3857" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+				<BoundingBox CRS="EPSG:102100" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+				<BoundingBox CRS="EPSG:32631" minx="258877.500002" miny="4488409.000115" maxx="529200.000000" maxy="4749635.000118"/>
+				<Style>
+					<Name>default</Name>
+					<Title><![CDATA[topografia-territorial_gris]]></Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>topografia-territorial_sense_noms</Name>
+				<Title><![CDATA[Referencial topogràfic territorial sense noms]]></Title>
+				<Abstract><![CDATA[Referencial topogràfic territorial sense noms]]></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25831</CRS>
+				<CRS>EPSG:23031</CRS>
+				<CRS>EPSG:4258</CRS>
+				<CRS>EPSG:4230</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<CRS>EPSG:32631</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>0.048476</westBoundLongitude><eastBoundLongitude>3.357659</eastBoundLongitude><southBoundLatitude>40.511374</southBoundLatitude><northBoundLatitude>42.899324</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="0.048476" miny="40.511374" maxx="3.357659" maxy="42.899324"/>
+				<BoundingBox CRS="EPSG:4326" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:25831" minx="258877.500000" miny="4488409.000000" maxx="529200.000000" maxy="4749635.000000"/>
+				<BoundingBox CRS="EPSG:23031" minx="258866.427057" miny="4488486.636934" maxx="529201.328376" maxy="4749720.466014"/>
+				<BoundingBox CRS="EPSG:4258" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:4230" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:3857" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+				<BoundingBox CRS="EPSG:102100" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+				<BoundingBox CRS="EPSG:32631" minx="258877.500002" miny="4488409.000115" maxx="529200.000000" maxy="4749635.000118"/>
+				<Style>
+					<Name>default</Name>
+					<Title><![CDATA[topografia-territorial_sense_noms]]></Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>topografia-territorial_sense_noms_gris</Name>
+				<Title><![CDATA[Referencial topogràfic territorial sense noms gris]]></Title>
+				<Abstract><![CDATA[Referencial topogràfic territorial sense noms gris]]></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25831</CRS>
+				<CRS>EPSG:23031</CRS>
+				<CRS>EPSG:4258</CRS>
+				<CRS>EPSG:4230</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<CRS>EPSG:32631</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>0.048476</westBoundLongitude><eastBoundLongitude>3.357659</eastBoundLongitude><southBoundLatitude>40.511374</southBoundLatitude><northBoundLatitude>42.899324</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="0.048476" miny="40.511374" maxx="3.357659" maxy="42.899324"/>
+				<BoundingBox CRS="EPSG:4326" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:25831" minx="258877.500000" miny="4488409.000000" maxx="529200.000000" maxy="4749635.000000"/>
+				<BoundingBox CRS="EPSG:23031" minx="258866.427057" miny="4488486.636934" maxx="529201.328376" maxy="4749720.466014"/>
+				<BoundingBox CRS="EPSG:4258" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:4230" minx="40.511374" miny="0.048476" maxx="42.899324" maxy="3.357659"/>
+				<BoundingBox CRS="EPSG:3857" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+				<BoundingBox CRS="EPSG:102100" minx="5396.369252" miny="4940534.354214" maxx="373772.857797" maxy="5296660.471423"/>
+				<BoundingBox CRS="EPSG:32631" minx="258877.500002" miny="4488409.000115" maxx="529200.000000" maxy="4749635.000118"/>
+				<Style>
+					<Name>default</Name>
+					<Title><![CDATA[topografia-territorial_sense_noms_gris]]></Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Title><![CDATA[Referencial topogràfic territorial capes]]></Title>
+				<Abstract><![CDATA[Referencial topogràfic territorial capes]]></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25831</CRS>
+				<CRS>EPSG:23031</CRS>
+				<CRS>EPSG:4258</CRS>
+				<CRS>EPSG:4230</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<CRS>EPSG:32631</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>0.048638</westBoundLongitude><eastBoundLongitude>3.357636</eastBoundLongitude><southBoundLatitude>40.511546</southBoundLatitude><northBoundLatitude>42.899270</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="0.048638" miny="40.511546" maxx="3.357636" maxy="42.899270"/>
+				<BoundingBox CRS="EPSG:4326" minx="40.511546" miny="0.048638" maxx="42.899270" maxy="3.357636"/>
+				<BoundingBox CRS="EPSG:25831" minx="258890.480000" miny="4488427.720000" maxx="529198.200000" maxy="4749629.050000"/>
+				<BoundingBox CRS="EPSG:23031" minx="258879.407656" miny="4488505.357474" maxx="529199.528295" maxy="4749714.515825"/>
+				<BoundingBox CRS="EPSG:4258" minx="40.511546" miny="0.048638" maxx="42.899270" maxy="3.357636"/>
+				<BoundingBox CRS="EPSG:4230" minx="40.511546" miny="0.048638" maxx="42.899270" maxy="3.357636"/>
+				<BoundingBox CRS="EPSG:3857" minx="5414.317321" miny="4940559.569405" maxx="373770.369062" maxy="5296652.329146"/>
+				<BoundingBox CRS="EPSG:102100" minx="5414.317321" miny="4940559.569405" maxx="373770.369062" maxy="5296652.329146"/>
+				<BoundingBox CRS="EPSG:32631" minx="258890.480002" miny="4488427.720115" maxx="529198.200000" maxy="4749629.050118"/>
+				<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				<Layer queryable="1">
+					<Name>300_noms-geografics_t</Name>
+					<Title><![CDATA[Noms geogràfics (textos)]]></Title>
+					<Abstract><![CDATA[Noms geogràfics (textos)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.050020</westBoundLongitude><eastBoundLongitude>3.336906</eastBoundLongitude><southBoundLatitude>40.512954</southBoundLatitude><northBoundLatitude>42.897528</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.050020" miny="40.512954" maxx="3.336906" maxy="42.897528"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512954" miny="0.050020" maxx="42.897528" maxy="3.336906"/>
+					<BoundingBox CRS="EPSG:25831" minx="258996.780000" miny="4488580.830000" maxx="527506.460000" maxy="4749435.540000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258985.712640" miny="4488658.471961" maxx="527507.711338" maxy="4749520.999847"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512954" miny="0.050020" maxx="42.897528" maxy="3.336906"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512954" miny="0.050020" maxx="42.897528" maxy="3.336906"/>
+					<BoundingBox CRS="EPSG:3857" minx="5568.208870" miny="4940765.810630" maxx="371462.656901" maxy="5296387.524195"/>
+					<BoundingBox CRS="EPSG:102100" minx="5568.208870" miny="4940765.810630" maxx="371462.656901" maxy="5296387.524195"/>
+					<BoundingBox CRS="EPSG:32631" minx="258996.780002" miny="4488580.830115" maxx="527506.460000" maxy="4749435.540118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[300_noms-geografics_t]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>290_construccions_n</Name>
+					<Title><![CDATA[Construccions (punts)]]></Title>
+					<Abstract><![CDATA[Construccions (punts)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.111613</westBoundLongitude><eastBoundLongitude>3.251367</eastBoundLongitude><southBoundLatitude>40.515110</southBoundLatitude><northBoundLatitude>42.897212</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.111613" miny="40.515110" maxx="3.251367" maxy="42.897212"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.515110" miny="0.111613" maxx="42.897212" maxy="3.251367"/>
+					<BoundingBox CRS="EPSG:25831" minx="264033.830000" miny="4488659.460000" maxx="520522.750000" maxy="4749400.460000"/>
+					<BoundingBox CRS="EPSG:23031" minx="264022.993914" miny="4488737.103623" maxx="520523.683635" maxy="4749485.916091"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.515110" miny="0.111613" maxx="42.897212" maxy="3.251367"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.515110" miny="0.111613" maxx="42.897212" maxy="3.251367"/>
+					<BoundingBox CRS="EPSG:3857" minx="12424.710624" miny="4941081.396394" maxx="361940.552052" maxy="5296339.520028"/>
+					<BoundingBox CRS="EPSG:102100" minx="12424.710624" miny="4941081.396394" maxx="361940.552052" maxy="5296339.520028"/>
+					<BoundingBox CRS="EPSG:32631" minx="264033.830002" miny="4488659.460115" maxx="520522.750000" maxy="4749400.460118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[290_construccions_n]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>280_construccions_l</Name>
+					<Title><![CDATA[Construccions (línies)]]></Title>
+					<Abstract><![CDATA[Construccions (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.050416</westBoundLongitude><eastBoundLongitude>3.319199</eastBoundLongitude><southBoundLatitude>40.512613</southBoundLatitude><northBoundLatitude>42.897692</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.050416" miny="40.512613" maxx="3.319199" maxy="42.897692"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512613" miny="0.050416" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:25831" minx="259029.830000" miny="4488541.820000" maxx="526060.720000" maxy="4749453.760000"/>
+					<BoundingBox CRS="EPSG:23031" minx="259018.764148" miny="4488619.460898" maxx="526061.905567" maxy="4749539.220387"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512613" miny="0.050416" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512613" miny="0.050416" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:3857" minx="5612.315440" miny="4940715.820614" maxx="369491.561249" maxy="5296412.456653"/>
+					<BoundingBox CRS="EPSG:102100" minx="5612.315440" miny="4940715.820614" maxx="369491.561249" maxy="5296412.456653"/>
+					<BoundingBox CRS="EPSG:32631" minx="259029.830002" miny="4488541.820115" maxx="526060.720000" maxy="4749453.760118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[280_construccions_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>270_construccions_connexions_l</Name>
+					<Title><![CDATA[Construccions, connexions (línies)]]></Title>
+					<Abstract><![CDATA[Construccions, connexions (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.050416</westBoundLongitude><eastBoundLongitude>3.319199</eastBoundLongitude><southBoundLatitude>40.512613</southBoundLatitude><northBoundLatitude>42.897692</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.050416" miny="40.512613" maxx="3.319199" maxy="42.897692"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512613" miny="0.050416" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:25831" minx="259029.830000" miny="4488541.820000" maxx="526060.720000" maxy="4749453.760000"/>
+					<BoundingBox CRS="EPSG:23031" minx="259018.764148" miny="4488619.460898" maxx="526061.905567" maxy="4749539.220387"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512613" miny="0.050416" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512613" miny="0.050416" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:3857" minx="5612.315440" miny="4940715.820614" maxx="369491.561249" maxy="5296412.456653"/>
+					<BoundingBox CRS="EPSG:102100" minx="5612.315440" miny="4940715.820614" maxx="369491.561249" maxy="5296412.456653"/>
+					<BoundingBox CRS="EPSG:32631" minx="259029.830002" miny="4488541.820115" maxx="526060.720000" maxy="4749453.760118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[270_construccions_connexions_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>260_transports_n</Name>
+					<Title><![CDATA[Transports (punts)]]></Title>
+					<Abstract><![CDATA[Transports (punts)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.125616</westBoundLongitude><eastBoundLongitude>3.272389</eastBoundLongitude><southBoundLatitude>40.523174</southBoundLatitude><northBoundLatitude>42.870740</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.125616" miny="40.523174" maxx="3.272389" maxy="42.870740"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.523174" miny="0.125616" maxx="42.870740" maxy="3.272389"/>
+					<BoundingBox CRS="EPSG:25831" minx="265078.814000" miny="4489522.696500" maxx="522248.584300" maxy="4746460.850500"/>
+					<BoundingBox CRS="EPSG:23031" minx="265068.027428" miny="4489600.365024" maxx="522249.596443" maxy="4746546.216130"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.523174" miny="0.125616" maxx="42.870740" maxy="3.272389"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.523174" miny="0.125616" maxx="42.870740" maxy="3.272389"/>
+					<BoundingBox CRS="EPSG:3857" minx="13983.483849" miny="4942262.304852" maxx="364280.677249" maxy="5292317.799601"/>
+					<BoundingBox CRS="EPSG:102100" minx="13983.483849" miny="4942262.304852" maxx="364280.677249" maxy="5292317.799601"/>
+					<BoundingBox CRS="EPSG:32631" minx="265078.814002" miny="4489522.696615" maxx="522248.584300" maxy="4746460.850618"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[260_transports_n]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>250_transports_l</Name>
+					<Title><![CDATA[Transports (línies)]]></Title>
+					<Abstract><![CDATA[Transports (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049070</westBoundLongitude><eastBoundLongitude>3.324854</eastBoundLongitude><southBoundLatitude>40.512355</southBoundLatitude><northBoundLatitude>42.899129</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049070" miny="40.512355" maxx="3.324854" maxy="42.899129"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:25831" minx="258925.290000" miny="4488516.487700" maxx="526521.820000" maxy="4749613.350000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258914.219262" miny="4488594.127848" maxx="526523.026545" maxy="4749698.815326"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:3857" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:102100" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:32631" minx="258925.290002" miny="4488516.487815" maxx="526521.820000" maxy="4749613.350118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[250_transports_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>240_transports_connexions_l</Name>
+					<Title><![CDATA[Transports, connexions (línies)]]></Title>
+					<Abstract><![CDATA[Transports, connexions (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049070</westBoundLongitude><eastBoundLongitude>3.324854</eastBoundLongitude><southBoundLatitude>40.512355</southBoundLatitude><northBoundLatitude>42.899129</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049070" miny="40.512355" maxx="3.324854" maxy="42.899129"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:25831" minx="258925.290000" miny="4488516.487700" maxx="526521.820000" maxy="4749613.350000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258914.219262" miny="4488594.127848" maxx="526523.026545" maxy="4749698.815326"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:3857" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:102100" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:32631" minx="258925.290002" miny="4488516.487815" maxx="526521.820000" maxy="4749613.350118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[240_transports_connexions_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>230_transports_eixos_l</Name>
+					<Title><![CDATA[Transports, eixos (línies)]]></Title>
+					<Abstract><![CDATA[Transports, eixos (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049070</westBoundLongitude><eastBoundLongitude>3.324854</eastBoundLongitude><southBoundLatitude>40.512355</southBoundLatitude><northBoundLatitude>42.899129</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049070" miny="40.512355" maxx="3.324854" maxy="42.899129"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:25831" minx="258925.290000" miny="4488516.487700" maxx="526521.820000" maxy="4749613.350000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258914.219262" miny="4488594.127848" maxx="526523.026545" maxy="4749698.815326"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:3857" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:102100" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:32631" minx="258925.290002" miny="4488516.487815" maxx="526521.820000" maxy="4749613.350118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[230_transports_eixos_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>220_transports_eixos_connexions_l</Name>
+					<Title><![CDATA[Transports, eixos, connexions (línies)]]></Title>
+					<Abstract><![CDATA[Transports, eixos, connexions (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049070</westBoundLongitude><eastBoundLongitude>3.324854</eastBoundLongitude><southBoundLatitude>40.512355</southBoundLatitude><northBoundLatitude>42.899129</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049070" miny="40.512355" maxx="3.324854" maxy="42.899129"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:25831" minx="258925.290000" miny="4488516.487700" maxx="526521.820000" maxy="4749613.350000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258914.219262" miny="4488594.127848" maxx="526523.026545" maxy="4749698.815326"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:3857" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:102100" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:32631" minx="258925.290002" miny="4488516.487815" maxx="526521.820000" maxy="4749613.350118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[220_transports_eixos_connexions_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>210_transports_guals_l</Name>
+					<Title><![CDATA[Transports, guals (línies)]]></Title>
+					<Abstract><![CDATA[Transports, guals (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049070</westBoundLongitude><eastBoundLongitude>3.324854</eastBoundLongitude><southBoundLatitude>40.512355</southBoundLatitude><northBoundLatitude>42.899129</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049070" miny="40.512355" maxx="3.324854" maxy="42.899129"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:25831" minx="258925.290000" miny="4488516.487700" maxx="526521.820000" maxy="4749613.350000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258914.219262" miny="4488594.127848" maxx="526523.026545" maxy="4749698.815326"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512355" miny="0.049070" maxx="42.899129" maxy="3.324854"/>
+					<BoundingBox CRS="EPSG:3857" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:102100" minx="5462.438388" miny="4940677.999581" maxx="370121.088663" maxy="5296630.844370"/>
+					<BoundingBox CRS="EPSG:32631" minx="258925.290002" miny="4488516.487815" maxx="526521.820000" maxy="4749613.350118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[210_transports_guals_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>200_relleu_n</Name>
+					<Title><![CDATA[Relleu, cotes (punts)]]></Title>
+					<Abstract><![CDATA[Relleu, cotes (punts)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049175</westBoundLongitude><eastBoundLongitude>3.335240</eastBoundLongitude><southBoundLatitude>40.512760</southBoundLatitude><northBoundLatitude>42.898713</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049175" miny="40.512760" maxx="3.335240" maxy="42.898713"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512760" miny="0.049175" maxx="42.898713" maxy="3.335240"/>
+					<BoundingBox CRS="EPSG:25831" minx="258932.260000" miny="4488561.360000" maxx="527369.950000" maxy="4749567.170000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258921.189607" miny="4488639.001406" maxx="527371.195129" maxy="4749652.633909"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512760" miny="0.049175" maxx="42.898713" maxy="3.335240"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512760" miny="0.049175" maxx="42.898713" maxy="3.335240"/>
+					<BoundingBox CRS="EPSG:3857" minx="5474.127201" miny="4940737.414801" maxx="371277.247766" maxy="5296567.649661"/>
+					<BoundingBox CRS="EPSG:102100" minx="5474.127201" miny="4940737.414801" maxx="371277.247766" maxy="5296567.649661"/>
+					<BoundingBox CRS="EPSG:32631" minx="258932.260002" miny="4488561.360115" maxx="527369.950000" maxy="4749567.170118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[200_relleu_n]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>190_hidrografia_l</Name>
+					<Title><![CDATA[Hidrografia (línies)]]></Title>
+					<Abstract><![CDATA[Hidrografia (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.048747</westBoundLongitude><eastBoundLongitude>3.335580</eastBoundLongitude><southBoundLatitude>40.512573</southBoundLatitude><northBoundLatitude>42.899035</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.048747" miny="40.512573" maxx="3.335580" maxy="42.899035"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:25831" minx="258898.540000" miny="4488541.610000" maxx="527397.580000" maxy="4749602.880000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258887.468040" miny="4488619.250835" maxx="527398.826386" maxy="4749688.345020"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:3857" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:102100" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:32631" minx="258898.540002" miny="4488541.610115" maxx="527397.580000" maxy="4749602.880118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[190_hidrografia_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>180_hidrografia_costa-virtual_l</Name>
+					<Title><![CDATA[Hidrografia, costa virtual (línies)]]></Title>
+					<Abstract><![CDATA[Hidrografia, costa virtual (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.048747</westBoundLongitude><eastBoundLongitude>3.335580</eastBoundLongitude><southBoundLatitude>40.512573</southBoundLatitude><northBoundLatitude>42.899035</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.048747" miny="40.512573" maxx="3.335580" maxy="42.899035"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:25831" minx="258898.540000" miny="4488541.610000" maxx="527397.580000" maxy="4749602.880000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258887.468040" miny="4488619.250835" maxx="527398.826386" maxy="4749688.345020"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:3857" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:102100" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:32631" minx="258898.540002" miny="4488541.610115" maxx="527397.580000" maxy="4749602.880118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[180_hidrografia_costa-virtual_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>170_hidrografia_connexions_l</Name>
+					<Title><![CDATA[Hidrografia, connexions (línies)]]></Title>
+					<Abstract><![CDATA[Hidrografia, connexions (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.048747</westBoundLongitude><eastBoundLongitude>3.335580</eastBoundLongitude><southBoundLatitude>40.512573</southBoundLatitude><northBoundLatitude>42.899035</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.048747" miny="40.512573" maxx="3.335580" maxy="42.899035"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:25831" minx="258898.540000" miny="4488541.610000" maxx="527397.580000" maxy="4749602.880000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258887.468040" miny="4488619.250835" maxx="527398.826386" maxy="4749688.345020"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:3857" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:102100" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:32631" minx="258898.540002" miny="4488541.610115" maxx="527397.580000" maxy="4749602.880118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[170_hidrografia_connexions_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>160_hidrografia_eixos_l</Name>
+					<Title><![CDATA[Hidrografia, eixos (línies)]]></Title>
+					<Abstract><![CDATA[Hidrografia, eixos (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.048747</westBoundLongitude><eastBoundLongitude>3.335580</eastBoundLongitude><southBoundLatitude>40.512573</southBoundLatitude><northBoundLatitude>42.899035</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.048747" miny="40.512573" maxx="3.335580" maxy="42.899035"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:25831" minx="258898.540000" miny="4488541.610000" maxx="527397.580000" maxy="4749602.880000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258887.468040" miny="4488619.250835" maxx="527398.826386" maxy="4749688.345020"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:3857" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:102100" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:32631" minx="258898.540002" miny="4488541.610115" maxx="527397.580000" maxy="4749602.880118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[160_hidrografia_eixos_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>150_hidrografia_eixos_connexions_l</Name>
+					<Title><![CDATA[Hidrografia, eixos, connexions (línies)]]></Title>
+					<Abstract><![CDATA[Hidrografia, eixos, connexions (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.048747</westBoundLongitude><eastBoundLongitude>3.335580</eastBoundLongitude><southBoundLatitude>40.512573</southBoundLatitude><northBoundLatitude>42.899035</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.048747" miny="40.512573" maxx="3.335580" maxy="42.899035"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:25831" minx="258898.540000" miny="4488541.610000" maxx="527397.580000" maxy="4749602.880000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258887.468040" miny="4488619.250835" maxx="527398.826386" maxy="4749688.345020"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512573" miny="0.048747" maxx="42.899035" maxy="3.335580"/>
+					<BoundingBox CRS="EPSG:3857" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:102100" minx="5426.534870" miny="4940709.959889" maxx="371315.114608" maxy="5296616.516889"/>
+					<BoundingBox CRS="EPSG:32631" minx="258898.540002" miny="4488541.610115" maxx="527397.580000" maxy="4749602.880118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[150_hidrografia_eixos_connexions_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>140_construccions_passarel-la_p</Name>
+					<Title><![CDATA[Construccions, passarel·les (polígons)]]></Title>
+					<Abstract><![CDATA[Construccions, passarel·les (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049928</westBoundLongitude><eastBoundLongitude>3.319199</eastBoundLongitude><southBoundLatitude>40.512850</southBoundLatitude><northBoundLatitude>42.897692</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049928" miny="40.512850" maxx="3.319199" maxy="42.897692"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:25831" minx="258989.920000" miny="4488569.430000" maxx="526060.720000" maxy="4749453.760000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258978.852315" miny="4488647.071695" maxx="526061.905568" maxy="4749539.220408"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:3857" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:102100" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:32631" minx="258989.920002" miny="4488569.430115" maxx="526060.720000" maxy="4749453.760118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[140_construccions_passarel-la_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>130_hidrografia_p</Name>
+					<Title><![CDATA[Hidrografia (polígons)]]></Title>
+					<Abstract><![CDATA[Hidrografia (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.052875</westBoundLongitude><eastBoundLongitude>3.357627</eastBoundLongitude><southBoundLatitude>40.511645</southBoundLatitude><northBoundLatitude>42.897701</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.052875" miny="40.511645" maxx="3.357627" maxy="42.897701"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.511645" miny="0.052875" maxx="42.897701" maxy="3.357627"/>
+					<BoundingBox CRS="EPSG:25831" minx="259230.970000" miny="4488427.720000" maxx="529198.200000" maxy="4749454.790000"/>
+					<BoundingBox CRS="EPSG:23031" minx="259219.913381" miny="4488505.357471" maxx="529199.528293" maxy="4749540.250310"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.511645" miny="0.052875" maxx="42.897701" maxy="3.357627"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.511645" miny="0.052875" maxx="42.897701" maxy="3.357627"/>
+					<BoundingBox CRS="EPSG:3857" minx="5885.985747" miny="4940574.044677" maxx="373769.359549" maxy="5296413.866148"/>
+					<BoundingBox CRS="EPSG:102100" minx="5885.985747" miny="4940574.044677" maxx="373769.359549" maxy="5296413.866148"/>
+					<BoundingBox CRS="EPSG:32631" minx="259230.970002" miny="4488427.720115" maxx="529198.200000" maxy="4749454.790118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[130_hidrografia_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>120_hidrografia_connexions_p</Name>
+					<Title><![CDATA[Hidrografia, connexions (polígons)]]></Title>
+					<Abstract><![CDATA[Hidrografia, connexions (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.052875</westBoundLongitude><eastBoundLongitude>3.357627</eastBoundLongitude><southBoundLatitude>40.511645</southBoundLatitude><northBoundLatitude>42.897701</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.052875" miny="40.511645" maxx="3.357627" maxy="42.897701"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.511645" miny="0.052875" maxx="42.897701" maxy="3.357627"/>
+					<BoundingBox CRS="EPSG:25831" minx="259230.970000" miny="4488427.720000" maxx="529198.200000" maxy="4749454.790000"/>
+					<BoundingBox CRS="EPSG:23031" minx="259219.913381" miny="4488505.357471" maxx="529199.528293" maxy="4749540.250310"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.511645" miny="0.052875" maxx="42.897701" maxy="3.357627"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.511645" miny="0.052875" maxx="42.897701" maxy="3.357627"/>
+					<BoundingBox CRS="EPSG:3857" minx="5885.985747" miny="4940574.044677" maxx="373769.359549" maxy="5296413.866148"/>
+					<BoundingBox CRS="EPSG:102100" minx="5885.985747" miny="4940574.044677" maxx="373769.359549" maxy="5296413.866148"/>
+					<BoundingBox CRS="EPSG:32631" minx="259230.970002" miny="4488427.720115" maxx="529198.200000" maxy="4749454.790118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[120_hidrografia_connexions_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>110_transports_p</Name>
+					<Title><![CDATA[Transports (polígons)]]></Title>
+					<Abstract><![CDATA[Transports (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.234650</westBoundLongitude><eastBoundLongitude>3.279042</eastBoundLongitude><southBoundLatitude>40.528432</southBoundLatitude><northBoundLatitude>42.720789</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.234650" miny="40.528432" maxx="3.279042" maxy="42.720789"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.528432" miny="0.234650" maxx="42.720789" maxy="3.279042"/>
+					<BoundingBox CRS="EPSG:25831" minx="273454.395500" miny="4489848.093300" maxx="522847.087800" maxy="4729809.669500"/>
+					<BoundingBox CRS="EPSG:23031" minx="273444.001812" miny="4489925.771211" maxx="522848.126972" maxy="4729894.522610"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.528432" miny="0.234650" maxx="42.720789" maxy="3.279042"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.528432" miny="0.234650" maxx="42.720789" maxy="3.279042"/>
+					<BoundingBox CRS="EPSG:3857" minx="26121.166263" miny="4943032.383806" maxx="365021.271124" maxy="5269569.217726"/>
+					<BoundingBox CRS="EPSG:102100" minx="26121.166263" miny="4943032.383806" maxx="365021.271124" maxy="5269569.217726"/>
+					<BoundingBox CRS="EPSG:32631" minx="273454.395502" miny="4489848.093415" maxx="522847.087800" maxy="4729809.669617"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[110_transports_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>100_construccions_p</Name>
+					<Title><![CDATA[Construccions (polígons)]]></Title>
+					<Abstract><![CDATA[Construccions (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049928</westBoundLongitude><eastBoundLongitude>3.319199</eastBoundLongitude><southBoundLatitude>40.512850</southBoundLatitude><northBoundLatitude>42.897692</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049928" miny="40.512850" maxx="3.319199" maxy="42.897692"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:25831" minx="258989.920000" miny="4488569.430000" maxx="526060.720000" maxy="4749453.760000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258978.852315" miny="4488647.071695" maxx="526061.905568" maxy="4749539.220408"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:3857" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:102100" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:32631" minx="258989.920002" miny="4488569.430115" maxx="526060.720000" maxy="4749453.760118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[100_construccions_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>090_relleu_l</Name>
+					<Title><![CDATA[Relleu (línies)]]></Title>
+					<Abstract><![CDATA[Relleu (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.048638</westBoundLongitude><eastBoundLongitude>3.335521</eastBoundLongitude><southBoundLatitude>40.512572</southBoundLatitude><northBoundLatitude>42.899269</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.048638" miny="40.512572" maxx="3.335521" maxy="42.899269"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512572" miny="0.048638" maxx="42.899269" maxy="3.335521"/>
+					<BoundingBox CRS="EPSG:25831" minx="258890.500000" miny="4488541.780000" maxx="527392.590000" maxy="4749628.870000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258879.427657" miny="4488619.420840" maxx="527393.836159" maxy="4749714.335820"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512572" miny="0.048638" maxx="42.899269" maxy="3.335521"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512572" miny="0.048638" maxx="42.899269" maxy="3.335521"/>
+					<BoundingBox CRS="EPSG:3857" minx="5414.353129" miny="4940709.841805" maxx="371308.452107" maxy="5296652.082794"/>
+					<BoundingBox CRS="EPSG:102100" minx="5414.353129" miny="4940709.841805" maxx="371308.452107" maxy="5296652.082794"/>
+					<BoundingBox CRS="EPSG:32631" minx="258890.500002" miny="4488541.780115" maxx="527392.590000" maxy="4749628.870118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[090_relleu_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>080_cobertes-sol_agrupacio-arbres_p</Name>
+					<Title><![CDATA[Cobertes del sòl, agrupació d'arbres (polígons)]]></Title>
+					<Abstract><![CDATA[Cobertes del sòl, agrupació d'arbres (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.048638</westBoundLongitude><eastBoundLongitude>3.335575</eastBoundLongitude><southBoundLatitude>40.512571</southBoundLatitude><northBoundLatitude>42.899270</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.048638" miny="40.512571" maxx="3.335575" maxy="42.899270"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512571" miny="0.048638" maxx="42.899270" maxy="3.335575"/>
+					<BoundingBox CRS="EPSG:25831" minx="258890.480000" miny="4488541.620000" maxx="527397.060000" maxy="4749629.050000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258879.407656" miny="4488619.260836" maxx="527398.306363" maxy="4749714.515825"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512571" miny="0.048638" maxx="42.899270" maxy="3.335575"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512571" miny="0.048638" maxx="42.899270" maxy="3.335575"/>
+					<BoundingBox CRS="EPSG:3857" minx="5414.317321" miny="4940709.630156" maxx="371314.547859" maxy="5296652.329138"/>
+					<BoundingBox CRS="EPSG:102100" minx="5414.317321" miny="4940709.630156" maxx="371314.547859" maxy="5296652.329138"/>
+					<BoundingBox CRS="EPSG:32631" minx="258890.480002" miny="4488541.620115" maxx="527397.060000" maxy="4749629.050118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[080_cobertes-sol_agrupacio-arbres_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>070_construccions_parterre_p</Name>
+					<Title><![CDATA[Construccions, parterres (polígons)]]></Title>
+					<Abstract><![CDATA[Construccions, parterres (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049928</westBoundLongitude><eastBoundLongitude>3.319199</eastBoundLongitude><southBoundLatitude>40.512850</southBoundLatitude><northBoundLatitude>42.897692</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049928" miny="40.512850" maxx="3.319199" maxy="42.897692"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:25831" minx="258989.920000" miny="4488569.430000" maxx="526060.720000" maxy="4749453.760000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258978.852315" miny="4488647.071695" maxx="526061.905568" maxy="4749539.220408"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:3857" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:102100" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:32631" minx="258989.920002" miny="4488569.430115" maxx="526060.720000" maxy="4749453.760118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[070_construccions_parterre_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>060_construccions_illa-urbanitzada_p</Name>
+					<Title><![CDATA[Construccions, illes urbanitzades (polígons)]]></Title>
+					<Abstract><![CDATA[Construccions, illes urbanitzades (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049928</westBoundLongitude><eastBoundLongitude>3.319199</eastBoundLongitude><southBoundLatitude>40.512850</southBoundLatitude><northBoundLatitude>42.897692</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049928" miny="40.512850" maxx="3.319199" maxy="42.897692"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:25831" minx="258989.920000" miny="4488569.430000" maxx="526060.720000" maxy="4749453.760000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258978.852315" miny="4488647.071695" maxx="526061.905568" maxy="4749539.220408"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:3857" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:102100" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:32631" minx="258989.920002" miny="4488569.430115" maxx="526060.720000" maxy="4749453.760118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[060_construccions_illa-urbanitzada_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>050_cobertes-sol_l</Name>
+					<Title><![CDATA[Cobertes del sòl (línies)]]></Title>
+					<Abstract><![CDATA[Cobertes del sòl (línies)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.050423</westBoundLongitude><eastBoundLongitude>3.313665</eastBoundLongitude><southBoundLatitude>40.512629</southBoundLatitude><northBoundLatitude>42.897684</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.050423" miny="40.512629" maxx="3.313665" maxy="42.897684"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512629" miny="0.050423" maxx="42.897684" maxy="3.313665"/>
+					<BoundingBox CRS="EPSG:25831" minx="259030.330000" miny="4488543.540000" maxx="525608.920000" maxy="4749452.830000"/>
+					<BoundingBox CRS="EPSG:23031" minx="259019.264171" miny="4488621.180968" maxx="525610.085013" maxy="4749538.290358"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512629" miny="0.050423" maxx="42.897684" maxy="3.313665"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512629" miny="0.050423" maxx="42.897684" maxy="3.313665"/>
+					<BoundingBox CRS="EPSG:3857" minx="5613.040215" miny="4940718.107959" maxx="368875.548505" maxy="5296411.183771"/>
+					<BoundingBox CRS="EPSG:102100" minx="5613.040215" miny="4940718.107959" maxx="368875.548505" maxy="5296411.183771"/>
+					<BoundingBox CRS="EPSG:32631" minx="259030.330002" miny="4488543.540115" maxx="525608.920000" maxy="4749452.830118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[050_cobertes-sol_l]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>040_cobertes-sol_p</Name>
+					<Title><![CDATA[Cobertes del sòl (polígons)]]></Title>
+					<Abstract><![CDATA[Cobertes del sòl (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.048638</westBoundLongitude><eastBoundLongitude>3.335575</eastBoundLongitude><southBoundLatitude>40.512571</southBoundLatitude><northBoundLatitude>42.899270</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.048638" miny="40.512571" maxx="3.335575" maxy="42.899270"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512571" miny="0.048638" maxx="42.899270" maxy="3.335575"/>
+					<BoundingBox CRS="EPSG:25831" minx="258890.480000" miny="4488541.620000" maxx="527397.060000" maxy="4749629.050000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258879.407656" miny="4488619.260836" maxx="527398.306363" maxy="4749714.515825"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512571" miny="0.048638" maxx="42.899270" maxy="3.335575"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512571" miny="0.048638" maxx="42.899270" maxy="3.335575"/>
+					<BoundingBox CRS="EPSG:3857" minx="5414.317321" miny="4940709.630156" maxx="371314.547859" maxy="5296652.329138"/>
+					<BoundingBox CRS="EPSG:102100" minx="5414.317321" miny="4940709.630156" maxx="371314.547859" maxy="5296652.329138"/>
+					<BoundingBox CRS="EPSG:32631" minx="258890.480002" miny="4488541.620115" maxx="527397.060000" maxy="4749629.050118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[040_cobertes-sol_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>030_construccions_carrer-camp-golf_p</Name>
+					<Title><![CDATA[Construccions, carrers de camps de golf (polígons)]]></Title>
+					<Abstract><![CDATA[Construccions, carrers de camps de golf (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049928</westBoundLongitude><eastBoundLongitude>3.319199</eastBoundLongitude><southBoundLatitude>40.512850</southBoundLatitude><northBoundLatitude>42.897692</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049928" miny="40.512850" maxx="3.319199" maxy="42.897692"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:25831" minx="258989.920000" miny="4488569.430000" maxx="526060.720000" maxy="4749453.760000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258978.852315" miny="4488647.071695" maxx="526061.905568" maxy="4749539.220408"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:3857" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:102100" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:32631" minx="258989.920002" miny="4488569.430115" maxx="526060.720000" maxy="4749453.760118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[030_construccions_carrer-camp-golf_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>020_construccions_recinte_p</Name>
+					<Title><![CDATA[Construccions, recintes (polígons)]]></Title>
+					<Abstract><![CDATA[Construccions, recintes (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.049928</westBoundLongitude><eastBoundLongitude>3.319199</eastBoundLongitude><southBoundLatitude>40.512850</southBoundLatitude><northBoundLatitude>42.897692</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.049928" miny="40.512850" maxx="3.319199" maxy="42.897692"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:25831" minx="258989.920000" miny="4488569.430000" maxx="526060.720000" maxy="4749453.760000"/>
+					<BoundingBox CRS="EPSG:23031" minx="258978.852315" miny="4488647.071695" maxx="526061.905568" maxy="4749539.220408"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.512850" miny="0.049928" maxx="42.897692" maxy="3.319199"/>
+					<BoundingBox CRS="EPSG:3857" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:102100" minx="5558.004414" miny="4940750.499438" maxx="369491.561249" maxy="5296412.456666"/>
+					<BoundingBox CRS="EPSG:32631" minx="258989.920002" miny="4488569.430115" maxx="526060.720000" maxy="4749453.760118"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[020_construccions_recinte_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+				<Layer queryable="1">
+					<Name>010_transports_recinte_p</Name>
+					<Title><![CDATA[Transports, recintes (polígons)]]></Title>
+					<Abstract><![CDATA[Transports, recintes (polígons)]]></Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25831</CRS>
+					<CRS>EPSG:23031</CRS>
+					<CRS>EPSG:4258</CRS>
+					<CRS>EPSG:4230</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<CRS>EPSG:32631</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>0.234650</westBoundLongitude><eastBoundLongitude>3.279042</eastBoundLongitude><southBoundLatitude>40.528432</southBoundLatitude><northBoundLatitude>42.720789</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="0.234650" miny="40.528432" maxx="3.279042" maxy="42.720789"/>
+					<BoundingBox CRS="EPSG:4326" minx="40.528432" miny="0.234650" maxx="42.720789" maxy="3.279042"/>
+					<BoundingBox CRS="EPSG:25831" minx="273454.395500" miny="4489848.093300" maxx="522847.087800" maxy="4729809.669500"/>
+					<BoundingBox CRS="EPSG:23031" minx="273444.001812" miny="4489925.771211" maxx="522848.126972" maxy="4729894.522610"/>
+					<BoundingBox CRS="EPSG:4258" minx="40.528432" miny="0.234650" maxx="42.720789" maxy="3.279042"/>
+					<BoundingBox CRS="EPSG:4230" minx="40.528432" miny="0.234650" maxx="42.720789" maxy="3.279042"/>
+					<BoundingBox CRS="EPSG:3857" minx="26121.166263" miny="4943032.383806" maxx="365021.271124" maxy="5269569.217726"/>
+					<BoundingBox CRS="EPSG:102100" minx="26121.166263" miny="4943032.383806" maxx="365021.271124" maxy="5269569.217726"/>
+					<BoundingBox CRS="EPSG:32631" minx="273454.395502" miny="4489848.093415" maxx="522847.087800" maxy="4729809.669617"/>
+					<Style>
+						<Name>default</Name>
+						<Title><![CDATA[010_transports_recinte_p]]></Title>
+					</Style>
+					<MaxScaleDenominator>23623.511905</MaxScaleDenominator>
+				</Layer>
+			</Layer>
+		</Layer>
+	</Capability>
+</WMS_Capabilities>

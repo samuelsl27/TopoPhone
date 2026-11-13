@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd" [ 
+<!ELEMENT VendorSpecificCapabilities (inspire_vs:ExtendedCapabilities)>
+]>
+<WMT_MS_Capabilities version="1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Service>
+		<Name>WMS</Name>
+		<Title>Ortoimágenes de España (satélite Sentinel2 y ortofotos del PNOA máxima actualidad y ortoimágenes verdaderas núcleos urbanos)</Title>
+		<Abstract>Ortofotos de máxima actualidad del proyecto PNOA (Plan Nacional de Ortofotografía Aérea) visibles a partir de una escala aproximada 1:70.000. Para escalas menores se visualizan las imágenes de satélite Sentinel2 de 10 metros de resolución. Ortoimagen Melilla: Pléiades Neo © Airbus DS (2022). La cobertura PNOA está constituida por mosaicos de distinta fecha de adquisición y distinta resolución (50 y 25 cm). Los datos PNOA se actualizan varias veces al año y los datos Sentinel2 se actualizan semestralmente.  Adicionalmente, en los núcleos urbanos identificados en la capa mosaico, se dispone de las ortoimágenes verdaderas. Las imágenes mundiales de fondo provienen del espectrorradiómetro de imágenes de resolución moderada de la NASA (MODIS). Estas actualizaciones se anuncian en el canal RSS del IGN (https://www.ign.es/ign/rss). Servicio de visualización WMS 1.3.0 conforme al perfil Inspire de ISO 19128:2005.</Abstract>
+		<KeywordList>
+			<Keyword>Ortoimágenes</Keyword>
+			<Keyword>Ortoimagen Verdadera</Keyword>
+			<Keyword>Infraestructura de Datos Espaciales</Keyword>
+			<Keyword>IDEE</Keyword>
+			<Keyword>Sistema Cartográfico Nacional</Keyword>
+			<Keyword>SCNE</Keyword>
+			<Keyword>Fondo Español de Garantía Agraria</Keyword>
+			<Keyword>Dirección General de Catastro</Keyword>
+			<Keyword>Comunidad Autónoma de Aragón</Keyword>
+			<Keyword>Canarias</Keyword>
+			<Keyword>Catalunya</Keyword>
+			<Keyword>Comunitat Valenciana</Keyword>
+			<Keyword>Comunidad Foral de Navarra</Keyword>
+			<Keyword>Comunidad Autónoma de La Rioja</Keyword>
+			<Keyword>Comunidad de Extremadura</Keyword>
+			<Keyword>Comunidad de Madrid</Keyword>
+			<Keyword>Diputación de Alicante</Keyword>
+			<Keyword>País Vasco / Euskadi</Keyword>
+			<Keyword>Castilla y León</Keyword>
+			<Keyword>Comunidades Autónomas de Galicia</Keyword>
+			<Keyword>CNIG</Keyword>
+			<Keyword>Instituto Geográfico Nacional</Keyword>
+			<Keyword>IGN</Keyword>
+			<Keyword>Centro Nacional de Información Geográfica</Keyword>
+			<Keyword>PNT</Keyword>
+			<Keyword>España</Keyword>
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">InfoMapAccessService</Keyword> 
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">InfoManagementService</Keyword>
+		</KeywordList>
+		<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+		<ContactInformation>
+			<ContactPersonPrimary>
+				<ContactPerson/>
+				<ContactOrganization>Infraestructura de Datos Espaciales de España (IDEE)</ContactOrganization>
+			</ContactPersonPrimary>
+			<ContactPosition>pointOfContact</ContactPosition>
+			<ContactElectronicMailAddress>ign@transportes.gob.es</ContactElectronicMailAddress>
+		</ContactInformation>
+		<Fees>No se aplican condiciones</Fees>
+		<AccessConstraints>CC BY 4.0 scne.es</AccessConstraints>
+	<MaxWidth>4096</MaxWidth>
+	<MaxHeight>4096</MaxHeight>
+	</Service>
+	<Capability>
+		<Request>
+			<GetCapabilities>
+				<Format>application/vnd.ogc.wms_xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&amp;"/>
+						</Get>
+						<Post>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&amp;"/>
+						</Post>
+					</HTTP>
+				</DCPType>
+			</GetCapabilities>
+			<GetMap>
+				<Format>image/png</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/gif</Format>
+				<Format>image/tiff</Format>
+				<Format>image/png; mode=8bit</Format>
+				<Format>application/x-pdf</Format>
+				<Format>image/svg+xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetMap>
+			<GetFeatureInfo>
+				<Format>text/html</Format>
+				<Format>text/plain</Format>
+				<Format>application/vnd.ogc.gml</Format>
+				<Format>application/json</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&amp;"/>
+						</Get>
+						<Post>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&amp;"/>
+						</Post>
+					</HTTP>
+				</DCPType>
+			</GetFeatureInfo>
+			<DescribeLayer>
+				<Format>application/vnd.ogc.wms_xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</DescribeLayer>
+			<GetLegendGraphic>
+				<Format>image/png</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/gif</Format>
+				<Format>image/png; mode=8bit</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetLegendGraphic>
+			<GetStyles>
+				<Format>application/vnd.ogc.sld+xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetStyles>
+		</Request>
+		<Exception>
+			<Format>application/vnd.ogc.se_xml</Format>
+			<Format>application/vnd.ogc.se_inimage</Format>
+			<Format>application/vnd.ogc.se_blank</Format>
+		</Exception>
+	<VendorSpecificCapabilities>
+		<inspire_vs:ExtendedCapabilities>
+			<!-- SC1: link INSPIRE metadata for this NS -->
+			<inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+				<inspire_common:URL>https://www.idee.es/csw-inspire-idee/srv/spa/csw?Service=CSW&amp;Request=GetRecordById&amp;Version=2.0.2&amp;id=spaignwms_ortoimagenes&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;elementSetName=full</inspire_common:URL>
+				<inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+			</inspire_common:MetadataUrl>
+			<inspire_common:SupportedLanguages>
+				<inspire_common:DefaultLanguage>
+					<inspire_common:Language>spa</inspire_common:Language>
+				</inspire_common:DefaultLanguage>
+			</inspire_common:SupportedLanguages>
+			<inspire_common:ResponseLanguage>
+				<inspire_common:Language>spa</inspire_common:Language>
+			</inspire_common:ResponseLanguage>
+		</inspire_vs:ExtendedCapabilities>
+	</VendorSpecificCapabilities>
+		<UserDefinedSymbolization SupportSLD="1" UserLayer="1" UserStyle="1" RemoteWFS="1"/>
+		<Layer>
+			<Title>Ortofotos PNOA máxima actualidad</Title>
+			<Abstract>Ortofotos de máxima actualidad del proyecto PNOA (Plan Nacional de Ortofotografía Aérea) visibles a partir de una escala aproximada 1:70.000. Para escalas menores se visualizan las imágenes de satélite Sentinel2 de 10 metros de resolución. Ortoimagen Melilla: Pléiades Neo © Airbus DS (2022). La cobertura PNOA está constituida por mosaicos de distinta fecha de adquisición y distinta resolución (50 y 25 cm). Adicionalmente, en los núcleos urbanos identificados en la capa mosaico, se dispone de las ortoimágenes verdaderas. Esta información puede consultarse mediante la capa Mosaico que se representa según el estilo por defecto definido en Inspire.</Abstract>
+			<!--Limited list of EPSG projections:-->
+			<SRS>EPSG:4326</SRS>			
+			<SRS>EPSG:4230</SRS>
+ 			<SRS>EPSG:4258</SRS>
+			<SRS>EPSG:3857</SRS>
+			<SRS>EPSG:3035</SRS>
+			<SRS>EPSG:25828</SRS>
+			<SRS>EPSG:25829</SRS>
+			<SRS>EPSG:25830</SRS>
+			<SRS>EPSG:25831</SRS>
+			<SRS>EPSG:23029</SRS>
+			<SRS>EPSG:23030</SRS>
+			<SRS>EPSG:23031</SRS>
+			<SRS>EPSG:32628</SRS>
+			<SRS>EPSG:32629</SRS>
+			<SRS>EPSG:32630</SRS>
+			<SRS>EPSG:32631</SRS>
+			<SRS>EPSG:4080</SRS>
+			<SRS>EPSG:4081</SRS>
+			<SRS>EPSG:4082</SRS>
+			<SRS>EPSG:4083</SRS>
+			<BoundingBox SRS="EPSG:25830" minx="109307060.38723111" miny="-330884374.4651429" maxx="151426332.56359124" maxy="-151440450.8291666"/>
+			<BoundingBox SRS="EPSG:4326" minx="-179.9776170624479" miny="-73.51695785571678" maxx="179.9838090799818" maxy="84.650213009049"/>
+			<BoundingBox SRS="EPSG:3857" minx="-18370000" miny="-12324847.239397258" maxx="20038525.581184" maxy="19540000"/>
+			<BoundingBox SRS="EPSG:4230" minx="-179.98702726917048" miny="-73.51325754527257" maxx="179.99201724857892" maxy="84.65163452677815"/>
+			<BoundingBox SRS="EPSG:4258" minx="-160" miny="-80" maxx="160" maxy="80"/>
+			<BoundingBox SRS="EPSG:3035" minx="-8340338.8071875944733620" miny="-9313979.4287299048155546" maxx="16978986.6174702830612659" maxy="15459089.8856173362582922"/>
+			<BoundingBox SRS="EPSG:25828" minx="102948.37120930111" miny="2986435.242554414" maxx="2508202.7078586714" maxy="5070480.910938781"/>
+			<BoundingBox SRS="EPSG:25829" minx="-495135.75545113813" miny="2988008.138364256" maxx="1897204.2192702503" maxy="4968139.496965927"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1714549.1480570585" miny="2988008.138364256" maxx="698454.234216212" maxy="5113259.329838102"/>
+			<BoundingBox SRS="EPSG:32630" minx="-330884374.4606322" miny="-151440450.81814778" maxx="109307060.38698345" maxy="151426332.55551863"/>
+			<BoundingBox SRS="EPSG:23029" minx="453232.16" miny="4002993.85" maxx="1622799.23" maxy="4968233.16"/>
+			<BoundingBox SRS="EPSG:23030" minx="-86780.31" miny="4022622.27" maxx="1141492.98" maxy="4903175.90"/>
+			<BoundingBox SRS="EPSG:23031" minx="-628724.14" miny="4076330.91" maxx="660356.81" maxy="4873906.61"/>
+			<BoundingBox SRS="EPSG:4080" minx="-19" miny="27.0" maxx="5.0" maxy="44.0"/>
+			<BoundingBox SRS="EPSG:4081" minx="-19" miny="27.0" maxx="5.0" maxy="44.0"/>
+			<BoundingBox SRS="EPSG:4082" minx="698454.2342173122" miny="2988008.138279638" maxx="2584853.4520357135" maxy="5212435.61141671"/>
+			<BoundingBox SRS="EPSG:4083" minx="102948.37122241489" miny="2992734.120443476" maxx="2104071.2471466046" maxy="5070480.704236423"/>
+			<AuthorityURL name="SCNE">
+				<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.scne.es"/>
+			</AuthorityURL>
+			<Layer queryable="1">
+				<Name>OI.MosaicElement</Name>
+				<Title>Mosaico</Title>
+				<Abstract>Zonas de delimitación de las imágenes que contribuyen en la creación de los mosaicos de ortofotos de la misma fecha de adquisición</Abstract>
+				<KeywordList>
+					<Keyword>Ortofotografías</Keyword>
+					<Keyword>Ortofotos</Keyword>
+					<Keyword>PNOA</Keyword>
+					<Keyword>España</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Sistema Cartográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.scne.es"/>
+				</Attribution>
+				<Identifier authority="SCNE">MosaicElement</Identifier> 
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignPNOA2022"/>
+				</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignPNOA2023"/>
+				</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignPNOA2024"/>
+				</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignPNOA2025"/>
+				</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignTrueOrto2025"/>
+				</MetadataURL>
+				<Style>
+					<Name>OI.MosaicElement.Default</Name>
+					<Title>Estilo por defecto del mosaico</Title>
+					<Abstract>El mosaico se representa mediante líneas magenta (#ff00ff) de 1 pixel de ancho, sin relleno. El atributo fecha asociado a cada geometría se representa mediante una etiqueta de texto en Arial 10 magenta (#ff00ff).</Abstract>
+					<LegendURL width="125" height="21">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma/leyendas/mosaico.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+			<Layer queryable="0">
+				<Name>OI.OrthoimageCoverage</Name>
+				<Title>Ortoimagen</Title>
+				<Abstract>Cobertura ráster opaca de imágenes de satélite y ortofotos PNOA de máxima actualidad (MA). Rangos de visualización: Imagen Sentinel2 de 10 m de resolución hasta la escala aproximada 1:70 000; a partir de aquí ortofotografías PNOA MA de 0.25 m o 0.50 m de resolución, según la zona Ortoimagen Melilla: Pléiades Neo © Airbus DS (2022).</Abstract>
+				<KeywordList>
+					<Keyword>Ortofotografías</Keyword>
+					<Keyword>Ortofotos</Keyword>
+					<Keyword>PNOA</Keyword>
+					<Keyword>España</Keyword>
+				</KeywordList>
+				<Attribution>
+					<Title>Sistema Cartográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.scne.es"/>
+				</Attribution>
+				<Identifier authority="SCNE">OrthoimageCoverage</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?Service=CSW&amp;Request=GetRecordById&amp;Version=2.0.2&amp;id=spaignMosaicoSentinel2&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;elementSetName=full"/>
+				</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignPNOA202"/>
+				</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignPNOA2023"/>
+				</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignPNOA2024"/>
+				</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignPNOA2025"/>
+				</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignTrueOrto2025"/>
+				</MetadataURL>
+				<Style>
+					<Name>OI.OrthoimageCoverage.Default</Name>
+					<Title>Estilo por defecto de la ortoimagen</Title>
+					<Abstract>La cobertura de ortoimágenes se renderizan como datos raster</Abstract>
+					<LegendURL width="125" height="21">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ign.es/wms-inspire/pnoa-ma/leyendas/pnoa-ma.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+
+			<Layer queryable="0">
+				<Name>fondo</Name>
+				<Title>Fondo</Title>
+				<Abstract>Imagen de satélite, en color verdadero. Gran parte de la información contenida en esta imagen provino de un solo dispositivo de detección remota: el espectrorradiómetro de imágenes de resolución moderada de la NASA , o MODIS. Las partes terrestres y oceánicas costeras de estas imágenes se basan en observaciones de la superficie recopiladas de junio a septiembre de 2001 y combinadas, o compuestas, cada ocho días para compensar las nubes que podían bloquear la vista del sensor de la superficie en un solo día.</Abstract>
+				<KeywordList>
+					<Keyword>Fondo</Keyword>
+					<Keyword>Mundo</Keyword>
+					<Keyword>MODIS</Keyword>
+					<Keyword>NASA</Keyword>
+					</KeywordList>
+				
+				<Attribution>
+					<Title>NASA</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://visibleearth.nasa.gov/images/57752/blue-marble-land-surface-shallow-water-and-shaded-topography"/>
+				</Attribution>
+				<Identifier authority="NASA">land_shallow_topo</Identifier>
+				<Style>
+					<Name>fondo.Default</Name>
+					<Title>Estilo por defecto del fondo</Title>
+					<Abstract>Estilo por defecto de visualizacion</Abstract>
+					<LegendURL width="125" height="21">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es/wms-inspire/pnoa-ma/leyendas/pnoa-ma.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+
+		</Layer>
+	</Capability>
+</WMT_MS_Capabilities>

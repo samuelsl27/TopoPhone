@@ -1,0 +1,1988 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"   xmlns:sld="http://www.opengis.net/sld"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xmlns:ms="http://mapserver.gis.umn.edu/mapserver"   xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0"   xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0"   xsi:schemaLocation="http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd  http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/sld_capabilities.xsd  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd http://mapserver.gis.umn.edu/mapserver https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;service=WMS&amp;version=1.3.0&amp;request=GetSchemaExtension">
+
+<!-- MapServer version 7.6.4 OUTPUT=PNG OUTPUT=JPEG SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=RSVG SUPPORTS=ICONV SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=GEOS SUPPORTS=POINT_Z_M SUPPORTS=PBF INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>WMS</Name>
+  <Title>Servicio WMS/WFS del Mapa BCV50</Title>
+  <Abstract>Servicio WMS (Web Map Service) y WFS (Web Feature Service) del  Mapa BCV50</Abstract>
+  <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword>OGC</Keyword>
+      <Keyword>OGC:WMS-1.3.0</Keyword>
+      <Keyword>Comunidad Valenciana</Keyword>
+      <Keyword> Mapa BCV50</Keyword>
+      <Keyword vocabulary="GEMET - INSPIRE themes">Cartografia</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson>Técnico ICV</ContactPerson>
+      <ContactOrganization>Institut Cartogràfic Valencià</ContactOrganization>
+    </ContactPersonPrimary>
+      <ContactPosition>Punto de contacto</ContactPosition>
+  <ContactElectronicMailAddress>responde_icv@gva.es</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>No se aplican condiciones</Fees>
+  <AccessConstraints>CC BY 4.0 Generalitat</AccessConstraints>
+  <MaxWidth>4096</MaxWidth>
+  <MaxHeight>4096</MaxHeight>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <Format>image/svg+xml</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <Format>application/x-pdf</Format>
+      <Format>image/tiff</Format>
+      <Format>application/x-protobuf</Format>
+      <Format>application/json</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/html</Format>
+      <Format>geojson</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <Format>text/plain</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+    <sld:DescribeLayer>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </sld:DescribeLayer>
+    <sld:GetLegendGraphic>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </sld:GetLegendGraphic>
+    <ms:GetStyles>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </ms:GetStyles>
+  </Request>
+  <Exception>
+    <Format>XML</Format>
+    <Format>INIMAGE</Format>
+    <Format>BLANK</Format>
+  </Exception>
+  <sld:UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0" InlineFeature="0" RemoteWCS="0"/>
+  <inspire_vs:ExtendedCapabilities>
+    <inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+      <inspire_common:URL>https://catalogo.icv.gva.es/geonetwork/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaicv0101_OWSCV50</inspire_common:URL>
+      <inspire_common:MediaType>application/vnd.ogc.csw.capabilities.response_xml</inspire_common:MediaType>
+    </inspire_common:MetadataUrl>
+    <inspire_common:SupportedLanguages>
+      <inspire_common:DefaultLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:DefaultLanguage>
+      <inspire_common:SupportedLanguage><inspire_common:Language>cat</inspire_common:Language></inspire_common:SupportedLanguage>
+      <inspire_common:SupportedLanguage><inspire_common:Language>eng</inspire_common:Language></inspire_common:SupportedLanguage>
+    </inspire_common:SupportedLanguages>
+    <inspire_common:ResponseLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:ResponseLanguage>
+  </inspire_vs:ExtendedCapabilities>
+  <Layer queryable="1">
+    <Name>OWS_0101_BCV50</Name>
+    <Title>Servicio WMS/WFS del Mapa BCV50</Title>
+    <Abstract>Servicio WMS (Web Map Service) y WFS (Web Feature Service) del  Mapa BCV50</Abstract>
+    <KeywordList>
+        <Keyword>WMS</Keyword>
+        <Keyword>OGC</Keyword>
+        <Keyword>OGC:WMS-1.3.0</Keyword>
+        <Keyword>Comunidad Valenciana</Keyword>
+        <Keyword> Mapa BCV50</Keyword>
+        <Keyword vocabulary="GEMET - INSPIRE themes">Cartografia</Keyword>
+    </KeywordList>
+    <CRS>EPSG:25830</CRS>
+    <CRS>EPSG:25831</CRS>
+    <CRS>EPSG:3857</CRS>
+    <CRS>EPSG:23030</CRS>
+    <CRS>EPSG:23031</CRS>
+    <CRS>EPSG:4230</CRS>
+    <CRS>EPSG:4258</CRS>
+    <CRS>EPSG:4326</CRS>
+    <EX_GeographicBoundingBox>
+        <westBoundLongitude>-1.8688</westBoundLongitude>
+        <eastBoundLongitude>1.04411</eastBoundLongitude>
+        <southBoundLatitude>37.4344</southBoundLatitude>
+        <northBoundLatitude>41.0951</northBoundLatitude>
+    </EX_GeographicBoundingBox>
+    <BoundingBox CRS="EPSG:25830"
+                minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+    <Attribution>
+        <Title>BCV50 - Generalitat Valenciana</Title>
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+    </Attribution>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="246" height="3138">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=OWS_0101_BCV50&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+    <Layer queryable="1">
+      <Name>Usos del suelo | Usos del sòl | Land use</Name>
+      <Title>Usos del suelo | Usos del sòl | Land use</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CoberturaTerrestreBCV50</Name>
+        <Title>Cobertura terrestre | Cobertura terrestre | Cobertura terrestre</Title>
+        <Abstract>Capa que contiene cobertura terrestre de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.COBTE.2102.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="246" height="163">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=CoberturaTerrestreBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Instalaciones y equipamientos | Instal·lacions i equipaments | Facilities and equipment</Name>
+      <Title>Instalaciones y equipamientos | Instal·lacions i equipaments | Facilities and equipment</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ActividadExtractivaBCV50</Name>
+        <Title>Actividad extractiva | Activitat extractiva | Actividad extractiva</Title>
+        <Abstract>Capa que contiene actividad extractiva de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.ACEXT.2102.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="105" height="82">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ActividadExtractivaBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CoberturaEspacioDotacionalBCV50</Name>
+        <Title>Espacio dotacional | Espai dotacional | Espacio dotacional</Title>
+        <Abstract>Capa que contiene espacio dotacional terrestre de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.ESDOT.2102.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="228" height="138">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=CoberturaEspacioDotacionalBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CircuitoBCV50</Name>
+        <Title>Circuito | Circuit | Circuito</Title>
+        <Abstract>Capa que contiene circuito de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.CIRCU.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="99" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=CircuitoBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>LineaElectricaBCV50</Name>
+        <Title>Línea eléctrica | Línia elèctrica | Línea eléctrica</Title>
+        <Abstract>Capa que contiene línea eléctrica de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.LIELE.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="157" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=LineaElectricaBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ActividadExtractivaPuntualBCV50</Name>
+        <Title>Actividad extractiva puntual | Activitat extractiva puntual | Actividad extractiva puntual</Title>
+        <Abstract>Capa que contiene actividad extractiva puntual de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.ACEXT.2101.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="242" height="83">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ActividadExtractivaPuntualBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>EspacioDotacionalPuntualBCV50</Name>
+        <Title>Espacio dotacional puntual | Espai dotacional puntual | Espacio dotacional puntual</Title>
+        <Abstract>Capa que contiene espacio dotacional puntual de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.ESDOT.2101.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="228" height="245">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=EspacioDotacionalPuntualBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Vías de Comunicación | Vies de Comunicació | Communication Routes</Name>
+      <Title>Vías de Comunicación | Vies de Comunicació | Communication Routes</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>InstalacionTransportePoligonalBCV50</Name>
+        <Title>Instalación de transporte poligonal | Instal·lació de transport poligonal | Instalación de transporte poligonal</Title>
+        <Abstract>Capa que contiene instalación de transporte poligonal de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.INTRA.2102.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="222" height="29">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=InstalacionTransportePoligonalBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>RedViariaSubterraneaBCV50</Name>
+        <Title>Red viaria enterrada | Xarxa viària soterrada | Red viaria enterrada</Title>
+        <Abstract>Capa que contiene red viaria enterrada de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.XAVIA.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="81" height="55">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=RedViariaSubterraneaBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FerrocarrilSubterraneoBCV50</Name>
+        <Title>Ferrocarril enterrado | Ferrocarril soterrat | Ferrocarril enterrado</Title>
+        <Abstract>Capa que contiene ferrocarril enterrado de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.FFCC.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="195" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=FerrocarrilSubterraneoBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>RedViariaBCV50</Name>
+        <Title>Red viaria | Xarxa viària | Red viaria </Title>
+        <Abstract>Capa que contiene red viaria de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.XAVIA.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="230" height="325">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=RedViariaBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FerrocarrilBCV50</Name>
+        <Title>Ferrocarril | Ferrocarril | Ferrocarril</Title>
+        <Abstract>Capa que contiene ferrocarril de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.FFCC.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="152" height="109">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=FerrocarrilBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ItinerariosBCV50</Name>
+        <Title>Itinerarios | Itineraris | Itinerarios</Title>
+        <Abstract>Capa que contiene itinerarios de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.ITINE.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="163" height="82">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ItinerariosBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>RedViariaElevadaBCV50</Name>
+        <Title>Red viaria elevada | Xarxa viària elevada | Red viaria elevada </Title>
+        <Abstract>Capa que contiene red viaria elevada de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.XAVIA.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="230" height="325">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=RedViariaElevadaBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FerrocarrilElevadoBCV50</Name>
+        <Title>Ferrocarril elevado | Ferrocarril elevat | Ferrocarril elevado</Title>
+        <Abstract>Capa que contiene ferrocarril elevado de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.FFCC.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="152" height="55">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=FerrocarrilElevadoBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>InstalacionTransporteLinealBCV50</Name>
+        <Title>Instalación de transporte lineal | Instal·lació de transport lineal | Instalación de transporte lineal</Title>
+        <Abstract>Capa que contiene instalación de transporte lineal de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.40225</westBoundLongitude>
+            <eastBoundLongitude>0.717052</eastBoundLongitude>
+            <southBoundLatitude>37.8319</southBoundLatitude>
+            <northBoundLatitude>40.56</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="640520" miny="4.19321e+06" maxx="814938" maxy="4.49124e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="112748" miny="4.18993e+06" maxx="306584" maxy="4.49898e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-156097" miny="4.55571e+06" maxx="79821.8" maxy="4.94766e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="640526" miny="4.19327e+06" maxx="814953" maxy="4.49132e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="112730" miny="4.19e+06" maxx="306575" maxy="4.49906e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.8319" miny="-1.40225" maxx="40.56" maxy="0.717052" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.8319" miny="-1.40225" maxx="40.56" maxy="0.717052" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.8319" miny="-1.40225" maxx="40.56" maxy="0.717052" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.INTRA.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="153" height="82">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=InstalacionTransporteLinealBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>InstalacionTransportePuntualBCV50</Name>
+        <Title>Instalación de transporte puntual | Instal·lació de transport puntual | Instalación de transporte puntual</Title>
+        <Abstract>Capa que contiene instalación de transporte puntual de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.INTRA.2101.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="197" height="163">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=InstalacionTransportePuntualBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>BocaTunelBCV50</Name>
+        <Title>Boca de túnel | Boca de túnel | Boca de túnel</Title>
+        <Abstract>Capa que contiene boca de túnel de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.BOTUN.2101.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="152" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=BocaTunelBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Edificaciones y construcciones | Edificacions i construccions | Buildings and constructions</Name>
+      <Title>Edificaciones y construcciones | Edificacions i construccions | Buildings and constructions</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>InvernaderoBCV50</Name>
+        <Title>Invernadero | Hivernacle | Invernadero</Title>
+        <Abstract>Capa que contiene invernaderos de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.HIVER.2102.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="133" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=InvernaderoBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>RuinasBCV50</Name>
+        <Title>Ruinas | Ruïnes | Ruinas</Title>
+        <Abstract>Capa que contiene ruinas de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.EDIF.2102.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="188" height="55">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=RuinasBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>PiscinasBalsasBCV50</Name>
+        <Title>Piscina / Balsa | Piscina / Bassa | Piscina / Balsa</Title>
+        <Abstract>Capa que contiene piscinas y balsas de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.PISCI.2102.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="157" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=PiscinasBalsasBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>EdificacionesBCV50</Name>
+        <Title>Edificaciones | Edificacions | Edificaciones</Title>
+        <Abstract>Capa que contiene edificaciones de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.EDIF.2102.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="118" height="82">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=EdificacionesBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>PatiosBCV50</Name>
+        <Title>Patio | Pati | Patio</Title>
+        <Abstract>Capa que contiene patios de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.PATI.2102.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="79" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=PatiosBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>MurallaHistoricaBCV50</Name>
+        <Title>Muralla histórica | Muralla històrica | Muralla histórica</Title>
+        <Abstract>Capa que contiene muralla histórica de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.13485</westBoundLongitude>
+            <eastBoundLongitude>-0.121539</eastBoundLongitude>
+            <southBoundLatitude>38.159</southBoundLatitude>
+            <northBoundLatitude>40.5488</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="663367" miny="4.22712e+06" maxx="743814" maxy="4.49047e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="137772" miny="4.22835e+06" maxx="235594" maxy="4.49664e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-126331" miny="4.60191e+06" maxx="-13529.7" maxy="4.94602e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="663375" miny="4.22719e+06" maxx="743825" maxy="4.49054e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="137756" miny="4.22842e+06" maxx="235582" maxy="4.49672e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="38.159" miny="-1.13485" maxx="40.5488" maxy="-0.121539" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="38.159" miny="-1.13485" maxx="40.5488" maxy="-0.121539" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="38.159" miny="-1.13485" maxx="40.5488" maxy="-0.121539" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.MUHIS.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="178" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=MurallaHistoricaBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>EdificacionRuinasPuntualBCV50</Name>
+        <Title>Edificación en ruinas puntual | Edificació en ruïnes puntual | Edificación en ruinas puntual</Title>
+        <Abstract>Capa que contiene edificación en ruinas puntual  de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.EDIF.2101.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="189" height="55">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=EdificacionRuinasPuntualBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>PiscinaBalsaPuntualBCV50</Name>
+        <Title>Piscina / Balsa puntual | Piscina / Bassa puntual | Piscina / Balsa puntual</Title>
+        <Abstract>Capa que contiene piscina / balsa puntual  de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.PISCI.2101.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="167" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=PiscinaBalsaPuntualBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>DepositosPuntualesBCV50</Name>
+        <Title>Depósito | Depòsit | Depósito</Title>
+        <Abstract>Capa que contiene depósitos de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.DEPOS.2101.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="223" height="109">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=DepositosPuntualesBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>EdificacionPuntualBCV50</Name>
+        <Title>Edificación puntual | Edificació puntual | Edificación puntual</Title>
+        <Abstract>Capa que contiene edificación puntual de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.EDIF.2101.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="190" height="136">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=EdificacionPuntualBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Hidrografía | Hidrografia | Hydrography</Name>
+      <Title>Hidrografía | Hidrografia | Hydrography</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HidroLechoNaturalBCV50</Name>
+        <Title>Lecho Natural | Llit Natural | Lecho Natural</Title>
+        <Abstract>Capa que contiene lecho natural de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.HIDLN.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="162" height="55">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=HidroLechoNaturalBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HidroEmbalsesBCV50</Name>
+        <Title>Embalse | Embassament | Embalse</Title>
+        <Abstract>Capa que contiene embalses de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.HIDEM.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="135" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=HidroEmbalsesBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HidroLagoBCV50</Name>
+        <Title>Lago | Llac | Lago</Title>
+        <Abstract>Capa que contiene lagos de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.HIDLA.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="79" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=HidroLagoBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HidroIslaBCV50</Name>
+        <Title>Isla | Illa | Isla</Title>
+        <Abstract>Capa que contiene islas de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.HIDIS.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="145" height="55">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=HidroIslaBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HidroCursoNaturalBCV50</Name>
+        <Title>Curso natural | Curs natural | Curso natural</Title>
+        <Abstract>Capa que contiene cursos naturales de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.HIDCN.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="167" height="55">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=HidroCursoNaturalBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HidroCursoArtificialBCV50</Name>
+        <Title>Curso artificial | Curs artificial | Curso artificial</Title>
+        <Abstract>Capa que contiene cursos artificiales de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.HIDCA.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="155" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=HidroCursoArtificialBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>OrogLineaCostaBCV50</Name>
+        <Title>Linea de costa | Línia de costa | Linea de costa</Title>
+        <Abstract>Capa que contiene linea de costa de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.ORO.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="189" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=OrogLineaCostaBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ObraContencionBCV50</Name>
+        <Title>Obra de contención | Obra de contenció | Obra de contención</Title>
+        <Abstract>Capa que contiene obras de contención de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.53782</westBoundLongitude>
+            <eastBoundLongitude>0.520599</eastBoundLongitude>
+            <southBoundLatitude>37.8384</southBoundLatitude>
+            <northBoundLatitude>40.804</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="628592" miny="4.19326e+06" maxx="797186" maxy="4.51812e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="100828" miny="4.19113e+06" maxx="290715" maxy="4.52665e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-171189" miny="4.55663e+06" maxx="57952.8" maxy="4.98347e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="628598" miny="4.19333e+06" maxx="797199" maxy="4.5182e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="100810" miny="4.1912e+06" maxx="290706" maxy="4.52673e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.8384" miny="-1.53782" maxx="40.804" maxy="0.520599" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.8384" miny="-1.53782" maxx="40.804" maxy="0.520599" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.8384" miny="-1.53782" maxx="40.804" maxy="0.520599" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.OBCON.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="149" height="82">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ObraContencionBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Orografía | Orografia | Orography</Name>
+      <Title>Orografía | Orografia | Orography</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>OrogCurvasNivelBCV50</Name>
+        <Title>Curvas de nivel | Corbes de nivell | Curvas de nivel</Title>
+        <Abstract>Capa que contiene curvas de nivel de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.CNI.2103.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="236" height="136">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=OrogCurvasNivelBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>PuntosCotaBCV50</Name>
+        <Title>Puntos de cota | Punts de cota | Puntos de cota</Title>
+        <Abstract>Capa que contiene puntos de cota de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.ORO.2101.01.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="159" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=PuntosCotaBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Límites | Límits | Boundaries</Name>
+      <Title>Límites | Límits | Boundaries</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>EspacioNaturalBCV50</Name>
+        <Title>Espacio natural | Espai natural | Espacio natural</Title>
+        <Abstract>Capa que contiene espacios naturales de la Cartografía oficial 1:50000 de la Comunitat Valenciana</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV50.ESNAT.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV50"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="158" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV50?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=EspacioNaturalBCV50&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>25001</MinScaleDenominator>
+        <MaxScaleDenominator>40000</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+  </Layer>
+</Capability>
+</WMS_Capabilities>

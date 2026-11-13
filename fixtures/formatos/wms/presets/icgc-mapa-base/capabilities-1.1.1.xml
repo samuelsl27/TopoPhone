@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WMT_MS_Capabilities version="1.1.1">
+<Service>
+  <Name>ICGC - Servei de visualització WMS de mapes base</Name>
+  <Title>ICGC - Servei de visualització WMS de mapes base</Title>
+  <Abstract>Servei WMS de visualització...</Abstract>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wms"/>
+  <Fees/>
+  <AccessConstraints/>
+<ContactInformation><ContactPersonPrimary><ContactPerson>ICGC</ContactPerson><ContactOrganization>Institut Cartogràfic i Geològic de Catalunya</ContactOrganization></ContactPersonPrimary><ContactPosition>webmaster</ContactPosition><ContactAddress><ContactAddressType>postal</ContactAddressType><AddressType>postal</AddressType><Address>Parc de Montjuïc</Address><City>Barcelona</City><PostCode>08038</PostCode><StateOrProvince>Catalunya</StateOrProvince><Country>Spain</Country></ContactAddress><ContactVoiceTelephone>+34 93 567 15 00</ContactVoiceTelephone><ContactFacsimileTelephone>+34 93 567 15 67</ContactFacsimileTelephone><ContactElectronicMailAddress>icgc@icgc.cat</ContactElectronicMailAddress></ContactInformation></Service>
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>application/vnd.ogc.wms_xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wms?"/></Get>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+        <Format>image/png</Format>
+        <Format>image/jpeg</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wms?"/></Get>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/plain</Format>
+      <Format>text/html</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wms?"/></Get>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+  </Request>
+  <Exception>
+    <Format>application/vnd.ogc.se_xml</Format>
+    <Format>application/vnd.ogc.se_inimage</Format>
+    <Format>application/vnd.ogc.se_blank</Format>
+  </Exception>
+  <Layer>
+    <Title>Mapa Base</Title>
+    <SRS>EPSG:3857</SRS>
+    <SRS>EPSG:4326</SRS>
+    <SRS>EPSG:4230</SRS>
+    <SRS>EPSG:4258</SRS>
+    <SRS>EPSG:25831</SRS>
+    <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+    <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+    <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+    <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Layer>
+      <Name>topografic</Name>
+      <Title> Capa mapa base topogràfica rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract> Capa mapa base topogràfica rasteritzada</Abstract></Layer>
+    <Layer>
+      <Name>topografic-gris</Name>
+      <Title> Capa mapa base topogràfica gris rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract> Capa mapa base topogràfica gris rasteritzada</Abstract></Layer>
+    <Layer>
+      <Name>topografic-mut</Name>
+      <Title> Capa mapa base topogràfic mut rasteritzat</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+    <Abstract> Capa mapa base topogràfic mut rasteritzat</Abstract></Layer>
+    <Layer>
+      <Name>topografic-gris-mut</Name>
+      <Title> Capa mapa base topogràfic gris mut rasteritzat</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+    <Abstract> Capa mapa base topogràfic gris mut rasteritzat</Abstract></Layer>
+    <Layer>
+      <Name>simplificat</Name>
+      <Title>Capa mapa base simplificada rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract>Capa mapa base simplificada rasteritzada</Abstract></Layer>
+    <Layer>
+      <Name>administratiu</Name>
+      <Title> Capa mapa base administrativa rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract> Capa mapa base administrativa rasteritzada</Abstract></Layer>
+    <Layer>
+      <Name>estandard</Name>
+      <Title> Capa mapa base estandard general rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract> Capa mapa base estandard general rasteritzada</Abstract></Layer>
+    <Layer>
+      <Name>estandard-gris</Name>
+      <Title> Capa mapa base estandard general gris rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract> Capa mapa base estandard general gris rasteritzada</Abstract></Layer>
+    <Layer>
+      <Name>orto</Name>
+      <Title>Capa ortofoto rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract>Capa ortofoto rasteritzada</Abstract></Layer>
+    <Layer>
+      <Name>orto-gris</Name>
+      <Title>Capa ortofoto gris rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract>Capa ortofoto gris rasteritzada</Abstract></Layer>
+    <Layer>
+      <Name>orto-hibrida</Name>
+      <Title>Capa ortofoto híbrida rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract>Capa ortofoto híbrida rasteritzada</Abstract></Layer>
+    <Layer>
+      <Name>geologic</Name>
+      <Title>Capa mapa base geològic rasteritzada</Title>
+      <LatLonBoundingBox minx="-180" miny="-85.0511287798066" maxx="180" maxy="85.0511287798066"/>
+      <BoundingBox SRS="EPSG:25831" minx="-16610753.08" miny="-19523027.97" maxx="16610753.08" maxy="19523027.97"/> 
+      <BoundingBox SRS="EPSG:3857" minx="-20037508.342789244" miny="-20037508.342789255" maxx="20037508.342789244" maxy="20037508.342789244"/>
+      <BoundingBox SRS="EPSG:4326" minx="-180.0" miny="-85.0511287798066" maxx="180.0" maxy="85.0511287798066"/>
+    <Abstract>Capa mapa base geològic rasteritzada</Abstract></Layer>
+  <Abstract>Mapa Base</Abstract></Layer>
+</Capability>
+</WMT_MS_Capabilities>

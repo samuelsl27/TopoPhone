@@ -1,0 +1,904 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
+ [
+<!ELEMENT VendorSpecificCapabilities (inspire_vs:ExtendedCapabilities)><!ELEMENT inspire_vs:ExtendedCapabilities ((inspire_common:MetadataUrl, inspire_common:SupportedLanguages, inspire_common:ResponseLanguage) | (inspire_common:ResourceLocator+, inspire_common:ResourceType, inspire_common:TemporalReference+, inspire_common:Conformity+, inspire_common:MetadataPointOfContact+, inspire_common:MetadataDate, inspire_common:SpatialDataServiceType, inspire_common:MandatoryKeyword+, inspire_common:Keyword*, inspire_common:SupportedLanguages, inspire_common:ResponseLanguage, inspire_common:MetadataUrl?))><!ATTLIST inspire_vs:ExtendedCapabilities xmlns:inspire_vs CDATA #FIXED "http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" ><!ELEMENT inspire_common:MetadataUrl (inspire_common:URL, inspire_common:MediaType*)><!ATTLIST inspire_common:MetadataUrl xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:xsi CDATA #FIXED "http://www.w3.org/2001/XMLSchema-instance" xsi:type CDATA #FIXED "inspire_common:resourceLocatorType" ><!ELEMENT inspire_common:URL (#PCDATA)><!ATTLIST inspire_common:URL xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:MediaType (#PCDATA)><!ATTLIST inspire_common:MediaType xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:SupportedLanguages (inspire_common:DefaultLanguage, inspire_common:SupportedLanguage*)><!ATTLIST inspire_common:SupportedLanguages xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:DefaultLanguage (inspire_common:Language)><!ATTLIST inspire_common:DefaultLanguage xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:SupportedLanguage (inspire_common:Language)><!ATTLIST inspire_common:SupportedLanguage xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:ResponseLanguage (inspire_common:Language)><!ATTLIST inspire_common:ResponseLanguage xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Language (#PCDATA)><!ATTLIST inspire_common:Language xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:ResourceLocator (inspire_common:URL, inspire_common:MediaType*)><!ATTLIST inspire_common:ResourceLocator xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:ResourceType (#PCDATA)> <!ATTLIST inspire_common:ResourceType xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:TemporalReference (inspire_common:DateOfCreation?, inspire_common:DateOfLastRevision?, inspire_common:DateOfPublication*, inspire_common:TemporalExtent*)><!ATTLIST inspire_common:TemporalReference xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:DateOfCreation (#PCDATA)> <!ATTLIST inspire_common:DateOfCreation xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:DateOfLastRevision (#PCDATA)><!ATTLIST inspire_common:DateOfLastRevision xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:DateOfPublication (#PCDATA)><!ATTLIST inspire_common:DateOfPublication xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:TemporalExtent (inspire_common:IndividualDate | inspire_common:IntervalOfDates)><!ATTLIST inspire_common:TemporalExtent xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:IndividualDate (#PCDATA)> <!ATTLIST inspire_common:IndividualDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:IntervalOfDates (inspire_common:StartingDate, inspire_common:EndDate)><!ATTLIST inspire_common:IntervalOfDates xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:StartingDate (#PCDATA)><!ATTLIST inspire_common:StartingDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:EndDate (#PCDATA)><!ATTLIST inspire_common:EndDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Conformity (inspire_common:Specification, inspire_common:Degree)><!ATTLIST inspire_common:Conformity xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Specification (inspire_common:Title, (inspire_common:DateOfPublication | inspire_common:DateOfCreation | inspire_common:DateOfLastRevision), inspire_common:URI*, inspire_common:ResourceLocator*)><!ATTLIST inspire_common:Specification xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Title (#PCDATA)><!ATTLIST inspire_common:Title xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:URI (#PCDATA)><!ATTLIST inspire_common:URI xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Degree (#PCDATA)><!ATTLIST inspire_common:Degree xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:MetadataPointOfContact (inspire_common:OrganisationName, inspire_common:EmailAddress)><!ATTLIST inspire_common:MetadataPointOfContact xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:OrganisationName (#PCDATA)><!ATTLIST inspire_common:OrganisationName  xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:EmailAddress (#PCDATA)><!ATTLIST inspire_common:EmailAddress xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:MetadataDate (#PCDATA)><!ATTLIST inspire_common:MetadataDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:SpatialDataServiceType (#PCDATA)><!ATTLIST inspire_common:SpatialDataServiceType xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:MandatoryKeyword (inspire_common:KeywordValue)><!ATTLIST inspire_common:MandatoryKeyword xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:KeywordValue (#PCDATA)><!ATTLIST inspire_common:KeywordValue xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Keyword (inspire_common:OriginatingControlledVocabulary?, inspire_common:KeywordValue)><!ATTLIST inspire_common:Keyword xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:xsi CDATA #FIXED "http://www.w3.org/2001/XMLSchemainstance" xsi:type (inspire_common:inspireTheme_bul | inspire_common:inspireTheme_cze | inspire_common:inspireTheme_dan | inspire_common:inspireTheme_dut | inspire_common:inspireTheme_eng | inspire_common:inspireTheme_est | inspire_common:inspireTheme_fin | inspire_common:inspireTheme_fre | inspire_common:inspireTheme_ger | inspire_common:inspireTheme_gre | inspire_common:inspireTheme_hun | inspire_common:inspireTheme_gle | inspire_common:inspireTheme_ita | inspire_common:inspireTheme_lav | inspire_common:inspireTheme_lit | inspire_common:inspireTheme_mlt | inspire_common:inspireTheme_pol | inspire_common:inspireTheme_por | inspire_common:inspireTheme_rum | inspire_common:inspireTheme_slo | inspire_common:inspireTheme_slv | inspire_common:inspireTheme_spa | inspire_common:inspireTheme_swe) #IMPLIED ><!ELEMENT inspire_common:OriginatingControlledVocabulary (inspire_common:Title, (inspire_common:DateOfPublication | inspire_common:DateOfCreation | inspire_common:DateOfLastRevision), inspire_common:URI*, inspire_common:ResourceLocator*)><!ATTLIST inspire_common:OriginatingControlledVocabulary xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0">
+ ]>  <!-- end of DOCTYPE declaration -->
+
+<WMT_MS_Capabilities version="1.1.1">
+
+<!-- MapServer version 7.6.4 OUTPUT=PNG OUTPUT=JPEG SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=RSVG SUPPORTS=ICONV SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=GEOS SUPPORTS=POINT_Z_M SUPPORTS=PBF INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>OGC:WMS</Name>
+  <Title>Servicio WMS/WFS del Mapa BCV05</Title>
+  <Abstract>Servicio WMS (Web Map Service) y WFS (Web Feature Service) del Mapa BCV05</Abstract>
+  <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword>OGC</Keyword>
+      <Keyword>OGC:WMS-1.3.0</Keyword>
+      <Keyword>Comunidad Valenciana</Keyword>
+      <Keyword> Mapa BCV05</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson>Técnico ICV</ContactPerson>
+      <ContactOrganization>Institut Cartogràfic Valencià</ContactOrganization>
+    </ContactPersonPrimary>
+      <ContactPosition>Punto de contacto</ContactPosition>
+  <ContactElectronicMailAddress>responde_icv@gva.es</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>No se aplican condiciones</Fees>
+  <AccessConstraints>CC BY 4.0 Generalitat</AccessConstraints>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>application/vnd.ogc.wms_xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <Format>image/svg+xml</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <Format>application/x-pdf</Format>
+      <Format>image/tiff</Format>
+      <Format>application/x-protobuf</Format>
+      <Format>application/json</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/html</Format>
+      <Format>geojson</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <Format>text/plain</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+    <DescribeLayer>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </DescribeLayer>
+    <GetLegendGraphic>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetLegendGraphic>
+    <GetStyles>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetStyles>
+  </Request>
+  <Exception>
+    <Format>application/vnd.ogc.se_xml</Format>
+    <Format>application/vnd.ogc.se_inimage</Format>
+    <Format>application/vnd.ogc.se_blank</Format>
+  </Exception>
+  <VendorSpecificCapabilities>
+  <inspire_vs:ExtendedCapabilities>
+    <inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+      <inspire_common:URL>https://catalogo.icv.gva.es/geonetwork/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaicv0101_OWSCV05</inspire_common:URL>
+      <inspire_common:MediaType>application/vnd.ogc.csw.capabilities.response_xml</inspire_common:MediaType>
+    </inspire_common:MetadataUrl>
+    <inspire_common:SupportedLanguages>
+      <inspire_common:DefaultLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:DefaultLanguage>
+      <inspire_common:SupportedLanguage><inspire_common:Language>cat</inspire_common:Language></inspire_common:SupportedLanguage>
+      <inspire_common:SupportedLanguage><inspire_common:Language>eng</inspire_common:Language></inspire_common:SupportedLanguage>
+    </inspire_common:SupportedLanguages>
+    <inspire_common:ResponseLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:ResponseLanguage>
+  </inspire_vs:ExtendedCapabilities>
+  </VendorSpecificCapabilities>
+  <UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0"/>
+  <Layer queryable="1">
+    <Name>OWS_0101_BCV05</Name>
+    <Title>Servicio WMS/WFS del Mapa BCV05</Title>
+    <Abstract>Servicio WMS (Web Map Service) y WFS (Web Feature Service) del Mapa BCV05</Abstract>
+    <KeywordList>
+        <Keyword>WMS</Keyword>
+        <Keyword>OGC</Keyword>
+        <Keyword>OGC:WMS-1.3.0</Keyword>
+        <Keyword>Comunidad Valenciana</Keyword>
+        <Keyword> Mapa BCV05</Keyword>
+    </KeywordList>
+    <SRS>EPSG:25830</SRS>
+    <SRS>EPSG:25831</SRS>
+    <SRS>EPSG:3857</SRS>
+    <SRS>EPSG:23030</SRS>
+    <SRS>EPSG:23031</SRS>
+    <SRS>EPSG:4230</SRS>
+    <SRS>EPSG:4258</SRS>
+    <SRS>EPSG:4326</SRS>
+    <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+    <BoundingBox SRS="EPSG:25830"
+                minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+    <Attribution>
+        <Title>BCV05 - Generalitat Valenciana</Title>
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+    </Attribution>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="270" height="5526">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=OWS_0101_BCV05&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+    <Layer queryable="1">
+      <Name>Usos del suelo | Usos del sòl | Land use</Name>
+      <Title>Usos del suelo | Usos del sòl | Land use</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>EntornosUrbanosBCV05</Name>
+        <Title>Entornos urbanos | Entorns urbans | Urban environments</Title>
+        <Abstract>Capa que contiene los entornos urbanos de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.SER.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="223" height="91">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=EntornosUrbanosBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CultivosBCV05</Name>
+        <Title>Cultivos | Cultius | Crops</Title>
+        <Abstract>Capa que contiene los usos de suelo de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.CUL.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="246" height="515">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CultivosBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ServiciosInstalacionesPoligonalesBCV05</Name>
+        <Title>Servicios e instalaciones | Serveis i instal·lacions | Services and facilities</Title>
+        <Abstract>Capa que contiene los servicios e instalaciones de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.SER.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="232" height="705">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ServiciosInstalacionesPoligonalesBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>InfraestructurasViariasBCV05</Name>
+        <Title>Infraestructuras viarias | Infraestructures viàries | Road infrastructure</Title>
+        <Abstract>Capa que contiene infraestructuras viarias de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.VIA.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="224" height="298">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=InfraestructurasViariasBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ZonasArboladasBCV05</Name>
+        <Title>Zonas arboladas | Zones amb arbres | Wooded areas</Title>
+        <Abstract>Capa que contiene zonas arboladas de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.ZAR.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="173" height="28">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ZonasArboladasBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HidrografiaBCV05</Name>
+        <Title>Hidrografía | Hidrografia | Hydrography</Title>
+        <Abstract>Capa que contiene hidrografía de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.HID.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="242" height="271">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=HidrografiaBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Vías de Comunicación | Vies de Comunicació | Communication Routes</Name>
+      <Title>Vías de Comunicación | Vies de Comunicació | Communication Routes</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>RedComunicacionesBCV05</Name>
+        <Title>Red de comunicaciones | Xarxa de comunicacions | Communications network</Title>
+        <Abstract>Capa que contiene red de comunicaciones de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.COM.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="249" height="433">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=RedComunicacionesBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>RTCV_ferrocarrilesBCV05</Name>
+        <Title>Red de ferrocarriles | Xarxa de ferrocarrils | Rail network</Title>
+        <Abstract>Capa que contiene red de ferrocarriles de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0901_RTCV-lklineafc.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0901_rtcv_ferrocarril"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="215" height="190">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=RTCV_ferrocarrilesBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Edificaciones y construcciones | Edificacions i construccions | Buildings and constructions</Name>
+      <Title>Edificaciones y construcciones | Edificacions i construccions | Buildings and constructions</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ConstruccionesBCV05</Name>
+        <Title>Construcciones | Construccions | Constructions</Title>
+        <Abstract>Capa que contiene construcciones de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.CONS.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="214" height="379">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ConstruccionesBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>EdificacionesBCV05</Name>
+        <Title>Edificaciones | Edificacions | Buildings</Title>
+        <Abstract>Capa que contiene edificaciones de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.EDIF.2101.02.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="234" height="379">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=EdificacionesBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ConstruccionesLinealesBCV05</Name>
+        <Title>Construcciones lineales | Construccions lineals | Linear constructions</Title>
+        <Abstract>Capa que contiene construcciones lineales de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.CONS.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="258" height="623">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ConstruccionesLinealesBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ServiciosInstalacionesLinealesBCV05</Name>
+        <Title>Servicios e instalaciones | Serveis i instal·lacions | Services and facilities</Title>
+        <Abstract>Capa que contiene servicios e instalaciones de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.SER.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="270" height="352">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ServiciosInstalacionesLinealesBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ConstruccionesPuntualesBCV05</Name>
+        <Title>Construcciones puntuales | Construccions puntuals | Punctual constructions</Title>
+        <Abstract>Capa que contiene construcciones puntuales de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.CONS.2101.01.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="232" height="568">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ConstruccionesPuntualesBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Hidrografía | Hidrografia | Hydrography</Name>
+      <Title>Hidrografía | Hidrografia | Hydrography</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HidrolinealBCV05</Name>
+        <Title>Hidrografía lineal | Hidrografia lineal | Linear hydrography</Title>
+        <Abstract>Capa que contiene la hidrografía lineal de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.HID.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="244" height="191">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=HidrolinealBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HidrografiaPuntualBCV05</Name>
+        <Title>Hidrografía puntual | Hidrografia puntual | Punctual hydrography</Title>
+        <Abstract>Capa que contiene hidrografía puntual de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.HID.2101.01.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="176" height="109">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=HidrografiaPuntualBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>Orografía | Orografia | Orography</Name>
+      <Title>Orografía | Orografia | Orography</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CurvasNivelBCV05</Name>
+        <Title>Curvas de nivel | Corbes de nivell | Contour lines</Title>
+        <Abstract>Capa que contiene curvas de nivel de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.CNI.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="212" height="193">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CurvasNivelBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>OrografiaLineasBCV05</Name>
+        <Title>Orografía líneas | Orografia línies | Orography lines</Title>
+        <Abstract>Capa que contiene orografía líneas de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.ORO.2101.03.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="201" height="163">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=OrografiaLineasBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>PuntosCotaBCV05</Name>
+        <Title>Puntos de cota | Punts de cota | Elevation points</Title>
+        <Abstract>Capa que contiene puntos de cota  de la Cartografía oficial 1:5000 de la Comunitat Valenciana</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià - GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0101_BCV05.ORO.2101.01.40vm</Identifier>
+        <MetadataURL type="ISO19115:2005">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/xml.metadata.get?uuid=spaicv0101_CV05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="219" height="55">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0101_BCV05?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=PuntosCotaBCV05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.75175500437421" />
+      </Layer>
+    </Layer>
+  </Layer>
+</Capability>
+</WMT_MS_Capabilities>

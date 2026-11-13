@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WMS_Capabilities version="1.3.0" xmlns="http://www.opengis.net/wms" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd">
+  <Service>
+    <Name><![CDATA[WMS]]></Name>
+    <Title><![CDATA[Servizo web de mapas (WMS) da ortofotografía do PNOA 2023]]></Title>
+    <Abstract><![CDATA[Servizo web de mapas (WMS) da ortofotografía do PNOA 2023]]></Abstract>
+    <KeywordList><Keyword><![CDATA[ortofoto]]></Keyword></KeywordList>
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson><![CDATA[Instituto de Estudos do Territorio]]></ContactPerson>
+        <ContactOrganization><![CDATA[Consellería de Medio Ambiente, Territorio e Vivenda. Xunta de Galicia]]></ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition><![CDATA[ ]]></ContactPosition>
+      <ContactAddress>
+        <AddressType><![CDATA[Postal]]></AddressType>
+        <Address><![CDATA[San Lázaro s/n]]></Address>
+        <City><![CDATA[Santiago de Compostela]]></City>
+        <StateOrProvince><![CDATA[A Coruña]]></StateOrProvince>
+        <PostCode><![CDATA[15707]]></PostCode>
+        <Country><![CDATA[España]]></Country>
+      </ContactAddress>
+      <ContactVoiceTelephone><![CDATA[981542670]]></ContactVoiceTelephone>
+      <ContactFacsimileTelephone><![CDATA[ ]]></ContactFacsimileTelephone>
+      <ContactElectronicMailAddress><![CDATA[info-iet.cmati@xunta.es]]></ContactElectronicMailAddress>
+    </ContactInformation>
+    <Fees><![CDATA[ ]]></Fees>
+    <AccessConstraints><![CDATA[ ]]></AccessConstraints>
+    <LayerLimit>1</LayerLimit>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer"/></Get></HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/tiff</Format>
+        <Format>image/png</Format>
+        <Format>image/png24</Format>
+        <Format>image/png32</Format>
+        <Format>image/bmp</Format>
+        <Format>image/gif</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/svg</Format>
+        <Format>image/bil</Format>
+        <DCPType>
+          <HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer"/></Get></HTTP>
+        </DCPType>
+      </GetMap>
+    </Request>
+    <Exception>
+      <Format>XML</Format>
+      <Format>INIMAGE</Format>
+      <Format>BLANK</Format>
+    </Exception>
+   <Layer>
+    <Name>0</Name>
+    <Title>PNOA_2023</Title>
+    <Abstract>Servicio de imaxes dinámico do PNOA 2023</Abstract>
+<CRS>CRS:84</CRS>
+<CRS>EPSG:4326</CRS>
+<CRS>EPSG:25829</CRS>
+<CRS>EPSG:25829</CRS>
+<CRS>EPSG:23029</CRS>
+<CRS>EPSG:4230</CRS>
+<CRS>EPSG:23030</CRS>
+<CRS>EPSG:25830</CRS>
+<CRS>CRS:84</CRS>
+<CRS>EPSG:4326</CRS>
+<CRS>EPSG:4258</CRS>
+<CRS>CRS:84</CRS>
+<CRS>EPSG:4326</CRS>
+<CRS>EPSG:3785</CRS>
+<CRS>EPSG:23031</CRS>
+<EX_GeographicBoundingBox><westBoundLongitude>-9.318095</westBoundLongitude><eastBoundLongitude>-6.671051</eastBoundLongitude><southBoundLatitude>41.772377</southBoundLatitude><northBoundLatitude>43.820442</northBoundLatitude></EX_GeographicBoundingBox>
+<BoundingBox CRS="CRS:84" minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox CRS="EPSG:4326" minx="41.772377" miny="-9.318095" maxx="43.820442" maxy="-6.671051"/>
+<BoundingBox CRS="EPSG:25829" minx="474420.000000" miny="4626960.000000" maxx="687360.000000" maxy="4851930.000000"/>
+<BoundingBox CRS="EPSG:25829" minx="474420.000000" miny="4626960.000000" maxx="687360.000000" maxy="4851930.000000"/>
+<BoundingBox CRS="EPSG:23029" minx="474418.819313" miny="4627041.698046" maxx="687368.647222" maxy="4852018.605254"/>
+<BoundingBox CRS="EPSG:4230" minx="41.772377" miny="-9.318095" maxx="43.820442" maxy="-6.671051"/>
+<BoundingBox CRS="EPSG:23030" minx="-24227.093792" miny="4631370.824880" maxx="204651.245777" maxy="4871408.578107"/>
+<BoundingBox CRS="EPSG:25830" minx="-24203.152066" miny="4631288.890026" maxx="204664.877307" maxy="4871319.115056"/>
+<EX_GeographicBoundingBox><westBoundLongitude>-9.318095</westBoundLongitude><eastBoundLongitude>-6.671051</eastBoundLongitude><southBoundLatitude>41.772377</southBoundLatitude><northBoundLatitude>43.820442</northBoundLatitude></EX_GeographicBoundingBox>
+<BoundingBox CRS="CRS:84" minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox CRS="EPSG:4326" minx="41.772377" miny="-9.318095" maxx="43.820442" maxy="-6.671051"/>
+<BoundingBox CRS="EPSG:4258" minx="41.772377" miny="-9.318095" maxx="43.820442" maxy="-6.671051"/>
+<EX_GeographicBoundingBox><westBoundLongitude>-9.318095</westBoundLongitude><eastBoundLongitude>-6.671051</eastBoundLongitude><southBoundLatitude>41.772377</southBoundLatitude><northBoundLatitude>43.820442</northBoundLatitude></EX_GeographicBoundingBox>
+<BoundingBox CRS="CRS:84" minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox CRS="EPSG:4326" minx="41.772377" miny="-9.318095" maxx="43.820442" maxy="-6.671051"/>
+<BoundingBox CRS="EPSG:3785" minx="-1037285.638794" miny="5126943.349373" maxx="-742618.055731" maxy="5437697.025216"/>
+<BoundingBox CRS="EPSG:23031" minx="-523479.988062" miny="4670740.216907" maxx="-278192.754565" maxy="4926309.339985"/>
+        <Style>
+          <Name>default</Name>
+          <Title>PNOA_2023</Title>
+          <LegendURL width="104" height="60">
+            <Format>image/png</Format>
+            <OnlineResource xlink:href="https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer?request=GetLegendGraphic%26version=1.3.0%26format=image/png%26layer=PNOA_2023" xlink:type="simple" xmlns:xlink="http://www.w3.org/1999/xlink" />
+          </LegendURL>
+        </Style>
+   </Layer>
+  </Capability>
+</WMS_Capabilities>

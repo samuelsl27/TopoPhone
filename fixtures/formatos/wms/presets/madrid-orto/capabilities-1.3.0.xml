@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?><WMS_Capabilities xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" version="1.3.0" updateSequence="13441" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms https://idem.comunidad.madrid/geoidem/srvimagen2/wms http://inspire.ec.europa.eu/schemas/inspire_vs/1.0 https://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd">
+  <Service>
+    <Name>WMS</Name>
+    <Title>Servicio WMS de la IDE de la Comunidad de Madrid</Title>
+    <Abstract>Servicio de Visualización de las diferentes capas de Información Geográfica incluidas en los Temas Inspire de los anexos I, II y III de la Directiva 2007/2/CE de la Comunidad de Madrid.</Abstract>
+    <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword>IDEM</Keyword>
+      <Keyword>INSPIRE</Keyword>
+      <Keyword>Comunidad de Madrid</Keyword>
+    </KeywordList>
+    <OnlineResource xlink:type="simple" xlink:href="http://geoserver.org"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson/>
+        <ContactOrganization/>
+      </ContactPersonPrimary>
+      <ContactPosition/>
+      <ContactAddress>
+        <AddressType/>
+        <Address/>
+        <City/>
+        <StateOrProvince/>
+        <PostCode/>
+        <Country/>
+      </ContactAddress>
+      <ContactVoiceTelephone/>
+      <ContactFacsimileTelephone/>
+      <ContactElectronicMailAddress/>
+    </ContactInformation>
+    <Fees>NONE</Fees>
+    <AccessConstraints>CC BY 4.0 Comunidad de Madrid</AccessConstraints>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/srvimagen2/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/srvimagen2/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/geopackage+sqlite3</Format>
+        <Format>application/json;type=geojson</Format>
+        <Format>application/json;type=topojson</Format>
+        <Format>application/json;type=utfgrid</Format>
+        <Format>application/pdf</Format>
+        <Format>application/rss+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml;mode=networklink</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>application/vnd.mapbox-vector-tile</Format>
+        <Format>application/x-sqlite3</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png; mode=8bit</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <Format>image/vnd.jpeg-png</Format>
+        <Format>image/vnd.jpeg-png8</Format>
+        <Format>text/html</Format>
+        <Format>text/html; subtype=openlayers</Format>
+        <Format>text/html; subtype=openlayers2</Format>
+        <Format>text/html; subtype=openlayers3</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/srvimagen2/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+        <Format>text/plain</Format>
+        <Format>text/html</Format>
+        <Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/srvimagen2/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+    </Request>
+    <Exception>
+      <Format>XML</Format>
+      <Format>INIMAGE</Format>
+      <Format>BLANK</Format>
+      <Format>JSON</Format>
+    </Exception>
+    <inspire_vs:ExtendedCapabilities>
+      <inspire_common:MetadataUrl>
+        <inspire_common:URL>http://www.madrid.org/catalogocartografia/csw?request=GetRecords&amp;service=CSW</inspire_common:URL>
+        <inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+      </inspire_common:MetadataUrl>
+      <inspire_common:SupportedLanguages>
+        <inspire_common:DefaultLanguage>
+          <inspire_common:Language>spa</inspire_common:Language>
+        </inspire_common:DefaultLanguage>
+      </inspire_common:SupportedLanguages>
+      <inspire_common:ResponseLanguage>
+        <inspire_common:Language>spa</inspire_common:Language>
+      </inspire_common:ResponseLanguage>
+    </inspire_vs:ExtendedCapabilities>
+    <Layer>
+      <Title>Servicio WMS de la IDE de la Comunidad de Madrid</Title>
+      <Abstract>Servicio de Visualización de las diferentes capas de Información Geográfica incluidas en los Temas Inspire de los anexos I, II y III de la Directiva 2007/2/CE de la Comunidad de Madrid.</Abstract>
+      <!--Limited list of EPSG projections:-->
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:23030</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:3035</CRS>
+      <CRS>CRS:84</CRS>
+      <EX_GeographicBoundingBox>
+        <westBoundLongitude>-4.645543190807677</westBoundLongitude>
+        <eastBoundLongitude>-3.0113502041850215</eastBoundLongitude>
+        <southBoundLatitude>39.837806200694764</southBoundLatitude>
+        <northBoundLatitude>41.20036065120094</northBoundLatitude>
+      </EX_GeographicBoundingBox>
+      <BoundingBox CRS="CRS:84" minx="-4.645543190807677" miny="39.837806200694764" maxx="-3.0113502041850215" maxy="41.20036065120094"/>
+      <BoundingBox CRS="EPSG:4258" minx="39.83780624146715" miny="-4.645543190807678" maxx="41.20036069289601" maxy="-3.011350204185021"/>
+      <BoundingBox CRS="EPSG:23030" minx="359301.77773890476" miny="4409962.736209319" maxx="499149.69576273934" maxy="4562513.142647419"/>
+      <BoundingBox CRS="EPSG:25830" minx="359201.6485867548" miny="4409755.612093944" maxx="499048.3269655812" maxy="4562304.674308723"/>
+      <BoundingBox CRS="EPSG:4326" minx="39.837806200694764" miny="-4.645543190807677" maxx="41.20036065120094" maxy="-3.0113502041850215"/>
+      <BoundingBox CRS="EPSG:3857" minx="-517139.50245886995" miny="4842400.635794489" maxx="-335221.97133009695" maxy="5041939.884506061"/>
+      <BoundingBox CRS="EPSG:32630" minx="359201.64850441733" miny="4409755.607682386" maxx="499048.326964984" maxy="4562304.669795241"/>
+      <BoundingBox CRS="EPSG:3035" minx="1956189.6816554554" miny="3069395.390592425" maxx="2130264.9008537773" maxy="3231077.68839876"/>
+      <Layer queryable="0" opaque="0" cascaded="1">
+        <Name>Spot-2018-RGB-1m5</Name>
+        <Title>2018 - Mosaico en color natural de imágenes de los satélites Spot 6/7 a 1.5 m</Title>
+        <Abstract>[LANG_ES] Mosaico en color natural de imágenes de los satélites Spot 6/7&lt;br&gt;&#13;
+Fechas de adquisición: 2-24 de septiembre de 2018&lt;br&gt;&#13;
+Resolución: 1.5 m &lt;br&gt;&#13;
+Origen: Consejería de Medio Ambiente  y Ordenación del Territorio. Dirección General de Urbanismo y Suelo.&lt;br&gt;&#13;
+Centro Regional de Información Cartográfica&lt;br&gt;&#13;
+Comunidad de Madrid&lt;br&gt;&#13;
+© AIRBUS DS/Spot Image 2018</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::2018 - Total Community Spot natural colour 1.5m</Keyword>
+          <Keyword>LANG_CA::2018 - Total Comunitat Spot fals color 1.5m</Keyword>
+          <Keyword>LANG_EU::2018 - Erabateko Komunitatea Spot kolore naturala 1.5m</Keyword>
+          <Keyword>LANG_GL::2018 - Total Comunidade Spot cor natural 1.5m</Keyword>
+          <Keyword>BASE_LAYER</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.6086888906879295</westBoundLongitude>
+          <eastBoundLongitude>-3.045835785182416</eastBoundLongitude>
+          <southBoundLatitude>39.87136380368757</southBoundLatitude>
+          <northBoundLatitude>41.172519925279914</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.6086888906879295" miny="39.87136380368757" maxx="-3.045835785182416" maxy="41.172519925279914"/>
+        <BoundingBox CRS="EPSG:25830" minx="365034.75" miny="4414671.75" maxx="496080.75" maxy="4557909.75"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.87136380585988" miny="-4.608688890676574" maxx="41.1725199276832" maxy="-3.0458357851832427"/>
+        <BoundingBox CRS="EPSG:23030" minx="365134.9134464453" miny="4414878.9142303" maxx="496182.07553875144" maxy="4558118.17724087"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.871363844801245" miny="-4.608688890676574" maxx="41.17251996749201" maxy="-3.045835785183242"/>
+        <BoundingBox CRS="EPSG:3857" minx="-513036.9005347331" miny="4847266.7940141605" maxx="-339060.88864652906" maxy="5037821.719254787"/>
+        <BoundingBox CRS="EPSG:32630" minx="365034.7500771221" miny="4414671.754435887" maxx="496080.75000240037" maxy="4557909.754534746"/>
+        <BoundingBox CRS="EPSG:3035" minx="1961536.9118333207" miny="3075722.317817691" maxx="2125404.7579705366" maxy="3227658.831785771"/>
+        <Style>
+          <Name/>
+          <Title/>
+          <LegendURL width="2" height="1">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/srvimagen2/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=Spot-2018-RGB-1m5"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="0" opaque="0" cascaded="1">
+        <Name>orto</Name>
+        <Title>FOTOGRAF_orto-PNOA-f6-2017-etrs89.ecw</Title>
+        <Abstract/>
+        <KeywordList/>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.632660587321446</westBoundLongitude>
+          <eastBoundLongitude>-3.0113502041850215</eastBoundLongitude>
+          <southBoundLatitude>39.85825996032461</southBoundLatitude>
+          <northBoundLatitude>41.16892788413986</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.632660587321446" miny="39.85825996032461" maxx="-3.0113502041850215" maxy="41.16892788413986"/>
+        <BoundingBox CRS="EPSG:25830" minx="363015.30555555515" miny="4413252.75" maxx="499029.30555555515" maxy="4557510.0"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.85825996249477" miny="-4.632660587305454" maxx="41.16892788654248" maxy="-3.0113502041852254"/>
+        <BoundingBox CRS="EPSG:23030" minx="363115.4508364127" miny="4413459.901008596" maxx="499130.6555914418" maxy="4557718.424929605"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.858260001426224" miny="-4.632660587305454" maxx="41.16892792634921" maxy="-3.011350204185226"/>
+        <BoundingBox CRS="EPSG:3857" minx="-515705.4175969108" miny="4845366.336497804" maxx="-335221.9713301197" maxy="5037290.515721537"/>
+        <BoundingBox CRS="EPSG:32630" minx="363015.30563376687" miny="4413252.754434757" maxx="499029.3055561496" maxy="4557510.004534509"/>
+        <BoundingBox CRS="EPSG:3035" minx="1959633.6859263985" miny="3073506.0001369882" maxx="2125363.9723291514" maxy="3230508.646364636"/>
+        <Style>
+          <Name/>
+          <Title/>
+          <LegendURL width="2" height="1">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/srvimagen2/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=orto"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="0" opaque="0" cascaded="1">
+        <Name>orto-2016</Name>
+        <Title>orto-mosaico-LiDAR-2016-etrs89.ecw</Title>
+        <Abstract/>
+        <KeywordList/>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.607463883270563</westBoundLongitude>
+          <eastBoundLongitude>-3.0469652514897394</eastBoundLongitude>
+          <southBoundLatitude>39.872280419405136</southBoundLatitude>
+          <northBoundLatitude>41.17162306103348</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.607463883270563" miny="39.872280419405136" maxx="-3.0469652514897394" maxy="41.17162306103348"/>
+        <BoundingBox CRS="EPSG:25830" minx="365135.7260000001" miny="4414771.739" maxx="495984.2260000001" maxy="4557810.239"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.8722804215776" miny="-4.607463883259428" maxx="41.1716230634366" maxy="-3.0469652514905867"/>
+        <BoundingBox CRS="EPSG:23030" minx="365235.8903725976" miny="4414978.904129247" maxx="496085.55071895453" maxy="4558018.665374646"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.87228046051966" miny="-4.6074638832594275" maxx="41.17162310324486" maxy="-3.0469652514905867"/>
+        <BoundingBox CRS="EPSG:3857" minx="-512900.5333328383" miny="4847399.744873715" maxx="-339186.62026073085" maxy="5037689.085123523"/>
+        <BoundingBox CRS="EPSG:32630" minx="365135.7260770686" miny="4414771.743435965" maxx="495984.2260024595" maxy="4557810.243534683"/>
+        <BoundingBox CRS="EPSG:3035" minx="1961651.9462286741" miny="3075837.679032038" maxx="2125288.974871405" maxy="3227547.7862988776"/>
+        <Style>
+          <Name/>
+          <Title/>
+          <LegendURL width="2" height="1">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/srvimagen2/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=orto-2016"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="0" opaque="0" cascaded="1">
+        <Name>orto-2017</Name>
+        <Title>orto-PNOA-f6-2017-etrs89.ecw</Title>
+        <Abstract/>
+        <KeywordList/>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.632660587321446</westBoundLongitude>
+          <eastBoundLongitude>-3.0113502041850215</eastBoundLongitude>
+          <southBoundLatitude>39.85825996032461</southBoundLatitude>
+          <northBoundLatitude>41.16892788413986</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.632660587321446" miny="39.85825996032461" maxx="-3.0113502041850215" maxy="41.16892788413986"/>
+        <BoundingBox CRS="EPSG:25830" minx="363015.30555555515" miny="4413252.75" maxx="499029.30555555515" maxy="4557510.0"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.85825996249477" miny="-4.632660587305454" maxx="41.16892788654248" maxy="-3.0113502041852254"/>
+        <BoundingBox CRS="EPSG:23030" minx="363115.4508364127" miny="4413459.901008596" maxx="499130.6555914418" maxy="4557718.424929605"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.858260001426224" miny="-4.632660587305454" maxx="41.16892792634921" maxy="-3.011350204185226"/>
+        <BoundingBox CRS="EPSG:3857" minx="-515705.4175969108" miny="4845366.336497804" maxx="-335221.9713301197" maxy="5037290.515721537"/>
+        <BoundingBox CRS="EPSG:32630" minx="363015.30563376687" miny="4413252.754434757" maxx="499029.3055561496" maxy="4557510.004534509"/>
+        <BoundingBox CRS="EPSG:3035" minx="1959633.6859263985" miny="3073506.0001369882" maxx="2125363.9723291514" maxy="3230508.646364636"/>
+        <Style>
+          <Name/>
+          <Title/>
+          <LegendURL width="2" height="1">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/srvimagen2/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=orto-2017"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="0" opaque="0" cascaded="1">
+        <Name>orto-mosaico-50cm-2019-etrs89</Name>
+        <Title>2019 - Total Comunidad 50cm</Title>
+        <Abstract>[LANG_ES]Mosaico de ortofotografías en color natural del vuelo fotogramétrico de 2019 &lt;br&gt;&#13;
+Fecha de vuelo: junio-julio de 2019 &lt;br&gt;&#13;
+Resolución: 50 cm (original de 30 cm, disponible para uso interno de la Comunidad de Madrid y los ayuntamientos de todos sus municipios) &lt;br&gt;&#13;
+Consejería de Medio Ambiente, Ordenación del Territorio y Sostenibilidad &lt;br&gt;&#13;
+Dirección General de Urbanismo &lt;br&gt;&#13;
+Centro Regional de Información Cartográfica &lt;br&gt;&#13;
+Comunidad de Madrid &lt;br&gt;&#13;
+CDO, © COWI &lt;br&gt;</Abstract>
+        <KeywordList>
+          <Keyword>LANG_EN::2019 - Total Community 50cm</Keyword>
+          <Keyword>LANG_CA::2019 - Total Comunitat 50cm</Keyword>
+          <Keyword>LANG_EU::2019 - Erabateko Komunitatea 50cm</Keyword>
+          <Keyword>LANG_GL::2019 - Total Comunidade 50cm</Keyword>
+          <Keyword>BASE_LAYER</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-4.645543190807677</westBoundLongitude>
+          <eastBoundLongitude>-3.035068275160171</eastBoundLongitude>
+          <southBoundLatitude>39.837806200694764</southBoundLatitude>
+          <northBoundLatitude>41.20036065120094</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-4.645543190807677" miny="39.837806200694764" maxx="-3.035068275160171" maxy="41.20036065120094"/>
+        <BoundingBox CRS="EPSG:25830" minx="362000.0" miny="4411000.0" maxx="497000.0" maxy="4561000.0"/>
+        <BoundingBox CRS="EPSG:4258" minx="39.83780620286151" miny="-4.6455431907891285" maxx="41.20036065360946" maxy="-3.0350682751608"/>
+        <BoundingBox CRS="EPSG:23030" minx="362100.1351635776" miny="4411207.131979113" maxx="497101.33367852797" maxy="4561208.454082039"/>
+        <BoundingBox CRS="EPSG:4326" minx="39.83780624177743" miny="-4.64554319078913" maxx="41.20036069343421" maxy="-3.0350682751608"/>
+        <BoundingBox CRS="EPSG:3857" minx="-517139.50245680526" miny="4842400.641750386" maxx="-337862.2549137194" maxy="5041939.89075449"/>
+        <BoundingBox CRS="EPSG:32630" minx="362000.00007869885" miny="4411000.004432989" maxx="497000.0000018398" maxy="4561000.004536574"/>
+        <BoundingBox CRS="EPSG:3035" minx="1957763.118689982" miny="3072151.070419557" maxx="2128982.7989360453" maxy="3229054.3044604687"/>
+        <Style>
+          <Name/>
+          <Title/>
+          <LegendURL width="2" height="1">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/srvimagen2/wms?service=WMS&amp;version=1.3.0&amp;request=GetLegendGraphic&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=orto-mosaico-50cm-2019-etrs89"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMS_Capabilities>

@@ -1,0 +1,2751 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"   xmlns:sld="http://www.opengis.net/sld"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xmlns:ms="http://mapserver.gis.umn.edu/mapserver"   xsi:schemaLocation="http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd  http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/sld_capabilities.xsd  http://mapserver.gis.umn.edu/mapserver http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?service=WMS&amp;version=1.3.0&amp;request=GetSchemaExtension">
+
+<!-- MapServer version 7.7-dev OUTPUT=PNG OUTPUT=JPEG OUTPUT=KML SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=RSVG SUPPORTS=ICONV SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=GEOS SUPPORTS=POINT_Z_M SUPPORTS=PBF INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>WMS</Name>
+  <Title>ICGC - Ortofoto Territorial</Title>
+  <Abstract>Sèrie temporal de les ortofotos de Catalunya de l&#39;ICGC</Abstract>
+  <KeywordList>
+      <Keyword>ortofoto</Keyword>
+      <Keyword> historica</Keyword>
+      <Keyword> Catalunya</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson>webmaster</ContactPerson>
+      <ContactOrganization>Institut Cartogràfic i Geològic de Catalunya</ContactOrganization>
+    </ContactPersonPrimary>
+      <ContactPosition>pointOfContact</ContactPosition>
+    <ContactAddress>
+        <AddressType>Parc de Montjuïc</AddressType>
+        <Address>Parc de Montjuïc</Address>
+        <City>Barcelona</City>
+        <StateOrProvince>Barcelona</StateOrProvince>
+        <PostCode>E-08038</PostCode>
+        <Country>Spain</Country>
+    </ContactAddress>
+      <ContactVoiceTelephone>Phone:(+34) 93 567 15 90</ContactVoiceTelephone>
+      <ContactFacsimileTelephone>Fax:(+34)93 567 15 67</ContactFacsimileTelephone>
+  <ContactElectronicMailAddress>webmastericgc.cat</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>http://www.icgc.cat/condicions</Fees>
+  <AccessConstraints>copyright</AccessConstraints>
+  <MaxWidth>4096</MaxWidth>
+  <MaxHeight>4096</MaxHeight>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>application/x-pdf</Format>
+      <Format>image/svg+xml</Format>
+      <Format>image/tiff</Format>
+      <Format>application/vnd.google-earth.kml+xml</Format>
+      <Format>application/vnd.google-earth.kmz</Format>
+      <Format>application/x-protobuf</Format>
+      <Format>application/json</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>application/geo+json</Format>
+      <Format>application/json</Format>
+      <Format>text/plain</Format>
+      <Format>text/html</Format>
+      <Format>gml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+  </Request>
+  <Exception>
+    <Format>XML</Format>
+    <Format>INIMAGE</Format>
+    <Format>BLANK</Format>
+  </Exception>
+  <sld:UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0" InlineFeature="0" RemoteWCS="0"/>
+  <Layer queryable="1">
+    <Name>icgc_orto_territorial</Name>
+    <Title>ICGC - Ortofoto Territorial</Title>
+    <Abstract>Sèrie temporal de les ortofotos de Catalunya de l&#39;ICGC</Abstract>
+    <KeywordList>
+        <Keyword>ortofoto</Keyword>
+        <Keyword> historica</Keyword>
+        <Keyword> Catalunya</Keyword>
+    </KeywordList>
+    <CRS>EPSG:25831</CRS>
+    <CRS>EPSG:25830</CRS>
+    <CRS>EPSG:4326</CRS>
+    <CRS>EPSG:4258</CRS>
+    <CRS>EPSG:4230</CRS>
+    <CRS>EPSG:3857</CRS>
+    <CRS>EPSG:32631</CRS>
+    <CRS>EPSG:23031</CRS>
+    <EX_GeographicBoundingBox>
+        <westBoundLongitude>0.0242982</westBoundLongitude>
+        <eastBoundLongitude>3.36059</eastBoundLongitude>
+        <southBoundLatitude>40.0615</southBoundLatitude>
+        <northBoundLatitude>43.4006</northBoundLatitude>
+    </EX_GeographicBoundingBox>
+    <BoundingBox CRS="EPSG:25831"
+                minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+    <Attribution>
+        <Title>ICGC</Title>
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.icgc.cat"/>
+    </Attribution>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_color_provisional</Name>
+        <Title>Ortofoto provisional color, últim vol (2026)</Title>
+        <Abstract>Ortofoto provisional color, últim vol (2026)</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>ortoxpres</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>color</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_color_provisional"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_color_vigent</Name>
+        <Title>Ortofoto de Catalunya color vigent</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2025</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2025</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_color_vigent"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2025</Name>
+      <Title>ortofoto_color_2025</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2025</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2025</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2025</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2025</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2025"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2024</Name>
+      <Title>ortofoto_color_2024</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2024</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2024</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2024</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2024</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2024"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2023</Name>
+      <Title>ortofoto_color_2023</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2023</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2023</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2023</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2023</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2023"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2022</Name>
+      <Title>ortofoto_color_2022</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2022</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2022</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2022</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2022</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2022"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2021</Name>
+      <Title>ortofoto_color_2021</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2021</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2021</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2021</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2021</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2021"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2020</Name>
+      <Title>ortofoto_color_2020</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2020</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2020</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2020</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2020</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2020"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_10cm_color_2020</Name>
+        <Title>Ortofoto de Catalunya color 10cm any 2020</Title>
+        <Abstract>Ortoimatge 10cm color del vol de l&#39;àrea metropolitana de Barcelona</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>10cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2020</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_10cm_color_2020"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2019</Name>
+      <Title>ortofoto_color_2019</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2019</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2019</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2019</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2019</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2019"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2018</Name>
+      <Title>ortofoto_color_2018</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2018</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2018</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2018</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2018</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2018"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2017</Name>
+      <Title>ortofoto_color_2017</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2017</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2017</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2017</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2017</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2017"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2016</Name>
+      <Title>ortofoto_color_2016</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2016</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2016</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2016</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2016</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2016"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2015</Name>
+      <Title>ortofoto_color_2015</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2015</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2015</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2015</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2015</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2015"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2014</Name>
+      <Title>ortofoto_color_2014</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2014</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2014</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2014</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2014</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2014"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2013</Name>
+      <Title>ortofoto_color_2013</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2013</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2013</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2013</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2013</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2013"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2012</Name>
+      <Title>ortofoto_color_2012</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2012</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2012</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2012</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2012</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2012"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2011</Name>
+      <Title>ortofoto_color_2011</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2011</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2011</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2011</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2011</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2011"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_10cm_color_2011</Name>
+        <Title>Ortofoto de Catalunya color 10cm any 2011</Title>
+        <Abstract>Ortofoto de Catalunya color 10cm any 2011</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>10cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2011</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_10cm_color_2011"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2010</Name>
+      <Title>ortofoto_color_2010</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2010</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2010</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2010</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2010</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2010"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_10cm_color_2010</Name>
+        <Title>Ortofoto de Catalunya color 10cm any 2010</Title>
+        <Abstract>Ortofoto de Catalunya color 10cm any 2010</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>10cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2010</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_10cm_color_2010"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2009</Name>
+      <Title>ortofoto_color_2009</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_color_2009</Name>
+        <Title>Ortofoto de Catalunya color 25cm any 2009</Title>
+        <Abstract>Ortofoto de Catalunya color 25cm any 2009</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2009</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_color_2009"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2008</Name>
+      <Title>ortofoto_color_2008</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_color_2008</Name>
+        <Title>Ortofoto de Catalunya color 50cm any 2008</Title>
+        <Abstract>Ortofoto de Catalunya color 50cm any 2008</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2008</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_color_2008"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2006-2007</Name>
+      <Title>ortofoto_color_2006-2007</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_color_2007</Name>
+        <Title>Ortofoto de Catalunya color 50cm any 2007</Title>
+        <Abstract>Ortofoto de Catalunya color 50cm any 2007</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2007</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_color_2007"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_color_2006</Name>
+        <Title>Ortofoto de Catalunya color 50cm any 2006</Title>
+        <Abstract>Ortofoto de Catalunya color 50cm any 2006</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2006</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_color_2006"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2004-2005</Name>
+      <Title>ortofoto_color_2004-2005</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_color_2005</Name>
+        <Title>Ortofoto de Catalunya color 50cm any 2005</Title>
+        <Abstract>Ortofoto de Catalunya color 50cm any 2005</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2005</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_color_2005"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_color_2004</Name>
+        <Title>Ortofoto de Catalunya color 50cm any 2004</Title>
+        <Abstract>Ortofoto de Catalunya color 50cm any 2004</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2004</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_color_2004"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_2000-2003</Name>
+      <Title>ortofoto_color_2000-2003</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_color_2003</Name>
+        <Title>Ortofoto de Catalunya color 50cm any 2003</Title>
+        <Abstract>Ortofoto de Catalunya color 50cm any 2003</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2003</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_color_2003"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_color_2002</Name>
+        <Title>Ortofoto de Catalunya color 50cm any 2002</Title>
+        <Abstract>Ortofoto de Catalunya color 50cm any 2002</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2002</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_color_2002"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_color_2001</Name>
+        <Title>Ortofoto de Catalunya color 50cm any 2001</Title>
+        <Abstract>Ortofoto de Catalunya color 50cm any 2001</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2001</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_color_2001"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_color_2000</Name>
+        <Title>Ortofoto de Catalunya color 50cm any 2000</Title>
+        <Abstract>Ortofoto de Catalunya color 50cm any 2000</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2000</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_color_2000"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_blanc_i_negre_1998</Name>
+      <Title>ortofoto_blanc_i_negre_1998</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1998</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1998</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1998</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1998</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1998"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_blanc_i_negre_1994-1997</Name>
+      <Title>ortofoto_blanc_i_negre_1994-1997</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1997</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1997</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1997</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1997</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1997"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1996</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1996</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1996</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1996</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1996"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1995</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1995</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1995</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1995</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1995"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1994</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1994</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1994</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1994</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1994"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_color_1993</Name>
+      <Title>ortofoto_color_1993</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_2.5m_color_1993</Name>
+        <Title>Ortofoto de Catalunya color 2.5m any 1993</Title>
+        <Abstract>Ortofoto de Catalunya color 2.5m any 1993</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>2.5m</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1993</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_2.5m_color_1993"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_blanc_i_negre_1990</Name>
+      <Title>ortofoto_blanc_i_negre_1990</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_2.5m_blanc_i_negre_1990</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 2.5m any 1990</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 2.5m any 1990</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>2.5m</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1990</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_2.5m_blanc_i_negre_1990"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_blanc_i_negre_1983-1989</Name>
+      <Title>ortofoto_blanc_i_negre_1983-1989</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1983</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1983</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1983</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1983</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1983"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1986</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1986</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1986</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1986</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1986"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1987</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1987</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1987</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1987</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1987"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1988</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1988</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1988</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1988</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1988"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1989</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1989</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1989</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1989</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1989"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_blanc_i_negre_1970-1977</Name>
+      <Title>ortofoto_blanc_i_negre_1970-1977</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_blanc_i_negre_1970</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 25cm any 1970</Title>
+        <Abstract>Ortoimatge 25cm BN del vol de la província de Girona de l&#39;any 1970 de la delegació a Catalunya del MOPU</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1970</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_blanc_i_negre_1970"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_blanc_i_negre_1977</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 25cm any 1977</Title>
+        <Abstract>Ortoimatge 25cm BN del vol de la província de Barcelona dels anys 1977-1979 de la Diputació de Barcelona</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1977</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_blanc_i_negre_1977"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_15cm_blanc_i_negre_1975</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 15cm any 1975</Title>
+        <Abstract>Ortoimatge 15cm BN del vol de l&#39;àrea metropolitana de Barcelona de l&#39;any 1975 de la delegació a Catalunya del MOPU</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>15cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1975</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_15cm_blanc_i_negre_1975"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_blanc_i_negre_1956-1957</Name>
+      <Title>ortofoto_blanc_i_negre_1956-1957</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1956</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1956</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1956</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1956</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1956"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_blanc_i_negre_1957</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 50cm any 1957</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 50cm any 1957</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1957</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_blanc_i_negre_1957"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_blanc_i_negre_1945-1946</Name>
+      <Title>ortofoto_blanc_i_negre_1945-1946</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_1m_blanc_i_negre_1945</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 1m any 1945</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 1m any 1945</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>1m</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1945</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_1m_blanc_i_negre_1945"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_1m_blanc_i_negre_1946</Name>
+        <Title>Ortofoto de Catalunya blanc_i_negre 1m any 1946</Title>
+        <Abstract>Ortofoto de Catalunya blanc_i_negre 1m any 1946</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>1m</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1946</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_1m_blanc_i_negre_1946"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_color_serie_anual</Name>
+        <Title>Sèrie temporal anual d&#39;ortofotos color o blanc i negre</Title>
+        <Abstract>Sèrie temporal anual d&#39;ortofotos color o blanc i negre</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>històric</Keyword>
+            <Keyword>anual</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <Dimension name="time" units="ISO8601" nearestValue="0">1945,1946,1956,1957,1970,1975,1977,1983,1986,1987,1988,1989,1990,1993,1994,1995,1996,1997,1998,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_color_serie_anual"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_infraroig_provisional</Name>
+        <Title>Ortofoto provisional infraroig, últim vol (2026)</Title>
+        <Abstract>Ortofoto provisional infraroig, últim vol (2026)</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword> Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>infraroig</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_infraroig_provisional"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_infraroig_vigent</Name>
+        <Title>Ortofoto de Catalunya infraroig vigent</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2025</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2025</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_infraroig_vigent"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2025</Name>
+      <Title>ortofoto_infraroig_2025</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2025</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2025</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2025</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>204</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2025"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2024</Name>
+      <Title>ortofoto_infraroig_2024</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2024</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2024</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2024</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>204</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2024"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2023</Name>
+      <Title>ortofoto_infraroig_2023</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2023</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2023</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2023</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2023</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2023"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2022</Name>
+      <Title>ortofoto_infraroig_2022</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2022</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2022</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2022</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2022</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2022"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2021</Name>
+      <Title>ortofoto_infraroig_2021</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2021</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2021</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2021</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2021</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2021"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2020</Name>
+      <Title>ortofoto_infraroig_2020</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2020</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2020</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2020</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2020</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2020"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2019</Name>
+      <Title>ortofoto_infraroig_2019</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2019</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2019</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2019</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2019</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2019"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2018</Name>
+      <Title>ortofoto_infraroig_2018</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2018</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2018</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2018</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2018</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2018"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2017</Name>
+      <Title>ortofoto_infraroig_2017</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2017</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2017</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2017</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2017</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2017"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2016</Name>
+      <Title>ortofoto_infraroig_2016</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2016</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2016</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2016</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2016</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2016"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2015</Name>
+      <Title>ortofoto_infraroig_2015</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2015</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2015</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2015</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2015</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2015"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2014</Name>
+      <Title>ortofoto_infraroig_2014</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2014</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2014</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2014</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2014</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2014"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2013</Name>
+      <Title>ortofoto_infraroig_2013</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2013</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2013</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2013</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2013</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2013"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2012</Name>
+      <Title>ortofoto_infraroig_2012</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2012</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2012</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2012</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2012</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2012"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2011</Name>
+      <Title>ortofoto_infraroig_2011</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2011</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2011</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2011</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2011</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2011"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2010</Name>
+      <Title>ortofoto_infraroig_2010</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2010</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2010</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2010</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2010</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2010"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2009</Name>
+      <Title>ortofoto_infraroig_2009</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_25cm_infraroig_2009</Name>
+        <Title>Ortofoto de Catalunya infraroig 25cm any 2009</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 25cm any 2009</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2009</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_25cm_infraroig_2009"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2008</Name>
+      <Title>ortofoto_infraroig_2008</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_infraroig_2008</Name>
+        <Title>Ortofoto de Catalunya infraroig 50cm any 2008</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 50cm any 2008</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2008</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_infraroig_2008"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_2007</Name>
+      <Title>ortofoto_infraroig_2007</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_50cm_infraroig_2007</Name>
+        <Title>Ortofoto de Catalunya infraroig 50cm any 2007</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 50cm any 2007</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>50cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2007</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_50cm_infraroig_2007"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>ortofoto_infraroig_1996-1997</Name>
+      <Title>ortofoto_infraroig_1996-1997</Title>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_2.5m_infraroig_1997</Name>
+        <Title>Ortofoto de Catalunya infraroig 2.5m any 1997</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 2.5m any 1997</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>2.5m</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1997</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_2.5m_infraroig_1997"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_2.5m_infraroig_1996</Name>
+        <Title>Ortofoto de Catalunya infraroig 2.5m any 1996</Title>
+        <Abstract>Ortofoto de Catalunya infraroig 2.5m any 1996</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>2.5m</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>1996</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_2.5m_infraroig_1996"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_infraroig_serie_anual</Name>
+        <Title>Sèrie temporal anual d&#39;ortofoto infraroja</Title>
+        <Abstract>Sèrie temporal anual d&#39;ortofoto infraroja</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>històric</Keyword>
+            <Keyword>anual</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <Dimension name="time" units="ISO8601" nearestValue="0">1996,1997,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025</Dimension>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_infraroig_serie_anual"/>
+        </MetadataURL>
+    </Layer>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortofoto_gris_vigent</Name>
+        <Title>Ortofoto de Catalunya gris vigent</Title>
+        <Abstract>Ortofoto de Catalunya gris 25cm any 2025</Abstract>
+        <KeywordList>
+            <Keyword>ortofoto</Keyword>
+            <Keyword>25cm</Keyword>
+            <Keyword>Catalunya</Keyword>
+            <Keyword>ICGC</Keyword>
+            <Keyword>2025</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:3857</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:23031</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>0.0242982</westBoundLongitude>
+            <eastBoundLongitude>3.36059</eastBoundLongitude>
+            <southBoundLatitude>40.0615</southBoundLatitude>
+            <northBoundLatitude>43.4006</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25831"
+                    minx="258878" miny="4.43841e+06" maxx="529200" maxy="4.80531e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms?request=GetMetadata&amp;layer=ortofoto_gris_vigent"/>
+        </MetadataURL>
+    </Layer>
+  </Layer>
+</Capability>
+</WMS_Capabilities>

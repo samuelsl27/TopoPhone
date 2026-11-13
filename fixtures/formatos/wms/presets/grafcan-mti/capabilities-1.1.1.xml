@@ -1,0 +1,1295 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
+ [
+ <!ELEMENT VendorSpecificCapabilities EMPTY>
+ ]>  <!-- end of DOCTYPE declaration -->
+
+<WMT_MS_Capabilities version="1.1.1">
+
+<!-- MapServer version 7.6.4 OUTPUT=PNG OUTPUT=JPEG OUTPUT=KML SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=RSVG SUPPORTS=ICONV SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=THREADS SUPPORTS=GEOS SUPPORTS=POINT_Z_M SUPPORTS=PBF INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>OGC:WMS</Name>
+  <Title>IDECanarias Mapa Topográfico Integrado 1:5.000/1:1.000 Años 2021-2024</Title>
+  <Abstract>Mapa Topográfico Integrado de Canarias.  Año 2024: Lanzarote, La Palma,El Hierro; Año 2023: Gran Canaria, La Gomera y Fuerteventura; Años 2021-2022: Tenerife. Propiedad del Gobierno de Canarias.</Abstract>
+  <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword>CARTOGRAFIA</Keyword>
+      <Keyword>MAPA</Keyword>
+      <Keyword>TOPOGRAFICO</Keyword>
+      <Keyword>1:5.000</Keyword>
+      <Keyword>CANARIAS</Keyword>
+      <Keyword>GRAFCAN</Keyword>
+      <Keyword>CANARY</Keyword>
+      <Keyword>ISLANDS</Keyword>
+      <Keyword>TOPOGRAPHIC</Keyword>
+      <Keyword>MAP</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson></ContactPerson>
+      <ContactOrganization>Cartográfica de Canarias S.A. (GRAFCAN)</ContactOrganization>
+    </ContactPersonPrimary>
+  <ContactElectronicMailAddress>idecanarias@grafcan.com</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>none</Fees>
+  <AccessConstraints>Acceso libre. Prohibido el uso comercial y la descarga masiva de información.</AccessConstraints>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>application/vnd.ogc.wms_xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/html</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <Format>text/plain</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+    <DescribeLayer>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Post>
+        </HTTP>
+      </DCPType>
+    </DescribeLayer>
+    <GetLegendGraphic>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetLegendGraphic>
+    <GetStyles>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetStyles>
+  </Request>
+  <Exception>
+    <Format>application/vnd.ogc.se_xml</Format>
+    <Format>application/vnd.ogc.se_inimage</Format>
+    <Format>application/vnd.ogc.se_blank</Format>
+  </Exception>
+  <VendorSpecificCapabilities />
+  <UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0"/>
+  <Layer queryable="1">
+    <Name>WMS_MTI</Name>
+    <Title>IDECanarias Mapa Topográfico Integrado 1:5.000/1:1.000 Años 2021-2024</Title>
+    <Abstract>Mapa Topográfico Integrado de Canarias.  Año 2024: Lanzarote, La Palma,El Hierro; Año 2023: Gran Canaria, La Gomera y Fuerteventura; Años 2021-2022: Tenerife. Propiedad del Gobierno de Canarias.</Abstract>
+    <KeywordList>
+        <Keyword>WMS</Keyword>
+        <Keyword>CARTOGRAFIA</Keyword>
+        <Keyword>MAPA</Keyword>
+        <Keyword>TOPOGRAFICO</Keyword>
+        <Keyword>1:5.000</Keyword>
+        <Keyword>CANARIAS</Keyword>
+        <Keyword>GRAFCAN</Keyword>
+        <Keyword>CANARY</Keyword>
+        <Keyword>ISLANDS</Keyword>
+        <Keyword>TOPOGRAPHIC</Keyword>
+        <Keyword>MAP</Keyword>
+    </KeywordList>
+    <SRS>EPSG:32628</SRS>
+    <SRS>EPSG:4326</SRS>
+    <SRS>EPSG:32627</SRS>
+    <SRS>EPSG:3857</SRS>
+    <LatLonBoundingBox minx="-18.8104" miny="26.1734" maxx="-12.6975" maxy="30.952" />
+    <BoundingBox SRS="EPSG:32628"
+                minx="135712" miny="2.9e+06" maxx="720000" maxy="3.42429e+06" />
+    <Layer queryable="1">
+      <Name>MUN</Name>
+      <Title>Municipios</Title>
+      <Abstract>Municipios</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="144" height="100">
+          <Format>png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=MUN&amp;format=png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>MUN_01</Name>
+        <Title>Mar</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-26.023" miny="20.5338" maxx="-6.15516" maxy="36.1447" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="-500000" miny="2.3e+06" maxx="1.3e+06" maxy="4e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=MUN_01"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="72" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=MUN_01&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>MUN_02</Name>
+        <Title>Islas</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2114" miny="27.6339" maxx="-13.3327" maxy="29.4249" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188293" miny="3.06064e+06" maxx="661750" maxy="3.25506e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=MUN_02"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="70" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=MUN_02&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="9.97805696859274" max="0" />
+        <!-- WARNING: Only MINSCALEDENOM and no MAXSCALEDENOM specified in the mapfile. A default value of 0 has been returned for the Max ScaleHint but this is probably not what you want. -->
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>MUN_03</Name>
+        <Title>Municipios (superficies)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2114" miny="27.6339" maxx="-13.3327" maxy="29.4249" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188293" miny="3.06064e+06" maxx="661751" maxy="3.25506e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=MUN_03"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>MUN_04</Name>
+        <Title>Municipios (límites)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1987" miny="27.6881" maxx="-13.4507" maxy="29.1439" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188680" miny="3.06664e+06" maxx="650712" maxy="3.22393e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=MUN_04"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="144" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=MUN_04&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>MUN_05</Name>
+        <Title>Línea de costa</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2114" miny="27.6339" maxx="-13.3327" maxy="29.4249" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188293" miny="3.06064e+06" maxx="661751" maxy="3.25506e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=MUN_05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="135" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=MUN_05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="74.8354272644456" />
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>FONDO</Name>
+      <Title>Recintos de fondo</Title>
+      <Abstract>Recintos de fondo</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="230" height="575">
+          <Format>png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=FONDO&amp;format=png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FONDO_01</Name>
+        <Title>Zonas arboladas (generalización)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1658" miny="27.6939" maxx="-13.4757" maxy="29.1979" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="192050" miny="3.06719e+06" maxx="648206" maxy="3.22991e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=FONDO_01"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="230" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=FONDO_01&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="4.9895273871448" max="0" />
+        <!-- WARNING: Only MINSCALEDENOM and no MAXSCALEDENOM specified in the mapfile. A default value of 0 has been returned for the Max ScaleHint but this is probably not what you want. -->
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FONDO_02</Name>
+        <Title>Recintos de suelo urbano</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1974" miny="27.635" maxx="-13.4222" maxy="29.412" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189615" miny="3.06073e+06" maxx="653086" maxy="3.25363e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=FONDO_02"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="145" height="125">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=FONDO_02&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="2.49451424214819" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FONDO_03</Name>
+        <Title>Zonas arboladas</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1686" miny="27.6759" maxx="-13.4478" maxy="29.2709" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="191994" miny="3.06521e+06" maxx="650815" maxy="3.238e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=FONDO_03"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="134" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=FONDO_03&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FONDO_04</Name>
+        <Title>Zonas delimitadas</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2015" miny="27.6345" maxx="-13.4166" maxy="29.4244" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189257" miny="3.06068e+06" maxx="653617" maxy="3.25501e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=FONDO_04"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="202" height="325">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=FONDO_04&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="2.49451424214819" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FONDO_05</Name>
+        <Title>Zonas ajardinadas</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1489" miny="27.637" maxx="-13.4283" maxy="29.271" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="193905" miny="3.06083e+06" maxx="652703" maxy="3.23801e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=FONDO_05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="144" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=FONDO_05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="9.97805696859274" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FONDO_06</Name>
+        <Title>Palmeral</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1686" miny="27.6759" maxx="-13.4478" maxy="29.2709" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="191994" miny="3.06521e+06" maxx="650815" maxy="3.238e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=FONDO_06"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="101" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=FONDO_06&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FONDO_07</Name>
+        <Title>Zonas de cartografía 1:1.000</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1509" miny="27.6355" maxx="-13.443" maxy="29.2443" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="193633" miny="3.06068e+06" maxx="651314" maxy="3.23505e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=FONDO_07"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="210" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=FONDO_07&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="3.9912227874371" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>FONDO_08</Name>
+        <Title>Distribuidor del Mapa Topográfico Integrado</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2147" miny="27.6281" maxx="-13.33" maxy="29.4334" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188000" miny="3.06e+06" maxx="662000" maxy="3.256e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=FONDO_08"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>CONS</Name>
+      <Title>Construcciones</Title>
+      <Abstract>Construcciones</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="385" height="2925">
+          <Format>png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS&amp;format=png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_01</Name>
+        <Title>Zonas construidas (generalización)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1494" miny="27.6362" maxx="-13.4429" maxy="29.2721" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="193866" miny="3.06075e+06" maxx="651282" maxy="3.23814e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_01"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="143" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_01&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="49.8902848429637" max="149.670854528891" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_02</Name>
+        <Title>Construcciones (generalización)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1465" miny="27.6368" maxx="-13.4442" maxy="29.2437" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="194064" miny="3.06081e+06" maxx="651199" maxy="3.23499e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_02"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="204" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_02&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="24.9451424214819" max="49.8897859401153" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_03</Name>
+        <Title>Edificaciones (generalización)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1923" miny="27.6357" maxx="-13.4264" maxy="29.2436" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189604" miny="3.0608e+06" maxx="652930" maxy="3.23497e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_03"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="170" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_03&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="7.48354272644456" max="24.9451424214819" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_04</Name>
+        <Title>Edificaciones</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1985" miny="27.6357" maxx="-13.4177" maxy="29.412" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189508" miny="3.0608e+06" maxx="653524" maxy="3.25363e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_04"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="199" height="75">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_04&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_05</Name>
+        <Title>Invernaderos/Diques</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2012" miny="27.6346" maxx="-13.4187" maxy="29.4118" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189244" miny="3.06069e+06" maxx="653431" maxy="3.25361e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="119" height="50">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="9.97805696859274" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_06</Name>
+        <Title>Cubiertas</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1506" miny="27.6366" maxx="-13.4435" maxy="29.2439" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="193661" miny="3.0608e+06" maxx="651266" maxy="3.235e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_06"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="385" height="50">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_06&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="0.748354272644456" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_07</Name>
+        <Title>Construcciones singulares</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1975" miny="27.6367" maxx="-13.444" maxy="29.412" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189604" miny="3.06092e+06" maxx="650973" maxy="3.25363e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_07"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="380" height="50">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_07&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="3.99072388458867" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_08</Name>
+        <Title>Etiquetas de cubiertas</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1506" miny="27.6366" maxx="-13.4435" maxy="29.2439" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="193661" miny="3.0608e+06" maxx="651266" maxy="3.235e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_08"/>
+        </MetadataURL>
+        <ScaleHint min="0" max="0.498902848429637" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_09</Name>
+        <Title>Patios, lucernarios</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1478" miny="27.6379" maxx="-13.4439" maxy="29.2438" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="193931" miny="3.06094e+06" maxx="651235" maxy="3.23499e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_09"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="144" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_09&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="1.99511249087012" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_10</Name>
+        <Title>Construcciones</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2012" miny="27.6346" maxx="-13.4187" maxy="29.4118" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189244" miny="3.06069e+06" maxx="653431" maxy="3.25361e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_10"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="250" height="575">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_10&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="3.9912227874371" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_11</Name>
+        <Title>Construcciones (líneas)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.203" miny="27.636" maxx="-13.4168" maxy="29.4189" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189096" miny="3.06084e+06" maxx="653597" maxy="3.25439e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_11"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="311" height="350">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_11&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="1.49670854528891" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_12</Name>
+        <Title>Conducciones</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1527" miny="27.6416" maxx="-13.431" maxy="29.4119" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="193958" miny="3.06135e+06" maxx="652236" maxy="3.25362e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_12"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="169" height="125">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_12&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="1.99561139371855" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_13</Name>
+        <Title>Breaklines</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2111" miny="27.6339" maxx="-13.3327" maxy="29.4249" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188321" miny="3.06064e+06" maxx="661751" maxy="3.25506e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_13"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="303" height="250">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_13&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="1.49670854528891" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_14</Name>
+        <Title>Lineas aeropuerto</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-17.9207" miny="27.8097" maxx="-13.5979" maxy="28.9639" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="215274" miny="3.07947e+06" maxx="636629" maxy="3.20399e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_14"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="149" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_14&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="3.99172169028553" max="39.912227874371" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CONS_15</Name>
+        <Title>Entidades puntuales</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.203" miny="27.6356" maxx="-13.4316" maxy="29.4096" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189062" miny="3.06081e+06" maxx="652181" maxy="3.25337e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CONS_15"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="281" height="1275">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CONS_15&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="0.748354272644456" />
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>CN</Name>
+      <Title>Altimetría</Title>
+      <Abstract>Altimetría</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="260" height="475">
+          <Format>png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN&amp;format=png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CN_01</Name>
+        <Title>Curvas de nivel (generalización 200 metros)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2015" miny="27.6413" maxx="-13.4549" maxy="29.4088" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189205" miny="3.06143e+06" maxx="649916" maxy="3.25328e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CN_01"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="211" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN_01&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="59.8688407144049" max="174.615996950373" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CN_02</Name>
+        <Title>Curvas de nivel (generalización 100 metros)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2045" miny="27.6409" maxx="-13.4411" maxy="29.4106" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188925" miny="3.06139e+06" maxx="651256" maxy="3.25348e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CN_02"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="211" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN_02&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="39.9127267772194" max="59.8683418115564" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CN_03</Name>
+        <Title>Curvas de nivel (generalización 10 metros)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2096" miny="27.6384" maxx="-13.3338" maxy="29.4188" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188455" miny="3.06113e+06" maxx="661655" maxy="3.25439e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CN_03"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="211" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN_03&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="15.9653900525968" max="39.912227874371" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CN_04</Name>
+        <Title>Curvas de nivel 5.000 de Tenerife</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-16.9304" miny="27.9949" maxx="-16.1128" maxy="28.6055" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="311230" miny="3.09812e+06" maxx="390592" maxy="3.16479e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CN_04"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="133" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN_04&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="3.74177136322228" max="15.9648911497484" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CN_05</Name>
+        <Title>Curvas de nivel 5.000 de Gran Canaria</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-15.8366" miny="27.7329" maxx="-15.358" maxy="28.1817" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="417883" miny="3.06789e+06" maxx="464717" maxy="3.11738e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CN_05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="133" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN_05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="3.74177136322228" max="15.9648911497484" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CN_06</Name>
+        <Title>Curvas de nivel 5.000</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2114" miny="27.6339" maxx="-13.3328" maxy="29.424" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188293" miny="3.06064e+06" maxx="661749" maxy="3.25496e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CN_06"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="133" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN_06&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="3.74177136322228" max="15.9648911497484" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CN_07</Name>
+        <Title>Curvas de nivel 5.000/1.000 de Tenerife</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-16.9304" miny="27.9949" maxx="-16.1128" maxy="28.6055" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="311230" miny="3.09812e+06" maxx="390592" maxy="3.16479e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CN_07"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="260" height="100">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN_07&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CN_08</Name>
+        <Title>Curvas de nivel 5.000/1.000 de Gran Canaria</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-15.8366" miny="27.7329" maxx="-15.358" maxy="28.1817" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="417883" miny="3.06789e+06" maxx="464717" maxy="3.11738e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CN_08"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="260" height="100">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN_08&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>CN_09</Name>
+        <Title>Curvas de nivel 5.000/1.000</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2114" miny="27.6339" maxx="-13.3328" maxy="29.424" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188293" miny="3.06064e+06" maxx="661749" maxy="3.25496e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=CN_09"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="260" height="100">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=CN_09&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>PA</Name>
+        <Title>Puntos acotados</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2113" miny="27.6341" maxx="-13.333" maxy="29.424" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188306" miny="3.06065e+06" maxx="661732" maxy="3.25497e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=PA"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="134" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=PA&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="2.49451424214819" />
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>HID</Name>
+      <Title>Hidrografía</Title>
+      <Abstract>Hidrografía</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="192" height="375">
+          <Format>png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=HID&amp;format=png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HID_01</Name>
+        <Title>Hidrografía (generalización)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.0634" miny="27.7046" maxx="-13.4545" maxy="29.4214" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="202669" miny="3.06812e+06" maxx="649942" maxy="3.25467e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=HID_01"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="192" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=HID_01&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="9.97855587144117" max="99.7805696859274" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HID_02</Name>
+        <Title>Hidrografía</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1969" miny="27.6368" maxx="-13.4199" maxy="29.4214" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189694" miny="3.06093e+06" maxx="653297" maxy="3.25467e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=HID_02"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="174" height="200">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=HID_02&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HID_03</Name>
+        <Title>Hidrografía no vista</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.0232" miny="27.7025" maxx="-13.4764" maxy="29.1545" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="205807" miny="3.06781e+06" maxx="648194" maxy="3.22511e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=HID_03"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="163" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=HID_03&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="4.98902848429637" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>HID_04</Name>
+        <Title>Hidrografía (líneas)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2054" miny="27.6394" maxx="-13.4229" maxy="29.4221" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188864" miny="3.06123e+06" maxx="653005" maxy="3.25475e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=HID_04"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="145" height="125">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=HID_04&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>VIAL</Name>
+      <Title>Viario</Title>
+      <Abstract>Viario</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="274" height="750">
+          <Format>png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=VIAL&amp;format=png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>VIAL_01</Name>
+        <Title>Viales (generalización)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.191" miny="27.6352" maxx="-13.4217" maxy="29.2324" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189697" miny="3.06075e+06" maxx="653402" maxy="3.23373e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=VIAL_01"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="124" height="100">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=VIAL_01&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>VIAL_02</Name>
+        <Title>Viales</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1993" miny="27.6352" maxx="-13.4208" maxy="29.2869" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189054" miny="3.06076e+06" maxx="653408" maxy="3.23977e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=VIAL_02"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="109" height="150">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=VIAL_02&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>VIAL_03</Name>
+        <Title>Viales no vistos</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.0228" miny="27.7201" maxx="-13.4689" maxy="29.1176" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="205741" miny="3.06976e+06" maxx="648984" maxy="3.22102e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=VIAL_03"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="120" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=VIAL_03&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="9.97805696859274" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>VIAL_04</Name>
+        <Title>Isletas de vial</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1907" miny="27.6361" maxx="-13.4327" maxy="29.2391" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189746" miny="3.06084e+06" maxx="652327" maxy="3.23447e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=VIAL_04"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="250" height="25">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=VIAL_04&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="9.97805696859274" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>VIAL_05</Name>
+        <Title>Viales (líneas)</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2035" miny="27.6346" maxx="-13.4164" maxy="29.4218" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189050" miny="3.0607e+06" maxx="653635" maxy="3.25472e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=VIAL_05"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="232" height="225">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=VIAL_05&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="1.99561139371855" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>VIAL_06</Name>
+        <Title>Líneas decoración</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2074" miny="27.6347" maxx="-13.418" maxy="29.4223" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188680" miny="3.06072e+06" maxx="653482" maxy="3.25477e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=VIAL_06"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="274" height="225">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=VIAL_06&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="0.997805696859274" />
+      </Layer>
+    </Layer>
+    <Layer queryable="1">
+      <Name>TEXTOS</Name>
+      <Title>Textos/toponimia</Title>
+      <Abstract>Textos/toponimia</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>TXT_01</Name>
+        <Title>Textos de entidades puntuales</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.203" miny="27.6356" maxx="-13.4316" maxy="29.4096" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189062" miny="3.06081e+06" maxx="652181" maxy="3.25337e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=TXT_01"/>
+        </MetadataURL>
+        <ScaleHint min="0" max="1.24725712107409" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>TXT_03</Name>
+        <Title>Etiquetas de uso rústico</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2053" miny="27.6353" maxx="-13.3341" maxy="29.4246" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188890" miny="3.06078e+06" maxx="661622" maxy="3.25503e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=TXT_03"/>
+        </MetadataURL>
+        <ScaleHint min="0" max="1.24725712107409" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>TXT_04</Name>
+        <Title>Textos de zonas delimitadas</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2015" miny="27.6345" maxx="-13.4166" maxy="29.4244" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189257" miny="3.06068e+06" maxx="653617" maxy="3.25501e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=TXT_04"/>
+        </MetadataURL>
+        <ScaleHint min="0" max="2.49451424214819" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>TXT_05</Name>
+        <Title>Etiquetas de construcciones/viales</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2113" miny="27.6353" maxx="-13.3314" maxy="29.425" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188300" miny="3.06079e+06" maxx="661881" maxy="3.25507e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=TXT_05"/>
+        </MetadataURL>
+        <ScaleHint min="0" max="0.498902848429637" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>TXT_06</Name>
+        <Title>Textos/Toponimia</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2113" miny="27.6353" maxx="-13.3314" maxy="29.425" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188300" miny="3.06079e+06" maxx="661881" maxy="3.25507e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=TXT_06"/>
+        </MetadataURL>
+        <ScaleHint min="0" max="9.97805696859274" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>TXT_07</Name>
+        <Title>Números de portal</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1497" miny="27.6377" maxx="-13.4311" maxy="29.2709" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="193836" miny="3.06092e+06" maxx="652436" maxy="3.238e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=TXT_07"/>
+        </MetadataURL>
+        <ScaleHint min="0" max="0.498902848429637" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>TXT_08</Name>
+        <Title>Ejes de vía</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1996" miny="27.6351" maxx="-13.4207" maxy="29.2964" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189051" miny="3.06075e+06" maxx="653405" maxy="3.24083e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=TXT_08"/>
+        </MetadataURL>
+        <ScaleHint min="0" max="1.49670854528891" />
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>TXT_09</Name>
+        <Title>Textos generalizados</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.1973" miny="27.6392" maxx="-13.3359" maxy="29.4077" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="189611" miny="3.0612e+06" maxx="661468" maxy="3.25316e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan2.grafcan.es/ServicioWMS/MTI?request=GetMetadata&amp;layer=TXT_09"/>
+        </MetadataURL>
+      </Layer>
+    </Layer>
+  </Layer>
+</Capability>
+</WMT_MS_Capabilities>

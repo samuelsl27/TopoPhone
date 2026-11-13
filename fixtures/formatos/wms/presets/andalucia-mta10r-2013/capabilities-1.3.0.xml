@@ -1,0 +1,479 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<WMS_Capabilities version="1.3.0" updateSequence="1"  xmlns="http://www.opengis.net/wms"   xmlns:sld="http://www.opengis.net/sld"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xmlns:ms="http://mapserver.gis.umn.edu/mapserver"   xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0"   xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0"   xsi:schemaLocation="http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd  http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/sld_capabilities.xsd  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd http://mapserver.gis.umn.edu/mapserver https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;service=WMS&amp;version=1.3.0&amp;request=GetSchemaExtension">
+
+<!-- MapServer version 6.2.2 OUTPUT=GIF OUTPUT=PNG OUTPUT=JPEG OUTPUT=KML SUPPORTS=PROJ SUPPORTS=GD SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=ICONV SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=THREADS SUPPORTS=GEOS INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>WMS</Name>
+  <Title>IDEAndalucía Mapa Topográfico de Andalucía 1:10.000 ráster (Año 2013)</Title>
+  <Abstract>Nodo del Instituto de Estadística y Cartografía de Andalucía. Consejería de Economía y Conocimiento. Junta de Andalucía. Servicio WMS del Mapa Topográfico de Andalucía 1:10.000 ráster (Año 2013). Integrado en la Infraestructura de Datos Espaciales de Andalucía siguiendo las directrices del Sistema Estadístico y Cartográfico de Andalucía. 
+			 El Mapa Topográfico de Andalucía (MTA) se concibe como una base de carácter topográfico, que recoge los elementos generales que se encuentran en el territorio, y orientada para su explotación por sistemas informáticos así como para la elaboración de salidas cartográficas (mapas). La escala de referencia es 1/10.000, por lo que el nivel de detalle y la precisión geométrica de las entidades deben ser acordes a este valor. La extensión de su campo de aplicación se limita al territorio de la comunidad autónoma de Andalucía. Con objeto de facilitar el intercambio de datos con otras comunidades autónomas y siguiendo las premisas del Consejo Superior Geográfico (CSG), el modelo de datos del MTA parte de las definiciones establecidas en la Base Topográfica de Andalucía (BTA) desarrolladas por la CENG. Actualmente, el modelo de la BTA se encuentra en fase de mejora tras haber sido adoptado en algunas CCAA y con objeto de acercarlo a las especificaciones de INSPIRE. Mapa maquetado y editado de la Base Cartográfica de Andalucía, se le ha asignado una simbología a las distintas geometrías y maquetado la toponimia.</Abstract>
+  <KeywordList>
+      <Keyword vocabulary="GEMET INSPIRE themes">Nombres geográficos</Keyword>
+      <Keyword vocabulary="GEMET INSPIRE themes">Unidades administrativas</Keyword>
+      <Keyword vocabulary="GEMET INSPIRE themes">Redes de transporte</Keyword>
+      <Keyword vocabulary="GEMET INSPIRE themes">Hidrografía</Keyword>
+      <Keyword vocabulary="GEMET INSPIRE themes">Elevaciones</Keyword>
+      <Keyword vocabulary="GEMET INSPIRE themes">Edificios</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson>Responsable IDEAndalucía</ContactPerson>
+      <ContactOrganization>Instituto de Estadística y Cartografía de Andalucía. Consejería de Economía y Conocimiento. Junta de Andalucía</ContactOrganization>
+    </ContactPersonPrimary>
+      <ContactPosition>Creador</ContactPosition>
+    <ContactAddress>
+        <AddressType>Postal</AddressType>
+        <Address>C/ Leonardo Da Vinci, nº 21. Isla de La Cartuja</Address>
+        <City>Sevilla</City>
+        <StateOrProvince>Sevilla</StateOrProvince>
+        <PostCode>41071</PostCode>
+        <Country>España</Country>
+    </ContactAddress>
+      <ContactVoiceTelephone>+34955033800</ContactVoiceTelephone>
+      <ContactFacsimileTelephone>+34955033816</ContactFacsimileTelephone>
+  </ContactInformation>
+  <MaxWidth>2048</MaxWidth>
+  <MaxHeight>2048</MaxHeight>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/gif</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>application/x-pdf</Format>
+      <Format>image/svg+xml</Format>
+      <Format>image/tiff</Format>
+      <Format>application/vnd.google-earth.kml+xml</Format>
+      <Format>application/vnd.google-earth.kmz</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/html</Format>
+      <Format>text/plain</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+  </Request>
+  <Exception>
+    <Format>XML</Format>
+    <Format>INIMAGE</Format>
+    <Format>BLANK</Format>
+  </Exception>
+  <inspire_vs:ExtendedCapabilities>
+    <inspire_common:ResourceLocator>
+      <inspire_common:URL>https://www.ideandalucia.es/wms/mta10r_2001-2013?</inspire_common:URL>
+    </inspire_common:ResourceLocator>
+    <inspire_common:ResourceType>service</inspire_common:ResourceType>
+    <inspire_common:TemporalReference>
+      <inspire_common:DateOfLastRevision>2016-02-09</inspire_common:DateOfLastRevision>
+    </inspire_common:TemporalReference>
+    <inspire_common:Conformity>
+      <inspire_common:Specification>
+        <inspire_common:Title>-</inspire_common:Title>
+        <inspire_common:DateOfLastRevision>2016-02-09</inspire_common:DateOfLastRevision>
+      </inspire_common:Specification>
+      <inspire_common:Degree>notEvaluated</inspire_common:Degree>
+    </inspire_common:Conformity>
+    <inspire_common:MetadataPointOfContact>
+      <inspire_common:OrganisationName>Instituto de Estadística y Cartografía de Andalucía. Consejería de Economía y Conocimiento. Junta de Andalucía</inspire_common:OrganisationName>
+      <inspire_common:EmailAddress>cartografia@juntadeandalucia.es</inspire_common:EmailAddress>
+    </inspire_common:MetadataPointOfContact>
+      <inspire_common:MetadataDate>2016-02-09</inspire_common:MetadataDate>
+    <inspire_common:SpatialDataServiceType>view</inspire_common:SpatialDataServiceType>
+    <inspire_common:MandatoryKeyword xsi:type='inspire_common:classificationOfSpatialDataService'>
+      <inspire_common:KeywordValue>infoMapAccessService,infoManagementService</inspire_common:KeywordValue>
+    </inspire_common:MandatoryKeyword>
+    <inspire_common:SupportedLanguages>
+      <inspire_common:DefaultLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:DefaultLanguage>
+    </inspire_common:SupportedLanguages>
+    <inspire_common:ResponseLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:ResponseLanguage>
+  </inspire_vs:ExtendedCapabilities>
+  <Layer>
+    <Name>mta10r_2001-2013</Name>
+    <Title>IDEAndalucía Mapa Topográfico de Andalucía 1:10.000 ráster (Año 2013)</Title>
+    <Abstract>Nodo del Instituto de Estadística y Cartografía de Andalucía. Consejería de Economía y Conocimiento. Junta de Andalucía. Servicio WMS del Mapa Topográfico de Andalucía 1:10.000 ráster (Año 2013). Integrado en la Infraestructura de Datos Espaciales de Andalucía siguiendo las directrices del Sistema Estadístico y Cartográfico de Andalucía. 
+			 El Mapa Topográfico de Andalucía (MTA) se concibe como una base de carácter topográfico, que recoge los elementos generales que se encuentran en el territorio, y orientada para su explotación por sistemas informáticos así como para la elaboración de salidas cartográficas (mapas). La escala de referencia es 1/10.000, por lo que el nivel de detalle y la precisión geométrica de las entidades deben ser acordes a este valor. La extensión de su campo de aplicación se limita al territorio de la comunidad autónoma de Andalucía. Con objeto de facilitar el intercambio de datos con otras comunidades autónomas y siguiendo las premisas del Consejo Superior Geográfico (CSG), el modelo de datos del MTA parte de las definiciones establecidas en la Base Topográfica de Andalucía (BTA) desarrolladas por la CENG. Actualmente, el modelo de la BTA se encuentra en fase de mejora tras haber sido adoptado en algunas CCAA y con objeto de acercarlo a las especificaciones de INSPIRE. Mapa maquetado y editado de la Base Cartográfica de Andalucía, se le ha asignado una simbología a las distintas geometrías y maquetado la toponimia.</Abstract>
+    <KeywordList>
+        <Keyword vocabulary="GEMET INSPIRE themes">Nombres geográficos</Keyword>
+        <Keyword vocabulary="GEMET INSPIRE themes">Unidades administrativas</Keyword>
+        <Keyword vocabulary="GEMET INSPIRE themes">Redes de transporte</Keyword>
+        <Keyword vocabulary="GEMET INSPIRE themes">Hidrografía</Keyword>
+        <Keyword vocabulary="GEMET INSPIRE themes">Elevaciones</Keyword>
+        <Keyword vocabulary="GEMET INSPIRE themes">Edificios</Keyword>
+    </KeywordList>
+    <CRS>EPSG:4230</CRS>
+    <CRS>EPSG:4258</CRS>
+    <CRS>EPSG:4326</CRS>
+    <CRS>EPSG:23029</CRS>
+    <CRS>EPSG:25830</CRS>
+    <CRS>EPSG:23030</CRS>
+    <CRS>EPSG:23031</CRS>
+    <CRS>EPSG:25829</CRS>
+    <CRS>EPSG:25830</CRS>
+    <CRS>EPSG:25831</CRS>
+    <CRS>EPSG:32629</CRS>
+    <CRS>EPSG:32630</CRS>
+    <CRS>EPSG:32631</CRS>
+    <CRS>EPSG:3857</CRS>
+    <EX_GeographicBoundingBox>
+        <westBoundLongitude>-7.59155</westBoundLongitude>
+        <eastBoundLongitude>-1.60464</eastBoundLongitude>
+        <southBoundLatitude>35.9466</southBoundLatitude>
+        <northBoundLatitude>38.747</northBoundLatitude>
+    </EX_GeographicBoundingBox>
+    <BoundingBox CRS="EPSG:4230"
+                minx="35.9479" miny="-7.59018" maxx="38.7482" maxy="-1.60341" />
+    <BoundingBox CRS="EPSG:4258"
+                minx="35.9466" miny="-7.59155" maxx="38.747" maxy="-1.60464" />
+    <BoundingBox CRS="EPSG:4326"
+                minx="35.9466" miny="-7.59155" maxx="38.747" maxy="-1.60464" />
+    <BoundingBox CRS="EPSG:23029"
+                minx="622673" miny="3.97937e+06" maxx="1.16258e+06" maxy="4.31405e+06" />
+    <BoundingBox CRS="EPSG:25830"
+                minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+    <BoundingBox CRS="EPSG:23030"
+                minx="100510" miny="3.9873e+06" maxx="621385" maxy="4.28891e+06" />
+    <BoundingBox CRS="EPSG:23031"
+                minx="-442120" miny="3.9965e+06" maxx="99815.2" maxy="4.3325e+06" />
+    <BoundingBox CRS="EPSG:25829"
+                minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+    <BoundingBox CRS="EPSG:25830"
+                minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+    <BoundingBox CRS="EPSG:25831"
+                minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+    <BoundingBox CRS="EPSG:32629"
+                minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+    <BoundingBox CRS="EPSG:32630"
+                minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+    <BoundingBox CRS="EPSG:32631"
+                minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+    <BoundingBox CRS="EPSG:3857"
+                minx="-845088" miny="4.29327e+06" maxx="-178628" maxy="4.6855e+06" />
+    <Attribution>
+        <Title>Infraestructura de Datos Espaciales de Andalucía (IDEAndalucía)</Title>
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es"/>
+    </Attribution>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="258" height="16126">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mta10r_2001-2013&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>distribucion_topograficos_2001-2013</Name>
+        <Title>Distribución de Hojas Topográficos 2001 y 2013</Title>
+        <Abstract>Distribución de hojas 1:10.000 disponibles del Mapa Topográfico de Andalucía 1:10.000 ráster (Año 2001 y Año 2013) las hojas del año 2013 tienen una tonalidad más oscura que las del año 2001</Abstract>
+        <KeywordList>
+            <Keyword>WMS</Keyword>
+            <Keyword>Andalucía</Keyword>
+            <Keyword>Mapa 1:10.0000</Keyword>
+            <Keyword>Cartografía Territorial</Keyword>
+            <Keyword>Cartografía Base</Keyword>
+            <Keyword>Cartografía Básica</Keyword>
+            <Keyword>BCA</Keyword>
+            <Keyword>BTA</Keyword>
+            <Keyword>Mapa Topográfico</Keyword>
+            <Keyword>Base Cartográfica de Andalucía</Keyword>
+            <Keyword>Ráster</Keyword>
+            <Keyword>2013</Keyword>
+            <Keyword>2001</Keyword>
+        </KeywordList>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:23029</CRS>
+        <CRS>epsg:25830</CRS>
+        <CRS>EPSG:23030</CRS>
+        <CRS>EPSG:23031</CRS>
+        <CRS>EPSG:25829</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:32629</CRS>
+        <CRS>EPSG:32630</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:3857</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-7.59155</westBoundLongitude>
+            <eastBoundLongitude>-1.60464</eastBoundLongitude>
+            <southBoundLatitude>35.9466</southBoundLatitude>
+            <northBoundLatitude>38.747</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4230"
+                    minx="35.9479" miny="-7.59018" maxx="38.7482" maxy="-1.60341" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="35.9466" miny="-7.59155" maxx="38.747" maxy="-1.60464" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="35.9466" miny="-7.59155" maxx="38.747" maxy="-1.60464" />
+        <BoundingBox CRS="EPSG:23029"
+                    minx="622673" miny="3.97937e+06" maxx="1.16258e+06" maxy="4.31405e+06" />
+        <BoundingBox CRS="epsg:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="100510" miny="3.9873e+06" maxx="621385" maxy="4.28891e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="-442120" miny="3.9965e+06" maxx="99815.2" maxy="4.3325e+06" />
+        <BoundingBox CRS="EPSG:25829"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox CRS="EPSG:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox CRS="EPSG:32629"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox CRS="EPSG:32630"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox CRS="EPSG:32631"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-845088" miny="4.29327e+06" maxx="-178628" maxy="4.6855e+06" />
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="258" height="44">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=distribucion_topograficos_2001-2013&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>50000</MinScaleDenominator>
+        <MaxScaleDenominator>5e+06</MaxScaleDenominator>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mta10_raster_2001</Name>
+        <Title>Topográfico año 2001 color</Title>
+        <Abstract>El Mapa Topográfico de Andalucía 1:10.000 es la cartografía básica de la Comunidad Autónoma. Creado y actualizado periódicamente por el Instituto de Cartografía de Andalucía, actualmente Instituto de Estadística y Cartografía de Andalucía, tiene una cobertura territorial completa y continua de todo el territorio andaluz. Está compuesto por un mosaico de hojas realizadas por restitución fotogramétricas (a partir de las fotografías aéreas realizadas específicamente para este fin) de vuelos a escala 1:25.000 y, actualizado con vuelos a escala 1:20.000, se distribuye por hojas o ficheros digitales individuales en formato ráster tiff en blanco y negro o color.</Abstract>
+        <KeywordList>
+            <Keyword>WMS</Keyword>
+            <Keyword>Andalucía</Keyword>
+            <Keyword>Mapa 1:10.000</Keyword>
+            <Keyword>Cartografía Territorial</Keyword>
+            <Keyword>Cartografía Base</Keyword>
+            <Keyword>Cartografía Básica</Keyword>
+            <Keyword>BCA</Keyword>
+            <Keyword>BTA</Keyword>
+            <Keyword>Mapa Topográfico</Keyword>
+            <Keyword>Base Cartográfica de Andalucía</Keyword>
+            <Keyword>Ráster</Keyword>
+            <Keyword>2001</Keyword>
+        </KeywordList>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:23029</CRS>
+        <CRS>epsg:25830</CRS>
+        <CRS>EPSG:23030</CRS>
+        <CRS>EPSG:23031</CRS>
+        <CRS>EPSG:25829</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:32629</CRS>
+        <CRS>EPSG:32630</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:3857</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-7.59268</westBoundLongitude>
+            <eastBoundLongitude>-1.60594</eastBoundLongitude>
+            <southBoundLatitude>35.9447</southBoundLatitude>
+            <northBoundLatitude>38.7451</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4230"
+                    minx="35.946" miny="-7.5913" maxx="38.7464" maxy="-1.60471" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="35.9447" miny="-7.59268" maxx="38.7451" maxy="-1.60594" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="35.9447" miny="-7.59268" maxx="38.7451" maxy="-1.60594" />
+        <BoundingBox CRS="EPSG:23029"
+                    minx="622578" miny="3.97916e+06" maxx="1.16248e+06" maxy="4.31383e+06" />
+        <BoundingBox CRS="epsg:25830"
+                    minx="100289" miny="3.98689e+06" maxx="621162" maxy="4.2885e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="-442246" miny="3.99629e+06" maxx="99691.5" maxy="4.3323e+06" />
+        <BoundingBox CRS="EPSG:25829"
+                    minx="622455" miny="3.97895e+06" maxx="1.16235e+06" maxy="4.31362e+06" />
+        <BoundingBox CRS="EPSG:25830"
+                    minx="100289" miny="3.98689e+06" maxx="621162" maxy="4.2885e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="-442343" miny="3.99609e+06" maxx="99595.9" maxy="4.33211e+06" />
+        <BoundingBox CRS="EPSG:32629"
+                    minx="622455" miny="3.97895e+06" maxx="1.16235e+06" maxy="4.31362e+06" />
+        <BoundingBox CRS="EPSG:32630"
+                    minx="100289" miny="3.98689e+06" maxx="621162" maxy="4.2885e+06" />
+        <BoundingBox CRS="EPSG:32631"
+                    minx="-442343" miny="3.99609e+06" maxx="99595.9" maxy="4.33211e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-845213" miny="4.29301e+06" maxx="-178773" maxy="4.68523e+06" />
+        <AuthorityURL name="Infraestructura de Datos Espaciales de Andalucía (IDEAndalucía)">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es"/>
+        </AuthorityURL>
+        <Identifier authority="IDEAndalucía">mta10_raster_2001</Identifier>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/catalogo/inspire/srv/spa/csw?Service=CSW&amp;version=2.0.2&amp;Request=GetRecordById&amp;elementSetName=full&amp;ID={ADFB5BEB-AC8C-49D8-8F7D-CBA6729E7407}_100119_es"/>
+        </MetadataURL>
+        <Style>
+          <Name>Ráster 2001. Color polígonos transparentes</Name>
+          <Title>Ráster 2001. Color polígonos transparentes</Title>
+          <LegendURL width="139" height="5676">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mta10_raster_2001&amp;format=image/png&amp;STYLE=Ráster 2001. Color polígonos transparentes"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>Ráster 2001. Monocromo negro</Name>
+          <Title>Ráster 2001. Monocromo negro</Title>
+          <LegendURL width="139" height="5676">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mta10_raster_2001&amp;format=image/png&amp;STYLE=Ráster 2001. Monocromo negro"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>Ráster 2001. Monocromo gris</Name>
+          <Title>Ráster 2001. Monocromo gris</Title>
+          <LegendURL width="139" height="5676">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mta10_raster_2001&amp;format=image/png&amp;STYLE=Ráster 2001. Monocromo gris"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>2000</MinScaleDenominator>
+        <MaxScaleDenominator>50000</MaxScaleDenominator>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>mta10_raster_2013</Name>
+        <Title>Topográfico año 2013 color</Title>
+        <Abstract>El Mapa Topográfico de Andalucía (MTA) se concibe como una base de carácter topográfico, que recoge los elementos generales que se encuentran en el territorio, y orientada para su explotación por sistemas informáticos así como para la elaboración de salidas cartográficas (mapas). La escala de referencia es 1/10.000, por lo que el nivel de detalle y la precisión geométrica de las entidades deben ser acordes a este valor. La extensión de su campo de aplicación se limita al territorio de la comunidad autónoma de Andalucía. Con objeto de facilitar el intercambio de datos con otras comunidades autónomas y siguiendo las premisas del Consejo Superior Geográfico (CSG), el modelo de datos del MTA parte de las definiciones establecidas en la Base Topográfica de Andalucía (BTA) desarrolladas por la CENG. Actualmente, el modelo de la BTA se encuentra en fase de mejora tras haber sido adoptado en algunas CCAA y con objeto de acercarlo a las especificaciones de INSPIRE. Mapa maquetado y editado de la Base Cartográfica de Andalucía, se le ha asignado una simbología a las distintas geometrías y maquetado la toponimia.
+		Los datos topográficos proceden de la restitución fotogramétrica de los vuelos PNOA 2010-2011. Destacar que las curvas de nivel se generan a partir de los elementos terreno restituidos y del modelo digital del terreno PNOA 2010-2011. La base cartográfica se completa con información temática procedente de otros organismos productores como los usos de suelo a partir de los datos generados en el proyecto SIOSE, el límite de espacios naturales a partir de la información facilitada por REDIAM, la toponimia procedente del proyecto Nomenclátor Geográfico de Andalucía (NGA) o los límites administrativos procedentes de Datos Espaciales de Andalucía (DEA).</Abstract>
+        <KeywordList>
+            <Keyword>WMS</Keyword>
+            <Keyword>Andalucía</Keyword>
+            <Keyword>Mapa 1:10.000</Keyword>
+            <Keyword>Cartografía Territorial</Keyword>
+            <Keyword>Cartografía Base</Keyword>
+            <Keyword>Cartografía Básica</Keyword>
+            <Keyword>BCA</Keyword>
+            <Keyword>BTA</Keyword>
+            <Keyword>Mapa Topográfico</Keyword>
+            <Keyword>Base Cartográfica de Andalucía</Keyword>
+            <Keyword>Ráster</Keyword>
+            <Keyword>2013</Keyword>
+        </KeywordList>
+        <CRS>EPSG:4230</CRS>
+        <CRS>EPSG:4258</CRS>
+        <CRS>EPSG:4326</CRS>
+        <CRS>EPSG:23029</CRS>
+        <CRS>epsg:25830</CRS>
+        <CRS>EPSG:23030</CRS>
+        <CRS>EPSG:23031</CRS>
+        <CRS>EPSG:25829</CRS>
+        <CRS>EPSG:25830</CRS>
+        <CRS>EPSG:25831</CRS>
+        <CRS>EPSG:32629</CRS>
+        <CRS>EPSG:32630</CRS>
+        <CRS>EPSG:32631</CRS>
+        <CRS>EPSG:3857</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-7.59155</westBoundLongitude>
+            <eastBoundLongitude>-1.60464</eastBoundLongitude>
+            <southBoundLatitude>35.9466</southBoundLatitude>
+            <northBoundLatitude>38.747</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:4230"
+                    minx="35.9479" miny="-7.59018" maxx="38.7482" maxy="-1.60341" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="35.9466" miny="-7.59155" maxx="38.747" maxy="-1.60464" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="35.9466" miny="-7.59155" maxx="38.747" maxy="-1.60464" />
+        <BoundingBox CRS="EPSG:23029"
+                    minx="622673" miny="3.97937e+06" maxx="1.16258e+06" maxy="4.31405e+06" />
+        <BoundingBox CRS="epsg:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="100510" miny="3.9873e+06" maxx="621385" maxy="4.28891e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="-442120" miny="3.9965e+06" maxx="99815.2" maxy="4.3325e+06" />
+        <BoundingBox CRS="EPSG:25829"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox CRS="EPSG:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox CRS="EPSG:32629"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox CRS="EPSG:32630"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox CRS="EPSG:32631"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-845088" miny="4.29327e+06" maxx="-178628" maxy="4.6855e+06" />
+        <AuthorityURL name="Infraestructura de Datos Espaciales de Andalucía (IDEAndalucía)">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es"/>
+        </AuthorityURL>
+        <Identifier authority="IDEAndalucía">mta10_raster_2013</Identifier>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/catalogo/inspire/srv/spa/csw?Service=CSW&amp;version=2.0.2&amp;Request=GetRecordById&amp;elementSetName=full&amp;ID=74f7e424-69fa-4c5d-a244-2a72591a5eab"/>
+        </MetadataURL>
+        <Style>
+          <Name>Ráster 2013. Color polígonos sólidos</Name>
+          <Title>Ráster 2013. Color polígonos sólidos</Title>
+          <LegendURL width="139" height="10406">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mta10_raster_2013&amp;format=image/png&amp;STYLE=Ráster 2013. Color polígonos sólidos"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>Ráster 2013. Color polígonos transparentes</Name>
+          <Title>Ráster 2013. Color polígonos transparentes</Title>
+          <LegendURL width="139" height="10406">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mta10_raster_2013&amp;format=image/png&amp;STYLE=Ráster 2013. Color polígonos transparentes"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>Ráster 2013. Monocromo negro</Name>
+          <Title>Ráster 2013. Monocromo negro</Title>
+          <LegendURL width="139" height="10406">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mta10_raster_2013&amp;format=image/png&amp;STYLE=Ráster 2013. Monocromo negro"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>Ráster 2013. Monocromo gris</Name>
+          <Title>Ráster 2013. Monocromo gris</Title>
+          <LegendURL width="139" height="10406">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/mta10r_2001-2013?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=mta10_raster_2013&amp;format=image/png&amp;STYLE=Ráster 2013. Monocromo gris"/>
+          </LegendURL>
+        </Style>
+        <MinScaleDenominator>2000</MinScaleDenominator>
+        <MaxScaleDenominator>50000</MaxScaleDenominator>
+    </Layer>
+  </Layer>
+</Capability>
+</WMS_Capabilities>

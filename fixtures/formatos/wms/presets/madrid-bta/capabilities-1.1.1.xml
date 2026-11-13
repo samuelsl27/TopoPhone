@@ -1,0 +1,898 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "https://idem.comunidad.madrid/geoidem/BTA/wms">
+<WMT_MS_Capabilities version="1.1.1" updateSequence="13441">
+  <Service>
+    <Name>OGC:WMS</Name>
+    <Title>Servicio WMS de la BTA de la Comunidad de Madrid</Title>
+    <Abstract>Servicio de Visualización de las diferentes capas de Información Geográfica incluidas en la Base topográfica Armonizada de la Comunidad de Madrid. Pertenecen a diferentes Temas INSPIRE : edificaciones, redes de transporte, hidrografía, relieve, nombres geográficos, cubierta terrestre y servicios e instalaciones.</Abstract>
+    <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword>IDEM</Keyword>
+      <Keyword>INSPIRE</Keyword>
+      <Keyword>Comunidad de Madrid</Keyword>
+      <Keyword>BTA</Keyword>
+    </KeywordList>
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://geoserver.org"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson>Centro Regional de Información Cartográfica</ContactPerson>
+        <ContactOrganization>Comunidad de Madrid</ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition/>
+      <ContactAddress>
+        <AddressType/>
+        <Address/>
+        <City>Madrid</City>
+        <StateOrProvince/>
+        <PostCode/>
+        <Country>España</Country>
+      </ContactAddress>
+      <ContactVoiceTelephone/>
+      <ContactFacsimileTelephone/>
+      <ContactElectronicMailAddress>info.idem@madrid.org</ContactElectronicMailAddress>
+    </ContactInformation>
+    <Fees>NONE</Fees>
+    <AccessConstraints>CC BY 4.0 Comunidad de Madrid</AccessConstraints>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom xml</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/geopackage+sqlite3</Format>
+        <Format>application/json;type=geojson</Format>
+        <Format>application/json;type=topojson</Format>
+        <Format>application/json;type=utfgrid</Format>
+        <Format>application/openlayers</Format>
+        <Format>application/openlayers2</Format>
+        <Format>application/openlayers3</Format>
+        <Format>application/pdf</Format>
+        <Format>application/rss xml</Format>
+        <Format>application/rss+xml</Format>
+        <Format>application/vnd.google-earth.kml</Format>
+        <Format>application/vnd.google-earth.kml xml</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kml+xml;mode=networklink</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>application/vnd.google-earth.kmz xml</Format>
+        <Format>application/vnd.google-earth.kmz+xml</Format>
+        <Format>application/vnd.google-earth.kmz;mode=networklink</Format>
+        <Format>application/vnd.mapbox-vector-tile</Format>
+        <Format>application/x-protobuf;type=mapbox-vector</Format>
+        <Format>application/x-sqlite3</Format>
+        <Format>atom</Format>
+        <Format>geojson</Format>
+        <Format>geopackage</Format>
+        <Format>geopkg</Format>
+        <Format>gpkg</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/gif;subtype=animated</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png8</Format>
+        <Format>image/png; mode=8bit</Format>
+        <Format>image/svg</Format>
+        <Format>image/svg xml</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <Format>image/vnd.jpeg-png</Format>
+        <Format>image/vnd.jpeg-png8</Format>
+        <Format>kml</Format>
+        <Format>kmz</Format>
+        <Format>mbtiles</Format>
+        <Format>openlayers</Format>
+        <Format>pbf</Format>
+        <Format>rss</Format>
+        <Format>text/html</Format>
+        <Format>text/html; subtype=openlayers</Format>
+        <Format>text/html; subtype=openlayers2</Format>
+        <Format>text/html; subtype=openlayers3</Format>
+        <Format>topojson</Format>
+        <Format>utfgrid</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+        <Format>text/plain</Format>
+        <Format>text/html</Format>
+        <Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+      <DescribeLayer>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </DescribeLayer>
+      <GetLegendGraphic>
+        <Format>image/png</Format>
+        <Format>image/jpeg</Format>
+        <Format>application/json</Format>
+        <Format>image/gif</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetLegendGraphic>
+      <GetStyles>
+        <Format>application/vnd.ogc.sld+xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetStyles>
+    </Request>
+    <Exception>
+      <Format>application/vnd.ogc.se_xml</Format>
+      <Format>application/vnd.ogc.se_inimage</Format>
+      <Format>application/vnd.ogc.se_blank</Format>
+      <Format>application/json</Format>
+    </Exception>
+    <UserDefinedSymbolization SupportSLD="1" UserLayer="1" UserStyle="1" RemoteWFS="1"/>
+    <Layer>
+      <Title>Base Topográfica Armonizada de la Comunidad de Madrid</Title>
+      <Abstract>Servicio de Visualización de las diferentes capas de Información Geográfica incluidas en la Base topográfica Armonizada de la Comunidad de Madrid. Pertenecen a diferentes Temas INSPIRE : edificaciones, redes de transporte, hidrografía, relieve, nombres geográficos, cubierta terrestre y servicios e instalaciones.</Abstract>
+      <!--Limited list of EPSG projections:-->
+      <SRS>EPSG:4258</SRS>
+      <SRS>EPSG:23030</SRS>
+      <SRS>EPSG:25830</SRS>
+      <SRS>EPSG:4326</SRS>
+      <SRS>EPSG:3857</SRS>
+      <SRS>EPSG:32630</SRS>
+      <SRS>EPSG:3035</SRS>
+      <LatLonBoundingBox minx="-4.601733127716921" miny="39.873776120343905" maxx="-3.002052870731728" maxy="41.17671775657665"/>
+      <BoundingBox SRS="EPSG:4258" minx="-4.60173312771692" miny="39.87377616114399" maxx="-3.002052870731728" maxy="41.17671779825796"/>
+      <BoundingBox SRS="EPSG:23030" minx="363122.07881707966" miny="4413954.920815009" maxx="499929.18727297464" maxy="4559819.720833965"/>
+      <BoundingBox SRS="EPSG:25830" minx="363021.91448559007" miny="4413747.762144728" maxx="499827.8123816971" maxy="4559611.2763445815"/>
+      <BoundingBox SRS="EPSG:4326" minx="-4.601733127716921" miny="39.873776120343905" maxx="-3.002052870731728" maxy="41.17671775657665"/>
+      <BoundingBox SRS="EPSG:3857" minx="-512262.58854398574" miny="4847616.687210498" maxx="-334186.9969043411" maxy="5038442.539809012"/>
+      <BoundingBox SRS="EPSG:32630" minx="363021.91440533043" miny="4413747.757730119" maxx="499827.8123815892" maxy="4559611.271832628"/>
+      <BoundingBox SRS="EPSG:3035" minx="3073781.9002897777" miny="1959984.851053483" maxx="3231433.828913683" maxy="2126974.8309422894"/>
+      <Layer queryable="1">
+        <Name>BTA-2017-TODO</Name>
+        <Title>BTA COMPLETA 2017</Title>
+        <Abstract>Representación del conjunto de las capas que conforman la Base topográfica armonizada de la Comunidad de Madrid incluyendo los diferentes elementos de los temas: Cubierta Terrestre, hidrografía, redes de transporte, edificaciones y construcciones, servicios e instalaciones, relieve y nombres geográficos.</Abstract>
+        <KeywordList>
+          <Keyword>BTA</Keyword>
+          <Keyword>Base Topográfica Armonizada</Keyword>
+          <Keyword>2017</Keyword>
+          <Keyword>Comunidad de Madrid</Keyword>
+          <Keyword>IDEM</Keyword>
+        </KeywordList>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-17.561306578603688" miny="35.222836940725514" maxx="11.561306578603686" maxy="80.5427460240356"/>
+        <BoundingBox SRS="EPSG:25830" minx="227071.8572857892" miny="3901876.695336829" maxx="772928.1427142108" maxy="8942165.537905218"/>
+        <BoundingBox SRS="EPSG:4258" minx="-17.561306578603688" miny="35.22283690662663" maxx="11.561306578603686" maxy="80.54274602290813"/>
+        <BoundingBox SRS="EPSG:23030" minx="227164.21697723737" miny="3902078.9410986644" maxx="773031.9704827585" maxy="8942398.330779001"/>
+        <BoundingBox SRS="EPSG:4326" minx="-17.561306578603688" miny="35.222836940725514" maxx="11.561306578603686" maxy="80.5427460240356"/>
+        <BoundingBox SRS="EPSG:3857" minx="-1954915.7059947278" miny="4194205.1798029654" maxx="1286998.761235086" maxy="1.5896346037168331E7"/>
+        <BoundingBox SRS="EPSG:32630" minx="227071.85739687522" miny="3901876.699222383" maxx="772928.1426031247" maxy="8942165.538130224"/>
+        <BoundingBox SRS="EPSG:3035" minx="2860952.0649236934" miny="1411748.3958981007" maxx="4351510.45612945" maxy="6435502.751574643"/>
+        <AuthorityURL name="Comunidad de Madrid">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+        </AuthorityURL>
+        <Identifier authority="Comunidad de Madrid">BTA_2017_TODO</Identifier>
+        <Style>
+          <Name>default-style-BTA-2017-TODO</Name>
+          <Title>BTA-2017-TODO style</Title>
+          <Abstract>Default style for BTA-2017-TODO layer</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=BTA-2017-TODO"/>
+          </LegendURL>
+        </Style>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_CUBIERTER_POL_17</Name>
+          <Title>Cubierta Terrestre Poligonos</Title>
+          <Abstract>Cubiertas del suelo y vegetación consistentes con el catálogo del proyecto SIOSE, de la parte central de la Comunidad de Madrid. Elementos superficiales</Abstract>
+          <KeywordList>
+            <Keyword>Cubierta terrestre</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.601733127716921" miny="39.87686100354528" maxx="-3.052776549595748" maxy="41.16720443256755"/>
+          <BoundingBox SRS="EPSG:25830" minx="365607.6875" miny="4415272.0" maxx="495487.625" maxy="4557320.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.601733127716922" miny="39.87686096459976" maxx="-3.052776549595748" maxy="41.1672043927618"/>
+          <BoundingBox SRS="EPSG:23030" minx="365707.85622129124" miny="4415479.169630585" maxx="495588.94550400705" maxy="4557528.4221191285"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.601733127716921" miny="39.87686100354528" maxx="-3.052776549595748" maxy="41.16720443256755"/>
+          <BoundingBox SRS="EPSG:3857" minx="-512262.58854398574" miny="4848064.158023908" maxx="-339833.53100664535" maxy="5037035.649807625"/>
+          <BoundingBox SRS="EPSG:32630" minx="365607.6875768198" miny="4415272.004436361" maxx="495487.62500276294" maxy="4557320.004534396"/>
+          <BoundingBox SRS="EPSG:3035" minx="3076382.025096255" miny="1962229.833603985" maxx="3226979.9025012706" maxy="2124723.0362656093"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_CUBIERTER_POL_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_CUBIERTER_POL</Name>
+            <Title>Estilo cubierta terrestre polígonos</Title>
+            <LegendURL width="241" height="488">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_CUBIERTER_POL_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_SERVINST_POL_17</Name>
+          <Title>Servicios e Instalaciones Poligonos</Title>
+          <Abstract>Servicios e instalaciones de la Base topográfica armonizada de la Comunidad de Madrid.Elementos superficiales</Abstract>
+          <KeywordList>
+            <Keyword>Servicios</Keyword>
+            <Keyword> Instalaciones</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.531960833824085" miny="39.892563019992046" maxx="-3.0839438421608096" maxy="41.15408763299359"/>
+          <BoundingBox SRS="EPSG:25830" minx="371438.34375" miny="4416915.0" maxx="492824.375" maxy="4555866.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.531960833824085" miny="39.89256298103468" maxx="-3.083943842160809" maxy="41.15408759319543"/>
+          <BoundingBox SRS="EPSG:23030" minx="371538.5633496555" miny="4417122.184722047" maxx="492925.67308007105" maxy="4556074.407405965"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.531960833824085" miny="39.892563019992046" maxx="-3.0839438421608096" maxy="41.15408763299359"/>
+          <BoundingBox SRS="EPSG:3857" minx="-504495.5723163566" miny="4850342.0908344295" maxx="-343303.05814439297" maxy="5035096.190176409"/>
+          <BoundingBox SRS="EPSG:32630" minx="371438.34382356924" miny="4416915.004437708" maxx="492824.3750043907" maxy="4555866.0045335265"/>
+          <BoundingBox SRS="EPSG:3035" minx="3082397.636376356" miny="1964305.0174347174" maxx="3224119.692767278" maxy="2122269.747421486"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_SERVINST_POL_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_SERVINST_POL</Name>
+            <Title>Estilo servicios e instalaciones. Polígonos</Title>
+            <LegendURL width="248" height="560">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_SERVINST_POL_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="100000.0"/>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_EDIPOBCONS_POL_17</Name>
+          <Title>Edificaciones Poligonos</Title>
+          <Abstract>Representación de los edificios de la Base topográfica armonizada de la Comunidad de Madrid. Geometría superficial.</Abstract>
+          <KeywordList>
+            <Keyword>Edificaciones</Keyword>
+            <Keyword> Poblaciones</Keyword>
+            <Keyword> Construcciones</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.587500141195309" miny="39.881538894664324" maxx="-3.068830445042922" maxy="41.16608765182389"/>
+          <BoundingBox SRS="EPSG:25830" minx="366800.09375" miny="4415770.5" maxx="494115.40625" maxy="4557197.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.587500141195309" miny="39.88153885571528" maxx="-3.0688304450429222" maxy="41.16608761201879"/>
+          <BoundingBox SRS="EPSG:23030" minx="366900.2729783632" miny="4415977.6743783895" maxx="494216.7153060689" maxy="4557405.42053879"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.587500141195309" miny="39.881538894664324" maxx="-3.068830445042922" maxy="41.16608765182389"/>
+          <BoundingBox SRS="EPSG:3857" minx="-510678.17973193247" miny="4848742.737431937" maxx="-341620.64247307315" maxy="5036870.506666992"/>
+          <BoundingBox SRS="EPSG:32630" minx="366800.09382616205" miny="4415770.504436761" maxx="494115.4062536029" maxy="4557197.004534321"/>
+          <BoundingBox SRS="EPSG:3035" minx="3077637.636912768" miny="1962956.2498479486" maxx="3225604.9366879323" maxy="2124393.168937553"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_EDIPOBCONS_POL_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_EDIPOBCONS_POL</Name>
+            <Title>Estilo Edificios y Construcciones. Polígonos</Title>
+            <LegendURL width="431" height="1420">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_EDIPOBCONS_POL_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_HIDROGRAF_POL_17</Name>
+          <Title>Hidrografia Poligonos</Title>
+          <Abstract>Hidrografía de la Base Topográfica Armonizada de la Comunidad de Madrid.Elementos superficiales</Abstract>
+          <KeywordList>
+            <Keyword>Hidrografía</Keyword>
+            <Keyword> Ríos</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.586760613499935" miny="39.89789702379838" maxx="-3.067477610714433" maxy="41.14194257285748"/>
+          <BoundingBox SRS="EPSG:25830" minx="366813.3125" miny="4417586.5" maxx="494232.4375" maxy="4554516.5"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.586760613499935" miny="39.897896984837004" maxx="-3.067477610714433" maxy="41.141942533066356"/>
+          <BoundingBox SRS="EPSG:23030" minx="366913.4929660716" miny="4417793.690137436" maxx="494333.74708333483" maxy="4554724.8984854305"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.586760613499935" miny="39.89789702379838" maxx="-3.067477610714433" maxy="41.14194257285748"/>
+          <BoundingBox SRS="EPSG:3857" minx="-510595.85588545585" miny="4851116.027527362" maxx="-341470.04564449814" maxy="5033300.758632259"/>
+          <BoundingBox SRS="EPSG:32630" minx="366813.31257622293" miny="4417586.504438164" maxx="494232.43750352704" maxy="4554516.50453272"/>
+          <BoundingBox SRS="EPSG:3035" minx="3077934.677444242" miny="1964724.7027232763" maxx="3225297.9103026986" maxy="2121747.9533696044"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_HIDROGRAF_POL_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_HIDROGRAF_POL</Name>
+            <Title>Estilo hidrografía polígonos</Title>
+            <LegendURL width="207" height="140">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_HIDROGRAF_POL_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_REDVIARIA_POL_17</Name>
+          <Title>Red Viaria Poligonos</Title>
+          <Abstract>Red viaria de la Base Topográfica armonizada de la Comunidad de Madrid.Elementos superficiales</Abstract>
+          <KeywordList>
+            <Keyword>Red viaria</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.590417831952655" miny="39.877240555463544" maxx="-3.0723697014966236" maxy="41.16702222477606"/>
+          <BoundingBox SRS="EPSG:25830" minx="366557.09375" miny="4415297.5" maxx="493812.4375" maxy="4557301.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.590417831952655" miny="39.877240516517745" maxx="-3.0723697014966236" maxy="41.167022184970435"/>
+          <BoundingBox SRS="EPSG:23030" minx="366657.27060656843" miny="4415504.670354609" maxx="493913.74405048654" maxy="4557509.421509529"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.590417831952655" miny="39.877240555463544" maxx="-3.0723697014966236" maxy="41.16702222477606"/>
+          <BoundingBox SRS="EPSG:3857" minx="-511002.97558133234" miny="4848119.214466627" maxx="-342014.630699286" maxy="5037008.705770768"/>
+          <BoundingBox SRS="EPSG:32630" minx="366557.0938262821" miny="4415297.504436393" maxx="493812.4375037887" maxy="4557301.0045343805"/>
+          <BoundingBox SRS="EPSG:3035" minx="3077323.680889587" miny="1962542.3984643496" maxx="3225322.046735676" maxy="2124538.217307308"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_REDVIARIA_POL_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_REDVIARIA_POL</Name>
+            <Title>Estilo red viaria. Polígonos</Title>
+            <LegendURL width="242" height="900">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_REDVIARIA_POL_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_HIDROGRAF_LIN_17</Name>
+          <Title>Hidrografia Lineas</Title>
+          <Abstract>Hidrografía de la Base Topográfica Armonizada de la Comunidad de Madrid.Elementos lineales.</Abstract>
+          <KeywordList>
+            <Keyword>Hidrografía</Keyword>
+            <Keyword> Ríos</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.5908921282207" miny="39.87703135194636" maxx="-3.0528683104939525" maxy="41.16612343201673"/>
+          <BoundingBox SRS="EPSG:25830" minx="366515.4375" miny="4415275.0" maxx="495479.78125" maxy="4557200.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.5908921282207" miny="39.87703131300071" maxx="-3.0528683104939525" maxy="41.16612339221162"/>
+          <BoundingBox SRS="EPSG:23030" minx="366615.6139863197" miny="4415482.169659026" maxx="495581.10166918114" maxy="4557408.420699031"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.5908921282207" miny="39.87703135194636" maxx="-3.0528683104939525" maxy="41.16612343201673"/>
+          <BoundingBox SRS="EPSG:3857" minx="-511055.7740003764" miny="4848088.868115542" maxx="-339843.74578310817" maxy="5036875.797593352"/>
+          <BoundingBox SRS="EPSG:32630" minx="366515.4375763049" miny="4415275.004436375" maxx="495479.78125276754" maxy="4557200.004534324"/>
+          <BoundingBox SRS="EPSG:3035" minx="3077279.021325005" miny="1962234.1339689035" maxx="3226953.2316607526" maxy="2124445.9199610767"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_HIDROGRAF_LIN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_HIDROGRAF_LIN</Name>
+            <Title>Estilo hidrografía lineas</Title>
+            <LegendURL width="316" height="360">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_HIDROGRAF_LIN_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_REDFERRO_LIN_17</Name>
+          <Title>Red Ferroviaria Lineas</Title>
+          <Abstract>Red de ferrocarriles de la Base Topográfica Armonizada de la Comunidad de Madrid.Fenómenos lineales</Abstract>
+          <KeywordList>
+            <Keyword>Red ferroviaria</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.3238920067212865" miny="39.9039872444434" maxx="-3.2078878879399957" maxy="41.16228859053257"/>
+          <BoundingBox SRS="EPSG:25830" minx="388918.34375" miny="4417909.0" maxx="482231.75" maxy="4556794.5"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.323892006721286" miny="39.903987205477435" maxx="-3.2078878879399957" maxy="41.16228855072967"/>
+          <BoundingBox SRS="EPSG:23030" minx="389018.71357864665" miny="4418116.196701596" maxx="482332.9600850696" maxy="4557002.9072890775"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.3238920067212865" miny="39.9039872444434" maxx="-3.2078878879399957" maxy="41.16228859053257"/>
+          <BoundingBox SRS="EPSG:3857" minx="-481333.4564333194" miny="4851999.761077461" maxx="-357100.4462073901" maxy="5036308.74431173"/>
+          <BoundingBox SRS="EPSG:32630" minx="388918.34381364146" miny="4417909.004438671" maxx="482231.750010877" maxy="4556794.504534073"/>
+          <BoundingBox SRS="EPSG:3035" minx="3099819.8305881387" miny="1967103.5708641557" maxx="3213802.6906404076" maxy="2120132.5990197943"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_REDFERRO_LIN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_REDFERRO_LIN</Name>
+            <Title>Estilo ferrocarriles. Líneas</Title>
+            <LegendURL width="322" height="260">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_REDFERRO_LIN_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_REDVIARIA_LIN_17</Name>
+          <Title>Red Viaria Lineas</Title>
+          <Abstract>Red viaria de la Base Topográfica Armonizada de la Comunidad de Madrid. Elementos lineales</Abstract>
+          <KeywordList>
+            <Keyword>Red viaria</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.598941993444253" miny="39.8768304940497" maxx="-3.0565941262073735" maxy="41.16706743023512"/>
+          <BoundingBox SRS="EPSG:25830" minx="365841.6875" miny="4415264.5" maxx="495161.21875" maxy="4557305.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.598941993444254" miny="39.876830455104205" maxx="-3.056594126207373" maxy="41.16706739042946"/>
+          <BoundingBox SRS="EPSG:23030" minx="365941.85821772704" miny="4415471.669662616" maxx="495262.53653315443" maxy="4557513.421883869"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.598941993444253" miny="39.8768304940497" maxx="-3.0565941262073735" maxy="41.16706743023512"/>
+          <BoundingBox SRS="EPSG:3857" minx="-511951.88089801674" miny="4848059.732438916" maxx="-340258.5016911158" maxy="5037015.390535846"/>
+          <BoundingBox SRS="EPSG:32630" minx="365841.68757668673" miny="4415264.504436357" maxx="495161.21875296277" maxy="4557305.004534385"/>
+          <BoundingBox SRS="EPSG:3035" minx="3076611.958258601" miny="1962278.4507873913" maxx="3226655.0897335913" maxy="2124667.3097274383"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_REDVIARIA_LIN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_REDVIARIA_LIN</Name>
+            <Title>Estilo red viaria. Líneas</Title>
+            <LegendURL width="240" height="456">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_REDVIARIA_LIN_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_EDIPOBCONS_LIN_17</Name>
+          <Title>Edificaciones Lineas</Title>
+          <Abstract>Edificaciones de la Base Topográfica armonizada de la Comunidad de Madrid.Elementos Lineales</Abstract>
+          <KeywordList>
+            <Keyword>Edificaciones</Keyword>
+            <Keyword> Poblaciones</Keyword>
+            <Keyword> Construcciones</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.600589779757241" miny="39.87706052599076" maxx="-3.0684518664997236" maxy="41.16623201104058"/>
+          <BoundingBox SRS="EPSG:25830" minx="365701.6875" miny="4415292.5" maxx="494147.40625" maxy="4557213.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.600589779757241" miny="39.87706048704509" maxx="-3.068451866499725" maxy="41.166231971235405"/>
+          <BoundingBox SRS="EPSG:23030" minx="365801.85703793133" miny="4415499.67021014" maxx="494248.7155751999" maxy="4557421.421194558"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.600589779757241" miny="39.87706052599076" maxx="-3.0684518664997236" maxy="41.16623201104058"/>
+          <BoundingBox SRS="EPSG:3857" minx="-512135.31163131475" miny="4848093.099997702" maxx="-341578.4993024191" maxy="5036891.853522822"/>
+          <BoundingBox SRS="EPSG:32630" minx="365701.6875767673" miny="4415292.504436375" maxx="494147.4062535834" maxy="4557213.004534328"/>
+          <BoundingBox SRS="EPSG:3035" minx="3076478.067915271" miny="1962479.9902456414" maxx="3225639.07138162" maxy="2124601.091264864"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_EDIPOBCONS_LIN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_EDIPOBCONS_LIN</Name>
+            <Title>Estilo Edifcios y Construcciones. Líneas</Title>
+            <LegendURL width="356" height="1420">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_EDIPOBCONS_LIN_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="20000.0"/>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_SERVINST_LIN_17</Name>
+          <Title>Servicios e Instalaciones Lineas</Title>
+          <Abstract>Servicios e instalaciones de la Base topográfica armonizada de la Comunidad de Madrid.Elementos lineales</Abstract>
+          <KeywordList>
+            <Keyword>Servicios</Keyword>
+            <Keyword> Instalaciones</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.558916563376327" miny="39.87844771242432" maxx="-3.063510360891567" maxy="41.16127155669329"/>
+          <BoundingBox SRS="EPSG:25830" minx="369189.6875" miny="4415386.0" maxx="494569.96875" maxy="4556662.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.558916563376326" miny="39.8784476734776" maxx="-3.063510360891567" maxy="41.16127151689098"/>
+          <BoundingBox SRS="EPSG:23030" minx="369289.886929857" miny="4415593.17089671" maxx="494671.28150321235" maxy="4556870.4150081985"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.558916563376327" miny="39.87844771242432" maxx="-3.063510360891567" maxy="41.16127155669329"/>
+          <BoundingBox SRS="EPSG:3857" minx="-507496.2704040734" miny="4848294.32236022" maxx="-341028.41341436695" maxy="5036158.362339021"/>
+          <BoundingBox SRS="EPSG:32630" minx="369189.687574791" miny="4415386.004436498" maxx="494569.96875332395" maxy="4556662.004534001"/>
+          <BoundingBox SRS="EPSG:3035" minx="3079937.6270242305" miny="1962499.5635166639" maxx="3225969.6197764385" maxy="2123447.7439039494"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_SERVINST_LIN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_SERVINST_LIN</Name>
+            <Title>Estilo servicios e instalaciones. Líneas</Title>
+            <LegendURL width="475" height="540">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_SERVINST_LIN_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_RELIEVE_LIN_17</Name>
+          <Title>Relieve Lineas</Title>
+          <Abstract>Curvas de nivel del relieve de la Base topográfica armonizada de la Comunidad de Madrid</Abstract>
+          <KeywordList>
+            <Keyword>Relieve</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+            <Keyword> Curvas de nivel</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.601579846081402" miny="39.877173770856494" maxx="-3.0528137034717453" maxy="41.16720891897769"/>
+          <BoundingBox SRS="EPSG:25830" minx="365620.5625" miny="4415306.5" maxx="495484.46875" maxy="4557320.5"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.601579846081402" miny="39.87717373191073" maxx="-3.0528137034717453" maxy="41.16720887917197"/>
+          <BoundingBox SRS="EPSG:23030" minx="365720.73135291174" miny="4415513.669931741" maxx="495585.7892278018" maxy="4557528.922117074"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.601579846081402" miny="39.877173770856494" maxx="-3.0528137034717453" maxy="41.16720891897769"/>
+          <BoundingBox SRS="EPSG:3857" minx="-512245.5253103719" miny="4848109.52690848" maxx="-339837.66695720237" maxy="5037036.313237944"/>
+          <BoundingBox SRS="EPSG:32630" minx="365620.56257681386" miny="4415306.504436388" maxx="495484.4687527649" maxy="4557320.504534391"/>
+          <BoundingBox SRS="EPSG:3035" minx="3076400.1354880193" miny="1962264.3529367184" maxx="3226976.8633701084" maxy="2124721.2768285363"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_RELIEVE_LIN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_RELIEVE_LIN</Name>
+            <Title>Estilo relieve. Curvas de nivel</Title>
+            <LegendURL width="209" height="236">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_RELIEVE_LIN_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_REDFERRO_PUN_17</Name>
+          <Title>Red Ferroviaria Puntos</Title>
+          <Abstract>Red de ferrocarril de la BTA de la Comunidad de Madrid.Elementos puntuales</Abstract>
+          <KeywordList>
+            <Keyword>Red ferroviaria</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword>   Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.3201510572498" miny="39.913082124460814" maxx="-3.211804571493519" maxy="41.10593641778222"/>
+          <BoundingBox SRS="EPSG:25830" minx="389137.5" miny="4418915.5" maxx="481899.375" maxy="4550539.5"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.3201510572498" miny="39.913082085488035" maxx="-3.21180457149352" maxy="41.10593637801206"/>
+          <BoundingBox SRS="EPSG:23030" minx="389237.87227167946" miny="4419122.705548401" maxx="482000.5810756243" maxy="4550747.855574199"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.3201510572498" miny="39.913082124460814" maxx="-3.211804571493519" maxy="41.10593641778222"/>
+          <BoundingBox SRS="EPSG:3857" minx="-480917.01584307017" miny="4853319.637947559" maxx="-357536.4494261668" maxy="5027979.840865131"/>
+          <BoundingBox SRS="EPSG:32630" minx="389137.5000635479" miny="4418915.504439447" maxx="481899.3750110493" maxy="4550539.504530322"/>
+          <BoundingBox SRS="EPSG:3035" minx="3100193.56062672" miny="1968152.045649428" maxx="3212487.737422271" maxy="2113927.4365469716"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_REDFERRO_PUN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_REDFERRO_PUN</Name>
+            <Title>Estilo ferrocarriles. Puntos</Title>
+            <LegendURL width="173" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_REDFERRO_PUN_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="25000.0"/>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_HIDROGRAF_PUN_17</Name>
+          <Title>Hidrografía Puntos</Title>
+          <Abstract>Hidrografía de la Base Topográfica Armonizada de la Comunidad de Madrid.Elementos puntuales</Abstract>
+          <KeywordList>
+            <Keyword>Hidrografía</Keyword>
+            <Keyword> Ríos</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.583150752553314" miny="39.89167384574888" maxx="-3.0789282344127074" maxy="41.14945219710409"/>
+          <BoundingBox SRS="EPSG:25830" minx="367131.59375" miny="4416890.0" maxx="493253.09375" maxy="4555351.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.583150752553314" miny="39.89167380679219" maxx="-3.0789282344127074" maxy="41.14945215730861"/>
+          <BoundingBox SRS="EPSG:23030" minx="367231.77650609054" miny="4417097.184375077" maxx="493354.39531385154" maxy="4555559.405199127"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.583150752553314" miny="39.89167384574888" maxx="-3.0789282344127074" maxy="41.14945219710409"/>
+          <BoundingBox SRS="EPSG:3857" minx="-510194.0080030435" miny="4850213.0820528325" maxx="-342744.7232438554" maxy="5034410.884024429"/>
+          <BoundingBox SRS="EPSG:32630" minx="367131.59382601583" miny="4416890.004437633" maxx="493253.0937541275" maxy="4555351.004533219"/>
+          <BoundingBox SRS="EPSG:3035" minx="3078140.0980072524" miny="1964206.8105037587" maxx="3224462.005346621" maxy="2122515.0731413695"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_HIDROGRAF_PUN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_HIDROGRAF_PUN</Name>
+            <Title>Estilo hidrografía puntos</Title>
+            <LegendURL width="206" height="100">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_HIDROGRAF_PUN_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="5000.0"/>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_REDVIARIA_PUN_17</Name>
+          <Title>Red Viaria Puntos</Title>
+          <Abstract>Red viaria de la Base Topográfica Armonizada de la Comunidad de Madrid.Elementos puntuales</Abstract>
+          <KeywordList>
+            <Keyword>Red viaria</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.587836132347994" miny="39.97464529830088" maxx="-3.0848339044692383" maxy="41.154771641309594"/>
+          <BoundingBox SRS="EPSG:25830" minx="366749.0" miny="4426109.0" maxx="492757.03125" maxy="4555942.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.587836132347994" miny="39.97464525928215" maxx="-3.0848339044692383" maxy="41.154771601511044"/>
+          <BoundingBox SRS="EPSG:23030" minx="366849.18515115255" miny="4426316.264579858" maxx="492858.32878209045" maxy="4556150.410243038"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.587836132347994" miny="39.97464529830088" maxx="-3.0848339044692383" maxy="41.154771641309594"/>
+          <BoundingBox SRS="EPSG:3857" minx="-510715.58209596033" miny="4862258.487122785" maxx="-343402.1394273415" maxy="5035197.318557048"/>
+          <BoundingBox SRS="EPSG:32630" minx="366749.0000765798" miny="4426109.00444469" maxx="492757.03125443216" maxy="4555942.004533571"/>
+          <BoundingBox SRS="EPSG:3035" minx="3079204.6601148215" miny="1973371.8379396931" maxx="3224065.150573414" maxy="2123164.7043796"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_REDVIARIA_PUN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_REDVIARIA_PUN</Name>
+            <Title>Estilo red viaria. Puntos</Title>
+            <LegendURL width="169" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_REDVIARIA_PUN_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="50000.0"/>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_EDIPOBCONS_PUN_17</Name>
+          <Title>Edificaciones Puntos</Title>
+          <Abstract>Edificaciones de la Base Topográfica armonizada de la Comunidad de Madrid.Elementos puntuales</Abstract>
+          <KeywordList>
+            <Keyword>Edificaciones</Keyword>
+            <Keyword> Poblaciones</Keyword>
+            <Keyword> Construcciones</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.558217295777573" miny="39.88768387307021" maxx="-3.0635188807947857" maxy="41.16021311889504"/>
+          <BoundingBox SRS="EPSG:25830" minx="369246.28125" miny="4416410.5" maxx="494569.96875" maxy="4556544.5"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.558217295777574" miny="39.88768383411653" maxx="-3.0635188807947857" maxy="41.16021307909334"/>
+          <BoundingBox SRS="EPSG:23030" minx="369346.48179304745" miny="4416617.679809392" maxx="494671.2814837847" maxy="4556752.914015055"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.558217295777573" miny="39.88768387307021" maxx="-3.0635188807947857" maxy="41.16021311889504"/>
+          <BoundingBox SRS="EPSG:3857" minx="-507418.42829105194" miny="4849634.20429193" maxx="-341029.3618456549" maxy="5036001.860718674"/>
+          <BoundingBox SRS="EPSG:32630" minx="369246.28132479667" miny="4416410.504437289" maxx="494569.9687533238" maxy="4556544.504533932"/>
+          <BoundingBox SRS="EPSG:3035" minx="3080153.6980041424" miny="1963508.5638838748" maxx="3225951.092225886" maxy="2123321.995575867"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_EDIPOBCONS_PUN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_EDIPOBCONS_PUN</Name>
+            <Title>Estilo Edificaciones y Construcciones. Puntos</Title>
+            <LegendURL width="273" height="140">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_EDIPOBCONS_PUN_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="10000.0"/>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_SERVINST_PUN_17</Name>
+          <Title>Servicios e Instalaciones Puntos</Title>
+          <Abstract>Servicios e instalaciones de la Base Topográfica armonizada de la Comunidad de Madrid.Elementos puntuales</Abstract>
+          <KeywordList>
+            <Keyword>Servicios</Keyword>
+            <Keyword> Instalaciones</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.527015690423311" miny="39.99011522933057" maxx="-3.085283337027599" maxy="41.15326247382227"/>
+          <BoundingBox SRS="EPSG:25830" minx="371851.875" miny="4427739.0" maxx="492720.21875" maxy="4555774.5"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.527015690423311" miny="39.99011519030037" maxx="-3.085283337027599" maxy="41.15326243402458"/>
+          <BoundingBox SRS="EPSG:23030" minx="371952.1046413701" miny="4427946.278722709" maxx="492821.51594690356" maxy="4555982.906460406"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.527015690423311" miny="39.99011522933057" maxx="-3.085283337027599" maxy="41.15326247382227"/>
+          <BoundingBox SRS="EPSG:3857" minx="-503945.08147108275" miny="4864505.955521831" maxx="-343452.1700308842" maxy="5034974.194510159"/>
+          <BoundingBox SRS="EPSG:32630" minx="371851.87507372524" miny="4427739.004445997" maxx="492720.21875445434" maxy="4555774.504533471"/>
+          <BoundingBox SRS="EPSG:3035" minx="3084499.2800181257" miny="1974983.6109199063" maxx="3224002.372949336" maxy="2122107.2401081654"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_SERVINST_PUN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_SERVINST_PUN</Name>
+            <Title>Estilo servicios e instalaciones. Puntos</Title>
+            <LegendURL width="204" height="60">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_SERVINST_PUN_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="5000.0"/>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_RELIEVE_PUN_17</Name>
+          <Title>Relieve Puntos</Title>
+          <Abstract>Puntos acotados de la Base Topográfica Armonizada de la Comunidad de Madrid.</Abstract>
+          <KeywordList>
+            <Keyword>Relieve</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.599151143037341" miny="39.87715646740858" maxx="-3.05459803609878" maxy="41.16709545508754"/>
+          <BoundingBox SRS="EPSG:25830" minx="365824.1875" miny="4415301.0" maxx="495331.90625" maxy="4557308.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.599151143037343" miny="39.87715642846283" maxx="-3.0545980360987794" maxy="41.16709541528187"/>
+          <BoundingBox SRS="EPSG:23030" minx="365924.3580908162" miny="4415508.16992932" maxx="495433.22545517056" maxy="4557516.421916899"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.599151143037341" miny="39.87715646740858" maxx="-3.05459803609878" maxy="41.16709545508754"/>
+          <BoundingBox SRS="EPSG:3857" minx="-511975.16332421894" miny="4848107.016928076" maxx="-340036.2979566497" maxy="5037019.534718061"/>
+          <BoundingBox SRS="EPSG:32630" minx="365824.18757669814" miny="4415301.004436386" maxx="495331.9062528582" maxy="4557308.004534385"/>
+          <BoundingBox SRS="EPSG:3035" minx="3076600.3819817207" miny="1962285.1120423537" maxx="3226824.1800122075" maxy="2124673.329147778"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_RELIEVE_PUN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_RELIEVE_PUN</Name>
+            <Title>Estilo relieve puntos acotados</Title>
+            <LegendURL width="242" height="40">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_RELIEVE_PUN_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="10000.0"/>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_PUNTOSREF_PUN_17</Name>
+          <Title>Puntos de Referencia Puntos</Title>
+          <Abstract>Puntos de referencia de la Base Topográfica Armonizada de la Comunidad de Madrid.</Abstract>
+          <KeywordList>
+            <Keyword>Puntos de referencia</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.585806454380927" miny="39.9092566725553" maxx="-3.002052870731728" maxy="41.16630716752612"/>
+          <BoundingBox SRS="EPSG:25830" minx="366942.65625" miny="4418845.5" maxx="499824.5625" maxy="4557219.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.585806454380927" miny="39.909256633585386" maxx="-3.002052870731728" maxy="41.166307127720906"/>
+          <BoundingBox SRS="EPSG:23030" minx="367042.83859892585" miny="4419052.699458364" maxx="499925.9191175901" maxy="4557427.420651842"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.585806454380927" miny="39.9092566725553" maxx="-3.002052870731728" maxy="41.16630716752612"/>
+          <BoundingBox SRS="EPSG:3857" minx="-510489.63937819214" miny="4852764.455287338" maxx="-334186.9969043411" maxy="5036902.967169638"/>
+          <BoundingBox SRS="EPSG:32630" minx="366942.65632619656" miny="4418845.504439136" maxx="499824.56250010745" maxy="4557219.004534334"/>
+          <BoundingBox SRS="EPSG:3035" minx="3078259.334059951" miny="1965005.3498344368" maxx="3231248.41088516" maxy="2124389.9236164163"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_PUNTOSREF_PUN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_PUNTOSREF_PUN</Name>
+            <Title>Estilo puntos de referencia</Title>
+            <LegendURL width="292" height="60">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_PUNTOSREF_PUN_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="50000.0"/>
+        </Layer>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_NOMGEO_PUN_17</Name>
+          <Title>Nombres Geográficos BTA</Title>
+          <Abstract>Conjunto de los nombres Geográficos de la Base Topográfica de la Comunidad de Madrid. Están relacionados con los Nombres Geográficos del Nomenclator Geográfico básico de España.</Abstract>
+          <KeywordList>
+            <Keyword>Nombres</Keyword>
+            <Keyword> Geográfico</Keyword>
+            <Keyword> Toponimia</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+            <Keyword> IDEM</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.601296098342974" miny="39.873776120343905" maxx="-3.0242069904329485" maxy="41.17671775657665"/>
+          <BoundingBox SRS="EPSG:25830" minx="365663.78125" miny="4414928.5" maxx="497930.21875" maxy="4558375.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.601296098342975" miny="39.87377608140072" maxx="-3.024206990432948" maxy="41.17671771676544"/>
+          <BoundingBox SRS="EPSG:23030" minx="365763.9502367105" miny="4415135.665920895" maxx="498031.55976440053" maxy="4558583.430763239"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.601296098342974" miny="39.873776120343905" maxx="-3.0242069904329485" maxy="41.17671775657665"/>
+          <BoundingBox SRS="EPSG:3857" minx="-512213.9386566164" miny="4847616.687210498" maxx="-336653.1822284542" maxy="5038442.539809012"/>
+          <BoundingBox SRS="EPSG:32630" minx="365663.78132677486" miny="4414928.504436093" maxx="497930.2187512679" maxy="4558375.00453502"/>
+          <BoundingBox SRS="EPSG:3035" minx="3076383.714313261" miny="1961472.5275801749" maxx="3229559.249350029" maxy="2125753.4379118774"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_NOMGEO_PUN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_NOMGEO_PUN</Name>
+            <Title>Estilo nombres geográficos</Title>
+            <LegendURL width="219" height="260">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_NOMGEO_PUN_17"/>
+            </LegendURL>
+          </Style>
+          <ScaleHint min="0.0" max="1000000.0"/>
+        </Layer>
+      </Layer>
+      <Layer>
+        <Name>BTA 2017</Name>
+        <Title>BTA 2017</Title>
+        <Layer queryable="1" opaque="0">
+          <Name>IDEM_BTA_CUBIERTER_LIN_17</Name>
+          <Title>Cubierta Terrestre Lineas</Title>
+          <Abstract>Cubierta Terrestre de la Base topográfica armonizada de la Comunidad de Madrid.Elementos lineales</Abstract>
+          <KeywordList>
+            <Keyword>features</Keyword>
+            <Keyword> cubiertater_lin</Keyword>
+            <Keyword> Cubierta terrestre</Keyword>
+            <Keyword> Base Topográfica Armonizada</Keyword>
+            <Keyword> IDEM</Keyword>
+            <Keyword> Comunidad de Madrid</Keyword>
+          </KeywordList>
+          <SRS>EPSG:25830</SRS>
+          <LatLonBoundingBox minx="-4.601733127716921" miny="39.87686100354528" maxx="-3.052776549595748" maxy="41.16720443256755"/>
+          <BoundingBox SRS="EPSG:25830" minx="365607.6875" miny="4415272.0" maxx="495487.625" maxy="4557320.0"/>
+          <BoundingBox SRS="EPSG:4258" minx="-4.601733127716922" miny="39.87686096459976" maxx="-3.052776549595748" maxy="41.1672043927618"/>
+          <BoundingBox SRS="EPSG:23030" minx="365707.85622129124" miny="4415479.169630585" maxx="495588.94550400705" maxy="4557528.4221191285"/>
+          <BoundingBox SRS="EPSG:4326" minx="-4.601733127716921" miny="39.87686100354528" maxx="-3.052776549595748" maxy="41.16720443256755"/>
+          <BoundingBox SRS="EPSG:3857" minx="-512262.58854398574" miny="4848064.158023908" maxx="-339833.53100664535" maxy="5037035.649807625"/>
+          <BoundingBox SRS="EPSG:32630" minx="365607.6875768198" miny="4415272.004436361" maxx="495487.62500276294" maxy="4557320.004534396"/>
+          <BoundingBox SRS="EPSG:3035" minx="3076382.025096255" miny="1962229.833603985" maxx="3226979.9025012706" maxy="2124723.0362656093"/>
+          <AuthorityURL name="Comunidad de Madrid">
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.comunidad.madrid/"/>
+          </AuthorityURL>
+          <Identifier authority="Comunidad de Madrid">IDEM_BTA_CUBIERTER_LIN_17</Identifier>
+          <Style>
+            <Name>S_IDEM_BTA_CUBIERTER_LIN</Name>
+            <Title>Estilo cubierta terrestre lineas</Title>
+            <LegendURL width="239" height="120">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idem.comunidad.madrid/geoidem/BTA/wms?request=GetLegendGraphic&amp;version=1.1.1&amp;format=image%2Fpng&amp;width=20&amp;height=20&amp;layer=IDEM_BTA_CUBIERTER_LIN_17"/>
+            </LegendURL>
+          </Style>
+        </Layer>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMT_MS_Capabilities>

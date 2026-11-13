@@ -1,0 +1,313 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"   xmlns:sld="http://www.opengis.net/sld"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xmlns:ms="http://mapserver.gis.umn.edu/mapserver"   xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0"   xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0"   xsi:schemaLocation="http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd  http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/sld_capabilities.xsd  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd http://mapserver.gis.umn.edu/mapserver https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;service=WMS&amp;version=1.3.0&amp;request=GetSchemaExtension">
+
+<!-- MapServer version 7.6.4 OUTPUT=PNG OUTPUT=JPEG SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=RSVG SUPPORTS=ICONV SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=GEOS SUPPORTS=POINT_Z_M SUPPORTS=PBF INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>WMS</Name>
+  <Title>Ortofoto de 2017 de la Comunitat Valenciana</Title>
+  <Abstract>El servicio WMS permite visualizar las ortofotos del año 2017 de 25cm. de resolución en RGB y IRG de la Comunitat Valenciana. El servicio ofrece la cuadrícula de descargas hojas</Abstract>
+  <KeywordList>
+      <Keyword>OGC</Keyword>
+      <Keyword>WMS</Keyword>
+      <Keyword>OGC:WMS-1.3.0</Keyword>
+      <Keyword>ICV</Keyword>
+      <Keyword vocabulary="GEMET - INSPIRE themes">Ortoimágenes</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson>Técnico ICV</ContactPerson>
+      <ContactOrganization>Institut Cartogràfic Valencià</ContactOrganization>
+    </ContactPersonPrimary>
+      <ContactPosition>Punto de contacto</ContactPosition>
+  <ContactElectronicMailAddress>responde_icv@gva.es</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>No se aplican condiciones</Fees>
+  <AccessConstraints>CC BY 4.0 Generalitat</AccessConstraints>
+  <MaxWidth>4096</MaxWidth>
+  <MaxHeight>4096</MaxHeight>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <Format>image/svg+xml</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <Format>application/x-pdf</Format>
+      <Format>image/tiff</Format>
+      <Format>application/x-protobuf</Format>
+      <Format>application/json</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/html</Format>
+      <Format>geojson</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <Format>text/plain</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+    <sld:DescribeLayer>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </sld:DescribeLayer>
+    <sld:GetLegendGraphic>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </sld:GetLegendGraphic>
+    <ms:GetStyles>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </ms:GetStyles>
+  </Request>
+  <Exception>
+    <Format>XML</Format>
+    <Format>INIMAGE</Format>
+    <Format>BLANK</Format>
+  </Exception>
+  <sld:UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0" InlineFeature="0" RemoteWCS="0"/>
+  <inspire_vs:ExtendedCapabilities>
+    <inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+      <inspire_common:URL>https://catalogo.icv.gva.es/geonetwork/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaicv0202_WMS2017CVAL0025</inspire_common:URL>
+      <inspire_common:MediaType>application/vnd.ogc.csw.capabilities.response_xml</inspire_common:MediaType>
+    </inspire_common:MetadataUrl>
+    <inspire_common:SupportedLanguages>
+      <inspire_common:DefaultLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:DefaultLanguage>
+      <inspire_common:SupportedLanguage><inspire_common:Language>cat</inspire_common:Language></inspire_common:SupportedLanguage>
+    </inspire_common:SupportedLanguages>
+    <inspire_common:ResponseLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:ResponseLanguage>
+  </inspire_vs:ExtendedCapabilities>
+  <Layer queryable="1">
+    <Name>OWS_0202_2017CVAL0025</Name>
+    <Title>Ortofoto de 2017 de la Comunitat Valenciana</Title>
+    <Abstract>El servicio WMS permite visualizar las ortofotos del año 2017 de 25cm. de resolución en RGB y IRG de la Comunitat Valenciana. El servicio ofrece la cuadrícula de descargas hojas</Abstract>
+    <KeywordList>
+        <Keyword>OGC</Keyword>
+        <Keyword>WMS</Keyword>
+        <Keyword>OGC:WMS-1.3.0</Keyword>
+        <Keyword>ICV</Keyword>
+        <Keyword vocabulary="GEMET - INSPIRE themes">Ortoimágenes</Keyword>
+    </KeywordList>
+    <CRS>EPSG:25830</CRS>
+    <CRS>EPSG:25831</CRS>
+    <CRS>EPSG:3857</CRS>
+    <CRS>EPSG:23030</CRS>
+    <CRS>EPSG:23031</CRS>
+    <CRS>EPSG:4230</CRS>
+    <CRS>EPSG:4258</CRS>
+    <CRS>EPSG:4326</CRS>
+    <EX_GeographicBoundingBox>
+        <westBoundLongitude>-1.8688</westBoundLongitude>
+        <eastBoundLongitude>1.04411</eastBoundLongitude>
+        <southBoundLatitude>37.4344</southBoundLatitude>
+        <northBoundLatitude>41.0951</northBoundLatitude>
+    </EX_GeographicBoundingBox>
+    <BoundingBox CRS="EPSG:25830"
+                minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+    <Attribution>
+        <Title>Serie ODCV05</Title>
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.icv.gva.es"/>
+    </Attribution>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="244" height="91">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=OWS_0202_2017CVAL0025&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>distribucion_descargas</Name>
+        <Title>Ortofoto 25cm 2017 distribució de fulles per a descàrrega | Ortofoto 25cm 2017 distribución de hojas para la descarga | Orthophoto 25cm 2017 distribution download</Title>
+        <Abstract>Ortofoto 25cm 2017 distribución de hojas para la descarga</Abstract>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià.GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0202_2017CVAL0025</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaicv0202_2017CVAL0025"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="244" height="39">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=distribucion_descargas&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+<!-- WARNING: The layer name '2017CVAL0025_RGB' might contain spaces or invalid characters or may start with a number. This could lead to potential problems. -->
+        <Name>2017CVAL0025_RGB</Name>
+        <Title>Ortofoto 2017 25cm. RGB Comunitat Valenciana</Title>
+        <Abstract>Ortofoto 25cm. de resolución en RGB del año 2017 de la Comunitat Valenciana</Abstract>
+        <KeywordList>
+            <Keyword>2017</Keyword>
+            <Keyword>IDEV</Keyword>
+            <Keyword>Comunitat Valenciana</Keyword>
+            <Keyword>Ortofoto</Keyword>
+            <Keyword>Ortoimágenes</Keyword>
+            <Keyword>Orthoimagery</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià.GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0202_2017CVAL0025</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://catalogo.icv.gva.es/geonetwork/srv/spa/catalog.search#/metadata/spaicv0202_2017CVAL0025"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="40" height="30">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=2017CVAL0025_RGB&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+<!-- WARNING: The layer name '2017CVAL0025_IRG' might contain spaces or invalid characters or may start with a number. This could lead to potential problems. -->
+        <Name>2017CVAL0025_IRG</Name>
+        <Title>Ortofoto 2017 25cm. IRG Comunitat Valenciana</Title>
+        <Abstract>Ortofoto 25cm. de resolución en IRG del año 2017 de la Comunitat Valenciana</Abstract>
+        <KeywordList>
+            <Keyword>2017</Keyword>
+            <Keyword>IDEV</Keyword>
+            <Keyword>Comunitat Valenciana</Keyword>
+            <Keyword>Ortofoto</Keyword>
+            <Keyword>Ortoimágenes</Keyword>
+            <Keyword>Orthoimagery</Keyword>
+        </KeywordList>
+        <CRS>EPSG:25830</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-1.8688</westBoundLongitude>
+            <eastBoundLongitude>1.04411</eastBoundLongitude>
+            <southBoundLatitude>37.4344</southBoundLatitude>
+            <northBoundLatitude>41.0951</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox CRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox CRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox CRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox CRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox CRS="EPSG:4230"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4258"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <BoundingBox CRS="EPSG:4326"
+                    minx="37.4344" miny="-1.8688" maxx="41.0951" maxy="1.04411" />
+        <AuthorityURL name="Institut Cartogràfic Valencià.GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0202_2017CVAL0025</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://catalogo.icv.gva.es/geonetwork/srv/spa/catalog.search#/metadata/spaicv0202_2017CVAL0025"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="40" height="30">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0202_2017CVAL0025?language=spa&amp;version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=2017CVAL0025_IRG&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+  </Layer>
+</Capability>
+</WMS_Capabilities>

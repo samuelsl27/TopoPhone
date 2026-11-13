@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WMS_Capabilities xmlns:srv="http://schemas.opengis.net/iso/19139/20060504/srv/srv.xsd" xmlns:gmd="http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd" xmlns:gco="http://schemas.opengis.net/iso/19139/20060504/gco/gco.xsd" xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:gml="http://schemas.opengis.net/gml" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" version="1.3.0" updateSequence="1549" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd">
+  <Service>
+    <Name>WMS</Name>
+    <Title>Modelo Digital de Terreno de España</Title>
+    <Abstract>Representación de los Modelos Digitales de Elevaciones de España: curvas de nivel y puntos acotados procedentes de BTN, y Modelo Digital del Terreno de España 2ª Cobertura con paso de malla de 2 m, salvo en Castilla y León SW donde está disponible la 1ª Cobertura con paso de malla 5 m, en diversos sistemas de referencia. Las capas pertenecen al Tema de Elevaciones del Anexo II de Inspire y del Anexo I de LISIGE. Sus denominaciones son conformes con la Directiva Inspire 2007/2/EC así como su estilo. Además tienen asociado un estilo de visualización definido por el IGN. Servicio de visualización WMS 1.3.0 conforme al perfil Inspire de ISO 19128:2005.</Abstract>
+    <KeywordList>
+		<Keyword>Sistema Cartográfico Nacional</Keyword>
+		<Keyword>SCNE</Keyword>
+		<Keyword>Infraestructura de Datos Espaciales</Keyword>
+		<Keyword>IDEE</Keyword>
+		<Keyword>Lidar</Keyword>
+		<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">infoMapAccessService</Keyword>
+		<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">infoManagementService</Keyword>
+		<Keyword>MDT</Keyword>
+    </KeywordList>
+    <OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson/>
+        <ContactOrganization>Infraestructura de Datos Espaciales de España</ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition>Punto de contacto</ContactPosition>
+      <ContactAddress>
+        <AddressType>Postal</AddressType>
+        <Address>C/ General Ibáñez de Ibero, 3</Address>
+        <City>Madrid</City>
+        <StateOrProvince/>
+        <PostCode>28003</PostCode>
+        <Country>España</Country>
+      </ContactAddress>
+      <ContactVoiceTelephone>+34 91 597 96 46</ContactVoiceTelephone>
+      <ContactFacsimileTelephone>+34 91 597 97 64</ContactFacsimileTelephone>
+      <ContactElectronicMailAddress>ign@transporte.gob.es</ContactElectronicMailAddress>
+    </ContactInformation>
+    <Fees>No se aplican condiciones</Fees>
+	<AccessConstraints>CC BY 4.0 scne.es</AccessConstraints>
+	<MaxWidth>2048</MaxWidth>
+	<MaxHeight>2048</MaxHeight>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/atom+xml</Format>
+        <Format>application/pdf</Format>
+        <Format>application/vnd.google-earth.kml+xml</Format>
+        <Format>application/vnd.google-earth.kmz</Format>
+        <Format>image/gif</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+		<Format>text/plain</Format>
+		<Format>application/vnd.ogc.gml</Format>
+		<Format>text/xml</Format>
+		<Format>application/vnd.ogc.gml/3.1.1</Format>
+		<Format>text/xml; subtype=gml/3.1.1</Format>
+		<Format>text/html</Format>
+		<Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+    </Request>
+    <Exception>
+      <Format>XML</Format>
+      <Format>INIMAGE</Format>
+      <Format>BLANK</Format>
+    </Exception>
+	<inspire_vs:ExtendedCapabilities>
+	  <inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+		<inspire_common:URL>https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignwms_mdt</inspire_common:URL>
+		<inspire_common:MediaType>application/vnd.iso.19139+xml</inspire_common:MediaType>
+	  </inspire_common:MetadataUrl>
+	  <inspire_common:SupportedLanguages xsi:type="inspire_common:supportedLanguagesType">
+		<inspire_common:DefaultLanguage>
+		  <inspire_common:Language>spa</inspire_common:Language>
+		</inspire_common:DefaultLanguage>
+	  </inspire_common:SupportedLanguages>
+	  <inspire_common:ResponseLanguage>
+		<inspire_common:Language>spa</inspire_common:Language>
+	  </inspire_common:ResponseLanguage>
+	</inspire_vs:ExtendedCapabilities>
+    <Layer>
+      <Title>Modelos Digitales de Elevaciones de España</Title>
+      <Abstract>Representación de curvas de nivel y puntos acotados procedentes de BTN con paso de malla de 5m y cobertura grid procedente de puntos capturadas con sensores LiDAR aerotransportados del proyecto PNOA-LiDAR con paso de malla de 5m del Sistema Cartográfico Nacional (http://www.scne.es/productos.html).</Abstract>
+	  <CRS>EPSG:25828</CRS>
+	  <CRS>EPSG:25829</CRS>
+	  <CRS>EPSG:25830</CRS>
+	  <CRS>EPSG:25831</CRS>
+	  <CRS>EPSG:3035</CRS>
+	  <CRS>EPSG:32628</CRS>
+	  <CRS>EPSG:32629</CRS>
+	  <CRS>EPSG:32630</CRS>
+	  <CRS>EPSG:32631</CRS>
+	  <CRS>EPSG:3857</CRS>
+	  <CRS>EPSG:4258</CRS>
+	  <CRS>EPSG:4326</CRS>
+	  <CRS>EPSG:4081</CRS>
+	  <CRS>EPSG:4080</CRS>
+	  <CRS>EPSG:4082</CRS>
+	  <CRS>EPSG:4083</CRS>
+	  <CRS>CRS:84</CRS>
+	  <EX_GeographicBoundingBox>
+		<westBoundLongitude>-18.211</westBoundLongitude>
+		<eastBoundLongitude>5.838</eastBoundLongitude>
+		<southBoundLatitude>27.628</southBoundLatitude>
+		<northBoundLatitude>44.208</northBoundLatitude>
+	  </EX_GeographicBoundingBox>
+	  <BoundingBox CRS="CRS:84" minx="-18.211" miny="27.628" maxx="5.838" maxy="44.208"/>
+	  <BoundingBox CRS="EPSG:32628" minx="183113.629527625" miny="3056248.8652994735" maxx="2581853.7665809225" maxy="5110964.8216184545"/>
+	  <BoundingBox CRS="EPSG:32629" minx="-410987.1986500176" miny="3056565.034669597" maxx="1973284.4526804863" maxy="5003263.5962416055"/>
+	  <BoundingBox CRS="EPSG:32630" minx="-1010810.4208034477" miny="3056264.7020770283" maxx="1373925.5891620598" maxy="5008843.759020061"/>
+	  <BoundingBox CRS="EPSG:32631" minx="-1620074.3944399077" miny="3056541.8966276953" maxx="780057.426406364" maxy="5118950.229646047"/>
+	  <BoundingBox CRS="EPSG:25829" minx="-410987.1986467999" miny="3056565.0346658835" maxx="1973284.452675253" maxy="5003263.596228357"/>
+	  <BoundingBox CRS="EPSG:25828" minx="183113.62952874147" miny="3056248.8652957524" maxx="2581853.766573433" maxy="5110964.821606125"/>
+	  <BoundingBox CRS="EPSG:25830" minx="-1010810.4207980782" miny="3056264.7020733077" maxx="1373925.5891589741" maxy="5008843.759006862"/>
+	  <BoundingBox CRS="EPSG:25831" minx="-1620074.3944322714" miny="3056541.8966239807" maxx="780057.4264053775" maxy="5118950.229633782"/>
+	  <BoundingBox CRS="EPSG:3857" minx="-2027239.246836305" miny="3202153.5416268734" maxx="649883.1872511312" maxy="5497687.287572077"/>
+	  <BoundingBox CRS="EPSG:4326" minx="27.628" miny="-18.211" maxx="44.208" maxy="5.838"/>
+	  <BoundingBox CRS="EPSG:4258" minx="27.6280000007758" miny="-18.211" maxx="44.20800000094292" maxy="5.838000000000001"/>
+	  <BoundingBox CRS="EPSG:3035" minx="534548.2541163838" miny="1539771.283687767" maxx="2766780.671705146" maxy="3987824.487772396"/>
+	  <BoundingBox CRS="EPSG:4081" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+	  <BoundingBox CRS="EPSG:4080" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+	  <BoundingBox CRS="EPSG:4082" minx="-1.8240005281965184E8" miny="-1.2158937910363802E8" maxx="4.081872876443419E7" maxy="1.2158937910363802E8"/>
+	  <BoundingBox CRS="EPSG:4083" minx="-2.237679047670823E8" miny="-1.5102999309586868E8" maxx="5.425414857933458E7" maxy="1.5102999309586868E8"/>
+        <Layer queryable="1">
+          <Name>EL.SpotElevation</Name>
+          <Title>Puntos acotados</Title>
+          <Abstract>Representación de datos espaciales correspondientes la capa Puntos Acotados del tema Elevaciones del Anexo II de la Directiva Inspire. Puntos de la superficie con cota sobre el terreno o elevada. Origen de datos: BTN.</Abstract>
+          <KeywordList>
+            <Keyword>Elevaciones</Keyword>
+            <Keyword>Collado</Keyword>
+            <Keyword>Relieve</Keyword>
+            <Keyword>Cerro</Keyword>
+          </KeywordList>
+          <CRS>EPSG:4258</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-19.0</westBoundLongitude>
+            <eastBoundLongitude>5.0</eastBoundLongitude>
+            <southBoundLatitude>27.0</southBoundLatitude>
+            <northBoundLatitude>44.0</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+         <BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+		 <BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		 <BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		 <BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		 <BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		 <BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		 <BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>		 
+		 <BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		 <BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		 <BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		 <BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>	
+		 <BoundingBox CRS="EPSG:4081" minx="32.88" miny="-16.1" maxx="84.17" maxy="39.65"/>
+		 <BoundingBox CRS="EPSG:4080" minx="32.88" miny="-16.1" maxx="84.17" maxy="39.65"/>
+		 <BoundingBox CRS="EPSG:4082" minx="555502.7640228309" miny="3648645.285384627" maxx="6481138.990230877" maxy="9678106.861649226"/>
+		 <BoundingBox CRS="EPSG:4083" minx="397101.0901024507" miny="3638520.136206851" maxx="5861961.602558441" maxy="9620515.82944623"/>
+          <Attribution>
+            <Title>Instituto Geográfico Nacional</Title>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+          </Attribution>
+          <AuthorityURL name="IGN">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+          </AuthorityURL>
+          <Identifier authority="IGN">EL.SpotElevation</Identifier>
+		  <MetadataURL type="ISO19115:2003">
+			<Format>text/plain</Format>
+			<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMDT05"/>
+		  </MetadataURL>
+          <Style>
+            <Name>puntosacotados</Name>
+            <Title>IGN: Estilo de puntos acotados</Title>
+            <Abstract>Los puntos acotados se representan con un símbolo puntual circular de tamaño 1.0 p. en color naranja-marrón (CC6600) con borde marrón (996600). La cota asociada, en Times New Roman de tamaño 12, estilo italic y color marrón (996600). Se visualizan a escalas mayores de 1:50.000. </Abstract>
+            <LegendURL width="18" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/puntos_acotados.png"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>EL.SpotElevation.Default</Name>
+            <Title>Estilo por defecto Inspire de Puntos Acotados</Title>
+            <Abstract>Los puntos acotados son círculos negros (#000000) de tamaño 10 píxeles y con un ancho de 1 píxel. Los valores de altitud se representan como etiquetas: en Arial 10 negro (#000000).</Abstract>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/EL.SpotElevation.Default.png"/>
+            </LegendURL>
+          </Style>
+		<MaxScaleDenominator>50000</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1">
+          <Name>EL.ContourLine</Name>
+          <Title>Curvas de nivel</Title>
+          <Abstract>Representación de datos espaciales correspondientes la capa Curvas de nivel del tema Elevaciones del Anexo II de la Directiva Inspire. Equidistancia 50 metros. Datos procedentes de BTN.</Abstract>
+          <KeywordList>
+            <Keyword>Elevaciones</Keyword>
+            <Keyword>Relieve</Keyword>
+          </KeywordList>
+          <CRS>EPSG:4258</CRS>
+          <CRS>CRS:84</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-19.0</westBoundLongitude>
+            <eastBoundLongitude>5.0</eastBoundLongitude>
+            <southBoundLatitude>27.0</southBoundLatitude>
+            <northBoundLatitude>44.0</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+		 <BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		 <BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		 <BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		 <BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		 <BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		 <BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>		 
+		 <BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		 <BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		 <BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		 <BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>	
+		 <BoundingBox CRS="EPSG:4081" minx="32.88" miny="-16.1" maxx="84.17" maxy="39.65"/>
+		 <BoundingBox CRS="EPSG:4080" minx="32.88" miny="-16.1" maxx="84.17" maxy="39.65"/>
+		 <BoundingBox CRS="EPSG:4082" minx="555502.7640228309" miny="3648645.285384627" maxx="6481138.990230877" maxy="9678106.861649226"/>
+		 <BoundingBox CRS="EPSG:4083" minx="397101.0901024507" miny="3638520.136206851" maxx="5861961.602558441" maxy="9620515.82944623"/>
+          <Attribution>
+            <Title>Instituto Geográfico Nacional</Title>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/>
+          </Attribution>
+          <AuthorityURL name="IGN">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+          </AuthorityURL>
+          <Identifier authority="IGN">EL.ContourLine</Identifier>
+		  <MetadataURL type="ISO19115:2003">
+			<Format>text/plain</Format>
+			<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMDT05"/>
+		</MetadataURL>
+          <Style>
+            <Name>curvasnivel</Name>
+            <Title>IGN: Estilo de curvas de nivel</Title>
+            <Abstract>Las curvas de nivel se representan a escalas mayores a 1:200.000 a través de una línea continua en color marrón (#996600) y de grosor 0.025 píxeles. La cota se etiqueta en Arial 10 normal.</Abstract>
+            <LegendURL width="20" height="20">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/curvas_nivel.png"/>
+            </LegendURL>
+          </Style>
+          <Style>
+            <Name>EL.ContourLine.Default</Name>
+            <Title>Estilo por defecto Inspire de Curvas de Nivel</Title>
+            <Abstract>Las curvas de nivel son líneas marrones (#A47916) con un ancho de 1 píxel.</Abstract>
+            <LegendURL width="20" height="21">
+              <Format>image/png</Format>
+              <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/EL.ContourLine.Default.png"/>
+            </LegendURL>
+          </Style>
+		<MaxScaleDenominator>200000</MaxScaleDenominator>
+       </Layer>
+       <Layer queryable="1" opaque="0">
+        <Name>EL.ElevationGridCoverage</Name>
+        <Title>Modelo Digital del Terreno</Title>
+        <Abstract>Modelo Digital del Terreno generado a partir de las nubes de puntos LiDAR correspondientes a la segunda cobertura del proyecto PNOA-LiDAR. Para generar los modelos se han empleado los puntos de la clase terreno (clase 2) con un paso de malla de 2 m. Además de las nubes de puntos, se han utilizado las capas de hidrografía de Información Geográfica de Referencia del Sistema Cartográfico Nacional (http://www.scne.es) como información auxiliar. En la zona de Castilla y León SW se ha empleado el MDT de la primera cobertura con un paso de malla de 5 m ya que no se dispone de información de la 2º cobertura en esta zona.</Abstract>
+		<KeywordList>
+            <Keyword>Elevaciones</Keyword>
+            <Keyword>Cobertura</Keyword>
+            <Keyword>Grid</Keyword>
+        </KeywordList>
+		<CRS>EPSG:4258</CRS>
+		<CRS>CRS:84</CRS>
+        <EX_GeographicBoundingBox>
+          <westBoundLongitude>-18.211</westBoundLongitude>
+          <eastBoundLongitude>4.779</eastBoundLongitude>
+          <southBoundLatitude>27.634</southBoundLatitude>
+          <northBoundLatitude>43.944</northBoundLatitude>
+        </EX_GeographicBoundingBox>		
+		<BoundingBox CRS="CRS:84" minx="-18.211" miny="27.628" maxx="5.838" maxy="44.208"/>
+	  <BoundingBox CRS="EPSG:32628" minx="183113.629527625" miny="3056248.8652994735" maxx="2581853.7665809225" maxy="5110964.8216184545"/>
+	  <BoundingBox CRS="EPSG:32629" minx="-410987.1986500176" miny="3056565.034669597" maxx="1973284.4526804863" maxy="5003263.5962416055"/>
+	  <BoundingBox CRS="EPSG:32630" minx="-1010810.4208034477" miny="3056264.7020770283" maxx="1373925.5891620598" maxy="5008843.759020061"/>
+	  <BoundingBox CRS="EPSG:32631" minx="-1620074.3944399077" miny="3056541.8966276953" maxx="780057.426406364" maxy="5118950.229646047"/>
+	  <BoundingBox CRS="EPSG:25829" minx="-410987.1986467999" miny="3056565.0346658835" maxx="1973284.452675253" maxy="5003263.596228357"/>
+	  <BoundingBox CRS="EPSG:25828" minx="183113.62952874147" miny="3056248.8652957524" maxx="2581853.766573433" maxy="5110964.821606125"/>
+	  <BoundingBox CRS="EPSG:25830" minx="-1010810.4207980782" miny="3056264.7020733077" maxx="1373925.5891589741" maxy="5008843.759006862"/>
+	  <BoundingBox CRS="EPSG:25831" minx="-1620074.3944322714" miny="3056541.8966239807" maxx="780057.4264053775" maxy="5118950.229633782"/>
+	  <BoundingBox CRS="EPSG:3857" minx="-2027239.246836305" miny="3202153.5416268734" maxx="649883.1872511312" maxy="5497687.287572077"/>
+	  <BoundingBox CRS="EPSG:4326" minx="27.628" miny="-18.211" maxx="44.208" maxy="5.838"/>
+	  <BoundingBox CRS="EPSG:4258" minx="27.6280000007758" miny="-18.211" maxx="44.20800000094292" maxy="5.838000000000001"/>
+	  <BoundingBox CRS="EPSG:3035" minx="534548.2541163838" miny="1539771.283687767" maxx="2766780.671705146" maxy="3987824.487772396"/>
+	  <BoundingBox CRS="EPSG:4081" minx="32.88" miny="-16.1" maxx="84.17" maxy="39.65"/>
+	  <BoundingBox CRS="EPSG:4080" minx="32.88" miny="-16.1" maxx="84.17" maxy="39.65"/>
+	  <BoundingBox CRS="EPSG:4082" minx="555502.7640228309" miny="3648645.285384627" maxx="6481138.990230877" maxy="9678106.861649226"/>
+	  <BoundingBox CRS="EPSG:4083" minx="397101.0901024507" miny="3638520.136206851" maxx="5861961.602558441" maxy="9620515.82944623"/>
+		<Attribution>
+			<Title>Instituto Geográfico Nacional</Title> 
+			<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/> 
+		</Attribution>
+		<AuthorityURL name="IGN">
+			<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es"/> 
+		</AuthorityURL>
+		<Identifier authority="IGN">EL.ElevationGridCoverage</Identifier>
+		<MetadataURL type="ISO19115:2003">
+			<Format>text/plain</Format>
+			<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMDT05"/>
+		</MetadataURL>
+				<MetadataURL type="ISO19115:2003">
+			<Format>text/plain</Format>
+			<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignMDT02"/>
+		</MetadataURL>
+		<Style> 
+			<Name>Elevaciones</Name>
+			<Title>IGN: Estilo de elevaciones del terreno</Title>
+			<Abstract>Estilo de representación de elevaciones del terreno. Se simboliza con una escala de grises.</Abstract>
+			<LegendURL width="408" height="51">
+				<Format>image/png</Format>
+				<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/Elevaciones.png"/>
+			</LegendURL>
+		</Style>
+		<Style> 
+			<Name>EL.ElevationGridCoverage.Default</Name>
+			<Title>Estilo por defecto de coberturas grid</Title>
+			<Abstract>Las coberturas grid se simbolizan a través de un raster coloreado. Se visualiza para escalas mayores a 1:3.000.000.</Abstract>
+			<LegendURL width="370" height="358">
+				<Format>image/png</Format>
+				<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/mdt/leyendas/EL.ElevationGridCoverage.Default.png"/>
+			</LegendURL>
+		</Style>
+      </Layer>
+    </Layer>
+  </Capability>
+</WMS_Capabilities>

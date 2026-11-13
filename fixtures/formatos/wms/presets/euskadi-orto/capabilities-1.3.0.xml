@@ -1,0 +1,1395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<WMS_Capabilities xmlns:srv="http://schemas.opengis.net/iso/19139/20060504/srv/srv.xsd" xmlns:gmd="http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd" xmlns:gco="http://schemas.opengis.net/iso/19139/20060504/gco/gco.xsd" xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:gml="http://schemas.opengis.net/gml" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" version="1.3.0" updateSequence="2619" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:esri_wms="http://www.esri.com/wms" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd http://www.esri.com/wms https://www.geo.euskadi.eus/WMS_ORTOARGAZKIAK?version=1.3.0%26service=WMS%26request=GetSchemaExtension">
+	<Service><Name>WMS ORTOARGAZKIAK</Name>
+		<Title>WMS ORTOARGAZKIAK</Title>
+		<Abstract>geoEuskadiren ortoargazkiak bistaratzeko WMS Zerbitzua. Zerbitzu horren bidez, Eusko Jaurlaritzak ekoiztutako eta koekoiztutako ortoargazkien katalogoa ikusi ahal da.  Inspire Zuzentarauaren II. eranskinaren 3. Gaian kokatutako informazioa erakusten du, ortoirudiak, alegia.Zerbitzu horrek ETRS89 eta WGS84 datumak biltzen ditu, koordinatu geografikoetan eta UTM koordinatuetan. Datuak aldian-aldian eguneratzen dira, eskuragarri dagoen katalogoa handitu ahala. Eguneratze horiek Euskadiko DEAren atarian iragartzen dira. (http://www.geo.euskadi.eus)Zerbitzu horretara sartu edo harekin konektatzea doakoa da. Hala ere, Eusko Jaurlaritza zerbitzuaren jabea dela horrela adierazi behar da: «Eusko Jaurlaritza / Gobierno Vasco. geoEuskadigeoEuskadiren Ortoargazkiak Bistaratzeko WMS Zerbitzua. Zerbitzu horren bidez, Eusko Jaurlaritzak ekoiztutako eta koekoiztutako ortoargazkien katalogoa ikusi ahal da.  Inspire Zuzentarauaren II. eranskinaren 3. Gaian kokatutako informazioa erakusten du, ortoirudiak, alegia.Zerbitzu horrek ETRS89 eta WGS84 datumak biltzen ditu, koordinatu geografikoetan eta UTM koordinatuetan. Datuak aldian-aldian eguneratzen dira, eskuragarri dagoen katalogoa handitu ahala. Eguneratze horiek Euskadiko DEAren atarian iragartzen dira. (http://www.geo.euskadi.eus)Zerbitzu horretara sartu edo harekin konektatzea doakoa da. Hala ere, Eusko Jaurlaritza zerbitzuaren jabea dela horrela adierazi behar da: «Eusko Jaurlaritza / Gobierno Vasco. geoEuskadigeoEuskadiren Ortoargazkiak Bistaratzeko WMS Zerbitzua. Zerbitzu horren bidez, Eusko Jaurlaritzak ekoiztutako eta koekoiztutako ortoargazkien katalogoa ikusi ahal da.  Inspire Zuzentarauaren II. eranskinaren 3. Gaian kokatutako informazioa erakusten du, ortoirudiak, alegia.Zerbitzu horrek ETRS89 eta WGS84 datumak biltzen ditu, koordinatu geografikoetan eta UTM koordinatuetan. Datuak aldian-aldian eguneratzen dira, eskuragarri dagoen katalogoa handitu ahala. Eguneratze horiek Euskadiko DEAren atarian iragartzen dira. (http://www.geo.euskadi.eus)Zerbitzu horretara sartu edo harekin konektatzea doakoa da. Hala ere, Eusko Jaurlaritza zerbitzuaren jabea dela horrela adierazi behar da: «Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi / Servicio de visualización WMS de Ortofotografías de geoEuskadi. El servicio permite visualizar el catálogo de ortofotografías producidas o coproducidas por Gobierno Vasco. Muestra información encuadrada en el Tema 3 del Anexo II de la Directiva Inspire: ortoimágenes.Este servicio soporta los datum ETRS89, WGS84 y ED50, en coordenadas geográficas y en coordenadas UTM. Los datos se actualizan periódicamente según se incrementa el catálogo disponible. Estas actualizaciones se anuncian en el portal de la IDE de Euskadi (http://www.geo.euskadi.eus)El acceso o conexión a este servicio es gratuito, pero en cualquier caso es obligatorio que se mencione la autoría de Gobierno Vasco como propietario del servicio del siguiente modo: «Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi»</Abstract>
+		<KeywordList><Keyword></Keyword></KeywordList>
+		<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.geo.euskadi.eus/WMS_ORTOARGAZKIAK?"/>
+		<ContactInformation>
+			<ContactPersonPrimary>
+				<ContactPerson></ContactPerson>
+				<ContactOrganization>Eusko Jaurlaritza / Gobierno Vasco</ContactOrganization>
+			</ContactPersonPrimary>
+			<ContactPosition>pointOfContact</ContactPosition>
+			<ContactAddress>
+				<AddressType></AddressType>
+				<Address></Address>
+				<City></City>
+				<StateOrProvince></StateOrProvince>
+				<PostCode></PostCode>
+				<Country></Country>
+			</ContactAddress>
+			<ContactVoiceTelephone></ContactVoiceTelephone>
+			<ContactFacsimileTelephone></ContactFacsimileTelephone>
+			<ContactElectronicMailAddress>geoeuskadi@euskadi.eus</ContactElectronicMailAddress>
+		</ContactInformation>
+		<Fees></Fees>
+		<AccessConstraints>OtherConstraints. Se permite el acceso a este servicio en cualquier caso siempre que se mencione la autoría de Gobierno Vasco como propietario del servicio del siguiente modo: «Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi»</AccessConstraints>
+		<MaxWidth>4096</MaxWidth>
+		<MaxHeight>4096</MaxHeight>
+	</Service>
+	<Capability>
+		<Request>
+			<GetCapabilities>
+				<Format>application/vnd.ogc.wms_xml</Format>
+				<Format>text/xml</Format>
+				<DCPType>
+					<HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.geo.euskadi.eus/WMS_ORTOARGAZKIAK?"/></Get></HTTP>
+				</DCPType>
+			</GetCapabilities>
+			<GetMap>
+				<Format>image/bmp</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/tiff</Format>
+				<Format>image/png</Format>
+				<Format>image/png8</Format>
+				<Format>image/png24</Format>
+				<Format>image/png32</Format>
+				<Format>image/gif</Format>
+				<Format>image/svg+xml</Format>
+				<DCPType>
+					<HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.geo.euskadi.eus/WMS_ORTOARGAZKIAK?"/></Get></HTTP>
+				</DCPType>
+			</GetMap>
+			<GetFeatureInfo>
+				<Format>application/vnd.esri.wms_raw_xml</Format>
+				<Format>application/vnd.esri.wms_featureinfo_xml</Format>
+				<Format>application/vnd.ogc.wms_xml</Format>
+				<Format>application/geojson</Format>
+				<Format>text/xml</Format>
+				<Format>text/html</Format>
+				<Format>text/plain</Format>
+				<DCPType>
+					<HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.geo.euskadi.eus/WMS_ORTOARGAZKIAK?"/></Get></HTTP>
+				</DCPType>
+			</GetFeatureInfo>
+			<esri_wms:GetStyles>
+				<Format>application/vnd.ogc.sld+xml</Format>
+				<DCPType>
+					<HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.geo.euskadi.eus/WMS_ORTOARGAZKIAK?"/></Get></HTTP>
+				</DCPType>
+			</esri_wms:GetStyles>
+		</Request>
+		<Exception>
+			<Format>application/vnd.ogc.se_xml</Format>
+			<Format>application/vnd.ogc.se_inimage</Format>
+			<Format>application/vnd.ogc.se_blank</Format>
+			<Format>text/xml</Format>
+			<Format>XML</Format>
+		</Exception>
+		<inspire_vs:ExtendedCapabilities><inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType"><inspire_common:URL>http://www.geo.euskadi.eus/CSW?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=md_IDEEu_WMS_ORTOARGAZKIAK_es</inspire_common:URL><inspire_common:MediaType>application/vnd.iso.19139+xml</inspire_common:MediaType></inspire_common:MetadataUrl><inspire_common:SupportedLanguages xsi:type="inspire_common:supportedLanguagesType"><inspire_common:DefaultLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:DefaultLanguage><inspire_common:SupportedLanguage><inspire_common:Language>eng</inspire_common:Language></inspire_common:SupportedLanguage></inspire_common:SupportedLanguages><inspire_common:ResponseLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:ResponseLanguage></inspire_vs:ExtendedCapabilities>
+		<Layer>
+			<Title>Layers</Title>
+			<CRS>CRS:84</CRS>
+			<CRS>EPSG:4326</CRS>
+			<CRS>EPSG:25830</CRS>
+			<CRS>EPSG:3857</CRS>
+			<!-- alias 3857 -->
+			<CRS>EPSG:102100</CRS>
+			<EX_GeographicBoundingBox><westBoundLongitude>-3.561582</westBoundLongitude><eastBoundLongitude>-1.632076</eastBoundLongitude><southBoundLatitude>42.407797</southBoundLatitude><northBoundLatitude>43.502419</northBoundLatitude></EX_GeographicBoundingBox>
+			<BoundingBox CRS="CRS:84" minx="-3.561582" miny="42.407797" maxx="-1.632076" maxy="43.502419"/>
+			<BoundingBox CRS="EPSG:4326" minx="42.407797" miny="-3.561582" maxx="43.502419" maxy="-1.632076"/>
+			<BoundingBox CRS="EPSG:25830" minx="454600.000122" miny="4695930.000000" maxx="610600.000122" maxy="4816610.000122"/>
+			<BoundingBox CRS="EPSG:3857" minx="-396473.522571" miny="5222262.515735" maxx="-181681.851775" maxy="5388760.469882"/>
+			<BoundingBox CRS="EPSG:102100" minx="-396473.522571" miny="5222262.515735" maxx="-181681.851775" maxy="5388760.469882"/>
+			<Layer queryable="1">
+				<Name>ORTO_EGUNERATUENA_MAS_ACTUALIZADA</Name>
+				<Title>ORTO_EGUNERATUENA_MAS_ACTUALIZADA</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_EGUNERATUENA_MAS_ACTUALIZADA</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2025</Name>
+				<Title>ORTO_2025</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2025</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2025_IrRG</Name>
+				<Title>ORTO_2025_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2025_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2024</Name>
+				<Title>ORTO_2024</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2024</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2024_IrRG</Name>
+				<Title>ORTO_2024_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2024_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2023</Name>
+				<Title>ORTO_2023</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2023</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2023_IrRG</Name>
+				<Title>ORTO_2023_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2023_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2022</Name>
+				<Title>ORTO_2022</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2022</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2022_IrRG</Name>
+				<Title>ORTO_2022_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2022_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2021_IrRG</Name>
+				<Title>ORTO_2021_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2021_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2021</Name>
+				<Title>ORTO_2021</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2021</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2020_IrRG</Name>
+				<Title>ORTO_2020_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2020_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2020</Name>
+				<Title>ORTO_2020</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2020</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2019_COSTA</Name>
+				<Title>ORTO_2019_COSTA</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.162286</westBoundLongitude><eastBoundLongitude>-1.72634</eastBoundLongitude><southBoundLatitude>43.268232</southBoundLatitude><northBoundLatitude>43.451528</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.162286" miny="43.268232" maxx="-1.72634" maxy="43.451528"/>
+				<BoundingBox CRS="EPSG:4326" minx="43.268232" miny="-3.162286" maxx="43.451528" maxy="-1.72634"/>
+				<BoundingBox CRS="EPSG:25830" minx="486830" miny="4790615" maxx="603051" maxy="4811746"/>
+				<BoundingBox CRS="EPSG:3857" minx="-352024.09" miny="5352889.04" maxx="-192175.28" maxy="5380953.51"/>
+				<BoundingBox CRS="EPSG:102100" minx="-352024.09" miny="5352889.04" maxx="-192175.28" maxy="5380953.51"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2019_COSTA</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2019_COSTA_IrRG</Name>
+				<Title>ORTO_2019_COSTA_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.162286</westBoundLongitude><eastBoundLongitude>-1.72634</eastBoundLongitude><southBoundLatitude>43.268232</southBoundLatitude><northBoundLatitude>43.451528</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.162286" miny="43.268232" maxx="-1.72634" maxy="43.451528"/>
+				<BoundingBox CRS="EPSG:4326" minx="43.268232" miny="-3.162286" maxx="43.451528" maxy="-1.72634"/>
+				<BoundingBox CRS="EPSG:25830" minx="486830" miny="4790615" maxx="603051" maxy="4811746"/>
+				<BoundingBox CRS="EPSG:3857" minx="-352024.09" miny="5352889.04" maxx="-192175.28" maxy="5380953.51"/>
+				<BoundingBox CRS="EPSG:102100" minx="-352024.09" miny="5352889.04" maxx="-192175.28" maxy="5380953.51"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2019_COSTA_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2019_IrRG</Name>
+				<Title>ORTO_2019_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2019_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2019</Name>
+				<Title>ORTO_2019</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2019</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2018_IrRG</Name>
+				<Title>ORTO_2018_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2018_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2018</Name>
+				<Title>ORTO_2018</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2018</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2017_IrRG</Name>
+				<Title>ORTO_2017_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.683342</eastBoundLongitude><southBoundLatitude>42.451223</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451223" maxx="-1.683342" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451223" miny="-3.481828" maxx="43.459108" maxy="-1.683342"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="606530.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228812.019224" maxx="-187388.734384" maxy="5382115.894241"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228812.019224" maxx="-187388.734384" maxy="5382115.894241"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2017_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2017</Name>
+				<Title>ORTO_2017</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.683342</eastBoundLongitude><southBoundLatitude>42.451223</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451223" maxx="-1.683342" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451223" miny="-3.481828" maxx="43.459108" maxy="-1.683342"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="606530.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228812.019224" maxx="-187388.734384" maxy="5382115.894241"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228812.019224" maxx="-187388.734384" maxy="5382115.894241"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2017</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Title>ORTO_URBANA2017</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.456052</westBoundLongitude><eastBoundLongitude>-1.735050</eastBoundLongitude><southBoundLatitude>42.477176</southBoundLatitude><northBoundLatitude>43.450374</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.456052" miny="42.477176" maxx="-1.735050" maxy="43.450374"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.477176" miny="-3.456052" maxx="43.450374" maxy="-1.735050"/>
+				<BoundingBox CRS="EPSG:25830" minx="463100.000000" miny="4703510.000000" maxx="602360.000000" maxy="4810830.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-384725.982852" miny="5232728.292106" maxx="-193144.903803" maxy="5380776.498545"/>
+				<BoundingBox CRS="EPSG:102100" minx="-384725.982852" miny="5232728.292106" maxx="-193144.903803" maxy="5380776.498545"/>
+				<Layer queryable="1">
+					<Name>ORTO_URBANA_2017</Name>
+					<Title>ORTO_URBANA_2017</Title>
+					<Abstract>ORTO_URBANA_2017</Abstract>
+					<CRS>CRS:84</CRS>
+					<CRS>EPSG:4326</CRS>
+					<CRS>EPSG:25830</CRS>
+					<CRS>EPSG:3857</CRS>
+					<!-- alias 3857 -->
+					<CRS>EPSG:102100</CRS>
+					<EX_GeographicBoundingBox><westBoundLongitude>-3.456052</westBoundLongitude><eastBoundLongitude>-1.735050</eastBoundLongitude><southBoundLatitude>42.477176</southBoundLatitude><northBoundLatitude>43.450374</northBoundLatitude></EX_GeographicBoundingBox>
+					<BoundingBox CRS="CRS:84" minx="-3.456052" miny="42.477176" maxx="-1.735050" maxy="43.450374"/>
+					<BoundingBox CRS="EPSG:4326" minx="42.477176" miny="-3.456052" maxx="43.450374" maxy="-1.735050"/>
+					<BoundingBox CRS="EPSG:25830" minx="463100.000000" miny="4703510.000000" maxx="602360.000000" maxy="4810830.000000"/>
+					<BoundingBox CRS="EPSG:3857" minx="-384725.982852" miny="5232728.292106" maxx="-193144.903803" maxy="5380776.498545"/>
+					<BoundingBox CRS="EPSG:102100" minx="-384725.982852" miny="5232728.292106" maxx="-193144.903803" maxy="5380776.498545"/>
+					<Style>
+						<Name>default</Name>
+						<Title>ORTO_URBANA_2017</Title>
+					</Style>
+				</Layer>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2016_IrRG</Name>
+				<Title>ORTO_2016_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524348</westBoundLongitude><eastBoundLongitude>-1.682477</eastBoundLongitude><southBoundLatitude>42.450944</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524348" miny="42.450944" maxx="-1.682477" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.450944" miny="-3.524348" maxx="43.459108" maxy="-1.682477"/>
+				<BoundingBox CRS="EPSG:25830" minx="457580.000000" miny="4700660.000000" maxx="606600.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392328.579608" miny="5228769.816130" maxx="-187292.449624" maxy="5382115.894084"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392328.579608" miny="5228769.816130" maxx="-187292.449624" maxy="5382115.894084"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2016_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2016</Name>
+				<Title>ORTO_2016</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524348</westBoundLongitude><eastBoundLongitude>-1.682477</eastBoundLongitude><southBoundLatitude>42.450944</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524348" miny="42.450944" maxx="-1.682477" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.450944" miny="-3.524348" maxx="43.459108" maxy="-1.682477"/>
+				<BoundingBox CRS="EPSG:25830" minx="457580.000000" miny="4700660.000000" maxx="606600.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392328.579608" miny="5228769.816130" maxx="-187292.449624" maxy="5382115.894084"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392328.579608" miny="5228769.816130" maxx="-187292.449624" maxy="5382115.894084"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2016</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2015_IrRG</Name>
+				<Title>ORTO_2015_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524351</westBoundLongitude><eastBoundLongitude>-1.682467</eastBoundLongitude><southBoundLatitude>42.450944</southBoundLatitude><northBoundLatitude>43.459558</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524351" miny="42.450944" maxx="-1.682467" maxy="43.459558"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.450944" miny="-3.524351" maxx="43.459558" maxy="-1.682467"/>
+				<BoundingBox CRS="EPSG:25830" minx="457580.000000" miny="4700659.999986" maxx="606600.000000" maxy="4811849.999986"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392329.012681" miny="5228769.816111" maxx="-187291.361768" maxy="5382184.940265"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392329.012681" miny="5228769.816111" maxx="-187291.361768" maxy="5382184.940265"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2015_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2015</Name>
+				<Title>ORTO_2015</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524351</westBoundLongitude><eastBoundLongitude>-1.682467</eastBoundLongitude><southBoundLatitude>42.450944</southBoundLatitude><northBoundLatitude>43.459558</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524351" miny="42.450944" maxx="-1.682467" maxy="43.459558"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.450944" miny="-3.524351" maxx="43.459558" maxy="-1.682467"/>
+				<BoundingBox CRS="EPSG:25830" minx="457580.000000" miny="4700660.000000" maxx="606600.000000" maxy="4811850.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392329.012682" miny="5228769.816130" maxx="-187291.361768" maxy="5382184.940284"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392329.012682" miny="5228769.816130" maxx="-187291.361768" maxy="5382184.940284"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2015</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2014_IrRG</Name>
+				<Title>ORTO_2014_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2014_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2014</Name>
+				<Title>ORTO_2014</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.724736</eastBoundLongitude><southBoundLatitude>42.451677</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451677" maxx="-1.724736" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451677" miny="-3.481828" maxx="43.459108" maxy="-1.724736"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="603180.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228880.388113" maxx="-191996.704896" maxy="5382115.894184"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2014</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2013_IrRG</Name>
+				<Title>ORTO_2013_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.543893</westBoundLongitude><eastBoundLongitude>-1.665138</eastBoundLongitude><southBoundLatitude>42.444808</southBoundLatitude><northBoundLatitude>43.460909</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.543893" miny="42.444808" maxx="-1.665138" maxy="43.460909"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.444808" miny="-3.543893" maxx="43.460909" maxy="-1.665138"/>
+				<BoundingBox CRS="EPSG:25830" minx="456000.000000" miny="4700000.000000" maxx="608000.000000" maxy="4812000.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-394504.368864" miny="5227844.104885" maxx="-185362.356156" maxy="5382392.081995"/>
+				<BoundingBox CRS="EPSG:102100" minx="-394504.368864" miny="5227844.104885" maxx="-185362.356156" maxy="5382392.081995"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2013_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2013</Name>
+				<Title>ORTO_2013</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.528733</westBoundLongitude><eastBoundLongitude>-1.678728</eastBoundLongitude><southBoundLatitude>42.444960</southBoundLatitude><northBoundLatitude>43.460909</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.528733" miny="42.444960" maxx="-1.678728" maxy="43.460909"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.444960" miny="-3.528733" maxx="43.460909" maxy="-1.678728"/>
+				<BoundingBox CRS="EPSG:25830" minx="457226.500000" miny="4700000.000000" maxx="606900.250000" maxy="4812000.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392816.723676" miny="5227867.096990" maxx="-186875.093517" maxy="5382392.082090"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392816.723676" miny="5227867.096990" maxx="-186875.093517" maxy="5382392.082090"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2013</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2012_IrRG</Name>
+				<Title>ORTO_2012_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.683342</eastBoundLongitude><southBoundLatitude>42.451223</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451223" maxx="-1.683342" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451223" miny="-3.481828" maxx="43.459108" maxy="-1.683342"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="606530.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228812.019224" maxx="-187388.734384" maxy="5382115.894241"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228812.019224" maxx="-187388.734384" maxy="5382115.894241"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2012_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2012</Name>
+				<Title>ORTO_2012</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481828</westBoundLongitude><eastBoundLongitude>-1.683342</eastBoundLongitude><southBoundLatitude>42.451223</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481828" miny="42.451223" maxx="-1.683342" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451223" miny="-3.481828" maxx="43.459108" maxy="-1.683342"/>
+				<BoundingBox CRS="EPSG:25830" minx="461020.000000" miny="4700690.000000" maxx="606530.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387595.296267" miny="5228812.019224" maxx="-187388.734384" maxy="5382115.894241"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387595.296267" miny="5228812.019224" maxx="-187388.734384" maxy="5382115.894241"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2012</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2011_IrRG</Name>
+				<Title>ORTO_2011_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.521451</westBoundLongitude><eastBoundLongitude>-1.682358</eastBoundLongitude><southBoundLatitude>42.410033</southBoundLatitude><northBoundLatitude>43.458504</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.521451" miny="42.410033" maxx="-1.682358" maxy="43.458504"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.410033" miny="-3.521451" maxx="43.458504" maxy="-1.682358"/>
+				<BoundingBox CRS="EPSG:25830" minx="457813.913330" miny="4696116.393751" maxx="606610.663330" maxy="4811732.893751"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392006.148960" miny="5222599.683779" maxx="-187279.242401" maxy="5382023.226301"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392006.148960" miny="5222599.683779" maxx="-187279.242401" maxy="5382023.226301"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2011_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2011</Name>
+				<Title>ORTO_2011</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524718</westBoundLongitude><eastBoundLongitude>-1.680623</eastBoundLongitude><southBoundLatitude>42.409236</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524718" miny="42.409236" maxx="-1.680623" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409236" miny="-3.524718" maxx="43.459108" maxy="-1.680623"/>
+				<BoundingBox CRS="EPSG:25830" minx="457550.000000" miny="4696030.000000" maxx="606750.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392369.858039" miny="5222479.518466" maxx="-187086.125305" maxy="5382115.894274"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392369.858039" miny="5222479.518466" maxx="-187086.125305" maxy="5382115.894274"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2011</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2010_IrRG</Name>
+				<Title>ORTO_2010_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524718</westBoundLongitude><eastBoundLongitude>-1.680623</eastBoundLongitude><southBoundLatitude>42.409236</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524718" miny="42.409236" maxx="-1.680623" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409236" miny="-3.524718" maxx="43.459108" maxy="-1.680623"/>
+				<BoundingBox CRS="EPSG:25830" minx="457550.000000" miny="4696030.000000" maxx="606750.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392369.858039" miny="5222479.518466" maxx="-187086.125305" maxy="5382115.894274"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392369.858039" miny="5222479.518466" maxx="-187086.125305" maxy="5382115.894274"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2010_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2010</Name>
+				<Title>ORTO_2010</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524718</westBoundLongitude><eastBoundLongitude>-1.680623</eastBoundLongitude><southBoundLatitude>42.409236</southBoundLatitude><northBoundLatitude>43.459108</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524718" miny="42.409236" maxx="-1.680623" maxy="43.459108"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409236" miny="-3.524718" maxx="43.459108" maxy="-1.680623"/>
+				<BoundingBox CRS="EPSG:25830" minx="457550.000000" miny="4696030.000000" maxx="606750.000000" maxy="4811800.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392369.858039" miny="5222479.518466" maxx="-187086.125305" maxy="5382115.894274"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392369.858039" miny="5222479.518466" maxx="-187086.125305" maxy="5382115.894274"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2010</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2009_IrRG</Name>
+				<Title>ORTO_2009_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524092</westBoundLongitude><eastBoundLongitude>-1.681357</eastBoundLongitude><southBoundLatitude>42.409847</southBoundLatitude><northBoundLatitude>43.459800</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524092" miny="42.409847" maxx="-1.681357" maxy="43.459800"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409847" miny="-3.524092" maxx="43.459800" maxy="-1.681357"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.160000" miny="4696096.875854" maxx="606689.410000" maxy="4811876.875854"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392300.130083" miny="5222571.557203" maxx="-187167.792538" maxy="5382222.053921"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392300.130083" miny="5222571.557203" maxx="-187167.792538" maxy="5382222.053921"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2009_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2009</Name>
+				<Title>ORTO_2009</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524083</westBoundLongitude><eastBoundLongitude>-1.681375</eastBoundLongitude><southBoundLatitude>42.409845</southBoundLatitude><northBoundLatitude>43.458812</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524083" miny="42.409845" maxx="-1.681375" maxy="43.458812"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409845" miny="-3.524083" maxx="43.458812" maxy="-1.681375"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.160000" miny="4696096.680000" maxx="606689.660000" maxy="4811767.180000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2009</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_URBANA_2008_2009_IrRG</Name>
+				<Title>ORTO_URBANA_2008_2009_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524083</westBoundLongitude><eastBoundLongitude>-1.681375</eastBoundLongitude><southBoundLatitude>42.409845</southBoundLatitude><northBoundLatitude>43.458812</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524083" miny="42.409845" maxx="-1.681375" maxy="43.458812"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409845" miny="-3.524083" maxx="43.458812" maxy="-1.681375"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.160000" miny="4696096.680000" maxx="606689.660000" maxy="4811767.180000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_URBANA_2008_2009_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_URBANA_2008_2009</Name>
+				<Title>ORTO_URBANA_2008_2009</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524083</westBoundLongitude><eastBoundLongitude>-1.681375</eastBoundLongitude><southBoundLatitude>42.409845</southBoundLatitude><northBoundLatitude>43.458812</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524083" miny="42.409845" maxx="-1.681375" maxy="43.458812"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409845" miny="-3.524083" maxx="43.458812" maxy="-1.681375"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.160000" miny="4696096.680000" maxx="606689.660000" maxy="4811767.180000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_URBANA_2008_2009</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_URBANA_2007_IrRG</Name>
+				<Title>ORTO_URBANA_2007_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524083</westBoundLongitude><eastBoundLongitude>-1.681375</eastBoundLongitude><southBoundLatitude>42.409845</southBoundLatitude><northBoundLatitude>43.458812</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524083" miny="42.409845" maxx="-1.681375" maxy="43.458812"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409845" miny="-3.524083" maxx="43.458812" maxy="-1.681375"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.160000" miny="4696096.680000" maxx="606689.660000" maxy="4811767.180000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_URBANA_2007_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_URBANA_2007</Name>
+				<Title>ORTO_URBANA_2007</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524083</westBoundLongitude><eastBoundLongitude>-1.681375</eastBoundLongitude><southBoundLatitude>42.409845</southBoundLatitude><northBoundLatitude>43.458812</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524083" miny="42.409845" maxx="-1.681375" maxy="43.458812"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409845" miny="-3.524083" maxx="43.458812" maxy="-1.681375"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.160000" miny="4696096.680000" maxx="606689.660000" maxy="4811767.180000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392299.180431" miny="5222571.286152" maxx="-187169.837330" maxy="5382070.572352"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_URBANA_2007</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2008_IrRG</Name>
+				<Title>ORTO_2008_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524083</westBoundLongitude><eastBoundLongitude>-1.681378</eastBoundLongitude><southBoundLatitude>42.409846</southBoundLatitude><northBoundLatitude>43.458809</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524083" miny="42.409846" maxx="-1.681378" maxy="43.458809"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409846" miny="-3.524083" maxx="43.458809" maxy="-1.681378"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.160000" miny="4696096.860000" maxx="606689.410000" maxy="4811766.860000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392299.177660" miny="5222571.535681" maxx="-187170.188170" maxy="5382070.130458"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392299.177660" miny="5222571.535681" maxx="-187170.188170" maxy="5382070.130458"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2008_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2008</Name>
+				<Title>ORTO_2008</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524081</westBoundLongitude><eastBoundLongitude>-1.681380</eastBoundLongitude><southBoundLatitude>42.409845</southBoundLatitude><northBoundLatitude>43.458808</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524081" miny="42.409845" maxx="-1.681380" maxy="43.458808"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409845" miny="-3.524081" maxx="43.458808" maxy="-1.681380"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.320000" miny="4696096.690000" maxx="606689.320000" maxy="4811766.690000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392298.956038" miny="5222571.306773" maxx="-187170.315666" maxy="5382069.895705"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392298.956038" miny="5222571.306773" maxx="-187170.315666" maxy="5382069.895705"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2008</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2007</Name>
+				<Title>ORTO_2007</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.523019</westBoundLongitude><eastBoundLongitude>-1.683176</eastBoundLongitude><southBoundLatitude>42.451501</southBoundLatitude><northBoundLatitude>43.459067</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.523019" miny="42.451501" maxx="-1.683176" maxy="43.459067"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451501" miny="-3.523019" maxx="43.459067" maxy="-1.683176"/>
+				<BoundingBox CRS="EPSG:25830" minx="457687.500000" miny="4700721.000000" maxx="606543.500000" maxy="4811795.500000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392180.626324" miny="5228853.849080" maxx="-187370.263031" maxy="5382109.680143"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392180.626324" miny="5228853.849080" maxx="-187370.263031" maxy="5382109.680143"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2007</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2007_IrRG</Name>
+				<Title>ORTO_2007_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524083</westBoundLongitude><eastBoundLongitude>-1.681378</eastBoundLongitude><southBoundLatitude>42.409846</southBoundLatitude><northBoundLatitude>43.458809</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524083" miny="42.409846" maxx="-1.681378" maxy="43.458809"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409846" miny="-3.524083" maxx="43.458809" maxy="-1.681378"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.160000" miny="4696096.860000" maxx="606689.410000" maxy="4811766.860000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392299.177660" miny="5222571.535681" maxx="-187170.188170" maxy="5382070.130458"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392299.177660" miny="5222571.535681" maxx="-187170.188170" maxy="5382070.130458"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2007_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2006</Name>
+				<Title>ORTO_2006</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.523022</westBoundLongitude><eastBoundLongitude>-1.683167</eastBoundLongitude><southBoundLatitude>42.451514</southBoundLatitude><northBoundLatitude>43.459069</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.523022" miny="42.451514" maxx="-1.683167" maxy="43.459069"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451514" miny="-3.523022" maxx="43.459069" maxy="-1.683167"/>
+				<BoundingBox CRS="EPSG:25830" minx="457687.230000" miny="4700722.480000" maxx="606544.230000" maxy="4811795.730000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392180.999817" miny="5228855.844349" maxx="-187369.253917" maxy="5382109.997754"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392180.999817" miny="5228855.844349" maxx="-187369.253917" maxy="5382109.997754"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2006</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2006_IrRG</Name>
+				<Title>ORTO_2006_IrRG</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524083</westBoundLongitude><eastBoundLongitude>-1.681378</eastBoundLongitude><southBoundLatitude>42.409846</southBoundLatitude><northBoundLatitude>43.458809</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524083" miny="42.409846" maxx="-1.681378" maxy="43.458809"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409846" miny="-3.524083" maxx="43.458809" maxy="-1.681378"/>
+				<BoundingBox CRS="EPSG:25830" minx="457601.160000" miny="4696096.860000" maxx="606689.410000" maxy="4811766.860000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392299.177660" miny="5222571.535681" maxx="-187170.188170" maxy="5382070.130458"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392299.177660" miny="5222571.535681" maxx="-187170.188170" maxy="5382070.130458"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2006_IrRG</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_URBANA_3CAPITALES_2005</Name>
+				<Title>ORTO_URBANA_3CAPITALES_2005</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-2.975504</westBoundLongitude><eastBoundLongitude>-1.925528</eastBoundLongitude><southBoundLatitude>42.822683</southBoundLatitude><northBoundLatitude>43.343024</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-2.975504" miny="42.822683" maxx="-1.925528" maxy="43.343024"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.822683" miny="-2.975504" maxx="43.343024" maxy="-1.925528"/>
+				<BoundingBox CRS="EPSG:25830" minx="502002.193586" miny="4741674.859205" maxx="587097.233586" maxy="4798908.459205"/>
+				<BoundingBox CRS="EPSG:3857" minx="-331231.599487" miny="5285021.206577" maxx="-214348.748307" maxy="5364330.187070"/>
+				<BoundingBox CRS="EPSG:102100" minx="-331231.599487" miny="5285021.206577" maxx="-214348.748307" maxy="5364330.187070"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_URBANA_3CAPITALES_2005</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2005</Name>
+				<Title>ORTO_2005</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.523031</westBoundLongitude><eastBoundLongitude>-1.683157</eastBoundLongitude><southBoundLatitude>42.451491</southBoundLatitude><northBoundLatitude>43.459103</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.523031" miny="42.451491" maxx="-1.683157" maxy="43.459103"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451491" miny="-3.523031" maxx="43.459103" maxy="-1.683157"/>
+				<BoundingBox CRS="EPSG:25830" minx="457686.474165" miny="4700719.989957" maxx="606544.974165" maxy="4811799.489957"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392182.072290" miny="5228852.446484" maxx="-187368.148558" maxy="5382115.189947"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392182.072290" miny="5228852.446484" maxx="-187368.148558" maxy="5382115.189947"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2005</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2004</Name>
+				<Title>ORTO_2004</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.523040</westBoundLongitude><eastBoundLongitude>-1.683176</eastBoundLongitude><southBoundLatitude>42.451508</southBoundLatitude><northBoundLatitude>43.458823</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.523040" miny="42.451508" maxx="-1.683176" maxy="43.458823"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451508" miny="-3.523040" maxx="43.458823" maxy="-1.683176"/>
+				<BoundingBox CRS="EPSG:25830" minx="457685.619174" miny="4700721.844497" maxx="606543.869174" maxy="4811768.344497"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392182.979625" miny="5228854.988575" maxx="-187370.345736" maxy="5382072.180692"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392182.979625" miny="5228854.988575" maxx="-187370.345736" maxy="5382072.180692"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2004</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2002</Name>
+				<Title>ORTO_2002</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.481690</westBoundLongitude><eastBoundLongitude>-1.684080</eastBoundLongitude><southBoundLatitude>42.451641</southBoundLatitude><northBoundLatitude>43.458714</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.481690" miny="42.451641" maxx="-1.684080" maxy="43.458714"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.451641" miny="-3.481690" maxx="43.458714" maxy="-1.684080"/>
+				<BoundingBox CRS="EPSG:25830" minx="461030.909626" miny="4700735.474475" maxx="606470.909626" maxy="4811756.224475"/>
+				<BoundingBox CRS="EPSG:3857" minx="-387579.936735" miny="5228875.015808" maxx="-187470.964286" maxy="5382055.444008"/>
+				<BoundingBox CRS="EPSG:102100" minx="-387579.936735" miny="5228875.015808" maxx="-187470.964286" maxy="5382055.444008"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2002</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_2001</Name>
+				<Title>ORTO_2001</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524112</westBoundLongitude><eastBoundLongitude>-1.683179</eastBoundLongitude><southBoundLatitude>42.410107</southBoundLatitude><northBoundLatitude>43.459122</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524112" miny="42.410107" maxx="-1.683179" maxy="43.459122"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.410107" miny="-3.524112" maxx="43.459122" maxy="-1.683179"/>
+				<BoundingBox CRS="EPSG:25830" minx="457599.100790" miny="4696123.613485" maxx="606543.100790" maxy="4811801.613485"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392302.311887" miny="5222610.883093" maxx="-187370.679203" maxy="5382118.122120"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392302.311887" miny="5222610.883093" maxx="-187370.679203" maxy="5382118.122120"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_2001</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_1995</Name>
+				<Title>ORTO_1995</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524112</westBoundLongitude><eastBoundLongitude>-1.683179</eastBoundLongitude><southBoundLatitude>42.410107</southBoundLatitude><northBoundLatitude>43.459122</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524112" miny="42.410107" maxx="-1.683179" maxy="43.459122"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.410107" miny="-3.524112" maxx="43.459122" maxy="-1.683179"/>
+				<BoundingBox CRS="EPSG:25830" minx="457599.100790" miny="4696123.613485" maxx="606543.100790" maxy="4811801.613485"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392302.311887" miny="5222610.883093" maxx="-187370.679203" maxy="5382118.122120"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392302.311887" miny="5222610.883093" maxx="-187370.679203" maxy="5382118.122120"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_1995</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_1991</Name>
+				<Title>ORTO_1991</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524432</westBoundLongitude><eastBoundLongitude>-1.680422</eastBoundLongitude><southBoundLatitude>42.409821</southBoundLatitude><northBoundLatitude>43.501037</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524432" miny="42.409821" maxx="-1.680422" maxy="43.501037"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.409821" miny="-3.524432" maxx="43.501037" maxy="-1.680422"/>
+				<BoundingBox CRS="EPSG:25830" minx="457602.506555" miny="4696094.057345" maxx="606692.506555" maxy="4816456.557345"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392337.965981" miny="5222567.666939" maxx="-187063.697966" maxy="5388548.429681"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392337.965981" miny="5222567.666939" maxx="-187063.697966" maxy="5388548.429681"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_1991</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_1989</Name>
+				<Title>ORTO_1989</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524232</westBoundLongitude><eastBoundLongitude>-1.681839</eastBoundLongitude><southBoundLatitude>42.450487</southBoundLatitude><northBoundLatitude>43.460008</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524232" miny="42.450487" maxx="-1.681839" maxy="43.460008"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.450487" miny="-3.524232" maxx="43.460008" maxy="-1.681839"/>
+				<BoundingBox CRS="EPSG:25830" minx="457590.000000" miny="4700610.000000" maxx="606650.000000" maxy="4811900.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_1989</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_1984_85</Name>
+				<Title>ORTO_1984_85</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524232</westBoundLongitude><eastBoundLongitude>-1.681839</eastBoundLongitude><southBoundLatitude>42.450487</southBoundLatitude><northBoundLatitude>43.460008</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524232" miny="42.450487" maxx="-1.681839" maxy="43.460008"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.450487" miny="-3.524232" maxx="43.460008" maxy="-1.681839"/>
+				<BoundingBox CRS="EPSG:25830" minx="457590.000000" miny="4700610.000000" maxx="606650.000000" maxy="4811900.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_1984_85</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_1958_ARABA</Name>
+				<Title>ORTO_1958_ARABA</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524232</westBoundLongitude><eastBoundLongitude>-1.681839</eastBoundLongitude><southBoundLatitude>42.450487</southBoundLatitude><northBoundLatitude>43.460008</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524232" miny="42.450487" maxx="-1.681839" maxy="43.460008"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.450487" miny="-3.524232" maxx="43.460008" maxy="-1.681839"/>
+				<BoundingBox CRS="EPSG:25830" minx="457590.000000" miny="4700610.000000" maxx="606650.000000" maxy="4811900.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_1958_ARABA</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_INTERMINISTERIAL_1977_78</Name>
+				<Title>ORTO_INTERMINISTERIAL_1977_78</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524232</westBoundLongitude><eastBoundLongitude>-1.681839</eastBoundLongitude><southBoundLatitude>42.450487</southBoundLatitude><northBoundLatitude>43.460008</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524232" miny="42.450487" maxx="-1.681839" maxy="43.460008"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.450487" miny="-3.524232" maxx="43.460008" maxy="-1.681839"/>
+				<BoundingBox CRS="EPSG:25830" minx="457590.000000" miny="4700610.000000" maxx="606650.000000" maxy="4811900.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_INTERMINISTERIAL_1977_78</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_1956_57_AMERICANO</Name>
+				<Title>ORTO_1956_57_AMERICANO</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.524232</westBoundLongitude><eastBoundLongitude>-1.681839</eastBoundLongitude><southBoundLatitude>42.450487</southBoundLatitude><northBoundLatitude>43.460008</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.524232" miny="42.450487" maxx="-1.681839" maxy="43.460008"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.450487" miny="-3.524232" maxx="43.460008" maxy="-1.681839"/>
+				<BoundingBox CRS="EPSG:25830" minx="457590.000000" miny="4700610.000000" maxx="606650.000000" maxy="4811900.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392315.686083" miny="5228700.860222" maxx="-187221.498068" maxy="5382253.987182"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_1956_57_AMERICANO</Title>
+				</Style>
+			</Layer>
+			<Layer queryable="1">
+				<Name>ORTO_1945_46_AMERICANO</Name>
+				<Title>ORTO_1945_46_AMERICANO</Title>
+				<Abstract></Abstract>
+				<CRS>CRS:84</CRS>
+				<CRS>EPSG:4326</CRS>
+				<CRS>EPSG:25830</CRS>
+				<CRS>EPSG:3857</CRS>
+				<!-- alias 3857 -->
+				<CRS>EPSG:102100</CRS>
+				<EX_GeographicBoundingBox><westBoundLongitude>-3.526330</westBoundLongitude><eastBoundLongitude>-1.678444</eastBoundLongitude><southBoundLatitude>42.408322</southBoundLatitude><northBoundLatitude>43.502419</northBoundLatitude></EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-3.526330" miny="42.408322" maxx="-1.678444" maxy="43.502419"/>
+				<BoundingBox CRS="EPSG:4326" minx="42.408322" miny="-3.526330" maxx="43.502419" maxy="-1.678444"/>
+				<BoundingBox CRS="EPSG:25830" minx="457450.000000" miny="4695930.000000" maxx="606850.000000" maxy="4816610.000000"/>
+				<BoundingBox CRS="EPSG:3857" minx="-392549.288154" miny="5222341.697587" maxx="-186843.563313" maxy="5388760.469630"/>
+				<BoundingBox CRS="EPSG:102100" minx="-392549.288154" miny="5222341.697587" maxx="-186843.563313" maxy="5388760.469630"/>
+				<Style>
+					<Name>default</Name>
+					<Title>ORTO_1945_46_AMERICANO</Title>
+				</Style>
+			</Layer>
+		</Layer>
+	</Capability>
+</WMS_Capabilities>

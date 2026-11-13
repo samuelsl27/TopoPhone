@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WMS_Capabilities xmlns:srv="http://schemas.opengis.net/iso/19139/20060504/srv/srv.xsd" xmlns:gmd="http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd" xmlns:gco="http://schemas.opengis.net/iso/19139/20060504/gco/gco.xsd" xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:gml="http://schemas.opengis.net/gml" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" version="1.3.0" updateSequence="1549" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms  http://inspire.ec.europa.eu/schemas/inspire_vs/1.0/inspire_vs.xsd">
+	<Service>
+		<Name>WMS</Name>
+		<Title>Mapa Base de España</Title>
+		<Abstract>Representaciones cartográficas de información geográfica procedente de los siguientes conjuntos de datos del Instituto Geográfico Nacional y del Sistema Cartográfico Nacional de España: Base Topográfica Nacional (BTN), Nomenclátor Geográfico Básico de España (NGBE), Base de Datos de Divisiones Administrativas de España (BDDAE), Atlas Nacional de España, Redes de transporte, Hidrografía, Poblaciones, CartoCiudad y Sistema de Información sobre Ocupación del Suelo de España (SIOSE). Para más información, véase www.scne.es. Servicio de visualización WMS 1.3.0 implementado como servicio fundamental, para todo tipo de aplicaciones y usos, bajo una licencia CC BY 4.0 www.scne.es.</Abstract>
+		<KeywordList>
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">infoMapAccessService</Keyword>
+			<Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">infoManagementService</Keyword>
+			<Keyword vocabulary="GEMET - INSPIRE themes, version 1.0">Nombres geográficos</Keyword>
+			<Keyword vocabulary="GEMET - INSPIRE themes, version 1.0">Unidades administrativas</Keyword>
+			<Keyword vocabulary="GEMET - INSPIRE themes, version 1.0">Redes de transporte</Keyword>
+			<Keyword vocabulary="GEMET - INSPIRE themes, version 1.0">Hidrografía</Keyword>
+			<Keyword vocabulary="GEMET - INSPIRE themes, version 1.0">Direcciones</Keyword>
+			<Keyword vocabulary="GEMET - INSPIRE themes, version 1.0">Elevaciones</Keyword>
+			<Keyword>Infraestructura de Datos Espaciales</Keyword>
+			<Keyword>IDEE</Keyword>
+			<Keyword>Sistema Cartografico Nacional</Keyword>
+			<Keyword>SCNE</Keyword>
+		</KeywordList>
+		<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+		<ContactInformation>
+			<ContactPersonPrimary>
+				<ContactPerson/>
+				<ContactOrganization>Infraestructura de Datos Espaciales de España</ContactOrganization>
+			</ContactPersonPrimary>
+			<ContactPosition>Punto de contacto</ContactPosition>
+			<ContactAddress>
+				<AddressType>Postal</AddressType>
+				<Address>C/ General Ibáñez de Ibero, 3</Address>
+				<City>Madrid</City>
+				<StateOrProvince>Madrid</StateOrProvince>
+				<PostCode>28003</PostCode>
+				<Country>España</Country>
+			</ContactAddress>
+			<ContactVoiceTelephone>+34 91 597 96 46</ContactVoiceTelephone>
+			<ContactFacsimileTelephone>+34 91 597 97 64</ContactFacsimileTelephone>
+			<ContactElectronicMailAddress>ign@transportes.gob.es</ContactElectronicMailAddress>
+		</ContactInformation>
+		<Fees>No se aplican condiciones</Fees>
+		<AccessConstraints>CC BY 4.0 scne.es</AccessConstraints>
+	</Service>
+	<Capability>
+		<Request>
+			<GetCapabilities>
+				<Format>text/xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms-inspire/ign-base?SERVICE=WMS&amp;"/>
+						</Get>
+						<Post>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms-inspire/ign-base?SERVICE=WMS&amp;"/>
+						</Post>
+					</HTTP>
+				</DCPType>
+			</GetCapabilities>
+			<GetMap>
+				<Format>image/png</Format>
+				<Format>application/atom+xml</Format>
+				<Format>application/json;type=geojson</Format>
+				<Format>application/json;type=topojson</Format>
+				<Format>application/json;type=utfgrid</Format>
+				<Format>application/pdf</Format>
+				<Format>application/rss+xml</Format>
+				<Format>application/vnd.google-earth.kml+xml</Format>
+				<Format>application/vnd.google-earth.kml+xml;mode=networklink</Format>
+				<Format>application/vnd.google-earth.kmz</Format>
+				<Format>application/vnd.mapbox-vector-tile</Format>
+				<Format>image/geotiff</Format>
+				<Format>image/geotiff8</Format>
+				<Format>image/gif</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/png; mode=8bit</Format>
+				<Format>image/svg+xml</Format>
+				<Format>image/tiff</Format>
+				<Format>image/tiff8</Format>
+				<Format>image/vnd.jpeg-png</Format>
+				<Format>image/vnd.jpeg-png8</Format>
+				<Format>text/html; subtype=openlayers</Format>
+				<Format>text/html; subtype=openlayers2</Format>
+				<Format>text/html; subtype=openlayers3</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms-inspire/ign-base?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetMap>
+			<GetFeatureInfo>
+				<Format>text/plain</Format>
+				<Format>application/vnd.ogc.gml</Format>
+				<Format>text/xml</Format>
+				<Format>application/vnd.ogc.gml/3.1.1</Format>
+				<Format>text/xml; subtype=gml/3.1.1</Format>
+				<Format>text/html</Format>
+				<Format>application/json</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es/wms-inspire/ign-base?SERVICE=WMS&amp;"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetFeatureInfo>
+		</Request>
+		<Exception>
+			<Format>XML</Format>
+		</Exception>
+		<inspire_vs:ExtendedCapabilities>
+			<inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+				<inspire_common:URL>https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignwms_MapaBase</inspire_common:URL>
+				<inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+			</inspire_common:MetadataUrl>
+			<inspire_common:SupportedLanguages xsi:type="inspire_common:supportedLanguagesType">
+				<inspire_common:DefaultLanguage>
+					<inspire_common:Language>spa</inspire_common:Language>
+				</inspire_common:DefaultLanguage>
+				<inspire_common:SupportedLanguage>
+					<inspire_common:Language>eng</inspire_common:Language>
+				</inspire_common:SupportedLanguage>
+			</inspire_common:SupportedLanguages>
+			<inspire_common:ResponseLanguage>
+				<inspire_common:Language>spa</inspire_common:Language>
+			</inspire_common:ResponseLanguage>
+		</inspire_vs:ExtendedCapabilities>
+		<Layer>
+			<Title>Mapa Base</Title>
+			<Abstract>Representaciones cartográficas de información geográfica procedente de los siguientes conjuntos de datos del Instituto Geográfico Nacional y del Sistema Cartográfico Nacional de España: Base Topográfica Nacional (BTN), Nomenclátor Geográfico Básico de España (NGBE), Base de Datos de Divisiones Administrativas de España (BDDAE), Atlas Nacional de España, Redes de transporte, Hidrografía, Poblaciones, CartoCiudad y Sistema de Información sobre Ocupación del Suelo de España (SIOSE). Para más información, véase www.scne.es.</Abstract>
+			<!--Limited list of EPSG projections:-->
+			<CRS>EPSG:4258</CRS>
+			<CRS>EPSG:4326</CRS>
+			<CRS>EPSG:3857</CRS>
+			<CRS>EPSG:3035</CRS>
+			<CRS>EPSG:25828</CRS>
+			<CRS>EPSG:25829</CRS>
+			<CRS>EPSG:25830</CRS>
+			<CRS>EPSG:25831</CRS>
+			<CRS>EPSG:32628</CRS>
+			<CRS>EPSG:32629</CRS>
+			<CRS>EPSG:32630</CRS>
+			<CRS>EPSG:32631</CRS>
+			<CRS>EPSG:4080</CRS>
+			<CRS>EPSG:4081</CRS>
+			<CRS>EPSG:4082</CRS>
+			<CRS>EPSG:4083</CRS>
+			<CRS>CRS:84</CRS>
+			<EX_GeographicBoundingBox>
+				<westBoundLongitude>-180.0</westBoundLongitude>
+				<eastBoundLongitude>180.0</eastBoundLongitude>
+				<southBoundLatitude>-90.0</southBoundLatitude>
+				<northBoundLatitude>90.0</northBoundLatitude>
+			</EX_GeographicBoundingBox>
+			<BoundingBox CRS="CRS:84" minx="-180.0" miny="-90.0" maxx="180.0" maxy="90.0"/>
+			<BoundingBox CRS="EPSG:4258" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+			<BoundingBox CRS="EPSG:4326" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+			<BoundingBox CRS="EPSG:3857" minx="-2.0037508342789244E7" miny="-1.9971868880408555E7" maxx="2.0037508342789244E7" maxy="1.9971868880408563E7"/>
+			<BoundingBox CRS="EPSG:3035" minx="-8828174.554292856" miny="-6035062.441637877" maxx="1.4739361308215864E7" maxy="1.3659732796699973E7"/>
+			<BoundingBox CRS="EPSG:25828" minx="-2.237679047670823E8" miny="-1.5102999309586868E8" maxx="5.425414857933458E7" maxy="1.5102999309586868E8"/>
+			<BoundingBox CRS="EPSG:25829" minx="-2.7381200945404786E8" miny="-1.871761339401159E8" maxx="7.074587865780523E7" maxy="1.871761339401159E8"/>
+			<BoundingBox CRS="EPSG:25830" minx="-3.3407829313169056E8" miny="-2.3137063869789305E8" maxx="9.084170764159797E7" maxy="2.3137063869789305E8"/>
+			<BoundingBox CRS="EPSG:25831" minx="-8.984170764159797E7" miny="-2.3137063869789305E8" maxx="3.3507829313169056E8" maxy="2.3137063869789305E8"/>
+			<BoundingBox CRS="EPSG:32628" minx="-2.2376790476134822E8" miny="-1.5102999308911562E8" maxx="5.425414857768096E7" maxy="1.5102999308911562E8"/>
+			<BoundingBox CRS="EPSG:32629" minx="-2.73812009447262E8" miny="-1.8717613393183675E8" maxx="7.074587865576684E7" maxy="1.8717613393183675E8"/>
+			<BoundingBox CRS="EPSG:32630" minx="-3.3407829312370205E8" miny="-2.3137063868780732E8" maxx="9.084170763910633E7" maxy="2.3137063868780732E8"/>
+			<BoundingBox CRS="EPSG:32631" minx="-8.984170763910633E7" miny="-2.3137063868780732E8" maxx="3.3507829312370205E8" maxy="2.3137063868780732E8"/>
+			<BoundingBox CRS="EPSG:4080" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+			<BoundingBox CRS="EPSG:4081" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+			<BoundingBox CRS="EPSG:4082" minx="-1.8240005281965184E8" miny="-1.2158937910363802E8" maxx="4.081872876443419E7" maxy="1.2158937910363802E8"/>
+			<BoundingBox CRS="EPSG:4083" minx="-2.237679047670823E8" miny="-1.5102999309586868E8" maxx="5.425414857933458E7" maxy="1.5102999309586868E8"/>
+			<Layer queryable="0">
+				<Name>IGNBaseTodo</Name>
+				<Title>Callejero</Title>
+				<Abstract>Representación cartográfica con extensión mundial. La información geográfica procede de los siguientes conjuntos de datos: BTN (zonas protegidas, cauces artificiales, surgencias, cascadas, línea de costa, islas, salinas, cortafuegos, agrupación de edificios, edificios y construcciones, cementerios, monumentos, cerramientos, cuevas, explotaciones mineras, acueductos, presas, yacimientos arqueológicos, zonas verdes, caminos de zonas verdes, instalaciones deportivas, instalaciones recreativas, centrales y subestaciones eléctricas), NGBE (nombres geográficos de playas, orografía, relieve costero, distritos y barrios), BDDAE (límites administrativos), Redes de transporte (carreteras y viales urbanos, áreas de servicio, líneas de ferrocarril, estaciones de ferrocarril, aeródromos y puertos), Hidrografía (red hidrográfica, masas de agua y humedales), Poblaciones (núcleos de población), CartoCiudad (manzanas, portales y puntos kilométricos, estaciones de servicio, puntos de recarga eléctrica y postes marítimos), SIOSE (usos del suelo de tipo bosque), Atlas Nacional de España (datos mundiales de países, territorios, carreteras, capitales, ciudades, toponimia física, islas, archipiélagos, masas de agua, ríos y líneas de ferrocarril). Los datos geométricos fuera del territorio nacional que están incluidos en esta base cartográfica no implican ninguna opinión por parte del IGN relativa a su estatus jurídico y están generados para una escala de 1:10.000.000. También se incluye un modelo digital del terreno al que se le ha aplicado un sombreado.</Abstract>
+				<KeywordList>
+					<Keyword>BTN</Keyword>
+					<Keyword>Nomenclátor</Keyword>
+					<Keyword>Límites</Keyword>
+					<Keyword>Transporte</Keyword>
+					<Keyword>Hidrografía</Keyword>
+					<Keyword>Poblaciones</Keyword>
+					<Keyword>CartoCiudad</Keyword>
+					<Keyword>SIOSE</Keyword>
+					<Keyword>Atlas</Keyword>
+					<Keyword>MDT</Keyword>
+				</KeywordList>
+				<CRS>EPSG:4258</CRS>
+				<EX_GeographicBoundingBox>
+					<westBoundLongitude>-180.0</westBoundLongitude>
+					<eastBoundLongitude>180.0</eastBoundLongitude>
+					<southBoundLatitude>-90.0</southBoundLatitude>
+					<northBoundLatitude>90.0</northBoundLatitude>
+				</EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-180.0" miny="-90.0" maxx="180.0" maxy="90.0"/>
+				<BoundingBox CRS="EPSG:4258" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+				<BoundingBox CRS="EPSG:4326" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+				<BoundingBox CRS="EPSG:3857" minx="-2.0037508342789244E7" miny="-1.9971868880408555E7" maxx="2.0037508342789244E7" maxy="1.9971868880408563E7"/>
+				<BoundingBox CRS="EPSG:3035" minx="-8828174.554292856" miny="-6035062.441637877" maxx="1.4739361308215864E7" maxy="1.3659732796699973E7"/>
+				<BoundingBox CRS="EPSG:25828" minx="-2.237679047670823E8" miny="-1.5102999309586868E8" maxx="5.425414857933458E7" maxy="1.5102999309586868E8"/>
+				<BoundingBox CRS="EPSG:25829" minx="-2.7381200945404786E8" miny="-1.871761339401159E8" maxx="7.074587865780523E7" maxy="1.871761339401159E8"/>
+				<BoundingBox CRS="EPSG:25830" minx="-3.3407829313169056E8" miny="-2.3137063869789305E8" maxx="9.084170764159797E7" maxy="2.3137063869789305E8"/>
+				<BoundingBox CRS="EPSG:25831" minx="-8.984170764159797E7" miny="-2.3137063869789305E8" maxx="3.3507829313169056E8" maxy="2.3137063869789305E8"/>
+				<BoundingBox CRS="EPSG:32628" minx="-2.2376790476134822E8" miny="-1.5102999268908826E8" maxx="5.425414846225647E7" maxy="1.5102999268908826E8"/>
+				<BoundingBox CRS="EPSG:32629" minx="-2.73812009447262E8" miny="-1.8717613340504134E8" maxx="7.074587850040585E7" maxy="1.8717613340504134E8"/>
+				<BoundingBox CRS="EPSG:32630" minx="-3.3407829312370205E8" miny="-2.3137063800062016E8" maxx="9.084170743382241E7" maxy="2.3137063800062016E8"/>
+				<BoundingBox CRS="EPSG:32631" minx="-8.984170743382241E7" miny="-2.3137063800062016E8" maxx="3.3507829312370205E8" maxy="2.3137063800062016E8"/>
+				<BoundingBox CRS="EPSG:4080" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+				<BoundingBox CRS="EPSG:4081" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+				<BoundingBox CRS="EPSG:4082" minx="-1.8240005281965184E8" miny="-1.2158937910363802E8" maxx="4.081872876443419E7" maxy="1.2158937910363802E8"/>
+				<BoundingBox CRS="EPSG:4083" minx="-2.237679047670823E8" miny="-1.5102999309586868E8" maxx="5.425414857933458E7" maxy="1.5102999309586868E8"/>
+				<Attribution>
+					<Title>Sistema Cartográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.scne.es"/>
+				</Attribution>
+				<AuthorityURL name="IGN">
+					<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</AuthorityURL>
+				<Identifier authority="IGN">ignbasetodo</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaign_capasmapabase"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>IGNBase</Title>
+					<Abstract>Representación de objetos geográficos conforme al estilo definido en función de su tipología.</Abstract>
+					<LegendURL width="482" height="670">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es/wms-inspire/ign-base/leyendas/ignbase_todo.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+			<Layer queryable="0">
+				<Name>IGNBaseTodo-nofondo</Name>
+				<Title>Callejero recortado</Title>
+				<Abstract>Representación cartográfica. La información geográfica procede de los siguientes conjuntos de datos: BTN (zonas protegidas, cauces artificiales, surgencias, cascadas, línea de costa, islas, salinas, cortafuegos, agrupación de edificios, edificios y construcciones, cementerios, monumentos, cerramientos, cuevas, explotaciones mineras, acueductos, presas, yacimientos arqueológicos, zonas verdes, caminos de zonas verdes, instalaciones deportivas, instalaciones recreativas, centrales y subestaciones eléctricas), NGBE (nombres geográficos de playas, orografía, relieve costero, distritos y barrios), BDDAE (límites administrativos), Redes de transporte (carreteras y viales urbanos, áreas de servicio, líneas de ferrocarril, estaciones de ferrocarril, aeródromos y puertos), Hidrografía (red hidrográfica, masas de agua y humedales), Poblaciones (núcleos de población), CartoCiudad (manzanas, portales y puntos kilométricos, estaciones de servicio, puntos de recarga eléctrica y postes marítimos), SIOSE (usos del suelo de tipo bosque). También se incluye un modelo digital del terreno al que se le ha aplicado un sombreado. A diferencia de la capa Callejero, esta no contiene datos mundiales. Los datos se muestran a partir de la escala 1/20.000.000.</Abstract>
+				<KeywordList>
+					<Keyword>BTN</Keyword>
+					<Keyword>Nomenclátor</Keyword>
+					<Keyword>Límites</Keyword>
+					<Keyword>Transporte</Keyword>
+					<Keyword>Hidrografía</Keyword>
+					<Keyword>Poblaciones</Keyword>
+					<Keyword>CartoCiudad</Keyword>
+					<Keyword>SIOSE</Keyword>
+					<Keyword>MDT</Keyword>
+				</KeywordList>
+				<CRS>EPSG:4258</CRS>
+				<EX_GeographicBoundingBox>
+					<westBoundLongitude>-19.0</westBoundLongitude>
+					<eastBoundLongitude>5.0</eastBoundLongitude>
+					<southBoundLatitude>27.0</southBoundLatitude>
+					<northBoundLatitude>44.0</northBoundLatitude>
+				</EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+				<BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+				<BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+				<BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+				<BoundingBox CRS="EPSG:3035" minx="471468.50179373566" miny="1445891.6963879904" maxx="2768821.453432198" maxy="3919390.1873301356"/>
+				<BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+				<BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+				<BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+				<BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>
+				<BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+				<BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+				<BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+				<BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>
+				<BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+				<BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+				<BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+				<BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+				<Attribution>
+					<Title>Sistema Cartográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.scne.es"/>
+				</Attribution>
+				<AuthorityURL name="IGN">
+					<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</AuthorityURL>
+				<Identifier authority="IGN">ignbasetodo-nofondo</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaign_capasmapabase"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>IGNBase</Title>
+					<Abstract>Representación de objetos geográficos conforme al estilo definido en función de su tipología.</Abstract>
+					<LegendURL width="482" height="670">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es/wms-inspire/ign-base/leyendas/ignbase_todo.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+			<Layer queryable="0">
+				<Name>IGNBaseTodo-gris</Name>
+				<Title>Callejero gris</Title>
+				<Abstract>Representación cartográfica en tonos grises con extensión mundial. Contiene la misma información geográfica que la capa Callejero y procede de los siguientes conjuntos de datos: BTN (zonas protegidas, cauces artificiales, surgencias, cascadas, línea de costa, islas, salinas, cortafuegos, agrupación de edificios, edificios y construcciones, cementerios, monumentos, cerramientos, cuevas, explotaciones mineras, acueductos, presas, yacimientos arqueológicos, zonas verdes, caminos de zonas verdes, instalaciones deportivas, instalaciones recreativas, centrales y subestaciones eléctricas), NGBE (nombres geográficos de playas, orografía, relieve costero, distritos y barrios), BDDAE (límites administrativos), Redes de transporte (carreteras y viales urbanos, áreas de servicio, líneas de ferrocarril, estaciones de ferrocarril, aeródromos y puertos), Hidrografía (red hidrográfica, masas de agua y humedales), Poblaciones (núcleos de población), CartoCiudad (manzanas, portales y puntos kilométricos, estaciones de servicio, puntos de recarga eléctrica y postes marítimos), SIOSE (usos del suelo de tipo bosque), Atlas Nacional de España (datos mundiales de países, territorios, carreteras, capitales, ciudades, toponimia física, islas, archipiélagos, masas de agua, ríos y líneas de ferrocarril). Los datos geométricos fuera del territorio nacional que están incluidos en esta base cartográfica no implican ninguna opinión por parte del IGN relativa a su estatus jurídico y están generados para una escala de 1:10.000.000.</Abstract>
+				<KeywordList>
+					<Keyword>BTN</Keyword>
+					<Keyword>Nomenclátor</Keyword>
+					<Keyword>Límites</Keyword>
+					<Keyword>Transporte</Keyword>
+					<Keyword>Hidrografía</Keyword>
+					<Keyword>Poblaciones</Keyword>
+					<Keyword>CartoCiudad</Keyword>
+					<Keyword>SIOSE</Keyword>
+					<Keyword>Atlas</Keyword>
+				</KeywordList>
+				<CRS>EPSG:4258</CRS>
+				<EX_GeographicBoundingBox>
+					<westBoundLongitude>-180.0</westBoundLongitude>
+					<eastBoundLongitude>180.0</eastBoundLongitude>
+					<southBoundLatitude>-90.0</southBoundLatitude>
+					<northBoundLatitude>90.0</northBoundLatitude>
+				</EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-180.0" miny="-90.0" maxx="180.0" maxy="90.0"/>
+				<BoundingBox CRS="EPSG:4258" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+				<BoundingBox CRS="EPSG:4326" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+				<BoundingBox CRS="EPSG:3857" minx="-2.0037508342789244E7" miny="-1.9971868880408555E7" maxx="2.0037508342789244E7" maxy="1.9971868880408563E7"/>
+				<BoundingBox CRS="EPSG:3035" minx="-8828174.554292856" miny="-6035062.441637877" maxx="1.4739361308215864E7" maxy="1.3659732796699973E7"/>
+				<BoundingBox CRS="EPSG:25828" minx="-2.237679047670823E8" miny="-1.5102999309586868E8" maxx="5.425414857933458E7" maxy="1.5102999309586868E8"/>
+				<BoundingBox CRS="EPSG:25829" minx="-2.7381200945404786E8" miny="-1.871761339401159E8" maxx="7.074587865780523E7" maxy="1.871761339401159E8"/>
+				<BoundingBox CRS="EPSG:25830" minx="-3.3407829313169056E8" miny="-2.3137063869789305E8" maxx="9.084170764159797E7" maxy="2.3137063869789305E8"/>
+				<BoundingBox CRS="EPSG:25831" minx="-8.984170764159797E7" miny="-2.3137063869789305E8" maxx="3.3507829313169056E8" maxy="2.3137063869789305E8"/>
+				<BoundingBox CRS="EPSG:32628" minx="-2.2376790476134822E8" miny="-1.5102999268908826E8" maxx="5.425414846225647E7" maxy="1.5102999268908826E8"/>
+				<BoundingBox CRS="EPSG:32629" minx="-2.73812009447262E8" miny="-1.8717613340504134E8" maxx="7.074587850040585E7" maxy="1.8717613340504134E8"/>
+				<BoundingBox CRS="EPSG:32630" minx="-3.3407829312370205E8" miny="-2.3137063800062016E8" maxx="9.084170743382241E7" maxy="2.3137063800062016E8"/>
+				<BoundingBox CRS="EPSG:32631" minx="-8.984170743382241E7" miny="-2.3137063800062016E8" maxx="3.3507829312370205E8" maxy="2.3137063800062016E8"/>
+				<BoundingBox CRS="EPSG:4080" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+				<BoundingBox CRS="EPSG:4081" minx="-90.0" miny="-180.0" maxx="90.0" maxy="180.0"/>
+				<BoundingBox CRS="EPSG:4082" minx="-1.8240005281965184E8" miny="-1.2158937910363802E8" maxx="4.081872876443419E7" maxy="1.2158937910363802E8"/>
+				<BoundingBox CRS="EPSG:4083" minx="-2.237679047670823E8" miny="-1.5102999309586868E8" maxx="5.425414857933458E7" maxy="1.5102999309586868E8"/>
+				<Attribution>
+					<Title>Sistema Cartográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.scne.es"/>
+				</Attribution>
+				<AuthorityURL name="IGN">
+					<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</AuthorityURL>
+				<Identifier authority="IGN">ignbasetodo-gris</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaign_capasmapabase"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>IGNBase gris</Title>
+					<Abstract>Representación en tonos grises de objetos geográficos conforme al estilo definido en función de su tipología.</Abstract>
+					<LegendURL width="448" height="511">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es/wms-inspire/ign-base/leyendas/ignbase_todo_gris.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+			<Layer queryable="0">
+				<Name>IGNBaseOrto</Name>
+				<Title>Callejero para imagen</Title>
+				<Abstract>Representación cartográfica preparada para superponer la información geográfica sobre otros fondos como las ortoimágenes. La información geográfica procede de los siguientes conjuntos de datos: BTN (zonas protegidas, surgencias, cascadas, salinas, agrupación de edificios, cementerios, monumentos, acueductos, presas, yacimientos arqueológicos, zonas verdes, instalaciones deportivas, instalaciones recreativas, centrales y subestaciones eléctricas), NGBE (nombres geográficos de playas, orografía, relieve costero, distritos y barrios), BDDAE (límites administrativos), Redes de transporte (carreteras y viales urbanos, áreas de servicio, estaciones de ferrocarril, aeródromos y puertos), Hidrografía (red hidrográfica, masas de agua y humedales), Poblaciones (núcleos de población), CartoCiudad (portales y puntos kilométricos). No contiene datos mundiales. Los datos se muestran a partir de la escala 1/20.000.000.</Abstract>
+				<KeywordList>
+					<Keyword>BTN</Keyword>
+					<Keyword>Nomenclátor</Keyword>
+					<Keyword>Límites</Keyword>
+					<Keyword>Transporte</Keyword>
+					<Keyword>Hidrografía</Keyword>
+					<Keyword>Poblaciones</Keyword>
+					<Keyword>CartoCiudad</Keyword>
+				</KeywordList>
+				<CRS>EPSG:4258</CRS>
+				<EX_GeographicBoundingBox>
+					<westBoundLongitude>-19.0</westBoundLongitude>
+					<eastBoundLongitude>5.0</eastBoundLongitude>
+					<southBoundLatitude>27.0</southBoundLatitude>
+					<northBoundLatitude>44.0</northBoundLatitude>
+				</EX_GeographicBoundingBox>
+				<BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+				<BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+				<BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+				<BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+				<BoundingBox CRS="EPSG:3035" minx="471468.50179373566" miny="1445891.6963879904" maxx="2768821.453432198" maxy="3919390.1873301356"/>
+				<BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+				<BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+				<BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+				<BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>
+				<BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+				<BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+				<BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+				<BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>
+				<BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+				<BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+				<BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+				<BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+				<Attribution>
+					<Title>Sistema Cartográfico Nacional</Title>
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.scne.es"/>
+				</Attribution>
+				<AuthorityURL name="IGN">
+					<OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+				</AuthorityURL>
+				<Identifier authority="IGN">ignbaseorto</Identifier>
+				<MetadataURL type="ISO19115:2003">
+					<Format>text/plain</Format>
+					<OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaign_capasmapabase"/>
+				</MetadataURL>
+				<Style>
+					<Name>default</Name>
+					<Title>IGNBase orto</Title>
+					<Abstract>Representación de objetos geográficos conforme al estilo definido en función de su tipología y con el fin de ser utilizados con cartografía de fondo, especialmente ortofotografías.</Abstract>
+					<LegendURL width="183" height="260">
+						<Format>image/png</Format>
+						<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ign.es/wms-inspire/ign-base/leyendas/ignbase_orto.png"/>
+					</LegendURL>
+				</Style>
+			</Layer>
+		</Layer>
+	</Capability>
+</WMS_Capabilities>

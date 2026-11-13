@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd">
+<WMT_MS_Capabilities version="1.1.1">
+  <Service>
+    <Name>WMS</Name>
+    <Title>Servizo web de mapas (WMS) da ortofotografía do PNOA 2023</Title>
+    <Abstract>Servizo web de mapas (WMS) da ortofotografía do PNOA 2023</Abstract>
+    <KeywordList><Keyword>ortofoto</Keyword></KeywordList>
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson>Instituto de Estudos do Territorio</ContactPerson>
+        <ContactOrganization>Consellería de Medio Ambiente, Territorio e Vivenda. Xunta de Galicia</ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition> </ContactPosition>
+      <ContactAddress>
+        <AddressType>Postal</AddressType>
+        <Address>San Lázaro s/n</Address>
+        <City>Santiago de Compostela</City>
+        <StateOrProvince>A Coruña</StateOrProvince>
+        <PostCode>15707</PostCode>
+        <Country>España</Country>
+      </ContactAddress>
+      <ContactVoiceTelephone>981542670</ContactVoiceTelephone>
+      <ContactFacsimileTelephone> </ContactFacsimileTelephone>
+      <ContactElectronicMailAddress>info-iet.cmati@xunta.es</ContactElectronicMailAddress>
+    </ContactInformation>
+    <Fees> </Fees>
+    <AccessConstraints> </AccessConstraints>
+    <LayerLimit>1</LayerLimit>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>application/vnd.ogc.wms_xml</Format>
+        <DCPType>
+          <HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer"/></Get></HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/tiff</Format>
+        <Format>image/png</Format>
+        <Format>image/png24</Format>
+        <Format>image/png32</Format>
+        <Format>image/bmp</Format>
+        <Format>image/gif</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/svg</Format>
+        <Format>image/bil</Format>
+        <DCPType>
+          <HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer"/></Get></HTTP>
+        </DCPType>
+      </GetMap>
+      <GetStyles>
+        <Format>application/vnd.ogc.sld+xml</Format>
+        <DCPType>
+          <HTTP><Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer"/></Get></HTTP>
+        </DCPType>
+      </GetStyles>
+    </Request>
+    <Exception>
+      <Format>application/vnd.ogc.se_xml</Format>
+      <Format>application/vnd.ogc.se_inimage</Format>
+      <Format>application/vnd.ogc.se_blank</Format>
+    </Exception>
+    <Layer>
+    <Name>0</Name>
+      <Title>PNOA_2023</Title>
+      <Abstract>Servicio de imaxes dinámico do PNOA 2023</Abstract>
+<SRS>EPSG:4326</SRS>
+<SRS>EPSG:25829</SRS>
+<SRS>EPSG:25829</SRS>
+<SRS>EPSG:23029</SRS>
+<SRS>EPSG:4230</SRS>
+<SRS>EPSG:23030</SRS>
+<SRS>EPSG:25830</SRS>
+<SRS>EPSG:4326</SRS>
+<SRS>EPSG:4258</SRS>
+<SRS>EPSG:4326</SRS>
+<SRS>EPSG:3785</SRS>
+<SRS>EPSG:23031</SRS>
+<LatLonBoundingBox minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox SRS="EPSG:4326" minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox SRS="EPSG:25829" minx="474420.000000" miny="4626960.000000" maxx="687360.000000" maxy="4851930.000000"/>
+<BoundingBox SRS="EPSG:25829" minx="474420.000000" miny="4626960.000000" maxx="687360.000000" maxy="4851930.000000"/>
+<BoundingBox SRS="EPSG:23029" minx="474418.819313" miny="4627041.698046" maxx="687368.647222" maxy="4852018.605254"/>
+<BoundingBox SRS="EPSG:4230" minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox SRS="EPSG:23030" minx="-24227.093792" miny="4631370.824880" maxx="204651.245777" maxy="4871408.578107"/>
+<BoundingBox SRS="EPSG:25830" minx="-24203.152066" miny="4631288.890026" maxx="204664.877307" maxy="4871319.115056"/>
+<LatLonBoundingBox minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox SRS="EPSG:4326" minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox SRS="EPSG:4258" minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<LatLonBoundingBox minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox SRS="EPSG:4326" minx="-9.318095" miny="41.772377" maxx="-6.671051" maxy="43.820442"/>
+<BoundingBox SRS="EPSG:3785" minx="-1037285.638794" miny="5126943.349373" maxx="-742618.055731" maxy="5437697.025216"/>
+<BoundingBox SRS="EPSG:23031" minx="-523479.988062" miny="4670740.216907" maxx="-278192.754565" maxy="4926309.339985"/>
+        <Style>
+          <Name>default</Name>
+          <Title>0</Title>
+          <LegendURL width="104" height="60">
+            <Format>image/png</Format>
+            <OnlineResource xlink:href="https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer?request=GetLegendGraphic%26version=1.1.1%26format=image/png%26layer=0" xlink:type="simple" xmlns:xlink="http://www.w3.org/1999/xlink" />
+          </LegendURL>
+        </Style>
+    </Layer>
+  </Capability>
+</WMT_MS_Capabilities>

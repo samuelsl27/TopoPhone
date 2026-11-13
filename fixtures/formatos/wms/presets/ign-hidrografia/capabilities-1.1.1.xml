@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WMS_Capabilities xmlns:srv="http://schemas.opengis.net/iso/19139/20060504/srv/srv.xsd" xmlns:gmd="http://schemas.opengis.net/iso/19139/20060504/gmd/gmd.xsd" xmlns:gco="http://schemas.opengis.net/iso/19139/20060504/gco/gco.xsd" xmlns:inspire_vs="http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" xmlns:gml="http://schemas.opengis.net/gml" xmlns:inspire_common="http://inspire.ec.europa.eu/schemas/common/1.0" version="1.3.0" updateSequence="3203" xmlns="http://www.opengis.net/wms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wms http://inspire.ec.europa.eu/schemas/inspire_vs/1.0">
+  <Service>
+    <Name>WMS</Name>
+    <Title>Hidrografía de España de Aguas Físicas y del Modelo de Red</Title>
+    <Abstract>Hidrografía del Sistema Cartográfico Nacional (www.scne.es), procedente de la Información Geográfica de Referencia de Hidrografía versión 0 del Instituto Geográfico Nacional, del Ministerio de Agricultura y Pesca, Alimentación y Medio Ambiente y del Ministerio para la Transición Ecológica y Reto Demográfico a través de la Dirección General de Agua. El servicio web permite la visualización de los elementos hidrográficos y otras masas de agua y elementos relacionados con ellas, así como las cuencas y subcuencas hidrográficas de España del Anexo I de la Directiva Inspire. Véase las especificaciones del producto de datos «IGR Hidrografía» http://www.ign.es/resources/IGR/Hidrografia/IGN_especificaciones_IGR-HI.pdf. Sus denominaciones son conformes con la Directiva Inspire 2007/2/EC así como su estilo. Además tienen asociado un estilo de visualización definido por el IGN. Servicio de visualización WMS 1.3.0 conforme al perfil Inspire de ISO 19128:2005.</Abstract>
+    <KeywordList>
+      <Keyword vocabulary="ISO 19119 geographic services taxonomy, version 2.3">infoMapAccessService</Keyword>
+      <Keyword vocabulary="GEMET - INSPIRE themes, version 1.0">Hidrografía</Keyword>
+      <Keyword>Aguas físicas</Keyword>
+      <Keyword>Río</Keyword>
+      <Keyword>Canal</Keyword>
+      <Keyword>Cuerpos de agua</Keyword>
+      <Keyword>SCNE</Keyword>
+      <Keyword>IGR</Keyword>
+      <Keyword>Sistema Cartográfico Nacional</Keyword>	
+      <Keyword>IDEE</Keyword>
+      <Keyword>Infraestructura de Datos Espaciales</Keyword>
+      <Keyword>Información Geográfica de Referencia</Keyword>
+    </KeywordList>
+    <OnlineResource xlink:type="simple" xlink:href="https://www.ign.es"/>
+    <ContactInformation>
+      <ContactPersonPrimary>
+        <ContactPerson/>
+        <ContactOrganization>Infraestructura de Datos Espaciales de España</ContactOrganization>
+      </ContactPersonPrimary>
+      <ContactPosition>Punto de contacto</ContactPosition>
+      <ContactAddress>
+        <AddressType>Postal</AddressType>
+        <Address>C/ General Ibáñez de Ibero, 3</Address>
+        <City>Madrid</City>
+        <StateOrProvince>Madrid</StateOrProvince>
+        <PostCode>28003</PostCode>
+        <Country>España</Country>
+      </ContactAddress>
+      <ContactVoiceTelephone>+34 91 597 96 46</ContactVoiceTelephone>
+      <ContactFacsimileTelephone>+34 91 597 97 64</ContactFacsimileTelephone>
+      <ContactElectronicMailAddress>ign@transportes.gob.es</ContactElectronicMailAddress>
+    </ContactInformation>
+    <Fees>No se aplican condiciones</Fees>
+    <AccessConstraints>CC BY 4.0 scne.es</AccessConstraints>
+	<MaxWidth>4096</MaxWidth>
+	<MaxHeight>4096</MaxHeight>
+  </Service>
+  <Capability>
+    <Request>
+      <GetCapabilities>
+        <Format>text/xml</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia?SERVICE=WMS&amp;"/>
+            </Get>
+            <Post>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia?SERVICE=WMS&amp;"/>
+            </Post>
+          </HTTP>
+        </DCPType>
+      </GetCapabilities>
+      <GetMap>
+        <Format>image/png</Format>
+        <Format>application/pdf</Format>
+        <Format>image/geotiff</Format>
+        <Format>image/geotiff8</Format>
+        <Format>image/gif</Format>
+        <Format>image/jpeg</Format>
+        <Format>image/png; mode=8bit</Format>
+        <Format>image/svg+xml</Format>
+        <Format>image/tiff</Format>
+        <Format>image/tiff8</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetMap>
+      <GetFeatureInfo>
+       <Format>text/plain</Format>
+       <Format>application/vnd.ogc.gml</Format>
+       <Format>text/xml</Format>
+       <Format>application/vnd.ogc.gml/3.1.1</Format>
+       <Format>text/xml; subtype=gml/3.1.1</Format>
+       <Format>text/html</Format>
+       <Format>application/json</Format>
+        <DCPType>
+          <HTTP>
+            <Get>
+              <OnlineResource xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia?SERVICE=WMS&amp;"/>
+            </Get>
+          </HTTP>
+        </DCPType>
+      </GetFeatureInfo>
+    </Request>
+    <Exception>
+      <Format>XML</Format>
+    </Exception>
+    <inspire_vs:ExtendedCapabilities>
+      <inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+        <inspire_common:URL>https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignwms_hidrografia</inspire_common:URL>
+        <inspire_common:MediaType>application/vnd.ogc.csw.GetRecordByIdResponse_xml</inspire_common:MediaType>
+      </inspire_common:MetadataUrl>
+      <inspire_common:SupportedLanguages xsi:type="inspire_common:supportedLanguagesType">
+        <inspire_common:DefaultLanguage>
+          <inspire_common:Language>spa</inspire_common:Language>
+        </inspire_common:DefaultLanguage>
+      </inspire_common:SupportedLanguages>
+      <inspire_common:ResponseLanguage>
+        <inspire_common:Language>spa</inspire_common:Language>
+      </inspire_common:ResponseLanguage>
+    </inspire_vs:ExtendedCapabilities>
+    <Layer>
+      <Title>Hidrografía</Title>
+      <Abstract>Elementos hidrográficos y otras masas de agua y elementos relacionados con ellas, así como las cuencas y subcuencas hidrográficas de España. Sus denominaciones son conformes con la Directiva Inspire 2007/2/EC así como su estilo. Además tienen asociado un estilo de visualización definido por el IGN.</Abstract>
+      <CRS>EPSG:25828</CRS>
+      <CRS>EPSG:25829</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:25831</CRS>
+      <CRS>EPSG:32628</CRS>
+      <CRS>EPSG:32629</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:32631</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>CRS:84</CRS>
+      <CRS>EPSG:3035</CRS>
+	  <CRS>EPSG:4080</CRS>
+	  <CRS>EPSG:4081</CRS>
+	  <CRS>EPSG:4082</CRS>
+	  <CRS>EPSG:4083</CRS>
+     <EX_GeographicBoundingBox>
+			<westBoundLongitude>-19.0</westBoundLongitude>
+			<eastBoundLongitude>5.0</eastBoundLongitude>
+			<southBoundLatitude>27.0</southBoundLatitude>
+			<northBoundLatitude>44.0</northBoundLatitude>
+		</EX_GeographicBoundingBox>
+		<BoundingBox CRS="CRS:84" minx="-19.0" miny="26.99999999923616" maxx="5.0" maxy="43.99999999905729"/>
+		<BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		<BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		<BoundingBox CRS="EPSG:4230" minx="27.0" miny="-19.0" maxx="44.001090913047165" maxy="5.0"/>
+		<BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		<BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		<BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		<BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>
+		<BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		<BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		<BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		<BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>
+		<BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		<BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		<BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		<BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		<BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+		<BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+        <Layer queryable="1">
+          <Name>HY.PhysicalWaters.HydroPointOfInterest</Name>
+          <Title>Puntos de interés hidrográfico</Title>
+          <Abstract>Puntos de interés hidrográfico como los rápidos y las casacadas. En esta capa solo se representan las cascadas:parte de un curso de agua que desciende verticalmente al caer desde una altura.Reglamento (UE)Nº 1089/2010.</Abstract>
+		<KeywordList>
+            <Keyword>Cascada</Keyword>
+        </KeywordList>
+      <CRS>EPSG:25828</CRS>
+      <CRS>EPSG:25829</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:25831</CRS>
+      <CRS>EPSG:32628</CRS>
+      <CRS>EPSG:32629</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:32631</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>CRS:84</CRS>
+      <CRS>EPSG:3035</CRS>
+	  <CRS>EPSG:4080</CRS>
+	  <CRS>EPSG:4081</CRS>
+	  <CRS>EPSG:4082</CRS>
+	  <CRS>EPSG:4083</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-19.0</westBoundLongitude>
+            <eastBoundLongitude>5.0</eastBoundLongitude>
+            <southBoundLatitude>27.0</southBoundLatitude>
+            <northBoundLatitude>44.0</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+         <BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+		 <BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		 <BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		 <BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		 <BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		 <BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		 <BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>		 
+		 <BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		 <BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		 <BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		 <BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>
+		 <BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+		 <BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+         <Attribution>
+            <Title>Sistema Cartográfico Nacional</Title>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </Attribution>
+          <AuthorityURL name="SCNE">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </AuthorityURL>
+          <Identifier authority="SCNE">HY_PhysicalWaters_HydroPointOfInterest</Identifier>
+         <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignHIDROGRAFIA_IGR"/>
+         </MetadataURL>
+        <Style>
+          <Name>puntosinteres</Name>
+          <Title>IGN: Estilo de puntos de interés hidrográfico</Title>
+          <Abstract>La geometría se representa con un punto sólido azul (#28BEFF) y un borde negro (#FFFFFF). Los nombres se etiquetan en Bodoni cursiva 11.</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/puntosinteres.png"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>HY.PhysicalWaters.HydroPointOfInterest.Default</Name>
+          <Title>Estilo por defecto Inspire de puntos de interés hidrográfico</Title>
+          <Abstract>Las cascadas se representan con un símbolo puntual.</Abstract>
+          <LegendURL width="23" height="29">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/HY.PhysicalWaters.HydroPointOfInterest.Default.png"/>
+          </LegendURL>
+        </Style>
+		  <MaxScaleDenominator>40000000</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1">
+          <Name>HY.PhysicalWaters.ManMadeObject</Name>
+          <Title>Objetos artificiales</Title>
+          <Abstract>Representación de los acueductos, tuberías, puentes, construcciones litorales, vados y esclusas. Reglamento (UE)Nº 1089/2010.</Abstract>
+		<KeywordList>
+            <Keyword>Vado</Keyword>
+            <Keyword>Esclusa</Keyword>
+            <Keyword>puente</Keyword>
+            <Keyword>esclusa</Keyword>
+            <Keyword>acueducto</Keyword>
+            <Keyword>tubería</Keyword>
+            <Keyword>construcción litoral</Keyword>
+        </KeywordList>
+      <CRS>EPSG:25828</CRS>
+      <CRS>EPSG:25829</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:25831</CRS>
+      <CRS>EPSG:32628</CRS>
+      <CRS>EPSG:32629</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:32631</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>CRS:84</CRS>
+      <CRS>EPSG:3035</CRS>
+	  <CRS>EPSG:4080</CRS>
+	  <CRS>EPSG:4081</CRS>
+	  <CRS>EPSG:4082</CRS>
+	  <CRS>EPSG:4083</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-19.0</westBoundLongitude>
+            <eastBoundLongitude>5.0</eastBoundLongitude>
+            <southBoundLatitude>27.0</southBoundLatitude>
+            <northBoundLatitude>44.0</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+         <BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+		 <BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		 <BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		 <BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		 <BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		 <BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		 <BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>		 
+		 <BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		 <BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		 <BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		 <BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>	
+		 <BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+		 <BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+          <Attribution>
+            <Title>Sistema Cartográfico Nacional</Title>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </Attribution>
+          <AuthorityURL name="SCNE">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </AuthorityURL>
+          <Identifier authority="SCNE">HY_PhysicalWaters_ManMadeObject</Identifier>
+         <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignHIDROGRAFIA_IGR"/>
+         </MetadataURL>
+        <Style>
+          <Name>objetoartificial</Name>
+          <Title>IGN: Estilo de objetos hidrográficos artificiales</Title>
+          <Abstract>Las entidades lineales se representan con una línea azul verdosa contínua (#009999) y las superficiales con  relleno y línea azul verdosa contínua Etiqueta Arial 10 normal en color azul verdoso (#169090). Se visualizan escalas mayores de 1:10.000.000</Abstract>
+          <LegendURL width="313" height="77">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/objetos_artificiales.png"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>HY.PhysicalWaters.ManMadeObject.Default</Name>
+          <Title>Estilo por defecto Inspire de Objetos Artificiales</Title>
+          <Abstract>Los objetos puntuales se representan con símbolos. Si la geometría es lineal, se utilizan líneas con distintos anchos y colores, según el tipo de fenómeno. Si la geometría es superficial se representa con un polígono relleno de color sólido, dependiendo del tipo de fenómeno.</Abstract>
+          <LegendURL width="219" height="135">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/HY.PhysicalWaters.ManMadeObject.Default.png"/>
+          </LegendURL>
+        </Style>
+		  <MaxScaleDenominator>550000</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1">
+          <Name>HY.PhysicalWaters.LandWaterBoundary</Name>
+          <Title>Límite tierra-agua</Title>
+          <Abstract>Representación de límites costeros. Reglamento (UE)Nº 1089/2010.</Abstract>
+		<KeywordList>
+            <Keyword>Línea de costa</Keyword>
+        </KeywordList>
+      <CRS>EPSG:25828</CRS>
+      <CRS>EPSG:25829</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:25831</CRS>
+      <CRS>EPSG:32628</CRS>
+      <CRS>EPSG:32629</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:32631</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>CRS:84</CRS>
+      <CRS>EPSG:3035</CRS>
+	  <CRS>EPSG:4080</CRS>
+	  <CRS>EPSG:4081</CRS>
+	  <CRS>EPSG:4082</CRS>
+	  <CRS>EPSG:4083</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-19.0</westBoundLongitude>
+            <eastBoundLongitude>5.0</eastBoundLongitude>
+            <southBoundLatitude>27.0</southBoundLatitude>
+            <northBoundLatitude>44.0</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+		 <BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		 <BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		 <BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		 <BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		 <BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		 <BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>		 
+		 <BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		 <BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		 <BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		 <BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>
+		 <BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+		 <BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+          <Attribution>
+            <Title>Sistema Cartográfico Nacional</Title>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </Attribution>
+          <AuthorityURL name="SCNE">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </AuthorityURL>
+          <Identifier authority="SCNE">HY_PhysicalWaters_LandWaterBoundary</Identifier>
+         <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignHIDROGRAFIA_IGR"/>
+         </MetadataURL>
+        <Style>
+          <Name>lineacosta</Name>
+          <Title>IGN: Estilo de línea de costa</Title>
+          <Abstract>La línea se representa con una línea continua azul (#AED1FF) con ancho de 1 píxel.</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/linea_costa.png"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>HY.PhysicalWaters.LandWaterBoundary.Default</Name>
+          <Title>Estilo por defecto Inspire de límite tierra-agua</Title>
+          <Abstract>El contacto entre los cuerpos de agua y la tierra se representa con una linea sólida azul (#33CCFF) con ancho de 1 pixel.</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/HY.Network.Default.png"/>
+          </LegendURL>
+        </Style>
+		  <MaxScaleDenominator>40000000</MaxScaleDenominator>
+        </Layer>
+		<Layer queryable="1">
+          <Name>HY.Network</Name>
+          <Title>Red hidrográfica</Title>
+          <Abstract>Representación de los nodod dentro de la red hidrográfica (Nodo hidrográfico) y los segmentos de un curso de agua dentro de una red hidrográfica (Enlace de curso de agua). Se representan los cursos de agua naturales con geomería lineal. Reglamento (UE)Nº 1089/2010.</Abstract>
+		<KeywordList>
+            <Keyword>río</Keyword>			
+            <Keyword>curso de agua</Keyword>		
+            <Keyword>red hidrográfica</Keyword>
+        </KeywordList>
+      <CRS>EPSG:25828</CRS>
+      <CRS>EPSG:25829</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:25831</CRS>
+      <CRS>EPSG:32628</CRS>
+      <CRS>EPSG:32629</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:32631</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>CRS:84</CRS>
+      <CRS>EPSG:3035</CRS>
+	  <CRS>EPSG:4080</CRS>
+	  <CRS>EPSG:4081</CRS>
+	  <CRS>EPSG:4082</CRS>
+	  <CRS>EPSG:4083</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-19.0</westBoundLongitude>
+            <eastBoundLongitude>5.0</eastBoundLongitude>
+            <southBoundLatitude>27.0</southBoundLatitude>
+            <northBoundLatitude>44.0</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+		 <BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		 <BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		 <BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		 <BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		 <BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		 <BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>		 
+		 <BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		 <BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		 <BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		 <BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>	
+		 <BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+		 <BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>																				 
+          <Attribution>
+            <Title>Sistema Cartográfico Nacional</Title>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </Attribution>
+          <AuthorityURL name="SCNE">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </AuthorityURL>
+          <Identifier authority="SCNE">HY_Network</Identifier>
+         <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignHIDROGRAFIA_IGR"/>
+         </MetadataURL>
+        <Style>
+          <Name>redhidrografica</Name>
+          <Title>IGN: Estilo de red hidrográfica</Title>
+          <Abstract>Se representan como líneas de color azul claro (#87DAF7) de diferentes grosores y estilos en función de su categoría: categoría 1: continua de grosor 1 píxel; categoría 2: continua de grosor: 0.9 píxeles; categorías 3-4: continua de grosor 0.8; categorías 5-6: discontinua de grosor 0.6 píxeles. Etiquetas en Arial 10 normal color azul.  Se visualiza escalas mayores de 1:10.000.000</Abstract>
+          <LegendURL  width="160" height="45">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/red_hidrografica.png"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>HY.Network.Default</Name>
+          <Title>Estilo por defecto Inspire de Red Hidrográfica</Title>
+          <Abstract>La red hidrográfica se representa con líneas sólidas azules (#33CCFF) con un ancho de 1 píxel y con círculos rellenos de azul (#33CCFF) de 3 pixel de tamaño con borde negro (#000000).</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/HY.Network.Default.png"/>
+          </LegendURL>
+        </Style>
+		  <MaxScaleDenominator>10000000</MaxScaleDenominator>
+        </Layer>
+        <Layer queryable="1">
+          <Name>HY.PhysicalWaters.Waterbodies</Name>
+          <Title>Masas de agua</Title>
+          <Abstract>Representación de la corriente de agua natural o artificial (Curso de agua) y las masas de agua que está rodeada por completo de tierra (Aguas estancadas). Se representan embalses, lagos y cursos naturales de agua con geometría superficial. Reglamento (UE)Nº 1089/2010.</Abstract>
+		<KeywordList>
+            <Keyword>cuerpos de agua</Keyword>
+            <Keyword>lagos</Keyword>
+            <Keyword>embalses</Keyword>
+            <Keyword>cursos naturales</Keyword>
+        </KeywordList>
+      <CRS>EPSG:25828</CRS>
+      <CRS>EPSG:25829</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:25831</CRS>
+      <CRS>EPSG:32628</CRS>
+      <CRS>EPSG:32629</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:32631</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>CRS:84</CRS>
+      <CRS>EPSG:3035</CRS>
+	  <CRS>EPSG:4080</CRS>
+	  <CRS>EPSG:4081</CRS>
+	  <CRS>EPSG:4082</CRS>
+	  <CRS>EPSG:4083</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-19.0</westBoundLongitude>
+            <eastBoundLongitude>5.0</eastBoundLongitude>
+            <southBoundLatitude>27.0</southBoundLatitude>
+            <northBoundLatitude>44.0</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+		 <BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		 <BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		 <BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		 <BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		 <BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		 <BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>		 
+		 <BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		 <BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		 <BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		 <BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>
+		 <BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+		 <BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+          <Attribution>
+            <Title>Sistema Cartográfico Nacional</Title>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </Attribution>
+          <AuthorityURL name="SCNE">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </AuthorityURL>
+          <Identifier authority="SCNE">HY_PhysicalWaters_Waterbodies</Identifier>
+         <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignHIDROGRAFIA_IGR"/>
+         </MetadataURL>
+        <Style>
+          <Name>masasagua</Name>
+          <Title>IGN: Estilo de masas de agua y humedales</Title>
+          <Abstract>Relleno azul #AED1FF sin borde. Etiqueta: bodoni 12</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/masas_agua.png"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>HY.PhysicalWaters.Waterbodies.Default</Name>
+          <Title>Estilo por defecto Inspire de Masas de Agua</Title>
+          <Abstract>Las aguas físicas, tales como los cursos de agua o las aguas quietas, se pueden representar con distintas geometrías, en función de sus dimensiones y el nivel de detalle. Los cursos de agua lineales se representan con líneas sólidas azules (#33CCFF) con ancho de 1 píxel, los superficiales con polígonos rellenos de azul claro (#CCFFFF)  sin borde. Las aguas quietas con geometría puntual se representan con círculos azul oscuro (#0066FF) de 6 píxeles de tamaño y las superficiales, con polígonos rellenos de azul claro (#CCFFFF) sin borde. Se visualizan escalas mayores de 1:5.000.000</Abstract>
+          <LegendURL width="22" height="40">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/HY.PhysicalWaters.Waterbodies.Default.png"/>
+          </LegendURL>
+        </Style>
+        </Layer>
+        <Layer queryable="1">
+          <Name>HY.PhysicalWaters.Wetland</Name>
+          <Title>Humedales</Title>
+          <Abstract>Representación de zonas poco drenada o inundada periódicamente cuyo suelo se encuentra saturado de agua y admite vegetación. Se representan humedales y zonas encharcables. Reglamento (UE)Nº 1089/2010.</Abstract>
+		<KeywordList>
+            <Keyword>Humedal</Keyword>
+            <Keyword>Zonas encharcables</Keyword>
+        </KeywordList>
+      <CRS>EPSG:25828</CRS>
+      <CRS>EPSG:25829</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:25831</CRS>
+      <CRS>EPSG:32628</CRS>
+      <CRS>EPSG:32629</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:32631</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>CRS:84</CRS>
+      <CRS>EPSG:3035</CRS>
+	  <CRS>EPSG:4080</CRS>
+	  <CRS>EPSG:4081</CRS>
+	  <CRS>EPSG:4082</CRS>
+	  <CRS>EPSG:4083</CRS>					   
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-19.0</westBoundLongitude>
+            <eastBoundLongitude>5.0</eastBoundLongitude>
+            <southBoundLatitude>27.0</southBoundLatitude>
+            <northBoundLatitude>44.0</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+		 <BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		 <BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		 <BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		 <BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		 <BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		 <BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>		 
+		 <BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		 <BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		 <BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		 <BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>
+		 <BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+		 <BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+         <Attribution>
+            <Title>Sistema Cartográfico Nacional</Title>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </Attribution>
+          <AuthorityURL name="SCNE">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </AuthorityURL>
+          <Identifier authority="SCNE">HY_PhysicalWaters_Wetland</Identifier>
+         <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignHIDROGRAFIA_IGR"/>
+         </MetadataURL>
+         <Style>
+          <Name>masasagua</Name>
+          <Title>IGN: Estilo de masas de agua y humedales</Title>
+          <Abstract>Relleno azul #AED1FF sin borde. Etiqueta: bodoni 12</Abstract>
+          <LegendURL width="250" height="59">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/masas_agua.png"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>HY.PhysicalWaters.Wetland.Default</Name>
+          <Title>Estilo por defecto Inspire de humedales</Title>
+          <Abstract>Polígono relleno de azul-verde (#00CCCC)</Abstract>
+          <LegendURL width="20" height="20">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/HY.PhysicalWaters.Wetland.Default.png"/>
+          </LegendURL>
+        </Style>
+        </Layer>
+        <Layer queryable="1">
+          <Name>HY.PhysicalWaters.Catchments</Name>
+          <Title>Cuencas de captación</Title>
+          <Abstract>Representación de zonas que tiene un desagüe común para su escorrentía (Cuencas de captación) y los territorios cuya escorrentía superficial fluye en su totalidad hacia el mar, a través de una serie de corrientes, ríos y, posiblemente, lagos, en una sola desembocadura, sea estuario o delta (Cuenca hidrográfica). Reglamento (UE)Nº 1089/2010.</Abstract>
+		<KeywordList>
+            <Keyword>Cuenca de drenaje</Keyword>
+            <Keyword>Subcuenca de drenaje</Keyword>
+        </KeywordList>
+      <CRS>EPSG:25828</CRS>
+      <CRS>EPSG:25829</CRS>
+      <CRS>EPSG:25830</CRS>
+      <CRS>EPSG:25831</CRS>
+      <CRS>EPSG:32628</CRS>
+      <CRS>EPSG:32629</CRS>
+      <CRS>EPSG:32630</CRS>
+      <CRS>EPSG:32631</CRS>
+      <CRS>EPSG:3857</CRS>
+      <CRS>EPSG:4258</CRS>
+      <CRS>EPSG:4326</CRS>
+      <CRS>CRS:84</CRS>
+      <CRS>EPSG:3035</CRS>
+	  <CRS>EPSG:4080</CRS>
+	  <CRS>EPSG:4081</CRS>
+	  <CRS>EPSG:4082</CRS>
+	  <CRS>EPSG:4083</CRS>
+          <EX_GeographicBoundingBox>
+            <westBoundLongitude>-19.0</westBoundLongitude>
+            <eastBoundLongitude>5.0</eastBoundLongitude>
+            <southBoundLatitude>27.0</southBoundLatitude>
+            <northBoundLatitude>44.0</northBoundLatitude>
+          </EX_GeographicBoundingBox>
+        <BoundingBox CRS="CRS:84" minx="-19.0" miny="27.0" maxx="5.0" maxy="44.0"/>
+		 <BoundingBox CRS="EPSG:4258" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4326" minx="27.000000021351063" miny="-19.000000000000007" maxx="44.000000040852704" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:3857" minx="-2115070.3250721986" miny="3123471.7517721104" maxx="556597.4539663679" maxy="5465442.189644802"/>
+		 <BoundingBox CRS="EPSG:3035" minx="471468.5017937361" miny="1445891.6963879904" maxx="2768821.4534321986" maxy="3919390.1873301356"/>
+		 <BoundingBox CRS="EPSG:25828" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+		 <BoundingBox CRS="EPSG:25829" minx="-495135.75545797264" miny="2988008.1382796224" maxx="1897204.2192799984" maxy="4968139.496861154"/>
+		 <BoundingBox CRS="EPSG:25830" minx="-1099673.713805158" miny="2986435.2424698113" maxx="1295248.9457888722" maxy="4998012.35979611"/>
+		 <BoundingBox CRS="EPSG:25831" minx="-1714549.1480732663" miny="2988008.1382796224" maxx="698454.2342175536" maxy="5113259.329733409"/>		 
+		 <BoundingBox CRS="EPSG:32628" minx="102948.37128314428" miny="2986435.244922726" maxx="2508202.7074604286" maxy="5070480.915489917"/>
+		 <BoundingBox CRS="EPSG:32629" minx="-495135.75526346336" miny="2988008.140733385" maxx="1897204.2190024962" maxy="4968139.50151943"/>
+		 <BoundingBox CRS="EPSG:32630" minx="-1099673.713484239" miny="2986435.244922726" maxx="1295248.94563436" maxy="4998012.364454182"/>
+		 <BoundingBox CRS="EPSG:32631" minx="-1714549.1476116255" miny="2988008.140733385" maxx="698454.2341793771" maxy="5113259.334386855"/>
+		 <BoundingBox CRS="EPSG:4080" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4081" minx="27.0" miny="-19.0" maxx="44.0" maxy="5.0"/>
+		 <BoundingBox CRS="EPSG:4082" minx="660349.4105800533" miny="2988008.1382796224" maxx="3132117.470118926" maxy="5212437.859985052"/>
+		 <BoundingBox CRS="EPSG:4083" minx="102948.3712066114" miny="2986435.2424698113" maxx="2508202.7078731647" maxy="5070480.910834041"/>
+          <Attribution>
+            <Title>Sistema Cartográfico Nacional</Title>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </Attribution>
+          <AuthorityURL name="SCNE">
+            <OnlineResource xlink:type="simple" xlink:href="https://www.scne.es"/>
+          </AuthorityURL>
+          <Identifier authority="SCNE">HY_PhysicalWaters_Catchments</Identifier>
+         <MetadataURL type="ISO19115:2003">
+            <Format>text/plain</Format>
+            <OnlineResource xlink:type="simple" xlink:href="https://www.idee.es/csw-inspire-idee/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaignHIDROGRAFIA_IGR"/>
+         </MetadataURL>
+        <Style>
+          <Name>captacion</Name>
+          <Title>IGN: Estilo de captación</Title>
+          <Abstract>Las cuencas se representan con una línea continua azul (#1D387A). Las subcuencas en discontinuo. Los nombres se etiquetan en Bodoni 11 y 10.</Abstract>
+          <LegendURL width="140" height="57">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/captacion.png"/>
+          </LegendURL>
+        </Style>
+        <Style>
+          <Name>HY.PhysicalWaters.Catchments.Default</Name>
+          <Title>Estilo por defecto Inspire de captación</Title>
+          <Abstract>Las cuencas de drenaje se representan con relleno azul (#0066FF) y borde negro (#000000) de 4 pixeles de ancho  y las subcuencas de drenaje con un relleno azul (#0066FF) y borde negro de 2 píxeles.</Abstract>
+          <LegendURL width="163" height="65">
+            <Format>image/png</Format>
+            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://servicios.idee.es/wms-inspire/hidrografia/leyendas/HY.PhysicalWaters.Catchments.Default.png"/>
+          </LegendURL>
+        </Style>
+		  <MaxScaleDenominator>40000000</MaxScaleDenominator>
+        </Layer>
+    </Layer>
+  </Capability>
+</WMS_Capabilities>

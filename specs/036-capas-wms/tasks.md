@@ -15,7 +15,7 @@
       Hecho cuando: `FeatureInfoTextTest` en verde.
 - [x] T6. `core:formats`: el catálogo `presets.json` con los presets verificados del plan (IGN, Catastro, ICV con sus 36 ortofotos y 5 cartografías, ICGC, GRAFCAN, Andalucía, Navarra, País Vasco, Madrid y Galicia) y su lector `WmsPresets`. (RF-13, RF-16)
       Hecho cuando: `WmsPresetsTest` en verde (claves únicas, HTTPS, atribución y licencia en todos, el Catastro y GRAFCAN en «una imagen», los demás por teselas, el `infoVersion` del Catastro INSPIRE).
-- [ ] T7. `tools/formatos`: `wms_presets.py`, que verifica en vivo cada dirección del catálogo (las dos versiones, el código de Web Mercator, la consulta de prueba) y graba los GetCapabilities y una consulta de los presets en `fixtures/formatos/wms/presets/` (los de 4 vuelos del ICV: 2025, 2024, 2017 y 1945); no se ejecuta en CI. (RF-13, RF-16)
+- [x] T7. `tools/formatos`: `wms_presets.py`, que verifica en vivo cada dirección del catálogo (las dos versiones, el código de Web Mercator, la consulta de prueba) y graba los GetCapabilities y una consulta de los presets en `fixtures/formatos/wms/presets/` (los de 4 vuelos del ICV: 2025, 2024, 2017 y 1945); no se ejecuta en CI. (RF-13, RF-16)
       Hecho cuando: el test de `tools` con respuestas grabadas está en verde y los ficheros se han grabado una vez en vivo.
 - [ ] T8. `core:formats`: los GetCapabilities grabados de cada preset se leen con `WmsCapabilitiesReader`, todos tienen alguna capa con código de Web Mercator y las capas sugeridas que dice el catálogo. (RF-9, RF-13)
       Hecho cuando: `WmsPresetFixturesTest` en verde con todos los presets grabados.

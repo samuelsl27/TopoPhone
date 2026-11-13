@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "https://ovc.catastro.meh.es/Cartografia/WMS/DTD/capabilities_1_1_1.dtd" [
+<!ELEMENT VendorSpecificCapabilities EMPTY>
+ ]>
+<WMT_MS_Capabilities version="1.1.1" updateSequence="0">
+	<Service>
+		<Name>OGC:WMS</Name>
+		<Title>Cartografia catastral</Title>
+		<Abstract>Cartografía Catastral de la Dirección General del Catastro.
+		Este servicio es de uso libre y gratuito.
+		La cartografía se actualiza diariamente desde las bases cartográficas del Catastro.
+		No tiene la categoría de cartografía oficial, por lo que no debe ser utilizada para ningún tipo de certificado.
+		No está permitida la descarga masiva de porciones de cartografía.
+		La D.G. del Catastro se reserva el derecho de restricción del servicio por abuso del mismo.
+</Abstract>
+		<KeywordList>
+          <Keyword>WMS</Keyword>
+          <Keyword>CARTOGRAFIA</Keyword>
+          <Keyword>CATASTRO</Keyword>
+		</KeywordList>
+		<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ovc.catastro.meh.es"/>
+		<ContactInformation>
+			<ContactPersonPrimary>
+				<ContactPerson> LINEA DIRECTA DEL CATASTRO, llamando al 902 37 36 35 </ContactPerson>
+				<ContactOrganization>Sede Electrónica del Catastro DIRECCION GENERAL DEL CATASTRO</ContactOrganization>
+			</ContactPersonPrimary>
+			<ContactElectronicMailAddress>https://www.catastro.hacienda.gob.es/ayuda/EnsConInfCont.html</ContactElectronicMailAddress>
+		</ContactInformation>
+		<Fees>Acceso gratuito.</Fees>
+		<AccessConstraints>Acceso libre, pero se prohibe la descarga masiva de porciones de cartografía y peticiones teseladas</AccessConstraints>
+	</Service>
+	<Capability>
+		<Request>
+			<GetCapabilities>
+				<Format>application/vnd.ogc.wms_xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetCapabilities>
+			<GetMap>
+				<Format>image/png</Format>
+				<Format>image/jpeg</Format>
+				<Format>image/gif</Format>
+				<Format>image/bmp</Format>
+				<Format>image/tif</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetMap>
+			<GetFeatureInfo>
+				<Format>text/html</Format>
+				<Format>text/xml</Format>
+				<DCPType>
+					<HTTP>
+						<Get>
+							<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx"/>
+						</Get>
+					</HTTP>
+				</DCPType>
+			</GetFeatureInfo>
+		</Request>
+		<Exception>
+			<Format>application/vnd.ogc.se_xml</Format>
+			<Format>text/xml</Format>
+		</Exception>
+		<VendorSpecificCapabilities/>
+		<Layer>
+		  	<Title>Cartografía Catastral</Title>
+			<SRS>EPSG:0</SRS>
+			<SRS>EPSG:4230</SRS>
+			<SRS>EPSG:4326</SRS>
+			<SRS>EPSG:4258</SRS>
+			<SRS>EPSG:32627</SRS>
+			<SRS>EPSG:32628</SRS>
+			<SRS>EPSG:23029</SRS>
+			<SRS>EPSG:23030</SRS>
+			<SRS>EPSG:23031</SRS>
+			<SRS>EPSG:32629</SRS>
+			<SRS>EPSG:32630</SRS>
+			<SRS>EPSG:32631</SRS>
+			<SRS>EPSG:25829</SRS>
+			<SRS>EPSG:25830</SRS>
+			<SRS>EPSG:25831</SRS>
+			<SRS>EPSG:3785</SRS>
+			<SRS>EPSG:3857</SRS>
+			<LatLonBoundingBox minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<Layer queryable="1" opaque="0" >
+				<Name>Catastro</Name>
+				<Title>Catastro</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                  <LegendURL width="160" height="500"> 
+                    <Format>image/png</Format>  
+					<OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://ovc.catastro.meh.es/Cartografia/WMS/simbolos.png"/>
+                  </LegendURL>  
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>CONSTRU</Name>
+				<Title>CONSTRU</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>TXTCONSTRU</Name>
+				<Title>TXTCONSTRU</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>SUBPARCE</Name>
+				<Title>SUBPARCE</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>TXTSUBPARCE</Name>
+				<Title>TXTSUBPARCE</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="1" opaque="0" >
+				<Name>PARCELA</Name>
+				<Title>PARCELA</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>TXTPARCELA</Name>
+				<Title>TXTPARCELA</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>MASA</Name>
+				<Title>MASA</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>TXTMASA</Name>
+				<Title>TXTMASA</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>EJES</Name>
+				<Title>EJES</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>LIMITES</Name>
+				<Title>LIMITES</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>TEXTOS</Name>
+				<Title>TEXTOS</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+			<Layer queryable="0" opaque="0" >
+				<Name>ELEMLIN</Name>
+				<Title>ELEMLIN</Title>
+                <Style> 
+                  <Name>Default</Name> 
+                  <Title>Default</Title> 
+                </Style> 
+			<BoundingBox SRS="EPSG:4230" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4326" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:4258" minx="-18.409639" miny="26.275479" maxx="5.225974" maxy="44.85536"/>
+			<BoundingBox SRS="EPSG:32627" minx="770000" miny="3000000" maxx="2700000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32628" minx="180000" miny="3000000" maxx="2170000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23029" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23030" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:23031" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32629" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32630" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:32631" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25829" minx="-410000" miny="3000000" maxx="1650000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25830" minx="-1050000" miny="3000000" maxx="1150000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:25831" minx="-1615000" miny="3000000" maxx="620000" maxy="5000000"/>
+			<BoundingBox SRS="EPSG:3785" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			<BoundingBox SRS="EPSG:3857" minx="-2100000" miny="3000000" maxx="500000" maxy="5600000"/>
+			</Layer>
+		</Layer>
+	</Capability>
+</WMT_MS_Capabilities>

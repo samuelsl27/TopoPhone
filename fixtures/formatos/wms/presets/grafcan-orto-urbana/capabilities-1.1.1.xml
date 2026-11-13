@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
+ [
+ <!ELEMENT VendorSpecificCapabilities EMPTY>
+ ]>  <!-- end of DOCTYPE declaration -->
+
+<WMT_MS_Capabilities version="1.1.1">
+
+<!-- MapServer version 7.6.4 OUTPUT=PNG OUTPUT=JPEG OUTPUT=KML SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=RSVG SUPPORTS=ICONV SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=THREADS SUPPORTS=GEOS SUPPORTS=POINT_Z_M SUPPORTS=PBF INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>OGC:WMS</Name>
+  <Title>IDECanarias Ortofoto Urbana</Title>
+  <Abstract>Ortofotos Urbanas de Canarias Años 2016-2020. Propiedad del Gobierno de Canarias. Resolución 10-12.5 cm/pixel</Abstract>
+  <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword>ORTOFOTOS</Keyword>
+      <Keyword>ORTOFOTO</Keyword>
+      <Keyword>URBANA</Keyword>
+      <Keyword>FOTOGRAFIA</Keyword>
+      <Keyword>AEREA</Keyword>
+      <Keyword>CANARIAS</Keyword>
+      <Keyword>GRAFCAN</Keyword>
+      <Keyword>ORTHOPHOTO</Keyword>
+      <Keyword>CANARY</Keyword>
+      <Keyword>ISLANDS</Keyword>
+      <Keyword>AERIAL</Keyword>
+      <Keyword>PHOTO</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson></ContactPerson>
+      <ContactOrganization>Cartografica de Canarias S.A. (GRAFCAN)</ContactOrganization>
+    </ContactPersonPrimary>
+  <ContactElectronicMailAddress>idecanarias@grafcan.com</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>none</Fees>
+  <AccessConstraints>Acceso libre. Prohibido el uso comercial y la descarga masiva de información.</AccessConstraints>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>application/vnd.ogc.wms_xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/jpeg</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/html</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <Format>text/plain</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+    <DescribeLayer>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Post>
+        </HTTP>
+      </DCPType>
+    </DescribeLayer>
+    <GetLegendGraphic>
+      <Format>image/jpeg</Format>
+      <Format>image/png</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetLegendGraphic>
+    <GetStyles>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetStyles>
+  </Request>
+  <Exception>
+    <Format>application/vnd.ogc.se_xml</Format>
+    <Format>application/vnd.ogc.se_inimage</Format>
+    <Format>application/vnd.ogc.se_blank</Format>
+  </Exception>
+  <VendorSpecificCapabilities />
+  <UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0"/>
+  <Layer queryable="1">
+    <Name>OrtoExpressUrb</Name>
+    <Title>IDECanarias Ortofoto Urbana</Title>
+    <Abstract>Ortofotos Urbanas de Canarias Años 2016-2020. Propiedad del Gobierno de Canarias. Resolución 10-12.5 cm/pixel</Abstract>
+    <KeywordList>
+        <Keyword>WMS</Keyword>
+        <Keyword>ORTOFOTOS</Keyword>
+        <Keyword>ORTOFOTO</Keyword>
+        <Keyword>URBANA</Keyword>
+        <Keyword>FOTOGRAFIA</Keyword>
+        <Keyword>AEREA</Keyword>
+        <Keyword>CANARIAS</Keyword>
+        <Keyword>GRAFCAN</Keyword>
+        <Keyword>ORTHOPHOTO</Keyword>
+        <Keyword>CANARY</Keyword>
+        <Keyword>ISLANDS</Keyword>
+        <Keyword>AERIAL</Keyword>
+        <Keyword>PHOTO</Keyword>
+    </KeywordList>
+    <SRS>EPSG:32628</SRS>
+    <SRS>EPSG:4326</SRS>
+    <SRS>EPSG:32627</SRS>
+    <SRS>EPSG:3857</SRS>
+    <LatLonBoundingBox minx="-18.3099" miny="26.1839" maxx="-13.1373" maxy="29.8305" />
+    <BoundingBox SRS="EPSG:32628"
+                minx="180000" miny="2.9e+06" maxx="680000" maxy="3.3e+06" />
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>OU</Name>
+        <Title>Ortofoto Urbana 10-12.5 cm/pixel</Title>
+        <SRS>EPSG:32628</SRS>
+        <LatLonBoundingBox minx="-18.2147" miny="27.6281" maxx="-13.3043" maxy="29.4334" />
+        <BoundingBox SRS="EPSG:32628"
+                    minx="188000" miny="3.06e+06" maxx="664500" maxy="3.256e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoUrb?request=GetMetadata&amp;layer=OU"/>
+        </MetadataURL>
+    </Layer>
+  </Layer>
+</Capability>
+</WMT_MS_Capabilities>

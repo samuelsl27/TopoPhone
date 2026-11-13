@@ -1,0 +1,302 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
+ [
+<!ELEMENT VendorSpecificCapabilities (inspire_vs:ExtendedCapabilities)><!ELEMENT inspire_vs:ExtendedCapabilities ((inspire_common:MetadataUrl, inspire_common:SupportedLanguages, inspire_common:ResponseLanguage) | (inspire_common:ResourceLocator+, inspire_common:ResourceType, inspire_common:TemporalReference+, inspire_common:Conformity+, inspire_common:MetadataPointOfContact+, inspire_common:MetadataDate, inspire_common:SpatialDataServiceType, inspire_common:MandatoryKeyword+, inspire_common:Keyword*, inspire_common:SupportedLanguages, inspire_common:ResponseLanguage, inspire_common:MetadataUrl?))><!ATTLIST inspire_vs:ExtendedCapabilities xmlns:inspire_vs CDATA #FIXED "http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" ><!ELEMENT inspire_common:MetadataUrl (inspire_common:URL, inspire_common:MediaType*)><!ATTLIST inspire_common:MetadataUrl xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:xsi CDATA #FIXED "http://www.w3.org/2001/XMLSchema-instance" xsi:type CDATA #FIXED "inspire_common:resourceLocatorType" ><!ELEMENT inspire_common:URL (#PCDATA)><!ATTLIST inspire_common:URL xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:MediaType (#PCDATA)><!ATTLIST inspire_common:MediaType xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:SupportedLanguages (inspire_common:DefaultLanguage, inspire_common:SupportedLanguage*)><!ATTLIST inspire_common:SupportedLanguages xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:DefaultLanguage (inspire_common:Language)><!ATTLIST inspire_common:DefaultLanguage xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:SupportedLanguage (inspire_common:Language)><!ATTLIST inspire_common:SupportedLanguage xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:ResponseLanguage (inspire_common:Language)><!ATTLIST inspire_common:ResponseLanguage xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Language (#PCDATA)><!ATTLIST inspire_common:Language xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:ResourceLocator (inspire_common:URL, inspire_common:MediaType*)><!ATTLIST inspire_common:ResourceLocator xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:ResourceType (#PCDATA)> <!ATTLIST inspire_common:ResourceType xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:TemporalReference (inspire_common:DateOfCreation?, inspire_common:DateOfLastRevision?, inspire_common:DateOfPublication*, inspire_common:TemporalExtent*)><!ATTLIST inspire_common:TemporalReference xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:DateOfCreation (#PCDATA)> <!ATTLIST inspire_common:DateOfCreation xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:DateOfLastRevision (#PCDATA)><!ATTLIST inspire_common:DateOfLastRevision xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:DateOfPublication (#PCDATA)><!ATTLIST inspire_common:DateOfPublication xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:TemporalExtent (inspire_common:IndividualDate | inspire_common:IntervalOfDates)><!ATTLIST inspire_common:TemporalExtent xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:IndividualDate (#PCDATA)> <!ATTLIST inspire_common:IndividualDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:IntervalOfDates (inspire_common:StartingDate, inspire_common:EndDate)><!ATTLIST inspire_common:IntervalOfDates xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:StartingDate (#PCDATA)><!ATTLIST inspire_common:StartingDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:EndDate (#PCDATA)><!ATTLIST inspire_common:EndDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Conformity (inspire_common:Specification, inspire_common:Degree)><!ATTLIST inspire_common:Conformity xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Specification (inspire_common:Title, (inspire_common:DateOfPublication | inspire_common:DateOfCreation | inspire_common:DateOfLastRevision), inspire_common:URI*, inspire_common:ResourceLocator*)><!ATTLIST inspire_common:Specification xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Title (#PCDATA)><!ATTLIST inspire_common:Title xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:URI (#PCDATA)><!ATTLIST inspire_common:URI xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Degree (#PCDATA)><!ATTLIST inspire_common:Degree xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:MetadataPointOfContact (inspire_common:OrganisationName, inspire_common:EmailAddress)><!ATTLIST inspire_common:MetadataPointOfContact xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:OrganisationName (#PCDATA)><!ATTLIST inspire_common:OrganisationName  xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:EmailAddress (#PCDATA)><!ATTLIST inspire_common:EmailAddress xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:MetadataDate (#PCDATA)><!ATTLIST inspire_common:MetadataDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:SpatialDataServiceType (#PCDATA)><!ATTLIST inspire_common:SpatialDataServiceType xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:MandatoryKeyword (inspire_common:KeywordValue)><!ATTLIST inspire_common:MandatoryKeyword xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:KeywordValue (#PCDATA)><!ATTLIST inspire_common:KeywordValue xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Keyword (inspire_common:OriginatingControlledVocabulary?, inspire_common:KeywordValue)><!ATTLIST inspire_common:Keyword xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:xsi CDATA #FIXED "http://www.w3.org/2001/XMLSchemainstance" xsi:type (inspire_common:inspireTheme_bul | inspire_common:inspireTheme_cze | inspire_common:inspireTheme_dan | inspire_common:inspireTheme_dut | inspire_common:inspireTheme_eng | inspire_common:inspireTheme_est | inspire_common:inspireTheme_fin | inspire_common:inspireTheme_fre | inspire_common:inspireTheme_ger | inspire_common:inspireTheme_gre | inspire_common:inspireTheme_hun | inspire_common:inspireTheme_gle | inspire_common:inspireTheme_ita | inspire_common:inspireTheme_lav | inspire_common:inspireTheme_lit | inspire_common:inspireTheme_mlt | inspire_common:inspireTheme_pol | inspire_common:inspireTheme_por | inspire_common:inspireTheme_rum | inspire_common:inspireTheme_slo | inspire_common:inspireTheme_slv | inspire_common:inspireTheme_spa | inspire_common:inspireTheme_swe) #IMPLIED ><!ELEMENT inspire_common:OriginatingControlledVocabulary (inspire_common:Title, (inspire_common:DateOfPublication | inspire_common:DateOfCreation | inspire_common:DateOfLastRevision), inspire_common:URI*, inspire_common:ResourceLocator*)><!ATTLIST inspire_common:OriginatingControlledVocabulary xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0">
+ ]>  <!-- end of DOCTYPE declaration -->
+
+<WMT_MS_Capabilities version="1.1.1">
+
+<!-- MapServer version 7.6.4 OUTPUT=PNG OUTPUT=JPEG SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=RSVG SUPPORTS=ICONV SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=GEOS SUPPORTS=POINT_Z_M SUPPORTS=PBF INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>OGC:WMS</Name>
+  <Title>Ortofoto verdadera de 2025 de la provincia de Valencia</Title>
+  <Abstract>El servicio WMS permite visualizar las ortofotos verdaderas del año 2025 de 15cm. de resolución en RGB de la provincia de Valencia.</Abstract>
+  <KeywordList>
+      <Keyword>OGC</Keyword>
+      <Keyword>WMS</Keyword>
+      <Keyword>OGC:WMS-1.3.0</Keyword>
+      <Keyword>ICV</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson>Técnico ICV</ContactPerson>
+      <ContactOrganization>Institut Cartogràfic Valencià</ContactOrganization>
+    </ContactPersonPrimary>
+      <ContactPosition>Punto de contacto</ContactPosition>
+  <ContactElectronicMailAddress>responde_icv@gva.es</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>No se aplican condiciones</Fees>
+  <AccessConstraints>CC BY 4.0 Generalitat</AccessConstraints>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>application/vnd.ogc.wms_xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png; quality=50</Format>
+      <Format>image/vnd.jpeg-png8; quality=50</Format>
+      <Format>image/jpeg; quality=50</Format>
+      <Format>image/svg+xml</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <Format>application/x-pdf</Format>
+      <Format>image/tiff</Format>
+      <Format>application/x-protobuf</Format>
+      <Format>application/json</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/html</Format>
+      <Format>geojson</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <Format>text/plain</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+    <DescribeLayer>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </DescribeLayer>
+    <GetLegendGraphic>
+      <Format>image/png</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png; quality=50</Format>
+      <Format>image/vnd.jpeg-png8; quality=50</Format>
+      <Format>image/jpeg; quality=50</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetLegendGraphic>
+    <GetStyles>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetStyles>
+  </Request>
+  <Exception>
+    <Format>application/vnd.ogc.se_xml</Format>
+    <Format>application/vnd.ogc.se_inimage</Format>
+    <Format>application/vnd.ogc.se_blank</Format>
+  </Exception>
+  <VendorSpecificCapabilities>
+  <inspire_vs:ExtendedCapabilities>
+    <inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+      <inspire_common:URL>https://catalogo.icv.gva.es/geonetwork/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaicv0202_WMS2025PVAL0015</inspire_common:URL>
+      <inspire_common:MediaType>application/vnd.ogc.csw.capabilities.response_xml</inspire_common:MediaType>
+    </inspire_common:MetadataUrl>
+    <inspire_common:SupportedLanguages>
+      <inspire_common:DefaultLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:DefaultLanguage>
+      <inspire_common:SupportedLanguage><inspire_common:Language>cat</inspire_common:Language></inspire_common:SupportedLanguage>
+    </inspire_common:SupportedLanguages>
+    <inspire_common:ResponseLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:ResponseLanguage>
+  </inspire_vs:ExtendedCapabilities>
+  </VendorSpecificCapabilities>
+  <UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0"/>
+  <Layer queryable="1">
+    <Name>OWS_0202_2025PVAL0015</Name>
+    <Title>Ortofoto verdadera de 2025 de la provincia de Valencia</Title>
+    <Abstract>El servicio WMS permite visualizar las ortofotos verdaderas del año 2025 de 15cm. de resolución en RGB de la provincia de Valencia.</Abstract>
+    <KeywordList>
+        <Keyword>OGC</Keyword>
+        <Keyword>WMS</Keyword>
+        <Keyword>OGC:WMS-1.3.0</Keyword>
+        <Keyword>ICV</Keyword>
+    </KeywordList>
+    <SRS>EPSG:25830</SRS>
+    <SRS>EPSG:25831</SRS>
+    <SRS>EPSG:3857</SRS>
+    <SRS>EPSG:23030</SRS>
+    <SRS>EPSG:23031</SRS>
+    <SRS>EPSG:4230</SRS>
+    <SRS>EPSG:4258</SRS>
+    <SRS>EPSG:4326</SRS>
+    <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+    <BoundingBox SRS="EPSG:25830"
+                minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+    <Attribution>
+        <Title>Serie ODCV05</Title>
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.icv.gva.es"/>
+    </Attribution>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="240" height="91">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=OWS_0202_2025PVAL0015&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+    <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>distribucion_descargas</Name>
+        <Title>Ortofoto verdadera 15cm 2025 distribució de fulles per a descàrrega | Ortofoto verdadera 15cm 2025 distribución de hojas para la descarga | True orthophoto 15cm 2025 distribution download</Title>
+        <Abstract>Ortofoto verdadera 15cm 2025 distribución de hojas para la descarga</Abstract>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià.GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0202_2024CVAL0025</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://catalogo.icv.gva.es/geonetwork/srv/spa/csw?SERVICE=CSW&amp;VERSION=2.0.2&amp;REQUEST=GetRecordById&amp;outputSchema=http://www.isotc211.org/2005/gmd&amp;ElementSetName=full&amp;ID=spaicv0202_2024CVAL0025"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="240" height="39">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=distribucion_descargas&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+<!-- WARNING: The layer name '2025PVAL0015_RGB' might contain spaces or invalid characters or may start with a number. This could lead to potential problems. -->
+        <Name>2025PVAL0015_RGB</Name>
+        <Title>Ortofoto verdadera 2025 15cm. RGB Provincia de Valencia</Title>
+        <Abstract>Ortofoto verdadera 15cm. de resolución en RGB del año 2025 de la provincia de Valencia</Abstract>
+        <KeywordList>
+            <Keyword>2025</Keyword>
+            <Keyword>IDEV</Keyword>
+            <Keyword>Comunitat Valenciana</Keyword>
+            <Keyword>Ortofoto</Keyword>
+            <Keyword>Ortoimágenes</Keyword>
+            <Keyword>Orthoimagery</Keyword>
+        </KeywordList>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià.GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0202_2025PVAL0015</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://catalogo.icv.gva.es/geonetwork/srv/spa/catalog.search#/metadata/spaicv0202_2025PVAL0015_ORa"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="40" height="30">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=2025PVAL0015_RGB&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+    <Layer queryable="0" opaque="0" cascaded="0">
+<!-- WARNING: The layer name '2025PVAL0015_IRG' might contain spaces or invalid characters or may start with a number. This could lead to potential problems. -->
+        <Name>2025PVAL0015_IRG</Name>
+        <Title>Ortofoto verdadera 2025 15cm. IRG Provincia de Valencia</Title>
+        <Abstract>Ortofoto verdadera 15cm. de resolución en IRG del año 2025 de la provincia de Valencia</Abstract>
+        <KeywordList>
+            <Keyword>2025</Keyword>
+            <Keyword>IDEV</Keyword>
+            <Keyword>Comunitat Valenciana</Keyword>
+            <Keyword>Ortofoto</Keyword>
+            <Keyword>Ortoimágenes</Keyword>
+            <Keyword>Orthoimagery</Keyword>
+        </KeywordList>
+        <SRS>EPSG:25830</SRS>
+        <LatLonBoundingBox minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="600000" miny="4.15e+06" maxx="840000" maxy="4.55e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="69462.6" miny="4.14525e+06" maxx="335578" maxy="4.56047e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-208034" miny="4.49983e+06" maxx="116230" maxy="5.02638e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="600004" miny="4.15007e+06" maxx="840015" maxy="4.55008e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="69443.4" miny="4.14532e+06" maxx="335570" maxy="4.56055e+06" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-1.8688" miny="37.4344" maxx="1.04411" maxy="41.0951" />
+        <AuthorityURL name="Institut Cartogràfic Valencià.GVA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://icv.gva.es"/>
+        </AuthorityURL>
+        <Identifier authority="GVA">0202_2025PVAL0015</Identifier>
+        <MetadataURL type="ISO19115:2003">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://catalogo.icv.gva.es/geonetwork/srv/spa/catalog.search#/metadata/spaicv0202_2025PVAL0015_ORa"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="40" height="30">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://terramapas.icv.gva.es/0202_2025PVAL0015?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=2025PVAL0015_IRG&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+    </Layer>
+  </Layer>
+</Capability>
+</WMT_MS_Capabilities>

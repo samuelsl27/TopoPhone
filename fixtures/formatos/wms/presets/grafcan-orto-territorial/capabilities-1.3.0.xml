@@ -1,0 +1,193 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<WMS_Capabilities version="1.3.0"  xmlns="http://www.opengis.net/wms"   xmlns:sld="http://www.opengis.net/sld"   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"   xmlns:ms="http://mapserver.gis.umn.edu/mapserver"   xsi:schemaLocation="http://www.opengis.net/wms http://schemas.opengis.net/wms/1.3.0/capabilities_1_3_0.xsd  http://www.opengis.net/sld http://schemas.opengis.net/sld/1.1.0/sld_capabilities.xsd  http://mapserver.gis.umn.edu/mapserver https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?service=WMS&amp;version=1.3.0&amp;request=GetSchemaExtension">
+
+<!-- MapServer version 7.6.4 OUTPUT=PNG OUTPUT=JPEG OUTPUT=KML SUPPORTS=PROJ SUPPORTS=AGG SUPPORTS=FREETYPE SUPPORTS=CAIRO SUPPORTS=SVG_SYMBOLS SUPPORTS=RSVG SUPPORTS=ICONV SUPPORTS=FRIBIDI SUPPORTS=WMS_SERVER SUPPORTS=WMS_CLIENT SUPPORTS=WFS_SERVER SUPPORTS=WFS_CLIENT SUPPORTS=WCS_SERVER SUPPORTS=SOS_SERVER SUPPORTS=FASTCGI SUPPORTS=THREADS SUPPORTS=GEOS SUPPORTS=POINT_Z_M SUPPORTS=PBF INPUT=JPEG INPUT=POSTGIS INPUT=OGR INPUT=GDAL INPUT=SHAPEFILE -->
+
+<Service>
+  <Name>WMS</Name>
+  <Title>IDECanarias Ortofoto Territorial Año 2024-2026</Title>
+  <Abstract>Ortofotos de Canarias. Propiedad del Gobierno de Canarias.</Abstract>
+  <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword>ORTOFOTOS</Keyword>
+      <Keyword>FOTOGRAFIA</Keyword>
+      <Keyword>AEREA</Keyword>
+      <Keyword>ORTOFOTO</Keyword>
+      <Keyword>CANARIAS</Keyword>
+      <Keyword>GRAFCAN</Keyword>
+      <Keyword>ORTHOPHOTO</Keyword>
+      <Keyword>CANARY</Keyword>
+      <Keyword>ISLANDS</Keyword>
+      <Keyword>AERIAL</Keyword>
+      <Keyword>PHOTO</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson></ContactPerson>
+      <ContactOrganization>Cartográfica de Canarias S.A. (GRAFCAN)</ContactOrganization>
+    </ContactPersonPrimary>
+  <ContactElectronicMailAddress>idecanarias@grafcan.com</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>none</Fees>
+  <AccessConstraints>Acceso libre. Prohibido el uso comercial y la descarga masiva de información.</AccessConstraints>
+  <MaxWidth>4096</MaxWidth>
+  <MaxHeight>4096</MaxHeight>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/jpeg</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/html</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <Format>text/plain</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+    <sld:DescribeLayer>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Post>
+        </HTTP>
+      </DCPType>
+    </sld:DescribeLayer>
+    <ms:GetStyles>
+      <Format>text/xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?"/></Post>
+        </HTTP>
+      </DCPType>
+    </ms:GetStyles>
+  </Request>
+  <Exception>
+    <Format>XML</Format>
+    <Format>INIMAGE</Format>
+    <Format>BLANK</Format>
+  </Exception>
+  <sld:UserDefinedSymbolization SupportSLD="1" UserLayer="0" UserStyle="1" RemoteWFS="0" InlineFeature="0" RemoteWCS="0"/>
+  <Layer queryable="1">
+    <Name>WMS_OrtoExpress</Name>
+    <Title>IDECanarias Ortofoto Territorial Año 2024-2026</Title>
+    <Abstract>Ortofotos de Canarias. Propiedad del Gobierno de Canarias.</Abstract>
+    <KeywordList>
+        <Keyword>WMS</Keyword>
+        <Keyword>ORTOFOTOS</Keyword>
+        <Keyword>FOTOGRAFIA</Keyword>
+        <Keyword>AEREA</Keyword>
+        <Keyword>ORTOFOTO</Keyword>
+        <Keyword>CANARIAS</Keyword>
+        <Keyword>GRAFCAN</Keyword>
+        <Keyword>ORTHOPHOTO</Keyword>
+        <Keyword>CANARY</Keyword>
+        <Keyword>ISLANDS</Keyword>
+        <Keyword>AERIAL</Keyword>
+        <Keyword>PHOTO</Keyword>
+    </KeywordList>
+    <CRS>EPSG:32628</CRS>
+    <CRS>EPSG:4326</CRS>
+    <CRS>EPSG:32627</CRS>
+    <CRS>EPSG:3857</CRS>
+    <CRS>EPSG:4083</CRS>
+    <EX_GeographicBoundingBox>
+        <westBoundLongitude>-18.3099</westBoundLongitude>
+        <eastBoundLongitude>-13.1373</eastBoundLongitude>
+        <southBoundLatitude>26.1839</southBoundLatitude>
+        <northBoundLatitude>29.8305</northBoundLatitude>
+    </EX_GeographicBoundingBox>
+    <BoundingBox CRS="EPSG:32628"
+                minx="180000" miny="2.9e+06" maxx="680000" maxy="3.3e+06" />
+    <Layer queryable="1">
+      <Name>ortoexpress</Name>
+      <Title>Ortofoto Territorial vigente</Title>
+      <Abstract>ortoexpress</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="35" height="5">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?version=1.3.0&amp;service=WMS&amp;request=GetLegendGraphic&amp;sld_version=1.1.0&amp;layer=ortoexpress&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortoterritorial_dist</Name>
+        <Title>Distribuidor de Ortofoto Territorial</Title>
+        <CRS>EPSG:32628</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-18.2147</westBoundLongitude>
+            <eastBoundLongitude>-13.33</eastBoundLongitude>
+            <southBoundLatitude>27.6281</southBoundLatitude>
+            <northBoundLatitude>29.4334</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:32628"
+                    minx="188000" miny="3.06e+06" maxx="662000" maxy="3.256e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?request=GetMetadata&amp;layer=ortoterritorial_dist"/>
+        </MetadataURL>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortoterritorial</Name>
+        <Title>Ortofoto Territorial (&gt; 3000)</Title>
+        <CRS>EPSG:32628</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-18.2147</westBoundLongitude>
+            <eastBoundLongitude>-13.33</eastBoundLongitude>
+            <southBoundLatitude>27.6281</southBoundLatitude>
+            <northBoundLatitude>29.4334</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:32628"
+                    minx="188000" miny="3.06e+06" maxx="662000" maxy="3.256e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?request=GetMetadata&amp;layer=ortoterritorial"/>
+        </MetadataURL>
+        <MinScaleDenominator>3000</MinScaleDenominator>
+      </Layer>
+      <Layer queryable="1" opaque="0" cascaded="0">
+        <Name>ortoterritorial_3000</Name>
+        <Title>Ortofoto Territorial (hasta 3000)</Title>
+        <CRS>EPSG:32628</CRS>
+        <EX_GeographicBoundingBox>
+            <westBoundLongitude>-18.2147</westBoundLongitude>
+            <eastBoundLongitude>-13.33</eastBoundLongitude>
+            <southBoundLatitude>27.6281</southBoundLatitude>
+            <northBoundLatitude>29.4334</northBoundLatitude>
+        </EX_GeographicBoundingBox>
+        <BoundingBox CRS="EPSG:32628"
+                    minx="188000" miny="3.06e+06" maxx="662000" maxy="3.256e+06" />
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://idecan1.grafcan.es/ServicioWMS/OrtoExpress?request=GetMetadata&amp;layer=ortoterritorial_3000"/>
+        </MetadataURL>
+        <MaxScaleDenominator>2999</MaxScaleDenominator>
+      </Layer>
+    </Layer>
+  </Layer>
+</Capability>
+</WMS_Capabilities>

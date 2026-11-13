@@ -1,0 +1,448 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd"
+ [
+<!ELEMENT VendorSpecificCapabilities (inspire_vs:ExtendedCapabilities)><!ELEMENT inspire_vs:ExtendedCapabilities ((inspire_common:MetadataUrl, inspire_common:SupportedLanguages, inspire_common:ResponseLanguage) | (inspire_common:ResourceLocator+, inspire_common:ResourceType, inspire_common:TemporalReference+, inspire_common:Conformity+, inspire_common:MetadataPointOfContact+, inspire_common:MetadataDate, inspire_common:SpatialDataServiceType, inspire_common:MandatoryKeyword+, inspire_common:Keyword*, inspire_common:SupportedLanguages, inspire_common:ResponseLanguage, inspire_common:MetadataUrl?))><!ATTLIST inspire_vs:ExtendedCapabilities xmlns:inspire_vs CDATA #FIXED "http://inspire.ec.europa.eu/schemas/inspire_vs/1.0" ><!ELEMENT inspire_common:MetadataUrl (inspire_common:URL, inspire_common:MediaType*)><!ATTLIST inspire_common:MetadataUrl xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:xsi CDATA #FIXED "http://www.w3.org/2001/XMLSchema-instance" xsi:type CDATA #FIXED "inspire_common:resourceLocatorType" ><!ELEMENT inspire_common:URL (#PCDATA)><!ATTLIST inspire_common:URL xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:MediaType (#PCDATA)><!ATTLIST inspire_common:MediaType xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:SupportedLanguages (inspire_common:DefaultLanguage, inspire_common:SupportedLanguage*)><!ATTLIST inspire_common:SupportedLanguages xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:DefaultLanguage (inspire_common:Language)><!ATTLIST inspire_common:DefaultLanguage xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:SupportedLanguage (inspire_common:Language)><!ATTLIST inspire_common:SupportedLanguage xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:ResponseLanguage (inspire_common:Language)><!ATTLIST inspire_common:ResponseLanguage xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Language (#PCDATA)><!ATTLIST inspire_common:Language xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:ResourceLocator (inspire_common:URL, inspire_common:MediaType*)><!ATTLIST inspire_common:ResourceLocator xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:ResourceType (#PCDATA)> <!ATTLIST inspire_common:ResourceType xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:TemporalReference (inspire_common:DateOfCreation?, inspire_common:DateOfLastRevision?, inspire_common:DateOfPublication*, inspire_common:TemporalExtent*)><!ATTLIST inspire_common:TemporalReference xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:DateOfCreation (#PCDATA)> <!ATTLIST inspire_common:DateOfCreation xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:DateOfLastRevision (#PCDATA)><!ATTLIST inspire_common:DateOfLastRevision xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:DateOfPublication (#PCDATA)><!ATTLIST inspire_common:DateOfPublication xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:TemporalExtent (inspire_common:IndividualDate | inspire_common:IntervalOfDates)><!ATTLIST inspire_common:TemporalExtent xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:IndividualDate (#PCDATA)> <!ATTLIST inspire_common:IndividualDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0"><!ELEMENT inspire_common:IntervalOfDates (inspire_common:StartingDate, inspire_common:EndDate)><!ATTLIST inspire_common:IntervalOfDates xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:StartingDate (#PCDATA)><!ATTLIST inspire_common:StartingDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:EndDate (#PCDATA)><!ATTLIST inspire_common:EndDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Conformity (inspire_common:Specification, inspire_common:Degree)><!ATTLIST inspire_common:Conformity xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Specification (inspire_common:Title, (inspire_common:DateOfPublication | inspire_common:DateOfCreation | inspire_common:DateOfLastRevision), inspire_common:URI*, inspire_common:ResourceLocator*)><!ATTLIST inspire_common:Specification xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Title (#PCDATA)><!ATTLIST inspire_common:Title xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:URI (#PCDATA)><!ATTLIST inspire_common:URI xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Degree (#PCDATA)><!ATTLIST inspire_common:Degree xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:MetadataPointOfContact (inspire_common:OrganisationName, inspire_common:EmailAddress)><!ATTLIST inspire_common:MetadataPointOfContact xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:OrganisationName (#PCDATA)><!ATTLIST inspire_common:OrganisationName  xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:EmailAddress (#PCDATA)><!ATTLIST inspire_common:EmailAddress xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:MetadataDate (#PCDATA)><!ATTLIST inspire_common:MetadataDate xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:SpatialDataServiceType (#PCDATA)><!ATTLIST inspire_common:SpatialDataServiceType xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:MandatoryKeyword (inspire_common:KeywordValue)><!ATTLIST inspire_common:MandatoryKeyword xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:KeywordValue (#PCDATA)><!ATTLIST inspire_common:KeywordValue xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" ><!ELEMENT inspire_common:Keyword (inspire_common:OriginatingControlledVocabulary?, inspire_common:KeywordValue)><!ATTLIST inspire_common:Keyword xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0" xmlns:xsi CDATA #FIXED "http://www.w3.org/2001/XMLSchemainstance" xsi:type (inspire_common:inspireTheme_bul | inspire_common:inspireTheme_cze | inspire_common:inspireTheme_dan | inspire_common:inspireTheme_dut | inspire_common:inspireTheme_eng | inspire_common:inspireTheme_est | inspire_common:inspireTheme_fin | inspire_common:inspireTheme_fre | inspire_common:inspireTheme_ger | inspire_common:inspireTheme_gre | inspire_common:inspireTheme_hun | inspire_common:inspireTheme_gle | inspire_common:inspireTheme_ita | inspire_common:inspireTheme_lav | inspire_common:inspireTheme_lit | inspire_common:inspireTheme_mlt | inspire_common:inspireTheme_pol | inspire_common:inspireTheme_por | inspire_common:inspireTheme_rum | inspire_common:inspireTheme_slo | inspire_common:inspireTheme_slv | inspire_common:inspireTheme_spa | inspire_common:inspireTheme_swe) #IMPLIED ><!ELEMENT inspire_common:OriginatingControlledVocabulary (inspire_common:Title, (inspire_common:DateOfPublication | inspire_common:DateOfCreation | inspire_common:DateOfLastRevision), inspire_common:URI*, inspire_common:ResourceLocator*)><!ATTLIST inspire_common:OriginatingControlledVocabulary xmlns:inspire_common CDATA #FIXED "http://inspire.ec.europa.eu/schemas/common/1.0">
+ ]>  <!-- end of DOCTYPE declaration -->
+
+<WMT_MS_Capabilities version="1.1.1" updateSequence="1">
+<Service>
+  <Name>OGC:WMS</Name>
+  <Title>Servicio WMS. Ortofotografía de Andalucía (2022)</Title>
+  <Abstract>Nodo del Instituto de Estadística y Cartografía de Andalucía. Servicio WMS de la Ortofotografía de Andalucía (2022) con resolución de 0.25 metros. Integrado en la Infraestructura de Datos Espaciales de Andalucía siguiendo las directrices del Sistema Estadístico y Cartográfico de Andalucía.
+	El servicio de mapas está compuesto por ortofotografías generadas a partir de vuelos fotogramétricos realizados en el año 2022 con resolución 0.25 metros/pixel. El servicio cuenta con una capa que muestra la distribución de ortofotos a resolución 0.25 metros/pixel por hojas 1:5.000</Abstract>
+  <KeywordList>
+      <Keyword>WMS</Keyword>
+      <Keyword> Andalucía</Keyword>
+      <Keyword>Ortofotografía</Keyword>
+      <Keyword> Ortofoto</Keyword>
+      <Keyword> Ortoimágenes</Keyword>
+      <Keyword> Vuelo fotogramétrico</Keyword>
+      <Keyword> Raster</Keyword>
+      <Keyword> 2022</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;"/>
+  <ContactInformation>
+    <ContactPersonPrimary>
+      <ContactPerson>Responsable IDEAndalucia</ContactPerson>
+      <ContactOrganization>Instituto de Estadística y Cartografía de Andalucía</ContactOrganization>
+    </ContactPersonPrimary>
+      <ContactPosition>Creador</ContactPosition>
+    <ContactAddress>
+        <AddressType>Postal</AddressType>
+        <Address>C/ Leonardo Da Vinci, nº 21. Isla de La Cartuja</Address>
+        <City>Sevilla</City>
+        <StateOrProvince>Sevilla</StateOrProvince>
+        <PostCode>41071</PostCode>
+        <Country>España</Country>
+    </ContactAddress>
+      <ContactVoiceTelephone>0034955033800</ContactVoiceTelephone>
+      <ContactFacsimileTelephone>0034955033816</ContactFacsimileTelephone>
+  <ContactElectronicMailAddress>cartografia@juntadeandalucia.es</ContactElectronicMailAddress>
+  </ContactInformation>
+  <Fees>Licencia compatible con CC-BY 4.0 que ampara el uso libre y gratuito para cualquier propósito legítimo, siendo de estricta obligación reconocer y mencionar el origen y propiedad de los productos y servicios de información geográfica licenciados como del IGN, según se indica en la citada licencia al que remite el siguiente enlace:
+    http://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf</Fees>
+  <AccessConstraints>None</AccessConstraints>
+</Service>
+
+<Capability>
+  <Request>
+    <GetCapabilities>
+      <Format>application/vnd.ogc.wms_xml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetCapabilities>
+    <GetMap>
+      <Format>image/png</Format>
+      <Format>image/jpeg</Format>
+      <Format>image/png; mode=8bit</Format>
+      <Format>image/vnd.jpeg-png</Format>
+      <Format>image/vnd.jpeg-png8</Format>
+      <Format>image/tiff</Format>
+      <Format>application/json</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetMap>
+    <GetFeatureInfo>
+      <Format>text/plain</Format>
+      <Format>text/html</Format>
+      <Format>application/vnd.ogc.gml</Format>
+      <DCPType>
+        <HTTP>
+          <Get><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;"/></Get>
+          <Post><OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;"/></Post>
+        </HTTP>
+      </DCPType>
+    </GetFeatureInfo>
+  </Request>
+  <Exception>
+    <Format>application/vnd.ogc.se_xml</Format>
+    <Format>application/vnd.ogc.se_inimage</Format>
+    <Format>application/vnd.ogc.se_blank</Format>
+  </Exception>
+  <VendorSpecificCapabilities>
+  <inspire_vs:ExtendedCapabilities>
+    <inspire_common:MetadataUrl xsi:type="inspire_common:resourceLocatorType">
+      <inspire_common:URL>https://www.ideandalucia.es/catalogo/inspire/srv/spa/xml_iso19139?uuid=f266f63f-3fb6-4ec0-b060-1777a0b9fcee_100035_es</inspire_common:URL>
+      <inspire_common:MediaType>application/vnd.ogc.csw.capabilities.response_xml</inspire_common:MediaType>
+    </inspire_common:MetadataUrl>
+    <inspire_common:SupportedLanguages>
+      <inspire_common:DefaultLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:DefaultLanguage>
+    </inspire_common:SupportedLanguages>
+    <inspire_common:ResponseLanguage><inspire_common:Language>spa</inspire_common:Language></inspire_common:ResponseLanguage>
+  </inspire_vs:ExtendedCapabilities>
+  </VendorSpecificCapabilities>
+  <Layer>
+    <Name>Ortofotografia_Andalucia_2022</Name>
+    <Title>Servicio WMS. Ortofotografía de Andalucía (2022)</Title>
+    <Abstract>Nodo del Instituto de Estadística y Cartografía de Andalucía. Servicio WMS de la Ortofotografía de Andalucía (2022) con resolución de 0.25 metros. Integrado en la Infraestructura de Datos Espaciales de Andalucía siguiendo las directrices del Sistema Estadístico y Cartográfico de Andalucía.
+	El servicio de mapas está compuesto por ortofotografías generadas a partir de vuelos fotogramétricos realizados en el año 2022 con resolución 0.25 metros/pixel. El servicio cuenta con una capa que muestra la distribución de ortofotos a resolución 0.25 metros/pixel por hojas 1:5.000</Abstract>
+    <KeywordList>
+        <Keyword>WMS</Keyword>
+        <Keyword> Andalucía</Keyword>
+        <Keyword>Ortofotografía</Keyword>
+        <Keyword> Ortofoto</Keyword>
+        <Keyword> Ortoimágenes</Keyword>
+        <Keyword> Vuelo fotogramétrico</Keyword>
+        <Keyword> Raster</Keyword>
+        <Keyword> 2022</Keyword>
+    </KeywordList>
+    <SRS>EPSG:4230</SRS>
+    <SRS>EPSG:4258</SRS>
+    <SRS>EPSG:4326</SRS>
+    <SRS>EPSG:23029</SRS>
+    <SRS>EPSG:25830</SRS>
+    <SRS>EPSG:23030</SRS>
+    <SRS>EPSG:23031</SRS>
+    <SRS>EPSG:25829</SRS>
+    <SRS>EPSG:25830</SRS>
+    <SRS>EPSG:25831</SRS>
+    <SRS>EPSG:32629</SRS>
+    <SRS>EPSG:32630</SRS>
+    <SRS>EPSG:32631</SRS>
+    <SRS>EPSG:3857</SRS>
+    <SRS>EPSG:3042</SRS>
+    <LatLonBoundingBox minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+    <BoundingBox SRS="EPSG:4230"
+                minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+    <BoundingBox SRS="EPSG:4258"
+                minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+    <BoundingBox SRS="EPSG:4326"
+                minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+    <BoundingBox SRS="EPSG:23029"
+                minx="622555" miny="3.97923e+06" maxx="1.16248e+06" maxy="4.3139e+06" />
+    <BoundingBox SRS="EPSG:25830"
+                minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+    <BoundingBox SRS="EPSG:23030"
+                minx="100383" miny="3.98716e+06" maxx="621278" maxy="4.28877e+06" />
+    <BoundingBox SRS="EPSG:23031"
+                minx="-442260" miny="3.99636e+06" maxx="99701.6" maxy="4.33238e+06" />
+    <BoundingBox SRS="EPSG:25829"
+                minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+    <BoundingBox SRS="EPSG:25830"
+                minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+    <BoundingBox SRS="EPSG:25831"
+                minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+    <BoundingBox SRS="EPSG:32629"
+                minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+    <BoundingBox SRS="EPSG:32630"
+                minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+    <BoundingBox SRS="EPSG:32631"
+                minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+    <BoundingBox SRS="EPSG:3857"
+                minx="-845088" miny="4.29327e+06" maxx="-178628" maxy="4.6855e+06" />
+    <BoundingBox SRS="EPSG:3042"
+                minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+    <Attribution>
+        <Title>Infraestructura de Datos Espaciales de Andalucía (IDEAndalucía)</Title>
+        <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.ideandalucia.es"/>
+    </Attribution>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="281" height="66">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=Ortofotografia_Andalucia_2022&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+    <ScaleHint min="0.498902848429637" max="2494.51424214819" />
+    <Layer>
+      <Name>ortofotografia_2022_pancromatico</Name>
+      <Title>Ortofotografía Pancromática de Andalucía (Año 2022)</Title>
+      <Abstract>ortofotografia_2022_pancromatico</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="281" height="22">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ortofotografia_2022_pancromatico&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>ortofotografia_2022_pancromatico</Name>
+        <Title>Ortofografia de Andalucía 2022 Pancromatico (0.25m Pixel)</Title>
+        <Abstract>Esta capa muestra las Ortofoto de Andalucía del año 2022 en pancromatico, escala de grises</Abstract>
+        <KeywordList>
+            <Keyword>Ortofotografía</Keyword>
+            <Keyword> Ortofoto</Keyword>
+            <Keyword> Ortoimágenes</Keyword>
+            <Keyword> Fotografía aérea</Keyword>
+            <Keyword> Andalucía</Keyword>
+            <Keyword> Raster</Keyword>
+            <Keyword> 2022</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4230</SRS>
+        <SRS>EPSG:4258</SRS>
+        <SRS>EPSG:4326</SRS>
+        <SRS>EPSG:23029</SRS>
+        <SRS>EPSG:25830</SRS>
+        <SRS>EPSG:23030</SRS>
+        <SRS>EPSG:23031</SRS>
+        <SRS>EPSG:25829</SRS>
+        <SRS>EPSG:25830</SRS>
+        <SRS>EPSG:25831</SRS>
+        <SRS>EPSG:32629</SRS>
+        <SRS>EPSG:32630</SRS>
+        <SRS>EPSG:32631</SRS>
+        <SRS>EPSG:3857</SRS>
+        <SRS>EPSG:3042</SRS>
+        <LatLonBoundingBox minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:23029"
+                    minx="622555" miny="3.97923e+06" maxx="1.16248e+06" maxy="4.3139e+06" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="100383" miny="3.98716e+06" maxx="621278" maxy="4.28877e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="-442260" miny="3.99636e+06" maxx="99701.6" maxy="4.33238e+06" />
+        <BoundingBox SRS="EPSG:25829"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox SRS="EPSG:32629"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox SRS="EPSG:32630"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox SRS="EPSG:32631"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-845088" miny="4.29327e+06" maxx="-178628" maxy="4.6855e+06" />
+        <BoundingBox SRS="EPSG:3042"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <AuthorityURL name="IECA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.juntadeandalucia.es/institutodeestadisticaycartografia/"/>
+        </AuthorityURL>
+        <Identifier authority="IECA">SPA.AND.IECA.CDE.ORTOFOTO.2022</Identifier>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/catalogo/inspire/srv/spa/xml_iso19139?uuid=23a164c5-3962-4efb-869e-bae5832586b8_200018_es"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="281" height="22">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ortofotografia_2022_pancromatico&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="2494.51424214819" />
+      </Layer>
+    </Layer>
+    <Layer>
+      <Name>ortofotografia_2022_rgb</Name>
+      <Title>Ortofotografía Color de Andalucía (Año 2022)</Title>
+      <Abstract>ortofotografia_2022_rgb</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="266" height="22">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ortofotografia_2022_rgb&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>ortofotografia_2022_rgb</Name>
+        <Title>Ortofografia de Andalucía 2022 Color RGB (0.25m Pixel)</Title>
+        <Abstract>Esta capa muestra las Ortofoto de Andalucía del año 2022 a color RGB</Abstract>
+        <KeywordList>
+            <Keyword>Ortofotografía</Keyword>
+            <Keyword> Ortofoto</Keyword>
+            <Keyword> Ortoimágenes</Keyword>
+            <Keyword> Fotografía aérea</Keyword>
+            <Keyword> Andalucía</Keyword>
+            <Keyword> Raster</Keyword>
+            <Keyword> 2022</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4230</SRS>
+        <SRS>EPSG:4258</SRS>
+        <SRS>EPSG:4326</SRS>
+        <SRS>EPSG:23029</SRS>
+        <SRS>EPSG:25830</SRS>
+        <SRS>EPSG:23030</SRS>
+        <SRS>EPSG:23031</SRS>
+        <SRS>EPSG:25829</SRS>
+        <SRS>EPSG:25830</SRS>
+        <SRS>EPSG:25831</SRS>
+        <SRS>EPSG:32629</SRS>
+        <SRS>EPSG:32630</SRS>
+        <SRS>EPSG:32631</SRS>
+        <SRS>EPSG:3857</SRS>
+        <SRS>EPSG:3042</SRS>
+        <LatLonBoundingBox minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:23029"
+                    minx="622555" miny="3.97923e+06" maxx="1.16248e+06" maxy="4.3139e+06" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="100383" miny="3.98716e+06" maxx="621278" maxy="4.28877e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="-442260" miny="3.99636e+06" maxx="99701.6" maxy="4.33238e+06" />
+        <BoundingBox SRS="EPSG:25829"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox SRS="EPSG:32629"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox SRS="EPSG:32630"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox SRS="EPSG:32631"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-845088" miny="4.29327e+06" maxx="-178628" maxy="4.6855e+06" />
+        <BoundingBox SRS="EPSG:3042"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <AuthorityURL name="IECA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.juntadeandalucia.es/institutodeestadisticaycartografia/"/>
+        </AuthorityURL>
+        <Identifier authority="IECA">SPA.AND.IECA.CDE.ORTOFOTO.2022</Identifier>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/catalogo/inspire/srv/spa/xml_iso19139?uuid=23a164c5-3962-4efb-869e-bae5832586b8_200018_es"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="266" height="22">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ortofotografia_2022_rgb&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="2494.51424214819" />
+      </Layer>
+    </Layer>
+    <Layer>
+      <Name>ortofotografia_2022_infrarrojo</Name>
+      <Title>Ortofotografía Infrarroja de Andalucía (Año 2022)</Title>
+      <Abstract>ortofotografia_2022_infrarrojo</Abstract>
+    <Style>
+       <Name>default</Name>
+       <Title>default</Title>
+       <LegendURL width="256" height="22">
+          <Format>image/png</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ortofotografia_2022_infrarrojo&amp;format=image/png&amp;STYLE=default"/>
+       </LegendURL>
+    </Style>
+      <Layer queryable="0" opaque="0" cascaded="0">
+        <Name>ortofotografia_2022_infrarrojo</Name>
+        <Title>Ortofografia de Andalucía 2022 Color Infrarrojo (0.25m Pixel)</Title>
+        <Abstract>Esta capa muestra las Ortofoto de Andalucía del año 2022 a color Infrarrojo</Abstract>
+        <KeywordList>
+            <Keyword>Ortofotografía</Keyword>
+            <Keyword> Ortofoto</Keyword>
+            <Keyword> Ortoimágenes</Keyword>
+            <Keyword> Fotografía aérea</Keyword>
+            <Keyword> Andalucía</Keyword>
+            <Keyword> Raster</Keyword>
+            <Keyword> 2022</Keyword>
+        </KeywordList>
+        <SRS>EPSG:4230</SRS>
+        <SRS>EPSG:4258</SRS>
+        <SRS>EPSG:4326</SRS>
+        <SRS>EPSG:23029</SRS>
+        <SRS>EPSG:25830</SRS>
+        <SRS>EPSG:23030</SRS>
+        <SRS>EPSG:23031</SRS>
+        <SRS>EPSG:25829</SRS>
+        <SRS>EPSG:25830</SRS>
+        <SRS>EPSG:25831</SRS>
+        <SRS>EPSG:32629</SRS>
+        <SRS>EPSG:32630</SRS>
+        <SRS>EPSG:32631</SRS>
+        <SRS>EPSG:3857</SRS>
+        <SRS>EPSG:3042</SRS>
+        <LatLonBoundingBox minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:4230"
+                    minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:4258"
+                    minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:4326"
+                    minx="-7.591550" miny="35.946566" maxx="-1.604639" maxy="38.747010" />
+        <BoundingBox SRS="EPSG:23029"
+                    minx="622555" miny="3.97923e+06" maxx="1.16248e+06" maxy="4.3139e+06" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox SRS="EPSG:23030"
+                    minx="100383" miny="3.98716e+06" maxx="621278" maxy="4.28877e+06" />
+        <BoundingBox SRS="EPSG:23031"
+                    minx="-442260" miny="3.99636e+06" maxx="99701.6" maxy="4.33238e+06" />
+        <BoundingBox SRS="EPSG:25829"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox SRS="EPSG:25830"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox SRS="EPSG:25831"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox SRS="EPSG:32629"
+                    minx="622550" miny="3.97916e+06" maxx="1.16245e+06" maxy="4.31383e+06" />
+        <BoundingBox SRS="EPSG:32630"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <BoundingBox SRS="EPSG:32631"
+                    minx="-442218" miny="3.99629e+06" maxx="99719.6" maxy="4.3323e+06" />
+        <BoundingBox SRS="EPSG:3857"
+                    minx="-845088" miny="4.29327e+06" maxx="-178628" maxy="4.6855e+06" />
+        <BoundingBox SRS="EPSG:3042"
+                    minx="100401" miny="3.9871e+06" maxx="621273" maxy="4.2887e+06" />
+        <AuthorityURL name="IECA">
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://www.juntadeandalucia.es/institutodeestadisticaycartografia/"/>
+        </AuthorityURL>
+        <Identifier authority="IECA">SPA.AND.IECA.CDE.ORTOFOTO.2022</Identifier>
+        <MetadataURL type="TC211">
+          <Format>text/xml</Format>
+          <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/catalogo/inspire/srv/spa/xml_iso19139?uuid=23a164c5-3962-4efb-869e-bae5832586b8_200018_es"/>
+        </MetadataURL>
+        <Style>
+          <Name>default</Name>
+          <Title>default</Title>
+          <LegendURL width="256" height="22">
+             <Format>image/png</Format>
+             <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="https://www.ideandalucia.es/wms/ortofoto_2022?language=spa&amp;version=1.1.1&amp;service=WMS&amp;request=GetLegendGraphic&amp;layer=ortofotografia_2022_infrarrojo&amp;format=image/png&amp;STYLE=default"/>
+          </LegendURL>
+        </Style>
+        <ScaleHint min="0" max="2494.51424214819" />
+      </Layer>
+    </Layer>
+  </Layer>
+</Capability>
+</WMT_MS_Capabilities>
