@@ -11,7 +11,7 @@ import java.io.Writer
 object KmlWriter {
     private const val IMAGE_WIDTH = 400
     private const val FILL_ALPHA = 0x80
-    private const val PHOTO_FOLDER = "files/"
+    internal const val PHOTO_FOLDER = "files/"
 
     /** Escribe [document] en [out] sin cerrarlo. */
     fun write(document: KmlDocument, out: Writer) {

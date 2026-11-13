@@ -45,7 +45,7 @@
       Hecho cuando: `KmlExportPreferencesTest` en verde (por defecto, guardar y valor no válido).
 - [x] T20. `data` y `core:formats`: `PhotoRepository.photosForExport` y los nombres de las fotos del KMZ (`PhotoArchiveNames`: si S056 ya los tiene, se reutilizan; si no, se escriben aquí en `core:formats/photo/` con sus tests). (RF-28)
       Hecho cuando: los tests de la consulta y de los nombres en verde.
-- [ ] T21. `core:formats`: `KmzWriter` (`doc.kml` primero, fotos de `files/` byte a byte, foto omitida, `<img>` en la descripción) y el rendimiento de 100 fotos de 1 MB. (RF-28 a RF-30, RNF)
+- [x] T21. `core:formats`: `KmzWriter` (`doc.kml` primero, fotos de `files/` byte a byte, foto omitida, `<img>` en la descripción) y el rendimiento de 100 fotos de 1 MB. (RF-28 a RF-30, RNF)
       Hecho cuando: `KmzWriterTest` en verde y el test de rendimiento en menos de 10 s.
 - [ ] T22. `app`: `KmlExportViewModel` (puntos o selección con sus líneas, formato, altura, fotos, aviso de 1 GB y espacio, nombre del fichero, escribir entero o nada, resumen y log sin datos). (RF-20, RF-26 a RF-32)
       Hecho cuando: `KmlExportViewModelTest` en verde, incluidos sin puntos y fallo de escritura sin dejar fichero.
