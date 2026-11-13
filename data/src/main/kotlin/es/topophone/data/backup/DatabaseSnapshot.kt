@@ -222,6 +222,11 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             ),
             // S020/RF-12: los desplazamientos de base viajan con el proyecto.
             Table("base_shifts", "WHERE project_id = ?"),
+            // S036/RF-25: la biblioteca de servicios WMS va entera en la copia; en el paquete, solo los servicios que usan las capas del
+            // proyecto, con las capas que leyó su GetCapabilities, y las capas del proyecto.
+            Table("wms_services", "WHERE id IN (SELECT service_id FROM project_wms_layers WHERE project_id = ?)"),
+            Table("wms_layers", "WHERE service_id IN (SELECT service_id FROM project_wms_layers WHERE project_id = ?)"),
+            Table("project_wms_layers", "WHERE project_id = ?"),
             Table("ntrip_profiles", projectFilter = null),
             // S046/RF-30: el equipo (perfiles de antena, jalones y el de cada receptor) viaja en la copia, no en los paquetes.
             Table("antenna_profiles", projectFilter = null),

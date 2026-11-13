@@ -29,7 +29,7 @@
       Hecho cuando: `ProjectLayersRepoTest` en verde.
 - [x] T12. `data`: `WmsHttp` y `OkHttpWmsHttp` (20 s, 20 MB, sin el interceptor del mapa) y `WmsServiceAdder` (1.3.0 y caída a 1.1.1, respuesta en otra versión, validación de Web Mercator, HTTP público, motivos, presets, ya en la biblioteca), con el cliente en la inyección de `app`. (RF-1, RF-2, RF-8, RF-9, RF-10, RF-14, RF-15)
       Hecho cuando: `WmsServiceAdderTest` en verde con las respuestas grabadas, y `data` con `okhttp` como dependencia (justificada en el plan).
-- [ ] T13. `data`: `DatabaseSnapshot.TABLES` con las tres tablas (copia completa entera y paquete con filtros por proyecto) y la restauración completa que deja la biblioteca como la de la copia. (RF-25)
+- [x] T13. `data`: `DatabaseSnapshot.TABLES` con las tres tablas (copia completa entera y paquete con filtros por proyecto) y la restauración completa que deja la biblioteca como la de la copia. (RF-25)
       Hecho cuando: `WmsBackupTest` en verde: copia completa, restauración, deshacer y copia de una versión anterior. Precondición: el usuario ha aprobado el diff de S013 (RF-2 y RF-24), que se aplica antes del código.
 - [ ] T14. `data`: la importación del paquete con la fusión por dirección (servicio que el móvil ya tiene, servicio nuevo, proyecto sustituido). (RF-25)
       Hecho cuando: `WmsPackageImportTest` en verde.
