@@ -41,8 +41,8 @@
       Hecho cuando: `FakeMapController`, `WmsLayerChangeTest` y los tests de interfaz existentes en verde (el pintado en el emulador entre el mapa base y el Catastro se comprueba en T21, cuando las capas del proyecto llegan al mapa).
 - [x] T17. `app`: `WmsOneImageLoader` (las capas en «una imagen» al detenerse el mapa, con cancelación y sin caché, con el patrón del Catastro). (RF-16, RF-17, RF-29, RF-31, RF-32)
       Hecho cuando: `WmsOneImageLoaderTest` en verde (cancelación, cuadro envolvente, no cuenta como fallo de conexión) y el Catastro de S009 sin cambios.
-- [ ] T18. `app`: la pulsación larga del mapa (`longPresses`), la marca del punto (`showPressMarker`) y su cierre. (RF-34, RF-35)
-      Hecho cuando: `MapPressTest` en verde (punto, píxel, zona visible) y la marca vista en el emulador.
+- [x] T18. `app`: la pulsación larga del mapa (`longPresses`), la marca del punto (`showPressMarker`) y su cierre. (RF-34, RF-35)
+      Hecho cuando: `MapPressTest` en verde (punto, píxel, zona visible); la marca se ve en el emulador en T25, cuando la pulsación larga llega a la vista de proyecto.
 
 ## Interfaz
 - [ ] T19. `app`: `WmsLibraryViewModel` (añadir por dirección con sus estados y motivos, presets agrupados con «ya en la biblioteca» y su licencia, capas de un servicio con las no compatibles, actualizar con el aviso, renombrar, borrar con el aviso, cambiar el modo de petición). (RF-1 a RF-17)
@@ -58,7 +58,7 @@
 - [ ] T24. `app`: «Ver coordenadas» (Este y Norte en el SC del proyecto y en sus unidades, latitud y longitud, copiar, fuera de ámbito). (RF-40, RF-41)
       Hecho cuando: `MapCoordinatesTest` en verde, con Este y Norte iguales a los de pyproj a 1 mm o menos.
 - [ ] T25. `app`: el menú del mapa y las hojas de la consulta y de las coordenadas con sus textos en es y en, unidos a la pulsación larga de la vista de proyecto. (RF-34 a RF-41)
-      Hecho cuando: `MapMenuSheetTest` en verde con las opciones, el desactivado con su motivo y el cierre que quita la marca.
+      Hecho cuando: `MapMenuSheetTest` en verde con las opciones, el desactivado con su motivo y el cierre que quita la marca, y la marca de T18 vista en el emulador.
 
 ## Cierre
 - [ ] T26. Validación: recorrer la spec RF por RF, abrir con el Python de QGIS los GetCapabilities grabados y comparar capas y cuadros envolventes con `WmsCapabilitiesReader`, una consulta real de cada preset con capa consultable, `rf_report`, `pytest tools`, `forbidden_files`, la demo en el emulador según los criterios de finalización, y «Cambios al implementar» en `plan.md`, hoja de ruta a `implementada`. (Todos)

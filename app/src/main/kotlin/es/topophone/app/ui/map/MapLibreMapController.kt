@@ -97,6 +97,9 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     override val lineClicks: Flow<String> = lineTaps
     private val taps = MutableSharedFlow<MapTap>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     override val mapTaps: Flow<MapTap> = taps
+    private val presses = MutableSharedFlow<MapPress>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    override val longPresses: Flow<MapPress> = presses
+    private var pressPosition: GeoPoint? = null
 
     init {
         map.uiSettings.isRotateGesturesEnabled = MapOptions.ROTATE_GESTURES // S009/RF-11
@@ -129,6 +132,21 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 taps.tryEmit(MapTap(latLng.latitude, latLng.longitude, metres * DESIGN_TOUCH_DP * mapView.resources.displayMetrics.density))
             }
             point != null || line != null
+        }
+        map.addOnMapLongClickListener { latLng ->
+            // S036/RF-34: el punto, el píxel y la zona visible, que es lo que piden los servicios al consultar las capas.
+            val bounds = map.projection.visibleRegion.latLngBounds
+            val area = VisibleArea(
+                bounds.latitudeSouth,
+                bounds.longitudeWest,
+                bounds.latitudeNorth,
+                bounds.longitudeEast,
+                mapView.width,
+                mapView.height,
+            )
+            val screen = map.projection.toScreenLocation(latLng)
+            presses.tryEmit(MapPress.of(latLng.latitude, latLng.longitude, screen.x, screen.y, area))
+            true
         }
         map.addOnCameraIdleListener {
             publishCamera()
@@ -164,6 +182,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 addStakeoutLayers(style)
                 addBaseLayer(style)
                 addCentralLayer(style)
+                addPressLayer(style)
                 addRoverLayers(style)
                 drawWms()
                 drawDesign()
@@ -173,6 +192,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 drawStakeout()
                 drawBase()
                 drawCentral()
+                drawPressMarker()
                 drawRover()
                 updateGrid()
                 scheduleCadastre(0)
@@ -861,6 +881,36 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         drawRover()
     }
 
+    override fun showPressMarker(position: GeoPoint?) {
+        pressPosition = position
+        drawPressMarker()
+    }
+
+    /** La marca de la pulsación larga: un anillo magenta con relleno claro, distinto de los puntos, la base y el rover (S036/RF-34). */
+    private fun addPressLayer(style: Style) {
+        style.addSource(GeoJsonSource(PRESS_SOURCE))
+        style.addLayer(
+            CircleLayer(PRESS_LAYER, PRESS_SOURCE).withProperties(
+                PropertyFactory.circleRadius(PRESS_RADIUS_DP),
+                PropertyFactory.circleColor(Color.parseColor(PRESS_COLOR)),
+                PropertyFactory.circleOpacity(PRESS_FILL_OPACITY),
+                PropertyFactory.circleStrokeColor(Color.parseColor(PRESS_COLOR)),
+                PropertyFactory.circleStrokeWidth(PRESS_STROKE_DP),
+            ),
+        )
+    }
+
+    private fun drawPressMarker() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val source = style.getSourceAs<GeoJsonSource>(PRESS_SOURCE) ?: return
+        val position = pressPosition
+        if (position == null) {
+            source.setGeoJson(FeatureCollection.fromFeatures(emptyList()))
+        } else {
+            source.setGeoJson(Feature.fromGeometry(Point.fromLngLat(position.longitudeDeg, position.latitudeDeg)))
+        }
+    }
+
     override fun showBase(position: GeoPoint?) {
         base = position
         drawBase()
@@ -1134,6 +1184,12 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val GRID_LAYER = "topophone-grid"
         const val CADASTRE_SOURCE = "topophone-cadastre"
         const val CADASTRE_LAYER = "topophone-cadastre"
+        const val PRESS_SOURCE = "topophone-press"
+        const val PRESS_LAYER = "topophone-press"
+        const val PRESS_COLOR = "#D81B60"
+        const val PRESS_RADIUS_DP = 11f
+        const val PRESS_STROKE_DP = 3f
+        const val PRESS_FILL_OPACITY = 0.3f
         const val WMS_ANCHOR_LAYER = "topophone-wms-anchor"
         const val WMS_SOURCE_PREFIX = "topophone-wms-source-"
         const val WMS_LAYER_PREFIX = "topophone-wms-layer-"

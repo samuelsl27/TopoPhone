@@ -65,6 +65,21 @@ class FakeMapController : MapController {
         clicks.tryEmit(id)
     }
 
+    private val presses = MutableSharedFlow<MapPress>(extraBufferCapacity = 8)
+    override val longPresses: Flow<MapPress> = presses
+    var pressMarker: GeoPoint? = null
+    var pressMarkerCalls = 0
+
+    /** El usuario mantiene pulsado un punto del mapa. */
+    fun longPress(press: MapPress) {
+        presses.tryEmit(press)
+    }
+
+    override fun showPressMarker(position: GeoPoint?) {
+        pressMarker = position
+        pressMarkerCalls++
+    }
+
     var wmsPlan: WmsLayerPlan = WmsLayerPlan.EMPTY
     var wmsCalls = 0
 

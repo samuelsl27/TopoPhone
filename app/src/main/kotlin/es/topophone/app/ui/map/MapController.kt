@@ -68,6 +68,12 @@ interface MapController {
     /** El id de cada punto que el usuario toca en el mapa (S011/RF-5). */
     val pointClicks: Flow<String>
 
+    /** Cada vez que el usuario mantiene pulsado un punto del mapa, con el píxel y la zona visible (S036/RF-34). */
+    val longPresses: Flow<MapPress>
+
+    /** Marca el punto de una pulsación larga mientras el menú del mapa está abierto; null quita la marca (S036/RF-34, RF-35). */
+    fun showPressMarker(position: GeoPoint?)
+
     /** Cada toque en el mapa que no cae en un punto del proyecto, con la tolerancia de un dedo en metros (S040/RF-29). */
     val mapTaps: Flow<MapTap>
 
