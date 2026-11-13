@@ -1,0 +1,1106 @@
+[
+  {
+    "key": "catastro-inspire",
+    "name": "Catastro: parcelas y edificios (INSPIRE)",
+    "region": "España",
+    "group": "Catastro",
+    "year": null,
+    "address": "https://ovc.catastro.meh.es/cartografia/INSPIRE/spadgcwms.aspx",
+    "attribution": "© Dirección General del Catastro",
+    "license": "Uso libre y gratuito; sin descarga masiva ni peticiones teseladas",
+    "licenseUrl": "https://www.catastro.hacienda.gob.es/es-ES/wms.html",
+    "requestMode": "IMAGE",
+    "preferredFormat": "image/png",
+    "infoVersion": "1.1.1",
+    "suggestedLayers": [
+      "CP.CadastralParcel",
+      "BU.Building"
+    ],
+    "notes": "Responde 1.3.0 aunque se pida 1.1.1. XML iso-8859-1 sin DOCTYPE. GetFeatureInfo solo text/html: con VERSION=1.3.0 (I/J) devolvio siempre la excepcion 'Cadastral parcel not found' (HTTP 200, ServiceExceptionReport 1.1.1) incluso sobre una parcela (Cibeles, Madrid); con VERSION=1.1.1 (X/Y, SRS) si devolvio la ficha XHTML de la parcela."
+  },
+  {
+    "key": "catastro-wms",
+    "name": "Catastro: cartografía catastral",
+    "region": "España",
+    "group": "Catastro",
+    "year": null,
+    "address": "https://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx",
+    "attribution": "© Dirección General del Catastro",
+    "license": "Uso libre y gratuito; sin descarga masiva ni peticiones teseladas; no es cartografía oficial",
+    "licenseUrl": "https://www.catastro.hacienda.gob.es/es-ES/wms.html",
+    "requestMode": "IMAGE",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "Catastro"
+    ],
+    "notes": "Responde 1.1.1 aunque se pida 1.3.0. XML ISO-8859-1 con DOCTYPE (subconjunto interno). GetMap png/jpeg/gif/bmp/tif; sin text/plain en GetFeatureInfo (text/html y text/xml, ambos XHTML ISO-8859-1). Capas consultables: Catastro y PARCELA."
+  },
+  {
+    "key": "ign-base",
+    "name": "IGN: cartografía base",
+    "region": "España",
+    "group": "IGN",
+    "year": null,
+    "address": "https://www.ign.es/wms-inspire/ign-base",
+    "attribution": "© IGN",
+    "license": "CC BY 4.0 scne.es",
+    "licenseUrl": "https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "IGNBaseTodo"
+    ],
+    "notes": "Capas: IGNBaseTodo (Callejero), IGNBaseTodo-nofondo (recortado, sin fondo, para superponer), IGNBaseTodo-gris, IGNBaseOrto (para superponer a ortofoto). Ninguna consultable."
+  },
+  {
+    "key": "ign-hidrografia",
+    "name": "IGN: hidrografía",
+    "region": "España",
+    "group": "IGN",
+    "year": null,
+    "address": "https://servicios.idee.es/wms-inspire/hidrografia",
+    "attribution": "© IGN",
+    "license": "CC BY 4.0 scne.es",
+    "licenseUrl": "https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "HY.Network",
+      "HY.PhysicalWaters.Waterbodies"
+    ],
+    "notes": "Responde 1.3.0 aunque se pida 1.1.1. Otras capas: HY.PhysicalWaters.LandWaterBoundary, .Wetland, .Catchments, .ManMadeObject, .HydroPointOfInterest. MaxWidth/Height 4096."
+  },
+  {
+    "key": "ign-limites-admin",
+    "name": "IGN: límites administrativos",
+    "region": "España",
+    "group": "IGN",
+    "year": null,
+    "address": "https://www.ign.es/wms-inspire/unidades-administrativas",
+    "attribution": "© IGN",
+    "license": "CC BY 4.0 ign.es",
+    "licenseUrl": "https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "AU.AdministrativeUnit",
+      "AU.AdministrativeBoundary"
+    ],
+    "notes": "Responde 1.3.0 aunque se pida 1.1.1 (no soporta 1.1.1). Capas extra: LimitesHistoricos, LimitesTime. Todas consultables (text/plain con nombre de CCAA, provincia y municipio)."
+  },
+  {
+    "key": "ign-mdt",
+    "name": "IGN: modelo digital del terreno",
+    "region": "España",
+    "group": "IGN",
+    "year": null,
+    "address": "https://servicios.idee.es/wms-inspire/mdt",
+    "attribution": "© IGN",
+    "license": "CC BY 4.0 scne.es",
+    "licenseUrl": "https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "EL.ElevationGridCoverage"
+    ],
+    "notes": "Capas: EL.ElevationGridCoverage (MDT 2 m), EL.ContourLine, EL.SpotElevation. MaxWidth/Height 2048. GetFeatureInfo text/plain sobre el MDT devuelve la cota (GRAY_INDEX en m)."
+  },
+  {
+    "key": "ign-pnoa-ma",
+    "name": "IGN: PNOA máxima actualidad",
+    "region": "España",
+    "group": "IGN",
+    "year": null,
+    "address": "https://www.ign.es/wms-inspire/pnoa-ma",
+    "attribution": "PNOA © IGN",
+    "license": "CC BY 4.0 scne.es",
+    "licenseUrl": "https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "OI.OrthoimageCoverage"
+    ],
+    "notes": "Ortofoto PNOA desde ~1:70.000 y Sentinel-2 (10 m) a escalas menores. OI.OrthoimageCoverage no es consultable; OI.MosaicElement (huellas) si: devuelve FECHA y RESOLUCION en text/plain. MaxWidth/Height 4096."
+  },
+  {
+    "key": "icv-orto-2025-pval-rapida",
+    "name": "ICV: ortofoto 2025 (provincia de Valencia, 15 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2025,
+    "address": "https://terramapas.icv.gva.es/0202_2025PVAL0015_ORa",
+    "attribution": "Ortofoto 2025 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2025PVAL0015_RGB_ORa"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18842 bytes); titulo del catalogo: Ortofoto rápida de 2025 de la Provincia de Valencia en RGBI y de 15 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2025-valencia",
+    "name": "ICV: ortofoto 2025 (provincia de Valencia, 15 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2025,
+    "address": "https://terramapas.icv.gva.es/0202_2025PVAL0015",
+    "attribution": "Ortofoto 2025 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2025PVAL0015_RGB"
+    ],
+    "notes": "Solo provincia de Valencia (ortofoto verdadera 15 cm). Existe tambien 0202_2025PVAL0015_ORa (ortofoto rapida, capas 2025PVAL0015_RGB_ORa)."
+  },
+  {
+    "key": "icv-orto-2024",
+    "name": "ICV: ortofoto 2024 (Comunitat Valenciana, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2024,
+    "address": "https://terramapas.icv.gva.es/0202_2024CVAL0025",
+    "attribution": "Ortofoto 2024 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2024CVAL0025_RGB"
+    ],
+    "notes": "La mas reciente que cubre toda la Comunitat (Castellon incluido). Otras capas: 2024CVAL0025_IRG, distribucion_descargas (hojas, consultable) y la raiz OWS_0202_2024CVAL0025 (con nombre y consultable, agrupa todo). El patron de direccion es 0202_<AÑO>CVAL0025 de 2017 a 2024; ver icv-orto-<año>."
+  },
+  {
+    "key": "icv-orto-2023",
+    "name": "ICV: ortofoto 2023 (Comunitat Valenciana, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2023,
+    "address": "https://terramapas.icv.gva.es/0202_2023CVAL0025",
+    "attribution": "Ortofoto 2023 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2023CVAL0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18296 bytes); titulo del catalogo: Ortofoto de 2023 de la Comunitat Valenciana en RGBI y de 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2022",
+    "name": "ICV: ortofoto 2022 (Comunitat Valenciana, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2022,
+    "address": "https://terramapas.icv.gva.es/0202_2022CVAL0025",
+    "attribution": "Ortofoto 2022 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2022CVAL0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18435 bytes); titulo del catalogo: Ortofoto de 2022 de la Comunitat Valenciana en RGBI y de 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2021",
+    "name": "ICV: ortofoto 2021 (Comunitat Valenciana, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2021,
+    "address": "https://terramapas.icv.gva.es/0202_2021CVAL0025",
+    "attribution": "Ortofoto 2021 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2021CVAL0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18414 bytes); titulo del catalogo: Ortofoto de 2021 de la Comunitat Valenciana en RGBI y de 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2020",
+    "name": "ICV: ortofoto 2020 (Comunitat Valenciana, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2020,
+    "address": "https://terramapas.icv.gva.es/0202_2020CVAL0025",
+    "attribution": "Ortofoto 2020 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2020CVAL0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18414 bytes); titulo del catalogo: Ortofoto de 2020 de la Comunitat Valenciana en RGBI y de 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2019",
+    "name": "ICV: ortofoto 2019 (Comunitat Valenciana, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2019,
+    "address": "https://terramapas.icv.gva.es/0202_2019CVAL0025",
+    "attribution": "Ortofoto 2019 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2019CVAL0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18414 bytes); titulo del catalogo: Ortofoto de 2019 de la Comunitat Valenciana en RGBI y de 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2018",
+    "name": "ICV: ortofoto 2018 (Comunitat Valenciana, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2018,
+    "address": "https://terramapas.icv.gva.es/0202_2018CVAL0025",
+    "attribution": "Ortofoto 2018 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2018CVAL0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18414 bytes); titulo del catalogo: Ortofoto de 2018 de la Comunitat Valenciana en RGBI y 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2017",
+    "name": "ICV: ortofoto 2017 (Comunitat Valenciana, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2017,
+    "address": "https://terramapas.icv.gva.es/0202_2017CVAL0025",
+    "attribution": "Ortofoto 2017 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2017CVAL0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18414 bytes); titulo del catalogo: Ortofoto de 2017 de la Comunitat Valenciana en RGBI y 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2015-cava",
+    "name": "ICV: ortofoto 2015 (provincias de Castellón y Valencia, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2015,
+    "address": "https://terramapas.icv.gva.es/0202_2015CAVA0025",
+    "attribution": "Proyecto 2015 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2015CAVA0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15361 bytes); titulo del catalogo: Ortofoto de 2015 PNOA de la Provincia de Castellón y Valencia en RGB y 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2014-pali",
+    "name": "ICV: ortofoto 2014 (provincia de Alicante, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2014,
+    "address": "https://terramapas.icv.gva.es/0202_2014PALI0025",
+    "attribution": "Proyecto 2014 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2014PALI0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15295 bytes); titulo del catalogo: Ortofoto de 2014 PNOA de la provincia de Alicante en RGB y 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2012",
+    "name": "ICV: ortofoto 2012 (Comunitat Valenciana, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2012,
+    "address": "https://terramapas.icv.gva.es/0202_2012CVAL0050",
+    "attribution": "Proyecto 2012 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2012CVAL0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15245 bytes); titulo del catalogo: Ortofoto de 2012 PNOA de la Comunitat Valenciana en RGB y 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2010-pval",
+    "name": "ICV: ortofoto 2010 (provincia de Valencia, 35 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2010,
+    "address": "https://terramapas.icv.gva.es/0202_2010PVAL0035",
+    "attribution": "Ortofoto 2010 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2010PVAL0035_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15287 bytes); titulo del catalogo: Ortofoto de 2010 de la provincia de Valencia en RGB de 35 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2009-cost",
+    "name": "ICV: ortofoto 2009 (franja costera valenciana, 10 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2009,
+    "address": "https://terramapas.icv.gva.es/0202_2009COST0010",
+    "attribution": "Ortofoto 2009 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2009COST0010_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15564 bytes); titulo del catalogo: Ortofoto de 2009 de la franja costera valenciana en RGB y de 10 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2009-pali",
+    "name": "ICV: ortofoto 2009 (provincia de Alicante, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2009,
+    "address": "https://terramapas.icv.gva.es/0202_2009PALI0025",
+    "attribution": "Proyecto 2009 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2009PALI0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15287 bytes); titulo del catalogo: Ortofoto de 2009 PNOA de la provincia de Alicante en RGB de 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2009-pcas",
+    "name": "ICV: ortofoto 2009 (provincia de Castellón, 25 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2009,
+    "address": "https://terramapas.icv.gva.es/0202_2009PCAS0025",
+    "attribution": "Proyecto 2009 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2009PCAS0025_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18485 bytes); titulo del catalogo: Ortofoto de 2009 PNOA de la provincia de Castellón en RGBI de 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2008-pval",
+    "name": "ICV: ortofoto 2008 (provincia de Valencia, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2008,
+    "address": "https://terramapas.icv.gva.es/0202_2008PVAL0050",
+    "attribution": "Proyecto 2008 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2008PVAL0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18483 bytes); titulo del catalogo: Ortofoto de 2008 PNOA de la provincia de Valencia en RGBI de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2007-cost",
+    "name": "ICV: ortofoto 2007 (franja costera valenciana, 10 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2007,
+    "address": "https://terramapas.icv.gva.es/0202_2007COST0010",
+    "attribution": "Ortofoto 2007 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2007COST0010_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15564 bytes); titulo del catalogo: Ortofoto de 2007 de la franja costera valenciana en RGB y de 10 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2007-pali",
+    "name": "ICV: ortofoto 2007 (provincia de Alicante, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2007,
+    "address": "https://terramapas.icv.gva.es/0202_2007PALI0050",
+    "attribution": "Proyecto 2007 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2007PALI0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18471 bytes); titulo del catalogo: Ortofoto de 2007 PNOA de la provincia de Alicante en RGBI de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2007-pcas",
+    "name": "ICV: ortofoto 2007 (provincia de Castellón, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2007,
+    "address": "https://terramapas.icv.gva.es/0202_2007PCAS0050",
+    "attribution": "Proyecto 2007 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2007PCAS0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18502 bytes); titulo del catalogo: Ortofoto de 2007 PNOA de la provincia de Castellón en RGBI de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2006-pval",
+    "name": "ICV: ortofoto 2006 (provincia de Valencia, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2006,
+    "address": "https://terramapas.icv.gva.es/0202_2006PVAL0050",
+    "attribution": "Proyecto 2006 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2006PVAL0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18483 bytes); titulo del catalogo: Ortofoto de 2006 PNOA de la provincia de Valencia en RGBI y de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2005-pali",
+    "name": "ICV: ortofoto 2005 (provincia de Alicante, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2005,
+    "address": "https://terramapas.icv.gva.es/0202_2005PALI0050",
+    "attribution": "Proyecto 2005 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2005PALI0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15281 bytes); titulo del catalogo: Ortofoto de 2005 PNOA de la provincia de Alicante en RGB de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2005-pcas",
+    "name": "ICV: ortofoto 2005 (provincia de Castellón, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2005,
+    "address": "https://terramapas.icv.gva.es/0202_2005PCAS0050",
+    "attribution": "Proyecto 2005 CC BY 4.0 www.scne.es (PNOA)",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2005PCAS0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 18505 bytes); titulo del catalogo: Ortofoto de 2005 PNOA de la provincia de Castellón en RGBI de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2004-pval",
+    "name": "ICV: ortofoto 2004 (provincia de Valencia, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2004,
+    "address": "https://terramapas.icv.gva.es/0202_2004PVAL0050",
+    "attribution": "Ortofoto 2004 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2004PVAL0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15278 bytes); titulo del catalogo: Ortofoto de 2004 de la provincia de Valencia en RGB y de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2003-pcas",
+    "name": "ICV: ortofoto 2003 (provincia de Castellón, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2003,
+    "address": "https://terramapas.icv.gva.es/0202_2003PCAS0050",
+    "attribution": "Ortofoto 2003 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2003PCAS0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 17059 bytes); titulo del catalogo: Ortofoto de 2003 de la provincia de Castellón en RGB y 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2002-vaos",
+    "name": "ICV: ortofoto 2002 (oeste de Valencia y Alicante, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2002,
+    "address": "https://terramapas.icv.gva.es/0202_2002VAOS0050",
+    "attribution": "Ortofoto 2002 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2002VAOS0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15484 bytes); titulo del catalogo: Ortofoto de 2002 de la mitad oeste de las provincias de Valencia y Alicante en RGB y 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-2000-vaes",
+    "name": "ICV: ortofoto 2000 (este de la provincia de Valencia, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 2000,
+    "address": "https://terramapas.icv.gva.es/0202_2000VAES0050",
+    "attribution": "Ortofoto 2000 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "2000VAES0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15765 bytes); titulo del catalogo: Ortofoto de 2000 del este de la provincia de Valencia en RGB y 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-1999-quin",
+    "name": "ICV: ortofoto 1999 (Comunitat Valenciana (vuelo quinquenal), 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 1999,
+    "address": "https://terramapas.icv.gva.es/0202_1999QUIN0050",
+    "attribution": "Ortofoto 1999 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "1999QUIN0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15449 bytes); titulo del catalogo: Ortofoto de 1999 de la Comunitat Valenciana en RGB y de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-1997-casu",
+    "name": "ICV: ortofoto 1997 (parte central/sur de la provincia de Castellón, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 1997,
+    "address": "https://terramapas.icv.gva.es/0202_1997CASU0050",
+    "attribution": "Ortofoto 1997 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "1997CASU0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15419 bytes); titulo del catalogo: Ortofoto de 1997 de una franja al sur de provincia de Castellón en RGB y 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-1996-casn",
+    "name": "ICV: ortofoto 1996 (norte de la provincia de Castellón, 50 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 1996,
+    "address": "https://terramapas.icv.gva.es/0202_1996CASN0050",
+    "attribution": "Ortofoto 1996 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "1996CASN0050_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15366 bytes); titulo del catalogo: Ortofoto de 1996 de la mitad norte de la provincia de Castellón en RGB y 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-1989-cost",
+    "name": "ICV: ortofoto 1989 (franja costera valenciana, 10 cm)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 1989,
+    "address": "https://terramapas.icv.gva.es/0202_1989COST0010",
+    "attribution": "Ortofoto 1989 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "1989COST0010_RGB"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15564 bytes); titulo del catalogo: Ortofoto de 1989 de la costa de la Comunitat Valenciana en RGB y de 10 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-1985-naci",
+    "name": "ICV: ortofoto 1985 (Comunitat Valenciana (vuelo nacional), 50 cm, pancromática)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 1985,
+    "address": "https://terramapas.icv.gva.es/0202_1985NACI0050",
+    "attribution": "Ortofoto 1985 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "1985NACI0050_PAN"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15489 bytes); titulo del catalogo: Ortofoto de 1985 Nacional de la Comunitat Valenciana pancromática y de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-1977-intm",
+    "name": "ICV: ortofoto 1977 (Comunitat Valenciana (vuelo interministerial), 25 cm, pancromática)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 1977,
+    "address": "https://terramapas.icv.gva.es/0202_1977INTM0025",
+    "attribution": "Ortofoto 1977 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "1977INTM0025_PAN"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15489 bytes); titulo del catalogo: Ortofoto de 1977 Interministerial de la Comunitat Valenciana pancromática y de 25 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-1956-amsb",
+    "name": "ICV: ortofoto 1956 (Comunitat Valenciana (vuelo americano serie B), 50 cm, pancromática)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 1956,
+    "address": "https://terramapas.icv.gva.es/0202_1956AMSB0050",
+    "attribution": "Ortofoto 1956 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "1956AMSB0050_PAN"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15365 bytes); titulo del catalogo: Ortofoto de 1956-1957 de la Comunitat Valenciana pancromática y 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-orto-1945-amsa",
+    "name": "ICV: ortofoto 1945 (Comunitat Valenciana (vuelo americano serie A), 50 cm, pancromática)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV ortofotos",
+    "year": 1945,
+    "address": "https://terramapas.icv.gva.es/0202_1945AMSA0050",
+    "attribution": "Ortofoto 1945 CC BY 4.0 © Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "1945AMSA0050_PAN"
+    ],
+    "notes": "GetCapabilities 1.3.0 verificado (HTTP 200, 15489 bytes); titulo del catalogo: Ortofoto de 1945 de la Comunitat Valenciana pancromática y de 50 cm de resolución. Misma estructura que icv-orto-2024 (capa de imagen y capa de distribucion de hojas)."
+  },
+  {
+    "key": "icv-bcv05",
+    "name": "ICV: cartografía base 1:5.000 (BCV05)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV cartografía",
+    "year": null,
+    "address": "https://terramapas.icv.gva.es/0101_BCV05",
+    "attribution": "© Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "OWS_0101_BCV05"
+    ],
+    "notes": "Se dibuja solo a escalas <= 1:12.000 (MaxScaleDenominator 12000). 24 capas, 3 niveles; hay grupos con Name con espacios y barras verticales (p. ej. 'Usos del suelo | Usos del sòl | Land use'). GetFeatureInfo devuelve entidades pero sin atributos en text/plain."
+  },
+  {
+    "key": "icv-bcv100",
+    "name": "ICV: cartografía base 1:100.000 (BCV100)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV cartografía",
+    "year": null,
+    "address": "https://terramapas.icv.gva.es/0101_BCV100",
+    "attribution": "© Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "OWS_0101_BCV100"
+    ],
+    "notes": "Se dibuja solo en su tramo de escala (1:100.000)."
+  },
+  {
+    "key": "icv-bcv200",
+    "name": "ICV: cartografía base 1:200.000 (BCV200)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV cartografía",
+    "year": null,
+    "address": "https://terramapas.icv.gva.es/0101_BCV200",
+    "attribution": "© Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "OWS_0101_BCV200"
+    ],
+    "notes": "Se dibuja solo en su tramo de escala (1:200.000)."
+  },
+  {
+    "key": "icv-bcv25",
+    "name": "ICV: cartografía base 1:25.000 (BCV25)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV cartografía",
+    "year": null,
+    "address": "https://terramapas.icv.gva.es/0101_BCV25",
+    "attribution": "© Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "OWS_0101_BCV25"
+    ],
+    "notes": "Escalas 1:12.001 a 1:25.000. Existen tambien 0101_BCV50 (25.001-40.000), 0101_BCV100 (40.001-80.000) y 0101_BCV200 (80.001-350.000), verificados con GetCapabilities 1.3.0. 130 KB."
+  },
+  {
+    "key": "icv-bcv50",
+    "name": "ICV: cartografía base 1:50.000 (BCV50)",
+    "region": "Comunitat Valenciana",
+    "group": "ICV cartografía",
+    "year": null,
+    "address": "https://terramapas.icv.gva.es/0101_BCV50",
+    "attribution": "© Institut Cartogràfic Valencià, Generalitat",
+    "license": "CC BY 4.0 (Generalitat)",
+    "licenseUrl": "https://icv.gva.es/va/condiciones-de-uso-de-la-geoinformacion-icv",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "OWS_0101_BCV50"
+    ],
+    "notes": "Se dibuja solo en su tramo de escala (1:50.000)."
+  },
+  {
+    "key": "icgc-mapa-base",
+    "name": "ICGC: mapa base de Catalunya",
+    "region": "Catalunya",
+    "group": "ICGC",
+    "year": null,
+    "address": "https://geoserveis.icgc.cat/servei/catalunya/mapa-base/wms",
+    "attribution": "© ICGC",
+    "license": "Reutilización libre citando la fuente (ICGC) y la fecha de actualización (Llei 37/2007)",
+    "licenseUrl": "https://www.icgc.cat/ca/Ajuda/Avis-legal",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "topografic",
+      "estandard",
+      "orto"
+    ],
+    "notes": "Contesta en 1.1.1 aunque se pida 1.3.0."
+  },
+  {
+    "key": "icgc-orto-territorial",
+    "name": "ICGC: ortofoto de Catalunya (vigente)",
+    "region": "Catalunya",
+    "group": "ICGC",
+    "year": null,
+    "address": "https://geoserveis.icgc.cat/servei/catalunya/orto-territorial/wms",
+    "attribution": "© ICGC",
+    "license": "Reutilización libre citando la fuente (ICGC) y la fecha de actualización (Llei 37/2007)",
+    "licenseUrl": "https://www.icgc.cat/ca/Ajuda/Avis-legal",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "ortofoto_color_vigent"
+    ],
+    "notes": "Alternativas: ortofoto_gris_vigent, ortofoto_infraroig_vigent, ortofoto_color_provisional (ultimo vuelo 2026) y una capa por año (ortofoto_color_2025 ... 1996-1997). 126 KB, 127 capas, 3 niveles. GetFeatureInfo text/plain devuelve fecha del vuelo y resolucion."
+  },
+  {
+    "key": "icgc-topografia-territorial",
+    "name": "ICGC: referencial topográfico territorial",
+    "region": "Catalunya",
+    "group": "ICGC",
+    "year": null,
+    "address": "https://geoserveis.icgc.cat/servei/catalunya/topografia-territorial/wms",
+    "attribution": "© ICGC",
+    "license": "Reutilización libre citando la fuente (ICGC) y la fecha de actualización (Llei 37/2007)",
+    "licenseUrl": "https://www.icgc.cat/ca/Ajuda/Avis-legal",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "topografia-territorial"
+    ],
+    "notes": "Se dibuja a escalas <= ~1:23.600 y solo sobre Catalunya. Variantes: _gris, _sense_noms, _sense_noms_gris. GetFeatureInfo devuelve solo el valor RGB del pixel (no util)."
+  },
+  {
+    "key": "grafcan-mti",
+    "name": "GRAFCAN: mapa topográfico integrado 1:5.000/1:1.000",
+    "region": "Canarias",
+    "group": "GRAFCAN",
+    "year": null,
+    "address": "https://idecan2.grafcan.es/ServicioWMS/MTI",
+    "attribution": "© GRAFCAN, Gobierno de Canarias",
+    "license": "Acceso libre; prohibido el uso comercial y la descarga masiva",
+    "licenseUrl": null,
+    "requestMode": "IMAGE",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "WMS_MTI"
+    ],
+    "notes": "Solo image/png. 64 capas, 3 niveles; la raiz WMS_MTI tiene nombre y agrupa todo. Años 2021-2024 segun isla."
+  },
+  {
+    "key": "grafcan-orto-territorial",
+    "name": "GRAFCAN: ortofoto territorial de Canarias 2024-2026",
+    "region": "Canarias",
+    "group": "GRAFCAN",
+    "year": null,
+    "address": "https://idecan1.grafcan.es/ServicioWMS/OrtoExpress",
+    "attribution": "© GRAFCAN, Gobierno de Canarias",
+    "license": "Acceso libre; prohibido el uso comercial y la descarga masiva",
+    "licenseUrl": null,
+    "requestMode": "IMAGE",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "ortoexpress"
+    ],
+    "notes": "Solo image/jpeg en GetMap (sin transparencia). Otras capas: ortoterritorial, ortoterritorial_3000, ortoterritorial_dist. Sin atribucion declarada. GetFeatureInfo devuelve registros vacios."
+  },
+  {
+    "key": "grafcan-orto-urbana",
+    "name": "GRAFCAN: ortofoto urbana de Canarias 2016-2020",
+    "region": "Canarias",
+    "group": "GRAFCAN",
+    "year": null,
+    "address": "https://idecan1.grafcan.es/ServicioWMS/OrtoUrb",
+    "attribution": "© GRAFCAN, Gobierno de Canarias",
+    "license": "Acceso libre; prohibido el uso comercial y la descarga masiva",
+    "licenseUrl": null,
+    "requestMode": "IMAGE",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "OU"
+    ],
+    "notes": "Solo image/jpeg. 10-12,5 cm/pixel. Sin atribucion declarada."
+  },
+  {
+    "key": "andalucia-mta10r-2013",
+    "name": "Andalucía: mapa topográfico ráster 1:10.000 (2013)",
+    "region": "Andalucía",
+    "group": "Andalucía",
+    "year": null,
+    "address": "https://www.ideandalucia.es/wms/mta10r_2001-2013",
+    "attribution": "© IECA / IDEAndalucía",
+    "license": "No declarada en el servicio (el catalogo dice gratuito, sin limitaciones)",
+    "licenseUrl": null,
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "mta10r_2001-2013"
+    ],
+    "notes": "mta10r_2001-2013 es la raiz con nombre; capas hijas mta10_raster_2013 y mta10_raster_2001. MaxWidth/Height 2048. Su GetCapabilities 1.1.1 no es XML valido con espacios de nombres (prefijo sin declarar en el bloque INSPIRE). Alternativa vectorial: https://www.ideandalucia.es/wms/mta10v_2007."
+  },
+  {
+    "key": "andalucia-orto-2022",
+    "name": "Andalucía: ortofotografía 2022 (25 cm)",
+    "region": "Andalucía",
+    "group": "Andalucía",
+    "year": null,
+    "address": "https://www.ideandalucia.es/wms/ortofoto_2022",
+    "attribution": "© IECA / IDEAndalucía · PNOA © IGN",
+    "license": "Compatible con CC BY 4.0, mencionando el origen (IGN)",
+    "licenseUrl": "https://www.ign.es/resources/licencia/Condiciones_licenciaUso_IGN.pdf",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "ortofotografia_2022_rgb"
+    ],
+    "notes": "Los nombres ortofotografia_2022_rgb/pancromatico/infrarrojo aparecen repetidos: una vez como grupo y otra como capa hija. Ninguna capa consultable. ortofoto_2023 y ortofoto_2024 devuelven 404."
+  },
+  {
+    "key": "navarra-idena",
+    "name": "Navarra: ortofoto de máxima actualidad y mapa base (IDENA)",
+    "region": "Navarra",
+    "group": "Navarra",
+    "year": null,
+    "address": "https://idena.navarra.es/ogc/wms",
+    "attribution": "© Gobierno de Navarra (IDENA)",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/deed.es",
+    "requestMode": "TILES",
+    "preferredFormat": null,
+    "infoVersion": null,
+    "suggestedLayers": [
+      "ortofoto_maxima_actualidad",
+      "mapaBase"
+    ],
+    "notes": "Servicio unico con 1.454 capas (7 niveles), 3,3 MB en 1.3.0 y 1,85 MB en 1.1.1, 3,5-6 s. Tambien por HTTP sin redireccion. Vuelo 2025 a 25 cm. Alternativas: ortofoto_5000_<año>."
+  },
+  {
+    "key": "euskadi-orto",
+    "name": "País Vasco: ortofoto más actualizada (geoEuskadi)",
+    "region": "País Vasco",
+    "group": "País Vasco",
+    "year": null,
+    "address": "https://www.geo.euskadi.eus/WMS_ORTOARGAZKIAK",
+    "attribution": "Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi",
+    "license": "Se permite el acceso citando «Eusko Jaurlaritza / Gobierno Vasco. geoEuskadi»",
+    "licenseUrl": null,
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "ORTO_EGUNERATUENA_MAS_ACTUALIZADA"
+    ],
+    "notes": "61 capas con nombre en euskera/español, una por año (ORTO_2025, ORTO_2025_IrRG...). Declara EPSG:3857 y EPSG:102100. La cartografia base de geoEuskadi es un WMTS (WMTS_KARTO), no un WMS."
+  },
+  {
+    "key": "madrid-bta",
+    "name": "Madrid: base topográfica armonizada 1:10.000 (BTA)",
+    "region": "Comunidad de Madrid",
+    "group": "Madrid",
+    "year": null,
+    "address": "https://idem.comunidad.madrid/geoidem/BTA/wms",
+    "attribution": "© Comunidad de Madrid (IDEM)",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/deed.es",
+    "requestMode": "TILES",
+    "preferredFormat": "image/png",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "BTA-2017-TODO"
+    ],
+    "notes": "BTA 2017 completa, 22 capas consultables (text/plain con atributos). Raster topografico IGN en https://idem.comunidad.madrid/geoidem/FondosTopograficos/wms (capa 25mil_IGN_septiembre_2019-B)."
+  },
+  {
+    "key": "madrid-orto",
+    "name": "Madrid: ortofotografía (IDEM)",
+    "region": "Comunidad de Madrid",
+    "group": "Madrid",
+    "year": null,
+    "address": "https://idem.comunidad.madrid/geoidem/srvimagen2/wms",
+    "attribution": "© Comunidad de Madrid (IDEM)",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/deed.es",
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "orto-mosaico-50cm-2019-etrs89"
+    ],
+    "notes": "La mas reciente en este WMS es el mosaico 2019 a 50 cm; los titulos de varias capas son nombres de fichero (p. ej. 'orto-PNOA-f6-2017-etrs89.ecw'). Ninguna consultable."
+  },
+  {
+    "key": "galicia-orto-pnoa-2023",
+    "name": "Galicia: ortofoto PNOA 2023 (IDEG)",
+    "region": "Galicia",
+    "group": "Galicia",
+    "year": null,
+    "address": "https://ideg.xunta.gal/servizos/services/Raster/PNOA_2023/ImageServer/WMSServer",
+    "attribution": "© Xunta de Galicia (IET) · PNOA © IGN",
+    "license": "No declarada en el servicio",
+    "licenseUrl": null,
+    "requestMode": "TILES",
+    "preferredFormat": "image/jpeg",
+    "infoVersion": null,
+    "suggestedLayers": [
+      "0"
+    ],
+    "notes": "Solo declara EPSG:3785 (alias antiguo de 3857), no EPSG:3857: RF-9 la rechazaria. Capa con Name '0', LayerLimit 1, sin GetFeatureInfo."
+  }
+]
