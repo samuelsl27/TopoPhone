@@ -59,6 +59,12 @@ interface PhotoRepository {
     /** Las fotos del punto, en el orden en que se añadieron (RF-9). */
     fun photos(pointId: String): Flow<List<PointPhoto>>
 
+    /**
+     * Las fotos de [pointIds] de una vez, por punto y en el orden en que se añadieron; un punto sin fotos no sale (S056/RF-1, RF-2,
+     * S031/RF-28). La consulta se trocea: SQLite no admite más de 999 variables.
+     */
+    suspend fun photosForExport(pointIds: List<String>): Map<String, List<PointPhoto>>
+
     /** Los sucesos de foto del punto, del más reciente al más antiguo (RF-23). */
     fun events(pointId: String): Flow<List<PhotoEvent>>
 
@@ -87,6 +93,8 @@ interface PhotoRepository {
             override suspend fun deletePhoto(photoId: String) = false
 
             override fun photos(pointId: String): Flow<List<PointPhoto>> = kotlinx.coroutines.flow.flowOf(emptyList())
+
+            override suspend fun photosForExport(pointIds: List<String>): Map<String, List<PointPhoto>> = emptyMap()
 
             override fun events(pointId: String): Flow<List<PhotoEvent>> = kotlinx.coroutines.flow.flowOf(emptyList())
 
@@ -205,6 +213,14 @@ class RoomPhotoRepository(
 
     override fun photos(pointId: String): Flow<List<PointPhoto>> = dao.photos(pointId).map { rows -> rows.map { it.toModel() } }
 
+    override suspend fun photosForExport(pointIds: List<String>): Map<String, List<PointPhoto>> {
+        val out = LinkedHashMap<String, MutableList<PointPhoto>>()
+        for (chunk in pointIds.distinct().chunked(EXPORT_QUERY_CHUNK)) {
+            for (row in dao.photosOf(chunk)) out.getOrPut(row.pointId) { ArrayList() } += row.toModel()
+        }
+        return out
+    }
+
     override fun events(pointId: String): Flow<List<PhotoEvent>> = dao.events(pointId).map { rows -> rows.map { it.toModel() } }
 
     override fun file(photoId: String): File? = store.photoFile(photoId).takeIf { it.isFile }
@@ -255,4 +271,9 @@ class RoomPhotoRepository(
         photoName,
         photoTakenAt,
     )
+
+    private companion object {
+        /** Cuántos puntos van en cada consulta de fotos para exportar: lejos de las 999 variables que admite SQLite. */
+        const val EXPORT_QUERY_CHUNK = 500
+    }
 }

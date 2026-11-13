@@ -76,6 +76,10 @@ interface PhotoDao {
     @Query("SELECT * FROM point_photos WHERE point_id = :pointId ORDER BY added_at, id")
     suspend fun photosNow(pointId: String): List<PointPhotoEntity>
 
+    /** Las fotos de varios puntos, por punto y en el orden en que se añadieron (S056/RF-1); quien llama trocea la lista por el límite de SQLite. */
+    @Query("SELECT * FROM point_photos WHERE point_id IN (:pointIds) ORDER BY point_id, added_at, id")
+    suspend fun photosOf(pointIds: List<String>): List<PointPhotoEntity>
+
     @Query("SELECT COUNT(*) FROM point_photos WHERE point_id = :pointId")
     suspend fun count(pointId: String): Int
 
