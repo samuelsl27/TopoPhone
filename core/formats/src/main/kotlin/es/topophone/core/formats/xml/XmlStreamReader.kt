@@ -49,6 +49,7 @@ class XmlStreamReader(input: InputStream) {
     private var attributeNames = arrayOfNulls<String>(INITIAL_ATTRIBUTES)
     private var attributeValues = arrayOfNulls<String>(INITIAL_ATTRIBUTES)
     private var attributeCount = 0
+    private var skipLineFeed = false
     private var pendingEnd = false
     private var markupPending = false
     private var rootSeen = false
@@ -347,18 +348,33 @@ class XmlStreamReader(input: InputStream) {
         return if (colon < 0) qualified.toString() else qualified.substring(colon + 1)
     }
 
+    /**
+     * El siguiente carácter. Un salto de línea crudo, `\r\n` o `\r` suelto, sale como un solo `\n` (XML 1.0 §2.11); una referencia como
+     * `&#13;` no pasa por aquí y se conserva como `\r`.
+     */
     private fun read(): Int {
-        if (position == limit) {
-            limit = reader.read(buffer, 0, buffer.size)
-            position = 0
-            if (limit <= 0) {
-                limit = 0
-                return -1
+        while (true) {
+            if (position == limit) {
+                limit = reader.read(buffer, 0, buffer.size)
+                position = 0
+                if (limit <= 0) {
+                    limit = 0
+                    return -1
+                }
             }
+            val c = buffer[position++]
+            if (skipLineFeed) {
+                skipLineFeed = false
+                if (c == '\n') continue
+            }
+            if (c == '\r') {
+                skipLineFeed = true
+                line++
+                return '\n'.code
+            }
+            if (c == '\n') line++
+            return c.code
         }
-        val c = buffer[position++]
-        if (c == '\n') line++
-        return c.code
     }
 
     private fun fail(message: String): Nothing = throw XmlFormatException(message, line)

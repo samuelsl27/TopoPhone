@@ -148,6 +148,20 @@ class WmsCapabilitiesReaderTest {
     }
 
     @Test
+    fun `S036 RF-3 los saltos de linea de Windows de un resumen salen como un salto de linea`() {
+        val layer = "<Layer><Name>a</Name><Title>A</Title><Abstract>Línea 1\r\n\t\tLínea 2\rLínea 3</Abstract></Layer>"
+
+        read(capabilities(layer)).layers.single().abstract shouldBe "Línea 1\n\t\tLínea 2\nLínea 3"
+    }
+
+    @Test
+    fun `S036 RF-3 una referencia de caracter a CR en un resumen se conserva como en la referencia de Python`() {
+        val layer = "<Layer><Name>a</Name><Title>A</Title><Abstract>Línea 1&#13;\nLínea 2</Abstract></Layer>"
+
+        read(capabilities(layer)).layers.single().abstract shouldBe "Línea 1\r\nLínea 2"
+    }
+
+    @Test
     fun `S036 RF-3 sin atribucion y sin formatos de consulta salen vacios`() {
         val caps = fixture("caps-1.3.0-sin-atribucion.xml")
 

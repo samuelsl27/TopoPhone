@@ -67,6 +67,42 @@ class XmlStreamReaderTest {
     }
 
     @Test
+    fun `S036 RF-3 los saltos de linea crudos de Windows y de Mac salen como un salto de linea`() {
+        val r = reader("<a>uno\r\ndos\rtres\ncuatro</a>")
+
+        r.next()
+        r.next()
+        r.text.toString() shouldBe "uno\ndos\ntres\ncuatro"
+    }
+
+    @Test
+    fun `S036 RF-3 una referencia de caracter a CR se conserva como CR`() {
+        val r = reader("<a>uno&#13;\ndos&#xD;tres</a>")
+
+        r.next()
+        r.next()
+        r.text.toString() shouldBe "uno\r\ndos\rtres"
+    }
+
+    @Test
+    fun `S036 RF-3 un CRLF de un CDATA tambien se normaliza`() {
+        val r = reader("<a><![CDATA[a\r\nb]]></a>")
+
+        r.next()
+        r.next()
+        r.text.toString() shouldBe "a\nb"
+    }
+
+    @Test
+    fun `S036 RF-3 un CRLF cuenta una sola linea y un CR suelto tambien`() {
+        val r = reader("<a>\r\n<b/>\r<c/>\n<d/></a>")
+
+        var event = r.next()
+        while (!(event == XmlStreamReader.Event.START && r.name == "d")) event = r.next()
+        r.line shouldBe 4
+    }
+
+    @Test
     fun `S042 RF-2 un CDATA entra como texto sin resolver nada`() {
         events(reader("<a><![CDATA[1 < 2 & ]] ]]]></a>")) shouldBe listOf("<a>", "\"1 < 2 & ]] ]\"", "</a>")
     }
