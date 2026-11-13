@@ -478,6 +478,22 @@ class KmlExportViewModelTest {
     }
 
     @Test
+    fun `S031 RF-31 al pedir otro Guardar o Compartir se borra el resumen anterior para que cancelar no lo deje como si fuera el nuevo`() {
+        val vm = viewModel()
+        vm.await { it.loaded }
+        runBlocking { vm.writeTo(ByteArrayOutputStream(), work()) } shouldBe true
+        vm.report(ExportResult.SAVED)
+        vm.await { it.result == ExportResult.SAVED && it.report != null }
+
+        vm.report(null) // lo que hace la pantalla al pulsar Guardar; si el usuario cancela el selector no llega nada más
+
+        val state = vm.await { it.result == null && it.report == null }
+        state.result.shouldBeNull()
+        state.report.shouldBeNull()
+        state.canExport shouldBe true
+    }
+
+    @Test
     fun `S031 RF-32 cambiar una opcion borra el resumen y el Fichero guardado de la exportacion anterior`() {
         val vm = viewModel()
         vm.await { it.loaded }

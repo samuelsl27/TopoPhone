@@ -53,5 +53,5 @@
       Hecho cuando: `KmlExportScreenTest` y `KmlExportEntriesTest` en verde con los tres puntos de entrada.
 
 ## Cierre
-- [ ] T24. Validación: recorrer la spec RF por RF, leer con QGIS (Python de QGIS) el KML y el KMZ exportados y comparar marcas, coordenadas, colores y fotos, importar con la app un KML hecho con QGIS y comparar a menos de 1 mm, `rf_report`, `pytest tools`, `forbidden_files`, la demo en el emulador según los criterios de finalización, y «Cambios al implementar» en `plan.md`, hoja de ruta a `implementada`. (Todos)
+- [x] T24. Validación: recorrer la spec RF por RF, leer con QGIS (Python de QGIS) el KML y el KMZ exportados y comparar marcas, coordenadas, colores y fotos, importar con la app un KML hecho con QGIS y comparar a menos de 1 mm, `rf_report`, `pytest tools`, `forbidden_files`, la demo en el emulador según los criterios de finalización, y «Cambios al implementar» en `plan.md`, hoja de ruta a `implementada`. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.

@@ -272,10 +272,16 @@ class KmlExportViewModel @Inject constructor(
         }
     }
 
-    /** Lo que pasó al guardar o compartir (RF-31); el registro lleva el hecho y no los puntos (S014/RF-5). */
+    /**
+     * Lo que pasó al guardar o compartir (RF-31); el registro lleva el hecho y no los puntos (S014/RF-5). `null` es que se pide otro guardado:
+     * se borra también el resumen del anterior, así que si el usuario cancela el selector no queda como si fuera el de esa petición.
+     */
     fun report(outcome: ExportResult?) {
         result.value = outcome
-        if (outcome == null) noSpace.value = false
+        if (outcome == null) {
+            noSpace.value = false
+            report.value = null
+        }
         val current = state.value
         val kind = current.format.name
         when (outcome) {

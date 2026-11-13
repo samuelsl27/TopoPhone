@@ -6,6 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.model.cad.GpkgIgnoredReason
+import es.topophone.core.model.cad.ImportArea
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.log.LogLevel
@@ -290,5 +291,63 @@ class KmlImportViewModelTest {
             it.moveToFirst()
             it.getInt(0) shouldBe 0
         }
+    }
+
+    @Test
+    fun `S031 RF-15 la zona propuesta es un radio alrededor del centro del proyecto`() {
+        val state = open("carpetas-anidadas.kml").settled()
+
+        state.areaAll shouldBe false
+        state.radiusM shouldBe ImportArea.DEFAULT_RADIUS_M
+        state.hasCenter shouldBe true
+        state.farWarning shouldBe false
+        state.canImport shouldBe true
+    }
+
+    @Test
+    fun `S031 RF-15 un KML a mas de 100 km del centro del proyecto pide confirmarlo antes de importar`() {
+        val far = projectIn(ProjectCrs.ETRS89_UTM30, CentralPoint(37.0, -6.0))
+        val viewModel = open("carpetas-anidadas.kml", project = far)
+
+        val before = viewModel.settled()
+
+        before.farWarning shouldBe true
+        before.canImport shouldBe false
+        viewModel.confirmFar()
+        viewModel.settled().canImport shouldBe true
+    }
+
+    @Test
+    fun `S031 RF-15 un proyecto sin centro pide fijar el punto central o elegir todo el contenido`() {
+        val withoutCenter = runBlocking {
+            projects.create(ProjectDefaults().toDraft().copy(name = "Sin centro", crs = ProjectCrs.ETRS89_UTM30))
+                .shouldBeInstanceOf<SaveResult.Saved>().id
+        }
+        val viewModel = open("carpetas-anidadas.kml", project = withoutCenter)
+
+        val asked = viewModel.settled()
+
+        asked.needsCenter shouldBe true
+        asked.canImport shouldBe false
+        viewModel.setAllContent(true)
+        viewModel.settled().canImport shouldBe true
+        viewModel.setAllContent(false)
+        viewModel.setCentralPoint(madrid)
+        runBlocking { withTimeout(10_000) { viewModel.state.first { it.hasCenter } } }
+        val fixed = viewModel.settled()
+        fixed.needsCenter shouldBe false
+        fixed.canImport shouldBe true
+    }
+
+    @Test
+    fun `S031 RF-15 una zona con mas objetos que el limite no deja importar`() {
+        val viewModel = gpkgViewModel(cache, projects, viewports, dispatcher, cad, log = log)
+        viewModel.maxObjects = 2
+        viewModel.startKml(projectId, KmlTestFiles.source("carpetas-anidadas.kml"))
+
+        val state = viewModel.settled()
+
+        state.zone.exceeded shouldBe true
+        state.canImport shouldBe false
     }
 }
