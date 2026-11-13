@@ -155,11 +155,13 @@ fun PhotoExportScreen(
             ) // S056/RF-4, RF-6
             val opened = remember { Instant.now() }
             val fileName = ExportFileName.of(state.projectName, "fotos", opened, ZoneId.systemDefault(), "zip") // S056/RF-12
-            Text(
-                stringResource(R.string.export_file_name, fileName),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.testTag(PHOTO_FILE_NAME_TAG),
-            )
+            if (state.canExport) { // sin fotos no se crea ningún ZIP (RF-8), así que tampoco se propone nombre
+                Text(
+                    stringResource(R.string.export_file_name, fileName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag(PHOTO_FILE_NAME_TAG),
+                )
+            }
             // S056/RF-10: un ZIP de más de 1 GB se avisa antes de escribirlo y se puede continuar o cancelar.
             fun ask(action: () -> Unit) {
                 if (state.needsSizeConfirmation) confirm = action else action()

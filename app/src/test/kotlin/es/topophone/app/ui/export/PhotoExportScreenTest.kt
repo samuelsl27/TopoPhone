@@ -94,6 +94,13 @@ class PhotoExportScreenTest {
     }
 
     @Test
+    fun `S056 RF-8 sin fotos no propone nombre de fichero`() {
+        show(state(photos = 0, points = 0, bytes = 0))
+
+        compose.onAllNodesWithTag(PHOTO_FILE_NAME_TAG).assertCountEquals(0)
+    }
+
+    @Test
     fun `S056 RF-4 la pantalla avisa de que van como estan guardadas y del indice`() {
         show(state())
 
