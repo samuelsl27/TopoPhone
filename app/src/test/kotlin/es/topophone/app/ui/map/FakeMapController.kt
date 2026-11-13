@@ -65,6 +65,14 @@ class FakeMapController : MapController {
         clicks.tryEmit(id)
     }
 
+    var wmsPlan: WmsLayerPlan = WmsLayerPlan.EMPTY
+    var wmsCalls = 0
+
+    override fun showWmsLayers(plan: WmsLayerPlan) {
+        wmsPlan = plan
+        wmsCalls++
+    }
+
     var lines: LineScene? = null
     var lineCalls = 0
 

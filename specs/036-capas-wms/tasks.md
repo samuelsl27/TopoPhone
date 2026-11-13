@@ -37,8 +37,8 @@
 ## Mapa
 - [x] T15. `app`: `WmsLayerPlan` (qué fuentas y capas se dibujan, en qué orden, con la plantilla de teselas o la imagen, ocultas y no disponibles fuera, opacidad) y `MapAttribution` con las atribuciones de las capas visibles. (RF-17, RF-20 a RF-22, RF-29, RF-30, RF-33)
       Hecho cuando: `WmsLayerPlanTest` y `MapAttributionWmsTest` en verde.
-- [ ] T16. `app`: `MapController.showWmsLayers` y `MapLibreMapController` con la capa ancla, las capas por teselas (`RasterSource` y `RasterLayer`) y su orden y opacidad; el doble del mapa para las pruebas. (RF-22, RF-29, RF-32, RF-33)
-      Hecho cuando: `FakeMapController` y los tests de interfaz existentes en verde y las capas WMS pintadas en el emulador entre el mapa base y el Catastro.
+- [x] T16. `app`: `MapController.showWmsLayers` y `MapLibreMapController` con la capa ancla, las capas por teselas (`RasterSource` y `RasterLayer`) y su orden y opacidad; el doble del mapa para las pruebas. (RF-22, RF-29, RF-32, RF-33)
+      Hecho cuando: `FakeMapController`, `WmsLayerChangeTest` y los tests de interfaz existentes en verde (el pintado en el emulador entre el mapa base y el Catastro se comprueba en T21, cuando las capas del proyecto llegan al mapa).
 - [ ] T17. `app`: `WmsOneImageLoader` (las capas en «una imagen» al detenerse el mapa, con cancelación y sin caché, con el patrón del Catastro). (RF-16, RF-17, RF-29, RF-31, RF-32)
       Hecho cuando: `WmsOneImageLoaderTest` en verde (cancelación, cuadro envolvente, no cuenta como fallo de conexión) y el Catastro de S009 sin cambios.
 - [ ] T18. `app`: la pulsación larga del mapa (`longPresses`), la marca del punto (`showPressMarker`) y su cierre. (RF-34, RF-35)
@@ -50,7 +50,7 @@
 - [ ] T20. `app`: la hoja de la biblioteca (servicios, presets por grupos, capas de un servicio) con los textos en es y en. (RF-2, RF-3, RF-6, RF-7, RF-12 a RF-15, RF-17)
       Hecho cuando: `WmsLibrarySheetTest` en verde.
 - [ ] T21. `app`: las capas del proyecto en el estado y el `ProjectViewModel` y su unión con el mapa. (RF-18 a RF-24, RF-27)
-      Hecho cuando: `ProjectLayersViewModelTest` en verde y las capas siguen al abrir el proyecto.
+      Hecho cuando: `ProjectLayersViewModelTest` en verde, las capas siguen al abrir el proyecto y las capas WMS de T16 se ven en el emulador entre el mapa base y el Catastro.
 - [ ] T22. `app`: la sección de capas del proyecto en la hoja «Capas» (visibilidad, opacidad de 5 en 5 con su valor, subir y bajar y arrastrar, quitar, «no disponible», el servicio junto a los nombres repetidos, «Añadir capa» y «Añadir servicio», el tope de 10). (RF-18 a RF-23, RF-26 a RF-28)
       Hecho cuando: `ProjectLayersSectionTest` en verde con zonas de 56 dp.
 - [ ] T23. `app`: `MapMenuViewModel` (la consulta de A6 en paralelo con tope de 5, versión y formato, «sin datos», «no responde», desactivada sin capas consultables). (RF-36 a RF-39)

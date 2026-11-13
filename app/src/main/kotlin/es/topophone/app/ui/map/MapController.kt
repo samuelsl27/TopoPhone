@@ -26,6 +26,12 @@ interface MapController {
     /** Puntos del proyecto con su nombre (S010/RF-20). */
     fun showPoints(points: List<MapPoint>)
 
+    /**
+     * Las capas WMS del proyecto, ya ordenadas, sobre el mapa base y debajo del Catastro, las líneas, los puntos y el rover; sin capas
+     * visibles, un plan vacío. Cambiar el plan no toca el mapa base ni el Catastro (S036/RF-22, RF-29, RF-33).
+     */
+    fun showWmsLayers(plan: WmsLayerPlan)
+
     /** Las líneas y los polígonos del proyecto, ya como GeoJSON; nada sin líneas (S025/RF-22). */
     fun showLines(scene: LineScene?)
 

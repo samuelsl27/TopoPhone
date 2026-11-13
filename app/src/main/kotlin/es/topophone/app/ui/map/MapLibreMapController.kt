@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.Looper
 import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
+import es.topophone.core.formats.wms.WmsRequests
 import es.topophone.core.geodesy.AccuracyCircle
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.MapGrid
@@ -54,6 +55,8 @@ import org.maplibre.android.style.layers.RasterLayer
 import org.maplibre.android.style.layers.SymbolLayer
 import org.maplibre.android.style.sources.GeoJsonSource
 import org.maplibre.android.style.sources.ImageSource
+import org.maplibre.android.style.sources.RasterSource
+import org.maplibre.android.style.sources.TileSet
 import org.maplibre.geojson.Feature
 import org.maplibre.geojson.FeatureCollection
 import org.maplibre.geojson.LineString
@@ -74,6 +77,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private var centralLabel = ""
     private var points: List<MapPoint> = emptyList()
     private var lineScene: LineScene? = null
+    private var wmsPlan = WmsLayerPlan.EMPTY
+    private var appliedWms = WmsLayerPlan.EMPTY
     private var design: DesignScene? = null
     private var alignmentScene: AlignmentScene? = null
     private var stakeout: StakeoutMarker? = null
@@ -148,6 +153,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             }
             map.setStyle(builder) { style ->
                 addBackground(style)
+                addWmsAnchor(style)
                 addPointLayers(style)
                 addLineLayers(style)
                 addDesignLayers(style)
@@ -156,6 +162,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 addBaseLayer(style)
                 addCentralLayer(style)
                 addRoverLayers(style)
+                drawWms()
                 drawDesign()
                 drawAlignments()
                 drawPoints()
@@ -279,6 +286,52 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         // El GeoJSON ya viene escrito: MapLibre lo lee en su propio hilo y aqui no se crea ni un vertice (RNF-T13).
         source.setGeoJson(lineScene?.geoJson ?: EMPTY_GEOJSON)
     }
+
+    override fun showWmsLayers(plan: WmsLayerPlan) {
+        wmsPlan = plan
+        drawWms()
+    }
+
+    /**
+     * Una capa de fondo invisible, encima del mapa base y debajo de todo lo demás que se añade después (líneas, dibujos, ejes, puntos, el
+     * Catastro, la base y el rover): las capas WMS se ponen justo debajo de ella, así que quedan sobre el mapa base y bajo todo eso, y
+     * cambiarlas nunca reordena el resto (S036/RF-22, RF-33, A5 del plan). Un estilo nuevo no trae las capas WMS: se vuelven a poner.
+     */
+    private fun addWmsAnchor(style: Style) {
+        style.addLayer(BackgroundLayer(WMS_ANCHOR_LAYER).withProperties(PropertyFactory.visibility(Property.NONE)))
+        appliedWms = WmsLayerPlan.EMPTY
+    }
+
+    /** Lleva el estilo al plan de las capas WMS rehaciendo solo lo que cambia (S036/RF-21, RF-22, RF-29, RF-33). */
+    private fun drawWms() {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        when (val change = WmsLayerChange.between(appliedWms, wmsPlan)) {
+            WmsLayerChange.None -> Unit
+            is WmsLayerChange.Opacity -> change.layers.forEach { layer ->
+                style.getLayer(wmsLayerId(layer.id))?.setProperties(PropertyFactory.rasterOpacity(layer.opacity))
+            }
+            WmsLayerChange.Rebuild -> {
+                appliedWms.layers.forEach { layer ->
+                    style.removeLayer(wmsLayerId(layer.id))
+                    style.removeSource(wmsSourceId(layer.id))
+                }
+                // De la de abajo a la de arriba, cada una justo debajo de la ancla: la primera de la lista acaba encima.
+                wmsPlan.layers.forEach { addWmsLayer(style, it) }
+            }
+        }
+        appliedWms = wmsPlan
+    }
+
+    private fun addWmsLayer(style: Style, layer: WmsPlanLayer) {
+        val tiles = layer.source as? WmsLayerSource.Tiles ?: return // Las capas en «una imagen» llegan con su petición (S036/RF-17).
+        style.addSource(RasterSource(wmsSourceId(layer.id), TileSet(TILEJSON_VERSION, tiles.template), WmsRequests.TILE_PX))
+        val raster = RasterLayer(wmsLayerId(layer.id), wmsSourceId(layer.id)).withProperties(PropertyFactory.rasterOpacity(layer.opacity))
+        style.addLayerBelow(raster, WMS_ANCHOR_LAYER)
+    }
+
+    private fun wmsSourceId(id: String) = "$WMS_SOURCE_PREFIX$id"
+
+    private fun wmsLayerId(id: String) = "$WMS_LAYER_PREFIX$id"
 
     override fun showDesign(scene: DesignScene?) {
         design = scene
@@ -1037,6 +1090,10 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         const val GRID_LAYER = "topophone-grid"
         const val CADASTRE_SOURCE = "topophone-cadastre"
         const val CADASTRE_LAYER = "topophone-cadastre"
+        const val WMS_ANCHOR_LAYER = "topophone-wms-anchor"
+        const val WMS_SOURCE_PREFIX = "topophone-wms-source-"
+        const val WMS_LAYER_PREFIX = "topophone-wms-layer-"
+        const val TILEJSON_VERSION = "2.1.0"
         const val ALIGNMENT_LINES_SOURCE = "topophone-alignment-lines"
         const val ALIGNMENT_LINES_LAYER = "topophone-alignment-lines"
         const val ALIGNMENT_MARKS_SOURCE = "topophone-alignment-marks"
