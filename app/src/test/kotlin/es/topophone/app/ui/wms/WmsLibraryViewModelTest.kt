@@ -17,14 +17,11 @@ import es.topophone.data.wms.MissingProjectLayer
 import es.topophone.data.wms.RoomProjectLayersRepository
 import es.topophone.data.wms.RoomWmsLibraryRepository
 import es.topophone.data.wms.WmsAddProblem
-import es.topophone.data.wms.WmsHttp
-import es.topophone.data.wms.WmsHttpResponse
 import es.topophone.data.wms.WmsServiceAdder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotBeEmpty
 import io.kotest.matchers.types.shouldBeInstanceOf
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.IOException
 import java.net.UnknownHostException
@@ -40,20 +37,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-
-/** Un servicio que contesta lo que se le diga (o falla) y apunta qué direcciones se le pidieron. */
-private class FakeWmsHttp(var answer: (String) -> Any) : WmsHttp {
-    val urls = mutableListOf<String>()
-
-    override suspend fun <T> get(url: String, read: (WmsHttpResponse) -> T): T {
-        urls += url
-        return when (val reply = answer(url)) {
-            is Throwable -> throw reply
-            is ByteArray -> read(WmsHttpResponse(200, ByteArrayInputStream(reply)))
-            else -> error("Respuesta de prueba desconocida")
-        }
-    }
-}
 
 /** La biblioteca de servicios WMS vista desde su hoja: alta, presets, capas, actualizar, renombrar y borrar (S036/RF-1 a RF-17). */
 @OptIn(ExperimentalCoroutinesApi::class)
