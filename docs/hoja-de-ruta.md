@@ -78,7 +78,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 048 geopackage | Importar un `.gpkg` de QGIS como capa de diseño (capas marcables, SC leído y reproyectado, recorte a una zona alrededor del centro del proyecto, atributos y campo de nombre, replanteo con S041) | 040, 006 (punto central) | implementada |
 | 053 exportar-geopackage | Exportar los puntos del proyecto, y sus líneas y polígonos cuando exista S025, a un `.gpkg` con su SC declarado y los datos de calidad como atributos | 012 (líneas y polígonos: 025) | implementada |
 | 055 exportar-shapefile | Exportar los puntos del proyecto, y sus líneas y polígonos cuando exista S025, a un ZIP con `PointZ`, `PolyLineZ` y `PolygonZ`, con `.prj` y `.cpg`, nombres de columna abreviados y los datos de calidad como atributos | 012, 024, 025, 030 | implementada |
-| 056 exportar-fotos | Exportar las fotos de los puntos del proyecto, o de una selección, a un ZIP, byte a byte como están guardadas, con un índice `fotos.csv` que las relaciona con sus puntos | 017b, 012 | spec |
+| 056 exportar-fotos | Exportar las fotos de los puntos del proyecto, o de una selección, a un ZIP, byte a byte como están guardadas, con un índice `fotos.csv` que las relaciona con sus puntos | 017b, 012 | en curso |
 
 ## H5 · Sistemas de coordenadas mundiales y capas
 

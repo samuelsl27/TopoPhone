@@ -4,7 +4,7 @@
 
 - [x] T1. `tools/formatos`: `generar_fotos_zip.py` con el índice y el ZIP de referencia de un proyecto de ejemplo (diez fotos en un punto, dos puntos con el mismo nombre, símbolos y acentos, un nombre con coma y comillas, una foto sin metadatos), y su test. (RF-4 a RF-7)
       Hecho cuando: el script genera `fixtures/formatos/fotos-zip/` y su test de `tools` está en verde, leyendo el ZIP con `zipfile` y el índice con `csv`.
-- [ ] T2. `core:formats`: `PhotoArchiveNames` (saneado, «punto» si queda vacío, numeración por orden de alta, repetidos sin distinguir mayúsculas). (RF-5)
+- [x] T2. `core:formats`: `PhotoArchiveNames` (saneado, «punto» si queda vacío, numeración por orden de alta, repetidos sin distinguir mayúsculas). (RF-5)
       Hecho cuando: `PhotoArchiveNamesTest` en verde con los casos de las referencias.
 - [ ] T3. `core:formats`: `PhotoIndexCsv` (cabecera, una fila por foto, comillas, fechas ISO 8601 UTC, UTF-8 sin BOM y fin de línea de S012). (RF-6, RF-7)
       Hecho cuando: `PhotoIndexCsvTest` en verde y el índice coincide byte a byte con la referencia de `tools`.

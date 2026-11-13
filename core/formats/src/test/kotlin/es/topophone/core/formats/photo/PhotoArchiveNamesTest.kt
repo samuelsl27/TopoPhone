@@ -83,6 +83,26 @@ class PhotoArchiveNamesTest {
     }
 
     @Test
+    fun `S056 RF-5 los nombres del ejemplo son los de la primera columna del indice de tools`() {
+        val points = PhotoZipFixtures.points()
+
+        val all = PhotoArchiveNames.of(points.map { PhotoNameRef(it.name, it.photos.size) }).flatten()
+
+        all shouldBe PhotoZipFixtures.photoNames()
+        all.size shouldBe points.sumOf { it.photos.size }
+    }
+
+    @Test
+    fun `S056 RF-5 el punto con diez fotos llega al diez y el de nombre con comas y comillas no los lleva`() {
+        val given = PhotoArchiveNames.of(PhotoZipFixtures.points().map { PhotoNameRef(it.name, it.photos.size) })
+        val byName = PhotoZipFixtures.points().map { it.name }.zip(given).toMap()
+
+        byName.getValue("P1") shouldBe (1..10).map { "P1_$it.jpg" }
+        byName.getValue("Esquina \"norte\", lado 2") shouldBe listOf("Esquina__norte___lado_2_1.jpg")
+        byName.getValue("P2") shouldBe emptyList()
+    }
+
+    @Test
     fun `S056 RF-5 el resultado respeta el orden de los puntos y no repite ningun nombre entre mil puntos`() {
         val points = (0 until 1_000).map { "Punto ${it % 50}" to (it % 4) }
 
