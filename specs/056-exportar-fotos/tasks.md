@@ -6,7 +6,7 @@
       Hecho cuando: el script genera `fixtures/formatos/fotos-zip/` y su test de `tools` está en verde, leyendo el ZIP con `zipfile` y el índice con `csv`.
 - [x] T2. `core:formats`: `PhotoArchiveNames` (saneado, «punto» si queda vacío, numeración por orden de alta, repetidos sin distinguir mayúsculas). (RF-5)
       Hecho cuando: `PhotoArchiveNamesTest` en verde con los casos de las referencias.
-- [ ] T3. `core:formats`: `PhotoIndexCsv` (cabecera, una fila por foto, comillas, fechas ISO 8601 UTC, UTF-8 sin BOM y fin de línea de S012). (RF-6, RF-7)
+- [x] T3. `core:formats`: `PhotoIndexCsv` (cabecera, una fila por foto, comillas, fechas ISO 8601 UTC, UTF-8 sin BOM y fin de línea de S012). (RF-6, RF-7)
       Hecho cuando: `PhotoIndexCsvTest` en verde y el índice coincide byte a byte con la referencia de `tools`.
 - [ ] T4. `core:formats`: `PhotoZipWriter` (fotos byte a byte, índice al final, foto omitida y error a mitad de copia) y el rendimiento de 100 fotos de 1 MB. (RF-4, RF-6, RF-9, RF-14, RNF)
       Hecho cuando: `PhotoZipWriterTest` en verde y el test de rendimiento en menos de 10 s.
