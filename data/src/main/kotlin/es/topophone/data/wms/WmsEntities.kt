@@ -100,4 +100,57 @@ interface WmsDao {
 
     @Query("SELECT * FROM project_wms_layers WHERE project_id = :projectId ORDER BY position")
     fun projectLayers(projectId: String): Flow<List<ProjectWmsLayerEntity>>
+
+    @Query("SELECT * FROM wms_services WHERE id = :id")
+    suspend fun service(id: String): WmsServiceEntity?
+
+    @Query("SELECT * FROM wms_services WHERE address_key = :key")
+    suspend fun serviceByKey(key: String): WmsServiceEntity?
+
+    @Query("DELETE FROM wms_layers WHERE service_id = :serviceId")
+    suspend fun deleteLayers(serviceId: String)
+
+    @Query("DELETE FROM wms_services WHERE id = :id")
+    suspend fun deleteService(id: String)
+
+    @Query("UPDATE wms_services SET name = :name WHERE id = :id")
+    suspend fun rename(id: String, name: String): Int
+
+    @Query("UPDATE wms_services SET request_mode = :mode WHERE id = :id")
+    suspend fun setRequestMode(id: String, mode: String): Int
+
+    @Query(
+        "UPDATE wms_services SET title = :title, version = :version, attribution = :attribution, map_formats = :mapFormats, " +
+            "info_formats = :infoFormats, updated_at = :updatedAt WHERE id = :id",
+    )
+    suspend fun updateRead(
+        id: String,
+        title: String,
+        version: String,
+        attribution: String,
+        mapFormats: String,
+        infoFormats: String,
+        updatedAt: Long,
+    )
+
+    /** Los proyectos activos con capas del servicio y cuántas (S036/RF-7). */
+    @Query(
+        "SELECT p.id AS projectId, p.name AS projectName, COUNT(*) AS layers FROM project_wms_layers l " +
+            "JOIN projects p ON p.id = l.project_id WHERE l.service_id = :serviceId AND p.deleted_at IS NULL " +
+            "GROUP BY p.id, p.name ORDER BY p.name COLLATE NOCASE, p.id",
+    )
+    suspend fun uses(serviceId: String): List<UseRow>
+
+    /** Las capas de proyectos activos que ya no están entre las capas con nombre y con Web Mercator del servicio (S036/RF-6, RF-27). */
+    @Query(
+        "SELECT p.id AS projectId, p.name AS projectName, l.layer_name AS layerName FROM project_wms_layers l " +
+            "JOIN projects p ON p.id = l.project_id WHERE l.service_id = :serviceId AND p.deleted_at IS NULL AND l.layer_name NOT IN " +
+            "(SELECT name FROM wms_layers WHERE service_id = :serviceId AND name IS NOT NULL AND mercator_code IS NOT NULL) " +
+            "ORDER BY p.name COLLATE NOCASE, p.id, l.position",
+    )
+    suspend fun missing(serviceId: String): List<MissingRow>
 }
+
+data class UseRow(val projectId: String, val projectName: String, val layers: Int)
+
+data class MissingRow(val projectId: String, val projectName: String, val layerName: String)

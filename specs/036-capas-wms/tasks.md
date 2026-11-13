@@ -23,7 +23,7 @@
 ## Datos
 - [x] T9. `data`: las entidades y DAO de `wms_services`, `wms_layers` y `project_wms_layers`, Room 31 → 32 con auto-migración, y el esquema exportado. (RF-4, RF-24)
       Hecho cuando: `WmsMigrationTest` en verde (una base v31 con datos pasa a v32 sin perder nada) y `./gradlew check` con el esquema nuevo.
-- [ ] T10. `data`: `WmsLibraryRepository` (guardar un servicio con sus capas por lotes, listar, renombrar, borrar contando los proyectos afectados, actualizar devolviendo las capas desaparecidas, no duplicar una dirección). (RF-4, RF-6, RF-7, RF-15)
+- [x] T10. `data`: `WmsLibraryRepository` (guardar un servicio con sus capas por lotes, listar, renombrar, borrar contando los proyectos afectados, actualizar devolviendo las capas desaparecidas, no duplicar una dirección). (RF-4, RF-6, RF-7, RF-15)
       Hecho cuando: `WmsLibraryRepoTest` en verde.
 - [ ] T11. `data`: `ProjectLayersRepository` (añadir con el tope de 10 y sin repetir, visibilidad, opacidad de 5 en 5, mover, quitar, disponibilidad, nombre del servicio para las repetidas, cascada). (RF-18 a RF-24, RF-26 a RF-28)
       Hecho cuando: `ProjectLayersRepoTest` en verde.

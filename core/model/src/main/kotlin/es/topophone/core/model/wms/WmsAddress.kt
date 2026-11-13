@@ -23,6 +23,12 @@ sealed interface WmsAddressResult {
 class WmsAddress private constructor(val base: String, val parameters: List<Pair<String, String>>) {
     val isHttps: Boolean get() = base.startsWith("https://")
 
+    /** La dirección como se guarda: la base y sus parámetros en su orden. [parse] de este texto da la misma dirección (S036/RF-4). */
+    val text: String =
+        base + parameters.joinToString("&", prefix = if (parameters.isEmpty()) "" else "?") { (name, value) ->
+            if (value.isEmpty()) name else "$name=$value"
+        }
+
     val key: String =
         base + parameters.sortedWith(compareBy({ it.first.lowercase(Locale.ROOT) }, { it.second }))
             .joinToString("&", prefix = if (parameters.isEmpty()) "" else "?") { "${it.first}=${it.second}" }

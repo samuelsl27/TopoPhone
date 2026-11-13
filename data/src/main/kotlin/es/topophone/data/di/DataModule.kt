@@ -101,6 +101,8 @@ import es.topophone.data.surface.RoomSurfaceRepository
 import es.topophone.data.surface.SurfaceGuides
 import es.topophone.data.surface.SurfaceImporter
 import es.topophone.data.surface.SurfaceRepository
+import es.topophone.data.wms.RoomWmsLibraryRepository
+import es.topophone.data.wms.WmsLibraryRepository
 import java.io.File
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.map
@@ -211,6 +213,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideLineRepository(database: TopoPhoneDatabase, points: PointRepository): LineRepository = RoomLineRepository(database, points)
+
+    /** La biblioteca de servicios WMS (S036/RF-3 a RF-7). */
+    @Provides
+    @Singleton
+    fun provideWmsLibraryRepository(database: TopoPhoneDatabase): WmsLibraryRepository = RoomWmsLibraryRepository(database)
 
     /** Puntos recolectados (S010). */
     @Provides

@@ -141,6 +141,31 @@ class WmsAddressTest {
     }
 
     @Test
+    fun `S036 RF-4 el texto guardado de una direccion vuelve a dar la misma direccion`() {
+        listOf(
+            "https://x.es/wms",
+            "https://x.es:8443/cgi-bin/mapserv?map=/datos/obra.map&Idioma=es",
+            "http://192.168.1.10/wms?a=b=c&vacio=&solo&k=1&k=2",
+            "ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx",
+            "https://x.es/wms?map=a b|c",
+        ).forEach { input ->
+            val original = valid(input)
+
+            val again = valid(original.text)
+
+            again.key shouldBe original.key
+            again.parameters.map { it.first } shouldBe original.parameters.map { it.first }
+            again.base shouldBe original.base
+        }
+    }
+
+    @Test
+    fun `S036 RF-4 el texto de una direccion sin parametros es su base y con ellos van tras un signo de interrogacion`() {
+        valid("HTTPS://X.es/wms").text shouldBe "https://x.es/wms"
+        valid("https://x.es/wms?map=a&vacio=&solo").text shouldBe "https://x.es/wms?map=a&vacio&solo"
+    }
+
+    @Test
     fun `S036 RF-5 un nombre de capa con barra vertical o espacio en el parametro no rompe la lectura`() {
         valid("https://x.es/wms?map=a b|c").parameters shouldBe listOf("map" to "a b|c")
     }
