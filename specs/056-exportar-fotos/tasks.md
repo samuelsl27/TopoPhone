@@ -12,7 +12,7 @@
       Hecho cuando: `PhotoZipWriterTest` en verde y el test de rendimiento en menos de 10 s.
 - [x] T5. `data`: `PhotoRepository.photosForExport` con la consulta troceada. (RF-1, RF-2)
       Hecho cuando: `PhotoExportRepoTest` en verde, con orden de alta y 2.000 puntos.
-- [ ] T6. `data`: `PhotoExporter` (ZIP temporal entero, tamaño previsto, espacio libre, 1 GB, borrado del temporal si falla, fotos que faltan). (RF-4, RF-9 a RF-11, RF-14)
+- [x] T6. `data`: `PhotoExporter` (ZIP temporal entero, tamaño previsto, espacio libre, 1 GB, borrado del temporal si falla, fotos que faltan). (RF-4, RF-9 a RF-11, RF-14)
       Hecho cuando: `PhotoExporterTest` en verde, incluido el fallo sin dejar fichero.
 - [ ] T7. `app`: `PhotoExportViewModel` (puntos o selección, recuento y tamaño, sin fotos, aviso de 1 GB, nombre del ZIP, escribir entero o nada, resumen y log sin nombres ni rutas). (RF-1 a RF-3, RF-8, RF-10 a RF-13)
       Hecho cuando: `PhotoExportViewModelTest` en verde.
