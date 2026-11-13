@@ -21,6 +21,8 @@ Reglas que la spec no fija y que quedan escritas aquí:
 - Los CRS de una capa son los suyos más los de sus ascendientes, en ese orden de aparición; de ellos vale `EPSG:3857` si está y si no el primer alias
   de Web Mercator (`EPSG:900913`, `EPSG:102100`, `EPSG:102113`, `EPSG:3785`). En 1.1.1 un `SRS` puede llevar varios códigos separados por espacios o comas.
 - La atribución del servicio es el primer `Attribution/Title` del documento, o vacía.
+- Decide la raíz: si el primer elemento no es `WMS_Capabilities`, `WMT_MS_Capabilities` ni `ServiceExceptionReport`, el documento no es de capacidades
+  aunque el resto esté mal formado (una página HTML); si no hay ni raíz bien formada, está dañado.
 
 Uso: uv run --project tools tools/formatos/generar_wms.py
 """
@@ -138,8 +140,36 @@ def read_layers(layer: Node, depth: int, inherited_codes: list[str], queryable: 
         read_layers(sub, depth + 1, codes, queryable, opaque, out)
 
 
+class RootSeen(Exception):
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
+        self.name = name
+
+
+def root_name(data: bytes) -> str | None:
+    """El nombre local del primer elemento, o None si no hay ninguno bien formado."""
+    parser = xml.parsers.expat.ParserCreate()
+
+    def start(name: str, attrs: dict[str, str]) -> None:
+        raise RootSeen(name.split(":")[-1])
+
+    parser.StartElementHandler = start
+    try:
+        parser.Parse(data, True)
+    except RootSeen as seen:
+        return seen.name
+    except xml.parsers.expat.ExpatError:
+        return None
+    return None
+
+
 def read_capabilities(data: bytes) -> dict:
     """Lo que debe leer la app de un documento: su estado y, si es de capacidades, el servicio y sus capas."""
+    first = root_name(data)
+    if first is None:
+        return {"state": "MALFORMED"}
+    if first not in ("WMS_Capabilities", "WMT_MS_Capabilities", "ServiceExceptionReport"):
+        return {"state": "NOT_CAPABILITIES"}
     try:
         root = parse_tree(data)
     except (xml.parsers.expat.ExpatError, IndexError):

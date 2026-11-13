@@ -133,7 +133,7 @@ def test_sin_atribucion_y_sin_formatos_de_consulta():
     [
         ("error-excepcion-1.3.0.xml", "SERVICE_EXCEPTION"),
         ("error-excepcion-1.1.1.xml", "SERVICE_EXCEPTION"),
-        ("error-html-200.html", "MALFORMED"),
+        ("error-html-200.html", "NOT_CAPABILITIES"),  # decide la raíz: es HTML aunque le sobren etiquetas
         ("error-xml-danado.xml", "MALFORMED"),
         ("error-vacio.xml", "MALFORMED"),
         ("error-otro-xml.xml", "NOT_CAPABILITIES"),
