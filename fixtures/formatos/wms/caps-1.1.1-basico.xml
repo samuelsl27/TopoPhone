@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd">
+<WMT_MS_Capabilities version="1.1.1">
+<Service><Name>OGC:WMS</Name><Title>Servicio de ejemplo 1.1.1</Title></Service>
+<Capability><Request><GetCapabilities><Format>application/vnd.ogc.wms_xml</Format></GetCapabilities><GetMap><Format>image/png</Format><Format>image/jpeg</Format></GetMap><GetFeatureInfo><Format>text/plain</Format><Format>text/html</Format></GetFeatureInfo></Request>
+<Layer><Name>raiz</Name><Title>Raíz</Title><SRS>EPSG:4326 EPSG:3857</SRS><Layer queryable="1"><Name>capa-a</Name><Title>Capa A</Title></Layer><Layer><Name>capa-b</Name><Title>Capa B</Title><SRS>EPSG:25830</SRS></Layer></Layer>
+</Capability></WMT_MS_Capabilities>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "https://ovc.catastro.meh.es/Cartografia/WMS/DTD/capabilities_1_1_1.dtd" [
+<!ELEMENT VendorSpecificCapabilities EMPTY>
+]>
+<WMT_MS_Capabilities version="1.1.1">
+<Service><Name>OGC:WMS</Name><Title>Cartografía catastral</Title></Service>
+<Capability><Request><GetCapabilities><Format>application/vnd.ogc.wms_xml</Format></GetCapabilities><GetMap><Format>image/png</Format><Format>image/jpeg</Format></GetMap><GetFeatureInfo><Format>text/html</Format><Format>text/xml</Format></GetFeatureInfo></Request>
+<Layer queryable="1"><Name>Catastro</Name><Title>Cartografía catastral: parcelas y edificios</Title><SRS>EPSG:4326</SRS><SRS>EPSG:3857</SRS><SRS>EPSG:25830</SRS></Layer>
+</Capability></WMT_MS_Capabilities>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.1/WMS_MS_Capabilities.dtd">
+<WMT_MS_Capabilities version="1.1.1">
+<Service><Name>OGC:WMS</Name><Title>Ráster 1:10.000</Title></Service>
+<Capability><Request><GetCapabilities><Format>application/vnd.ogc.wms_xml</Format></GetCapabilities><GetMap><Format>image/png</Format><Format>image/jpeg</Format></GetMap><GetFeatureInfo><Format>text/plain</Format><Format>text/html</Format></GetFeatureInfo></Request>
+<Layer><Name>mta10r</Name><Title>Mapa topográfico</Title><SRS>EPSG:23030</SRS><SRS>EPSG:3857</SRS><Extra xsi:type="inspire:Algo">dato</Extra></Layer>
+</Capability></WMT_MS_Capabilities>

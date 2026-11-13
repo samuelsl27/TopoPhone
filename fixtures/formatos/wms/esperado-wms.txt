@@ -1,0 +1,65 @@
+service|caps-1.1.1-basico.xml|ok|1.1.1|Servicio de ejemplo 1.1.1||image/png;image/jpeg|text/plain;text/html|
+layer|caps-1.1.1-basico.xml|0|0|raiz|Raíz||1|0|EPSG:3857
+layer|caps-1.1.1-basico.xml|1|1|capa-a|Capa A||1|1|EPSG:3857
+layer|caps-1.1.1-basico.xml|2|1|capa-b|Capa B||1|0|EPSG:3857
+service|caps-1.1.1-doctype-interno.xml|ok|1.1.1|Cartografía catastral||image/png;image/jpeg|text/html;text/xml|
+layer|caps-1.1.1-doctype-interno.xml|0|0|Catastro|Cartografía catastral: parcelas y edificios||1|1|EPSG:3857
+service|caps-1.1.1-prefijo-sin-declarar.xml|ok|1.1.1|Ráster 1:10.000||image/png;image/jpeg|text/plain;text/html|
+layer|caps-1.1.1-prefijo-sin-declarar.xml|0|0|mta10r|Mapa topográfico||1|0|EPSG:3857
+service|caps-1.3.0-alias.xml|ok|1.3.0|Alias||image/png;image/jpeg|text/plain;text/html;application/vnd.ogc.gml|
+layer|caps-1.3.0-alias.xml|0|0||Raíz de alias||1|0|
+layer|caps-1.3.0-alias.xml|1|1|a-3785|Solo 3785||1|0|EPSG:3785
+layer|caps-1.3.0-alias.xml|2|1|a-102113|Solo 102113||1|0|EPSG:102113
+layer|caps-1.3.0-alias.xml|3|1|a-102100|102100 y 900913||1|0|EPSG:900913
+layer|caps-1.3.0-alias.xml|4|1|a-900913|Solo 900913||1|0|EPSG:900913
+layer|caps-1.3.0-alias.xml|5|1|a-ambos|3857 y alias||1|0|EPSG:3857
+layer|caps-1.3.0-alias.xml|6|1|a-minus|En minúsculas||1|0|EPSG:3857
+layer|caps-1.3.0-alias.xml|7|1|a-25830|Sin 3857||1|0|
+service|caps-1.3.0-anidadas-10.xml|ok|1.3.0|Anidadas 10||image/png;image/jpeg|text/plain;text/html;application/vnd.ogc.gml|
+layer|caps-1.3.0-anidadas-10.xml|0|0||Nivel 1||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-10.xml|1|1|nivel-2|Nivel 2||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-10.xml|2|2||Nivel 3||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-10.xml|3|3|nivel-4|Nivel 4||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-10.xml|4|4||Nivel 5||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-10.xml|5|5|nivel-6|Nivel 6||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-10.xml|6|6||Nivel 7||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-10.xml|7|7|nivel-8|Nivel 8||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-10.xml|8|8||Nivel 9||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-10.xml|9|9|nivel-10|Nivel 10||1|0|EPSG:3857
+service|caps-1.3.0-anidadas-12.xml|ok|1.3.0|Anidadas 12||image/png;image/jpeg|text/plain;text/html;application/vnd.ogc.gml|
+layer|caps-1.3.0-anidadas-12.xml|0|0||Nivel 1||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-12.xml|1|1|nivel-2|Nivel 2||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-12.xml|2|2||Nivel 3||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-12.xml|3|3|nivel-4|Nivel 4||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-12.xml|4|4||Nivel 5||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-12.xml|5|5|nivel-6|Nivel 6||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-12.xml|6|6||Nivel 7||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-12.xml|7|7|nivel-8|Nivel 8||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-12.xml|8|8||Nivel 9||1|0|EPSG:3857
+layer|caps-1.3.0-anidadas-12.xml|9|9|nivel-10|Nivel 10||1|0|EPSG:3857
+service|caps-1.3.0-basico.xml|ok|1.3.0|Servicio de ejemplo|© Servicio de ejemplo|image/png;image/jpeg|text/plain;text/html;application/vnd.ogc.gml|
+layer|caps-1.3.0-basico.xml|0|0|raiz|Ortofoto de ejemplo|Resumen de la raíz|1|1|EPSG:3857
+layer|caps-1.3.0-basico.xml|1|1|rgb|Color|Imagen en color|1|1|EPSG:3857
+layer|caps-1.3.0-basico.xml|2|1|irg|Infrarrojo||0|0|EPSG:3857
+service|caps-1.3.0-nombres-raros.xml|ok|1.3.0|Nombres raros||image/png;image/jpeg|text/plain;text/html;application/vnd.ogc.gml|
+layer|caps-1.3.0-nombres-raros.xml|0|0|OWS_0101_BCV05|Cartografía 1:5.000||1|0|EPSG:3857
+layer|caps-1.3.0-nombres-raros.xml|1|1|Usos del suelo \p Usos del sòl \p Land use|Usos del suelo \p Usos del sòl \p Land use||1|0|EPSG:3857
+layer|caps-1.3.0-nombres-raros.xml|2|1|0|Capa numérica||1|0|EPSG:3857
+layer|caps-1.3.0-nombres-raros.xml|3|1|repetida|Grupo repetido||1|0|EPSG:3857
+layer|caps-1.3.0-nombres-raros.xml|4|2|repetida|Hija con el mismo nombre||1|0|EPSG:3857
+layer|caps-1.3.0-nombres-raros.xml|5|1|con & ampersand|Título con <etiqueta> y & más|Línea 1\nLínea 2|1|0|EPSG:3857
+service|caps-1.3.0-sin-3857.xml|ok|1.3.0|Sin 3857||image/png;image/jpeg|text/plain;text/html;application/vnd.ogc.gml|
+layer|caps-1.3.0-sin-3857.xml|0|0|sola|Solo UTM||1|0|
+service|caps-1.3.0-sin-atribucion.xml|ok|1.3.0|Sin atribución||image/png;image/jpeg||
+layer|caps-1.3.0-sin-atribucion.xml|0|0|sola|Capa sola||1|0|EPSG:3857
+service|caps-1.3.0-sin-nombre.xml|ok|1.3.0|Con grupos||image/png;image/jpeg|text/plain;text/html;application/vnd.ogc.gml|
+layer|caps-1.3.0-sin-nombre.xml|0|0||Grupo sin nombre||1|1|EPSG:3857
+layer|caps-1.3.0-sin-nombre.xml|1|1|hija-1|Hija 1||1|1|EPSG:3857
+layer|caps-1.3.0-sin-nombre.xml|2|1||Subgrupo||1|1|EPSG:3857
+layer|caps-1.3.0-sin-nombre.xml|3|2|nieta|Nieta||1|0|EPSG:3857
+service|error-excepcion-1.1.1.xml|SERVICE_EXCEPTION||||||Parcela no encontrada
+service|error-excepcion-1.3.0.xml|SERVICE_EXCEPTION||||||Version 1.3.0 not supported
+service|error-html-200.html|MALFORMED||||||
+service|error-otro-xml.xml|NOT_CAPABILITIES||||||
+service|error-vacio.xml|MALFORMED||||||
+service|error-xml-danado.xml|MALFORMED||||||
