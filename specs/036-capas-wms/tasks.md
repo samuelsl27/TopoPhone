@@ -45,7 +45,7 @@
       Hecho cuando: `MapPressTest` en verde (punto, píxel, zona visible); la marca se ve en el emulador en T25, cuando la pulsación larga llega a la vista de proyecto.
 
 ## Interfaz
-- [ ] T19. `app`: `WmsLibraryViewModel` (añadir por dirección con sus estados y motivos, presets agrupados con «ya en la biblioteca» y su licencia, capas de un servicio con las no compatibles, actualizar con el aviso, renombrar, borrar con el aviso, cambiar el modo de petición). (RF-1 a RF-17)
+- [x] T19. `app`: `WmsLibraryViewModel` (añadir por dirección con sus estados y motivos, presets agrupados con «ya en la biblioteca» y su licencia, capas de un servicio con las no compatibles, actualizar con el aviso, renombrar, borrar con el aviso, cambiar el modo de petición). (RF-1 a RF-17)
       Hecho cuando: `WmsLibraryViewModelTest` en verde.
 - [ ] T20. `app`: la hoja de la biblioteca (servicios, presets por grupos, capas de un servicio) con los textos en es y en. (RF-2, RF-3, RF-6, RF-7, RF-12 a RF-15, RF-17)
       Hecho cuando: `WmsLibrarySheetTest` en verde.
