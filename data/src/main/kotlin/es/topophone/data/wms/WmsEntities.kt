@@ -2,6 +2,7 @@ package es.topophone.data.wms
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -149,7 +150,65 @@ interface WmsDao {
             "ORDER BY p.name COLLATE NOCASE, p.id, l.position",
     )
     suspend fun missing(serviceId: String): List<MissingRow>
+
+    @Query("SELECT * FROM project_wms_layers WHERE id = :id")
+    suspend fun projectLayer(id: String): ProjectWmsLayerEntity?
+
+    @Query("SELECT * FROM project_wms_layers WHERE project_id = :projectId ORDER BY position, added_at, id")
+    suspend fun projectLayersNow(projectId: String): List<ProjectWmsLayerEntity>
+
+    @Query("SELECT COUNT(*) FROM project_wms_layers WHERE project_id = :projectId")
+    suspend fun countProjectLayers(projectId: String): Int
+
+    @Query("SELECT COUNT(*) FROM project_wms_layers WHERE project_id = :projectId AND service_id = :serviceId AND layer_name = :name")
+    suspend fun countProjectLayer(projectId: String, serviceId: String, name: String): Int
+
+    @Query("SELECT * FROM wms_layers WHERE service_id = :serviceId AND name = :name ORDER BY ordinal")
+    suspend fun layersNamed(serviceId: String, name: String): List<WmsLayerEntity>
+
+    /** Baja un puesto todas las capas del proyecto, para poner una nueva arriba. */
+    @Query("UPDATE project_wms_layers SET position = position + 1 WHERE project_id = :projectId")
+    suspend fun shiftDown(projectId: String)
+
+    @Query("UPDATE project_wms_layers SET visible = :visible WHERE id = :id")
+    suspend fun setVisible(id: String, visible: Boolean): Int
+
+    @Query("UPDATE project_wms_layers SET opacity = :opacity WHERE id = :id")
+    suspend fun setOpacity(id: String, opacity: Int): Int
+
+    @Query("UPDATE project_wms_layers SET position = :position WHERE id = :id")
+    suspend fun setPosition(id: String, position: Int)
+
+    @Query("DELETE FROM project_wms_layers WHERE id = :id")
+    suspend fun deleteProjectLayer(id: String)
+
+    /**
+     * Las capas del proyecto de arriba abajo con su servicio y lo que éste dice de ellas: una sola fila por capa, la que ofrece Web Mercator
+     * si el nombre sale más de una vez; `l_*` es null si ya no está o ya no se puede pedir. Se vuelve a emitir al cambiar cualquiera de las
+     * tres tablas (S036/RF-6, RF-27).
+     */
+    @Query(
+        "SELECT pl.id, pl.project_id, pl.service_id, pl.layer_name, pl.position, pl.visible, pl.opacity, pl.added_at, " +
+            "s.id AS s_id, s.name AS s_name, s.address AS s_address, s.address_key AS s_address_key, s.title AS s_title, " +
+            "s.version AS s_version, s.attribution AS s_attribution, s.preset_key AS s_preset_key, s.request_mode AS s_request_mode, " +
+            "s.map_formats AS s_map_formats, s.info_formats AS s_info_formats, s.created_at AS s_created_at, " +
+            "s.updated_at AS s_updated_at, " +
+            "l.service_id AS l_service_id, l.ordinal AS l_ordinal, l.depth AS l_depth, l.name AS l_name, l.title AS l_title, " +
+            "l.summary AS l_summary, l.transparent AS l_transparent, l.queryable AS l_queryable, l.mercator_code AS l_mercator_code " +
+            "FROM project_wms_layers pl JOIN wms_services s ON s.id = pl.service_id " +
+            "LEFT JOIN wms_layers l ON l.service_id = pl.service_id AND l.ordinal = (SELECT MIN(x.ordinal) FROM wms_layers x " +
+            "WHERE x.service_id = pl.service_id AND x.name = pl.layer_name AND x.mercator_code IS NOT NULL) " +
+            "WHERE pl.project_id = :projectId ORDER BY pl.position, pl.added_at, pl.id",
+    )
+    fun projectLayerViews(projectId: String): Flow<List<ProjectLayerJoin>>
 }
+
+/** Una capa de un proyecto con su servicio y, si sigue pudiéndose pedir, lo que el servicio dice de ella (S036/RF-27). */
+data class ProjectLayerJoin(
+    @Embedded val layer: ProjectWmsLayerEntity,
+    @Embedded(prefix = "s_") val service: WmsServiceEntity,
+    @Embedded(prefix = "l_") val info: WmsLayerEntity?,
+)
 
 data class UseRow(val projectId: String, val projectName: String, val layers: Int)
 

@@ -107,8 +107,8 @@ class RoomWmsLibraryRepository(
             attribution = capabilities.attribution,
             presetKey = presetKey,
             requestMode = requestMode.name,
-            mapFormats = capabilities.mapFormats.joinToString(LIST_SEPARATOR),
-            infoFormats = capabilities.infoFormats.joinToString(LIST_SEPARATOR),
+            mapFormats = capabilities.mapFormats.joinToString(WMS_LIST_SEPARATOR),
+            infoFormats = capabilities.infoFormats.joinToString(WMS_LIST_SEPARATOR),
             createdAt = now,
             updatedAt = now,
         )
@@ -138,8 +138,8 @@ class RoomWmsLibraryRepository(
             capabilities.title,
             capabilities.version,
             capabilities.attribution,
-            capabilities.mapFormats.joinToString(LIST_SEPARATOR),
-            capabilities.infoFormats.joinToString(LIST_SEPARATOR),
+            capabilities.mapFormats.joinToString(WMS_LIST_SEPARATOR),
+            capabilities.infoFormats.joinToString(WMS_LIST_SEPARATOR),
             clock(),
         )
         dao.missing(id).map { MissingProjectLayer(it.projectId, it.projectName, it.layerName) }
@@ -165,27 +165,7 @@ class RoomWmsLibraryRepository(
         }
     }
 
-    private fun WmsServiceEntity.toModel() = WmsService(
-        id = id,
-        name = name,
-        address = address,
-        title = title,
-        version = version,
-        attribution = attribution,
-        presetKey = presetKey,
-        requestMode = WmsRequestMode.valueOf(requestMode),
-        mapFormats = split(mapFormats),
-        infoFormats = split(infoFormats),
-        createdAtMs = createdAt,
-        updatedAtMs = updatedAt,
-    )
-
-    private fun WmsLayerEntity.toModel() = WmsLayerInfo(ordinal, depth, name, title, summary, transparent, queryable, mercatorCode)
-
-    private fun split(text: String) = if (text.isEmpty()) emptyList() else text.split(LIST_SEPARATOR)
-
     private companion object {
-        const val LIST_SEPARATOR = "|"
         const val LAYER_BATCH = 1_000
     }
 }

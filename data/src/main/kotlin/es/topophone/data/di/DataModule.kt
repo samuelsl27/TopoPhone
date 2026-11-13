@@ -101,6 +101,8 @@ import es.topophone.data.surface.RoomSurfaceRepository
 import es.topophone.data.surface.SurfaceGuides
 import es.topophone.data.surface.SurfaceImporter
 import es.topophone.data.surface.SurfaceRepository
+import es.topophone.data.wms.ProjectLayersRepository
+import es.topophone.data.wms.RoomProjectLayersRepository
 import es.topophone.data.wms.RoomWmsLibraryRepository
 import es.topophone.data.wms.WmsLibraryRepository
 import java.io.File
@@ -218,6 +220,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideWmsLibraryRepository(database: TopoPhoneDatabase): WmsLibraryRepository = RoomWmsLibraryRepository(database)
+
+    /** Las capas WMS de cada proyecto (S036/RF-18 a RF-28). */
+    @Provides
+    @Singleton
+    fun provideProjectLayersRepository(database: TopoPhoneDatabase): ProjectLayersRepository = RoomProjectLayersRepository(database)
 
     /** Puntos recolectados (S010). */
     @Provides

@@ -25,7 +25,7 @@
       Hecho cuando: `WmsMigrationTest` en verde (una base v31 con datos pasa a v32 sin perder nada) y `./gradlew check` con el esquema nuevo.
 - [x] T10. `data`: `WmsLibraryRepository` (guardar un servicio con sus capas por lotes, listar, renombrar, borrar contando los proyectos afectados, actualizar devolviendo las capas desaparecidas, no duplicar una dirección). (RF-4, RF-6, RF-7, RF-15)
       Hecho cuando: `WmsLibraryRepoTest` en verde.
-- [ ] T11. `data`: `ProjectLayersRepository` (añadir con el tope de 10 y sin repetir, visibilidad, opacidad de 5 en 5, mover, quitar, disponibilidad, nombre del servicio para las repetidas, cascada). (RF-18 a RF-24, RF-26 a RF-28)
+- [x] T11. `data`: `ProjectLayersRepository` (añadir con el tope de 10 y sin repetir, visibilidad, opacidad de 5 en 5, mover, quitar, disponibilidad, nombre del servicio para las repetidas, cascada). (RF-18 a RF-24, RF-26 a RF-28)
       Hecho cuando: `ProjectLayersRepoTest` en verde.
 - [ ] T12. `data`: `WmsHttp` y `OkHttpWmsHttp` (20 s, 20 MB, sin el interceptor del mapa) y `WmsServiceAdder` (1.3.0 y caída a 1.1.1, respuesta en otra versión, validación de Web Mercator, HTTP público, motivos, presets, ya en la biblioteca), con el cliente en la inyección de `app`. (RF-1, RF-2, RF-8, RF-9, RF-10, RF-14, RF-15)
       Hecho cuando: `WmsServiceAdderTest` en verde con las respuestas grabadas, y `data` con `okhttp` como dependencia (justificada en el plan).
