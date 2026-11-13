@@ -126,6 +126,7 @@ import es.topophone.app.ui.map.MapTap
 import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
+import es.topophone.app.ui.map.WmsLayerPlan
 import es.topophone.app.ui.points.OBJECTS_BUTTON_TAG
 import es.topophone.app.ui.points.ObjectLines
 import es.topophone.app.ui.receiver.ReceiverViewModel
@@ -157,6 +158,8 @@ import es.topophone.app.ui.surface.SurfacesActions
 import es.topophone.app.ui.surface.SurfacesSheet
 import es.topophone.app.ui.surface.SurfacesUiState
 import es.topophone.app.ui.surface.SurfacesViewModel
+import es.topophone.app.ui.wms.ProjectLayersUiState
+import es.topophone.app.ui.wms.ProjectLayersViewModel
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.designsystem.theme.LocalStatusPalette
 import es.topophone.core.geodesy.GeoPoint
@@ -448,6 +451,7 @@ fun ProjectViewRoute(
     alignmentFromDrawingViewModel: AlignmentFromDrawingViewModel = hiltViewModel(),
     alignmentsViewModel: AlignmentsViewModel = hiltViewModel(),
     alignmentMapViewModel: AlignmentMapViewModel = hiltViewModel(),
+    projectLayersViewModel: ProjectLayersViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
         viewModel.start(projectId)
@@ -456,6 +460,7 @@ fun ProjectViewRoute(
         surfacesViewModel.start(projectId) // S042/RF-16
         alignmentsViewModel.start(projectId) // S049/RF-14
         alignmentMapViewModel.start(projectId) // S049/RF-17
+        projectLayersViewModel.start(projectId) // S036/RF-24
         axisSurveyViewModel.start(projectId) // S052/RF-9
     }
     // S052/RF-1: la toma de un eje con el receptor, en el mismo hueco; el recolector mide y la toma recoge cada punto guardado.
@@ -567,6 +572,7 @@ fun ProjectViewRoute(
     val alignmentFromDrawing by alignmentFromDrawingViewModel.state.collectAsStateWithLifecycle()
     val alignmentsState by alignmentsViewModel.state.collectAsStateWithLifecycle()
     val alignmentScene by alignmentMapViewModel.scene.collectAsStateWithLifecycle()
+    val projectLayers by projectLayersViewModel.state.collectAsStateWithLifecycle() // S036/RF-18
     val alignmentTouch by alignmentMapViewModel.touched.collectAsStateWithLifecycle()
     val sectionLinesOn by alignmentMapViewModel.sectionLines.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
@@ -594,6 +600,7 @@ fun ProjectViewRoute(
             alignmentMapViewModel.onCamera(it) // S049/RF-17
         },
         alignmentScene = alignmentScene,
+        projectLayers = projectLayers,
         alignmentTouch = alignmentTouch,
         onDismissAlignmentTouch = alignmentMapViewModel::dismissTouch,
         sectionLinesOn = sectionLinesOn,
@@ -1064,6 +1071,8 @@ fun ProjectViewScreen(
     alignments: AlignmentsUiState = AlignmentsUiState(),
     /** Los ejes visibles con sus marcas de PK en la vista de ahora (S049/RF-17). */
     alignmentScene: AlignmentScene? = null,
+    /** Las capas WMS del proyecto y lo que el mapa dibuja de ellas (S036/RF-18 a RF-24, RF-29, RF-30). */
+    projectLayers: ProjectLayersUiState = ProjectLayersUiState(),
     /** El eje tocado en el mapa, el cierre de su ficha y activarlo (S049/RF-18). */
     alignmentTouch: AlignmentTouch? = null,
     sectionLinesOn: Set<String> = emptySet(),
@@ -1178,7 +1187,7 @@ fun ProjectViewScreen(
                 ) {
                     val camera = controller?.camera?.collectAsStateWithLifecycle()?.value
                     if (project != null && camera != null) ScaleBarView(camera, project.linearUnit)
-                    Attribution(state.mapSettings)
+                    Attribution(state.mapSettings, projectLayers.plan)
                     if (project != null &&
                         collector != null &&
                         !collectorOpen &&
@@ -1299,7 +1308,19 @@ fun ProjectViewScreen(
             }
         }
     }
-    BindMap(controller, state, stakeout, design, onDesignCamera, lineStakeout, lineHighlight, alignmentScene, axisStakeout, axisSurvey)
+    BindMap(
+        controller,
+        state,
+        stakeout,
+        design,
+        onDesignCamera,
+        lineStakeout,
+        lineHighlight,
+        alignmentScene,
+        axisStakeout,
+        axisSurvey,
+        projectLayers.plan,
+    )
     LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
     controller?.let { FollowRover(it, state, policy, onViewportChanged) }
     // S011/RF-5: tocar un punto del mapa abre su ficha.
@@ -1583,18 +1604,21 @@ private fun ScaleBarView(camera: MapCamera, unit: LinearUnit) {
 
 /** Atribución de las fuentes a la vista, siempre visible (S009/RF-9, RNF-T14). */
 @Composable
-private fun Attribution(settings: MapSettings) {
+private fun Attribution(settings: MapSettings, wms: WmsLayerPlan) {
     val sources = MapAttribution.sources(settings)
-    if (sources.isEmpty()) return
-    val text = sources.map { source ->
-        stringResource(
-            when (source) {
-                AttributionSource.IGN -> R.string.attribution_ign
-                AttributionSource.OPENFREEMAP -> R.string.attribution_openfreemap
-                AttributionSource.CADASTRE -> R.string.attribution_cadastre
-            },
-        )
-    }.joinToString(" · ")
+    val services = MapAttribution.wms(wms) // S036/RF-30
+    if (sources.isEmpty() && services.isEmpty()) return
+    val text = (
+        sources.map { source ->
+            stringResource(
+                when (source) {
+                    AttributionSource.IGN -> R.string.attribution_ign
+                    AttributionSource.OPENFREEMAP -> R.string.attribution_openfreemap
+                    AttributionSource.CADASTRE -> R.string.attribution_cadastre
+                },
+            )
+        } + services
+        ).joinToString(" · ")
     Text(
         text,
         style = MaterialTheme.typography.labelSmall,
@@ -1630,6 +1654,7 @@ private fun BindMap(
     alignmentScene: AlignmentScene?,
     axisStakeout: AxisStakeoutUiState?,
     axisSurvey: AxisSurveyUiState?,
+    wmsPlan: WmsLayerPlan,
 ) {
     val unit = state.project?.linearUnit
     val palette = LocalStatusPalette.current
@@ -1639,6 +1664,7 @@ private fun BindMap(
         controller?.showPoints(MapPoints.from(state.points, state.codeStyles))
     } // S010/RF-20
     LaunchedEffect(controller, state.lineScene) { controller?.showLines(state.lineScene) } // S025/RF-22
+    LaunchedEffect(controller, wmsPlan) { controller?.showWmsLayers(wmsPlan) } // S036/RF-22, RF-29
     LaunchedEffect(controller, design) { controller?.showDesign(design) } // S040/RF-24
     LaunchedEffect(controller, alignmentScene) { controller?.showAlignments(alignmentScene) } // S049/RF-17
     LaunchedEffect(controller) {
