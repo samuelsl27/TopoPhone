@@ -2,7 +2,7 @@
 
 > Una tarea por prompt: tests primero, luego código; marca la casilla y para. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`). Nombres de clase y de test de `data` y `app` de 60 caracteres o menos.
 
-- [ ] T1. `tools/formatos`: `generar_fotos_zip.py` con el índice y el ZIP de referencia de un proyecto de ejemplo (diez fotos en un punto, dos puntos con el mismo nombre, símbolos y acentos, un nombre con coma y comillas, una foto sin metadatos), y su test. (RF-4 a RF-7)
+- [x] T1. `tools/formatos`: `generar_fotos_zip.py` con el índice y el ZIP de referencia de un proyecto de ejemplo (diez fotos en un punto, dos puntos con el mismo nombre, símbolos y acentos, un nombre con coma y comillas, una foto sin metadatos), y su test. (RF-4 a RF-7)
       Hecho cuando: el script genera `fixtures/formatos/fotos-zip/` y su test de `tools` está en verde, leyendo el ZIP con `zipfile` y el índice con `csv`.
 - [ ] T2. `core:formats`: `PhotoArchiveNames` (saneado, «punto» si queda vacío, numeración por orden de alta, repetidos sin distinguir mayúsculas). (RF-5)
       Hecho cuando: `PhotoArchiveNamesTest` en verde con los casos de las referencias.

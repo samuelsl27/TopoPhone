@@ -1,0 +1,26 @@
+point|P1
+photo|gallery|1794471330123|1800|exif
+photo|camera|1794471391123|1937|exif
+photo|camera|1794471452123|2074|exif
+photo|gallery|1794471513123|2211|exif
+photo|camera|1794471574123|2348|exif
+photo|camera|1794471635123|2485|exif
+photo|gallery|1794471696123|2622|exif
+photo|camera|1794471757123|2759|exif
+photo|camera|1794471818123|2896|exif
+photo|gallery|1794471879123|3033|exif
+point|Árbol ñ/9
+photo|camera|1794472030123|3050|exif
+point|Arbol n 9
+photo|gallery|1794472090123|2411|exif
+photo|gallery|1794472131123|2412|exif
+point|Esquina "norte", lado 2
+photo|camera|1794472230123|4096|exif
+point|P2
+point|p2
+photo|gallery|1794472260123|777|noexif
+point|A
+photo|camera|1794472330123|1024|exif
+photo|camera|1794472360123|1025|exif
+point|a
+photo|gallery|1794472430123|999|exif

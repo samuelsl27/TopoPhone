@@ -39,3 +39,5 @@ fixtures/formatos/shp-exportado/** -text
 fixtures/formatos/kml/** -text
 # KML de referencia de la exportacion: LF y UTF-8 tal como estan, byte a byte (S031)
 fixtures/formatos/kml-exportado/** -text
+# Indice y entrada del ZIP de fotos: CRLF y UTF-8 tal como estan, byte a byte (S056)
+fixtures/formatos/fotos-zip/** -text
