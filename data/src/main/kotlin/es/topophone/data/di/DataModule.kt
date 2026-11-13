@@ -29,11 +29,14 @@ import es.topophone.data.codes.RoomCodeLibraryRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.DataStoreDxfExportPreferences
 import es.topophone.data.export.DataStoreExportPreferences
+import es.topophone.data.export.DataStoreKmlExportPreferences
 import es.topophone.data.export.DataStoreShpExportPreferences
 import es.topophone.data.export.DxfExportDataStoreQualifier
 import es.topophone.data.export.DxfExportPreferences
 import es.topophone.data.export.ExportDataStoreQualifier
 import es.topophone.data.export.ExportPreferences
+import es.topophone.data.export.KmlExportDataStoreQualifier
+import es.topophone.data.export.KmlExportPreferences
 import es.topophone.data.export.ShpExportDataStoreQualifier
 import es.topophone.data.export.ShpExportPreferences
 import es.topophone.data.gear.GearLegacyImport
@@ -146,6 +149,12 @@ object DataStoreModule {
     @ShpExportDataStoreQualifier
     fun provideShpExportDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
         SettingsDataStore.create(context, name = "shp-export")
+
+    @Provides
+    @Singleton
+    @KmlExportDataStoreQualifier
+    fun provideKmlExportDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        SettingsDataStore.create(context, name = "kml-export")
 
     @Provides
     @Singleton
@@ -371,6 +380,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindShpExportPreferences(implementation: DataStoreShpExportPreferences): ShpExportPreferences
+
+    @Binds
+    abstract fun bindKmlExportPreferences(implementation: DataStoreKmlExportPreferences): KmlExportPreferences
 
     @Binds
     abstract fun bindGeometryPreferences(implementation: DataStoreGeometryPreferences): GeometryPreferences
