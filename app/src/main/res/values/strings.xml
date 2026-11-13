@@ -1897,6 +1897,50 @@
     <string name="shp_export_height_orthometric">La Z es la altitud ortométrica (EGM08-REDNAP); el .prj no puede declararlo.</string>
     <string name="shp_export_height_ellipsoidal">La Z es la altura elipsoidal; el .prj no puede declararlo.</string>
 
+    <!-- S031: exportar a KML o KMZ -->
+    <string name="kml_export_title">Exportar KML/KMZ</string>
+    <string name="kml_export_selected">KML</string>
+    <string name="kml_export_format">Formato</string>
+    <string name="kml_export_format_kml">KML</string>
+    <string name="kml_export_format_kmz">KMZ</string>
+    <string name="kml_export_height">Incluir altura</string>
+    <string name="kml_export_height_hint">La altura del proyecto va en modo absoluto y sin convertir a EGM96, la referencia que usan los visores: pueden diferir. Sin ella, las marcas van pegadas al suelo.</string>
+    <string name="kml_export_photos">Incluir fotos</string>
+    <plurals name="kml_export_photos_info">
+        <item quantity="one">Los puntos tienen %1$d foto (%2$s), que irá byte a byte como está guardada.</item>
+        <item quantity="other">Los puntos tienen %1$d fotos (%2$s), que irán byte a byte como están guardadas.</item>
+    </plurals>
+    <string name="kml_export_photos_none">Ningún punto tiene fotos.</string>
+    <string name="kml_export_datum">Las coordenadas van en WGS84 como longitud y latitud del datum del proyecto, sin transformación: pueden diferir de 0,5 a 1 m.</string>
+    <string name="kml_share_chooser">Compartir KML o KMZ</string>
+    <string name="kml_export_large_message">El KMZ ocupará unos %1$s. ¿Quieres escribirlo?</string>
+    <string name="kml_export_large_continue">Continuar</string>
+    <string name="kml_export_no_space">No hay espacio libre para escribir el fichero: hacen falta unos %1$s.</string>
+    <plurals name="kml_export_done">
+        <item quantity="one">Se ha exportado %1$d punto.</item>
+        <item quantity="other">Se han exportado %1$d puntos.</item>
+    </plurals>
+    <plurals name="kml_export_folders">
+        <item quantity="one">%1$d carpeta.</item>
+        <item quantity="other">%1$d carpetas.</item>
+    </plurals>
+    <plurals name="kml_export_no_position">
+        <item quantity="one">%1$d punto sin posición no se ha escrito.</item>
+        <item quantity="other">%1$d puntos sin posición no se han escrito.</item>
+    </plurals>
+    <plurals name="kml_export_no_height">
+        <item quantity="one">%1$d marca sin altura va pegada al suelo.</item>
+        <item quantity="other">%1$d marcas sin altura van pegadas al suelo.</item>
+    </plurals>
+    <plurals name="kml_export_photos_done">
+        <item quantity="one">%1$d foto incluida en el KMZ.</item>
+        <item quantity="other">%1$d fotos incluidas en el KMZ.</item>
+    </plurals>
+    <plurals name="kml_export_photos_omitted">
+        <item quantity="one">%1$d foto no se ha incluido porque no se puede leer.</item>
+        <item quantity="other">%1$d fotos no se han incluido porque no se pueden leer.</item>
+    </plurals>
+
     <!-- S045: importar un ráster de cotas -->
     <string name="raster_import_title">Importar ráster</string>
     <string name="raster_import_loading">Copiando el fichero…</string>

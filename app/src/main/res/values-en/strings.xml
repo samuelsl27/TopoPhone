@@ -1885,6 +1885,50 @@
     <string name="shp_export_height_orthometric">Z is the orthometric height (EGM08-REDNAP); the .prj cannot declare it.</string>
     <string name="shp_export_height_ellipsoidal">Z is the ellipsoidal height; the .prj cannot declare it.</string>
 
+    <!-- S031: export to KML or KMZ -->
+    <string name="kml_export_title">Export KML/KMZ</string>
+    <string name="kml_export_selected">KML</string>
+    <string name="kml_export_format">Format</string>
+    <string name="kml_export_format_kml">KML</string>
+    <string name="kml_export_format_kmz">KMZ</string>
+    <string name="kml_export_height">Include height</string>
+    <string name="kml_export_height_hint">The project height is written in absolute mode and not converted to EGM96, the reference viewers use: they may differ. Without it, marks clamp to the ground.</string>
+    <string name="kml_export_photos">Include photos</string>
+    <plurals name="kml_export_photos_info">
+        <item quantity="one">The points have %1$d photo (%2$s), which goes in byte for byte as stored.</item>
+        <item quantity="other">The points have %1$d photos (%2$s), which go in byte for byte as stored.</item>
+    </plurals>
+    <string name="kml_export_photos_none">No point has photos.</string>
+    <string name="kml_export_datum">Coordinates are WGS84 longitude and latitude of the project datum, without transformation: they may differ by 0.5 to 1 m.</string>
+    <string name="kml_share_chooser">Share KML or KMZ</string>
+    <string name="kml_export_large_message">The KMZ will take about %1$s. Do you want to write it?</string>
+    <string name="kml_export_large_continue">Continue</string>
+    <string name="kml_export_no_space">There is not enough free space to write the file: about %1$s needed.</string>
+    <plurals name="kml_export_done">
+        <item quantity="one">%1$d point exported.</item>
+        <item quantity="other">%1$d points exported.</item>
+    </plurals>
+    <plurals name="kml_export_folders">
+        <item quantity="one">%1$d folder.</item>
+        <item quantity="other">%1$d folders.</item>
+    </plurals>
+    <plurals name="kml_export_no_position">
+        <item quantity="one">%1$d point without a position was not written.</item>
+        <item quantity="other">%1$d points without a position were not written.</item>
+    </plurals>
+    <plurals name="kml_export_no_height">
+        <item quantity="one">%1$d mark without height is clamped to the ground.</item>
+        <item quantity="other">%1$d marks without height are clamped to the ground.</item>
+    </plurals>
+    <plurals name="kml_export_photos_done">
+        <item quantity="one">%1$d photo included in the KMZ.</item>
+        <item quantity="other">%1$d photos included in the KMZ.</item>
+    </plurals>
+    <plurals name="kml_export_photos_omitted">
+        <item quantity="one">%1$d photo was not included because it cannot be read.</item>
+        <item quantity="other">%1$d photos were not included because they cannot be read.</item>
+    </plurals>
+
     <!-- S045: import an elevation raster -->
     <string name="raster_import_title">Import raster</string>
     <string name="raster_import_loading">Copying the file…</string>

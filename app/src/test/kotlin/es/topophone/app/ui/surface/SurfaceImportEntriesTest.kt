@@ -108,8 +108,8 @@ class SurfaceImportEntriesTest {
 
         compose.onNodeWithTag(projectMenuTag("p1")).performClick()
 
-        compose.onNodeWithText("Importar CSV/TXT").assertIsDisplayed()
-        compose.onNodeWithText("Importar DXF").assertIsDisplayed()
+        compose.onNodeWithText("Importar CSV/TXT").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Importar DXF").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Importar superficie").performScrollTo().assertIsDisplayed()
     }
 

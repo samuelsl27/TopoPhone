@@ -132,6 +132,7 @@ fun ProjectFolderRoute(
                 onExportGeoPackage = { id -> navigation.onExportGeoPackage(id, false) }, // S053/RF-1
                 onExportDxf = { id -> navigation.onExportDxf(id, false) }, // S029/RF-1
                 onExportShp = { id -> navigation.onExportShp(id, false) }, // S055/RF-1
+                onExportKml = { id -> navigation.onExportKml(id, false) }, // S031/RF-20
                 onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
                 onImportPoints = importPoints,
                 onImportDxf = importDxf,

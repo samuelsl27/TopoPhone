@@ -158,6 +158,8 @@ class ProjectListActions(
     val onExportDxf: (String) -> Unit = {},
     /** Exportar los puntos del proyecto a un Shapefile (S055/RF-1). */
     val onExportShp: (String) -> Unit = {},
+    /** Exportar los puntos del proyecto a un KML o KMZ (S031/RF-20). */
+    val onExportKml: (String) -> Unit = {},
     /** El informe de replanteo del proyecto (S019/RF-17). */
     val onStakeoutReport: (String) -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, el asistente de importación de puntos del proyecto (S028/RF-1). */
@@ -313,6 +315,7 @@ fun ProjectListRoute(
             onExportGeoPackage = { id -> navigation.onExportGeoPackage(id, false) }, // S053/RF-1
             onExportDxf = { id -> navigation.onExportDxf(id, false) }, // S029/RF-1
             onExportShp = { id -> navigation.onExportShp(id, false) }, // S055/RF-1
+            onExportKml = { id -> navigation.onExportKml(id, false) }, // S031/RF-20
             onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
             onImportPoints = importPoints,
             onImportDxf = importDxf,
@@ -571,6 +574,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onExportShp(project.id)
         } // S055/RF-1
+        MenuItem(R.string.kml_export_title) {
+            open = false
+            actions.onExportKml(project.id)
+        } // S031/RF-20
         MenuItem(R.string.import_title) {
             open = false
             actions.onImportPoints(project.id)
