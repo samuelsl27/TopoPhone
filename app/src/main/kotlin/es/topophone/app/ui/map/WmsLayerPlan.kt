@@ -46,7 +46,7 @@ data class WmsLayerPlan(val layers: List<WmsPlanLayer>) {
             val code = view.info?.mercatorCode ?: return null // No disponible (RF-27) o sin Web Mercator (RF-12): no se pide.
             val service = view.service
             val address = (WmsAddress.parse(service.address) as? WmsAddressResult.Valid)?.address ?: return null
-            val format = format(service)
+            val format = format(service, view.layer.layerName)
             val name = view.layer.layerName
             val source = when (service.requestMode) {
                 WmsRequestMode.TILES -> WmsLayerSource.Tiles(WmsRequests.tileTemplate(address, service.version, name, code, format))
@@ -56,11 +56,14 @@ data class WmsLayerPlan(val layers: List<WmsPlanLayer>) {
         }
 
         /**
-         * El formato que el preset prefiere (`image/png` en un servicio propio) y, si el servicio no lo ofrece, el primero que anuncie: la
-         * ortofoto de GRAFCAN solo da JPEG y su mapa solo PNG (A3 del plan). Sin lista de formatos se pide el preferido.
+         * El formato que el preset prefiere para sus capas sugeridas (la ortofoto, en JPEG) y `image/png` para el resto, que son capas
+         * transparentes (huellas, límites): una capa transparente pedida en JPEG sale con el fondo negro y tapa lo de debajo. Un servicio
+         * propio va siempre en PNG. Si el servicio no ofrece el formato, el primero que anuncie: la ortofoto de GRAFCAN solo da JPEG y su mapa
+         * solo PNG (A3 del plan). Sin lista de formatos se pide el preferido.
          */
-        private fun format(service: WmsService): String {
-            val wanted = service.presetKey?.let(WmsPresets::byKey)?.preferredFormat ?: DEFAULT_FORMAT
+        private fun format(service: WmsService, layerName: String): String {
+            val preset = service.presetKey?.let(WmsPresets::byKey)
+            val wanted = preset?.preferredFormat?.takeIf { layerName in preset.suggestedLayers } ?: DEFAULT_FORMAT
             val offered = service.mapFormats
             return offered.firstOrNull { it.equals(wanted, ignoreCase = true) } ?: offered.firstOrNull() ?: wanted
         }

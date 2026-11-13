@@ -61,5 +61,5 @@
       Hecho cuando: `MapMenuSheetTest` en verde con las opciones, el desactivado con su motivo y el cierre que quita la marca, y la marca de T18 vista en el emulador.
 
 ## Cierre
-- [ ] T26. Validación: recorrer la spec RF por RF, abrir con el Python de QGIS los GetCapabilities grabados y comparar capas y cuadros envolventes con `WmsCapabilitiesReader`, una consulta real de cada preset con capa consultable, `rf_report`, `pytest tools`, `forbidden_files`, la demo en el emulador según los criterios de finalización, y «Cambios al implementar» en `plan.md`, hoja de ruta a `implementada`. (Todos)
+- [x] T26. Validación: recorrer la spec RF por RF, abrir con el Python de QGIS los GetCapabilities grabados y comparar capas y cuadros envolventes con `WmsCapabilitiesReader`, una consulta real de cada preset con capa consultable, `rf_report`, `pytest tools`, `forbidden_files`, la demo en el emulador según los criterios de finalización, y «Cambios al implementar» en `plan.md`, hoja de ruta a `implementada`. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.

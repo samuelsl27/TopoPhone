@@ -2882,7 +2882,7 @@
     </plurals>
     <string name="wms_layers_title">Capas del servicio</string>
     <string name="wms_layer_name">Nombre: %1$s</string>
-    <string name="wms_layer_transparent">Transparente</string>
+    <string name="wms_layer_transparent">Admite transparencia</string>
     <string name="wms_layer_queryable">Consultable</string>
     <string name="wms_layer_group_only">Solo agrupa otras capas: no se puede añadir a un proyecto.</string>
     <string name="wms_layer_no_mercator">No ofrece EPSG:3857: no se puede añadir a un proyecto.</string>

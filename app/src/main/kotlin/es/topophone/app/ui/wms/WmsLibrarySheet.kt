@@ -30,7 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -144,6 +146,7 @@ fun WmsLibrarySheet(
     viewModel: WmsLibraryViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    DisposableEffect(viewModel) { onDispose(viewModel::reset) }
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         WmsLibraryContent(state, WmsLibraryActions.of(viewModel, onOpenUrl), pick)
     }
@@ -154,12 +157,21 @@ fun WmsLibrarySheet(
 fun WmsLibraryContent(state: WmsLibraryUiState, actions: WmsLibraryActions, pick: WmsLayerPicker? = null) {
     var renaming by remember { mutableStateOf(false) }
     val opened = state.opened
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().testTag(WMS_LIST_TAG),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (opened == null) libraryItems(state, actions, pick != null) else serviceItems(state, opened, actions, pick) { renaming = true }
+    // Al abrir un servicio, o volver a la lista, se empieza arriba: la lista y el detalle no comparten la posición del desplazamiento.
+    key(opened?.service?.id) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().testTag(WMS_LIST_TAG),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (opened ==
+                null
+            ) {
+                libraryItems(state, actions, pick != null)
+            } else {
+                serviceItems(state, opened, actions, pick) { renaming = true }
+            }
+        }
     }
     state.pendingDelete?.let { pending ->
         val uses = pending.uses.map { use -> pluralResource(R.plurals.wms_delete_use_item, use.layers, use.projectName) }.joinToString("\n")

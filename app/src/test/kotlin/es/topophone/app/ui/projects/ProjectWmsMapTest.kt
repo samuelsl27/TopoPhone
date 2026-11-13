@@ -3,10 +3,16 @@ package es.topophone.app.ui.projects
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.collector.COLLECT_BUTTON_TAG
+import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.map.FakeMapController
 import es.topophone.app.ui.map.WmsLayerPlan
 import es.topophone.app.ui.map.WmsLayerSource
@@ -57,6 +63,11 @@ class ProjectWmsMapTest {
     private val mapa = WmsPlanLayer("l2", 0.5f, WmsLayerSource.Tiles("https://b.es/wms?BBOX={bbox-epsg-3857}"), "© Mapa de ejemplo")
 
     private val layers = mutableStateOf(ProjectLayersUiState())
+
+    private companion object {
+        val MAX_BUTTON_HEIGHT = 80.dp
+        val MIN_BUTTON_WIDTH = 80.dp
+    }
 
     private fun show(settings: MapSettings = MapSettings(Basemap.IGN_VECTOR, cadastre = true), plan: WmsLayerPlan = WmsLayerPlan.EMPTY) {
         layers.value = ProjectLayersUiState(plan = plan)
@@ -119,6 +130,36 @@ class ProjectWmsMapTest {
         ).fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.Text]
             .joinToString("") { it.text }
         text shouldBe "© Dirección General del Catastro · © Ortofoto de ejemplo"
+    }
+
+    @Test
+    fun `S036 RF-30 una atribucion larga se parte en lineas y no aprieta el boton Recolectar`() {
+        val long = WmsPlanLayer(
+            "l9",
+            1f,
+            WmsLayerSource.Tiles("https://l.es/wms?BBOX={bbox-epsg-3857}"),
+            "© " + "Servicio de ejemplo ".repeat(12),
+        )
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ProjectViewScreen(
+                    ThemeState.DEFAULT,
+                    {},
+                    ProjectViewUiState(project, mapSettings = MapSettings(Basemap.IGN_VECTOR, cadastre = true)),
+                    onBack = {},
+                    map = fakeMap(map),
+                    collector = CollectorUiState(loaded = true),
+                    projectLayers = ProjectLayersUiState(plan = WmsLayerPlan(listOf(long, ortofoto, mapa))),
+                )
+            }
+        }
+        compose.waitForIdle()
+
+        compose.onNodeWithTag(ATTRIBUTION_TAG).assertIsDisplayed()
+        val button = compose.onNodeWithTag(COLLECT_BUTTON_TAG).assertIsDisplayed().getBoundsInRoot()
+        // Si la atribución se lo come todo, «Recolectar» se parte letra a letra y el botón se hace altísimo.
+        (button.height < MAX_BUTTON_HEIGHT) shouldBe true
+        (button.width >= MIN_BUTTON_WIDTH) shouldBe true
     }
 
     @Test

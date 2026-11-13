@@ -161,7 +161,7 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Capa del proyecto | `ProjectMapLayer` | Capa de un servicio WMS con su orden, visibilidad y opacidad en un proyecto (S036) |
 | Preset (WMS) | `WmsPreset` | Servicio público de la app ya preparado, con su atribución y su licencia (S036) |
 | Modo de petición | `WmsRequestMode` | «Por teselas» o «una imagen» de la zona visible, según las condiciones del servicio (S036) |
-| Menú del mapa | `MapContextMenu` | El que sale al mantener pulsado un punto del mapa: consultar la información de las capas y ver las coordenadas (S036) |
+| Menú del mapa | `MapMenu` | El que sale al mantener pulsado un punto del mapa: consultar la información de las capas y ver las coordenadas (S036) |
 | Mapa base | `Basemap` | |
 | Ortofoto | `Orthophoto` | PNOA del IGN (S009) |
 | Barra de escala | `ScaleBar` | |

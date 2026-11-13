@@ -154,6 +154,14 @@ class WmsLibraryViewModel @Inject constructor(private val library: WmsLibraryRep
         mutable.update { it.copy(opened = null, refresh = WmsRefreshState.Idle) }
     }
 
+    /** La hoja se cierra: lo que se estaba haciendo se cancela y al abrirla de nuevo sale la lista, sin el servicio ni los avisos de antes. */
+    fun reset() {
+        working?.cancel()
+        mutable.update {
+            it.copy(address = "", add = WmsAddState.Idle, opened = null, refresh = WmsRefreshState.Idle, pendingDelete = null)
+        }
+    }
+
     private suspend fun show(service: WmsService, notice: WmsOpenNotice?) {
         val layers = library.layers(service.id).map(::WmsLayerRow)
         mutable.update { it.copy(opened = OpenedWmsService(service, layers, notice), refresh = WmsRefreshState.Idle) }

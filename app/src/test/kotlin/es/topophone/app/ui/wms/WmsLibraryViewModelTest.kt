@@ -323,6 +323,23 @@ class WmsLibraryViewModelTest {
     }
 
     @Test
+    fun `S036 RF-15 al cerrar la hoja se vuelve a la lista sin el servicio, el aviso ni la direccion de antes`() {
+        val vm = viewModel()
+        vm.addAndWait("https://ejemplo.es/wms").opened.shouldNotBeNull()
+        vm.onAddressChange("https://otra.es/wms")
+
+        vm.reset()
+
+        val state = vm.state.value
+        state.opened shouldBe null
+        state.address shouldBe ""
+        state.add shouldBe WmsAddState.Idle
+        state.refresh shouldBe WmsRefreshState.Idle
+        state.pendingDelete shouldBe null
+        vm.await { it.services.size == 1 }
+    }
+
+    @Test
     fun `S036 RF-17 un servicio propio empieza por teselas y se puede pasar a una imagen`() {
         val vm = viewModel()
         vm.addAndWait("https://ejemplo.es/wms").opened.shouldNotBeNull().service.requestMode shouldBe WmsRequestMode.TILES

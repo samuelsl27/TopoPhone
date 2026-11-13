@@ -123,15 +123,28 @@ class WmsLayerPlanTest {
         val unknown = service("raro", "https://raro.es/wms", "1.3.0", listOf("image/gif", "image/webp"))
         val silent = service("mudo", "https://mudo.es/wms", "1.3.0", emptyList())
 
-        fun format(service: WmsService) = WmsLayerPlan.of(listOf(view("a", 0, service))).layers.single().source
+        fun format(service: WmsService, layer: String = "a") = WmsLayerPlan.of(listOf(view(layer, 0, service))).layers.single().source
             .shouldBeInstanceOf<WmsLayerSource.Tiles>().template.substringAfter("FORMAT=").substringBefore("&")
 
         WmsPresets.byKey("ign-pnoa-ma")?.preferredFormat shouldBe "image/jpeg"
-        format(pnoa) shouldBe "image/jpeg"
+        format(pnoa, "OI.OrthoimageCoverage") shouldBe "image/jpeg"
         format(own) shouldBe "image/png"
         format(onlyJpeg) shouldBe "image/jpeg"
         format(unknown) shouldBe "image/gif"
         format(silent) shouldBe "image/png"
+    }
+
+    @Test
+    fun `S036 RF-29 las capas de un preset que no son las suyas van en PNG para no taparlo todo con un fondo negro`() {
+        val pnoa =
+            service("pnoa", "https://www.ign.es/wms-inspire/pnoa-ma", "1.3.0", listOf("image/png", "image/jpeg"), presetKey = "ign-pnoa-ma")
+
+        fun format(layer: String) = WmsLayerPlan.of(listOf(view(layer, 0, pnoa))).layers.single().source
+            .shouldBeInstanceOf<WmsLayerSource.Tiles>().template.substringAfter("FORMAT=").substringBefore("&")
+
+        WmsPresets.byKey("ign-pnoa-ma")?.suggestedLayers shouldBe listOf("OI.OrthoimageCoverage")
+        format("OI.OrthoimageCoverage") shouldBe "image/jpeg"
+        format("OI.MosaicElement") shouldBe "image/png"
     }
 
     @Test

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -1224,7 +1223,8 @@ fun ProjectViewScreen(
                 ) {
                     val camera = controller?.camera?.collectAsStateWithLifecycle()?.value
                     if (project != null && camera != null) ScaleBarView(camera, project.linearUnit)
-                    Attribution(state.mapSettings, projectLayers.plan)
+                    // La atribución ocupa lo que dejan la escala y el botón y se parte en líneas si es larga, así que no aprieta a «Recolectar».
+                    Box(modifier = Modifier.weight(1f)) { Attribution(state.mapSettings, projectLayers.plan) }
                     if (project != null &&
                         collector != null &&
                         !collectorOpen &&
@@ -1234,7 +1234,6 @@ fun ProjectViewScreen(
                         slopeStake == null &&
                         axisAnalysis == null
                     ) {
-                        Spacer(Modifier.weight(1f))
                         ExtendedFloatingActionButton(
                             onClick = { collectorOpen = true },
                             modifier = Modifier.heightIn(min = MinTouchTarget).testTag(COLLECT_BUTTON_TAG),

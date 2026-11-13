@@ -231,7 +231,17 @@ class WmsLibrarySheetTest {
         compose.onNodeWithTag(WMS_NOTICE_TAG).assertTextContains("Servicio añadido a la biblioteca.")
         scrollTo(wmsLayerTag(1))
         compose.onNodeWithTag(wmsLayerTag(1)).assertTextContains("Color").assertTextContains("Imagen en color")
-            .assertTextContains("Transparente · Consultable").assertTextContains("Nombre: rgb")
+            .assertTextContains("Admite transparencia · Consultable").assertTextContains("Nombre: rgb")
+    }
+
+    @Test
+    fun `S036 RF-3 al abrir un servicio la lista empieza arriba aunque la de servicios estuviera desplazada`() {
+        show(library())
+        scrollTo(wmsPresetAddTag(WmsPresets.all.last().key))
+
+        show(opened())
+
+        compose.onNodeWithTag(WMS_BACK_TAG).assertIsDisplayed()
     }
 
     @Test
