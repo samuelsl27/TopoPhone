@@ -35,7 +35,7 @@
       Hecho cuando: `WmsPackageImportTest` en verde.
 
 ## Mapa
-- [ ] T15. `app`: `WmsLayerPlan` (qué fuentas y capas se dibujan, en qué orden, con la plantilla de teselas o la imagen, ocultas y no disponibles fuera, opacidad) y `MapAttribution` con las atribuciones de las capas visibles. (RF-17, RF-20 a RF-22, RF-29, RF-30, RF-33)
+- [x] T15. `app`: `WmsLayerPlan` (qué fuentas y capas se dibujan, en qué orden, con la plantilla de teselas o la imagen, ocultas y no disponibles fuera, opacidad) y `MapAttribution` con las atribuciones de las capas visibles. (RF-17, RF-20 a RF-22, RF-29, RF-30, RF-33)
       Hecho cuando: `WmsLayerPlanTest` y `MapAttributionWmsTest` en verde.
 - [ ] T16. `app`: `MapController.showWmsLayers` y `MapLibreMapController` con la capa ancla, las capas por teselas (`RasterSource` y `RasterLayer`) y su orden y opacidad; el doble del mapa para las pruebas. (RF-22, RF-29, RF-32, RF-33)
       Hecho cuando: `FakeMapController` y los tests de interfaz existentes en verde y las capas WMS pintadas en el emulador entre el mapa base y el Catastro.

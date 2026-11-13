@@ -33,4 +33,10 @@ object MapAttribution {
         }
         return if (settings.cadastre) basemap + AttributionSource.CADASTRE else basemap
     }
+
+    /**
+     * La atribución de cada servicio WMS con una capa a la vista, sin repetir y de la capa de arriba a la de abajo (S036/RF-30). Va
+     * aparte de [sources]: no cambia lo que atribuyen el mapa base y el Catastro (RF-33).
+     */
+    fun wms(plan: WmsLayerPlan): List<String> = plan.layers.asReversed().map { it.attribution }.distinct()
 }
