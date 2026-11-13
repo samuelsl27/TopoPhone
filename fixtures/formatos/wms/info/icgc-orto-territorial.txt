@@ -1,0 +1,9 @@
+GetFeatureInfo results:
+
+Layer 'ortofoto_color_vigent'
+  Feature 0: 
+    color = 'RGB'
+    gsd = '0.25'
+    data_inicial = '2025/06/18 00:00:00'
+    data_final = '2025/06/28 00:00:00'
+    origen = 'Píxel Font'

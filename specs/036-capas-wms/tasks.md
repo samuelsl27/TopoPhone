@@ -11,7 +11,7 @@
       Hecho cuando: `WmsCapabilitiesReaderTest` en verde con todos los ficheros de T2, y un GetCapabilities sintético de 5 MB se lee en menos de 2 s.
 - [x] T4. `core:formats`: `WmsRequests` (GetCapabilities que conserva los parámetros de la dirección, plantilla de teselas con `{bbox-epsg-3857}` en 1.1.1 y 1.3.0 con el código de la capa y el nombre codificado, GetMap de una imagen, GetFeatureInfo con `I`/`J` o `X`/`Y` y su versión), con `core:geodesy` y números en `Locale.ROOT`. (RF-1, RF-5, RF-17, RF-29, RF-36)
       Hecho cuando: `WmsRequestsTest` en verde, con los cuadros envolventes iguales a los de pyproj a 1 cm o menos.
-- [ ] T5. `core:formats`: `FeatureInfoText` (texto plano sin cabecera ni direcciones internas, GML y XML como pares nombre-valor sin geometrías, HTML sin etiquetas, `ServiceException` con HTTP 200, vacío, frases de «sin datos» y entidades sin atributos como «sin datos») con respuestas grabadas. (RF-36, RF-38)
+- [x] T5. `core:formats`: `FeatureInfoText` (texto plano sin cabecera ni direcciones internas, GML y XML como pares nombre-valor sin geometrías, HTML sin etiquetas, `ServiceException` con HTTP 200, vacío, frases de «sin datos» y entidades sin atributos como «sin datos») con respuestas grabadas. (RF-36, RF-38)
       Hecho cuando: `FeatureInfoTextTest` en verde.
 - [ ] T6. `core:formats`: el catálogo `presets.json` con los presets verificados del plan (IGN, Catastro, ICV con sus 36 ortofotos y 5 cartografías, ICGC, GRAFCAN, Andalucía, Navarra, País Vasco, Madrid y Galicia) y su lector `WmsPresets`. (RF-13, RF-16)
       Hecho cuando: `WmsPresetsTest` en verde (claves únicas, HTTPS, atribución y licencia en todos, el Catastro y GRAFCAN en «una imagen», los demás por teselas, el `infoVersion` del Catastro INSPIRE).

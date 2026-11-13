@@ -1,0 +1,13 @@
+GetFeatureInfo results:
+
+Layer 'distribucion_descargas'
+  Feature 1408: 
+    id = '1408'
+    hoja = '0641_4-1'
+    escala_pix = '0025'
+    location_rgb = '/datos_apl/dce/02_Imagen/02_Ortofoto/2024_CVAL_0025/01_Imagen/01_25830_01_8bits_01_RGB_02_TIFJPG/2024CVAL0025_25830_8bits_RGB_0641_4-1.tif'
+    location_irg = '/datos_apl/dce/02_Imagen/02_Ortofoto/2024_CVAL_0025/01_Imagen/01_25830_01_8bits_03_IRG_02_TIFJPG/2024CVAL0025_25830_8bits_IRG_0641_4-1.tif'
+    nom_ecwrgb = '020201_2024CVAL0025_25830_8bits_RGB_0641_4-1.ecw'
+    link_ecwrgb = 'https://descargas.icv.gva.es/dcd/02_imagen/02_ortofoto/2024_CVAL_0025/01_Imagen/01_25830_01_8bits_01_RGB_01_ECW/020201_2024CVAL0025_25830_8bits_RGB_0641_4-1.ecw'
+    nom_tiffrgbi = '020201_2024CVAL0025_25830_8bits_RGBI_0641_4-1.tif'
+    link_tiffrgbi = 'https://descargas.icv.gva.es/dcd/02_imagen/02_ortofoto/2024_CVAL_0025/01_Imagen/01_25830_01_8bits_02_RGBI_02_TIFJPG/020201_2024CVAL0025_25830_8bits_RGBI_0641_4-1.tif'

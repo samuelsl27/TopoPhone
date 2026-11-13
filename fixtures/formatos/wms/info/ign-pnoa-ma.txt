@@ -1,0 +1,6 @@
+GetFeatureInfo results:
+
+Layer 'OI.MosaicElement'
+  Feature 41: 
+    FECHA = '2024-07'
+    RESOLUCION = '0.25'

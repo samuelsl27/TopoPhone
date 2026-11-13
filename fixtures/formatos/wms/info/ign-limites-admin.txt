@@ -1,0 +1,25 @@
+Results for FeatureType 'https://www.ign.es/wms-inspire/unidades-administrativas:AU.AdministrativeUnit':
+--------------------------------------------
+inspireid = ES.IGN.BDDAE.34100000000
+country = ES
+nationallevel = https://inspire.ec.europa.eu/codelist/AdministrativeHierarchyLevel/2ndOrder
+nationalcode = 34100000000
+nameunit = Comunitat Valenciana
+the_geom = [GEOMETRY (MultiPolygon) with 28338 points]
+--------------------------------------------
+--------------------------------------------
+inspireid = ES.IGN.BDDAE.34101200000
+country = ES
+nationallevel = https://inspire.ec.europa.eu/codelist/AdministrativeHierarchyLevel/3rdOrder
+nationalcode = 34101200000
+nameunit = Castelló/Castellón
+the_geom = [GEOMETRY (MultiPolygon) with 9853 points]
+--------------------------------------------
+--------------------------------------------
+inspireid = ES.IGN.BDDAE.34101212040
+country = ES
+nationallevel = https://inspire.ec.europa.eu/codelist/AdministrativeHierarchyLevel/4thOrder
+nationalcode = 34101212040
+nameunit = Castelló de la Plana/Castellón de la Plana
+the_geom = [GEOMETRY (MultiPolygon) with 1187 points]
+--------------------------------------------

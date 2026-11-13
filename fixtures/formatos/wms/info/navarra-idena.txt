@@ -1,0 +1,146 @@
+Results for FeatureType 'https://idena.navarra.es/:CARBTA_REFERE_Pol_Navarra_MF_BTA':
+--------------------------------------------
+the_geom = [GEOMETRY (MultiPolygon) with 34468 points]
+FEATURE = 7200001
+GEOM_AREA = 1.039134840142E10
+GEOM_PERI = 793021.92
+BEGINLIFE = 01/08/2026
+--------------------------------------------
+Results for FeatureType 'https://idena.navarra.es/:ELEVAC_Ras_RelieveBN_ANI_MDS_MF_BTA':
+--------------------------------------------
+RED_BAND = 243.0
+GREEN_BAND = 243.0
+BLUE_BAND = 243.0
+ALPHA_BAND = 255.0
+--------------------------------------------
+Results for FeatureType 'https://idena.navarra.es/:CARBTA_REFERE_Pol_Navarra_MF_BTA2':
+--------------------------------------------
+the_geom = [GEOMETRY (MultiPolygon) with 34468 points]
+FEATURE = 7200001
+GEOM_AREA = 1.039134840142E10
+GEOM_PERI = 793021.92
+BEGINLIFE = 01/08/2026
+--------------------------------------------
+Results for FeatureType 'https://idena.navarra.es/:CARBTA_Pol_UniAdmin_BTA23_MF_BTA':
+--------------------------------------------
+the_geom = [GEOMETRY (Polygon) with 35165 points]
+FEATURE = 7.0000083E7
+TIPO = Provincia
+SUBTIPO = Provincia
+NOMBRE = NAVARRA
+CODIGOUADM = 
+GEOM_AREA = 1.036341E8
+GEOM_PERI = 757394.0
+BEGINLIFE = 15/11/2024
+--------------------------------------------
+Results for FeatureType 'https://idena.navarra.es/:CARBTA_Pol_UniAdmin':
+--------------------------------------------
+the_geom = [GEOMETRY (Polygon) with 2532 points]
+FEATURE = 7.0000083E7
+TIPO = Municipio
+SUBTIPO = Municipio
+NOMBRE = Pamplona / Iruña
+CODIGOUADM = 201
+GEOM_AREA = 2.509453E7
+GEOM_PERI = 36396.0
+BEGINLIFE = 15/11/2024
+--------------------------------------------
+Results for FeatureType 'https://idena.navarra.es/:CARBTA_Pol_CubiertaTer':
+--------------------------------------------
+the_geom = [GEOMETRY (Polygon) with 213 points]
+FEATURE = 7.0000027E7
+COMPONEN2D = CGN
+TIPO = Vegetación y arbolado urbanos
+DESCRIPCIO = Vegetación y arbolado urbanos
+DENSIDAD = ATN
+FORZADO = ATN
+PLANT_0122 = ATN
+RIEGO_0123 = ATN
+COBER_0139 = ATN
+ORIGENBTA = BTA 2024
+ULTIMAMOD = 
+TIPOMOD = 
+FUENTEINFO = BTA 2021 / MCA 2024
+VUELOREF = 2023
+GEOM_AREA = 585644.96
+GEOM_PERI = 5426.1
+BEGINLIFE = 15/11/2024
+--------------------------------------------
+--------------------------------------------
+the_geom = [GEOMETRY (Polygon) with 1877 points]
+FEATURE = 7.0000027E7
+COMPONEN2D = CGN
+TIPO = Núcleo urbano
+DESCRIPCIO = Núcleo urbano ENSANCHE
+DENSIDAD = ATN
+FORZADO = ATN
+PLANT_0122 = ATN
+RIEGO_0123 = ATN
+COBER_0139 = ATN
+ORIGENBTA = BTA 2024
+ULTIMAMOD = 
+TIPOMOD = 
+FUENTEINFO = BTA 2021 / MCA 2024
+VUELOREF = 2023
+GEOM_AREA = 4249976.3
+GEOM_PERI = 46667.0
+BEGINLIFE = 15/11/2024
+--------------------------------------------
+Results for FeatureType 'https://idena.navarra.es/:CARBTA_Lin_CubiertaTer':
+--------------------------------------------
+the_geom = [GEOMETRY (LineString) with 3 points]
+FEATURE = 7.000002E7
+COMPONEN1D = BCD
+TIPO = Vegetación y arbolado urbanos
+DESCRIPCIO = Vegetación y arbolado urbanos
+DENSIDAD = ATN
+FORZADO = ATN
+PLANT_0122 = ATN
+RIEGO_0123 = ATN
+COBER_0139 = ATN
+ORIGENBTA = BTA 2024
+ULTIMAMOD = 
+TIPOMOD = 
+FUENTEINFO = BTA 2021 / MCA 2024
+VUELOREF = 2023
+GEOM_LONG = 14.07
+BEGINLIFE = 15/11/2024
+--------------------------------------------
+--------------------------------------------
+the_geom = [GEOMETRY (LineString) with 30 points]
+FEATURE = 7.000002E7
+COMPONEN1D = BOR
+TIPO = Vegetación y arbolado urbanos
+DESCRIPCIO = Vegetación y arbolado urbanos
+DENSIDAD = ATN
+FORZADO = ATN
+PLANT_0122 = ATN
+RIEGO_0123 = ATN
+COBER_0139 = ATN
+ORIGENBTA = BTA 2024
+ULTIMAMOD = 
+TIPOMOD = 
+FUENTEINFO = BTA 2021 / MCA 2024
+VUELOREF = 2023
+GEOM_LONG = 404.27
+BEGINLIFE = 15/11/2024
+--------------------------------------------
+--------------------------------------------
+the_geom = [GEOMETRY (LineString) with 5 points]
+FEATURE = 7.000002E7
+COMPONEN1D = BOR
+TIPO = Vegetación y arbolado urbanos
+DESCRIPCIO = Vegetación y arbolado urbanos
+DENSIDAD = ATN
+FORZADO = ATN
+PLANT_0122 = ATN
+RIEGO_0123 = ATN
+COBER_0139 = ATN
+ORIGENBTA = BTA 2024
+ULTIMAMOD = 
+TIPOMOD = 
+FUENTEINFO = BTA 2021 / MCA 2024
+VUELOREF = 2023
+GEOM_LONG = 8.34
+BEGINLIFE = 15/11/2024
+--------------------------------------------
