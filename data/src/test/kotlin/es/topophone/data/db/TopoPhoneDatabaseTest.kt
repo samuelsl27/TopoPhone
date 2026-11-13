@@ -1487,6 +1487,36 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S036 RNF-T6 v31 a v32 los proyectos siguen y las tablas WMS nacen vacias`() {
+        createFromExportedSchema(31)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v31 ->
+            v31.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            count(db, "projects") shouldBe 1
+            count(db, "wms_services") shouldBe 0
+            count(db, "wms_layers") shouldBe 0
+            count(db, "project_wms_layers") shouldBe 0
+            db.openHelper.writableDatabase.execSQL(
+                "INSERT INTO wms_services VALUES ('s1', 'Servicio', 'https://x.es/wms', 'https://x.es/wms', 'T', '1.3.0', '', NULL, " +
+                    "'TILES', 'image/png', 'text/plain', 1, 1)",
+            )
+            count(db, "wms_services") shouldBe 1
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S027 RNF-T6 v30 a v31 los puntos y las lineas siguen y el replanteo de linea nace vacio`() {
         createFromExportedSchema(30)
         SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v30 ->
@@ -1599,7 +1629,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 31
+        const val CURRENT_VERSION = 32
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

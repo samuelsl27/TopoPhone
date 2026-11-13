@@ -21,7 +21,7 @@
       Hecho cuando: `WmsPresetFixturesTest` en verde con todos los presets grabados.
 
 ## Datos
-- [ ] T9. `data`: las entidades y DAO de `wms_services`, `wms_layers` y `project_wms_layers`, Room 31 → 32 con auto-migración, y el esquema exportado. (RF-4, RF-24)
+- [x] T9. `data`: las entidades y DAO de `wms_services`, `wms_layers` y `project_wms_layers`, Room 31 → 32 con auto-migración, y el esquema exportado. (RF-4, RF-24)
       Hecho cuando: `WmsMigrationTest` en verde (una base v31 con datos pasa a v32 sin perder nada) y `./gradlew check` con el esquema nuevo.
 - [ ] T10. `data`: `WmsLibraryRepository` (guardar un servicio con sus capas por lotes, listar, renombrar, borrar contando los proyectos afectados, actualizar devolviendo las capas desaparecidas, no duplicar una dirección). (RF-4, RF-6, RF-7, RF-15)
       Hecho cuando: `WmsLibraryRepoTest` en verde.

@@ -61,6 +61,10 @@ import es.topophone.data.surface.RasterTileEntity
 import es.topophone.data.surface.SurfaceDao
 import es.topophone.data.surface.SurfaceEntity
 import es.topophone.data.surface.SurfaceTileEntity
+import es.topophone.data.wms.ProjectWmsLayerEntity
+import es.topophone.data.wms.WmsDao
+import es.topophone.data.wms.WmsLayerEntity
+import es.topophone.data.wms.WmsServiceEntity
 
 /**
  * Base de datos de la app (ADR-8). El esquema crece spec a spec: cada versión nueva lleva su
@@ -110,6 +114,8 @@ import es.topophone.data.surface.SurfaceTileEntity
  *   proyecto). Columnas que admiten NULL o con valor por defecto y tablas nuevas: migración de Room.
  * - v30 (S025): las líneas del proyecto (`project_lines`, `line_vertices`, `line_attributes`) y su historial (`line_history`,
  *   `line_history_attributes` y `line_history_vertices`). Solo añade tablas: migración de Room.
+ * - v32 (S036): la biblioteca de servicios WMS (`wms_services`), las capas que leyó el GetCapabilities de cada uno (`wms_layers`) y las capas
+ *   de cada proyecto (`project_wms_layers`). Solo añade tablas: migración de Room.
  */
 @Database(
     entities = [
@@ -122,6 +128,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         CodeLibraryEntity::class, LibraryCodeEntity::class, CodeAttributeEntity::class, AttributeOptionEntity::class,
         PointAttributeEntity::class, PointHistoryAttributeEntity::class, ProjectLineEntity::class, LineVertexEntity::class,
         LineAttributeEntity::class, LineHistoryEntity::class, LineHistoryAttributeEntity::class, LineHistoryVertexEntity::class,
+        WmsServiceEntity::class, WmsLayerEntity::class, ProjectWmsLayerEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -156,6 +163,7 @@ import es.topophone.data.surface.SurfaceTileEntity
         AutoMigration(from = 28, to = 29),
         AutoMigration(from = 29, to = 30),
         AutoMigration(from = 30, to = 31),
+        AutoMigration(from = 31, to = 32),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -190,11 +198,13 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun lines(): LineDao
 
+    abstract fun wms(): WmsDao
+
     companion object {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 31
+        const val VERSION = 32
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =
