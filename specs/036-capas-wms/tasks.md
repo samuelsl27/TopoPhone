@@ -39,7 +39,7 @@
       Hecho cuando: `WmsLayerPlanTest` y `MapAttributionWmsTest` en verde.
 - [x] T16. `app`: `MapController.showWmsLayers` y `MapLibreMapController` con la capa ancla, las capas por teselas (`RasterSource` y `RasterLayer`) y su orden y opacidad; el doble del mapa para las pruebas. (RF-22, RF-29, RF-32, RF-33)
       Hecho cuando: `FakeMapController`, `WmsLayerChangeTest` y los tests de interfaz existentes en verde (el pintado en el emulador entre el mapa base y el Catastro se comprueba en T21, cuando las capas del proyecto llegan al mapa).
-- [ ] T17. `app`: `WmsOneImageLoader` (las capas en «una imagen» al detenerse el mapa, con cancelación y sin caché, con el patrón del Catastro). (RF-16, RF-17, RF-29, RF-31, RF-32)
+- [x] T17. `app`: `WmsOneImageLoader` (las capas en «una imagen» al detenerse el mapa, con cancelación y sin caché, con el patrón del Catastro). (RF-16, RF-17, RF-29, RF-31, RF-32)
       Hecho cuando: `WmsOneImageLoaderTest` en verde (cancelación, cuadro envolvente, no cuenta como fallo de conexión) y el Catastro de S009 sin cambios.
 - [ ] T18. `app`: la pulsación larga del mapa (`longPresses`), la marca del punto (`showPressMarker`) y su cierre. (RF-34, RF-35)
       Hecho cuando: `MapPressTest` en verde (punto, píxel, zona visible) y la marca vista en el emulador.

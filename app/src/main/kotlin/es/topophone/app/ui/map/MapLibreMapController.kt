@@ -79,6 +79,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     private var lineScene: LineScene? = null
     private var wmsPlan = WmsLayerPlan.EMPTY
     private var appliedWms = WmsLayerPlan.EMPTY
+    private val wmsImages =
+        WmsOneImageLoader<Bitmap>(client, HandlerWmsScheduler(handler), { BitmapFactory.decodeStream(it) }) { showWmsImage(it) }
     private var design: DesignScene? = null
     private var alignmentScene: AlignmentScene? = null
     private var stakeout: StakeoutMarker? = null
@@ -132,6 +134,7 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             publishCamera()
             updateGrid()
             scheduleCadastre(CADASTRE_DELAY_MS)
+            requestWmsImages(WmsOneImageLoader.IDLE_DELAY_MS)
         }
         publishCamera()
     }
@@ -305,7 +308,8 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
     /** Lleva el estilo al plan de las capas WMS rehaciendo solo lo que cambia (S036/RF-21, RF-22, RF-29, RF-33). */
     private fun drawWms() {
         val style = map.style?.takeIf { it.isFullyLoaded } ?: return
-        when (val change = WmsLayerChange.between(appliedWms, wmsPlan)) {
+        val change = WmsLayerChange.between(appliedWms, wmsPlan)
+        when (change) {
             WmsLayerChange.None -> Unit
             is WmsLayerChange.Opacity -> change.layers.forEach { layer ->
                 style.getLayer(wmsLayerId(layer.id))?.setProperties(PropertyFactory.rasterOpacity(layer.opacity))
@@ -320,14 +324,54 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
             }
         }
         appliedWms = wmsPlan
+        // Las capas en «una imagen» se piden de nuevo (o se anula lo que había si ya no queda ninguna) (S036/RF-17).
+        if (change == WmsLayerChange.Rebuild) requestWmsImages(0)
     }
 
     private fun addWmsLayer(style: Style, layer: WmsPlanLayer) {
-        val tiles = layer.source as? WmsLayerSource.Tiles ?: return // Las capas en «una imagen» llegan con su petición (S036/RF-17).
-        style.addSource(RasterSource(wmsSourceId(layer.id), TileSet(TILEJSON_VERSION, tiles.template), WmsRequests.TILE_PX))
-        val raster = RasterLayer(wmsLayerId(layer.id), wmsSourceId(layer.id)).withProperties(PropertyFactory.rasterOpacity(layer.opacity))
+        val sourceId = wmsSourceId(layer.id)
+        when (val source = layer.source) {
+            is WmsLayerSource.Tiles -> style.addSource(
+                RasterSource(sourceId, TileSet(TILEJSON_VERSION, source.template), WmsRequests.TILE_PX),
+            )
+            // Una imagen vacía hasta que llegue la de la zona visible: así la capa ya está en su sitio del orden (S036/RF-17, RF-22).
+            is WmsLayerSource.Image -> {
+                val area = map.projection.visibleRegion.latLngBounds
+                val quad = wmsQuad(area.latitudeSouth, area.longitudeWest, area.latitudeNorth, area.longitudeEast)
+                style.addSource(ImageSource(sourceId, quad, Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
+            }
+        }
+        val raster = RasterLayer(wmsLayerId(layer.id), sourceId).withProperties(PropertyFactory.rasterOpacity(layer.opacity))
         style.addLayerBelow(raster, WMS_ANCHOR_LAYER)
     }
+
+    /** Pide las imágenes de las capas WMS en «una imagen» para la zona visible, con la espera de [delayMs] (S036/RF-17, A4 del plan). */
+    private fun requestWmsImages(delayMs: Long) {
+        if (map.style?.isFullyLoaded != true || mapView.width <= 0 || mapView.height <= 0) return
+        val bounds = map.projection.visibleRegion.latLngBounds
+        val area = VisibleArea(
+            bounds.latitudeSouth,
+            bounds.longitudeWest,
+            bounds.latitudeNorth,
+            bounds.longitudeEast,
+            mapView.width,
+            mapView.height,
+        )
+        wmsImages.request(area, appliedWms.layers, delayMs)
+    }
+
+    /** Pone la imagen de una capa en la zona con que se pidió, que es la que cubren sus cuatro esquinas. */
+    private fun showWmsImage(loaded: WmsLoadedImage<Bitmap>) {
+        val style = map.style?.takeIf { it.isFullyLoaded } ?: return
+        val source = style.getSourceAs<ImageSource>(wmsSourceId(loaded.layerId)) ?: return
+        val area = loaded.area
+        source.setCoordinates(wmsQuad(area.south, area.west, area.north, area.east))
+        source.setImage(loaded.image)
+    }
+
+    /** El mapa no gira ni se inclina: la zona visible es un rectángulo norte-sur. */
+    private fun wmsQuad(south: Double, west: Double, north: Double, east: Double) =
+        LatLngQuad(LatLng(north, west), LatLng(north, east), LatLng(south, east), LatLng(south, west))
 
     private fun wmsSourceId(id: String) = "$WMS_SOURCE_PREFIX$id"
 
