@@ -503,6 +503,52 @@ class BackupRepository(
         copyLines(source, sink, args, newProjectId, pointIds, keepIds)
         copyBaseShifts(source, sink, args, newProjectId, shiftIds)
         copyCodeLibrary(source, sink, args, newProjectId, keepIds)
+        copyWmsLayers(source, sink, args, newProjectId, keepIds)
+    }
+
+    /**
+     * Las capas WMS del proyecto con los servicios que usan (S036/RF-25). Un servicio se identifica por su dirección: si el móvil ya lo
+     * tiene, las capas del proyecto se enlazan a él y no se toca ni su nombre ni lo que leyó; si no, se añade con sus capas leídas, con su
+     * id si está libre. Una capa que el servicio del móvil no ofrece queda como no disponible (RF-27). Las capas del proyecto reciben el
+     * id que tenían con [keepIds] y uno nuevo si no.
+     */
+    private fun copyWmsLayers(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        keepIds: Boolean,
+    ) {
+        val used = "SELECT service_id FROM project_wms_layers WHERE project_id = ?"
+        val services = source("SELECT id, address_key FROM wms_services WHERE id IN ($used)", args).use { cursor ->
+            buildList { while (cursor.moveToNext()) add(cursor.getString(0) to cursor.getString(1)) }
+        }
+        if (services.isEmpty()) return
+        val serviceIds = mutableMapOf<String, String>()
+        for ((old, addressKey) in services) {
+            val existing = sink.query("SELECT id FROM wms_services WHERE address_key = ?", arrayOf(addressKey))
+                .use { if (it.moveToFirst()) it.getString(0) else null }
+            if (existing != null) {
+                serviceIds[old] = existing
+                continue
+            }
+            val taken = sink.query("SELECT 1 FROM wms_services WHERE id = ?", arrayOf(old)).use { it.moveToFirst() }
+            val id = if (taken) newId() else old
+            serviceIds[old] = id
+            source("SELECT * FROM wms_services WHERE id = ?", arrayOf(old)).use { cursor ->
+                DatabaseSnapshot.copyRows(cursor, sink, "wms_services") { it.put("id", id) }
+            }
+            source("SELECT * FROM wms_layers WHERE service_id = ? ORDER BY ordinal", arrayOf(old)).use { cursor ->
+                DatabaseSnapshot.copyRows(cursor, sink, "wms_layers") { it.put("service_id", id) }
+            }
+        }
+        source("SELECT * FROM project_wms_layers WHERE project_id = ? ORDER BY position", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "project_wms_layers") { layer ->
+                layer.put("id", if (keepIds) layer.getAsString("id") else newId())
+                layer.put("project_id", newProjectId)
+                layer.put("service_id", serviceIds.getValue(layer.getAsString("service_id")))
+            }
+        }
     }
 
     /** De dónde sacar el fichero de una foto al copiarla y qué ficheros se han creado, para borrarlos si la importación falla. */

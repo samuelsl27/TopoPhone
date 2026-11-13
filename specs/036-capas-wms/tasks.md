@@ -31,7 +31,7 @@
       Hecho cuando: `WmsServiceAdderTest` en verde con las respuestas grabadas, y `data` con `okhttp` como dependencia (justificada en el plan).
 - [x] T13. `data`: `DatabaseSnapshot.TABLES` con las tres tablas (copia completa entera y paquete con filtros por proyecto) y la restauración completa que deja la biblioteca como la de la copia. (RF-25)
       Hecho cuando: `WmsBackupTest` en verde: copia completa, restauración, deshacer y copia de una versión anterior. Precondición: el usuario ha aprobado el diff de S013 (RF-2 y RF-24), que se aplica antes del código.
-- [ ] T14. `data`: la importación del paquete con la fusión por dirección (servicio que el móvil ya tiene, servicio nuevo, proyecto sustituido). (RF-25)
+- [x] T14. `data`: la importación del paquete con la fusión por dirección (servicio que el móvil ya tiene, servicio nuevo, proyecto sustituido). (RF-25)
       Hecho cuando: `WmsPackageImportTest` en verde.
 
 ## Mapa
