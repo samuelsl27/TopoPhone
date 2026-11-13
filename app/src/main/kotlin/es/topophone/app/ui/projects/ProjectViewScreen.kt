@@ -1,5 +1,6 @@
 package es.topophone.app.ui.projects
 
+import android.content.ClipData
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -44,6 +46,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -123,6 +127,10 @@ import es.topophone.app.ui.map.MapController
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
 import es.topophone.app.ui.map.MapLines
+import es.topophone.app.ui.map.MapMenuActions
+import es.topophone.app.ui.map.MapMenuSheet
+import es.topophone.app.ui.map.MapMenuUiState
+import es.topophone.app.ui.map.MapMenuViewModel
 import es.topophone.app.ui.map.MapPoints
 import es.topophone.app.ui.map.MapTap
 import es.topophone.app.ui.map.NetworkFailureMonitor
@@ -458,6 +466,7 @@ fun ProjectViewRoute(
     alignmentsViewModel: AlignmentsViewModel = hiltViewModel(),
     alignmentMapViewModel: AlignmentMapViewModel = hiltViewModel(),
     projectLayersViewModel: ProjectLayersViewModel = hiltViewModel(),
+    mapMenuViewModel: MapMenuViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
         viewModel.start(projectId)
@@ -579,6 +588,9 @@ fun ProjectViewRoute(
     val alignmentsState by alignmentsViewModel.state.collectAsStateWithLifecycle()
     val alignmentScene by alignmentMapViewModel.scene.collectAsStateWithLifecycle()
     val projectLayers by projectLayersViewModel.state.collectAsStateWithLifecycle() // S036/RF-18
+    val mapMenu by mapMenuViewModel.state.collectAsStateWithLifecycle() // S036/RF-34
+    val clipboard = LocalClipboard.current
+    val copyScope = rememberCoroutineScope()
     val alignmentTouch by alignmentMapViewModel.touched.collectAsStateWithLifecycle()
     val sectionLinesOn by alignmentMapViewModel.sectionLines.collectAsStateWithLifecycle()
     LaunchedEffect(state.mapSettings.basemap) { designViewModel.setBasemap(state.mapSettings.basemap) } // S040/RF-25
@@ -610,6 +622,15 @@ fun ProjectViewRoute(
         projectLayers = projectLayers,
         projectLayersActions = ProjectLayersActions.of(projectLayersViewModel),
         librarySheet = { pick, onDismiss -> WmsLibrarySheet(onDismiss, uriHandler::openUri, pick) }, // S036/RF-19
+        mapMenu = mapMenu,
+        mapMenuActions = MapMenuActions(
+            onLongPress = { press -> mapMenuViewModel.open(press, projectLayers.layers, state.project) }, // S036/RF-34
+            onQuery = mapMenuViewModel::queryLayers, // S036/RF-36
+            onCoordinates = mapMenuViewModel::showCoordinates, // S036/RF-40
+            onBack = mapMenuViewModel::backToMenu,
+            onClose = mapMenuViewModel::close, // S036/RF-35
+            onCopy = { text -> copyScope.launch { clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("", text))) } }, // S036/RF-40
+        ),
         alignmentTouch = alignmentTouch,
         onDismissAlignmentTouch = alignmentMapViewModel::dismissTouch,
         sectionLinesOn = sectionLinesOn,
@@ -1085,6 +1106,9 @@ fun ProjectViewScreen(
     projectLayersActions: ProjectLayersActions = ProjectLayersActions(),
     /** La biblioteca de servicios WMS en una hoja, con el modo «Añadir capa» si recibe un selector (S036/RF-1, RF-19). */
     librarySheet: @Composable (pick: WmsLayerPicker?, onDismiss: () -> Unit) -> Unit = { _, _ -> },
+    /** El menú que sale al mantener pulsado un punto del mapa: consultar las capas y ver coordenadas (S036/RF-34 a RF-41). */
+    mapMenu: MapMenuUiState = MapMenuUiState(),
+    mapMenuActions: MapMenuActions = MapMenuActions(),
     /** El eje tocado en el mapa, el cierre de su ficha y activarlo (S049/RF-18). */
     alignmentTouch: AlignmentTouch? = null,
     sectionLinesOn: Set<String> = emptySet(),
@@ -1547,6 +1571,12 @@ fun ProjectViewScreen(
         )
     }
     LaunchedEffect(controller) { controller?.mapTaps?.collect { onMapTap(it) } } // S040/RF-29
+    // S036/RF-34, RF-35: una pulsación larga abre el menú y marca el punto; al cerrarlo, la marca se quita.
+    val latestMenuActions by rememberUpdatedState(mapMenuActions)
+    LaunchedEffect(controller) { controller?.longPresses?.collect { latestMenuActions.onLongPress(it) } }
+    val pressMarker = mapMenu.press?.let { GeoPoint(it.latitudeDeg, it.longitudeDeg) }
+    LaunchedEffect(controller, pressMarker) { controller?.showPressMarker(pressMarker) }
+    if (mapMenu.isOpen) MapMenuSheet(mapMenu, project, mapMenuActions)
 }
 
 /** Cámara del mapa según [CameraPolicy], y su encuadre al ViewModel una vez colocado (S009/RF-19 a RF-21). */

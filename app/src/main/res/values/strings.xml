@@ -2919,4 +2919,23 @@
     <string name="wms_message_already">Esa capa ya está en el proyecto.</string>
     <string name="wms_message_no_mercator">El servicio no ofrece esa capa en EPSG:3857.</string>
     <string name="wms_message_not_found">No se ha encontrado esa capa en el servicio.</string>
+    <!-- S036: menú del mapa con pulsación larga -->
+    <string name="map_menu_title">Punto marcado</string>
+    <string name="map_menu_query">Consultar información de las capas</string>
+    <string name="map_menu_coordinates">Ver coordenadas</string>
+    <string name="map_menu_no_visible">No hay ninguna capa visible.</string>
+    <string name="map_menu_no_queryable">Ninguna capa visible se puede consultar.</string>
+    <string name="map_menu_back">Volver</string>
+    <string name="map_menu_info_title">Información de las capas</string>
+    <string name="map_menu_loading">Consultando…</string>
+    <string name="map_menu_no_data">Sin datos en este punto.</string>
+    <string name="map_menu_error_timeout">El servicio no ha respondido en 20 s.</string>
+    <string name="map_menu_error_no_response">El servicio no responde.</string>
+    <string name="map_menu_error_http">El servicio ha contestado con un error (HTTP %1$s).</string>
+    <string name="map_menu_error_service">El servicio ha devuelto una excepción.</string>
+    <string name="map_menu_error_service_detail">El servicio ha devuelto un error: %1$s</string>
+    <string name="map_menu_error_address">No se puede consultar este servicio.</string>
+    <string name="map_menu_coordinates_title">Coordenadas del punto</string>
+    <string name="map_menu_copy">Copiar</string>
+    <string name="map_menu_outside_scope">Este punto está fuera del ámbito del sistema de coordenadas del proyecto: solo se dan su latitud y su longitud.</string>
 </resources>

@@ -57,7 +57,7 @@
       Hecho cuando: `MapMenuViewModelTest` en verde con respuestas grabadas.
 - [x] T24. `app`: «Ver coordenadas» (Este y Norte en el SC del proyecto y en sus unidades, latitud y longitud, copiar, fuera de ámbito). (RF-40, RF-41)
       Hecho cuando: `MapCoordinatesTest` en verde, con Este y Norte iguales a los de pyproj a 1 mm o menos.
-- [ ] T25. `app`: el menú del mapa y las hojas de la consulta y de las coordenadas con sus textos en es y en, unidos a la pulsación larga de la vista de proyecto. (RF-34 a RF-41)
+- [x] T25. `app`: el menú del mapa y las hojas de la consulta y de las coordenadas con sus textos en es y en, unidos a la pulsación larga de la vista de proyecto. (RF-34 a RF-41)
       Hecho cuando: `MapMenuSheetTest` en verde con las opciones, el desactivado con su motivo y el cierre que quita la marca, y la marca de T18 vista en el emulador.
 
 ## Cierre

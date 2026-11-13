@@ -2907,4 +2907,23 @@
     <string name="wms_message_already">That layer is already in the project.</string>
     <string name="wms_message_no_mercator">The service does not offer that layer in EPSG:3857.</string>
     <string name="wms_message_not_found">That layer was not found in the service.</string>
+    <!-- S036: map menu on long press -->
+    <string name="map_menu_title">Marked point</string>
+    <string name="map_menu_query">Query layer information</string>
+    <string name="map_menu_coordinates">View coordinates</string>
+    <string name="map_menu_no_visible">There are no visible layers.</string>
+    <string name="map_menu_no_queryable">No visible layer can be queried.</string>
+    <string name="map_menu_back">Back</string>
+    <string name="map_menu_info_title">Layer information</string>
+    <string name="map_menu_loading">Querying…</string>
+    <string name="map_menu_no_data">No data at this point.</string>
+    <string name="map_menu_error_timeout">The service did not respond within 20 s.</string>
+    <string name="map_menu_error_no_response">The service does not respond.</string>
+    <string name="map_menu_error_http">The service answered with an error (HTTP %1$s).</string>
+    <string name="map_menu_error_service">The service returned an exception.</string>
+    <string name="map_menu_error_service_detail">The service returned an error: %1$s</string>
+    <string name="map_menu_error_address">This service cannot be queried.</string>
+    <string name="map_menu_coordinates_title">Point coordinates</string>
+    <string name="map_menu_copy">Copy</string>
+    <string name="map_menu_outside_scope">This point is outside the area of the project coordinate system: only its latitude and longitude are given.</string>
 </resources>
