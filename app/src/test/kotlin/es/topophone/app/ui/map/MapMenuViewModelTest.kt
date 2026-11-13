@@ -1,16 +1,23 @@
 package es.topophone.app.ui.map
 
+import dagger.Lazy
 import es.topophone.app.ui.wms.FakeReply
 import es.topophone.app.ui.wms.FakeWmsHttp
 import es.topophone.core.formats.wms.FeatureInfoResult
 import es.topophone.core.formats.wms.FeatureInfoText
 import es.topophone.core.formats.wms.WmsRequests
+import es.topophone.core.model.project.AngularUnit
+import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.model.project.Project
+import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.wms.ProjectMapLayer
 import es.topophone.core.model.wms.WmsAddress
 import es.topophone.core.model.wms.WmsAddressResult
 import es.topophone.core.model.wms.WmsLayerInfo
 import es.topophone.core.model.wms.WmsRequestMode
 import es.topophone.core.model.wms.WmsService
+import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.wms.ProjectLayerView
 import es.topophone.data.wms.WmsTimeoutException
 import io.kotest.matchers.shouldBe
@@ -36,6 +43,22 @@ class MapMenuViewModelTest {
 
     private val area = VisibleArea(south = 40.41, west = -3.71, north = 40.42, east = -3.70, widthPx = 1080, heightPx = 1800)
     private val press = MapPress.of(40.4168, -3.7038, 540f, 900f, area)
+
+    private val project = Project(
+        id = "p1",
+        name = "Obra",
+        author = "",
+        description = "",
+        crs = ProjectCrs.ETRS89_UTM30,
+        linearUnit = LinearUnit.METRE,
+        angularUnit = AngularUnit.DMS,
+        correctionsDatum = CorrectionsDatum.ETRS89,
+        folderId = null,
+        createdAtMs = 0L,
+        modifiedAtMs = 0L,
+        openedAtMs = null,
+        deletedAtMs = null,
+    )
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -67,7 +90,7 @@ class MapMenuViewModelTest {
         return ProjectLayerView(layer, service, info, showService = false)
     }
 
-    private fun viewModel(http: FakeWmsHttp) = MapMenuViewModel(http)
+    private fun viewModel(http: FakeWmsHttp) = MapMenuViewModel(http, Lazy { ProjectPositionCalculator() })
 
     private fun MapMenuViewModel.statusOf(layerId: String) = state.value.results.first { it.layerId == layerId }.status
 
@@ -326,5 +349,56 @@ class MapMenuViewModelTest {
         vm.state.value.press shouldBe other
         vm.state.value.screen shouldBe MapMenuScreen.MENU
         vm.state.value.results shouldBe emptyList()
+    }
+
+    @Test
+    fun `S036 RF-40 Ver coordenadas da las del punto marcado en el SC del proyecto`() {
+        val vm = viewModel(FakeWmsHttp { ByteArray(0) })
+        vm.open(press, listOf(view("a")), project)
+
+        vm.showCoordinates()
+
+        vm.state.value.screen shouldBe MapMenuScreen.COORDINATES
+        val coordinates = vm.state.value.coordinates.shouldBeInstanceOf<MapCoordinates>()
+        coordinates.latitudeDeg shouldBe 40.4168
+        coordinates.longitudeDeg shouldBe -3.7038
+        coordinates.outOfScope shouldBe null
+        coordinates.position.easting.shouldBeInstanceOf<Double>()
+    }
+
+    @Test
+    fun `S036 RF-41 Ver coordenadas fuera del ambito del SC solo lleva latitud y longitud`() {
+        val vm = viewModel(FakeWmsHttp { ByteArray(0) })
+        vm.open(MapPress.of(28.1, -15.4, 10f, 10f, area), emptyList(), project)
+
+        vm.showCoordinates()
+
+        vm.state.value.coordinates?.outOfScope shouldBe es.topophone.core.survey.PositionUnavailable.OUTSIDE_CRS_AREA
+    }
+
+    @Test
+    fun `S036 RF-40 Ver coordenadas no hace nada sin el SC del proyecto`() {
+        val vm = viewModel(FakeWmsHttp { ByteArray(0) })
+        vm.open(press, listOf(view("a")))
+
+        vm.showCoordinates()
+
+        vm.state.value.screen shouldBe MapMenuScreen.MENU
+        vm.state.value.coordinates shouldBe null
+    }
+
+    @Test
+    fun `S036 RF-35 volver al menu o cerrarlo quita las coordenadas`() {
+        val vm = viewModel(FakeWmsHttp { ByteArray(0) })
+        vm.open(press, listOf(view("a")), project)
+        vm.showCoordinates()
+
+        vm.backToMenu()
+        vm.state.value.screen shouldBe MapMenuScreen.MENU
+        vm.state.value.coordinates shouldBe null
+        vm.showCoordinates()
+        vm.close()
+
+        vm.state.value shouldBe MapMenuUiState()
     }
 }

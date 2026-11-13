@@ -2,14 +2,17 @@ package es.topophone.app.ui.map
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.core.formats.wms.FeatureInfoResult
 import es.topophone.core.formats.wms.FeatureInfoText
 import es.topophone.core.formats.wms.WmsPresets
 import es.topophone.core.formats.wms.WmsRequests
+import es.topophone.core.model.project.Project
 import es.topophone.core.model.wms.WmsAddress
 import es.topophone.core.model.wms.WmsAddressResult
 import es.topophone.core.model.wms.WmsLimits
+import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.wms.ProjectLayerView
 import es.topophone.data.wms.WmsHttp
 import es.topophone.data.wms.WmsHttpResponse
@@ -47,8 +50,8 @@ sealed interface LayerInfoStatus {
 /** La respuesta de una capa, con su título y el nombre de su servicio (RF-36). */
 data class LayerInfoResult(val layerId: String, val layerTitle: String, val serviceName: String, val status: LayerInfoStatus)
 
-/** Qué muestra el menú del mapa: las dos opciones o la información de las capas (S036/RF-34, RF-36). */
-enum class MapMenuScreen { MENU, INFO }
+/** Qué muestra el menú del mapa: las dos opciones, la información de las capas o las coordenadas del punto (S036/RF-34, RF-36, RF-40). */
+enum class MapMenuScreen { MENU, INFO, COORDINATES }
 
 /**
  * El menú del mapa que sale al mantener pulsado un punto (S036/RF-34 a RF-39): [press] es el punto marcado, o null con el menú cerrado;
@@ -60,6 +63,8 @@ data class MapMenuUiState(
     val visibleLayers: Int = 0,
     val queryable: List<ProjectLayerView> = emptyList(),
     val results: List<LayerInfoResult> = emptyList(),
+    /** Las coordenadas del punto marcado, con «Ver coordenadas» (RF-40, RF-41); null sin SC de proyecto o sin elegirla. */
+    val coordinates: MapCoordinates? = null,
 ) {
     val isOpen: Boolean get() = press != null
 
@@ -73,15 +78,19 @@ data class MapMenuUiState(
  * demás. Cerrar el menú cancela lo que esté en vuelo (RF-35).
  */
 @HiltViewModel
-class MapMenuViewModel @Inject constructor(private val http: WmsHttp) : ViewModel() {
+class MapMenuViewModel @Inject constructor(private val http: WmsHttp, private val calculator: Lazy<ProjectPositionCalculator>) :
+    ViewModel() {
     private val mutable = MutableStateFlow(MapMenuUiState())
     val state: StateFlow<MapMenuUiState> = mutable.asStateFlow()
 
     private var querying: Job? = null
 
-    /** Abre el menú en el punto [press], con las capas del proyecto de arriba abajo (RF-34, RF-37). */
-    fun open(press: MapPress, layers: List<ProjectLayerView>) {
+    private var project: Project? = null
+
+    /** Abre el menú en el punto [press], con las capas del proyecto de arriba abajo y su SC para las coordenadas (RF-34, RF-37, RF-40). */
+    fun open(press: MapPress, layers: List<ProjectLayerView>, project: Project? = null) {
         querying?.cancel()
+        this.project = project
         val visible = layers.filter { it.layer.visible }
         val queryable = visible.filter { it.info?.queryable == true && it.info?.mercatorCode != null }
         mutable.value = MapMenuUiState(press = press, visibleLayers = visible.size, queryable = queryable)
@@ -95,7 +104,16 @@ class MapMenuViewModel @Inject constructor(private val http: WmsHttp) : ViewMode
 
     fun backToMenu() {
         querying?.cancel()
-        mutable.update { it.copy(screen = MapMenuScreen.MENU, results = emptyList()) }
+        mutable.update { it.copy(screen = MapMenuScreen.MENU, results = emptyList(), coordinates = null) }
+    }
+
+    /** «Ver coordenadas»: las del punto marcado en el SC del proyecto y su latitud y longitud (RF-40, RF-41). */
+    fun showCoordinates() {
+        val press = mutable.value.press ?: return
+        val project = project ?: return
+        querying?.cancel()
+        val coordinates = MapCoordinates.of(press, project, calculator.get())
+        mutable.update { it.copy(screen = MapMenuScreen.COORDINATES, results = emptyList(), coordinates = coordinates) }
     }
 
     /** «Consultar información de las capas»: pregunta a cada capa consultable qué hay en el punto marcado (RF-36). */
