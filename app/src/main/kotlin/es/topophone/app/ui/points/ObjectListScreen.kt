@@ -117,6 +117,7 @@ const val SELECTION_EXPORT_GPKG_TAG = "selection_export_gpkg"
 const val SELECTION_EXPORT_DXF_TAG = "selection_export_dxf"
 const val SELECTION_EXPORT_SHP_TAG = "selection_export_shp"
 const val SELECTION_EXPORT_KML_TAG = "selection_export_kml"
+const val SELECTION_EXPORT_PHOTOS_TAG = "selection_export_photos"
 const val SELECTION_STAKEOUT_REPORT_TAG = "selection_stakeout_report"
 const val SELECTION_POLE_TAG = "selection_pole"
 const val SELECTION_CODE_TAG = "selection_code"
@@ -186,6 +187,9 @@ class ObjectListActions(
     /** Exportar a KML o KMZ todo el proyecto o los puntos seleccionados (S031/RF-20). */
     val onExportKml: () -> Unit = {},
     val onExportKmlSelected: () -> Unit = {},
+    /** Exportar las fotos de todo el proyecto o de los puntos seleccionados (S056/RF-1, RF-2). */
+    val onExportPhotos: () -> Unit = {},
+    val onExportPhotosSelected: () -> Unit = {},
     /** El informe de replanteo de todo el proyecto y de los puntos seleccionados (S019/RF-17, RF-18). */
     val onStakeoutReport: () -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, el asistente de importación de puntos (S028/RF-1). */
@@ -457,6 +461,11 @@ fun ObjectListRoute(
                 viewModel.exportSelected()
                 navigation.onExportKml(projectId, true) // S031/RF-20
             },
+            onExportPhotos = { navigation.onExportPhotos(projectId, false) }, // S056/RF-1
+            onExportPhotosSelected = {
+                viewModel.exportSelected()
+                navigation.onExportPhotos(projectId, true) // S056/RF-2
+            },
             onToggleSelection = viewModel::toggleSelection,
             onClearSelection = viewModel::clearSelection,
             onSetHidden = viewModel::setHidden,
@@ -512,6 +521,7 @@ fun ObjectListScreen(
                 actions.onExportDxf,
                 actions.onExportShp,
                 actions.onExportKml,
+                actions.onExportPhotos,
                 actions.onStakeoutReport,
                 actions.onImportPoints,
                 actions.onImportDxf,
@@ -606,6 +616,7 @@ private fun ObjectsMenu(
     onExportDxf: () -> Unit,
     onExportShp: () -> Unit,
     onExportKml: () -> Unit,
+    onExportPhotos: () -> Unit,
     onStakeoutReport: () -> Unit,
     onImportPoints: () -> Unit,
     onImportDxf: () -> Unit,
@@ -664,6 +675,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S031/RF-20
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.photo_export_title)) },
+            onClick = {
+                open = false
+                onExportPhotos()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S056/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.import_title)) },
             onClick = {
@@ -968,6 +987,7 @@ private fun SelectionBar(count: Int, single: String?, usedByLines: List<String>,
                     Triple(R.string.dxf_export_selected, SELECTION_EXPORT_DXF_TAG, actions.onExportDxfSelected), // S029/RF-2
                     Triple(R.string.shp_export_selected, SELECTION_EXPORT_SHP_TAG, actions.onExportShpSelected), // S055/RF-2
                     Triple(R.string.kml_export_selected, SELECTION_EXPORT_KML_TAG, actions.onExportKmlSelected), // S031/RF-20
+                    Triple(R.string.photo_export_selected, SELECTION_EXPORT_PHOTOS_TAG, actions.onExportPhotosSelected), // S056/RF-2
                     Triple(R.string.objects_stakeout_report, SELECTION_STAKEOUT_REPORT_TAG, actions.onStakeoutReportSelected), // S019/RF-18
                     Triple(R.string.objects_delete, SELECTION_DELETE_TAG) { confirmDelete = true },
                     Triple(R.string.objects_cancel_selection, SELECTION_CANCEL_TAG, actions.onClearSelection),

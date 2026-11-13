@@ -18,7 +18,7 @@
       Hecho cuando: `PhotoExportViewModelTest` en verde.
 - [x] T8. `app`: `PhotoExportScreen` (recuento, aviso, guardar, compartir, mensajes y resumen) con los textos en es y en. (RF-3, RF-8, RF-10 a RF-13)
       Hecho cuando: `PhotoExportScreenTest` en verde.
-- [ ] T9. `app`: «Exportar fotos» en el menú del proyecto y en el de su lista de objetos, «Fotos» en la barra de una selección, y la navegación. (RF-1, RF-2)
+- [x] T9. `app`: «Exportar fotos» en el menú del proyecto y en el de su lista de objetos, «Fotos» en la barra de una selección, y la navegación. (RF-1, RF-2)
       Hecho cuando: `PhotoExportEntriesTest` en verde con los tres puntos de entrada (ajustar los tests de menús que ya no caben, como en S055).
 - [ ] T10. Validación: recorrer la spec RF por RF, descomprimir el ZIP con herramientas externas y comparar byte a byte, abrir `fotos.csv` en QGIS, `rf_report`, `pytest tools`, `forbidden_files`, la demo en el emulador según los criterios de finalización, y «Cambios al implementar» en `plan.md`, hoja de ruta a `implementada`. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report` no muestra RF huérfanos y la demo funciona. La demo de campo queda para el usuario.

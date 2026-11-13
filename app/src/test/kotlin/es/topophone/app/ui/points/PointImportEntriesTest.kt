@@ -11,6 +11,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.projects.ProjectListActions
@@ -80,7 +81,7 @@ class PointImportEntriesTest {
         }
 
         compose.onNodeWithTag(projectMenuTag("p1")).performClick()
-        compose.onNodeWithText("Importar CSV/TXT").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Importar CSV/TXT").performScrollTo().assertIsDisplayed().performClick()
 
         imported shouldBe "p1"
     }
@@ -101,7 +102,7 @@ class PointImportEntriesTest {
         }
 
         compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-        compose.onNodeWithText("Importar CSV/TXT").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Importar CSV/TXT").performScrollTo().assertIsDisplayed().performClick()
 
         imported shouldBe 1
     }

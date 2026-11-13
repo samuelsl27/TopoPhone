@@ -31,6 +31,9 @@ import es.topophone.app.ui.export.GpkgExportUiState
 import es.topophone.app.ui.export.KmlExportActions
 import es.topophone.app.ui.export.KmlExportScreen
 import es.topophone.app.ui.export.KmlExportUiState
+import es.topophone.app.ui.export.PhotoExportActions
+import es.topophone.app.ui.export.PhotoExportScreen
+import es.topophone.app.ui.export.PhotoExportUiState
 import es.topophone.app.ui.export.ShpExportActions
 import es.topophone.app.ui.export.ShpExportScreen
 import es.topophone.app.ui.export.ShpExportUiState
@@ -133,6 +136,9 @@ sealed interface SurveyPage {
     /** Exportar KML o KMZ (S031/RF-20). */
     data class ExportKml(val projectId: String, val selection: Boolean) : SurveyPage
 
+    /** Exportar las fotos de los puntos a un ZIP (S056/RF-1, RF-2). */
+    data class ExportPhotos(val projectId: String, val selection: Boolean) : SurveyPage
+
     /** Informe de replanteo (S019/RF-17, RF-18). */
     data class StakeoutReport(val projectId: String, val selection: Boolean) : SurveyPage
 
@@ -234,6 +240,8 @@ class SurveyNavigation(
     val onExportShp: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     /** Exportar a KML o KMZ todos los puntos de un proyecto o los seleccionados (S031/RF-20). */
     val onExportKml: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
+    /** Exportar a un ZIP las fotos de todos los puntos de un proyecto o de los seleccionados (S056/RF-1, RF-2). */
+    val onExportPhotos: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     /** El informe de replanteo de un proyecto o de los puntos seleccionados (S019/RF-17, RF-18). */
     val onStakeoutReport: (projectId: String, selection: Boolean) -> Unit = { _, _ -> },
     /** El asistente de importación de puntos, con el fichero que eligió el usuario (S028/RF-1). */
@@ -294,6 +302,7 @@ data class SurveyUiState(
     val dxfExport: DxfExportUiState = DxfExportUiState(loaded = true),
     val shpExport: ShpExportUiState = ShpExportUiState(loaded = true),
     val kmlExport: KmlExportUiState = KmlExportUiState(loaded = true),
+    val photoExport: PhotoExportUiState = PhotoExportUiState(loaded = true),
     val stakeoutReport: StakeoutReportUiState = StakeoutReportUiState(loaded = true),
     val import: PointImportUiState = PointImportUiState(),
     val cadImport: CadImportUiState = CadImportUiState(),
@@ -367,6 +376,7 @@ fun SurveyPageScreen(
         is SurveyPage.ExportDxf -> DxfExportScreen(themeState, onToggleSun, state.dxfExport, DxfExportActions(), navigation.onBack)
         is SurveyPage.ExportShp -> ShpExportScreen(themeState, onToggleSun, state.shpExport, ShpExportActions(), navigation.onBack)
         is SurveyPage.ExportKml -> KmlExportScreen(themeState, onToggleSun, state.kmlExport, KmlExportActions(), navigation.onBack)
+        is SurveyPage.ExportPhotos -> PhotoExportScreen(themeState, onToggleSun, state.photoExport, PhotoExportActions(), navigation.onBack)
         is SurveyPage.ImportPoints -> PointImportScreen(themeState, onToggleSun, state.import, PointImportActions(), navigation.onBack)
         is SurveyPage.ImportDxf -> CadImportScreen(themeState, onToggleSun, state.cadImport, CadImportActions(), navigation.onBack)
         is SurveyPage.ImportSurface ->

@@ -133,6 +133,7 @@ fun ProjectFolderRoute(
                 onExportDxf = { id -> navigation.onExportDxf(id, false) }, // S029/RF-1
                 onExportShp = { id -> navigation.onExportShp(id, false) }, // S055/RF-1
                 onExportKml = { id -> navigation.onExportKml(id, false) }, // S031/RF-20
+                onExportPhotos = { id -> navigation.onExportPhotos(id, false) }, // S056/RF-1
                 onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
                 onImportPoints = importPoints,
                 onImportDxf = importDxf,

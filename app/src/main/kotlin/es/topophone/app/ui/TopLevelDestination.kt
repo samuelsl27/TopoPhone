@@ -125,6 +125,9 @@ import kotlinx.serialization.Serializable
 /** Exportar KML o KMZ: todos los puntos del proyecto o, con [selection], los elegidos en la lista (S031/RF-20). */
 @Serializable data class ExportKmlDestination(val projectId: String, val selection: Boolean = false)
 
+/** Exportar las fotos: de todos los puntos del proyecto o, con [selection], de los elegidos en la lista (S056/RF-1, RF-2). */
+@Serializable data class ExportPhotosDestination(val projectId: String, val selection: Boolean = false)
+
 /** Informe de replanteo: de todo el proyecto o, con [selection], de los puntos elegidos en la lista (S019/RF-17, RF-18). */
 @Serializable data class StakeoutReportDestination(val projectId: String, val selection: Boolean = false)
 

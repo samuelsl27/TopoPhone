@@ -2798,6 +2798,7 @@
     </plurals>
     <string name="dxf_share_chooser">Share DXF</string>
     <string name="dxf_export_selected">DXF</string>
+    <string name="photo_export_selected">Photos</string>
     <string name="photo_export_title">Export photos</string>
     <plurals name="photo_export_photos">
         <item quantity="one">%1$d photo will be exported</item>
