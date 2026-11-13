@@ -16,7 +16,7 @@
       Hecho cuando: `PhotoExporterTest` en verde, incluido el fallo sin dejar fichero.
 - [x] T7. `app`: `PhotoExportViewModel` (puntos o selección, recuento y tamaño, sin fotos, aviso de 1 GB, nombre del ZIP, escribir entero o nada, resumen y log sin nombres ni rutas). (RF-1 a RF-3, RF-8, RF-10 a RF-13)
       Hecho cuando: `PhotoExportViewModelTest` en verde.
-- [ ] T8. `app`: `PhotoExportScreen` (recuento, aviso, guardar, compartir, mensajes y resumen) con los textos en es y en. (RF-3, RF-8, RF-10 a RF-13)
+- [x] T8. `app`: `PhotoExportScreen` (recuento, aviso, guardar, compartir, mensajes y resumen) con los textos en es y en. (RF-3, RF-8, RF-10 a RF-13)
       Hecho cuando: `PhotoExportScreenTest` en verde.
 - [ ] T9. `app`: «Exportar fotos» en el menú del proyecto y en el de su lista de objetos, «Fotos» en la barra de una selección, y la navegación. (RF-1, RF-2)
       Hecho cuando: `PhotoExportEntriesTest` en verde con los tres puntos de entrada (ajustar los tests de menús que ya no caben, como en S055).

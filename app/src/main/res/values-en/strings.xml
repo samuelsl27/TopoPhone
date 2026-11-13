@@ -2798,4 +2798,30 @@
     </plurals>
     <string name="dxf_share_chooser">Share DXF</string>
     <string name="dxf_export_selected">DXF</string>
+    <string name="photo_export_title">Export photos</string>
+    <plurals name="photo_export_photos">
+        <item quantity="one">%1$d photo will be exported</item>
+        <item quantity="other">%1$d photos will be exported</item>
+    </plurals>
+    <plurals name="photo_export_of_points">
+        <item quantity="one">from %1$d point</item>
+        <item quantity="other">from %1$d points</item>
+    </plurals>
+    <string name="photo_export_count">%1$s %2$s (%3$s)</string>
+    <string name="photo_export_none">There are no photos to export.</string>
+    <string name="photo_export_hint">Photos go in exactly as stored, with their metadata, and the fotos.csv index says which point each one belongs to.</string>
+    <string name="photo_share_chooser">Share photos</string>
+    <string name="photo_export_large_message">The ZIP will take about %1$s. Do you want to write it?</string>
+    <string name="photo_export_large_continue">Continue</string>
+    <string name="photo_export_no_space">There is not enough free space to write the ZIP: about %1$s needed.</string>
+    <plurals name="photo_export_done_photos">
+        <item quantity="one">%1$d photo exported</item>
+        <item quantity="other">%1$d photos exported</item>
+    </plurals>
+    <string name="photo_export_done">%1$s %2$s.</string>
+    <string name="photo_export_zip_size">The ZIP is %1$s.</string>
+    <plurals name="photo_export_omitted">
+        <item quantity="one">%1$d photo was not included because it cannot be read.</item>
+        <item quantity="other">%1$d photos were not included because they cannot be read.</item>
+    </plurals>
 </resources>

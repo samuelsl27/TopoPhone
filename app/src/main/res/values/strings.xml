@@ -2810,4 +2810,30 @@
     </plurals>
     <string name="dxf_share_chooser">Compartir DXF</string>
     <string name="dxf_export_selected">DXF</string>
+    <string name="photo_export_title">Exportar fotos</string>
+    <plurals name="photo_export_photos">
+        <item quantity="one">Se exportará %1$d foto</item>
+        <item quantity="other">Se exportarán %1$d fotos</item>
+    </plurals>
+    <plurals name="photo_export_of_points">
+        <item quantity="one">de %1$d punto</item>
+        <item quantity="other">de %1$d puntos</item>
+    </plurals>
+    <string name="photo_export_count">%1$s %2$s (%3$s)</string>
+    <string name="photo_export_none">No hay fotos que exportar.</string>
+    <string name="photo_export_hint">Las fotos van tal como están guardadas, con sus metadatos, y el índice fotos.csv dice de qué punto es cada una.</string>
+    <string name="photo_share_chooser">Compartir fotos</string>
+    <string name="photo_export_large_message">El ZIP ocupará unos %1$s. ¿Quieres escribirlo?</string>
+    <string name="photo_export_large_continue">Continuar</string>
+    <string name="photo_export_no_space">No hay espacio libre para escribir el ZIP: hacen falta unos %1$s.</string>
+    <plurals name="photo_export_done_photos">
+        <item quantity="one">Se ha exportado %1$d foto</item>
+        <item quantity="other">Se han exportado %1$d fotos</item>
+    </plurals>
+    <string name="photo_export_done">%1$s %2$s.</string>
+    <string name="photo_export_zip_size">El ZIP pesa %1$s.</string>
+    <plurals name="photo_export_omitted">
+        <item quantity="one">%1$d foto no se ha incluido porque no se puede leer.</item>
+        <item quantity="other">%1$d fotos no se han incluido porque no se pueden leer.</item>
+    </plurals>
 </resources>

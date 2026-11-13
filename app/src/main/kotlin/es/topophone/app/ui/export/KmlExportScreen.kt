@@ -78,7 +78,7 @@ const val KML_SUMMARY_DATUM_TAG = "kml_summary_datum"
 private const val KML_MIME = "application/vnd.google-earth.kml+xml"
 private const val KMZ_MIME = "application/vnd.google-earth.kmz"
 
-private const val GIGABYTE = 1_000_000_000L
+internal const val GIGABYTE = 1_000_000_000L
 
 /** Acciones de la pantalla de exportar a KML o KMZ; guardar y compartir reciben el nombre propuesto (S031/RF-20, RF-26, RF-28, RF-31). */
 class KmlExportActions(
@@ -348,5 +348,5 @@ private fun linesText(lines: Int, polygons: Int): String = listOfNotNull(
 ).joinToString(" · ")
 
 /** El tamaño de un fichero: «850 kB», «1,2 MB» o, desde 1 GB, «1,1 GB». */
-private fun sizeText(bytes: Long, locale: Locale): String =
+internal fun sizeText(bytes: Long, locale: Locale): String =
     if (bytes >= GIGABYTE) String.format(locale, "%.1f GB", bytes / GIGABYTE.toDouble()) else fileSizeText(bytes, locale)
