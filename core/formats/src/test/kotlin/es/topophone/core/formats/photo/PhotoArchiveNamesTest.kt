@@ -73,6 +73,16 @@ class PhotoArchiveNamesTest {
     }
 
     @Test
+    fun `S031 RF-28 el Namer da los nombres de un punto tras otro sin repetir los ya dados`() {
+        val namer = PhotoArchiveNames.Namer()
+
+        namer.next("A", 2) shouldBe listOf("A_1.jpg", "A_2.jpg")
+        namer.next("B", 0) shouldBe emptyList()
+        namer.next("a", 1) shouldBe listOf("a_2_1.jpg")
+        namer.next("B", 1) shouldBe listOf("B_1.jpg")
+    }
+
+    @Test
     fun `S056 RF-5 el resultado respeta el orden de los puntos y no repite ningun nombre entre mil puntos`() {
         val points = (0 until 1_000).map { "Punto ${it % 50}" to (it % 4) }
 

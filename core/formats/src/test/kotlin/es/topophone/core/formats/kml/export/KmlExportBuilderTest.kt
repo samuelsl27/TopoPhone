@@ -177,6 +177,16 @@ class KmlExportBuilderTest {
         marks(export).map { it.photos } shouldBe listOf(listOf("P-1_1.jpg", "P-1_2.jpg"), emptyList())
     }
 
+    @Test
+    fun `S031 RF-28 los nombres de las fotos solo se piden para las marcas que se escriben`() {
+        val points = listOf(point("1"), point("2", latitude = Double.NaN, longitude = Double.NaN))
+        val asked = ArrayList<String>()
+
+        builder.build(points, project(), photoNames = { asked.add(it.id).let { emptyList() } })
+
+        asked shouldBe listOf("1")
+    }
+
     // ---------- lineas y poligonos ----------
 
     private val corners = listOf(
@@ -289,6 +299,20 @@ class KmlExportBuilderTest {
         val export = builder.build(emptyList(), project(), lines = listOf(line("l1", listOf("a", "b"))), allPoints = corners)
 
         export.isEmpty shouldBe true
+    }
+
+    @Test
+    fun `S031 RF-22 se cuentan las lineas y los poligonos que se escribirian sin construir el documento`() {
+        val lines = listOf(
+            line("l1", listOf("a", "b")),
+            line("l2", listOf("a")), // una línea con un solo vértice no se escribe
+            line("p1", listOf("a", "b", "c"), closed = true),
+            line("p2", listOf("a", "b"), closed = true), // un polígono con dos tampoco
+        )
+
+        builder.countLines(corners, lines) shouldBe (1 to 1)
+        builder.countLines(emptyList(), lines, corners) shouldBe (0 to 0)
+        builder.countLines(corners.take(2), lines, corners) shouldBe (1 to 1)
     }
 
     @Test

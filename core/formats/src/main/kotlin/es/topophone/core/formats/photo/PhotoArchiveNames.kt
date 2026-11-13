@@ -33,20 +33,30 @@ object PhotoArchiveNames {
 
     /** Los nombres de las fotos de cada punto de [points], en el mismo orden, sin repetir ninguno. */
     fun of(points: List<PhotoNameRef>): List<List<String>> {
-        val taken = HashSet<String>()
-        return points.map { ref ->
-            val base = sanitize(ref.pointName)
+        val namer = Namer()
+        return points.map { namer.next(it.pointName, it.photoCount) }
+    }
+
+    /**
+     * Da los nombres de las fotos de un punto tras otro, sin repetir ninguno de los ya dados: sirve cuando no se sabe de antemano qué puntos
+     * llevan fotos, como en un KMZ, donde solo las llevan los puntos que se escriben (S031/RF-28).
+     */
+    class Namer {
+        private val taken = HashSet<String>()
+
+        /** Los [photoCount] nombres de las fotos del punto [pointName]; un punto sin fotos no da nombres ni gasta el suyo. */
+        fun next(pointName: String, photoCount: Int): List<String> {
+            val base = sanitize(pointName)
             var candidate = base
             var n = 1
             while (true) {
-                val names = (1..ref.photoCount).map { "${candidate}_$it.$EXTENSION" }
+                val names = (1..photoCount).map { "${candidate}_$it.$EXTENSION" }
                 if (names.none { it.lowercase(Locale.ROOT) in taken }) {
                     names.forEach { taken += it.lowercase(Locale.ROOT) }
-                    break
+                    return names
                 }
                 candidate = "${base}_${++n}"
             }
-            (1..ref.photoCount).map { "${candidate}_$it.$EXTENSION" }
         }
     }
 

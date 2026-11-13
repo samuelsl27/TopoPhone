@@ -106,6 +106,16 @@ class KmlExportBuilder {
         return KmlExport(document, summary)
     }
 
+    /**
+     * Cuántas líneas y cuántos polígonos se escribirían con [points] y [lines], para mostrarlos antes de exportar (S031/RF-20, RF-22): sin
+     * construir el documento. Sin puntos no se escribe nada.
+     */
+    fun countLines(points: List<Point>, lines: List<ProjectLine>, allPoints: List<Point> = points): Pair<Int, Int> {
+        if (points.isEmpty()) return 0 to 0
+        val features = LineFeatures.of(lines, allPoints, KmlExportOptions())
+        return features.count { !it.line.closed } to features.count { it.line.closed }
+    }
+
     /** La posición de [c] en longitud y latitud del datum de los cálculos y su altura del proyecto; `null` si no tiene posición (RF-25). */
     private fun vertexOf(c: PointCoordinates): KmlVertex? {
         val lon = c.ground.longitudeDeg

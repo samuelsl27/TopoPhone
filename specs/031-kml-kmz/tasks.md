@@ -47,7 +47,7 @@
       Hecho cuando: los tests de la consulta y de los nombres en verde.
 - [x] T21. `core:formats`: `KmzWriter` (`doc.kml` primero, fotos de `files/` byte a byte, foto omitida, `<img>` en la descripción) y el rendimiento de 100 fotos de 1 MB. (RF-28 a RF-30, RNF)
       Hecho cuando: `KmzWriterTest` en verde y el test de rendimiento en menos de 10 s.
-- [ ] T22. `app`: `KmlExportViewModel` (puntos o selección con sus líneas, formato, altura, fotos, aviso de 1 GB y espacio, nombre del fichero, escribir entero o nada, resumen y log sin datos). (RF-20, RF-26 a RF-32)
+- [x] T22. `app`: `KmlExportViewModel` (puntos o selección con sus líneas, formato, altura, fotos, aviso de 1 GB y espacio, nombre del fichero, escribir entero o nada, resumen y log sin datos). (RF-20, RF-26 a RF-32)
       Hecho cuando: `KmlExportViewModelTest` en verde, incluidos sin puntos y fallo de escritura sin dejar fichero.
 - [ ] T23. `app`: `KmlExportScreen` (formato, «Incluir altura», «Incluir fotos» solo con KMZ, aviso, guardar, compartir, mensajes y resumen) con los textos en es y en, y «Exportar KML/KMZ» en el menú del proyecto y en el de su lista de objetos y «KML» en la barra de una selección, con su navegación. (RF-20, RF-26 a RF-32)
       Hecho cuando: `KmlExportScreenTest` y `KmlExportEntriesTest` en verde con los tres puntos de entrada.
