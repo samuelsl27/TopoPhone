@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.okhttp) // S036: GetCapabilities y consulta de informacion de los servicios WMS (ADR-13)
     ksp(libs.room.compiler)
     testImplementation(libs.room.testing)
 }
