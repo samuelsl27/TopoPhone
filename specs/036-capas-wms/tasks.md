@@ -51,7 +51,7 @@
       Hecho cuando: `WmsLibrarySheetTest` en verde.
 - [x] T21. `app`: las capas del proyecto en el estado y el `ProjectViewModel` y su unión con el mapa. (RF-18 a RF-24, RF-27)
       Hecho cuando: `ProjectLayersViewModelTest` en verde, las capas siguen al abrir el proyecto y las capas WMS de T16 se ven en el emulador entre el mapa base y el Catastro.
-- [ ] T22. `app`: la sección de capas del proyecto en la hoja «Capas» (visibilidad, opacidad de 5 en 5 con su valor, subir y bajar y arrastrar, quitar, «no disponible», el servicio junto a los nombres repetidos, «Añadir capa» y «Añadir servicio», el tope de 10). (RF-18 a RF-23, RF-26 a RF-28)
+- [x] T22. `app`: la sección de capas del proyecto en la hoja «Capas» (visibilidad, opacidad de 5 en 5 con su valor, subir y bajar y arrastrar, quitar, «no disponible», el servicio junto a los nombres repetidos, «Añadir capa» y «Añadir servicio», el tope de 10). (RF-18 a RF-23, RF-26 a RF-28)
       Hecho cuando: `ProjectLayersSectionTest` en verde con zonas de 56 dp.
 - [ ] T23. `app`: `MapMenuViewModel` (la consulta de A6 en paralelo con tope de 5, versión y formato, «sin datos», «no responde», desactivada sin capas consultables). (RF-36 a RF-39)
       Hecho cuando: `MapMenuViewModelTest` en verde con respuestas grabadas.

@@ -68,19 +68,21 @@ class WmsLibraryViewModelTest {
     private val projectLayers = RoomProjectLayersRepository(db)
     private val http = FakeWmsHttp { fixture("caps-1.3.0-basico.xml") }
     private val dispatcher = UnconfinedTestDispatcher()
+    private val viewModels = TestViewModels()
 
     @Before
     fun setUp() = Dispatchers.setMain(dispatcher)
 
     @After
     fun tearDown() {
+        viewModels.clear()
         Dispatchers.resetMain()
         db.close()
     }
 
     private fun fixture(name: String) = File("../fixtures/formatos/wms/$name").readBytes()
 
-    private fun viewModel() = WmsLibraryViewModel(library, WmsServiceAdder(http, library))
+    private fun viewModel() = viewModels.keep(WmsLibraryViewModel(library, WmsServiceAdder(http, library)))
 
     private fun WmsLibraryViewModel.await(condition: (WmsLibraryUiState) -> Boolean): WmsLibraryUiState =
         runBlocking { withTimeout(AWAIT_MS) { state.first(condition) } }

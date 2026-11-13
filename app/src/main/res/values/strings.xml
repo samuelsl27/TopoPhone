@@ -2900,4 +2900,23 @@
     <string name="wms_error_malformed">La descripción del servicio está dañada y no se puede leer.</string>
     <string name="wms_error_too_large">La descripción del servicio es demasiado grande (más de 20 MB).</string>
     <string name="wms_error_no_web_mercator">El servicio no ofrece ninguna capa en EPSG:3857, así que no es compatible con el mapa.</string>
+    <!-- S036: capas WMS del proyecto en «Capas» -->
+    <string name="map_wms_title">Capas WMS del proyecto</string>
+    <string name="map_wms_empty">Este proyecto no tiene capas WMS.</string>
+    <string name="map_wms_add_layer">Añadir capa</string>
+    <string name="map_wms_add_service">Añadir servicio</string>
+    <string name="map_wms_full">Un proyecto admite hasta 10 capas.</string>
+    <string name="map_wms_unavailable">No disponible: el servicio ya no ofrece esta capa.</string>
+    <string name="map_wms_opacity">Opacidad: %1$d %%</string>
+    <string name="map_wms_move_up">Subir</string>
+    <string name="map_wms_move_down">Bajar</string>
+    <string name="map_wms_remove">Quitar</string>
+    <string name="map_wms_drag">Arrastrar para reordenar</string>
+    <string name="map_wms_layer_service">Servicio: %1$s</string>
+    <string name="wms_pick_title">Añadir capa al proyecto</string>
+    <string name="wms_pick_add">Añadir al proyecto</string>
+    <string name="wms_pick_in_project">En el proyecto</string>
+    <string name="wms_message_already">Esa capa ya está en el proyecto.</string>
+    <string name="wms_message_no_mercator">El servicio no ofrece esa capa en EPSG:3857.</string>
+    <string name="wms_message_not_found">No se ha encontrado esa capa en el servicio.</string>
 </resources>

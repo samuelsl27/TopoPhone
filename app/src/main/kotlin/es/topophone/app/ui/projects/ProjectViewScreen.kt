@@ -21,6 +21,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +45,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -158,8 +160,12 @@ import es.topophone.app.ui.surface.SurfacesActions
 import es.topophone.app.ui.surface.SurfacesSheet
 import es.topophone.app.ui.surface.SurfacesUiState
 import es.topophone.app.ui.surface.SurfacesViewModel
+import es.topophone.app.ui.wms.ProjectLayersActions
+import es.topophone.app.ui.wms.ProjectLayersSection
 import es.topophone.app.ui.wms.ProjectLayersUiState
 import es.topophone.app.ui.wms.ProjectLayersViewModel
+import es.topophone.app.ui.wms.WmsLayerPicker
+import es.topophone.app.ui.wms.WmsLibrarySheet
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.designsystem.theme.LocalStatusPalette
 import es.topophone.core.geodesy.GeoPoint
@@ -582,6 +588,7 @@ fun ProjectViewRoute(
     val collectorSurface by collectorViewModel.surfaceReading.collectAsStateWithLifecycle() // S042/RF-33
     val photoLaunchers = rememberCollectorPhotoLaunchers(collectorViewModel.photos) // S017b/RF-1
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     val environment =
         remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
     ProjectViewScreen(
@@ -601,6 +608,8 @@ fun ProjectViewRoute(
         },
         alignmentScene = alignmentScene,
         projectLayers = projectLayers,
+        projectLayersActions = ProjectLayersActions.of(projectLayersViewModel),
+        librarySheet = { pick, onDismiss -> WmsLibrarySheet(onDismiss, uriHandler::openUri, pick) }, // S036/RF-19
         alignmentTouch = alignmentTouch,
         onDismissAlignmentTouch = alignmentMapViewModel::dismissTouch,
         sectionLinesOn = sectionLinesOn,
@@ -1073,6 +1082,9 @@ fun ProjectViewScreen(
     alignmentScene: AlignmentScene? = null,
     /** Las capas WMS del proyecto y lo que el mapa dibuja de ellas (S036/RF-18 a RF-24, RF-29, RF-30). */
     projectLayers: ProjectLayersUiState = ProjectLayersUiState(),
+    projectLayersActions: ProjectLayersActions = ProjectLayersActions(),
+    /** La biblioteca de servicios WMS en una hoja, con el modo «Añadir capa» si recibe un selector (S036/RF-1, RF-19). */
+    librarySheet: @Composable (pick: WmsLayerPicker?, onDismiss: () -> Unit) -> Unit = { _, _ -> },
     /** El eje tocado en el mapa, el cierre de su ficha y activarlo (S049/RF-18). */
     alignmentTouch: AlignmentTouch? = null,
     sectionLinesOn: Set<String> = emptySet(),
@@ -1093,6 +1105,7 @@ fun ProjectViewScreen(
     val project = state.project
     var controller by remember { mutableStateOf<MapController?>(null) }
     var layersOpen by rememberSaveable { mutableStateOf(false) }
+    var libraryMode by rememberSaveable { mutableStateOf(LibraryMode.NONE) }
     var drawingsOpen by rememberSaveable { mutableStateOf(false) }
     var surfacesOpen by rememberSaveable { mutableStateOf(false) }
     var convertOpen by rememberSaveable { mutableStateOf(false) }
@@ -1379,7 +1392,30 @@ fun ProjectViewScreen(
             },
         )
     }
-    if (layersOpen) LayersSheet(state.mapSettings, onMapSettings) { layersOpen = false }
+    if (layersOpen) {
+        LayersSheet(
+            state.mapSettings,
+            onMapSettings,
+            projectLayers,
+            projectLayersActions,
+            onAddLayer = { libraryMode = LibraryMode.ADD_LAYER },
+            onAddService = { libraryMode = LibraryMode.ADD_SERVICE },
+        ) { layersOpen = false }
+    }
+    when (libraryMode) {
+        LibraryMode.NONE -> Unit
+        LibraryMode.ADD_SERVICE -> librarySheet(null) { libraryMode = LibraryMode.NONE }
+        LibraryMode.ADD_LAYER -> {
+            val picker = WmsLayerPicker(
+                inProject = projectLayers.layers.map { it.layer.serviceId to it.layer.layerName }.toSet(),
+                full = projectLayers.full,
+                message = projectLayers.message,
+                onAdd = projectLayersActions.onAddLayer,
+                onDismissMessage = projectLayersActions.onDismissMessage,
+            )
+            librarySheet(picker) { libraryMode = LibraryMode.NONE }
+        }
+    }
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
     if (surfacesOpen) SurfacesSheet(surfaces, surfacesActions) { surfacesOpen = false }
     if (alignmentsOpen) {
@@ -1551,7 +1587,15 @@ private fun MapController.execute(command: CameraCommand) = when (command) {
 /** Hoja "Capas": mapa base y Catastro (S009/RF-6, RF-7). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LayersSheet(settings: MapSettings, onChange: (MapSettings) -> Unit, onDismiss: () -> Unit) {
+private fun LayersSheet(
+    settings: MapSettings,
+    onChange: (MapSettings) -> Unit,
+    projectLayers: ProjectLayersUiState,
+    layersActions: ProjectLayersActions,
+    onAddLayer: () -> Unit,
+    onAddService: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     // Es corta: se abre entera.
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(
@@ -1572,9 +1616,14 @@ private fun LayersSheet(settings: MapSettings, onChange: (MapSettings) -> Unit, 
                 Text(stringResource(R.string.map_cadastre), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                 Switch(checked = settings.cadastre, onCheckedChange = null)
             }
+            HorizontalDivider()
+            ProjectLayersSection(projectLayers, layersActions, onAddLayer, onAddService) // S036/RF-18
         }
     }
 }
+
+/** Qué muestra la biblioteca de servicios WMS que se abre desde «Capas»: nada, la biblioteca o «Añadir capa» (S036/RF-18, RF-19). */
+private enum class LibraryMode { NONE, ADD_SERVICE, ADD_LAYER }
 
 /**
  * Barra de escala: la mayor longitud redonda en la unidad del proyecto que cabe en 100 dp, dibujada con su
@@ -1618,7 +1667,7 @@ private fun Attribution(settings: MapSettings, wms: WmsLayerPlan) {
                 },
             )
         } + services
-        ).joinToString(" · ")
+        ).distinct().joinToString(" · ")
     Text(
         text,
         style = MaterialTheme.typography.labelSmall,

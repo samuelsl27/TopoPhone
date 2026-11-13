@@ -43,6 +43,7 @@ class WmsLibrarySheetTest {
 
     private val currentState = mutableStateOf(WmsLibraryUiState())
     private val currentActions = mutableStateOf(WmsLibraryActions())
+    private val currentPick = mutableStateOf<WmsLayerPicker?>(null)
     private var composed = false
 
     private val service = WmsService(
@@ -89,12 +90,15 @@ class WmsLibrarySheetTest {
     )
 
     /** Pone [state] y [actions] en la hoja; una segunda llamada en el mismo test los cambia sin volver a componer. */
-    private fun show(state: WmsLibraryUiState, actions: WmsLibraryActions = WmsLibraryActions()) {
+    private fun show(state: WmsLibraryUiState, actions: WmsLibraryActions = WmsLibraryActions(), pick: WmsLayerPicker? = null) {
         currentState.value = state
         currentActions.value = actions
+        currentPick.value = pick
         if (!composed) {
             composed = true
-            compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { WmsLibraryContent(currentState.value, currentActions.value) } }
+            compose.setContent {
+                TopoPhoneTheme(EffectiveTheme.LIGHT) { WmsLibraryContent(currentState.value, currentActions.value, currentPick.value) }
+            }
         }
         compose.waitForIdle()
     }
@@ -333,6 +337,83 @@ class WmsLibrarySheetTest {
         show(opened(mode = WmsRequestMode.IMAGE))
 
         compose.onNodeWithTag(WMS_MODE_IMAGE_TAG).assertIsSelected()
+    }
+
+    private fun picker(
+        inProject: Set<Pair<String, String>> = emptySet(),
+        full: Boolean = false,
+        message: ProjectLayersMessage? = null,
+        added: MutableList<String> = mutableListOf(),
+        dismissed: MutableList<String> = mutableListOf(),
+    ) = WmsLayerPicker(inProject, full, message, { serviceId, layer -> added += "$serviceId:$layer" }, { dismissed += "dismiss" })
+
+    @Test
+    fun `S036 RF-19 en Anadir capa la hoja dice que se anade al proyecto`() {
+        show(library(), pick = picker())
+
+        compose.onNodeWithText("Añadir capa al proyecto").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S036 RF-19 una capa que se puede anadir lleva su boton y lo elegido llega al proyecto`() {
+        val added = mutableListOf<String>()
+        show(opened(), pick = picker(added = added))
+
+        scrollTo(wmsPickAddTag(1))
+        compose.onNodeWithTag(
+            wmsPickAddTag(1),
+        ).assertTextContains("Añadir al proyecto").assertHeightIsAtLeast(56.dp).assertIsEnabled().performClick()
+
+        added shouldBe listOf("s1:rgb")
+    }
+
+    @Test
+    fun `S036 RF-12 una capa que no se puede anadir no lleva boton aunque se este eligiendo`() {
+        show(opened(), pick = picker())
+
+        compose.onNodeWithTag(wmsPickAddTag(0)).assertDoesNotExist()
+        scrollTo(wmsLayerTag(2))
+        compose.onNodeWithTag(wmsPickAddTag(2)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S036 RF-19 una capa que el proyecto ya tiene dice que esta y no se vuelve a anadir`() {
+        show(opened(), pick = picker(inProject = setOf("s1" to "rgb")))
+
+        scrollTo(wmsPickInProjectTag(1))
+        compose.onNodeWithTag(wmsPickInProjectTag(1)).assertTextContains("En el proyecto")
+        compose.onNodeWithTag(wmsPickAddTag(1)).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S036 RF-26 con el proyecto lleno el boton de anadir esta desactivado`() {
+        show(opened(), pick = picker(full = true))
+
+        scrollTo(wmsPickAddTag(1))
+        compose.onNodeWithTag(wmsPickAddTag(1)).assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S036 RF-26 el motivo por el que no se anadio la ultima capa se ve y se cierra`() {
+        val dismissed = mutableListOf<String>()
+        show(opened(), pick = picker(message = ProjectLayersMessage.ALREADY_THERE, dismissed = dismissed))
+
+        compose.onNodeWithTag(WMS_PICK_MESSAGE_TAG).assertTextContains("Esa capa ya está en el proyecto.")
+        compose.onNodeWithText("Entendido").performClick()
+        dismissed shouldBe listOf("dismiss")
+
+        show(opened(), pick = picker(message = ProjectLayersMessage.LIMIT_REACHED))
+        compose.onNodeWithTag(WMS_PICK_MESSAGE_TAG).assertTextContains("Un proyecto admite hasta 10 capas.")
+        show(opened(), pick = picker(message = ProjectLayersMessage.NO_WEB_MERCATOR))
+        compose.onNodeWithTag(WMS_PICK_MESSAGE_TAG).assertTextContains("El servicio no ofrece esa capa en EPSG:3857.")
+    }
+
+    @Test
+    fun `S036 RF-19 fuera de Anadir capa ninguna capa lleva boton de anadir`() {
+        show(opened())
+
+        compose.onNodeWithTag(wmsPickAddTag(1)).assertDoesNotExist()
+        compose.onNodeWithTag(WMS_PICK_MESSAGE_TAG).assertDoesNotExist()
     }
 
     @Test

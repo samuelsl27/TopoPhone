@@ -109,6 +109,19 @@ class ProjectWmsMapTest {
     }
 
     @Test
+    fun `S036 RF-30 una atribucion que ya pone el mapa no se repite aunque la traiga una capa WMS`() {
+        val catastro =
+            WmsPlanLayer("l3", 1f, WmsLayerSource.Tiles("https://c.es/wms?BBOX={bbox-epsg-3857}"), "© Dirección General del Catastro")
+        show(MapSettings(Basemap.NONE, cadastre = true), WmsLayerPlan(listOf(catastro, ortofoto)))
+
+        val text = compose.onNodeWithTag(
+            ATTRIBUTION_TAG,
+        ).fetchSemanticsNode().config[androidx.compose.ui.semantics.SemanticsProperties.Text]
+            .joinToString("") { it.text }
+        text shouldBe "© Dirección General del Catastro · © Ortofoto de ejemplo"
+    }
+
+    @Test
     fun `S036 RF-30 sin mapa base ni Catastro la atribucion es solo la de las capas`() {
         show(MapSettings(Basemap.NONE), WmsLayerPlan(listOf(ortofoto)))
 

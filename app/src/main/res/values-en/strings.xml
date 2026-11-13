@@ -2888,4 +2888,23 @@
     <string name="wms_error_malformed">The service description is damaged and cannot be read.</string>
     <string name="wms_error_too_large">The service description is too large (over 20 MB).</string>
     <string name="wms_error_no_web_mercator">The service offers no layer in EPSG:3857, so it is not compatible with the map.</string>
+    <!-- S036: project WMS layers in «Layers» -->
+    <string name="map_wms_title">Project WMS layers</string>
+    <string name="map_wms_empty">This project has no WMS layers.</string>
+    <string name="map_wms_add_layer">Add layer</string>
+    <string name="map_wms_add_service">Add service</string>
+    <string name="map_wms_full">A project allows up to 10 layers.</string>
+    <string name="map_wms_unavailable">Unavailable: the service no longer offers this layer.</string>
+    <string name="map_wms_opacity">Opacity: %1$d %%</string>
+    <string name="map_wms_move_up">Move up</string>
+    <string name="map_wms_move_down">Move down</string>
+    <string name="map_wms_remove">Remove</string>
+    <string name="map_wms_drag">Drag to reorder</string>
+    <string name="map_wms_layer_service">Service: %1$s</string>
+    <string name="wms_pick_title">Add layer to the project</string>
+    <string name="wms_pick_add">Add to the project</string>
+    <string name="wms_pick_in_project">In the project</string>
+    <string name="wms_message_already">That layer is already in the project.</string>
+    <string name="wms_message_no_mercator">The service does not offer that layer in EPSG:3857.</string>
+    <string name="wms_message_not_found">That layer was not found in the service.</string>
 </resources>

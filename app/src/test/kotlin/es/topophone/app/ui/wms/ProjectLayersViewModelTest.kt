@@ -47,11 +47,14 @@ class ProjectLayersViewModelTest {
         RoomProjectRepository(db).create(ProjectDefaults().toDraft().copy(name = "Obra")).shouldBeInstanceOf<SaveResult.Saved>().id
     }
 
+    private val viewModels = TestViewModels()
+
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
 
     @After
     fun tearDown() {
+        viewModels.clear()
         Dispatchers.resetMain()
         db.close()
     }
@@ -65,7 +68,9 @@ class ProjectLayersViewModelTest {
 
     private fun mercator(vararg names: String) = names.map { it to "EPSG:3857" }.toTypedArray()
 
-    private fun viewModel(start: Boolean = true) = ProjectLayersViewModel(repository).also { if (start) it.start(projectId) }
+    private fun viewModel(start: Boolean = true) = viewModels.keep(ProjectLayersViewModel(repository)).also {
+        if (start) it.start(projectId)
+    }
 
     private fun ProjectLayersViewModel.await(condition: (ProjectLayersUiState) -> Boolean): ProjectLayersUiState =
         runBlocking { withTimeout(AWAIT_MS) { state.first(condition) } }

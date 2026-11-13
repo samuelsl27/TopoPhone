@@ -71,6 +71,11 @@ const val WMS_RENAME_TAG = "wms_rename"
 const val WMS_RENAME_FIELD_TAG = "wms_rename_field"
 const val WMS_RENAME_SAVE_TAG = "wms_rename_save"
 const val WMS_DELETE_TAG = "wms_delete"
+const val WMS_PICK_MESSAGE_TAG = "wms_pick_message"
+
+fun wmsPickAddTag(ordinal: Int) = "wms_pick_add_$ordinal"
+
+fun wmsPickInProjectTag(ordinal: Int) = "wms_pick_in_project_$ordinal"
 
 fun wmsServiceTag(id: String) = "wms_service_$id"
 
@@ -117,19 +122,36 @@ class WmsLibraryActions(
     }
 }
 
+/**
+ * La biblioteca abierta desde «Añadir capa» (S036/RF-19): las capas que se pueden añadir llevan «Añadir al proyecto». [inProject] son las
+ * capas que el proyecto ya tiene, como pares servicio-capa; con [full] ya no caben más (RF-26) y [message] dice por qué no se añadió la última.
+ */
+class WmsLayerPicker(
+    val inProject: Set<Pair<String, String>>,
+    val full: Boolean,
+    val message: ProjectLayersMessage?,
+    val onAdd: (serviceId: String, layerName: String) -> Unit,
+    val onDismissMessage: () -> Unit,
+)
+
 /** La biblioteca de servicios WMS en una hoja: añadir por dirección o por preset, ver capas, actualizar, renombrar y borrar (S036/RF-1 a RF-17). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WmsLibrarySheet(onDismiss: () -> Unit, onOpenUrl: (String) -> Unit, viewModel: WmsLibraryViewModel = hiltViewModel()) {
+fun WmsLibrarySheet(
+    onDismiss: () -> Unit,
+    onOpenUrl: (String) -> Unit,
+    pick: WmsLayerPicker? = null,
+    viewModel: WmsLibraryViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-        WmsLibraryContent(state, WmsLibraryActions.of(viewModel, onOpenUrl))
+        WmsLibraryContent(state, WmsLibraryActions.of(viewModel, onOpenUrl), pick)
     }
 }
 
 /** El contenido de la hoja, sin la hoja: toda una lista perezosa, porque un servicio puede tener más de mil capas (S036/RF-11). */
 @Composable
-fun WmsLibraryContent(state: WmsLibraryUiState, actions: WmsLibraryActions) {
+fun WmsLibraryContent(state: WmsLibraryUiState, actions: WmsLibraryActions, pick: WmsLayerPicker? = null) {
     var renaming by remember { mutableStateOf(false) }
     val opened = state.opened
     LazyColumn(
@@ -137,7 +159,7 @@ fun WmsLibraryContent(state: WmsLibraryUiState, actions: WmsLibraryActions) {
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (opened == null) libraryItems(state, actions) else serviceItems(state, opened, actions) { renaming = true }
+        if (opened == null) libraryItems(state, actions, pick != null) else serviceItems(state, opened, actions, pick) { renaming = true }
     }
     state.pendingDelete?.let { pending ->
         val uses = pending.uses.map { use -> pluralResource(R.plurals.wms_delete_use_item, use.layers, use.projectName) }.joinToString("\n")
@@ -153,8 +175,13 @@ fun WmsLibraryContent(state: WmsLibraryUiState, actions: WmsLibraryActions) {
 @Composable
 private fun pluralResource(id: Int, count: Int, name: String) = pluralStringResource(id, count, name, count)
 
-private fun LazyListScope.libraryItems(state: WmsLibraryUiState, actions: WmsLibraryActions) {
-    item(key = "title") { Text(stringResource(R.string.wms_library_title), style = MaterialTheme.typography.titleLarge) }
+private fun LazyListScope.libraryItems(state: WmsLibraryUiState, actions: WmsLibraryActions, picking: Boolean) {
+    item(key = "title") {
+        Text(
+            stringResource(if (picking) R.string.wms_pick_title else R.string.wms_library_title),
+            style = MaterialTheme.typography.titleLarge,
+        )
+    }
     item(key = "add") { AddForm(state, actions) }
     item(key = "services_title") { SectionTitle(stringResource(R.string.wms_services_title)) }
     if (state.services.isEmpty()) {
@@ -292,6 +319,7 @@ private fun LazyListScope.serviceItems(
     state: WmsLibraryUiState,
     opened: OpenedWmsService,
     actions: WmsLibraryActions,
+    pick: WmsLayerPicker?,
     onRename: () -> Unit,
 ) {
     val service = opened.service
@@ -328,6 +356,9 @@ private fun LazyListScope.serviceItems(
             )
         }
     }
+    pick?.message?.let { message ->
+        item(key = "pick_message") { PickMessage(message, pick.onDismissMessage) }
+    }
     item(key = "mode") { ModeChooser(service.requestMode, actions.onSetRequestMode) }
     item(key = "actions") {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -352,7 +383,28 @@ private fun LazyListScope.serviceItems(
     }
     item(key = "refresh_result") { RefreshResult(state.refresh, actions.onDismissRefresh) }
     item(key = "layers_title") { SectionTitle(stringResource(R.string.wms_layers_title)) }
-    items(opened.layers, key = { "layer_${it.info.ordinal}" }) { row -> LayerRow(row) }
+    items(opened.layers, key = { "layer_${it.info.ordinal}" }) { row -> LayerRow(row, service.id, pick) }
+}
+
+/** Por qué no se añadió la última capa pedida al proyecto (S036/RF-12, RF-26). */
+@Composable
+private fun PickMessage(message: ProjectLayersMessage, onDismiss: () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            stringResource(
+                when (message) {
+                    ProjectLayersMessage.ALREADY_THERE -> R.string.wms_message_already
+                    ProjectLayersMessage.LIMIT_REACHED -> R.string.map_wms_full
+                    ProjectLayersMessage.NO_WEB_MERCATOR -> R.string.wms_message_no_mercator
+                    ProjectLayersMessage.NOT_FOUND -> R.string.wms_message_not_found
+                },
+            ),
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f).testTag(WMS_PICK_MESSAGE_TAG),
+        )
+        TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) { Text(stringResource(R.string.wms_dismiss)) }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -418,15 +470,41 @@ private fun missingText(layer: MissingProjectLayer) = stringResource(R.string.wm
 
 /** Una capa del árbol del servicio, con sangría por su profundidad, y por qué no se puede añadir si es el caso (S036/RF-3, RF-12). */
 @Composable
-private fun LayerRow(row: WmsLayerRow) {
+private fun LayerRow(row: WmsLayerRow, serviceId: String, pick: WmsLayerPicker?) {
+    val info = row.info
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(start = (minOf(info.depth, MAX_INDENT_LEVELS) * INDENT_DP).dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        LayerTexts(row, Modifier.weight(1f).testTag(wmsLayerTag(info.ordinal)))
+        val name = info.name
+        if (pick != null && row.problem == null && name != null) {
+            if ((serviceId to name) in pick.inProject) {
+                Text(
+                    stringResource(R.string.wms_pick_in_project),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.testTag(wmsPickInProjectTag(info.ordinal)),
+                )
+            } else {
+                Button(
+                    onClick = { pick.onAdd(serviceId, name) },
+                    enabled = !pick.full,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(wmsPickAddTag(info.ordinal)),
+                ) {
+                    Text(stringResource(R.string.wms_pick_add))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LayerTexts(row: WmsLayerRow, modifier: Modifier) {
     val info = row.info
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = (minOf(info.depth, MAX_INDENT_LEVELS) * INDENT_DP).dp)
-            .heightIn(min = MinTouchTarget)
-            .semantics(mergeDescendants = true) {}
-            .testTag(wmsLayerTag(info.ordinal)),
+        modifier = modifier.heightIn(min = MinTouchTarget).semantics(mergeDescendants = true) {},
         verticalArrangement = Arrangement.Center,
     ) {
         Text(info.title.ifBlank { info.name.orEmpty() }, style = MaterialTheme.typography.bodyLarge)
