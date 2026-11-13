@@ -96,7 +96,7 @@ Las claves de fuente se resuelven al final.
 | Bibliotecas de códigos ("Puntos y líneas" + biblioteca), atributos Text/Integer/Number/List (≤ 100), CSV Code/Description/Type/Color/Attribute_*; códigos sobre la marcha | Manual §2.5, §3.7, F-cl | S023, S024 |
 | Líneas: nueva o continuar, cerrar en polígono, asistente desde puntos, editar vértices, información de la línea | Manual §3.4, F-lcol, F-poly, F-lwiz, F-led | S025, S026 |
 | Replanteo de líneas: por segmentos, a la línea, a lo largo, encadenamiento hasta A/B, intervalos y desplazamientos | Manual §3.5, F-lso | S027 |
-| Biblioteca WMS (URL → capas), capas del proyecto, orden, visibilidad y opacidad, mapa vectorial o satélite | Manual §2.6, §2.7, §3.8 | S009, S036 |
+| Biblioteca WMS (URL → capas), capas del proyecto, orden, visibilidad y opacidad, mapa vectorial o satélite; menú de pulsación larga del mapa (consultar la información de las capas y ver las coordenadas) | Manual §2.6, §2.7, §3.8 | S009, S036 |
 | COGO: inversa, poligonal, intersecciones | F-inv, F-trav, F-int | S038 |
 | Localización: ≤ 50 pares H/V, residuos, ajuste horizontal + plano inclinado, guardar como SC | F-loc | S039 |
 | Dibujos CAD DXF (≤ 100 MB, colores, bloques, arcos → polilíneas) y su replanteo | F-cad | S040, S041 |

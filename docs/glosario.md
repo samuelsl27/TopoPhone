@@ -155,7 +155,13 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Localización (calibración local) | `Localization` | |
 | Residuo | `Residual` | |
 | Inversa / poligonal / intersección | `Inverse` / `Traverse` / `Intersection` | COGO |
-| Capa (WMS) | `MapLayer` | |
+| Capa (WMS) | `MapLayer` | Una capa de un servicio WMS añadida a un proyecto: «capa del proyecto» (S036) |
+| Servicio WMS | `WmsService` | Dirección de un servidor WMS guardada en la biblioteca del móvil, con sus capas leídas (S036) |
+| Biblioteca WMS | `WmsLibrary` | Lista de servicios WMS del móvil, común a todos los proyectos (S036) |
+| Capa del proyecto | `ProjectMapLayer` | Capa de un servicio WMS con su orden, visibilidad y opacidad en un proyecto (S036) |
+| Preset (WMS) | `WmsPreset` | Servicio público de la app ya preparado, con su atribución y su licencia (S036) |
+| Modo de petición | `WmsRequestMode` | «Por teselas» o «una imagen» de la zona visible, según las condiciones del servicio (S036) |
+| Menú del mapa | `MapContextMenu` | El que sale al mantener pulsado un punto del mapa: consultar la información de las capas y ver las coordenadas (S036) |
 | Mapa base | `Basemap` | |
 | Ortofoto | `Orthophoto` | PNOA del IGN (S009) |
 | Barra de escala | `ScaleBar` | |

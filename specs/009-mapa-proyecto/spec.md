@@ -83,7 +83,7 @@ Sin cobertura, el mapa sigue sirviendo: muestra lo que ya se vio y, donde no hay
 
 ## Fuera de alcance
 - Puntos del proyecto en el mapa (capa de objetos) → S010; líneas y polígonos → S025.
-- Biblioteca WMS, capas por proyecto, orden y opacidad → S036.
+- Biblioteca WMS, capas por proyecto, orden y opacidad → S036 (se pintan entre el mapa base y el Catastro).
 - Descargar una zona para trabajar sin conexión → S037.
 - Girar el mapa u orientarlo con la brújula o el IMU → S018.
 - Diana de replanteo → S018.
@@ -104,7 +104,7 @@ Sin cobertura, el mapa sigue sirviendo: muestra lo que ya se vio y, donde no hay
 
 ## Dudas abiertas
 Resueltas con una suposición. Están marcadas para revisarlas; si alguna no te vale, se cambia la spec antes de implementarla.
-- [SUPOSICIÓN: el mapa base y el Catastro se recuerdan para toda la app, no por proyecto; las capas por proyecto llegan con S036.]
+- [SUPOSICIÓN: el mapa base y el Catastro se recuerdan para toda la app, no por proyecto; las capas por proyecto llegan con S036, que no cambia el interruptor del Catastro.]
 - [SUPOSICIÓN: por defecto, el mapa vectorial del IGN, sin Catastro.]
 - [SUPOSICIÓN: los mapas base integrados cuentan como servicios que configura el usuario (constitución nº 4): los elige en el mapa y puede quitarlos con "Ninguno".]
 - [SUPOSICIÓN: el límite de la caché es fijo (200 MB); cuando se llena, se descarta lo visto hace más tiempo.]
