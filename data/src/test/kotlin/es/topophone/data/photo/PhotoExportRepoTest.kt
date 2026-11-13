@@ -60,7 +60,7 @@ class PhotoExportRepoTest {
     }
 
     @Test
-    fun `S056 RF-1 las fotos salen por punto y en el orden en que se anadieron`() = runBlocking<Unit> {
+    fun `S056 RF-1 salen por punto y en el orden en que se anadieron`() = runBlocking<Unit> {
         val (idA, a) = withPhotos("30", 3)
         val (idB, b) = withPhotos("31", 2)
 
@@ -72,7 +72,7 @@ class PhotoExportRepoTest {
     }
 
     @Test
-    fun `S056 RF-1 un punto sin fotos no sale y uno que no existe se ignora`() = runBlocking<Unit> {
+    fun `S056 RF-1 sin fotos o inexistente, el punto no sale`() = runBlocking<Unit> {
         val (id, _) = withPhotos("32", 1)
 
         val result = photos.photosForExport(listOf(id, "sin-fotos", "no-existe"))
@@ -99,7 +99,7 @@ class PhotoExportRepoTest {
     }
 
     @Test
-    fun `S056 RF-1 con mas de mil puntos pedidos la consulta no pasa del limite de variables de SQLite`() = runBlocking<Unit> {
+    fun `S056 RF-1 con mas de mil puntos la consulta se trocea`() = runBlocking<Unit> {
         val (id, a) = withPhotos("36", 2)
         val ids = List(2_500) { "relleno-$it" } + id
 
@@ -107,6 +107,20 @@ class PhotoExportRepoTest {
 
         result.keys.toList() shouldBe listOf(id)
         result.getValue(id).map { it.id } shouldBe a
+    }
+
+    @Test
+    fun `S056 RF-2 los puntos a ambos lados del corte salen en orden`() = runBlocking<Unit> {
+        val (idA, a) = withPhotos("40", 2)
+        val (idB, b) = withPhotos("41", 3)
+        val (idC, c) = withPhotos("42", 2)
+        // A es el primero, B el último de la primera consulta de 500 y C el primero de la segunda; detrás, más de mil que no existen.
+        val ids = listOf(idA) + List(498) { "relleno-$it" } + idB + idC + List(1_200) { "otro-$it" }
+
+        val result = photos.photosForExport(ids)
+
+        result.keys.toList() shouldBe listOf(idA, idB, idC)
+        listOf(idA, idB, idC).map { id -> result.getValue(id).map { it.id } } shouldBe listOf(a, b, c)
     }
 
     @Test

@@ -10,7 +10,7 @@
       Hecho cuando: `PhotoIndexCsvTest` en verde y el índice coincide byte a byte con la referencia de `tools`.
 - [x] T4. `core:formats`: `PhotoZipWriter` (fotos byte a byte, índice al final, foto omitida y error a mitad de copia) y el rendimiento de 100 fotos de 1 MB. (RF-4, RF-6, RF-9, RF-14, RNF)
       Hecho cuando: `PhotoZipWriterTest` en verde y el test de rendimiento en menos de 10 s.
-- [ ] T5. `data`: `PhotoRepository.photosForExport` con la consulta troceada. (RF-1, RF-2)
+- [x] T5. `data`: `PhotoRepository.photosForExport` con la consulta troceada. (RF-1, RF-2)
       Hecho cuando: `PhotoExportRepoTest` en verde, con orden de alta y 2.000 puntos.
 - [ ] T6. `data`: `PhotoExporter` (ZIP temporal entero, tamaño previsto, espacio libre, 1 GB, borrado del temporal si falla, fotos que faltan). (RF-4, RF-9 a RF-11, RF-14)
       Hecho cuando: `PhotoExporterTest` en verde, incluido el fallo sin dejar fichero.
