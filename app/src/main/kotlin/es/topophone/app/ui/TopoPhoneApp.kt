@@ -46,6 +46,8 @@ import es.topophone.app.ui.codes.CodeImportRoute
 import es.topophone.app.ui.codes.CodeLibraryListRoute
 import es.topophone.app.ui.codes.CodeLibraryRoute
 import es.topophone.app.ui.codes.ProjectCodesRoute
+import es.topophone.app.ui.cogo.CogoMenuActions
+import es.topophone.app.ui.cogo.CogoMenuRoute
 import es.topophone.app.ui.export.DxfExportRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
@@ -441,6 +443,7 @@ private fun AppNavHost(
                 onOpenObjects = { id -> navController.navigate(ObjectListDestination(id)) }, // S011/RF-1
                 onLineFromPoints = { id -> navController.navigate(LineFromPointsDestination(id)) }, // S025/RF-12
                 onThreePointAngle = { id -> navController.navigate(ThreePointAngleDestination(id)) }, // S026/RF-13
+                onCogo = { id -> navController.navigate(CogoDestination(id)) }, // S038/RF-1
                 onOpenLine = { projectId, lineId -> navController.navigate(LineDestination(projectId, lineId)) }, // S025/RF-22
                 onStakeoutLine = { projectId, lineId ->
                     navController.navigate(ProjectViewDestination(projectId, stakeoutLineId = lineId)) // S027/RF-1
@@ -906,6 +909,10 @@ private fun AppNavHost(
                         navController.navigate(ProjectViewDestination(args.projectId, stakeoutLineId = args.lineId)) // S027/RF-1
                     },
                 ) { navController.popBackStack() }
+            }
+            composable<CogoDestination> { entry ->
+                val args = entry.toRoute<CogoDestination>()
+                CogoMenuRoute(args.projectId, uiState.themeState, actions.onToggleSun, CogoMenuActions()) { navController.popBackStack() }
             }
             composable<ThreePointAngleDestination> { entry ->
                 val args = entry.toRoute<ThreePointAngleDestination>()

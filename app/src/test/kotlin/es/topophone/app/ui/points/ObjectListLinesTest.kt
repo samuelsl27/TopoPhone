@@ -219,6 +219,7 @@ class ObjectListLinesTest {
                         onDeleteSelected = { calls += "delete" },
                         onLineFromPoints = { calls += "wizard" },
                         onThreePointAngle = { calls += "angle" },
+                        onCogo = { calls += "cogo" },
                         onStakeoutLine = { calls += "stakeout:$it" },
                     ),
                     onBack = {},
@@ -296,6 +297,16 @@ class ObjectListLinesTest {
         compose.onNodeWithTag(OBJECTS_ANGLE_TAG).performScrollTo().performClick()
 
         calls shouldBe listOf("angle")
+    }
+
+    @Test
+    fun `S038 RF-1 el menu de la lista ofrece COGO`() {
+        show(uiState)
+
+        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
+        compose.onNodeWithTag(OBJECTS_COGO_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("cogo")
     }
 
     @Test

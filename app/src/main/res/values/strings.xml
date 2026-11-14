@@ -2745,6 +2745,14 @@
     <string name="geometry_export_title">Exportar tabla</string>
     <string name="geometry_close">Cerrar</string>
     <string name="angle_title">Ángulo entre tres puntos</string>
+    <string name="cogo_title">COGO</string>
+    <string name="cogo_inverse">Inversa</string>
+    <string name="cogo_inverse_hint">Distancia y azimut entre dos puntos.</string>
+    <string name="cogo_traverse">Poligonal</string>
+    <string name="cogo_traverse_hint">Puntos sucesivos a partir de azimuts, ángulos o deflexiones y distancias.</string>
+    <string name="cogo_intersection">Intersección</string>
+    <string name="cogo_intersection_hint">El punto que cumple dos condiciones de distancia o de dirección.</string>
+    <string name="cogo_geographic_unavailable">COGO necesita un sistema de coordenadas proyectado. Este proyecto usa uno geográfico.</string>
     <string name="angle_button">Ángulo</string>
     <string name="angle_slot_a">Punto A</string>
     <string name="angle_slot_b">Punto B (vértice)</string>

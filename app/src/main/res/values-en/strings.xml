@@ -2732,6 +2732,14 @@
     <string name="geometry_problem_no_position">A vertex has no position: it cannot be computed.</string>
     <string name="geometry_export_title">Export table</string>
     <string name="geometry_close">Close</string>
+    <string name="cogo_title">COGO</string>
+    <string name="cogo_inverse">Inverse</string>
+    <string name="cogo_inverse_hint">Distance and azimuth between two points.</string>
+    <string name="cogo_traverse">Traverse</string>
+    <string name="cogo_traverse_hint">Successive points from azimuths, angles or deflections and distances.</string>
+    <string name="cogo_intersection">Intersection</string>
+    <string name="cogo_intersection_hint">The point that meets two distance or direction conditions.</string>
+    <string name="cogo_geographic_unavailable">COGO needs a projected coordinate system. This project uses a geographic one.</string>
     <string name="angle_title">Angle between three points</string>
     <string name="angle_button">Angle</string>
     <string name="angle_slot_a">Point A</string>

@@ -38,7 +38,7 @@
       Hecho cuando: `CogoBackupTest` en verde y `DatabaseSnapshotTest` de S013 intacto.
 - [x] T18. `core:formats` y `data`: «Cogo» en la columna Origin del CSV y del GeoPackage, y el punto COGO se edita con historial, se duplica como manual, va a la papelera y se replantea como uno manual. (RF-24)
       Hecho cuando: `CogoExportOriginTest` y las pruebas de edición, duplicado, papelera y replanteo con un punto COGO en verde.
-- [ ] T19. `app`: la pantalla de elección «COGO» (Inversa, Poligonal, Intersección), su ruta y las entradas en el menú de la lista de objetos y en el del proyecto; SC geográfico sin COGO. (RF-1, RF-2)
+- [x] T19. `app`: la pantalla de elección «COGO» (Inversa, Poligonal, Intersección), su ruta y las entradas en el menú de la lista de objetos y en el del proyecto; SC geográfico sin COGO. (RF-1, RF-2)
       Hecho cuando: `CogoMenuTest` en verde con SC proyectado y con SC geográfico.
 - [ ] T20. `app`: `CogoPointField` (elegir con búsqueda o escribir Este y Norte, con altura), campos de dirección y distancia con su unidad, y el selector Cuadrícula/Terreno con la elección de S026. (RF-3, RF-4, RF-5)
       Hecho cuando: `CogoPointFieldTest` en verde, con coma decimal, DMS y valores rechazados, y la elección compartida con S026.

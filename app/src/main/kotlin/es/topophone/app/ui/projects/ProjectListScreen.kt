@@ -162,6 +162,8 @@ class ProjectListActions(
     val onExportKml: (String) -> Unit = {},
     /** Exportar las fotos de los puntos del proyecto a un ZIP (S056/RF-1). */
     val onExportPhotos: (String) -> Unit = {},
+    /** La elección de COGO del proyecto (S038/RF-1). */
+    val onCogo: (String) -> Unit = {},
     /** El informe de replanteo del proyecto (S019/RF-17). */
     val onStakeoutReport: (String) -> Unit = {},
     /** Abre el selector de ficheros y, con el fichero, el asistente de importación de puntos del proyecto (S028/RF-1). */
@@ -319,6 +321,7 @@ fun ProjectListRoute(
             onExportShp = { id -> navigation.onExportShp(id, false) }, // S055/RF-1
             onExportKml = { id -> navigation.onExportKml(id, false) }, // S031/RF-20
             onExportPhotos = { id -> navigation.onExportPhotos(id, false) }, // S056/RF-1
+            onCogo = { id -> navigation.onCogo(id) }, // S038/RF-1
             onStakeoutReport = { id -> navigation.onStakeoutReport(id, false) }, // S019/RF-17
             onImportPoints = importPoints,
             onImportDxf = importDxf,
@@ -585,6 +588,10 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onExportPhotos(project.id)
         } // S056/RF-1
+        MenuItem(R.string.cogo_title) {
+            open = false
+            actions.onCogo(project.id)
+        } // S038/RF-1
         MenuItem(R.string.import_title) {
             open = false
             actions.onImportPoints(project.id)

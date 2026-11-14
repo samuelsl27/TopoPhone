@@ -217,6 +217,8 @@ class SurveyNavigation(
     val onLineFromPoints: (projectId: String) -> Unit = {},
     /** El ángulo entre tres puntos del proyecto (S026/RF-13). */
     val onThreePointAngle: (projectId: String) -> Unit = {},
+    /** La elección de COGO del proyecto (S038/RF-1). */
+    val onCogo: (projectId: String) -> Unit = {},
     /** La ficha de una línea (S025/RF-22). */
     val onOpenLine: (projectId: String, lineId: String) -> Unit = { _, _ -> },
     /** El replanteo de una línea del proyecto, en la vista del proyecto (S027/RF-1). */

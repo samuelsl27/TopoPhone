@@ -101,6 +101,9 @@ import kotlinx.serialization.Serializable
 /** El ángulo entre tres puntos del proyecto o, con [lineId], de los vértices de una línea (S026/RF-13). */
 @Serializable data class ThreePointAngleDestination(val projectId: String, val lineId: String? = null)
 
+/** La elección de COGO: inversa, poligonal o intersección (S038/RF-1). */
+@Serializable data class CogoDestination(val projectId: String)
+
 /** Ficha de un punto (S011/RF-5). */
 @Serializable data class PointDestination(val projectId: String, val pointId: String)
 
