@@ -111,6 +111,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Reproducción (simulador) | `Replay` | `ReplayTransport`, `ReplayPacer` |
 | Indicador de estado | `StatusIndicator` | En el extremo derecho de la barra superior (S005); antes, franja de S003 |
 | Lista de receptores | `ReceiverList` | Receptor sin conexión (S005) |
+| Receptor Wi-Fi | `WifiReceiver` | Receptor guardado con nombre, dirección y puerto de posición, y puerto de correcciones opcional; con identidad propia que no cambia al editar su IP (S021) |
+| Puerto de posición | `positionPort` | El del servidor TCP del receptor que emite el NMEA (9001 por defecto); la app es el cliente (S021) |
+| Puerto de correcciones | `correctionsPort` | El del receptor que acepta RTCM3 por TCP; si coincide con el de posición se usa la misma conexión (S021) |
 | Pantalla del receptor | `ReceiverDashboard` | Receptor conectado o reproducción: cabecera y menú (S005) |
 | Cabecera (de la pantalla del receptor) | `ReceiverHeader` | |
 | Correcciones | `Corrections` | RTCM3 |

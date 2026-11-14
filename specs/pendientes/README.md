@@ -15,7 +15,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 | Spec | Hito | Depende | RF | Supos. | Qué es |
 |---|---|---|---|---|---|
 | [020 base-shift](020-base-shift/spec.md) | H2 | S011, S010, **S008, S015, S016, S018, S046, S047** | 16 | 4 | Desplazamiento ECEF conocido − medido aplicado a los puntos siguientes |
-| [021 conexion-wifi-tcp](021-conexion-wifi-tcp/spec.md) | H2 | S015, **S004, S005, S007** | 19 | 4 | Cliente TCP al receptor (hotspot o red local), NTRIP por datos móviles |
+| [021 conexion-wifi-tcp](../021-conexion-wifi-tcp/spec.md) | H2 | S015, **S004, S005, S007** | 18 | 2 | Cliente TCP al receptor (hotspot o red local), NTRIP por datos móviles |
 | [022 gnss-movil-y-receptor-virtual](022-gnss-movil-y-receptor-virtual/spec.md) | H2 | **S003, S005, S047** (la hoja dice S021) | 19 | 4 | GNSS del móvil (nunca FIX) y receptor virtual con escenarios |
 | [045 raster-mdt](../045-raster-mdt/spec.md) | H2 | S042 | 25 | 7 | Ráster de cotas como superficie y replanteo de cota (cierra la puerta G2b) |
 | [023 bibliotecas-codigos](023-bibliotecas-codigos/spec.md) | H3 | S006, **S028, S013** | 22 | 5 | Bibliotecas de códigos con atributos, importar y exportar |
@@ -56,7 +56,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 - S045 convierte entre altitud ortométrica y elipsoidal en un ráster, y S042 lo deja fuera para LandXML.
 
 **Receptor**
-- Si no hay un nombre de servicio mDNS documentado, la búsqueda de S021 pasa a S044 (constitución nº 5); está anotado en la hoja de ruta, falta decidirlo en la entrevista.
+- La búsqueda mDNS de receptores pasó de S021 a S044 (constitución nº 5), decidido en la entrevista de S021 (15/11/2026); S044 la recoge al abrirla.
 - S043 añade «Guía» y «Equipo» a las cinco entradas del menú del receptor de S005/RF-9.
 
 **Specs ya implementadas que habría que tocar**

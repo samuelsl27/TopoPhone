@@ -53,7 +53,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 045 raster-mdt | Importar un raster de cotas (GeoTIFF y ASCII Grid) como superficie, con su SC y su datum vertical, y replantear solo la cota: desmonte/terraplén contra el raster en la posición del jalón, con tolerancia; una superficie activa por proyecto, como las de LandXML; el ráster convierte entre altitud ortométrica y elipsoidal con el geoide | 042 | implementada |
 | 017b fotos-de-puntos | Fotos de los puntos, varias por punto: desde el recolector, durante la medida o justo después de guardar, y desde la ficha (ver, añadir y borrar con rastro en el historial); viajan con el punto en la papelera, las copias de seguridad y los paquetes | 017 | implementada |
 | 020 base-shift | Desplazamiento ECEF (conocido − medido) aplicado a los puntos siguientes, registrado en cada punto y desactivable. Orden fijo: bruto → punta del jalón → shift → SC → localización | 010, 011, 008, 015, 016, 018, 046, 047 | implementada |
-| 021 conexion-wifi-tcp | Cliente TCP (hotspot 192.168.42.1:9001 o IP de la red local), tráfico del receptor por Wi-Fi y NTRIP por datos móviles, descubrimiento mDNS (solo con un nombre de servicio documentado; si no, en S044), correcciones al puerto TCP de entrada del receptor, permiso de red local | 015, 004, 005, 007 | pendiente |
+| 021 conexion-wifi-tcp | Cliente TCP (hotspot 192.168.42.1:9001 o IP de la red local) con el receptor añadido a mano, con identidad propia que sobrevive a cambiar su IP; tráfico del receptor por Wi-Fi y NTRIP por datos móviles; correcciones al puerto TCP de entrada del receptor; permiso de red local | 015, 004, 005, 007 | spec |
 | 022 gnss-movil-y-receptor-virtual | GNSS del propio móvil (nunca se presenta como FIX) y receptor virtual con escenarios guionizados | 003, 005, 047 | pendiente |
 | 046 antena-y-jalon | Catálogo de modelos Reach con su desplazamiento al centro de fase (valores de Emlid) y perfiles de antena propios, jalones guardados con nombre y jalón activo por receptor, medida vertical o inclinada, selector rápido en el recolector, el replanteo y el receptor; el jalón y la antena se guardan en cada punto y un cambio solo afecta a los siguientes | 016, 011 | implementada |
 | 047 tipos-de-solucion | Tipos de solución admitidos (FIX, FLOAT, SINGLE) en lugar de "solo FIX", con confirmación al admitir FLOAT o SINGLE, promediado con las épocas del mejor tipo, aviso de solución degradada y tipo guardado en cada punto | 010, 017, 018 | implementada |
@@ -103,7 +103,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
 | 043 receptor-guiado | Listas de configuración del receptor, comprobaciones previas, Reach Panel en un WebView, perfil de equipo | 016, 015, 021, 046, 005 | pendiente |
-| 044 modulo-experimental-reach | Flavor `experimental` con aviso legal: lectura de información, batería y configuración, estado por Socket.IO, escritura de altura de antena e inicio/parada de logs | 043, 021, 046 | pendiente |
+| 044 modulo-experimental-reach | Flavor `experimental` con aviso legal: búsqueda mDNS de receptores en la red, lectura de información, batería y configuración, estado por Socket.IO, escritura de altura de antena e inicio/parada de logs | 043, 021, 046 | pendiente |
 
 ## H8 · Obra lineal
 
