@@ -12,9 +12,9 @@
       Hecho cuando: `pytest` en verde y los ficheros de poligonales generados.
 - [x] T5. `core:survey`: `CogoPoint`, `CogoScale` (factor del primer punto con `GroundScale`) e `Inverse`. (RF-5, RF-6, RF-7, RF-8)
       Hecho cuando: `CogoScaleTest` e `InverseTest` en verde frente a las referencias (≤ 1 mm, 0,001″, factor ≤ 1e-9), con puntos coincidentes y sin altura.
-- [ ] T6. `core:survey`: `Traverse` con tramos por azimut y por ángulo a la derecha y a la izquierda, en cuadrícula y en terreno. (RF-10, RF-11)
+- [x] T6. `core:survey`: `Traverse` con tramos por azimut y por ángulo a la derecha y a la izquierda, en cuadrícula y en terreno. (RF-10, RF-11)
       Hecho cuando: `TraverseAzimuthTest` y la parte de ángulos de `TraverseAnglesTest` en verde frente a las referencias.
-- [ ] T7. `core:survey`: deflexión a la derecha y a la izquierda, y visual atrás indefinida (`blockedFrom`). (RF-10, RF-31)
+- [x] T7. `core:survey`: deflexión a la derecha y a la izquierda, y visual atrás indefinida (`stoppedAt`, hecha junto con T6 porque comparten el mismo `when`). (RF-10, RF-31)
       Hecho cuando: `TraverseAnglesTest` completo en verde, con la referencia en el inicio y un tramo anterior de longitud 0.
 - [ ] T8. `core:survey`: alturas por tramo y error de cierre. (RF-11, RF-12)
       Hecho cuando: `TraverseHeightTest` y `TraverseClosureTest` en verde, con poligonal que cierra, que no cierra y con un desnivel que falta.
