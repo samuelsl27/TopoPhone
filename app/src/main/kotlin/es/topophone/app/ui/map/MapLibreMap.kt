@@ -23,9 +23,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.R
+import es.topophone.app.ui.offline.ZoneHttp
+import es.topophone.core.model.offline.OfflineLimits
 import javax.inject.Inject
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import org.maplibre.android.MapLibre
 import org.maplibre.android.maps.MapView
@@ -42,12 +45,15 @@ annotation class MapHttp
  * OpenFreeMap y del resto de servicios (S009, RNF). S020 lo enlazará a la red con internet (RNF-T4).
  */
 object MapHttpClient {
-    fun create(versionName: String, monitor: NetworkFailureMonitor? = null): OkHttpClient {
+    fun create(versionName: String, monitor: NetworkFailureMonitor? = null, zoneHttp: ZoneHttp = ZoneHttp()): OkHttpClient {
         val userAgent = "TopoPhone/$versionName (+${BuildConfig.REPO_URL})"
         return OkHttpClient.Builder()
+            // S037/RNF: no más de 4 peticiones a la vez a un mismo servidor (es lo que admite OpenFreeMap en las descargas).
+            .dispatcher(Dispatcher().apply { maxRequestsPerHost = OfflineLimits.MAX_REQUESTS_PER_HOST })
             .apply { if (monitor != null) addInterceptor(monitor.interceptor) } // S009/RF-15
             .addInterceptor { chain -> chain.proceed(chain.request().newBuilder().header("User-Agent", userAgent).build()) }
             .addInterceptor(IgnStylePatch.interceptor) // S009/RF-6
+            .addInterceptor(zoneHttp.interceptor) // S037/RF-22, RF-23: el último, el más cercano a la red
             .build()
     }
 }

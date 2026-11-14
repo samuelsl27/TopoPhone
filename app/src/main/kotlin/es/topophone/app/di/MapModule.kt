@@ -8,6 +8,7 @@ import es.topophone.app.BuildConfig
 import es.topophone.app.ui.map.MapHttp
 import es.topophone.app.ui.map.MapHttpClient
 import es.topophone.app.ui.map.NetworkFailureMonitor
+import es.topophone.app.ui.offline.ZoneHttp
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 
@@ -19,5 +20,6 @@ object MapModule {
     @Provides
     @Singleton
     @MapHttp
-    fun provideMapHttpClient(monitor: NetworkFailureMonitor): OkHttpClient = MapHttpClient.create(BuildConfig.VERSION_NAME, monitor)
+    fun provideMapHttpClient(monitor: NetworkFailureMonitor, zoneHttp: ZoneHttp): OkHttpClient =
+        MapHttpClient.create(BuildConfig.VERSION_NAME, monitor, zoneHttp)
 }

@@ -106,6 +106,7 @@ class OfflineDownloader(
     private val stallTimeoutMs: Long = OfflineLimits.STALL_TIMEOUT_S * 1_000L,
     private val tickMs: Long = TICK_MS,
     private val log: AppLog = AppLog.NONE,
+    private val http: DownloadHttpMode = DownloadHttpMode.NONE,
 ) {
     private class Item(val id: RegionId, var meta: ZoneMeta)
 
@@ -187,6 +188,7 @@ class OfflineDownloader(
         if (mutableState.value.phase != DownloadPhase.RUNNING) return
         job?.cancelAndJoin()
         job = null
+        http.setLongCache(false)
         current?.let { store.setActive(it.id, false) }
         current = null
         mutableState.update { state ->
@@ -205,6 +207,7 @@ class OfflineDownloader(
     suspend fun cancel() {
         job?.cancelAndJoin()
         job = null
+        http.setLongCache(false)
         if (items.isNotEmpty()) log.info(LogCategory.APP, ZoneLog.cancelled(mutableState.value.name))
         items.forEach { store.delete(it.id) }
         items = emptyList()
@@ -223,6 +226,7 @@ class OfflineDownloader(
                 SourceProgress(item.meta.source, state, item.meta.tiles, fraction = if (state == SourceState.COMPLETE) 1f else 0f)
             },
         )
+        http.setLongCache(true)
         job = scope.launch { runAll() }
     }
 
@@ -234,6 +238,7 @@ class OfflineDownloader(
             settle(index, item, outcome)
         }
         current = null
+        http.setLongCache(false)
         mutableState.update { it.copy(phase = DownloadPhase.FINISHED, currentSource = null) }
     }
 
