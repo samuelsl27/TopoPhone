@@ -53,6 +53,7 @@ import es.topophone.data.point.PointNmeaEntity
 import es.topophone.data.project.ProjectDao
 import es.topophone.data.project.ProjectEntity
 import es.topophone.data.project.ProjectFolderEntity
+import es.topophone.data.receiver.WifiReceiverDao
 import es.topophone.data.receiver.WifiReceiverEntity
 import es.topophone.data.section.SectionDao
 import es.topophone.data.section.SectionProfileEntity
@@ -211,6 +212,8 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
     abstract fun wms(): WmsDao
 
     abstract fun traverseDrafts(): TraverseDraftDao
+
+    abstract fun wifiReceivers(): WifiReceiverDao
 
     companion object {
         const val NAME = "topophone.db"

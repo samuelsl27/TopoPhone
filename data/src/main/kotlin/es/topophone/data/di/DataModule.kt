@@ -87,7 +87,9 @@ import es.topophone.data.receiver.DataStoreReceiverPreferences
 import es.topophone.data.receiver.DataStoreTiltPreferences
 import es.topophone.data.receiver.ReceiverDataStoreQualifier
 import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.receiver.RoomWifiReceiverRepository
 import es.topophone.data.receiver.TiltPreferences
+import es.topophone.data.receiver.WifiReceiverRepository
 import es.topophone.data.secret.AesGcmCipher
 import es.topophone.data.secret.AndroidKeystoreKeyProvider
 import es.topophone.data.section.RoomSectionRepository
@@ -290,6 +292,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideGearRepository(database: TopoPhoneDatabase): GearRepository = RoomGearRepository(database)
+
+    /** Los receptores Wi-Fi guardados (S021). */
+    @Provides
+    @Singleton
+    fun provideWifiReceiverRepository(database: TopoPhoneDatabase): WifiReceiverRepository = RoomWifiReceiverRepository(database)
 
     /** La superficie activa de cada proyecto, con sus teselas a demanda (S042). */
     @Provides
