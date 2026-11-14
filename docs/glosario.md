@@ -171,6 +171,7 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Nivel de detalle | `DetailLevel` | «Normal», «Alto» o «Máximo»: el zoom máximo de tesela de una zona sin conexión (S037) |
 | Fuente descargable | `DownloadableSource` | Mapa base o capa WMS por teselas que se puede guardar en una zona sin conexión; no lo son el Catastro ni los WMS en «una imagen» (S037) |
 | Todo el proyecto | `ProjectExtent` | Rectángulo que contiene los puntos del proyecto con un margen, como área de una zona sin conexión (S037) |
+| Actualizar (una zona) | `OfflineDownloader.renew` | Marca las teselas de una zona como caducadas para que, con conexión, se renueven al verlas en el mapa; no vuelve a descargar la zona entera (S037/RF-26) |
 | Círculo de precisión | `AccuracyCircle` | Radio = precisión horizontal (S002/RF-14) |
 | Panel de posición | `PositionPanel` | Parte inferior del mapa del proyecto (S009) |
 | Datos del proyecto | `ProjectInfo` | SC, altura, unidades y datum de las correcciones (S009) |
