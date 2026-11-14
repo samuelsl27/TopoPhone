@@ -95,7 +95,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 038 cogo | Inversa, poligonal (tramos por azimut, ángulo o deflexión, con el borrador guardado en el proyecto), intersecciones (distancia-distancia, dirección-dirección, distancia-dirección); los resultados se guardan como puntos de origen COGO | 011, 008, 026 | spec |
+| 038 cogo | Inversa, poligonal (tramos por azimut, ángulo o deflexión, con el borrador guardado en el proyecto), intersecciones (distancia-distancia, dirección-dirección, distancia-dirección); los resultados se guardan como puntos de origen COGO | 011, 008, 026 | tareas |
 | 039 localizacion | Hasta 50 pares H/V, semejanza 2D por mínimos cuadrados con plano inclinado, residuos, exclusión de componentes, aplicar al proyecto y guardar como SC | 035, 011, 008, 020 (orden de cálculo) | pendiente |
 
 ## H7 · Receptor avanzado
