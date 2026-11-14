@@ -46,7 +46,7 @@
       Hecho cuando: `InverseViewModelTest` en verde, con unidades del proyecto, puntos coincidentes y sin altura.
 - [x] T22. `app`: `IntersectionViewModel` e `IntersectionScreen`: las tres clases, soluciones con texto «Izquierda», «Derecha», «Primera» o «Segunda», motivos de sin solución y altura opcional. (RF-13 a RF-18)
       Hecho cuando: `IntersectionViewModelTest` en verde con las tres clases, la elección de solución y el aviso de «detrás».
-- [ ] T23. `app`: `TraverseViewModel`: punto de inicio, referencia y cierre, tramos (añadir, editar, quitar), cálculo en vivo y cierre. (RF-10, RF-11, RF-12, RF-31)
+- [x] T23. `app`: `TraverseViewModel`: punto de inicio, referencia y cierre, tramos (añadir, editar, quitar), cálculo en vivo y cierre. (RF-10, RF-11, RF-12, RF-31)
       Hecho cuando: `TraverseViewModelTest` en verde sin escribir nada en la base.
 - [ ] T24. `app`: `TraverseScreen` con la lista de tramos, los puntos calculados, el cierre y los avisos. (RF-10, RF-11, RF-12, RF-31)
       Hecho cuando: `CogoScreensTest` (poligonal) en verde, con `performScrollToNode` en la lista.

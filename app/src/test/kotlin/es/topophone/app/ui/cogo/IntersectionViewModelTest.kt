@@ -264,7 +264,7 @@ class IntersectionViewModelTest {
 
         vm.setHeight(IntersectionSide.LEFT, "651,5")
         vm.setHeight(IntersectionSide.RIGHT, "x")
-        val state = vm.await { it.solutions.firstOrNull()?.heightText == "651,5" }
+        val state = vm.await { it.solutions.getOrNull(0)?.heightText == "651,5" && it.solutions.getOrNull(1)?.heightText == "x" }
 
         state.solutions[0].height shouldBe 651.5
         state.solutions[0].heightInvalid shouldBe false
