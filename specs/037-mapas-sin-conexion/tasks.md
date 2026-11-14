@@ -30,7 +30,7 @@
       Hecho cuando: `DownloadPlanViewModelTest` en verde (sin centro, sin puntos, cada bloqueo, recordar lo último).
 - [x] T14. La hoja «Descargar zona»: las tres áreas con su radio o margen, las fuentes, los tres niveles, la previsión y los avisos, con textos en es y en. (RF-1 a RF-6, RF-8 a RF-14)
       Hecho cuando: `DownloadPlanSheetTest` en verde (zonas de 56 dp, cada bloqueo con su motivo, la confirmación del WMS propio con el nombre del servicio).
-- [ ] T15. El progreso: teselas, MB y fuente en curso, pausar, reanudar, cancelar con confirmación y pantalla encendida. (RF-15 a RF-18)
+- [x] T15. El progreso: teselas, MB y fuente en curso, pausar, reanudar, cancelar con confirmación y pantalla encendida. (RF-15 a RF-18)
       Hecho cuando: `OfflineProgressTest` en verde (pantalla encendida mientras está a la vista, estado «Incompleta» al salir, botones de 56 dp).
 - [ ] T16. `OfflineZonesViewModel`: la lista con nombre, fuentes, nivel, tamaño real, fecha y estado, la ocupación total, renombrar, actualizar y borrar, y el límite. (RF-24 a RF-27, RF-31)
       Hecho cuando: `OfflineZonesViewModelTest` en verde.

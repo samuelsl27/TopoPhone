@@ -2971,4 +2971,28 @@
     <string name="offline_confirm_wms_title">Servicio WMS propio</string>
     <string name="offline_confirm_wms_text">Comprueba que las condiciones de este servicio permiten guardar teselas: %1$s.</string>
     <string name="offline_confirm_accept">Descargar</string>
+    <!-- S037 · Mapas sin conexión: progreso de la descarga -->
+    <string name="offline_progress_title">Descarga de la zona</string>
+    <string name="offline_progress_idle">No hay ninguna descarga en curso.</string>
+    <string name="offline_phase_running">Descargando</string>
+    <string name="offline_phase_paused">En pausa</string>
+    <string name="offline_phase_finished">Descarga terminada</string>
+    <string name="offline_phase_finished_incomplete">Descarga terminada con fuentes incompletas</string>
+    <string name="offline_progress_percent">%1$d %%</string>
+    <string name="offline_progress_tiles">%1$s de %2$s teselas</string>
+    <string name="offline_progress_bytes">%1$s descargados</string>
+    <string name="offline_progress_current">Fuente en curso: %1$s</string>
+    <string name="offline_state_pending">Pendiente</string>
+    <string name="offline_state_downloading">Descargando</string>
+    <string name="offline_state_paused">En pausa</string>
+    <string name="offline_state_complete">Completa</string>
+    <string name="offline_state_incomplete">Incompleta (faltan %1$s teselas)</string>
+    <string name="offline_action_pause">Pausar</string>
+    <string name="offline_action_resume">Reanudar</string>
+    <string name="offline_action_retry">Reintentar</string>
+    <string name="offline_action_cancel">Cancelar descarga</string>
+    <string name="offline_cancel_title">¿Cancelar la descarga?</string>
+    <string name="offline_cancel_text">Se borra lo que ya se ha descargado de esta zona.</string>
+    <string name="offline_cancel_confirm">Cancelar y borrar</string>
+    <string name="offline_cancel_keep">Seguir descargando</string>
 </resources>

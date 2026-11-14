@@ -26,7 +26,8 @@ internal fun Project.configureRobolectricJvm() {
             "--add-opens=java.base/java.io=ALL-UNNAMED",
             "--add-opens=java.base/java.lang=ALL-UNNAMED",
         )
-        maxHeapSize = "2g"
+        // 3 GB: el módulo app ya pasa de 3.800 tests con Robolectric y con 2 GB la JVM de tests se quedaba sin memoria (S037/T15), con cientos de OutOfMemoryError.
+        maxHeapSize = "3g"
         // Hilt (KSP) genera fuentes de test aunque el módulo aún no tenga tests.
         failOnNoDiscoveredTests.set(false)
     }

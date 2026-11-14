@@ -2959,4 +2959,28 @@
     <string name="offline_confirm_wms_title">Your own WMS service</string>
     <string name="offline_confirm_wms_text">Check that this service\'s terms of use allow storing tiles: %1$s.</string>
     <string name="offline_confirm_accept">Download</string>
+    <!-- S037 · Offline maps: download progress -->
+    <string name="offline_progress_title">Zone download</string>
+    <string name="offline_progress_idle">There is no download in progress.</string>
+    <string name="offline_phase_running">Downloading</string>
+    <string name="offline_phase_paused">Paused</string>
+    <string name="offline_phase_finished">Download finished</string>
+    <string name="offline_phase_finished_incomplete">Download finished with incomplete sources</string>
+    <string name="offline_progress_percent">%1$d %%</string>
+    <string name="offline_progress_tiles">%1$s of %2$s tiles</string>
+    <string name="offline_progress_bytes">%1$s downloaded</string>
+    <string name="offline_progress_current">Source in progress: %1$s</string>
+    <string name="offline_state_pending">Pending</string>
+    <string name="offline_state_downloading">Downloading</string>
+    <string name="offline_state_paused">Paused</string>
+    <string name="offline_state_complete">Complete</string>
+    <string name="offline_state_incomplete">Incomplete (%1$s tiles missing)</string>
+    <string name="offline_action_pause">Pause</string>
+    <string name="offline_action_resume">Resume</string>
+    <string name="offline_action_retry">Retry</string>
+    <string name="offline_action_cancel">Cancel download</string>
+    <string name="offline_cancel_title">Cancel the download?</string>
+    <string name="offline_cancel_text">Everything already downloaded for this zone is deleted.</string>
+    <string name="offline_cancel_confirm">Cancel and delete</string>
+    <string name="offline_cancel_keep">Keep downloading</string>
 </resources>

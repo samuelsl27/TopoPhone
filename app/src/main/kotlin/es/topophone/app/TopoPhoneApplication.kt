@@ -3,6 +3,9 @@ package es.topophone.app
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 import es.topophone.app.log.CrashLog
+import es.topophone.app.ui.offline.AppBackgroundWatcher
+import es.topophone.app.ui.offline.ForegroundTracker
+import es.topophone.app.ui.offline.OfflineDownloader
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.data.cad.CadRepository
@@ -32,9 +35,16 @@ class TopoPhoneApplication : Application() {
 
     @Inject lateinit var photos: PhotoRepository
 
+    @Inject lateinit var offlineDownloader: OfflineDownloader
+
     override fun onCreate() {
         super.onCreate()
         CrashLog.install(log) // S014/RF-6: lo antes posible, para que ningún cierre se quede sin anotar.
+        // S037/RF-18: la descarga de una zona sin conexión solo avanza con la app abierta: al pasar a segundo plano o bloquear el móvil se pausa.
+        AppBackgroundWatcher.install(
+            this,
+            ForegroundTracker { CoroutineScope(Dispatchers.Main.immediate).launch { offlineDownloader.onAppBackground() } },
+        )
         log.info(LogCategory.APP, "App iniciada: versión ${BuildConfig.VERSION_NAME} (${BuildConfig.GIT_COMMIT})")
         // S040/RF-12: un dibujo a medias de una importación que no acabó (la app se cerró) no se queda en la base de datos.
         CoroutineScope(Dispatchers.IO).launch { runCatching { cad.cleanUpUnfinished() } }
