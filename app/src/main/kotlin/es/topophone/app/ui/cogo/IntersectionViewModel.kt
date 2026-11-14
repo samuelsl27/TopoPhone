@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.core.model.cogo.CogoOperation
+import es.topophone.core.model.cogo.CogoRef
+import es.topophone.core.model.cogo.CogoValue
 import es.topophone.core.model.cogo.IntersectionSide
 import es.topophone.core.model.format.DirectionInput
 import es.topophone.core.model.format.DirectionKind
@@ -17,6 +19,7 @@ import es.topophone.core.survey.cogo.CogoScale
 import es.topophone.core.survey.cogo.Intersection
 import es.topophone.core.survey.cogo.IntersectionResult
 import es.topophone.core.survey.geometry.GeometryNotice
+import es.topophone.data.cogo.CogoRepository
 import es.topophone.data.geometry.GeometryPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
@@ -84,6 +87,9 @@ data class IntersectionUi(
     val result: IntersectionResult? = null,
     val solutions: List<IntersectionSolutionUi> = emptyList(),
     val notices: Set<GeometryNotice> = emptySet(),
+    /** Cuántas soluciones hay marcadas y si se pueden guardar (alguna marcada y ninguna con la altura mal escrita, S038/RF-18, RF-19). */
+    val markedCount: Int = 0,
+    val canSave: Boolean = false,
 )
 
 /**
@@ -96,6 +102,7 @@ class IntersectionViewModel @Inject constructor(
     points: PointRepository,
     private val projects: ProjectRepository,
     private val preferences: GeometryPreferences,
+    cogo: CogoRepository,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
     val inputs = CogoInputs(points, viewModelScope)
@@ -109,6 +116,9 @@ class IntersectionViewModel @Inject constructor(
     )
 
     private val own = MutableStateFlow(Own())
+
+    /** Guardar las soluciones marcadas como puntos del proyecto (S038/RF-19 a RF-21). */
+    val save = CogoSaveController(points, cogo, projects, viewModelScope, onSaved = { own.update { it.copy(marked = emptySet()) } })
 
     private data class Context(val crs: ProjectCrs, val linearUnit: LinearUnit, val angularUnit: AngularUnit)
 
@@ -133,6 +143,7 @@ class IntersectionViewModel @Inject constructor(
         } else {
             null
         }
+        val solutionsUi = solutionsOf(calculated?.first, own, context.linearUnit)
         IntersectionUi(
             loaded = true,
             kind = own.kind,
@@ -149,20 +160,55 @@ class IntersectionViewModel @Inject constructor(
             value1Invalid = own.value1.isNotBlank() && value1 == null,
             value2Invalid = own.value2.isNotBlank() && value2 == null,
             result = calculated?.first,
-            solutions = solutionsOf(calculated?.first, own, context.linearUnit),
+            solutions = solutionsUi,
             notices = calculated?.second.orEmpty(),
+            markedCount = solutionsUi.count { it.marked },
+            canSave = solutionsUi.any { it.marked } && solutionsUi.none { it.marked && it.heightInvalid },
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), IntersectionUi())
 
-    private fun parse(own: Own, context: Context): Pair<Double?, Double?> = when (own.kind) {
-        IntersectionKind.DISTANCE_DISTANCE ->
-            DistanceInput.parse(own.value1, context.linearUnit) to DistanceInput.parse(own.value2, context.linearUnit)
+    private fun parse(own: Own, context: Context): Pair<Double?, Double?> =
+        parseValues(own.kind, own.value1, own.value2, context.linearUnit, context.angularUnit)
+
+    private fun parseValues(
+        kind: IntersectionKind,
+        text1: String,
+        text2: String,
+        linear: LinearUnit,
+        angular: AngularUnit,
+    ): Pair<Double?, Double?> = when (kind) {
+        IntersectionKind.DISTANCE_DISTANCE -> DistanceInput.parse(text1, linear) to DistanceInput.parse(text2, linear)
         IntersectionKind.DIRECTION_DIRECTION ->
-            DirectionInput.parse(own.value1, context.angularUnit, DirectionKind.AZIMUTH) to
-                DirectionInput.parse(own.value2, context.angularUnit, DirectionKind.AZIMUTH)
+            DirectionInput.parse(text1, angular, DirectionKind.AZIMUTH) to DirectionInput.parse(text2, angular, DirectionKind.AZIMUTH)
         IntersectionKind.DISTANCE_DIRECTION ->
-            DistanceInput.parse(own.value1, context.linearUnit) to
-                DirectionInput.parse(own.value2, context.angularUnit, DirectionKind.AZIMUTH)
+            DistanceInput.parse(text1, linear) to DirectionInput.parse(text2, angular, DirectionKind.AZIMUTH)
+    }
+
+    /** Abre la hoja de guardado con las soluciones marcadas, cada una con lo escrito y sus puntos de entrada (S038/RF-19, RF-22). */
+    fun openSave() {
+        val ui = state.value
+        val id = projectId.value ?: return
+        val first = ui.first as? CogoSlotValue.Found ?: return
+        val second = ui.second as? CogoSlotValue.Found ?: return
+        if (!ui.canSave) return
+        val (v1, v2) = parseValues(ui.kind, ui.value1Text, ui.value2Text, ui.linearUnit, ui.angularUnit)
+        if (v1 == null || v2 == null) return
+        val written = when (ui.kind) {
+            IntersectionKind.DISTANCE_DISTANCE -> listOf(CogoValue("distance1", v1), CogoValue("distance2", v2))
+            IntersectionKind.DIRECTION_DIRECTION -> listOf(CogoValue("azimuth1", v1), CogoValue("azimuth2", v2))
+            IntersectionKind.DISTANCE_DIRECTION -> listOf(CogoValue("distance1", v1), CogoValue("azimuth2", v2))
+        } + CogoValue("ground", if (ui.mode == DistanceMode.GROUND) 1.0 else 0.0)
+        val entries = listOf(first.toEntry("first"), second.toEntry("second"))
+        val results = ui.solutions.filter { it.marked }.map {
+            CogoResult(
+                it.side.name,
+                it.easting,
+                it.northing,
+                it.height,
+                CogoRef(ui.kind.operation, entries, values = written, solution = it.side),
+            )
+        }
+        save.open(id, results, ui.kind.operation, clearDraft = false)
     }
 
     private fun calculate(

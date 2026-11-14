@@ -3,6 +3,8 @@ package es.topophone.app.ui.cogo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.core.model.cogo.CogoOperation
+import es.topophone.core.model.cogo.CogoRef
 import es.topophone.core.model.cogo.DraftPoint
 import es.topophone.core.model.cogo.LegKind
 import es.topophone.core.model.cogo.TraverseDraft
@@ -69,6 +71,8 @@ data class TraverseLegUi(
     val dHeightInvalid: Boolean,
     val step: TraverseStep?,
     val height: Double?,
+    /** Marcado para guardarlo como punto del proyecto (S038/RF-19). */
+    val marked: Boolean = false,
 )
 
 /** Lo que muestra la poligonal (S038/RF-10 a RF-12, RF-31). */
@@ -95,6 +99,8 @@ data class TraverseUi(
     val notices: Set<GeometryNotice> = emptySet(),
     /** Hay algo escrito: se guarda como borrador del proyecto y se puede descartar (S038/RF-26, RF-27). */
     val hasDraft: Boolean = false,
+    /** Cuántos puntos calculados hay marcados para guardar (S038/RF-19). */
+    val markedCount: Int = 0,
 )
 
 /**
@@ -104,7 +110,7 @@ data class TraverseUi(
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TraverseViewModel @Inject constructor(
-    points: PointRepository,
+    private val points: PointRepository,
     private val projects: ProjectRepository,
     private val preferences: GeometryPreferences,
     private val cogo: CogoRepository,
@@ -113,6 +119,7 @@ class TraverseViewModel @Inject constructor(
     val inputs = CogoInputs(points, viewModelScope)
 
     private val legsState = MutableStateFlow<List<LegText>>(emptyList())
+    private val marked = MutableStateFlow<Set<Int>>(emptySet())
 
     /** Los tramos escritos, para guardarlos en el borrador. */
     val legTexts: StateFlow<List<LegText>> = legsState
@@ -129,7 +136,13 @@ class TraverseViewModel @Inject constructor(
         inputs.picker(projectId),
     ) { selections, values, picker -> Triple(selections, values, picker) }
 
-    val state: StateFlow<TraverseUi> = combine(context, preferences.distanceMode, legsState, inputsState) { context, mode, texts, inputs ->
+    val state: StateFlow<TraverseUi> = combine(context, preferences.distanceMode, legsState, inputsState, marked) {
+            context,
+            mode,
+            texts,
+            inputs,
+            marks,
+        ->
         if (context == null) return@combine TraverseUi(mode = mode)
         val (selections, values, picker) = inputs
         val start = values[SLOT_START] ?: CogoSlotValue.Empty
@@ -174,6 +187,7 @@ class TraverseViewModel @Inject constructor(
                     dHeightInvalid = text.dHeight.isNotBlank() && p.leg.dHeightM == null,
                     step = step,
                     height = step?.height,
+                    marked = step != null && (i + 1) in marks,
                 )
             },
             needsReference = texts.any { it.kind != LegKind.AZIMUTH },
@@ -183,12 +197,15 @@ class TraverseViewModel @Inject constructor(
             totalGridLength = result?.totalGridLength ?: 0.0,
             notices = result?.notices.orEmpty(),
             hasDraft = texts.isNotEmpty() || selections.isNotEmpty(),
+            markedCount = marks.count { it in steps },
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), TraverseUi())
 
     private class Parsed(val leg: TraverseLeg)
 
-    private fun parse(text: LegText, context: Context): Parsed {
+    private fun parse(text: LegText, context: Context): Parsed = parse(text, context.linearUnit, context.angularUnit)
+
+    private fun parse(text: LegText, linearUnit: LinearUnit, angularUnit: AngularUnit): Parsed {
         val kind = when (text.kind) {
             LegKind.AZIMUTH -> DirectionKind.AZIMUTH
             LegKind.ANGLE_RIGHT, LegKind.ANGLE_LEFT -> DirectionKind.ANGLE
@@ -197,9 +214,9 @@ class TraverseViewModel @Inject constructor(
         return Parsed(
             TraverseLeg(
                 text.kind,
-                DirectionInput.parse(text.value, context.angularUnit, kind),
-                DistanceInput.parse(text.distance, context.linearUnit),
-                DistanceInput.parseSigned(text.dHeight, context.linearUnit),
+                DirectionInput.parse(text.value, angularUnit, kind),
+                DistanceInput.parse(text.distance, linearUnit),
+                DistanceInput.parseSigned(text.dHeight, linearUnit),
             ),
         )
     }
@@ -274,6 +291,7 @@ class TraverseViewModel @Inject constructor(
     /** Descarta el borrador: vacía lo escrito y lo borra del proyecto (S038/RF-27). */
     fun discardDraft() {
         legsState.value = emptyList()
+        marked.value = emptySet()
         inputs.restore(emptyMap())
         val id = projectId.value ?: return
         viewModelScope.launch { cogo.clearDraft(id) }
@@ -283,7 +301,57 @@ class TraverseViewModel @Inject constructor(
 
     fun addLeg(kind: LegKind = LegKind.AZIMUTH) = legsState.update { it + LegText(kind) }
 
-    fun removeLeg(index: Int) = legsState.update { if (index in it.indices) it.filterIndexed { i, _ -> i != index } else it }
+    fun removeLeg(index: Int) {
+        legsState.update { if (index in it.indices) it.filterIndexed { i, _ -> i != index } else it }
+        // Las marcas siguen a sus tramos: el quitado pierde la suya y los de después bajan un número.
+        marked.update { set -> set.filter { it != index + 1 }.map { if (it > index + 1) it - 1 else it }.toSet() }
+    }
+
+    /** Marca o desmarca el punto del tramo [number] (desde 1) para guardarlo (S038/RF-19). */
+    fun toggleMarked(number: Int) = marked.update { if (number in it) it - number else it + number }
+
+    /** Guardar los puntos marcados; al guardar bien se desmarcan y, si eran todos, el borrador se vacía y la pantalla también (S038/RF-30). */
+    val save = CogoSaveController(
+        points,
+        cogo,
+        projects,
+        viewModelScope,
+        onSaved = { cleared ->
+            marked.value = emptySet()
+            if (cleared) {
+                legsState.value = emptyList()
+                inputs.restore(emptyMap())
+            }
+        },
+    )
+
+    /** Abre la hoja de guardado con los puntos marcados, cada uno con los tramos que llevan a él y sus puntos de entrada (S038/RF-19, RF-22). */
+    fun openSave() {
+        val ui = state.value
+        val id = projectId.value ?: return
+        val start = ui.start as? CogoSlotValue.Found ?: return
+        val chosen = ui.legs.filter { it.marked && it.step != null }
+        if (chosen.isEmpty()) return
+        val legs = legsState.value.map { parse(it, ui.linearUnit, ui.angularUnit).leg }
+        val entries = listOfNotNull(
+            start.toEntry("start"),
+            (ui.reference as? CogoSlotValue.Found)?.toEntry("reference"),
+            (ui.closurePoint as? CogoSlotValue.Found)?.toEntry("closure"),
+        )
+        val results = chosen.map { leg ->
+            val step = checkNotNull(leg.step)
+            CogoResult(
+                "leg${leg.number}",
+                step.easting,
+                step.northing,
+                leg.height,
+                CogoRef(CogoOperation.TRAVERSE, entries, legs = legs.take(leg.number)),
+            )
+        }
+        // El borrador se vacía solo si se guardan todos los tramos y todos están calculados: si queda alguno por completar, se conserva.
+        val clearDraft = chosen.size == ui.legs.size
+        save.open(id, results, CogoOperation.TRAVERSE, clearDraft)
+    }
 
     fun setKind(index: Int, kind: LegKind) = edit(index) { it.copy(kind = kind) }
 
@@ -300,6 +368,7 @@ class TraverseViewModel @Inject constructor(
     /** Sustituye todos los tramos, al recuperar un borrador (S038/RF-27). */
     fun restoreLegs(legs: List<LegText>) {
         legsState.value = legs
+        marked.value = emptySet()
     }
 
     /** Quita el punto de referencia o el de cierre. */

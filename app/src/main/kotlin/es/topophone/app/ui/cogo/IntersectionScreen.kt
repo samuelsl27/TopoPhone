@@ -62,6 +62,10 @@ class IntersectionActions(
     val onValue2: (String) -> Unit = {},
     val onHeight: (IntersectionSide, String) -> Unit = { _, _ -> },
     val onToggle: (IntersectionSide) -> Unit = {},
+    val onOpenSave: () -> Unit = {},
+    val onSaveName: (key: String, name: String) -> Unit = { _, _ -> },
+    val onSave: () -> Unit = {},
+    val onDismissSave: () -> Unit = {},
 )
 
 @Composable
@@ -74,6 +78,7 @@ fun IntersectionRoute(
 ) {
     LaunchedEffect(projectId) { viewModel.start(projectId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val saveUi by viewModel.save.state.collectAsStateWithLifecycle()
     IntersectionScreen(
         themeState,
         onToggleSun,
@@ -90,8 +95,13 @@ fun IntersectionRoute(
             onValue2 = viewModel::setValue2,
             onHeight = viewModel::setHeight,
             onToggle = viewModel::toggleMarked,
+            onOpenSave = viewModel::openSave,
+            onSaveName = viewModel.save::setName,
+            onSave = viewModel.save::save,
+            onDismissSave = viewModel.save::dismiss,
         ),
         onBack,
+        saveUi = saveUi,
     )
 }
 
@@ -107,6 +117,7 @@ fun IntersectionScreen(
     actions: IntersectionActions,
     onBack: () -> Unit,
     footer: @Composable () -> Unit = {},
+    saveUi: CogoSaveUi = CogoSaveUi(),
 ) {
     SectionScaffold(
         title = stringResource(R.string.cogo_intersection),
@@ -127,9 +138,12 @@ fun IntersectionScreen(
             CogoPointField(SLOT_SECOND, second, state.second, state.linearUnit, actions.onPick)
             Conditions(state, actions)
             Result(state, actions)
+            CogoSaveButton(state.markedCount, state.canSave, actions.onOpenSave)
             footer()
         }
     }
+    val sideLabels = IntersectionSide.entries.associate { it.name to stringResource(shortSideLabel(it)) }
+    CogoSaveDialog(saveUi, sideLabels, actions.onSaveName, actions.onSave, actions.onDismissSave)
     val picker = state.picker
     if (picker.slot != null) {
         val label = if (picker.slot == SLOT_FIRST) stringResource(R.string.cogo_point_first) else stringResource(R.string.cogo_point_second)
@@ -199,6 +213,14 @@ private fun reasonLabel(reason: NoSolutionReason) = when (reason) {
     NoSolutionReason.TOO_CLOSE -> R.string.cogo_reason_too_close
     NoSolutionReason.PARALLEL -> R.string.cogo_reason_parallel
     NoSolutionReason.LINE_MISSES -> R.string.cogo_reason_line_misses
+}
+
+private fun shortSideLabel(side: IntersectionSide) = when (side) {
+    IntersectionSide.LEFT -> R.string.cogo_side_left_short
+    IntersectionSide.RIGHT -> R.string.cogo_side_right_short
+    IntersectionSide.FIRST -> R.string.cogo_side_first_short
+    IntersectionSide.SECOND -> R.string.cogo_side_second_short
+    IntersectionSide.SINGLE -> R.string.cogo_side_single_short
 }
 
 private fun sideLabel(side: IntersectionSide) = when (side) {

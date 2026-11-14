@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -69,6 +70,8 @@ fun traverseKindOptionTag(kind: LegKind) = "traverse_kind_option_${kind.name.low
 
 fun traverseStepTag(number: Int) = "traverse_step_$number"
 
+fun traverseMarkTag(number: Int) = "traverse_mark_$number"
+
 fun traverseFieldKey(number: Int, field: String) = "leg${number}_$field"
 
 /** Lo que el usuario hace en la poligonal (S038/RF-3, RF-5, RF-10). */
@@ -87,6 +90,11 @@ class TraverseActions(
     val onDistance: (index: Int, text: String) -> Unit = { _, _ -> },
     val onDHeight: (index: Int, text: String) -> Unit = { _, _ -> },
     val onDiscard: () -> Unit = {},
+    val onToggleMark: (number: Int) -> Unit = {},
+    val onOpenSave: () -> Unit = {},
+    val onSaveName: (key: String, name: String) -> Unit = { _, _ -> },
+    val onSave: () -> Unit = {},
+    val onDismissSave: () -> Unit = {},
 )
 
 @Composable
@@ -99,6 +107,7 @@ fun TraverseRoute(
 ) {
     LaunchedEffect(projectId) { viewModel.start(projectId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val saveUi by viewModel.save.state.collectAsStateWithLifecycle()
     TraverseScreen(
         themeState,
         onToggleSun,
@@ -118,8 +127,14 @@ fun TraverseRoute(
             onDistance = viewModel::setDistance,
             onDHeight = viewModel::setDHeight,
             onDiscard = viewModel::discardDraft,
+            onToggleMark = viewModel::toggleMarked,
+            onOpenSave = viewModel::openSave,
+            onSaveName = viewModel.save::setName,
+            onSave = viewModel.save::save,
+            onDismissSave = viewModel.save::dismiss,
         ),
         onBack,
+        saveUi = saveUi,
     )
 }
 
@@ -136,6 +151,7 @@ fun TraverseScreen(
     actions: TraverseActions,
     onBack: () -> Unit,
     footer: @Composable () -> Unit = {},
+    saveUi: CogoSaveUi = CogoSaveUi(),
 ) {
     var confirmDiscard by remember { mutableStateOf(false) }
     SectionScaffold(
@@ -178,6 +194,7 @@ fun TraverseScreen(
             }
             state.closure?.let { closure -> item(key = "closure") { Closure(closure, state) } }
             item(key = "notices") { FactorNotices(state.notices) }
+            item(key = "save") { CogoSaveButton(state.markedCount, state.markedCount > 0, actions.onOpenSave) }
             if (state.hasDraft) {
                 item(key = "discard") {
                     OutlinedButton(
@@ -210,6 +227,8 @@ fun TraverseScreen(
             },
         )
     }
+    val pointLabels = state.legs.associate { "leg${it.number}" to stringResource(R.string.cogo_leg_point, it.number) }
+    CogoSaveDialog(saveUi, pointLabels, actions.onSaveName, actions.onSave, actions.onDismissSave)
     val picker = state.picker
     if (picker.slot != null) {
         val label = when (picker.slot) {
@@ -307,6 +326,14 @@ private fun Leg(leg: TraverseLegUi, state: TraverseUi, actions: TraverseActions)
                             ?: stringResource(R.string.cogo_point_no_height),
                         style = mono,
                     )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = leg.marked,
+                        onCheckedChange = { actions.onToggleMark(leg.number) },
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(traverseMarkTag(leg.number)),
+                    )
+                    Text(stringResource(R.string.cogo_mark_to_save))
                 }
             }
         }

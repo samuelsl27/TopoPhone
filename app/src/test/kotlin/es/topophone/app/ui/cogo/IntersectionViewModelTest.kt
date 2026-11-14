@@ -18,6 +18,7 @@ import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.survey.cogo.IntersectionResult
 import es.topophone.core.survey.cogo.NoSolutionReason
+import es.topophone.data.cogo.RoomCogoRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.geometry.GeometryPreferences
 import es.topophone.data.point.RoomPointRepository
@@ -116,7 +117,7 @@ class IntersectionViewModelTest {
         }
     }
 
-    private fun viewModel() = IntersectionViewModel(points, projects, preferences).also {
+    private fun viewModel() = IntersectionViewModel(points, projects, preferences, RoomCogoRepository(db)).also {
         viewModels += it
         it.start(projectId)
         it.inputs.open(SLOT_FIRST)
