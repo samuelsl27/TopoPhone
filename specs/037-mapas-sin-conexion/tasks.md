@@ -22,7 +22,7 @@
       Hecho cuando: `OfflineSettingsTest` en verde (por omisión, límites de 200 MB a 10 GB, recuerda lo último).
 - [x] T10. `OfflineDownloader`: la cola de fuentes de una en una, la máquina de estados, pausar, reanudar y cancelar, la pausa al salir de la app, el 2 % de fallos y «Reintentar». (RF-15, RF-16, RF-18, RF-19)
       Hecho cuando: `OfflineDownloaderTest` en verde con el `FakeOfflineRegionStore`.
-- [ ] T11. `OfflineDownloader`: «Actualizar» (invalidar y activar sin perder la fecha anterior si se interrumpe) y las anotaciones del log. (RF-26, RF-30)
+- [x] T11. `OfflineDownloader`: «Actualizar» (invalidar y activar sin perder la fecha anterior si se interrumpe) y las anotaciones del log. (RF-26, RF-30)
       Hecho cuando: `OfflineDownloaderTest` en verde con los casos de actualizar y las líneas del log sin coordenadas.
 - [ ] T12. Conexión, espacio y cliente HTTP: `StorageInfo` y `NetworkInfo` (internet validada, datos móviles) detrás de interfaces con su `Fake`; `ZoneHttp` en `MapHttpClient` (contesta los estilos de `topophone.invalid` sin red y pone `Cache-Control: max-age=31536000` solo mientras se descarga o se actualiza una zona) y 4 peticiones por servidor. Si no cabe en 30 min, `ZoneHttp` pasa a una tarea propia. (RF-12 a RF-14, RF-22, RF-23, RNF)
       Hecho cuando: `MapDispatcherTest` y `ZoneHttpTest` en verde (4 por servidor; estilo sin red; caducidad larga solo durante la descarga y también en los 304; el resto de peticiones intactas) y `DownloadEstimateTest` sigue en verde con las implementaciones de verdad detrás de la interfaz.

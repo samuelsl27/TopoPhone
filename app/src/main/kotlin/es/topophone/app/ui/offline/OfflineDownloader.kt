@@ -1,6 +1,8 @@
 package es.topophone.app.ui.offline
 
 import es.topophone.core.geodesy.GeoBox
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.offline.DetailLevel
 import es.topophone.core.model.offline.DownloadableSource
 import es.topophone.core.model.offline.OfflineArea
@@ -65,12 +67,31 @@ data class DownloadState(
     val phase: DownloadPhase = DownloadPhase.IDLE,
     val sources: List<SourceProgress> = emptyList(),
     val currentSource: DownloadableSource? = null,
+    val updating: Boolean = false,
 ) {
     /** De 0 a 1: la media de lo que lleva cada fuente. */
     val fraction: Float get() = if (sources.isEmpty()) 0f else sources.map { it.fraction }.average().toFloat()
     val completedTiles: Long get() = sources.sumOf { it.completedTiles }
     val bytes: Long get() = sources.sumOf { it.bytes }
-    val zoneState: ZoneState get() = ZoneState.of(sources.map { it.state }, updating = false)
+    val zoneState: ZoneState get() = ZoneState.of(sources.map { it.state }, updating = updating && phase == DownloadPhase.RUNNING)
+}
+
+/** Las anotaciones del log de la app sobre las zonas sin conexión (S037/RF-30): sin coordenadas, con la fuente, las teselas y el resultado. */
+object ZoneLog {
+    private fun prefix(zone: String) = "Zona sin conexión «$zone»"
+
+    fun downloaded(zone: String, source: String, tiles: Long) = "${prefix(zone)}: $source, $tiles teselas, descargada"
+
+    fun updated(zone: String, source: String, tiles: Long) = "${prefix(zone)}: $source, $tiles teselas, actualizada"
+
+    fun incomplete(zone: String, source: String, tiles: Long, missing: Long, updating: Boolean) =
+        "${prefix(zone)}: $source, $tiles teselas, ${if (updating) "actualización incompleta" else "incompleta"} (faltan $missing)"
+
+    fun updateStarted(zone: String) = "${prefix(zone)}: actualización iniciada"
+
+    fun cancelled(zone: String) = "${prefix(zone)}: cancelada, se borra lo descargado"
+
+    fun deleted(zone: String) = "${prefix(zone)}: borrada"
 }
 
 /**
@@ -84,6 +105,7 @@ class OfflineDownloader(
     private val clockMs: () -> Long,
     private val stallTimeoutMs: Long = OfflineLimits.STALL_TIMEOUT_S * 1_000L,
     private val tickMs: Long = TICK_MS,
+    private val log: AppLog = AppLog.NONE,
 ) {
     private class Item(val id: RegionId, var meta: ZoneMeta)
 
@@ -135,15 +157,30 @@ class OfflineDownloader(
      */
     suspend fun resume(zoneId: String): Boolean {
         if (mutableState.value.phase == DownloadPhase.RUNNING) return false
-        val regions = store.list().filter { it.meta?.zoneId == zoneId }.sortedBy { it.id.value }
+        val regions = zoneRegions(zoneId)
         if (regions.isEmpty()) return false
-        val resumed = regions.map { region ->
-            val meta = checkNotNull(region.meta)
-            Item(region.id, meta) to if (meta.downloadedAtMs != null) SourceState.COMPLETE else SourceState.PENDING
-        }
-        begin(zoneId, resumed.first().first.meta.name, resumed)
+        val resumed = regions.map { it to if (it.meta.downloadedAtMs != null) SourceState.COMPLETE else SourceState.PENDING }
+        begin(zoneId, regions.first().meta.name, resumed)
         return true
     }
+
+    /**
+     * Renueva una zona ya descargada (S037/RF-26): invalida lo guardado y vuelve a pedir cada fuente, con lo que MapLibre revalida cada tesela y solo baja las
+     * que cambiaron. La zona sigue sirviendo con las anteriores mientras dura y, si no llega a terminar, conserva su fecha. False si ya hay una descarga en
+     * marcha o la zona no existe.
+     */
+    suspend fun update(zoneId: String): Boolean {
+        if (mutableState.value.phase == DownloadPhase.RUNNING) return false
+        val regions = zoneRegions(zoneId)
+        if (regions.isEmpty()) return false
+        regions.forEach { store.invalidate(it.id) }
+        log.info(LogCategory.APP, ZoneLog.updateStarted(regions.first().meta.name))
+        begin(zoneId, regions.first().meta.name, regions.map { it to SourceState.PENDING }, updating = true)
+        return true
+    }
+
+    private suspend fun zoneRegions(zoneId: String): List<Item> =
+        store.list().filter { it.meta?.zoneId == zoneId }.sortedBy { it.id.value }.map { Item(it.id, checkNotNull(it.meta)) }
 
     /** Detiene la descarga sin perder nada: lo ya guardado se conserva y la zona queda incompleta (RF-16, RF-18). */
     suspend fun pause() {
@@ -168,18 +205,20 @@ class OfflineDownloader(
     suspend fun cancel() {
         job?.cancelAndJoin()
         job = null
+        if (items.isNotEmpty()) log.info(LogCategory.APP, ZoneLog.cancelled(mutableState.value.name))
         items.forEach { store.delete(it.id) }
         items = emptyList()
         current = null
         mutableState.value = DownloadState()
     }
 
-    private fun begin(zoneId: String, name: String, initial: List<Pair<Item, SourceState>>) {
+    private fun begin(zoneId: String, name: String, initial: List<Pair<Item, SourceState>>, updating: Boolean = false) {
         items = initial.map { it.first }
         mutableState.value = DownloadState(
             zoneId = zoneId,
             name = name,
             phase = DownloadPhase.RUNNING,
+            updating = updating,
             sources = initial.map { (item, state) ->
                 SourceProgress(item.meta.source, state, item.meta.tiles, fraction = if (state == SourceState.COMPLETE) 1f else 0f)
             },
@@ -247,14 +286,21 @@ class OfflineDownloader(
     }
 
     private suspend fun settle(index: Int, item: Item, outcome: Outcome) {
+        val zone = item.meta.name
+        val source = item.meta.source.title
+        val tiles = item.meta.tiles
+        val updating = mutableState.value.updating
         when (outcome) {
             is Outcome.Complete -> {
                 item.meta = item.meta.copy(downloadedAtMs = clockMs(), failed = outcome.failed)
                 change(index) { it.copy(state = SourceState.COMPLETE, failedTiles = outcome.failed, fraction = 1f) }
+                log.info(LogCategory.APP, if (updating) ZoneLog.updated(zone, source, tiles) else ZoneLog.downloaded(zone, source, tiles))
             }
             is Outcome.Incomplete -> {
+                // Una actualización que no llega a terminar conserva la fecha anterior (RF-26).
                 item.meta = item.meta.copy(failed = outcome.failed)
                 change(index) { it.copy(state = SourceState.INCOMPLETE, failedTiles = outcome.failed) }
+                log.warning(LogCategory.APP, ZoneLog.incomplete(zone, source, tiles, outcome.failed, updating))
             }
         }
         store.updateMeta(item.id, item.meta)
