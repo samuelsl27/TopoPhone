@@ -22,7 +22,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
-/** Actualizar una zona y lo que se anota en el log de la app (S037/RF-26, RF-30). */
+/** Renovar una zona al «Actualizar» y lo que se anota en el log de la app (S037/RF-26, RF-30). */
 @OptIn(ExperimentalCoroutinesApi::class)
 class OfflineDownloaderUpdateTest {
 
@@ -71,73 +71,47 @@ class OfflineDownloaderUpdateTest {
     }
 
     @Test
-    fun `S037 RF-26 actualizar invalida cada region y vuelve a bajar todas las fuentes con la zona Actualizando`() = runTest {
+    fun `S037 RF-26 renovar invalida cada region de la zona sin activar ninguna ni empezar una descarga`() = runTest {
         val store = FakeOfflineRegionStore()
         val downloader = downloadedZone(store)
+        store.calls.clear()
         advanceTimeBy(10_000)
 
-        downloader.update("z1") shouldBe true
+        downloader.renew("z1") shouldBe true
         runCurrent()
 
-        store.calls.filter { it.startsWith("invalidate") } shouldBe listOf("invalidate:1", "invalidate:2")
-        store.calls.indexOf("invalidate:2") shouldBe store.calls.indexOf("invalidate:1") + 1
-        downloader.state.value.zoneState shouldBe ZoneState.UPDATING
-        downloader.state.value.sources.map { it.state } shouldBe listOf(SourceState.DOWNLOADING, SourceState.PENDING)
-
-        store.finish(store.ids[0])
-        runCurrent()
-        store.finish(store.ids[1])
-        runCurrent()
-
+        store.calls shouldBe listOf("invalidate:1", "invalidate:2")
         downloader.state.value.phase shouldBe DownloadPhase.FINISHED
         downloader.state.value.zoneState shouldBe ZoneState.COMPLETE
-        store.meta(store.ids[0])!!.downloadedAtMs shouldBe 10_000
-        store.meta(store.ids[1])!!.downloadedAtMs shouldBe 10_000
     }
 
     @Test
-    fun `S037 RF-26 si la actualizacion se pausa la zona conserva su fecha anterior`() = runTest {
+    fun `S037 RF-26 renovar no cambia la fecha de descarga ni deja la zona incompleta`() = runTest {
         val store = FakeOfflineRegionStore()
         val downloader = downloadedZone(store)
-        val before = store.meta(store.ids[0])!!.downloadedAtMs
+        val before = store.ids.map { store.meta(it)!!.downloadedAtMs }
         advanceTimeBy(10_000)
-        downloader.update("z1")
+
+        downloader.renew("z1")
         runCurrent()
 
-        downloader.pause()
-
-        store.meta(store.ids[0])!!.downloadedAtMs shouldBe before
-        store.meta(store.ids[1])!!.downloadedAtMs shouldBe before
+        store.ids.map { store.meta(it)!!.downloadedAtMs } shouldBe before
+        before.all { it != null } shouldBe true
+        downloader.state.value.sources.map { it.state } shouldBe listOf(SourceState.COMPLETE, SourceState.COMPLETE)
     }
 
     @Test
-    fun `S037 RF-26 si una fuente no llega a actualizarse, conserva su fecha anterior`() = runTest {
-        val store = FakeOfflineRegionStore()
-        val downloader = downloadedZone(store)
-        val before = store.meta(store.ids[0])!!.downloadedAtMs
-        advanceTimeBy(10_000)
-        downloader.update("z1")
-        runCurrent()
-        store.progress(store.ids[0], completed = 500, required = 1_001, tiles = 499)
-        store.fail(store.ids[0], 5)
-        runCurrent()
-
-        advanceTimeBy(32_000)
-
-        downloader.state.value.sources[0].state shouldBe SourceState.INCOMPLETE
-        store.meta(store.ids[0])!!.downloadedAtMs shouldBe before
-    }
-
-    @Test
-    fun `S037 RF-26 no se actualiza una zona que no existe ni con otra descarga en marcha`() = runTest {
+    fun `S037 RF-26 no se renueva una zona que no existe ni con otra descarga en marcha`() = runTest {
         val store = FakeOfflineRegionStore()
         val downloader = downloader(store)
-        downloader.update("otra") shouldBe false
+        downloader.renew("otra") shouldBe false
 
         downloader.start(plan(planned(pnoa)))
         runCurrent()
+        store.calls.clear()
 
-        downloader.update("z1") shouldBe false
+        downloader.renew("z1") shouldBe false
+        store.calls shouldBe emptyList()
     }
 
     @Test
@@ -169,23 +143,18 @@ class OfflineDownloaderUpdateTest {
     }
 
     @Test
-    fun `S037 RF-30 la actualizacion y la cancelacion se anotan`() = runTest {
+    fun `S037 RF-30 renovar y cancelar se anotan`() = runTest {
         val log = RecordingLog()
         val store = FakeOfflineRegionStore()
         val downloader = downloadedZone(store, log)
-        downloader.update("z1")
-        runCurrent()
-        store.finish(store.ids[0])
-        runCurrent()
-        store.finish(store.ids[1])
+        downloader.renew("z1")
         runCurrent()
         downloader.start(plan(planned(pnoa)).copy(zoneId = "z2", name = "Otra"))
         runCurrent()
 
         downloader.cancel()
 
-        log.texts shouldContain "Zona sin conexión «Obra»: actualización iniciada"
-        log.texts shouldContain "Zona sin conexión «Obra»: Ortofoto PNOA, 1000 teselas, actualizada"
+        log.texts shouldContain "Zona sin conexión «Obra»: marcada para renovar con conexión"
         log.texts shouldContain "Zona sin conexión «Otra»: cancelada, se borra lo descargado"
     }
 

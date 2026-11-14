@@ -2997,7 +2997,6 @@
     <string name="offline_zone_date">Downloaded on %1$s</string>
     <string name="offline_zone_no_date">Download not finished</string>
     <string name="offline_zone_state_incomplete">Incomplete: %1$d %%</string>
-    <string name="offline_zone_state_updating">Updating</string>
     <string name="offline_zone_update">Update</string>
     <string name="offline_zone_rename">Rename</string>
     <string name="offline_zone_delete">Delete</string>
@@ -3006,5 +3005,8 @@
     <string name="offline_delete_title">Delete the zone?</string>
     <string name="offline_delete_text">\"%1$s\" will be deleted and %2$s freed.</string>
     <string name="offline_delete_confirm">Delete</string>
+    <string name="offline_renew_title">Update the zone</string>
+    <string name="offline_renew_text">The tiles of \"%1$s\" are marked as expired. With a connection, each one is replaced by the new one when you see it on the map. Without a connection the zone stays complete, with what it already has.</string>
+    <string name="offline_renew_confirm">Update</string>
     <string name="offline_max_detail">Maximum stored detail</string>
 </resources>

@@ -48,7 +48,9 @@ class OfflineZonesSheetTest {
         onLimit = { calls += "limit:${it / mb}" },
         onDownloadZone = { calls += "download" },
         onSeeProgress = { calls += "progress" },
-        onUpdate = { calls += "update:$it" },
+        onRequestRenew = { calls += "renew:$it" },
+        onConfirmRenew = { calls += "renewConfirm" },
+        onDismissRenew = { calls += "renewDismiss" },
         onResume = { calls += "resume:$it" },
         onRename = { id, name -> calls += "rename:$id:$name" },
         onRequestDelete = { calls += "request:$it" },
@@ -88,7 +90,6 @@ class OfflineZonesSheetTest {
 
     private val complete = zone("a", "Obra norte", ZoneState.COMPLETE)
     private val incomplete = zone("b", "A medias", ZoneState.INCOMPLETE, at = null, fraction = 0.42f, size = 7 * mb)
-    private val updating = zone("c", "Renovando", ZoneState.UPDATING)
 
     @Test
     fun `S037 RF-24 sin zonas lo dice, da la ocupacion y deja descargar una`() {
@@ -115,17 +116,16 @@ class OfflineZonesSheetTest {
     }
 
     @Test
-    fun `S037 RF-24 una zona incompleta dice su porcentaje y que no ha terminado, y una que se actualiza lo dice`() {
-        show(OfflineZonesUiState(loaded = true, zones = listOf(incomplete, updating)))
+    fun `S037 RF-24 una zona incompleta dice su porcentaje y que no ha terminado`() {
+        show(OfflineZonesUiState(loaded = true, zones = listOf(incomplete)))
 
         compose.onNodeWithTag(offlineZoneStateTag("b"), useUnmergedTree = true).assertTextContains("Incompleta: 42 %")
         compose.onNodeWithTag(offlineZoneDateTag("b"), useUnmergedTree = true).assertTextContains("Sin terminar de descargar")
-        compose.onNodeWithTag(offlineZoneStateTag("c"), useUnmergedTree = true).assertTextContains("Actualizando")
     }
 
     @Test
-    fun `S037 RF-26 una zona completa se actualiza y una incompleta se reanuda, y una que se actualiza no ofrece ninguna`() {
-        show(OfflineZonesUiState(loaded = true, zones = listOf(complete, incomplete, updating)))
+    fun `S037 RF-26 una zona completa se actualiza y una incompleta se reanuda`() {
+        show(OfflineZonesUiState(loaded = true, zones = listOf(complete, incomplete)))
 
         scrollTo(offlineZoneUpdateTag("a"))
         compose.onNodeWithTag(offlineZoneUpdateTag("a")).assertHeightIsAtLeast(56.dp).performClick()
@@ -133,11 +133,29 @@ class OfflineZonesSheetTest {
         scrollTo(offlineZoneResumeTag("b"))
         compose.onNodeWithTag(offlineZoneResumeTag("b")).assertHeightIsAtLeast(56.dp).performClick()
         compose.onNodeWithTag(offlineZoneUpdateTag("b")).assertDoesNotExist()
-        scrollTo(offlineZoneRenameTag("c"))
-        compose.onNodeWithTag(offlineZoneUpdateTag("c")).assertDoesNotExist()
-        compose.onNodeWithTag(offlineZoneResumeTag("c")).assertDoesNotExist()
 
-        calls shouldBe listOf("update:a", "resume:b")
+        calls shouldBe listOf("renew:a", "resume:b")
+    }
+
+    @Test
+    fun `S037 RF-26 actualizar abre una confirmacion que explica que se renueva al verla con conexion y confirma o cancela`() {
+        show(OfflineZonesUiState(loaded = true, zones = listOf(complete), pendingRenew = complete))
+
+        compose.onNodeWithTag(OFFLINE_RENEW_DIALOG_TAG).assertIsDisplayed()
+        compose.onNodeWithText("«Obra norte»", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("al verla en el mapa", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("Sin conexión la zona sigue entera", substring = true).assertIsDisplayed()
+        compose.onNodeWithTag(OFFLINE_RENEW_CANCEL_TAG).assertHeightIsAtLeast(56.dp).performClick()
+        compose.onNodeWithTag(OFFLINE_RENEW_CONFIRM_TAG).assertHeightIsAtLeast(56.dp).performClick()
+
+        calls shouldBe listOf("renewDismiss", "renewConfirm")
+    }
+
+    @Test
+    fun `S037 RF-26 sin zona pendiente de actualizar no hay confirmacion`() {
+        show(OfflineZonesUiState(loaded = true, zones = listOf(complete)))
+
+        compose.onNodeWithTag(OFFLINE_RENEW_DIALOG_TAG).assertDoesNotExist()
     }
 
     @Test
@@ -292,5 +310,29 @@ class OfflineZonesSheetEnglishTest {
         compose.onNodeWithTag(offlineZoneStateTag("a"), useUnmergedTree = true).assertTextContains("Incomplete: 50 %")
         compose.onNodeWithTag(offlineZoneDateTag("a"), useUnmergedTree = true).assertTextContains("Download not finished")
         compose.onNodeWithTag(offlineZoneTag("a")).assertTextContains("Sources: PNOA orthophoto", substring = true)
+    }
+
+    @Test
+    fun `S037 RNF-T7 the update confirmation is in English`() {
+        val zone = ZoneItem(
+            "a",
+            "p1",
+            "Site north",
+            listOf(DownloadableSource(SourceKind.PNOA, "Ortofoto PNOA")),
+            DetailLevel.NORMAL,
+            12L * 1024 * 1024,
+            1_794_657_600_000L,
+            ZoneState.COMPLETE,
+            1f,
+        )
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                OfflineZonesContent(OfflineZonesUiState(loaded = true, zones = listOf(zone), pendingRenew = zone), OfflineZonesActions())
+            }
+        }
+
+        compose.onNodeWithTag(OFFLINE_RENEW_DIALOG_TAG).assertIsDisplayed()
+        compose.onNodeWithText("when you see it on the map", substring = true).assertIsDisplayed()
+        compose.onNodeWithTag(OFFLINE_RENEW_CONFIRM_TAG).assertTextContains("Update")
     }
 }

@@ -54,7 +54,7 @@ class OfflineCoverageViewModel @Inject constructor(private val store: OfflineReg
         recompute()
     }
 
-    /** Vuelve a leer las regiones: tras una descarga, un borrado o una actualización. */
+    /** Vuelve a leer las regiones: tras una descarga o un borrado. */
     fun reload() {
         viewModelScope.launch {
             zones = store.list().mapNotNull { ZoneCoverage.of(it) }

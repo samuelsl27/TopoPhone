@@ -72,7 +72,7 @@ class OfflineDownloaderHttpTest {
     }
 
     @Test
-    fun `S037 RF-26 actualizar tambien alarga la caducidad mientras dura`() = runTest {
+    fun `S037 RF-26 renovar una zona no toca la caducidad larga porque no descarga nada`() = runTest {
         val store = FakeOfflineRegionStore()
         val mode = RecordingMode()
         val downloader = downloader(store, mode)
@@ -80,12 +80,11 @@ class OfflineDownloaderHttpTest {
         runCurrent()
         store.finish(store.ids[0])
         runCurrent()
+        mode.changes shouldBe listOf(true, false)
 
-        downloader.update("z1")
-        runCurrent()
-        store.finish(store.ids[0])
+        downloader.renew("z1")
         runCurrent()
 
-        mode.changes shouldBe listOf(true, false, true, false)
+        mode.changes shouldBe listOf(true, false)
     }
 }

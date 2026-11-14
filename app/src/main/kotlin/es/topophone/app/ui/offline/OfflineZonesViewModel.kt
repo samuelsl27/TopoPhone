@@ -47,11 +47,13 @@ data class OfflineZonesUiState(
     val limitBytes: Long = OfflineLimits.DEFAULT_STORAGE_LIMIT_BYTES,
     /** La zona que el usuario ha pedido borrar y está esperando confirmación (RF-27). */
     val pendingDelete: ZoneItem? = null,
+    /** La zona que el usuario ha pedido actualizar y está esperando confirmación (RF-26). */
+    val pendingRenew: ZoneItem? = null,
     val download: DownloadState = DownloadState(),
 )
 
 /**
- * Las zonas sin conexión del proyecto (S037/RF-24 a RF-27, RF-31): la lista con su estado, la ocupación total y el límite, y renombrar, actualizar,
+ * Las zonas sin conexión del proyecto (S037/RF-24 a RF-27, RF-31): la lista con su estado, la ocupación total y el límite, y renombrar, actualizar (con confirmación),
  * reanudar y borrar con confirmación. Sale de las regiones de MapLibre; se vuelve a leer cuando cambia la descarga y después de cada orden.
  */
 @HiltViewModel
@@ -95,11 +97,19 @@ class OfflineZonesViewModel @Inject constructor(
         }
     }
 
-    fun update(zoneId: String) {
-        viewModelScope.launch {
-            downloader.update(zoneId)
-            reload()
-        }
+    fun requestRenew(zoneId: String) {
+        mutableState.update { state -> state.copy(pendingRenew = state.zones.firstOrNull { it.zoneId == zoneId }) }
+    }
+
+    fun dismissRenew() {
+        mutableState.update { it.copy(pendingRenew = null) }
+    }
+
+    /** Marca la zona pendiente como caducada para que se renueve al verla con conexión; no descarga nada (RF-26). */
+    fun confirmRenew() {
+        val zone = mutableState.value.pendingRenew ?: return
+        mutableState.update { it.copy(pendingRenew = null) }
+        viewModelScope.launch { downloader.renew(zone.zoneId) }
     }
 
     /** Sigue con una zona incompleta; es también el «Reintentar» de las fuentes incompletas (RF-19). */
@@ -172,7 +182,7 @@ class OfflineZonesViewModel @Inject constructor(
         }
     }
 
-    /** Una fuente está completa si tiene fecha de descarga (también durante una actualización, que sigue sirviendo con lo anterior); si no, lo que dice el descargador. */
+    /** Una fuente está completa si tiene fecha de descarga; si no, lo que dice el descargador. */
     private fun sourceState(meta: ZoneMeta, index: Int, download: DownloadState, live: Boolean): SourceState = when {
         meta.downloadedAtMs != null -> SourceState.COMPLETE
         live -> download.sources.getOrNull(index)?.state ?: SourceState.INCOMPLETE
@@ -192,7 +202,7 @@ class OfflineZonesViewModel @Inject constructor(
             detail = metas.first().detail,
             sizeBytes = group.sumOf { it.progress.bytes },
             downloadedAtMs = if (dates.all { it != null }) dates.filterNotNull().min() else null,
-            state = ZoneState.of(states, updating = live && download.updating && download.phase == DownloadPhase.RUNNING),
+            state = ZoneState.of(states),
             fraction = group.map { it.progress.fraction }.average().toFloat(),
         )
     }

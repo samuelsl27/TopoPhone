@@ -65,6 +65,9 @@ const val OFFLINE_RENAME_CANCEL_TAG = "offline_rename_cancel"
 const val OFFLINE_DELETE_DIALOG_TAG = "offline_delete_dialog"
 const val OFFLINE_DELETE_CONFIRM_TAG = "offline_delete_confirm"
 const val OFFLINE_DELETE_CANCEL_TAG = "offline_delete_cancel"
+const val OFFLINE_RENEW_DIALOG_TAG = "offline_renew_dialog"
+const val OFFLINE_RENEW_CONFIRM_TAG = "offline_renew_confirm"
+const val OFFLINE_RENEW_CANCEL_TAG = "offline_renew_cancel"
 
 fun offlineZoneTag(id: String) = "offline_zone_$id"
 
@@ -90,7 +93,9 @@ class OfflineZonesActions(
     val onLimit: (Long) -> Unit = {},
     val onDownloadZone: () -> Unit = {},
     val onSeeProgress: () -> Unit = {},
-    val onUpdate: (String) -> Unit = {},
+    val onRequestRenew: (String) -> Unit = {},
+    val onConfirmRenew: () -> Unit = {},
+    val onDismissRenew: () -> Unit = {},
     val onResume: (String) -> Unit = {},
     val onRename: (zoneId: String, name: String) -> Unit = { _, _ -> },
     val onRequestDelete: (String) -> Unit = {},
@@ -117,7 +122,9 @@ fun OfflineMapsHost(projectId: String, projectName: String, visible: () -> GeoBo
                 onLimit = zones::setLimit,
                 onDownloadZone = { showPlan = true },
                 onSeeProgress = { showProgress = true },
-                onUpdate = zones::update,
+                onRequestRenew = zones::requestRenew,
+                onConfirmRenew = zones::confirmRenew,
+                onDismissRenew = zones::dismissRenew,
                 onResume = zones::resume,
                 onRename = zones::rename,
                 onRequestDelete = zones::requestDelete,
@@ -215,12 +222,11 @@ fun OfflineZonesContent(state: OfflineZonesUiState, actions: OfflineZonesActions
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         when (zone.state) {
                             ZoneState.COMPLETE -> ZoneButton(R.string.offline_zone_update, offlineZoneUpdateTag(zone.zoneId), !busy) {
-                                actions.onUpdate(zone.zoneId)
+                                actions.onRequestRenew(zone.zoneId)
                             }
                             ZoneState.INCOMPLETE -> ZoneButton(R.string.offline_action_resume, offlineZoneResumeTag(zone.zoneId), !busy) {
                                 actions.onResume(zone.zoneId)
                             }
-                            ZoneState.UPDATING -> Unit
                         }
                         ZoneButton(R.string.offline_zone_rename, offlineZoneRenameTag(zone.zoneId)) { renaming = zone.zoneId }
                         ZoneButton(R.string.offline_zone_delete, offlineZoneDeleteTag(zone.zoneId)) { actions.onRequestDelete(zone.zoneId) }
@@ -239,6 +245,24 @@ fun OfflineZonesContent(state: OfflineZonesUiState, actions: OfflineZonesActions
                 actions.onRename(zoneId, name)
             }, onCancel = { renaming = null })
         }
+    }
+    state.pendingRenew?.let { zone ->
+        AlertDialog(
+            onDismissRequest = actions.onDismissRenew,
+            title = { Text(stringResource(R.string.offline_renew_title)) },
+            text = { Text(stringResource(R.string.offline_renew_text, zone.name)) },
+            confirmButton = {
+                TextButton(actions.onConfirmRenew, Modifier.heightIn(min = MinTouchTarget).testTag(OFFLINE_RENEW_CONFIRM_TAG)) {
+                    Text(stringResource(R.string.offline_renew_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(actions.onDismissRenew, Modifier.heightIn(min = MinTouchTarget).testTag(OFFLINE_RENEW_CANCEL_TAG)) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            },
+            modifier = Modifier.testTag(OFFLINE_RENEW_DIALOG_TAG),
+        )
     }
     state.pendingDelete?.let { zone ->
         AlertDialog(
@@ -295,12 +319,11 @@ private fun RenameDialog(current: String, onSave: (String) -> Unit, onCancel: ()
     )
 }
 
-/** El estado de una zona con texto y con color (RNF-T8): «Completa», «Incompleta: 42 %» o «Actualizando». */
+/** El estado de una zona con texto y con color (RNF-T8): «Completa» o «Incompleta: 42 %». */
 @Composable
 private fun zoneStateText(zone: ZoneItem): String = when (zone.state) {
     ZoneState.COMPLETE -> stringResource(R.string.offline_state_complete)
     ZoneState.INCOMPLETE -> stringResource(R.string.offline_zone_state_incomplete, (zone.fraction * PERCENT).toInt())
-    ZoneState.UPDATING -> stringResource(R.string.offline_zone_state_updating)
 }
 
 @Composable

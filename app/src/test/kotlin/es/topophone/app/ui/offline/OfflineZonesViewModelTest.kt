@@ -14,6 +14,7 @@ import es.topophone.core.model.offline.ZoneMeta
 import es.topophone.core.model.offline.ZoneState
 import es.topophone.data.offline.OfflinePreferences
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -204,19 +205,55 @@ class OfflineZonesViewModelTest {
     }
 
     @Test
-    fun `S037 RF-26 actualizar una zona invalida sus regiones y mientras dura la lista la ve Actualizando`() = runTest {
+    fun `S037 RF-26 actualizar pide confirmacion y al confirmar invalida las regiones sin descargar nada`() = runTest {
         val store = FakeOfflineRegionStore()
         store.zone("z1", "p1", "Obra", Triple(pnoa, 1L, mb))
         val s = setup(store)
         s.vm.open("p1")
         runCurrent()
 
-        s.vm.update("z1")
+        s.vm.requestRenew("z1")
+        runCurrent()
+
+        s.vm.state.value.pendingRenew?.zoneId shouldBe "z1"
+        store.calls shouldNotContain "invalidate:1"
+
+        s.vm.confirmRenew()
         runCurrent()
 
         store.calls shouldContain "invalidate:1"
-        s.vm.state.value.zones.single().state shouldBe ZoneState.UPDATING
-        s.vm.state.value.download.phase shouldBe DownloadPhase.RUNNING
+        store.calls shouldNotContain "setActive:1:true"
+        s.vm.state.value.pendingRenew shouldBe null
+        s.vm.state.value.zones.single().state shouldBe ZoneState.COMPLETE
+        s.vm.state.value.download.phase shouldBe DownloadPhase.IDLE
+    }
+
+    @Test
+    fun `S037 RF-26 cancelar la confirmacion de actualizar no invalida nada`() = runTest {
+        val store = FakeOfflineRegionStore()
+        store.zone("z1", "p1", "Obra", Triple(pnoa, 1L, mb))
+        val s = setup(store)
+        s.vm.open("p1")
+        runCurrent()
+        s.vm.requestRenew("z1")
+
+        s.vm.dismissRenew()
+        s.vm.confirmRenew()
+        runCurrent()
+
+        s.vm.state.value.pendingRenew shouldBe null
+        store.calls shouldNotContain "invalidate:1"
+    }
+
+    @Test
+    fun `S037 RF-26 pedir actualizar una zona que no esta en la lista no abre ninguna confirmacion`() = runTest {
+        val s = setup(FakeOfflineRegionStore())
+        s.vm.open("p1")
+        runCurrent()
+
+        s.vm.requestRenew("z9")
+
+        s.vm.state.value.pendingRenew shouldBe null
     }
 
     @Test

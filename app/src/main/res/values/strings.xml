@@ -3009,7 +3009,6 @@
     <string name="offline_zone_date">Descargada el %1$s</string>
     <string name="offline_zone_no_date">Sin terminar de descargar</string>
     <string name="offline_zone_state_incomplete">Incompleta: %1$d %%</string>
-    <string name="offline_zone_state_updating">Actualizando</string>
     <string name="offline_zone_update">Actualizar</string>
     <string name="offline_zone_rename">Renombrar</string>
     <string name="offline_zone_delete">Borrar</string>
@@ -3018,5 +3017,8 @@
     <string name="offline_delete_title">¿Borrar la zona?</string>
     <string name="offline_delete_text">Se borra «%1$s» y se liberan %2$s.</string>
     <string name="offline_delete_confirm">Borrar</string>
+    <string name="offline_renew_title">Actualizar la zona</string>
+    <string name="offline_renew_text">Las teselas de «%1$s» se marcan como caducadas. Con conexión, cada una se sustituye por la nueva al verla en el mapa. Sin conexión la zona sigue entera, con lo que ya tiene.</string>
+    <string name="offline_renew_confirm">Actualizar</string>
     <string name="offline_max_detail">Detalle máximo guardado</string>
 </resources>

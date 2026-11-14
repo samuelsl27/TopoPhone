@@ -53,7 +53,7 @@ Términos de esta spec:
 ### Gestionar las zonas (H3)
 - RF-24: EL SISTEMA listará las zonas con su nombre (propuesto «<proyecto> – <fecha>»), fuentes, nivel de detalle, tamaño real, fecha de descarga y estado (Completa, Incompleta), y la ocupación total.
 - RF-25: EL SISTEMA permitirá renombrar una zona.
-- RF-26: CUANDO el usuario pulse «Actualizar» en una zona, EL SISTEMA volverá a descargarla sustituyendo cada tesela cuando llegue la nueva, mantendrá la zona utilizable con sus teselas anteriores hasta que termine y conservará su fecha anterior si se interrumpe.
+- RF-26: CUANDO el usuario pulse «Actualizar» en una zona, EL SISTEMA marcará sus teselas como caducadas para que, con conexión, cada una se sustituya por la nueva cuando el mapa la pida, y mantendrá la zona utilizable sin conexión con las teselas que tiene.
 - RF-27: CUANDO el usuario borre una zona, EL SISTEMA pedirá confirmación y liberará el espacio que mostraba la lista.
 - RF-28: CUANDO se borre un proyecto definitivamente, EL SISTEMA borrará sus zonas; mientras esté en la papelera (S006), las conservará.
 - RF-29: EL SISTEMA no incluirá el contenido de las zonas en las copias de seguridad ni en los paquetes de proyecto (S013).
@@ -85,7 +85,7 @@ Términos de esta spec:
 | Fuente que falla en parte | RF-19 |
 | Acercar más allá de lo descargado | RF-21 |
 | Zona incompleta usada sin conexión | RF-20 (se ve lo descargado; el aviso de S009/RF-15 sigue) |
-| Actualizar sin red a mitad | RF-26 |
+| Actualizar sin conexión | RF-26 (la zona sigue sirviendo con lo que tiene y se renueva al verla con conexión) |
 | Borrar un proyecto en la papelera | RF-28 |
 
 ## Fuera de alcance
@@ -114,7 +114,7 @@ Términos de esta spec:
 ## Dudas abiertas
 - [SUPOSICIÓN, no preguntada: las zonas no entran en las copias ni en los paquetes; se vuelven a descargar (RF-29).]
 - [SUPOSICIÓN, no preguntada: el límite de almacenamiento está en la pantalla «Mapas sin conexión» y no en Ajustes, como la biblioteca WMS de S036, para no tocar S005 (RF-31).]
-- [SUPOSICIÓN, no preguntada: mientras se actualiza una zona se siguen usando sus teselas anteriores, y si la actualización se interrumpe la zona no pasa a «Incompleta» (RF-26).]
+- [DECIDIDO 14/11/2026, tras T20: «Actualizar» renueva cada tesela al verla con conexión y no baja la zona entera de una vez, porque MapLibre no vuelve a pedir lo que ya tiene guardado; la zona sigue «Completa» y con su fecha de descarga (RF-26).]
 - [SUPOSICIÓN, no preguntada: se usan las teselas guardadas de una zona incompleta, aunque el aviso de S009/RF-15 solo se oculta dentro del área de una fuente completa (RF-20).]
 - [SUPOSICIÓN, no preguntada: el centro del proyecto del borrador (S006/RF-37) puede venir de su último encuadre, y entonces el radio se mide desde ahí.]
 

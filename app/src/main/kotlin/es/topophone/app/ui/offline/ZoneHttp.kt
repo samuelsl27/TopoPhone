@@ -24,7 +24,7 @@ interface DownloadHttpMode {
 /**
  * La parte del cliente HTTP del mapa que es de las zonas sin conexión (S037, plan «ZoneHttp»), con lo que midió T1:
  * - Contesta sin red los estilos de las direcciones de `topophone.invalid` ([RegionStyles]), porque MapLibre no lee estilos `file://`.
- * - Mientras se descarga o se actualiza una zona, pone `Cache-Control: max-age=31536000` (y quita `Expires`) a las respuestas correctas y a los 304. Sin eso
+ * - Mientras se descarga una zona, pone `Cache-Control: max-age=31536000` (y quita `Expires`) a las respuestas correctas y a los 304. Sin eso
  *   MapLibre revalida con `If-None-Match` todo lo que el servidor no da con caducidad (el IGN vectorial y los WMS) cada vez que se abre el mapa, y no se
  *   cumple que una zona completa no pida a la red lo que ya tiene (RF-23). Las respuestas de fuera de una descarga no se tocan.
  */
