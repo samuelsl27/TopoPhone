@@ -110,6 +110,9 @@ import kotlinx.serialization.Serializable
 /** La intersección de distancias y direcciones (S038/RF-13). */
 @Serializable data class CogoIntersectionDestination(val projectId: String)
 
+/** La poligonal (S038/RF-10). */
+@Serializable data class CogoTraverseDestination(val projectId: String)
+
 /** Ficha de un punto (S011/RF-5). */
 @Serializable data class PointDestination(val projectId: String, val pointId: String)
 

@@ -50,6 +50,7 @@ import es.topophone.app.ui.cogo.CogoMenuActions
 import es.topophone.app.ui.cogo.CogoMenuRoute
 import es.topophone.app.ui.cogo.IntersectionRoute
 import es.topophone.app.ui.cogo.InverseRoute
+import es.topophone.app.ui.cogo.TraverseRoute
 import es.topophone.app.ui.export.DxfExportRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
@@ -921,8 +922,13 @@ private fun AppNavHost(
                     CogoMenuActions(
                         onInverse = { navController.navigate(CogoInverseDestination(args.projectId)) },
                         onIntersection = { navController.navigate(CogoIntersectionDestination(args.projectId)) },
+                        onTraverse = { navController.navigate(CogoTraverseDestination(args.projectId)) },
                     ),
                 ) { navController.popBackStack() }
+            }
+            composable<CogoTraverseDestination> { entry ->
+                val args = entry.toRoute<CogoTraverseDestination>()
+                TraverseRoute(args.projectId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<CogoIntersectionDestination> { entry ->
                 val args = entry.toRoute<CogoIntersectionDestination>()

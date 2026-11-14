@@ -48,7 +48,7 @@
       Hecho cuando: `IntersectionViewModelTest` en verde con las tres clases, la elección de solución y el aviso de «detrás».
 - [x] T23. `app`: `TraverseViewModel`: punto de inicio, referencia y cierre, tramos (añadir, editar, quitar), cálculo en vivo y cierre. (RF-10, RF-11, RF-12, RF-31)
       Hecho cuando: `TraverseViewModelTest` en verde sin escribir nada en la base.
-- [ ] T24. `app`: `TraverseScreen` con la lista de tramos, los puntos calculados, el cierre y los avisos. (RF-10, RF-11, RF-12, RF-31)
+- [x] T24. `app`: `TraverseScreen` con la lista de tramos, los puntos calculados, el cierre y los avisos. (RF-10, RF-11, RF-12, RF-31)
       Hecho cuando: `CogoScreensTest` (poligonal) en verde, con `performScrollToNode` en la lista.
 - [ ] T25. `app`: el borrador de la poligonal en el ViewModel: guardar al instante, recuperar recalculado, descartar con confirmación y punto de entrada que ya no está. (RF-26, RF-27, RF-28)
       Hecho cuando: `TraverseDraftViewModelTest` en verde, incluida la reapertura tras destruir el ViewModel.
