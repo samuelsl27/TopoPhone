@@ -2938,4 +2938,37 @@
     <string name="map_menu_coordinates_title">Coordenadas del punto</string>
     <string name="map_menu_copy">Copiar</string>
     <string name="map_menu_outside_scope">Este punto está fuera del ámbito del sistema de coordenadas del proyecto: solo se dan su latitud y su longitud.</string>
+    <!-- S037 · Mapas sin conexión: descargar una zona -->
+    <string name="offline_plan_title">Descargar zona</string>
+    <string name="offline_plan_area">Área</string>
+    <string name="offline_plan_no_area">Este proyecto no tiene centro y no se sabe qué se ve en el mapa: no hay un área que descargar.</string>
+    <string name="offline_area_radius">Radio alrededor del centro del proyecto</string>
+    <string name="offline_area_viewport">Lo que se ve en el mapa</string>
+    <string name="offline_area_project">Todo el proyecto</string>
+    <string name="offline_plan_radius">Radio: %1$s</string>
+    <string name="offline_plan_margin">Margen: %1$s</string>
+    <string name="offline_plan_sources">Fuentes</string>
+    <string name="offline_source_ign">Mapa IGN</string>
+    <string name="offline_source_pnoa">Ortofoto PNOA</string>
+    <string name="offline_source_osm">Mapa OpenStreetMap</string>
+    <string name="offline_plan_no_sources">Marca al menos una fuente.</string>
+    <string name="offline_plan_detail">Nivel de detalle</string>
+    <string name="offline_detail_normal">Normal (hasta 1:5.000)</string>
+    <string name="offline_detail_high">Alto (hasta 1:1.000)</string>
+    <string name="offline_detail_max">Máximo (1 m en la barra de escala)</string>
+    <string name="offline_plan_estimate">Previsión</string>
+    <string name="offline_estimate_source">%1$s: %2$s teselas, unos %3$s</string>
+    <string name="offline_estimate_total">Total: %1$s teselas, unos %2$s</string>
+    <string name="offline_estimate_storage">Espacio libre en el móvil: %1$s. Ocupado ya por mapas sin conexión: %2$s de %3$s.</string>
+    <string name="offline_block_no_internet">No hay conexión a internet, así que no se puede descargar. Conéctate a una red con internet (la Wi-Fi del receptor no sirve).</string>
+    <string name="offline_block_openfreemap">OpenStreetMap solo permite descargas de hasta %1$s teselas o %2$s, y esta pide unas %3$s teselas y %4$s. Reduce el radio, baja el nivel de detalle o desmarca esta fuente.</string>
+    <string name="offline_block_no_space">Falta espacio en el móvil: faltan %1$s (hay que dejar libres 500 MB). Reduce el radio, baja el nivel de detalle o desmarca alguna fuente.</string>
+    <string name="offline_block_over_limit">Se pasa del límite de mapas sin conexión: faltan %1$s. Reduce el radio, baja el nivel de detalle, desmarca alguna fuente o sube el límite.</string>
+    <string name="offline_plan_name">Nombre de la zona</string>
+    <string name="offline_plan_download">Descargar</string>
+    <string name="offline_confirm_mobile_title">Datos móviles</string>
+    <string name="offline_confirm_mobile_text">Vas a descargar unos %1$s con datos móviles. ¿Quieres seguir?</string>
+    <string name="offline_confirm_wms_title">Servicio WMS propio</string>
+    <string name="offline_confirm_wms_text">Comprueba que las condiciones de este servicio permiten guardar teselas: %1$s.</string>
+    <string name="offline_confirm_accept">Descargar</string>
 </resources>

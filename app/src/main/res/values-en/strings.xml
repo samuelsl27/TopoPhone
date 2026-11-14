@@ -2926,4 +2926,37 @@
     <string name="map_menu_coordinates_title">Point coordinates</string>
     <string name="map_menu_copy">Copy</string>
     <string name="map_menu_outside_scope">This point is outside the area of the project coordinate system: only its latitude and longitude are given.</string>
+    <!-- S037 · Offline maps: downloading a zone -->
+    <string name="offline_plan_title">Download zone</string>
+    <string name="offline_plan_area">Area</string>
+    <string name="offline_plan_no_area">This project has no centre and the map view is unknown: there is no area to download.</string>
+    <string name="offline_area_radius">Radius around the project centre</string>
+    <string name="offline_area_viewport">What is shown on the map</string>
+    <string name="offline_area_project">The whole project</string>
+    <string name="offline_plan_radius">Radius: %1$s</string>
+    <string name="offline_plan_margin">Margin: %1$s</string>
+    <string name="offline_plan_sources">Sources</string>
+    <string name="offline_source_ign">IGN map</string>
+    <string name="offline_source_pnoa">PNOA orthophoto</string>
+    <string name="offline_source_osm">OpenStreetMap map</string>
+    <string name="offline_plan_no_sources">Select at least one source.</string>
+    <string name="offline_plan_detail">Level of detail</string>
+    <string name="offline_detail_normal">Normal (up to 1:5,000)</string>
+    <string name="offline_detail_high">High (up to 1:1,000)</string>
+    <string name="offline_detail_max">Maximum (1 m on the scale bar)</string>
+    <string name="offline_plan_estimate">Estimate</string>
+    <string name="offline_estimate_source">%1$s: %2$s tiles, about %3$s</string>
+    <string name="offline_estimate_total">Total: %1$s tiles, about %2$s</string>
+    <string name="offline_estimate_storage">Free space on the phone: %1$s. Already used by offline maps: %2$s of %3$s.</string>
+    <string name="offline_block_no_internet">There is no internet connection, so nothing can be downloaded. Connect to a network with internet (the receiver\'s Wi-Fi will not do).</string>
+    <string name="offline_block_openfreemap">OpenStreetMap only allows downloads of up to %1$s tiles or %2$s, and this one needs about %3$s tiles and %4$s. Reduce the radius, lower the level of detail or untick this source.</string>
+    <string name="offline_block_no_space">There is not enough space on the phone: %1$s missing (500 MB must stay free). Reduce the radius, lower the level of detail or untick a source.</string>
+    <string name="offline_block_over_limit">The offline maps limit would be exceeded: %1$s missing. Reduce the radius, lower the level of detail, untick a source or raise the limit.</string>
+    <string name="offline_plan_name">Zone name</string>
+    <string name="offline_plan_download">Download</string>
+    <string name="offline_confirm_mobile_title">Mobile data</string>
+    <string name="offline_confirm_mobile_text">You are about to download about %1$s over mobile data. Continue?</string>
+    <string name="offline_confirm_wms_title">Your own WMS service</string>
+    <string name="offline_confirm_wms_text">Check that this service\'s terms of use allow storing tiles: %1$s.</string>
+    <string name="offline_confirm_accept">Download</string>
 </resources>

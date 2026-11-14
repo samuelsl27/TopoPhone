@@ -28,7 +28,7 @@
       Hecho cuando: `MapDispatcherTest` y `ZoneHttpTest` en verde (4 por servidor; estilo sin red; caducidad larga solo durante la descarga y también en los 304; el resto de peticiones intactas) y `DownloadEstimateTest` sigue en verde con las implementaciones de verdad detrás de la interfaz.
 - [x] T13. `DownloadPlanViewModel`: área, fuentes, nivel, previsión, bloqueos y confirmaciones, y lo recordado de la última descarga. (RF-1 a RF-6, RF-8 a RF-14)
       Hecho cuando: `DownloadPlanViewModelTest` en verde (sin centro, sin puntos, cada bloqueo, recordar lo último).
-- [ ] T14. La hoja «Descargar zona»: las tres áreas con su radio o margen, las fuentes, los tres niveles, la previsión y los avisos, con textos en es y en. (RF-1 a RF-6, RF-8 a RF-14)
+- [x] T14. La hoja «Descargar zona»: las tres áreas con su radio o margen, las fuentes, los tres niveles, la previsión y los avisos, con textos en es y en. (RF-1 a RF-6, RF-8 a RF-14)
       Hecho cuando: `DownloadPlanSheetTest` en verde (zonas de 56 dp, cada bloqueo con su motivo, la confirmación del WMS propio con el nombre del servicio).
 - [ ] T15. El progreso: teselas, MB y fuente en curso, pausar, reanudar, cancelar con confirmación y pantalla encendida. (RF-15 a RF-18)
       Hecho cuando: `OfflineProgressTest` en verde (pantalla encendida mientras está a la vista, estado «Incompleta» al salir, botones de 56 dp).
