@@ -41,9 +41,12 @@ class MapLibreOfflineStore @Inject constructor(
     private val environment: MapEnvironment,
 ) : OfflineRegionStore {
 
-    /** La región de MapLibre, su progreso y los errores que ha dado desde que se activó. Solo se toca desde el hilo principal. */
+    /**
+     * La región de MapLibre, su progreso y los errores que ha dado desde que se activó. Solo se toca desde el hilo principal. El progreso empieza vacío y solo
+     * pasa a null cuando la región se borra: con null al principio, `observe` terminaba al instante y el descargador no veía avanzar nada (visto en el emulador, T20).
+     */
     private class Handle(val region: OfflineRegion) {
-        val progress = MutableStateFlow<RegionProgress?>(null)
+        val progress = MutableStateFlow<RegionProgress?>(RegionProgress.EMPTY)
         var failures = 0L
     }
 

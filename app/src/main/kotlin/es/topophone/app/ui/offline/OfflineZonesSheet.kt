@@ -167,7 +167,8 @@ fun OfflineZonesContent(state: OfflineZonesUiState, actions: OfflineZonesActions
             modifier = Modifier.fillMaxWidth().testTag(OFFLINE_ZONES_USAGE_BAR_TAG),
         )
         LimitSlider(state.limitBytes, locale, actions.onLimit)
-        if (state.download.phase != DownloadPhase.IDLE) {
+        // Solo mientras se descarga o está en pausa: una descarga terminada ya está en la lista de zonas.
+        if (busy || state.download.phase == DownloadPhase.PAUSED) {
             OutlinedCard(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.testTag(OFFLINE_ZONES_RUNNING_TAG)) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(stringResource(R.string.offline_zones_running, state.download.name))

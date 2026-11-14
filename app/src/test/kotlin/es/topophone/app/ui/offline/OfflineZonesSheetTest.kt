@@ -220,6 +220,46 @@ class OfflineZonesSheetTest {
     }
 }
 
+/** La tarjeta de la descarga en curso solo sale mientras se descarga o está en pausa (S037/RF-15, RF-16); visto en el emulador tras terminar una descarga. */
+@RunWith(AndroidJUnit4::class)
+@Config(qualifiers = "es-rES")
+class OfflineZonesRunningCardTest {
+
+    @get:Rule
+    val compose = createComposeRule()
+
+    private fun show(phase: DownloadPhase) {
+        val download = DownloadState(zoneId = "x", name = "Obra", phase = phase)
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                OfflineZonesContent(OfflineZonesUiState(loaded = true, download = download), OfflineZonesActions())
+            }
+        }
+    }
+
+    @Test
+    fun `S037 RF-16 una descarga en pausa sigue en la tarjeta de la descarga en curso`() {
+        show(DownloadPhase.PAUSED)
+
+        compose.onNodeWithTag(OFFLINE_ZONES_RUNNING_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S037 RF-15 una descarga terminada ya no sale en la tarjeta y deja descargar otra zona`() {
+        show(DownloadPhase.FINISHED)
+
+        compose.onNodeWithTag(OFFLINE_ZONES_RUNNING_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(OFFLINE_ZONES_DOWNLOAD_TAG).assertIsEnabled()
+    }
+
+    @Test
+    fun `S037 RF-15 sin ninguna descarga tampoco sale la tarjeta`() {
+        show(DownloadPhase.IDLE)
+
+        compose.onNodeWithTag(OFFLINE_ZONES_RUNNING_TAG).assertDoesNotExist()
+    }
+}
+
 /** La misma hoja en inglés (S037/RNF-T7). */
 @RunWith(AndroidJUnit4::class)
 @Config(qualifiers = "en")
