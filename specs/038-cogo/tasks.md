@@ -50,7 +50,7 @@
       Hecho cuando: `TraverseViewModelTest` en verde sin escribir nada en la base.
 - [x] T24. `app`: `TraverseScreen` con la lista de tramos, los puntos calculados, el cierre y los avisos. (RF-10, RF-11, RF-12, RF-31)
       Hecho cuando: `CogoScreensTest` (poligonal) en verde, con `performScrollToNode` en la lista.
-- [ ] T25. `app`: el borrador de la poligonal en el ViewModel: guardar al instante, recuperar recalculado, descartar con confirmación y punto de entrada que ya no está. (RF-26, RF-27, RF-28)
+- [x] T25. `app`: el borrador de la poligonal en el ViewModel: guardar al instante, recuperar recalculado, descartar con confirmación y punto de entrada que ya no está. (RF-26, RF-27, RF-28)
       Hecho cuando: `TraverseDraftViewModelTest` en verde, incluida la reapertura tras destruir el ViewModel.
 - [ ] T26. `app`: `CogoSaveSheet`: marcar resultados, nombres propuestos y editables, «Guardar puntos», errores de nombre repetido y de fuera del ámbito, salir sin guardar, vaciado del borrador. (RF-19, RF-20, RF-21, RF-23, RF-30)
       Hecho cuando: `CogoSaveTest` en verde con la poligonal y las tres intersecciones, sin crear nada al salir.

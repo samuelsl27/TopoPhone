@@ -192,4 +192,25 @@ class CogoScreensTest {
         count(TRAVERSE_CLEAR_REFERENCE_TAG) shouldBe 0
         count(TRAVERSE_CLEAR_CLOSURE_TAG) shouldBe 0
     }
+
+    @Test
+    fun `S038 RF-27 descartar el borrador pide confirmacion y solo entonces avisa`() {
+        var discards = 0
+        show(ui(listOf(leg(1))) { copy(hasDraft = true) }, TraverseActions(onDiscard = { discards++ }))
+
+        scrollTo(TRAVERSE_DISCARD_TAG)
+        compose.onNodeWithTag(TRAVERSE_DISCARD_TAG).assertHeightIsAtLeast(56.dp).performClick()
+        compose.onNodeWithTag(TRAVERSE_DISCARD_DIALOG_TAG).assertTextContains("No se ha guardado ningún punto", substring = true)
+        discards shouldBe 0
+        compose.onNodeWithTag(TRAVERSE_DISCARD_CONFIRM_TAG).performClick()
+
+        discards shouldBe 1
+    }
+
+    @Test
+    fun `S038 RF-27 sin nada escrito no se ofrece descartar`() {
+        show(ui { copy(hasDraft = false) })
+
+        count(TRAVERSE_DISCARD_TAG) shouldBe 0
+    }
 }

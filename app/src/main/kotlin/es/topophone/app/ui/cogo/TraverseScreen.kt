@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -54,6 +55,9 @@ const val TRAVERSE_CLOSES_TAG = "traverse_closes"
 const val TRAVERSE_CLEAR_REFERENCE_TAG = "traverse_clear_reference"
 const val TRAVERSE_CLEAR_CLOSURE_TAG = "traverse_clear_closure"
 const val TRAVERSE_NEEDS_REFERENCE_TAG = "traverse_needs_reference"
+const val TRAVERSE_DISCARD_TAG = "traverse_discard"
+const val TRAVERSE_DISCARD_CONFIRM_TAG = "traverse_discard_confirm"
+const val TRAVERSE_DISCARD_DIALOG_TAG = "traverse_discard_dialog"
 
 fun traverseLegTag(number: Int) = "traverse_leg_$number"
 
@@ -82,6 +86,7 @@ class TraverseActions(
     val onValue: (index: Int, text: String) -> Unit = { _, _ -> },
     val onDistance: (index: Int, text: String) -> Unit = { _, _ -> },
     val onDHeight: (index: Int, text: String) -> Unit = { _, _ -> },
+    val onDiscard: () -> Unit = {},
 )
 
 @Composable
@@ -112,6 +117,7 @@ fun TraverseRoute(
             onValue = viewModel::setValue,
             onDistance = viewModel::setDistance,
             onDHeight = viewModel::setDHeight,
+            onDiscard = viewModel::discardDraft,
         ),
         onBack,
     )
@@ -131,6 +137,7 @@ fun TraverseScreen(
     onBack: () -> Unit,
     footer: @Composable () -> Unit = {},
 ) {
+    var confirmDiscard by remember { mutableStateOf(false) }
     SectionScaffold(
         title = stringResource(R.string.cogo_traverse),
         themeState = themeState,
@@ -171,8 +178,37 @@ fun TraverseScreen(
             }
             state.closure?.let { closure -> item(key = "closure") { Closure(closure, state) } }
             item(key = "notices") { FactorNotices(state.notices) }
+            if (state.hasDraft) {
+                item(key = "discard") {
+                    OutlinedButton(
+                        onClick = { confirmDiscard = true },
+                        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(TRAVERSE_DISCARD_TAG),
+                    ) { Text(stringResource(R.string.cogo_discard_draft)) }
+                }
+            }
             item(key = "footer") { footer() }
         }
+    }
+    if (confirmDiscard) {
+        AlertDialog(
+            onDismissRequest = { confirmDiscard = false },
+            title = { Text(stringResource(R.string.cogo_discard_title)) },
+            text = { Text(stringResource(R.string.cogo_discard_message), modifier = Modifier.testTag(TRAVERSE_DISCARD_DIALOG_TAG)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmDiscard = false
+                        actions.onDiscard()
+                    },
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(TRAVERSE_DISCARD_CONFIRM_TAG),
+                ) { Text(stringResource(R.string.cogo_discard_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmDiscard = false }, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            },
+        )
     }
     val picker = state.picker
     if (picker.slot != null) {

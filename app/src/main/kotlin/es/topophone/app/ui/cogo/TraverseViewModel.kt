@@ -3,11 +3,15 @@ package es.topophone.app.ui.cogo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.core.model.cogo.DraftPoint
 import es.topophone.core.model.cogo.LegKind
+import es.topophone.core.model.cogo.TraverseDraft
 import es.topophone.core.model.cogo.TraverseLeg
+import es.topophone.core.model.format.AngleText
 import es.topophone.core.model.format.DirectionInput
 import es.topophone.core.model.format.DirectionKind
 import es.topophone.core.model.format.DistanceInput
+import es.topophone.core.model.format.LengthText
 import es.topophone.core.model.geometry.DistanceMode
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.LinearUnit
@@ -19,6 +23,7 @@ import es.topophone.core.survey.cogo.TraverseResult
 import es.topophone.core.survey.cogo.TraverseStep
 import es.topophone.core.survey.cogo.TraverseStop
 import es.topophone.core.survey.geometry.GeometryNotice
+import es.topophone.data.cogo.CogoRepository
 import es.topophone.data.geometry.GeometryPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
@@ -29,7 +34,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -85,6 +93,8 @@ data class TraverseUi(
     val closure: ClosureError? = null,
     val totalGridLength: Double = 0.0,
     val notices: Set<GeometryNotice> = emptySet(),
+    /** Hay algo escrito: se guarda como borrador del proyecto y se puede descartar (S038/RF-26, RF-27). */
+    val hasDraft: Boolean = false,
 )
 
 /**
@@ -97,6 +107,7 @@ class TraverseViewModel @Inject constructor(
     points: PointRepository,
     private val projects: ProjectRepository,
     private val preferences: GeometryPreferences,
+    private val cogo: CogoRepository,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
     val inputs = CogoInputs(points, viewModelScope)
@@ -171,6 +182,7 @@ class TraverseViewModel @Inject constructor(
             closure = result?.closure,
             totalGridLength = result?.totalGridLength ?: 0.0,
             notices = result?.notices.orEmpty(),
+            hasDraft = texts.isNotEmpty() || selections.isNotEmpty(),
         )
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), TraverseUi())
 
@@ -192,8 +204,79 @@ class TraverseViewModel @Inject constructor(
         )
     }
 
+    /** Mientras no se ha recuperado el borrador no se guarda nada: si no, lo escrito antes se pisaría con una poligonal vacía. */
+    private val restored = MutableStateFlow(false)
+
+    init {
+        // Cada cambio de lo escrito se guarda al instante (S038/RF-26): la cola se conflata, de modo que siempre acaba guardado lo último.
+        viewModelScope.launch {
+            combine(legsState, inputs.selections, context.filterNotNull(), restored) { legs, selections, context, ok ->
+                if (ok) snapshot(legs, selections, context) else null
+            }.filterNotNull().distinctUntilChanged().conflate().collect { cogo.saveDraft(it) }
+        }
+    }
+
     fun start(id: String) {
+        if (projectId.value == id) return
         projectId.value = id
+        viewModelScope.launch {
+            val context = context.filterNotNull().first()
+            cogo.draft(id).first()?.let { restore(it, context) }
+            restored.value = true
+        }
+    }
+
+    /** Lo escrito, en SI, como borrador del proyecto (S038/RF-26): lo que no es un número queda en null. */
+    private fun snapshot(legs: List<LegText>, selections: Map<String, CogoSelection>, context: Context): TraverseDraft {
+        fun point(slot: String): DraftPoint? = when (val selection = selections[slot]) {
+            null -> null
+            is CogoSelection.OfProject -> DraftPoint.OfProject(selection.pointId, selection.name)
+            is CogoSelection.Typed -> {
+                val east = DistanceInput.parseSigned(selection.easting, context.linearUnit)
+                val north = DistanceInput.parseSigned(selection.northing, context.linearUnit)
+                if (east == null || north == null) null else DraftPoint.Typed(east, north)
+            }
+        }
+        return TraverseDraft(
+            projectId = checkNotNull(projectId.value),
+            start = point(SLOT_START),
+            reference = point(SLOT_REFERENCE),
+            closure = point(SLOT_CLOSURE),
+            legs = legs.map { parse(it, context).leg },
+            updatedAtMs = 0L,
+        )
+    }
+
+    /** Vuelve a poner en pantalla lo guardado: los puntos del proyecto se leen con su estado de ahora (S038/RF-27, RF-28). */
+    private fun restore(draft: TraverseDraft, context: Context) {
+        fun selection(point: DraftPoint?): CogoSelection? = when (point) {
+            null -> null
+            is DraftPoint.OfProject -> CogoSelection.OfProject(point.pointId, point.name)
+            is DraftPoint.Typed ->
+                CogoSelection.Typed(LengthText.of(point.easting, context.linearUnit), LengthText.of(point.northing, context.linearUnit))
+        }
+        val selections = buildMap {
+            selection(draft.start)?.let { put(SLOT_START, it) }
+            selection(draft.reference)?.let { put(SLOT_REFERENCE, it) }
+            selection(draft.closure)?.let { put(SLOT_CLOSURE, it) }
+        }
+        inputs.restore(selections)
+        legsState.value = draft.legs.map { leg ->
+            LegText(
+                kind = leg.kind,
+                value = leg.angleRad?.let { AngleText.of(it, context.angularUnit) }.orEmpty(),
+                distance = leg.distanceM?.let { LengthText.of(it, context.linearUnit) }.orEmpty(),
+                dHeight = leg.dHeightM?.let { LengthText.of(it, context.linearUnit) }.orEmpty(),
+            )
+        }
+    }
+
+    /** Descarta el borrador: vacía lo escrito y lo borra del proyecto (S038/RF-27). */
+    fun discardDraft() {
+        legsState.value = emptyList()
+        inputs.restore(emptyMap())
+        val id = projectId.value ?: return
+        viewModelScope.launch { cogo.clearDraft(id) }
     }
 
     // --- Tramos (S038/RF-10) --------------------------------------------------------------------------------------------------------

@@ -2839,6 +2839,10 @@
     <string name="cogo_closure_total">Longitud total: %1$s</string>
     <string name="cogo_closure_precision">Precisión relativa: 1:%1$s</string>
     <string name="cogo_closure_closes">La poligonal cierra.</string>
+    <string name="cogo_discard_draft">Descartar borrador</string>
+    <string name="cogo_discard_title">¿Descartar el borrador?</string>
+    <string name="cogo_discard_message">Se borrarán los puntos y los tramos escritos. No se ha guardado ningún punto en el proyecto.</string>
+    <string name="cogo_discard_confirm">Descartar</string>
     <string name="cogo_geographic_unavailable">COGO necesita un sistema de coordenadas proyectado. Este proyecto usa uno geográfico.</string>
     <string name="angle_button">Ángulo</string>
     <string name="angle_slot_a">Punto A</string>

@@ -2826,6 +2826,10 @@
     <string name="cogo_closure_total">Total length: %1$s</string>
     <string name="cogo_closure_precision">Relative precision: 1:%1$s</string>
     <string name="cogo_closure_closes">The traverse closes.</string>
+    <string name="cogo_discard_draft">Discard draft</string>
+    <string name="cogo_discard_title">Discard the draft?</string>
+    <string name="cogo_discard_message">The typed points and legs will be deleted. No point has been saved in the project.</string>
+    <string name="cogo_discard_confirm">Discard</string>
     <string name="cogo_geographic_unavailable">COGO needs a projected coordinate system. This project uses a geographic one.</string>
     <string name="angle_title">Angle between three points</string>
     <string name="angle_button">Angle</string>

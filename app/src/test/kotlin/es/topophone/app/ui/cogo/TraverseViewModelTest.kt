@@ -18,6 +18,7 @@ import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.survey.cogo.TraverseStop
+import es.topophone.data.cogo.RoomCogoRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.geometry.GeometryPreferences
 import es.topophone.data.point.RoomPointRepository
@@ -104,7 +105,7 @@ class TraverseViewModelTest {
             points.create(point(projectId, "P1", 440_000.0, 4_474_000.0, startHeight))
             points.create(point(projectId, "R", 440_000.0, 4_473_900.0, null)) // referencia al sur del inicio
         }
-        return TraverseViewModel(points, projects, preferences).also {
+        return TraverseViewModel(points, projects, preferences, RoomCogoRepository(db)).also {
             viewModels += it
             it.start(projectId)
             it.inputs.open(SLOT_START)
