@@ -1487,6 +1487,49 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S038 RNF-T6 v32 a v33 los puntos siguen, sin rastro COGO, y el borrador de la poligonal nace vacio`() {
+        createFromExportedSchema(32)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v32 ->
+            v32.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v32.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "(?, ?, 'P1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>("punto-1", project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val point = runBlocking { RoomPointRepository(db).points(project.id).first() }.single()
+            point.measurement.shouldNotBeNull().coordinates.northing shouldBe 4474257.414123456
+            point.cogo shouldBe null
+            count(db, "traverse_drafts") shouldBe 0
+            db.openHelper.writableDatabase.query("SELECT cogo FROM points").use { cursor ->
+                cursor.moveToFirst() shouldBe true
+                cursor.isNull(0) shouldBe true
+            }
+            // El borrador cuelga del proyecto y se borra con el.
+            db.openHelper.writableDatabase.execSQL("INSERT INTO traverse_drafts VALUES (?, '{\"v\":1}', 5)", arrayOf<Any>(project.id))
+            count(db, "traverse_drafts") shouldBe 1
+            db.openHelper.writableDatabase.execSQL("DELETE FROM projects WHERE id = ?", arrayOf<Any>(project.id))
+            count(db, "traverse_drafts") shouldBe 0
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S036 RNF-T6 v31 a v32 los proyectos siguen y las tablas WMS nacen vacias`() {
         createFromExportedSchema(31)
         SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v31 ->
@@ -1629,7 +1672,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 32
+        const val CURRENT_VERSION = 33
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import es.topophone.core.formats.cogo.CogoRefJson
 import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.alignment.slope.SlopeSide
 import es.topophone.core.model.alignment.slope.SlopeStakeInfo
@@ -223,6 +224,8 @@ data class PointEntity(
     @ColumnInfo(name = "code_description") val codeDescription: String? = null,
     @ColumnInfo(name = "code_color") val codeColor: Int? = null,
     @ColumnInfo(name = "code_symbol") val codeSymbol: String? = null,
+    /** El rastro del calculo de un punto de origen COGO, en JSON (S038/RF-22, plan D10); NULL en los demas. */
+    val cogo: String? = null,
 )
 
 /**
@@ -456,6 +459,7 @@ internal fun Point.toEntity(): PointEntity {
         codeDescription = code?.description,
         codeColor = code?.color,
         codeSymbol = code?.symbol?.name,
+        cogo = cogo?.let(CogoRefJson::encode),
     )
 }
 
@@ -490,6 +494,7 @@ internal fun PointEntity.toPoint(attributes: List<PointAttributeEntity> = emptyL
         )
     },
     code = pointCode(code, codeDescription, codeColor, codeSymbol, attributes.sortedBy { it.ordinal }.map { it.toAttribute() }),
+    cogo = cogo?.let(CogoRefJson::decode),
 )
 
 private fun pointCode(code: String?, description: String?, color: Int?, symbol: String?, attributes: List<PointAttribute>): PointCode? {

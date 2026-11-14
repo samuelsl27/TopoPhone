@@ -21,6 +21,7 @@ import es.topophone.data.codes.CodeAttributeEntity
 import es.topophone.data.codes.CodeLibraryDao
 import es.topophone.data.codes.CodeLibraryEntity
 import es.topophone.data.codes.LibraryCodeEntity
+import es.topophone.data.cogo.TraverseDraftEntity
 import es.topophone.data.gear.AntennaProfileEntity
 import es.topophone.data.gear.GearDao
 import es.topophone.data.gear.ReceiverGearEntity
@@ -116,6 +117,8 @@ import es.topophone.data.wms.WmsServiceEntity
  *   `line_history_attributes` y `line_history_vertices`). Solo añade tablas: migración de Room.
  * - v32 (S036): la biblioteca de servicios WMS (`wms_services`), las capas que leyó el GetCapabilities de cada uno (`wms_layers`) y las capas
  *   de cada proyecto (`project_wms_layers`). Solo añade tablas: migración de Room.
+ * - v33 (S038): el rastro del cálculo de cada punto COGO (`points.cogo`, que admite NULL) y el borrador de la poligonal de cada proyecto
+ *   (`traverse_drafts`). Solo añade una columna que admite NULL y una tabla: migración de Room.
  */
 @Database(
     entities = [
@@ -128,7 +131,7 @@ import es.topophone.data.wms.WmsServiceEntity
         CodeLibraryEntity::class, LibraryCodeEntity::class, CodeAttributeEntity::class, AttributeOptionEntity::class,
         PointAttributeEntity::class, PointHistoryAttributeEntity::class, ProjectLineEntity::class, LineVertexEntity::class,
         LineAttributeEntity::class, LineHistoryEntity::class, LineHistoryAttributeEntity::class, LineHistoryVertexEntity::class,
-        WmsServiceEntity::class, WmsLayerEntity::class, ProjectWmsLayerEntity::class,
+        WmsServiceEntity::class, WmsLayerEntity::class, ProjectWmsLayerEntity::class, TraverseDraftEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -164,6 +167,7 @@ import es.topophone.data.wms.WmsServiceEntity
         AutoMigration(from = 29, to = 30),
         AutoMigration(from = 30, to = 31),
         AutoMigration(from = 31, to = 32),
+        AutoMigration(from = 32, to = 33),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -204,7 +208,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 32
+        const val VERSION = 33
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =
