@@ -32,7 +32,7 @@
       Hecho cuando: el test de migración v32 a v33 de `TopoPhoneDatabaseTest` y `CogoPointPersistTest` en verde y los tests de las versiones anteriores intactos.
 - [x] T15. `data`: `CogoRepository` con el borrador (observar, guardar, vaciar) y su borrado con el proyecto. (RF-26, RF-29)
       Hecho cuando: `TraverseDraftRepositoryTest` en verde con un borrador por proyecto, sustitución al guardar y borrado en cascada.
-- [ ] T16. `data`: `CogoRepository.savePoints` en una transacción, con nombre repetido, vaciado del borrador y log sin nombres ni coordenadas. (RF-19, RF-20, RF-23, RF-25, RF-30)
+- [x] T16. `data`: `CogoRepository.savePoints` en una transacción, con nombre repetido, vaciado del borrador y log sin nombres ni coordenadas. (RF-19, RF-20, RF-23, RF-25, RF-30)
       Hecho cuando: `CogoSavePointsTest` en verde (todo o nada, `DuplicateName`, borrador vaciado solo si se pide, línea de log sin datos).
 - [ ] T17. `data`: el borrador en la copia de seguridad y no en el duplicado ni en los paquetes (`DatabaseSnapshot.TABLES`). (RF-29)
       Hecho cuando: `CogoBackupTest` en verde y `DatabaseSnapshotTest` de S013 intacto.

@@ -1,13 +1,20 @@
 package es.topophone.data.cogo
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.withTransaction
 import es.topophone.core.formats.cogo.TraverseDraftJson
+import es.topophone.core.model.cogo.CogoOperation
 import es.topophone.core.model.cogo.TraverseDraft
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.point.Point
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.point.PointSaveResult
+import es.topophone.data.point.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -33,10 +40,20 @@ interface CogoRepository {
 
     /** Descarta el borrador del proyecto (S038/RF-27). */
     suspend fun clearDraft(projectId: String)
+
+    /**
+     * Guarda los puntos calculados de [operation] (todos del mismo proyecto) en una sola transacción: o quedan todos o ninguno, y con
+     * [clearDraft] se vacía en ella el borrador del proyecto (S038/RF-19, RF-30). Si algún nombre ya existe o se repite, `DuplicateName`
+     * y no cambia nada (S038/RF-20). Anota en el log la operación y cuántos, sin nombres ni coordenadas (S038/RF-25).
+     */
+    suspend fun savePoints(points: List<Point>, operation: CogoOperation, clearDraft: Boolean): PointSaveResult
 }
 
-class RoomCogoRepository(private val database: TopoPhoneDatabase, private val clock: () -> Long = System::currentTimeMillis) :
-    CogoRepository {
+class RoomCogoRepository(
+    private val database: TopoPhoneDatabase,
+    private val clock: () -> Long = System::currentTimeMillis,
+    private val log: AppLog = AppLog.NONE,
+) : CogoRepository {
     private val drafts = database.traverseDrafts()
 
     override fun draft(projectId: String): Flow<TraverseDraft?> =
@@ -51,4 +68,20 @@ class RoomCogoRepository(private val database: TopoPhoneDatabase, private val cl
     }
 
     override suspend fun clearDraft(projectId: String) = drafts.delete(projectId)
+
+    override suspend fun savePoints(points: List<Point>, operation: CogoOperation, clearDraft: Boolean): PointSaveResult {
+        if (points.isEmpty()) return PointSaveResult.Saved
+        val projectId = points.first().projectId
+        return try {
+            database.withTransaction {
+                database.points().insertAll(points.map { it.toEntity() })
+                if (clearDraft) drafts.delete(projectId)
+            }
+            val project = database.projects().byId(projectId)?.name ?: projectId
+            log.info(LogCategory.POINTS, "COGO: ${points.size} puntos de ${operation.name} guardados en «$project»")
+            PointSaveResult.Saved
+        } catch (_: SQLiteConstraintException) {
+            PointSaveResult.DuplicateName // el índice único de (proyecto, nombre, papelera): se revierte todo
+        }
+    }
 }

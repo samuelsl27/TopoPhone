@@ -241,7 +241,7 @@ object DatabaseModule {
     /** El borrador de la poligonal de COGO (S038/RF-26). */
     @Provides
     @Singleton
-    fun provideCogoRepository(database: TopoPhoneDatabase): CogoRepository = RoomCogoRepository(database)
+    fun provideCogoRepository(database: TopoPhoneDatabase, log: AppLog): CogoRepository = RoomCogoRepository(database, log = log)
 
     /** Puntos recolectados (S010). */
     @Provides
