@@ -14,7 +14,7 @@
       Hecho cuando: `./gradlew :core:geodesy:test` en verde con `AreaBoundsTest`: todos los puntos de la circunferencia con `Geod` dentro de la caja y la caja a menos de un 2 % de la exacta.
 - [x] T6. `DownloadEstimate`: teselas y tamaño por fuente, y los bloqueos (OpenFreeMap, espacio, límite, sin internet) y confirmaciones (datos móviles, WMS propio). (RF-9 a RF-14)
       Hecho cuando: `./gradlew :app:testDebugUnitTest --tests "*DownloadEstimateTest"` en verde, con un caso por bloqueo y por confirmación.
-- [ ] T7. `OfflineRegionStore` (interfaz), su `FakeOfflineRegionStore` para los tests y `RegionStyles` (el estilo de cada fuente, el JSON de la ortofoto y de cada capa WMS con la plantilla de S036, y su dirección `https://topophone.invalid/...` con la plantilla dentro, porque MapLibre no lee `file://`). (RF-4, RF-8, RF-22)
+- [x] T7. `OfflineRegionStore` (interfaz), su `FakeOfflineRegionStore` para los tests y `RegionStyles` (el estilo de cada fuente, el JSON de la ortofoto y de cada capa WMS con la plantilla de S036, y su dirección `https://topophone.invalid/...` con la plantilla dentro, porque MapLibre no lee `file://`). (RF-4, RF-8, RF-22)
       Hecho cuando: `RegionStylesTest` en verde: el JSON de cada estilo y la plantilla WMS idéntica a `WmsRequests.tileTemplate`.
 - [ ] T8. `MapLibreOfflineStore`: la implementación sobre `OfflineManager` y `OfflineRegion` (crear, listar, activar, pausar, invalidar, borrar, metadatos, estado), con corrutinas. (RF-8 a RF-19, RF-24 a RF-28)
       Hecho cuando: `./gradlew assembleDebug` compila y, en el emulador, una región de prueba se crea, se pausa, se reanuda y se borra desde un botón temporal que no se entrega.

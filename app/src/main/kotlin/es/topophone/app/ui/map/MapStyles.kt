@@ -28,13 +28,13 @@ sealed interface BasemapStyle {
  */
 object MapStyles {
     const val IGN_STYLE_URL = "https://vt-mapabase.idee.es/files/styles/mapaBase_scn_color1_CNIG.json"
-    private const val OPENFREEMAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty"
-    private const val PNOA_TILES = "https://www.ign.es/wmts/pnoa-ma?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0" +
+    const val OPENFREEMAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty"
+    const val PNOA_TILES = "https://www.ign.es/wmts/pnoa-ma?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0" +
         "&LAYER=OI.OrthoimageCoverage&STYLE=default&TILEMATRIXSET=GoogleMapsCompatible&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}" +
         "&FORMAT=image/jpeg"
 
     /** Teselas del PNOA generadas: por encima, MapLibre amplía las del nivel 19. */
-    private const val PNOA_MAX_ZOOM = 19
+    const val PNOA_MAX_ZOOM = 19
 
     /** Glifos del IGN para los nombres de los puntos en los estilos locales; la fuente la sirven el IGN y OpenFreeMap (S010/RF-20). */
     const val IGN_GLYPHS = "https://vt-mapabase.idee.es/files/styles/fonts/pbf/{fontstack}/{range}.pbf"
