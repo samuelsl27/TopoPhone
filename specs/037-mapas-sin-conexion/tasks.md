@@ -16,8 +16,8 @@
       Hecho cuando: `./gradlew :app:testDebugUnitTest --tests "*DownloadEstimateTest"` en verde, con un caso por bloqueo y por confirmación.
 - [x] T7. `OfflineRegionStore` (interfaz), su `FakeOfflineRegionStore` para los tests y `RegionStyles` (el estilo de cada fuente, el JSON de la ortofoto y de cada capa WMS con la plantilla de S036, y su dirección `https://topophone.invalid/...` con la plantilla dentro, porque MapLibre no lee `file://`). (RF-4, RF-8, RF-22)
       Hecho cuando: `RegionStylesTest` en verde: el JSON de cada estilo y la plantilla WMS idéntica a `WmsRequests.tileTemplate`.
-- [ ] T8. `MapLibreOfflineStore`: la implementación sobre `OfflineManager` y `OfflineRegion` (crear, listar, activar, pausar, invalidar, borrar, metadatos, estado), con corrutinas. (RF-8 a RF-19, RF-24 a RF-28)
-      Hecho cuando: `./gradlew assembleDebug` compila y, en el emulador, una región de prueba se crea, se pausa, se reanuda y se borra desde un botón temporal que no se entrega.
+- [x] T8. `MapLibreOfflineStore`: la implementación sobre `OfflineManager` y `OfflineRegion` (crear, listar, activar, pausar, invalidar, borrar, metadatos, estado), con corrutinas. (RF-8 a RF-19, RF-24 a RF-28)
+      Hecho cuando: `./gradlew assembleDebug` y `check` en verde con el almacén ya enlazado en Hilt. Cambio respecto al plan: el botón temporal en el emulador se quita (T1 ya probó con un arnés las mismas llamadas de MapLibre: crear, activar, pausar, invalidar, borrar y listar), y esta implementación se comprueba entera en el emulador en T20 y T22, sin tener que arrancarlo diez tareas antes.
 - [ ] T9. `OfflineSettings` (DataStore): límite de almacenamiento y última elección de área, radio, margen y nivel. (RF-8, RF-31)
       Hecho cuando: `OfflineSettingsTest` en verde (por omisión, límites de 200 MB a 10 GB, recuerda lo último).
 - [ ] T10. `OfflineDownloader`: la cola de fuentes de una en una, la máquina de estados, pausar, reanudar y cancelar, la pausa al salir de la app, el 2 % de fallos y «Reintentar». (RF-15, RF-16, RF-18, RF-19)
