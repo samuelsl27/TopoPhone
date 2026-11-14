@@ -348,11 +348,121 @@ def intersecciones_rows() -> list[str]:
     return rows
 
 
+@dataclass(frozen=True)
+class Poly:
+    """Una poligonal que parte del primer vértice y recorre los demás; el último es el punto de cierre."""
+
+    name: str
+    vertices: tuple[str, ...]
+    reference: str
+    families: tuple[str, ...]  # AZ, AR, AL o DEF por tramo
+    no_height_leg: int | None = None  # tramo (desde 1) que se escribe sin desnivel
+    perturbation_m: float = 0.0  # lo que se añade a la distancia del último tramo para que no cierre
+
+
+def leg_kind(family: str, az_fwd: float, az_back: float) -> tuple[str, float]:
+    """Lo que se escribe en un tramo para ir de la visual atrás a la dirección de avance, según su familia."""
+    if family == "AZ":
+        return "AZIMUTH", az_fwd
+    if family == "AR":
+        return "ANGLE_RIGHT", (az_fwd - az_back) % TWO_PI
+    if family == "AL":
+        return "ANGLE_LEFT", (az_back - az_fwd) % TWO_PI
+    right = (az_fwd - (az_back + math.pi)) % TWO_PI  # respecto de la prolongación de la visual atrás
+    return ("DEFLECTION_RIGHT", right) if right <= math.pi else ("DEFLECTION_LEFT", TWO_PI - right)
+
+
+def polys() -> list[Poly]:
+    ring = ("P1", "P2", "P3", "P4", "P5", "P1")
+    cases = [
+        Poly("azimutes", ring, "P6", ("AZ",) * 5),
+        Poly("angulo_derecha", ring, "P6", ("AR",) * 5),
+        Poly("angulo_izquierda", ring, "P6", ("AL",) * 5),
+        Poly("deflexion", ring, "P6", ("DEF",) * 5),
+        Poly("mezcla", ring, "P5", ("AZ", "AR", "DEF", "AL", "DEF")),
+        Poly("sin_desnivel", ring, "P6", ("AZ",) * 5, no_height_leg=3),
+        Poly("no_cierra", ring, "P6", ("AZ",) * 5, perturbation_m=0.05),
+        Poly("sin_altura_inicio", ("P7", "P1", "P2", "P3", "P7"), "P6", ("AR", "DEF", "AZ", "AL")),
+    ]
+    return cases
+
+
+def random_polys(crs: Crs) -> list[Poly]:
+    rng = random.Random(SEED * 11 + crs.zone + int(crs.ed50))
+    out = []
+    for k in range(1, 4):
+        ids = [f"R{i}" for i in rng.sample(range(1, 13), 9)]
+        ring = tuple(ids[:8]) + (ids[0],)
+        families = tuple(rng.choice(("AZ", "AR", "AL", "DEF")) for _ in range(8))
+        out.append(Poly(f"aleatoria_{k}", ring, ids[8], families))
+    return out
+
+
+def poligonales_rows() -> tuple[list[str], list[str]]:
+    rows = ["caso,crs,modo,inicio,referencia,factor,tramo,tipo,valor_rad,distancia,desnivel,este,norte,altura"]
+    closures = ["caso,crs,modo,punto_cierre,error_este,error_norte,error_lineal,longitud_total,precision"]
+    for crs in CRSS:
+        pts = points_of(crs)
+        for poly in polys() + random_polys(crs):
+            start = pts[poly.vertices[0]]
+            f = combined_factor(crs, start)
+            for mode in MODES:
+                divisor = 1.0 if mode == "grid" else f
+                height = start.height
+                total = 0.0
+                last = (start.east, start.north)
+                for i, family in enumerate(poly.families, start=1):
+                    prev, cur = pts[poly.vertices[i - 1]], pts[poly.vertices[i]]
+                    back = pts[poly.reference] if i == 1 else pts[poly.vertices[i - 2]]
+                    az_fwd = azimuth(*sub(cur, prev))
+                    az_back = azimuth(*sub(back, prev))
+                    kind, value = leg_kind(family, az_fwd, az_back)
+                    grid = math.hypot(*sub(cur, prev))
+                    last_leg = i == len(poly.families)
+                    if last_leg:
+                        grid += poly.perturbation_m
+                    total += grid
+                    dh = cur.height - prev.height if cur.height is not None and prev.height is not None else None
+                    if poly.no_height_leg == i:
+                        dh = None
+                    height = height + dh if height is not None and dh is not None else None
+                    if last_leg and poly.perturbation_m:
+                        east = cur.east + poly.perturbation_m * math.sin(az_fwd)
+                        north = cur.north + poly.perturbation_m * math.cos(az_fwd)
+                    else:
+                        east, north = cur.east, cur.north
+                    last = (east, north)
+                    rows.append(
+                        ",".join(
+                            [
+                                poly.name, crs.name, mode, poly.vertices[0], poly.reference, fmt(f), str(i), kind, fmt(value),
+                                fmt(grid / divisor), fmt(dh), fmt(east), fmt(north), fmt(height),
+                            ]
+                        )
+                    )
+                if poly.vertices[-1] == poly.vertices[0]:
+                    de, dn = last[0] - start.east, last[1] - start.north
+                    linear = math.hypot(de, dn)
+                    ratio = total / linear if linear > 1e-6 else None
+                    closures.append(
+                        ",".join(
+                            [
+                                poly.name, crs.name, mode, poly.vertices[-1], fmt(de if linear > 1e-6 else 0.0),
+                                fmt(dn if linear > 1e-6 else 0.0), fmt(linear if linear > 1e-6 else 0.0), fmt(total), fmt(ratio),
+                            ]
+                        )
+                    )
+    return rows, closures
+
+
 def build() -> dict[str, list[str]]:
+    legs, closures = poligonales_rows()
     return {
         NAME_PUNTOS: puntos_rows(),
         NAME_INVERSAS: inversas_rows(),
         NAME_INTERSECCIONES: intersecciones_rows(),
+        NAME_POLIGONALES: legs,
+        NAME_CIERRES: closures,
     }
 
 

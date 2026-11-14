@@ -8,7 +8,7 @@
       Hecho cuando: `DirectionInputTest` y `DistanceInputTest` en verde con DD, DMS, gon, coma decimal, 360° y negativos rechazados, deflexión de 180° aceptada y distancia negativa rechazada.
 - [x] T3. `tools`: `generar_cogo.py` de la inversa y las intersecciones, con `pyproj` y `fixtures/cogo/` (ETRS89 UTM 30, REGCAN95 UTM 28 y ED50 UTM 30, metros y pies, cuadrícula y terreno, semilla fija) y su test de `pytest`. (Constitución nº 2)
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros de inversas e intersecciones generados en el repositorio.
-- [ ] T4. `tools`: el mismo generador para la poligonal (azimut, ángulo a la derecha y a la izquierda, deflexión a la derecha y a la izquierda; cierre y alturas) a partir de puntos conocidos. (Constitución nº 2)
+- [x] T4. `tools`: el mismo generador para la poligonal (azimut, ángulo a la derecha y a la izquierda, deflexión a la derecha y a la izquierda; cierre y alturas) a partir de puntos conocidos. (Constitución nº 2)
       Hecho cuando: `pytest` en verde y los ficheros de poligonales generados.
 - [ ] T5. `core:survey`: `CogoPoint`, `CogoScale` (factor del primer punto con `GroundScale`) e `Inverse`. (RF-5, RF-6, RF-7, RF-8)
       Hecho cuando: `CogoScaleTest` e `InverseTest` en verde frente a las referencias (≤ 1 mm, 0,001″, factor ≤ 1e-9), con puntos coincidentes y sin altura.

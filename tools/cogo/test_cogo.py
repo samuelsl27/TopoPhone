@@ -95,3 +95,51 @@ def test_en_terreno_se_escribe_la_distancia_de_terreno_y_la_solucion_es_la_misma
     ground = find("intersecciones.csv", caso="dd_general", crs="ETRS89_UTM30", modo="ground")[0]
     assert float(ground["valor_1"]) > float(grid["valor_1"])  # entre el factor del primer punto, algo menor que 1
     assert ground["este"] == grid["este"] and ground["norte"] == grid["norte"]
+
+
+def legs(caso: str, crs: str = "ETRS89_UTM30", modo: str = "grid") -> list[dict[str, str]]:
+    return find("poligonales.csv", caso=caso, crs=crs, modo=modo)
+
+
+def test_el_angulo_a_la_derecha_y_a_la_izquierda_de_un_tramo_suman_una_vuelta():
+    for right, left in zip(legs("angulo_derecha"), legs("angulo_izquierda")):
+        assert math.isclose(float(right["valor_rad"]) + float(left["valor_rad"]), 2 * math.pi, abs_tol=1e-12)
+
+
+def test_las_deflexiones_van_de_0_a_pi_y_hay_a_los_dos_lados():
+    kinds = {r["tipo"] for r in rows_of("poligonales.csv") if r["tipo"].startswith("DEFLECTION")}
+    assert kinds == {"DEFLECTION_RIGHT", "DEFLECTION_LEFT"}
+    for r in rows_of("poligonales.csv"):
+        if r["tipo"].startswith("DEFLECTION"):
+            assert 0.0 <= float(r["valor_rad"]) <= math.pi
+
+
+def test_una_poligonal_cerrada_vuelve_al_inicio_y_la_que_no_cierra_se_queda_a_5_cm():
+    ring = legs("azimutes")
+    p1 = find("puntos.csv", crs="ETRS89_UTM30", id="P1")[0]
+    assert float(ring[-1]["este"]) == float(p1["este"]) and float(ring[-1]["norte"]) == float(p1["norte"])
+    ok = find("cierres.csv", caso="azimutes", crs="ETRS89_UTM30", modo="grid")[0]
+    assert float(ok["error_lineal"]) == 0.0 and ok["precision"] == ""
+    bad = find("cierres.csv", caso="no_cierra", crs="ETRS89_UTM30", modo="grid")[0]
+    assert math.isclose(float(bad["error_lineal"]), 0.05, abs_tol=1e-9)
+    assert math.isclose(float(bad["precision"]), float(bad["longitud_total"]) / 0.05, rel_tol=1e-6)
+
+
+def test_el_desnivel_que_falta_deja_sin_altura_el_resto_de_la_poligonal():
+    rows = legs("sin_desnivel")
+    assert [r["altura"] != "" for r in rows] == [True, True, False, False, False]
+    assert rows[2]["desnivel"] == ""
+    assert all(r["altura"] == "" for r in legs("sin_altura_inicio"))
+
+
+def test_en_terreno_las_distancias_escritas_se_dividen_entre_el_factor_del_primer_punto():
+    grid, ground = legs("azimutes"), legs("azimutes", modo="ground")
+    f = float(grid[0]["factor"])
+    for g_row, t_row in zip(grid, ground):
+        assert math.isclose(float(t_row["distancia"]), float(g_row["distancia"]) / f, rel_tol=1e-12)
+        assert t_row["este"] == g_row["este"] and t_row["norte"] == g_row["norte"]
+
+
+def test_hay_poligonales_aleatorias_con_semilla_y_cada_sistema_tiene_las_suyas():
+    for crs in ("ETRS89_UTM30", "REGCAN95_UTM28", "ED50_UTM30"):
+        assert len(legs("aleatoria_1", crs)) == 8 and len(legs("aleatoria_3", crs)) == 8
