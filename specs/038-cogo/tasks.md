@@ -34,7 +34,7 @@
       Hecho cuando: `TraverseDraftRepositoryTest` en verde con un borrador por proyecto, sustitución al guardar y borrado en cascada.
 - [x] T16. `data`: `CogoRepository.savePoints` en una transacción, con nombre repetido, vaciado del borrador y log sin nombres ni coordenadas. (RF-19, RF-20, RF-23, RF-25, RF-30)
       Hecho cuando: `CogoSavePointsTest` en verde (todo o nada, `DuplicateName`, borrador vaciado solo si se pide, línea de log sin datos).
-- [ ] T17. `data`: el borrador en la copia de seguridad y no en el duplicado ni en los paquetes (`DatabaseSnapshot.TABLES`). (RF-29)
+- [x] T17. `data`: el borrador en la copia de seguridad y no en el duplicado ni en los paquetes (`DatabaseSnapshot.TABLES`). (RF-29)
       Hecho cuando: `CogoBackupTest` en verde y `DatabaseSnapshotTest` de S013 intacto.
 - [ ] T18. `core:formats` y `data`: «Cogo» en la columna Origin del CSV y del GeoPackage, y el punto COGO se edita con historial, se duplica como manual, va a la papelera y se replantea como uno manual. (RF-24)
       Hecho cuando: `CogoExportOriginTest` y las pruebas de edición, duplicado, papelera y replanteo con un punto COGO en verde.

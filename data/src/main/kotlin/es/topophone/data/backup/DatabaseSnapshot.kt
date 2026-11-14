@@ -154,6 +154,8 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("project_folders", projectFilter = null),
             Table("projects", "WHERE id = ?"),
             Table("map_viewports", "WHERE project_id = ?"),
+            // S038/RF-29: el borrador de la poligonal va en la copia completa y no en el paquete del proyecto.
+            Table("traverse_drafts", projectFilter = null),
             Table("points", "WHERE project_id = ?"),
             Table("point_nmea", "WHERE point_id IN (SELECT id FROM points WHERE project_id = ?)"),
             // S024/RNF-T6: los valores de los atributos del codigo de cada punto y de cada version de su historial.
