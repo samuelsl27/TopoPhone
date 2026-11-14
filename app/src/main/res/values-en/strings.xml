@@ -2834,7 +2834,10 @@
     <string name="cogo_save_title">Save points</string>
     <string name="cogo_save_name">Name of %1$s</string>
     <string name="cogo_save_confirm">Save</string>
-    <string name="cogo_save_saved">%1$d points have been saved in the project.</string>
+    <plurals name="cogo_save_saved">
+        <item quantity="one">%1$d point has been saved in the project.</item>
+        <item quantity="other">%1$d points have been saved in the project.</item>
+    </plurals>
     <string name="cogo_save_name_problems">Some names are empty, repeated or already exist. No point has been saved.</string>
     <string name="cogo_save_problem_empty">Type a name</string>
     <string name="cogo_save_problem_repeated">Repeated name</string>

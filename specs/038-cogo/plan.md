@@ -138,4 +138,29 @@ Todos sobre las coordenadas de cuadrícula del SC del proyecto; `f` = factor de 
 | Constitución nº 2 | D19 | tests de `core:survey` y de `tools` |
 
 ## Cambios al implementar
-_(Se rellena al cerrar la spec.)_
+- **T6 y T7 juntas:** la deflexión y la visual atrás indefinida comparten el `when` de `Traverse`; se hicieron en el commit de T6 y la casilla de T7 se marcó en él.
+- **D7, tangencia:** se decide por distancias, no por el discriminante. Dos circunferencias son tangentes si `|d − (r₁+r₂)|` o `|d − |r₁−r₂||` ≤ 1 µm; una circunferencia y una recta, si `|r − h|` ≤ 1 µm, con `h` la distancia del centro a la recta. Es más estable con los redondeos de las entradas. Las direcciones paralelas siguen siendo `|sen Δα| < 1e-12`.
+- **D18, ampliaciones no previstas:** `AngleFormat.azimuth` (azimut en pantalla con 0,01″ o 6 decimales), `AngleText` y `LengthText` (el borrador vuelve a la pantalla en las unidades del proyecto, con ida y vuelta de 1e-9 rad) y `DirectionKind` (el rango de cada clase de dirección).
+- **D10, rastro de las intersecciones:** además de las distancias o azimuts escritos, guarda `ground` (1 si estaba en «Terreno», 0 si en «Cuadrícula»), porque sin él las distancias no se pueden interpretar.
+- **D15, guardado:** `CogoRepository.savePoints(points, operation, clearDraft)` no recibe el proyecto (sale de los puntos). La comprobación de nombres y de ámbito la hace antes `CogoSaveController` (`app`), que sustituye a la «CogoSaveSheet» del plan: un diálogo (`CogoSaveDialog`) con los problemas dichos en texto.
+- **RF-30, más estricto que la spec:** el borrador y la pantalla se vacían al guardar solo si se guardan **todos** los tramos y todos están calculados. Si queda un tramo a medio escribir, el borrador se conserva (la spec dice «todos los puntos calculados» y perdería ese tramo).
+- **Marcas para guardar:** no se guardan en el borrador (se pierden al cerrar la poligonal). Tras guardar una parte, los puntos guardados se desmarcan.
+- **D21, tests:** el origen «Cogo» de CSV y GeoPackage se prueba con tests añadidos a `CsvExportTest` y `GpkgPointAttributesTest` y a `CogoPointBehaviorTest`, no con un `CogoExportOriginTest`.
+- **D19:** el generador se llama `tools/cogo/generar_cogo.py` (con `generar_referencias.py` chocaba con el de S026 en la misma sesión de pytest). Genera 60 puntos, 84 inversas, 294 soluciones de intersección, 378 tramos de poligonal y 66 cierres, en ETRS89 UTM 30, REGCAN95 UTM 28 y ED50 UTM 30.
+- **Accesibilidad (T28):** las casillas de «Guardar este punto» no tenían etiqueta propia para TalkBack; son filas conmutables con su texto. El aviso de «Se han guardado n puntos» va en singular y plural (`plurals`).
+- **Entradas de menú (D17):** «COGO» está en el menú de la lista de objetos y en el de cada proyecto (lista de proyectos y carpetas).
+- **D21, código de specs protegidas:** tocado lo acordado: `DatabaseSnapshot.TABLES` (S013), `CsvExport` y `GpkgPointAttributes` (S012, S053), `PointOrigin` y `ObjectListScreen` (S010, S011) y `TopoPhoneDatabase` (S006). Los `spec.md` anteriores no se han tocado. `PointImportedTest` (S028) cambió porque cuenta los orígenes.
+
+## Validación (T29)
+- `rf_report.py`: S038 con 31 RF y los 31 con test, 0 pendientes. `./gradlew check` y `uv run --project tools pytest tools` (607 tests) en verde.
+- Constitución nº 2: inversas, intersecciones y poligonales frente a `pyproj` en los tres sistemas y en cuadrícula y terreno: longitudes a 1 mm, azimuts a 0,001″ y factor combinado a 1e-9.
+- **Demo en el emulador (TopoPhone_API36, proyecto «demo s025»):**
+  - Inversa Q1–Q3 (3-4-5): 50,000 m de cuadrícula, 50,023 m de terreno y azimut 53° 07′ 48,37″ (el exacto).
+  - Poligonal de cuatro tramos (azimut, deflexión a la derecha, ángulo a la izquierda y deflexión a la derecha) con punto de referencia y cierre en Q1: «La poligonal cierra», 300,000 m.
+  - Borrador: la app se mató con `force-stop` y al volver a abrir la poligonal estaban el inicio, la referencia, los cuatro tramos y el cierre.
+  - Guardar el punto del tramo 2: propuesto «Q5», guardado, sale en la lista como «Calculado por COGO» y «Replantear» se abre con su Este y Norte.
+  - Intersección distancia–distancia Q1 y Q3 con 40 m y 30 m: la solución de la derecha cae en (440.380, 4.474.240) y la de la izquierda en (440.351,2, 4.474.278,4), ambas a 40 y 30 m.
+- **Sin comprobar en el emulador:** las intersecciones dirección–dirección y distancia–dirección y el cambio a «Terreno» (los cubren los tests y las referencias de `pyproj`); los textos en inglés en el dispositivo (solo en tests).
+- **Sin medir:** RNF-T13 solo en la JVM de los tests (200 tramos en menos de 100 ms), no en el móvil de referencia. La demo de campo (medir dos puntos, calcular un tercero y replantearlo) queda para el usuario.
+- **Observado, no tocado:** en las pantallas de COGO la barra inferior marca «Ajustes» como pestaña activa; no se ha comprobado si ocurre igual en las demás pantallas que se abren desde la lista de objetos.
+- **Incidencias del trabajo:** el primer `assembleDebug` de la sesión falló con un `StackOverflowError` de D8 que no se repitió (la clase a clase y el segundo intento compilaron); varios `check` fallaron por tests ajenos intermitentes (`MapStakeoutTest`, `LineStakeoutProjectPerfTest`, `CollectorViewModelAdmittedTest`…) y se repitieron.

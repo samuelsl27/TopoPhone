@@ -2847,7 +2847,10 @@
     <string name="cogo_save_title">Guardar puntos</string>
     <string name="cogo_save_name">Nombre de %1$s</string>
     <string name="cogo_save_confirm">Guardar</string>
-    <string name="cogo_save_saved">Se han guardado %1$d puntos en el proyecto.</string>
+    <plurals name="cogo_save_saved">
+        <item quantity="one">Se ha guardado %1$d punto en el proyecto.</item>
+        <item quantity="other">Se han guardado %1$d puntos en el proyecto.</item>
+    </plurals>
     <string name="cogo_save_name_problems">Hay nombres vacíos, repetidos o que ya existen. No se ha guardado ningún punto.</string>
     <string name="cogo_save_problem_empty">Escribe un nombre</string>
     <string name="cogo_save_problem_repeated">Nombre repetido</string>

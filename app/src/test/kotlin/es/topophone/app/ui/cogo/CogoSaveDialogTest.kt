@@ -118,6 +118,13 @@ class CogoSaveDialogTest {
     }
 
     @Test
+    fun `S038 RF-19 con un solo punto el aviso va en singular`() {
+        show(ui(CogoSaveStatus.Saved(1)))
+
+        compose.onNodeWithTag(COGO_SAVE_STATUS_TAG).assertTextContains("Se ha guardado 1 punto en el proyecto", substring = true)
+    }
+
+    @Test
     fun `S038 RF-19 guardando no se puede volver a pulsar Guardar`() {
         show(ui(CogoSaveStatus.Saving))
 

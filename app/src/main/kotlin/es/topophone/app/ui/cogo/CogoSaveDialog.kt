@@ -14,6 +14,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
@@ -62,7 +63,10 @@ fun CogoSaveDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 when (val status = ui.status) {
-                    is CogoSaveStatus.Saved -> StatusText(stringResource(R.string.cogo_save_saved, status.count), error = false)
+                    is CogoSaveStatus.Saved -> StatusText(
+                        pluralStringResource(R.plurals.cogo_save_saved, status.count, status.count),
+                        error = false,
+                    )
                     CogoSaveStatus.NameProblems -> StatusText(stringResource(R.string.cogo_save_name_problems), error = true)
                     is CogoSaveStatus.OutOfScope -> StatusText(
                         stringResource(R.string.cogo_save_out_of_scope, status.keys.joinToString { labels[it] ?: it }),
