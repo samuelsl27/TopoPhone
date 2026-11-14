@@ -44,7 +44,7 @@
       Hecho cuando: `CogoPointFieldTest` en verde, con coma decimal, DMS y valores rechazados, y la elección compartida con S026.
 - [x] T21. `app`: `InverseViewModel` e `InverseScreen`: resultado, intercambiar y copiar como texto. (RF-5, RF-6, RF-7, RF-8, RF-9)
       Hecho cuando: `InverseViewModelTest` en verde, con unidades del proyecto, puntos coincidentes y sin altura.
-- [ ] T22. `app`: `IntersectionViewModel` e `IntersectionScreen`: las tres clases, soluciones con texto «Izquierda», «Derecha», «Primera» o «Segunda», motivos de sin solución y altura opcional. (RF-13 a RF-18)
+- [x] T22. `app`: `IntersectionViewModel` e `IntersectionScreen`: las tres clases, soluciones con texto «Izquierda», «Derecha», «Primera» o «Segunda», motivos de sin solución y altura opcional. (RF-13 a RF-18)
       Hecho cuando: `IntersectionViewModelTest` en verde con las tres clases, la elección de solución y el aviso de «detrás».
 - [ ] T23. `app`: `TraverseViewModel`: punto de inicio, referencia y cierre, tramos (añadir, editar, quitar), cálculo en vivo y cierre. (RF-10, RF-11, RF-12, RF-31)
       Hecho cuando: `TraverseViewModelTest` en verde sin escribir nada en la base.

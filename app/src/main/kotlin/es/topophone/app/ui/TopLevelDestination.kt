@@ -107,6 +107,9 @@ import kotlinx.serialization.Serializable
 /** La inversa entre dos puntos (S038/RF-6). */
 @Serializable data class CogoInverseDestination(val projectId: String)
 
+/** La intersección de distancias y direcciones (S038/RF-13). */
+@Serializable data class CogoIntersectionDestination(val projectId: String)
+
 /** Ficha de un punto (S011/RF-5). */
 @Serializable data class PointDestination(val projectId: String, val pointId: String)
 

@@ -1,0 +1,227 @@
+package es.topophone.app.ui.cogo
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.core.model.cogo.CogoOperation
+import es.topophone.core.model.cogo.IntersectionSide
+import es.topophone.core.model.format.DirectionInput
+import es.topophone.core.model.format.DirectionKind
+import es.topophone.core.model.format.DistanceInput
+import es.topophone.core.model.geometry.DistanceMode
+import es.topophone.core.model.project.AngularUnit
+import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.survey.cogo.CogoPoint
+import es.topophone.core.survey.cogo.CogoScale
+import es.topophone.core.survey.cogo.Intersection
+import es.topophone.core.survey.cogo.IntersectionResult
+import es.topophone.core.survey.geometry.GeometryNotice
+import es.topophone.data.geometry.GeometryPreferences
+import es.topophone.data.point.PointRepository
+import es.topophone.data.project.ProjectRepository
+import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+internal const val SLOT_FIRST = "first"
+internal const val SLOT_SECOND = "second"
+private const val STOP_TIMEOUT_MS = 5_000L
+
+/** Las tres intersecciones y la operación que se guarda (S038/RF-13). */
+enum class IntersectionKind(val operation: CogoOperation) {
+    DISTANCE_DISTANCE(CogoOperation.INTERSECTION_DISTANCE_DISTANCE),
+    DIRECTION_DIRECTION(CogoOperation.INTERSECTION_DIRECTION_DIRECTION),
+    DISTANCE_DIRECTION(CogoOperation.INTERSECTION_DISTANCE_DIRECTION),
+}
+
+/**
+ * Una solución de la intersección con lo que el usuario añade: la altura opcional que se escribe (S038/RF-18) y si se marca para
+ * guardarla (RF-19). [height] es null si el texto está vacío o no es un número ([heightInvalid] distingue los dos casos).
+ */
+data class IntersectionSolutionUi(
+    val side: IntersectionSide,
+    val easting: Double,
+    val northing: Double,
+    val distance1: Double,
+    val distance2: Double,
+    val behind: Boolean,
+    val heightText: String,
+    val height: Double?,
+    val heightInvalid: Boolean,
+    val marked: Boolean,
+)
+
+/** Lo que muestra la intersección (S038/RF-13 a RF-18). */
+data class IntersectionUi(
+    val loaded: Boolean = false,
+    val kind: IntersectionKind = IntersectionKind.DISTANCE_DISTANCE,
+    val mode: DistanceMode = DistanceMode.GRID,
+    val linearUnit: LinearUnit = LinearUnit.METRE,
+    val angularUnit: AngularUnit = AngularUnit.DMS,
+    val first: CogoSlotValue = CogoSlotValue.Empty,
+    val second: CogoSlotValue = CogoSlotValue.Empty,
+    val firstSelection: CogoSelection? = null,
+    val secondSelection: CogoSelection? = null,
+    val picker: CogoPickerUi = CogoPickerUi(),
+    val value1Text: String = "",
+    val value2Text: String = "",
+    val value1Invalid: Boolean = false,
+    val value2Invalid: Boolean = false,
+    /** Null hasta que están los dos puntos y las dos condiciones válidas. */
+    val result: IntersectionResult? = null,
+    val solutions: List<IntersectionSolutionUi> = emptyList(),
+    val notices: Set<GeometryNotice> = emptySet(),
+)
+
+/**
+ * Intersección de distancia–distancia, dirección–dirección o distancia–dirección entre dos puntos (S038/RF-13 a RF-18). Calcula en vivo;
+ * guardar los puntos es de [CogoSaveController] (S038/RF-19).
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+@HiltViewModel
+class IntersectionViewModel @Inject constructor(
+    points: PointRepository,
+    private val projects: ProjectRepository,
+    private val preferences: GeometryPreferences,
+) : ViewModel() {
+    private val projectId = MutableStateFlow<String?>(null)
+    val inputs = CogoInputs(points, viewModelScope)
+
+    private data class Own(
+        val kind: IntersectionKind = IntersectionKind.DISTANCE_DISTANCE,
+        val value1: String = "",
+        val value2: String = "",
+        val heights: Map<IntersectionSide, String> = emptyMap(),
+        val marked: Set<IntersectionSide> = emptySet(),
+    )
+
+    private val own = MutableStateFlow(Own())
+
+    private data class Context(val crs: ProjectCrs, val linearUnit: LinearUnit, val angularUnit: AngularUnit)
+
+    private val context = projectId.flatMapLatest { id ->
+        if (id == null) flowOf(null) else projects.observe(id).map { it?.let { p -> Context(p.crs, p.linearUnit, p.angularUnit) } }
+    }
+
+    private val inputsState = combine(
+        inputs.selections,
+        inputs.values(context.map { it?.linearUnit ?: LinearUnit.METRE }.distinctUntilChanged()),
+        inputs.picker(projectId),
+    ) { selections, values, picker -> Triple(selections, values, picker) }
+
+    val state: StateFlow<IntersectionUi> = combine(context, preferences.distanceMode, own, inputsState) { context, mode, own, inputs ->
+        if (context == null) return@combine IntersectionUi(mode = mode)
+        val (selections, values, picker) = inputs
+        val first = values[SLOT_FIRST] ?: CogoSlotValue.Empty
+        val second = values[SLOT_SECOND] ?: CogoSlotValue.Empty
+        val (value1, value2) = parse(own, context)
+        val calculated = if (first is CogoSlotValue.Found && second is CogoSlotValue.Found && value1 != null && value2 != null) {
+            calculate(own.kind, first.point, second.point, value1, value2, CogoScale.forFirst(first.point, context.crs, mode))
+        } else {
+            null
+        }
+        IntersectionUi(
+            loaded = true,
+            kind = own.kind,
+            mode = mode,
+            linearUnit = context.linearUnit,
+            angularUnit = context.angularUnit,
+            first = first,
+            second = second,
+            firstSelection = selections[SLOT_FIRST],
+            secondSelection = selections[SLOT_SECOND],
+            picker = picker,
+            value1Text = own.value1,
+            value2Text = own.value2,
+            value1Invalid = own.value1.isNotBlank() && value1 == null,
+            value2Invalid = own.value2.isNotBlank() && value2 == null,
+            result = calculated?.first,
+            solutions = solutionsOf(calculated?.first, own, context.linearUnit),
+            notices = calculated?.second.orEmpty(),
+        )
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), IntersectionUi())
+
+    private fun parse(own: Own, context: Context): Pair<Double?, Double?> = when (own.kind) {
+        IntersectionKind.DISTANCE_DISTANCE ->
+            DistanceInput.parse(own.value1, context.linearUnit) to DistanceInput.parse(own.value2, context.linearUnit)
+        IntersectionKind.DIRECTION_DIRECTION ->
+            DirectionInput.parse(own.value1, context.angularUnit, DirectionKind.AZIMUTH) to
+                DirectionInput.parse(own.value2, context.angularUnit, DirectionKind.AZIMUTH)
+        IntersectionKind.DISTANCE_DIRECTION ->
+            DistanceInput.parse(own.value1, context.linearUnit) to
+                DirectionInput.parse(own.value2, context.angularUnit, DirectionKind.AZIMUTH)
+    }
+
+    private fun calculate(
+        kind: IntersectionKind,
+        first: CogoPoint,
+        second: CogoPoint,
+        value1: Double,
+        value2: Double,
+        scale: CogoScale,
+    ): Pair<IntersectionResult, Set<GeometryNotice>> {
+        val result = when (kind) {
+            IntersectionKind.DISTANCE_DISTANCE -> Intersection.distanceDistance(first, second, value1, value2, scale)
+            IntersectionKind.DIRECTION_DIRECTION -> Intersection.directionDirection(first, second, value1, value2, scale)
+            IntersectionKind.DISTANCE_DIRECTION -> Intersection.distanceDirection(first, second, value1, value2, scale)
+        }
+        return result to scale.notices
+    }
+
+    private fun solutionsOf(result: IntersectionResult?, own: Own, unit: LinearUnit): List<IntersectionSolutionUi> {
+        if (result !is IntersectionResult.Solutions) return emptyList()
+        return result.list.map { solution ->
+            val text = own.heights[solution.side].orEmpty()
+            val height = DistanceInput.parseSigned(text, unit)
+            IntersectionSolutionUi(
+                side = solution.side,
+                easting = solution.easting,
+                northing = solution.northing,
+                distance1 = solution.distance1,
+                distance2 = solution.distance2,
+                behind = solution.behind,
+                heightText = text,
+                height = height,
+                heightInvalid = text.isNotBlank() && height == null,
+                marked = solution.side in own.marked,
+            )
+        }
+    }
+
+    fun start(id: String) {
+        projectId.value = id
+    }
+
+    /** Elige una de las tres intersecciones; las condiciones escritas se borran porque cambian de clase. */
+    fun setKind(kind: IntersectionKind) = own.update { if (it.kind == kind) it else Own(kind = kind) }
+
+    fun setValue1(text: String) = own.update { it.copy(value1 = text) }
+
+    fun setValue2(text: String) = own.update { it.copy(value2 = text) }
+
+    /** La altura opcional de una solución, en la unidad del proyecto (S038/RF-18). */
+    fun setHeight(side: IntersectionSide, text: String) = own.update { it.copy(heights = it.heights + (side to text)) }
+
+    /** Marca o desmarca una solución para guardarla (S038/RF-19). */
+    fun toggleMarked(side: IntersectionSide) = own.update {
+        it.copy(marked = if (side in it.marked) it.marked - side else it.marked + side)
+    }
+
+    /** Elige cuadrícula o terreno, para todos los proyectos (S038/RF-5). */
+    fun setMode(mode: DistanceMode) {
+        viewModelScope.launch { preferences.setDistanceMode(mode) }
+    }
+}
