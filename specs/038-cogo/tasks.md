@@ -42,7 +42,7 @@
       Hecho cuando: `CogoMenuTest` en verde con SC proyectado y con SC geográfico.
 - [x] T20. `app`: `CogoPointField` (elegir con búsqueda o escribir Este y Norte, con altura), campos de dirección y distancia con su unidad, y el selector Cuadrícula/Terreno con la elección de S026. (RF-3, RF-4, RF-5)
       Hecho cuando: `CogoPointFieldTest` en verde, con coma decimal, DMS y valores rechazados, y la elección compartida con S026.
-- [ ] T21. `app`: `InverseViewModel` e `InverseScreen`: resultado, intercambiar y copiar como texto. (RF-5, RF-6, RF-7, RF-8, RF-9)
+- [x] T21. `app`: `InverseViewModel` e `InverseScreen`: resultado, intercambiar y copiar como texto. (RF-5, RF-6, RF-7, RF-8, RF-9)
       Hecho cuando: `InverseViewModelTest` en verde, con unidades del proyecto, puntos coincidentes y sin altura.
 - [ ] T22. `app`: `IntersectionViewModel` e `IntersectionScreen`: las tres clases, soluciones con texto «Izquierda», «Derecha», «Primera» o «Segunda», motivos de sin solución y altura opcional. (RF-13 a RF-18)
       Hecho cuando: `IntersectionViewModelTest` en verde con las tres clases, la elección de solución y el aviso de «detrás».

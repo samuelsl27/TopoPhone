@@ -48,6 +48,7 @@ import es.topophone.app.ui.codes.CodeLibraryRoute
 import es.topophone.app.ui.codes.ProjectCodesRoute
 import es.topophone.app.ui.cogo.CogoMenuActions
 import es.topophone.app.ui.cogo.CogoMenuRoute
+import es.topophone.app.ui.cogo.InverseRoute
 import es.topophone.app.ui.export.DxfExportRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
@@ -912,7 +913,16 @@ private fun AppNavHost(
             }
             composable<CogoDestination> { entry ->
                 val args = entry.toRoute<CogoDestination>()
-                CogoMenuRoute(args.projectId, uiState.themeState, actions.onToggleSun, CogoMenuActions()) { navController.popBackStack() }
+                CogoMenuRoute(
+                    args.projectId,
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    CogoMenuActions(onInverse = { navController.navigate(CogoInverseDestination(args.projectId)) }),
+                ) { navController.popBackStack() }
+            }
+            composable<CogoInverseDestination> { entry ->
+                val args = entry.toRoute<CogoInverseDestination>()
+                InverseRoute(args.projectId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<ThreePointAngleDestination> { entry ->
                 val args = entry.toRoute<ThreePointAngleDestination>()

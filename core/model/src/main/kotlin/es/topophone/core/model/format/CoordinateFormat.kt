@@ -24,6 +24,8 @@ object AngleFormat {
     private const val CONVERGENCE_SECOND_DECIMALS = 2
     private const val CONVERGENCE_DECIMALS = 6
     private const val DIRECTION_DECIMALS = 3
+    private const val AZIMUTH_SECOND_DECIMALS = 2
+    private const val AZIMUTH_DECIMALS = 6
     private const val GON_PER_DEGREE = 400.0 / 360.0
 
     /** Latitud `40° 25′ 07,24408″ N` (S002/RF-34). */
@@ -70,6 +72,22 @@ object AngleFormat {
             }
             AngularUnit.DECIMAL_DEGREES -> decimals(degrees, DIRECTION_DECIMALS, locale, grouping = false) + "°"
             AngularUnit.GON -> decimals(degrees * GON_PER_DEGREE, DIRECTION_DECIMALS, locale, grouping = false) + " gon"
+        }
+    }
+
+    /**
+     * Un azimut de cuadrícula de COGO (S038/RF-6), con la resolución del cálculo: dos decimales de segundo, o seis de grado o de gon,
+     * con el separador decimal del idioma.
+     */
+    fun azimuth(valueRad: Double, unit: AngularUnit, locale: Locale): String {
+        val degrees = Math.toDegrees(valueRad)
+        return when (unit) {
+            AngularUnit.DMS -> {
+                val (d, m, s) = sexagesimal(abs(degrees), AZIMUTH_SECOND_DECIMALS, locale)
+                "$d° ${m.toString().padStart(2, '0')}′ $s″"
+            }
+            AngularUnit.DECIMAL_DEGREES -> decimals(degrees, AZIMUTH_DECIMALS, locale, grouping = false) + "°"
+            AngularUnit.GON -> decimals(degrees * GON_PER_DEGREE, AZIMUTH_DECIMALS, locale, grouping = false) + " gon"
         }
     }
 
