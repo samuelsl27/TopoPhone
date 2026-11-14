@@ -54,7 +54,7 @@
       Hecho cuando: `TraverseDraftViewModelTest` en verde, incluida la reapertura tras destruir el ViewModel.
 - [x] T26. `app`: `CogoSaveSheet`: marcar resultados, nombres propuestos y editables, «Guardar puntos», errores de nombre repetido y de fuera del ámbito, salir sin guardar, vaciado del borrador. (RF-19, RF-20, RF-21, RF-23, RF-30)
       Hecho cuando: `CogoSaveTest` en verde con la poligonal y las tres intersecciones, sin crear nada al salir.
-- [ ] T27. `app`: rendimiento con 200 tramos y guardado del borrador fuera del hilo principal. (RNF-T13)
+- [x] T27. `app`: rendimiento con 200 tramos y guardado del borrador fuera del hilo principal. (RNF-T13)
       Hecho cuando: `CogoPerformanceTest` en verde (cálculo en menos de 100 ms y sin bloquear el hilo principal más de 16 ms).
 - [ ] T28. Accesibilidad y textos: etiquetas, 56 dp, soluciones con texto, es y en, sin literales en código. (RNF-T7, RNF-T8)
       Hecho cuando: `CogoAccessibilityTest` en verde y Lint sin textos sin usar.
