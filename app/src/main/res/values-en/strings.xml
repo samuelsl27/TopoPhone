@@ -2983,4 +2983,27 @@
     <string name="offline_cancel_text">Everything already downloaded for this zone is deleted.</string>
     <string name="offline_cancel_confirm">Cancel and delete</string>
     <string name="offline_cancel_keep">Keep downloading</string>
+    <!-- S037 · Offline maps: the project's zones -->
+    <string name="offline_zones_title">Offline maps</string>
+    <string name="offline_zones_empty">This project has no offline zones.</string>
+    <string name="offline_zones_usage">Used by offline maps: %1$s of %2$s</string>
+    <string name="offline_zones_limit">Storage limit: %1$s</string>
+    <string name="offline_zones_download">Download zone</string>
+    <string name="offline_zones_running">A download is in progress: %1$s</string>
+    <string name="offline_zones_see_progress">View progress</string>
+    <string name="offline_zone_sources">Sources: %1$s</string>
+    <string name="offline_zone_detail">Level of detail: %1$s</string>
+    <string name="offline_zone_size">Size: %1$s</string>
+    <string name="offline_zone_date">Downloaded on %1$s</string>
+    <string name="offline_zone_no_date">Download not finished</string>
+    <string name="offline_zone_state_incomplete">Incomplete: %1$d %%</string>
+    <string name="offline_zone_state_updating">Updating</string>
+    <string name="offline_zone_update">Update</string>
+    <string name="offline_zone_rename">Rename</string>
+    <string name="offline_zone_delete">Delete</string>
+    <string name="offline_rename_title">Rename the zone</string>
+    <string name="offline_rename_save">Save</string>
+    <string name="offline_delete_title">Delete the zone?</string>
+    <string name="offline_delete_text">\"%1$s\" will be deleted and %2$s freed.</string>
+    <string name="offline_delete_confirm">Delete</string>
 </resources>

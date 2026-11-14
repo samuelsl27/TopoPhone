@@ -2995,4 +2995,27 @@
     <string name="offline_cancel_text">Se borra lo que ya se ha descargado de esta zona.</string>
     <string name="offline_cancel_confirm">Cancelar y borrar</string>
     <string name="offline_cancel_keep">Seguir descargando</string>
+    <!-- S037 · Mapas sin conexión: las zonas del proyecto -->
+    <string name="offline_zones_title">Mapas sin conexión</string>
+    <string name="offline_zones_empty">Este proyecto no tiene zonas sin conexión.</string>
+    <string name="offline_zones_usage">Ocupado por los mapas sin conexión: %1$s de %2$s</string>
+    <string name="offline_zones_limit">Límite de almacenamiento: %1$s</string>
+    <string name="offline_zones_download">Descargar zona</string>
+    <string name="offline_zones_running">Hay una descarga en curso: %1$s</string>
+    <string name="offline_zones_see_progress">Ver progreso</string>
+    <string name="offline_zone_sources">Fuentes: %1$s</string>
+    <string name="offline_zone_detail">Nivel de detalle: %1$s</string>
+    <string name="offline_zone_size">Tamaño: %1$s</string>
+    <string name="offline_zone_date">Descargada el %1$s</string>
+    <string name="offline_zone_no_date">Sin terminar de descargar</string>
+    <string name="offline_zone_state_incomplete">Incompleta: %1$d %%</string>
+    <string name="offline_zone_state_updating">Actualizando</string>
+    <string name="offline_zone_update">Actualizar</string>
+    <string name="offline_zone_rename">Renombrar</string>
+    <string name="offline_zone_delete">Borrar</string>
+    <string name="offline_rename_title">Renombrar la zona</string>
+    <string name="offline_rename_save">Guardar</string>
+    <string name="offline_delete_title">¿Borrar la zona?</string>
+    <string name="offline_delete_text">Se borra «%1$s» y se liberan %2$s.</string>
+    <string name="offline_delete_confirm">Borrar</string>
 </resources>

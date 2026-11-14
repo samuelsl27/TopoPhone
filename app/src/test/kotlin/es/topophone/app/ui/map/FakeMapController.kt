@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
 import es.topophone.app.ui.projects.MapSlot
+import es.topophone.core.geodesy.GeoBox
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.codes.AttributeCarryOver
 import es.topophone.core.model.codes.PointCode
@@ -32,6 +33,10 @@ import kotlinx.coroutines.flow.map
 
 /** Doble de [MapController] para los tests de la interfaz: MapLibre no funciona en Robolectric (código nativo). */
 class FakeMapController : MapController {
+    var visible: GeoBox? = null
+
+    override fun visibleBounds(): GeoBox? = visible
+
     val settings = mutableListOf<MapSettings>()
     var unit: LinearUnit? = null
     override val camera = MutableStateFlow<MapCamera?>(null)

@@ -94,6 +94,9 @@ class DownloadPlanViewModel @Inject constructor(
 
     /** Abre el plan del proyecto [projectId]; [visible] es lo que se ve ahora en el mapa, o null si no se sabe (RF-2). */
     fun open(projectId: String, projectName: String, visible: GeoBox?) {
+        // Al volver a abrir la hoja no queda nada de la anterior, ni que ya se había empezado.
+        mutableState.value = DownloadPlanUiState()
+        loaded = null
         viewModelScope.launch {
             val settings = preferences.settings.first()
             val center = inputs.center(projectId)

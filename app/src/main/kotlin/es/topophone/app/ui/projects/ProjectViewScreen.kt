@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -136,6 +137,8 @@ import es.topophone.app.ui.map.NetworkFailureMonitor
 import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
 import es.topophone.app.ui.map.WmsLayerPlan
+import es.topophone.app.ui.offline.OFFLINE_ENTRY_TAG
+import es.topophone.app.ui.offline.OfflineMapsHost
 import es.topophone.app.ui.points.OBJECTS_BUTTON_TAG
 import es.topophone.app.ui.points.ObjectLines
 import es.topophone.app.ui.receiver.ReceiverViewModel
@@ -175,6 +178,7 @@ import es.topophone.app.ui.wms.WmsLayerPicker
 import es.topophone.app.ui.wms.WmsLibrarySheet
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.designsystem.theme.LocalStatusPalette
+import es.topophone.core.geodesy.GeoBox
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.WebMercator
 import es.topophone.core.gnss.nmea.GgaFix
@@ -621,6 +625,9 @@ fun ProjectViewRoute(
         projectLayers = projectLayers,
         projectLayersActions = ProjectLayersActions.of(projectLayersViewModel),
         librarySheet = { pick, onDismiss -> WmsLibrarySheet(onDismiss, uriHandler::openUri, pick) }, // S036/RF-19
+        offlineSheet = { visible, onDismiss ->
+            state.project?.let { OfflineMapsHost(it.id, it.name, visible, onDismiss) } // S037/RF-1
+        },
         mapMenu = mapMenu,
         mapMenuActions = MapMenuActions(
             onLongPress = { press -> mapMenuViewModel.open(press, projectLayers.layers, state.project) }, // S036/RF-34
@@ -1105,6 +1112,7 @@ fun ProjectViewScreen(
     projectLayersActions: ProjectLayersActions = ProjectLayersActions(),
     /** La biblioteca de servicios WMS en una hoja, con el modo «Añadir capa» si recibe un selector (S036/RF-1, RF-19). */
     librarySheet: @Composable (pick: WmsLayerPicker?, onDismiss: () -> Unit) -> Unit = { _, _ -> },
+    offlineSheet: @Composable (visible: () -> GeoBox?, onDismiss: () -> Unit) -> Unit = { _, _ -> },
     /** El menú que sale al mantener pulsado un punto del mapa: consultar las capas y ver coordenadas (S036/RF-34 a RF-41). */
     mapMenu: MapMenuUiState = MapMenuUiState(),
     mapMenuActions: MapMenuActions = MapMenuActions(),
@@ -1129,6 +1137,7 @@ fun ProjectViewScreen(
     var controller by remember { mutableStateOf<MapController?>(null) }
     var layersOpen by rememberSaveable { mutableStateOf(false) }
     var libraryMode by rememberSaveable { mutableStateOf(LibraryMode.NONE) }
+    var offlineOpen by rememberSaveable { mutableStateOf(false) }
     var drawingsOpen by rememberSaveable { mutableStateOf(false) }
     var surfacesOpen by rememberSaveable { mutableStateOf(false) }
     var convertOpen by rememberSaveable { mutableStateOf(false) }
@@ -1423,6 +1432,7 @@ fun ProjectViewScreen(
             projectLayersActions,
             onAddLayer = { libraryMode = LibraryMode.ADD_LAYER },
             onAddService = { libraryMode = LibraryMode.ADD_SERVICE },
+            onOffline = { offlineOpen = true },
         ) { layersOpen = false }
     }
     when (libraryMode) {
@@ -1439,6 +1449,7 @@ fun ProjectViewScreen(
             librarySheet(picker) { libraryMode = LibraryMode.NONE }
         }
     }
+    if (offlineOpen) offlineSheet({ controller?.visibleBounds() }) { offlineOpen = false } // S037/RF-1
     if (drawingsOpen) DrawingsSheet(drawings, drawingsActions) { drawingsOpen = false }
     if (surfacesOpen) SurfacesSheet(surfaces, surfacesActions) { surfacesOpen = false }
     if (alignmentsOpen) {
@@ -1623,6 +1634,7 @@ private fun LayersSheet(
     layersActions: ProjectLayersActions,
     onAddLayer: () -> Unit,
     onAddService: () -> Unit,
+    onOffline: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     // Es corta: se abre entera.
@@ -1647,6 +1659,11 @@ private fun LayersSheet(
             }
             HorizontalDivider()
             ProjectLayersSection(projectLayers, layersActions, onAddLayer, onAddService) // S036/RF-18
+            HorizontalDivider()
+            OutlinedButton(onOffline, Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(OFFLINE_ENTRY_TAG)) {
+                // S037/RF-1
+                Text(stringResource(R.string.offline_zones_title))
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package es.topophone.app.ui.map
 
 import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
+import es.topophone.core.geodesy.GeoBox
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.map.MapSettings
 import es.topophone.core.model.map.MapViewport
@@ -58,6 +59,9 @@ interface MapController {
 
     /** España entera, con Canarias (S009/RF-21). */
     fun showSpain()
+
+    /** Lo que se ve ahora en el mapa, en grados, o null si el mapa aún no se ha dibujado: es el encuadre que se puede descargar (S037/RF-2). */
+    fun visibleBounds(): GeoBox?
 
     /**
      * Píxeles que tapan los paneles por abajo. El centro del mapa, donde se sigue al rover, pasa al resto de la

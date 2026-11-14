@@ -14,6 +14,7 @@ import es.topophone.app.ui.alignment.AlignmentScene
 import es.topophone.app.ui.cad.DesignScene
 import es.topophone.core.formats.wms.WmsRequests
 import es.topophone.core.geodesy.AccuracyCircle
+import es.topophone.core.geodesy.GeoBox
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.MapGrid
 import es.topophone.core.geodesy.WebMercator
@@ -226,6 +227,11 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         easing = false
         applyInset()
     }
+
+    override fun visibleBounds(): GeoBox? = runCatching {
+        val bounds = map.projection.visibleRegion.latLngBounds
+        GeoBox(bounds.latitudeSouth, bounds.longitudeWest, bounds.latitudeNorth, bounds.longitudeEast)
+    }.getOrNull()
 
     override fun showSpain() {
         val spain = LatLngBounds.from(CameraPolicy.SPAIN_NORTH, CameraPolicy.SPAIN_EAST, CameraPolicy.SPAIN_SOUTH, CameraPolicy.SPAIN_WEST)
