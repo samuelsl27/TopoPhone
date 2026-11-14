@@ -2,7 +2,7 @@
 
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`), marcar la casilla y un commit `S021 Tn: …`.
 
-- [ ] T1. `core:model`: `WifiReceiver`, `WifiReceiverDraft`, `WifiReceiverValidator` (dirección, puertos, valores iniciales 192.168.42.1 y 9001) y `ReceiverKey` (`wifi:<id>`). (RF-2, RF-3, RF-5)
+- [x] T1. `core:model`: `WifiReceiver`, `WifiReceiverDraft`, `WifiReceiverValidator` (dirección, puertos, valores iniciales 192.168.42.1 y 9001) y `ReceiverKey` (`wifi:<id>`). (RF-2, RF-3, RF-5)
       Hecho cuando: `WifiReceiverValidatorTest` y `ReceiverKeyTest` en verde con direcciones IPv4, nombres, IPv6, vacías, con espacios o con URL, y puertos de 0, 1, 65535 y 65536.
 - [ ] T2. `data`: Room v34 (`wifi_receivers`, `AutoMigration(33, 34)`, esquema `34.json`) y su fila en `DatabaseSnapshot.TABLES`. (RNF-T6)
       Hecho cuando: el test de migración v33 a v34 de `TopoPhoneDatabaseTest` y `WifiBackupTest` en verde y los de versiones anteriores intactos.
