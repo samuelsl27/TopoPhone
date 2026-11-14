@@ -9,7 +9,7 @@ Una parte de lo que decide este plan solo se sabía probando MapLibre en el emul
 ## Estructura de módulos
 - `core:model` (`offline/`), sin `android.*`
   - `DetailLevel` (`NORMAL`, `HIGH`, `MAX`), `OfflineArea` (`Radius`, `Viewport`, `ProjectExtent`), `DownloadableSource` y su tipo (`IGN_VECTOR`, `PNOA`, `OPENFREEMAP`, `WMS`), `ZoneState` y `SourceState`, y las constantes: radio 100 m a 20 km, margen 200 m a 2 km, límite 2 GB por defecto (200 MB a 10 GB), reserva de 500 MB libres, confirmación con datos móviles a partir de 50 MB, 2 % de fallos, tope de OpenFreeMap (3.000 teselas, 50 MB) y 4 peticiones por servidor (RF-3, RF-4, RF-9, RF-12, RF-14, RF-19, RF-31).
-  - `ZoneMeta`: el texto JSON que cada región guarda en sus metadatos (ver «Modelo de datos»).
+  - `ZoneMeta`: los datos que cada región guarda en sus metadatos (ver «Modelo de datos»); su JSON lo escribe y lee `ZoneMetaJson` en `core:formats` (`offline/`), porque `core:model` no tiene `kotlinx.serialization`.
 - `core:geodesy`, sin `android.*`
   - `AreaBounds`: de un `OfflineArea` a la caja en latitud y longitud que lo contiene (RF-2, RF-7).
   - `TileCover`: de una caja, un zoom del mapa y un tipo de fuente, las teselas que MapLibre descarga y su número (RF-7, RF-11, constitución nº 2).
