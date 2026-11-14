@@ -62,6 +62,9 @@ import es.topophone.data.map.RoomMapViewportRepository
 import es.topophone.data.ntrip.NtripLegacyImport
 import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.ntrip.RoomNtripProfileRepository
+import es.topophone.data.offline.DataStoreOfflinePreferences
+import es.topophone.data.offline.OfflineDataStoreQualifier
+import es.topophone.data.offline.OfflinePreferences
 import es.topophone.data.photo.PhotoRepository
 import es.topophone.data.photo.PhotoStore
 import es.topophone.data.photo.RoomPhotoRepository
@@ -170,6 +173,13 @@ object DataStoreModule {
     @Singleton
     @MapDataStoreQualifier
     fun provideMapDataStore(@ApplicationContext context: Context): DataStore<Preferences> = SettingsDataStore.create(context, name = "map")
+
+    /** Zonas sin conexión (S037): son de este móvil y no viajan en la copia. */
+    @Provides
+    @Singleton
+    @OfflineDataStoreQualifier
+    fun provideOfflineDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        SettingsDataStore.create(context, name = "offline")
 
     @Provides
     @Singleton
@@ -379,6 +389,9 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindMapPreferences(implementation: DataStoreMapPreferences): MapPreferences
+
+    @Binds
+    abstract fun bindOfflinePreferences(implementation: DataStoreOfflinePreferences): OfflinePreferences
 
     @Binds
     abstract fun bindCollectorPreferences(implementation: DataStoreCollectorPreferences): CollectorPreferences

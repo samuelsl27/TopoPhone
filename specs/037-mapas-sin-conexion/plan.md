@@ -19,7 +19,7 @@ Una parte de lo que decide este plan solo se sabía probando MapLibre en el emul
   - `ZoneHttp`: el interceptor del cliente HTTP del mapa que contesta esos estilos sin red y, mientras se descarga una zona, alarga la caducidad de las respuestas para que MapLibre no revalide lo guardado (RF-22, RF-23).
   - `DownloadEstimate`: teselas, tamaño estimado y comprobaciones antes de empezar (RF-9 a RF-14).
   - `OfflineDownloader`: la cola de fuentes, la máquina de estados y la pausa al salir de la app (RF-15 a RF-19, RF-26).
-  - `OfflineSettings` (DataStore): límite de almacenamiento y la última elección de área y nivel (RF-8, RF-31).
+  - `OfflineSettings` (en `core:model`) y `OfflinePreferences` (DataStore en `data/offline`, como `MapPreferences` de S009, fuera de las preferencias que viajan en la copia): límite de almacenamiento y la última elección de área y nivel (RF-8, RF-31).
   - `OfflineZoneJanitor`: borra las zonas de los proyectos que ya no existen (RF-28).
   - `DownloadPlanViewModel`, `OfflineZonesViewModel` y sus hojas dentro de «Capas» (RF-1 a RF-31).
   - `OfflineCoverage`: dice si el punto visible cae en el área de una fuente completa y si el zoom pasa del nivel guardado (RF-20, RF-21).
