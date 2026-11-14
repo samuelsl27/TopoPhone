@@ -16,7 +16,7 @@
       Hecho cuando: `TraverseAzimuthTest` y la parte de ángulos de `TraverseAnglesTest` en verde frente a las referencias.
 - [x] T7. `core:survey`: deflexión a la derecha y a la izquierda, y visual atrás indefinida (`stoppedAt`, hecha junto con T6 porque comparten el mismo `when`). (RF-10, RF-31)
       Hecho cuando: `TraverseAnglesTest` completo en verde, con la referencia en el inicio y un tramo anterior de longitud 0.
-- [ ] T8. `core:survey`: alturas por tramo y error de cierre. (RF-11, RF-12)
+- [x] T8. `core:survey`: alturas por tramo y error de cierre. (RF-11, RF-12)
       Hecho cuando: `TraverseHeightTest` y `TraverseClosureTest` en verde, con poligonal que cierra, que no cierra y con un desnivel que falta.
 - [ ] T9. `core:survey`: `Intersection.distanceDistance`. (RF-14, RF-17)
       Hecho cuando: `IntersectionCircleTest` en verde con dos soluciones (izquierda y derecha), tangentes, concéntricas y circunferencias que no se cortan.

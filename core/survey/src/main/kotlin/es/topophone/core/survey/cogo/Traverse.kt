@@ -20,8 +20,25 @@ enum class TraverseStop {
     BACKSIGHT_UNDEFINED,
 }
 
-/** El punto al final del tramo [leg] (desde 1), con la dirección y la distancia de cuadrícula que se usaron (S038/RF-11). */
-data class TraverseStep(val leg: Int, val easting: Double, val northing: Double, val azimuthRad: Double, val gridDistance: Double)
+/**
+ * El punto al final del tramo [leg] (desde 1), con la dirección y la distancia de cuadrícula que se usaron (S038/RF-11). [height] es
+ * null si el punto de inicio no tiene altura o algún tramo hasta él no lleva desnivel escrito.
+ */
+data class TraverseStep(
+    val leg: Int,
+    val easting: Double,
+    val northing: Double,
+    val azimuthRad: Double,
+    val gridDistance: Double,
+    val height: Double? = null,
+)
+
+/**
+ * El error de cierre (S038/RF-12): el último punto calculado menos el punto de cierre, en Este y Norte; el lineal; la longitud total de
+ * los tramos en cuadrícula; y la precisión relativa 1:N, con `N = totalLength / linear` ([ratio]), que es null si cierra (error lineal
+ * por debajo del micrómetro). Solo se informa: ningún punto se corrige.
+ */
+data class ClosureError(val dEasting: Double, val dNorthing: Double, val linear: Double, val totalLength: Double, val ratio: Double?)
 
 /**
  * Lo que da una poligonal: un punto por cada tramo calculado y, si se paró antes de acabar, en qué tramo ([stoppedAt], desde 1) y por
@@ -33,6 +50,7 @@ data class TraverseResult(
     val stopReason: TraverseStop?,
     val totalGridLength: Double,
     val notices: Set<GeometryNotice>,
+    val closure: ClosureError? = null,
 )
 
 /**
@@ -45,10 +63,21 @@ data class TraverseResult(
  */
 object Traverse {
 
-    fun compute(start: CogoPoint, reference: CogoPoint?, legs: List<TraverseLeg>, scale: CogoScale): TraverseResult {
+    /** Por debajo de esto el error lineal es ruido del cálculo: la poligonal cierra y no hay 1:N. */
+    const val CLOSES_BELOW_M = 1e-6
+
+    /** La poligonal de [legs] desde [start]; con [closure], su error de cierre si se calcularon todos los tramos. */
+    fun compute(
+        start: CogoPoint,
+        reference: CogoPoint?,
+        legs: List<TraverseLeg>,
+        scale: CogoScale,
+        closure: CogoPoint? = null,
+    ): TraverseResult {
         val steps = ArrayList<TraverseStep>(legs.size)
         var east = start.easting
         var north = start.northing
+        var height = start.height
         var previousAzimuth: Double? = null
         var previousGrid = 0.0
         var total = 0.0
@@ -83,12 +112,26 @@ object Traverse {
             val grid = scale.toGrid(distance)
             east += grid * sin(azimuth)
             north += grid * cos(azimuth)
-            steps += TraverseStep(number, east, north, azimuth, grid)
+            height = if (height != null && leg.dHeightM != null) height + leg.dHeightM!! else null
+            steps += TraverseStep(number, east, north, azimuth, grid, height)
             previousAzimuth = azimuth
             previousGrid = grid
             total += grid
         }
-        return TraverseResult(steps, stop?.first, stop?.second, total, scale.notices)
+        val error = if (closure != null &&
+            stop == null &&
+            steps.isNotEmpty()
+        ) {
+            closureError(east - closure.easting, north - closure.northing, total)
+        } else {
+            null
+        }
+        return TraverseResult(steps, stop?.first, stop?.second, total, scale.notices, error)
+    }
+
+    private fun closureError(de: Double, dn: Double, total: Double): ClosureError {
+        val linear = hypot(de, dn)
+        return ClosureError(de, dn, linear, total, if (linear < CLOSES_BELOW_M) null else total / linear)
     }
 
     /** El azimut de la visual atrás de la referencia desde el punto actual; null si coinciden. */
