@@ -22,7 +22,7 @@
       Hecho cuando: `IntersectionCircleTest` en verde con dos soluciones (izquierda y derecha), tangentes, concéntricas y circunferencias que no se cortan.
 - [x] T10. `core:survey`: `Intersection.directionDirection` y `.distanceDirection`. (RF-15, RF-16, RF-17)
       Hecho cuando: `IntersectionLinesTest` en verde con solución detrás de un punto, direcciones paralelas y coincidentes, y cero, una y dos soluciones.
-- [ ] T11. `core:survey`: `CogoPointBuilder` (punto COGO con su `CogoRef`, altura opcional, rechazo fuera del ámbito). (RF-18, RF-21, RF-22)
+- [x] T11. `core:survey`: `CogoPointBuilder` (punto COGO con su `CogoRef`, altura opcional, rechazo fuera del ámbito). (RF-18, RF-21, RF-22)
       Hecho cuando: `CogoPointBuilderTest` en verde con altura, sin altura, fuera del huso y las coordenadas guardadas sin redondear.
 - [ ] T12. `core:survey`: rendimiento de la poligonal de 200 tramos. (RNF-T13)
       Hecho cuando: `TraversePerformanceTest` en verde (menos de 100 ms, en terreno y en cuadrícula).
