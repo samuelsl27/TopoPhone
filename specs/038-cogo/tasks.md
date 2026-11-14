@@ -6,7 +6,7 @@
       Hecho cuando: `PointOriginCogoTest` y `CogoRefTest` en verde y los `when` exhaustivos de `PointOrigin` compilan en todos los módulos.
 - [x] T2. `core:model`: `DirectionInput` y `DistanceInput`. (RF-4)
       Hecho cuando: `DirectionInputTest` y `DistanceInputTest` en verde con DD, DMS, gon, coma decimal, 360° y negativos rechazados, deflexión de 180° aceptada y distancia negativa rechazada.
-- [ ] T3. `tools`: `generar_referencias.py` de la inversa y las intersecciones, con `pyproj` y `fixtures/cogo/` (ETRS89 UTM 30, REGCAN95 UTM 28 y ED50 UTM 30, metros y pies, cuadrícula y terreno, semilla fija) y su test de `pytest`. (Constitución nº 2)
+- [x] T3. `tools`: `generar_cogo.py` de la inversa y las intersecciones, con `pyproj` y `fixtures/cogo/` (ETRS89 UTM 30, REGCAN95 UTM 28 y ED50 UTM 30, metros y pies, cuadrícula y terreno, semilla fija) y su test de `pytest`. (Constitución nº 2)
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros de inversas e intersecciones generados en el repositorio.
 - [ ] T4. `tools`: el mismo generador para la poligonal (azimut, ángulo a la derecha y a la izquierda, deflexión a la derecha y a la izquierda; cierre y alturas) a partir de puntos conocidos. (Constitución nº 2)
       Hecho cuando: `pytest` en verde y los ficheros de poligonales generados.
