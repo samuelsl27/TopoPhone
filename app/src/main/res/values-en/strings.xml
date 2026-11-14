@@ -3006,4 +3006,5 @@
     <string name="offline_delete_title">Delete the zone?</string>
     <string name="offline_delete_text">\"%1$s\" will be deleted and %2$s freed.</string>
     <string name="offline_delete_confirm">Delete</string>
+    <string name="offline_max_detail">Maximum stored detail</string>
 </resources>

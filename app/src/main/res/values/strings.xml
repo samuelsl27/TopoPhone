@@ -3018,4 +3018,5 @@
     <string name="offline_delete_title">¿Borrar la zona?</string>
     <string name="offline_delete_text">Se borra «%1$s» y se liberan %2$s.</string>
     <string name="offline_delete_confirm">Borrar</string>
+    <string name="offline_max_detail">Detalle máximo guardado</string>
 </resources>

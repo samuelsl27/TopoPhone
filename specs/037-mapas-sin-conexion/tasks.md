@@ -38,7 +38,7 @@
       Hecho cuando: `OfflineZonesSheetTest` en verde (estado con texto además de color, borrar con confirmación, zonas de 56 dp).
 - [x] T18. `OfflineZoneJanitor`: borra las zonas de los proyectos que ya no existen, también al abrir la app, y comprobar que la copia no lleva zonas. (RF-28, RF-29)
       Hecho cuando: `OfflineZoneJanitorTest` y `OfflineBackupExclusionTest` en verde (un proyecto en la papelera conserva sus zonas; al borrarlo definitivamente se borran).
-- [ ] T19. `OfflineCoverage` y el mapa: el aviso de sin conexión desaparece dentro del área de una fuente completa y «Detalle máximo guardado» sale por encima del último nivel. (RF-20, RF-21)
+- [x] T19. `OfflineCoverage` y el mapa: el aviso de sin conexión desaparece dentro del área de una fuente completa y «Detalle máximo guardado» sale por encima del último nivel. (RF-20, RF-21)
       Hecho cuando: `OfflineCoverageTest` y `ProjectOfflineNoticeTest` en verde (dentro de una zona completa no hay aviso, fuera sí y una zona incompleta no lo quita).
 - [ ] T20. El mapa usa lo guardado con o sin red y sin pedirlo de nuevo (la caducidad larga de `ZoneHttp`), y se comprueba con una capa WMS viva lo que T1 dejó sin medir: que su dirección es la de la región. (RF-22, RF-23)
       Hecho cuando: en el emulador, con la zona descargada y un contador de peticiones temporal, una zona completa no pide a la red las teselas que tiene (el PNOA, el IGN vectorial y una capa WMS), sin red se dibuja desde la región, y las capas conservan su orden, visibilidad y opacidad; `./gradlew check` en verde.

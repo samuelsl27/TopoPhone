@@ -138,6 +138,8 @@ import es.topophone.app.ui.map.RoverMarker
 import es.topophone.app.ui.map.SCALE_BAR_MAX_DP
 import es.topophone.app.ui.map.WmsLayerPlan
 import es.topophone.app.ui.offline.OFFLINE_ENTRY_TAG
+import es.topophone.app.ui.offline.OfflineCoverageUiState
+import es.topophone.app.ui.offline.OfflineCoverageViewModel
 import es.topophone.app.ui.offline.OfflineMapsHost
 import es.topophone.app.ui.points.OBJECTS_BUTTON_TAG
 import es.topophone.app.ui.points.ObjectLines
@@ -255,6 +257,7 @@ const val OTHER_ZONE_TAG = "position_other_zone"
 const val LAYERS_BUTTON_TAG = "map_layers"
 const val CENTER_BUTTON_TAG = "map_center_rover"
 const val OFFLINE_BANNER_TAG = "map_offline"
+const val OFFLINE_MAX_DETAIL_TAG = "map_offline_max_detail"
 const val SCALE_BAR_TAG = "map_scale_bar"
 const val ATTRIBUTION_TAG = "map_attribution"
 const val CADASTRE_SWITCH_TAG = "map_cadastre"
@@ -470,6 +473,7 @@ fun ProjectViewRoute(
     alignmentMapViewModel: AlignmentMapViewModel = hiltViewModel(),
     projectLayersViewModel: ProjectLayersViewModel = hiltViewModel(),
     mapMenuViewModel: MapMenuViewModel = hiltViewModel(),
+    offlineCoverageViewModel: OfflineCoverageViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(projectId) {
         viewModel.start(projectId)
@@ -592,6 +596,11 @@ fun ProjectViewRoute(
     val alignmentScene by alignmentMapViewModel.scene.collectAsStateWithLifecycle()
     val projectLayers by projectLayersViewModel.state.collectAsStateWithLifecycle() // S036/RF-18
     val mapMenu by mapMenuViewModel.state.collectAsStateWithLifecycle() // S036/RF-34
+    val offlineCoverage by offlineCoverageViewModel.state.collectAsStateWithLifecycle() // S037/RF-20, RF-21
+    LaunchedEffect(Unit) { offlineCoverageViewModel.open() }
+    LaunchedEffect(state.mapSettings.basemap, projectLayers.layers) {
+        offlineCoverageViewModel.drawing(state.mapSettings.basemap, projectLayers.layers)
+    }
     val clipboard = LocalClipboard.current
     val copyScope = rememberCoroutineScope()
     val alignmentTouch by alignmentMapViewModel.touched.collectAsStateWithLifecycle()
@@ -620,6 +629,7 @@ fun ProjectViewRoute(
         onDesignCamera = {
             designViewModel.onCamera(it)
             alignmentMapViewModel.onCamera(it) // S049/RF-17
+            offlineCoverageViewModel.onCamera(it) // S037/RF-20, RF-21
         },
         alignmentScene = alignmentScene,
         projectLayers = projectLayers,
@@ -628,6 +638,7 @@ fun ProjectViewRoute(
         offlineSheet = { visible, onDismiss ->
             state.project?.let { OfflineMapsHost(it.id, it.name, visible, onDismiss) } // S037/RF-1
         },
+        offlineCoverage = offlineCoverage,
         mapMenu = mapMenu,
         mapMenuActions = MapMenuActions(
             onLongPress = { press -> mapMenuViewModel.open(press, projectLayers.layers, state.project) }, // S036/RF-34
@@ -1113,6 +1124,7 @@ fun ProjectViewScreen(
     /** La biblioteca de servicios WMS en una hoja, con el modo «Añadir capa» si recibe un selector (S036/RF-1, RF-19). */
     librarySheet: @Composable (pick: WmsLayerPicker?, onDismiss: () -> Unit) -> Unit = { _, _ -> },
     offlineSheet: @Composable (visible: () -> GeoBox?, onDismiss: () -> Unit) -> Unit = { _, _ -> },
+    offlineCoverage: OfflineCoverageUiState = OfflineCoverageUiState(),
     /** El menú que sale al mantener pulsado un punto del mapa: consultar las capas y ver coordenadas (S036/RF-34 a RF-41). */
     mapMenu: MapMenuUiState = MapMenuUiState(),
     mapMenuActions: MapMenuActions = MapMenuActions(),
@@ -1159,7 +1171,7 @@ fun ProjectViewScreen(
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize().testTag(PROJECT_VIEW_TAG)) {
             map(Modifier.fillMaxSize().testTag(PROJECT_MAP_TAG)) { controller = it }
-            if (state.mapOffline) {
+            if (state.mapOffline && !offlineCoverage.covered) { // S037/RF-20: dentro de una fuente completa no hay aviso
                 Text(
                     stringResource(R.string.map_offline),
                     color = MaterialTheme.colorScheme.onErrorContainer,
@@ -1172,6 +1184,19 @@ fun ProjectViewScreen(
                         .testTag(OFFLINE_BANNER_TAG),
                 )
             } // S009/RF-15
+            if (state.mapOffline && offlineCoverage.covered && offlineCoverage.beyondDetail) {
+                Text(
+                    stringResource(R.string.offline_max_detail),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(12.dp)
+                        .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.small)
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .testTag(OFFLINE_MAX_DETAIL_TAG),
+                )
+            } // S037/RF-21
             Column(
                 modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
