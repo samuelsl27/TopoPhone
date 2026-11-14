@@ -24,7 +24,7 @@
       Hecho cuando: `IntersectionLinesTest` en verde con solución detrás de un punto, direcciones paralelas y coincidentes, y cero, una y dos soluciones.
 - [x] T11. `core:survey`: `CogoPointBuilder` (punto COGO con su `CogoRef`, altura opcional, rechazo fuera del ámbito). (RF-18, RF-21, RF-22)
       Hecho cuando: `CogoPointBuilderTest` en verde con altura, sin altura, fuera del huso y las coordenadas guardadas sin redondear.
-- [ ] T12. `core:survey`: rendimiento de la poligonal de 200 tramos. (RNF-T13)
+- [x] T12. `core:survey`: rendimiento de la poligonal de 200 tramos. (RNF-T13)
       Hecho cuando: `TraversePerformanceTest` en verde (menos de 100 ms, en terreno y en cuadrícula).
 - [ ] T13. `core:formats`: `CogoRefJson` y `TraverseDraftJson` con el tipo `TraverseDraft` y `DraftPoint` en `core:model`. (RF-22, RF-26, RNF-T9)
       Hecho cuando: `CogoRefJsonTest` y `TraverseDraftJsonTest` en verde con ida y vuelta exacta de los `Double`, versión `v`, `Locale.ROOT` y campos que faltan.
