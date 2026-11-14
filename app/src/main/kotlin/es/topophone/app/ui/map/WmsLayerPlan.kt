@@ -61,7 +61,7 @@ data class WmsLayerPlan(val layers: List<WmsPlanLayer>) {
          * propio va siempre en PNG. Si el servicio no ofrece el formato, el primero que anuncie: la ortofoto de GRAFCAN solo da JPEG y su mapa
          * solo PNG (A3 del plan). Sin lista de formatos se pide el preferido.
          */
-        private fun format(service: WmsService, layerName: String): String {
+        fun format(service: WmsService, layerName: String): String {
             val preset = service.presetKey?.let(WmsPresets::byKey)
             val wanted = preset?.preferredFormat?.takeIf { layerName in preset.suggestedLayers } ?: DEFAULT_FORMAT
             val offered = service.mapFormats

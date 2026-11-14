@@ -26,7 +26,7 @@
       Hecho cuando: `OfflineDownloaderTest` en verde con los casos de actualizar y las líneas del log sin coordenadas.
 - [x] T12. Conexión, espacio y cliente HTTP: `StorageInfo` y `NetworkInfo` (internet validada, datos móviles) detrás de interfaces con su `Fake`; `ZoneHttp` en `MapHttpClient` (contesta los estilos de `topophone.invalid` sin red y pone `Cache-Control: max-age=31536000` solo mientras se descarga o se actualiza una zona) y 4 peticiones por servidor. Si no cabe en 30 min, `ZoneHttp` pasa a una tarea propia. (RF-12 a RF-14, RF-22, RF-23, RNF)
       Hecho cuando: `MapDispatcherTest` y `ZoneHttpTest` en verde (4 por servidor; estilo sin red; caducidad larga solo durante la descarga y también en los 304; el resto de peticiones intactas) y `DownloadEstimateTest` sigue en verde con las implementaciones de verdad detrás de la interfaz.
-- [ ] T13. `DownloadPlanViewModel`: área, fuentes, nivel, previsión, bloqueos y confirmaciones, y lo recordado de la última descarga. (RF-1 a RF-6, RF-8 a RF-14)
+- [x] T13. `DownloadPlanViewModel`: área, fuentes, nivel, previsión, bloqueos y confirmaciones, y lo recordado de la última descarga. (RF-1 a RF-6, RF-8 a RF-14)
       Hecho cuando: `DownloadPlanViewModelTest` en verde (sin centro, sin puntos, cada bloqueo, recordar lo último).
 - [ ] T14. La hoja «Descargar zona»: las tres áreas con su radio o margen, las fuentes, los tres niveles, la previsión y los avisos, con textos en es y en. (RF-1 a RF-6, RF-8 a RF-14)
       Hecho cuando: `DownloadPlanSheetTest` en verde (zonas de 56 dp, cada bloqueo con su motivo, la confirmación del WMS propio con el nombre del servicio).
