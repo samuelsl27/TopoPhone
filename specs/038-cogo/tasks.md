@@ -56,7 +56,7 @@
       Hecho cuando: `CogoSaveTest` en verde con la poligonal y las tres intersecciones, sin crear nada al salir.
 - [x] T27. `app`: rendimiento con 200 tramos y guardado del borrador fuera del hilo principal. (RNF-T13)
       Hecho cuando: `CogoPerformanceTest` en verde (cálculo en menos de 100 ms y sin bloquear el hilo principal más de 16 ms).
-- [ ] T28. Accesibilidad y textos: etiquetas, 56 dp, soluciones con texto, es y en, sin literales en código. (RNF-T7, RNF-T8)
+- [x] T28. Accesibilidad y textos: etiquetas, 56 dp, soluciones con texto, es y en, sin literales en código. (RNF-T7, RNF-T8)
       Hecho cuando: `CogoAccessibilityTest` en verde y Lint sin textos sin usar.
 - [ ] T29. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files` y la demo en el emulador (inversa, poligonal de cuatro tramos con cierre y los tres tipos de dirección, cerrar la app y recuperar el borrador, las tres intersecciones, guardar y replantear uno).
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, la demo funciona y la hoja de ruta marca S038 como implementada.

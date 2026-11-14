@@ -171,7 +171,7 @@ class TraverseDraftViewModelTest {
         first.setValue(1, "0")
         first.setDistance(1, "50")
         first.await { it.legs.size == 2 && it.legs[1].step != null }
-        savedDraft(id) { it?.legs?.size == 2 && it.legs[1].distanceM == 50.0 }
+        savedDraft(id) { it?.legs?.size == 2 && it.legs[1].distanceM == 50.0 && it.start != null && it.reference != null }
         first.viewModelScope.cancel()
 
         val second = open(id)
@@ -197,7 +197,7 @@ class TraverseDraftViewModelTest {
         first.addLeg()
         first.setValue(0, "45")
         first.setDistance(0, "10")
-        savedDraft(id) { it?.legs?.singleOrNull()?.distanceM == 10.0 }
+        savedDraft(id) { it?.start != null && it.legs.singleOrNull()?.distanceM == 10.0 }
         first.viewModelScope.cancel()
 
         val second = open(id)
@@ -219,7 +219,7 @@ class TraverseDraftViewModelTest {
         first.setValue(0, "45 30 15.5")
         first.setDistance(0, "100")
         first.await { it.legs.size == 1 && it.legs[0].step != null }
-        savedDraft(id) { it?.legs?.singleOrNull()?.distanceM != null && it.closure != null }
+        savedDraft(id) { it?.start != null && it.legs.singleOrNull()?.distanceM != null && it.closure != null }
         first.viewModelScope.cancel()
 
         val state = open(id).await { it.legs.size == 1 && it.legs[0].step != null && it.closurePoint is CogoSlotValue.Found }
@@ -257,7 +257,7 @@ class TraverseDraftViewModelTest {
         vm.addLeg()
         vm.setValue(0, "90")
         vm.setDistance(0, "100")
-        savedDraft(id) { it?.legs?.singleOrNull()?.distanceM == 100.0 }
+        savedDraft(id) { it?.start != null && it.legs.singleOrNull()?.distanceM == 100.0 }
 
         vm.discardDraft()
 
@@ -276,7 +276,7 @@ class TraverseDraftViewModelTest {
         first.addLeg()
         first.setValue(0, "90")
         first.setDistance(0, "100")
-        savedDraft(id) { it?.legs?.singleOrNull()?.distanceM == 100.0 }
+        savedDraft(id) { it?.start != null && it.legs.singleOrNull()?.distanceM == 100.0 }
         first.viewModelScope.cancel()
         runBlocking { points.moveToTrash(listOf("id-P1")) }
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -327,13 +329,13 @@ private fun Leg(leg: TraverseLegUi, state: TraverseUi, actions: TraverseActions)
                         style = mono,
                     )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(
-                        checked = leg.marked,
-                        onCheckedChange = { actions.onToggleMark(leg.number) },
-                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(traverseMarkTag(leg.number)),
-                    )
-                    Text(stringResource(R.string.cogo_mark_to_save))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(traverseMarkTag(leg.number))
+                        .toggleable(value = leg.marked, role = Role.Checkbox, onValueChange = { actions.onToggleMark(leg.number) }),
+                ) {
+                    Checkbox(checked = leg.marked, onCheckedChange = null)
+                    Text(stringResource(R.string.cogo_mark_to_save), modifier = Modifier.padding(start = 8.dp))
                 }
             }
         }

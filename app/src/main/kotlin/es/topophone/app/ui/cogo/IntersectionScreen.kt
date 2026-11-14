@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
@@ -264,13 +266,13 @@ private fun Solution(solution: IntersectionSolutionUi, state: IntersectionUi, ac
                 invalid = solution.heightInvalid,
                 onChange = { actions.onHeight(solution.side, it) },
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = solution.marked,
-                    onCheckedChange = { actions.onToggle(solution.side) },
-                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(intersectionMarkTag(solution.side)),
-                )
-                Text(stringResource(R.string.cogo_mark_to_save))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(intersectionMarkTag(solution.side))
+                    .toggleable(value = solution.marked, role = Role.Checkbox, onValueChange = { actions.onToggle(solution.side) }),
+            ) {
+                Checkbox(checked = solution.marked, onCheckedChange = null)
+                Text(stringResource(R.string.cogo_mark_to_save), modifier = Modifier.padding(start = 8.dp))
             }
         }
     }
