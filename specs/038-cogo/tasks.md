@@ -26,7 +26,7 @@
       Hecho cuando: `CogoPointBuilderTest` en verde con altura, sin altura, fuera del huso y las coordenadas guardadas sin redondear.
 - [x] T12. `core:survey`: rendimiento de la poligonal de 200 tramos. (RNF-T13)
       Hecho cuando: `TraversePerformanceTest` en verde (menos de 100 ms, en terreno y en cuadrícula).
-- [ ] T13. `core:formats`: `CogoRefJson` y `TraverseDraftJson` con el tipo `TraverseDraft` y `DraftPoint` en `core:model`. (RF-22, RF-26, RNF-T9)
+- [x] T13. `core:formats`: `CogoRefJson` y `TraverseDraftJson` con el tipo `TraverseDraft` y `DraftPoint` en `core:model`. (RF-22, RF-26, RNF-T9)
       Hecho cuando: `CogoRefJsonTest` y `TraverseDraftJsonTest` en verde con ida y vuelta exacta de los `Double`, versión `v`, `Locale.ROOT` y campos que faltan.
 - [ ] T14. `data`: Room v33 (`points.cogo`, `traverse_drafts`, `AutoMigration(32, 33)`, esquema `33.json`) y la correspondencia de `Point.cogo`. (RF-22, RNF-T6)
       Hecho cuando: el test de migración v32 a v33 de `TopoPhoneDatabaseTest` y `CogoPointPersistTest` en verde y los tests de las versiones anteriores intactos.
