@@ -28,7 +28,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 | [055 exportar-shapefile](../055-exportar-shapefile/spec.md) | H4 | S012, S024, S025, S030 | 23 | 3 | Exportar a un ZIP con PointZ, PolyLineZ y PolygonZ, con .prj y .cpg |
 | [031 kml-kmz](../031-kml-kmz/spec.md) | H4 | S048, S040, S006, S012, S024, S025, S017b | 32 | 7 | Importar un KML o KMZ como capa de diseño y exportar a KML o KMZ, con fotos opcionales en el KMZ |
 | [056 exportar-fotos](../056-exportar-fotos/spec.md) | H4 | S017b, S012 | 14 | 4 | Las fotos de los puntos en un ZIP con un índice `fotos.csv` |
-| [038 cogo](038-cogo/spec.md) | H6 | S011 | 25 | 6 | Inversa, poligonal e intersecciones; resultados como puntos |
+| [038 cogo](../038-cogo/spec.md) | H6 | S011, S008, S026 | 31 | 4 | Inversa, poligonal e intersecciones; resultados como puntos |
 | [032 proyecciones-completas](032-proyecciones-completas/spec.md) | H5 | S008 | 11 | 4 | LCC 1SP/2SP y Oblique Mercator |
 | [033 transformaciones-datum](033-transformaciones-datum/spec.md) | H5 | S032, S008 | 14 | 4 | Helmert 3/4/6/7, Molodensky-Badekas y rejillas |
 | [034 biblioteca-sc-mundial](034-biblioteca-sc-mundial/spec.md) | H5 | S033, S032, S008, **S006** | 21 | 5 | Catálogo de SC con búsqueda, datums verticales y geoides |

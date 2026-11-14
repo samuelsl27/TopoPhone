@@ -154,7 +154,11 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Desplazamiento activo | `ActiveBaseShift` | El base shift que llevan los puntos que se midan; uno o ninguno por proyecto (S020) |
 | Localización (calibración local) | `Localization` | |
 | Residuo | `Residual` | |
-| Inversa / poligonal / intersección | `Inverse` / `Traverse` / `Intersection` | COGO |
+| Inversa / poligonal / intersección | `Inverse` / `Traverse` / `Intersection` | COGO (S038) |
+| Punto COGO | `PointOrigin.COGO` | Punto guardado desde el resultado de una poligonal o una intersección, con la operación y las entradas; es un punto manual para todo lo demás (S038) |
+| Error de cierre | `ClosureError` | Diferencia en Este y Norte entre el último punto de una poligonal y el de cierre, con el error lineal y la precisión 1:N; solo se informa (S038) |
+| Deflexión | `Deflection` | Ángulo entre la prolongación del tramo anterior y el tramo siguiente de una poligonal, a la derecha o a la izquierda, de 0° a 180° (S038) |
+| Borrador de la poligonal | `TraverseDraft` | Puntos de entrada y tramos escritos de la poligonal de un proyecto y aún sin guardar como puntos; uno por proyecto (S038) |
 | Capa (WMS) | `MapLayer` | Una capa de un servicio WMS añadida a un proyecto: «capa del proyecto» (S036) |
 | Servicio WMS | `WmsService` | Dirección de un servidor WMS guardada en la biblioteca del móvil, con sus capas leídas (S036) |
 | Biblioteca WMS | `WmsLibrary` | Lista de servicios WMS del móvil, común a todos los proyectos (S036) |
