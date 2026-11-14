@@ -4,24 +4,8 @@ import es.topophone.core.model.offline.TileKind
 import es.topophone.core.model.offline.TileSourceSpec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import java.io.File
 import kotlin.math.abs
 import org.junit.jupiter.api.Test
-
-/** Filas de `fixtures/mapas_offline/` generadas por `tools/mapas_offline/generar_teselas.py` (S037/T3). */
-private object OfflineFixtures {
-    private val root: File by lazy {
-        generateSequence(File("").absoluteFile) { it.parentFile }
-            .firstOrNull { File(it, "settings.gradle.kts").exists() && File(it, "fixtures").isDirectory }
-            ?: error("No se encuentra la raíz del repositorio")
-    }
-
-    fun rows(name: String): List<Map<String, String>> {
-        val lines = File(root, "fixtures/mapas_offline/$name").readLines(Charsets.UTF_8).filter { it.isNotBlank() }
-        val header = lines.first().split(',')
-        return lines.drop(1).map { line -> header.zip(line.split(',')).toMap() }
-    }
-}
 
 private fun spec(row: Map<String, String>) = TileSourceSpec(
     kind = TileKind.valueOf(row.getValue("tile_kind").uppercase()),

@@ -10,7 +10,7 @@
       Hecho cuando: `uv run --project tools pytest tools` en verde con `test_teselas.py`, que comprueba que lo guardado es lo que se genera.
 - [x] T4. `core:geodesy`: `TileCover` (teselas y número por caja, zoom del mapa y tipo de fuente, con el desfase de A2 que T1 confirmó, y varias fuentes de teselas por fuente descargable: el IGN suma su relieve). (RF-7, RF-11)
       Hecho cuando: `./gradlew :core:geodesy:test` en verde con `TileCoverTest` frente a `teselas.csv` (números de tesela exactos en 6 niveles y 3 latitudes).
-- [ ] T5. `core:geodesy`: `AreaBounds` (de un radio, un encuadre o todo el proyecto con margen a una caja). (RF-2 a RF-4, RF-7)
+- [x] T5. `core:geodesy`: `AreaBounds` (de un radio, un encuadre o todo el proyecto con margen a una caja). (RF-2 a RF-4, RF-7)
       Hecho cuando: `./gradlew :core:geodesy:test` en verde con `AreaBoundsTest`: todos los puntos de la circunferencia con `Geod` dentro de la caja y la caja a menos de un 2 % de la exacta.
 - [ ] T6. `DownloadEstimate`: teselas y tamaño por fuente, y los bloqueos (OpenFreeMap, espacio, límite, sin internet) y confirmaciones (datos móviles, WMS propio). (RF-9 a RF-14)
       Hecho cuando: `./gradlew :app:testDebugUnitTest --tests "*DownloadEstimateTest"` en verde, con un caso por bloqueo y por confirmación.
