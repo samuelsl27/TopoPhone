@@ -32,7 +32,7 @@
       Hecho cuando: `DownloadPlanSheetTest` en verde (zonas de 56 dp, cada bloqueo con su motivo, la confirmación del WMS propio con el nombre del servicio).
 - [x] T15. El progreso: teselas, MB y fuente en curso, pausar, reanudar, cancelar con confirmación y pantalla encendida. (RF-15 a RF-18)
       Hecho cuando: `OfflineProgressTest` en verde (pantalla encendida mientras está a la vista, estado «Incompleta» al salir, botones de 56 dp).
-- [ ] T16. `OfflineZonesViewModel`: la lista con nombre, fuentes, nivel, tamaño real, fecha y estado, la ocupación total, renombrar, actualizar y borrar, y el límite. (RF-24 a RF-27, RF-31)
+- [x] T16. `OfflineZonesViewModel`: la lista con nombre, fuentes, nivel, tamaño real, fecha y estado, la ocupación total, renombrar, actualizar y borrar, y el límite. (RF-24 a RF-27, RF-31)
       Hecho cuando: `OfflineZonesViewModelTest` en verde.
 - [ ] T17. La hoja «Mapas sin conexión» y su entrada en «Capas», con la lista, la ocupación, el límite y las acciones de cada zona, con textos en es y en. (RF-1, RF-24 a RF-27, RF-31)
       Hecho cuando: `OfflineZonesSheetTest` en verde (estado con texto además de color, borrar con confirmación, zonas de 56 dp).
