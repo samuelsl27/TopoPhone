@@ -2,7 +2,9 @@ package es.topophone.core.survey.cogo
 
 import es.topophone.core.model.cogo.IntersectionSide
 import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 /** Por qué una intersección no tiene solución (S038/RF-17). */
@@ -83,6 +85,58 @@ object Intersection {
                 IntersectionSolution(IntersectionSide.LEFT, mx - h * uy, my + h * ux, r1, r2),
                 IntersectionSolution(IntersectionSide.RIGHT, mx + h * uy, my - h * ux, r1, r2),
             ),
+        )
+    }
+
+    /** Dos direcciones con sus azimuts son paralelas si el seno de su diferencia es menor que esto. */
+    const val PARALLEL_SINE = 1e-12
+
+    /**
+     * Las rectas que salen de [first] con el azimut [azimuth1] y de [second] con [azimuth2]: la solución con la distancia desde cada
+     * punto, negativa si queda detrás (S038/RF-15); ninguna si son paralelas o coinciden.
+     */
+    fun directionDirection(first: CogoPoint, second: CogoPoint, azimuth1: Double, azimuth2: Double, scale: CogoScale): IntersectionResult {
+        val s1x = sin(azimuth1)
+        val s1y = cos(azimuth1)
+        val s2x = sin(azimuth2)
+        val s2y = cos(azimuth2)
+        val den = s1x * s2y - s1y * s2x
+        if (abs(den) < PARALLEL_SINE) return IntersectionResult.NoSolution(NoSolutionReason.PARALLEL)
+        val wx = second.easting - first.easting
+        val wy = second.northing - first.northing
+        val t1 = (wx * s2y - wy * s2x) / den
+        val t2 = (wx * s1y - wy * s1x) / den
+        val solution = IntersectionSolution(
+            IntersectionSide.SINGLE,
+            first.easting + t1 * s1x,
+            first.northing + t1 * s1y,
+            scale.toActive(t1),
+            scale.toActive(t2),
+        )
+        return IntersectionResult.Solutions(listOf(solution))
+    }
+
+    /**
+     * La circunferencia de centro [first] y radio [radius] con la recta que sale de [second] con el azimut [azimuth]: dos, una o
+     * ninguna solución (S038/RF-16), ordenadas por su distancia [IntersectionSolution.distance2] al segundo punto, negativa si queda
+     * detrás. [IntersectionSolution.distance1] es el radio escrito.
+     */
+    fun distanceDirection(first: CogoPoint, second: CogoPoint, radius: Double, azimuth: Double, scale: CogoScale): IntersectionResult {
+        val g = scale.toGrid(radius)
+        val sx = sin(azimuth)
+        val sy = cos(azimuth)
+        val wx = first.easting - second.easting
+        val wy = first.northing - second.northing
+        val foot = wx * sx + wy * sy
+        val h = abs(wx * sy - wy * sx)
+        if (h > g + TANGENT_TOLERANCE_M) return IntersectionResult.NoSolution(NoSolutionReason.LINE_MISSES)
+        val half = sqrt(maxOf(g * g - h * h, 0.0))
+        val roots = if (abs(g - h) <= TANGENT_TOLERANCE_M) listOf(foot) else listOf(foot - half, foot + half)
+        val sides = if (roots.size == 1) listOf(IntersectionSide.SINGLE) else listOf(IntersectionSide.FIRST, IntersectionSide.SECOND)
+        return IntersectionResult.Solutions(
+            roots.zip(sides).map { (t, side) ->
+                IntersectionSolution(side, second.easting + t * sx, second.northing + t * sy, radius, scale.toActive(t))
+            },
         )
     }
 }
