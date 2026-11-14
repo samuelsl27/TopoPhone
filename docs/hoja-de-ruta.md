@@ -89,7 +89,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 034 biblioteca-sc-mundial | Catálogo con búsqueda por país, código o nombre; ficha del SC; datums verticales; descarga de geoides con SHA-256 | 033, 032, 006 | pendiente |
 | 035 sc-personalizado | Editor de SC personalizado, "Mis SC", importar y exportar JSON, cambio del SC del proyecto (mismo datum), cuadrícula o terreno | 034, 033, 032 | pendiente |
 | 036 capas-wms | Biblioteca WMS en el móvil (GetCapabilities 1.1.1/1.3.0), presets españoles (IGN, Catastro, ICV con sus ortofotos históricas, ICGC, GRAFCAN, Andalucía, Navarra, País Vasco, Madrid, Galicia…), orden, visibilidad y opacidad por proyecto (también en la copia y el paquete), y menú de pulsación larga del mapa con la consulta de información de las capas y las coordenadas del punto | 009, 008, 013 | implementada |
-| 037 mapas-sin-conexion | Descarga del mapa base y de capas WMS de la zona del proyecto, gestión del almacenamiento | 036, 009, 006 | pendiente |
+| 037 mapas-sin-conexion | Descarga del mapa base (IGN, PNOA y OpenFreeMap con su tope) y de las capas WMS por teselas de una zona del proyecto (radio, encuadre o todo el proyecto con margen), con tamaño previo, pausa y reanudación, y gestión del almacenamiento | 036, 009, 006 (centro del proyecto) | spec |
 
 ## H6 · Herramientas Pro
 
