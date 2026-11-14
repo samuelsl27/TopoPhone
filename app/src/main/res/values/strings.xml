@@ -639,6 +639,7 @@
     <string name="point_origin_imported">Importado</string>
     <string name="point_origin_staked">Replanteado</string>
     <string name="point_origin_on_alignment">Calculado sobre eje</string>
+    <string name="point_origin_cogo">Calculado por COGO</string>
     <string name="point_mark_out_of_tolerance">Fuera de tolerancia</string>
     <string name="point_mark_edited">Editado</string>
     <string name="point_mark_no_height">Sin altura</string>

@@ -30,7 +30,14 @@ class PointImportedTest {
     @Test
     fun `S028 RF-31 el origen importado existe y es distinto del manual y del medido`() {
         PointOrigin.entries.toSet() shouldBe
-            setOf(PointOrigin.MEASURED, PointOrigin.MANUAL, PointOrigin.STAKED, PointOrigin.IMPORTED, PointOrigin.ON_ALIGNMENT)
+            setOf(
+                PointOrigin.MEASURED,
+                PointOrigin.MANUAL,
+                PointOrigin.STAKED,
+                PointOrigin.IMPORTED,
+                PointOrigin.ON_ALIGNMENT,
+                PointOrigin.COGO, // S038/RF-24
+            )
         PointOrigin.IMPORTED shouldBe PointOrigin.valueOf("IMPORTED")
     }
 

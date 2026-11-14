@@ -4,6 +4,7 @@ import es.topophone.core.model.alignment.slope.SlopeKind
 import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.codes.PointCode
+import es.topophone.core.model.cogo.CogoRef
 import java.math.BigInteger
 import java.text.Normalizer
 import java.util.Locale
@@ -86,13 +87,14 @@ data class PointQuality(
 
 /**
  * Medido con el recolector (S010), escrito a mano o duplicado (S011), medido al replantear un punto de diseño (S018/RF-27) o
- * importado de un fichero (S028/RF-31) o calculado sobre un eje con un PK y un desplazamiento (S049/RF-22).
+ * importado de un fichero (S028/RF-31), calculado sobre un eje con un PK y un desplazamiento (S049/RF-22) o calculado por COGO
+ * (S038/RF-22).
  */
-enum class PointOrigin { MEASURED, MANUAL, STAKED, IMPORTED, ON_ALIGNMENT }
+enum class PointOrigin { MEASURED, MANUAL, STAKED, IMPORTED, ON_ALIGNMENT, COGO }
 
-/** Un punto con medida del receptor: el medido y el replanteado; el manual y el importado solo tienen lo escrito (S011, S018, S028). */
+/** Un punto con medida del receptor: el medido y el replanteado; el manual, el importado y los calculados solo tienen lo escrito. */
 val PointOrigin.hasMeasurement: Boolean
-    get() = this != PointOrigin.MANUAL && this != PointOrigin.IMPORTED && this != PointOrigin.ON_ALIGNMENT
+    get() = this != PointOrigin.MANUAL && this != PointOrigin.IMPORTED && this != PointOrigin.ON_ALIGNMENT && this != PointOrigin.COGO
 
 /**
  * Coordenadas de un punto del suelo: [ground] en geográficas del datum de los cálculos (ETRS89 o REGCAN95), con la
@@ -257,6 +259,8 @@ data class Point(
     val onAxis: AxisRef? = null,
     /** El código con que se guardó el punto, por valor; null si no lleva (S024/RF-10). */
     val code: PointCode? = null,
+    /** La operación, las entradas y los valores con que se calculó un punto de origen [PointOrigin.COGO] (S038/RF-22); null en los demás. */
+    val cogo: CogoRef? = null,
 ) {
     /** Sin altura elipsoidal no hay altura en ningún sistema (S011/RF-18). */
     val hasHeight: Boolean get() = coordinates.ground.ellipsoidalHeightM != null

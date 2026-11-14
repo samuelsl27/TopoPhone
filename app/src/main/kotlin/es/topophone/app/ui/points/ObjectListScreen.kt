@@ -1041,4 +1041,5 @@ internal fun PointOrigin.labelRes(): Int = when (this) {
     PointOrigin.MANUAL -> R.string.point_origin_manual
     PointOrigin.IMPORTED -> R.string.point_origin_imported
     PointOrigin.ON_ALIGNMENT -> R.string.point_origin_on_alignment
+    PointOrigin.COGO -> R.string.point_origin_cogo // S038/RF-24
 }

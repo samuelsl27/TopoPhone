@@ -2,7 +2,7 @@
 
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`), marcar la casilla y un commit `S038 Tn: …`.
 
-- [ ] T1. `core:model`: `PointOrigin.COGO` (no cuenta como medida), `Point.cogo` y los tipos de `cogo/` (`CogoOperation`, `CogoEntry`, `LegKind`, `TraverseLeg`, `CogoValue`, `IntersectionSide`, `CogoRef`). (RF-22, RF-24)
+- [x] T1. `core:model`: `PointOrigin.COGO` (no cuenta como medida), `Point.cogo` y los tipos de `cogo/` (`CogoOperation`, `CogoEntry`, `LegKind`, `TraverseLeg`, `CogoValue`, `IntersectionSide`, `CogoRef`). (RF-22, RF-24)
       Hecho cuando: `PointOriginCogoTest` y `CogoRefTest` en verde y los `when` exhaustivos de `PointOrigin` compilan en todos los módulos.
 - [ ] T2. `core:model`: `DirectionInput` y `DistanceInput`. (RF-4)
       Hecho cuando: `DirectionInputTest` y `DistanceInputTest` en verde con DD, DMS, gon, coma decimal, 360° y negativos rechazados, deflexión de 180° aceptada y distancia negativa rechazada.
