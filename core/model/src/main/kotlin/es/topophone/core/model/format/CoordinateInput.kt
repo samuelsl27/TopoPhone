@@ -103,6 +103,19 @@ object AngleInput {
         return (sign * magnitude).takeIf { magnitude <= axis.maxDeg }
     }
 
+    /**
+     * El valor de [text] sin signo ni letras: grados (decimales o sexagesimales) o gon según [unit]; null si no es un número válido.
+     * Lo usan los azimuts, ángulos y deflexiones de COGO (S038/RF-4), que no tienen hemisferio ni signo.
+     */
+    internal fun magnitude(text: String, unit: AngularUnit): Double? {
+        var body = text.trim()
+        if (unit == AngularUnit.GON) body = body.replace(GON_SUFFIX, "")
+        if (unit == AngularUnit.DECIMAL_DEGREES) body = body.removeSuffix("°").removeSuffix("º").trim()
+        if (unit == AngularUnit.DMS) body = body.replace(DMS_SYMBOLS, " ").trim()
+        if (body.any { it.isLetter() || it == '-' || it == '+' }) return null
+        return if (unit == AngularUnit.DMS) sexagesimal(body) else number(body)
+    }
+
     /** El signo de la letra de hemisferio (0 si no hay) y el texto sin ella; null si sobra alguna letra. */
     private fun hemisphere(text: String, axis: AngleAxis): Pair<Int, String>? {
         val letters = axis.positive + axis.negative
