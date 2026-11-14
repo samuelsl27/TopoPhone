@@ -36,7 +36,7 @@
       Hecho cuando: `OfflineZonesViewModelTest` en verde.
 - [x] T17. La hoja «Mapas sin conexión» y su entrada en «Capas», con la lista, la ocupación, el límite y las acciones de cada zona, con textos en es y en. (RF-1, RF-24 a RF-27, RF-31)
       Hecho cuando: `OfflineZonesSheetTest` en verde (estado con texto además de color, borrar con confirmación, zonas de 56 dp).
-- [ ] T18. `OfflineZoneJanitor`: borra las zonas de los proyectos que ya no existen, también al abrir la app, y comprobar que la copia no lleva zonas. (RF-28, RF-29)
+- [x] T18. `OfflineZoneJanitor`: borra las zonas de los proyectos que ya no existen, también al abrir la app, y comprobar que la copia no lleva zonas. (RF-28, RF-29)
       Hecho cuando: `OfflineZoneJanitorTest` y `OfflineBackupExclusionTest` en verde (un proyecto en la papelera conserva sus zonas; al borrarlo definitivamente se borran).
 - [ ] T19. `OfflineCoverage` y el mapa: el aviso de sin conexión desaparece dentro del área de una fuente completa y «Detalle máximo guardado» sale por encima del último nivel. (RF-20, RF-21)
       Hecho cuando: `OfflineCoverageTest` y `ProjectOfflineNoticeTest` en verde (dentro de una zona completa no hay aviso, fuera sí y una zona incompleta no lo quita).

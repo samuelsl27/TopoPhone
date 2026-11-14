@@ -12,6 +12,8 @@ import es.topophone.app.ui.offline.MapLibreOfflineStore
 import es.topophone.app.ui.offline.NetworkInfo
 import es.topophone.app.ui.offline.OfflineDownloader
 import es.topophone.app.ui.offline.OfflineRegionStore
+import es.topophone.app.ui.offline.ProjectIds
+import es.topophone.app.ui.offline.RepositoryProjectIds
 import es.topophone.app.ui.offline.RepositoryZoneInputs
 import es.topophone.app.ui.offline.StorageInfo
 import es.topophone.app.ui.offline.SystemZoneClock
@@ -45,6 +47,9 @@ abstract class OfflineModule {
 
     @Binds
     abstract fun bindZoneClock(clock: SystemZoneClock): ZoneClock
+
+    @Binds
+    abstract fun bindProjectIds(ids: RepositoryProjectIds): ProjectIds
 
     companion object {
         /** Una sola descarga a la vez en toda la app: sigue aunque se cierre la pantalla que la empezó y vive tanto como el proceso. */

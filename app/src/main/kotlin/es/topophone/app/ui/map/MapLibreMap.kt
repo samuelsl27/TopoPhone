@@ -23,11 +23,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.R
+import es.topophone.app.ui.offline.OfflineZoneJanitor
 import es.topophone.app.ui.offline.ZoneHttp
 import es.topophone.core.model.offline.OfflineLimits
 import javax.inject.Inject
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import org.maplibre.android.MapLibre
@@ -64,6 +68,7 @@ class MapEnvironment @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:MapHttp val httpClient: OkHttpClient,
     private val monitor: NetworkFailureMonitor,
+    private val zoneJanitor: dagger.Lazy<OfflineZoneJanitor>,
 ) {
     private var initialized = false
 
@@ -81,6 +86,8 @@ class MapEnvironment @Inject constructor(
                 override fun onError(message: String) = Unit
             },
         )
+        // S037/RF-28: con MapLibre ya en marcha, se barren las zonas sin conexión de los proyectos que ya no existen; no antes, para no retrasar el arranque (RNF-T13).
+        zoneJanitor.get().start(CoroutineScope(SupervisorJob() + Dispatchers.Default))
         initialized = true
     }
 
