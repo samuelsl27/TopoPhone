@@ -234,6 +234,8 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("antenna_profiles", projectFilter = null),
             Table("saved_poles", projectFilter = null),
             Table("receiver_gear", projectFilter = null),
+            // S021/RNF-T6: los receptores Wi-Fi (no son de ningún proyecto) viajan en la copia completa, no en los paquetes.
+            Table("wifi_receivers", projectFilter = null),
         )
     }
 }

@@ -1487,6 +1487,37 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S021 RNF-T6 v33 a v34 los proyectos siguen y los receptores Wi-Fi nacen vacios`() {
+        createFromExportedSchema(33)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v33 ->
+            v33.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            runBlocking { db.projects().byId(project.id) }.shouldNotBeNull().name shouldBe project.name
+            count(db, "wifi_receivers") shouldBe 0
+            // El puerto de correcciones admite NULL y la identidad es unica.
+            val sql = db.openHelper.writableDatabase
+            sql.execSQL("INSERT INTO wifi_receivers VALUES ('w1', 'RS3', '192.168.42.1', 9001, NULL, 1)")
+            sql.execSQL("INSERT INTO wifi_receivers VALUES ('w2', 'RS3', '192.168.42.1', 9001, 9002, 2)")
+            shouldThrow<SQLiteConstraintException> {
+                sql.execSQL("INSERT INTO wifi_receivers VALUES ('w1', 'otro', 'reach.local', 9001, NULL, 3)")
+            }
+            count(db, "wifi_receivers") shouldBe 2
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S038 RNF-T6 v32 a v33 los puntos siguen, sin rastro COGO, y el borrador de la poligonal nace vacio`() {
         createFromExportedSchema(32)
         SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v32 ->
@@ -1672,7 +1703,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 33
+        const val CURRENT_VERSION = 34
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

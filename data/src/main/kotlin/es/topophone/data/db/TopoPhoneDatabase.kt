@@ -53,6 +53,7 @@ import es.topophone.data.point.PointNmeaEntity
 import es.topophone.data.project.ProjectDao
 import es.topophone.data.project.ProjectEntity
 import es.topophone.data.project.ProjectFolderEntity
+import es.topophone.data.receiver.WifiReceiverEntity
 import es.topophone.data.section.SectionDao
 import es.topophone.data.section.SectionProfileEntity
 import es.topophone.data.section.SectionTemplateEntity
@@ -120,6 +121,8 @@ import es.topophone.data.wms.WmsServiceEntity
  *   de cada proyecto (`project_wms_layers`). Solo añade tablas: migración de Room.
  * - v33 (S038): el rastro del cálculo de cada punto COGO (`points.cogo`, que admite NULL) y el borrador de la poligonal de cada proyecto
  *   (`traverse_drafts`). Solo añade una columna que admite NULL y una tabla: migración de Room.
+ * - v34 (S021): los receptores Wi-Fi (`wifi_receivers`: dirección, puerto de posición y de correcciones opcional). Solo añade una tabla:
+ *   migración de Room.
  */
 @Database(
     entities = [
@@ -133,6 +136,7 @@ import es.topophone.data.wms.WmsServiceEntity
         PointAttributeEntity::class, PointHistoryAttributeEntity::class, ProjectLineEntity::class, LineVertexEntity::class,
         LineAttributeEntity::class, LineHistoryEntity::class, LineHistoryAttributeEntity::class, LineHistoryVertexEntity::class,
         WmsServiceEntity::class, WmsLayerEntity::class, ProjectWmsLayerEntity::class, TraverseDraftEntity::class,
+        WifiReceiverEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -169,6 +173,7 @@ import es.topophone.data.wms.WmsServiceEntity
         AutoMigration(from = 30, to = 31),
         AutoMigration(from = 31, to = 32),
         AutoMigration(from = 32, to = 33),
+        AutoMigration(from = 33, to = 34),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -211,7 +216,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 33
+        const val VERSION = 34
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =
