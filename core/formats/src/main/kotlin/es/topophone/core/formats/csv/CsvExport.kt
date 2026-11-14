@@ -226,6 +226,7 @@ object CsvExport {
             ExportColumn.ORIGIN -> when {
                 point.origin == PointOrigin.IMPORTED -> "Imported" // S028/RF-32
                 point.origin == PointOrigin.ON_ALIGNMENT -> "OnAlignment" // S049/RF-22
+                point.origin == PointOrigin.COGO -> "Cogo" // S038/RF-24
                 point.origin.hasMeasurement -> "Measured"
                 else -> "Manual"
             }

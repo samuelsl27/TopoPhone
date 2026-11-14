@@ -36,7 +36,7 @@
       Hecho cuando: `CogoSavePointsTest` en verde (todo o nada, `DuplicateName`, borrador vaciado solo si se pide, línea de log sin datos).
 - [x] T17. `data`: el borrador en la copia de seguridad y no en el duplicado ni en los paquetes (`DatabaseSnapshot.TABLES`). (RF-29)
       Hecho cuando: `CogoBackupTest` en verde y `DatabaseSnapshotTest` de S013 intacto.
-- [ ] T18. `core:formats` y `data`: «Cogo» en la columna Origin del CSV y del GeoPackage, y el punto COGO se edita con historial, se duplica como manual, va a la papelera y se replantea como uno manual. (RF-24)
+- [x] T18. `core:formats` y `data`: «Cogo» en la columna Origin del CSV y del GeoPackage, y el punto COGO se edita con historial, se duplica como manual, va a la papelera y se replantea como uno manual. (RF-24)
       Hecho cuando: `CogoExportOriginTest` y las pruebas de edición, duplicado, papelera y replanteo con un punto COGO en verde.
 - [ ] T19. `app`: la pantalla de elección «COGO» (Inversa, Poligonal, Intersección), su ruta y las entradas en el menú de la lista de objetos y en el del proyecto; SC geográfico sin COGO. (RF-1, RF-2)
       Hecho cuando: `CogoMenuTest` en verde con SC proyectado y con SC geográfico.

@@ -135,6 +135,7 @@ object GpkgPointAttributes {
             ExportColumn.ORIGIN -> when {
                 point.origin == PointOrigin.IMPORTED -> "Imported"
                 point.origin == PointOrigin.ON_ALIGNMENT -> "OnAlignment"
+                point.origin == PointOrigin.COGO -> "Cogo" // S038/RF-24
                 point.origin.hasMeasurement -> "Measured"
                 else -> "Manual"
             }

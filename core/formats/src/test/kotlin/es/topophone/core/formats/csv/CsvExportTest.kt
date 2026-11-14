@@ -130,6 +130,13 @@ class CsvExportTest {
     }
 
     @Test
+    fun `S038 RF-24 un punto COGO sale en la columna Origin como Cogo`() {
+        val cogo = manual.copy(origin = PointOrigin.COGO, description = "")
+
+        lines(csv(listOf(cogo), CsvOptions()))[1].split(",")[2] shouldBe "Cogo"
+    }
+
+    @Test
     fun `S028 RF-32 los puntos manuales y medidos siguen saliendo como Manual y Measured`() {
         val plain = manual.copy(description = "")
 

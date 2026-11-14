@@ -203,6 +203,15 @@ class GpkgPointAttributesTest {
     }
 
     @Test
+    fun `S038 RF-24 un punto COGO lleva el origen Cogo y los atributos vacios de un manual`() {
+        val cogo = manual.copy(origin = PointOrigin.COGO)
+
+        value(cogo, ExportColumn.ORIGIN) shouldBe "Cogo"
+        value(cogo, ExportColumn.SOLUTION).shouldBeNull()
+        value(cogo, ExportColumn.EASTING) shouldBe 440_300.0
+    }
+
+    @Test
     fun `S053 RF-4 un punto manual deja vacios los atributos que no tiene`() {
         val empty = listOf(
             ExportColumn.ELEVATION, ExportColumn.ELLIPSOIDAL_HEIGHT, ExportColumn.POLE_HEIGHT, ExportColumn.SOLUTION,
