@@ -18,7 +18,7 @@
       Hecho cuando: `TraverseAnglesTest` completo en verde, con la referencia en el inicio y un tramo anterior de longitud 0.
 - [x] T8. `core:survey`: alturas por tramo y error de cierre. (RF-11, RF-12)
       Hecho cuando: `TraverseHeightTest` y `TraverseClosureTest` en verde, con poligonal que cierra, que no cierra y con un desnivel que falta.
-- [ ] T9. `core:survey`: `Intersection.distanceDistance`. (RF-14, RF-17)
+- [x] T9. `core:survey`: `Intersection.distanceDistance`. (RF-14, RF-17)
       Hecho cuando: `IntersectionCircleTest` en verde con dos soluciones (izquierda y derecha), tangentes, concéntricas y circunferencias que no se cortan.
 - [ ] T10. `core:survey`: `Intersection.directionDirection` y `.distanceDirection`. (RF-15, RF-16, RF-17)
       Hecho cuando: `IntersectionLinesTest` en verde con solución detrás de un punto, direcciones paralelas y coincidentes, y cero, una y dos soluciones.
