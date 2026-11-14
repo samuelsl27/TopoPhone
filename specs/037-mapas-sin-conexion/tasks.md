@@ -20,7 +20,7 @@
       Hecho cuando: `./gradlew assembleDebug` y `check` en verde con el almacén ya enlazado en Hilt. Cambio respecto al plan: el botón temporal en el emulador se quita (T1 ya probó con un arnés las mismas llamadas de MapLibre: crear, activar, pausar, invalidar, borrar y listar), y esta implementación se comprueba entera en el emulador en T20 y T22, sin tener que arrancarlo diez tareas antes.
 - [x] T9. `OfflineSettings` (DataStore): límite de almacenamiento y última elección de área, radio, margen y nivel. (RF-8, RF-31)
       Hecho cuando: `OfflineSettingsTest` en verde (por omisión, límites de 200 MB a 10 GB, recuerda lo último).
-- [ ] T10. `OfflineDownloader`: la cola de fuentes de una en una, la máquina de estados, pausar, reanudar y cancelar, la pausa al salir de la app, el 2 % de fallos y «Reintentar». (RF-15, RF-16, RF-18, RF-19)
+- [x] T10. `OfflineDownloader`: la cola de fuentes de una en una, la máquina de estados, pausar, reanudar y cancelar, la pausa al salir de la app, el 2 % de fallos y «Reintentar». (RF-15, RF-16, RF-18, RF-19)
       Hecho cuando: `OfflineDownloaderTest` en verde con el `FakeOfflineRegionStore`.
 - [ ] T11. `OfflineDownloader`: «Actualizar» (invalidar y activar sin perder la fecha anterior si se interrumpe) y las anotaciones del log. (RF-26, RF-30)
       Hecho cuando: `OfflineDownloaderTest` en verde con los casos de actualizar y las líneas del log sin coordenadas.
