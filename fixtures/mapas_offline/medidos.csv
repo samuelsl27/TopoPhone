@@ -1,0 +1,9 @@
+case,source,tile_kind,tile_size,source_min,source_max,south,west,north,east,map_zoom_min,map_zoom_max,tiles
+pnoa-sol,pnoa,raster,256,0,19,40.416,-3.705,40.418,-3.702,15,17,17
+wms-sol,wms,raster,256,0,22,40.416,-3.705,40.418,-3.702,15,17,17
+pnoa-450m,pnoa,raster,256,0,19,40.415,-3.7065,40.419,-3.7005,15,17,38
+ign-vector-sol,ign-vector,vector,512,0,17,40.416,-3.705,40.418,-3.702,15,17,10
+ign-relieve-sol,ign-relieve,raster,512,5,15,40.416,-3.705,40.418,-3.702,15,17,2
+ofm-sol,ofm,vector,512,0,14,40.416,-3.705,40.418,-3.702,12,17,3
+raster-92,pnoa,raster,256,0,19,40.4,-3.72,40.43,-3.68,14,15,92
+raster-3849,pnoa,raster,256,0,19,40.36,-3.78,40.46,-3.62,14,16,3849
