@@ -2988,6 +2988,8 @@
     <string name="offline_zones_empty">This project has no offline zones.</string>
     <string name="offline_zones_usage">Used by offline maps: %1$s of %2$s</string>
     <string name="offline_zones_limit">Storage limit: %1$s</string>
+    <string name="offline_zones_usage_bar">Space used by offline maps</string>
+    <string name="offline_progress_bar">Download progress</string>
     <string name="offline_zones_download">Download zone</string>
     <string name="offline_zones_running">A download is in progress: %1$s</string>
     <string name="offline_zones_see_progress">View progress</string>

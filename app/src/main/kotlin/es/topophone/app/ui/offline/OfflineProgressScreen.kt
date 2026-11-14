@@ -30,6 +30,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -87,14 +91,29 @@ fun OfflineProgressContent(state: DownloadState, actions: OfflineProgressActions
         ).padding(horizontal = 16.dp, vertical = 8.dp).testTag(OFFLINE_PROGRESS_TAG),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(stringResource(R.string.offline_progress_title), style = MaterialTheme.typography.headlineSmall)
+        Text(
+            stringResource(R.string.offline_progress_title),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.semantics {
+                heading()
+            },
+        )
         if (state.phase == DownloadPhase.IDLE) {
             Text(stringResource(R.string.offline_progress_idle), modifier = Modifier.testTag(OFFLINE_PROGRESS_IDLE_TAG))
             return@Column
         }
         Text(state.name, style = MaterialTheme.typography.titleMedium)
-        Text(phaseText(state), style = MaterialTheme.typography.titleSmall, modifier = Modifier.testTag(OFFLINE_PROGRESS_PHASE_TAG))
-        LinearProgressIndicator(progress = { state.fraction }, modifier = Modifier.fillMaxWidth().testTag(OFFLINE_PROGRESS_BAR_TAG))
+        // Un cambio de fase (descargando, en pausa, terminada) se anuncia solo (RNF-T8).
+        Text(
+            phaseText(state),
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }.testTag(OFFLINE_PROGRESS_PHASE_TAG),
+        )
+        val barLabel = stringResource(R.string.offline_progress_bar)
+        LinearProgressIndicator(
+            progress = { state.fraction },
+            modifier = Modifier.fillMaxWidth().testTag(OFFLINE_PROGRESS_BAR_TAG).semantics { contentDescription = barLabel },
+        )
         Text(
             stringResource(R.string.offline_progress_percent, (state.fraction * PERCENT).toInt()),
             modifier = Modifier.testTag(OFFLINE_PROGRESS_PERCENT_TAG),

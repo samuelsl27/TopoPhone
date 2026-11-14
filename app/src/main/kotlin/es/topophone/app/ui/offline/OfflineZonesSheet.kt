@@ -34,7 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -160,7 +163,13 @@ fun OfflineZonesContent(state: OfflineZonesUiState, actions: OfflineZonesActions
         ).padding(horizontal = 16.dp, vertical = 8.dp).testTag(OFFLINE_ZONES_TAG),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(stringResource(R.string.offline_zones_title), style = MaterialTheme.typography.headlineSmall)
+        Text(
+            stringResource(R.string.offline_zones_title),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.semantics {
+                heading()
+            },
+        )
         Text(
             stringResource(
                 R.string.offline_zones_usage,
@@ -169,9 +178,10 @@ fun OfflineZonesContent(state: OfflineZonesUiState, actions: OfflineZonesActions
             ),
             modifier = Modifier.testTag(OFFLINE_ZONES_USAGE_TAG),
         )
+        val usageBarLabel = stringResource(R.string.offline_zones_usage_bar)
         LinearProgressIndicator(
             progress = { if (state.limitBytes <= 0) 0f else (state.totalBytes.toFloat() / state.limitBytes).coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth().testTag(OFFLINE_ZONES_USAGE_BAR_TAG),
+            modifier = Modifier.fillMaxWidth().testTag(OFFLINE_ZONES_USAGE_BAR_TAG).semantics { contentDescription = usageBarLabel },
         )
         LimitSlider(state.limitBytes, locale, actions.onLimit)
         // Solo mientras se descarga o está en pausa: una descarga terminada ya está en la lista de zonas.
@@ -343,11 +353,9 @@ private fun detailLabel(level: DetailLevel): String = when (level) {
 @Composable
 private fun LimitSlider(limitBytes: Long, locale: Locale, onLimit: (Long) -> Unit) {
     val index = LIMIT_STEPS.indices.minBy { abs(LIMIT_STEPS[it] - limitBytes) }
+    val label = stringResource(R.string.offline_zones_limit, OfflineFormat.bytes(LIMIT_STEPS[index], locale))
     Column {
-        Text(
-            stringResource(R.string.offline_zones_limit, OfflineFormat.bytes(LIMIT_STEPS[index], locale)),
-            modifier = Modifier.testTag(OFFLINE_ZONES_LIMIT_VALUE_TAG),
-        )
+        Text(label, modifier = Modifier.testTag(OFFLINE_ZONES_LIMIT_VALUE_TAG))
         // La zona táctil de 56 dp la da la caja; el deslizador de Material mide menos (RNF-T8).
         Box(Modifier.fillMaxWidth().heightIn(min = MinTouchTarget), contentAlignment = Alignment.Center) {
             Slider(
@@ -355,7 +363,8 @@ private fun LimitSlider(limitBytes: Long, locale: Locale, onLimit: (Long) -> Uni
                 onValueChange = { onLimit(LIMIT_STEPS[it.roundToInt().coerceIn(0, LIMIT_STEPS.lastIndex)]) },
                 valueRange = 0f..LIMIT_STEPS.lastIndex.toFloat(),
                 steps = LIMIT_STEPS.size - 2,
-                modifier = Modifier.testTag(OFFLINE_ZONES_LIMIT_TAG),
+                // TalkBack dice el nombre y el valor («Límite de almacenamiento: 2 GB»), no solo el porcentaje del recorrido (RNF-T8).
+                modifier = Modifier.testTag(OFFLINE_ZONES_LIMIT_TAG).semantics { stateDescription = label },
             )
         }
     }

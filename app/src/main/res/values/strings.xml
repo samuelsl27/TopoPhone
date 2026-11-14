@@ -3000,6 +3000,8 @@
     <string name="offline_zones_empty">Este proyecto no tiene zonas sin conexión.</string>
     <string name="offline_zones_usage">Ocupado por los mapas sin conexión: %1$s de %2$s</string>
     <string name="offline_zones_limit">Límite de almacenamiento: %1$s</string>
+    <string name="offline_zones_usage_bar">Espacio ocupado por los mapas sin conexión</string>
+    <string name="offline_progress_bar">Progreso de la descarga</string>
     <string name="offline_zones_download">Descargar zona</string>
     <string name="offline_zones_running">Hay una descarga en curso: %1$s</string>
     <string name="offline_zones_see_progress">Ver progreso</string>

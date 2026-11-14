@@ -37,6 +37,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -137,7 +140,13 @@ fun DownloadPlanContent(state: DownloadPlanUiState, actions: DownloadPlanActions
         ).padding(horizontal = 16.dp, vertical = 8.dp).testTag(OFFLINE_PLAN_TAG),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(stringResource(R.string.offline_plan_title), style = MaterialTheme.typography.headlineSmall)
+        Text(
+            stringResource(R.string.offline_plan_title),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.semantics {
+                heading()
+            },
+        )
         AreaSection(state, actions, locale)
         SourcesSection(state, actions)
         DetailSection(state, actions)
@@ -180,7 +189,7 @@ fun DownloadPlanContent(state: DownloadPlanUiState, actions: DownloadPlanActions
 
 @Composable
 private fun SectionTitle(text: String) {
-    Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 12.dp))
+    Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 12.dp).semantics { heading() })
 }
 
 @Composable
@@ -387,7 +396,8 @@ private fun StepSlider(
                 onValueChange = { onChange(steps[it.roundToInt().coerceIn(0, steps.lastIndex)]) },
                 valueRange = 0f..steps.lastIndex.toFloat(),
                 steps = steps.size - 2,
-                modifier = Modifier.testTag(sliderTag),
+                // TalkBack dice el nombre y el valor («Radio: 500 m»), no solo el porcentaje del recorrido (RNF-T8).
+                modifier = Modifier.testTag(sliderTag).semantics { stateDescription = label },
             )
         }
     }
