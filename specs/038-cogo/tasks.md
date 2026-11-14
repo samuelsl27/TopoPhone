@@ -10,7 +10,7 @@
       Hecho cuando: `uv run --project tools pytest tools` en verde y los ficheros de inversas e intersecciones generados en el repositorio.
 - [x] T4. `tools`: el mismo generador para la poligonal (azimut, ángulo a la derecha y a la izquierda, deflexión a la derecha y a la izquierda; cierre y alturas) a partir de puntos conocidos. (Constitución nº 2)
       Hecho cuando: `pytest` en verde y los ficheros de poligonales generados.
-- [ ] T5. `core:survey`: `CogoPoint`, `CogoScale` (factor del primer punto con `GroundScale`) e `Inverse`. (RF-5, RF-6, RF-7, RF-8)
+- [x] T5. `core:survey`: `CogoPoint`, `CogoScale` (factor del primer punto con `GroundScale`) e `Inverse`. (RF-5, RF-6, RF-7, RF-8)
       Hecho cuando: `CogoScaleTest` e `InverseTest` en verde frente a las referencias (≤ 1 mm, 0,001″, factor ≤ 1e-9), con puntos coincidentes y sin altura.
 - [ ] T6. `core:survey`: `Traverse` con tramos por azimut y por ángulo a la derecha y a la izquierda, en cuadrícula y en terreno. (RF-10, RF-11)
       Hecho cuando: `TraverseAzimuthTest` y la parte de ángulos de `TraverseAnglesTest` en verde frente a las referencias.
