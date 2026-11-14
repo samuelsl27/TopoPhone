@@ -2,19 +2,19 @@
 
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa en un prompt propio, con los tests primero.
 
-- [ ] T1. Spike en el emulador (no se entrega código): una región de prueba del PNOA y otra de una capa WMS en una caja pequeña, y otra del mapa vectorial del IGN, con un contador de peticiones en el cliente HTTP. Se anotan en «Resultados del spike» de `plan.md` las cinco respuestas (desfase de zoom y recuento de teselas, revalidación con red, qué hace el mapa sin red por encima del último nivel, errores y 2 %, direcciones iguales a las del mapa vivo) y los tamaños medios de tesela; cada plan B que haga falta se escribe en el plan. (RF-11, RF-20 a RF-23)
+- [x] T1. Spike en el emulador (no se entrega código): una región de prueba del PNOA y otra de una capa WMS en una caja pequeña, y otra del mapa vectorial del IGN, con un contador de peticiones en el cliente HTTP. Se anotan en «Resultados del spike» de `plan.md` las cinco respuestas (desfase de zoom y recuento de teselas, revalidación con red, qué hace el mapa sin red por encima del último nivel, errores y 2 %, direcciones iguales a las del mapa vivo) y los tamaños medios de tesela; cada plan B que haga falta se escribe en el plan. (RF-11, RF-20 a RF-23)
       Hecho cuando: `plan.md` tiene el apartado «Resultados del spike» completo, con la medida de cada pregunta, y las decisiones que dependen de ella confirmadas o cambiadas.
 - [ ] T2. `core:model/offline`: `DetailLevel`, `OfflineArea`, `DownloadableSource`, `ZoneState` y `SourceState`, las constantes de límites y `ZoneMeta` con su JSON. (RF-3, RF-4, RF-9, RF-12, RF-14, RF-19, RF-31)
       Hecho cuando: `./gradlew :core:model:test` en verde con `DetailLevelTest`, `OfflineLimitsTest` y `ZoneMetaTest`.
 - [ ] T3. `tools/mapas_offline/generar_teselas.py`: la referencia independiente (teselas de una caja a cada nivel con fórmulas propias de Web Mercator, esquinas de cada tesela comprobadas con pyproj a menos de 1 mm, cajas de círculos con `pyproj.Geod`, rectángulo de todo el proyecto con margen) y `fixtures/mapas_offline/teselas.csv`. (RF-7, constitución nº 2)
       Hecho cuando: `uv run --project tools pytest tools` en verde con `test_teselas.py`, que comprueba que lo guardado es lo que se genera.
-- [ ] T4. `core:geodesy`: `TileCover` (teselas y número por caja, zoom del mapa y tipo de fuente, con el desfase de A2 que mida T1). (RF-7, RF-11)
+- [ ] T4. `core:geodesy`: `TileCover` (teselas y número por caja, zoom del mapa y tipo de fuente, con el desfase de A2 que T1 confirmó, y varias fuentes de teselas por fuente descargable: el IGN suma su relieve). (RF-7, RF-11)
       Hecho cuando: `./gradlew :core:geodesy:test` en verde con `TileCoverTest` frente a `teselas.csv` (números de tesela exactos en 6 niveles y 3 latitudes).
 - [ ] T5. `core:geodesy`: `AreaBounds` (de un radio, un encuadre o todo el proyecto con margen a una caja). (RF-2 a RF-4, RF-7)
       Hecho cuando: `./gradlew :core:geodesy:test` en verde con `AreaBoundsTest`: todos los puntos de la circunferencia con `Geod` dentro de la caja y la caja a menos de un 2 % de la exacta.
 - [ ] T6. `DownloadEstimate`: teselas y tamaño por fuente, y los bloqueos (OpenFreeMap, espacio, límite, sin internet) y confirmaciones (datos móviles, WMS propio). (RF-9 a RF-14)
       Hecho cuando: `./gradlew :app:testDebugUnitTest --tests "*DownloadEstimateTest"` en verde, con un caso por bloqueo y por confirmación.
-- [ ] T7. `OfflineRegionStore` (interfaz), su `FakeOfflineRegionStore` para los tests y `RegionStyles` (el estilo de cada fuente, el JSON de la ortofoto y de cada capa WMS con la plantilla de S036). (RF-4, RF-8, RF-22)
+- [ ] T7. `OfflineRegionStore` (interfaz), su `FakeOfflineRegionStore` para los tests y `RegionStyles` (el estilo de cada fuente, el JSON de la ortofoto y de cada capa WMS con la plantilla de S036, y su dirección `https://topophone.invalid/...` con la plantilla dentro, porque MapLibre no lee `file://`). (RF-4, RF-8, RF-22)
       Hecho cuando: `RegionStylesTest` en verde: el JSON de cada estilo y la plantilla WMS idéntica a `WmsRequests.tileTemplate`.
 - [ ] T8. `MapLibreOfflineStore`: la implementación sobre `OfflineManager` y `OfflineRegion` (crear, listar, activar, pausar, invalidar, borrar, metadatos, estado), con corrutinas. (RF-8 a RF-19, RF-24 a RF-28)
       Hecho cuando: `./gradlew assembleDebug` compila y, en el emulador, una región de prueba se crea, se pausa, se reanuda y se borra desde un botón temporal que no se entrega.
@@ -24,8 +24,8 @@
       Hecho cuando: `OfflineDownloaderTest` en verde con el `FakeOfflineRegionStore`.
 - [ ] T11. `OfflineDownloader`: «Actualizar» (invalidar y activar sin perder la fecha anterior si se interrumpe) y las anotaciones del log. (RF-26, RF-30)
       Hecho cuando: `OfflineDownloaderTest` en verde con los casos de actualizar y las líneas del log sin coordenadas.
-- [ ] T12. Conexión y espacio: `StorageInfo` y `NetworkInfo` (internet validada, datos móviles) detrás de interfaces con su `Fake`, y `MapEnvironment` con 4 peticiones por servidor. (RF-12 a RF-14, RNF)
-      Hecho cuando: `MapDispatcherTest` en verde (4 por servidor) y `DownloadEstimateTest` sigue en verde con las implementaciones de verdad detrás de la interfaz.
+- [ ] T12. Conexión, espacio y cliente HTTP: `StorageInfo` y `NetworkInfo` (internet validada, datos móviles) detrás de interfaces con su `Fake`; `ZoneHttp` en `MapHttpClient` (contesta los estilos de `topophone.invalid` sin red y pone `Cache-Control: max-age=31536000` solo mientras se descarga o se actualiza una zona) y 4 peticiones por servidor. Si no cabe en 30 min, `ZoneHttp` pasa a una tarea propia. (RF-12 a RF-14, RF-22, RF-23, RNF)
+      Hecho cuando: `MapDispatcherTest` y `ZoneHttpTest` en verde (4 por servidor; estilo sin red; caducidad larga solo durante la descarga y también en los 304; el resto de peticiones intactas) y `DownloadEstimateTest` sigue en verde con las implementaciones de verdad detrás de la interfaz.
 - [ ] T13. `DownloadPlanViewModel`: área, fuentes, nivel, previsión, bloqueos y confirmaciones, y lo recordado de la última descarga. (RF-1 a RF-6, RF-8 a RF-14)
       Hecho cuando: `DownloadPlanViewModelTest` en verde (sin centro, sin puntos, cada bloqueo, recordar lo último).
 - [ ] T14. La hoja «Descargar zona»: las tres áreas con su radio o margen, las fuentes, los tres niveles, la previsión y los avisos, con textos en es y en. (RF-1 a RF-6, RF-8 a RF-14)
@@ -40,8 +40,8 @@
       Hecho cuando: `OfflineZoneJanitorTest` y `OfflineBackupExclusionTest` en verde (un proyecto en la papelera conserva sus zonas; al borrarlo definitivamente se borran).
 - [ ] T19. `OfflineCoverage` y el mapa: el aviso de sin conexión desaparece dentro del área de una fuente completa y «Detalle máximo guardado» sale por encima del último nivel. (RF-20, RF-21)
       Hecho cuando: `OfflineCoverageTest` y `ProjectOfflineNoticeTest` en verde (dentro de una zona completa no hay aviso, fuera sí y una zona incompleta no lo quita).
-- [ ] T20. El mapa usa lo guardado con o sin red y sin pedirlo de nuevo, con el plan B de T1 si hacía falta. (RF-22, RF-23)
-      Hecho cuando: en el emulador, con la zona descargada y el contador de peticiones de T1, una zona completa no pide a la red las teselas que tiene y las capas conservan su orden, visibilidad y opacidad; `./gradlew check` en verde.
+- [ ] T20. El mapa usa lo guardado con o sin red y sin pedirlo de nuevo (la caducidad larga de `ZoneHttp`), y se comprueba con una capa WMS viva lo que T1 dejó sin medir: que su dirección es la de la región. (RF-22, RF-23)
+      Hecho cuando: en el emulador, con la zona descargada y un contador de peticiones temporal, una zona completa no pide a la red las teselas que tiene (el PNOA, el IGN vectorial y una capa WMS), sin red se dibuja desde la región, y las capas conservan su orden, visibilidad y opacidad; `./gradlew check` en verde.
 - [ ] T21. Textos y accesibilidad: repaso de los textos en es y en, de TalkBack y de las zonas táctiles de todas las pantallas de la spec. (RNF-T7, RNF-T8)
       Hecho cuando: Lint sin textos sin usar ni literales en código y los tests de accesibilidad de las dos hojas en verde.
 - [ ] T22. Validación final: recorrer la spec RF por RF, ejecutar el informe de trazabilidad, comprobar en el emulador que `getCompletedTileCount` de cada región es el de `TileCover`, hacer la demo con el modo avión, y dejar `plan.md`, la hoja de ruta y el glosario al día. (Todos)
