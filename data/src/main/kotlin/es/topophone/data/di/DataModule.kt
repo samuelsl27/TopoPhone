@@ -26,6 +26,8 @@ import es.topophone.data.codes.CodeLibraryRepository
 import es.topophone.data.codes.DefaultLibrarySource
 import es.topophone.data.codes.ProjectLibraryLinker
 import es.topophone.data.codes.RoomCodeLibraryRepository
+import es.topophone.data.cogo.CogoRepository
+import es.topophone.data.cogo.RoomCogoRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.DataStoreDxfExportPreferences
 import es.topophone.data.export.DataStoreExportPreferences
@@ -235,6 +237,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideProjectLayersRepository(database: TopoPhoneDatabase): ProjectLayersRepository = RoomProjectLayersRepository(database)
+
+    /** El borrador de la poligonal de COGO (S038/RF-26). */
+    @Provides
+    @Singleton
+    fun provideCogoRepository(database: TopoPhoneDatabase): CogoRepository = RoomCogoRepository(database)
 
     /** Puntos recolectados (S010). */
     @Provides

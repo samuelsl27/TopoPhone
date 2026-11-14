@@ -30,7 +30,7 @@
       Hecho cuando: `CogoRefJsonTest` y `TraverseDraftJsonTest` en verde con ida y vuelta exacta de los `Double`, versión `v`, `Locale.ROOT` y campos que faltan.
 - [x] T14. `data`: Room v33 (`points.cogo`, `traverse_drafts`, `AutoMigration(32, 33)`, esquema `33.json`) y la correspondencia de `Point.cogo`. (RF-22, RNF-T6)
       Hecho cuando: el test de migración v32 a v33 de `TopoPhoneDatabaseTest` y `CogoPointPersistTest` en verde y los tests de las versiones anteriores intactos.
-- [ ] T15. `data`: `CogoRepository` con el borrador (observar, guardar, vaciar) y su borrado con el proyecto. (RF-26, RF-29)
+- [x] T15. `data`: `CogoRepository` con el borrador (observar, guardar, vaciar) y su borrado con el proyecto. (RF-26, RF-29)
       Hecho cuando: `TraverseDraftRepositoryTest` en verde con un borrador por proyecto, sustitución al guardar y borrado en cascada.
 - [ ] T16. `data`: `CogoRepository.savePoints` en una transacción, con nombre repetido, vaciado del borrador y log sin nombres ni coordenadas. (RF-19, RF-20, RF-23, RF-25, RF-30)
       Hecho cuando: `CogoSavePointsTest` en verde (todo o nada, `DuplicateName`, borrador vaciado solo si se pide, línea de log sin datos).

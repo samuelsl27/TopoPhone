@@ -21,6 +21,7 @@ import es.topophone.data.codes.CodeAttributeEntity
 import es.topophone.data.codes.CodeLibraryDao
 import es.topophone.data.codes.CodeLibraryEntity
 import es.topophone.data.codes.LibraryCodeEntity
+import es.topophone.data.cogo.TraverseDraftDao
 import es.topophone.data.cogo.TraverseDraftEntity
 import es.topophone.data.gear.AntennaProfileEntity
 import es.topophone.data.gear.GearDao
@@ -203,6 +204,8 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
     abstract fun lines(): LineDao
 
     abstract fun wms(): WmsDao
+
+    abstract fun traverseDrafts(): TraverseDraftDao
 
     companion object {
         const val NAME = "topophone.db"
