@@ -12,7 +12,7 @@
       Hecho cuando: `ScenarioPlayerTest` en verde: dos ejecuciones con el mismo origen y hora de inicio dan los mismos bytes, la hora UTC crece de 1 s en 1 s, el origen cambia las coordenadas y el paseo avanza 1 m/s.
 - [x] T5. `core:gnss`: los otros cinco escenarios (pérdida de FIX, FLOAT y SINGLE, corte de datos, cambio de base, inclinación en ocho) y el coste de generar un escenario. (RF-14, RF-15)
       Hecho cuando: un test por escenario en verde con los instantes de sus eventos (solución, ausencia de frases, EBP, ETC) y generar 180 s tarda menos de 100 ms.
-- [ ] T6. `receiver`: `ReceiverTransport.positionSource`, `noDataTimeoutMs` y `recordsSession`, y `VirtualReceiverTransport` (1 Hz y ×5, cambio de velocidad, fin de escenario, cierre). (RF-12, RF-16, RF-17, RNF-T10)
+- [x] T6. `receiver`: `ReceiverTransport.positionSource`, `noDataTimeoutMs` y `recordsSession`, y `VirtualReceiverTransport` (1 Hz y ×5, cambio de velocidad, fin de escenario, cierre). (RF-12, RF-16, RF-17, RNF-T10)
       Hecho cuando: `VirtualReceiverTransportTest` en verde con reloj falso y los tests de transportes de S002 a S021 intactos.
 - [ ] T7. `receiver`: `ReceiverSession` con `source` y `scenario` en el snapshot, `ScenarioFinished`, sin grabación ni NTRIP con el virtual y con el móvil, y el plazo de «Sin datos» del transporte. (RF-8, RF-9, RF-18, RF-20, RNF-T3)
       Hecho cuando: `ReceiverSessionSourcesTest` en verde y los de sesión de S002 a S021 intactos.

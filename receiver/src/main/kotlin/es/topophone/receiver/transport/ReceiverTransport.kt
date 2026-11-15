@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import es.topophone.core.model.point.PositionSource
 import java.io.Closeable
 import java.io.IOException
 import java.io.InputStream
@@ -28,6 +29,18 @@ interface ReceiverTransport : Closeable {
 
     /** Receptor simulado (reproducción): sin grabación ni correcciones (S003/RF-44, S003/RF-45). */
     val simulated: Boolean get() = false
+
+    /**
+     * De dónde viene la posición que da este transporte (S022/RF-11, plan D7): el receptor, o una fuente simulada (la reproducción,
+     * por defecto, o el receptor virtual).
+     */
+    val positionSource: PositionSource get() = if (simulated) PositionSource.REPLAY else PositionSource.RECEIVER
+
+    /** Cuánto sin épocas antes de «Sin datos»; null es el plazo de la sesión (2 s). El GNSS del móvil usa 3 s (S022/RF-8, plan D9). */
+    val noDataTimeoutMs: Long? get() = null
+
+    /** La sesión graba lo que llega de este transporte (S022/RF-18, RF-20, plan D10); las fuentes simuladas no (S003/RF-45). */
+    val recordsSession: Boolean get() = !simulated
 
     /**
      * El receptor admite que se le escriban correcciones. Un receptor Wi-Fi sin puerto de correcciones no (S021/RF-12): la sesión
