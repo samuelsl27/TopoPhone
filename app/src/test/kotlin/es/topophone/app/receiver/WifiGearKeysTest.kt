@@ -123,9 +123,10 @@ class WifiGearKeysTest {
 
         (first == second) shouldBe false
         await { gear.gear(first).first() }.pole!!.id shouldBe long
-        // Sin configurar usa el primero de la lista (el orden entre dos jalones creados en el mismo milisegundo no importa).
-        (await { gear.gear(second).first() }.pole!!.id != long) shouldBe true
-        short.isNotEmpty() shouldBe true
+        // Cada uno guarda lo suyo, sea cual sea el orden en que salen los jalones.
+        await { gear.setActivePole(second, short) }
+        await { gear.gear(first).first() }.pole!!.id shouldBe long
+        await { gear.gear(second).first() }.pole!!.id shouldBe short
     }
 
     @Test

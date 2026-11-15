@@ -120,5 +120,6 @@ private fun ConnectionState.receiverName(): String = when (this) {
     is ConnectionState.Reconnecting -> description
     is ConnectionState.Lost -> description
     is ConnectionState.ReplayFinished -> description
+    is ConnectionState.ScenarioFinished -> description
     ConnectionState.Disconnected, is ConnectionState.Failed -> ""
 }

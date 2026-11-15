@@ -45,6 +45,7 @@ import es.topophone.core.gnss.rtcm.RtcmMessages
 import es.topophone.core.gnss.rtcm.RtcmStats
 import es.topophone.core.gnss.rtcm.RtcmSystem
 import es.topophone.core.model.ntrip.NtripProfile
+import es.topophone.core.model.point.PositionSource
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.receiver.session.NtripState
@@ -362,6 +363,11 @@ private fun ntripStatusResource(ntrip: NtripState): String = stringResource(
         NtripState.Paused -> R.string.ntrip_paused // S004/RF-18
         NtripState.NoCorrectionsPort -> R.string.ntrip_no_corrections_port // S021/RF-12
         NtripState.NeedsInternet -> R.string.ntrip_needs_internet // S021/RF-10
+        is NtripState.UnavailableForSource -> if (ntrip.source == PositionSource.VIRTUAL) {
+            R.string.ntrip_unavailable_virtual // S022/RF-18
+        } else {
+            R.string.ntrip_unavailable_phone // S022/RF-9
+        }
         is NtripState.Stopped -> when (ntrip.failure) {
             NtripFailure.UNAUTHORIZED -> R.string.ntrip_error_unauthorized // S002/RF-21
             NtripFailure.MOUNTPOINT_NOT_FOUND -> R.string.ntrip_error_mountpoint // S002/RF-22

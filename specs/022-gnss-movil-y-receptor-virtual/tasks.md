@@ -14,7 +14,7 @@
       Hecho cuando: un test por escenario en verde con los instantes de sus eventos (solución, ausencia de frases, EBP, ETC) y generar 180 s tarda menos de 100 ms.
 - [x] T6. `receiver`: `ReceiverTransport.positionSource`, `noDataTimeoutMs` y `recordsSession`, y `VirtualReceiverTransport` (1 Hz y ×5, cambio de velocidad, fin de escenario, cierre). (RF-12, RF-16, RF-17, RNF-T10)
       Hecho cuando: `VirtualReceiverTransportTest` en verde con reloj falso y los tests de transportes de S002 a S021 intactos.
-- [ ] T7. `receiver`: `ReceiverSession` con `source` y `scenario` en el snapshot, `ScenarioFinished`, sin grabación ni NTRIP con el virtual y con el móvil, y el plazo de «Sin datos» del transporte. (RF-8, RF-9, RF-18, RF-20, RNF-T3)
+- [x] T7. `receiver`: `ReceiverSession` con `source` y `scenario` en el snapshot, `ScenarioFinished`, sin grabación ni NTRIP con el virtual y con el móvil, y el plazo de «Sin datos» del transporte. (RF-8, RF-9, RF-18, RF-20, RNF-T3)
       Hecho cuando: `ReceiverSessionSourcesTest` en verde y los de sesión de S002 a S021 intactos.
 - [ ] T8. `receiver`: `LocationSource`, `PhoneGnssTransport` y `AndroidLocationSource` (SINGLE siempre, altura elipsoidal sin geoide, σ de la GST, sin vertical, `isMock`, sin correcciones). (RF-5, RF-6, RF-7, RF-8, RF-9)
       Hecho cuando: `PhoneGnssTransportTest` en verde con una fuente falsa: declara 1 m y sale SINGLE con esa precisión horizontal, sin vertical no hay σ de la altura, a los 3 s sin ubicación hay «Sin datos» y una ubicación simulada cambia la fuente.

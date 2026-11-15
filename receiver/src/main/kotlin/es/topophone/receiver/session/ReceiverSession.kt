@@ -16,6 +16,8 @@ import es.topophone.core.gnss.rtcm.RtcmFramer
 import es.topophone.core.gnss.rtcm.RtcmKind
 import es.topophone.core.gnss.rtcm.RtcmMessages
 import es.topophone.core.gnss.rtcm.RtcmStats
+import es.topophone.core.gnss.scenario.ScenarioId
+import es.topophone.core.model.point.PositionSource
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
@@ -27,6 +29,7 @@ import es.topophone.receiver.transport.BluetoothOffException
 import es.topophone.receiver.transport.CorrectionsLinkStatus
 import es.topophone.receiver.transport.ReceiverTransport
 import es.topophone.receiver.transport.ReplayTransport
+import es.topophone.receiver.transport.VirtualReceiverTransport
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
@@ -81,6 +84,9 @@ sealed interface ConnectionState {
 
     /** La reproducción llegó al final de la sesión sin bucle (S003/RF-40). */
     data class ReplayFinished(val description: String) : ConnectionState
+
+    /** El escenario del receptor virtual llegó a su fin: se puede repetir, elegir otro o desconectar (S022/RF-17). */
+    data class ScenarioFinished(val description: String) : ConnectionState
 }
 
 enum class ConnectFailure {
@@ -118,10 +124,16 @@ sealed interface NtripState {
 
     /** No hay ninguna red con internet para el caster: se reanuda sola al aparecer una, sin tocar el receptor (S021/RF-10). */
     data object NeedsInternet : NtripState
+
+    /** Esta fuente de posición (el GNSS del móvil o el receptor virtual) no usa correcciones: no se abre el caster (S022/RF-9, RF-18). */
+    data class UnavailableForSource(val source: PositionSource) : NtripState
 }
 
 /** Reproducción en curso: qué sesión, a qué velocidad y si vuelve a empezar (S003/RF-35). */
 data class ReplayInfo(val name: String, val speed: ReplaySpeed, val loop: Boolean)
+
+/** Escenario del receptor virtual en marcha: cuál, a qué velocidad, cuánto dura y cuánto lleva, en segundos de escenario (S022/RF-16). */
+data class ScenarioInfo(val id: ScenarioId, val speed: ReplaySpeed, val durationS: Int, val elapsedS: Int)
 
 /**
  * Lo que la interfaz necesita saber de la sesión en cada momento. La GGA y la GST se publican al
@@ -151,6 +163,10 @@ data class ReceiverSnapshot(
     val base: BaseState = BaseState.NONE,
     /** El segundo socket de correcciones de un receptor Wi-Fi con puerto distinto; `null` si no lo hay (S021/RF-13). */
     val correctionsLink: CorrectionsLinkStatus? = null,
+    /** De dónde viene la posición: el receptor, una reproducción, el GNSS del móvil (con o sin ubicación simulada) o el virtual (S022). */
+    val source: PositionSource = PositionSource.RECEIVER,
+    /** El escenario del receptor virtual en marcha o terminado; `null` con cualquier otra fuente (S022/RF-16). */
+    val scenario: ScenarioInfo? = null,
 )
 
 /**
@@ -305,6 +321,7 @@ class ReceiverSession(
         }
         val description = newTransport.description
         val replay = newTransport as? ReplayTransport
+        val virtual = newTransport as? VirtualReceiverTransport
         replay?.onRestart = {
             // S003/RF-10, S003/RF-39: la última época de la vuelta se publica y se empieza de nuevo
             synchronized(assemblerLock) { assembler.flush(clock()).also { assembler.reset() } }?.let { onEpoch(it, description) }
@@ -312,6 +329,8 @@ class ReceiverSession(
         mutableState.value = ReceiverSnapshot(
             connection = ConnectionState.Connecting(description),
             replay = replay?.let { ReplayInfo(description, it.speed, it.loop) },
+            source = newTransport.positionSource,
+            scenario = virtual?.let { ScenarioInfo(it.scenario.id, it.speed, it.durationS, it.elapsedS) },
         )
         val generation = connectionGeneration.get()
         connectionJob = scope.launch {
@@ -325,7 +344,7 @@ class ReceiverSession(
             sawValidSentence = false
             var lowStorage = false
             val writer = try {
-                if (newTransport.simulated) null else recorder.start(description) // S003/RF-45
+                if (!newTransport.recordsSession) null else recorder.start(description) // S003/RF-45, S022/RF-18, RF-20
             } catch (_: LowStorageException) {
                 lowStorage = true // S003/RF-28
                 null
@@ -361,7 +380,11 @@ class ReceiverSession(
                             // Fin de la reproducción (S003/RF-40), con su última época, o enlace perdido con el receptor (S002/RF-9, S004/RF-20).
                             val end = if (link.simulated) {
                                 synchronized(assemblerLock) { assembler.flush(clock()) }?.let { onEpoch(it, description) }
-                                ConnectionState.ReplayFinished(description)
+                                if (link.positionSource == PositionSource.VIRTUAL) {
+                                    ConnectionState.ScenarioFinished(description) // S022/RF-17
+                                } else {
+                                    ConnectionState.ReplayFinished(description)
+                                }
                             } else {
                                 ConnectionState.Lost(description)
                             }
@@ -464,6 +487,13 @@ class ReceiverSession(
         mutableState.update { it.copy(replay = it.replay?.copy(speed = speed)) }
     }
 
+    /** Cambia la velocidad del escenario del receptor virtual en marcha (S022/RF-16). */
+    fun setScenarioSpeed(speed: ReplaySpeed) {
+        val virtual = synchronized(lock) { transport as? VirtualReceiverTransport } ?: return
+        virtual.speed = speed
+        mutableState.update { it.copy(scenario = it.scenario?.copy(speed = speed)) }
+    }
+
     /** Activa o desactiva el bucle de la reproducción en curso (S003/RF-39). */
     fun setReplayLoop(loop: Boolean) {
         val replay = synchronized(lock) { transport as? ReplayTransport } ?: return
@@ -477,6 +507,11 @@ class ReceiverSession(
      * (S007/RF-23); los rechazos y el TLS no válido no se reintentan (S007/RF-24, RF-28).
      */
     fun startNtrip(config: NtripConfig) {
+        val source = synchronized(lock) { transport }?.positionSource
+        if (source == PositionSource.PHONE || source == PositionSource.PHONE_MOCK || source == PositionSource.VIRTUAL) {
+            mutableState.update { it.copy(ntrip = NtripState.UnavailableForSource(source)) } // S022/RF-9, RF-18
+            return
+        }
         if (synchronized(lock) { transport }?.simulated == true) {
             mutableState.update { it.copy(ntrip = NtripState.UnavailableInReplay) } // S003/RF-44
             return
@@ -659,6 +694,7 @@ class ReceiverSession(
      */
     private fun onEpoch(epoch: Epoch, description: String) {
         lastEpochAtMs = epoch.completedAtMs
+        val activeTransport = synchronized(lock) { transport }
         val base = synchronized(baseLock) {
             epoch.basePosition?.let { baseTracker.onEbp(it, epoch.completedAtMs) }
             baseTracker.tick(epoch.completedAtMs)
@@ -678,6 +714,11 @@ class ReceiverSession(
                 satellitesInView = epoch.satellitesInView ?: current.satellitesInView,
                 sky = SkyView.next(current.sky, epoch),
                 base = base,
+                // S022/RF-7: la fuente del GNSS del móvil cambia si Android marca la ubicación como simulada.
+                source = activeTransport?.positionSource ?: current.source,
+                scenario = (activeTransport as? VirtualReceiverTransport)?.let { virtual ->
+                    ScenarioInfo(virtual.scenario.id, virtual.speed, virtual.durationS, virtual.elapsedS)
+                } ?: current.scenario,
             )
         }
         mutableEpochs.tryEmit(SessionEpoch(epoch, base, mutableState.value.gst))
@@ -692,6 +733,7 @@ class ReceiverSession(
         while (currentCoroutineContext().isActive) {
             delay(watchdogPeriodMs)
             val now = clock()
+            val transportNoDataMs = synchronized(lock) { transport }?.noDataTimeoutMs // S022/RF-8: 3 s con el GNSS del móvil
             synchronized(assemblerLock) { assembler.tick(now) }?.let { onEpoch(it, description) }
             val base = synchronized(baseLock) { if (baseTracker.tick(now)) baseTracker.state else null } // S015/RF-10, RF-16
             if (now - lastFlushMs >= FLUSH_PERIOD_MS) { // un cierre brusco pierde como mucho los últimos 2 s
@@ -701,7 +743,9 @@ class ReceiverSession(
             mutableState.update { current ->
                 var next = current
                 val waiting = current.connection is ConnectionState.Receiving || current.connection is ConnectionState.Connecting
-                if (waiting && now - lastEpochAtMs > noDataTimeoutMs) next = next.copy(connection = ConnectionState.NoData(description))
+                if (waiting && now - lastEpochAtMs > (transportNoDataMs ?: noDataTimeoutMs)) {
+                    next = next.copy(connection = ConnectionState.NoData(description))
+                }
                 if (current.gst != null && now - lastGstAtMs > accuracyStaleMs) next = next.copy(gst = null)
                 val linkOpen = waiting || current.connection is ConnectionState.NoData
                 if (linkOpen && !sawValidSentence && !current.nmeaMissing && now - linkOpenedAtMs >= nmeaMissingAfterMs) {

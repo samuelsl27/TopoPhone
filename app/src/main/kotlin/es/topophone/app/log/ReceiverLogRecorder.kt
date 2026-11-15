@@ -141,6 +141,7 @@ class ReceiverLogRecorder(private val states: Flow<ReceiverSnapshot>, private va
                     "No se pudo conectar: ${current.failure.cause()}",
                 )
                 is ConnectionState.ReplayFinished -> info("Reproducción terminada: ${current.description}")
+                is ConnectionState.ScenarioFinished -> info("Escenario terminado: ${current.description}")
                 ConnectionState.Disconnected -> info("Desconectado")
             }
         }
@@ -170,6 +171,11 @@ class ReceiverLogRecorder(private val states: Flow<ReceiverSnapshot>, private va
                 )
                 NtripState.UnavailableInReplay -> LogEntry(LogLevel.WARNING, LogCategory.NTRIP, "Una reproducción no admite correcciones")
                 NtripState.NeedsInternet -> LogEntry(LogLevel.WARNING, LogCategory.NTRIP, "Sin red con internet para el caster")
+                is NtripState.UnavailableForSource -> LogEntry(
+                    LogLevel.WARNING,
+                    LogCategory.NTRIP,
+                    "Esta fuente de posición no admite correcciones",
+                )
                 NtripState.NoCorrectionsPort -> LogEntry(
                     LogLevel.WARNING,
                     LogCategory.NTRIP,

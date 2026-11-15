@@ -498,6 +498,7 @@ internal fun connectionText(connection: ConnectionState): String = when (connect
     is ConnectionState.Lost -> stringResource(R.string.receiver_state_lost, connection.description)
     is ConnectionState.Reconnecting -> stringResource(R.string.receiver_state_reconnecting, connection.description) // S004/RF-13
     is ConnectionState.ReplayFinished -> stringResource(R.string.receiver_replay_finished, connection.description) // S003/RF-40
+    is ConnectionState.ScenarioFinished -> stringResource(R.string.receiver_scenario_finished, connection.description) // S022/RF-17
     is ConnectionState.Failed -> stringResource(
         when (connection.failure) {
             ConnectFailure.TIMEOUT -> R.string.receiver_state_failed_timeout
