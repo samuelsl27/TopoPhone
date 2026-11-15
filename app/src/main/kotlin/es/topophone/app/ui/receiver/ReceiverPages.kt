@@ -23,6 +23,7 @@ const val RECEIVER_TILT_SCREEN_TAG = "receiver_tilt_screen_page"
 const val RECEIVER_GEAR_SCREEN_TAG = "receiver_gear_screen"
 const val NO_RECEIVER_TAG = "receiver_no_receiver"
 const val TILT_UNAVAILABLE_TAG = "receiver_tilt_unavailable"
+const val GEAR_UNAVAILABLE_TAG = "receiver_gear_unavailable"
 
 /** Pantallas de la sección Receptor: la raíz y las del menú (S005/RF-14; S016/RF-1). Las sesiones grabadas son de S003. */
 enum class ReceiverPage { HOME, STATUS, COORDINATES, GEAR, TILT, CORRECTIONS }
@@ -90,7 +91,14 @@ fun ReceiverPageScreen(
             themeState,
             onToggleSun,
             onBack,
-        ) { GearCard(gear, gearActions) } // S046
+        ) {
+            if (state.snapshot.source.isPhone()) {
+                // S022/RF-6
+                Text(stringResource(R.string.source_phone_no_gear_explained), modifier = Modifier.testTag(GEAR_UNAVAILABLE_TAG))
+            } else {
+                GearCard(gear, gearActions) // S046
+            }
+        }
         ReceiverPage.TILT -> ChildScreen(
             R.string.receiver_menu_tilt,
             RECEIVER_TILT_SCREEN_TAG,

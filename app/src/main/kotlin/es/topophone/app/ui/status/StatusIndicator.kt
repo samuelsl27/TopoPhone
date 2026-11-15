@@ -91,7 +91,7 @@ fun StatusIndicator(state: StatusIndicatorState, onClick: () -> Unit, modifier: 
             )
             state.scenario?.let {
                 // El nombre se acorta con puntos suspensivos: el indicador no puede ocupar la barra entera (S005/RF-18).
-                Label(stringResource(it.nameRes()), Modifier.widthIn(max = 112.dp).testTag(STATUS_INDICATOR_SCENARIO_TAG), ellipsize = true)
+                Label(stringResource(it.nameRes()), Modifier.widthIn(max = 72.dp).testTag(STATUS_INDICATOR_SCENARIO_TAG), ellipsize = true)
             }
             if (state.speed == ReplaySpeed.X5) Label(stringResource(R.string.replay_speed_x5))
         }

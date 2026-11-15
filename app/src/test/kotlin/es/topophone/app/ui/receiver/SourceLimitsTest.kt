@@ -154,6 +154,33 @@ class SourceLimitsTest {
         toStatusIndicatorState(snapshot(PositionSource.PHONE)).mock shouldBe false
     }
 
+    private val noSatellites = GgaFix("101530.00", 40.4, -3.7, SolutionStatus.SINGLE, 0, null, 650.0, 0.0, null, "")
+
+    @Test
+    fun `S022 RF-6 con el movil el menu no ensena los nombres internos del equipo`() {
+        show(snapshot(PositionSource.PHONE))
+
+        compose.onNodeWithTag(MENU_GEAR_TAG).performScrollTo().assert(hasText(text(R.string.source_phone_no_gear)))
+    }
+
+    @Test
+    fun `S022 RF-6 la pagina Antena y jalon con el movil explica que no hay jalon ni antena`() {
+        showPage(ReceiverPage.GEAR, snapshot(PositionSource.PHONE))
+
+        compose.onNodeWithTag(GEAR_UNAVAILABLE_TAG).assertIsDisplayed()
+    }
+
+    @Test
+    fun `S022 RF-5 con el movil sin numero de satelites no se dice 0 sat y con un receptor si`() {
+        val phone = snapshot(PositionSource.PHONE).copy(gga = noSatellites)
+        toStatusIndicatorState(phone).satellites shouldBe null
+        toStatusIndicatorState(snapshot(PositionSource.PHONE).copy(gga = fix)).satellites shouldBe 9
+        toStatusIndicatorState(snapshot(PositionSource.RECEIVER).copy(gga = noSatellites)).satellites shouldBe 0
+
+        show(phone)
+        compose.onNodeWithTag(MENU_STATUS_TAG).performScrollTo().assert(hasText(text(R.string.status_bar_satellites, 0)).not())
+    }
+
     @Test
     fun `S022 RF-9 el movil pierde la inclinacion y el movil y el virtual pierden el NTRIP`() {
         for (source in PositionSource.entries) {

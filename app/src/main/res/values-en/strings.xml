@@ -146,6 +146,8 @@
     <string name="receiver_scenario_finished">Scenario finished: %1$s</string>
     <string name="phone_gnss_name">Phone GNSS</string>
     <string name="source_phone_no_tilt">Not available with the phone GNSS</string>
+    <string name="source_phone_no_gear">No pole: the phone\'s position is used</string>
+    <string name="source_phone_no_gear_explained">The phone GNSS uses no pole or antenna: the ground point is the position Android gives.</string>
     <string name="source_phone_no_tilt_explained">The phone\'s GNSS gives no tilt: tilt only works with a compatible Reach receiver.</string>
     <string name="source_mock_warning">Android says another app is faking this position. Points you measure with it will be marked as simulated.</string>
     <string name="status_bar_phone_mock">Phone (mock)</string>

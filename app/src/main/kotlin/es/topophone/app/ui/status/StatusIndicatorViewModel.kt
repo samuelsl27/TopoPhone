@@ -54,6 +54,7 @@ internal fun toStatusIndicatorState(snapshot: ReceiverSnapshot): StatusIndicator
             connection is ConnectionState.Reconnecting
     if (!connected) return StatusIndicatorState()
     val gga = snapshot.gga
+    val phoneSource = snapshot.source == PositionSource.PHONE || snapshot.source == PositionSource.PHONE_MOCK
     return StatusIndicatorState(
         source = when {
             snapshot.scenario != null -> StatusSource.VIRTUAL // S022/RF-16
@@ -64,7 +65,8 @@ internal fun toStatusIndicatorState(snapshot: ReceiverSnapshot): StatusIndicator
         stale = connection is ConnectionState.NoData || (gga == null && connection !is ConnectionState.Reconnecting),
         reconnecting = connection is ConnectionState.Reconnecting, // S004/RF-23
         solution = gga?.status,
-        satellites = gga?.satellites,
+        // S022/RF-5: con el móvil, Android no siempre dice cuántos satélites usa; 0 es «no se sabe», no «ninguno».
+        satellites = gga?.satellites?.takeUnless { it == 0 && phoneSource },
         correctionsAlarm = snapshot.correctionsAlarm, // S007/RF-29
         scenario = snapshot.scenario?.id,
         speed = snapshot.scenario?.speed,

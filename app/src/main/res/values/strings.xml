@@ -158,6 +158,8 @@
     <string name="receiver_scenario_finished">Escenario terminado: %1$s</string>
     <string name="phone_gnss_name">GNSS del móvil</string>
     <string name="source_phone_no_tilt">No disponible con el GNSS del móvil</string>
+    <string name="source_phone_no_gear">Sin jalón: se usa la posición del móvil</string>
+    <string name="source_phone_no_gear_explained">El GNSS del móvil no usa jalón ni antena: el punto del suelo es la posición que da Android.</string>
     <string name="source_phone_no_tilt_explained">El GNSS del móvil no da inclinación: la inclinación solo funciona con un receptor Reach compatible.</string>
     <string name="source_mock_warning">Android indica que otra aplicación simula esta posición. Los puntos que midas con ella quedarán marcados como simulados.</string>
     <string name="status_bar_phone_mock">Móvil simulado</string>

@@ -33,7 +33,10 @@ internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
             if (gga != null && snapshot.connection is ConnectionState.Receiving) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     StatusChip(stringResource(gga.status.nameRes()), gga.status.tone(), compact = true)
-                    Text(stringResource(R.string.status_bar_satellites, gga.satellites))
+                    // S022/RF-5: Android no siempre dice cuántos satélites usa; con 0 no se enseña un «0 sat» que engaña.
+                    if (gga.satellites > 0 || !snapshot.source.isPhone()) {
+                        Text(stringResource(R.string.status_bar_satellites, gga.satellites))
+                    }
                 }
             } else {
                 Text(stringResource(R.string.status_bar_no_data))
@@ -45,7 +48,12 @@ internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
         } // S005/RF-11
         HorizontalDivider()
         ListRow(stringResource(R.string.receiver_menu_gear), actions.onOpenGear, Modifier.testTag(MENU_GEAR_TAG)) {
-            Text(gearSummary(GearUiState(gear = state.gear)))
+            // S022/RF-6: el móvil no tiene jalón ni antena; no se enseñan los nombres internos de su equipo fijo.
+            if (snapshot.source.isPhone()) {
+                Text(stringResource(R.string.source_phone_no_gear))
+            } else {
+                Text(gearSummary(GearUiState(gear = state.gear)))
+            }
         } // S046/RF-8, RF-15
         HorizontalDivider()
         ListRow(stringResource(R.string.receiver_menu_tilt), actions.onOpenTilt, Modifier.testTag(MENU_TILT_TAG)) {
