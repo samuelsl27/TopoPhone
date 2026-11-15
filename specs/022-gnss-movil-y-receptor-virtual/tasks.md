@@ -8,7 +8,7 @@
       Hecho cuando: el test de migración v34 a v35 de `TopoPhoneDatabaseTest`, `PointsSourceTest` y la copia completa con la columna en verde, y los puntos anteriores siguen siendo `RECEIVER` o `REPLAY`.
 - [x] T3. `core:gnss`: `NmeaWriter` (GGA, GST, GSA, GSV, ZDA, EBP y ETC con suma de control y `Locale.ROOT`). (RF-15)
       Hecho cuando: `NmeaWriterTest` en verde: cada frase escrita se lee con su analizador y devuelve los mismos valores, y la suma de control coincide con la de las frases de `fixtures/nmea/`.
-- [ ] T4. `core:gnss`: `Scenario`, `ScenarioState` y `ScenarioPlayer` con los escenarios «FIX estable» y «Paseo en línea recta». (RF-13, RF-14, RF-15)
+- [x] T4. `core:gnss`: `Scenario`, `ScenarioState` y `ScenarioPlayer` con los escenarios «FIX estable» y «Paseo en línea recta». (RF-13, RF-14, RF-15)
       Hecho cuando: `ScenarioPlayerTest` en verde: dos ejecuciones con el mismo origen y hora de inicio dan los mismos bytes, la hora UTC crece de 1 s en 1 s, el origen cambia las coordenadas y el paseo avanza 1 m/s.
 - [ ] T5. `core:gnss`: los otros cinco escenarios (pérdida de FIX, FLOAT y SINGLE, corte de datos, cambio de base, inclinación en ocho) y el coste de generar un escenario. (RF-14, RF-15)
       Hecho cuando: un test por escenario en verde con los instantes de sus eventos (solución, ausencia de frases, EBP, ETC) y generar 180 s tarda menos de 100 ms.
