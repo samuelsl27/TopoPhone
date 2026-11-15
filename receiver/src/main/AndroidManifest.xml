@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Pedir la red Wi-Fi del receptor aunque no tenga internet y atar sus sockets a ella (S021/RF-8). -->
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <!-- Android 17+: hablar con un receptor de la red local (Wi-Fi). Se pide al conectar con uno, no al abrir la app (S021/RF-6). -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <!-- Aviso de conexión perdida con el receptor (S002/RF-9). -->
     <uses-permission android:name="android.permission.VIBRATE" />
 

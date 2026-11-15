@@ -153,6 +153,12 @@
     <string name="sessions_replay_confirm_text">To replay the session, the receiver and NTRIP connections will be closed.</string>
     <string name="receiver_state_reconnecting">Reconnecting to %1$s…</string>
     <string name="ntrip_paused">NTRIP paused while the receiver reconnects</string>
+    <string name="local_network_permission_title">Local network access</string>
+    <string name="local_network_permission_rationale">To talk to a Wi-Fi receiver, Android asks for permission to access devices on the local network. TopoPhone only uses it to connect to your receiver. Allow it in the next step.</string>
+    <string name="local_network_permission_continue">Continue</string>
+    <string name="local_network_permission_not_now">Not now</string>
+    <string name="local_network_denied">Without the local network permission you cannot connect to a Wi-Fi receiver. The rest of the app, and Bluetooth receivers, keep working.</string>
+    <string name="local_network_open_settings">Open app settings</string>
     <string name="ntrip_needs_internet">NTRIP needs mobile data (or a network with internet): it resumes by itself when available</string>
     <string name="ntrip_no_corrections_port">This Wi-Fi receiver has no corrections port: edit it to set one</string>
     <string name="receiver_reconnect_waiting">Attempt %1$d · next in %2$d s</string>

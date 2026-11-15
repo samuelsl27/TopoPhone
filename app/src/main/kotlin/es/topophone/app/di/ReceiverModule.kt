@@ -7,10 +7,12 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
+import es.topophone.app.receiver.AndroidLocalNetworkPermission
 import es.topophone.app.receiver.AndroidNotificationPermission
 import es.topophone.app.receiver.CorrectionsController
 import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
+import es.topophone.app.receiver.LocalNetworkPermission
 import es.topophone.app.receiver.NetworkAwareSourcetable
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
@@ -195,6 +197,10 @@ object ReceiverModule {
 
     @Provides
     fun notificationPermission(@ApplicationContext context: Context): NotificationPermission = AndroidNotificationPermission(context)
+
+    /** El permiso de red local de Android 17+, que solo pide un receptor Wi-Fi (S021/RF-6). */
+    @Provides
+    fun localNetworkPermission(@ApplicationContext context: Context): LocalNetworkPermission = AndroidLocalNetworkPermission(context)
 
     @Provides
     @Named(ReceiverViewModel.MONOTONIC_CLOCK)

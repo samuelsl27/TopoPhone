@@ -11,6 +11,7 @@ import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.DismissedNotices
+import es.topophone.app.receiver.LocalNetworkPermission
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
@@ -18,6 +19,7 @@ import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.core.model.receiver.ReceiverKey
 import es.topophone.core.survey.ActiveGear
 import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.GroundPointCalculator
@@ -72,6 +74,9 @@ sealed interface BluetoothUi {
 /** Avisos de "Añadir receptor" (S004/RF-4). */
 enum class PairingMessage { SEARCH_FAILED, SEARCH_CANCELLED, PAIRING_FAILED }
 
+/** El permiso de red local: el receptor Wi-Fi que espera a que se pida y si se ha denegado (S021/RF-6). */
+data class LocalNetworkUi(val pendingKey: String? = null, val denied: Boolean = false)
+
 /** "Añadir receptor": el diálogo del sistema pendiente de abrir y el último aviso (S004/RF-1 a RF-4). */
 data class PairingUi(val chooser: IntentSender? = null, val message: PairingMessage? = null)
 
@@ -101,6 +106,10 @@ data class ReceiverUiState(
     val askNotifications: Boolean = false,
     /** Permiso denegado con un receptor conectado: avisar de cómo concederlo (S004/RF-6). */
     val notificationsDenied: Boolean = false,
+    /** Pedir el permiso de red local, con su explicación, para conectar con un receptor Wi-Fi (S021/RF-6). */
+    val askLocalNetwork: Boolean = false,
+    /** Permiso de red local denegado: no se conecta con un receptor Wi-Fi y se explica cómo concederlo (S021/RF-6). */
+    val localNetworkDenied: Boolean = false,
     /** Hay búsqueda del sistema; si no, "Añadir receptor" abre los ajustes de Bluetooth (S004/RF-1). */
     val pairingSupported: Boolean = false,
     val pairing: PairingUi = PairingUi(),
@@ -130,6 +139,7 @@ class ReceiverViewModel @Inject constructor(
     private val replay: ReplayController,
     private val connections: ReceiverConnections,
     private val notifications: NotificationPermission = NotificationPermission.NotRequired,
+    private val localNetwork: LocalNetworkPermission = LocalNetworkPermission.NotRequired,
     private val pairing: ReceiverPairing = ReceiverPairing.Unsupported,
     private val projectPreferences: ProjectPreferences = ProjectPreferences.FACTORY,
     private val baseNotices: BaseNotices = BaseNotices(),
@@ -146,6 +156,7 @@ class ReceiverViewModel @Inject constructor(
     private val notificationsAnsweredNow = MutableStateFlow(false)
     private val pairingSupported = pairing.isSupported
     private val pairingUi = MutableStateFlow(PairingUi())
+    private val localNetworkUi = MutableStateFlow(LocalNetworkUi())
 
     private val ticker: Flow<Long> = flow {
         while (true) {
@@ -180,6 +191,7 @@ class ReceiverViewModel @Inject constructor(
         val notificationsGranted: Boolean,
         val notificationsAsked: Boolean,
         val pairing: PairingUi,
+        val localNetwork: LocalNetworkUi,
     )
 
     private val angularUnits: Flow<AngularUnit> = projectPreferences.defaults.map { it.angularUnit }.distinctUntilChanged()
@@ -199,8 +211,10 @@ class ReceiverViewModel @Inject constructor(
             combine(lastAddress, preferences.lastReceiver.map { it?.address }) { last, saved -> last to saved },
             notificationsGranted,
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
-            pairingUi,
-        ) { now, addresses, granted, asked, pairing -> Extras(now, addresses, granted, asked, pairing) },
+            combine(pairingUi, localNetworkUi, ::Pair),
+        ) { now, addresses, granted, asked, (pairing, localNetworkState) ->
+            Extras(now, addresses, granted, asked, pairing, localNetworkState)
+        },
     ) { (snapshot, angularUnit, notices, tiltState, gearState, poles, gearLocked), bt, internetAvailable, poleTyped, extras ->
         // S016/RF-16, RF-17: con la inclinación, la GGA y el ETC de la misma época; si no, la última GGA.
         val mode = tiltState.settings.mode
@@ -233,6 +247,8 @@ class ReceiverViewModel @Inject constructor(
                 realReceiver &&
                 snapshot.connection is ConnectionState.Receiving, // S004/RF-5
             notificationsDenied = missingPermission && extras.notificationsAsked && realReceiver, // S004/RF-6
+            askLocalNetwork = extras.localNetwork.pendingKey != null,
+            localNetworkDenied = extras.localNetwork.denied,
             pairingSupported = pairingSupported,
             pairing = extras.pairing,
             angularUnit = angularUnit,
@@ -323,9 +339,33 @@ class ReceiverViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Conecta con un receptor por su clave: su dirección Bluetooth o `wifi:<id>`. Un receptor Wi-Fi en Android 17+ pide antes el permiso
+     * de red local, con su explicación; sin él no se intenta (S021/RF-6).
+     */
     fun connect(address: String) {
+        if (ReceiverKey.isWifi(address) && localNetwork.required && !localNetwork.isGranted()) {
+            localNetworkUi.value = LocalNetworkUi(pendingKey = address)
+            return
+        }
         lastAddress.value = address
         connections.connect(address) // S002/RF-5, con reconexión (S004/RF-13)
+    }
+
+    /** Respuesta a la petición del permiso de red local: concedido, se conecta con el receptor que se quería; si no, se avisa (S021/RF-6). */
+    fun localNetworkAnswered(granted: Boolean) {
+        val key = localNetworkUi.value.pendingKey
+        if (granted && localNetwork.isGranted()) {
+            localNetworkUi.value = LocalNetworkUi()
+            if (key != null) connect(key)
+        } else {
+            localNetworkUi.value = LocalNetworkUi(denied = true)
+        }
+    }
+
+    /** Se llama al volver a la pantalla: si el permiso se concedió desde los ajustes, el aviso se quita (S021/RF-6). */
+    fun refreshLocalNetwork() {
+        if (localNetworkUi.value.denied && localNetwork.isGranted()) localNetworkUi.value = LocalNetworkUi()
     }
 
     fun reconnect() {

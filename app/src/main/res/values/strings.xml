@@ -188,6 +188,12 @@
     <string name="notifications_permission_not_now">Ahora no</string>
     <string name="receiver_notifications_denied">Sin permiso de notificaciones no verás la conexión en segundo plano, aunque sigue activa.</string>
     <string name="receiver_notifications_enable">Activar</string>
+    <string name="local_network_permission_title">Acceso a la red local</string>
+    <string name="local_network_permission_rationale">Para hablar con un receptor Wi-Fi, Android pide permiso para acceder a los dispositivos de la red local. TopoPhone solo lo usa para conectar con tu receptor. Permítelo en el paso siguiente.</string>
+    <string name="local_network_permission_continue">Continuar</string>
+    <string name="local_network_permission_not_now">Ahora no</string>
+    <string name="local_network_denied">Sin el permiso de red local no se puede conectar con un receptor Wi-Fi. El resto de la app, y los receptores Bluetooth, siguen funcionando.</string>
+    <string name="local_network_open_settings">Abrir ajustes de la app</string>
     <string name="receiver_add">Añadir receptor</string>
     <string name="receiver_pairing_search_failed">No se ha podido buscar receptores. Empareja el receptor desde los ajustes de Bluetooth del móvil.</string>
     <string name="receiver_pairing_search_cancelled">Búsqueda cancelada.</string>

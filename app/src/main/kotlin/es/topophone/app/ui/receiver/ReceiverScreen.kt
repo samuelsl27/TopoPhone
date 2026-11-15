@@ -52,6 +52,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.topophone.app.R
+import es.topophone.app.receiver.ACCESS_LOCAL_NETWORK
+import es.topophone.app.receiver.localNetworkSettingsIntent
 import es.topophone.app.receiver.notificationSettingsIntent
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -83,6 +85,10 @@ class ReceiverActions(
     val onAllowNotifications: () -> Unit = {},
     val onDeclineNotifications: () -> Unit = {},
     val onEnableNotifications: () -> Unit = {},
+    /** S021/RF-6. */
+    val onAllowLocalNetwork: () -> Unit = {},
+    val onDeclineLocalNetwork: () -> Unit = {},
+    val onOpenLocalNetworkSettings: () -> Unit = {},
     val onAddReceiver: () -> Unit = {},
     val onOpenStatus: () -> Unit = {},
     val onOpenCoordinates: () -> Unit = {},
@@ -118,6 +124,7 @@ const val RECEIVER_DASHBOARD_TAG = "receiver_dashboard"
 const val TILT_TAG = "receiver_tilt"
 const val ENABLE_NOTIFICATIONS_TAG = "enable_notifications"
 const val ADD_RECEIVER_TAG = "add_receiver"
+const val LOCAL_NETWORK_SETTINGS_TAG = "local_network_settings"
 
 fun deviceTag(address: String) = "device_$address"
 
@@ -153,6 +160,10 @@ fun ReceiverRoute(
         rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { viewModel.refreshBluetooth() }
     val notificationsLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { viewModel.refreshNotifications() }
+    val localNetworkLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            viewModel.localNetworkAnswered(granted)
+        }
     val chooserLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         viewModel.receiverChosen(result.resultCode, result.data) // S004/RF-2 a RF-4
     }
@@ -166,6 +177,7 @@ fun ReceiverRoute(
     LifecycleResumeEffect(Unit) {
         viewModel.refreshBluetooth()
         viewModel.refreshNotifications()
+        viewModel.refreshLocalNetwork()
         onPauseOrDispose {}
     }
     // La pantalla Correcciones tiene su propio ViewModel (perfiles NTRIP, S007); la página no cambia en la misma ruta.
@@ -251,6 +263,9 @@ fun ReceiverRoute(
                 }
             },
             onDeclineNotifications = viewModel::notificationsAnswered,
+            onAllowLocalNetwork = { localNetworkLauncher.launch(ACCESS_LOCAL_NETWORK) }, // S021/RF-6
+            onDeclineLocalNetwork = { viewModel.localNetworkAnswered(granted = false) },
+            onOpenLocalNetworkSettings = { context.startActivity(localNetworkSettingsIntent(context.packageName)) },
             onEnableNotifications = { context.startActivity(notificationSettingsIntent(context.packageName)) },
             onAddReceiver = viewModel::addReceiver,
             onDismissBaseChange = viewModel::dismissBaseChange,
@@ -293,7 +308,10 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             when (receiverHomeMode(state.snapshot)) {
-                ReceiverHomeMode.LIST -> ReceiverList(state, actions)
+                ReceiverHomeMode.LIST -> {
+                    if (state.localNetworkDenied) LocalNetworkDenied(actions) // S021/RF-6
+                    ReceiverList(state, actions)
+                }
                 ReceiverHomeMode.DASHBOARD -> {
                     ReceiverHeader(state, actions)
                     ReceiverMenu(state, actions)
@@ -302,6 +320,37 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
         }
     }
     if (state.askNotifications) NotificationsDialog(actions)
+    if (state.askLocalNetwork) LocalNetworkDialog(actions)
+}
+
+/** Explica para qué es el permiso de red local antes de que Android lo pida (S021/RF-6). */
+@Composable
+private fun LocalNetworkDialog(actions: ReceiverActions) {
+    AlertDialog(
+        onDismissRequest = actions.onDeclineLocalNetwork,
+        title = { Text(stringResource(R.string.local_network_permission_title)) },
+        text = { Text(stringResource(R.string.local_network_permission_rationale)) },
+        confirmButton = {
+            TextButton(onClick = actions.onAllowLocalNetwork, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.local_network_permission_continue))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = actions.onDeclineLocalNetwork, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.local_network_permission_not_now))
+            }
+        },
+    )
+}
+
+/** Con el permiso de red local denegado: por qué no se conecta con un receptor Wi-Fi y cómo concederlo (S021/RF-6). */
+@Composable
+internal fun LocalNetworkDenied(actions: ReceiverActions) {
+    Text(stringResource(R.string.local_network_denied))
+    OutlinedButton(
+        onClick = actions.onOpenLocalNetworkSettings,
+        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LOCAL_NETWORK_SETTINGS_TAG),
+    ) { Text(stringResource(R.string.local_network_open_settings)) }
 }
 
 /** Explica para qué es el permiso de notificaciones antes de que Android lo pida (S004/RF-5). */

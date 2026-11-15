@@ -22,7 +22,7 @@
       Hecho cuando: `ReceiverSessionWifiTest` en verde: sin red con internet el NTRIP lo dice y reanuda al aparecer una, sin cerrar el receptor, y con Bluetooth todo sigue igual.
 - [x] T10. `app`: `ReceiverConnections` con la clave `wifi:<id>`: conectar, reabrir al reconectar, conexión automática, último receptor y receptor borrado. (RF-7, RF-15, RF-17)
       Hecho cuando: `ReceiverConnectionsWifiTest` en verde, con corte y reconexión de una sesión y el Wi-Fi apagado, y los de Bluetooth intactos.
-- [ ] T11. `app`: permiso `ACCESS_LOCAL_NETWORK` (manifiesto, petición al conectar, explicación y aviso con Ajustes) y los permisos de red. (RF-6, RNF-T1)
+- [x] T11. `app`: permiso `ACCESS_LOCAL_NETWORK` (manifiesto, petición al conectar, explicación y aviso con Ajustes) y los permisos de red. (RF-6, RNF-T1)
       Hecho cuando: `LocalNetworkPermissionTest` en verde: se pide solo cuando el sistema lo exige y al denegar el resto de la app sigue.
 - [ ] T12. `app`: la lista de receptores con los Wi-Fi y la hoja «Bluetooth / Wi-Fi (TCP)» de «Añadir receptor». (RF-1, RF-4)
       Hecho cuando: `ReceiverListWifiTest` en verde, también con el Bluetooth apagado, y los de la lista de S005 intactos.
