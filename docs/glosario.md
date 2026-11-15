@@ -233,7 +233,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Tema (Sistema, Claro, Oscuro, Sol) | `ThemeMode` (`SYSTEM`, `LIGHT`, `DARK`, `SUN`) | Elección del usuario; el que se pinta es `EffectiveTheme` |
 | Modo sol | `ThemeMode.SUN` | Tema claro de alto contraste (≥ 7:1); el acceso rápido es `ThemeState.toggleSun()` |
 | Idioma (Sistema, Español, English) | `AppLanguage` (`SYSTEM`, `SPANISH`, `ENGLISH`) | Se guarda con etiquetas BCP 47 |
-| Perfil de equipo | `EquipmentProfile` | Modelo, n.º de serie, firmware (lo introduce el usuario) |
+| Perfil de equipo | `EquipmentProfile` | Modelo, n.º de serie, firmware (lo introduce el usuario); en la interfaz, la entrada «Datos del receptor» (S043) |
+| Lista de configuración | `ConfigList` | Pasos ordenados para dejar el receptor listo para una tarea, con el ajuste y la pantalla del receptor; los comprobables llevan una comprobación (S043) |
+| Comprobación previa | `ReceiverCheck` | Resultado Correcto, Aviso, Fallo o Sin datos de mirar las últimas épocas del receptor; nunca impide medir (S043) |
 | Eje | `Alignment` | Trazado en planta de una obra lineal con rectas, arcos y clotoides, y su rasante si la tiene; referencia de diseño, importada o definida a mano (S049); también puede tomarse en campo con el receptor (S052) |
 | Tramo del eje | `AlignmentElement` | Recta, arco o clotoide de un eje, con su curvatura de inicio y de fin (positiva a la izquierda) (S049) |
 | Rasante | `VerticalProfile` | Perfil vertical de un eje: vértices con PK y cota y acuerdos verticales (S049) |
