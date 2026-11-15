@@ -4,7 +4,7 @@
 
 - [x] T1. `core:model`: `PositionSource`, `ReceiverKey.phone/virtual` (`isPhone`, `isVirtual`) y `PointQuality.source`. (RF-1, RF-11, RF-12)
       Hecho cuando: `ReceiverKeyTest` y `PositionSourceTest` en verde y el resto de `core:model` intacto.
-- [ ] T2. `data`: Room v35 (`points.position_source`, `AutoMigration(34, 35)`, esquema `35.json`), lectura y escritura con su `fromReplay` compatible y copia de seguridad. (RF-11, RF-19, RNF-T6)
+- [x] T2. `data`: Room v35 (`points.position_source`, `AutoMigration(34, 35)`, esquema `35.json`), lectura y escritura con su `fromReplay` compatible y copia de seguridad. (RF-11, RF-19, RNF-T6)
       Hecho cuando: el test de migración v34 a v35 de `TopoPhoneDatabaseTest`, `PointsSourceTest` y la copia completa con la columna en verde, y los puntos anteriores siguen siendo `RECEIVER` o `REPLAY`.
 - [ ] T3. `core:gnss`: `NmeaWriter` (GGA, GST, GSA, GSV, ZDA, EBP y ETC con suma de control y `Locale.ROOT`). (RF-15)
       Hecho cuando: `NmeaWriterTest` en verde: cada frase escrita se lee con su analizador y devuelve los mismos valores, y la suma de control coincide con la de las frases de `fixtures/nmea/`.

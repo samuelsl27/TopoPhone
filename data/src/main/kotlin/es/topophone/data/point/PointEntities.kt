@@ -39,6 +39,7 @@ import es.topophone.core.model.point.PointSnapshot
 import es.topophone.core.model.point.PointTilt
 import es.topophone.core.model.point.PoleKind
 import es.topophone.core.model.point.PoleVector
+import es.topophone.core.model.point.PositionSource
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutRef
@@ -226,6 +227,8 @@ data class PointEntity(
     @ColumnInfo(name = "code_symbol") val codeSymbol: String? = null,
     /** El rastro del calculo de un punto de origen COGO, en JSON (S038/RF-22, plan D10); NULL en los demas. */
     val cogo: String? = null,
+    /** De dónde vino la posición (S022/RF-11, plan D2): `RECEIVER`, `REPLAY`, `PHONE`, `PHONE_MOCK` o `VIRTUAL`; NULL en los de antes. */
+    @ColumnInfo(name = "position_source") val positionSource: String? = null,
 )
 
 /**
@@ -354,6 +357,7 @@ internal fun Point.toEntity(): PointEntity {
         epochsUsed = quality?.epochsUsed,
         epochsDiscarded = quality?.epochsDiscarded,
         fromReplay = quality?.fromReplay,
+        positionSource = quality?.source?.name,
         outOfTolerance = m?.outOfTolerance.orEmpty().sorted().joinToString(",") { it.name },
         rawNmea = m?.rawNmea,
         measuredFrom = m?.measuredFromMs,
@@ -576,6 +580,7 @@ private fun PointEntity.measurement(): Measurement? {
             epochsUsed = epochsUsed ?: 0,
             epochsDiscarded = epochsDiscarded ?: 0,
             fromReplay = fromReplay ?: false,
+            source = PositionSource.fromStored(positionSource, fromReplay),
             averagedTimeS = avgTime,
             deviationHorizontalM = devH,
             deviationVerticalM = devV,

@@ -15,6 +15,7 @@ import es.topophone.core.model.point.LineStakeoutMode
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.PointTilt
+import es.topophone.core.model.point.PositionSource
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.TiltMode
@@ -1487,6 +1488,44 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S022 RNF-T6 v34 a v35 los puntos siguen con su fuente deducida`() {
+        createFromExportedSchema(34)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v34 ->
+            v34.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            for ((id, replay) in listOf("real" to 0, "repro" to 1)) {
+                v34.execSQL(
+                    "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                        "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                        "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                        "(?, ?, ?, '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                        "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                        "'INSTANT', 1, 0, ?, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                    arrayOf<Any>(id, project.id, id, replay),
+                )
+            }
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val stored = runBlocking { RoomPointRepository(db).points(project.id).first() }.associateBy { it.name }
+            stored.getValue("real").measurement.shouldNotBeNull().quality.source shouldBe PositionSource.RECEIVER
+            stored.getValue("repro").measurement.shouldNotBeNull().quality.source shouldBe PositionSource.REPLAY
+            db.openHelper.writableDatabase.query("SELECT position_source FROM points").use { cursor ->
+                while (cursor.moveToNext()) cursor.isNull(0) shouldBe true // los puntos de antes no llevan la columna rellena
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S021 RNF-T6 v33 a v34 los proyectos siguen y los receptores Wi-Fi nacen vacios`() {
         createFromExportedSchema(33)
         SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v33 ->
@@ -1703,7 +1742,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 34
+        const val CURRENT_VERSION = 35
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2
