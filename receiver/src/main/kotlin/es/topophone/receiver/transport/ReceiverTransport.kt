@@ -35,6 +35,9 @@ interface ReceiverTransport : Closeable {
      */
     val acceptsCorrections: Boolean get() = true
 
+    /** Con este receptor el caster NTRIP sale por una red con internet, no por la del receptor (un receptor Wi-Fi, S021/RF-9). */
+    val routesNtripOverNetwork: Boolean get() = false
+
     /** Estado del segundo socket de correcciones de un receptor Wi-Fi con puerto distinto; null si no lo hay (S021/RF-13). */
     val correctionsStatus: StateFlow<CorrectionsLinkStatus>? get() = null
 }

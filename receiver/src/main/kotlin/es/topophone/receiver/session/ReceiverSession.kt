@@ -21,6 +21,8 @@ import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.BaseState
 import es.topophone.core.survey.BaseTracker
+import es.topophone.receiver.platform.NetworkRouter
+import es.topophone.receiver.platform.NoInternetException
 import es.topophone.receiver.transport.BluetoothOffException
 import es.topophone.receiver.transport.CorrectionsLinkStatus
 import es.topophone.receiver.transport.ReceiverTransport
@@ -43,6 +45,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -112,6 +115,9 @@ sealed interface NtripState {
 
     /** El receptor Wi-Fi no tiene puerto de correcciones: no se abre el caster (S021/RF-12). */
     data object NoCorrectionsPort : NtripState
+
+    /** No hay ninguna red con internet para el caster: se reanuda sola al aparecer una, sin tocar el receptor (S021/RF-10). */
+    data object NeedsInternet : NtripState
 }
 
 /** Reproducción en curso: qué sesión, a qué velocidad y si vuelve a empezar (S003/RF-35). */
@@ -221,6 +227,10 @@ class ReceiverSession(
     private val busyThresholdMs: Long = BUSY_THRESHOLD_MS,
     private val nmeaMissingAfterMs: Long = NMEA_MISSING_AFTER_MS,
     private val ntripBackoffMs: List<Long> = DEFAULT_NTRIP_BACKOFF_MS,
+    /** El caster con un receptor Wi-Fi: sus sockets salen por una red con internet, no por la del receptor (S021/RF-9). */
+    private val networkNtripConnector: NtripConnector? = null,
+    /** Avisa de que ha aparecido una red con internet (S021/RF-10). */
+    private val networkRouter: NetworkRouter? = null,
 ) {
     private val mutableState = MutableStateFlow(ReceiverSnapshot())
     val state: StateFlow<ReceiverSnapshot> = mutableState.asStateFlow()
@@ -487,29 +497,42 @@ class ReceiverSession(
         correctionsSinceMs = clock()
         val generation = connectionGeneration.get()
         val onFrame = { type: Int, payload: ByteArray -> onCorrectionFrame(type, payload, generation) }
+        // S021/RF-9: con un receptor Wi-Fi el caster sale por otra red; con Bluetooth, igual que siempre.
+        val connector = networkNtripConnector.takeIf { synchronized(lock) { transport }?.routesNtripOverNetwork == true } ?: ntripConnector
         ntripJob = scope.launch {
             var bytes = 0L
             var lastCorrectionAtMs: Long? = null
             var attempt = 0
             var rtcm = RtcmStats()
             var framer = RtcmFramer(onFrame)
+            val onCorrections: suspend (ByteArray) -> Unit = { corrections ->
+                channel.send(corrections) // primero al receptor, tal cual (S002/RF-19); después se cuentan
+                bytes += corrections.size
+                val now = clock()
+                lastCorrectionAtMs = now
+                correctionsSinceMs = now
+                rtcm += framer.feed(corrections) // S007/RF-32, RF-33
+                mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, now, rtcm)) } // S002/RF-25
+            }
             while (isActive) {
-                val failure = ntripConnector.run(
-                    config,
-                    latestGga = { mutableState.value.gga?.rawSentence },
-                    onConnected = {
-                        attempt = 0 // S007/RF-23: un corte nuevo empieza por el primer intento
-                        framer = RtcmFramer(onFrame) // el flujo nuevo empieza a mitad de trama
-                        mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, lastCorrectionAtMs, rtcm)) }
-                    },
-                ) { corrections ->
-                    channel.send(corrections) // primero al receptor, tal cual (S002/RF-19); después se cuentan
-                    bytes += corrections.size
-                    val now = clock()
-                    lastCorrectionAtMs = now
-                    correctionsSinceMs = now
-                    rtcm += framer.feed(corrections) // S007/RF-32, RF-33
-                    mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, now, rtcm)) } // S002/RF-25
+                val failure = try {
+                    connector.run(
+                        config,
+                        latestGga = { mutableState.value.gga?.rawSentence },
+                        onConnected = {
+                            attempt = 0 // S007/RF-23: un corte nuevo empieza por el primer intento
+                            framer = RtcmFramer(onFrame) // el flujo nuevo empieza a mitad de trama
+                            mutableState.update { it.copy(ntrip = NtripState.Streaming(bytes, lastCorrectionAtMs, rtcm)) }
+                        },
+                        onCorrections,
+                    )
+                } catch (_: NoInternetException) {
+                    null // S021/RF-10: sin red con internet; el receptor no se toca
+                }
+                if (failure == null) {
+                    mutableState.update { it.copy(ntrip = NtripState.NeedsInternet) }
+                    awaitInternet()
+                    continue
                 }
                 if (failure in PERMANENT_NTRIP_FAILURES) {
                     ntripConfig = null // S007/RF-24, RF-28: hace falta que el usuario cambie algo
@@ -522,6 +545,19 @@ class ReceiverSession(
                 delay(wait)
             }
         }
+    }
+
+    /**
+     * Espera a que aparezca una red con internet (el aviso del sistema, no un sondeo); por si el aviso se perdiera, vuelve a mirar cada
+     * [INTERNET_RECHECK_MS] (S021/RF-10).
+     */
+    private suspend fun awaitInternet() {
+        val router = networkRouter
+        if (router == null) {
+            delay(INTERNET_RECHECK_MS)
+            return
+        }
+        withTimeoutOrNull(INTERNET_RECHECK_MS) { router.internetAvailable.first { it } }
     }
 
     fun stopNtrip() {
@@ -672,7 +708,9 @@ class ReceiverSession(
                     next = next.copy(nmeaMissing = true) // S004/RF-28
                 }
                 // S007/RF-29, RF-30: con el NTRIP abierto (recibiendo o reintentando); en pausa avisa la pérdida del receptor.
-                val ntripOpen = current.ntrip is NtripState.Streaming || current.ntrip is NtripState.Reconnecting
+                val ntripOpen = current.ntrip is NtripState.Streaming ||
+                    current.ntrip is NtripState.Reconnecting ||
+                    current.ntrip is NtripState.NeedsInternet
                 val alarm = ntripOpen && now - correctionsSinceMs > correctionsAlarmMs
                 if (alarm != current.correctionsAlarm) next = next.copy(correctionsAlarm = alarm)
                 if (base != null) next = next.copy(base = base)
@@ -722,6 +760,9 @@ class ReceiverSession(
         /** Fallos que no se arreglan reintentando: credenciales, punto de montaje, TLS y respuesta no NTRIP (S007/RF-24, RF-28). */
         private val PERMANENT_NTRIP_FAILURES =
             setOf(NtripFailure.UNAUTHORIZED, NtripFailure.MOUNTPOINT_NOT_FOUND, NtripFailure.TLS_INVALID, NtripFailure.PROTOCOL)
+
+        /** Sin red con internet, cada cuánto se vuelve a mirar por si se perdió el aviso de que apareció una (S021/RF-10). */
+        const val INTERNET_RECHECK_MS = 30_000L
 
         /** Un rechazo antes de 3 s apunta a que el receptor ya tiene otra conexión (S004/RF-27). */
         const val BUSY_THRESHOLD_MS = 3_000L

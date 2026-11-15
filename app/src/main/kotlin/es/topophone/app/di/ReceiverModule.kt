@@ -11,11 +11,13 @@ import es.topophone.app.receiver.AndroidNotificationPermission
 import es.topophone.app.receiver.CorrectionsController
 import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
+import es.topophone.app.receiver.NetworkAwareSourcetable
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.receiver.ReceiverKey
 import es.topophone.core.ntrip.NtripClient
 import es.topophone.core.ntrip.SourcetableClient
 import es.topophone.core.ntrip.SourcetableSource
@@ -27,8 +29,11 @@ import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.SessionSpace
 import es.topophone.data.receiver.TiltPreferences
 import es.topophone.receiver.platform.Alerts
+import es.topophone.receiver.platform.AndroidNetworkRouter
 import es.topophone.receiver.platform.AndroidNetworkStatus
+import es.topophone.receiver.platform.NetworkRouter
 import es.topophone.receiver.platform.NetworkStatus
+import es.topophone.receiver.platform.RoutedSocketFactory
 import es.topophone.receiver.platform.VibrationAlerts
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReplayController
@@ -79,13 +84,24 @@ object ReceiverModule {
     @IoDispatcher
     fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
+    /** Por qué red va cada tráfico con un receptor Wi-Fi: el receptor por el Wi-Fi y el caster por una red con internet (S021/RF-8, RF-9). */
     @Provides
     @Singleton
-    fun receiverSession(store: SessionLogStore): ReceiverSession = ReceiverSession(
-        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
-        ntripConnector = NtripClient(userAgent = "NTRIP TopoPhone/${BuildConfig.VERSION_NAME}"),
-        recorder = store,
-    )
+    fun networkRouter(@ApplicationContext context: Context): NetworkRouter = AndroidNetworkRouter(context)
+
+    @Provides
+    @Singleton
+    fun receiverSession(store: SessionLogStore, router: NetworkRouter): ReceiverSession {
+        val userAgent = "NTRIP TopoPhone/${BuildConfig.VERSION_NAME}"
+        return ReceiverSession(
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+            ntripConnector = NtripClient(userAgent = userAgent),
+            recorder = store,
+            // S021/RF-9: con un receptor Wi-Fi el caster sale por una red con internet; con Bluetooth, sin cambios.
+            networkNtripConnector = NtripClient(userAgent = userAgent, socketFactory = RoutedSocketFactory(router)),
+            networkRouter = router,
+        )
+    }
 
     /** Único punto para conectar con un receptor real (S004). */
     @Provides
@@ -120,7 +136,14 @@ object ReceiverModule {
 
     /** Tabla de fuentes del caster, con la misma identificación que la conexión NTRIP (S007/RF-14). */
     @Provides
-    fun sourcetableSource(): SourcetableSource = SourcetableClient(userAgent = "NTRIP TopoPhone/${BuildConfig.VERSION_NAME}")
+    fun sourcetableSource(connections: ReceiverConnections, router: NetworkRouter): SourcetableSource {
+        val userAgent = "NTRIP TopoPhone/${BuildConfig.VERSION_NAME}"
+        return NetworkAwareSourcetable(
+            default = SourcetableClient(userAgent = userAgent),
+            routed = SourcetableClient(userAgent = userAgent, socketFactory = RoutedSocketFactory(router)),
+            wifiReceiver = { connections.currentAddress.value?.let(ReceiverKey::isWifi) == true }, // S021/RF-9
+        )
+    }
 
     /** Conexión NTRIP con perfiles (S007): vive con la app para abrirse sola al conectar el receptor. */
     @Provides

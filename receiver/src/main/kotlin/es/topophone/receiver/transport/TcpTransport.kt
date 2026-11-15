@@ -38,6 +38,8 @@ class TcpTransport(
     /** Sin puerto de correcciones el receptor no las recibe (S021/RF-12). */
     override val acceptsCorrections: Boolean get() = correctionsPort != null
 
+    override val routesNtripOverNetwork: Boolean get() = true
+
     override fun open() {
         val created = socketFactory.createSocket()
         try {

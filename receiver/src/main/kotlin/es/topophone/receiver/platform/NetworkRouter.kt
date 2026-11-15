@@ -14,7 +14,9 @@ import javax.net.SocketFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeoutOrNull
@@ -48,6 +50,9 @@ interface NetworkRouter {
     /** Cada vez que una red aparece o se pierde, al momento (S021/RNF-T4). */
     val changes: Flow<NetworkChange>
 
+    /** Si ahora hay una red con internet; esperar a que sea cierto no pierde un aviso que llegue justo antes (S021/RF-10). */
+    val internetAvailable: StateFlow<Boolean>
+
     /** Suelta las peticiones de red: ya no se necesita ninguna. */
     fun release()
 }
@@ -72,6 +77,8 @@ class SourceNetworkRouter(source: NetworkSource, private val wifiWaitMs: Long = 
     private val internet = MutableStateFlow<RoutedNetwork?>(null)
     private val mutableChanges = MutableSharedFlow<NetworkChange>(extraBufferCapacity = CHANGE_BUFFER)
     override val changes: Flow<NetworkChange> = mutableChanges.asSharedFlow()
+    private val hasInternet = MutableStateFlow(false)
+    override val internetAvailable: StateFlow<Boolean> = hasInternet.asStateFlow()
 
     private val watches = listOf(
         source.watchWifi(listenerFor(wifi, NetworkKind.WIFI)),
@@ -81,6 +88,7 @@ class SourceNetworkRouter(source: NetworkSource, private val wifiWaitMs: Long = 
     private fun listenerFor(holder: MutableStateFlow<RoutedNetwork?>, kind: NetworkKind) = object : NetworkSource.Listener {
         override fun onAvailable(network: RoutedNetwork) {
             holder.value = network // la última manda
+            if (kind == NetworkKind.INTERNET) hasInternet.value = true
             mutableChanges.tryEmit(NetworkChange(kind, available = true))
         }
 
@@ -88,6 +96,7 @@ class SourceNetworkRouter(source: NetworkSource, private val wifiWaitMs: Long = 
             // Perder una red vieja no quita la nueva.
             if (holder.value?.id == network.id) {
                 holder.value = null
+                if (kind == NetworkKind.INTERNET) hasInternet.value = false
                 mutableChanges.tryEmit(NetworkChange(kind, available = false))
             }
         }

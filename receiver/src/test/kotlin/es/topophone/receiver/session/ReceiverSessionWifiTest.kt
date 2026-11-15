@@ -3,6 +3,12 @@ package es.topophone.receiver.session
 import es.topophone.core.gnss.nmea.NmeaChecksum
 import es.topophone.core.ntrip.NtripConfig
 import es.topophone.core.ntrip.NtripConnector
+import es.topophone.receiver.platform.NetworkChange
+import es.topophone.receiver.platform.NetworkKind
+import es.topophone.receiver.platform.NetworkRouter
+import es.topophone.receiver.platform.NoInternetException
+import es.topophone.receiver.platform.RoutedNetwork
+import es.topophone.receiver.platform.WifiUnavailableException
 import es.topophone.receiver.transport.CorrectionsLinkStatus
 import es.topophone.receiver.transport.ReceiverTransport
 import io.kotest.matchers.nulls.shouldBeNull
@@ -14,13 +20,17 @@ import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.util.concurrent.atomic.AtomicInteger
+import javax.net.SocketFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -37,6 +47,7 @@ class ReceiverSessionWifiTest {
     private class WifiLink(
         override val acceptsCorrections: Boolean = true,
         override val correctionsStatus: StateFlow<CorrectionsLinkStatus>? = null,
+        override val routesNtripOverNetwork: Boolean = false,
     ) : ReceiverTransport {
         private val toApp = PipedOutputStream()
         private val written = ByteArrayOutputStream()
@@ -205,6 +216,107 @@ class ReceiverSessionWifiTest {
         link.cutFromReceiver()
 
         session.await { it.connection is ConnectionState.Reconnecting }.correctionsLink.shouldBeNull()
+    }
+
+    /** Un enrutador de mentira: el test decide si hay red con internet y cuándo aparece. */
+    private class FakeRouter : NetworkRouter {
+        @Volatile var internet: RoutedNetwork? = null
+        private val mutableChanges = MutableSharedFlow<NetworkChange>(extraBufferCapacity = 16)
+        override val changes: Flow<NetworkChange> = mutableChanges.asSharedFlow()
+        override val internetAvailable = MutableStateFlow(false)
+
+        override suspend fun wifiNetwork(): RoutedNetwork = throw WifiUnavailableException()
+
+        override fun internetNetwork(): RoutedNetwork? = internet
+
+        override fun release() = Unit
+
+        fun internetAppears() {
+            internet = RoutedNetwork("mobile", SocketFactory.getDefault())
+            internetAvailable.value = true
+            mutableChanges.tryEmit(NetworkChange(NetworkKind.INTERNET, available = true))
+        }
+    }
+
+    private val router = FakeRouter()
+    private val networkCalls = AtomicInteger()
+
+    /** El caster de la red: falla con NoInternetException mientras el enrutador no tenga una red con internet, y después recibe. */
+    private val networkConnector = NtripConnector { _, _, onConnected, onCorrections ->
+        networkCalls.incrementAndGet()
+        if (router.internetNetwork() == null) throw NoInternetException()
+        onConnected()
+        onCorrections(byteArrayOf(0xD3.toByte(), 0, 2, 0x11, 0x22))
+        awaitCancellation()
+    }
+
+    private fun wifiSession(link: WifiLink): ReceiverSession {
+        val session = ReceiverSession(scope, connector, networkNtripConnector = networkConnector, networkRouter = router)
+        session.connect(link)
+        link.send(gga)
+        session.await { it.connection is ConnectionState.Receiving }
+        return session
+    }
+
+    @Test
+    fun `S021 RF-10 sin red con internet el NTRIP dice que necesita datos moviles y el receptor sigue`() {
+        val link = WifiLink(routesNtripOverNetwork = true)
+        val session = wifiSession(link)
+
+        session.startNtrip(config)
+
+        val state = session.await { it.ntrip == NtripState.NeedsInternet }
+        state.connection.shouldBeInstanceOf<ConnectionState.Receiving>()
+        casterCalls.get() shouldBe 0 // no se uso el caster de Bluetooth
+        link.send(gga)
+        session.await { it.gga != null }.connection.shouldBeInstanceOf<ConnectionState.Receiving>()
+    }
+
+    @Test
+    fun `S021 RF-10 al aparecer una red con internet el NTRIP se reanuda solo sin tocar el receptor`() {
+        val link = WifiLink(routesNtripOverNetwork = true)
+        val session = wifiSession(link)
+        session.startNtrip(config)
+        session.await { it.ntrip == NtripState.NeedsInternet }
+
+        router.internetAppears()
+
+        session.await { (it.ntrip as? NtripState.Streaming)?.bytesReceived == 5L }.connection
+            .shouldBeInstanceOf<ConnectionState.Receiving>()
+        waitFor { link.written().size == 5 }
+        link.written() shouldBe byteArrayOf(0xD3.toByte(), 0, 2, 0x11, 0x22)
+    }
+
+    @Test
+    fun `S021 RF-9 con un receptor Wi-Fi el caster sale por el conector de la red y con Bluetooth por el de siempre`() {
+        router.internetAppears()
+        val wifi = wifiSession(WifiLink(routesNtripOverNetwork = true))
+        wifi.startNtrip(config)
+        wifi.await { it.ntrip is NtripState.Streaming }
+        networkCalls.get() shouldBe 1
+        casterCalls.get() shouldBe 0
+        wifi.disconnect()
+
+        val bluetooth = receiving(WifiLink(routesNtripOverNetwork = false))
+        bluetooth.startNtrip(config)
+        bluetooth.await { it.ntrip is NtripState.Streaming }
+
+        casterCalls.get() shouldBe 1
+        networkCalls.get() shouldBe 1
+    }
+
+    @Test
+    fun `S021 RF-10 la alarma de correcciones tambien salta si no hay internet para el caster`() {
+        val link = WifiLink(routesNtripOverNetwork = true)
+        val session = ReceiverSession(scope, connector, networkNtripConnector = networkConnector, networkRouter = router)
+        session.setCorrectionsAlarmThreshold(1)
+        session.connect(link)
+        link.send(gga)
+        session.await { it.connection is ConnectionState.Receiving }
+
+        session.startNtrip(config)
+
+        session.await(timeoutMs = 6_000) { it.ntrip == NtripState.NeedsInternet && it.correctionsAlarm }
     }
 
     private fun waitFor(timeoutMs: Long = 5_000, condition: () -> Boolean) {

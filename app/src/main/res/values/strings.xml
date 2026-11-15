@@ -165,6 +165,7 @@
     <string name="sessions_replay_confirm_text">Para reproducir la sesión se cerrará la conexión con el receptor y la NTRIP.</string>
     <string name="receiver_state_reconnecting">Reconectando con %1$s…</string>
     <string name="ntrip_paused">NTRIP en pausa mientras se reconecta el receptor</string>
+    <string name="ntrip_needs_internet">El NTRIP necesita datos móviles activos (o una red con internet): se reanuda solo al tenerlos</string>
     <string name="ntrip_no_corrections_port">Este receptor Wi-Fi no tiene puerto de correcciones: edítalo para indicarlo</string>
     <string name="receiver_reconnect_waiting">Intento %1$d · siguiente en %2$d s</string>
     <string name="receiver_reconnect_trying">Intento %1$d en curso…</string>

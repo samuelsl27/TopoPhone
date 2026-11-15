@@ -126,6 +126,19 @@ class NetworkRouterTest {
     }
 
     @Test
+    fun `S021 RF-10 internetAvailable sigue a la red con internet y no pierde un aviso anterior a esperarlo`() = runBlocking<Unit> {
+        val router = router()
+        router.internetAvailable.value shouldBe false
+
+        source.internetListener!!.onAvailable(mobile) // llega antes de que nadie espere
+        withTimeout(3_000) { router.internetAvailable.first { it } }
+
+        router.internetAvailable.value shouldBe true
+        source.internetListener!!.onLost(mobile)
+        router.internetAvailable.value shouldBe false
+    }
+
+    @Test
     fun `S021 RF-9 al perder la red con internet se avisa y deja de haber`() = runBlocking<Unit> {
         val router = router()
         source.internetListener!!.onAvailable(mobile)

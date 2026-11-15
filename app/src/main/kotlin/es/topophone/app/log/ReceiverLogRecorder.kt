@@ -169,6 +169,7 @@ class ReceiverLogRecorder(private val states: Flow<ReceiverSnapshot>, private va
                     "No se puede conectar sin un receptor conectado",
                 )
                 NtripState.UnavailableInReplay -> LogEntry(LogLevel.WARNING, LogCategory.NTRIP, "Una reproducción no admite correcciones")
+                NtripState.NeedsInternet -> LogEntry(LogLevel.WARNING, LogCategory.NTRIP, "Sin red con internet para el caster")
                 NtripState.NoCorrectionsPort -> LogEntry(
                     LogLevel.WARNING,
                     LogCategory.NTRIP,

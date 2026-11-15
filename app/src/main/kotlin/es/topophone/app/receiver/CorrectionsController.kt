@@ -163,8 +163,11 @@ class CorrectionsController(
 
     private fun ConnectionState.linked() = this is ConnectionState.Receiving || this is ConnectionState.NoData
 
-    private fun NtripState.open() =
-        this is NtripState.Connecting || this is NtripState.Streaming || this is NtripState.Reconnecting || this == NtripState.Paused
+    private fun NtripState.open() = this is NtripState.Connecting ||
+        this is NtripState.Streaming ||
+        this is NtripState.Reconnecting ||
+        this == NtripState.Paused ||
+        this == NtripState.NeedsInternet
 
     private fun NtripProfile.toConfig(password: String) = NtripConfig(
         host = draft.host,

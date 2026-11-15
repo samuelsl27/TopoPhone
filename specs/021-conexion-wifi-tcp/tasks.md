@@ -18,7 +18,7 @@
       Hecho cuando: `ReceiverSessionWifiTest` en verde: sin puerto el caster no se abre, con puerto las correcciones se escriben y se graban, y los tests de sesión de S002 a S007 intactos.
 - [x] T8. `receiver`: `NetworkRouter` (Wi-Fi sin exigir internet, red con internet validada, cambios de red) con `AndroidNetworkRouter`, `RoutedSocketFactory` y `WifiUnavailableException`. (RF-8, RF-9, RNF-T4)
       Hecho cuando: `NetworkRouterTest` en verde con una fuente de redes falsa: el Wi-Fi sin internet se usa para el receptor, el caster pide otra red y un cambio de red se avisa en menos de 3 s.
-- [ ] T9. `receiver` y `app`: `NtripState.NeedsInternet` y el caster del NTRIP y la tabla de fuentes por `RoutedSocketFactory` solo con receptor Wi-Fi (`ReceiverModule`). (RF-9, RF-10)
+- [x] T9. `receiver` y `app`: `NtripState.NeedsInternet` y el caster del NTRIP y la tabla de fuentes por `RoutedSocketFactory` solo con receptor Wi-Fi (`ReceiverModule`). (RF-9, RF-10)
       Hecho cuando: `ReceiverSessionWifiTest` en verde: sin red con internet el NTRIP lo dice y reanuda al aparecer una, sin cerrar el receptor, y con Bluetooth todo sigue igual.
 - [ ] T10. `app`: `ReceiverConnections` con la clave `wifi:<id>`: conectar, reabrir al reconectar, conexión automática, último receptor y receptor borrado. (RF-7, RF-15, RF-17)
       Hecho cuando: `ReceiverConnectionsWifiTest` en verde, con corte y reconexión de una sesión y el Wi-Fi apagado, y los de Bluetooth intactos.

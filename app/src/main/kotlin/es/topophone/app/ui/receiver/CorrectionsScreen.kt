@@ -314,8 +314,11 @@ internal fun StreamingStats(ntrip: NtripState.Streaming, nowMs: Long) {
 }
 
 /** La conexión NTRIP está abierta: conectando, recibiendo, reintentando o en pausa. */
-internal fun NtripState.open(): Boolean =
-    this is NtripState.Connecting || this is NtripState.Streaming || this is NtripState.Reconnecting || this == NtripState.Paused
+internal fun NtripState.open(): Boolean = this is NtripState.Connecting ||
+    this is NtripState.Streaming ||
+    this is NtripState.Reconnecting ||
+    this == NtripState.Paused ||
+    this == NtripState.NeedsInternet
 
 /** No se puede contactar con el caster, se esté reintentando o no (S002/RF-23). */
 internal fun NtripState.unreachable(): Boolean =
@@ -340,6 +343,7 @@ private fun ntripStatusResource(ntrip: NtripState): String = stringResource(
         NtripState.UnavailableInReplay -> R.string.ntrip_unavailable_in_replay // S003/RF-44
         NtripState.Paused -> R.string.ntrip_paused // S004/RF-18
         NtripState.NoCorrectionsPort -> R.string.ntrip_no_corrections_port // S021/RF-12
+        NtripState.NeedsInternet -> R.string.ntrip_needs_internet // S021/RF-10
         is NtripState.Stopped -> when (ntrip.failure) {
             NtripFailure.UNAUTHORIZED -> R.string.ntrip_error_unauthorized // S002/RF-21
             NtripFailure.MOUNTPOINT_NOT_FOUND -> R.string.ntrip_error_mountpoint // S002/RF-22
