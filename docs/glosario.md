@@ -117,6 +117,10 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Clave de receptor | `ReceiverKey` | Con qué se guarda lo de cada receptor (último receptor, jalón y antena, inclinación): su dirección Bluetooth, `wifi:<id>` o `replay` (S021) |
 | Enlace de correcciones | `CorrectionsLink` | El segundo socket que lleva las RTCM3 a un receptor Wi-Fi cuyo puerto de correcciones es distinto del de posición; si cae, descarta y reintenta sin cortar la posición (S021) |
 | Permiso de red local | `ACCESS_LOCAL_NETWORK` | Android 17+: se pide al conectar con un receptor Wi-Fi, no al abrir la app (S021) |
+| GNSS del móvil | `PhoneGnss` | La posición que da el sistema Android; siempre SINGLE, sin correcciones (S022) |
+| Receptor virtual | `VirtualReceiver` | Fuente de épocas generadas por la app a partir de un escenario; es una fuente simulada (S022) |
+| Escenario | `Scenario` | Guion de duración fija del receptor virtual: posición, tipo de solución y eventos de cada instante (S022) |
+| Fuente de la posición | `PositionSource` | De dónde viene la posición de un punto: receptor, reproducción, GNSS del móvil o receptor virtual (S022) |
 | Pantalla del receptor | `ReceiverDashboard` | Receptor conectado o reproducción: cabecera y menú (S005) |
 | Cabecera (de la pantalla del receptor) | `ReceiverHeader` | |
 | Correcciones | `Corrections` | RTCM3 |
