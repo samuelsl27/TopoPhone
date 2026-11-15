@@ -16,7 +16,7 @@
       Hecho cuando: `VirtualReceiverTransportTest` en verde con reloj falso y los tests de transportes de S002 a S021 intactos.
 - [x] T7. `receiver`: `ReceiverSession` con `source` y `scenario` en el snapshot, `ScenarioFinished`, sin grabación ni NTRIP con el virtual y con el móvil, y el plazo de «Sin datos» del transporte. (RF-8, RF-9, RF-18, RF-20, RNF-T3)
       Hecho cuando: `ReceiverSessionSourcesTest` en verde y los de sesión de S002 a S021 intactos.
-- [ ] T8. `receiver`: `LocationSource`, `PhoneGnssTransport` y `AndroidLocationSource` (SINGLE siempre, altura elipsoidal sin geoide, σ de la GST, sin vertical, `isMock`, sin correcciones). (RF-5, RF-6, RF-7, RF-8, RF-9)
+- [x] T8. `receiver`: `LocationSource`, `PhoneGnssTransport` y `AndroidLocationSource` (SINGLE siempre, altura elipsoidal sin geoide, σ de la GST, sin vertical, `isMock`, sin correcciones). (RF-5, RF-6, RF-7, RF-8, RF-9)
       Hecho cuando: `PhoneGnssTransportTest` en verde con una fuente falsa: declara 1 m y sale SINGLE con esa precisión horizontal, sin vertical no hay σ de la altura, a los 3 s sin ubicación hay «Sin datos» y una ubicación simulada cambia la fuente.
 - [ ] T9. `app`: `ReceiverConnections` con las claves `phone` y `virtual` (conectar, desconectar, repetir el escenario, no reconectar al abrir la app, no guardar el último receptor). (RF-1, RF-12, RF-17)
       Hecho cuando: `ReceiverConnectionsSourcesTest` en verde y los de Bluetooth y Wi-Fi intactos.
