@@ -38,7 +38,7 @@
       Hecho cuando: `GuideSourcesTest` y `ReceiverMenuTest` en verde: ocho entradas en su orden con un receptor real, y con el móvil y el virtual lo que dice RF-22 y RF-23.
 - [x] T18. `app`: `ReceiverWebViewModel` (dirección por receptor, temporizador de 10 s, reintentar, abrir en el navegador) con `PrivateAddress`. (RF-12, RF-13, RF-14, RF-16)
       Hecho cuando: `ReceiverWebViewModelTest` en verde: un receptor Wi-Fi abre `http://<su IP>:80/`, uno Bluetooth pide la IP y la recuerda, una pública o un nombre se rechaza, y a los 10 s sin carga sale el fallo con sus causas y las dos salidas.
-- [ ] T19. `receiver`: `NetworkRouter.bindProcessToWifi` (pide la red Wi-Fi sin exigir internet y la enlaza al proceso mientras se usa). (RF-15, RNF-T4)
+- [x] T19. `receiver`: `NetworkRouter.bindProcessToWifi` (pide la red Wi-Fi sin exigir internet y la enlaza al proceso mientras se usa). (RF-15, RNF-T4)
       Hecho cuando: `NetworkRouterWebTest` en verde con una fuente de redes falsa: enlaza la del Wi-Fi sin internet, desenlaza al cerrar y avisa si no hay Wi-Fi.
 - [ ] T20. `app`: `ReceiverWebScreen` con el `WebView` restringido (JavaScript sí; ficheros, contenido, cookies de terceros, contenido mixto y puentes no; solo peticiones a IP privadas) y el manifiesto con el tráfico en claro. (RF-12, RF-14, RF-15, RF-17)
       Hecho cuando: `ReceiverWebScreenTest` en verde: los ajustes del `WebView` son los de D9, una petición a una dirección pública o a otro puerto de otra IP se bloquea, una redirección a otra dirección no se sigue, la sesión de posición sigue abierta con la vista visible y un test recorre los clientes HTTP de la app sin hallar ninguno que acepte HTTP público.

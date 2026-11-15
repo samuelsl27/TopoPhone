@@ -10,6 +10,7 @@ import java.io.Closeable
 import java.io.IOException
 import java.net.InetAddress
 import java.net.Socket
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.SocketFactory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -28,8 +29,11 @@ class WifiUnavailableException : IOException("Wi-Fi no disponible")
 /** No hay ninguna red con internet para el caster NTRIP (S021/RF-10). */
 class NoInternetException : IOException("Sin red con internet")
 
-/** Una red del móvil a la que se pueden atar sockets; en Android es una `Network`. */
-class RoutedNetwork(val id: String, val socketFactory: SocketFactory)
+/**
+ * Una red del móvil a la que se pueden atar sockets; en Android es una `Network`, que va en [native] para poder enlazar el proceso a
+ * ella (S043/RF-15).
+ */
+class RoutedNetwork(val id: String, val socketFactory: SocketFactory, val native: Any? = null)
 
 enum class NetworkKind { WIFI, INTERNET }
 
@@ -54,6 +58,13 @@ interface NetworkRouter {
     /** Si ahora hay una red con internet; esperar a que sea cierto no pierde un aviso que llegue justo antes (S021/RF-10). */
     val internetAvailable: StateFlow<Boolean>
 
+    /**
+     * Enlaza todo el tráfico del proceso a la red Wi-Fi del móvil, aunque no tenga internet, hasta que se cierre lo que devuelve (S043/RF-15,
+     * plan D11): la vista web del receptor (un `WebView` no deja elegir red) llega así a la IP del receptor. [WifiUnavailableException] si
+     * no hay Wi-Fi o no se puede enlazar. La posición y el NTRIP de un receptor Wi-Fi ya van por su socket explícito y no cambian.
+     */
+    suspend fun bindProcessToWifi(): Closeable = throw WifiUnavailableException()
+
     /** Suelta las peticiones de red: ya no se necesita ninguna. */
     fun release()
 }
@@ -71,9 +82,15 @@ interface NetworkSource {
 
     /** Observa las redes con internet validado. */
     fun watchInternet(listener: Listener): Closeable
+
+    /**
+     * Enlaza el proceso a [network], o lo desenlaza con `null` (S043/RF-15); `false` si no se pudo. Por defecto no se puede: quien no lo
+     * necesita no tiene que implementarlo.
+     */
+    fun bindProcess(network: RoutedNetwork?): Boolean = false
 }
 
-class SourceNetworkRouter(source: NetworkSource, private val wifiWaitMs: Long = WIFI_WAIT_MS) : NetworkRouter {
+class SourceNetworkRouter(private val source: NetworkSource, private val wifiWaitMs: Long = WIFI_WAIT_MS) : NetworkRouter {
     private val wifi = MutableStateFlow<RoutedNetwork?>(null)
     private val internet = MutableStateFlow<RoutedNetwork?>(null)
     private val mutableChanges = MutableSharedFlow<NetworkChange>(extraBufferCapacity = CHANGE_BUFFER)
@@ -107,6 +124,13 @@ class SourceNetworkRouter(source: NetworkSource, private val wifiWaitMs: Long = 
         wifi.value ?: withTimeoutOrNull(wifiWaitMs) { wifi.filterNotNull().first() } ?: throw WifiUnavailableException()
 
     override fun internetNetwork(): RoutedNetwork? = internet.value
+
+    override suspend fun bindProcessToWifi(): Closeable {
+        val network = wifiNetwork()
+        if (!source.bindProcess(network)) throw WifiUnavailableException()
+        val unbound = AtomicBoolean(false)
+        return Closeable { if (unbound.compareAndSet(false, true)) source.bindProcess(null) }
+    }
 
     override fun release() {
         watches.forEach { runCatching { it.close() } }
@@ -191,7 +215,12 @@ class AndroidNetworkSource(context: Context) : NetworkSource {
         override fun onLost(network: Network) = listener.onLost(network.routed())
     }
 
-    private fun Network.routed() = RoutedNetwork(networkHandle.toString(), socketFactory)
+    private fun Network.routed() = RoutedNetwork(networkHandle.toString(), socketFactory, this)
+
+    override fun bindProcess(network: RoutedNetwork?): Boolean {
+        val manager = manager ?: return false
+        return runCatching { manager.bindProcessToNetwork(network?.native as Network?) }.getOrDefault(false)
+    }
 }
 
 /** El enrutador de la app: las redes de Android. */
