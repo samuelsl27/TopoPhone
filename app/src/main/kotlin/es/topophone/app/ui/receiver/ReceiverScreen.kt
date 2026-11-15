@@ -61,6 +61,7 @@ import es.topophone.core.designsystem.theme.LocalStatusPalette
 import es.topophone.core.designsystem.theme.StatusTone
 import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.gnss.nmea.TiltState
+import es.topophone.core.gnss.scenario.ScenarioId
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.receiver.session.ConnectFailure
 import es.topophone.receiver.session.ConnectionState
@@ -92,8 +93,15 @@ class ReceiverActions(
     val onAllowLocalNetwork: () -> Unit = {},
     val onDeclineLocalNetwork: () -> Unit = {},
     val onOpenLocalNetworkSettings: () -> Unit = {},
-    /** S022/RF-12, RF-13: abrir la elección del escenario del receptor virtual. */
+    /** S022/RF-12, RF-13: abrir la elección del escenario del receptor virtual y cambiarla. */
     val onOpenVirtual: () -> Unit = {},
+    val onVirtualScenario: (ScenarioId) -> Unit = {},
+    val onVirtualSpeed: (ReplaySpeed) -> Unit = {},
+    val onVirtualOriginMode: (VirtualOriginMode) -> Unit = {},
+    val onVirtualLatitude: (String) -> Unit = {},
+    val onVirtualLongitude: (String) -> Unit = {},
+    val onVirtualConfirm: () -> Unit = {},
+    val onVirtualCancel: () -> Unit = {},
     /** S022/RF-2, RF-3. */
     val onAllowPhonePermission: () -> Unit = {},
     val onDeclinePhonePermission: () -> Unit = {},
@@ -286,6 +294,14 @@ fun ReceiverRoute(
             onAllowLocalNetwork = { localNetworkLauncher.launch(ACCESS_LOCAL_NETWORK) }, // S021/RF-6
             onDeclineLocalNetwork = { viewModel.localNetworkAnswered(granted = false) },
             onOpenLocalNetworkSettings = { context.startActivity(localNetworkSettingsIntent(context.packageName)) },
+            onOpenVirtual = viewModel::openVirtual, // S022/RF-13
+            onVirtualScenario = viewModel::virtualScenario,
+            onVirtualSpeed = viewModel::virtualSpeed,
+            onVirtualOriginMode = viewModel::virtualOriginMode,
+            onVirtualLatitude = viewModel::virtualLatitude,
+            onVirtualLongitude = viewModel::virtualLongitude,
+            onVirtualConfirm = viewModel::confirmVirtual,
+            onVirtualCancel = viewModel::cancelVirtual,
             onAllowPhonePermission = {
                 phoneLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
             },
@@ -352,6 +368,7 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
     if (state.askNotifications) NotificationsDialog(actions)
     if (state.askLocalNetwork) LocalNetworkDialog(actions)
     if (state.askPhonePermission) PhonePermissionDialog(actions)
+    state.virtual?.let { VirtualReceiverDialog(it, actions) } // S022/RF-13
 }
 
 /** Explica para qué es el permiso de ubicación precisa antes de que Android lo pida (S022/RF-2). */

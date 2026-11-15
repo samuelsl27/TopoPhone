@@ -17,8 +17,12 @@ import es.topophone.app.receiver.NoWifiReceivers
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
+import es.topophone.app.receiver.VirtualOrigins
+import es.topophone.app.receiver.VirtualSelection
 import es.topophone.app.ui.collector.MeasurementInProgress
 import es.topophone.core.gnss.nmea.ReplaySpeed
+import es.topophone.core.gnss.scenario.ScenarioId
+import es.topophone.core.gnss.scenario.Scenarios
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.model.receiver.ReceiverKey
@@ -129,6 +133,8 @@ data class ReceiverUiState(
     val phonePermissionDenied: Boolean = false,
     /** La ubicación del móvil está desactivada: se avisa y se ofrece abrir sus ajustes (S022/RF-3). */
     val phoneLocationOff: Boolean = false,
+    /** La elección del receptor virtual en curso: escenario, origen y velocidad; null si no se está eligiendo (S022/RF-13). */
+    val virtual: VirtualUi? = null,
     /** Permiso de red local denegado: no se conecta con un receptor Wi-Fi y se explica cómo concederlo (S021/RF-6). */
     val localNetworkDenied: Boolean = false,
     /** Hay búsqueda del sistema; si no, "Añadir receptor" abre los ajustes de Bluetooth (S004/RF-1). */
@@ -162,6 +168,7 @@ class ReceiverViewModel @Inject constructor(
     private val notifications: NotificationPermission = NotificationPermission.NotRequired,
     private val localNetwork: LocalNetworkPermission = LocalNetworkPermission.NotRequired,
     private val location: LocationSource = NoLocationSource,
+    private val virtualOrigins: VirtualOrigins = VirtualOrigins.None,
     private val wifiReceivers: WifiReceiverRepository = NoWifiReceivers,
     private val pairing: ReceiverPairing = ReceiverPairing.Unsupported,
     private val projectPreferences: ProjectPreferences = ProjectPreferences.FACTORY,
@@ -181,6 +188,7 @@ class ReceiverViewModel @Inject constructor(
     private val pairingUi = MutableStateFlow(PairingUi())
     private val localNetworkUi = MutableStateFlow(LocalNetworkUi())
     private val phoneAccessUi = MutableStateFlow(PhoneAccessUi())
+    private val virtualUi = MutableStateFlow<VirtualUi?>(null)
 
     private val ticker: Flow<Long> = flow {
         while (true) {
@@ -218,6 +226,7 @@ class ReceiverViewModel @Inject constructor(
         val localNetwork: LocalNetworkUi,
         val wifiReceivers: List<WifiReceiver>,
         val phoneAccess: PhoneAccessUi,
+        val virtual: VirtualUi?,
     )
 
     private data class Prompts(
@@ -225,6 +234,7 @@ class ReceiverViewModel @Inject constructor(
         val localNetwork: LocalNetworkUi,
         val wifiReceivers: List<WifiReceiver>,
         val phoneAccess: PhoneAccessUi,
+        val virtual: VirtualUi?,
     )
 
     private val angularUnits: Flow<AngularUnit> = projectPreferences.defaults.map { it.angularUnit }.distinctUntilChanged()
@@ -244,9 +254,19 @@ class ReceiverViewModel @Inject constructor(
             combine(lastAddress, preferences.lastReceiver.map { it?.address }, connections.currentAddress, ::Triple),
             notificationsGranted,
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
-            combine(pairingUi, localNetworkUi, wifiReceivers.receivers(), phoneAccessUi, ::Prompts),
+            combine(pairingUi, localNetworkUi, wifiReceivers.receivers(), phoneAccessUi, virtualUi, ::Prompts),
         ) { now, addresses, granted, asked, prompts ->
-            Extras(now, addresses, granted, asked, prompts.pairing, prompts.localNetwork, prompts.wifiReceivers, prompts.phoneAccess)
+            Extras(
+                now,
+                addresses,
+                granted,
+                asked,
+                prompts.pairing,
+                prompts.localNetwork,
+                prompts.wifiReceivers,
+                prompts.phoneAccess,
+                prompts.virtual,
+            )
         },
     ) { (snapshot, angularUnit, notices, tiltState, gearState, poles, gearLocked), bt, internetAvailable, poleTyped, extras ->
         // S016/RF-16, RF-17: con la inclinación, la GGA y el ETC de la misma época; si no, la última GGA.
@@ -287,6 +307,7 @@ class ReceiverViewModel @Inject constructor(
             askPhonePermission = extras.phoneAccess.askPermission,
             phonePermissionDenied = extras.phoneAccess.permissionDenied,
             phoneLocationOff = extras.phoneAccess.locationOff,
+            virtual = extras.virtual,
             pairingSupported = pairingSupported,
             pairing = extras.pairing,
             angularUnit = angularUnit,
@@ -407,6 +428,41 @@ class ReceiverViewModel @Inject constructor(
         phoneAccessUi.value = PhoneAccessUi()
         lastAddress.value = ReceiverKey.PHONE
         connections.connectPhone()
+    }
+
+    /**
+     * Abre la elección del receptor virtual (S022/RF-13): el escenario, dónde ocurre (el centro del proyecto más reciente por defecto,
+     * o unas coordenadas) y la velocidad.
+     */
+    fun openVirtual() {
+        viewModelScope.launch {
+            val project = virtualOrigins.latestProject()
+            virtualUi.value = VirtualUi.initial(project?.name, project?.center)
+        }
+    }
+
+    fun virtualScenario(id: ScenarioId) = virtualUi.update { it?.copy(scenario = id) }
+
+    fun virtualSpeed(speed: ReplaySpeed) = virtualUi.update { it?.copy(speed = speed) }
+
+    fun virtualOriginMode(mode: VirtualOriginMode) = virtualUi.update { it?.copy(originMode = mode) }
+
+    fun virtualLatitude(text: String) = virtualUi.update { it?.copy(latitudeText = text) }
+
+    fun virtualLongitude(text: String) = virtualUi.update { it?.copy(longitudeText = text) }
+
+    /** Conecta con el receptor virtual y su elección; sin un origen válido no hace nada (S022/RF-13). */
+    fun confirmVirtual() {
+        val choice = virtualUi.value ?: return
+        val origin = choice.origin() ?: return
+        val scenario = Scenarios.byId(choice.scenario) ?: return
+        virtualUi.value = null
+        lastAddress.value = ReceiverKey.VIRTUAL
+        connections.connectVirtual(VirtualSelection(scenario, origin, choice.speed))
+    }
+
+    fun cancelVirtual() {
+        virtualUi.value = null
     }
 
     /** Respuesta a la petición del permiso de ubicación: concedido, se conecta; si no, se avisa de cómo concederlo (S022/RF-2). */

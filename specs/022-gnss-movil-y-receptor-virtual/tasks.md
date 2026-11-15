@@ -24,7 +24,7 @@
       Hecho cuando: `PhonePermissionsTest` en verde y el manifiesto combinado de `assembleDebug` declara los permisos y quita solo los de la Wi-Fi.
 - [x] T11. `app`: filas «GNSS del móvil» y «Receptor virtual» en la lista (también con el Bluetooth apagado) y en la hoja de «Añadir receptor». (RF-1, RF-12)
       Hecho cuando: `ReceiverListSourcesTest` en verde y los tests de la lista de S004, S005 y S021 intactos.
-- [ ] T12. `app`: `VirtualReceiverDialog` (escenario con descripción y duración, origen del proyecto o coordenadas, velocidad) y los textos de los siete escenarios. (RF-13, RF-14)
+- [x] T12. `app`: `VirtualReceiverDialog` (escenario con descripción y duración, origen del proyecto o coordenadas, velocidad) y los textos de los siete escenarios. (RF-13, RF-14)
       Hecho cuando: `VirtualReceiverDialogTest` en verde: el centro del proyecto por defecto, unas coordenadas escritas, sin proyecto y sin coordenadas no deja continuar.
 - [ ] T13. `app`: cabecera e indicador de estado con «Simulado · escenario» o «GNSS del móvil · SINGLE», cambio de velocidad y la hoja de fin de escenario (repetir, elegir otro, desconectar). (RF-16, RF-17, RNF-T8)
       Hecho cuando: `SourceHeaderTest` en verde, con el texto y no solo el color, y los de la cabecera y la barra de estado de S005 intactos.

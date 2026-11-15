@@ -17,7 +17,9 @@ import es.topophone.app.receiver.NetworkAwareSourcetable
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
+import es.topophone.app.receiver.RepositoryVirtualOrigins
 import es.topophone.app.receiver.ResourceSourceLabels
+import es.topophone.app.receiver.VirtualOrigins
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.receiver.ReceiverKey
@@ -132,6 +134,10 @@ object ReceiverModule {
     ) { key ->
         ReceiverService.start(context, location = ReceiverKey.isPhone(key)) // S004/RF-7, S022/RF-4
     }
+
+    /** De dónde sale el origen por defecto del receptor virtual: el centro del proyecto más reciente (S022/RF-13). */
+    @Provides
+    fun virtualOrigins(origins: RepositoryVirtualOrigins): VirtualOrigins = origins
 
     /** El GNSS del móvil: lo usan la conexión y la petición del permiso (S022/RF-2, RF-3, RF-5). */
     @Provides
