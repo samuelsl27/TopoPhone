@@ -34,7 +34,7 @@
       Hecho cuando: `CollectorSourceTest` en verde: con «solo FIX» el móvil no mide sin confirmar, y los tests del recolector de S010, S017 y S047 y de base de S020 intactos.
 - [x] T16. `app`: la fuente en la ficha del punto y en el mapa/lista donde ya se marca lo de reproducción. (RF-11, RF-19, RF-7)
       Hecho cuando: `PointSourceDetailsTest` en verde y la columna «Replay» de «Todas las columnas» sale verdadera con el virtual y con la ubicación simulada (`CsvExportTest`).
-- [ ] T17. `app`: replanteo con el virtual (paseo) y con el móvil (SINGLE con la guía apagada o admitida según S047). (RF-14, RF-16)
+- [x] T17. `app`: replanteo con el virtual (paseo) y con el móvil (SINGLE con la guía apagada o admitida según S047). (RF-14, RF-16)
       Hecho cuando: `StakeoutSourcesTest` en verde y los tests de replanteo de S018, S027 y S054 intactos.
 - [ ] T18. `app`: accesibilidad y textos: todo control tiene etiqueta y mide al menos 56 dp, las pantallas salen en inglés con el idioma en inglés, las mismas claves en es y en y ningún literal en el código. (RNF-T7, RNF-T8)
       Hecho cuando: `SourcesAccessibilityTest` en verde.
