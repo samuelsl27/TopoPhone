@@ -33,7 +33,7 @@ Términos de esta spec:
 - RF-5: CUANDO el usuario pulse "Comprobar" con un receptor real conectado, una reproducción o el receptor virtual, EL SISTEMA analizará las épocas de los últimos 10 s y mostrará una comprobación por paso comprobable.
 - RF-6: EL SISTEMA comprobará, con lo que llegue: frecuencia de la GGA (aviso por debajo de 1 Hz, fallo si no llega), presencia de GST, GSV, ZDA y RMC, tipo de solución, edad de las correcciones, y que las épocas lleguen con la hora UTC del receptor.
 - RF-7: DONDE el receptor envíe ETC, EL SISTEMA comprobará su estado y aviso (S016) y que el modo de inclinación del receptor esté elegido y comprobado (S016/RF-2, RF-10).
-- RF-8: DONDE haya correcciones de un NTRIP, EL SISTEMA comprobará que llegan mensajes de posición de la base (RTCM 1005/1006), de observaciones y, si el receptor las usa, de GLONASS, y que coincide el datum de las correcciones con el del proyecto (S006).
+- RF-8: DONDE haya correcciones de un NTRIP, EL SISTEMA comprobará que llegan mensajes de posición de la base (RTCM 1005/1006), de observaciones y, si el receptor las usa, de GLONASS, y, si esos mensajes declaran un año de realización ITRF, que el datum de las correcciones del proyecto (S006) sea ITRF/WGS84; si no lo declaran, la comprobación dirá «No se puede comprobar» y recordará el datum declarado del proyecto.
 - RF-9: CUANDO una comprobación falle, EL SISTEMA mostrará la causa probable y el paso de la lista que la resuelve.
 - RF-10: SI el receptor no envía datos, ENTONCES EL SISTEMA dejará las comprobaciones como "Sin datos" y remitirá al diagnóstico de S004/RF-27 y RF-28.
 - RF-11: EL SISTEMA no escribirá nada en el receptor ni cambiará su configuración desde las listas ni desde las comprobaciones.
@@ -95,6 +95,7 @@ Resueltas en la entrevista del 15/11/2026:
 - La entrada nueva del menú es «Datos del receptor», no «Equipo» (RF-18).
 - El perfil de equipo se escribe también en GeoPackage y Shapefile, no solo en el CSV (RF-20).
 - La interfaz web solo carga IP privadas, en el puerto 80 con un receptor Wi-Fi (RF-12, RF-14).
+- El datum de las correcciones se comprueba con el año ITRF de 1005/1006 si viene; si no, «No se puede comprobar» (RF-8).
 - Las comprobaciones valen con el receptor virtual y no con el GNSS del móvil (RF-22, RF-23).
 
 Se mantienen como suposiciones, sin cambiar lo que se construye:
