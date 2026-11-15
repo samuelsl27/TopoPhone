@@ -27,6 +27,12 @@ interface ReceiverTransport : Closeable {
 
     /** Receptor simulado (reproducción): sin grabación ni correcciones (S003/RF-44, S003/RF-45). */
     val simulated: Boolean get() = false
+
+    /**
+     * El receptor admite que se le escriban correcciones. Un receptor Wi-Fi sin puerto de correcciones no (S021/RF-12): la sesión
+     * no abre entonces el caster y lo dice.
+     */
+    val acceptsCorrections: Boolean get() = true
 }
 
 /** El Bluetooth del móvil está apagado: no se puede abrir el receptor (S004/RF-22). */

@@ -19,9 +19,13 @@ class TcpTransport(
     override val description: String,
     private val socketFactory: SocketFactory = SocketFactory.getDefault(),
     private val connectTimeoutMs: Int = CONNECT_TIMEOUT_MS,
+    private val correctionsPort: Int? = null,
 ) : ReceiverTransport {
 
     @Volatile private var socket: Socket? = null
+
+    /** Sin puerto de correcciones el receptor no las recibe (S021/RF-12). */
+    override val acceptsCorrections: Boolean get() = correctionsPort != null
 
     override fun open() {
         val created = socketFactory.createSocket()
@@ -37,12 +41,28 @@ class TcpTransport(
     }
 
     override val input: InputStream get() = socket?.getInputStream() ?: throw IOException("No conectado")
-    override val output: OutputStream get() = socket?.getOutputStream() ?: throw IOException("No conectado")
+
+    /**
+     * Las correcciones salen por el socket de posición si el puerto de correcciones es el mismo (S021/RF-11); sin puerto no se escribe
+     * nada (RF-12).
+     */
+    override val output: OutputStream
+        get() {
+            val current = socket ?: throw IOException("No conectado")
+            return if (correctionsPort == port) current.getOutputStream() else DiscardingOutput
+        }
 
     override fun close() {
         val current = socket
         socket = null
         runCatching { current?.close() }
+    }
+
+    /** Lo que se escribe sin puerto de correcciones: se descarta (no hay `OutputStream.nullOutputStream` por debajo de la API 33). */
+    private object DiscardingOutput : OutputStream() {
+        override fun write(b: Int) = Unit
+
+        override fun write(b: ByteArray, off: Int, len: Int) = Unit
     }
 
     companion object {

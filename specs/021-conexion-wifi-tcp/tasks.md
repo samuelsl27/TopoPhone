@@ -10,7 +10,7 @@
       Hecho cuando: `WifiReceiverRepositoryTest` en verde: el `id` no cambia al editar la dirección o el puerto y los puertos y el nombre se guardan tal cual.
 - [x] T4. `receiver`: `FakeTcpReceiver` de tests y `TcpTransport` de solo posición (conexión con plazo de 10 s, lectura, cierre, rechazo rápido). (RF-7, RF-14)
       Hecho cuando: `TcpTransportTest` en verde con servidor que acepta, que rechaza, que no contesta (plazo) y que corta, y la primera época del NMEA de `fixtures/nmea/` llega en menos de 3 s.
-- [ ] T5. `receiver`: `acceptsCorrections` y el `output` de `TcpTransport` con el mismo puerto y sin puerto de correcciones. (RF-11, RF-12)
+- [x] T5. `receiver`: `acceptsCorrections` y el `output` de `TcpTransport` con el mismo puerto y sin puerto de correcciones. (RF-11, RF-12)
       Hecho cuando: `TcpCorrectionsTest` en verde: lo escrito llega intacto al servidor por el mismo socket, y sin puerto no se escribe nada.
 - [ ] T6. `receiver`: `CorrectionsLink` (segundo socket, cola, descarte con el enlace caído y reintento 1, 2, 4, 8, 16 y 30 s) y `CorrectionsLinkStatus`. (RF-11, RF-13)
       Hecho cuando: `CorrectionsLinkTest` en verde con el puerto distinto, con el servidor de correcciones caído y vuelto a levantar, y con un corte a mitad de escritura sin que la posición se corte.
