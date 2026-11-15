@@ -1488,6 +1488,55 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S043 RNF-T6 v35 a v36 los puntos siguen sin equipo y las tablas de la guia nacen vacias`() {
+        createFromExportedSchema(35)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v35 ->
+            v35.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+            v35.execSQL(
+                "INSERT INTO points (id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
+                    "ground_lat, ground_lon, ground_h, easting, northing, height, solution, satellites, out_of_tolerance, " +
+                    "mode, epochs_used, epochs_discarded, from_replay, raw_nmea, tilt_mode, tilt_verified, created_at) VALUES " +
+                    "('p1', ?, 'p1', '', 'MEASURED', 40.416801234567891, -3.7037123456789, 701.357, 1.8, 40.416801234567891, " +
+                    "-3.7037123456789, 699.423, 440290.434567891, 4474257.414123456, 648.340987654, 'FIX', 24, '', " +
+                    "'INSTANT', 1, 0, 0, '\$GNGGA,1*00', 'VERTICAL', 0, 2000)",
+                arrayOf<Any>(project.id),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            val stored = runBlocking { RoomPointRepository(db).points(project.id).first() }.single()
+            stored.measurement.shouldNotBeNull().quality.solution shouldBe "FIX"
+            db.openHelper.writableDatabase.query("SELECT equipment_model, equipment_serial, equipment_firmware FROM points").use { c ->
+                c.moveToNext() shouldBe true
+                (0..2).forEach { c.isNull(it) shouldBe true }
+            }
+            count(db, "config_steps") shouldBe 0
+            count(db, "equipment_profiles") shouldBe 0
+            // Un paso se marca una sola vez por receptor y lista, y la direccion web admite NULL.
+            val sql = db.openHelper.writableDatabase
+            sql.execSQL("INSERT INTO config_steps VALUES ('AA:BB', 'NTRIP_ROVER', 'ntrip_fix', 1)")
+            sql.execSQL("INSERT INTO config_steps VALUES ('AA:BB', 'WIFI_ROVER', 'ntrip_fix', 2)")
+            shouldThrow<SQLiteConstraintException> {
+                sql.execSQL("INSERT INTO config_steps VALUES ('AA:BB', 'NTRIP_ROVER', 'ntrip_fix', 3)")
+            }
+            sql.execSQL("INSERT INTO equipment_profiles VALUES ('AA:BB', 'RS3', 'SN1', 'fw', NULL)")
+            shouldThrow<SQLiteConstraintException> {
+                sql.execSQL("INSERT INTO equipment_profiles VALUES ('AA:BB', 'otro', '', '', NULL)")
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S022 RNF-T6 v34 a v35 los puntos siguen con su fuente deducida`() {
         createFromExportedSchema(34)
         SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v34 ->
@@ -1742,7 +1791,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 35
+        const val CURRENT_VERSION = 36
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

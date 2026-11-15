@@ -14,7 +14,7 @@
       Hecho cuando: `ReceiverCheckerTiltRtcmTest` en verde con `rs3-inclinacion` y `rs3-base-shift`: sin ETC no hay comprobación de inclinación, con ETC en `SETUP` y con aviso salen `WARNING`, sin 1005/1006 sale `FAIL` con su causa, y el datum con año ITRF y proyecto ETRS89 da `WARNING`, con año 0 «No se puede comprobar».
 - [x] T6. `core:model`: `ConfigLists` con las cuatro listas y sus pasos, y sus textos en es y en. (RF-1, RF-2)
       Hecho cuando: `ConfigListsTest` en verde: cuatro listas, ids únicos, cada paso comprobable apunta a una comprobación válida y cada texto `guide_*` existe en es y en con las mismas claves.
-- [ ] T7. `data`: Room v36 (`config_steps`, `equipment_profiles`, tres columnas de `points`, `AutoMigration(35, 36)`, esquema `36.json`) y sus filas en `DatabaseSnapshot.TABLES`. (RF-3, RF-18, RF-19, RNF-T6)
+- [x] T7. `data`: Room v36 (`config_steps`, `equipment_profiles`, tres columnas de `points`, `AutoMigration(35, 36)`, esquema `36.json`) y sus filas en `DatabaseSnapshot.TABLES`. (RF-3, RF-18, RF-19, RNF-T6)
       Hecho cuando: el test de migración v35 a v36 de `TopoPhoneDatabaseTest` en verde, con los puntos anteriores intactos y los de las dos tablas nuevas vacías, y los de versiones anteriores intactos.
 - [ ] T8. `data`: `ConfigProgressRepository` y `EquipmentRepository` (perfil y dirección web) y `Measurement.equipment` guardado con el punto. (RF-3, RF-13, RF-18, RF-19)
       Hecho cuando: `ConfigProgressRepositoryTest`, `EquipmentRepositoryTest` y `PointEquipmentTest` en verde, y la copia de seguridad y el paquete de proyecto llevan los tres campos del punto.

@@ -23,6 +23,8 @@ import es.topophone.data.codes.CodeLibraryEntity
 import es.topophone.data.codes.LibraryCodeEntity
 import es.topophone.data.cogo.TraverseDraftDao
 import es.topophone.data.cogo.TraverseDraftEntity
+import es.topophone.data.config.ConfigStepEntity
+import es.topophone.data.equipment.EquipmentProfileEntity
 import es.topophone.data.gear.AntennaProfileEntity
 import es.topophone.data.gear.GearDao
 import es.topophone.data.gear.ReceiverGearEntity
@@ -137,7 +139,7 @@ import es.topophone.data.wms.WmsServiceEntity
         PointAttributeEntity::class, PointHistoryAttributeEntity::class, ProjectLineEntity::class, LineVertexEntity::class,
         LineAttributeEntity::class, LineHistoryEntity::class, LineHistoryAttributeEntity::class, LineHistoryVertexEntity::class,
         WmsServiceEntity::class, WmsLayerEntity::class, ProjectWmsLayerEntity::class, TraverseDraftEntity::class,
-        WifiReceiverEntity::class,
+        WifiReceiverEntity::class, ConfigStepEntity::class, EquipmentProfileEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -176,6 +178,7 @@ import es.topophone.data.wms.WmsServiceEntity
         AutoMigration(from = 32, to = 33),
         AutoMigration(from = 33, to = 34),
         AutoMigration(from = 34, to = 35),
+        AutoMigration(from = 35, to = 36),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -220,7 +223,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 35
+        const val VERSION = 36
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

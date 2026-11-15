@@ -229,6 +229,10 @@ data class PointEntity(
     val cogo: String? = null,
     /** De dónde vino la posición (S022/RF-11, plan D2): `RECEIVER`, `REPLAY`, `PHONE`, `PHONE_MOCK` o `VIRTUAL`; NULL en los de antes. */
     @ColumnInfo(name = "position_source") val positionSource: String? = null,
+    /** El modelo, el número de serie y el firmware del receptor con que se midió (S043/RF-19, plan D7); NULL en los de antes. */
+    @ColumnInfo(name = "equipment_model") val equipmentModel: String? = null,
+    @ColumnInfo(name = "equipment_serial") val equipmentSerial: String? = null,
+    @ColumnInfo(name = "equipment_firmware") val equipmentFirmware: String? = null,
 )
 
 /**
