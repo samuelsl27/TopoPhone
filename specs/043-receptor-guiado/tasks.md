@@ -12,7 +12,7 @@
       Hecho cuando: `ReceiverCheckerNmeaTest` en verde, con épocas sintéticas y con `rs3-completo` y `rs3-corte` de `fixtures/nmea`, cada comprobación en `OK`, `WARNING`, `FAIL` y `NO_DATA`, el caso de la GGA a 1 Hz con otras frases a 5 Hz, y cada fallo con su causa y su paso.
 - [x] T5. `core:survey`: `ReceiverChecker` con `TILT`, `RTCM_BASE`, `RTCM_OBSERVATIONS`, `RTCM_GLONASS` y `DATUM`. (RF-7, RF-8, RF-9)
       Hecho cuando: `ReceiverCheckerTiltRtcmTest` en verde con `rs3-inclinacion` y `rs3-base-shift`: sin ETC no hay comprobación de inclinación, con ETC en `SETUP` y con aviso salen `WARNING`, sin 1005/1006 sale `FAIL` con su causa, y el datum con año ITRF y proyecto ETRS89 da `WARNING`, con año 0 «No se puede comprobar».
-- [ ] T6. `core:model`: `ConfigLists` con las cuatro listas y sus pasos, y sus textos en es y en. (RF-1, RF-2)
+- [x] T6. `core:model`: `ConfigLists` con las cuatro listas y sus pasos, y sus textos en es y en. (RF-1, RF-2)
       Hecho cuando: `ConfigListsTest` en verde: cuatro listas, ids únicos, cada paso comprobable apunta a una comprobación válida y cada texto `guide_*` existe en es y en con las mismas claves.
 - [ ] T7. `data`: Room v36 (`config_steps`, `equipment_profiles`, tres columnas de `points`, `AutoMigration(35, 36)`, esquema `36.json`) y sus filas en `DatabaseSnapshot.TABLES`. (RF-3, RF-18, RF-19, RNF-T6)
       Hecho cuando: el test de migración v35 a v36 de `TopoPhoneDatabaseTest` en verde, con los puntos anteriores intactos y los de las dos tablas nuevas vacías, y los de versiones anteriores intactos.
