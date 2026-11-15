@@ -6,6 +6,7 @@ import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 import javax.net.SocketFactory
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * Conexión TCP con un receptor Wi-Fi (S021/RF-7): la app es el cliente y el receptor el servidor, que emite el NMEA por el puerto de
@@ -20,7 +21,17 @@ class TcpTransport(
     private val socketFactory: SocketFactory = SocketFactory.getDefault(),
     private val connectTimeoutMs: Int = CONNECT_TIMEOUT_MS,
     private val correctionsPort: Int? = null,
+    correctionsBackoffMs: List<Long> = CorrectionsLink.DEFAULT_BACKOFF_MS,
 ) : ReceiverTransport {
+
+    /** El segundo socket, solo si el puerto de correcciones es otro distinto al de posición (S021/RF-11). */
+    private val link: CorrectionsLink? = if (correctionsPort != null && correctionsPort != port) {
+        CorrectionsLink(host, correctionsPort, socketFactory, connectTimeoutMs, correctionsBackoffMs)
+    } else {
+        null
+    }
+
+    override val correctionsStatus: StateFlow<CorrectionsLinkStatus>? get() = link?.status
 
     @Volatile private var socket: Socket? = null
 
@@ -38,21 +49,23 @@ class TcpTransport(
             throw e
         }
         socket = created
+        link?.start() // un puerto de correcciones caido no impide la posicion: se reintenta aparte (S021/RF-13)
     }
 
     override val input: InputStream get() = socket?.getInputStream() ?: throw IOException("No conectado")
 
     /**
-     * Las correcciones salen por el socket de posición si el puerto de correcciones es el mismo (S021/RF-11); sin puerto no se escribe
-     * nada (RF-12).
+     * Las correcciones salen por el socket de posición si el puerto de correcciones es el mismo, por el segundo enlace si es otro
+     * (S021/RF-11); sin puerto no se escribe nada (RF-12).
      */
     override val output: OutputStream
         get() {
             val current = socket ?: throw IOException("No conectado")
-            return if (correctionsPort == port) current.getOutputStream() else DiscardingOutput
+            return link ?: if (correctionsPort == port) current.getOutputStream() else DiscardingOutput
         }
 
     override fun close() {
+        link?.close()
         val current = socket
         socket = null
         runCatching { current?.close() }

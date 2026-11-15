@@ -15,9 +15,14 @@ import kotlin.concurrent.thread
  * da (por defecto el de `fixtures/nmea/`) y guarda todo lo que el cliente le escribe (las correcciones). No hace falta ningún módulo de
  * testing compartido: vive en los tests de `receiver`.
  */
-class FakeTcpReceiver(private val nmea: ByteArray = fixtureNmea(), private val cutAfterBytes: Int? = null) : Closeable {
+class FakeTcpReceiver(
+    private val nmea: ByteArray = fixtureNmea(),
+    private val cutAfterBytes: Int? = null,
+    /** 0 elige uno libre; un puerto que ya se usó permite "volver a levantar" el servidor donde estaba. */
+    port: Int = 0,
+) : Closeable {
 
-    private val server = ServerSocket(0, 50, InetAddress.getLoopbackAddress())
+    private val server = bind(port)
     private val clients = CopyOnWriteArrayList<Socket>()
     private val received = ByteArrayOutputStream()
     private val accepted = AtomicInteger()
@@ -86,6 +91,23 @@ class FakeTcpReceiver(private val nmea: ByteArray = fixtureNmea(), private val c
     }
 
     companion object {
+        /** Enlaza el puerto pedido; con uno ya usado reintenta un momento porque el sistema tarda en liberarlo. */
+        private fun bind(port: Int): ServerSocket {
+            var last: java.io.IOException? = null
+            repeat(BIND_ATTEMPTS) {
+                try {
+                    return ServerSocket(port, 50, InetAddress.getLoopbackAddress())
+                } catch (e: java.io.IOException) {
+                    last = e
+                    Thread.sleep(BIND_WAIT_MS)
+                }
+            }
+            throw last ?: java.io.IOException("sin puerto")
+        }
+
+        private const val BIND_ATTEMPTS = 40
+        private const val BIND_WAIT_MS = 100L
+
         /** El NMEA sintético de una sesión completa, del repositorio. */
         fun fixtureNmea(name: String = "rs3-completo.nmea"): ByteArray {
             val root = generateSequence(File("").absoluteFile) { it.parentFile }

@@ -14,6 +14,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.UUID
+import kotlinx.coroutines.flow.StateFlow
 
 /** Enlace de bytes con el receptor (Bluetooth SPP en S002; TCP en S021; reproducción en S003). */
 interface ReceiverTransport : Closeable {
@@ -33,6 +34,9 @@ interface ReceiverTransport : Closeable {
      * no abre entonces el caster y lo dice.
      */
     val acceptsCorrections: Boolean get() = true
+
+    /** Estado del segundo socket de correcciones de un receptor Wi-Fi con puerto distinto; null si no lo hay (S021/RF-13). */
+    val correctionsStatus: StateFlow<CorrectionsLinkStatus>? get() = null
 }
 
 /** El Bluetooth del móvil está apagado: no se puede abrir el receptor (S004/RF-22). */
