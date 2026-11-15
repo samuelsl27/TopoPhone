@@ -157,6 +157,11 @@
     <string name="receiver_replay_finished">Reproducción terminada: %1$s</string>
     <string name="receiver_scenario_finished">Escenario terminado: %1$s</string>
     <string name="phone_gnss_name">GNSS del móvil</string>
+    <string name="source_phone_no_tilt">No disponible con el GNSS del móvil</string>
+    <string name="source_phone_no_tilt_explained">El GNSS del móvil no da inclinación: la inclinación solo funciona con un receptor Reach compatible.</string>
+    <string name="source_mock_warning">Android indica que otra aplicación simula esta posición. Los puntos que midas con ella quedarán marcados como simulados.</string>
+    <string name="status_bar_phone_mock">Móvil simulado</string>
+    <string name="base_shift_blocker_phone">El GNSS del móvil no se puede usar para el desplazamiento de base: hace falta un receptor Reach.</string>
     <string name="source_simulated_scenario">Simulado · %1$s</string>
     <string name="source_phone_banner">GNSS del móvil · SINGLE: posición de pocos metros</string>
     <string name="scenario_progress">Escenario: %1$s de %2$s</string>

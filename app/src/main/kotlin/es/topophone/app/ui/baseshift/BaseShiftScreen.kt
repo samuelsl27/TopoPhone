@@ -257,6 +257,7 @@ private fun blockerText(blocker: BaseShiftBlocker): String = stringResource(
         BaseShiftBlocker.NO_POSITION -> R.string.base_shift_blocker_no_position
         BaseShiftBlocker.NO_GEAR -> R.string.base_shift_blocker_no_gear
         BaseShiftBlocker.SHIFT_UNAVAILABLE -> R.string.base_shift_error_datum_changed
+        BaseShiftBlocker.PHONE_SOURCE -> R.string.base_shift_blocker_phone // S022/RF-9
     },
 )
 

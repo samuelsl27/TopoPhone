@@ -51,6 +51,8 @@ data class StatusIndicatorState(
     /** El escenario del receptor virtual en marcha y su velocidad (S022/RF-16). */
     val scenario: ScenarioId? = null,
     val speed: ReplaySpeed? = null,
+    /** Android marca la ubicación del móvil como simulada por otra app (S022/RF-7). */
+    val mock: Boolean = false,
 )
 
 /**
@@ -94,7 +96,8 @@ fun StatusIndicator(state: StatusIndicatorState, onClick: () -> Unit, modifier: 
             if (state.speed == ReplaySpeed.X5) Label(stringResource(R.string.replay_speed_x5))
         }
         if (state.source == StatusSource.PHONE) {
-            Label(stringResource(R.string.status_bar_phone), Modifier.testTag(STATUS_INDICATOR_PHONE_TAG)) // S022/RF-5
+            val label = if (state.mock) R.string.status_bar_phone_mock else R.string.status_bar_phone // S022/RF-5, RF-7
+            Label(stringResource(label), Modifier.testTag(STATUS_INDICATOR_PHONE_TAG))
         }
         Content(state)
     }

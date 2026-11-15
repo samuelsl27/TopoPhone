@@ -68,6 +68,7 @@ internal fun toStatusIndicatorState(snapshot: ReceiverSnapshot): StatusIndicator
         correctionsAlarm = snapshot.correctionsAlarm, // S007/RF-29
         scenario = snapshot.scenario?.id,
         speed = snapshot.scenario?.speed,
+        mock = snapshot.source == PositionSource.PHONE_MOCK, // S022/RF-7
     )
 }
 

@@ -145,6 +145,11 @@
     <string name="receiver_replay_finished">Replay finished: %1$s</string>
     <string name="receiver_scenario_finished">Scenario finished: %1$s</string>
     <string name="phone_gnss_name">Phone GNSS</string>
+    <string name="source_phone_no_tilt">Not available with the phone GNSS</string>
+    <string name="source_phone_no_tilt_explained">The phone\'s GNSS gives no tilt: tilt only works with a compatible Reach receiver.</string>
+    <string name="source_mock_warning">Android says another app is faking this position. Points you measure with it will be marked as simulated.</string>
+    <string name="status_bar_phone_mock">Phone (mock)</string>
+    <string name="base_shift_blocker_phone">The phone GNSS cannot be used for a base shift: a Reach receiver is needed.</string>
     <string name="source_simulated_scenario">Simulated · %1$s</string>
     <string name="source_phone_banner">Phone GNSS · SINGLE: position good to a few metres</string>
     <string name="scenario_progress">Scenario: %1$s of %2$s</string>

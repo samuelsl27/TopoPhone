@@ -16,6 +16,7 @@ import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.CollectorSettings
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.MeasurementMode
+import es.topophone.core.model.point.PositionSource
 import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
@@ -54,7 +55,7 @@ enum class KnownSource { POINT, TYPED }
 data class KnownCandidate(val id: String, val name: String, val easting: Double, val northing: Double, val heightM: Double?)
 
 /** Por qué no se puede empezar a medir (S020/RF-1, RF-2). */
-enum class BaseShiftBlocker { NO_KNOWN_POINT, INVALID_SECONDS, NO_POSITION, NO_GEAR, SHIFT_UNAVAILABLE }
+enum class BaseShiftBlocker { NO_KNOWN_POINT, INVALID_SECONDS, NO_POSITION, NO_GEAR, SHIFT_UNAVAILABLE, PHONE_SOURCE }
 
 /** En qué paso está la pantalla (S020/RF-1, RF-4, RF-6). */
 enum class BaseShiftStep { SETUP, MEASURING, CHOOSE_HORIZONTAL, RESULT }
@@ -243,11 +244,13 @@ class BaseShiftViewModel @Inject constructor(
     private fun refreshBlocker() {
         val snapshot = session.state.value
         val receiving = snapshot.connection is ConnectionState.Receiving && snapshot.epoch != null
+        val phone = snapshot.source == PositionSource.PHONE || snapshot.source == PositionSource.PHONE_MOCK
         val gearUsable = gear.state.value.usable
         // Dentro del update: otra corrutina (puntos, sesión, equipo) puede cambiar el estado mientras se calcula el bloqueo.
         mutable.update { s ->
             val known = knownPoint(s)
             val blocker = when {
+                phone -> BaseShiftBlocker.PHONE_SOURCE // S022/RF-9: el GNSS del móvil no tiene base
                 known == null -> BaseShiftBlocker.NO_KNOWN_POINT
                 !s.secondsValid -> BaseShiftBlocker.INVALID_SECONDS
                 !gearUsable -> BaseShiftBlocker.NO_GEAR

@@ -24,6 +24,7 @@ import es.topophone.receiver.session.ScenarioInfo
 import java.util.Locale
 
 const val SOURCE_BANNER_TAG = "source_banner"
+const val MOCK_WARNING_TAG = "source_mock_warning"
 const val SCENARIO_PROGRESS_TAG = "scenario_progress"
 const val SCENARIO_SPEED_X1_TAG = "scenario_speed_x1"
 const val SCENARIO_SPEED_X5_TAG = "scenario_speed_x5"
@@ -47,8 +48,17 @@ internal fun SourceDetails(state: ReceiverUiState, actions: ReceiverActions) {
     val scenario = state.snapshot.scenario
     when {
         scenario != null -> VirtualDetails(scenario, actions)
-        state.snapshot.source == PositionSource.PHONE || state.snapshot.source == PositionSource.PHONE_MOCK ->
+        state.snapshot.source.isPhone() -> {
             Text(stringResource(R.string.source_phone_banner), modifier = Modifier.testTag(SOURCE_BANNER_TAG))
+            if (state.snapshot.source == PositionSource.PHONE_MOCK) {
+                // S022/RF-7: otra app inyecta la posición; los puntos que se midan con ella quedan marcados como simulados.
+                Text(
+                    stringResource(R.string.source_mock_warning),
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag(MOCK_WARNING_TAG),
+                )
+            }
+        }
     }
 }
 

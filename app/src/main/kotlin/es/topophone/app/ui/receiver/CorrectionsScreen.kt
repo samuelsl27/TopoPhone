@@ -156,7 +156,12 @@ private fun StatusCard(receiver: ReceiverUiState, state: CorrectionsUiState, onS
                 modifier = Modifier.testTag(CORRECTIONS_ACTIVE_PROFILE_TAG),
             )
         }
-        Text(ntripStatusText(ntrip), modifier = Modifier.testTag(CORRECTIONS_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
+        val motive = receiver.snapshot.source.ntripMotive() // S022/RF-9, RF-18: esta fuente no usa correcciones
+        Text(
+            motive?.let { stringResource(it) } ?: ntripStatusText(ntrip),
+            modifier = Modifier.testTag(CORRECTIONS_STATUS_TAG),
+            style = MaterialTheme.typography.bodyLarge,
+        )
         if (ntrip.unreachable() && !receiver.internetAvailable) Text(stringResource(R.string.ntrip_no_internet)) // S002/RF-23
         CorrectionsLinkLine(receiver.snapshot.correctionsLink, receiver.nowMs) // S021/RF-13
         if (ntrip is NtripState.Streaming) StreamingStats(ntrip, receiver.nowMs)

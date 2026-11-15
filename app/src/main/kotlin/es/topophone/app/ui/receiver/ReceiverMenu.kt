@@ -49,14 +49,25 @@ internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
         } // S046/RF-8, RF-15
         HorizontalDivider()
         ListRow(stringResource(R.string.receiver_menu_tilt), actions.onOpenTilt, Modifier.testTag(MENU_TILT_TAG)) {
-            Text(tiltSummary(state.tilt.settings))
+            // S022/RF-9: el GNSS del móvil no da inclinación.
+            if (snapshot.source.supportsTilt()) {
+                Text(tiltSummary(state.tilt.settings))
+            } else {
+                Text(stringResource(R.string.source_phone_no_tilt))
+            }
         } // S016/RF-1
         HorizontalDivider()
         ListRow(stringResource(R.string.receiver_menu_corrections), actions.onOpenCorrections, Modifier.testTag(MENU_CORRECTIONS_TAG)) {
             // En una reproducción no hay NTRIP (S003/RF-44) y la edad sería la de los datos grabados.
             val replaying = snapshot.replay != null
-            val ntrip = if (replaying) stringResource(R.string.ntrip_unavailable_in_replay) else ntripStatusText(snapshot.ntrip)
-            val age = snapshot.gga?.correctionAgeS?.takeUnless { replaying }?.let { String.format(uiLocale(), "%.1f", it) }
+            val motive = snapshot.source.ntripMotive() // S022/RF-9, RF-18
+            val ntrip = when {
+                motive != null -> stringResource(motive)
+                replaying -> stringResource(R.string.ntrip_unavailable_in_replay)
+                else -> ntripStatusText(snapshot.ntrip)
+            }
+            val shownAge = snapshot.gga?.correctionAgeS?.takeUnless { replaying || motive != null }
+            val age = shownAge?.let { String.format(uiLocale(), "%.1f", it) }
             Text(if (age == null) ntrip else stringResource(R.string.receiver_menu_corrections_age, ntrip, age))
         } // S005/RF-12
         HorizontalDivider()
