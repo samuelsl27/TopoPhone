@@ -26,7 +26,7 @@
       Hecho cuando: `LocalNetworkPermissionTest` en verde: se pide solo cuando el sistema lo exige y al denegar el resto de la app sigue.
 - [x] T12. `app`: la lista de receptores con los Wi-Fi y la hoja «Bluetooth / Wi-Fi (TCP)» de «Añadir receptor». (RF-1, RF-4)
       Hecho cuando: `ReceiverListWifiTest` en verde, también con el Bluetooth apagado, y los de la lista de S005 intactos.
-- [ ] T13. `app`: `WifiReceiverFormScreen` y su ViewModel (alta, edición, borrado confirmado, motivos de rechazo). (RF-2, RF-3, RF-5)
+- [x] T13. `app`: `WifiReceiverFormScreen` y su ViewModel (alta, edición, borrado confirmado, motivos de rechazo). (RF-2, RF-3, RF-5)
       Hecho cuando: `WifiReceiverFormViewModelTest` y `WifiReceiverFormScreenTest` en verde.
 - [ ] T14. `app`: diagnóstico con receptor Wi-Fi (causas del fallo, aviso de salida TCP desactivada) y los textos de Correcciones (sin puerto, enlace caído, sin internet). (RF-12, RF-13, RF-14, RF-16)
       Hecho cuando: `WifiDiagnosticsTest` en verde con cada caso y con el Bluetooth sin cambios.

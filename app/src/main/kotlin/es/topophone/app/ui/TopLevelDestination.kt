@@ -31,6 +31,9 @@ import kotlinx.serialization.Serializable
 /** Formulario de perfil NTRIP: nuevo (sin id) o editado (S007/RF-2). */
 @Serializable data class NtripProfileFormDestination(val profileId: String? = null)
 
+/** Formulario de un receptor Wi-Fi: nuevo (sin id) o editado (S021/RF-2, RF-4). */
+@Serializable data class WifiReceiverFormDestination(val receiverId: String? = null)
+
 @Serializable data object SettingsGraph
 
 @Serializable data object SettingsRoute
