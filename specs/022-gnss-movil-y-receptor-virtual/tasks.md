@@ -36,7 +36,7 @@
       Hecho cuando: `PointSourceDetailsTest` en verde y la columna «Replay» de «Todas las columnas» sale verdadera con el virtual y con la ubicación simulada (`CsvExportTest`).
 - [x] T17. `app`: replanteo con el virtual (paseo) y con el móvil (SINGLE con la guía apagada o admitida según S047). (RF-14, RF-16)
       Hecho cuando: `StakeoutSourcesTest` en verde y los tests de replanteo de S018, S027 y S054 intactos.
-- [ ] T18. `app`: accesibilidad y textos: todo control tiene etiqueta y mide al menos 56 dp, las pantallas salen en inglés con el idioma en inglés, las mismas claves en es y en y ningún literal en el código. (RNF-T7, RNF-T8)
+- [x] T18. `app`: accesibilidad y textos: todo control tiene etiqueta y mide al menos 56 dp, las pantallas salen en inglés con el idioma en inglés, las mismas claves en es y en y ningún literal en el código. (RNF-T7, RNF-T8)
       Hecho cuando: `SourcesAccessibilityTest` en verde.
 - [ ] T19. Validación final: recorrer la spec RF por RF, `rf_report.py`, `check`, `pytest` de `tools`, `forbidden_files`, `assembleDebug` y la demo en el emulador (cada escenario en el recolector y el replanteo, y el móvil con `adb emu geo fix`); `plan.md` con «Cambios al implementar» y la validación, hoja de ruta con S022 implementada (Room v35). (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos y la demo funciona.
