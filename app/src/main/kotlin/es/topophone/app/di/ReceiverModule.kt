@@ -10,6 +10,7 @@ import es.topophone.app.BuildConfig
 import es.topophone.app.receiver.AndroidLocalNetworkPermission
 import es.topophone.app.receiver.AndroidNotificationPermission
 import es.topophone.app.receiver.CorrectionsController
+import es.topophone.app.receiver.CurrentEquipment
 import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.LocalNetworkPermission
@@ -28,6 +29,7 @@ import es.topophone.core.ntrip.SourcetableClient
 import es.topophone.core.ntrip.SourcetableSource
 import es.topophone.core.survey.GroundPointCalculator
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.equipment.EquipmentRepository
 import es.topophone.data.gear.GearRepository
 import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.receiver.ReceiverPreferences
@@ -158,6 +160,15 @@ object ReceiverModule {
     @Provides
     @Singleton
     fun currentGear(currentTilt: CurrentTilt, repository: GearRepository): CurrentGear = CurrentGear(
+        key = currentTilt.state.map { it.key }.distinctUntilChanged(),
+        repository = repository,
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+    )
+
+    /** Los datos del receptor en uso (modelo, serie y firmware), uno para toda la app (S043/RF-19; plan D7). */
+    @Provides
+    @Singleton
+    fun currentEquipment(currentTilt: CurrentTilt, repository: EquipmentRepository): CurrentEquipment = CurrentEquipment(
         key = currentTilt.state.map { it.key }.distinctUntilChanged(),
         repository = repository,
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.receiver.BaseNotices
+import es.topophone.app.receiver.CurrentEquipment
 import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
@@ -25,6 +26,7 @@ import es.topophone.core.model.codes.ProjectCodes
 import es.topophone.core.model.codes.SurveyCode
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.guide.EquipmentProfile
 import es.topophone.core.model.line.LineSummary
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
@@ -264,6 +266,7 @@ class CollectorViewModel @Inject constructor(
     codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
     private val lines: CollectorLines = CollectorLines.NONE,
     private val codeChoice: CollectorCodeChoice = CollectorCodeChoice(),
+    private val receiverEquipment: CurrentEquipment = CurrentEquipment.NONE,
     savedState: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
     private data class Form(
@@ -349,6 +352,9 @@ class CollectorViewModel @Inject constructor(
 
     /** El desplazamiento de base activo al empezar el punto: la medida lo conserva hasta el final (S020/RF-9). */
     private var measuringShift: BaseShift? = null
+
+    /** Los datos del receptor al empezar el punto: la medida los conserva aunque se editen después (S043/RF-19). */
+    private var measuringEquipment: EquipmentProfile? = null
     private val autoEnabled = MutableStateFlow(false)
 
     /** El equipo del último punto guardado de esta sesión, para avisar de que un cambio no lo toca (S046/RF-26). */
@@ -835,6 +841,7 @@ class CollectorViewModel @Inject constructor(
         measurementRevision = tiltState.revision
         val shiftAtStart = activeShift.value // S020/RF-9
         measuringShift = shiftAtStart
+        measuringEquipment = receiverEquipment.state.value // S043/RF-19, RF-23
         val factory = {
             PointMeasurement(
                 mode = settings.mode,
@@ -1233,6 +1240,7 @@ class CollectorViewModel @Inject constructor(
             base = measurementBase?.let { pointBase(it, result.antenna) }, // S015/RF-20
             tilt = result.tilt, // S016/RF-22
             gear = result.gear, // S046/RF-24
+            equipment = measuringEquipment?.takeUnless { it.isBlank }, // S043/RF-19
             // S020/RF-8: el vector, el punto conocido y la punta sin desplazar; las coordenadas ya llevan el desplazamiento.
             shift = result.shift?.let { vector ->
                 measuringShift?.let { AppliedShift(it.id, it.knownName, vector, result.unshiftedGround) }
