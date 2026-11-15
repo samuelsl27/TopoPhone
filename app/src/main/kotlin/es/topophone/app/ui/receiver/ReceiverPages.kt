@@ -33,6 +33,9 @@ class ReceiverNavigation(
     val onBack: () -> Unit = {},
     val onNewProfile: () -> Unit = {},
     val onEditProfile: (String) -> Unit = {},
+    /** S021/RF-1, RF-4: el formulario de un receptor Wi-Fi. */
+    val onNewWifiReceiver: () -> Unit = {},
+    val onEditWifiReceiver: (String) -> Unit = {},
 )
 
 /** Pinta una pantalla de Receptor sin estado propio; las acciones de navegación ya vienen en [actions]. */

@@ -85,6 +85,9 @@ class ReceiverActions(
     val onAllowNotifications: () -> Unit = {},
     val onDeclineNotifications: () -> Unit = {},
     val onEnableNotifications: () -> Unit = {},
+    /** S021/RF-1, RF-4: el formulario de un receptor Wi-Fi nuevo y el de uno guardado. */
+    val onAddWifiReceiver: () -> Unit = {},
+    val onEditWifiReceiver: (String) -> Unit = {},
     /** S021/RF-6. */
     val onAllowLocalNetwork: () -> Unit = {},
     val onDeclineLocalNetwork: () -> Unit = {},
@@ -125,6 +128,12 @@ const val TILT_TAG = "receiver_tilt"
 const val ENABLE_NOTIFICATIONS_TAG = "enable_notifications"
 const val ADD_RECEIVER_TAG = "add_receiver"
 const val LOCAL_NETWORK_SETTINGS_TAG = "local_network_settings"
+const val ADD_BLUETOOTH_TAG = "add_bluetooth"
+const val ADD_WIFI_TAG = "add_wifi"
+
+fun wifiReceiverTag(id: String) = "wifi_receiver_$id"
+
+fun wifiEditTag(id: String) = "wifi_edit_$id"
 
 fun deviceTag(address: String) = "device_$address"
 
@@ -268,6 +277,8 @@ fun ReceiverRoute(
             onOpenLocalNetworkSettings = { context.startActivity(localNetworkSettingsIntent(context.packageName)) },
             onEnableNotifications = { context.startActivity(notificationSettingsIntent(context.packageName)) },
             onAddReceiver = viewModel::addReceiver,
+            onAddWifiReceiver = navigation.onNewWifiReceiver, // S021/RF-1
+            onEditWifiReceiver = navigation.onEditWifiReceiver, // S021/RF-4
             onDismissBaseChange = viewModel::dismissBaseChange,
             onDismissLongBaseline = viewModel::dismissLongBaseline,
             onOpenBluetoothSettings = {

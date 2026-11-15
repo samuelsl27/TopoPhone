@@ -12,6 +12,7 @@ import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.DismissedNotices
 import es.topophone.app.receiver.LocalNetworkPermission
+import es.topophone.app.receiver.NoWifiReceivers
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
@@ -20,6 +21,7 @@ import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.model.receiver.ReceiverKey
+import es.topophone.core.model.receiver.WifiReceiver
 import es.topophone.core.survey.ActiveGear
 import es.topophone.core.survey.GroundPoint
 import es.topophone.core.survey.GroundPointCalculator
@@ -28,6 +30,7 @@ import es.topophone.core.survey.PoleHeight
 import es.topophone.core.survey.SavedPole
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.receiver.ReceiverPreferences
+import es.topophone.data.receiver.WifiReceiverRepository
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.platform.NetworkStatus
 import es.topophone.receiver.session.ConnectionState
@@ -107,6 +110,8 @@ data class ReceiverUiState(
     /** Permiso denegado con un receptor conectado: avisar de cómo concederlo (S004/RF-6). */
     val notificationsDenied: Boolean = false,
     /** Pedir el permiso de red local, con su explicación, para conectar con un receptor Wi-Fi (S021/RF-6). */
+    /** Los receptores Wi-Fi guardados, por orden de alta, aunque el Bluetooth esté apagado (S021/RF-4). */
+    val wifiReceivers: List<WifiReceiver> = emptyList(),
     val askLocalNetwork: Boolean = false,
     /** Permiso de red local denegado: no se conecta con un receptor Wi-Fi y se explica cómo concederlo (S021/RF-6). */
     val localNetworkDenied: Boolean = false,
@@ -140,6 +145,7 @@ class ReceiverViewModel @Inject constructor(
     private val connections: ReceiverConnections,
     private val notifications: NotificationPermission = NotificationPermission.NotRequired,
     private val localNetwork: LocalNetworkPermission = LocalNetworkPermission.NotRequired,
+    private val wifiReceivers: WifiReceiverRepository = NoWifiReceivers,
     private val pairing: ReceiverPairing = ReceiverPairing.Unsupported,
     private val projectPreferences: ProjectPreferences = ProjectPreferences.FACTORY,
     private val baseNotices: BaseNotices = BaseNotices(),
@@ -192,6 +198,7 @@ class ReceiverViewModel @Inject constructor(
         val notificationsAsked: Boolean,
         val pairing: PairingUi,
         val localNetwork: LocalNetworkUi,
+        val wifiReceivers: List<WifiReceiver>,
     )
 
     private val angularUnits: Flow<AngularUnit> = projectPreferences.defaults.map { it.angularUnit }.distinctUntilChanged()
@@ -211,9 +218,9 @@ class ReceiverViewModel @Inject constructor(
             combine(lastAddress, preferences.lastReceiver.map { it?.address }) { last, saved -> last to saved },
             notificationsGranted,
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
-            combine(pairingUi, localNetworkUi, ::Pair),
-        ) { now, addresses, granted, asked, (pairing, localNetworkState) ->
-            Extras(now, addresses, granted, asked, pairing, localNetworkState)
+            combine(pairingUi, localNetworkUi, wifiReceivers.receivers(), ::Triple),
+        ) { now, addresses, granted, asked, (pairing, localNetworkState, wifi) ->
+            Extras(now, addresses, granted, asked, pairing, localNetworkState, wifi)
         },
     ) { (snapshot, angularUnit, notices, tiltState, gearState, poles, gearLocked), bt, internetAvailable, poleTyped, extras ->
         // S016/RF-16, RF-17: con la inclinación, la GGA y el ETC de la misma época; si no, la última GGA.
@@ -247,6 +254,7 @@ class ReceiverViewModel @Inject constructor(
                 realReceiver &&
                 snapshot.connection is ConnectionState.Receiving, // S004/RF-5
             notificationsDenied = missingPermission && extras.notificationsAsked && realReceiver, // S004/RF-6
+            wifiReceivers = extras.wifiReceivers,
             askLocalNetwork = extras.localNetwork.pendingKey != null,
             localNetworkDenied = extras.localNetwork.denied,
             pairingSupported = pairingSupported,

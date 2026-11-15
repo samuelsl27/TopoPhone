@@ -214,6 +214,7 @@ class AddReceiverTest {
         show(ready, ReceiverActions(onAddReceiver = { added++ }, onOpenBluetoothSettings = { settings++ }))
 
         compose.onNodeWithTag(ADD_RECEIVER_TAG).performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithTag(ADD_BLUETOOTH_TAG).performClick() // S021/RF-1: antes se elige el tipo
 
         added shouldBe 1
         settings shouldBe 0
@@ -226,6 +227,7 @@ class AddReceiverTest {
         show(ready.copy(pairingSupported = false), ReceiverActions(onAddReceiver = { added++ }, onOpenBluetoothSettings = { settings++ }))
 
         compose.onNodeWithTag(ADD_RECEIVER_TAG).performScrollTo().performClick()
+        compose.onNodeWithTag(ADD_BLUETOOTH_TAG).performClick() // S021/RF-1: antes se elige el tipo
 
         added shouldBe 0
         settings shouldBe 1

@@ -3,8 +3,10 @@ package es.topophone.app.ui.receiver
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
@@ -14,7 +16,13 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -23,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.core.designsystem.R as DesignR
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.model.receiver.ReceiverKey
+import es.topophone.core.model.receiver.WifiReceiver
 import es.topophone.receiver.session.ConnectFailure
 import es.topophone.receiver.session.ConnectionState
 
@@ -37,6 +47,8 @@ internal fun ReceiverList(state: ReceiverUiState, actions: ReceiverActions) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         LastConnection(state, actions)
         BluetoothDevicesSection(state, actions)
+        WifiReceiversSection(state, actions) // S021/RF-4: también con el Bluetooth apagado
+        AddReceiver(state, actions) // S004/RF-1, S021/RF-1
         Card(modifier = Modifier.fillMaxWidth()) {
             ListRow(stringResource(R.string.receiver_menu_sessions), actions.onOpenSessions, Modifier.testTag(LIST_SESSIONS_TAG))
         }
@@ -106,9 +118,45 @@ internal fun BluetoothDevicesSection(state: ReceiverUiState, actions: ReceiverAc
                     }
                 }
             }
-            AddReceiver(state, actions)
         }
     }
+}
+
+/** Los receptores Wi-Fi guardados, con su dirección y puerto, y el último usado señalado (S021/RF-4). */
+@Composable
+private fun WifiReceiversSection(state: ReceiverUiState, actions: ReceiverActions) {
+    if (state.wifiReceivers.isEmpty()) return
+    Text(stringResource(R.string.receiver_wifi_title), style = MaterialTheme.typography.titleSmall)
+    Card(modifier = Modifier.fillMaxWidth()) {
+        state.wifiReceivers.forEachIndexed { index, receiver ->
+            if (index > 0) HorizontalDivider()
+            val lastUsed = state.lastReceiverAddress == ReceiverKey.of(receiver)
+            WifiReceiverRow(receiver, lastUsed, {
+                actions.onConnect(ReceiverKey.of(receiver))
+            }, { actions.onEditWifiReceiver(receiver.id) })
+        }
+    }
+}
+
+/** Un receptor Wi-Fi: nombre, dirección y puertos, su marca de último usado y «Editar» (S021/RF-4). */
+@Composable
+private fun WifiReceiverRow(receiver: WifiReceiver, lastUsed: Boolean, onClick: () -> Unit, onEdit: () -> Unit) {
+    val endpoint = stringResource(R.string.receiver_wifi_endpoint, receiver.host, receiver.positionPort)
+    val detail = receiver.correctionsPort?.let { "$endpoint · ${stringResource(R.string.receiver_wifi_corrections_port, it)}" } ?: endpoint
+    ListItem(
+        headlineContent = { Text(receiver.name) },
+        supportingContent = { Text(detail) },
+        trailingContent = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (lastUsed) Text(stringResource(R.string.receiver_last_used), color = MaterialTheme.colorScheme.primary)
+                TextButton(onClick = onEdit, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(wifiEditTag(receiver.id))) {
+                    Text(stringResource(R.string.receiver_wifi_edit))
+                }
+            }
+        },
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        modifier = Modifier.heightIn(min = MinTouchTarget).clickable(onClick = onClick).testTag(wifiReceiverTag(receiver.id)),
+    )
 }
 
 /** Un receptor emparejado: nombre, dirección y, si es el último usado, su marca (S005/RF-3). */
@@ -150,8 +198,49 @@ private fun AddReceiver(state: ReceiverUiState, actions: ReceiverActions) {
         }
         Text(stringResource(text), color = MaterialTheme.colorScheme.error)
     }
+    var choosing by rememberSaveable { mutableStateOf(false) }
     Button(
-        onClick = if (state.pairingSupported) actions.onAddReceiver else actions.onOpenBluetoothSettings,
+        onClick = { choosing = true },
         modifier = Modifier.heightIn(min = MinTouchTarget).testTag(ADD_RECEIVER_TAG),
     ) { Text(stringResource(R.string.receiver_add)) }
+    if (choosing) {
+        AddReceiverTypeDialog(
+            onBluetooth = {
+                choosing = false
+                if (state.pairingSupported) actions.onAddReceiver() else actions.onOpenBluetoothSettings() // S004/RF-1
+            },
+            onWifi = {
+                choosing = false
+                actions.onAddWifiReceiver() // S021/RF-1
+            },
+            onCancel = { choosing = false },
+        )
+    }
+}
+
+/** «Añadir receptor»: elegir entre Bluetooth y Wi-Fi (TCP) (S021/RF-1). */
+@Composable
+private fun AddReceiverTypeDialog(onBluetooth: () -> Unit, onWifi: () -> Unit, onCancel: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = { Text(stringResource(R.string.receiver_add_type_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = onBluetooth,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ADD_BLUETOOTH_TAG),
+                ) { Text(stringResource(R.string.receiver_add_bluetooth)) }
+                OutlinedButton(
+                    onClick = onWifi,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ADD_WIFI_TAG),
+                ) { Text(stringResource(R.string.receiver_add_wifi)) }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onCancel, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.receiver_add_cancel))
+            }
+        },
+    )
 }
