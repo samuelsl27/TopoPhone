@@ -36,5 +36,5 @@
       Hecho cuando: `uv run --project tools pytest tools` en verde y el servidor sirve una sesión de fixtures.
 - [x] T17. Accesibilidad y textos: etiquetas, 56 dp, es y en y sin literales en código. (RNF-T7, RNF-T8)
       Hecho cuando: `WifiAccessibilityTest` en verde y Lint sin textos sin usar.
-- [ ] T18. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files`, `assembleDebug` y la demo en el emulador contra el servidor TCP con corte y reconexión.
+- [x] T18. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files`, `assembleDebug` y la demo en el emulador contra el servidor TCP con corte y reconexión.
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, la demo funciona y la hoja de ruta marca S021 como implementada.

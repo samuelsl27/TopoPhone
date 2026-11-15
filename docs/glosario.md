@@ -114,6 +114,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Receptor Wi-Fi | `WifiReceiver` | Receptor guardado con nombre, dirección y puerto de posición, y puerto de correcciones opcional; con identidad propia que no cambia al editar su IP (S021) |
 | Puerto de posición | `positionPort` | El del servidor TCP del receptor que emite el NMEA (9001 por defecto); la app es el cliente (S021) |
 | Puerto de correcciones | `correctionsPort` | El del receptor que acepta RTCM3 por TCP; si coincide con el de posición se usa la misma conexión (S021) |
+| Clave de receptor | `ReceiverKey` | Con qué se guarda lo de cada receptor (último receptor, jalón y antena, inclinación): su dirección Bluetooth, `wifi:<id>` o `replay` (S021) |
+| Enlace de correcciones | `CorrectionsLink` | El segundo socket que lleva las RTCM3 a un receptor Wi-Fi cuyo puerto de correcciones es distinto del de posición; si cae, descarta y reintenta sin cortar la posición (S021) |
+| Permiso de red local | `ACCESS_LOCAL_NETWORK` | Android 17+: se pide al conectar con un receptor Wi-Fi, no al abrir la app (S021) |
 | Pantalla del receptor | `ReceiverDashboard` | Receptor conectado o reproducción: cabecera y menú (S005) |
 | Cabecera (de la pantalla del receptor) | `ReceiverHeader` | |
 | Correcciones | `Corrections` | RTCM3 |
