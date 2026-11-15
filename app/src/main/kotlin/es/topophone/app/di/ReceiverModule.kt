@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import es.topophone.app.BuildConfig
 import es.topophone.app.receiver.AndroidLocalNetworkPermission
 import es.topophone.app.receiver.AndroidNotificationPermission
+import es.topophone.app.receiver.CheckRunner
 import es.topophone.app.receiver.CorrectionsController
 import es.topophone.app.receiver.CurrentEquipment
 import es.topophone.app.receiver.CurrentGear
@@ -16,9 +17,11 @@ import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.LocalNetworkPermission
 import es.topophone.app.receiver.NetworkAwareSourcetable
 import es.topophone.app.receiver.NotificationPermission
+import es.topophone.app.receiver.ReceiverCheckRunner
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
 import es.topophone.app.receiver.ReceiverWindowRecorder
+import es.topophone.app.receiver.RepositoryProjectDatumSource
 import es.topophone.app.receiver.RepositoryVirtualOrigins
 import es.topophone.app.receiver.ResourceSourceLabels
 import es.topophone.app.receiver.VirtualOrigins
@@ -33,6 +36,7 @@ import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.equipment.EquipmentRepository
 import es.topophone.data.gear.GearRepository
 import es.topophone.data.ntrip.NtripProfileRepository
+import es.topophone.data.project.ProjectRepository
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.SessionSpace
 import es.topophone.data.receiver.TiltPreferences
@@ -171,6 +175,15 @@ object ReceiverModule {
     @Singleton
     fun receiverWindowRecorder(session: ReceiverSession): ReceiverWindowRecorder =
         ReceiverWindowRecorder(session, CoroutineScope(SupervisorJob() + Dispatchers.Default), monotonicClock())
+
+    /** Las comprobaciones previas con lo que llega del receptor (S043/RF-5 a RF-8). */
+    @Provides
+    fun checkRunner(
+        recorder: ReceiverWindowRecorder,
+        session: ReceiverSession,
+        currentTilt: CurrentTilt,
+        projects: ProjectRepository,
+    ): CheckRunner = ReceiverCheckRunner(recorder, session, currentTilt, RepositoryProjectDatumSource(projects))
 
     /** Los datos del receptor en uso (modelo, serie y firmware), uno para toda la app (S043/RF-19; plan D7). */
     @Provides

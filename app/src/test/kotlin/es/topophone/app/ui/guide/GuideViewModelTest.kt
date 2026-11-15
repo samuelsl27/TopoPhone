@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.receiver.CheckRunner
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.core.model.guide.CheckStatus
 import es.topophone.core.model.guide.ConfigListId
@@ -57,6 +58,7 @@ class GuideViewModelTest {
         scope,
     )
     private val jobs = mutableListOf<Job>()
+    private val runner = CheckRunner { emptyList() }
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -71,7 +73,7 @@ class GuideViewModelTest {
 
     /** Se crea con el despachador de pruebas ya puesto: el `viewModelScope` usa `Dispatchers.Main`. */
     private fun viewModel(): GuideViewModel {
-        val vm = GuideViewModel(progress, tilt)
+        val vm = GuideViewModel(progress, tilt, runner)
         jobs += CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         return vm
     }

@@ -32,7 +32,7 @@
       Hecho cuando: `ReceiverWindowRecorderTest` en verde con una sesión real de `fixtures/nmea` y un NTRIP falso: la ventana se llena, olvida lo viejo, funciona con una reproducción y con el receptor virtual y se vacía al desconectar.
 - [x] T15. `app`: `GuideViewModel` y `GuideScreen` (las cuatro listas, marcar y desmarcar por receptor, reiniciar y los contadores de hechos y comprobados). (RF-1, RF-2, RF-3, RF-4)
       Hecho cuando: `GuideViewModelTest` y `GuideScreenTest` en verde: el progreso es por receptor y sobrevive al reinicio de la pantalla, reiniciar vacía solo esa lista y los contadores dicen cuántos pasos están hechos y cuántos comprobados.
-- [ ] T16. `app`: «Comprobar» en la Guía: el resultado por paso con texto e icono, la causa y el paso que lo resuelve, y «Sin datos» con la remisión al diagnóstico. (RF-5, RF-9, RF-10, RF-11)
+- [x] T16. `app`: «Comprobar» en la Guía: el resultado por paso con texto e icono, la causa y el paso que lo resuelve, y «Sin datos» con la remisión al diagnóstico. (RF-5, RF-9, RF-10, RF-11)
       Hecho cuando: `GuideChecksTest` en verde con una reproducción y el receptor virtual: cada comprobación en Correcto, Aviso y Fallo, «Sin datos» remite a S004/RF-27 y RF-28, termina en menos de 1 s y nada se escribe en el receptor.
 - [ ] T17. `app`: las entradas «Guía» y «Datos del receptor» del menú, sus rutas, y las fuentes: con el móvil y con el virtual se sustituyen por «no aplica a esta fuente» (el virtual conserva «Comprobar»). (RF-1, RF-18, RF-22, RF-23)
       Hecho cuando: `GuideSourcesTest` y `ReceiverMenuTest` en verde: ocho entradas en su orden con un receptor real, y con el móvil y el virtual lo que dice RF-22 y RF-23.

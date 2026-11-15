@@ -3,16 +3,20 @@ package es.topophone.app.ui.guide
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.app.receiver.CheckRunner
 import es.topophone.app.receiver.CurrentEquipment
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.core.model.guide.CheckStatus
 import es.topophone.core.model.guide.ConfigList
 import es.topophone.core.model.guide.ConfigListId
 import es.topophone.core.model.guide.ConfigLists
+import es.topophone.core.model.guide.ReceiverCheck
+import es.topophone.core.model.receiver.ReceiverKey
 import es.topophone.data.config.ConfigProgressRepository
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -39,6 +43,13 @@ data class GuideUiState(
     val lists: List<ConfigList> = ConfigLists.all,
     val done: Map<ConfigListId, Set<String>> = emptyMap(),
     val stepStatus: Map<String, CheckStatus> = emptyMap(),
+    /** Se puede comprobar lo que llega: con un receptor real, una reproducción o el receptor virtual, no con el móvil (RF-5, RF-22, RF-23). */
+    val canCheck: Boolean = false,
+    val checking: Boolean = false,
+    /** Las comprobaciones de la última vez, o null si aún no se ha comprobado nada con este receptor. */
+    val results: List<ReceiverCheck>? = null,
+    /** La lista con la que se comprobó (null: sin lista, con el receptor virtual o una reproducción). */
+    val checkedList: ConfigListId? = null,
 ) {
     /** Los pasos hechos y comprobados de [list]: un paso está comprobado si su última comprobación dio «Correcto». */
     fun counts(list: ConfigList): GuideCounts {
@@ -55,7 +66,16 @@ data class GuideUiState(
 /** La Guía del menú del receptor: las cuatro listas de configuración y su progreso en cada receptor (S043/RF-1 a RF-4). */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class GuideViewModel @Inject constructor(private val progress: ConfigProgressRepository, tilt: CurrentTilt) : ViewModel() {
+class GuideViewModel @Inject constructor(
+    private val progress: ConfigProgressRepository,
+    tilt: CurrentTilt,
+    private val runner: CheckRunner,
+) : ViewModel() {
+
+    private class Run(val key: String?, val list: ConfigListId?, val checks: List<ReceiverCheck>)
+
+    private val lastRun = MutableStateFlow<Run?>(null)
+    private val running = MutableStateFlow(false)
 
     private val key: Flow<String?> = tilt.state.map { it.key }.distinctUntilChanged()
 
@@ -69,9 +89,53 @@ class GuideViewModel @Inject constructor(private val progress: ConfigProgressRep
         }
     }
 
-    val state: StateFlow<GuideUiState> = doneByList.map { (receiver, done) ->
-        GuideUiState(applies = CurrentEquipment.appliesTo(receiver), receiverKey = receiver, done = done)
+    val state: StateFlow<GuideUiState> = combine(doneByList, lastRun, running) { (receiver, done), run, running ->
+        val visible = run?.takeIf { it.key == receiver }
+        GuideUiState(
+            applies = CurrentEquipment.appliesTo(receiver),
+            receiverKey = receiver,
+            done = done,
+            stepStatus = stepStatus(visible),
+            canCheck = canCheck(receiver),
+            checking = running,
+            results = visible?.checks,
+            checkedList = visible?.list,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), GuideUiState())
+
+    /** Comprueba lo que llega del receptor con las comprobaciones de [list] (o todas, sin lista); solo lee (RF-5, RF-11). */
+    fun check(list: ConfigListId?) {
+        val receiver = state.value.receiverKey ?: return
+        if (!canCheck(receiver) || running.value) return
+        viewModelScope.launch {
+            running.value = true
+            try {
+                lastRun.value = Run(receiver, list, runner.run(list))
+            } finally {
+                running.value = false
+            }
+        }
+    }
+
+    private fun canCheck(receiver: String?): Boolean = receiver != null && !ReceiverKey.isPhone(receiver)
+
+    /** El peor resultado de las comprobaciones de cada paso de la lista comprobada; los pasos sin resultado no salen (RF-4). */
+    private fun stepStatus(run: Run?): Map<String, CheckStatus> {
+        val list = run?.list?.let { ConfigLists.byId(it) } ?: return emptyMap()
+        return buildMap {
+            for (step in list.steps) {
+                val statuses = run.checks.filter { it.id in step.checks }.map { it.status }
+                if (statuses.isNotEmpty()) put(step.id, statuses.maxBy { severity(it) })
+            }
+        }
+    }
+
+    private fun severity(status: CheckStatus): Int = when (status) {
+        CheckStatus.OK -> 0
+        CheckStatus.NO_DATA -> 1
+        CheckStatus.WARNING -> 2
+        CheckStatus.FAIL -> 3
+    }
 
     /** Marca o desmarca un paso para el receptor en uso (RF-3); sin receptor de verdad no hace nada. */
     fun setDone(list: ConfigListId, stepId: String, done: Boolean) {
