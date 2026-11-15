@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 
 /** El móvil no está en ninguna red Wi-Fi: no se puede llegar a un receptor Wi-Fi (S021/RF-14). */
@@ -136,6 +137,27 @@ class RoutedSocketFactory(private val router: NetworkRouter) : SocketFactory() {
 
     override fun createSocket(address: InetAddress?, port: Int, localAddress: InetAddress?, localPort: Int): Socket =
         (router.internetNetwork() ?: throw NoInternetException()).socketFactory.createSocket(address, port, localAddress, localPort)
+}
+
+/**
+ * Sockets del receptor Wi-Fi: cada uno se crea en la red Wi-Fi del móvil aunque no tenga internet (S021/RF-8). Se pide la red al abrir,
+ * no al construir el transporte, así que una reconexión con el Wi-Fi apagado falla con [WifiUnavailableException] y se reintenta
+ * (S021/RF-15). Bloquea hasta 3 s: se llama desde el hilo de E/S de la apertura.
+ */
+class WifiSocketFactory(private val router: NetworkRouter) : SocketFactory() {
+    private fun network() = runBlocking { router.wifiNetwork() }.socketFactory
+
+    override fun createSocket(): Socket = network().createSocket()
+
+    override fun createSocket(host: String?, port: Int): Socket = network().createSocket(host, port)
+
+    override fun createSocket(host: String?, port: Int, localHost: InetAddress?, localPort: Int): Socket =
+        network().createSocket(host, port, localHost, localPort)
+
+    override fun createSocket(host: InetAddress?, port: Int): Socket = network().createSocket(host, port)
+
+    override fun createSocket(address: InetAddress?, port: Int, localAddress: InetAddress?, localPort: Int): Socket =
+        network().createSocket(address, port, localAddress, localPort)
 }
 
 /** Las redes de Android: una petición de Wi-Fi sin exigir internet y una observación de las redes con internet validado. */

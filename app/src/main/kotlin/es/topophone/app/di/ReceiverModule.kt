@@ -28,6 +28,7 @@ import es.topophone.data.ntrip.NtripProfileRepository
 import es.topophone.data.receiver.ReceiverPreferences
 import es.topophone.data.receiver.SessionSpace
 import es.topophone.data.receiver.TiltPreferences
+import es.topophone.data.receiver.WifiReceiverRepository
 import es.topophone.receiver.platform.Alerts
 import es.topophone.receiver.platform.AndroidNetworkRouter
 import es.topophone.receiver.platform.AndroidNetworkStatus
@@ -111,7 +112,16 @@ object ReceiverModule {
         session: ReceiverSession,
         bluetooth: BluetoothDevices,
         preferences: ReceiverPreferences,
-    ): ReceiverConnections = ReceiverConnections(session, bluetooth, preferences, CoroutineScope(SupervisorJob() + Dispatchers.Default)) {
+        wifiReceivers: WifiReceiverRepository,
+        router: NetworkRouter,
+    ): ReceiverConnections = ReceiverConnections(
+        session,
+        bluetooth,
+        preferences,
+        CoroutineScope(SupervisorJob() + Dispatchers.Default),
+        wifiReceivers,
+        router,
+    ) {
         ReceiverService.start(context) // S004/RF-7
     }
 

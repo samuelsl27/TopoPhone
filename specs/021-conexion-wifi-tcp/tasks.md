@@ -20,7 +20,7 @@
       Hecho cuando: `NetworkRouterTest` en verde con una fuente de redes falsa: el Wi-Fi sin internet se usa para el receptor, el caster pide otra red y un cambio de red se avisa en menos de 3 s.
 - [x] T9. `receiver` y `app`: `NtripState.NeedsInternet` y el caster del NTRIP y la tabla de fuentes por `RoutedSocketFactory` solo con receptor Wi-Fi (`ReceiverModule`). (RF-9, RF-10)
       Hecho cuando: `ReceiverSessionWifiTest` en verde: sin red con internet el NTRIP lo dice y reanuda al aparecer una, sin cerrar el receptor, y con Bluetooth todo sigue igual.
-- [ ] T10. `app`: `ReceiverConnections` con la clave `wifi:<id>`: conectar, reabrir al reconectar, conexión automática, último receptor y receptor borrado. (RF-7, RF-15, RF-17)
+- [x] T10. `app`: `ReceiverConnections` con la clave `wifi:<id>`: conectar, reabrir al reconectar, conexión automática, último receptor y receptor borrado. (RF-7, RF-15, RF-17)
       Hecho cuando: `ReceiverConnectionsWifiTest` en verde, con corte y reconexión de una sesión y el Wi-Fi apagado, y los de Bluetooth intactos.
 - [ ] T11. `app`: permiso `ACCESS_LOCAL_NETWORK` (manifiesto, petición al conectar, explicación y aviso con Ajustes) y los permisos de red. (RF-6, RNF-T1)
       Hecho cuando: `LocalNetworkPermissionTest` en verde: se pide solo cuando el sistema lo exige y al denegar el resto de la app sigue.
