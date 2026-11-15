@@ -34,7 +34,7 @@
       Hecho cuando: `WifiGearKeysTest` en verde: un receptor Wi-Fi y uno Bluetooth no comparten ajustes y editar la IP del Wi-Fi conserva los suyos.
 - [x] T16. `tools`: `servidor_tcp.py` (NMEA de `fixtures/nmea/` por TCP, en bucle, con corte y reanudación) y su test. (Demo)
       Hecho cuando: `uv run --project tools pytest tools` en verde y el servidor sirve una sesión de fixtures.
-- [ ] T17. Accesibilidad y textos: etiquetas, 56 dp, es y en y sin literales en código. (RNF-T7, RNF-T8)
+- [x] T17. Accesibilidad y textos: etiquetas, 56 dp, es y en y sin literales en código. (RNF-T7, RNF-T8)
       Hecho cuando: `WifiAccessibilityTest` en verde y Lint sin textos sin usar.
 - [ ] T18. Validación final: recorrer la spec RF por RF, `rf_report`, `check`, `pytest`, `forbidden_files`, `assembleDebug` y la demo en el emulador contra el servidor TCP con corte y reconexión.
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, la demo funciona y la hoja de ruta marca S021 como implementada.

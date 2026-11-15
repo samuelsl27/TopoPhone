@@ -159,6 +159,7 @@
     <string name="receiver_add_cancel">Cancel</string>
     <string name="receiver_wifi_title">Wi-Fi (TCP) receivers</string>
     <string name="receiver_wifi_edit">Edit</string>
+    <string name="receiver_wifi_edit_named">Edit %1$s</string>
     <string name="receiver_wifi_endpoint">%1$s:%2$d</string>
     <string name="receiver_wifi_corrections_port">corrections %1$d</string>
     <string name="wifi_form_new">New Wi-Fi receiver</string>

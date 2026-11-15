@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.core.designsystem.R as DesignR
@@ -155,7 +157,13 @@ private fun WifiReceiverRow(receiver: WifiReceiver, lastUsed: Boolean, onClick: 
         trailingContent = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (lastUsed) Text(stringResource(R.string.receiver_last_used), color = MaterialTheme.colorScheme.primary)
-                TextButton(onClick = onEdit, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(wifiEditTag(receiver.id))) {
+                // TalkBack lee «Editar RS3 hotspot», no un «Editar» igual en cada fila (RNF-T8).
+                val editLabel = stringResource(R.string.receiver_wifi_edit_named, receiver.name)
+                TextButton(
+                    onClick = onEdit,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).semantics { contentDescription = editLabel }
+                        .testTag(wifiEditTag(receiver.id)),
+                ) {
                     Text(stringResource(R.string.receiver_wifi_edit))
                 }
             }
