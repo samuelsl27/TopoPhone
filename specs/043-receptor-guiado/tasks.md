@@ -6,7 +6,7 @@
       Hecho cuando: `PrivateAddressTest` en verde con los bordes de cada rango (172.15, 172.16, 172.31, 172.32, 169.253, 169.254, 192.167, 192.168, 192.169), `127.0.0.1`, `reach.local`, IPv6, públicas y puertos 0, 1, 65535 y 65536.
 - [x] T2. `core:gnss`: `ReferenceStationDecoder` lee el año ITRF de 1005 y 1006 y `ReferenceStation.itrfYear` lo guarda (0 = sin declarar). (RF-8)
       Hecho cuando: `ReferenceStationDecoderTest` en verde con 1005 y 1006 con año 2014, con año 2020 y con 0, y los tests de S015 intactos.
-- [ ] T3. `core:survey`: `ObservationWindow` (ventana de 10 s de épocas y fotos por segundo de las RTCM, con tiempo cubierto). (RF-5)
+- [x] T3. `core:survey`: `ObservationWindow` (ventana de 10 s de épocas y fotos por segundo de las RTCM, con tiempo cubierto). (RF-5)
       Hecho cuando: `ObservationWindowTest` en verde: descarta lo de más de 10 s, da el delta de RTCM entre la primera y la última foto y la tasa sobre el tiempo cubierto.
 - [ ] T4. `core:survey`: `ReceiverChecker` con las comprobaciones de NMEA (`GGA_RATE`, `SENTENCES`, `SOLUTION`, `CORRECTION_AGE`, `UTC_TIME`) y «Sin datos». (RF-6, RF-9, RF-10)
       Hecho cuando: `ReceiverCheckerNmeaTest` en verde, con épocas sintéticas y con `rs3-completo` y `rs3-corte` de `fixtures/nmea`, cada comprobación en `OK`, `WARNING`, `FAIL` y `NO_DATA`, el caso de la GGA a 1 Hz con otras frases a 5 Hz, y cada fallo con su causa y su paso.
