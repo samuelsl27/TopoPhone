@@ -1,12 +1,14 @@
 package es.topophone.core.formats.kml.export
 
 import es.topophone.core.formats.csv.ExportColumn
+import es.topophone.core.formats.shp.export.ShpExportSamples
 import es.topophone.core.formats.shp.export.ShpExportSamples.attribute
 import es.topophone.core.formats.shp.export.ShpExportSamples.code
 import es.topophone.core.formats.shp.export.ShpExportSamples.line
 import es.topophone.core.formats.shp.export.ShpExportSamples.point
 import es.topophone.core.formats.shp.export.ShpExportSamples.project
 import es.topophone.core.model.codes.AttributeType
+import es.topophone.core.model.guide.EquipmentProfile
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
@@ -58,6 +60,23 @@ class KmlExportBuilderTest {
         withoutCode.first { it.first == "Elevation" }.second shouldBe ""
         withoutCode.first { it.first == "Code" }.second shouldBe ""
         withoutCode.first { it.first == "Diámetro" }.second shouldBe ""
+    }
+
+    @Test
+    fun `S043 RF-20 el receptor va en los datos extendidos y vacio si el punto no lo tiene`() {
+        val equipped = ShpExportSamples.measured("1").let {
+            it.copy(measurement = it.measurement!!.copy(equipment = EquipmentProfile("Reach RS3", "RS3-0042", "2026.2")))
+        }
+
+        val export = build(listOf(equipped, point("2")))
+
+        val first = marks(export).first { it.name == "M-1" }.data
+        first.first { it.first == "Receiver model" }.second shouldBe "Reach RS3"
+        first.first { it.first == "Receiver serial" }.second shouldBe "RS3-0042"
+        first.first { it.first == "Receiver firmware" }.second shouldBe "2026.2"
+        val second = marks(export).first { it.name == "P-2" }.data
+        val names = listOf("Receiver model", "Receiver serial", "Receiver firmware")
+        names.map { name -> second.first { it.first == name }.second } shouldBe listOf("", "", "")
     }
 
     @Test

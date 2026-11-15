@@ -122,6 +122,19 @@ class ExportScreenTest {
     }
 
     @Test
+    fun `S043 RF-20 el personalizado ofrece las tres columnas del receptor con su nombre y se pueden marcar`() {
+        show(base.copy(options = CsvOptions(format = ExportFormat.CUSTOM, customColumns = setOf(ExportColumn.NAME))))
+
+        compose.onNodeWithTag(columnTag(ExportColumn.EQUIPMENT_MODEL)).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Modelo del receptor").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Número de serie del receptor").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Firmware del receptor").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(columnTag(ExportColumn.EQUIPMENT_SERIAL)).performScrollTo().performClick()
+
+        calls shouldBe listOf("column:EQUIPMENT_SERIAL")
+    }
+
+    @Test
     fun `S019 RF-25 marcar una columna del replanteo avisa de cual`() {
         show(base.copy(options = CsvOptions(format = ExportFormat.CUSTOM, customColumns = setOf(ExportColumn.NAME))))
 
