@@ -28,7 +28,7 @@
       Hecho cuando: `ReceiverListWifiTest` en verde, también con el Bluetooth apagado, y los de la lista de S005 intactos.
 - [x] T13. `app`: `WifiReceiverFormScreen` y su ViewModel (alta, edición, borrado confirmado, motivos de rechazo). (RF-2, RF-3, RF-5)
       Hecho cuando: `WifiReceiverFormViewModelTest` y `WifiReceiverFormScreenTest` en verde.
-- [ ] T14. `app`: diagnóstico con receptor Wi-Fi (causas del fallo, aviso de salida TCP desactivada) y los textos de Correcciones (sin puerto, enlace caído, sin internet). (RF-12, RF-13, RF-14, RF-16)
+- [x] T14. `app`: diagnóstico con receptor Wi-Fi (causas del fallo, aviso de salida TCP desactivada) y los textos de Correcciones (sin puerto, enlace caído, sin internet). (RF-12, RF-13, RF-14, RF-16)
       Hecho cuando: `WifiDiagnosticsTest` en verde con cada caso y con el Bluetooth sin cambios.
 - [ ] T15. `app`: ajustes por receptor bajo la clave Wi-Fi (jalón, antena, inclinación). (RF-18)
       Hecho cuando: `WifiGearKeysTest` en verde: un receptor Wi-Fi y uno Bluetooth no comparten ajustes y editar la IP del Wi-Fi conserva los suyos.

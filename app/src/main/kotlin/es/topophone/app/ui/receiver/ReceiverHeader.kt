@@ -81,7 +81,7 @@ private fun ReplayConnect(state: ReceiverUiState, actions: ReceiverActions) {
 private fun Warnings(state: ReceiverUiState, actions: ReceiverActions) {
     if (state.snapshot.nmeaMissing) {
         Text(
-            stringResource(R.string.receiver_nmea_missing),
+            stringResource(if (state.wifiReceiver) R.string.wifi_nmea_missing else R.string.receiver_nmea_missing), // S021/RF-16
             modifier = Modifier.testTag(NMEA_MISSING_TAG),
             color = MaterialTheme.colorScheme.error,
         )

@@ -166,7 +166,7 @@
     <string name="receiver_state_reconnecting">Reconectando con %1$s…</string>
     <string name="ntrip_paused">NTRIP en pausa mientras se reconecta el receptor</string>
     <string name="ntrip_needs_internet">El NTRIP necesita datos móviles activos (o una red con internet): se reanuda solo al tenerlos</string>
-    <string name="ntrip_no_corrections_port">Este receptor Wi-Fi no tiene puerto de correcciones: edítalo para indicarlo</string>
+    <string name="ntrip_no_corrections_port">Este receptor debe recibir las correcciones por otra vía: no tiene puerto de correcciones en TopoPhone</string>
     <string name="receiver_reconnect_waiting">Intento %1$d · siguiente en %2$d s</string>
     <string name="receiver_reconnect_trying">Intento %1$d en curso…</string>
     <string name="receiver_reconnect_bluetooth_off">El Bluetooth del móvil está apagado: se volverá a intentar al encenderlo.</string>
@@ -213,6 +213,11 @@
     <string name="wifi_form_delete_title">¿Borrar este receptor?</string>
     <string name="wifi_form_delete_text">Se borra «%1$s» de la lista de receptores. Si estás conectado con él, se desconecta.</string>
     <string name="wifi_form_delete_confirm">Borrar</string>
+    <string name="wifi_connect_failed_causes">Comprueba que el móvil está en la red Wi-Fi del receptor, que la dirección y el puerto son los correctos, que la salida de posición por TCP está activada en el receptor y que ningún otro dispositivo está conectado a ella.</string>
+    <string name="wifi_busy_cause">El receptor rechazó la conexión enseguida: lo más probable es que otro dispositivo ya esté conectado a su puerto, que el puerto no sea el correcto o que la salida de posición por TCP esté desactivada.</string>
+    <string name="wifi_nmea_missing">Conectado, pero el receptor no envía posición. Activa en el receptor la salida de posición por TCP (NMEA) y comprueba que el puerto es el de esa salida.</string>
+    <string name="corrections_link_connecting">Abriendo la conexión de correcciones con el receptor…</string>
+    <string name="corrections_link_failed">No se pueden enviar correcciones al receptor (puerto de correcciones sin respuesta); la posición sigue llegando. Próximo reintento %1$d en %2$d s</string>
     <string name="local_network_permission_title">Acceso a la red local</string>
     <string name="local_network_permission_rationale">Para hablar con un receptor Wi-Fi, Android pide permiso para acceder a los dispositivos de la red local. TopoPhone solo lo usa para conectar con tu receptor. Permítelo en el paso siguiente.</string>
     <string name="local_network_permission_continue">Continuar</string>

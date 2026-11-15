@@ -35,7 +35,7 @@ class CorrectionsLink(
     private val socketFactory: SocketFactory = SocketFactory.getDefault(),
     private val connectTimeoutMs: Int = TcpTransport.CONNECT_TIMEOUT_MS,
     private val backoffMs: List<Long> = DEFAULT_BACKOFF_MS,
-    private val clock: () -> Long = System::currentTimeMillis,
+    private val clock: () -> Long = { System.nanoTime() / NANOS_PER_MS }, // el mismo reloj monotono que la sesion y la pantalla
 ) : OutputStream() {
 
     private val mutableStatus = MutableStateFlow<CorrectionsLinkStatus>(CorrectionsLinkStatus.Connecting)

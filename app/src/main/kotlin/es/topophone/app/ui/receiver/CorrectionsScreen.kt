@@ -48,6 +48,7 @@ import es.topophone.core.model.ntrip.NtripProfile
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.receiver.session.NtripState
+import es.topophone.receiver.transport.CorrectionsLinkStatus
 import java.text.NumberFormat
 
 const val CORRECTIONS_STATUS_TAG = "corrections_status"
@@ -63,6 +64,8 @@ const val RTCM_CARD_TAG = "rtcm_card"
 const val RTCM_ERRORS_TAG = "rtcm_errors"
 
 fun rtcmTag(type: Int) = "rtcm_$type"
+
+const val CORRECTIONS_LINK_TAG = "corrections_link"
 
 fun profileTag(id: String) = "ntrip_profile_$id"
 
@@ -154,6 +157,7 @@ private fun StatusCard(receiver: ReceiverUiState, state: CorrectionsUiState, onS
         }
         Text(ntripStatusText(ntrip), modifier = Modifier.testTag(CORRECTIONS_STATUS_TAG), style = MaterialTheme.typography.bodyLarge)
         if (ntrip.unreachable() && !receiver.internetAvailable) Text(stringResource(R.string.ntrip_no_internet)) // S002/RF-23
+        CorrectionsLinkLine(receiver.snapshot.correctionsLink, receiver.nowMs) // S021/RF-13
         if (ntrip is NtripState.Streaming) StreamingStats(ntrip, receiver.nowMs)
         if (ntrip.open()) {
             OutlinedButton(onClick = onStop, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CORRECTIONS_STOP_TAG)) {
@@ -161,6 +165,20 @@ private fun StatusCard(receiver: ReceiverUiState, state: CorrectionsUiState, onS
             }
         }
     }
+}
+
+/** El segundo socket de correcciones de un receptor Wi-Fi: abriéndose o caído (con el intento y la espera); abierto, nada que decir (S021/RF-13). */
+@Composable
+private fun CorrectionsLinkLine(link: CorrectionsLinkStatus?, nowMs: Long) {
+    val text = when (link) {
+        CorrectionsLinkStatus.Connecting -> stringResource(R.string.corrections_link_connecting)
+        is CorrectionsLinkStatus.Failed -> {
+            val seconds = ((link.nextAttemptAtMs - nowMs).coerceAtLeast(0) + MS_PER_S - 1) / MS_PER_S
+            stringResource(R.string.corrections_link_failed, link.attempt, seconds.toInt())
+        }
+        CorrectionsLinkStatus.Ready, null -> return
+    }
+    Text(text, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag(CORRECTIONS_LINK_TAG))
 }
 
 /** Mensajes RTCM 3 recibidos por tipo y los que tenían el CRC erróneo (S007/RF-32, RF-33). */

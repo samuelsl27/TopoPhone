@@ -64,7 +64,13 @@ private fun LastConnection(state: ReceiverUiState, actions: ReceiverActions) {
         is ConnectionState.Failed -> {
             // S004/RF-27: un rechazo inmediato tiene una causa más probable que las demás.
             val busy = connection.failure == ConnectFailure.BUSY
-            Text(stringResource(if (busy) R.string.receiver_busy_cause else R.string.receiver_connect_failed_causes))
+            val causes = when {
+                state.wifiReceiver && busy -> R.string.wifi_busy_cause // S021/RF-14
+                state.wifiReceiver -> R.string.wifi_connect_failed_causes
+                busy -> R.string.receiver_busy_cause
+                else -> R.string.receiver_connect_failed_causes
+            }
+            Text(stringResource(causes))
         } // S002/RF-7
         is ConnectionState.Lost -> Button(
             onClick = actions.onReconnect,

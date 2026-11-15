@@ -178,6 +178,11 @@
     <string name="wifi_form_delete_title">Delete this receiver?</string>
     <string name="wifi_form_delete_text">“%1$s” is removed from the receivers list. If you are connected to it, it is disconnected.</string>
     <string name="wifi_form_delete_confirm">Delete</string>
+    <string name="wifi_connect_failed_causes">Check that the phone is on the receiver’s Wi-Fi network, that the address and port are correct, that the TCP position output is enabled on the receiver, and that no other device is connected to it.</string>
+    <string name="wifi_busy_cause">The receiver refused the connection right away: most likely another device is already connected to its port, the port is wrong, or the TCP position output is disabled.</string>
+    <string name="wifi_nmea_missing">Connected, but the receiver is not sending a position. Enable the TCP position output (NMEA) on the receiver and check that the port is the one of that output.</string>
+    <string name="corrections_link_connecting">Opening the corrections connection to the receiver…</string>
+    <string name="corrections_link_failed">Corrections cannot be sent to the receiver (corrections port not answering); the position keeps arriving. Next retry %1$d in %2$d s</string>
     <string name="local_network_permission_title">Local network access</string>
     <string name="local_network_permission_rationale">To talk to a Wi-Fi receiver, Android asks for permission to access devices on the local network. TopoPhone only uses it to connect to your receiver. Allow it in the next step.</string>
     <string name="local_network_permission_continue">Continue</string>
@@ -185,7 +190,7 @@
     <string name="local_network_denied">Without the local network permission you cannot connect to a Wi-Fi receiver. The rest of the app, and Bluetooth receivers, keep working.</string>
     <string name="local_network_open_settings">Open app settings</string>
     <string name="ntrip_needs_internet">NTRIP needs mobile data (or a network with internet): it resumes by itself when available</string>
-    <string name="ntrip_no_corrections_port">This Wi-Fi receiver has no corrections port: edit it to set one</string>
+    <string name="ntrip_no_corrections_port">This receiver must get its corrections some other way: it has no corrections port in TopoPhone</string>
     <string name="receiver_reconnect_waiting">Attempt %1$d · next in %2$d s</string>
     <string name="receiver_reconnect_trying">Attempt %1$d in progress…</string>
     <string name="receiver_reconnect_bluetooth_off">The phone\'s Bluetooth is off: it will try again once it is turned on.</string>
