@@ -22,8 +22,8 @@ import kotlinx.coroutines.flow.update
 /**
  * El receptor en uso y su modo de inclinación (S016/RF-1, RF-2; plan A8).
  *
- * @property key la dirección Bluetooth del receptor, [TiltPreferences.REPLAY] con una reproducción, o null si no hay
- *   ninguno.
+ * @property key la dirección Bluetooth del receptor, `wifi:<id>` con uno Wi-Fi (su identidad no cambia al editar su IP, S021/RF-18),
+ *   [TiltPreferences.REPLAY] con una reproducción, o null si no hay ninguno.
  * @property revision sube cada vez que se guarda el modo o se abre el asistente: el recolector cancela la medida si
  *   cambia durante ella (S016/RF-28; plan A9).
  */

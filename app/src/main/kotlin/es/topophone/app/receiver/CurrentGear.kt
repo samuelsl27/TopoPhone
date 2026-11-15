@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.stateIn
  * El equipo (perfil de antena y jalón activo) del receptor en uso, resuelto y compartido por toda la app (S046/RF-7, RF-13,
  * RF-15, RF-23; plan A3). Sin receptor ni reproducción se usa [NO_RECEIVER]: el equipo por defecto.
  *
- * @param key la clave del receptor de `CurrentTilt`: su dirección Bluetooth, `replay` o null.
+ * @param key la clave del receptor de `CurrentTilt`: su dirección Bluetooth, `wifi:<id>` (S021/RF-18), `replay` o null.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class CurrentGear(key: Flow<String?>, private val repository: GearRepository, scope: CoroutineScope) {

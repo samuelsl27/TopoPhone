@@ -31,7 +31,7 @@ data class SavedPoleEntity(
 )
 
 /**
- * El equipo que recuerda un receptor (S046/RF-7, RF-13): [receiverKey] es su dirección Bluetooth o `replay`, [profileRef]
+ * El equipo que recuerda un receptor (S046/RF-7, RF-13): [receiverKey] es su dirección Bluetooth, `wifi:<id>` (S021/RF-18) o `replay`, [profileRef]
  * `catalog:<modelo>` o `own:<uuid>`, y [activePoleId] el jalón activo. Un campo nulo usa el valor por defecto.
  */
 @Entity(tableName = "receiver_gear")

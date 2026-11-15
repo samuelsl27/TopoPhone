@@ -30,7 +30,7 @@
       Hecho cuando: `WifiReceiverFormViewModelTest` y `WifiReceiverFormScreenTest` en verde.
 - [x] T14. `app`: diagnóstico con receptor Wi-Fi (causas del fallo, aviso de salida TCP desactivada) y los textos de Correcciones (sin puerto, enlace caído, sin internet). (RF-12, RF-13, RF-14, RF-16)
       Hecho cuando: `WifiDiagnosticsTest` en verde con cada caso y con el Bluetooth sin cambios.
-- [ ] T15. `app`: ajustes por receptor bajo la clave Wi-Fi (jalón, antena, inclinación). (RF-18)
+- [x] T15. `app`: ajustes por receptor bajo la clave Wi-Fi (jalón, antena, inclinación). (RF-18)
       Hecho cuando: `WifiGearKeysTest` en verde: un receptor Wi-Fi y uno Bluetooth no comparten ajustes y editar la IP del Wi-Fi conserva los suyos.
 - [ ] T16. `tools`: `servidor_tcp.py` (NMEA de `fixtures/nmea/` por TCP, en bucle, con corte y reanudación) y su test. (Demo)
       Hecho cuando: `uv run --project tools pytest tools` en verde y el servidor sirve una sesión de fixtures.
