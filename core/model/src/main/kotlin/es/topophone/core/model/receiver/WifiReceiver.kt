@@ -23,6 +23,19 @@ data class WifiReceiver(val id: String, val name: String, val host: String, val 
 object ReceiverKey {
     private const val WIFI_PREFIX = "wifi:"
 
+    /** El GNSS del móvil (S022/RF-1): una fuente fija, sin alta ni edición. */
+    const val PHONE = "phone"
+
+    /** El receptor virtual (S022/RF-12): una fuente fija, sin alta ni edición. */
+    const val VIRTUAL = "virtual"
+
+    fun isPhone(key: String): Boolean = key == PHONE
+
+    fun isVirtual(key: String): Boolean = key == VIRTUAL
+
+    /** Las dos fuentes que trae la app: no se reconectan solas ni se recuerdan como último receptor (S022 plan D15). */
+    fun isBuiltIn(key: String): Boolean = isPhone(key) || isVirtual(key)
+
     fun wifi(id: String): String = WIFI_PREFIX + id
 
     fun of(receiver: WifiReceiver): String = wifi(receiver.id)

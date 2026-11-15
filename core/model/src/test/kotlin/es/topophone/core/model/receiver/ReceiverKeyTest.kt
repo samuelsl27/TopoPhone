@@ -33,4 +33,26 @@ class ReceiverKeyTest {
         ReceiverKey.of(before) shouldBe ReceiverKey.of(edited)
         ReceiverKey.of(before) shouldBe "wifi:id-1"
     }
+
+    @Test
+    fun `S022 RF-1 las claves del movil y del virtual son fijas y no son de otro tipo`() {
+        ReceiverKey.PHONE shouldBe "phone"
+        ReceiverKey.VIRTUAL shouldBe "virtual"
+        ReceiverKey.isPhone("phone") shouldBe true
+        ReceiverKey.isVirtual("virtual") shouldBe true
+        for (key in listOf("00:11:22:AA:BB:CC", "replay", "", "wifi:phone", "Phone", "virtual ")) {
+            ReceiverKey.isPhone(key) shouldBe false
+            ReceiverKey.isVirtual(key) shouldBe false
+        }
+        ReceiverKey.isWifi("phone") shouldBe false
+        ReceiverKey.isWifi("virtual") shouldBe false
+    }
+
+    @Test
+    fun `S022 RF-12 solo el movil y el virtual son fuentes sin Bluetooth ni Wi-Fi`() {
+        ReceiverKey.isBuiltIn("phone") shouldBe true
+        ReceiverKey.isBuiltIn("virtual") shouldBe true
+        ReceiverKey.isBuiltIn("wifi:abc") shouldBe false
+        ReceiverKey.isBuiltIn("00:11:22:AA:BB:CC") shouldBe false
+    }
 }

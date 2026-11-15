@@ -83,6 +83,8 @@ data class PointQuality(
     /** Los tipos de solución admitidos al medir y las épocas descartadas por tipo (S047/RF-15); null en los puntos de antes de S047. */
     val admitted: AdmittedSolutions? = null,
     val epochsDiscardedByType: Int? = null,
+    /** De dónde vino la posición (S022/RF-11); `fromReplay` sigue diciendo si es simulada (S022 plan D3). */
+    val source: PositionSource = PositionSource.RECEIVER,
 )
 
 /**

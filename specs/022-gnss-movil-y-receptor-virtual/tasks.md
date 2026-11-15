@@ -2,7 +2,7 @@
 
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`), marcar la casilla y un commit `S022 Tn: …`.
 
-- [ ] T1. `core:model`: `PositionSource`, `ReceiverKey.phone/virtual` (`isPhone`, `isVirtual`) y `PointQuality.source`. (RF-1, RF-11, RF-12)
+- [x] T1. `core:model`: `PositionSource`, `ReceiverKey.phone/virtual` (`isPhone`, `isVirtual`) y `PointQuality.source`. (RF-1, RF-11, RF-12)
       Hecho cuando: `ReceiverKeyTest` y `PositionSourceTest` en verde y el resto de `core:model` intacto.
 - [ ] T2. `data`: Room v35 (`points.position_source`, `AutoMigration(34, 35)`, esquema `35.json`), lectura y escritura con su `fromReplay` compatible y copia de seguridad. (RF-11, RF-19, RNF-T6)
       Hecho cuando: el test de migración v34 a v35 de `TopoPhoneDatabaseTest`, `PointsSourceTest` y la copia completa con la columna en verde, y los puntos anteriores siguen siendo `RECEIVER` o `REPLAY`.
