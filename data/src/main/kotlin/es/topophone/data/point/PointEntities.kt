@@ -14,6 +14,7 @@ import es.topophone.core.model.codes.AttributeType
 import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.codes.PointAttribute
 import es.topophone.core.model.codes.PointCode
+import es.topophone.core.model.guide.EquipmentProfile
 import es.topophone.core.model.point.AdmittedSolutions
 import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.AxisHeightRef
@@ -362,6 +363,9 @@ internal fun Point.toEntity(): PointEntity {
         epochsDiscarded = quality?.epochsDiscarded,
         fromReplay = quality?.fromReplay,
         positionSource = quality?.source?.name,
+        equipmentModel = m?.equipment?.model,
+        equipmentSerial = m?.equipment?.serial,
+        equipmentFirmware = m?.equipment?.firmware,
         outOfTolerance = m?.outOfTolerance.orEmpty().sorted().joinToString(",") { it.name },
         rawNmea = m?.rawNmea,
         measuredFrom = m?.measuredFromMs,
@@ -603,8 +607,17 @@ private fun PointEntity.measurement(): Measurement? {
         nmeaChunks = nmeaChunks,
         gear = gear(),
         shift = shift(),
+        equipment = equipment(),
     )
 }
+
+/** El equipo con que se midió; null en los puntos de antes de S043 y en los que no llevan ningún dato (S043/RF-19). */
+private fun PointEntity.equipment(): EquipmentProfile? =
+    if (equipmentModel == null && equipmentSerial == null && equipmentFirmware == null) {
+        null
+    } else {
+        EquipmentProfile(equipmentModel.orEmpty(), equipmentSerial.orEmpty(), equipmentFirmware.orEmpty())
+    }
 
 /** El desplazamiento de base con que se midió; null en los puntos sin él (S020/RF-8). */
 private fun PointEntity.shift(): AppliedShift? = AppliedShift(

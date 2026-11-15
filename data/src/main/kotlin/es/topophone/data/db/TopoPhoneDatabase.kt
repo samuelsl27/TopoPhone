@@ -23,7 +23,9 @@ import es.topophone.data.codes.CodeLibraryEntity
 import es.topophone.data.codes.LibraryCodeEntity
 import es.topophone.data.cogo.TraverseDraftDao
 import es.topophone.data.cogo.TraverseDraftEntity
+import es.topophone.data.config.ConfigStepDao
 import es.topophone.data.config.ConfigStepEntity
+import es.topophone.data.equipment.EquipmentProfileDao
 import es.topophone.data.equipment.EquipmentProfileEntity
 import es.topophone.data.gear.AntennaProfileEntity
 import es.topophone.data.gear.GearDao
@@ -218,6 +220,10 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
     abstract fun traverseDrafts(): TraverseDraftDao
 
     abstract fun wifiReceivers(): WifiReceiverDao
+
+    abstract fun configSteps(): ConfigStepDao
+
+    abstract fun equipmentProfiles(): EquipmentProfileDao
 
     companion object {
         const val NAME = "topophone.db"

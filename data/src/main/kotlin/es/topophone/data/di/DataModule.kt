@@ -28,7 +28,11 @@ import es.topophone.data.codes.ProjectLibraryLinker
 import es.topophone.data.codes.RoomCodeLibraryRepository
 import es.topophone.data.cogo.CogoRepository
 import es.topophone.data.cogo.RoomCogoRepository
+import es.topophone.data.config.ConfigProgressRepository
+import es.topophone.data.config.RoomConfigProgressRepository
 import es.topophone.data.db.TopoPhoneDatabase
+import es.topophone.data.equipment.EquipmentRepository
+import es.topophone.data.equipment.RoomEquipmentRepository
 import es.topophone.data.export.DataStoreDxfExportPreferences
 import es.topophone.data.export.DataStoreExportPreferences
 import es.topophone.data.export.DataStoreKmlExportPreferences
@@ -297,6 +301,16 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideWifiReceiverRepository(database: TopoPhoneDatabase): WifiReceiverRepository = RoomWifiReceiverRepository(database)
+
+    /** El progreso de las listas de configuración de cada receptor (S043). */
+    @Provides
+    @Singleton
+    fun provideConfigProgressRepository(database: TopoPhoneDatabase): ConfigProgressRepository = RoomConfigProgressRepository(database)
+
+    /** Los datos de cada receptor y la dirección de su interfaz web (S043). */
+    @Provides
+    @Singleton
+    fun provideEquipmentRepository(database: TopoPhoneDatabase): EquipmentRepository = RoomEquipmentRepository(database)
 
     /** La superficie activa de cada proyecto, con sus teselas a demanda (S042). */
     @Provides

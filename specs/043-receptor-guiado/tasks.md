@@ -16,7 +16,7 @@
       Hecho cuando: `ConfigListsTest` en verde: cuatro listas, ids únicos, cada paso comprobable apunta a una comprobación válida y cada texto `guide_*` existe en es y en con las mismas claves.
 - [x] T7. `data`: Room v36 (`config_steps`, `equipment_profiles`, tres columnas de `points`, `AutoMigration(35, 36)`, esquema `36.json`) y sus filas en `DatabaseSnapshot.TABLES`. (RF-3, RF-18, RF-19, RNF-T6)
       Hecho cuando: el test de migración v35 a v36 de `TopoPhoneDatabaseTest` en verde, con los puntos anteriores intactos y los de las dos tablas nuevas vacías, y los de versiones anteriores intactos.
-- [ ] T8. `data`: `ConfigProgressRepository` y `EquipmentRepository` (perfil y dirección web) y `Measurement.equipment` guardado con el punto. (RF-3, RF-13, RF-18, RF-19)
+- [x] T8. `data`: `ConfigProgressRepository` y `EquipmentRepository` (perfil y dirección web) y `Measurement.equipment` guardado con el punto. (RF-3, RF-13, RF-18, RF-19)
       Hecho cuando: `ConfigProgressRepositoryTest`, `EquipmentRepositoryTest` y `PointEquipmentTest` en verde, y la copia de seguridad y el paquete de proyecto llevan los tres campos del punto.
 - [ ] T9. `core:formats`: las tres `ExportColumn` de equipo en el CSV y su prueba, con los tres CSV de referencia regenerados. (RF-20)
       Hecho cuando: `CsvExportTest` y `CsvExportGoldenTest` en verde con las columnas tras `AUTOMATIC` y `tools/formatos/test_csv_exportado.py` en verde.

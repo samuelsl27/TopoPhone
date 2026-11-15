@@ -5,6 +5,7 @@ import es.topophone.core.model.alignment.slope.SlopeStakeInfo
 import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.cogo.CogoRef
+import es.topophone.core.model.guide.EquipmentProfile
 import java.math.BigInteger
 import java.text.Normalizer
 import java.util.Locale
@@ -132,6 +133,8 @@ data class Measurement(
     val gear: GearUsed? = null,
     /** El desplazamiento de base con el que se midió, si había uno activo (S020/RF-8); null en los demás puntos. */
     val shift: AppliedShift? = null,
+    /** El modelo, el número de serie y el firmware del receptor con que se midió (S043/RF-19); null en los puntos de antes y sin datos. */
+    val equipment: EquipmentProfile? = null,
 )
 
 /**
