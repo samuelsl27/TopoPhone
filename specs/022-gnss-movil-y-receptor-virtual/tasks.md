@@ -6,7 +6,7 @@
       Hecho cuando: `ReceiverKeyTest` y `PositionSourceTest` en verde y el resto de `core:model` intacto.
 - [x] T2. `data`: Room v35 (`points.position_source`, `AutoMigration(34, 35)`, esquema `35.json`), lectura y escritura con su `fromReplay` compatible y copia de seguridad. (RF-11, RF-19, RNF-T6)
       Hecho cuando: el test de migración v34 a v35 de `TopoPhoneDatabaseTest`, `PointsSourceTest` y la copia completa con la columna en verde, y los puntos anteriores siguen siendo `RECEIVER` o `REPLAY`.
-- [ ] T3. `core:gnss`: `NmeaWriter` (GGA, GST, GSA, GSV, ZDA, EBP y ETC con suma de control y `Locale.ROOT`). (RF-15)
+- [x] T3. `core:gnss`: `NmeaWriter` (GGA, GST, GSA, GSV, ZDA, EBP y ETC con suma de control y `Locale.ROOT`). (RF-15)
       Hecho cuando: `NmeaWriterTest` en verde: cada frase escrita se lee con su analizador y devuelve los mismos valores, y la suma de control coincide con la de las frases de `fixtures/nmea/`.
 - [ ] T4. `core:gnss`: `Scenario`, `ScenarioState` y `ScenarioPlayer` con los escenarios «FIX estable» y «Paseo en línea recta». (RF-13, RF-14, RF-15)
       Hecho cuando: `ScenarioPlayerTest` en verde: dos ejecuciones con el mismo origen y hora de inicio dan los mismos bytes, la hora UTC crece de 1 s en 1 s, el origen cambia las coordenadas y el paseo avanza 1 m/s.
