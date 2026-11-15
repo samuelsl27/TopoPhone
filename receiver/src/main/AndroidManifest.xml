@@ -14,6 +14,8 @@
     <!-- Cliente NTRIP (S002/RF-19) y comprobación de la conexión a internet (S002/RF-23). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Pedir la red Wi-Fi del receptor aunque no tenga internet y atar sus sockets a ella (S021/RF-8). -->
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <!-- Aviso de conexión perdida con el receptor (S002/RF-9). -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
