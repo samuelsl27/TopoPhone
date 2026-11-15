@@ -24,6 +24,8 @@ data class BaseFix(
     val stationId: Int?,
     val antennaHeightM: Double?,
     val receivedAtMs: Long,
+    /** El año de realización ITRF que declara el 1005 o 1006 (0 si no lo declara); `null` si la base no viene de ellos (S043/RF-8). */
+    val itrfYear: Int? = null,
 )
 
 /** El último cambio de base: lo que se ha movido y su número, que no se repite mientras viva la app (S015/RF-17, RF-18). */
@@ -80,6 +82,7 @@ class BaseTracker {
             reference.stationId,
             reference.antennaHeightM,
             nowMs,
+            reference.itrfYear,
         )
         return arrived(BaseSource.CORRECTIONS, ecef, nowMs)
     }

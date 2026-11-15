@@ -90,7 +90,10 @@ class ReceiverCheckerNmeaTest {
 
         checks shouldHaveSize 4
         checks.all { it.status == CheckStatus.NO_DATA && it.causes == listOf(CheckCause.NO_DATA) } shouldBe true
-        checker.check(WindowSnapshot(emptyList(), null), CheckContext(ntripOpen = true)) shouldHaveSize 5
+        // Con el NTRIP abierto, además de la edad de las correcciones, las dos de RTCM tampoco tienen datos todavía.
+        val withNtrip = checker.check(WindowSnapshot(emptyList(), null), CheckContext(ntripOpen = true))
+        withNtrip shouldHaveSize 7
+        withNtrip.all { it.status == CheckStatus.NO_DATA } shouldBe true
     }
 
     @Test
