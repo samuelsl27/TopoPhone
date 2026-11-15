@@ -421,6 +421,12 @@
     <string name="receiver_paired_title">Receptores emparejados</string>
     <string name="receiver_last_used">Último usado</string>
     <string name="receiver_menu_sessions">Sesiones grabadas</string>
+    <string name="receiver_menu_guide">Guía</string>
+    <string name="receiver_menu_equipment">Datos del receptor</string>
+    <string name="receiver_menu_guide_summary">Listas de configuración y comprobaciones</string>
+    <string name="receiver_menu_guide_check_only">Solo comprobaciones: no hay listas con esta fuente</string>
+    <string name="receiver_menu_equipment_summary">Modelo, serie y firmware de cada receptor</string>
+    <string name="receiver_menu_source_not_applicable">No aplica a esta fuente</string>
     <string name="receiver_header_connecting">Conectando…</string>
     <string name="receiver_header_receiving">Recibiendo datos</string>
     <string name="receiver_header_no_data">Conectado, pero no llegan datos NMEA</string>

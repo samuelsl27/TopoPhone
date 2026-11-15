@@ -22,8 +22,10 @@ const val MENU_CORRECTIONS_TAG = "menu_corrections"
 const val MENU_TILT_TAG = "menu_tilt"
 const val MENU_GEAR_TAG = "menu_gear"
 const val MENU_SESSIONS_TAG = "menu_sessions"
+const val MENU_GUIDE_TAG = "menu_guide"
+const val MENU_EQUIPMENT_TAG = "menu_equipment"
 
-/** Menú de la pantalla del receptor: cinco entradas, cada una con su resumen (S005/RF-9 a RF-13; S016/RF-1). */
+/** Menú de la pantalla del receptor: ocho entradas, cada una con su resumen (S005/RF-9 a RF-13; S016/RF-1; S043/RF-1, RF-18). */
 @Composable
 internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
     val snapshot = state.snapshot
@@ -90,5 +92,32 @@ internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
             Modifier.testTag(MENU_SESSIONS_TAG),
             sessionsSummary,
         )
+        HorizontalDivider()
+        // S043/RF-1, RF-22, RF-23: con un receptor de verdad, las listas y las comprobaciones; con una reproducción o el receptor
+        // virtual solo las comprobaciones; con el móvil, nada.
+        ListRow(stringResource(R.string.receiver_menu_guide), actions.onOpenGuide, Modifier.testTag(MENU_GUIDE_TAG)) {
+            Text(
+                stringResource(
+                    when {
+                        snapshot.source.isPhone() -> R.string.receiver_menu_source_not_applicable
+                        snapshot.source.isRealReceiver() -> R.string.receiver_menu_guide_summary
+                        else -> R.string.receiver_menu_guide_check_only
+                    },
+                ),
+            )
+        }
+        HorizontalDivider()
+        // S043/RF-18, RF-22, RF-23: los datos del receptor solo existen para un receptor de verdad.
+        ListRow(stringResource(R.string.receiver_menu_equipment), actions.onOpenEquipment, Modifier.testTag(MENU_EQUIPMENT_TAG)) {
+            Text(
+                stringResource(
+                    if (snapshot.source.isRealReceiver()) {
+                        R.string.receiver_menu_equipment_summary
+                    } else {
+                        R.string.receiver_menu_source_not_applicable
+                    },
+                ),
+            )
+        }
     }
 }

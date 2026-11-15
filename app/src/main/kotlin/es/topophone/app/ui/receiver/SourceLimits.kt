@@ -20,3 +20,6 @@ internal fun PositionSource.ntripMotive(): Int? = when {
 
 /** El GNSS del móvil no da inclinación (S022/RF-9); el receptor virtual sí (escenario «Inclinación con el movimiento en ocho»). */
 internal fun PositionSource.supportsTilt(): Boolean = !isPhone()
+
+/** Un receptor de verdad, por Bluetooth o Wi-Fi: no el móvil, el virtual ni una reproducción (S043/RF-22, RF-23). */
+internal fun PositionSource.isRealReceiver(): Boolean = this == PositionSource.RECEIVER

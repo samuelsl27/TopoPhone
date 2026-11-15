@@ -1,5 +1,7 @@
 package es.topophone.app.ui.receiver
 
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.getBoundsInRoot
@@ -52,25 +54,29 @@ class ReceiverMenuTest {
     private fun entry(tag: String) = compose.onNodeWithTag(tag).performScrollTo()
 
     @Test
-    fun `S005 RF-9 bajo la cabecera hay seis entradas en orden, con Antena y jalon e Inclinacion tras Coordenadas`() {
+    fun `S005 RF-9 bajo la cabecera hay ocho entradas en orden, con Guia y Datos del receptor al final`() {
         show(receiving)
 
-        val header = compose.onNodeWithTag(RECEIVER_HEADER_TAG).getBoundsInRoot()
-        val tops = listOf(
+        val entries = listOf(
             MENU_STATUS_TAG to R.string.receiver_menu_status,
             MENU_COORDINATES_TAG to R.string.receiver_menu_coordinates,
             MENU_GEAR_TAG to R.string.receiver_menu_gear,
             MENU_TILT_TAG to R.string.receiver_menu_tilt,
             MENU_CORRECTIONS_TAG to R.string.receiver_menu_corrections,
             MENU_SESSIONS_TAG to R.string.receiver_menu_sessions,
-        ).map { (tag, title) ->
-            val node = entry(tag).assert(hasText(text(title)))
-            val bounds = node.getBoundsInRoot()
+            MENU_GUIDE_TAG to R.string.receiver_menu_guide, // S043/RF-1
+            MENU_EQUIPMENT_TAG to R.string.receiver_menu_equipment, // S043/RF-18
+        )
+        // Con ocho entradas no caben en una sola vista: cada una se mide justo tras desplazarse hasta ella.
+        entries.forEach { (tag, title) ->
+            val bounds = entry(tag).assert(hasText(text(title))).getBoundsInRoot()
             (bounds.bottom - bounds.top >= 56.dp) shouldBe true // RNF de la spec
-            bounds.top
         }
-        (header.bottom <= tops.first()) shouldBe true
-        tops shouldBe tops.sorted()
+        // Y el orden es el del árbol de la pantalla, que es el de arriba abajo.
+        val tags = entries.map { it.first }
+        val order = compose.onAllNodes(SemanticsMatcher("entrada del menu") { it.config.getOrNull(SemanticsProperties.TestTag) in tags })
+            .fetchSemanticsNodes().map { it.config[SemanticsProperties.TestTag] }
+        order shouldBe tags
     }
 
     @Test

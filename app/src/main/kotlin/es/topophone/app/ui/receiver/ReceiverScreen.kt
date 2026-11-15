@@ -56,6 +56,12 @@ import es.topophone.app.receiver.ACCESS_LOCAL_NETWORK
 import es.topophone.app.receiver.localNetworkSettingsIntent
 import es.topophone.app.receiver.notificationSettingsIntent
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.equipment.EquipmentActions
+import es.topophone.app.ui.equipment.EquipmentUiState
+import es.topophone.app.ui.equipment.EquipmentViewModel
+import es.topophone.app.ui.guide.GuideActions
+import es.topophone.app.ui.guide.GuideUiState
+import es.topophone.app.ui.guide.GuideViewModel
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.designsystem.theme.LocalStatusPalette
 import es.topophone.core.designsystem.theme.StatusTone
@@ -116,6 +122,9 @@ class ReceiverActions(
     /** S016/RF-1. */
     val onOpenTilt: () -> Unit = {},
     val onOpenGear: () -> Unit = {},
+    /** S043/RF-1, RF-18. */
+    val onOpenGuide: () -> Unit = {},
+    val onOpenEquipment: () -> Unit = {},
     val onSelectPole: (String) -> Unit = {},
     val onOpenBluetoothSettings: () -> Unit = {},
     /** S015/RF-17. */
@@ -217,6 +226,11 @@ fun ReceiverRoute(
     val gearViewModel: GearViewModel? = if (page == ReceiverPage.GEAR) hiltViewModel() else null
     val gear = gearViewModel?.state?.collectAsStateWithLifecycle()?.value ?: GearUiState()
     val tiltViewModel: TiltViewModel? = if (page == ReceiverPage.TILT) hiltViewModel() else null
+    // La Guía y los datos del receptor, cada uno con el suyo (S043).
+    val guideViewModel: GuideViewModel? = if (page == ReceiverPage.GUIDE) hiltViewModel() else null
+    val guide = guideViewModel?.state?.collectAsStateWithLifecycle()?.value ?: GuideUiState()
+    val equipmentViewModel: EquipmentViewModel? = if (page == ReceiverPage.EQUIPMENT) hiltViewModel() else null
+    val equipment = equipmentViewModel?.state?.collectAsStateWithLifecycle()?.value ?: EquipmentUiState()
     val tilt = tiltViewModel?.state?.collectAsStateWithLifecycle()?.value ?: TiltUiState()
     ReceiverPageScreen(
         page = page,
@@ -260,6 +274,19 @@ fun ReceiverRoute(
                 onDismissMessage = vm::dismissMessage,
             )
         } ?: GearActions(),
+        guide = guide,
+        guideActions = guideViewModel?.let { vm ->
+            GuideActions(onSetDone = vm::setDone, onReset = vm::reset, onCheck = vm::check)
+        } ?: GuideActions(),
+        equipment = equipment,
+        equipmentActions = equipmentViewModel?.let { vm ->
+            EquipmentActions(
+                onSave = vm::save,
+                onPick = vm::pick,
+                onUseProfile = vm::useProposedProfile,
+                onDismissMessage = vm::dismissMessage,
+            )
+        } ?: EquipmentActions(),
         actions = ReceiverActions(
             onRequestPermission = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) permissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
@@ -281,6 +308,8 @@ fun ReceiverRoute(
             onOpenCorrections = { navigation.onOpen(ReceiverPage.CORRECTIONS) },
             onOpenTilt = { navigation.onOpen(ReceiverPage.TILT) }, // S016/RF-1
             onOpenGear = { navigation.onOpen(ReceiverPage.GEAR) }, // S046
+            onOpenGuide = { navigation.onOpen(ReceiverPage.GUIDE) }, // S043/RF-1
+            onOpenEquipment = { navigation.onOpen(ReceiverPage.EQUIPMENT) }, // S043/RF-18
             onReplaySpeed = viewModel::setReplaySpeed,
             onReplayLoop = viewModel::setReplayLoop,
             onStopReplay = viewModel::stopReplay,

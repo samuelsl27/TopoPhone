@@ -853,6 +853,8 @@ private fun AppNavHost(
             composable<ReceiverCorrectionsRoute> { page(it, ReceiverPage.CORRECTIONS) }
             composable<ReceiverTiltRoute> { page(it, ReceiverPage.TILT) }
             composable<ReceiverGearRoute> { page(it, ReceiverPage.GEAR) }
+            composable<ReceiverGuideRoute> { page(it, ReceiverPage.GUIDE) } // S043/RF-1
+            composable<ReceiverEquipmentRoute> { page(it, ReceiverPage.EQUIPMENT) } // S043/RF-18
             composable<NtripProfileFormDestination> { entry ->
                 val args = entry.toRoute<NtripProfileFormDestination>()
                 ntripProfileSection(args.profileId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
@@ -996,6 +998,8 @@ private fun ReceiverPage.route(): Any = when (this) {
     ReceiverPage.CORRECTIONS -> ReceiverCorrectionsRoute
     ReceiverPage.TILT -> ReceiverTiltRoute
     ReceiverPage.GEAR -> ReceiverGearRoute
+    ReceiverPage.GUIDE -> ReceiverGuideRoute
+    ReceiverPage.EQUIPMENT -> ReceiverEquipmentRoute
 }
 
 private fun NavDestination?.isIn(destination: TopLevelDestination): Boolean =

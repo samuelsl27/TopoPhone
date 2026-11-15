@@ -28,6 +28,12 @@ import kotlinx.serialization.Serializable
 /** Apartado "Antena y jalón" del menú del receptor (S046). */
 @Serializable data object ReceiverGearRoute
 
+/** Apartado "Guía" del menú del receptor: las listas de configuración y las comprobaciones (S043/RF-1). */
+@Serializable data object ReceiverGuideRoute
+
+/** Apartado "Datos del receptor" del menú del receptor: modelo, serie y firmware (S043/RF-18). */
+@Serializable data object ReceiverEquipmentRoute
+
 /** Formulario de perfil NTRIP: nuevo (sin id) o editado (S007/RF-2). */
 @Serializable data class NtripProfileFormDestination(val profileId: String? = null)
 

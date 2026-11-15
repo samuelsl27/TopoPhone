@@ -14,6 +14,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.equipment.EquipmentActions
+import es.topophone.app.ui.equipment.EquipmentCard
+import es.topophone.app.ui.equipment.EquipmentUiState
+import es.topophone.app.ui.guide.GuideActions
+import es.topophone.app.ui.guide.GuideCard
+import es.topophone.app.ui.guide.GuideUiState
 import es.topophone.core.model.preferences.ThemeState
 
 const val RECEIVER_STATUS_SCREEN_TAG = "receiver_status_screen"
@@ -24,9 +30,11 @@ const val RECEIVER_GEAR_SCREEN_TAG = "receiver_gear_screen"
 const val NO_RECEIVER_TAG = "receiver_no_receiver"
 const val TILT_UNAVAILABLE_TAG = "receiver_tilt_unavailable"
 const val GEAR_UNAVAILABLE_TAG = "receiver_gear_unavailable"
+const val RECEIVER_GUIDE_SCREEN_TAG = "receiver_guide_screen"
+const val RECEIVER_EQUIPMENT_SCREEN_TAG = "receiver_equipment_screen"
 
 /** Pantallas de la sección Receptor: la raíz y las del menú (S005/RF-14; S016/RF-1). Las sesiones grabadas son de S003. */
-enum class ReceiverPage { HOME, STATUS, COORDINATES, GEAR, TILT, CORRECTIONS }
+enum class ReceiverPage { HOME, STATUS, COORDINATES, GEAR, TILT, CORRECTIONS, GUIDE, EQUIPMENT }
 
 /** Lo que la sección Receptor necesita de la navegación de la app (S005/RF-14, RF-15; perfiles NTRIP, S007). */
 class ReceiverNavigation(
@@ -55,6 +63,10 @@ fun ReceiverPageScreen(
     tiltActions: TiltActions = TiltActions(),
     gear: GearUiState = GearUiState(),
     gearActions: GearActions = GearActions(),
+    guide: GuideUiState = GuideUiState(),
+    guideActions: GuideActions = GuideActions(),
+    equipment: EquipmentUiState = EquipmentUiState(),
+    equipmentActions: EquipmentActions = EquipmentActions(),
 ) {
     when (page) {
         ReceiverPage.HOME -> ReceiverScreen(themeState, onToggleSun, state, actions)
@@ -113,6 +125,26 @@ fun ReceiverPageScreen(
                 // S022/RF-9
                 Text(stringResource(R.string.source_phone_no_tilt_explained), modifier = Modifier.testTag(TILT_UNAVAILABLE_TAG))
             }
+        }
+        ReceiverPage.GUIDE -> ChildScreen(
+            R.string.receiver_menu_guide,
+            RECEIVER_GUIDE_SCREEN_TAG,
+            state,
+            themeState,
+            onToggleSun,
+            onBack,
+        ) {
+            GuideCard(guide, guideActions) // S043/RF-1 a RF-10; con el móvil y el virtual, RF-22 y RF-23
+        }
+        ReceiverPage.EQUIPMENT -> ChildScreen(
+            R.string.receiver_menu_equipment,
+            RECEIVER_EQUIPMENT_SCREEN_TAG,
+            state,
+            themeState,
+            onToggleSun,
+            onBack,
+        ) {
+            EquipmentCard(equipment, equipmentActions) // S043/RF-18, RF-21; RF-22, RF-23
         }
         ReceiverPage.CORRECTIONS -> CorrectionsScreen(themeState, onToggleSun, onBack, state, corrections, correctionsActions) // S007
     }

@@ -409,6 +409,12 @@
     <string name="receiver_paired_title">Paired receivers</string>
     <string name="receiver_last_used">Last used</string>
     <string name="receiver_menu_sessions">Recorded sessions</string>
+    <string name="receiver_menu_guide">Guide</string>
+    <string name="receiver_menu_equipment">Receiver details</string>
+    <string name="receiver_menu_guide_summary">Setup lists and checks</string>
+    <string name="receiver_menu_guide_check_only">Checks only: there are no lists with this source</string>
+    <string name="receiver_menu_equipment_summary">Model, serial and firmware of each receiver</string>
+    <string name="receiver_menu_source_not_applicable">Does not apply to this source</string>
     <string name="receiver_header_connecting">Connecting…</string>
     <string name="receiver_header_receiving">Receiving data</string>
     <string name="receiver_header_no_data">Connected, but no NMEA data is arriving</string>
