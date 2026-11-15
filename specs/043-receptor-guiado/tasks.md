@@ -26,7 +26,7 @@
       Hecho cuando: `KmlExportBuilderTest`, `ExportScreenTest` y `test_kml_exportado.py` en verde con `fixtures/formatos/kml-exportado` regenerado.
 - [x] T12. `app`: `CurrentEquipment` y el perfil guardado por el recolector y el control de base al empezar a medir (no con el móvil, el virtual ni una reproducción). (RF-19, RF-23)
       Hecho cuando: `CollectorEquipmentTest` en verde: el punto guarda el perfil de ese momento, uno editado después no cambia el ya guardado y los puntos del virtual, del móvil y de una reproducción no llevan perfil.
-- [ ] T13. `app`: «Datos del receptor» (formulario de modelo, serie y firmware, catálogo de S046, «Usar su perfil de antena») y la fila de equipo en la ficha del punto. (RF-18, RF-20, RF-21)
+- [x] T13. `app`: «Datos del receptor» (formulario de modelo, serie y firmware, catálogo de S046, «Usar su perfil de antena») y la fila de equipo en la ficha del punto. (RF-18, RF-20, RF-21)
       Hecho cuando: `EquipmentScreenTest` y `PointEquipmentDetailsTest` en verde: se guarda y se edita por receptor, elegir un modelo del catálogo propone su perfil y no cambia el que ya había hasta pulsar, y la ficha muestra los tres campos solo si el punto los tiene.
 - [ ] T14. `app`: `ReceiverWindowRecorder` (la ventana de 10 s a partir de `ReceiverSession.epochs` y del estado del NTRIP). (RF-5)
       Hecho cuando: `ReceiverWindowRecorderTest` en verde con una sesión real de `fixtures/nmea` y un NTRIP falso: la ventana se llena, olvida lo viejo, funciona con una reproducción y con el receptor virtual y se vacía al desconectar.

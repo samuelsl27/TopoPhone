@@ -868,6 +868,18 @@ private fun MeasurementCard(project: Project, measurement: Measurement, loadNmea
                 "point_gear_antenna_height",
             )
         }
+        // S043/RF-20: el receptor con que se midió; solo las filas que el punto tiene.
+        measurement.equipment?.let { equipment ->
+            if (equipment.model.isNotBlank()) {
+                CoordinateRow(stringResource(R.string.point_equipment_model), equipment.model, "point_equipment_model")
+            }
+            if (equipment.serial.isNotBlank()) {
+                CoordinateRow(stringResource(R.string.point_equipment_serial), equipment.serial, "point_equipment_serial")
+            }
+            if (equipment.firmware.isNotBlank()) {
+                CoordinateRow(stringResource(R.string.point_equipment_firmware), equipment.firmware, "point_equipment_firmware")
+            }
+        }
         measurement.tilt?.let { tilt ->
             CoordinateRow(
                 stringResource(R.string.point_tilt_mode),
