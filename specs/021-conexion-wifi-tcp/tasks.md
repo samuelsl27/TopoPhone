@@ -32,7 +32,7 @@
       Hecho cuando: `WifiDiagnosticsTest` en verde con cada caso y con el Bluetooth sin cambios.
 - [x] T15. `app`: ajustes por receptor bajo la clave Wi-Fi (jalón, antena, inclinación). (RF-18)
       Hecho cuando: `WifiGearKeysTest` en verde: un receptor Wi-Fi y uno Bluetooth no comparten ajustes y editar la IP del Wi-Fi conserva los suyos.
-- [ ] T16. `tools`: `servidor_tcp.py` (NMEA de `fixtures/nmea/` por TCP, en bucle, con corte y reanudación) y su test. (Demo)
+- [x] T16. `tools`: `servidor_tcp.py` (NMEA de `fixtures/nmea/` por TCP, en bucle, con corte y reanudación) y su test. (Demo)
       Hecho cuando: `uv run --project tools pytest tools` en verde y el servidor sirve una sesión de fixtures.
 - [ ] T17. Accesibilidad y textos: etiquetas, 56 dp, es y en y sin literales en código. (RNF-T7, RNF-T8)
       Hecho cuando: `WifiAccessibilityTest` en verde y Lint sin textos sin usar.
