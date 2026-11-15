@@ -46,7 +46,7 @@ El dato de campo es sagrado (constitución nº 1): cada punto se guarda al momen
 ### Guardado y metadatos (H4)
 - RF-16: CUANDO termine una medida que cumple el control de precisión, EL SISTEMA guardará el punto en menos de 1 s (en menos de 3 s con un promediado de más de 60 s, S017), en una sola operación que sobrevive a un cierre de la app justo después (RNF-T6).
 - RF-17: EL SISTEMA guardará con cada punto la posición de la antena tal como la da el receptor, las frases NMEA de las épocas usadas, la altura del jalón, el punto del suelo en geográficas y en el SC del proyecto, y la fecha y hora de la medida.
-- RF-18: EL SISTEMA guardará con cada punto sus metadatos de calidad: estado de la solución, satélites, HDOP, edad de las correcciones, precisiones de la GST, modo de medida, épocas usadas y descartadas, y si viene de una reproducción.
+- RF-18: EL SISTEMA guardará con cada punto sus metadatos de calidad: estado de la solución, satélites, HDOP, edad de las correcciones, precisiones de la GST, modo de medida, épocas usadas y descartadas, y la fuente de la posición (receptor, reproducción, GNSS del móvil o receptor virtual).
 - RF-19: CUANDO se guarde un punto, EL SISTEMA lo confirmará con un sonido y una vibración y propondrá el nombre siguiente.
 - RF-22: EL SISTEMA guardará como precisiones de un punto las de la última GST recibida hasta el final de la medida, si tiene menos de 3 s (S002/RF-17), aunque no llegue en una de las épocas usadas.
 - RF-23: EL SISTEMA guardará con las frases NMEA del punto la GST de la que salen sus precisiones.
