@@ -130,7 +130,7 @@ class BaseShiftViewModel @Inject constructor(
     private var projectId: String? = null
     private var project: Project? = null
     private var measurement: PointMeasurement? = null
-    private var measuringReplay = false
+    private var measuringSource = PositionSource.RECEIVER
     private var measuredGround: GeodeticPosition? = null
     private var epochsUsed = 0
     private var measuredBase: GeodeticPosition? = null
@@ -286,7 +286,7 @@ class BaseShiftViewModel @Inject constructor(
             gear = equipment.toUsed(),
             shift = null, // RF-2: la medida del punto conocido no lleva el desplazamiento activo
         )
-        measuringReplay = session.state.value.replay != null
+        measuringSource = session.state.value.source // S022/RF-19
         measuredBase = null
         mutable.update { it.copy(step = BaseShiftStep.MEASURING, progress = null, error = null, result = null, farConfirmed = false) }
         ensureTicker()
@@ -441,7 +441,7 @@ class BaseShiftViewModel @Inject constructor(
             id = id,
             projectId = project.id,
             createdAtMs = System.currentTimeMillis(),
-            fromReplay = measuringReplay,
+            fromReplay = measuringSource.simulated,
             knownName = name,
             knownPointId = if (s.source == KnownSource.POINT) s.selectedPointId else null,
             knownEasting = known.easting,

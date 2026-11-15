@@ -42,6 +42,7 @@ import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointQuality
+import es.topophone.core.model.point.PositionSource
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutNames
@@ -337,7 +338,14 @@ class CollectorViewModel @Inject constructor(
 
     /** Los milisegundos entre dos publicaciones de las estadísticas; los tests mandan las épocas sin pausa y lo ponen a 0. */
     internal var statsIntervalMs = STATS_INTERVAL_MS
-    private var measuringReplay = false
+    private var measuringSource = PositionSource.RECEIVER
+
+    /**
+     * De dónde vino la posición del punto que se guarda; una ubicación simulada por otra app durante la medida la marca entera
+     * (S022/RF-7).
+     */
+    private fun sourceForPoint(): PositionSource =
+        if (session.state.value.source == PositionSource.PHONE_MOCK) PositionSource.PHONE_MOCK else measuringSource
 
     /** El desplazamiento de base activo al empezar el punto: la medida lo conserva hasta el final (S020/RF-9). */
     private var measuringShift: BaseShift? = null
@@ -848,7 +856,7 @@ class CollectorViewModel @Inject constructor(
         measurementBaseChange = lastBaseChange
         measurementBase = null
         measurement = factory()
-        measuringReplay = session.state.value.replay != null
+        measuringSource = session.state.value.source // S022/RF-11, RF-19
         measuringAuto = auto
         photos.measurementStarted(auto) // S017b/RF-5
         run.value = Run(measuring = true)
@@ -1193,6 +1201,7 @@ class CollectorViewModel @Inject constructor(
         val projectId = projectId.value ?: return
         val name = PointNames.clean(form.value.name)
         val auto = measuringAuto
+        val pointSource = sourceForPoint()
         val measurement = Measurement(
             antenna = result.antenna,
             poleHeightM = result.poleHeightM,
@@ -1206,7 +1215,8 @@ class CollectorViewModel @Inject constructor(
                 mode = result.mode,
                 epochsUsed = result.epochsUsed,
                 epochsDiscarded = result.epochsDiscarded,
-                fromReplay = measuringReplay,
+                fromReplay = pointSource.simulated,
+                source = pointSource,
                 // S017/RF-12, RF-14: lo que dejó el promediado, y si lo midió el modo automático (T19).
                 averagedTimeS = result.averagedTimeS,
                 deviationHorizontalM = result.deviationHorizontalM,

@@ -30,7 +30,7 @@
       Hecho cuando: `SourceHeaderTest` en verde, con el texto y no solo el color, y los de la cabecera y la barra de estado de S005 intactos.
 - [x] T14. `app`: el móvil sin NTRIP, inclinación ni base (con el motivo al pedirlos), el virtual sin NTRIP, y el aviso de ubicación simulada por otra app. (RF-7, RF-9, RF-18)
       Hecho cuando: `SourceLimitsTest` en verde y los tests de Correcciones y de inclinación de S007 y S016 intactos.
-- [ ] T15. `app`: equipo del móvil (sin jalón ni desplazamiento al centro de fase) y `measuringSource` en el recolector y en el control de base: el punto se guarda con su fuente y marcado simulado con el virtual, con una ubicación simulada y con una reproducción. (RF-6, RF-7, RF-10, RF-11, RF-19)
+- [x] T15. `app`: equipo del móvil (sin jalón ni desplazamiento al centro de fase) y `measuringSource` en el recolector y en el control de base: el punto se guarda con su fuente y marcado simulado con el virtual, con una ubicación simulada y con una reproducción. (RF-6, RF-7, RF-10, RF-11, RF-19)
       Hecho cuando: `CollectorSourceTest` en verde: con «solo FIX» el móvil no mide sin confirmar, y los tests del recolector de S010, S017 y S047 y de base de S020 intactos.
 - [ ] T16. `app`: la fuente en la ficha del punto y en el mapa/lista donde ya se marca lo de reproducción. (RF-11, RF-19, RF-7)
       Hecho cuando: `PointSourceDetailsTest` en verde y la columna «Replay» de «Todas las columnas» sale verdadera con el virtual y con la ubicación simulada (`CsvExportTest`).

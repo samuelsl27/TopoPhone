@@ -1,6 +1,7 @@
 package es.topophone.app.receiver
 
 import es.topophone.core.model.point.PoleKind
+import es.topophone.core.model.receiver.ReceiverKey
 import es.topophone.core.survey.ActiveGear
 import es.topophone.core.survey.AntennaProfile
 import es.topophone.core.survey.GearResolver
@@ -36,24 +37,30 @@ class CurrentGear(key: Flow<String?>, private val repository: GearRepository, sc
     private val keyState: StateFlow<String> = receiverKey.stateIn(scope, SharingStarted.Eagerly, NO_RECEIVER)
 
     /** El equipo actual; hasta que llegue de la base de datos, el de un receptor sin configurar (RS3 y 1,8 m). */
-    val state: StateFlow<ActiveGear> = receiverKey.flatMapLatest { repository.gear(it) }.distinctUntilChanged()
+    val state: StateFlow<ActiveGear> = receiverKey.flatMapLatest { key -> gearOf(key) }.distinctUntilChanged()
         .stateIn(scope, SharingStarted.Eagerly, DEFAULT)
+
+    /** El equipo de una clave: el del móvil es fijo y sin jalón (S022/RF-6); el de cualquier otro, el que guarda el repositorio. */
+    private fun gearOf(key: String): Flow<ActiveGear> = if (key == ReceiverKey.PHONE) flowOf(PHONE_GEAR) else repository.gear(key)
 
     /** Los jalones guardados para el selector (S046/RF-14); hasta que lleguen, el de por defecto. */
     val poles: StateFlow<List<SavedPole>> = repository.poles().stateIn(scope, SharingStarted.Eagerly, listOf(DEFAULT_POLE))
 
     /** El jalón activo pasa a tener esta altura escrita (S046/RF-10); el tipo, el nombre y el perfil no cambian. */
     suspend fun editActivePoleHeight(enteredM: Double) {
+        if (keyState.value == ReceiverKey.PHONE) return // S022/RF-6: el móvil no lleva jalón
         val pole = state.value.pole ?: return
         val text = BigDecimal(enteredM.toString()).toPlainString()
         repository.savePole(pole.id, pole.name, pole.kind, text)
     }
 
     /** S046/RF-13, RF-14. */
-    suspend fun setActivePole(poleId: String): GearResult = repository.setActivePole(keyState.value, poleId)
+    suspend fun setActivePole(poleId: String): GearResult =
+        if (keyState.value == ReceiverKey.PHONE) GearResult.NotFound else repository.setActivePole(keyState.value, poleId)
 
     /** S046/RF-7, RF-8. */
-    suspend fun setProfile(profileRef: String): GearResult = repository.setProfile(keyState.value, profileRef)
+    suspend fun setProfile(profileRef: String): GearResult =
+        if (keyState.value == ReceiverKey.PHONE) GearResult.NotFound else repository.setProfile(keyState.value, profileRef)
 
     companion object {
         /** Sin receptor: el equipo de un receptor que no se ha configurado. */
@@ -63,6 +70,17 @@ class CurrentGear(key: Flow<String?>, private val repository: GearRepository, sc
         private val DEFAULT_POLE = SavedPole("default", "Jalón estándar", PoleKind.VERTICAL, PoleHeight.DEFAULT_M)
 
         val DEFAULT: ActiveGear = GearResolver.resolve(null, emptyList(), "default", listOf(DEFAULT_POLE))
+
+        /**
+         * El GNSS del móvil: sin jalón y sin desplazamiento al centro de fase, así que el punto del suelo es la posición de Android tal
+         * cual (S022/RF-6). Siempre este equipo con la clave `phone`; no se edita.
+         */
+        val PHONE_GEAR: ActiveGear = GearResolver.resolve(
+            "own:${ReceiverKey.PHONE}",
+            listOf(AntennaProfile("own:${ReceiverKey.PHONE}", ReceiverKey.PHONE, offsetM = 0.0, radiusM = 0.0, builtIn = false)),
+            ReceiverKey.PHONE,
+            listOf(SavedPole(ReceiverKey.PHONE, ReceiverKey.PHONE, PoleKind.VERTICAL, 0.0)),
+        )
 
         /** El valor por defecto de quien no lo recibe por Hilt (tests): siempre el equipo por defecto, sin cambios. */
         val NONE: CurrentGear by lazy { CurrentGear(flowOf(null), NoGearRepository, CoroutineScope(Dispatchers.Unconfined)) }
