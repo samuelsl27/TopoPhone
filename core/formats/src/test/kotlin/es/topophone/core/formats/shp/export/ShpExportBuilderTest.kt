@@ -8,6 +8,7 @@ import es.topophone.core.formats.shp.export.ShpExportSamples.measured
 import es.topophone.core.formats.shp.export.ShpExportSamples.point
 import es.topophone.core.formats.shp.export.ShpExportSamples.project
 import es.topophone.core.model.codes.AttributeType
+import es.topophone.core.model.guide.EquipmentProfile
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.PointBase
@@ -102,6 +103,21 @@ class ShpExportBuilderTest {
         layer.value(0, "REPRODUC") shouldBe 0L
         layer.value(0, "EDITADO") shouldBe 0L
         layer.value(1, "REPRODUC") shouldBe null
+    }
+
+    @Test
+    fun `S043 RF-20 el receptor es texto y sale en RX_MODEL, RX_SERIAL y RX_FW, vacio si el punto no lo tiene`() {
+        val equipped = measured("1").let {
+            it.copy(measurement = it.measurement!!.copy(equipment = EquipmentProfile("Reach RS3", "RS3-0042", "2026.2")))
+        }
+
+        val layer = builder.build(listOf(equipped, measured("2"), point("3")), project()).points()
+
+        layer.columns.filter { it.name.startsWith("RX_") }.map { it.name to it.type } shouldBe
+            listOf("RX_MODEL" to DbfType.TEXT, "RX_SERIAL" to DbfType.TEXT, "RX_FW" to DbfType.TEXT)
+        listOf("RX_MODEL", "RX_SERIAL", "RX_FW").map { layer.value(0, it) } shouldBe listOf("Reach RS3", "RS3-0042", "2026.2")
+        listOf("RX_MODEL", "RX_SERIAL", "RX_FW").map { layer.value(1, it) } shouldBe listOf(null, null, null)
+        listOf("RX_MODEL", "RX_SERIAL", "RX_FW").map { layer.value(2, it) } shouldBe listOf(null, null, null)
     }
 
     @Test

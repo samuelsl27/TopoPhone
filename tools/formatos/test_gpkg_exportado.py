@@ -175,6 +175,17 @@ def test_el_dorado_declara_el_tipo_de_cada_atributo_y_deja_vacio_lo_que_el_punto
     assert first["Satellites"] is None and first["Solution"] is None and first["Replay"] is None
 
 
+def test_s043_rf_20_el_dorado_lleva_el_receptor_como_texto_entre_automatic_y_edited_y_vacio_si_no_hay():
+    info = g.read_gpkg(g.OUT / "exportado-25830.gpkg")
+    names = [name for name, _ in info.columns]
+    declared = dict(info.columns)
+
+    start = names.index("Automatic") + 1
+    assert names[start:start + 4] == ["Receiver model", "Receiver serial", "Receiver firmware", "Edited"]
+    assert all(declared[name] == "TEXT" for name in names[start:start + 3])
+    assert all(row["Receiver model"] is None and row["Receiver serial"] is None for row in info.rows)
+
+
 def test_la_extension_de_la_capa_es_la_de_los_puntos():
     info = g.read_gpkg(g.OUT / "exportado-25830.gpkg")
     xs = [r["geom"].coords[0] for r in info.rows]

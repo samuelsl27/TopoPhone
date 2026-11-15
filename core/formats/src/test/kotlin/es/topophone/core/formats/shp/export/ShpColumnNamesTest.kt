@@ -47,6 +47,15 @@ class ShpColumnNamesTest {
     }
 
     @Test
+    fun `S043 RF-20 las tres columnas del receptor se llaman RX_MODEL, RX_SERIAL y RX_FW en los dos idiomas`() {
+        for (language in ShpNameLanguage.entries) {
+            ShpColumnNames.of(ExportColumn.EQUIPMENT_MODEL, language) shouldBe "RX_MODEL"
+            ShpColumnNames.of(ExportColumn.EQUIPMENT_SERIAL, language) shouldBe "RX_SERIAL"
+            ShpColumnNames.of(ExportColumn.EQUIPMENT_FIRMWARE, language) shouldBe "RX_FW"
+        }
+    }
+
+    @Test
     fun `S055 RF-8 las dos columnas de replanteo que un recorte a 10 caracteres confundiria tienen nombres distintos`() {
         // «Stake delta northing» y «Stake delta easting» empezarían igual con las 10 primeras letras
         ShpColumnNames.of(ExportColumn.STAKE_D_NORTH, ShpNameLanguage.ES) shouldBe "REPL_DN"
