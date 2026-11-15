@@ -22,7 +22,7 @@
       Hecho cuando: `ReceiverConnectionsSourcesTest` en verde y los de Bluetooth y Wi-Fi intactos.
 - [x] T10. `app`: permisos y servicio del móvil: `ACCESS_FINE_LOCATION` y `FOREGROUND_SERVICE_LOCATION` en el manifiesto, petición al elegirlo, denegación con Ajustes, ubicación apagada con su acceso, y el servicio con el tipo `location` solo con el móvil. (RF-2, RF-3, RF-4, RNF-T1, RNF-T2)
       Hecho cuando: `PhonePermissionsTest` en verde y el manifiesto combinado de `assembleDebug` declara los permisos y quita solo los de la Wi-Fi.
-- [ ] T11. `app`: filas «GNSS del móvil» y «Receptor virtual» en la lista (también con el Bluetooth apagado) y en la hoja de «Añadir receptor». (RF-1, RF-12)
+- [x] T11. `app`: filas «GNSS del móvil» y «Receptor virtual» en la lista (también con el Bluetooth apagado) y en la hoja de «Añadir receptor». (RF-1, RF-12)
       Hecho cuando: `ReceiverListSourcesTest` en verde y los tests de la lista de S004, S005 y S021 intactos.
 - [ ] T12. `app`: `VirtualReceiverDialog` (escenario con descripción y duración, origen del proyecto o coordenadas, velocidad) y los textos de los siete escenarios. (RF-13, RF-14)
       Hecho cuando: `VirtualReceiverDialogTest` en verde: el centro del proyecto por defecto, unas coordenadas escritas, sin proyecto y sin coordenadas no deja continuar.

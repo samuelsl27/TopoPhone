@@ -92,6 +92,8 @@ class ReceiverActions(
     val onAllowLocalNetwork: () -> Unit = {},
     val onDeclineLocalNetwork: () -> Unit = {},
     val onOpenLocalNetworkSettings: () -> Unit = {},
+    /** S022/RF-12, RF-13: abrir la elección del escenario del receptor virtual. */
+    val onOpenVirtual: () -> Unit = {},
     /** S022/RF-2, RF-3. */
     val onAllowPhonePermission: () -> Unit = {},
     val onDeclinePhonePermission: () -> Unit = {},

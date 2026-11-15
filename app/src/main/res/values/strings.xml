@@ -157,6 +157,11 @@
     <string name="receiver_replay_finished">Reproducción terminada: %1$s</string>
     <string name="receiver_scenario_finished">Escenario terminado: %1$s</string>
     <string name="phone_gnss_name">GNSS del móvil</string>
+    <string name="receiver_sources_title">Otras fuentes de posición</string>
+    <string name="receiver_phone_summary">Posición de pocos metros del propio móvil, siempre SINGLE</string>
+    <string name="receiver_virtual_summary">Escenarios simulados para practicar o probar la app</string>
+    <string name="receiver_add_phone">GNSS del móvil</string>
+    <string name="receiver_add_virtual">Receptor virtual</string>
     <string name="phone_permission_title">Ubicación precisa</string>
     <string name="phone_permission_rationale">TopoPhone necesita el permiso de ubicación precisa para leer el GNSS del móvil. Solo se usa mientras esa fuente está en uso y la posición no sale del móvil.</string>
     <string name="phone_permission_continue">Continuar</string>

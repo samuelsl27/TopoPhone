@@ -39,6 +39,10 @@ import es.topophone.receiver.session.ConnectFailure
 import es.topophone.receiver.session.ConnectionState
 
 const val LIST_SESSIONS_TAG = "list_sessions"
+const val PHONE_ROW_TAG = "receiver_phone"
+const val VIRTUAL_ROW_TAG = "receiver_virtual"
+const val ADD_PHONE_TAG = "add_phone"
+const val ADD_VIRTUAL_TAG = "add_virtual"
 
 /**
  * Lista de receptores, sin conexión (S005/RF-1 a RF-4): el resultado de la última conexión, los
@@ -50,6 +54,7 @@ internal fun ReceiverList(state: ReceiverUiState, actions: ReceiverActions) {
         LastConnection(state, actions)
         BluetoothDevicesSection(state, actions)
         WifiReceiversSection(state, actions) // S021/RF-4: también con el Bluetooth apagado
+        SourcesSection(actions) // S022/RF-1, RF-12: siempre, con o sin Bluetooth
         AddReceiver(state, actions) // S004/RF-1, S021/RF-1
         Card(modifier = Modifier.fillMaxWidth()) {
             ListRow(stringResource(R.string.receiver_menu_sessions), actions.onOpenSessions, Modifier.testTag(LIST_SESSIONS_TAG))
@@ -146,6 +151,38 @@ private fun WifiReceiversSection(state: ReceiverUiState, actions: ReceiverAction
     }
 }
 
+/** Las dos fuentes que trae la app, siempre en la lista: el GNSS del móvil y el receptor virtual (S022/RF-1, RF-12). */
+@Composable
+private fun SourcesSection(actions: ReceiverActions) {
+    Text(stringResource(R.string.receiver_sources_title), style = MaterialTheme.typography.titleSmall)
+    Card(modifier = Modifier.fillMaxWidth()) {
+        SourceRow(
+            title = stringResource(R.string.phone_gnss_name),
+            summary = stringResource(R.string.receiver_phone_summary),
+            onClick = { actions.onConnect(ReceiverKey.PHONE) },
+            modifier = Modifier.testTag(PHONE_ROW_TAG),
+        )
+        HorizontalDivider()
+        SourceRow(
+            title = stringResource(R.string.virtual_receiver_name),
+            summary = stringResource(R.string.receiver_virtual_summary),
+            onClick = actions.onOpenVirtual,
+            modifier = Modifier.testTag(VIRTUAL_ROW_TAG),
+        )
+    }
+}
+
+/** Una fuente fija de la app: su nombre y para qué sirve (S022/RF-1, RF-12). */
+@Composable
+private fun SourceRow(title: String, summary: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(summary) },
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        modifier = modifier.heightIn(min = MinTouchTarget).clickable(onClick = onClick),
+    )
+}
+
 /** Un receptor Wi-Fi: nombre, dirección y puertos, su marca de último usado y «Editar» (S021/RF-4). */
 @Composable
 private fun WifiReceiverRow(receiver: WifiReceiver, lastUsed: Boolean, onClick: () -> Unit, onEdit: () -> Unit) {
@@ -227,6 +264,14 @@ private fun AddReceiver(state: ReceiverUiState, actions: ReceiverActions) {
                 choosing = false
                 actions.onAddWifiReceiver() // S021/RF-1
             },
+            onPhone = {
+                choosing = false
+                actions.onConnect(ReceiverKey.PHONE) // S022/RF-1
+            },
+            onVirtual = {
+                choosing = false
+                actions.onOpenVirtual() // S022/RF-12
+            },
             onCancel = { choosing = false },
         )
     }
@@ -234,7 +279,13 @@ private fun AddReceiver(state: ReceiverUiState, actions: ReceiverActions) {
 
 /** «Añadir receptor»: elegir entre Bluetooth y Wi-Fi (TCP) (S021/RF-1). */
 @Composable
-private fun AddReceiverTypeDialog(onBluetooth: () -> Unit, onWifi: () -> Unit, onCancel: () -> Unit) {
+private fun AddReceiverTypeDialog(
+    onBluetooth: () -> Unit,
+    onWifi: () -> Unit,
+    onPhone: () -> Unit,
+    onVirtual: () -> Unit,
+    onCancel: () -> Unit,
+) {
     AlertDialog(
         onDismissRequest = onCancel,
         title = { Text(stringResource(R.string.receiver_add_type_title)) },
@@ -248,6 +299,14 @@ private fun AddReceiverTypeDialog(onBluetooth: () -> Unit, onWifi: () -> Unit, o
                     onClick = onWifi,
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ADD_WIFI_TAG),
                 ) { Text(stringResource(R.string.receiver_add_wifi)) }
+                OutlinedButton(
+                    onClick = onPhone,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ADD_PHONE_TAG),
+                ) { Text(stringResource(R.string.receiver_add_phone)) }
+                OutlinedButton(
+                    onClick = onVirtual,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(ADD_VIRTUAL_TAG),
+                ) { Text(stringResource(R.string.receiver_add_virtual)) }
             }
         },
         confirmButton = {},
