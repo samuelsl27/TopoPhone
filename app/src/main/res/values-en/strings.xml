@@ -770,7 +770,11 @@
     <string name="point_epochs_value">Used: %1$d, discarded: %2$d</string>
     <string name="point_admitted">Admitted types when measured</string>
     <string name="point_epochs_by_type">Discarded by solution type</string>
+    <string name="point_source_label">Position source</string>
     <string name="point_from_replay">Measured in a replay.</string>
+    <string name="point_from_phone">Measured with the phone GNSS: SINGLE, good to a few metres.</string>
+    <string name="point_from_phone_mock">Measured with the phone GNSS with a location faked by another app: simulated point.</string>
+    <string name="point_from_virtual">Simulated point: measured with the virtual receiver.</string>
     <string name="point_measured_at">Date and time</string>
     <string name="point_nmea">Show NMEA sentences</string>
     <string name="point_nmea_title">NMEA sentences</string>

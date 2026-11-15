@@ -94,6 +94,7 @@ import es.topophone.core.model.point.PointHistoryEntry
 import es.topophone.core.model.point.PointNames
 import es.topophone.core.model.point.PointPhoto
 import es.topophone.core.model.point.PoleKind
+import es.topophone.core.model.point.PositionSource
 import es.topophone.core.model.point.PrecisionFailure
 import es.topophone.core.model.point.StakeSource
 import es.topophone.core.model.point.StakeoutRef
@@ -959,7 +960,15 @@ private fun MeasurementCard(project: Project, measurement: Measurement, loadNmea
         }
         if (quality.auto == true) CoordinateRow(stringResource(R.string.point_auto), stringResource(R.string.point_auto_yes), "point_auto")
         CoordinateRow(stringResource(R.string.point_measured_at), formatDateTime(measurement.measuredToMs, locale), "point_measured_at")
-        if (quality.fromReplay) Text(stringResource(R.string.point_from_replay))
+        // S022/RF-7, RF-11, RF-19: de dónde vino la posición; un receptor de siempre no lleva nada.
+        val sourceText = when (quality.source) {
+            PositionSource.PHONE -> R.string.point_from_phone
+            PositionSource.PHONE_MOCK -> R.string.point_from_phone_mock
+            PositionSource.VIRTUAL -> R.string.point_from_virtual
+            PositionSource.REPLAY -> R.string.point_from_replay
+            PositionSource.RECEIVER -> if (quality.fromReplay) R.string.point_from_replay else null
+        }
+        sourceText?.let { CoordinateRow(stringResource(R.string.point_source_label), stringResource(it), "point_source") }
         if (measurement.outOfTolerance.isNotEmpty()) {
             MarkLine(R.string.point_mark_out_of_tolerance)
             measurement.outOfTolerance.sorted().forEach { Text(stringResource(R.string.point_list_item, stringResource(it.textRes()))) }

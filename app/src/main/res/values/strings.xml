@@ -782,7 +782,11 @@
     <string name="point_epochs_value">Usadas: %1$d, descartadas: %2$d</string>
     <string name="point_admitted">Tipos admitidos al medir</string>
     <string name="point_epochs_by_type">Descartadas por tipo de solución</string>
+    <string name="point_source_label">Fuente de la posición</string>
     <string name="point_from_replay">Medido en una reproducción.</string>
+    <string name="point_from_phone">Medido con el GNSS del móvil: SINGLE, de pocos metros.</string>
+    <string name="point_from_phone_mock">Medido con el GNSS del móvil con una ubicación simulada por otra aplicación: punto simulado.</string>
+    <string name="point_from_virtual">Punto simulado: medido con el receptor virtual.</string>
     <string name="point_measured_at">Fecha y hora</string>
     <string name="point_nmea">Ver frases NMEA</string>
     <string name="point_nmea_title">Frases NMEA</string>

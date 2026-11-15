@@ -32,7 +32,7 @@
       Hecho cuando: `SourceLimitsTest` en verde y los tests de Correcciones y de inclinación de S007 y S016 intactos.
 - [x] T15. `app`: equipo del móvil (sin jalón ni desplazamiento al centro de fase) y `measuringSource` en el recolector y en el control de base: el punto se guarda con su fuente y marcado simulado con el virtual, con una ubicación simulada y con una reproducción. (RF-6, RF-7, RF-10, RF-11, RF-19)
       Hecho cuando: `CollectorSourceTest` en verde: con «solo FIX» el móvil no mide sin confirmar, y los tests del recolector de S010, S017 y S047 y de base de S020 intactos.
-- [ ] T16. `app`: la fuente en la ficha del punto y en el mapa/lista donde ya se marca lo de reproducción. (RF-11, RF-19, RF-7)
+- [x] T16. `app`: la fuente en la ficha del punto y en el mapa/lista donde ya se marca lo de reproducción. (RF-11, RF-19, RF-7)
       Hecho cuando: `PointSourceDetailsTest` en verde y la columna «Replay» de «Todas las columnas» sale verdadera con el virtual y con la ubicación simulada (`CsvExportTest`).
 - [ ] T17. `app`: replanteo con el virtual (paseo) y con el móvil (SINGLE con la guía apagada o admitida según S047). (RF-14, RF-16)
       Hecho cuando: `StakeoutSourcesTest` en verde y los tests de replanteo de S018, S027 y S054 intactos.
