@@ -280,7 +280,7 @@ class TraverseDraftViewModelTest {
         first.viewModelScope.cancel()
         runBlocking { points.moveToTrash(listOf("id-P1")) }
 
-        val state = open(id).await { it.start is CogoSlotValue.Missing }
+        val state = open(id).await { it.start is CogoSlotValue.Missing && it.legs.isNotEmpty() }
 
         (state.start as CogoSlotValue.Missing).name shouldBe "P1"
         state.legs[0].step.shouldBeNull()

@@ -339,6 +339,7 @@ private fun ntripStatusResource(ntrip: NtripState): String = stringResource(
         NtripState.ReceiverNotConnected -> R.string.ntrip_receiver_not_connected // S002/RF-28
         NtripState.UnavailableInReplay -> R.string.ntrip_unavailable_in_replay // S003/RF-44
         NtripState.Paused -> R.string.ntrip_paused // S004/RF-18
+        NtripState.NoCorrectionsPort -> R.string.ntrip_no_corrections_port // S021/RF-12
         is NtripState.Stopped -> when (ntrip.failure) {
             NtripFailure.UNAUTHORIZED -> R.string.ntrip_error_unauthorized // S002/RF-21
             NtripFailure.MOUNTPOINT_NOT_FOUND -> R.string.ntrip_error_mountpoint // S002/RF-22

@@ -14,7 +14,7 @@
       Hecho cuando: `TcpCorrectionsTest` en verde: lo escrito llega intacto al servidor por el mismo socket, y sin puerto no se escribe nada.
 - [x] T6. `receiver`: `CorrectionsLink` (segundo socket, cola, descarte con el enlace caído y reintento 1, 2, 4, 8, 16 y 30 s) y `CorrectionsLinkStatus`. (RF-11, RF-13)
       Hecho cuando: `CorrectionsLinkTest` en verde con el puerto distinto, con el servidor de correcciones caído y vuelto a levantar, y con un corte a mitad de escritura sin que la posición se corte.
-- [ ] T7. `receiver`: `ReceiverSession` con `correctionsLink` en el snapshot y `NtripState.NoCorrectionsPort`. (RF-12, RF-13, RNF-T12)
+- [x] T7. `receiver`: `ReceiverSession` con `correctionsLink` en el snapshot y `NtripState.NoCorrectionsPort`. (RF-12, RF-13, RNF-T12)
       Hecho cuando: `ReceiverSessionWifiTest` en verde: sin puerto el caster no se abre, con puerto las correcciones se escriben y se graban, y los tests de sesión de S002 a S007 intactos.
 - [ ] T8. `receiver`: `NetworkRouter` (Wi-Fi sin exigir internet, red con internet validada, cambios de red) con `AndroidNetworkRouter`, `RoutedSocketFactory` y `WifiUnavailableException`. (RF-8, RF-9, RNF-T4)
       Hecho cuando: `NetworkRouterTest` en verde con una fuente de redes falsa: el Wi-Fi sin internet se usa para el receptor, el caster pide otra red y un cambio de red se avisa en menos de 3 s.

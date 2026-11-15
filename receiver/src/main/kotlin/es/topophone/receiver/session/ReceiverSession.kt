@@ -22,6 +22,7 @@ import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.BaseState
 import es.topophone.core.survey.BaseTracker
 import es.topophone.receiver.transport.BluetoothOffException
+import es.topophone.receiver.transport.CorrectionsLinkStatus
 import es.topophone.receiver.transport.ReceiverTransport
 import es.topophone.receiver.transport.ReplayTransport
 import java.io.IOException
@@ -108,6 +109,9 @@ sealed interface NtripState {
 
     /** En pausa mientras se reconecta el receptor; se reanuda solo al reconectar (S004/RF-18). */
     data object Paused : NtripState
+
+    /** El receptor Wi-Fi no tiene puerto de correcciones: no se abre el caster (S021/RF-12). */
+    data object NoCorrectionsPort : NtripState
 }
 
 /** Reproducción en curso: qué sesión, a qué velocidad y si vuelve a empezar (S003/RF-35). */
@@ -139,6 +143,8 @@ data class ReceiverSnapshot(
     val sky: SkyView? = null,
     /** La base en uso, su SNR y sus cambios (S015/RF-8 a RF-17). */
     val base: BaseState = BaseState.NONE,
+    /** El segundo socket de correcciones de un receptor Wi-Fi con puerto distinto; `null` si no lo hay (S021/RF-13). */
+    val correctionsLink: CorrectionsLinkStatus? = null,
 )
 
 /**
@@ -326,8 +332,13 @@ class ReceiverSession(
                     var linkWrites = channel
                     while (true) {
                         val drain = launch(Dispatchers.IO) { drainWrites(link, linkWrites, recording) }
+                        val linkStatus = link.correctionsStatus?.let { status ->
+                            launch { status.collect { value -> updateConnection(generation) { it.copy(correctionsLink = value) } } }
+                        }
                         read(link, description, recording)
                         drain.cancel()
+                        linkStatus?.cancel()
+                        updateConnection(generation) { it.copy(correctionsLink = null) } // S021/RF-13
                         if (!currentCoroutineContext().isActive) break
                         ntripJob?.cancel()
                         if (ntripConfig != null && reopen != null && !link.simulated) {
@@ -458,6 +469,10 @@ class ReceiverSession(
     fun startNtrip(config: NtripConfig) {
         if (synchronized(lock) { transport }?.simulated == true) {
             mutableState.update { it.copy(ntrip = NtripState.UnavailableInReplay) } // S003/RF-44
+            return
+        }
+        if (synchronized(lock) { transport }?.acceptsCorrections == false) {
+            mutableState.update { it.copy(ntrip = NtripState.NoCorrectionsPort) } // S021/RF-12
             return
         }
         val channel = synchronized(lock) { writes }
@@ -673,7 +688,10 @@ class ReceiverSession(
             for (bytes in channel) {
                 output.write(bytes)
                 output.flush()
-                recording?.writeCorrections(bytes) // S003/RF-24
+                // S003/RF-24: se graba lo enviado; con el enlace de correcciones caido se descarta y no se graba (S021/RF-13).
+                if (transport.correctionsStatus?.value.let { it == null || it == CorrectionsLinkStatus.Ready }) {
+                    recording?.writeCorrections(bytes)
+                }
             }
         } catch (_: IOException) {
             // El lector detectará el corte.
