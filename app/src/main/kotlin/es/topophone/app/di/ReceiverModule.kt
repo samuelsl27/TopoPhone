@@ -18,6 +18,7 @@ import es.topophone.app.receiver.NetworkAwareSourcetable
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
+import es.topophone.app.receiver.ReceiverWindowRecorder
 import es.topophone.app.receiver.RepositoryVirtualOrigins
 import es.topophone.app.receiver.ResourceSourceLabels
 import es.topophone.app.receiver.VirtualOrigins
@@ -164,6 +165,12 @@ object ReceiverModule {
         repository = repository,
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
     )
+
+    /** La ventana de los últimos 10 s de épocas y correcciones, una para toda la app (S043/RF-5; plan D2). */
+    @Provides
+    @Singleton
+    fun receiverWindowRecorder(session: ReceiverSession): ReceiverWindowRecorder =
+        ReceiverWindowRecorder(session, CoroutineScope(SupervisorJob() + Dispatchers.Default), monotonicClock())
 
     /** Los datos del receptor en uso (modelo, serie y firmware), uno para toda la app (S043/RF-19; plan D7). */
     @Provides
