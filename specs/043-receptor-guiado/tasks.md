@@ -44,7 +44,7 @@
       Hecho cuando: `ReceiverWebScreenTest` en verde: los ajustes del `WebView` son los de D9, una petición a una dirección pública o a otro puerto de otra IP se bloquea, una redirección a otra dirección no se sigue, la sesión de posición sigue abierta con la vista visible y un test recorre los clientes HTTP de la app sin hallar ninguno que acepte HTTP público.
 - [x] T21. `tools`: `simulador/servidor_web.py` (un Reach Panel falso con la biblioteca estándar: una página, un fallo y una redirección) y su test. (RF-14, RF-16)
       Hecho cuando: `test_servidor_web.py` en verde, 6 tests de `tools` nuevos, sin ficheros prohibidos y su fila en `tools/LEEME.md`.
-- [ ] T22. `app`: accesibilidad y textos de la Guía, las comprobaciones, la vista web y «Datos del receptor»: etiquetas y 56 dp, inglés y claves iguales en es y en, sin literales en el código. (RNF-T7, RNF-T8, RNF-T14)
+- [x] T22. `app`: accesibilidad y textos de la Guía, las comprobaciones, la vista web y «Datos del receptor»: etiquetas y 56 dp, inglés y claves iguales en es y en, sin literales en el código. (RNF-T7, RNF-T8, RNF-T14)
       Hecho cuando: `GuideAccessibilityTest` en verde: cada estado se distingue por texto o icono y no solo por color y ningún texto procede del fabricante.
 - [ ] T23. Validación final: recorrer la spec RF por RF, `rf_report.py`, `check`, `pytest` de `tools`, `forbidden_files`, `assembleDebug` y la demo (cada comprobación en Correcto, Aviso y Fallo con reproducciones y el virtual, la vista web contra `servidor_web.py`, la RAM de la vista); `plan.md` con «Cambios al implementar» y la validación y la hoja de ruta con S043 implementada (Room v36). (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos y la demo funciona.

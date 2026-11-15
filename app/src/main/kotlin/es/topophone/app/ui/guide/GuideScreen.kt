@@ -152,10 +152,14 @@ private fun OpenList(state: GuideUiState, list: ConfigList, actions: GuideAction
                         actions.onReset(list.id)
                         confirmReset = false
                     },
-                    modifier = Modifier.testTag(GUIDE_RESET_CONFIRM_TAG),
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(GUIDE_RESET_CONFIRM_TAG),
                 ) { Text(stringResource(R.string.guide_reset_confirm)) }
             },
-            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text(stringResource(R.string.guide_cancel)) } },
+            dismissButton = {
+                TextButton(onClick = { confirmReset = false }, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                    Text(stringResource(R.string.guide_cancel))
+                }
+            },
         )
     }
 }
