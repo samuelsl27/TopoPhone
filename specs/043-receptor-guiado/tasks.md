@@ -36,7 +36,7 @@
       Hecho cuando: `GuideChecksTest` en verde con una reproducción y el receptor virtual: cada comprobación en Correcto, Aviso y Fallo, «Sin datos» remite a S004/RF-27 y RF-28, termina en menos de 1 s y nada se escribe en el receptor.
 - [x] T17. `app`: las entradas «Guía» y «Datos del receptor» del menú, sus rutas, y las fuentes: con el móvil y con el virtual se sustituyen por «no aplica a esta fuente» (el virtual conserva «Comprobar»). (RF-1, RF-18, RF-22, RF-23)
       Hecho cuando: `GuideSourcesTest` y `ReceiverMenuTest` en verde: ocho entradas en su orden con un receptor real, y con el móvil y el virtual lo que dice RF-22 y RF-23.
-- [ ] T18. `app`: `ReceiverWebViewModel` (dirección por receptor, temporizador de 10 s, reintentar, abrir en el navegador) con `PrivateAddress`. (RF-12, RF-13, RF-14, RF-16)
+- [x] T18. `app`: `ReceiverWebViewModel` (dirección por receptor, temporizador de 10 s, reintentar, abrir en el navegador) con `PrivateAddress`. (RF-12, RF-13, RF-14, RF-16)
       Hecho cuando: `ReceiverWebViewModelTest` en verde: un receptor Wi-Fi abre `http://<su IP>:80/`, uno Bluetooth pide la IP y la recuerda, una pública o un nombre se rechaza, y a los 10 s sin carga sale el fallo con sus causas y las dos salidas.
 - [ ] T19. `receiver`: `NetworkRouter.bindProcessToWifi` (pide la red Wi-Fi sin exigir internet y la enlaza al proceso mientras se usa). (RF-15, RNF-T4)
       Hecho cuando: `NetworkRouterWebTest` en verde con una fuente de redes falsa: enlaza la del Wi-Fi sin internet, desenlaza al cerrar y avisa si no hay Wi-Fi.
