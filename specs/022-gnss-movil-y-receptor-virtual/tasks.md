@@ -10,7 +10,7 @@
       Hecho cuando: `NmeaWriterTest` en verde: cada frase escrita se lee con su analizador y devuelve los mismos valores, y la suma de control coincide con la de las frases de `fixtures/nmea/`.
 - [x] T4. `core:gnss`: `Scenario`, `ScenarioState` y `ScenarioPlayer` con los escenarios «FIX estable» y «Paseo en línea recta». (RF-13, RF-14, RF-15)
       Hecho cuando: `ScenarioPlayerTest` en verde: dos ejecuciones con el mismo origen y hora de inicio dan los mismos bytes, la hora UTC crece de 1 s en 1 s, el origen cambia las coordenadas y el paseo avanza 1 m/s.
-- [ ] T5. `core:gnss`: los otros cinco escenarios (pérdida de FIX, FLOAT y SINGLE, corte de datos, cambio de base, inclinación en ocho) y el coste de generar un escenario. (RF-14, RF-15)
+- [x] T5. `core:gnss`: los otros cinco escenarios (pérdida de FIX, FLOAT y SINGLE, corte de datos, cambio de base, inclinación en ocho) y el coste de generar un escenario. (RF-14, RF-15)
       Hecho cuando: un test por escenario en verde con los instantes de sus eventos (solución, ausencia de frases, EBP, ETC) y generar 180 s tarda menos de 100 ms.
 - [ ] T6. `receiver`: `ReceiverTransport.positionSource`, `noDataTimeoutMs` y `recordsSession`, y `VirtualReceiverTransport` (1 Hz y ×5, cambio de velocidad, fin de escenario, cierre). (RF-12, RF-16, RF-17, RNF-T10)
       Hecho cuando: `VirtualReceiverTransportTest` en verde con reloj falso y los tests de transportes de S002 a S021 intactos.
