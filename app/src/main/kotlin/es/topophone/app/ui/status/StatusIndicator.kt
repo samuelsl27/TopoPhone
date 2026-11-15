@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,6 +16,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.receiver.nameRes
@@ -22,15 +24,19 @@ import es.topophone.app.ui.receiver.tone
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.designsystem.component.StatusChip
 import es.topophone.core.designsystem.theme.StatusTone
+import es.topophone.core.gnss.nmea.ReplaySpeed
 import es.topophone.core.gnss.nmea.SolutionStatus
+import es.topophone.core.gnss.scenario.ScenarioId
 
 const val STATUS_INDICATOR_TAG = "status_indicator"
 const val STATUS_INDICATOR_SOLUTION_TAG = "status_indicator_solution"
 const val STATUS_INDICATOR_SIMULATION_TAG = "status_indicator_simulation"
 const val STATUS_INDICATOR_CORRECTIONS_TAG = "status_indicator_corrections"
+const val STATUS_INDICATOR_SCENARIO_TAG = "status_indicator_scenario"
+const val STATUS_INDICATOR_PHONE_TAG = "status_indicator_phone"
 
 /** De dónde llegan los datos que resume el indicador. */
-enum class StatusSource { NONE, RECEIVER, REPLAY }
+enum class StatusSource { NONE, RECEIVER, REPLAY, VIRTUAL, PHONE }
 
 /** Lo que muestra el indicador de estado (S003/RF-17 a RF-21, S004/RF-23). */
 data class StatusIndicatorState(
@@ -42,6 +48,9 @@ data class StatusIndicatorState(
     val reconnecting: Boolean = false,
     /** Las correcciones superan el umbral de edad (S007/RF-29). */
     val correctionsAlarm: Boolean = false,
+    /** El escenario del receptor virtual en marcha y su velocidad (S022/RF-16). */
+    val scenario: ScenarioId? = null,
+    val speed: ReplaySpeed? = null,
 )
 
 /**
@@ -70,6 +79,23 @@ fun StatusIndicator(state: StatusIndicatorState, onClick: () -> Unit, modifier: 
                 compact = true,
             )
         } // S003/RF-21
+        if (state.source == StatusSource.VIRTUAL) {
+            // S022/RF-16: «Simulado», el escenario y la velocidad, con texto.
+            StatusChip(
+                stringResource(R.string.status_bar_simulated),
+                StatusTone.SIMULATION,
+                Modifier.testTag(STATUS_INDICATOR_SIMULATION_TAG),
+                compact = true,
+            )
+            state.scenario?.let {
+                // El nombre se acorta con puntos suspensivos: el indicador no puede ocupar la barra entera (S005/RF-18).
+                Label(stringResource(it.nameRes()), Modifier.widthIn(max = 112.dp).testTag(STATUS_INDICATOR_SCENARIO_TAG), ellipsize = true)
+            }
+            if (state.speed == ReplaySpeed.X5) Label(stringResource(R.string.replay_speed_x5))
+        }
+        if (state.source == StatusSource.PHONE) {
+            Label(stringResource(R.string.status_bar_phone), Modifier.testTag(STATUS_INDICATOR_PHONE_TAG)) // S022/RF-5
+        }
         Content(state)
     }
 }
@@ -113,6 +139,13 @@ private fun NoCorrections() {
 }
 
 @Composable
-private fun Label(text: String) {
-    Text(text, style = MaterialTheme.typography.labelLarge, maxLines = 1, softWrap = false)
+private fun Label(text: String, modifier: Modifier = Modifier, ellipsize: Boolean = false) {
+    Text(
+        text,
+        modifier = modifier,
+        style = MaterialTheme.typography.labelLarge,
+        maxLines = 1,
+        softWrap = false,
+        overflow = if (ellipsize) TextOverflow.Ellipsis else TextOverflow.Clip,
+    )
 }

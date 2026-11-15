@@ -83,6 +83,7 @@ private fun LastConnection(state: ReceiverUiState, actions: ReceiverActions) {
             onClick = actions.onReconnect,
             modifier = Modifier.heightIn(min = MinTouchTarget).testTag(RECONNECT_TAG),
         ) { Text(stringResource(R.string.receiver_reconnect)) } // S002/RF-9, S004/RF-20
+        is ConnectionState.ScenarioFinished -> ScenarioFinishedActions(actions) // S022/RF-17
         is ConnectionState.ReplayFinished -> Button(
             onClick = actions.onReplayAgain,
             modifier = Modifier.heightIn(min = MinTouchTarget).testTag(REPLAY_AGAIN_TAG),

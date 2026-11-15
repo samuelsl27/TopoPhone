@@ -145,6 +145,13 @@
     <string name="receiver_replay_finished">Replay finished: %1$s</string>
     <string name="receiver_scenario_finished">Scenario finished: %1$s</string>
     <string name="phone_gnss_name">Phone GNSS</string>
+    <string name="source_simulated_scenario">Simulated · %1$s</string>
+    <string name="source_phone_banner">Phone GNSS · SINGLE: position good to a few metres</string>
+    <string name="scenario_progress">Scenario: %1$s of %2$s</string>
+    <string name="scenario_repeat">Repeat scenario</string>
+    <string name="scenario_choose_other">Choose another scenario</string>
+    <string name="status_bar_simulated">Simulated</string>
+    <string name="status_bar_phone">Phone</string>
     <string name="virtual_dialog_title">Virtual receiver</string>
     <string name="virtual_scenario_label">Scenario</string>
     <string name="virtual_origin_label">Where it happens</string>

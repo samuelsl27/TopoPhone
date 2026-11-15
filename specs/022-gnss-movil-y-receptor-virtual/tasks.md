@@ -26,7 +26,7 @@
       Hecho cuando: `ReceiverListSourcesTest` en verde y los tests de la lista de S004, S005 y S021 intactos.
 - [x] T12. `app`: `VirtualReceiverDialog` (escenario con descripción y duración, origen del proyecto o coordenadas, velocidad) y los textos de los siete escenarios. (RF-13, RF-14)
       Hecho cuando: `VirtualReceiverDialogTest` en verde: el centro del proyecto por defecto, unas coordenadas escritas, sin proyecto y sin coordenadas no deja continuar.
-- [ ] T13. `app`: cabecera e indicador de estado con «Simulado · escenario» o «GNSS del móvil · SINGLE», cambio de velocidad y la hoja de fin de escenario (repetir, elegir otro, desconectar). (RF-16, RF-17, RNF-T8)
+- [x] T13. `app`: cabecera e indicador de estado con «Simulado · escenario» o «GNSS del móvil · SINGLE», cambio de velocidad y la hoja de fin de escenario (repetir, elegir otro, desconectar). (RF-16, RF-17, RNF-T8)
       Hecho cuando: `SourceHeaderTest` en verde, con el texto y no solo el color, y los de la cabecera y la barra de estado de S005 intactos.
 - [ ] T14. `app`: el móvil sin NTRIP, inclinación ni base (con el motivo al pedirlos), el virtual sin NTRIP, y el aviso de ubicación simulada por otra app. (RF-7, RF-9, RF-18)
       Hecho cuando: `SourceLimitsTest` en verde y los tests de Correcciones y de inclinación de S007 y S016 intactos.

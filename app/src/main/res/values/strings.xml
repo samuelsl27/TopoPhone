@@ -157,6 +157,13 @@
     <string name="receiver_replay_finished">Reproducción terminada: %1$s</string>
     <string name="receiver_scenario_finished">Escenario terminado: %1$s</string>
     <string name="phone_gnss_name">GNSS del móvil</string>
+    <string name="source_simulated_scenario">Simulado · %1$s</string>
+    <string name="source_phone_banner">GNSS del móvil · SINGLE: posición de pocos metros</string>
+    <string name="scenario_progress">Escenario: %1$s de %2$s</string>
+    <string name="scenario_repeat">Repetir escenario</string>
+    <string name="scenario_choose_other">Elegir otro escenario</string>
+    <string name="status_bar_simulated">Simulado</string>
+    <string name="status_bar_phone">Móvil</string>
     <string name="virtual_dialog_title">Receptor virtual</string>
     <string name="virtual_scenario_label">Escenario</string>
     <string name="virtual_origin_label">Dónde ocurre</string>

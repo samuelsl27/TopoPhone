@@ -95,6 +95,8 @@ class ReceiverActions(
     val onOpenLocalNetworkSettings: () -> Unit = {},
     /** S022/RF-12, RF-13: abrir la elección del escenario del receptor virtual y cambiarla. */
     val onOpenVirtual: () -> Unit = {},
+    val onScenarioSpeed: (ReplaySpeed) -> Unit = {},
+    val onRepeatScenario: () -> Unit = {},
     val onVirtualScenario: (ScenarioId) -> Unit = {},
     val onVirtualSpeed: (ReplaySpeed) -> Unit = {},
     val onVirtualOriginMode: (VirtualOriginMode) -> Unit = {},
@@ -295,6 +297,8 @@ fun ReceiverRoute(
             onDeclineLocalNetwork = { viewModel.localNetworkAnswered(granted = false) },
             onOpenLocalNetworkSettings = { context.startActivity(localNetworkSettingsIntent(context.packageName)) },
             onOpenVirtual = viewModel::openVirtual, // S022/RF-13
+            onScenarioSpeed = viewModel::setScenarioSpeed, // S022/RF-16
+            onRepeatScenario = viewModel::repeatScenario, // S022/RF-17
             onVirtualScenario = viewModel::virtualScenario,
             onVirtualSpeed = viewModel::virtualSpeed,
             onVirtualOriginMode = viewModel::virtualOriginMode,

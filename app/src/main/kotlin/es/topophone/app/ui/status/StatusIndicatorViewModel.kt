@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.ui.receiver.ReceiverViewModel
+import es.topophone.core.model.point.PositionSource
 import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReceiverSnapshot
@@ -54,12 +55,19 @@ internal fun toStatusIndicatorState(snapshot: ReceiverSnapshot): StatusIndicator
     if (!connected) return StatusIndicatorState()
     val gga = snapshot.gga
     return StatusIndicatorState(
-        source = if (snapshot.replay != null) StatusSource.REPLAY else StatusSource.RECEIVER, // S003/RF-21
+        source = when {
+            snapshot.scenario != null -> StatusSource.VIRTUAL // S022/RF-16
+            snapshot.source == PositionSource.PHONE || snapshot.source == PositionSource.PHONE_MOCK -> StatusSource.PHONE // S022/RF-5
+            snapshot.replay != null -> StatusSource.REPLAY // S003/RF-21
+            else -> StatusSource.RECEIVER
+        },
         stale = connection is ConnectionState.NoData || (gga == null && connection !is ConnectionState.Reconnecting),
         reconnecting = connection is ConnectionState.Reconnecting, // S004/RF-23
         solution = gga?.status,
         satellites = gga?.satellites,
         correctionsAlarm = snapshot.correctionsAlarm, // S007/RF-29
+        scenario = snapshot.scenario?.id,
+        speed = snapshot.scenario?.speed,
     )
 }
 

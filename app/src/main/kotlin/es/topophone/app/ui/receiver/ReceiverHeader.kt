@@ -44,6 +44,7 @@ internal fun ReceiverHeader(state: ReceiverUiState, actions: ReceiverActions) {
                 modifier = Modifier.testTag(CONNECTION_STATUS_TAG),
             )
             ConnectionIndicators(state) // S003/RF-20, RF-22
+            SourceDetails(state, actions) // S022/RF-5, RF-16
             if (replay != null) {
                 ReplayControls(replay, actions) // S003/RF-37 a RF-41
                 ReplayConnect(state, actions) // S003/RF-43

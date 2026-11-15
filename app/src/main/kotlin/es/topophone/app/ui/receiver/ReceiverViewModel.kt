@@ -441,6 +441,12 @@ class ReceiverViewModel @Inject constructor(
         }
     }
 
+    /** Cambia la velocidad del escenario en marcha (S022/RF-16). */
+    fun setScenarioSpeed(speed: ReplaySpeed) = session.setScenarioSpeed(speed)
+
+    /** Repite el escenario que acaba de terminar, desde el principio (S022/RF-17). */
+    fun repeatScenario() = connections.repeatVirtual()
+
     fun virtualScenario(id: ScenarioId) = virtualUi.update { it?.copy(scenario = id) }
 
     fun virtualSpeed(speed: ReplaySpeed) = virtualUi.update { it?.copy(speed = speed) }
