@@ -20,6 +20,9 @@ import es.topophone.app.ui.equipment.EquipmentUiState
 import es.topophone.app.ui.guide.GuideActions
 import es.topophone.app.ui.guide.GuideCard
 import es.topophone.app.ui.guide.GuideUiState
+import es.topophone.app.ui.web.ReceiverWebActions
+import es.topophone.app.ui.web.ReceiverWebScreen
+import es.topophone.app.ui.web.ReceiverWebUiState
 import es.topophone.core.model.preferences.ThemeState
 
 const val RECEIVER_STATUS_SCREEN_TAG = "receiver_status_screen"
@@ -34,7 +37,7 @@ const val RECEIVER_GUIDE_SCREEN_TAG = "receiver_guide_screen"
 const val RECEIVER_EQUIPMENT_SCREEN_TAG = "receiver_equipment_screen"
 
 /** Pantallas de la sección Receptor: la raíz y las del menú (S005/RF-14; S016/RF-1). Las sesiones grabadas son de S003. */
-enum class ReceiverPage { HOME, STATUS, COORDINATES, GEAR, TILT, CORRECTIONS, GUIDE, EQUIPMENT }
+enum class ReceiverPage { HOME, STATUS, COORDINATES, GEAR, TILT, CORRECTIONS, GUIDE, EQUIPMENT, WEB }
 
 /** Lo que la sección Receptor necesita de la navegación de la app (S005/RF-14, RF-15; perfiles NTRIP, S007). */
 class ReceiverNavigation(
@@ -67,6 +70,8 @@ fun ReceiverPageScreen(
     guideActions: GuideActions = GuideActions(),
     equipment: EquipmentUiState = EquipmentUiState(),
     equipmentActions: EquipmentActions = EquipmentActions(),
+    web: ReceiverWebUiState = ReceiverWebUiState(),
+    webActions: ReceiverWebActions = ReceiverWebActions(),
 ) {
     when (page) {
         ReceiverPage.HOME -> ReceiverScreen(themeState, onToggleSun, state, actions)
@@ -146,6 +151,7 @@ fun ReceiverPageScreen(
         ) {
             EquipmentCard(equipment, equipmentActions) // S043/RF-18, RF-21; RF-22, RF-23
         }
+        ReceiverPage.WEB -> ReceiverWebScreen(themeState, onToggleSun, onBack, web, webActions) // S043/RF-12 a RF-17
         ReceiverPage.CORRECTIONS -> CorrectionsScreen(themeState, onToggleSun, onBack, state, corrections, correctionsActions) // S007
     }
 }

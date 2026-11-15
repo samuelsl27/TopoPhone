@@ -855,6 +855,7 @@ private fun AppNavHost(
             composable<ReceiverGearRoute> { page(it, ReceiverPage.GEAR) }
             composable<ReceiverGuideRoute> { page(it, ReceiverPage.GUIDE) } // S043/RF-1
             composable<ReceiverEquipmentRoute> { page(it, ReceiverPage.EQUIPMENT) } // S043/RF-18
+            composable<ReceiverWebRoute> { page(it, ReceiverPage.WEB) } // S043/RF-12
             composable<NtripProfileFormDestination> { entry ->
                 val args = entry.toRoute<NtripProfileFormDestination>()
                 ntripProfileSection(args.profileId, uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
@@ -1000,6 +1001,7 @@ private fun ReceiverPage.route(): Any = when (this) {
     ReceiverPage.GEAR -> ReceiverGearRoute
     ReceiverPage.GUIDE -> ReceiverGuideRoute
     ReceiverPage.EQUIPMENT -> ReceiverEquipmentRoute
+    ReceiverPage.WEB -> ReceiverWebRoute
 }
 
 private fun NavDestination?.isIn(destination: TopLevelDestination): Boolean =

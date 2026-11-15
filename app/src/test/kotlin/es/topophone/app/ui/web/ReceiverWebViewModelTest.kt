@@ -1,6 +1,9 @@
 package es.topophone.app.ui.web
 
 import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -12,8 +15,13 @@ import es.topophone.data.equipment.RoomEquipmentRepository
 import es.topophone.data.receiver.ReceiverTiltSettings
 import es.topophone.data.receiver.RoomWifiReceiverRepository
 import es.topophone.data.receiver.TiltPreferences
+import es.topophone.receiver.platform.NetworkChange
+import es.topophone.receiver.platform.NetworkRouter
+import es.topophone.receiver.platform.RoutedNetwork
+import es.topophone.receiver.platform.WifiUnavailableException
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import java.io.Closeable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,6 +29,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -58,6 +68,7 @@ class ReceiverWebViewModelTest {
         scope,
     )
     private val jobs = mutableListOf<Job>()
+    private val router = FakeRouter()
 
     /** El tiempo del temporizador de 10 s es el de este planificador: los tests lo avanzan sin esperar de verdad. */
     private val scheduler = TestCoroutineScheduler()
@@ -73,9 +84,30 @@ class ReceiverWebViewModelTest {
         Dispatchers.resetMain()
     }
 
+    /** Un enrutador de mentira que anota los enlaces al Wi-Fi y los cierres. */
+    private class FakeRouter(var wifiAvailable: Boolean = true) : NetworkRouter {
+        var bound = 0
+        var closed = 0
+
+        override suspend fun wifiNetwork(): RoutedNetwork = throw UnsupportedOperationException()
+
+        override fun internetNetwork(): RoutedNetwork? = null
+
+        override val changes: Flow<NetworkChange> = emptyFlow()
+        override val internetAvailable: StateFlow<Boolean> = MutableStateFlow(false)
+
+        override suspend fun bindProcessToWifi(): Closeable {
+            if (!wifiAvailable) throw WifiUnavailableException()
+            bound++
+            return Closeable { closed++ }
+        }
+
+        override fun release() = Unit
+    }
+
     /** Se crea con el despachador de pruebas ya puesto: el `viewModelScope` usa `Dispatchers.Main`. */
     private fun viewModel(): ReceiverWebViewModel {
-        val vm = ReceiverWebViewModel(equipment, wifi, tilt)
+        val vm = ReceiverWebViewModel(equipment, wifi, tilt, router)
         jobs += CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
         return vm
     }
@@ -222,6 +254,52 @@ class ReceiverWebViewModelTest {
         scheduler.advanceTimeBy(10_001)
         scheduler.runCurrent()
         vm.await { it.phase == WebPhase.FAILED }.loadId shouldBe retried.loadId
+    }
+
+    @Test
+    fun `S043 RF-15 al cargar se enlaza el proceso al Wi-Fi del receptor y la pantalla ya puede cargar`() {
+        runBlocking { equipment.saveWebAddress("AA:BB", "192.168.1.5") }
+        val vm = viewModel()
+
+        vm.await { it.url != null && it.networkReady }
+
+        router.bound shouldBe 1
+    }
+
+    @Test
+    fun `S043 RF-15 Reintentar no vuelve a enlazar y al cerrar la pantalla se suelta el enlace`() {
+        runBlocking { equipment.saveWebAddress("AA:BB", "192.168.1.5") }
+        val store = ViewModelStore()
+        val vm = ViewModelProvider(
+            store,
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = ReceiverWebViewModel(equipment, wifi, tilt, router) as T
+            },
+        )[ReceiverWebViewModel::class.java]
+        jobs += CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+        vm.await { it.networkReady }
+
+        vm.retry()
+        vm.await { it.loadId > 1 && it.networkReady }
+        router.closed shouldBe 0
+        store.clear()
+
+        router.bound shouldBe 1
+        router.closed shouldBe 1
+    }
+
+    @Test
+    fun `S043 RF-15 sin Wi-Fi la carga falla con sus causas y no se enlaza nada`() {
+        router.wifiAvailable = false
+        runBlocking { equipment.saveWebAddress("AA:BB", "192.168.1.5") }
+        val vm = viewModel()
+
+        val state = vm.await { it.phase == WebPhase.FAILED }
+
+        state.networkReady shouldBe false
+        state.causes shouldBe WebFailureCause.entries
+        router.bound shouldBe 0
     }
 
     @Test

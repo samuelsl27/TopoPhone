@@ -33,6 +33,7 @@ const val EQUIPMENT_MODEL_TAG = "equipment_model"
 const val EQUIPMENT_SERIAL_TAG = "equipment_serial"
 const val EQUIPMENT_FIRMWARE_TAG = "equipment_firmware"
 const val EQUIPMENT_SAVE_TAG = "equipment_save"
+const val EQUIPMENT_OPEN_WEB_TAG = "equipment_open_web"
 const val EQUIPMENT_USE_PROFILE_TAG = "equipment_use_profile"
 const val EQUIPMENT_MESSAGE_TAG = "equipment_message"
 const val EQUIPMENT_CURRENT_PROFILE_TAG = "equipment_current_profile"
@@ -46,6 +47,8 @@ class EquipmentActions(
     val onPick: (ref: String) -> String? = { null },
     val onUseProfile: () -> Unit = {},
     val onDismissMessage: () -> Unit = {},
+    /** Abre la interfaz web del receptor, dentro de la app (S043/RF-12). */
+    val onOpenWeb: () -> Unit = {},
 )
 
 @Composable
@@ -120,6 +123,10 @@ fun EquipmentCard(state: EquipmentUiState, actions: EquipmentActions) {
                     Text(stringResource(R.string.equipment_use_profile, proposed.name, offset))
                 }
             }
+            OutlinedButton(
+                onClick = actions.onOpenWeb,
+                modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(EQUIPMENT_OPEN_WEB_TAG),
+            ) { Text(stringResource(R.string.equipment_open_web)) }
             state.message?.let {
                 Text(messageText(it), color = MaterialTheme.colorScheme.primary, modifier = Modifier.testTag(EQUIPMENT_MESSAGE_TAG))
             }

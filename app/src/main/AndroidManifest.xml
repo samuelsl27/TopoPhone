@@ -22,8 +22,15 @@
         android:name="android.permission.ACCESS_WIFI_STATE"
         tools:node="remove" />
 
+    <!--
+        S043/RF-12, RNF-T4 (plan D10): la interfaz web del receptor es HTTP sin cifrar a una IP privada, y `network-security-config` no admite
+        rangos de IP, así que el tráfico en claro se permite a nivel de plataforma y se limita en el código: el WebView solo carga IP
+        privadas de la misma dirección (WebAddressPolicy) y los demás clientes de la app usan HTTPS, sockets o WmsAddress, que solo
+        admite HTTP privado. Un test recorre el código y el manifiesto (CleartextPolicyTest).
+    -->
     <application
         android:name=".TopoPhoneApplication"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"

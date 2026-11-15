@@ -9,6 +9,8 @@ import es.topophone.core.model.guide.PrivateAddress
 import es.topophone.core.model.receiver.ReceiverKey
 import es.topophone.data.equipment.EquipmentRepository
 import es.topophone.data.receiver.WifiReceiverRepository
+import es.topophone.receiver.platform.NetworkRouter
+import java.io.Closeable
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -63,6 +65,8 @@ data class ReceiverWebUiState(
     val addressRejected: Boolean = false,
     val causes: List<WebFailureCause> = emptyList(),
     val loadId: Int = 0,
+    /** El móvil ya usa la red Wi-Fi del receptor para todo el tráfico (RF-15). */
+    val networkReady: Boolean = false,
 )
 
 /**
@@ -77,6 +81,7 @@ class ReceiverWebViewModel @Inject constructor(
     private val equipment: EquipmentRepository,
     private val wifi: WifiReceiverRepository,
     tilt: CurrentTilt,
+    private val router: NetworkRouter,
 ) : ViewModel() {
 
     /** Lo que se sabe de la dirección de un receptor: la guardada a mano y, con Wi-Fi, la de su alta (S021). */
@@ -85,6 +90,10 @@ class ReceiverWebViewModel @Inject constructor(
     private class Load(val id: Int, val phase: WebPhase, val causes: List<WebFailureCause> = emptyList())
 
     private val rejected = MutableStateFlow(false)
+
+    /** El proceso está enlazado al Wi-Fi del receptor: solo entonces la pantalla carga la página (RF-15). */
+    private val networkReady = MutableStateFlow(false)
+    private var binding: Closeable? = null
     private val load = MutableStateFlow(Load(0, WebPhase.LOADING))
     private var timer: Job? = null
 
@@ -106,7 +115,7 @@ class ReceiverWebViewModel @Inject constructor(
         return known.saved?.let { PrivateAddress.parse(it) }
     }
 
-    val state: StateFlow<ReceiverWebUiState> = combine(known, rejected, load) { known, rejected, load ->
+    val state: StateFlow<ReceiverWebUiState> = combine(known, rejected, load, networkReady) { known, rejected, load, ready ->
         val applies = CurrentEquipment.appliesTo(known.key)
         val address = addressOf(known)
         ReceiverWebUiState(
@@ -121,6 +130,7 @@ class ReceiverWebViewModel @Inject constructor(
             addressRejected = rejected,
             causes = load.causes,
             loadId = load.id,
+            networkReady = ready,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ReceiverWebUiState())
 
@@ -173,6 +183,19 @@ class ReceiverWebViewModel @Inject constructor(
             delay(LOAD_TIMEOUT_MS)
             if (load.value.id == id && load.value.phase == WebPhase.LOADING) fail()
         }
+        viewModelScope.launch { bindNetwork(id) }
+    }
+
+    /** Enlaza el proceso al Wi-Fi del receptor aunque no tenga internet (RF-15); sin Wi-Fi, la carga falla con sus causas. */
+    private suspend fun bindNetwork(id: Int) {
+        if (binding == null) binding = runCatching { router.bindProcessToWifi() }.getOrNull()
+        networkReady.value = binding != null
+        if (binding == null && load.value.id == id && load.value.phase == WebPhase.LOADING) fail()
+    }
+
+    override fun onCleared() {
+        binding?.close() // al cerrar la pantalla el proceso vuelve a usar sus redes de siempre
+        binding = null
     }
 
     private fun fail() {

@@ -34,6 +34,9 @@ import kotlinx.serialization.Serializable
 /** Apartado "Datos del receptor" del menú del receptor: modelo, serie y firmware (S043/RF-18). */
 @Serializable data object ReceiverEquipmentRoute
 
+/** La interfaz web del receptor, dentro de la app (S043/RF-12). */
+@Serializable data object ReceiverWebRoute
+
 /** Formulario de perfil NTRIP: nuevo (sin id) o editado (S007/RF-2). */
 @Serializable data class NtripProfileFormDestination(val profileId: String? = null)
 

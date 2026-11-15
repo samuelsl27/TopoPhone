@@ -62,6 +62,9 @@ import es.topophone.app.ui.equipment.EquipmentViewModel
 import es.topophone.app.ui.guide.GuideActions
 import es.topophone.app.ui.guide.GuideUiState
 import es.topophone.app.ui.guide.GuideViewModel
+import es.topophone.app.ui.web.ReceiverWebActions
+import es.topophone.app.ui.web.ReceiverWebUiState
+import es.topophone.app.ui.web.ReceiverWebViewModel
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.designsystem.theme.LocalStatusPalette
 import es.topophone.core.designsystem.theme.StatusTone
@@ -231,6 +234,8 @@ fun ReceiverRoute(
     val guide = guideViewModel?.state?.collectAsStateWithLifecycle()?.value ?: GuideUiState()
     val equipmentViewModel: EquipmentViewModel? = if (page == ReceiverPage.EQUIPMENT) hiltViewModel() else null
     val equipment = equipmentViewModel?.state?.collectAsStateWithLifecycle()?.value ?: EquipmentUiState()
+    val webViewModel: ReceiverWebViewModel? = if (page == ReceiverPage.WEB) hiltViewModel() else null
+    val web = webViewModel?.state?.collectAsStateWithLifecycle()?.value ?: ReceiverWebUiState()
     val tilt = tiltViewModel?.state?.collectAsStateWithLifecycle()?.value ?: TiltUiState()
     ReceiverPageScreen(
         page = page,
@@ -285,8 +290,18 @@ fun ReceiverRoute(
                 onPick = vm::pick,
                 onUseProfile = vm::useProposedProfile,
                 onDismissMessage = vm::dismissMessage,
+                onOpenWeb = { navigation.onOpen(ReceiverPage.WEB) }, // S043/RF-12
             )
         } ?: EquipmentActions(),
+        web = web,
+        webActions = webViewModel?.let { vm ->
+            ReceiverWebActions(
+                onSubmitAddress = vm::submitAddress,
+                onPageFinished = vm::onPageFinished,
+                onLoadError = vm::onLoadError,
+                onRetry = vm::retry,
+            )
+        } ?: ReceiverWebActions(),
         actions = ReceiverActions(
             onRequestPermission = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) permissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
