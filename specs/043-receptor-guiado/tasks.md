@@ -42,7 +42,7 @@
       Hecho cuando: `NetworkRouterWebTest` en verde con una fuente de redes falsa: enlaza la del Wi-Fi sin internet, desenlaza al cerrar y avisa si no hay Wi-Fi.
 - [x] T20. `app`: `ReceiverWebScreen` con el `WebView` restringido (JavaScript sí; ficheros, contenido, cookies de terceros, contenido mixto y puentes no; solo peticiones a IP privadas) y el manifiesto con el tráfico en claro. (RF-12, RF-14, RF-15, RF-17)
       Hecho cuando: `ReceiverWebScreenTest` en verde: los ajustes del `WebView` son los de D9, una petición a una dirección pública o a otro puerto de otra IP se bloquea, una redirección a otra dirección no se sigue, la sesión de posición sigue abierta con la vista visible y un test recorre los clientes HTTP de la app sin hallar ninguno que acepte HTTP público.
-- [ ] T21. `tools`: `simulador/servidor_web.py` (un Reach Panel falso con la biblioteca estándar: una página, un fallo y una redirección) y su test. (RF-14, RF-16)
+- [x] T21. `tools`: `simulador/servidor_web.py` (un Reach Panel falso con la biblioteca estándar: una página, un fallo y una redirección) y su test. (RF-14, RF-16)
       Hecho cuando: `test_servidor_web.py` en verde, 6 tests de `tools` nuevos, sin ficheros prohibidos y su fila en `tools/LEEME.md`.
 - [ ] T22. `app`: accesibilidad y textos de la Guía, las comprobaciones, la vista web y «Datos del receptor»: etiquetas y 56 dp, inglés y claves iguales en es y en, sin literales en el código. (RNF-T7, RNF-T8, RNF-T14)
       Hecho cuando: `GuideAccessibilityTest` en verde: cada estado se distingue por texto o icono y no solo por color y ningún texto procede del fabricante.
