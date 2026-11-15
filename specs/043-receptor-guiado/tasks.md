@@ -30,7 +30,7 @@
       Hecho cuando: `EquipmentScreenTest` y `PointEquipmentDetailsTest` en verde: se guarda y se edita por receptor, elegir un modelo del catálogo propone su perfil y no cambia el que ya había hasta pulsar, y la ficha muestra los tres campos solo si el punto los tiene.
 - [x] T14. `app`: `ReceiverWindowRecorder` (la ventana de 10 s a partir de `ReceiverSession.epochs` y del estado del NTRIP). (RF-5)
       Hecho cuando: `ReceiverWindowRecorderTest` en verde con una sesión real de `fixtures/nmea` y un NTRIP falso: la ventana se llena, olvida lo viejo, funciona con una reproducción y con el receptor virtual y se vacía al desconectar.
-- [ ] T15. `app`: `GuideViewModel` y `GuideScreen` (las cuatro listas, marcar y desmarcar por receptor, reiniciar y los contadores de hechos y comprobados). (RF-1, RF-2, RF-3, RF-4)
+- [x] T15. `app`: `GuideViewModel` y `GuideScreen` (las cuatro listas, marcar y desmarcar por receptor, reiniciar y los contadores de hechos y comprobados). (RF-1, RF-2, RF-3, RF-4)
       Hecho cuando: `GuideViewModelTest` y `GuideScreenTest` en verde: el progreso es por receptor y sobrevive al reinicio de la pantalla, reiniciar vacía solo esa lista y los contadores dicen cuántos pasos están hechos y cuántos comprobados.
 - [ ] T16. `app`: «Comprobar» en la Guía: el resultado por paso con texto e icono, la causa y el paso que lo resuelve, y «Sin datos» con la remisión al diagnóstico. (RF-5, RF-9, RF-10, RF-11)
       Hecho cuando: `GuideChecksTest` en verde con una reproducción y el receptor virtual: cada comprobación en Correcto, Aviso y Fallo, «Sin datos» remite a S004/RF-27 y RF-28, termina en menos de 1 s y nada se escribe en el receptor.
