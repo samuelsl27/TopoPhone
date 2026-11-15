@@ -2,7 +2,7 @@
 
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Al terminar cada una: `./gradlew check` (y `uv run --project tools pytest tools` si se toca `tools/`), marcar la casilla y un commit `S043 Tn: …`.
 
-- [ ] T1. `core:model`: `EquipmentProfile`, `ConfigList`, `ConfigStep`, `CheckId`, `CheckStatus`, `ReceiverCheck` y `PrivateAddress` (cuatro rangos, sin nombres ni IPv6, puerto opcional). (RF-12, RF-13, RF-14, RF-18)
+- [x] T1. `core:model`: `EquipmentProfile`, `ConfigList`, `ConfigStep`, `CheckId`, `CheckStatus`, `ReceiverCheck` y `PrivateAddress` (cuatro rangos, sin nombres ni IPv6, puerto opcional). (RF-12, RF-13, RF-14, RF-18)
       Hecho cuando: `PrivateAddressTest` en verde con los bordes de cada rango (172.15, 172.16, 172.31, 172.32, 169.253, 169.254, 192.167, 192.168, 192.169), `127.0.0.1`, `reach.local`, IPv6, públicas y puertos 0, 1, 65535 y 65536.
 - [ ] T2. `core:gnss`: `ReferenceStationDecoder` lee el año ITRF de 1005 y 1006 y `ReferenceStation.itrfYear` lo guarda (0 = sin declarar). (RF-8)
       Hecho cuando: `ReferenceStationDecoderTest` en verde con 1005 y 1006 con año 2014, con año 2020 y con 0, y los tests de S015 intactos.
