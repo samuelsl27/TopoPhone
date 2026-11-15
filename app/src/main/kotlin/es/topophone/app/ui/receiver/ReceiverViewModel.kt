@@ -12,6 +12,7 @@ import es.topophone.app.receiver.CurrentTilt
 import es.topophone.app.receiver.CurrentTiltState
 import es.topophone.app.receiver.DismissedNotices
 import es.topophone.app.receiver.LocalNetworkPermission
+import es.topophone.app.receiver.NoLocationSource
 import es.topophone.app.receiver.NoWifiReceivers
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
@@ -39,6 +40,7 @@ import es.topophone.receiver.session.ReceiverSnapshot
 import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.transport.BluetoothDevices
 import es.topophone.receiver.transport.BondedDevice
+import es.topophone.receiver.transport.LocationSource
 import es.topophone.receiver.transport.PairingResult
 import es.topophone.receiver.transport.ReceiverPairing
 import java.math.BigDecimal
@@ -80,6 +82,9 @@ enum class PairingMessage { SEARCH_FAILED, SEARCH_CANCELLED, PAIRING_FAILED }
 /** El permiso de red local: el receptor Wi-Fi que espera a que se pida y si se ha denegado (S021/RF-6). */
 data class LocalNetworkUi(val pendingKey: String? = null, val denied: Boolean = false)
 
+/** El acceso a la ubicación del GNSS del móvil: pedir el permiso, haberlo denegado o tener la ubicación apagada (S022/RF-2, RF-3). */
+data class PhoneAccessUi(val askPermission: Boolean = false, val permissionDenied: Boolean = false, val locationOff: Boolean = false)
+
 /** "Añadir receptor": el diálogo del sistema pendiente de abrir y el último aviso (S004/RF-1 a RF-4). */
 data class PairingUi(val chooser: IntentSender? = null, val message: PairingMessage? = null)
 
@@ -118,6 +123,12 @@ data class ReceiverUiState(
     /** Los receptores Wi-Fi guardados, por orden de alta, aunque el Bluetooth esté apagado (S021/RF-4). */
     val wifiReceivers: List<WifiReceiver> = emptyList(),
     val askLocalNetwork: Boolean = false,
+    /** Pedir el permiso de ubicación precisa, con su explicación, para usar el GNSS del móvil (S022/RF-2). */
+    val askPhonePermission: Boolean = false,
+    /** Permiso de ubicación denegado: no se usa el GNSS del móvil y se explica cómo concederlo (S022/RF-2). */
+    val phonePermissionDenied: Boolean = false,
+    /** La ubicación del móvil está desactivada: se avisa y se ofrece abrir sus ajustes (S022/RF-3). */
+    val phoneLocationOff: Boolean = false,
     /** Permiso de red local denegado: no se conecta con un receptor Wi-Fi y se explica cómo concederlo (S021/RF-6). */
     val localNetworkDenied: Boolean = false,
     /** Hay búsqueda del sistema; si no, "Añadir receptor" abre los ajustes de Bluetooth (S004/RF-1). */
@@ -150,6 +161,7 @@ class ReceiverViewModel @Inject constructor(
     private val connections: ReceiverConnections,
     private val notifications: NotificationPermission = NotificationPermission.NotRequired,
     private val localNetwork: LocalNetworkPermission = LocalNetworkPermission.NotRequired,
+    private val location: LocationSource = NoLocationSource,
     private val wifiReceivers: WifiReceiverRepository = NoWifiReceivers,
     private val pairing: ReceiverPairing = ReceiverPairing.Unsupported,
     private val projectPreferences: ProjectPreferences = ProjectPreferences.FACTORY,
@@ -168,6 +180,7 @@ class ReceiverViewModel @Inject constructor(
     private val pairingSupported = pairing.isSupported
     private val pairingUi = MutableStateFlow(PairingUi())
     private val localNetworkUi = MutableStateFlow(LocalNetworkUi())
+    private val phoneAccessUi = MutableStateFlow(PhoneAccessUi())
 
     private val ticker: Flow<Long> = flow {
         while (true) {
@@ -204,6 +217,14 @@ class ReceiverViewModel @Inject constructor(
         val pairing: PairingUi,
         val localNetwork: LocalNetworkUi,
         val wifiReceivers: List<WifiReceiver>,
+        val phoneAccess: PhoneAccessUi,
+    )
+
+    private data class Prompts(
+        val pairing: PairingUi,
+        val localNetwork: LocalNetworkUi,
+        val wifiReceivers: List<WifiReceiver>,
+        val phoneAccess: PhoneAccessUi,
     )
 
     private val angularUnits: Flow<AngularUnit> = projectPreferences.defaults.map { it.angularUnit }.distinctUntilChanged()
@@ -223,9 +244,9 @@ class ReceiverViewModel @Inject constructor(
             combine(lastAddress, preferences.lastReceiver.map { it?.address }, connections.currentAddress, ::Triple),
             notificationsGranted,
             combine(preferences.notificationsAsked, notificationsAnsweredNow) { saved, now -> saved || now },
-            combine(pairingUi, localNetworkUi, wifiReceivers.receivers(), ::Triple),
-        ) { now, addresses, granted, asked, (pairing, localNetworkState, wifi) ->
-            Extras(now, addresses, granted, asked, pairing, localNetworkState, wifi)
+            combine(pairingUi, localNetworkUi, wifiReceivers.receivers(), phoneAccessUi, ::Prompts),
+        ) { now, addresses, granted, asked, prompts ->
+            Extras(now, addresses, granted, asked, prompts.pairing, prompts.localNetwork, prompts.wifiReceivers, prompts.phoneAccess)
         },
     ) { (snapshot, angularUnit, notices, tiltState, gearState, poles, gearLocked), bt, internetAvailable, poleTyped, extras ->
         // S016/RF-16, RF-17: con la inclinación, la GGA y el ETC de la misma época; si no, la última GGA.
@@ -263,6 +284,9 @@ class ReceiverViewModel @Inject constructor(
             wifiReceivers = extras.wifiReceivers,
             askLocalNetwork = extras.localNetwork.pendingKey != null,
             localNetworkDenied = extras.localNetwork.denied,
+            askPhonePermission = extras.phoneAccess.askPermission,
+            phonePermissionDenied = extras.phoneAccess.permissionDenied,
+            phoneLocationOff = extras.phoneAccess.locationOff,
             pairingSupported = pairingSupported,
             pairing = extras.pairing,
             angularUnit = angularUnit,
@@ -358,12 +382,48 @@ class ReceiverViewModel @Inject constructor(
      * de red local, con su explicación; sin él no se intenta (S021/RF-6).
      */
     fun connect(address: String) {
+        if (ReceiverKey.isPhone(address)) return connectPhone()
         if (ReceiverKey.isWifi(address) && localNetwork.required && !localNetwork.isGranted()) {
             localNetworkUi.value = LocalNetworkUi(pendingKey = address)
             return
         }
         lastAddress.value = address
         connections.connect(address) // S002/RF-5, con reconexión (S004/RF-13)
+    }
+
+    /**
+     * Conecta con el GNSS del móvil (S022/RF-1): sin el permiso de ubicación precisa lo pide antes, con su explicación (RF-2), y con la
+     * ubicación del móvil apagada lo dice y ofrece sus ajustes (RF-3); en ninguno de los dos casos se intenta conectar.
+     */
+    fun connectPhone() {
+        if (!location.hasPermission()) {
+            phoneAccessUi.value = PhoneAccessUi(askPermission = true)
+            return
+        }
+        if (!location.isEnabled()) {
+            phoneAccessUi.value = PhoneAccessUi(locationOff = true)
+            return
+        }
+        phoneAccessUi.value = PhoneAccessUi()
+        lastAddress.value = ReceiverKey.PHONE
+        connections.connectPhone()
+    }
+
+    /** Respuesta a la petición del permiso de ubicación: concedido, se conecta; si no, se avisa de cómo concederlo (S022/RF-2). */
+    fun phonePermissionAnswered(granted: Boolean) {
+        if (granted && location.hasPermission()) {
+            phoneAccessUi.value = PhoneAccessUi()
+            connectPhone()
+        } else {
+            phoneAccessUi.value = PhoneAccessUi(permissionDenied = true)
+        }
+    }
+
+    /** Al volver a la pantalla: si se concedió el permiso o se encendió la ubicación desde los ajustes, el aviso se quita (S022/RF-2, RF-3). */
+    fun refreshPhoneAccess() {
+        val current = phoneAccessUi.value
+        val solved = (current.permissionDenied && location.hasPermission()) || (current.locationOff && location.isEnabled())
+        if (solved) phoneAccessUi.value = PhoneAccessUi()
     }
 
     /** Respuesta a la petición del permiso de red local: concedido, se conecta con el receptor que se quería; si no, se avisa (S021/RF-6). */

@@ -20,7 +20,7 @@
       Hecho cuando: `PhoneGnssTransportTest` en verde con una fuente falsa: declara 1 m y sale SINGLE con esa precisión horizontal, sin vertical no hay σ de la altura, a los 3 s sin ubicación hay «Sin datos» y una ubicación simulada cambia la fuente.
 - [x] T9. `app`: `ReceiverConnections` con las claves `phone` y `virtual` (conectar, desconectar, repetir el escenario, no reconectar al abrir la app, no guardar el último receptor). (RF-1, RF-12, RF-17)
       Hecho cuando: `ReceiverConnectionsSourcesTest` en verde y los de Bluetooth y Wi-Fi intactos.
-- [ ] T10. `app`: permisos y servicio del móvil: `ACCESS_FINE_LOCATION` y `FOREGROUND_SERVICE_LOCATION` en el manifiesto, petición al elegirlo, denegación con Ajustes, ubicación apagada con su acceso, y el servicio con el tipo `location` solo con el móvil. (RF-2, RF-3, RF-4, RNF-T1, RNF-T2)
+- [x] T10. `app`: permisos y servicio del móvil: `ACCESS_FINE_LOCATION` y `FOREGROUND_SERVICE_LOCATION` en el manifiesto, petición al elegirlo, denegación con Ajustes, ubicación apagada con su acceso, y el servicio con el tipo `location` solo con el móvil. (RF-2, RF-3, RF-4, RNF-T1, RNF-T2)
       Hecho cuando: `PhonePermissionsTest` en verde y el manifiesto combinado de `assembleDebug` declara los permisos y quita solo los de la Wi-Fi.
 - [ ] T11. `app`: filas «GNSS del móvil» y «Receptor virtual» en la lista (también con el Bluetooth apagado) y en la hoja de «Añadir receptor». (RF-1, RF-12)
       Hecho cuando: `ReceiverListSourcesTest` en verde y los tests de la lista de S004, S005 y S021 intactos.

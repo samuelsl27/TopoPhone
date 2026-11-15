@@ -92,6 +92,11 @@ class ReceiverActions(
     val onAllowLocalNetwork: () -> Unit = {},
     val onDeclineLocalNetwork: () -> Unit = {},
     val onOpenLocalNetworkSettings: () -> Unit = {},
+    /** S022/RF-2, RF-3. */
+    val onAllowPhonePermission: () -> Unit = {},
+    val onDeclinePhonePermission: () -> Unit = {},
+    val onOpenPhoneAppSettings: () -> Unit = {},
+    val onOpenLocationSettings: () -> Unit = {},
     val onAddReceiver: () -> Unit = {},
     val onOpenStatus: () -> Unit = {},
     val onOpenCoordinates: () -> Unit = {},
@@ -173,6 +178,9 @@ fun ReceiverRoute(
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             viewModel.localNetworkAnswered(granted)
         }
+    val phoneLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+        viewModel.phonePermissionAnswered(result[Manifest.permission.ACCESS_FINE_LOCATION] == true) // S022/RF-2
+    }
     val chooserLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         viewModel.receiverChosen(result.resultCode, result.data) // S004/RF-2 a RF-4
     }
@@ -187,6 +195,7 @@ fun ReceiverRoute(
         viewModel.refreshBluetooth()
         viewModel.refreshNotifications()
         viewModel.refreshLocalNetwork()
+        viewModel.refreshPhoneAccess()
         onPauseOrDispose {}
     }
     // La pantalla Correcciones tiene su propio ViewModel (perfiles NTRIP, S007); la página no cambia en la misma ruta.
@@ -275,6 +284,12 @@ fun ReceiverRoute(
             onAllowLocalNetwork = { localNetworkLauncher.launch(ACCESS_LOCAL_NETWORK) }, // S021/RF-6
             onDeclineLocalNetwork = { viewModel.localNetworkAnswered(granted = false) },
             onOpenLocalNetworkSettings = { context.startActivity(localNetworkSettingsIntent(context.packageName)) },
+            onAllowPhonePermission = {
+                phoneLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+            },
+            onDeclinePhonePermission = { viewModel.phonePermissionAnswered(granted = false) },
+            onOpenPhoneAppSettings = { context.startActivity(localNetworkSettingsIntent(context.packageName)) },
+            onOpenLocationSettings = { context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) }, // S022/RF-3
             onEnableNotifications = { context.startActivity(notificationSettingsIntent(context.packageName)) },
             onAddReceiver = viewModel::addReceiver,
             onAddWifiReceiver = navigation.onNewWifiReceiver, // S021/RF-1
@@ -321,6 +336,8 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
             when (receiverHomeMode(state.snapshot)) {
                 ReceiverHomeMode.LIST -> {
                     if (state.localNetworkDenied) LocalNetworkDenied(actions) // S021/RF-6
+                    if (state.phonePermissionDenied) PhonePermissionDenied(actions) // S022/RF-2
+                    if (state.phoneLocationOff) PhoneLocationOff(actions) // S022/RF-3
                     ReceiverList(state, actions)
                 }
                 ReceiverHomeMode.DASHBOARD -> {
@@ -332,7 +349,53 @@ fun ReceiverScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Recei
     }
     if (state.askNotifications) NotificationsDialog(actions)
     if (state.askLocalNetwork) LocalNetworkDialog(actions)
+    if (state.askPhonePermission) PhonePermissionDialog(actions)
 }
+
+/** Explica para qué es el permiso de ubicación precisa antes de que Android lo pida (S022/RF-2). */
+@Composable
+private fun PhonePermissionDialog(actions: ReceiverActions) {
+    AlertDialog(
+        onDismissRequest = actions.onDeclinePhonePermission,
+        title = { Text(stringResource(R.string.phone_permission_title)) },
+        text = { Text(stringResource(R.string.phone_permission_rationale)) },
+        confirmButton = {
+            TextButton(
+                onClick = actions.onAllowPhonePermission,
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(PHONE_PERMISSION_ALLOW_TAG),
+            ) { Text(stringResource(R.string.phone_permission_continue)) }
+        },
+        dismissButton = {
+            TextButton(onClick = actions.onDeclinePhonePermission, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.phone_permission_not_now))
+            }
+        },
+    )
+}
+
+/** Con el permiso de ubicación denegado: por qué no se usa el GNSS del móvil y cómo concederlo (S022/RF-2). */
+@Composable
+internal fun PhonePermissionDenied(actions: ReceiverActions) {
+    Text(stringResource(R.string.phone_permission_denied))
+    OutlinedButton(
+        onClick = actions.onOpenPhoneAppSettings,
+        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(PHONE_SETTINGS_TAG),
+    ) { Text(stringResource(R.string.phone_permission_open_settings)) }
+}
+
+/** Con la ubicación del móvil apagada: se dice y se ofrece abrir sus ajustes (S022/RF-3). */
+@Composable
+internal fun PhoneLocationOff(actions: ReceiverActions) {
+    Text(stringResource(R.string.phone_location_off))
+    OutlinedButton(
+        onClick = actions.onOpenLocationSettings,
+        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LOCATION_SETTINGS_TAG),
+    ) { Text(stringResource(R.string.phone_location_open_settings)) }
+}
+
+internal const val PHONE_PERMISSION_ALLOW_TAG = "phone_permission_allow"
+internal const val PHONE_SETTINGS_TAG = "phone_settings"
+internal const val LOCATION_SETTINGS_TAG = "location_settings"
 
 /** Explica para qué es el permiso de red local antes de que Android lo pida (S021/RF-6). */
 @Composable

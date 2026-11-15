@@ -56,7 +56,8 @@ class ReceiverConnections(
     private val labels: SourceLabels? = null,
     /** La hora en milisegundos desde 1970 con la que arranca un escenario virtual: la del reloj del móvil al conectar (S022/RNF-T10). */
     private val utcNowMs: () -> Long = System::currentTimeMillis,
-    private val onConnecting: () -> Unit = {},
+    /** Se llama antes de conectar, con la clave: el servicio es de tipo location solo con el GNSS del móvil (S004/RF-7, S022/RF-4). */
+    private val onConnecting: (key: String) -> Unit = {},
 ) {
     private val current = MutableStateFlow<String?>(null)
 
@@ -103,7 +104,7 @@ class ReceiverConnections(
             lastVirtual?.let(::connectVirtual)
             return
         }
-        onConnecting()
+        onConnecting(key)
         current.value = key
         val wifiId = ReceiverKey.wifiId(key)
         if (wifiId == null) {
@@ -122,7 +123,7 @@ class ReceiverConnections(
      */
     fun connectPhone() {
         val source = locationSource ?: return
-        onConnecting()
+        onConnecting(ReceiverKey.PHONE)
         current.value = ReceiverKey.PHONE
         session.connect(PhoneGnssTransport(labels?.phone() ?: ReceiverKey.PHONE, source))
     }
@@ -133,7 +134,7 @@ class ReceiverConnections(
      */
     fun connectVirtual(selection: VirtualSelection) {
         lastVirtual = selection
-        onConnecting()
+        onConnecting(ReceiverKey.VIRTUAL)
         current.value = ReceiverKey.VIRTUAL
         val player = ScenarioPlayer(selection.scenario, selection.origin, utcNowMs())
         session.connect(VirtualReceiverTransport(labels?.virtual() ?: ReceiverKey.VIRTUAL, player, selection.speed))

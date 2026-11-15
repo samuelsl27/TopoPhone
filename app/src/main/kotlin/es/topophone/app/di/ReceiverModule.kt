@@ -46,6 +46,7 @@ import es.topophone.receiver.transport.AndroidBluetoothDevices
 import es.topophone.receiver.transport.AndroidLocationSource
 import es.topophone.receiver.transport.AndroidReceiverPairing
 import es.topophone.receiver.transport.BluetoothDevices
+import es.topophone.receiver.transport.LocationSource
 import es.topophone.receiver.transport.ReceiverPairing
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -118,6 +119,7 @@ object ReceiverModule {
         preferences: ReceiverPreferences,
         wifiReceivers: WifiReceiverRepository,
         router: NetworkRouter,
+        locationSource: LocationSource,
     ): ReceiverConnections = ReceiverConnections(
         session,
         bluetooth,
@@ -125,11 +127,16 @@ object ReceiverModule {
         CoroutineScope(SupervisorJob() + Dispatchers.Default),
         wifiReceivers,
         router,
-        locationSource = AndroidLocationSource(context), // S022/RF-1
+        locationSource = locationSource, // S022/RF-1
         labels = ResourceSourceLabels(context),
-    ) {
-        ReceiverService.start(context) // S004/RF-7
+    ) { key ->
+        ReceiverService.start(context, location = ReceiverKey.isPhone(key)) // S004/RF-7, S022/RF-4
     }
+
+    /** El GNSS del móvil: lo usan la conexión y la petición del permiso (S022/RF-2, RF-3, RF-5). */
+    @Provides
+    @Singleton
+    fun locationSource(@ApplicationContext context: Context): LocationSource = AndroidLocationSource(context)
 
     /** El receptor en uso y su modo de inclinación, uno para toda la app (S016/RF-1; plan A8). */
     @Provides

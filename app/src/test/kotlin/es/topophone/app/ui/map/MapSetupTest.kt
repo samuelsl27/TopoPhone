@@ -23,15 +23,15 @@ class MapSetupTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
-    fun `S009 RNF-T1 el mapa no pide la ubicacion ni el estado de la Wi-Fi del movil`() {
+    fun `S009 RNF-T1 el mapa no pide el estado de la Wi-Fi y la ubicacion es solo la del GNSS del movil`() {
         val permissions = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
             .requestedPermissions.orEmpty().toList()
 
-        permissions shouldNotContainAnyOf listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_WIFI_STATE,
-        )
+        permissions shouldNotContainAnyOf listOf(Manifest.permission.ACCESS_WIFI_STATE)
+        // S022/RF-2: la ubicación precisa (y la aproximada, que Android 12 exige pedir junto a ella) se declaran a propósito para el
+        // GNSS del móvil, que la pide al elegirlo y nunca al arrancar; el mapa no la usa.
+        permissions shouldContain Manifest.permission.ACCESS_FINE_LOCATION
+        permissions shouldContain Manifest.permission.ACCESS_COARSE_LOCATION
         permissions shouldContain Manifest.permission.INTERNET
     }
 

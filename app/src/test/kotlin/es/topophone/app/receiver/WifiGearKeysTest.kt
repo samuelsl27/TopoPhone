@@ -135,6 +135,7 @@ class WifiGearKeysTest {
         val short = pole("Corto", "1.500")
         val long = pole("Largo", "2.000")
         await { gear.setActivePole(wifiKey, long) }
+        await { gear.setActivePole(bluetooth, short) } // cada clave guarda lo suyo, sea cual sea el orden de los jalones
         val follows = CurrentGear(current, gear, scope)
 
         current.value = wifiKey

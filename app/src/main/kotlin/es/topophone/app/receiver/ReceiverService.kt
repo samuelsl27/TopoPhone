@@ -1,8 +1,10 @@
 package es.topophone.app.receiver
 
+import android.Manifest
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Handler
 import android.os.IBinder
@@ -81,7 +83,11 @@ class ReceiverService : Service() {
             this,
             ReceiverNotifications.NOTIFICATION_ID,
             ReceiverNotifications.build(this, session.state.value),
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE,
+            foregroundServiceType(
+                location = intent?.getBooleanExtra(EXTRA_LOCATION, false) == true,
+                locationGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                    PackageManager.PERMISSION_GRANTED,
+            ),
         )
         holdWakeLock()
         if (collector == null) {
@@ -155,8 +161,24 @@ class ReceiverService : Service() {
             return active && snapshot.replay == null
         }
 
-        fun start(context: Context) {
-            ContextCompat.startForegroundService(context, Intent(context, ReceiverService::class.java))
+        /** Con el GNSS del móvil, el servicio es de tipo [EXTRA_LOCATION] (S022/RF-4). */
+        const val EXTRA_LOCATION = "es.topophone.app.extra.LOCATION"
+
+        /**
+         * El tipo del servicio en primer plano: `location` solo con el GNSS del móvil y con el permiso concedido (Android 14 no deja
+         * arrancar uno sin él); con cualquier otro receptor, `connectedDevice` (S022/RF-4, RNF-T2).
+         */
+        fun foregroundServiceType(location: Boolean, locationGranted: Boolean): Int = if (location && locationGranted) {
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+        } else {
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+        }
+
+        fun start(context: Context, location: Boolean = false) {
+            ContextCompat.startForegroundService(
+                context,
+                Intent(context, ReceiverService::class.java).putExtra(EXTRA_LOCATION, location),
+            )
         }
     }
 }

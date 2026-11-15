@@ -86,10 +86,13 @@ class ReceiverServiceTest {
     }
 
     @Test
-    fun `S004 RF-7 el servicio se declara en primer plano de tipo dispositivo conectado`() {
+    fun `S004 RF-7 el servicio se declara en primer plano de tipo dispositivo conectado y, con el movil, ubicacion`() {
         val info = app.packageManager.getServiceInfo(ComponentName(app, ReceiverService::class.java), PackageManager.GET_META_DATA)
 
-        info.foregroundServiceType shouldBe ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+        // S022/RF-4: location solo se usa al arrancarlo con el GNSS del móvil, pero el tipo tiene que estar declarado.
+        info.foregroundServiceType shouldBe (
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            )
         info.exported shouldBe false
         val permissions = app.packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS).requestedPermissions.orEmpty()
         permissions.toList() shouldContainElement Manifest.permission.WAKE_LOCK
