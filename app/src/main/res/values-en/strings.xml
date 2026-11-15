@@ -144,6 +144,8 @@
     <string name="ntrip_unavailable_in_replay">Replay does not accept corrections.</string>
     <string name="receiver_replay_finished">Replay finished: %1$s</string>
     <string name="receiver_scenario_finished">Scenario finished: %1$s</string>
+    <string name="phone_gnss_name">Phone GNSS</string>
+    <string name="virtual_receiver_name">Virtual receiver</string>
     <string name="ntrip_unavailable_phone">The phone GNSS does not use corrections.</string>
     <string name="ntrip_unavailable_virtual">The virtual receiver does not accept corrections.</string>
     <string name="replay_speed_x1">×1</string>

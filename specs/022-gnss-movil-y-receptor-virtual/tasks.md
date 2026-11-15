@@ -18,7 +18,7 @@
       Hecho cuando: `ReceiverSessionSourcesTest` en verde y los de sesión de S002 a S021 intactos.
 - [x] T8. `receiver`: `LocationSource`, `PhoneGnssTransport` y `AndroidLocationSource` (SINGLE siempre, altura elipsoidal sin geoide, σ de la GST, sin vertical, `isMock`, sin correcciones). (RF-5, RF-6, RF-7, RF-8, RF-9)
       Hecho cuando: `PhoneGnssTransportTest` en verde con una fuente falsa: declara 1 m y sale SINGLE con esa precisión horizontal, sin vertical no hay σ de la altura, a los 3 s sin ubicación hay «Sin datos» y una ubicación simulada cambia la fuente.
-- [ ] T9. `app`: `ReceiverConnections` con las claves `phone` y `virtual` (conectar, desconectar, repetir el escenario, no reconectar al abrir la app, no guardar el último receptor). (RF-1, RF-12, RF-17)
+- [x] T9. `app`: `ReceiverConnections` con las claves `phone` y `virtual` (conectar, desconectar, repetir el escenario, no reconectar al abrir la app, no guardar el último receptor). (RF-1, RF-12, RF-17)
       Hecho cuando: `ReceiverConnectionsSourcesTest` en verde y los de Bluetooth y Wi-Fi intactos.
 - [ ] T10. `app`: permisos y servicio del móvil: `ACCESS_FINE_LOCATION` y `FOREGROUND_SERVICE_LOCATION` en el manifiesto, petición al elegirlo, denegación con Ajustes, ubicación apagada con su acceso, y el servicio con el tipo `location` solo con el móvil. (RF-2, RF-3, RF-4, RNF-T1, RNF-T2)
       Hecho cuando: `PhonePermissionsTest` en verde y el manifiesto combinado de `assembleDebug` declara los permisos y quita solo los de la Wi-Fi.

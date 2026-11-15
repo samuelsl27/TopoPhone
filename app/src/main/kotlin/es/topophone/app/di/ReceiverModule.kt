@@ -17,6 +17,7 @@ import es.topophone.app.receiver.NetworkAwareSourcetable
 import es.topophone.app.receiver.NotificationPermission
 import es.topophone.app.receiver.ReceiverConnections
 import es.topophone.app.receiver.ReceiverService
+import es.topophone.app.receiver.ResourceSourceLabels
 import es.topophone.app.ui.receiver.ReceiverViewModel
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.receiver.ReceiverKey
@@ -42,6 +43,7 @@ import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.session.ReplayController
 import es.topophone.receiver.session.SessionLogStore
 import es.topophone.receiver.transport.AndroidBluetoothDevices
+import es.topophone.receiver.transport.AndroidLocationSource
 import es.topophone.receiver.transport.AndroidReceiverPairing
 import es.topophone.receiver.transport.BluetoothDevices
 import es.topophone.receiver.transport.ReceiverPairing
@@ -123,6 +125,8 @@ object ReceiverModule {
         CoroutineScope(SupervisorJob() + Dispatchers.Default),
         wifiReceivers,
         router,
+        locationSource = AndroidLocationSource(context), // S022/RF-1
+        labels = ResourceSourceLabels(context),
     ) {
         ReceiverService.start(context) // S004/RF-7
     }

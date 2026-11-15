@@ -1,5 +1,9 @@
 package es.topophone.app.receiver
 
+import es.topophone.core.gnss.nmea.ReplaySpeed
+import es.topophone.core.gnss.scenario.Scenario
+import es.topophone.core.gnss.scenario.ScenarioOrigin
+import es.topophone.core.gnss.scenario.ScenarioPlayer
 import es.topophone.core.model.receiver.ReceiverKey
 import es.topophone.core.model.receiver.WifiReceiver
 import es.topophone.data.receiver.ReceiverPreferences
@@ -11,8 +15,11 @@ import es.topophone.receiver.session.ConnectionState
 import es.topophone.receiver.session.ReceiverSession
 import es.topophone.receiver.transport.BluetoothDevices
 import es.topophone.receiver.transport.BluetoothOffException
+import es.topophone.receiver.transport.LocationSource
+import es.topophone.receiver.transport.PhoneGnssTransport
 import es.topophone.receiver.transport.ReceiverTransport
 import es.topophone.receiver.transport.TcpTransport
+import es.topophone.receiver.transport.VirtualReceiverTransport
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.SocketFactory
@@ -25,6 +32,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+
+/** Lo que el usuario elige para el receptor virtual: el escenario, dónde ocurre y a qué velocidad (S022/RF-13, RF-16). */
+data class VirtualSelection(val scenario: Scenario, val origin: ScenarioOrigin, val speed: ReplaySpeed = ReplaySpeed.X1)
 
 /**
  * Único punto para conectar con un receptor real: con reconexión (S004/RF-13 a RF-22), guardando el
@@ -40,9 +50,17 @@ class ReceiverConnections(
     private val wifiReceivers: WifiReceiverRepository? = null,
     /** La red Wi-Fi del móvil para los sockets de un receptor Wi-Fi (S021/RF-8). */
     private val router: NetworkRouter? = null,
+    /** El GNSS del móvil; sin él, `phone` no conecta (S022/RF-1). */
+    private val locationSource: LocationSource? = null,
+    /** Los nombres de las dos fuentes que trae la app, para la cabecera y la notificación (S022/RF-1, RF-12). */
+    private val labels: SourceLabels? = null,
+    /** La hora en milisegundos desde 1970 con la que arranca un escenario virtual: la del reloj del móvil al conectar (S022/RNF-T10). */
+    private val utcNowMs: () -> Long = System::currentTimeMillis,
     private val onConnecting: () -> Unit = {},
 ) {
     private val current = MutableStateFlow<String?>(null)
+
+    private var lastVirtual: VirtualSelection? = null
 
     /**
      * La clave del último receptor con el que se ha pedido conectar: su dirección Bluetooth o `wifi:<id>` (S021/RF-5); es la clave de su
@@ -55,7 +73,8 @@ class ReceiverConnections(
         scope.launch {
             session.state.map { it.connection to it.replay }.distinctUntilChanged().collect { (connection, replay) ->
                 val address = current.value
-                if (connection is ConnectionState.Receiving && replay == null && address != null) {
+                // S022/plan D15: ni el GNSS del móvil ni el receptor virtual se recuerdan como último receptor.
+                if (connection is ConnectionState.Receiving && replay == null && address != null && !ReceiverKey.isBuiltIn(address)) {
                     preferences.saveLastReceiver(SavedReceiver(address, connection.description)) // S004/RF-24, S021/RF-17
                 }
             }
@@ -78,6 +97,12 @@ class ReceiverConnections(
      * pierde el enlace, se reconecta solo.
      */
     fun connect(key: String) {
+        if (ReceiverKey.isPhone(key)) return connectPhone()
+        if (ReceiverKey.isVirtual(key)) {
+            // El receptor virtual pide antes un escenario: sin uno elegido no hay a qué conectar (S022/RF-13).
+            lastVirtual?.let(::connectVirtual)
+            return
+        }
         onConnecting()
         current.value = key
         val wifiId = ReceiverKey.wifiId(key)
@@ -92,6 +117,34 @@ class ReceiverConnections(
     }
 
     /**
+     * Conecta con el GNSS del móvil (S022/RF-1, RF-4): sin correcciones, sin reconexión (si Android deja de dar posiciones se ve
+     * «Sin datos») y sin guardarlo como último receptor.
+     */
+    fun connectPhone() {
+        val source = locationSource ?: return
+        onConnecting()
+        current.value = ReceiverKey.PHONE
+        session.connect(PhoneGnssTransport(labels?.phone() ?: ReceiverKey.PHONE, source))
+    }
+
+    /**
+     * Conecta con el receptor virtual y su [selection] (S022/RF-12, RF-13). La hora UTC arranca con la del reloj del móvil
+     * (S022/RNF-T10). Para repetir el escenario o elegir otro se vuelve a llamar (S022/RF-17).
+     */
+    fun connectVirtual(selection: VirtualSelection) {
+        lastVirtual = selection
+        onConnecting()
+        current.value = ReceiverKey.VIRTUAL
+        val player = ScenarioPlayer(selection.scenario, selection.origin, utcNowMs())
+        session.connect(VirtualReceiverTransport(labels?.virtual() ?: ReceiverKey.VIRTUAL, player, selection.speed))
+    }
+
+    /** Repite el último escenario virtual desde el principio (S022/RF-17); no hace nada si no había uno. */
+    fun repeatVirtual() {
+        lastVirtual?.let(::connectVirtual)
+    }
+
+    /**
      * Al arrancar la app, una sola vez: conecta con el último receptor si sigue emparejado, el
      * Bluetooth está encendido, hay permiso y no hay ninguna conexión ni reproducción (S004/RF-25).
      * Si falla, queda como cualquier fallo de conexión, sin reintentos (S004/RF-26).
@@ -99,6 +152,7 @@ class ReceiverConnections(
     suspend fun autoConnect(): Boolean {
         if (!autoConnectTried.compareAndSet(false, true)) return false
         val last = preferences.lastReceiver.first() ?: return false
+        if (ReceiverKey.isBuiltIn(last.address)) return false // S022/plan D15
         val wifiId = ReceiverKey.wifiId(last.address)
         if (wifiId != null) {
             // S021/RF-17: un receptor Wi-Fi sigue guardado o no; no se piden ni Bluetooth ni su permiso.
