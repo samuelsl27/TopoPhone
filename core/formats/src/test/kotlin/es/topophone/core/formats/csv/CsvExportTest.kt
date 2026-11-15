@@ -1,5 +1,6 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.guide.EquipmentProfile
 import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.BaseSource
@@ -91,7 +92,7 @@ class CsvExportTest {
             "Epochs used,Epochs discarded,Replay,Out of tolerance,Measured from,Measured to," +
             "Base latitude,Base longitude,Base ellipsoidal height,Base easting,Base northing,Base elevation,Baseline," +
             "Tilt mode,Tilt mode verified,Tilt,Tilt direction,Heading,Maximum tilt,Tilt horizontal accuracy,Tilt vertical accuracy," +
-            "Averaged time,Deviation horizontal,Deviation vertical,Automatic," +
+            "Averaged time,Deviation horizontal,Deviation vertical,Automatic,Receiver model,Receiver serial,Receiver firmware," +
             "Edited,Copy of,Stake design,Stake design elevation,Stake delta northing,Stake delta easting,Stake horizontal distance," +
             "Stake delta elevation,Stake within tolerance,Base shift dX,Base shift dY,Base shift dZ,Code"
 
@@ -108,7 +109,7 @@ class CsvExportTest {
             allHeader,
             "4,,Measured,440313.1221,4474258.8769,648.3114,40.416815094,-3.703533016,699.4230,EPSG:25830,EGM08-REDNAP,m," +
                 "1.8000,FLOAT,24,0.6,1.0,0.1383,0.2100,Instant,1,0,true,NOT_FIX,2026-10-18T18:03:34Z,2026-10-18T18:03:59Z," +
-                ",,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
+                ",,,,,,,,,,,,,,,,,,,,,,false,,,,,,,,,,,,", // sin base (S015/RF-22), inclinación (S016/RF-24) ni promediado (S017/RF-14)
         )
     }
 
@@ -192,6 +193,48 @@ class CsvExportTest {
     }
 
     private val shiftColumns = setOf(ExportColumn.SHIFT_DX, ExportColumn.SHIFT_DY, ExportColumn.SHIFT_DZ)
+
+    private val equipmentColumns = setOf(ExportColumn.EQUIPMENT_MODEL, ExportColumn.EQUIPMENT_SERIAL, ExportColumn.EQUIPMENT_FIRMWARE)
+
+    private val equipped = measured.copy(
+        measurement = measured.measurement!!.copy(equipment = EquipmentProfile("Reach RS3", "RS3-0042", "2026.2, estable")),
+    )
+
+    private fun equipmentCells(point: Point, options: CsvOptions = CsvOptions()): List<String> {
+        val custom = options.copy(format = ExportFormat.CUSTOM, customColumns = equipmentColumns)
+        return lines(csv(listOf(point), custom))[1].split(options.separator.char)
+    }
+
+    @Test
+    fun `S043 RF-20 las columnas del receptor van tras Automatic y antes de Edited, con su cabecera`() {
+        val header = lines(csv(listOf(equipped), CsvOptions()))[0].split(",")
+        val start = header.indexOf("Automatic") + 1
+
+        header.subList(start, start + 4) shouldBe listOf("Receiver model", "Receiver serial", "Receiver firmware", "Edited")
+        equipmentColumns.map { it.header } shouldBe listOf("Receiver model", "Receiver serial", "Receiver firmware")
+    }
+
+    @Test
+    fun `S043 RF-20 un punto con equipo lleva modelo, serie y firmware, y el texto con coma va entre comillas`() {
+        val options = CsvOptions(format = ExportFormat.CUSTOM, customColumns = equipmentColumns + ExportColumn.NAME)
+
+        lines(csv(listOf(equipped), options))[1] shouldBe "4,Reach RS3,RS3-0042,\"2026.2, estable\""
+    }
+
+    @Test
+    fun `S043 RF-20 un punto sin equipo, uno manual y uno con datos a medias dejan vacio lo que falta`() {
+        val partial = measured.copy(measurement = measured.measurement!!.copy(equipment = EquipmentProfile("Reach RS3", "", "")))
+
+        equipmentCells(measured) shouldBe listOf("", "", "")
+        equipmentCells(partial) shouldBe listOf("Reach RS3", "", "")
+        lines(csv(listOf(manual), CsvOptions(format = ExportFormat.CUSTOM, customColumns = equipmentColumns)))[1] shouldBe ",,"
+    }
+
+    @Test
+    fun `S043 RF-20 PENZD y PNEZD no cambian con un punto con equipo`() {
+        lines(csv(listOf(equipped), CsvOptions(format = ExportFormat.PENZD)))[0] shouldBe "Name,Easting,Northing,Elevation,Description"
+        lines(csv(listOf(equipped), CsvOptions(format = ExportFormat.PNEZD)))[0] shouldBe "Name,Northing,Easting,Elevation,Description"
+    }
 
     private val shifted = measured.copy(
         measurement = measured.measurement!!.copy(
@@ -283,7 +326,8 @@ class CsvExportTest {
 
     @Test
     fun `S019 RF-25 una seleccion personalizada guardada antes no incluye las columnas nuevas hasta que se marcan`() {
-        val before = ExportColumn.entries.filter { it !in stakeColumns && it !in shiftColumns && it != ExportColumn.CODE }.toSet()
+        val before = ExportColumn.entries
+            .filter { it !in stakeColumns && it !in shiftColumns && it !in equipmentColumns && it != ExportColumn.CODE }.toSet()
         val saved = CsvOptions(format = ExportFormat.CUSTOM, customColumns = before)
 
         saved.columns.none { it in stakeColumns } shouldBe true
@@ -347,11 +391,11 @@ class CsvExportTest {
     fun `S012 RF-12 lo que el punto no tiene queda vacio y la papelera ni se ve aqui`() {
         val row = lines(csv(listOf(manual), CsvOptions(separator = ColumnSeparator.SEMICOLON)))[1]
 
-        // Los 14 campos de la medida, los 7 de la base (S015/RF-22), los 8 de la inclinación (S016/RF-24) y los 4 del
-        // promediado (S017/RF-14), vacíos.
+        // Los 14 campos de la medida, los 7 de la base (S015/RF-22), los 8 de la inclinación (S016/RF-24), los 4 del
+        // promediado (S017/RF-14) y los 3 del receptor (S043/RF-20), vacíos.
         row shouldBe "E1;\"Pozo, \"\"nuevo\"\"\";Manual;440300.0000;4474250.0000;;40.416800000;-3.703600000;;EPSG:25830;EGM08-REDNAP;m;" +
-            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;;;;;;;;;;;;"
-        row.split(";").size shouldBe 58
+            ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;false;;;;;;;;;;;;"
+        row.split(";").size shouldBe 61
     }
 
     @Test
@@ -528,7 +572,16 @@ class CsvExportTest {
 
         val (header, row, plain) = lines(csv(listOf(averaged, short), CsvOptions(), feet)).map { it.split(",") }
 
-        header.subList(41, 46) shouldBe listOf("Averaged time", "Deviation horizontal", "Deviation vertical", "Automatic", "Edited")
+        header.subList(41, 49) shouldBe listOf(
+            "Averaged time",
+            "Deviation horizontal",
+            "Deviation vertical",
+            "Automatic",
+            "Receiver model",
+            "Receiver serial",
+            "Receiver firmware",
+            "Edited",
+        )
         // El tiempo, en segundos con un decimal; las desviaciones, en pies del proyecto con 4 decimales.
         row.subList(41, 45) shouldBe listOf("720.0", "0.0138", "0.0223", "true")
         plain.subList(41, 45) shouldBe listOf("12.3", "", "", "false")

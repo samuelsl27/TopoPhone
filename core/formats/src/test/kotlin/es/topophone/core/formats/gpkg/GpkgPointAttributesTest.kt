@@ -6,6 +6,7 @@ import es.topophone.core.formats.csv.CsvOptions
 import es.topophone.core.formats.csv.ExportColumn
 import es.topophone.core.model.codes.CodeSymbol
 import es.topophone.core.model.codes.PointCode
+import es.topophone.core.model.guide.EquipmentProfile
 import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.BaseShiftVector
 import es.topophone.core.model.point.BaseSource
@@ -99,6 +100,7 @@ class GpkgPointAttributesTest {
                 BaseShiftVector(-2.147247769869864, -1.9653960830764845, 0.516280195210129),
                 GeodeticPosition(40.4, -3.7, 699.0),
             ),
+            equipment = EquipmentProfile("Reach RS3", "RS3-0042", "2026.2, estable"), // S043/RF-20
         ),
         createdAtMs = 1_792_346_639_419,
         staked = StakeoutRef(
@@ -168,6 +170,20 @@ class GpkgPointAttributesTest {
     }
 
     @Test
+    fun `S043 RF-20 el receptor es texto, sale tal cual y un campo vacio sale como null`() {
+        listOf(ExportColumn.EQUIPMENT_MODEL, ExportColumn.EQUIPMENT_SERIAL, ExportColumn.EQUIPMENT_FIRMWARE)
+            .forEach { GpkgPointAttributes.typeOf(it) shouldBe GpkgAttributeType.TEXT }
+        value(full, ExportColumn.EQUIPMENT_MODEL) shouldBe "Reach RS3"
+        value(full, ExportColumn.EQUIPMENT_SERIAL) shouldBe "RS3-0042"
+        value(full, ExportColumn.EQUIPMENT_FIRMWARE) shouldBe "2026.2, estable"
+
+        val partial = full.copy(measurement = full.measurement!!.copy(equipment = EquipmentProfile("Reach RS3", "", "")))
+        value(partial, ExportColumn.EQUIPMENT_MODEL) shouldBe "Reach RS3"
+        value(partial, ExportColumn.EQUIPMENT_SERIAL).shouldBeNull()
+        value(partial, ExportColumn.EQUIPMENT_FIRMWARE).shouldBeNull()
+    }
+
+    @Test
     fun `S020 RF-13 el vector del base shift es REAL, en metros y sin redondear`() {
         listOf(ExportColumn.SHIFT_DX, ExportColumn.SHIFT_DY, ExportColumn.SHIFT_DZ).forEach {
             GpkgPointAttributes.typeOf(it) shouldBe GpkgAttributeType.REAL
@@ -219,6 +235,7 @@ class GpkgPointAttributesTest {
             ExportColumn.REPLAY, ExportColumn.OUT_OF_TOLERANCE, ExportColumn.MEASURED_FROM, ExportColumn.BASE_LATITUDE,
             ExportColumn.TILT_MODE, ExportColumn.TILT, ExportColumn.AUTOMATIC, ExportColumn.COPY_OF, ExportColumn.STAKE_DESIGN,
             ExportColumn.STAKE_WITHIN, ExportColumn.SHIFT_DX, ExportColumn.SHIFT_DY, ExportColumn.SHIFT_DZ,
+            ExportColumn.EQUIPMENT_MODEL, ExportColumn.EQUIPMENT_SERIAL, ExportColumn.EQUIPMENT_FIRMWARE,
         )
 
         empty.forEach { value(manual, it).shouldBeNull() }

@@ -119,7 +119,7 @@ def test_s012_rf_15_los_textos_con_separador_comillas_o_saltos_se_leen_tal_cual(
 def test_s012_rf_9_todas_las_columnas_y_penzd_pnezd_con_su_cabecera() -> None:
     headers = {name: list(read(name)[0].keys()) for name in FILES}
     assert headers["todas_coma_punto.csv"] == headers["todas_puntoycoma_coma.csv"] == headers["todas_tabulador_punto.csv"]
-    assert len(headers["todas_coma_punto.csv"]) == 58
+    assert len(headers["todas_coma_punto.csv"]) == 61
     assert headers["todas_coma_punto.csv"][-4:-1] == ["Base shift dX", "Base shift dY", "Base shift dZ"]  # S020/RF-13
     assert headers["todas_coma_punto.csv"][-1] == "Code"  # S024/RF-21
     assert headers["penzd_puntoycoma_coma.csv"] == ["Name", "Easting", "Northing", "Elevation", "Description"]
@@ -167,10 +167,23 @@ def test_s017_rf_14_las_columnas_del_promediado_van_tras_las_de_la_inclinacion()
     header = list(read("todas_coma_punto.csv")[0].keys())
     start = header.index("Tilt vertical accuracy") + 1
     assert header[start:start + 4] == ["Averaged time", "Deviation horizontal", "Deviation vertical", "Automatic"]
-    assert header[start + 4] == "Edited"
+    assert header[start + 4:start + 7] == ["Receiver model", "Receiver serial", "Receiver firmware"]  # S043/RF-20
+    assert header[start + 7] == "Edited"
     rows = read("todas_coma_punto.csv")
     assert [row["Automatic"] for row in rows] == ["false", "true", ""]
     assert rows[0]["Averaged time"] == "720.0" and rows[1]["Averaged time"] == "" and rows[2]["Deviation vertical"] == ""
+
+
+def test_s043_rf_20_el_receptor_se_lee_tal_cual_incluso_con_coma_y_va_vacio_si_no_hay() -> None:
+    columns = {"Receiver model": "equipment_model", "Receiver serial": "equipment_serial", "Receiver firmware": "equipment_firmware"}
+    for name in ("todas_coma_punto.csv", "todas_puntoycoma_coma.csv", "todas_tabulador_punto.csv"):
+        rows = read(name)
+        for row, point in zip(rows, SOURCE):
+            for column, key in columns.items():
+                assert row[column] == (point[key] or ""), (name, column, row[column])
+    rows = read("todas_coma_punto.csv")
+    assert rows[0]["Receiver firmware"] == "2026.2, estable" and rows[1]["Receiver model"] == "" and rows[2]["Receiver serial"] == ""
+    assert "Receiver model" not in read("penzd_puntoycoma_coma.csv")[0]
 
 
 def test_s012_rf_13_los_tres_ficheros_completos_dicen_lo_mismo() -> None:

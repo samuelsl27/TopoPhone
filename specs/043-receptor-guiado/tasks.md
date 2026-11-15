@@ -18,7 +18,7 @@
       Hecho cuando: el test de migración v35 a v36 de `TopoPhoneDatabaseTest` en verde, con los puntos anteriores intactos y los de las dos tablas nuevas vacías, y los de versiones anteriores intactos.
 - [x] T8. `data`: `ConfigProgressRepository` y `EquipmentRepository` (perfil y dirección web) y `Measurement.equipment` guardado con el punto. (RF-3, RF-13, RF-18, RF-19)
       Hecho cuando: `ConfigProgressRepositoryTest`, `EquipmentRepositoryTest` y `PointEquipmentTest` en verde, y la copia de seguridad y el paquete de proyecto llevan los tres campos del punto.
-- [ ] T9. `core:formats`: las tres `ExportColumn` de equipo en el CSV y su prueba, con los tres CSV de referencia regenerados. (RF-20)
+- [x] T9. `core:formats`: las tres `ExportColumn` de equipo en el CSV y su prueba, con los tres CSV de referencia regenerados. (RF-20)
       Hecho cuando: `CsvExportTest` y `CsvExportGoldenTest` en verde con las columnas tras `AUTOMATIC` y `tools/formatos/test_csv_exportado.py` en verde.
 - [ ] T10. `core:formats`: los tres atributos de equipo en GeoPackage y las tres columnas en Shapefile (`RX_MODEL`, `RX_SERIAL`, `RX_FW`), con sus referencias regeneradas. (RF-20)
       Hecho cuando: `GpkgPointAttributesTest`, `ShpColumnNamesTest` y `ShpExportBuilderTest` en verde y `test_gpkg_exportado.py` y `test_shp_exportado.py` en verde con los ficheros de `fixtures/formatos` regenerados.

@@ -1,5 +1,6 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.model.guide.EquipmentProfile
 import es.topophone.core.model.point.BaseSource
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.Measurement
@@ -79,6 +80,9 @@ class CsvExportGoldenTest {
         createdAtMs = 1_792_346_639_419,
     )
 
+    /** S043/RF-20: el receptor del primer punto; el firmware lleva coma para que se comprueben las comillas. */
+    private val rs3 = EquipmentProfile("Reach RS3", "RS3-0042", "2026.2, estable")
+
     private val points = listOf(
         measured(
             "P1",
@@ -94,7 +98,10 @@ class CsvExportGoldenTest {
                 averagedTimeS = 720.0, deviationHorizontalM = 0.0042123456, deviationVerticalM = 0.0068987654, auto = false, // S017/RF-14
             ),
             emptySet(),
-        ).let { it.copy(measurement = it.measurement!!.copy(base = avl13m, tilt = tiltApp)) }, // S015/RF-22, S016/RF-24
+        ).let {
+            // S015/RF-22, S016/RF-24, S043/RF-20
+            it.copy(measurement = it.measurement!!.copy(base = avl13m, tilt = tiltApp, equipment = rs3))
+        },
         measured(
             "P2;b",
             "Pozo, \"nuevo\"",
@@ -176,7 +183,7 @@ class CsvExportGoldenTest {
                 point.measurement?.quality?.horizontalM,
             )}, "vertical_accuracy": ${n(point.measurement?.quality?.verticalM)}, """ +
             baseSource(point.measurement?.base) + ", " + tiltSource(point.measurement?.tilt) + ", " +
-            averagedSource(point.measurement?.quality) + "}"
+            averagedSource(point.measurement?.quality) + ", " + equipmentSource(point.measurement?.equipment) + "}"
     }
 
     /** S016/RF-24: el modo y la inclinación sin redondear, con los ángulos en grados; null sin ellos. */
@@ -197,6 +204,13 @@ class CsvExportGoldenTest {
         val automatic = quality?.auto?.let { "\"$it\"" } ?: "null"
         return """"averaged_time": ${n(quality?.averagedTimeS)}, "deviation_horizontal": ${n(quality?.deviationHorizontalM)}, """ +
             """"deviation_vertical": ${n(quality?.deviationVerticalM)}, "automatic": $automatic"""
+    }
+
+    /** S043/RF-20: el modelo, la serie y el firmware del receptor, o null sin equipo. */
+    private fun equipmentSource(equipment: EquipmentProfile?): String {
+        fun s(value: String?) = value?.let { "\"$it\"" } ?: "null"
+        return """"equipment_model": ${s(equipment?.model)}, "equipment_serial": ${s(equipment?.serial)}, """ +
+            """"equipment_firmware": ${s(equipment?.firmware)}"""
     }
 
     /** S015/RF-22: la base sin redondear, o null sin base. */

@@ -63,6 +63,9 @@ object GpkgPointAttributes {
         ExportColumn.MEASURED_FROM,
         ExportColumn.MEASURED_TO,
         ExportColumn.TILT_MODE,
+        ExportColumn.EQUIPMENT_MODEL,
+        ExportColumn.EQUIPMENT_SERIAL,
+        ExportColumn.EQUIPMENT_FIRMWARE,
         ExportColumn.COPY_OF,
         ExportColumn.STAKE_DESIGN,
         ExportColumn.CODE,
@@ -181,6 +184,9 @@ object GpkgPointAttributes {
             ExportColumn.DEVIATION_HORIZONTAL -> quality?.deviationHorizontalM
             ExportColumn.DEVIATION_VERTICAL -> quality?.deviationVerticalM
             ExportColumn.AUTOMATIC -> quality?.auto
+            ExportColumn.EQUIPMENT_MODEL -> measurement?.equipment?.model?.takeIf { it.isNotEmpty() }
+            ExportColumn.EQUIPMENT_SERIAL -> measurement?.equipment?.serial?.takeIf { it.isNotEmpty() }
+            ExportColumn.EQUIPMENT_FIRMWARE -> measurement?.equipment?.firmware?.takeIf { it.isNotEmpty() }
             ExportColumn.EDITED -> point.edited
             ExportColumn.COPY_OF -> point.copyOf
             ExportColumn.STAKE_DESIGN -> staked?.designName

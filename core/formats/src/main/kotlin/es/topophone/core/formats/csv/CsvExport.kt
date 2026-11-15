@@ -73,6 +73,11 @@ enum class ExportColumn(val header: String) {
     DEVIATION_HORIZONTAL("Deviation horizontal"),
     DEVIATION_VERTICAL("Deviation vertical"),
     AUTOMATIC("Automatic"),
+
+    // S043/RF-20: el receptor con que se midió; vacías en los puntos de antes y en los que no llevan datos del equipo.
+    EQUIPMENT_MODEL("Receiver model"),
+    EQUIPMENT_SERIAL("Receiver serial"),
+    EQUIPMENT_FIRMWARE("Receiver firmware"),
     EDITED("Edited"),
     COPY_OF("Copy of"),
 
@@ -274,6 +279,9 @@ object CsvExport {
             ExportColumn.DEVIATION_HORIZONTAL -> length(quality?.deviationHorizontalM)
             ExportColumn.DEVIATION_VERTICAL -> length(quality?.deviationVerticalM)
             ExportColumn.AUTOMATIC -> quality?.auto?.toString().orEmpty()
+            ExportColumn.EQUIPMENT_MODEL -> measurement?.equipment?.model.orEmpty()
+            ExportColumn.EQUIPMENT_SERIAL -> measurement?.equipment?.serial.orEmpty()
+            ExportColumn.EQUIPMENT_FIRMWARE -> measurement?.equipment?.firmware.orEmpty()
             ExportColumn.EDITED -> point.edited.toString()
             ExportColumn.COPY_OF -> point.copyOf.orEmpty()
             ExportColumn.STAKE_DESIGN -> staked?.designName.orEmpty()

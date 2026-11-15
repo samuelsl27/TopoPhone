@@ -307,6 +307,9 @@ private fun ExportColumn.labelRes(): Int = when (this) {
     ExportColumn.DEVIATION_HORIZONTAL -> R.string.export_column_deviation_horizontal
     ExportColumn.DEVIATION_VERTICAL -> R.string.export_column_deviation_vertical
     ExportColumn.AUTOMATIC -> R.string.export_column_automatic
+    ExportColumn.EQUIPMENT_MODEL -> R.string.export_column_equipment_model // S043/RF-20
+    ExportColumn.EQUIPMENT_SERIAL -> R.string.export_column_equipment_serial
+    ExportColumn.EQUIPMENT_FIRMWARE -> R.string.export_column_equipment_firmware
     ExportColumn.EDITED -> R.string.export_column_edited
     ExportColumn.COPY_OF -> R.string.export_column_copy_of
     ExportColumn.STAKE_DESIGN -> R.string.export_column_stake_design // S019/RF-25

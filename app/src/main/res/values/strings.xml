@@ -1187,6 +1187,9 @@
     <string name="export_column_deviation_horizontal">Desviación típica horizontal</string>
     <string name="export_column_deviation_vertical">Desviación típica vertical</string>
     <string name="export_column_automatic">Medido en automático</string>
+    <string name="export_column_equipment_model">Modelo del receptor</string>
+    <string name="export_column_equipment_serial">Número de serie del receptor</string>
+    <string name="export_column_equipment_firmware">Firmware del receptor</string>
     <string name="import_title">Importar CSV/TXT</string>
     <string name="import_loading">Leyendo el fichero…</string>
     <string name="import_file_name">Fichero: %1$s</string>
