@@ -44,7 +44,6 @@ internal fun ReceiverHeader(state: ReceiverUiState, actions: ReceiverActions) {
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.testTag(CONNECTION_STATUS_TAG),
             )
-            LocalExperimentalFeature.current.ReceiverHeaderSlot() // S044/RF-6
             LocalExperimentalFeature.current.ReceiverHeaderSlot() // S044/RF-6: marca «Experimental», solo en ese flavor
             ConnectionIndicators(state) // S003/RF-20, RF-22
             SourceDetails(state, actions) // S022/RF-5, RF-16

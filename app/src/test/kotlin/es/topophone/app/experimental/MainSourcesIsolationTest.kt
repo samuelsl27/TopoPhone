@@ -31,4 +31,23 @@ class MainSourcesIsolationTest {
             .toList()
         offenders.shouldBeEmpty()
     }
+
+    /** Cada ranura se llama exactamente una vez en su pantalla: dos llamadas duplicarían lo que pinta (se vio en el emulador). */
+    @Test
+    fun `S044 RF-6 cada ranura del codigo comun se llama una sola vez`() {
+        val expected = mapOf(
+            "ui/receiver/ReceiverHeader.kt" to "ReceiverHeaderSlot()",
+            "ui/receiver/ReceiverList.kt" to "ReceiverListSlot()",
+            "ui/receiver/ReceiverMenu.kt" to "ReceiverMenuEntry()",
+            "ui/settings/SettingsScreen.kt" to "SettingsRow()",
+        )
+
+        expected.forEach { (file, call) ->
+            val text = File(main, "es/topophone/app/$file").readText()
+            val count = Regex(Regex.escape("LocalExperimentalFeature.current.$call")).findAll(text).count()
+            "$file llama a $call $count veces" shouldBe "$file llama a $call 1 veces"
+        }
+        val app = File(main, "es/topophone/app/ui/TopoPhoneApp.kt").readText()
+        Regex(Regex.escape("experimental.routes(")).findAll(app).count() shouldBe 1
+    }
 }

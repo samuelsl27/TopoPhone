@@ -103,7 +103,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
 | 043 receptor-guiado | Listas de configuración del receptor, comprobaciones previas, Reach Panel en un WebView, perfil de equipo | 016, 015, 021, 022, 046, 005 | implementada |
-| 044 modulo-experimental-reach | Flavor `experimental` con aviso legal: búsqueda mDNS de receptores en la red, lectura de información, batería y configuración, estado por Socket.IO, escritura de altura de antena e inicio/parada de logs | 043, 021, 046 | spec |
+| 044 modulo-experimental-reach | Flavor `experimental` con aviso legal: búsqueda mDNS de receptores en la red, lectura de información, batería y configuración, estado por Socket.IO, escritura de altura de antena e inicio/parada de logs | 043, 021, 046 | implementada |
 
 ## H8 · Obra lineal
 

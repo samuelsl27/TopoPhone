@@ -56,7 +56,6 @@ internal fun ReceiverList(state: ReceiverUiState, actions: ReceiverActions) {
         BluetoothDevicesSection(state, actions)
         WifiReceiversSection(state, actions) // S021/RF-4: también con el Bluetooth apagado
         SourcesSection(actions) // S022/RF-1, RF-12: siempre, con o sin Bluetooth
-        LocalExperimentalFeature.current.ReceiverListSlot() // S044/RF-7
         LocalExperimentalFeature.current.ReceiverListSlot() // S044/RF-7: «Buscar receptores», solo en el flavor experimental
         AddReceiver(state, actions) // S004/RF-1, S021/RF-1
         Card(modifier = Modifier.fillMaxWidth()) {
