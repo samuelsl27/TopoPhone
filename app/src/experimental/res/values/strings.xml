@@ -82,4 +82,27 @@
     <string name="experimental_antenna_failed_incompatible">No se envió nada: el receptor no es compatible.</string>
     <string name="experimental_antenna_failed_invalid">No se envió nada: el valor no es válido.</string>
     <string name="experimental_antenna_failed_no_live">No se envió nada: falta el estado en directo del receptor.</string>
+
+    <!-- Iniciar y parar logs (S044/RF-20, RF-21). -->
+    <string name="experimental_logs_title">Logs del receptor</string>
+    <string name="experimental_logs_start">Iniciar log</string>
+    <string name="experimental_logs_stop">Parar log</string>
+    <string name="experimental_logs_no_live">Sin estado en directo del receptor: no se puede iniciar ni parar el log.</string>
+    <string name="experimental_logs_start_question">¿Iniciar el log del receptor? Estado actual: parado.</string>
+    <string name="experimental_logs_stop_question">¿Parar el log del receptor? Estado actual: escribiendo.</string>
+    <string name="experimental_logs_stop_warning">El log activo se cerrará y no continuará.</string>
+    <string name="experimental_logs_confirm_yes">Confirmar</string>
+    <string name="experimental_logs_confirm_no">Cancelar</string>
+    <string name="experimental_logs_confirmed_writing">Confirmado: los logs están escribiendo.</string>
+    <string name="experimental_logs_confirmed_stopped">Confirmado: los logs están parados.</string>
+    <string name="experimental_logs_mismatch_writing">No coincide: el receptor dice que los logs están escribiendo.</string>
+    <string name="experimental_logs_mismatch_stopped">No coincide: el receptor dice que los logs están parados.</string>
+    <string name="experimental_logs_send_failed_writing">El envío falló. Estado visto: escribiendo.</string>
+    <string name="experimental_logs_send_failed_stopped">El envío falló. Estado visto: parados.</string>
+    <string name="experimental_logs_send_failed_unknown">El envío falló y no se conoce el estado de los logs.</string>
+    <string name="experimental_logs_not_confirmed_unknown">No se pudo confirmar: no se conoce el estado de los logs.</string>
+    <string name="experimental_logs_failed_no_response">No se envió nada: el receptor no responde.</string>
+    <string name="experimental_logs_failed_incompatible">No se envió nada: el receptor no es compatible.</string>
+    <string name="experimental_logs_failed_invalid">No se envió nada: el valor no es válido.</string>
+    <string name="experimental_logs_failed_no_live">No se envió nada: falta el estado en directo del receptor.</string>
 </resources>

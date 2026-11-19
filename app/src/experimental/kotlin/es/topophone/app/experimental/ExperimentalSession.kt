@@ -9,6 +9,8 @@ import es.topophone.receiver.experimental.ReachEndpoint
 import es.topophone.receiver.experimental.ReachInfoReading
 import es.topophone.receiver.experimental.ReachLiveState
 import es.topophone.receiver.experimental.ReachLiveStatus
+import es.topophone.receiver.experimental.WriteFailure
+import es.topophone.receiver.experimental.WriteResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
@@ -114,6 +116,15 @@ class ExperimentalSession(
                     }
                 }
         }
+    }
+
+    /**
+     * Inicia o para los logs de [endpoint] (S044/RF-20, RF-22) y comprueba el estado resultante por el directo abierto; sin directo no
+     * envía nada. No lo reintenta nunca (RF-21).
+     */
+    suspend fun setLogs(endpoint: ReachEndpoint, started: Boolean): WriteResult<Boolean> {
+        val live = logsObserver ?: return WriteResult.Failed(WriteFailure.NO_LIVE)
+        return gateway.setLogs(endpoint, started, live)
     }
 
     /** Envía la altura de antena (la única escritura de ajustes del módulo, S044/RF-18, RF-22); no la reintenta nunca (RF-21). */

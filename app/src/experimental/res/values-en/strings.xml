@@ -79,4 +79,27 @@
     <string name="experimental_antenna_failed_incompatible">Nothing was sent: the receiver is not compatible.</string>
     <string name="experimental_antenna_failed_invalid">Nothing was sent: the value is not valid.</string>
     <string name="experimental_antenna_failed_no_live">Nothing was sent: the live receiver status is missing.</string>
+
+    <!-- Start and stop logs (S044/RF-20, RF-21). -->
+    <string name="experimental_logs_title">Receiver logs</string>
+    <string name="experimental_logs_start">Start log</string>
+    <string name="experimental_logs_stop">Stop log</string>
+    <string name="experimental_logs_no_live">No live receiver status: the log cannot be started or stopped.</string>
+    <string name="experimental_logs_start_question">Start the receiver log? Current state: stopped.</string>
+    <string name="experimental_logs_stop_question">Stop the receiver log? Current state: writing.</string>
+    <string name="experimental_logs_stop_warning">The active log will be closed and will not continue.</string>
+    <string name="experimental_logs_confirm_yes">Confirm</string>
+    <string name="experimental_logs_confirm_no">Cancel</string>
+    <string name="experimental_logs_confirmed_writing">Confirmed: the logs are writing.</string>
+    <string name="experimental_logs_confirmed_stopped">Confirmed: the logs are stopped.</string>
+    <string name="experimental_logs_mismatch_writing">Does not match: the receiver says the logs are writing.</string>
+    <string name="experimental_logs_mismatch_stopped">Does not match: the receiver says the logs are stopped.</string>
+    <string name="experimental_logs_send_failed_writing">Sending failed. State seen: writing.</string>
+    <string name="experimental_logs_send_failed_stopped">Sending failed. State seen: stopped.</string>
+    <string name="experimental_logs_send_failed_unknown">Sending failed and the logs state is unknown.</string>
+    <string name="experimental_logs_not_confirmed_unknown">Could not confirm: the logs state is unknown.</string>
+    <string name="experimental_logs_failed_no_response">Nothing was sent: the receiver does not respond.</string>
+    <string name="experimental_logs_failed_incompatible">Nothing was sent: the receiver is not compatible.</string>
+    <string name="experimental_logs_failed_invalid">Nothing was sent: the value is not valid.</string>
+    <string name="experimental_logs_failed_no_live">Nothing was sent: the live receiver status is missing.</string>
 </resources>

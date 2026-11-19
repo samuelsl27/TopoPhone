@@ -107,7 +107,11 @@ class ExperimentalFeatureImpl(
                 onBack = { navController.popBackStack() },
                 onOpenConfig = { navController.navigate(ExperimentalConfigDestination) },
                 onOpenAntenna = { navController.navigate(ExperimentalAntennaDestination) },
+                onOpenLogs = { navController.navigate(ExperimentalLogsDestination) },
             )
+        }
+        builder.composable<ExperimentalLogsDestination> {
+            LogsRoute(themeState, onToggleSun) { navController.popBackStack() }
         }
         builder.composable<ExperimentalAntennaDestination> {
             AntennaHeightRoute(themeState, onToggleSun) { navController.popBackStack() }

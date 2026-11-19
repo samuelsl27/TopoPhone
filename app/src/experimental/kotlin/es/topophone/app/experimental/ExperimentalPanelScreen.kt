@@ -60,6 +60,7 @@ const val PANEL_PROFILE_CANCEL_TAG = "experimental_profile_cancel"
 const val PANEL_PROFILE_SAVED_TAG = "experimental_profile_saved"
 const val PANEL_CONFIG_TAG = "experimental_open_config"
 const val PANEL_ANTENNA_BUTTON_TAG = "experimental_open_antenna"
+const val PANEL_LOGS_BUTTON_TAG = "experimental_open_logs"
 
 /** La ruta del panel del módulo dentro del grafo del receptor (S044/RF-6). */
 @Serializable
@@ -75,6 +76,7 @@ class PanelActions(
     val onDismissSaved: () -> Unit = {},
     val onOpenConfig: () -> Unit = {},
     val onOpenAntenna: () -> Unit = {},
+    val onOpenLogs: () -> Unit = {},
 )
 
 @Composable
@@ -84,6 +86,7 @@ fun ExperimentalPanelRoute(
     onBack: () -> Unit,
     onOpenConfig: () -> Unit,
     onOpenAntenna: () -> Unit,
+    onOpenLogs: () -> Unit,
 ) {
     val viewModel = hiltViewModel<ExperimentalPanelViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -103,6 +106,7 @@ fun ExperimentalPanelRoute(
             onDismissSaved = viewModel::onDismissSaved,
             onOpenConfig = onOpenConfig,
             onOpenAntenna = onOpenAntenna,
+            onOpenLogs = onOpenLogs,
         ),
         themeState = themeState,
         onToggleSun = onToggleSun,
@@ -194,6 +198,10 @@ private fun InfoCard(state: PanelUiState, actions: PanelActions) {
                     onClick = actions.onOpenAntenna,
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(PANEL_ANTENNA_BUTTON_TAG),
                 ) { Text(stringResource(R.string.experimental_antenna_title)) }
+                OutlinedButton(
+                    onClick = actions.onOpenLogs,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(PANEL_LOGS_BUTTON_TAG),
+                ) { Text(stringResource(R.string.experimental_logs_title)) }
                 OutlinedButton(
                     onClick = actions.onFillProfile,
                     enabled = info.reading.identity is ReachPart.Ok,
