@@ -21,7 +21,7 @@ data class ReachConfigView(val positioning: List<ReachConfigEntry>, val output: 
  * Lee `GET /configuration` en solo lectura (S044/RF-14, RF-15; plan D6, A1): aplana `positioning_settings` y las secciones cuyo nombre
  * contiene `output` a pares ruta → valor y descarta los valores de cualquier ruta con `pass`, `secret`, `token`, `key` o `psk`.
  */
-class ReachConfigReader(private val client: ReachHttpClient) {
+class ReachConfigReader(private val client: ReachHttpClient, private val trail: ReachTrail = ReachTrail.NONE) {
 
     suspend fun read(): ReachPart<ReachConfigView> {
         val body = when (val result = client.get("/configuration")) {
@@ -33,12 +33,12 @@ class ReachConfigReader(private val client: ReachHttpClient) {
         val positioning = configuration?.get(POSITIONING) as? JsonObject
             ?: return ReachPart.Incompatible(ReachPartId.SETTINGS, "falta configuration.$POSITIONING")
         val output = configuration.entries.filter { (name, value) -> OUTPUT in name && value is JsonObject }
-        return ReachPart.Ok(
-            ReachConfigView(
-                positioning = flatten(POSITIONING, positioning),
-                output = output.flatMap { (name, value) -> flatten(name, value) },
-            ),
+        val view = ReachConfigView(
+            positioning = flatten(POSITIONING, positioning),
+            output = output.flatMap { (name, value) -> flatten(name, value) },
         )
+        trail.configRead(view.count) // S044/RF-24: cuántos ajustes, nunca sus valores
+        return ReachPart.Ok(view)
     }
 
     private fun flatten(path: String, element: JsonElement): List<ReachConfigEntry> = when (element) {
