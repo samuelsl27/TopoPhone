@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import es.topophone.app.R
+import es.topophone.app.experimental.LocalExperimentalFeature
 import es.topophone.app.ui.AppActions
 import es.topophone.app.ui.AppUiState
 import es.topophone.app.ui.SectionScaffold
@@ -143,6 +144,7 @@ fun SettingsScreen(
                 onClick = { showLogSizeDialog = true }, // S014/RF-9
                 modifier = Modifier.testTag(LOG_SIZE_SETTING_TAG),
             )
+            LocalExperimentalFeature.current.SettingsRow() // S044/RF-3: solo en el flavor experimental
             SettingsSectionHeader(stringResource(R.string.settings_section_information))
             SettingsItem(
                 title = stringResource(R.string.about_title),

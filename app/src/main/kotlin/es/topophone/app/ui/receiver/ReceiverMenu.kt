@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.app.experimental.LocalExperimentalFeature
 import es.topophone.core.designsystem.component.StatusChip
 import es.topophone.receiver.session.ConnectionState
 
@@ -119,5 +120,6 @@ internal fun ReceiverMenu(state: ReceiverUiState, actions: ReceiverActions) {
                 ),
             )
         }
+        LocalExperimentalFeature.current.ReceiverMenuEntry() // S044/RF-6: «Módulo experimental», solo en ese flavor
     }
 }

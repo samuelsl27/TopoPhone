@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.app.experimental.LocalExperimentalFeature
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.receiver.session.ConnectionState
 
@@ -43,6 +44,8 @@ internal fun ReceiverHeader(state: ReceiverUiState, actions: ReceiverActions) {
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.testTag(CONNECTION_STATUS_TAG),
             )
+            LocalExperimentalFeature.current.ReceiverHeaderSlot() // S044/RF-6
+            LocalExperimentalFeature.current.ReceiverHeaderSlot() // S044/RF-6: marca «Experimental», solo en ese flavor
             ConnectionIndicators(state) // S003/RF-20, RF-22
             SourceDetails(state, actions) // S022/RF-5, RF-16
             if (replay != null) {

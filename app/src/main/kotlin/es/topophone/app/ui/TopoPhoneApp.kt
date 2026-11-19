@@ -34,6 +34,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import es.topophone.app.experimental.LocalExperimentalFeature
 import es.topophone.app.ui.alignment.AlignmentImportRoute
 import es.topophone.app.ui.alignment.AlignmentPointRoute
 import es.topophone.app.ui.alignment.ManualAlignmentRoute
@@ -434,6 +435,7 @@ private fun AppNavHost(
     wifiReceiverSection: @Composable (String?, ThemeState, () -> Unit, () -> Unit) -> Unit,
     modifier: Modifier,
 ) {
+    val experimental = LocalExperimentalFeature.current // S044
     NavHost(navController = navController, startDestination = SurveyGraph, modifier = modifier) {
         navigation<SurveyGraph>(startDestination = SurveyRoute) {
             val surveyNavigation = SurveyNavigation(
@@ -867,6 +869,7 @@ private fun AppNavHost(
             composable<SessionsRoute> {
                 sessionsSection(uiState.themeState, actions.onToggleSun) { navController.popBackStack() } // S003/RF-29
             }
+            experimental.routes(this, navController) // S044: pantallas del módulo experimental (vacío en standard)
         }
         navigation<SettingsGraph>(startDestination = SettingsRoute) {
             composable<SettingsRoute> {

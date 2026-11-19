@@ -31,6 +31,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.app.experimental.LocalExperimentalFeature
 import es.topophone.core.designsystem.R as DesignR
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.receiver.ReceiverKey
@@ -55,6 +56,8 @@ internal fun ReceiverList(state: ReceiverUiState, actions: ReceiverActions) {
         BluetoothDevicesSection(state, actions)
         WifiReceiversSection(state, actions) // S021/RF-4: también con el Bluetooth apagado
         SourcesSection(actions) // S022/RF-1, RF-12: siempre, con o sin Bluetooth
+        LocalExperimentalFeature.current.ReceiverListSlot() // S044/RF-7
+        LocalExperimentalFeature.current.ReceiverListSlot() // S044/RF-7: «Buscar receptores», solo en el flavor experimental
         AddReceiver(state, actions) // S004/RF-1, S021/RF-1
         Card(modifier = Modifier.fillMaxWidth()) {
             ListRow(stringResource(R.string.receiver_menu_sessions), actions.onOpenSessions, Modifier.testTag(LIST_SESSIONS_TAG))

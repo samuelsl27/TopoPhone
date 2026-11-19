@@ -12,6 +12,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.core.os.LocaleListCompat
@@ -20,6 +21,8 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import es.topophone.app.backup.AutoBackupScheduler
 import es.topophone.app.di.ApplicationScope
+import es.topophone.app.experimental.ExperimentalFeature
+import es.topophone.app.experimental.LocalExperimentalFeature
 import es.topophone.app.log.ReceiverLogRecorder
 import es.topophone.app.receiver.CorrectionsController
 import es.topophone.app.receiver.ReceiverConnections
@@ -68,6 +71,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var receiverLog: ReceiverLogRecorder
 
+    /** Ranuras del módulo experimental: vacías en `standard` (S044/RF-1, ADR-21). */
+    @Inject lateinit var experimental: ExperimentalFeature
+
     @Inject @ApplicationScope
     lateinit var appScope: CoroutineScope
 
@@ -113,28 +119,30 @@ class MainActivity : AppCompatActivity() {
             }
 
             TopoPhoneTheme(effectiveTheme) {
-                TopoPhoneApp(
-                    uiState = AppUiState(
-                        themeState = themeState,
-                        language = currentLanguage(),
-                        appInfo = appInfo,
-                        sessionSpaceMb = sessionSpaceMb,
-                        correctionsAlarmS = correctionsAlarmS,
-                        logSizeMb = logSizeMb,
-                    ),
-                    actions = AppActions(
-                        onToggleSun = viewModel::toggleSun,
-                        onSelectTheme = viewModel::selectTheme,
-                        onSelectLanguage = ::applyLanguage,
-                        onOpenUrl = ::openUrl,
-                        onSelectSessionSpace = viewModel::selectSessionSpace,
-                        onSelectCorrectionsAlarm = viewModel::selectCorrectionsAlarm,
-                        onOpenAppBatterySettings = { startActivity(appSettingsIntent(packageName)) },
-                        onSelectLogSize = viewModel::selectLogSize,
-                        onCreateReport = createReport,
-                    ),
-                    openReceiverRequest = openReceiverRequest,
-                )
+                CompositionLocalProvider(LocalExperimentalFeature provides experimental) {
+                    TopoPhoneApp(
+                        uiState = AppUiState(
+                            themeState = themeState,
+                            language = currentLanguage(),
+                            appInfo = appInfo,
+                            sessionSpaceMb = sessionSpaceMb,
+                            correctionsAlarmS = correctionsAlarmS,
+                            logSizeMb = logSizeMb,
+                        ),
+                        actions = AppActions(
+                            onToggleSun = viewModel::toggleSun,
+                            onSelectTheme = viewModel::selectTheme,
+                            onSelectLanguage = ::applyLanguage,
+                            onOpenUrl = ::openUrl,
+                            onSelectSessionSpace = viewModel::selectSessionSpace,
+                            onSelectCorrectionsAlarm = viewModel::selectCorrectionsAlarm,
+                            onOpenAppBatterySettings = { startActivity(appSettingsIntent(packageName)) },
+                            onSelectLogSize = viewModel::selectLogSize,
+                            onCreateReport = createReport,
+                        ),
+                        openReceiverRequest = openReceiverRequest,
+                    )
+                }
             }
         }
     }
