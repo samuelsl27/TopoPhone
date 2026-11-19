@@ -105,4 +105,31 @@
     <string name="experimental_logs_failed_incompatible">No se envió nada: el receptor no es compatible.</string>
     <string name="experimental_logs_failed_invalid">No se envió nada: el valor no es válido.</string>
     <string name="experimental_logs_failed_no_live">No se envió nada: falta el estado en directo del receptor.</string>
+
+    <!-- Buscar receptores (S044/RF-7 a RF-10). -->
+    <string name="experimental_discovery_title">Buscar receptores</string>
+    <string name="experimental_discovery_summary">Busca receptores Wi-Fi en tu red</string>
+    <string name="experimental_discovery_searching">Buscando receptores en la red (10 s)…</string>
+    <string name="experimental_discovery_row">%1$s · %2$s</string>
+    <string name="experimental_discovery_add">Añadir</string>
+    <string name="experimental_discovery_already_added">Ya añadido</string>
+    <string name="experimental_discovery_empty">No se encontró ningún receptor.</string>
+    <string name="experimental_discovery_causes">Causas probables:</string>
+    <string name="experimental_discovery_cause_network">El móvil no está en la red Wi-Fi del receptor.</string>
+    <string name="experimental_discovery_cause_blocked">La red no permite la búsqueda de dispositivos.</string>
+    <string name="experimental_discovery_cause_off">El receptor está apagado.</string>
+    <string name="experimental_discovery_manual">También puedes escribir la dirección a mano en Añadir receptor.</string>
+    <string name="experimental_discovery_retry">Buscar otra vez</string>
+    <string name="experimental_discovery_permission">Para buscar receptores en tu red, Android necesita el permiso de red local.</string>
+    <string name="experimental_discovery_permission_allow">Permitir</string>
+    <string name="experimental_discovery_denied">Sin el permiso de red local no se puede buscar. Puedes concederlo en los ajustes de la app.</string>
+    <string name="experimental_discovery_settings">Abrir ajustes</string>
+    <string name="experimental_discovery_add_title">Añadir receptor Wi-Fi</string>
+    <string name="experimental_discovery_field_name">Nombre</string>
+    <string name="experimental_discovery_field_host">Dirección</string>
+    <string name="experimental_discovery_field_port">Puerto de posición</string>
+    <string name="experimental_discovery_add_confirm">Añadir</string>
+    <string name="experimental_discovery_add_cancel">Cancelar</string>
+    <string name="experimental_discovery_add_invalid">Revisa la dirección y el puerto.</string>
+    <string name="experimental_discovery_added">Receptor %1$s añadido.</string>
 </resources>

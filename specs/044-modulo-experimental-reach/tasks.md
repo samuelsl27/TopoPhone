@@ -47,7 +47,7 @@
       Hecho cuando: `AntennaHeightScreenTest` cubre cada modo, editar, confirmar, coincide y no coincide.
 - [x] T19. «Iniciar log» y «Parar log» con confirmación y aviso al parar. (RF-20, RF-21)
       Hecho cuando: `LogsScreenTest` cubre ambos, el aviso, el estado resultante y sin directo.
-- [ ] T20. «Buscar receptores» (botón en la lista, permiso de red local, resultados, «Ya añadido», ninguno) y alta con el formulario de S021 solo si se confirma. (RF-7, RF-8, RF-9, RF-10)
+- [x] T20. «Buscar receptores» (botón en la lista, permiso de red local, resultados, «Ya añadido», ninguno) y alta con el formulario de S021 solo si se confirma. (RF-7, RF-8, RF-9, RF-10)
       Hecho cuando: `DiscoveryScreenTest` cubre resultados, ninguno, repetido y alta confirmada y cancelada.
 - [ ] T21. Accesibilidad y textos: etiquetas, 56 dp, estados por texto, español e inglés con las mismas claves, ningún texto del fabricante, ninguna cadena de usuario en el código. (RNF-T7, RNF-T8, RNF-T14)
       Hecho cuando: `ExperimentalAccessibilityTest` pasa y `checkHardcodedUiText` no encuentra literales.

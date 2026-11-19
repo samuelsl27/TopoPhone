@@ -102,4 +102,31 @@
     <string name="experimental_logs_failed_incompatible">Nothing was sent: the receiver is not compatible.</string>
     <string name="experimental_logs_failed_invalid">Nothing was sent: the value is not valid.</string>
     <string name="experimental_logs_failed_no_live">Nothing was sent: the live receiver status is missing.</string>
+
+    <!-- Search for receivers (S044/RF-7 to RF-10). -->
+    <string name="experimental_discovery_title">Search for receivers</string>
+    <string name="experimental_discovery_summary">Looks for Wi-Fi receivers on your network</string>
+    <string name="experimental_discovery_searching">Searching for receivers on the network (10 s)…</string>
+    <string name="experimental_discovery_row">%1$s · %2$s</string>
+    <string name="experimental_discovery_add">Add</string>
+    <string name="experimental_discovery_already_added">Already added</string>
+    <string name="experimental_discovery_empty">No receiver was found.</string>
+    <string name="experimental_discovery_causes">Likely causes:</string>
+    <string name="experimental_discovery_cause_network">The phone is not on the receiver\'s Wi-Fi network.</string>
+    <string name="experimental_discovery_cause_blocked">The network does not allow device discovery.</string>
+    <string name="experimental_discovery_cause_off">The receiver is off.</string>
+    <string name="experimental_discovery_manual">You can also type the address by hand in Add receiver.</string>
+    <string name="experimental_discovery_retry">Search again</string>
+    <string name="experimental_discovery_permission">To search for receivers on your network, Android needs the local network permission.</string>
+    <string name="experimental_discovery_permission_allow">Allow</string>
+    <string name="experimental_discovery_denied">Without the local network permission the search cannot run. You can grant it in the app settings.</string>
+    <string name="experimental_discovery_settings">Open settings</string>
+    <string name="experimental_discovery_add_title">Add Wi-Fi receiver</string>
+    <string name="experimental_discovery_field_name">Name</string>
+    <string name="experimental_discovery_field_host">Address</string>
+    <string name="experimental_discovery_field_port">Position port</string>
+    <string name="experimental_discovery_add_confirm">Add</string>
+    <string name="experimental_discovery_add_cancel">Cancel</string>
+    <string name="experimental_discovery_add_invalid">Check the address and the port.</string>
+    <string name="experimental_discovery_added">Receiver %1$s added.</string>
 </resources>

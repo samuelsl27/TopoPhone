@@ -117,7 +117,14 @@ class FakeWifiRepository(vararg initial: WifiReceiver) : WifiReceiverRepository 
 
     override suspend fun byId(id: String): WifiReceiver? = all.value.firstOrNull { it.id == id }
 
-    override suspend fun add(input: WifiReceiverInput): String = error("no se usa")
+    val added = mutableListOf<WifiReceiverInput>()
+
+    override suspend fun add(input: WifiReceiverInput): String {
+        added += input
+        val id = "n${added.size}"
+        all.value = all.value + WifiReceiver(id, input.name, input.host, input.positionPort, input.correctionsPort)
+        return id
+    }
 
     override suspend fun update(id: String, input: WifiReceiverInput): Boolean = error("no se usa")
 
@@ -147,3 +154,27 @@ fun idleSession(scope: kotlinx.coroutines.CoroutineScope) = ExperimentalSession(
     gateway = FakeReachGateway(),
     scope = scope,
 )
+
+/** Un navegador de servicios que no mira la red: el test dice qué resuelve y cuándo. */
+class FakeServiceBrowser : es.topophone.receiver.experimental.ServiceBrowser {
+    var listener: es.topophone.receiver.experimental.ServiceBrowser.Listener? = null
+    var starts = 0
+    var stops = 0
+
+    override fun start(listener: es.topophone.receiver.experimental.ServiceBrowser.Listener) {
+        starts++
+        this.listener = listener
+    }
+
+    override fun stop() {
+        stops++
+    }
+
+    fun resolved(name: String, host: String) = listener!!.onResolved(name, host)
+}
+
+/** El permiso de red local con el valor que diga el test; `answer` lo concede al responder el sistema. */
+class FakeLocalNetworkPermission(override val required: Boolean, var granted: Boolean) :
+    es.topophone.app.receiver.LocalNetworkPermission {
+    override fun isGranted(): Boolean = !required || granted
+}

@@ -13,7 +13,9 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.data.equipment.EquipmentRepository
 import es.topophone.data.receiver.WifiReceiverRepository
 import es.topophone.data.settings.SettingsDataStore
+import es.topophone.receiver.experimental.NsdServiceBrowser
 import es.topophone.receiver.experimental.ReachAudit
+import es.topophone.receiver.experimental.ServiceBrowser
 import es.topophone.receiver.platform.NetworkRouter
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
@@ -33,6 +35,10 @@ abstract class ExperimentalFeatureModule {
         @Provides
         @Singleton
         fun reachGateway(router: NetworkRouter, log: AppLog): ReachGateway = NetworkReachGateway(router, ReachAudit(log))
+
+        /** La búsqueda de receptores de verdad, con `NsdManager` (S044/RF-7); uno por pantalla, sin compartir. */
+        @Provides
+        fun serviceBrowser(@ApplicationContext context: Context): ServiceBrowser = NsdServiceBrowser(context)
 
         /** El modo de inclinación y el jalón activo del receptor en uso, para proponer la altura de antena (S044/RF-18). */
         @Provides

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -96,8 +97,19 @@ class ExperimentalFeatureImpl(
         ) { Text(stringResource(R.string.experimental_menu_summary)) }
     }
 
+    /** «Buscar receptores» en la lista de receptores, mientras el módulo esté activo (S044/RF-7). */
     @Composable
-    override fun ReceiverListSlot() = Unit
+    override fun ReceiverListSlot() {
+        if (!isActive()) return
+        val navigate = LocalExperimentalNavigation.current
+        Card(modifier = Modifier.fillMaxWidth()) {
+            ListRow(
+                stringResource(R.string.experimental_discovery_title),
+                { navigate(ExperimentalDiscoveryDestination) },
+                Modifier.testTag(EXPERIMENTAL_SEARCH_TAG),
+            ) { Text(stringResource(R.string.experimental_discovery_summary)) }
+        }
+    }
 
     override fun routes(builder: NavGraphBuilder, navController: NavController, themeState: ThemeState, onToggleSun: () -> Unit) {
         builder.composable<ExperimentalPanelDestination> {
@@ -109,6 +121,9 @@ class ExperimentalFeatureImpl(
                 onOpenAntenna = { navController.navigate(ExperimentalAntennaDestination) },
                 onOpenLogs = { navController.navigate(ExperimentalLogsDestination) },
             )
+        }
+        builder.composable<ExperimentalDiscoveryDestination> {
+            DiscoveryRoute(themeState, onToggleSun) { navController.popBackStack() }
         }
         builder.composable<ExperimentalLogsDestination> {
             LogsRoute(themeState, onToggleSun) { navController.popBackStack() }
