@@ -9,4 +9,32 @@
     <string name="experimental_notice_body">This module uses receiver features that its manufacturer has not documented or authorised for third-party apps. They may change or stop working with any firmware update, and using them may go against the manufacturer\'s terms of use. The module only writes the antenna height and the start or stop of the logs to the receiver, and only after you confirm. Use it at your own risk. TopoPhone is not affiliated with the receiver\'s manufacturer.</string>
     <string name="experimental_notice_accept">Accept and turn on</string>
     <string name="experimental_notice_cancel">Cancel</string>
+
+    <!-- S044: module panel and mark. -->
+    <string name="experimental_mark">Experimental</string>
+    <string name="experimental_menu_summary">Read and adjust the receiver</string>
+    <string name="experimental_panel_title">Experimental module</string>
+    <string name="experimental_inactive">The experimental module is off. Turn it on in Settings.</string>
+    <string name="experimental_not_applicable">This receiver cannot be queried: the phone, the virtual receiver and replays have no receiver network interface.</string>
+    <string name="experimental_address_title">Receiver address</string>
+    <string name="experimental_address_hint">Enter the receiver\'s IP on your network, for example 192.168.42.1. It is saved in Receiver data.</string>
+    <string name="experimental_address_label">Receiver IP</string>
+    <string name="experimental_address_save">Save address</string>
+    <string name="experimental_address_rejected">Not a valid private IP (10.x.x.x, 172.16 to 31.x.x, 192.168.x.x or 169.254.x.x).</string>
+    <string name="experimental_info_title">Receiver information</string>
+    <string name="experimental_loading">Reading the receiver…</string>
+    <string name="experimental_info_row">%1$s: %2$s</string>
+    <string name="experimental_label_model">Model</string>
+    <string name="experimental_label_serial">Serial number</string>
+    <string name="experimental_label_firmware">Firmware</string>
+    <string name="experimental_label_role">Role</string>
+    <string name="experimental_label_antenna">Antenna height</string>
+    <string name="experimental_incompatible">Receiver not compatible</string>
+    <string name="experimental_reload">Read again</string>
+    <string name="experimental_fill_profile">Fill in the equipment profile</string>
+    <string name="experimental_profile_dialog_title">Fill in the equipment profile</string>
+    <string name="experimental_profile_dialog_body">It will be saved in Receiver data: model %1$s, serial %2$s, firmware %3$s.</string>
+    <string name="experimental_profile_save">Save</string>
+    <string name="experimental_profile_cancel">Cancel</string>
+    <string name="experimental_profile_saved">Equipment profile saved.</string>
 </resources>

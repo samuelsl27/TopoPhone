@@ -1,15 +1,32 @@
 package es.topophone.app.experimental
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import es.topophone.app.R
+import es.topophone.app.ui.receiver.ListRow
+import es.topophone.core.designsystem.component.StatusChip
+import es.topophone.core.designsystem.theme.StatusTone
+import es.topophone.core.model.preferences.ThemeState
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.launch
 
-/** Implementación real de las ranuras (S044/RF-1, ADR-21); las pantallas llegan en T15 a T20. */
+const val EXPERIMENTAL_MARK_TAG = "experimental_mark"
+const val EXPERIMENTAL_MENU_TAG = "experimental_menu"
+
+/** Implementación real de las ranuras (S044/RF-1, RF-6, ADR-21); las demás pantallas llegan en T16 a T20. */
 @Singleton
 class ExperimentalFeatureImpl(private val preferences: ExperimentalPreferences, private val now: () -> Long) : ExperimentalFeature {
 
@@ -17,6 +34,10 @@ class ExperimentalFeatureImpl(private val preferences: ExperimentalPreferences, 
     constructor(preferences: ExperimentalPreferences) : this(preferences, System::currentTimeMillis)
 
     override val available: Boolean = true
+
+    /** El módulo está activo ⇔ hay aceptación del aviso legal guardada (S044/RF-3). */
+    @Composable
+    private fun isActive(): Boolean = preferences.acceptedAtMs.collectAsState(initial = null).value != null
 
     @Composable
     override fun SettingsRow() {
@@ -29,14 +50,34 @@ class ExperimentalFeatureImpl(private val preferences: ExperimentalPreferences, 
         )
     }
 
+    /** La marca «Experimental» junto al estado de la conexión, mientras el módulo esté activo (S044/RF-6). */
     @Composable
-    override fun ReceiverHeaderSlot() = Unit
+    override fun ReceiverHeaderSlot() {
+        if (!isActive()) return
+        Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
+            StatusChip(stringResource(R.string.experimental_mark), StatusTone.WARNING, modifier = Modifier.testTag(EXPERIMENTAL_MARK_TAG))
+        }
+    }
 
+    /** La entrada «Módulo experimental» del menú del receptor, mientras el módulo esté activo (S044/RF-6). */
     @Composable
-    override fun ReceiverMenuEntry() = Unit
+    override fun ReceiverMenuEntry() {
+        if (!isActive()) return
+        val navigate = LocalExperimentalNavigation.current
+        HorizontalDivider()
+        ListRow(
+            stringResource(R.string.experimental_settings_title),
+            { navigate(ExperimentalPanelDestination) },
+            Modifier.testTag(EXPERIMENTAL_MENU_TAG),
+        ) { Text(stringResource(R.string.experimental_menu_summary)) }
+    }
 
     @Composable
     override fun ReceiverListSlot() = Unit
 
-    override fun routes(builder: NavGraphBuilder, navController: NavController) = Unit
+    override fun routes(builder: NavGraphBuilder, navController: NavController, themeState: ThemeState, onToggleSun: () -> Unit) {
+        builder.composable<ExperimentalPanelDestination> {
+            ExperimentalPanelRoute(themeState, onToggleSun) { navController.popBackStack() }
+        }
+    }
 }

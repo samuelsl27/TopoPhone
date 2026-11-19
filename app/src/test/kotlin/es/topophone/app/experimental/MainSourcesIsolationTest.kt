@@ -22,7 +22,8 @@ class MainSourcesIsolationTest {
                         (
                             line.trimStart().startsWith("import es.topophone.app.experimental.") &&
                                 !line.endsWith("ExperimentalFeature") &&
-                                !line.endsWith("LocalExperimentalFeature")
+                                !line.endsWith("LocalExperimentalFeature") &&
+                                !line.endsWith("LocalExperimentalNavigation")
                             )
                 }
             }

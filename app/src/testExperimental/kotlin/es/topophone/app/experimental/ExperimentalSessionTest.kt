@@ -1,28 +1,11 @@
 package es.topophone.app.experimental
 
-import es.topophone.core.model.guide.EquipmentProfile
 import es.topophone.core.model.receiver.WifiReceiver
-import es.topophone.core.model.receiver.WifiReceiverInput
-import es.topophone.data.equipment.EquipmentRepository
-import es.topophone.data.receiver.WifiReceiverRepository
-import es.topophone.receiver.experimental.LiveConnection
-import es.topophone.receiver.experimental.LiveListener
-import es.topophone.receiver.experimental.LiveTransport
-import es.topophone.receiver.experimental.LogsObserver
-import es.topophone.receiver.experimental.ReachConfigView
-import es.topophone.receiver.experimental.ReachDeviceSettings
 import es.topophone.receiver.experimental.ReachEndpoint
-import es.topophone.receiver.experimental.ReachIdentity
-import es.topophone.receiver.experimental.ReachInfoReading
 import es.topophone.receiver.experimental.ReachLiveState
-import es.topophone.receiver.experimental.ReachPart
-import es.topophone.receiver.experimental.WriteResult
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
@@ -33,86 +16,12 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class ExperimentalSessionTest {
 
-    private class FakeConnection(val listener: LiveListener) : LiveConnection {
-        var closed = false
-
-        override fun send(text: String) = Unit
-
-        override fun close() {
-            closed = true
-        }
-    }
-
-    private class FakeTransport : LiveTransport {
-        val connections = mutableListOf<FakeConnection>()
-
-        override fun connect(listener: LiveListener): LiveConnection = FakeConnection(listener).also { connections += it }
-    }
-
-    private class FakeGateway : ReachGateway {
-        val infoCalls = mutableListOf<ReachEndpoint>()
-        val transports = mutableListOf<Pair<ReachEndpoint, FakeTransport>>()
-        val reading = ReachInfoReading(
-            ReachPart.Ok(ReachIdentity("Reach RS3", "SINTETICO0001", "v0.0")),
-            ReachPart.Ok(ReachDeviceSettings("rover", 1.8)),
-        )
-
-        override suspend fun readInfo(endpoint: ReachEndpoint): ReachInfoReading {
-            infoCalls += endpoint
-            return reading
-        }
-
-        override suspend fun readConfig(endpoint: ReachEndpoint): ReachPart<ReachConfigView> =
-            ReachPart.Ok(ReachConfigView(emptyList(), emptyList()))
-
-        override suspend fun setAntennaHeight(endpoint: ReachEndpoint, valueM: Double): WriteResult<Double> = WriteResult.Confirmed(valueM)
-
-        override suspend fun setLogs(endpoint: ReachEndpoint, started: Boolean, live: LogsObserver): WriteResult<Boolean> =
-            WriteResult.Confirmed(started)
-
-        override fun transport(endpoint: ReachEndpoint): LiveTransport = FakeTransport().also { transports += endpoint to it }
-    }
-
-    private class FakeEquipment : EquipmentRepository {
-        val addresses = MutableStateFlow<Map<String, String>>(emptyMap())
-        val writes = mutableListOf<String>()
-
-        override fun profile(receiverKey: String): Flow<EquipmentProfile?> = emptyFlow()
-
-        override suspend fun save(receiverKey: String, profile: EquipmentProfile) {
-            writes += "profile:$receiverKey"
-        }
-
-        override fun webAddress(receiverKey: String): Flow<String?> = addresses.map { it[receiverKey] }
-
-        override suspend fun saveWebAddress(receiverKey: String, address: String?) {
-            writes += "address:$receiverKey"
-            addresses.value = if (address == null) addresses.value - receiverKey else addresses.value + (receiverKey to address)
-        }
-    }
-
-    private class FakeWifi(vararg initial: WifiReceiver) : WifiReceiverRepository {
-        val all = MutableStateFlow(initial.toList())
-
-        override fun receivers(): Flow<List<WifiReceiver>> = all
-
-        override fun observe(id: String): Flow<WifiReceiver?> = all.map { list -> list.firstOrNull { it.id == id } }
-
-        override suspend fun byId(id: String): WifiReceiver? = all.value.firstOrNull { it.id == id }
-
-        override suspend fun add(input: WifiReceiverInput): String = error("no se usa")
-
-        override suspend fun update(id: String, input: WifiReceiverInput): Boolean = error("no se usa")
-
-        override suspend fun delete(id: String): Boolean = error("no se usa")
-    }
-
     private val scope = TestScope()
     private val active = MutableStateFlow(true)
     private val key = MutableStateFlow<String?>(null)
-    private val gateway = FakeGateway()
-    private val equipment = FakeEquipment()
-    private val wifi = FakeWifi(
+    private val gateway = FakeReachGateway()
+    private val equipment = FakeEquipmentRepository()
+    private val wifi = FakeWifiRepository(
         WifiReceiver("a", "RS3 de la oficina", "192.168.42.1", 9001, null),
         WifiReceiver("b", "RS3 por nombre", "reach.local", 9001, null),
     )

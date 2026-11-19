@@ -35,6 +35,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import es.topophone.app.experimental.LocalExperimentalFeature
+import es.topophone.app.experimental.LocalExperimentalNavigation
 import es.topophone.app.ui.alignment.AlignmentImportRoute
 import es.topophone.app.ui.alignment.AlignmentPointRoute
 import es.topophone.app.ui.alignment.ManualAlignmentRoute
@@ -403,7 +404,10 @@ fun TopoPhoneApp(
         },
     ) { padding ->
         val openReceiver = { navController.navigateToTopLevel(TopLevelDestination.RECEIVER) } // S003/RF-23
-        CompositionLocalProvider(LocalStatusIndicator provides { statusIndicator(openReceiver) }) {
+        CompositionLocalProvider(
+            LocalStatusIndicator provides { statusIndicator(openReceiver) },
+            LocalExperimentalNavigation provides { route -> navController.navigate(route) }, // S044
+        ) {
             AppNavHost(
                 navController,
                 uiState,
@@ -869,7 +873,8 @@ private fun AppNavHost(
             composable<SessionsRoute> {
                 sessionsSection(uiState.themeState, actions.onToggleSun) { navController.popBackStack() } // S003/RF-29
             }
-            experimental.routes(this, navController) // S044: pantallas del módulo experimental (vacío en standard)
+            // S044: pantallas del módulo experimental (vacío en standard)
+            experimental.routes(this, navController, uiState.themeState, actions.onToggleSun)
         }
         navigation<SettingsGraph>(startDestination = SettingsRoute) {
             composable<SettingsRoute> {
