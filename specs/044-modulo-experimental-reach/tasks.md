@@ -21,7 +21,7 @@
       Hecho cuando: `ReachConfigReaderTest` cubre aplanado, secciones de salida, claves ocultas y forma incompatible.
 - [x] T8. `EngineIoPacket` y `ReachLiveStatus` (WebSocket Engine.IO v3: apertura, ping, eventos `broadcast`, reconexión 1 s a 30 s). (RF-13, RF-16, RF-17)
       Hecho cuando: `EngineIoPacketTest` y `ReachLiveStatusTest` pasan con el servidor falso, incluidos eventos desconocidos, corte y reconexión con reloj virtual.
-- [ ] T9. `AntennaHeightProposal` y `ReachWriter.setAntennaHeight` (leer, modificar el objeto `device` completo, escribir, releer). (RF-18, RF-19, RF-21, RF-22)
+- [x] T9. `AntennaHeightProposal` y `ReachWriter.setAntennaHeight` (leer, modificar el objeto `device` completo, escribir, releer). (RF-18, RF-19, RF-21, RF-22)
       Hecho cuando: `AntennaHeightProposalTest` y `ReachWriterAntennaTest` pasan, incluido que el cuerpo solo cambia `antenna_height` y el receptor que no confirma.
 - [ ] T10. `ReachWriter.setLogs` con comprobación por el directo. (RF-20, RF-21)
       Hecho cuando: `ReachWriterLogsTest` cubre iniciar, parar, estado que no coincide y sin directo.
