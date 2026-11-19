@@ -31,7 +31,7 @@
       Hecho cuando: `ReachDiscoveryTest` cubre repetidos, direcciones públicas descartadas, los 10 s, la parada y «ninguno», con un navegador falso.
 
 ## Activación y datos en la app
-- [ ] T13. `ExperimentalPreferences` (DataStore fuera de las copias) y `ExperimentalFeatureImpl`: interruptor «Módulo experimental» en Ajustes y aviso legal (es y en). (RF-3, RF-4, RF-5)
+- [x] T13. `ExperimentalPreferences` (DataStore fuera de las copias) y `ExperimentalFeatureImpl`: interruptor «Módulo experimental» en Ajustes y aviso legal (es y en). (RF-3, RF-4, RF-5)
       Hecho cuando: `ExperimentalPreferencesTest` y `ExperimentalSettingsTest` cubren apagado de fábrica, aceptar con fecha, rechazar, desactivar (olvida la aceptación) y el aviso otra vez.
 - [ ] T14. `ExperimentalSession`: dirección según la fuente (Wi-Fi, Bluetooth con IP, sin dirección), cliente, directo y cierre al desactivar, sin tocar `ReceiverSession`. (RF-5, RF-11, RF-16, RF-25)
       Hecho cuando: `ExperimentalSessionTest` cubre cada fuente, desactivar cierra y la pérdida del directo no afecta a la sesión.

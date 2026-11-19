@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.lifecycle.viewmodel.compose)
     "experimentalImplementation"(projects.receiverExperimental) // S044 (ADR-18, ADR-21): solo en el flavor experimental
+    // S044 D4: ya está en el APK por `data`; aquí para las preferencias del flavor
+    "experimentalImplementation"(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.aboutlibraries.compose.m3)
     implementation(libs.maplibre.android) // S009 (ADR-9)

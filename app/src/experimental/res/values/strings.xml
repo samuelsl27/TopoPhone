@@ -2,4 +2,14 @@
 <resources>
     <!-- S044/RF-1: el flavor experimental es otra app instalada al lado, con su propio nombre. -->
     <string name="app_name" translatable="false">TopoPhone experimental</string>
+
+    <!-- Ajustes y aviso legal (S044/RF-3, RF-4, RF-5). Ningún texto nombra al fabricante (RNF-T14). -->
+    <string name="experimental_section">Experimental</string>
+    <string name="experimental_settings_title">Módulo experimental</string>
+    <string name="experimental_settings_summary_off">Desactivado. Funciones no oficiales para leer y ajustar el receptor por su red Wi-Fi.</string>
+    <string name="experimental_settings_summary_on">Activado. Puedes desactivarlo cuando quieras.</string>
+    <string name="experimental_notice_title">Aviso del módulo experimental</string>
+    <string name="experimental_notice_body">Este módulo usa funciones del receptor que su fabricante no ha documentado ni autorizado para aplicaciones de terceros. Pueden cambiar o dejar de funcionar con cualquier actualización del firmware, y usarlas puede ir en contra de las condiciones de uso del fabricante. El módulo solo escribe en el receptor la altura de antena y el inicio o parada de los logs, y siempre después de que lo confirmes. Úsalo bajo tu responsabilidad. TopoPhone no está afiliado al fabricante del receptor.</string>
+    <string name="experimental_notice_accept">Aceptar y activar</string>
+    <string name="experimental_notice_cancel">Cancelar</string>
 </resources>

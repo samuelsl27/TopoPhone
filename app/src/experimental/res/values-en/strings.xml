@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- S044/RF-3, RF-4, RF-5: settings and legal notice. No text names the manufacturer (RNF-T14). -->
+    <string name="experimental_section">Experimental</string>
+    <string name="experimental_settings_title">Experimental module</string>
+    <string name="experimental_settings_summary_off">Off. Unofficial features to read and adjust the receiver over its Wi-Fi network.</string>
+    <string name="experimental_settings_summary_on">On. You can turn it off at any time.</string>
+    <string name="experimental_notice_title">Experimental module notice</string>
+    <string name="experimental_notice_body">This module uses receiver features that its manufacturer has not documented or authorised for third-party apps. They may change or stop working with any firmware update, and using them may go against the manufacturer\'s terms of use. The module only writes the antenna height and the start or stop of the logs to the receiver, and only after you confirm. Use it at your own risk. TopoPhone is not affiliated with the receiver\'s manufacturer.</string>
+    <string name="experimental_notice_accept">Accept and turn on</string>
+    <string name="experimental_notice_cancel">Cancel</string>
+</resources>
