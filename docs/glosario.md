@@ -264,3 +264,5 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Tolerancia de sección | `LinearSurvey.DEFAULT_SECTION_TOLERANCE_M` | Distancia máxima a la línea de la sección (0,10 m por defecto) con que un punto es del PK (S052) |
 | Capa del DXF | `DxfLayer` | Cada capa de dibujo de un DXF exportado: una por código y las de etiquetas (S029) |
 | Color ACI | `AciColor` | Uno de los 255 colores indexados estándar de los CAD (S029) |
+| Módulo experimental | `receiver-experimental` | Parte de la app que habla con la interfaz local no documentada del receptor; solo existe en el flavor `experimental` y está apagada de fábrica (S044) |
+| Aviso legal | `ExperimentalNotice` | Texto que el usuario acepta al activar el módulo experimental: la interfaz no es oficial, su uso puede infringir los términos del fabricante y puede dejar de funcionar (S044) |

@@ -5,7 +5,7 @@ Recopilado en octubre de 2026 a partir de la documentación oficial (Emlid Flow 
 La columna **TopoPhone** indica cómo se cubre cada función:
 - `S0NN`: la spec que la implementa.
 - `Guía`: se configura en Emlid Flow o Reach Panel, con una checklist o asistente en S043.
-- `Exp`: módulo experimental, S044.
+- `Exp`: módulo experimental, S044 (incluye la búsqueda de receptores en la red).
 - `—`: fuera de alcance.
 
 Las claves de fuente se resuelven al final.

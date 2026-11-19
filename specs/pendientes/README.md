@@ -35,7 +35,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 | [035 sc-personalizado](035-sc-personalizado/spec.md) | H5 | S034, S033, S032 | 24 | 5 | Editor de SC, «Mis SC», cambio del SC del proyecto |
 | [039 localizacion](039-localizacion/spec.md) | H6 | S035, **S011, S008** | 22 | 5 | Semejanza 2D por mínimos cuadrados con pares H/V |
 | [043 receptor-guiado](043-receptor-guiado/spec.md) | H7 | S016, **S015, S021, S005, S046** | 21 | 4 | Listas de configuración, comprobaciones previas y Reach Panel en un WebView |
-| [044 modulo-experimental-reach](044-modulo-experimental-reach/spec.md) | H7 | S043, **S021, S046** | 20 | 4 | Flavor `experimental` con interfaz no documentada |
+| [044 modulo-experimental-reach](../044-modulo-experimental-reach/spec.md) | H7 | S043, **S021, S046** | 20 | 4 | Flavor `experimental` con interfaz no documentada |
 | [050 peraltes-y-transversales](050-peraltes-y-transversales/spec.md) | H8 | S054, S049 | 21 | 5 | Secciones, peraltes y cota de cualquier punto de la sección |
 | [051 taludes](051-taludes/spec.md) | H8 | S050, **S054, S042** | 18 | 5 | Cabezas y pies de talud contra el terreno |
 | [052 toma-de-datos-lineal](052-toma-de-datos-lineal/spec.md) | H8 | S054, S050, **S049, S010, S017** | 23 | 5 | Tomar un eje con el receptor y perfiles longitudinal y transversal |
@@ -56,7 +56,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 - S045 convierte entre altitud ortométrica y elipsoidal en un ráster, y S042 lo deja fuera para LandXML.
 
 **Receptor**
-- La búsqueda mDNS de receptores pasó de S021 a S044 (constitución nº 5), decidido en la entrevista de S021 (15/11/2026); S044 la recoge al abrirla.
+- La búsqueda mDNS de receptores pasó de S021 a S044 (constitución nº 5), decidido en la entrevista de S021 (15/11/2026); S044 la recoge al abrirla (resuelto en su entrevista, 18/11/2026: se incluye).
 - S043 añade «Guía» y «Equipo» a las cinco entradas del menú del receptor de S005/RF-9.
 
 **Specs ya implementadas que habría que tocar**
