@@ -13,7 +13,7 @@
       Hecho cuando: el test de la tarea falla con un classpath o manifiesto que lleva el módulo y pasa sin él, y `check` la ejecuta.
 
 ## Cliente del receptor (módulo)
-- [ ] T5. `fixtures/reach/` (respuestas sintéticas marcadas como tales, con la fuente) y `ReachEndpoint` + `ReachHttpClient`: red Wi-Fi por socket, 3 s, sin redirecciones, host fijo, `mockwebserver` solo en tests; `CleartextPolicyTest` recorre también el módulo. (RF-23)
+- [x] T5. `fixtures/reach/` (respuestas sintéticas marcadas como tales, con la fuente) y `ReachEndpoint` + `ReachHttpClient`: red Wi-Fi por socket, 3 s, sin redirecciones, host fijo, `mockwebserver` solo en tests; `CleartextPolicyTest` recorre también el módulo. (RF-23)
       Hecho cuando: `ReachHttpClientTest` cubre host distinto, redirección, tiempo agotado y dirección pública, y `:receiver-experimental:test` pasa.
 - [ ] T6. `ReachInfoReader` y `ReachPart` (información y compatibilidad por partes). (RF-11, RF-15)
       Hecho cuando: `ReachInfoReaderTest` cubre la forma esperada, un campo ausente, uno de otro tipo, sin respuesta y la compatibilidad parcial.

@@ -19,7 +19,7 @@ class CleartextPolicyTest {
     private val root: File = generateSequence(File("").absoluteFile) { it.parentFile }
         .first { File(it, "settings.gradle.kts").exists() && File(it, "app").isDirectory }
 
-    private fun mainSources(): List<File> = listOf("app", "core", "data", "receiver").flatMap { module ->
+    private fun mainSources(): List<File> = listOf("app", "core", "data", "receiver", "receiver-experimental").flatMap { module ->
         File(root, module).walkTopDown().filter { it.isFile && it.extension == "kt" && "/src/main/" in it.invariantSeparatorsPath }.toList()
     }
 
@@ -40,6 +40,18 @@ class CleartextPolicyTest {
         }.map { it.name }
 
         offenders.shouldBeEmpty()
+    }
+
+    @Test
+    fun `S044 RF-23 el modulo experimental no escribe ninguna URL http ni ws y la construye con el constructor de OkHttp`() {
+        val sources = File(root, "receiver-experimental/src/main").walkTopDown().filter { it.isFile && it.extension == "kt" }.toList()
+
+        sources.isNotEmpty() shouldBe true
+        sources.filter { file ->
+            file.readLines().any { "http://" in it || "ws://" in it || "https://" in it }
+        }.map { it.name }.shouldBeEmpty()
+        val endpoint = File(root, "receiver-experimental/src/main/kotlin/es/topophone/receiver/experimental/ReachEndpoint.kt")
+        endpoint.readText() shouldContain "HttpUrl.Builder()"
     }
 
     @Test

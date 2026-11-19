@@ -1,0 +1,1 @@
+42["broadcast",{"name":"active_logs","payload":{"raw":{"is_writing":true},"solution":{"is_writing":false},"base":{"is_writing":false}}}]

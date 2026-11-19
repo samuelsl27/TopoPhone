@@ -1,0 +1,1 @@
+42["broadcast",{"name":"battery_status","payload":{"state_of_charge":87,"charger_status":"discharging"}}]

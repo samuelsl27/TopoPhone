@@ -1,0 +1,23 @@
+{
+  "configuration": {
+    "device": {"role": "rover", "antenna_height": 1.8, "night_mode": false},
+    "positioning_settings": {
+      "positioning_mode": "kinematic",
+      "gps_ar_mode": "fix-and-hold",
+      "elevation_mask_angle": 15,
+      "snr_mask": 35,
+      "gnss_settings": {
+        "update_rate": 5,
+        "positioning_systems": {"gps": true, "glonass": true, "galileo": true, "beidou": false, "qzss": false}
+      }
+    },
+    "correction_input": {
+      "input2": {"type": "ntrip", "address": "caster.example.org", "mountpoint": "MP1", "password": "clave-de-mentira"}
+    },
+    "position_output": {
+      "output1": {"type": "bluetooth", "format": "nmea", "sentences": ["GGA", "GST"]},
+      "output2": {"type": "tcp", "role": "server", "port": 9001, "token": "token-de-mentira"}
+    },
+    "wifi": {"ssid": "reach-sintetico", "psk": "psk-de-mentira"}
+  }
+}

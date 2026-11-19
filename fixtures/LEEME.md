@@ -16,6 +16,7 @@ Datos compartidos por los tests de todos los módulos. Los ficheros de más de 5
 | `base_shift/` | Desplazamiento de base: vector ECEF conocido − medido, equivalente en el SC, módulo y clasificación, y puntos nuevos con el vector aplicado, en ETRS89, REGCAN95 y con correcciones en ITRF; generados por `tools/base_shift` con pyproj (S020) |
 | `ejes/` | Ejes y rasantes LandXML (rectas, arcos, clotoides, acuerdos parabólicos y circulares, en metros y en pies, y los casos que se rechazan), un CSV de rasante y lo esperado (tramos, puntos por PK y desplazamiento, resumen) calculado con series de Fresnel y fórmulas analíticas, generados por `tools/ejes` (S049) |
 | `mapas_offline/` | Teselas que cubren cajas de Madrid, Tenerife y Palma a 6 rangos de zoom y 5 fuentes (`teselas.csv`), lo que contó MapLibre en el emulador en T1 (`medidos.csv`), esquinas de teselas en EPSG:3857 comprobadas con pyproj a 1 mm (`esquinas.csv`) y las cajas exactas de círculos y de rectángulos con margen (`cajas.csv`), generados por `tools/mapas_offline` (S037) |
+| `reach/` | Respuestas **sintéticas** (no grabadas de un receptor) de la API no oficial del receptor, para los tests de `receiver-experimental` (S044); ver su `LEEME.md` |
 | `formatos/` | Ejemplos de CSV, DXF, SHP, KML, LandXML y GetCapabilities |
 
 ## Descriptor de escenario (`.yaml`)

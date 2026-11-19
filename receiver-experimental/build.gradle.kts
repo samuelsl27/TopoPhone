@@ -12,4 +12,11 @@ dependencies {
     implementation(projects.core.model)
     implementation(projects.receiver)
     implementation(libs.kotlinx.coroutines.core)
+    // OkHttp ya está en el APK (lo trae MapLibre); aquí da el HTTP y el WebSocket (S044 D5, D7).
+    implementation(libs.okhttp)
+    // Solo `Json.parseToJsonElement`, sin el plugin (S044 D6).
+    implementation(libs.kotlinx.serialization.json)
+
+    // S044 D14: servidor HTTP y WebSocket falso solo para los tests; no entra en el APK.
+    testImplementation(libs.okhttp.mockwebserver)
 }
