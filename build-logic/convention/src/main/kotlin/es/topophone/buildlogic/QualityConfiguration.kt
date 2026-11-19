@@ -34,7 +34,9 @@ internal fun Project.registerHardcodedUiTextCheck() {
         group = "verification"
         description = "Busca textos visibles escritos en el código Compose en lugar de en strings.xml (S001/RF-19)."
         modulePath.set(projectPath)
+        // S044: también el código del flavor experimental, que lleva sus propias pantallas.
         sources.from(fileTree("src/main") { include("**/*.kt") })
+        sources.from(fileTree("src/experimental") { include("**/*.kt") })
         rootDirectory.set(rootProject.layout.projectDirectory)
         report.set(layout.buildDirectory.file("reports/quality/hardcoded-ui-text.txt"))
     }

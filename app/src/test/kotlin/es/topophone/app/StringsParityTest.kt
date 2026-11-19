@@ -13,7 +13,7 @@ import org.junit.Test
 class StringsParityTest {
 
     /** Módulos con textos de interfaz, relativos al módulo `app` (directorio de trabajo de los tests). */
-    private val resourceDirs = listOf("src/main/res", "../core/designsystem/src/main/res").map(::File)
+    private val resourceDirs = listOf("src/main/res", "src/experimental/res", "../core/designsystem/src/main/res").map(::File)
 
     private fun translatableKeys(file: File): Set<String> {
         if (!file.exists()) return emptySet()
