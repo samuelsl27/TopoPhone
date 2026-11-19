@@ -61,3 +61,5 @@ Descarga `TopoPhone-X.Y.Z.apk` desde Releases en el móvil y ábrelo. Android pe
 ./gradlew :app:verifyReleaseTag -PreleaseTag=v0.0.1 --no-configuration-cache
 ./gradlew :app:assembleRelease          # sin variables TOPOPHONE_* sale sin firmar
 ```
+
+El APK sale en `app/build/outputs/apk/standard/release/app-standard-release.apk`. Desde S044 la app tiene dos *flavors*: `standard` (lo que se publica) y `experimental` (módulo experimental del receptor, solo en `debug`, con otro identificador `es.topophone.app.experimental` y el nombre «TopoPhone experimental»). `assembleRelease` nunca genera el experimental.

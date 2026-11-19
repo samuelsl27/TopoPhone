@@ -17,6 +17,18 @@ android {
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
     }
 
+    // S044 (ADR-21): `standard` es lo que se publica; `experimental` lleva el módulo `receiver-experimental`,
+    // es otra app instalada al lado (sufijo del identificador) y solo existe como `debug`.
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("standard") { dimension = "distribution" }
+        create("experimental") {
+            dimension = "distribution"
+            applicationIdSuffix = ".experimental" // S044/RF-1
+            versionNameSuffix = "-experimental"
+        }
+    }
+
     // S009, RNF: bibliotecas nativas comprimidas en el APK publicado (≤ 15 MB más con el mapa).
     packaging { jniLibs { useLegacyPackaging = true } }
 
@@ -24,6 +36,22 @@ android {
         // Idiomas de la app: español (por defecto) e inglés (S001/RF-16, S001/RF-17).
         generateLocaleConfig = true
         localeFilters += listOf("es", "en")
+    }
+}
+
+// S044/RF-1: `experimental` no se puede publicar por accidente: no tiene variante release, así que
+// `assembleRelease`, `verifyReleaseCertificate` y `release.yml` siguen viendo una sola variante release.
+androidComponents {
+    beforeVariants(selector().withFlavor("distribution" to "experimental").withBuildType("release")) { variant ->
+        variant.enable = false
+    }
+}
+
+// S044: los ~3.800 tests de `src/test` ya corren en `standard`; en `experimental` solo corren los del flavor.
+tasks.withType<Test>().matching { it.name.startsWith("testExperimental") }.configureEach {
+    filter {
+        includeTestsMatching("es.topophone.app.experimental.*")
+        isFailOnNoMatchingTests = false
     }
 }
 

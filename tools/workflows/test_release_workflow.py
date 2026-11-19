@@ -74,6 +74,14 @@ def test_s001_rf30_publica_el_apk_de_la_etiqueta_en_github_releases(workflow: di
     assert workflow["jobs"]["release"]["env"]["RELEASE_TAG"] == "${{ github.ref_name }}"
 
 
+def test_s044_la_publicacion_usa_solo_el_apk_del_flavor_standard(workflow: dict) -> None:
+    """S044 (ADR-21): el flavor experimental no tiene release y el APK publicado es el de `standard`."""
+    publish = commands(workflow)[index_of(workflow, "gh release create")]
+
+    assert "app/build/outputs/apk/standard/release/app-standard-release.apk" in publish
+    assert "experimental" not in RELEASE.read_text(encoding="utf-8")
+
+
 def test_s001_rf32_los_secretos_solo_llegan_al_trabajo_de_publicacion(workflow: dict) -> None:
     """S001/RF-32: permisos mínimos y secretos solo donde se firma."""
     assert workflow["permissions"] == {"contents": "read"}

@@ -3,7 +3,7 @@
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa en un prompt propio, con los tests primero. Cada tarea cierra con `./gradlew check` en verde (se repite si falla un test ajeno intermitente), la casilla marcada y un commit `S044 Tn: …` en `main`.
 
 ## Aislamiento y flavors
-- [ ] T1. Flavors `standard` y `experimental` (dimensión `distribution`): `experimentalRelease` desactivada, sufijo `.experimental` y nombre «TopoPhone experimental»; `testExperimentalDebugUnitTest` limitada a los tests del flavor; rutas del APK en `release.yml`, `docs/publicacion.md` y `g0-procedimiento.md` (y `test_release_workflow.py`). (RF: —, prepara RF-1)
+- [x] T1. Flavors `standard` y `experimental` (dimensión `distribution`): `experimentalRelease` desactivada, sufijo `.experimental` y nombre «TopoPhone experimental»; `testExperimentalDebugUnitTest` limitada a los tests del flavor; rutas del APK en `release.yml`, `docs/publicacion.md` y `g0-procedimiento.md` (y `test_release_workflow.py`). (RF: —, prepara RF-1)
       Hecho cuando: `./gradlew assembleDebug` compila las dos variantes, `:app:assembleRelease` solo la `standard`, `verifyReleaseCertificate` sigue una sola y `check` y `uv run --project tools pytest tools` pasan.
 - [ ] T2. Módulo `receiver-experimental` vacío (biblioteca Android, sin Hilt) en `settings.gradle.kts`, con `experimentalImplementation` en `app`, su fila en `docs/arquitectura.md` (y ADR-21) y su regla en `ModuleRules` con test. (RF-2)
       Hecho cuando: `ModuleRulesTest` cubre «solo `app` depende del módulo y el módulo no depende de `data`» y `./gradlew check` pasa.

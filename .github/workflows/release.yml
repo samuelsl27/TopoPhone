@@ -79,7 +79,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           version="${RELEASE_TAG#v}"
-          cp app/build/outputs/apk/release/app-release.apk "TopoPhone-${version}.apk"
+          cp app/build/outputs/apk/standard/release/app-standard-release.apk "TopoPhone-${version}.apk"
           gh release create "$RELEASE_TAG" "TopoPhone-${version}.apk" --title "TopoPhone ${version}" --generate-notes --verify-tag
 
       - name: Borrar el almacén de claves

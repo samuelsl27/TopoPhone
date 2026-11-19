@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- S044/RF-1: el flavor experimental es otra app instalada al lado, con su propio nombre. -->
+    <string name="app_name" translatable="false">TopoPhone experimental</string>
+</resources>

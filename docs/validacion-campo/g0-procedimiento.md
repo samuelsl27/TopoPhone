@@ -3,7 +3,7 @@
 La puerta G0 cierra la spec 002 con dos ensayos del [protocolo](protocolo.md): **(a)** TopoPhone frente a pyproj aplicado a las GGA grabadas y **(c)** TopoPhone frente a la reseña de un vértice. El acta se guarda en `docs/validacion-campo/AAAA-MM-DD-<lugar>/acta.md`.
 
 ## Antes de salir
-1. Instala la APK de depuración en el móvil (`./gradlew assembleDebug` → `app/build/outputs/apk/debug/app-debug.apk`).
+1. Instala la APK de depuración en el móvil (`./gradlew assembleDebug` → `app/build/outputs/apk/standard/debug/app-standard-debug.apk`).
 2. Configura el RS3 en Emlid Flow, una sola vez:
    - salida de posición por Bluetooth: NMEA con GGA a 5 Hz y GST, talker GN;
    - entrada de correcciones: Bluetooth;
