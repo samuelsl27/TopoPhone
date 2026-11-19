@@ -53,7 +53,7 @@
       Hecho cuando: `ExperimentalAccessibilityTest` pasa y `checkHardcodedUiText` no encuentra literales.
 
 ## Herramientas y cierre
-- [ ] T22. `tools/simulador/servidor_reach.py` (HTTP y WebSocket Engine.IO v3 con opciones `--incompatible`, `--lento`, `--cortar-directo`, `--sin-logs`) con su test y su fila en `tools/LEEME.md`; `enlaces.md` con lo leído del código de referencia. (RF-11 a RF-21)
+- [x] T22. `tools/simulador/servidor_reach.py` (HTTP y WebSocket Engine.IO v3 con opciones `--incompatible`, `--lento`, `--cortar-directo`, `--sin-logs`) con su test y su fila en `tools/LEEME.md`; `enlaces.md` con lo leído del código de referencia. (RF-11 a RF-21)
       Hecho cuando: `uv run --project tools pytest tools` pasa con el test nuevo.
 - [ ] T23. Validación final: recorrer la spec RF por RF, `rf_report.py`, `check`, `pytest` de `tools`, `forbidden_files`, `assembleDebug`, demo en el emulador con `servidor_reach.py` y la sección «Cambios al implementar» y «Validación» de `plan.md`; hoja de ruta con S044 implementada. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos y la demo funciona; lo que no se pueda en el emulador (búsqueda real, formas reales, unidad de la altura, directo por WebSocket) queda anotado para el campo.

@@ -54,6 +54,14 @@ Consultado en octubre de 2026 (firmware Reach 33.1, Emlid Flow 15.11). Antes de 
   - `POST /configuration/device` (rol, altura de antena), `/configuration/logging/logs {"started":bool}`.
   - Socket.IO (Engine.IO v3) en `/socket.io`, evento `broadcast` `{name,payload}`: `navigation`, `observations`, `stream_status`, `active_logs`, `battery_status`.
   - Descubrimiento mDNS `_reach._tcp.local`.
+- **Lo que leyó S044 del código de referencia** (18/11/2026, licencia MIT; **ninguna forma está verificada contra un receptor real**, por eso todo se lee de forma tolerante y las pruebas usan `fixtures/reach/`, sintéticas):
+  - `GET /info` → `device.model`, `device.serial_number`, `device.app_version` (el firmware es `app_version`).
+  - `GET /configuration` → `configuration.device.{role, antenna_height, night_mode}` y `configuration.positioning_settings.*`; las secciones de entrada y salida cuelgan también de `configuration`.
+  - `POST /configuration/device` lleva el objeto `device` **completo** con el campo cambiado; la unidad de `antenna_height` no consta (se supone metros: la relectura y la demo de campo lo confirman).
+  - La batería y los logs solo llegan por el directo: evento `broadcast` con `battery_status` (`state_of_charge`, `charger_status`) y `active_logs` (`raw`, `solution`, `base`, cada uno con `is_writing`).
+  - El código de referencia conecta por *polling* y sube a WebSocket; el módulo conecta directo por WebSocket (Engine.IO v3 lo admite), **sin confirmar en un receptor real**.
+  - El código de referencia **no usa mDNS**: el tipo `_reach._tcp` sale de la documentación y **no está verificado**; la búsqueda real se prueba en el campo (el emulador está tras un NAT y no la ve).
+  - Simulador para el emulador: `tools/simulador/servidor_reach.py`.
 - **Aspecto legal**: los términos de Emlid prohíben la ingeniería inversa (https://store.emlid.com/pages/apps-terms). La Directiva UE 2009/24/CE (arts. 5.3 y 6) protege la interoperabilidad (esto no es asesoramiento legal). Antes de distribuir el módulo, conviene pedir permiso a Emlid.
 
 ## Geodesia y rejillas (España)
