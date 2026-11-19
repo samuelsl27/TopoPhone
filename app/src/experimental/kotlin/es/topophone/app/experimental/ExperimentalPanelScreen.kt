@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -76,6 +77,11 @@ class PanelActions(
 fun ExperimentalPanelRoute(themeState: ThemeState, onToggleSun: () -> Unit, onBack: () -> Unit) {
     val viewModel = hiltViewModel<ExperimentalPanelViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    // S044/RF-16, RF-17: el directo se pide mientras el panel esté abierto
+    DisposableEffect(viewModel) {
+        viewModel.onScreenOpened()
+        onDispose { viewModel.onScreenClosed() }
+    }
     ExperimentalPanelScreen(
         state = state,
         actions = PanelActions(
@@ -115,7 +121,10 @@ fun ExperimentalPanelScreen(
                 ReachSource.Inactive -> Message(R.string.experimental_inactive, PANEL_INACTIVE_TAG)
                 ReachSource.NotApplicable -> Message(R.string.experimental_not_applicable, PANEL_NOT_APPLICABLE_TAG)
                 is ReachSource.NeedsAddress -> AddressCard(source.key, state.addressRejected, actions.onSaveAddress)
-                is ReachSource.Ready -> InfoCard(state, actions)
+                is ReachSource.Ready -> {
+                    InfoCard(state, actions)
+                    ReceiverCard(stringResource(R.string.experimental_live_title)) { LiveStatusLines(state.live) }
+                }
             }
         }
     }

@@ -142,7 +142,8 @@ class ExperimentalSettingsTest {
     fun `S044 RF-4 aceptar con las preferencias reales guarda la fecha y desactivar la borra`() = runBlocking<Unit> {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO).also { scopes += it }
         val prefs = ExperimentalPreferences(SettingsDataStore.create(scope) { File(folder.root, "e.preferences_pb") })
-        val feature = ExperimentalFeatureImpl(prefs) { 1_795_082_400_000L }
+        val feature =
+            ExperimentalFeatureImpl(prefs, idleSession(kotlinx.coroutines.test.TestScope().backgroundScope)) { 1_795_082_400_000L }
         compose.setContent { feature.SettingsRow() }
 
         compose.onNodeWithTag(EXPERIMENTAL_SWITCH_TAG).assertIsOff()

@@ -29,7 +29,7 @@ class ExperimentalFlavorTest {
         try {
             val preferences = ExperimentalPreferences(SettingsDataStore.create(scope) { File(folder.root, "e.preferences_pb") })
 
-            ExperimentalFeatureImpl(preferences).available shouldBe true
+            ExperimentalFeatureImpl(preferences, idleSession(scope)).available shouldBe true
         } finally {
             scope.cancel()
         }

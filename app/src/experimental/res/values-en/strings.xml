@@ -37,4 +37,13 @@
     <string name="experimental_profile_save">Save</string>
     <string name="experimental_profile_cancel">Cancel</string>
     <string name="experimental_profile_saved">Equipment profile saved.</string>
+
+    <!-- Live status (S044/RF-13, RF-17). -->
+    <string name="experimental_live_title">Live status</string>
+    <string name="experimental_battery">Battery: %1$d %%</string>
+    <string name="experimental_battery_unknown">Battery: no data</string>
+    <string name="experimental_logs_writing">Logs: writing</string>
+    <string name="experimental_logs_stopped">Logs: stopped</string>
+    <string name="experimental_logs_unknown">Logs: no data</string>
+    <string name="experimental_live_lost">No receiver status</string>
 </resources>

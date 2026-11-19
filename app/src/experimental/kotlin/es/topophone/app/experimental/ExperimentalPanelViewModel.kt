@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.core.model.guide.EquipmentProfile
 import es.topophone.data.equipment.EquipmentRepository
+import es.topophone.receiver.experimental.ReachLiveState
 import es.topophone.receiver.experimental.ReachPart
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +25,8 @@ data class PanelUiState(
     /** La última IP escrita no era una IP privada (RF-23). */
     val addressRejected: Boolean = false,
     val profileSaved: Boolean = false,
+    /** El estado en directo (batería y logs); vacío si no hay directo (RF-13, RF-17). */
+    val live: ReachLiveState = ReachLiveState(),
 )
 
 /**
@@ -40,11 +43,16 @@ class ExperimentalPanelViewModel @Inject constructor(
 
     private val local = MutableStateFlow(Local())
 
-    val state: StateFlow<PanelUiState> = combine(session.source, session.info, local) { source, info, local ->
-        PanelUiState(source, info, local.proposal, local.addressRejected, local.saved)
+    val state: StateFlow<PanelUiState> = combine(session.source, session.info, local, session.live) { source, info, local, live ->
+        PanelUiState(source, info, local.proposal, local.addressRejected, local.saved, live)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, PanelUiState())
 
     fun onRefresh() = session.refresh()
+
+    /** La pantalla pide el directo mientras esté abierta (S044/RF-16, RF-17). */
+    fun onScreenOpened() = session.startLive()
+
+    fun onScreenClosed() = session.stopLive()
 
     fun onSaveAddress(text: String) {
         viewModelScope.launch {

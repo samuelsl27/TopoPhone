@@ -85,7 +85,7 @@ class ExperimentalSession(
         }
         .stateIn(scope, SharingStarted.Eagerly, ReachInfoState.Idle)
 
-    private val liveWanted = MutableStateFlow(false)
+    private val liveUsers = MutableStateFlow(0)
     private val liveStatus = MutableStateFlow<ReachLiveStatus?>(null)
 
     /** El estado en directo (batería y logs); vacío si no hay directo. */
@@ -98,7 +98,7 @@ class ExperimentalSession(
 
     init {
         scope.launch {
-            combine(source, liveWanted) { current, wanted -> (current as? ReachSource.Ready)?.endpoint?.takeIf { wanted } }
+            combine(source, liveUsers) { current, users -> (current as? ReachSource.Ready)?.endpoint?.takeIf { users > 0 } }
                 .distinctUntilChanged()
                 .collectLatest { endpoint ->
                     if (endpoint != null) {
@@ -119,14 +119,13 @@ class ExperimentalSession(
     /** Vuelve a leer la información (S044/RF-11). */
     fun refresh() = refreshTick.update { it + 1 }
 
-    /** El directo se abre mientras alguna pantalla lo pida y haya dirección; es idempotente. */
-    fun startLive() {
-        liveWanted.value = true
-    }
+    /**
+     * Una pantalla pide el directo: se abre mientras haya al menos una que lo pida y haya dirección. Cada [startLive] se empareja con su
+     * [stopLive], así dos pantallas (cabecera y panel) comparten una sola conexión y la última que sale la cierra (S044/RF-16, RF-17).
+     */
+    fun startLive() = liveUsers.update { it + 1 }
 
-    fun stopLive() {
-        liveWanted.value = false
-    }
+    fun stopLive() = liveUsers.update { (it - 1).coerceAtLeast(0) }
 
     /**
      * Guarda la IP que el usuario escribió para el receptor en uso, en la dirección web de Datos del receptor (S043/RF-13): la misma que

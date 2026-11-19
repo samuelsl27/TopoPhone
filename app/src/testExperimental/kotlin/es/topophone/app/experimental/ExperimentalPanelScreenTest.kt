@@ -200,7 +200,7 @@ class ExperimentalPanelScreenTest {
     @Test
     fun `S044 RF-6 la marca Experimental sale en la cabecera con el modulo activo y no sale apagado`() {
         TestPreferences(folder.root, active = true).use { on ->
-            val feature = ExperimentalFeatureImpl(on.preferences) { 1L }
+            val feature = ExperimentalFeatureImpl(on.preferences, idleSession(kotlinx.coroutines.test.TestScope().backgroundScope)) { 1L }
             compose.setContent { feature.ReceiverHeaderSlot() }
 
             compose.waitUntil(5_000) { compose.onAllNodesWithTag(EXPERIMENTAL_MARK_TAG).fetchSemanticsNodes().isNotEmpty() }
@@ -211,7 +211,7 @@ class ExperimentalPanelScreenTest {
     @Test
     fun `S044 RF-6 apagado no hay marca ni entrada de menu`() {
         TestPreferences(folder.root, active = false).use { off ->
-            val feature = ExperimentalFeatureImpl(off.preferences) { 1L }
+            val feature = ExperimentalFeatureImpl(off.preferences, idleSession(kotlinx.coroutines.test.TestScope().backgroundScope)) { 1L }
             compose.setContent {
                 feature.ReceiverHeaderSlot()
                 feature.ReceiverMenuEntry()
@@ -227,7 +227,7 @@ class ExperimentalPanelScreenTest {
     fun `S044 RF-6 con el modulo activo la entrada de menu abre el panel`() {
         var opened: Any? = null
         TestPreferences(folder.root, active = true).use { on ->
-            val feature = ExperimentalFeatureImpl(on.preferences) { 1L }
+            val feature = ExperimentalFeatureImpl(on.preferences, idleSession(kotlinx.coroutines.test.TestScope().backgroundScope)) { 1L }
             compose.setContent {
                 CompositionLocalProvider(LocalExperimentalNavigation provides { opened = it }) { feature.ReceiverMenuEntry() }
             }
@@ -238,5 +238,21 @@ class ExperimentalPanelScreenTest {
 
             opened shouldBe ExperimentalPanelDestination
         }
+    }
+
+    @Test
+    fun `S044 RF-13 el panel enseña el estado en directo y Sin estado del receptor cuando falta`() {
+        val live = es.topophone.receiver.experimental.ReachLiveState(connected = true, batteryPercent = 64, logsWriting = true)
+        show(PanelUiState(source = ready, info = ReachInfoState.Loaded(reading), live = live))
+
+        compose.onNodeWithTag(LIVE_BATTERY_TAG).performScrollTo().assertTextContains(text(R.string.experimental_battery, 64))
+        compose.onNodeWithTag(LIVE_LOGS_TAG).assertTextContains(text(R.string.experimental_logs_writing))
+    }
+
+    @Test
+    fun `S044 RF-17 el panel sin directo dice Sin estado del receptor`() {
+        show(PanelUiState(source = ready, info = ReachInfoState.Loaded(reading)))
+
+        compose.onNodeWithTag(LIVE_LOST_TAG).performScrollTo().assertTextContains(text(R.string.experimental_live_lost))
     }
 }

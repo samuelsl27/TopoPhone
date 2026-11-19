@@ -150,4 +150,36 @@ class ExperimentalPanelViewModelTest {
 
         vm.state.value.profileSaved shouldBe false
     }
+
+    @Test
+    fun `S044 RF-16 abrir la pantalla abre el directo y cerrarla lo cierra`() {
+        val vm = viewModel()
+        gateway.transports.size shouldBe 0
+
+        vm.onScreenOpened()
+        scope.runCurrent()
+        gateway.transports.size shouldBe 1
+
+        vm.onScreenClosed()
+        scope.runCurrent()
+        gateway.transports.single().second.connections.single().closed shouldBe true
+    }
+
+    @Test
+    fun `S044 RF-13 el panel lleva el estado en directo`() {
+        val vm = viewModel()
+        vm.onScreenOpened()
+        scope.runCurrent()
+        val connection = gateway.transports.single().second.connections.single()
+
+        connection.listener.onFrame("""0{"sid":"x","pingInterval":25000,"pingTimeout":60000}""")
+        connection.listener.onFrame("40")
+        connection.listener.onFrame(
+            """42["broadcast",{"name":"battery_status","payload":{"state_of_charge":64,"charger_status":"discharging"}}]""",
+        )
+        scope.runCurrent()
+
+        vm.state.value.live.batteryPercent shouldBe 64
+        vm.state.value.live.connected shouldBe true
+    }
 }

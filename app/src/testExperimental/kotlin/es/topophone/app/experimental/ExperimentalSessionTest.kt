@@ -163,7 +163,7 @@ class ExperimentalSessionTest {
     }
 
     @Test
-    fun `S044 RF-16 parar el directo lo cierra y arrancarlo dos veces no abre dos`() {
+    fun `S044 RF-16 arrancar el directo dos veces no abre dos y se cierra al parar la ultima vez`() {
         key.value = "wifi:a"
         settle()
         session.startLive()
@@ -171,6 +171,10 @@ class ExperimentalSessionTest {
         settle()
 
         gateway.transports.size shouldBe 1
+
+        session.stopLive()
+        settle()
+        gateway.transports.single().second.connections.single().closed shouldBe false
 
         session.stopLive()
         settle()

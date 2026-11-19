@@ -40,4 +40,13 @@
     <string name="experimental_profile_save">Guardar</string>
     <string name="experimental_profile_cancel">Cancelar</string>
     <string name="experimental_profile_saved">Perfil de equipo guardado.</string>
+
+    <!-- Estado en directo (S044/RF-13, RF-17). -->
+    <string name="experimental_live_title">Estado en directo</string>
+    <string name="experimental_battery">Batería: %1$d %%</string>
+    <string name="experimental_battery_unknown">Batería: sin datos</string>
+    <string name="experimental_logs_writing">Logs: escribiendo</string>
+    <string name="experimental_logs_stopped">Logs: parados</string>
+    <string name="experimental_logs_unknown">Logs: sin datos</string>
+    <string name="experimental_live_lost">Sin estado del receptor</string>
 </resources>

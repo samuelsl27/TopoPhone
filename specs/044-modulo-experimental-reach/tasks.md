@@ -39,7 +39,7 @@
 ## Pantallas
 - [x] T15. Entrada «Módulo experimental» en el menú, pantalla con la información leída, marca «Experimental» en la cabecera y «Rellenar el perfil de equipo» con confirmación. (RF-6, RF-11, RF-12, RF-15)
       Hecho cuando: `ExperimentalPanelScreenTest` cubre la marca, la lectura, «Receptor no compatible» y el perfil que solo se guarda al confirmar.
-- [ ] T16. Batería, estado de los logs y «Sin estado del receptor» (cabecera y panel). (RF-13, RF-17)
+- [x] T16. Batería, estado de los logs y «Sin estado del receptor» (cabecera y panel). (RF-13, RF-17)
       Hecho cuando: el test de la pantalla cubre nivel, logs activos, el corte y el reintento.
 - [ ] T17. «Configuración del receptor» en solo lectura. (RF-14, RF-15)
       Hecho cuando: `ReceiverConfigScreenTest` cubre ajustes, claves ocultas y parte incompatible.

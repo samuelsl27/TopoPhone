@@ -133,3 +133,13 @@ class TestPreferences(folder: java.io.File, active: Boolean) : java.io.Closeable
 
     override fun close() = scope.cancel()
 }
+
+/** Una sesión que no hace nada (módulo apagado, sin receptor), para los tests de ranuras que no la usan. */
+fun idleSession(scope: kotlinx.coroutines.CoroutineScope) = ExperimentalSession(
+    active = kotlinx.coroutines.flow.flowOf(false),
+    key = kotlinx.coroutines.flow.flowOf(null),
+    wifi = FakeWifiRepository(),
+    equipment = FakeEquipmentRepository(),
+    gateway = FakeReachGateway(),
+    scope = scope,
+)
