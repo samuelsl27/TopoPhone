@@ -17,7 +17,7 @@
       Hecho cuando: `ReachHttpClientTest` cubre host distinto, redirección, tiempo agotado y dirección pública, y `:receiver-experimental:test` pasa.
 - [x] T6. `ReachInfoReader` y `ReachPart` (información y compatibilidad por partes). (RF-11, RF-15)
       Hecho cuando: `ReachInfoReaderTest` cubre la forma esperada, un campo ausente, uno de otro tipo, sin respuesta y la compatibilidad parcial.
-- [ ] T7. `ReachConfigReader` con ocultación de claves sensibles. (RF-14, RF-15)
+- [x] T7. `ReachConfigReader` con ocultación de claves sensibles. (RF-14, RF-15)
       Hecho cuando: `ReachConfigReaderTest` cubre aplanado, secciones de salida, claves ocultas y forma incompatible.
 - [ ] T8. `EngineIoPacket` y `ReachLiveStatus` (WebSocket Engine.IO v3: apertura, ping, eventos `broadcast`, reconexión 1 s a 30 s). (RF-13, RF-16, RF-17)
       Hecho cuando: `EngineIoPacketTest` y `ReachLiveStatusTest` pasan con el servidor falso, incluidos eventos desconocidos, corte y reconexión con reloj virtual.
