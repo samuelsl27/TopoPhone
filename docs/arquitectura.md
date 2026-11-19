@@ -32,6 +32,7 @@ receiver-experimental/    solo en el flavor "experimental": REST + Socket.IO de 
 | `core:testing` | cualquier `core` de dominio |
 | `core:designsystem` (Android) | `core:model` |
 | `app`, `data`, `receiver` | cualquier `core` |
+| `receiver-experimental` (Android, sin Hilt) | `core:model`, `receiver` (nunca `data`) |
 
 - Los módulos de dominio (todos los `core` salvo `designsystem`) son JVM puro: no aplican el plugin de Android, Hilt ni KSP, ni importan `android.`, `androidx.`, `dagger.`, `javax.inject.` o `com.google.dagger.`.
 - Ningún `core` depende de `app`, `data`, `receiver` ni `receiver-experimental`.
@@ -79,6 +80,7 @@ Transporte (SPP/TCP/replay) ─bytes─▶ separador NMEA/RTCM ─▶ parser ─
 | ADR-20 | La versión sale de la etiqueta git `vX.Y.Z` (versionCode = X·10000 + Y·100 + Z); sin etiqueta, `-dev`. Se publica en GitHub Releases con una única clave de firma cuya huella está en `release/certificado-sha256.txt` | Una sola fuente de la versión; actualizaciones garantizadas | versionName escrito a mano |
 | ADR-17 | Ruteo de red: el tráfico al receptor por la red Wi-Fi y el NTRIP por la red con internet | En el hotspot del receptor no hay internet por Wi-Fi | Red por defecto del sistema |
 | ADR-18 | La API no oficial de Reach solo existe en `receiver-experimental` y en el flavor `experimental`, desactivada por defecto y con aviso legal | Constitución nº 5; los términos de Emlid prohíben la ingeniería inversa | Integrarla en el núcleo |
+| ADR-21 | `app` tiene una dimensión de *flavors* `distribution`: `standard` (lo que se publica) y `experimental` (lleva `receiver-experimental`). `experimental` solo existe como `debug`, con identificador `es.topophone.app.experimental` y nombre «TopoPhone experimental». El código común solo ve una interfaz con ranuras (`ExperimentalFeature`) enlazada por Hilt a una implementación vacía (`standard`) o a la real (`experimental`) | `standard` no lleva ni una clase del módulo (RF-1); el experimental no se publica por accidente ni pisa a la app normal | `BuildConfig.EXPERIMENTAL` en el código común; un tipo de compilación; ServiceLoader o reflexión |
 
 ## Coordenadas y datum de las correcciones
 - Cada proyecto declara el **datum de las correcciones**: ETRS89 (redes españolas), REGCAN95 (Canarias) o ITRF/WGS84 (por ejemplo, una base promediada en SINGLE o el Emlid Caster).

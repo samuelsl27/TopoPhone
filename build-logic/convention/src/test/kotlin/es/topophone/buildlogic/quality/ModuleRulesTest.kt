@@ -91,6 +91,18 @@ class ModuleRulesTest {
     }
 
     @Test
+    fun `S044 RF-2 receiver-experimental solo puede depender de core model y receiver`() {
+        val valid = module(":receiver-experimental", android = true, deps = setOf(":core:model", ":receiver"))
+        val withData = module(":receiver-experimental", android = true, deps = setOf(":core:model", ":receiver", ":data"))
+        val withCore = module(":receiver-experimental", android = true, deps = setOf(":core:survey", ":core:formats"))
+
+        assertEquals(emptyList<ModuleRuleViolation>(), ModuleRules.checkModules(listOf(valid)))
+        assertEquals(1, ModuleRules.checkModules(listOf(withData)).size)
+        assertTrue(":data" in ModuleRules.checkModules(listOf(withData)).single().message)
+        assertEquals(2, ModuleRules.checkModules(listOf(withCore)).size)
+    }
+
+    @Test
     fun `S001 RF-27 un modulo core sin regla declarada es una infraccion`() {
         val violations = ModuleRules.checkModules(listOf(module(":core:inventado")))
 

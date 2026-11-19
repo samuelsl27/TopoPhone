@@ -34,3 +34,5 @@ include(":core:survey")
 include(":core:formats")
 include(":data")
 include(":receiver")
+
+include(":receiver-experimental")

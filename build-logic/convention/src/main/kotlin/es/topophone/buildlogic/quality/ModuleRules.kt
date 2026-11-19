@@ -41,6 +41,7 @@ object ModuleRules {
 
     private const val APP = ":app"
     private const val EXPERIMENTAL = ":receiver-experimental"
+    private val EXPERIMENTAL_ALLOWED_DEPENDENCIES = setOf(":core:model", ":receiver")
     private val NON_CORE_FORBIDDEN_FOR_CORE = setOf(APP, ":data", ":receiver", EXPERIMENTAL)
 
     private val IMPORT_LINE = Regex("""^\s*import\s+([\w.]+)""")
@@ -56,6 +57,14 @@ object ModuleRules {
         if (APP in deps) add(ModuleRuleViolation(path, "ningún módulo puede depender de $APP"))
         if (EXPERIMENTAL in deps && path != APP) {
             add(ModuleRuleViolation(path, "solo $APP puede depender de $EXPERIMENTAL (ADR-18)"))
+        }
+        if (path == EXPERIMENTAL) {
+            // S044/RF-2, RF-25: sin `data` no puede tocar puntos ni proyectos; sin `core:formats` no escribe en ficheros de exportación.
+            val allowed = EXPERIMENTAL_ALLOWED_DEPENDENCIES.sorted().joinToString()
+            (deps - EXPERIMENTAL_ALLOWED_DEPENDENCIES).sorted().forEach {
+                add(ModuleRuleViolation(path, "dependencia no permitida con $it (permitidas: $allowed)"))
+            }
+            return@buildList
         }
         if (!path.startsWith(":core:")) return@buildList
 

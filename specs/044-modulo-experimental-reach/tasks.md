@@ -5,7 +5,7 @@
 ## Aislamiento y flavors
 - [x] T1. Flavors `standard` y `experimental` (dimensión `distribution`): `experimentalRelease` desactivada, sufijo `.experimental` y nombre «TopoPhone experimental»; `testExperimentalDebugUnitTest` limitada a los tests del flavor; rutas del APK en `release.yml`, `docs/publicacion.md` y `g0-procedimiento.md` (y `test_release_workflow.py`). (RF: —, prepara RF-1)
       Hecho cuando: `./gradlew assembleDebug` compila las dos variantes, `:app:assembleRelease` solo la `standard`, `verifyReleaseCertificate` sigue una sola y `check` y `uv run --project tools pytest tools` pasan.
-- [ ] T2. Módulo `receiver-experimental` vacío (biblioteca Android, sin Hilt) en `settings.gradle.kts`, con `experimentalImplementation` en `app`, su fila en `docs/arquitectura.md` (y ADR-21) y su regla en `ModuleRules` con test. (RF-2)
+- [x] T2. Módulo `receiver-experimental` vacío (biblioteca Android, sin Hilt) en `settings.gradle.kts`, con `experimentalImplementation` en `app`, su fila en `docs/arquitectura.md` (y ADR-21) y su regla en `ModuleRules` con test. (RF-2)
       Hecho cuando: `ModuleRulesTest` cubre «solo `app` depende del módulo y el módulo no depende de `data`» y `./gradlew check` pasa.
 - [ ] T3. Ranuras `ExperimentalFeature` en `main` con su implementación vacía en `standard` y una mínima en `experimental`; llamadas desde `SettingsScreen`, `ReceiverHeader`, `ReceiverMenu`, `ReceiverList` y `TopoPhoneApp` que en `standard` no pintan nada; `StandardFlavorIsolationTest` y `ExperimentalFlavorTest`. (RF-1, RF-2)
       Hecho cuando: los dos tests pasan, los tests de pantallas existentes no cambian y no hay ningún import del módulo en `main`.
