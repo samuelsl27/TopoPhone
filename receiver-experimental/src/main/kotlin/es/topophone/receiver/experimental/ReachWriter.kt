@@ -1,11 +1,16 @@
 package es.topophone.receiver.experimental
 
 import kotlin.math.abs
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
 /** Por qué una escritura ni siquiera se intentó (no se escribió nada). */
-enum class WriteFailure { NO_RESPONSE, INCOMPATIBLE, INVALID_VALUE }
+enum class WriteFailure { NO_RESPONSE, INCOMPATIBLE, INVALID_VALUE, NO_LIVE }
 
 /**
  * El resultado de una escritura (S044/RF-19, RF-21; plan «Contratos»): [Confirmed] con lo que el receptor dice tener al releer;
@@ -73,6 +78,37 @@ class ReachWriter(private val client: ReachHttpClient, private val trail: ReachT
         }
     }
 
+    /**
+     * Inicia o para todos los logs con `POST /configuration/logging/logs {"started": b}` y espera hasta [waitMs] al siguiente evento
+     * `active_logs` del directo para comprobar el estado resultante (plan D11, A3). Sin directo no se envía nada: no habría forma de
+     * mostrar el estado de antes ni de comprobar el de después (RF-20). Se suscribe **antes** de enviar para no perder el evento.
+     */
+    suspend fun setLogs(started: Boolean, live: LogsObserver, waitMs: Long = LOG_CONFIRM_WAIT_MS): WriteResult<Boolean> {
+        if (!live.state.value.connected) return WriteResult.Failed(WriteFailure.NO_LIVE)
+        val before = live.state.value.logsWriting
+        val (posted, event) = coroutineScope {
+            val next = async(start = CoroutineStart.UNDISPATCHED) { withTimeoutOrNull(waitMs) { live.logEvents.first() } }
+            val ok = client.post("/configuration/logging/logs", """{"started":$started}""") is ReachResult.Ok
+            if (!ok) next.cancel()
+            ok to (if (ok) next.await() else null)
+        }
+        val seen = event ?: live.state.value.logsWriting
+        val result = when {
+            !posted -> "fallo del envio"
+            seen == started -> "confirmado"
+            event == null -> "sin confirmacion"
+            else -> "no coincide"
+        }
+        trail.write("logs", before.logsText(), if (started) "iniciar" else "parar", seen.logsText(), result)
+        return if (result == "confirmado") WriteResult.Confirmed(started) else WriteResult.NotConfirmed(seen, requestFailed = !posted)
+    }
+
+    private fun Boolean?.logsText(): String? = when (this) {
+        true -> "escribiendo"
+        false -> "parados"
+        null -> null
+    }
+
     private sealed interface DeviceRead {
         data class Found(val device: JsonObject) : DeviceRead
 
@@ -90,5 +126,8 @@ class ReachWriter(private val client: ReachHttpClient, private val trail: ReachT
         const val ANTENNA_HEIGHT = "antenna_height"
         const val OPERATION = "altura de antena"
         const val TOLERANCE_M = 0.0005
+
+        /** Cuánto se espera al evento de logs que confirma la escritura (S044/RF-20). */
+        const val LOG_CONFIRM_WAIT_MS = 3_000L
     }
 }

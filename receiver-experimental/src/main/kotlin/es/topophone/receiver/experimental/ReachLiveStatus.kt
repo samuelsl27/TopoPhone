@@ -27,6 +27,14 @@ data class ReachLiveState(
     val logsWriting: Boolean? = null,
 )
 
+/** Lo que el escritor de logs necesita del directo: el estado actual y cada evento `active_logs` entendido (S044/RF-20). */
+interface LogsObserver {
+    val state: StateFlow<ReachLiveState>
+
+    /** `true` si algún log escribía en el evento. Sin repetición: solo ve los que llegan tras suscribirse. */
+    val logEvents: SharedFlow<Boolean>
+}
+
 /** Una conexión abierta con el receptor; [close] es idempotente. */
 interface LiveConnection {
     fun send(text: String)
@@ -51,15 +59,15 @@ interface LiveTransport {
  * Es una conexión **aparte** de la sesión del receptor, con su propio ámbito: si cae o se cierra, la sesión no se entera.
  * Al caer, vacía el estado y reconecta esperando 1, 2, 4… hasta 30 s; la espera vuelve a 1 s tras una conexión lograda.
  */
-class ReachLiveStatus(private val transport: LiveTransport, private val scope: CoroutineScope) {
+class ReachLiveStatus(private val transport: LiveTransport, private val scope: CoroutineScope) : LogsObserver {
 
     private val mutableState = MutableStateFlow(ReachLiveState())
-    val state: StateFlow<ReachLiveState> = mutableState.asStateFlow()
+    override val state: StateFlow<ReachLiveState> = mutableState.asStateFlow()
 
     private val mutableLogEvents = MutableSharedFlow<Boolean>(extraBufferCapacity = LOG_EVENT_BUFFER)
 
     /** Cada evento `active_logs` entendido (`true` si algún log escribe), para comprobar una escritura (S044/RF-20). */
-    val logEvents: SharedFlow<Boolean> = mutableLogEvents.asSharedFlow()
+    override val logEvents: SharedFlow<Boolean> = mutableLogEvents.asSharedFlow()
 
     private var job: Job? = null
 

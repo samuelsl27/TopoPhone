@@ -23,7 +23,7 @@
       Hecho cuando: `EngineIoPacketTest` y `ReachLiveStatusTest` pasan con el servidor falso, incluidos eventos desconocidos, corte y reconexión con reloj virtual.
 - [x] T9. `AntennaHeightProposal` y `ReachWriter.setAntennaHeight` (leer, modificar el objeto `device` completo, escribir, releer). (RF-18, RF-19, RF-21, RF-22)
       Hecho cuando: `AntennaHeightProposalTest` y `ReachWriterAntennaTest` pasan, incluido que el cuerpo solo cambia `antenna_height` y el receptor que no confirma.
-- [ ] T10. `ReachWriter.setLogs` con comprobación por el directo. (RF-20, RF-21)
+- [x] T10. `ReachWriter.setLogs` con comprobación por el directo. (RF-20, RF-21)
       Hecho cuando: `ReachWriterLogsTest` cubre iniciar, parar, estado que no coincide y sin directo.
 - [ ] T11. `ReachAudit` sobre `AppLog`. (RF-24)
       Hecho cuando: `ReachAuditTest` comprueba hora (la del log), operación y valores, y que nunca aparece un valor de clave oculta.

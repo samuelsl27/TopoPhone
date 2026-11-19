@@ -41,6 +41,9 @@ class FakeReachServer : Dispatcher() {
     var logsStarted = false
     var logWriteStatus = 200
 
+    /** Se llama al recibir un `POST /configuration/logging/logs`, con lo pedido; sirve para que un directo falso conteste. */
+    var onLogsPost: ((Boolean) -> Unit)? = null
+
     fun start(): FakeReachServer {
         server.dispatcher = this
         server.start()
@@ -79,6 +82,7 @@ class FakeReachServer : Dispatcher() {
                 val body = request.body.readUtf8()
                 logBodies += body
                 if (logWriteStatus in 200..299) logsStarted = body.contains("true")
+                onLogsPost?.invoke(body.contains("true"))
                 MockResponse().setResponseCode(logWriteStatus).setBody("{}")
             }
             else -> MockResponse().setResponseCode(404)
