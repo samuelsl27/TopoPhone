@@ -116,6 +116,9 @@ class ExperimentalSession(
         }
     }
 
+    /** Envía la altura de antena (la única escritura de ajustes del módulo, S044/RF-18, RF-22); no la reintenta nunca (RF-21). */
+    suspend fun setAntennaHeight(endpoint: ReachEndpoint, valueM: Double) = gateway.setAntennaHeight(endpoint, valueM)
+
     /** Lee los ajustes de posicionamiento y de salida de [endpoint] sin escribir nada (S044/RF-14, RF-15). */
     suspend fun readConfig(endpoint: ReachEndpoint) = gateway.readConfig(endpoint)
 

@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import es.topophone.app.receiver.CurrentGear
 import es.topophone.app.receiver.CurrentTilt
 import es.topophone.core.model.log.AppLog
 import es.topophone.data.equipment.EquipmentRepository
@@ -32,6 +33,12 @@ abstract class ExperimentalFeatureModule {
         @Provides
         @Singleton
         fun reachGateway(router: NetworkRouter, log: AppLog): ReachGateway = NetworkReachGateway(router, ReachAudit(log))
+
+        /** El modo de inclinación y el jalón activo del receptor en uso, para proponer la altura de antena (S044/RF-18). */
+        @Provides
+        @Singleton
+        fun antennaContext(currentTilt: CurrentTilt, currentGear: CurrentGear): AntennaContext =
+            CurrentAntennaContext(currentTilt, currentGear, CoroutineScope(SupervisorJob() + Dispatchers.Default))
 
         /** Una sola sesión del módulo para toda la app (S044/RF-5, RF-11, RF-16). */
         @Provides

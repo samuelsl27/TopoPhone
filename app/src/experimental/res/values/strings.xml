@@ -58,4 +58,28 @@
     <string name="experimental_config_no_output">El receptor no devuelve ajustes de salida.</string>
     <string name="experimental_config_hidden">oculto</string>
     <string name="experimental_config_unavailable">No hay un receptor al que preguntar.</string>
+
+    <!-- Enviar altura de antena (S044/RF-18, RF-19, RF-21). -->
+    <string name="experimental_antenna_title">Enviar altura de antena</string>
+    <string name="experimental_antenna_current">Altura actual en el receptor: %1$s</string>
+    <string name="experimental_antenna_current_unknown">Altura actual en el receptor: sin datos</string>
+    <string name="experimental_antenna_proposal">Propuesta: %1$s</string>
+    <string name="experimental_antenna_proposal_receiver">Es la altura del jalón activo; el receptor compensa la posición.</string>
+    <string name="experimental_antenna_double_count">Con este modo la app ya resta la altura de la antena. Enviar otro valor que no sea 0 la contaría dos veces.</string>
+    <string name="experimental_antenna_field">Nueva altura (m)</string>
+    <string name="experimental_antenna_invalid">Escribe una altura válida en metros, mayor o igual que 0.</string>
+    <string name="experimental_antenna_blocked">No se puede enviar mientras la información básica del receptor no sea válida.</string>
+    <string name="experimental_antenna_send">Enviar</string>
+    <string name="experimental_antenna_confirm_title">Enviar altura de antena</string>
+    <string name="experimental_antenna_confirm_body">Valor actual del receptor: %1$s. Valor nuevo: %2$s. Es el único ajuste que se cambia.</string>
+    <string name="experimental_antenna_confirm_yes">Enviar</string>
+    <string name="experimental_antenna_confirm_no">Cancelar</string>
+    <string name="experimental_antenna_confirmed">Confirmado: el receptor tiene %1$s, igual que lo enviado.</string>
+    <string name="experimental_antenna_mismatch">No coincide: el receptor tiene %1$s.</string>
+    <string name="experimental_antenna_send_failed">El envío falló. El receptor tiene %1$s.</string>
+    <string name="experimental_antenna_unknown">No se pudo leer el valor que quedó en el receptor.</string>
+    <string name="experimental_antenna_failed_no_response">No se envió nada: el receptor no responde.</string>
+    <string name="experimental_antenna_failed_incompatible">No se envió nada: el receptor no es compatible.</string>
+    <string name="experimental_antenna_failed_invalid">No se envió nada: el valor no es válido.</string>
+    <string name="experimental_antenna_failed_no_live">No se envió nada: falta el estado en directo del receptor.</string>
 </resources>

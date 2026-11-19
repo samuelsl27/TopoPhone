@@ -55,4 +55,28 @@
     <string name="experimental_config_no_output">The receiver returns no output settings.</string>
     <string name="experimental_config_hidden">hidden</string>
     <string name="experimental_config_unavailable">There is no receiver to query.</string>
+
+    <!-- Send antenna height (S044/RF-18, RF-19, RF-21). -->
+    <string name="experimental_antenna_title">Send antenna height</string>
+    <string name="experimental_antenna_current">Current height in the receiver: %1$s</string>
+    <string name="experimental_antenna_current_unknown">Current height in the receiver: no data</string>
+    <string name="experimental_antenna_proposal">Suggestion: %1$s</string>
+    <string name="experimental_antenna_proposal_receiver">This is the active pole height; the receiver compensates the position.</string>
+    <string name="experimental_antenna_double_count">In this mode the app already subtracts the antenna height. Sending any value other than 0 would count it twice.</string>
+    <string name="experimental_antenna_field">New height (m)</string>
+    <string name="experimental_antenna_invalid">Enter a valid height in metres, 0 or more.</string>
+    <string name="experimental_antenna_blocked">It cannot be sent while the receiver\'s basic information is not valid.</string>
+    <string name="experimental_antenna_send">Send</string>
+    <string name="experimental_antenna_confirm_title">Send antenna height</string>
+    <string name="experimental_antenna_confirm_body">Current receiver value: %1$s. New value: %2$s. It is the only setting that changes.</string>
+    <string name="experimental_antenna_confirm_yes">Send</string>
+    <string name="experimental_antenna_confirm_no">Cancel</string>
+    <string name="experimental_antenna_confirmed">Confirmed: the receiver now has %1$s, the same as sent.</string>
+    <string name="experimental_antenna_mismatch">Does not match: the receiver has %1$s.</string>
+    <string name="experimental_antenna_send_failed">Sending failed. The receiver has %1$s.</string>
+    <string name="experimental_antenna_unknown">The value left in the receiver could not be read.</string>
+    <string name="experimental_antenna_failed_no_response">Nothing was sent: the receiver does not respond.</string>
+    <string name="experimental_antenna_failed_incompatible">Nothing was sent: the receiver is not compatible.</string>
+    <string name="experimental_antenna_failed_invalid">Nothing was sent: the value is not valid.</string>
+    <string name="experimental_antenna_failed_no_live">Nothing was sent: the live receiver status is missing.</string>
 </resources>

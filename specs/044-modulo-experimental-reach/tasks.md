@@ -43,7 +43,7 @@
       Hecho cuando: el test de la pantalla cubre nivel, logs activos, el corte y el reintento.
 - [x] T17. «Configuración del receptor» en solo lectura. (RF-14, RF-15)
       Hecho cuando: `ReceiverConfigScreenTest` cubre ajustes, claves ocultas y parte incompatible.
-- [ ] T18. «Enviar altura de antena» con propuesta según el modo, aviso de doble cuenta y confirmación. (RF-18, RF-19, RF-21)
+- [x] T18. «Enviar altura de antena» con propuesta según el modo, aviso de doble cuenta y confirmación. (RF-18, RF-19, RF-21)
       Hecho cuando: `AntennaHeightScreenTest` cubre cada modo, editar, confirmar, coincide y no coincide.
 - [ ] T19. «Iniciar log» y «Parar log» con confirmación y aviso al parar. (RF-20, RF-21)
       Hecho cuando: `LogsScreenTest` cubre ambos, el aviso, el estado resultante y sin directo.
