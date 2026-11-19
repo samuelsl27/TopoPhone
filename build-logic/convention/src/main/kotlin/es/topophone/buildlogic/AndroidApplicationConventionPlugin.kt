@@ -1,7 +1,9 @@
 package es.topophone.buildlogic
 
+import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import es.topophone.buildlogic.quality.CheckNoExperimentalTask
 import es.topophone.buildlogic.quality.CheckNoTelemetryTask
 import es.topophone.buildlogic.release.GitVersioning
 import es.topophone.buildlogic.release.configureRelease
@@ -50,6 +52,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             configureKtlint()
             registerHardcodedUiTextCheck()
             registerTelemetryCheck()
+            registerExperimentalCheck()
             configureRelease()
         }
     }
@@ -70,6 +73,32 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         variant.runtimeConfiguration.incoming.resolutionResult.rootComponent.map(CheckNoTelemetryTask::collectCoordinates),
                     )
                     report.set(layout.buildDirectory.file("reports/quality/telemetry-${variant.name}.txt"))
+                }
+                aggregate.configure { dependsOn(variantTask) }
+            }
+        }
+        tasks.named("check") { dependsOn(aggregate) }
+    }
+
+    /** `checkNoExperimental`: ninguna variante `standard` puede llevar el módulo experimental ni nada de su flavor (S044/RF-1). */
+    private fun Project.registerExperimentalCheck() {
+        val aggregate = tasks.register("checkNoExperimental") {
+            group = "verification"
+            description = "Comprueba que las variantes standard no incluyen el módulo experimental ni componentes de su flavor (S044/RF-1)."
+        }
+        extensions.configure<ApplicationAndroidComponentsExtension> {
+            onVariants(selector().withFlavor("distribution" to "standard")) { variant ->
+                val variantTask = tasks.register<CheckNoExperimentalTask>(
+                    "checkNoExperimental${variant.name.replaceFirstChar(Char::uppercase)}",
+                ) {
+                    group = "verification"
+                    projectPaths.set(
+                        variant.runtimeConfiguration.incoming.resolutionResult.rootComponent.map(
+                            CheckNoExperimentalTask::collectProjectPaths,
+                        ),
+                    )
+                    mergedManifest.set(variant.artifacts.get(SingleArtifact.MERGED_MANIFEST))
+                    report.set(layout.buildDirectory.file("reports/quality/experimental-${variant.name}.txt"))
                 }
                 aggregate.configure { dependsOn(variantTask) }
             }
