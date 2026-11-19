@@ -58,6 +58,7 @@ const val PANEL_PROFILE_DIALOG_TAG = "experimental_profile_dialog"
 const val PANEL_PROFILE_CONFIRM_TAG = "experimental_profile_confirm"
 const val PANEL_PROFILE_CANCEL_TAG = "experimental_profile_cancel"
 const val PANEL_PROFILE_SAVED_TAG = "experimental_profile_saved"
+const val PANEL_CONFIG_TAG = "experimental_open_config"
 
 /** La ruta del panel del módulo dentro del grafo del receptor (S044/RF-6). */
 @Serializable
@@ -71,10 +72,11 @@ class PanelActions(
     val onConfirmProfile: () -> Unit = {},
     val onCancelProfile: () -> Unit = {},
     val onDismissSaved: () -> Unit = {},
+    val onOpenConfig: () -> Unit = {},
 )
 
 @Composable
-fun ExperimentalPanelRoute(themeState: ThemeState, onToggleSun: () -> Unit, onBack: () -> Unit) {
+fun ExperimentalPanelRoute(themeState: ThemeState, onToggleSun: () -> Unit, onBack: () -> Unit, onOpenConfig: () -> Unit) {
     val viewModel = hiltViewModel<ExperimentalPanelViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
     // S044/RF-16, RF-17: el directo se pide mientras el panel esté abierto
@@ -91,6 +93,7 @@ fun ExperimentalPanelRoute(themeState: ThemeState, onToggleSun: () -> Unit, onBa
             onConfirmProfile = viewModel::onConfirmProfile,
             onCancelProfile = viewModel::onCancelProfile,
             onDismissSaved = viewModel::onDismissSaved,
+            onOpenConfig = onOpenConfig,
         ),
         themeState = themeState,
         onToggleSun = onToggleSun,
@@ -174,6 +177,10 @@ private fun InfoCard(state: PanelUiState, actions: PanelActions) {
                     onClick = actions.onRefresh,
                     modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(PANEL_RETRY_TAG),
                 ) { Text(stringResource(R.string.experimental_reload)) }
+                OutlinedButton(
+                    onClick = actions.onOpenConfig,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(PANEL_CONFIG_TAG),
+                ) { Text(stringResource(R.string.experimental_config_title)) }
                 OutlinedButton(
                     onClick = actions.onFillProfile,
                     enabled = info.reading.identity is ReachPart.Ok,

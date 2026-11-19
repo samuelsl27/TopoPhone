@@ -51,6 +51,7 @@ class FakeReachGateway : ReachGateway {
         ReachPart.Ok(ReachDeviceSettings("rover", 1.8)),
     )
     var config: ReachPart<ReachConfigView> = ReachPart.Ok(ReachConfigView(emptyList(), emptyList()))
+    val configCalls = mutableListOf<ReachEndpoint>()
     var antennaResult: (Double) -> WriteResult<Double> = { WriteResult.Confirmed(it) }
     var logsResult: (Boolean) -> WriteResult<Boolean> = { WriteResult.Confirmed(it) }
     val antennaWrites = mutableListOf<Double>()
@@ -61,7 +62,10 @@ class FakeReachGateway : ReachGateway {
         return reading
     }
 
-    override suspend fun readConfig(endpoint: ReachEndpoint): ReachPart<ReachConfigView> = config
+    override suspend fun readConfig(endpoint: ReachEndpoint): ReachPart<ReachConfigView> {
+        configCalls += endpoint
+        return config
+    }
 
     override suspend fun setAntennaHeight(endpoint: ReachEndpoint, valueM: Double): WriteResult<Double> {
         antennaWrites += valueM

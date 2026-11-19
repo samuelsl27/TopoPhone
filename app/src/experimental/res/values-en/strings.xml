@@ -46,4 +46,13 @@
     <string name="experimental_logs_stopped">Logs: stopped</string>
     <string name="experimental_logs_unknown">Logs: no data</string>
     <string name="experimental_live_lost">No receiver status</string>
+
+    <!-- Receiver configuration, read-only (S044/RF-14, RF-15). -->
+    <string name="experimental_config_title">Receiver configuration</string>
+    <string name="experimental_config_count">Settings read: %1$d. Read-only.</string>
+    <string name="experimental_config_positioning">Positioning</string>
+    <string name="experimental_config_output">Output</string>
+    <string name="experimental_config_no_output">The receiver returns no output settings.</string>
+    <string name="experimental_config_hidden">hidden</string>
+    <string name="experimental_config_unavailable">There is no receiver to query.</string>
 </resources>

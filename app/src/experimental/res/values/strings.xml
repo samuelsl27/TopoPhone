@@ -49,4 +49,13 @@
     <string name="experimental_logs_stopped">Logs: parados</string>
     <string name="experimental_logs_unknown">Logs: sin datos</string>
     <string name="experimental_live_lost">Sin estado del receptor</string>
+
+    <!-- Configuración del receptor, solo lectura (S044/RF-14, RF-15). -->
+    <string name="experimental_config_title">Configuración del receptor</string>
+    <string name="experimental_config_count">Ajustes leídos: %1$d. Solo lectura.</string>
+    <string name="experimental_config_positioning">Posicionamiento</string>
+    <string name="experimental_config_output">Salida</string>
+    <string name="experimental_config_no_output">El receptor no devuelve ajustes de salida.</string>
+    <string name="experimental_config_hidden">oculto</string>
+    <string name="experimental_config_unavailable">No hay un receptor al que preguntar.</string>
 </resources>

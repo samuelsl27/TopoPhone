@@ -116,6 +116,9 @@ class ExperimentalSession(
         }
     }
 
+    /** Lee los ajustes de posicionamiento y de salida de [endpoint] sin escribir nada (S044/RF-14, RF-15). */
+    suspend fun readConfig(endpoint: ReachEndpoint) = gateway.readConfig(endpoint)
+
     /** Vuelve a leer la información (S044/RF-11). */
     fun refresh() = refreshTick.update { it + 1 }
 

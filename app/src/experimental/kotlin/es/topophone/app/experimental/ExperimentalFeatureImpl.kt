@@ -101,7 +101,15 @@ class ExperimentalFeatureImpl(
 
     override fun routes(builder: NavGraphBuilder, navController: NavController, themeState: ThemeState, onToggleSun: () -> Unit) {
         builder.composable<ExperimentalPanelDestination> {
-            ExperimentalPanelRoute(themeState, onToggleSun) { navController.popBackStack() }
+            ExperimentalPanelRoute(
+                themeState,
+                onToggleSun,
+                onBack = { navController.popBackStack() },
+                onOpenConfig = { navController.navigate(ExperimentalConfigDestination) },
+            )
+        }
+        builder.composable<ExperimentalConfigDestination> {
+            ReceiverConfigRoute(themeState, onToggleSun) { navController.popBackStack() }
         }
     }
 }

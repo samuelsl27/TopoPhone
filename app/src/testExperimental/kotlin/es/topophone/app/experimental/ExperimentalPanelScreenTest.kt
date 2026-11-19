@@ -255,4 +255,22 @@ class ExperimentalPanelScreenTest {
 
         compose.onNodeWithTag(LIVE_LOST_TAG).performScrollTo().assertTextContains(text(R.string.experimental_live_lost))
     }
+
+    @Test
+    fun `S044 RF-14 el panel abre la Configuracion del receptor`() {
+        var opened = 0
+        compose.setContent {
+            ExperimentalPanelScreen(
+                state = PanelUiState(source = ready, info = ReachInfoState.Loaded(reading)),
+                actions = PanelActions(onOpenConfig = { opened++ }),
+                themeState = ThemeState(),
+                onToggleSun = {},
+                onBack = {},
+            )
+        }
+
+        compose.onNodeWithTag(PANEL_CONFIG_TAG).performScrollTo().performClick()
+
+        opened shouldBe 1
+    }
 }

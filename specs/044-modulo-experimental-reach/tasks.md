@@ -41,7 +41,7 @@
       Hecho cuando: `ExperimentalPanelScreenTest` cubre la marca, la lectura, «Receptor no compatible» y el perfil que solo se guarda al confirmar.
 - [x] T16. Batería, estado de los logs y «Sin estado del receptor» (cabecera y panel). (RF-13, RF-17)
       Hecho cuando: el test de la pantalla cubre nivel, logs activos, el corte y el reintento.
-- [ ] T17. «Configuración del receptor» en solo lectura. (RF-14, RF-15)
+- [x] T17. «Configuración del receptor» en solo lectura. (RF-14, RF-15)
       Hecho cuando: `ReceiverConfigScreenTest` cubre ajustes, claves ocultas y parte incompatible.
 - [ ] T18. «Enviar altura de antena» con propuesta según el modo, aviso de doble cuenta y confirmación. (RF-18, RF-19, RF-21)
       Hecho cuando: `AntennaHeightScreenTest` cubre cada modo, editar, confirmar, coincide y no coincide.
