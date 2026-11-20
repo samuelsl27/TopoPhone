@@ -138,6 +138,9 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Huso (UTM) | `UtmZone` | Huso forzado = `forcedZone` |
 | Transformación (de datum) | `DatumTransformation` | Helmert, Molodensky-Badekas, rejilla |
 | Rejilla | `Grid` | Geoide o desplazamiento |
+| Helmert (3, 4, 6 o 7 parámetros) | `HelmertTransformation` | Traslaciones, rotaciones y escala sobre geocéntricas; convención PV o CF (S033) |
+| Molodensky-Badekas | `MolodenskyBadekas` | Helmert de 7 parámetros con punto de rotación propio (S033) |
+| Rejilla de desplazamiento | `GridShiftTransformation` | Rejilla GeoTIFF con desplazamientos de latitud y longitud en segundos de arco (S033) |
 | Geoide / modelo de geoide | `GeoidModel` | |
 | Ondulación del geoide (N) | `geoidUndulation` | |
 | Altura elipsoidal (h) | `ellipsoidalHeight` | |

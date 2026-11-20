@@ -30,7 +30,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 | [056 exportar-fotos](../056-exportar-fotos/spec.md) | H4 | S017b, S012 | 14 | 4 | Las fotos de los puntos en un ZIP con un índice `fotos.csv` |
 | [038 cogo](../038-cogo/spec.md) | H6 | S011, S008, S026 | 31 | 4 | Inversa, poligonal e intersecciones; resultados como puntos |
 | [032 proyecciones-completas](../032-proyecciones-completas/spec.md) | H5 | S008 | 21 | 3 | LCC 1SP/2SP, Mercator A/B, Oblique Mercator A/B, Estereográfica oblicua y polar A/B/C, y meridiano de origen distinto de Greenwich (entrevista 20/11/2026) |
-| [033 transformaciones-datum](033-transformaciones-datum/spec.md) | H5 | S032, S008 | 14 | 4 | Helmert 3/4/6/7, Molodensky-Badekas y rejillas |
+| [033 transformaciones-datum](../033-transformaciones-datum/spec.md) | H5 | S032, S008 | 14 | 4 | Helmert 3/4/6/7, Molodensky-Badekas y rejillas |
 | [034 biblioteca-sc-mundial](034-biblioteca-sc-mundial/spec.md) | H5 | S033, S032, S008, **S006** | 21 | 5 | Catálogo de SC con búsqueda, datums verticales y geoides |
 | [035 sc-personalizado](035-sc-personalizado/spec.md) | H5 | S034, S033, S032 | 24 | 5 | Editor de SC, «Mis SC», cambio del SC del proyecto |
 | [039 localizacion](039-localizacion/spec.md) | H6 | S035, **S011, S008** | 22 | 5 | Semejanza 2D por mínimos cuadrados con pares H/V |
@@ -51,7 +51,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 
 **Sistemas de coordenadas**
 - `ProjectCrs` es hoy un enum cerrado y `GpkgCrsCatalog` (S048) solo reconoce esos sistemas: S034 obliga a generalizarlos y a migrar Room.
-- La descarga de rejillas de desplazamiento no tiene dueño (S034 solo descarga geoides). S032 (entrevista 20/11/2026) añade LCC, Mercator, Oblique Mercator, Estereográfica oblicua y polar y el meridiano de origen distinto de Greenwich; el resto de proyecciones (Albers, Cassini…) sigue sin dueño.
+- La descarga de rejillas de desplazamiento ya tiene dueño: S034 (entrevista de S033, 20/11/2026), junto con los geoides. S032 (entrevista 20/11/2026) añade LCC, Mercator, Oblique Mercator, Estereográfica oblicua y polar y el meridiano de origen distinto de Greenwich; el resto de proyecciones (Albers, Cassini…) sigue sin dueño.
 - S039 choca con S053 y S012: con una localización activa, el «sistema del proyecto» ya no corresponde al EPSG que se declara al exportar.
 - S045 convierte entre altitud ortométrica y elipsoidal en un ráster, y S042 lo deja fuera para LandXML.
 
