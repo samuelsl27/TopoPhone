@@ -128,7 +128,7 @@ def test_s032_rf_7_omerc_cubre_a_y_b_con_los_casos_de_epsg_y_los_limite() -> Non
     casos = {fila["caso"] for fila in filas}
     assert {"EPSG:26931", "EPSG:3375", "EPSG:29873"} <= casos
     # Azimut de 0°, 90°, 180° y 270°, ángulo de rectificación distinto del azimut, centro en el ecuador, esfera y hemisferio sur.
-    assert {"a-azimut-0", "a-azimut-90", "b-azimut-180", "b-azimut-270", "b-gamma-distinto", "b-ecuador"} <= casos
+    assert {"a-azimut-0", "b-azimut-90", "a-azimut-120", "b-azimut-180", "b-azimut-270", "b-gamma-distinto", "b-ecuador"} <= casos
     assert {"esfera-a", "esfera-b", "sur-a", "sur-b"} <= casos
 
 

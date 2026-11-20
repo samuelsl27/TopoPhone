@@ -414,9 +414,11 @@ def casos_omerc() -> list[CasoOmerc]:
         return CasoOmerc(nombre, metodo, elipsoide, 0.0, 1.0, lat, lon, azimut, gamma, k0, este, norte)
 
     propios = [
-        # Azimut de la línea inicial de 0°, 90°, 180° y 270°.
+        # Azimut de la línea inicial de 0°, 90°, 180° y 270° (con 90° exactos PROJ da la variante A como si fuera la B: es una rareza suya y
+        # el caso de 90° va solo en B; la A se comprueba a 89,9999° y 90,0001° en el test de Kotlin, que la sigue de forma continua).
         c("a-azimut-0", "A", GRS80, 45.0, 10.0, 0.0, 0.0),
-        c("a-azimut-90", "A", GRS80, 45.0, 10.0, 90.0, 90.0),
+        c("b-azimut-90", "B", GRS80, 45.0, 10.0, 90.0, 90.0),
+        c("a-azimut-120", "A", GRS80, 45.0, 10.0, 120.0, 120.0),
         c("b-azimut-180", "B", GRS80, 45.0, 10.0, 180.0, 180.0),
         c("b-azimut-270", "B", GRS80, 45.0, 10.0, 270.0, 270.0),
         # Ángulo de rectificación distinto del azimut.
@@ -433,9 +435,11 @@ def casos_omerc() -> list[CasoOmerc]:
 
 
 def puntos_omerc(caso: CasoOmerc, rng: random.Random) -> list[tuple[float, float]]:
-    """Una rejilla alrededor del centro (en Greenwich) de ±4° de latitud y ±5° de longitud, y unos puntos al azar."""
+    """Una rejilla alrededor del centro (en Greenwich) de ±4° de latitud y ±5° de longitud, y unos puntos al azar. La columna central se
+    corre 0,001°: justo en el meridiano de la línea inicial con azimut de 90° o 270° PROJ cambia de fórmula (u = A·λ) y da el signo opuesto
+    en 270°; el centro exacto lo comprueba el test de Kotlin con la propiedad que define la variante B (el centro cae en su Este y Norte)."""
     lon0 = caso.lon_centro_deg + caso.meridiano_origen_deg
-    puntos = [(limitar_latitud(caso.lat_centro_deg + dlat), lon0 + dlon) for dlat in (-4.0, 0.0, 4.0) for dlon in (-5.0, -2.5, 0.0, 2.5, 5.0)]
+    puntos = [(limitar_latitud(caso.lat_centro_deg + dlat), lon0 + dlon) for dlat in (-4.0, 0.0, 4.0) for dlon in (-5.0, -2.5, 0.001, 2.5, 5.0)]
     puntos += [(limitar_latitud(caso.lat_centro_deg + rng.uniform(-4.0, 4.0)), lon0 + rng.uniform(-5.0, 5.0)) for _ in range(5)]
     return puntos
 
