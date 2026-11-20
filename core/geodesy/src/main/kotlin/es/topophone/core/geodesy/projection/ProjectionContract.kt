@@ -36,6 +36,7 @@ enum class ProjectionMethod {
                 MERCATOR_B,
                 OBLIQUE_MERCATOR_A,
                 OBLIQUE_MERCATOR_B,
+                OBLIQUE_STEREOGRAPHIC,
             )
     }
 }
