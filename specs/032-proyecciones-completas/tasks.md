@@ -7,7 +7,7 @@
       Hecho cuando: `ProjectionMethodTest`, `ProjectionUnitsTest` y `PrimeMeridianProjectionTest` pasan con una proyección de prueba (identidad con falsos), y `check` pasa.
 
 ## Lambert Conformal Conic
-- [ ] T2. `tools/geodesia/proyecciones.py` (constructor de WKT2, comprobación del método de cada CRS en PROJ y cabecera de versiones) y `fixtures/geodesia/lcc.csv` con ida, vuelta, factor y convergencia: EPSG:2154, 3034, 32040 (`us-ft`), 27571 y 27572 (París), y una rejilla propia con esfera, hemisferio sur y paralelos iguales; `generar_vectores.py` lo invoca. (RF-1, RF-2)
+- [x] T2. `tools/geodesia/proyecciones.py` (constructor de WKT2, comprobación del método de cada CRS en PROJ y cabecera de versiones) y `fixtures/geodesia/lcc.csv` con ida, vuelta, factor y convergencia: EPSG:2154, 3034, 32040 (`us-ft`), 27571 y 27572 (París), y una rejilla propia con esfera, hemisferio sur y paralelos iguales; `generar_vectores.py` lo invoca. (RF-1, RF-2)
       Hecho cuando: `test_vectores.py` comprueba columnas, recuento y método de cada caso, y el fichero se regenera igual (determinista).
 - [ ] T3. `LambertConic1Sp` y `LambertConic2Sp`: `forward` e `inverse`, con la inversa por Newton sobre la latitud conforme y `null` para el polo opuesto. (RF-1, RF-19)
       Hecho cuando: `LambertConicTest` cubre los 40 o más vectores a ≤ 1 mm y ≤ 1·10⁻⁸ ° y los casos límite de la spec.

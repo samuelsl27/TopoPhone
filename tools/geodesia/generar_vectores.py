@@ -30,7 +30,7 @@ Genera en fixtures/geodesia/:
   jalón, con el desplazamiento de ETC_rev_3 en el plano tangente local de la antena, calculado con la tubería
   `cart` + `topocentric` de PROJ (S016/RF-13, RF-25, RF-27).
 
-Uso: uv run --project tools tools/geodesia/generar_vectores.py
+Uso: uv run --project tools tools/geodesia/generar_vectores.py   (solo las proyecciones de S032: tools/geodesia/proyecciones.py)
 Es determinista: la misma versión de pyproj/PROJ y de la rejilla dan el mismo fichero.
 """
 
@@ -47,6 +47,7 @@ from pyproj import Transformer
 from pyproj.enums import TransformDirection
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import proyecciones  # noqa: E402
 import rejillas  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -595,6 +596,8 @@ def main() -> int:
         ("linea_base.csv", baseline_vectors(random.Random(20261027))),
         # S016.
         ("punta_jalon.csv", pole_tip_vectors(random.Random(20261028))),
+        # S032.
+        *proyecciones.todos(),
     )
     for name, lines in outputs:
         (OUT / name).write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
