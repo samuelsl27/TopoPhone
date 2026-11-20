@@ -17,6 +17,7 @@ object ProjectionFactory {
             is MercatorA, is MercatorB -> Mercator.create(setup.ellipsoid, parameters)
             is ObliqueMercatorA, is ObliqueMercatorB -> ObliqueMercator.create(setup.ellipsoid, parameters)
             is ObliqueStereographic -> DoubleStereographic.create(setup.ellipsoid, parameters)
+            is PolarStereographicA, is PolarStereographicB, is PolarStereographicC -> PolarStereographic.create(setup.ellipsoid, parameters)
             else -> return ProjectionResult.Invalid(listOf(ParameterProblem(ProjectionParameter.METHOD, ProblemKind.UNSUPPORTED_METHOD)))
         }
         return ProjectionResult.Ok(withPrimeMeridian(projection, setup.primeMeridianDeg))

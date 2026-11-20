@@ -75,6 +75,12 @@ def a_grados(valor: float, factor_a_radianes: float) -> float:
     return valor * factor_a_radianes * 180.0 / math.pi
 
 
+def normalizar_longitud(longitud: float) -> float:
+    """La longitud en (−180°, 180°]: la que devuelve la vuelta de una proyección."""
+    envuelta = (longitud + 180.0) % 360.0 - 180.0
+    return 180.0 if envuelta == -180.0 else envuelta
+
+
 def limitar_latitud(latitud: float) -> float:
     return max(-85.0, min(85.0, latitud))
 
@@ -663,8 +669,12 @@ def puntos_polar(caso: CasoPolar, rng: random.Random) -> list[tuple[float, float
     """Latitudes desde 89,9° hasta el ecuador y 30° más allá (hacia el otro hemisferio) y longitudes alrededor de todo el polo."""
     signo = 1.0 if caso.lat_param_deg > 0 else -1.0
     lon0 = caso.lon_origen_deg + caso.meridiano_origen_deg
-    puntos = [(signo * lat, lon0 + dlon) for lat in (89.9, 80.0, 60.0, 40.0, 20.0, 0.0, -30.0) for dlon in (-170.0, -90.0, -30.0, 0.0, 60.0, 120.0, 170.0)]
-    puntos += [(signo * rng.uniform(-30.0, 89.9), lon0 + rng.uniform(-180.0, 180.0)) for _ in range(5)]
+    puntos = [
+        (signo * lat, normalizar_longitud(lon0 + dlon))
+        for lat in (89.9, 80.0, 60.0, 40.0, 20.0, 0.0, -30.0)
+        for dlon in (-170.0, -90.0, -30.0, 0.0, 59.0, 121.0, 170.0)
+    ]
+    puntos += [(signo * rng.uniform(-30.0, 89.9), normalizar_longitud(lon0 + rng.uniform(-180.0, 180.0))) for _ in range(5)]
     return puntos
 
 
