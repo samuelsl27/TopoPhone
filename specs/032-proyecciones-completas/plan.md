@@ -91,7 +91,7 @@ Todos sobre un elipsoide cualquiera (a, 1/f), con la esfera como caso f = 0.
 | RF-14 | A5 | `PolarStereographicFactorsTest` |
 | RF-15 | A5, contratos | `PolarStereographicParametersTest` |
 | RF-16 | D6 | `ProjectionUnitsTest` |
-| RF-17 | A6, D7 | `PrimeMeridianProjectionTest` |
+| RF-17 | A6, D7 | `PrimeMeridianProjectionTest`, `PrimeMeridianVectorsTest` |
 | RF-18 | A7 | `ProjectionRoundTripTest` |
 | RF-19 | A7, D3 | `ProjectionNoImageTest` |
 | RF-20 | contratos | `ProjectionMethodTest` |
@@ -109,4 +109,21 @@ Todos sobre un elipsoide cualquiera (a, 1/f), con la esfera como caso f = 0.
 - `specs/033-transformaciones-datum` y `034`/`035` (en `pendientes/`): el meridiano de origen ya no es cosa de S033; se anota en sus borradores cuando se abran.
 
 ## Cambios al implementar
-(Se rellena durante la implementación.)
+- **Vectores sin WKT2 (D9):** el generador usa la cadena `+proj=` equivalente de cada caso y, para los CRS de EPSG, el `Transformer` del propio CRS como referencia independiente con comprobación cruzada (≤ 1 µm) entre las dos. `Proj.get_factors` funcionó con todas las variantes (el plan B de los factores por cadena no hizo falta).
+- **Dos rarezas de PROJ en la OM (T7, T8):** con el azimut de exactamente 90° PROJ ignora `+no_uoff` (da la A como la B), y en el meridiano exacto de la línea inicial con azimut 270° cambia de fórmula (`u = A·λ`) y da el signo opuesto. Los vectores evitan esos puntos (el caso de 90° va solo en B, `a-azimut-120` cubre la A, la columna central de la rejilla va a +0,001°) y Kotlin los comprueba aparte: la A a 90° sigue de forma continua a los azimuts vecinos y la B pone siempre su centro en el Este y Norte dados. Por eso `uc` se calcula como la `u` del propio centro (`atan2(G/cosγ₀, √(1 − (G·tanγ₀)²))`) y no con el caso aparte de 90° de GN 7-2.
+- **Factores de OM por diferencias centrales (T9, D8):** sin fórmula cerrada; diferencia central de 4.º orden sobre `forward` con paso de 10⁻⁴ rad (no de 1 m), que da ≤ 1·10⁻⁹ y ≤ 0,01″ contra PROJ. Las demás tienen fórmula cerrada.
+- **Polar C (T13):** PROJ no la tiene (EPSG:2985 no se puede transformar), así que su referencia es la B de PROJ con `y_0 = N_F − y(φ_F, λ₀)`; no hay `Transformer` de EPSG para ese caso.
+- **Nombres (T11):** el objeto de cálculo se llama `DoubleStereographic` porque `ObliqueStereographic` es la clase de parámetros.
+- **Validación (T12, T15):** la estereográfica oblicua rechaza también la latitud de origen en un polo (`AT_POLE`: u₀ sería infinito y ahí va la polar), más estricto que el RF-12 literal. Nuevo `ProblemKind.NOT_A_POLE` (origen de la polar A que no es un polo). En la polar B y C el polo sale del signo del paralelo, así que «hemisferio contrario» no puede darse: solo el ecuador (sin polo) se rechaza (`AT_EQUATOR`); `WRONG_HEMISPHERE` queda sin uso. El azimut y el ángulo de rectificación de la OM valen de −360° a 360°.
+- **Polos y antípodas:** la vuelta de OM, oblicua y polar devuelve el polo (±90°) con la longitud de origen si el punto cae en él (tiene imagen, la longitud no está definida); la ida de OM da `null` a 90° de la línea central, la oblicua en su antípoda y la polar en el polo opuesto. Los factores no dan valor en los polos (la convergencia no está definida).
+- **Lista y fábrica (T15, T20):** con los diez métodos el `when` de `ProjectionFactory` es exhaustivo, así que `UNSUPPORTED_METHOD` ya no se devuelve (queda en el enum); la lista publicada son los doce métodos y la Transversa de Mercator y Web Mercator siguen con sus clases de S008 y S009, sin tocarlas. `tasks.md` decía «11 métodos» donde eran doce.
+- **Ficheros de vectores:** `meridiano_origen.csv` y `unidades_proyeccion.csv` usan un formato genérico (método de TopoPhone y `p1`…`p7` en el orden de los parámetros) y los lee un único `PrimeMeridianVector`; EPSG:29873 está en metros (su variante en pies usa el pie de Sears, que `LinearUnit` no tiene). Los vectores polares llevan longitudes en (−180°, 180°] y sin puntos justo en ±180° (ruido de redondeo en la vuelta).
+- **No se tocó:** `TransverseMercator.kt` y `WebMercator.kt` (RF-21), ni ninguna dependencia.
+
+## Validación
+- `uv run --project tools tools/trazabilidad/rf_report.py`: **S032: 21 RF, 21 con test, 0 pendientes**.
+- `./gradlew check` en verde (ktlint, Lint, reglas de módulos, tests y Kover; los tests de tiempo y de ViewModel intermitentes de `:app` se repiten con `--no-parallel` hasta que pasan, y un proceso `python -` mío olvidado, que ocupaba una CPU, los hacía fallar más); `uv run --project tools pytest tools` en verde; `forbidden_files.py` sin hallazgos; `assembleDebug` compila.
+- Tests nuevos: 159 en `core/geodesy` (paquete `projection`, 23 clases), más los de `tools/geodesia/test_proyecciones.py`. Siete CSV nuevos con 2.201 vectores (≈ 400 KB) en `fixtures/geodesia/`.
+- Precisión contra pyproj/PROJ (9.8.1): ida ≤ 1 mm, vuelta ≤ 1·10⁻⁸ °, factor de escala ≤ 1·10⁻⁹ y convergencia ≤ 0,01″ en los diez métodos; ida y vuelta ≤ 0,1 mm; 100.000 puntos en menos de 1 s por método (medido: 0,2 a 0,5 s con los diez a la vez).
+- **Lo que no se pudo contrastar con la nota GN 7-2:** el PDF no está en este equipo; las comprobaciones independientes son pyproj/PROJ sobre los CRS de EPSG que usa la nota y el punto publicado de RD Nueva (53° N, 6° E → 196 105,283 / 557 057,739 m, a menos de 2 mm). La polar C (EPSG:2985) no tiene referencia en PROJ y se contrasta con la B de PROJ desplazada al origen falso. Los dos casos que PROJ resuelve distinto de la definición (OM con azimut de 90° en A y de 270° en el meridiano de la línea inicial) se comprueban con propiedades de la definición, no con PROJ.
+- Sin demo visible, como dice la spec (es un motor de cálculo): la pantalla que lo use llega con S034 y S035.
