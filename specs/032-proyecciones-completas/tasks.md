@@ -3,7 +3,7 @@
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa en un prompt propio, con los tests primero. Cada tarea cierra con `./gradlew check` en verde (se repite con `--no-parallel` si falla un test ajeno intermitente), la casilla marcada y un commit `S032 Tn: …` en `main`. Las tareas de vectores añaden también `uv run --project tools pytest tools`.
 
 ## Contrato común
-- [ ] T1. Contrato del paquete `es.topophone.core.geodesy.projection`: `ProjectionMethod` con `implemented`, `ProjectionParameters` (solo el contrato y las clases de datos de cada variante), `ParameterProblem`, `MapProjection`, `ProjectionSetup`, `ProjectionFactory` (por ahora `Invalid` con `UNSUPPORTED_METHOD`), el envoltorio `PrimeMeridianProjection` y la conversión de los falsos a metros. (RF-16, RF-17, RF-20)
+- [x] T1. Contrato del paquete `es.topophone.core.geodesy.projection`: `ProjectionMethod` con `implemented`, `ProjectionParameters` (solo el contrato y las clases de datos de cada variante), `ParameterProblem`, `MapProjection`, `ProjectionSetup`, `ProjectionFactory` (por ahora `Invalid` con `UNSUPPORTED_METHOD`), el envoltorio `PrimeMeridianProjection` y la conversión de los falsos a metros. (RF-16, RF-17, RF-20)
       Hecho cuando: `ProjectionMethodTest`, `ProjectionUnitsTest` y `PrimeMeridianProjectionTest` pasan con una proyección de prueba (identidad con falsos), y `check` pasa.
 
 ## Lambert Conformal Conic
