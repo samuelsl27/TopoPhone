@@ -117,3 +117,40 @@ def test_s032_rf_4_los_vectores_de_mercator_se_regeneran_igual() -> None:
     regenerado = "\n".join(p.mercator_vectors(random.Random(p.SEMILLA_MERCATOR))) + "\n"
 
     assert regenerado == (FIXTURES / "mercator.csv").read_text(encoding="utf-8")
+
+
+def test_s032_rf_7_omerc_cubre_a_y_b_con_los_casos_de_epsg_y_los_limite() -> None:
+    comentarios, filas = leer("omerc.csv")
+
+    assert any(f"pyproj={pyproj.__version__}" in linea for linea in comentarios)
+    assert len(filas) > 100
+    assert {fila["metodo"] for fila in filas} == {"A", "B"}
+    casos = {fila["caso"] for fila in filas}
+    assert {"EPSG:26931", "EPSG:3375", "EPSG:29873"} <= casos
+    # Azimut de 0°, 90°, 180° y 270°, ángulo de rectificación distinto del azimut, centro en el ecuador, esfera y hemisferio sur.
+    assert {"a-azimut-0", "a-azimut-90", "b-azimut-180", "b-azimut-270", "b-gamma-distinto", "b-ecuador"} <= casos
+    assert {"esfera-a", "esfera-b", "sur-a", "sur-b"} <= casos
+
+
+def test_s032_rf_7_omerc_tiene_las_columnas_de_ida_vuelta_factor_y_convergencia() -> None:
+    _, filas = leer("omerc.csv")
+
+    assert set(filas[0]) == {
+        "caso", "metodo", "semieje", "achatamiento_inverso", "meridiano_origen_deg", "unidad_m", "lat_centro", "lon_centro", "azimut",
+        "angulo_rectificacion", "k0", "falso_este", "falso_norte", "latitud", "longitud", "este_m", "norte_m", "factor_escala",
+        "convergencia_grados",
+    }  # fmt: skip
+    # El caso de EPSG con ángulo de rectificación distinto del azimut lo conserva.
+    gamma = {(fila["azimut"], fila["angulo_rectificacion"]) for fila in filas if fila["caso"] == "EPSG:29873"}
+    assert len(gamma) == 1 and next(iter(gamma))[0] != next(iter(gamma))[1]
+
+
+def test_s032_rf_7_cada_caso_de_epsg_de_omerc_usa_la_variante_que_se_espera() -> None:
+    for codigo, esperado in p.EPSG_OMERC.items():
+        assert esperado in pyproj.CRS.from_epsg(codigo).coordinate_operation.method_name, codigo
+
+
+def test_s032_rf_7_los_vectores_de_omerc_se_regeneran_igual() -> None:
+    regenerado = "\n".join(p.omerc_vectors(random.Random(p.SEMILLA_OMERC))) + "\n"
+
+    assert regenerado == (FIXTURES / "omerc.csv").read_text(encoding="utf-8")

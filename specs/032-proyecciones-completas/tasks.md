@@ -21,7 +21,7 @@
       Hecho cuando: `MercatorTest`, `MercatorFactorsTest` y `MercatorParametersTest` pasan.
 
 ## Oblique Mercator
-- [ ] T7. Vectores de OM A y B (`omerc.csv`): EPSG:29873 y 26931 y una rejilla propia con azimut de 0°, 90° y 180°, ángulo de rectificación distinto del azimut y esfera. (RF-7, RF-8)
+- [x] T7. Vectores de OM A y B (`omerc.csv`): EPSG:29873 y 26931 y una rejilla propia con azimut de 0°, 90° y 180°, ángulo de rectificación distinto del azimut y esfera. (RF-7, RF-8)
       Hecho cuando: `test_vectores.py` los comprueba (con los factores por la cadena `+proj=` si hace falta) y el fichero se regenera igual.
 - [ ] T8. `ObliqueMercatorA` y `ObliqueMercatorB`: `forward` e `inverse` y `null` a 90° o más de la línea central. (RF-7, RF-19)
       Hecho cuando: `ObliqueMercatorTest` pasa a ≤ 1 mm y ≤ 1·10⁻⁸ ° con los casos límite.

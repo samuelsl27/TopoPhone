@@ -3,6 +3,7 @@
 Cada familia tiene su generador y su CSV en `fixtures/geodesia/` (los llama `generar_vectores.py`):
 - lcc.csv: Cónica Conforme de Lambert 1SP y 2SP (EPSG 9801 y 9802): ida, vuelta, factor de escala y convergencia (S032/RF-1, RF-2).
 - mercator.csv: Mercator A y B (EPSG 9804 y 9805) con lo mismo (S032/RF-4, RF-5).
+- omerc.csv: Hotine Oblique Mercator A y B (EPSG 9812 y 9815) con lo mismo (S032/RF-7, RF-8).
 
 Cómo se calcula cada fila:
 - **Casos de EPSG**: el Este y el Norte salen de la propia definición del CRS en la base de PROJ (`Transformer` desde su CRS geográfico), que es
@@ -35,6 +36,7 @@ OUT = ROOT / "fixtures" / "geodesia"
 
 SEMILLA_LCC = 20261120
 SEMILLA_MERCATOR = 20261121
+SEMILLA_OMERC = 20261122
 TOLERANCIA_CRUZADA_M = 1e-6
 
 
@@ -345,11 +347,132 @@ def mercator_vectors(rng: random.Random) -> list[str]:
     return lineas
 
 
+# --- Oblique Mercator (Hotine) A y B ---------------------------------------------------------------------------------------------
+
+# La base de PROJ dice qué variante es cada CRS (no siempre la que se recuerda: Borneo es la B y Alaska 1 la A).
+EPSG_OMERC = {
+    26931: "(variant A)",  # NAD83 / Alaska zone 1
+    3375: "(variant A)",  # GDM2000 / Peninsula RSO (azimut distinto del ángulo de rectificación)
+    29873: "(variant B)",  # Timbalai 1948 / RSO Borneo (m)
+}
+
+
+@dataclass(frozen=True)
+class CasoOmerc:
+    nombre: str
+    metodo: str  # "A" o "B"
+    elipsoide: Elipsoide
+    meridiano_origen_deg: float
+    unidad_m: float
+    lat_centro_deg: float
+    lon_centro_deg: float  # respecto al meridiano de origen
+    azimut_deg: float
+    angulo_rectificacion_deg: float
+    k0: float
+    falso_este: float  # A: en el origen natural; B: en el centro de la proyección
+    falso_norte: float
+    epsg: int | None = None
+
+    def cadena_proj(self) -> str:
+        """`+proj=omerc` con `lonc` de Greenwich; sin `+no_uoff` es la variante B y con él, la A."""
+        variante_a = " +no_uoff" if self.metodo == "A" else ""
+        return (
+            f"+proj=omerc +lat_0={self.lat_centro_deg!r} +lonc={self.lon_centro_deg + self.meridiano_origen_deg!r} "
+            f"+alpha={self.azimut_deg!r} +gamma={self.angulo_rectificacion_deg!r} +k_0={self.k0!r} "
+            f"+x_0={self.falso_este * self.unidad_m!r} +y_0={self.falso_norte * self.unidad_m!r} "
+            f"{self.elipsoide.argumentos_proj()} +units=m +no_defs{variante_a}"
+        )
+
+
+def caso_epsg_omerc(codigo: int) -> CasoOmerc:
+    crs = CRS.from_epsg(codigo)
+    metodo = crs.coordinate_operation.method_name
+    esperado = EPSG_OMERC[codigo]
+    assert esperado in metodo, f"EPSG:{codigo} es «{metodo}», no {esperado}"
+    parametros = {p.name: p for p in crs.coordinate_operation.params}
+    elipsoide = Elipsoide(crs.ellipsoid.semi_major_metre, crs.ellipsoid.inverse_flattening)
+    meridiano = crs.geodetic_crs.prime_meridian
+    meridiano_deg = a_grados(meridiano.longitude, meridiano.unit_conversion_factor)
+
+    def angulo(nombre: str) -> float:
+        p = parametros[nombre]
+        return a_grados(p.value, p.unit_conversion_factor)
+
+    variante = "A" if "variant A" in metodo else "B"
+    este = parametros["False easting" if variante == "A" else "Easting at projection centre"]
+    norte = parametros["False northing" if variante == "A" else "Northing at projection centre"]
+    return CasoOmerc(
+        f"EPSG:{codigo}", variante, elipsoide, meridiano_deg, este.unit_conversion_factor,
+        angulo("Latitude of projection centre"), angulo("Longitude of projection centre"),
+        angulo("Azimuth at projection centre"), angulo("Angle from Rectified to Skew Grid"),
+        parametros["Scale factor at projection centre"].value, este.value, norte.value, codigo,
+    )  # fmt: skip
+
+
+def casos_omerc() -> list[CasoOmerc]:
+    def c(nombre, metodo, elipsoide, lat, lon, azimut, gamma, k0=0.9996, este=1_000.0, norte=2_000.0):
+        return CasoOmerc(nombre, metodo, elipsoide, 0.0, 1.0, lat, lon, azimut, gamma, k0, este, norte)
+
+    propios = [
+        # Azimut de la línea inicial de 0°, 90°, 180° y 270°.
+        c("a-azimut-0", "A", GRS80, 45.0, 10.0, 0.0, 0.0),
+        c("a-azimut-90", "A", GRS80, 45.0, 10.0, 90.0, 90.0),
+        c("b-azimut-180", "B", GRS80, 45.0, 10.0, 180.0, 180.0),
+        c("b-azimut-270", "B", GRS80, 45.0, 10.0, 270.0, 270.0),
+        # Ángulo de rectificación distinto del azimut.
+        c("b-gamma-distinto", "B", GRS80, 45.0, 10.0, 30.0, 10.0),
+        # Centro de la proyección en el ecuador.
+        c("b-ecuador", "B", GRS80, 0.0, 10.0, 30.0, 30.0),
+        # Esfera, y hemisferio sur con elipsoide distinto.
+        c("esfera-a", "A", ESFERA, 30.0, -20.0, 60.0, 60.0, 1.0, 0.0, 0.0),
+        c("esfera-b", "B", ESFERA, 30.0, -20.0, 60.0, 45.0, 1.0, 0.0, 0.0),
+        c("sur-a", "A", GRS80, -30.0, 120.0, 60.0, 75.0, 0.9999, 500_000.0, 1_000_000.0),
+        c("sur-b", "B", INTERNACIONAL, -30.0, 120.0, 200.0, 190.0, 0.9999, 500_000.0, 1_000_000.0),
+    ]
+    return [caso_epsg_omerc(codigo) for codigo in EPSG_OMERC] + propios
+
+
+def puntos_omerc(caso: CasoOmerc, rng: random.Random) -> list[tuple[float, float]]:
+    """Una rejilla alrededor del centro (en Greenwich) de ±4° de latitud y ±5° de longitud, y unos puntos al azar."""
+    lon0 = caso.lon_centro_deg + caso.meridiano_origen_deg
+    puntos = [(limitar_latitud(caso.lat_centro_deg + dlat), lon0 + dlon) for dlat in (-4.0, 0.0, 4.0) for dlon in (-5.0, -2.5, 0.0, 2.5, 5.0)]
+    puntos += [(limitar_latitud(caso.lat_centro_deg + rng.uniform(-4.0, 4.0)), lon0 + rng.uniform(-5.0, 5.0)) for _ in range(5)]
+    return puntos
+
+
+COLUMNAS_OMERC = (
+    "caso,metodo,semieje,achatamiento_inverso,meridiano_origen_deg,unidad_m,lat_centro,lon_centro,azimut,angulo_rectificacion,k0,"
+    "falso_este,falso_norte,latitud,longitud,este_m,norte_m,factor_escala,convergencia_grados"
+)
+
+
+def omerc_vectors(rng: random.Random) -> list[str]:
+    """S032/RF-7, RF-8: Este, Norte, factor de escala y convergencia (grados) de la Oblique Mercator A y B."""
+    lineas = header("Oblique Mercator (Hotine) A y B (pyproj/PROJ, Transformer de EPSG y get_factors)") + [COLUMNAS_OMERC]
+    for caso in casos_omerc():
+        proj = pyproj.Proj(caso.cadena_proj())
+        epsg = ReferenciaEpsg.de(caso.epsg) if caso.epsg is not None else None
+        for lat, lon in puntos_omerc(caso, rng):
+            este, norte, k, gamma = referencia(caso, proj, epsg, lat, lon)
+            lineas.append(
+                ",".join(
+                    [
+                        caso.nombre, caso.metodo, fmt(caso.elipsoide.semieje), fmt(caso.elipsoide.achatamiento_inverso),
+                        fmt(caso.meridiano_origen_deg), fmt(caso.unidad_m), fmt(caso.lat_centro_deg), fmt(caso.lon_centro_deg),
+                        fmt(caso.azimut_deg), fmt(caso.angulo_rectificacion_deg), fmt(caso.k0), fmt(caso.falso_este),
+                        fmt(caso.falso_norte), fmt(lat), fmt(lon), fmt(este), fmt(norte), fmt(k), fmt(gamma),
+                    ]
+                )  # fmt: skip
+            )
+    return lineas
+
+
 def todos() -> list[tuple[str, list[str]]]:
     """Todos los ficheros de este módulo, con su nombre: los usa `generar_vectores.py` y `main` de aquí."""
     return [
         ("lcc.csv", lcc_vectors(random.Random(SEMILLA_LCC))),
         ("mercator.csv", mercator_vectors(random.Random(SEMILLA_MERCATOR))),
+        ("omerc.csv", omerc_vectors(random.Random(SEMILLA_OMERC))),
     ]
 
 
