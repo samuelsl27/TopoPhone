@@ -53,7 +53,7 @@
       Hecho cuando: `ProjectionRoundTripTest` (≤ 0,1 mm en los 11 métodos) y `ProjectionNoImageTest` (`null` en cada caso de RF-19, nunca un valor extrapolado) pasan.
 - [x] T19. Rendimiento: 100.000 puntos por método en menos de 1 s. (NFR)
       Hecho cuando: `ProjectionPerformanceTest` pasa con los 11 métodos (y, si falla bajo carga, a la segunda con `--no-parallel`).
-- [ ] T20. `ProjectionFactory` completo (los 11 métodos) y no regresión: `ProjectionMethod.implemented` coincide con lo que `create` sabe crear, y UTM y Web Mercator dan lo de siempre. (RF-20, RF-21)
+- [x] T20. `ProjectionFactory` completo (los 11 métodos) y no regresión: `ProjectionMethod.implemented` coincide con lo que `create` sabe crear, y UTM y Web Mercator dan lo de siempre. (RF-20, RF-21)
       Hecho cuando: `ProjectionMethodTest` y `ExistingProjectionsUnchangedTest` pasan (con vectores de `utm_etrs89.csv`, `factores_tm.csv` y `web_mercator.csv`).
 
 ## Cierre

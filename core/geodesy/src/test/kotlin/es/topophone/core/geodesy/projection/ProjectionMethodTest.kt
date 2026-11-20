@@ -42,23 +42,27 @@ class ProjectionMethodTest {
     }
 
     @Test
-    fun `S032 RF-20 un metodo que aun no se calcula se rechaza como no soportado y no se inventa un resultado`() {
-        val notYet = ProjectionTestData.all.filter { it.method !in ProjectionMethod.implemented }
-
-        notYet.forEach { parameters ->
+    fun `S032 RF-20 la fabrica crea cada una de las diez variantes y ninguna se rechaza como no soportada`() {
+        ProjectionTestData.all.forEach { parameters ->
             val result = ProjectionFactory.create(ProjectionSetup(Ellipsoid.GRS80, parameters))
 
-            result.shouldBeInstanceOf<ProjectionResult.Invalid>().problems shouldBe
-                listOf(ParameterProblem(ProjectionParameter.METHOD, ProblemKind.UNSUPPORTED_METHOD))
+            result.shouldBeInstanceOf<ProjectionResult.Ok>()
         }
     }
 
     @Test
-    fun `S032 RF-20 la lista publicada coincide con lo que la fabrica sabe crear`() {
+    fun `S032 RF-20 la lista publicada es exactamente lo que la fabrica sabe crear mas la Transversa de Mercator y Web Mercator`() {
         val creatable = ProjectionTestData.all.filter {
             ProjectionFactory.create(ProjectionSetup(Ellipsoid.GRS80, it)) is ProjectionResult.Ok
         }.map { it.method }
 
-        (creatable.toSet() - ProjectionMethod.implemented.toSet()) shouldBe emptySet()
+        ProjectionMethod.implemented.toSet() shouldBe
+            creatable.toSet() + setOf(ProjectionMethod.TRANSVERSE_MERCATOR, ProjectionMethod.WEB_MERCATOR)
+    }
+
+    @Test
+    fun `S032 RF-20 la lista publicada contiene los doce metodos de la spec`() {
+        ProjectionMethod.implemented.toSet() shouldBe ProjectionMethod.entries.toSet()
+        ProjectionMethod.implemented.size shouldBe 12
     }
 }
