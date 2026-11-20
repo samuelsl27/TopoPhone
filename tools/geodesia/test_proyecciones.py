@@ -189,3 +189,40 @@ def test_s032_rf_10_los_vectores_de_stereo_oblicua_se_regeneran_igual() -> None:
     regenerado = "\n".join(p.stereo_oblicua_vectors(random.Random(p.SEMILLA_STEREO_OBLICUA))) + "\n"
 
     assert regenerado == (FIXTURES / "stereo_oblicua.csv").read_text(encoding="utf-8")
+
+
+def test_s032_rf_13_stereo_polar_cubre_a_b_y_c_en_los_dos_polos() -> None:
+    comentarios, filas = leer("stereo_polar.csv")
+
+    assert any(f"pyproj={pyproj.__version__}" in linea for linea in comentarios)
+    assert len(filas) > 150
+    assert {fila["metodo"] for fila in filas} == {"A", "B", "C"}
+    casos = {fila["caso"] for fila in filas}
+    assert {"EPSG:5041", "EPSG:5042", "EPSG:3031", "EPSG:3413", "EPSG:2985"} <= casos
+    assert {"b-polo-norte", "b-polo-sur", "esfera-a", "esfera-b"} <= casos
+    # Los dos polos, en cada variante (el signo del parámetro de latitud dice el polo).
+    for metodo in ("A", "B", "C"):
+        signos = {float(f["lat_param"]) > 0 for f in filas if f["metodo"] == metodo}
+        assert signos == {True, False}, metodo
+
+
+def test_s032_rf_13_stereo_polar_tiene_las_columnas_de_ida_vuelta_factor_y_convergencia() -> None:
+    _, filas = leer("stereo_polar.csv")
+
+    assert set(filas[0]) == {
+        "caso", "metodo", "semieje", "achatamiento_inverso", "meridiano_origen_deg", "unidad_m", "lat_param", "lon_origen", "k0",
+        "falso_este", "falso_norte", "latitud", "longitud", "este_m", "norte_m", "factor_escala", "convergencia_grados",
+    }  # fmt: skip
+    # Solo la A lleva factor de escala en el origen.
+    assert all((fila["k0"] != "") == (fila["metodo"] == "A") for fila in filas)
+
+
+def test_s032_rf_13_cada_caso_de_epsg_polar_usa_la_variante_que_se_espera() -> None:
+    for codigo, esperado in p.EPSG_POLAR.items():
+        assert esperado in pyproj.CRS.from_epsg(codigo).coordinate_operation.method_name, codigo
+
+
+def test_s032_rf_13_los_vectores_de_stereo_polar_se_regeneran_igual() -> None:
+    regenerado = "\n".join(p.stereo_polar_vectors(random.Random(p.SEMILLA_STEREO_POLAR))) + "\n"
+
+    assert regenerado == (FIXTURES / "stereo_polar.csv").read_text(encoding="utf-8")

@@ -37,7 +37,7 @@
       Hecho cuando: `ObliqueStereographicFactorsTest` y `ObliqueStereographicParametersTest` pasan.
 
 ## Estereográfica polar
-- [ ] T13. Vectores de la polar A, B y C (`stereo_polar.csv`): EPSG:5041, 5042, 3031, 3413 y 2985, y una rejilla propia en los dos polos, con paralelo estándar en el polo y esfera. (RF-13, RF-14)
+- [x] T13. Vectores de la polar A, B y C (`stereo_polar.csv`): EPSG:5041, 5042, 3031, 3413 y 2985, y una rejilla propia en los dos polos, con paralelo estándar en el polo y esfera. (RF-13, RF-14)
       Hecho cuando: `test_vectores.py` los comprueba y el fichero se regenera igual.
 - [ ] T14. `PolarStereographicA`, `B` y `C`: `forward` e `inverse` en los dos polos y `null` en el polo opuesto. (RF-13, RF-19)
       Hecho cuando: `PolarStereographicTest` pasa a ≤ 1 mm y ≤ 1·10⁻⁸ °.

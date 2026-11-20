@@ -5,6 +5,7 @@ Cada familia tiene su generador y su CSV en `fixtures/geodesia/` (los llama `gen
 - mercator.csv: Mercator A y B (EPSG 9804 y 9805) con lo mismo (S032/RF-4, RF-5).
 - omerc.csv: Hotine Oblique Mercator A y B (EPSG 9812 y 9815) con lo mismo (S032/RF-7, RF-8).
 - stereo_oblicua.csv: Estereográfica oblicua (EPSG 9809) con lo mismo y el punto publicado de GN 7-2 (S032/RF-10, RF-11).
+- stereo_polar.csv: Estereográfica polar A, B y C (EPSG 9810, 9829 y 9830) con lo mismo, en los dos polos (S032/RF-13, RF-14).
 
 Cómo se calcula cada fila:
 - **Casos de EPSG**: el Este y el Norte salen de la propia definición del CRS en la base de PROJ (`Transformer` desde su CRS geográfico), que es
@@ -39,6 +40,7 @@ SEMILLA_LCC = 20261120
 SEMILLA_MERCATOR = 20261121
 SEMILLA_OMERC = 20261122
 SEMILLA_STEREO_OBLICUA = 20261123
+SEMILLA_STEREO_POLAR = 20261124
 TOLERANCIA_CRUZADA_M = 1e-6
 
 
@@ -569,6 +571,131 @@ def stereo_oblicua_vectors(rng: random.Random) -> list[str]:
     return lineas
 
 
+# --- Estereográfica polar A, B y C ------------------------------------------------------------------------------------------------
+
+EPSG_POLAR = {
+    5041: "(variant A)",  # WGS 84 / UPS North
+    5042: "(variant A)",  # WGS 84 / UPS South
+    3031: "(variant B)",  # WGS 84 / Antarctic Polar Stereographic
+    3413: "(variant B)",  # WGS 84 / NSIDC Sea Ice Polar Stereographic North
+    2985: "(variant C)",  # Petrels 1972 / Terre Adelie Polar Stereographic
+}
+
+
+@dataclass(frozen=True)
+class CasoPolar:
+    nombre: str
+    metodo: str  # "A", "B" o "C"
+    elipsoide: Elipsoide
+    meridiano_origen_deg: float
+    unidad_m: float
+    lat_param_deg: float  # A: latitud de origen (un polo); B y C: paralelo estándar. Su signo dice el polo.
+    lon_origen_deg: float  # respecto al meridiano de origen
+    k0: float | None  # solo la A
+    falso_este: float  # C: en el origen falso
+    falso_norte: float
+    epsg: int | None = None
+
+    @property
+    def polo_deg(self) -> float:
+        return 90.0 if self.lat_param_deg > 0 else -90.0
+
+    def cadena_proj(self) -> str:
+        lon = self.lon_origen_deg + self.meridiano_origen_deg
+        elipsoide = f"{self.elipsoide.argumentos_proj()} +units=m +no_defs"
+        if self.metodo == "A":
+            return (
+                f"+proj=stere +lat_0={self.polo_deg!r} +lon_0={lon!r} +k_0={self.k0!r} "
+                f"+x_0={self.falso_este * self.unidad_m!r} +y_0={self.falso_norte * self.unidad_m!r} {elipsoide}"
+            )
+        sin_falsos = f"+proj=stere +lat_0={self.polo_deg!r} +lat_ts={self.lat_param_deg!r} +lon_0={lon!r} +x_0=0 +y_0=0 {elipsoide}"
+        if self.metodo == "B":
+            return sin_falsos.replace("+x_0=0 +y_0=0", f"+x_0={self.falso_este * self.unidad_m!r} +y_0={self.falso_norte * self.unidad_m!r}")
+        # Variante C: PROJ no la tiene, pero es la B con el origen en el punto donde el paralelo estándar corta el meridiano de origen.
+        y_origen_falso = pyproj.Proj(sin_falsos)(lon, self.lat_param_deg)[1]
+        return sin_falsos.replace("+x_0=0 +y_0=0", f"+x_0={self.falso_este * self.unidad_m!r} +y_0={self.falso_norte * self.unidad_m - y_origen_falso!r}")
+
+
+def caso_epsg_polar(codigo: int) -> CasoPolar:
+    crs = CRS.from_epsg(codigo)
+    metodo = crs.coordinate_operation.method_name
+    esperado = EPSG_POLAR[codigo]
+    assert esperado in metodo, f"EPSG:{codigo} es «{metodo}», no {esperado}"
+    parametros = {p.name: p for p in crs.coordinate_operation.params}
+    elipsoide = Elipsoide(crs.ellipsoid.semi_major_metre, crs.ellipsoid.inverse_flattening)
+    meridiano = crs.geodetic_crs.prime_meridian
+    meridiano_deg = a_grados(meridiano.longitude, meridiano.unit_conversion_factor)
+    variante = esperado[-2]  # "(variant A)" → "A"
+
+    def angulo(nombre: str) -> float:
+        parametro = parametros[nombre]
+        return a_grados(parametro.value, parametro.unit_conversion_factor)
+
+    if variante == "A":
+        lat, lon, k0 = angulo("Latitude of natural origin"), angulo("Longitude of natural origin"), parametros["Scale factor at natural origin"].value
+        este, norte = parametros["False easting"], parametros["False northing"]
+    else:
+        lat, lon, k0 = angulo("Latitude of standard parallel"), angulo("Longitude of origin"), None
+        nombre_este, nombre_norte = ("False easting", "False northing") if variante == "B" else ("Easting at false origin", "Northing at false origin")
+        este, norte = parametros[nombre_este], parametros[nombre_norte]
+    return CasoPolar(
+        f"EPSG:{codigo}", variante, elipsoide, meridiano_deg, este.unit_conversion_factor, lat, lon, k0, este.value, norte.value, codigo
+    )  # fmt: skip
+
+
+def casos_polar() -> list[CasoPolar]:
+    c = CasoPolar
+    propios = [
+        c("esfera-a", "A", ESFERA, 0.0, 1.0, 90.0, 30.0, 1.0, 0.0, 0.0),
+        c("a-sur", "A", GRS80, 0.0, 1.0, -90.0, -60.0, 0.994, 500_000.0, 1_500_000.0),
+        c("b-norte", "B", GRS80, 0.0, 1.0, 60.0, 20.0, None, 1_000.0, -2_000.0),
+        c("esfera-b", "B", ESFERA, 0.0, 1.0, -45.0, 10.0, None, 0.0, 0.0),
+        # Paralelo estándar en el propio polo: la B equivale a la A con la escala de PROJ.
+        c("b-polo-norte", "B", GRS80, 0.0, 1.0, 90.0, 15.0, None, 500.0, 500.0),
+        c("b-polo-sur", "B", INTERNACIONAL, 0.0, 1.0, -90.0, -100.0, None, 0.0, 0.0),
+        c("c-norte", "C", INTERNACIONAL, 0.0, 1.0, 75.0, -100.0, None, 1_000.0, 2_000.0),
+        c("c-sur", "C", GRS80, 0.0, 1.0, -80.0, 120.0, None, 0.0, 0.0),
+    ]
+    return [caso_epsg_polar(codigo) for codigo in EPSG_POLAR] + propios
+
+
+def puntos_polar(caso: CasoPolar, rng: random.Random) -> list[tuple[float, float]]:
+    """Latitudes desde 89,9° hasta el ecuador y 30° más allá (hacia el otro hemisferio) y longitudes alrededor de todo el polo."""
+    signo = 1.0 if caso.lat_param_deg > 0 else -1.0
+    lon0 = caso.lon_origen_deg + caso.meridiano_origen_deg
+    puntos = [(signo * lat, lon0 + dlon) for lat in (89.9, 80.0, 60.0, 40.0, 20.0, 0.0, -30.0) for dlon in (-170.0, -90.0, -30.0, 0.0, 60.0, 120.0, 170.0)]
+    puntos += [(signo * rng.uniform(-30.0, 89.9), lon0 + rng.uniform(-180.0, 180.0)) for _ in range(5)]
+    return puntos
+
+
+COLUMNAS_POLAR = (
+    "caso,metodo,semieje,achatamiento_inverso,meridiano_origen_deg,unidad_m,lat_param,lon_origen,k0,falso_este,falso_norte,"
+    "latitud,longitud,este_m,norte_m,factor_escala,convergencia_grados"
+)
+
+
+def stereo_polar_vectors(rng: random.Random) -> list[str]:
+    """S032/RF-13, RF-14: Este, Norte, factor de escala y convergencia (grados) de la Estereográfica polar A, B y C."""
+    lineas = header("Estereografica polar A, B y C (pyproj/PROJ, Transformer de EPSG y get_factors)") + [COLUMNAS_POLAR]
+    for caso in casos_polar():
+        proj = pyproj.Proj(caso.cadena_proj())
+        # PROJ no tiene la variante C (EPSG:2985 no se puede transformar): ahí la referencia es la B de PROJ con el origen desplazado.
+        epsg = ReferenciaEpsg.de(caso.epsg) if caso.epsg is not None and caso.metodo != "C" else None
+        for lat, lon in puntos_polar(caso, rng):
+            este, norte, k, gamma = referencia(caso, proj, epsg, lat, lon)
+            lineas.append(
+                ",".join(
+                    [
+                        caso.nombre, caso.metodo, fmt(caso.elipsoide.semieje), fmt(caso.elipsoide.achatamiento_inverso),
+                        fmt(caso.meridiano_origen_deg), fmt(caso.unidad_m), fmt(caso.lat_param_deg), fmt(caso.lon_origen_deg),
+                        fmt(caso.k0), fmt(caso.falso_este), fmt(caso.falso_norte),
+                        fmt(lat), fmt(lon), fmt(este), fmt(norte), fmt(k), fmt(gamma),
+                    ]
+                )  # fmt: skip
+            )
+    return lineas
+
+
 def todos() -> list[tuple[str, list[str]]]:
     """Todos los ficheros de este módulo, con su nombre: los usa `generar_vectores.py` y `main` de aquí."""
     return [
@@ -576,6 +703,7 @@ def todos() -> list[tuple[str, list[str]]]:
         ("mercator.csv", mercator_vectors(random.Random(SEMILLA_MERCATOR))),
         ("omerc.csv", omerc_vectors(random.Random(SEMILLA_OMERC))),
         ("stereo_oblicua.csv", stereo_oblicua_vectors(random.Random(SEMILLA_STEREO_OBLICUA))),
+        ("stereo_polar.csv", stereo_polar_vectors(random.Random(SEMILLA_STEREO_POLAR))),
     ]
 
 
