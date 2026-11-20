@@ -104,8 +104,29 @@ internal object DoubleStereographic {
             return if (latitude.isFinite() && longitude.isFinite()) GeoPoint(latitude, longitude) else null
         }
 
+        /**
+         * Factor de escala y convergencia con fórmula cerrada (S032/RF-11; plan D8). El factor es el de la estereográfica sobre la esfera
+         * (2k₀/B) por el de la esfera de Gauss al elipsoide (n·R·cosχ / (ν·cosφ)); la convergencia es el ángulo del meridiano de la esfera
+         * en el plano, `−atan2(dE/dχ, dN/dχ)`, positivo al este como en UTM. En los polos y en la antípoda no hay valor.
+         */
         override fun factors(latitudeDeg: Double, longitudeDeg: Double): PointFactors? {
-            error("S032 T12: factor de escala y convergencia de la Estereográfica oblicua")
+            if (!latitudeDeg.isFinite() || !longitudeDeg.isFinite() || abs(latitudeDeg) >= 90.0) return null
+            val u = u(latitudeDeg)
+            val sinChi = tanh(u)
+            val cosChi = 1 / cosh(u)
+            val delta = n * Math.toRadians(wrap(longitudeDeg - longitudeOfOriginDeg))
+            val cosDelta = cos(delta)
+            val b = 1 + sinChi * sinChi0 + cosChi * cosChi0 * cosDelta
+            if (!b.isFinite() || b < ANTIPODE_TOLERANCE) return null
+            val phi = Math.toRadians(latitudeDeg)
+            val primeVerticalRadius = a / sqrt(1 - e2 * sin(phi) * sin(phi))
+            val scale = n * twoRk0 * cosChi / (b * primeVerticalRadius * cos(phi))
+            val dB = cosChi * sinChi0 - sinChi * cosChi0 * cosDelta
+            val y = sinChi * cosChi0 - cosChi * sinChi0 * cosDelta
+            val dY = cosChi * cosChi0 + sinChi * sinChi0 * cosDelta
+            val dEasting = -sin(delta) * (sinChi * b + cosChi * dB)
+            val dNorthing = dY * b - y * dB
+            return PointFactors(scale, -atan2(dEasting, dNorthing))
         }
 
         /** u = atanh(sinχ) de una latitud geodésica en grados. */

@@ -49,6 +49,12 @@ internal object ProjectionValidation {
                 parameters.rectifiedGridAngleDeg,
                 parameters.scaleFactor,
             )
+            is ObliqueStereographic -> {
+                // En un polo el origen es el de la estereográfica polar: la oblicua no lo calcula (u₀ sería infinito).
+                addNotNull(latitude(ProjectionParameter.LATITUDE_OF_ORIGIN, parameters.latitudeOfOriginDeg))
+                addNotNull(longitude(ProjectionParameter.LONGITUDE_OF_ORIGIN, parameters.longitudeOfOriginDeg))
+                addNotNull(scaleFactor(parameters.scaleFactor))
+            }
             else -> Unit
         }
     }

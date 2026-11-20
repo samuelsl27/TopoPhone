@@ -33,7 +33,7 @@
       Hecho cuando: `test_vectores.py` los comprueba y el fichero se regenera igual.
 - [x] T11. `ObliqueStereographic`: `forward` e `inverse` y `null` en la antípoda del origen. (RF-10, RF-19)
       Hecho cuando: `ObliqueStereographicTest` pasa, incluido el punto publicado de RD Nueva (53° N, 6° E).
-- [ ] T12. Factores de la Estereográfica oblicua y validación de parámetros. (RF-11, RF-12)
+- [x] T12. Factores de la Estereográfica oblicua y validación de parámetros. (RF-11, RF-12)
       Hecho cuando: `ObliqueStereographicFactorsTest` y `ObliqueStereographicParametersTest` pasan.
 
 ## Estereográfica polar
