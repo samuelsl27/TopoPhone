@@ -266,3 +266,8 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Color ACI | `AciColor` | Uno de los 255 colores indexados estándar de los CAD (S029) |
 | Módulo experimental | `receiver-experimental` | Parte de la app que habla con la interfaz local no documentada del receptor; solo existe en el flavor `experimental` y está apagada de fábrica (S044) |
 | Aviso legal | `ExperimentalNotice` | Texto que el usuario acepta al activar el módulo experimental: la interfaz no es oficial, su uso puede infringir los términos del fabricante y puede dejar de funcionar (S044) |
+| LCC (Cónica Conforme de Lambert) | `LambertConic1Sp`, `LambertConic2Sp` | Proyección cónica conforme definida por un paralelo de origen con factor de escala (1SP) o por dos paralelos estándar (2SP) (S032) |
+| Mercator (variantes A y B) | `MercatorA`, `MercatorB` | Proyección cilíndrica conforme definida por un factor de escala en el ecuador (A) o por un paralelo estándar de escala verdadera (B) (S032) |
+| Oblique Mercator (OM) | `ObliqueMercatorA`, `ObliqueMercatorB` | Mercator Oblicua de Hotine: en la variante A el falso Este y Norte se dan en el origen natural y en la B en el centro de la proyección (S032) |
+| Estereográfica | `ObliqueStereographic`, `PolarStereographicA`, `PolarStereographicB`, `PolarStereographicC` | Proyección conforme sobre un plano: oblicua (origen cualquiera) o polar en tres variantes (S032) |
+| Meridiano de origen | `primeMeridianDeg` | Longitud respecto a Greenwich del meridiano desde el que un SC cuenta sus longitudes (Madrid, París, Lisboa…) (S032) |

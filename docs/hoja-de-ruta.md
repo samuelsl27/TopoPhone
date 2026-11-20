@@ -84,7 +84,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
-| 032 proyecciones-completas | LCC 1SP/2SP y Oblique Mercator A/B (otras solo si el catálogo las necesita) | 008 | pendiente |
+| 032 proyecciones-completas | LCC 1SP/2SP, Mercator A/B, Oblique Mercator A/B, Estereográfica oblicua y polar A/B/C y meridiano de origen distinto de Greenwich (otras solo si el catálogo las necesita; sin demo visible) | 008 | spec |
 | 033 transformaciones-datum | Helmert 3/4/6/7 (PV y CF), Molodensky-Badekas 10, rejillas de desplazamiento horizontal (ED50 con SPED2ETV2 ya está en S008) | 032, 008 | pendiente |
 | 034 biblioteca-sc-mundial | Catálogo con búsqueda por país, código o nombre; ficha del SC; datums verticales; descarga de geoides con SHA-256 | 033, 032, 006 | pendiente |
 | 035 sc-personalizado | Editor de SC personalizado, "Mis SC", importar y exportar JSON, cambio del SC del proyecto (mismo datum), cuadrícula o terreno | 034, 033, 032 | pendiente |
