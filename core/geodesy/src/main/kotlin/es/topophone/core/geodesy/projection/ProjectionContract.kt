@@ -26,7 +26,8 @@ enum class ProjectionMethod {
 
     companion object {
         /** Los métodos que se calculan hoy: la Transversa de Mercator (S008) y Web Mercator (S009); cada tarea de S032 añade los suyos. */
-        val implemented: List<ProjectionMethod> = listOf(TRANSVERSE_MERCATOR, WEB_MERCATOR, LAMBERT_CONIC_1SP, LAMBERT_CONIC_2SP)
+        val implemented: List<ProjectionMethod> =
+            listOf(TRANSVERSE_MERCATOR, WEB_MERCATOR, LAMBERT_CONIC_1SP, LAMBERT_CONIC_2SP, MERCATOR_A, MERCATOR_B)
     }
 }
 

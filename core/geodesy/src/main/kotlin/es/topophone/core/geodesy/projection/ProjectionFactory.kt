@@ -14,6 +14,7 @@ object ProjectionFactory {
         val parameters = setup.parameters.inMetres(setup.linearUnit)
         val projection = when (parameters) {
             is LambertConic1Sp, is LambertConic2Sp -> LambertConic.create(setup.ellipsoid, parameters)
+            is MercatorA, is MercatorB -> Mercator.create(setup.ellipsoid, parameters)
             else -> return ProjectionResult.Invalid(listOf(ParameterProblem(ProjectionParameter.METHOD, ProblemKind.UNSUPPORTED_METHOD)))
         }
         return ProjectionResult.Ok(withPrimeMeridian(projection, setup.primeMeridianDeg))

@@ -27,6 +27,14 @@ internal object ProjectionValidation {
                     add(ParameterProblem(ProjectionParameter.STANDARD_PARALLEL_2, ProblemKind.OPPOSITE_PARALLELS))
                 }
             }
+            is MercatorA -> {
+                addNotNull(longitude(ProjectionParameter.LONGITUDE_OF_ORIGIN, parameters.longitudeOfOriginDeg))
+                addNotNull(scaleFactor(parameters.scaleFactor))
+            }
+            is MercatorB -> {
+                addNotNull(longitude(ProjectionParameter.LONGITUDE_OF_ORIGIN, parameters.longitudeOfOriginDeg))
+                addNotNull(latitude(ProjectionParameter.STANDARD_PARALLEL, parameters.standardParallelDeg))
+            }
             else -> Unit
         }
     }
