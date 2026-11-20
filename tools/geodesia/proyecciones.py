@@ -4,6 +4,7 @@ Cada familia tiene su generador y su CSV en `fixtures/geodesia/` (los llama `gen
 - lcc.csv: Cónica Conforme de Lambert 1SP y 2SP (EPSG 9801 y 9802): ida, vuelta, factor de escala y convergencia (S032/RF-1, RF-2).
 - mercator.csv: Mercator A y B (EPSG 9804 y 9805) con lo mismo (S032/RF-4, RF-5).
 - omerc.csv: Hotine Oblique Mercator A y B (EPSG 9812 y 9815) con lo mismo (S032/RF-7, RF-8).
+- stereo_oblicua.csv: Estereográfica oblicua (EPSG 9809) con lo mismo y el punto publicado de GN 7-2 (S032/RF-10, RF-11).
 
 Cómo se calcula cada fila:
 - **Casos de EPSG**: el Este y el Norte salen de la propia definición del CRS en la base de PROJ (`Transformer` desde su CRS geográfico), que es
@@ -37,6 +38,7 @@ OUT = ROOT / "fixtures" / "geodesia"
 SEMILLA_LCC = 20261120
 SEMILLA_MERCATOR = 20261121
 SEMILLA_OMERC = 20261122
+SEMILLA_STEREO_OBLICUA = 20261123
 TOLERANCIA_CRUZADA_M = 1e-6
 
 
@@ -471,12 +473,109 @@ def omerc_vectors(rng: random.Random) -> list[str]:
     return lineas
 
 
+# --- Estereográfica oblicua (doble estereográfica) -------------------------------------------------------------------------------
+
+EPSG_ESTEREO_OBLICUA = {28992}  # Amersfoort / RD New
+
+# El ejemplo publicado de GN 7-2 (Amersfoort / RD New): 53° N, 6° E → (196 105,283; 557 057,739) m.
+PUNTO_GN_7_2 = (53.0, 6.0, 196105.283, 557057.739)
+TOLERANCIA_PUNTO_PUBLICADO_M = 0.002
+
+
+@dataclass(frozen=True)
+class CasoEstereo:
+    nombre: str
+    elipsoide: Elipsoide
+    meridiano_origen_deg: float
+    unidad_m: float
+    lat_origen_deg: float
+    lon_origen_deg: float  # respecto al meridiano de origen
+    k0: float
+    falso_este: float
+    falso_norte: float
+    epsg: int | None = None
+
+    def cadena_proj(self) -> str:
+        return (
+            f"+proj=sterea +lat_0={self.lat_origen_deg!r} +lon_0={self.lon_origen_deg + self.meridiano_origen_deg!r} +k_0={self.k0!r} "
+            f"+x_0={self.falso_este * self.unidad_m!r} +y_0={self.falso_norte * self.unidad_m!r} "
+            f"{self.elipsoide.argumentos_proj()} +units=m +no_defs"
+        )
+
+
+def caso_epsg_estereo(codigo: int) -> CasoEstereo:
+    crs = CRS.from_epsg(codigo)
+    metodo = crs.coordinate_operation.method_name
+    assert "Oblique Stereographic" in metodo, f"EPSG:{codigo} es «{metodo}»"
+    parametros = {p.name: p for p in crs.coordinate_operation.params}
+    elipsoide = Elipsoide(crs.ellipsoid.semi_major_metre, crs.ellipsoid.inverse_flattening)
+    meridiano = crs.geodetic_crs.prime_meridian
+    latitud = parametros["Latitude of natural origin"]
+    longitud = parametros["Longitude of natural origin"]
+    este = parametros["False easting"]
+    return CasoEstereo(
+        f"EPSG:{codigo}", elipsoide, a_grados(meridiano.longitude, meridiano.unit_conversion_factor), este.unit_conversion_factor,
+        a_grados(latitud.value, latitud.unit_conversion_factor), a_grados(longitud.value, longitud.unit_conversion_factor),
+        parametros["Scale factor at natural origin"].value, este.value, parametros["False northing"].value, codigo,
+    )  # fmt: skip
+
+
+def casos_estereo() -> list[CasoEstereo]:
+    propios = [
+        CasoEstereo("origen-ecuador", GRS80, 0.0, 1.0, 0.0, 10.0, 0.9996, 1_000.0, 2_000.0),
+        CasoEstereo("cerca-del-polo", GRS80, 0.0, 1.0, 85.0, 20.0, 1.0, 0.0, 0.0),
+        CasoEstereo("esfera", ESFERA, 0.0, 1.0, 40.0, -30.0, 1.0, 500.0, 500.0),
+        CasoEstereo("sur", INTERNACIONAL, 0.0, 1.0, -35.0, 150.0, 0.9999, 500_000.0, 10_000_000.0),
+    ]
+    return [caso_epsg_estereo(codigo) for codigo in sorted(EPSG_ESTEREO_OBLICUA)] + propios
+
+
+def puntos_estereo(caso: CasoEstereo, rng: random.Random) -> list[tuple[float, float]]:
+    """Una rejilla de ±5° de latitud y ±6° de longitud alrededor del origen, unos puntos al azar y el punto publicado de RD Nueva."""
+    lon0 = caso.lon_origen_deg + caso.meridiano_origen_deg
+    puntos = [(limitar_latitud(caso.lat_origen_deg + dlat), lon0 + dlon) for dlat in (-5.0, -2.5, 0.0, 2.5, 5.0) for dlon in (-6.0, -3.0, 0.0, 3.0, 6.0)]
+    puntos += [(limitar_latitud(caso.lat_origen_deg + rng.uniform(-5.0, 5.0)), lon0 + rng.uniform(-6.0, 6.0)) for _ in range(5)]
+    if caso.epsg == 28992:
+        puntos.append((PUNTO_GN_7_2[0], PUNTO_GN_7_2[1]))
+    return puntos
+
+
+COLUMNAS_STEREO_OBLICUA = (
+    "caso,semieje,achatamiento_inverso,meridiano_origen_deg,unidad_m,lat_origen,lon_origen,k0,falso_este,falso_norte,"
+    "latitud,longitud,este_m,norte_m,factor_escala,convergencia_grados"
+)
+
+
+def stereo_oblicua_vectors(rng: random.Random) -> list[str]:
+    """S032/RF-10, RF-11: Este, Norte, factor de escala y convergencia (grados) de la Estereográfica oblicua."""
+    lineas = header("Estereografica oblicua (pyproj/PROJ, Transformer de EPSG y get_factors)") + [COLUMNAS_STEREO_OBLICUA]
+    for caso in casos_estereo():
+        proj = pyproj.Proj(caso.cadena_proj())
+        epsg = ReferenciaEpsg.de(caso.epsg) if caso.epsg is not None else None
+        for lat, lon in puntos_estereo(caso, rng):
+            este, norte, k, gamma = referencia(caso, proj, epsg, lat, lon)
+            if caso.epsg == 28992 and (lat, lon) == PUNTO_GN_7_2[:2]:
+                assert abs(este - PUNTO_GN_7_2[2]) <= TOLERANCIA_PUNTO_PUBLICADO_M, f"RD Nueva: E={este}, publicado {PUNTO_GN_7_2[2]}"
+                assert abs(norte - PUNTO_GN_7_2[3]) <= TOLERANCIA_PUNTO_PUBLICADO_M, f"RD Nueva: N={norte}, publicado {PUNTO_GN_7_2[3]}"
+            lineas.append(
+                ",".join(
+                    [
+                        caso.nombre, fmt(caso.elipsoide.semieje), fmt(caso.elipsoide.achatamiento_inverso), fmt(caso.meridiano_origen_deg),
+                        fmt(caso.unidad_m), fmt(caso.lat_origen_deg), fmt(caso.lon_origen_deg), fmt(caso.k0), fmt(caso.falso_este),
+                        fmt(caso.falso_norte), fmt(lat), fmt(lon), fmt(este), fmt(norte), fmt(k), fmt(gamma),
+                    ]
+                )  # fmt: skip
+            )
+    return lineas
+
+
 def todos() -> list[tuple[str, list[str]]]:
     """Todos los ficheros de este módulo, con su nombre: los usa `generar_vectores.py` y `main` de aquí."""
     return [
         ("lcc.csv", lcc_vectors(random.Random(SEMILLA_LCC))),
         ("mercator.csv", mercator_vectors(random.Random(SEMILLA_MERCATOR))),
         ("omerc.csv", omerc_vectors(random.Random(SEMILLA_OMERC))),
+        ("stereo_oblicua.csv", stereo_oblicua_vectors(random.Random(SEMILLA_STEREO_OBLICUA))),
     ]
 
 

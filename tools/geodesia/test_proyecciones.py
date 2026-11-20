@@ -154,3 +154,38 @@ def test_s032_rf_7_los_vectores_de_omerc_se_regeneran_igual() -> None:
     regenerado = "\n".join(p.omerc_vectors(random.Random(p.SEMILLA_OMERC))) + "\n"
 
     assert regenerado == (FIXTURES / "omerc.csv").read_text(encoding="utf-8")
+
+
+def test_s032_rf_10_stereo_oblicua_cubre_rd_nueva_y_los_casos_limite() -> None:
+    comentarios, filas = leer("stereo_oblicua.csv")
+
+    assert any(f"pyproj={pyproj.__version__}" in linea for linea in comentarios)
+    assert len(filas) > 60
+    casos = {fila["caso"] for fila in filas}
+    assert {"EPSG:28992", "origen-ecuador", "cerca-del-polo", "esfera", "sur"} <= casos
+    assert set(filas[0]) == {
+        "caso", "semieje", "achatamiento_inverso", "meridiano_origen_deg", "unidad_m", "lat_origen", "lon_origen", "k0", "falso_este",
+        "falso_norte", "latitud", "longitud", "este_m", "norte_m", "factor_escala", "convergencia_grados",
+    }  # fmt: skip
+
+
+def test_s032_rf_10_el_punto_publicado_de_gn_7_2_esta_en_los_vectores_de_rd_nueva() -> None:
+    _, filas = leer("stereo_oblicua.csv")
+
+    publicado = [f for f in filas if f["caso"] == "EPSG:28992" and float(f["latitud"]) == 53.0 and float(f["longitud"]) == 6.0]
+
+    assert len(publicado) == 1
+    assert float(publicado[0]["este_m"]) == pytest.approx(196105.283, abs=0.002)
+    assert float(publicado[0]["norte_m"]) == pytest.approx(557057.739, abs=0.002)
+
+
+def test_s032_rf_10_el_caso_de_epsg_es_la_estereografica_oblicua() -> None:
+    assert p.EPSG_ESTEREO_OBLICUA == {28992}
+    for codigo in p.EPSG_ESTEREO_OBLICUA:
+        assert "Oblique Stereographic" in pyproj.CRS.from_epsg(codigo).coordinate_operation.method_name
+
+
+def test_s032_rf_10_los_vectores_de_stereo_oblicua_se_regeneran_igual() -> None:
+    regenerado = "\n".join(p.stereo_oblicua_vectors(random.Random(p.SEMILLA_STEREO_OBLICUA))) + "\n"
+
+    assert regenerado == (FIXTURES / "stereo_oblicua.csv").read_text(encoding="utf-8")
