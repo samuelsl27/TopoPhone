@@ -10,8 +10,17 @@ object ProjectionFactory {
     fun create(setup: ProjectionSetup): ProjectionResult {
         val problems = commonProblems(setup)
         if (problems.isNotEmpty()) return ProjectionResult.Invalid(problems)
-        return ProjectionResult.Invalid(listOf(ParameterProblem(ProjectionParameter.METHOD, ProblemKind.UNSUPPORTED_METHOD)))
+        // Los falsos pasan a metros una sola vez, aquí (RF-16); los métodos trabajan siempre en metros.
+        val parameters = setup.parameters.inMetres(setup.linearUnit)
+        val projection = when (parameters) {
+            is LambertConic1Sp, is LambertConic2Sp -> LambertConic.create(setup.ellipsoid, parameters)
+            else -> return ProjectionResult.Invalid(listOf(ParameterProblem(ProjectionParameter.METHOD, ProblemKind.UNSUPPORTED_METHOD)))
+        }
+        return ProjectionResult.Ok(withPrimeMeridian(projection, setup.primeMeridianDeg))
     }
+
+    private fun withPrimeMeridian(projection: MapProjection, primeMeridianDeg: Double): MapProjection =
+        if (primeMeridianDeg == 0.0) projection else PrimeMeridianProjection(projection, primeMeridianDeg)
 
     /** Lo que todos los métodos comparten: los falsos Este y Norte deben ser números finitos. */
     private fun commonProblems(setup: ProjectionSetup): List<ParameterProblem> = buildList {

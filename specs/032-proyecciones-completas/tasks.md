@@ -9,7 +9,7 @@
 ## Lambert Conformal Conic
 - [x] T2. `tools/geodesia/proyecciones.py` (constructor de WKT2, comprobación del método de cada CRS en PROJ y cabecera de versiones) y `fixtures/geodesia/lcc.csv` con ida, vuelta, factor y convergencia: EPSG:2154, 3034, 32040 (`us-ft`), 27571 y 27572 (París), y una rejilla propia con esfera, hemisferio sur y paralelos iguales; `generar_vectores.py` lo invoca. (RF-1, RF-2)
       Hecho cuando: `test_vectores.py` comprueba columnas, recuento y método de cada caso, y el fichero se regenera igual (determinista).
-- [ ] T3. `LambertConic1Sp` y `LambertConic2Sp`: `forward` e `inverse`, con la inversa por Newton sobre la latitud conforme y `null` para el polo opuesto. (RF-1, RF-19)
+- [x] T3. `LambertConic1Sp` y `LambertConic2Sp`: `forward` e `inverse`, con la inversa por Newton sobre la latitud conforme y `null` para el polo opuesto. (RF-1, RF-19)
       Hecho cuando: `LambertConicTest` cubre los 40 o más vectores a ≤ 1 mm y ≤ 1·10⁻⁸ ° y los casos límite de la spec.
 - [ ] T4. Factor de escala y convergencia de LCC y validación de parámetros en `ProjectionFactory`. (RF-2, RF-3)
       Hecho cuando: `LambertConicFactorsTest` (≤ 1·10⁻⁹ y ≤ 0,01″) y `LambertConicParametersTest` (cada causa con su parámetro) pasan.
