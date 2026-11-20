@@ -264,3 +264,21 @@ def test_s032_rf_17_los_vectores_de_meridiano_origen_se_regeneran_igual() -> Non
     regenerado = "\n".join(p.meridiano_origen_vectors(random.Random(p.SEMILLA_MERIDIANO_ORIGEN))) + "\n"
 
     assert regenerado == (FIXTURES / "meridiano_origen.csv").read_text(encoding="utf-8")
+
+
+def test_s032_rf_16_unidades_cubre_pies_y_pies_de_ee_uu_en_los_diez_metodos() -> None:
+    comentarios, filas = leer("unidades_proyeccion.csv")
+
+    assert any(f"pyproj={pyproj.__version__}" in linea for linea in comentarios)
+    unidades = {round(float(fila["unidad_m"]), 9) for fila in filas}
+    assert unidades >= {1.0, 0.3048, round(1200.0 / 3937.0, 9)}
+    por_unidad = {u: {f["metodo"] for f in filas if round(float(f["unidad_m"]), 9) == u} for u in (0.3048, round(1200.0 / 3937.0, 9))}
+    for metodos in por_unidad.values():
+        assert len(metodos) == 10
+    assert {"EPSG:32040", "EPSG:29873"} <= {fila["caso"] for fila in filas}
+
+
+def test_s032_rf_16_los_vectores_de_unidades_se_regeneran_igual() -> None:
+    regenerado = "\n".join(p.unidades_proyeccion_vectors(random.Random(p.SEMILLA_UNIDADES))) + "\n"
+
+    assert regenerado == (FIXTURES / "unidades_proyeccion.csv").read_text(encoding="utf-8")

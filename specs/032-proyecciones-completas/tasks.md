@@ -47,7 +47,7 @@
 ## Meridiano de origen, unidades y transversales
 - [x] T16. Vectores con meridiano de origen distinto de Greenwich (`meridiano_origen.csv`: Madrid, París y Lisboa en LCC, Mercator, OM, oblicua y polar, y un caso que cruza el antimeridiano) y su prueba con `ProjectionFactory`. (RF-17)
       Hecho cuando: `PrimeMeridianProjectionTest` pasa con los vectores de todos los métodos.
-- [ ] T17. Vectores con falsos en `ft` y `us-ft` (`unidades_proyeccion.csv`) y su prueba. (RF-16)
+- [x] T17. Vectores con falsos en `ft` y `us-ft` (`unidades_proyeccion.csv`) y su prueba. (RF-16)
       Hecho cuando: `ProjectionUnitsTest` pasa con los vectores de pyproj (EPSG:32040 y 29873 entre ellos).
 - [ ] T18. Ida y vuelta en una rejilla por método y rechazo de los puntos sin imagen. (RF-18, RF-19)
       Hecho cuando: `ProjectionRoundTripTest` (≤ 0,1 mm en los 11 métodos) y `ProjectionNoImageTest` (`null` en cada caso de RF-19, nunca un valor extrapolado) pasan.

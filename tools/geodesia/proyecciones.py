@@ -7,6 +7,7 @@ Cada familia tiene su generador y su CSV en `fixtures/geodesia/` (los llama `gen
 - stereo_oblicua.csv: Estereográfica oblicua (EPSG 9809) con lo mismo y el punto publicado de GN 7-2 (S032/RF-10, RF-11).
 - stereo_polar.csv: Estereográfica polar A, B y C (EPSG 9810, 9829 y 9830) con lo mismo, en los dos polos (S032/RF-13, RF-14).
 - meridiano_origen.csv: los diez métodos con meridiano de origen de Madrid, París y Lisboa y un caso que cruza el antimeridiano (S032/RF-17).
+- unidades_proyeccion.csv: los diez métodos con los falsos en pies y en pies de EE. UU., más EPSG:32040 y 29873 (S032/RF-16).
 
 Cómo se calcula cada fila:
 - **Casos de EPSG**: el Este y el Norte salen de la propia definición del CRS en la base de PROJ (`Transformer` desde su CRS geográfico), que es
@@ -43,6 +44,7 @@ SEMILLA_OMERC = 20261122
 SEMILLA_STEREO_OBLICUA = 20261123
 SEMILLA_STEREO_POLAR = 20261124
 SEMILLA_MERIDIANO_ORIGEN = 20261125
+SEMILLA_UNIDADES = 20261126
 TOLERANCIA_CRUZADA_M = 1e-6
 
 
@@ -741,23 +743,28 @@ def parametros_genericos(caso) -> tuple[str, list[float | None]]:
     return f"POLAR_STEREOGRAPHIC_{caso.metodo}", [caso.lat_param_deg, caso.lon_origen_deg, caso.falso_este, caso.falso_norte]
 
 
+def casos_de_los_diez_metodos(sufijo: str, pm: float, lat: float, unidad_m: float, este: float, norte: float) -> list:
+    """Un caso de cada uno de los diez métodos alrededor de la latitud `lat`, con el meridiano de origen `pm` y los falsos en `unidad_m`."""
+    u = unidad_m
+    return [
+        CasoLcc(f"lcc1sp{sufijo}", "1SP", GRS80, pm, u, lat, 1.0, None, None, 0.9996, este, norte),
+        CasoLcc(f"lcc2sp{sufijo}", "2SP", GRS80, pm, u, lat, 1.0, lat - 2.0, lat + 2.0, None, este, norte),
+        CasoMercator(f"mercator-a{sufijo}", "A", GRS80, pm, u, 1.0, 0.9996, None, este, norte),
+        CasoMercator(f"mercator-b{sufijo}", "B", GRS80, pm, u, 1.0, None, lat, este, norte),
+        CasoOmerc(f"omerc-a{sufijo}", "A", GRS80, pm, u, lat, 1.0, 30.0, 30.0, 0.9996, este, norte),
+        CasoOmerc(f"omerc-b{sufijo}", "B", GRS80, pm, u, lat, 1.0, 30.0, 20.0, 0.9996, este, norte),
+        CasoEstereo(f"estereo-oblicua{sufijo}", GRS80, pm, u, lat, 1.0, 0.9999, este, norte),
+        CasoPolar(f"polar-a{sufijo}", "A", GRS80, pm, u, 90.0, 1.0, 0.994, este, norte),
+        CasoPolar(f"polar-b{sufijo}", "B", GRS80, pm, u, -71.0, 1.0, None, este, norte),
+        CasoPolar(f"polar-c{sufijo}", "C", GRS80, pm, u, 70.0, 1.0, None, este, norte),
+    ]
+
+
 def casos_meridiano_origen() -> list:
     """Cada método con el meridiano de origen de Madrid, París y Lisboa, y un caso que cruza el antimeridiano."""
     casos: list = []
     for ciudad, (pm, lat) in MERIDIANOS.items():
-        sufijo = f"-{ciudad}"
-        casos += [
-            CasoLcc(f"lcc1sp{sufijo}", "1SP", GRS80, pm, 1.0, lat, 1.0, None, None, 0.9996, 100_000.0, 200_000.0),
-            CasoLcc(f"lcc2sp{sufijo}", "2SP", GRS80, pm, 1.0, lat, 1.0, lat - 2.0, lat + 2.0, None, 100_000.0, 200_000.0),
-            CasoMercator(f"mercator-a{sufijo}", "A", GRS80, pm, 1.0, 1.0, 0.9996, None, 100_000.0, 200_000.0),
-            CasoMercator(f"mercator-b{sufijo}", "B", GRS80, pm, 1.0, 1.0, None, lat, 100_000.0, 200_000.0),
-            CasoOmerc(f"omerc-a{sufijo}", "A", GRS80, pm, 1.0, lat, 1.0, 30.0, 30.0, 0.9996, 100_000.0, 200_000.0),
-            CasoOmerc(f"omerc-b{sufijo}", "B", GRS80, pm, 1.0, lat, 1.0, 30.0, 20.0, 0.9996, 100_000.0, 200_000.0),
-            CasoEstereo(f"estereo-oblicua{sufijo}", GRS80, pm, 1.0, lat, 1.0, 0.9999, 100_000.0, 200_000.0),
-            CasoPolar(f"polar-a{sufijo}", "A", GRS80, pm, 1.0, 90.0, 1.0, 0.994, 100_000.0, 200_000.0),
-            CasoPolar(f"polar-b{sufijo}", "B", GRS80, pm, 1.0, -71.0, 1.0, None, 100_000.0, 200_000.0),
-            CasoPolar(f"polar-c{sufijo}", "C", GRS80, pm, 1.0, 70.0, 1.0, None, 100_000.0, 200_000.0),
-        ]
+        casos += casos_de_los_diez_metodos(f"-{ciudad}", pm, lat, 1.0, 100_000.0, 200_000.0)
     # La longitud de origen (170° desde Lisboa) cae en 160,87° de Greenwich y los puntos de ±20° la pasan de 180°.
     casos += [
         CasoMercator("cruza-antimeridiano-mercator", "A", GRS80, LISBOA_DEG, 1.0, 170.0, 0.9996, None, 0.0, 0.0),
@@ -791,15 +798,16 @@ COLUMNAS_MERIDIANO_ORIGEN = (
 )
 
 
-def meridiano_origen_vectors(rng: random.Random) -> list[str]:
-    """S032/RF-17: los diez métodos con meridiano de origen de Madrid, París y Lisboa; la longitud de los puntos es la de Greenwich."""
-    lineas = header("Meridiano de origen distinto de Greenwich (pyproj/PROJ con lon_0 de Greenwich y sin +pm)") + [COLUMNAS_MERIDIANO_ORIGEN]
-    for caso in casos_meridiano_origen():
+def vectores_genericos(titulo: str, casos: list, rng: random.Random) -> list[str]:
+    """Las filas genéricas (método y p1…p7) de una lista de casos; los de EPSG se contrastan además con su Transformer."""
+    lineas = header(titulo) + [COLUMNAS_MERIDIANO_ORIGEN]
+    for caso in casos:
         proj = pyproj.Proj(caso.cadena_proj())
+        epsg = ReferenciaEpsg.de(caso.epsg) if getattr(caso, "epsg", None) is not None else None
         metodo, parametros = parametros_genericos(caso)
         parametros = (parametros + [None] * 7)[:7]
         for lat, lon in puntos_meridiano_origen(caso, rng):
-            este, norte, k, gamma = referencia(caso, proj, None, lat, lon)
+            este, norte, k, gamma = referencia(caso, proj, epsg, lat, lon)
             lineas.append(
                 ",".join(
                     [caso.nombre, metodo, fmt(caso.elipsoide.semieje), fmt(caso.elipsoide.achatamiento_inverso), fmt(caso.meridiano_origen_deg),
@@ -807,6 +815,32 @@ def meridiano_origen_vectors(rng: random.Random) -> list[str]:
                 )  # fmt: skip
             )
     return lineas
+
+
+def meridiano_origen_vectors(rng: random.Random) -> list[str]:
+    """S032/RF-17: los diez métodos con meridiano de origen de Madrid, París y Lisboa; la longitud de los puntos es la de Greenwich."""
+    return vectores_genericos(
+        "Meridiano de origen distinto de Greenwich (pyproj/PROJ con lon_0 de Greenwich y sin +pm)", casos_meridiano_origen(), rng
+    )
+
+
+# --- Falsos en pies y pies topográficos de EE. UU. (RF-16) -----------------------------------------------------------------------
+
+PIE_M = 0.3048
+PIE_EEUU_M = 1200.0 / 3937.0
+
+
+def casos_unidades() -> list:
+    """Los diez métodos con los falsos en pies y en pies de EE. UU., y los casos de EPSG:32040 (pies de EE. UU.) y EPSG:29873 (metros)."""
+    casos: list = [caso_epsg_lcc(32040), caso_epsg_omerc(29873)]
+    for sufijo, unidad in (("-ft", PIE_M), ("-usft", PIE_EEUU_M)):
+        casos += casos_de_los_diez_metodos(sufijo, 0.0, 40.4, unidad, 1_000_000.0, 2_000_000.0)
+    return casos
+
+
+def unidades_proyeccion_vectors(rng: random.Random) -> list[str]:
+    """S032/RF-16: los falsos Este y Norte en la unidad del SC; las coordenadas de salida son metros (RNF-T9)."""
+    return vectores_genericos("Falsos en pies y pies de EE. UU. (pyproj/PROJ, Transformer de EPSG y get_factors)", casos_unidades(), rng)
 
 
 def todos() -> list[tuple[str, list[str]]]:
@@ -818,6 +852,7 @@ def todos() -> list[tuple[str, list[str]]]:
         ("stereo_oblicua.csv", stereo_oblicua_vectors(random.Random(SEMILLA_STEREO_OBLICUA))),
         ("stereo_polar.csv", stereo_polar_vectors(random.Random(SEMILLA_STEREO_POLAR))),
         ("meridiano_origen.csv", meridiano_origen_vectors(random.Random(SEMILLA_MERIDIANO_ORIGEN))),
+        ("unidades_proyeccion.csv", unidades_proyeccion_vectors(random.Random(SEMILLA_UNIDADES))),
     ]
 
 

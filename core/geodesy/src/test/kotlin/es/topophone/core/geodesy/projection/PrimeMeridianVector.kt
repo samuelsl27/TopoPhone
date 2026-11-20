@@ -4,8 +4,8 @@ import es.topophone.core.geodesy.Ellipsoid
 import es.topophone.core.geodesy.GeodesyFixtures
 
 /**
- * Una fila de `fixtures/geodesia/meridiano_origen.csv` (generada con pyproj por `tools/geodesia/proyecciones.py`): un SC con meridiano de
- * origen distinto de Greenwich, de cualquiera de los diez métodos. Las longitudes del punto son las de Greenwich.
+ * Una fila de `fixtures/geodesia/meridiano_origen.csv` o de `unidades_proyeccion.csv` (mismo formato; generadas con pyproj por
+ * `tools/geodesia/proyecciones.py`): un SC de cualquiera de los diez métodos. Las longitudes del punto son las de Greenwich.
  */
 internal data class PrimeMeridianVector(
     val case: String,
@@ -18,7 +18,7 @@ internal data class PrimeMeridianVector(
     val convergenceDeg: Double,
 ) {
     companion object {
-        fun all(): List<PrimeMeridianVector> = GeodesyFixtures.rows("meridiano_origen.csv").map(::parse)
+        fun all(file: String = "meridiano_origen.csv"): List<PrimeMeridianVector> = GeodesyFixtures.rows(file).map(::parse)
 
         private fun parse(row: List<String>): PrimeMeridianVector {
             val inverseFlattening = row[3].toDouble()
