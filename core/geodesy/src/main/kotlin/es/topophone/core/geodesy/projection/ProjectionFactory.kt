@@ -3,7 +3,7 @@ package es.topophone.core.geodesy.projection
 /**
  * Valida el SC y construye su proyección con el meridiano de origen ya aplicado (S032/RF-3, RF-6, RF-9, RF-12, RF-15, RF-16, RF-17).
  * Devuelve **todos** los problemas a la vez, cada uno con su parámetro y su causa. La Transversa de Mercator y Web Mercator se siguen
- * calculando con sus clases de siempre (S008, S009): aquí devuelven `UNSUPPORTED_METHOD`.
+ * calculando con sus clases de siempre (S008, S009) y no tienen parámetros aquí: con los diez métodos de S032 `when` es exhaustivo.
  */
 object ProjectionFactory {
 
@@ -18,7 +18,6 @@ object ProjectionFactory {
             is ObliqueMercatorA, is ObliqueMercatorB -> ObliqueMercator.create(setup.ellipsoid, parameters)
             is ObliqueStereographic -> DoubleStereographic.create(setup.ellipsoid, parameters)
             is PolarStereographicA, is PolarStereographicB, is PolarStereographicC -> PolarStereographic.create(setup.ellipsoid, parameters)
-            else -> return ProjectionResult.Invalid(listOf(ParameterProblem(ProjectionParameter.METHOD, ProblemKind.UNSUPPORTED_METHOD)))
         }
         return ProjectionResult.Ok(withPrimeMeridian(projection, setup.primeMeridianDeg))
     }

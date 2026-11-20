@@ -55,8 +55,31 @@ internal object ProjectionValidation {
                 addNotNull(longitude(ProjectionParameter.LONGITUDE_OF_ORIGIN, parameters.longitudeOfOriginDeg))
                 addNotNull(scaleFactor(parameters.scaleFactor))
             }
-            else -> Unit
+            is PolarStereographicA -> {
+                addNotNull(poleLatitude(ProjectionParameter.LATITUDE_OF_ORIGIN, parameters.latitudeOfOriginDeg))
+                addNotNull(longitude(ProjectionParameter.LONGITUDE_OF_ORIGIN, parameters.longitudeOfOriginDeg))
+                addNotNull(scaleFactor(parameters.scaleFactor))
+            }
+            is PolarStereographicB -> polarStandardParallel(parameters.latitudeOfStandardParallelDeg, parameters.longitudeOfOriginDeg)
+            is PolarStereographicC -> polarStandardParallel(parameters.latitudeOfStandardParallelDeg, parameters.longitudeOfOriginDeg)
         }
+    }
+
+    /** El signo del paralelo estándar dice el polo, así que solo se rechaza el ecuador (no hay polo) y lo que no es una latitud. */
+    private fun MutableList<ParameterProblem>.polarStandardParallel(latitudeDeg: Double, longitudeOfOriginDeg: Double) {
+        addNotNull(latitude(ProjectionParameter.STANDARD_PARALLEL, latitudeDeg, poleAllowed = true, equatorAllowed = false))
+        addNotNull(longitude(ProjectionParameter.LONGITUDE_OF_ORIGIN, longitudeOfOriginDeg))
+    }
+
+    /** Una latitud que tiene que ser exactamente un polo (+90° o −90°). */
+    private fun poleLatitude(parameter: ProjectionParameter, valueDeg: Double): ParameterProblem? {
+        val kind = when {
+            !valueDeg.isFinite() -> ProblemKind.NOT_FINITE
+            abs(valueDeg) > 90.0 -> ProblemKind.OUT_OF_RANGE
+            abs(valueDeg) != 90.0 -> ProblemKind.NOT_A_POLE
+            else -> null
+        }
+        return kind?.let { ParameterProblem(parameter, it) }
     }
 
     /** Las dos variantes de la Oblique Mercator comparten parámetros: el centro puede estar en el ecuador pero no en un polo. */

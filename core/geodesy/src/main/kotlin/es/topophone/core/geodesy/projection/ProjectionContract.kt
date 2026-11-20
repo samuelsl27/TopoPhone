@@ -87,6 +87,9 @@ enum class ProblemKind {
     OUT_OF_RANGE,
     AT_POLE,
     AT_EQUATOR,
+
+    /** El método exige un polo (la A de la estereográfica polar) y el valor no lo es. */
+    NOT_A_POLE,
     OPPOSITE_PARALLELS,
     NOT_POSITIVE,
     WRONG_HEMISPHERE,

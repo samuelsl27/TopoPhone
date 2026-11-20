@@ -130,8 +130,19 @@ internal object PolarStereographic {
             return if (latitude.isFinite() && longitude.isFinite()) GeoPoint(latitude, longitude) else null
         }
 
+        /**
+         * Factor de escala y convergencia con fórmula cerrada (S032/RF-14; plan D8): `k = ρ / (a·m)` con `m = cosφ/√(1 − e²sin²φ)` y una
+         * convergencia igual a la diferencia de longitud en el polo norte y a su opuesta en el sur (positiva al este, como en UTM). En los
+         * polos la convergencia no está definida: no hay valor; el polo opuesto no tiene imagen.
+         */
         override fun factors(latitudeDeg: Double, longitudeDeg: Double): PointFactors? {
-            error("S032 T15: factor de escala y convergencia de la Estereográfica polar")
+            if (!latitudeDeg.isFinite() || !longitudeDeg.isFinite() || abs(latitudeDeg) >= 90.0) return null
+            val phi = Math.toRadians(latitudeDeg)
+            val sinPhi = sin(phi)
+            val m = cos(phi) / sqrt(1 - e2 * sinPhi * sinPhi)
+            val scale = rhoPerT * tOf(latitudeDeg) / (a * m)
+            val delta = Math.toRadians(wrap(longitudeDeg - longitudeOfOriginDeg))
+            return PointFactors(scale, pole * delta)
         }
 
         /** El `t` de GN 7-2 del polo de esta proyección: `exp(−ψ)` de la latitud vista desde ese polo. */
