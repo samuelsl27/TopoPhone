@@ -35,8 +35,47 @@ internal object ProjectionValidation {
                 addNotNull(longitude(ProjectionParameter.LONGITUDE_OF_ORIGIN, parameters.longitudeOfOriginDeg))
                 addNotNull(latitude(ProjectionParameter.STANDARD_PARALLEL, parameters.standardParallelDeg))
             }
+            is ObliqueMercatorA -> obliqueMercator(
+                parameters.latitudeOfCentreDeg,
+                parameters.longitudeOfCentreDeg,
+                parameters.azimuthDeg,
+                parameters.rectifiedGridAngleDeg,
+                parameters.scaleFactor,
+            )
+            is ObliqueMercatorB -> obliqueMercator(
+                parameters.latitudeOfCentreDeg,
+                parameters.longitudeOfCentreDeg,
+                parameters.azimuthDeg,
+                parameters.rectifiedGridAngleDeg,
+                parameters.scaleFactor,
+            )
             else -> Unit
         }
+    }
+
+    /** Las dos variantes de la Oblique Mercator comparten parámetros: el centro puede estar en el ecuador pero no en un polo. */
+    private fun MutableList<ParameterProblem>.obliqueMercator(
+        latitudeOfCentreDeg: Double,
+        longitudeOfCentreDeg: Double,
+        azimuthDeg: Double,
+        rectifiedGridAngleDeg: Double,
+        scaleFactor: Double,
+    ) {
+        addNotNull(latitude(ProjectionParameter.LATITUDE_OF_CENTRE, latitudeOfCentreDeg))
+        addNotNull(longitude(ProjectionParameter.LONGITUDE_OF_CENTRE, longitudeOfCentreDeg))
+        addNotNull(fullTurnAngle(ProjectionParameter.AZIMUTH, azimuthDeg))
+        addNotNull(fullTurnAngle(ProjectionParameter.RECTIFIED_GRID_ANGLE, rectifiedGridAngleDeg))
+        addNotNull(scaleFactor(scaleFactor))
+    }
+
+    /** Un ángulo en grados que da, como mucho, una vuelta entera hacia cada lado (0° a 360° o su equivalente negativo). */
+    private fun fullTurnAngle(parameter: ProjectionParameter, valueDeg: Double): ParameterProblem? {
+        val kind = when {
+            !valueDeg.isFinite() -> ProblemKind.NOT_FINITE
+            abs(valueDeg) > 360.0 -> ProblemKind.OUT_OF_RANGE
+            else -> null
+        }
+        return kind?.let { ParameterProblem(parameter, it) }
     }
 
     /** Una latitud en grados: finita, dentro de ±90°, y sin polo ni ecuador si el método no los admite. */

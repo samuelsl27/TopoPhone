@@ -25,7 +25,7 @@
       Hecho cuando: `test_vectores.py` los comprueba (con los factores por la cadena `+proj=` si hace falta) y el fichero se regenera igual.
 - [x] T8. `ObliqueMercatorA` y `ObliqueMercatorB`: `forward` e `inverse` y `null` a 90° o más de la línea central. (RF-7, RF-19)
       Hecho cuando: `ObliqueMercatorTest` pasa a ≤ 1 mm y ≤ 1·10⁻⁸ ° con los casos límite.
-- [ ] T9. Factor de escala y convergencia de OM (fórmula cerrada o diferencias de 4.º orden) y validación de parámetros. (RF-8, RF-9)
+- [x] T9. Factor de escala y convergencia de OM (fórmula cerrada o diferencias de 4.º orden) y validación de parámetros. (RF-8, RF-9)
       Hecho cuando: `ObliqueMercatorFactorsTest` y `ObliqueMercatorParametersTest` pasan.
 
 ## Estereográfica oblicua

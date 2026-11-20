@@ -9,6 +9,7 @@ import kotlin.math.atan
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.exp
+import kotlin.math.hypot
 import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.math.sin
@@ -26,6 +27,9 @@ internal object ObliqueMercator {
 
     /** Un punto tan cerca de los polos de la proyección (a 90° de la línea central) que `v` se va al infinito, como en PROJ. */
     private const val POLE_TOLERANCE = 1e-10
+
+    /** Paso (radianes) de las diferencias centrales de 4.º orden con que se derivan Este y Norte para el factor y la convergencia. */
+    private const val DIFFERENCE_STEP_RAD = 1e-4
 
     fun create(ellipsoid: Ellipsoid, parameters: ProjectionParameters): MapProjection = when (parameters) {
         is ObliqueMercatorA -> Projection(
@@ -75,6 +79,7 @@ internal object ObliqueMercator {
 
         private val conformal = ConformalLatitude(ellipsoid)
         private val a = ellipsoid.semiMajorAxisM
+        private val e2 = ellipsoid.eccentricitySquared
 
         private val b: Double
         private val scaleA: Double
@@ -91,7 +96,7 @@ internal object ObliqueMercator {
         private val centreU: Double
 
         init {
-            val e2 = ellipsoid.eccentricitySquared
+
             val phiC = Math.toRadians(centre.latitudeDeg)
             val sinPhiC = sin(phiC)
             val cosPhiC = cos(phiC)
@@ -154,8 +159,27 @@ internal object ObliqueMercator {
             return if (latitude.isFinite() && longitude.isFinite()) GeoPoint(latitude, longitude) else null
         }
 
+        /**
+         * Factor de escala y convergencia de meridianos (S032/RF-8; plan D8). La proyección es conforme, así que basta la imagen del meridiano:
+         * `k = |d(E, N)/dφ| / M` y `γ = −atan2(dE, dN)` (positiva al este del meridiano central, como en UTM). La derivada es una diferencia
+         * central de 4.º orden sobre [forward], que da ~1·10⁻¹² de error relativo sin la fórmula cerrada de GN 7-2, mucho más larga.
+         */
         override fun factors(latitudeDeg: Double, longitudeDeg: Double): PointFactors? {
-            error("S032 T9: factor de escala y convergencia de OM")
+            if (!latitudeDeg.isFinite() || !longitudeDeg.isFinite() || abs(latitudeDeg) >= 90.0) return null
+            if (forward(latitudeDeg, longitudeDeg) == null) return null
+            val phi = Math.toRadians(latitudeDeg)
+            // Cerca de un polo el paso se acorta para no salirse de ±90°.
+            val step = minOf(DIFFERENCE_STEP_RAD, (Math.PI / 2 - abs(phi)) / 2)
+            val stepDeg = Math.toDegrees(step)
+            val ahead2 = forward(latitudeDeg + 2 * stepDeg, longitudeDeg) ?: return null
+            val ahead = forward(latitudeDeg + stepDeg, longitudeDeg) ?: return null
+            val behind = forward(latitudeDeg - stepDeg, longitudeDeg) ?: return null
+            val behind2 = forward(latitudeDeg - 2 * stepDeg, longitudeDeg) ?: return null
+            val dEasting = (-ahead2.eastingM + 8 * ahead.eastingM - 8 * behind.eastingM + behind2.eastingM) / (12 * step)
+            val dNorthing = (-ahead2.northingM + 8 * ahead.northingM - 8 * behind.northingM + behind2.northingM) / (12 * step)
+            val sinPhi = sin(phi)
+            val meridianRadius = a * (1 - e2) / (1 - e2 * sinPhi * sinPhi).pow(1.5)
+            return PointFactors(hypot(dEasting, dNorthing) / meridianRadius, -atan2(dEasting, dNorthing))
         }
 
         private fun wrap(longitudeDeg: Double): Double {
