@@ -88,6 +88,8 @@ internal object LambertConic {
     ) : MapProjection {
 
         private val coneSign = sign(n)
+        private val semiMajorAxisM = ellipsoid.semiMajorAxisM
+        private val eccentricitySquared = ellipsoid.eccentricitySquared
 
         override fun forward(latitudeDeg: Double, longitudeDeg: Double): ProjectedPoint? {
             if (!latitudeDeg.isFinite() || !longitudeDeg.isFinite() || abs(latitudeDeg) > 90.0) return null
@@ -115,8 +117,18 @@ internal object LambertConic {
             return GeoPoint(latitude, longitude)
         }
 
-        /** Pendiente de la tarea T4: el factor de escala y la convergencia. */
-        override fun factors(latitudeDeg: Double, longitudeDeg: Double): PointFactors? = null
+        /**
+         * Factor de escala `k = r·n / (a·m)` y convergencia `γ = n(λ−λ₀)` (positiva al este del meridiano central, como en UTM) (S032/RF-2;
+         * plan A1). En los polos `m = 0`: la escala tiende a infinito en el vértice del cono y no hay imagen en el otro, así que no hay valor.
+         */
+        override fun factors(latitudeDeg: Double, longitudeDeg: Double): PointFactors? {
+            if (!latitudeDeg.isFinite() || !longitudeDeg.isFinite() || abs(latitudeDeg) >= 90.0) return null
+            val phi = Math.toRadians(latitudeDeg)
+            val r = aF * conformal.t(conformal.tauPrime(tan(phi))).pow(n)
+            val m = cos(phi) / sqrt(1 - eccentricitySquared * sin(phi) * sin(phi))
+            val scale = r * n / (semiMajorAxisM * m)
+            return PointFactors(scale, n * Math.toRadians(wrap(longitudeDeg - longitudeOfOriginDeg)))
+        }
 
         private fun wrap(longitudeDeg: Double): Double {
             if (longitudeDeg > -180.0 && longitudeDeg <= 180.0) return longitudeDeg

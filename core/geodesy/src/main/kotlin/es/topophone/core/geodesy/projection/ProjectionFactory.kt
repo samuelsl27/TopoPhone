@@ -8,7 +8,7 @@ package es.topophone.core.geodesy.projection
 object ProjectionFactory {
 
     fun create(setup: ProjectionSetup): ProjectionResult {
-        val problems = commonProblems(setup)
+        val problems = ProjectionValidation.problems(setup.parameters) + commonProblems(setup)
         if (problems.isNotEmpty()) return ProjectionResult.Invalid(problems)
         // Los falsos pasan a metros una sola vez, aquí (RF-16); los métodos trabajan siempre en metros.
         val parameters = setup.parameters.inMetres(setup.linearUnit)

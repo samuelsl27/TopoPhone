@@ -11,7 +11,7 @@
       Hecho cuando: `test_vectores.py` comprueba columnas, recuento y método de cada caso, y el fichero se regenera igual (determinista).
 - [x] T3. `LambertConic1Sp` y `LambertConic2Sp`: `forward` e `inverse`, con la inversa por Newton sobre la latitud conforme y `null` para el polo opuesto. (RF-1, RF-19)
       Hecho cuando: `LambertConicTest` cubre los 40 o más vectores a ≤ 1 mm y ≤ 1·10⁻⁸ ° y los casos límite de la spec.
-- [ ] T4. Factor de escala y convergencia de LCC y validación de parámetros en `ProjectionFactory`. (RF-2, RF-3)
+- [x] T4. Factor de escala y convergencia de LCC y validación de parámetros en `ProjectionFactory`. (RF-2, RF-3)
       Hecho cuando: `LambertConicFactorsTest` (≤ 1·10⁻⁹ y ≤ 0,01″) y `LambertConicParametersTest` (cada causa con su parámetro) pasan.
 
 ## Mercator
