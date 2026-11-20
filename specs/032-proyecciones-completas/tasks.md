@@ -15,7 +15,7 @@
       Hecho cuando: `LambertConicFactorsTest` (≤ 1·10⁻⁹ y ≤ 0,01″) y `LambertConicParametersTest` (cada causa con su parámetro) pasan.
 
 ## Mercator
-- [ ] T5. Vectores de Mercator A y B (`mercator.csv`): EPSG:3002 y 3388 y una rejilla propia con esfera, hemisferio sur y paralelo estándar en el ecuador. (RF-4, RF-5)
+- [x] T5. Vectores de Mercator A y B (`mercator.csv`): EPSG:3002 y 3388 y una rejilla propia con esfera, hemisferio sur y paralelo estándar en el ecuador. (RF-4, RF-5)
       Hecho cuando: `test_vectores.py` los comprueba y el fichero se regenera igual.
 - [ ] T6. `MercatorA` y `MercatorB` completos: `forward`, `inverse`, factores, validación y `null` en los polos. (RF-4, RF-5, RF-6, RF-19)
       Hecho cuando: `MercatorTest`, `MercatorFactorsTest` y `MercatorParametersTest` pasan.

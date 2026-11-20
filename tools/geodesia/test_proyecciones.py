@@ -84,3 +84,36 @@ def test_s032_rf_1_los_vectores_son_numeros_finitos() -> None:
         for columna in ("latitud", "longitud", "este_m", "norte_m", "factor_escala", "convergencia_grados"):
             assert float(fila[columna]) == pytest.approx(float(fila[columna]))
             assert abs(float(fila[columna])) < 1e12, (fila["caso"], columna)
+
+
+def test_s032_rf_4_mercator_cubre_a_y_b_con_los_casos_de_epsg_y_los_limite() -> None:
+    comentarios, filas = leer("mercator.csv")
+
+    assert any(f"pyproj={pyproj.__version__}" in linea for linea in comentarios)
+    assert len(filas) > 40
+    assert {fila["metodo"] for fila in filas} == {"A", "B"}
+    casos = {fila["caso"] for fila in filas}
+    assert {"EPSG:3002", "EPSG:3388", "EPSG:3395"} <= casos
+    assert {"esfera-a", "esfera-b", "sur-a", "sur-b", "b-ecuador"} <= casos
+
+
+def test_s032_rf_4_mercator_tiene_las_columnas_de_ida_vuelta_factor_y_convergencia() -> None:
+    _, filas = leer("mercator.csv")
+
+    assert set(filas[0]) == {
+        "caso", "metodo", "semieje", "achatamiento_inverso", "meridiano_origen_deg", "unidad_m", "lon_origen", "k0", "lat_estandar",
+        "falso_este", "falso_norte", "latitud", "longitud", "este_m", "norte_m", "factor_escala", "convergencia_grados",
+    }  # fmt: skip
+    # La convergencia de una Mercator es siempre nula (S032/RF-5).
+    assert all(float(fila["convergencia_grados"]) == 0.0 for fila in filas)
+
+
+def test_s032_rf_4_cada_caso_de_epsg_de_mercator_usa_la_variante_que_se_espera() -> None:
+    for codigo, esperado in p.EPSG_MERCATOR.items():
+        assert esperado in pyproj.CRS.from_epsg(codigo).coordinate_operation.method_name, codigo
+
+
+def test_s032_rf_4_los_vectores_de_mercator_se_regeneran_igual() -> None:
+    regenerado = "\n".join(p.mercator_vectors(random.Random(p.SEMILLA_MERCATOR))) + "\n"
+
+    assert regenerado == (FIXTURES / "mercator.csv").read_text(encoding="utf-8")

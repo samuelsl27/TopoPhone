@@ -2,6 +2,7 @@
 
 Cada familia tiene su generador y su CSV en `fixtures/geodesia/` (los llama `generar_vectores.py`):
 - lcc.csv: Cónica Conforme de Lambert 1SP y 2SP (EPSG 9801 y 9802): ida, vuelta, factor de escala y convergencia (S032/RF-1, RF-2).
+- mercator.csv: Mercator A y B (EPSG 9804 y 9805) con lo mismo (S032/RF-4, RF-5).
 
 Cómo se calcula cada fila:
 - **Casos de EPSG**: el Este y el Norte salen de la propia definición del CRS en la base de PROJ (`Transformer` desde su CRS geográfico), que es
@@ -33,6 +34,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "fixtures" / "geodesia"
 
 SEMILLA_LCC = 20261120
+SEMILLA_MERCATOR = 20261121
 TOLERANCIA_CRUZADA_M = 1e-6
 
 
@@ -197,7 +199,7 @@ class ReferenciaEpsg:
         return este * self.unidad_eje_m, norte * self.unidad_eje_m
 
 
-def referencia_lcc(caso: CasoLcc, proj: pyproj.Proj, epsg: ReferenciaEpsg | None, lat: float, lon: float):
+def referencia(caso: CasoLcc | CasoMercator, proj: pyproj.Proj, epsg: ReferenciaEpsg | None, lat: float, lon: float):
     """(Este, Norte, factor, convergencia) de un punto, y la comprobación cruzada de los casos de EPSG."""
     este, norte = proj(lon, lat)
     if epsg is not None:
@@ -223,7 +225,7 @@ def lcc_vectors(rng: random.Random) -> list[str]:
         proj = pyproj.Proj(caso.cadena_proj())
         epsg = ReferenciaEpsg.de(caso.epsg) if caso.epsg is not None else None
         for lat, lon in puntos_lcc(caso, rng):
-            este, norte, k, gamma = referencia_lcc(caso, proj, epsg, lat, lon)
+            este, norte, k, gamma = referencia(caso, proj, epsg, lat, lon)
             lineas.append(
                 ",".join(
                     [
@@ -237,10 +239,117 @@ def lcc_vectors(rng: random.Random) -> list[str]:
     return lineas
 
 
+# --- Mercator A y B --------------------------------------------------------------------------------------------------------------
+
+# CRS de EPSG de Mercator y su variante en la base de PROJ (se comprueba al generar y en el test).
+EPSG_MERCATOR = {
+    3002: "(variant A)",  # Makassar / NEIEZ
+    3395: "(variant A)",  # WGS 84 / World Mercator
+    3388: "(variant B)",  # Pulkovo 1942 / Caspian Sea Mercator
+}
+
+
+@dataclass(frozen=True)
+class CasoMercator:
+    nombre: str
+    metodo: str  # "A" o "B"
+    elipsoide: Elipsoide
+    meridiano_origen_deg: float
+    unidad_m: float
+    lon_origen_deg: float
+    k0: float | None  # variante A
+    lat_estandar_deg: float | None  # variante B
+    falso_este: float
+    falso_norte: float
+    epsg: int | None = None
+
+    def cadena_proj(self) -> str:
+        comunes = (
+            f"+lon_0={self.lon_origen_deg + self.meridiano_origen_deg!r} +x_0={self.falso_este * self.unidad_m!r} "
+            f"+y_0={self.falso_norte * self.unidad_m!r} {self.elipsoide.argumentos_proj()} +units=m +no_defs"
+        )
+        if self.metodo == "A":
+            return f"+proj=merc +k_0={self.k0!r} {comunes}"
+        return f"+proj=merc +lat_ts={self.lat_estandar_deg!r} {comunes}"
+
+
+def caso_epsg_mercator(codigo: int) -> CasoMercator:
+    crs = CRS.from_epsg(codigo)
+    metodo = crs.coordinate_operation.method_name
+    esperado = EPSG_MERCATOR[codigo]
+    assert esperado in metodo, f"EPSG:{codigo} es «{metodo}», no {esperado}"
+    parametros = {p.name: p for p in crs.coordinate_operation.params}
+    elipsoide = Elipsoide(crs.ellipsoid.semi_major_metre, crs.ellipsoid.inverse_flattening)
+    meridiano = crs.geodetic_crs.prime_meridian
+    meridiano_deg = a_grados(meridiano.longitude, meridiano.unit_conversion_factor)
+    longitud = parametros["Longitude of natural origin"]
+    este = parametros["False easting"]
+    norte = parametros["False northing"]
+    comunes = (elipsoide, meridiano_deg, este.unit_conversion_factor, a_grados(longitud.value, longitud.unit_conversion_factor))
+    if "variant A" in metodo:
+        # El origen natural de la variante A es el ecuador (así la define EPSG): el catálogo excluye lo que no lo cumpla.
+        assert parametros["Latitude of natural origin"].value == 0.0, f"EPSG:{codigo}: la variante A no está en el ecuador"
+        return CasoMercator(
+            f"EPSG:{codigo}", "A", *comunes, parametros["Scale factor at natural origin"].value, None, este.value, norte.value, codigo
+        )
+    paralelo = parametros["Latitude of 1st standard parallel"]
+    return CasoMercator(
+        f"EPSG:{codigo}", "B", *comunes, None, a_grados(paralelo.value, paralelo.unit_conversion_factor), este.value, norte.value, codigo
+    )
+
+
+def casos_mercator() -> list[CasoMercator]:
+    propios = [
+        CasoMercator("esfera-a", "A", ESFERA, 0.0, 1.0, 10.0, 1.0, None, 0.0, 0.0),
+        CasoMercator("esfera-b", "B", ESFERA, 0.0, 1.0, -30.0, None, 45.0, 1_000.0, -2_000.0),
+        CasoMercator("sur-a", "A", GRS80, 0.0, 1.0, -60.0, 0.9996, None, 500_000.0, 10_000_000.0),
+        CasoMercator("sur-b", "B", INTERNACIONAL, 0.0, 1.0, 20.0, None, -35.0, 100.0, 200.0),
+        # Paralelo estándar en el ecuador: equivale a la variante A con factor 1.
+        CasoMercator("b-ecuador", "B", GRS80, 0.0, 1.0, 5.0, None, 0.0, 0.0, 0.0),
+    ]
+    return [caso_epsg_mercator(codigo) for codigo in EPSG_MERCATOR] + propios
+
+
+def puntos_mercator(caso: CasoMercator, rng: random.Random) -> list[tuple[float, float]]:
+    """Latitudes de −60° a 60° y longitudes hasta ±20° del meridiano de origen, más unos puntos al azar."""
+    lon0 = caso.lon_origen_deg + caso.meridiano_origen_deg
+    puntos = [(lat, lon0 + dlon) for lat in (-60.0, -30.0, 0.0, 30.0, 60.0) for dlon in (-20.0, -10.0, 0.0, 10.0, 20.0)]
+    puntos += [(rng.uniform(-70.0, 70.0), lon0 + rng.uniform(-20.0, 20.0)) for _ in range(5)]
+    return puntos
+
+
+COLUMNAS_MERCATOR = (
+    "caso,metodo,semieje,achatamiento_inverso,meridiano_origen_deg,unidad_m,lon_origen,k0,lat_estandar,falso_este,falso_norte,"
+    "latitud,longitud,este_m,norte_m,factor_escala,convergencia_grados"
+)
+
+
+def mercator_vectors(rng: random.Random) -> list[str]:
+    """S032/RF-4, RF-5: Este, Norte, factor de escala y convergencia (siempre 0) de la Mercator A y B."""
+    lineas = header("Mercator A y B (pyproj/PROJ, Transformer de EPSG y get_factors)") + [COLUMNAS_MERCATOR]
+    for caso in casos_mercator():
+        proj = pyproj.Proj(caso.cadena_proj())
+        epsg = ReferenciaEpsg.de(caso.epsg) if caso.epsg is not None else None
+        for lat, lon in puntos_mercator(caso, rng):
+            este, norte, k, gamma = referencia(caso, proj, epsg, lat, lon)
+            lineas.append(
+                ",".join(
+                    [
+                        caso.nombre, caso.metodo, fmt(caso.elipsoide.semieje), fmt(caso.elipsoide.achatamiento_inverso),
+                        fmt(caso.meridiano_origen_deg), fmt(caso.unidad_m), fmt(caso.lon_origen_deg), fmt(caso.k0),
+                        fmt(caso.lat_estandar_deg), fmt(caso.falso_este), fmt(caso.falso_norte),
+                        fmt(lat), fmt(lon), fmt(este), fmt(norte), fmt(k), fmt(gamma),
+                    ]
+                )  # fmt: skip
+            )
+    return lineas
+
+
 def todos() -> list[tuple[str, list[str]]]:
     """Todos los ficheros de este módulo, con su nombre: los usa `generar_vectores.py` y `main` de aquí."""
     return [
         ("lcc.csv", lcc_vectors(random.Random(SEMILLA_LCC))),
+        ("mercator.csv", mercator_vectors(random.Random(SEMILLA_MERCATOR))),
     ]
 
 
