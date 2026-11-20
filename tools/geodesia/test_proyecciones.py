@@ -226,3 +226,41 @@ def test_s032_rf_13_los_vectores_de_stereo_polar_se_regeneran_igual() -> None:
     regenerado = "\n".join(p.stereo_polar_vectors(random.Random(p.SEMILLA_STEREO_POLAR))) + "\n"
 
     assert regenerado == (FIXTURES / "stereo_polar.csv").read_text(encoding="utf-8")
+
+
+def test_s032_rf_17_meridiano_origen_cubre_los_diez_metodos_y_tres_meridianos() -> None:
+    comentarios, filas = leer("meridiano_origen.csv")
+
+    assert any(f"pyproj={pyproj.__version__}" in linea for linea in comentarios)
+    metodos = {fila["metodo"] for fila in filas}
+    assert metodos == {
+        "LAMBERT_CONIC_1SP", "LAMBERT_CONIC_2SP", "MERCATOR_A", "MERCATOR_B", "OBLIQUE_MERCATOR_A", "OBLIQUE_MERCATOR_B",
+        "OBLIQUE_STEREOGRAPHIC", "POLAR_STEREOGRAPHIC_A", "POLAR_STEREOGRAPHIC_B", "POLAR_STEREOGRAPHIC_C",
+    }  # fmt: skip
+    meridianos = {round(float(fila["meridiano_origen_deg"]), 6) for fila in filas}
+    assert meridianos >= {round(p.MADRID_DEG, 6), round(p.PARIS_DEG, 6), round(p.LISBOA_DEG, 6)}
+
+
+def test_s032_rf_17_meridiano_origen_tiene_un_caso_que_cruza_el_antimeridiano() -> None:
+    _, filas = leer("meridiano_origen.csv")
+
+    cruza = [fila for fila in filas if fila["caso"].startswith("cruza-antimeridiano")]
+
+    assert len(cruza) > 5
+    assert any(float(fila["longitud"]) < -170.0 for fila in cruza) and any(float(fila["longitud"]) > 170.0 for fila in cruza)
+    assert all(-180.0 < float(fila["longitud"]) <= 180.0 for fila in filas)
+
+
+def test_s032_rf_17_meridiano_origen_tiene_las_columnas_genericas() -> None:
+    _, filas = leer("meridiano_origen.csv")
+
+    assert set(filas[0]) == {
+        "caso", "metodo", "semieje", "achatamiento_inverso", "meridiano_origen_deg", "unidad_m",
+        "p1", "p2", "p3", "p4", "p5", "p6", "p7", "latitud", "longitud", "este_m", "norte_m", "factor_escala", "convergencia_grados",
+    }  # fmt: skip
+
+
+def test_s032_rf_17_los_vectores_de_meridiano_origen_se_regeneran_igual() -> None:
+    regenerado = "\n".join(p.meridiano_origen_vectors(random.Random(p.SEMILLA_MERIDIANO_ORIGEN))) + "\n"
+
+    assert regenerado == (FIXTURES / "meridiano_origen.csv").read_text(encoding="utf-8")

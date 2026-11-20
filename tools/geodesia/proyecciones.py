@@ -6,6 +6,7 @@ Cada familia tiene su generador y su CSV en `fixtures/geodesia/` (los llama `gen
 - omerc.csv: Hotine Oblique Mercator A y B (EPSG 9812 y 9815) con lo mismo (S032/RF-7, RF-8).
 - stereo_oblicua.csv: Estereográfica oblicua (EPSG 9809) con lo mismo y el punto publicado de GN 7-2 (S032/RF-10, RF-11).
 - stereo_polar.csv: Estereográfica polar A, B y C (EPSG 9810, 9829 y 9830) con lo mismo, en los dos polos (S032/RF-13, RF-14).
+- meridiano_origen.csv: los diez métodos con meridiano de origen de Madrid, París y Lisboa y un caso que cruza el antimeridiano (S032/RF-17).
 
 Cómo se calcula cada fila:
 - **Casos de EPSG**: el Este y el Norte salen de la propia definición del CRS en la base de PROJ (`Transformer` desde su CRS geográfico), que es
@@ -41,6 +42,7 @@ SEMILLA_MERCATOR = 20261121
 SEMILLA_OMERC = 20261122
 SEMILLA_STEREO_OBLICUA = 20261123
 SEMILLA_STEREO_POLAR = 20261124
+SEMILLA_MERIDIANO_ORIGEN = 20261125
 TOLERANCIA_CRUZADA_M = 1e-6
 
 
@@ -706,6 +708,107 @@ def stereo_polar_vectors(rng: random.Random) -> list[str]:
     return lineas
 
 
+# --- Meridiano de origen distinto de Greenwich (RF-17) ---------------------------------------------------------------------------
+
+# Madrid (3°41'16,58" O), París (2°20'14,025" E) y Lisboa (9°07'54,862" O), en grados.
+MADRID_DEG = -(3 + 41 / 60 + 16.58 / 3600)
+PARIS_DEG = 2 + 20 / 60 + 14.025 / 3600
+LISBOA_DEG = -(9 + 7 / 60 + 54.862 / 3600)
+MERIDIANOS = {"madrid": (MADRID_DEG, 40.4), "paris": (PARIS_DEG, 48.85), "lisboa": (LISBOA_DEG, 38.7)}
+
+
+def parametros_genericos(caso) -> tuple[str, list[float | None]]:
+    """(método de TopoPhone, p1…p7) en el orden de los parámetros de cada variante; la referencia de PROJ es la `cadena_proj` del caso."""
+    if isinstance(caso, CasoLcc):
+        if caso.metodo == "1SP":
+            return "LAMBERT_CONIC_1SP", [caso.lat_origen_deg, caso.lon_origen_deg, caso.k0, caso.falso_este, caso.falso_norte]
+        return "LAMBERT_CONIC_2SP", [
+            caso.lat_origen_deg, caso.lon_origen_deg, caso.lat1_deg, caso.lat2_deg, caso.falso_este, caso.falso_norte,
+        ]  # fmt: skip
+    if isinstance(caso, CasoMercator):
+        if caso.metodo == "A":
+            return "MERCATOR_A", [caso.lon_origen_deg, caso.k0, caso.falso_este, caso.falso_norte]
+        return "MERCATOR_B", [caso.lon_origen_deg, caso.lat_estandar_deg, caso.falso_este, caso.falso_norte]
+    if isinstance(caso, CasoOmerc):
+        return f"OBLIQUE_MERCATOR_{caso.metodo}", [
+            caso.lat_centro_deg, caso.lon_centro_deg, caso.azimut_deg, caso.angulo_rectificacion_deg, caso.k0,
+            caso.falso_este, caso.falso_norte,
+        ]  # fmt: skip
+    if isinstance(caso, CasoEstereo):
+        return "OBLIQUE_STEREOGRAPHIC", [caso.lat_origen_deg, caso.lon_origen_deg, caso.k0, caso.falso_este, caso.falso_norte]
+    if caso.metodo == "A":
+        return "POLAR_STEREOGRAPHIC_A", [caso.lat_param_deg, caso.lon_origen_deg, caso.k0, caso.falso_este, caso.falso_norte]
+    return f"POLAR_STEREOGRAPHIC_{caso.metodo}", [caso.lat_param_deg, caso.lon_origen_deg, caso.falso_este, caso.falso_norte]
+
+
+def casos_meridiano_origen() -> list:
+    """Cada método con el meridiano de origen de Madrid, París y Lisboa, y un caso que cruza el antimeridiano."""
+    casos: list = []
+    for ciudad, (pm, lat) in MERIDIANOS.items():
+        sufijo = f"-{ciudad}"
+        casos += [
+            CasoLcc(f"lcc1sp{sufijo}", "1SP", GRS80, pm, 1.0, lat, 1.0, None, None, 0.9996, 100_000.0, 200_000.0),
+            CasoLcc(f"lcc2sp{sufijo}", "2SP", GRS80, pm, 1.0, lat, 1.0, lat - 2.0, lat + 2.0, None, 100_000.0, 200_000.0),
+            CasoMercator(f"mercator-a{sufijo}", "A", GRS80, pm, 1.0, 1.0, 0.9996, None, 100_000.0, 200_000.0),
+            CasoMercator(f"mercator-b{sufijo}", "B", GRS80, pm, 1.0, 1.0, None, lat, 100_000.0, 200_000.0),
+            CasoOmerc(f"omerc-a{sufijo}", "A", GRS80, pm, 1.0, lat, 1.0, 30.0, 30.0, 0.9996, 100_000.0, 200_000.0),
+            CasoOmerc(f"omerc-b{sufijo}", "B", GRS80, pm, 1.0, lat, 1.0, 30.0, 20.0, 0.9996, 100_000.0, 200_000.0),
+            CasoEstereo(f"estereo-oblicua{sufijo}", GRS80, pm, 1.0, lat, 1.0, 0.9999, 100_000.0, 200_000.0),
+            CasoPolar(f"polar-a{sufijo}", "A", GRS80, pm, 1.0, 90.0, 1.0, 0.994, 100_000.0, 200_000.0),
+            CasoPolar(f"polar-b{sufijo}", "B", GRS80, pm, 1.0, -71.0, 1.0, None, 100_000.0, 200_000.0),
+            CasoPolar(f"polar-c{sufijo}", "C", GRS80, pm, 1.0, 70.0, 1.0, None, 100_000.0, 200_000.0),
+        ]
+    # La longitud de origen (170° desde Lisboa) cae en 160,87° de Greenwich y los puntos de ±20° la pasan de 180°.
+    casos += [
+        CasoMercator("cruza-antimeridiano-mercator", "A", GRS80, LISBOA_DEG, 1.0, 170.0, 0.9996, None, 0.0, 0.0),
+        CasoLcc("cruza-antimeridiano-lcc", "2SP", GRS80, LISBOA_DEG, 1.0, -20.0, 170.0, -30.0, -10.0, None, 0.0, 0.0),
+    ]
+    return casos
+
+
+def puntos_meridiano_origen(caso, rng: random.Random) -> list[tuple[float, float]]:
+    """Una rejilla de 3 × 3 alrededor del origen (en Greenwich, normalizada a ±180°) y tres puntos al azar; en los polares, cerca del polo."""
+    lon0 = caso.lon_origen_deg + caso.meridiano_origen_deg if hasattr(caso, "lon_origen_deg") else caso.lon_centro_deg + caso.meridiano_origen_deg
+    if isinstance(caso, CasoPolar):
+        signo = 1.0 if caso.lat_param_deg > 0 else -1.0
+        return [(signo * lat, normalizar_longitud(lon0 + dlon)) for lat in (88.0, 75.0, 60.0) for dlon in (-120.0, 0.0, 100.0)] + [
+            (signo * rng.uniform(55.0, 89.0), normalizar_longitud(lon0 + rng.uniform(-170.0, 170.0))) for _ in range(3)
+        ]
+    lat0 = caso.lat_centro_deg if hasattr(caso, "lat_centro_deg") else getattr(caso, "lat_origen_deg", 0.0)
+    if isinstance(caso, CasoMercator):
+        lat0 = caso.lat_estandar_deg if caso.lat_estandar_deg is not None else 20.0
+    puntos = [(limitar_latitud(lat0 + dlat), normalizar_longitud(lon0 + dlon)) for dlat in (-3.0, 0.0, 3.0) for dlon in (-4.0, 0.0, 4.0)]
+    if caso.nombre.startswith("cruza-antimeridiano"):
+        puntos = [(limitar_latitud(lat0 + dlat), normalizar_longitud(lon0 + dlon)) for dlat in (-3.0, 0.0, 3.0) for dlon in (-20.0, 0.0, 20.0)]
+        puntos += [(limitar_latitud(lat0 + rng.uniform(-3.0, 3.0)), normalizar_longitud(lon0 + rng.uniform(15.0, 25.0))) for _ in range(3)]
+        return puntos
+    return puntos + [(limitar_latitud(lat0 + rng.uniform(-3.0, 3.0)), normalizar_longitud(lon0 + rng.uniform(-4.0, 4.0))) for _ in range(3)]
+
+
+COLUMNAS_MERIDIANO_ORIGEN = (
+    "caso,metodo,semieje,achatamiento_inverso,meridiano_origen_deg,unidad_m,p1,p2,p3,p4,p5,p6,p7,"
+    "latitud,longitud,este_m,norte_m,factor_escala,convergencia_grados"
+)
+
+
+def meridiano_origen_vectors(rng: random.Random) -> list[str]:
+    """S032/RF-17: los diez métodos con meridiano de origen de Madrid, París y Lisboa; la longitud de los puntos es la de Greenwich."""
+    lineas = header("Meridiano de origen distinto de Greenwich (pyproj/PROJ con lon_0 de Greenwich y sin +pm)") + [COLUMNAS_MERIDIANO_ORIGEN]
+    for caso in casos_meridiano_origen():
+        proj = pyproj.Proj(caso.cadena_proj())
+        metodo, parametros = parametros_genericos(caso)
+        parametros = (parametros + [None] * 7)[:7]
+        for lat, lon in puntos_meridiano_origen(caso, rng):
+            este, norte, k, gamma = referencia(caso, proj, None, lat, lon)
+            lineas.append(
+                ",".join(
+                    [caso.nombre, metodo, fmt(caso.elipsoide.semieje), fmt(caso.elipsoide.achatamiento_inverso), fmt(caso.meridiano_origen_deg),
+                     fmt(caso.unidad_m), *[fmt(valor) for valor in parametros], fmt(lat), fmt(lon), fmt(este), fmt(norte), fmt(k), fmt(gamma)]
+                )  # fmt: skip
+            )
+    return lineas
+
+
 def todos() -> list[tuple[str, list[str]]]:
     """Todos los ficheros de este módulo, con su nombre: los usa `generar_vectores.py` y `main` de aquí."""
     return [
@@ -714,6 +817,7 @@ def todos() -> list[tuple[str, list[str]]]:
         ("omerc.csv", omerc_vectors(random.Random(SEMILLA_OMERC))),
         ("stereo_oblicua.csv", stereo_oblicua_vectors(random.Random(SEMILLA_STEREO_OBLICUA))),
         ("stereo_polar.csv", stereo_polar_vectors(random.Random(SEMILLA_STEREO_POLAR))),
+        ("meridiano_origen.csv", meridiano_origen_vectors(random.Random(SEMILLA_MERIDIANO_ORIGEN))),
     ]
 
 

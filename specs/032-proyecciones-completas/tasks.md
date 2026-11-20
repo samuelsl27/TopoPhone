@@ -45,7 +45,7 @@
       Hecho cuando: `PolarStereographicFactorsTest` y `PolarStereographicParametersTest` pasan.
 
 ## Meridiano de origen, unidades y transversales
-- [ ] T16. Vectores con meridiano de origen distinto de Greenwich (`meridiano_origen.csv`: Madrid, París y Lisboa en LCC, Mercator, OM, oblicua y polar, y un caso que cruza el antimeridiano) y su prueba con `ProjectionFactory`. (RF-17)
+- [x] T16. Vectores con meridiano de origen distinto de Greenwich (`meridiano_origen.csv`: Madrid, París y Lisboa en LCC, Mercator, OM, oblicua y polar, y un caso que cruza el antimeridiano) y su prueba con `ProjectionFactory`. (RF-17)
       Hecho cuando: `PrimeMeridianProjectionTest` pasa con los vectores de todos los métodos.
 - [ ] T17. Vectores con falsos en `ft` y `us-ft` (`unidades_proyeccion.csv`) y su prueba. (RF-16)
       Hecho cuando: `ProjectionUnitsTest` pasa con los vectores de pyproj (EPSG:32040 y 29873 entre ellos).
