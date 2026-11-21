@@ -7,7 +7,7 @@
       Hecho cuando: `HelmertParametersTest` pasa (conversiones, factorías de 3/4/6/7, todos los problemas a la vez) y `check` pasa.
 
 ## Helmert
-- [ ] T2. `tools/geodesia/datum.py` (cabecera de versiones y comprobación del método EPSG en PROJ) y `fixtures/geodesia/helmert.csv`: 3, 4, 6 y 7 parámetros en PV y CF con varios pares de elipsoides, parámetros a cero y rotaciones ≥ 1″ con escala ≥ 10 ppm, con ida y vuelta de pyproj; `generar_vectores.py` lo invoca. (RF-1, RF-2)
+- [x] T2. `tools/geodesia/datum.py` (cabecera de versiones y comprobación del método EPSG en PROJ) y `fixtures/geodesia/helmert.csv`: 3, 4, 6 y 7 parámetros en PV y CF con varios pares de elipsoides, parámetros a cero y rotaciones ≥ 1″ con escala ≥ 10 ppm, con ida y vuelta de pyproj; `generar_vectores.py` lo invoca. (RF-1, RF-2)
       Hecho cuando: `test_datum.py` comprueba columnas, recuento y método de cada caso, y el fichero se regenera igual.
 - [ ] T3. `HelmertTransformation.forward` (PV y CF, ECEF, elipsoides de origen y destino). (RF-1, RF-2)
       Hecho cuando: `HelmertTransformationTest` cubre los vectores a ≤ 1 mm y ≤ 1·10⁻⁸ °, y `HelmertConventionTest` comprueba que la convención contraria da otro resultado.

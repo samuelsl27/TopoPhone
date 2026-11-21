@@ -47,6 +47,7 @@ from pyproj import Transformer
 from pyproj.enums import TransformDirection
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import datum  # noqa: E402
 import proyecciones  # noqa: E402
 import rejillas  # noqa: E402
 
@@ -598,6 +599,8 @@ def main() -> int:
         ("punta_jalon.csv", pole_tip_vectors(random.Random(20261028))),
         # S032.
         *proyecciones.todos(),
+        # S033.
+        *datum.todos(),
     )
     for name, lines in outputs:
         (OUT / name).write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
