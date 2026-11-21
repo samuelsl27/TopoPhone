@@ -3,7 +3,7 @@
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Cada tarea cierra con `./gradlew check` en verde (se repite con `--no-parallel` si falla un test ajeno intermitente), la casilla marcada y un commit `S034 Tn: …` en `main`, con la línea Co-Authored-By.
 
 ## Generador del catálogo (`tools/geodesia`)
-- [ ] T1. `tools/geodesia/catalogo.py`, parte 1: SC proyectados y geográficos activos de EPSG con ejes E–N, método y parámetros, unidades, ámbito y países; descarte de los métodos que no calculamos, y formato TSV de las secciones `#ellipsoids`, `#datums` y `#crs`. (RF-4)
+- [x] T1. `tools/geodesia/catalogo.py`, parte 1: SC proyectados y geográficos activos de EPSG con ejes E–N, método y parámetros, unidades, ámbito y países; descarte de los métodos que no calculamos, y formato TSV de las secciones `#ellipsoids`, `#datums` y `#crs`. (RF-4)
       Hecho cuando: `test_catalogo.py` comprueba columnas, recuento, ausencia de obsoletos y de ejes al oeste o al sur, y la salida es idéntica al regenerarla.
 - [ ] T2. `catalogo.py`, parte 2: transformaciones de cada datum a ETRS89 y a WGS84 (`#option`: nula, Helmert 3/7 PV y CF, Molodensky-Badekas, rejilla y cadenas) con precisión y ámbito; los SC sin ninguna se descartan. (RF-4, RF-9, RF-10)
       Hecho cuando: `test_catalogo.py` comprueba que cada SC tiene al menos una opción, que los pasos solo usan los métodos de S033 y que REGCAN95 comparte las de ETRS89 (D8).
