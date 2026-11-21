@@ -33,7 +33,7 @@
       Hecho cuando: `GpkgLibraryImportTest` y `ShpLibraryImportTest` importan una capa en otro SC y reproyectan.
 - [x] T13. KML con un SC de la biblioteca: importar y exportar como el datum de las correcciones. (RF-17, RF-24)
       Hecho cuando: `KmlLibraryTest` pasa con un proyecto en Lambert-93 y otro con correcciones ITRF/WGS84.
-- [ ] T14. Exportar DXF con un SC de la biblioteca. (RF-21)
+- [x] T14. Exportar DXF con un SC de la biblioteca. (RF-21)
       Hecho cuando: `DxfExportLibraryTest` pasa con coordenadas globales y locales y con un SC geográfico.
 - [ ] T15. Exportar GeoPackage con la definición del SC (A6). (RF-22, RF-25)
       Hecho cuando: `GpkgExportLibraryTest` pasa y un SC sin definición exportable lo avisa en el resumen.
