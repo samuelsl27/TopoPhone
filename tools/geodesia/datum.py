@@ -6,6 +6,8 @@ Cada familia tiene su generador y su CSV en `fixtures/geodesia/` (los llama `gen
   casos propios, uno de ellos con el punto de rotación en el centro de la Tierra (S033/RF-3, RF-5).
 - rejilla_desplazamiento.csv: la rejilla SPED2ETV2 de la app como `hgridshift` de PROJ, directa e inversa, en el interior de sus dos subrejillas,
   a ±1e-4° de sus bordes y fuera de ella (vacío donde PROJ no da valor) (S033/RF-7, RF-8, RF-10).
+- cadena_tres_pasos.csv: cadenas Helmert → rejilla → Helmert (tres pasos) y Helmert → Helmert → rejilla → Helmert (cuatro), cada una como una
+  sola tubería de PROJ (S033/RF-11). La columna `pasos` describe la cadena (`G` es la rejilla; `H:…` un Helmert con sus elipsoides y parámetros).
 
 Cómo se calcula cada fila:
 - **Casos de EPSG**: los parámetros y los elipsoides salen de la propia operación de la base de PROJ (`urn:ogc:def:coordinateOperation:EPSG::N`),
@@ -41,6 +43,7 @@ OUT = ROOT / "fixtures" / "geodesia"
 SEMILLA_HELMERT = 20261127
 SEMILLA_MB = 20261128
 SEMILLA_REJILLA = 20261129
+SEMILLA_CADENA = 20261130
 
 # Nombre de método de PROJ de cada familia de operaciones de EPSG que se usa (comprobado antes de generar).
 METODO_TRASLACIONES = "Geocentric translations (geog2D domain)"
@@ -320,12 +323,86 @@ def rejilla_vectors(rng: random.Random) -> list[str]:
     return lineas
 
 
+REJILLA_ED50 = "G"
+
+# Cadenas de varios pasos. Un paso es un Helmert (sus elipsoides: el de destino de uno es el de origen del siguiente) o la rejilla SPED2ETV2
+# («G»), que trabaja en geográficas del datum de origen (ED50) y da las del de destino (ETRS89) sin cambiar de elipsoide por su cuenta.
+CADENAS = {
+    # Datum local (WGS 84) → ED50 por Helmert → ETRS89 por rejilla → otro marco por Helmert: el ejemplo de tres pasos de la spec.
+    "helmert_rejilla_helmert": [
+        Helmert("a", 7, "PV", WGS84, INTERNACIONAL, (-100.0, -90.0, -110.0), (0.1, 0.2, -0.3), 1.5),
+        REJILLA_ED50,
+        Helmert("c", 7, "CF", GRS80, GRS80, (0.0522, 0.0491, -0.0521), (0.001, 0.002, -0.003), 0.04),
+    ],
+    # Dos Helmert seguidos (que se pueden componer en geocéntricas) antes de la rejilla y otro después.
+    "helmert_helmert_rejilla_helmert": [
+        Helmert("a", 6, "PV", WGS84, WGS84, (1.2, -0.8, 2.1), (0.05, -0.04, 0.03), 0.0),
+        Helmert("b", 7, "CF", WGS84, INTERNACIONAL, (-100.0, -90.0, -110.0), (0.1, 0.2, -0.3), 1.5),
+        REJILLA_ED50,
+        Helmert("d", 3, "PV", GRS80, GRS80, (0.5, -0.25, 0.75), (0.0, 0.0, 0.0), 0.0),
+    ],
+}
+
+
+def _codifica_paso(paso: Helmert | str) -> str:
+    """`G` o `H:conv:a:rf:a:rf:tx:ty:tz:rx:ry:rz:s:n`, sin comas ni barras, para ir en una columna del CSV."""
+    if isinstance(paso, str):
+        return paso
+    campos = [
+        "H", paso.convencion, fmt(paso.origen.semieje), fmt(paso.origen.rf), fmt(paso.destino.semieje), fmt(paso.destino.rf),
+        *(fmt(v) for v in paso.t), *(fmt(v) for v in paso.r), fmt(paso.escala), str(paso.n),
+    ]
+    return ":".join(campos)
+
+
+def _tuberia_cadena(pasos: list[Helmert | str]) -> Transformer:
+    """La cadena entera como una tubería de PROJ, con una conversión completa a cartesianas por cada Helmert (la referencia independiente)."""
+    _rejilla_ed50(False)  # solo registra la carpeta de la rejilla local
+    partes = ["+proj=pipeline", "+step +proj=unitconvert +xy_in=deg +xy_out=rad"]
+    for paso in pasos:
+        if isinstance(paso, str):
+            partes.append(f"+step +proj=hgridshift +grids={rejillas.ED50_SHIFT.name}")
+            continue
+        convencion = "position_vector" if paso.convencion == "PV" else "coordinate_frame"
+        parametros = [f"+x={paso.t[0]!r}", f"+y={paso.t[1]!r}", f"+z={paso.t[2]!r}"]
+        if paso.n in (6, 7):
+            parametros += [f"+rx={paso.r[0]!r}", f"+ry={paso.r[1]!r}", f"+rz={paso.r[2]!r}"]
+        if paso.n in (4, 7):
+            parametros.append(f"+s={paso.escala!r}")
+        partes += [
+            f"+step +proj=cart {paso.origen.tuberia}",
+            f"+step +proj=helmert {' '.join(parametros)} +convention={convencion}",
+            f"+step +inv +proj=cart {paso.destino.tuberia}",
+        ]
+    partes.append("+step +proj=unitconvert +xy_in=rad +xy_out=deg")
+    return Transformer.from_pipeline(" ".join(partes))
+
+
+def cadena_vectors(rng: random.Random) -> list[str]:
+    """Cadenas de tres y cuatro pasos de PROJ en la Península: solo la directa (la vuelta se prueba con la ida y vuelta de TopoPhone)."""
+    lineas = header("Cadenas de transformaciones de datum: Helmert → rejilla → Helmert (la tubería completa de PROJ, directa)") + [
+        "caso,pasos,latitud,longitud,altura,latitud_dir,longitud_dir,altura_dir"
+    ]
+    for nombre, pasos in CADENAS.items():
+        tuberia = _tuberia_cadena(pasos)
+        codificados = "|".join(_codifica_paso(p) for p in pasos)
+        puntos = [(lon, lat, h) for lon in (-8.5, -5.0, -3.7, 0.0, 2.5) for lat in (37.0, 40.4, 43.0) for h in (0.0, 600.0)]
+        puntos += [(rng.uniform(-9.0, 3.2), rng.uniform(36.0, 43.5), rng.uniform(-20.0, 1500.0)) for _ in range(40)]
+        for lon, lat, h in puntos:
+            lon_d, lat_d, h_d = tuberia.transform(lon, lat, h)
+            if not all(math.isfinite(v) for v in (lon_d, lat_d, h_d)):
+                raise SystemExit(f"punto de la cadena {nombre} sin imagen: {lat}, {lon}")
+            lineas.append(",".join([nombre, codificados, fmt(lat), fmt(lon), fmt(h), fmt(lat_d), fmt(lon_d), fmt(h_d)]))
+    return lineas
+
+
 def todos() -> list[tuple[str, list[str]]]:
     """Todos los ficheros de este módulo, con su nombre: los usa `generar_vectores.py` y `main` de aquí."""
     return [
         ("helmert.csv", helmert_vectors(random.Random(SEMILLA_HELMERT))),
         ("molodensky_badekas.csv", molodensky_badekas_vectors(random.Random(SEMILLA_MB))),
         ("rejilla_desplazamiento.csv", rejilla_vectors(random.Random(SEMILLA_REJILLA))),
+        ("cadena_tres_pasos.csv", cadena_vectors(random.Random(SEMILLA_CADENA))),
     ]
 
 

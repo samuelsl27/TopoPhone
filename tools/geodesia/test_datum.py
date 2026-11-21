@@ -102,6 +102,23 @@ def test_s033_rf_7_la_rejilla_se_regenera_igual() -> None:
     assert generado == guardado
 
 
+def test_s033_rf_11_las_cadenas_tienen_tres_y_cuatro_pasos_con_rejilla_en_medio() -> None:
+    comentarios, filas = leer("cadena_tres_pasos.csv")
+
+    assert any(f"pyproj={pyproj.__version__}" in linea and f"PROJ={pyproj.proj_version_str}" in linea for linea in comentarios)
+    assert {f["caso"] for f in filas} == {"helmert_rejilla_helmert", "helmert_helmert_rejilla_helmert"}
+    assert {len(f["pasos"].split("|")) for f in filas} == {3, 4}
+    assert all("G" in f["pasos"].split("|") for f in filas)
+    assert len(filas) > 90
+
+
+def test_s033_rf_11_la_cadena_se_regenera_igual() -> None:
+    generado = d.cadena_vectors(random.Random(d.SEMILLA_CADENA))
+    guardado = (FIXTURES / "cadena_tres_pasos.csv").read_text(encoding="utf-8").splitlines()
+
+    assert generado == guardado
+
+
 def test_s033_rf_1_helmert_se_regenera_igual() -> None:
     generado = d.helmert_vectors(random.Random(d.SEMILLA_HELMERT))
     guardado = (FIXTURES / "helmert.csv").read_text(encoding="utf-8").splitlines()

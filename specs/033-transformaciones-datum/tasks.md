@@ -31,7 +31,7 @@
       Hecho cuando: `GridShiftInverseTest` comprueba ida y vuelta ≤ 0,1 mm en los puntos de la rejilla (desplazamientos de más de 100 m) y el rechazo si no converge.
 
 ## Cadenas, metadatos y avisos
-- [ ] T11. Vectores de una cadena de tres pasos (`cadena_tres_pasos.csv`: Helmert → rejilla → Helmert) con la misma cadena en pyproj. (RF-11)
+- [x] T11. Vectores de una cadena de tres pasos (`cadena_tres_pasos.csv`: Helmert → rejilla → Helmert) con la misma cadena en pyproj. (RF-11)
       Hecho cuando: `test_datum.py` los comprueba y el fichero se regenera igual.
 - [ ] T12. `TransformationChain` en sentido directo e inverso: pasos geocéntricos consecutivos en ECEF, una conversión por punto y sin redondeos. (RF-11, RF-13)
       Hecho cuando: `TransformationChainTest` coincide con pyproj a ≤ 1 mm y `TransformationNoRoundingTest` coincide bit a bit con la composición manual.
