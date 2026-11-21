@@ -47,6 +47,10 @@ data class ProjectEntity(
     @ColumnInfo(name = "central_longitude") val centralLongitude: Double? = null,
     /** El eje activo del proyecto, o NULL si no hay (S049/RF-14); sin clave foránea, borrarlo la pone a NULL a mano. */
     @ColumnInfo(name = "active_alignment_id") val activeAlignmentId: String? = null,
+    /** La definición completa del SC si es de la biblioteca de SC (S034/RF-13); NULL en los de España. */
+    @ColumnInfo(name = "crs_definition") val crsDefinition: String? = null,
+    /** La rejilla del geoide del proyecto con un SC de la biblioteca (S034/RF-14); NULL si no tiene. */
+    @ColumnInfo(name = "geoid_grid") val geoidGrid: String? = null,
 )
 
 /** Una carpeta de proyectos; un solo nivel (S006/RF-17). */

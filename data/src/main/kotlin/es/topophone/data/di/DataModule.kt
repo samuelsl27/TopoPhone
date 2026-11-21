@@ -30,6 +30,8 @@ import es.topophone.data.cogo.CogoRepository
 import es.topophone.data.cogo.RoomCogoRepository
 import es.topophone.data.config.ConfigProgressRepository
 import es.topophone.data.config.RoomConfigProgressRepository
+import es.topophone.data.crs.CrsShortcutRepository
+import es.topophone.data.crs.RoomCrsShortcutRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.equipment.EquipmentRepository
 import es.topophone.data.equipment.RoomEquipmentRepository
@@ -311,6 +313,10 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideEquipmentRepository(database: TopoPhoneDatabase): EquipmentRepository = RoomEquipmentRepository(database)
+
+    @Provides
+    @Singleton
+    fun provideCrsShortcutRepository(database: TopoPhoneDatabase): CrsShortcutRepository = RoomCrsShortcutRepository(database)
 
     /** La superficie activa de cada proyecto, con sus teselas a demanda (S042). */
     @Provides

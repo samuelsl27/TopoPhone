@@ -1488,6 +1488,41 @@ class TopoPhoneDatabaseTest {
     }
 
     @Test
+    fun `S034 RNF-T6 v36 a v37 los proyectos de Espana siguen igual, sin definicion, y los favoritos y recientes nacen vacios`() {
+        createFromExportedSchema(36)
+        SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v36 ->
+            v36.execSQL(
+                "INSERT INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, NULL, NULL, 'ORTHOMETRIC', NULL, 0, NULL, NULL, NULL)",
+                arrayOf<Any>(
+                    project.id, project.name, project.author, project.description, project.crs, project.linearUnit,
+                    project.angularUnit, project.correctionsDatum, project.createdAt, project.modifiedAt,
+                ),
+            )
+        }
+
+        val db = TopoPhoneDatabase.build(context, TEST_DB)
+        try {
+            db.openHelper.writableDatabase.version shouldBe CURRENT_VERSION
+            runBlocking { db.projects().byId(project.id) } shouldBe project
+            db.openHelper.writableDatabase.query("SELECT crs, crs_definition, geoid_grid FROM projects").use { c ->
+                c.moveToNext() shouldBe true
+                c.getString(0) shouldBe project.crs
+                c.isNull(1) shouldBe true
+                c.isNull(2) shouldBe true
+            }
+            count(db, "favorite_crs") shouldBe 0
+            count(db, "recent_crs") shouldBe 0
+            val sql = db.openHelper.writableDatabase
+            sql.execSQL("INSERT INTO favorite_crs VALUES (2154, 1000)")
+            shouldThrow<SQLiteConstraintException> { sql.execSQL("INSERT INTO favorite_crs VALUES (2154, 2000)") }
+            sql.execSQL("INSERT INTO recent_crs VALUES (2154, 1000)")
+            shouldThrow<SQLiteConstraintException> { sql.execSQL("INSERT INTO recent_crs VALUES (2154, 2000)") }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
     fun `S043 RNF-T6 v35 a v36 los puntos siguen sin equipo y las tablas de la guia nacen vacias`() {
         createFromExportedSchema(35)
         SQLiteDatabase.openDatabase(context.getDatabasePath(TEST_DB).path, null, SQLiteDatabase.OPEN_READWRITE).use { v35 ->
@@ -1791,7 +1826,7 @@ class TopoPhoneDatabaseTest {
 
     private companion object {
         const val TEST_DB = "topophone-test.db"
-        const val CURRENT_VERSION = 36
+        const val CURRENT_VERSION = 37
 
         /** `PRAGMA synchronous`: 0 OFF, 1 NORMAL, 2 FULL. */
         const val FULL = 2

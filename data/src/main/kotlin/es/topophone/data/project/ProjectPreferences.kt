@@ -5,6 +5,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.CrsDefinition
+import es.topophone.core.model.project.LibraryCrs
+import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.model.project.SpainCrs
 import java.io.IOException
@@ -49,7 +53,7 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
         val factory = ProjectDefaults()
         ProjectDefaults(
             author = p[AUTHOR].orEmpty(),
-            crs = enumOr<SpainCrs>(p[CRS], SpainCrs.ETRS89_UTM30),
+            crs = crsOf(p),
             linearUnit = enumOr(p[LINEAR_UNIT], factory.linearUnit),
             angularUnit = enumOr(p[ANGULAR_UNIT], factory.angularUnit),
             correctionsDatum = enumOr(p[CORRECTIONS_DATUM], factory.correctionsDatum),
@@ -62,6 +66,14 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
         dataStore.edit {
             it[AUTHOR] = defaults.author.trim()
             it[CRS] = defaults.crs.name
+            // S034/RF-1: un SC de la biblioteca por defecto guarda su definición y su geoide; uno de España, nada más que el nombre.
+            (defaults.crs as? LibraryCrs)?.let { library ->
+                it[CRS_DEFINITION] = library.definition.toText()
+                library.geoidGrid?.let { grid -> it[GEOID] = grid } ?: it.remove(GEOID)
+            } ?: run {
+                it.remove(CRS_DEFINITION)
+                it.remove(GEOID)
+            }
             it[LINEAR_UNIT] = defaults.linearUnit.name
             it[ANGULAR_UNIT] = defaults.angularUnit.name
             it[CORRECTIONS_DATUM] = defaults.correctionsDatum.name
@@ -70,9 +82,18 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
         }
     }
 
+    /** El SC por defecto: el de la biblioteca si hay definición legible, y si no el de España guardado por su nombre (S034/RF-1). */
+    private fun crsOf(p: Preferences): ProjectCrs {
+        val definition = p[CRS_DEFINITION]?.let { CrsDefinition.parseOrNull(it) }
+        val corrections = enumOr(p[CORRECTIONS_DATUM], CorrectionsDatum.ETRS89)
+        return if (definition != null) LibraryCrs(definition, corrections, p[GEOID]) else enumOr<SpainCrs>(p[CRS], SpainCrs.ETRS89_UTM30)
+    }
+
     private companion object {
         val AUTHOR = stringPreferencesKey("default_author")
         val CRS = stringPreferencesKey("default_crs")
+        val CRS_DEFINITION = stringPreferencesKey("default_crs_definition")
+        val GEOID = stringPreferencesKey("default_geoid_grid")
         val LINEAR_UNIT = stringPreferencesKey("default_linear_unit")
         val ANGULAR_UNIT = stringPreferencesKey("default_angular_unit")
         val CORRECTIONS_DATUM = stringPreferencesKey("default_corrections_datum")

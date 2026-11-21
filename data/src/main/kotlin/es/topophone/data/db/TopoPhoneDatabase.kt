@@ -25,6 +25,9 @@ import es.topophone.data.cogo.TraverseDraftDao
 import es.topophone.data.cogo.TraverseDraftEntity
 import es.topophone.data.config.ConfigStepDao
 import es.topophone.data.config.ConfigStepEntity
+import es.topophone.data.crs.CrsShortcutDao
+import es.topophone.data.crs.FavoriteCrsEntity
+import es.topophone.data.crs.RecentCrsEntity
 import es.topophone.data.equipment.EquipmentProfileDao
 import es.topophone.data.equipment.EquipmentProfileEntity
 import es.topophone.data.gear.AntennaProfileEntity
@@ -128,6 +131,8 @@ import es.topophone.data.wms.WmsServiceEntity
  *   (`traverse_drafts`). Solo añade una columna que admite NULL y una tabla: migración de Room.
  * - v34 (S021): los receptores Wi-Fi (`wifi_receivers`: dirección, puerto de posición y de correcciones opcional). Solo añade una tabla:
  *   migración de Room.
+ * - v37 (S034): el SC de la biblioteca de un proyecto (`projects.crs_definition` y `geoid_grid`, que admiten NULL: los de España siguen
+ *   igual) y los SC favoritos y recientes (`favorite_crs` y `recent_crs`). Migración de Room.
  */
 @Database(
     entities = [
@@ -141,7 +146,7 @@ import es.topophone.data.wms.WmsServiceEntity
         PointAttributeEntity::class, PointHistoryAttributeEntity::class, ProjectLineEntity::class, LineVertexEntity::class,
         LineAttributeEntity::class, LineHistoryEntity::class, LineHistoryAttributeEntity::class, LineHistoryVertexEntity::class,
         WmsServiceEntity::class, WmsLayerEntity::class, ProjectWmsLayerEntity::class, TraverseDraftEntity::class,
-        WifiReceiverEntity::class, ConfigStepEntity::class, EquipmentProfileEntity::class,
+        WifiReceiverEntity::class, ConfigStepEntity::class, EquipmentProfileEntity::class, FavoriteCrsEntity::class, RecentCrsEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -181,6 +186,7 @@ import es.topophone.data.wms.WmsServiceEntity
         AutoMigration(from = 33, to = 34),
         AutoMigration(from = 34, to = 35),
         AutoMigration(from = 35, to = 36),
+        AutoMigration(from = 36, to = 37),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -225,11 +231,13 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun equipmentProfiles(): EquipmentProfileDao
 
+    abstract fun crsShortcuts(): CrsShortcutDao
+
     companion object {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 36
+        const val VERSION = 37
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

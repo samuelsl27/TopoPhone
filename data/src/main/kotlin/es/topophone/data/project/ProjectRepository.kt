@@ -4,7 +4,9 @@ import androidx.room.withTransaction
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.CrsDefinition
 import es.topophone.core.model.project.HeightSystem
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.Project
@@ -12,6 +14,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDraft
 import es.topophone.core.model.project.ProjectFolder
 import es.topophone.core.model.project.ProjectNames
+import es.topophone.core.model.project.SpainCrs
 import es.topophone.data.codes.ProjectLibraryLinker
 import es.topophone.data.db.TopoPhoneDatabase
 import java.util.UUID
@@ -211,6 +214,8 @@ private fun ProjectDraft.toEntity(id: String, folderId: String?, createdAt: Long
     author = author.trim(),
     description = description.trim(),
     crs = crs.name,
+    crsDefinition = (crs as? LibraryCrs)?.definition?.toText(), // S034/RF-13
+    geoidGrid = (crs as? LibraryCrs)?.geoidGrid,
     linearUnit = linearUnit.name,
     angularUnit = angularUnit.name,
     correctionsDatum = correctionsDatum.name,
@@ -229,7 +234,7 @@ internal fun ProjectEntity.toProject() = Project(
     name = name,
     author = author,
     description = description,
-    crs = ProjectCrs.valueOf(crs),
+    crs = crsOf(),
     linearUnit = LinearUnit.valueOf(linearUnit),
     angularUnit = AngularUnit.valueOf(angularUnit),
     correctionsDatum = CorrectionsDatum.valueOf(correctionsDatum),
@@ -241,3 +246,16 @@ internal fun ProjectEntity.toProject() = Project(
     heightSystem = HeightSystem.entries.firstOrNull { it.name == heightSystem } ?: HeightSystem.ORTHOMETRIC,
     centralPoint = centralLatitude?.let { lat -> centralLongitude?.let { lon -> CentralPoint(lat, lon) } },
 )
+
+/**
+ * El SC del proyecto: el de la biblioteca con su definición guardada (S034/RF-13) o uno de España por su nombre. Si la definición no se puede leer
+ * (no debería pasar: la escribe la app), el proyecto vuelve al de España de siempre en vez de no abrirse.
+ */
+private fun ProjectEntity.crsOf(): ProjectCrs {
+    val definition = crsDefinition?.let { CrsDefinition.parseOrNull(it) }
+    return if (definition != null) {
+        LibraryCrs(definition, CorrectionsDatum.valueOf(correctionsDatum), geoidGrid)
+    } else {
+        SpainCrs.entries.firstOrNull { it.name == crs } ?: SpainCrs.ETRS89_UTM30
+    }
+}

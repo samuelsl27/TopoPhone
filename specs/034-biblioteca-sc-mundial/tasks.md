@@ -39,7 +39,7 @@
       Hecho cuando: `FormatsDisabledTest` y `LibraryCsvTest` pasan.
 
 ## Datos (`data`)
-- [ ] T16. Room v37 (`crs_definition`, `geoid_grid`, `favorite_crs`, `recent_crs`) con su migración, `ProjectRepository` con `LibraryCrs`, `.topoproj` y copia de seguridad. (RF-13, RF-25)
+- [x] T16. Room v37 (`crs_definition`, `geoid_grid`, `favorite_crs`, `recent_crs`) con su migración, `ProjectRepository` con `LibraryCrs`, `.topoproj` y copia de seguridad. (RF-13, RF-25)
       Hecho cuando: `Migration36To37Test` y `ProjectBackupCrsTest` pasan, y el esquema `37.json` está exportado.
 - [ ] T17. `GridStore`: rejillas instaladas, estado, uso por proyecto y borrado de las que ninguno usa. (RF-23, RF-17)
       Hecho cuando: `GridStoreTest` y `BundledGridsTest` pasan.

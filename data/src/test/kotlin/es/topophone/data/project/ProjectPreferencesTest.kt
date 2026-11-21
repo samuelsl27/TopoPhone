@@ -113,4 +113,23 @@ class ProjectPreferencesTest {
         withPreferences { it.defaults.first() }.let { it.crs to it.heightSystem } shouldBe
             (ProjectCrs.ETRS89_GEOGRAPHIC to HeightSystem.ELLIPSOIDAL)
     }
+
+    @Test
+    fun `S034 RF-1 un SC de la biblioteca por defecto se recuerda con su definicion y su geoide y uno de Espana lo borra`() {
+        val definition = es.topophone.core.model.project.CrsDefinition(
+            epsg = 2154, name = "RGF93 v1 / Lambert-93", projected = true, datumCode = 4171, datumName = "RGF93 v1",
+            ellipsoidSemiMajorM = 6378137.0, ellipsoidInverseFlattening = 298.257222101, primeMeridianDeg = 0.0, method = "lcc2",
+            parameters = mapOf("latitudeOfFalseOriginDeg" to 46.5), unitMetres = 1.0, area = null, frame = "ETRS89",
+            transformationName = "t", transformationAccuracyM = null, transformationArea = null, transformationSteps = "null",
+        )
+        val library = es.topophone.core.model.project.LibraryCrs(definition, CorrectionsDatum.ETRS89, "fr_ign_RAF20.tif")
+
+        withPreferences { prefs ->
+            prefs.saveDefaults(ProjectDefaults(crs = library))
+            prefs.defaults.first().crs shouldBe library
+
+            prefs.saveDefaults(ProjectDefaults(crs = ProjectCrs.ETRS89_UTM31))
+            prefs.defaults.first().crs shouldBe ProjectCrs.ETRS89_UTM31
+        }
+    }
 }
