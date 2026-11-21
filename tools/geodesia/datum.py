@@ -2,6 +2,8 @@
 
 Cada familia tiene su generador y su CSV en `fixtures/geodesia/` (los llama `generar_vectores.py`):
 - helmert.csv: Helmert de 3, 4, 6 y 7 parámetros en convención PV y CF, con operaciones de EPSG y casos propios (S033/RF-1, RF-2, RF-5).
+- molodensky_badekas.csv: Molodensky-Badekas de 10 parámetros (7 y el punto de rotación) en PV y CF, con operaciones de EPSG (método 9636) y
+  casos propios, uno de ellos con el punto de rotación en el centro de la Tierra (S033/RF-3, RF-5).
 
 Cómo se calcula cada fila:
 - **Casos de EPSG**: los parámetros y los elipsoides salen de la propia operación de la base de PROJ (`urn:ogc:def:coordinateOperation:EPSG::N`),
@@ -30,6 +32,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "fixtures" / "geodesia"
 
 SEMILLA_HELMERT = 20261127
+SEMILLA_MB = 20261128
 
 # Nombre de método de PROJ de cada familia de operaciones de EPSG que se usa (comprobado antes de generar).
 METODO_TRASLACIONES = "Geocentric translations (geog2D domain)"
@@ -78,6 +81,7 @@ class Helmert:
     r: tuple[float, float, float]  # segundos de arco
     escala: float  # ppm
     area: tuple[float, float, float, float] | None = None  # (oeste, sur, este, norte) del ámbito, si lo declara
+    pivote: tuple[float, float, float] | None = None  # punto de rotación (X0, Y0, Z0) en metros: Molodensky-Badekas
 
     def tuberia(self) -> Transformer:
         convencion = "position_vector" if self.convencion == "PV" else "coordinate_frame"
@@ -86,10 +90,13 @@ class Helmert:
             partes += [f"+rx={self.r[0]!r}", f"+ry={self.r[1]!r}", f"+rz={self.r[2]!r}"]
         if self.n in (4, 7):
             partes.append(f"+s={self.escala!r}")
+        if self.pivote is not None:
+            partes += [f"+px={self.pivote[0]!r}", f"+py={self.pivote[1]!r}", f"+pz={self.pivote[2]!r}"]
         partes.append(f"+convention={convencion}")
+        metodo = "molobadekas" if self.pivote is not None else "helmert"
         return Transformer.from_pipeline(
             "+proj=pipeline +step +proj=unitconvert +xy_in=deg +xy_out=rad "
-            f"+step +proj=cart {self.origen.tuberia} +step +proj=helmert {' '.join(partes)} "
+            f"+step +proj=cart {self.origen.tuberia} +step +proj={metodo} {' '.join(partes)} "
             f"+step +inv +proj=cart {self.destino.tuberia} +step +proj=unitconvert +xy_in=rad +xy_out=deg"
         )
 
@@ -117,6 +124,28 @@ CASOS_PROPIOS = [
 ]
 
 
+METODO_MB_CF = "Molodensky-Badekas (CF geog2D domain)"
+METODO_MB_PV = "Molodensky-Badekas (PV geog2D domain)"
+
+# Operaciones de EPSG de Molodensky-Badekas: Amersfoort a ETRS89 (CF), Ocotepeque 1935 a WGS 84 y Pulkovo 1942(83) a BGS2005 (PV).
+OPERACIONES_MB = [
+    (1066, METODO_MB_CF, 7, "CF"),
+    (6889, METODO_MB_PV, 7, "PV"),
+    (7806, METODO_MB_PV, 7, "PV"),
+]
+
+# Punto de rotación cerca del centro de la Península, en geocéntricas de GRS80 (m).
+PIVOTE_IBERIA = (4_800_000.0, -300_000.0, 4_150_000.0)
+
+# Casos propios: con el punto de rotación en el centro de la Tierra MB es el Helmert de 7 parámetros; con uno cerca del área, no.
+CASOS_MB = [
+    Helmert("mb_pivote_cero_pv", 7, "PV", INTERNACIONAL, GRS80, (-120.0, -90.0, -150.0), (0.5, -0.8, 1.2), 3.0, pivote=(0.0, 0.0, 0.0)),
+    Helmert("mb_pivote_iberia_pv", 7, "PV", INTERNACIONAL, GRS80, (-120.0, -90.0, -150.0), (0.5, -0.8, 1.2), 3.0, pivote=PIVOTE_IBERIA),
+    Helmert("mb_pivote_iberia_cf", 7, "CF", INTERNACIONAL, GRS80, (-120.0, -90.0, -150.0), (0.5, -0.8, 1.2), 3.0, pivote=PIVOTE_IBERIA),
+    Helmert("mb_grande_cf", 7, "CF", CLARKE_1880, GRS80, (100.0, -200.0, 300.0), (1.5, -2.0, 3.0), 15.0, pivote=PIVOTE_IBERIA),
+]
+
+
 def _elipsoide(paso: str) -> Elipsoide:
     """Elipsoide de un paso `proj=cart` de una tubería de PROJ (`ellps=NOMBRE` o `a=… b=…`)."""
     campos = dict(token.split("=") for token in paso.split() if "=" in token)
@@ -139,8 +168,9 @@ def operacion_epsg(codigo: int, metodo: str, n: int, convencion: str) -> Helmert
     pasos = [paso.strip() for paso in t.definition.split(" step ")]
     cart = [p for p in pasos if p.replace("inv ", "").startswith("proj=cart")]
     origen = [p for p in pasos if p.startswith("inv proj=longlat")]
-    helmert = next(p for p in pasos if p.startswith("proj=helmert"))
+    helmert = next(p for p in pasos if p.startswith(("proj=helmert", "proj=molobadekas")))
     campos = dict(token.split("=") for token in helmert.split() if "=" in token)
+    pivote = (float(campos["px"]), float(campos["py"]), float(campos["pz"])) if "px" in campos else None
     elipsoide_origen = _elipsoide(origen[0]) if origen else _elipsoide(cart[0])
     elipsoide_destino = _elipsoide(cart[-1].replace("inv ", ""))
     area = t.area_of_use
@@ -154,6 +184,7 @@ def operacion_epsg(codigo: int, metodo: str, n: int, convencion: str) -> Helmert
         (float(campos.get("rx", 0.0)), float(campos.get("ry", 0.0)), float(campos.get("rz", 0.0))),
         float(campos.get("s", 0.0)),
         (area.west, area.south, area.east, area.north) if area else None,
+        pivote,
     )
 
 
@@ -175,12 +206,29 @@ def _puntos(rng: random.Random, area: tuple[float, float, float, float] | None) 
     return rejilla + azar
 
 
+COLUMNAS_HELMERT = (
+    "caso,n_parametros,convencion,semieje_origen,rf_origen,semieje_destino,rf_destino,tx,ty,tz,rx_seg,ry_seg,rz_seg,escala_ppm"
+)
+COLUMNAS_PUNTO = "latitud,longitud,altura,latitud_dir,longitud_dir,altura_dir,latitud_inv,longitud_inv,altura_inv"
+
+
 def helmert_vectors(rng: random.Random) -> list[str]:
-    lineas = header("Helmert de 3, 4, 6 y 7 parámetros, PV y CF (pyproj/PROJ y operaciones de EPSG)") + [
-        "caso,n_parametros,convencion,semieje_origen,rf_origen,semieje_destino,rf_destino,tx,ty,tz,rx_seg,ry_seg,rz_seg,escala_ppm,"
-        "latitud,longitud,altura,latitud_dir,longitud_dir,altura_dir,latitud_inv,longitud_inv,altura_inv"
-    ]
     casos = [operacion_epsg(*operacion) for operacion in OPERACIONES_HELMERT] + CASOS_PROPIOS
+    return _filas(header("Helmert de 3, 4, 6 y 7 parámetros, PV y CF (pyproj/PROJ y operaciones de EPSG)"), casos, rng, COLUMNAS_HELMERT)
+
+
+def molodensky_badekas_vectors(rng: random.Random) -> list[str]:
+    casos = [operacion_epsg(*operacion) for operacion in OPERACIONES_MB] + CASOS_MB
+    return _filas(
+        header("Molodensky-Badekas de 10 parámetros, PV y CF (pyproj/PROJ y operaciones de EPSG)"),
+        casos,
+        rng,
+        COLUMNAS_HELMERT + ",pivote_x,pivote_y,pivote_z",
+    )
+
+
+def _filas(cabecera: list[str], casos: list[Helmert], rng: random.Random, columnas: str) -> list[str]:
+    lineas = cabecera + [f"{columnas},{COLUMNAS_PUNTO}"]
     for caso in casos:
         tuberia = caso.tuberia()
         fijos = [
@@ -194,6 +242,7 @@ def helmert_vectors(rng: random.Random) -> list[str]:
             *(fmt(v) for v in caso.t),
             *(fmt(v) for v in caso.r),
             fmt(caso.escala),
+            *(fmt(v) for v in caso.pivote or ()),
         ]
         for lon, lat, h in _puntos(rng, caso.area):
             lon_d, lat_d, h_d = tuberia.transform(lon, lat, h)
@@ -206,6 +255,7 @@ def todos() -> list[tuple[str, list[str]]]:
     """Todos los ficheros de este módulo, con su nombre: los usa `generar_vectores.py` y `main` de aquí."""
     return [
         ("helmert.csv", helmert_vectors(random.Random(SEMILLA_HELMERT))),
+        ("molodensky_badekas.csv", molodensky_badekas_vectors(random.Random(SEMILLA_MB))),
     ]
 
 

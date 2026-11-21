@@ -54,6 +54,30 @@ def test_s033_rf_2_los_casos_propios_cubren_pv_y_cf_con_rotaciones_y_escala_gran
     assert {c.convencion for c in grandes} == {"PV", "CF"}
 
 
+def test_s033_rf_3_molodensky_badekas_tiene_las_columnas_y_los_casos_esperados() -> None:
+    comentarios, filas = leer("molodensky_badekas.csv")
+
+    assert any(f"pyproj={pyproj.__version__}" in linea and f"PROJ={pyproj.proj_version_str}" in linea for linea in comentarios)
+    assert len(filas) > 250
+    assert {f["convencion"] for f in filas} == {"PV", "CF"}
+    assert {f["caso"] for f in filas} >= {"EPSG:1066", "EPSG:6889", "EPSG:7806", "mb_pivote_cero_pv", "mb_pivote_iberia_cf"}
+    assert all(f["pivote_x"] != "" for f in filas)
+    assert {f["pivote_x"] for f in filas if f["caso"] == "mb_pivote_cero_pv"} == {"0.0"}
+
+
+def test_s033_rf_3_cada_caso_de_epsg_de_mb_usa_el_metodo_que_se_espera() -> None:
+    for codigo, metodo, _, _ in d.OPERACIONES_MB:
+        real = Transformer.from_pipeline(f"urn:ogc:def:coordinateOperation:EPSG::{codigo}").to_json_dict()["method"]["name"]
+        assert real == metodo, codigo
+
+
+def test_s033_rf_3_molodensky_badekas_se_regenera_igual() -> None:
+    generado = d.molodensky_badekas_vectors(random.Random(d.SEMILLA_MB))
+    guardado = (FIXTURES / "molodensky_badekas.csv").read_text(encoding="utf-8").splitlines()
+
+    assert generado == guardado
+
+
 def test_s033_rf_1_helmert_se_regenera_igual() -> None:
     generado = d.helmert_vectors(random.Random(d.SEMILLA_HELMERT))
     guardado = (FIXTURES / "helmert.csv").read_text(encoding="utf-8").splitlines()
