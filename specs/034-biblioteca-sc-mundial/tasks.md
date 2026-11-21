@@ -17,7 +17,7 @@
       Hecho cuando: `CrsCatalogTest` carga el recurso, comprueba los recuentos del generador y que un SC conocido (25830, 4326, 2154) tiene sus parámetros.
 - [x] T6. Contraste del catálogo con pyproj: `CrsBuilder` convierte una entrada en su `MapProjection` y los vectores se comprueban SC por SC. (RF-4)
       Hecho cuando: `CatalogVectorsTest` pasa con los tres puntos de cada SC a ≤ 1 mm y ida y vuelta ≤ 0,1 mm, y `CatalogContentTest` fija qué métodos hay.
-- [ ] T7. Búsqueda: `CrsSearch` por país, código y nombre, sin mayúsculas ni tildes, con España primero y filtro por país. (RF-2, RF-3, RF-5)
+- [x] T7. Búsqueda: `CrsSearch` por país, código y nombre, sin mayúsculas ni tildes, con España primero y filtro por país. (RF-2, RF-3, RF-5)
       Hecho cuando: `CrsSearchTest` cubre «25830», «etrs89 utm 30» y «Francia», las tildes, el orden y una búsqueda en menos de 300 ms.
 - [ ] T8. `TransformationPicker` (A3) y `GridRequirement`, y `GeoidFromGrid` con la lectura de las rejillas del CDN; medida del tamaño de los ficheros y decisión de lectura por teselas si no caben. (RF-10, RF-11, RF-12, RF-14, RF-16)
       Hecho cuando: `TransformationPickerTest` y `GeoidFromGridTest` pasan (geoide pequeño contra pyproj a ≤ 1 mm), y el resultado de la medida está anotado en `plan.md`.
