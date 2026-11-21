@@ -2108,7 +2108,6 @@
     <string name="point_axis_diff_height">Diferencia de cota</string>
     <string name="point_axis_reference">Referencia de cota</string>
     <string name="gpkg_export_title">Exportar GeoPackage</string>
-    <string name="formats_unavailable_library">DXF, Shapefile, GeoPackage, KML, LandXML y ráster: aún no disponibles con este sistema de coordenadas</string>
     <string name="crs_picker_title">Sistemas de coordenadas</string>
     <string name="crs_search_hint">Buscar por nombre, código EPSG o país</string>
     <string name="crs_country_all">Todos los países</string>

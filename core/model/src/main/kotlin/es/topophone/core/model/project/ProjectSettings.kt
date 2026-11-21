@@ -76,10 +76,6 @@ sealed interface ProjectCrs {
 
     val isLibrary: Boolean get() = this is LibraryCrs
 
-    /** ¿Funcionan con este SC la importación y la exportación de DXF, Shapefile, GeoPackage, KML y KMZ, LandXML y ráster? Con los de la biblioteca,
-     * todavía no (S034/RF-29; los hace S057). */
-    val supportsFormats: Boolean get() = this is SpainCrs
-
     companion object {
         // Son getters y no campos: con campos, el arranque de la interfaz y el del enum se pisan y en Android salía `null` (S034).
         val ETRS89_UTM29: SpainCrs get() = SpainCrs.ETRS89_UTM29

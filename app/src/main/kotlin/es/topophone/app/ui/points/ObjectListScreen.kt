@@ -90,7 +90,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -164,8 +163,6 @@ data class ObjectListUiState(
     val lines: List<LineSummary> = emptyList(),
     /** Las líneas que usan como vértice alguno de los puntos seleccionados, para avisar al borrarlos (S025/RF-25). */
     val selectedInLines: List<String> = emptyList(),
-    /** ¿Funcionan los formatos de intercambio con el SC del proyecto? Con los de la biblioteca todavía no (S034/RF-29). */
-    val formatsAvailable: Boolean = true,
 )
 
 /** Lo que pasó al corregir el jalón de una selección (S011/RF-14, RF-15). */
@@ -273,18 +270,12 @@ class ObjectListViewModel @Inject constructor(
 
     private val extras = combine(lineSummaries, selectedInLines, ::Extras)
 
-    private val formatsAvailable = projectId.flatMapLatest { id ->
-        if (id == null) flowOf(true) else projects.observe(id).map { it?.crs?.supportsFormats ?: true }
-    }.distinctUntilChanged()
-
-    private val extrasWithFormats = combine(extras, formatsAvailable) { extra, formats -> extra to formats }
-
-    val state: StateFlow<ObjectListUiState> = combine(summaries, filters, selected, poleOutcome, extrasWithFormats) {
+    val state: StateFlow<ObjectListUiState> = combine(summaries, filters, selected, poleOutcome, extras) {
             all,
             (text, code),
             chosen,
             outcome,
-            (extra, formats),
+            extra,
         ->
         if (all == null) {
             ObjectListUiState()
@@ -303,7 +294,6 @@ class ObjectListViewModel @Inject constructor(
                 codeFilter = code,
                 lines = if (text.isBlank()) extra.lines else extra.lines.filter { LineSearch.matches(it, text) }, // S025/RF-21
                 selectedInLines = extra.selectedInLines,
-                formatsAvailable = formats,
             )
         }
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ObjectListUiState())
@@ -529,7 +519,6 @@ fun ObjectListScreen(
         onNavigateBack = onBack,
         actions = {
             ObjectsMenu(
-                state.formatsAvailable,
                 actions.onOpenTrash,
                 actions.onExport,
                 actions.onExportGeoPackage,
@@ -626,7 +615,6 @@ fun ObjectListScreen(
 /** Menú "⋮" de la lista de objetos: la papelera de puntos (S011/RF-23). */
 @Composable
 private fun ObjectsMenu(
-    formatsAvailable: Boolean,
     onOpenTrash: () -> Unit,
     onExport: () -> Unit,
     onExportGeoPackage: () -> Unit,
@@ -661,47 +649,39 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S012/RF-1
-        if (formatsAvailable) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.gpkg_export_title)) },
-                onClick = {
-                    open = false
-                    onExportGeoPackage()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S053/RF-1
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.dxf_export_title)) },
-                onClick = {
-                    open = false
-                    onExportDxf()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S029/RF-1
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.shp_export_title)) },
-                onClick = {
-                    open = false
-                    onExportShp()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S055/RF-1
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.kml_export_title)) },
-                onClick = {
-                    open = false
-                    onExportKml()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S031/RF-20
-        } else {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.formats_unavailable_library)) },
-                onClick = {},
-                enabled = false,
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S034/RF-29
-        }
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.gpkg_export_title)) },
+            onClick = {
+                open = false
+                onExportGeoPackage()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S053/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.dxf_export_title)) },
+            onClick = {
+                open = false
+                onExportDxf()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S029/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.shp_export_title)) },
+            onClick = {
+                open = false
+                onExportShp()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S055/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.kml_export_title)) },
+            onClick = {
+                open = false
+                onExportKml()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S031/RF-20
+
         DropdownMenuItem(
             text = { Text(stringResource(R.string.photo_export_title)) },
             onClick = {
@@ -718,64 +698,63 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S028/RF-1
-        if (formatsAvailable) {
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.cad_import_title)) },
-                onClick = {
-                    open = false
-                    onImportDxf()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S040/RF-1
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.surface_import_title)) },
-                onClick = {
-                    open = false
-                    onImportSurface()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S042/RF-1
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.raster_import_title)) },
-                onClick = {
-                    open = false
-                    onImportRaster()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S045/RF-1
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.gpkg_import_title)) },
-                onClick = {
-                    open = false
-                    onImportGpkg()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S048/RF-1
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.shp_import_title)) },
-                onClick = {
-                    open = false
-                    onImportShp()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S030/RF-1
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.kml_import_title)) },
-                onClick = {
-                    open = false
-                    onImportKml()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S031/RF-1
-            DropdownMenuItem(
-                text = { Text(stringResource(R.string.alignment_import_title)) },
-                onClick = {
-                    open = false
-                    onImportAlignment()
-                },
-                modifier = Modifier.heightIn(min = MinTouchTarget),
-            ) // S049/RF-1
-        }
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.cad_import_title)) },
+            onClick = {
+                open = false
+                onImportDxf()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S040/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.surface_import_title)) },
+            onClick = {
+                open = false
+                onImportSurface()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S042/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.raster_import_title)) },
+            onClick = {
+                open = false
+                onImportRaster()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S045/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.gpkg_import_title)) },
+            onClick = {
+                open = false
+                onImportGpkg()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S048/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.shp_import_title)) },
+            onClick = {
+                open = false
+                onImportShp()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S030/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.kml_import_title)) },
+            onClick = {
+                open = false
+                onImportKml()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S031/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.alignment_import_title)) },
+            onClick = {
+                open = false
+                onImportAlignment()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget),
+        ) // S049/RF-1
+
         DropdownMenuItem(
             text = { Text(stringResource(R.string.line_wizard_title)) },
             onClick = {

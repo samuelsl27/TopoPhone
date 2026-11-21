@@ -53,7 +53,7 @@
       Hecho cuando: `ImportPreviewTest` pasa con aviso, con confirmación y con rejilla ausente.
 - [x] T22. Resúmenes con el SC de origen, la transformación y lo ignorado. (RF-11, RF-18)
       Hecho cuando: `ImportSummaryTest` pasa en las siete importaciones.
-- [ ] T23. Los menús vuelven a ofrecer los formatos con un SC de la biblioteca y desaparece el aviso de S034. (RF-28)
+- [x] T23. Los menús vuelven a ofrecer los formatos con un SC de la biblioteca y desaparece el aviso de S034. (RF-28)
       Hecho cuando: `FormatsEnabledTest` pasa y `LibraryProjectFlowTest` de S034 se actualiza.
 
 ## Cierre

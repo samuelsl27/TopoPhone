@@ -15,10 +15,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
 import es.topophone.app.ui.crs.CrsLibraryHost
 import es.topophone.app.ui.crs.CrsLibraryRequest
-import es.topophone.app.ui.points.OBJECTS_MENU_TAG
-import es.topophone.app.ui.points.ObjectListActions
-import es.topophone.app.ui.points.ObjectListScreen
-import es.topophone.app.ui.points.ObjectListUiState
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.geodesy.GeoPoint
@@ -34,7 +30,6 @@ import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
-import es.topophone.core.model.project.ProjectFolder
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPosition
 import org.junit.Rule
@@ -139,73 +134,5 @@ class LibraryProjectFlowTest {
         showView(ProjectPosition(unavailable = setOf(PositionUnavailable.OUTSIDE_DATUM_GRID)))
 
         compose.onNodeWithText(text(R.string.project_outside_datum_grid)).assertIsDisplayed()
-    }
-
-    @Test
-    fun `S034 RF-29 el menu de un proyecto con un SC de la biblioteca no ofrece los formatos y dice por que`() {
-        compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ProjectListScreen(
-                    ThemeState.DEFAULT,
-                    {},
-                    ProjectListUiState(folders = listOf(ProjectFolder("f1", "Fincas")), projects = listOf(project())),
-                    ProjectListActions(),
-                )
-            }
-        }
-
-        compose.onNodeWithTag(projectMenuTag("p1")).performClick()
-
-        compose.onNodeWithText(text(R.string.export_csv)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.import_title)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.formats_unavailable_library)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.dxf_export_title)).assertDoesNotExist()
-        compose.onNodeWithText(text(R.string.cad_import_title)).assertDoesNotExist()
-        compose.onNodeWithText(text(R.string.gpkg_import_title)).assertDoesNotExist()
-    }
-
-    @Test
-    fun `S034 RF-29 el menu de un proyecto de Espana sigue ofreciendo todos los formatos`() {
-        compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ProjectListScreen(
-                    ThemeState.DEFAULT,
-                    {},
-                    ProjectListUiState(
-                        folders = listOf(ProjectFolder("f1", "Fincas")),
-                        projects = listOf(project(ProjectCrs.ETRS89_UTM30)),
-                    ),
-                    ProjectListActions(),
-                )
-            }
-        }
-
-        compose.onNodeWithTag(projectMenuTag("p1")).performClick()
-
-        compose.onNodeWithText(text(R.string.dxf_export_title)).assertExists()
-        compose.onNodeWithText(text(R.string.cad_import_title)).assertExists()
-        compose.onNodeWithText(text(R.string.formats_unavailable_library)).assertDoesNotExist()
-    }
-
-    @Test
-    fun `S034 RF-29 el menu de objetos esconde los formatos cuando el SC es de la biblioteca`() {
-        compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                ObjectListScreen(
-                    ThemeState.DEFAULT,
-                    {},
-                    ObjectListUiState(loaded = true, formatsAvailable = false),
-                    ObjectListActions(),
-                    onBack = {},
-                )
-            }
-        }
-
-        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
-
-        compose.onNodeWithText(text(R.string.export_csv)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.formats_unavailable_library)).assertIsDisplayed()
-        compose.onNodeWithText(text(R.string.kml_import_title)).assertDoesNotExist()
-        compose.onNodeWithText(text(R.string.shp_export_title)).assertDoesNotExist()
     }
 }
