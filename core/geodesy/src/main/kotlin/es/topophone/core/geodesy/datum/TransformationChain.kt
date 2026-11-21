@@ -17,7 +17,7 @@ internal sealed interface ChainLink {
  * geográficas, y solo se pasa a geográficas donde lo pide una rejilla o al final. El inverso recorre los pasos al revés, cada uno con su
  * inverso. Si un paso rechaza el punto, la cadena devuelve ese rechazo (S033/RF-8, RF-9, RF-10).
  */
-class TransformationChain(steps: List<DatumTransformation>, override val info: TransformationInfo) : DatumTransformation {
+class TransformationChain(private val steps: List<DatumTransformation>, override val info: TransformationInfo) : DatumTransformation {
 
     private val forwardLinks: List<ChainLink> = steps.flatMap { linksOf(it, forward = true) }
     private val inverseLinks: List<ChainLink> = steps.asReversed().flatMap { linksOf(it, forward = false) }
@@ -30,7 +30,11 @@ class TransformationChain(steps: List<DatumTransformation>, override val info: T
 
     override fun inverse(point: GeodeticPoint): TransformResult = run(point, inverseLinks)
 
+    override fun missingGrid(): String? = steps.firstNotNullOfOrNull { it.missingGrid() }
+
     private fun run(point: GeodeticPoint, links: List<ChainLink>): TransformResult {
+        // Antes de calcular nada: con una rejilla ausente en cualquier paso no se da coordenada y se dice cuál falta (S033/RF-12).
+        missingGrid()?.let { return TransformResult.GridUnavailable(it) }
         if (!point.isFinite()) return TransformResult.NotConverged(null)
         var current = point
         var ecef: Ecef? = null

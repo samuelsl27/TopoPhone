@@ -40,6 +40,9 @@ interface DatumTransformation {
     fun forward(point: GeodeticPoint): TransformResult
 
     fun inverse(point: GeodeticPoint): TransformResult
+
+    /** El nombre de la primera rejilla que falta o no se puede leer, o `null` si no hace falta ninguna o están todas (S033/RF-9, RF-12). */
+    fun missingGrid(): String? = null
 }
 
 /** Qué parámetro de una transformación tiene un problema. */

@@ -37,6 +37,8 @@ class GridShiftTransformation(
         null
     }
 
+    override fun missingGrid(): String? = if (grid == null) gridName else null
+
     override fun forward(point: GeodeticPoint): TransformResult {
         if (!point.isFinite()) return TransformResult.NotConverged(gridName)
         val grid = grid ?: return TransformResult.GridUnavailable(gridName)
