@@ -17,7 +17,7 @@
 ## Molodensky-Badekas
 - [x] T5. Vectores de MB (`molodensky_badekas.csv`): operaciones de EPSG de método 9636 y una rejilla propia con el punto de rotación en el centro de la Tierra. (RF-3)
       Hecho cuando: `test_datum.py` los comprueba y el fichero se regenera igual.
-- [ ] T6. `MolodenskyBadekas`: directa e inversa exacta. (RF-3, RF-5)
+- [x] T6. `MolodenskyBadekas`: directa e inversa exacta. (RF-3, RF-5)
       Hecho cuando: `MolodenskyBadekasTest` pasa a ≤ 1 mm, con `P = 0` igual al Helmert de 7 y ida y vuelta ≤ 0,1 mm.
 
 ## Rejillas de desplazamiento
