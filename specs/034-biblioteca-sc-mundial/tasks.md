@@ -45,7 +45,7 @@
       Hecho cuando: `GridStoreTest` y `BundledGridsTest` pasan.
 - [x] T18. `GridDownloader` (A5): descarga atómica con SHA-256 y reintento. (RF-19, RF-21, RF-22)
       Hecho cuando: `GridDownloaderTest` pasa con servidor falso: completa, cortada, SHA alterado y reintento.
-- [ ] T19. Favoritos y recientes. (RF-6, RF-7, RF-8)
+- [x] T19. Favoritos y recientes. (RF-6, RF-7, RF-8)
       Hecho cuando: `FavoriteCrsTest` y `RecentCrsTest` pasan (diez recientes, sin repetir, favorito que desaparece del catálogo).
 
 ## Interfaz (`app`)
