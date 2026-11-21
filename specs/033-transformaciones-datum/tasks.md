@@ -3,7 +3,7 @@
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Cada tarea cierra con `./gradlew check` en verde (se repite con `--no-parallel` si falla un test ajeno intermitente), la casilla marcada y un commit `S033 Tn: …` en `main`. Las tareas de vectores añaden también `uv run --project tools pytest tools`.
 
 ## Contrato común
-- [ ] T1. Contrato del paquete `es.topophone.core.geodesy.datum`: `DatumTransformation`, `TransformResult`, `TransformWarning`, `TransformationInfo`, `AreaOfUse`, `ParameterProblem`, `HelmertParameters` con sus factorías de 3, 4, 6 y 7 parámetros y la conversión de segundos de arco, ppm y metros a SI, y la validación de parámetros no finitos. (RF-4, RF-6)
+- [x] T1. Contrato del paquete `es.topophone.core.geodesy.datum`: `DatumTransformation`, `TransformResult`, `TransformWarning`, `TransformationInfo`, `AreaOfUse`, `ParameterProblem`, `HelmertParameters` con sus factorías de 3, 4, 6 y 7 parámetros y la conversión de segundos de arco, ppm y metros a SI, y la validación de parámetros no finitos. (RF-4, RF-6)
       Hecho cuando: `HelmertParametersTest` pasa (conversiones, factorías de 3/4/6/7, todos los problemas a la vez) y `check` pasa.
 
 ## Helmert
