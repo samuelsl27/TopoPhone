@@ -81,16 +81,17 @@ sealed interface ProjectCrs {
     val supportsFormats: Boolean get() = this is SpainCrs
 
     companion object {
-        val ETRS89_UTM29 = SpainCrs.ETRS89_UTM29
-        val ETRS89_UTM30 = SpainCrs.ETRS89_UTM30
-        val ETRS89_UTM31 = SpainCrs.ETRS89_UTM31
-        val ETRS89_GEOGRAPHIC = SpainCrs.ETRS89_GEOGRAPHIC
-        val REGCAN95_UTM27 = SpainCrs.REGCAN95_UTM27
-        val REGCAN95_UTM28 = SpainCrs.REGCAN95_UTM28
-        val REGCAN95_GEOGRAPHIC = SpainCrs.REGCAN95_GEOGRAPHIC
-        val ED50_UTM29 = SpainCrs.ED50_UTM29
-        val ED50_UTM30 = SpainCrs.ED50_UTM30
-        val ED50_UTM31 = SpainCrs.ED50_UTM31
+        // Son getters y no campos: con campos, el arranque de la interfaz y el del enum se pisan y en Android salía `null` (S034).
+        val ETRS89_UTM29: SpainCrs get() = SpainCrs.ETRS89_UTM29
+        val ETRS89_UTM30: SpainCrs get() = SpainCrs.ETRS89_UTM30
+        val ETRS89_UTM31: SpainCrs get() = SpainCrs.ETRS89_UTM31
+        val ETRS89_GEOGRAPHIC: SpainCrs get() = SpainCrs.ETRS89_GEOGRAPHIC
+        val REGCAN95_UTM27: SpainCrs get() = SpainCrs.REGCAN95_UTM27
+        val REGCAN95_UTM28: SpainCrs get() = SpainCrs.REGCAN95_UTM28
+        val REGCAN95_GEOGRAPHIC: SpainCrs get() = SpainCrs.REGCAN95_GEOGRAPHIC
+        val ED50_UTM29: SpainCrs get() = SpainCrs.ED50_UTM29
+        val ED50_UTM30: SpainCrs get() = SpainCrs.ED50_UTM30
+        val ED50_UTM31: SpainCrs get() = SpainCrs.ED50_UTM31
 
         /** Los diez SC de España. */
         val entries: List<SpainCrs> get() = SpainCrs.entries
