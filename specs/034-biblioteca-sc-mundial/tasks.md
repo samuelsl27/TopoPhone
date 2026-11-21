@@ -41,7 +41,7 @@
 ## Datos (`data`)
 - [x] T16. Room v37 (`crs_definition`, `geoid_grid`, `favorite_crs`, `recent_crs`) con su migración, `ProjectRepository` con `LibraryCrs`, `.topoproj` y copia de seguridad. (RF-13, RF-25)
       Hecho cuando: `Migration36To37Test` y `ProjectBackupCrsTest` pasan, y el esquema `37.json` está exportado.
-- [ ] T17. `GridStore`: rejillas instaladas, estado, uso por proyecto y borrado de las que ninguno usa. (RF-23, RF-17)
+- [x] T17. `GridStore`: rejillas instaladas, estado, uso por proyecto y borrado de las que ninguno usa. (RF-23, RF-17)
       Hecho cuando: `GridStoreTest` y `BundledGridsTest` pasan.
 - [ ] T18. `GridDownloader` (A5): descarga atómica con SHA-256 y reintento. (RF-19, RF-21, RF-22)
       Hecho cuando: `GridDownloaderTest` pasa con servidor falso: completa, cortada, SHA alterado y reintento.
