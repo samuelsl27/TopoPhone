@@ -30,7 +30,7 @@ def test_s057_rf_8_el_cambio_de_datum_se_nota_donde_toca() -> None:
 
     # ED50 → ETRS89 con la rejilla mueve el punto unos 100-200 m; RGF93 = ETRS89 no lo mueve, solo cambia de proyección.
     desplazamientos = {o: abs(float(fs[0][8]) - float(fs[0][6])) for o, fs in por_origen.items()}
-    assert 50 < desplazamientos["23031"] < 300
+    assert 50 < desplazamientos["23030"] < 300
 
 
 def test_s057_rf_7_regenerarlo_da_el_mismo_fichero() -> None:
