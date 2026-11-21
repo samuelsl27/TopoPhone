@@ -67,11 +67,46 @@ class ImportAreaFilter private constructor(
                 val utm = Utm.forward(layerLat, layerLon, source.zone, ellipsoid)
                 LayerBox(utm.easting - half, utm.easting + half, utm.northing - half, utm.northing + half)
             }
-            is CadSourceCrs.Library -> error("Un SC de origen de la biblioteca todavía no se calcula aquí (S057, T7 a T10)")
+            is CadSourceCrs.Library -> libraryBox(source, half)
         }
     }
 
+    /**
+     * El recuadro de la zona en el SC de la biblioteca de una capa (S057/RF-16), en su unidad (la del SC; grados en uno geográfico): el de
+     * [CIRCLE_SAMPLES] puntos del círculo de radio [half] pasados al SC con [SourceGround.fromGround], más un margen del 1 % por si el
+     * recuadro verdadero del círculo curvado sobresale de los puntos. Con otras proyecciones la escala no está acotada como en UTM, por eso se
+     * mide en vez de suponerla. null si el centro no se puede pasar al SC (fuera de su ámbito o de la rejilla del datum).
+     */
+    private fun libraryBox(source: CadSourceCrs.Library, half: Double): LayerBox? {
+        val ground = SourceGround(source.definition)
+        val lat = circle.center.latitudeDeg
+        val lon = circle.center.longitudeDeg
+        val centre = ground.fromGround(lat, lon) ?: return null
+        val cosLat = max(cos(Math.toRadians(lat)), MIN_COS_LAT)
+        val xs = ArrayList<Double>(CIRCLE_SAMPLES + 1).apply { add(centre.first) }
+        val ys = ArrayList<Double>(CIRCLE_SAMPLES + 1).apply { add(centre.second) }
+        for (i in 0 until CIRCLE_SAMPLES) {
+            val theta = 2 * Math.PI * i / CIRCLE_SAMPLES
+            val sampleLat = lat + half * cos(theta) / METRES_PER_DEGREE
+            val sampleLon = lon + half * sin(theta) / (METRES_PER_DEGREE * cosLat)
+            ground.fromGround(sampleLat, sampleLon)?.let {
+                xs.add(it.first)
+                ys.add(it.second)
+            }
+        }
+        val width = xs.max() - xs.min()
+        val height = ys.max() - ys.min()
+        return LayerBox(
+            xs.min() - width * BOX_MARGIN,
+            xs.max() + width * BOX_MARGIN,
+            ys.min() - height * BOX_MARGIN,
+            ys.max() + height * BOX_MARGIN,
+        )
+    }
+
     companion object {
+        private const val CIRCLE_SAMPLES = 32
+        private const val BOX_MARGIN = 0.01
         private const val SCALE_MARGIN = 0.005
         private const val DATUM_MARGIN_M = 5.0
         private const val METRES_PER_DEGREE = 111_320.0
@@ -86,7 +121,7 @@ class ImportAreaFilter private constructor(
         ): ImportAreaFilter? {
             val ground = GeodeticPosition(area.center.latitudeDeg, area.center.longitudeDeg, null)
             val position = calculator.fromGround(ground, crs, HeightSystem.ELLIPSOIDAL)
-            return if (crs.utmZone == null) {
+            return if (!crs.isProjected) {
                 val lon = position.longitudeDeg ?: return null
                 val lat = position.latitudeDeg ?: return null
                 ImportAreaFilter(area, geographicProject = true, centerX = lon, centerY = lat)

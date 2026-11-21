@@ -23,7 +23,7 @@
       Hecho cuando: `SurfaceProjectorLibraryTest` y `AlignmentProjectorLibraryTest` pasan.
 - [x] T9. `RasterElevation` y `RasterTiler` con un SC de origen de la biblioteca, y las alturas (A5). (RF-15, RF-19, RF-20)
       Hecho cuando: `RasterElevationLibraryTest` y `SourceHeightsTest` pasan.
-- [ ] T10. `ImportAreaFilter` (recorte alrededor del centro) con un SC de origen de la biblioteca. (RF-16)
+- [x] T10. `ImportAreaFilter` (recorte alrededor del centro) con un SC de origen de la biblioteca. (RF-16)
       Hecho cuando: `ImportAreaFilterLibraryTest` pasa con un Shapefile en otro país.
 
 ## Formatos
