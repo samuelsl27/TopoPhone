@@ -39,7 +39,7 @@
       Hecho cuando: `TransformationChainMissingGridTest` pasa con la rejilla ausente en primero, medio y último lugar.
 - [x] T14. Metadatos (`TransformationInfo`) y aviso de ámbito de las transformaciones de parámetros. (RF-14, RF-15)
       Hecho cuando: `TransformationInfoTest` y `TransformationAreaWarningTest` pasan (dentro, borde y fuera del ámbito, que calcula con aviso).
-- [ ] T15. No regresión de S008: ED50 y las proyecciones dan lo de siempre y una cadena con la rejilla de ED50 coincide con `Ed50.toEtrs89`. (RF-16)
+- [x] T15. No regresión de S008: ED50 y las proyecciones dan lo de siempre y una cadena con la rejilla de ED50 coincide con `Ed50.toEtrs89`. (RF-16)
       Hecho cuando: `Ed50UnchangedTest` pasa con los vectores de `ed50_utm.csv` y `Ed50.kt` no tiene cambios en el diff de la spec.
 
 ## Transversales y cierre
