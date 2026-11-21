@@ -53,7 +53,7 @@
       Hecho cuando: `CrsPickerTest` y `CrsPickerShortcutsTest` pasan, con zonas de 56 dp y etiquetas de TalkBack.
 - [x] T21. Ficha del SC con la transformación y sus alternativas. (RF-9, RF-10, RF-11, RF-12)
       Hecho cuando: `CrsDetailsScreenTest` pasa, incluido el SC sin transformación (no elegible, con motivo).
-- [ ] T22. Descarga con confirmación, tamaño, licencia y fuente, avisos de licencia, y pantalla de rejillas instaladas. (RF-19, RF-20, RF-23)
+- [x] T22. Descarga con confirmación, tamaño, licencia y fuente, avisos de licencia, y pantalla de rejillas instaladas. (RF-19, RF-20, RF-23)
       Hecho cuando: `GridDownloadScreenTest` e `InstalledGridsScreenTest` pasan.
 - [ ] T23. Formulario de proyecto con SC de la biblioteca, altura y geoide, y apertura sin rejilla. (RF-14, RF-15, RF-16, RF-18, RF-24)
       Hecho cuando: `ProjectFormGeoidTest`, `MissingGridProjectTest` y `OfflineProjectTest` pasan.

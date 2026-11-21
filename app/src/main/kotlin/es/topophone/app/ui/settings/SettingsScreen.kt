@@ -33,6 +33,7 @@ const val LICENSES_SETTING_TAG = "setting_licenses"
 const val PROJECT_DEFAULTS_SETTING_TAG = "setting_project_defaults"
 const val CODE_LIBRARIES_SETTING_TAG = "setting_code_libraries"
 const val BACKUPS_SETTING_TAG = "setting_backups"
+const val INSTALLED_GRIDS_SETTING_TAG = "setting_installed_grids"
 const val BACKGROUND_HELP_SETTING_TAG = "setting_background_help"
 
 fun themeOptionTag(mode: ThemeMode) = "theme_option_${mode.name}"
@@ -69,6 +70,7 @@ fun SettingsScreen(
     onOpenProjectDefaults: () -> Unit = {},
     onOpenBackups: () -> Unit = {},
     onOpenCodeLibraries: () -> Unit = {},
+    onOpenInstalledGrids: () -> Unit = {},
 ) {
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
@@ -107,6 +109,11 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_code_libraries),
                 onClick = onOpenCodeLibraries, // S023/RF-1
                 modifier = Modifier.testTag(CODE_LIBRARIES_SETTING_TAG),
+            )
+            SettingsItem(
+                title = stringResource(R.string.settings_installed_grids),
+                onClick = onOpenInstalledGrids, // S034/RF-23
+                modifier = Modifier.testTag(INSTALLED_GRIDS_SETTING_TAG),
             )
             SettingsItem(
                 title = stringResource(R.string.backups_title),

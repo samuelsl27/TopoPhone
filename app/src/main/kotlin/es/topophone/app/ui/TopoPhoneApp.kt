@@ -53,6 +53,7 @@ import es.topophone.app.ui.cogo.CogoMenuRoute
 import es.topophone.app.ui.cogo.IntersectionRoute
 import es.topophone.app.ui.cogo.InverseRoute
 import es.topophone.app.ui.cogo.TraverseRoute
+import es.topophone.app.ui.crs.InstalledGridsRoute
 import es.topophone.app.ui.export.DxfExportRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
@@ -887,7 +888,11 @@ private fun AppNavHost(
                     onOpenProjectDefaults = { navController.navigate(ProjectDefaultsDestination) }, // S006/RF-13
                     onOpenBackups = { navController.navigate(BackupsDestination) }, // S013
                     onOpenCodeLibraries = { navController.navigate(CodeLibrariesDestination) }, // S023/RF-1
+                    onOpenInstalledGrids = { navController.navigate(InstalledGridsDestination) }, // S034/RF-23
                 )
+            }
+            composable<InstalledGridsDestination> {
+                InstalledGridsRoute(uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<CodeLibrariesDestination> {
                 CodeLibraryListRoute(
