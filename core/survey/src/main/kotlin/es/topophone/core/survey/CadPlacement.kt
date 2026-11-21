@@ -1,10 +1,7 @@
 package es.topophone.core.survey
 
-import es.topophone.core.geodesy.Ed50
-import es.topophone.core.geodesy.Ellipsoid
-import es.topophone.core.geodesy.Utm
-import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.survey.geometry.GroundPosition
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.sin
@@ -21,21 +18,12 @@ object CadPlacement {
     private const val EARTH_RADIUS_KM = 6371.0088
 
     /**
-     * Latitud y longitud ETRS89 o REGCAN95 del punto (Este, Norte) del sistema [crs]; en un sistema en geográficas, (Norte, Este)
-     * son la latitud y la longitud. null si es ED50 y cae fuera de la rejilla.
+     * Latitud y longitud ETRS89 o REGCAN95 (o las del datum de las correcciones, en un SC de la biblioteca) del punto (Este, Norte) del sistema
+     * [crs]; en un sistema en geográficas, (Norte, Este) son la latitud y la longitud. null si es ED50 y cae fuera de la rejilla, o si falta la
+     * rejilla de un SC de la biblioteca.
      */
-    fun geographic(crs: ProjectCrs, easting: Double, northing: Double): Pair<Double, Double>? {
-        val zone = crs.utmZone ?: return northing to easting
-        val ellipsoid = if (crs.datum == GeodeticDatum.ED50) Ellipsoid.INTERNATIONAL_1924 else Ellipsoid.GRS80
-        val point = Utm.inverse(easting, northing, zone, ellipsoid)
-        return if (crs.datum ==
-            GeodeticDatum.ED50
-        ) {
-            Ed50.toEtrs89(point.latitudeDeg, point.longitudeDeg)
-        } else {
-            point.latitudeDeg to point.longitudeDeg
-        }
-    }
+    fun geographic(crs: ProjectCrs, easting: Double, northing: Double): Pair<Double, Double>? =
+        GroundPosition.of(crs, easting, northing) // España como siempre y, desde S057, también un SC de la biblioteca
 
     /** Distancia sobre la esfera media entre dos puntos, en km (haversine): de sobra para un aviso de cientos de km. */
     fun distanceKm(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {

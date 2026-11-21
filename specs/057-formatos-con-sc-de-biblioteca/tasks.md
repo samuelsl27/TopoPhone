@@ -31,7 +31,7 @@
       Hecho cuando: `CrsRecognitionTest` cubre EPSG, nombre de EPSG, nombre de ESRI, ambiguo y desconocido.
 - [x] T12. Importadores de GeoPackage y Shapefile con el SC de cada capa. (RF-16)
       Hecho cuando: `GpkgLibraryImportTest` y `ShpLibraryImportTest` importan una capa en otro SC y reproyectan.
-- [ ] T13. KML con un SC de la biblioteca: importar y exportar como el datum de las correcciones. (RF-17, RF-24)
+- [x] T13. KML con un SC de la biblioteca: importar y exportar como el datum de las correcciones. (RF-17, RF-24)
       Hecho cuando: `KmlLibraryTest` pasa con un proyecto en Lambert-93 y otro con correcciones ITRF/WGS84.
 - [ ] T14. Exportar DXF con un SC de la biblioteca. (RF-21)
       Hecho cuando: `DxfExportLibraryTest` pasa con coordenadas globales y locales y con un SC geográfico.
