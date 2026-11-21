@@ -49,7 +49,7 @@
       Hecho cuando: `FavoriteCrsTest` y `RecentCrsTest` pasan (diez recientes, sin repetir, favorito que desaparece del catálogo).
 
 ## Interfaz (`app`)
-- [ ] T20. Selector de SC con búsqueda, filtro por país, favoritos y recientes, en el formulario y en Ajustes. (RF-1, RF-2, RF-3, RF-5, RF-6, RF-7, RF-8)
+- [x] T20. Selector de SC con búsqueda, filtro por país, favoritos y recientes, en el formulario y en Ajustes. (RF-1, RF-2, RF-3, RF-5, RF-6, RF-7, RF-8)
       Hecho cuando: `CrsPickerTest` y `CrsPickerShortcutsTest` pasan, con zonas de 56 dp y etiquetas de TalkBack.
 - [ ] T21. Ficha del SC con la transformación y sus alternativas. (RF-9, RF-10, RF-11, RF-12)
       Hecho cuando: `CrsDetailsScreenTest` pasa, incluido el SC sin transformación (no elegible, con motivo).
