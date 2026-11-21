@@ -37,7 +37,7 @@
       Hecho cuando: `TransformationChainTest` coincide con pyproj a ≤ 1 mm y `TransformationNoRoundingTest` coincide bit a bit con la composición manual.
 - [x] T13. Rejilla ausente en un paso de la cadena: se rechaza el punto con el nombre de la rejilla y no se calcula ningún otro paso. (RF-12)
       Hecho cuando: `TransformationChainMissingGridTest` pasa con la rejilla ausente en primero, medio y último lugar.
-- [ ] T14. Metadatos (`TransformationInfo`) y aviso de ámbito de las transformaciones de parámetros. (RF-14, RF-15)
+- [x] T14. Metadatos (`TransformationInfo`) y aviso de ámbito de las transformaciones de parámetros. (RF-14, RF-15)
       Hecho cuando: `TransformationInfoTest` y `TransformationAreaWarningTest` pasan (dentro, borde y fuera del ámbito, que calcula con aviso).
 - [ ] T15. No regresión de S008: ED50 y las proyecciones dan lo de siempre y una cadena con la rejilla de ED50 coincide con `Ed50.toEtrs89`. (RF-16)
       Hecho cuando: `Ed50UnchangedTest` pasa con los vectores de `ed50_utm.csv` y `Ed50.kt` no tiene cambios en el diff de la spec.

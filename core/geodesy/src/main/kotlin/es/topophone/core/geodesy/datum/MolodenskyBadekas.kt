@@ -42,9 +42,9 @@ class MolodenskyBadekas(
 
     private val geocentric = GeocentricSevenParameter(parameters.helmert, parameters.pivot)
 
-    internal val geocentricStep = GeocentricStep(source, target, geocentric)
+    internal val geocentricStep = GeocentricStep(source, target, info.areaOfUse, geocentric)
 
-    override fun forward(point: GeodeticPoint): TransformResult = geocentricResult(point, source, target, geocentric::forward)
+    override fun forward(point: GeodeticPoint): TransformResult = geocentricResult(geocentricStep, point, forward = true)
 
-    override fun inverse(point: GeodeticPoint): TransformResult = geocentricResult(point, target, source, geocentric::inverse)
+    override fun inverse(point: GeodeticPoint): TransformResult = geocentricResult(geocentricStep, point, forward = false)
 }

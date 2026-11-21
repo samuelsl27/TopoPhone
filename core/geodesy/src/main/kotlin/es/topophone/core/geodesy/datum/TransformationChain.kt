@@ -6,7 +6,7 @@ import es.topophone.core.geodesy.GeodeticPoint
 
 /** Un paso de una cadena ya aplanado: o se calcula en geocéntricas (y se puede componer con el vecino) o es opaco (una rejilla). */
 internal sealed interface ChainLink {
-    class Geocentric(val from: Ellipsoid, val to: Ellipsoid, val apply: (Ecef) -> Ecef) : ChainLink
+    class Geocentric(val from: Ellipsoid, val to: Ellipsoid, val area: AreaOfUse?, val apply: (Ecef) -> Ecef) : ChainLink
 
     class Opaque(val apply: (GeodeticPoint) -> TransformResult) : ChainLink
 }
@@ -39,12 +39,18 @@ class TransformationChain(private val steps: List<DatumTransformation>, override
         var current = point
         var ecef: Ecef? = null
         var ecefEllipsoid: Ellipsoid? = null
+        var outsideArea = false
         for (link in links) {
             when (link) {
                 is ChainLink.Geocentric -> {
                     if (ecef != null && ecefEllipsoid != link.from) {
                         current = ecef.toGeodetic(checkNotNull(ecefEllipsoid))
                         ecef = null
+                    }
+                    if (link.area != null && !outsideArea) {
+                        // Solo para el aviso: las geográficas de entrada de este paso (si se compone en cartesianas, se sacan de ellas).
+                        val input = if (ecef != null) ecef.toGeodetic(checkNotNull(ecefEllipsoid)) else current
+                        outsideArea = !link.area.contains(input.latitudeDeg, input.longitudeDeg)
                     }
                     val start = ecef ?: Ecef.fromGeodetic(current.latitudeDeg, current.longitudeDeg, current.ellipsoidalHeightM, link.from)
                     ecef = link.apply(start)
@@ -56,14 +62,17 @@ class TransformationChain(private val steps: List<DatumTransformation>, override
                         ecef = null
                     }
                     when (val result = link.apply(current)) {
-                        is TransformResult.Ok -> current = result.point
+                        is TransformResult.Ok -> {
+                            current = result.point
+                            if (TransformWarning.OUTSIDE_AREA_OF_USE in result.warnings) outsideArea = true
+                        }
                         else -> return result
                     }
                 }
             }
         }
         if (ecef != null) current = ecef.toGeodetic(checkNotNull(ecefEllipsoid))
-        return TransformResult.Ok(current)
+        return TransformResult.Ok(current, if (outsideArea) listOf(TransformWarning.OUTSIDE_AREA_OF_USE) else emptyList())
     }
 
     private companion object {
@@ -75,9 +84,9 @@ class TransformationChain(private val steps: List<DatumTransformation>, override
         }
 
         fun geocentricLink(step: GeocentricStep, forward: Boolean): ChainLink = if (forward) {
-            ChainLink.Geocentric(step.source, step.target, step.kernel::forward)
+            ChainLink.Geocentric(step.source, step.target, step.area, step.kernel::forward)
         } else {
-            ChainLink.Geocentric(step.target, step.source, step.kernel::inverse)
+            ChainLink.Geocentric(step.target, step.source, step.area, step.kernel::inverse)
         }
     }
 }
