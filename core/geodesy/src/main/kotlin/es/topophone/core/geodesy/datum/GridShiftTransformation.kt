@@ -1,5 +1,6 @@
 package es.topophone.core.geodesy.datum
 
+import es.topophone.core.geodesy.GeoTiffGrid
 import es.topophone.core.geodesy.GeodeticPoint
 import es.topophone.core.geodesy.HorizontalShiftGrid
 
@@ -21,7 +22,15 @@ class ClasspathGridSource(private val prefix: String) : GridSource {
 class GridShiftTransformation(private val gridName: String, private val source: GridSource, override val info: TransformationInfo) :
     DatumTransformation {
 
-    private val grid: HorizontalShiftGrid? by lazy { source.read(gridName)?.let(HorizontalShiftGrid::read) }
+    /** `null` si la rejilla no está, no se puede leer o no tiene dos bandas (latitud y longitud) en todas sus subrejillas (S033/RF-9). */
+    private val grid: HorizontalShiftGrid? by lazy { loadGrid() }
+
+    private fun loadGrid(): HorizontalShiftGrid? = try {
+        source.read(gridName)?.let { GeoTiffGrid.readAll(it) }?.takeIf { grids -> grids.isNotEmpty() && grids.all { it.bands >= 2 } }
+            ?.let(::HorizontalShiftGrid)
+    } catch (e: Exception) {
+        null
+    }
 
     override fun forward(point: GeodeticPoint): TransformResult {
         if (!point.isFinite()) return TransformResult.NotConverged(gridName)

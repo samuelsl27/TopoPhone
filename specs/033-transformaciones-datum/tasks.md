@@ -25,7 +25,7 @@
       Hecho cuando: `test_datum.py` los comprueba y el fichero se regenera igual.
 - [x] T8. `GridShiftTransformation.forward` con `GridSource` y rechazo fuera de la rejilla (`OutsideGrid`). (RF-7, RF-8)
       Hecho cuando: `GridShiftTransformationTest` y `GridShiftOutsideTest` pasan con los vectores.
-- [ ] T9. Rejilla ausente o ilegible: `GridUnavailable` con el nombre de la rejilla, sin calcular. (RF-9)
+- [x] T9. Rejilla ausente o ilegible: `GridUnavailable` con el nombre de la rejilla, sin calcular. (RF-9)
       Hecho cuando: `GridShiftUnavailableTest` pasa con una fuente que devuelve `null`, otra con bytes dañados y otra que lanza excepción.
 - [ ] T10. Inversa de la rejilla iterativa con `NotConverged` y `OutsideGrid`. (RF-10)
       Hecho cuando: `GridShiftInverseTest` comprueba ida y vuelta ≤ 0,1 mm en los puntos de la rejilla (desplazamientos de más de 100 m) y el rechazo si no converge.
