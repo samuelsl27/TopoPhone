@@ -31,7 +31,7 @@
       Hecho cuando: `CoordinateEngineSpainTest` da bit a bit lo de S008 con los vectores `utm_*.csv` y `ed50_utm.csv`.
 - [x] T12. `CoordinateEngine` para `LibraryCrs` (A4): proyección, transformación del datum, altura con geoide y factores. (RF-26, RF-27, RF-18, RF-24)
       Hecho cuando: `CoordinateEngineTest` pasa con varios SC de la biblioteca frente a pyproj, con un geoide ausente y sin conexión.
-- [ ] T13. Migración al motor de los demás sitios que usan `Utm` o `Ed50` (`ManualCoordinates`, `GroundPosition`, `GroundPoint`, `CadPlacement`, `ImportAreaFilter`, `RasterElevation`). (RF-26, RF-28)
+- [x] T13. Migración al motor de los demás sitios que usan `Utm` o `Ed50` (`ManualCoordinates`, `GroundPosition`, `GroundPoint`, `CadPlacement`, `ImportAreaFilter`, `RasterElevation`). (RF-26, RF-28)
       Hecho cuando: los tests de cada uno pasan sin cambios en España y `LibraryProjectCoreTest` comprueba puntos manuales, geometría y COGO en un SC de la biblioteca.
 - [ ] T14. Replanteo, base shift y mapa con un SC de la biblioteca. (RF-28)
       Hecho cuando: `LibraryStakeoutTest`, `LibraryBaseShiftTest` y `LibraryMapProjectionTest` pasan.

@@ -4,7 +4,11 @@ import es.topophone.core.geodesy.Ed50
 import es.topophone.core.geodesy.Ellipsoid
 import es.topophone.core.geodesy.Utm
 import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.SpainCrs
+import es.topophone.core.survey.GroundResult
+import es.topophone.core.survey.ProjectPositionCalculator
 
 /**
  * De las coordenadas de un punto en el SC del proyecto a su latitud y longitud ETRS89 o REGCAN95 (S026/RF-10): la UTM inversa y, en
@@ -16,7 +20,14 @@ object GroundPosition {
      * La latitud y la longitud, en ese orden, del punto ([first], [second]) del [crs]: Este y Norte en un SC UTM, o longitud y
      * latitud en grados en uno geográfico. Null si es ED50 y cae fuera de la rejilla.
      */
-    fun of(crs: ProjectCrs, first: Double, second: Double): Pair<Double, Double>? = of(crs.datum, first, second, crs.utmZone)
+    fun of(crs: ProjectCrs, first: Double, second: Double): Pair<Double, Double>? = when (crs) {
+        is SpainCrs -> of(crs.datum, first, second, crs.utmZone)
+        is LibraryCrs -> {
+            val engine = ProjectPositionCalculator().engineFor(crs)
+            val result = if (crs.isUtm) engine.groundFromGrid(first, second) else engine.groundFromDatum(second, first)
+            (result as? GroundResult.Ok)?.let { it.latitudeDeg to it.longitudeDeg }
+        }
+    }
 
     /** Lo mismo con el datum y el huso sueltos; sin huso, [first] es la longitud y [second] la latitud. */
     fun of(datum: GeodeticDatum, first: Double, second: Double, zone: Int?): Pair<Double, Double>? {

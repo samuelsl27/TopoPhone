@@ -31,7 +31,7 @@ class GroundScale(
     override fun polygon(vertices: List<GeometryVertex>): Double = factorAt(vertices)
 
     private fun factorAt(points: List<GeometryVertex>): Double {
-        if (crs.utmZone == null || points.any { it.latitudeDeg == null || it.longitudeDeg == null }) {
+        if (!crs.isUtm || points.any { it.latitudeDeg == null || it.longitudeDeg == null }) {
             found += GeometryNotice.NO_FACTOR
             return 1.0
         }

@@ -1579,7 +1579,7 @@ fun ProjectViewScreen(
             designSelection,
             project.linearUnit,
             unitSymbol(project.linearUnit),
-            geographic = project.crs.utmZone == null,
+            geographic = !project.crs.isUtm,
             onDismiss = onDismissDesignSelection,
             onStakeout = onStakeoutElement,
             onConvertToAxis = { convertOpen = true },
