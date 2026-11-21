@@ -34,6 +34,9 @@ fun RasterImportRoute(
         state = state,
         actions = RasterImportActions(
             onSource = viewModel::setSource,
+            onChooseLibrary = viewModel::chooseLibrary,
+            onConfirmLibrary = viewModel::confirmLibrary,
+            onRefreshLibrary = viewModel::refreshLibrary,
             onUnit = viewModel::setUnit,
             onHeightSystem = viewModel::setHeightSystem,
             onConfirmFar = viewModel::confirmFar,

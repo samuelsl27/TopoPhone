@@ -37,15 +37,22 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.crs.CrsLibraryHost
+import es.topophone.app.ui.crs.HiltCrsLibraryHost
+import es.topophone.app.ui.crs.LibrarySourceRequest
+import es.topophone.app.ui.crs.LibrarySourceSection
 import es.topophone.app.ui.projects.crsLabel
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.formats.raster.RasterCrsDeclaration
+import es.topophone.core.geodesy.catalog.CrsCatalog
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.HeightSystem
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.survey.HeightConversion
 import es.topophone.data.surface.RasterImportFailure
 import java.text.NumberFormat
 
@@ -74,11 +81,16 @@ fun rasterSourceTag(crs: ProjectCrs) = "raster_source_${crs.name}"
 
 fun rasterUnitTag(unit: LinearUnit) = "raster_unit_${unit.name}"
 
+const val RASTER_HEIGHT_REASON_TAG = "raster_height_reason"
+
 fun rasterHeightTag(system: HeightSystem) = "raster_height_${system.name}"
 
 /** Acciones de la pantalla de importar un ráster de cotas (S045). */
 class RasterImportActions(
     val onSource: (CadSourceCrs) -> Unit = {},
+    val onChooseLibrary: (LibraryCrs) -> Unit = {},
+    val onConfirmLibrary: (Boolean) -> Unit = {},
+    val onRefreshLibrary: () -> Unit = {},
     val onUnit: (LinearUnit) -> Unit = {},
     val onHeightSystem: (HeightSystem) -> Unit = {},
     val onConfirmFar: () -> Unit = {},
@@ -99,6 +111,7 @@ fun RasterImportScreen(
     state: RasterImportUiState,
     actions: RasterImportActions,
     onBack: () -> Unit,
+    libraryHost: CrsLibraryHost = HiltCrsLibraryHost,
 ) {
     SectionScaffold(
         title = stringResource(R.string.raster_import_title),
@@ -145,7 +158,7 @@ fun RasterImportScreen(
                 modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                ConfigSections(state, actions)
+                ConfigSections(state, actions, themeState, onToggleSun, libraryHost)
             }
 
             RasterImportStage.RESULT -> Column(
@@ -188,7 +201,13 @@ private fun ProgressBar(done: Long, total: Long?) {
 }
 
 @Composable
-private fun ConfigSections(state: RasterImportUiState, actions: RasterImportActions) {
+private fun ConfigSections(
+    state: RasterImportUiState,
+    actions: RasterImportActions,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    libraryHost: CrsLibraryHost,
+) {
     Text(stringResource(R.string.raster_section_file), style = MaterialTheme.typography.titleSmall)
     Text(state.fileName, style = MaterialTheme.typography.titleMedium)
     if (state.scanning) {
@@ -208,9 +227,9 @@ private fun ConfigSections(state: RasterImportUiState, actions: RasterImportActi
     }
     FailureMessage(state)
     if (state.header != null) {
-        CrsSection(state, actions)
+        CrsSection(state, actions, themeState, onToggleSun, libraryHost)
         UnitSection(state, actions)
-        HeightSection(state, actions)
+        HeightSection(state, actions, libraryHost)
         if (!state.scanning) {
             DataSection(state)
             ExtentSection(state)
@@ -247,7 +266,13 @@ private fun FailureMessage(state: RasterImportUiState) {
 /** Lo que declara el fichero, y el del proyecto u otro de los que ofrece la app (S045/RF-8). */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CrsSection(state: RasterImportUiState, actions: RasterImportActions) {
+private fun CrsSection(
+    state: RasterImportUiState,
+    actions: RasterImportActions,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    libraryHost: CrsLibraryHost,
+) {
     val source = state.source
     Text(stringResource(R.string.raster_section_crs), style = MaterialTheme.typography.titleSmall)
     val note = when (val declaration = state.declaration) {
@@ -259,8 +284,7 @@ private fun CrsSection(state: RasterImportUiState, actions: RasterImportActions)
                 stringResource(R.string.raster_crs_declared, label)
             }
         }
-        // Un SC de la biblioteca: la pantalla lo ofrece en T19 de S057; hasta entonces se pide elegir como con uno desconocido.
-        is RasterCrsDeclaration.Library -> stringResource(R.string.raster_crs_unavailable, declaration.epsg)
+        is RasterCrsDeclaration.Library -> stringResource(R.string.raster_crs_library, declaration.name, declaration.epsg)
         is RasterCrsDeclaration.Unavailable -> stringResource(R.string.raster_crs_unavailable, declaration.epsg)
         RasterCrsDeclaration.Undeclared -> stringResource(R.string.raster_crs_undeclared)
     }
@@ -271,11 +295,28 @@ private fun CrsSection(state: RasterImportUiState, actions: RasterImportActions)
             RASTER_CRS_PROJECT_TAG,
             source == CadSourceCrs.Project,
         ) { actions.onSource(CadSourceCrs.Project) }
-        Choice(stringResource(R.string.raster_crs_other), RASTER_CRS_OTHER_TAG, source != CadSourceCrs.Project) {
-            if (source == CadSourceCrs.Project) actions.onSource(sourceOf(state.availableSources.first()))
+        Choice(
+            stringResource(R.string.raster_crs_other),
+            RASTER_CRS_OTHER_TAG,
+            source is CadSourceCrs.Utm || source is CadSourceCrs.Geographic,
+        ) {
+            if (source == CadSourceCrs.Project || source is CadSourceCrs.Library) actions.onSource(sourceOf(state.availableSources.first()))
         }
     }
-    if (source != CadSourceCrs.Project) {
+    // El SC de origen puede ser cualquiera de la biblioteca, con su cambio de datum y su aviso de precisión (S057/RF-1, RF-4, RF-8 a RF-10).
+    LibrarySourceSection(
+        chosen = state.library,
+        selected = source is CadSourceCrs.Library,
+        request = LibrarySourceRequest(state.corrections, state.centre),
+        themeState = themeState,
+        onToggleSun = onToggleSun,
+        host = libraryHost,
+        onChosen = actions.onChooseLibrary,
+        onSelect = { state.library?.let { actions.onSource(it.source) } },
+        onConfirm = actions.onConfirmLibrary,
+        onRefresh = actions.onRefreshLibrary,
+    )
+    if (source is CadSourceCrs.Utm || source is CadSourceCrs.Geographic) {
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             state.availableSources.forEach { crs ->
                 Choice(crsLabel(crs), rasterSourceTag(crs), isSelected(source, crs)) { actions.onSource(sourceOf(crs)) }
@@ -314,7 +355,7 @@ private fun unitLabel(unit: LinearUnit) = when (unit) {
 /** Altitud ortométrica o altura elipsoidal del ráster, y qué pasa si no es la del proyecto (S045/RF-10). */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun HeightSection(state: RasterImportUiState, actions: RasterImportActions) {
+private fun HeightSection(state: RasterImportUiState, actions: RasterImportActions, libraryHost: CrsLibraryHost) {
     Text(stringResource(R.string.raster_section_height), style = MaterialTheme.typography.titleSmall)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Choice(
@@ -335,6 +376,19 @@ private fun HeightSection(state: RasterImportUiState, actions: RasterImportActio
             color = if (noGeoid) MaterialTheme.colorScheme.error else LocalContentColor.current,
             modifier = Modifier.testTag(RASTER_HEIGHT_NOTE_TAG),
         )
+        // Un proyecto de la biblioteca sin geoide, o con el geoide sin instalar: la geometría entra y las cotas no se convierten (S057/RF-20).
+        when (val conversion = state.heightConversion) {
+            HeightConversion.NoProjectGeoid ->
+                Text(stringResource(R.string.raster_height_no_project_geoid), modifier = Modifier.testTag(RASTER_HEIGHT_REASON_TAG))
+            is HeightConversion.MissingGeoid -> {
+                Text(
+                    stringResource(R.string.raster_height_missing_geoid, conversion.gridName),
+                    modifier = Modifier.testTag(RASTER_HEIGHT_REASON_TAG),
+                )
+                libraryHost.GridDownloads(listOfNotNull(CrsCatalog.bundled.grids[conversion.gridName]), actions.onRefreshLibrary)
+            }
+            HeightConversion.Same, HeightConversion.Available -> Unit
+        }
     }
 }
 

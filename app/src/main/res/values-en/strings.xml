@@ -3499,4 +3499,7 @@
     <string name="source_crs_warning">The datum shift is less accurate than 1 m or its accuracy is not declared: imported coordinates may be off by several metres</string>
     <string name="source_crs_confirm">I understand the accuracy and want to import</string>
     <string name="source_crs_grids_missing">Datum shift grids are missing: nothing is imported until they are downloaded</string>
+    <string name="raster_crs_library">The file declares %1$s (EPSG:%2$d), from the coordinate system library</string>
+    <string name="raster_height_no_project_geoid">Elevations cannot be converted: the project has no geoid. The raster is imported and its elevations are outside the surface until the project has one</string>
+    <string name="raster_height_missing_geoid">The project geoid %1$s is missing: without it elevations are not converted. Download it to see them</string>
 </resources>

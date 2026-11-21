@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
+import es.topophone.app.ui.crs.LibrarySourceUi
 import es.topophone.app.ui.points.ImportSource
 import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.formats.raster.RasterCrsDeclaration
@@ -11,19 +12,31 @@ import es.topophone.core.formats.raster.RasterCrsResolver
 import es.topophone.core.formats.raster.RasterHeader
 import es.topophone.core.formats.raster.RasterLimits
 import es.topophone.core.formats.raster.RasterReadStats
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.GeoidModels
+import es.topophone.core.geodesy.catalog.CrsBuildResult
+import es.topophone.core.geodesy.catalog.CrsCatalog
+import es.topophone.core.geodesy.catalog.SourceCrsResolution
+import es.topophone.core.geodesy.catalog.SourceCrsResolver
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.HeightSystem
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.SpainCrs
 import es.topophone.core.model.surface.SurfaceExtent
 import es.topophone.core.survey.CadPlacement
+import es.topophone.core.survey.HeightConversion
+import es.topophone.core.survey.LibraryResources
+import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.RasterFootprint
+import es.topophone.core.survey.SourceHeights
+import es.topophone.core.survey.Undulation
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.surface.RasterImportFailure
 import es.topophone.data.surface.RasterImportOptions
@@ -62,6 +75,13 @@ data class RasterImportUiState(
     val projectName: String = "",
     val projectCrs: ProjectCrs = ProjectCrs.ETRS89_UTM30,
     val projectHeightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
+    /** El datum de las correcciones del proyecto y su centro, para construir el SC de origen de la biblioteca (S057/RF-2, RF-8). */
+    val corrections: CorrectionsDatum = CorrectionsDatum.ETRS89,
+    val centre: GeoPoint? = null,
+    /** El SC de la biblioteca de origen, declarado por el fichero o elegido, con su cambio de datum y su confirmación (S057/RF-1, RF-4, RF-8 a RF-10). */
+    val library: LibrarySourceUi? = null,
+    /** Si las cotas del fichero se pueden pasar al sistema de alturas del proyecto (S057/RF-19, RF-20). */
+    val heightConversion: HeightConversion = HeightConversion.Same,
     /** La cabecera del fichero (RF-6 a RF-9, RF-11). */
     val header: RasterHeader? = null,
     /** Lo que dice el fichero de su sistema (RF-8). */
@@ -120,7 +140,8 @@ data class RasterImportUiState(
             header != null &&
             !outsideArea &&
             (!farWarning || farConfirmed) &&
-            (!duplicateName || duplicateConfirmed)
+            (!duplicateName || duplicateConfirmed) &&
+            (source !is CadSourceCrs.Library || library?.ready == true)
 }
 
 /**
@@ -173,6 +194,8 @@ class RasterImportViewModel @Inject constructor(
             projectName = project.name,
             projectCrs = project.crs,
             projectHeightSystem = project.heightSystem,
+            corrections = project.correctionsDatum,
+            centre = projectCenter?.let { GeoPoint(it.first, it.second) },
             heightSystem = project.heightSystem,
             totalBytes = size,
             duplicateName = source.name in taken,
@@ -192,11 +215,13 @@ class RasterImportViewModel @Inject constructor(
             is RasterScanResult.Found -> scan.header
         }
         val declaration = RasterCrsResolver.resolve(header.epsg)
+        val library = (declaration as? RasterCrsDeclaration.Library)?.let { libraryOf(it.epsg, project) }
         mutable.update {
             it.copy(
                 header = header,
                 declaration = declaration,
-                source = defaultSource(declaration, project.crs),
+                library = library,
+                source = library?.source ?: defaultSource(declaration, project.crs),
                 unit = header.verticalUnit ?: LinearUnit.METRE,
                 declaredUnit = header.verticalUnit,
                 totalBytes = size ?: it.bytesCopied,
@@ -204,6 +229,30 @@ class RasterImportViewModel @Inject constructor(
         }
         recompute()
         measure(file)
+    }
+
+    /**
+     * El SC de la biblioteca que declara el fichero (S057/RF-4), construido con las correcciones y el centro del proyecto; `null` si es el del
+     * proyecto (no hay que reproyectar, RF-12) o si no se puede calcular.
+     */
+    private fun libraryOf(epsg: Int, project: Project): LibrarySourceUi? {
+        val centre = mutable.value.centre
+        val resolution = SourceCrsResolver.resolve(
+            CrsCatalog.bundled,
+            epsg,
+            project.crs,
+            centre,
+            isInstalled = LibraryResources.current::isInstalled,
+        )
+        val definition = when (resolution) {
+            SourceCrsResolution.SameAsProject -> return null
+            is SourceCrsResolution.Other -> when (val built = resolution.result) {
+                is CrsBuildResult.Ready -> built.definition
+                is CrsBuildResult.NeedsGrids -> built.definition
+                is CrsBuildResult.Unavailable -> return null
+            }
+        }
+        return LibrarySourceUi.of(LibraryCrs(definition, project.correctionsDatum), centre)
     }
 
     /** El sistema que se propone: el que declara el fichero si es uno de la app (el del proyecto si coincide), y si no el del proyecto (RF-8). */
@@ -237,6 +286,22 @@ class RasterImportViewModel @Inject constructor(
     fun setUnit(unit: LinearUnit) {
         unitTouched = true
         mutable.update { it.copy(unit = unit, farConfirmed = false) }
+        recompute()
+    }
+
+    /** El SC de la biblioteca elegido como origen. La unidad de la malla es la del SC; la unidad que se elige aquí es la de las cotas (S057/RF-1, RF-15). */
+    fun chooseLibrary(crs: LibraryCrs) {
+        val library = LibrarySourceUi.of(crs, mutable.value.centre)
+        mutable.update { it.copy(library = library, source = library.source, farConfirmed = false) }
+        recompute()
+    }
+
+    /** El usuario confirma, o no, el aviso de la precisión del cambio de datum (S057/RF-9). */
+    fun confirmLibrary(confirmed: Boolean) = mutable.update { it.copy(library = it.library?.confirm(confirmed)) }
+
+    /** Tras descargar una rejilla o un geoide se vuelve a mirar qué falta y se recalcula (S057/RF-10, RF-20). */
+    fun refreshLibrary() {
+        mutable.update { it.copy(library = it.library?.refreshed(it.centre)) }
         recompute()
     }
 
@@ -280,6 +345,7 @@ class RasterImportViewModel @Inject constructor(
                     distanceKm = null,
                     farWarning = false,
                     geoidShiftM = null,
+                    heightConversion = SourceHeights.conversion(project.crs, project.heightSystem, it.heightSystem),
                 )
             }
             is RasterFootprint.Inside -> {
@@ -300,6 +366,7 @@ class RasterImportViewModel @Inject constructor(
                         } else {
                             centre?.let { c -> undulation(project.crs, c) }
                         },
+                        heightConversion = SourceHeights.conversion(project.crs, project.heightSystem, it.heightSystem),
                     )
                 }
             }
@@ -308,6 +375,10 @@ class RasterImportViewModel @Inject constructor(
 
     /** La ondulación del geoide del ámbito del proyecto en la latitud y la longitud dadas (RF-10). */
     private fun undulation(crs: ProjectCrs, latLon: Pair<Double, Double>): Double? {
+        if (crs is LibraryCrs) {
+            // Un proyecto de la biblioteca usa el geoide que eligió (S057/RF-19); sin él, o sin instalar, no hay cambio de altura.
+            return (ProjectPositionCalculator().engineFor(crs).undulation(latLon.first, latLon.second) as? Undulation.Value)?.metres
+        }
         val geoid = if ((crs as? SpainCrs)?.area == CrsArea.CANARIAS) GeoidModels.egm08RednapCanarias else GeoidModels.egm08RednapPeninsula
         return geoid.undulationM(latLon.first, latLon.second)
     }

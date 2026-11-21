@@ -3511,4 +3511,7 @@
     <string name="source_crs_warning">La precisión del cambio de datum es peor que 1 m o no está declarada: las coordenadas importadas pueden quedar desplazadas varios metros</string>
     <string name="source_crs_confirm">Entiendo la precisión y quiero importar</string>
     <string name="source_crs_grids_missing">Faltan rejillas del cambio de datum: no se importa nada hasta descargarlas</string>
+    <string name="raster_crs_library">El fichero declara %1$s (EPSG:%2$d), de la biblioteca de sistemas de coordenadas</string>
+    <string name="raster_height_no_project_geoid">Las cotas no se pueden convertir: el proyecto no tiene geoide. El ráster se importa y sus cotas salen fuera de la superficie hasta que el proyecto tenga uno</string>
+    <string name="raster_height_missing_geoid">Falta el geoide %1$s del proyecto: sin él las cotas no se convierten. Descárgalo para verlas</string>
 </resources>
