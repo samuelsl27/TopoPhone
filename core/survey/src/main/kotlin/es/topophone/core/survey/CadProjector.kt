@@ -23,7 +23,8 @@ sealed interface CadProjection {
  *    en grados y no se convierten;
  * 2. si vienen en el SC del proyecto se guardan tal cual, tras comprobar el ámbito; si vienen en otro UTM, por latitud y longitud
  *    con la misma ruta que un punto escrito a mano (S011/RF-17): UTM inversa, ED50 a ETRS89 por la rejilla SPED2ETV2 y
- *    [ProjectPositionCalculator.fromGround];
+ *    [ProjectPositionCalculator.fromGround]; si vienen en un SC de la biblioteca (S057/RF-13), por [SourceGround] (inversa de su proyección y cambio
+ *    de datum hasta el de las correcciones) y la misma ruta;
  * 3. un vértice fuera del ámbito o de la rejilla rechaza el elemento entero;
  * 4. la altura no se convierte entre sistemas (la Z del DXF es ya la del sistema de alturas del proyecto) y se descarta si el
  *    usuario no quiso las cotas (RF-8).
@@ -34,7 +35,8 @@ class CadProjector(
     private val calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
 ) {
     private val metres = options.unit.metres
-    private val geographicProject = crs.utmZone == null
+    private val geographicProject = !crs.isProjected
+    private val library: SourceGround? = (options.source as? CadSourceCrs.Library)?.let { SourceGround(it.definition) }
 
     fun convert(entity: CadEntity): CadProjection {
         val n = entity.vertexCount
@@ -54,22 +56,33 @@ class CadProjector(
             CadSourceCrs.Project -> {
                 val e = if (geographicProject) x else x * metres
                 val n = if (geographicProject) y else y * metres
-                val ground = ground(crs.datum, e, n, crs.utmZone) ?: return CadIgnoredReason.OUTSIDE_ED50_GRID
+                val ground = GroundPosition.of(crs, e, n) ?: return CadIgnoredReason.OUTSIDE_ED50_GRID
                 if (!crs.containsPosition(ground.first, ground.second)) return CadIgnoredReason.OUTSIDE_CRS_AREA
                 east[i] = e
                 north[i] = n
                 null
             }
-            is CadSourceCrs.Utm, is CadSourceCrs.Geographic -> {
+            is CadSourceCrs.Utm, is CadSourceCrs.Geographic, is CadSourceCrs.Library -> {
                 val ground = when (source) {
                     is CadSourceCrs.Utm -> ground(source.datum, x * metres, y * metres, source.zone)
                     is CadSourceCrs.Geographic -> ground(source.datum, x, y, null)
-                    CadSourceCrs.Project, is CadSourceCrs.Library -> null
+                    is CadSourceCrs.Library -> when (val result = requireNotNull(library).toGround(x, y, metres)) {
+                        is GroundResult.Ok -> result.latitudeDeg to result.longitudeDeg
+                        is GroundResult.Unavailable ->
+                            return if (result.reason == PositionUnavailable.OUTSIDE_CRS_AREA) {
+                                CadIgnoredReason.OUTSIDE_CRS_AREA
+                            } else {
+                                CadIgnoredReason.OUTSIDE_ED50_GRID
+                            }
+                    }
+                    CadSourceCrs.Project -> null
                 } ?: return CadIgnoredReason.OUTSIDE_ED50_GRID
                 val position = calculator.fromGround(GeodeticPosition(ground.first, ground.second, null), crs)
                 when {
                     PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable -> CadIgnoredReason.OUTSIDE_CRS_AREA
-                    PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable -> CadIgnoredReason.OUTSIDE_ED50_GRID
+                    PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable ||
+                        PositionUnavailable.OUTSIDE_DATUM_GRID in position.unavailable ||
+                        PositionUnavailable.MISSING_GRID in position.unavailable -> CadIgnoredReason.OUTSIDE_ED50_GRID
                     else -> {
                         east[i] = if (geographicProject) position.longitudeDeg!! else position.easting!!
                         north[i] = if (geographicProject) position.latitudeDeg!! else position.northing!!
@@ -77,7 +90,6 @@ class CadProjector(
                     }
                 }
             }
-            is CadSourceCrs.Library -> error("Un SC de origen de la biblioteca todavía no se calcula aquí (S057, T7 a T10)")
         }
     }
 

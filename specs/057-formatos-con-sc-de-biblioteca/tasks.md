@@ -17,7 +17,7 @@
       Hecho cuando: `SourceGroundTest` pasa con los vectores a ≤ 1 mm y la ida y vuelta a ≤ 0,1 mm, con rejilla ausente y con punto fuera de la rejilla.
 - [x] T6. `ImportTransformation` y las rejillas que faltan (A2, A3). (RF-8, RF-9, RF-10)
       Hecho cuando: `ImportTransformationTest` cubre la más precisa que cubre la zona, el aviso por encima de 1 m o desconocida, y sin aviso con el mismo datum.
-- [ ] T7. `CadProjector` con un SC de origen de la biblioteca. (RF-13)
+- [x] T7. `CadProjector` con un SC de origen de la biblioteca. (RF-13)
       Hecho cuando: `CadProjectorLibraryTest` pasa y `CadProjectorTest` de S040 sigue en verde.
 - [ ] T8. `SurfaceProjector` y `AlignmentProjector` con un SC de origen de la biblioteca. (RF-14)
       Hecho cuando: `SurfaceProjectorLibraryTest` y `AlignmentProjectorLibraryTest` pasan.
