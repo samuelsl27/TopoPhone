@@ -31,7 +31,7 @@ La columna «Depende» es la que dice el borrador, que corrige o completa la de 
 | [038 cogo](../038-cogo/spec.md) | H6 | S011, S008, S026 | 31 | 4 | Inversa, poligonal e intersecciones; resultados como puntos |
 | [032 proyecciones-completas](../032-proyecciones-completas/spec.md) | H5 | S008 | 21 | 3 | LCC 1SP/2SP, Mercator A/B, Oblique Mercator A/B, Estereográfica oblicua y polar A/B/C, y meridiano de origen distinto de Greenwich (entrevista 20/11/2026) |
 | [033 transformaciones-datum](../033-transformaciones-datum/spec.md) | H5 | S032, S008 | 14 | 4 | Helmert 3/4/6/7, Molodensky-Badekas y rejillas |
-| [034 biblioteca-sc-mundial](034-biblioteca-sc-mundial/spec.md) | H5 | S033, S032, S008, **S006** | 21 | 5 | Catálogo de SC con búsqueda, datums verticales y geoides |
+| [034 biblioteca-sc-mundial](../034-biblioteca-sc-mundial/spec.md) | H5 | S033, S032, S008, **S006** | 21 | 5 | Catálogo de SC con búsqueda, datums verticales y geoides |
 | [035 sc-personalizado](035-sc-personalizado/spec.md) | H5 | S034, S033, S032 | 24 | 5 | Editor de SC, «Mis SC», cambio del SC del proyecto |
 | [039 localizacion](039-localizacion/spec.md) | H6 | S035, **S011, S008** | 22 | 5 | Semejanza 2D por mínimos cuadrados con pares H/V |
 | [043 receptor-guiado](043-receptor-guiado/spec.md) | H7 | S016, **S015, S021, S005, S046** | 21 | 4 | Listas de configuración, comprobaciones previas y Reach Panel en un WebView |

@@ -50,7 +50,7 @@ Términos de esta spec:
 
 ## Requisitos no funcionales
 - Transversales que aplican: RNF-T9 y RNF-T14 (cálculo propio en Kotlin puro, ADR-2; las rejillas que se instalan traen su licencia, ver S034).
-- Constitución nº 2: frente a pyproj, las coordenadas transformadas difieren ≤ 1 mm (geográficas ≤ 1·10⁻⁸ °) y la ida y vuelta ≤ 0,1 mm, con y sin rejilla. En sentido inverso, la comparación con pyproj admite la diferencia entre el inverso exacto y el cambio de signo de los parámetros, siempre < 1 mm.
+- Constitución nº 2: frente a pyproj, las coordenadas transformadas difieren ≤ 1 mm (geográficas ≤ 1·10⁻⁸ °) y la ida y vuelta ≤ 0,1 mm, con y sin rejilla. En sentido inverso, la comparación con pyproj admite la diferencia entre el inverso exacto y el cambio de signo de los parámetros, que vale R·(s² + Σθ²) (s es la escala y θ cada rotación, en radianes): con parámetros de uso habitual es menor de 1 mm, pero con 3″ de rotación y 15 ppm de escala llega a 1,3 mm. La comparación inversa con pyproj usa esa cota, no 1 mm fijo.
 - Las referencias independientes son pyproj y los ejemplos resueltos de EPSG GN 7-2 (Helmert PV y CF, Molodensky-Badekas); para rejillas, pyproj con las mismas rejillas del CDN de PROJ. Para ED50 también las coordenadas oficiales del IGN de S008.
 - Transformar 100.000 puntos con rejilla tarda menos de 2 s en el móvil de referencia.
 - Un punto transformado con una cadena de tres pasos coincide con el de pyproj con la misma cadena a ≤ 1 mm.

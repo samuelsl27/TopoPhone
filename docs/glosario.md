@@ -142,6 +142,11 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Molodensky-Badekas | `MolodenskyBadekas` | Helmert de 7 parámetros con punto de rotación propio (S033) |
 | Rejilla de desplazamiento | `GridShiftTransformation` | Rejilla GeoTIFF con desplazamientos de latitud y longitud en segundos de arco (S033) |
 | Geoide / modelo de geoide | `GeoidModel` | |
+| Biblioteca de SC | `CrsLibrary` | Catálogo de SC calculables generado del registro EPSG e incluido en la app (S034) |
+| Ficha del SC | `CrsDetails` | Pantalla con los datos de un SC y de su transformación (S034) |
+| SC calculable | `CalculableCrs` | SC cuya proyección y cuya transformación de datum sabe calcular la app (S034) |
+| Datum vertical | `VerticalDatum` | Referencia de las alturas: elipsoidal o un modelo de geoide (S034) |
+| Rejilla instalada | `InstalledGrid` | Rejilla (geoide o desplazamiento) descargada y verificada en el almacenamiento privado (S034) |
 | Ondulación del geoide (N) | `geoidUndulation` | |
 | Altura elipsoidal (h) | `ellipsoidalHeight` | |
 | Altitud ortométrica (H) | `orthometricHeight` | |
