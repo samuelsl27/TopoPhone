@@ -134,17 +134,3 @@ class SpainEngine(private val crs: SpainCrs, private val peninsulaGeoid: () -> G
         )
     }
 }
-
-/** El motor de un SC que todavía no se calcula: nada tiene coordenadas (se sustituye por el de la biblioteca en S034/T12). */
-internal object UnavailableEngine : CoordinateEngine {
-    override fun fromGround(ground: GeodeticPosition, heightSystem: HeightSystem) =
-        ProjectPosition(unavailable = setOf(PositionUnavailable.OUTSIDE_CRS_AREA))
-
-    override fun groundFromGrid(eastingM: Double, northingM: Double) = GroundResult.Unavailable(PositionUnavailable.OUTSIDE_CRS_AREA)
-
-    override fun groundFromDatum(latitudeDeg: Double, longitudeDeg: Double) = GroundResult.Unavailable(PositionUnavailable.OUTSIDE_CRS_AREA)
-
-    override fun undulation(latitudeDeg: Double, longitudeDeg: Double) = Undulation.Outside
-
-    override fun containsPosition(latitudeDeg: Double, longitudeDeg: Double) = false
-}

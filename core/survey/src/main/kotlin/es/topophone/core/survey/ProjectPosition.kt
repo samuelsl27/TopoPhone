@@ -44,6 +44,7 @@ class ProjectPositionCalculator(
     private val peninsulaGeoid: () -> GeoidModel = { GeoidModels.egm08RednapPeninsula },
     private val canariasGeoid: () -> GeoidModel = { GeoidModels.egm08RednapCanarias },
     private val profile: AntennaProfile = AntennaProfile.RS3,
+    private val libraryResources: () -> LibraryResources = { LibraryResources.current },
 ) {
     fun compute(
         fix: GgaFix,
@@ -66,7 +67,7 @@ class ProjectPositionCalculator(
     /** El motor que calcula el SC [crs]: el de S008 para los de España y el de la biblioteca para los demás (S034/RF-25, RF-26). */
     fun engineFor(crs: ProjectCrs): CoordinateEngine = when (crs) {
         is SpainCrs -> SpainEngine(crs, peninsulaGeoid, canariasGeoid)
-        is LibraryCrs -> UnavailableEngine
+        is LibraryCrs -> LibraryEngines.of(crs, libraryResources())
     }
 
     /**

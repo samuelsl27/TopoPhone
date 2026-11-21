@@ -29,7 +29,7 @@
       Hecho cuando: todo el proyecto compila sin tocar los usos de los diez SC de España, `SpainCrsUnchangedTest` pasa y `check` pasa.
 - [x] T11. `CoordinateEngine` para `SpainCrs`, delegando en el código de S008, y migración de `ProjectPositionCalculator`. (RF-25, RF-26)
       Hecho cuando: `CoordinateEngineSpainTest` da bit a bit lo de S008 con los vectores `utm_*.csv` y `ed50_utm.csv`.
-- [ ] T12. `CoordinateEngine` para `LibraryCrs` (A4): proyección, transformación del datum, altura con geoide y factores. (RF-26, RF-27, RF-18, RF-24)
+- [x] T12. `CoordinateEngine` para `LibraryCrs` (A4): proyección, transformación del datum, altura con geoide y factores. (RF-26, RF-27, RF-18, RF-24)
       Hecho cuando: `CoordinateEngineTest` pasa con varios SC de la biblioteca frente a pyproj, con un geoide ausente y sin conexión.
 - [ ] T13. Migración al motor de los demás sitios que usan `Utm` o `Ed50` (`ManualCoordinates`, `GroundPosition`, `GroundPoint`, `CadPlacement`, `ImportAreaFilter`, `RasterElevation`). (RF-26, RF-28)
       Hecho cuando: los tests de cada uno pasan sin cambios en España y `LibraryProjectCoreTest` comprueba puntos manuales, geometría y COGO en un SC de la biblioteca.

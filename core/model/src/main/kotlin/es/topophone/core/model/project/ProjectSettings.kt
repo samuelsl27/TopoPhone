@@ -101,8 +101,12 @@ sealed interface ProjectCrs {
 }
 
 /** Un SC de la biblioteca de SC con su definición completa y copiada en el proyecto (S034/RF-13). */
-data class LibraryCrs(val definition: CrsDefinition, override val correctionsDatum: CorrectionsDatum = defaultCorrections(definition)) :
-    ProjectCrs {
+data class LibraryCrs(
+    val definition: CrsDefinition,
+    override val correctionsDatum: CorrectionsDatum = defaultCorrections(definition),
+    /** El geoide del proyecto: el nombre de su rejilla del CDN de PROJ, o `null` si el proyecto no tiene altitud ortométrica (S034/RF-14). */
+    val geoidGrid: String? = null,
+) : ProjectCrs {
     override val name: String get() = "LIBRARY:${definition.epsg}"
     override val epsg: Int get() = definition.epsg
     override val datum: GeodeticDatum get() = GeodeticDatum.ETRS89
