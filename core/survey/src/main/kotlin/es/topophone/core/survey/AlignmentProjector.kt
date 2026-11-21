@@ -60,7 +60,7 @@ class AlignmentProjector(
     private val metres = unit.metres
 
     fun convert(draft: AlignmentDraft): AlignmentProjection {
-        if (crs.utmZone == null) return AlignmentProjection.Rejected(AlignmentIssue.GeographicProject)
+        if (!crs.isProjected) return AlignmentProjection.Rejected(AlignmentIssue.GeographicProject)
         val scaled = draft.elements.map { scale(it) }
         val ends = draft.declaredEnds?.map { end -> end?.let { it.first * metres to it.second * metres } }
         val problem = if (ends != null) AlignmentValidator.validate(scaled, ends) else AlignmentValidator.validate(scaled)

@@ -19,7 +19,7 @@
       Hecho cuando: `ImportTransformationTest` cubre la más precisa que cubre la zona, el aviso por encima de 1 m o desconocida, y sin aviso con el mismo datum.
 - [x] T7. `CadProjector` con un SC de origen de la biblioteca. (RF-13)
       Hecho cuando: `CadProjectorLibraryTest` pasa y `CadProjectorTest` de S040 sigue en verde.
-- [ ] T8. `SurfaceProjector` y `AlignmentProjector` con un SC de origen de la biblioteca. (RF-14)
+- [x] T8. `SurfaceProjector` y `AlignmentProjector` con un SC de origen de la biblioteca. (RF-14)
       Hecho cuando: `SurfaceProjectorLibraryTest` y `AlignmentProjectorLibraryTest` pasan.
 - [ ] T9. `RasterElevation` y `RasterTiler` con un SC de origen de la biblioteca, y las alturas (A5). (RF-15, RF-19, RF-20)
       Hecho cuando: `RasterElevationLibraryTest` y `SourceHeightsTest` pasan.
