@@ -394,7 +394,10 @@ class BaseShiftViewModel @Inject constructor(
     private fun PositionUnavailable.toError(): BaseShiftError = when (this) {
         PositionUnavailable.OUTSIDE_CRS_AREA, PositionUnavailable.OUTSIDE_ED50_GRID, PositionUnavailable.OUTSIDE_GEOID ->
             BaseShiftError.KNOWN_OUTSIDE_AREA
-        PositionUnavailable.NO_HEIGHT -> BaseShiftError.KNOWN_OUTSIDE_AREA
+        PositionUnavailable.NO_HEIGHT,
+        PositionUnavailable.OUTSIDE_DATUM_GRID,
+        PositionUnavailable.MISSING_GRID,
+        -> BaseShiftError.KNOWN_OUTSIDE_AREA
     }
 
     /** "Aplicar solo horizontal": el vector sin corregir la altura (RF-6). */

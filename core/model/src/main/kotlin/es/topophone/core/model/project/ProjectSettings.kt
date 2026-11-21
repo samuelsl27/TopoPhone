@@ -57,6 +57,11 @@ sealed interface ProjectCrs {
 
     /** Huso UTM, o `null` en coordenadas geográficas y en los SC de la biblioteca (que tienen su proyección). */
     val utmZone: Int?
+
+    /**
+     * ¿Son sus coordenadas proyectadas (Este y Norte) y no geográficas? Es la pregunta que hace casi toda la app con `isUtm`: en un SC de la
+     * biblioteca vale lo mismo que [isProjected] aunque no sea UTM.
+     */
     val isUtm: Boolean get() = utmZone != null
 
     /** ¿Da el SC coordenadas proyectadas (Este y Norte) y no geográficas? */
@@ -102,6 +107,7 @@ data class LibraryCrs(val definition: CrsDefinition, override val correctionsDat
     override val epsg: Int get() = definition.epsg
     override val datum: GeodeticDatum get() = GeodeticDatum.ETRS89
     override val utmZone: Int? get() = null
+    override val isUtm: Boolean get() = definition.projected
     override val isProjected: Boolean get() = definition.projected
     override val heightSystems: List<HeightSystem> get() = HeightSystem.entries
 

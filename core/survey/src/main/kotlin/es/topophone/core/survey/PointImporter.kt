@@ -87,7 +87,9 @@ class PointImporter(private val manual: ManualCoordinates = ManualCoordinates())
 
     private fun reasonOf(reason: PositionUnavailable) = when (reason) {
         PositionUnavailable.OUTSIDE_GEOID -> ImportErrorReason.OUTSIDE_GEOID
-        PositionUnavailable.OUTSIDE_ED50_GRID -> ImportErrorReason.OUTSIDE_ED50_GRID
+        // La rejilla del datum de un SC de la biblioteca (o su falta) usa los motivos de la de ED50 hasta que S034/T15 les dé texto propio.
+        PositionUnavailable.OUTSIDE_ED50_GRID, PositionUnavailable.OUTSIDE_DATUM_GRID, PositionUnavailable.MISSING_GRID ->
+            ImportErrorReason.OUTSIDE_ED50_GRID
         // Sin altura no se rechaza nunca una fila (S011/RF-18); fuera del ámbito es el motivo que queda.
         PositionUnavailable.OUTSIDE_CRS_AREA, PositionUnavailable.NO_HEIGHT -> ImportErrorReason.OUTSIDE_CRS_AREA
     }

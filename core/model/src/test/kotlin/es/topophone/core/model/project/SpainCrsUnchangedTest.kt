@@ -67,7 +67,7 @@ class SpainCrsUnchangedTest {
         library.name shouldBe "LIBRARY:2154"
         library.isLibrary shouldBe true
         library.isProjected shouldBe true
-        library.isUtm shouldBe false
+        library.isUtm shouldBe true // «coordenadas proyectadas» para el resto de la app
         library.utmZone.shouldBeNull()
         library.heightSystems shouldContainExactly HeightSystem.entries
         library.correctionsDatum shouldBe CorrectionsDatum.ETRS89

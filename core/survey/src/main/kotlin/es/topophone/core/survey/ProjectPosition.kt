@@ -1,21 +1,16 @@
 package es.topophone.core.survey
 
-import es.topophone.core.geodesy.Ed50
-import es.topophone.core.geodesy.Ellipsoid
-import es.topophone.core.geodesy.Geodesy
 import es.topophone.core.geodesy.GeoidModel
 import es.topophone.core.geodesy.GeoidModels
-import es.topophone.core.geodesy.Utm
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.model.point.GeodeticPosition
-import es.topophone.core.model.project.CrsArea
-import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.HeightSystem
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.SpainCrs
 
 /** Por qué falta alguna coordenada de la posición en el SC del proyecto (S006/RF-30, S008/RF-8). */
-enum class PositionUnavailable { NO_HEIGHT, OUTSIDE_CRS_AREA, OUTSIDE_GEOID, OUTSIDE_ED50_GRID }
+enum class PositionUnavailable { NO_HEIGHT, OUTSIDE_CRS_AREA, OUTSIDE_GEOID, OUTSIDE_ED50_GRID, OUTSIDE_DATUM_GRID, MISSING_GRID }
 
 /**
  * Punto del suelo en el SC del proyecto, en metros y grados; `null` lo que no se puede calcular.
@@ -36,6 +31,8 @@ data class ProjectPosition(
     val convergenceRad: Double? = null,
     val combinedFactor: Double? = null,
     val positionZone: Int? = null,
+    /** Con [PositionUnavailable.MISSING_GRID]: el nombre de la rejilla que falta (S034/RF-18). */
+    val missingGrid: String? = null,
 )
 
 /**
@@ -66,62 +63,16 @@ class ProjectPositionCalculator(
         return fromGround(GeodeticPosition(fix.latitudeDeg, fix.longitudeDeg, groundHeight), crs, heightSystem)
     }
 
+    /** El motor que calcula el SC [crs]: el de S008 para los de España y el de la biblioteca para los demás (S034/RF-25, RF-26). */
+    fun engineFor(crs: ProjectCrs): CoordinateEngine = when (crs) {
+        is SpainCrs -> SpainEngine(crs, peninsulaGeoid, canariasGeoid)
+        is LibraryCrs -> UnavailableEngine
+    }
+
     /**
      * Del punto del suelo (geográficas ETRS89 o REGCAN95 y altura elipsoidal) al SC del proyecto: lo que hace
      * [compute] tras restar el jalón, para los puntos manuales y al corregir el jalón (S011/RF-14, RF-17).
      */
-    fun fromGround(ground: GeodeticPosition, crs: ProjectCrs, heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC): ProjectPosition {
-        val lat = ground.latitudeDeg
-        val lon = ground.longitudeDeg
-        if (!crs.containsPosition(lat, lon)) return ProjectPosition(unavailable = setOf(PositionUnavailable.OUTSIDE_CRS_AREA)) // S008/RF-9
-
-        // S008/RF-7, RF-8: ED50 sale de ETRS89 por la rejilla; fuera de ella no hay coordenadas.
-        val (datumLat, datumLon) = if (crs.datum == GeodeticDatum.ED50) {
-            Ed50.fromEtrs89(lat, lon) ?: return ProjectPosition(unavailable = setOf(PositionUnavailable.OUTSIDE_ED50_GRID))
-        } else {
-            lat to lon
-        }
-        val unavailable = mutableSetOf<PositionUnavailable>()
-        val groundHeight = ground.ellipsoidalHeightM
-        if (groundHeight == null) unavailable += PositionUnavailable.NO_HEIGHT
-        val height = when (heightSystem) {
-            HeightSystem.ELLIPSOIDAL -> groundHeight // S008/RF-5
-            HeightSystem.ORTHOMETRIC -> {
-                // S008/RF-4: el geoide del ámbito, en las geográficas ETRS89 o REGCAN95 del punto.
-                val geoid = if ((crs as? SpainCrs)?.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
-                val undulation = geoid.undulationM(lat, lon)
-                if (undulation == null && groundHeight != null) unavailable += PositionUnavailable.OUTSIDE_GEOID
-                if (groundHeight != null && undulation != null) groundHeight - undulation else null
-            }
-        }
-
-        val zone = crs.utmZone
-        if (zone == null) {
-            // S008/RF-6, RF-16: geográficas, sin factores.
-            return ProjectPosition(
-                height = height,
-                unavailable = unavailable,
-                latitudeDeg = datumLat,
-                longitudeDeg = datumLon,
-                positionZone = Utm.zoneFor(lon),
-            )
-        }
-        val ellipsoid = if (crs.datum == GeodeticDatum.ED50) Ellipsoid.INTERNATIONAL_1924 else Ellipsoid.GRS80
-        val utm = Utm.forward(datumLat, datumLon, zone, ellipsoid)
-        val factors = Utm.factors(datumLat, datumLon, zone, ellipsoid) // S008/RF-13, RF-14
-        val combined = groundHeight?.let { h ->
-            val radius = Geodesy.gaussMeanRadius(datumLat, ellipsoid)
-            factors.scale * radius / (radius + h) // S008/RF-15
-        }
-        return ProjectPosition(
-            easting = utm.easting,
-            northing = utm.northing,
-            height = height,
-            unavailable = unavailable,
-            scaleFactor = factors.scale,
-            convergenceRad = factors.convergenceRad,
-            combinedFactor = combined,
-            positionZone = Utm.zoneFor(lon), // S008/RF-12
-        )
-    }
+    fun fromGround(ground: GeodeticPosition, crs: ProjectCrs, heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC): ProjectPosition =
+        engineFor(crs).fromGround(ground, heightSystem)
 }

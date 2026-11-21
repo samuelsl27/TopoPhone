@@ -1,20 +1,12 @@
 package es.topophone.core.survey
 
-import es.topophone.core.geodesy.Ed50
-import es.topophone.core.geodesy.Ellipsoid
-import es.topophone.core.geodesy.GeoidModel
-import es.topophone.core.geodesy.GeoidModels
-import es.topophone.core.geodesy.Utm
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.point.HeightKind
 import es.topophone.core.model.point.PointCoordinates
 import es.topophone.core.model.point.TypedCoordinates
-import es.topophone.core.model.project.CrsArea
-import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectCrs
-import es.topophone.core.model.project.SpainCrs
 
 /** Un punto escrito a mano: sus coordenadas, o por qué no se puede guardar (S011/RF-19). */
 sealed interface ManualResult {
@@ -32,43 +24,45 @@ sealed interface ManualResult {
  * 5. el resto de coordenadas del proyecto con [ProjectPositionCalculator.fromGround]. Lo escrito en el SC del
  *    proyecto se guarda tal cual, sin la ida y vuelta.
  */
-class ManualCoordinates(
-    private val calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
-    private val peninsulaGeoid: () -> GeoidModel = { GeoidModels.egm08RednapPeninsula },
-    private val canariasGeoid: () -> GeoidModel = { GeoidModels.egm08RednapCanarias },
-) {
+class ManualCoordinates(private val calculator: ProjectPositionCalculator = ProjectPositionCalculator()) {
     fun compute(typed: TypedCoordinates, crs: ProjectCrs, heightSystem: HeightSystem): ManualResult {
-        val zone = crs.utmZone
-        val projected = typed.form == EntryForm.PROJECT_CRS && zone != null
-        val ellipsoid = if (crs.datum == GeodeticDatum.ED50) Ellipsoid.INTERNATIONAL_1924 else Ellipsoid.GRS80
-        val (datumLat, datumLon) = if (projected) {
-            Utm.inverse(typed.first, typed.second, zone!!, ellipsoid).let { it.latitudeDeg to it.longitudeDeg }
-        } else {
-            typed.first to typed.second
+        val engine = calculator.engineFor(crs)
+        val projected = typed.form == EntryForm.PROJECT_CRS && crs.isUtm
+        // 1 y 2: del SC del proyecto (Este y Norte, o latitud y longitud de su datum) al suelo; en ED50, por la rejilla en su sentido directo.
+        val ground = when (
+            val result = if (projected) {
+                engine.groundFromGrid(
+                    typed.first,
+                    typed.second,
+                )
+            } else {
+                engine.groundFromDatum(typed.first, typed.second)
+            }
+        ) {
+            is GroundResult.Ok -> result
+            is GroundResult.Unavailable -> return ManualResult.Rejected(result.reason)
         }
-        val (lat, lon) = if (crs.datum == GeodeticDatum.ED50) {
-            Ed50.toEtrs89(datumLat, datumLon) ?: return ManualResult.Rejected(PositionUnavailable.OUTSIDE_ED50_GRID)
-        } else {
-            datumLat to datumLon
-        }
-        if (!crs.containsPosition(lat, lon)) return ManualResult.Rejected(PositionUnavailable.OUTSIDE_CRS_AREA)
+        val lat = ground.latitudeDeg
+        val lon = ground.longitudeDeg
+        if (!engine.containsPosition(lat, lon)) return ManualResult.Rejected(PositionUnavailable.OUTSIDE_CRS_AREA)
 
         val height = typed.height
         val altitudeTyped = height != null && typed.heightKind == HeightKind.PROJECT && heightSystem == HeightSystem.ORTHOMETRIC
         val ellipsoidal = when {
             height == null -> null // S011/RF-18
-            altitudeTyped -> {
-                val geoid = if ((crs as? SpainCrs)?.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
-                height + (geoid.undulationM(lat, lon) ?: return ManualResult.Rejected(PositionUnavailable.OUTSIDE_GEOID))
+            altitudeTyped -> when (val undulation = engine.undulation(lat, lon)) {
+                is Undulation.Value -> height + undulation.metres
+                Undulation.Outside -> return ManualResult.Rejected(PositionUnavailable.OUTSIDE_GEOID)
+                is Undulation.MissingGrid -> return ManualResult.Rejected(PositionUnavailable.MISSING_GRID)
             }
             else -> height
         }
-        val ground = GeodeticPosition(lat, lon, ellipsoidal)
-        val position = calculator.fromGround(ground, crs, heightSystem)
+        val groundPosition = GeodeticPosition(lat, lon, ellipsoidal)
+        val position = engine.fromGround(groundPosition, heightSystem)
         val projectHeight = if (height != null && typed.heightKind == HeightKind.PROJECT) height else position.height
         return ManualResult.Computed(
             PointCoordinates(
-                ground = ground,
+                ground = groundPosition,
                 easting = if (projected) typed.first else position.easting,
                 northing = if (projected) typed.second else position.northing,
                 height = projectHeight,
