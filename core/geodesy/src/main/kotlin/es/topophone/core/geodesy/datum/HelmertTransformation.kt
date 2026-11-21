@@ -18,10 +18,16 @@ class HelmertTransformation(
 
     private val geocentric = GeocentricSevenParameter(parameters)
 
+    /** Lo que [TransformationChain] necesita para componer este paso con otros geocéntricos sin volver a geográficas. */
+    internal val geocentricStep = GeocentricStep(source, target, geocentric)
+
     override fun forward(point: GeodeticPoint): TransformResult = geocentricResult(point, source, target, geocentric::forward)
 
     override fun inverse(point: GeodeticPoint): TransformResult = geocentricResult(point, target, source, geocentric::inverse)
 }
+
+/** Un paso que se calcula en cartesianas geocéntricas: sus elipsoides de origen y de destino y el cálculo. */
+internal class GeocentricStep(val source: Ellipsoid, val target: Ellipsoid, val kernel: GeocentricSevenParameter)
 
 /** Geográficas de [from] → geocéntricas → [step] → geográficas de [to]; una entrada no finita se rechaza sin lanzar excepción. */
 internal fun geocentricResult(point: GeodeticPoint, from: Ellipsoid, to: Ellipsoid, step: (Ecef) -> Ecef): TransformResult {

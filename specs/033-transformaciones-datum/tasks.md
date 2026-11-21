@@ -33,7 +33,7 @@
 ## Cadenas, metadatos y avisos
 - [x] T11. Vectores de una cadena de tres pasos (`cadena_tres_pasos.csv`: Helmert → rejilla → Helmert) con la misma cadena en pyproj. (RF-11)
       Hecho cuando: `test_datum.py` los comprueba y el fichero se regenera igual.
-- [ ] T12. `TransformationChain` en sentido directo e inverso: pasos geocéntricos consecutivos en ECEF, una conversión por punto y sin redondeos. (RF-11, RF-13)
+- [x] T12. `TransformationChain` en sentido directo e inverso: pasos geocéntricos consecutivos en ECEF, una conversión por punto y sin redondeos. (RF-11, RF-13)
       Hecho cuando: `TransformationChainTest` coincide con pyproj a ≤ 1 mm y `TransformationNoRoundingTest` coincide bit a bit con la composición manual.
 - [ ] T13. Rejilla ausente en un paso de la cadena: se rechaza el punto con el nombre de la rejilla y no se calcula ningún otro paso. (RF-12)
       Hecho cuando: `TransformationChainMissingGridTest` pasa con la rejilla ausente en primero, medio y último lugar.
