@@ -57,9 +57,14 @@ Términos de esta spec:
 - RF-23: EL SISTEMA mostrará la lista de rejillas instaladas con su tamaño y el proyecto que las usa, y permitirá borrar las que ningún proyecto use.
 - RF-24: DONDE el SC de un proyecto no dependa de ninguna rejilla descargada, EL SISTEMA trabajará completamente sin conexión.
 
+### Trabajar en un proyecto con un SC de la biblioteca (H1, H4)
+- RF-26: EL SISTEMA calculará en el SC de la biblioteca del proyecto las coordenadas de la captura y de los puntos manuales, con la altura del RF-14, y las coordenadas geodésicas brutas seguirán siendo la fuente de verdad.
+- RF-27: DONDE el SC sea proyectado, EL SISTEMA mostrará el factor de escala, la convergencia y el factor combinado de su proyección (S008/RF-13 a RF-15).
+- RF-28: EL SISTEMA usará el SC de la biblioteca en el mapa, el replanteo, el COGO, la información geométrica, el base shift y la exportación e importación de CSV, con el mismo comportamiento que en un SC de S008.
+- RF-29: SI el usuario abre, en un proyecto con un SC de la biblioteca, la importación o exportación de DXF, Shapefile, GeoPackage, KML o KMZ, LandXML o ráster, ENTONCES EL SISTEMA no la ofrecerá e indicará que todavía no está disponible con ese SC (→ S057).
+
 ### Compatibilidad (H1, H4)
 - RF-25: EL SISTEMA mantendrá los proyectos existentes con su SC de S008 sin modificar sus datos ni sus coordenadas.
-- RF-26: EL SISTEMA reconocerá los SC de la biblioteca por su código EPSG al importar un GeoPackage (S048/RF-8).
 
 ## Requisitos no funcionales
 - Transversales que aplican: RNF-T4 (descargas por la red con internet), RNF-T6 (migración sin pérdida y descarga atómica), RNF-T7, RNF-T8 (zonas de 56 dp y resultados legibles), RNF-T9 y RNF-T14.
@@ -82,10 +87,12 @@ Términos de esta spec:
 | Borrar una rejilla en uso | RF-23 |
 | Un favorito que una actualización de la biblioteca elimina | RF-7 |
 | Posición fuera del ámbito del SC | S006/RF-30 |
+| Importar un DXF o exportar un KML en un proyecto con SC de la biblioteca | RF-29 |
 
 ## Fuera de alcance
 - Crear o editar un SC → S035.
 - Cambiar el SC de un proyecto ya creado → S035.
+- Importar y exportar DXF, Shapefile, GeoPackage, KML y KMZ, LandXML y ráster en un proyecto con un SC de la biblioteca, y reconocer los SC de la biblioteca por su EPSG al leer esos formatos → S057 (decidido el 21/11/2026; el reconocimiento por EPSG de un GeoPackage, que era el RF-26 del borrador, pasa allí).
 - Listas propias de SC y «Mis SC» (los favoritos de esta spec son solo una marca) → S035.
 - Alturas con datums verticales sin geoide publicado o con transformaciones verticales compuestas → no previsto.
 - Proyecciones que no calculamos (Albers, Cassini…) → no previsto; sus SC no aparecen (RF-4).
@@ -106,6 +113,6 @@ Términos de esta spec:
 - [SUPOSICIÓN: los proyectos guardan una copia de la definición del SC (RF-13) aunque ocupe unos cientos de bytes.]
 
 ## Cambios en documentos anteriores (no se aplican hasta aprobar)
-- `docs/hoja-de-ruta.md`: S034 pasa a `spec` (ya aplicado al abrirla); su fila incluye la descarga de rejillas de desplazamiento de S033; S035 y S039 siguen dependiendo de ella.
+- `docs/hoja-de-ruta.md`: S034 pasa a `spec` (ya aplicado al abrirla); su fila incluye la descarga de rejillas de desplazamiento de S033; S035 y S039 siguen dependiendo de ella. Fila nueva S057 «formatos-con-sc-de-biblioteca» (pendiente, depende de S034), que va antes de S035.
 - S006/RF-8 y S008/RF-1: los SC de España pasan a ser una parte de la biblioteca.
 - `docs/glosario.md`: se añaden «Biblioteca de SC», «Ficha del SC», «Datum vertical», «Rejilla instalada» y «SC calculable».
