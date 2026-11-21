@@ -78,6 +78,30 @@ def test_s033_rf_3_molodensky_badekas_se_regenera_igual() -> None:
     assert generado == guardado
 
 
+def test_s033_rf_7_la_rejilla_tiene_interior_bordes_y_puntos_fuera() -> None:
+    comentarios, filas = leer("rejilla_desplazamiento.csv")
+
+    assert any(f"pyproj={pyproj.__version__}" in linea and f"PROJ={pyproj.proj_version_str}" in linea for linea in comentarios)
+    assert {f["grupo"] for f in filas} == {"peninsula", "baleares", "borde_dentro", "borde_fuera", "fuera"}
+    assert len(filas) > 100
+
+
+def test_s033_rf_8_dentro_hay_desplazamiento_y_fuera_de_la_rejilla_no() -> None:
+    _, filas = leer("rejilla_desplazamiento.csv")
+
+    for fila in filas:
+        sin_valor = fila["latitud_dir"] == ""
+        assert sin_valor == (fila["grupo"] in ("fuera", "borde_fuera")), fila
+        assert (fila["latitud_inv"] == "") == sin_valor, fila
+
+
+def test_s033_rf_7_la_rejilla_se_regenera_igual() -> None:
+    generado = d.rejilla_vectors(random.Random(d.SEMILLA_REJILLA))
+    guardado = (FIXTURES / "rejilla_desplazamiento.csv").read_text(encoding="utf-8").splitlines()
+
+    assert generado == guardado
+
+
 def test_s033_rf_1_helmert_se_regenera_igual() -> None:
     generado = d.helmert_vectors(random.Random(d.SEMILLA_HELMERT))
     guardado = (FIXTURES / "helmert.csv").read_text(encoding="utf-8").splitlines()

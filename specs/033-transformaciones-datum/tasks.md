@@ -21,7 +21,7 @@
       Hecho cuando: `MolodenskyBadekasTest` pasa a ≤ 1 mm, con `P = 0` igual al Helmert de 7 y ida y vuelta ≤ 0,1 mm.
 
 ## Rejillas de desplazamiento
-- [ ] T7. Vectores de rejilla (`rejilla_desplazamiento.csv`): `hgridshift` de pyproj con la SPED2ETV2 en el interior, en el borde, en dos subrejillas y fuera de la rejilla. (RF-7, RF-8, RF-10)
+- [x] T7. Vectores de rejilla (`rejilla_desplazamiento.csv`): `hgridshift` de pyproj con la SPED2ETV2 en el interior, en el borde, en dos subrejillas y fuera de la rejilla. (RF-7, RF-8, RF-10)
       Hecho cuando: `test_datum.py` los comprueba y el fichero se regenera igual.
 - [ ] T8. `GridShiftTransformation.forward` con `GridSource` y rechazo fuera de la rejilla (`OutsideGrid`). (RF-7, RF-8)
       Hecho cuando: `GridShiftTransformationTest` y `GridShiftOutsideTest` pasan con los vectores.

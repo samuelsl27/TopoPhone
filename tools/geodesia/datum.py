@@ -4,6 +4,8 @@ Cada familia tiene su generador y su CSV en `fixtures/geodesia/` (los llama `gen
 - helmert.csv: Helmert de 3, 4, 6 y 7 parámetros en convención PV y CF, con operaciones de EPSG y casos propios (S033/RF-1, RF-2, RF-5).
 - molodensky_badekas.csv: Molodensky-Badekas de 10 parámetros (7 y el punto de rotación) en PV y CF, con operaciones de EPSG (método 9636) y
   casos propios, uno de ellos con el punto de rotación en el centro de la Tierra (S033/RF-3, RF-5).
+- rejilla_desplazamiento.csv: la rejilla SPED2ETV2 de la app como `hgridshift` de PROJ, directa e inversa, en el interior de sus dos subrejillas,
+  a ±1e-4° de sus bordes y fuera de ella (vacío donde PROJ no da valor) (S033/RF-7, RF-8, RF-10).
 
 Cómo se calcula cada fila:
 - **Casos de EPSG**: los parámetros y los elipsoides salen de la propia operación de la base de PROJ (`urn:ogc:def:coordinateOperation:EPSG::N`),
@@ -21,18 +23,24 @@ misma versión de pyproj/PROJ y la misma semilla dan el mismo fichero.
 
 from __future__ import annotations
 
+import math
 import random
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 import pyproj
 from pyproj import Transformer
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import rejillas  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "fixtures" / "geodesia"
 
 SEMILLA_HELMERT = 20261127
 SEMILLA_MB = 20261128
+SEMILLA_REJILLA = 20261129
 
 # Nombre de método de PROJ de cada familia de operaciones de EPSG que se usa (comprobado antes de generar).
 METODO_TRASLACIONES = "Geocentric translations (geog2D domain)"
@@ -251,11 +259,73 @@ def _filas(cabecera: list[str], casos: list[Helmert], rng: random.Random, column
     return lineas
 
 
+def _rejilla_ed50(inverso: bool) -> Transformer:
+    """La rejilla SPED2ETV2 de la app como `hgridshift`: directa ED50 → ETRS89, inversa ETRS89 → ED50 (EPSG:15932), solo con la copia local."""
+    pyproj.network.set_network_enabled(False)
+    pyproj.datadir.append_data_dir(str(rejillas.ED50_SHIFT.path.parent))
+    return Transformer.from_pipeline(
+        "+proj=pipeline +step +proj=unitconvert +xy_in=deg +xy_out=rad "
+        f"+step {'+inv ' if inverso else ''}+proj=hgridshift +grids={rejillas.ED50_SHIFT.name} "
+        "+step +proj=unitconvert +xy_in=rad +xy_out=deg"
+    )
+
+
+def _dentro(t: Transformer, lat: float, lon: float) -> bool:
+    return all(math.isfinite(v) for v in t.transform(lon, lat))
+
+
+def _borde(t: Transformer, dentro: float, fuera: float, fijo: float, es_latitud: bool) -> float:
+    """Borde de la rejilla entre un punto dentro y otro fuera, a lo largo de una latitud o una longitud fijas, por bisección (1e-9°)."""
+    while abs(fuera - dentro) > 1e-9:
+        medio = (dentro + fuera) / 2
+        if _dentro(t, medio if es_latitud else fijo, fijo if es_latitud else medio):
+            dentro = medio
+        else:
+            fuera = medio
+    return dentro
+
+
+def rejilla_vectors(rng: random.Random) -> list[str]:
+    """Rejilla de desplazamiento horizontal (SPED2ETV2): directa e inversa de PROJ en el interior, los bordes y fuera de ella."""
+    directa, inversa = _rejilla_ed50(False), _rejilla_ed50(True)
+    puntos: list[tuple[str, float, float]] = []
+    puntos += [("peninsula", lat, lon) for lat in (36.0, 37.5, 39.0, 40.4168, 42.0, 43.5) for lon in (-9.0, -7.0, -5.0, -3.7038, -2.0, 0.0, 2.0, 3.0)]
+    puntos += [("peninsula", rng.uniform(36.0, 43.5), rng.uniform(-9.0, 3.2)) for _ in range(40)]
+    puntos += [("baleares", lat, lon) for lat, lon in ((39.5696, 2.6502), (39.95, 4.1), (38.9, 1.43), (39.6, 3.0), (39.8, 3.9))]
+    puntos += [("baleares", rng.uniform(38.7, 40.1), rng.uniform(1.2, 4.4)) for _ in range(10)]
+    # Bordes de la subrejilla de la Península, a ± 1e-4° de cada uno (los de un nodo exacto no se prueban: PROJ y TopoPhone toleran la orilla).
+    norte = _borde(directa, 43.5, 46.0, -3.0, True)
+    sur = _borde(directa, 38.0, 33.0, -3.0, True)
+    oeste = _borde(directa, -3.0, -13.0, 40.0, False)
+    este = _borde(directa, 0.0, 6.0, 41.0, False)
+    for nombre, lat, lon in (
+        ("borde_dentro", norte - 1e-4, -3.0), ("borde_fuera", norte + 1e-4, -3.0),
+        ("borde_dentro", sur + 1e-4, -3.0), ("borde_fuera", sur - 1e-4, -3.0),
+        ("borde_dentro", 40.0, oeste + 1e-4), ("borde_fuera", 40.0, oeste - 1e-4),
+        ("borde_dentro", 41.0, este - 1e-4), ("borde_fuera", 41.0, este + 1e-4),
+    ):
+        puntos.append((nombre, lat, lon))
+    puntos += [("fuera", lat, lon) for lat, lon in ((28.1, -15.4), (45.5, -3.0), (34.0, -3.0), (40.0, -12.0), (0.0, 0.0), (-33.9, 18.4))]
+    lineas = header("Rejilla de desplazamiento horizontal SPED2ETV2 (hgridshift de PROJ, directa ED50→ETRS89 e inversa)") + [
+        "grupo,latitud,longitud,latitud_dir,longitud_dir,latitud_inv,longitud_inv"
+    ]
+    for grupo, lat, lon in puntos:
+        valores = []
+        for t in (directa, inversa):
+            lon_s, lat_s = t.transform(lon, lat)
+            valores += [fmt(lat_s), fmt(lon_s)] if math.isfinite(lat_s) and math.isfinite(lon_s) else ["", ""]
+        if grupo != "fuera" and not grupo.endswith("fuera") and "" in valores[:2]:
+            raise SystemExit(f"punto dentro sin desplazamiento: {grupo} {lat}, {lon}")
+        lineas.append(",".join([grupo, fmt(lat), fmt(lon), *valores]))
+    return lineas
+
+
 def todos() -> list[tuple[str, list[str]]]:
     """Todos los ficheros de este módulo, con su nombre: los usa `generar_vectores.py` y `main` de aquí."""
     return [
         ("helmert.csv", helmert_vectors(random.Random(SEMILLA_HELMERT))),
         ("molodensky_badekas.csv", molodensky_badekas_vectors(random.Random(SEMILLA_MB))),
+        ("rejilla_desplazamiento.csv", rejilla_vectors(random.Random(SEMILLA_REJILLA))),
     ]
 
 
