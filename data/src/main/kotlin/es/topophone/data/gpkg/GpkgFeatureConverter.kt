@@ -37,8 +37,16 @@ class GpkgFeatureConverter(
     useElevations: Boolean,
     calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
 ) {
-    private val projector =
-        CadProjector(crs, CadImportOptions(source = source, unit = LinearUnit.METRE, useElevations = useElevations), calculator)
+    // Las coordenadas de una capa en un SC de la biblioteca vienen en la unidad de ese SC (S057/RF-3); las de España, en metros.
+    private val projector = CadProjector(
+        crs,
+        CadImportOptions(
+            source = source,
+            unit = (source as? CadSourceCrs.Library)?.unit ?: LinearUnit.METRE,
+            useElevations = useElevations,
+        ),
+        calculator,
+    )
 
     /**
      * El objeto de [blob] (null es un campo NULL: vacío), con [name] como nombre de cada elemento y [color] (ARGB) como el suyo propio, o

@@ -123,17 +123,17 @@ class SourceGroundTest {
     }
 
     @Test
-    fun `S057 RF-12 un punto fuera del ambito del SC de origen se rechaza`() {
+    fun `S057 RF-11 el ambito del SC de origen no recorta y un valor que no es un numero se rechaza`() {
         val source = SourceGround(definition(2154, CorrectionsDatum.ETRS89, GeoPoint(48.0, -3.0)))
 
-        source.toGround(5_000_000.0, 5_000_000.0)
-            .shouldBeInstanceOf<GroundResult.Unavailable>().reason shouldBe PositionUnavailable.OUTSIDE_CRS_AREA
+        // Como PROJ: Lambert 93 lejos de Francia da un punto; lo que cuenta es el ámbito del SC del proyecto, donde se comprueba después.
+        source.toGround(5_000_000.0, 5_000_000.0).shouldBeInstanceOf<GroundResult.Ok>()
         source.toGround(Double.NaN, 1.0)
             .shouldBeInstanceOf<GroundResult.Unavailable>().reason shouldBe PositionUnavailable.OUTSIDE_CRS_AREA
     }
 
     @Test
-    fun `S057 RF-12 un punto fuera de la rejilla de la transformacion se rechaza`() {
+    fun `S057 RF-11 un punto fuera de la rejilla de la transformacion se rechaza`() {
         val definition = definition(23030, CorrectionsDatum.ETRS89, GeoPoint(40.4, -3.7))
         val projection = CrsDefinitions.resolve(definition, ClasspathGridSource("/shift/"))!!.projection!!
         val northOfGrid = projection.forward(46.0, -3.7)!!

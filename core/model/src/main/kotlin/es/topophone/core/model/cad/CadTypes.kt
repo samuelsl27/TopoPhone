@@ -19,7 +19,19 @@ sealed interface CadSourceCrs {
      * Un SC de la biblioteca de S034 (S057/RF-2): lleva su definición completa, con la transformación hasta el datum de las correcciones del proyecto,
      * así el dibujo no cambia si se actualiza la biblioteca.
      */
-    data class Library(val definition: CrsDefinition) : CadSourceCrs
+    data class Library(val definition: CrsDefinition) : CadSourceCrs {
+        /**
+         * La unidad lineal propia del SC (metro, pie o pie topográfico de EE. UU., que son las que admite el catálogo), en la que vienen las
+         * coordenadas de una capa de un SC proyectado (S057/RF-3); metros si no coincide con ninguna.
+         */
+        val unit: LinearUnit
+            get() = LinearUnit.entries.firstOrNull { kotlin.math.abs(it.metres - definition.unitMetres) < UNIT_TOLERANCE }
+                ?: LinearUnit.METRE
+
+        private companion object {
+            const val UNIT_TOLERANCE = 1e-9
+        }
+    }
 
     /** El texto con el que se guarda (`cad_drawings.source`, `surfaces.source`); los valores de antes de S057 no cambian (S057/RF-27). */
     fun encode(): String = when (this) {

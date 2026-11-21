@@ -10,11 +10,13 @@ import es.topophone.core.model.project.LibraryCrs
  * correcciones del proyecto (S057/RF-7, RF-11, RF-12). Del SC proyectado a geográficas con la inversa de su proyección, y de ahí al datum de las
  * correcciones con la transformación guardada en su definición; un SC geográfico salta la proyección. Sin redondear nada (constitución nº 3).
  *
- * Una rejilla que falta o un punto fuera de ella dan la causa en vez de una coordenada, y un punto fuera del ámbito del SC de origen se rechaza.
+ * Una rejilla que falta o un punto fuera de ella dan la causa en vez de una coordenada, y un punto que la proyección inversa no admite también.
+ * No se comprueba el ámbito del SC de origen (S057/RF-11); el del proyecto lo comprueba quien pasa el suelo al proyecto.
  */
 class SourceGround(private val definition: CrsDefinition, resources: LibraryResources = LibraryResources.current) {
-    private val crs = LibraryCrs(definition)
-    private val engine = LibraryEngine(crs, resources)
+    // Sin ámbito: el del SC de origen no recorta nada. Un fichero puede traer coordenadas de un SC lejos de donde se usa por defecto, como hace PROJ,
+    // y lo que cuenta es el ámbito del SC del proyecto (S057/RF-11).
+    private val engine = LibraryEngine(LibraryCrs(definition.copy(area = null)), resources)
 
     /** ¿Es un SC proyectado (X e Y en una unidad de longitud) y no uno geográfico (X longitud e Y latitud, en grados)? */
     val isProjected: Boolean get() = definition.projected
@@ -28,11 +30,7 @@ class SourceGround(private val definition: CrsDefinition, resources: LibraryReso
      */
     fun toGround(x: Double, y: Double, unitMetres: Double = this.unitMetres): GroundResult {
         if (!x.isFinite() || !y.isFinite()) return GroundResult.Unavailable(PositionUnavailable.OUTSIDE_CRS_AREA)
-        val result = if (definition.projected) engine.groundFromGrid(x * unitMetres, y * unitMetres) else engine.groundFromDatum(y, x)
-        if (result is GroundResult.Ok && !crs.containsPosition(result.latitudeDeg, result.longitudeDeg)) {
-            return GroundResult.Unavailable(PositionUnavailable.OUTSIDE_CRS_AREA)
-        }
-        return result
+        return if (definition.projected) engine.groundFromGrid(x * unitMetres, y * unitMetres) else engine.groundFromDatum(y, x)
     }
 
     /**

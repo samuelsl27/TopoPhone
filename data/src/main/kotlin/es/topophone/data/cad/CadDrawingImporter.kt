@@ -96,7 +96,7 @@ class CadDrawingImporter(
         try {
             writing { repository.begin(drawing) }
             begun = true
-            val sink = ImportSink(drawingId, CadProjector(crs, options), geographic = crs.utmZone == null, onCheck = job::ensureActive)
+            val sink = ImportSink(drawingId, CadProjector(crs, options), geographic = !crs.isProjected, onCheck = job::ensureActive)
             val read = CountingInputStream(openStream(), onProgress, job::ensureActive).use { DxfReader.read(it, options.unit, sink) }
             job.ensureActive()
             sink.flushAll()

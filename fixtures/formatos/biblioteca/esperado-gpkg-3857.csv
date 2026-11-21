@@ -1,0 +1,6 @@
+# Importar en un proyecto en ETRS89 / UTM 30N la capa en EPSG:3857 de no-disponible-3857.gpkg (S057/RF-16). Generado por tools/formatos/generar_biblioteca.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1
+epsg_capa,id,nombre,x_m,y_m,epsg_proyecto,este_m,norte_m
+3857,1,Uno,-412553.3679224122,4926487.373435569,25830,440100.0,4474099.999999999
+3857,2,Dos,-412396.5546930635,4926567.663268995,25830,440220.0,4474159.999999999
+3857,3,Tres,-412238.38163635327,4926476.722593735,25830,440340.0,4474090.0

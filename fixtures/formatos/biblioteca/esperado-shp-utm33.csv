@@ -1,0 +1,6 @@
+# Importar en un proyecto en ETRS89 / UTM 30N la capa en EPSG:25833 de sistemas/utm33.shp (S057/RF-16). Generado por tools/formatos/generar_biblioteca.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1
+epsg_capa,id,nombre,x_m,y_m,epsg_proyecto,este_m,norte_m
+25833,1,punto1,-1091180.308093076,4645581.38026466,25830,440100.00000000035,4474099.999999998
+25833,2,punto2,-1091046.4382883743,4645616.346838474,25830,440220.00000000035,4474160.000000001
+25833,3,punto3,-1090940.274725379,4645520.141283687,25830,440340.0000000007,4474090.0

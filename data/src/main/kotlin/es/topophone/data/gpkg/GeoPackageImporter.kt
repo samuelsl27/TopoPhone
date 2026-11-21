@@ -164,7 +164,7 @@ class GeoPackageImporter(
         private val onProgress: (Long, Long) -> Unit,
         private val check: () -> Unit,
     ) {
-        private val writer = CadChunkWriter(crs.utmZone == null, maxBufferedBytes) { batch -> write { repository.addChunks(batch) } }
+        private val writer = CadChunkWriter(!crs.isProjected, maxBufferedBytes) { batch -> write { repository.addChunks(batch) } }
         private val states = LinkedHashMap<LayerKey, CadChunkWriter.LayerState>()
         private val summaries = ArrayList<GpkgLayerSummary>()
         private var minE = Double.POSITIVE_INFINITY
