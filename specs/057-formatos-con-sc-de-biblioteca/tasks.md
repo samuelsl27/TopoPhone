@@ -35,7 +35,7 @@
       Hecho cuando: `KmlLibraryTest` pasa con un proyecto en Lambert-93 y otro con correcciones ITRF/WGS84.
 - [x] T14. Exportar DXF con un SC de la biblioteca. (RF-21)
       Hecho cuando: `DxfExportLibraryTest` pasa con coordenadas globales y locales y con un SC geográfico.
-- [ ] T15. Exportar GeoPackage con la definición del SC (A6). (RF-22, RF-25)
+- [x] T15. Exportar GeoPackage con la definición del SC (A6). (RF-22, RF-25)
       Hecho cuando: `GpkgExportLibraryTest` pasa y un SC sin definición exportable lo avisa en el resumen.
 - [ ] T16. Exportar Shapefile con el `.prj` del SC. (RF-23, RF-25)
       Hecho cuando: `ShpExportLibraryTest` pasa y el `.prj` reaparece al volver a importarlo con el mismo SC.

@@ -1,7 +1,11 @@
 package es.topophone.core.formats.gpkg
 
+import es.topophone.core.geodesy.catalog.CrsWkt
+import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.SpainCrs
 
 /** Una fila de `gpkg_spatial_ref_sys`: el sistema de coordenadas de una capa tal como lo declara el fichero (S053/RF-6, RF-8). */
 data class GpkgSrsDefinition(
@@ -24,6 +28,7 @@ data class GpkgSrsDefinition(
 object GpkgSrsDefinitions {
     internal const val NONE = "NONE"
     private const val EPSG = "EPSG"
+    private const val UNDEFINED = "undefined"
     private const val WGS84 = 4326
     private const val ETRS89_GEOGRAPHIC = 4258
     private const val REGCAN95_GEOGRAPHIC = 4081
@@ -42,15 +47,37 @@ object GpkgSrsDefinitions {
         byCode.getValue(WGS84).copy(description = "longitude/latitude coordinates in decimal degrees on the WGS 84 spheroid"),
     )
 
-    /** El sistema del proyecto con su código EPSG y su definición (RF-6). */
-    fun of(crs: ProjectCrs): GpkgSrsDefinition = byCode.getValue(crs.epsg)
+    /**
+     * El sistema del proyecto con su código EPSG y su definición (RF-6). Un SC de la biblioteca lleva su código y su definición WKT1 de [CrsWkt],
+     * generada con pyproj (S057/RF-22); si PROJ no pudo expresarla, `undefined` (ver [isExpressible]).
+     */
+    fun of(crs: ProjectCrs): GpkgSrsDefinition = when (crs) {
+        is SpainCrs -> byCode.getValue(crs.epsg)
+        is LibraryCrs -> byCode[crs.definition.epsg]
+            ?: GpkgSrsDefinition(
+                crs.definition.epsg,
+                crs.definition.name,
+                EPSG,
+                crs.definition.epsg,
+                CrsWkt.bundled.gpkg(crs.definition.epsg) ?: UNDEFINED,
+            )
+    }
+
+    /** ¿Se puede escribir la definición completa del SC? Falla en un SC de la biblioteca que PROJ no sabe expresar en WKT1: se avisa (S057/RF-26). */
+    fun isExpressible(crs: ProjectCrs): Boolean = crs !is LibraryCrs || of(crs).definition != UNDEFINED
 
     /**
      * Las geográficas en las que están la latitud y la longitud de los puntos (RF-7, D3): las del datum de los cálculos. El móvil las calcula en
      * ETRS89 o REGCAN95 también en un proyecto ED50, así que ese declara ETRS89.
      */
-    fun geographicOf(crs: ProjectCrs): GpkgSrsDefinition =
-        byCode.getValue(if (crs.datum == GeodeticDatum.REGCAN95) REGCAN95_GEOGRAPHIC else ETRS89_GEOGRAPHIC)
+    fun geographicOf(crs: ProjectCrs): GpkgSrsDefinition = byCode.getValue(
+        when {
+            // Un SC de la biblioteca declara las del datum de las correcciones: WGS 84 si son ITRF o WGS 84, ETRS89 si no (S057/RF-22).
+            crs is LibraryCrs -> if (crs.correctionsDatum == CorrectionsDatum.ITRF_WGS84) WGS84 else ETRS89_GEOGRAPHIC
+            crs.datum == GeodeticDatum.REGCAN95 -> REGCAN95_GEOGRAPHIC
+            else -> ETRS89_GEOGRAPHIC
+        },
+    )
 
     /** Un sistema sin código reconocido con su [definition] completa (WKT) y sin autoridad (RF-8). */
     fun custom(name: String, definition: String): GpkgSrsDefinition =
