@@ -1,0 +1,6 @@
+# Vectores del catálogo de SC de S034, método webmerc. Generado por tools/geodesia/catalogo_vectores.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1
+epsg,punto,latitud,longitud,este_m,norte_m
+3857,1,0.0,0.0,0.0,0.0
+3857,2,-42.53,-54.0,-6011252.502836772,-5240704.489146146
+3857,3,42.53,54.0,6011252.502836772,5240704.489146146

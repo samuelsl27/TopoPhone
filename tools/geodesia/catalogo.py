@@ -251,11 +251,12 @@ def generar_crs() -> dict[str, list[list[str]]]:
     """Las secciones `#ellipsoids`, `#datums`, `#crs` y `#countries`, ordenadas (S034/RF-4)."""
     datums: dict[str, list[str]] = {}
     elipsoides: dict[str, list[str]] = {}
-    filas = []
+    filas, vistos = [], set()
     for tipo in (PJType.PROJECTED_CRS, PJType.GEOGRAPHIC_2D_CRS):
         for info in query_crs_info(auth_name="EPSG", pj_types=tipo):
-            if info.deprecated:
+            if info.deprecated or info.code in vistos:  # PROJ lista algunos CRS más de una vez
                 continue
+            vistos.add(info.code)
             fila = _fila_crs(info, datums, elipsoides)
             if fila is not None:
                 filas.append(fila)

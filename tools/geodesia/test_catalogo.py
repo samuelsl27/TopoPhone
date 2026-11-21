@@ -52,6 +52,12 @@ def test_s034_rf_4_no_hay_ejes_al_oeste_ni_al_sur_ni_unidades_raras(secciones) -
     assert 22275 not in por_epsg
 
 
+def test_s034_rf_4_cada_epsg_aparece_una_sola_vez(secciones) -> None:
+    codigos = [f[c.CRS_EPSG] for f in secciones["crs"]]
+
+    assert len(codigos) == len(set(codigos))
+
+
 def test_s034_rf_4_no_hay_sc_obsoletos(secciones) -> None:
     por_epsg = crs_por_epsg(secciones)
 

@@ -9,7 +9,7 @@
       Hecho cuando: `test_catalogo.py` comprueba que cada SC tiene al menos una opción, que los pasos solo usan los métodos de S033 y que REGCAN95 comparte las de ETRS89 (D8).
 - [x] T3. `catalogo.py`, parte 3: rejillas del CDN (`#grids` con tamaño, SHA-256 y ámbito) y licencias curadas por `source_id` (`#licenses`), y escritura de `core/geodesy/src/main/resources/catalog/crs.tsv.gz`. (RF-4, RF-19, RF-20)
       Hecho cuando: `test_catalogo.py` comprueba que cada rejilla usada tiene SHA-256 y licencia (o «no clara» con URL), y que el fichero no pasa de 2 MB.
-- [ ] T4. Vectores de contraste: tres puntos por SC con pyproj en `fixtures/geodesia/catalogo_*.csv` (por método), y el descarte de los SC que no se reproducen. (RF-4)
+- [x] T4. Vectores de contraste: tres puntos por SC con pyproj en `fixtures/geodesia/catalogo_*.csv` (por método), y el descarte de los SC que no se reproducen. (RF-4)
       Hecho cuando: `test_catalogo.py` comprueba el recuento de vectores (tres por SC) y la regeneración idéntica.
 
 ## Núcleo del catálogo (`core:geodesy`)
