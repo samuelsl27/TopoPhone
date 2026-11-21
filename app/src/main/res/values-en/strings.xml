@@ -1318,7 +1318,7 @@
     <string name="import_reason_not_a_number">a coordinate is not a number</string>
     <string name="import_reason_missing_columns">columns are missing</string>
     <string name="import_reason_outside_crs_area">outside the coordinate system area</string>
-    <string name="import_reason_outside_ed50_grid">outside the ED50 grid</string>
+    <string name="import_reason_outside_ed50_grid">outside the datum transformation grid</string>
     <string name="import_reason_outside_geoid">outside the geoid model</string>
     <string name="import_section_errors">Rows with errors</string>
     <string name="import_errors_none">No rows with errors.</string>
@@ -1403,7 +1403,7 @@
     <string name="cad_kind_block_insert">Block insertion points</string>
     <string name="cad_ignored_unsupported">Type not imported: %1$s</string>
     <string name="cad_ignored_outside_area">Outside the system\'s area</string>
-    <string name="cad_ignored_outside_grid">Outside the ED50 grid</string>
+    <string name="cad_ignored_outside_grid">Outside the datum transformation grid</string>
     <string name="cad_ignored_block_cycle">Block that contains itself</string>
     <string name="cad_ignored_block_large">Block too large or nested too deep</string>
     <string name="cad_ignored_undefined_block">Undefined block</string>
@@ -1545,7 +1545,7 @@
     <string name="surface_failed_read">The surface could not be read: nothing has been imported.</string>
     <string name="surface_failed_none">The file has no surface to import.</string>
     <string name="surface_failed_outside">The surface is outside the area of the project\'s coordinate system: nothing has been imported.</string>
-    <string name="surface_failed_grid">The surface is outside the ED50 grid: nothing has been imported.</string>
+    <string name="surface_failed_grid">The surface is outside the datum transformation grid: nothing has been imported.</string>
     <string name="surface_result_title">Surface imported</string>
     <string name="surface_result_description">%1$d points, %2$d triangles and %3$d holes</string>
     <string name="surface_result_points">Points: %1$d</string>
@@ -1773,7 +1773,7 @@
     <string name="gpkg_reason_curve">Curved geometry</string>
     <string name="gpkg_reason_invalid">Unreadable geometry</string>
     <string name="gpkg_reason_outside_crs">Outside the area of the project coordinate system</string>
-    <string name="gpkg_reason_outside_grid">Outside the ED50 grid</string>
+    <string name="gpkg_reason_outside_grid">Outside the datum transformation grid</string>
     <string name="gpkg_reason_deleted">Record deleted in the .dbf</string>
     <string name="gpkg_reason_multipatch">MultiPatch surface</string>
     <string name="gpkg_reason_network_link">Network link</string>
@@ -2346,7 +2346,7 @@
     <string name="raster_failed_read">The raster could not be read: nothing was imported.</string>
     <string name="raster_failed_no_data">The raster has no cell with data: nothing was imported.</string>
     <string name="raster_failed_outside">The raster is outside the area of the project coordinate system: nothing was imported.</string>
-    <string name="raster_failed_grid">The raster is outside the ED50 grid: nothing was imported.</string>
+    <string name="raster_failed_grid">The raster is outside the datum transformation grid: nothing was imported.</string>
     <string name="raster_result_title">Raster imported</string>
     <string name="raster_result_description">%1$s cells with data, %2$s without data and cells of %3$s</string>
     <string name="raster_result_data">Cells with data: %1$s</string>
@@ -3502,4 +3502,8 @@
     <string name="raster_crs_library">The file declares %1$s (EPSG:%2$d), from the coordinate system library</string>
     <string name="raster_height_no_project_geoid">Elevations cannot be converted: the project has no geoid. The raster is imported and its elevations are outside the surface until the project has one</string>
     <string name="raster_height_missing_geoid">The project geoid %1$s is missing: without it elevations are not converted. Download it to see them</string>
+    <string name="source_summary_origin">Source system: %1$s (EPSG:%2$d)</string>
+    <string name="source_summary_transformation">Datum shift: %1$s (declared accuracy: %2$s m)</string>
+    <string name="source_summary_transformation_unknown">Datum shift: %1$s (accuracy not declared)</string>
+    <string name="source_summary_no_shift">No datum shift</string>
 </resources>

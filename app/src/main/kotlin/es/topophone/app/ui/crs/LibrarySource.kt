@@ -1,5 +1,6 @@
 package es.topophone.app.ui.crs
 
+import android.content.res.Resources
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -20,6 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -48,6 +50,7 @@ const val SOURCE_LIBRARY_WARNING_TAG = "source_library_warning"
 const val SOURCE_LIBRARY_CONFIRM_TAG = "source_library_confirm"
 const val SOURCE_LIBRARY_GRIDS_TAG = "source_library_grids"
 const val SOURCE_LIBRARY_NO_SHIFT_TAG = "source_library_no_shift"
+const val SOURCE_SUMMARY_TAG = "source_summary"
 
 /**
  * El SC de la biblioteca elegido como SC de origen de un fichero que se importa, con su cambio de datum y si el usuario lo ha confirmado
@@ -212,4 +215,30 @@ private fun accuracyText(transformation: ImportTransformation): String {
         maximumFractionDigits = 2
     }
     return stringResource(R.string.source_crs_accuracy, number.format(accuracy))
+}
+
+/**
+ * Las líneas del resumen de una importación que dicen el SC de origen de la biblioteca y su cambio de datum con la precisión declarada (S057/RF-18).
+ * Sirve a la pantalla y al texto que se guarda o se comparte.
+ */
+fun sourceSummaryText(resources: Resources, library: LibrarySourceUi): String {
+    val definition = library.source.definition
+    val number = NumberFormat.getNumberInstance().apply {
+        minimumFractionDigits = 1
+        maximumFractionDigits = 2
+    }
+    val transformation = library.transformation
+    val shift = when {
+        transformation == null -> resources.getString(R.string.source_summary_no_shift)
+        transformation.accuracyM == null -> resources.getString(R.string.source_summary_transformation_unknown, transformation.name)
+        else -> resources.getString(R.string.source_summary_transformation, transformation.name, number.format(transformation.accuracyM))
+    }
+    return resources.getString(R.string.source_summary_origin, definition.name, definition.epsg) + "\n" + shift
+}
+
+/** El SC de origen y el cambio de datum de una importación con un SC de la biblioteca; no se ve con uno de España (S057/RF-18, RF-27). */
+@Composable
+fun SourceCrsSummary(library: LibrarySourceUi?, modifier: Modifier = Modifier) {
+    if (library == null) return
+    Text(sourceSummaryText(LocalResources.current, library), modifier = modifier.testTag(SOURCE_SUMMARY_TAG))
 }

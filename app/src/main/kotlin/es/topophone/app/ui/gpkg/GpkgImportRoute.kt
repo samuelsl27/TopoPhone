@@ -18,6 +18,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.EntryPointAccessors
 import es.topophone.app.R
+import es.topophone.app.ui.crs.LibrarySourceUi
+import es.topophone.app.ui.crs.sourceSummaryText
 import es.topophone.app.ui.export.ExportFiles
 import es.topophone.app.ui.export.shareExportIntent
 import es.topophone.app.ui.map.MapEntryPoint
@@ -34,9 +36,9 @@ import kotlinx.coroutines.withContext
 
 /** Los textos del resumen de la importación, de `strings.xml` (S048/RF-25, S030/RF-25). */
 @Composable
-private fun rememberSummaryLabels(format: ImportFormat): GpkgSummaryLabels {
+private fun rememberSummaryLabels(format: ImportFormat, libraries: Map<String, LibrarySourceUi?>): GpkgSummaryLabels {
     val resources = LocalResources.current
-    return remember(resources, format) {
+    return remember(resources, format, libraries) {
         val shapefile = format == ImportFormat.SHAPEFILE
         val kml = format == ImportFormat.KML
         GpkgSummaryLabels(
@@ -58,6 +60,7 @@ private fun rememberSummaryLabels(format: ImportFormat): GpkgSummaryLabels {
             reason = { resources.getString(reasonLabel(it)) },
             withoutAttributes = resources.getString(R.string.shp_summary_without_attributes),
             ignoredElements = resources.getString(R.string.kml_summary_ignored),
+            source = { table -> libraries[table]?.let { sourceSummaryText(resources, it) } },
         )
     }
 }
@@ -127,7 +130,7 @@ private fun ImportRoute(
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
     var outcome by remember { mutableStateOf<ReportOutcome?>(null) }
-    val labels = rememberSummaryLabels(format)
+    val labels = rememberSummaryLabels(format, state.layers.associate { it.info.table to it.activeLibrary })
     val environment =
         remember { EntryPointAccessors.fromApplication(context.applicationContext, MapEntryPoint::class.java).mapEnvironment() }
     // S048/RF-25: el selector de ficheros del móvil; si el usuario cancela, no se escribe nada.

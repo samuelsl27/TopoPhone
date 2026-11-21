@@ -41,6 +41,7 @@ import es.topophone.app.ui.crs.CrsLibraryHost
 import es.topophone.app.ui.crs.HiltCrsLibraryHost
 import es.topophone.app.ui.crs.LibrarySourceRequest
 import es.topophone.app.ui.crs.LibrarySourceSection
+import es.topophone.app.ui.crs.SourceCrsSummary
 import es.topophone.app.ui.projects.crsLabel
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -339,6 +340,7 @@ private fun ResultSection(state: AlignmentImportUiState, onClose: () -> Unit) {
     val locale = uiLocale()
     val description = stringResource(R.string.alignment_result_description, summary.imported.size, summary.ignored.size)
     Text(stringResource(R.string.alignment_result_title), style = MaterialTheme.typography.titleMedium)
+    SourceCrsSummary(state.library.takeIf { state.source is CadSourceCrs.Library }) // S057/RF-18
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.testTag(ALIGNMENT_RESULT_TAG).semantics(mergeDescendants = true) {

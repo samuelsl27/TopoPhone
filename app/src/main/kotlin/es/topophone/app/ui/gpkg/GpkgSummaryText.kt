@@ -19,6 +19,8 @@ class GpkgSummaryLabels(
     val withoutAttributes: String = "",
     /** El título de los elementos de un KML que no se importan (S031/RF-9). */
     val ignoredElements: String = "",
+    /** El SC de origen de la biblioteca y el cambio de datum de una capa, si los tuvo (S057/RF-18). */
+    val source: (table: String) -> String? = { null },
 )
 
 /** El resumen de una importación de GeoPackage como un fichero de texto, una línea por concepto y capa (S048/RF-25). */
@@ -27,6 +29,7 @@ object GpkgSummaryText {
         appendLine(labels.title)
         for (layer in summary.layers) {
             appendLine("${labels.layer}: ${layer.table}")
+            labels.source(layer.table)?.lines()?.forEach { appendLine("  $it") }
             appendLine("  ${labels.imported}: ${layer.imported}")
             appendLine("  ${labels.outsideArea}: ${layer.outsideArea}")
             appendLine("  ${labels.ignored}: ${layer.ignoredTotal}")

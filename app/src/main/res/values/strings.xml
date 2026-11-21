@@ -1330,7 +1330,7 @@
     <string name="import_reason_not_a_number">una coordenada no es un número</string>
     <string name="import_reason_missing_columns">faltan columnas</string>
     <string name="import_reason_outside_crs_area">fuera del ámbito del sistema de coordenadas</string>
-    <string name="import_reason_outside_ed50_grid">fuera de la rejilla de ED50</string>
+    <string name="import_reason_outside_ed50_grid">fuera de la rejilla de transformación de datum</string>
     <string name="import_reason_outside_geoid">fuera del modelo de geoide</string>
     <string name="import_section_errors">Filas con error</string>
     <string name="import_errors_none">Ninguna fila con error.</string>
@@ -1415,7 +1415,7 @@
     <string name="cad_kind_block_insert">Puntos de inserción de bloques</string>
     <string name="cad_ignored_unsupported">Tipo que no se importa: %1$s</string>
     <string name="cad_ignored_outside_area">Fuera del ámbito del sistema</string>
-    <string name="cad_ignored_outside_grid">Fuera de la rejilla de ED50</string>
+    <string name="cad_ignored_outside_grid">Fuera de la rejilla de transformación de datum</string>
     <string name="cad_ignored_block_cycle">Bloque que se contiene a sí mismo</string>
     <string name="cad_ignored_block_large">Bloque demasiado grande o demasiado anidado</string>
     <string name="cad_ignored_undefined_block">Bloque no definido</string>
@@ -1557,7 +1557,7 @@
     <string name="surface_failed_read">No se ha podido leer la superficie: no se ha importado nada.</string>
     <string name="surface_failed_none">El fichero no contiene ninguna superficie que importar.</string>
     <string name="surface_failed_outside">La superficie queda fuera del ámbito del sistema de coordenadas del proyecto: no se ha importado nada.</string>
-    <string name="surface_failed_grid">La superficie queda fuera de la rejilla de ED50: no se ha importado nada.</string>
+    <string name="surface_failed_grid">La superficie queda fuera de la rejilla de transformación de datum: no se ha importado nada.</string>
     <string name="surface_result_title">Superficie importada</string>
     <string name="surface_result_description">%1$d puntos, %2$d triángulos y %3$d huecos</string>
     <string name="surface_result_points">Puntos: %1$d</string>
@@ -1785,7 +1785,7 @@
     <string name="gpkg_reason_curve">Geometría curva</string>
     <string name="gpkg_reason_invalid">Geometría ilegible</string>
     <string name="gpkg_reason_outside_crs">Fuera del ámbito del sistema del proyecto</string>
-    <string name="gpkg_reason_outside_grid">Fuera de la rejilla de ED50</string>
+    <string name="gpkg_reason_outside_grid">Fuera de la rejilla de transformación de datum</string>
     <string name="gpkg_reason_deleted">Registro borrado en el .dbf</string>
     <string name="gpkg_reason_multipatch">Superficie MultiPatch</string>
     <string name="gpkg_reason_network_link">Vínculo de red</string>
@@ -2358,7 +2358,7 @@
     <string name="raster_failed_read">No se ha podido leer el ráster: no se ha importado nada.</string>
     <string name="raster_failed_no_data">El ráster no tiene ninguna celda con dato: no se ha importado nada.</string>
     <string name="raster_failed_outside">El ráster queda fuera del ámbito del sistema de coordenadas del proyecto: no se ha importado nada.</string>
-    <string name="raster_failed_grid">El ráster queda fuera de la rejilla de ED50: no se ha importado nada.</string>
+    <string name="raster_failed_grid">El ráster queda fuera de la rejilla de transformación de datum: no se ha importado nada.</string>
     <string name="raster_result_title">Ráster importado</string>
     <string name="raster_result_description">%1$s celdas con dato, %2$s sin dato y celdas de %3$s</string>
     <string name="raster_result_data">Celdas con dato: %1$s</string>
@@ -3514,4 +3514,8 @@
     <string name="raster_crs_library">El fichero declara %1$s (EPSG:%2$d), de la biblioteca de sistemas de coordenadas</string>
     <string name="raster_height_no_project_geoid">Las cotas no se pueden convertir: el proyecto no tiene geoide. El ráster se importa y sus cotas salen fuera de la superficie hasta que el proyecto tenga uno</string>
     <string name="raster_height_missing_geoid">Falta el geoide %1$s del proyecto: sin él las cotas no se convierten. Descárgalo para verlas</string>
+    <string name="source_summary_origin">Sistema de origen: %1$s (EPSG:%2$d)</string>
+    <string name="source_summary_transformation">Cambio de datum: %1$s (precisión declarada: %2$s m)</string>
+    <string name="source_summary_transformation_unknown">Cambio de datum: %1$s (precisión no declarada)</string>
+    <string name="source_summary_no_shift">Sin cambio de datum</string>
 </resources>

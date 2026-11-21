@@ -13,12 +13,15 @@ class CadSummaryLabels(
     val incomplete: String,
     val kind: (CadEntityKind) -> String,
     val ignoredItem: (CadIgnored) -> String,
+    /** El SC de origen de la biblioteca y su cambio de datum, si la importación los tuvo (S057/RF-18). */
+    val source: String? = null,
 )
 
 /** El resumen de una importación como un fichero de texto, una línea por concepto (S040/RF-18). */
 object CadSummaryText {
     fun build(summary: CadImportSummary, labels: CadSummaryLabels): String = buildString {
         appendLine(labels.title)
+        labels.source?.let { appendLine(it) }
         appendLine("${labels.imported}: ${summary.importedTotal}")
         summary.imported.entries.sortedBy { it.key.ordinal }.forEach { appendLine("  ${labels.kind(it.key)}: ${it.value}") }
         appendLine("${labels.ignored}: ${summary.ignoredTotal}")

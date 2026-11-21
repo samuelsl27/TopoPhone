@@ -152,7 +152,7 @@ class PointImportPreviewScreenTest {
             ImportErrorReason.NOT_A_NUMBER to "una coordenada no es un número",
             ImportErrorReason.MISSING_COLUMNS to "faltan columnas",
             ImportErrorReason.OUTSIDE_CRS_AREA to "fuera del ámbito del sistema de coordenadas",
-            ImportErrorReason.OUTSIDE_ED50_GRID to "fuera de la rejilla de ED50",
+            ImportErrorReason.OUTSIDE_ED50_GRID to "fuera de la rejilla de transformación de datum",
             ImportErrorReason.OUTSIDE_GEOID to "fuera del modelo de geoide",
         )
         show(wizard.copy(errors = texts.keys.mapIndexed { i, reason -> ImportRowError(i + 1, reason) }))

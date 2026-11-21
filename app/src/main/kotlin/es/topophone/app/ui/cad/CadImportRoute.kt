@@ -16,11 +16,14 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import es.topophone.app.R
+import es.topophone.app.ui.crs.LibrarySourceUi
+import es.topophone.app.ui.crs.sourceSummaryText
 import es.topophone.app.ui.export.ExportFiles
 import es.topophone.app.ui.export.shareExportIntent
 import es.topophone.app.ui.points.ReportOutcome
 import es.topophone.app.ui.points.importSourceOf
 import es.topophone.app.ui.points.saveReportTo
+import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.preferences.ThemeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,9 +33,9 @@ private const val TEXT_MIME = "text/plain"
 
 /** Los textos del resumen de la importación, de `strings.xml` (S040/RF-18). */
 @Composable
-private fun rememberSummaryLabels(): CadSummaryLabels {
+private fun rememberSummaryLabels(library: LibrarySourceUi?): CadSummaryLabels {
     val resources = LocalResources.current
-    return remember(resources) {
+    return remember(resources, library) {
         CadSummaryLabels(
             title = resources.getString(R.string.cad_summary_title),
             imported = resources.getString(R.string.cad_summary_imported),
@@ -41,6 +44,7 @@ private fun rememberSummaryLabels(): CadSummaryLabels {
             incomplete = resources.getString(R.string.cad_result_incomplete),
             kind = { resources.getString(kindLabel(it)) },
             ignoredItem = { ignoredText(resources, it) },
+            source = library?.let { sourceSummaryText(resources, it) },
         )
     }
 }
@@ -60,7 +64,7 @@ fun CadImportRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var outcome by remember { mutableStateOf<ReportOutcome?>(null) }
     LaunchedEffect(projectId, fileUri) { viewModel.start(projectId, importSourceOf(context.contentResolver, fileUri)) }
-    val labels = rememberSummaryLabels()
+    val labels = rememberSummaryLabels(state.library.takeIf { state.options.source is CadSourceCrs.Library })
     // S040/RF-18: el selector de ficheros del móvil; si el usuario cancela, no se escribe nada.
     val save = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument(TEXT_MIME)) { uri ->
         scope.launch { outcome = saveReportTo(context.contentResolver, uri) { viewModel.writeSummary(it, labels) } }

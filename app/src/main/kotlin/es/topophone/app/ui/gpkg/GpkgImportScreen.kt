@@ -44,6 +44,7 @@ import es.topophone.app.ui.crs.CrsLibraryHost
 import es.topophone.app.ui.crs.HiltCrsLibraryHost
 import es.topophone.app.ui.crs.LibrarySourceRequest
 import es.topophone.app.ui.crs.LibrarySourceSection
+import es.topophone.app.ui.crs.SourceCrsSummary
 import es.topophone.app.ui.points.ReportOutcome
 import es.topophone.app.ui.projects.CentralPointPicker
 import es.topophone.app.ui.projects.CentralPointSection
@@ -716,6 +717,8 @@ private fun ResultSection(state: GpkgImportUiState, actions: GpkgImportActions, 
         summary.layers.forEach { layer ->
             Column(modifier = Modifier.testTag(gpkgResultLayerTag(layer.table)), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(layer.table, style = MaterialTheme.typography.bodyLarge)
+                // El SC de origen de la capa y su cambio de datum (S057/RF-18)
+                SourceCrsSummary(state.layers.firstOrNull { it.info.table == layer.table }?.activeLibrary, Modifier.padding(start = 16.dp))
                 Text(
                     stringResource(R.string.gpkg_label_count, stringResource(R.string.gpkg_summary_imported), layer.imported),
                     Modifier.padding(start = 16.dp),

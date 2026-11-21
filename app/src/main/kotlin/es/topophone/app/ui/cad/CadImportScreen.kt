@@ -44,6 +44,7 @@ import es.topophone.app.ui.crs.CrsLibraryHost
 import es.topophone.app.ui.crs.HiltCrsLibraryHost
 import es.topophone.app.ui.crs.LibrarySourceRequest
 import es.topophone.app.ui.crs.LibrarySourceSection
+import es.topophone.app.ui.crs.SourceCrsSummary
 import es.topophone.app.ui.points.ReportOutcome
 import es.topophone.app.ui.projects.crsLabel
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -389,6 +390,7 @@ private fun ResultSection(state: CadImportUiState, actions: CadImportActions, su
     val summary = state.result?.summary ?: return
     Text(stringResource(R.string.cad_result_title), style = MaterialTheme.typography.titleMedium)
     Text(state.fileName, style = MaterialTheme.typography.titleSmall)
+    SourceCrsSummary(state.library.takeIf { state.options.source is CadSourceCrs.Library }) // S057/RF-18
     val description = stringResource(R.string.cad_result_description, summary.importedTotal, summary.ignoredTotal, summary.layers)
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),

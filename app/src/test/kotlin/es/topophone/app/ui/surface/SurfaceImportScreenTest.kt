@@ -246,7 +246,7 @@ class SurfaceImportScreenTest {
             SurfaceImportFailure.READ_ERROR to "No se ha podido leer la superficie",
             SurfaceImportFailure.NO_SURFACE to "ninguna superficie que importar",
             SurfaceImportFailure.OUTSIDE_CRS_AREA to "fuera del ámbito del sistema",
-            SurfaceImportFailure.OUTSIDE_ED50_GRID to "fuera de la rejilla de ED50",
+            SurfaceImportFailure.OUTSIDE_ED50_GRID to "fuera de la rejilla de transformación de datum",
         )
         cases.forEach { (failure, text) ->
             compose.runOnIdle { holder.value = ready.copy(failure = failure) }

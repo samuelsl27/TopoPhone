@@ -43,6 +43,7 @@ import es.topophone.app.ui.crs.CrsLibraryHost
 import es.topophone.app.ui.crs.HiltCrsLibraryHost
 import es.topophone.app.ui.crs.LibrarySourceRequest
 import es.topophone.app.ui.crs.LibrarySourceSection
+import es.topophone.app.ui.crs.SourceCrsSummary
 import es.topophone.app.ui.projects.crsLabel
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.cad.CadSourceCrs
@@ -416,6 +417,7 @@ private fun ResultSection(state: SurfaceImportUiState, onClose: () -> Unit) {
     }
     Text(stringResource(R.string.surface_result_title), style = MaterialTheme.typography.titleMedium)
     Text(outcome.summary.name, style = MaterialTheme.typography.titleSmall)
+    SourceCrsSummary(state.library.takeIf { state.source is CadSourceCrs.Library }) // S057/RF-18
     val description = stringResource(R.string.surface_result_description, summary.vertexCount, summary.triangleCount, summary.holeCount)
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
