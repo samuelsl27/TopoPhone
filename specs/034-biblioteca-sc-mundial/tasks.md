@@ -13,7 +13,7 @@
       Hecho cuando: `test_catalogo.py` comprueba el recuento de vectores (tres por SC) y la regeneración idéntica.
 
 ## Núcleo del catálogo (`core:geodesy`)
-- [ ] T5. Lector y modelo del catálogo: `CrsCatalog`, `CrsEntry`, `DatumEntry`, `TransformationOption`, `GridEntry`, `GridLicense`. (RF-4)
+- [x] T5. Lector y modelo del catálogo: `CrsCatalog`, `CrsEntry`, `DatumEntry`, `TransformationOption`, `GridEntry`, `GridLicense`. (RF-4)
       Hecho cuando: `CrsCatalogTest` carga el recurso, comprueba los recuentos del generador y que un SC conocido (25830, 4326, 2154) tiene sus parámetros.
 - [ ] T6. Contraste del catálogo con pyproj: `CrsBuilder` convierte una entrada en su `MapProjection` y los vectores se comprueban SC por SC. (RF-4)
       Hecho cuando: `CatalogVectorsTest` pasa con los tres puntos de cada SC a ≤ 1 mm y ida y vuelta ≤ 0,1 mm, y `CatalogContentTest` fija qué métodos hay.
