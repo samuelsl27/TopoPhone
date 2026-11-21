@@ -58,6 +58,13 @@ interface CrsLibraryHost {
 
     @Composable
     fun MissingGrids(crs: ProjectCrs)
+
+    /**
+     * Las rejillas [entries] que faltan, cada una con su tamaño y su «Descargar» (con confirmación); al acabar una descarga se llama a
+     * [onInstalled] (S057/RF-10). Las pruebas de pantallas que no descargan no necesitan implementarlo.
+     */
+    @Composable
+    fun GridDownloads(entries: List<GridEntry>, onInstalled: () -> Unit) = Unit
 }
 
 /** El [CrsLibraryHost] de la app, con los ViewModel de Hilt. */
@@ -73,6 +80,17 @@ object HiltCrsLibraryHost : CrsLibraryHost {
 
     @Composable
     override fun MissingGrids(crs: ProjectCrs) = LibraryGridsStatus(crs)
+
+    @Composable
+    override fun GridDownloads(entries: List<GridEntry>, onInstalled: () -> Unit) = MissingGridDownloads(entries, onInstalled)
+}
+
+/** Las rejillas que faltan con su «Descargar» y el diálogo de confirmación y progreso (S057/RF-10, S034/RF-19). */
+@Composable
+fun MissingGridDownloads(entries: List<GridEntry>, onInstalled: () -> Unit, download: GridDownloadViewModel = hiltViewModel()) {
+    val downloadState by download.state.collectAsState()
+    entries.forEach { entry -> GridLine(GridItem(entry, GridState.Missing)) { download.ask(it) } }
+    GridDownloadDialog(downloadState, onConfirm = { download.confirm(onInstalled) }, onDismiss = download::dismiss)
 }
 
 /**

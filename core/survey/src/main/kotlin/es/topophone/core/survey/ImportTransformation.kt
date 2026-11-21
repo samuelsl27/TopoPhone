@@ -1,7 +1,9 @@
 package es.topophone.core.survey
 
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.catalog.BuildWarning
 import es.topophone.core.geodesy.catalog.CrsBuildResult
+import es.topophone.core.geodesy.catalog.CrsCatalog
 import es.topophone.core.geodesy.catalog.GridEntry
 import es.topophone.core.model.project.CrsDefinition
 import es.topophone.core.model.project.GeoBox
@@ -50,6 +52,22 @@ data class ImportTransformation(
                 missingGrids = missingGrids,
                 outsideArea = outsideArea,
             )
+        }
+
+        /**
+         * La transformación de [definition] (un SC de origen ya construido) con lo que falta por instalar según [resources] y si su ámbito deja
+         * fuera el [centre] de la zona del fichero; `null` si no hay cambio de datum (S057/RF-8, RF-10).
+         */
+        fun forSource(
+            definition: CrsDefinition,
+            centre: GeoPoint?,
+            catalog: CrsCatalog = CrsCatalog.bundled,
+            resources: LibraryResources = LibraryResources.current,
+        ): ImportTransformation? {
+            val missing = definition.gridNames.mapNotNull { catalog.grids[it] }.filterNot { it.bundled || resources.isInstalled(it.name) }
+            val area = definition.transformationArea
+            val outside = area != null && centre != null && !area.contains(centre.latitudeDeg, centre.longitudeDeg)
+            return of(definition, missing, outside)
         }
 
         /** La transformación de lo que da elegir el SC de origen; `null` si no hay cambio de datum o el SC no se puede usar. */

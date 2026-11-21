@@ -3500,4 +3500,15 @@
     <string name="offline_renew_text">Las teselas de «%1$s» se marcan como caducadas. Con conexión, cada una se sustituye por la nueva al verla en el mapa. Sin conexión la zona sigue entera, con lo que ya tiene.</string>
     <string name="offline_renew_confirm">Actualizar</string>
     <string name="offline_max_detail">Detalle máximo guardado</string>
+    <string name="source_crs_library_choice">Otro de la biblioteca…</string>
+    <string name="source_crs_library_chosen">%1$s (EPSG:%2$d)</string>
+    <string name="source_crs_library_change">Cambiar de sistema</string>
+    <string name="source_crs_no_shift">Mismo datum que las correcciones del proyecto: no hay cambio de datum</string>
+    <string name="source_crs_transformation">Cambio de datum: %1$s</string>
+    <string name="source_crs_accuracy">Precisión declarada: %1$s m</string>
+    <string name="source_crs_accuracy_unknown">Precisión no declarada</string>
+    <string name="source_crs_outside_area">Ninguna transformación declara cubrir la zona del fichero: se usa la más precisa de todas</string>
+    <string name="source_crs_warning">La precisión del cambio de datum es peor que 1 m o no está declarada: las coordenadas importadas pueden quedar desplazadas varios metros</string>
+    <string name="source_crs_confirm">Entiendo la precisión y quiero importar</string>
+    <string name="source_crs_grids_missing">Faltan rejillas del cambio de datum: no se importa nada hasta descargarlas</string>
 </resources>

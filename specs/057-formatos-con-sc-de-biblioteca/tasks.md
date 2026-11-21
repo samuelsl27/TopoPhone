@@ -41,7 +41,7 @@
       Hecho cuando: `ShpExportLibraryTest` pasa y el `.prj` reaparece al volver a importarlo con el mismo SC.
 
 ## Interfaz
-- [ ] T17. `SourceCrsPicker` común y la importación de DXF. (RF-1, RF-2, RF-3)
+- [x] T17. `SourceCrsPicker` común y la importación de DXF. (RF-1, RF-2, RF-3)
       Hecho cuando: `SourceCrsPickerTest` y `CadImportLibraryTest` pasan, con el SC del proyecto el primero y marcado.
 - [ ] T18. Importación de superficies y ejes de LandXML. (RF-1, RF-3, RF-14)
       Hecho cuando: `SurfaceImportLibraryTest` y `AlignmentImportLibraryTest` pasan.

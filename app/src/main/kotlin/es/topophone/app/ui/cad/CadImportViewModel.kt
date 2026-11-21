@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
+import es.topophone.app.ui.crs.LibrarySourceUi
 import es.topophone.app.ui.points.ImportSource
 import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.formats.dxf.DxfFileKind
 import es.topophone.core.formats.dxf.DxfProbe
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.cad.CadExtent
@@ -16,6 +18,8 @@ import es.topophone.core.model.cad.CadImportSummary
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
@@ -59,6 +63,11 @@ data class CadImportUiState(
     val dwgVersion: String? = null,
     val projectName: String = "",
     val projectCrs: ProjectCrs = ProjectCrs.ETRS89_UTM30,
+    /** El datum de las correcciones del proyecto y su centro, para construir el SC de origen de la biblioteca (S057/RF-2, RF-8). */
+    val corrections: CorrectionsDatum = CorrectionsDatum.ETRS89,
+    val centre: GeoPoint? = null,
+    /** El SC de la biblioteca elegido como origen, con su cambio de datum y su confirmación (S057/RF-1, RF-8 a RF-10). */
+    val library: LibrarySourceUi? = null,
     val options: CadImportOptions = CadImportOptions(),
     /** Los sistemas UTM entre los que se puede elegir «otro sistema» (RF-6). */
     val availableSources: List<ProjectCrs> = ProjectCrs.entries.filter { it.isUtm },
@@ -92,7 +101,8 @@ data class CadImportUiState(
             elementCount > 0 &&
             !outsideArea &&
             (!farWarning || farConfirmed) &&
-            (!duplicateName || duplicateConfirmed)
+            (!duplicateName || duplicateConfirmed) &&
+            (options.source !is CadSourceCrs.Library || library?.ready == true)
 }
 
 /**
@@ -159,6 +169,8 @@ class CadImportViewModel @Inject constructor(
             fileName = source.name,
             projectName = project.name,
             projectCrs = project.crs,
+            corrections = project.correctionsDatum,
+            centre = projectCenter?.let { GeoPoint(it.first, it.second) },
             options = CadImportOptions(unit = project.linearUnit),
             scanning = true,
             totalBytes = source.sizeBytes,
@@ -202,6 +214,23 @@ class CadImportViewModel @Inject constructor(
     }
 
     fun setSource(source: CadSourceCrs) = change { it.copy(source = source) }
+
+    /** El SC de la biblioteca elegido como origen: queda como origen, con su unidad propia como unidad del fichero (S057/RF-1, RF-3). */
+    fun chooseLibrary(crs: LibraryCrs) {
+        val library = LibrarySourceUi.of(crs, mutable.value.centre)
+        unitTouched = true
+        mutable.update { it.copy(library = library) }
+        change { it.copy(source = library.source, unit = library.unit) }
+    }
+
+    /** El usuario confirma, o no, el aviso de la precisión del cambio de datum (S057/RF-9). */
+    fun confirmLibrary(confirmed: Boolean) = mutable.update { it.copy(library = it.library?.confirm(confirmed)) }
+
+    /** Tras descargar una rejilla se vuelve a mirar qué falta y se recalcula la extensión (S057/RF-10). */
+    fun refreshLibrary() {
+        mutable.update { it.copy(library = it.library?.refreshed(it.centre)) }
+        recompute()
+    }
 
     fun setUnit(unit: LinearUnit) {
         unitTouched = true

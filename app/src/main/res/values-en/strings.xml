@@ -3488,4 +3488,15 @@
     <string name="offline_renew_text">The tiles of \"%1$s\" are marked as expired. With a connection, each one is replaced by the new one when you see it on the map. Without a connection the zone stays complete, with what it already has.</string>
     <string name="offline_renew_confirm">Update</string>
     <string name="offline_max_detail">Maximum stored detail</string>
+    <string name="source_crs_library_choice">Another from the library…</string>
+    <string name="source_crs_library_chosen">%1$s (EPSG:%2$d)</string>
+    <string name="source_crs_library_change">Change system</string>
+    <string name="source_crs_no_shift">Same datum as the project corrections: no datum shift</string>
+    <string name="source_crs_transformation">Datum shift: %1$s</string>
+    <string name="source_crs_accuracy">Declared accuracy: %1$s m</string>
+    <string name="source_crs_accuracy_unknown">Accuracy not declared</string>
+    <string name="source_crs_outside_area">No transformation declares to cover the file area: the most accurate one is used</string>
+    <string name="source_crs_warning">The datum shift is less accurate than 1 m or its accuracy is not declared: imported coordinates may be off by several metres</string>
+    <string name="source_crs_confirm">I understand the accuracy and want to import</string>
+    <string name="source_crs_grids_missing">Datum shift grids are missing: nothing is imported until they are downloaded</string>
 </resources>

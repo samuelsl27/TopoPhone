@@ -71,6 +71,9 @@ fun CadImportRoute(
         state = state,
         actions = CadImportActions(
             onSource = viewModel::setSource,
+            onChooseLibrary = viewModel::chooseLibrary,
+            onConfirmLibrary = viewModel::confirmLibrary,
+            onRefreshLibrary = viewModel::refreshLibrary,
             onUnit = viewModel::setUnit,
             onUseElevations = viewModel::setUseElevations,
             onConfirmFar = viewModel::confirmFar,

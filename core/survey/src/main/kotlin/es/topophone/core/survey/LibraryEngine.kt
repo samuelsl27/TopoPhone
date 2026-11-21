@@ -28,6 +28,9 @@ interface LibraryResources {
     /** Cambia cada vez que se instala o se borra una rejilla, para que los motores en caché se rehagan. */
     val generation: Int
 
+    /** ¿Está la rejilla [name] (la de la app o una instalada) lista para leerse? Sin leerla entera si se puede evitar (S057/RF-10). */
+    fun isInstalled(name: String): Boolean = grids.read(name) != null
+
     companion object {
         /** Lo que usa el cálculo: lo pone la app al arrancar y al instalar o borrar rejillas. */
         @Volatile

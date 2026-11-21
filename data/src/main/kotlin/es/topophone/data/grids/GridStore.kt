@@ -55,6 +55,8 @@ class GridStore(
 
     override val generation: Int get() = counter.get()
 
+    override fun isInstalled(name: String): Boolean = state(name) != GridState.Missing
+
     override val grids: GridSource = GridSource { name -> if (isBundled(name)) classpath.read(name) else installedFile(name)?.readBytes() }
 
     @Synchronized
