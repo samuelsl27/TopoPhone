@@ -14,10 +14,6 @@ import es.topophone.core.formats.raster.RasterLimits
 import es.topophone.core.formats.raster.RasterReadStats
 import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.geodesy.GeoidModels
-import es.topophone.core.geodesy.catalog.CrsBuildResult
-import es.topophone.core.geodesy.catalog.CrsCatalog
-import es.topophone.core.geodesy.catalog.SourceCrsResolution
-import es.topophone.core.geodesy.catalog.SourceCrsResolver
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
@@ -32,7 +28,6 @@ import es.topophone.core.model.project.SpainCrs
 import es.topophone.core.model.surface.SurfaceExtent
 import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.HeightConversion
-import es.topophone.core.survey.LibraryResources
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.RasterFootprint
 import es.topophone.core.survey.SourceHeights
@@ -235,25 +230,8 @@ class RasterImportViewModel @Inject constructor(
      * El SC de la biblioteca que declara el fichero (S057/RF-4), construido con las correcciones y el centro del proyecto; `null` si es el del
      * proyecto (no hay que reproyectar, RF-12) o si no se puede calcular.
      */
-    private fun libraryOf(epsg: Int, project: Project): LibrarySourceUi? {
-        val centre = mutable.value.centre
-        val resolution = SourceCrsResolver.resolve(
-            CrsCatalog.bundled,
-            epsg,
-            project.crs,
-            centre,
-            isInstalled = LibraryResources.current::isInstalled,
-        )
-        val definition = when (resolution) {
-            SourceCrsResolution.SameAsProject -> return null
-            is SourceCrsResolution.Other -> when (val built = resolution.result) {
-                is CrsBuildResult.Ready -> built.definition
-                is CrsBuildResult.NeedsGrids -> built.definition
-                is CrsBuildResult.Unavailable -> return null
-            }
-        }
-        return LibrarySourceUi.of(LibraryCrs(definition, project.correctionsDatum), centre)
-    }
+    private fun libraryOf(epsg: Int, project: Project): LibrarySourceUi? =
+        LibrarySourceUi.declared(epsg, project.crs, project.correctionsDatum, mutable.value.centre)
 
     /** El sistema que se propone: el que declara el fichero si es uno de la app (el del proyecto si coincide), y si no el del proyecto (RF-8). */
     private fun defaultSource(declaration: RasterCrsDeclaration, crs: ProjectCrs): CadSourceCrs = when (declaration) {

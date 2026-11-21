@@ -40,6 +40,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.crs.CrsLibraryHost
+import es.topophone.app.ui.crs.HiltCrsLibraryHost
+import es.topophone.app.ui.crs.LibrarySourceRequest
+import es.topophone.app.ui.crs.LibrarySourceSection
 import es.topophone.app.ui.points.ReportOutcome
 import es.topophone.app.ui.projects.CentralPointPicker
 import es.topophone.app.ui.projects.CentralPointSection
@@ -54,6 +58,7 @@ import es.topophone.core.model.cad.GpkgLayerKind
 import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CentralPoint
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResult
@@ -116,6 +121,10 @@ fun gpkgOutsideTag(table: String) = "gpkg_outside_$table"
 class GpkgImportActions(
     val onMarked: (table: String, marked: Boolean) -> Unit = { _, _ -> },
     val onCrs: (table: String, crs: ProjectCrs?) -> Unit = { _, _ -> },
+    /** Un SC de la biblioteca para una capa, el aviso de su cambio de datum y la rejilla descargada (S057/RF-1, RF-6, RF-9, RF-10). */
+    val onLibrary: (table: String, crs: LibraryCrs) -> Unit = { _, _ -> },
+    val onConfirmLibrary: (table: String, confirmed: Boolean) -> Unit = { _, _ -> },
+    val onRefreshLibrary: () -> Unit = {},
     val onConfirmFar: () -> Unit = {},
     val onAllContent: (Boolean) -> Unit = {},
     val onRadius: (Double) -> Unit = {},
@@ -150,6 +159,7 @@ fun GpkgImportScreen(
     onBack: () -> Unit,
     map: MapSlot? = null,
     summaryOutcome: ReportOutcome? = null,
+    libraryHost: CrsLibraryHost = HiltCrsLibraryHost,
 ) {
     // S048/RF-14: el selector de S006 a pantalla completa, para fijar el punto central sin salir de la importación.
     var picking by rememberSaveable { mutableStateOf(false) }
@@ -220,7 +230,7 @@ fun GpkgImportScreen(
                 modifier = Modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                ConfigSections(state, actions, onPick = map?.let { { picking = true } })
+                ConfigSections(state, actions, onPick = map?.let { { picking = true } }, themeState, onToggleSun, libraryHost)
             }
         }
     }
@@ -261,7 +271,14 @@ private fun problemText(problem: GpkgFileProblem?, format: ImportFormat): String
 }
 
 @Composable
-private fun ConfigSections(state: GpkgImportUiState, actions: GpkgImportActions, onPick: (() -> Unit)?) {
+private fun ConfigSections(
+    state: GpkgImportUiState,
+    actions: GpkgImportActions,
+    onPick: (() -> Unit)?,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    libraryHost: CrsLibraryHost,
+) {
     Text(stringResource(R.string.gpkg_section_file), style = MaterialTheme.typography.titleSmall)
     Text(state.fileName, style = MaterialTheme.typography.titleMedium)
     Text(pluralStringResource(R.plurals.gpkg_layer_count, state.layers.size, state.layers.size))
@@ -289,7 +306,7 @@ private fun ConfigSections(state: GpkgImportUiState, actions: GpkgImportActions,
         Text(stringResource(R.string.gpkg_scanning), modifier = Modifier.testTag(GPKG_SCANNING_TAG))
     }
     Column(modifier = Modifier.testTag(GPKG_LAYERS_TAG), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        state.layers.forEach { row -> LayerRow(row, state.scanning, state.format, actions) }
+        state.layers.forEach { row -> LayerRow(row, state, actions, themeState, onToggleSun, libraryHost) }
     }
     if (state.markedLayers.isEmpty()) {
         Text(
@@ -327,7 +344,16 @@ private fun ConfigSections(state: GpkgImportUiState, actions: GpkgImportActions,
 }
 
 @Composable
-private fun LayerRow(row: GpkgLayerRow, scanning: Boolean, format: ImportFormat, actions: GpkgImportActions) {
+private fun LayerRow(
+    row: GpkgLayerRow,
+    state: GpkgImportUiState,
+    actions: GpkgImportActions,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    libraryHost: CrsLibraryHost,
+) {
+    val scanning = state.scanning
+    val format = state.format
     val info = row.info
     val kind = stringResource(
         when (info.kind) {
@@ -359,7 +385,8 @@ private fun LayerRow(row: GpkgLayerRow, scanning: Boolean, format: ImportFormat,
             }
         }
         if (row.marked) {
-            if (format != ImportFormat.KML) CrsBlock(row, format, actions) // un KML siempre va en WGS84 y no se elige sistema (S031/RF-7)
+            // un KML siempre va en WGS84 y no se elige sistema (S031/RF-7)
+            if (format != ImportFormat.KML) CrsBlock(row, state, actions, themeState, onToggleSun, libraryHost)
             if (row.encoding != null) EncodingBlock(row, row.encoding, actions)
             NameFieldBlock(row, actions)
             if (!scanning) ExtentBlock(row)
@@ -370,18 +397,27 @@ private fun LayerRow(row: GpkgLayerRow, scanning: Boolean, format: ImportFormat,
 /** El sistema de coordenadas de la capa, su unidad (la fija el sistema) y cómo elegir otro (S048/RF-8 a RF-10). */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CrsBlock(row: GpkgLayerRow, format: ImportFormat, actions: GpkgImportActions) {
+private fun CrsBlock(
+    row: GpkgLayerRow,
+    state: GpkgImportUiState,
+    actions: GpkgImportActions,
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    libraryHost: CrsLibraryHost,
+) {
+    val format = state.format
     val table = row.info.table
     val effective = row.effective
+    val library = row.activeLibrary
     var changing by rememberSaveable(table) { mutableStateOf(false) }
     Column(modifier = Modifier.padding(start = 40.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        if (effective == null) {
+        if (effective == null && library == null) {
             Text(
                 undeclaredText(row.crs, format),
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.testTag(gpkgCrsTag(table)),
             ) // RF-9
-        } else {
+        } else if (effective != null && library == null) {
             Text(
                 stringResource(R.string.gpkg_crs_label, systemLabel(effective, row.chosen != null)),
                 modifier = Modifier.testTag(gpkgCrsTag(table)),
@@ -398,7 +434,7 @@ private fun CrsBlock(row: GpkgLayerRow, format: ImportFormat, actions: GpkgImpor
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(gpkgCrsChangeTag(table)),
             ) { Text(stringResource(R.string.gpkg_crs_change)) }
         }
-        if (effective == null || changing) {
+        if ((effective == null && library == null) || changing) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ProjectCrs.entries.forEach { crs ->
                     FilterChip(
@@ -410,6 +446,19 @@ private fun CrsBlock(row: GpkgLayerRow, format: ImportFormat, actions: GpkgImpor
                 }
             }
         }
+        // Cualquier SC de la biblioteca: el que reconoce el fichero o el que se elige, con su cambio de datum y su aviso (S057/RF-1 a RF-6, RF-8 a RF-10).
+        LibrarySourceSection(
+            chosen = library,
+            selected = library != null,
+            request = LibrarySourceRequest(state.corrections, state.centre),
+            themeState = themeState,
+            onToggleSun = onToggleSun,
+            host = libraryHost,
+            onChosen = { actions.onLibrary(table, it) },
+            onSelect = {},
+            onConfirm = { actions.onConfirmLibrary(table, it) },
+            onRefresh = actions.onRefreshLibrary,
+        )
     }
 }
 

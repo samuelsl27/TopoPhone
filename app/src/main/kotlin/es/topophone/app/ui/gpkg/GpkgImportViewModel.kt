@@ -4,13 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
+import es.topophone.app.ui.crs.LibrarySourceUi
 import es.topophone.app.ui.points.ImportSource
 import es.topophone.app.ui.projects.ProjectCenterProvider
 import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsCatalog
 import es.topophone.core.formats.gpkg.GpkgFileKind
 import es.topophone.core.formats.shp.ShpEncoding
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.cad.CadExtent
+import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.cad.GpkgColumn
 import es.topophone.core.model.cad.GpkgImportSummary
 import es.topophone.core.model.cad.GpkgLayerInfo
@@ -25,7 +28,9 @@ import es.topophone.core.model.map.MapViewport
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CentralPoint
+import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.GeodeticDatum
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
@@ -111,6 +116,12 @@ data class GpkgLayerRow(
     val crs: GpkgCrs = GpkgCrs.Undeclared,
     /** El sistema que el usuario eligió para esta capa en lugar del que declara el fichero. */
     val chosen: ProjectCrs? = null,
+    /** El SC de la biblioteca que declara el fichero (por su código o por su nombre), con su cambio de datum (S057/RF-4, RF-5, RF-8 a RF-10). */
+    val recognized: LibrarySourceUi? = null,
+    /** El fichero declara el SC del proyecto, que es de la biblioteca: no hay nada que reproyectar (S057/RF-12). */
+    val declaredIsProject: Boolean = false,
+    /** El SC de la biblioteca que el usuario eligió para esta capa en el selector (S057/RF-6). */
+    val chosenLibrary: LibrarySourceUi? = null,
     /** La extensión de la capa en el sistema del proyecto (RF-12); null si no se ha calculado o no cabe en él. */
     val extent: CadExtent? = null,
     /** La capa tiene objetos y su extensión no cabe en el sistema del proyecto con el sistema elegido. */
@@ -127,6 +138,22 @@ data class GpkgLayerRow(
 ) {
     /** El sistema con el que se importa: el elegido, o el del fichero si es uno de la app; null mientras falte (RF-9). */
     val effective: GpkgCrs.Supported? get() = chosen?.let(GpkgCrsCatalog::supported) ?: (crs as? GpkgCrs.Supported)
+
+    /** El SC de la biblioteca con el que se importa la capa (el elegido o el reconocido), salvo que se haya elegido uno de España (S057/RF-6). */
+    val activeLibrary: LibrarySourceUi? get() = if (chosen != null) null else chosenLibrary ?: recognized
+
+    /** El SC de origen con el que se importa la capa; `null` mientras falte (S048/RF-9, S057/RF-6). */
+    val effectiveSource: CadSourceCrs?
+        get() = when {
+            chosen != null -> effective?.source
+            chosenLibrary != null -> chosenLibrary.source
+            declaredIsProject -> CadSourceCrs.Project
+            recognized != null -> recognized.source
+            else -> (crs as? GpkgCrs.Supported)?.source
+        }
+
+    /** El aviso de la precisión del cambio de datum está confirmado y no faltan rejillas, si la capa usa un SC de la biblioteca (S057/RF-9, RF-10). */
+    val libraryReady: Boolean get() = activeLibrary?.ready ?: true
 }
 
 /** Lo que muestra la pantalla de importar un GeoPackage (S048). */
@@ -137,6 +164,9 @@ data class GpkgImportUiState(
     val problem: GpkgFileProblem? = null,
     val projectName: String = "",
     val projectCrs: ProjectCrs = ProjectCrs.ETRS89_UTM30,
+    /** El datum de las correcciones del proyecto y su centro, para construir los SC de origen de la biblioteca (S057/RF-2, RF-8). */
+    val corrections: CorrectionsDatum = CorrectionsDatum.ETRS89,
+    val centre: GeoPoint? = null,
     val layers: List<GpkgLayerRow> = emptyList(),
     /** Las tablas sin geometría o de teselas que no se importan (RF-6). */
     val leftOutTables: List<String> = emptyList(),
@@ -181,7 +211,7 @@ data class GpkgImportUiState(
         get() = stage == GpkgImportStage.CONFIG &&
             !scanning &&
             markedLayers.isNotEmpty() &&
-            markedLayers.all { it.effective != null } &&
+            markedLayers.all { it.effectiveSource != null && it.libraryReady } &&
             !needsCenter &&
             !zone.counting &&
             !zone.exceeded &&
@@ -353,7 +383,9 @@ class GpkgImportViewModel @Inject constructor(
                 fileName = fileName,
                 projectName = project.name,
                 projectCrs = project.crs,
-                layers = opened.layers.map { row(opened, it) },
+                corrections = project.correctionsDatum,
+                centre = center?.let { GeoPoint(it.latitudeDeg, it.longitudeDeg) },
+                layers = opened.layers.map { row(opened, it, project) },
                 leftOutTables = opened.leftOutTables,
                 scanning = true,
                 // El recuento está pendiente desde el principio: no hay un instante en que se pueda importar sin contar.
@@ -371,11 +403,16 @@ class GpkgImportViewModel @Inject constructor(
         index(opened)
     }
 
-    private fun row(opened: FeatureSession, info: GpkgLayerInfo): GpkgLayerRow {
+    private fun row(opened: FeatureSession, info: GpkgLayerInfo, project: Project): GpkgLayerRow {
         val files = shapefile
+        val crs = opened.crs(info)
+        val centre = center?.let { GeoPoint(it.latitudeDeg, it.longitudeDeg) }
+        val declared = crs as? GpkgCrs.Library
         return GpkgLayerRow(
             info,
-            crs = opened.crs(info),
+            crs = crs,
+            recognized = declared?.let { LibrarySourceUi.declared(it.epsg, project.crs, project.correctionsDatum, centre) },
+            declaredIsProject = declared != null && declared.epsg == project.crs.epsg,
             nameField = suggestNameField(info.columns),
             encoding = files?.encoding(info),
             cpgUnknown = files?.cpgUnknown(info) ?: false,
@@ -455,7 +492,52 @@ class GpkgImportViewModel @Inject constructor(
     /** El usuario elige el sistema de coordenadas de la capa [table]; con null vuelve al que declara el fichero (RF-8, RF-9). */
     fun setCrs(table: String, crs: ProjectCrs?) {
         mutable.update { state ->
-            state.copy(layers = state.layers.map { if (it.info.table == table) it.copy(chosen = crs) else it }, farConfirmed = false)
+            state.copy(
+                layers = state.layers.map { if (it.info.table == table) it.copy(chosen = crs, chosenLibrary = null) else it },
+                farConfirmed = false,
+            )
+        }
+        recompute()
+        recount()
+    }
+
+    /** El usuario elige un SC de la biblioteca para la capa [table], con su cambio de datum y su aviso (S057/RF-1, RF-6). */
+    fun setLibrary(table: String, crs: LibraryCrs) {
+        val library = LibrarySourceUi.of(crs, mutable.value.centre)
+        mutable.update { state ->
+            state.copy(
+                layers = state.layers.map { if (it.info.table == table) it.copy(chosen = null, chosenLibrary = library) else it },
+                farConfirmed = false,
+            )
+        }
+        recompute()
+        recount()
+    }
+
+    /** El usuario confirma, o no, el aviso de la precisión del cambio de datum de la capa [table] (S057/RF-9). */
+    fun confirmLibrary(table: String, confirmed: Boolean) {
+        mutable.update { state ->
+            state.copy(
+                layers = state.layers.map { row ->
+                    when {
+                        row.info.table != table -> row
+                        row.chosenLibrary != null -> row.copy(chosenLibrary = row.chosenLibrary.confirm(confirmed))
+                        else -> row.copy(recognized = row.recognized?.confirm(confirmed))
+                    }
+                },
+            )
+        }
+    }
+
+    /** Tras descargar una rejilla se vuelve a mirar qué falta en cada capa y se recalcula (S057/RF-10). */
+    fun refreshLibrary() {
+        mutable.update { state ->
+            val centre = state.centre
+            state.copy(
+                layers = state.layers.map { row ->
+                    row.copy(recognized = row.recognized?.refreshed(centre), chosenLibrary = row.chosenLibrary?.refreshed(centre))
+                },
+            )
         }
         recompute()
         recount()
@@ -484,8 +566,9 @@ class GpkgImportViewModel @Inject constructor(
         val opened = session ?: return
         val area = currentArea() ?: return
         val choices = current.markedLayers.map { row ->
-            val effective = checkNotNull(row.effective)
-            GpkgLayerChoice(row.info, effective.source, row.nameField, wgs84 = effective.wgs84 && row.chosen == null)
+            val source = checkNotNull(row.effectiveSource)
+            val wgs84 = row.effective?.wgs84 == true && row.chosen == null && row.chosenLibrary == null
+            GpkgLayerChoice(row.info, source, row.nameField, wgs84 = wgs84)
         }
         mutable.update { it.copy(stage = GpkgImportStage.IMPORTING, importDone = 0, importTotal = 0, failure = null, cancelled = false) }
         importJob = viewModelScope.launch(io) {
@@ -589,7 +672,7 @@ class GpkgImportViewModel @Inject constructor(
             var exceeded = false
             if (area != null) {
                 for (row in rows) {
-                    val source = row.effective?.source ?: continue
+                    val source = row.effectiveSource ?: continue
                     val index = indexes[row.info.table] ?: continue
                     val count = scan.count(index, source, project.crs, area)
                     objects += count.inZone
@@ -683,7 +766,7 @@ class GpkgImportViewModel @Inject constructor(
         mutable.update { state ->
             val layers = state.layers.map { row ->
                 val index = indexes[row.info.table]
-                val source = row.effective?.source
+                val source = row.effectiveSource
                 if (!row.marked || index == null || source == null || index.size == 0) {
                     return@map row.copy(extent = null, outsideArea = false, distanceKm = null)
                 }

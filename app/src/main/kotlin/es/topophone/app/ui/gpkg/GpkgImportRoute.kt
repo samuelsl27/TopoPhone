@@ -141,6 +141,9 @@ private fun ImportRoute(
         actions = GpkgImportActions(
             onMarked = viewModel::setMarked,
             onCrs = viewModel::setCrs,
+            onLibrary = viewModel::setLibrary,
+            onConfirmLibrary = viewModel::confirmLibrary,
+            onRefreshLibrary = viewModel::refreshLibrary,
             onConfirmFar = viewModel::confirmFar,
             onAllContent = viewModel::setAllContent,
             onRadius = viewModel::setRadius,

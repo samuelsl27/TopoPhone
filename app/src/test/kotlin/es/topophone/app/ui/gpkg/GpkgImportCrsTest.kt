@@ -128,11 +128,11 @@ class GpkgImportCrsTest {
     }
 
     @Test
-    fun `S048 RF-9 un sistema no disponible de la app se dice y se puede sustituir`() {
+    fun `S048 RF-9 un sistema que la app no ofrece se reconoce en la biblioteca y se puede sustituir por uno de Espana`() {
         val viewModel = open("no-disponible-3857.gpkg")
-        // S057/RF-4: está en la biblioteca; la pantalla lo ofrece en T20
+        // S057/RF-4: está en la biblioteca y se propone con su cambio de datum; el usuario puede elegir otro (S048/RF-9)
         viewModel.settled().layers.single().crs shouldBe GpkgCrs.Library(3857, "WGS 84 / Pseudo-Mercator")
-        viewModel.settled().canImport shouldBe false
+        viewModel.state.value.layers.single().effective.shouldBeNull()
 
         viewModel.setCrs("puntos", ProjectCrs.ETRS89_UTM30)
 

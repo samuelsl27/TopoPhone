@@ -27,12 +27,18 @@ import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.geodesy.GeoPoint
+import es.topophone.core.geodesy.catalog.CrsBuildResult
+import es.topophone.core.geodesy.catalog.CrsCatalog
+import es.topophone.core.geodesy.catalog.SourceCrsResolution
+import es.topophone.core.geodesy.catalog.SourceCrsResolver
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.ImportTransformation
+import es.topophone.core.survey.LibraryResources
 import java.text.NumberFormat
 
 const val SOURCE_LIBRARY_CHOICE_TAG = "source_library_choice"
@@ -61,6 +67,23 @@ data class LibrarySourceUi(val source: CadSourceCrs.Library, val transformation:
     fun refreshed(centre: GeoPoint?): LibrarySourceUi = copy(transformation = ImportTransformation.forSource(source.definition, centre))
 
     companion object {
+        /**
+         * El SC de la biblioteca [epsg] que declara un fichero, construido con las correcciones y el centro del proyecto de SC [project] (S057/RF-4,
+         * RF-8); `null` si es el del proyecto (no hay que reproyectar, RF-12) o si no se puede calcular.
+         */
+        fun declared(epsg: Int, project: ProjectCrs, corrections: CorrectionsDatum, centre: GeoPoint?): LibrarySourceUi? {
+            val resolution = SourceCrsResolver.resolve(CrsCatalog.bundled, epsg, project, centre, LibraryResources.current::isInstalled)
+            val definition = when (resolution) {
+                SourceCrsResolution.SameAsProject -> return null
+                is SourceCrsResolution.Other -> when (val built = resolution.result) {
+                    is CrsBuildResult.Ready -> built.definition
+                    is CrsBuildResult.NeedsGrids -> built.definition
+                    is CrsBuildResult.Unavailable -> return null
+                }
+            }
+            return of(LibraryCrs(definition, corrections), centre)
+        }
+
         /** El SC [crs] elegido en el selector de la biblioteca, con el cambio de datum para la zona alrededor de [centre]. */
         fun of(crs: LibraryCrs, centre: GeoPoint?): LibrarySourceUi {
             val source = CadSourceCrs.Library(crs.definition)

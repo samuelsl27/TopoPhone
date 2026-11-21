@@ -47,7 +47,7 @@
       Hecho cuando: `SurfaceImportLibraryTest` y `AlignmentImportLibraryTest` pasan.
 - [x] T19. Importación de ráster con el SC declarado reconocido. (RF-1, RF-3, RF-4)
       Hecho cuando: `RasterImportLibraryTest` pasa con un GeoTIFF en otro SC.
-- [ ] T20. Importación de Shapefile y GeoPackage: el SC de cada capa y elegir uno si no se reconoce. (RF-4, RF-6)
+- [x] T20. Importación de Shapefile y GeoPackage: el SC de cada capa y elegir uno si no se reconoce. (RF-4, RF-6)
       Hecho cuando: `GpkgImportLibraryTest` y `ShpImportLibraryTest` pasan.
 - [ ] T21. Vista previa con la transformación y su precisión, confirmación y descarga de la rejilla que falta. (RF-8, RF-9, RF-10)
       Hecho cuando: `ImportPreviewTest` pasa con aviso, con confirmación y con rejilla ausente.
