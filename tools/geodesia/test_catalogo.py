@@ -191,3 +191,70 @@ def test_s034_rf_4_un_paso_de_helmert_lleva_elipsoides_convencion_y_parametros(c
 
 def test_s034_rf_4_la_generacion_completa_es_determinista(completo) -> None:
     assert c.a_texto(completo) == c.a_texto(c.generar())
+
+
+# --- Parte 3: rejillas, licencias y el fichero comprimido ---
+
+import gzip  # noqa: E402
+import json  # noqa: E402
+
+import rejillas_cdn  # noqa: E402
+
+
+def test_s034_rf_19_cada_rejilla_usada_tiene_tamano_sha256_y_licencia(completo) -> None:
+    ids_licencia = {f[0] for f in completo["licenses"]}
+    usadas = {n for f in completo["options"] for n in c.rejillas_de(f[c.OPCION_PASOS])}
+    por_nombre = {f[c.REJILLA_NOMBRE]: f for f in completo["grids"]}
+
+    assert usadas and usadas <= set(por_nombre)
+    for fila in completo["grids"]:
+        assert len(fila) == c.COLUMNAS["grids"]
+        assert int(fila[c.REJILLA_TAMANO_B]) > 0 and len(fila[c.REJILLA_SHA256]) == 64
+        assert fila[c.REJILLA_LICENCIA] in ids_licencia
+
+
+def test_s034_rf_20_las_licencias_dudosas_se_marcan_con_su_fuente(completo) -> None:
+    licencias = {f[0]: f for f in completo["licenses"]}
+
+    assert licencias["CC-BY-4.0"][2] == "1"
+    assert licencias["PD"][2] == "1"
+    assert rejillas_cdn.licencia_de("sin nada reconocible")[0] == "no-clara"
+    assert all(f[c.REJILLA_URL_FUENTE].startswith("http") for f in completo["grids"])
+
+
+def test_s034_rf_17_las_rejillas_que_incluye_la_app_estan_marcadas_y_los_geoides_traen_cobertura(completo) -> None:
+    por_nombre = {f[c.REJILLA_NOMBRE]: f for f in completo["grids"]}
+
+    assert por_nombre["es_ign_SPED2ETV2.tif"][c.REJILLA_INCLUIDA] == "1"
+    assert por_nombre["es_ign_egm08-rednap.tif"][c.REJILLA_INCLUIDA] == "1"
+    assert por_nombre["us_nga_egm08_25.tif"][c.REJILLA_INCLUIDA] == "0"
+    geoides = [f for f in completo["grids"] if f[c.REJILLA_TIPO] == "V"]
+    assert len(geoides) > 100 and all(f[c.REJILLA_AMBITO] for f in geoides)
+
+
+def test_s034_rf_19_los_hash_de_las_incluidas_coinciden_con_los_de_rejillaspy(completo) -> None:
+    import rejillas as r
+
+    por_nombre = {f[c.REJILLA_NOMBRE]: f for f in completo["grids"]}
+    for grid in r.GRIDS:
+        assert por_nombre[grid.name][c.REJILLA_SHA256] == grid.sha256
+
+
+def test_s034_rf_19_la_licencia_sale_del_bloque_del_readme() -> None:
+    texto = "### A\n\n*License*: [Creative Commons Attribution 4.0](https://x)\n\n* a.tif\n\n### B\n\n*License*: Public Domain\n\n* b.tif - algo\n"
+
+    assert rejillas_cdn.licencias_del_readme(texto) == {"a.tif": "[Creative Commons Attribution 4.0](https://x)", "b.tif": "Public Domain"}
+    assert rejillas_cdn.licencia_de("CC-BY 4.0.")[0] == "CC-BY-4.0"
+    assert rejillas_cdn.licencia_de("Creative Commons Attribution Share-Alike 4.0")[0] == "CC-BY-SA-4.0"
+
+
+def test_s034_rf_4_el_fichero_comprimido_cabe_en_2_mb_y_es_identico_al_regenerarlo(completo, tmp_path) -> None:
+    primero, segundo = tmp_path / "a.tsv.gz", tmp_path / "b.tsv.gz"
+
+    c.escribir(completo, primero)
+    c.escribir(completo, segundo)
+
+    assert primero.stat().st_size < 2_000_000
+    assert primero.read_bytes() == segundo.read_bytes()
+    assert gzip.decompress(primero.read_bytes()).decode("utf-8") == c.a_texto(completo)
+    assert json.loads(rejillas_cdn.INSTANTANEA.read_text(encoding="utf-8"))["cdn"] == rejillas_cdn.CDN

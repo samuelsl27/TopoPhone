@@ -1,0 +1,5969 @@
+{
+ "cdn": "https://cdn.proj.org/",
+ "grids": [
+  {
+   "area": [
+    -57.00074,
+    -76.0,
+    -20.016667,
+    -52.016187
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "ar_ign_GEOIDE-Ar16.tif",
+   "sha256": "5781d63c97f1348a6a4a3adf68dd98f2b9b0430271a0ce45d8e0b002394875a6",
+   "size": 6422288,
+   "source": "Instituto Geográfico Nacional (IGN)",
+   "sourceUrl": "https://www.ign.gob.ar",
+   "targetCrs": "EPSG:9255",
+   "targetName": "SRVN16 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "at_bev_AT_GIS_GRID.tif",
+   "sha256": "852d58612498f7ef08541e65f25f52f2a7f35f6020fd7e8250f7fa6eaa5ac599",
+   "size": 216878,
+   "source": "Austria Bundesamt für Eich- und Vermessungswessen",
+   "sourceUrl": "http://www.bev.gv.at/portal/page?_pageid=713,2157075&_dad=portal&_schema=PORTAL",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "at_bev_AT_GIS_GRID_2021_09_28.tif",
+   "sha256": "c5862ce7ad4c16b1c234838d3dd4945bc641057d4238b02cb71a2077811ad30f",
+   "size": 13759571,
+   "source": "Austria Bundesamt für Eich- und Vermessungswessen",
+   "sourceUrl": "http://www.bev.gv.at/portal/page?_pageid=713,2157075&_dad=portal&_schema=PORTAL",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "area": [
+    46.325,
+    9.5,
+    49.075,
+    17.25
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "at_bev_GEOID_BESSEL_Oesterreich.tif",
+   "sha256": "50d2624aae11ba486eb9dbe5a81aa835fe5ce06e5d662ce859bf51bd0b7589bb",
+   "size": 38547,
+   "source": "Austria Bundesamt für Eich- und Vermessungswessen",
+   "sourceUrl": "http://www.bev.gv.at/portal/page?_pageid=713,2157075&_dad=portal&_schema=PORTAL",
+   "targetCrs": "EPSG:9274",
+   "targetName": "EVRF2000 Austria height",
+   "type": "V"
+  },
+  {
+   "area": [
+    46.325,
+    9.5,
+    49.075,
+    17.25
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "at_bev_GEOID_GRS80_Oesterreich.tif",
+   "sha256": "68682d850399d8d21a606a1b56b9d7372c06aa71c0de55379a48dff57f810377",
+   "size": 29948,
+   "source": "Austria Bundesamt für Eich- und Vermessungswessen",
+   "sourceUrl": "http://www.bev.gv.at/portal/page?_pageid=713,2157075&_dad=portal&_schema=PORTAL",
+   "targetCrs": "EPSG:9274",
+   "targetName": "EVRF2000 Austria height",
+   "type": "V"
+  },
+  {
+   "area": [
+    46.35,
+    9.5,
+    49.05,
+    17.1875
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "at_bev_GV_Hoehengrid_plus_Geoid_V2.tif",
+   "sha256": "334fa70a877b0fa66026bb52540e7776669bedce58fb6050794f37a4ae0e7f3e",
+   "size": 770542,
+   "source": "Austria Bundesamt für Eich- und Vermessungswessen",
+   "sourceUrl": "http://www.bev.gv.at/portal/page?_pageid=713,2157075&_dad=portal&_schema=PORTAL",
+   "targetCrs": "EPSG:5778",
+   "targetName": "GHA height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -61.008333,
+    93.008333,
+    -8.008333,
+    174.008333
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_ga_AGQG_20191107.tif",
+   "sha256": "c06f24dae030587cc2556a316782ade83b6d91f1b8d03922ddd0ce58f3868baa",
+   "size": 60878523,
+   "source": "Geoscience Australia",
+   "sourceUrl": "http://www.ga.gov.au",
+   "targetCrs": "EPSG:9458",
+   "targetName": "AVWS height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -61.0,
+    93.0,
+    -8.0,
+    174.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_ga_AGQG_20201120.tif",
+   "sha256": "922b28c44bdb99d57a72fa66a142986c2a02b8b95d0152ef68a7a6119d6ec2cc",
+   "size": 60931200,
+   "source": "Geoscience Australia",
+   "sourceUrl": "http://www.ga.gov.au",
+   "targetCrs": "EPSG:9458",
+   "targetName": "AVWS height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -45.983333,
+    108.0,
+    -8.0,
+    159.983333
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_ga_AUSGeoid09_V1.01.tif",
+   "sha256": "47e75b3e609e0551a9cabd3a9c7a1e37b50df2e92ce5457fe188298ea3e75ef4",
+   "size": 12781759,
+   "source": "Geoscience Australia",
+   "sourceUrl": "http://www.ga.gov.au",
+   "targetCrs": "EPSG:5711",
+   "targetName": "AHD height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -60.983333,
+    93.0,
+    -8.0,
+    173.983333
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_ga_AUSGeoid2020_20180201.tif",
+   "sha256": "1eb8bc33f6bf27e6f16d277ad4f38d92ffaec33a7e6e355b6f840a7ab79998af",
+   "size": 5839686,
+   "source": "Geoscience Australia",
+   "sourceUrl": "http://www.ga.gov.au",
+   "targetCrs": "EPSG:5711",
+   "targetName": "AHD height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -46.0,
+    108.0,
+    -8.0,
+    160.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_ga_AUSGeoid98.tif",
+   "sha256": "66f560291721f662dc3975883b140ddcc6ed131a7c9f58539d4ca1dcbd6e6c53",
+   "size": 3910178,
+   "source": "Geoscience Australia",
+   "sourceUrl": "http://www.ga.gov.au",
+   "targetCrs": "EPSG:5711",
+   "targetName": "AHD height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_icsm_A66_National_13_09_01.tif",
+   "sha256": "3734a647f24ae6424ffd55253d6b28df9035c04e530b54f66011d1abd2e924ca",
+   "size": 2360656,
+   "source": "Australian Intergovernmental Committee on Surveying and Mapping",
+   "sourceUrl": "https://github.com/icsm-au/transformation_grids",
+   "targetCrs": "EPSG:4283",
+   "targetName": "GDA94",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_icsm_GDA94_GDA2020_conformal.tif",
+   "sha256": "92b39b4898aff9e9921dce83daed4f942da0c1e714905612fa7ffdc0081dcc9c",
+   "size": 4561222,
+   "source": "Australian Intergovernmental Committee on Surveying and Mapping",
+   "sourceUrl": "https://github.com/icsm-au/transformation_grids",
+   "targetCrs": "EPSG:7844",
+   "targetName": "GDA2020",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_icsm_GDA94_GDA2020_conformal_and_distortion.tif",
+   "sha256": "89bb9e5c55a714c8925ddc134bf4c191be8df2607b229a05efb778f5f6166ee0",
+   "size": 27272664,
+   "source": "Australian Intergovernmental Committee on Surveying and Mapping",
+   "sourceUrl": "https://github.com/icsm-au/transformation_grids",
+   "targetCrs": "EPSG:7844",
+   "targetName": "GDA2020",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_icsm_GDA94_GDA2020_conformal_christmas_island.tif",
+   "sha256": "b67dfed1a58e8717458a314d9b621c7a1e77a404fcb715f042f931196f1da6c8",
+   "size": 30707,
+   "source": "Australian Intergovernmental Committee on Surveying and Mapping",
+   "sourceUrl": "https://github.com/icsm-au/transformation_grids",
+   "targetCrs": "EPSG:7844",
+   "targetName": "GDA2020",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_icsm_GDA94_GDA2020_conformal_cocos_island.tif",
+   "sha256": "9ba8194157bbbbae238db5ebc9b01caf20109f078978b72f11ed1ea3c53ee4a3",
+   "size": 22294,
+   "source": "Australian Intergovernmental Committee on Surveying and Mapping",
+   "sourceUrl": "https://github.com/icsm-au/transformation_grids",
+   "targetCrs": "EPSG:7844",
+   "targetName": "GDA2020",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "au_icsm_National_84_02_07_01.tif",
+   "sha256": "e15e4c2d91be51d4b6fb238cd8e0eddbf8033d7ed5cb24f146ba26e679b79e0f",
+   "size": 5934098,
+   "source": "Australian Intergovernmental Committee on Surveying and Mapping",
+   "sourceUrl": "https://github.com/icsm-au/transformation_grids",
+   "targetCrs": "EPSG:4283",
+   "targetName": "GDA94",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "be_ign_bd72lb72_etrs89lb08.tif",
+   "sha256": "eb5cb1823e66971189dfd20c65f3a2c507d600403772e9cc01c04f88d7e68cfa",
+   "size": 766519,
+   "source": "IGN Belgium",
+   "sourceUrl": "http://www.ngi.be",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "area": [
+    48.5,
+    1.0,
+    52.5,
+    7.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "be_ign_hBG18.tif",
+   "sha256": "882340af95eaf5dbd46f7988092fbb84cde8dcbb712ce9764c667e64ead6aa4c",
+   "size": 203858,
+   "source": "IGN Belgium",
+   "sourceUrl": "http://www.ngi.be",
+   "targetCrs": "EPSG:5710",
+   "targetName": "Ostend height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-SA-4.0",
+    "name": "Creative Commons Atribución-CompartirIgual 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+   },
+   "name": "br_ibge_CA61_003.tif",
+   "sha256": "f37e955bc988f1ea126cb2a7f40b4caed0d679c209f2a56a4a131a22e8ad9b3b",
+   "size": 114261,
+   "source": "Instituto Brasileiro de Geografia e Estatistica (IBGE)",
+   "sourceUrl": "https://www.ibge.gov.br",
+   "targetCrs": "EPSG:4674",
+   "targetName": "SIRGAS 2000",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-SA-4.0",
+    "name": "Creative Commons Atribución-CompartirIgual 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+   },
+   "name": "br_ibge_CA7072_003.tif",
+   "sha256": "caa2ef8e1193b7ce292a634c6a70c1cb4daeb06c80192e9b4a8c02d49525c5e5",
+   "size": 236168,
+   "source": "Instituto Brasileiro de Geografia e Estatistica (IBGE)",
+   "sourceUrl": "https://www.ibge.gov.br",
+   "targetCrs": "EPSG:4674",
+   "targetName": "SIRGAS 2000",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-SA-4.0",
+    "name": "Creative Commons Atribución-CompartirIgual 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+   },
+   "name": "br_ibge_SAD69_003.tif",
+   "sha256": "350fff6403c561253249a5cc5f6fd83f8b17dfd775df521aab6b3895d5288e81",
+   "size": 378703,
+   "source": "Instituto Brasileiro de Geografia e Estatistica (IBGE)",
+   "sourceUrl": "https://www.ibge.gov.br",
+   "targetCrs": "EPSG:4674",
+   "targetName": "SIRGAS 2000",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-SA-4.0",
+    "name": "Creative Commons Atribución-CompartirIgual 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+   },
+   "name": "br_ibge_SAD96_003.tif",
+   "sha256": "18fb81306468c2a069a35fb4b99c451e1f60398a471858692570972ae427c6fc",
+   "size": 338951,
+   "source": "Instituto Brasileiro de Geografia e Estatistica (IBGE)",
+   "sourceUrl": "https://www.ibge.gov.br",
+   "targetCrs": "EPSG:4674",
+   "targetName": "SIRGAS 2000",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_ABCSRSV4.tif",
+   "sha256": "0953dcb19f00ab35c5563a445ff966e92701e23801370259c9fee8599e780032",
+   "size": 732472,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8246",
+   "targetName": "NAD83(CSRS)v4",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_BC_27_05.tif",
+   "sha256": "666198c33d5b771bad5e33e03589d7b1e20e11cf64c2816cd005e9664ca8ce49",
+   "size": 723559,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8246",
+   "targetName": "NAD83(CSRS)v4",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_BC_93_05.tif",
+   "sha256": "2945f9b6391d1821d11174ffea009742c9f2040dfec4a2f2314e6ca71e5ede93",
+   "size": 984413,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8246",
+   "targetName": "NAD83(CSRS)v4",
+   "type": "H"
+  },
+  {
+   "area": [
+    10.016667,
+    -169.983333,
+    89.983333,
+    -10.016667
+   ],
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_CGG2013ai08.tif",
+   "sha256": "b194542fc82658eac1f45b2f799f0aae89600c12d75eafcd54dca75efd8fdb1d",
+   "size": 10906276,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:9245",
+   "targetName": "CGVD2013a(2010) height",
+   "type": "V"
+  },
+  {
+   "area": [
+    10.016667,
+    -169.983333,
+    89.983333,
+    -10.016667
+   ],
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_CGG2013an83.tif",
+   "sha256": "a129e9e9b023bb5c7133b3a91e41f1d528892fc28e99dcecb251cd71292968cb",
+   "size": 11031336,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:9245",
+   "targetName": "CGVD2013a(2010) height",
+   "type": "V"
+  },
+  {
+   "area": [
+    10.016667,
+    -169.983333,
+    89.983333,
+    -10.016667
+   ],
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_CGG2013i08.tif",
+   "sha256": "266184106409b014995080eb65996883defbbf24e6992d95574bddeb58f7943d",
+   "size": 10906091,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:6647",
+   "targetName": "CGVD2013(CGG2013) height",
+   "type": "V"
+  },
+  {
+   "area": [
+    10.016667,
+    -169.983333,
+    89.983333,
+    -10.016667
+   ],
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_CGG2013n83.tif",
+   "sha256": "9c3e31dceb26b999131d55d396c46af0b153489e3b42a4273f565d1bdefd059c",
+   "size": 11030895,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:6647",
+   "targetName": "CGVD2013(CGG2013) height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_CQ77SCRS.tif",
+   "sha256": "cd2315562e9ec1878a3b00cb4bcd07f8a6c04f68ae795eb48d547e619e2ec267",
+   "size": 296319,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8237",
+   "targetName": "NAD83(CSRS)v2",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_CRD27_00.tif",
+   "sha256": "8c8a5d32c6478fd0716c65524a56566107cc7819ef552354680da4d33a2b0195",
+   "size": 37893,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8240",
+   "targetName": "NAD83(CSRS)v3",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_CRD93_00.tif",
+   "sha256": "624f0f2389416216f994d9733d0baa6e26d3b623ef8cfcd6de523fba051b8aaf",
+   "size": 61623,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8240",
+   "targetName": "NAD83(CSRS)v3",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_GS7783.tif",
+   "sha256": "30497cc7e1fc5de091f03102addd2dca1156066ee82a5d63cf66166e66e6cd3e",
+   "size": 31394,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "area": [
+    41.016667,
+    -141.983333,
+    83.983333,
+    -48.016667
+   ],
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_HT2_1997.tif",
+   "sha256": "a82ca1aa105323350d165cda46ba69804c1b0cbd43461faaa28b8e38df373fac",
+   "size": 2673070,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:5713",
+   "targetName": "CGVD28 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    41.016667,
+    -141.983333,
+    83.983333,
+    -48.016667
+   ],
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_HT2_2002v70.tif",
+   "sha256": "eeabc319fcf50b2ad36194f47f45640759b0b9f5c32096a8cedc4c07448f5206",
+   "size": 2681228,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:5713",
+   "targetName": "CGVD28 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    41.016667,
+    -141.983333,
+    83.983333,
+    -48.016667
+   ],
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_HT2_2010v70.tif",
+   "sha256": "5033fa377cb734a99a849b11bf6f8e99ec998b131224969f00f22f966456b773",
+   "size": 2825243,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:5713",
+   "targetName": "CGVD28 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_MAY76V20.tif",
+   "sha256": "92e4e472a70ef05543fc9c852a8950113d2107739fa20270eb194381c315f9c0",
+   "size": 6180460,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_NA27SCRS.tif",
+   "sha256": "b6bba85b3eb8115ca643172edd8fcf3c21a9610152954772e2ae0ed5c9251099",
+   "size": 311341,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8237",
+   "targetName": "NAD83(CSRS)v2",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_NA83SCRS.tif",
+   "sha256": "67a09bf04e05458308cfc4236a9188fd9e99c20ca6191f2b6cfa5da64c9a9dfc",
+   "size": 1385768,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8237",
+   "targetName": "NAD83(CSRS)v2",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_NB2783v2.tif",
+   "sha256": "f43d6c23fa3d9225d70c13e9d0252f4005902f21917c8c78582a41213de392fe",
+   "size": 3505757,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8237",
+   "targetName": "NAD83(CSRS)v2",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_NB7783v2.tif",
+   "sha256": "0c745be698713b309f30a554d17f39edce1e7f036e5a9d14d478ec9981babc14",
+   "size": 2229267,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8237",
+   "targetName": "NAD83(CSRS)v2",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_NS778302.tif",
+   "sha256": "6242780f3d2b5ab00ee8d6f75c09378196c21de9a91cd1fd7fcfb97c841e4d51",
+   "size": 2590321,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8252",
+   "targetName": "NAD83(CSRS)v6",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_NVI93_05.tif",
+   "sha256": "4abc8c6a292b54574697069789b7d2b4307428a7890c09f274eeafdf2237f2cb",
+   "size": 112837,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8240",
+   "targetName": "NAD83(CSRS)v3",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_ON27CSv1.tif",
+   "sha256": "a0b093f9629baa6c6903b1cace03e7dd567372c71ab7d4af9a738feaf0c0d119",
+   "size": 8002286,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8240",
+   "targetName": "NAD83(CSRS)v3",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_ON76CSv1.tif",
+   "sha256": "e84c3b4a9b1de4fe6b4ebefcf36044bc4d3298054e0b8c1ea037304d557210c5",
+   "size": 7300425,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8240",
+   "targetName": "NAD83(CSRS)v3",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_ON83CSv1.tif",
+   "sha256": "ef4f1e670797f3983b5b298eb73c72a0d05a89bf582e1f3bfc0b59b30bf81e73",
+   "size": 5169586,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8240",
+   "targetName": "NAD83(CSRS)v3",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_PE7783V2.tif",
+   "sha256": "b53fb7f76152baa128eff9aa16477f3206adc2021887bb3879dd1aa5ef8baa46",
+   "size": 320528,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8237",
+   "targetName": "NAD83(CSRS)v2",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_SK27-98.tif",
+   "sha256": "9bda5887ad117c9af580ebea0e35912d137e3aebca5195f8a9b9e08507abeb5c",
+   "size": 936926,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8240",
+   "targetName": "NAD83(CSRS)v3",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_SK83-98.tif",
+   "sha256": "03c3ba83d438e58e664b5870bbbc7683a3bf72dafdaa4808b9f37417ee6d8eed",
+   "size": 517241,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8240",
+   "targetName": "NAD83(CSRS)v3",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_TO27CSv1.tif",
+   "sha256": "106e59e5bf3ac855ef68ac10e328ccd5dedb00636366ea0404a13970e1c75bcc",
+   "size": 413956,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:8240",
+   "targetName": "NAD83(CSRS)v3",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_ntv1_can.tif",
+   "sha256": "ee6aec1b395e3bd8c92f2596d72bd912f63b0ef1eadb84eed98ce01f9cf3fd5a",
+   "size": 352620,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "OGL-Canada",
+    "name": "Licencia de gobierno abierto de Canadá",
+    "open": true,
+    "url": "http://open.canada.ca/en/open-government-licence-canada"
+   },
+   "name": "ca_nrc_ntv2_0.tif",
+   "sha256": "1c71996385fc51b4bcfb0d9119ebf4f14d632987cb116127c2110840cdbc0897",
+   "size": 7784410,
+   "source": "Natural Resources Canada",
+   "sourceUrl": "https://webapp.geod.nrcan.gc.ca/geod",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "ca_que_mern_cq77na83.tif",
+   "sha256": "982eecbd1842513c26468450c55536d41e72a89256e7b5e10d28010843e043dc",
+   "size": 274194,
+   "source": "Ministère de l'Énergie et des Ressources naturelles du Québec",
+   "sourceUrl": "https://mern.gouv.qc.ca/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "ca_que_mern_na27na83.tif",
+   "sha256": "98accd143a743d75a112e9b2685bfcc946b1ca41df36bd4db2c1e562210052b6",
+   "size": 319199,
+   "source": "Ministère de l'Énergie et des Ressources naturelles du Québec",
+   "sourceUrl": "https://mern.gouv.qc.ca/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC0-1.0",
+    "name": "Creative Commons CC0 1.0 (dominio público)",
+    "open": true,
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+   },
+   "name": "ch_swisstopo_CHENyx06_ETRS.tif",
+   "sha256": "2b12094e8c043645d85ae5f08a475bdd342249a1ff3c15e38fef0090cd4c4723",
+   "size": 602809,
+   "source": "Swisstopo Federal Office of Topography",
+   "sourceUrl": "https://www.swisstopo.admin.ch/en/knowledge-facts/surveying-geodesy/reference-frames/transformations-position.html",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC0-1.0",
+    "name": "Creative Commons CC0 1.0 (dominio público)",
+    "open": true,
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+   },
+   "name": "ch_swisstopo_CHENyx06a.tif",
+   "sha256": "986d81da9445bdd4cbc3b5e36d8ccdad757d7e09246da68040dd21e53bdfbe40",
+   "size": 1021779,
+   "source": "Swisstopo Federal Office of Topography",
+   "sourceUrl": "https://www.swisstopo.admin.ch/en/knowledge-facts/surveying-geodesy/reference-frames/transformations-position.html",
+   "targetCrs": "EPSG:4150",
+   "targetName": "CH1903+",
+   "type": "H"
+  },
+  {
+   "area": [
+    45.75,
+    5.85,
+    47.85,
+    10.5
+   ],
+   "license": {
+    "id": "CC0-1.0",
+    "name": "Creative Commons CC0 1.0 (dominio público)",
+    "open": true,
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+   },
+   "name": "ch_swisstopo_chgeo2004_ETRS89_LHN95.tif",
+   "sha256": "459e317ba9bf1f744ad920b3fe0d6ee0b1bdfc960cad7d4ea428db7bb229280f",
+   "size": 259441,
+   "source": "Swisstopo Federal Office of Topography",
+   "sourceUrl": "https://www.swisstopo.admin.ch/en/knowledge-facts/surveying-geodesy/reference-frames/transformations-position.html",
+   "targetCrs": "EPSG:5729",
+   "targetName": "LHN95 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    45.75,
+    5.85,
+    47.85,
+    10.5
+   ],
+   "license": {
+    "id": "CC0-1.0",
+    "name": "Creative Commons CC0 1.0 (dominio público)",
+    "open": true,
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+   },
+   "name": "ch_swisstopo_chgeo2004_ETRS89_LN02.tif",
+   "sha256": "ec9638c152f4519278b3e7a781d1a7c2769bd54de39accec099bd5036f4fd214",
+   "size": 295192,
+   "source": "Swisstopo Federal Office of Topography",
+   "sourceUrl": "https://www.swisstopo.admin.ch/en/knowledge-facts/surveying-geodesy/reference-frames/transformations-position.html",
+   "targetCrs": "EPSG:5728",
+   "targetName": "LN02 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -4.783333,
+    -79.3,
+    12.8,
+    -66.716667
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "co_igac_QGeoidCOL2023.tif",
+   "sha256": "e70268260a86677b003bfbc788c69dac78c9ed6e6267508d353abceab4244922",
+   "size": 88004,
+   "source": "Instituto Geográfico Agustín Codazzi",
+   "sourceUrl": "https://www.igac.gov.co/",
+   "targetCrs": "EPSG:11513",
+   "targetName": "COLGVD2023 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    48.3,
+    11.7,
+    51.2,
+    19.325
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "cz_cuzk_CR-2005.tif",
+   "sha256": "2fba4e5bcd3e48f737b3655d5a7c196de1c56e199967f7e12311710646d4f0a1",
+   "size": 106664,
+   "source": "ČÚZK",
+   "sourceUrl": "https://geoportal.cuzk.cz/",
+   "targetCrs": "EPSG:8357",
+   "targetName": "Baltic 1957 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "cz_cuzk_table_-y-x_3_v1710.tif",
+   "sha256": "9f7b519e8928ec9663b916c07708d956821d09a0e25b61c742e31995d183148c",
+   "size": 198710,
+   "source": "ČÚZK",
+   "sourceUrl": "https://geoportal.cuzk.cz/",
+   "targetCrs": "EPSG:5516",
+   "targetName": "S-JTSK/05 / Modified Krovak East North",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "libre",
+    "name": "Redistribución libre permitida por la fuente",
+    "open": true,
+    "url": ""
+   },
+   "name": "de_adv_BETA2007.tif",
+   "sha256": "46e681fcc7d022dde1db1f9d0a3426a9bfb1d4a151af69a81b3c30104c9388e2",
+   "size": 24379,
+   "source": "Arbeitsgemeinschaft der Vermessungsverwaltungender der Länder der Bundesrepublik Deutschland (AdV)",
+   "sourceUrl": "http://www.adv-online.de/icc/extdeu/nav/9ae/9ae594bb-a094-311a-3b21-718a438ad1b2&sel_uCon=3c10e056-7955-311a-3b21-718a438ad1b2&uTem=73d607d6-b048-65f1-80fa-29f08a07b51a.htm",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "area": [
+    47.220833,
+    3.25625,
+    55.979167,
+    15.11875
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "de_bkg_gcg2016.tif",
+   "sha256": "598f18324dea7f8e72421d18add7ac6228259adf91eeb335cc9c27d98484f7ac",
+   "size": 995647,
+   "source": "Bundesamt für Kartographie und Geodäsie (BKG)",
+   "sourceUrl": "https://gdz.bkg.bund.de/index.php/default/digitale-geodaten.html",
+   "targetCrs": "EPSG:7837",
+   "targetName": "DHHN2016 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "DL-DE-BY-2.0",
+    "name": "Licencia de datos de Alemania, atribución 2.0",
+    "open": true,
+    "url": "https://www.govdata.de/dl-de/by-2-0"
+   },
+   "name": "de_geosn_NTv2_SN.tif",
+   "sha256": "211caa07476e351146117beb9281184b97caeae58ff9724517b4630ac03f7028",
+   "size": 4250734,
+   "source": "Staatsbetrieb Geobasisinformation und Vermessung Sachsen GeoSN",
+   "sourceUrl": "https://www.landesvermessung.sachsen.de/download-5608.html?_cp=%7B%22accordion-content-4389%22%3A%7B%222%22%3Atrue%7D%2C%22previousOpen%22%3A%7B%22group%22%3A%22accordion-content-4389%22%2C%22idx%22%3A2%7D%7D",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "DL-DE-BY-2.0",
+    "name": "Licencia de datos de Alemania, atribución 2.0",
+    "open": true,
+    "url": "https://www.govdata.de/dl-de/by-2-0"
+   },
+   "name": "de_hvbg_hessen_HeTA2010.tif",
+   "sha256": "0e1fcc1cc7ca8251c56433c8822e21cca2f1de5b6359ca828b70d477e12fb4ed",
+   "size": 1283407,
+   "source": "Hessisches Landesamt für Bodenmanagement und Geoinformation",
+   "sourceUrl": "https://www.hvbg.hessen.de/",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "DL-DE-BY-2.0",
+    "name": "Licencia de datos de Alemania, atribución 2.0",
+    "open": true,
+    "url": "https://www.govdata.de/dl-de/by-2-0"
+   },
+   "name": "de_lgl_bw_BWTA2017.tif",
+   "sha256": "83adfea14dbe037f1dc3f717949b6f23304f362eccdc198cf31d4cd5e54be9b6",
+   "size": 73022201,
+   "source": "LGL Baden-Württemberg",
+   "sourceUrl": "https://www.lgl-bw.de/",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "de_lgvl_saarland_SeTa2016.tif",
+   "sha256": "529acdef6f5634669087de3dfc7923ab0100a9a7d94fa5e5b4aadb7ec4226c6c",
+   "size": 547937,
+   "source": "LVGL Saarland",
+   "sourceUrl": "https://www.saarland.de/",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "de_tlbg_thueringen_NTv2gridTH.tif",
+   "sha256": "32249e46cdaa97cbd2cea723a413d73a04a8420b11ed81ebe48be18034fa6354",
+   "size": 71953,
+   "source": "Thüringer Landesamt für Bodenmanagement und Geoinformation",
+   "sourceUrl": "https://tlbg.thueringen.de/",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "area": [
+    59.0,
+    -76.0,
+    84.0,
+    -8.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_kds_gllat_2025.tif",
+   "sha256": "6aff49f73f93ce7b6ca7bb050766fcb24932c7c8bad23319d2324986d361e706",
+   "size": 25087897,
+   "source": "Danish Agency for Climate Data",
+   "sourceUrl": "https://kds.dk/",
+   "targetCrs": "EPSG:11450",
+   "targetName": "GLLAT(2025) depth",
+   "type": "V"
+  },
+  {
+   "area": [
+    59.0,
+    -76.0,
+    84.0,
+    -8.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_kds_glmsl_2025.tif",
+   "sha256": "779225424ed8b8d4789a640adf853410637099da093aee6de9684b2759903942",
+   "size": 19809016,
+   "source": "Danish Agency for Climate Data",
+   "sourceUrl": "https://kds.dk/",
+   "targetCrs": "EPSG:11451",
+   "targetName": "GLMSL(2025) depth",
+   "type": "V"
+  },
+  {
+   "area": [
+    54.499,
+    7.901,
+    57.799,
+    15.303
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfe_dnn.tif",
+   "sha256": "4c7da68e1ca635af45e23c099e897404be30b566d97258670933a4213885d88c",
+   "size": 1888720,
+   "source": "Danish Agency for Data Supply and Efficiency",
+   "sourceUrl": "https://github.com/NordicGeodesy/NordicTransformations",
+   "targetCrs": "EPSG:5733",
+   "targetName": "DNN height",
+   "type": "V"
+  },
+  {
+   "area": [
+    54.0,
+    7.0,
+    58.0,
+    17.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfe_dvr90.tif",
+   "sha256": "a086b9db3a7009df10a27c8f109e0965412642d6560c30125ab5039b7fc4effb",
+   "size": 331904,
+   "source": "Danish Agency for Data Supply and Efficiency",
+   "sourceUrl": "https://github.com/NordicGeodesy/NordicTransformations",
+   "targetCrs": "EPSG:5799",
+   "targetName": "DVR90 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    61.0,
+    -9.0,
+    63.0,
+    -5.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfe_fvr09.tif",
+   "sha256": "85d2033cb9c96ab16b49365aeeb652350732f4f33f661faa5e9b7d420b18ed40",
+   "size": 184138,
+   "source": "Danish Agency for Data Supply and Efficiency",
+   "sourceUrl": "https://github.com/NordicGeodesy/NordicTransformations",
+   "targetCrs": "EPSG:5317",
+   "targetName": "FVR09 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    59.0,
+    -75.0,
+    84.0,
+    -10.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfe_gvr2000.tif",
+   "sha256": "ab2f408fbd16e27cefaa8a123a45fab36ccd1c87dcf75925ce8c4ea30b073172",
+   "size": 743471,
+   "source": "Danish Agency for Data Supply and Efficiency",
+   "sourceUrl": "https://github.com/NordicGeodesy/NordicTransformations",
+   "targetCrs": "EPSG:8266",
+   "targetName": "GVR2000 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    58.0,
+    -77.015,
+    85.0,
+    -6.975
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfe_gvr2016.tif",
+   "sha256": "4810524d01cdbc0939c11b9a4be0bdfe22024cbae616512ec6037235c41c930e",
+   "size": 7114024,
+   "source": "Danish Agency for Data Supply and Efficiency",
+   "sourceUrl": "https://github.com/NordicGeodesy/NordicTransformations",
+   "targetCrs": "EPSG:8267",
+   "targetName": "GVR2016 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    53.8,
+    2.0,
+    59.5,
+    17.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_dklat_2022.tif",
+   "sha256": "305594da7402f4cfb05492b962adad79b668ddab238c233e37b0f2c135d0c306",
+   "size": 1100877,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10548",
+   "targetName": "DKLAT(2022) depth",
+   "type": "V"
+  },
+  {
+   "area": [
+    53.8,
+    2.0,
+    59.5,
+    17.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_dklat_2023.tif",
+   "sha256": "e59022f6ab373e30cd0a5675b41b3a93dddfb6788327c1b7461e8073cb3803bb",
+   "size": 1051597,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10550",
+   "targetName": "DKLAT(2023) depth",
+   "type": "V"
+  },
+  {
+   "area": [
+    53.8,
+    2.0,
+    59.5,
+    17.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_dkmsl_2022.tif",
+   "sha256": "69698dbe8fd5ee38e36d4991187f858a72020ffc1535fa736ef28d4ce4ad2da1",
+   "size": 1075912,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10547",
+   "targetName": "DKMSL(2022) depth",
+   "type": "V"
+  },
+  {
+   "area": [
+    53.8,
+    2.0,
+    59.5,
+    17.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_dkmsl_2023.tif",
+   "sha256": "ecdc722295e18fa61192921314652c60ccdd10f91d07be9ad0b2bb5db067f0cc",
+   "size": 1075413,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10549",
+   "targetName": "DKMSL(2023) depth",
+   "type": "V"
+  },
+  {
+   "area": [
+    54.0,
+    6.0,
+    58.5,
+    17.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_dvr90_2002.tif",
+   "sha256": "cb2b9a17d7804e89af70d052ca31791d09c40a5e9115f8dc2af06148daa8f002",
+   "size": 83826,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10483",
+   "targetName": "DVR90(2002) height",
+   "type": "V"
+  },
+  {
+   "area": [
+    54.0,
+    7.0,
+    58.0,
+    17.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_dvr90_2013.tif",
+   "sha256": "e1230b6642b85f866e6ac05cf3925c71618955a9ab30dd5c1619150e1eee695e",
+   "size": 326641,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10484",
+   "targetName": "DVR90(2013) height",
+   "type": "V"
+  },
+  {
+   "area": [
+    53.5,
+    7.0,
+    58.0,
+    17.00002
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_dvr90_2023.tif",
+   "sha256": "1c70c23d34b58261a3df68b359e64e87f32b225655c3649151f6eab2976cf40f",
+   "size": 359492,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10485",
+   "targetName": "DVR90(2023) height",
+   "type": "V"
+  },
+  {
+   "area": [
+    59.0,
+    -76.0,
+    84.0,
+    -8.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_gllat_2023.tif",
+   "sha256": "8c8e612d433f3ba4d0d35375a54b246d6d601975e99ce92e7b16bf6f6cf5189f",
+   "size": 23326241,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10650",
+   "targetName": "GLLAT(2023) depth",
+   "type": "V"
+  },
+  {
+   "area": [
+    59.0,
+    -76.0,
+    84.0,
+    -8.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_glmsl_2023.tif",
+   "sha256": "ef0e06fc95a41d502265487692052b7fb977f6d04c5845435b907f589f0fd0f3",
+   "size": 22783532,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10649",
+   "targetName": "GLMSL(2023) depth",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_gs_2022.tif",
+   "sha256": "565419916e6ebf32a9ab786a91e0d1e60554929ca3068f4c6ef143777e6aa076",
+   "size": 1004030,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10256",
+   "targetName": "GS-IRF",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_gsb_2022.tif",
+   "sha256": "9d9e540ee54670390e1a28465be734129a60174a5a29fc1ddeed6a6699a71164",
+   "size": 107597,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10260",
+   "targetName": "GSB-IRF",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_kk_2022.tif",
+   "sha256": "b5122135e76b36900c0747ed7b48833c84e1ebbe44facdc9e47595c685a4d4a1",
+   "size": 172181,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10265",
+   "targetName": "KK-IRF",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_os_2022.tif",
+   "sha256": "f824bca6ba0ca56f92f4dc6c9816fac84dacfde73d66f46ee82bbd737ec40dec",
+   "size": 98329,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10268",
+   "targetName": "Ostenfeld-IRF",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_s34j_2022.tif",
+   "sha256": "4d6a2e1126fb3feefa508937e088304eac6d6f547dd88f1aee362850fec1586a",
+   "size": 1079166,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10158",
+   "targetName": "S34J-IRF",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_s34s_2022.tif",
+   "sha256": "157eefcbbe60d634cd0772fa57e04ba22ec37bdaa67562b0c0eb0bb3ae4ab5c2",
+   "size": 569406,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10249",
+   "targetName": "S34S-IRF",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "dk_sdfi_s45b_2022.tif",
+   "sha256": "5c99ad4a0a007c4a009b05b602c7d7e21ed114d619e5ec7e24fea6588ca99d43",
+   "size": 79289,
+   "source": "Danish Agency for Data Supply and Infrastructure",
+   "sourceUrl": "https://sdfi.dk",
+   "targetCrs": "EPSG:10252",
+   "targetName": "S45B-IRF",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "es_cat_icgc_100800401.tif",
+   "sha256": "fc80f51c96139987077f233d47bf3543d59991871261832a3c93f005c9b72efe",
+   "size": 4395,
+   "source": "Institut Cartogràfic i Geològic de Catalunya (ICGC)",
+   "sourceUrl": "http://www.icgc.cat/",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "es_ign_SPED2ETV2.tif",
+   "sha256": "61896f5d74bdc7c1d5850839ae743b08e19f9a627e8febb4ac93353ded835961",
+   "size": 180404,
+   "source": "Instituto Geográfico Nacional (IGN)",
+   "sourceUrl": "https://www.ign.es/",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "area": [
+    27.5,
+    -18.5,
+    29.499999,
+    -13.000002
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "es_ign_egm08-rednap-canarias.tif",
+   "sha256": "ef545116102c73860fe364061b75f17caf15431a992dc9b3ed2fbe250619373f",
+   "size": 83096,
+   "source": "Instituto Geográfico Nacional (IGN)",
+   "sourceUrl": "https://www.ign.es/",
+   "targetCrs": "EPSG:9397",
+   "targetName": "Gran Canaria height",
+   "type": "V"
+  },
+  {
+   "area": [
+    35.0,
+    -9.5,
+    43.999996,
+    4.499994
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "es_ign_egm08-rednap.tif",
+   "sha256": "d1758a580c2acc7cddcb814c2aebe1e5ab83f74dfaed8c1a885355bb3f85df58",
+   "size": 827857,
+   "source": "Instituto Geográfico Nacional (IGN)",
+   "sourceUrl": "https://www.ign.es/",
+   "targetCrs": "EPSG:5782",
+   "targetName": "Alicante height",
+   "type": "V"
+  },
+  {
+   "area": [
+    59.0,
+    17.5,
+    70.7,
+    33.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "fi_nls_fin2000.tif",
+   "sha256": "e9a54beb1ed06cc623212f89eb3b30f06db06743ae91d6a99e6751b8fcb948ed",
+   "size": 311425,
+   "source": "National Land Survey of Finland (MML)",
+   "sourceUrl": "https://www.maanmittauslaitos.fi",
+   "targetCrs": "EPSG:5717",
+   "targetName": "N60 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    59.0,
+    17.48,
+    70.7,
+    33.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "fi_nls_fin2005n00.tif",
+   "sha256": "c9418ffcd050ca57b95207b4aa05b229f833cd13afcaea7de566d9cefab2b8ac",
+   "size": 475127,
+   "source": "National Land Survey of Finland (MML)",
+   "sourceUrl": "https://www.maanmittauslaitos.fi",
+   "targetCrs": "EPSG:3900",
+   "targetName": "N2000 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    58.8,
+    19.0,
+    70.19,
+    31.98
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "fi_nls_fin2023n2000.tif",
+   "sha256": "82ce62ed36910a61fc79010702b3e48fdb45cdfc90a248114ac90a7cb5e30cf7",
+   "size": 1167439,
+   "source": "National Land Survey of Finland (MML)",
+   "sourceUrl": "https://www.maanmittauslaitos.fi",
+   "targetCrs": "EPSG:3900",
+   "targetName": "N2000 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    46.45,
+    -56.55,
+    47.283333,
+    -55.95
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_CGVD2013RGSPM06.tif",
+   "sha256": "ae264da1e06c7d6f7177aa68db463ea9e7614e53805edc1d8596ea78881d6429",
+   "size": 2615,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:6647",
+   "targetName": "CGVD2013(CGG2013) height",
+   "type": "V"
+  },
+  {
+   "area": [
+    41.2,
+    8.416667,
+    43.2,
+    9.716667
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAC09.tif",
+   "sha256": "a1519cc41df3e1a6dbd8135782cca0cd6359f0cb5ec5e52cb531e4f567e59cdd",
+   "size": 8597,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5721",
+   "targetName": "NGF-IGN78 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    41.2,
+    8.38333,
+    43.25,
+    9.749997
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAC23.tif",
+   "sha256": "075c061558c091f0e188256d62523e95b00deb90e2436550581f041b60811bab",
+   "size": 9162,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5721",
+   "targetName": "NGF-IGN78 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    42.0,
+    -5.5,
+    51.5,
+    8.5
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAF09.tif",
+   "sha256": "7396144b7fe903e42f0f28a4f55bf1e01e2947c8cb134af7f13a403d64db9927",
+   "size": 344998,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5720",
+   "targetName": "NGF-IGN69 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    42.0,
+    -5.5,
+    51.5,
+    8.5
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAF18.tif",
+   "sha256": "7001e9140f266e0ddcaffa6e5c2feb77bf9444fa229cf46d1ce3172c15fec79b",
+   "size": 342796,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5720",
+   "targetName": "NGF-IGN69 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    42.0,
+    -5.5,
+    51.5,
+    8.5
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAF18b.tif",
+   "sha256": "59522db6682a42dd0fa25edd7b6b18c92ae3224324809051d80ab960a76b67e9",
+   "size": 341314,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5720",
+   "targetName": "NGF-IGN69 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    42.0,
+    -5.5,
+    51.5,
+    8.5
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAF20.tif",
+   "sha256": "dc0cc2a38f0ea1029fe72cca3b5b7ed6dfe7e1db2a8d8482b7326ce3d6f25605",
+   "size": 342920,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5720",
+   "targetName": "NGF-IGN69 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.875,
+    -61.9,
+    16.589,
+    -61.072
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAGTBT2016.tif",
+   "sha256": "5984c1565e9a65b88d5608c7bd3cdbf39f7f13c84b453e1984feab56384d1baa",
+   "size": 33374,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5757",
+   "targetName": "Guadeloupe 1988 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    16.25,
+    -61.15,
+    16.4,
+    -60.946
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RALD2016.tif",
+   "sha256": "60bc9eca05bd39f5b2f38dfbd0c7e86f4d9a858bb49455343b482caa2c512f6e",
+   "size": 3006,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:9130",
+   "targetName": "IGN 2008 LD height",
+   "type": "V"
+  },
+  {
+   "area": [
+    16.25,
+    -61.15,
+    16.406,
+    -60.946
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RALDW842016.tif",
+   "sha256": "52e0cd958d2b89df0c0ea3cc012242082d9492c366b0c4b3e8c1711b51ee4cb8",
+   "size": 1685,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:9130",
+   "targetName": "IGN 2008 LD height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.8,
+    -61.7,
+    15.926,
+    -61.472
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RALS2016.tif",
+   "sha256": "2500026baa9f04bf87503f3ce8b63b8f13343d82465922057642764379a182f7",
+   "size": 2836,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5616",
+   "targetName": "IGN 1988 LS height",
+   "type": "V"
+  },
+  {
+   "area": [
+    14.298,
+    -61.3,
+    15.0,
+    -60.724
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAMART2016.tif",
+   "sha256": "350a9cd98b5ab68566870c99c698490630ac9d221c34e7595c75afaf4c435243",
+   "size": 23884,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5756",
+   "targetName": "Martinique 1987 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.8,
+    -61.4,
+    16.13,
+    -61.07
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAMG2016.tif",
+   "sha256": "2aa7dde4ed1008a965689455fda7be624e0f0657206bc0b181a64793ddcea25a",
+   "size": 6920,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5617",
+   "targetName": "IGN 1988 MG height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -21.5,
+    55.14,
+    -20.75,
+    55.94
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RAR07_bl.tif",
+   "sha256": "730aea12ee8642561d5c3bf26ffc023222e349bfcdf6ee676f999a875531d4a4",
+   "size": 10378,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5758",
+   "targetName": "Reunion 1989 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    46.48,
+    -56.52,
+    47.29,
+    -56.0
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_RASPM2018.tif",
+   "sha256": "93f500295f175aa9b69092f169e8ea70173021c3a2b4d3623c4eedc49b1fbcbb",
+   "size": 53052,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5792",
+   "targetName": "Danger 1950 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    17.8,
+    -63.0,
+    18.025,
+    -62.725
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_gg10_sbv2.tif",
+   "sha256": "b5695bb9ef48a8d97ce2acf075a33a61e7717552d389301489d1cdb147104105",
+   "size": 2063,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5619",
+   "targetName": "IGN 1988 SB height",
+   "type": "V"
+  },
+  {
+   "area": [
+    18.0,
+    -63.2,
+    18.2,
+    -62.9
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_gg10_smv2.tif",
+   "sha256": "2c2abb2362b90281239074a2552b7692959434e1722b33d04498c2a5bac3ed91",
+   "size": 2069,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5620",
+   "targetName": "IGN 1988 SM height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.8,
+    -61.7,
+    15.925,
+    -61.475
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggg00_lsv2.tif",
+   "sha256": "c67cab5d85d33ca23f82a2d8d0cc619bf5ee04bcc5f845174dd21813b13a8dbc",
+   "size": 1065,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5616",
+   "targetName": "IGN 1988 LS height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.8,
+    -61.4,
+    16.125,
+    -61.075
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggg00_mgv2.tif",
+   "sha256": "d6863e69643ef41e244db73e4b64bd52a25d57297ccb32fe7439d6699c84eba2",
+   "size": 1574,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5617",
+   "targetName": "IGN 1988 MG height",
+   "type": "V"
+  },
+  {
+   "area": [
+    17.8,
+    -63.0,
+    18.025,
+    -62.725
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggg00_sbv2.tif",
+   "sha256": "3f02ce75aeedc6c974c087f29ad4d5434be4e7caf52352212ef1e69106f31ed9",
+   "size": 1362,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5619",
+   "targetName": "IGN 1988 SB height",
+   "type": "V"
+  },
+  {
+   "area": [
+    18.0,
+    -63.2,
+    18.2,
+    -62.9
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggg00_smv2.tif",
+   "sha256": "73eb5c601e4a0e4c29ccfa9d2e2caeb9e3332585164c7a8ec3c0fbf72ad687be",
+   "size": 1356,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5620",
+   "targetName": "IGN 1988 SM height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.875,
+    -61.85,
+    16.625,
+    -61.075
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggg00v2.tif",
+   "sha256": "d603c7beb2f62f9c9463f29410706d4e3d628a8186b3e7e893151cb3e1677f5f",
+   "size": 3530,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5757",
+   "targetName": "Guadeloupe 1988 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    2.0,
+    -55.0,
+    6.0,
+    -51.0
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggguy15.tif",
+   "sha256": "577d18e74ae6f15ee66db245deb9c9837cab0ab460c28bbc40e0f0dbb7a83c49",
+   "size": 114493,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5755",
+   "targetName": "NGG1977 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -50.5,
+    67.0,
+    -48.0,
+    71.0
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggker08v2.tif",
+   "sha256": "70605c6de41a9fc2857e462d59d5664d1674cd8cba5d24938c4c5735e6c78e33",
+   "size": 58222,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "IGN 1962 (KERGUELEN)",
+   "type": "V"
+  },
+  {
+   "area": [
+    14.25,
+    -61.25,
+    15.025,
+    -60.725
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggm00v2.tif",
+   "sha256": "27a2147da4ce1b9062f24dd03f3f5a54ae50de17b2fb9df515d022cb0187b7e3",
+   "size": 2827,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5756",
+   "targetName": "Martinique 1987 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -13.095,
+    44.91,
+    -12.42,
+    45.405
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggm04v1.tif",
+   "sha256": "c6d6fa020f0f9fb0f88a2709c41495b561f93e8570ce93ef6af97857be5670eb",
+   "size": 2005,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "SHOM 1953 (MAYOTTE)",
+   "type": "V"
+  },
+  {
+   "area": [
+    -13.2,
+    44.8,
+    -12.5,
+    45.54
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggm23v2.tif",
+   "sha256": "4d927c643d9718228ae2b29b48f076cc900b3a7dfe383ff57a80a00e3e7fb663",
+   "size": 12830,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:11157",
+   "targetName": "IGN 2023 Mayotte height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -16.75,
+    -152.0,
+    -16.25,
+    -151.5
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf02-Bora.tif",
+   "sha256": "581c5e3036476139fd5bb67bfd0240d8ea95d001563a1f7053b691011270c804",
+   "size": 1089,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5607",
+   "targetName": "Bora Bora SAU 2001 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -17.0,
+    -151.5,
+    -16.5,
+    -150.75
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf02-Huahine.tif",
+   "sha256": "040cbed304c1021d16335430bff7e3e4437b99dfa1acbe0e57678c51693b7218",
+   "size": 1103,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5605",
+   "targetName": "Huahine SAU 2001 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -17.75,
+    -150.75,
+    -17.5,
+    -150.5
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf02-Maiao.tif",
+   "sha256": "57f82d929337a07b797f2b18009248004ba37915fbf221b8a8934b9e1e353b0f",
+   "size": 1232,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "MAIAO 2001 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -16.75,
+    -152.5,
+    -16.25,
+    -152.0
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf02-Maupiti.tif",
+   "sha256": "3cd50bc4559ff523f3dd5556cc54e77ff5442c86d4dc7ecdb7a3c9e597c1814d",
+   "size": 1089,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5604",
+   "targetName": "Maupiti SAU 2001 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -17.0,
+    -151.75,
+    -16.5,
+    -151.25
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf02-Raiatea.tif",
+   "sha256": "82dd761f599f8cbedc36923446948591b47fd1df5c5511d19ca0f1605b1c47e2",
+   "size": 1088,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5603",
+   "targetName": "Raiatea SAU 2001 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -16.75,
+    -151.75,
+    -16.5,
+    -151.25
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf02-Tahaa.tif",
+   "sha256": "2b9996781a4f1c3ad9b6e70e4ad10252b138ac1690c951ac575e4774a96d3fa1",
+   "size": 1071,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5606",
+   "targetName": "Tahaa SAU 2001 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -16.5,
+    -152.0,
+    -16.0,
+    -151.75
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf02-Tupai.tif",
+   "sha256": "9581c4311de0af48fb67715dd03a7647fcd942c3ee55917fdeb6e6b2995c4c2d",
+   "size": 1241,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "TUPAI 2001 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -9.9,
+    -139.25,
+    -9.6,
+    -138.675
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf05-HivaOa.tif",
+   "sha256": "f6509d2a1e8317b4ae57df7284b0104affa4bfb6ea977db36e6ceeef3299399a",
+   "size": 2288,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "HIVA OA height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -9.0,
+    -140.3,
+    -8.675,
+    -139.9
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf05-Nuku.tif",
+   "sha256": "d44c5baa231fa272e70bdd4f46a9e5d09ac064985ea286b1166f9f24157ddb0c",
+   "size": 1880,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "NUKU height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -16.65,
+    -145.9,
+    -15.95,
+    -145.3
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf08-Fakarava.tif",
+   "sha256": "e8ebb480dbb425fc3def798238a62a3250223882dd0ea9f20de23d3392ade37b",
+   "size": 6206,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5601",
+   "targetName": "IGN 1966 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -23.4,
+    -135.25,
+    -22.9,
+    -134.75
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf08-Gambier.tif",
+   "sha256": "509a3e9fbb246c9a96cac1e4dd8dff8d86688a4f87926f139b1a8b8c03717bc9",
+   "size": 3655,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "GAMBIER height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -18.55,
+    -141.2,
+    -17.95,
+    -140.55
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf08-Hao.tif",
+   "sha256": "e1c0cff6a9afa60ae8af08b84a1a4af57805734b9a3d1f0b1c8f5c580955e1ae",
+   "size": 4943,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "HAO height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -14.95,
+    -148.8,
+    -14.8,
+    -148.55
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf08-Mataiva.tif",
+   "sha256": "e661a7d97d4d638e2184396adab8a22e5bc1a767b41d685909ec4086f0e9313e",
+   "size": 1677,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "MATAIVA height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -24.0,
+    -147.8,
+    -23.75,
+    -147.5
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf08-Raivavae.tif",
+   "sha256": "e12da85a6bdc8dfbe15118245880587289ddbb961353d6cb680d5c761d3050b4",
+   "size": 2171,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "Raivavae height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -18.65,
+    -136.55,
+    -18.4,
+    -136.2
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf08-Reao.tif",
+   "sha256": "ab3089286285e907c5d300c226002d6972dd6774124f9fff7629c50a991eac35",
+   "size": 2053,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "Reao height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -22.6,
+    -151.45,
+    -22.35,
+    -151.25
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf08-Rurutu.tif",
+   "sha256": "c0ab0a17d9eb3ebec4d865b24a78cc60dace5427e2843acdd613df8d08478d74",
+   "size": 1862,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "Rurutu height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -15.2,
+    -148.35,
+    -14.85,
+    -147.95
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf08-Tikehau.tif",
+   "sha256": "9dc8a6de91efebb59270ee54d557d6a212f6a68e513b8bef016175a05164e0e6",
+   "size": 1226,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "Tikehau height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -23.5,
+    -149.65,
+    -23.25,
+    -149.3
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf08-Tubuai.tif",
+   "sha256": "5f70d181778631bb72838bbbcd4d8e455e91e31df94932c46d000aa3abf8fc01",
+   "size": 2458,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "",
+   "targetName": "Tubuai height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -17.7,
+    -150.05,
+    -17.35,
+    -149.65
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf10-Moorea.tif",
+   "sha256": "32a183b8ad20eb7c90cb87ed88afea29e511a954681ece8e06b30f8a0ed60d80",
+   "size": 2507,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5602",
+   "targetName": "Moorea SAU 1981 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -18.0,
+    -149.69,
+    -17.0,
+    -149.0
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggpf10-Tahiti.tif",
+   "sha256": "a9e7bb6186f9227c6c700f30b4a4cefae74c632a7cf1b94c76199d7d95c010c6",
+   "size": 16466,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5601",
+   "targetName": "IGN 1966 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    46.485,
+    -56.52,
+    47.295,
+    -55.935
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ggspm06v1.tif",
+   "sha256": "9e5bc902d0cec1324fadf3c8e3534c87fe989049c2c1b8befabd1e786b84c215",
+   "size": 1986,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:5792",
+   "targetName": "Danger 1950 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "fr_ign_ntf_r93.tif",
+   "sha256": "0aa738b3e00fd2d64f8e3cd0e76034d4792374624fa0e133922433c9491bbf2a",
+   "size": 93581,
+   "source": "IGN France",
+   "sourceUrl": "http://www.ign.fr/",
+   "targetCrs": "EPSG:4171",
+   "targetName": "ETRS89-FRA [RGF93 v1]",
+   "type": "H"
+  },
+  {
+   "area": [
+    45.56,
+    16.1,
+    48.89,
+    23.042
+   ],
+   "license": {
+    "id": "CC-BY-SA-4.0",
+    "name": "Creative Commons Atribución-CompartirIgual 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+   },
+   "name": "hu_bme_geoid2014.tif",
+   "sha256": "0be6c660f98b5a3bf6281c44000d87e4f1d4a53a18f780931a76338c3dac1ad2",
+   "size": 54515,
+   "source": "Budapest University of Technology and Economics, Department of Geodesy and Surveying",
+   "sourceUrl": "https://geod.bme.hu/geod/hirek?language=en",
+   "targetCrs": "EPSG:5787",
+   "targetName": "EOMA 1980 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-SA-4.0",
+    "name": "Creative Commons Atribución-CompartirIgual 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+   },
+   "name": "hu_bme_hd72corr.tif",
+   "sha256": "7a56680fd21dd24bd869a6898b300f061b91723b21df78010f35ab1e23a77a67",
+   "size": 78982,
+   "source": "Budapest University of Technology and Economics, Department of Geodesy and Surveying",
+   "sourceUrl": "https://geod.bme.hu/geod/hirek?language=en",
+   "targetCrs": "EPSG:9067",
+   "targetName": "ETRF2000",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "is_lmi_ISN2004_ISN2016.tif",
+   "sha256": "2f611a5dc2dac1f1b75c934bcd4f1c9c53f07f845f16f3307a8d18592c93ef56",
+   "size": 577991,
+   "source": "National Land Survey of Iceland",
+   "sourceUrl": "https://atlas.lmi.is/LmiData/index.php?id=626468364600",
+   "targetCrs": "EPSG:8086",
+   "targetName": "ISN2016",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "is_lmi_ISN93_ISN2016.tif",
+   "sha256": "89522e94ec23918a638b5c17b42bf5b605c8010d9bfc968f2ef984f1d4ff6f02",
+   "size": 564880,
+   "source": "National Land Survey of Iceland",
+   "sourceUrl": "https://atlas.lmi.is/LmiData/index.php?id=626468364600",
+   "targetCrs": "EPSG:8086",
+   "targetName": "ISN2016",
+   "type": "H"
+  },
+  {
+   "area": [
+    62.5,
+    -26.0,
+    67.5,
+    -12.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "is_lmi_Icegeoid_ISN2004.tif",
+   "sha256": "bd28276ff09bd3c2fa4cd7feccc1253e994d442b4f7a757e2ebbef0a82e37a7b",
+   "size": 453897,
+   "source": "National Land Survey of Iceland",
+   "sourceUrl": "https://atlas.lmi.is/LmiData/index.php?id=626468364600",
+   "targetCrs": "EPSG:8089",
+   "targetName": "ISH2004 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    62.5,
+    -26.0,
+    67.5,
+    -12.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "is_lmi_Icegeoid_ISN2016.tif",
+   "sha256": "13fb17328c0eb14fc9bb62c8bfcfb5c47e24a7b6f3407e8365f2853d92ddc4d7",
+   "size": 485351,
+   "source": "National Land Survey of Iceland",
+   "sourceUrl": "https://atlas.lmi.is/LmiData/index.php?id=626468364600",
+   "targetCrs": "EPSG:8089",
+   "targetName": "ISH2004 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    62.5,
+    -26.0,
+    67.5,
+    -12.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "is_lmi_Icegeoid_ISN93.tif",
+   "sha256": "8a588b926307ddaf1213e8b35c7b5c7e671105631cb4027a82f1488d39681631",
+   "size": 484461,
+   "source": "National Land Survey of Iceland",
+   "sourceUrl": "https://atlas.lmi.is/LmiData/index.php?id=626468364600",
+   "targetCrs": "EPSG:8089",
+   "targetName": "ISH2004 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    20.016667,
+    120.0,
+    50.0,
+    150.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "jp_gsi_gsigeo2011.tif",
+   "sha256": "1b17b754224e1a7ffc8e281591bb33840832b2a04876c51ce50959181b4102e5",
+   "size": 428043,
+   "source": "Geospatial Information Authority of Japan",
+   "sourceUrl": "https://www.gsi.go.jp/",
+   "targetCrs": "EPSG:6695",
+   "targetName": "JGD2011 (vertical) height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.0,
+    120.0,
+    50.0,
+    160.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "jp_gsi_jpgeo2024.tif",
+   "sha256": "0b09d82aa466293107da2ec99b9308e154a7114f9abf0ae10d813504b951352a",
+   "size": 7379285,
+   "source": "Geospatial Information Authority of Japan",
+   "sourceUrl": "https://www.gsi.go.jp/",
+   "targetCrs": "EPSG:6695",
+   "targetName": "JGD2011 (vertical) height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "lv_lgia_lks92to2020.tif",
+   "sha256": "6be363d4796bb3038e751da00e2344593edbb149ed193fc31b9c200688b31498",
+   "size": 20235,
+   "source": "Latvian Geospatial Information Agency",
+   "sourceUrl": "https://www.lgia.gov.lv/",
+   "targetCrs": "EPSG:10305",
+   "targetName": "ETRS89-LVA [LKS-2020]",
+   "type": "H"
+  },
+  {
+   "area": [
+    55.60014,
+    20.90014,
+    58.10014,
+    28.30014
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "lv_lgia_lv14.tif",
+   "sha256": "d87637fa7fb05d9fb66de49a219b08657b2901ce7a579b63672477207ff2151e",
+   "size": 35510,
+   "source": "Latvian Geospatial Information Agency",
+   "sourceUrl": "https://www.lgia.gov.lv/",
+   "targetCrs": "EPSG:7700",
+   "targetName": "Latvia 2000 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    14.02083,
+    -118.97917,
+    32.97917,
+    -86.02083
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "mx_inegi_ggm10.tif",
+   "sha256": "39b1ea1e2505f140655c3ee4aae65fa19e180008cc96dda79ded191a9988d651",
+   "size": 566618,
+   "source": "Instituto Nacional de Estadística, Geografía e Informática (INEGI)",
+   "sourceUrl": "https://www.inegi.org.mx/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -24.0,
+    162.0,
+    -19.0,
+    170.0
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "nc_dittt_RANC15.tif",
+   "sha256": "f3dda72de7f1893f141603e5beaadb3f4d98077ac23864e39ace328a39027827",
+   "size": 333017,
+   "source": "Gouvernement de Nouvelle Calédonie - DITTT",
+   "sourceUrl": "https://dittt.gouv.nc/circe-pour-la-nouvelle-caledonie",
+   "targetCrs": "EPSG:9351",
+   "targetName": "NGNC08 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -24.0,
+    160.0,
+    -19.0,
+    172.0
+   ],
+   "license": {
+    "id": "Etalab-2.0",
+    "name": "Licence Ouverte 2.0 (Etalab)",
+    "open": true,
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/"
+   },
+   "name": "nc_dittt_Ranc08_Circe.tif",
+   "sha256": "acd4056eb83253589d7dccd633350cef2fd65da3e48e5eff91df06d705621955",
+   "size": 1099748,
+   "source": "Gouvernement de Nouvelle Calédonie - DITTT",
+   "sourceUrl": "https://dittt.gouv.nc/circe-pour-la-nouvelle-caledonie",
+   "targetCrs": "EPSG:9351",
+   "targetName": "NGNC08 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    11.0,
+    -71.0,
+    16.0,
+    -67.5
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "nl_nsgi_bongeo2004.tif",
+   "sha256": "e3221ab1b1a0ae567f5e6f7e3200342b84fba4db8560b3813fbdf735dad7291f",
+   "size": 178312,
+   "source": "Nederlandse Samenwerking Geodetische Infrastructuur (NSGI)",
+   "sourceUrl": "https://www.nsgi.nl/",
+   "targetCrs": "EPSG:10763",
+   "targetName": "Bonaire height",
+   "type": "V"
+  },
+  {
+   "area": [
+    50.0,
+    2.0,
+    56.0,
+    8.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "nl_nsgi_nlgeo2018.tif",
+   "sha256": "f8e32c56bf8940fc3fefbc0e413eb4546633ed598b669c63856cddf8328992c0",
+   "size": 246181,
+   "source": "Nederlandse Samenwerking Geodetische Infrastructuur (NSGI)",
+   "sourceUrl": "https://www.nsgi.nl/",
+   "targetCrs": "EPSG:5709",
+   "targetName": "NAP height",
+   "type": "V"
+  },
+  {
+   "area": [
+    50.0,
+    2.0,
+    56.0,
+    8.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "nl_nsgi_nllat2018.tif",
+   "sha256": "c6d69cd5b13e7c8d6e2c2f5cff1dee92a603481d1d25c5532bf2a0b618535c09",
+   "size": 155376,
+   "source": "Nederlandse Samenwerking Geodetische Infrastructuur (NSGI)",
+   "sourceUrl": "https://www.nsgi.nl/",
+   "targetCrs": "EPSG:9287",
+   "targetName": "LAT-NLD depth",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "nl_nsgi_rdcorr2018.tif",
+   "sha256": "978fb0caf0026a4ddd65eb211f797d7240a7dc6810462a66f60b61d5df615bab",
+   "size": 369848,
+   "source": "Nederlandse Samenwerking Geodetische Infrastructuur (NSGI)",
+   "sourceUrl": "https://www.nsgi.nl/",
+   "targetCrs": "",
+   "targetName": "Pseudo Amersfoort, alias pseudo RD Bessel",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "nl_nsgi_rdtrans2018.tif",
+   "sha256": "7653831191b424e715a906468962fc60071cfb71a3186b2a58f098bab8bf41de",
+   "size": 278218,
+   "source": "Nederlandse Samenwerking Geodetische Infrastructuur (NSGI)",
+   "sourceUrl": "https://www.nsgi.nl/",
+   "targetCrs": "EPSG:9067",
+   "targetName": "ETRF2000",
+   "type": "H"
+  },
+  {
+   "area": [
+    57.0,
+    4.0,
+    72.0,
+    32.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "no_kv_CD_above_Ell_ETRS89_v2023b.tif",
+   "sha256": "4cfa3faaccd8e33a54cca404f5cf533b905648893772c81cc755f82ab83f912a",
+   "size": 2900030,
+   "source": "Kartverket (SK)",
+   "sourceUrl": "https://www.kartverket.no/",
+   "targetCrs": "EPSG:9672",
+   "targetName": "CD Norway depth",
+   "type": "V"
+  },
+  {
+   "area": [
+    57.8,
+    4.0,
+    72.0,
+    32.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "no_kv_HREF2018B_NN2000_EUREF89.tif",
+   "sha256": "112a42506e079a9c3f7a7a134729e4160494b101f5a9a8bcd6f5e99852b52275",
+   "size": 269504,
+   "source": "Kartverket (SK)",
+   "sourceUrl": "https://www.kartverket.no/",
+   "targetCrs": "EPSG:5941",
+   "targetName": "NN2000:2018 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    57.8,
+    4.0,
+    72.0,
+    32.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "no_kv_HREF2025A_NN2000_EUREF89.tif",
+   "sha256": "6005c5bfb7c6b87e4dbb4c4f75fa589bd8fbceef71b711220bf173fab5fbb9f7",
+   "size": 299597,
+   "source": "Kartverket (SK)",
+   "sourceUrl": "https://www.kartverket.no/",
+   "targetCrs": "EPSG:11394",
+   "targetName": "NN2000:2025 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    73.0,
+    0.0,
+    83.0048,
+    40.0882
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "no_kv_Svalbard_EUREF89_SVD2024.tif",
+   "sha256": "01a1f422924fbe888cdfcf94feea42dde875460ce19fd695fcec75a1781d8dff",
+   "size": 237115,
+   "source": "Kartverket (SK)",
+   "sourceUrl": "https://www.kartverket.no/",
+   "targetCrs": "EPSG:10999",
+   "targetName": "SVD2024 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    76.208333,
+    -3.916667,
+    81.125,
+    37.916667
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "no_kv_arcgp-2006-sk.tif",
+   "sha256": "9b5adc09bab6616ad21bc135146d34d08a284a4eea532859c742854bc28de25a",
+   "size": 38148,
+   "source": "Kartverket (SK)",
+   "sourceUrl": "https://www.kartverket.no/",
+   "targetCrs": "EPSG:20000",
+   "targetName": "SVD2006 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    53.0,
+    1.0,
+    73.0,
+    33.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "no_kv_href2008a.tif",
+   "sha256": "c93cf10e5aac7292fd8618496cb512094c91cb9568986a598c79b092a507d0cb",
+   "size": 187292,
+   "source": "Kartverket (SK)",
+   "sourceUrl": "https://www.kartverket.no/",
+   "targetCrs": "EPSG:5776",
+   "targetName": "NN54 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "nz_linz_nzgd2kgrid0005.tif",
+   "sha256": "d4d9649bfbc55bbbeb7636fa26f300045123d97a3ab01dec3bf2982eae86cbb2",
+   "size": 197302,
+   "source": "Land Information New Zealand",
+   "sourceUrl": "https://www.linz.govt.nz/",
+   "targetCrs": "EPSG:4167",
+   "targetName": "NZGD2000",
+   "type": "H"
+  },
+  {
+   "area": [
+    -60.0,
+    160.0,
+    -25.0,
+    180.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "nz_linz_nzgeoid2009.tif",
+   "sha256": "d3b60ad5ad1066a72bab43a29c8d50f55d750665bd8dc516511aef1f1cbc58d6",
+   "size": 4307079,
+   "source": "Land Information New Zealand",
+   "sourceUrl": "https://www.linz.govt.nz/",
+   "targetCrs": "EPSG:4440",
+   "targetName": "NZVD2009 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -60.0,
+    160.0,
+    -25.0,
+    180.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "nz_linz_nzgeoid2016.tif",
+   "sha256": "b986261d778e30b52b7d9ae24280c704c280c13bb02e51f3dca65fa862d1f027",
+   "size": 5232082,
+   "source": "Land Information New Zealand",
+   "sourceUrl": "https://www.linz.govt.nz/",
+   "targetCrs": "EPSG:7839",
+   "targetName": "NZVD2016 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.0,
+    14.05,
+    54.88,
+    24.2
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "pl_gugik_geoid2011-PL-EVRF2007-NH.tif",
+   "sha256": "345a7fb62adffab6c8e864b18239d64e519d19b815418c5af522a254630e3182",
+   "size": 699407,
+   "source": "Główny Urząd Geodezji i Kartografii (GUGiK)",
+   "sourceUrl": "https://www.gov.pl/web/gugik/",
+   "targetCrs": "EPSG:9651",
+   "targetName": "PL-EVRF2007 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.0,
+    14.05,
+    54.88,
+    24.2
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "pl_gugik_geoid2011-PL-KRON86-NH.tif",
+   "sha256": "16bb69272fdce5e812f7d1c81facd3fb0bf1489e298cbdf82abfe7e73690daa8",
+   "size": 661511,
+   "source": "Główny Urząd Geodezji i Kartografii (GUGiK)",
+   "sourceUrl": "https://www.gov.pl/web/gugik/",
+   "targetCrs": "EPSG:9650",
+   "targetName": "Baltic 1986 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    48.0,
+    13.0,
+    56.0,
+    25.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "pl_gugik_geoid2021-PL-EVRF2007-NH.tif",
+   "sha256": "8b806d084296c0b8070a9cc9ad6d28218141e089e3ff0573254870447f361788",
+   "size": 1033566,
+   "source": "Główny Urząd Geodezji i Kartografii (GUGiK)",
+   "sourceUrl": "https://www.gov.pl/web/gugik/",
+   "targetCrs": "EPSG:9651",
+   "targetName": "PL-EVRF2007 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "pt_dgt_D73_ETRS89_geo.tif",
+   "sha256": "802c7f4702e2fcf68b8720028182513efdd2af3d5154487ac2e225c188e02e07",
+   "size": 222863,
+   "source": "DG Territorio",
+   "sourceUrl": "http://www.dgterritorio.pt/",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "pt_dgt_DLx_ETRS89_geo.tif",
+   "sha256": "a2581158f257b86712d884d003a3d55f013f5fed07a2afc9865a35b08e462d9a",
+   "size": 217126,
+   "source": "DG Territorio",
+   "sourceUrl": "http://www.dgterritorio.pt/",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "area": [
+    36.5125,
+    -10.0125,
+    42.2375,
+    -5.9875
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "pt_dgt_GeodPT08.tif",
+   "sha256": "8c006ae3afa037c214d30e7ec97736452705773ccb663274e003ced1d08ccaa0",
+   "size": 81638,
+   "source": "DG Territorio",
+   "sourceUrl": "http://www.dgterritorio.pt/",
+   "targetCrs": "EPSG:5780",
+   "targetName": "Cascais height",
+   "type": "V"
+  },
+  {
+   "area": [
+    54.0,
+    10.0,
+    70.0,
+    25.0
+   ],
+   "license": {
+    "id": "CC0-1.0",
+    "name": "Creative Commons CC0 1.0 (dominio público)",
+    "open": true,
+    "url": "https://creativecommons.org/publicdomain/zero/1.0/"
+   },
+   "name": "se_lantmateriet_SWEN17_RH2000.tif",
+   "sha256": "c5160019c9d2f64e0379e7725be795952b5005759e6f51e5322f6607af92a5a3",
+   "size": 2317290,
+   "source": "Lantmäteriet",
+   "sourceUrl": "https://www.lantmateriet.se/",
+   "targetCrs": "EPSG:5613",
+   "targetName": "RH2000 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    45.0,
+    13.0,
+    47.0,
+    17.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "si_gurs_SLO-VRP2016-Koper.tif",
+   "sha256": "abb9ab27b06c803a53a89e195889d8ff3225ef9f1c9241fc3747fb2cd4d7ca23",
+   "size": 145428,
+   "source": "Geodetska uprava Republika Slovenija (GURS)",
+   "sourceUrl": "http://www.gu.gov.si",
+   "targetCrs": "EPSG:8690",
+   "targetName": "SVS2010 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "sk_gku_JTSK03_to_JTSK.tif",
+   "sha256": "e51fea1de2103b80cb843a01b168e4613f9ec0165d4aecbb93c389db6946078e",
+   "size": 183132,
+   "source": "Geodetický a kartografický ústav Bratislava (GKU)",
+   "sourceUrl": "https://www.geoportal.sk/en/",
+   "targetCrs": "EPSG:4156",
+   "targetName": "S-JTSK",
+   "type": "H"
+  },
+  {
+   "area": [
+    47.50278,
+    16.50417,
+    49.99722,
+    22.99583
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "sk_gku_Slovakia_ETRS89h_to_Baltic1957.tif",
+   "sha256": "d280e6f7f6c84714d4c060519cf2213a43c0f9064f2cd3de23265a2671c7e865",
+   "size": 489881,
+   "source": "Geodetický a kartografický ústav Bratislava (GKU)",
+   "sourceUrl": "https://www.geoportal.sk/en/",
+   "targetCrs": "EPSG:8360",
+   "targetName": "ETRS89 + Baltic 1957 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    47.508328,
+    16.512497,
+    49.991662,
+    22.987503
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "sk_gku_Slovakia_ETRS89h_to_EVRF2007.tif",
+   "sha256": "5aaa74996dbf0aab2d2eed82679541e735817f7cb5163500b4e350bde7ecc3e5",
+   "size": 600067,
+   "source": "Geodetický a kartografický ústav Bratislava (GKU)",
+   "sourceUrl": "https://www.geoportal.sk/en/",
+   "targetCrs": "EPSG:7423",
+   "targetName": "ETRS89 + EVRF2007 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    51.0,
+    -11.5,
+    55.999875,
+    -5.0
+   ],
+   "license": {
+    "id": "BSD-2-Clause",
+    "name": "BSD de 2 cláusulas",
+    "open": true,
+    "url": "https://opensource.org/licenses/bsd-license.php"
+   },
+   "name": "uk_os_OSGM15_Belfast.tif",
+   "sha256": "5ea798dd6f1a5f9e566fc03945777cef95b8bc6730e49c0e54ef801f570e98b4",
+   "size": 212230,
+   "source": "Ordnance Survey",
+   "sourceUrl": "https://www.ordnancesurvey.co.uk/",
+   "targetCrs": "EPSG:5732",
+   "targetName": "Belfast height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.767649,
+    -9.392255,
+    61.131388,
+    3.548765
+   ],
+   "license": {
+    "id": "BSD-2-Clause",
+    "name": "BSD de 2 cláusulas",
+    "open": true,
+    "url": "https://opensource.org/licenses/bsd-license.php"
+   },
+   "name": "uk_os_OSGM15_GB.tif",
+   "sha256": "bf0ac81f1c0c33332693d7d606f335b793c3c2995b8e69eeb1350bd94adcde3b",
+   "size": 1540925,
+   "source": "Ordnance Survey",
+   "sourceUrl": "https://www.ordnancesurvey.co.uk/",
+   "targetCrs": "EPSG:5701",
+   "targetName": "ODN height",
+   "type": "V"
+  },
+  {
+   "area": [
+    51.0,
+    -11.5,
+    55.999875,
+    -5.0
+   ],
+   "license": {
+    "id": "BSD-2-Clause",
+    "name": "BSD de 2 cláusulas",
+    "open": true,
+    "url": "https://opensource.org/licenses/bsd-license.php"
+   },
+   "name": "uk_os_OSGM15_Malin.tif",
+   "sha256": "97db4aede0707ca91721a7d43973a4d27df6b50b96568b901bd56e441818c508",
+   "size": 213730,
+   "source": "Ordnance Survey",
+   "sourceUrl": "https://www.ordnancesurvey.co.uk/",
+   "targetCrs": "EPSG:5731",
+   "targetName": "Malin Head height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "BSD-2-Clause",
+    "name": "BSD de 2 cláusulas",
+    "open": true,
+    "url": "https://opensource.org/licenses/bsd-license.php"
+   },
+   "name": "uk_os_OSTN15_NTv2_OSGBtoETRS.tif",
+   "sha256": "5d6ed64d2119952c4c559fa1fccbc594b6520fc3ec3ef2fc10be13202c4384fa",
+   "size": 3035814,
+   "source": "Ordnance Survey",
+   "sourceUrl": "https://www.ordnancesurvey.co.uk/",
+   "targetCrs": "EPSG:4258",
+   "targetName": "ETRS89",
+   "type": "H"
+  },
+  {
+   "area": [
+    -90.0,
+    -180.0,
+    90.0,
+    179.958333
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_nga_egm08_25.tif",
+   "sha256": "4191d471eefebf24091b56dbc604353cb3b8cf8cc70e448bb9ae56a272bef17a",
+   "size": 80585622,
+   "source": "US National Geospatial Intelligence Agency (NGA)",
+   "sourceUrl": "http://earth-info.nga.mil/",
+   "targetCrs": "EPSG:3855",
+   "targetName": "EGM2008 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -90.0,
+    -180.0,
+    90.0,
+    179.75
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_nga_egm96_15.tif",
+   "sha256": "db493027562c9b004d7220fa881f5603adada4e1c5029b933fa7de4547b0e78d",
+   "size": 2710815,
+   "source": "US National Geospatial Intelligence Agency (NGA)",
+   "sourceUrl": "http://earth-info.nga.mil/",
+   "targetCrs": "EPSG:5773",
+   "targetName": "EGM96 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_FL.tif",
+   "sha256": "73b385448f09e6c1122a87b5b3137a5b5775585af9445889e0a3a8c4c5951f54",
+   "size": 8374,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_MD.tif",
+   "sha256": "5fbd598aae641ea71da6a195e95f53326fe3e91fab0e4fefe571281543ef70d4",
+   "size": 4261,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_TN.tif",
+   "sha256": "ced4122db495b5fa8e85e50814ef1a25751fb5ae213f55f7d4bc45a62657082e",
+   "size": 5014,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_WI.tif",
+   "sha256": "510dd3b23199908be7505f595ee1dbcbaad7035e2d6ab5c2895c99bd10c10113",
+   "size": 6963,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_WO.tif",
+   "sha256": "e6380daed501df8cfbb38149accb8b731e7b00e21368b2a8f6f696ac4eeb5f06",
+   "size": 10706,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_alaska.tif",
+   "sha256": "9d29d595b66e2316411af73993fbb6cc298e2917ef3ca88ab2f80b22b147d653",
+   "size": 524798,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_alhpgn.tif",
+   "sha256": "bc633833c2b03ec4c9776c7b89952e6a50e926f9cc1202302bb9e36df8e93383",
+   "size": 5677,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_arhpgn.tif",
+   "sha256": "32f78e3c67f2b694da36b8b9b2e1354f9922454e13a56ae9ac35995c8fe03954",
+   "size": 4915,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_azhpgn.tif",
+   "sha256": "8f68eab36ba65b54e87b850a83f14eddab08b9a0d85abf70c912838beb06d038",
+   "size": 8939,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_c1hpgn.tif",
+   "sha256": "d6f4d97ed6be5df957d97b6efaad3587ff345fd544454cca604b0d8c3c52e477",
+   "size": 3463,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_c2hpgn.tif",
+   "sha256": "0a8fbdae79524e93d19a5d471939c8270c1a907b770daf5b6b6493a58d71d7b1",
+   "size": 2652,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_cnhpgn.tif",
+   "sha256": "b9e16220b797202ef9bdc32b7854d57612eb3574dbb2c19ee8dbe940c1663d6f",
+   "size": 10297,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_cohpgn.tif",
+   "sha256": "0d002da6a77b8a15196d76fe459bab0a4e70591d049d5e66a7da489bbd00c001",
+   "size": 7833,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_conus.tif",
+   "sha256": "44611d823c48e5347500ee6afe40ff33d2b88cf817bf59f705ed4a4c3bd687d7",
+   "size": 173029,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_cshpgn.tif",
+   "sha256": "d54183c832e0366fc558147961bd8ae7d0dd3b5ae945069afd6a37a5a5c604c9",
+   "size": 6834,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_emhpgn.tif",
+   "sha256": "9f3134f54561b40f5a6ca0ca9516f3d12c08fd328786e5bb29488ab207c3e83a",
+   "size": 11572,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_eshpgn.tif",
+   "sha256": "a46f8bc94c30e0200f3f90a9c62f3c3980a1e06f328e0cb9f20be95f1dd974c4",
+   "size": 3006,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_ethpgn.tif",
+   "sha256": "e8770d6987bd9afd6136870edc9793389a1d0037da784af1f02186af39c1a6da",
+   "size": 13442,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_flhpgn.tif",
+   "sha256": "1ee37eab19060d15d7dbfe59635ebf303b2648ee201cb0d5aea8b6ec8cb63082",
+   "size": 8414,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "area": [
+    60.0,
+    172.0,
+    72.0,
+    204.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999a01.tif",
+   "sha256": "6fff04234bb8ac16ac9b064458b3089d548a4a911f15e18289e4a01919d88108",
+   "size": 2907950,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    60.0,
+    202.0,
+    72.0,
+    234.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999a02.tif",
+   "sha256": "bd2d27c4a60eb3509c535ca7ad8f3eecbddf89d38920020ba3d12ca538326872",
+   "size": 3074260,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.0,
+    172.0,
+    61.0,
+    204.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999a03.tif",
+   "sha256": "c0a74cc218d918894f270f07328feeeab5d32d85492c490a7748ebad7911e66a",
+   "size": 3025495,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.0,
+    202.0,
+    61.0,
+    234.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999a04.tif",
+   "sha256": "d784cfe74bb7abcafea3125ff0482e73f9794919622655ff3257ea26e8e20eaf",
+   "size": 3055514,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    18.0,
+    199.0,
+    24.0,
+    206.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999h01.tif",
+   "sha256": "5f75aeef2563af2ad7e13f70f7ebcadab2f0baf896b494bbc94af53ad108fa7a",
+   "size": 373875,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.0,
+    291.0,
+    21.0,
+    296.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999p01.tif",
+   "sha256": "7d6b707eb49bbb6efd6632fb39a65bb690794c3b37e5f7ce2e61e71455f52b0d",
+   "size": 221243,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    40.0,
+    230.0,
+    58.0,
+    249.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999u01.tif",
+   "sha256": "0024a06903adf1d28f369071dae83b42ccb8acf2003cedea66a810ca42ef374e",
+   "size": 2635842,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    40.0,
+    247.0,
+    58.0,
+    266.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999u02.tif",
+   "sha256": "083a22c0e537974e01b86e1005787aadc95b5e1d0848d306e64010f870089554",
+   "size": 2309067,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    40.0,
+    264.0,
+    58.0,
+    283.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999u03.tif",
+   "sha256": "02f374fa1622d5c801e9594e33909924b706d7e385892896f73cbdef638672c7",
+   "size": 2050801,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    40.0,
+    281.0,
+    58.0,
+    300.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999u04.tif",
+   "sha256": "bec9499a44c9b064241d47940a7cda606dbe46264344dd262fac4e708aab7ade",
+   "size": 2297568,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    24.0,
+    230.0,
+    42.0,
+    249.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999u05.tif",
+   "sha256": "3b9325111c21b42e4e254ff1455db825587abc530188a94f9628321969797139",
+   "size": 2366576,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    24.0,
+    247.0,
+    42.0,
+    266.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999u06.tif",
+   "sha256": "290f3c6480473d7ab5b533bf96e922c390a3b358460796512baaf5a4039a6c8e",
+   "size": 2594890,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    24.0,
+    264.0,
+    42.0,
+    283.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999u07.tif",
+   "sha256": "e4440be31dd0cc714d9b87466d86d1e9aca5a508b4ea5723a97ec183854ec21c",
+   "size": 2421836,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    24.0,
+    281.0,
+    42.0,
+    300.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g1999u08.tif",
+   "sha256": "3744635a744d94dbce1e31b2f4147788ff1942d6731864e2b1be70246c9c240b",
+   "size": 2261614,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    60.0,
+    172.0,
+    72.0,
+    204.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2003a01.tif",
+   "sha256": "ad4128cc5b99696220c4f52680e5bf608830313ff830cf6bf7e621fbab4f0b80",
+   "size": 3055187,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    60.0,
+    202.0,
+    72.0,
+    234.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2003a02.tif",
+   "sha256": "e64ddec688bfc4a36160cc55301def0f4f7e513aec9e6ba1c639f8a875c2c6f0",
+   "size": 3101097,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.0,
+    172.0,
+    61.0,
+    204.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2003a03.tif",
+   "sha256": "428e7bd959422802b3a636524701c3e5a32c7bc4cf897686fb6e7d75fe837394",
+   "size": 3098533,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.0,
+    202.0,
+    61.0,
+    234.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2003a04.tif",
+   "sha256": "640920827bf55723e26cadde5ea6bb0eb8cbdb47d5410b71c6b3b22e33f1a2fa",
+   "size": 3092586,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    18.0,
+    199.0,
+    24.0,
+    206.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2003h01.tif",
+   "sha256": "1ccabf59e65de121d41c75e5e2fc1bc4c037be6f304dcc854ca52e40fa81f427",
+   "size": 375145,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.0,
+    291.0,
+    21.0,
+    296.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2003p01.tif",
+   "sha256": "291b3a708d841da78dfa273e14caa0406863c485a7fcdf67b9c9f3e9bb30e9da",
+   "size": 222980,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    11.0,
+    143.0,
+    18.0,
+    146.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2009g01.tif",
+   "sha256": "8f998bacda5ae1d63064cddb6da633ef8187aaa14fb54555cd8889f6c993d38e",
+   "size": 159961,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6644",
+   "targetName": "GUVD04 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    18.0,
+    199.0,
+    24.0,
+    206.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2009h01.tif",
+   "sha256": "b4634bc2e4fa663b34266a3d1e2f7ca850e836d858a9bae29318df60116b3ecb",
+   "size": 373094,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.0,
+    291.0,
+    21.0,
+    296.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2009p01.tif",
+   "sha256": "f55ba5c66b1c425175fc59d9421f773171276736438df13d74152bffd422f7bd",
+   "size": 225100,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6641",
+   "targetName": "PRVD02 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -17.0,
+    186.0,
+    -11.0,
+    192.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2009s01.tif",
+   "sha256": "94aed68e731cd450a02431afe2b4fe40587b25984af4ec992f5fb981d8fb7790",
+   "size": 286662,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6643",
+   "targetName": "ASVD02 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.0,
+    172.0,
+    72.0,
+    234.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2012ba0.tif",
+   "sha256": "3b854ebf5aac8442426665a033bea918249c570cd355d99b812e3ec59b4b9e41",
+   "size": 11342483,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    11.0,
+    143.0,
+    18.0,
+    146.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2012bg0.tif",
+   "sha256": "a4a80f1762b18418f32f44cf27ee911403e9d67def6e1948de74f0f5e8958e1a",
+   "size": 159856,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6644",
+   "targetName": "GUVD04 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    18.0,
+    199.0,
+    24.0,
+    206.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2012bh0.tif",
+   "sha256": "7365e5bd205a2ab20a905d635b82981f8d34a1907d06c3b71e7f26eefea9da8a",
+   "size": 372580,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.0,
+    291.0,
+    21.0,
+    296.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2012bp0.tif",
+   "sha256": "63f7950759f97a226848f92469504c3e55ed97e45edb6993e48fe4c401db4ed6",
+   "size": 224847,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6641",
+   "targetName": "PRVD02 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    -17.0,
+    186.0,
+    -11.0,
+    192.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2012bs0.tif",
+   "sha256": "df47cd60d5d658b02c594159c9c70eaa5eaf99f62716547d49dd79dd31c9c43e",
+   "size": 286060,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6643",
+   "targetName": "ASVD02 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    24.0,
+    230.0,
+    58.0,
+    300.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2012bu0.tif",
+   "sha256": "954b4959720955ba781a015b8001017ce0c3c0895953991fc731594d58db4af1",
+   "size": 17033175,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    15.0,
+    291.0,
+    21.0,
+    296.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2018p0.tif",
+   "sha256": "a654a89cfc0d220620cad4e41fc076f9b4ed6e46edbf2ce373f6a0e75746cee8",
+   "size": 218771,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6641",
+   "targetName": "PRVD02 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    24.0,
+    230.0,
+    58.0,
+    300.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_g2018u0.tif",
+   "sha256": "fa9a407ac7ee3f5a3694008e4bcd09ce9cc250452f0c3b11700a4960340abce2",
+   "size": 16742155,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_gahpgn.tif",
+   "sha256": "3a3c92152c78a672e5db5a547cb88d99fb507df7a4eae28094c6b850f4e3ada5",
+   "size": 5639,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "area": [
+    24.0,
+    230.0,
+    58.0,
+    300.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_geoid03_conus.tif",
+   "sha256": "817ef0ffc124bfb32865f61faa3da8a739e3b8e350b3adad0bba681c04ef53d8",
+   "size": 16451024,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.0,
+    172.0,
+    72.0,
+    234.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_geoid06_ak.tif",
+   "sha256": "64dfa3784540d0173f9e27f62452ac78f1cd463107e1cc6f04e0114d21ec47b8",
+   "size": 11478497,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    49.0,
+    172.0,
+    72.0,
+    234.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_geoid09_ak.tif",
+   "sha256": "821ecf64d7d778f17732ff691f50596f6d14c0e60aca7bed62d57c7b7ca6a8db",
+   "size": 11279068,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "area": [
+    24.0,
+    230.0,
+    58.0,
+    300.0
+   ],
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_geoid09_conus.tif",
+   "sha256": "242fc647f18faaa5705bd30900bcdd37fc62310f026ae9891fe634b3d565a253",
+   "size": 16767965,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:5703",
+   "targetName": "NAVD88 height",
+   "type": "V"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_guhpgn.tif",
+   "sha256": "60247e948b1b2b3c2b49a08a4538023eae3e1f3764a937e8d99247556f268f4e",
+   "size": 3396,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_hawaii.tif",
+   "sha256": "9b6ea84f0d1e8cbf619aec5eb361bb735b95bf42c5f5085c3342d2e53d2bbfe6",
+   "size": 192395,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_hihpgn.tif",
+   "sha256": "a2edd930e712b354a2ed17007f7b169aa6fd5c1be469fbf08d65c5a2e0a637ca",
+   "size": 6476,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_iahpgn.tif",
+   "sha256": "9ac4e2b746f62c6c2f144ecfd40140fb8ede9a04463f69f5ac9a6039cff40bac",
+   "size": 5668,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_ilhpgn.tif",
+   "sha256": "8f38ea4e748bf04f055b9d4a7e050a44a8459e32406c04b79e8c4e9f4af82c0a",
+   "size": 6882,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_inhpgn.tif",
+   "sha256": "b63480641873db4f809bf215a9b674062a266b5e323b2cded297185da0f0062d",
+   "size": 9013,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_kshpgn.tif",
+   "sha256": "3432226d84cb4a4d50ef845c7421383114d17e8c7cc8d1fe10956b8a793b535b",
+   "size": 6569,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_kyhpgn.tif",
+   "sha256": "65f84e74139f94172d1d36f69318606ee4a48955cc0da1d606c0353b688a359a",
+   "size": 5597,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_lahpgn.tif",
+   "sha256": "c9d6b199efe85542284aa4a8e60f535622b255ee0308e7302cbccd39dc4531c8",
+   "size": 6978,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_mdhpgn.tif",
+   "sha256": "cb45884c0696bb5fbec19f146510bdfadf9376e5d98fa9019abe72429cf570b0",
+   "size": 4315,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_mehpgn.tif",
+   "sha256": "cd1acafba5df39ec7223a0ba85e3bb9f7c9920db97d9c3edf745312e82f96d29",
+   "size": 5618,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_mihpgn.tif",
+   "sha256": "e95779ef4a9fd68bcd581c2619ec3d655de42745df94ae22dc2c329f664e91e3",
+   "size": 8512,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_mnhpgn.tif",
+   "sha256": "e6b5da45fea4fa0f050a5656e34379e81c5175e90bf535b8a8498dbdb1e4554c",
+   "size": 9324,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_mohpgn.tif",
+   "sha256": "b48ba99bb4d5700867e818d39133ab3690e236179aa99389b12f44d8607013f6",
+   "size": 8395,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_mshpgn.tif",
+   "sha256": "4ad12861689b8c71e0b11b5b47c7ea033d195dcf1dd433e6b20facbb54df7159",
+   "size": 6108,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_as62_nad83_1993_as.tif",
+   "sha256": "917ea0277d17829326eb44e6114c92fe24cfafdedf4e7e4b87e8b985f1dbf0b0",
+   "size": 132091,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_gu63_nad83_1993_guamcnmi.tif",
+   "sha256": "b52ce61a85307ae2efe8229df27fe6169c74bec2da82973e47117f2d06e50291",
+   "size": 16246,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad27_nad83_1986_alaska.tif",
+   "sha256": "5a71a9bcd73ad0011561d72288e100917bfe6295673e524008b295acbef2447c",
+   "size": 29603,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad27_nad83_1986_conus.tif",
+   "sha256": "c7d587e0d0b39b9f46c7de850b9a6a468c17b7139f82a313aa43aa4a64d94fa8",
+   "size": 139914,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_1986_nad83_1992_alaska.tif",
+   "sha256": "4aa27b7bac1a6828f1b173606074f6fba23d3d089a6d4d9eee6ddad555598ea6",
+   "size": 122303,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_1986_nad83_1993_hawaii.tif",
+   "sha256": "1f3b03ff38b254b69f770905b2eec21f53fecf01e4eb10484e0a1376618f40fb",
+   "size": 598556,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_1986_nad83_1993_prvi.tif",
+   "sha256": "535c1b64e7074a0cf981f09c68f33ce13d44f7e0dadbc273dc3425c7390af1f7",
+   "size": 9657,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif",
+   "sha256": "e12ac2e886edafe616e0994c610ad3daa01db17c00d0e9938145d956f249fc2f",
+   "size": 3522682,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_1992_nad83_2007_alaska.tif",
+   "sha256": "cbc1b934f36c23f59fabb912fb1a3993e6d07e161d04066bccce2805380e632d",
+   "size": 505853,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4893",
+   "targetName": "NAD83(NSRS2007)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_1993_nad83_1997_prvi.tif",
+   "sha256": "942f9b75f5f77eb1c870be7a1fe1c5427d097929eb4bb853c16c68af4fc2187e",
+   "size": 177977,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:8544",
+   "targetName": "NAD83(HARN Corrected)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_1993_nad83_pa11_hawaii.tif",
+   "sha256": "c037823e79fc2fa344b8c85c93f5053018e2b127dee33c409a47ce26e9be6511",
+   "size": 364391,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6321",
+   "targetName": "NAD83(PA11)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_1997_nad83_2002_prvi.tif",
+   "sha256": "6310b6f3553da92f051ecf50f1e11c29896a50a15de78d20a295a8827babd4ae",
+   "size": 21353,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:8542",
+   "targetName": "NAD83(FBN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_2002_nad83_ma11_guamcnmi.tif",
+   "sha256": "657363b09b5b77a580a45a66a32dbd121476c70afe5b16d7989becd43770f4d6",
+   "size": 96703,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6324",
+   "targetName": "NAD83(MA11)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_nad83_2007_nad83_2011_alaska.tif",
+   "sha256": "9cc635c2f220b94c765ee917cd713c9707a113a83fb708e50136e9d90afa463f",
+   "size": 1012399,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:6319",
+   "targetName": "NAD83(2011)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_ohd_nad83_1986_hawaii.tif",
+   "sha256": "2f1679167e4343f0585448e9f1afb29f53f2fe6534c1be2075c5482fcba7c33d",
+   "size": 384810,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_pr40_nad83_1986_prvi.tif",
+   "sha256": "91a00353598a30ffc24d3d00e3295da0a95ee378cc3dbcc1d149c6c75ace3931",
+   "size": 7669,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_sg1952_nad83_1986_stgeorge.tif",
+   "sha256": "bf11ee3e7c2ac25113cdc4cd919284b39448b7b3e2d65dd320180a2c6994e852",
+   "size": 6262,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_sl1952_nad83_1986_stlawrence.tif",
+   "sha256": "1daf1b12b009815d831743590fd0d1b85b9ac6a32175f354000487a0462b407f",
+   "size": 72890,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nadcon5_sp1952_nad83_1986_stpaul.tif",
+   "sha256": "7aafd2b9b0ed2bb798da5a8a1ee7a254acf308561e2c2d2684d4ad84d1d966b9",
+   "size": 8658,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nbhpgn.tif",
+   "sha256": "c35441d18f474326541d6c8b5063cc19d406a964ac1f6bdaa3cdbd76cf61408d",
+   "size": 6138,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nchpgn.tif",
+   "sha256": "73b99e6f483ce2b93c870503342061b44729b76eb3ec61cc780d93b21a18a8fd",
+   "size": 7031,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_ndhpgn.tif",
+   "sha256": "fda3136270832d54029fde5697724efa3ac6029196ce66e832818812ea6e24f7",
+   "size": 7210,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nehpgn.tif",
+   "sha256": "e243921d524576f4fd2826eb25da4cda278acb62702ff5e8115620661961af6d",
+   "size": 5665,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_njhpgn.tif",
+   "sha256": "ecd22a5fa116c7a63d4f34402990a246e0253867ccf8a262b3a19e9513dabb3e",
+   "size": 5241,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nmhpgn.tif",
+   "sha256": "095d44d817f6cf784af8f0e98a22160c5600b6d4313904592ce3f06c0accccdf",
+   "size": 8798,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nvhpgn.tif",
+   "sha256": "b50f3fb0d463157c29d19fc62cc4d21000312ba41b816bdfb39b227570e500c7",
+   "size": 7953,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_nyhpgn.tif",
+   "sha256": "0ad8982a7c3aff423aff0c29cfbaba3505486b36fd16c4920db0fb24685bb31b",
+   "size": 8896,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_ohhpgn.tif",
+   "sha256": "6f19a47530304b267b7755ece44bff786007282358444fb50718f740cb805bef",
+   "size": 4825,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_okhpgn.tif",
+   "sha256": "f3342bfe56e98fff0a58b7f9f4b35d953062ecddabe5e94c6c2352c3208f23e5",
+   "size": 7105,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_pahpgn.tif",
+   "sha256": "13343c65f159496e5d2bafa5e0e24c813bbcce457fa77c2da3a53a024433b2c2",
+   "size": 6049,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_prvi.tif",
+   "sha256": "b2d96872b2600324eb1df8edd2af61cac747f4732e10bbde0152bb0857a657e2",
+   "size": 14254,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_pvhpgn.tif",
+   "sha256": "a6db010f956526a011ba719c45fe32e5aff987eeb1cb03f2b8338208a77c619d",
+   "size": 3644,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_schpgn.tif",
+   "sha256": "398eca90b8d681903bfe55fae7169f4218f310e1d68ee829976036f31949522c",
+   "size": 4833,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_sdhpgn.tif",
+   "sha256": "49e3e666fe2440ca48183269025d35ccf662f08f3bd41d1ba96679de61f31ebb",
+   "size": 8165,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_stgeorge.tif",
+   "sha256": "8d34c59a8f0d700b1b723b146c6a24ca6634fc6773beede4219e4ddd7c92f07b",
+   "size": 23298,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_stlrnc.tif",
+   "sha256": "f4d4ea213072b7c02bd463ee2a1305479a60c7eba2615f008df65a3b29ace749",
+   "size": 15591,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_stpaul.tif",
+   "sha256": "c293a6c1ac33d3cfe41dd911c1c0ea813c429c29e0d56574048318c5392b58df",
+   "size": 4778,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4269",
+   "targetName": "NAD83",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_tnhpgn.tif",
+   "sha256": "ab3faaab7bc0902b2e67bdc5f26c7cd6382ac197abf025b50492161ecbcdddc5",
+   "size": 5056,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_uthpgn.tif",
+   "sha256": "bcfa3dcb9f0e09093c3040ba5d0ea6f46d97b9eff105fdb4d7545044b27da774",
+   "size": 7715,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_vahpgn.tif",
+   "sha256": "bc2e580f1995f3d3c15ea666db6cde24c42dcff35e51713af384826489e83dcf",
+   "size": 5652,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_wihpgn.tif",
+   "sha256": "c773bcab3581b0f653b59ca73bb9da199ff79ec740ee16438c43a7906699cd45",
+   "size": 7002,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_wmhpgn.tif",
+   "sha256": "2aa20b5f626de83639c1be455760b4c274bd4e6c53b35c667de7b244fe77fffd",
+   "size": 11640,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_wohpgn.tif",
+   "sha256": "82671b47a4b46935a8ef0b4c5aef4d45fe5b71ea0a45461c2390cb8d8e762f62",
+   "size": 10761,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_wshpgn.tif",
+   "sha256": "fffe46133cce0b3274a91381028113dec272fe14ab8bf0a3ded63cd0cab83aad",
+   "size": 3026,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_wthpgn.tif",
+   "sha256": "02b8eef84fc115386673a60757db3b64c324c14e00137a129176753b5438b356",
+   "size": 12089,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_wvhpgn.tif",
+   "sha256": "31e156295321a3a07f0107fbb50714637d721e3da924b522172a73f20b9c5e81",
+   "size": 5471,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "license": {
+    "id": "PD",
+    "name": "Dominio público",
+    "open": true,
+    "url": ""
+   },
+   "name": "us_noaa_wyhpgn.tif",
+   "sha256": "8e139820659ce2ae6d6fd6c05183e2676fd6a9475559a9e6d8ca792688890d8c",
+   "size": 5889,
+   "source": "US National Oceanographic and Atmospheric Administration (NOAA)",
+   "sourceUrl": "https://www.ngs.noaa.gov/",
+   "targetCrs": "EPSG:4152",
+   "targetName": "NAD83(HARN)",
+   "type": "H"
+  },
+  {
+   "area": [
+    -35.0,
+    16.0,
+    -22.0,
+    33.0
+   ],
+   "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Atribución 4.0",
+    "open": true,
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+   },
+   "name": "za_cdngi_sageoid2010.tif",
+   "sha256": "3e13e63b3c4b8f09792898bfaf6f8510f9a590d3af366f8eec169d2acbc59a1e",
+   "size": 302096,
+   "source": "Chief Directorate: National Geospatial Information (CD:NGI)",
+   "sourceUrl": "http://www.ngi.gov.za/",
+   "targetCrs": "EPSG:9279",
+   "targetName": "SA LLD height",
+   "type": "V"
+  }
+ ]
+}

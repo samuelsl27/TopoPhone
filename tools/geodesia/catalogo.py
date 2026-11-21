@@ -12,7 +12,9 @@ regenerarlo dé el mismo fichero. Secciones (columnas separadas por tabulador):
 - `#options`: datum de origen, destino (`E` ETRS89 o `W` WGS 84), nombre de la transformación de EPSG, precisión (m, vacío si no se conoce), ámbito (S,W,N,E) y pasos.
   Pasos separados por `|`: `null`; `H;A=a,1/f;B=a,1/f;inv=0|1;conv=PV|CF;p=tx,ty,tz,rx,ry,rz,s[;px=x,y,z]` (Helmert o Molodensky-Badekas, ejes en m,
   rotaciones en segundos de arco, escala en ppm, `A` y `B` los elipsoides antes y después); `G;grid=nombre;inv=0|1` (rejilla de desplazamiento horizontal).
-- (las rejillas y las licencias las añade la parte 3 de este fichero.)
+- `#grids`: nombre del GeoTIFF del CDN de PROJ, tipo (`H` desplazamiento horizontal, `V` geoide), tamaño (B), SHA-256, id de licencia, fuente, enlace a la
+  fuente, CRS vertical (geoides), ámbito (S,W,N,E; geoides) y si la app ya lo incluye (`1`, ADR-4). Salen de `rejillas_cdn.py`.
+- `#licenses`: id, nombre, abierta (`1`) o no clara (`0`) y enlace.
 
 Qué entra (S034/RF-4): los CRS proyectados y geográficos 2D de EPSG no obsoletos, con ejes Este-Norte (los de orden Norte-Este se normalizan; los
 orientados al oeste o al sur no entran), unidad lineal metro, pie o pie topográfico de EE. UU., y un método de proyección que S008, S009 y S032
@@ -21,8 +23,8 @@ calculan. Qué más hace falta (transformación hasta ETRS89 o WGS84, y que el c
 
 from __future__ import annotations
 
+import gzip
 import math
-import re
 import sys
 import warnings
 from pathlib import Path
@@ -37,6 +39,7 @@ from pyproj.transformer import TransformerGroup
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import paises  # noqa: E402
+import rejillas_cdn  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 RESOURCES = ROOT / "core" / "geodesy" / "src" / "main" / "resources"
@@ -113,11 +116,15 @@ UNIDADES_M = (1.0, 0.3048, 1200.0 / 3937.0)
 TOLERANCIA_UNIDAD = 1e-9
 
 # Columnas de cada sección y las posiciones que usan los tests y la parte 2.
-COLUMNAS = {"ellipsoids": 3, "datums": 5, "crs": 10, "countries": 3, "options": 6}
+COLUMNAS = {"ellipsoids": 3, "datums": 5, "crs": 10, "countries": 3, "options": 6, "grids": 10, "licenses": 4}
 (CRS_EPSG, CRS_NOMBRE, CRS_TIPO, CRS_DATUM, CRS_METODO, CRS_PARAMETROS, CRS_UNIDAD_M, CRS_AMBITO, CRS_PAISES, CRS_AMBITO_NOMBRE) = range(10)
 DATUM_CODIGO, DATUM_NOMBRE, DATUM_ELIPSOIDE, DATUM_MERIDIANO, DATUM_AMBITO = range(5)
 OPCION_DATUM, OPCION_DESTINO, OPCION_NOMBRE, OPCION_PRECISION_M, OPCION_AMBITO, OPCION_PASOS = range(6)
+(REJILLA_NOMBRE, REJILLA_TIPO, REJILLA_TAMANO_B, REJILLA_SHA256, REJILLA_LICENCIA, REJILLA_FUENTE, REJILLA_URL_FUENTE, REJILLA_VERTICAL,
+ REJILLA_AMBITO, REJILLA_INCLUIDA) = range(10)  # fmt: skip
 OPCION_DATUM, OPCION_DESTINO, OPCION_NOMBRE, OPCION_PRECISION_M, OPCION_AMBITO, OPCION_PASOS = range(6)
+(REJILLA_NOMBRE, REJILLA_TIPO, REJILLA_TAMANO_B, REJILLA_SHA256, REJILLA_LICENCIA, REJILLA_FUENTE, REJILLA_URL_FUENTE, REJILLA_VERTICAL,
+ REJILLA_AMBITO, REJILLA_INCLUIDA) = range(10)  # fmt: skip
 
 
 def cabecera() -> list[str]:
@@ -412,7 +419,33 @@ def generar() -> dict[str, list[list[str]]]:
     usados = {f[CRS_DATUM] for f in secciones["crs"]}
     secciones["datums"] = [f for f in secciones["datums"] if f[DATUM_CODIGO] in usados]
     secciones["options"] = [f for f in opciones if f[OPCION_DATUM] in usados]
+    secciones.update(generar_rejillas(secciones["options"]))
     return secciones
+
+
+def rejillas_de(paso_o_pasos: str) -> list[str]:
+    """Los nombres de las rejillas que usan los pasos de una opción."""
+    return [paso.split(";")[1][len("grid=") :] for paso in paso_o_pasos.split("|") if paso.startswith("G;")]
+
+
+def generar_rejillas(opciones: list[list[str]]) -> dict[str, list[list[str]]]:
+    """`#grids` (las que usan las opciones y todos los geoides del CDN) y `#licenses`, de la instantánea de `rejillas_cdn.py` (S034/RF-19, RF-20)."""
+    instantanea = rejillas_cdn.leer_instantanea()["grids"]
+    usadas = {nombre for f in opciones for nombre in rejillas_de(f[OPCION_PASOS])}
+    desconocidas = usadas - {g["name"] for g in instantanea}
+    if desconocidas:
+        raise SystemExit(f"Rejillas de las transformaciones que no están en datos/rejillas_cdn.json: {sorted(desconocidas)}")
+    filas, licencias = [], {}
+    for g in sorted(instantanea, key=lambda x: x["name"]):
+        if g["type"] == "H" and g["name"] not in usadas:
+            continue
+        licencia = g["license"]
+        licencias[licencia["id"]] = [licencia["id"], licencia["name"], "1" if licencia["open"] else "0", licencia["url"]]
+        vertical = limpiar(g["targetName"]) if g["type"] == "V" else ""
+        ambito = ",".join(num(v) for v in g["area"]) if g.get("area") else ""
+        incluida = "1" if g["name"] in rejillas_cdn.INCLUIDAS_EN_LA_APP else "0"
+        filas.append([g["name"], g["type"], str(g["size"]), g["sha256"], licencia["id"], limpiar(g["source"]), g["sourceUrl"], vertical, ambito, incluida])
+    return {"grids": filas, "licenses": sorted(licencias.values())}
 
 
 def a_texto(secciones: dict[str, list[list[str]]]) -> str:
@@ -423,9 +456,21 @@ def a_texto(secciones: dict[str, list[list[str]]]) -> str:
     return "\n".join(lineas) + "\n"
 
 
+SALIDA = RESOURCES / "catalog" / "crs.tsv.gz"
+
+
+def escribir(secciones: dict[str, list[list[str]]], destino: Path = SALIDA) -> int:
+    """Escribe el catálogo comprimido, sin nombre ni fecha dentro del gzip para que sea idéntico al regenerarlo; devuelve su tamaño."""
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    with destino.open("wb") as bruto, gzip.GzipFile(filename="", mode="wb", fileobj=bruto, compresslevel=9, mtime=0) as comprimido:
+        comprimido.write(a_texto(secciones).encode("utf-8"))
+    return destino.stat().st_size
+
+
 def main() -> int:
-    texto = a_texto(generar())
-    print(f"{len(texto)} caracteres")
+    secciones = generar()
+    tamano = escribir(secciones)
+    print(f"{len(secciones['crs'])} SC, {len(secciones['options'])} transformaciones, {len(secciones['grids'])} rejillas: {tamano / 1e6:.2f} MB")
     return 0
 
 
