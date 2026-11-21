@@ -5,9 +5,9 @@
 ## Definiciones WKT y vectores
 - [x] T1. `tools/geodesia/catalogo_wkt.py`: la definición WKT1 de GeoPackage y la de ESRI de cada SC del catálogo en `crs_wkt.tsv.gz`. (RF-26)
       Hecho cuando: `test_wkt.py` comprueba una definición por SC, `AUTHORITY` en las de EPSG, determinismo y que el recurso pesa menos de 1 MB.
-- [ ] T2. `CrsWkt` en `core:geodesy.catalog`: lector perezoso por EPSG. (RF-22, RF-23, RF-25, RF-26)
+- [x] T2. `CrsWkt` en `core:geodesy.catalog`: lector perezoso por EPSG. (RF-22, RF-23, RF-25, RF-26)
       Hecho cuando: `CrsWktTest` lee las de EPSG:25830, 2154 y 4326 y devuelve `null` si no hay definición.
-- [ ] T3. Vectores de pyproj de la reproyección: tres SC de otros países y dos cambios de datum (uno de parámetros y uno con rejilla). (RF-7, RF-8)
+- [x] T3. Vectores de pyproj de la reproyección: tres SC de otros países y dos cambios de datum (uno de parámetros y uno con rejilla). (RF-7, RF-8)
       Hecho cuando: `test_reproyeccion.py` los comprueba y el fichero se regenera igual.
 
 ## Núcleo
