@@ -11,6 +11,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -24,8 +27,12 @@ import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.codes.PROJECT_LIBRARY_NONE_TAG
 import es.topophone.app.ui.codes.projectLibraryTag
+import es.topophone.app.ui.crs.CrsLibraryHost
+import es.topophone.app.ui.crs.CrsLibraryRequest
+import es.topophone.app.ui.crs.HiltCrsLibraryHost
 import es.topophone.app.ui.projects.ChoiceGroup
 import es.topophone.app.ui.projects.CrsChoices
+import es.topophone.app.ui.projects.CrsLibraryHooks
 import es.topophone.app.ui.projects.FORM_AUTHOR_TAG
 import es.topophone.app.ui.projects.angularOptionTag
 import es.topophone.app.ui.projects.angularUnitLabel
@@ -36,8 +43,11 @@ import es.topophone.app.ui.projects.linearUnitLabel
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.HeightSystem
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.core.model.project.SpainCrs
 import es.topophone.data.codes.CodeLibraryRepository
 import es.topophone.data.codes.LibrarySummary
 import es.topophone.data.project.ProjectPreferences
@@ -78,7 +88,7 @@ fun ProjectDefaultsRoute(
 ) {
     val defaults by viewModel.state.collectAsStateWithLifecycle()
     val libraries by viewModel.libraries.collectAsStateWithLifecycle()
-    ProjectDefaultsScreen(themeState, onToggleSun, defaults, viewModel::update, onBack, libraries)
+    ProjectDefaultsScreen(themeState, onToggleSun, defaults, viewModel::update, onBack, libraries, HiltCrsLibraryHost)
 }
 
 /** "Proyectos nuevos" en Ajustes: autor, SC, altura, unidades y datum con que empieza cada proyecto (S006/RF-13, S008/RF-10). */
@@ -90,6 +100,7 @@ fun ProjectDefaultsScreen(
     onChange: (ProjectDefaults) -> Unit,
     onBack: () -> Unit,
     libraries: List<LibrarySummary> = emptyList(),
+    library: CrsLibraryHost? = null,
 ) {
     SectionScaffold(
         title = stringResource(R.string.settings_project_defaults),
@@ -109,8 +120,36 @@ fun ProjectDefaultsScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().testTag(FORM_AUTHOR_TAG),
             )
-            CrsChoices(defaults.crs, defaults.heightSystem, datumLocked = false, onCrs = { onChange(defaults.withCrs(it)) }) {
+            var libraryOpen by rememberSaveable { mutableStateOf(false) }
+            val hooks = library?.let {
+                CrsLibraryHooks(
+                    onOpen = { libraryOpen = true },
+                    onBackToSpain = { onChange(defaults.withCrs(SpainCrs.ETRS89_UTM30)) },
+                    host = it,
+                )
+            }
+            CrsChoices(defaults.crs, defaults.heightSystem, datumLocked = false, library = hooks, onCrs = {
+                onChange(defaults.withCrs(it))
+            }) {
                 onChange(defaults.copy(heightSystem = it))
+            }
+            if (libraryOpen && library != null) {
+                library.Flow(
+                    themeState,
+                    onToggleSun,
+                    CrsLibraryRequest(defaults.correctionsDatum, null, (defaults.crs as? LibraryCrs)?.geoidGrid),
+                    onChosen = { chosen ->
+                        onChange(
+                            defaults.copy(
+                                crs = chosen,
+                                correctionsDatum = chosen.correctionsDatum,
+                                heightSystem = if (chosen.geoidGrid != null) HeightSystem.ORTHOMETRIC else HeightSystem.ELLIPSOIDAL,
+                            ),
+                        )
+                        libraryOpen = false
+                    },
+                    onDismiss = { libraryOpen = false },
+                )
             }
             ChoiceGroup(stringResource(R.string.project_linear_unit), LinearUnit.entries, defaults.linearUnit, ::linearOptionTag, {
                 linearUnitLabel(it)

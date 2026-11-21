@@ -12,6 +12,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -38,9 +39,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.codes.ProjectLibraryChoice
+import es.topophone.app.ui.crs.CrsLibraryHost
+import es.topophone.app.ui.crs.CrsLibraryRequest
+import es.topophone.app.ui.crs.HiltCrsLibraryHost
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
 import es.topophone.core.designsystem.component.MinTouchTarget
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.codes.LibraryChoice
 import es.topophone.core.model.format.AngleAxis
 import es.topophone.core.model.format.AngleInput
@@ -55,6 +60,7 @@ import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.DatumCheck
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.HeightSystem
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.ProjectCrs
@@ -86,6 +92,10 @@ const val FORM_DESCRIPTION_TAG = "project_form_description"
 const val FORM_SAVE_TAG = "project_form_save"
 const val DATUM_WARNING_TAG = "project_datum_warning"
 const val ZONE_PROPOSED_TAG = "project_zone_proposed"
+const val CRS_LIBRARY_OPEN_TAG = "project_crs_library_open"
+const val CRS_LIBRARY_CHANGE_TAG = "project_crs_library_change"
+const val CRS_LIBRARY_SPAIN_TAG = "project_crs_library_spain"
+const val CRS_LIBRARY_SUMMARY_TAG = "project_crs_library_summary"
 
 fun crsOptionTag(crs: ProjectCrs) = "project_crs_${crs.name}"
 
@@ -316,6 +326,7 @@ fun ProjectFormRoute(
             viewModel::pickerStart,
         ),
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
+        library = HiltCrsLibraryHost,
     )
 }
 
@@ -328,9 +339,19 @@ fun ProjectFormScreen(
     actions: ProjectFormActions,
     /** El mapa del selector del punto central; sin él no se ofrece «Elegir en el mapa» (S006/RF-33). */
     map: MapSlot? = null,
+    /** La biblioteca de SC (S034): sin ella no se ofrece elegir uno de fuera de España. */
+    library: CrsLibraryHost? = null,
 ) {
     val draft = state.draft
     var picking by rememberSaveable { mutableStateOf(false) }
+    var libraryOpen by rememberSaveable { mutableStateOf(false) }
+    val libraryHooks = library?.let {
+        CrsLibraryHooks(
+            onOpen = { libraryOpen = true },
+            onBackToSpain = { actions.onChange(draft.withCrs(SpainCrs.ETRS89_UTM30)) },
+            host = it,
+        )
+    }
     if (picking && map != null) {
         CentralPointPicker(
             themeState,
@@ -347,6 +368,33 @@ fun ProjectFormScreen(
             onCancel = { picking = false },
         )
         return
+    }
+    if (libraryOpen && library != null) {
+        library.Flow(
+            themeState,
+            onToggleSun,
+            CrsLibraryRequest(
+                draft.correctionsDatum,
+                draft.centralPoint?.let { GeoPoint(it.latitudeDeg, it.longitudeDeg) },
+                (draft.crs as? LibraryCrs)?.geoidGrid,
+            ),
+            onChosen = { chosen ->
+                actions.onChange(
+                    draft.copy(
+                        crs = chosen,
+                        heightSystem = if (chosen.geoidGrid !=
+                            null
+                        ) {
+                            HeightSystem.ORTHOMETRIC
+                        } else {
+                            HeightSystem.ELLIPSOIDAL
+                        },
+                    ),
+                )
+                libraryOpen = false
+            },
+            onDismiss = { libraryOpen = false },
+        )
     }
     SectionScaffold(
         title = stringResource(if (state.editing) R.string.project_edit else R.string.project_new),
@@ -385,6 +433,7 @@ fun ProjectFormScreen(
                 draft.heightSystem,
                 datumLocked = state.editing,
                 zoneProposed = state.proposedCrs == draft.crs,
+                library = libraryHooks,
                 onCrs = { actions.onChange(draft.withCrs(it)) },
             ) { actions.onChange(draft.copy(heightSystem = it)) } // S006/RF-8, S008/RF-1 a RF-3, RF-11, RF-17, RF-19
             ChoiceGroup(stringResource(R.string.project_linear_unit), LinearUnit.entries, draft.linearUnit, ::linearOptionTag, {
@@ -407,9 +456,14 @@ fun ProjectFormScreen(
                 {
                     datumLabel(it)
                 },
+                // S034/RF-11: la transformación de un SC de la biblioteca es para un datum de correcciones concreto.
+                enabled = draft.crs !is LibraryCrs,
             ) {
                 actions.onChange(draft.copy(correctionsDatum = it))
             } // S006/RF-10
+            if (draft.crs is LibraryCrs) {
+                Text(stringResource(R.string.crs_library_corrections_locked), style = MaterialTheme.typography.bodySmall)
+            }
             // S006/RF-11, S008/RF-18
             if (DatumCheck.mismatch(draft.crs, draft.correctionsDatum)) DatumWarning(draft.crs, draft.correctionsDatum)
             CentralPointSection(
@@ -460,10 +514,16 @@ internal fun CrsChoices(
     heightSystem: HeightSystem,
     datumLocked: Boolean,
     zoneProposed: Boolean = false,
+    library: CrsLibraryHooks? = null,
     onCrs: (ProjectCrs) -> Unit,
     onHeight: (HeightSystem) -> Unit,
 ) {
     Text(stringResource(R.string.project_crs), style = MaterialTheme.typography.titleMedium)
+    if (crs is LibraryCrs) {
+        // S034/RF-13: un SC de la biblioteca se elige y se cambia desde su ficha; aquí solo se resume.
+        LibraryCrsSummary(crs, heightSystem, library, canChange = !datumLocked)
+        return
+    }
     ChoiceGroup(
         stringResource(R.string.project_geodetic_datum),
         GeodeticDatum.entries,
@@ -488,6 +548,49 @@ internal fun CrsChoices(
     }
     ChoiceGroup(stringResource(R.string.project_height), crs.heightSystems, heightSystem, ::heightOptionTag, { heightLabel(it) }) {
         onHeight(it)
+    }
+    if (library != null && !datumLocked) {
+        OutlinedButton(
+            onClick = library.onOpen,
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CRS_LIBRARY_OPEN_TAG),
+        ) { Text(stringResource(R.string.crs_library_open)) } // S034/RF-1
+    }
+}
+
+/** Lo que el formulario necesita para ofrecer la biblioteca de SC (S034/RF-1). */
+internal class CrsLibraryHooks(val onOpen: () -> Unit, val onBackToSpain: () -> Unit, val host: CrsLibraryHost)
+
+/** El SC de la biblioteca del proyecto: su nombre, la transformación, la altura y las rejillas que faltan (S034/RF-9, RF-13, RF-15, RF-18). */
+@Composable
+private fun LibraryCrsSummary(crs: LibraryCrs, heightSystem: HeightSystem, library: CrsLibraryHooks?, canChange: Boolean) {
+    val definition = crs.definition
+    Column(modifier = Modifier.fillMaxWidth().testTag(CRS_LIBRARY_SUMMARY_TAG), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(definition.name, style = MaterialTheme.typography.titleSmall)
+        Text(
+            stringResource(R.string.crs_epsg_code, definition.epsg) + " · " + definition.datumName,
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Text(stringResource(R.string.crs_summary_transformation, definition.transformationName), style = MaterialTheme.typography.bodySmall)
+        Text(
+            if (heightSystem == HeightSystem.ORTHOMETRIC && crs.geoidGrid != null) {
+                stringResource(R.string.crs_summary_height_geoid, crs.geoidGrid.orEmpty())
+            } else {
+                stringResource(R.string.crs_summary_height_ellipsoidal)
+            },
+            style = MaterialTheme.typography.bodySmall,
+        )
+        library?.host?.MissingGrids(crs)
+        if (library != null && canChange) {
+            OutlinedButton(onClick = library.onOpen, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CRS_LIBRARY_CHANGE_TAG)) {
+                Text(stringResource(R.string.crs_library_change))
+            }
+            OutlinedButton(
+                onClick = library.onBackToSpain,
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CRS_LIBRARY_SPAIN_TAG),
+            ) {
+                Text(stringResource(R.string.crs_library_back_to_spain))
+            }
+        }
     }
 }
 

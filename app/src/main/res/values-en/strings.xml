@@ -2185,6 +2185,15 @@
     <string name="installed_grids_delete_text">%1$s (%2$s) will be deleted. You can download it again</string>
     <string name="installed_grids_blocked">It cannot be deleted: the projects %1$s use it</string>
     <string name="settings_installed_grids">Downloaded grids and geoids</string>
+    <string name="crs_library_open">Search the coordinate system library</string>
+    <string name="crs_library_change">Change coordinate system</string>
+    <string name="crs_library_back_to_spain">Back to a system for Spain</string>
+    <string name="crs_library_corrections_locked">The corrections datum goes with the chosen coordinate system. To change it, choose another system or go back to one for Spain</string>
+    <string name="crs_summary_transformation">Transformation: %1$s</string>
+    <string name="crs_summary_height_geoid">Height: orthometric with geoid %1$s</string>
+    <string name="crs_summary_height_ellipsoidal">Height: ellipsoidal</string>
+    <string name="library_grids_missing_title">Grids are missing for this coordinate system</string>
+    <string name="library_grids_missing_text">Until they are downloaded, the coordinates that depend on them show as unavailable; the measurement is still saved</string>
     <string name="gpkg_export_selected">GeoPackage</string>
     <string name="gpkg_export_system">Coordinate system</string>
     <string name="gpkg_export_system_project">Project (EPSG:%1$d)</string>

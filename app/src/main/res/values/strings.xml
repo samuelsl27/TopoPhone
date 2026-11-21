@@ -2197,6 +2197,15 @@
     <string name="installed_grids_delete_text">Se borrará %1$s (%2$s). Podrás volver a descargarla</string>
     <string name="installed_grids_blocked">No se puede borrar: la usan los proyectos %1$s</string>
     <string name="settings_installed_grids">Rejillas y geoides descargados</string>
+    <string name="crs_library_open">Buscar en la biblioteca de sistemas de coordenadas</string>
+    <string name="crs_library_change">Cambiar de sistema de coordenadas</string>
+    <string name="crs_library_back_to_spain">Volver a un sistema de España</string>
+    <string name="crs_library_corrections_locked">El datum de las correcciones va con el sistema de coordenadas elegido. Para cambiarlo, elige otro sistema o vuelve a uno de España</string>
+    <string name="crs_summary_transformation">Transformación: %1$s</string>
+    <string name="crs_summary_height_geoid">Altura: altitud con el geoide %1$s</string>
+    <string name="crs_summary_height_ellipsoidal">Altura: elipsoidal</string>
+    <string name="library_grids_missing_title">Faltan rejillas para este sistema de coordenadas</string>
+    <string name="library_grids_missing_text">Mientras no se descarguen, las coordenadas que dependen de ellas salen como no disponibles; la medida se guarda igualmente</string>
     <string name="gpkg_export_selected">GeoPackage</string>
     <string name="gpkg_export_system">Sistema de coordenadas</string>
     <string name="gpkg_export_system_project">Del proyecto (EPSG:%1$d)</string>

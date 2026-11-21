@@ -55,7 +55,7 @@
       Hecho cuando: `CrsDetailsScreenTest` pasa, incluido el SC sin transformación (no elegible, con motivo).
 - [x] T22. Descarga con confirmación, tamaño, licencia y fuente, avisos de licencia, y pantalla de rejillas instaladas. (RF-19, RF-20, RF-23)
       Hecho cuando: `GridDownloadScreenTest` e `InstalledGridsScreenTest` pasan.
-- [ ] T23. Formulario de proyecto con SC de la biblioteca, altura y geoide, y apertura sin rejilla. (RF-14, RF-15, RF-16, RF-18, RF-24)
+- [x] T23. Formulario de proyecto con SC de la biblioteca, altura y geoide, y apertura sin rejilla. (RF-14, RF-15, RF-16, RF-18, RF-24)
       Hecho cuando: `ProjectFormGeoidTest`, `MissingGridProjectTest` y `OfflineProjectTest` pasan.
 - [ ] T24. Factores de escala, convergencia y factor combinado, y avisos de formatos en los menús. (RF-27, RF-29)
       Hecho cuando: `LibraryProjectFlowTest` pasa.
