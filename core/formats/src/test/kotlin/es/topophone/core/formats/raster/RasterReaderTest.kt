@@ -3,6 +3,7 @@ package es.topophone.core.formats.raster
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.project.GeodeticDatum
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 
 /** Reconocer un ráster por su contenido y el sistema que declara (S045/RF-2, RF-3, RF-4, RF-6, RF-8). */
@@ -69,7 +70,8 @@ class RasterReaderTest {
 
     @Test
     fun `S045 RF-8 un sistema que la app no ofrece o sin declarar espera a que el usuario elija`() {
-        RasterCrsResolver.resolve(3857) shouldBe RasterCrsDeclaration.Unavailable(3857)
+        RasterCrsResolver.resolve(999999) shouldBe RasterCrsDeclaration.Unavailable(999999)
+        RasterCrsResolver.resolve(3857).shouldBeInstanceOf<RasterCrsDeclaration.Library>() // S057/RF-4: está en la biblioteca
         RasterCrsResolver.resolve(null) shouldBe RasterCrsDeclaration.Undeclared
         RasterCrsResolver.choices.size shouldBe 10
     }

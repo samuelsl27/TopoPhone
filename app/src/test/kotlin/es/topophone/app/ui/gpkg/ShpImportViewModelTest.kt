@@ -246,7 +246,7 @@ class ShpImportViewModelTest {
         val state = viewModel.settled()
 
         val rows = state.layers.associateBy { it.info.table }
-        rows.getValue("utm33").crs.shouldBeInstanceOf<GpkgCrs.Unavailable>().name shouldBe "ETRS_1989_UTM_Zone_33N"
+        rows.getValue("utm33").crs shouldBe GpkgCrs.Library(25833, "ETRS89 / UTM zone 33N") // S057/RF-5; la pantalla lo ofrece en T20
         rows.getValue("prj_ilegible").crs shouldBe GpkgCrs.Undeclared
         state.canImport shouldBe false
         viewModel.setCrs("utm33", ProjectCrs.ETRS89_UTM31)

@@ -259,6 +259,8 @@ private fun CrsSection(state: RasterImportUiState, actions: RasterImportActions)
                 stringResource(R.string.raster_crs_declared, label)
             }
         }
+        // Un SC de la biblioteca: la pantalla lo ofrece en T19 de S057; hasta entonces se pide elegir como con uno desconocido.
+        is RasterCrsDeclaration.Library -> stringResource(R.string.raster_crs_unavailable, declaration.epsg)
         is RasterCrsDeclaration.Unavailable -> stringResource(R.string.raster_crs_unavailable, declaration.epsg)
         RasterCrsDeclaration.Undeclared -> stringResource(R.string.raster_crs_undeclared)
     }

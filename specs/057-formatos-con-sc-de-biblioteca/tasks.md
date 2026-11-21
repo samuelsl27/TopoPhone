@@ -27,7 +27,7 @@
       Hecho cuando: `ImportAreaFilterLibraryTest` pasa con un Shapefile en otro país.
 
 ## Formatos
-- [ ] T11. Reconocer el SC de un Shapefile, un GeoPackage y un GeoTIFF en la biblioteca (A4). (RF-4, RF-5, RF-6)
+- [x] T11. Reconocer el SC de un Shapefile, un GeoPackage y un GeoTIFF en la biblioteca (A4). (RF-4, RF-5, RF-6)
       Hecho cuando: `CrsRecognitionTest` cubre EPSG, nombre de EPSG, nombre de ESRI, ambiguo y desconocido.
 - [ ] T12. Importadores de GeoPackage y Shapefile con el SC de cada capa. (RF-16)
       Hecho cuando: `GpkgLibraryImportTest` y `ShpLibraryImportTest` importan una capa en otro SC y reproyectan.

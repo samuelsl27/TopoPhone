@@ -54,28 +54,31 @@ class ShpCrsCatalogTest {
 
         (unavailable.size >= 8 * 3) shouldBe true
         for (row in unavailable) {
-            val crs = ShpCrsCatalog.resolve(text(row.getValue("archivo"))).shouldBeInstanceOf<GpkgCrs.Unavailable>()
-
-            crs.name shouldBe row.getValue("nombre_en_el_prj")
+            // Desde S057/RF-5 los que están en la biblioteca de SC se reconocen por el nombre del prj; los demás siguen sin estar disponibles.
+            when (val crs = ShpCrsCatalog.resolve(text(row.getValue("archivo")))) {
+                is GpkgCrs.Unavailable -> crs.name shouldBe row.getValue("nombre_en_el_prj")
+                is GpkgCrs.Library -> Unit
+                else -> error("${row.getValue("archivo")}: $crs")
+            }
         }
-        // ETRS89 UTM 28 (25828) es ETRS89 en el huso 28, que la app no ofrece aunque REGCAN95 sí lo tenga
-        ShpCrsCatalog.resolve(text("prj/esri-25828.prj")).shouldBeInstanceOf<GpkgCrs.Unavailable>()
-        // ED50 geográficas (4230) tampoco están en la app
-        ShpCrsCatalog.resolve(text("prj/esri-4230.prj")).shouldBeInstanceOf<GpkgCrs.Unavailable>()
-        // una proyección en pies, aunque sea de Estados Unidos, tampoco
-        ShpCrsCatalog.resolve(text("prj/esri-2263.prj")).shouldBeInstanceOf<GpkgCrs.Unavailable>()
+        // ETRS89 UTM 28 (25828) es ETRS89 en el huso 28, que la app no ofrece aunque REGCAN95 sí lo tenga: es de la biblioteca (S057)
+        ShpCrsCatalog.resolve(text("prj/esri-25828.prj")).shouldBeInstanceOf<GpkgCrs.Library>().epsg shouldBe 25828
+        // ED50 geográficas (4230) y una proyección en pies de Estados Unidos (2263), también
+        ShpCrsCatalog.resolve(text("prj/esri-4230.prj")).shouldBeInstanceOf<GpkgCrs.Library>().epsg shouldBe 4230
+        ShpCrsCatalog.resolve(text("prj/esri-2263.prj")).shouldBeInstanceOf<GpkgCrs.Library>().epsg shouldBe 2263
     }
 
     @Test
     fun `S030 RF-9 un prj con la autoridad de un sistema que la app no tiene no esta disponible con su codigo`() {
-        val crs = ShpCrsCatalog.resolve(text("prj/gdal-25833.prj")).shouldBeInstanceOf<GpkgCrs.Unavailable>()
-
+        // ETRS89 UTM 33 está en la biblioteca (S057/RF-4): con autoridad se reconoce por su código y sin ella, por su nombre y sus parámetros
+        ShpCrsCatalog.resolve(text("prj/gdal-25833.prj")).shouldBeInstanceOf<GpkgCrs.Library>().epsg shouldBe 25833
+        ShpCrsCatalog.resolve(text("prj/esri-25833.prj")).shouldBeInstanceOf<GpkgCrs.Library>().epsg shouldBe 25833
+        // con una autoridad que ni la app ni la biblioteca tienen, sigue sin estar disponible con su código
+        val crs = ShpCrsCatalog.resolve(
+            text("prj/gdal-25833.prj").replace("\"25833\"", "\"999999\""),
+        ).shouldBeInstanceOf<GpkgCrs.Unavailable>()
         crs.authority shouldBe "EPSG"
-        crs.code shouldBe 25833
-        // sin autoridad, solo se sabe que viene de un .prj
-        val bare = ShpCrsCatalog.resolve(text("prj/esri-25833.prj")).shouldBeInstanceOf<GpkgCrs.Unavailable>()
-        bare.authority shouldBe "PRJ"
-        bare.code shouldBe 0
+        crs.code shouldBe 999999
     }
 
     @Test
@@ -105,12 +108,15 @@ class ShpCrsCatalogTest {
             "otra proyeccion" to base.replace("Transverse_Mercator", "Lambert_Conformal_Conic"),
             "elipsoide de otro datum" to
                 base.replace("SPHEROID[\"GRS_1980\",6378137.0,298.257222101]", "SPHEROID[\"Clarke_1866\",6378206.4,294.9786982]"),
-            "datum desconocido" to base.replace("D_ETRS_1989", "D_Desconocido").replace("GCS_ETRS_1989", "GCS_Desconocido"),
             "sin parametros" to base.replace(Regex("PARAMETER\\[[^\\]]*\\],?"), ""),
         )
         for ((name, wkt) in variants) {
             withClue(name) { (ShpCrsCatalog.resolve(wkt) is GpkgCrs.Unavailable) shouldBe true }
         }
+        // Con el nombre del datum desconocido la estructura de España no lo reconoce, pero la biblioteca sí: el nombre del sistema, los parámetros
+        // y el elipsoide son los de ETRS89 UTM 30 (S057/RF-5).
+        val unknownDatum = base.replace("D_ETRS_1989", "D_Desconocido").replace("GCS_ETRS_1989", "GCS_Desconocido")
+        ShpCrsCatalog.resolve(unknownDatum).shouldBeInstanceOf<GpkgCrs.Library>().epsg shouldBe 25830
     }
 
     @Test
@@ -124,8 +130,9 @@ class ShpCrsCatalogTest {
             canarias.replace("D_Red_Geodesica_de_Canarias_1995", "D_Otro"),
         ).shouldBeInstanceOf<GpkgCrs.Supported>().epsg shouldBe
             4083
+        // sin ninguno de los dos nombres de datum la estructura no basta, pero la biblioteca lo reconoce por el nombre y los parámetros (S057/RF-5)
         ShpCrsCatalog.resolve(canarias.replace("D_Red_Geodesica_de_Canarias_1995", "D_Otro").replace("GCS_REGCAN95", "GCS_Otro"))
-            .shouldBeInstanceOf<GpkgCrs.Unavailable>()
+            .shouldBeInstanceOf<GpkgCrs.Library>().epsg shouldBe 4083
     }
 
     @Test
@@ -141,7 +148,8 @@ class ShpCrsCatalogTest {
 
             when (expected) {
                 "SIN_SISTEMA" -> crs shouldBe GpkgCrs.Undeclared
-                "NO_DISPONIBLE" -> crs.shouldBeInstanceOf<GpkgCrs.Unavailable>()
+                // S057: los de la biblioteca se reconocen
+                "NO_DISPONIBLE" -> (crs is GpkgCrs.Unavailable || crs is GpkgCrs.Library) shouldBe true
                 else -> ProjectCrs.valueOf(expected.replace("GEOGRAFICAS", "GEOGRAPHIC").replace('-', '_')).epsg shouldBe
                     crs.shouldBeInstanceOf<GpkgCrs.Supported>().epsg.let { if (it == 4326) 4258 else it }
             }

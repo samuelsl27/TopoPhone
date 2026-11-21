@@ -61,7 +61,10 @@ sealed interface RasterCrsDeclaration {
     /** Uno de los sistemas de la app (S008); [wgs84] es EPSG:4326, que se trata como ETRS89. */
     data class Supported(val epsg: Int, val source: CadSourceCrs, val wgs84: Boolean) : RasterCrsDeclaration
 
-    /** Un código EPSG que la app no ofrece: el usuario tiene que elegir otro sistema. */
+    /** Un SC de la biblioteca de S034 que no es de España, reconocido por su código EPSG (S057/RF-4). */
+    data class Library(val epsg: Int, val name: String) : RasterCrsDeclaration
+
+    /** Un código EPSG que ni la app ni la biblioteca ofrecen: el usuario tiene que elegir otro sistema. */
     data class Unavailable(val epsg: Int) : RasterCrsDeclaration
 
     /** El fichero no declara sistema. */
@@ -72,7 +75,9 @@ sealed interface RasterCrsDeclaration {
 object RasterCrsResolver {
     fun resolve(epsg: Int?): RasterCrsDeclaration {
         if (epsg == null) return RasterCrsDeclaration.Undeclared
-        val known = GpkgCrsCatalog.resolveEpsg(epsg) ?: return RasterCrsDeclaration.Unavailable(epsg)
+        val known =
+            GpkgCrsCatalog.resolveEpsg(epsg) ?: return GpkgCrsCatalog.library(epsg)?.let { RasterCrsDeclaration.Library(it.epsg, it.name) }
+                ?: RasterCrsDeclaration.Unavailable(epsg)
         return RasterCrsDeclaration.Supported(known.epsg, known.source, known.wgs84)
     }
 

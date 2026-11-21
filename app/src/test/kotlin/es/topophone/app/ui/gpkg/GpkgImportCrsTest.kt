@@ -130,7 +130,8 @@ class GpkgImportCrsTest {
     @Test
     fun `S048 RF-9 un sistema no disponible de la app se dice y se puede sustituir`() {
         val viewModel = open("no-disponible-3857.gpkg")
-        viewModel.settled().layers.single().crs shouldBe GpkgCrs.Unavailable("EPSG", 3857)
+        // S057/RF-4: está en la biblioteca; la pantalla lo ofrece en T20
+        viewModel.settled().layers.single().crs shouldBe GpkgCrs.Library(3857, "WGS 84 / Pseudo-Mercator")
         viewModel.settled().canImport shouldBe false
 
         viewModel.setCrs("puntos", ProjectCrs.ETRS89_UTM30)

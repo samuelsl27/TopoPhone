@@ -59,7 +59,8 @@ class GpkgCrsCatalogTest {
         unavailable.size shouldBe 7
         for (row in unavailable) {
             val epsg = row.getValue("epsg").toInt()
-            GpkgCrsCatalog.resolve(epsg, "EPSG", epsg) shouldBe GpkgCrs.Unavailable("EPSG", epsg)
+            // Desde S057/RF-4 los que están en la biblioteca de SC se reconocen; el resto sigue sin estar disponible.
+            GpkgCrsCatalog.resolve(epsg, "EPSG", epsg) shouldBe (GpkgCrsCatalog.library(epsg) ?: GpkgCrs.Unavailable("EPSG", epsg))
         }
     }
 

@@ -1,5 +1,7 @@
 package es.topophone.core.formats.gpkg
 
+import es.topophone.core.formats.crs.LibraryCrsRecognition
+import es.topophone.core.formats.crs.RecognizedCrs
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.ProjectCrs
@@ -19,7 +21,19 @@ sealed interface GpkgCrs {
      * Un sistema con autoridad y código que la app no ofrece: la capa espera a que el usuario elija uno (RF-9). [name] es el nombre que
      * trae el fichero, para mostrarlo (un Shapefile no siempre tiene código: S030/RF-9).
      */
-    data class Unavailable(val authority: String, val code: Int, val name: String? = null) : GpkgCrs
+    data class Unavailable(
+        val authority: String,
+        val code: Int,
+        val name: String? = null,
+        /** Varios SC de la biblioteca se llaman como el del fichero (S057/RF-5): el usuario elige entre ellos. */
+        val candidates: List<RecognizedCrs> = emptyList(),
+    ) : GpkgCrs
+
+    /**
+     * Un SC de la biblioteca de S034 que no es de los de España (S057/RF-4, RF-5): se reconoce por su código EPSG o por su nombre. Todavía no
+     * es un [CadSourceCrs]: su definición se construye con el datum de las correcciones y el centro del proyecto (S057/RF-2).
+     */
+    data class Library(val epsg: Int, val name: String) : GpkgCrs
 
     /** `srs_id` 0 o −1, sin definición o sin fila en `gpkg_spatial_ref_sys`: el fichero no declara el sistema (RF-9). */
     data object Undeclared : GpkgCrs
@@ -42,8 +56,11 @@ object GpkgCrsCatalog {
     fun resolve(srsId: Int, authority: String?, authorityCode: Int?): GpkgCrs {
         if (authority == null || authorityCode == null || srsId <= 0 || authority.equals(NONE, ignoreCase = true)) return GpkgCrs.Undeclared
         if (!authority.equals(EPSG, ignoreCase = true)) return GpkgCrs.Unavailable(authority.uppercase(), authorityCode)
-        return resolveEpsg(authorityCode) ?: GpkgCrs.Unavailable(EPSG, authorityCode)
+        return resolveEpsg(authorityCode) ?: library(authorityCode) ?: GpkgCrs.Unavailable(EPSG, authorityCode)
     }
+
+    /** El SC de la biblioteca con el código EPSG dado, o null si no lo tiene (S057/RF-4). */
+    fun library(epsg: Int): GpkgCrs.Library? = LibraryCrsRecognition.byEpsg(epsg)?.let { GpkgCrs.Library(it.epsg, it.name) }
 
     /** El sistema de la app con el código EPSG dado, o null si no es uno de los suyos. */
     fun resolveEpsg(epsg: Int): GpkgCrs.Supported? {

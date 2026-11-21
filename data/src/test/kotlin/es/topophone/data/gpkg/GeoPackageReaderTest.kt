@@ -106,7 +106,7 @@ class GeoPackageReaderTest {
             crs.getValue("canarias_utm28").shouldBeInstanceOf<GpkgCrs.Supported>().source shouldBe
                 CadSourceCrs.Utm(GeodeticDatum.REGCAN95, 28)
             crs.getValue("geograficas_4258").shouldBeInstanceOf<GpkgCrs.Supported>().unit shouldBe GpkgCrsUnit.DEGREE
-            crs.getValue("utm33") shouldBe GpkgCrs.Unavailable("EPSG", 25833)
+            crs.getValue("utm33") shouldBe GpkgCrs.Library(25833, "ETRS89 / UTM zone 33N") // S057/RF-4: está en la biblioteca
         }
     }
 
@@ -126,7 +126,7 @@ class GeoPackageReaderTest {
             session.layers.map { session.crs(it) } shouldBe listOf(GpkgCrs.Undeclared, GpkgCrs.Undeclared, GpkgCrs.Undeclared)
         }
         session("no-disponible-3857.gpkg").use { session ->
-            session.crs(session.layers.single()) shouldBe GpkgCrs.Unavailable("EPSG", 3857)
+            session.crs(session.layers.single()) shouldBe GpkgCrs.Library(3857, "WGS 84 / Pseudo-Mercator")
         }
     }
 

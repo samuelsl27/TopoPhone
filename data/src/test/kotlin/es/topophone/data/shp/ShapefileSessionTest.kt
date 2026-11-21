@@ -87,7 +87,8 @@ class ShapefileSessionTest {
 
                 when (row.getValue("sistema_app")) {
                     "SIN_SISTEMA" -> crs shouldBe GpkgCrs.Undeclared
-                    "NO_DISPONIBLE" -> crs.shouldBeInstanceOf<GpkgCrs.Unavailable>()
+                    // S057: los de la biblioteca se reconocen
+                    "NO_DISPONIBLE" -> (crs is GpkgCrs.Unavailable || crs is GpkgCrs.Library) shouldBe true
                     else -> crs.shouldBeInstanceOf<GpkgCrs.Supported>()
                 }
             }

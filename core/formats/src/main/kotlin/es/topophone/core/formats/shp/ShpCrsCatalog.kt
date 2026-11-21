@@ -1,7 +1,11 @@
 package es.topophone.core.formats.shp
 
+import es.topophone.core.formats.crs.LibraryCrsRecognition
+import es.topophone.core.formats.crs.NameMatch
+import es.topophone.core.formats.crs.RecognizedCrs
 import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsCatalog
+import es.topophone.core.geodesy.catalog.CrsWkt
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.ProjectCrs
 import java.util.Locale
@@ -24,6 +28,8 @@ object ShpCrsCatalog {
     private const val PRJ = "PRJ"
     private const val DEGREE = 0.0174532925199433
     private const val TOLERANCE = 1e-6
+    private const val PARAMETER_TOLERANCE = 1e-7
+    private const val UNIT_TOLERANCE = 1e-9
 
     private enum class Family(val datum: GeodeticDatum?, val semiMajor: Double, val inverseFlattening: Double) {
         ETRS89(GeodeticDatum.ETRS89, 6378137.0, 298.257222101),
@@ -38,11 +44,68 @@ object ShpCrsCatalog {
         val name = root.text(0)
         if (root.keyword != "PROJCS" && root.keyword != "GEOGCS") return GpkgCrs.Unavailable(PRJ, 0, name)
         authority(root)?.let { code ->
-            return GpkgCrsCatalog.resolveEpsg(code) ?: GpkgCrs.Unavailable(EPSG, code, name)
+            return GpkgCrsCatalog.resolveEpsg(code) ?: GpkgCrsCatalog.library(code) ?: GpkgCrs.Unavailable(EPSG, code, name)
         }
         val crs = if (root.keyword == "PROJCS") projected(root) else geographic(root)
-        return crs ?: GpkgCrs.Unavailable(PRJ, 0, name)
+        return crs ?: byName(root, name)
     }
+
+    /** Sin código ni estructura de España: por el nombre del `.prj` frente a los de la biblioteca (S057/RF-5, RF-6). */
+    private fun byName(root: WktNode, name: String?): GpkgCrs {
+        val named = when (val match = name?.let(LibraryCrsRecognition::byName) ?: NameMatch.None) {
+            is NameMatch.Single -> listOf(match.crs)
+            is NameMatch.Several -> match.candidates
+            NameMatch.None -> emptyList()
+        }
+        // Un nombre no basta: un `.prj` que se llama como un SC pero cambia la escala o el falso este no es ese SC (como en S030/RF-8).
+        val verified = named.filter { sameDefinition(root, it) }
+        return when (verified.size) {
+            1 -> GpkgCrs.Library(verified.single().epsg, verified.single().name)
+            else -> GpkgCrs.Unavailable(PRJ, 0, name, verified)
+        }
+    }
+
+    /**
+     * ¿Tiene el `.prj` los mismos parámetros de proyección, la misma unidad y el mismo elipsoide que el SC [crs] de la biblioteca? Se compara con
+     * el WKT de ESRI de la biblioteca por nombre de parámetro normalizado (el WKT de GDAL, QGIS o ArcGIS los escribe igual salvo mayúsculas) y no
+     * por el nombre del método, que cambia de un programa a otro (`Lambert_Conformal_Conic` y `Lambert_Conformal_Conic_2SP`).
+     */
+    private fun sameDefinition(root: WktNode, crs: RecognizedCrs): Boolean {
+        val reference = CrsWkt.bundled.prj(crs.epsg)?.let(PrjReader::parse) ?: return false
+        if (root.keyword != reference.keyword) return false
+        if (reference.keyword == "PROJCS" && !sameMethod(root, reference)) return false
+        val file = parameters(root)
+        val library = parameters(reference)
+        // Un parámetro que falta en un lado vale 0 (un `.prj` puede omitir la latitud de origen).
+        if ((file.keys + library.keys).any { !near(file[it] ?: 0.0, library[it] ?: 0.0, PARAMETER_TOLERANCE) }) return false
+        val unit = linearUnit(root)
+        val referenceUnit = linearUnit(reference)
+        if (unit == null || referenceUnit == null || !near(unit, referenceUnit, UNIT_TOLERANCE)) return false
+        val spheroid = root.child("GEOGCS")?.child("DATUM")?.child("SPHEROID") ?: root.child("DATUM")?.child("SPHEROID")
+        val referenceSpheroid = reference.child("GEOGCS")?.child("DATUM")?.child("SPHEROID") ?: reference.child("DATUM")?.child("SPHEROID")
+        if (spheroid == null || referenceSpheroid == null) return false
+        val semiMajor = spheroid.number(1)
+        val flattening = spheroid.number(2)
+        val referenceSemiMajor = referenceSpheroid.number(1)
+        val referenceFlattening = referenceSpheroid.number(2)
+        if (semiMajor == null || flattening == null || referenceSemiMajor == null || referenceFlattening == null) return false
+        return near(semiMajor, referenceSemiMajor, 1e-3) && near(flattening, referenceFlattening, 1e-4)
+    }
+
+    /** El método de proyección es el mismo aunque cada programa lo escriba con su sufijo (`Lambert_Conformal_Conic` y `..._2SP`). */
+    private fun sameMethod(root: WktNode, reference: WktNode): Boolean {
+        val a = root.child("PROJECTION")?.text(0)?.let(LibraryCrsRecognition::normalized) ?: return false
+        val b = reference.child("PROJECTION")?.text(0)?.let(LibraryCrsRecognition::normalized) ?: return false
+        return a.startsWith(b) || b.startsWith(a)
+    }
+
+    private fun parameters(root: WktNode): Map<String, Double> = root.children.filter { it.keyword == "PARAMETER" }.mapNotNull { node ->
+        val value = node.number(1) ?: return@mapNotNull null
+        LibraryCrsRecognition.normalized(node.text(0) ?: return@mapNotNull null) to value
+    }.toMap()
+
+    /** La unidad del sistema: el último `UNIT` de la raíz, que en un proyectado es la lineal y en un geográfico la angular. */
+    private fun linearUnit(root: WktNode): Double? = root.children.lastOrNull { it.keyword == "UNIT" }?.number(1)
 
     private fun authority(root: WktNode): Int? {
         val node = root.children.lastOrNull { it.keyword == "AUTHORITY" } ?: return null
