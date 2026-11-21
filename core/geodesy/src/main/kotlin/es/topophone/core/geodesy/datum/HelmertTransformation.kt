@@ -17,6 +17,7 @@ class HelmertTransformation(
 
     /** Matriz de rotaciones pequeñas de EPSG: la de PV, y su traspuesta en CF (que equivale a cambiar el signo de las rotaciones). */
     private val rotation: DoubleArray = rotationMatrix(parameters)
+    private val inverseRotation: DoubleArray = invert(rotation)
 
     override fun forward(point: GeodeticPoint): TransformResult {
         if (!point.isFinite()) return TransformResult.NotConverged(null)
@@ -31,9 +32,37 @@ class HelmertTransformation(
         return TransformResult.Ok(shifted.toGeodetic(target))
     }
 
-    override fun inverse(point: GeodeticPoint): TransformResult = TODO("S033 T4: inverso exacto")
+    /** Inverso exacto de [forward]: `X = R⁻¹·(X′ − T)/(1 + s)` con `R⁻¹` calculada de verdad, no `R` con las rotaciones cambiadas de signo (S033/RF-5). */
+    override fun inverse(point: GeodeticPoint): TransformResult {
+        if (!point.isFinite()) return TransformResult.NotConverged(null)
+        val y = Ecef.fromGeodetic(point.latitudeDeg, point.longitudeDeg, point.ellipsoidalHeightM, target)
+        val k = 1.0 + parameters.scale
+        val dx = (y.x - parameters.txM) / k
+        val dy = (y.y - parameters.tyM) / k
+        val dz = (y.z - parameters.tzM) / k
+        val m = inverseRotation
+        val back = Ecef(
+            m[0] * dx + m[1] * dy + m[2] * dz,
+            m[3] * dx + m[4] * dy + m[5] * dz,
+            m[6] * dx + m[7] * dy + m[8] * dz,
+        )
+        return TransformResult.Ok(back.toGeodetic(source))
+    }
 
     private companion object {
+        /** Inversa exacta de una matriz 3×3 (fila a fila) por adjunta y determinante. */
+        fun invert(a: DoubleArray): DoubleArray {
+            val c0 = a[4] * a[8] - a[5] * a[7]
+            val c1 = a[5] * a[6] - a[3] * a[8]
+            val c2 = a[3] * a[7] - a[4] * a[6]
+            val det = a[0] * c0 + a[1] * c1 + a[2] * c2
+            return doubleArrayOf(
+                c0 / det, (a[2] * a[7] - a[1] * a[8]) / det, (a[1] * a[5] - a[2] * a[4]) / det,
+                c1 / det, (a[0] * a[8] - a[2] * a[6]) / det, (a[2] * a[3] - a[0] * a[5]) / det,
+                c2 / det, (a[1] * a[6] - a[0] * a[7]) / det, (a[0] * a[4] - a[1] * a[3]) / det,
+            )
+        }
+
         fun rotationMatrix(p: HelmertParameters): DoubleArray {
             val sign = if (p.convention == HelmertConvention.POSITION_VECTOR) 1.0 else -1.0
             val rx = sign * p.rxRad
