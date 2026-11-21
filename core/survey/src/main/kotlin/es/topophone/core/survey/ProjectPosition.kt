@@ -12,6 +12,7 @@ import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.SpainCrs
 
 /** Por qué falta alguna coordenada de la posición en el SC del proyecto (S006/RF-30, S008/RF-8). */
 enum class PositionUnavailable { NO_HEIGHT, OUTSIDE_CRS_AREA, OUTSIDE_GEOID, OUTSIDE_ED50_GRID }
@@ -72,7 +73,7 @@ class ProjectPositionCalculator(
     fun fromGround(ground: GeodeticPosition, crs: ProjectCrs, heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC): ProjectPosition {
         val lat = ground.latitudeDeg
         val lon = ground.longitudeDeg
-        if (!crs.area.contains(lat, lon)) return ProjectPosition(unavailable = setOf(PositionUnavailable.OUTSIDE_CRS_AREA)) // S008/RF-9
+        if (!crs.containsPosition(lat, lon)) return ProjectPosition(unavailable = setOf(PositionUnavailable.OUTSIDE_CRS_AREA)) // S008/RF-9
 
         // S008/RF-7, RF-8: ED50 sale de ETRS89 por la rejilla; fuera de ella no hay coordenadas.
         val (datumLat, datumLon) = if (crs.datum == GeodeticDatum.ED50) {
@@ -87,7 +88,7 @@ class ProjectPositionCalculator(
             HeightSystem.ELLIPSOIDAL -> groundHeight // S008/RF-5
             HeightSystem.ORTHOMETRIC -> {
                 // S008/RF-4: el geoide del ámbito, en las geográficas ETRS89 o REGCAN95 del punto.
-                val geoid = if (crs.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
+                val geoid = if ((crs as? SpainCrs)?.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
                 val undulation = geoid.undulationM(lat, lon)
                 if (undulation == null && groundHeight != null) unavailable += PositionUnavailable.OUTSIDE_GEOID
                 if (groundHeight != null && undulation != null) groundHeight - undulation else null

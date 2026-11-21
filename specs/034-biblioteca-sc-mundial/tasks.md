@@ -25,7 +25,7 @@
       Hecho cuando: `CrsDefinitionTest` comprueba la ida y vuelta del texto, que la definición no depende del catálogo y los tres resultados.
 
 ## SC del proyecto y cálculo (`core:model`, `core:survey`)
-- [ ] T10. `ProjectCrs` como interfaz sellada con `SpainCrs` y `LibraryCrs` y su API actual en el `companion`. (RF-25)
+- [x] T10. `ProjectCrs` como interfaz sellada con `SpainCrs` y `LibraryCrs` y su API actual en el `companion`. (RF-25)
       Hecho cuando: todo el proyecto compila sin tocar los usos de los diez SC de España, `SpainCrsUnchangedTest` pasa y `check` pasa.
 - [ ] T11. `CoordinateEngine` para `SpainCrs`, delegando en el código de S008, y migración de `ProjectPositionCalculator`. (RF-25, RF-26)
       Hecho cuando: `CoordinateEngineSpainTest` da bit a bit lo de S008 con los vectores `utm_*.csv` y `ed50_utm.csv`.

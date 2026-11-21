@@ -20,6 +20,7 @@ import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.SpainCrs
 import es.topophone.core.model.surface.SurfaceExtent
 import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.RasterFootprint
@@ -307,7 +308,7 @@ class RasterImportViewModel @Inject constructor(
 
     /** La ondulación del geoide del ámbito del proyecto en la latitud y la longitud dadas (RF-10). */
     private fun undulation(crs: ProjectCrs, latLon: Pair<Double, Double>): Double? {
-        val geoid = if (crs.area == CrsArea.CANARIAS) GeoidModels.egm08RednapCanarias else GeoidModels.egm08RednapPeninsula
+        val geoid = if ((crs as? SpainCrs)?.area == CrsArea.CANARIAS) GeoidModels.egm08RednapCanarias else GeoidModels.egm08RednapPeninsula
         return geoid.undulationM(latLon.first, latLon.second)
     }
 

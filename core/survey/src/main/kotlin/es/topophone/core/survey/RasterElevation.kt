@@ -10,6 +10,7 @@ import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.SpainCrs
 import es.topophone.core.model.surface.RasterInfo
 import es.topophone.core.model.surface.RasterTile
 import es.topophone.core.model.surface.Surface
@@ -128,7 +129,7 @@ class RasterElevation(
         // 5. A metros y al sistema de alturas del proyecto.
         var metres = value * unitMetres
         if (info.heightSystem != projectHeightSystem) {
-            val geoid = if (crs.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
+            val geoid = if ((crs as? SpainCrs)?.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
             val undulation = geoid.undulationM(etrs.first, etrs.second) ?: return SurfaceHeight.Outside
             metres = if (info.heightSystem == HeightSystem.ELLIPSOIDAL) metres - undulation else metres + undulation
         }

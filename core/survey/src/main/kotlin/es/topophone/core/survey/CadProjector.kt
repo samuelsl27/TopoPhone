@@ -55,7 +55,7 @@ class CadProjector(
                 val e = if (geographicProject) x else x * metres
                 val n = if (geographicProject) y else y * metres
                 val ground = ground(crs.datum, e, n, crs.utmZone) ?: return CadIgnoredReason.OUTSIDE_ED50_GRID
-                if (!crs.area.contains(ground.first, ground.second)) return CadIgnoredReason.OUTSIDE_CRS_AREA
+                if (!crs.containsPosition(ground.first, ground.second)) return CadIgnoredReason.OUTSIDE_CRS_AREA
                 east[i] = e
                 north[i] = n
                 null

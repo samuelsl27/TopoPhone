@@ -60,6 +60,7 @@ import es.topophone.core.model.project.NameError
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.model.project.ProjectDraft
+import es.topophone.core.model.project.SpainCrs
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResolver
 import es.topophone.core.survey.CentralPointResult
@@ -470,7 +471,7 @@ internal fun CrsChoices(
         ::geodeticDatumOptionTag,
         { datumOptionLabel(it) },
         enabled = !datumLocked,
-    ) { onCrs(crs.closestIn(it)) }
+    ) { onCrs((crs as? SpainCrs ?: SpainCrs.ETRS89_UTM30).closestIn(it)) }
     ChoiceGroup(
         stringResource(R.string.project_projection),
         ProjectCrs.entries.filter { it.datum == crs.datum },

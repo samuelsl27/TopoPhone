@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import es.topophone.core.model.project.ProjectDefaults
+import es.topophone.core.model.project.SpainCrs
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Qualifier
@@ -48,7 +49,7 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
         val factory = ProjectDefaults()
         ProjectDefaults(
             author = p[AUTHOR].orEmpty(),
-            crs = enumOr(p[CRS], factory.crs),
+            crs = enumOr<SpainCrs>(p[CRS], SpainCrs.ETRS89_UTM30),
             linearUnit = enumOr(p[LINEAR_UNIT], factory.linearUnit),
             angularUnit = enumOr(p[ANGULAR_UNIT], factory.angularUnit),
             correctionsDatum = enumOr(p[CORRECTIONS_DATUM], factory.correctionsDatum),

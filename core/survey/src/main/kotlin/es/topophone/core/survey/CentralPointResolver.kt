@@ -56,7 +56,7 @@ class CentralPointResolver(private val manual: ManualCoordinates = ManualCoordin
 
     private fun inArea(latitudeDeg: Double, longitudeDeg: Double, crs: ProjectCrs): CentralPointResult = when {
         !latitudeDeg.isFinite() || !longitudeDeg.isFinite() -> CentralPointResult.Rejected(CentralPointRejection.INVALID_NUMBER)
-        !crs.area.contains(latitudeDeg, longitudeDeg) -> CentralPointResult.Rejected(CentralPointRejection.OUTSIDE_CRS_AREA)
+        !crs.containsPosition(latitudeDeg, longitudeDeg) -> CentralPointResult.Rejected(CentralPointRejection.OUTSIDE_CRS_AREA)
         else -> CentralPointResult.Fixed(CentralPoint(latitudeDeg, longitudeDeg))
     }
 }

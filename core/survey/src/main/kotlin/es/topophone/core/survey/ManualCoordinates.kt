@@ -14,6 +14,7 @@ import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.SpainCrs
 
 /** Un punto escrito a mano: sus coordenadas, o por qué no se puede guardar (S011/RF-19). */
 sealed interface ManualResult {
@@ -50,14 +51,14 @@ class ManualCoordinates(
         } else {
             datumLat to datumLon
         }
-        if (!crs.area.contains(lat, lon)) return ManualResult.Rejected(PositionUnavailable.OUTSIDE_CRS_AREA)
+        if (!crs.containsPosition(lat, lon)) return ManualResult.Rejected(PositionUnavailable.OUTSIDE_CRS_AREA)
 
         val height = typed.height
         val altitudeTyped = height != null && typed.heightKind == HeightKind.PROJECT && heightSystem == HeightSystem.ORTHOMETRIC
         val ellipsoidal = when {
             height == null -> null // S011/RF-18
             altitudeTyped -> {
-                val geoid = if (crs.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
+                val geoid = if ((crs as? SpainCrs)?.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
                 height + (geoid.undulationM(lat, lon) ?: return ManualResult.Rejected(PositionUnavailable.OUTSIDE_GEOID))
             }
             else -> height

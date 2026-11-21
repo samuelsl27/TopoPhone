@@ -202,6 +202,7 @@ import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
+import es.topophone.core.model.project.SpainCrs
 import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPosition
@@ -1937,7 +1938,7 @@ internal fun heightTitle(height: HeightSystem): String = stringResource(
 private fun heightUnavailable(project: Project, position: ProjectPosition): String = stringResource(
     when {
         PositionUnavailable.OUTSIDE_GEOID !in position.unavailable -> R.string.unavailable_no_height
-        project.crs.area == CrsArea.CANARIAS -> R.string.unavailable_outside_geoid_canarias
+        (project.crs as? SpainCrs)?.area == CrsArea.CANARIAS -> R.string.unavailable_outside_geoid_canarias
         else -> R.string.unavailable_outside_geoid
     },
 )

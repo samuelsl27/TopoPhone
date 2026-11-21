@@ -44,13 +44,83 @@ enum class CrsArea(private val latitudes: ClosedFloatingPointRange<Double>, priv
 }
 
 /**
- * Sistemas de coordenadas de los proyectos: UTM en un huso fijo (huso forzado) o geográficas, en
- * ETRS89 (Península y Baleares), REGCAN95 (Canarias) o ED50 (solo UTM) (S006/RF-8, S008/RF-1). Los
- * nombres de S006 no cambian: se guardan por nombre.
+ * El sistema de coordenadas de un proyecto (S006/RF-8, S008/RF-1, S034/RF-13): uno de los diez de España ([SpainCrs]) o uno de la biblioteca de SC
+ * ([LibraryCrs]), con su definición completa. El `companion` conserva los nombres y las funciones del enum de S006 (`ETRS89_UTM30`, `entries`,
+ * `of`, `suggested`, `valueOf`), que siguen siendo los de España.
+ */
+sealed interface ProjectCrs {
+    val name: String
+    val epsg: Int
+
+    /** El datum de S008. En un SC de la biblioteca es solo el marcador ETRS89: su datum de verdad está en la definición. */
+    val datum: GeodeticDatum
+
+    /** Huso UTM, o `null` en coordenadas geográficas y en los SC de la biblioteca (que tienen su proyección). */
+    val utmZone: Int?
+    val isUtm: Boolean get() = utmZone != null
+
+    /** ¿Da el SC coordenadas proyectadas (Este y Norte) y no geográficas? */
+    val isProjected: Boolean
+    val heightSystems: List<HeightSystem>
+
+    /** Datum en el que deberían llegar las correcciones (S008/RF-17). */
+    val correctionsDatum: CorrectionsDatum
+
+    /** ¿Cae la posición dentro del ámbito en que se calcula el SC (S008/RF-9, S006/RF-30)? */
+    fun containsPosition(latitudeDeg: Double, longitudeDeg: Double): Boolean
+
+    val isLibrary: Boolean get() = this is LibraryCrs
+
+    companion object {
+        val ETRS89_UTM29 = SpainCrs.ETRS89_UTM29
+        val ETRS89_UTM30 = SpainCrs.ETRS89_UTM30
+        val ETRS89_UTM31 = SpainCrs.ETRS89_UTM31
+        val ETRS89_GEOGRAPHIC = SpainCrs.ETRS89_GEOGRAPHIC
+        val REGCAN95_UTM27 = SpainCrs.REGCAN95_UTM27
+        val REGCAN95_UTM28 = SpainCrs.REGCAN95_UTM28
+        val REGCAN95_GEOGRAPHIC = SpainCrs.REGCAN95_GEOGRAPHIC
+        val ED50_UTM29 = SpainCrs.ED50_UTM29
+        val ED50_UTM30 = SpainCrs.ED50_UTM30
+        val ED50_UTM31 = SpainCrs.ED50_UTM31
+
+        /** Los diez SC de España. */
+        val entries: List<SpainCrs> get() = SpainCrs.entries
+
+        fun valueOf(name: String): SpainCrs = SpainCrs.valueOf(name)
+
+        fun of(datum: GeodeticDatum, utmZone: Int?): SpainCrs? = SpainCrs.of(datum, utmZone)
+
+        fun suggested(default: ProjectCrs, latitudeDeg: Double, longitudeDeg: Double): SpainCrs? =
+            (default as? SpainCrs)?.let { SpainCrs.suggested(it, latitudeDeg, longitudeDeg) }
+    }
+}
+
+/** Un SC de la biblioteca de SC con su definición completa y copiada en el proyecto (S034/RF-13). */
+data class LibraryCrs(val definition: CrsDefinition, override val correctionsDatum: CorrectionsDatum = defaultCorrections(definition)) :
+    ProjectCrs {
+    override val name: String get() = "LIBRARY:${definition.epsg}"
+    override val epsg: Int get() = definition.epsg
+    override val datum: GeodeticDatum get() = GeodeticDatum.ETRS89
+    override val utmZone: Int? get() = null
+    override val isProjected: Boolean get() = definition.projected
+    override val heightSystems: List<HeightSystem> get() = HeightSystem.entries
+
+    override fun containsPosition(latitudeDeg: Double, longitudeDeg: Double): Boolean =
+        definition.area?.contains(latitudeDeg, longitudeDeg) ?: true
+
+    private companion object {
+        fun defaultCorrections(definition: CrsDefinition): CorrectionsDatum =
+            if (definition.frame == "WGS84") CorrectionsDatum.ITRF_WGS84 else CorrectionsDatum.ETRS89
+    }
+}
+
+/**
+ * Los sistemas de coordenadas de España: UTM en un huso fijo (huso forzado) o geográficas, en ETRS89 (Península y Baleares), REGCAN95
+ * (Canarias) o ED50 (solo UTM) (S006/RF-8, S008/RF-1). Los nombres de S006 no cambian: se guardan por nombre.
  *
  * @property utmZone huso UTM, o `null` en coordenadas geográficas.
  */
-enum class ProjectCrs(val datum: GeodeticDatum, val utmZone: Int?, val epsg: Int) {
+enum class SpainCrs(override val datum: GeodeticDatum, override val utmZone: Int?, override val epsg: Int) : ProjectCrs {
     ETRS89_UTM29(GeodeticDatum.ETRS89, 29, 25829),
     ETRS89_UTM30(GeodeticDatum.ETRS89, 30, 25830),
     ETRS89_UTM31(GeodeticDatum.ETRS89, 31, 25831),
@@ -63,24 +133,28 @@ enum class ProjectCrs(val datum: GeodeticDatum, val utmZone: Int?, val epsg: Int
     ED50_UTM31(GeodeticDatum.ED50, 31, 23031),
     ;
 
-    val isUtm: Boolean get() = utmZone != null
+    override val isUtm: Boolean get() = utmZone != null
+
+    override val isProjected: Boolean get() = utmZone != null
+
+    override fun containsPosition(latitudeDeg: Double, longitudeDeg: Double): Boolean = area.contains(latitudeDeg, longitudeDeg)
 
     /** S008/RF-9. */
     val area: CrsArea get() = if (datum == GeodeticDatum.REGCAN95) CrsArea.CANARIAS else CrsArea.PENINSULA_BALEARES
 
     /** S008/RF-2, RF-3: ED50 solo con altitud. */
-    val heightSystems: List<HeightSystem>
+    override val heightSystems: List<HeightSystem>
         get() = if (datum == GeodeticDatum.ED50) listOf(HeightSystem.ORTHOMETRIC) else HeightSystem.entries
 
     /** Datum en el que deberían llegar las correcciones (S008/RF-17): ED50 se calcula desde ETRS89. */
-    val correctionsDatum: CorrectionsDatum
+    override val correctionsDatum: CorrectionsDatum
         get() = if (datum == GeodeticDatum.REGCAN95) CorrectionsDatum.REGCAN95 else CorrectionsDatum.ETRS89
 
     /**
      * El SC de [target] más parecido a este, al cambiar de datum en el formulario: el mismo huso si existe,
      * geográficas si lo eran y el datum las tiene, y si no el huso habitual del datum (S008/RF-1).
      */
-    fun closestIn(target: GeodeticDatum): ProjectCrs = of(target, utmZone)
+    fun closestIn(target: GeodeticDatum): SpainCrs = of(target, utmZone)
         ?: of(target, null)?.takeIf { !isUtm }
         ?: of(target, defaultZone(target))!!
 
@@ -90,14 +164,14 @@ enum class ProjectCrs(val datum: GeodeticDatum, val utmZone: Int?, val epsg: Int
         /** Huso habitual de cada datum: el de Madrid, y el de las islas centrales en Canarias. */
         private fun defaultZone(datum: GeodeticDatum): Int = if (datum == GeodeticDatum.REGCAN95) 28 else 30
 
-        fun of(datum: GeodeticDatum, utmZone: Int?): ProjectCrs? = entries.firstOrNull { it.datum == datum && it.utmZone == utmZone }
+        fun of(datum: GeodeticDatum, utmZone: Int?): SpainCrs? = entries.firstOrNull { it.datum == datum && it.utmZone == utmZone }
 
         /**
          * SC UTM del huso y del territorio de la posición, partiendo del de por defecto (S008/RF-11): REGCAN95
          * en Canarias; en la Península y Baleares, ED50 si el de por defecto es ED50 y si no ETRS89. `null`
          * con geográficas por defecto o fuera de España.
          */
-        fun suggested(default: ProjectCrs, latitudeDeg: Double, longitudeDeg: Double): ProjectCrs? {
+        fun suggested(default: SpainCrs, latitudeDeg: Double, longitudeDeg: Double): SpainCrs? {
             if (!default.isUtm) return null
             val datum = when (CrsArea.of(latitudeDeg, longitudeDeg) ?: return null) {
                 CrsArea.CANARIAS -> GeodeticDatum.REGCAN95
