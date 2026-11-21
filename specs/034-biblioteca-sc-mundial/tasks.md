@@ -15,7 +15,7 @@
 ## Núcleo del catálogo (`core:geodesy`)
 - [x] T5. Lector y modelo del catálogo: `CrsCatalog`, `CrsEntry`, `DatumEntry`, `TransformationOption`, `GridEntry`, `GridLicense`. (RF-4)
       Hecho cuando: `CrsCatalogTest` carga el recurso, comprueba los recuentos del generador y que un SC conocido (25830, 4326, 2154) tiene sus parámetros.
-- [ ] T6. Contraste del catálogo con pyproj: `CrsBuilder` convierte una entrada en su `MapProjection` y los vectores se comprueban SC por SC. (RF-4)
+- [x] T6. Contraste del catálogo con pyproj: `CrsBuilder` convierte una entrada en su `MapProjection` y los vectores se comprueban SC por SC. (RF-4)
       Hecho cuando: `CatalogVectorsTest` pasa con los tres puntos de cada SC a ≤ 1 mm y ida y vuelta ≤ 0,1 mm, y `CatalogContentTest` fija qué métodos hay.
 - [ ] T7. Búsqueda: `CrsSearch` por país, código y nombre, sin mayúsculas ni tildes, con España primero y filtro por país. (RF-2, RF-3, RF-5)
       Hecho cuando: `CrsSearchTest` cubre «25830», «etrs89 utm 30» y «Francia», las tildes, el orden y una búsqueda en menos de 300 ms.

@@ -52,6 +52,15 @@ def test_s034_rf_4_no_hay_ejes_al_oeste_ni_al_sur_ni_unidades_raras(secciones) -
     assert 22275 not in por_epsg
 
 
+def test_s034_rf_4_los_sc_que_s032_no_calcula_quedan_fuera(secciones) -> None:
+    por_epsg = crs_por_epsg(secciones)
+
+    assert 23700 not in por_epsg  # EOV: difiere de PROJ más de 1 mm
+    assert 3204 not in por_epsg  # Cónica de Lambert con el origen falso en el polo
+    assert not c.fuera_de_dominio("lcc2", "latitudeOfFalseOriginDeg=49.0;standardParallel1Deg=1.0")
+    assert c.fuera_de_dominio("lcc2", "latitudeOfFalseOriginDeg=-90.0")
+
+
 def test_s034_rf_4_cada_epsg_aparece_una_sola_vez(secciones) -> None:
     codigos = [f[c.CRS_EPSG] for f in secciones["crs"]]
 

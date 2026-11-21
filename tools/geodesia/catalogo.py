@@ -111,6 +111,22 @@ ANGULARES = {
 }  # fmt: skip
 LINEALES = {"falseEasting", "falseNorthing", "eastingAtFalseOrigin", "northingAtFalseOrigin", "eastingAtCentre", "northingAtCentre"}
 
+# SC que quedan fuera aunque su método se calcule, descubiertos al contrastar el catálogo con pyproj (S034/T6).
+EXCLUIDOS = {
+    # EOV de Hungría: Hotine B con azimut de 90° exacto; S032 y PROJ difieren 1–2 mm (ver S032 plan: la OM con azimut de 90°).
+    23700: "OM B con azimut de 90°: difiere de PROJ más de 1 mm",
+}
+POLO = 90.0  # una Cónica de Lambert con el origen falso en un polo no es válida en S032 (AT_POLE)
+
+
+def fuera_de_dominio(metodo: str, texto_parametros: str) -> bool:
+    """Los SC cuyos parámetros S032 rechaza: Lambert con el origen en un polo."""
+    if metodo not in ("lcc1", "lcc2"):
+        return False
+    p = parametros(texto_parametros)
+    return abs(p.get("latitudeOfOriginDeg", p.get("latitudeOfFalseOriginDeg", 0.0))) >= POLO
+
+
 # Unidades lineales que S032 sabe aplicar (metros por unidad): m, pie internacional y pie topográfico de EE. UU.
 UNIDADES_M = (1.0, 0.3048, 1200.0 / 3937.0)
 TOLERANCIA_UNIDAD = 1e-9
@@ -215,6 +231,8 @@ def _fila_crs(info, datums: dict[str, list[str]], elipsoides: dict[str, list[str
             return None
         texto_parametros = _parametros_de(crs, metodo, unidad_m)
         if texto_parametros is None:
+            return None
+        if int(info.code) in EXCLUIDOS or fuera_de_dominio(metodo, texto_parametros):
             return None
         tipo, geografico = "P", crs.geodetic_crs
     if geografico is None or geografico.to_epsg() is None or len(geografico.axis_info) != 2:
