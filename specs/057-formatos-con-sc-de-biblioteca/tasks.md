@@ -3,7 +3,7 @@
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Cada tarea cierra con `./gradlew check` en verde (se repite con `--no-parallel` si falla un test ajeno intermitente), la casilla marcada y un commit `S057 Tn: …` en `main`, con la línea Co-Authored-By. Antes del `check`: `./gradlew ktlintCheck :app:checkHardcodedUiText :app:lintStandardDebug` (S034, lecciones del plan).
 
 ## Definiciones WKT y vectores
-- [ ] T1. `tools/geodesia/catalogo_wkt.py`: la definición WKT1 de GeoPackage y la de ESRI de cada SC del catálogo en `crs_wkt.tsv.gz`. (RF-26)
+- [x] T1. `tools/geodesia/catalogo_wkt.py`: la definición WKT1 de GeoPackage y la de ESRI de cada SC del catálogo en `crs_wkt.tsv.gz`. (RF-26)
       Hecho cuando: `test_wkt.py` comprueba una definición por SC, `AUTHORITY` en las de EPSG, determinismo y que el recurso pesa menos de 1 MB.
 - [ ] T2. `CrsWkt` en `core:geodesy.catalog`: lector perezoso por EPSG. (RF-22, RF-23, RF-25, RF-26)
       Hecho cuando: `CrsWktTest` lee las de EPSG:25830, 2154 y 4326 y devuelve `null` si no hay definición.
