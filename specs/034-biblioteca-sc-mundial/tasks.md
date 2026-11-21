@@ -21,7 +21,7 @@
       Hecho cuando: `CrsSearchTest` cubre «25830», «etrs89 utm 30» y «Francia», las tildes, el orden y una búsqueda en menos de 300 ms.
 - [x] T8. `TransformationPicker` (A3) y `GridRequirement`, y `GeoidFromGrid` con la lectura de las rejillas del CDN; medida del tamaño de los ficheros y decisión de lectura por teselas si no caben. (RF-10, RF-11, RF-12, RF-14, RF-16)
       Hecho cuando: `TransformationPickerTest` y `GeoidFromGridTest` pasan (geoide pequeño contra pyproj a ≤ 1 mm), y el resultado de la medida está anotado en `plan.md`.
-- [ ] T9. `CrsDefinition` y su texto estable, ida y vuelta, con `CrsBuilder.build` devolviendo `Ready`, `NeedsGrids` o `Unavailable`. (RF-8, RF-12, RF-13)
+- [x] T9. `CrsDefinition` y su texto estable, ida y vuelta, con `CrsBuilder.build` devolviendo `Ready`, `NeedsGrids` o `Unavailable`. (RF-8, RF-12, RF-13)
       Hecho cuando: `CrsDefinitionTest` comprueba la ida y vuelta del texto, que la definición no depende del catálogo y los tres resultados.
 
 ## SC del proyecto y cálculo (`core:model`, `core:survey`)

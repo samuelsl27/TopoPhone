@@ -79,6 +79,8 @@ data class TransformationOption(
     val accuracyM: Double?,
     val area: CatalogArea?,
     val steps: List<StepSpec>,
+    /** Los pasos en la notación del catálogo, tal como los guarda la definición del SC en el proyecto (S034/RF-13). */
+    val stepsText: String,
 ) {
     /** Las rejillas que necesita, en orden. */
     val gridNames: List<String> get() = steps.filterIsInstance<StepSpec.Grid>().map { it.name }

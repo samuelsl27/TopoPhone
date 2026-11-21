@@ -78,7 +78,8 @@ class CrsCatalog private constructor(
                     name = f[2],
                     accuracyM = f[3].toDoubleOrNull(),
                     area = CatalogArea.parse(f[4]),
-                    steps = f[5].split('|').map(::step),
+                    steps = parseSteps(f[5]),
+                    stepsText = f[5],
                 )
             }
             val licenses = section("licenses").associate { f -> f[0] to GridLicense(f[0], f[1], f[2] == "1", f[3]) }
@@ -112,6 +113,9 @@ class CrsCatalog private constructor(
         }.let { Triple(it[0], it[1], it[2]) }
 
         private fun ellipsoidOf(text: String): Ellipsoid = text.split(',').let { ellipsoid(it[0].toDouble(), it[1].toDouble()) }
+
+        /** Los pasos de una transformación en la notación del catálogo, separados por `|`. */
+        fun parseSteps(text: String): List<StepSpec> = text.split('|').map(::step)
 
         private fun step(text: String): StepSpec {
             if (text == "null") return StepSpec.Null
