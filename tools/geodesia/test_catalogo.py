@@ -112,3 +112,82 @@ def test_s034_rf_2_los_paises_salen_del_nombre_del_ambito() -> None:
 
 def test_s034_rf_4_la_generacion_es_determinista(secciones) -> None:
     assert c.a_texto(secciones) == c.a_texto(c.generar_crs())
+
+
+# --- Parte 2: transformaciones de cada datum hasta ETRS89 y WGS 84 ---
+
+
+@pytest.fixture(scope="session")
+def completo() -> dict[str, list[list[str]]]:
+    return c.generar()
+
+
+def opciones_de(completo, datum: str, destino: str) -> list[list[str]]:
+    return [f for f in completo["options"] if f[c.OPCION_DATUM] == datum and f[c.OPCION_DESTINO] == destino]
+
+
+def test_s034_rf_4_todo_sc_tiene_al_menos_una_transformacion(completo) -> None:
+    con_opcion = {f[c.OPCION_DATUM] for f in completo["options"]}
+
+    assert all(f[c.CRS_DATUM] in con_opcion for f in completo["crs"])
+    assert {f[c.DATUM_CODIGO] for f in completo["datums"]} == {f[c.CRS_DATUM] for f in completo["crs"]}
+    assert len(completo["crs"]) > 4500
+
+
+def test_s034_rf_4_los_pasos_solo_usan_lo_que_calcula_s033(completo) -> None:
+    for fila in completo["options"]:
+        assert len(fila) == c.COLUMNAS["options"]
+        for paso in fila[c.OPCION_PASOS].split("|"):
+            assert paso == "null" or paso.startswith(("H;A=", "G;grid=")), paso
+        if "null" in fila[c.OPCION_PASOS]:
+            assert fila[c.OPCION_PASOS] == "null"
+
+
+def test_s034_rf_10_ed50_a_etrs89_ofrece_la_rejilla_del_ign_y_los_helmert_de_epsg(completo) -> None:
+    opciones = opciones_de(completo, "4230", "E")
+    pasos = [f[c.OPCION_PASOS] for f in opciones]
+
+    assert any(p == "G;grid=es_ign_SPED2ETV2.tif;inv=0" for p in pasos)
+    assert any(p.startswith("H;") for p in pasos)
+    assert [f[c.OPCION_PRECISION_M] for f in opciones if f[c.OPCION_PRECISION_M]] == sorted(
+        (f[c.OPCION_PRECISION_M] for f in opciones if f[c.OPCION_PRECISION_M]), key=float
+    )
+
+
+def test_s034_rf_9_cada_opcion_lleva_su_nombre_precision_y_ambito(completo) -> None:
+    ign = next(f for f in opciones_de(completo, "4230", "E") if "SPED2ETV2" in f[c.OPCION_PASOS])
+
+    assert ign[c.OPCION_NOMBRE].startswith("ED50 to ETRS89")
+    assert float(ign[c.OPCION_PRECISION_M]) == pytest.approx(0.2)
+    sur, oeste, norte, este = (float(v) for v in ign[c.OPCION_AMBITO].split(","))
+    assert sur < 36.0 < 43.0 < norte and oeste < -9.0 and este > 3.0
+
+
+def test_s034_rf_4_etrs89_y_regcan95_no_cambian_nada_hasta_etrs89(completo) -> None:
+    assert [f[c.OPCION_PASOS] for f in opciones_de(completo, "4258", "E")] == ["null"]
+    regcan = opciones_de(completo, "4081", "E")
+
+    assert [f[c.OPCION_PASOS] for f in regcan] == ["null"]
+    assert "1071/2007" in regcan[0][c.OPCION_NOMBRE]
+    assert opciones_de(completo, "4081", "W")
+
+
+def test_s034_rf_4_la_ntf_de_paris_usa_solo_las_opciones_con_su_meridiano(completo) -> None:
+    opciones = opciones_de(completo, "4807", "E")
+
+    assert opciones
+    assert all(f[c.OPCION_PASOS].startswith(("H;", "G;")) for f in opciones)
+
+
+def test_s034_rf_4_un_paso_de_helmert_lleva_elipsoides_convencion_y_parametros(completo) -> None:
+    paso = next(f[c.OPCION_PASOS] for f in opciones_de(completo, "4230", "E") if f[c.OPCION_NOMBRE] == "ED50 to ETRS89 (7)")
+    campos = dict(parte.split("=", 1) for parte in paso.split(";")[1:])
+
+    assert campos["A"] == "6378388.0,297.0"
+    assert campos["B"] == "6378137.0,298.257222101"
+    assert campos["inv"] == "0" and campos["conv"] == "PV"
+    assert [float(v) for v in campos["p"].split(",")] == [-131.0, -100.3, -163.4, -1.244, -0.02, -1.144, 9.39]
+
+
+def test_s034_rf_4_la_generacion_completa_es_determinista(completo) -> None:
+    assert c.a_texto(completo) == c.a_texto(c.generar())

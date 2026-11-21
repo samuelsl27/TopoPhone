@@ -5,7 +5,7 @@
 ## Generador del catálogo (`tools/geodesia`)
 - [x] T1. `tools/geodesia/catalogo.py`, parte 1: SC proyectados y geográficos activos de EPSG con ejes E–N, método y parámetros, unidades, ámbito y países; descarte de los métodos que no calculamos, y formato TSV de las secciones `#ellipsoids`, `#datums` y `#crs`. (RF-4)
       Hecho cuando: `test_catalogo.py` comprueba columnas, recuento, ausencia de obsoletos y de ejes al oeste o al sur, y la salida es idéntica al regenerarla.
-- [ ] T2. `catalogo.py`, parte 2: transformaciones de cada datum a ETRS89 y a WGS84 (`#option`: nula, Helmert 3/7 PV y CF, Molodensky-Badekas, rejilla y cadenas) con precisión y ámbito; los SC sin ninguna se descartan. (RF-4, RF-9, RF-10)
+- [x] T2. `catalogo.py`, parte 2: transformaciones de cada datum a ETRS89 y a WGS84 (`#option`: nula, Helmert 3/7 PV y CF, Molodensky-Badekas, rejilla y cadenas) con precisión y ámbito; los SC sin ninguna se descartan. (RF-4, RF-9, RF-10)
       Hecho cuando: `test_catalogo.py` comprueba que cada SC tiene al menos una opción, que los pasos solo usan los métodos de S033 y que REGCAN95 comparte las de ETRS89 (D8).
 - [ ] T3. `catalogo.py`, parte 3: rejillas del CDN (`#grids` con tamaño, SHA-256 y ámbito) y licencias curadas por `source_id` (`#licenses`), y escritura de `core/geodesy/src/main/resources/catalog/crs.tsv.gz`. (RF-4, RF-19, RF-20)
       Hecho cuando: `test_catalogo.py` comprueba que cada rejilla usada tiene SHA-256 y licencia (o «no clara» con URL), y que el fichero no pasa de 2 MB.
