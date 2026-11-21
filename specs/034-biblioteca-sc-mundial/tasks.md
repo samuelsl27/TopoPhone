@@ -59,5 +59,5 @@
       Hecho cuando: `ProjectFormGeoidTest`, `MissingGridProjectTest` y `OfflineProjectTest` pasan.
 - [x] T24. Factores de escala, convergencia y factor combinado, y avisos de formatos en los menús. (RF-27, RF-29)
       Hecho cuando: `LibraryProjectFlowTest` pasa.
-- [ ] T25. Validación final: recorrer la spec RF por RF, informe de trazabilidad, regenerar el catálogo, `plan.md` con «Cambios al implementar» y «Validación», hoja de ruta, y la demo del emulador. (Todos)
+- [x] T25. Validación final: recorrer la spec RF por RF, informe de trazabilidad, regenerar el catálogo, `plan.md` con «Cambios al implementar» y «Validación», hoja de ruta, y la demo del emulador. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, `check`, `pytest`, `forbidden_files` y `assembleDebug` pasan y la demo funciona.
