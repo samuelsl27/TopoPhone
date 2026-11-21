@@ -33,7 +33,7 @@
       Hecho cuando: `CoordinateEngineTest` pasa con varios SC de la biblioteca frente a pyproj, con un geoide ausente y sin conexión.
 - [x] T13. Migración al motor de los demás sitios que usan `Utm` o `Ed50` (`ManualCoordinates`, `GroundPosition`, `GroundPoint`, `CadPlacement`, `ImportAreaFilter`, `RasterElevation`). (RF-26, RF-28)
       Hecho cuando: los tests de cada uno pasan sin cambios en España y `LibraryProjectCoreTest` comprueba puntos manuales, geometría y COGO en un SC de la biblioteca.
-- [ ] T14. Replanteo, base shift y mapa con un SC de la biblioteca. (RF-28)
+- [x] T14. Replanteo, base shift y mapa con un SC de la biblioteca. (RF-28)
       Hecho cuando: `LibraryStakeoutTest`, `LibraryBaseShiftTest` y `LibraryMapProjectionTest` pasan.
 - [ ] T15. `supportsFormats` y el aviso de los formatos aún no disponibles; exportar e importar CSV con el SC de la biblioteca. (RF-28, RF-29)
       Hecho cuando: `FormatsDisabledTest` y `LibraryCsvTest` pasan.

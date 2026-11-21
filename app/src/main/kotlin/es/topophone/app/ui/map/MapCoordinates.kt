@@ -25,7 +25,9 @@ data class MapCoordinates(val latitudeDeg: Double, val longitudeDeg: Double, val
     /** Por qué el punto cae fuera del ámbito del SC del proyecto, o null si cae dentro (RF-41, S008/RF-9, RF-8). */
     val outOfScope: PositionUnavailable?
         get() = position.unavailable.firstOrNull {
-            it == PositionUnavailable.OUTSIDE_CRS_AREA || it == PositionUnavailable.OUTSIDE_ED50_GRID
+            it == PositionUnavailable.OUTSIDE_CRS_AREA ||
+                it == PositionUnavailable.OUTSIDE_ED50_GRID ||
+                it == PositionUnavailable.OUTSIDE_DATUM_GRID
         }
 
     /**
