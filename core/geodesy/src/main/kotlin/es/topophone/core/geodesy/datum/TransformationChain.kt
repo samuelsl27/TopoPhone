@@ -78,6 +78,7 @@ class TransformationChain(private val steps: List<DatumTransformation>, override
     private companion object {
         fun linksOf(step: DatumTransformation, forward: Boolean): List<ChainLink> = when (step) {
             is TransformationChain -> if (forward) step.forwardLinks else step.inverseLinks
+            is ReversedTransformation -> linksOf(step.base, !forward)
             is HelmertTransformation -> listOf(geocentricLink(step.geocentricStep, forward))
             is MolodenskyBadekas -> listOf(geocentricLink(step.geocentricStep, forward))
             else -> listOf(ChainLink.Opaque(if (forward) step::forward else step::inverse))

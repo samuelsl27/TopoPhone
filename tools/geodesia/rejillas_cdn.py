@@ -85,6 +85,7 @@ def licencia_unica_del_readme(texto: str) -> str:
 
 # --- Cabecera GeoTIFF: cobertura de un geoide ---------------------------------------------------------------------------------------
 
+ETIQUETAS_LEIDAS = (256, 257, 258, 259, 277, 284, 317, 339, 33550, 33922, 34264)  # tamaño, formato de muestra y georreferencia
 TIPOS = {3: ("H", 2), 4: ("I", 4), 12: ("d", 8), 16: ("Q", 8), 5: ("II", 8)}
 
 
@@ -120,7 +121,7 @@ class _Cabecera:
             else:
                 etiqueta, tipo, n = struct.unpack(f + "HHI", e[:8])
                 valor = e[8:12]
-            if tipo not in TIPOS or etiqueta not in (256, 257, 33550, 33922, 34264):
+            if tipo not in TIPOS or etiqueta not in ETIQUETAS_LEIDAS:
                 continue
             formato, tam = TIPOS[tipo]
             if tam * n > len(valor):
@@ -130,10 +131,26 @@ class _Cabecera:
         return salida
 
 
-def cobertura(nombre: str) -> tuple[float, float, float, float] | None:
-    """(sur, oeste, norte, este) en grados del GeoTIFF por su cabecera, o `None` si no es geográfico o no se entiende."""
+def es_compatible(etiquetas: dict[int, list[float]], grande: bool) -> bool:
+    """¿Sabe leerla `GeoTiffGrid` (ADR-4)? TIFF clásico, float32, sin compresión o DEFLATE, predictor 1 o 3, y varias bandas solo en planos separados."""
+    if grande:
+        return False
+    bandas = int(etiquetas.get(277, [1])[0])
+    return (
+        int(etiquetas.get(259, [1])[0]) in (1, 8, 32946)
+        and int(etiquetas.get(317, [1])[0]) in (1, 3)
+        and set(etiquetas.get(258, [])) == {32}
+        and set(etiquetas.get(339, [])) == {3}
+        and (bandas == 1 or int(etiquetas.get(284, [1])[0]) == 2)
+    )
+
+
+def cobertura(nombre: str) -> tuple[tuple[float, float, float, float] | None, bool]:
+    """((sur, oeste, norte, este) en grados del GeoTIFF por su cabecera o `None`, ¿lo sabe leer `GeoTiffGrid`?)."""
     try:
-        etiquetas = _Cabecera(CDN + nombre).etiquetas()
+        cabecera = _Cabecera(CDN + nombre)
+        etiquetas = cabecera.etiquetas()
+        compatible = es_compatible(etiquetas, cabecera.grande)
         ancho, alto = etiquetas[256][0], etiquetas[257][0]
         if 34264 in etiquetas:
             g = etiquetas[34264]
@@ -142,10 +159,10 @@ def cobertura(nombre: str) -> tuple[float, float, float, float] | None:
             x0, y0 = etiquetas[33922][3], etiquetas[33922][4]
             dx, dy = etiquetas[33550][0], -etiquetas[33550][1]
     except (KeyError, IndexError, struct.error, OSError):
-        return None
+        return None, False
     oeste, este = x0, x0 + dx * (ancho - 1)
     norte, sur = y0, y0 + dy * (alto - 1)
-    return round(min(sur, norte), 6), round(min(oeste, este), 6), round(max(sur, norte), 6), round(max(oeste, este), 6)
+    return (round(min(sur, norte), 6), round(min(oeste, este), 6), round(max(sur, norte), 6), round(max(oeste, este), 6)), compatible
 
 
 # --- Instantánea -------------------------------------------------------------------------------------------------------------------
@@ -179,8 +196,7 @@ def construir_instantanea() -> dict:
             "targetCrs": p.get("target_crs_code", ""),
             "targetName": p.get("target_crs_name", ""),
         }
-        if p["type"] == TIPO_GEOIDE:
-            fila["area"] = cobertura(p["name"])
+        fila["area"], fila["compatible"] = cobertura(p["name"])
         filas.append(fila)
     return {"cdn": CDN, "grids": filas}
 

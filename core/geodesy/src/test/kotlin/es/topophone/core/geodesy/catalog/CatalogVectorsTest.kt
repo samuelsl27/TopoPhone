@@ -12,7 +12,7 @@ class CatalogVectorsTest {
 
     private data class Vector(val epsg: Int, val latitudeDeg: Double, val longitudeDeg: Double, val eastingM: Double, val northingM: Double)
 
-    private fun vectors(): List<Vector> = GeodesyFixtures.names("catalogo_").flatMap { name ->
+    private fun vectors(): List<Vector> = GeodesyFixtures.names("catalogo_").filterNot { "transformaciones" in it }.flatMap { name ->
         GeodesyFixtures.rows(name).map { Vector(it[0].toInt(), it[2].toDouble(), it[3].toDouble(), it[4].toDouble(), it[5].toDouble()) }
     }
 

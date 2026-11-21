@@ -60,3 +60,15 @@ def test_s034_rf_4_los_ficheros_se_escriben_ordenados_y_sin_cambios_al_regenerar
     assert [p.read_bytes() for p in primeros] == [p.read_bytes() for p in segundos]
     lineas = primeros[0].read_text(encoding="utf-8").splitlines()
     assert lineas[0].startswith("# Vectores") and lineas[1].startswith("# pyproj=") and lineas[2] == "epsg,punto,latitud,longitud,este_m,norte_m"
+
+
+def test_s034_rf_9_las_transformaciones_de_cada_opcion_tienen_vectores_de_proj(completo) -> None:
+    filas = v.generar_vectores_transformaciones(completo)
+    nombres = {(f[0], f[1], f[2]) for f in filas}
+
+    assert len(filas) > 400
+    assert ("4230", "E", "ED50 to ETRS89 (7)") in nombres
+    assert ("4230", "E", "ED50 to ETRS89 (12)") in nombres  # rejilla SPED2ETV2, la que va en la app
+    assert all(len(f) == 7 for f in filas)
+    texto = v.a_csv_transformaciones(filas)
+    assert texto.splitlines()[2] == "datum,destino,nombre,latitud,longitud,latitud_destino,longitud_destino"

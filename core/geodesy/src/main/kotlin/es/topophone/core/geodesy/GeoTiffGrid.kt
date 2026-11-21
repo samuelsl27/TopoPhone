@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.zip.Inflater
+import kotlin.math.ceil
 import kotlin.math.floor
 
 /**
@@ -92,6 +93,13 @@ class GeoTiffGrid private constructor(
 
         /** Todas las subrejillas, en el orden del fichero (PROJ usa la primera que contiene el punto). */
         fun readAll(bytes: ByteArray): List<GeoTiffGrid> = Reader(bytes).readAll()
+
+        /**
+         * Solo los nodos de la primera subrejilla que caen en [window] (con un nodo de margen para la interpolación): los geoides grandes
+         * no caben enteros en la memoria de un móvil (S034). `null` si la ventana no toca la rejilla. Los nodos que quedan dan el mismo
+         * valor que con [read]; fuera de ellos se rechaza, como fuera de la rejilla.
+         */
+        fun readWindow(bytes: ByteArray, window: GridWindow): GeoTiffGrid? = Reader(bytes).readFirst(window)
     }
 
     private class Entry(val type: Int, val count: Int, val valueOffset: Int, val inline: ByteArray)
@@ -112,12 +120,18 @@ class GeoTiffGrid private constructor(
             while (offset != 0) {
                 tags.clear()
                 offset = readIfd(offset)
-                grids += read()
+                grids += checkNotNull(read(null))
             }
             return grids
         }
 
-        private fun read(): GeoTiffGrid {
+        fun readFirst(window: GridWindow): GeoTiffGrid? {
+            require(buffer.getShort(2).toInt() == 42) { "Solo se admite TIFF clásico (no BigTIFF)" }
+            readIfd(buffer.getInt(4))
+            return read(window)
+        }
+
+        private fun read(window: GridWindow?): GeoTiffGrid? {
             val width = int(TAG_WIDTH)
             val height = int(TAG_HEIGHT)
             require(int(TAG_BITS) == 32 && int(TAG_SAMPLE_FORMAT, default = 1) == 3) { "Solo se admiten muestras float32" }
@@ -128,8 +142,29 @@ class GeoTiffGrid private constructor(
             val predictor = int(TAG_PREDICTOR, default = 1)
             require(predictor == 1 || predictor == 3) { "Predictor $predictor no admitido" }
 
+            val scale = doubles(TAG_PIXEL_SCALE)
+            val tie = doubles(TAG_TIEPOINT)
+            val area = rasterType() == RASTER_PIXEL_IS_AREA
+            val lon0 = tie[3] - tie[0] * scale[0] + if (area) scale[0] / 2 else 0.0
+            val lat0 = tie[4] + tie[1] * scale[1] - if (area) scale[1] / 2 else 0.0
+
+            // La parte de la rejilla que se lee: toda, o la que toca la ventana con un nodo de margen.
+            var x0 = 0
+            var x1 = width - 1
+            var y0 = 0
+            var y1 = height - 1
+            if (window != null) {
+                x0 = maxOf(0, floor((window.westDeg - lon0) / scale[0]).toInt() - 1)
+                x1 = minOf(width - 1, ceil((window.eastDeg - lon0) / scale[0]).toInt() + 1)
+                y0 = maxOf(0, floor((lat0 - window.northDeg) / scale[1]).toInt() - 1)
+                y1 = minOf(height - 1, ceil((lat0 - window.southDeg) / scale[1]).toInt() + 1)
+                if (x0 > x1 || y0 > y1) return null
+            }
+            val outWidth = x1 - x0 + 1
+            val outHeight = y1 - y0 + 1
+
             // En planos separados, los bloques de cada banda van seguidos: primero todos los de la banda 0.
-            val values = List(bands) { FloatArray(width * height) }
+            val values = List(bands) { FloatArray(outWidth * outHeight) }
             if (TAG_TILE_WIDTH in tags) {
                 val tileWidth = int(TAG_TILE_WIDTH)
                 val tileHeight = int(TAG_TILE_LENGTH)
@@ -139,20 +174,11 @@ class GeoTiffGrid private constructor(
                 val perBand = offsets.size / bands
                 offsets.indices.forEach { k ->
                     val t = k % perBand
+                    val tileX = (t % tilesAcross) * tileWidth
+                    val tileY = (t / tilesAcross) * tileHeight
+                    if (tileX > x1 || tileX + tileWidth - 1 < x0 || tileY > y1 || tileY + tileHeight - 1 < y0) return@forEach
                     val block = decode(offsets[k], counts[k], tileWidth, tileHeight, compression, predictor)
-                    copy(
-                        block,
-                        tileWidth,
-                        tileHeight,
-                        (t % tilesAcross) * tileWidth,
-                        (t / tilesAcross) * tileHeight,
-                        width,
-                        height,
-                        values[
-                            k /
-                                perBand,
-                        ],
-                    )
+                    copy(block, tileWidth, tileHeight, tileX, tileY, width, height, values[k / perBand], x0, y0, outWidth, outHeight)
                 }
             } else {
                 val rowsPerStrip = int(TAG_ROWS_PER_STRIP, default = height)
@@ -162,18 +188,16 @@ class GeoTiffGrid private constructor(
                 offsets.indices.forEach { k ->
                     val s = k % perBand
                     val rows = minOf(rowsPerStrip, height - s * rowsPerStrip)
+                    if (s * rowsPerStrip > y1 || s * rowsPerStrip + rows - 1 < y0) return@forEach
                     val block = decode(offsets[k], counts[k], width, rows, compression, predictor)
-                    copy(block, width, rows, 0, s * rowsPerStrip, width, height, values[k / perBand])
+                    copy(block, width, rows, 0, s * rowsPerStrip, width, height, values[k / perBand], x0, y0, outWidth, outHeight)
                 }
             }
 
-            val scale = doubles(TAG_PIXEL_SCALE)
-            val tie = doubles(TAG_TIEPOINT)
-            val area = rasterType() == RASTER_PIXEL_IS_AREA
-            val lon0 = tie[3] - tie[0] * scale[0] + if (area) scale[0] / 2 else 0.0
-            val lat0 = tie[4] + tie[1] * scale[1] - if (area) scale[1] / 2 else 0.0
             val noData = tags[TAG_NODATA]?.let { ascii(it).trim().toFloatOrNull() }
-            return GeoTiffGrid(width, height, lon0, lat0, scale[0], scale[1], values, noData, metadata())
+            val firstLongitude = lon0 + x0 * scale[0]
+            val firstLatitude = lat0 - y0 * scale[1]
+            return GeoTiffGrid(outWidth, outHeight, firstLongitude, firstLatitude, scale[0], scale[1], values, noData, metadata())
         }
 
         /** Lee una IFD y devuelve dónde empieza la siguiente (0 si es la última). */
@@ -296,14 +320,35 @@ class GeoTiffGrid private constructor(
             }
         }
 
-        /** Copia la parte válida de un bloque (los de borde vienen rellenos) a la rejilla. */
-        fun copy(block: FloatArray, blockWidth: Int, blockHeight: Int, x0: Int, y0: Int, width: Int, height: Int, target: FloatArray) {
+        /**
+         * Copia a la rejilla leída (que empieza en el nodo ([x0], [y0]) de la completa y mide [outWidth]×[outHeight]) la parte válida de un
+         * bloque situado en ([blockX], [blockY]); los de borde vienen rellenos y los de la ventana se recortan.
+         */
+        fun copy(
+            block: FloatArray,
+            blockWidth: Int,
+            blockHeight: Int,
+            blockX: Int,
+            blockY: Int,
+            width: Int,
+            height: Int,
+            target: FloatArray,
+            x0: Int,
+            y0: Int,
+            outWidth: Int,
+            outHeight: Int,
+        ) {
+            val from = maxOf(blockX, x0)
+            val to = minOf(blockX + blockWidth - 1, width - 1, x0 + outWidth - 1)
+            if (to < from) return
             for (row in 0 until blockHeight) {
-                val y = y0 + row
-                if (y >= height) break
-                val columns = minOf(blockWidth, width - x0)
-                System.arraycopy(block, row * blockWidth, target, y * width + x0, columns)
+                val y = blockY + row
+                if (y >= height || y < y0 || y >= y0 + outHeight) continue
+                System.arraycopy(block, row * blockWidth + (from - blockX), target, (y - y0) * outWidth + (from - x0), to - from + 1)
             }
         }
     }
 }
+
+/** Recuadro en geográficas, en grados, que se pide leer de una rejilla (S034). */
+class GridWindow(val southDeg: Double, val westDeg: Double, val northDeg: Double, val eastDeg: Double)

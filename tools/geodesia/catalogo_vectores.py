@@ -25,13 +25,13 @@ FRACCIONES = [(0.5, 0.5), (0.25, 0.35), (0.75, 0.65)]  # (de sur a norte, de oes
 MAX_COORDENADA_M = 1e9
 
 
-def puntos_de_prueba(ambito: str) -> list[tuple[float, float]]:
+def puntos_de_prueba(ambito: str, fracciones: list[tuple[float, float]] | None = None) -> list[tuple[float, float]]:
     """(latitud, longitud) de los tres puntos dentro del recuadro S,W,N,E; si cruza el antimeridiano (W > E) se cuenta hacia el este."""
     sur, oeste, norte, este = (float(v) for v in ambito.split(","))
     if este < oeste:
         este += 360.0
     puntos = []
-    for fraccion_lat, fraccion_lon in FRACCIONES:
+    for fraccion_lat, fraccion_lon in fracciones or FRACCIONES:
         longitud = oeste + (este - oeste) * fraccion_lon
         longitud = (longitud + 180.0) % 360.0 - 180.0
         puntos.append((round(sur + (norte - sur) * fraccion_lat, 6), round(longitud, 6)))
@@ -91,11 +91,75 @@ def escribir(vectores: dict[str, list[list[str]]], carpeta: Path = OUT) -> list[
     return rutas
 
 
+# --- Transformaciones de datum de cada opción (sin rejillas, o con las que van en la app) ----------------------------------------------
+
+REJILLAS_DE_LA_APP = {"es_ign_SPED2ETV2.tif"}
+FRACCIONES_TRANSFORMACION = [(0.5, 0.5), (0.3, 0.7)]
+
+
+def generar_vectores_transformaciones(secciones: dict[str, list[list[str]]]) -> list[list[str]]:
+    """Para cada opción cuyos pasos son Helmert, Molodensky-Badekas o nulos (o la rejilla ED50 de la app): dos puntos dentro de su ámbito y lo que
+    da la tubería de PROJ (altura 0, como las operaciones 2D de EPSG). Sirve para comprobar la traducción de las tuberías a los pasos."""
+    import warnings
+
+    from pyproj.transformer import TransformerGroup
+
+    pyproj.network.set_network_enabled(True)
+    datums = {f[c.DATUM_CODIGO]: f for f in secciones["datums"]}
+    filas: list[list[str]] = []
+    for opcion in secciones["options"]:
+        if not set(c.rejillas_de(opcion[c.OPCION_PASOS])) <= REJILLAS_DE_LA_APP or not opcion[c.OPCION_AMBITO]:
+            continue
+        datum = datums[opcion[c.OPCION_DATUM]]
+        if int(datum[c.DATUM_CODIGO]) == c.REGCAN95:
+            continue
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            try:
+                grupo = TransformerGroup(int(datum[c.DATUM_CODIGO]), c.DESTINOS[opcion[c.OPCION_DESTINO]], always_xy=True, allow_ballpark=False)
+            except (IndexError, pyproj.exceptions.ProjError):
+                continue
+        for t in grupo.transformers:
+            if c.limpiar(t.description.removesuffix(c.SUFIJO_EJES)) != opcion[c.OPCION_NOMBRE]:
+                continue
+            if c.pasos_de_tuberia(t.definition, float(datum[c.DATUM_MERIDIANO])) != opcion[c.OPCION_PASOS]:
+                continue
+            for latitud, longitud in puntos_de_prueba(opcion[c.OPCION_AMBITO], FRACCIONES_TRANSFORMACION):
+                # PROJ cuenta la longitud desde Greenwich y espera las del CRS: para meridianos de origen distintos se usa la de Greenwich.
+                x = math.radians(longitud - float(datum[c.DATUM_MERIDIANO])) / grupo_unidad(t, datum)
+                y = math.radians(latitud) / grupo_unidad(t, datum)
+                lon_out, lat_out = t.transform(x, y)
+                if not (math.isfinite(lon_out) and math.isfinite(lat_out)):
+                    continue
+                filas.append([opcion[c.OPCION_DATUM], opcion[c.OPCION_DESTINO], opcion[c.OPCION_NOMBRE], c.num(latitud), c.num(longitud), c.num(lat_out), c.num(lon_out)])
+            break
+    return filas
+
+
+def grupo_unidad(transformador, datum: list[str]) -> float:
+    """Radianes por unidad de los ejes del CRS geográfico de origen (el grado casi siempre; el gon en las NTF de París)."""
+    return CRS.from_epsg(int(datum[c.DATUM_CODIGO])).axis_info[0].unit_conversion_factor
+
+
+def a_csv_transformaciones(filas: list[list[str]]) -> str:
+    """CSV de los vectores; las comas del nombre de la transformación (la tercera columna) se escriben como `;`."""
+    cabecera = [
+        "# Transformaciones de datum de cada opción del catálogo de S034 (altura 0). Generado por tools/geodesia/catalogo_vectores.py; no editar a mano.",
+        f"# pyproj={pyproj.__version__}; PROJ={pyproj.proj_version_str}",
+        "datum,destino,nombre,latitud,longitud,latitud_destino,longitud_destino",
+    ]
+    cuerpo = [",".join(valor.replace(",", ";") if k == 2 else valor for k, valor in enumerate(fila)) for fila in filas]
+    return "\n".join(cabecera + cuerpo) + "\n"
+
+
 def main() -> int:
     secciones = c.generar()
     c.escribir(secciones)
     rutas = escribir(generar_vectores(secciones))
-    print(f"{len(rutas)} ficheros de vectores")
+    (OUT / "catalogo_transformaciones.csv").write_text(
+        a_csv_transformaciones(generar_vectores_transformaciones(secciones)), encoding="utf-8", newline="\n"
+    )
+    print(f"{len(rutas)} ficheros de vectores y las transformaciones")
     return 0
 
 

@@ -11,6 +11,9 @@ object GeodesyFixtures {
             ?: error("No se encuentra la raíz del repositorio")
     }
 
+    /** El contenido de un fichero de `fixtures/geodesia/` (por ejemplo `rejillas/fr_ign_ggpf02-Bora.tif`). */
+    fun bytes(relative: String): ByteArray = File(root, "fixtures/geodesia/$relative").readBytes()
+
     /** Nombres de los CSV de `fixtures/geodesia/` que empiezan por [prefix], ordenados. */
     fun names(prefix: String): List<String> =
         File(root, "fixtures/geodesia").listFiles { f -> f.name.startsWith(prefix) && f.name.endsWith(".csv") }!!.map { it.name }.sorted()

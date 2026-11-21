@@ -371,6 +371,8 @@ def pasos_de_tuberia(definicion: str, meridiano_datum_deg: float) -> str | None:
         elif metodo == "helmert":
             if elipsoide_entrada is None or not set(tokens) <= CLAVES_HELMERT:
                 return None
+            if "exact" in tokens:  # PROJ usa la matriz de rotación completa; S033 usa la de EPSG (ángulos pequeños) y difiere metros con 200"
+                return None
             p = [float(tokens.get(k, 0.0)) for k in ("x", "y", "z", "rx", "ry", "rz", "s")]
             pivote = [float(tokens[k]) for k in ("px", "py", "pz")] if "px" in tokens else None
             convencion = "CF" if tokens.get("convention") == "coordinate_frame" else "PV"
@@ -432,7 +434,7 @@ def generar_opciones(datums: list[list[str]]) -> list[list[str]]:
 def generar() -> dict[str, list[list[str]]]:
     """El catálogo hasta la parte 2: los SC sin ninguna transformación hasta ETRS89 o WGS 84 no entran (S034/RF-4)."""
     secciones = generar_crs()
-    opciones = generar_opciones(secciones["datums"])
+    opciones = [f for f in generar_opciones(secciones["datums"]) if _rejillas_legibles(f)]
     con_opcion = {f[OPCION_DATUM] for f in opciones}
     secciones["crs"] = [f for f in secciones["crs"] if f[CRS_DATUM] in con_opcion]
     usados = {f[CRS_DATUM] for f in secciones["crs"]}
@@ -440,6 +442,12 @@ def generar() -> dict[str, list[list[str]]]:
     secciones["options"] = [f for f in opciones if f[OPCION_DATUM] in usados]
     secciones.update(generar_rejillas(secciones["options"]))
     return secciones
+
+
+def _rejillas_legibles(opcion: list[str]) -> bool:
+    """Las rejillas de la opción son de las que `GeoTiffGrid` sabe leer (float32, sin compresión o DEFLATE; ver `rejillas_cdn.es_compatible`)."""
+    legibles = {g["name"] for g in rejillas_cdn.leer_instantanea()["grids"] if g["compatible"]}
+    return all(nombre in legibles for nombre in rejillas_de(opcion[OPCION_PASOS]))
 
 
 def rejillas_de(paso_o_pasos: str) -> list[str]:
@@ -456,7 +464,7 @@ def generar_rejillas(opciones: list[list[str]]) -> dict[str, list[list[str]]]:
         raise SystemExit(f"Rejillas de las transformaciones que no están en datos/rejillas_cdn.json: {sorted(desconocidas)}")
     filas, licencias = [], {}
     for g in sorted(instantanea, key=lambda x: x["name"]):
-        if g["type"] == "H" and g["name"] not in usadas:
+        if not g["compatible"] or (g["type"] == "H" and g["name"] not in usadas):
             continue
         licencia = g["license"]
         licencias[licencia["id"]] = [licencia["id"], licencia["name"], "1" if licencia["open"] else "0", licencia["url"]]

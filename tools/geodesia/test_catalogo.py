@@ -273,3 +273,9 @@ def test_s034_rf_4_el_fichero_comprimido_cabe_en_2_mb_y_es_identico_al_regenerar
     assert primero.read_bytes() == segundo.read_bytes()
     assert gzip.decompress(primero.read_bytes()).decode("utf-8") == c.a_texto(completo)
     assert json.loads(rejillas_cdn.INSTANTANEA.read_text(encoding="utf-8"))["cdn"] == rejillas_cdn.CDN
+
+
+def test_s034_rf_9_las_opciones_con_rotacion_exacta_de_proj_quedan_fuera(completo) -> None:
+    # Saba, San Eustaquio y Bonaire: Helmert con rotaciones de 200″ y escala de 400 ppm; PROJ las calcula con la matriz completa.
+    assert opciones_de(completo, "10636", "W") == []
+    assert opciones_de(completo, "10736", "W") == []
