@@ -47,5 +47,5 @@
       Hecho cuando: `DatumRoundTripTest` pasa con ≤ 0,1 mm.
 - [x] T17. Rendimiento: 100.000 puntos con rejilla en menos de 2 s. (NFR)
       Hecho cuando: `DatumPerformanceTest` pasa (y, si falla bajo carga, a la segunda con `--no-parallel`).
-- [ ] T18. Validación final: recorrer la spec RF por RF, `rf_report.py`, `check`, `pytest` de `tools`, `forbidden_files`, `assembleDebug`, secciones «Cambios al implementar» y «Validación» de `plan.md`, `fixtures/LEEME.md` y `tools/LEEME.md`, y hoja de ruta con S033 `implementada`. (Todos)
+- [x] T18. Validación final: recorrer la spec RF por RF, `rf_report.py`, `check`, `pytest` de `tools`, `forbidden_files`, `assembleDebug`, secciones «Cambios al implementar» y «Validación» de `plan.md`, `fixtures/LEEME.md` y `tools/LEEME.md`, y hoja de ruta con S033 `implementada`. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos y lo que no se pudo contrastar con la nota GN 7-2 queda anotado.
