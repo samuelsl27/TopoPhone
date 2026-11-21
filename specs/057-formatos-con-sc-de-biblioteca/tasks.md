@@ -59,5 +59,5 @@
 ## Cierre
 - [x] T24. No regresión de España y rendimiento. (RF-27)
       Hecho cuando: `SpainFormatsUnchangedTest` y `ReprojectionPerformanceTest` pasan (100.000 puntos: menos de 2 s con parámetros y de 4 s con rejilla).
-- [ ] T25. Validación final: recorrer la spec RF por RF, informe de trazabilidad, `plan.md` con «Cambios al implementar» y «Validación», hoja de ruta y la demo del emulador. (Todos)
+- [x] T25. Validación final: recorrer la spec RF por RF, informe de trazabilidad, `plan.md` con «Cambios al implementar» y «Validación», hoja de ruta y la demo del emulador. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, `check`, `pytest`, `forbidden_files` y `assembleDebug` pasan y la demo funciona.

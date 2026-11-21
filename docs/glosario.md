@@ -147,6 +147,8 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | SC calculable | `CalculableCrs` | SC cuya proyección y cuya transformación de datum sabe calcular la app (S034) |
 | Datum vertical | `VerticalDatum` | Referencia de las alturas: elipsoidal o un modelo de geoide (S034) |
 | Rejilla instalada | `InstalledGrid` | Rejilla (geoide o desplazamiento) descargada y verificada en el almacenamiento privado (S034) |
+| SC de origen | `CadSourceCrs` (`Library` si es de la biblioteca) | El SC en que vienen las coordenadas de un fichero que se importa; se pasa al SC del proyecto con el cambio de datum de su definición (S057) |
+| Definición del SC | `CrsDefinition` | El SC de la biblioteca ya construido: su proyección, su datum y la transformación hasta el de las correcciones; es lo que guarda un proyecto o un dibujo (S034, S057) |
 | Ondulación del geoide (N) | `geoidUndulation` | |
 | Altura elipsoidal (h) | `ellipsoidalHeight` | |
 | Altitud ortométrica (H) | `orthometricHeight` | |

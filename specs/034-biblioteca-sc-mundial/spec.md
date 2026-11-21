@@ -61,7 +61,7 @@ Términos de esta spec:
 - RF-26: EL SISTEMA calculará en el SC de la biblioteca del proyecto las coordenadas de la captura y de los puntos manuales, con la altura del RF-14, y las coordenadas geodésicas brutas seguirán siendo la fuente de verdad.
 - RF-27: DONDE el SC sea proyectado, EL SISTEMA mostrará el factor de escala, la convergencia y el factor combinado de su proyección (S008/RF-13 a RF-15).
 - RF-28: EL SISTEMA usará el SC de la biblioteca en el mapa, el replanteo, el COGO, la información geométrica, el base shift y la exportación e importación de CSV, con el mismo comportamiento que en un SC de S008.
-- RF-29: SI el usuario abre, en un proyecto con un SC de la biblioteca, la importación o exportación de DXF, Shapefile, GeoPackage, KML o KMZ, LandXML o ráster, ENTONCES EL SISTEMA no la ofrecerá e indicará que todavía no está disponible con ese SC (→ S057).
+- RF-29: SI el usuario abre, en un proyecto con un SC de la biblioteca, la importación o exportación de DXF, Shapefile, GeoPackage, KML o KMZ, LandXML o ráster, ENTONCES EL SISTEMA no la ofrecerá e indicará que todavía no está disponible con ese SC (→ S057). [Sustituido por S057/RF-28: desde el 21/11/2026 los formatos funcionan con un SC de la biblioteca.]
 
 ### Compatibilidad (H1, H4)
 - RF-25: EL SISTEMA mantendrá los proyectos existentes con su SC de S008 sin modificar sus datos ni sus coordenadas.
