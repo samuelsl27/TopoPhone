@@ -27,7 +27,7 @@
       Hecho cuando: `GridShiftTransformationTest` y `GridShiftOutsideTest` pasan con los vectores.
 - [x] T9. Rejilla ausente o ilegible: `GridUnavailable` con el nombre de la rejilla, sin calcular. (RF-9)
       Hecho cuando: `GridShiftUnavailableTest` pasa con una fuente que devuelve `null`, otra con bytes dañados y otra que lanza excepción.
-- [ ] T10. Inversa de la rejilla iterativa con `NotConverged` y `OutsideGrid`. (RF-10)
+- [x] T10. Inversa de la rejilla iterativa con `NotConverged` y `OutsideGrid`. (RF-10)
       Hecho cuando: `GridShiftInverseTest` comprueba ida y vuelta ≤ 0,1 mm en los puntos de la rejilla (desplazamientos de más de 100 m) y el rechazo si no converge.
 
 ## Cadenas, metadatos y avisos
