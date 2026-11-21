@@ -43,7 +43,7 @@
 ## Interfaz
 - [x] T17. `SourceCrsPicker` común y la importación de DXF. (RF-1, RF-2, RF-3)
       Hecho cuando: `SourceCrsPickerTest` y `CadImportLibraryTest` pasan, con el SC del proyecto el primero y marcado.
-- [ ] T18. Importación de superficies y ejes de LandXML. (RF-1, RF-3, RF-14)
+- [x] T18. Importación de superficies y ejes de LandXML. (RF-1, RF-3, RF-14)
       Hecho cuando: `SurfaceImportLibraryTest` y `AlignmentImportLibraryTest` pasan.
 - [ ] T19. Importación de ráster con el SC declarado reconocido. (RF-1, RF-3, RF-4)
       Hecho cuando: `RasterImportLibraryTest` pasa con un GeoTIFF en otro SC.

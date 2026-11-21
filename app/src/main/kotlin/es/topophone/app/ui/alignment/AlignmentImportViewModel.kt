@@ -4,12 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.di.IoDispatcher
+import es.topophone.app.ui.crs.LibrarySourceUi
 import es.topophone.app.ui.points.ImportSource
 import es.topophone.core.formats.landxml.LandXmlAlignmentInfo
 import es.topophone.core.formats.landxml.LandXmlAlignmentReader
+import es.topophone.core.geodesy.GeoPoint
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
+import es.topophone.core.model.project.CorrectionsDatum
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
@@ -45,6 +49,12 @@ data class AlignmentImportUiState(
     val version: String? = null,
     val projectName: String = "",
     val projectCrs: ProjectCrs = ProjectCrs.ETRS89_UTM30,
+    /** El datum de las correcciones del proyecto, para construir el SC de origen de la biblioteca (S057/RF-2, RF-8). */
+    val corrections: CorrectionsDatum = CorrectionsDatum.ETRS89,
+    /** Sin centro del proyecto aquí: el cambio de datum es el más preciso de todos los del SC (S057/RF-8). */
+    val centre: GeoPoint? = null,
+    /** El SC de la biblioteca elegido como origen, con su cambio de datum y su confirmación (S057/RF-1, RF-8 a RF-10). */
+    val library: LibrarySourceUi? = null,
     /** La unidad del proyecto, con la que se escriben los PK (RNF-T9). */
     val projectUnit: LinearUnit = LinearUnit.METRE,
     /** El sistema en que vienen las coordenadas del eje: el del proyecto, u otro UTM de la app (RF-11). */
@@ -69,7 +79,11 @@ data class AlignmentImportUiState(
     val summary: AlignmentImportSummary? = null,
 ) {
     /** Hay algo que importar y nada lo impide: se ha explorado el fichero y se ha marcado alguna alineación (RF-2). */
-    val canImport: Boolean get() = stage == AlignmentImportStage.CONFIG && !scanning && selected.isNotEmpty()
+    val canImport: Boolean
+        get() = stage == AlignmentImportStage.CONFIG &&
+            !scanning &&
+            selected.isNotEmpty() &&
+            (source !is CadSourceCrs.Library || library?.ready == true)
 }
 
 /**
@@ -119,6 +133,7 @@ class AlignmentImportViewModel @Inject constructor(
             fileName = source.name,
             projectName = project.name,
             projectCrs = project.crs,
+            corrections = project.correctionsDatum,
             projectUnit = project.linearUnit,
             unit = project.linearUnit,
             scanning = true,
@@ -186,6 +201,19 @@ class AlignmentImportViewModel @Inject constructor(
     }
 
     fun setSource(source: CadSourceCrs) = mutable.update { it.copy(source = source) }
+
+    /** El SC de la biblioteca elegido como origen: queda como origen, con su unidad propia como unidad del fichero (S057/RF-1, RF-3). */
+    fun chooseLibrary(crs: LibraryCrs) {
+        val library = LibrarySourceUi.of(crs, mutable.value.centre)
+        unitTouched = true
+        mutable.update { it.copy(library = library, source = library.source, unit = library.unit) }
+    }
+
+    /** El usuario confirma, o no, el aviso de la precisión del cambio de datum (S057/RF-9). */
+    fun confirmLibrary(confirmed: Boolean) = mutable.update { it.copy(library = it.library?.confirm(confirmed)) }
+
+    /** Tras descargar una rejilla se vuelve a mirar qué falta (S057/RF-10). */
+    fun refreshLibrary() = mutable.update { it.copy(library = it.library?.refreshed(it.centre)) }
 
     fun setUnit(unit: LinearUnit) {
         unitTouched = true

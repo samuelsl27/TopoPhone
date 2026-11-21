@@ -35,6 +35,9 @@ fun SurfaceImportRoute(
         actions = SurfaceImportActions(
             onSelect = viewModel::select,
             onSource = viewModel::setSource,
+            onChooseLibrary = viewModel::chooseLibrary,
+            onConfirmLibrary = viewModel::confirmLibrary,
+            onRefreshLibrary = viewModel::refreshLibrary,
             onUnit = viewModel::setUnit,
             onConfirmFar = viewModel::confirmFar,
             onConfirmDuplicate = viewModel::confirmDuplicate,

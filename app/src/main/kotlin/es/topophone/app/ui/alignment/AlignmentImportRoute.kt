@@ -61,6 +61,9 @@ fun AlignmentImportRoute(
         actions = AlignmentImportActions(
             onToggle = viewModel::toggle,
             onSource = viewModel::setSource,
+            onChooseLibrary = viewModel::chooseLibrary,
+            onConfirmLibrary = viewModel::confirmLibrary,
+            onRefreshLibrary = viewModel::refreshLibrary,
             onUnit = viewModel::setUnit,
             onImport = viewModel::import,
             onCancel = viewModel::cancel,
