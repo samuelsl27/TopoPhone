@@ -10,6 +10,7 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.data.cad.CadRepository
 import es.topophone.data.gpkg.GeoPackageReader
+import es.topophone.data.grids.GridStore
 import es.topophone.data.kml.KmlReader
 import es.topophone.data.photo.PhotoRepository
 import es.topophone.data.shp.ShapefileReader
@@ -36,6 +37,9 @@ class TopoPhoneApplication : Application() {
     @Inject lateinit var photos: PhotoRepository
 
     @Inject lateinit var offlineDownloader: OfflineDownloader
+
+    /** S034: solo con crearlo, el cálculo de los SC de la biblioteca lee las rejillas descargadas. */
+    @Inject lateinit var gridStore: GridStore
 
     override fun onCreate() {
         super.onCreate()
