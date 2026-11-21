@@ -96,6 +96,7 @@ class RasterElevation(
                 x = lon
                 y = lat
             }
+            is CadSourceCrs.Library -> error("Un SC de origen de la biblioteca todavía no se calcula aquí (S057, T7 a T10)")
         }
 
         // 3. A coordenadas de celda, con la media celda del borde fuera y 1 mm de tolerancia.

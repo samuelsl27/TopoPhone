@@ -288,7 +288,7 @@ private fun sourceOf(crs: ProjectCrs): CadSourceCrs =
 private fun isSelected(source: CadSourceCrs, crs: ProjectCrs): Boolean = when (source) {
     is CadSourceCrs.Utm -> crs.datum == source.datum && crs.utmZone == source.zone
     is CadSourceCrs.Geographic -> crs.datum == source.datum && crs.utmZone == null
-    CadSourceCrs.Project -> false
+    CadSourceCrs.Project, is CadSourceCrs.Library -> false
 }
 
 @OptIn(ExperimentalLayoutApi::class)

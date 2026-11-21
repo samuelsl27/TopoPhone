@@ -1,5 +1,6 @@
 package es.topophone.core.model.cad
 
+import es.topophone.core.model.project.CrsDefinition
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.LinearUnit
 
@@ -13,6 +14,31 @@ sealed interface CadSourceCrs {
 
     /** Coordenadas geográficas (longitud y latitud en grados) de un datum de los que ofrece la app (S048/RF-8). */
     data class Geographic(val datum: GeodeticDatum) : CadSourceCrs
+
+    /**
+     * Un SC de la biblioteca de S034 (S057/RF-2): lleva su definición completa, con la transformación hasta el datum de las correcciones del proyecto,
+     * así el dibujo no cambia si se actualiza la biblioteca.
+     */
+    data class Library(val definition: CrsDefinition) : CadSourceCrs
+
+    /** El texto con el que se guarda (`cad_drawings.source`, `surfaces.source`); los valores de antes de S057 no cambian (S057/RF-27). */
+    fun encode(): String = when (this) {
+        Project -> "PROJECT"
+        is Utm -> "UTM:${datum.name}:$zone"
+        is Geographic -> "GEO:${datum.name}"
+        is Library -> "LIB:${definition.toText()}"
+    }
+
+    companion object {
+        /** Lo contrario de [encode]. */
+        fun decode(text: String): CadSourceCrs {
+            if (text == "PROJECT") return Project
+            if (text.startsWith("GEO:")) return Geographic(GeodeticDatum.valueOf(text.removePrefix("GEO:")))
+            if (text.startsWith("LIB:")) return Library(CrsDefinition.parse(text.removePrefix("LIB:")))
+            val (_, datum, zone) = text.split(":")
+            return Utm(GeodeticDatum.valueOf(datum), zone.toInt())
+        }
+    }
 }
 
 /** De qué fichero viene un dibujo: un DXF (S040), un GeoPackage (S048/RF-26) o un Shapefile (S030/RF-26). */

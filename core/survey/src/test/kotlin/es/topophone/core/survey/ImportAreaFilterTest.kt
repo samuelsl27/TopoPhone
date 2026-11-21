@@ -197,7 +197,7 @@ class ImportAreaFilterTest {
                 val ellipsoid = if (source.datum == GeodeticDatum.ED50) Ellipsoid.INTERNATIONAL_1924 else Ellipsoid.GRS80
                 Utm.forward(lat, lon, source.zone, ellipsoid).let { it.easting to it.northing }
             }
-            CadSourceCrs.Project -> error("sin recuadro")
+            CadSourceCrs.Project, is CadSourceCrs.Library -> error("sin recuadro")
         }
     }
 }

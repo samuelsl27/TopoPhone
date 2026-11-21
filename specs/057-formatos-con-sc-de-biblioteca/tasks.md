@@ -11,7 +11,7 @@
       Hecho cuando: `test_reproyeccion.py` los comprueba y el fichero se regenera igual.
 
 ## Núcleo
-- [ ] T4. `CadSourceCrs.Library` y su persistencia (`LIB:`), sin cambiar los valores de ahora. (RF-1, RF-2, RF-27)
+- [x] T4. `CadSourceCrs.Library` y su persistencia (`LIB:`), sin cambiar los valores de ahora. (RF-1, RF-2, RF-27)
       Hecho cuando: `CadSourceCrsPersistenceTest` guarda y lee los cuatro tipos en `CadRepository` y `SurfaceRepository`.
 - [ ] T5. `SourceGround` y `SourceCrsResolver`: del vértice del fichero al suelo, con A1. (RF-7, RF-11, RF-12)
       Hecho cuando: `SourceGroundTest` pasa con los vectores a ≤ 1 mm y la ida y vuelta a ≤ 0,1 mm, con rejilla ausente y con punto fuera de la rejilla.

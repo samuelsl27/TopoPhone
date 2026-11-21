@@ -16,7 +16,6 @@ import es.topophone.core.model.cad.DesignLayer
 import es.topophone.core.model.cad.DesignLayerKind
 import es.topophone.core.model.cad.GpkgAttributesCodec
 import es.topophone.core.model.cad.GpkgValue
-import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.data.db.TopoPhoneDatabase
 import kotlinx.coroutines.flow.Flow
@@ -264,7 +263,7 @@ private fun CadDrawingEntity.toModel() = CadDrawing(
     projectId = projectId,
     fileName = fileName,
     importedAtMs = importedAtMs,
-    source = decodeSource(sourceCrs),
+    source = CadSourceCrs.decode(sourceCrs),
     unit = LinearUnit.valueOf(sourceUnit),
     useElevations = useElevations,
     hasElevations = hasElevations,
@@ -306,16 +305,3 @@ private fun CadLayerEntity.toModel() = DesignLayer(
 
 private fun CadChunkEntity.toContent() =
     CadChunkContent(id, layerId, CadExtent(minEasting, maxEasting, minNorthing, maxNorthing), CadChunkCodec.decode(data))
-
-private fun CadSourceCrs.encode(): String = when (this) {
-    CadSourceCrs.Project -> "PROJECT"
-    is CadSourceCrs.Utm -> "UTM:${datum.name}:$zone"
-    is CadSourceCrs.Geographic -> "GEO:${datum.name}"
-}
-
-private fun decodeSource(text: String): CadSourceCrs {
-    if (text == "PROJECT") return CadSourceCrs.Project
-    if (text.startsWith("GEO:")) return CadSourceCrs.Geographic(GeodeticDatum.valueOf(text.removePrefix("GEO:")))
-    val (_, datum, zone) = text.split(":")
-    return CadSourceCrs.Utm(GeodeticDatum.valueOf(datum), zone.toInt())
-}

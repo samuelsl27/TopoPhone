@@ -2,7 +2,6 @@ package es.topophone.data.surface
 
 import androidx.room.withTransaction
 import es.topophone.core.model.cad.CadSourceCrs
-import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.surface.RasterInfo
@@ -305,7 +304,7 @@ private fun SurfaceEntity.toModel() = Surface(
     name = name,
     fileName = fileName,
     importedAtMs = importedAtMs,
-    source = decodeSurfaceSource(sourceCrs),
+    source = CadSourceCrs.decode(sourceCrs),
     unit = LinearUnit.valueOf(sourceUnit),
     extent = SurfaceExtent(minEasting ?: 0.0, maxEasting ?: 0.0, minNorthing ?: 0.0, maxNorthing ?: 0.0),
     minElevationM = minHeight ?: 0.0,
@@ -332,17 +331,4 @@ private fun SurfaceEntity.rasterInfo(): RasterInfo? {
         dataCells = dataCells ?: 0,
         noDataCells = noDataCells ?: 0,
     )
-}
-
-private fun CadSourceCrs.encode(): String = when (this) {
-    CadSourceCrs.Project -> "PROJECT"
-    is CadSourceCrs.Utm -> "UTM:${datum.name}:$zone"
-    is CadSourceCrs.Geographic -> "GEO:${datum.name}"
-}
-
-private fun decodeSurfaceSource(text: String): CadSourceCrs {
-    if (text == "PROJECT") return CadSourceCrs.Project
-    if (text.startsWith("GEO:")) return CadSourceCrs.Geographic(GeodeticDatum.valueOf(text.removePrefix("GEO:")))
-    val (_, datum, zone) = text.split(":")
-    return CadSourceCrs.Utm(GeodeticDatum.valueOf(datum), zone.toInt())
 }

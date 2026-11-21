@@ -67,6 +67,7 @@ class ImportAreaFilter private constructor(
                 val utm = Utm.forward(layerLat, layerLon, source.zone, ellipsoid)
                 LayerBox(utm.easting - half, utm.easting + half, utm.northing - half, utm.northing + half)
             }
+            is CadSourceCrs.Library -> error("Un SC de origen de la biblioteca todavía no se calcula aquí (S057, T7 a T10)")
         }
     }
 

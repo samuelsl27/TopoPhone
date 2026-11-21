@@ -64,7 +64,7 @@ class CadProjector(
                 val ground = when (source) {
                     is CadSourceCrs.Utm -> ground(source.datum, x * metres, y * metres, source.zone)
                     is CadSourceCrs.Geographic -> ground(source.datum, x, y, null)
-                    CadSourceCrs.Project -> null
+                    CadSourceCrs.Project, is CadSourceCrs.Library -> null
                 } ?: return CadIgnoredReason.OUTSIDE_ED50_GRID
                 val position = calculator.fromGround(GeodeticPosition(ground.first, ground.second, null), crs)
                 when {
@@ -77,6 +77,7 @@ class CadProjector(
                     }
                 }
             }
+            is CadSourceCrs.Library -> error("Un SC de origen de la biblioteca todavía no se calcula aquí (S057, T7 a T10)")
         }
     }
 
