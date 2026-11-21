@@ -23,7 +23,7 @@
 ## Rejillas de desplazamiento
 - [x] T7. Vectores de rejilla (`rejilla_desplazamiento.csv`): `hgridshift` de pyproj con la SPED2ETV2 en el interior, en el borde, en dos subrejillas y fuera de la rejilla. (RF-7, RF-8, RF-10)
       Hecho cuando: `test_datum.py` los comprueba y el fichero se regenera igual.
-- [ ] T8. `GridShiftTransformation.forward` con `GridSource` y rechazo fuera de la rejilla (`OutsideGrid`). (RF-7, RF-8)
+- [x] T8. `GridShiftTransformation.forward` con `GridSource` y rechazo fuera de la rejilla (`OutsideGrid`). (RF-7, RF-8)
       Hecho cuando: `GridShiftTransformationTest` y `GridShiftOutsideTest` pasan con los vectores.
 - [ ] T9. Rejilla ausente o ilegible: `GridUnavailable` con el nombre de la rejilla, sin calcular. (RF-9)
       Hecho cuando: `GridShiftUnavailableTest` pasa con una fuente que devuelve `null`, otra con bytes dañados y otra que lanza excepción.
