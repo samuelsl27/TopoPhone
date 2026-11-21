@@ -43,7 +43,7 @@
       Hecho cuando: `Ed50UnchangedTest` pasa con los vectores de `ed50_utm.csv` y `Ed50.kt` no tiene cambios en el diff de la spec.
 
 ## Transversales y cierre
-- [ ] T16. Ida y vuelta de todas las familias (Helmert 3/4/6/7, MB, rejilla y cadena) en una rejilla de puntos. (RF-5, RF-10, RF-11)
+- [x] T16. Ida y vuelta de todas las familias (Helmert 3/4/6/7, MB, rejilla y cadena) en una rejilla de puntos. (RF-5, RF-10, RF-11)
       Hecho cuando: `DatumRoundTripTest` pasa con ≤ 0,1 mm.
 - [ ] T17. Rendimiento: 100.000 puntos con rejilla en menos de 2 s. (NFR)
       Hecho cuando: `DatumPerformanceTest` pasa (y, si falla bajo carga, a la segunda con `--no-parallel`).
