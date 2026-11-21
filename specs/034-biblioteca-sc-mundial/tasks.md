@@ -35,7 +35,7 @@
       Hecho cuando: los tests de cada uno pasan sin cambios en España y `LibraryProjectCoreTest` comprueba puntos manuales, geometría y COGO en un SC de la biblioteca.
 - [x] T14. Replanteo, base shift y mapa con un SC de la biblioteca. (RF-28)
       Hecho cuando: `LibraryStakeoutTest`, `LibraryBaseShiftTest` y `LibraryMapProjectionTest` pasan.
-- [ ] T15. `supportsFormats` y el aviso de los formatos aún no disponibles; exportar e importar CSV con el SC de la biblioteca. (RF-28, RF-29)
+- [x] T15. `supportsFormats` y el aviso de los formatos aún no disponibles; exportar e importar CSV con el SC de la biblioteca. (RF-28, RF-29)
       Hecho cuando: `FormatsDisabledTest` y `LibraryCsvTest` pasan.
 
 ## Datos (`data`)

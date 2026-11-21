@@ -2096,6 +2096,7 @@
     <string name="point_axis_diff_height">Elevation difference</string>
     <string name="point_axis_reference">Reference elevation</string>
     <string name="gpkg_export_title">Export GeoPackage</string>
+    <string name="formats_unavailable_library">DXF, Shapefile, GeoPackage, KML, LandXML and raster: not yet available with this coordinate system</string>
     <string name="gpkg_export_selected">GeoPackage</string>
     <string name="gpkg_export_system">Coordinate system</string>
     <string name="gpkg_export_system_project">Project (EPSG:%1$d)</string>

@@ -568,22 +568,31 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onExport(project.id)
         } // S012/RF-1
-        MenuItem(R.string.gpkg_export_title) {
-            open = false
-            actions.onExportGeoPackage(project.id)
-        } // S053/RF-1
-        MenuItem(R.string.dxf_export_title) {
-            open = false
-            actions.onExportDxf(project.id)
-        } // S029/RF-1
-        MenuItem(R.string.shp_export_title) {
-            open = false
-            actions.onExportShp(project.id)
-        } // S055/RF-1
-        MenuItem(R.string.kml_export_title) {
-            open = false
-            actions.onExportKml(project.id)
-        } // S031/RF-20
+        if (project.crs.supportsFormats) {
+            MenuItem(R.string.gpkg_export_title) {
+                open = false
+                actions.onExportGeoPackage(project.id)
+            } // S053/RF-1
+            MenuItem(R.string.dxf_export_title) {
+                open = false
+                actions.onExportDxf(project.id)
+            } // S029/RF-1
+            MenuItem(R.string.shp_export_title) {
+                open = false
+                actions.onExportShp(project.id)
+            } // S055/RF-1
+            MenuItem(R.string.kml_export_title) {
+                open = false
+                actions.onExportKml(project.id)
+            } // S031/RF-20
+        } else {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.formats_unavailable_library)) },
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.heightIn(min = MinTouchTarget),
+            ) // S034/RF-29
+        }
         MenuItem(R.string.photo_export_title) {
             open = false
             actions.onExportPhotos(project.id)
@@ -596,34 +605,36 @@ private fun ProjectMenu(project: Project, actions: ProjectListActions, onMove: (
             open = false
             actions.onImportPoints(project.id)
         } // S028/RF-1
-        MenuItem(R.string.cad_import_title) {
-            open = false
-            actions.onImportDxf(project.id)
-        } // S040/RF-1
-        MenuItem(R.string.surface_import_title) {
-            open = false
-            actions.onImportSurface(project.id)
-        } // S042/RF-1
-        MenuItem(R.string.raster_import_title) {
-            open = false
-            actions.onImportRaster(project.id)
-        } // S045/RF-1
-        MenuItem(R.string.gpkg_import_title) {
-            open = false
-            actions.onImportGpkg(project.id)
-        } // S048/RF-1
-        MenuItem(R.string.shp_import_title) {
-            open = false
-            actions.onImportShp(project.id)
-        } // S030/RF-1
-        MenuItem(R.string.kml_import_title) {
-            open = false
-            actions.onImportKml(project.id)
-        } // S031/RF-1
-        MenuItem(R.string.alignment_import_title) {
-            open = false
-            actions.onImportAlignment(project.id)
-        } // S049/RF-1
+        if (project.crs.supportsFormats) {
+            MenuItem(R.string.cad_import_title) {
+                open = false
+                actions.onImportDxf(project.id)
+            } // S040/RF-1
+            MenuItem(R.string.surface_import_title) {
+                open = false
+                actions.onImportSurface(project.id)
+            } // S042/RF-1
+            MenuItem(R.string.raster_import_title) {
+                open = false
+                actions.onImportRaster(project.id)
+            } // S045/RF-1
+            MenuItem(R.string.gpkg_import_title) {
+                open = false
+                actions.onImportGpkg(project.id)
+            } // S048/RF-1
+            MenuItem(R.string.shp_import_title) {
+                open = false
+                actions.onImportShp(project.id)
+            } // S030/RF-1
+            MenuItem(R.string.kml_import_title) {
+                open = false
+                actions.onImportKml(project.id)
+            } // S031/RF-1
+            MenuItem(R.string.alignment_import_title) {
+                open = false
+                actions.onImportAlignment(project.id)
+            } // S049/RF-1
+        }
         MenuItem(R.string.project_codes) {
             open = false
             actions.onProjectCodes(project.id)

@@ -2108,6 +2108,7 @@
     <string name="point_axis_diff_height">Diferencia de cota</string>
     <string name="point_axis_reference">Referencia de cota</string>
     <string name="gpkg_export_title">Exportar GeoPackage</string>
+    <string name="formats_unavailable_library">DXF, Shapefile, GeoPackage, KML, LandXML y ráster: aún no disponibles con este sistema de coordenadas</string>
     <string name="gpkg_export_selected">GeoPackage</string>
     <string name="gpkg_export_system">Sistema de coordenadas</string>
     <string name="gpkg_export_system_project">Del proyecto (EPSG:%1$d)</string>
