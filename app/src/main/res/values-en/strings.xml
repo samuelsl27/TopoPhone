@@ -2194,6 +2194,9 @@
     <string name="crs_summary_height_ellipsoidal">Height: ellipsoidal</string>
     <string name="library_grids_missing_title">Grids are missing for this coordinate system</string>
     <string name="library_grids_missing_text">Until they are downloaded, the coordinates that depend on them show as unavailable; the measurement is still saved</string>
+    <string name="project_outside_datum_grid">The point is outside the transformation grid of the coordinate system: no coordinates</string>
+    <string name="project_missing_grid">Grid %1$s is missing: without it there are no coordinates in this system. Download it to see them</string>
+    <string name="unavailable_missing_geoid">Geoid %1$s is missing: without it there is no orthometric height</string>
     <string name="gpkg_export_selected">GeoPackage</string>
     <string name="gpkg_export_system">Coordinate system</string>
     <string name="gpkg_export_system_project">Project (EPSG:%1$d)</string>

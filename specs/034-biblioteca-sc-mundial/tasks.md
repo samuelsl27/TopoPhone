@@ -57,7 +57,7 @@
       Hecho cuando: `GridDownloadScreenTest` e `InstalledGridsScreenTest` pasan.
 - [x] T23. Formulario de proyecto con SC de la biblioteca, altura y geoide, y apertura sin rejilla. (RF-14, RF-15, RF-16, RF-18, RF-24)
       Hecho cuando: `ProjectFormGeoidTest`, `MissingGridProjectTest` y `OfflineProjectTest` pasan.
-- [ ] T24. Factores de escala, convergencia y factor combinado, y avisos de formatos en los menús. (RF-27, RF-29)
+- [x] T24. Factores de escala, convergencia y factor combinado, y avisos de formatos en los menús. (RF-27, RF-29)
       Hecho cuando: `LibraryProjectFlowTest` pasa.
 - [ ] T25. Validación final: recorrer la spec RF por RF, informe de trazabilidad, regenerar el catálogo, `plan.md` con «Cambios al implementar» y «Validación», hoja de ruta, y la demo del emulador. (Todos)
       Hecho cuando: cada RF tiene un test en verde, `rf_report.py` no muestra RF huérfanos, `check`, `pytest`, `forbidden_files` y `assembleDebug` pasan y la demo funciona.

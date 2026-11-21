@@ -2206,6 +2206,9 @@
     <string name="crs_summary_height_ellipsoidal">Altura: elipsoidal</string>
     <string name="library_grids_missing_title">Faltan rejillas para este sistema de coordenadas</string>
     <string name="library_grids_missing_text">Mientras no se descarguen, las coordenadas que dependen de ellas salen como no disponibles; la medida se guarda igualmente</string>
+    <string name="project_outside_datum_grid">El punto queda fuera de la rejilla de transformación del sistema de coordenadas: no hay coordenadas</string>
+    <string name="project_missing_grid">Falta la rejilla %1$s: sin ella no hay coordenadas en este sistema. Descárgala para verlas</string>
+    <string name="unavailable_missing_geoid">Falta el geoide %1$s: sin él no hay altitud</string>
     <string name="gpkg_export_selected">GeoPackage</string>
     <string name="gpkg_export_system">Sistema de coordenadas</string>
     <string name="gpkg_export_system_project">Del proyecto (EPSG:%1$d)</string>

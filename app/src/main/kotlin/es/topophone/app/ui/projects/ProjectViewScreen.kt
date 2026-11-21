@@ -101,6 +101,8 @@ import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.collector.CollectorViewModel
 import es.topophone.app.ui.collector.SurfaceReading
 import es.topophone.app.ui.collector.rememberCollectorPhotoLaunchers
+import es.topophone.app.ui.crs.CrsLibraryHost
+import es.topophone.app.ui.crs.HiltCrsLibraryHost
 import es.topophone.app.ui.geometry.DesignGeometryDialog
 import es.topophone.app.ui.geometry.DesignGeometryInput
 import es.topophone.app.ui.linear.AxisSurveyActions
@@ -247,6 +249,7 @@ const val POSITION_UNCOMPENSATED_TAG = "position_uncompensated"
 const val POSITION_PANEL_TAG = "position_panel"
 const val POSITION_EASTING_TAG = "position_easting"
 const val POSITION_NORTHING_TAG = "position_northing"
+const val POSITION_MISSING_GRID_TAG = "project_position_missing_grid"
 const val POSITION_HEIGHT_TAG = "position_height"
 const val POSITION_LATITUDE_TAG = "position_latitude"
 const val POSITION_LONGITUDE_TAG = "position_longitude"
@@ -636,6 +639,7 @@ fun ProjectViewRoute(
         projectLayers = projectLayers,
         projectLayersActions = ProjectLayersActions.of(projectLayersViewModel),
         librarySheet = { pick, onDismiss -> WmsLibrarySheet(onDismiss, uriHandler::openUri, pick) }, // S036/RF-19
+        library = HiltCrsLibraryHost,
         offlineSheet = { visible, onDismiss ->
             state.project?.let { OfflineMapsHost(it.id, it.name, visible, onDismiss) } // S037/RF-1
         },
@@ -1075,6 +1079,8 @@ fun ProjectViewScreen(
     lineStakeoutActions: LineStakeoutActions = LineStakeoutActions(),
     lineHighlight: List<GeoPoint> = emptyList(),
     onStakeoutElement: () -> Unit = {},
+    /** La biblioteca de SC: las rejillas que le faltan al SC del proyecto, con «Descargar» (S034/RF-18). */
+    library: CrsLibraryHost? = null,
     /** El replanteo por PK y desplazamiento de un eje y el botón "Replantear eje" (S054/RF-1). */
     axisStakeout: AxisStakeoutUiState? = null,
     axisStakeoutActions: AxisStakeoutActions = AxisStakeoutActions(),
@@ -1374,7 +1380,7 @@ fun ProjectViewScreen(
                         collectorOpen =
                             false
                     }, stats = collectorStats, autoLive = collectorAutoLive, surface = collectorSurface)
-                    else -> PositionPanel(project, state.position, state.accuracyM, state.uncompensated, onInfo, Modifier)
+                    else -> PositionPanel(project, state.position, state.accuracyM, state.uncompensated, onInfo, Modifier, library)
                 }
             }
         }
@@ -1820,6 +1826,7 @@ private fun PositionPanel(
     uncompensated: Boolean,
     onInfo: (String) -> Unit,
     modifier: Modifier,
+    library: CrsLibraryHost? = null,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(POSITION_PANEL_TAG)) {
@@ -1847,6 +1854,15 @@ private fun PositionPanel(
                     Text(stringResource(R.string.project_outside_crs), color = MaterialTheme.colorScheme.error)
                 PositionUnavailable.OUTSIDE_ED50_GRID in position.unavailable ->
                     Text(stringResource(R.string.project_outside_ed50), color = MaterialTheme.colorScheme.error)
+                PositionUnavailable.OUTSIDE_DATUM_GRID in position.unavailable ->
+                    Text(stringResource(R.string.project_outside_datum_grid), color = MaterialTheme.colorScheme.error) // S034/RF-26
+                // S034/RF-18: sin una rejilla del SC no hay coordenadas; se dice cuál falta y se ofrece descargarla.
+                PositionUnavailable.MISSING_GRID in position.unavailable && position.easting == null && position.latitudeDeg == null ->
+                    Text(
+                        stringResource(R.string.project_missing_grid, position.missingGrid.orEmpty()),
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.testTag(POSITION_MISSING_GRID_TAG),
+                    )
                 else -> {
                     if (uncompensated) {
                         Text(
@@ -1864,6 +1880,7 @@ private fun PositionPanel(
                     }
                 }
             }
+            library?.MissingGrids(project.crs) // S034/RF-18
         }
     }
 }
@@ -1909,7 +1926,7 @@ private fun PositionValues(project: Project, position: ProjectPosition, accuracy
         POSITION_HEIGHT_TAG,
     )
     accuracyM?.let { CoordinateRow(stringResource(R.string.map_accuracy_h), length(it), ACCURACY_TAG) }
-    if (zone == null || !showFactors) return
+    if (!project.crs.isUtm || !showFactors) return // S008/RF-16, S034/RF-27: sin Este y Norte no hay factores
     position.scaleFactor?.let {
         CoordinateRow(stringResource(R.string.project_scale_factor), FactorFormat.factor(it, locale), SCALE_FACTOR_TAG)
     }
@@ -1935,7 +1952,16 @@ internal fun heightTitle(height: HeightSystem): String = stringResource(
 
 /** Por qué falta la altura: sin altura en la GGA, o fuera del geoide del ámbito del SC (S006/RF-30, S008/RF-4). */
 @Composable
-private fun heightUnavailable(project: Project, position: ProjectPosition): String = stringResource(
+private fun heightUnavailable(project: Project, position: ProjectPosition): String = if (PositionUnavailable.MISSING_GRID in
+    position.unavailable
+) {
+    stringResource(R.string.unavailable_missing_geoid, position.missingGrid.orEmpty()) // S034/RF-16
+} else {
+    heightUnavailableText(project, position)
+}
+
+@Composable
+private fun heightUnavailableText(project: Project, position: ProjectPosition): String = stringResource(
     when {
         PositionUnavailable.OUTSIDE_GEOID !in position.unavailable -> R.string.unavailable_no_height
         (project.crs as? SpainCrs)?.area == CrsArea.CANARIAS -> R.string.unavailable_outside_geoid_canarias
