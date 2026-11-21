@@ -1,6 +1,8 @@
 package es.topophone.core.survey
 
+import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.project.CrsDefinition
+import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LibraryCrs
 
 /**
@@ -31,5 +33,29 @@ class SourceGround(private val definition: CrsDefinition, resources: LibraryReso
             return GroundResult.Unavailable(PositionUnavailable.OUTSIDE_CRS_AREA)
         }
         return result
+    }
+
+    /**
+     * Lo contrario de [toGround]: el punto del suelo ([latitudeDeg], [longitudeDeg]) en el SC de origen, como (X, Y) en [unitMetres] o, en un SC
+     * geográfico, (longitud, latitud) en grados. `null` si cae fuera de la rejilla de la transformación, del ámbito del SC o falta la rejilla.
+     * Sirve para consultar un ráster desde una posición del proyecto (S057/RF-15).
+     */
+    fun fromGround(latitudeDeg: Double, longitudeDeg: Double, unitMetres: Double = this.unitMetres): Pair<Double, Double>? {
+        val position = engine.fromGround(GeodeticPosition(latitudeDeg, longitudeDeg, null), HeightSystem.ELLIPSOIDAL)
+        if (PositionUnavailable.OUTSIDE_CRS_AREA in position.unavailable ||
+            PositionUnavailable.OUTSIDE_DATUM_GRID in position.unavailable ||
+            PositionUnavailable.MISSING_GRID in position.unavailable
+        ) {
+            return null
+        }
+        return if (definition.projected) {
+            val easting = position.easting ?: return null
+            val northing = position.northing ?: return null
+            easting / unitMetres to northing / unitMetres
+        } else {
+            val longitude = position.longitudeDeg ?: return null
+            val latitude = position.latitudeDeg ?: return null
+            longitude to latitude
+        }
     }
 }

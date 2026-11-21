@@ -21,7 +21,7 @@
       Hecho cuando: `CadProjectorLibraryTest` pasa y `CadProjectorTest` de S040 sigue en verde.
 - [x] T8. `SurfaceProjector` y `AlignmentProjector` con un SC de origen de la biblioteca. (RF-14)
       Hecho cuando: `SurfaceProjectorLibraryTest` y `AlignmentProjectorLibraryTest` pasan.
-- [ ] T9. `RasterElevation` y `RasterTiler` con un SC de origen de la biblioteca, y las alturas (A5). (RF-15, RF-19, RF-20)
+- [x] T9. `RasterElevation` y `RasterTiler` con un SC de origen de la biblioteca, y las alturas (A5). (RF-15, RF-19, RF-20)
       Hecho cuando: `RasterElevationLibraryTest` y `SourceHeightsTest` pasan.
 - [ ] T10. `ImportAreaFilter` (recorte alrededor del centro) con un SC de origen de la biblioteca. (RF-16)
       Hecho cuando: `ImportAreaFilterLibraryTest` pasa con un Shapefile en otro país.

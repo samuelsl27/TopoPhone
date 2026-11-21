@@ -9,6 +9,7 @@ import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.project.CrsArea
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.HeightSystem
+import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.SpainCrs
 import es.topophone.core.model.surface.RasterInfo
@@ -17,6 +18,7 @@ import es.topophone.core.model.surface.Surface
 import es.topophone.core.model.surface.SurfaceHeight
 import es.topophone.core.model.surface.SurfaceHeightSource
 import es.topophone.core.model.surface.SurfaceKind
+import es.topophone.core.survey.geometry.GroundPosition
 import kotlin.math.cos
 import kotlin.math.floor
 
@@ -53,15 +55,30 @@ class RasterElevation(
     private val unitMetres = raster.unit.metres
     private val edgeMetres = EDGE_TOLERANCE_M
 
+    /** El SC de origen del ráster si es uno de la biblioteca (S057/RF-15). */
+    private val librarySource: SourceGround? = (source as? CadSourceCrs.Library)?.let { SourceGround(it.definition) }
+
+    /** El motor del proyecto si es un SC de la biblioteca: pasa Este y Norte al suelo y da el geoide del proyecto (S057/RF-15, RF-19). */
+    private val libraryEngine: CoordinateEngine? = (crs as? LibraryCrs)?.let { ProjectPositionCalculator().engineFor(it) }
+
     /** La malla está en grados: un ráster en geográficas, o en el sistema del proyecto si este es geográfico. */
-    private val degrees = source is CadSourceCrs.Geographic || (source == CadSourceCrs.Project && crs.utmZone == null)
+    private val degrees = source is CadSourceCrs.Geographic ||
+        (source is CadSourceCrs.Library && !source.definition.projected) ||
+        (source == CadSourceCrs.Project && !crs.isProjected)
+
+    /** Metros por unidad de la malla de un SC proyectado de la biblioteca; el resto de ráster va en metros (S045, S057/RF-15). */
+    private val gridUnitMetres = (source as? CadSourceCrs.Library)?.takeIf { it.definition.projected }?.definition?.unitMetres ?: 1.0
 
     override fun heightAt(easting: Double, northing: Double): SurfaceHeight {
         if (!easting.isFinite() || !northing.isFinite()) return SurfaceHeight.Outside
         // 1. De Este y Norte del proyecto a latitud y longitud, y al ETRS89 que usan el geoide y los cambios de datum.
         val datumLat: Double
         val datumLon: Double
-        if (crs.utmZone == null) {
+        if (crs is LibraryCrs) {
+            val ground = GroundPosition.of(crs, easting, northing) ?: return SurfaceHeight.Outside
+            datumLat = ground.first
+            datumLon = ground.second
+        } else if (crs.utmZone == null) {
             datumLat = northing
             datumLon = easting
         } else {
@@ -96,11 +113,21 @@ class RasterElevation(
                 x = lon
                 y = lat
             }
-            is CadSourceCrs.Library -> error("Un SC de origen de la biblioteca todavía no se calcula aquí (S057, T7 a T10)")
+            is CadSourceCrs.Library -> {
+                val point =
+                    requireNotNull(librarySource).fromGround(etrs.first, etrs.second, gridUnitMetres) ?: return SurfaceHeight.Outside
+                x = point.first
+                y = point.second
+            }
         }
 
         // 3. A coordenadas de celda, con la media celda del borde fuera y 1 mm de tolerancia.
-        val stepXMetres = if (degrees) info.stepX * DEG_TO_RAD * EARTH_RADIUS_M * cos(etrs.first * DEG_TO_RAD) else info.stepX
+        val stepXMetres = if (degrees) {
+            info.stepX * DEG_TO_RAD * EARTH_RADIUS_M * cos(etrs.first * DEG_TO_RAD)
+        } else {
+            info.stepX *
+                gridUnitMetres
+        }
         val toleranceCells = edgeMetres / stepXMetres
         var gx = (x - info.originX) / info.stepX
         var gy = (info.originY - y) / info.stepY
@@ -130,8 +157,12 @@ class RasterElevation(
         // 5. A metros y al sistema de alturas del proyecto.
         var metres = value * unitMetres
         if (info.heightSystem != projectHeightSystem) {
-            val geoid = if ((crs as? SpainCrs)?.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
-            val undulation = geoid.undulationM(etrs.first, etrs.second) ?: return SurfaceHeight.Outside
+            val undulation = if (libraryEngine != null) {
+                (libraryEngine.undulation(etrs.first, etrs.second) as? Undulation.Value)?.metres
+            } else {
+                val geoid = if ((crs as? SpainCrs)?.area == CrsArea.CANARIAS) canariasGeoid() else peninsulaGeoid()
+                geoid.undulationM(etrs.first, etrs.second)
+            } ?: return SurfaceHeight.Outside
             metres = if (info.heightSystem == HeightSystem.ELLIPSOIDAL) metres - undulation else metres + undulation
         }
         return SurfaceHeight.Value(metres)

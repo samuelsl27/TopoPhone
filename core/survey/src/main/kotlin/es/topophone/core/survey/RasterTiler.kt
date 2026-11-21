@@ -70,8 +70,10 @@ sealed interface RasterFootprint {
             val x1 = originX + (columns - 1) * stepX
             val y0 = originY - (rows - 1) * stepY
             val y1 = originY
-            val e = doubleArrayOf(x0, x1, x1, x0)
-            val n = doubleArrayOf(y0, y0, y1, y1)
+            // La malla de un SC proyectado de la biblioteca viene en la unidad del SC (S057/RF-15); el resto, en metros.
+            val k = (source as? CadSourceCrs.Library)?.takeIf { it.definition.projected }?.definition?.unitMetres ?: 1.0
+            val e = doubleArrayOf(x0 * k, x1 * k, x1 * k, x0 * k)
+            val n = doubleArrayOf(y0 * k, y0 * k, y1 * k, y1 * k)
             return when (val projection = SurfaceProjector(crs, source, LinearUnit.METRE).convert(e, n, DoubleArray(4))) {
                 is SurfaceProjection.Rejected -> Outside(projection.reason)
                 is SurfaceProjection.Converted ->
