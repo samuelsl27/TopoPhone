@@ -3675,4 +3675,13 @@
     <string name="crs_change_issues_message">%1$d de %2$d puntos no se pueden calcular en el SC nuevo (fuera de su ámbito o sin la rejilla instalada). Se quedan sin coordenadas hasta que vuelvas a un SC que los calcule; sus medidas no cambian.</string>
     <string name="crs_change_continue">Continuar</string>
     <string name="crs_change_other_datum">Solo se puede cambiar a un SC del mismo datum que el actual.</string>
+    <string name="crs_history_open">Historial de cambios de SC</string>
+    <string name="crs_history_title">Historial del SC</string>
+    <string name="crs_history_empty">Todavía no se ha cambiado el SC de este proyecto.</string>
+    <string name="crs_history_change">%1$s → %2$s</string>
+    <string name="crs_history_undo_row">Vuelta al SC anterior: %1$s → %2$s</string>
+    <string name="crs_history_heights">Altura: %1$s → %2$s</string>
+    <string name="crs_history_undo">Volver al SC anterior</string>
+    <string name="crs_history_undone">Se ha vuelto a «%1$s».</string>
+    <string name="crs_history_cannot_undo">El SC del proyecto se cambió por otro camino: ya no se puede deshacer.</string>
 </resources>

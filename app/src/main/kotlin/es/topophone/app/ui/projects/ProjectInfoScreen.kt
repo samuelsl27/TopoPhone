@@ -3,15 +3,20 @@ package es.topophone.app.ui.projects
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
@@ -27,6 +32,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.points.fileSizeText
 import es.topophone.app.ui.receiver.uiLocale
+import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.point.PhotoStats
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.model.project.DatumCheck
@@ -99,12 +105,24 @@ fun ProjectInfoRoute(
 ) {
     LaunchedEffect(projectId) { viewModel.start(projectId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ProjectInfoScreen(themeState, onToggleSun, state, navigation.onBack)
+    var history by rememberSaveable { mutableStateOf(false) }
+    if (history) {
+        // S035/RF-20, RF-21: el historial de cambios de SC, en el lugar de los datos del proyecto.
+        ProjectCrsHistoryRoute(projectId, themeState, onToggleSun, onBack = { history = false })
+        return
+    }
+    ProjectInfoScreen(themeState, onToggleSun, state, navigation.onBack, onOpenCrsHistory = { history = true })
 }
 
 /** Datos del proyecto, a un toque desde el mapa (S006/RF-28, RF-31; S009/RF-5). */
 @Composable
-fun ProjectInfoScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: ProjectInfoUiState, onBack: () -> Unit) {
+fun ProjectInfoScreen(
+    themeState: ThemeState,
+    onToggleSun: () -> Unit,
+    state: ProjectInfoUiState,
+    onBack: () -> Unit,
+    onOpenCrsHistory: () -> Unit = {},
+) {
     SectionScaffold(
         title = stringResource(R.string.project_info_screen),
         themeState = themeState,
@@ -116,7 +134,7 @@ fun ProjectInfoScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             state.project?.let { project ->
-                ProjectInfoCard(project)
+                ProjectInfoCard(project, onOpenCrsHistory)
                 PointsCard(state.pointCount, state.photos)
             }
         }
@@ -125,19 +143,22 @@ fun ProjectInfoScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Pr
 
 /** SC, altura, unidades y datum de las correcciones, con su aviso (S006/RF-11, RF-28; S008/RF-2, RF-18). */
 @Composable
-private fun ProjectInfoCard(project: Project) {
+private fun ProjectInfoCard(project: Project, onOpenCrsHistory: () -> Unit) {
     ViewCard(stringResource(R.string.project_info_title)) {
         Column(
             modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(PROJECT_INFO_TAG),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            LabeledValue(stringResource(R.string.project_crs), crsLabel(project.crs))
+            LabeledValue(stringResource(R.string.project_crs), projectCrsName(project.crs))
             LabeledValue(stringResource(R.string.project_height), heightLabel(project.heightSystem))
             LabeledValue(stringResource(R.string.project_linear_unit), linearUnitLabel(project.linearUnit))
             LabeledValue(stringResource(R.string.project_angular_unit), angularUnitLabel(project.angularUnit))
             LabeledValue(stringResource(R.string.project_corrections_datum), datumLabel(project.correctionsDatum))
         }
         if (DatumCheck.mismatch(project.crs, project.correctionsDatum)) DatumWarning(project.crs, project.correctionsDatum)
+        OutlinedButton(onClick = onOpenCrsHistory, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CRS_HISTORY_OPEN_TAG)) {
+            Text(stringResource(R.string.crs_history_open))
+        }
         // S006/RF-36: fuera de la columna que TalkBack lee entera, para que cada fila siga siendo localizable.
         Text(stringResource(R.string.central_point_info_title), style = MaterialTheme.typography.titleSmall)
         val central = project.centralPoint

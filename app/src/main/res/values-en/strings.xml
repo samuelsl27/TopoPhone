@@ -3663,4 +3663,13 @@
     <string name="crs_change_issues_message">%1$d of %2$d points cannot be computed in the new CRS (outside its area or without the grid installed). They stay without coordinates until you go back to a CRS that computes them; their measurements do not change.</string>
     <string name="crs_change_continue">Continue</string>
     <string name="crs_change_other_datum">You can only change to a CRS with the same datum as the current one.</string>
+    <string name="crs_history_open">CRS change history</string>
+    <string name="crs_history_title">CRS history</string>
+    <string name="crs_history_empty">The CRS of this project has not been changed yet.</string>
+    <string name="crs_history_change">%1$s → %2$s</string>
+    <string name="crs_history_undo_row">Back to the previous CRS: %1$s → %2$s</string>
+    <string name="crs_history_heights">Height: %1$s → %2$s</string>
+    <string name="crs_history_undo">Back to the previous CRS</string>
+    <string name="crs_history_undone">Back to “%1$s”.</string>
+    <string name="crs_history_cannot_undo">The project CRS was changed another way: it can no longer be undone.</string>
 </resources>
