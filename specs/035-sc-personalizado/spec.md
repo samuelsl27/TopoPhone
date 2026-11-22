@@ -51,8 +51,13 @@ Términos de esta spec:
 - RF-21: CUANDO el usuario abra el historial del proyecto, EL SISTEMA mostrará sus cambios de SC y ofrecerá «Volver al SC anterior» en el más reciente, que se registrará como un cambio más.
 - RF-22: EL SISTEMA incluirá el historial del proyecto en las copias de seguridad y en los paquetes de proyecto (S013).
 
+### Formatos con un SC personalizado
+- RF-23: CUANDO el usuario exporte a GeoPackage o Shapefile un proyecto con un SC personalizado, EL SISTEMA declarará el SC con una definición completa generada de sus parámetros (elipsoide, datum, proyección y unidades), de modo que otro programa lo lea como ese mismo SC (S057/RF-22, RF-23).
+- RF-24: CUANDO el usuario reimporte un fichero así exportado en el mismo proyecto, EL SISTEMA reconocerá su SC como el del proyecto (S057/RF-4).
+
 ## Requisitos no funcionales
 - Transversales que aplican: RNF-T5, RNF-T6 (migración sin pérdida y cambios atómicos), RNF-T7, RNF-T8, RNF-T9 (internamente m, rad) y RNF-T14.
+- La definición generada para un SC personalizado da en pyproj las mismas coordenadas que TopoPhone (≤ 1 mm).
 - Constitución nº 2: un SC personalizado definido con los parámetros de un SC de la biblioteca da los mismos resultados que este (≤ 1 mm, ida y vuelta ≤ 0,1 mm), con vectores de pyproj.
 - El JSON exportado se vuelve a importar con la misma definición (ida y vuelta exacta de los números).
 - El editor responde en menos de 100 ms por cambio de campo en el móvil de referencia.
@@ -69,13 +74,14 @@ Términos de esta spec:
 | Cambio de SC con puntos fuera de ámbito | RF-19 |
 | Intentar cambiar a un SC de otro datum | RF-17 |
 | Volver al SC anterior cuando este ya se borró de Mis SC | RF-11, RF-21 |
+| SC personalizado sin código EPSG al exportar a GeoPackage o Shapefile | RF-23 |
 | Restaurar una copia con Mis SC de nombre igual a uno existente | RF-15, RF-16 |
 
 ## Fuera de alcance
 - Cambiar el SC por otro de distinto datum → no previsto (S008 ya lo deja fuera).
 - Coordenadas de cuadrícula o de terreno, punto de origen y factor → S058.
 - Localización (calibración con pares H/V) → S039.
-- Importar un SC desde WKT o `.prj` → no previsto.
+- Importar un SC desde WKT o `.prj` como SC personalizado → no previsto (un `.prj` solo se reconoce si coincide con la biblioteca o con un SC del proyecto, S057).
 - Proyecciones o transformaciones que no calculamos → S032, S033; transformaciones con el tiempo → no previsto.
 - Descargar rejillas → S034.
 - Compartir con otro móvil sin fichero (QR, Bluetooth) → no previsto.
