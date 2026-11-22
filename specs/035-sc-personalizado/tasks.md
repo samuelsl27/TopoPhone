@@ -39,7 +39,7 @@
       Hecho cuando: `Migration37To38Test` conserva los proyectos y los puntos, y el esquema v38 está exportado.
 - [x] T15. `CustomCrsRepository`: guardar, duplicar, renombrar y borrar con nombres únicos. (RF-10)
       Hecho cuando: `CustomCrsRepositoryTest` comprueba cada operación y el nombre repetido sin mayúsculas ni espacios de más.
-- [ ] T16. Importar un JSON con conflicto: reemplazar, conservar ambos con otro nombre u omitir. (RF-15)
+- [x] T16. Importar un JSON con conflicto: reemplazar, conservar ambos con otro nombre u omitir. (RF-15)
       Hecho cuando: `ImportCustomCrsTest` comprueba los tres caminos y que una definición igual no pregunta.
 - [ ] T17. `ProjectRepository` guarda `geoid_constant_m` y la copia de la definición; editar o borrar un SC de Mis SC no cambia el proyecto. (RF-5, RF-11)
       Hecho cuando: `CrsHistoryTest` borra un SC usado por un proyecto y este sigue calculando igual.

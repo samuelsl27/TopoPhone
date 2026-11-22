@@ -24,6 +24,27 @@ sealed interface CustomCrsSave {
     data object NotFound : CustomCrsSave
 }
 
+/** Qué hacer al importar un SC cuyo nombre ya existe con otra definición (S035/RF-15). */
+enum class CustomCrsConflictChoice { REPLACE, KEEP_BOTH, SKIP }
+
+/** Lo que da importar un SC a Mis SC (S035/RF-13, RF-15). */
+sealed interface CustomCrsImport {
+    /** Se añadió como SC nuevo (con otro nombre si se conservaron los dos). */
+    data class Added(val crs: CustomCrs) : CustomCrsImport
+
+    /** Sustituyó al SC del mismo nombre (conserva su identificador y su fecha de creación). */
+    data class Replaced(val crs: CustomCrs) : CustomCrsImport
+
+    /** Ya estaba, con la misma definición y altura: no se hace nada ni se pregunta. */
+    data class Unchanged(val existing: CustomCrs) : CustomCrsImport
+
+    /** Se omitió por decisión del usuario. */
+    data object Skipped : CustomCrsImport
+
+    /** El nombre existe con otra definición y falta decidir qué hacer: se pide reemplazar, conservar ambos u omitir. */
+    data class Conflict(val existing: CustomCrs) : CustomCrsImport
+}
+
 /** Mis SC: los SC personalizados guardados en el móvil (S035/RF-9, RF-10), sin nube. */
 interface CustomCrsRepository {
     fun observeAll(): Flow<List<CustomCrs>>
@@ -46,6 +67,12 @@ interface CustomCrsRepository {
 
     /** Borra el SC de Mis SC: los proyectos que lo usan conservan su copia (S035/RF-11). */
     suspend fun delete(id: String)
+
+    /**
+     * Añade [incoming], leído de un JSON ya confirmado por el usuario (S035/RF-13). Si su nombre ya existe con otra definición y no se ha elegido
+     * qué hacer ([choice] nulo) devuelve [CustomCrsImport.Conflict] sin tocar nada (RF-15).
+     */
+    suspend fun import(incoming: CustomCrs, choice: CustomCrsConflictChoice? = null): CustomCrsImport
 }
 
 class RoomCustomCrsRepository(
@@ -96,6 +123,46 @@ class RoomCustomCrsRepository(
     }
 
     override suspend fun delete(id: String) = dao.delete(id)
+
+    override suspend fun import(incoming: CustomCrs, choice: CustomCrsConflictChoice?): CustomCrsImport = database.withTransaction {
+        val name = clean(incoming.name)
+        val existing = dao.byNameKey(keyOf(name))?.toModel()
+        if (existing == null) {
+            return@withTransaction add(incoming, name)
+        }
+        if (sameDefinition(existing, incoming)) return@withTransaction CustomCrsImport.Unchanged(existing)
+        when (choice) {
+            null -> CustomCrsImport.Conflict(existing)
+            CustomCrsConflictChoice.SKIP -> CustomCrsImport.Skipped
+            CustomCrsConflictChoice.REPLACE -> {
+                val crs = existing.copy(
+                    name = name,
+                    definition = incoming.definition.copy(name = name),
+                    height = incoming.height,
+                    modifiedAtMs = clock(),
+                )
+                dao.upsert(crs.toEntity())
+                CustomCrsImport.Replaced(crs)
+            }
+            CustomCrsConflictChoice.KEEP_BOTH -> {
+                var other = "$name (2)"
+                var n = 3
+                while (dao.byNameKey(keyOf(other)) != null) other = "$name (${n++})"
+                add(incoming, other)
+            }
+        }
+    }
+
+    private suspend fun add(incoming: CustomCrs, name: String): CustomCrsImport {
+        val now = clock()
+        val crs = CustomCrs(ids(), name, incoming.definition.copy(name = name), incoming.height, now, now)
+        dao.insert(crs.toEntity())
+        return CustomCrsImport.Added(crs)
+    }
+
+    /** La misma definición y altura: el nombre ya es el mismo (sin distinguir mayúsculas), así que no cuenta. */
+    private fun sameDefinition(a: CustomCrs, b: CustomCrs): Boolean =
+        a.definition.copy(name = "") == b.definition.copy(name = "") && a.height == b.height
 
     private fun CustomCrs.toEntity(): CustomCrsEntity {
         val (kind, value) = when (val h = height) {
