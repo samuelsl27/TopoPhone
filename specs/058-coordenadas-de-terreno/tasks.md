@@ -19,7 +19,7 @@
       Hecho cuando: `Migration38To39Test` conserva proyectos, puntos e historial, y `ProjectTerrainRepositoryTest` guarda, lee y borra el plano sin redondear y lo conserva al duplicar y restaurar.
 - [x] T7. El historial con plano: `ProjectCrsChange.fromTerrain/toTerrain`, `apply(…, terrain)` y `undo` del plano, sin tocar los puntos, y el origen que sobrevive a un cambio de SC. (RF-6, RF-19, RF-20)
       Hecho cuando: `TerrainHistoryTest` cambia de cuadrícula a terreno, cambia el factor, deshace, cambia el SC con el plano activo (el origen sigue en el mismo punto) y comprueba que ninguna columna de los puntos cambia.
-- [ ] T8. Copias y paquetes con plano de terreno. (RF-18)
+- [x] T8. Copias y paquetes con plano de terreno. (RF-18)
       Hecho cuando: `TerrainBackupTest` hace copia y restauración, y paquete e importación, con el plano.
 
 ## Formulario (`app`)
