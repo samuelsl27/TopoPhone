@@ -33,7 +33,7 @@
       Hecho cuando: `TerrainScreensTest` comprueba que `CoordinatesCard` muestra el Este y el Norte de terreno y su etiqueta, y los de cuadrícula sin plano.
 - [x] T12. Mapa (coordenadas del cursor y de la pulsación larga) y distancias del mapa. (RF-9)
       Hecho cuando: `TerrainScreensTest` comprueba las coordenadas y las distancias del mapa en terreno.
-- [ ] T13. Lista y ficha de los puntos, vista del proyecto y base del punto. (RF-9, RF-11)
+- [x] T13. Lista y ficha de los puntos, vista del proyecto y base del punto. (RF-9, RF-11)
       Hecho cuando: `TerrainScreensTest` comprueba la ficha de un punto con Este y Norte de terreno, sin cambiar la altura.
 - [ ] T14. Punto manual y edición de un punto: lo que se escribe es terreno. (RF-10)
       Hecho cuando: `TerrainInputsTest` escribe unas coordenadas de terreno y el punto queda con las de cuadrícula que le corresponden y la ida y vuelta cierra.

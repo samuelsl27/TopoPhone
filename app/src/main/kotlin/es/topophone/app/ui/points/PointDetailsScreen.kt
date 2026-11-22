@@ -50,9 +50,11 @@ import es.topophone.app.ui.photos.PhotoImages
 import es.topophone.app.ui.projects.ConfirmDialog
 import es.topophone.app.ui.projects.CoordinateRow
 import es.topophone.app.ui.projects.SurveyNavigation
+import es.topophone.app.ui.projects.TerrainMark
 import es.topophone.app.ui.projects.datumName
 import es.topophone.app.ui.projects.formatDateTime
 import es.topophone.app.ui.projects.heightTitle
+import es.topophone.app.ui.projects.rememberTerrainView
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.tiltSummary
@@ -683,8 +685,13 @@ private fun CoordinateRows(project: Project, coordinates: PointCoordinates) {
     val unit = unitSymbol(project.linearUnit)
     fun length(valueM: Double) = "${LengthFormat.inUnit(valueM, project.linearUnit, locale)} $unit"
     val noHeight = stringResource(R.string.point_mark_no_height)
-    coordinates.easting?.let { CoordinateRow(stringResource(R.string.coord_easting), length(it), "point_easting") }
-    coordinates.northing?.let { CoordinateRow(stringResource(R.string.coord_northing), length(it), "point_northing") }
+    val terrain = rememberTerrainView(project)
+    val east = coordinates.easting
+    val north = coordinates.northing
+    val shown = if (east != null && north != null) terrain.coordinates(east, north) else null
+    TerrainMark(terrain, "point_terrain") // S058/RF-9: Este y Norte en terreno; la altura no cambia (RF-11)
+    (shown?.easting ?: east)?.let { CoordinateRow(stringResource(R.string.coord_easting), length(it), "point_easting") }
+    (shown?.northing ?: north)?.let { CoordinateRow(stringResource(R.string.coord_northing), length(it), "point_northing") }
     CoordinateRow(heightTitle(project.heightSystem), coordinates.height?.let(::length) ?: noHeight, "point_height")
     // Las geográficas son las de los cálculos: ETRS89, o REGCAN95 en Canarias; también en un proyecto ED50.
     val datum = if (project.crs.datum == GeodeticDatum.REGCAN95) GeodeticDatum.REGCAN95 else GeodeticDatum.ETRS89
@@ -1041,8 +1048,21 @@ private fun BaseCard(project: Project, base: PointBase, projected: ProjectPositi
                 ?: stringResource(R.string.base_source_corrections_no_station)
         }
         CoordinateRow(stringResource(R.string.base_source), source, "point_base_source")
-        CoordinateRow(stringResource(R.string.coord_easting), projected?.easting?.let(::length) ?: unavailable, "point_base_easting")
-        CoordinateRow(stringResource(R.string.coord_northing), projected?.northing?.let(::length) ?: unavailable, "point_base_northing")
+        val terrain = rememberTerrainView(project)
+        val baseE = projected?.easting
+        val baseN = projected?.northing
+        val baseShown = if (baseE != null && baseN != null) terrain.coordinates(baseE, baseN) else null
+        TerrainMark(terrain, "point_base_terrain") // S058/RF-9
+        CoordinateRow(
+            stringResource(R.string.coord_easting),
+            (baseShown?.easting ?: baseE)?.let(::length) ?: unavailable,
+            "point_base_easting",
+        )
+        CoordinateRow(
+            stringResource(R.string.coord_northing),
+            (baseShown?.northing ?: baseN)?.let(::length) ?: unavailable,
+            "point_base_northing",
+        )
         CoordinateRow(heightTitle(project.heightSystem), projected?.height?.let(::length) ?: unavailable, "point_base_height")
         CoordinateRow(
             stringResource(R.string.coord_latitude_symbol),
