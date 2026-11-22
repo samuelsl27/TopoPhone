@@ -55,4 +55,16 @@ class TerrainVectorsTest {
         }
         failures.shouldBeEmpty()
     }
+
+    @Test
+    fun `S058 RF-3 el factor combinado propuesto da el de pyproj a 1e-9`() {
+        val failures = SurveyFixtures.rows("terreno.csv").filter { it[7] == "1" }.mapNotNull { row ->
+            val epsg = row[0].toInt()
+            val at = GeoPoint(row[1].toDouble(), row[2].toDouble())
+            val proposed = TerrainProposal.factorAt(at.latitudeDeg, at.longitudeDeg, row[3].toDouble(), crsOf(epsg, at))
+            val error = proposed?.let { kotlin.math.abs(it - row[4].toDouble()) }
+            "EPSG:$epsg: $proposed frente a ${row[4]}".takeIf { error == null || error > 1e-9 }
+        }
+        failures.shouldBeEmpty()
+    }
 }
