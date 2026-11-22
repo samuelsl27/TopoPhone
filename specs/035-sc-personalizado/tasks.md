@@ -15,7 +15,7 @@
       Hecho cuando: `CustomCrsBuilderTest` cubre cada campo válido y no válido y que no hay dos motivos para el mismo campo.
 - [x] T5. `CustomCrsBuilder.build`: transformación en la notación de pasos, definición y `Ready`, `NeedsGrids` o `Invalid`. (RF-3, RF-8)
       Hecho cuando: `CustomCrsBuilderTest` comprueba los tres resultados, los seis tipos de transformación y que la definición vuelve a `resolve` sin el catálogo.
-- [ ] T6. Contraste con pyproj: `CustomCrsVectorsTest` con `personalizado.csv`. (RF-3, RF-4, constitución nº 2)
+- [x] T6. Contraste con pyproj: `CustomCrsVectorsTest` con `personalizado.csv`. (RF-3, RF-4, constitución nº 2)
       Hecho cuando: los cinco SC dan ≤ 1 mm con ida y vuelta ≤ 0,1 mm frente a los de la biblioteca y a pyproj.
 - [ ] T7. `CrsProbe` (ida y vuelta de unas coordenadas de prueba). (RF-7)
       Hecho cuando: `CrsProbeTest` comprueba los dos sentidos, la diferencia de la vuelta y un SC con rejilla no instalada.
