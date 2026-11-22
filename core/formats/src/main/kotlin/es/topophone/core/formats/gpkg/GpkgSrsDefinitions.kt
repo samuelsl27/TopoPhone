@@ -1,11 +1,13 @@
 package es.topophone.core.formats.gpkg
 
 import es.topophone.core.geodesy.catalog.CrsWkt
+import es.topophone.core.geodesy.catalog.CustomCrsWkt
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.SpainCrs
+import es.topophone.core.model.project.isCustom
 
 /** Una fila de `gpkg_spatial_ref_sys`: el sistema de coordenadas de una capa tal como lo declara el fichero (S053/RF-6, RF-8). */
 data class GpkgSrsDefinition(
@@ -53,15 +55,27 @@ object GpkgSrsDefinitions {
      */
     fun of(crs: ProjectCrs): GpkgSrsDefinition = when (crs) {
         is SpainCrs -> byCode.getValue(crs.epsg)
-        is LibraryCrs -> byCode[crs.definition.epsg]
-            ?: GpkgSrsDefinition(
-                crs.definition.epsg,
-                crs.definition.name,
-                EPSG,
-                crs.definition.epsg,
-                CrsWkt.bundled.gpkg(crs.definition.epsg) ?: UNDEFINED,
-            )
+        // Un SC personalizado no tiene código: lleva su WKT1 completo y sin autoridad (S035/RF-23).
+        is LibraryCrs -> if (crs.definition.isCustom) {
+            custom(crs.definition.name, customWkt(crs) ?: UNDEFINED)
+        } else {
+            byCode[crs.definition.epsg]
+                ?: GpkgSrsDefinition(
+                    crs.definition.epsg,
+                    crs.definition.name,
+                    EPSG,
+                    crs.definition.epsg,
+                    CrsWkt.bundled.gpkg(crs.definition.epsg) ?: UNDEFINED,
+                )
+        }
     }
+
+    /**
+     * El WKT1 de un SC personalizado, o `null` si no se puede expresar sin engañar (S035/RF-23, S057/RF-25): sin forma en WKT1 o con una transformación de
+     * datum que WKT1 no lleva (rejilla, Molodensky-Badekas, cadena), que dejaría el SC en otro datum sin decirlo.
+     */
+    private fun customWkt(crs: LibraryCrs): String? =
+        CustomCrsWkt.wkt1(crs.definition)?.takeIf { CustomCrsWkt.datumShiftExpressed(crs.definition) }
 
     /** ¿Se puede escribir la definición completa del SC? Falla en un SC de la biblioteca que PROJ no sabe expresar en WKT1: se avisa (S057/RF-26). */
     fun isExpressible(crs: ProjectCrs): Boolean = crs !is LibraryCrs || of(crs).definition != UNDEFINED

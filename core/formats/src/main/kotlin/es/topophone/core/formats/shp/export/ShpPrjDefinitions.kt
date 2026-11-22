@@ -1,10 +1,12 @@
 package es.topophone.core.formats.shp.export
 
 import es.topophone.core.geodesy.catalog.CrsWkt
+import es.topophone.core.geodesy.catalog.CustomCrsWkt
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.GeodeticDatum
 import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.isCustom
 
 /**
  * El contenido del `.prj` de cada Shapefile que exporta S055 (RF-15, RF-16, plan A4): el WKT1 de ESRI de los sistemas de S008 y de las
@@ -19,7 +21,12 @@ class ShpPrjDefinitions(private val byCode: Map<Int, String> = ShpPrjDefinitions
     fun of(crs: ProjectCrs): String? = byCode[crs.epsg] ?: libraryPrj(crs.epsg, crs)
 
     /** El `.prj` de un SC de la biblioteca: su WKT1 de ESRI de [CrsWkt], generado con pyproj (S057/RF-23); `null` si PROJ no pudo expresarlo (RF-26). */
-    private fun libraryPrj(epsg: Int, crs: ProjectCrs): String? = if (crs is LibraryCrs) CrsWkt.bundled.prj(epsg) else null
+    private fun libraryPrj(epsg: Int, crs: ProjectCrs): String? = when {
+        crs !is LibraryCrs -> null
+        // Un SC personalizado lleva su WKT1 generado (S035/RF-23); sin él si no se puede expresar sin engañar (RF-16).
+        crs.definition.isCustom -> CustomCrsWkt.wkt1(crs.definition)?.takeIf { CustomCrsWkt.datumShiftExpressed(crs.definition) }
+        else -> CrsWkt.bundled.prj(epsg)
+    }
 
     /**
      * El `.prj` de las geográficas en las que están la latitud y la longitud de los puntos: las del datum de los cálculos, ETRS89 o REGCAN95.
