@@ -27,6 +27,8 @@ sealed interface GpkgCrs {
         val name: String? = null,
         /** Varios SC de la biblioteca se llaman como el del fichero (S057/RF-5): el usuario elige entre ellos. */
         val candidates: List<RecognizedCrs> = emptyList(),
+        /** El WKT con que el fichero define el sistema, si lo trae: sirve para reconocer el SC personalizado de un proyecto (S035/RF-24). */
+        val wkt: String? = null,
     ) : GpkgCrs
 
     /**
@@ -53,10 +55,21 @@ object GpkgCrsCatalog {
      * El sistema de una capa. [authority] y [authorityCode] son las columnas `organization` y `organization_coordsys_id` de su fila de
      * `gpkg_spatial_ref_sys`, o null si no la tiene. Los `srs_id` 0 y −1 son siempre «sin sistema».
      */
-    fun resolve(srsId: Int, authority: String?, authorityCode: Int?): GpkgCrs {
-        if (authority == null || authorityCode == null || srsId <= 0 || authority.equals(NONE, ignoreCase = true)) return GpkgCrs.Undeclared
+    fun resolve(srsId: Int, authority: String?, authorityCode: Int?, definition: String? = null): GpkgCrs {
+        if (authority == null || authorityCode == null || srsId <= 0) return GpkgCrs.Undeclared
+        if (authority.equals(NONE, ignoreCase = true)) return described(srsId, definition)
         if (!authority.equals(EPSG, ignoreCase = true)) return GpkgCrs.Unavailable(authority.uppercase(), authorityCode)
         return resolveEpsg(authorityCode) ?: library(authorityCode) ?: GpkgCrs.Unavailable(EPSG, authorityCode)
+    }
+
+    /**
+     * Sin autoridad: «sin sistema», salvo el `srs_id` de un sistema definido a mano con su WKT (el de un SC personalizado que exporta S035/RF-23),
+     * que se devuelve con su WKT para reconocerlo en el proyecto (S035/RF-24).
+     */
+    private fun described(srsId: Int, definition: String?): GpkgCrs {
+        val wkt = definition?.trim().orEmpty()
+        val isWkt = wkt.startsWith("PROJCS[") || wkt.startsWith("GEOGCS[")
+        return if (srsId >= GpkgSrsDefinitions.CUSTOM_SRS_ID && isWkt) GpkgCrs.Unavailable(NONE, srsId, wkt = wkt) else GpkgCrs.Undeclared
     }
 
     /** El SC de la biblioteca con el código EPSG dado, o null si no lo tiene (S057/RF-4). */

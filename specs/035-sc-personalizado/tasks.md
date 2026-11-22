@@ -31,7 +31,7 @@
       Hecho cuando: `CustomCrsWktTest` lee cada WKT con pyproj y da las mismas coordenadas, ≤ 1 mm (vectores en `fixtures/geodesia/personalizado_wkt.csv`).
 - [x] T12. El `.prj` del Shapefile y el `gpkg_spatial_ref_sys` de un SC personalizado con `CustomCrsWkt`, y el aviso de S057/RF-25 si no se puede expresar. (RF-23)
       Hecho cuando: `CustomCrsFormatsTest` exporta un Shapefile y un GeoPackage de un proyecto personalizado y QGIS (pyproj) lee su SC.
-- [ ] T13. `CustomCrsRecognition` y su uso al importar un Shapefile o un GeoPackage exportados desde un proyecto personalizado. (RF-24)
+- [x] T13. `CustomCrsRecognition` y su uso al importar un Shapefile o un GeoPackage exportados desde un proyecto personalizado. (RF-24)
       Hecho cuando: `CustomCrsFormatsTest` reimporta el fichero y lo reconoce como el SC del proyecto, y uno de otro SC no.
 
 ## Datos (`data`)

@@ -1,6 +1,9 @@
 package es.topophone.core.formats.crs
 
+import es.topophone.core.formats.gpkg.GpkgCrs
+import es.topophone.core.formats.gpkg.GpkgCrsCatalog
 import es.topophone.core.formats.gpkg.GpkgSrsDefinitions
+import es.topophone.core.formats.shp.ShpCrsCatalog
 import es.topophone.core.formats.shp.export.ShpPrjDefinitions
 import es.topophone.core.geodesy.catalog.CrsBuildResult
 import es.topophone.core.geodesy.catalog.CrsCatalog
@@ -22,6 +25,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 
 /** Un proyecto con un SC personalizado declara su SC con un WKT1 generado en el GeoPackage y en el `.prj` (S035/RF-23). */
@@ -102,5 +106,80 @@ class CustomCrsFormatsTest {
 
         definition.isCustom shouldBe false
         GpkgSrsDefinitions.of(LibraryCrs(definition, CorrectionsDatum.ETRS89)).organizationCode shouldBe 2154
+    }
+
+    private val own get() = project(base).definition
+
+    @Test
+    fun `S035 RF-24 el WKT que escribe la app se reconoce como el SC del proyecto`() {
+        val wkt = CustomCrsWkt.wkt1(own)
+
+        CustomCrsRecognition.sameAs(wkt, own) shouldBe true
+    }
+
+    @Test
+    fun `S035 RF-24 un WKT con otro meridiano, otra escala, otra unidad u otro elipsoide no es el SC del proyecto`() {
+        val other = listOf(
+            own.copy(parameters = own.parameters + ("longitudeOfOriginDeg" to -2.999)),
+            own.copy(parameters = own.parameters + ("scaleFactor" to 1.0)),
+            own.copy(unitMetres = 0.3048),
+            own.copy(ellipsoidSemiMajorM = 6378137.0, ellipsoidInverseFlattening = 298.257222101),
+            own.copy(
+                method = "lcc1",
+                parameters = mapOf(
+                    "latitudeOfOriginDeg" to 40.0,
+                    "longitudeOfOriginDeg" to -3.0,
+                    "scaleFactor" to 1.0,
+                    "falseEasting" to 0.0,
+                    "falseNorthing" to 0.0,
+                ),
+            ),
+        )
+
+        other.forEach { CustomCrsRecognition.sameAs(CustomCrsWkt.wkt1(it), own) shouldBe false }
+    }
+
+    @Test
+    fun `S035 RF-24 un texto que no es un WKT no es el SC del proyecto`() {
+        CustomCrsRecognition.sameAs(null, own) shouldBe false
+        CustomCrsRecognition.sameAs("undefined", own) shouldBe false
+        CustomCrsRecognition.sameAs("basura", own) shouldBe false
+    }
+
+    @Test
+    fun `S035 RF-24 un GeoPackage exportado desde el proyecto llega con su WKT y se reconoce`() {
+        val srs = GpkgSrsDefinitions.of(LibraryCrs(own, CorrectionsDatum.ETRS89))
+
+        val crs = GpkgCrsCatalog.resolve(srs.srsId, srs.organization, srs.organizationCode, srs.definition)
+
+        val unavailable = crs.shouldBeInstanceOf<GpkgCrs.Unavailable>()
+        CustomCrsRecognition.sameAs(unavailable.wkt, own) shouldBe true
+    }
+
+    @Test
+    fun `S035 RF-24 un srs_id sin autoridad y sin definicion o de otro rango sigue sin sistema`() {
+        GpkgCrsCatalog.resolve(100_000, "NONE", 100_000, "undefined") shouldBe GpkgCrs.Undeclared
+        GpkgCrsCatalog.resolve(100_000, "NONE", 100_000, null) shouldBe GpkgCrs.Undeclared
+        GpkgCrsCatalog.resolve(5, "NONE", 5, CustomCrsWkt.wkt1(own)) shouldBe GpkgCrs.Undeclared
+        GpkgCrsCatalog.resolve(0, "NONE", 0, "undefined") shouldBe GpkgCrs.Undeclared
+    }
+
+    @Test
+    fun `S035 RF-24 un Shapefile exportado desde el proyecto llega con su prj y se reconoce`() {
+        val prj = ShpPrjDefinitions().of(LibraryCrs(own, CorrectionsDatum.ETRS89))
+
+        val crs = ShpCrsCatalog.resolve(prj)
+
+        val unavailable = crs.shouldBeInstanceOf<GpkgCrs.Unavailable>()
+        CustomCrsRecognition.sameAs(unavailable.wkt, own) shouldBe true
+    }
+
+    @Test
+    fun `S035 RF-24 el prj de otro SC personalizado no se reconoce como el del proyecto`() {
+        val prj = ShpPrjDefinitions().of(project(base.copy(name = "Otra", parameters = base.parameters + ("scaleFactor" to 0.9999))))
+
+        val unavailable = ShpCrsCatalog.resolve(prj).shouldBeInstanceOf<GpkgCrs.Unavailable>()
+
+        CustomCrsRecognition.sameAs(unavailable.wkt, own) shouldBe false
     }
 }

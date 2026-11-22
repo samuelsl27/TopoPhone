@@ -160,10 +160,10 @@ class GeoPackageReader(
         table.startsWith("sqlite_") || table.startsWith("gpkg_") || table.startsWith("rtree_")
 
     private fun crsOf(db: SQLiteDatabase, srsId: Int): GpkgCrs = db.rawQuery(
-        "SELECT organization, organization_coordsys_id FROM gpkg_spatial_ref_sys WHERE srs_id = ?",
+        "SELECT organization, organization_coordsys_id, definition FROM gpkg_spatial_ref_sys WHERE srs_id = ?",
         arrayOf(srsId.toString()),
     ).use {
-        if (it.moveToFirst()) GpkgCrsCatalog.resolve(srsId, it.getString(0), it.getInt(1)) else GpkgCrs.Undeclared
+        if (it.moveToFirst()) GpkgCrsCatalog.resolve(srsId, it.getString(0), it.getInt(1), it.getString(2)) else GpkgCrs.Undeclared
     }
 
     private class ColumnInfo(val name: String, val type: String, val pk: Boolean)

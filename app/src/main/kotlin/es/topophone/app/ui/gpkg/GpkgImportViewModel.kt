@@ -7,6 +7,7 @@ import es.topophone.app.di.IoDispatcher
 import es.topophone.app.ui.crs.LibrarySourceUi
 import es.topophone.app.ui.points.ImportSource
 import es.topophone.app.ui.projects.ProjectCenterProvider
+import es.topophone.core.formats.crs.CustomCrsRecognition
 import es.topophone.core.formats.gpkg.GpkgCrs
 import es.topophone.core.formats.gpkg.GpkgCrsCatalog
 import es.topophone.core.formats.gpkg.GpkgFileKind
@@ -34,6 +35,7 @@ import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.isCustom
 import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResolver
@@ -412,12 +414,19 @@ class GpkgImportViewModel @Inject constructor(
             info,
             crs = crs,
             recognized = declared?.let { LibrarySourceUi.declared(it.epsg, project.crs, project.correctionsDatum, centre) },
-            declaredIsProject = declared != null && declared.epsg == project.crs.epsg,
+            declaredIsProject = declared != null && declared.epsg == project.crs.epsg || isCustomProjectCrs(crs, project),
             nameField = suggestNameField(info.columns),
             encoding = files?.encoding(info),
             cpgUnknown = files?.cpgUnknown(info) ?: false,
             withoutRecords = files?.objectsWithoutRecord(info) ?: 0,
         )
+    }
+
+    /** ¿Declara la capa el SC personalizado del proyecto, con su WKT (el de un fichero exportado desde este proyecto, S035/RF-24)? */
+    private fun isCustomProjectCrs(crs: GpkgCrs, project: Project): Boolean {
+        val library = project.crs as? LibraryCrs ?: return false
+        val wkt = (crs as? GpkgCrs.Unavailable)?.wkt ?: return false
+        return library.definition.isCustom && CustomCrsRecognition.sameAs(wkt, library.definition)
     }
 
     /** El usuario elige la codificación con la que se lee el `.dbf` de la capa [table]; se releen sus columnas (S030/RF-18). */

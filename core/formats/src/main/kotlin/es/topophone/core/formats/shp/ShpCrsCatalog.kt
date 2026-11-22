@@ -47,7 +47,9 @@ object ShpCrsCatalog {
             return GpkgCrsCatalog.resolveEpsg(code) ?: GpkgCrsCatalog.library(code) ?: GpkgCrs.Unavailable(EPSG, code, name)
         }
         val crs = if (root.keyword == "PROJCS") projected(root) else geographic(root)
-        return crs ?: byName(root, name)
+        val resolved = crs ?: byName(root, name)
+        // Un `.prj` que no es de la app ni de la biblioteca conserva su WKT: puede ser el SC personalizado del proyecto (S035/RF-24).
+        return if (resolved is GpkgCrs.Unavailable && resolved.authority == PRJ) resolved.copy(wkt = prj) else resolved
     }
 
     /** Sin código ni estructura de España: por el nombre del `.prj` frente a los de la biblioteca (S057/RF-5, RF-6). */
@@ -72,6 +74,11 @@ object ShpCrsCatalog {
      */
     private fun sameDefinition(root: WktNode, crs: RecognizedCrs): Boolean {
         val reference = CrsWkt.bundled.prj(crs.epsg)?.let(PrjReader::parse) ?: return false
+        return sameDefinition(root, reference)
+    }
+
+    /** ¿Tiene [root] los mismos parámetros, unidad y elipsoide que [reference]? La comparación de [sameDefinition] con un WKT cualquiera (S035/RF-24). */
+    internal fun sameDefinition(root: WktNode, reference: WktNode): Boolean {
         if (root.keyword != reference.keyword) return false
         if (reference.keyword == "PROJCS" && !sameMethod(root, reference)) return false
         val file = parameters(root)
