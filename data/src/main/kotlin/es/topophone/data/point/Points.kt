@@ -142,6 +142,28 @@ interface PointDao {
     @Query("SELECT * FROM points WHERE id = :id")
     suspend fun byId(id: String): PointEntity?
 
+    /** Las posiciones del suelo de todos los puntos del proyecto, también los de la papelera, para cambiar su SC (S035/RF-18). */
+    @Query(
+        "SELECT id, name, ground_lat, ground_lon, ground_h, measured_ground_lat, measured_ground_lon, measured_ground_h " +
+            "FROM points WHERE project_id = :projectId",
+    )
+    suspend fun groundsOf(projectId: String): List<PointGroundRow>
+
+    /** Reescribe lo derivado del SC (Este, Norte y altura, también los de la medida); las geodésicas y la medida no se tocan (S035/RF-18). */
+    @Query(
+        "UPDATE points SET easting = :easting, northing = :northing, height = :height, measured_easting = :measuredEasting, " +
+            "measured_northing = :measuredNorthing, measured_height = :measuredHeight WHERE id = :id",
+    )
+    suspend fun setDerived(
+        id: String,
+        easting: Double?,
+        northing: Double?,
+        height: Double?,
+        measuredEasting: Double?,
+        measuredNorthing: Double?,
+        measuredHeight: Double?,
+    )
+
     /** Los activos para exportar, sin las frases NMEA, que el CSV no usa y pueden ocupar mucho (S012/RF-1, RF-3). */
     @Query(
         "SELECT id, project_id, name, description, origin, antenna_lat, antenna_lon, antenna_h, pole_height, " +
@@ -502,3 +524,15 @@ class RoomPointRepository(
         const val DAY_MS = 24L * 60 * 60 * 1000
     }
 }
+
+/** La posición del suelo de un punto y la de su medida, para recalcular lo derivado del SC (S035/RF-18). */
+data class PointGroundRow(
+    val id: String,
+    val name: String,
+    @ColumnInfo(name = "ground_lat") val groundLat: Double,
+    @ColumnInfo(name = "ground_lon") val groundLon: Double,
+    @ColumnInfo(name = "ground_h") val groundH: Double?,
+    @ColumnInfo(name = "measured_ground_lat") val measuredGroundLat: Double?,
+    @ColumnInfo(name = "measured_ground_lon") val measuredGroundLon: Double?,
+    @ColumnInfo(name = "measured_ground_h") val measuredGroundH: Double?,
+)

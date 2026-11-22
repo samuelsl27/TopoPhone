@@ -39,6 +39,13 @@ interface ProjectDao {
     @Query("SELECT name FROM projects WHERE deleted_at IS NULL AND id != :exceptId")
     suspend fun activeNames(exceptId: String = ""): List<String>
 
+    /** El SC del proyecto, con su copia de la definición, su geoide y su sistema de alturas, en un solo paso (S035/RF-18, RF-20). */
+    @Query(
+        "UPDATE projects SET crs = :crs, crs_definition = :definition, geoid_grid = :grid, geoid_constant_m = :constant, " +
+            "height_system = :heightSystem, modified_at = :at WHERE id = :id",
+    )
+    suspend fun setCrs(id: String, crs: String, definition: String?, grid: String?, constant: Double?, heightSystem: String, at: Long)
+
     @Query("UPDATE projects SET opened_at = :at WHERE id = :id")
     suspend fun setOpenedAt(id: String, at: Long)
 

@@ -47,6 +47,8 @@ data class ProjectCrsHistoryEntity(
     @ColumnInfo(name = "at_ms") val atMs: Long,
     @ColumnInfo(name = "from_crs") val fromCrs: String,
     @ColumnInfo(name = "to_crs") val toCrs: String,
+    @ColumnInfo(name = "from_height_system") val fromHeightSystem: String,
+    @ColumnInfo(name = "to_height_system") val toHeightSystem: String,
     val kind: String,
 )
 

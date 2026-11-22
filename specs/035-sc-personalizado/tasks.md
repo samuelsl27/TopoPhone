@@ -43,7 +43,7 @@
       Hecho cuando: `ImportCustomCrsTest` comprueba los tres caminos y que una definición igual no pregunta.
 - [x] T17. `ProjectRepository` guarda `geoid_constant_m` y la copia de la definición; editar o borrar un SC de Mis SC no cambia el proyecto. (RF-5, RF-11)
       Hecho cuando: `CrsHistoryTest` borra un SC usado por un proyecto y este sigue calculando igual.
-- [ ] T18. `CrsChangePlan` y `ProjectCrsHistoryRepository.apply`: transacción única con el historial. (RF-17, RF-18, RF-19, RF-20)
+- [x] T18. `CrsChangePlan` y `ProjectCrsHistoryRepository.apply`: transacción única con el historial. (RF-17, RF-18, RF-19, RF-20)
       Hecho cuando: `CrsChangePlanTest` y `CrsHistoryTest` comprueban los puntos no calculables, las medidas intactas y la atomicidad (un fallo no deja el cambio a medias); `CrsChangePerformanceTest` con 10.000 puntos < 2 s.
 - [ ] T19. `ProjectCrsHistoryRepository.undo`: «Volver al SC anterior» como un cambio más, solo del más reciente. (RF-21)
       Hecho cuando: `CrsHistoryTest` deshace un cambio, lo vuelve a deshacer y comprueba el historial con tres filas; con el SC anterior ya borrado de Mis SC también funciona.
