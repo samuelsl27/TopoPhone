@@ -3672,4 +3672,20 @@
     <string name="crs_history_undo">Back to the previous CRS</string>
     <string name="crs_history_undone">Back to “%1$s”.</string>
     <string name="crs_history_cannot_undo">The project CRS was changed another way: it can no longer be undone.</string>
+    <string name="terrain_title">Project coordinates</string>
+    <string name="terrain_grid">Grid</string>
+    <string name="terrain_ground">Ground</string>
+    <string name="terrain_origin_latitude">Origin latitude (°)</string>
+    <string name="terrain_origin_longitude">Origin longitude (°)</string>
+    <string name="terrain_factor">Ground factor</string>
+    <string name="terrain_proposed">Factor proposed at the origin: %1$s</string>
+    <string name="terrain_use_proposed">Use the proposed one</string>
+    <string name="terrain_use_center">Origin: project centre</string>
+    <string name="terrain_no_center">The project has no centre yet: type the origin.</string>
+    <string name="terrain_error_required">Value missing</string>
+    <string name="terrain_error_not_finite">Not a valid number</string>
+    <string name="terrain_error_factor_range">The factor must be between 0.9 and 1.1</string>
+    <string name="terrain_error_origin_range">Invalid latitude or longitude</string>
+    <string name="terrain_error_out_of_area">The origin is outside the area of the coordinate system</string>
+    <string name="terrain_hint">The origin keeps its coordinates and distances to it are multiplied by the factor.</string>
 </resources>

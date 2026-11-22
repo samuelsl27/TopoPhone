@@ -144,6 +144,7 @@ class ProjectFormCentralPointTest {
                 FakeMapPreferences(),
                 RoomCodeLibraryRepository(db),
                 RoomProjectCrsHistoryRepository(db),
+                centers(),
             )
         vm.start(projectId, folderId = null)
         vm.awaitState { it.loaded }
@@ -330,4 +331,9 @@ class ProjectFormCentralPointTest {
             compose.onNodeWithTag(it).performScrollTo().assertHeightIsAtLeast(56.dp)
         }
     }
+
+    private fun centers() = es.topophone.app.ui.projects.ProjectCenterProvider(
+        es.topophone.app.ui.map.FakePointRepository(),
+        es.topophone.app.ui.map.FakeMapViewportRepository(),
+    )
 }

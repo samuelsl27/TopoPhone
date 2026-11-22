@@ -3684,4 +3684,20 @@
     <string name="crs_history_undo">Volver al SC anterior</string>
     <string name="crs_history_undone">Se ha vuelto a «%1$s».</string>
     <string name="crs_history_cannot_undo">El SC del proyecto se cambió por otro camino: ya no se puede deshacer.</string>
+    <string name="terrain_title">Coordenadas del proyecto</string>
+    <string name="terrain_grid">Cuadrícula</string>
+    <string name="terrain_ground">Terreno</string>
+    <string name="terrain_origin_latitude">Latitud del origen (°)</string>
+    <string name="terrain_origin_longitude">Longitud del origen (°)</string>
+    <string name="terrain_factor">Factor de terreno</string>
+    <string name="terrain_proposed">Factor propuesto en el origen: %1$s</string>
+    <string name="terrain_use_proposed">Usar el propuesto</string>
+    <string name="terrain_use_center">Origen: centro del proyecto</string>
+    <string name="terrain_no_center">El proyecto todavía no tiene centro: escribe el origen.</string>
+    <string name="terrain_error_required">Falta el valor</string>
+    <string name="terrain_error_not_finite">No es un número válido</string>
+    <string name="terrain_error_factor_range">El factor tiene que estar entre 0,9 y 1,1</string>
+    <string name="terrain_error_origin_range">Latitud o longitud no válidas</string>
+    <string name="terrain_error_out_of_area">El origen está fuera del ámbito del sistema de coordenadas</string>
+    <string name="terrain_hint">El origen conserva sus coordenadas y las distancias a él se multiplican por el factor.</string>
 </resources>

@@ -180,6 +180,7 @@ class ChangeProjectCrsTest {
         FakeMapPreferences(),
         RoomCodeLibraryRepository(db),
         history,
+        centers(),
     )
 
     private fun ProjectFormViewModel.await(predicate: (ProjectFormUiState) -> Boolean): ProjectFormUiState = runBlocking {
@@ -356,4 +357,9 @@ class ChangeProjectCrsTest {
         calls.size shouldBe 0
         draft().crs shouldBe lambert
     }
+
+    private fun centers() = es.topophone.app.ui.projects.ProjectCenterProvider(
+        es.topophone.app.ui.map.FakePointRepository(),
+        es.topophone.app.ui.map.FakeMapViewportRepository(),
+    )
 }

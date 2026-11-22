@@ -99,6 +99,7 @@ class ProjectFormTest {
         FakeMapPreferences(),
         RoomCodeLibraryRepository(db),
         RoomProjectCrsHistoryRepository(db),
+        centers(),
     )
 
     private fun ProjectFormViewModel.awaitState(predicate: (ProjectFormUiState) -> Boolean): ProjectFormUiState = runBlocking {
@@ -294,4 +295,9 @@ class ProjectFormTest {
 
         edited shouldBe id
     }
+
+    private fun centers() = es.topophone.app.ui.projects.ProjectCenterProvider(
+        es.topophone.app.ui.map.FakePointRepository(),
+        es.topophone.app.ui.map.FakeMapViewportRepository(),
+    )
 }

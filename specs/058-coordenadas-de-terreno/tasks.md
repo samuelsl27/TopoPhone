@@ -23,7 +23,7 @@
       Hecho cuando: `TerrainBackupTest` hace copia y restauración, y paquete e importación, con el plano.
 
 ## Formulario (`app`)
-- [ ] T9. El formulario del proyecto: cuadrícula o terreno, el origen (el centro por defecto) y el factor con su propuesta, y los errores marcados; sin terreno con un SC geográfico. (RF-1, RF-2, RF-3, RF-4, RF-5)
+- [x] T9. El formulario del proyecto: cuadrícula o terreno, el origen (el centro por defecto) y el factor con su propuesta, y los errores marcados; sin terreno con un SC geográfico. (RF-1, RF-2, RF-3, RF-4, RF-5)
       Hecho cuando: `ProjectTerrainFormTest` elige terreno, ve el factor propuesto y lo cambia, ve cada error y no encuentra la opción con un SC geográfico.
 - [ ] T10. Guardar el cambio de plano desde el formulario por el historial, y las cadenas de textos. (RF-19, RF-20)
       Hecho cuando: `ProjectTerrainFormTest` guarda el cambio, queda en el historial, los puntos no cambian y el historial de S035 lo muestra.

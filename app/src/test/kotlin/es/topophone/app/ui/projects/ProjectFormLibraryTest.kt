@@ -107,6 +107,7 @@ class ProjectFormLibraryTest {
         FakeMapPreferences(),
         libraries,
         RoomProjectCrsHistoryRepository(db),
+        centers(),
     ).also {
         viewModels +=
             it
@@ -283,4 +284,9 @@ class ProjectFormLibraryTest {
 
         chosen shouldBe LibraryChoice.Keep
     }
+
+    private fun centers() = es.topophone.app.ui.projects.ProjectCenterProvider(
+        es.topophone.app.ui.map.FakePointRepository(),
+        es.topophone.app.ui.map.FakeMapViewportRepository(),
+    )
 }

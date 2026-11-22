@@ -237,6 +237,7 @@ class ProjectFormCrsTest {
                 FakeMapPreferences(),
                 RoomCodeLibraryRepository(db),
                 RoomProjectCrsHistoryRepository(db),
+                centers(),
             )
         vm.start(projectId = projectId, folderId = null)
         return runBlocking { withTimeout(5_000) { vm.state.first { it.loaded } } }
@@ -312,4 +313,9 @@ class ProjectFormCrsTest {
         click(crsOptionTag(ProjectCrs.ETRS89_UTM30))
         compose.onNodeWithTag(ZONE_PROPOSED_TAG).assertDoesNotExist()
     }
+
+    private fun centers() = es.topophone.app.ui.projects.ProjectCenterProvider(
+        es.topophone.app.ui.map.FakePointRepository(),
+        es.topophone.app.ui.map.FakeMapViewportRepository(),
+    )
 }

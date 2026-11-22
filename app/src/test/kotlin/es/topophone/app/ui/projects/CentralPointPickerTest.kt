@@ -105,6 +105,7 @@ class CentralPointPickerTest {
                 mapPreferences,
                 RoomCodeLibraryRepository(db),
                 RoomProjectCrsHistoryRepository(db),
+                centers(),
             )
         vm.start(null, folderId = null)
         runBlocking { withTimeout(5_000) { vm.state.first { it.loaded } } }
@@ -228,4 +229,9 @@ class CentralPointPickerTest {
             compose.onNodeWithTag(it).assertHeightIsAtLeast(56.dp)
         }
     }
+
+    private fun centers() = es.topophone.app.ui.projects.ProjectCenterProvider(
+        es.topophone.app.ui.map.FakePointRepository(),
+        es.topophone.app.ui.map.FakeMapViewportRepository(),
+    )
 }

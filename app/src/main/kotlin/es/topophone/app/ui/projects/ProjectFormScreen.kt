@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -31,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -43,6 +45,7 @@ import es.topophone.app.ui.SectionScaffold
 import es.topophone.app.ui.codes.ProjectLibraryChoice
 import es.topophone.app.ui.crs.CrsLibraryHost
 import es.topophone.app.ui.crs.CrsLibraryRequest
+import es.topophone.app.ui.crs.CustomCrsFormMapper
 import es.topophone.app.ui.crs.HiltCrsLibraryHost
 import es.topophone.app.ui.map.MapEntryPoint
 import es.topophone.app.ui.map.MapLibreMap
@@ -69,16 +72,22 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.model.project.ProjectDraft
 import es.topophone.core.model.project.SpainCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.model.project.isCustom
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResolver
 import es.topophone.core.survey.CentralPointResult
 import es.topophone.core.survey.CrsChange
 import es.topophone.core.survey.CrsChangePlan
+import es.topophone.core.survey.TerrainError
+import es.topophone.core.survey.TerrainField
+import es.topophone.core.survey.TerrainPlaneValidator
+import es.topophone.core.survey.TerrainProposal
 import es.topophone.data.codes.CodeLibraryRepository
 import es.topophone.data.codes.LibrarySummary
 import es.topophone.data.crs.CrsChangeResult
 import es.topophone.data.crs.ProjectCrsHistoryRepository
+import es.topophone.data.crs.TerrainChange
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.ProjectRepository
@@ -141,7 +150,30 @@ data class ProjectFormUiState(
     val crsChangePlan: CrsChangePlan? = null,
     /** Se intentó elegir un SC de otro datum (S035/RF-17). */
     val otherDatum: Boolean = false,
+    /** El plano de terreno que se está escribiendo (S058/RF-1 a RF-5); con [TerrainForm.terrain] en falso el proyecto va en cuadrícula. */
+    val terrainForm: TerrainForm = TerrainForm(),
+    /** El plano de terreno con que se abrió el proyecto para editarlo (S058/RF-19). */
+    val originalTerrain: TerrainPlane? = null,
 )
+
+/**
+ * Lo que el usuario escribe del plano de terreno en el formulario (S058/RF-1 a RF-5): los números como texto, el factor que se propone en el origen y los
+ * errores, que solo se enseñan tras intentar guardar ([attempted]) salvo los de un número que no se entiende.
+ */
+data class TerrainForm(
+    val terrain: Boolean = false,
+    val originLatitude: String = "",
+    val originLongitude: String = "",
+    val factor: String = "",
+    val proposed: Double? = null,
+    val errors: Map<TerrainField, TerrainError> = emptyMap(),
+    val attempted: Boolean = false,
+    /** El proyecto todavía no tiene centro: el origen hay que escribirlo (S058/RF-3). */
+    val noCenter: Boolean = false,
+) {
+    /** Los errores que se enseñan: sin los de lo que falta hasta intentar guardar. */
+    val shownErrors: Map<TerrainField, TerrainError> get() = if (attempted) errors else errors.filterValues { it != TerrainError.REQUIRED }
+}
 
 /** Acciones del formulario de proyecto. */
 class ProjectFormActions(
@@ -163,6 +195,12 @@ class ProjectFormActions(
     val onCancelCrsChange: () -> Unit = {},
     /** Se eligió un SC de otro datum: no se aplica y se avisa (S035/RF-17). */
     val onOtherDatum: () -> Unit = {},
+    /** Elegir cuadrícula (falso) o terreno (verdadero) (S058/RF-1). */
+    val onTerrainMode: (Boolean) -> Unit = {},
+    /** Cambia el origen (latitud y longitud) o el factor, tal como se escriben (S058/RF-3). */
+    val onTerrainText: (latitude: String, longitude: String, factor: String) -> Unit = { _, _, _ -> },
+    val onTerrainUseProposal: () -> Unit = {},
+    val onTerrainUseCenter: () -> Unit = {},
 )
 
 /**
@@ -177,6 +215,7 @@ class ProjectFormViewModel @Inject constructor(
     private val mapPreferences: MapPreferences,
     private val codeLibraries: CodeLibraryRepository,
     private val crsHistory: ProjectCrsHistoryRepository,
+    private val centers: ProjectCenterProvider,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ProjectFormUiState())
     val state: StateFlow<ProjectFormUiState> = mutableState.asStateFlow()
@@ -205,6 +244,8 @@ class ProjectFormViewModel @Inject constructor(
                         linkedLibraryName = codeLibraries.projectCopy(project.id).first()?.name,
                         originalCrs = project.crs,
                         originalHeightSystem = project.heightSystem,
+                        originalTerrain = project.terrain,
+                        terrainForm = formOf(project.terrain),
                     )
             } else {
                 newProject(preferences.defaults.first().toDraft().withExistingLibrary(libraries)) // S006/RF-6, S023/RF-19
@@ -234,8 +275,114 @@ class ProjectFormViewModel @Inject constructor(
         return ProjectFormUiState(draft = defaults.withProposedCrs(proposed), loaded = true, proposedCrs = proposed)
     }
 
-    fun update(draft: ProjectDraft) = mutableState.update {
-        it.copy(draft = draft, error = null, centralPointError = null, otherDatum = false)
+    fun update(draft: ProjectDraft) {
+        mutableState.update { it.copy(draft = draft, error = null, centralPointError = null, otherDatum = false) }
+        revalidateTerrain() // S058/RF-2, RF-5: el plano tiene que valer en el SC nuevo
+    }
+
+    private fun formOf(plane: TerrainPlane?): TerrainForm = if (plane == null) {
+        TerrainForm()
+    } else {
+        TerrainForm(
+            terrain = true,
+            originLatitude = plane.originLatitudeDeg.toString(),
+            originLongitude = plane.originLongitudeDeg.toString(),
+            factor = plane.factor.toString(),
+        )
+    }
+
+    /** Cuadrícula o terreno (S058/RF-1): al elegir terreno se propone el origen (el centro del proyecto) y el factor combinado en él (RF-3). */
+    fun setTerrainMode(terrain: Boolean) {
+        if (!terrain) {
+            mutableState.update { it.copy(terrainForm = TerrainForm(), draft = it.draft.copy(terrain = null)) }
+            return
+        }
+        mutableState.update { it.copy(terrainForm = it.terrainForm.copy(terrain = true, attempted = false)) }
+        viewModelScope.launch { fillTerrainDefaults(keepWritten = true) }
+    }
+
+    /** El origen del proyecto (su centro) y el factor propuesto en él; con [keepWritten] no pisa lo que el usuario ya escribió. */
+    private suspend fun fillTerrainDefaults(keepWritten: Boolean) {
+        val state = mutableState.value
+        val center = centers.centerOf(projectId, state.draft.centralPoint)
+        val form = state.terrainForm
+        val lat = if (keepWritten && form.originLatitude.isNotBlank()) form.originLatitude else center?.latitudeDeg?.toString().orEmpty()
+        val lon = if (keepWritten && form.originLongitude.isNotBlank()) form.originLongitude else center?.longitudeDeg?.toString().orEmpty()
+        mutableState.update { it.copy(terrainForm = it.terrainForm.copy(noCenter = center == null)) }
+        setTerrainText(
+            lat,
+            lon,
+            if (keepWritten &&
+                form.factor.isNotBlank()
+            ) {
+                form.factor
+            } else {
+                ""
+            },
+            proposeFactor = form.factor.isBlank() || !keepWritten,
+        )
+    }
+
+    /** Lo que se escribe del origen y del factor; se valida en el acto (S058/RF-4, RF-5). */
+    fun setTerrainText(latitude: String, longitude: String, factor: String) =
+        setTerrainText(latitude, longitude, factor, proposeFactor = false)
+
+    private fun setTerrainText(latitude: String, longitude: String, factor: String, proposeFactor: Boolean) {
+        viewModelScope.launch {
+            val state = mutableState.value
+            val lat = CustomCrsFormMapper.number(latitude)
+            val lon = CustomCrsFormMapper.number(longitude)
+            val proposed = if (lat != null && lon != null) {
+                TerrainProposal.factorAt(lat, lon, centers.meanEllipsoidalHeight(projectId), state.draft.crs)
+            } else {
+                null
+            }
+            val text = if (proposeFactor && factor.isBlank() && proposed != null) proposed.toString() else factor
+            mutableState.update {
+                it.copy(
+                    terrainForm = it.terrainForm.copy(
+                        originLatitude = latitude,
+                        originLongitude = longitude,
+                        factor = text,
+                        proposed = proposed,
+                    ),
+                )
+            }
+            revalidateTerrain()
+        }
+    }
+
+    /** Usa el factor propuesto en el origen (S058/RF-3). */
+    fun useTerrainProposal() {
+        val form = mutableState.value.terrainForm
+        form.proposed?.let { setTerrainText(form.originLatitude, form.originLongitude, it.toString()) }
+    }
+
+    /** Vuelve a poner como origen el centro del proyecto (S058/RF-3). */
+    fun useTerrainCenter() {
+        viewModelScope.launch { fillTerrainDefaults(keepWritten = false) }
+    }
+
+    /** Valida lo escrito contra el SC del borrador y, si vale, lo pone como plano del borrador; si no, el borrador queda sin plano (S058/RF-4, RF-5). */
+    private fun revalidateTerrain() {
+        val state = mutableState.value
+        val form = state.terrainForm
+        if (!form.terrain) {
+            mutableState.update { it.copy(draft = it.draft.copy(terrain = null)) }
+            return
+        }
+        val lat = CustomCrsFormMapper.number(form.originLatitude)
+        val lon = CustomCrsFormMapper.number(form.originLongitude)
+        val factor = CustomCrsFormMapper.number(form.factor)
+        val errors = linkedMapOf<TerrainField, TerrainError>()
+        errors.putAll(TerrainPlaneValidator.validate(lat, lon, factor, state.draft.crs))
+        // Un texto que no es un número se marca aunque no esté vacío.
+        if (form.originLatitude.isNotBlank() && lat == null || form.originLongitude.isNotBlank() && lon == null) {
+            errors[TerrainField.ORIGIN] = TerrainError.NOT_FINITE
+        }
+        if (form.factor.isNotBlank() && factor == null) errors[TerrainField.FACTOR] = TerrainError.NOT_FINITE
+        val plane = if (errors.isEmpty() && lat != null && lon != null && factor != null) TerrainPlane(lat, lon, factor) else null
+        mutableState.update { it.copy(terrainForm = it.terrainForm.copy(errors = errors), draft = it.draft.copy(terrain = plane)) }
     }
 
     /** Fija el punto central con lo escrito en el SC del proyecto; si no vale, no cambia nada y dice por qué (S006/RF-33, RF-34). */
@@ -300,6 +447,12 @@ class ProjectFormViewModel @Inject constructor(
     fun save() {
         val draft = mutableState.value.draft
         val editingId = projectId
+        val terrainForm = mutableState.value.terrainForm
+        if (terrainForm.terrain && terrainForm.errors.isNotEmpty()) {
+            // S058/RF-4, RF-5: con un plano que no vale no se guarda; se marcan los campos.
+            mutableState.update { it.copy(terrainForm = it.terrainForm.copy(attempted = true)) }
+            return
+        }
         viewModelScope.launch {
             if (editingId != null && crsChanged() && !confirmedChange) {
                 // S035/RF-19: antes de cambiar el SC se dice qué puntos no se calculan en el nuevo.
@@ -317,7 +470,12 @@ class ProjectFormViewModel @Inject constructor(
 
     private fun crsChanged(): Boolean {
         val state = mutableState.value
-        return state.editing && (state.draft.crs != state.originalCrs || state.draft.heightSystem != state.originalHeightSystem)
+        return state.editing &&
+            (
+                state.draft.crs != state.originalCrs ||
+                    state.draft.heightSystem != state.originalHeightSystem ||
+                    state.draft.terrain != state.originalTerrain
+                )
     }
 
     /** El usuario aceptó que algunos puntos queden sin coordenadas en el SC nuevo (S035/RF-19). */
@@ -340,7 +498,11 @@ class ProjectFormViewModel @Inject constructor(
         val changed = editingId != null && crsChanged()
         // Con cambio de SC, el resto del formulario se guarda con el SC de antes y el cambio lo hace el historial, que recalcula los puntos (S035/RF-18, RF-20).
         val toSave = if (changed) {
-            draft.copy(crs = state.originalCrs ?: draft.crs, heightSystem = state.originalHeightSystem ?: draft.heightSystem)
+            draft.copy(
+                crs = state.originalCrs ?: draft.crs,
+                heightSystem = state.originalHeightSystem ?: draft.heightSystem,
+                terrain = state.originalTerrain,
+            )
         } else {
             draft
         }
@@ -349,12 +511,19 @@ class ProjectFormViewModel @Inject constructor(
             is SaveResult.Invalid -> mutableState.update { it.copy(error = result.error) } // S006/RF-7, RF-14
             is SaveResult.Saved -> {
                 if (editingId == null) repository.markOpened(result.id) // S006/RF-12: se abre al guardarlo
-                if (changed &&
-                    editingId != null &&
-                    crsHistory.apply(editingId, draft.crs, draft.heightSystem) == CrsChangeResult.OtherDatum
-                ) {
-                    mutableState.update { it.copy(otherDatum = true) }
-                    return
+                if (changed && editingId != null) {
+                    // S058/RF-19: el SC, las alturas y el plano de terreno cambian a la vez, por el historial.
+                    when (crsHistory.apply(editingId, draft.crs, draft.heightSystem, TerrainChange.Set(draft.terrain))) {
+                        CrsChangeResult.OtherDatum -> {
+                            mutableState.update { it.copy(otherDatum = true) }
+                            return
+                        }
+                        CrsChangeResult.InvalidTerrain -> {
+                            mutableState.update { it.copy(terrainForm = it.terrainForm.copy(attempted = true)) }
+                            return
+                        }
+                        else -> Unit
+                    }
                 }
                 confirmedChange = false
                 mutableState.update { it.copy(savedId = result.id) }
@@ -403,6 +572,10 @@ fun ProjectFormRoute(
             viewModel::confirmCrsChange,
             viewModel::cancelCrsChange,
             viewModel::rejectOtherDatum,
+            viewModel::setTerrainMode,
+            viewModel::setTerrainText,
+            viewModel::useTerrainProposal,
+            viewModel::useTerrainCenter,
         ),
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
         library = HiltCrsLibraryHost,
@@ -527,6 +700,7 @@ fun ProjectFormScreen(
                 library = libraryHooks,
                 onCrs = { actions.onChange(draft.withCrs(it)) },
             ) { actions.onChange(draft.copy(heightSystem = it)) } // S006/RF-8, S008/RF-1 a RF-3, RF-11, RF-17, RF-19
+            if (draft.crs.isProjected) TerrainSection(state.terrainForm, actions) // S058/RF-1, RF-2
             ChoiceGroup(stringResource(R.string.project_linear_unit), LinearUnit.entries, draft.linearUnit, ::linearOptionTag, {
                 linearUnitLabel(it)
             }) {
@@ -651,10 +825,102 @@ internal fun CrsChoices(
     if (otherDatum) OtherDatumNotice()
 }
 
+const val TERRAIN_MODE_TAG = "project_terrain_mode"
+const val TERRAIN_LATITUDE_TAG = "project_terrain_latitude"
+const val TERRAIN_LONGITUDE_TAG = "project_terrain_longitude"
+const val TERRAIN_FACTOR_TAG = "project_terrain_factor"
+const val TERRAIN_PROPOSED_TAG = "project_terrain_proposed"
+const val TERRAIN_USE_PROPOSED_TAG = "project_terrain_use_proposed"
+const val TERRAIN_USE_CENTER_TAG = "project_terrain_use_center"
+const val TERRAIN_NO_CENTER_TAG = "project_terrain_no_center"
+
+fun terrainOptionTag(terrain: Boolean) = if (terrain) "project_terrain_ground" else "project_terrain_grid"
+
 const val CRS_OTHER_DATUM_TAG = "project_crs_other_datum"
 const val CRS_CHANGE_CONTINUE_TAG = "project_crs_change_continue"
 const val CRS_CHANGE_CANCEL_TAG = "project_crs_change_cancel"
 const val CRS_CHANGE_DIALOG_TAG = "project_crs_change_dialog"
+
+/** El texto de un error del plano de terreno (S058/RF-4, RF-5). */
+@Composable
+private fun terrainErrorText(field: TerrainField, error: TerrainError): String = stringResource(
+    when {
+        error == TerrainError.REQUIRED -> R.string.terrain_error_required
+        error == TerrainError.NOT_FINITE -> R.string.terrain_error_not_finite
+        error == TerrainError.OUT_OF_AREA -> R.string.terrain_error_out_of_area
+        field == TerrainField.FACTOR -> R.string.terrain_error_factor_range
+        else -> R.string.terrain_error_origin_range
+    },
+)
+
+/** Cuadrícula o terreno, y con terreno el origen, el factor y el que se propone en el origen (S058/RF-1 a RF-5). */
+@Composable
+internal fun TerrainSection(form: TerrainForm, actions: ProjectFormActions) {
+    Text(stringResource(R.string.terrain_title), style = MaterialTheme.typography.titleMedium)
+    ChoiceGroup(
+        stringResource(R.string.terrain_title),
+        listOf(false, true),
+        form.terrain,
+        ::terrainOptionTag,
+        { stringResource(if (it) R.string.terrain_ground else R.string.terrain_grid) },
+    ) { actions.onTerrainMode(it) }
+    if (!form.terrain) return
+    val errors = form.shownErrors
+    Text(stringResource(R.string.terrain_hint), style = MaterialTheme.typography.bodySmall)
+    if (form.noCenter) {
+        Text(
+            stringResource(R.string.terrain_no_center),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.testTag(TERRAIN_NO_CENTER_TAG),
+        )
+    }
+    OutlinedTextField(
+        value = form.originLatitude,
+        onValueChange = { actions.onTerrainText(it, form.originLongitude, form.factor) },
+        label = { Text(stringResource(R.string.terrain_origin_latitude)) },
+        isError = errors.containsKey(TerrainField.ORIGIN),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+        modifier = Modifier.fillMaxWidth().testTag(TERRAIN_LATITUDE_TAG),
+    )
+    OutlinedTextField(
+        value = form.originLongitude,
+        onValueChange = { actions.onTerrainText(form.originLatitude, it, form.factor) },
+        label = { Text(stringResource(R.string.terrain_origin_longitude)) },
+        isError = errors.containsKey(TerrainField.ORIGIN),
+        supportingText = errors[TerrainField.ORIGIN]?.let { error -> { Text(terrainErrorText(TerrainField.ORIGIN, error)) } },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+        modifier = Modifier.fillMaxWidth().testTag(TERRAIN_LONGITUDE_TAG),
+    )
+    OutlinedButton(
+        onClick = actions.onTerrainUseCenter,
+        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(TERRAIN_USE_CENTER_TAG),
+    ) {
+        Text(stringResource(R.string.terrain_use_center))
+    }
+    OutlinedTextField(
+        value = form.factor,
+        onValueChange = { actions.onTerrainText(form.originLatitude, form.originLongitude, it) },
+        label = { Text(stringResource(R.string.terrain_factor)) },
+        isError = errors.containsKey(TerrainField.FACTOR),
+        supportingText = errors[TerrainField.FACTOR]?.let { error -> { Text(terrainErrorText(TerrainField.FACTOR, error)) } },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+        modifier = Modifier.fillMaxWidth().testTag(TERRAIN_FACTOR_TAG),
+    )
+    form.proposed?.let { proposed ->
+        Text(
+            stringResource(R.string.terrain_proposed, java.lang.String.format(java.util.Locale.ROOT, "%.8f", proposed)),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.testTag(TERRAIN_PROPOSED_TAG),
+        )
+        OutlinedButton(
+            onClick = actions.onTerrainUseProposal,
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(TERRAIN_USE_PROPOSED_TAG),
+        ) { Text(stringResource(R.string.terrain_use_proposed)) }
+    }
+}
 
 @Composable
 private fun OtherDatumNotice() {
