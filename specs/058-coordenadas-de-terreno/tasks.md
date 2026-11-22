@@ -29,7 +29,7 @@
       Hecho cuando: `ProjectTerrainFormTest` guarda el cambio, queda en el historial, los puntos no cambian y el historial de S035 lo muestra.
 
 ## Pantallas (`app`)
-- [ ] T11. Panel de captura y posición del receptor en terreno, con «Terreno» junto a las coordenadas. (RF-9)
+- [x] T11. Panel de captura y posición del receptor en terreno, con «Terreno» junto a las coordenadas. (RF-9)
       Hecho cuando: `TerrainScreensTest` comprueba que `CoordinatesCard` muestra el Este y el Norte de terreno y su etiqueta, y los de cuadrícula sin plano.
 - [ ] T12. Mapa (coordenadas del cursor y de la pulsación larga) y distancias del mapa. (RF-9)
       Hecho cuando: `TerrainScreensTest` comprueba las coordenadas y las distancias del mapa en terreno.

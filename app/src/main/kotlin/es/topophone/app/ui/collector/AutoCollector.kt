@@ -19,6 +19,7 @@ import es.topophone.core.survey.AutoSummary
 import es.topophone.core.survey.GroundEN
 import es.topophone.core.survey.LiveTip
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TerrainView
 import es.topophone.receiver.platform.Alerts
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -138,7 +139,12 @@ internal class AutoCollector(private val log: AppLog, private val alerts: Alerts
         val position = calculator.fromGround(tip, project.crs, project.heightSystem)
         val east = position.easting
         val north = position.northing
-        if (east != null && north != null) return GroundEN(east, north)
+        if (east != null && north != null) {
+            // S058/RF-9: con el proyecto en terreno la distancia del disparo es la de terreno.
+            val terrain = TerrainView.of(project.terrain, project.crs, calculator)
+            val scaled = terrain?.coordinates(east, north)
+            return if (scaled != null && terrain.isTerrain) GroundEN(scaled.easting, scaled.northing) else GroundEN(east, north)
+        }
         // Un SC geográfico no tiene Este ni Norte: se mide en el plano tangente de la primera posición.
         val point = GeodeticPoint(tip.latitudeDeg, tip.longitudeDeg, tip.ellipsoidalHeightM ?: 0.0)
         val enu = LocalTangentPlane.between(origin ?: point.also { origin = it }, point)
