@@ -67,12 +67,16 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
             it[AUTHOR] = defaults.author.trim()
             it[CRS] = defaults.crs.name
             // S034/RF-1: un SC de la biblioteca por defecto guarda su definición y su geoide; uno de España, nada más que el nombre.
-            (defaults.crs as? LibraryCrs)?.let { library ->
+            val library = defaults.crs as? LibraryCrs
+            if (library != null) {
                 it[CRS_DEFINITION] = library.definition.toText()
-                library.geoidGrid?.let { grid -> it[GEOID] = grid } ?: it.remove(GEOID)
-            } ?: run {
+                if (library.geoidGrid != null) it[GEOID] = library.geoidGrid.orEmpty() else it.remove(GEOID)
+                // S035/RF-5: la ondulación constante de un SC personalizado, sin redondear.
+                if (library.geoidConstantM != null) it[GEOID_CONSTANT] = library.geoidConstantM.toString() else it.remove(GEOID_CONSTANT)
+            } else {
                 it.remove(CRS_DEFINITION)
                 it.remove(GEOID)
+                it.remove(GEOID_CONSTANT)
             }
             it[LINEAR_UNIT] = defaults.linearUnit.name
             it[ANGULAR_UNIT] = defaults.angularUnit.name
@@ -86,7 +90,8 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
     private fun crsOf(p: Preferences): ProjectCrs {
         val definition = p[CRS_DEFINITION]?.let { CrsDefinition.parseOrNull(it) }
         val corrections = enumOr(p[CORRECTIONS_DATUM], CorrectionsDatum.ETRS89)
-        return if (definition != null) LibraryCrs(definition, corrections, p[GEOID]) else enumOr<SpainCrs>(p[CRS], SpainCrs.ETRS89_UTM30)
+        if (definition == null) return enumOr<SpainCrs>(p[CRS], SpainCrs.ETRS89_UTM30)
+        return LibraryCrs(definition, corrections, p[GEOID], p[GEOID_CONSTANT]?.toDoubleOrNull())
     }
 
     private companion object {
@@ -94,6 +99,7 @@ class DataStoreProjectPreferences @Inject constructor(@param:ProjectDataStoreQua
         val CRS = stringPreferencesKey("default_crs")
         val CRS_DEFINITION = stringPreferencesKey("default_crs_definition")
         val GEOID = stringPreferencesKey("default_geoid_grid")
+        val GEOID_CONSTANT = stringPreferencesKey("default_geoid_constant_m")
         val LINEAR_UNIT = stringPreferencesKey("default_linear_unit")
         val ANGULAR_UNIT = stringPreferencesKey("default_angular_unit")
         val CORRECTIONS_DATUM = stringPreferencesKey("default_corrections_datum")

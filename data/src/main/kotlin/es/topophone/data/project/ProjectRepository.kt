@@ -216,6 +216,7 @@ private fun ProjectDraft.toEntity(id: String, folderId: String?, createdAt: Long
     crs = crs.name,
     crsDefinition = (crs as? LibraryCrs)?.definition?.toText(), // S034/RF-13
     geoidGrid = (crs as? LibraryCrs)?.geoidGrid,
+    geoidConstantM = (crs as? LibraryCrs)?.geoidConstantM, // S035/RF-5
     linearUnit = linearUnit.name,
     angularUnit = angularUnit.name,
     correctionsDatum = correctionsDatum.name,
@@ -254,7 +255,7 @@ internal fun ProjectEntity.toProject() = Project(
 private fun ProjectEntity.crsOf(): ProjectCrs {
     val definition = crsDefinition?.let { CrsDefinition.parseOrNull(it) }
     return if (definition != null) {
-        LibraryCrs(definition, CorrectionsDatum.valueOf(correctionsDatum), geoidGrid)
+        LibraryCrs(definition, CorrectionsDatum.valueOf(correctionsDatum), geoidGrid, geoidConstantM)
     } else {
         SpainCrs.entries.firstOrNull { it.name == crs } ?: SpainCrs.ETRS89_UTM30
     }

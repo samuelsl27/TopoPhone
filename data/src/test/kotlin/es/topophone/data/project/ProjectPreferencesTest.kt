@@ -132,4 +132,27 @@ class ProjectPreferencesTest {
             prefs.defaults.first().crs shouldBe ProjectCrs.ETRS89_UTM31
         }
     }
+
+    @Test
+    fun `S035 RF-5 un SC personalizado por defecto recuerda su ondulacion constante sin redondear y uno con geoide no la guarda`() {
+        val definition = es.topophone.core.model.project.CrsDefinition(
+            epsg = 0, name = "Obra", projected = true, datumCode = 0, datumName = "Personalizado",
+            ellipsoidSemiMajorM = 6378137.0, ellipsoidInverseFlattening = 298.257222101, primeMeridianDeg = 0.0, method = "tm",
+            parameters = mapOf("scaleFactor" to 0.9996), unitMetres = 1.0, area = null, frame = "ETRS89",
+            transformationName = "t", transformationAccuracyM = null, transformationArea = null, transformationSteps = "null",
+        )
+        val constant = es.topophone.core.model.project.LibraryCrs(definition, CorrectionsDatum.ETRS89, null, 48.123456789012345)
+        val geoid = es.topophone.core.model.project.LibraryCrs(definition, CorrectionsDatum.ETRS89, "egm.tif")
+
+        withPreferences { prefs ->
+            prefs.saveDefaults(ProjectDefaults(crs = constant))
+            prefs.defaults.first().crs shouldBe constant
+
+            prefs.saveDefaults(ProjectDefaults(crs = geoid))
+            prefs.defaults.first().crs shouldBe geoid
+
+            prefs.saveDefaults(ProjectDefaults(crs = ProjectCrs.ETRS89_UTM30))
+            prefs.defaults.first().crs shouldBe ProjectCrs.ETRS89_UTM30
+        }
+    }
 }
