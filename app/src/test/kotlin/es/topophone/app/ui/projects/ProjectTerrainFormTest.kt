@@ -332,4 +332,37 @@ class ProjectTerrainFormTest {
         }
         compose.onNodeWithTag(crsHistoryTerrainTag(change.id)).assertIsDisplayed()
     }
+
+    @Test
+    fun `S058 RF-10 el punto central escrito en terreno se fija desde su cuadricula y se ve en terreno`() {
+        val vm = newProject()
+        vm.setTerrainMode(true)
+        val plane = vm.await { it.draft.terrain != null }.draft.terrain!!
+        val view = es.topophone.core.survey.TerrainView.of(plane, SpainCrs.ETRS89_UTM30).shouldNotBeNull()
+        val grid = es.topophone.core.survey.ProjectPositionCalculator()
+            .fromGround(
+                es.topophone.core.model.point.GeodeticPosition(40.42, -3.70, null),
+                SpainCrs.ETRS89_UTM30,
+                es.topophone.core.model.project.HeightSystem.ELLIPSOIDAL,
+            )
+        val terrain = view.coordinates(grid.easting!!, grid.northing!!)
+
+        vm.fixCentralTyped(terrain.easting.toString().replace('.', ','), terrain.northing.toString().replace('.', ','))
+
+        val centre = vm.await { it.draft.centralPoint != null && it.draft.centralPoint != madrid }.draft.centralPoint!!
+        centre.latitudeDeg shouldBe (40.42 plusOrMinus 1e-7)
+        centre.longitudeDeg shouldBe (-3.70 plusOrMinus 1e-7)
+        compose.setContent {
+            androidx.compose.foundation.layout.Column {
+                CentralPointValues(
+                    centre,
+                    SpainCrs.ETRS89_UTM30,
+                    es.topophone.core.model.project.LinearUnit.METRE,
+                    es.topophone.core.model.project.AngularUnit.DMS,
+                    view,
+                )
+            }
+        }
+        compose.onNodeWithTag(CENTRAL_POINT_TERRAIN_TAG, useUnmergedTree = true).assertIsDisplayed()
+    }
 }

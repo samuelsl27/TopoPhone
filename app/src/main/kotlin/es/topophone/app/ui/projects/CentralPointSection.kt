@@ -35,6 +35,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TerrainView
 
 const val CENTRAL_POINT_EMPTY_TAG = "project_central_point_empty"
 const val CENTRAL_POINT_TYPE_TAG = "project_central_point_type"
@@ -47,6 +48,7 @@ const val CENTRAL_POINT_CONFIRM_TAG = "project_central_point_confirm"
 const val CENTRAL_POINT_EASTING_TAG = "project_central_point_easting"
 const val CENTRAL_POINT_NORTHING_TAG = "project_central_point_northing"
 const val CENTRAL_POINT_LATITUDE_TAG = "project_central_point_latitude"
+const val CENTRAL_POINT_TERRAIN_TAG = "project_central_point_terrain"
 const val CENTRAL_POINT_LONGITUDE_TAG = "project_central_point_longitude"
 const val CENTRAL_POINT_UNAVAILABLE_TAG = "project_central_point_unavailable"
 
@@ -66,13 +68,14 @@ internal fun CentralPointSection(
     onRemove: () -> Unit,
     onPosition: () -> Unit,
     onPick: (() -> Unit)?,
+    terrain: TerrainView = TerrainView.GRID,
 ) {
     var typing by remember { mutableStateOf(false) }
     Text(stringResource(R.string.central_point_title), style = MaterialTheme.typography.titleMedium)
     if (point == null) {
         Text(stringResource(R.string.central_point_unset), modifier = Modifier.testTag(CENTRAL_POINT_EMPTY_TAG))
     } else {
-        CentralPointValues(point, crs, linearUnit, angularUnit)
+        CentralPointValues(point, crs, linearUnit, angularUnit, terrain)
     }
     error?.let {
         Text(
@@ -113,20 +116,31 @@ internal fun CentralPointSection(
 
 /** Este y Norte en el SC del proyecto, o latitud y longitud, en sus unidades; o por qué no se pueden dar (S006/RF-36). */
 @Composable
-internal fun CentralPointValues(point: CentralPoint, crs: ProjectCrs, linearUnit: LinearUnit, angularUnit: AngularUnit) {
+internal fun CentralPointValues(
+    point: CentralPoint,
+    crs: ProjectCrs,
+    linearUnit: LinearUnit,
+    angularUnit: AngularUnit,
+    terrain: TerrainView = TerrainView.GRID,
+) {
     val position = remember(point, crs) {
         ProjectPositionCalculator().fromGround(GeodeticPosition(point.latitudeDeg, point.longitudeDeg, null), crs, HeightSystem.ELLIPSOIDAL)
     }
     val locale = uiLocale()
     val unit = unitSymbol(linearUnit)
-    position.easting?.let {
+    // S058/RF-9: con el proyecto en terreno, Este y Norte se ven en terreno.
+    val e = position.easting
+    val n = position.northing
+    val shown = if (e != null && n != null) terrain.coordinates(e, n) else null
+    TerrainMark(terrain, CENTRAL_POINT_TERRAIN_TAG)
+    (shown?.easting ?: e)?.let {
         CoordinateRow(
             stringResource(R.string.coord_easting),
             "${LengthFormat.inUnit(it, linearUnit, locale)} $unit",
             CENTRAL_POINT_EASTING_TAG,
         )
     }
-    position.northing?.let {
+    (shown?.northing ?: n)?.let {
         CoordinateRow(
             stringResource(R.string.coord_northing),
             "${LengthFormat.inUnit(it, linearUnit, locale)} $unit",

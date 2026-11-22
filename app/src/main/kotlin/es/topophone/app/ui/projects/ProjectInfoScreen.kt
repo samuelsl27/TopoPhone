@@ -165,7 +165,7 @@ private fun ProjectInfoCard(project: Project, onOpenCrsHistory: () -> Unit) {
         if (central == null) {
             Text(stringResource(R.string.central_point_unset), modifier = Modifier.testTag(CENTRAL_POINT_EMPTY_TAG))
         } else {
-            CentralPointValues(central, project.crs, project.linearUnit, project.angularUnit)
+            CentralPointValues(central, project.crs, project.linearUnit, project.angularUnit, rememberTerrainView(project))
         }
     }
 }

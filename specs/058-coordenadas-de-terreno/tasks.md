@@ -37,7 +37,7 @@
       Hecho cuando: `TerrainScreensTest` comprueba la ficha de un punto con Este y Norte de terreno, sin cambiar la altura.
 - [x] T14. Punto manual y edición de un punto: lo que se escribe es terreno. (RF-10)
       Hecho cuando: `TerrainInputsTest` escribe unas coordenadas de terreno y el punto queda con las de cuadrícula que le corresponden y la ida y vuelta cierra.
-- [ ] T15. Punto central del proyecto: entrada y visualización en terreno. (RF-9, RF-10)
+- [x] T15. Punto central del proyecto: entrada y visualización en terreno. (RF-9, RF-10)
       Hecho cuando: `TerrainInputsTest` fija el punto central escribiendo terreno y lo ve en terreno.
 - [ ] T16. Replanteo de puntos y de líneas: deltas y distancias en terreno. (RF-9)
       Hecho cuando: `TerrainScreensTest` comprueba que la distancia y los deltas del replanteo de un punto están × `k` y el acimut no cambia.

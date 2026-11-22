@@ -83,6 +83,7 @@ import es.topophone.core.survey.TerrainError
 import es.topophone.core.survey.TerrainField
 import es.topophone.core.survey.TerrainPlaneValidator
 import es.topophone.core.survey.TerrainProposal
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.codes.CodeLibraryRepository
 import es.topophone.data.codes.LibrarySummary
 import es.topophone.data.crs.CrsChangeResult
@@ -407,7 +408,9 @@ class ProjectFormViewModel @Inject constructor(
         val result = if (a == null || b == null) {
             CentralPointResult.Rejected(CentralPointRejection.INVALID_NUMBER)
         } else {
-            resolver.fromTyped(if (projected) EntryForm.PROJECT_CRS else EntryForm.GEOGRAPHIC, a, b, crs)
+            // S058/RF-10: con terreno, lo escrito es de terreno y el punto se calcula desde su cuadrícula.
+            val grid = if (projected) TerrainView.of(draft.terrain, crs)?.toGrid(a, b) else null
+            resolver.fromTyped(if (projected) EntryForm.PROJECT_CRS else EntryForm.GEOGRAPHIC, grid?.easting ?: a, grid?.northing ?: b, crs)
         }
         applyCentral(result)
     }
@@ -741,6 +744,7 @@ fun ProjectFormScreen(
                 actions.onCentralRemove,
                 actions.onCentralPosition,
                 onPick = if (map != null) ({ picking = true }) else null,
+                terrain = rememberTerrainView(draft.terrain, draft.crs),
             ) // S006/RF-32, RF-33, RF-34, RF-35
             ProjectLibraryChoice(
                 state.libraries,
