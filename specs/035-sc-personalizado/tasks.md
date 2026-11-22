@@ -3,7 +3,7 @@
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Cada tarea cierra con `./gradlew check` en verde (se repite con `--no-parallel` si falla un test ajeno intermitente), la casilla marcada y un commit `S035 Tn: …` en `main`, con la línea Co-Authored-By.
 
 ## Vectores y modelo (`tools/geodesia`, `core:model`)
-- [ ] T1. `tools/geodesia/personalizado_vectores.py`: tres puntos con ida y vuelta de cinco SC (UTM 30N, Lambert-93, Stereo 70, GGRS87 por Helmert y ED50 con rejilla) escritos como parámetros sueltos de un SC personalizado, en `fixtures/geodesia/personalizado.csv`. (RF-3, RF-4, RNF)
+- [x] T1. `tools/geodesia/personalizado_vectores.py`: tres puntos con ida y vuelta de cinco SC (UTM 30N, Lambert-93, Stereo 70, GGRS87 por Helmert y ED50 con rejilla) escritos como parámetros sueltos de un SC personalizado, en `fixtures/geodesia/personalizado.csv`. (RF-3, RF-4, RNF)
       Hecho cuando: `test_personalizado.py` comprueba las filas, que el fichero se regenera idéntico y que `pytest tools` pasa.
 - [ ] T2. `CustomCrs`, `CustomHeight`, `CrsDefinition.isCustom` (`epsg == 0`) y `LibraryCrs.geoidConstantM`, con el texto de ida y vuelta del SC del proyecto. (RF-5, RF-11)
       Hecho cuando: `CustomCrsModelTest` comprueba la ida y vuelta del texto, que `geoidGrid` y `geoidConstantM` no pueden estar a la vez y que los diez SC de España y los de la biblioteca no cambian.
