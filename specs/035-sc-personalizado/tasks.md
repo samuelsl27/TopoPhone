@@ -67,5 +67,5 @@
       Hecho cuando: `ProjectHistoryScreenTest` muestra los cambios, deshace el último y el resultado figura en la lista.
 
 ## Cierre
-- [ ] T28. Validación final: `rf_report` con los RF cubiertos, `check`, `pytest tools`, `forbidden_files` y `assembleDebug` en verde; `plan.md` con «Cambios al implementar» y «Validación»; hoja de ruta con S035 implementada (Room v38) y glosario; demo del emulador (crear un SC, probarlo, exportarlo e importarlo, cambiar el SC de un proyecto con puntos y deshacerlo).
+- [x] T28. Validación final: `rf_report` con los RF cubiertos, `check`, `pytest tools`, `forbidden_files` y `assembleDebug` en verde; `plan.md` con «Cambios al implementar» y «Validación»; hoja de ruta con S035 implementada (Room v38) y glosario; demo del emulador (crear un SC, probarlo, exportarlo e importarlo, cambiar el SC de un proyecto con puntos y deshacerlo).
       Hecho cuando: el informe de trazabilidad no tiene RF huérfanos y la demo está hecha.
