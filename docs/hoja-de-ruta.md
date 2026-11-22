@@ -88,7 +88,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | 033 transformaciones-datum | Helmert 3/4/6/7 (PV y CF), Molodensky-Badekas 10, rejillas de desplazamiento horizontal (ED50 con SPED2ETV2 ya está en S008; el meridiano de origen ya lo resolvió S032) | 032, 008 | implementada |
 | 034 biblioteca-sc-mundial | Catálogo con búsqueda por país, código o nombre; ficha del SC; datums verticales; descarga de geoides y de rejillas de desplazamiento horizontal con SHA-256; los SC de la biblioteca funcionan en captura, puntos manuales, replanteo, mapa, COGO, geometría, base shift y CSV (los demás formatos, en S057) | 033, 032, 006 | implementada |
 | 057 formatos-con-sc-de-biblioteca | Importar y exportar DXF, Shapefile, GeoPackage, KML/KMZ, LandXML y ráster en un proyecto con un SC de la biblioteca de S034, y reconocer esos SC por su EPSG al leer un `.prj`, un `.gpkg` o un KML (decidido en la aprobación de S034, 21/11/2026) | 034 | implementada |
-| 035 sc-personalizado | Editor de SC personalizado, "Mis SC", importar y exportar JSON, cambio del SC del proyecto (mismo datum), cuadrícula o terreno | 034, 033, 032 | pendiente |
+| 035 sc-personalizado | Editor de SC personalizado (elipsoide, datum, proyección, altura), "Mis SC", importar y exportar JSON, cambio del SC del proyecto (mismo datum) con historial y Deshacer | 034, 033, 032 | spec |
 | 036 capas-wms | Biblioteca WMS en el móvil (GetCapabilities 1.1.1/1.3.0), presets españoles (IGN, Catastro, ICV con sus ortofotos históricas, ICGC, GRAFCAN, Andalucía, Navarra, País Vasco, Madrid, Galicia…), orden, visibilidad y opacidad por proyecto (también en la copia y el paquete), y menú de pulsación larga del mapa con la consulta de información de las capas y las coordenadas del punto | 009, 008, 013 | implementada |
 | 037 mapas-sin-conexion | Descarga del mapa base (IGN, PNOA y OpenFreeMap con su tope) y de las capas WMS por teselas de una zona del proyecto (radio, encuadre o todo el proyecto con margen), con tamaño previo, pausa y reanudación, y gestión del almacenamiento | 036, 009, 006 (centro del proyecto) | implementada |
 
@@ -97,6 +97,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
 | 038 cogo | Inversa, poligonal (tramos por azimut, ángulo o deflexión, con el borrador guardado en el proyecto), intersecciones (distancia-distancia, dirección-dirección, distancia-dirección); los resultados se guardan como puntos de origen COGO | 011, 008, 026 | implementada |
+| 058 coordenadas-de-terreno | Coordenadas de cuadrícula o de terreno (escala única desde un punto de origen con factor combinado propuesto), en pantallas, CSV, replanteo y todos los formatos (decidido en la entrevista de S035, 22/11/2026) | 035 | pendiente |
 | 039 localizacion | Hasta 50 pares H/V, semejanza 2D por mínimos cuadrados con plano inclinado, residuos, exclusión de componentes, aplicar al proyecto y guardar como SC | 035, 011, 008, 020 (orden de cálculo) | pendiente |
 
 ## H7 · Receptor avanzado

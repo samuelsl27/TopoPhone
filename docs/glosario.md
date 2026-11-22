@@ -281,3 +281,6 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Oblique Mercator (OM) | `ObliqueMercatorA`, `ObliqueMercatorB` | Mercator Oblicua de Hotine: en la variante A el falso Este y Norte se dan en el origen natural y en la B en el centro de la proyección (S032) |
 | Estereográfica | `ObliqueStereographic`, `PolarStereographicA`, `PolarStereographicB`, `PolarStereographicC` | Proyección conforme sobre un plano: oblicua (origen cualquiera) o polar en tres variantes (S032) |
 | Meridiano de origen | `primeMeridianDeg` | Longitud respecto a Greenwich del meridiano desde el que un SC cuenta sus longitudes (Madrid, París, Lisboa…) (S032) |
+| SC personalizado | `CustomCrs` | SC definido por el usuario con elipsoide, datum con su transformación, proyección, unidades y altura (S035) |
+| Mis SC | `MyCrsList` | Lista de los SC personalizados guardados en el móvil, junto a la biblioteca (S035) |
+| Historial del proyecto | `ProjectHistory` | Lista de los cambios de SC de un proyecto, con «Volver al SC anterior» (S035) |
