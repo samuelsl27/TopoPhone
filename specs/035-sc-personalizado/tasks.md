@@ -13,7 +13,7 @@
 ## Núcleo geodésico (`core:geodesy`)
 - [x] T4. `CustomCrsBuilder.validate`: elipsoide (esfera incluida), proyección por `ProjectionFactory`, Helmert, Molodensky-Badekas y rejilla, con un motivo por campo. (RF-2, RF-3, RF-4, RF-6)
       Hecho cuando: `CustomCrsBuilderTest` cubre cada campo válido y no válido y que no hay dos motivos para el mismo campo.
-- [ ] T5. `CustomCrsBuilder.build`: transformación en la notación de pasos, definición y `Ready`, `NeedsGrids` o `Invalid`. (RF-3, RF-8)
+- [x] T5. `CustomCrsBuilder.build`: transformación en la notación de pasos, definición y `Ready`, `NeedsGrids` o `Invalid`. (RF-3, RF-8)
       Hecho cuando: `CustomCrsBuilderTest` comprueba los tres resultados, los seis tipos de transformación y que la definición vuelve a `resolve` sin el catálogo.
 - [ ] T6. Contraste con pyproj: `CustomCrsVectorsTest` con `personalizado.csv`. (RF-3, RF-4, constitución nº 2)
       Hecho cuando: los cinco SC dan ≤ 1 mm con ida y vuelta ≤ 0,1 mm frente a los de la biblioteca y a pyproj.

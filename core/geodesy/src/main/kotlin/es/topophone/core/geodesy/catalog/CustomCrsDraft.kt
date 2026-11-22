@@ -60,7 +60,7 @@ sealed interface CustomTransformation {
     data class Grid(val name: String) : CustomTransformation
 
     /** Una cadena de la biblioteca que el editor no sabe expresar (varios pasos, o un paso inverso): se conserva tal cual al partir de un SC de la biblioteca. */
-    data class Kept(val stepsText: String) : CustomTransformation
+    data class Kept(val stepsText: String, val name: String = "Datum shift") : CustomTransformation
 }
 
 /**
@@ -100,7 +100,7 @@ data class CustomCrsDraft(
             parameters = if (definition.projected) definition.parameters else emptyMap(),
             unit = LinearUnit.entries.firstOrNull { abs(it.metres - definition.unitMetres) < UNIT_TOLERANCE } ?: LinearUnit.METRE,
             frame = if (definition.frame == "WGS84") CorrectionFrame.WGS84 else CorrectionFrame.ETRS89,
-            transformation = transformationOf(definition.transformationSteps),
+            transformation = transformationOf(definition.transformationSteps, definition.transformationName),
             transformationAccuracyM = definition.transformationAccuracyM,
             height = height,
             area = definition.area,
@@ -111,13 +111,13 @@ data class CustomCrsDraft(
 
         private const val UNIT_TOLERANCE = 1e-12
 
-        private fun transformationOf(stepsText: String): CustomTransformation {
+        private fun transformationOf(stepsText: String, name: String): CustomTransformation {
             val steps = CrsCatalog.parseSteps(stepsText)
-            val step = steps.singleOrNull() ?: return CustomTransformation.Kept(stepsText)
+            val step = steps.singleOrNull() ?: return CustomTransformation.Kept(stepsText, name)
             return when (step) {
                 StepSpec.Null -> CustomTransformation.None
-                is StepSpec.Grid -> if (step.inverse) CustomTransformation.Kept(stepsText) else CustomTransformation.Grid(step.name)
-                is StepSpec.Helmert -> helmertOf(step) ?: CustomTransformation.Kept(stepsText)
+                is StepSpec.Grid -> if (step.inverse) CustomTransformation.Kept(stepsText, name) else CustomTransformation.Grid(step.name)
+                is StepSpec.Helmert -> helmertOf(step) ?: CustomTransformation.Kept(stepsText, name)
             }
         }
 

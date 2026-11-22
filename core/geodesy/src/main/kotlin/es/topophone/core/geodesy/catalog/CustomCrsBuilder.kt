@@ -6,6 +6,8 @@ import es.topophone.core.geodesy.projection.ProjectionFactory
 import es.topophone.core.geodesy.projection.ProjectionParameter
 import es.topophone.core.geodesy.projection.ProjectionResult
 import es.topophone.core.geodesy.projection.ProjectionSetup
+import es.topophone.core.model.project.CUSTOM_EPSG
+import es.topophone.core.model.project.CrsDefinition
 import es.topophone.core.model.project.CustomHeight
 import kotlin.math.abs
 
@@ -118,6 +120,18 @@ object CustomCrsMethods {
     }
 }
 
+/** Lo que da construir un SC personalizado (S035/RF-8). */
+sealed interface CustomBuildResult {
+    /** El SC se puede usar ya. */
+    data class Ready(val definition: CrsDefinition) : CustomBuildResult
+
+    /** El SC se puede usar cuando se descarguen [grids]. */
+    data class NeedsGrids(val definition: CrsDefinition, val grids: List<GridEntry>) : CustomBuildResult
+
+    /** El SC no se puede guardar: [errors] por campo. */
+    data class Invalid(val errors: Map<String, CustomError>) : CustomBuildResult
+}
+
 /**
  * Valida y construye un SC personalizado a partir del borrador del editor (S035/RF-2 a RF-6, RF-8). La validación da **un** error por campo; con
  * el mapa vacío el SC se puede guardar.
@@ -128,6 +142,78 @@ object CustomCrsBuilder {
     private const val MAX_SCALE_PPM = 1.0e6
     private const val MAX_UNDULATION_M = 500.0
     private const val MIN_INVERSE_FLATTENING = 1.0
+    private const val DEFAULT_DATUM_NAME = "Personalizado"
+    private const val GRS80_TEXT = "6378137.0,298.257222101"
+    private const val WGS84_TEXT = "6378137.0,298.257223563"
+
+    /**
+     * El SC que se guardaría con [draft], o por qué no se puede: `Ready` si se puede usar ya, `NeedsGrids` si faltan rejillas por descargar (la de
+     * datum o la del geoide; S035/RF-8) o `Invalid` con los errores de [validate]. [isInstalled] dice si una rejilla descargada está instalada.
+     */
+    fun build(draft: CustomCrsDraft, catalog: CrsCatalog, isInstalled: (String) -> Boolean = { false }): CustomBuildResult {
+        val errors = validate(draft, catalog)
+        if (errors.isNotEmpty()) return CustomBuildResult.Invalid(errors)
+        val (name, steps) = transformationOf(draft)
+        val projected = draft.method != CustomCrsDraft.GEOGRAPHIC
+        val keys = CustomCrsMethods.parameterKeys(draft.method).orEmpty()
+        val definition = CrsDefinition(
+            epsg = CUSTOM_EPSG,
+            name = draft.name.trim(),
+            projected = projected,
+            datumCode = 0,
+            datumName = draft.datumName.trim().ifEmpty { DEFAULT_DATUM_NAME },
+            ellipsoidSemiMajorM = draft.semiMajorAxisM!!,
+            ellipsoidInverseFlattening = draft.inverseFlattening!!,
+            primeMeridianDeg = draft.primeMeridianDeg,
+            method = if (projected) draft.method else CustomCrsDraft.GEOGRAPHIC,
+            parameters = if (projected) keys.associateWith { draft.parameters.getValue(it)!! } else emptyMap(),
+            unitMetres = draft.unit.metres,
+            area = draft.area,
+            frame = if (draft.frame == CorrectionFrame.WGS84) "WGS84" else "ETRS89",
+            transformationName = name,
+            transformationAccuracyM = draft.transformationAccuracyM,
+            transformationArea = null,
+            transformationSteps = steps,
+        )
+        val missing = CrsCatalog.parseSteps(steps).filterIsInstance<StepSpec.Grid>().map { it.name } +
+            listOfNotNull((draft.height as? CustomHeight.Geoid)?.grid)
+        val grids = missing.distinct().mapNotNull { catalog.grids[it]?.takeUnless { grid -> grid.bundled || isInstalled(grid.name) } }
+        return if (grids.isEmpty()) CustomBuildResult.Ready(definition) else CustomBuildResult.NeedsGrids(definition, grids)
+    }
+
+    private fun transformationOf(draft: CustomCrsDraft): Pair<String, String> {
+        val target = if (draft.frame == CorrectionFrame.WGS84) WGS84_TEXT else GRS80_TEXT
+        val source = "${draft.semiMajorAxisM},${draft.inverseFlattening}"
+        fun helmert(v: HelmertValues, convention: RotationConvention, kind: HelmertKind, pivot: String?): String {
+            val (rx, ry, rz) = if (kind == HelmertKind.ROTATIONS_6 ||
+                kind == HelmertKind.SEVEN
+            ) {
+                Triple(v.rx, v.ry, v.rz)
+            } else {
+                Triple(0.0, 0.0, 0.0)
+            }
+            val s = if (kind == HelmertKind.TRANSLATIONS_SCALE_4 || kind == HelmertKind.SEVEN) v.scalePpm else 0.0
+            val base = "H;A=$source;B=$target;inv=0;conv=${convention.code};p=${v.tx},${v.ty},${v.tz},$rx,$ry,$rz,$s"
+            return if (pivot == null) base else "$base;px=$pivot"
+        }
+        return when (val t = draft.transformation) {
+            CustomTransformation.None -> "No datum shift" to "null"
+            is CustomTransformation.Helmert -> {
+                val count = when (t.kind) {
+                    HelmertKind.TRANSLATIONS_3 -> 3
+                    HelmertKind.TRANSLATIONS_SCALE_4 -> 4
+                    HelmertKind.ROTATIONS_6 -> 6
+                    HelmertKind.SEVEN -> 7
+                }
+                "Custom Helmert $count-parameter (${t.convention.code})" to helmert(t.values, t.convention, t.kind, null)
+            }
+            is CustomTransformation.MolodenskyBadekas ->
+                "Custom Molodensky-Badekas 10-parameter (${t.convention.code})" to
+                    helmert(t.values, t.convention, HelmertKind.SEVEN, "${t.pivotX},${t.pivotY},${t.pivotZ}")
+            is CustomTransformation.Grid -> "Custom grid shift ${t.name}" to "G;grid=${t.name};inv=0"
+            is CustomTransformation.Kept -> t.name to t.stepsText
+        }
+    }
 
     /** Los errores del borrador por campo (clave de [CustomFields]); vacío si es válido. */
     fun validate(draft: CustomCrsDraft, catalog: CrsCatalog): Map<String, CustomError> {
