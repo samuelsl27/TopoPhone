@@ -3650,4 +3650,25 @@
     <string name="source_summary_origin_custom">Sistema de origen: %1$s (SC personalizado)</string>
     <string name="shp_export_system_project_custom">Del proyecto (SC personalizado)</string>
     <string name="my_crs_menu_symbol">⋮</string>
+    <string name="my_crs_import">Importar</string>
+    <string name="my_crs_export">Exportar JSON</string>
+    <string name="my_crs_export_title">Exportar SC</string>
+    <string name="my_crs_export_question">¿Qué quieres hacer con el fichero de «%1$s»?</string>
+    <string name="my_crs_export_failed">No se ha podido guardar el fichero.</string>
+    <string name="my_crs_import_title">Importar SC</string>
+    <string name="my_crs_import_summary">«%1$s»\nDatum: %2$s\nProyección: %3$s\nElipsoide: a = %4$s m, 1/f = %5$s\n\nSe añadirá a Mis SC.</string>
+    <string name="my_crs_import_add">Añadir</string>
+    <string name="my_crs_import_rejected_title">No se puede importar</string>
+    <string name="my_crs_reject_invalid">El fichero no es un SC de TopoPhone.</string>
+    <string name="my_crs_reject_unknown_version">Es de una versión de TopoPhone que esta no conoce.</string>
+    <string name="my_crs_reject_unsupported_method">Usa una proyección o una transformación que esta versión no calcula.</string>
+    <string name="my_crs_reject_out_of_range">Algún número del fichero está fuera de rango.</string>
+    <string name="my_crs_conflict_title">Nombre repetido</string>
+    <string name="my_crs_conflict_message">Ya tienes un SC llamado «%1$s» con otra definición.</string>
+    <string name="my_crs_conflict_replace">Reemplazar</string>
+    <string name="my_crs_conflict_keep_both">Conservar ambos</string>
+    <string name="my_crs_conflict_skip">Omitir</string>
+    <string name="my_crs_done_added">Se ha añadido «%1$s» a Mis SC.</string>
+    <string name="my_crs_done_replaced">Se ha reemplazado «%1$s».</string>
+    <string name="my_crs_done_same">«%1$s» ya estaba en Mis SC.</string>
 </resources>

@@ -3638,4 +3638,25 @@
     <string name="source_summary_origin_custom">Source system: %1$s (custom CRS)</string>
     <string name="shp_export_system_project_custom">Project system (custom CRS)</string>
     <string name="my_crs_menu_symbol">⋮</string>
+    <string name="my_crs_import">Import</string>
+    <string name="my_crs_export">Export JSON</string>
+    <string name="my_crs_export_title">Export CRS</string>
+    <string name="my_crs_export_question">What do you want to do with the file of “%1$s”?</string>
+    <string name="my_crs_export_failed">The file could not be saved.</string>
+    <string name="my_crs_import_title">Import CRS</string>
+    <string name="my_crs_import_summary">“%1$s”\nDatum: %2$s\nProjection: %3$s\nEllipsoid: a = %4$s m, 1/f = %5$s\n\nIt will be added to My CRS.</string>
+    <string name="my_crs_import_add">Add</string>
+    <string name="my_crs_import_rejected_title">Cannot import</string>
+    <string name="my_crs_reject_invalid">The file is not a TopoPhone CRS.</string>
+    <string name="my_crs_reject_unknown_version">It is from a TopoPhone version this one does not know.</string>
+    <string name="my_crs_reject_unsupported_method">It uses a projection or a transformation this version does not compute.</string>
+    <string name="my_crs_reject_out_of_range">Some number in the file is out of range.</string>
+    <string name="my_crs_conflict_title">Repeated name</string>
+    <string name="my_crs_conflict_message">You already have a CRS called “%1$s” with another definition.</string>
+    <string name="my_crs_conflict_replace">Replace</string>
+    <string name="my_crs_conflict_keep_both">Keep both</string>
+    <string name="my_crs_conflict_skip">Skip</string>
+    <string name="my_crs_done_added">“%1$s” was added to My CRS.</string>
+    <string name="my_crs_done_replaced">“%1$s” was replaced.</string>
+    <string name="my_crs_done_same">“%1$s” was already in My CRS.</string>
 </resources>

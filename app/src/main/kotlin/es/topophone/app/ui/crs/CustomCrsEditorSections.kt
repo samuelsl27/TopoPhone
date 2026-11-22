@@ -54,7 +54,7 @@ fun customHeightTag(kind: HeightKind) = "custom_height_${kind.name}"
 
 fun customGeoidTag(name: String) = "custom_geoid_$name"
 
-private fun methodLabel(method: String): Int = when (method) {
+internal fun methodLabelOf(method: String): Int = when (method) {
     "tm" -> R.string.custom_method_tm
     "lcc1" -> R.string.custom_method_lcc1
     "lcc2" -> R.string.custom_method_lcc2
@@ -155,11 +155,11 @@ fun ProjectionSection(state: CustomCrsEditorUiState, actions: CustomCrsEditorAct
     val methods = (listOf(CustomCrsDraft.GEOGRAPHIC) + CustomCrsMethods.offered + form.method).distinct()
     Text(stringResource(R.string.custom_projection_title), style = MaterialTheme.typography.titleSmall)
     val options = methods.map { method ->
-        Triple(stringResource(methodLabel(method)), customMethodTag(method)) {
+        Triple(stringResource(methodLabelOf(method)), customMethodTag(method)) {
             actions.onChange { it.copy(method = method) }
         }
     }
-    Choice(stringResource(methodLabel(form.method)), CUSTOM_METHOD_TAG, options)
+    Choice(stringResource(methodLabelOf(form.method)), CUSTOM_METHOD_TAG, options)
     (CustomCrsMethods.parameterKeys(form.method) ?: emptyList()).forEach { key ->
         CustomField(
             stringResource(parameterLabel(key)),
