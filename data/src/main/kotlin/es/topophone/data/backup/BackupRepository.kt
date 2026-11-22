@@ -504,6 +504,23 @@ class BackupRepository(
         copyBaseShifts(source, sink, args, newProjectId, shiftIds)
         copyCodeLibrary(source, sink, args, newProjectId, keepIds)
         copyWmsLayers(source, sink, args, newProjectId, keepIds)
+        copyCrsHistory(source, sink, args, newProjectId, keepIds)
+    }
+
+    /** El historial de cambios de SC del proyecto viaja con él (S035/RF-22): con el id del proyecto nuevo y, si no se conservan los ids, filas nuevas. */
+    private fun copyCrsHistory(
+        source: (String, Array<String>) -> android.database.Cursor,
+        sink: androidx.sqlite.db.SupportSQLiteDatabase,
+        args: Array<String>,
+        newProjectId: String,
+        keepIds: Boolean,
+    ) {
+        source("SELECT * FROM project_crs_history WHERE project_id = ?", args).use { cursor ->
+            DatabaseSnapshot.copyRows(cursor, sink, "project_crs_history") { change ->
+                change.put("project_id", newProjectId)
+                if (!keepIds) change.put("id", newId())
+            }
+        }
     }
 
     /**

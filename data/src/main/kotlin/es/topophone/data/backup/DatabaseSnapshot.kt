@@ -154,6 +154,8 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             Table("project_folders", projectFilter = null),
             Table("projects", "WHERE id = ?"),
             Table("map_viewports", "WHERE project_id = ?"),
+            // S035/RF-22: el historial de cambios de SC viaja con el proyecto, en la copia y en el paquete.
+            Table("project_crs_history", "WHERE project_id = ?"),
             // S038/RF-29: el borrador de la poligonal va en la copia completa y no en el paquete del proyecto.
             Table("traverse_drafts", projectFilter = null),
             Table("points", "WHERE project_id = ?"),
@@ -239,6 +241,8 @@ class DatabaseSnapshot(private val context: Context, private val source: File, p
             // S043/RNF-T6: el progreso de las listas y los datos de cada receptor tampoco son de ningún proyecto: solo van en la copia completa.
             Table("config_steps", projectFilter = null),
             Table("equipment_profiles", projectFilter = null),
+            // S035/RF-16: los SC personalizados de Mis SC van en la copia completa; en el paquete va el SC del proyecto con su definición.
+            Table("custom_crs", projectFilter = null),
         )
     }
 }

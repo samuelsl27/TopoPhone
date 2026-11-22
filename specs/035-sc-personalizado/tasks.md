@@ -47,7 +47,7 @@
       Hecho cuando: `CrsChangePlanTest` y `CrsHistoryTest` comprueban los puntos no calculables, las medidas intactas y la atomicidad (un fallo no deja el cambio a medias); `CrsChangePerformanceTest` con 10.000 puntos < 2 s.
 - [x] T19. `ProjectCrsHistoryRepository.undo`: «Volver al SC anterior» como un cambio más, solo del más reciente. (RF-21)
       Hecho cuando: `CrsHistoryTest` deshace un cambio, lo vuelve a deshacer y comprueba el historial con tres filas; con el SC anterior ya borrado de Mis SC también funciona.
-- [ ] T20. Copia completa y paquete: Mis SC y el historial del proyecto, con las colisiones de nombre al restaurar. (RF-16, RF-22)
+- [x] T20. Copia completa y paquete: Mis SC y el historial del proyecto, con las colisiones de nombre al restaurar. (RF-16, RF-22)
       Hecho cuando: `CustomCrsBackupTest` hace copia y restauración con Mis SC, el historial y un nombre repetido (S013).
 
 ## Interfaz (`app`)
