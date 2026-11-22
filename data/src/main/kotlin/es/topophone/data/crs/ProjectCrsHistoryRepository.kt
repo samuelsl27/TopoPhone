@@ -49,6 +49,13 @@ interface ProjectCrsHistoryRepository {
 
     /** Cambia el SC del proyecto y lo anota en el historial. Con puntos que no se calculan, quedan sin coordenadas hasta que se vuelva a un SC que los calcule. */
     suspend fun apply(projectId: String, newCrs: ProjectCrs, newHeightSystem: HeightSystem): CrsChangeResult
+
+    /**
+     * «Volver al SC anterior» (S035/RF-21): deshace el cambio más reciente, que queda anotado como un cambio más de tipo [CrsChangeKind.UNDO]. Con otro
+     * `undo` encima se vuelve al SC de antes de deshacer. [CrsChangeResult.NothingToUndo] si no hay historial o el SC del proyecto ya no es el del último
+     * cambio (se cambió por otro camino).
+     */
+    suspend fun undo(projectId: String): CrsChangeResult
 }
 
 class RoomProjectCrsHistoryRepository(
@@ -79,6 +86,13 @@ class RoomProjectCrsHistoryRepository(
             if (!CrsChange.sameDatum(current.crs, newCrs)) return@withTransaction CrsChangeResult.OtherDatum
             switchTo(projectId, current.crs, current.heightSystem, newCrs, newHeightSystem, CrsChangeKind.CHANGE)
         }
+
+    override suspend fun undo(projectId: String): CrsChangeResult = database.withTransaction {
+        val current = projects.byId(projectId)?.toProject() ?: return@withTransaction CrsChangeResult.ProjectNotFound
+        val last = history.latest(projectId)?.toModel() ?: return@withTransaction CrsChangeResult.NothingToUndo
+        if (last.to != current.crs || last.toHeightSystem != current.heightSystem) return@withTransaction CrsChangeResult.NothingToUndo
+        switchTo(projectId, current.crs, current.heightSystem, last.from, last.fromHeightSystem, CrsChangeKind.UNDO)
+    }
 
     /** El cambio de verdad, dentro de la transacción de quien llama: el SC y lo derivado de los puntos, y la fila del historial. */
     internal suspend fun switchTo(

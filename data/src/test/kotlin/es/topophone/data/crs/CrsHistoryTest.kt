@@ -270,4 +270,60 @@ class CrsHistoryTest {
 
         millis shouldBeLessThan 2_000L
     }
+
+    @Test
+    fun `S035 RF-21 volver al SC anterior deshace el cambio, recalcula los puntos y queda como un cambio mas`() = runBlocking<Unit> {
+        val id = createProject(heightSystem = HeightSystem.ORTHOMETRIC)
+        addPoint(id, "p1", barcelona, SpainCrs.ETRS89_UTM30, measured = true)
+        val original = row("p1")
+        history.apply(id, library(25831, GeoPoint(41.4, 2.2)), HeightSystem.ELLIPSOIDAL)
+
+        val result = history.undo(id)
+
+        result.shouldBeInstanceOf<CrsChangeResult.Applied>().change.kind shouldBe CrsChangeKind.UNDO
+        projects.project(id)!!.crs shouldBe SpainCrs.ETRS89_UTM30
+        projects.project(id)!!.heightSystem shouldBe HeightSystem.ORTHOMETRIC
+        row("p1").e.shouldNotBeNull() shouldBe (original.e!! plusOrMinus 1e-9)
+        row("p1").me.shouldNotBeNull() shouldBe (original.me!! plusOrMinus 1e-9)
+        history.observe(id).first().map { it.kind } shouldBe listOf(CrsChangeKind.UNDO, CrsChangeKind.CHANGE)
+    }
+
+    @Test
+    fun `S035 RF-21 deshacer otra vez vuelve al SC de antes de deshacer y el historial lleva tres filas`() = runBlocking<Unit> {
+        val id = createProject()
+        val target = library(25831, GeoPoint(41.4, 2.2))
+        history.apply(id, target, HeightSystem.ELLIPSOIDAL)
+        history.undo(id)
+
+        history.undo(id).shouldBeInstanceOf<CrsChangeResult.Applied>()
+
+        projects.project(id)!!.crs shouldBe target
+        history.observe(id).first().map { it.kind } shouldBe listOf(CrsChangeKind.UNDO, CrsChangeKind.UNDO, CrsChangeKind.CHANGE)
+    }
+
+    @Test
+    fun `S035 RF-21 sin historial, o con el SC cambiado por otro camino, no hay nada que deshacer`() = runBlocking<Unit> {
+        val id = createProject()
+        history.undo(id) shouldBe CrsChangeResult.NothingToUndo
+        history.undo("no-existe") shouldBe CrsChangeResult.ProjectNotFound
+
+        history.apply(id, library(25831, GeoPoint(41.4, 2.2)), HeightSystem.ELLIPSOIDAL)
+        projects.update(id, projects.project(id)!!.toDraft().copy(crs = SpainCrs.ETRS89_UTM29))
+
+        history.undo(id) shouldBe CrsChangeResult.NothingToUndo
+    }
+
+    @Test
+    fun `S035 RF-11 se puede volver a un SC personalizado que ya se borro de Mis SC`() = runBlocking<Unit> {
+        val mine = RoomCustomCrsRepository(db)
+        val definition = library(25830).definition.copy(epsg = 0, name = "Obra")
+        val custom = (mine.create(definition, es.topophone.core.model.project.CustomHeight.Ellipsoidal) as CustomCrsSave.Saved).crs
+        val id = createProject(custom.toProjectCrs(CorrectionsDatum.ETRS89))
+        history.apply(id, SpainCrs.ETRS89_UTM30, HeightSystem.ELLIPSOIDAL)
+        mine.delete(custom.id)
+
+        history.undo(id).shouldBeInstanceOf<CrsChangeResult.Applied>()
+
+        projects.project(id)!!.crs shouldBe custom.toProjectCrs(CorrectionsDatum.ETRS89)
+    }
 }
