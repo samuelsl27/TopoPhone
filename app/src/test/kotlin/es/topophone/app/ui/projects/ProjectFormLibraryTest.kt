@@ -30,6 +30,7 @@ import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.data.codes.LibrarySummary
 import es.topophone.data.codes.RoomCodeLibraryRepository
+import es.topophone.data.crs.RoomProjectCrsHistoryRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.RoomProjectRepository
@@ -99,8 +100,17 @@ class ProjectFormLibraryTest {
         Dispatchers.resetMain()
     }
 
-    private fun viewModel(defaults: ProjectDefaults = ProjectDefaults()) =
-        ProjectFormViewModel(projects, FakePreferences(defaults), session, FakeMapPreferences(), libraries).also { viewModels += it }
+    private fun viewModel(defaults: ProjectDefaults = ProjectDefaults()) = ProjectFormViewModel(
+        projects,
+        FakePreferences(defaults),
+        session,
+        FakeMapPreferences(),
+        libraries,
+        RoomProjectCrsHistoryRepository(db),
+    ).also {
+        viewModels +=
+            it
+    }
 
     private fun ProjectFormViewModel.await(predicate: (ProjectFormUiState) -> Boolean): ProjectFormUiState = runBlocking {
         val collector = CoroutineScope(Dispatchers.Unconfined).launch { state.collect {} }

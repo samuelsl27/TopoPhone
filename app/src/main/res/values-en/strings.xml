@@ -3659,4 +3659,8 @@
     <string name="my_crs_done_added">“%1$s” was added to My CRS.</string>
     <string name="my_crs_done_replaced">“%1$s” was replaced.</string>
     <string name="my_crs_done_same">“%1$s” was already in My CRS.</string>
+    <string name="crs_change_issues_title">Points without coordinates in the new CRS</string>
+    <string name="crs_change_issues_message">%1$d of %2$d points cannot be computed in the new CRS (outside its area or without the grid installed). They stay without coordinates until you go back to a CRS that computes them; their measurements do not change.</string>
+    <string name="crs_change_continue">Continue</string>
+    <string name="crs_change_other_datum">You can only change to a CRS with the same datum as the current one.</string>
 </resources>

@@ -61,7 +61,7 @@
       Hecho cuando: `MyCrsListTest` crea un proyecto con un SC personalizado y lo elige como SC de origen de una importación.
 - [x] T25. Importar y exportar el JSON de un SC desde Mis SC, con la confirmación, el motivo del rechazo y el conflicto de nombre. (RF-12 a RF-15)
       Hecho cuando: `ImportCustomCrsTest` exporta un SC, lo importa y confirma que queda igual; un JSON no válido muestra su motivo.
-- [ ] T26. Cambiar el SC de un proyecto con puntos: solo el mismo datum, aviso de los puntos no calculables con cancelar o continuar. (RF-17, RF-18, RF-19)
+- [x] T26. Cambiar el SC de un proyecto con puntos: solo el mismo datum, aviso de los puntos no calculables con cancelar o continuar. (RF-17, RF-18, RF-19)
       Hecho cuando: `ChangeProjectCrsTest` cambia de SC con y sin puntos fuera de ámbito, y no ofrece uno de otro datum.
 - [ ] T27. Historial del proyecto con «Volver al SC anterior». (RF-20, RF-21)
       Hecho cuando: `ProjectHistoryScreenTest` muestra los cambios, deshace el último y el resultado figura en la lista.

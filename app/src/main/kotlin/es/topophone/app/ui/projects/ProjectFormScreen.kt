@@ -10,12 +10,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -71,8 +73,12 @@ import es.topophone.core.model.project.isCustom
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResolver
 import es.topophone.core.survey.CentralPointResult
+import es.topophone.core.survey.CrsChange
+import es.topophone.core.survey.CrsChangePlan
 import es.topophone.data.codes.CodeLibraryRepository
 import es.topophone.data.codes.LibrarySummary
+import es.topophone.data.crs.CrsChangeResult
+import es.topophone.data.crs.ProjectCrsHistoryRepository
 import es.topophone.data.map.MapPreferences
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.ProjectRepository
@@ -128,6 +134,13 @@ data class ProjectFormUiState(
     /** Las bibliotecas de códigos que se pueden vincular y el nombre de la que el proyecto lleva ya (S023/RF-19, RF-21). */
     val libraries: List<LibrarySummary> = emptyList(),
     val linkedLibraryName: String? = null,
+    /** El SC y las alturas del proyecto al abrirlo para editarlo: contra ellos se mira si se cambia de SC (S035/RF-17 a RF-20). */
+    val originalCrs: ProjectCrs? = null,
+    val originalHeightSystem: HeightSystem? = null,
+    /** Los puntos que el SC nuevo no calcula, a la espera de que el usuario decida continuar o cancelar (S035/RF-19). */
+    val crsChangePlan: CrsChangePlan? = null,
+    /** Se intentó elegir un SC de otro datum (S035/RF-17). */
+    val otherDatum: Boolean = false,
 )
 
 /** Acciones del formulario de proyecto. */
@@ -145,6 +158,11 @@ class ProjectFormActions(
     val onCentralPicked: (CentralPoint) -> Unit = {},
     /** Dónde empieza el mapa del selector (S006/RF-33). */
     val pickerStart: () -> MapViewport? = { null },
+    /** Continuar con el cambio de SC aunque algunos puntos queden sin coordenadas (S035/RF-19). */
+    val onConfirmCrsChange: () -> Unit = {},
+    val onCancelCrsChange: () -> Unit = {},
+    /** Se eligió un SC de otro datum: no se aplica y se avisa (S035/RF-17). */
+    val onOtherDatum: () -> Unit = {},
 )
 
 /**
@@ -158,6 +176,7 @@ class ProjectFormViewModel @Inject constructor(
     private val session: ReceiverSession,
     private val mapPreferences: MapPreferences,
     private val codeLibraries: CodeLibraryRepository,
+    private val crsHistory: ProjectCrsHistoryRepository,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ProjectFormUiState())
     val state: StateFlow<ProjectFormUiState> = mutableState.asStateFlow()
@@ -182,7 +201,11 @@ class ProjectFormViewModel @Inject constructor(
             val libraries = codeLibraries.libraries().first()
             val loaded = if (project != null) {
                 ProjectFormUiState(draft = project.toDraft(), loaded = true, editing = true) // S006/RF-14
-                    .copy(linkedLibraryName = codeLibraries.projectCopy(project.id).first()?.name)
+                    .copy(
+                        linkedLibraryName = codeLibraries.projectCopy(project.id).first()?.name,
+                        originalCrs = project.crs,
+                        originalHeightSystem = project.heightSystem,
+                    )
             } else {
                 newProject(preferences.defaults.first().toDraft().withExistingLibrary(libraries)) // S006/RF-6, S023/RF-19
             }
@@ -211,7 +234,9 @@ class ProjectFormViewModel @Inject constructor(
         return ProjectFormUiState(draft = defaults.withProposedCrs(proposed), loaded = true, proposedCrs = proposed)
     }
 
-    fun update(draft: ProjectDraft) = mutableState.update { it.copy(draft = draft, error = null, centralPointError = null) }
+    fun update(draft: ProjectDraft) = mutableState.update {
+        it.copy(draft = draft, error = null, centralPointError = null, otherDatum = false)
+    }
 
     /** Fija el punto central con lo escrito en el SC del proyecto; si no vale, no cambia nada y dice por qué (S006/RF-33, RF-34). */
     fun fixCentralTyped(first: String, second: String) {
@@ -276,13 +301,63 @@ class ProjectFormViewModel @Inject constructor(
         val draft = mutableState.value.draft
         val editingId = projectId
         viewModelScope.launch {
-            val result = if (editingId != null) repository.update(editingId, draft) else repository.create(draft, folderId)
-            when (result) {
-                is SaveResult.Invalid -> mutableState.update { it.copy(error = result.error) } // S006/RF-7, RF-14
-                is SaveResult.Saved -> {
-                    if (editingId == null) repository.markOpened(result.id) // S006/RF-12: se abre al guardarlo
-                    mutableState.update { it.copy(savedId = result.id) }
+            if (editingId != null && crsChanged() && !confirmedChange) {
+                // S035/RF-19: antes de cambiar el SC se dice qué puntos no se calculan en el nuevo.
+                val plan = crsHistory.preview(editingId, draft.crs, draft.heightSystem)
+                if (plan != null && !plan.isClean) {
+                    mutableState.update { it.copy(crsChangePlan = plan) }
+                    return@launch
                 }
+            }
+            commit(editingId, draft)
+        }
+    }
+
+    private var confirmedChange = false
+
+    private fun crsChanged(): Boolean {
+        val state = mutableState.value
+        return state.editing && (state.draft.crs != state.originalCrs || state.draft.heightSystem != state.originalHeightSystem)
+    }
+
+    /** El usuario aceptó que algunos puntos queden sin coordenadas en el SC nuevo (S035/RF-19). */
+    fun confirmCrsChange() {
+        confirmedChange = true
+        mutableState.update { it.copy(crsChangePlan = null) }
+        save()
+    }
+
+    fun cancelCrsChange() {
+        confirmedChange = false
+        mutableState.update { it.copy(crsChangePlan = null) }
+    }
+
+    /** Se eligió un SC de otro datum: no se cambia nada y se avisa (S035/RF-17). */
+    fun rejectOtherDatum() = mutableState.update { it.copy(otherDatum = true) }
+
+    private suspend fun commit(editingId: String?, draft: ProjectDraft) {
+        val state = mutableState.value
+        val changed = editingId != null && crsChanged()
+        // Con cambio de SC, el resto del formulario se guarda con el SC de antes y el cambio lo hace el historial, que recalcula los puntos (S035/RF-18, RF-20).
+        val toSave = if (changed) {
+            draft.copy(crs = state.originalCrs ?: draft.crs, heightSystem = state.originalHeightSystem ?: draft.heightSystem)
+        } else {
+            draft
+        }
+        val result = if (editingId != null) repository.update(editingId, toSave) else repository.create(draft, folderId)
+        when (result) {
+            is SaveResult.Invalid -> mutableState.update { it.copy(error = result.error) } // S006/RF-7, RF-14
+            is SaveResult.Saved -> {
+                if (editingId == null) repository.markOpened(result.id) // S006/RF-12: se abre al guardarlo
+                if (changed &&
+                    editingId != null &&
+                    crsHistory.apply(editingId, draft.crs, draft.heightSystem) == CrsChangeResult.OtherDatum
+                ) {
+                    mutableState.update { it.copy(otherDatum = true) }
+                    return
+                }
+                confirmedChange = false
+                mutableState.update { it.copy(savedId = result.id) }
             }
         }
     }
@@ -325,6 +400,9 @@ fun ProjectFormRoute(
             viewModel::resolveCentralTap,
             viewModel::setCentralPoint,
             viewModel::pickerStart,
+            viewModel::confirmCrsChange,
+            viewModel::cancelCrsChange,
+            viewModel::rejectOtherDatum,
         ),
         map = { modifier, onReady -> MapLibreMap(environment, onReady, modifier) },
         library = HiltCrsLibraryHost,
@@ -349,7 +427,10 @@ fun ProjectFormScreen(
     val libraryHooks = library?.let {
         CrsLibraryHooks(
             onOpen = { libraryOpen = true },
-            onBackToSpain = { actions.onChange(draft.withCrs(SpainCrs.ETRS89_UTM30)) },
+            onBackToSpain = {
+                val spain = SpainCrs.ETRS89_UTM30
+                if (state.editing && !sameDatumAsOriginal(state, spain)) actions.onOtherDatum() else actions.onChange(draft.withCrs(spain))
+            },
             host = it,
         )
     }
@@ -380,6 +461,12 @@ fun ProjectFormScreen(
                 (draft.crs as? LibraryCrs)?.geoidGrid,
             ),
             onChosen = { chosen ->
+                if (state.editing && !sameDatumAsOriginal(state, chosen)) {
+                    // S035/RF-17: al editar solo se cambia a un SC del mismo datum.
+                    actions.onOtherDatum()
+                    libraryOpen = false
+                    return@Flow
+                }
                 actions.onChange(
                     draft.copy(
                         crs = chosen,
@@ -398,6 +485,7 @@ fun ProjectFormScreen(
             onDismiss = { libraryOpen = false },
         )
     }
+    state.crsChangePlan?.let { CrsChangeDialog(it, actions) }
     SectionScaffold(
         title = stringResource(if (state.editing) R.string.project_edit else R.string.project_new),
         themeState = themeState,
@@ -435,6 +523,7 @@ fun ProjectFormScreen(
                 draft.heightSystem,
                 datumLocked = state.editing,
                 zoneProposed = state.proposedCrs == draft.crs,
+                otherDatum = state.otherDatum,
                 library = libraryHooks,
                 onCrs = { actions.onChange(draft.withCrs(it)) },
             ) { actions.onChange(draft.copy(heightSystem = it)) } // S006/RF-8, S008/RF-1 a RF-3, RF-11, RF-17, RF-19
@@ -516,6 +605,7 @@ internal fun CrsChoices(
     heightSystem: HeightSystem,
     datumLocked: Boolean,
     zoneProposed: Boolean = false,
+    otherDatum: Boolean = false,
     library: CrsLibraryHooks? = null,
     onCrs: (ProjectCrs) -> Unit,
     onHeight: (HeightSystem) -> Unit,
@@ -523,7 +613,8 @@ internal fun CrsChoices(
     Text(stringResource(R.string.project_crs), style = MaterialTheme.typography.titleMedium)
     if (crs is LibraryCrs) {
         // S034/RF-13: un SC de la biblioteca se elige y se cambia desde su ficha; aquí solo se resume.
-        LibraryCrsSummary(crs, heightSystem, library, canChange = !datumLocked)
+        LibraryCrsSummary(crs, heightSystem, library, canChange = true) // S035/RF-17: también al editar, a un SC del mismo datum
+        if (otherDatum) OtherDatumNotice()
         return
     }
     ChoiceGroup(
@@ -551,12 +642,57 @@ internal fun CrsChoices(
     ChoiceGroup(stringResource(R.string.project_height), crs.heightSystems, heightSystem, ::heightOptionTag, { heightLabel(it) }) {
         onHeight(it)
     }
-    if (library != null && !datumLocked) {
+    if (library != null) {
         OutlinedButton(
             onClick = library.onOpen,
             modifier = Modifier.heightIn(min = MinTouchTarget).testTag(CRS_LIBRARY_OPEN_TAG),
-        ) { Text(stringResource(R.string.crs_library_open)) } // S034/RF-1
+        ) { Text(stringResource(R.string.crs_library_open)) } // S034/RF-1, S035/RF-17
     }
+    if (otherDatum) OtherDatumNotice()
+}
+
+const val CRS_OTHER_DATUM_TAG = "project_crs_other_datum"
+const val CRS_CHANGE_CONTINUE_TAG = "project_crs_change_continue"
+const val CRS_CHANGE_CANCEL_TAG = "project_crs_change_cancel"
+const val CRS_CHANGE_DIALOG_TAG = "project_crs_change_dialog"
+
+@Composable
+private fun OtherDatumNotice() {
+    Text(
+        stringResource(R.string.crs_change_other_datum),
+        color = MaterialTheme.colorScheme.error,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.testTag(CRS_OTHER_DATUM_TAG),
+    )
+}
+
+/** ¿Es [chosen] del mismo datum que el SC con que se abrió el proyecto? Sin SC original (proyecto nuevo) todo vale (S035/RF-17). */
+private fun sameDatumAsOriginal(state: ProjectFormUiState, chosen: ProjectCrs): Boolean =
+    state.originalCrs?.let { CrsChange.sameDatum(it, chosen) } ?: true
+
+/** Los puntos que el SC nuevo no calcula: continuar o cancelar el cambio (S035/RF-19). */
+@Composable
+private fun CrsChangeDialog(plan: CrsChangePlan, actions: ProjectFormActions) {
+    AlertDialog(
+        onDismissRequest = actions.onCancelCrsChange,
+        title = { Text(stringResource(R.string.crs_change_issues_title)) },
+        text = {
+            Text(
+                stringResource(R.string.crs_change_issues_message, plan.issues.size, plan.total),
+                modifier = Modifier.testTag(CRS_CHANGE_DIALOG_TAG),
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = actions.onConfirmCrsChange, modifier = Modifier.testTag(CRS_CHANGE_CONTINUE_TAG)) {
+                Text(stringResource(R.string.crs_change_continue))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = actions.onCancelCrsChange, modifier = Modifier.testTag(CRS_CHANGE_CANCEL_TAG)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+        },
+    )
 }
 
 /** Lo que el formulario necesita para ofrecer la biblioteca de SC (S034/RF-1). */

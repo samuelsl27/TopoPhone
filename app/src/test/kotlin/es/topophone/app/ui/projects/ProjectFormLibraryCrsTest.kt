@@ -171,12 +171,12 @@ class ProjectFormLibraryCrsTest {
     }
 
     @Test
-    fun `S034 RF-13 al editar un proyecto no se cambia de sistema desde la biblioteca`() {
+    fun `S035 RF-17 al editar un proyecto con un SC de la biblioteca se puede cambiar a otro desde ella`() {
         show(initial.copy(crs = lambert93, heightSystem = HeightSystem.ORTHOMETRIC), FakeHost(lambert93), editing = true)
 
         compose.onNodeWithTag(CRS_LIBRARY_SUMMARY_TAG).performScrollTo().assertIsDisplayed()
-        compose.onNodeWithTag(CRS_LIBRARY_CHANGE_TAG).assertDoesNotExist()
-        compose.onNodeWithTag(CRS_LIBRARY_SPAIN_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(CRS_LIBRARY_CHANGE_TAG).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(CRS_LIBRARY_SPAIN_TAG).performScrollTo().assertIsDisplayed()
     }
 
     @Test

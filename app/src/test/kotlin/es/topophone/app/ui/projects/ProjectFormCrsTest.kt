@@ -31,6 +31,7 @@ import es.topophone.core.model.project.ProjectDraft
 import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.data.codes.RoomCodeLibraryRepository
+import es.topophone.data.crs.RoomProjectCrsHistoryRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.RoomProjectRepository
@@ -235,6 +236,7 @@ class ProjectFormCrsTest {
                 session,
                 FakeMapPreferences(),
                 RoomCodeLibraryRepository(db),
+                RoomProjectCrsHistoryRepository(db),
             )
         vm.start(projectId = projectId, folderId = null)
         return runBlocking { withTimeout(5_000) { vm.state.first { it.loaded } } }

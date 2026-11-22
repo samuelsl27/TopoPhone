@@ -30,6 +30,7 @@ import es.topophone.core.ntrip.NtripConnector
 import es.topophone.core.ntrip.NtripFailure
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.data.codes.RoomCodeLibraryRepository
+import es.topophone.data.crs.RoomProjectCrsHistoryRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.ProjectPreferences
 import es.topophone.data.project.RoomProjectRepository
@@ -135,7 +136,15 @@ class ProjectFormCentralPointTest {
 
     /** El formulario conectado a su ViewModel, como en la app. */
     private fun open(projectId: String? = null): ProjectFormViewModel {
-        val vm = ProjectFormViewModel(repository, FakeProjectPreferences(), session, FakeMapPreferences(), RoomCodeLibraryRepository(db))
+        val vm =
+            ProjectFormViewModel(
+                repository,
+                FakeProjectPreferences(),
+                session,
+                FakeMapPreferences(),
+                RoomCodeLibraryRepository(db),
+                RoomProjectCrsHistoryRepository(db),
+            )
         vm.start(projectId, folderId = null)
         vm.awaitState { it.loaded }
         compose.setContent {
