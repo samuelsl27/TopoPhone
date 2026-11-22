@@ -31,7 +31,11 @@ import es.topophone.data.cogo.RoomCogoRepository
 import es.topophone.data.config.ConfigProgressRepository
 import es.topophone.data.config.RoomConfigProgressRepository
 import es.topophone.data.crs.CrsShortcutRepository
+import es.topophone.data.crs.CustomCrsRepository
+import es.topophone.data.crs.ProjectCrsHistoryRepository
 import es.topophone.data.crs.RoomCrsShortcutRepository
+import es.topophone.data.crs.RoomCustomCrsRepository
+import es.topophone.data.crs.RoomProjectCrsHistoryRepository
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.equipment.EquipmentRepository
 import es.topophone.data.equipment.RoomEquipmentRepository
@@ -317,6 +321,17 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideCrsShortcutRepository(database: TopoPhoneDatabase): CrsShortcutRepository = RoomCrsShortcutRepository(database)
+
+    /** Mis SC: los SC personalizados guardados en el móvil (S035/RF-9). */
+    @Provides
+    @Singleton
+    fun provideCustomCrsRepository(database: TopoPhoneDatabase): CustomCrsRepository = RoomCustomCrsRepository(database)
+
+    /** El historial de cambios de SC de cada proyecto y el cambio en sí, con los recursos (rejillas y geoides) que haya instalados (S035/RF-17 a RF-21). */
+    @Provides
+    @Singleton
+    fun provideProjectCrsHistoryRepository(database: TopoPhoneDatabase): ProjectCrsHistoryRepository =
+        RoomProjectCrsHistoryRepository(database)
 
     /** La superficie activa de cada proyecto, con sus teselas a demanda (S042). */
     @Provides

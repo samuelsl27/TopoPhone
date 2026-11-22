@@ -51,7 +51,7 @@
       Hecho cuando: `CustomCrsBackupTest` hace copia y restauración con Mis SC, el historial y un nombre repetido (S013).
 
 ## Interfaz (`app`)
-- [ ] T21. Editor, parte 1: pantalla con nombre, punto de partida (vacío, biblioteca o Mis SC), elipsoide y unidades, con un campo marcado cuando falla. (RF-1, RF-2, RF-5, RF-6)
+- [x] T21. Editor, parte 1: pantalla con nombre, punto de partida (vacío, biblioteca o Mis SC), elipsoide y unidades, con un campo marcado cuando falla. (RF-1, RF-2, RF-5, RF-6)
       Hecho cuando: `CustomCrsEditorTest` crea un SC, ve un campo marcado y no deja guardar con parámetros no válidos.
 - [ ] T22. Editor, parte 2: transformación del datum (ninguna, Helmert, Molodensky-Badekas, rejilla), proyección y altura. (RF-3, RF-4, RF-5)
       Hecho cuando: `CustomCrsEditorTest` elige cada tipo de transformación y de proyección y la altura constante.
