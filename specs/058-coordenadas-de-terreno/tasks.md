@@ -11,7 +11,7 @@
       Hecho cuando: las coordenadas de terreno coinciden con pyproj a ≤ 1 mm y la ida y vuelta cierra a ≤ 0,1 mm.
 - [x] T4. `TerrainProposal` y `TerrainPlaneValidator`. (RF-2, RF-3, RF-4, RF-5)
       Hecho cuando: `TerrainProposalTest` da el factor combinado de pyproj a 1e-9 con y sin altura, y `TerrainPlaneValidatorTest` cubre SC geográfico, factor fuera de 0,9–1,1, no finito, origen fuera del ámbito y plano válido.
-- [ ] T5. `TerrainView`: coordenadas, distancias, deltas y áreas en terreno, la inversa y la etiqueta; identidad en cuadrícula. (RF-9, RF-10, RF-11)
+- [x] T5. `TerrainView`: coordenadas, distancias, deltas y áreas en terreno, la inversa y la etiqueta; identidad en cuadrícula. (RF-9, RF-10, RF-11)
       Hecho cuando: `TerrainViewTest` comprueba el paso de coordenadas, distancias, deltas y áreas, que las alturas no cambian y que con cuadrícula todo es la identidad.
 
 ## Datos (`data`)
