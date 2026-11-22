@@ -25,7 +25,7 @@
 ## JSON, WKT y formatos (`core:formats`)
 - [x] T9. `CustomCrsJson.write` y `read` con la versión 1. (RF-12, RF-13)
       Hecho cuando: `CustomCrsJsonTest` comprueba la ida y vuelta exacta con 10.000 `Double` aleatorios y con los extremos.
-- [ ] T10. `CustomCrsJson.read` rechaza el contenido no válido: versión, método, números fuera de rango, JSON dañado y fichero de otro tipo con extensión `.json`. (RF-13, RF-14)
+- [x] T10. `CustomCrsJson.read` rechaza el contenido no válido: versión, método, números fuera de rango, JSON dañado y fichero de otro tipo con extensión `.json`. (RF-13, RF-14)
       Hecho cuando: `CustomCrsJsonTest` comprueba cada motivo y que no queda nada a medias.
 - [ ] T11. `CustomCrsWkt.gdal` y `.esri`: TM, LCC 1SP/2SP, OM A/B y geográficas, con `TOWGS84` para Helmert 3 y 7 PV. (RF-23)
       Hecho cuando: `CustomCrsWktTest` lee cada WKT con pyproj y da las mismas coordenadas, ≤ 1 mm (vectores en `fixtures/geodesia/personalizado_wkt.csv`).

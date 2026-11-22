@@ -193,7 +193,7 @@ object CustomCrsJson {
     private fun JsonElement.number(): Double {
         val p = jsonPrimitive
         require(!p.isString)
-        return requireNotNull(p.doubleOrNull)
+        return requireNotNull(p.doubleOrNull).also { require(it.isFinite()) }
     }
 
     /** Pasa el SC por las mismas reglas que el editor (S035/RF-6): rangos, rejillas conocidas y transformación que se pueda construir. */

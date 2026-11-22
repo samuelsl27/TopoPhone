@@ -124,4 +124,61 @@ class CustomCrsJsonTest {
         text shouldContain "\"format\":\"topophone-crs\""
         text shouldContain "\"version\":1"
     }
+
+    private val valid get() = CustomCrsJson.write(crs)
+
+    private fun rejection(text: String): CustomCrsRejection =
+        CustomCrsJson.read(text).shouldBeInstanceOf<CustomCrsReadResult.Rejected>().reason
+
+    private fun edited(from: String, to: String): String {
+        valid shouldContain from
+        return valid.replace(from, to)
+    }
+
+    @Test
+    fun `S035 RF-14 un fichero que no es JSON, esta danado o es de otro tipo da INVALID`() {
+        rejection("") shouldBe CustomCrsRejection.INVALID
+        rejection("{") shouldBe CustomCrsRejection.INVALID
+        rejection("[1,2,3]") shouldBe CustomCrsRejection.INVALID
+        rejection("""{"type":"FeatureCollection","features":[]}""") shouldBe CustomCrsRejection.INVALID // un GeoJSON con extension .json
+        rejection(valid.take(valid.length / 2)) shouldBe CustomCrsRejection.INVALID
+        rejection(edited("\"format\":\"topophone-crs\"", "\"format\":\"otro\"")) shouldBe CustomCrsRejection.INVALID
+    }
+
+    @Test
+    fun `S035 RF-14 una version que la app no conoce da UNKNOWN_VERSION y sin version INVALID`() {
+        rejection(edited("\"version\":1", "\"version\":2")) shouldBe CustomCrsRejection.UNKNOWN_VERSION
+        rejection(edited("\"version\":1,", "")) shouldBe CustomCrsRejection.INVALID
+    }
+
+    @Test
+    fun `S035 RF-14 un metodo de proyeccion o una transformacion que no calculamos da UNSUPPORTED_METHOD`() {
+        rejection(edited("\"method\":\"tm\"", "\"method\":\"xyz\"")) shouldBe CustomCrsRejection.UNSUPPORTED_METHOD
+        rejection(edited("H;A=", "Q;A=")) shouldBe CustomCrsRejection.UNSUPPORTED_METHOD
+    }
+
+    @Test
+    fun `S035 RF-14 los numeros fuera de rango dan OUT_OF_RANGE`() {
+        rejection(edited("\"latitudeOfOriginDeg\":0.0", "\"latitudeOfOriginDeg\":100.0")) shouldBe CustomCrsRejection.OUT_OF_RANGE
+        rejection(edited("\"inverseFlattening\":298.257222101", "\"inverseFlattening\":0.5")) shouldBe CustomCrsRejection.OUT_OF_RANGE
+        rejection(edited("\"scaleFactor\":0.9996", "\"scaleFactor\":-1.0")) shouldBe CustomCrsRejection.OUT_OF_RANGE
+        rejection(edited("\"semiMajorM\":6378137.0", "\"semiMajorM\":-6378137.0")) shouldBe CustomCrsRejection.OUT_OF_RANGE
+        rejection(edited("\"kind\":\"ellipsoidal\"", "\"kind\":\"geoid\",\"grid\":\"no_existe.tif\"")) shouldBe
+            CustomCrsRejection.OUT_OF_RANGE
+    }
+
+    @Test
+    fun `S035 RF-14 un numero como texto, NaN, un parametro que falta o que sobra o una altura desconocida dan INVALID`() {
+        rejection(edited("\"scaleFactor\":0.9996", "\"scaleFactor\":\"0.9996\"")) shouldBe CustomCrsRejection.INVALID
+        rejection(edited("\"scaleFactor\":0.9996", "\"scaleFactor\":NaN")) shouldBe CustomCrsRejection.INVALID
+        rejection(edited("\"scaleFactor\":0.9996,", "")) shouldBe CustomCrsRejection.INVALID
+        rejection(edited("\"scaleFactor\":0.9996", "\"scaleFactor\":0.9996,\"extra\":1.0")) shouldBe CustomCrsRejection.INVALID
+        rejection(edited("\"kind\":\"ellipsoidal\"", "\"kind\":\"otra\"")) shouldBe CustomCrsRejection.INVALID
+        rejection(edited("\"frame\":\"ETRS89\"", "\"frame\":\"NAD83\"")) shouldBe CustomCrsRejection.INVALID
+    }
+
+    @Test
+    fun `S035 RF-14 un nombre vacio no se importa`() {
+        CustomCrsJson.read(edited("\"name\":\"Obra norte\"", "\"name\":\"\"")).shouldBeInstanceOf<CustomCrsReadResult.Rejected>()
+    }
 }
