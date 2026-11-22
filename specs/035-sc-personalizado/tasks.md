@@ -5,7 +5,7 @@
 ## Vectores y modelo (`tools/geodesia`, `core:model`)
 - [x] T1. `tools/geodesia/personalizado_vectores.py`: tres puntos con ida y vuelta de cinco SC (UTM 30N, Lambert-93, Stereo 70, GGRS87 por Helmert y ED50 con rejilla) escritos como parámetros sueltos de un SC personalizado, en `fixtures/geodesia/personalizado.csv`. (RF-3, RF-4, RNF)
       Hecho cuando: `test_personalizado.py` comprueba las filas, que el fichero se regenera idéntico y que `pytest tools` pasa.
-- [ ] T2. `CustomCrs`, `CustomHeight`, `CrsDefinition.isCustom` (`epsg == 0`) y `LibraryCrs.geoidConstantM`, con el texto de ida y vuelta del SC del proyecto. (RF-5, RF-11)
+- [x] T2. `CustomCrs`, `CustomHeight`, `CrsDefinition.isCustom` (`epsg == 0`) y `LibraryCrs.geoidConstantM`, con el texto de ida y vuelta del SC del proyecto. (RF-5, RF-11)
       Hecho cuando: `CustomCrsModelTest` comprueba la ida y vuelta del texto, que `geoidGrid` y `geoidConstantM` no pueden estar a la vez y que los diez SC de España y los de la biblioteca no cambian.
 - [ ] T3. `CustomCrsDraft` y `CustomCrsDraft.of(definition | CustomCrs | vacío)`. (RF-1)
       Hecho cuando: `CustomCrsDraftTest` parte de un SC de la biblioteca, de uno de Mis SC y de uno vacío y obtiene los campos esperados.

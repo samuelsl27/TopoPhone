@@ -107,7 +107,13 @@ data class LibraryCrs(
     override val correctionsDatum: CorrectionsDatum = defaultCorrections(definition),
     /** El geoide del proyecto: el nombre de su rejilla del CDN de PROJ, o `null` si el proyecto no tiene altitud ortométrica (S034/RF-14). */
     val geoidGrid: String? = null,
+    /** La altura ortométrica constante de un SC personalizado: la ondulación del geoide, en metros; no puede ir con [geoidGrid] (S035/RF-5). */
+    val geoidConstantM: Double? = null,
 ) : ProjectCrs {
+    init {
+        require(geoidGrid == null || geoidConstantM == null) { "Un SC no puede tener geoide y ondulación constante a la vez" }
+    }
+
     override val name: String get() = "LIBRARY:${definition.epsg}"
     override val epsg: Int get() = definition.epsg
     override val datum: GeodeticDatum get() = GeodeticDatum.ETRS89
