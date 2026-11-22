@@ -3,7 +3,7 @@
 > Cada tarea dura 30 min como máximo, sigue el orden de dependencias y se implementa con los tests primero. Cada tarea cierra con `./gradlew check` en verde (se repite con `--no-parallel` si falla un test ajeno intermitente), la casilla marcada y un commit `S058 Tn: …` en `main`, con la línea Co-Authored-By.
 
 ## Vectores y núcleo (`tools/geodesia`, `core:model`, `core:survey`)
-- [ ] T1. `tools/geodesia/terreno_vectores.py`: la cuadrícula, el origen, el factor combinado de pyproj y las coordenadas de terreno de unos puntos en UTM 30N y en Lambert-93, en `fixtures/geodesia/terreno.csv`. (RF-3, RF-7)
+- [x] T1. `tools/geodesia/terreno_vectores.py`: la cuadrícula, el origen, el factor combinado de pyproj y las coordenadas de terreno de unos puntos en UTM 30N y en Lambert-93, en `fixtures/geodesia/terreno.csv`. (RF-3, RF-7)
       Hecho cuando: `test_terreno.py` comprueba las filas, que se regenera idéntico y que `pytest tools` pasa.
 - [ ] T2. `TerrainPlane` y `TerrainFrame` (paso cuadrícula ↔ terreno), con su texto estable. (RF-6, RF-7, RF-8)
       Hecho cuando: `TerrainFrameTest` comprueba que el origen no se mueve, `k = 1` es la identidad, las distancias × `k`, las áreas × `k²`, la ida y vuelta ≤ 0,1 mm y 10.000 puntos en menos de 100 ms.
