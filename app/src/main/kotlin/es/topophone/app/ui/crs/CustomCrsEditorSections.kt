@@ -1,6 +1,7 @@
 package es.topophone.app.ui.crs
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.DropdownMenu
@@ -23,6 +24,8 @@ import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.geodesy.catalog.CustomCrsDraft
 import es.topophone.core.geodesy.catalog.CustomCrsMethods
 import es.topophone.core.geodesy.catalog.CustomFields
+import es.topophone.core.geodesy.catalog.ProbeFailure
+import es.topophone.core.geodesy.catalog.ProbeResult
 import es.topophone.core.geodesy.catalog.RotationConvention
 
 const val CUSTOM_METHOD_TAG = "custom_method"
@@ -290,5 +293,100 @@ fun HeightSection(state: CustomCrsEditorUiState, actions: CustomCrsEditorActions
             CUSTOM_UNDULATION_TAG,
             error = errors[CustomFields.HEIGHT],
         )
+    }
+}
+
+const val CUSTOM_PROBE_LAT_TAG = "custom_probe_lat"
+const val CUSTOM_PROBE_LON_TAG = "custom_probe_lon"
+const val CUSTOM_PROBE_FIRST_TAG = "custom_probe_first"
+const val CUSTOM_PROBE_SECOND_TAG = "custom_probe_second"
+const val CUSTOM_PROBE_TO_TAG = "custom_probe_to"
+const val CUSTOM_PROBE_FROM_TAG = "custom_probe_from"
+const val CUSTOM_MISSING_GRIDS_TAG = "custom_missing_grids"
+
+/** Un número de una coordenada de prueba, con punto decimal y los decimales que valen para comparar con los del cliente. */
+private fun shown(value: Double, decimals: Int): String = java.lang.String.format(java.util.Locale.ROOT, "%." + decimals + "f", value)
+
+private fun millimetres(closureM: Double): String = if (closureM.isNaN()) "—" else shown(closureM * METRES_TO_MM, 3)
+
+private const val METRES_TO_MM = 1000.0
+
+@Composable
+private fun probeFailureText(failure: ProbeFailure): String = when (failure) {
+    is ProbeFailure.MissingGrid -> stringResource(R.string.custom_probe_missing_grid, failure.gridName)
+    ProbeFailure.OutsideGrid -> stringResource(R.string.custom_probe_outside_grid)
+    ProbeFailure.NotComputable -> stringResource(R.string.custom_probe_not_computable)
+}
+
+/**
+ * Las coordenadas de prueba (S035/RF-7): una posición en el datum de las correcciones da su resultado en el SC y unas coordenadas del SC dan su
+ * posición, con el cierre de la ida y vuelta, para compararlo con los valores del cliente.
+ */
+@Composable
+fun ProbeSection(state: CustomCrsEditorUiState, actions: CustomCrsEditorActions) {
+    val probe = state.probe
+    val projected = state.form.method != CustomCrsDraft.GEOGRAPHIC
+    Text(stringResource(R.string.custom_probe_title), style = MaterialTheme.typography.titleSmall)
+    CustomField(
+        stringResource(R.string.custom_probe_latitude),
+        probe.latitude,
+        { value -> actions.onProbe { it.copy(latitude = value) } },
+        CUSTOM_PROBE_LAT_TAG,
+    )
+    CustomField(
+        stringResource(R.string.custom_probe_longitude),
+        probe.longitude,
+        { value -> actions.onProbe { it.copy(longitude = value) } },
+        CUSTOM_PROBE_LON_TAG,
+    )
+    when (val to = probe.toCrs) {
+        is ProbeResult.ToCrs -> Text(
+            if (projected) {
+                stringResource(R.string.custom_probe_to_projected, shown(to.first, 4), shown(to.second, 4), millimetres(to.closureM))
+            } else {
+                stringResource(R.string.custom_probe_to_geographic, shown(to.first, 9), shown(to.second, 9), millimetres(to.closureM))
+            },
+            modifier = Modifier.testTag(CUSTOM_PROBE_TO_TAG),
+        )
+        is ProbeResult.Failed -> Text(
+            probeFailureText(to.reason),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag(CUSTOM_PROBE_TO_TAG),
+        )
+        else -> Unit
+    }
+    CustomField(
+        stringResource(if (projected) R.string.custom_probe_first_projected else R.string.custom_probe_first_geographic),
+        probe.first,
+        { value -> actions.onProbe { it.copy(first = value) } },
+        CUSTOM_PROBE_FIRST_TAG,
+    )
+    CustomField(
+        stringResource(if (projected) R.string.custom_probe_second_projected else R.string.custom_probe_second_geographic),
+        probe.second,
+        { value -> actions.onProbe { it.copy(second = value) } },
+        CUSTOM_PROBE_SECOND_TAG,
+    )
+    when (val from = probe.fromCrs) {
+        is ProbeResult.FromCrs -> Text(
+            stringResource(R.string.custom_probe_from, shown(from.latitudeDeg, 9), shown(from.longitudeDeg, 9), millimetres(from.closureM)),
+            modifier = Modifier.testTag(CUSTOM_PROBE_FROM_TAG),
+        )
+        is ProbeResult.Failed -> Text(
+            probeFailureText(from.reason),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag(CUSTOM_PROBE_FROM_TAG),
+        )
+        else -> Unit
+    }
+}
+
+/** Las rejillas (de datum o de geoide) que el SC usa y no están instaladas, con su descarga (S035/RF-8, S034/RF-19). */
+@Composable
+fun MissingGridsSection(state: CustomCrsEditorUiState, host: CrsLibraryHost?, onInstalled: () -> Unit) {
+    if (state.missingGrids.isEmpty() || host == null) return
+    Column(modifier = Modifier.testTag(CUSTOM_MISSING_GRIDS_TAG), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(stringResource(R.string.custom_missing_grids_title), style = MaterialTheme.typography.titleSmall)
+        host.GridDownloads(state.missingGrids, onInstalled)
     }
 }

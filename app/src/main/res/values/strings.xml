@@ -3610,4 +3610,18 @@
     <string name="custom_height_geoid">Geoide instalado</string>
     <string name="custom_height_constant">Ondulación constante del geoide</string>
     <string name="custom_field_undulation">Ondulación del geoide (m)</string>
+    <string name="custom_probe_title">Coordenadas de prueba</string>
+    <string name="custom_probe_latitude">Latitud (°, datum de las correcciones)</string>
+    <string name="custom_probe_longitude">Longitud (°, datum de las correcciones)</string>
+    <string name="custom_probe_first_projected">Este en el SC</string>
+    <string name="custom_probe_second_projected">Norte en el SC</string>
+    <string name="custom_probe_first_geographic">Latitud en el SC (°)</string>
+    <string name="custom_probe_second_geographic">Longitud en el SC (°)</string>
+    <string name="custom_probe_to_projected">En el SC: Este %1$s, Norte %2$s (cierre %3$s mm)</string>
+    <string name="custom_probe_to_geographic">En el SC: latitud %1$s, longitud %2$s (cierre %3$s mm)</string>
+    <string name="custom_probe_from">En el datum de las correcciones: latitud %1$s, longitud %2$s (cierre %3$s mm)</string>
+    <string name="custom_probe_missing_grid">Falta la rejilla %1$s: descárgala para calcular</string>
+    <string name="custom_probe_outside_grid">El punto queda fuera de la rejilla</string>
+    <string name="custom_probe_not_computable">No se puede calcular con estos valores</string>
+    <string name="custom_missing_grids_title">Rejillas sin instalar</string>
 </resources>

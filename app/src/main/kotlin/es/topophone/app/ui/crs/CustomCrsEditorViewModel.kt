@@ -141,6 +141,9 @@ class CustomCrsEditorViewModel @Inject constructor(private val repository: Custo
         recomputeProbe()
     }
 
+    /** Se instaló una rejilla: se vuelve a mirar qué falta y se recalculan las coordenadas de prueba (S035/RF-8). */
+    fun gridsInstalled() = revalidate()
+
     private fun revalidate() {
         val current = mutable.value
         val parsed = CustomCrsFormMapper.toDraft(current.form, current.frame)

@@ -3598,4 +3598,18 @@
     <string name="custom_height_geoid">Installed geoid</string>
     <string name="custom_height_constant">Constant geoid undulation</string>
     <string name="custom_field_undulation">Geoid undulation (m)</string>
+    <string name="custom_probe_title">Test coordinates</string>
+    <string name="custom_probe_latitude">Latitude (°, corrections datum)</string>
+    <string name="custom_probe_longitude">Longitude (°, corrections datum)</string>
+    <string name="custom_probe_first_projected">Easting in the CRS</string>
+    <string name="custom_probe_second_projected">Northing in the CRS</string>
+    <string name="custom_probe_first_geographic">Latitude in the CRS (°)</string>
+    <string name="custom_probe_second_geographic">Longitude in the CRS (°)</string>
+    <string name="custom_probe_to_projected">In the CRS: easting %1$s, northing %2$s (closure %3$s mm)</string>
+    <string name="custom_probe_to_geographic">In the CRS: latitude %1$s, longitude %2$s (closure %3$s mm)</string>
+    <string name="custom_probe_from">In the corrections datum: latitude %1$s, longitude %2$s (closure %3$s mm)</string>
+    <string name="custom_probe_missing_grid">Grid %1$s is missing: download it to compute</string>
+    <string name="custom_probe_outside_grid">The point is outside the grid</string>
+    <string name="custom_probe_not_computable">Cannot be computed with these values</string>
+    <string name="custom_missing_grids_title">Grids not installed</string>
 </resources>

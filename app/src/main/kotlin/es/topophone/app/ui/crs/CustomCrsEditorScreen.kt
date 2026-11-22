@@ -121,6 +121,8 @@ fun CustomCrsEditorScreen(
     state: CustomCrsEditorUiState,
     actions: CustomCrsEditorActions,
     mine: List<CustomCrs> = emptyList(),
+    library: CrsLibraryHost? = null,
+    onGridsInstalled: () -> Unit = {},
 ) {
     SectionScaffold(
         title = stringResource(if (state.editing) R.string.custom_editor_title_edit else R.string.custom_editor_title_new),
@@ -139,6 +141,8 @@ fun CustomCrsEditorScreen(
             ProjectionSection(state, actions)
             UnitsSection(state, actions)
             HeightSection(state, actions)
+            MissingGridsSection(state, library, onGridsInstalled)
+            ProbeSection(state, actions)
             Button(
                 onClick = actions.onSave,
                 modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(CUSTOM_SAVE_TAG),
