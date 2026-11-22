@@ -26,7 +26,11 @@ import es.topophone.data.cogo.TraverseDraftEntity
 import es.topophone.data.config.ConfigStepDao
 import es.topophone.data.config.ConfigStepEntity
 import es.topophone.data.crs.CrsShortcutDao
+import es.topophone.data.crs.CustomCrsDao
+import es.topophone.data.crs.CustomCrsEntity
 import es.topophone.data.crs.FavoriteCrsEntity
+import es.topophone.data.crs.ProjectCrsHistoryDao
+import es.topophone.data.crs.ProjectCrsHistoryEntity
 import es.topophone.data.crs.RecentCrsEntity
 import es.topophone.data.equipment.EquipmentProfileDao
 import es.topophone.data.equipment.EquipmentProfileEntity
@@ -147,6 +151,7 @@ import es.topophone.data.wms.WmsServiceEntity
         LineAttributeEntity::class, LineHistoryEntity::class, LineHistoryAttributeEntity::class, LineHistoryVertexEntity::class,
         WmsServiceEntity::class, WmsLayerEntity::class, ProjectWmsLayerEntity::class, TraverseDraftEntity::class,
         WifiReceiverEntity::class, ConfigStepEntity::class, EquipmentProfileEntity::class, FavoriteCrsEntity::class, RecentCrsEntity::class,
+        CustomCrsEntity::class, ProjectCrsHistoryEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -187,6 +192,7 @@ import es.topophone.data.wms.WmsServiceEntity
         AutoMigration(from = 34, to = 35),
         AutoMigration(from = 35, to = 36),
         AutoMigration(from = 36, to = 37),
+        AutoMigration(from = 37, to = 38),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -233,11 +239,15 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
 
     abstract fun crsShortcuts(): CrsShortcutDao
 
+    abstract fun customCrs(): CustomCrsDao
+
+    abstract fun crsHistory(): ProjectCrsHistoryDao
+
     companion object {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 37
+        const val VERSION = 38
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

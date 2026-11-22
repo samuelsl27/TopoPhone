@@ -51,6 +51,8 @@ data class ProjectEntity(
     @ColumnInfo(name = "crs_definition") val crsDefinition: String? = null,
     /** La rejilla del geoide del proyecto con un SC de la biblioteca (S034/RF-14); NULL si no tiene. */
     @ColumnInfo(name = "geoid_grid") val geoidGrid: String? = null,
+    /** La ondulación constante del geoide de un SC personalizado, en metros (S035/RF-5); NULL si no tiene. */
+    @ColumnInfo(name = "geoid_constant_m") val geoidConstantM: Double? = null,
 )
 
 /** Una carpeta de proyectos; un solo nivel (S006/RF-17). */
