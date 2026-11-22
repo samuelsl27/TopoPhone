@@ -7,7 +7,7 @@
       Hecho cuando: `test_personalizado.py` comprueba las filas, que el fichero se regenera idéntico y que `pytest tools` pasa.
 - [x] T2. `CustomCrs`, `CustomHeight`, `CrsDefinition.isCustom` (`epsg == 0`) y `LibraryCrs.geoidConstantM`, con el texto de ida y vuelta del SC del proyecto. (RF-5, RF-11)
       Hecho cuando: `CustomCrsModelTest` comprueba la ida y vuelta del texto, que `geoidGrid` y `geoidConstantM` no pueden estar a la vez y que los diez SC de España y los de la biblioteca no cambian.
-- [ ] T3. `CustomCrsDraft` y `CustomCrsDraft.of(definition | CustomCrs | vacío)`. (RF-1)
+- [x] T3. `CustomCrsDraft` y `CustomCrsDraft.of(definition | CustomCrs | vacío)`. (RF-1)
       Hecho cuando: `CustomCrsDraftTest` parte de un SC de la biblioteca, de uno de Mis SC y de uno vacío y obtiene los campos esperados.
 
 ## Núcleo geodésico (`core:geodesy`)
