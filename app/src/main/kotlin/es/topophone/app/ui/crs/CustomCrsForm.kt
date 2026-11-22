@@ -45,7 +45,7 @@ data class CustomCrsForm(
     val datumName: String = "",
     val semiMajor: String = "",
     val inverseFlattening: String = "",
-    val primeMeridian: String = "0.0",
+    val primeMeridian: String = "",
     val method: String = CustomCrsDraft.GEOGRAPHIC,
     val parameters: Map<String, String> = emptyMap(),
     val unit: LinearUnit = LinearUnit.METRE,
@@ -129,6 +129,8 @@ object CustomCrsFormMapper {
         return ParsedForm(draft, errors)
     }
 
+    private fun zeroBlank(value: Double): String = if (value == 0.0) "" else value.toString()
+
     /** El formulario de un borrador: los números salen de `Double.toString`, sin redondear y con punto decimal. */
     fun of(draft: CustomCrsDraft): CustomCrsForm {
         fun text(value: Double?) = value?.toString().orEmpty()
@@ -156,14 +158,15 @@ object CustomCrsFormMapper {
                 is CustomTransformation.MolodenskyBadekas -> t.convention
                 else -> RotationConvention.POSITION_VECTOR
             },
+            // Un cero se deja en blanco: vacío vale 0 y el usuario no tiene que borrarlo para escribir encima.
             values = mapOf(
-                "tx" to helmert.tx.toString(),
-                "ty" to helmert.ty.toString(),
-                "tz" to helmert.tz.toString(),
-                "rx" to helmert.rx.toString(),
-                "ry" to helmert.ry.toString(),
-                "rz" to helmert.rz.toString(),
-                "scalePpm" to helmert.scalePpm.toString(),
+                "tx" to zeroBlank(helmert.tx),
+                "ty" to zeroBlank(helmert.ty),
+                "tz" to zeroBlank(helmert.tz),
+                "rx" to zeroBlank(helmert.rx),
+                "ry" to zeroBlank(helmert.ry),
+                "rz" to zeroBlank(helmert.rz),
+                "scalePpm" to zeroBlank(helmert.scalePpm),
             ),
             pivot = (t as? CustomTransformation.MolodenskyBadekas)
                 ?.let { mapOf("x" to it.pivotX.toString(), "y" to it.pivotY.toString(), "z" to it.pivotZ.toString()) }
@@ -178,7 +181,7 @@ object CustomCrsFormMapper {
             datumName = draft.datumName,
             semiMajor = text(draft.semiMajorAxisM),
             inverseFlattening = text(draft.inverseFlattening),
-            primeMeridian = draft.primeMeridianDeg.toString(),
+            primeMeridian = zeroBlank(draft.primeMeridianDeg),
             method = draft.method,
             parameters = draft.parameters.mapValues { text(it.value) },
             unit = draft.unit,

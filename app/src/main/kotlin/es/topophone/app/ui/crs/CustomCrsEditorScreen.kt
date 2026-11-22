@@ -135,7 +135,10 @@ fun CustomCrsEditorScreen(
             if (!state.editing) StartFrom(mine, actions)
             IdentitySection(state, actions)
             EllipsoidSection(state, actions)
+            TransformationSection(state, actions)
+            ProjectionSection(state, actions)
             UnitsSection(state, actions)
+            HeightSection(state, actions)
             Button(
                 onClick = actions.onSave,
                 modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(CUSTOM_SAVE_TAG),

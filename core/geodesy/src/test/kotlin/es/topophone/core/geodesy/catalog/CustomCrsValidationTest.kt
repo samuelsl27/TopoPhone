@@ -206,4 +206,21 @@ class CustomCrsValidationTest {
         errors(tm().copy(transformationAccuracyM = -1.0)) shouldBe mapOf(CustomFields.ACCURACY to CustomError.NOT_POSITIVE)
         errors(tm().copy(transformationAccuracyM = 0.0)).keys.shouldBeEmpty()
     }
+
+    @Test
+    fun `S035 RF-6 con parametros sin escribir se marcan ya los escritos que estan fuera de rango`() {
+        val lcc2 = CustomCrsDraft(
+            name = "L",
+            semiMajorAxisM = 6378137.0,
+            inverseFlattening = 298.257222101,
+            method = "lcc2",
+            parameters = mapOf("standardParallel1Deg" to 100.0, "scaleFactor" to null, "eastingAtFalseOrigin" to Double.NaN),
+        )
+
+        val e = errors(lcc2)
+
+        e[CustomFields.parameter("standardParallel1Deg")] shouldBe CustomError.OUT_OF_RANGE
+        e[CustomFields.parameter("eastingAtFalseOrigin")] shouldBe CustomError.NOT_FINITE
+        e[CustomFields.parameter("standardParallel2Deg")] shouldBe CustomError.REQUIRED
+    }
 }

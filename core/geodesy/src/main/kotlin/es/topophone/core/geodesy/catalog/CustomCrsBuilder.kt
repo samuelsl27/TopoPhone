@@ -270,7 +270,11 @@ object CustomCrsBuilder {
             tmProblems(draft.parameters).forEach { (key, error) -> errors[CustomFields.parameter(key)] = error }
             return
         }
-        if (missing.isNotEmpty()) return
+        if (missing.isNotEmpty()) {
+            // Faltan parámetros: de los escritos se marcan los de rango evidente, para no esperar a tenerlos todos.
+            partialProblems(draft.parameters).forEach { (key, error) -> errors.putIfAbsent(CustomFields.parameter(key), error) }
+            return
+        }
         val values = keys.associateWith { draft.parameters.getValue(it)!! }
         val parameters = CrsBuilder.parameters(method, values)
         if (parameters == null) {
@@ -312,6 +316,24 @@ object CustomCrsBuilder {
             put("scaleFactor", CustomError.NOT_POSITIVE)
         }
         listOf("falseEasting", "falseNorthing").forEach { if (v[it]?.isFinite() == false) put(it, CustomError.NOT_FINITE) }
+    }
+
+    /** Los rangos evidentes por el nombre del parámetro: latitudes y paralelos ±90°, longitudes ±180°, acimutes ±360°, escala positiva, el resto finito. */
+    private fun partialProblems(values: Map<String, Double?>): Map<String, CustomError> = buildMap {
+        values.forEach { (key, value) ->
+            if (value == null) return@forEach
+            val limit = when {
+                "latitude" in key || "Parallel" in key -> 90.0
+                "longitude" in key -> 180.0
+                key == "azimuthDeg" || key == "rectifiedGridAngleDeg" -> 360.0
+                else -> null
+            }
+            when {
+                !value.isFinite() -> put(key, CustomError.NOT_FINITE)
+                key == "scaleFactor" && value <= 0.0 -> put(key, CustomError.NOT_POSITIVE)
+                limit != null && abs(value) > limit -> put(key, CustomError.OUT_OF_RANGE)
+            }
+        }
     }
 
     private fun ProblemKind.toCustom(): CustomError = when (this) {

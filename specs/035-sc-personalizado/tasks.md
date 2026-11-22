@@ -53,7 +53,7 @@
 ## Interfaz (`app`)
 - [x] T21. Editor, parte 1: pantalla con nombre, punto de partida (vacío, biblioteca o Mis SC), elipsoide y unidades, con un campo marcado cuando falla. (RF-1, RF-2, RF-5, RF-6)
       Hecho cuando: `CustomCrsEditorTest` crea un SC, ve un campo marcado y no deja guardar con parámetros no válidos.
-- [ ] T22. Editor, parte 2: transformación del datum (ninguna, Helmert, Molodensky-Badekas, rejilla), proyección y altura. (RF-3, RF-4, RF-5)
+- [x] T22. Editor, parte 2: transformación del datum (ninguna, Helmert, Molodensky-Badekas, rejilla), proyección y altura. (RF-3, RF-4, RF-5)
       Hecho cuando: `CustomCrsEditorTest` elige cada tipo de transformación y de proyección y la altura constante.
 - [ ] T23. Editor, parte 3: coordenadas de prueba en los dos sentidos fuera del hilo de la UI y descarga de lo que falta. (RF-7, RF-8)
       Hecho cuando: `CustomCrsEditorTest` comprueba el resultado, la rejilla no instalada con su descarga y que cada cambio de campo responde en menos de 100 ms.
