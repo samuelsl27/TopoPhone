@@ -172,7 +172,15 @@ fun ShpExportScreen(
                     FilterChip(
                         selected = state.coordinates == ShpCoordinates.PROJECTED,
                         onClick = { actions.onCoordinates(ShpCoordinates.PROJECTED) },
-                        label = { Text(stringResource(R.string.shp_export_system_project, state.projectEpsg)) },
+                        label = {
+                            Text(
+                                if (state.projectEpsg == 0) {
+                                    stringResource(R.string.shp_export_system_project_custom)
+                                } else {
+                                    stringResource(R.string.shp_export_system_project, state.projectEpsg)
+                                },
+                            )
+                        },
                         modifier = Modifier.heightIn(min = MinTouchTarget).testTag(SHP_CRS_PROJECT_TAG),
                     )
                     FilterChip(
@@ -228,7 +236,11 @@ fun ShpExportScreen(
 private fun Summary(summary: es.topophone.core.formats.shp.export.ShpExportSummary) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            pluralStringResource(R.plurals.shp_export_done, summary.points, summary.points, summary.epsg),
+            if (summary.epsg == 0) {
+                pluralStringResource(R.plurals.shp_export_done_custom, summary.points, summary.points)
+            } else {
+                pluralStringResource(R.plurals.shp_export_done, summary.points, summary.points, summary.epsg)
+            },
             modifier = Modifier.testTag(SHP_SUMMARY_TAG),
         )
         if (summary.lines > 0 || summary.polygons > 0) {

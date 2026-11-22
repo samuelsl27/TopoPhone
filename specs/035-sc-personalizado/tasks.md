@@ -57,7 +57,7 @@
       Hecho cuando: `CustomCrsEditorTest` elige cada tipo de transformación y de proyección y la altura constante.
 - [x] T23. Editor, parte 3: coordenadas de prueba en los dos sentidos fuera del hilo de la UI y descarga de lo que falta. (RF-7, RF-8)
       Hecho cuando: `CustomCrsEditorTest` comprueba el resultado, la rejilla no instalada con su descarga y que cada cambio de campo responde en menos de 100 ms.
-- [ ] T24. Mis SC en el selector de S034, en el formulario de proyecto, en Ajustes y en el selector de SC de origen de S057, con duplicar, editar, renombrar y borrar. (RF-9, RF-10)
+- [x] T24. Mis SC en el selector de S034, en el formulario de proyecto, en Ajustes y en el selector de SC de origen de S057, con duplicar, editar, renombrar y borrar. (RF-9, RF-10)
       Hecho cuando: `MyCrsListTest` crea un proyecto con un SC personalizado y lo elige como SC de origen de una importación.
 - [ ] T25. Importar y exportar el JSON de un SC desde Mis SC, con la confirmación, el motivo del rechazo y el conflicto de nombre. (RF-12 a RF-15)
       Hecho cuando: `ImportCustomCrsTest` exporta un SC, lo importa y confirma que queda igual; un JSON no válido muestra su motivo.

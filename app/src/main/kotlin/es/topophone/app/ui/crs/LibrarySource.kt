@@ -39,6 +39,7 @@ import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.isCustom
 import es.topophone.core.survey.ImportTransformation
 import es.topophone.core.survey.LibraryResources
 import java.text.NumberFormat
@@ -140,7 +141,11 @@ fun LibrarySourceSection(
     if (chosen != null && selected) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                stringResource(R.string.source_crs_library_chosen, chosen.source.definition.name, chosen.source.definition.epsg),
+                if (chosen.source.definition.isCustom) {
+                    stringResource(R.string.source_crs_custom_chosen, chosen.source.definition.name)
+                } else {
+                    stringResource(R.string.source_crs_library_chosen, chosen.source.definition.name, chosen.source.definition.epsg)
+                },
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.testTag(SOURCE_LIBRARY_CHOSEN_TAG),
             )
@@ -233,7 +238,12 @@ fun sourceSummaryText(resources: Resources, library: LibrarySourceUi): String {
         transformation.accuracyM == null -> resources.getString(R.string.source_summary_transformation_unknown, transformation.name)
         else -> resources.getString(R.string.source_summary_transformation, transformation.name, number.format(transformation.accuracyM))
     }
-    return resources.getString(R.string.source_summary_origin, definition.name, definition.epsg) + "\n" + shift
+    val origin = if (definition.isCustom) {
+        resources.getString(R.string.source_summary_origin_custom, definition.name)
+    } else {
+        resources.getString(R.string.source_summary_origin, definition.name, definition.epsg)
+    }
+    return origin + "\n" + shift
 }
 
 /** El SC de origen y el cambio de datum de una importación con un SC de la biblioteca; no se ve con uno de España (S057/RF-18, RF-27). */

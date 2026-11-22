@@ -70,7 +70,7 @@ class CrsPickerTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        vm = CrsPickerViewModel(repository)
+        vm = CrsPickerViewModel(repository, FakeCustomCrsRepository())
         CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
     }
 

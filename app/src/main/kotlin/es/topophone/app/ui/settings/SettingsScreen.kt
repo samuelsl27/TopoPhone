@@ -31,6 +31,7 @@ const val LANGUAGE_SETTING_TAG = "setting_language"
 const val ABOUT_SETTING_TAG = "setting_about"
 const val LICENSES_SETTING_TAG = "setting_licenses"
 const val PROJECT_DEFAULTS_SETTING_TAG = "setting_project_defaults"
+const val MY_CRS_SETTING_TAG = "setting_my_crs"
 const val CODE_LIBRARIES_SETTING_TAG = "setting_code_libraries"
 const val BACKUPS_SETTING_TAG = "setting_backups"
 const val INSTALLED_GRIDS_SETTING_TAG = "setting_installed_grids"
@@ -71,6 +72,7 @@ fun SettingsScreen(
     onOpenBackups: () -> Unit = {},
     onOpenCodeLibraries: () -> Unit = {},
     onOpenInstalledGrids: () -> Unit = {},
+    onOpenMyCrs: () -> Unit = {},
 ) {
     var showThemeDialog by rememberSaveable { mutableStateOf(false) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
@@ -109,6 +111,11 @@ fun SettingsScreen(
                 title = stringResource(R.string.settings_code_libraries),
                 onClick = onOpenCodeLibraries, // S023/RF-1
                 modifier = Modifier.testTag(CODE_LIBRARIES_SETTING_TAG),
+            )
+            SettingsItem(
+                title = stringResource(R.string.settings_my_crs),
+                onClick = onOpenMyCrs, // S035/RF-9
+                modifier = Modifier.testTag(MY_CRS_SETTING_TAG),
             )
             SettingsItem(
                 title = stringResource(R.string.settings_installed_grids),

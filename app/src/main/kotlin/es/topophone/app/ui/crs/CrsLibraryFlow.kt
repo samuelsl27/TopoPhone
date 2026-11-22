@@ -40,7 +40,13 @@ import kotlinx.coroutines.flow.asStateFlow
 const val MISSING_GRIDS_TAG = "library_missing_grids"
 
 /** Lo que el selector de SC necesita saber del proyecto que se está creando (S034/RF-10, RF-14). */
-data class CrsLibraryRequest(val corrections: CorrectionsDatum, val centre: GeoPoint?, val currentGeoid: String?)
+data class CrsLibraryRequest(
+    val corrections: CorrectionsDatum,
+    val centre: GeoPoint?,
+    val currentGeoid: String?,
+    /** ¿Se ofrece Mis SC y crear un SC personalizado (S035/RF-9)? No al partir de uno de la biblioteca en el editor. */
+    val allowCustom: Boolean = true,
+)
 
 /**
  * Lo que el formulario de proyecto usa de la biblioteca de SC sin saber de Hilt: el flujo de elegir (selector, ficha y descarga) y el aviso de las
@@ -109,6 +115,7 @@ fun CrsLibraryFlow(
     download: GridDownloadViewModel = hiltViewModel(),
 ) {
     var epsg by rememberSaveable { mutableStateOf<Int?>(null) }
+    var creating by rememberSaveable { mutableStateOf(false) }
     val pickerState by picker.state.collectAsState()
     val detailsState by details.state.collectAsState()
     val downloadState by download.state.collectAsState()
@@ -119,12 +126,14 @@ fun CrsLibraryFlow(
                 CrsPickerScreen(
                     themeState,
                     onToggleSun,
-                    pickerState,
+                    pickerState.copy(allowCustom = request.allowCustom),
                     CrsPickerActions(
                         onQuery = picker::onQuery,
                         onCountry = picker::onCountry,
                         onFavorite = picker::toggleFavorite,
                         onOpen = { epsg = it.epsg },
+                        onChooseMine = { onChosen(it.toProjectCrs(request.corrections)) }, // S035/RF-9
+                        onCreateCustom = { creating = true }, // S035/RF-1
                         onBack = onDismiss,
                     ),
                 )
@@ -146,6 +155,23 @@ fun CrsLibraryFlow(
                 )
             }
             GridDownloadDialog(downloadState, onConfirm = { download.confirm { details.refresh() } }, onDismiss = download::dismiss)
+            if (creating) {
+                // El editor de un SC personalizado nuevo, por encima del selector; al guardarlo se elige directamente (S035/RF-1, RF-9).
+                Dialog(onDismissRequest = { creating = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+                    Surface(color = MaterialTheme.colorScheme.background) {
+                        CustomCrsEditorRoute(
+                            themeState,
+                            onToggleSun,
+                            CustomCrsEditorRequest(corrections = request.corrections, centre = request.centre),
+                            onSaved = { saved ->
+                                creating = false
+                                onChosen(saved.toProjectCrs(request.corrections))
+                            },
+                            onBack = { creating = false },
+                        )
+                    }
+                }
+            }
         }
     }
 }

@@ -2224,6 +2224,10 @@
         <item quantity="one">%1$d point exported in EPSG:%2$d.</item>
         <item quantity="other">%1$d points exported in EPSG:%2$d.</item>
     </plurals>
+    <plurals name="shp_export_done_custom">
+        <item quantity="one">%1$d point was exported in the project custom CRS.</item>
+        <item quantity="other">%1$d points were exported in the project custom CRS.</item>
+    </plurals>
     <plurals name="shp_export_no_position">
         <item quantity="one">%1$d point was written as an object without geometry because it has no Easting and Northing.</item>
         <item quantity="other">%1$d points were written as objects without geometry because they have no Easting and Northing.</item>
@@ -3612,4 +3616,26 @@
     <string name="custom_probe_outside_grid">The point is outside the grid</string>
     <string name="custom_probe_not_computable">Cannot be computed with these values</string>
     <string name="custom_missing_grids_title">Grids not installed</string>
+    <string name="crs_mine_title">My CRS</string>
+    <string name="crs_create_custom">Create custom CRS…</string>
+    <string name="crs_mine_detail">Custom CRS · %1$s</string>
+    <string name="crs_custom_label">Custom CRS</string>
+    <string name="my_crs_title">My CRS</string>
+    <string name="my_crs_empty">You have no custom CRS yet. Create one or import a JSON file.</string>
+    <string name="my_crs_new">New CRS</string>
+    <string name="my_crs_edit">Edit</string>
+    <string name="my_crs_duplicate">Duplicate</string>
+    <string name="my_crs_rename">Rename</string>
+    <string name="my_crs_delete">Delete</string>
+    <string name="my_crs_more">More actions for %1$s</string>
+    <string name="my_crs_rename_title">Rename CRS</string>
+    <string name="my_crs_delete_title">Delete CRS</string>
+    <string name="my_crs_delete_message">“%1$s” is removed from My CRS. Projects that use it keep their copy.</string>
+    <string name="my_crs_cancel">Cancel</string>
+    <string name="my_crs_confirm">OK</string>
+    <string name="settings_my_crs">My CRS</string>
+    <string name="source_crs_custom_chosen">%1$s (custom CRS)</string>
+    <string name="source_summary_origin_custom">Source system: %1$s (custom CRS)</string>
+    <string name="shp_export_system_project_custom">Project system (custom CRS)</string>
+    <string name="my_crs_menu_symbol">⋮</string>
 </resources>

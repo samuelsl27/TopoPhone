@@ -27,8 +27,10 @@ import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,6 +54,8 @@ data class CustomCrsEditorRequest(
     val start: EditorStart = EditorStart.Empty,
     val editing: CustomCrs? = null,
     val corrections: CorrectionsDatum = CorrectionsDatum.ETRS89,
+    /** El centro del proyecto, para proponer unas coordenadas de prueba (S035/RF-7). */
+    val centre: GeoPoint? = null,
 )
 
 /** Las coordenadas de prueba que escribe el usuario y lo que dan (S035/RF-7). */
@@ -104,6 +108,10 @@ class CustomCrsEditorViewModel @Inject constructor(private val repository: Custo
     val state: StateFlow<CustomCrsEditorUiState> = mutable.asStateFlow()
     private var probeJob: Job? = null
 
+    /** Mis SC, para partir de uno de ellos (S035/RF-1). */
+    val mine: StateFlow<List<CustomCrs>> =
+        repository.observeAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), emptyList())
+
     /** Abre el editor con [request]; no hace nada si ya está abierto con ese mismo (al girar la pantalla). */
     fun open(request: CustomCrsEditorRequest) {
         if (mutable.value.request == request) return
@@ -112,7 +120,14 @@ class CustomCrsEditorViewModel @Inject constructor(private val repository: Custo
             else -> draftOf(request.start)
         }
         mutable.update {
-            it.copy(request = request, form = CustomCrsFormMapper.of(draft), attempted = false, nameTaken = false, saved = null)
+            it.copy(
+                request = request,
+                form = CustomCrsFormMapper.of(draft),
+                attempted = false,
+                nameTaken = false,
+                saved = null,
+                probe = defaultProbeFor(request.centre),
+            )
         }
         revalidate()
     }
@@ -230,6 +245,8 @@ class CustomCrsEditorViewModel @Inject constructor(private val repository: Custo
     fun hasError(field: String): Boolean = mutable.value.shownErrors.containsKey(field)
 
     companion object {
+        private const val STOP_TIMEOUT_MS = 5_000L
+
         /** El campo del nombre repetido es el mismo que el del nombre vacío. */
         const val NAME_FIELD = CustomFields.NAME
     }

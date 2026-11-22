@@ -47,7 +47,9 @@ import es.topophone.core.geodesy.catalog.CrsSearch
 import es.topophone.core.geodesy.catalog.CrsShortcutList
 import es.topophone.core.geodesy.catalog.CrsShortcuts
 import es.topophone.core.model.preferences.ThemeState
+import es.topophone.core.model.project.CustomCrs
 import es.topophone.data.crs.CrsShortcutRepository
+import es.topophone.data.crs.CustomCrsRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -63,6 +65,9 @@ import kotlinx.coroutines.launch
 const val CRS_SEARCH_TAG = "crs_search"
 const val CRS_COUNTRY_TAG = "crs_country"
 const val CRS_NO_RESULTS_TAG = "crs_no_results"
+const val CRS_CREATE_CUSTOM_TAG = "crs_create_custom"
+
+fun crsMineTag(id: String) = "crs_mine_$id"
 
 fun crsRowTag(epsg: Int) = "crs_row_$epsg"
 
@@ -83,9 +88,16 @@ data class CrsPickerUiState(
     val shortcuts: CrsShortcutList = CrsShortcutList(emptyList(), emptyList()),
     val favoriteCodes: Set<Int> = emptySet(),
     val countries: List<Country> = emptyList(),
+    /** Mis SC (S035/RF-9): los SC personalizados, que se ofrecen junto a la biblioteca. */
+    val mine: List<CustomCrs> = emptyList(),
+    /** ¿Se ofrece Mis SC y crear uno? No al partir de un SC de la biblioteca en el editor (S035/RF-1). */
+    val allowCustom: Boolean = true,
 ) {
     /** Los atajos solo se ven antes de buscar y sin filtrar por país (S034/RF-6). */
     val showShortcuts: Boolean get() = query.isBlank() && countryIso == null && !shortcuts.isEmpty
+
+    /** Mis SC solo se ven antes de buscar y sin filtrar por país, igual que los atajos. */
+    val showMine: Boolean get() = allowCustom && query.isBlank() && countryIso == null
 }
 
 /**
@@ -94,7 +106,10 @@ data class CrsPickerUiState(
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class CrsPickerViewModel @Inject constructor(private val shortcutsRepository: CrsShortcutRepository) : ViewModel() {
+class CrsPickerViewModel @Inject constructor(
+    private val shortcutsRepository: CrsShortcutRepository,
+    private val customRepository: CustomCrsRepository,
+) : ViewModel() {
     private val catalog = CrsCatalog.bundled
     private val search = CrsSearch(catalog)
     private val shortcuts = CrsShortcuts(catalog)
@@ -106,8 +121,9 @@ class CrsPickerViewModel @Inject constructor(private val shortcutsRepository: Cr
         countryIso,
         shortcutsRepository.favorites(),
         shortcutsRepository.recents(),
-    ) { text, iso, favorites, recents -> Inputs(text, iso, favorites, recents) }
-        .mapLatest { (text, iso, favorites, recents) ->
+        customRepository.observeAll(),
+    ) { text, iso, favorites, recents, mine -> Inputs(text, iso, favorites, recents, mine) }
+        .mapLatest { (text, iso, favorites, recents, mine) ->
             val all = search.search(text, iso)
             CrsPickerUiState(
                 query = text,
@@ -117,12 +133,19 @@ class CrsPickerViewModel @Inject constructor(private val shortcutsRepository: Cr
                 shortcuts = shortcuts.resolve(favorites, recents),
                 favoriteCodes = favorites.toSet(),
                 countries = search.countries,
+                mine = mine,
             )
         }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), CrsPickerUiState(countries = search.countries))
 
-    private data class Inputs(val text: String, val iso: String?, val favorites: List<Int>, val recents: List<Int>)
+    private data class Inputs(
+        val text: String,
+        val iso: String?,
+        val favorites: List<Int>,
+        val recents: List<Int>,
+        val mine: List<CustomCrs>,
+    )
 
     fun onQuery(text: String) {
         query.value = text
@@ -153,6 +176,10 @@ class CrsPickerActions(
     val onFavorite: (epsg: Int, favorite: Boolean) -> Unit = { _, _ -> },
     /** Abre la ficha del SC (S034/RF-9). */
     val onOpen: (CrsEntry) -> Unit = {},
+    /** Elige un SC de Mis SC (S035/RF-9). */
+    val onChooseMine: (CustomCrs) -> Unit = {},
+    /** Abre el editor para crear un SC personalizado (S035/RF-1). */
+    val onCreateCustom: () -> Unit = {},
     val onBack: () -> Unit = {},
 )
 
@@ -178,6 +205,16 @@ fun CrsPickerScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: CrsP
             )
             CountryFilter(state, actions.onCountry)
             LazyColumn(modifier = Modifier.fillMaxSize()) {
+                if (state.showMine) {
+                    item { SectionTitle(R.string.crs_mine_title) }
+                    items(state.mine, key = { "m${it.id}" }) { crs -> MineRow(crs, actions) }
+                    item {
+                        OutlinedButton(
+                            onClick = actions.onCreateCustom,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(CRS_CREATE_CUSTOM_TAG),
+                        ) { Text(stringResource(R.string.crs_create_custom)) }
+                    }
+                }
                 if (state.showShortcuts) {
                     if (state.shortcuts.favorites.isNotEmpty()) {
                         item { SectionTitle(R.string.crs_favorites) }
@@ -206,6 +243,18 @@ fun CrsPickerScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: CrsP
             }
         }
     }
+}
+
+@Composable
+private fun MineRow(crs: CustomCrs, actions: CrsPickerActions) {
+    Column(
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).clickable { actions.onChooseMine(crs) }.padding(vertical = 8.dp)
+            .testTag(crsMineTag(crs.id)),
+    ) {
+        Text(crs.name, style = MaterialTheme.typography.bodyLarge)
+        Text(stringResource(R.string.crs_mine_detail, crs.definition.datumName), style = MaterialTheme.typography.bodySmall)
+    }
+    HorizontalDivider()
 }
 
 @Composable

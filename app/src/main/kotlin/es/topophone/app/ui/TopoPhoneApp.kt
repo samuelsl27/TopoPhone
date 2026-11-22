@@ -54,6 +54,7 @@ import es.topophone.app.ui.cogo.IntersectionRoute
 import es.topophone.app.ui.cogo.InverseRoute
 import es.topophone.app.ui.cogo.TraverseRoute
 import es.topophone.app.ui.crs.InstalledGridsRoute
+import es.topophone.app.ui.crs.MyCrsRoute
 import es.topophone.app.ui.export.DxfExportRoute
 import es.topophone.app.ui.export.ExportRoute
 import es.topophone.app.ui.export.GpkgExportRoute
@@ -889,7 +890,11 @@ private fun AppNavHost(
                     onOpenBackups = { navController.navigate(BackupsDestination) }, // S013
                     onOpenCodeLibraries = { navController.navigate(CodeLibrariesDestination) }, // S023/RF-1
                     onOpenInstalledGrids = { navController.navigate(InstalledGridsDestination) }, // S034/RF-23
+                    onOpenMyCrs = { navController.navigate(MyCrsDestination) }, // S035/RF-9
                 )
+            }
+            composable<MyCrsDestination> {
+                MyCrsRoute(uiState.themeState, actions.onToggleSun) { navController.popBackStack() }
             }
             composable<InstalledGridsDestination> {
                 InstalledGridsRoute(uiState.themeState, actions.onToggleSun) { navController.popBackStack() }

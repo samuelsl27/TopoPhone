@@ -2236,6 +2236,10 @@
         <item quantity="one">Se ha exportado %1$d punto en EPSG:%2$d.</item>
         <item quantity="other">Se han exportado %1$d puntos en EPSG:%2$d.</item>
     </plurals>
+    <plurals name="shp_export_done_custom">
+        <item quantity="one">Se ha exportado %1$d punto en el SC personalizado del proyecto.</item>
+        <item quantity="other">Se han exportado %1$d puntos en el SC personalizado del proyecto.</item>
+    </plurals>
     <plurals name="shp_export_no_position">
         <item quantity="one">%1$d punto se ha escrito como objeto sin geometría porque no tiene Este y Norte.</item>
         <item quantity="other">%1$d puntos se han escrito como objetos sin geometría porque no tienen Este y Norte.</item>
@@ -3624,4 +3628,26 @@
     <string name="custom_probe_outside_grid">El punto queda fuera de la rejilla</string>
     <string name="custom_probe_not_computable">No se puede calcular con estos valores</string>
     <string name="custom_missing_grids_title">Rejillas sin instalar</string>
+    <string name="crs_mine_title">Mis SC</string>
+    <string name="crs_create_custom">Crear SC personalizado…</string>
+    <string name="crs_mine_detail">SC personalizado · %1$s</string>
+    <string name="crs_custom_label">SC personalizado</string>
+    <string name="my_crs_title">Mis SC</string>
+    <string name="my_crs_empty">Todavía no tienes SC personalizados. Crea uno o importa un fichero JSON.</string>
+    <string name="my_crs_new">Nuevo SC</string>
+    <string name="my_crs_edit">Editar</string>
+    <string name="my_crs_duplicate">Duplicar</string>
+    <string name="my_crs_rename">Renombrar</string>
+    <string name="my_crs_delete">Borrar</string>
+    <string name="my_crs_more">Más acciones de %1$s</string>
+    <string name="my_crs_rename_title">Renombrar SC</string>
+    <string name="my_crs_delete_title">Borrar SC</string>
+    <string name="my_crs_delete_message">Se borra «%1$s» de Mis SC. Los proyectos que lo usan conservan su copia.</string>
+    <string name="my_crs_cancel">Cancelar</string>
+    <string name="my_crs_confirm">Aceptar</string>
+    <string name="settings_my_crs">Mis SC</string>
+    <string name="source_crs_custom_chosen">%1$s (SC personalizado)</string>
+    <string name="source_summary_origin_custom">Sistema de origen: %1$s (SC personalizado)</string>
+    <string name="shp_export_system_project_custom">Del proyecto (SC personalizado)</string>
+    <string name="my_crs_menu_symbol">⋮</string>
 </resources>

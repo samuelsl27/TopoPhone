@@ -30,10 +30,18 @@ data class CustomCrs(
     val createdAtMs: Long = 0,
     val modifiedAtMs: Long = 0,
 ) {
-    /** El SC del proyecto que sale de elegir este SC (S035/RF-11: el proyecto guarda su copia de la definición). */
+    /**
+     * El SC del proyecto que sale de elegir este SC (S035/RF-11: el proyecto guarda su copia de la definición). La transformación del SC es hasta un
+     * datum de correcciones concreto ([CrsDefinition.frame]): si [corrections] no es de ese datum, el SC fija el suyo (como un SC de la biblioteca,
+     * S034/RF-11).
+     */
     fun toProjectCrs(corrections: CorrectionsDatum): LibraryCrs = LibraryCrs(
         definition = definition.copy(name = name),
-        correctionsDatum = corrections,
+        correctionsDatum = when {
+            definition.frame == "WGS84" -> CorrectionsDatum.ITRF_WGS84
+            corrections == CorrectionsDatum.ITRF_WGS84 -> CorrectionsDatum.ETRS89
+            else -> corrections
+        },
         geoidGrid = (height as? CustomHeight.Geoid)?.grid,
         geoidConstantM = (height as? CustomHeight.ConstantGeoid)?.undulationM,
     )

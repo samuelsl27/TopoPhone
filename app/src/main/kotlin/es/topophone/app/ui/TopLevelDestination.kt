@@ -61,6 +61,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable data object InstalledGridsDestination
 
+@Serializable data object MyCrsDestination
+
 /** Una biblioteca de códigos con sus códigos (S023/RF-5, RF-11). */
 @Serializable data class CodeLibraryDestination(val libraryId: String)
 

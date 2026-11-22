@@ -67,6 +67,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectDefaults
 import es.topophone.core.model.project.ProjectDraft
 import es.topophone.core.model.project.SpainCrs
+import es.topophone.core.model.project.isCustom
 import es.topophone.core.survey.CentralPointRejection
 import es.topophone.core.survey.CentralPointResolver
 import es.topophone.core.survey.CentralPointResult
@@ -382,6 +383,7 @@ fun ProjectFormScreen(
                 actions.onChange(
                     draft.copy(
                         crs = chosen,
+                        correctionsDatum = chosen.correctionsDatum, // S035: un SC personalizado fija el datum de sus correcciones
                         heightSystem = if (chosen.geoidGrid !=
                             null
                         ) {
@@ -567,7 +569,16 @@ private fun LibraryCrsSummary(crs: LibraryCrs, heightSystem: HeightSystem, libra
     Column(modifier = Modifier.fillMaxWidth().testTag(CRS_LIBRARY_SUMMARY_TAG), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(definition.name, style = MaterialTheme.typography.titleSmall)
         Text(
-            stringResource(R.string.crs_epsg_code, definition.epsg) + " · " + definition.datumName,
+            (
+                if (definition.isCustom) {
+                    stringResource(
+                        R.string.crs_custom_label,
+                    )
+                } else {
+                    stringResource(R.string.crs_epsg_code, definition.epsg)
+                }
+                ) +
+                " · " + definition.datumName,
             style = MaterialTheme.typography.bodySmall,
         )
         Text(stringResource(R.string.crs_summary_transformation, definition.transformationName), style = MaterialTheme.typography.bodySmall)
