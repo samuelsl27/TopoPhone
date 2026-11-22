@@ -37,7 +37,7 @@
 ## Datos (`data`)
 - [x] T14. Room v38: tablas `custom_crs` y `project_crs_history`, columna `geoid_constant_m`, entidades, DAO y migración 37→38. (RF-10, RF-20)
       Hecho cuando: `Migration37To38Test` conserva los proyectos y los puntos, y el esquema v38 está exportado.
-- [ ] T15. `CustomCrsRepository`: guardar, duplicar, renombrar y borrar con nombres únicos. (RF-10)
+- [x] T15. `CustomCrsRepository`: guardar, duplicar, renombrar y borrar con nombres únicos. (RF-10)
       Hecho cuando: `CustomCrsRepositoryTest` comprueba cada operación y el nombre repetido sin mayúsculas ni espacios de más.
 - [ ] T16. Importar un JSON con conflicto: reemplazar, conservar ambos con otro nombre u omitir. (RF-15)
       Hecho cuando: `ImportCustomCrsTest` comprueba los tres caminos y que una definición igual no pregunta.
