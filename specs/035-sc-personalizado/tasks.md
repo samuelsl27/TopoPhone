@@ -23,7 +23,7 @@
       Hecho cuando: `CustomHeightTest` y `SourceHeightsTest` comprueban la ondulación constante, la elipsoidal y la del geoide, sin cambio con la de S034.
 
 ## JSON, WKT y formatos (`core:formats`)
-- [ ] T9. `CustomCrsJson.write` y `read` con la versión 1. (RF-12, RF-13)
+- [x] T9. `CustomCrsJson.write` y `read` con la versión 1. (RF-12, RF-13)
       Hecho cuando: `CustomCrsJsonTest` comprueba la ida y vuelta exacta con 10.000 `Double` aleatorios y con los extremos.
 - [ ] T10. `CustomCrsJson.read` rechaza el contenido no válido: versión, método, números fuera de rango, JSON dañado y fichero de otro tipo con extensión `.json`. (RF-13, RF-14)
       Hecho cuando: `CustomCrsJsonTest` comprueba cada motivo y que no queda nada a medias.
