@@ -5,9 +5,9 @@
 ## Vectores y núcleo (`tools/geodesia`, `core:model`, `core:survey`)
 - [x] T1. `tools/geodesia/terreno_vectores.py`: la cuadrícula, el origen, el factor combinado de pyproj y las coordenadas de terreno de unos puntos en UTM 30N y en Lambert-93, en `fixtures/geodesia/terreno.csv`. (RF-3, RF-7)
       Hecho cuando: `test_terreno.py` comprueba las filas, que se regenera idéntico y que `pytest tools` pasa.
-- [ ] T2. `TerrainPlane` y `TerrainFrame` (paso cuadrícula ↔ terreno), con su texto estable. (RF-6, RF-7, RF-8)
+- [x] T2. `TerrainPlane` y `TerrainFrame` (paso cuadrícula ↔ terreno), con su texto estable. (RF-6, RF-7, RF-8)
       Hecho cuando: `TerrainFrameTest` comprueba que el origen no se mueve, `k = 1` es la identidad, las distancias × `k`, las áreas × `k²`, la ida y vuelta ≤ 0,1 mm y 10.000 puntos en menos de 100 ms.
-- [ ] T3. `TerrainVectorsTest`: el marco contra `terreno.csv`, con el origen dado por su posición del suelo. (RF-7, constitución nº 2)
+- [x] T3. `TerrainVectorsTest`: el marco contra `terreno.csv`, con el origen dado por su posición del suelo. (RF-7, constitución nº 2)
       Hecho cuando: las coordenadas de terreno coinciden con pyproj a ≤ 1 mm y la ida y vuelta cierra a ≤ 0,1 mm.
 - [ ] T4. `TerrainProposal` y `TerrainPlaneValidator`. (RF-2, RF-3, RF-4, RF-5)
       Hecho cuando: `TerrainProposalTest` da el factor combinado de pyproj a 1e-9 con y sin altura, y `TerrainPlaneValidatorTest` cubre SC geográfico, factor fuera de 0,9–1,1, no finito, origen fuera del ámbito y plano válido.
