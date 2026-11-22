@@ -97,7 +97,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
 | 038 cogo | Inversa, poligonal (tramos por azimut, ángulo o deflexión, con el borrador guardado en el proyecto), intersecciones (distancia-distancia, dirección-dirección, distancia-dirección); los resultados se guardan como puntos de origen COGO | 011, 008, 026 | implementada |
-| 058 coordenadas-de-terreno | Coordenadas de cuadrícula o de terreno (escala única desde un punto de origen con factor combinado propuesto), en pantallas, CSV, replanteo y todos los formatos (decidido en la entrevista de S035, 22/11/2026) | 035 | pendiente |
+| 058 coordenadas-de-terreno | Coordenadas de cuadrícula o de terreno (escala única desde un punto de origen con factor combinado propuesto), en pantallas, CSV, replanteo y todos los formatos (decidido en la entrevista de S035, 22/11/2026) | 035 | spec |
 | 039 localizacion | Hasta 50 pares H/V, semejanza 2D por mínimos cuadrados con plano inclinado, residuos, exclusión de componentes, aplicar al proyecto y guardar como SC | 035, 011, 008, 020 (orden de cálculo) | pendiente |
 
 ## H7 · Receptor avanzado

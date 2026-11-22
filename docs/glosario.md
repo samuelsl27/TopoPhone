@@ -284,3 +284,6 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | SC personalizado | `CustomCrs` | SC definido por el usuario con elipsoide, datum con su transformación, proyección, unidades y altura (S035) |
 | Mis SC | `MyCrsList` | Lista de los SC personalizados guardados en el móvil, junto a la biblioteca (S035) |
 | Historial del proyecto | `ProjectHistory` | Lista de los cambios de SC de un proyecto, con «Volver al SC anterior» (S035) |
+| Coordenadas de cuadrícula | `GridCoordinates` | Las de la proyección del SC del proyecto, tal cual (S058) |
+| Coordenadas de terreno | `GroundCoordinates` | Las de cuadrícula escaladas respecto a un origen con un factor único, para que las distancias sean las del terreno (S058) |
+| Plano de terreno | `TerrainPlane` | El origen y el factor de un proyecto en coordenadas de terreno (S058) |
