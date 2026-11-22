@@ -61,6 +61,7 @@ import es.topophone.core.survey.ManualCoordinates
 import es.topophone.core.survey.ManualResult
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
@@ -90,6 +91,7 @@ const val FORM_PROJECT_CRS_TAG = "form_project_crs"
 const val FORM_GEOGRAPHIC_TAG = "form_geographic"
 const val FORM_FIRST_TAG = "form_first"
 const val FORM_SECOND_TAG = "form_second"
+const val FORM_TERRAIN_TAG = "form_terrain"
 const val FORM_HEIGHT_TAG = "form_height"
 const val FORM_KIND_PROJECT_TAG = "form_kind_project"
 const val FORM_KIND_ELLIPSOIDAL_TAG = "form_kind_ellipsoidal"
@@ -108,6 +110,8 @@ data class PointFormUiState(
     val loaded: Boolean = false,
     val editing: Boolean = false,
     val geographicCrs: Boolean = false,
+    /** S058/RF-10: el proyecto está en terreno y el Este y el Norte que se escriben son de terreno. */
+    val terrain: Boolean = false,
     val allowEllipsoidalKind: Boolean = false,
     val linearUnit: LinearUnit = LinearUnit.METRE,
     val angularUnit: AngularUnit = AngularUnit.DMS,
@@ -314,6 +318,7 @@ class PointFormViewModel @Inject constructor(
             loaded = true,
             editing = f.original != null,
             geographicCrs = !project.crs.isUtm,
+            terrain = terrainOf(project).isTerrain,
             allowEllipsoidalKind = allowsEllipsoidal(f.form, project),
             linearUnit = project.linearUnit,
             angularUnit = project.angularUnit,
@@ -342,6 +347,10 @@ class PointFormViewModel @Inject constructor(
     private fun allowsEllipsoidal(entry: EntryForm, project: Project): Boolean =
         entry == EntryForm.GEOGRAPHIC && project.crs.datum != GeodeticDatum.ED50 && project.heightSystem == HeightSystem.ORTHOMETRIC
 
+    /** El paso cuadrícula ↔ terreno del proyecto; en cuadrícula, la identidad (S058/RF-10). */
+    private fun terrainOf(project: Project): TerrainView =
+        TerrainView.of(project.terrain, project.crs, calculator.get()) ?: TerrainView.GRID
+
     private fun parse(f: Form, project: Project): Parsed {
         val projected = f.form == EntryForm.PROJECT_CRS && project.crs.isUtm
         fun length(text: String) = NumberInput.parse(text)?.let(project.linearUnit::toMetres)
@@ -351,7 +360,13 @@ class PointFormViewModel @Inject constructor(
         val heightInvalid = f.height.isNotBlank() && height == null
         val kind = if (allowsEllipsoidal(f.form, project)) f.heightKind else HeightKind.PROJECT
         val entry = if (projected) EntryForm.PROJECT_CRS else EntryForm.GEOGRAPHIC
-        val typed = if (first != null && second != null && !heightInvalid) TypedCoordinates(entry, first, second, height, kind) else null
+        // S058/RF-10: lo que se escribe en un proyecto en terreno es de terreno; se guarda y se calcula en cuadrícula.
+        val grid = if (projected && first != null && second != null) terrainOf(project).toGrid(first, second) else null
+        val typed = if (first != null && second != null && !heightInvalid) {
+            TypedCoordinates(entry, grid?.easting ?: first, grid?.northing ?: second, height, kind)
+        } else {
+            null
+        }
         return Parsed(typed, f.first.isNotBlank() && first == null, f.second.isNotBlank() && second == null, heightInvalid)
     }
 
@@ -369,14 +384,16 @@ class PointFormViewModel @Inject constructor(
             decimal = decimal,
         )
         return when {
-            typed != null && typed.form == EntryForm.PROJECT_CRS && project.crs.isUtm ->
+            typed != null && typed.form == EntryForm.PROJECT_CRS && project.crs.isUtm -> {
+                val shown = terrainOf(project).coordinates(typed.first, typed.second) // S058/RF-10
                 base.copy(
                     form = EntryForm.PROJECT_CRS,
-                    first = length(typed.first),
-                    second = length(typed.second),
+                    first = length(shown.easting),
+                    second = length(shown.northing),
                     height = length(typed.height),
                     heightKind = typed.heightKind,
                 )
+            }
             typed != null && typed.form == EntryForm.GEOGRAPHIC -> base.copy(
                 form = EntryForm.GEOGRAPHIC,
                 first = AngleFormat.latitude(typed.first, project.angularUnit, locale),
@@ -384,12 +401,17 @@ class PointFormViewModel @Inject constructor(
                 height = length(typed.height),
                 heightKind = typed.heightKind,
             )
-            project.crs.isUtm -> base.copy(
-                form = EntryForm.PROJECT_CRS,
-                first = length(point.coordinates.easting),
-                second = length(point.coordinates.northing),
-                height = length(point.coordinates.height),
-            )
+            project.crs.isUtm -> {
+                val e = point.coordinates.easting
+                val n = point.coordinates.northing
+                val shown = if (e != null && n != null) terrainOf(project).coordinates(e, n) else null // S058/RF-10
+                base.copy(
+                    form = EntryForm.PROJECT_CRS,
+                    first = length(shown?.easting ?: e),
+                    second = length(shown?.northing ?: n),
+                    height = length(point.coordinates.height),
+                )
+            }
             else -> base.copy(
                 form = EntryForm.GEOGRAPHIC,
                 first = AngleFormat.latitude(point.coordinates.ground.latitudeDeg, project.angularUnit, locale),
@@ -524,6 +546,13 @@ private fun CoordinateFields(state: PointFormUiState, actions: PointFormActions)
     val unit = unitSymbol(state.linearUnit)
     val invalid = stringResource(R.string.point_value_invalid)
     val projected = state.form == EntryForm.PROJECT_CRS && !state.geographicCrs
+    if (projected && state.terrain) {
+        Text(
+            stringResource(R.string.terrain_ground),
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.testTag(FORM_TERRAIN_TAG),
+        ) // S058/RF-10
+    }
     // Un ejemplo por eje, en la unidad angular del proyecto (S011/RF-17).
     val (latitudeHint, longitudeHint) = when (state.angularUnit) {
         AngularUnit.DMS -> R.string.point_hint_dms to R.string.point_hint_dms_lon
