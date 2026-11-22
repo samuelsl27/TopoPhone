@@ -3,7 +3,7 @@ pyproj/PROJ (constitucion n 2). No pasa por el catalogo: cada fila lleva los num
 
 Uso: uv run --project tools tools/geodesia/personalizado_vectores.py   (escribe `fixtures/geodesia/personalizado.csv`)
 
-Cada fila: caso, metodo (`tm`, `lcc1`, `lcc2`, `stereo`), parametros de la proyeccion (`nombre=valor;...`, grados y metros), semieje y inverso del
+Cada fila: caso, metodo (`tm`, `lcc1`, `lcc2`, `stereo`, `omerca`, `omercb`), parametros de la proyeccion (`nombre=valor;...`, grados y metros), semieje y inverso del
 aplanamiento del elipsoide del SC, tipo de transformacion (`nula`, `helmert3`, `helmert7pv`, `helmert7cf`), sus siete parametros (tx, ty, tz en m;
 rx, ry, rz en segundos de arco; escala en ppm), Este y Norte (m) de un punto, y la longitud y la latitud (grados) en GRS80 (ETRS89) que da PROJ.
 Hay tres puntos por caso.
@@ -63,6 +63,24 @@ STERE = {
     "falseEasting": 500000.0,
     "falseNorthing": 500000.0,
 }
+OM_A = {
+    "latitudeOfCentreDeg": 4.0,
+    "longitudeOfCentreDeg": 115.0,
+    "azimuthDeg": 53.31582047,
+    "rectifiedGridAngleDeg": 53.13010236,
+    "scaleFactor": 0.99984,
+    "falseEasting": 590476.87,
+    "falseNorthing": 442857.65,
+}
+OM_B = {
+    "latitudeOfCentreDeg": 4.0,
+    "longitudeOfCentreDeg": 115.0,
+    "azimuthDeg": 53.31582047,
+    "rectifiedGridAngleDeg": 53.13010236,
+    "scaleFactor": 0.99984,
+    "eastingAtCentre": 590476.87,
+    "northingAtCentre": 442857.65,
+}
 SIN_HELMERT = (0, 0, 0, 0, 0, 0, 0)
 
 # (caso, metodo, parametros, elipsoide (a, 1/f), transformacion, siete parametros, [(E, N)])
@@ -71,8 +89,10 @@ CASOS = [
     ("lcc2_sin_cambio", "lcc2", LCC2, GRS80_ELIPSOIDE, "nula", SIN_HELMERT, [(700000.0, 6600000.0), (500000.0, 6200000.0), (900000.0, 6900000.0)]),
     ("lcc1_helmert3", "lcc1", LCC1, INTERNACIONAL, "helmert3", (-190.421, 8.532, 238.69, 0, 0, 0, 0), [(300000.0, 300000.0), (350000.0, 250000.0), (250000.0, 360000.0)]),
     ("tm_helmert7_pv", "tm", TM24, BESSEL, "helmert7pv", (598.1, 73.7, 418.2, 0.202, 0.045, -2.455, 6.7), [(500000.0, 5100000.0), (450000.0, 4900000.0), (560000.0, 5300000.0)]),
-    ("tm_helmert7_cf", "tm", TM9, KRASSOWSKY, "helmert7cf", (24.0, -123.0, -94.0, 0.02, -0.25, -0.13, 1.1), [(500000.0, 5500000.0), (450000.0, 5600000.0), (560000.0, 5300000.0)]),
-    ("stere_helmert7_pv", "stereo", STERE, KRASSOWSKY, "helmert7pv", (2.329, -147.042, -92.08, 0.309, -0.325, -0.497, 5.69), [(500000.0, 500000.0), (600000.0, 450000.0), (450000.0, 600000.0)]),
+    ("tm_helmert7_cf", "tm", TM9, KRASSOWSKY, "helmert7cf", (30.0, -100.0, -80.0, 0.5, -0.3, 0.2, 2.0), [(500000.0, 5500000.0), (450000.0, 5600000.0), (560000.0, 5300000.0)]),
+    ("stere_helmert7_pv", "stereo", STERE, KRASSOWSKY, "helmert7pv", (5.0, -140.0, -90.0, 0.35, -0.3, -0.5, 5.0), [(500000.0, 500000.0), (600000.0, 450000.0), (450000.0, 600000.0)]),
+    ("omerca_sin_cambio", "omerca", OM_A, GRS80_ELIPSOIDE, "nula", SIN_HELMERT, [(590476.87, 442857.65), (650000.0, 500000.0), (550000.0, 400000.0)]),
+    ("omercb_sin_cambio", "omercb", OM_B, GRS80_ELIPSOIDE, "nula", SIN_HELMERT, [(590476.87, 442857.65), (650000.0, 500000.0), (550000.0, 400000.0)]),
 ]
 COLUMNAS = ["caso", "metodo", "parametros", "a_m", "inv_f", "transformacion", "tx", "ty", "tz", "rx", "ry", "rz", "s_ppm", "punto", "este_m", "norte_m", "longitud", "latitud"]
 
@@ -87,6 +107,13 @@ def _proyeccion(metodo: str, p: dict[str, float], a: float, rf: float) -> str:
         paralelos = f"+lat_1={p['standardParallel1Deg']!r} +lat_2={p['standardParallel2Deg']!r}"
         origen = f"+lat_0={p['latitudeOfFalseOriginDeg']!r} +lon_0={p['longitudeOfFalseOriginDeg']!r}"
         return f"+proj=lcc {paralelos} {origen} +x_0={p['eastingAtFalseOrigin']!r} +y_0={p['northingAtFalseOrigin']!r} {elipsoide}"
+    if metodo in ("omerca", "omercb"):
+        este = p["falseEasting"] if metodo == "omerca" else p["eastingAtCentre"]
+        norte = p["falseNorthing"] if metodo == "omerca" else p["northingAtCentre"]
+        variante_a = "+no_uoff " if metodo == "omerca" else ""
+        centro = f"+lat_0={p['latitudeOfCentreDeg']!r} +lonc={p['longitudeOfCentreDeg']!r}"
+        angulos = f"+alpha={p['azimuthDeg']!r} +gamma={p['rectifiedGridAngleDeg']!r} +k_0={p['scaleFactor']!r}"
+        return f"+proj=omerc {variante_a}{centro} {angulos} +x_0={este!r} +y_0={norte!r} {elipsoide}"
     falsos = f"+x_0={p['falseEasting']!r} +y_0={p['falseNorthing']!r}"
     lat0, lon0 = p["latitudeOfOriginDeg"], p["longitudeOfOriginDeg"]
     if metodo == "tm":

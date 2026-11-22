@@ -20,7 +20,7 @@ def test_s035_rnf_hay_tres_puntos_por_caso_y_todos_los_tipos_de_transformacion()
 
     assert all(len([f for f in filas if f[0] == c]) == 3 for c in {f[0] for f in filas})
     assert {"nula", "helmert3", "helmert7pv", "helmert7cf"} <= {f[5] for f in filas}
-    assert {"tm", "lcc1", "lcc2", "stereo"} <= {f[1] for f in filas}
+    assert {"tm", "lcc1", "lcc2", "stereo", "omerca", "omercb"} <= {f[1] for f in filas}
 
 
 def test_s035_rf_3_un_utm_sin_cambio_de_datum_cae_donde_toca() -> None:
