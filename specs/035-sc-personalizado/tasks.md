@@ -11,7 +11,7 @@
       Hecho cuando: `CustomCrsDraftTest` parte de un SC de la biblioteca, de uno de Mis SC y de uno vacío y obtiene los campos esperados.
 
 ## Núcleo geodésico (`core:geodesy`)
-- [ ] T4. `CustomCrsBuilder.validate`: elipsoide (esfera incluida), proyección por `ProjectionFactory`, Helmert, Molodensky-Badekas y rejilla, con un motivo por campo. (RF-2, RF-3, RF-4, RF-6)
+- [x] T4. `CustomCrsBuilder.validate`: elipsoide (esfera incluida), proyección por `ProjectionFactory`, Helmert, Molodensky-Badekas y rejilla, con un motivo por campo. (RF-2, RF-3, RF-4, RF-6)
       Hecho cuando: `CustomCrsBuilderTest` cubre cada campo válido y no válido y que no hay dos motivos para el mismo campo.
 - [ ] T5. `CustomCrsBuilder.build`: transformación en la notación de pasos, definición y `Ready`, `NeedsGrids` o `Invalid`. (RF-3, RF-8)
       Hecho cuando: `CustomCrsBuilderTest` comprueba los tres resultados, los seis tipos de transformación y que la definición vuelve a `resolve` sin el catálogo.

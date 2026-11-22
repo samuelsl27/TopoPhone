@@ -63,7 +63,7 @@ object CrsBuilder {
 
     private fun linearUnit(metres: Double): LinearUnit? = LinearUnit.entries.firstOrNull { abs(it.metres - metres) < 1e-12 }
 
-    private fun parameters(method: String, p: Map<String, Double>): ProjectionParameters? = try {
+    internal fun parameters(method: String, p: Map<String, Double>): ProjectionParameters? = try {
         parametersOf(method) { p.getValue(it) }
     } catch (_: NoSuchElementException) {
         null
