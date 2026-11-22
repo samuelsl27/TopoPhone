@@ -17,7 +17,7 @@
       Hecho cuando: `CustomCrsBuilderTest` comprueba los tres resultados, los seis tipos de transformación y que la definición vuelve a `resolve` sin el catálogo.
 - [x] T6. Contraste con pyproj: `CustomCrsVectorsTest` con `personalizado.csv`. (RF-3, RF-4, constitución nº 2)
       Hecho cuando: los cinco SC dan ≤ 1 mm con ida y vuelta ≤ 0,1 mm frente a los de la biblioteca y a pyproj.
-- [ ] T7. `CrsProbe` (ida y vuelta de unas coordenadas de prueba). (RF-7)
+- [x] T7. `CrsProbe` (ida y vuelta de unas coordenadas de prueba). (RF-7)
       Hecho cuando: `CrsProbeTest` comprueba los dos sentidos, la diferencia de la vuelta y un SC con rejilla no instalada.
 - [ ] T8. La altura constante en `LibraryEngine` y `SourceHeights`. (RF-5)
       Hecho cuando: `CustomHeightTest` y `SourceHeightsTest` comprueban la ondulación constante, la elipsoidal y la del geoide, sin cambio con la de S034.
