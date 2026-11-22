@@ -8,6 +8,7 @@ import es.topophone.core.model.project.Project
 import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TerrainView
 import java.util.Locale
 
 /** Cada una de las líneas de «Ver coordenadas» (S036/RF-40). */
@@ -21,7 +22,13 @@ data class CoordinateLine(val kind: CoordinateKind, val value: String)
  * [position] en el SC del proyecto, que calcula [ProjectPositionCalculator] como para el rover y los puntos manuales (S006, S008). Sin altura:
  * el mapa no sabe a qué cota está un punto.
  */
-data class MapCoordinates(val latitudeDeg: Double, val longitudeDeg: Double, val position: ProjectPosition) {
+data class MapCoordinates(
+    val latitudeDeg: Double,
+    val longitudeDeg: Double,
+    val position: ProjectPosition,
+    /** S058/RF-9: con el proyecto en terreno, Este y Norte se enseñan en terreno. */
+    val terrain: TerrainView = TerrainView.GRID,
+) {
     /** Por qué el punto cae fuera del ámbito del SC del proyecto, o null si cae dentro (RF-41, S008/RF-9, RF-8). */
     val outOfScope: PositionUnavailable?
         get() = position.unavailable.firstOrNull {
@@ -42,8 +49,11 @@ data class MapCoordinates(val latitudeDeg: Double, val longitudeDeg: Double, val
         val longitude = if (inScope) position.longitudeDeg ?: longitudeDeg else longitudeDeg
         return buildList {
             if (inScope) {
-                position.easting?.let { add(CoordinateLine(CoordinateKind.EASTING, length(it))) }
-                position.northing?.let { add(CoordinateLine(CoordinateKind.NORTHING, length(it))) }
+                val e = position.easting
+                val n = position.northing
+                val shown = if (e != null && n != null) terrain.coordinates(e, n) else null
+                (shown?.easting ?: e)?.let { add(CoordinateLine(CoordinateKind.EASTING, length(it))) }
+                (shown?.northing ?: n)?.let { add(CoordinateLine(CoordinateKind.NORTHING, length(it))) }
             }
             add(CoordinateLine(CoordinateKind.LATITUDE, AngleFormat.latitude(latitude, project.angularUnit, locale)))
             add(CoordinateLine(CoordinateKind.LONGITUDE, AngleFormat.longitude(longitude, project.angularUnit, locale)))
@@ -56,7 +66,8 @@ data class MapCoordinates(val latitudeDeg: Double, val longitudeDeg: Double, val
             val ground = GeodeticPosition(press.latitudeDeg, press.longitudeDeg, ellipsoidalHeightM = null)
             // Altura elipsoidal: no hay altura que pasar al geoide, y Este y Norte no dependen de ella.
             val position = calculator.fromGround(ground, project.crs, HeightSystem.ELLIPSOIDAL)
-            return MapCoordinates(press.latitudeDeg, press.longitudeDeg, position)
+            val terrain = TerrainView.of(project.terrain, project.crs, calculator) ?: TerrainView.GRID
+            return MapCoordinates(press.latitudeDeg, press.longitudeDeg, position, terrain)
         }
 
         /** El texto que «Copiar» deja en el portapapeles: una línea «nombre: valor» por cada línea que se ve (RF-40). */

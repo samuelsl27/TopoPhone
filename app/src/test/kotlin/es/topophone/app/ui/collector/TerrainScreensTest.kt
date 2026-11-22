@@ -1,5 +1,8 @@
 package es.topophone.app.ui.collector
 
+import es.topophone.app.ui.map.MapCoordinates
+import es.topophone.app.ui.map.MapPress
+import es.topophone.app.ui.map.VisibleArea
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.SolutionStatus
@@ -16,6 +19,7 @@ import es.topophone.receiver.platform.Alerts
 import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import java.util.Locale
 import kotlin.math.hypot
 import org.junit.Test
 
@@ -67,5 +71,33 @@ class TerrainScreensTest {
         val plane = collector.ground(epoch(40.41668, -3.70371), null, 2.0, project(TerrainPlane(40.41668, -3.70371, 1.0)), calculator)
 
         plane.shouldNotBeNull().east shouldBe (a.east plusOrMinus 1e-9)
+    }
+
+    private val area = VisibleArea(south = 40.0, west = -4.0, north = 41.0, east = -3.0, widthPx = 1080, heightPx = 1800)
+
+    private fun mapCoordinates(lat: Double, lon: Double, terrain: TerrainPlane?) =
+        MapCoordinates.of(MapPress.of(lat, lon, 540f, 900f, area), project(terrain), calculator)
+
+    @Test
+    fun `S058 RF-9 el mapa da en terreno el Este y el Norte de la pulsacion larga y lo indica`() {
+        val origin = TerrainPlane(40.41668, -3.70371, 1.0004)
+        val atOrigin = mapCoordinates(40.41668, -3.70371, origin)
+        val away = mapCoordinates(40.4177, -3.7027, origin)
+        val awayGrid = mapCoordinates(40.4177, -3.7027, null)
+        val originGrid = mapCoordinates(40.41668, -3.70371, null).position
+
+        atOrigin.terrain.isTerrain shouldBe true
+        // El origen conserva sus coordenadas.
+        atOrigin.lines(project(origin), "m", Locale.ROOT).map { it.value } shouldBe
+            mapCoordinates(40.41668, -3.70371, null).lines(project(null), "m", Locale.ROOT).map { it.value }
+        val e = awayGrid.position.easting!!
+        val n = awayGrid.position.northing!!
+        away.terrain.easting(e, n) shouldBe (originGrid.easting!! + (e - originGrid.easting!!) * 1.0004 plusOrMinus 1e-6)
+        away.terrain.northing(e, n) shouldBe (originGrid.northing!! + (n - originGrid.northing!!) * 1.0004 plusOrMinus 1e-6)
+    }
+
+    @Test
+    fun `S058 RF-9 el mapa de un proyecto en cuadricula no tiene terreno`() {
+        mapCoordinates(40.41668, -3.70371, null).terrain.isTerrain shouldBe false
     }
 }

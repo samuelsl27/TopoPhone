@@ -162,6 +162,13 @@ private fun Coordinates(state: MapMenuUiState, project: Project?, actions: MapMe
     if (coordinates == null || project == null) return
     val lines = coordinates.lines(project, unitSymbol(project.linearUnit), uiLocale())
     val labels = CoordinateKind.entries.associateWith { coordinateLabel(it) }
+    if (coordinates.terrain.isTerrain) {
+        Text(
+            stringResource(R.string.terrain_ground),
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.testTag(MAP_MENU_TERRAIN_TAG),
+        ) // S058/RF-9
+    }
     lines.forEach { line ->
         Row(
             modifier = Modifier.fillMaxWidth().heightIn(min = MENU_ROW_DP).semantics(mergeDescendants = true) {}
@@ -201,5 +208,7 @@ private fun coordinateLabel(kind: CoordinateKind): String = stringResource(
         CoordinateKind.LONGITUDE -> R.string.coord_longitude_symbol
     },
 )
+
+const val MAP_MENU_TERRAIN_TAG = "map_menu_terrain"
 
 private val MENU_ROW_DP = 56.dp
