@@ -16,4 +16,7 @@ data class ProjectCrsChange(
     val to: ProjectCrs,
     val toHeightSystem: HeightSystem,
     val kind: CrsChangeKind,
+    /** El plano de terreno de antes y de después, o `null` si era cuadrícula (S058/RF-19). */
+    val fromTerrain: TerrainPlane? = null,
+    val toTerrain: TerrainPlane? = null,
 )

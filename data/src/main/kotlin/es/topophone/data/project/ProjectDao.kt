@@ -46,6 +46,10 @@ interface ProjectDao {
     )
     suspend fun setCrs(id: String, crs: String, definition: String?, grid: String?, constant: Double?, heightSystem: String, at: Long)
 
+    /** El plano de terreno del proyecto; las tres columnas a la vez o ninguna (S058/RF-6). */
+    @Query("UPDATE projects SET terrain_origin_lat = :lat, terrain_origin_lon = :lon, terrain_factor = :factor WHERE id = :id")
+    suspend fun setTerrain(id: String, lat: Double?, lon: Double?, factor: Double?)
+
     @Query("UPDATE projects SET opened_at = :at WHERE id = :id")
     suspend fun setOpenedAt(id: String, at: Long)
 

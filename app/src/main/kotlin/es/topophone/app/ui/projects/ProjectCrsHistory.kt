@@ -84,7 +84,11 @@ class ProjectCrsHistoryViewModel @Inject constructor(
         } else {
             combine(history.observe(id), projects.observe(id), undone, cannotUndo) { changes, project, to, failed ->
                 val last = changes.firstOrNull()
-                val canUndo = last != null && project != null && last.to == project.crs && last.toHeightSystem == project.heightSystem
+                val canUndo = last != null &&
+                    project != null &&
+                    last.to == project.crs &&
+                    last.toHeightSystem == project.heightSystem &&
+                    last.toTerrain == project.terrain
                 ProjectCrsHistoryUiState(changes, canUndo, to, failed)
             }
         }
