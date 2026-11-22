@@ -60,7 +60,7 @@ class Migration37To38Test {
         val db = TopoPhoneDatabase.build(context, DB)
         try {
             val sqlite = db.openHelper.writableDatabase
-            sqlite.version shouldBe 38
+            sqlite.version shouldBe TopoPhoneDatabase.VERSION
             sqlite.query("SELECT name, crs, crs_definition, geoid_constant_m FROM projects WHERE id = 'p1'").use {
                 it.moveToFirst() shouldBe true
                 it.getString(0) shouldBe "Obra"

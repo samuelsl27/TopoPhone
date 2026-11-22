@@ -50,6 +50,9 @@ data class ProjectCrsHistoryEntity(
     @ColumnInfo(name = "from_height_system") val fromHeightSystem: String,
     @ColumnInfo(name = "to_height_system") val toHeightSystem: String,
     val kind: String,
+    /** El plano de terreno de antes y de después como `latitud;longitud;factor`, o NULL si era cuadrícula (S058/RF-19). */
+    @ColumnInfo(name = "from_terrain") val fromTerrain: String? = null,
+    @ColumnInfo(name = "to_terrain") val toTerrain: String? = null,
 )
 
 @Dao

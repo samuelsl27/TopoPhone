@@ -17,6 +17,8 @@ data class ProjectDraft(
     val centralPoint: CentralPoint? = null,
     /** S023/RF-19: qué hacer con la biblioteca de códigos vinculada al guardar; no es un dato del proyecto (la copia va aparte). */
     val libraryChoice: LibraryChoice = LibraryChoice.Keep,
+    /** S058/RF-1: el plano de terreno, o `null` si el proyecto trabaja en cuadrícula. */
+    val terrain: TerrainPlane? = null,
 ) {
     /**
      * Con el SC [newCrs]: su datum de las correcciones (S008/RF-17) y una altura que admita (S008/RF-3).
@@ -53,8 +55,21 @@ data class Project(
     val heightSystem: HeightSystem = HeightSystem.ORTHOMETRIC,
     /** S006/RF-32. */
     val centralPoint: CentralPoint? = null,
+    /** S058/RF-1: el plano de terreno, o `null` si el proyecto trabaja en cuadrícula. */
+    val terrain: TerrainPlane? = null,
 ) {
-    fun toDraft() = ProjectDraft(name, author, description, crs, linearUnit, angularUnit, correctionsDatum, heightSystem, centralPoint)
+    fun toDraft() = ProjectDraft(
+        name,
+        author,
+        description,
+        crs,
+        linearUnit,
+        angularUnit,
+        correctionsDatum,
+        heightSystem,
+        centralPoint,
+        terrain = terrain,
+    )
 }
 
 /**

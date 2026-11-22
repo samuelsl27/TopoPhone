@@ -53,6 +53,10 @@ data class ProjectEntity(
     @ColumnInfo(name = "geoid_grid") val geoidGrid: String? = null,
     /** La ondulación constante del geoide de un SC personalizado, en metros (S035/RF-5); NULL si no tiene. */
     @ColumnInfo(name = "geoid_constant_m") val geoidConstantM: Double? = null,
+    /** El plano de terreno (S058/RF-6): la posición del suelo de su origen y el factor; las tres a la vez o ninguna. */
+    @ColumnInfo(name = "terrain_origin_lat") val terrainOriginLat: Double? = null,
+    @ColumnInfo(name = "terrain_origin_lon") val terrainOriginLon: Double? = null,
+    @ColumnInfo(name = "terrain_factor") val terrainFactor: Double? = null,
 )
 
 /** Una carpeta de proyectos; un solo nivel (S006/RF-17). */

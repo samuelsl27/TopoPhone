@@ -15,6 +15,7 @@ import es.topophone.core.model.project.ProjectDraft
 import es.topophone.core.model.project.ProjectFolder
 import es.topophone.core.model.project.ProjectNames
 import es.topophone.core.model.project.SpainCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.data.codes.ProjectLibraryLinker
 import es.topophone.data.db.TopoPhoneDatabase
 import java.util.UUID
@@ -228,6 +229,9 @@ private fun ProjectDraft.toEntity(id: String, folderId: String?, createdAt: Long
     heightSystem = heightSystem.name,
     centralLatitude = centralPoint?.latitudeDeg,
     centralLongitude = centralPoint?.longitudeDeg,
+    terrainOriginLat = terrain?.originLatitudeDeg, // S058/RF-6
+    terrainOriginLon = terrain?.originLongitudeDeg,
+    terrainFactor = terrain?.factor,
 )
 
 internal fun ProjectEntity.toProject() = Project(
@@ -246,6 +250,9 @@ internal fun ProjectEntity.toProject() = Project(
     deletedAtMs = deletedAt,
     heightSystem = HeightSystem.entries.firstOrNull { it.name == heightSystem } ?: HeightSystem.ORTHOMETRIC,
     centralPoint = centralLatitude?.let { lat -> centralLongitude?.let { lon -> CentralPoint(lat, lon) } },
+    terrain = terrainOriginLat?.let { lat ->
+        terrainOriginLon?.let { lon -> terrainFactor?.let { factor -> TerrainPlane(lat, lon, factor) } }
+    },
 )
 
 /**

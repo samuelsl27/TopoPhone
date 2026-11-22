@@ -193,6 +193,7 @@ import es.topophone.data.wms.WmsServiceEntity
         AutoMigration(from = 35, to = 36),
         AutoMigration(from = 36, to = 37),
         AutoMigration(from = 37, to = 38),
+        AutoMigration(from = 38, to = 39),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -247,7 +248,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 38
+        const val VERSION = 39
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =
