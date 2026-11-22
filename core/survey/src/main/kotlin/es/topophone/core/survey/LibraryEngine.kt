@@ -74,6 +74,7 @@ class LibraryEngine(private val crs: LibraryCrs, private val resources: LibraryR
         resolved != null && crs.containsPosition(latitudeDeg, longitudeDeg)
 
     override fun undulation(latitudeDeg: Double, longitudeDeg: Double): Undulation {
+        crs.geoidConstantM?.let { return Undulation.Value(it) } // S035/RF-5: una altura ortométrica constante
         val name = crs.geoidGrid ?: return Undulation.Outside
         val geoid = resources.geoid(name) ?: return Undulation.MissingGrid(name)
         return geoid.undulationM(latitudeDeg, longitudeDeg)?.let { Undulation.Value(it) } ?: Undulation.Outside

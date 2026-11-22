@@ -19,7 +19,7 @@
       Hecho cuando: los cinco SC dan ≤ 1 mm con ida y vuelta ≤ 0,1 mm frente a los de la biblioteca y a pyproj.
 - [x] T7. `CrsProbe` (ida y vuelta de unas coordenadas de prueba). (RF-7)
       Hecho cuando: `CrsProbeTest` comprueba los dos sentidos, la diferencia de la vuelta y un SC con rejilla no instalada.
-- [ ] T8. La altura constante en `LibraryEngine` y `SourceHeights`. (RF-5)
+- [x] T8. La altura constante en `LibraryEngine` y `SourceHeights`. (RF-5)
       Hecho cuando: `CustomHeightTest` y `SourceHeightsTest` comprueban la ondulación constante, la elipsoidal y la del geoide, sin cambio con la de S034.
 
 ## JSON, WKT y formatos (`core:formats`)

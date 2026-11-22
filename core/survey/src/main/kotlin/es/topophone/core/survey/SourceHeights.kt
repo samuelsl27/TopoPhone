@@ -34,6 +34,7 @@ object SourceHeights {
     ): HeightConversion {
         if (projectHeights == fileHeights) return HeightConversion.Same
         if (crs !is LibraryCrs) return HeightConversion.Available
+        if (crs.geoidConstantM != null) return HeightConversion.Available // S035/RF-5
         val grid = crs.geoidGrid ?: return HeightConversion.NoProjectGeoid
         return if (resources.geoid(grid) == null) HeightConversion.MissingGeoid(grid) else HeightConversion.Available
     }
