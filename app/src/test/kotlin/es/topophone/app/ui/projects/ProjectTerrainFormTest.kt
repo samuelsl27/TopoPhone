@@ -305,4 +305,31 @@ class ProjectTerrainFormTest {
         vm.await { it.draft.terrain?.factor == 1.0003 }
         compose.onNodeWithTag(TERRAIN_USE_PROPOSED_TAG).performScrollTo().assertIsDisplayed()
     }
+
+    @Test
+    fun `S058 RF-19 cambiar a terreno un proyecto guardado queda en el historial y se ve en el`() {
+        val id = runBlocking {
+            projects.create(ProjectDefaults().toDraft().copy(name = "Obra", crs = SpainCrs.ETRS89_UTM30, centralPoint = madrid))
+                .let { (it as es.topophone.data.project.SaveResult.Saved).id }
+        }
+        val vm = viewModel()
+        vm.start(id, null)
+        vm.await { it.loaded }
+
+        vm.setTerrainMode(true)
+        vm.await { it.draft.terrain != null }
+        vm.save()
+        vm.await { it.savedId != null }
+
+        val plane = runBlocking { projects.project(id) }.shouldNotBeNull().terrain.shouldNotBeNull()
+        val change = runBlocking { RoomProjectCrsHistoryRepository(db).observe(id).first() }.single()
+        change.fromTerrain.shouldBeNull()
+        change.toTerrain shouldBe plane
+        compose.setContent {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                ProjectCrsHistoryScreen(ThemeState.DEFAULT, {}, ProjectCrsHistoryUiState(listOf(change)), {}, {})
+            }
+        }
+        compose.onNodeWithTag(crsHistoryTerrainTag(change.id)).assertIsDisplayed()
+    }
 }

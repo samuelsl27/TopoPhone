@@ -3688,4 +3688,7 @@
     <string name="terrain_error_origin_range">Invalid latitude or longitude</string>
     <string name="terrain_error_out_of_area">The origin is outside the area of the coordinate system</string>
     <string name="terrain_hint">The origin keeps its coordinates and distances to it are multiplied by the factor.</string>
+    <string name="crs_history_terrain">Plane: %1$s → %2$s</string>
+    <string name="crs_history_terrain_grid">grid</string>
+    <string name="crs_history_terrain_ground">ground (factor %1$s)</string>
 </resources>

@@ -33,6 +33,7 @@ import es.topophone.core.model.project.CrsChangeKind
 import es.topophone.core.model.project.LibraryCrs
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.ProjectCrsChange
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.data.crs.CrsChangeResult
 import es.topophone.data.crs.ProjectCrsHistoryRepository
 import es.topophone.data.project.ProjectRepository
@@ -186,6 +187,15 @@ fun ProjectCrsHistoryScreen(
     }
 }
 
+fun crsHistoryTerrainTag(id: String) = "crs_history_terrain_$id"
+
+@Composable
+private fun terrainLabel(plane: TerrainPlane?): String = if (plane == null) {
+    stringResource(R.string.crs_history_terrain_grid)
+} else {
+    stringResource(R.string.crs_history_terrain_ground, java.lang.String.format(java.util.Locale.ROOT, "%.8f", plane.factor))
+}
+
 @Composable
 private fun ChangeRow(change: ProjectCrsChange, undo: Boolean, onUndo: () -> Unit) {
     val format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, uiLocale())
@@ -201,6 +211,14 @@ private fun ChangeRow(change: ProjectCrsChange, undo: Boolean, onUndo: () -> Uni
             Text(
                 stringResource(R.string.crs_history_heights, heightLabel(change.fromHeightSystem), heightLabel(change.toHeightSystem)),
                 style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        if (change.fromTerrain != change.toTerrain) {
+            // S058/RF-19, RF-20: el cambio de plano de terreno también queda en el historial.
+            Text(
+                stringResource(R.string.crs_history_terrain, terrainLabel(change.fromTerrain), terrainLabel(change.toTerrain)),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag(crsHistoryTerrainTag(change.id)),
             )
         }
         if (undo) {

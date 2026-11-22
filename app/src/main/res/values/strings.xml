@@ -3700,4 +3700,7 @@
     <string name="terrain_error_origin_range">Latitud o longitud no válidas</string>
     <string name="terrain_error_out_of_area">El origen está fuera del ámbito del sistema de coordenadas</string>
     <string name="terrain_hint">El origen conserva sus coordenadas y las distancias a él se multiplican por el factor.</string>
+    <string name="crs_history_terrain">Plano: %1$s → %2$s</string>
+    <string name="crs_history_terrain_grid">cuadrícula</string>
+    <string name="crs_history_terrain_ground">terreno (factor %1$s)</string>
 </resources>
