@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -121,7 +122,7 @@ internal fun StakeoutSheet(
                 plate()
                 pills()
                 collector?.let { Slot(it, collectorActions, result) { value = FieldSheetValue.Expanded } }
-                collector?.let { Actions(it, collectorActions, navigation) }
+                if (collector != null || navigation != null) Actions(collector, collectorActions, navigation)
             }
         },
         expanded = {
@@ -166,8 +167,8 @@ private fun Slot(collector: CollectorUiState, actions: CollectorActions, result:
 
 /** «Anterior», «Medir» y «Siguiente» en una fila de 56 dp, o el progreso y «Cancelar» midiendo (S060/RF-15, RF-30). */
 @Composable
-private fun Actions(collector: CollectorUiState, actions: CollectorActions, navigation: StakeNavigation?) {
-    if (collector.measuring) {
+private fun Actions(collector: CollectorUiState?, actions: CollectorActions, navigation: StakeNavigation?) {
+    if (collector?.measuring == true) {
         MeasuringBar(collector, actions)
         return
     }
@@ -179,7 +180,7 @@ private fun Actions(collector: CollectorUiState, actions: CollectorActions, navi
                 modifier = Modifier.heightIn(min = MinTouchTarget).testTag(it.previousTag),
             ) { Text(stringResource(R.string.stakeout_previous)) }
         }
-        NamedMeasureButton(collector, actions, Modifier.weight(1f))
+        if (collector != null) NamedMeasureButton(collector, actions, Modifier.weight(1f)) else Spacer(Modifier.weight(1f))
         navigation?.let {
             OutlinedButton(
                 onClick = it.onNext,

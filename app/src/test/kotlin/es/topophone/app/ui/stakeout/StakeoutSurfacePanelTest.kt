@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
@@ -158,8 +159,8 @@ class StakeoutSurfacePanelTest {
         )
 
         compose.onNodeWithTag(STAKEOUT_SOURCE_SURFACE_TAG).assertDoesNotExist()
-        compose.onNodeWithTag(STAKEOUT_SURFACE_HEIGHT_TAG).assertIsDisplayed().assertTextContains("601", substring = true)
-        compose.onNodeWithTag(STAKEOUT_SURFACE_OFFSET_TAG).assertIsDisplayed().assertTextContains("0", substring = true)
+        compose.onNodeWithTag(STAKEOUT_SURFACE_HEIGHT_TAG).performScrollTo().assertIsDisplayed().assertTextContains("601", substring = true)
+        compose.onNodeWithTag(STAKEOUT_SURFACE_OFFSET_TAG).performScrollTo().assertIsDisplayed().assertTextContains("0", substring = true)
         compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertExists()
     }
 

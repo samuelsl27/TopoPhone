@@ -7,20 +7,15 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,23 +35,17 @@ import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.CollectorActions
-import es.topophone.app.ui.collector.CollectorGearSelector
 import es.topophone.app.ui.collector.CollectorUiState
-import es.topophone.app.ui.collector.LongPauseDialog
-import es.topophone.app.ui.collector.MeasureButton
-import es.topophone.app.ui.collector.Measuring
-import es.topophone.app.ui.collector.Messages
-import es.topophone.app.ui.collector.OutOfToleranceDialog
-import es.topophone.app.ui.collector.PauseState
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.app.ui.stakeout.AxisField
-import es.topophone.app.ui.stakeout.Guidance
-import es.topophone.app.ui.stakeout.KeepScreenOn
+import es.topophone.app.ui.stakeout.GuidancePlate
 import es.topophone.app.ui.stakeout.Numbers
 import es.topophone.app.ui.stakeout.STAKEOUT_SETTINGS_TAG
-import es.topophone.app.ui.stakeout.StakeModeChoice
+import es.topophone.app.ui.stakeout.StakeNavigation
+import es.topophone.app.ui.stakeout.StakeoutPills
 import es.topophone.app.ui.stakeout.StakeoutSettingsDialog
+import es.topophone.app.ui.stakeout.StakeoutSheet
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.alignment.ChainageFormat
 import es.topophone.core.model.alignment.slope.SlopeKind
@@ -116,10 +105,10 @@ class SlopeStakeActions(
 )
 
 /**
- * Panel del replanteo de taludes, en el hueco del recolector y sin tapar el mapa (S051/RF-9 a RF-12, RF-14, RF-17): primero los campos de
- * partida con los lados; con el replanteo abierto, el PK y el lado con la palabra, si es cabeza o pie, el alzado con la punta, la
- * diferencia de cota, lo que hay que moverse hacia dentro o fuera del eje y el error en PK. La pantalla no se apaga mientras está
- * abierto (RNF-T2).
+ * El replanteo de taludes como hoja de campo (S060/RF-23): primero, expandida, los campos de partida con los lados; con el replanteo
+ * abierto, la placa de guiado con la diferencia de cota, lo que hay que moverse hacia dentro o fuera del eje y el error en PK, las
+ * pastillas, «Anterior», «Medir» y «Siguiente», y expandida el PK y el lado con la palabra, si es cabeza o pie y el alzado con la punta
+ * (S051/RF-9 a RF-12, RF-14, RF-17). La pantalla no se apaga mientras está abierta (RNF-T2).
  */
 @Composable
 fun SlopeStakePanel(
@@ -130,50 +119,72 @@ fun SlopeStakePanel(
     collectorActions: CollectorActions = CollectorActions(),
     stats: AverageStatsUi? = null,
 ) {
-    KeepScreenOn()
     var settingsOpen by remember { mutableStateOf(false) }
     val unit = state.project?.linearUnit ?: LinearUnit.METRE
-    Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(SLOPE_STAKE_PANEL_TAG)) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(R.string.slope_stake_title, state.alignmentName),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f).testTag(SLOPE_STAKE_TITLE_TAG),
-                )
-                TextButton(onClick = actions.onClose, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(SLOPE_STAKE_CLOSE_TAG)) {
-                    Text(stringResource(R.string.collector_close))
-                }
+    val numbers = Numbers(unit, unitSymbol(unit), uiLocale())
+    val running = state.loaded && state.started
+    StakeoutSheet(
+        title = stringResource(R.string.slope_stake_title, state.alignmentName),
+        onClose = actions.onClose,
+        live = collector?.live,
+        collector = collector.takeIf { running },
+        collectorActions = collectorActions,
+        navigation = if (running && state.count > 1) {
+            StakeNavigation(
+                !state.measuring && state.position > 1,
+                !state.measuring && state.position < state.count,
+                actions.onPrevious,
+                actions.onNext,
+                SLOPE_STAKE_PREVIOUS_TAG,
+                SLOPE_STAKE_NEXT_TAG,
+            )
+        } else {
+            null
+        },
+        modifier = modifier,
+        unit = unit,
+        tag = SLOPE_STAKE_PANEL_TAG,
+        closeTag = SLOPE_STAKE_CLOSE_TAG,
+        titleTag = SLOPE_STAKE_TITLE_TAG,
+        initiallyExpanded = !state.started,
+        stats = stats,
+        plate = {
+            if (running) {
+                // S051/RF-17: sin proyección sobre el eje solo se muestran el Norte y el Este, que son las cifras de "Por distancia".
+                val settings = if (state.noProjection) state.settings.copy(mode = StakeMode.BY_DISTANCE) else state.settings
+                GuidancePlate(state.project, settings, state.guidance) { _, figures -> LiveFigures(state, figures) }
             }
-            if (!state.loaded) return@Column
-            Column(
-                modifier = Modifier.weight(1f, fill = false).heightIn(max = BODY_MAX_HEIGHT).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                if (state.started) Started(state, actions, unit, collector, collectorActions) else Setup(state, actions, unit)
-            }
-            if (state.started && collector != null) {
-                if (collector.measuring) {
-                    Measuring(collector, unit, stats, collectorActions)
-                } else {
-                    MeasureButton(collector, collectorActions) // S051/RF-15
-                }
-            }
-            if (state.started) {
-                TextButton(
-                    onClick = { settingsOpen = true },
+        },
+        pills = {
+            if (running) {
+                StakeoutPills(
+                    unit = unit,
+                    settings = state.settings,
                     enabled = !state.measuring,
-                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_SETTINGS_TAG),
-                ) { Text(stringResource(R.string.stakeout_settings)) }
+                    showToleranceV = false,
+                    elevationText = null,
+                    onTolerance = actions.onTolerance,
+                    onToleranceV = actions.onToleranceV,
+                    onMode = actions.onGuideMode,
+                    onElevation = null,
+                )
             }
-        }
-    }
+        },
+        expandedExtra = {
+            if (state.loaded) {
+                if (state.started) Started(state, actions, unit, numbers) else Setup(state, actions, unit)
+                if (state.started) {
+                    OutlinedButton(
+                        onClick = { settingsOpen = true },
+                        enabled = !state.measuring,
+                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_SETTINGS_TAG),
+                    ) { Text(stringResource(R.string.stakeout_settings)) }
+                }
+            }
+        },
+    )
     if (settingsOpen && !state.measuring) {
         StakeoutSettingsDialog(state.settings, unit, actions.onHeading, actions.onTolerance, { settingsOpen = false }, actions.onToleranceV)
-    }
-    collector?.pending?.let { OutOfToleranceDialog(it, collectorActions.onConfirm, collectorActions.onDiscard) }
-    if (collector?.paused == PauseState.LONG_PAUSE) {
-        LongPauseDialog(collectorActions.onFinish, collectorActions.onCancel, collectorActions.onKeepWaiting)
     }
 }
 
@@ -312,35 +323,16 @@ private fun errorText(error: AxisInputError, start: String, end: String): String
     AxisInputError.INTERVAL_NOT_POSITIVE -> stringResource(R.string.axis_stakeout_error_interval)
 }
 
-/** Con el replanteo abierto: el lugar de la serie, el punto de talud, el desplazamiento de estaca, la guía y el alzado en vivo (S051/RF-9 a RF-12). */
+/** Con el replanteo abierto: el lugar de la serie, el punto de talud, el desplazamiento de estaca y el alzado en vivo (S051/RF-9 a RF-12). */
 @Composable
-private fun Started(
-    state: SlopeStakeUiState,
-    actions: SlopeStakeActions,
-    unit: LinearUnit,
-    collector: CollectorUiState?,
-    collectorActions: CollectorActions,
-) {
+private fun Started(state: SlopeStakeUiState, actions: SlopeStakeActions, unit: LinearUnit, numbers: Numbers) {
     val locale = uiLocale()
     val symbol = unitSymbol(unit)
-    val numbers = Numbers(unit, symbol, locale)
     if (state.count > 1) {
         Text(
             stringResource(R.string.axis_stakeout_position, state.position, state.count),
             modifier = Modifier.testTag(SLOPE_STAKE_POSITION_TAG),
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(
-                onClick = actions.onPrevious,
-                enabled = !state.measuring && state.position > 1,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(SLOPE_STAKE_PREVIOUS_TAG),
-            ) { Text(stringResource(R.string.stakeout_previous)) }
-            OutlinedButton(
-                onClick = actions.onNext,
-                enabled = !state.measuring && state.position < state.count,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(SLOPE_STAKE_NEXT_TAG),
-            ) { Text(stringResource(R.string.stakeout_next)) }
-        }
     }
     state.item?.let { item ->
         Text(
@@ -351,13 +343,7 @@ private fun Started(
     }
     Outcome(state, unit, symbol)
     StakeOffsetField(state, actions, unit)
-    StakeModeChoice(state.settings, state.measuring, actions.onGuideMode)
-    // S051/RF-17: sin proyección sobre el eje solo se muestran el Norte y el Este, que son las cifras de "Por distancia".
-    val settings = if (state.noProjection) state.settings.copy(mode = StakeMode.BY_DISTANCE) else state.settings
-    Guidance(state.project, settings, state.guidance, state.admitted)
-    Live(state, numbers)
-    collector?.let { CollectorGearSelector(it, collectorActions) } // S046/RF-23
-    collector?.let { Messages(it, collectorActions) }
+    ElevationBlock(state, numbers)
 }
 
 /** El punto de talud teórico del lugar de ahora, o por qué no lo hay (S051/RF-5 a RF-8). */
@@ -397,11 +383,11 @@ private fun Status(text: String) {
 }
 
 /**
- * Lo que dice la punta frente al talud de diseño: el alzado, la diferencia de cota, lo que hay que moverse y el error en PK, con una sola
- * frase para TalkBack (S051/RF-10 a RF-12, RF-17, RNF-T8).
+ * Lo que dice la punta frente al talud de diseño, en la placa: si se ha encontrado, la diferencia de cota, lo que hay que moverse y el
+ * error en PK, con una sola frase para TalkBack (S051/RF-10 a RF-12, RF-17, RNF-T8).
  */
 @Composable
-private fun Live(state: SlopeStakeUiState, numbers: Numbers) {
+private fun LiveFigures(state: SlopeStakeUiState, numbers: Numbers) {
     if (state.noProjection) {
         Text(
             stringResource(R.string.axis_stakeout_no_projection),
@@ -423,7 +409,6 @@ private fun Live(state: SlopeStakeUiState, numbers: Numbers) {
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }.testTag(SLOPE_STAKE_FOUND_TAG),
         ) // con texto, no solo con color (RNF-T8)
     }
-    SlopeElevation.of(state)?.let { SlopeElevationView(it, phrase) }
     Column(
         modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = phrase }.testTag(SLOPE_STAKE_LIVE_TAG),
         verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -432,6 +417,16 @@ private fun Live(state: SlopeStakeUiState, numbers: Numbers) {
         Text(move, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag(SLOPE_STAKE_MOVE_TAG))
         Text(chainage, style = MaterialTheme.typography.titleMedium, modifier = Modifier.testTag(SLOPE_STAKE_CHAINAGE_TAG))
     }
+}
+
+/** El alzado con la punta, en la hoja expandida (S051/RF-10). */
+@Composable
+private fun ElevationBlock(state: SlopeStakeUiState, numbers: Numbers) {
+    if (state.noProjection) return
+    val live = state.live ?: return
+    val phrase =
+        stringResource(R.string.slope_stake_a11y, dzPhrase(live, numbers), movePhrase(live, numbers), chainagePhrase(live, numbers))
+    SlopeElevation.of(state)?.let { SlopeElevationView(it, phrase) }
 }
 
 /** Menos de medio milímetro es estar en la cota o en el PK, la resolución con la que se escriben. */

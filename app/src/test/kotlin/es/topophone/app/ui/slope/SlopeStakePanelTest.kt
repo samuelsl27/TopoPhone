@@ -15,6 +15,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.collector.COLLECTOR_MEASURE_TAG
 import es.topophone.app.ui.collector.CollectorActions
 import es.topophone.app.ui.collector.CollectorUiState
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.app.ui.stakeout.AxisField
 import es.topophone.app.ui.stakeout.GuidanceState
 import es.topophone.app.ui.stakeout.GuidanceUi
@@ -125,7 +126,7 @@ class SlopeStakePanelTest {
 
     private val calls = mutableListOf<String>()
 
-    private fun show(state: SlopeStakeUiState, collector: CollectorUiState? = null) = compose.setContent {
+    private fun show(state: SlopeStakeUiState, collector: CollectorUiState? = null) = compose.setContentExpanded {
         TopoPhoneTheme(EffectiveTheme.LIGHT) {
             SlopeStakePanel(
                 state,
@@ -268,7 +269,7 @@ class SlopeStakePanelTest {
     fun `S051 RF-17 sin proyeccion sobre el eje se apagan los valores en vivo y se dice`() {
         show(started(live = null, noProjection = true))
 
-        compose.onNodeWithTag(SLOPE_STAKE_NO_PROJECTION_TAG).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(SLOPE_STAKE_NO_PROJECTION_TAG).assertIsDisplayed()
         compose.onAllNodesWithTag(SLOPE_STAKE_DZ_TAG).assertCountEquals(0)
         compose.onAllNodesWithTag(SLOPE_STAKE_MOVE_TAG).assertCountEquals(0)
         compose.onAllNodesWithTag(SLOPE_STAKE_CHAINAGE_TAG).assertCountEquals(0)
@@ -289,7 +290,7 @@ class SlopeStakePanelTest {
     @Test
     fun `S051 RNF-T8 la frase de TalkBack junta la diferencia de cota y lo que hay que moverse`() {
         show(started())
-        compose.onNodeWithTag(SLOPE_STAKE_LIVE_TAG).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(SLOPE_STAKE_LIVE_TAG).assertIsDisplayed()
     }
 
     @Test
@@ -302,14 +303,14 @@ class SlopeStakePanelTest {
     @Test
     fun `S051 RF-13 con el punto encontrado el panel lo dice con su tipo`() {
         show(started(live = SlopeLiveValue(SlopeKind.CUT, 100.6, 0.0, 0.0, 0.0, onLine = true, found = true)))
-        compose.onNodeWithTag(SLOPE_STAKE_FOUND_TAG).performScrollTo()
+        compose.onNodeWithTag(SLOPE_STAKE_FOUND_TAG)
             .assertTextContains("Punto de talud encontrado: cabeza de desmonte")
     }
 
     @Test
     fun `S051 RF-13 en un terraplen el punto encontrado es un pie`() {
         show(started(live = SlopeLiveValue(SlopeKind.FILL, 98.3, 0.0, 0.0, 0.0, onLine = true, found = true)))
-        compose.onNodeWithTag(SLOPE_STAKE_FOUND_TAG).performScrollTo().assertTextContains("pie de terraplén", substring = true)
+        compose.onNodeWithTag(SLOPE_STAKE_FOUND_TAG).assertTextContains("pie de terraplén", substring = true)
     }
 
     @Test
