@@ -3817,4 +3817,24 @@
     <string name="field_note_precision">%1$s precision %2$s: the limit is %3$s</string>
     <string name="field_axis_h">H</string>
     <string name="field_axis_v">V</string>
+    <string name="field_reason_no_position">No position from the receiver.</string>
+    <string name="field_reason_outside_crs">Outside the coordinate system area.</string>
+    <string name="field_reason_tilt_mode">Choose the tilt mode first.</string>
+    <string name="field_reason_tilt_not_ready">Tilt is not ready yet.</string>
+    <string name="field_reason_pole">The pole height is not valid.</string>
+    <string name="field_reason_gear">There is no valid pole.</string>
+    <string name="field_reason_attributes">The code has missing attributes.</string>
+    <string name="field_reason_name_invalid">The point needs a name.</string>
+    <string name="field_reason_name_taken">A point with that name already exists.</string>
+    <string name="field_reason_seconds">The measuring time is not valid.</string>
+    <string name="field_reason_auto_interval">The automatic interval is not valid.</string>
+    <string name="field_reason_auto_short">The interval is shorter than the averaging time.</string>
+    <string name="field_reason_auto_distance">The automatic distance is not valid.</string>
+    <string name="field_action_receivers">See receivers</string>
+    <string name="field_action_crs">See system</string>
+    <string name="field_action_tilt">Tilt</string>
+    <string name="field_action_gear">Antenna and pole</string>
+    <string name="field_action_pole">Change pole</string>
+    <string name="field_action_time">Change time</string>
+    <string name="field_action_expand">Complete</string>
 </resources>

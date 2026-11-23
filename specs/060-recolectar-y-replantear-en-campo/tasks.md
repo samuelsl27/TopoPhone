@@ -13,7 +13,7 @@
 ## Recolectar: hoja plegada
 - [x] T4. `StatusLine` y las pastillas informativas (`InfoPill`): solo FIX y control de precisión, base shift y localización, solo si no son los de por defecto, en texto neutro y con su destino al tocar; «Esperando FIX» y precisión fuera de límite como línea sin rojo. (RF-14, RF-17b, RF-18, RF-19)
       Hecho cuando: `CollectorStatusLineTest` comprueba cada pastilla, que no hay ninguna con los ajustes por defecto, que nunca usan el color de error y que el estado sigue en texto.
-- [ ] T5. `MeasureReasons` (puro): motivo de mayor prioridad y su acción, con los textos nuevos en español e inglés. (RF-16, RF-17, RF-19)
+- [x] T5. `MeasureReasons` (puro): motivo de mayor prioridad y su acción, con los textos nuevos en español e inglés. (RF-16, RF-17, RF-19)
       Hecho cuando: `MeasureReasonsTest` cubre cada motivo de RF-17 con su acción, la prioridad entre dos motivos a la vez y que sin bloqueo no sale nada.
 - [ ] T6. `CollectionModeChoice` (puro): las cuatro opciones de «Modo» traducidas a `onMode`, `onAutoEnabled` y `onAutoTrigger`, y el valor de la pastilla «Tiempo» según el modo. (RF-9, RF-10, RF-13, RF-32)
       Hecho cuando: `CollectionModeChoiceTest` comprueba que cada opción llama a las mismas acciones que hoy y que «Tiempo» muestra promediado, intervalo, distancia o «Instantáneo» sin selector.

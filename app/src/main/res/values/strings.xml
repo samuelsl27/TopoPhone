@@ -3829,4 +3829,24 @@
     <string name="field_note_precision">Precisión %1$s %2$s: el límite es %3$s</string>
     <string name="field_axis_h">H</string>
     <string name="field_axis_v">V</string>
+    <string name="field_reason_no_position">Sin posición del receptor.</string>
+    <string name="field_reason_outside_crs">Fuera del ámbito del sistema de coordenadas.</string>
+    <string name="field_reason_tilt_mode">Falta elegir el modo de inclinación.</string>
+    <string name="field_reason_tilt_not_ready">La inclinación aún no está lista.</string>
+    <string name="field_reason_pole">La altura del jalón no es válida.</string>
+    <string name="field_reason_gear">No hay un jalón válido.</string>
+    <string name="field_reason_attributes">Faltan atributos del código.</string>
+    <string name="field_reason_name_invalid">Falta el nombre del punto.</string>
+    <string name="field_reason_name_taken">Ya hay un punto con ese nombre.</string>
+    <string name="field_reason_seconds">El tiempo de medición no es válido.</string>
+    <string name="field_reason_auto_interval">El intervalo del modo automático no es válido.</string>
+    <string name="field_reason_auto_short">El intervalo es menor que el tiempo de promediado.</string>
+    <string name="field_reason_auto_distance">La distancia del modo automático no es válida.</string>
+    <string name="field_action_receivers">Ver receptores</string>
+    <string name="field_action_crs">Ver sistema</string>
+    <string name="field_action_tilt">Inclinación</string>
+    <string name="field_action_gear">Antena y jalón</string>
+    <string name="field_action_pole">Cambiar jalón</string>
+    <string name="field_action_time">Cambiar tiempo</string>
+    <string name="field_action_expand">Completar</string>
 </resources>
