@@ -3801,4 +3801,5 @@
     <string name="field_sheet_handle">Field sheet</string>
     <string name="field_sheet_state_folded">Folded</string>
     <string name="field_sheet_state_expanded">Expanded</string>
+    <string name="field_pill_description">%1$s, %2$s</string>
 </resources>

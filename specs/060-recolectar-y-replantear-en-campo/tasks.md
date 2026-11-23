@@ -5,7 +5,7 @@
 ## Componentes comunes (`app/ui/field`)
 - [x] T1. `FieldSheet`: dos alturas, asa que arrastra y que se toca, acciones «Expandir» y «Plegar» para TalkBack, altura en `rememberSaveable`, máximo expandido del 70 % y cierre con «Cerrar». (RF-1, RF-3, RF-4, RF-5, RF-6)
       Hecho cuando: `FieldSheetTest` abre plegada, alterna con el toque y con las acciones semánticas, conserva la altura al recrear la actividad y el estado guardado, y mide el alto plegado.
-- [ ] T2. `SettingPill` y `SettingsRow`: 56 dp, nombre y valor en texto, descripción para TalkBack, y dos filas con letra al 130 %. (RF-9, RF-27, RNF-T8)
+- [x] T2. `SettingPill` y `SettingsRow`: 56 dp, nombre y valor en texto, descripción para TalkBack, y dos filas con letra al 130 %. (RF-9, RF-27, RNF-T8)
       Hecho cuando: `SettingsRowTest` comprueba a 360 y 411 dp con letra al 100 % y al 130 % que las cuatro pastillas existen, miden 56 dp y no cortan texto.
 - [ ] T3. `NumericEntryDialog` y `ShortListDialog`: teclado `Decimal` con valor y rango actuales, error junto al campo sin aplicar, dos campos minutos y segundos para el tiempo, y lista corta con la opción vigente marcada; `imePadding`. (RF-7, RF-11, RF-12, RF-13)
       Hecho cuando: `FieldDialogsTest` cubre valor válido, fuera de rango, formato «m:ss» armado desde minutos y segundos, la lista con la vigente marcada y que el campo queda sobre el teclado.
