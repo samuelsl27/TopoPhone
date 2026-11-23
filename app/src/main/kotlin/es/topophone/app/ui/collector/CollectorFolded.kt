@@ -99,9 +99,10 @@ fun CollectorFolded(
                 }
             }
         }
+        CollectorNoticeLine(CollectorNotices.current(state))
         when {
             state.autoEnabled || state.auto.running -> AutoControls(state, unit, autoLive, actions)
-            state.measuring -> Measuring(state, unit, stats, actions)
+            state.measuring -> MeasuringBar(state, actions)
             else -> NamedMeasureButton(state, actions)
         }
     }
