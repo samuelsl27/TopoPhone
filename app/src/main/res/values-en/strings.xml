@@ -3777,4 +3777,6 @@
     <string name="localization_notice_not_found">That localization could not be applied.</string>
     <string name="localization_notice_ok">Got it</string>
     <string name="localization_locked_notice">There is an active localization: remove it (project menu, Localization) before changing the CRS, the heights or switching to ground coordinates.</string>
+    <string name="export_unlocalized">Export unlocalized</string>
+    <string name="export_unlocalized_help">There is an active localization: the CSV has the localized coordinates and its identifier. With this option, GNSS points go out in the unlocalized CRS and without identifier.</string>
 </resources>

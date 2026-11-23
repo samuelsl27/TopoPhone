@@ -189,13 +189,15 @@ object CsvExport {
         attributes: List<AttributeColumn> = emptyList(),
         /** El paso de cuadrícula a terreno si el proyecto está en terreno: se escriben coordenadas de terreno y una primera línea de comentario (S058/RF-13). */
         ground: GroundTransform? = null,
+        /** Con una localización activa, una última columna con su identificador, tras los atributos (S039/RF-23). */
+        withLocalization: Boolean = false,
         baseProjection: (PointBase) -> BaseProjection? = { null },
     ) {
         require(options.valid) { "El separador y el signo decimal no pueden ser los dos la coma" }
         val columns = options.columns
         val separator = options.separator.char
         val extra = if (options.format == ExportFormat.ALL) attributes else emptyList()
-        val headers = columns.map { it.header } + extra.map { it.header }
+        val headers = columns.map { it.header } + extra.map { it.header } + listOfNotNull(LOCALIZATION_HEADER.takeIf { withLocalization })
         if (ground != null) {
             val text = ground.description(project.linearUnit::fromMetres, unitCode(project.linearUnit))
             out.append(COMMENT_MARK).append(text).append(LINE_END)
@@ -211,6 +213,10 @@ object CsvExport {
             extra.forEachIndexed { index, column ->
                 if (columns.isNotEmpty() || index > 0) out.append(separator)
                 out.append(quoted(attributeValue(column.valueOf(point), options.decimal), separator))
+            }
+            if (withLocalization) {
+                if (columns.isNotEmpty() || extra.isNotEmpty()) out.append(separator)
+                out.append(quoted(point.localizationId.orEmpty(), separator))
             }
             out.append(LINE_END)
         }
@@ -314,6 +320,9 @@ object CsvExport {
             ExportColumn.CODE -> point.code?.code.orEmpty()
         }
     }
+
+    /** La cabecera de la columna con el identificador de la localización (S039/RF-23). */
+    const val LOCALIZATION_HEADER = "Localization id"
 
     private fun unitCode(unit: LinearUnit): String = when (unit) {
         LinearUnit.METRE -> "m"

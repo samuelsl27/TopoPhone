@@ -25,6 +25,13 @@ object PointLocalization {
     /** ¿Lo transforma una localización? Los puntos con medida y sin coordenadas editadas (RF-17, RF-20). */
     fun appliesTo(point: Point): Boolean = point.origin.hasMeasurement && point.measurement != null && !point.edited
 
+    /** [point] con las coordenadas de su medida, sin localizar y sin identificador de localización (S039/RF-23); igual si no estaba localizado. */
+    fun unlocalize(point: Point): Point {
+        val measurement = point.measurement
+        if (point.localizationId == null || !appliesTo(point) || measurement == null) return point
+        return point.copy(coordinates = measurement.coordinates, localizationId = null)
+    }
+
     /** [point] localizado con [localization] y con su identificador guardado (RF-19); sin cambios si no le corresponde. */
     fun localize(point: Point, localization: ActiveLocalizationInfo?): Point {
         if (localization == null || !appliesTo(point)) return point

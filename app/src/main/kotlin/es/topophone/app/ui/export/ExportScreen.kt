@@ -19,6 +19,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +52,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+const val EXPORT_UNLOCALIZED_TAG = "export_unlocalized"
 const val EXPORT_SAVE_TAG = "export_save"
 const val EXPORT_SHARE_TAG = "export_share"
 private const val CSV_MIME = "text/csv"
@@ -71,6 +73,7 @@ class ExportActions(
     val onToggleColumn: (ExportColumn) -> Unit = {},
     val onSave: (fileName: String) -> Unit = {},
     val onShare: (fileName: String) -> Unit = {},
+    val onUnlocalized: (Boolean) -> Unit = {},
 )
 
 @Composable
@@ -104,6 +107,7 @@ fun ExportRoute(
             onSeparator = viewModel::setSeparator,
             onDecimal = viewModel::setDecimal,
             onToggleColumn = viewModel::toggleColumn,
+            onUnlocalized = viewModel::setUnlocalized,
             onSave = { name ->
                 viewModel.report(null)
                 save.launch(name)
@@ -174,6 +178,20 @@ fun ExportScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: ExportU
                 }
             }
             if (!state.options.valid) Text(stringResource(R.string.export_invalid), color = MaterialTheme.colorScheme.error) // S012/RF-14
+            if (state.localized) {
+                // S039/RF-23: con una localización activa, el CSV sale localizado con su identificador, salvo que se pida sin localizar.
+                Row(
+                    modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)
+                        .toggleable(value = state.unlocalized, role = Role.Switch, onValueChange = actions.onUnlocalized)
+                        .testTag(EXPORT_UNLOCALIZED_TAG),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Switch(checked = state.unlocalized, onCheckedChange = null)
+                    Text(stringResource(R.string.export_unlocalized), modifier = Modifier.weight(1f))
+                }
+                Text(stringResource(R.string.export_unlocalized_help), style = MaterialTheme.typography.bodySmall)
+            }
             val opened = remember { Instant.now() }
             val label = if (state.options.format ==
                 ExportFormat.ALL

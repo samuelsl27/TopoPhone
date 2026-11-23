@@ -26,6 +26,7 @@ import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.export.ExportPreferences
 import es.topophone.data.project.RoomProjectRepository
 import es.topophone.data.project.SaveResult
+import io.kotest.matchers.doubles.plusOrMinus
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import java.io.ByteArrayOutputStream
@@ -314,5 +315,76 @@ class ExportViewModelTest {
         row[header.indexOf("Base northing")] shouldBe String.format(Locale.ROOT, "%.4f", expected.northing!!)
         row[header.indexOf("Base elevation")] shouldBe String.format(Locale.ROOT, "%.4f", expected.height!!)
         row[header.indexOf("Baseline")] shouldBe "382123.4567"
+    }
+
+    /** Un proyecto con una localización activa de un par (traslación de +100 m en Este) y un punto GNSS ya localizado con ella. */
+    private fun localizedViewModel(): Pair<ExportViewModel, es.topophone.core.model.point.Point> {
+        val localizations = es.topophone.data.localization.RoomLocalizationRepository(db)
+        val sc = measured("L", projectId = projectId).coordinates
+        runBlocking {
+            localizations.addPair(
+                projectId,
+                es.topophone.core.model.localization.LocalizationPair(
+                    "q1", "x", "X", sc.easting!!, sc.northing!!, null,
+                    sc.easting!! + 100.0, sc.northing!!, null,
+                ),
+            )
+            localizations.apply(projectId)
+        }
+        val info = runBlocking { es.topophone.data.localization.ActiveLocalization(localizations).current(projectId) }!!
+        val point = es.topophone.core.survey.localization.PointLocalization.localize(measured("L", projectId = projectId), info)
+        val repo = FakePointRepository(listOf(point))
+        val vm =
+            ExportViewModel(
+                repo,
+                projects,
+                preferences,
+                selection,
+                log,
+                localization = es.topophone.data.localization.ActiveLocalization(localizations),
+            )
+        CoroutineScope(Dispatchers.Unconfined).launch { vm.state.collect {} }
+        vm.start(projectId, false)
+        return vm to point
+    }
+
+    private fun csvOf(vm: ExportViewModel): List<List<String>> {
+        val out = ByteArrayOutputStream()
+        runBlocking { vm.writeTo(out) } shouldBe true
+        return out.toByteArray().toString(Charsets.UTF_8).trimEnd().split("\r\n").map { it.split(',') }
+    }
+
+    @Test
+    fun `S039 RF-23 con una localizacion activa el CSV sale localizado con su identificador`() {
+        val (vm, point) = localizedViewModel()
+        vm.await { it.loaded && it.localized }
+
+        val rows = csvOf(vm)
+
+        rows.first().last() shouldBe "Localization id"
+        rows[1].last() shouldBe point.localizationId
+        rows[1][rows.first().indexOf("Easting")].toDouble() shouldBe (point.coordinates.easting!! plusOrMinus 1e-3)
+    }
+
+    @Test
+    fun `S039 RF-23 con exportar sin localizar el CSV lleva las coordenadas del SC y no el identificador`() {
+        val (vm, point) = localizedViewModel()
+        vm.await { it.loaded && it.localized }
+        vm.setUnlocalized(true)
+        vm.await { it.unlocalized }
+
+        val rows = csvOf(vm)
+
+        ("Localization id" in rows.first()) shouldBe false
+        val sc = point.measurement!!.coordinates
+        rows[1][rows.first().indexOf("Easting")].toDouble() shouldBe (sc.easting!! plusOrMinus 1e-3)
+    }
+
+    @Test
+    fun `S039 RF-23 sin localizacion activa no se ofrece exportar sin localizar`() {
+        val state = viewModel().await { it.loaded }
+
+        state.localized shouldBe false
+        state.unlocalized shouldBe false
     }
 }

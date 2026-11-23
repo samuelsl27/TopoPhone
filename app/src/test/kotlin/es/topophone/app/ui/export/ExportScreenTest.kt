@@ -69,6 +69,7 @@ class ExportScreenTest {
         onToggleColumn = { calls += "column:$it" },
         onSave = { calls += "save:$it" },
         onShare = { calls += "share:$it" },
+        onUnlocalized = { calls += "unlocalized:$it" },
     )
 
     private val base = ExportUiState(loaded = true, projectName = "Calle Mayor 12", pointCount = 12)
@@ -253,5 +254,22 @@ class ExportScreenTest {
         } finally {
             Dispatchers.resetMain()
         }
+    }
+
+    @Test
+    fun `S039 RF-23 con una localizacion activa se ofrece exportar sin localizar`() {
+        show(base.copy(localized = true))
+
+        compose.onNodeWithTag(EXPORT_UNLOCALIZED_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("unlocalized:true")
+        compose.onNodeWithText("Exportar sin localizar").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S039 RF-23 sin localizacion activa no se ofrece`() {
+        show(base)
+
+        compose.onNodeWithTag(EXPORT_UNLOCALIZED_TAG).assertDoesNotExist()
     }
 }

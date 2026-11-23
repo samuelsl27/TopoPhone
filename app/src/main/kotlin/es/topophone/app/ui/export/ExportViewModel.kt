@@ -21,7 +21,9 @@ import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.project.Project
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.TerrainView
+import es.topophone.core.survey.localization.PointLocalization
 import es.topophone.data.export.ExportPreferences
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import java.io.BufferedWriter
@@ -60,6 +62,10 @@ data class ExportUiState(
     val formats: List<ExportFormat> = ExportFormat.entries,
     val options: CsvOptions = CsvOptions(),
     val result: ExportResult? = null,
+    /** Hay una localización activa: se ofrece exportar sin localizar (S039/RF-23). */
+    val localized: Boolean = false,
+    /** El usuario eligió exportar sin localizar: los puntos GNSS salen en el SC sin localizar y sin identificador (S039/RF-23). */
+    val unlocalized: Boolean = false,
 ) {
     /** Hay puntos, el separador y el decimal se distinguen y el personalizado tiene columnas (S012/RF-4, RF-8, RF-14). */
     val canExport: Boolean get() = loaded && pointCount > 0 && options.valid && options.columns.isNotEmpty()
@@ -78,18 +84,35 @@ class ExportViewModel @Inject constructor(
     private val selection: ExportSelection,
     private val log: AppLog = AppLog.NONE,
     private val calculator: Lazy<ProjectPositionCalculator> = Lazy { ProjectPositionCalculator() },
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
 ) : ViewModel() {
-    private data class Content(val project: Project, val points: List<Point>)
+    private data class Content(val project: Project, val points: List<Point>, val localized: Boolean = false)
+
+    private val unlocalized = MutableStateFlow(false)
 
     private val content = MutableStateFlow<Content?>(null)
     private val result = MutableStateFlow<ExportResult?>(null)
 
-    val state: StateFlow<ExportUiState> = combine(content, preferences.options, result) { loaded, remembered, outcome ->
+    val state: StateFlow<ExportUiState> = combine(content, preferences.options, result, unlocalized) {
+            loaded,
+            remembered,
+            outcome,
+            sinLocalizar,
+        ->
         if (loaded == null) return@combine ExportUiState()
         val formats = CsvExport.formatsFor(loaded.project.crs)
         // S012/RF-10: lo último elegido puede no valer en este proyecto.
         val options = if (remembered.format in formats) remembered else remembered.copy(format = ExportFormat.ALL)
-        ExportUiState(true, loaded.project.name, loaded.points.size, formats, options, outcome)
+        ExportUiState(
+            true,
+            loaded.project.name,
+            loaded.points.size,
+            formats,
+            options,
+            outcome,
+            loaded.localized,
+            loaded.localized && sinLocalizar,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ExportUiState())
 
     /** Con [selectionOnly], solo los puntos de [ExportSelection] (S012/RF-2); si no, todos los activos (S012/RF-1). */
@@ -99,11 +122,16 @@ class ExportViewModel @Inject constructor(
             val project = projects.project(projectId) ?: return@launch
             val all = points.pointsForExport(projectId)
             val chosen = if (selectionOnly) selection.ids.let { ids -> all.filter { it.id in ids } } else all
-            content.value = Content(project, chosen)
+            content.value = Content(project, chosen, localized = localization.current(projectId) != null)
         }
     }
 
     fun setFormat(format: ExportFormat) = change { it.copy(format = format) }
+
+    /** «Exportar sin localizar» (S039/RF-23). */
+    fun setUnlocalized(value: Boolean) {
+        unlocalized.value = value
+    }
 
     fun setSeparator(separator: ColumnSeparator) = change { it.copy(separator = separator) }
 
@@ -119,18 +147,21 @@ class ExportViewModel @Inject constructor(
         val loaded = content.value ?: return false
         val options = state.value.options
         if (!state.value.canExport) return false
+        // S039/RF-23: con una localización activa sale localizado, con su identificador; con «sin localizar», como estaba la medida.
+        val exported = if (state.value.unlocalized) loaded.points.map(PointLocalization::unlocalize) else loaded.points
         return withContext(Dispatchers.IO) {
             try {
                 BufferedWriter(OutputStreamWriter(out, Charsets.UTF_8)).use { writer ->
                     CsvExport.write(
-                        loaded.points.asSequence(),
+                        exported.asSequence(),
                         loaded.project,
                         options,
                         writer,
-                        AttributeColumns.of(loaded.points), // S024/RF-21
+                        AttributeColumns.of(exported), // S024/RF-21
                         // S058/RF-13: con el proyecto en terreno se escriben coordenadas de terreno y su comentario de cabecera.
                         TerrainView.of(loaded.project.terrain, loaded.project.crs, calculator.get())?.toGroundTransform(),
-                        baseProjection(loaded.project),
+                        withLocalization = loaded.localized && !state.value.unlocalized, // S039/RF-23
+                        baseProjection = baseProjection(loaded.project),
                     )
                 }
                 true

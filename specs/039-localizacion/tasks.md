@@ -55,7 +55,7 @@
       Hecho cuando: `LocalizationTerrainTest` y `LocalizationCrsLockTest` comprueban los cuatro bloqueos y sus textos.
 
 ## Exportar y guardar (`core:formats`, `app`)
-- [ ] T22. CSV con la columna `Localization id`, coordenadas localizadas y «Exportar sin localizar»; el GeoPackage de S053 repite la columna. (RF-23)
+- [x] T22. CSV con la columna `Localization id`, coordenadas localizadas y «Exportar sin localizar»; el GeoPackage de S053 repite la columna. (RF-23)
       Hecho cuando: `CsvExportTest` y la prueba del GeoPackage comprueban la columna, las coordenadas localizadas y las sin localizar de los puntos GNSS no editados.
 - [ ] T23. Shapefile y GeoPackage no ofrecen «sistema del proyecto» con una localización activa: solo geográficas, con el aviso. (RF-23)
       Hecho cuando: las pruebas de las pantallas de Shapefile y GeoPackage comprueban la opción oculta y el aviso.
