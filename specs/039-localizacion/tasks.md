@@ -19,7 +19,7 @@
 ## Datos (`data`)
 - [x] T7. Room v40: tablas `localizations`, `localization_pairs` y `localized_crs`, columna `points.localization_id` y migración 39→40. (RF-13, RF-19, RF-26)
       Hecho cuando: `TopoPhoneDatabaseTest` 39 → 40 conserva proyectos y puntos y las entidades guardan y leen sin redondear.
-- [ ] T8. `LocalizationRepository` del borrador: crear, añadir y quitar pares, componentes, escala fija y umbrales. (RF-2, RF-5, RF-10, RF-11, RF-13)
+- [x] T8. `LocalizationRepository` del borrador: crear, añadir y quitar pares, componentes, escala fija y umbrales. (RF-2, RF-5, RF-10, RF-11, RF-13)
       Hecho cuando: `LocalizationRepositoryTest` comprueba un solo borrador por proyecto y que el recálculo sale de los pares guardados.
 - [ ] T9. `apply`, `remove` y `reactivate` en una transacción: reescribe los puntos GNSS no editados, deja intactos los manuales, importados, calculados y editados, y mueve la activa al historial. (RF-14, RF-16, RF-17, RF-18, RF-20, RF-21, RNF-T6)
       Hecho cuando: `LocalizationRepositoryTest` comprueba el recuento, que `measured_*` no cambia, la ida y vuelta de quitar, que solo hay una activa y que un fallo a mitad no deja nada a medias.

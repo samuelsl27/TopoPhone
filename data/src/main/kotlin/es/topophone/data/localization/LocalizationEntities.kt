@@ -136,6 +136,9 @@ interface LocalizationDao {
     @Insert
     suspend fun insertPairs(pairs: List<LocalizationPairEntity>)
 
+    @Update
+    suspend fun updatePair(pair: LocalizationPairEntity)
+
     @Query("DELETE FROM localization_pairs WHERE localization_id = :localizationId")
     suspend fun deletePairs(localizationId: String)
 
