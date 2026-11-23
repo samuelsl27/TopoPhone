@@ -209,11 +209,11 @@ internal fun CollectionMode.labelRes(): Int = when (this) {
 
 /** «Medir» con el nombre del punto que se medirá; sin nombre, solo «Medir» (S060/RF-8). */
 @Composable
-internal fun NamedMeasureButton(state: CollectorUiState, actions: CollectorActions) {
+internal fun NamedMeasureButton(state: CollectorUiState, actions: CollectorActions, modifier: Modifier = Modifier.fillMaxWidth()) {
     Button(
         onClick = actions.onMeasure,
         enabled = state.blocker == null && state.pending == null,
-        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(COLLECTOR_MEASURE_TAG),
+        modifier = modifier.heightIn(min = MinTouchTarget).testTag(COLLECTOR_MEASURE_TAG),
     ) {
         Text(
             if (state.name.isBlank()) {

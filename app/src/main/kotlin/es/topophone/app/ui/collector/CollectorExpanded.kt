@@ -73,7 +73,7 @@ fun CollectorExpanded(
         // Con el automático, el modo de cada punto (instantáneo o promediado y su tiempo) se elige aquí (S017/RF-15).
         if (state.autoEnabled) ModeChoice(state, actions)
         state.baseShiftName?.let { BaseShiftActiveBanner(it, actions.onDeactivateBaseShift) } // S020/RF-11
-        ExpandedAlert(state, actions)
+        CollectorExpandedAlert(state, actions)
         CollectorPhotoBar(state.photos, actions) // S017b/RF-1, RF-7, RF-8; S060/RF-21
         SurfaceReadingText(surface, unit) // S042/RF-33
         if (state.progress != null && stats != null) AverageStatsBlock(stats, unit) // S017/RF-3 a RF-5
@@ -85,7 +85,7 @@ fun CollectorExpanded(
  * guía de la inclinación y los avisos de la base de S015 (S060/RF-22; S020/RF-15, RF-16; S016/RF-12; S015/RF-15, RF-17).
  */
 @Composable
-private fun ExpandedAlert(state: CollectorUiState, actions: CollectorActions) {
+fun CollectorExpandedAlert(state: CollectorUiState, actions: CollectorActions) {
     val shift = state.baseShiftName
     when {
         state.baseShiftDatumNotice != null ->

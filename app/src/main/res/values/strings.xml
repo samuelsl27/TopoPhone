@@ -3861,4 +3861,7 @@
     <string name="field_tilt_unset">Sin elegir</string>
     <string name="field_measure_named">Medir %1$s</string>
     <string name="field_plate_arrived">En el punto</string>
+    <string name="field_pill_tol_h">Tolerancia H</string>
+    <string name="field_pill_tol_v">Tolerancia V</string>
+    <string name="field_pill_elevation">Cota</string>
 </resources>

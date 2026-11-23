@@ -496,7 +496,7 @@ private fun headingText(heading: HeadingResult, choice: HeadingChoice, angular: 
     }
 }
 
-private fun StakeMode.textRes(): Int = when (this) {
+internal fun StakeMode.textRes(): Int = when (this) {
     StakeMode.BY_DIRECTION -> R.string.stakeout_mode_direction
     StakeMode.BY_DISTANCE -> R.string.stakeout_mode_distance
 }
