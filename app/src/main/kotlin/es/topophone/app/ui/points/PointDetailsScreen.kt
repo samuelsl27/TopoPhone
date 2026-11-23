@@ -76,6 +76,7 @@ import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.localization.ActiveLocalizationInfo
 import es.topophone.core.model.point.AppliedShift
 import es.topophone.core.model.point.AxisHeightRef
 import es.topophone.core.model.point.AxisRef
@@ -108,6 +109,7 @@ import es.topophone.core.model.project.Project
 import es.topophone.core.survey.PointCorrections
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.photo.PhotoRepository
 import es.topophone.data.photo.PhotoStore
 import es.topophone.data.point.PointRepository
@@ -137,6 +139,9 @@ const val POINT_COORDINATES_TAG = "point_coordinates"
 const val POINT_CODE_TAG = "point_code"
 const val POINT_CHANGE_CODE_TAG = "point_change_code"
 const val POINT_MEASURED_COORDINATES_TAG = "point_measured_coordinates"
+const val POINT_UNLOCALIZED_COORDINATES_TAG = "point_unlocalized_coordinates"
+const val POINT_LOCALIZED_TAG = "point_localized"
+const val POINT_NOT_LOCALIZED_TAG = "point_not_localized"
 const val POINT_REVERT_TAG = "point_revert"
 const val POINT_BASE_TAG = "point_base"
 const val POINT_SHIFT_TAG = "point_shift"
@@ -179,6 +184,8 @@ data class PointDetailsUiState(
     val photoAdd: PhotoAddUi = PhotoAddUi(),
     /** Las líneas que usan este punto como vértice, para avisar al borrarlo (S025/RF-25). */
     val usedByLines: List<String> = emptyList(),
+    /** La localización activa del proyecto, o null (S039/RF-18, RF-20). */
+    val localization: ActiveLocalizationInfo? = null,
 )
 
 /** Acciones de la ficha del punto. */
@@ -223,6 +230,7 @@ class PointDetailsViewModel @Inject constructor(
     savedState: SavedStateHandle = SavedStateHandle(),
     codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
     private val lines: ObjectLines = ObjectLines.NONE,
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val ids = MutableStateFlow<Pair<String, String>?>(null)
@@ -242,13 +250,16 @@ class PointDetailsViewModel @Inject constructor(
 
     val state: StateFlow<PointDetailsUiState> = ids.filterNotNull().flatMapLatest { (projectId, pointId) ->
         val usedBy = lines.summaries(projectId).mapLatest { lines.linesUsing(listOf(pointId)) } // S025/RF-25
-        val photoState = combine(photoRepository.photos(pointId), photoRepository.events(pointId), photoAdder.ui, usedBy, ::DetailsExtras)
+        val photoState = combine(
+            combine(photoRepository.photos(pointId), photoRepository.events(pointId), photoAdder.ui, usedBy, ::DetailsExtras),
+            localization.info(projectId),
+        ) { extras, active -> extras.copy(localization = active) }
         combine(projects.observe(projectId), points.point(pointId), points.history(pointId), keptEdited, photoState) {
                 project,
                 point,
                 history,
                 kept,
-                (photos, events, photoAdd, usedByLines),
+                (photos, events, photoAdd, usedByLines, activeLocalization),
             ->
             // S015/RF-21: con el SC actual del proyecto; si cambia, la base se calcula en el nuevo.
             val base = point?.measurement?.base
@@ -257,7 +268,7 @@ class PointDetailsViewModel @Inject constructor(
             } else {
                 null
             }
-            PointDetailsUiState(project, point, history, kept, baseCoordinates, photos, events, photoAdd, usedByLines)
+            PointDetailsUiState(project, point, history, kept, baseCoordinates, photos, events, photoAdd, usedByLines, activeLocalization)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), PointDetailsUiState())
 
@@ -271,16 +282,20 @@ class PointDetailsViewModel @Inject constructor(
     /** Las coordenadas de la medida, como un cambio más del historial (S011/RF-13). */
     fun revertToMeasurement() {
         val point = state.value.point ?: return
-        val reverted = corrections.revertToMeasurement(point) ?: return
-        viewModelScope.launch { points.update(reverted, PointChange.REVERT) }
+        viewModelScope.launch {
+            // S039/RF-17: al volver a la medida, las coordenadas son las localizadas con la localización activa.
+            val reverted = corrections.revertToMeasurement(point, localization.current(point.projectId)) ?: return@launch
+            points.update(reverted, PointChange.REVERT)
+        }
     }
 
     /** S011/RF-14: desde la antena guardada; si sus coordenadas están editadas, se mantienen y se avisa. */
     fun correctPole(poleHeightM: Double) {
         val point = state.value.point ?: return
         val project = state.value.project ?: return
-        val result = corrections.withPoleHeight(point, poleHeightM, project.crs, project.heightSystem) ?: return
         viewModelScope.launch {
+            val active = localization.current(project.id) // S039/RF-17
+            val result = corrections.withPoleHeight(point, poleHeightM, project.crs, project.heightSystem, active) ?: return@launch
             if (points.update(result.point, PointChange.POLE) == PointSaveResult.Saved) keptEdited.value = result.keptEditedCoordinates
         }
     }
@@ -441,8 +456,18 @@ fun PointDetailsScreen(
             point.code?.let { CodeCard(it) } // S024/RF-12
             DetailsCard(stringResource(R.string.point_coordinates), POINT_COORDINATES_TAG) {
                 if (point.edited) MarkLine(R.string.point_mark_edited)
+                if (point.localizationId != null) MarkLine(R.string.point_mark_localized, POINT_LOCALIZED_TAG) // S039/RF-18
+                if (point.edited && state.localization != null) {
+                    MarkLine(R.string.point_mark_not_localized, POINT_NOT_LOCALIZED_TAG) // S039/RF-20
+                }
                 CoordinateRows(project, point.coordinates)
             } // S011/RF-6
+            val unlocalized = point.measurement?.takeIf { point.localizationId != null && !point.edited }
+            if (unlocalized != null) {
+                DetailsCard(stringResource(R.string.point_unlocalized_coordinates), POINT_UNLOCALIZED_COORDINATES_TAG) {
+                    CoordinateRows(project, unlocalized.coordinates)
+                }
+            } // S039/RF-18: las dos coordenadas
             point.staked?.let { StakeoutCard(project, it) } // S018/RF-32
             point.onAxis?.let { AxisCard(project, it) } // S049/RF-22, S054/RF-13
             val measurement = point.measurement
@@ -674,8 +699,13 @@ private fun DetailsCard(title: String, tag: String, content: @Composable () -> U
 }
 
 @Composable
-private fun MarkLine(text: Int) {
-    Text(stringResource(text), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.tertiary)
+private fun MarkLine(text: Int, tag: String? = null) {
+    Text(
+        stringResource(text),
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.tertiary,
+        modifier = if (tag != null) Modifier.testTag(tag) else Modifier,
+    )
 }
 
 /** Este, Norte y altura en el SC del proyecto, y geográficas con altura elipsoidal, en las unidades del proyecto. */
@@ -1207,4 +1237,5 @@ private data class DetailsExtras(
     val events: List<PhotoEvent>,
     val photoAdd: PhotoAddUi,
     val usedByLines: List<String>,
+    val localization: ActiveLocalizationInfo? = null,
 )

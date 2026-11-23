@@ -3695,4 +3695,7 @@
     <string name="terrain_export_grid_notice">The project is in ground coordinates. This file is written in grid coordinates, with its coordinate system.</string>
     <string name="localization_active_banner">Localized: GNSS points are shown in the site system</string>
     <string name="localization_map_note">Localized</string>
+    <string name="point_mark_localized">Localized</string>
+    <string name="point_mark_not_localized">Edited coordinates: the localization does not transform them</string>
+    <string name="point_unlocalized_coordinates">Coordinates in the unlocalized CRS</string>
 </resources>

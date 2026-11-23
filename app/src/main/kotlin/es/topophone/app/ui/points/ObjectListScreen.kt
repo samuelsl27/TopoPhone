@@ -80,6 +80,7 @@ import es.topophone.core.model.point.PointSummary
 import es.topophone.core.model.preferences.ThemeState
 import es.topophone.core.survey.PointCorrections
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.point.CodeChangeResult
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
@@ -249,6 +250,7 @@ class ObjectListViewModel @Inject constructor(
     private val exportSelection: ExportSelection,
     codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
     private val lines: ObjectLines = ObjectLines.NONE,
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
     private val calculator: Lazy<ProjectPositionCalculator>,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
@@ -378,9 +380,10 @@ class ObjectListViewModel @Inject constructor(
         viewModelScope.launch {
             val project = projects.project(id) ?: return@launch
             val chosen = ids.mapNotNull { points.point(it).first() }
+            val active = localization.current(id) // S039/RF-17
             val corrections = withContext(Dispatchers.Default) {
                 val tool = PointCorrections(calculator.get())
-                chosen.mapNotNull { tool.withPoleHeight(it, poleHeightM, project.crs, project.heightSystem) }
+                chosen.mapNotNull { tool.withPoleHeight(it, poleHeightM, project.crs, project.heightSystem, active) }
             }
             if (corrections.isNotEmpty()) points.updateAll(corrections.map { it.point }, PointChange.POLE)
             poleOutcome.value = PoleOutcome(corrections.size, chosen.size - corrections.size, corrections.any { it.keptEditedCoordinates })
