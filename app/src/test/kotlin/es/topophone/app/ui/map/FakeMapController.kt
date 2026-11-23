@@ -52,6 +52,18 @@ class FakeMapController : MapController {
     var alignmentCalls = 0
     var stakeout: StakeoutMarker? = null
     val moves = mutableListOf<MapViewport>()
+    val follows = mutableListOf<FollowCamera>()
+    var bearingResets = 0
+    override var visibleShortSideDp: Double = 360.0
+
+    override fun follow(camera: FollowCamera) {
+        follows += camera
+    }
+
+    override fun resetBearing() {
+        bearingResets++
+    }
+
     var spainShown = false
     var bottomInsetPx = 0
     private val gestures = MutableSharedFlow<Unit>(extraBufferCapacity = 8)

@@ -42,6 +42,7 @@ import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.geometry.LatLngQuad
 import org.maplibre.android.gestures.MoveGestureDetector
+import org.maplibre.android.gestures.StandardScaleGestureDetector
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
@@ -118,6 +119,18 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
                 override fun onMove(detector: MoveGestureDetector) = Unit
 
                 override fun onMoveEnd(detector: MoveGestureDetector) = Unit
+            },
+        )
+        // S060/RF-26: acercar o alejar con los dedos también suelta el seguimiento del replanteo.
+        map.addOnScaleListener(
+            object : MapLibreMap.OnScaleListener {
+                override fun onScaleBegin(detector: StandardScaleGestureDetector) {
+                    gestures.tryEmit(Unit)
+                }
+
+                override fun onScale(detector: StandardScaleGestureDetector) = Unit
+
+                override fun onScaleEnd(detector: StandardScaleGestureDetector) = Unit
             },
         )
         map.addOnMapClickListener { latLng ->
@@ -216,6 +229,34 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
         easing = true
         map.easeCamera(CameraUpdateFactory.newCameraPosition(position), MOVE_MS, easeDone)
     }
+
+    override fun follow(camera: FollowCamera) {
+        appliedInsetPx = bottomInsetPx
+        val position = CameraPosition.Builder()
+            .target(LatLng(camera.latitudeDeg, camera.longitudeDeg))
+            .zoom(camera.zoom)
+            .bearing(camera.bearingDeg)
+            .padding(0.0, 0.0, 0.0, bottomInsetPx.toDouble())
+            .build()
+        easing = true
+        map.easeCamera(CameraUpdateFactory.newCameraPosition(position), FOLLOW_MS, easeDone)
+    }
+
+    override fun resetBearing() {
+        val current = map.cameraPosition
+        if (current.bearing == 0.0) return
+        val position = CameraPosition.Builder(current).bearing(0.0).build()
+        easing = true
+        map.easeCamera(CameraUpdateFactory.newCameraPosition(position), MOVE_MS, easeDone)
+    }
+
+    override val visibleShortSideDp: Double
+        get() {
+            val density = mapView.resources.displayMetrics.density
+            val width = mapView.width / density
+            val height = (mapView.height - bottomInsetPx) / density
+            return minOf(width, height).toDouble().coerceAtLeast(1.0)
+        }
 
     private val easeDone = object : MapLibreMap.CancelableCallback {
         override fun onFinish() = endEase()
@@ -1315,6 +1356,9 @@ internal class MapLibreMapController(private val map: MapLibreMap, private val m
 
         /** Desplazamiento suave al seguir al rover, que llega a 5 Hz como mucho (RNF-T13). */
         const val MOVE_MS = 200
+
+        /** La transición de cada orden de seguimiento del replanteo, igual que el intervalo entre órdenes (S060/RF-25, RNF-T13). */
+        const val FOLLOW_MS = 200
         const val SPAIN_PADDING_PX = 32
 
         /** Espera tras detenerse el mapa antes de pedir el Catastro. */

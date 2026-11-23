@@ -69,6 +69,18 @@ interface MapController {
      */
     fun setBottomInset(px: Int)
 
+    /**
+     * El replanteo: lleva el mapa al centro, el zoom y el rumbo de [camera] con una transición corta, respetando el hueco de los paneles
+     * (S060/RF-25). El rumbo es el que queda hacia arriba, en grados desde el norte.
+     */
+    fun follow(camera: FollowCamera)
+
+    /** Vuelve a poner el norte arriba, al cerrar el replanteo (S060/RF-25). */
+    fun resetBearing()
+
+    /** El lado corto de la parte visible del mapa, sin el hueco de los paneles, en dp: con él se calcula el zoom del replanteo (S060/RF-25). */
+    val visibleShortSideDp: Double
+
     /** El id de cada punto que el usuario toca en el mapa (S011/RF-5). */
     val pointClicks: Flow<String>
 
