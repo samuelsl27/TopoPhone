@@ -3,6 +3,7 @@ package es.topophone.app.ui.collector
 import es.topophone.app.ui.map.MapCoordinates
 import es.topophone.app.ui.map.MapPress
 import es.topophone.app.ui.map.VisibleArea
+import es.topophone.app.ui.projects.toGroundTransform
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.GgaFix
 import es.topophone.core.gnss.nmea.SolutionStatus
@@ -99,5 +100,17 @@ class TerrainScreensTest {
     @Test
     fun `S058 RF-9 el mapa de un proyecto en cuadricula no tiene terreno`() {
         mapCoordinates(40.41668, -3.70371, null).terrain.isTerrain shouldBe false
+    }
+
+    @Test
+    fun `S058 RF-13 el paso a terreno de los ficheros coincide con el de las pantallas`() {
+        val view = es.topophone.core.survey.TerrainView.of(TerrainPlane(40.4, -3.7, 1.0004), SpainCrs.ETRS89_UTM30).shouldNotBeNull()
+        val ground = view.toGroundTransform().shouldNotBeNull()
+
+        val shown = view.coordinates(440_300.0, 4_474_250.0)
+
+        ground.easting(440_300.0) shouldBe (shown.easting plusOrMinus 1e-9)
+        ground.northing(4_474_250.0) shouldBe (shown.northing plusOrMinus 1e-9)
+        es.topophone.core.survey.TerrainView.GRID.toGroundTransform() shouldBe null
     }
 }

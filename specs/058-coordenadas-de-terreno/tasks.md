@@ -49,7 +49,7 @@
       Hecho cuando: `TerrainScreensTest` comprueba una distancia × `k`, un área × `k²` y un ángulo sin cambio.
 
 ## Ficheros (`core:formats`, `data`, `app`)
-- [ ] T20. CSV: exportar en terreno con su primera línea de comentario. (RF-13)
+- [x] T20. CSV: exportar en terreno con su primera línea de comentario. (RF-13)
       Hecho cuando: `TerrainCsvTest` exporta con y sin plano, la cabecera lleva el origen y el factor y los nombres de las columnas no cambian.
 - [ ] T21. CSV y TXT: importar en terreno. (RF-12)
       Hecho cuando: `TerrainCsvTest` importa un CSV de terreno y los puntos quedan en cuadrícula, y el CSV exportado se vuelve a importar en el mismo proyecto con los mismos puntos.

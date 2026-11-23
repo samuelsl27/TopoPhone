@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.Lazy
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.app.ui.projects.toGroundTransform
 import es.topophone.core.formats.csv.AttributeColumns
 import es.topophone.core.formats.csv.BaseProjection
 import es.topophone.core.formats.csv.ColumnSeparator
@@ -19,6 +20,7 @@ import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.project.Project
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.export.ExportPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
@@ -126,6 +128,8 @@ class ExportViewModel @Inject constructor(
                         options,
                         writer,
                         AttributeColumns.of(loaded.points), // S024/RF-21
+                        // S058/RF-13: con el proyecto en terreno se escriben coordenadas de terreno y su comentario de cabecera.
+                        TerrainView.of(loaded.project.terrain, loaded.project.crs, calculator.get())?.toGroundTransform(),
                         baseProjection(loaded.project),
                     )
                 }

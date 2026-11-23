@@ -15,6 +15,12 @@ class TerrainView private constructor(private val frame: TerrainFrame?) {
     /** El factor de terreno, o 1 en cuadrícula. */
     val factor: Double get() = frame?.factor ?: 1.0
 
+    /** El Este del origen del plano, en la cuadrícula del SC, o `null` en cuadrícula (S058/RF-13). */
+    val originEasting: Double? get() = frame?.originEasting
+
+    /** El Norte del origen del plano, en la cuadrícula del SC, o `null` en cuadrícula (S058/RF-13). */
+    val originNorthing: Double? get() = frame?.originNorthing
+
     /** El plano, o `null` en cuadrícula. */
     val plane: TerrainPlane? get() = frame?.plane
 

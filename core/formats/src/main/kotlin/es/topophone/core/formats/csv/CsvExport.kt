@@ -1,5 +1,6 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.formats.GroundTransform
 import es.topophone.core.model.codes.AttributeType
 import es.topophone.core.model.codes.PointAttribute
 import es.topophone.core.model.point.MeasurementMode
@@ -168,6 +169,9 @@ object CsvExport {
     private const val ANGLE_DECIMALS = 3
     private const val ONE_DECIMAL = 1
     private const val LIST_SEPARATOR = "|"
+
+    /** La marca de la primera línea de comentario de un proyecto en terreno (S058/RF-13). */
+    const val COMMENT_MARK = "# "
     internal const val LINE_END = "\r\n"
     private val PROJECTED_BASE_COLUMNS = setOf(ExportColumn.BASE_EASTING, ExportColumn.BASE_NORTHING, ExportColumn.BASE_ELEVATION)
 
@@ -183,6 +187,8 @@ object CsvExport {
         out: Appendable,
         /** Los atributos de los códigos de los puntos; solo se escriben en «Todas las columnas» (S024/RF-21). */
         attributes: List<AttributeColumn> = emptyList(),
+        /** El paso de cuadrícula a terreno si el proyecto está en terreno: se escriben coordenadas de terreno y una primera línea de comentario (S058/RF-13). */
+        ground: GroundTransform? = null,
         baseProjection: (PointBase) -> BaseProjection? = { null },
     ) {
         require(options.valid) { "El separador y el signo decimal no pueden ser los dos la coma" }
@@ -190,13 +196,17 @@ object CsvExport {
         val separator = options.separator.char
         val extra = if (options.format == ExportFormat.ALL) attributes else emptyList()
         val headers = columns.map { it.header } + extra.map { it.header }
+        if (ground != null) {
+            val text = ground.description(project.linearUnit::fromMetres, unitCode(project.linearUnit))
+            out.append(COMMENT_MARK).append(text).append(LINE_END)
+        }
         out.append(headers.joinToString(separator.toString()) { quoted(it, separator) }).append(LINE_END)
         val needsProjection = columns.any { it in PROJECTED_BASE_COLUMNS }
         for (point in points) {
             val projected = if (needsProjection) point.measurement?.base?.let(baseProjection) else null
             columns.forEachIndexed { index, column ->
                 if (index > 0) out.append(separator)
-                out.append(quoted(value(point, column, project, options.decimal, projected), separator))
+                out.append(quoted(value(point, column, project, options.decimal, projected, ground), separator))
             }
             extra.forEachIndexed { index, column ->
                 if (columns.isNotEmpty() || index > 0) out.append(separator)
@@ -213,7 +223,14 @@ object CsvExport {
         else -> attribute.value
     }
 
-    private fun value(point: Point, column: ExportColumn, project: Project, decimal: DecimalSeparator, projected: BaseProjection?): String {
+    private fun value(
+        point: Point,
+        column: ExportColumn,
+        project: Project,
+        decimal: DecimalSeparator,
+        projected: BaseProjection?,
+        ground: GroundTransform?,
+    ): String {
         val unit = project.linearUnit
         fun length(valueM: Double?) = valueM?.let { number(unit.fromMetres(it), LENGTH_DECIMALS, decimal) }.orEmpty()
         val coordinates = point.coordinates
@@ -235,8 +252,8 @@ object CsvExport {
                 point.origin.hasMeasurement -> "Measured"
                 else -> "Manual"
             }
-            ExportColumn.EASTING -> length(coordinates.easting)
-            ExportColumn.NORTHING -> length(coordinates.northing)
+            ExportColumn.EASTING -> length(coordinates.easting?.let { e -> ground?.easting(e) ?: e })
+            ExportColumn.NORTHING -> length(coordinates.northing?.let { n -> ground?.northing(n) ?: n })
             ExportColumn.ELEVATION -> length(coordinates.height)
             ExportColumn.LATITUDE -> number(coordinates.ground.latitudeDeg, DEGREE_DECIMALS, decimal)
             ExportColumn.LONGITUDE -> number(coordinates.ground.longitudeDeg, DEGREE_DECIMALS, decimal)
@@ -261,8 +278,8 @@ object CsvExport {
             ExportColumn.BASE_LATITUDE -> base?.let { number(it.position.latitudeDeg, DEGREE_DECIMALS, decimal) }.orEmpty()
             ExportColumn.BASE_LONGITUDE -> base?.let { number(it.position.longitudeDeg, DEGREE_DECIMALS, decimal) }.orEmpty()
             ExportColumn.BASE_ELLIPSOIDAL_HEIGHT -> length(base?.position?.ellipsoidalHeightM)
-            ExportColumn.BASE_EASTING -> length(projected?.easting)
-            ExportColumn.BASE_NORTHING -> length(projected?.northing)
+            ExportColumn.BASE_EASTING -> length(projected?.easting?.let { e -> ground?.easting(e) ?: e })
+            ExportColumn.BASE_NORTHING -> length(projected?.northing?.let { n -> ground?.northing(n) ?: n })
             ExportColumn.BASE_ELEVATION -> length(projected?.height)
             ExportColumn.BASELINE -> length(base?.baselineM)
             ExportColumn.TILT_MODE -> tilt?.mode?.name.orEmpty()
@@ -286,9 +303,9 @@ object CsvExport {
             ExportColumn.COPY_OF -> point.copyOf.orEmpty()
             ExportColumn.STAKE_DESIGN -> staked?.designName.orEmpty()
             ExportColumn.STAKE_DESIGN_ELEVATION -> length(staked?.designElevationM)
-            ExportColumn.STAKE_D_NORTH -> length(staked?.dNorthM)
-            ExportColumn.STAKE_D_EAST -> length(staked?.dEastM)
-            ExportColumn.STAKE_D_HORIZONTAL -> length(staked?.dHorizontalM)
+            ExportColumn.STAKE_D_NORTH -> length(staked?.dNorthM?.let { d -> ground?.distance(d) ?: d })
+            ExportColumn.STAKE_D_EAST -> length(staked?.dEastM?.let { d -> ground?.distance(d) ?: d })
+            ExportColumn.STAKE_D_HORIZONTAL -> length(staked?.dHorizontalM?.let { d -> ground?.distance(d) ?: d })
             ExportColumn.STAKE_D_ELEVATION -> length(staked?.dHeightM)
             ExportColumn.STAKE_WITHIN -> staked?.withinTolerance?.toString().orEmpty()
             ExportColumn.SHIFT_DX -> length(measurement?.shift?.vector?.dx)

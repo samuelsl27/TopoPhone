@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import es.topophone.app.R
+import es.topophone.core.formats.GroundTransform
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.project.TerrainPlane
@@ -24,6 +25,13 @@ fun rememberTerrainView(project: Project): TerrainView =
 @Composable
 fun rememberTerrainView(plane: TerrainPlane?, crs: ProjectCrs): TerrainView =
     remember(plane, crs) { TerrainView.of(plane, crs) ?: TerrainView.GRID }
+
+/** El paso a terreno que usan los ficheros al exportar, o `null` si el proyecto está en cuadrícula (S058/RF-13, RF-14). */
+fun TerrainView.toGroundTransform(): GroundTransform? {
+    val east = originEasting ?: return null
+    val north = originNorthing ?: return null
+    return GroundTransform(east, north, factor)
+}
 
 /** «Terreno» junto a las coordenadas y las distancias de un proyecto en terreno; con cuadrícula no pinta nada (S058/RF-9). */
 @Composable
