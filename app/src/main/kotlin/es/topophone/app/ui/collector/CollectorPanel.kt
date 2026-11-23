@@ -5,13 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -20,12 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
@@ -34,10 +30,8 @@ import es.topophone.app.ui.baseshift.BaseShiftBaseChangedBanner
 import es.topophone.app.ui.baseshift.BaseShiftDatumBanner
 import es.topophone.app.ui.localization.LocalizationActiveBanner
 import es.topophone.app.ui.projects.unitSymbol
-import es.topophone.app.ui.receiver.BaseNoticeBanners
 import es.topophone.app.ui.receiver.GearSelector
 import es.topophone.app.ui.receiver.GearSelectorUi
-import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.codes.SurveyCode
@@ -133,62 +127,6 @@ class CollectorActions(
     val onOpenLocalization: () -> Unit = {},
 )
 
-/**
- * Panel del recolector, en lugar del panel de posición y sin tapar el mapa (S010/RF-1): nombre, descripción,
- * jalón, modo, solución y precisiones, y "Medir" o el progreso con "Cancelar". La pantalla no se apaga mientras
- * está abierto (S010/RF-7).
- */
-@Composable
-fun CollectorPanel(
-    state: CollectorUiState,
-    unit: LinearUnit,
-    actions: CollectorActions,
-    onClose: () -> Unit,
-    modifier: Modifier = Modifier,
-    stats: AverageStatsUi? = null,
-    autoLive: AutoLive? = null,
-    /** La cota de la superficie activa bajo la punta, sin replantear (S042/RF-33). */
-    surface: SurfaceReading? = null,
-) {
-    KeepScreenOn()
-    Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(COLLECTOR_PANEL_TAG)) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.collector_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                TextButton(onClick = onClose, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(COLLECTOR_CLOSE_TAG)) {
-                    Text(stringResource(R.string.collector_close))
-                }
-            }
-            // Solo el formulario se desplaza y encoge: la solución y "Medir" o "Cancelar" se ven siempre (S010/RF-6, RF-8, RF-11).
-            Column(
-                modifier = Modifier.weight(1f, fill = false).heightIn(
-                    max = if (state.progress !=
-                        null
-                    ) {
-                        FORM_MEASURING_MAX_HEIGHT
-                    } else {
-                        FORM_MAX_HEIGHT
-                    },
-                )
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) { Form(state, unit, actions) }
-            BaseNoticeBanners(state.notices, actions.onDismissBaseChange, actions.onDismissLongBaseline) // S015/RF-15, RF-17
-            LiveQualityText(state.live, unit)
-            AdmittedBadge(state.settings.precision.admitted) // S047/RF-14
-            SurfaceReadingText(surface, unit) // S042/RF-33
-            Messages(state, actions)
-            when {
-                state.autoEnabled || state.auto.running -> AutoControls(state, unit, autoLive, actions) // S017/RF-15
-                state.measuring -> Measuring(state, unit, stats, actions)
-                else -> MeasureButton(state, actions)
-            }
-        }
-    }
-    state.pending?.let { OutOfToleranceDialog(it, actions.onConfirm, actions.onDiscard) } // S010/RF-14, RF-15
-    if (state.paused == PauseState.LONG_PAUSE) LongPauseDialog(actions.onFinish, actions.onCancel, actions.onKeepWaiting) // S017/RF-10
-}
-
 /** El selector rápido del jalón activo con los datos del recolector (S046/RF-14, RF-15, RF-22, RF-26, RF-27). */
 @Composable
 internal fun CollectorGearSelector(state: CollectorUiState, actions: CollectorActions) {
@@ -202,49 +140,6 @@ internal fun CollectorGearSelector(state: CollectorUiState, actions: CollectorAc
         ),
         actions.onSelectPole,
     )
-}
-
-/** Nombre, descripción, jalón, modo y control de precisión. */
-@Composable
-private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorActions) {
-    val receiverPole = state.tiltMode == TiltMode.RECEIVER
-    NameField(state, actions)
-    OutlinedTextField(
-        value = state.description,
-        onValueChange = actions.onDescription,
-        label = { Text(stringResource(R.string.collector_description)) },
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_DESCRIPTION_TAG),
-    ) // S010/RF-4
-    val codeEnabled = !state.measuring && state.pending == null && !state.auto.running
-    CodeSelectorRow(state.code, enabled = codeEnabled, actions = actions) // S024/RF-1
-    // S025/RF-8b: con una línea activa del mismo código los atributos son los de la línea y no se piden otra vez.
-    if (!CollectorLineRules.appendsToActive(state.code.selected, state.line)) {
-        AttributeFields(state.code, enabled = codeEnabled, actions = actions) // S024/RF-8, RF-9
-    }
-    CollectorLineStatus(state.line, state.openLines, enabled = codeEnabled, actions = actions) // S025/RF-3 a RF-6
-    CollectorGearSelector(state, actions) // S046/RF-14, RF-15, RF-22
-    OutlinedTextField(
-        value = state.poleHeightText,
-        onValueChange = actions.onPoleHeight,
-        // S016/RF-15: con el receptor que compensa, es la altura configurada en el receptor y tienen que coincidir.
-        label = { Text(stringResource(if (receiverPole) R.string.pole_height_receiver_label else R.string.pole_height_label)) },
-        isError = !state.poleHeightValid,
-        supportingText = when {
-            !state.poleHeightValid -> ({ Text(stringResource(R.string.pole_height_invalid)) })
-            receiverPole -> ({ Text(stringResource(R.string.pole_height_receiver_help)) })
-            else -> null
-        },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-        modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_POLE_TAG),
-    ) // S010/RF-5
-    ModeChoice(state, actions)
-    AutoChoice(state, unit, actions) // S017/RF-15 a RF-17
-    // S010/RF-13; con la inclinación, también la inclinación máxima (S016/RF-20).
-    PrecisionControlRow(state.settings.precision, unit, showTilt = state.tiltMode?.usesTilt == true) {
-        actions.onSettings(state.settings.copy(precision = it))
-    }
 }
 
 @Composable
@@ -305,21 +200,6 @@ internal fun ModeChoice(state: CollectorUiState, actions: CollectorActions) {
             modifier = Modifier.fillMaxWidth().testTag(COLLECTOR_SECONDS_TAG),
         )
     }
-}
-
-/** Solución y precisiones H y V en las unidades del proyecto (S010/RF-6). */
-@Composable
-private fun LiveQualityText(live: LiveQuality?, unit: LinearUnit) {
-    if (live == null) return
-    val locale = uiLocale()
-    val symbol = unitSymbol(unit)
-    val noAccuracy = stringResource(R.string.collector_no_accuracy)
-    fun length(valueM: Double?) = valueM?.let { "${LengthFormat.inUnit(it, unit, locale)} $symbol" } ?: noAccuracy
-    Text(
-        stringResource(R.string.collector_live, stringResource(live.solution.nameRes()), length(live.horizontalM), length(live.verticalM)),
-        style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(COLLECTOR_LIVE_TAG),
-    )
 }
 
 /**
@@ -482,9 +362,3 @@ internal fun KeepScreenOn() {
         onDispose { view.keepScreenOn = false }
     }
 }
-
-/** El formulario no pasa de esto, para que el panel deje ver el mapa; si no cabe, se desplaza. */
-private val FORM_MAX_HEIGHT = 168.dp
-
-/** Mientras se promedia, el formulario cede sitio a las estadísticas. */
-private val FORM_MEASURING_MAX_HEIGHT = 72.dp

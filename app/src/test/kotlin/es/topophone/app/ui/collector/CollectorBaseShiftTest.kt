@@ -12,6 +12,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.baseshift.BASE_SHIFT_BANNER_DEACTIVATE_TAG
 import es.topophone.app.ui.baseshift.BASE_SHIFT_BANNER_TAG
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
@@ -70,7 +71,7 @@ import org.robolectric.annotation.Config
 /** El recolector lleva el desplazamiento de base activo en los puntos que mide, lo avisa y se desactiva desde allí (S020/RF-7 a RF-9, RF-11). */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "es-rES")
+@Config(qualifiers = "es-rES-w411dp-h900dp")
 class CollectorBaseShiftTest {
 
     @get:Rule
@@ -286,9 +287,9 @@ class CollectorBaseShiftTest {
             live = LiveQuality(SolutionStatus.FIX, 0.01, 0.015),
             baseShiftName = "V-12",
         )
-        compose.setContent {
+        compose.setContentExpanded {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                CollectorPanel(state, LinearUnit.METRE, CollectorActions(onDeactivateBaseShift = { deactivated++ }), onClose = {})
+                CollectorSheet(state, LinearUnit.METRE, CollectorActions(onDeactivateBaseShift = { deactivated++ }), onClose = {})
             }
         }
 

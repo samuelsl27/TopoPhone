@@ -713,7 +713,6 @@
     <string name="stakeout_off_no_data">No data from the receiver: guidance off.</string>
     <string name="stakeout_off_not_admitted">Solution type not admitted: guidance off.</string>
     <string name="stakeout_off_tilt">Tilt is not in state 30: guidance off.</string>
-    <string name="collector_title">Collector</string>
     <string name="collector_close">Close</string>
     <string name="collector_name">Name</string>
     <string name="collector_description">Description</string>

@@ -15,6 +15,7 @@ import es.topophone.app.ui.baseshift.BASE_SHIFT_BASE_CHANGED_REPEAT_TAG
 import es.topophone.app.ui.baseshift.BASE_SHIFT_BASE_CHANGED_TAG
 import es.topophone.app.ui.baseshift.BASE_SHIFT_DATUM_ACK_TAG
 import es.topophone.app.ui.baseshift.BASE_SHIFT_DATUM_NOTICE_TAG
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.point.BaseShift
@@ -67,7 +68,7 @@ import org.robolectric.annotation.Config
 /** El aviso de que un base shift activo puede haber dejado de valer por un cambio de base o de datum (S020/RF-15, RF-16). */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "es-rES")
+@Config(qualifiers = "es-rES-w411dp-h900dp")
 class CollectorBaseShiftNoticeTest {
 
     @get:Rule
@@ -251,9 +252,9 @@ class CollectorBaseShiftNoticeTest {
     fun `S020 RF-15 el panel ofrece desactivar y repetir`() {
         var calls = mutableListOf<String>()
         val state = CollectorUiState(loaded = true, baseShiftName = "V-12", baseShiftBaseChanged = true)
-        compose.setContent {
+        compose.setContentExpanded {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                CollectorPanel(
+                CollectorSheet(
                     state,
                     LinearUnit.METRE,
                     CollectorActions(onDeactivateBaseShift = { calls += "deactivate" }, onRepeatBaseShift = { calls += "repeat" }),
@@ -273,9 +274,9 @@ class CollectorBaseShiftNoticeTest {
     fun `S020 RF-16 el panel enseña el aviso del datum y se cierra`() {
         val calls = mutableListOf<String>()
         val state = CollectorUiState(loaded = true, baseShiftDatumNotice = "V-12")
-        compose.setContent {
+        compose.setContentExpanded {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                CollectorPanel(state, LinearUnit.METRE, CollectorActions(onAcknowledgeBaseShiftDatum = { calls += "ack" }), onClose = {})
+                CollectorSheet(state, LinearUnit.METRE, CollectorActions(onAcknowledgeBaseShiftDatum = { calls += "ack" }), onClose = {})
             }
         }
 
@@ -288,8 +289,8 @@ class CollectorBaseShiftNoticeTest {
     @Test
     fun `S020 RF-15 sin avisos el panel no enseña ninguno`() {
         val state = CollectorUiState(loaded = true)
-        compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorPanel(state, LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        compose.setContentExpanded {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorSheet(state, LinearUnit.METRE, CollectorActions(), onClose = {}) }
         }
 
         compose.onAllNodesWithTag(BASE_SHIFT_BASE_CHANGED_TAG).assertCountEquals(0)

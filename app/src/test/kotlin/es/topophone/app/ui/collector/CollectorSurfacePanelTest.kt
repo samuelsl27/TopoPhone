@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.preferences.EffectiveTheme
@@ -18,7 +19,7 @@ import org.robolectric.annotation.Config
 
 /** La cota de la superficie bajo la punta en el panel del recolector, sin replantear (S042/RF-33). Interfaz en es-ES. */
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "es-rES")
+@Config(qualifiers = "es-rES-w411dp-h900dp")
 class CollectorSurfacePanelTest {
 
     @get:Rule
@@ -32,8 +33,8 @@ class CollectorSurfacePanelTest {
     )
 
     private fun show(reading: SurfaceReading?, unit: LinearUnit = LinearUnit.METRE) {
-        compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorPanel(ready, unit, CollectorActions(), onClose = {}, surface = reading) }
+        compose.setContentExpanded {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorSheet(ready, unit, CollectorActions(), onClose = {}, surface = reading) }
         }
     }
 

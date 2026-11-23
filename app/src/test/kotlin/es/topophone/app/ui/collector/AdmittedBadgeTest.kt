@@ -36,7 +36,7 @@ class AdmittedBadgeTest {
     private fun showCollector(admitted: AdmittedSolutions) {
         val state = ready.copy(settings = CollectorSettings(precision = PrecisionControl(admitted = admitted)))
         compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorPanel(state, LinearUnit.METRE, CollectorActions(), onClose = {}) }
+            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorSheet(state, LinearUnit.METRE, CollectorActions(), onClose = {}) }
         }
     }
 
@@ -62,12 +62,13 @@ class AdmittedBadgeTest {
     }
 
     @Test
-    fun `S047 RF-14 en el recolector con FLOAT admitido el indicador dice que no solo se admite FIX con texto`() {
+    fun `S047 RF-14 y S060 RF-14 en el recolector con FLOAT admitido la pastilla dice que tipos se admiten con texto`() {
         showCollector(AdmittedSolutions.of(setOf(SolutionType.FIX, SolutionType.FLOAT)))
 
-        compose.onNodeWithTag(ADMITTED_BADGE_TAG).assertIsDisplayed()
-            .assertTextContains("No solo FIX", substring = true)
+        // S060/RF-14, RF-19: en el recolector es una pastilla informativa y ya no un aviso permanente en rojo.
+        compose.onNodeWithTag(infoPillTag(InfoPillKind.PRECISION)).assertIsDisplayed()
             .assertTextContains("FIX, FLOAT", substring = true)
+        compose.onAllNodesWithTag(ADMITTED_BADGE_TAG).fetchSemanticsNodes().size shouldBe 0
     }
 
     @Test

@@ -10,6 +10,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.R
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.app.ui.text
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
@@ -40,9 +41,9 @@ class CollectorTiltDialogTest {
     private var chosen: CollectorSettings? = null
 
     private fun show(state: CollectorUiState) {
-        compose.setContent {
+        compose.setContentExpanded {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                CollectorPanel(state, LinearUnit.METRE, CollectorActions(onSettings = { chosen = it }), onClose = {})
+                CollectorSheet(state, LinearUnit.METRE, CollectorActions(onSettings = { chosen = it }), onClose = {})
             }
         }
     }
@@ -101,8 +102,10 @@ class CollectorTiltDialogTest {
     fun `S016 RF-19 durante la medida dice que no cuentan las epocas`() {
         show(ready.copy(measuring = true, tiltLost = es.topophone.core.survey.TiltGuide.FAST_MOTION))
 
-        compose.onNodeWithTag(COLLECTOR_TILT_LOST_TAG).assert(hasText(text(R.string.collector_tilt_lost)))
-        compose.onNodeWithTag(COLLECTOR_TILT_LOST_GUIDE_TAG).assert(hasText(text(R.string.tilt_guide_fast_motion)))
+        // S060/RF-22: el aviso y su guía van juntos en una sola línea de aviso.
+        compose.onNodeWithTag(COLLECTOR_TILT_LOST_TAG)
+            .assert(hasText(text(R.string.collector_tilt_lost), substring = true))
+            .assert(hasText(text(R.string.tilt_guide_fast_motion), substring = true))
     }
 
     @Test

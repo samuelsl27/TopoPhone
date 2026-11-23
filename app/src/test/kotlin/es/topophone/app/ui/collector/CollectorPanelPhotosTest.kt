@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.point.PhotoDestination
@@ -26,7 +27,7 @@ import org.robolectric.annotation.Config
 
 /** «Foto» y «Galería» del recolector: el destino, el recuento, el límite y la pregunta al cancelar (S017b/RF-1, RF-3, RF-7, RF-8). */
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "es-rES")
+@Config(qualifiers = "es-rES-w411dp-h900dp")
 class CollectorPanelPhotosTest {
 
     @get:Rule
@@ -43,8 +44,8 @@ class CollectorPanelPhotosTest {
         CollectorUiState(loaded = true, name = "12", poleHeightText = "1,800", live = LiveQuality(SolutionStatus.FIX, 0.01, 0.015))
 
     private fun show(photos: PhotoUi) {
-        compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorPanel(ready.copy(photos = photos), LinearUnit.METRE, actions, onClose = {}) }
+        compose.setContentExpanded {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorSheet(ready.copy(photos = photos), LinearUnit.METRE, actions, onClose = {}) }
         }
     }
 

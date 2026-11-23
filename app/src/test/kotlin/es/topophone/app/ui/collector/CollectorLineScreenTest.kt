@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.codes.CodeSymbol
@@ -65,19 +66,19 @@ class CollectorLineScreenTest {
     )
 
     private fun show(content: @Composable () -> Unit) {
-        compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { content() } }
+        compose.setContentExpanded { TopoPhoneTheme(EffectiveTheme.LIGHT) { content() } }
     }
 
     @Test
     fun `S025 RF-3 el recolector muestra el nombre de la linea activa y su numero de vertices`() {
-        show { CollectorPanel(state(), LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(state(), LinearUnit.METRE, CollectorActions(), onClose = {}) }
 
         compose.onNodeWithTag(COLLECTOR_LINE_TAG).performScrollTo().assertIsDisplayed()
     }
 
     @Test
     fun `S025 RF-3 sin linea activa no hay botones de terminar ni de deshacer`() {
-        show { CollectorPanel(state(line = null, openLines = emptyList()), LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(state(line = null, openLines = emptyList()), LinearUnit.METRE, CollectorActions(), onClose = {}) }
 
         compose.onAllNodesCount(COLLECTOR_LINE_FINISH_TAG) shouldBe 0
         compose.onAllNodesCount(COLLECTOR_LINE_UNDO_TAG) shouldBe 0
@@ -89,7 +90,7 @@ class CollectorLineScreenTest {
         var finished = 0
         var undone = 0
         val actions = CollectorActions(onFinishLine = { finished++ }, onUndoLineVertex = { undone++ })
-        show { CollectorPanel(state(), LinearUnit.METRE, actions, onClose = {}) }
+        show { CollectorSheet(state(), LinearUnit.METRE, actions, onClose = {}) }
 
         compose.onNodeWithTag(COLLECTOR_LINE_FINISH_TAG).performScrollTo().performClick()
         compose.onNodeWithTag(COLLECTOR_LINE_UNDO_TAG).performScrollTo().performClick()
@@ -102,7 +103,7 @@ class CollectorLineScreenTest {
     fun `S025 RF-5 Continuar linea lista las abiertas con su codigo y sus vertices y la elegida se continua`() {
         var picked: String? = null
         val actions = CollectorActions(onContinueLine = { picked = it })
-        show { CollectorPanel(state(), LinearUnit.METRE, actions, onClose = {}) }
+        show { CollectorSheet(state(), LinearUnit.METRE, actions, onClose = {}) }
 
         compose.onNodeWithTag(COLLECTOR_LINE_CONTINUE_TAG).performScrollTo().performClick()
         compose.onNodeWithTag(continueLineTag("BORD_1")).assertIsDisplayed()
@@ -113,7 +114,7 @@ class CollectorLineScreenTest {
 
     @Test
     fun `S025 RF-6 con una medida en marcha los botones de la linea no se pulsan`() {
-        show { CollectorPanel(state().copy(measuring = true), LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(state().copy(measuring = true), LinearUnit.METRE, CollectorActions(), onClose = {}) }
 
         compose.onNodeWithTag(COLLECTOR_LINE_FINISH_TAG).performScrollTo().assertIsNotEnabled()
         compose.onNodeWithTag(COLLECTOR_LINE_UNDO_TAG).assertIsNotEnabled()
@@ -122,14 +123,14 @@ class CollectorLineScreenTest {
 
     @Test
     fun `S025 RF-6 con una medida parada los botones de la linea se pulsan`() {
-        show { CollectorPanel(state(), LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(state(), LinearUnit.METRE, CollectorActions(), onClose = {}) }
 
         compose.onNodeWithTag(COLLECTOR_LINE_FINISH_TAG).performScrollTo().assertIsEnabled()
     }
 
     @Test
     fun `S025 RF-1 los codigos de linea y de poligono se marcan con su geometria en el selector`() {
-        show { CollectorPanel(state(), LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(state(), LinearUnit.METRE, CollectorActions(), onClose = {}) }
 
         compose.onNodeWithTag(COLLECTOR_CODE_TAG).performScrollTo().performClick()
 
@@ -148,7 +149,7 @@ class CollectorLineScreenTest {
                 ),
             ),
         )
-        show { CollectorPanel(withFields, LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(withFields, LinearUnit.METRE, CollectorActions(), onClose = {}) }
 
         compose.onAllNodesCount(attributeFieldTag(0)) shouldBe 0
     }
@@ -164,7 +165,7 @@ class CollectorLineScreenTest {
                 ),
             )
         }
-        show { CollectorPanel(withFields, LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(withFields, LinearUnit.METRE, CollectorActions(), onClose = {}) }
 
         compose.onNodeWithTag(attributeFieldTag(0)).performScrollTo().assertIsDisplayed()
     }

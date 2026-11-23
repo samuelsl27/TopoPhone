@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.codes.AttributeError
@@ -53,8 +54,8 @@ class CollectorCodeScreenTest {
     )
 
     private fun show(state: CollectorUiState, actions: CollectorActions = this.actions) {
-        compose.setContent {
-            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorPanel(state, LinearUnit.METRE, actions, onClose = {}) }
+        compose.setContentExpanded {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorSheet(state, LinearUnit.METRE, actions, onClose = {}) }
         }
     }
 

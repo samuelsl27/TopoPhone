@@ -28,6 +28,7 @@ import es.topophone.core.designsystem.component.MinTouchTarget
 import es.topophone.core.model.format.DurationText
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.point.CollectorSettings
+import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.survey.PoleHeight
 
@@ -137,7 +138,12 @@ private fun FoldedDialogs(
         null -> Unit
         PillDialog.POLE -> NumericEntryDialog(
             title = stringResource(R.string.field_pole_title),
-            label = stringResource(R.string.field_pole_label, symbol),
+            // S016/RF-15: con el receptor que compensa, la altura es la configurada en el receptor y se dice.
+            label = if (state.tiltMode == TiltMode.RECEIVER) {
+                stringResource(R.string.pole_height_receiver_label)
+            } else {
+                stringResource(R.string.field_pole_label, symbol)
+            },
             initial = state.poleHeightText,
             validate = { text -> R.string.pole_height_invalid.takeIf { PoleHeight.parse(text) == null } },
             onConfirm = actions.onPoleHeight,

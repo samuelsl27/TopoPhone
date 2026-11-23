@@ -96,7 +96,6 @@ import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.COLLECT_BUTTON_TAG
 import es.topophone.app.ui.collector.CollectorActions
 import es.topophone.app.ui.collector.CollectorCodeSource
-import es.topophone.app.ui.collector.CollectorPanel
 import es.topophone.app.ui.collector.CollectorSheet
 import es.topophone.app.ui.collector.CollectorUiState
 import es.topophone.app.ui.collector.CollectorViewModel
@@ -1327,7 +1326,7 @@ fun ProjectViewScreen(
                                 stats = collectorStats,
                             )
                         } else if (collector != null) {
-                            CollectorPanel(
+                            CollectorSheet(
                                 collector,
                                 project.linearUnit,
                                 collectorActions,
@@ -1349,7 +1348,7 @@ fun ProjectViewScreen(
                                 stats = collectorStats,
                             )
                         } else if (collector != null) {
-                            CollectorPanel(
+                            CollectorSheet(
                                 collector,
                                 project.linearUnit,
                                 collectorActions,
@@ -1363,7 +1362,7 @@ fun ProjectViewScreen(
                     axisSurvey != null -> Column {
                         AxisSurveyPanel(axisSurvey, axisSurveyActions) // S052/RF-1
                         if (collector != null) {
-                            CollectorPanel(
+                            CollectorSheet(
                                 collector,
                                 project.linearUnit,
                                 collectorActions,

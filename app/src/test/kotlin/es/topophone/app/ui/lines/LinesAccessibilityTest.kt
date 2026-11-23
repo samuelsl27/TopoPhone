@@ -19,8 +19,9 @@ import es.topophone.app.ui.collector.COLLECTOR_LINE_CONTINUE_TAG
 import es.topophone.app.ui.collector.CollectorActions
 import es.topophone.app.ui.collector.CollectorCodeUi
 import es.topophone.app.ui.collector.CollectorLineUi
-import es.topophone.app.ui.collector.CollectorPanel
+import es.topophone.app.ui.collector.CollectorSheet
 import es.topophone.app.ui.collector.CollectorUiState
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -82,7 +83,7 @@ class LinesAccessibilityTest {
     )
 
     private fun show(content: @Composable () -> Unit) {
-        compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { content() } }
+        compose.setContentExpanded { TopoPhoneTheme(EffectiveTheme.LIGHT) { content() } }
     }
 
     private fun label(node: SemanticsNode): String {
@@ -115,7 +116,7 @@ class LinesAccessibilityTest {
 
     @Test
     fun `S025 RNF-T8 los botones de la linea activa en el recolector tienen etiqueta y 56 dp`() {
-        show { CollectorPanel(collectorState, LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(collectorState, LinearUnit.METRE, CollectorActions(), onClose = {}) }
         compose.onNodeWithTag(COLLECTOR_LINE_CONTINUE_TAG).performScrollTo()
 
         assertControls("recolector")
@@ -123,7 +124,7 @@ class LinesAccessibilityTest {
 
     @Test
     fun `S025 RNF-T8 la lista de lineas abiertas para continuar tiene etiquetas y 56 dp`() {
-        show { CollectorPanel(collectorState, LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(collectorState, LinearUnit.METRE, CollectorActions(), onClose = {}) }
         compose.onNodeWithTag(COLLECTOR_LINE_CONTINUE_TAG).performScrollTo().performClick()
 
         assertControls("continuar")
@@ -249,7 +250,7 @@ class LinesAccessibilityTest {
     @Test
     @Config(qualifiers = "en")
     fun `S025 RNF-T7 en ingles el recolector dice la linea activa en ingles`() {
-        show { CollectorPanel(collectorState, LinearUnit.METRE, CollectorActions(), onClose = {}) }
+        show { CollectorSheet(collectorState, LinearUnit.METRE, CollectorActions(), onClose = {}) }
 
         compose.onNodeWithText("Active line: BORD_1").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("3 vertices").assertExists()

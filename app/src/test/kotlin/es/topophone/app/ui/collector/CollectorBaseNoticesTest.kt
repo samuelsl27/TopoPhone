@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.receiver.VisibleNotices
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.app.ui.receiver.BASE_CHANGED_NOTICE_TAG
 import es.topophone.app.ui.receiver.LONG_BASELINE_NOTICE_TAG
 import es.topophone.app.ui.receiver.noticeCloseTag
@@ -23,7 +24,7 @@ import org.robolectric.annotation.Config
 
 /** Avisos de la base en el panel del recolector y medida empezada de nuevo (S015/RF-15, RF-17, RF-18). Interfaz en es-ES. */
 @RunWith(AndroidJUnit4::class)
-@Config(qualifiers = "es-rES")
+@Config(qualifiers = "es-rES-w411dp-h900dp")
 class CollectorBaseNoticesTest {
 
     @get:Rule
@@ -38,7 +39,9 @@ class CollectorBaseNoticesTest {
     )
 
     private fun show(state: CollectorUiState) {
-        compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorPanel(state, LinearUnit.METRE, actions, onClose = {}) } }
+        compose.setContentExpanded {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorSheet(state, LinearUnit.METRE, actions, onClose = {}) }
+        }
     }
 
     @Test

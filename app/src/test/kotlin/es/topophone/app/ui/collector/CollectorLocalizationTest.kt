@@ -2,14 +2,13 @@ package es.topophone.app.ui.collector
 
 import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import es.topophone.app.ui.localization.LOCALIZATION_BANNER_TAG
 import es.topophone.app.ui.receiver.nmea
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
@@ -235,7 +234,7 @@ class CollectorLocalizationTest {
     }
 
     @Test
-    fun `S039 RF-14 el panel enseña el indicador Localizado con texto`() {
+    fun `S039 RF-14 y S060 RF-14 el panel enseña la localizacion activa con texto`() {
         val state = CollectorUiState(
             loaded = true,
             name = "P12",
@@ -245,11 +244,13 @@ class CollectorLocalizationTest {
         )
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                CollectorPanel(state, LinearUnit.METRE, CollectorActions(), onClose = {})
+                CollectorSheet(state, LinearUnit.METRE, CollectorActions(), onClose = {})
             }
         }
 
-        compose.onNodeWithTag(LOCALIZATION_BANNER_TAG).assertIsDisplayed()
-        compose.onNodeWithText("Localizado: los puntos GNSS salen en el sistema de la obra").assertIsDisplayed()
+        // S060/RF-14: el indicador de la localización activa es una pastilla informativa con su texto.
+        compose.onNodeWithTag(infoPillTag(InfoPillKind.LOCALIZATION)).assertIsDisplayed()
+            .assertTextContains("Localización", substring = true)
+            .assertTextContains("Activa", substring = true)
     }
 }

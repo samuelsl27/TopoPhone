@@ -15,6 +15,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.point.AdmittedSolutions
@@ -51,7 +52,7 @@ class CollectorDialogsTest {
     )
 
     private fun show(state: CollectorUiState, unit: LinearUnit = LinearUnit.METRE) {
-        compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorPanel(state, unit, actions, onClose = {}) } }
+        compose.setContentExpanded { TopoPhoneTheme(EffectiveTheme.LIGHT) { CollectorSheet(state, unit, actions, onClose = {}) } }
     }
 
     @Test

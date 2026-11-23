@@ -17,6 +17,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.codes.CodeEditorActions
 import es.topophone.app.ui.codes.CodeEditorScreen
 import es.topophone.app.ui.codes.CodeEditorUiState
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.app.ui.points.ChangeCodeActions
 import es.topophone.app.ui.points.ChangeCodeDialogs
 import es.topophone.app.ui.points.ChangeCodeUi
@@ -82,7 +83,7 @@ class CollectorCodesAccessibilityTest {
         )
 
     private fun show(content: @Composable () -> Unit) {
-        compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { content() } }
+        compose.setContentExpanded { TopoPhoneTheme(EffectiveTheme.LIGHT) { content() } }
     }
 
     private fun label(node: SemanticsNode): String {
@@ -107,7 +108,7 @@ class CollectorCodesAccessibilityTest {
 
     @Test
     fun `S024 RNF-T8 el selector y los atributos del recolector tienen etiquetas y zonas de 56 dp`() {
-        show { CollectorPanel(state, LinearUnit.METRE, actions, onClose = {}) }
+        show { CollectorSheet(state, LinearUnit.METRE, actions, onClose = {}) }
         compose.onNodeWithTag(COLLECTOR_CODE_TAG).performScrollTo()
 
         assertControls("recolector")
@@ -115,7 +116,7 @@ class CollectorCodesAccessibilityTest {
 
     @Test
     fun `S024 RNF-T8 la lista del selector abierto tiene etiquetas y zonas de 56 dp`() {
-        show { CollectorPanel(state, LinearUnit.METRE, actions, onClose = {}) }
+        show { CollectorSheet(state, LinearUnit.METRE, actions, onClose = {}) }
         compose.onNodeWithTag(COLLECTOR_CODE_TAG).performScrollTo().performClick()
 
         assertControls("selector")
@@ -123,7 +124,7 @@ class CollectorCodesAccessibilityTest {
 
     @Test
     fun `S024 RNF-T8 TalkBack lee el codigo con su descripcion en el boton y en cada opcion`() {
-        show { CollectorPanel(state, LinearUnit.METRE, actions, onClose = {}) }
+        show { CollectorSheet(state, LinearUnit.METRE, actions, onClose = {}) }
         compose.onNodeWithTag(
             COLLECTOR_CODE_TAG,
         ).performScrollTo().assert(hasContentDescription("Elegir código. Ahora: ARQ · Arqueta", substring = true))
@@ -188,7 +189,7 @@ class CollectorCodesAccessibilityTest {
     @Test
     @Config(qualifiers = "en")
     fun `S024 RNF-T7 en ingles el selector y los atributos salen en ingles`() {
-        show { CollectorPanel(state, LinearUnit.METRE, actions, onClose = {}) }
+        show { CollectorSheet(state, LinearUnit.METRE, actions, onClose = {}) }
         compose.onNodeWithTag(
             COLLECTOR_CODE_TAG,
         ).performScrollTo().assert(hasContentDescription("Choose code. Current: ARQ · Arqueta", substring = true))

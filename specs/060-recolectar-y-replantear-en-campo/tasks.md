@@ -27,7 +27,7 @@
       Hecho cuando: `CollectorExpandedTest` recorre cada fila con una pantalla pequeña y letra al 130 % sin cortes, comprueba que sin punto no hay botones de foto desactivados y que el teclado no tapa el campo enfocado.
 - [x] T10. `CollectorSheet` en `ProjectViewScreen`: sustituye a `CollectorPanel` en el recolector suelto y mueve el hueco inferior del mapa a su alto medido; se añaden `onOpenReceiver`, `onOpenProjectCrs` y `onOpenGear` a `CollectorActions`. (RF-1, RF-2, RF-16)
       Hecho cuando: `CollectorSheetScreenTest` abre el recolector en el proyecto, comprueba el alto plegado frente a 411×891 y 360×640 (D2) y que las acciones del motivo llegan a sus rutas.
-- [ ] T11. `CollectorSheet` bajo las secciones, el perfil longitudinal y la toma por eje, y migración de los tests antiguos de `CollectorPanel`. (RF-1, RF-32)
+- [x] T11. `CollectorSheet` bajo las secciones, el perfil longitudinal y la toma por eje, y migración de los tests antiguos de `CollectorPanel`. (RF-1, RF-32)
       Hecho cuando: los tests de `CollectorPanel*` y de las secciones, migrados, pasan, y `CollectorPanel` y `FORM_MAX_HEIGHT` ya no existen.
 - [ ] T12. Cierre del recolector: `RF-32` con un test de regresión de los valores por defecto, rangos y textos de S010, S016, S017, S020, S024, S025, S046 y S047, y comprobación de que no queda ningún aviso permanente de configuración. (RF-19, RF-32)
       Hecho cuando: `CollectorNothingChangesTest` pasa y `rf_report` muestra RF-1 a RF-22 cubiertos.
