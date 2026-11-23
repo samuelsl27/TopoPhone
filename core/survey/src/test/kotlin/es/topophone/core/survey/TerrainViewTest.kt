@@ -52,6 +52,26 @@ class TerrainViewTest {
     }
 
     @Test
+    fun `S058 RF-9 la guia del replanteo y la de un eje van por el factor y no cambian ni el rumbo ni la cota`() {
+        val grid = Guidance(10.0, 6.0, 8.0, 0.5, 4.0, 3.0, -0.2)
+
+        val shown = terrain.guidance(grid)
+
+        shown.distanceM shouldBe (10.0 * 0.9995 plusOrMinus 1e-12)
+        shown.dEastM shouldBe (6.0 * 0.9995 plusOrMinus 1e-12)
+        shown.dNorthM shouldBe (8.0 * 0.9995 plusOrMinus 1e-12)
+        shown.aheadM shouldBe (4.0 * 0.9995 plusOrMinus 1e-12)
+        shown.rightM shouldBe (3.0 * 0.9995 plusOrMinus 1e-12)
+        shown.bearingRad shouldBe 0.5
+        shown.dHeightM shouldBe -0.2
+        TerrainView.GRID.guidance(grid) shouldBe grid
+        val axis = terrain.axisGuidance(AxisGuidanceValue(2.0, -1.0, AcrossMove.LEFT))
+        axis.alongM shouldBe (2.0 * 0.9995 plusOrMinus 1e-12)
+        axis.acrossM shouldBe (-1.0 * 0.9995 plusOrMinus 1e-12)
+        axis.across shouldBe AcrossMove.LEFT
+    }
+
+    @Test
     fun `S058 RF-9 un plano que el SC no admite no da vista y no cuadricula en silencio`() {
         TerrainView.of(TerrainPlane(40.4, -3.7, 0.9995), SpainCrs.ETRS89_GEOGRAPHIC).shouldBeNull()
     }

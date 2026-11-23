@@ -17,6 +17,7 @@ import es.topophone.core.survey.AlignmentGeometry
 import es.topophone.core.survey.AxisPoint
 import es.topophone.core.survey.AxisPointBuilder
 import es.topophone.core.survey.AxisPointResult
+import es.topophone.core.survey.TerrainView
 import es.topophone.core.survey.VerticalProfileEval
 import es.topophone.data.alignment.AlignmentRepository
 import es.topophone.data.point.PointRepository
@@ -40,6 +41,8 @@ data class AlignmentPointUiState(
     val alignmentName: String = "",
     val unit: LinearUnit = LinearUnit.METRE,
     val angularUnit: AngularUnit = AngularUnit.DMS,
+    /** S058/RF-9: Este y Norte del punto del eje se ven en terreno si el proyecto lo está. */
+    val terrain: TerrainView = TerrainView.GRID,
     /** El PK inicial y final del eje, en metros (RF-21). */
     val startChainageM: Double = 0.0,
     val endChainageM: Double = 0.0,
@@ -105,6 +108,7 @@ class AlignmentPointViewModel @Inject constructor(
                     alignmentName = loaded.name,
                     unit = loadedProject.linearUnit,
                     angularUnit = loadedProject.angularUnit,
+                    terrain = TerrainView.of(loadedProject.terrain, loadedProject.crs) ?: TerrainView.GRID,
                     startChainageM = loaded.startChainage,
                     endChainageM = loaded.endChainage,
                     hasProfile = loaded.profile != null,

@@ -41,7 +41,7 @@
       Hecho cuando: `TerrainInputsTest` fija el punto central escribiendo terreno y lo ve en terreno.
 - [x] T16. Replanteo de puntos y de líneas: deltas y distancias en terreno. (RF-9)
       Hecho cuando: `TerrainScreensTest` comprueba que la distancia y los deltas del replanteo de un punto están × `k` y el acimut no cambia.
-- [ ] T17. Replanteo de ejes, dibujos, superficies, pendientes, secciones y tomas lineales, y desplazamiento de base. (RF-9)
+- [x] T17. Replanteo de ejes, dibujos, superficies, pendientes, secciones y tomas lineales, y desplazamiento de base. (RF-9)
       Hecho cuando: `TerrainScreensTest` comprueba las distancias y las coordenadas de cada uno en terreno.
 - [ ] T18. COGO: entradas y resultados en terreno, con el modo de distancias en cuadrícula. (RF-9, RF-10)
       Hecho cuando: `TerrainInputsTest` calcula una inversa y una intersección en terreno y los puntos guardados quedan en cuadrícula.

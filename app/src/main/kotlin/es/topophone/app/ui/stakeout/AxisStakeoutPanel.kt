@@ -50,6 +50,7 @@ import es.topophone.app.ui.collector.Measuring
 import es.topophone.app.ui.collector.Messages
 import es.topophone.app.ui.collector.OutOfToleranceDialog
 import es.topophone.app.ui.collector.PauseState
+import es.topophone.app.ui.projects.rememberTerrainView
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.app.ui.section.slopeLabel
@@ -603,7 +604,8 @@ private fun AxisFigures(state: AxisStakeoutUiState, ui: GuidanceUi, unit: Linear
         )
         return
     }
-    val guidance = state.axisGuidance ?: return
+    // S058/RF-9: con el proyecto en terreno, lo que hay que moverse va en terreno.
+    val guidance = state.axisGuidance?.let { g -> state.project?.let { rememberTerrainView(it).axisGuidance(g) } ?: g } ?: return
     val numbers = Numbers(unit, unitSymbol(unit), uiLocale())
     val along = alongPhrase(guidance, numbers)
     val across = acrossPhrase(guidance, numbers)

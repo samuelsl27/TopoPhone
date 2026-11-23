@@ -1590,6 +1590,7 @@ fun ProjectViewScreen(
             onStakeout = onStakeoutElement,
             onConvertToAxis = { convertOpen = true },
             onInformation = { designInfoOpen = true },
+            terrain = rememberTerrainView(project),
         )
     }
     if (designInfoOpen && designSelection != null && project != null) {

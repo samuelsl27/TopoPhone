@@ -41,10 +41,16 @@ class DesignElementSheetTest {
 
     private var stakeouts = 0
 
-    private fun show(selection: DesignSelection, unit: LinearUnit = LinearUnit.METRE, symbol: String = "m", geographic: Boolean = false) {
+    private fun show(
+        selection: DesignSelection,
+        unit: LinearUnit = LinearUnit.METRE,
+        symbol: String = "m",
+        geographic: Boolean = false,
+        terrain: es.topophone.core.survey.TerrainView = es.topophone.core.survey.TerrainView.GRID,
+    ) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                DesignElementSheet(selection, unit, symbol, geographic, onDismiss = {}, onStakeout = { stakeouts++ })
+                DesignElementSheet(selection, unit, symbol, geographic, onDismiss = {}, onStakeout = { stakeouts++ }, terrain = terrain)
             }
         }
     }
@@ -73,6 +79,18 @@ class DesignElementSheetTest {
         compose.onNodeWithText("Línea").assertIsDisplayed()
         compose.onNodeWithText("Longitud: 70,000 m").assertIsDisplayed()
         compose.onNodeWithText("Vértices: 3").assertIsDisplayed()
+    }
+
+    @Test
+    fun `S058 RF-9 con el proyecto en terreno la longitud de la linea va por el factor`() {
+        val terrain = es.topophone.core.survey.TerrainView.of(
+            es.topophone.core.model.project.TerrainPlane(40.4, -3.7, 1.0004),
+            es.topophone.core.model.project.SpainCrs.ETRS89_UTM30,
+        )!!
+
+        show(selection(line(null), hasElevation = false), terrain = terrain)
+
+        compose.onNodeWithText("Longitud: 70,028 m").assertIsDisplayed()
     }
 
     @Test

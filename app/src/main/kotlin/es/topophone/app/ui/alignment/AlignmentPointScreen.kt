@@ -27,6 +27,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.projects.TerrainMark
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -45,6 +46,7 @@ const val POINT_AXIS_OUTSIDE_TAG = "point_axis_outside"
 const val POINT_AXIS_RESULT_TAG = "point_axis_result"
 const val POINT_AXIS_EASTING_TAG = "point_axis_easting"
 const val POINT_AXIS_NORTHING_TAG = "point_axis_northing"
+const val POINT_AXIS_TERRAIN_TAG = "point_axis_terrain"
 const val POINT_AXIS_AZIMUTH_TAG = "point_axis_azimuth"
 const val POINT_AXIS_RADIUS_TAG = "point_axis_radius"
 const val POINT_AXIS_ELEVATION_TAG = "point_axis_elevation"
@@ -199,13 +201,15 @@ private fun Result(reading: AxisReading, state: AlignmentPointUiState, symbol: S
                 },
             )
             val mono = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace)
+            val shown = state.terrain.coordinates(point.easting, point.northing) // S058/RF-9
+            TerrainMark(state.terrain, POINT_AXIS_TERRAIN_TAG)
             Text(
-                stringResource(R.string.alignment_point_easting, LengthFormat.inUnit(point.easting, state.unit, locale), symbol),
+                stringResource(R.string.alignment_point_easting, LengthFormat.inUnit(shown.easting, state.unit, locale), symbol),
                 style = mono,
                 modifier = Modifier.testTag(POINT_AXIS_EASTING_TAG),
             )
             Text(
-                stringResource(R.string.alignment_point_northing, LengthFormat.inUnit(point.northing, state.unit, locale), symbol),
+                stringResource(R.string.alignment_point_northing, LengthFormat.inUnit(shown.northing, state.unit, locale), symbol),
                 style = mono,
                 modifier = Modifier.testTag(POINT_AXIS_NORTHING_TAG),
             )

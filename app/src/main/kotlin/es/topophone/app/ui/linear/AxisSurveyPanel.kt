@@ -106,7 +106,7 @@ fun AxisSurveyPanel(state: AxisSurveyUiState, actions: AxisSurveyActions, modifi
                     stringResource(
                         R.string.axis_survey_summary,
                         included.size,
-                        LengthFormat.inUnit(state.lengthM, state.unit, locale),
+                        LengthFormat.inUnit(state.terrain.distance(state.lengthM), state.unit, locale),
                         symbol,
                     ),
                     modifier = Modifier.testTag(AXIS_SURVEY_SUMMARY_TAG).semantics { liveRegion = LiveRegionMode.Polite },
@@ -238,7 +238,7 @@ private fun ResultDialog(result: AxisSurveyResult, state: AxisSurveyUiState, act
                     stringResource(
                         R.string.axis_survey_done_body,
                         result.name,
-                        LengthFormat.inUnit(result.lengthM, state.unit, locale),
+                        LengthFormat.inUnit(state.terrain.distance(result.lengthM), state.unit, locale),
                         symbol,
                     ),
                 )

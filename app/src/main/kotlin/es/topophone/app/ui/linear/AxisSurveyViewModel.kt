@@ -20,6 +20,7 @@ import es.topophone.core.survey.FieldAxisIssue
 import es.topophone.core.survey.FieldAxisResult
 import es.topophone.core.survey.FieldVertex
 import es.topophone.core.survey.PolylineLength
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.alignment.AlignmentRepository
 import es.topophone.data.alignment.AlignmentToSave
 import es.topophone.data.linear.FinishAxisResult
@@ -91,6 +92,8 @@ data class AxisSurveyResult(val name: String, val lengthM: Double, val activated
 data class AxisSurveyUiState(
     val loading: Boolean = true,
     val unit: LinearUnit = LinearUnit.METRE,
+    /** S058/RF-9: la longitud de la poligonal se ve en terreno si el proyecto lo está. */
+    val terrain: TerrainView = TerrainView.GRID,
     val survey: LinearSurvey? = null,
     val rows: List<AxisSurveyRow> = emptyList(),
     /** La longitud en planta de los puntos incluidos (RF-3). */
@@ -137,7 +140,9 @@ class AxisSurveyViewModel @Inject constructor(
         if (projectId != null) return
         projectId = id
         viewModelScope.launch(io) {
-            val unit = projects.project(id)?.linearUnit ?: LinearUnit.METRE
+            val project = projects.project(id)
+            val unit = project?.linearUnit ?: LinearUnit.METRE
+            val terrain = project?.let { TerrainView.of(it.terrain, it.crs) } ?: TerrainView.GRID
             val open = surveys.surveys(id).map { list -> list.firstOrNull { it.kind == LinearSurveyKind.AXIS && it.isOpen } }
             open.flatMapLatest { survey ->
                 if (survey == null) {
@@ -168,6 +173,7 @@ class AxisSurveyViewModel @Inject constructor(
                     it.copy(
                         loading = false,
                         unit = unit,
+                        terrain = terrain,
                         survey = survey,
                         rows = rows,
                         lengthM = PolylineLength.of(included.map { r -> FieldVertex(r.easting, r.northing) }),

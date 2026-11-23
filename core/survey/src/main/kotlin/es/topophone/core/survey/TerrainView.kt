@@ -51,6 +51,10 @@ class TerrainView private constructor(private val frame: TerrainFrame?) {
         )
     }
 
+    /** Lo que hay que moverse a lo largo y a través de un eje, en terreno (S058/RF-9). */
+    fun axisGuidance(grid: AxisGuidanceValue): AxisGuidanceValue =
+        if (!isTerrain) grid else grid.copy(alongM = distance(grid.alongM), acrossM = distance(grid.acrossM))
+
     /** Las distancias de un objetivo sobre una línea, en terreno; el PK y el desplazamiento son de diseño y no cambian (S058/RF-9). */
     fun lineObjective(grid: LineObjective): LineObjective = if (!isTerrain) {
         grid

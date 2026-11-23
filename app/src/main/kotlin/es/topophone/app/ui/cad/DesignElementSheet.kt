@@ -26,6 +26,7 @@ import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.cad.CadEntityKind
 import es.topophone.core.model.cad.GpkgValue
 import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.survey.TerrainView
 import java.text.NumberFormat
 import kotlin.math.hypot
 
@@ -59,6 +60,8 @@ fun DesignElementSheet(
     onConvertToAxis: (() -> Unit)? = null,
     /** «Información» de una línea: su longitud, su área y su tabla de segmentos; null si no se ofrece (S026/RF-1). */
     onInformation: (() -> Unit)? = null,
+    /** S058/RF-9: con el proyecto en terreno, la posición y la longitud se ven en terreno. */
+    terrain: TerrainView = TerrainView.GRID,
 ) {
     val entity = selection.entity
     val number = NumberFormat.getNumberInstance().apply {
@@ -81,8 +84,9 @@ fun DesignElementSheet(
             Text(stringResource(R.string.cad_element_layer, selection.layerName))
             Text(stringResource(R.string.cad_element_drawing, selection.drawingName))
             if (entity.vertexCount == 1) {
-                val east = number.format(if (geographic) entity.easting[0] else unit.fromMetres(entity.easting[0]))
-                val north = number.format(if (geographic) entity.northing[0] else unit.fromMetres(entity.northing[0]))
+                val shown = terrain.coordinates(entity.easting[0], entity.northing[0])
+                val east = number.format(if (geographic) entity.easting[0] else unit.fromMetres(shown.easting))
+                val north = number.format(if (geographic) entity.northing[0] else unit.fromMetres(shown.northing))
                 Text(
                     if (geographic) {
                         stringResource(R.string.cad_element_position_geographic, east, north)
@@ -92,7 +96,13 @@ fun DesignElementSheet(
                 )
             } else {
                 if (!geographic) {
-                    Text(stringResource(R.string.cad_element_length, number.format(unit.fromMetres(length(entity))), unitSymbol))
+                    Text(
+                        stringResource(
+                            R.string.cad_element_length,
+                            number.format(unit.fromMetres(terrain.distance(length(entity)))),
+                            unitSymbol,
+                        ),
+                    )
                 }
                 Text(stringResource(R.string.cad_element_vertices, entity.vertexCount))
             }
