@@ -3698,4 +3698,13 @@
     <string name="point_mark_localized">Localized</string>
     <string name="point_mark_not_localized">Edited coordinates: the localization does not transform them</string>
     <string name="point_unlocalized_coordinates">Coordinates in the unlocalized CRS</string>
+    <string name="localization_title">Localization</string>
+    <string name="localization_status_none">No localization</string>
+    <string name="localization_status_active">Active localization · horizontal RMS %1$s · vertical RMS %2$s</string>
+    <string name="localization_status_saved">Localization of the saved CRS «%1$s», no pairs</string>
+    <string name="localization_pairs_title">Pairs (%1$d of %2$d)</string>
+    <string name="localization_pairs_empty">There are no pairs yet. Add a point measured with GNSS and the known coordinates it has in the site system.</string>
+    <string name="localization_pair_known">Known: Easting %1$s · Northing %2$s · height %3$s</string>
+    <string name="localization_no_height">no height</string>
+    <string name="localization_menu_item">Localization</string>
 </resources>

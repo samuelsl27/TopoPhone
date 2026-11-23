@@ -107,6 +107,7 @@ const val ADD_POINT_TAG = "add_point"
 const val OBJECTS_MENU_TAG = "objects_menu"
 const val OBJECTS_LINE_FROM_POINTS_TAG = "objects_line_from_points"
 const val OBJECTS_ANGLE_TAG = "objects_angle"
+const val OBJECTS_LOCALIZATION_TAG = "objects_localization"
 const val OBJECTS_COGO_TAG = "objects_cogo"
 const val OBJECT_SEARCH_TAG = "object_search"
 const val SELECTION_BAR_TAG = "selection_bar"
@@ -203,6 +204,8 @@ class ObjectListActions(
     /** Abre el selector de ficheros y, con el fichero, la importación de un ráster de cotas (S045/RF-1). */
     val onImportRaster: () -> Unit = {},
     val onBaseShift: () -> Unit = {},
+    /** La pantalla de localización (S039/RF-1). */
+    val onLocalization: () -> Unit = {},
     /** El asistente «Línea desde puntos» (S025/RF-12). */
     val onLineFromPoints: () -> Unit = {},
     /** El ángulo entre tres puntos (S026/RF-13). */
@@ -433,6 +436,7 @@ fun ObjectListRoute(
             onImportSurface = { importSurface(projectId) },
             onImportRaster = { importRaster(projectId) },
             onBaseShift = { navigation.onBaseShift(projectId) }, // S020/RF-1
+            onLocalization = { navigation.onLocalization(projectId) }, // S039/RF-1
             onLineFromPoints = { navigation.onLineFromPoints(projectId) }, // S025/RF-12
             onThreePointAngle = { navigation.onThreePointAngle(projectId) }, // S026/RF-13
             onCogo = { navigation.onCogo(projectId) }, // S038/RF-1
@@ -539,6 +543,7 @@ fun ObjectListScreen(
                 actions.onImportKml,
                 actions.onImportAlignment,
                 actions.onBaseShift,
+                actions.onLocalization,
                 actions.onLineFromPoints,
                 actions.onThreePointAngle,
                 actions.onCogo,
@@ -635,6 +640,7 @@ private fun ObjectsMenu(
     onImportKml: () -> Unit,
     onImportAlignment: () -> Unit,
     onBaseShift: () -> Unit,
+    onLocalization: () -> Unit,
     onLineFromPoints: () -> Unit,
     onThreePointAngle: () -> Unit,
     onCogo: () -> Unit,
@@ -790,6 +796,14 @@ private fun ObjectsMenu(
             },
             modifier = Modifier.heightIn(min = MinTouchTarget),
         ) // S020/RF-1
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.localization_menu_item)) },
+            onClick = {
+                open = false
+                onLocalization()
+            },
+            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(OBJECTS_LOCALIZATION_TAG),
+        ) // S039/RF-1
         DropdownMenuItem(
             text = { Text(stringResource(R.string.stakeout_report_title)) },
             onClick = {

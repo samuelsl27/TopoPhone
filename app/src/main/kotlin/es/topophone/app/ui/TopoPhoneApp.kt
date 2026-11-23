@@ -69,6 +69,7 @@ import es.topophone.app.ui.gpkg.ShpImportRoute
 import es.topophone.app.ui.linear.LinearSurveysRoute
 import es.topophone.app.ui.lines.LineDetailsRoute
 import es.topophone.app.ui.lines.LineFromPointsRoute
+import es.topophone.app.ui.localization.LocalizationRoute
 import es.topophone.app.ui.points.ObjectListRoute
 import es.topophone.app.ui.points.PointDetailsRoute
 import es.topophone.app.ui.points.PointFormRoute
@@ -280,6 +281,13 @@ fun TopoPhoneApp(
                     viewModel = hiltViewModel(owner),
                 )
                 is SurveyPage.BaseShift -> BaseShiftRoute(
+                    page.projectId,
+                    theme,
+                    toggleSun,
+                    navigation.onBack,
+                    viewModel = hiltViewModel(owner),
+                )
+                is SurveyPage.Localization -> LocalizationRoute(
                     page.projectId,
                     theme,
                     toggleSun,
@@ -504,6 +512,7 @@ private fun AppNavHost(
                 },
                 onDefineAlignment = { projectId -> navController.navigate(DefineAlignmentDestination(projectId)) }, // S049/RF-8
                 onBaseShift = { projectId -> navController.navigate(BaseShiftDestination(projectId)) }, // S020/RF-1
+                onLocalization = { projectId -> navController.navigate(LocalizationDestination(projectId)) }, // S039/RF-1
                 onAlignmentPoint = { projectId, alignmentId ->
                     navController.navigate(AlignmentPointDestination(projectId, alignmentId)) // S049/RF-20
                 },
@@ -715,6 +724,16 @@ private fun AppNavHost(
                 val args = entry.toRoute<BaseShiftDestination>()
                 surveySection(
                     SurveyPage.BaseShift(args.projectId),
+                    uiState.themeState,
+                    actions.onToggleSun,
+                    surveyNavigation,
+                    entry,
+                )
+            }
+            composable<LocalizationDestination> { entry ->
+                val args = entry.toRoute<LocalizationDestination>()
+                surveySection(
+                    SurveyPage.Localization(args.projectId),
                     uiState.themeState,
                     actions.onToggleSun,
                     surveyNavigation,

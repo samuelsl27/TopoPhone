@@ -3710,4 +3710,13 @@
     <string name="point_mark_localized">Localizado</string>
     <string name="point_mark_not_localized">Coordenadas editadas: la localización no las transforma</string>
     <string name="point_unlocalized_coordinates">Coordenadas del SC sin localizar</string>
+    <string name="localization_title">Localización</string>
+    <string name="localization_status_none">Sin localización</string>
+    <string name="localization_status_active">Localización activa · RMS horizontal %1$s · RMS vertical %2$s</string>
+    <string name="localization_status_saved">Localización del SC guardado «%1$s», sin pares</string>
+    <string name="localization_pairs_title">Pares (%1$d de %2$d)</string>
+    <string name="localization_pairs_empty">Todavía no hay pares. Añade un punto medido con GNSS y las coordenadas conocidas que le corresponden en el sistema de la obra.</string>
+    <string name="localization_pair_known">Conocidas: Este %1$s · Norte %2$s · cota %3$s</string>
+    <string name="localization_no_height">sin cota</string>
+    <string name="localization_menu_item">Localización</string>
 </resources>

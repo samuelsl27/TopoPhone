@@ -220,6 +220,7 @@ class ObjectListLinesTest {
                         onLineFromPoints = { calls += "wizard" },
                         onThreePointAngle = { calls += "angle" },
                         onCogo = { calls += "cogo" },
+                        onLocalization = { calls += "localization" },
                         onStakeoutLine = { calls += "stakeout:$it" },
                     ),
                     onBack = {},
@@ -307,6 +308,16 @@ class ObjectListLinesTest {
         compose.onNodeWithTag(OBJECTS_COGO_TAG).performScrollTo().performClick()
 
         calls shouldBe listOf("cogo")
+    }
+
+    @Test
+    fun `S039 RF-1 el menu de la lista ofrece Localizacion`() {
+        show(uiState)
+
+        compose.onNodeWithTag(OBJECTS_MENU_TAG).performClick()
+        compose.onNodeWithTag(OBJECTS_LOCALIZATION_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("localization")
     }
 
     @Test

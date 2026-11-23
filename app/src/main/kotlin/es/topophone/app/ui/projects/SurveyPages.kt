@@ -43,6 +43,9 @@ import es.topophone.app.ui.gpkg.GpkgImportUiState
 import es.topophone.app.ui.linear.LinearSurveysActions
 import es.topophone.app.ui.linear.LinearSurveysScreen
 import es.topophone.app.ui.linear.LinearSurveysUiState
+import es.topophone.app.ui.localization.LocalizationActions
+import es.topophone.app.ui.localization.LocalizationScreen
+import es.topophone.app.ui.localization.LocalizationUiState
 import es.topophone.app.ui.points.ObjectListActions
 import es.topophone.app.ui.points.ObjectListScreen
 import es.topophone.app.ui.points.ObjectListUiState
@@ -176,6 +179,9 @@ sealed interface SurveyPage {
     /** El desplazamiento de base del proyecto (S020/RF-1). */
     data class BaseShift(val projectId: String) : SurveyPage
 
+    /** La localización del proyecto (S039/RF-1). */
+    data class Localization(val projectId: String) : SurveyPage
+
     /** Calcular un punto sobre un eje del proyecto (S049/RF-20). */
     data class AlignmentPoint(val projectId: String, val alignmentId: String) : SurveyPage
 
@@ -267,6 +273,8 @@ class SurveyNavigation(
     val onDefineAlignment: (projectId: String) -> Unit = {},
     /** La pantalla del desplazamiento de base (S020/RF-1). */
     val onBaseShift: (projectId: String) -> Unit = {},
+    /** La pantalla de localización (S039/RF-1). */
+    val onLocalization: (projectId: String) -> Unit = {},
     /** La pantalla de calcular un punto sobre un eje (S049/RF-20). */
     val onAlignmentPoint: (projectId: String, alignmentId: String) -> Unit = { _, _ -> },
     /** La pantalla de las secciones y el peralte de un eje (S050/RF-1). */
@@ -316,6 +324,7 @@ data class SurveyUiState(
     val surfaceImport: SurfaceImportUiState = SurfaceImportUiState(),
     val rasterImport: RasterImportUiState = RasterImportUiState(),
     val baseShift: BaseShiftUiState = BaseShiftUiState(),
+    val localization: LocalizationUiState = LocalizationUiState(),
     val sections: SectionsUiState = SectionsUiState(),
     val sectionImport: SectionImportUiState = SectionImportUiState(),
     val sectionPoint: SectionPointUiState = SectionPointUiState(),
@@ -386,6 +395,8 @@ fun SurveyPageScreen(
         is SurveyPage.ImportRaster ->
             RasterImportScreen(themeState, onToggleSun, state.rasterImport, RasterImportActions(), navigation.onBack)
         is SurveyPage.BaseShift -> BaseShiftScreen(themeState, onToggleSun, state.baseShift, BaseShiftActions(), navigation.onBack)
+        is SurveyPage.Localization ->
+            LocalizationScreen(themeState, onToggleSun, state.localization, LocalizationActions(), navigation.onBack)
         is SurveyPage.ImportGpkg -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
         is SurveyPage.ImportShp -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
         is SurveyPage.ImportKml -> GpkgImportScreen(themeState, onToggleSun, state.gpkgImport, GpkgImportActions(), navigation.onBack)
