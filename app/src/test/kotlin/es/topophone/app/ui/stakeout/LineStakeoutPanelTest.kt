@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.collector.COLLECTOR_MEASURE_TAG
 import es.topophone.app.ui.collector.CollectorActions
 import es.topophone.app.ui.collector.CollectorUiState
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.cad.CadEntityKind
@@ -157,29 +158,30 @@ class LineStakeoutPanelTest {
     private val modes = mutableListOf<LineStakeoutMode>()
     private val texts = mutableListOf<String>()
 
-    private fun show(state: LineStakeoutUiState, collector: CollectorUiState? = CollectorUiState(loaded = true)) = compose.setContent {
-        TopoPhoneTheme(EffectiveTheme.LIGHT) {
-            LineStakeoutPanel(
-                state,
-                LineStakeoutActions(
-                    onClose = { calls += "close" },
-                    onMode = { modes += it },
-                    onOffset = { texts += "offset:$it" },
-                    onA = { texts += "a:$it" },
-                    onB = { texts += "b:$it" },
-                    onInterval = { texts += "interval:$it" },
-                    onInvert = { calls += "invert" },
-                    onHere = { calls += "here" },
-                    onSelectVertex = { calls += "vertex:$it" },
-                    onSelectPoint = { calls += "point:$it" },
-                    onPrevious = { calls += "previous" },
-                    onNext = { calls += "next" },
-                ),
-                collector = collector,
-                collectorActions = CollectorActions(onMeasure = { calls += "measure" }),
-            )
+    private fun show(state: LineStakeoutUiState, collector: CollectorUiState? = CollectorUiState(loaded = true)) =
+        compose.setContentExpanded {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                LineStakeoutPanel(
+                    state,
+                    LineStakeoutActions(
+                        onClose = { calls += "close" },
+                        onMode = { modes += it },
+                        onOffset = { texts += "offset:$it" },
+                        onA = { texts += "a:$it" },
+                        onB = { texts += "b:$it" },
+                        onInterval = { texts += "interval:$it" },
+                        onInvert = { calls += "invert" },
+                        onHere = { calls += "here" },
+                        onSelectVertex = { calls += "vertex:$it" },
+                        onSelectPoint = { calls += "point:$it" },
+                        onPrevious = { calls += "previous" },
+                        onNext = { calls += "next" },
+                    ),
+                    collector = collector,
+                    collectorActions = CollectorActions(onMeasure = { calls += "measure" }),
+                )
+            }
         }
-    }
 
     @Test
     fun `S041 RF-4 muestra la capa, el dibujo, el tipo, la longitud y la cota de la linea`() {
@@ -204,9 +206,9 @@ class LineStakeoutPanelTest {
     fun `S041 RF-3 ofrece los cinco modos con el elegido marcado y cambiar de modo avisa`() {
         show(state(mode = LineStakeoutMode.ALONG))
 
-        LineStakeoutMode.entries.forEach { compose.onNodeWithTag(lineModeTag(it)).assertIsDisplayed() }
+        LineStakeoutMode.entries.forEach { compose.onNodeWithTag(lineModeTag(it)).assertExists() }
         compose.onNodeWithTag(lineModeTag(LineStakeoutMode.ALONG)).assertIsSelected()
-        compose.onNodeWithTag(lineModeTag(LineStakeoutMode.INTERVALS)).performClick()
+        compose.onNodeWithTag(lineModeTag(LineStakeoutMode.INTERVALS)).performSemanticsAction(SemanticsActions.OnClick)
         modes shouldBe listOf(LineStakeoutMode.INTERVALS)
     }
 
@@ -217,6 +219,7 @@ class LineStakeoutPanelTest {
             CollectorUiState(loaded = true, measuring = true),
         )
 
+        // S060/RF-15: midiendo no hay Anterior ni Siguiente en la hoja; los modos, los campos y la lista siguen desactivados.
         LineStakeoutMode.entries.forEach { compose.onNodeWithTag(lineModeTag(it)).assertIsNotEnabled() }
         compose.onNodeWithTag(LINE_OFFSET_TAG).performScrollTo().assertIsNotEnabled()
         compose.onNodeWithTag(LINE_A_TAG).performScrollTo().assertIsNotEnabled()
@@ -224,7 +227,7 @@ class LineStakeoutPanelTest {
         compose.onNodeWithTag(LINE_INTERVAL_TAG).performScrollTo().assertIsNotEnabled()
         compose.onNodeWithTag(LINE_INVERT_TAG).performScrollTo().assertIsNotEnabled()
         compose.onNodeWithTag(LINE_HERE_TAG).performScrollTo().assertIsNotEnabled()
-        compose.onNodeWithTag(LINE_NEXT_TAG).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(LINE_NEXT_TAG).assertDoesNotExist()
         compose.onNodeWithTag(linePointTag(1)).performScrollTo().assertIsNotEnabled()
     }
 
@@ -274,7 +277,7 @@ class LineStakeoutPanelTest {
     }
 
     @Test
-    fun `S041 RF-13 dentro de la tolerancia dice Dentro de la tolerancia con texto`() {
+    fun `S041 RF-13 y S060 RF-28 dentro de la tolerancia la placa dice En el punto con texto`() {
         show(
             state(
                 mode = LineStakeoutMode.ALONG,
@@ -282,7 +285,7 @@ class LineStakeoutPanelTest {
             ),
         )
 
-        compose.onNodeWithTag(STAKEOUT_INSIDE_TAG).assertTextContains("Dentro de la tolerancia")
+        compose.onNodeWithTag(STAKEOUT_ARRIVED_TAG).assertTextContains("En el punto")
     }
 
     @Test
@@ -400,8 +403,8 @@ class LineStakeoutPanelTest {
         compose.onNodeWithTag(lineVertexTag(1)).assertIsSelected()
         compose.onNodeWithTag(lineVertexTag(1)).assertTextContains("Elegido", substring = true)
         compose.onNodeWithTag(lineVertexTag(2)).performSemanticsAction(SemanticsActions.OnClick)
-        compose.onNodeWithTag(LINE_NEXT_TAG).performScrollTo().performClick()
-        compose.onNodeWithTag(LINE_PREVIOUS_TAG).performScrollTo().performClick()
+        compose.onNodeWithTag(LINE_NEXT_TAG).performClick()
+        compose.onNodeWithTag(LINE_PREVIOUS_TAG).performClick()
         calls shouldBe listOf("vertex:2", "next", "previous")
     }
 

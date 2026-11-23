@@ -6,21 +6,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,14 +37,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.cad.elementKindLabel
 import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.CollectorActions
-import es.topophone.app.ui.collector.CollectorGearSelector
 import es.topophone.app.ui.collector.CollectorUiState
-import es.topophone.app.ui.collector.LongPauseDialog
-import es.topophone.app.ui.collector.MeasureButton
-import es.topophone.app.ui.collector.Measuring
-import es.topophone.app.ui.collector.Messages
-import es.topophone.app.ui.collector.OutOfToleranceDialog
-import es.topophone.app.ui.collector.PauseState
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -123,9 +112,9 @@ class LineStakeoutActions(
 )
 
 /**
- * Panel del replanteo de una línea, en el hueco del recolector y sin tapar el mapa (S041/RF-1 a RF-4): la capa, el dibujo, el tipo,
- * la longitud y la cota; los cinco modos; los campos y las listas de cada modo; la guía con el PK, el lado y lo que falta, la
- * diana y el nivel; y "Medir". La pantalla no se apaga mientras está abierto (RNF-T2).
+ * El replanteo de una línea como hoja de campo (S060/RF-23): la placa de guiado con el lado, el PK y lo que falta, la fila de ajustes
+ * (tolerancias, cota y modo de guía), «Anterior», «Medir» y «Siguiente»; expandida, la capa, el dibujo, los cinco modos, los campos y las
+ * listas de cada modo (S041/RF-1 a RF-22). La pantalla no se apaga mientras está abierta (RNF-T2).
  */
 @Composable
 fun LineStakeoutPanel(
@@ -136,14 +125,38 @@ fun LineStakeoutPanel(
     collectorActions: CollectorActions = CollectorActions(),
     stats: AverageStatsUi? = null,
 ) {
-    KeepScreenOn()
     var settingsOpen by remember { mutableStateOf(false) }
     var elevationOpen by remember { mutableStateOf(false) }
     val unit = state.project?.linearUnit ?: LinearUnit.METRE
-    Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(LINE_PANEL_TAG)) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Header(state, actions)
-            val element = state.element
+    val locale = uiLocale()
+    val symbol = unitSymbol(unit)
+    val element = state.element
+    val withLists = element != null &&
+        state.closed == null &&
+        (
+            state.mode == LineStakeoutMode.BY_SEGMENTS &&
+                state.vertices != null ||
+                state.mode == LineStakeoutMode.INTERVALS &&
+                state.series != null
+            )
+    StakeoutSheet(
+        title = stringResource(R.string.stakeout_line_title, element?.let { it.name ?: it.layerName }.orEmpty()),
+        onClose = actions.onClose,
+        live = collector?.live,
+        collector = collector.takeIf { element != null && state.closed == null },
+        collectorActions = collectorActions,
+        navigation = if (withLists) {
+            StakeNavigation(!state.measuring, !state.measuring, actions.onPrevious, actions.onNext, LINE_PREVIOUS_TAG, LINE_NEXT_TAG)
+        } else {
+            null
+        },
+        modifier = modifier,
+        unit = unit,
+        tag = LINE_PANEL_TAG,
+        closeTag = LINE_CLOSE_TAG,
+        titleTag = LINE_TITLE_TAG,
+        stats = stats,
+        plate = {
             if (state.closed != null) {
                 val reason = when (state.closed) {
                     LineClosedReason.LINE_DELETED -> R.string.stakeout_line_closed_line_deleted
@@ -155,9 +168,7 @@ fun LineStakeoutPanel(
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.semantics { liveRegion = LiveRegionMode.Assertive }.testTag(LINE_CLOSED_TAG),
                 )
-                return@Column
-            }
-            if (element == null) {
+            } else if (element == null) {
                 if (state.unsupported) {
                     val reason = when (state.unsupportedReason) {
                         LineUnsupportedReason.TOO_FEW_VERTICES -> R.string.stakeout_line_too_few
@@ -165,18 +176,29 @@ fun LineStakeoutPanel(
                         LineUnsupportedReason.NO_PLANE_POSITION -> R.string.stakeout_line_no_plane
                         else -> R.string.stakeout_line_unsupported
                     }
-                    Text(
-                        stringResource(reason),
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.testTag(LINE_UNSUPPORTED_TAG),
-                    )
+                    Text(stringResource(reason), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag(LINE_UNSUPPORTED_TAG))
                 }
-                return@Column
+            } else {
+                GuidancePlate(state.project, state.settings, state.guidance) { ui, numbers -> LineFigures(state, ui, numbers) }
             }
-            Column(
-                modifier = Modifier.weight(1f, fill = false).heightIn(max = BODY_MAX_HEIGHT).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+        },
+        pills = {
+            if (element != null && state.closed == null) {
+                StakeoutPills(
+                    unit = unit,
+                    settings = state.settings,
+                    enabled = !state.measuring,
+                    showToleranceV = state.designElevationM != null,
+                    elevationText = state.designElevationM?.let { "${LengthFormat.inUnit(it, unit, locale)} $symbol" },
+                    onTolerance = actions.onTolerance,
+                    onToleranceV = actions.onToleranceV,
+                    onMode = actions.onGuideMode,
+                    onElevation = { elevationOpen = true },
+                )
+            }
+        },
+        expandedExtra = {
+            if (element != null && state.closed == null) {
                 ElementInfo(element, unit)
                 if (element.missingHeightNames.isNotEmpty()) {
                     val listed = element.missingHeightNames.take(NOTICE_LISTED).joinToString(", ") +
@@ -203,7 +225,6 @@ fun LineStakeoutPanel(
                 }
                 Inputs(state, actions, unit)
                 Lists(state, actions, unit)
-                StakeModeChoice(state.settings, state.measuring, actions.onGuideMode)
                 ElevationSourceSection(
                     state.surfaceActive,
                     state.elevationSource,
@@ -214,31 +235,14 @@ fun LineStakeoutPanel(
                     unit,
                     actions.onElevationSource,
                 ) // S042/RF-23 a RF-27
-                Guidance(state.project, state.settings, state.guidance, state.admitted) { ui, numbers -> LineFigures(state, ui, numbers) }
-                collector?.let { CollectorGearSelector(it, collectorActions) } // S046/RF-23
-                collector?.let { Messages(it, collectorActions) }
+                OutlinedButton(
+                    onClick = { settingsOpen = true },
+                    enabled = !state.measuring,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_SETTINGS_TAG),
+                ) { Text(stringResource(R.string.stakeout_settings)) }
             }
-            if (collector != null) {
-                if (collector.measuring) {
-                    Measuring(collector, unit, stats, collectorActions)
-                } else {
-                    MeasureButton(collector, collectorActions)
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(
-                        onClick = { elevationOpen = true },
-                        enabled = !state.measuring,
-                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_ELEVATION_TAG),
-                    ) { Text(stringResource(R.string.stakeout_elevation_button)) }
-                    TextButton(
-                        onClick = { settingsOpen = true },
-                        enabled = !state.measuring,
-                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_SETTINGS_TAG),
-                    ) { Text(stringResource(R.string.stakeout_settings)) }
-                }
-            }
-        }
-    }
+        },
+    )
     if (settingsOpen && !state.measuring) {
         StakeoutSettingsDialog(state.settings, unit, actions.onHeading, actions.onTolerance, { settingsOpen = false }, actions.onToleranceV)
     }
@@ -250,24 +254,6 @@ fun LineStakeoutPanel(
             actions.onElevation,
             actions.onUseLineElevation,
         ) { elevationOpen = false }
-    }
-    collector?.pending?.let { OutOfToleranceDialog(it, collectorActions.onConfirm, collectorActions.onDiscard) }
-    if (collector?.paused == PauseState.LONG_PAUSE) {
-        LongPauseDialog(collectorActions.onFinish, collectorActions.onCancel, collectorActions.onKeepWaiting)
-    }
-}
-
-@Composable
-private fun Header(state: LineStakeoutUiState, actions: LineStakeoutActions) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            stringResource(R.string.stakeout_line_title, state.element?.let { it.name ?: it.layerName }.orEmpty()),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.weight(1f).testTag(LINE_TITLE_TAG),
-        )
-        TextButton(onClick = actions.onClose, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LINE_CLOSE_TAG)) {
-            Text(stringResource(R.string.collector_close))
-        }
     }
 }
 
@@ -447,7 +433,6 @@ private fun Lists(state: LineStakeoutUiState, actions: LineStakeoutActions, unit
         LineStakeoutMode.BY_SEGMENTS -> {
             val vertices = state.vertices ?: return
             Text(stringResource(R.string.stakeout_line_vertices), style = MaterialTheme.typography.titleSmall)
-            PreviousNext(state, actions)
             LazyColumn(modifier = Modifier.heightIn(max = LIST_MAX_HEIGHT).selectableGroup()) {
                 items(vertices.size) { index ->
                     val entry = vertices.entries[index]
@@ -484,7 +469,6 @@ private fun Lists(state: LineStakeoutUiState, actions: LineStakeoutActions, unit
                 Text(stringResource(R.string.stakeout_line_series_empty), modifier = Modifier.testTag(LINE_SERIES_EMPTY_TAG))
                 return
             }
-            PreviousNext(state, actions)
             LazyColumn(modifier = Modifier.heightIn(max = LIST_MAX_HEIGHT).selectableGroup()) {
                 items(series.size) { index ->
                     ListRow(
@@ -502,22 +486,6 @@ private fun Lists(state: LineStakeoutUiState, actions: LineStakeoutActions, unit
             }
         }
         else -> Unit
-    }
-}
-
-@Composable
-private fun PreviousNext(state: LineStakeoutUiState, actions: LineStakeoutActions) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedButton(
-            onClick = actions.onPrevious,
-            enabled = !state.measuring,
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LINE_PREVIOUS_TAG),
-        ) { Text(stringResource(R.string.stakeout_previous)) }
-        OutlinedButton(
-            onClick = actions.onNext,
-            enabled = !state.measuring,
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LINE_NEXT_TAG),
-        ) { Text(stringResource(R.string.stakeout_next)) }
     }
 }
 
@@ -558,13 +526,16 @@ private fun LineFigures(state: LineStakeoutUiState, ui: GuidanceUi, numbers: Num
         if (mode != LineStakeoutMode.TO_LINE && lateralError != null) {
             Text(errorPhrase(lateralError, numbers), modifier = Modifier.testTag(LINE_ERROR_TAG))
         }
-        Text(stringResource(R.string.stakeout_line_chainage, chainage), modifier = Modifier.testTag(LINE_CHAINAGE_TAG))
         val remaining = if (mode == LineStakeoutMode.SEGMENT_AB) {
             stringResource(R.string.stakeout_line_from_a, numbers.length(line.alongM), numbers.length(line.remainingM))
         } else {
             stringResource(R.string.stakeout_line_remaining, numbers.length(line.remainingM))
         }
-        Text(remaining, modifier = Modifier.testTag(LINE_REMAINING_TAG))
+        // El PK y lo que falta, en una fila para tapar poco mapa (S060/RF-2, RF-29).
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(stringResource(R.string.stakeout_line_chainage, chainage), modifier = Modifier.testTag(LINE_CHAINAGE_TAG))
+            Text(remaining, modifier = Modifier.testTag(LINE_REMAINING_TAG))
+        }
     }
     if (ui.zone != StakeZone.FAR) {
         Text(

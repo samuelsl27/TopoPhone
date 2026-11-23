@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.point.GeodeticPosition
@@ -223,7 +224,7 @@ class LineStakeoutClosedTest {
         val vm = open()
         runBlocking { lines.edit(lineId, LineUpdate(name = "OTRA")) }
         val changed = await(vm) { it.closed != null }
-        compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { LineStakeoutPanel(changed, LineStakeoutActions()) } }
+        compose.setContentExpanded { TopoPhoneTheme(EffectiveTheme.LIGHT) { LineStakeoutPanel(changed, LineStakeoutActions()) } }
 
         compose.onNodeWithTag(LINE_CLOSED_TAG).assertTextContains("cambiado", substring = true)
     }
@@ -233,7 +234,7 @@ class LineStakeoutClosedTest {
         val vm = open()
         runBlocking { lines.moveToTrash(lineId) }
         val deleted = await(vm) { it.closed != null }
-        compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { LineStakeoutPanel(deleted, LineStakeoutActions()) } }
+        compose.setContentExpanded { TopoPhoneTheme(EffectiveTheme.LIGHT) { LineStakeoutPanel(deleted, LineStakeoutActions()) } }
 
         compose.onNodeWithTag(LINE_CLOSED_TAG).assertTextContains("borrado", substring = true)
     }

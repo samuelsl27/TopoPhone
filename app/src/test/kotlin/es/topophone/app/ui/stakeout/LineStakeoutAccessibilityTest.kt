@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.app.ui.lines.LINE_SHEET_AXIS_TAG
 import es.topophone.app.ui.lines.LINE_SHEET_INFO_TAG
 import es.topophone.app.ui.lines.LINE_SHEET_OPEN_TAG
@@ -100,7 +101,7 @@ class LineStakeoutAccessibilityTest {
     )
 
     private fun show(content: @Composable () -> Unit) {
-        compose.setContent { TopoPhoneTheme(EffectiveTheme.LIGHT) { content() } }
+        compose.setContentExpanded { TopoPhoneTheme(EffectiveTheme.LIGHT) { content() } }
     }
 
     private fun label(node: SemanticsNode): String {

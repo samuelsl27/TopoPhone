@@ -699,7 +699,6 @@
     <string name="stakeout_heading_choice_imu">IMU del receptor</string>
     <string name="stakeout_tolerance_label">Tolerancia (%1$s)</string>
     <string name="stakeout_tolerance_v_label">Tolerancia vertical (%1$s)</string>
-    <string name="stakeout_elevation_button">Cota de diseño</string>
     <string name="stakeout_elevation_title">Cota de diseño</string>
     <string name="stakeout_elevation_help">Escribe la cota a la que hay que llegar en este punto. Sustituye a la del punto de diseño solo en este replanteo.</string>
     <string name="stakeout_elevation_label">Cota (%1$s)</string>

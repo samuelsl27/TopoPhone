@@ -62,7 +62,14 @@ const val STAKEOUT_PILL_ELEVATION_TAG = "stakeout_elevation"
 const val STAKEOUT_PILL_MODE_TAG = "stakeout_pill_mode"
 
 /** «Anterior» y «Siguiente» entre los puntos o los elementos del replanteo (S060/RF-30; S018). */
-internal class StakeNavigation(val hasPrevious: Boolean, val hasNext: Boolean, val onPrevious: () -> Unit, val onNext: () -> Unit)
+internal class StakeNavigation(
+    val hasPrevious: Boolean,
+    val hasNext: Boolean,
+    val onPrevious: () -> Unit,
+    val onNext: () -> Unit,
+    val previousTag: String = STAKEOUT_PREVIOUS_TAG,
+    val nextTag: String = STAKEOUT_NEXT_TAG,
+)
 
 /**
  * La hoja común de los replanteos de punto, línea, eje y talud (S060/RF-23): la cabecera con el título y el estado de la solución, y
@@ -166,7 +173,7 @@ private fun Actions(collector: CollectorUiState, actions: CollectorActions, navi
             OutlinedButton(
                 onClick = it.onPrevious,
                 enabled = it.hasPrevious,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_PREVIOUS_TAG),
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(it.previousTag),
             ) { Text(stringResource(R.string.stakeout_previous)) }
         }
         NamedMeasureButton(collector, actions, Modifier.weight(1f))
@@ -174,7 +181,7 @@ private fun Actions(collector: CollectorUiState, actions: CollectorActions, navi
             OutlinedButton(
                 onClick = it.onNext,
                 enabled = it.hasNext,
-                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_NEXT_TAG),
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(it.nextTag),
             ) { Text(stringResource(R.string.stakeout_next)) }
         }
     }

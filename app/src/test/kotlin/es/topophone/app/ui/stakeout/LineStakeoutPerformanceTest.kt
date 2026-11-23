@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.geodesy.GeodeticPoint
 import es.topophone.core.geodesy.LocalTangentPlane
@@ -158,7 +159,7 @@ class LineStakeoutPerformanceTest {
         var state by mutableStateOf(
             LineStakeoutUiState(project = project, element = element, mode = LineStakeoutMode.ALONG, guidance = controller.state.value),
         )
-        compose.setContent {
+        compose.setContentExpanded {
             TopoPhoneTheme(EffectiveTheme.LIGHT) { LineStakeoutPanel(state, LineStakeoutActions()) }
         }
         compose.waitForIdle()

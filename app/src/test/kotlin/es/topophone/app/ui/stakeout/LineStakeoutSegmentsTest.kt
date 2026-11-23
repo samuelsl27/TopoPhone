@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.codes.CodeGeometry
 import es.topophone.core.model.point.GeodeticPosition
@@ -237,7 +238,7 @@ class LineStakeoutSegmentsTest {
         val lineId = createLine(closed = false, heights = listOf(650.0, null, 664.0, null))
         val vm = viewModel()
         val state = open(vm, lineId)
-        compose.setContent {
+        compose.setContentExpanded {
             TopoPhoneTheme(EffectiveTheme.LIGHT) { LineStakeoutPanel(state, LineStakeoutActions()) }
         }
 
@@ -251,7 +252,7 @@ class LineStakeoutSegmentsTest {
         val lineId = createLine(closed = false, heights = listOf(null, 650.0, 664.0, null))
         val vm = viewModel()
         val state = open(vm, lineId)
-        compose.setContent {
+        compose.setContentExpanded {
             TopoPhoneTheme(EffectiveTheme.LIGHT) { LineStakeoutPanel(state, LineStakeoutActions()) }
         }
 

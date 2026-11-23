@@ -687,7 +687,6 @@
     <string name="stakeout_heading_choice_imu">Receiver IMU</string>
     <string name="stakeout_tolerance_label">Tolerance (%1$s)</string>
     <string name="stakeout_tolerance_v_label">Vertical tolerance (%1$s)</string>
-    <string name="stakeout_elevation_button">Design elevation</string>
     <string name="stakeout_elevation_title">Design elevation</string>
     <string name="stakeout_elevation_help">Type the elevation to reach at this point. It replaces the design point elevation for this stakeout only.</string>
     <string name="stakeout_elevation_label">Elevation (%1$s)</string>
