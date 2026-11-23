@@ -1,5 +1,6 @@
 package es.topophone.core.formats.dxf.export
 
+import es.topophone.core.formats.GroundTransform
 import es.topophone.core.model.codes.PointCode
 import es.topophone.core.model.line.ProjectLine
 import es.topophone.core.model.point.Point
@@ -68,8 +69,11 @@ object DxfDocumentBuilder {
         allPoints: List<Point>,
         project: Project,
         options: DxfExportOptions,
+        /** El paso a terreno de un proyecto en terreno: las coordenadas locales se escriben en terreno, con su comentario (S058/RF-14). */
+        ground: GroundTransform? = null,
     ): DxfBuild {
         val coordinates = effectiveCoordinates(project, options.coordinates)
+        val terrain = ground.takeIf { coordinates == DxfCoordinates.LOCAL }
         val unit = project.linearUnit
         val names = DxfLayerNames()
         val colors = LinkedHashMap<String, Int>()
@@ -89,7 +93,7 @@ object DxfDocumentBuilder {
         var withoutHeight = 0
         var withoutPosition = 0
         for (point in points) {
-            val position = position(point, coordinates, unit)
+            val position = position(point, coordinates, unit, terrain)
             if (position == null) {
                 withoutPosition++
                 continue
@@ -105,7 +109,7 @@ object DxfDocumentBuilder {
         var polygonCount = 0
         var verticesWithoutHeight = 0
         for (line in lines) {
-            val found = line.vertices.mapNotNull { vertex -> pointsById[vertex.pointId]?.let { position(it, coordinates, unit) } }
+            val found = line.vertices.mapNotNull { vertex -> pointsById[vertex.pointId]?.let { position(it, coordinates, unit, terrain) } }
             if (found.size < (if (line.closed) MIN_CLOSED_VERTICES else MIN_OPEN_VERTICES)) continue
             verticesWithoutHeight += found.count { !it.hasHeight }
             polylines += DxfPolylineEntity(layerOf(line.code), line.closed, found.map { DxfVertex(it.x, it.y, it.z) })
@@ -126,7 +130,8 @@ object DxfDocumentBuilder {
             unit = unitOf(project, coordinates),
             coordinates = coordinates,
         )
-        return DxfBuild(DxfDocument(coordinates, layers, entities), summary)
+        val comment = terrain?.description(unit::fromMetres, unitCode(unit))
+        return DxfBuild(DxfDocument(coordinates, layers, entities, comment), summary)
     }
 
     /** La capa 0, las de código en orden de aparición, SIN_CODIGO y las de etiquetas que tengan algún texto (RF-4 a RF-7). */
@@ -158,7 +163,13 @@ object DxfDocumentBuilder {
     }
 
     /** La posición del punto en el sistema pedido, o null sin Este y Norte (locales) o sin longitud y latitud (globales). */
-    private fun position(point: Point, coordinates: DxfCoordinates, unit: LinearUnit): Position? {
+    private fun unitCode(unit: LinearUnit): String = when (unit) {
+        LinearUnit.METRE -> "m"
+        LinearUnit.INTERNATIONAL_FOOT -> "ft"
+        LinearUnit.US_SURVEY_FOOT -> "US ft"
+    }
+
+    private fun position(point: Point, coordinates: DxfCoordinates, unit: LinearUnit, ground: GroundTransform?): Position? {
         val c = point.coordinates
         return if (coordinates == DxfCoordinates.GLOBAL) {
             val lon = c.ground.longitudeDeg
@@ -170,7 +181,9 @@ object DxfDocumentBuilder {
             val east = c.easting?.takeIf { it.isFinite() } ?: return null
             val north = c.northing?.takeIf { it.isFinite() } ?: return null
             val height = c.height?.takeIf { it.isFinite() }
-            Position(unit.fromMetres(east), unit.fromMetres(north), height?.let(unit::fromMetres) ?: 0.0, height != null)
+            val x = ground?.easting(east) ?: east
+            val y = ground?.northing(north) ?: north
+            Position(unit.fromMetres(x), unit.fromMetres(y), height?.let(unit::fromMetres) ?: 0.0, height != null)
         }
     }
 

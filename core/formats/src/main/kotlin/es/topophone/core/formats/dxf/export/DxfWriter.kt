@@ -12,6 +12,7 @@ import java.io.OutputStreamWriter
 object DxfWriter {
     private const val EOL = "\r\n"
     private const val GROUP_WIDTH = 3
+    private const val COMMENT_CODE = 999
     private const val POLYLINE_3D = 8
     private const val POLYLINE_CLOSED = 1
     private const val VERTEX_3D = 32
@@ -27,6 +28,7 @@ object DxfWriter {
             DxfNumberFormat.LINEAR_DECIMALS
         }
         val writer = Pairs(BufferedWriter(OutputStreamWriter(out, DxfCharset.CHARSET), BUFFER), decimals)
+        document.comment?.let { writer.pair(COMMENT_CODE, it) } // S058/RF-14
         writer.header()
         writer.layers(document.layers)
         writer.pair(0, "SECTION")

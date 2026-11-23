@@ -23,4 +23,10 @@ data class DxfVertex(val x: Double, val y: Double, val z: Double)
 data class DxfPolylineEntity(override val layer: String, val closed: Boolean, val vertices: List<DxfVertex>) : DxfEntity
 
 /** El contenido de un DXF de exportación: sus capas, en orden, y sus entidades, en orden. */
-data class DxfDocument(val coordinates: DxfCoordinates, val layers: List<DxfLayerDef>, val entities: List<DxfEntity>)
+data class DxfDocument(
+    val coordinates: DxfCoordinates,
+    val layers: List<DxfLayerDef>,
+    val entities: List<DxfEntity>,
+    /** El comentario de cabecera de un proyecto en terreno: el origen de cuadrícula y el factor (S058/RF-14); `null` sin él. */
+    val comment: String? = null,
+)

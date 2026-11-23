@@ -53,7 +53,7 @@
       Hecho cuando: `TerrainCsvTest` exporta con y sin plano, la cabecera lleva el origen y el factor y los nombres de las columnas no cambian.
 - [x] T21. CSV y TXT: importar en terreno. (RF-12)
       Hecho cuando: `TerrainCsvTest` importa un CSV de terreno y los puntos quedan en cuadrícula, y el CSV exportado se vuelve a importar en el mismo proyecto con los mismos puntos.
-- [ ] T22. DXF: exportar en terreno con su comentario de cabecera. (RF-14)
+- [x] T22. DXF: exportar en terreno con su comentario de cabecera. (RF-14)
       Hecho cuando: `TerrainDxfTest` exporta un dibujo con puntos y líneas en terreno y el comentario lleva el origen y el factor.
 - [ ] T23. Importar DXF, superficies, ejes, rásteres y las demás capas: «las coordenadas del proyecto» son de terreno y el SC del fichero se respeta. (RF-17)
       Hecho cuando: `TerrainImportTest` importa un DXF «del proyecto» en terreno y queda en cuadrícula, e importa uno con SC declarado sin cambio.

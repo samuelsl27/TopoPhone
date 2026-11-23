@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.topophone.app.ui.points.ObjectLines
+import es.topophone.app.ui.projects.toGroundTransform
 import es.topophone.core.formats.csv.ExportFileName
 import es.topophone.core.formats.dxf.export.DxfCoordinates
 import es.topophone.core.formats.dxf.export.DxfDocumentBuilder
@@ -17,6 +18,7 @@ import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.export.DxfExportPreferences
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
@@ -171,7 +173,14 @@ class DxfExportViewModel @Inject constructor(
         val chosen = options.value
         return withContext(Dispatchers.IO) {
             try {
-                val built = DxfDocumentBuilder.build(loaded.points, loaded.lines, loaded.allPoints, loaded.project, chosen)
+                val built = DxfDocumentBuilder.build(
+                    loaded.points,
+                    loaded.lines,
+                    loaded.allPoints,
+                    loaded.project,
+                    chosen,
+                    TerrainView.of(loaded.project.terrain, loaded.project.crs)?.toGroundTransform(), // S058/RF-14
+                )
                 val replaced = BufferedOutputStream(into.outputStream()).use { DxfWriter.write(built.document, it) }
                 summary.value = built.summary.copy(replacedChars = replaced)
                 true
