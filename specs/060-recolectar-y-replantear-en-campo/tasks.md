@@ -23,7 +23,7 @@
       Hecho cuando: `CollectorMeasuringSheetTest` comprueba pastillas desactivadas, progreso, que «Terminar» solo sale en promediado y que nunca hay más de una línea de aviso además del motivo.
 
 ## Recolectar: hoja expandida e integración
-- [ ] T9. `CollectorExpanded`: nombre, descripción, selector de código con atributos, foto y galería (o el texto de que no hay punto), y lo de líneas y polígonos, sin filas cortadas; guía de inclinación, cambio de base y medición automática con su texto actual. (RF-20, RF-21, RF-22)
+- [x] T9. `CollectorExpanded`: nombre, descripción, selector de código con atributos, foto y galería (o el texto de que no hay punto), y lo de líneas y polígonos, sin filas cortadas; guía de inclinación, cambio de base y medición automática con su texto actual. (RF-20, RF-21, RF-22)
       Hecho cuando: `CollectorExpandedTest` recorre cada fila con una pantalla pequeña y letra al 130 % sin cortes, comprueba que sin punto no hay botones de foto desactivados y que el teclado no tapa el campo enfocado.
 - [ ] T10. `CollectorSheet` en `ProjectViewScreen`: sustituye a `CollectorPanel` en el recolector suelto y mueve el hueco inferior del mapa a su alto medido; se añaden `onOpenReceiver`, `onOpenProjectCrs` y `onOpenGear` a `CollectorActions`. (RF-1, RF-2, RF-16)
       Hecho cuando: `CollectorSheetScreenTest` abre el recolector en el proyecto, comprueba el alto plegado frente a 411×891 y 360×640 (D2) y que las acciones del motivo llegan a sus rutas.

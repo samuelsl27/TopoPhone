@@ -248,7 +248,7 @@ private fun Form(state: CollectorUiState, unit: LinearUnit, actions: CollectorAc
 }
 
 @Composable
-private fun NameField(state: CollectorUiState, actions: CollectorActions) {
+internal fun NameField(state: CollectorUiState, actions: CollectorActions) {
     val error = when (state.blocker) {
         MeasureBlocker.NAME_TAKEN -> R.string.collector_name_taken // S010/RF-3
         MeasureBlocker.INVALID_NAME -> R.string.collector_name_invalid
@@ -267,7 +267,7 @@ private fun NameField(state: CollectorUiState, actions: CollectorActions) {
 
 /** Instantáneo o promediado, con los segundos del promediado (S010/RF-8, RF-9). */
 @Composable
-private fun ModeChoice(state: CollectorUiState, actions: CollectorActions) {
+internal fun ModeChoice(state: CollectorUiState, actions: CollectorActions) {
     Row(modifier = Modifier.selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         MeasurementMode.entries.forEach { mode ->
             FilterChip(
@@ -327,7 +327,7 @@ private fun LiveQualityText(live: LiveQuality?, unit: LinearUnit) {
  * «Fuera de la superficie» o «Calculando…» (S042/RF-33). Solo informa: no se guarda nada en el punto que se mide.
  */
 @Composable
-private fun SurfaceReadingText(reading: SurfaceReading?, unit: LinearUnit) {
+internal fun SurfaceReadingText(reading: SurfaceReading?, unit: LinearUnit) {
     if (reading == null) return
     val locale = uiLocale()
     val symbol = unitSymbol(unit)

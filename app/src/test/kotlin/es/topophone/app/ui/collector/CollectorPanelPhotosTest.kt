@@ -6,6 +6,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -68,11 +69,11 @@ class CollectorPanelPhotosTest {
     }
 
     @Test
-    fun `S017b RF-7 sin punto los botones estan desactivados y el panel dice el motivo`() {
+    fun `S017b RF-7 y S060 RF-21 sin punto no hay botones desactivados y el panel dice el motivo`() {
         show(PhotoUi())
 
-        compose.onNodeWithTag(COLLECTOR_PHOTO_TAG).assertIsNotEnabled()
-        compose.onNodeWithTag(COLLECTOR_GALLERY_TAG).assertIsNotEnabled()
+        compose.onAllNodesWithTag(COLLECTOR_PHOTO_TAG).fetchSemanticsNodes().size shouldBe 0
+        compose.onAllNodesWithTag(COLLECTOR_GALLERY_TAG).fetchSemanticsNodes().size shouldBe 0
         compose.onNodeWithText("Mide un punto primero para añadirle fotos").assertIsDisplayed()
     }
 

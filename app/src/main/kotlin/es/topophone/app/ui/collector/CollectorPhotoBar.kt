@@ -39,17 +39,20 @@ const val COLLECTOR_PHOTO_KEEP_TAG = "collector_photo_keep"
 @Composable
 internal fun CollectorPhotoBar(photos: PhotoUi, actions: CollectorActions) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            OutlinedButton(
-                onClick = actions.onPhoto,
-                enabled = photos.canAdd,
-                modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(COLLECTOR_PHOTO_TAG),
-            ) { Text(stringResource(R.string.photo_button)) }
-            OutlinedButton(
-                onClick = actions.onGallery,
-                enabled = photos.canAdd,
-                modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(COLLECTOR_GALLERY_TAG),
-            ) { Text(stringResource(R.string.photo_gallery_button)) }
+        // S060/RF-21: sin un punto al que añadir fotos no se enseñan los botones desactivados, solo el texto que lo dice.
+        if (photos.destination != PhotoDestination.None && photos.destinationName != null) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(
+                    onClick = actions.onPhoto,
+                    enabled = photos.canAdd,
+                    modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(COLLECTOR_PHOTO_TAG),
+                ) { Text(stringResource(R.string.photo_button)) }
+                OutlinedButton(
+                    onClick = actions.onGallery,
+                    enabled = photos.canAdd,
+                    modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(COLLECTOR_GALLERY_TAG),
+                ) { Text(stringResource(R.string.photo_gallery_button)) }
+            }
         }
         val destination = if (photos.destination == PhotoDestination.None || photos.destinationName == null) {
             stringResource(R.string.photo_no_destination) // RF-7: el motivo de los botones desactivados
