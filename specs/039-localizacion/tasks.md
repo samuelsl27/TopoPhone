@@ -13,7 +13,7 @@
       Hecho cuando: `LocalizationSolverTest` cubre 1 y 2 pares, 3 o más, 3 alineados (aviso), la pendiente en ppm y los umbrales.
 - [x] T5. `LocalizationApplier` (localizar y deslocalizar), `LocalizationVectorsTest` frente a `fixtures/localizacion/` y rendimiento. (RF-7, RF-9, RF-17, constitución nº 2, RNF-T13)
       Hecho cuando: parámetros y residuos coinciden a 0,1 mm y 1e-9, la ida y vuelta cierra a 0,1 mm, un caso sin ruido recupera los parámetros con residuos < 0,1 mm y 50 pares se resuelven en menos de 100 ms.
-- [ ] T6. `LocalizationDraftRules`: admisión de pares, límite de 50 y calidad del punto (FIX y precisión). (RF-3, RF-4, RF-6)
+- [x] T6. `LocalizationDraftRules`: admisión de pares, límite de 50 y calidad del punto (FIX y precisión). (RF-3, RF-4, RF-6)
       Hecho cuando: `LocalizationDraftRulesTest` cubre punto sin medida, repetido, el par 51 y un punto en FLOAT o fuera de precisión que queda sin confirmar.
 
 ## Datos (`data`)
