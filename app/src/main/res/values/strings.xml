@@ -3703,4 +3703,5 @@
     <string name="crs_history_terrain">Plano: %1$s → %2$s</string>
     <string name="crs_history_terrain_grid">cuadrícula</string>
     <string name="crs_history_terrain_ground">terreno (factor %1$s)</string>
+    <string name="cogo_distance_terrain">Distancia de terreno</string>
 </resources>

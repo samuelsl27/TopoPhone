@@ -109,7 +109,7 @@ fun InverseScreen(themeState: ThemeState, onToggleSun: () -> Unit, state: Invers
             modifier = Modifier.padding(padding).padding(horizontal = 16.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            CogoModeSelector(state.mode, actions.onMode)
+            CogoModeOrTerrain(state.mode, actions.onMode, state.terrain)
             CogoPointField(SLOT_A, labelA, state.a, state.linearUnit, actions.onPick)
             OutlinedButton(
                 onClick = actions.onSwap,
@@ -192,8 +192,13 @@ internal fun inverseRows(state: InverseUi): List<InverseRow> {
     val gridLabel = if (state.mode == DistanceMode.GRID) R.string.cogo_distance_grid_active else R.string.cogo_distance_grid
     val groundLabel = if (state.mode == DistanceMode.GROUND) R.string.cogo_distance_ground_active else R.string.cogo_distance_ground
     return buildList {
-        add(InverseRow("grid", stringResource(gridLabel), length(result.gridDistance)))
-        add(InverseRow("ground", stringResource(groundLabel), length(result.groundDistance)))
+        if (state.terrain) {
+            // S058/RF-9: los puntos ya están en terreno; la distancia del plano es la de terreno y no hay otra.
+            add(InverseRow("grid", stringResource(R.string.cogo_distance_terrain), length(result.gridDistance)))
+        } else {
+            add(InverseRow("grid", stringResource(gridLabel), length(result.gridDistance)))
+            add(InverseRow("ground", stringResource(groundLabel), length(result.groundDistance)))
+        }
         add(InverseRow("azimuth", stringResource(R.string.cogo_azimuth_direct), azimuth(result.azimuthRad)))
         add(InverseRow("reverse", stringResource(R.string.cogo_azimuth_reverse), azimuth(result.reverseAzimuthRad)))
         add(InverseRow("de", stringResource(R.string.cogo_delta_easting), length(result.dEasting)))

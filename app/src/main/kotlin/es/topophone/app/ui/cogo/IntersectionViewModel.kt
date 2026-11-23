@@ -14,6 +14,7 @@ import es.topophone.core.model.geometry.DistanceMode
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.survey.TerrainView
 import es.topophone.core.survey.cogo.CogoPoint
 import es.topophone.core.survey.cogo.CogoScale
 import es.topophone.core.survey.cogo.Intersection
@@ -72,6 +73,8 @@ data class IntersectionUi(
     val loaded: Boolean = false,
     val kind: IntersectionKind = IntersectionKind.DISTANCE_DISTANCE,
     val mode: DistanceMode = DistanceMode.GRID,
+    /** S058/RF-9: el proyecto está en terreno; se calcula en terreno y no hay elección Cuadrícula/Terreno. */
+    val terrain: Boolean = false,
     val linearUnit: LinearUnit = LinearUnit.METRE,
     val angularUnit: AngularUnit = AngularUnit.DMS,
     val first: CogoSlotValue = CogoSlotValue.Empty,
@@ -120,20 +123,44 @@ class IntersectionViewModel @Inject constructor(
     /** Guardar las soluciones marcadas como puntos del proyecto (S038/RF-19 a RF-21). */
     val save = CogoSaveController(points, cogo, projects, viewModelScope, onSaved = { own.update { it.copy(marked = emptySet()) } })
 
-    private data class Context(val crs: ProjectCrs, val linearUnit: LinearUnit, val angularUnit: AngularUnit)
+    private data class Context(val crs: ProjectCrs, val linearUnit: LinearUnit, val angularUnit: AngularUnit, val terrain: TerrainView)
 
     private val context = projectId.flatMapLatest { id ->
-        if (id == null) flowOf(null) else projects.observe(id).map { it?.let { p -> Context(p.crs, p.linearUnit, p.angularUnit) } }
+        if (id ==
+            null
+        ) {
+            flowOf(null)
+        } else {
+            projects.observe(id).map {
+                it?.let { p ->
+                    Context(
+                        p.crs,
+                        p.linearUnit,
+                        p.angularUnit,
+                        TerrainView.of(p.terrain, p.crs) ?: TerrainView.GRID,
+                    )
+                }
+            }
+        }
     }
 
     private val inputsState = combine(
         inputs.selections,
-        inputs.values(context.map { it?.linearUnit ?: LinearUnit.METRE }.distinctUntilChanged()),
+        inputs.values(
+            context.map { it?.linearUnit ?: LinearUnit.METRE }.distinctUntilChanged(),
+            context.map { it?.terrain ?: TerrainView.GRID },
+        ),
         inputs.picker(projectId),
     ) { selections, values, picker -> Triple(selections, values, picker) }
 
-    val state: StateFlow<IntersectionUi> = combine(context, preferences.distanceMode, own, inputsState) { context, mode, own, inputs ->
-        if (context == null) return@combine IntersectionUi(mode = mode)
+    val state: StateFlow<IntersectionUi> = combine(context, preferences.distanceMode, own, inputsState) {
+            context,
+            chosenMode,
+            own,
+            inputs,
+        ->
+        if (context == null) return@combine IntersectionUi(mode = chosenMode)
+        val mode = if (context.terrain.isTerrain) DistanceMode.GRID else chosenMode // S058/RF-9
         val (selections, values, picker) = inputs
         val first = values[SLOT_FIRST] ?: CogoSlotValue.Empty
         val second = values[SLOT_SECOND] ?: CogoSlotValue.Empty
@@ -148,6 +175,7 @@ class IntersectionViewModel @Inject constructor(
             loaded = true,
             kind = own.kind,
             mode = mode,
+            terrain = context.terrain.isTerrain,
             linearUnit = context.linearUnit,
             angularUnit = context.angularUnit,
             first = first,

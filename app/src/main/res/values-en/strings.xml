@@ -3691,4 +3691,5 @@
     <string name="crs_history_terrain">Plane: %1$s → %2$s</string>
     <string name="crs_history_terrain_grid">grid</string>
     <string name="crs_history_terrain_ground">ground (factor %1$s)</string>
+    <string name="cogo_distance_terrain">Ground distance</string>
 </resources>

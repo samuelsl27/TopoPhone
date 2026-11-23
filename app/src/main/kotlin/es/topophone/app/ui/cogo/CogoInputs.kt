@@ -4,6 +4,7 @@ import es.topophone.core.model.format.DistanceInput
 import es.topophone.core.model.point.Point
 import es.topophone.core.model.point.PointSearch
 import es.topophone.core.model.project.LinearUnit
+import es.topophone.core.survey.TerrainView
 import es.topophone.core.survey.cogo.CogoPoint
 import es.topophone.data.point.PointRepository
 import kotlinx.coroutines.CoroutineScope
@@ -55,6 +56,13 @@ internal fun Point.toCogoPoint(): CogoPoint? {
     val north = coordinates.northing ?: return null
     val ground = coordinates.ground
     return CogoPoint(east, north, coordinates.height, ground.latitudeDeg, ground.longitudeDeg, ground.ellipsoidalHeightM)
+}
+
+/** El punto con su Este y su Norte de terreno; en cuadrícula, el mismo (S058/RF-9). */
+internal fun CogoPoint.inTerrain(view: TerrainView): CogoPoint = if (!view.isTerrain) {
+    this
+} else {
+    view.coordinates(easting, northing).let { copy(easting = it.easting, northing = it.northing) }
 }
 
 /**
@@ -137,20 +145,22 @@ class CogoInputs(private val points: PointRepository, private val scope: Corouti
     }
 
     /** Cada entrada resuelta con el estado de ahora de su punto, en la unidad lineal del proyecto. */
-    fun values(unit: Flow<LinearUnit>): Flow<Map<String, CogoSlotValue>> = combine(selectionsState, unit) { map, u -> map to u }
-        .flatMapLatest { (map, u) ->
-            if (map.isEmpty()) {
-                flowOf(emptyMap())
-            } else {
-                val slots = map.keys.toList()
-                combine(slots.map { resolve(map.getValue(it), u) }) { values -> slots.zip(values.toList()).toMap() }
+    fun values(unit: Flow<LinearUnit>, terrain: Flow<TerrainView> = flowOf(TerrainView.GRID)): Flow<Map<String, CogoSlotValue>> =
+        combine(selectionsState, unit, terrain) { map, u, view -> Triple(map, u, view) }
+            .flatMapLatest { (map, u, view) ->
+                if (map.isEmpty()) {
+                    flowOf(emptyMap())
+                } else {
+                    val slots = map.keys.toList()
+                    combine(slots.map { resolve(map.getValue(it), u, view) }) { values -> slots.zip(values.toList()).toMap() }
+                }
             }
-        }
 
-    private fun resolve(selection: CogoSelection, unit: LinearUnit): Flow<CogoSlotValue> = when (selection) {
+    /** S058/RF-10: con el proyecto en terreno se calcula en terreno: lo escrito ya lo es y los puntos del proyecto se pasan a él. */
+    private fun resolve(selection: CogoSelection, unit: LinearUnit, view: TerrainView): Flow<CogoSlotValue> = when (selection) {
         is CogoSelection.Typed -> flowOf(typed(selection, unit))
         is CogoSelection.OfProject -> points.point(selection.pointId).map { point ->
-            val cogo = point?.takeIf { it.deletedAtMs == null }?.toCogoPoint()
+            val cogo = point?.takeIf { it.deletedAtMs == null }?.toCogoPoint()?.inTerrain(view)
             if (cogo == null) CogoSlotValue.Missing(selection.name) else CogoSlotValue.Found(cogo, point.name)
         }
     }

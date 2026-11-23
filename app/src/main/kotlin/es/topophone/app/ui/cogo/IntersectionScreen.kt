@@ -135,7 +135,7 @@ fun IntersectionScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Kinds(state.kind, actions.onKind)
-            CogoModeSelector(state.mode, actions.onMode)
+            CogoModeOrTerrain(state.mode, actions.onMode, state.terrain)
             CogoPointField(SLOT_FIRST, first, state.first, state.linearUnit, actions.onPick)
             CogoPointField(SLOT_SECOND, second, state.second, state.linearUnit, actions.onPick)
             Conditions(state, actions)

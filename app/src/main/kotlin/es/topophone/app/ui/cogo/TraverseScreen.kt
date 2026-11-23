@@ -167,7 +167,7 @@ fun TraverseScreen(
             modifier = Modifier.padding(padding).padding(horizontal = 16.dp).testTag(TRAVERSE_LIST_TAG),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item(key = "mode") { CogoModeSelector(state.mode, actions.onMode) }
+            item(key = "mode") { CogoModeOrTerrain(state.mode, actions.onMode, state.terrain) }
             item(key = "start") {
                 CogoPointField(SLOT_START, stringResource(R.string.cogo_point_start), state.start, state.linearUnit, actions.onPick)
             }

@@ -200,3 +200,20 @@ fun CogoNumberField(key: String, label: String, text: String, invalid: Boolean, 
 /** Cuadrícula o Terreno, la elección de S026 que vale para toda la app, diciendo siempre cuál está activa (S038/RF-5). */
 @Composable
 fun CogoModeSelector(mode: DistanceMode, onMode: (DistanceMode) -> Unit) = ModeSelector(mode, onMode)
+
+/** La elección Cuadrícula/Terreno o, con el proyecto en terreno, solo «Terreno» (S058/RF-9). */
+@Composable
+fun CogoModeOrTerrain(mode: DistanceMode, onMode: (DistanceMode) -> Unit, terrain: Boolean) {
+    // S058/RF-9: con el proyecto en terreno se calcula en terreno y no hay elección Cuadrícula/Terreno.
+    if (terrain) {
+        androidx.compose.material3.Text(
+            androidx.compose.ui.res.stringResource(es.topophone.app.R.string.terrain_ground),
+            style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
+            modifier = androidx.compose.ui.Modifier.testTag(COGO_TERRAIN_TAG),
+        )
+    } else {
+        ModeSelector(mode, onMode)
+    }
+}
+
+const val COGO_TERRAIN_TAG = "cogo_terrain"

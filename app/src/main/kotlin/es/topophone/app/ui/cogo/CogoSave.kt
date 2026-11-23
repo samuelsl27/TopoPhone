@@ -4,6 +4,7 @@ import es.topophone.core.model.cogo.CogoEntry
 import es.topophone.core.model.cogo.CogoOperation
 import es.topophone.core.model.cogo.CogoRef
 import es.topophone.core.model.point.PointNames
+import es.topophone.core.survey.TerrainView
 import es.topophone.core.survey.cogo.CogoPointBuilder
 import es.topophone.core.survey.cogo.CogoPointResult
 import es.topophone.data.cogo.CogoRepository
@@ -136,9 +137,15 @@ class CogoSaveController(
             }
             val project = projects.observe(projectId).first() ?: return@launch
             val builder = CogoPointBuilder()
+            // S058/RF-10: con el proyecto en terreno el cálculo fue en terreno; los puntos y su rastro se guardan en cuadrícula.
+            val terrain = TerrainView.of(project.terrain, project.crs) ?: TerrainView.GRID
             val built = results.mapIndexed { i, r ->
+                val grid = terrain.toGrid(r.easting, r.northing)
+                val entries = r.ref.entries.map { e ->
+                    terrain.toGrid(e.easting, e.northing).let { g -> e.copy(easting = g.easting, northing = g.northing) }
+                }
                 r.key to
-                    builder.build(newId(), project, names[i], r.easting, r.northing, r.height, r.ref, clock())
+                    builder.build(newId(), project, names[i], grid.easting, grid.northing, r.height, r.ref.copy(entries = entries), clock())
             }
             val rejected = built.filter { it.second is CogoPointResult.Rejected }.map { it.first }
             if (rejected.isNotEmpty()) {
