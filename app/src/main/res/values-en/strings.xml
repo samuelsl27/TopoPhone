@@ -3707,4 +3707,25 @@
     <string name="localization_pair_known">Known: Easting %1$s · Northing %2$s · height %3$s</string>
     <string name="localization_no_height">no height</string>
     <string name="localization_menu_item">Localization</string>
+    <string name="localization_add_pair">Add pair</string>
+    <string name="localization_add_gnss">GNSS point</string>
+    <string name="localization_add_gnss_none">There are no GNSS-measured points available.</string>
+    <string name="localization_add_known">Known coordinates (in the site system)</string>
+    <string name="localization_add_source_typed">Type them</string>
+    <string name="localization_add_source_point">Take them from a manual or imported point</string>
+    <string name="localization_add_known_none">There are no manual or imported points.</string>
+    <string name="localization_add_easting">Easting (%1$s)</string>
+    <string name="localization_add_northing">Northing (%1$s)</string>
+    <string name="localization_add_height">Height (%1$s, optional)</string>
+    <string name="localization_add_confirm">Add</string>
+    <string name="localization_add_cancel">Cancel</string>
+    <string name="localization_error_no_gnss">Choose a GNSS point.</string>
+    <string name="localization_error_no_known">Choose the point to take the coordinates from.</string>
+    <string name="localization_error_invalid">Type a valid Easting and Northing, and a valid height if you add one.</string>
+    <string name="localization_error_no_measurement">That point has no receiver measurement: only measured or staked points work.</string>
+    <string name="localization_error_already">That point is already in another pair.</string>
+    <string name="localization_error_limit">A draft admits at most 50 pairs.</string>
+    <string name="localization_error_no_position">That point has no Easting and Northing in the project CRS.</string>
+    <string name="localization_pair_unconfirmed">Point without a FIX solution or outside the precision check: it does not count until you confirm its use.</string>
+    <string name="localization_pair_confirm">Confirm use</string>
 </resources>

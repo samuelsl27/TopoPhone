@@ -3,15 +3,18 @@ package es.topophone.app.ui.localization
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.model.format.LengthFormat
 import es.topophone.core.model.localization.Localization
+import es.topophone.core.model.localization.LocalizationLimits
 import es.topophone.core.model.localization.LocalizationOrigin
 import es.topophone.core.model.localization.LocalizationPair
 import es.topophone.core.model.localization.LocalizationParams
@@ -23,6 +26,7 @@ import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.Project
 import es.topophone.core.model.project.ProjectCrs
+import io.kotest.matchers.shouldBe
 import java.util.Locale
 import org.junit.Rule
 import org.junit.Test
@@ -70,10 +74,10 @@ class LocalizationScreenTest {
 
     private fun metres(value: Double) = "${LengthFormat.inUnit(value, LinearUnit.METRE, Locale.forLanguageTag("es-ES"))} m"
 
-    private fun show(state: LocalizationUiState) {
+    private fun show(state: LocalizationUiState, actions: LocalizationActions = LocalizationActions()) {
         compose.setContent {
             TopoPhoneTheme(EffectiveTheme.LIGHT) {
-                LocalizationScreen(ThemeState.DEFAULT, {}, state, LocalizationActions(), {})
+                LocalizationScreen(ThemeState.DEFAULT, {}, state, actions, {})
             }
         }
     }
@@ -106,5 +110,68 @@ class LocalizationScreenTest {
         show(LocalizationUiState(loaded = true, project = project, active = saved))
 
         compose.onNodeWithTag(LOCALIZATION_STATUS_TAG).shows("Plano de obra").shows("sin pares")
+    }
+
+    @Test
+    fun `S039 RF-2 el formulario del par enseña los puntos GNSS y los campos de las coordenadas`() {
+        val calls = mutableListOf<String>()
+        show(
+            LocalizationUiState(
+                loaded = true,
+                project = project,
+                gnssCandidates = listOf(GnssCandidate("g1", "Clavo 1")),
+                addPair = AddPairUi(gnssId = "g1", error = PairError.INVALID_COORDINATES),
+            ),
+            LocalizationActions(onSelectGnss = { calls += "gnss:$it" }, onConfirmAddPair = { calls += "confirm" }),
+        )
+
+        compose.onNodeWithTag(LOCALIZATION_FORM_TAG).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(localizationGnssTag("g1")).performScrollTo().shows("Clavo 1").performClick()
+        compose.onNodeWithTag(LOCALIZATION_FORM_EASTING_TAG).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(LOCALIZATION_FORM_ERROR_TAG).performScrollTo().shows("Este y un Norte válidos")
+        compose.onNodeWithTag(LOCALIZATION_FORM_CONFIRM_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("gnss:g1", "confirm")
+    }
+
+    @Test
+    fun `S039 RF-2 con la fuente de un punto el formulario enseña los puntos manuales`() {
+        show(
+            LocalizationUiState(
+                loaded = true,
+                project = project,
+                knownCandidates = listOf(KnownCandidate("m1", "Replanteo A", 1.0, 2.0, null)),
+                addPair = AddPairUi(source = KnownSource.POINT),
+            ),
+        )
+
+        compose.onNodeWithTag(localizationKnownTag("m1")).performScrollTo().shows("Replanteo A")
+        compose.onNodeWithTag(LOCALIZATION_FORM_EASTING_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `S039 RF-6 un par sin confirmar lo avisa en texto y ofrece confirmar su uso`() {
+        val calls = mutableListOf<String>()
+        val unconfirmed = pair("a", "Clavo 1").copy(confirmed = false)
+        show(
+            LocalizationUiState(loaded = true, project = project, pairs = listOf(unconfirmed)),
+            LocalizationActions(onConfirmPair = {
+                calls +=
+                    it
+            }),
+        )
+
+        compose.onNodeWithTag(localizationUnconfirmedTag("a")).performScrollTo().shows("no cuenta hasta que confirmes")
+        compose.onNodeWithTag(localizationConfirmPairTag("a")).performScrollTo().performClick()
+
+        calls shouldBe listOf("a")
+    }
+
+    @Test
+    fun `S039 RF-4 con 50 pares el boton de anadir queda desactivado`() {
+        val fifty = List(LocalizationLimits.MAX_PAIRS) { pair("p$it", "P$it") }
+        show(LocalizationUiState(loaded = true, project = project, pairs = fifty))
+
+        compose.onNodeWithTag(LOCALIZATION_ADD_PAIR_TAG).performScrollTo().assertIsNotEnabled()
     }
 }

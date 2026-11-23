@@ -22,7 +22,18 @@ fun LocalizationRoute(
         themeState = themeState,
         onToggleSun = onToggleSun,
         state = state,
-        actions = LocalizationActions(),
+        actions = LocalizationActions(
+            onOpenAddPair = viewModel::openAddPair,
+            onCloseAddPair = viewModel::closeAddPair,
+            onSelectGnss = viewModel::selectGnss,
+            onSource = viewModel::setSource,
+            onSelectKnown = viewModel::selectKnown,
+            onEasting = viewModel::setEasting,
+            onNorthing = viewModel::setNorthing,
+            onHeight = viewModel::setHeight,
+            onConfirmAddPair = viewModel::confirmAddPair,
+            onConfirmPair = viewModel::confirmPair,
+        ),
         onBack = onBack,
     )
 }

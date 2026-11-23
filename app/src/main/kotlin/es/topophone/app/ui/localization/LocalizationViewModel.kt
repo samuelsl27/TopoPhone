@@ -3,17 +3,26 @@ package es.topophone.app.ui.localization
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.localization.Localization
 import es.topophone.core.model.localization.LocalizationLimits
 import es.topophone.core.model.localization.LocalizationOrigin
 import es.topophone.core.model.localization.LocalizationPair
+import es.topophone.core.model.point.PointOrigin
+import es.topophone.core.model.point.hasMeasurement
 import es.topophone.core.model.project.Project
+import es.topophone.core.survey.localization.KnownCoordinates
 import es.topophone.core.survey.localization.LocalizationAssessment
+import es.topophone.core.survey.localization.LocalizationDraftRules
 import es.topophone.core.survey.localization.LocalizationOutcome
 import es.topophone.core.survey.localization.LocalizationSolver
+import es.topophone.core.survey.localization.PairRejection
+import es.topophone.core.survey.localization.PairResult
 import es.topophone.core.survey.localization.assess
 import es.topophone.data.localization.LocalizationRepository
+import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
+import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,13 +31,39 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+/** De dónde salen las coordenadas conocidas de un par (S039/RF-2). */
+enum class KnownSource { TYPED, POINT }
+
+/** Por qué no se puede añadir el par que se está formando (S039/RF-3, RF-4). */
+enum class PairError { NO_GNSS, NO_KNOWN_POINT, INVALID_COORDINATES, NO_MEASUREMENT, ALREADY_IN_DRAFT, LIMIT_REACHED, NO_POSITION }
+
+/** Un punto GNSS que se puede elegir para un par: medido o replanteado, con posición y aún sin par (S039/RF-2). */
+data class GnssCandidate(val id: String, val name: String)
+
+/** Un punto manual o importado del que tomar las coordenadas conocidas (S039/RF-2). */
+data class KnownCandidate(val id: String, val name: String, val easting: Double, val northing: Double, val heightM: Double?)
+
+/** El par que se está formando (S039/RF-2). */
+data class AddPairUi(
+    val gnssId: String? = null,
+    val source: KnownSource = KnownSource.TYPED,
+    val knownPointId: String? = null,
+    val eastingText: String = "",
+    val northingText: String = "",
+    val heightText: String = "",
+    val error: PairError? = null,
+)
 
 /**
  * Lo que enseña la pantalla de localización (S039/RF-1): el proyecto, la localización activa, el borrador con sus pares (o los de la activa si aún no
- * se edita), el cálculo del borrador y sus avisos, y el historial.
+ * se edita), el cálculo de los pares que se ven y sus avisos, el historial y el par que se está formando.
  */
 data class LocalizationUiState(
     val loaded: Boolean = false,
@@ -46,6 +81,11 @@ data class LocalizationUiState(
     val outcome: LocalizationOutcome? = null,
     val assessment: LocalizationAssessment? = null,
     val history: List<Localization> = emptyList(),
+    /** Los puntos GNSS que aún no están en ningún par y los puntos de los que tomar coordenadas (RF-2). */
+    val gnssCandidates: List<GnssCandidate> = emptyList(),
+    val knownCandidates: List<KnownCandidate> = emptyList(),
+    /** El par que se está formando, o null con el formulario cerrado. */
+    val addPair: AddPairUi? = null,
 ) {
     /** El proyecto está en coordenadas de terreno (RF-22). */
     val terrain: Boolean get() = project?.terrain != null
@@ -57,45 +97,151 @@ data class LocalizationUiState(
 class LocalizationViewModel @Inject constructor(
     private val localizations: LocalizationRepository,
     private val projects: ProjectRepository,
+    private val points: PointRepository,
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
+    private val form = MutableStateFlow<AddPairUi?>(null)
 
     fun start(id: String) {
         projectId.value = id
     }
 
+    private data class Loaded(val project: Project?, val active: Localization?, val draft: Localization?, val history: List<Localization>)
+
     val state: StateFlow<LocalizationUiState> = projectId.filterNotNull().flatMapLatest { id ->
         combine(
-            projects.observe(id),
-            localizations.active(id),
-            localizations.draft(id),
-            localizations.history(id),
-        ) { project, active, draft, history ->
-            val shown = draft ?: active
+            combine(projects.observe(id), localizations.active(id), localizations.draft(id), localizations.history(id), ::Loaded),
+            points.points(id),
+            form,
+        ) { loaded, projectPoints, addPair ->
+            val shown = loaded.draft ?: loaded.active
             val pairs = shown?.pairs.orEmpty()
             val fixScale = shown?.fixScale ?: false
-            val outcome = if (shown != null && shown.origin == LocalizationOrigin.PAIRS && pairs.isNotEmpty()) {
-                LocalizationSolver.solve(pairs, fixScale)
-            } else {
-                null
-            }
+            val canSolve = shown != null && shown.origin == LocalizationOrigin.PAIRS && pairs.isNotEmpty()
+            val outcome = if (canSolve) LocalizationSolver.solve(pairs, fixScale) else null
             val residualLimit = shown?.residualLimitM ?: LocalizationLimits.DEFAULT_RESIDUAL_LIMIT_M
             val scaleLimit = shown?.scaleLimit ?: LocalizationLimits.DEFAULT_SCALE_LIMIT
+            val taken = pairs.mapNotNull { it.pointId }.toSet()
+            val live = projectPoints.filter { it.deletedAtMs == null }
             LocalizationUiState(
-                loaded = project != null,
-                project = project,
-                active = active,
-                draft = draft,
+                loaded = loaded.project != null,
+                project = loaded.project,
+                active = loaded.active,
+                draft = loaded.draft,
                 pairs = pairs,
                 fixScale = fixScale,
                 residualLimitM = residualLimit,
                 scaleLimit = scaleLimit,
                 outcome = outcome,
                 assessment = (outcome as? LocalizationOutcome.Solved)?.solution?.assess(residualLimit, scaleLimit),
-                history = history,
+                history = loaded.history,
+                gnssCandidates = live
+                    .filter { it.origin.hasMeasurement && it.measurement?.coordinates?.easting != null && it.id !in taken }
+                    .map { GnssCandidate(it.id, it.name) },
+                knownCandidates = live
+                    .filter { it.origin == PointOrigin.MANUAL || it.origin == PointOrigin.IMPORTED }
+                    .mapNotNull { p ->
+                        val e = p.coordinates.easting
+                        val n = p.coordinates.northing
+                        if (e == null || n == null) null else KnownCandidate(p.id, p.name, e, n, p.coordinates.height)
+                    },
+                addPair = addPair,
             )
         }.flowOn(Dispatchers.Default)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), LocalizationUiState())
+
+    /** Abre el formulario del par (RF-2). */
+    fun openAddPair() {
+        form.value = AddPairUi()
+    }
+
+    fun closeAddPair() {
+        form.value = null
+    }
+
+    fun selectGnss(id: String) = formUpdate { it.copy(gnssId = id, error = null) }
+
+    fun setSource(source: KnownSource) = formUpdate { it.copy(source = source, error = null) }
+
+    fun selectKnown(id: String) = formUpdate { it.copy(knownPointId = id, error = null) }
+
+    fun setEasting(text: String) = formUpdate { it.copy(eastingText = text, error = null) }
+
+    fun setNorthing(text: String) = formUpdate { it.copy(northingText = text, error = null) }
+
+    fun setHeight(text: String) = formUpdate { it.copy(heightText = text, error = null) }
+
+    private fun formUpdate(change: (AddPairUi) -> AddPairUi) = form.update { it?.let(change) }
+
+    /** Forma el par con las reglas de RF-3 y RF-4 y lo añade al borrador (RF-2); si no se puede, deja el motivo en el formulario. */
+    fun confirmAddPair() {
+        val id = projectId.value ?: return
+        val current = state.value
+        val project = current.project ?: return
+        val ui = form.value ?: return
+        val gnss = ui.gnssId ?: return fail(PairError.NO_GNSS)
+        val known = knownCoordinates(ui, project, current.knownCandidates) ?: return fail(
+            if (ui.source == KnownSource.POINT) PairError.NO_KNOWN_POINT else PairError.INVALID_COORDINATES,
+        )
+        viewModelScope.launch {
+            val point = points.point(gnss).first() ?: return@launch fail(PairError.NO_MEASUREMENT)
+            when (val result = LocalizationDraftRules.formPair(current.pairs, point, known, UUID.randomUUID().toString())) {
+                is PairResult.Rejected -> fail(result.reason.toError())
+                is PairResult.Added -> {
+                    localizations.startDraft(id) // RF-16: editar con una activa parte de una copia suya
+                    if (localizations.addPair(id, result.pair)) form.value = null else fail(PairError.LIMIT_REACHED)
+                }
+            }
+        }
+    }
+
+    private fun fail(error: PairError) = form.update { it?.copy(error = error) }
+
+    private fun PairRejection.toError() = when (this) {
+        PairRejection.NO_MEASUREMENT -> PairError.NO_MEASUREMENT
+        PairRejection.ALREADY_IN_DRAFT -> PairError.ALREADY_IN_DRAFT
+        PairRejection.LIMIT_REACHED -> PairError.LIMIT_REACHED
+        PairRejection.NO_POSITION -> PairError.NO_POSITION
+    }
+
+    /** Las coordenadas conocidas escritas (en la unidad del proyecto) o tomadas de un punto, en metros (RF-2). */
+    private fun knownCoordinates(ui: AddPairUi, project: Project, candidates: List<KnownCandidate>): KnownCoordinates? = when (ui.source) {
+        KnownSource.POINT -> candidates.firstOrNull {
+            it.id == ui.knownPointId
+        }?.let { KnownCoordinates(it.easting, it.northing, it.heightM) }
+        KnownSource.TYPED -> {
+            val unit = project.linearUnit
+            val e = NumberInput.parse(ui.eastingText)
+            val n = NumberInput.parse(ui.northingText)
+            val h = if (ui.heightText.isBlank()) null else NumberInput.parse(ui.heightText) ?: return null
+            if (e == null || n == null) null else KnownCoordinates(unit.toMetres(e), unit.toMetres(n), h?.let(unit::toMetres))
+        }
+    }
+
+    /** El usuario confirma el uso de un par de baja calidad (RF-6). */
+    fun confirmPair(pairId: String) {
+        edit(pairId) { projectId, draftPairId -> localizations.confirmPair(projectId, draftPairId) }
+    }
+
+    /**
+     * Cambia un par del borrador; si aún no hay borrador (se ve la localización activa), lo crea desde la activa y busca el par por su posición,
+     * porque la copia lleva identificadores nuevos (RF-16).
+     */
+    private fun edit(pairId: String, action: suspend (projectId: String, draftPairId: String) -> Unit) {
+        val id = projectId.value ?: return
+        val current = state.value
+        viewModelScope.launch {
+            if (current.draft != null) {
+                action(id, pairId)
+            } else {
+                val index = current.pairs.indexOfFirst { it.id == pairId }
+                if (index < 0) return@launch
+                localizations.startDraft(id)
+                val copy = localizations.draft(id).first()?.pairs?.getOrNull(index) ?: return@launch
+                action(id, copy.id)
+            }
+        }
+    }
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L

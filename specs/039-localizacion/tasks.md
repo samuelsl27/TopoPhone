@@ -41,7 +41,7 @@
 ## Pantalla de localización (`app`)
 - [x] T16. `LocalizationRoute`, `LocalizationViewModel` y la entrada «Localización» del menú del proyecto, con el estado y la lista de pares. (RF-1)
       Hecho cuando: `LocalizationScreenTest` muestra «Sin localización», una activa con su RMS y la lista de pares.
-- [ ] T17. Añadir un par: elegir el punto GNSS y escribir las coordenadas conocidas o tomarlas de un punto manual o importado, con el rechazo de cada motivo y la confirmación de un punto de baja calidad. (RF-2, RF-3, RF-4, RF-6)
+- [x] T17. Añadir un par: elegir el punto GNSS y escribir las coordenadas conocidas o tomarlas de un punto manual o importado, con el rechazo de cada motivo y la confirmación de un punto de baja calidad. (RF-2, RF-3, RF-4, RF-6)
       Hecho cuando: `LocalizationViewModelTest` y `LocalizationScreenTest` cubren el par válido, los tres rechazos y la confirmación de calidad.
 - [ ] T18. Activar o excluir cada componente, quitar un par, «Fijar escala = 1» y recálculo instantáneo. (RF-5, RF-8, RF-11)
       Hecho cuando: `LocalizationViewModelTest` comprueba que cada cambio recalcula el borrador y que con la escala fija sale exactamente 1.

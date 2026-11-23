@@ -3719,4 +3719,25 @@
     <string name="localization_pair_known">Conocidas: Este %1$s · Norte %2$s · cota %3$s</string>
     <string name="localization_no_height">sin cota</string>
     <string name="localization_menu_item">Localización</string>
+    <string name="localization_add_pair">Añadir par</string>
+    <string name="localization_add_gnss">Punto GNSS</string>
+    <string name="localization_add_gnss_none">No hay puntos medidos con GNSS disponibles.</string>
+    <string name="localization_add_known">Coordenadas conocidas (en el sistema de la obra)</string>
+    <string name="localization_add_source_typed">Escribirlas</string>
+    <string name="localization_add_source_point">Tomarlas de un punto manual o importado</string>
+    <string name="localization_add_known_none">No hay puntos manuales ni importados.</string>
+    <string name="localization_add_easting">Este (%1$s)</string>
+    <string name="localization_add_northing">Norte (%1$s)</string>
+    <string name="localization_add_height">Cota (%1$s, opcional)</string>
+    <string name="localization_add_confirm">Añadir</string>
+    <string name="localization_add_cancel">Cancelar</string>
+    <string name="localization_error_no_gnss">Elige un punto GNSS.</string>
+    <string name="localization_error_no_known">Elige el punto del que tomar las coordenadas.</string>
+    <string name="localization_error_invalid">Escribe un Este y un Norte válidos, y una cota válida si la pones.</string>
+    <string name="localization_error_no_measurement">Ese punto no tiene medida del receptor: solo sirven los medidos o replanteados.</string>
+    <string name="localization_error_already">Ese punto ya está en otro par.</string>
+    <string name="localization_error_limit">Un borrador admite como máximo 50 pares.</string>
+    <string name="localization_error_no_position">Ese punto no tiene Este y Norte en el SC del proyecto.</string>
+    <string name="localization_pair_unconfirmed">Punto sin solución FIX o fuera del control de precisión: no cuenta hasta que confirmes su uso.</string>
+    <string name="localization_pair_confirm">Confirmar uso</string>
 </resources>
