@@ -33,7 +33,7 @@
       Hecho cuando: `CollectorNothingChangesTest` pasa y `rf_report` muestra RF-1 a RF-22 cubiertos.
 
 ## Replantear: la placa y la hoja
-- [ ] T13. `ArrivalRules` y `GuidancePlate`: flecha, distancia, desplazamientos Norte y Este o adelante, atrás, izquierda y derecha, cota con «Desmonte» o «Terraplén», y «En el punto» en verde con texto. (RF-24, RF-28)
+- [x] T13. `ArrivalRules` y `GuidancePlate`: flecha, distancia, desplazamientos Norte y Este o adelante, atrás, izquierda y derecha, cota con «Desmonte» o «Terraplén», y «En el punto» en verde con texto. (RF-24, RF-28)
       Hecho cuando: `ArrivalRulesTest` y `GuidancePlateTest` cubren ambos modos, con y sin cota, sin rumbo, dentro y fuera de ambas tolerancias, con texto además de color.
 - [ ] T14. `StakeoutSheet` común (cabecera con «Anterior», «Siguiente» y «Cerrar» a 56 dp, placa, fila de ajustes y los trozos de recolector) con las pastillas «Tolerancia H», «Tolerancia V» (con cota), «Cota» y «Modo». (RF-23, RF-27, RF-30)
       Hecho cuando: `StakeoutSheetTest` comprueba pastillas, selectores contra `onTolerance`, `onToleranceV`, `onElevation` y `onMode`, y las zonas de 56 dp de «Anterior» y «Siguiente».

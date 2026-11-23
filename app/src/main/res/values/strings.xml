@@ -3860,4 +3860,5 @@
     <string name="field_mode_auto_distance">Auto · distancia</string>
     <string name="field_tilt_unset">Sin elegir</string>
     <string name="field_measure_named">Medir %1$s</string>
+    <string name="field_plate_arrived">En el punto</string>
 </resources>
