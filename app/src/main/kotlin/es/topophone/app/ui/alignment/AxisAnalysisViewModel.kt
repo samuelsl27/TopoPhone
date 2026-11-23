@@ -33,8 +33,10 @@ import es.topophone.core.survey.SectionResolver
 import es.topophone.core.survey.SolutionTypes
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.VerticalProfileEval
+import es.topophone.core.survey.localization.localized
 import es.topophone.data.alignment.AlignmentRepository
 import es.topophone.data.baseshift.ActiveBaseShift
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.section.SectionRepository
@@ -98,6 +100,7 @@ class AxisAnalysisViewModel @Inject constructor(
     private val tilt: CurrentTilt = CurrentTilt.NONE,
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
     private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
 ) : ViewModel() {
     /** El eje abierto con lo que hace falta para calcular sobre él. */
     private class Model(val projectId: String, val alignment: Alignment, val resolver: SectionResolver?) {
@@ -110,6 +113,7 @@ class AxisAnalysisViewModel @Inject constructor(
 
     /** El desplazamiento de base activo del proyecto (S020/RF-7). */
     private val activeShift = baseShift.track(projectId, viewModelScope)
+    private val activeLocalization = localization.track(projectId, viewModelScope) // S039/RF-17
 
     @Volatile private var project: Project? = null
 
@@ -281,7 +285,9 @@ class AxisAnalysisViewModel @Inject constructor(
             return
         }
         val tip = LiveTip.of(fix, epoch.tilt, tiltMode, g.verticalPoleM ?: PoleHeight.DEFAULT_M, g.profile, activeShift.value?.vector)
-        val position = tip?.let { calculator.get().fromGround(it.ground, project.crs, project.heightSystem) }
+        val position = tip?.let {
+            calculator.get().fromGround(it.ground, project.crs, project.heightSystem).localized(activeLocalization.value?.params)
+        }
         val easting = position?.easting
         val northing = position?.northing
         if (position == null || easting == null || northing == null) {

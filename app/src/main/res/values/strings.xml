@@ -3705,4 +3705,5 @@
     <string name="crs_history_terrain_ground">terreno (factor %1$s)</string>
     <string name="cogo_distance_terrain">Distancia de terreno</string>
     <string name="terrain_export_grid_notice">El proyecto está en terreno. Este fichero se escribe en coordenadas de cuadrícula, con su sistema de coordenadas.</string>
+    <string name="localization_active_banner">Localizado: los puntos GNSS salen en el sistema de la obra</string>
 </resources>

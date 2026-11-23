@@ -32,6 +32,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.baseshift.BaseShiftActiveBanner
 import es.topophone.app.ui.baseshift.BaseShiftBaseChangedBanner
 import es.topophone.app.ui.baseshift.BaseShiftDatumBanner
+import es.topophone.app.ui.localization.LocalizationActiveBanner
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.BaseNoticeBanners
 import es.topophone.app.ui.receiver.GearSelector
@@ -357,6 +358,7 @@ private fun SurfaceReadingText(reading: SurfaceReading?, unit: LinearUnit) {
 @Composable
 internal fun Messages(state: CollectorUiState, actions: CollectorActions) {
     state.baseShiftName?.let { BaseShiftActiveBanner(it, actions.onDeactivateBaseShift) } // S020/RF-11
+    if (state.localized) LocalizationActiveBanner() // S039/RF-14
     if (state.baseShiftBaseChanged) {
         state.baseShiftName?.let { BaseShiftBaseChangedBanner(it, actions.onDeactivateBaseShift, actions.onRepeatBaseShift) } // S020/RF-15
     }

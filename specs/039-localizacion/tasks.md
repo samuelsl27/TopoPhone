@@ -29,9 +29,9 @@
       Hecho cuando: `LocalizationBackupTest` hace copia y restauración, y paquete e importación, con borrador, activa e historial; `BackupMigrationTest` abre las copias anteriores.
 
 ## Aplicar en vivo (`core:survey`, `app`)
-- [ ] T12. `PointMeasurement`, `LiveTip` y `PointCorrections` reciben la localización: el punto se localiza tras el SC, se guarda `localization_id` y el jalón corregido usa la activa. (RF-17, RF-19)
+- [x] T12. `PointMeasurement`, `LiveTip` y `PointCorrections` reciben la localización: el punto se localiza tras el SC, se guarda `localization_id` y el jalón corregido usa la activa. (RF-17, RF-19)
       Hecho cuando: `PointMeasurementLocalizationTest` y `PointCorrectionsLocalizationTest` comprueban coordenadas localizadas, `measured_*` sin localizar, y que un punto editado no cambia.
-- [ ] T13. El recolector, `AutoCollector` y el panel de posición localizan lo que enseñan y miden, con el indicador «Localizado». (RF-14, RF-17)
+- [x] T13. El recolector, `AutoCollector` y el panel de posición localizan lo que enseñan y miden, con el indicador «Localizado». (RF-14, RF-17)
       Hecho cuando: `CollectorLocalizationTest` comprueba la posición en vivo, el punto guardado y el indicador.
 - [ ] T14. Replanteo de puntos, de líneas, por eje y de taludes, análisis de ejes y mapa localizan la punta. (RF-17)
       Hecho cuando: `StakeoutLocalizationTest` comprueba que la guía usa la punta localizada contra el punto de diseño.

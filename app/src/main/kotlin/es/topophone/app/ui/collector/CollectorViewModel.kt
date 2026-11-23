@@ -76,8 +76,11 @@ import es.topophone.core.survey.StakeoutDiff
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.core.survey.TiltGuide
 import es.topophone.core.survey.TiltSetup
+import es.topophone.core.survey.localization.PointLocalization
+import es.topophone.core.survey.localization.localized
 import es.topophone.data.baseshift.ActiveBaseShift
 import es.topophone.data.line.MeasuredResult
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.photo.PhotoRepository
 import es.topophone.data.photo.PhotoStore
 import es.topophone.data.photo.PointWithPhotosResult
@@ -213,6 +216,8 @@ data class CollectorUiState(
     val baseShiftBaseChanged: Boolean = false,
     /** Un cambio de datum desactivó este desplazamiento y el usuario aún no lo ha visto (S020/RF-16). */
     val baseShiftDatumNotice: String? = null,
+    /** Hay una localización activa: los puntos que se midan salen localizados (S039/RF-14). */
+    val localized: Boolean = false,
     /** La guía de la inclinación, mientras el modo la use y la época no esté en estado 30 sin aviso (S016/RF-12). */
     val tiltGuide: TiltGuide? = null,
     /** La opción "Automático" está encendida; no se guarda y el recolector abre siempre en manual (S017/RF-15). */
@@ -261,6 +266,7 @@ class CollectorViewModel @Inject constructor(
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
     private val gear: CurrentGear = CurrentGear.NONE,
     private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
     private val photoRepository: PhotoRepository = PhotoRepository.NONE,
     photoStore: PhotoStore = PhotoStore.NONE,
     codeSource: CollectorCodeSource = CollectorCodeSource.NONE,
@@ -281,7 +287,7 @@ class CollectorViewModel @Inject constructor(
     )
 
     /** El modo de inclinación, el equipo, los jalones y el equipo del último punto guardado, juntos para el `combine` (S046). */
-    private data class ShiftUi(val shift: BaseShift?, val baseChanged: Boolean, val datumNotice: String?)
+    private data class ShiftUi(val shift: BaseShift?, val baseChanged: Boolean, val datumNotice: String?, val localized: Boolean = false)
 
     private data class Parts(
         val equipment: Equipment,
@@ -448,13 +454,16 @@ class CollectorViewModel @Inject constructor(
         if (id == null) flowOf(null) else baseShift.shift(id)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** La localización activa del proyecto, para localizar los puntos que se miden y la guía en vivo (S039/RF-14, RF-17). */
+    private val activeLocalization = localization.track(projectId, viewModelScope)
+
     /** El cambio de base que se ha visto con el desplazamiento activo, por su id (S020/RF-15). */
     private val staleShiftId = MutableStateFlow<String?>(null)
     private var shiftBaseCount: Int? = session.state.value.base.change?.count
     private val datumNotice: StateFlow<BaseShift?> = baseShift.datumNotice(projectId, viewModelScope)
 
-    private val shiftUi = combine(activeShift, staleShiftId, datumNotice) { shift, stale, notice ->
-        ShiftUi(shift, shift != null && stale == shift.id, notice?.knownName)
+    private val shiftUi = combine(activeShift, staleShiftId, datumNotice, activeLocalization) { shift, stale, notice, localization ->
+        ShiftUi(shift, shift != null && stale == shift.id, notice?.knownName, localization != null)
     }
 
     private val projectFlow = projectId.flatMapLatest { id ->
@@ -540,7 +549,11 @@ class CollectorViewModel @Inject constructor(
         val pole = g.verticalPoleM ?: return@combine null
         val epochTilt = snapshot.epoch?.tilt
         val tip = LiveTip.of(fix, epochTilt, tiltState.settings.mode, pole, g.profile, activeShift.value?.vector) ?: return@combine null
-        val position = calculator.get().fromGround(tip.ground, project.crs, project.heightSystem)
+        val position = calculator.get().fromGround(
+            tip.ground,
+            project.crs,
+            project.heightSystem,
+        ).localized(activeLocalization.value?.params)
         val easting = position.easting
         val northing = position.northing
         val height = if (easting != null && northing != null) guide.heightAt(easting, northing) else SurfaceHeight.Outside
@@ -584,6 +597,7 @@ class CollectorViewModel @Inject constructor(
             baseShiftName = shift.shift?.knownName, // S020/RF-11
             baseShiftBaseChanged = shift.baseChanged, // S020/RF-15
             baseShiftDatumNotice = shift.datumNotice, // S020/RF-16
+            localized = shift.localized, // S039/RF-14
             photos = photoUi, // S017b/RF-8
             code = codeUi, // S024
             line = line, // S025/RF-3
@@ -1247,6 +1261,9 @@ class CollectorViewModel @Inject constructor(
             },
         )
         lastSavedGear.value = result.gear // S046/RF-26
+        // S039/RF-17: lo que se compara con el diseño son las coordenadas localizadas; la medida sigue en el SC sin localizar.
+        val localizationAtSave = activeLocalization.value
+        val shown = PointLocalization.coordinates(measurement.coordinates, localizationAtSave)
         // S018/RF-28: el diseño por valor y lo que se desvió lo medido (medido menos diseño). S019/RF-13, RF-14: contra la cota
         // usada, con las tolerancias vigentes y si cumple.
         val staked = stake?.let { target ->
@@ -1260,7 +1277,7 @@ class CollectorViewModel @Inject constructor(
             } else {
                 info
             }
-            val surface = SurfaceStake.of(surfaceInfo, measurement.coordinates)
+            val surface = SurfaceStake.of(surfaceInfo, shown)
             val staked = if (provider != null && objective == null) {
                 null // S041: una línea que aún no ha dado objetivo no tiene qué comparar
             } else if (objective != null) {
@@ -1269,7 +1286,7 @@ class CollectorViewModel @Inject constructor(
                     target.id,
                     target.name,
                     objective.design,
-                    measurement.coordinates,
+                    shown,
                     elevationM = if (surface != null) surface.elevationOr(objective.elevationM) else objective.elevationM,
                     toleranceHM = info?.toleranceHM,
                     toleranceVM = info?.toleranceVM,
@@ -1278,20 +1295,20 @@ class CollectorViewModel @Inject constructor(
                     mode = objective.mode,
                     chainageM = objective.chainageM,
                     lateralOffsetM = objective.lateralOffsetM,
-                    dLateralM = objective.lateralErrorOf(measurement.coordinates),
-                    dChainageM = objective.chainageErrorOf?.invoke(measurement.coordinates), // S054/RF-10
+                    dLateralM = objective.lateralErrorOf(shown),
+                    dChainageM = objective.chainageErrorOf?.invoke(shown), // S054/RF-10
                     thicknessM = objective.thicknessM,
                     sectionCode = objective.sectionCode, // S050/RF-19
-                    slope = objective.slopeOf?.invoke(measurement.coordinates), // S051/RF-15
+                    slope = objective.slopeOf?.invoke(shown), // S051/RF-15
                 )
             } else if (info == null) {
-                StakeoutDiff.ref(target.id, target.name, target.coordinates, measurement.coordinates).copy(source = target.source)
+                StakeoutDiff.ref(target.id, target.name, target.coordinates, shown).copy(source = target.source)
             } else {
                 StakeoutDiff.ref(
                     target.id,
                     target.name,
                     target.coordinates,
-                    measurement.coordinates,
+                    shown,
                     elevationM = if (surface != null) surface.elevationOr(info.elevationM) else info.elevationM,
                     toleranceHM = info.toleranceHM,
                     toleranceVM = info.toleranceVM,
@@ -1299,7 +1316,7 @@ class CollectorViewModel @Inject constructor(
             }
             if (staked != null && surface != null) surface.applyTo(staked) else staked
         }
-        val point = Point.measured(
+        val unlocalizedPoint = Point.measured(
             id = UUID.randomUUID().toString(),
             projectId = projectId,
             name = name,
@@ -1307,7 +1324,7 @@ class CollectorViewModel @Inject constructor(
             measurement = measurement,
             createdAtMs = System.currentTimeMillis(),
             staked = staked,
-            onAxis = axisReference?.at(measurement.coordinates), // S054/RF-13
+            onAxis = axisReference?.at(shown), // S054/RF-13
             // S024/RF-10, RF-20: el codigo por valor; un replanteo hereda el del punto de diseno.
             code = if (stake !=
                 null
@@ -1317,6 +1334,7 @@ class CollectorViewModel @Inject constructor(
                 CollectorLineRules.pointCode(codes.ui.value.selected, lineUi.value, codes::pointCode)
             },
         )
+        val point = PointLocalization.localize(unlocalizedPoint, localizationAtSave) // S039/RF-19
         // S017/RF-22: el modo automático propone ya el nombre siguiente, que la época que sigue puede necesitar enseguida.
         if (auto) form.update { if (PointNames.clean(it.name) == name) it.copy(name = PointNames.next(name)) else it }
         val staged = photos.staged() // S017b/RF-2: las fotos de la medida se guardan con su punto
