@@ -172,8 +172,11 @@ Términos de la interfaz (español) y su nombre en el código (inglés). Si un c
 | Base shift (desplazamiento de base) | `BaseShift` | Vector ECEF conocido − medido que se suma a la punta del jalón antes del SC (S020) |
 | Punto conocido | `KnownPoint` | El punto de coordenadas buenas con el que se calcula un base shift; se mide aparte y no se guarda como punto (S020) |
 | Desplazamiento activo | `ActiveBaseShift` | El base shift que llevan los puntos que se midan; uno o ninguno por proyecto (S020) |
-| Localización (calibración local) | `Localization` | |
-| Residuo | `Residual` | |
+| Localización (calibración local) | `Localization` | Transformación horizontal (traslación, giro y escala) y vertical (desplazamiento o plano) calculada con pares de puntos, que se aplica a los puntos GNSS tras el SC (S039) |
+| Par de localización | `LocalizationPair` | Un punto GNSS y las coordenadas conocidas que le corresponden en el sistema de la obra (S039) |
+| Localización activa | `ActiveLocalization` | La localización que usa el proyecto; una o ninguna; el borrador no se aplica hasta «Aplicar» (S039) |
+| Localizado | `Localized` | Indicador de que las coordenadas mostradas de los puntos GNSS pasan por una localización activa (S039) |
+| Residuo | `Residual` | Diferencia conocido − transformado de un par tras el ajuste (S039) |
 | Inversa / poligonal / intersección | `Inverse` / `Traverse` / `Intersection` | COGO (S038) |
 | Punto COGO | `PointOrigin.COGO` | Punto guardado desde el resultado de una poligonal o una intersección, con la operación y las entradas; es un punto manual para todo lo demás (S038) |
 | Error de cierre | `ClosureError` | Diferencia en Este y Norte entre el último punto de una poligonal y el de cierre, con el error lineal y la precisión 1:N; solo se informa (S038) |
