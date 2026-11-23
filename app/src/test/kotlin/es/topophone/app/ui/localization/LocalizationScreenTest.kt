@@ -3,6 +3,7 @@ package es.topophone.app.ui.localization
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
@@ -303,5 +304,92 @@ class LocalizationScreenTest {
         compose.onNodeWithTag(LOCALIZATION_LIMIT_RESIDUAL_TAG).performScrollTo().performTextReplacement("0,05")
 
         calls.last().first shouldBe "0,05"
+    }
+
+    @Test
+    fun `S039 RF-14 aplicar solo esta activo con un borrador que se calcula y pide confirmacion`() {
+        val calls = mutableListOf<String>()
+        val solved = solvedState()
+        show(
+            solved.copy(draft = localization(LocalizationStatus.DRAFT, solved.pairs)),
+            LocalizationActions(onRequestApply = { calls += "apply" }),
+        )
+
+        compose.onNodeWithTag(LOCALIZATION_APPLY_TAG).performScrollTo().assertIsEnabled().performClick()
+
+        calls shouldBe listOf("apply")
+    }
+
+    @Test
+    fun `S039 RF-14 sin borrador el boton de aplicar esta desactivado`() {
+        show(solvedState())
+
+        compose.onNodeWithTag(LOCALIZATION_APPLY_TAG).performScrollTo().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S039 RF-22 con el proyecto en terreno lo dice y no deja aplicar`() {
+        val solved = solvedState()
+        val ground = project.copy(terrain = es.topophone.core.model.project.TerrainPlane(40.4, -3.7, 0.9996))
+        show(solved.copy(project = ground, draft = localization(LocalizationStatus.DRAFT, solved.pairs)))
+
+        compose.onNodeWithTag(LOCALIZATION_TERRAIN_NOTE_TAG).performScrollTo().shows("coordenadas de terreno")
+        compose.onNodeWithTag(LOCALIZATION_APPLY_TAG).performScrollTo().assertIsNotEnabled()
+    }
+
+    @Test
+    fun `S039 RF-14 la confirmacion dice cuantos puntos cambian`() {
+        val calls = mutableListOf<String>()
+        show(
+            LocalizationUiState(loaded = true, project = project, confirmApply = ApplyConfirmUi(ApplyStage.CONFIRM, pointsAffected = 7)),
+            LocalizationActions(onConfirmApply = { calls += "ok" }, onCancelApply = { calls += "cancel" }),
+        )
+
+        compose.onNodeWithTag(LOCALIZATION_CONFIRM_APPLY_TEXT_TAG).shows("7 puntos GNSS")
+        compose.onNodeWithTag(LOCALIZATION_CONFIRM_APPLY_TAG).performClick()
+        compose.onNodeWithTag(LOCALIZATION_CANCEL_APPLY_TAG).performClick()
+
+        calls shouldBe listOf("ok", "cancel")
+    }
+
+    @Test
+    fun `S039 RF-15 la segunda confirmacion nombra los pares y la escala`() {
+        show(
+            LocalizationUiState(
+                loaded = true,
+                project = project,
+                confirmApply = ApplyConfirmUi(
+                    ApplyStage.CONFIRM_WARNINGS,
+                    7,
+                    highPairNames = listOf("Clavo 1", "Clavo 4"),
+                    scaleOutOfLimit = true,
+                ),
+            ),
+        )
+
+        compose.onNodeWithTag(LOCALIZATION_CONFIRM_APPLY_TEXT_TAG).shows("Clavo 1, Clavo 4").shows("se aleja de 1")
+    }
+
+    @Test
+    fun `S039 RF-21 el historial ofrece reactivar y quitar la activa pide confirmacion`() {
+        val calls = mutableListOf<String>()
+        val old = localization(LocalizationStatus.ARCHIVED, listOf(pair("a", "A")), rmsH = 0.01).copy(id = "old")
+        val active = localization(LocalizationStatus.ACTIVE, listOf(pair("a", "A")), rmsH = 0.012)
+        show(
+            LocalizationUiState(loaded = true, project = project, active = active, history = listOf(old), pairs = active.pairs),
+            LocalizationActions(onReactivate = { calls += "reactivate:$it" }, onRequestRemove = { calls += "remove" }),
+        )
+
+        compose.onNodeWithTag(localizationReactivateTag("old")).performScrollTo().performClick()
+        compose.onNodeWithTag(LOCALIZATION_REMOVE_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("reactivate:old", "remove")
+    }
+
+    @Test
+    fun `S039 RF-14 el aviso de la accion dice cuantos puntos cambiaron`() {
+        show(LocalizationUiState(loaded = true, project = project, notice = LocalizationNotice.Applied(5)))
+
+        compose.onNodeWithTag(LOCALIZATION_NOTICE_TAG).shows("han cambiado 5 puntos GNSS")
     }
 }

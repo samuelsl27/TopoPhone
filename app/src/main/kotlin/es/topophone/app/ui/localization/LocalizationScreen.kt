@@ -11,6 +11,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
 import es.topophone.app.ui.SectionScaffold
+import es.topophone.app.ui.projects.formatDateTime
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.uiLocale
 import es.topophone.core.designsystem.component.MinTouchTarget
@@ -86,6 +88,19 @@ fun localizationPairVerticalTag(id: String) = "localization_pair_v_$id"
 fun localizationRemovePairTag(id: String) = "localization_remove_pair_$id"
 
 const val LOCALIZATION_FIX_SCALE_TAG = "localization_fix_scale"
+const val LOCALIZATION_APPLY_TAG = "localization_apply"
+const val LOCALIZATION_REMOVE_TAG = "localization_remove"
+const val LOCALIZATION_DISCARD_TAG = "localization_discard"
+const val LOCALIZATION_TERRAIN_NOTE_TAG = "localization_terrain_note"
+const val LOCALIZATION_CONFIRM_APPLY_TAG = "localization_confirm_apply"
+const val LOCALIZATION_CONFIRM_APPLY_TEXT_TAG = "localization_confirm_apply_text"
+const val LOCALIZATION_CANCEL_APPLY_TAG = "localization_cancel_apply"
+const val LOCALIZATION_CONFIRM_REMOVE_TAG = "localization_confirm_remove"
+const val LOCALIZATION_CANCEL_REMOVE_TAG = "localization_cancel_remove"
+const val LOCALIZATION_NOTICE_TAG = "localization_notice"
+const val LOCALIZATION_HISTORY_TAG = "localization_history"
+
+fun localizationReactivateTag(id: String) = "localization_reactivate_$id"
 const val LOCALIZATION_RESULT_TAG = "localization_result"
 const val LOCALIZATION_RESULT_FAILED_TAG = "localization_result_failed"
 const val LOCALIZATION_TRANSLATION_TAG = "localization_translation"
@@ -119,6 +134,15 @@ class LocalizationActions(
     val onRemovePair: (String) -> Unit = {},
     val onFixScale: (Boolean) -> Unit = {},
     val onLimits: (residualText: String, scaleText: String) -> Unit = { _, _ -> },
+    val onRequestApply: () -> Unit = {},
+    val onCancelApply: () -> Unit = {},
+    val onConfirmApply: () -> Unit = {},
+    val onRequestRemove: () -> Unit = {},
+    val onCancelRemove: () -> Unit = {},
+    val onConfirmRemove: () -> Unit = {},
+    val onReactivate: (String) -> Unit = {},
+    val onDiscardDraft: () -> Unit = {},
+    val onDismissNotice: () -> Unit = {},
 )
 
 /**
@@ -146,10 +170,14 @@ fun LocalizationScreen(
             val project = state.project
             if (state.loaded && project != null) {
                 Text(project.name, style = MaterialTheme.typography.titleMedium)
+                state.notice?.let { NoticeCard(it, actions.onDismissNotice) }
                 StatusCard(state, project)
                 FixScaleRow(state.fixScale, actions.onFixScale)
                 PairsSection(state, project, actions)
                 ResultSection(state, project, actions)
+                ApplySection(state, actions)
+                HistorySection(state, project, actions)
+                ApplyDialogs(state, actions)
             }
         }
     }
@@ -172,6 +200,163 @@ private fun StatusCard(state: LocalizationUiState, project: Project) {
     }
     Card(modifier = Modifier.fillMaxWidth().testTag(LOCALIZATION_STATUS_TAG).semantics { liveRegion = LiveRegionMode.Polite }) {
         Text(text, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleSmall)
+    }
+}
+
+@Composable
+private fun NoticeCard(notice: LocalizationNotice, onDismiss: () -> Unit) {
+    val text = when (notice) {
+        is LocalizationNotice.Applied -> stringResource(R.string.localization_notice_applied, notice.pointsChanged)
+        is LocalizationNotice.Removed -> stringResource(R.string.localization_notice_removed, notice.pointsChanged)
+        LocalizationNotice.DraftReady -> stringResource(R.string.localization_notice_draft_ready)
+        LocalizationNotice.TerrainActive -> stringResource(R.string.localization_notice_terrain)
+        LocalizationNotice.CannotSolve -> stringResource(R.string.localization_notice_cannot_solve)
+        LocalizationNotice.StaleCrs -> stringResource(R.string.localization_notice_stale_crs)
+        LocalizationNotice.NotFound -> stringResource(R.string.localization_notice_not_found)
+    }
+    Card(modifier = Modifier.fillMaxWidth().testTag(LOCALIZATION_NOTICE_TAG).semantics { liveRegion = LiveRegionMode.Polite }) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text(text, modifier = Modifier.weight(1f))
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.heightIn(min = MinTouchTarget)) {
+                Text(stringResource(R.string.localization_notice_ok))
+            }
+        }
+    }
+}
+
+/** Aplicar, descartar el borrador y quitar la activa (S039/RF-14, RF-16, RF-21, RF-22). */
+@Composable
+private fun ApplySection(state: LocalizationUiState, actions: LocalizationActions) {
+    if (state.terrain) {
+        Text(
+            stringResource(R.string.localization_terrain_note),
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.testTag(LOCALIZATION_TERRAIN_NOTE_TAG),
+        )
+    }
+    Button(
+        onClick = actions.onRequestApply,
+        enabled = state.canApply,
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LOCALIZATION_APPLY_TAG),
+    ) { Text(stringResource(R.string.localization_apply)) }
+    if (state.draft != null) {
+        OutlinedButton(
+            onClick = actions.onDiscardDraft,
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LOCALIZATION_DISCARD_TAG),
+        ) { Text(stringResource(R.string.localization_discard)) }
+    }
+    if (state.active != null) {
+        OutlinedButton(
+            onClick = actions.onRequestRemove,
+            modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LOCALIZATION_REMOVE_TAG),
+        ) { Text(stringResource(R.string.localization_remove)) }
+    }
+}
+
+/** Las localizaciones quitadas o sustituidas, con su fecha y su RMS, y «Reactivar» (S039/RF-21). */
+@Composable
+private fun HistorySection(state: LocalizationUiState, project: Project, actions: LocalizationActions) {
+    if (state.history.isEmpty()) return
+    val locale = uiLocale()
+    val unit = unitSymbol(project.linearUnit)
+    Text(
+        stringResource(R.string.localization_history_title),
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.testTag(LOCALIZATION_HISTORY_TAG),
+    )
+    state.history.forEach { item ->
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                val date = item.appliedAtMs?.let { formatDateTime(it, locale) } ?: "—"
+                val label = item.name ?: stringResource(R.string.localization_history_pairs, item.pairs.size)
+                Text(stringResource(R.string.localization_history_item, label, date), style = MaterialTheme.typography.bodyMedium)
+                item.rmsHorizontal?.let {
+                    Text(stringResource(R.string.localization_history_rms, "${LengthFormat.inUnit(it, project.linearUnit, locale)} $unit"))
+                }
+                OutlinedButton(
+                    onClick = { actions.onReactivate(item.id) },
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(localizationReactivateTag(item.id)),
+                ) { Text(stringResource(R.string.localization_reactivate)) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ApplyDialogs(state: LocalizationUiState, actions: LocalizationActions) {
+    state.confirmApply?.let { dialog ->
+        val text = if (dialog.stage == ApplyStage.CONFIRM) {
+            stringResource(R.string.localization_confirm_apply_text, dialog.pointsAffected)
+        } else {
+            val names = dialog.highPairNames.joinToString(", ")
+            buildString {
+                if (names.isNotEmpty()) append(stringResource(R.string.localization_confirm_warning_residual, names))
+                if (dialog.scaleOutOfLimit) {
+                    if (isNotEmpty()) append("\n\n")
+                    append(stringResource(R.string.localization_confirm_warning_scale))
+                }
+            }
+        }
+        AlertDialog(
+            onDismissRequest = actions.onCancelApply,
+            title = {
+                Text(
+                    stringResource(
+                        if (dialog.stage ==
+                            ApplyStage.CONFIRM
+                        ) {
+                            R.string.localization_confirm_apply_title
+                        } else {
+                            R.string.localization_confirm_warning_title
+                        },
+                    ),
+                )
+            },
+            text = { Text(text, modifier = Modifier.testTag(LOCALIZATION_CONFIRM_APPLY_TEXT_TAG)) },
+            confirmButton = {
+                Button(
+                    onClick = actions.onConfirmApply,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LOCALIZATION_CONFIRM_APPLY_TAG),
+                ) {
+                    Text(stringResource(R.string.localization_confirm_ok))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = actions.onCancelApply,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LOCALIZATION_CANCEL_APPLY_TAG),
+                ) {
+                    Text(stringResource(R.string.localization_add_cancel))
+                }
+            },
+        )
+    }
+    state.confirmRemove?.let { count ->
+        AlertDialog(
+            onDismissRequest = actions.onCancelRemove,
+            title = { Text(stringResource(R.string.localization_remove)) },
+            text = { Text(stringResource(R.string.localization_confirm_remove_text, count)) },
+            confirmButton = {
+                Button(
+                    onClick = actions.onConfirmRemove,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LOCALIZATION_CONFIRM_REMOVE_TAG),
+                ) {
+                    Text(stringResource(R.string.localization_confirm_ok))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = actions.onCancelRemove,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(LOCALIZATION_CANCEL_REMOVE_TAG),
+                ) {
+                    Text(stringResource(R.string.localization_add_cancel))
+                }
+            },
+        )
     }
 }
 

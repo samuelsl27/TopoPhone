@@ -326,4 +326,95 @@ class LocalizationViewModelTest {
         state().residualLimitM shouldBe 0.05
         state().scaleLimit shouldBe 0.002
     }
+    private fun threePairs(secondEasting: String = "440600") {
+        create(gnss("g1"), gnss("g2", easting = 440_500.0), gnss("g3", easting = 440_700.0))
+        viewModel()
+        addPairTo("g1", "440390,4", "4474207")
+        await { it.pairs.size == 1 }
+        addPairTo("g2", secondEasting, "4474207")
+        await { it.pairs.size == 2 }
+        addPairTo("g3", "440800", "4474207")
+        await { it.pairs.size == 3 && it.outcome is es.topophone.core.survey.localization.LocalizationOutcome.Solved }
+    }
+
+    @Test
+    fun `S039 RF-14 aplicar pide confirmacion con el recuento y deja la localizacion activa`() {
+        threePairs()
+
+        viewModel.requestApply()
+        val dialog = await { it.confirmApply != null }.confirmApply!!
+
+        dialog.stage shouldBe ApplyStage.CONFIRM
+        dialog.pointsAffected shouldBe 3
+        dialog.hasWarnings shouldBe false
+        viewModel.confirmApply()
+        val applied = await { it.active != null && it.draft == null }
+        applied.notice shouldBe LocalizationNotice.Applied(3)
+        applied.confirmApply.shouldBeNull()
+    }
+
+    @Test
+    fun `S039 RF-15 con un residuo fuera de umbral hace falta una segunda confirmacion que lo nombra`() {
+        threePairs(secondEasting = "440640")
+
+        viewModel.requestApply()
+        await { it.confirmApply != null }
+        viewModel.confirmApply()
+        val second = await { it.confirmApply?.stage == ApplyStage.CONFIRM_WARNINGS }.confirmApply!!
+
+        second.highPairNames.isNotEmpty() shouldBe true
+        state().active.shouldBeNull()
+        viewModel.confirmApply()
+        await { it.active != null }
+    }
+
+    @Test
+    fun `S039 RF-21 quitar pide confirmacion, deja la localizacion en el historial y se puede reactivar`() {
+        threePairs()
+        viewModel.requestApply()
+        await { it.confirmApply != null }
+        viewModel.confirmApply()
+        await { it.active != null }
+
+        viewModel.requestRemove()
+        await { it.confirmRemove == 3 }
+        viewModel.confirmRemove()
+        val removed = await { it.active == null && it.history.size == 1 }
+        removed.notice shouldBe LocalizationNotice.Removed(3)
+
+        viewModel.reactivate(removed.history.single().id)
+        val ready = await { it.draft != null }
+        ready.notice shouldBe LocalizationNotice.DraftReady
+        ready.pairs.size shouldBe 3
+    }
+
+    @Test
+    fun `S039 RF-22 con el proyecto en terreno no se puede aplicar`() {
+        threePairs()
+        runBlocking {
+            val draft = projects.observe(project).first()!!.toDraft()
+            projects.update(project, draft.copy(terrain = es.topophone.core.model.project.TerrainPlane(40.4, -3.7, 0.9996)))
+        }
+        await { it.terrain }
+
+        state().canApply shouldBe false
+        viewModel.requestApply()
+        state().confirmApply.shouldBeNull()
+    }
+
+    @Test
+    fun `S039 RF-16 descartar el borrador deja la activa como estaba`() {
+        threePairs()
+        viewModel.requestApply()
+        await { it.confirmApply != null }
+        viewModel.confirmApply()
+        await { it.active != null }
+        viewModel.setFixScale(true)
+        await { it.draft != null }
+
+        viewModel.discardDraft()
+
+        val s = await { it.draft == null }
+        s.active.shouldNotBeNull().fixScale shouldBe false
+    }
 }

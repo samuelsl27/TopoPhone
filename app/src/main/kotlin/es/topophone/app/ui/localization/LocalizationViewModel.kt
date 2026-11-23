@@ -19,6 +19,7 @@ import es.topophone.core.survey.localization.LocalizationSolver
 import es.topophone.core.survey.localization.PairRejection
 import es.topophone.core.survey.localization.PairResult
 import es.topophone.core.survey.localization.assess
+import es.topophone.data.localization.ApplyResult
 import es.topophone.data.localization.LocalizationRepository
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
@@ -37,6 +38,37 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+/** En qué paso está la confirmación de aplicar: la primera con el recuento, y la segunda si hay residuos o escala fuera de umbral (S039/RF-14, RF-15). */
+enum class ApplyStage { CONFIRM, CONFIRM_WARNINGS }
+
+/** La confirmación de aplicar el borrador: cuántos puntos cambian y qué supera los umbrales (S039/RF-14, RF-15). */
+data class ApplyConfirmUi(
+    val stage: ApplyStage,
+    val pointsAffected: Int,
+    val highPairNames: List<String> = emptyList(),
+    val scaleOutOfLimit: Boolean = false,
+) {
+    val hasWarnings: Boolean get() = highPairNames.isNotEmpty() || scaleOutOfLimit
+}
+
+/** Qué pasó con la última acción de aplicar, quitar o reactivar (S039/RF-14, RF-21, RF-22). */
+sealed interface LocalizationNotice {
+    data class Applied(val pointsChanged: Int) : LocalizationNotice
+
+    data class Removed(val pointsChanged: Int) : LocalizationNotice
+
+    /** Una localización archivada pasó al borrador y falta aplicarla (RF-21). */
+    data object DraftReady : LocalizationNotice
+
+    data object TerrainActive : LocalizationNotice
+
+    data object CannotSolve : LocalizationNotice
+
+    data object StaleCrs : LocalizationNotice
+
+    data object NotFound : LocalizationNotice
+}
 
 /** De dónde salen las coordenadas conocidas de un par (S039/RF-2). */
 enum class KnownSource { TYPED, POINT }
@@ -86,9 +118,17 @@ data class LocalizationUiState(
     val knownCandidates: List<KnownCandidate> = emptyList(),
     /** El par que se está formando, o null con el formulario cerrado. */
     val addPair: AddPairUi? = null,
+    /** La confirmación de aplicar abierta, o null (RF-14, RF-15). */
+    val confirmApply: ApplyConfirmUi? = null,
+    /** Cuántos puntos cambiarían al quitar la localización, con la confirmación de quitar abierta; null si está cerrada (RF-21). */
+    val confirmRemove: Int? = null,
+    val notice: LocalizationNotice? = null,
 ) {
     /** El proyecto está en coordenadas de terreno (RF-22). */
     val terrain: Boolean get() = project?.terrain != null
+
+    /** Se puede aplicar: hay un borrador que se calcula y el proyecto no está en terreno (RF-12, RF-14, RF-22). */
+    val canApply: Boolean get() = draft != null && outcome is LocalizationOutcome.Solved && !terrain
 }
 
 /** La pantalla de localización de un proyecto (S039/RF-1). */
@@ -101,10 +141,15 @@ class LocalizationViewModel @Inject constructor(
 ) : ViewModel() {
     private val projectId = MutableStateFlow<String?>(null)
     private val form = MutableStateFlow<AddPairUi?>(null)
+    private val confirmApplyFlow = MutableStateFlow<ApplyConfirmUi?>(null)
+    private val confirmRemoveFlow = MutableStateFlow<Int?>(null)
+    private val noticeFlow = MutableStateFlow<LocalizationNotice?>(null)
 
     fun start(id: String) {
         projectId.value = id
     }
+
+    private data class Dialogs(val confirmApply: ApplyConfirmUi?, val confirmRemove: Int?, val notice: LocalizationNotice?)
 
     private data class Loaded(val project: Project?, val active: Localization?, val draft: Localization?, val history: List<Localization>)
 
@@ -113,7 +158,8 @@ class LocalizationViewModel @Inject constructor(
             combine(projects.observe(id), localizations.active(id), localizations.draft(id), localizations.history(id), ::Loaded),
             points.points(id),
             form,
-        ) { loaded, projectPoints, addPair ->
+            combine(confirmApplyFlow, confirmRemoveFlow, noticeFlow, ::Dialogs),
+        ) { loaded, projectPoints, addPair, dialogs ->
             val shown = loaded.draft ?: loaded.active
             val pairs = shown?.pairs.orEmpty()
             val fixScale = shown?.fixScale ?: false
@@ -146,6 +192,9 @@ class LocalizationViewModel @Inject constructor(
                         if (e == null || n == null) null else KnownCandidate(p.id, p.name, e, n, p.coordinates.height)
                     },
                 addPair = addPair,
+                confirmApply = dialogs.confirmApply,
+                confirmRemove = dialogs.confirmRemove,
+                notice = dialogs.notice,
             )
         }.flowOn(Dispatchers.Default)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), LocalizationUiState())
@@ -251,6 +300,81 @@ class LocalizationViewModel @Inject constructor(
         viewModelScope.launch {
             localizations.setLimits(id, residual ?: current.residualLimitM, scale ?: current.scaleLimit)
         }
+    }
+
+    /** «Aplicar al proyecto»: abre la confirmación con cuántos puntos cambian y, si hay residuos o escala fuera de umbral, qué son (RF-14, RF-15). */
+    fun requestApply() {
+        val id = projectId.value ?: return
+        val current = state.value
+        if (!current.canApply) return
+        viewModelScope.launch {
+            val affected = localizations.affectedPoints(id)
+            val high = current.assessment?.highPairIds.orEmpty()
+            confirmApplyFlow.value = ApplyConfirmUi(
+                stage = ApplyStage.CONFIRM,
+                pointsAffected = affected,
+                highPairNames = current.pairs.filter { it.id in high }.map { it.pointName },
+                scaleOutOfLimit = current.assessment?.scaleOutOfLimit == true,
+            )
+        }
+    }
+
+    fun cancelApply() {
+        confirmApplyFlow.value = null
+    }
+
+    /** Confirma: con avisos de umbral hace falta una segunda confirmación que los nombra (RF-15); después aplica en una transacción (RF-14). */
+    fun confirmApply() {
+        val id = projectId.value ?: return
+        val dialog = confirmApplyFlow.value ?: return
+        if (dialog.stage == ApplyStage.CONFIRM && dialog.hasWarnings) {
+            confirmApplyFlow.value = dialog.copy(stage = ApplyStage.CONFIRM_WARNINGS)
+            return
+        }
+        confirmApplyFlow.value = null
+        viewModelScope.launch { noticeFlow.value = localizations.apply(id).toNotice() }
+    }
+
+    /** «Quitar»: abre la confirmación con cuántos puntos vuelven a sus coordenadas sin localizar (RF-21). */
+    fun requestRemove() {
+        val id = projectId.value ?: return
+        if (state.value.active == null) return
+        viewModelScope.launch { confirmRemoveFlow.value = localizations.affectedPoints(id) }
+    }
+
+    fun cancelRemove() {
+        confirmRemoveFlow.value = null
+    }
+
+    fun confirmRemove() {
+        val id = projectId.value ?: return
+        confirmRemoveFlow.value = null
+        viewModelScope.launch { noticeFlow.value = LocalizationNotice.Removed(localizations.remove(id)) }
+    }
+
+    /** Reactiva una localización del historial: una de pares vuelve al borrador; la de un SC guardado se aplica ya (RF-21, RF-28). */
+    fun reactivate(localizationId: String) {
+        val id = projectId.value ?: return
+        viewModelScope.launch { noticeFlow.value = localizations.reactivate(id, localizationId).toNotice() }
+    }
+
+    /** Descarta el borrador y sus pares; la localización activa sigue como estaba (RF-16). */
+    fun discardDraft() {
+        val id = projectId.value ?: return
+        viewModelScope.launch { localizations.discardDraft(id) }
+    }
+
+    fun dismissNotice() {
+        noticeFlow.value = null
+    }
+
+    private fun ApplyResult.toNotice(): LocalizationNotice = when (this) {
+        is ApplyResult.Applied -> LocalizationNotice.Applied(pointsChanged)
+        is ApplyResult.DraftReady -> LocalizationNotice.DraftReady
+        ApplyResult.TerrainActive -> LocalizationNotice.TerrainActive
+        is ApplyResult.CannotSolve -> LocalizationNotice.CannotSolve
+        ApplyResult.StaleCrs -> LocalizationNotice.StaleCrs
+        ApplyResult.NoDraft, ApplyResult.NotFound -> LocalizationNotice.NotFound
     }
 
     /** El usuario confirma el uso de un par de baja calidad (RF-6). */
