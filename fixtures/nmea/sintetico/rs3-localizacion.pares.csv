@@ -1,0 +1,10 @@
+# Lo esperado de rs3-localizacion.nmea (S039). Generado por tools/localizacion/generar_replay_localizacion.py; no editar a mano.
+# pyproj=3.8.0; PROJ=9.8.1; EPSG:4258 → EPSG:25830; jalon_m=1.8; receptor=RS3 (0.134 m)
+# 5 paradas de 6 épocas a 5 Hz; V1 a V4 forman los pares y P5 se mide con la localización activa. Transformación: giro=0.0035 rad, escala=1.00002, traslación=(1000.123, -2000.456) m y plano vertical dh=0.25, pendientes=(3e-06, -2e-06).
+# este,norte,h: la punta de la primera época de la parada tal como la lee la app; conocido_*: sus coordenadas en el sistema de la obra.
+parada,rol,hora,este,norte,h,conocido_este,conocido_norte,conocido_h
+V1,par,100000.00,440290.458053946,4474257.381891726,697.489000000,425636.507971149,4473860.049969996,690.111356610
+V2,par,100001.20,440330.478009646,4474262.060966227,697.889000000,425676.512105066,4473864.869181779,690.511467312
+V3,par,100002.40,440275.744190393,4474292.483944978,697.189000000,425621.671044050,4473895.101010838,689.811242265
+V4,par,100003.60,440315.206830829,4474227.197864952,697.689000000,425661.362737409,4473829.952146697,690.311491225
+P5,medido,100004.80,440260.393307725,4474247.625622317,697.589000000,425606.476955339,4473850.188336719,690.211285929

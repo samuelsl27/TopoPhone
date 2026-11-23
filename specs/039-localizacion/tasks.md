@@ -65,5 +65,5 @@
       Hecho cuando: `LocalizedCrsRepositoryTest` y `LocalizedCrsFlowTest` guardan, listan con la marca «Localizado», eligen en otro proyecto y respetan RF-22 y RF-27.
 
 ## Validación
-- [ ] T26. Reproducción `rs3-localizacion`, demo en el emulador y validación final: `rf_report` con 28 RF, `check`, `pytest` de `tools`, `forbidden_files` y `assembleDebug`; `plan.md` con «Cambios al implementar» y «Validación»; hoja de ruta (S039 implementada, Room v40) y glosario. (todos los RF)
+- [x] T26. Reproducción `rs3-localizacion`, demo en el emulador y validación final: `rf_report` con 28 RF, `check`, `pytest` de `tools`, `forbidden_files` y `assembleDebug`; `plan.md` con «Cambios al implementar» y «Validación»; hoja de ruta (S039 implementada, Room v40) y glosario. (todos los RF)
       Hecho cuando: `rf_report.py` da 28 RF con test y 0 pendientes, todo en verde, y la demo cubre medir, formar 4 pares, residuos, aplicar, ver «Localizado», quitar y exportar.

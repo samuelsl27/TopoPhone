@@ -523,4 +523,31 @@ class LocalizationViewModelTest {
 
         await { it.savedCrs.isEmpty() }
     }
+
+    @Test
+    fun `S039 RF-11 el borrador se recalcula con cada par añadido, excluido o quitado y con la escala fija`() {
+        create(gnss("g1"), gnss("g2", easting = 440_500.0), gnss("g3", easting = 440_700.0))
+        viewModel()
+        addPairTo("g1", "440390,4", "4474207")
+        val one = await { it.outcome is es.topophone.core.survey.localization.LocalizationOutcome.Solved }
+        one.pairs.size shouldBe 1
+        addPairTo("g2", "440606", "4474207")
+        val two = await { it.pairs.size == 2 && it.outcome is es.topophone.core.survey.localization.LocalizationOutcome.Solved }
+        val scaleWithTwo = (two.outcome as es.topophone.core.survey.localization.LocalizationOutcome.Solved).solution.params.scale
+        (scaleWithTwo > 1.0) shouldBe true
+
+        viewModel.setFixScale(true)
+        val fixed = await { it.fixScale }
+        (fixed.outcome as es.topophone.core.survey.localization.LocalizationOutcome.Solved).solution.params.scale shouldBe 1.0
+
+        viewModel.setComponent(fixed.pairs[1].id, horizontal = true, enabled = false)
+        await { it.pairs[1].useHorizontal == false }
+        val translation = (state().outcome as es.topophone.core.survey.localization.LocalizationOutcome.Solved).solution.params
+        translation.rotationRad shouldBe 0.0
+
+        viewModel.removePair(state().pairs[1].id)
+        await { it.pairs.size == 1 }
+        viewModel.removePair(state().pairs[0].id)
+        await { it.pairs.isEmpty() && it.outcome == null }
+    }
 }

@@ -1,6 +1,6 @@
 # Spec 039 — Localización
 
-> Hito: H6 · Depende de: S035, S058, S011, S008, S020 (orden de cálculo) · Estado: spec (entrevista 23/11/2026)
+> Hito: H6 · Depende de: S035, S058, S011, S008, S020 (orden de cálculo) · Estado: implementada (23/11/2026)
 
 ## Contexto y objetivo
 Un plano de obra, un levantamiento antiguo o una red local no están en el sistema de la corrección RTK: entre las coordenadas GNSS y las del plano hay un giro, una escala y una traslación, y en altura un desplazamiento o un plano inclinado (el geoide no es perfecto en una zona pequeña). El topógrafo mide con GNSS unos puntos de coordenadas conocidas y quiere que la app calcule esa transformación y la aplique: «mido los cuatro clavos del plano y a partir de ahí todo sale en el sistema del plano».
