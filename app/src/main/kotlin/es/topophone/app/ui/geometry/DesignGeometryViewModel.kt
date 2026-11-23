@@ -8,6 +8,7 @@ import es.topophone.core.model.geometry.DistanceMode
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.survey.geometry.GeometryResult
 import es.topophone.data.geometry.GeometryPreferences
 import javax.inject.Inject
@@ -28,6 +29,8 @@ data class DesignGeometryInput(
     val crs: ProjectCrs,
     val linearUnit: LinearUnit,
     val angularUnit: AngularUnit,
+    /** S058/RF-9: el plano de terreno del proyecto, o null en cuadrícula. */
+    val terrain: TerrainPlane? = null,
 )
 
 /**
@@ -52,17 +55,20 @@ class DesignGeometryViewModel @Inject constructor(private val preferences: Geome
         viewModelScope.launch { preferences.setDistanceMode(mode) }
     }
 
-    private fun compute(input: DesignGeometryInput, mode: DistanceMode): GeometryInfoUi {
+    private fun compute(input: DesignGeometryInput, chosenMode: DistanceMode): GeometryInfoUi {
+        val view = GeometryInput.terrainOf(input.terrain, input.crs)
+        val mode = if (view.isTerrain) DistanceMode.GRID else chosenMode
         val entity = input.selection.entity
         val withHeight = input.selection.hasElevation && entity.height != null
         val line = GeometryInput.fromCad(entity, input.crs, withHeight, withGround = mode == DistanceMode.GROUND)
-        val result = GeometryInput.compute(line.vertices, line.closed, mode, input.crs)
+        val result = GeometryInput.compute(line.vertices, line.closed, mode, input.crs, view)
         return GeometryInfoUi(
             loaded = true,
             projectName = input.projectName,
             lineName = entity.name ?: input.selection.layerName,
             closed = line.closed,
             mode = mode,
+            terrain = view.isTerrain,
             linearUnit = input.linearUnit,
             angularUnit = input.angularUnit,
             geographic = !input.crs.isUtm,

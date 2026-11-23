@@ -3,6 +3,8 @@ package es.topophone.app.ui.geometry
 import es.topophone.core.model.cad.CadEntity
 import es.topophone.core.model.geometry.DistanceMode
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
+import es.topophone.core.survey.TerrainView
 import es.topophone.core.survey.geometry.GeometryCalculator
 import es.topophone.core.survey.geometry.GeometryResult
 import es.topophone.core.survey.geometry.GeometryVertex
@@ -61,8 +63,26 @@ internal object GeometryInput {
      * Calcula la información con la distancia elegida. El proyecto no guarda una altura de referencia (el punto central no la
      * tiene), así que sin altura elipsoidal en un vértice el terreno usa el factor de escala y lo avisa (S026/RF-10).
      */
-    fun compute(vertices: List<GeometryVertex>, closed: Boolean, mode: DistanceMode, crs: ProjectCrs): GeometryResult {
-        val scale = if (mode == DistanceMode.GROUND) GroundScale(crs, fallbackHeightM = null) else SegmentScale.Grid
-        return GeometryCalculator.of(vertices, closed, scale)
+    fun compute(
+        vertices: List<GeometryVertex>,
+        closed: Boolean,
+        mode: DistanceMode,
+        crs: ProjectCrs,
+        terrain: TerrainView = TerrainView.GRID,
+    ): GeometryResult {
+        // S058/RF-9: en terreno se mide sobre las coordenadas de terreno, sin otra escala: longitudes por k, áreas por k², ángulos iguales.
+        val scale = if (mode == DistanceMode.GROUND && !terrain.isTerrain) GroundScale(crs, fallbackHeightM = null) else SegmentScale.Grid
+        return GeometryCalculator.of(vertices.map { inTerrain(it, terrain) }, closed, scale)
     }
+
+    /** El vértice con su Este y su Norte de terreno; en cuadrícula, el mismo (S058/RF-9). */
+    fun inTerrain(vertex: GeometryVertex, terrain: TerrainView): GeometryVertex {
+        val east = vertex.easting
+        val north = vertex.northing
+        if (!terrain.isTerrain || east == null || north == null) return vertex
+        return terrain.coordinates(east, north).let { vertex.copy(easting = it.easting, northing = it.northing) }
+    }
+
+    /** El plano de terreno del proyecto, o la cuadrícula (S058/RF-9). */
+    fun terrainOf(plane: TerrainPlane?, crs: ProjectCrs): TerrainView = TerrainView.of(plane, crs) ?: TerrainView.GRID
 }

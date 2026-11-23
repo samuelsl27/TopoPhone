@@ -9,6 +9,7 @@ import es.topophone.core.model.point.PointSearch
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.survey.geometry.AnglePoint
 import es.topophone.core.survey.geometry.AngleResult
 import es.topophone.core.survey.geometry.GeometryVertex
@@ -44,6 +45,8 @@ data class AnglePointOption(val id: String, val name: String)
 data class ThreePointAngleUi(
     val loaded: Boolean = false,
     val mode: DistanceMode = DistanceMode.GRID,
+    /** S058/RF-9: el proyecto está en terreno; se mide en terreno y no hay elección Cuadrícula/Terreno. */
+    val terrain: Boolean = false,
     val linearUnit: LinearUnit = LinearUnit.METRE,
     val angularUnit: AngularUnit = AngularUnit.DMS,
     val geographic: Boolean = false,
@@ -83,7 +86,13 @@ class ThreePointAngleViewModel @Inject constructor(
         val query: String = "",
     )
 
-    private data class Context(val crs: ProjectCrs, val linearUnit: LinearUnit, val angularUnit: AngularUnit, val lineName: String?)
+    private data class Context(
+        val crs: ProjectCrs,
+        val linearUnit: LinearUnit,
+        val angularUnit: AngularUnit,
+        val lineName: String?,
+        val terrain: TerrainPlane?,
+    )
 
     private val context = scope.flatMapLatest { pair ->
         if (pair == null) {
@@ -91,7 +100,7 @@ class ThreePointAngleViewModel @Inject constructor(
         } else {
             val lineName = pair.second?.let { lines.line(it) } ?: flowOf(null)
             combine(projects.observe(pair.first), lineName) { project, line ->
-                project?.let { Context(it.crs, it.linearUnit, it.angularUnit, line?.name) }
+                project?.let { Context(it.crs, it.linearUnit, it.angularUnit, line?.name, it.terrain) }
             }
         }
     }
@@ -119,14 +128,17 @@ class ThreePointAngleViewModel @Inject constructor(
         own.map { Triple(it.a, it.b, it.c) }.distinctUntilChanged().flatMapLatest { (a, b, c) ->
             combine(pointOf(a), pointOf(b), pointOf(c)) { pa, pb, pc -> Triple(pa, pb, pc) }
         },
-    ) { context, own, candidates, mode, vertices ->
+    ) { context, own, candidates, chosenMode, vertices ->
+        val mode = if (context != null && GeometryInput.terrainOf(context.terrain, context.crs).isTerrain) DistanceMode.GRID else chosenMode
         if (context == null) {
             ThreePointAngleUi(loaded = false, mode = mode)
         } else {
             val (pa, pb, pc) = vertices
-            val va = pa?.toVertex(context.crs)
-            val vb = pb?.toVertex(context.crs)
-            val vc = pc?.toVertex(context.crs)
+            // S058/RF-9: en terreno los vértices pasan a sus coordenadas de terreno; el ángulo no cambia y las distancias van por k.
+            val view = GeometryInput.terrainOf(context.terrain, context.crs)
+            val va = pa?.toVertex(context.crs)?.let { GeometryInput.inTerrain(it, view) }
+            val vb = pb?.toVertex(context.crs)?.let { GeometryInput.inTerrain(it, view) }
+            val vc = pc?.toVertex(context.crs)?.let { GeometryInput.inTerrain(it, view) }
             val result = if (va != null && vb != null && vc != null) {
                 val scale = if (mode == DistanceMode.GROUND) GroundScale(context.crs, fallbackHeightM = null) else SegmentScale.Grid
                 ThreePointAngle.of(va, vb, vc, scale)
@@ -136,6 +148,7 @@ class ThreePointAngleViewModel @Inject constructor(
             ThreePointAngleUi(
                 loaded = true,
                 mode = mode,
+                terrain = view.isTerrain,
                 linearUnit = context.linearUnit,
                 angularUnit = context.angularUnit,
                 geographic = !context.crs.isUtm,

@@ -122,7 +122,7 @@ fun GeometryInfoList(state: GeometryInfoUi, actions: GeometryInfoActions, modifi
         modifier = modifier.padding(horizontal = 16.dp).testTag(GEOMETRY_INFO_TAG),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        item(key = "mode") { ModeSelector(state.mode, actions.onMode) }
+        item(key = "mode") { ModeOrTerrain(state.mode, state.terrain, actions.onMode) }
         if (info == null) {
             item(key = "problem") {
                 val text = when (state.problem) {
@@ -164,6 +164,22 @@ private fun Export(state: GeometryInfoUi) {
         )
     }
 }
+
+/** La elección Cuadrícula/Terreno o, con el proyecto en terreno, solo «Terreno» (S058/RF-9). */
+@Composable
+internal fun ModeOrTerrain(mode: DistanceMode, terrain: Boolean, onMode: (DistanceMode) -> Unit) {
+    if (terrain) {
+        Text(
+            stringResource(R.string.terrain_ground),
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(top = 12.dp).testTag(GEOMETRY_TERRAIN_TAG),
+        )
+    } else {
+        ModeSelector(mode, onMode)
+    }
+}
+
+const val GEOMETRY_TERRAIN_TAG = "geometry_terrain"
 
 /** Elegir cuadrícula o terreno, diciendo siempre cuál está activa (S026/RF-9). */
 @Composable

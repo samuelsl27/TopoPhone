@@ -1595,7 +1595,7 @@ fun ProjectViewScreen(
     }
     if (designInfoOpen && designSelection != null && project != null) {
         DesignGeometryDialog(
-            DesignGeometryInput(designSelection, project.name, project.crs, project.linearUnit, project.angularUnit),
+            DesignGeometryInput(designSelection, project.name, project.crs, project.linearUnit, project.angularUnit, project.terrain),
             onDismiss = { designInfoOpen = false },
         )
     }

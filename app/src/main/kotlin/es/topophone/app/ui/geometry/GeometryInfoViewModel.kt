@@ -7,6 +7,7 @@ import es.topophone.core.model.geometry.DistanceMode
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.survey.geometry.GeometryInfo
 import es.topophone.core.survey.geometry.GeometryResult
 import es.topophone.data.geometry.GeometryPreferences
@@ -37,6 +38,8 @@ data class GeometryInfoUi(
     val lineName: String = "",
     val closed: Boolean = false,
     val mode: DistanceMode = DistanceMode.GRID,
+    /** S058/RF-9: el proyecto está en terreno; se mide en terreno y no hay elección Cuadrícula/Terreno. */
+    val terrain: Boolean = false,
     val linearUnit: LinearUnit = LinearUnit.METRE,
     val angularUnit: AngularUnit = AngularUnit.DMS,
     /** El SC del proyecto es geográfico (RF-11). */
@@ -70,6 +73,7 @@ class GeometryInfoViewModel @Inject constructor(
         val crs: ProjectCrs,
         val linearUnit: LinearUnit,
         val angularUnit: AngularUnit,
+        val terrain: TerrainPlane?,
     )
 
     private val source = ids.flatMapLatest { pair ->
@@ -80,7 +84,16 @@ class GeometryInfoViewModel @Inject constructor(
                 if (line == null || project == null) {
                     null
                 } else {
-                    Source(project.name, line.name, line.closed, vertices, project.crs, project.linearUnit, project.angularUnit)
+                    Source(
+                        project.name,
+                        line.name,
+                        line.closed,
+                        vertices,
+                        project.crs,
+                        project.linearUnit,
+                        project.angularUnit,
+                        project.terrain,
+                    )
                 }
             }
         }
@@ -100,14 +113,17 @@ class GeometryInfoViewModel @Inject constructor(
         viewModelScope.launch { preferences.setDistanceMode(mode) }
     }
 
-    private fun Source.toUi(mode: DistanceMode): GeometryInfoUi {
-        val result = GeometryInput.compute(GeometryInput.fromVertexPoints(vertices), closed, mode, crs)
+    private fun Source.toUi(chosenMode: DistanceMode): GeometryInfoUi {
+        val view = GeometryInput.terrainOf(terrain, crs)
+        val mode = if (view.isTerrain) DistanceMode.GRID else chosenMode
+        val result = GeometryInput.compute(GeometryInput.fromVertexPoints(vertices), closed, mode, crs, view)
         return GeometryInfoUi(
             loaded = true,
             projectName = projectName,
             lineName = name,
             closed = closed,
             mode = mode,
+            terrain = view.isTerrain,
             linearUnit = linearUnit,
             angularUnit = angularUnit,
             geographic = !crs.isUtm,

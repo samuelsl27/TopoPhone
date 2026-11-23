@@ -111,7 +111,7 @@ fun ThreePointAngleScreen(
             modifier = Modifier.padding(padding).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item(key = "mode") { ModeSelector(state.mode, actions.onMode) }
+            item(key = "mode") { ModeOrTerrain(state.mode, state.terrain, actions.onMode) }
             item(key = "slots") { Slots(state, actions) }
             item(key = "result") { Result(state) }
         }

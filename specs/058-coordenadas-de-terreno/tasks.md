@@ -45,7 +45,7 @@
       Hecho cuando: `TerrainScreensTest` comprueba las distancias y las coordenadas de cada uno en terreno.
 - [x] T18. COGO: entradas y resultados en terreno, con el modo de distancias en cuadrícula. (RF-9, RF-10)
       Hecho cuando: `TerrainInputsTest` calcula una inversa y una intersección en terreno y los puntos guardados quedan en cuadrícula.
-- [ ] T19. Información geométrica: distancias, longitudes y áreas en terreno. (RF-9)
+- [x] T19. Información geométrica: distancias, longitudes y áreas en terreno. (RF-9)
       Hecho cuando: `TerrainScreensTest` comprueba una distancia × `k`, un área × `k²` y un ángulo sin cambio.
 
 ## Ficheros (`core:formats`, `data`, `app`)
