@@ -45,7 +45,7 @@
       Hecho cuando: `AxisStakeoutPanelTest` migrado pasa.
 - [x] T18. Replanteo de taludes sobre `StakeoutSheet`, con el talud y la guía en la placa. (RF-23, RF-29)
       Hecho cuando: los tests de `SlopeStakePanel` migrados pasan.
-- [ ] T19. Los motivos de bloqueo y los avisos del recolector dentro de los cuatro replanteos con una sola línea, y el panel de análisis de ejes y las secciones que usan los trozos antiguos. (RF-16, RF-22, RF-23)
+- [x] T19. Los motivos de bloqueo y los avisos del recolector dentro de los cuatro replanteos con una sola línea, y el panel de análisis de ejes y las secciones que usan los trozos antiguos. (RF-16, RF-22, RF-23)
       Hecho cuando: un test por replanteo comprueba que «Medir» bloqueado dice su motivo con su acción y que no se apilan avisos.
 
 ## Replantear: el mapa

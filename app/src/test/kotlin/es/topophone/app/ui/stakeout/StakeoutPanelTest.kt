@@ -830,4 +830,22 @@ class StakeoutPanelTest {
 
         compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).assertIsNotEnabled()
     }
+
+    @Test
+    fun `S060 RF-16 y RF-22 en el replanteo de puntos con un bloqueo y un aviso a la vez Medir dice el motivo en una sola linea`() {
+        show(
+            state(),
+            es.topophone.app.ui.collector.CollectorUiState(
+                loaded = true,
+                blocker = es.topophone.app.ui.collector.MeasureBlocker.NO_POSITION,
+                error = es.topophone.app.ui.collector.CollectorError.NO_DATA,
+            ),
+        )
+
+        compose.onNodeWithTag(es.topophone.app.ui.collector.COLLECTOR_MEASURE_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(es.topophone.app.ui.collector.COLLECTOR_BLOCKER_TAG).assertIsDisplayed()
+        compose.onNodeWithTag(es.topophone.app.ui.collector.COLLECTOR_REASON_ACTION_TAG).assertIsDisplayed()
+        // El aviso de la medida cancelada no se apila al motivo (S060/RF-22).
+        compose.onNodeWithTag(es.topophone.app.ui.collector.COLLECTOR_ERROR_TAG).assertDoesNotExist()
+    }
 }

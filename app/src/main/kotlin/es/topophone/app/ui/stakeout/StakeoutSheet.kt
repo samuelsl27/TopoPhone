@@ -32,6 +32,8 @@ import es.topophone.app.ui.collector.CollectorNoticeLine
 import es.topophone.app.ui.collector.CollectorNotices
 import es.topophone.app.ui.collector.CollectorPhotoBar
 import es.topophone.app.ui.collector.CollectorUiState
+import es.topophone.app.ui.collector.InfoPillKind
+import es.topophone.app.ui.collector.InfoPills
 import es.topophone.app.ui.collector.LiveQuality
 import es.topophone.app.ui.collector.LongPauseDialog
 import es.topophone.app.ui.collector.MeasureReasonLine
@@ -129,6 +131,14 @@ internal fun StakeoutSheet(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 expandedExtra()
                 collector?.let {
+                    // S047/RF-14: lo que condiciona la medición también se dice en el replanteo (control de precisión, base shift, localización).
+                    InfoPills(it.settings.precision, it.baseShiftName, it.localized, unit) { kind ->
+                        when (kind) {
+                            InfoPillKind.PRECISION -> Unit
+                            InfoPillKind.BASE_SHIFT -> collectorActions.onRepeatBaseShift()
+                            InfoPillKind.LOCALIZATION -> collectorActions.onOpenLocalization()
+                        }
+                    }
                     CollectorGearSelector(it, collectorActions) // S046/RF-23
                     it.baseShiftName?.let { name -> BaseShiftActiveBanner(name, collectorActions.onDeactivateBaseShift) } // S020/RF-11
                     CollectorExpandedAlert(it, collectorActions) // S060/RF-22
