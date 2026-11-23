@@ -63,5 +63,5 @@
 ## Historial y cierre
 - [x] T25. El historial del proyecto muestra los cambios de plano. (RF-19)
       Hecho cuando: `TerrainHistoryScreenTest` muestra un cambio a terreno y uno de factor, y «Volver al SC anterior» lo deshace.
-- [ ] T26. Validación final: `rf_report` con los RF cubiertos, `check`, `pytest tools`, `forbidden_files` y `assembleDebug` en verde; `plan.md` con «Cambios al implementar» y «Validación»; hoja de ruta con S058 implementada (Room v39); demo del emulador (elegir terreno, ver, exportar CSV y DXF, deshacer).
+- [x] T26. Validación final: `rf_report` con los RF cubiertos, `check`, `pytest tools`, `forbidden_files` y `assembleDebug` en verde; `plan.md` con «Cambios al implementar» y «Validación»; hoja de ruta con S058 implementada (Room v39); demo del emulador (elegir terreno, ver, exportar CSV y DXF, deshacer).
       Hecho cuando: el informe de trazabilidad no tiene RF huérfanos y la demo está hecha.

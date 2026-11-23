@@ -352,4 +352,18 @@ class KmlExportBuilderTest {
             marksWithoutHeight = 0,
         )
     }
+
+    @Test
+    fun `S058 RF-16 el KML de un proyecto en terreno sale igual que el de cuadricula`() {
+        val points = listOf(point("1", description = "Una farola"), point("2"))
+        val ground = project().copy(terrain = es.topophone.core.model.project.TerrainPlane(40.4, -3.7, 1.0004))
+
+        val grid = builder.build(points, project(), KmlExportOptions(), allPoints = points)
+        val terrain = builder.build(points, ground, KmlExportOptions(), allPoints = points)
+
+        fun text(export: KmlExport) = java.io.StringWriter().also { KmlWriter.write(export.document, it) }.toString()
+
+        text(terrain) shouldBe text(grid)
+        terrain.summary shouldBe grid.summary
+    }
 }
