@@ -26,7 +26,7 @@ data class GroundTransform(val originEasting: Double, val originNorthing: Double
         fun number(value: Double, decimals: Int) = BigDecimal(value).setScale(decimals, java.math.RoundingMode.HALF_UP).toPlainString()
         return String.format(
             Locale.ROOT,
-            "TopoPhone ground coordinates origin easting=%s northing=%s grid units=%s factor=%s",
+            "$COMMENT_TEXT origin easting=%s northing=%s grid units=%s factor=%s",
             number(fromMetres(originEasting), ORIGIN_DECIMALS),
             number(fromMetres(originNorthing), ORIGIN_DECIMALS),
             unitCode,
@@ -34,8 +34,11 @@ data class GroundTransform(val originEasting: Double, val originNorthing: Double
         )
     }
 
-    private companion object {
-        const val ORIGIN_DECIMALS = 4
-        const val FACTOR_DECIMALS = 10
+    companion object {
+        /** El principio del comentario de cabecera: lo que reconoce quien lee un fichero exportado en terreno (S058/RF-12, RF-13). */
+        const val COMMENT_TEXT = "TopoPhone ground coordinates"
+
+        private const val ORIGIN_DECIMALS = 4
+        private const val FACTOR_DECIMALS = 10
     }
 }

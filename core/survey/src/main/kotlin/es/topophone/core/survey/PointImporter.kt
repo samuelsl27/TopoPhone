@@ -47,7 +47,17 @@ sealed interface ImportRowResult {
  */
 class PointImporter(private val manual: ManualCoordinates = ManualCoordinates()) {
 
-    fun convert(cells: List<String>, options: ImportOptions, crs: ProjectCrs, heightSystem: HeightSystem): ImportRowResult {
+    /**
+     * [terrain] es el paso de terreno a cuadrícula del proyecto: con el proyecto en terreno, el Este y el Norte del fichero se entienden como
+     * de terreno (S058/RF-12) y el punto se guarda en cuadrícula; en geográficas y en cuadrícula no cambia nada.
+     */
+    fun convert(
+        cells: List<String>,
+        options: ImportOptions,
+        crs: ProjectCrs,
+        heightSystem: HeightSystem,
+        terrain: TerrainView = TerrainView.GRID,
+    ): ImportRowResult {
         val mapping = options.mapping
         val nameIndex = mapping.indexOf(ColumnRole.NAME)
         val firstIndex = mapping.indexOf(ColumnRole.FIRST)
@@ -72,10 +82,11 @@ class PointImporter(private val manual: ManualCoordinates = ManualCoordinates())
             ?.let { unit.toMetres(it) }
         val description = mapping.indexOf(ColumnRole.DESCRIPTION)?.let { cells.getOrNull(it) }.orEmpty().trim()
 
+        val grid = if (geographic) null else terrain.toGrid(unit.toMetres(first), unit.toMetres(second))
         val typed = TypedCoordinates(
             form = options.coordinates.form,
-            first = if (geographic) first else unit.toMetres(first),
-            second = if (geographic) second else unit.toMetres(second),
+            first = grid?.easting ?: first,
+            second = grid?.northing ?: second,
             height = height,
             heightKind = options.coordinates.heightKind,
         )

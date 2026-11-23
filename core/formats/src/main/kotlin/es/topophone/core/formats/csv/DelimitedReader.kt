@@ -1,7 +1,9 @@
 package es.topophone.core.formats.csv
 
+import es.topophone.core.formats.GroundTransform
 import es.topophone.core.model.point.DelimitedRow
 import es.topophone.core.model.point.ImportSeparator
+import java.io.PushbackReader
 import java.io.Reader
 import java.io.StringReader
 
@@ -30,13 +32,27 @@ object DelimitedReader {
         val merge = separator.mergesRuns
         var pending = EOF
         var hasPending = false
+        // S058/RF-12: la primera línea de comentario de un CSV exportado en terreno no es una fila; sus filas siguen contando desde la 2.
+        // Solo se mira por delante si la primera letra puede abrir el comentario: la lectura sigue siendo perezosa (S028/RF-5).
+        var source: Reader = reader
+        var skippedComment = false
+        val first = reader.read()
+        if (first == GROUND_COMMENT[0].code) {
+            val pushback = PushbackReader(reader, GROUND_COMMENT.length)
+            pushback.unread(first)
+            skippedComment = skipGroundComment(pushback)
+            source = pushback
+        } else if (first != EOF) {
+            pending = first
+            hasPending = true
+        }
 
         fun next(): Int {
             if (hasPending) {
                 hasPending = false
                 return pending
             }
-            return reader.read()
+            return source.read()
         }
 
         fun push(c: Int) {
@@ -44,8 +60,8 @@ object DelimitedReader {
             hasPending = true
         }
 
-        var line = 1
-        var rowLine = 1
+        var line = if (skippedComment) 2 else 1
+        var rowLine = line
         val cells = mutableListOf<String>()
         val cell = StringBuilder()
         var quoted = false // la celda actual venía entre comillas
@@ -133,6 +149,30 @@ object DelimitedReader {
         }
         val last = endRow()
         if (last != null) yield(last)
+    }
+
+    private const val LINE_FEED = 10
+
+    private val GROUND_COMMENT = CsvExport.COMMENT_MARK + GroundTransform.COMMENT_TEXT
+
+    /** Si el texto empieza con el comentario de un CSV en terreno, lo salta hasta el fin de su línea y dice que lo había (S058/RF-12). */
+    private fun skipGroundComment(source: PushbackReader): Boolean {
+        val buffer = CharArray(GROUND_COMMENT.length)
+        var count = 0
+        while (count < buffer.size) {
+            val read = source.read(buffer, count, buffer.size - count)
+            if (read < 0) break
+            count += read
+        }
+        if (count == buffer.size && String(buffer) == GROUND_COMMENT) {
+            while (true) {
+                val c = source.read()
+                if (c < 0 || c == LINE_FEED) break
+            }
+            return true
+        }
+        if (count > 0) source.unread(buffer, 0, count)
+        return false
     }
 
     /**

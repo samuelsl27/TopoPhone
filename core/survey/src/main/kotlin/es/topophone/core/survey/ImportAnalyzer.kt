@@ -55,10 +55,11 @@ class ImportAnalyzer(private val importer: PointImporter = PointImporter()) {
         takenNames: Set<String>,
         maxErrors: Int = MAX_ERRORS,
         checkCancelled: () -> Unit = {},
+        terrain: TerrainView = TerrainView.GRID,
     ): ImportAnalysis {
         val preview = ArrayList<ImportPreviewRow>(PREVIEW_ROWS)
         val errors = ArrayList<ImportRowError>()
-        val counts = traverse(rows, options, crs, heightSystem, takenNames, checkCancelled) { row, outcome ->
+        val counts = traverse(rows, options, crs, heightSystem, takenNames, terrain, checkCancelled) { row, outcome ->
             if (outcome is Outcome.Failed && errors.size < maxErrors) errors += outcome.error
             if (preview.size < PREVIEW_ROWS) preview += previewRow(row, outcome, options)
         }
@@ -81,9 +82,10 @@ class ImportAnalyzer(private val importer: PointImporter = PointImporter()) {
         createdAtMs: Long,
         newId: () -> String,
         checkCancelled: () -> Unit = {},
+        terrain: TerrainView = TerrainView.GRID,
     ): ImportBatch {
         val points = ArrayList<Point>()
-        val counts = traverse(rows, options, crs, heightSystem, takenNames, checkCancelled) { _, outcome ->
+        val counts = traverse(rows, options, crs, heightSystem, takenNames, terrain, checkCancelled) { _, outcome ->
             if (outcome is Outcome.Entered) points += outcome.point.toPoint(newId(), projectId, importId, createdAtMs, outcome.finalName)
         }
         return ImportBatch(points, counts)
@@ -95,6 +97,7 @@ class ImportAnalyzer(private val importer: PointImporter = PointImporter()) {
         crs: ProjectCrs,
         heightSystem: HeightSystem,
         takenNames: Set<String>,
+        terrain: TerrainView,
         checkCancelled: () -> Unit,
         onRow: (DelimitedRow, Outcome) -> Unit,
     ): ImportCounts {
@@ -108,7 +111,7 @@ class ImportAnalyzer(private val importer: PointImporter = PointImporter()) {
         for (row in data) {
             checkCancelled()
             total++
-            val outcome = when (val result = importer.convert(row.cells, options, crs, heightSystem)) {
+            val outcome = when (val result = importer.convert(row.cells, options, crs, heightSystem, terrain)) {
                 is ImportRowResult.Invalid -> Outcome.Failed(ImportRowError(row.line, result.reason))
                 is ImportRowResult.Valid -> when {
                     taken.add(result.name) -> Outcome.Entered(result, result.name, renamed = false)

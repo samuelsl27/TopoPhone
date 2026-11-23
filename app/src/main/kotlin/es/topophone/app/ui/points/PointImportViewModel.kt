@@ -34,6 +34,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.ImportAnalysis
 import es.topophone.core.survey.ImportAnalyzer
 import es.topophone.core.survey.ImportReportText
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.point.PointRepository
 import es.topophone.data.point.PointSaveResult
 import es.topophone.data.project.ProjectRepository
@@ -328,6 +329,7 @@ class PointImportViewModel @Inject constructor(
                 takenNames = takenNames,
                 maxErrors = maxErrors,
                 checkCancelled = checkCancelled,
+                terrain = TerrainView.of(project.terrain, project.crs) ?: TerrainView.GRID, // S058/RF-12
             )
         }
     }
@@ -400,6 +402,7 @@ class PointImportViewModel @Inject constructor(
                         importId = importId,
                         createdAtMs = clock(),
                         newId = newId,
+                        terrain = TerrainView.of(project.terrain, project.crs) ?: TerrainView.GRID, // S058/RF-12
                     )
                 }
             } catch (_: IOException) {
