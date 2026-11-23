@@ -51,6 +51,7 @@ import es.topophone.core.survey.SlopeLiveValue
 import es.topophone.core.survey.SlopeStake
 import es.topophone.data.alignment.AlignmentRepository
 import es.topophone.data.baseshift.ActiveBaseShift
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.StakeoutPreferences
 import es.topophone.data.project.ProjectRepository
@@ -162,10 +163,12 @@ class SlopeStakeViewModel @Inject constructor(
     private val log: AppLog = AppLog.NONE,
     private val tilt: CurrentTilt = CurrentTilt.NONE,
     private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
 ) : ViewModel() {
     private val controller = StakeoutController(alerts, log)
 
     private val activeShift by lazy { baseShift.track(projectId, viewModelScope) } // S020/RF-7
+    private val activeLocalization by lazy { localization.track(projectId, viewModelScope) } // S039/RF-17
 
     private class Model(
         val projectId: String,
@@ -550,6 +553,7 @@ class SlopeStakeViewModel @Inject constructor(
             designElevationM = objective.heightM,
             profile = profile,
             shift = activeShift.value?.vector, // S020/RF-7
+            localization = activeLocalization.value?.params, // S039/RF-17
         )
     }
 

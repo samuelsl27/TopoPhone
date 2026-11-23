@@ -169,6 +169,13 @@ private fun Coordinates(state: MapMenuUiState, project: Project?, actions: MapMe
             modifier = Modifier.testTag(MAP_MENU_TERRAIN_TAG),
         ) // S058/RF-9
     }
+    if (coordinates.localized) {
+        Text(
+            stringResource(R.string.localization_map_note),
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.testTag(MAP_MENU_LOCALIZED_TAG),
+        ) // S039/RF-17
+    }
     lines.forEach { line ->
         Row(
             modifier = Modifier.fillMaxWidth().heightIn(min = MENU_ROW_DP).semantics(mergeDescendants = true) {}
@@ -210,5 +217,6 @@ private fun coordinateLabel(kind: CoordinateKind): String = stringResource(
 )
 
 const val MAP_MENU_TERRAIN_TAG = "map_menu_terrain"
+const val MAP_MENU_LOCALIZED_TAG = "map_menu_localized"
 
 private val MENU_ROW_DP = 56.dp

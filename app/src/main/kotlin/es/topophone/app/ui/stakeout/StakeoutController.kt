@@ -3,6 +3,7 @@ package es.topophone.app.ui.stakeout
 import es.topophone.core.gnss.nmea.Epoch
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.codes.PointCode
+import es.topophone.core.model.localization.LocalizationParams
 import es.topophone.core.model.log.AppLog
 import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.point.AdmittedSolutions
@@ -42,6 +43,7 @@ import es.topophone.core.survey.StakeoutLevel
 import es.topophone.core.survey.StakeoutZones
 import es.topophone.core.survey.TerrainView
 import es.topophone.core.survey.TiltEpoch
+import es.topophone.core.survey.localization.localized
 import es.topophone.receiver.platform.Alerts
 import kotlin.math.abs
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -97,6 +99,8 @@ class StakeContext(
     val profile: AntennaProfile = AntennaProfile.RS3,
     /** El desplazamiento de base activo: la punta lo lleva antes de pasar al SC (S020/RF-7). */
     val shift: BaseShiftVector? = null,
+    /** La localización activa: la punta se localiza tras el SC para compararla con el diseño, que está en el sistema de la obra (S039/RF-17). */
+    val localization: LocalizationParams? = null,
     /**
      * Con una línea que tiene alturas en solo algunos vértices, donde el objetivo no tiene cota de diseño se replantea contra la
      * superficie activa en lugar de dejarlo sin nivel vertical (S027/RF-10). Solo vale sin cota escrita a mano.
@@ -215,6 +219,7 @@ class StakeoutController(
             return
         }
         val position = context.calculator.fromGround(tip.ground, context.project.crs, context.project.heightSystem)
+            .localized(context.localization) // S039/RF-17
         val tipCoordinates = PointCoordinates(tip.ground, position.easting, position.northing, position.height)
         val tipEast = tipCoordinates.easting
         val tipNorth = tipCoordinates.northing

@@ -54,6 +54,7 @@ import es.topophone.core.survey.StakeLine
 import es.topophone.core.survey.inverted
 import es.topophone.data.baseshift.ActiveBaseShift
 import es.topophone.data.cad.CadRepository
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.point.CollectorPreferences
 import es.topophone.data.point.StakeoutPreferences
 import es.topophone.data.project.ProjectRepository
@@ -214,11 +215,13 @@ class LineStakeoutViewModel @Inject constructor(
     private val tilt: CurrentTilt = CurrentTilt.NONE,
     private val surfaces: SurfaceGuides = SurfaceGuides.NONE,
     private val baseShift: ActiveBaseShift = ActiveBaseShift.NONE,
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
     private val stakeLines: StakeLines = StakeLines.NONE,
 ) : ViewModel() {
     private val controller = StakeoutController(alerts, log)
 
     private val activeShift by lazy { baseShift.track(projectId, viewModelScope) } // S020/RF-7
+    private val activeLocalization by lazy { localization.track(projectId, viewModelScope) } // S039/RF-17
 
     /** Todo lo de la línea abierta; null si no hay replanteo abierto. */
     private class Model(
@@ -865,6 +868,7 @@ class LineStakeoutViewModel @Inject constructor(
             resolution(surface).source,
             profile = profile,
             shift = activeShift.value?.vector, // S020/RF-7
+            localization = activeLocalization.value?.params, // S039/RF-17
             surfaceWhereNoHeight = surfaceWhereNoHeight(m, surface),
         )
     }

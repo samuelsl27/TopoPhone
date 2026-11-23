@@ -2,6 +2,7 @@ package es.topophone.app.ui.map
 
 import es.topophone.core.model.format.AngleFormat
 import es.topophone.core.model.format.LengthFormat
+import es.topophone.core.model.localization.LocalizationParams
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.Project
@@ -9,6 +10,7 @@ import es.topophone.core.survey.PositionUnavailable
 import es.topophone.core.survey.ProjectPosition
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.TerrainView
+import es.topophone.core.survey.localization.localized
 import java.util.Locale
 
 /** Cada una de las líneas de «Ver coordenadas» (S036/RF-40). */
@@ -28,6 +30,8 @@ data class MapCoordinates(
     val position: ProjectPosition,
     /** S058/RF-9: con el proyecto en terreno, Este y Norte se enseñan en terreno. */
     val terrain: TerrainView = TerrainView.GRID,
+    /** S039/RF-17: con una localización activa, Este, Norte y altura son los localizados. */
+    val localized: Boolean = false,
 ) {
     /** Por qué el punto cae fuera del ámbito del SC del proyecto, o null si cae dentro (RF-41, S008/RF-9, RF-8). */
     val outOfScope: PositionUnavailable?
@@ -62,12 +66,17 @@ data class MapCoordinates(
 
     companion object {
         /** Las coordenadas del punto de [press] en el SC de [project] (RF-40). */
-        fun of(press: MapPress, project: Project, calculator: ProjectPositionCalculator): MapCoordinates {
+        fun of(
+            press: MapPress,
+            project: Project,
+            calculator: ProjectPositionCalculator,
+            localization: LocalizationParams? = null,
+        ): MapCoordinates {
             val ground = GeodeticPosition(press.latitudeDeg, press.longitudeDeg, ellipsoidalHeightM = null)
             // Altura elipsoidal: no hay altura que pasar al geoide, y Este y Norte no dependen de ella.
-            val position = calculator.fromGround(ground, project.crs, HeightSystem.ELLIPSOIDAL)
+            val position = calculator.fromGround(ground, project.crs, HeightSystem.ELLIPSOIDAL).localized(localization)
             val terrain = TerrainView.of(project.terrain, project.crs, calculator) ?: TerrainView.GRID
-            return MapCoordinates(press.latitudeDeg, press.longitudeDeg, position, terrain)
+            return MapCoordinates(press.latitudeDeg, press.longitudeDeg, position, terrain, localized = localization != null)
         }
 
         /** El texto que «Copiar» deja en el portapapeles: una línea «nombre: valor» por cada línea que se ve (RF-40). */

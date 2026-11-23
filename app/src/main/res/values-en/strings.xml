@@ -3694,4 +3694,5 @@
     <string name="cogo_distance_terrain">Ground distance</string>
     <string name="terrain_export_grid_notice">The project is in ground coordinates. This file is written in grid coordinates, with its coordinate system.</string>
     <string name="localization_active_banner">Localized: GNSS points are shown in the site system</string>
+    <string name="localization_map_note">Localized</string>
 </resources>

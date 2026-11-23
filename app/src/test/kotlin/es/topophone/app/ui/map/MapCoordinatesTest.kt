@@ -1,5 +1,6 @@
 package es.topophone.app.ui.map
 
+import es.topophone.core.model.localization.LocalizationParams
 import es.topophone.core.model.project.AngularUnit
 import es.topophone.core.model.project.CorrectionsDatum
 import es.topophone.core.model.project.LinearUnit
@@ -203,5 +204,26 @@ class MapCoordinatesTest {
     private companion object {
         const val MM = 0.001
         const val FOOT_M = 0.3048
+    }
+
+    @Test
+    fun `S039 RF-17 con localizacion activa las coordenadas del punto marcado son las localizadas`() {
+        val project = project(ProjectCrs.ETRS89_UTM30)
+        val plain = coordinates(40.5, -3.5, project)
+        val params = LocalizationParams(
+            centreE = plain.position.easting!!,
+            centreN = plain.position.northing!!,
+            knownCentreE = plain.position.easting!! + 100.0,
+            knownCentreN = plain.position.northing!! - 50.0,
+            hasHorizontal = true,
+        )
+
+        val localized = MapCoordinates.of(press(40.5, -3.5), project, calculator, params)
+
+        localized.localized shouldBe true
+        plain.localized shouldBe false
+        localized.position.easting!! shouldBe (plain.position.easting!! + 100.0)
+        localized.position.northing!! shouldBe (plain.position.northing!! - 50.0)
+        localized.position.latitudeDeg shouldBe plain.position.latitudeDeg
     }
 }

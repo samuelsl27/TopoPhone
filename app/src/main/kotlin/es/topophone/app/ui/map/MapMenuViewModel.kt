@@ -13,6 +13,7 @@ import es.topophone.core.model.wms.WmsAddress
 import es.topophone.core.model.wms.WmsAddressResult
 import es.topophone.core.model.wms.WmsLimits
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.wms.ProjectLayerView
 import es.topophone.data.wms.WmsHttp
 import es.topophone.data.wms.WmsHttpResponse
@@ -78,8 +79,11 @@ data class MapMenuUiState(
  * demás. Cerrar el menú cancela lo que esté en vuelo (RF-35).
  */
 @HiltViewModel
-class MapMenuViewModel @Inject constructor(private val http: WmsHttp, private val calculator: Lazy<ProjectPositionCalculator>) :
-    ViewModel() {
+class MapMenuViewModel @Inject constructor(
+    private val http: WmsHttp,
+    private val calculator: Lazy<ProjectPositionCalculator>,
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
+) : ViewModel() {
     private val mutable = MutableStateFlow(MapMenuUiState())
     val state: StateFlow<MapMenuUiState> = mutable.asStateFlow()
 
@@ -112,8 +116,12 @@ class MapMenuViewModel @Inject constructor(private val http: WmsHttp, private va
         val press = mutable.value.press ?: return
         val project = project ?: return
         querying?.cancel()
-        val coordinates = MapCoordinates.of(press, project, calculator.get())
-        mutable.update { it.copy(screen = MapMenuScreen.COORDINATES, results = emptyList(), coordinates = coordinates) }
+        viewModelScope.launch {
+            // S039/RF-17: con una localización activa las coordenadas del punto son las localizadas.
+            val active = localization.current(project.id)?.params
+            val coordinates = MapCoordinates.of(press, project, calculator.get(), active)
+            mutable.update { it.copy(screen = MapMenuScreen.COORDINATES, results = emptyList(), coordinates = coordinates) }
+        }
     }
 
     /** «Consultar información de las capas»: pregunta a cada capa consultable qué hay en el punto marcado (RF-36). */

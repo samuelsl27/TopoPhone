@@ -774,4 +774,56 @@ class StakeoutControllerTest {
 
         on().ui.guidance.distanceM shouldBe (5.0 plusOrMinus 0.005)
     }
+
+    /** Una localización que traslada (+1.000, -500) m y gira 0,01 rad alrededor del punto de diseño (S039/RF-17). */
+    private val localization = es.topophone.core.model.localization.LocalizationParams(
+        centreE = designCoordinates.easting!!,
+        centreN = designCoordinates.northing!!,
+        knownCentreE = designCoordinates.easting!! + 1_000.0,
+        knownCentreN = designCoordinates.northing!! - 500.0,
+        rotationRad = 0.01,
+        hasHorizontal = true,
+    )
+
+    private fun localizedContext(params: es.topophone.core.model.localization.LocalizationParams?) = StakeContext(
+        StakeoutSettings(mode = StakeMode.BY_DISTANCE),
+        target.copy(
+            coordinates = designCoordinates.copy(
+                easting = designCoordinates.easting!! + 1_000.0,
+                northing = designCoordinates.northing!! - 500.0,
+            ),
+        ),
+        AdmittedSolutions.FIX_ONLY,
+        null,
+        poleHeight,
+        project,
+        calculator,
+        localization = params,
+    )
+
+    @Test
+    fun `S039 RF-17 con localizacion la punta se compara con el diseno del sistema de la obra`() {
+        controller.onEpoch(epoch(east = 0.0, north = 0.0), localizedContext(localization))
+
+        // La punta está sobre el centro de la localización: su posición localizada es el diseño trasladado.
+        on().ui.guidance.distanceM shouldBe (0.0 plusOrMinus 0.01)
+    }
+
+    @Test
+    fun `S039 RF-17 la localizacion gira la guia segun su rotacion`() {
+        controller.onEpoch(epoch(east = -3.0, north = -4.0), localizedContext(localization))
+
+        val guidance = on().ui.guidance
+        guidance.distanceM shouldBe (5.0 plusOrMinus 0.005)
+        // Con la punta al suroeste a 5 m, girar 0,01 rad mueve el delta Este en unos 4 cm (0,01 · 4 m).
+        val withoutRotation = Math.hypot(guidance.dEastM - 3.0, guidance.dNorthM - 4.0)
+        (withoutRotation > 0.02) shouldBe true
+    }
+
+    @Test
+    fun `S039 RF-17 sin localizacion el diseno del sistema de la obra queda lejos de la punta`() {
+        controller.onEpoch(epoch(east = 0.0, north = 0.0), localizedContext(null))
+
+        on().ui.guidance.distanceM shouldBe (Math.hypot(1_000.0, 500.0) plusOrMinus 1.0)
+    }
 }
