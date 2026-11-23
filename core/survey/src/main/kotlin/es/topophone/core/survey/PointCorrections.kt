@@ -1,5 +1,6 @@
 package es.topophone.core.survey
 
+import es.topophone.core.model.localization.ActiveLocalizationInfo
 import es.topophone.core.model.point.EntryForm
 import es.topophone.core.model.point.GearUsed
 import es.topophone.core.model.point.GeodeticPosition
@@ -13,6 +14,7 @@ import es.topophone.core.model.point.TiltMode
 import es.topophone.core.model.point.TypedCoordinates
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.survey.localization.PointLocalization
 
 /**
  * El equipo de un punto con una altura de jalón corregida: la altura escrita pasa a ser la vertical y la de antena se
@@ -41,7 +43,13 @@ class PointCorrections(
      * Si sus coordenadas están editadas, se mantienen y solo cambia la medida. Null en un punto manual, que no tiene
      * jalón (S011/RF-15).
      */
-    fun withPoleHeight(point: Point, poleHeightM: Double, crs: ProjectCrs, heightSystem: HeightSystem): PoleCorrection? {
+    fun withPoleHeight(
+        point: Point,
+        poleHeightM: Double,
+        crs: ProjectCrs,
+        heightSystem: HeightSystem,
+        localization: ActiveLocalizationInfo? = null,
+    ): PoleCorrection? {
         val measurement = point.measurement ?: return null
         val offsetM = measurement.gear?.antennaOffsetM ?: profile.offsetM
         val unshifted = ground(measurement, poleHeightM, offsetM)
@@ -56,7 +64,9 @@ class PointCorrections(
                 gear = measurement.gear?.withPole(poleHeightM),
                 shift = measurement.shift?.copy(unshiftedGround = unshifted),
             ),
-            coordinates = if (point.edited) point.coordinates else measured,
+            // S039/RF-17: las coordenadas mostradas son las de la medida localizadas con la localización activa; la medida sigue sin localizar.
+            coordinates = if (point.edited) point.coordinates else PointLocalization.coordinates(measured, localization),
+            localizationId = if (point.edited) point.localizationId else localization?.id,
         )
         return PoleCorrection(corrected, keptEditedCoordinates = point.edited)
     }
@@ -83,9 +93,14 @@ class PointCorrections(
     }
 
     /** Las coordenadas de la medida, sin lo escrito ni la marca de editado (S011/RF-13); null en un punto manual. */
-    fun revertToMeasurement(point: Point): Point? {
+    fun revertToMeasurement(point: Point, localization: ActiveLocalizationInfo? = null): Point? {
         val measurement = point.measurement ?: return null
-        return point.copy(coordinates = measurement.coordinates, typed = null, edited = false)
+        return point.copy(
+            coordinates = PointLocalization.coordinates(measurement.coordinates, localization),
+            typed = null,
+            edited = false,
+            localizationId = localization?.id,
+        )
     }
 
     /**

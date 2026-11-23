@@ -1,6 +1,7 @@
 package es.topophone.data.localization
 
 import androidx.room.withTransaction
+import es.topophone.core.model.localization.ActiveLocalizationInfo
 import es.topophone.core.model.localization.Localization
 import es.topophone.core.model.localization.LocalizationLimits
 import es.topophone.core.model.localization.LocalizationOrigin
@@ -397,9 +398,6 @@ internal fun LocalizationEntity.toModel(pairs: List<LocalizationPairEntity>) = L
     residuals = pairs.filter { it.resE != null || it.resN != null || it.resV != null }
         .associate { it.id to PairResidualValues(it.resE, it.resN, it.resV) },
 )
-
-/** La localización activa de un proyecto, lista para aplicarla a una posición (S039/RF-17, plan D4). */
-data class ActiveLocalizationInfo(val id: String, val params: LocalizationParams)
 
 /**
  * La localización activa del proyecto (S039/RF-14, RF-17). [info] la sigue en vivo; [current] es la lectura instantánea que usa una medida al
