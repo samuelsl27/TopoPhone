@@ -99,6 +99,8 @@ const val LOCALIZATION_CONFIRM_REMOVE_TAG = "localization_confirm_remove"
 const val LOCALIZATION_CANCEL_REMOVE_TAG = "localization_cancel_remove"
 const val LOCALIZATION_NOTICE_TAG = "localization_notice"
 const val LOCALIZATION_HISTORY_TAG = "localization_history"
+const val LOCALIZATION_REPORT_SAVE_TAG = "localization_report_save"
+const val LOCALIZATION_REPORT_SHARE_TAG = "localization_report_share"
 
 fun localizationReactivateTag(id: String) = "localization_reactivate_$id"
 const val LOCALIZATION_RESULT_TAG = "localization_result"
@@ -143,6 +145,8 @@ class LocalizationActions(
     val onReactivate: (String) -> Unit = {},
     val onDiscardDraft: () -> Unit = {},
     val onDismissNotice: () -> Unit = {},
+    val onSaveReport: () -> Unit = {},
+    val onShareReport: () -> Unit = {},
 )
 
 /**
@@ -176,6 +180,7 @@ fun LocalizationScreen(
                 PairsSection(state, project, actions)
                 ResultSection(state, project, actions)
                 ApplySection(state, actions)
+                ReportSection(state, actions)
                 HistorySection(state, project, actions)
                 ApplyDialogs(state, actions)
             }
@@ -213,6 +218,8 @@ private fun NoticeCard(notice: LocalizationNotice, onDismiss: () -> Unit) {
         LocalizationNotice.CannotSolve -> stringResource(R.string.localization_notice_cannot_solve)
         LocalizationNotice.StaleCrs -> stringResource(R.string.localization_notice_stale_crs)
         LocalizationNotice.NotFound -> stringResource(R.string.localization_notice_not_found)
+        LocalizationNotice.ReportSaved -> stringResource(R.string.localization_notice_report_saved)
+        LocalizationNotice.ReportFailed -> stringResource(R.string.localization_notice_report_failed)
     }
     Card(modifier = Modifier.fillMaxWidth().testTag(LOCALIZATION_NOTICE_TAG).semantics { liveRegion = LiveRegionMode.Polite }) {
         Row(
@@ -254,6 +261,25 @@ private fun ApplySection(state: LocalizationUiState, actions: LocalizationAction
             onClick = actions.onRequestRemove,
             modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget).testTag(LOCALIZATION_REMOVE_TAG),
         ) { Text(stringResource(R.string.localization_remove)) }
+    }
+}
+
+/** «Informe»: un CSV con los parámetros, los pares y los residuos para guardar o compartir (S039/RF-25). */
+@Composable
+private fun ReportSection(state: LocalizationUiState, actions: LocalizationActions) {
+    val hasContent = state.pairs.isNotEmpty() || state.active != null
+    Text(stringResource(R.string.localization_report_title), style = MaterialTheme.typography.titleSmall)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(
+            onClick = actions.onSaveReport,
+            enabled = hasContent,
+            modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(LOCALIZATION_REPORT_SAVE_TAG),
+        ) { Text(stringResource(R.string.localization_report_save)) }
+        OutlinedButton(
+            onClick = actions.onShareReport,
+            enabled = hasContent,
+            modifier = Modifier.weight(1f).heightIn(min = MinTouchTarget).testTag(LOCALIZATION_REPORT_SHARE_TAG),
+        ) { Text(stringResource(R.string.localization_report_share)) }
     }
 }
 

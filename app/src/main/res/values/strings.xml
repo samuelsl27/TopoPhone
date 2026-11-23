@@ -3792,4 +3792,9 @@
     <string name="export_unlocalized">Exportar sin localizar</string>
     <string name="export_unlocalized_help">Hay una localización activa: el CSV sale con las coordenadas localizadas y su identificador. Con esta opción, los puntos GNSS salen en el SC sin localizar y sin identificador.</string>
     <string name="localization_export_geographic_notice">Hay una localización activa: las coordenadas de los puntos GNSS ya no son las del SC del proyecto, así que la capa va solo en coordenadas geográficas y no se ofrece el sistema del proyecto.</string>
+    <string name="localization_report_title">Informe</string>
+    <string name="localization_report_save">Guardar informe</string>
+    <string name="localization_report_share">Compartir informe</string>
+    <string name="localization_notice_report_saved">Informe de la localización guardado.</string>
+    <string name="localization_notice_report_failed">No se pudo guardar el informe de la localización.</string>
 </resources>

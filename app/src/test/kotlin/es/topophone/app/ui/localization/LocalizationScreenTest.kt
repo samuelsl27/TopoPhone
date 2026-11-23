@@ -392,4 +392,26 @@ class LocalizationScreenTest {
 
         compose.onNodeWithTag(LOCALIZATION_NOTICE_TAG).shows("han cambiado 5 puntos GNSS")
     }
+
+    @Test
+    fun `S039 RF-25 con pares el informe se puede guardar o compartir`() {
+        val calls = mutableListOf<String>()
+        show(
+            LocalizationUiState(loaded = true, project = project, pairs = listOf(pair("a", "A"))),
+            LocalizationActions(onSaveReport = { calls += "save" }, onShareReport = { calls += "share" }),
+        )
+
+        compose.onNodeWithTag(LOCALIZATION_REPORT_SAVE_TAG).performScrollTo().assertIsEnabled().performClick()
+        compose.onNodeWithTag(LOCALIZATION_REPORT_SHARE_TAG).performScrollTo().performClick()
+
+        calls shouldBe listOf("save", "share")
+    }
+
+    @Test
+    fun `S039 RF-25 sin nada que informar los botones del informe estan desactivados`() {
+        show(LocalizationUiState(loaded = true, project = project))
+
+        compose.onNodeWithTag(LOCALIZATION_REPORT_SAVE_TAG).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(LOCALIZATION_REPORT_SHARE_TAG).performScrollTo().assertIsNotEnabled()
+    }
 }

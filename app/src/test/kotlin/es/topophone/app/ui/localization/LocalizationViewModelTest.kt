@@ -417,4 +417,29 @@ class LocalizationViewModelTest {
         val s = await { it.draft == null }
         s.active.shouldNotBeNull().fixScale shouldBe false
     }
+
+    @Test
+    fun `S039 RF-25 el informe lleva los parametros, los pares y los residuos del borrador`() {
+        threePairs()
+        val out = java.io.ByteArrayOutputStream()
+
+        val ok = runBlocking { viewModel.writeReport(out) }
+
+        ok shouldBe true
+        val text = out.toByteArray().toString(Charsets.UTF_8)
+        text.contains("Scale,1.0000") shouldBe true
+        text.contains("Point,CRS easting,CRS northing") shouldBe true
+        text.contains("G-g1") shouldBe true
+        text.contains("G-g3") shouldBe true
+        viewModel.reportFileName(java.time.Instant.parse("2026-11-23T10:15:00Z"), java.time.ZoneOffset.UTC) shouldBe
+            "Camino de la Dehesa_localizacion_20261123-1015.csv"
+    }
+
+    @Test
+    fun `S039 RF-25 sin pares ni localizacion activa no hay informe`() {
+        create(gnss("g1"))
+        viewModel()
+
+        runBlocking { viewModel.writeReport(java.io.ByteArrayOutputStream()) } shouldBe false
+    }
 }

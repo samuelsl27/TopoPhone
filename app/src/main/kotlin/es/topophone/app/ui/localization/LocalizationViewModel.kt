@@ -3,11 +3,14 @@ package es.topophone.app.ui.localization
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.topophone.core.formats.csv.ExportFileName
+import es.topophone.core.formats.localization.LocalizationReportCsv
 import es.topophone.core.model.format.NumberInput
 import es.topophone.core.model.localization.Localization
 import es.topophone.core.model.localization.LocalizationLimits
 import es.topophone.core.model.localization.LocalizationOrigin
 import es.topophone.core.model.localization.LocalizationPair
+import es.topophone.core.model.localization.PairResidualValues
 import es.topophone.core.model.point.PointOrigin
 import es.topophone.core.model.point.hasMeasurement
 import es.topophone.core.model.project.Project
@@ -23,6 +26,12 @@ import es.topophone.data.localization.ApplyResult
 import es.topophone.data.localization.LocalizationRepository
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
+import java.io.BufferedWriter
+import java.io.IOException
+import java.io.OutputStream
+import java.io.OutputStreamWriter
+import java.time.Instant
+import java.time.ZoneId
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +47,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** En qué paso está la confirmación de aplicar: la primera con el recuento, y la segunda si hay residuos o escala fuera de umbral (S039/RF-14, RF-15). */
 enum class ApplyStage { CONFIRM, CONFIRM_WARNINGS }
@@ -68,6 +78,11 @@ sealed interface LocalizationNotice {
     data object StaleCrs : LocalizationNotice
 
     data object NotFound : LocalizationNotice
+
+    /** El informe se guardó o compartió, o no se pudo (RF-25). */
+    data object ReportSaved : LocalizationNotice
+
+    data object ReportFailed : LocalizationNotice
 }
 
 /** De dónde salen las coordenadas conocidas de un par (S039/RF-2). */
@@ -366,6 +381,44 @@ class LocalizationViewModel @Inject constructor(
 
     fun dismissNotice() {
         noticeFlow.value = null
+    }
+
+    /** Lo que pasó al guardar o compartir el informe (RF-25). */
+    fun reportResult(saved: Boolean) {
+        noticeFlow.value = if (saved) LocalizationNotice.ReportSaved else LocalizationNotice.ReportFailed
+    }
+
+    /** `<proyecto>_localizacion_<AAAAMMDD-HHMM>.csv` con la hora local del móvil. */
+    fun reportFileName(at: Instant, zone: ZoneId): String = ExportFileName.of(state.value.project?.name.orEmpty(), "localizacion", at, zone)
+
+    /**
+     * Escribe el informe CSV (parámetros, pares y residuos) en [out], en UTF-8 sin BOM (RF-25); false si no hay nada que informar o no se ha podido
+     * escribir. Informa de lo que se ve: el borrador calculado o, sin borrador, la localización activa.
+     */
+    suspend fun writeReport(out: OutputStream): Boolean {
+        val current = state.value
+        val project = current.project ?: return false
+        val shown = (current.draft ?: current.active) ?: return false
+        val solved = (current.outcome as? LocalizationOutcome.Solved)?.solution
+        val localization = if (solved == null) {
+            shown
+        } else {
+            shown.copy(
+                params = solved.params,
+                rmsHorizontal = solved.rmsHorizontal,
+                rmsVertical = solved.rmsVertical,
+                pairs = current.pairs,
+                residuals = solved.residuals.associate { it.pairId to PairResidualValues(it.east, it.north, it.vertical) },
+            )
+        }
+        return withContext(Dispatchers.IO) {
+            try {
+                BufferedWriter(OutputStreamWriter(out, Charsets.UTF_8)).use { LocalizationReportCsv.write(localization, project, it) }
+                true
+            } catch (_: IOException) {
+                false
+            }
+        }
     }
 
     private fun ApplyResult.toNotice(): LocalizationNotice = when (this) {

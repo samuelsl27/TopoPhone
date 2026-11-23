@@ -3780,4 +3780,9 @@
     <string name="export_unlocalized">Export unlocalized</string>
     <string name="export_unlocalized_help">There is an active localization: the CSV has the localized coordinates and its identifier. With this option, GNSS points go out in the unlocalized CRS and without identifier.</string>
     <string name="localization_export_geographic_notice">There is an active localization: the GNSS point coordinates are no longer the project CRS ones, so the layer is written in geographic coordinates only and the project system is not offered.</string>
+    <string name="localization_report_title">Report</string>
+    <string name="localization_report_save">Save report</string>
+    <string name="localization_report_share">Share report</string>
+    <string name="localization_notice_report_saved">Localization report saved.</string>
+    <string name="localization_notice_report_failed">The localization report could not be saved.</string>
 </resources>
