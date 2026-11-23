@@ -65,6 +65,8 @@ data class GpkgExportUiState(
     /** Cuántas líneas y polígonos del proyecto van al fichero, además de los puntos (S025/RF-26, S053/RF-3). */
     val lineCount: Int = 0,
     val polygonCount: Int = 0,
+    /** S058/RF-15: el proyecto está en terreno y el fichero va igualmente en cuadrícula, con su SC; la pantalla lo dice. */
+    val terrain: Boolean = false,
 ) {
     /** Hay puntos que exportar (RF-11). */
     val canExport: Boolean get() = loaded && pointCount > 0
@@ -117,6 +119,7 @@ class GpkgExportViewModel @Inject constructor(
             result = outcome,
             lineCount = lineCount,
             polygonCount = polygonCount,
+            terrain = project.terrain != null,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), GpkgExportUiState())
 

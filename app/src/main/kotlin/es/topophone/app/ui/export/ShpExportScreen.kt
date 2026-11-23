@@ -43,6 +43,7 @@ import java.time.ZoneId
 import kotlinx.coroutines.launch
 
 const val SHP_COUNT_TAG = "shp_count"
+const val SHP_TERRAIN_NOTICE_TAG = "shp_terrain_notice"
 const val SHP_LINES_TAG = "shp_lines"
 const val SHP_CRS_PROJECT_TAG = "shp_crs_project"
 const val SHP_CRS_GEOGRAPHIC_TAG = "shp_crs_geographic"
@@ -165,6 +166,13 @@ fun ShpExportScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.testTag(SHP_LINES_TAG),
                 ) // S055/RF-3
+            }
+            if (state.terrain) {
+                Text(
+                    stringResource(R.string.terrain_export_grid_notice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag(SHP_TERRAIN_NOTICE_TAG),
+                ) // S058/RF-15
             }
             Text(stringResource(R.string.shp_export_system), style = MaterialTheme.typography.labelLarge)
             if (state.canChooseCoordinates) {

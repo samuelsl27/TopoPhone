@@ -70,6 +70,8 @@ data class ShpExportUiState(
     val geographicEpsg: Int = 0,
     val summary: ShpExportSummary? = null,
     val result: ExportResult? = null,
+    /** S058/RF-15: el proyecto está en terreno y el fichero va igualmente en cuadrícula, con su SC; la pantalla lo dice. */
+    val terrain: Boolean = false,
 ) {
     /** Hay puntos que exportar (RF-19). */
     val canExport: Boolean get() = loaded && pointCount > 0
@@ -120,6 +122,7 @@ class ShpExportViewModel @Inject constructor(
             geographicEpsg = geographicEpsg,
             summary = last,
             result = outcome,
+            terrain = project.terrain != null,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ShpExportUiState())
 
