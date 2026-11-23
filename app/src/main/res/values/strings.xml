@@ -3818,4 +3818,15 @@
     <string name="field_cancel">Cancelar</string>
     <string name="field_minutes">Minutos</string>
     <string name="field_seconds">Segundos</string>
+    <string name="field_info_precision">Control de precisión</string>
+    <string name="field_info_precision_admits">Admite %1$s</string>
+    <string name="field_info_precision_limit_h">H ≤ %1$s</string>
+    <string name="field_info_precision_limit_v">V ≤ %1$s</string>
+    <string name="field_info_base_shift">Base shift</string>
+    <string name="field_info_localization">Localización</string>
+    <string name="field_info_localization_active">Activa</string>
+    <string name="field_note_waiting">Esperando solución admitida: %1$s</string>
+    <string name="field_note_precision">Precisión %1$s %2$s: el límite es %3$s</string>
+    <string name="field_axis_h">H</string>
+    <string name="field_axis_v">V</string>
 </resources>

@@ -11,7 +11,7 @@
       Hecho cuando: `FieldDialogsTest` cubre valor válido, fuera de rango, formato «m:ss» armado desde minutos y segundos, la lista con la vigente marcada y que el campo queda sobre el teclado.
 
 ## Recolectar: hoja plegada
-- [ ] T4. `StatusLine` y las pastillas informativas (`InfoPill`): solo FIX y control de precisión, base shift y localización, solo si no son los de por defecto, en texto neutro y con su destino al tocar; «Esperando FIX» y precisión fuera de límite como línea sin rojo. (RF-14, RF-17b, RF-18, RF-19)
+- [x] T4. `StatusLine` y las pastillas informativas (`InfoPill`): solo FIX y control de precisión, base shift y localización, solo si no son los de por defecto, en texto neutro y con su destino al tocar; «Esperando FIX» y precisión fuera de límite como línea sin rojo. (RF-14, RF-17b, RF-18, RF-19)
       Hecho cuando: `CollectorStatusLineTest` comprueba cada pastilla, que no hay ninguna con los ajustes por defecto, que nunca usan el color de error y que el estado sigue en texto.
 - [ ] T5. `MeasureReasons` (puro): motivo de mayor prioridad y su acción, con los textos nuevos en español e inglés. (RF-16, RF-17, RF-19)
       Hecho cuando: `MeasureReasonsTest` cubre cada motivo de RF-17 con su acción, la prioridad entre dos motivos a la vez y que sin bloqueo no sale nada.
