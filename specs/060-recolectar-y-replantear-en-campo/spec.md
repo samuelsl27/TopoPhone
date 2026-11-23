@@ -1,6 +1,6 @@
 # Spec 060 — Recolectar y replantear en campo
 
-> Hito: H9 · Depende de: S010, S017, S016, S046, S047, S018, S019, S020, S024, S025, S027, S039, S041, S051, S054 · Estado: spec (entrevista 23/11/2026)
+> Hito: H9 · Depende de: S010, S017, S016, S046, S047, S018, S019, S020, S024, S025, S027, S039, S041, S051, S054 · Estado: aprobada (plan y tareas aprobados 23/11/2026)
 
 ## Contexto y objetivo
 Medir un punto y replantearlo son lo que el topógrafo hace todo el día, de pie, con el móvil en una mano, al sol y a menudo con guantes. Hoy las dos pantallas se ven mal:
@@ -36,7 +36,7 @@ Términos de esta spec:
 
 ### La hoja de campo (H1, H5)
 - RF-1: EL SISTEMA mostrará el recolector y cada replanteo como una hoja de campo no modal sobre el mapa, con dos alturas: plegada y expandida.
-- RF-2: MIENTRAS la hoja de campo esté plegada, EL SISTEMA dejará libre y a la vista al menos el 60 % del alto del mapa y el usuario podrá moverlo y acercarlo.
+- RF-2: MIENTRAS la hoja de campo esté plegada, EL SISTEMA dejará libre y a la vista al menos el 60 % del alto de la pantalla en dispositivos de 700 dp de alto o más, y el 55 % en los de menos, incluso con los avisos del caso más cargado, y el usuario podrá mover y acercar el mapa.
 - RF-3: EL SISTEMA abrirá la hoja de campo plegada.
 - RF-4: CUANDO el usuario arrastre el asa de la hoja o la toque, EL SISTEMA alternará entre plegada y expandida; con TalkBack, ofrecerá las acciones «Expandir» y «Plegar».
 - RF-5: EL SISTEMA conservará la altura de la hoja al girar el dispositivo y al restaurar la app tras cerrar su proceso (como S001/RF-7 y S001/RF-8).
@@ -55,7 +55,8 @@ Términos de esta spec:
 
 ### Recolectar: motivos de bloqueo (H3)
 - RF-16: SI «Medir» no se puede pulsar, ENTONCES EL SISTEMA mostrará bajo el botón una sola línea con el motivo de mayor prioridad y, junto a ella, la acción que lo resuelve con un toque.
-- RF-17: EL SISTEMA dirá, cada uno con su acción, los motivos de S010, S016, S017, S020, S024, S025 y S046: sin receptor o sin posición, solución no admitida, precisión peor que el límite, modo de inclinación sin elegir, inclinación no lista, jalón no válido, atributos obligatorios del código, posición fuera del ámbito del SC y equipo no válido.
+- RF-17: EL SISTEMA dirá, cada uno con su acción, los motivos de S010, S016, S017, S020, S024, S025 y S046: sin receptor o sin posición, modo de inclinación sin elegir, inclinación no lista, jalón no válido, atributos obligatorios del código, posición fuera del ámbito del SC y equipo no válido.
+- RF-17b: SI la solución no es admitida o la precisión supera el límite (S047, S010), ENTONCES EL SISTEMA lo dirá en la línea de estado, en texto neutro y sin color de error, sin bloquear «Medir».
 - RF-18: EL SISTEMA usará el color de error solo para el motivo de bloqueo y nunca para una pastilla informativa.
 - RF-19: EL SISTEMA no mostrará avisos permanentes de configuración que no impidan medir (por ejemplo, «No solo FIX» estando en FIX).
 
@@ -116,14 +117,13 @@ Términos de esta spec:
 
 ## Criterios de finalización
 - Todos los RF con test en verde, informe de trazabilidad sin RF huérfanos, `./gradlew check` y `uv run --project tools pytest tools` en verde.
-- Tests de Compose con anchos de 360 dp y 411 dp y letra al 100 % y al 130 %: cada pastilla, motivo y botón de los RF existe, es alcanzable y mide 56 dp; la altura plegada deja el 60 % del mapa.
+- Tests de Compose con anchos de 360 dp y 411 dp y letra al 100 % y al 130 %: cada pastilla, motivo y botón de los RF existe, es alcanzable y mide 56 dp; la altura plegada deja el 60 % de la pantalla (55 % bajo 700 dp), medida a 411×891 y a 360×640 dp.
 - Cada motivo de RF-17 tiene su test con su acción.
 - Demo en el emulador con el receptor simulado (`tools/simulador/servidor_tcp.py`) y capturas de antes y después: recolectar plegado y expandido, cambiar el jalón y el tiempo, un motivo de bloqueo, replantear un punto cerca y lejos, y las tolerancias.
 - Demo de campo con el RS3 real: queda para el usuario.
 
 ## Dudas abiertas
-- [SUPOSICIÓN: la altura plegada ocupa como máximo el 40 % del alto de la zona del mapa; se ajusta al planificar con las alturas reales de las pastillas.]
-- [SUPOSICIÓN: el orden de prioridad de los motivos de bloqueo (RF-16) es: sin receptor, sin posición, solución no admitida, precisión peor que el límite, inclinación (sin elegir o no lista), jalón no válido, atributos obligatorios, posición fuera del SC.]
+- [SUPOSICIÓN: el orden de prioridad de los motivos de bloqueo (RF-16) es: sin receptor, sin posición, inclinación (sin elegir o no lista), jalón no válido, atributos obligatorios, posición fuera del SC.]
 - [SUPOSICIÓN: el zoom automático del replanteo no baja de la escala en que caben unos 3 m; el plan fija el valor y el ritmo.]
 - [SUPOSICIÓN: la pastilla «Cota» del replanteo abre el diálogo actual de la cota de diseño (con la superficie y el desplazamiento vertical de S042), que se mantiene tal como está.]
 - [SUPOSICIÓN: «En el punto» exige estar dentro de la tolerancia H y, si hay cota de diseño, también de la V; por defecto H es la de S018 (0,025 m).]
