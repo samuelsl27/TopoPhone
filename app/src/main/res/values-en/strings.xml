@@ -3796,4 +3796,9 @@
     <string name="localization_notice_crs_used">CRS applied: the project now has the active localization and %1$d GNSS points changed.</string>
     <string name="localization_notice_crs_other_datum">That CRS uses another datum than the project: nothing changes.</string>
     <string name="my_crs_localized_mark">Localized</string>
+    <string name="field_sheet_expand">Expand</string>
+    <string name="field_sheet_fold">Fold</string>
+    <string name="field_sheet_handle">Field sheet</string>
+    <string name="field_sheet_state_folded">Folded</string>
+    <string name="field_sheet_state_expanded">Expanded</string>
 </resources>

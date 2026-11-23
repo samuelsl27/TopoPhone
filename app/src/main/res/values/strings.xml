@@ -3808,4 +3808,9 @@
     <string name="localization_notice_crs_used">SC aplicado: el proyecto queda con la localización activa y han cambiado %1$d puntos GNSS.</string>
     <string name="localization_notice_crs_other_datum">Ese SC es de otro datum que el del proyecto: no se cambia nada.</string>
     <string name="my_crs_localized_mark">Localizado</string>
+    <string name="field_sheet_expand">Expandir</string>
+    <string name="field_sheet_fold">Plegar</string>
+    <string name="field_sheet_handle">Hoja de campo</string>
+    <string name="field_sheet_state_folded">Plegada</string>
+    <string name="field_sheet_state_expanded">Expandida</string>
 </resources>
