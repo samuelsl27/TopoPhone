@@ -26,6 +26,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.CadProjection
 import es.topophone.core.survey.CadProjector
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.cad.CadDrawingImporter
 import es.topophone.data.cad.CadImportFailure
 import es.topophone.data.cad.CadImportResult
@@ -260,7 +261,13 @@ class CadImportViewModel @Inject constructor(
             null,
             null,
         )
-        when (val result = CadProjector(project.crs, options).convert(corners)) {
+        when (
+            val result = CadProjector(
+                project.crs,
+                options,
+                terrain = TerrainView.of(project.terrain, project.crs) ?: TerrainView.GRID,
+            ).convert(corners)
+        ) {
             is CadProjection.Rejected -> mutable.update {
                 it.copy(extent = null, outsideArea = true, distanceKm = null, farWarning = false)
             }
@@ -298,6 +305,7 @@ class CadImportViewModel @Inject constructor(
                     options = current.options,
                     openStream = { source.open() ?: throw IOException("No se puede abrir el fichero") },
                     onProgress = { read -> mutable.update { it.copy(importBytes = read) } },
+                    terrain = project.terrain, // S058/RF-17
                 )
                 when (result) {
                     is CadImportResult.Imported -> {

@@ -589,6 +589,7 @@ class GpkgImportViewModel @Inject constructor(
                     options = GpkgImportOptions(choices, current.useElevations, area),
                     session = opened,
                     onProgress = { done, total -> mutable.update { it.copy(importDone = done, importTotal = total) } },
+                    terrain = project.terrain, // S058/RF-17
                 )
                 when (result) {
                     is GpkgImportResult.Imported -> {
@@ -683,7 +684,7 @@ class GpkgImportViewModel @Inject constructor(
                 for (row in rows) {
                     val source = row.effectiveSource ?: continue
                     val index = indexes[row.info.table] ?: continue
-                    val count = scan.count(index, source, project.crs, area)
+                    val count = scan.count(index, source, project.crs, area, project.terrain)
                     objects += count.inZone
                     if (count.exceeded || objects > maxObjects) {
                         exceeded = true
@@ -779,7 +780,7 @@ class GpkgImportViewModel @Inject constructor(
                 if (!row.marked || index == null || source == null || index.size == 0) {
                     return@map row.copy(extent = null, outsideArea = false, distanceKm = null)
                 }
-                val extent = scan.extent(index, source, project.crs)
+                val extent = scan.extent(index, source, project.crs, project.terrain)
                 val km = extent?.let { e -> center?.let { c -> scan.distanceToCenterM(e, project.crs, c) } }?.div(METRES_PER_KM)
                 row.copy(extent = extent, outsideArea = extent == null, distanceKm = km)
             }

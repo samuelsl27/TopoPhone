@@ -72,7 +72,9 @@ class SurfaceImporterTest {
         importer: SurfaceImporter = importer(),
         progress: (Long) -> Unit = {},
     ): SurfaceImportResult = runBlocking {
-        importer.import(project, ProjectCrs.ETRS89_UTM30, file, index, source, unit, { ByteArrayInputStream(fixture(file)) }, progress)
+        importer.import(project, ProjectCrs.ETRS89_UTM30, file, index, source, unit, {
+            ByteArrayInputStream(fixture(file))
+        }, onProgress = progress)
     }
 
     private fun imported(result: SurfaceImportResult) = result.shouldBeInstanceOf<SurfaceImportResult.Imported>()

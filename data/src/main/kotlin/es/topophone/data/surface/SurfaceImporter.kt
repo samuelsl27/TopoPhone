@@ -9,10 +9,12 @@ import es.topophone.core.model.cad.CadIgnoredReason
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.model.surface.SurfaceExtent
 import es.topophone.core.model.surface.SurfaceTileCodec
 import es.topophone.core.survey.SurfaceProjection
 import es.topophone.core.survey.SurfaceProjector
+import es.topophone.core.survey.TerrainView
 import es.topophone.core.survey.TinTiler
 import es.topophone.data.io.CountingInputStream
 import java.io.InputStream
@@ -92,6 +94,8 @@ class SurfaceImporter(
         source: CadSourceCrs,
         unit: LinearUnit,
         openStream: () -> InputStream,
+        /** S058/RF-17: el plano del proyecto en terreno; las coordenadas «del proyecto» del fichero son de terreno y se guardan en cuadrícula. */
+        terrain: TerrainPlane? = null,
         onProgress: (Long) -> Unit = {},
     ): SurfaceImportResult = withContext(Dispatchers.IO) {
         val job = currentCoroutineContext()
@@ -101,7 +105,15 @@ class SurfaceImporter(
             val read = CountingInputStream(openStream(), onProgress, job::ensureActive).use { LandXmlReader.read(it, surfaceIndex) }
             job.ensureActive()
             if (read == null || read.triangleCount == 0) return@withContext SurfaceImportResult.Failed(SurfaceImportFailure.NO_SURFACE)
-            val converted = when (val projection = SurfaceProjector(crs, source, unit).convert(read.easting, read.northing, read.height)) {
+            val converted = when (
+                val projection = SurfaceProjector(
+                    crs,
+                    source,
+                    unit,
+                    terrain =
+                    TerrainView.of(terrain, crs) ?: TerrainView.GRID,
+                ).convert(read.easting, read.northing, read.height)
+            ) {
                 is SurfaceProjection.Rejected -> return@withContext SurfaceImportResult.Failed(projection.reason.toFailure())
                 is SurfaceProjection.Converted -> projection
             }

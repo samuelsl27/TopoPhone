@@ -31,6 +31,7 @@ import es.topophone.core.survey.HeightConversion
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.core.survey.RasterFootprint
 import es.topophone.core.survey.SourceHeights
+import es.topophone.core.survey.TerrainView
 import es.topophone.core.survey.Undulation
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.surface.RasterImportFailure
@@ -307,6 +308,7 @@ class RasterImportViewModel @Inject constructor(
                 header.stepY,
                 header.columns,
                 header.rows,
+                TerrainView.of(project.terrain, project.crs) ?: TerrainView.GRID, // S058/RF-17
             )
         ) {
             is RasterFootprint.Outside -> mutable.update {
@@ -383,6 +385,7 @@ class RasterImportViewModel @Inject constructor(
                     fileName = source.name,
                     options = RasterImportOptions(current.source, current.unit, current.heightSystem),
                     onProgress = { rows, total -> mutable.update { it.copy(importRows = rows, importTotalRows = total) } },
+                    terrain = project.terrain, // S058/RF-17
                 )
                 when (result) {
                     is RasterImportResult.Imported -> {

@@ -33,6 +33,8 @@ class CadProjector(
     private val crs: ProjectCrs,
     private val options: CadImportOptions,
     private val calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
+    /** El paso de terreno a cuadrícula del proyecto: «las coordenadas del proyecto» de un fichero son de terreno y se guardan en cuadrícula (S058/RF-17). */
+    private val terrain: TerrainView = TerrainView.GRID,
 ) {
     private val metres = options.unit.metres
     private val geographicProject = !crs.isProjected
@@ -54,8 +56,11 @@ class CadProjector(
     private fun convertVertex(x: Double, y: Double, east: DoubleArray, north: DoubleArray, i: Int): CadIgnoredReason? {
         return when (val source = options.source) {
             CadSourceCrs.Project -> {
-                val e = if (geographicProject) x else x * metres
-                val n = if (geographicProject) y else y * metres
+                val fileE = if (geographicProject) x else x * metres
+                val fileN = if (geographicProject) y else y * metres
+                val grid = if (geographicProject) null else terrain.toGrid(fileE, fileN)
+                val e = grid?.easting ?: fileE
+                val n = grid?.northing ?: fileN
                 val ground = GroundPosition.of(crs, e, n) ?: return CadIgnoredReason.OUTSIDE_ED50_GRID
                 if (!crs.containsPosition(ground.first, ground.second)) return CadIgnoredReason.OUTSIDE_CRS_AREA
                 east[i] = e

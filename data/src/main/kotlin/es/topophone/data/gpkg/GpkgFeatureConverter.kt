@@ -16,6 +16,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.survey.CadProjection
 import es.topophone.core.survey.CadProjector
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TerrainView
 
 /** Lo que sale de pasar un objeto del GeoPackage al sistema del proyecto (S048/RF-11, RF-17, RF-18). */
 sealed interface GpkgConversion {
@@ -36,6 +37,8 @@ class GpkgFeatureConverter(
     crs: ProjectCrs,
     useElevations: Boolean,
     calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
+    /** S058/RF-17: el paso de terreno a cuadrícula del proyecto; las coordenadas «del proyecto» de una capa son de terreno. */
+    terrain: TerrainView = TerrainView.GRID,
 ) {
     // Las coordenadas de una capa en un SC de la biblioteca vienen en la unidad de ese SC (S057/RF-3); las de España, en metros.
     private val projector = CadProjector(
@@ -46,6 +49,7 @@ class GpkgFeatureConverter(
             useElevations = useElevations,
         ),
         calculator,
+        terrain,
     )
 
     /**

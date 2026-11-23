@@ -14,10 +14,12 @@ import es.topophone.core.model.alignment.VerticalVertex
 import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.survey.AlignmentDraft
 import es.topophone.core.survey.AlignmentProjection
 import es.topophone.core.survey.AlignmentProjector
 import es.topophone.core.survey.ProfileValidator
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.io.CountingInputStream
 import java.io.InputStream
 import kotlinx.coroutines.CancellationException
@@ -108,6 +110,8 @@ class AlignmentImporter(private val repository: AlignmentRepository, private val
         source: CadSourceCrs,
         unit: LinearUnit,
         openStream: () -> InputStream,
+        /** S058/RF-17: el plano del proyecto en terreno; el eje «del proyecto» del fichero es de terreno y se guarda en cuadrícula. */
+        terrain: TerrainPlane? = null,
         onProgress: (Long) -> Unit = {},
     ): AlignmentImportResult = withContext(Dispatchers.IO) {
         val job = currentCoroutineContext()
@@ -115,7 +119,7 @@ class AlignmentImporter(private val repository: AlignmentRepository, private val
             val reads = CountingInputStream(openStream(), onProgress, job::ensureActive).use { LandXmlAlignmentReader.read(it, indices) }
             job.ensureActive()
             if (reads.isEmpty()) return@withContext AlignmentImportResult.Failed(AlignmentImportFailure.NO_ALIGNMENT)
-            val projector = AlignmentProjector(crs, source, unit)
+            val projector = AlignmentProjector(crs, source, unit, terrain = TerrainView.of(terrain, crs) ?: TerrainView.GRID)
             val toSave = mutableListOf<Pending>()
             val ignored = mutableListOf<IgnoredAlignment>()
             for (read in reads) {

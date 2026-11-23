@@ -9,9 +9,11 @@ import es.topophone.core.model.cad.GpkgLayerInfo
 import es.topophone.core.model.cad.ImportArea
 import es.topophone.core.model.project.CentralPoint
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.survey.ImportAreaFilter
 import es.topophone.core.survey.LayerBox
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.cad.FeatureSession
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
@@ -115,9 +117,16 @@ class GeoPackageScan(
     }
 
     /** La extensión de la capa en el sistema del proyecto (de las esquinas de su envolvente), o null si no cabe en él. */
-    fun extent(index: GpkgLayerIndex, source: CadSourceCrs, crs: ProjectCrs): CadExtent? {
+    fun extent(index: GpkgLayerIndex, source: CadSourceCrs, crs: ProjectCrs, terrain: TerrainPlane? = null): CadExtent? {
         val box = index.bounds ?: return null
-        val converter = GpkgFeatureConverter(source, crs, useElevations = false, calculator = calculator)
+        val converter = GpkgFeatureConverter(
+            source,
+            crs,
+            useElevations = false,
+            calculator = calculator,
+            terrain =
+            TerrainView.of(terrain, crs) ?: TerrainView.GRID,
+        )
         val corners = listOf(box.minX to box.minY, box.minX to box.maxY, box.maxX to box.minY, box.maxX to box.maxY)
             .mapNotNull { (x, y) -> converter.project(x, y) }
         if (corners.isEmpty()) return null
@@ -135,30 +144,42 @@ class GeoPackageScan(
      * leer geometrías. Con un círculo, los candidatos del prefiltro que tras pasar al proyecto tienen algún vértice dentro; los que se
      * ignorarían (curvas, fuera del ámbito…) se cuentan aparte. Cancelable; se detiene al pasar de [maxObjects].
      */
-    suspend fun count(index: GpkgLayerIndex, source: CadSourceCrs, crs: ProjectCrs, area: ImportArea): GpkgZoneCount =
-        withContext(Dispatchers.IO) {
-            val filter = (area as? ImportArea.Circle)?.let { ImportAreaFilter.of(crs, it, calculator) }
-            if (filter == null) return@withContext GpkgZoneCount(index.size, emptyMap(), exceeded = index.size > maxObjects)
-            val context = currentCoroutineContext()
-            val converter = GpkgFeatureConverter(source, crs, useElevations = false, calculator = calculator)
-            val ids = index.idsIn(filter.candidateBox(source))
-            val ignored = HashMap<GpkgIgnoredReason, Int>()
-            var inZone = 0
-            var seen = 0
-            try {
-                session.forEachGeometry(index.layer, ids) { _, blob ->
-                    context.checkEvery(seen++)
-                    when (val conversion = converter.convert(blob)) {
-                        is GpkgConversion.Ignored -> ignored.merge(conversion.reason, 1, Int::plus)
-                        is GpkgConversion.Converted -> if (conversion.parts.any { filter.anyInside(it.easting, it.northing) }) inZone++
-                    }
-                    if (inZone > maxObjects) throw StopCounting()
+    suspend fun count(
+        index: GpkgLayerIndex,
+        source: CadSourceCrs,
+        crs: ProjectCrs,
+        area: ImportArea,
+        terrain: TerrainPlane? = null,
+    ): GpkgZoneCount = withContext(Dispatchers.IO) {
+        val filter = (area as? ImportArea.Circle)?.let { ImportAreaFilter.of(crs, it, calculator) }
+        if (filter == null) return@withContext GpkgZoneCount(index.size, emptyMap(), exceeded = index.size > maxObjects)
+        val context = currentCoroutineContext()
+        val converter = GpkgFeatureConverter(
+            source,
+            crs,
+            useElevations = false,
+            calculator = calculator,
+            terrain =
+            TerrainView.of(terrain, crs) ?: TerrainView.GRID,
+        )
+        val ids = index.idsIn(filter.candidateBox(source))
+        val ignored = HashMap<GpkgIgnoredReason, Int>()
+        var inZone = 0
+        var seen = 0
+        try {
+            session.forEachGeometry(index.layer, ids) { _, blob ->
+                context.checkEvery(seen++)
+                when (val conversion = converter.convert(blob)) {
+                    is GpkgConversion.Ignored -> ignored.merge(conversion.reason, 1, Int::plus)
+                    is GpkgConversion.Converted -> if (conversion.parts.any { filter.anyInside(it.easting, it.northing) }) inZone++
                 }
-            } catch (e: StopCounting) {
-                return@withContext GpkgZoneCount(inZone, ignored, exceeded = true)
+                if (inZone > maxObjects) throw StopCounting()
             }
-            GpkgZoneCount(inZone, ignored, exceeded = false)
+        } catch (e: StopCounting) {
+            return@withContext GpkgZoneCount(inZone, ignored, exceeded = true)
         }
+        GpkgZoneCount(inZone, ignored, exceeded = false)
+    }
 
     private class IndexBuilder(capacity: Int) {
         private var ids = LongArray(capacity.coerceAtLeast(16))

@@ -47,6 +47,8 @@ class RasterElevation(
     private val tiles: RasterTileSource,
     private val peninsulaGeoid: () -> GeoidModel = { GeoidModels.egm08RednapPeninsula },
     private val canariasGeoid: () -> GeoidModel = { GeoidModels.egm08RednapCanarias },
+    /** S058/RF-17: un ráster «en las coordenadas del proyecto» de un proyecto en terreno está en terreno. */
+    private val terrain: TerrainView = TerrainView.GRID,
 ) : SurfaceHeightSource {
     private val info: RasterInfo = requireNotNull(raster.raster) { "La superficie no es un ráster" }.also {
         require(raster.kind == SurfaceKind.RASTER) { "La superficie no es un ráster" }
@@ -99,8 +101,9 @@ class RasterElevation(
         val y: Double
         when (val s = source) {
             CadSourceCrs.Project -> {
-                x = easting
-                y = northing
+                val ground = terrain.coordinates(easting, northing)
+                x = ground.easting
+                y = ground.northing
             }
             is CadSourceCrs.Utm -> {
                 val (lat, lon) = latLonIn(s.datum, datumLat, datumLon, etrs) ?: return SurfaceHeight.Outside

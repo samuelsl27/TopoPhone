@@ -340,7 +340,7 @@ object DatabaseModule {
         ActiveSurfaceProvider(
             repository,
             projectContext = { id ->
-                projects.observe(id).map { project -> project?.let { RasterProjectContext(it.crs, it.heightSystem) } }
+                projects.observe(id).map { project -> project?.let { RasterProjectContext(it.crs, it.heightSystem, it.terrain) } }
             },
         )
 

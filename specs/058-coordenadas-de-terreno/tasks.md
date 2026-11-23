@@ -55,7 +55,7 @@
       Hecho cuando: `TerrainCsvTest` importa un CSV de terreno y los puntos quedan en cuadrícula, y el CSV exportado se vuelve a importar en el mismo proyecto con los mismos puntos.
 - [x] T22. DXF: exportar en terreno con su comentario de cabecera. (RF-14)
       Hecho cuando: `TerrainDxfTest` exporta un dibujo con puntos y líneas en terreno y el comentario lleva el origen y el factor.
-- [ ] T23. Importar DXF, superficies, ejes, rásteres y las demás capas: «las coordenadas del proyecto» son de terreno y el SC del fichero se respeta. (RF-17)
+- [x] T23. Importar DXF, superficies, ejes, rásteres y las demás capas: «las coordenadas del proyecto» son de terreno y el SC del fichero se respeta. (RF-17)
       Hecho cuando: `TerrainImportTest` importa un DXF «del proyecto» en terreno y queda en cuadrícula, e importa uno con SC declarado sin cambio.
 - [ ] T24. Shapefile y GeoPackage siempre en cuadrícula con su aviso en pantalla, y KML sin cambios. (RF-15, RF-16)
       Hecho cuando: `TerrainExportNoticeTest` exporta con el proyecto en terreno, los ficheros llevan la cuadrícula y las pantallas dicen que va en cuadrícula, y KML sale igual.

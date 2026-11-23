@@ -99,7 +99,7 @@ class CadDrawingImporterTest {
         importer: CadDrawingImporter = importer(),
         progress: (Long) -> Unit = {},
     ): CadImportResult = runBlocking {
-        importer.import(project, crs, file, options, { ByteArrayInputStream(fixture(file)) }, progress)
+        importer.import(project, crs, file, options, { ByteArrayInputStream(fixture(file)) }, onProgress = progress)
     }
 
     private fun imported(result: CadImportResult) = result.shouldBeInstanceOf<CadImportResult.Imported>()

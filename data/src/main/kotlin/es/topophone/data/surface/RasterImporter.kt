@@ -12,10 +12,12 @@ import es.topophone.core.model.cad.CadSourceCrs
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.model.surface.RasterInfo
 import es.topophone.core.model.surface.RasterTileCodec
 import es.topophone.core.survey.RasterFootprint
 import es.topophone.core.survey.RasterTiler
+import es.topophone.core.survey.TerrainView
 import java.io.Closeable
 import java.io.File
 import java.io.IOException
@@ -221,6 +223,8 @@ class RasterImporter(
         staged: StagedRaster,
         fileName: String,
         options: RasterImportOptions,
+        /** S058/RF-17: el plano del proyecto en terreno; un ráster «en las coordenadas del proyecto» está en terreno. */
+        terrain: TerrainPlane? = null,
         onProgress: (Long, Long) -> Unit = { _, _ -> },
     ): RasterImportResult = withContext(Dispatchers.IO) {
         val job = currentCoroutineContext()
@@ -242,6 +246,7 @@ class RasterImporter(
                         header.stepY,
                         header.columns,
                         header.rows,
+                        TerrainView.of(terrain, crs) ?: TerrainView.GRID,
                     )
                 ) {
                     is RasterFootprint.Outside -> return@withContext RasterImportResult.Failed(footprint.reason.toFailure())

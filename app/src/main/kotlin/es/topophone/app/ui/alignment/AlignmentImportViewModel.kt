@@ -243,6 +243,7 @@ class AlignmentImportViewModel @Inject constructor(
                     unit = current.unit,
                     openStream = { source.open() ?: throw IOException("No se puede abrir el fichero") },
                     onProgress = { read -> mutable.update { it.copy(importBytes = read) } },
+                    terrain = project.terrain, // S058/RF-17
                 )
                 when (result) {
                     is AlignmentImportResult.Done -> {

@@ -108,7 +108,7 @@ class RasterImporterTest {
         crs: ProjectCrs = ProjectCrs.ETRS89_UTM30,
         progress: (Long, Long) -> Unit = { _, _ -> },
     ): RasterImportResult = runBlocking {
-        importer.import(project, crs, staged, name, RasterImportOptions(source, unit, heightSystem), progress)
+        importer.import(project, crs, staged, name, RasterImportOptions(source, unit, heightSystem), onProgress = progress)
     }
 
     private fun imported(result: RasterImportResult) = result.shouldBeInstanceOf<RasterImportResult.Imported>()

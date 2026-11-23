@@ -65,6 +65,7 @@ sealed interface RasterFootprint {
             stepY: Double,
             columns: Int,
             rows: Int,
+            terrain: TerrainView = TerrainView.GRID,
         ): RasterFootprint {
             val x0 = originX
             val x1 = originX + (columns - 1) * stepX
@@ -74,7 +75,14 @@ sealed interface RasterFootprint {
             val k = (source as? CadSourceCrs.Library)?.takeIf { it.definition.projected }?.definition?.unitMetres ?: 1.0
             val e = doubleArrayOf(x0 * k, x1 * k, x1 * k, x0 * k)
             val n = doubleArrayOf(y0 * k, y0 * k, y1 * k, y1 * k)
-            return when (val projection = SurfaceProjector(crs, source, LinearUnit.METRE).convert(e, n, DoubleArray(4))) {
+            return when (
+                val projection = SurfaceProjector(
+                    crs,
+                    source,
+                    LinearUnit.METRE,
+                    terrain = terrain,
+                ).convert(e, n, DoubleArray(4))
+            ) {
                 is SurfaceProjection.Rejected -> Outside(projection.reason)
                 is SurfaceProjection.Converted ->
                     Inside(

@@ -15,8 +15,10 @@ import es.topophone.core.model.cad.DesignLayer
 import es.topophone.core.model.cad.DesignLayerKind
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.survey.CadProjection
 import es.topophone.core.survey.CadProjector
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.io.CountingInputStream
 import java.io.InputStream
 import java.util.UUID
@@ -78,6 +80,8 @@ class CadDrawingImporter(
         fileName: String,
         options: CadImportOptions,
         openStream: () -> InputStream,
+        /** S058/RF-17: el plano del proyecto en terreno; «las coordenadas del proyecto» del fichero son de terreno y se guardan en cuadrícula. */
+        terrain: TerrainPlane? = null,
         onProgress: (Long) -> Unit = {},
     ): CadImportResult = withContext(Dispatchers.IO) {
         val job = currentCoroutineContext()
@@ -96,7 +100,13 @@ class CadDrawingImporter(
         try {
             writing { repository.begin(drawing) }
             begun = true
-            val sink = ImportSink(drawingId, CadProjector(crs, options), geographic = !crs.isProjected, onCheck = job::ensureActive)
+            val sink =
+                ImportSink(
+                    drawingId,
+                    CadProjector(crs, options, terrain = TerrainView.of(terrain, crs) ?: TerrainView.GRID),
+                    geographic = !crs.isProjected,
+                    onCheck = job::ensureActive,
+                )
             val read = CountingInputStream(openStream(), onProgress, job::ensureActive).use { DxfReader.read(it, options.unit, sink) }
             job.ensureActive()
             sink.flushAll()

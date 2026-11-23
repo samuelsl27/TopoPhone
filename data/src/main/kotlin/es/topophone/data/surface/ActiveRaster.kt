@@ -2,6 +2,7 @@ package es.topophone.data.surface
 
 import es.topophone.core.model.project.HeightSystem
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.model.surface.RasterInfo
 import es.topophone.core.model.surface.RasterTile
 import es.topophone.core.model.surface.Surface
@@ -9,6 +10,7 @@ import es.topophone.core.model.surface.SurfaceHeight
 import es.topophone.core.model.surface.SurfaceHeightSource
 import es.topophone.core.survey.RasterElevation
 import es.topophone.core.survey.RasterTileSource
+import es.topophone.core.survey.TerrainView
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
@@ -22,7 +24,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /** Lo que un ráster necesita saber del proyecto para dar su cota: el sistema de coordenadas y el de alturas (S045/RF-9, RF-10). */
-data class RasterProjectContext(val crs: ProjectCrs, val heightSystem: HeightSystem)
+data class RasterProjectContext(val crs: ProjectCrs, val heightSystem: HeightSystem, val terrain: TerrainPlane? = null)
 
 /**
  * Un ráster activo en memoria (S045, plan A4). Al crearlo no se lee ninguna celda: los bloques se leen a demanda con [loadTile] y se
@@ -69,7 +71,13 @@ class ActiveRaster(
     @Volatile private var lastTile = -1
 
     private val elevation =
-        RasterElevation(context.crs, context.heightSystem, surface, RasterTileSource { column, row -> tile(column, row) })
+        RasterElevation(
+            context.crs,
+            context.heightSystem,
+            surface,
+            RasterTileSource { column, row -> tile(column, row) },
+            terrain = TerrainView.of(context.terrain, context.crs) ?: TerrainView.GRID, // S058/RF-17
+        )
 
     init {
         scope.launch { for (request in requests) handle(request) }

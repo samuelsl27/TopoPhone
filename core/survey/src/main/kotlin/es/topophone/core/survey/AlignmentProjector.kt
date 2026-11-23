@@ -56,6 +56,7 @@ class AlignmentProjector(
     private val source: CadSourceCrs = CadSourceCrs.Project,
     private val unit: LinearUnit = LinearUnit.METRE,
     private val calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
+    private val terrain: TerrainView = TerrainView.GRID,
 ) {
     private val metres = unit.metres
 
@@ -67,8 +68,10 @@ class AlignmentProjector(
         if (problem != null) return AlignmentProjection.Rejected(problem)
         val profile = draft.profile?.map { scale(it) }
 
-        val projector = CadProjector(crs, CadImportOptions(source = source, unit = LinearUnit.METRE, useElevations = false), calculator)
-        return if (source == CadSourceCrs.Project) {
+        val projector =
+            CadProjector(crs, CadImportOptions(source = source, unit = LinearUnit.METRE, useElevations = false), calculator, terrain)
+        // S058/RF-17: un eje «del proyecto» de un proyecto en terreno se guarda en cuadrícula por la aproximación, igual que el de otro SC.
+        return if (source == CadSourceCrs.Project && !terrain.isTerrain) {
             val samples = AlignmentSampler.sample(scaled, EXTENT_SAGITTA_M, CHECK_STEP_M)
             if (!inside(projector, samples)) return AlignmentProjection.Rejected(AlignmentIssue.OutsideCrsArea)
             finish(scaled, profile, draft.profileOmission, samples, approximated = false)

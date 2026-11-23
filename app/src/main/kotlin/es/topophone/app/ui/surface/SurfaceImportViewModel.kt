@@ -20,6 +20,7 @@ import es.topophone.core.model.project.ProjectCrs
 import es.topophone.core.model.surface.SurfaceExtent
 import es.topophone.core.survey.CadPlacement
 import es.topophone.core.survey.SurfaceProjector
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.project.ProjectRepository
 import es.topophone.data.surface.SurfaceImportFailure
 import es.topophone.data.surface.SurfaceImportResult
@@ -259,7 +260,13 @@ class SurfaceImportViewModel @Inject constructor(
         val project = project ?: return
         val current = mutable.value
         val raw = current.chosen ?: return
-        val box = SurfaceProjector(project.crs, current.source, current.unit)
+        val box = SurfaceProjector(
+            project.crs,
+            current.source,
+            current.unit,
+            terrain =
+            TerrainView.of(project.terrain, project.crs) ?: TerrainView.GRID,
+        )
             .cornersExtent(raw.minEasting, raw.maxEasting, raw.minNorthing, raw.maxNorthing)
         if (box == null) {
             mutable.update { it.copy(extent = null, outsideArea = true, distanceKm = null, farWarning = false) }
@@ -294,6 +301,7 @@ class SurfaceImportViewModel @Inject constructor(
                     unit = current.unit,
                     openStream = { source.open() ?: throw IOException("No se puede abrir el fichero") },
                     onProgress = { read -> mutable.update { it.copy(importBytes = read) } },
+                    terrain = project.terrain, // S058/RF-17
                 )
                 when (result) {
                     is SurfaceImportResult.Imported -> {

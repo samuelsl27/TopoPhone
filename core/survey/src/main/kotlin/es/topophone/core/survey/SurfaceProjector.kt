@@ -29,8 +29,9 @@ class SurfaceProjector(
     private val source: CadSourceCrs = CadSourceCrs.Project,
     private val unit: LinearUnit = LinearUnit.METRE,
     calculator: ProjectPositionCalculator = ProjectPositionCalculator(),
+    terrain: TerrainView = TerrainView.GRID,
 ) {
-    private val projector = CadProjector(crs, CadImportOptions(source = source, unit = unit, useElevations = true), calculator)
+    private val projector = CadProjector(crs, CadImportOptions(source = source, unit = unit, useElevations = true), calculator, terrain)
 
     /** Pasa los vértices de la superficie al proyecto. [easting], [northing] y [height] están en la unidad del fichero. */
     fun convert(easting: DoubleArray, northing: DoubleArray, height: DoubleArray): SurfaceProjection {

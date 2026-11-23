@@ -18,9 +18,11 @@ import es.topophone.core.model.cad.GpkgValue
 import es.topophone.core.model.cad.ImportArea
 import es.topophone.core.model.project.LinearUnit
 import es.topophone.core.model.project.ProjectCrs
+import es.topophone.core.model.project.TerrainPlane
 import es.topophone.core.survey.ImportAreaFilter
 import es.topophone.core.survey.LayerBox
 import es.topophone.core.survey.ProjectPositionCalculator
+import es.topophone.core.survey.TerrainView
 import es.topophone.data.cad.CadChunkWriter
 import es.topophone.data.cad.CadDrawingImporter
 import es.topophone.data.cad.CadRepository
@@ -82,6 +84,8 @@ class GeoPackageImporter(
         fileName: String,
         options: GpkgImportOptions,
         session: FeatureSession,
+        /** S058/RF-17: el plano del proyecto en terreno; las coordenadas «del proyecto» de una capa son de terreno y se guardan en cuadrícula. */
+        terrain: TerrainPlane? = null,
         onProgress: (done: Long, total: Long) -> Unit = { _, _ -> },
     ): GpkgImportResult = withContext(Dispatchers.IO) {
         val job = currentCoroutineContext()
@@ -101,7 +105,7 @@ class GeoPackageImporter(
         try {
             writing { repository.begin(drawing) }
             begun = true
-            val run = Run(drawingId, crs, options, session, onProgress) { job.ensureActive() }
+            val run = Run(drawingId, crs, options, session, onProgress, terrain) { job.ensureActive() }
             run.execute()
             peakBufferedBytes = run.peakBuffered
             if (run.importedTotal == 0) {
@@ -162,6 +166,7 @@ class GeoPackageImporter(
         private val options: GpkgImportOptions,
         private val session: FeatureSession,
         private val onProgress: (Long, Long) -> Unit,
+        private val terrain: TerrainPlane?,
         private val check: () -> Unit,
     ) {
         private val writer = CadChunkWriter(!crs.isProjected, maxBufferedBytes) { batch -> write { repository.addChunks(batch) } }
@@ -188,7 +193,13 @@ class GeoPackageImporter(
             onProgress(0, total)
             for (choice in options.layers) {
                 val layer = choice.layer
-                val converter = GpkgFeatureConverter(choice.source, crs, options.useElevations, calculator)
+                val converter = GpkgFeatureConverter(
+                    choice.source,
+                    crs,
+                    options.useElevations,
+                    calculator,
+                    TerrainView.of(terrain, crs) ?: TerrainView.GRID,
+                )
                 val nameIndex = choice.nameField?.let { field -> layer.columns.indexOfFirst { it.name == field } }?.takeIf { it >= 0 }
                 val columns = layer.columns.map { it.name }
                 val ignored = HashMap<GpkgIgnoredReason, Int>()
