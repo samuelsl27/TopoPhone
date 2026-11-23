@@ -9,6 +9,10 @@ import es.topophone.core.model.localization.LocalizationParams
 import es.topophone.core.model.localization.LocalizationStatus
 import es.topophone.core.model.localization.PairResidualValues
 import es.topophone.core.model.project.ProjectCrsText
+import es.topophone.core.survey.localization.LocalizationApplier
+import es.topophone.core.survey.localization.LocalizationFailure
+import es.topophone.core.survey.localization.LocalizationOutcome
+import es.topophone.core.survey.localization.LocalizationSolver
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.toProject
 import java.util.UUID
@@ -17,6 +21,30 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+
+/** Qué pasó al aplicar una localización (S039/RF-14, RF-22). */
+sealed interface ApplyResult {
+    /** La localización quedó activa y [pointsChanged] puntos GNSS cambiaron sus coordenadas mostradas. */
+    data class Applied(val localizationId: String, val pointsChanged: Int) : ApplyResult
+
+    /** Una localización archivada de pares pasó al borrador y falta aplicarla (RF-21). */
+    data class DraftReady(val localizationId: String) : ApplyResult
+
+    /** No hay borrador que aplicar. */
+    data object NoDraft : ApplyResult
+
+    /** El borrador no se puede calcular (RF-12). */
+    data class CannotSolve(val reason: LocalizationFailure) : ApplyResult
+
+    /** El proyecto está en coordenadas de terreno (RF-22). */
+    data object TerrainActive : ApplyResult
+
+    /** El SC o las alturas del proyecto ya no son los del borrador: sus pares no valen. */
+    data object StaleCrs : ApplyResult
+
+    /** La localización no existe o no se puede aplicar. */
+    data object NotFound : ApplyResult
+}
 
 /**
  * Las localizaciones de un proyecto (S039). Cada proyecto tiene como mucho un borrador, una localización activa y las archivadas (RF-16, RF-21). Todo
@@ -49,6 +77,32 @@ interface LocalizationRepository {
 
     /** Borra el borrador y sus pares. */
     suspend fun discardDraft(projectId: String)
+
+    /** Crea el borrador desde la localización activa (sus pares y ajustes) para editarla sin tocar la activa (RF-16); nada si ya hay borrador. */
+    suspend fun startDraft(projectId: String)
+
+    /** Cuántos puntos GNSS cambiarían sus coordenadas mostradas al aplicar o quitar una localización (RF-14). */
+    suspend fun affectedPoints(projectId: String): Int
+
+    /**
+     * Aplica el borrador (RF-14, RF-16, RF-17): lo calcula, lo deja como la localización activa con la fecha y hora, pasa la activa anterior al
+     * historial y reescribe las coordenadas de los puntos GNSS no editados, todo en una transacción (RNF-T6).
+     */
+    suspend fun apply(projectId: String, nowMs: Long = System.currentTimeMillis()): ApplyResult
+
+    /** Quita la localización activa: pasa al historial y los puntos GNSS vuelven a sus coordenadas sin localizar (RF-21). Devuelve cuántos cambiaron. */
+    suspend fun remove(projectId: String): Int
+
+    /** Reactiva una localización archivada: una de pares pasa al borrador para volver a aplicarla; la de un SC guardado se aplica ya (RF-21, RF-28). */
+    suspend fun reactivate(projectId: String, localizationId: String, nowMs: Long = System.currentTimeMillis()): ApplyResult
+
+    /** Deja activa una localización sin pares con estos parámetros: la de un SC guardado (RF-28). */
+    suspend fun applyParams(
+        projectId: String,
+        name: String,
+        params: LocalizationParams,
+        nowMs: Long = System.currentTimeMillis(),
+    ): ApplyResult
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -125,11 +179,133 @@ class RoomLocalizationRepository(private val database: TopoPhoneDatabase) : Loca
         }
     }
 
+    override suspend fun startDraft(projectId: String) {
+        database.withTransaction { ensureDraft(projectId) }
+    }
+
+    override suspend fun affectedPoints(projectId: String): Int = dao.gnssCount(projectId)
+
+    override suspend fun apply(projectId: String, nowMs: Long): ApplyResult = database.withTransaction {
+        val project = database.projects().byId(projectId)?.toProject() ?: return@withTransaction ApplyResult.NotFound
+        if (project.terrain != null) return@withTransaction ApplyResult.TerrainActive // RF-22
+        val draft = dao.withStatusNow(projectId, LocalizationStatus.DRAFT.name) ?: return@withTransaction ApplyResult.NoDraft
+        if (draft.crsText != ProjectCrsText.encode(project.crs) || draft.heightSystem != project.heightSystem.name) {
+            return@withTransaction ApplyResult.StaleCrs
+        }
+        val pairs = dao.pairsNow(draft.id)
+        val solution = when (val outcome = LocalizationSolver.solve(pairs.map { it.toPair() }, draft.fixScale)) {
+            is LocalizationOutcome.Failed -> return@withTransaction ApplyResult.CannotSolve(outcome.reason)
+            is LocalizationOutcome.Solved -> outcome.solution
+        }
+        archiveActive(projectId)
+        dao.update(
+            draft.copy(
+                status = LocalizationStatus.ACTIVE.name,
+                appliedAtMs = nowMs,
+                params = solution.params.toText(),
+                rmsH = solution.rmsHorizontal,
+                rmsV = solution.rmsVertical,
+            ),
+        )
+        val residuals = solution.residuals.associateBy { it.pairId }
+        for (row in pairs) {
+            val r = residuals[row.id]
+            dao.updatePair(row.copy(resE = r?.east, resN = r?.north, resV = r?.vertical))
+        }
+        ApplyResult.Applied(draft.id, rewritePoints(projectId, solution.params, draft.id))
+    }
+
+    override suspend fun applyParams(projectId: String, name: String, params: LocalizationParams, nowMs: Long): ApplyResult =
+        database.withTransaction {
+            val project = database.projects().byId(projectId)?.toProject() ?: return@withTransaction ApplyResult.NotFound
+            if (project.terrain != null) return@withTransaction ApplyResult.TerrainActive
+            archiveActive(projectId)
+            val id = UUID.randomUUID().toString()
+            dao.insert(
+                LocalizationEntity(
+                    id = id,
+                    projectId = projectId,
+                    status = LocalizationStatus.ACTIVE.name,
+                    origin = LocalizationOrigin.SAVED_CRS.name,
+                    name = name,
+                    createdAtMs = nowMs,
+                    appliedAtMs = nowMs,
+                    fixScale = false,
+                    residualLimitM = LocalizationLimits.DEFAULT_RESIDUAL_LIMIT_M,
+                    scaleLimit = LocalizationLimits.DEFAULT_SCALE_LIMIT,
+                    crsText = ProjectCrsText.encode(project.crs),
+                    heightSystem = project.heightSystem.name,
+                    params = params.toText(),
+                    rmsH = null,
+                    rmsV = null,
+                ),
+            )
+            ApplyResult.Applied(id, rewritePoints(projectId, params, id))
+        }
+
+    override suspend fun remove(projectId: String): Int = database.withTransaction {
+        if (dao.withStatusNow(projectId, LocalizationStatus.ACTIVE.name) == null) return@withTransaction 0
+        archiveActive(projectId)
+        var changed = 0
+        for (row in dao.gnssPoints(projectId)) {
+            // Vuelven a la medida en el SC sin localizar.
+            dao.setLocalized(row.id, row.measuredEasting ?: continue, row.measuredNorthing ?: continue, row.measuredHeight, null)
+            changed++
+        }
+        changed
+    }
+
+    override suspend fun reactivate(projectId: String, localizationId: String, nowMs: Long): ApplyResult = database.withTransaction {
+        val archived = dao.byId(localizationId)?.takeIf { it.projectId == projectId && it.status == LocalizationStatus.ARCHIVED.name }
+            ?: return@withTransaction ApplyResult.NotFound
+        val params = LocalizationParams.parseOrNull(archived.params) ?: return@withTransaction ApplyResult.NotFound
+        if (archived.origin == LocalizationOrigin.SAVED_CRS.name) {
+            return@withTransaction applyParams(projectId, archived.name.orEmpty(), params, nowMs)
+        }
+        dao.withStatusNow(projectId, LocalizationStatus.DRAFT.name)?.let { dao.delete(it.id) }
+        val id = UUID.randomUUID().toString()
+        dao.insert(
+            archived.copy(id = id, status = LocalizationStatus.DRAFT.name, appliedAtMs = null, params = null, rmsH = null, rmsV = null),
+        )
+        dao.insertPairs(copyPairs(dao.pairsNow(archived.id), id))
+        ApplyResult.DraftReady(id)
+    }
+
+    private fun copyPairs(rows: List<LocalizationPairEntity>, localizationId: String) =
+        rows.map { it.copy(id = UUID.randomUUID().toString(), localizationId = localizationId, resE = null, resN = null, resV = null) }
+
+    private suspend fun archiveActive(projectId: String) {
+        dao.withStatusNow(projectId, LocalizationStatus.ACTIVE.name)?.let { dao.setStatus(it.id, LocalizationStatus.ARCHIVED.name) }
+    }
+
+    /** Localiza las coordenadas mostradas de los puntos GNSS no editados con [params] (RF-17); devuelve cuántos. */
+    private suspend fun rewritePoints(projectId: String, params: LocalizationParams, localizationId: String): Int {
+        var changed = 0
+        for (row in dao.gnssPoints(projectId)) {
+            val e = row.measuredEasting ?: continue
+            val n = row.measuredNorthing ?: continue
+            val (le, ln) = LocalizationApplier.horizontal(params, e, n)
+            val lh = row.measuredHeight?.let { LocalizationApplier.height(params, e, n, it) }
+            dao.setLocalized(row.id, le, ln, lh, localizationId)
+            changed++
+        }
+        return changed
+    }
+
     /** El identificador del borrador del proyecto, creado con el SC y las alturas del proyecto si no existe; null si el proyecto no existe. */
     private suspend fun ensureDraft(projectId: String): String? {
         dao.withStatusNow(projectId, LocalizationStatus.DRAFT.name)?.let { return it.id }
         val project = database.projects().byId(projectId)?.toProject() ?: return null
         val id = UUID.randomUUID().toString()
+        val active = dao.withStatusNow(projectId, LocalizationStatus.ACTIVE.name)?.takeIf { it.origin == LocalizationOrigin.PAIRS.name }
+        if (active != null) {
+            // RF-16: editar con una localización activa parte de la activa y no la toca hasta aplicar.
+            dao.insert(
+                active.copy(id = id, status = LocalizationStatus.DRAFT.name, appliedAtMs = null, params = null, rmsH = null, rmsV = null),
+            )
+            dao.insertPairs(copyPairs(dao.pairsNow(active.id), id))
+            return id
+        }
         dao.insert(
             LocalizationEntity(
                 id = id,
