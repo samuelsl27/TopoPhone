@@ -266,6 +266,8 @@ data class Point(
     val code: PointCode? = null,
     /** La operación, las entradas y los valores con que se calculó un punto de origen [PointOrigin.COGO] (S038/RF-22); null en los demás. */
     val cogo: CogoRef? = null,
+    /** La localización activa cuando se guardó el punto, o con la que se localizó al aplicarla (S039/RF-19); null en los demás. */
+    val localizationId: String? = null,
 ) {
     /** Sin altura elipsoidal no hay altura en ningún sistema (S011/RF-18). */
     val hasHeight: Boolean get() = coordinates.ground.ellipsoidalHeightM != null
