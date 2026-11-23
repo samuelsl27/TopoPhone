@@ -1167,6 +1167,10 @@ fun ProjectViewScreen(
     var designInfoOpen by rememberSaveable { mutableStateOf(false) } // S026/RF-1
     var alignmentsOpen by rememberSaveable { mutableStateOf(false) }
     var bottomInsetPx by remember { mutableIntStateOf(0) }
+    // S060/RF-25: con un replanteo abierto el mapa sigue al jalón, orientado por la marcha y con el zoom al destino.
+    val stakeoutFollowActive = stakeout != null || lineStakeout != null || axisStakeout?.started == true || slopeStake?.started == true
+    val followMarker =
+        LineStakeoutMarkers.of(lineStakeout, lineHighlight) ?: AxisStakeoutMarkers.of(axisStakeout) ?: StakeoutMarkers.of(stakeout)
     SectionScaffold(
         title = project?.name.orEmpty(),
         themeState = themeState,
@@ -1182,6 +1186,14 @@ fun ProjectViewScreen(
     ) { padding ->
         Box(modifier = Modifier.padding(padding).fillMaxSize().testTag(PROJECT_VIEW_TAG)) {
             map(Modifier.fillMaxSize().testTag(PROJECT_MAP_TAG)) { controller = it }
+            StakeoutFollow(
+                controller,
+                stakeoutFollowActive,
+                followMarker?.tip ?: state.rover?.position,
+                followMarker?.design,
+                stakeoutHeadingRad(stakeout, lineStakeout, axisStakeout, slopeStake),
+                Modifier.align(Alignment.TopCenter),
+            ) // S060/RF-25, RF-26
             if (state.mapOffline && !offlineCoverage.covered) { // S037/RF-20: dentro de una fuente completa no hay aviso
                 Text(
                     stringResource(R.string.map_offline),
@@ -1408,7 +1420,7 @@ fun ProjectViewScreen(
         projectLayers.plan,
     )
     LaunchedEffect(controller, bottomInsetPx) { controller?.setBottomInset(bottomInsetPx) } // S010/RF-1
-    controller?.let { FollowRover(it, state, policy, onViewportChanged) }
+    controller?.let { FollowRover(it, state, policy, onViewportChanged, suspended = stakeoutFollowActive) }
     // S011/RF-5: tocar un punto del mapa abre su ficha.
     val openPoint by rememberUpdatedState(onOpenPoint)
     val projectId = project?.id
@@ -1638,6 +1650,7 @@ private fun FollowRover(
     state: ProjectViewUiState,
     policy: CameraPolicy,
     onViewportChanged: (MapViewport) -> Unit,
+    suspended: Boolean = false,
 ) {
     val position = state.rover?.position
     LaunchedEffect(controller, state.viewportLoaded) {
@@ -1650,8 +1663,9 @@ private fun FollowRover(
             controller.execute(policy.onOpen(state.savedViewport))
         }
     }
-    LaunchedEffect(controller, position) {
-        if (position != null) policy.onPosition(position, controller.camera.value)?.let { controller.execute(it) }
+    // Con un replanteo abierto la cámara la lleva el seguimiento del jalón (S060/RF-25).
+    LaunchedEffect(controller, position, suspended) {
+        if (position != null && !suspended) policy.onPosition(position, controller.camera.value)?.let { controller.execute(it) }
     }
     LaunchedEffect(controller) { controller.userGestures.collect { policy.onUserGesture() } }
     LaunchedEffect(controller) {

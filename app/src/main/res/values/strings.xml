@@ -3863,4 +3863,5 @@
     <string name="field_pill_tol_h">Tolerancia H</string>
     <string name="field_pill_tol_v">Tolerancia V</string>
     <string name="field_pill_elevation">Cota</string>
+    <string name="field_recenter">Recentrar</string>
 </resources>

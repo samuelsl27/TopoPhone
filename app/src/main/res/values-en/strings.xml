@@ -3851,4 +3851,5 @@
     <string name="field_pill_tol_h">H tolerance</string>
     <string name="field_pill_tol_v">V tolerance</string>
     <string name="field_pill_elevation">Elevation</string>
+    <string name="field_recenter">Recenter</string>
 </resources>

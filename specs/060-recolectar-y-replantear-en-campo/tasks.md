@@ -53,7 +53,7 @@
       Hecho cuando: `StakeoutCameraPolicyTest` cubre destino lejos y cerca, el límite de 3 m, sin rumbo, el umbral del rumbo y la cadencia.
 - [x] T21. `MapController.follow` y `resetBearing`, su implementación en `MapLibreMapController` y su doble de test. (RF-25)
       Hecho cuando: `MapLibreMapControllerFollowTest` y el doble de la interfaz comprueban centro, zoom y rumbo, y que el hueco inferior se respeta.
-- [ ] T22. El seguimiento en `ProjectViewScreen`: se activa con cualquier replanteo, un gesto lo suelta, sale «Recentrar» con 56 dp, y al cerrar vuelve el norte arriba y la política de S009. (RF-25, RF-26)
+- [x] T22. El seguimiento en `ProjectViewScreen`: se activa con cualquier replanteo, un gesto lo suelta, sale «Recentrar» con 56 dp, y al cerrar vuelve el norte arriba y la política de S009. (RF-25, RF-26)
       Hecho cuando: `StakeoutFollowScreenTest` comprueba que sigue, que un gesto muestra «Recentrar», que al pulsarlo vuelve a seguir y que al cerrar el replanteo se restaura.
 
 ## Validación y cierre
