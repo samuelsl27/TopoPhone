@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.geodesy.GeodeticPoint
 import es.topophone.core.geodesy.LocalTangentPlane
@@ -104,7 +105,7 @@ class StakeoutPerformanceTest {
         val controller = StakeoutController(silent, publishIntervalMs = 0)
         controller.onEpoch(epoch(0), context)
         var state by mutableStateOf(StakeoutUiState(project, target, guidance = controller.state.value))
-        compose.setContent {
+        compose.setContentExpanded {
             TopoPhoneTheme(EffectiveTheme.LIGHT) { StakeoutPanel(state, StakeoutActions()) }
         }
         compose.waitForIdle()

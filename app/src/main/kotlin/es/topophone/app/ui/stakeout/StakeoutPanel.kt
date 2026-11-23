@@ -3,20 +3,15 @@ package es.topophone.app.ui.stakeout
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -36,14 +31,7 @@ import es.topophone.app.R
 import es.topophone.app.ui.collector.AdmittedBadge
 import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.CollectorActions
-import es.topophone.app.ui.collector.CollectorGearSelector
 import es.topophone.app.ui.collector.CollectorUiState
-import es.topophone.app.ui.collector.LongPauseDialog
-import es.topophone.app.ui.collector.MeasureButton
-import es.topophone.app.ui.collector.Measuring
-import es.topophone.app.ui.collector.Messages
-import es.topophone.app.ui.collector.OutOfToleranceDialog
-import es.topophone.app.ui.collector.PauseState
 import es.topophone.app.ui.projects.TerrainMark
 import es.topophone.app.ui.projects.rememberTerrainView
 import es.topophone.app.ui.projects.unitSymbol
@@ -89,6 +77,7 @@ const val STAKEOUT_STATUS_TAG = "stakeout_status"
 const val STAKEOUT_RESULT_TAG = "stakeout_result"
 const val STAKEOUT_RESULT_LEVEL_TAG = "stakeout_result_level"
 const val STAKEOUT_RESULT_WITHIN_TAG = "stakeout_result_within"
+const val STAKEOUT_RESULT_LINE_TAG = "stakeout_result_line"
 
 fun stakeModeTag(mode: StakeMode) = "stakeout_mode_${mode.name}"
 
@@ -110,10 +99,9 @@ class StakeoutActions(
 )
 
 /**
- * Panel del replanteo, en el hueco del recolector y sin tapar el mapa (S018/RF-1): el punto de diseño con "Anterior" y
- * "Siguiente", los dos modos de guía y, según el modo, la distancia con las diferencias de Norte y Este o con adelante y
- * derecha, el rumbo, la diferencia de cota, el estado de la solución o por qué la guía está apagada. La pantalla no se apaga
- * mientras está abierto (RNF-T2).
+ * El replanteo de un punto como hoja de campo (S060/RF-23): la placa de guiado con la flecha, la distancia y los desplazamientos, la
+ * fila de ajustes (tolerancias, cota y modo), «Anterior», «Medir» y «Siguiente»; expandida, el punto de diseño, la cota de la superficie,
+ * la diana, el nivel, el rumbo y los ajustes del rumbo (S018/RF-1 a RF-8; S019). La pantalla no se apaga mientras está abierta (RNF-T2).
  */
 @Composable
 fun StakeoutPanel(
@@ -124,25 +112,58 @@ fun StakeoutPanel(
     collectorActions: CollectorActions = CollectorActions(),
     stats: AverageStatsUi? = null,
 ) {
-    KeepScreenOn()
     var settingsOpen by remember { mutableStateOf(false) }
     var elevationOpen by remember { mutableStateOf(false) }
     val target = state.target
-    Card(modifier = modifier.fillMaxWidth().padding(8.dp).testTag(STAKEOUT_PANEL_TAG)) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Header(state, actions)
+    val unit = state.project?.linearUnit ?: LinearUnit.METRE
+    val locale = uiLocale()
+    val symbol = unitSymbol(unit)
+    StakeoutSheet(
+        title = stringResource(R.string.stakeout_title, target?.name.orEmpty()),
+        onClose = actions.onClose,
+        live = collector?.live,
+        collector = collector,
+        collectorActions = collectorActions,
+        navigation = StakeNavigation(
+            state.hasPrevious && !state.measuring,
+            state.hasNext && !state.measuring,
+            actions.onPrevious,
+            actions.onNext,
+        ),
+        modifier = modifier,
+        unit = unit,
+        tag = STAKEOUT_PANEL_TAG,
+        closeTag = STAKEOUT_CLOSE_TAG,
+        titleTag = STAKEOUT_NAME_TAG,
+        stats = stats,
+        plate = {
             if (target == null) {
                 if (state.notFound) Text(stringResource(R.string.stakeout_not_found), color = MaterialTheme.colorScheme.error)
-                return@Column
+            } else {
+                GuidancePlate(state.project, state.settings, state.guidance, extra = { ui, _ -> HeadingNote(state, ui) })
             }
-            Column(
-                modifier = Modifier.weight(1f, fill = false).heightIn(max = BODY_MAX_HEIGHT).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+        },
+        pills = {
+            if (target != null) {
+                StakeoutPills(
+                    unit = unit,
+                    settings = state.settings,
+                    enabled = !state.measuring,
+                    showToleranceV = state.designElevationM != null,
+                    elevationText = state.designElevationM?.let { "${LengthFormat.inUnit(it, unit, locale)} $symbol" },
+                    onTolerance = actions.onTolerance,
+                    onToleranceV = actions.onToleranceV,
+                    onMode = actions.onMode,
+                    onElevation = { elevationOpen = true },
+                )
+            }
+        },
+        result = collector?.savedStake?.let { ref -> @Composable { ResultLine(ref) } },
+        expandedExtra = {
+            if (target != null) {
                 Design(state, target)
-                // Lo que se desvió el último punto, arriba: es lo que se mira al medir y no debe quedar bajo el pliegue.
+                // Lo que se desvió el último punto, con todas sus cifras (S018/RF-28, RF-29).
                 collector?.savedStake?.let { Result(collector.savedName, it, state) }
-                ModeChoice(state, actions)
                 ElevationSourceSection(
                     state.surfaceActive,
                     state.elevationSource,
@@ -150,40 +171,22 @@ fun StakeoutPanel(
                     state.surfaceRemoved,
                     state.measuring,
                     state.guidance,
-                    state.project?.linearUnit ?: LinearUnit.METRE,
+                    unit,
                     actions.onElevationSource,
                 ) // S042/RF-23 a RF-27
-                Guidance(state.project, state.settings, state.guidance, state.admitted)
-                collector?.let { CollectorGearSelector(it, collectorActions) } // S046/RF-23
-                collector?.let { Messages(it, collectorActions) } // los motivos por los que no se puede medir, avisos y el punto guardado
+                (state.guidance as? GuidanceState.On)?.let { ExpandedGuidance(state, it.ui) }
+                OutlinedButton(
+                    onClick = { settingsOpen = true },
+                    enabled = !state.measuring,
+                    modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_SETTINGS_TAG),
+                ) { Text(stringResource(R.string.stakeout_settings)) }
             }
-            if (collector != null) {
-                val unit = state.project?.linearUnit ?: LinearUnit.METRE
-                if (collector.measuring) {
-                    Measuring(collector, unit, stats, collectorActions) // S018/RF-26, RF-30
-                } else {
-                    MeasureButton(collector, collectorActions) // S018/RF-26
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    // S019/RF-2, RF-16: la cota de diseño, que no se cambia con una medida en marcha.
-                    TextButton(
-                        onClick = { elevationOpen = true },
-                        enabled = !state.measuring,
-                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_ELEVATION_TAG),
-                    ) { Text(stringResource(R.string.stakeout_elevation_button)) }
-                    TextButton(
-                        onClick = { settingsOpen = true },
-                        enabled = !state.measuring,
-                        modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_SETTINGS_TAG),
-                    ) { Text(stringResource(R.string.stakeout_settings)) }
-                }
-            }
-        }
-    }
+        },
+    )
     if (settingsOpen && !state.measuring) {
         StakeoutSettingsDialog(
             state.settings,
-            state.project?.linearUnit ?: LinearUnit.METRE,
+            unit,
             actions.onHeading,
             actions.onTolerance,
             onDismiss = { settingsOpen = false },
@@ -194,15 +197,68 @@ fun StakeoutPanel(
         StakeoutElevationDialog(
             state.designElevationM,
             state.elevationOverridden,
-            state.project?.linearUnit ?: LinearUnit.METRE,
+            unit,
             actions.onElevation,
             actions.onUseDesignElevation,
         ) { elevationOpen = false }
     }
-    collector?.pending?.let { OutOfToleranceDialog(it, collectorActions.onConfirm, collectorActions.onDiscard) } // S018/RF-26
-    if (collector?.paused == PauseState.LONG_PAUSE) {
-        LongPauseDialog(collectorActions.onFinish, collectorActions.onCancel, collectorActions.onKeepWaiting)
+}
+
+/** Una línea con si el último punto replanteado cumple la tolerancia, en la fila extra de la hoja plegada (S018/RF-29; S060/RF-22). */
+@Composable
+private fun ResultLine(ref: StakeoutRef) {
+    Text(
+        ref.withinText(),
+        color = when (ref.withinTolerance) {
+            true -> MaterialTheme.colorScheme.primary
+            false -> MaterialTheme.colorScheme.onSurface
+            null -> MaterialTheme.colorScheme.onSurface
+        },
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.testTag(STAKEOUT_RESULT_LINE_TAG),
+    )
+}
+
+/** Sin rumbo por dirección, dice por qué en la placa para que se vea por qué no hay flecha (S018/RF-11). */
+@Composable
+private fun HeadingNote(state: StakeoutUiState, ui: GuidanceUi) {
+    if (state.settings.mode == StakeMode.BY_DIRECTION && ui.guidance.aheadM == null) {
+        Text(
+            headingText(ui.heading, state.settings.heading, state.project?.angularUnit ?: AngularUnit.DECIMAL_DEGREES),
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
+}
+
+/** En la hoja expandida: la diana, el nivel vertical, el estado y el rumbo (S018/RF-9 a RF-19; S019/RF-6 a RF-8). */
+@Composable
+private fun ExpandedGuidance(state: StakeoutUiState, ui: GuidanceUi) {
+    val unit = state.project?.linearUnit ?: LinearUnit.METRE
+    val numbers = Numbers(unit, unitSymbol(unit), uiLocale())
+    val angular = state.project?.angularUnit ?: AngularUnit.DECIMAL_DEGREES
+    val byDirection = state.settings.mode == StakeMode.BY_DIRECTION
+    val hasDiana = ui.zone != StakeZone.FAR // S018/RF-15 a RF-17
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        if (hasDiana) {
+            val headingUp = (ui.heading as? HeadingResult.Available)?.rad?.takeIf { byDirection }
+            StakeoutDiana(ui, state.settings.validToleranceM, headingUp, Modifier.size(DIANA_SIZE))
+        }
+        // S019/RF-7: el nivel vertical a cualquier distancia del punto.
+        ui.level?.let { StakeoutLevelView(it, numbers, Modifier.width(LEVEL_WIDTH).height(DIANA_SIZE)) }
+    }
+    // El rumbo de la flecha; el nivel (Desmonte, Terraplén) ya está en la placa (S060/RF-24).
+    if (state.settings.mode == StakeMode.BY_DIRECTION) {
+        Text(headingText(ui.heading, state.settings.heading, angular), modifier = Modifier.testTag(STAKEOUT_HEADING_TAG))
+    }
+    Text(
+        stringResource(
+            R.string.stakeout_status,
+            stringResource(ui.solution.nameRes()),
+            ui.horizontalAccuracyM?.let { numbers.length(it) } ?: stringResource(R.string.collector_no_accuracy),
+        ),
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(STAKEOUT_STATUS_TAG),
+    )
 }
 
 /** Lo que se desvió el punto replanteado respecto al diseño, medido menos diseño (S018/RF-28, RF-29). */
@@ -249,30 +305,6 @@ private fun Result(savedName: String?, ref: StakeoutRef, state: StakeoutUiState)
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.testTag(STAKEOUT_RESULT_WITHIN_TAG),
         )
-    }
-}
-
-@Composable
-private fun Header(state: StakeoutUiState, actions: StakeoutActions) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            stringResource(R.string.stakeout_title, state.target?.name.orEmpty()),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.weight(1f).testTag(STAKEOUT_NAME_TAG),
-        )
-        TextButton(
-            onClick = actions.onPrevious,
-            enabled = state.hasPrevious && !state.measuring,
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_PREVIOUS_TAG),
-        ) { Text(stringResource(R.string.stakeout_previous)) }
-        TextButton(
-            onClick = actions.onNext,
-            enabled = state.hasNext && !state.measuring,
-            modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_NEXT_TAG),
-        ) { Text(stringResource(R.string.stakeout_next)) }
-        TextButton(onClick = actions.onClose, modifier = Modifier.heightIn(min = MinTouchTarget).testTag(STAKEOUT_CLOSE_TAG)) {
-            Text(stringResource(R.string.collector_close))
-        }
     }
 }
 

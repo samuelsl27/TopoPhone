@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.point.ElevationSource
@@ -106,7 +107,7 @@ class StakeoutSurfacePanelTest {
 
     private val chosen = mutableListOf<ElevationSource>()
 
-    private fun show(state: StakeoutUiState) = compose.setContent {
+    private fun show(state: StakeoutUiState) = compose.setContentExpanded {
         TopoPhoneTheme(EffectiveTheme.LIGHT) {
             StakeoutPanel(state, StakeoutActions(onElevationSource = { chosen += it }))
         }

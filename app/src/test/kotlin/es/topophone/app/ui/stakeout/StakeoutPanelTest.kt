@@ -17,6 +17,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.collector.COLLECTOR_BLOCKER_TAG
@@ -28,6 +29,8 @@ import es.topophone.app.ui.collector.MeasureBlocker
 import es.topophone.app.ui.collector.MeasureProgress
 import es.topophone.app.ui.collector.OUT_OF_TOLERANCE_SAVE_TAG
 import es.topophone.app.ui.collector.PendingPoint
+import es.topophone.app.ui.field.setContentExpanded
+import es.topophone.app.ui.field.shortListOptionTag
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.point.GeodeticPosition
@@ -147,7 +150,7 @@ class StakeoutPanelTest {
     private val elevations = mutableListOf<String>()
     private var usedPoint = 0
 
-    private fun show(state: StakeoutUiState, collector: CollectorUiState = CollectorUiState(loaded = true)) = compose.setContent {
+    private fun show(state: StakeoutUiState, collector: CollectorUiState = CollectorUiState(loaded = true)) = compose.setContentExpanded {
         TopoPhoneTheme(EffectiveTheme.LIGHT) {
             StakeoutPanel(
                 state,
@@ -207,8 +210,10 @@ class StakeoutPanelTest {
     fun `S018 RF-5 muestra los dos modos de guia con el elegido seleccionado y permite cambiar`() {
         show(state(mode = StakeMode.BY_DISTANCE))
 
-        compose.onNodeWithTag(stakeModeTag(StakeMode.BY_DISTANCE)).assertIsDisplayed()
-        compose.onNodeWithTag(stakeModeTag(StakeMode.BY_DIRECTION)).performClick()
+        // S060/RF-27: el modo es una pastilla que abre una lista corta con el vigente marcado.
+        compose.onNodeWithTag(STAKEOUT_PILL_MODE_TAG).assertTextContains("Por distancia", substring = true).performClick()
+        compose.onNodeWithTag(shortListOptionTag(StakeMode.BY_DISTANCE)).assertIsDisplayed()
+        compose.onNodeWithTag(shortListOptionTag(StakeMode.BY_DIRECTION)).performClick()
 
         modes shouldBe listOf(StakeMode.BY_DIRECTION)
     }
@@ -385,7 +390,7 @@ class StakeoutPanelTest {
     }
 
     @Test
-    fun `S019 RF-12 la diana sigue dentro de la tolerancia con el texto aunque el nivel diga desmonte`() {
+    fun `S019 RF-12 y S060 RF-28 con el nivel en desmonte la diana sigue dentro pero la placa no dice En el punto`() {
         show(
             state(
                 on(
@@ -396,7 +401,8 @@ class StakeoutPanelTest {
             ),
         )
 
-        compose.onNodeWithTag(STAKEOUT_INSIDE_TAG).assertTextContains("Dentro de la tolerancia", substring = true)
+        compose.onNodeWithTag(STAKEOUT_DIANA_TAG).assertExists()
+        compose.onNodeWithTag(STAKEOUT_ARRIVED_TAG).assertDoesNotExist() // S060/RF-28: hay que estar también en cota
         compose.onNodeWithTag(STAKEOUT_LEVEL_TEXT_TAG).assertTextEquals("Desmonte 2,000 m")
     }
 
@@ -493,11 +499,11 @@ class StakeoutPanelTest {
     }
 
     @Test
-    fun `S018 RF-19 dentro de la tolerancia hay diana y el texto Dentro de la tolerancia`() {
+    fun `S018 RF-19 y S060 RF-28 dentro de la tolerancia hay diana y la placa dice En el punto`() {
         show(state(on(guidance(distance = 0.01, dEast = 0.01, dNorth = 0.0, ahead = 0.01, right = 0.0), zone = StakeZone.INSIDE)))
 
         compose.onNodeWithTag(STAKEOUT_DIANA_TAG).assertIsDisplayed()
-        compose.onNodeWithTag(STAKEOUT_INSIDE_TAG).assertTextEquals("Dentro de la tolerancia")
+        compose.onNodeWithTag(STAKEOUT_ARRIVED_TAG).assertTextEquals("En el punto")
     }
 
     @Test
@@ -582,9 +588,10 @@ class StakeoutPanelTest {
         show(measuring, CollectorUiState(loaded = true, measuring = true, progress = MeasureProgress(3.0, 10.0, 15, 1)))
 
         compose.onNodeWithTag(COLLECTOR_CANCEL_TAG).assertIsDisplayed().performClick()
-        compose.onNodeWithTag(STAKEOUT_NEXT_TAG).assertIsNotEnabled()
-        compose.onNodeWithTag(STAKEOUT_PREVIOUS_TAG).assertIsNotEnabled()
-        compose.onNodeWithTag(stakeModeTag(StakeMode.BY_DIRECTION)).assertIsNotEnabled()
+        // S060/RF-15: midiendo no hay Anterior ni Siguiente y las pastillas se desactivan.
+        compose.onNodeWithTag(STAKEOUT_NEXT_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(STAKEOUT_PREVIOUS_TAG).assertDoesNotExist()
+        compose.onNodeWithTag(STAKEOUT_PILL_MODE_TAG).assertIsNotEnabled()
         compose.onNodeWithTag(COLLECTOR_MEASURE_TAG).assertDoesNotExist()
 
         calls shouldBe listOf("cancel")
@@ -675,7 +682,7 @@ class StakeoutPanelTest {
     fun `S018 RF-8 y RF-18 los ajustes abren un dialogo con el origen del rumbo y la tolerancia`() {
         show(state().copy(settings = StakeoutSettings(toleranceM = 0.04)))
 
-        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performScrollTo().performClick()
 
         compose.onNodeWithTag(STAKEOUT_TOLERANCE_TAG).assertTextContains("0,040", substring = true)
         compose.onNodeWithTag(stakeHeadingTag(HeadingChoice.IMU)).performClick()
@@ -685,7 +692,7 @@ class StakeoutPanelTest {
     @Test
     fun `S018 RF-18 una tolerancia que no vale se avisa con su rango y una que vale se envia`() {
         show(state())
-        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performScrollTo().performClick()
 
         compose.onNodeWithTag(STAKEOUT_TOLERANCE_TAG).performTextReplacement("mala")
         compose.onNodeWithTag(STAKEOUT_TOLERANCE_ERROR_TAG, useUnmergedTree = true).assertTextContains("0,010", substring = true)
@@ -699,7 +706,7 @@ class StakeoutPanelTest {
     fun `S019 RF-10 los ajustes llevan la tolerancia vertical aparte de la horizontal, con su valor`() {
         show(state().copy(settings = StakeoutSettings(toleranceM = 0.04, toleranceVM = 0.05)))
 
-        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performScrollTo().performClick()
 
         compose.onNodeWithTag(STAKEOUT_TOLERANCE_TAG).assertTextContains("0,040", substring = true)
         compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_TAG).assertTextContains("0,050", substring = true)
@@ -708,7 +715,7 @@ class StakeoutPanelTest {
     @Test
     fun `S019 RF-10 una tolerancia vertical que no vale se avisa con su rango y una que vale se envia`() {
         show(state())
-        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performScrollTo().performClick()
 
         compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_TAG).performTextReplacement("mala")
         compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_ERROR_TAG, useUnmergedTree = true).assertTextContains("0,010", substring = true)
@@ -724,7 +731,7 @@ class StakeoutPanelTest {
         val feet = state().copy(project = project.copy(linearUnit = LinearUnit.INTERNATIONAL_FOOT))
         show(feet)
 
-        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performClick()
+        compose.onNodeWithTag(STAKEOUT_SETTINGS_TAG).performScrollTo().performClick()
 
         compose.onNodeWithTag(STAKEOUT_TOLERANCE_V_TAG).assertTextContains("0,098", substring = true) // 3 cm en pies
     }

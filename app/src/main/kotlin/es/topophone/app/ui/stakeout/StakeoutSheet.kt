@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import es.topophone.app.R
+import es.topophone.app.ui.baseshift.BaseShiftActiveBanner
 import es.topophone.app.ui.collector.AverageStatsBlock
 import es.topophone.app.ui.collector.AverageStatsUi
 import es.topophone.app.ui.collector.CollectorActions
@@ -57,7 +58,7 @@ import es.topophone.core.model.project.LinearUnit
 const val STAKEOUT_TITLE_TAG = "stakeout_title"
 const val STAKEOUT_PILL_TOLERANCE_TAG = "stakeout_pill_tolerance"
 const val STAKEOUT_PILL_TOLERANCE_V_TAG = "stakeout_pill_tolerance_v"
-const val STAKEOUT_PILL_ELEVATION_TAG = "stakeout_pill_elevation"
+const val STAKEOUT_PILL_ELEVATION_TAG = "stakeout_elevation"
 const val STAKEOUT_PILL_MODE_TAG = "stakeout_pill_mode"
 
 /** «Anterior» y «Siguiente» entre los puntos o los elementos del replanteo (S060/RF-30; S018). */
@@ -83,7 +84,9 @@ internal fun StakeoutSheet(
     unit: LinearUnit = LinearUnit.METRE,
     tag: String = STAKEOUT_PANEL_TAG,
     closeTag: String = STAKEOUT_CLOSE_TAG,
+    titleTag: String = STAKEOUT_TITLE_TAG,
     stats: AverageStatsUi? = null,
+    result: (@Composable () -> Unit)? = null,
     expandedExtra: @Composable ColumnScope.() -> Unit = {},
 ) {
     KeepScreenOn()
@@ -99,7 +102,7 @@ internal fun StakeoutSheet(
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(STAKEOUT_TITLE_TAG),
+                modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(titleTag),
             )
             StatusLine(live, unit, collector?.settings?.precision ?: es.topophone.core.model.point.PrecisionControl())
         },
@@ -107,7 +110,7 @@ internal fun StakeoutSheet(
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 plate()
                 pills()
-                collector?.let { Slot(it, collectorActions) { value = FieldSheetValue.Expanded } }
+                collector?.let { Slot(it, collectorActions, result) { value = FieldSheetValue.Expanded } }
                 collector?.let { Actions(it, collectorActions, navigation) }
             }
         },
@@ -116,6 +119,7 @@ internal fun StakeoutSheet(
                 expandedExtra()
                 collector?.let {
                     CollectorGearSelector(it, collectorActions) // S046/RF-23
+                    it.baseShiftName?.let { name -> BaseShiftActiveBanner(name, collectorActions.onDeactivateBaseShift) } // S020/RF-11
                     CollectorExpandedAlert(it, collectorActions) // S060/RF-22
                     CollectorPhotoBar(it.photos, collectorActions) // S017b
                     if (it.progress != null && stats != null) AverageStatsBlock(stats, unit) // S017/RF-3 a RF-5
@@ -131,7 +135,7 @@ internal fun StakeoutSheet(
 
 /** La fila extra de la hoja plegada: el motivo de bloqueo o, si no hay, el aviso (S060/RF-16, RF-22). */
 @Composable
-private fun Slot(collector: CollectorUiState, actions: CollectorActions, onExpand: () -> Unit) {
+private fun Slot(collector: CollectorUiState, actions: CollectorActions, result: (@Composable () -> Unit)?, onExpand: () -> Unit) {
     val reason = if (collector.measuring) null else MeasureReasons.of(collector.blocker)
     val notice = CollectorNotices.current(collector)?.takeUnless { it is CollectorNotice.Saved }
     when {
@@ -146,6 +150,7 @@ private fun Slot(collector: CollectorUiState, actions: CollectorActions, onExpan
             }
         }
         notice != null -> CollectorNoticeLine(notice)
+        else -> result?.invoke() // lo que se desvió el último punto, en la misma fila (S018/RF-28)
     }
 }
 
