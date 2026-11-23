@@ -17,6 +17,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import es.topophone.app.ui.collector.COLLECTOR_MEASURE_TAG
 import es.topophone.app.ui.collector.CollectorActions
 import es.topophone.app.ui.collector.CollectorUiState
+import es.topophone.app.ui.field.setContentExpanded
 import es.topophone.core.designsystem.theme.TopoPhoneTheme
 import es.topophone.core.gnss.nmea.SolutionStatus
 import es.topophone.core.model.point.StakeMode
@@ -136,32 +137,33 @@ class AxisStakeoutPanelTest {
 
     private val calls = mutableListOf<String>()
 
-    private fun show(state: AxisStakeoutUiState, collector: CollectorUiState? = CollectorUiState(loaded = true)) = compose.setContent {
-        TopoPhoneTheme(EffectiveTheme.LIGHT) {
-            AxisStakeoutPanel(
-                state,
-                AxisStakeoutActions(
-                    onClose = { calls += "close" },
-                    onStart = { calls += "start" },
-                    onAlignment = { calls += "alignment:$it" },
-                    onStartText = { calls += "start:$it" },
-                    onEndText = { calls += "end:$it" },
-                    onIntervalText = { calls += "interval:$it" },
-                    onSingular = { calls += "singular:$it" },
-                    onChainage = { calls += "chainage:$it" },
-                    onOffset = { calls += "offset:$it" },
-                    onThickness = { calls += "thickness:$it" },
-                    onPrevious = { calls += "previous" },
-                    onNext = { calls += "next" },
-                    onByCode = { calls += "byCode:$it" },
-                    onToggleCode = { calls += "code:$it" },
-                    onOrder = { calls += "order:${it.name}" },
-                ),
-                collector = collector,
-                collectorActions = CollectorActions(onMeasure = { calls += "measure" }),
-            )
+    private fun show(state: AxisStakeoutUiState, collector: CollectorUiState? = CollectorUiState(loaded = true)) =
+        compose.setContentExpanded {
+            TopoPhoneTheme(EffectiveTheme.LIGHT) {
+                AxisStakeoutPanel(
+                    state,
+                    AxisStakeoutActions(
+                        onClose = { calls += "close" },
+                        onStart = { calls += "start" },
+                        onAlignment = { calls += "alignment:$it" },
+                        onStartText = { calls += "start:$it" },
+                        onEndText = { calls += "end:$it" },
+                        onIntervalText = { calls += "interval:$it" },
+                        onSingular = { calls += "singular:$it" },
+                        onChainage = { calls += "chainage:$it" },
+                        onOffset = { calls += "offset:$it" },
+                        onThickness = { calls += "thickness:$it" },
+                        onPrevious = { calls += "previous" },
+                        onNext = { calls += "next" },
+                        onByCode = { calls += "byCode:$it" },
+                        onToggleCode = { calls += "code:$it" },
+                        onOrder = { calls += "order:${it.name}" },
+                    ),
+                    collector = collector,
+                    collectorActions = CollectorActions(onMeasure = { calls += "measure" }),
+                )
+            }
         }
-    }
 
     @Test
     fun `S054 RF-1 antes de abrir se ven los campos de partida y el PK inicial y final del eje`() {
@@ -252,8 +254,8 @@ class AxisStakeoutPanelTest {
         show(started(series = AxisChainageSeries(0.0, 300.0, 100.0, null, 420.0), seriesIndex = 1))
 
         compose.onNodeWithTag(AXIS_POSITION_TAG).performScrollTo().assertTextContains("Punto 2 de 4")
-        compose.onNodeWithTag(AXIS_PREVIOUS_TAG).performScrollTo().assertIsEnabled().performClick()
-        compose.onNodeWithTag(AXIS_NEXT_TAG).performScrollTo().assertIsEnabled().performClick()
+        compose.onNodeWithTag(AXIS_PREVIOUS_TAG).assertIsEnabled().performClick()
+        compose.onNodeWithTag(AXIS_NEXT_TAG).assertIsEnabled().performClick()
 
         calls shouldBe listOf("previous", "next")
     }
@@ -261,7 +263,7 @@ class AxisStakeoutPanelTest {
     @Test
     fun `S054 RF-3 en los extremos de la serie no se puede pasar mas alla`() {
         show(started(series = AxisChainageSeries(0.0, 300.0, 100.0, null, 420.0), seriesIndex = 0))
-        compose.onNodeWithTag(AXIS_PREVIOUS_TAG).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(AXIS_PREVIOUS_TAG).assertIsNotEnabled()
     }
 
     @Test
@@ -276,14 +278,14 @@ class AxisStakeoutPanelTest {
     fun `S054 RF-6 la guia dice adelante o atras en PK y hacia dentro o fuera del eje con la distancia`() {
         show(started(axis = AxisGuidanceValue(1.25, 0.4, AcrossMove.INWARD)))
 
-        compose.onNodeWithTag(AXIS_ALONG_TAG, useUnmergedTree = true).performScrollTo().assertTextContains("Adelante en PK: 1,250 m")
+        compose.onNodeWithTag(AXIS_ALONG_TAG, useUnmergedTree = true).assertTextContains("Adelante en PK: 1,250 m")
         compose.onNodeWithTag(AXIS_ACROSS_TAG, useUnmergedTree = true).assertTextContains("Hacia dentro del eje: 0,400 m")
     }
 
     @Test
     fun `S054 RF-6 atras y hacia fuera, y a un lado si el diseno esta sobre el eje`() {
         show(started(axis = AxisGuidanceValue(-2.0, -0.75, AcrossMove.OUTWARD)))
-        compose.onNodeWithTag(AXIS_ALONG_TAG, useUnmergedTree = true).performScrollTo().assertTextContains("Atrás en PK: 2,000 m")
+        compose.onNodeWithTag(AXIS_ALONG_TAG, useUnmergedTree = true).assertTextContains("Atrás en PK: 2,000 m")
         compose.onNodeWithTag(AXIS_ACROSS_TAG, useUnmergedTree = true).assertTextContains("Hacia fuera del eje: 0,750 m")
     }
 
@@ -291,7 +293,7 @@ class AxisStakeoutPanelTest {
     fun `S054 RF-6 con el diseno sobre el eje la guia dice izquierda o derecha`() {
         show(started(target = target(offset = 0.0), axis = AxisGuidanceValue(0.0, 0.5, AcrossMove.RIGHT)))
 
-        compose.onNodeWithTag(AXIS_ALONG_TAG, useUnmergedTree = true).performScrollTo().assertTextContains("En el PK")
+        compose.onNodeWithTag(AXIS_ALONG_TAG, useUnmergedTree = true).assertTextContains("En el PK")
         compose.onNodeWithTag(AXIS_ACROSS_TAG, useUnmergedTree = true).assertTextContains("A la derecha: 0,500 m")
     }
 
@@ -299,8 +301,8 @@ class AxisStakeoutPanelTest {
     fun `S054 RNF-T8 la guia lleva una frase para TalkBack con lo que hay que moverse`() {
         show(started(axis = AxisGuidanceValue(1.25, 0.4, AcrossMove.INWARD), guidance = on(zone = StakeZone.AID)))
 
-        compose.onNodeWithTag(AXIS_FIGURES_TAG).performScrollTo().assertTextContains("Adelante en PK: 1,250 m", substring = true)
-        compose.onNodeWithTag(AXIS_ANNOUNCE_TAG).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag(AXIS_FIGURES_TAG).assertTextContains("Adelante en PK: 1,250 m", substring = true)
+        compose.onNodeWithTag(AXIS_ANNOUNCE_TAG).assertIsDisplayed()
     }
 
     @Test
@@ -309,7 +311,7 @@ class AxisStakeoutPanelTest {
 
         compose.onNodeWithTag(
             AXIS_NO_PROJECTION_TAG,
-        ).performScrollTo().assertTextContains("antes del inicio o después del final", substring = true)
+        ).assertTextContains("antes del inicio o después del final", substring = true)
         compose.onAllNodesWithTag(AXIS_ALONG_TAG, useUnmergedTree = true).assertCountEquals(0)
         compose.onAllNodesWithTag(AXIS_ACROSS_TAG, useUnmergedTree = true).assertCountEquals(0)
         compose.onNodeWithTag(STAKEOUT_DISTANCE_TAG).assertIsDisplayed()
@@ -461,8 +463,8 @@ class AxisStakeoutPanelTest {
         show(codedStarted(position = 1, count = 4))
 
         compose.onNodeWithTag(AXIS_POSITION_TAG).performScrollTo().assertTextContains("Punto 1 de 4")
-        compose.onNodeWithTag(AXIS_PREVIOUS_TAG).performScrollTo().assertIsNotEnabled()
-        compose.onNodeWithTag(AXIS_NEXT_TAG).performScrollTo().assertIsEnabled().performClick()
+        compose.onNodeWithTag(AXIS_PREVIOUS_TAG).assertIsNotEnabled()
+        compose.onNodeWithTag(AXIS_NEXT_TAG).assertIsEnabled().performClick()
 
         calls shouldBe listOf("next")
     }

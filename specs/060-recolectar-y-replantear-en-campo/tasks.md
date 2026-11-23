@@ -41,7 +41,7 @@
       Hecho cuando: `StakeoutPanelTest` migrado pasa y `StakeoutLevelView` y `StakeoutDiana` siguen visibles al expandir.
 - [x] T16. Replanteo de líneas sobre `StakeoutSheet`, con el PK, el lado, el error lateral y lo que falta en la placa. (RF-23, RF-29)
       Hecho cuando: `LineStakeoutPanelTest` migrado pasa y la placa lleva el objetivo de la línea con el diseño de la de un punto.
-- [ ] T17. Replanteo por eje sobre `StakeoutSheet`, con el PK, el desplazamiento y el objetivo en la placa. (RF-23, RF-29)
+- [x] T17. Replanteo por eje sobre `StakeoutSheet`, con el PK, el desplazamiento y el objetivo en la placa. (RF-23, RF-29)
       Hecho cuando: `AxisStakeoutPanelTest` migrado pasa.
 - [ ] T18. Replanteo de taludes sobre `StakeoutSheet`, con el talud y la guía en la placa. (RF-23, RF-29)
       Hecho cuando: los tests de `SlopeStakePanel` migrados pasan.

@@ -92,12 +92,15 @@ internal fun StakeoutSheet(
     tag: String = STAKEOUT_PANEL_TAG,
     closeTag: String = STAKEOUT_CLOSE_TAG,
     titleTag: String = STAKEOUT_TITLE_TAG,
+    initiallyExpanded: Boolean = false,
     stats: AverageStatsUi? = null,
     result: (@Composable () -> Unit)? = null,
     expandedExtra: @Composable ColumnScope.() -> Unit = {},
 ) {
     KeepScreenOn()
-    var value by rememberSaveable { mutableStateOf(FieldSheetValue.Folded) }
+    var value by rememberSaveable(initiallyExpanded) {
+        mutableStateOf(if (initiallyExpanded) FieldSheetValue.Expanded else FieldSheetValue.Folded)
+    }
     FieldSheet(
         value = value,
         onValueChange = { value = it },
@@ -204,7 +207,7 @@ internal fun StakeoutPills(
     onTolerance: (String) -> Boolean,
     onToleranceV: (String) -> Boolean,
     onMode: (StakeMode) -> Unit,
-    onElevation: () -> Unit,
+    onElevation: (() -> Unit)?,
 ) {
     var dialog by remember { mutableStateOf<StakePillDialog?>(null) }
     val locale = uiLocale()
@@ -237,9 +240,9 @@ internal fun StakeoutPills(
                 stringResource(R.string.field_pill_elevation),
                 elevationText ?: stringResource(R.string.collector_no_accuracy),
                 STAKEOUT_PILL_ELEVATION_TAG,
-                enabled,
-                onElevation,
-            ),
+                // Sin diálogo (la cota sale del perfil del eje) la pastilla solo informa (S060/RF-27).
+                enabled && onElevation != null,
+            ) { onElevation?.invoke() },
         )
         add(
             SettingPillData(
