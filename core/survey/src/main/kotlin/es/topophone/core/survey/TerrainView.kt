@@ -35,6 +35,33 @@ class TerrainView private constructor(private val frame: TerrainFrame?) {
     /** Una distancia o un delta de cuadrícula, en terreno. */
     fun distance(gridMetres: Double): Double = frame?.distance(gridMetres) ?: gridMetres
 
+    /**
+     * La guía del replanteo en terreno: la distancia, los deltas, el avance y el lado se multiplican por el factor; el rumbo y la
+     * diferencia de cota no cambian (S058/RF-9, RF-11).
+     */
+    fun guidance(grid: Guidance): Guidance = if (!isTerrain) {
+        grid
+    } else {
+        grid.copy(
+            distanceM = distance(grid.distanceM),
+            dEastM = distance(grid.dEastM),
+            dNorthM = distance(grid.dNorthM),
+            aheadM = grid.aheadM?.let { distance(it) },
+            rightM = grid.rightM?.let { distance(it) },
+        )
+    }
+
+    /** Las distancias de un objetivo sobre una línea, en terreno; el PK y el desplazamiento son de diseño y no cambian (S058/RF-9). */
+    fun lineObjective(grid: LineObjective): LineObjective = if (!isTerrain) {
+        grid
+    } else {
+        grid.copy(
+            lateralErrorM = grid.lateralErrorM?.let { distance(it) },
+            alongM = distance(grid.alongM),
+            remainingM = distance(grid.remainingM),
+        )
+    }
+
     /** Un área de cuadrícula, en terreno. */
     fun area(gridSquareMetres: Double): Double = frame?.area(gridSquareMetres) ?: gridSquareMetres
 

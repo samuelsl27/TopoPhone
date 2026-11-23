@@ -740,4 +740,38 @@ class StakeoutControllerTest {
 
         alerts.events shouldBe listOf("approach")
     }
+
+    private fun terrainContext(factor: Double?) = StakeContext(
+        StakeoutSettings(mode = StakeMode.BY_DISTANCE),
+        target,
+        AdmittedSolutions.FIX_ONLY,
+        null,
+        poleHeight,
+        project.copy(terrain = factor?.let { es.topophone.core.model.project.TerrainPlane(40.4, -3.2, it) }),
+        calculator,
+    )
+
+    @Test
+    fun `S058 RF-9 en terreno la distancia y los deltas del replanteo van por el factor y el rumbo no cambia`() {
+        controller.onEpoch(epoch(east = -3.0, north = -4.0), terrainContext(null))
+        val grid = on().ui.guidance
+        val gridDiana = on().ui.dianaRadiusM
+
+        controller.onEpoch(epoch(east = -3.0, north = -4.0), terrainContext(1.0004))
+
+        val terrain = on().ui.guidance
+        terrain.distanceM shouldBe (grid.distanceM * 1.0004 plusOrMinus 1e-9)
+        terrain.dEastM shouldBe (grid.dEastM * 1.0004 plusOrMinus 1e-9)
+        terrain.dNorthM shouldBe (grid.dNorthM * 1.0004 plusOrMinus 1e-9)
+        terrain.bearingRad shouldBe grid.bearingRad
+        terrain.dHeightM shouldBe grid.dHeightM
+        gridDiana.shouldNotBeNull()
+    }
+
+    @Test
+    fun `S058 RF-9 un proyecto sin plano replantea en cuadricula como siempre`() {
+        controller.onEpoch(epoch(east = -3.0, north = -4.0), terrainContext(null))
+
+        on().ui.guidance.distanceM shouldBe (5.0 plusOrMinus 0.005)
+    }
 }

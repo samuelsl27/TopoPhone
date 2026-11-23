@@ -44,6 +44,8 @@ import es.topophone.app.ui.collector.Measuring
 import es.topophone.app.ui.collector.Messages
 import es.topophone.app.ui.collector.OutOfToleranceDialog
 import es.topophone.app.ui.collector.PauseState
+import es.topophone.app.ui.projects.TerrainMark
+import es.topophone.app.ui.projects.rememberTerrainView
 import es.topophone.app.ui.projects.unitSymbol
 import es.topophone.app.ui.receiver.nameRes
 import es.topophone.app.ui.receiver.uiLocale
@@ -63,6 +65,7 @@ import es.topophone.core.model.project.Project
 import es.topophone.core.survey.HeadingResult
 import es.topophone.core.survey.HeadingUnavailable
 import es.topophone.core.survey.StakeZone
+import es.topophone.core.survey.TerrainView
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -76,6 +79,7 @@ const val STAKEOUT_PREVIOUS_TAG = "stakeout_previous"
 const val STAKEOUT_NEXT_TAG = "stakeout_next"
 const val STAKEOUT_OFF_TAG = "stakeout_off"
 const val STAKEOUT_DISTANCE_TAG = "stakeout_distance"
+const val STAKEOUT_TERRAIN_TAG = "stakeout_terrain"
 const val STAKEOUT_NORTH_TAG = "stakeout_north"
 const val STAKEOUT_EAST_TAG = "stakeout_east"
 const val STAKEOUT_AHEAD_TAG = "stakeout_ahead"
@@ -206,21 +210,23 @@ fun StakeoutPanel(
 private fun Result(savedName: String?, ref: StakeoutRef, state: StakeoutUiState) {
     val unit = state.project?.linearUnit ?: LinearUnit.METRE
     val numbers = Numbers(unit, unitSymbol(unit), uiLocale())
+    // S058/RF-9: con el proyecto en terreno, lo que se desvió el punto se da en terreno.
+    val terrain = state.project?.let { rememberTerrainView(it) } ?: TerrainView.GRID
     val text = ref.dHeightM?.let {
         stringResource(
             R.string.stakeout_result_height,
             savedName.orEmpty(),
-            numbers.signed(ref.dNorthM),
-            numbers.signed(ref.dEastM),
-            numbers.length(ref.dHorizontalM),
+            numbers.signed(terrain.distance(ref.dNorthM)),
+            numbers.signed(terrain.distance(ref.dEastM)),
+            numbers.length(terrain.distance(ref.dHorizontalM)),
             numbers.signed(it),
         )
     } ?: stringResource(
         R.string.stakeout_result,
         savedName.orEmpty(),
-        numbers.signed(ref.dNorthM),
-        numbers.signed(ref.dEastM),
-        numbers.length(ref.dHorizontalM),
+        numbers.signed(terrain.distance(ref.dNorthM)),
+        numbers.signed(terrain.distance(ref.dEastM)),
+        numbers.length(terrain.distance(ref.dHorizontalM)),
     )
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag(STAKEOUT_RESULT_TAG))
@@ -355,6 +361,7 @@ internal fun Guidance(
         is GuidanceState.On -> {
             val ui = guidance.ui
             val numbers = Numbers(unit, unitSymbol(unit), uiLocale())
+            project?.let { TerrainMark(rememberTerrainView(it), STAKEOUT_TERRAIN_TAG) } // S058/RF-9
             Text(
                 stringResource(R.string.stakeout_distance, numbers.length(ui.guidance.distanceM)),
                 style = MaterialTheme.typography.headlineSmall,

@@ -40,6 +40,7 @@ import es.topophone.core.survey.StakeZone
 import es.topophone.core.survey.StakeoutGeometry
 import es.topophone.core.survey.StakeoutLevel
 import es.topophone.core.survey.StakeoutZones
+import es.topophone.core.survey.TerrainView
 import es.topophone.core.survey.TiltEpoch
 import es.topophone.receiver.platform.Alerts
 import kotlin.math.abs
@@ -272,7 +273,9 @@ class StakeoutController(
             heading.onTip(timeMs, -toward.dEastM, -toward.dNorthM)
         }
         val userHeading = heading.heading(context.settings.heading, timeMs, epoch.tilt, position.convergenceRad)
-        val guidance = StakeoutGeometry.guidance(design, tipCoordinates, (userHeading as? HeadingResult.Available)?.rad)
+        // S058/RF-9: con el proyecto en terreno, lo que se ve, las zonas y la diana van en terreno; el rumbo no cambia.
+        val terrain = terrainOf(context)
+        val guidance = terrain.guidance(StakeoutGeometry.guidance(design, tipCoordinates, (userHeading as? HeadingResult.Available)?.rad))
 
         val tolerance = context.settings.validToleranceM
         val step = StakeoutZones.next(zone, guidance.distanceM, tolerance)
@@ -323,13 +326,26 @@ class StakeoutController(
                 elevation == null -> LevelUnavailable.NO_DESIGN_ELEVATION
                 else -> LevelUnavailable.TIP_WITHOUT_HEIGHT
             },
-            line = lineObjective,
+            line = lineObjective?.let(terrain::lineObjective),
             objective = lineObjective?.point,
             surface = if (surfaceGuide != null && surfaceHeight != null) SurfaceUi(surfaceHeight, surfaceGuide.verticalOffsetM) else null,
         )
         val becameOn = !wasOn
         wasOn = true
         publish(GuidanceState.On(ui), force = becameOn || zoneChanged || levelChanged)
+    }
+
+    private var terrainKey: Pair<Any?, Any?>? = null
+    private var terrainCached: TerrainView = TerrainView.GRID
+
+    /** El paso cuadrícula ↔ terreno del proyecto del replanteo, calculado una vez mientras el plano y el SC no cambian (S058/RF-9). */
+    private fun terrainOf(context: StakeContext): TerrainView {
+        val key = context.project.terrain to context.project.crs
+        if (key != terrainKey) {
+            terrainCached = TerrainView.of(context.project.terrain, context.project.crs, context.calculator) ?: TerrainView.GRID
+            terrainKey = key
+        }
+        return terrainCached
     }
 
     /** Un corte ("Sin datos" o conexión perdida): la guía se apaga hasta que vuelvan las épocas (S018/RF-25). */

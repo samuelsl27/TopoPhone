@@ -763,10 +763,16 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
         }
         ref.chainageM?.let { CoordinateRow(stringResource(R.string.point_stakeout_chainage), length(it), "point_stakeout_chainage") }
         ref.lateralOffsetM?.let { CoordinateRow(stringResource(R.string.point_stakeout_offset), signed(it), "point_stakeout_offset") }
-        ref.design.easting?.let {
+        // S058/RF-9: con el proyecto en terreno, el diseño y las diferencias van en terreno.
+        val terrain = rememberTerrainView(project)
+        val designE = ref.design.easting
+        val designN = ref.design.northing
+        val designShown = if (designE != null && designN != null) terrain.coordinates(designE, designN) else null
+        TerrainMark(terrain, "point_stakeout_terrain")
+        (designShown?.easting ?: designE)?.let {
             CoordinateRow(stringResource(R.string.point_stakeout_design_easting), length(it), "point_stakeout_design_e")
         }
-        ref.design.northing?.let {
+        (designShown?.northing ?: designN)?.let {
             CoordinateRow(stringResource(R.string.point_stakeout_design_northing), length(it), "point_stakeout_design_n")
         }
         CoordinateRow(
@@ -774,11 +780,15 @@ private fun StakeoutCard(project: Project, ref: StakeoutRef) {
             ref.design.height?.let(::length) ?: stringResource(R.string.point_stakeout_no_height),
             "point_stakeout_design_h",
         )
-        CoordinateRow(stringResource(R.string.point_stakeout_diff_north), signed(ref.dNorthM), "point_stakeout_diff_n")
-        CoordinateRow(stringResource(R.string.point_stakeout_diff_east), signed(ref.dEastM), "point_stakeout_diff_e")
-        CoordinateRow(stringResource(R.string.point_stakeout_diff_distance), length(ref.dHorizontalM), "point_stakeout_diff_d")
+        CoordinateRow(stringResource(R.string.point_stakeout_diff_north), signed(terrain.distance(ref.dNorthM)), "point_stakeout_diff_n")
+        CoordinateRow(stringResource(R.string.point_stakeout_diff_east), signed(terrain.distance(ref.dEastM)), "point_stakeout_diff_e")
+        CoordinateRow(
+            stringResource(R.string.point_stakeout_diff_distance),
+            length(terrain.distance(ref.dHorizontalM)),
+            "point_stakeout_diff_d",
+        )
         ref.dLateralM?.let {
-            CoordinateRow(stringResource(R.string.point_stakeout_diff_lateral), signed(it), "point_stakeout_diff_lateral")
+            CoordinateRow(stringResource(R.string.point_stakeout_diff_lateral), signed(terrain.distance(it)), "point_stakeout_diff_lateral")
         }
         ref.dChainageM?.let {
             CoordinateRow(stringResource(R.string.point_stakeout_diff_chainage), signed(it), "point_stakeout_diff_chainage")
