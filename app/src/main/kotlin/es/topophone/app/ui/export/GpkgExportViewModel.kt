@@ -22,6 +22,7 @@ import es.topophone.data.gpkg.GpkgExportCrs
 import es.topophone.data.gpkg.GpkgExportException
 import es.topophone.data.gpkg.GpkgExportSummary
 import es.topophone.data.gpkg.GpkgLineLayers
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import java.io.File
@@ -67,6 +68,8 @@ data class GpkgExportUiState(
     val polygonCount: Int = 0,
     /** S058/RF-15: el proyecto está en terreno y el fichero va igualmente en cuadrícula, con su SC; la pantalla lo dice. */
     val terrain: Boolean = false,
+    /** S039/RF-23: hay una localización activa; el «sistema del proyecto» no se ofrece y la capa va en geográficas (con su EPSG de verdad). */
+    val localized: Boolean = false,
 ) {
     /** Hay puntos que exportar (RF-11). */
     val canExport: Boolean get() = loaded && pointCount > 0
@@ -85,9 +88,16 @@ class GpkgExportViewModel @Inject constructor(
     private val log: AppLog = AppLog.NONE,
     private val lines: ObjectLines = ObjectLines.NONE,
     private val calculator: Lazy<ProjectPositionCalculator> = Lazy { ProjectPositionCalculator() },
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
 ) : ViewModel() {
     /** [lines] y [allPoints]: las líneas que van al fichero y todos los puntos del proyecto, de donde salen sus vértices (S025/RF-26). */
-    private data class Content(val project: Project, val points: List<Point>, val lines: List<ProjectLine>, val allPoints: List<Point>)
+    private data class Content(
+        val project: Project,
+        val points: List<Point>,
+        val lines: List<ProjectLine>,
+        val allPoints: List<Point>,
+        val localized: Boolean = false,
+    )
 
     private val writer = GeoPackageWriter()
     private val content = MutableStateFlow<Content?>(null)
@@ -98,14 +108,16 @@ class GpkgExportViewModel @Inject constructor(
     val state: StateFlow<GpkgExportUiState> = combine(content, crs, summary, result) { loaded, chosen, last, outcome ->
         if (loaded == null) return@combine GpkgExportUiState()
         val project = loaded.project
-        val geographic = chosen == GpkgExportCrs.GEOGRAPHIC || !project.crs.isUtm
+        // S039/RF-23: con una localización activa solo geográficas; el EPSG del proyecto ya no corresponde a las coordenadas de los puntos GNSS.
+        val effectiveChoice = if (loaded.localized) GpkgExportCrs.GEOGRAPHIC else chosen
+        val geographic = effectiveChoice == GpkgExportCrs.GEOGRAPHIC || !project.crs.isUtm
         val (lineCount, polygonCount) = GpkgLineLayers(loaded.lines, loaded.allPoints, geographic).counts
         GpkgExportUiState(
             loaded = true,
             projectName = project.name,
             pointCount = loaded.points.size,
-            crs = if (project.crs.isUtm) chosen else GpkgExportCrs.GEOGRAPHIC,
-            canChooseCrs = project.crs.isUtm,
+            crs = if (project.crs.isUtm) effectiveChoice else GpkgExportCrs.GEOGRAPHIC,
+            canChooseCrs = project.crs.isUtm && !loaded.localized,
             srsId = (if (geographic) GpkgSrsDefinitions.geographicOf(project.crs) else GpkgSrsDefinitions.of(project.crs)).srsId,
             projectSrsId = if (project.crs.isUtm) {
                 GpkgSrsDefinitions.of(
@@ -120,6 +132,7 @@ class GpkgExportViewModel @Inject constructor(
             lineCount = lineCount,
             polygonCount = polygonCount,
             terrain = project.terrain != null,
+            localized = loaded.localized,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), GpkgExportUiState())
 
@@ -139,7 +152,7 @@ class GpkgExportViewModel @Inject constructor(
             } else {
                 projectLines
             }
-            content.value = Content(project, chosen, exported, all)
+            content.value = Content(project, chosen, exported, all, localized = localization.current(projectId) != null)
         }
     }
 
@@ -165,7 +178,7 @@ class GpkgExportViewModel @Inject constructor(
                     writer.write(
                         loaded.points,
                         loaded.project,
-                        crs.value,
+                        effectiveCrs(),
                         into,
                         baseProjection(loaded.project),
                         attributes = AttributeColumns.of(loaded.points), // S024/RF-21
@@ -220,7 +233,10 @@ class GpkgExportViewModel @Inject constructor(
     }
 
     /** Si la capa se escribe en geográficas: las eligió el usuario o el proyecto ya está en ellas (S053/RF-6, RF-7). */
-    private fun geographic(project: Project): Boolean = crs.value == GpkgExportCrs.GEOGRAPHIC || !project.crs.isUtm
+    private fun geographic(project: Project): Boolean = effectiveCrs() == GpkgExportCrs.GEOGRAPHIC || !project.crs.isUtm
+
+    /** El sistema que se escribe: el elegido, o geográficas con una localización activa (S039/RF-23). */
+    private fun effectiveCrs(): GpkgExportCrs = if (content.value?.localized == true) GpkgExportCrs.GEOGRAPHIC else crs.value
 
     /** La base de cada punto en el SC actual del proyecto (S015/RF-22); casi todos los puntos comparten base: se calcula una vez por posición. */
     private fun baseProjection(project: Project): (PointBase) -> BaseProjection? {

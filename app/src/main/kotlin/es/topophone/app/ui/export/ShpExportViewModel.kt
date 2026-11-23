@@ -24,6 +24,7 @@ import es.topophone.core.model.point.PointBase
 import es.topophone.core.model.project.Project
 import es.topophone.core.survey.ProjectPositionCalculator
 import es.topophone.data.export.ShpExportPreferences
+import es.topophone.data.localization.ActiveLocalization
 import es.topophone.data.point.PointRepository
 import es.topophone.data.project.ProjectRepository
 import java.io.BufferedOutputStream
@@ -72,6 +73,8 @@ data class ShpExportUiState(
     val result: ExportResult? = null,
     /** S058/RF-15: el proyecto está en terreno y el fichero va igualmente en cuadrícula, con su SC; la pantalla lo dice. */
     val terrain: Boolean = false,
+    /** S039/RF-23: hay una localización activa; las coordenadas van en geográficas y no se ofrece el sistema del proyecto. */
+    val localized: Boolean = false,
 ) {
     /** Hay puntos que exportar (RF-19). */
     val canExport: Boolean get() = loaded && pointCount > 0
@@ -91,9 +94,16 @@ class ShpExportViewModel @Inject constructor(
     private val log: AppLog = AppLog.NONE,
     private val lines: ObjectLines = ObjectLines.NONE,
     private val calculator: Lazy<ProjectPositionCalculator> = Lazy { ProjectPositionCalculator() },
+    private val localization: ActiveLocalization = ActiveLocalization.NONE,
 ) : ViewModel() {
     /** [lines] y [allPoints]: lo que va al ZIP y todos los puntos del proyecto, de donde salen los vértices (RF-2, RF-3). */
-    private class Content(val project: Project, val points: List<Point>, val lines: List<ProjectLine>, val allPoints: List<Point>)
+    private class Content(
+        val project: Project,
+        val points: List<Point>,
+        val lines: List<ProjectLine>,
+        val allPoints: List<Point>,
+        val localized: Boolean = false,
+    )
 
     private val builder = ShpExportBuilder()
     private val content = MutableStateFlow<Content?>(null)
@@ -104,7 +114,8 @@ class ShpExportViewModel @Inject constructor(
     val state: StateFlow<ShpExportUiState> = combine(content, coordinates, summary, result) { loaded, chosen, last, outcome ->
         if (loaded == null) return@combine ShpExportUiState()
         val project = loaded.project
-        val effective = if (project.crs.isUtm) chosen else ShpCoordinates.GEOGRAPHIC
+        // S039/RF-23: con una localización activa solo geográficas.
+        val effective = if (project.crs.isUtm && !loaded.localized) chosen else ShpCoordinates.GEOGRAPHIC
         val options = ShpExportOptions(effective)
         val (lineCount, polygonCount) = builder.countLines(loaded.points, project, options, loaded.lines, loaded.allPoints)
         val geographicEpsg = ShpPrjDefinitions.geographicEpsg(project.crs)
@@ -116,13 +127,14 @@ class ShpExportViewModel @Inject constructor(
             lineCount = lineCount,
             polygonCount = polygonCount,
             coordinates = effective,
-            canChooseCoordinates = project.crs.isUtm,
+            canChooseCoordinates = project.crs.isUtm && !loaded.localized,
             epsg = if (effective == ShpCoordinates.GEOGRAPHIC) geographicEpsg else projectEpsg,
             projectEpsg = projectEpsg,
             geographicEpsg = geographicEpsg,
             summary = last,
             result = outcome,
             terrain = project.terrain != null,
+            localized = loaded.localized,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ShpExportUiState())
 
@@ -137,7 +149,7 @@ class ShpExportViewModel @Inject constructor(
             val chosen = if (selectionOnly) all.filter { it.id in ids } else all
             val projectLines = lines.lines(projectId).first()
             val exported = if (selectionOnly) ShpExportBuilder.linesOf(projectLines, ids) else projectLines
-            content.value = Content(project, chosen, exported, all)
+            content.value = Content(project, chosen, exported, all, localized = localization.current(projectId) != null)
         }
     }
 

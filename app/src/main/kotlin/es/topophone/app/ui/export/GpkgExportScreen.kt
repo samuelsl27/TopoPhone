@@ -47,6 +47,7 @@ const val GPKG_CRS_PROJECT_TAG = "gpkg_crs_project"
 const val GPKG_CRS_GEOGRAPHIC_TAG = "gpkg_crs_geographic"
 const val GPKG_CRS_FIXED_TAG = "gpkg_crs_fixed"
 const val GPKG_TERRAIN_NOTICE_TAG = "gpkg_terrain_notice"
+const val GPKG_LOCALIZED_NOTICE_TAG = "gpkg_localized_notice"
 const val GPKG_UNITS_TAG = "gpkg_units"
 const val GPKG_FILE_NAME_TAG = "gpkg_file_name"
 const val GPKG_SAVE_TAG = "gpkg_save"
@@ -166,6 +167,13 @@ fun GpkgExportScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.testTag(GPKG_LINES_TAG),
                 )
+            }
+            if (state.localized) {
+                Text(
+                    stringResource(R.string.localization_export_geographic_notice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag(GPKG_LOCALIZED_NOTICE_TAG),
+                ) // S039/RF-23
             }
             if (state.terrain) {
                 Text(

@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 
 const val SHP_COUNT_TAG = "shp_count"
 const val SHP_TERRAIN_NOTICE_TAG = "shp_terrain_notice"
+const val SHP_LOCALIZED_NOTICE_TAG = "shp_localized_notice"
 const val SHP_LINES_TAG = "shp_lines"
 const val SHP_CRS_PROJECT_TAG = "shp_crs_project"
 const val SHP_CRS_GEOGRAPHIC_TAG = "shp_crs_geographic"
@@ -166,6 +167,13 @@ fun ShpExportScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.testTag(SHP_LINES_TAG),
                 ) // S055/RF-3
+            }
+            if (state.localized) {
+                Text(
+                    stringResource(R.string.localization_export_geographic_notice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag(SHP_LOCALIZED_NOTICE_TAG),
+                ) // S039/RF-23
             }
             if (state.terrain) {
                 Text(

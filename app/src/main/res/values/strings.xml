@@ -3791,4 +3791,5 @@
     <string name="localization_locked_notice">Hay una localización activa: quítala (menú del proyecto, Localización) antes de cambiar el SC, las alturas o pasar a coordenadas de terreno.</string>
     <string name="export_unlocalized">Exportar sin localizar</string>
     <string name="export_unlocalized_help">Hay una localización activa: el CSV sale con las coordenadas localizadas y su identificador. Con esta opción, los puntos GNSS salen en el SC sin localizar y sin identificador.</string>
+    <string name="localization_export_geographic_notice">Hay una localización activa: las coordenadas de los puntos GNSS ya no son las del SC del proyecto, así que la capa va solo en coordenadas geográficas y no se ofrece el sistema del proyecto.</string>
 </resources>
