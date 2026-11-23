@@ -3776,4 +3776,5 @@
     <string name="localization_notice_stale_crs">The project CRS or heights changed since the draft was made: redo it.</string>
     <string name="localization_notice_not_found">That localization could not be applied.</string>
     <string name="localization_notice_ok">Got it</string>
+    <string name="localization_locked_notice">There is an active localization: remove it (project menu, Localization) before changing the CRS, the heights or switching to ground coordinates.</string>
 </resources>

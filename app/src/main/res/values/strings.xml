@@ -3788,4 +3788,5 @@
     <string name="localization_notice_stale_crs">El SC o las alturas del proyecto han cambiado desde que se hizo el borrador: rehazlo.</string>
     <string name="localization_notice_not_found">No se pudo aplicar esa localización.</string>
     <string name="localization_notice_ok">Entendido</string>
+    <string name="localization_locked_notice">Hay una localización activa: quítala (menú del proyecto, Localización) antes de cambiar el SC, las alturas o pasar a coordenadas de terreno.</string>
 </resources>

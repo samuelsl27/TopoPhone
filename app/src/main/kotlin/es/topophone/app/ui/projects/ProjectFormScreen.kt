@@ -151,6 +151,8 @@ data class ProjectFormUiState(
     val crsChangePlan: CrsChangePlan? = null,
     /** Se intentó elegir un SC de otro datum (S035/RF-17). */
     val otherDatum: Boolean = false,
+    /** Hay una localización activa: no se cambia el SC, las alturas ni se pasa a terreno hasta quitarla (S039/RF-22, RF-27). */
+    val localizationLocked: Boolean = false,
     /** El plano de terreno que se está escribiendo (S058/RF-1 a RF-5); con [TerrainForm.terrain] en falso el proyecto va en cuadrícula. */
     val terrainForm: TerrainForm = TerrainForm(),
     /** El plano de terreno con que se abrió el proyecto para editarlo (S058/RF-19). */
@@ -277,7 +279,9 @@ class ProjectFormViewModel @Inject constructor(
     }
 
     fun update(draft: ProjectDraft) {
-        mutableState.update { it.copy(draft = draft, error = null, centralPointError = null, otherDatum = false) }
+        mutableState.update {
+            it.copy(draft = draft, error = null, centralPointError = null, otherDatum = false, localizationLocked = false)
+        }
         revalidateTerrain() // S058/RF-2, RF-5: el plano tiene que valer en el SC nuevo
     }
 
@@ -457,6 +461,11 @@ class ProjectFormViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
+            if (editingId != null && crsChanged() && crsHistory.blocksChange(editingId, draft.crs, draft.heightSystem, draft.terrain)) {
+                // S039/RF-22, RF-27: con una localización activa no se guarda el cambio; se dice qué hacer.
+                mutableState.update { it.copy(localizationLocked = true) }
+                return@launch
+            }
             if (editingId != null && crsChanged() && !confirmedChange) {
                 // S035/RF-19: antes de cambiar el SC se dice qué puntos no se calculan en el nuevo.
                 val plan = crsHistory.preview(editingId, draft.crs, draft.heightSystem)
@@ -519,6 +528,10 @@ class ProjectFormViewModel @Inject constructor(
                     when (crsHistory.apply(editingId, draft.crs, draft.heightSystem, TerrainChange.Set(draft.terrain))) {
                         CrsChangeResult.OtherDatum -> {
                             mutableState.update { it.copy(otherDatum = true) }
+                            return
+                        }
+                        CrsChangeResult.LocalizationActive -> {
+                            mutableState.update { it.copy(localizationLocked = true) }
                             return
                         }
                         CrsChangeResult.InvalidTerrain -> {
@@ -700,6 +713,7 @@ fun ProjectFormScreen(
                 datumLocked = state.editing,
                 zoneProposed = state.proposedCrs == draft.crs,
                 otherDatum = state.otherDatum,
+                localizationLocked = state.localizationLocked,
                 library = libraryHooks,
                 onCrs = { actions.onChange(draft.withCrs(it)) },
             ) { actions.onChange(draft.copy(heightSystem = it)) } // S006/RF-8, S008/RF-1 a RF-3, RF-11, RF-17, RF-19
@@ -784,6 +798,7 @@ internal fun CrsChoices(
     datumLocked: Boolean,
     zoneProposed: Boolean = false,
     otherDatum: Boolean = false,
+    localizationLocked: Boolean = false,
     library: CrsLibraryHooks? = null,
     onCrs: (ProjectCrs) -> Unit,
     onHeight: (HeightSystem) -> Unit,
@@ -793,6 +808,7 @@ internal fun CrsChoices(
         // S034/RF-13: un SC de la biblioteca se elige y se cambia desde su ficha; aquí solo se resume.
         LibraryCrsSummary(crs, heightSystem, library, canChange = true) // S035/RF-17: también al editar, a un SC del mismo datum
         if (otherDatum) OtherDatumNotice()
+        if (localizationLocked) LocalizationLockedNotice()
         return
     }
     ChoiceGroup(
@@ -827,9 +843,11 @@ internal fun CrsChoices(
         ) { Text(stringResource(R.string.crs_library_open)) } // S034/RF-1, S035/RF-17
     }
     if (otherDatum) OtherDatumNotice()
+    if (localizationLocked) LocalizationLockedNotice()
 }
 
 const val TERRAIN_MODE_TAG = "project_terrain_mode"
+const val CRS_LOCALIZATION_LOCKED_TAG = "crs_localization_locked"
 const val TERRAIN_LATITUDE_TAG = "project_terrain_latitude"
 const val TERRAIN_LONGITUDE_TAG = "project_terrain_longitude"
 const val TERRAIN_FACTOR_TAG = "project_terrain_factor"
@@ -924,6 +942,17 @@ internal fun TerrainSection(form: TerrainForm, actions: ProjectFormActions) {
             modifier = Modifier.heightIn(min = MinTouchTarget).testTag(TERRAIN_USE_PROPOSED_TAG),
         ) { Text(stringResource(R.string.terrain_use_proposed)) }
     }
+}
+
+/** Con una localización activa no se cambia el SC ni las alturas ni se pasa a terreno: hay que quitarla antes (S039/RF-22, RF-27). */
+@Composable
+private fun LocalizationLockedNotice() {
+    Text(
+        stringResource(R.string.localization_locked_notice),
+        color = MaterialTheme.colorScheme.error,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.testTag(CRS_LOCALIZATION_LOCKED_TAG),
+    )
 }
 
 @Composable

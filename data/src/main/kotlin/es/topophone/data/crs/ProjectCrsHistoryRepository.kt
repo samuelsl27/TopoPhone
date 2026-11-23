@@ -1,6 +1,7 @@
 package es.topophone.data.crs
 
 import androidx.room.withTransaction
+import es.topophone.core.model.localization.LocalizationStatus
 import es.topophone.core.model.point.GeodeticPosition
 import es.topophone.core.model.project.CrsChangeKind
 import es.topophone.core.model.project.HeightSystem
@@ -39,6 +40,9 @@ sealed interface CrsChangeResult {
 
     /** El plano de terreno no vale en el SC resultante: es geográfico o su origen cae fuera del ámbito (S058/RF-2, RF-5). */
     data object InvalidTerrain : CrsChangeResult
+
+    /** Hay una localización activa: no se cambia el SC, las alturas ni se pasa a terreno hasta quitarla (S039/RF-22, RF-27). */
+    data object LocalizationActive : CrsChangeResult
 }
 
 /** Qué pasa con el plano de terreno en un cambio (S058/RF-19): se deja como está o se pone el plano o la cuadrícula (`null`). */
@@ -55,6 +59,13 @@ sealed interface TerrainChange {
 interface ProjectCrsHistoryRepository {
     /** Los cambios del proyecto, del más reciente al más antiguo. */
     fun observe(projectId: String): Flow<List<ProjectCrsChange>>
+
+    /**
+     * ¿Impide una localización activa este cambio? Sí si cambia el SC o el sistema de alturas, o si el proyecto pasa a terreno (S039/RF-22, RF-27).
+     * Sin localización activa, nunca.
+     */
+    suspend fun blocksChange(projectId: String, newCrs: ProjectCrs, newHeightSystem: HeightSystem, newTerrain: TerrainPlane?): Boolean =
+        false
 
     /** Qué puntos no se podrían calcular en [newCrs] (S035/RF-19); `null` si el proyecto no existe. */
     suspend fun preview(projectId: String, newCrs: ProjectCrs, newHeightSystem: HeightSystem): CrsChangePlan?
@@ -93,6 +104,28 @@ class RoomProjectCrsHistoryRepository(
         rows.mapNotNull { it.toModel() }
     }
 
+    override suspend fun blocksChange(
+        projectId: String,
+        newCrs: ProjectCrs,
+        newHeightSystem: HeightSystem,
+        newTerrain: TerrainPlane?,
+    ): Boolean {
+        val current = projects.byId(projectId)?.toProject() ?: return false
+        return hasActiveLocalization(projectId) && locks(current.crs, current.heightSystem, newCrs, newHeightSystem, newTerrain)
+    }
+
+    private suspend fun hasActiveLocalization(projectId: String): Boolean =
+        database.localizations().withStatusNow(projectId, LocalizationStatus.ACTIVE.name) != null
+
+    /** El SC o las alturas cambian, o se pasa a terreno (S039/RF-22, RF-27). */
+    private fun locks(
+        crs: ProjectCrs,
+        height: HeightSystem,
+        newCrs: ProjectCrs,
+        newHeight: HeightSystem,
+        newTerrain: TerrainPlane?,
+    ): Boolean = crs != newCrs || height != newHeight || newTerrain != null
+
     override suspend fun preview(projectId: String, newCrs: ProjectCrs, newHeightSystem: HeightSystem): CrsChangePlan? {
         if (projects.byId(projectId) == null) return null
         val grounds = points.groundsOf(projectId).map {
@@ -110,6 +143,10 @@ class RoomProjectCrsHistoryRepository(
         val current = projects.byId(projectId)?.toProject() ?: return@withTransaction CrsChangeResult.ProjectNotFound
         if (!CrsChange.sameDatum(current.crs, newCrs)) return@withTransaction CrsChangeResult.OtherDatum
         val newTerrain = if (terrain is TerrainChange.Set) terrain.plane else current.terrain
+        // S039/RF-22, RF-27: con una localización activa no se cambia el SC, las alturas ni se pasa a terreno.
+        if (hasActiveLocalization(projectId) && locks(current.crs, current.heightSystem, newCrs, newHeightSystem, newTerrain)) {
+            return@withTransaction CrsChangeResult.LocalizationActive
+        }
         // S058/RF-2, RF-5: el plano tiene que valer en el SC resultante.
         if (newTerrain != null &&
             TerrainFrame.of(newTerrain, newCrs, calculator()) == null
@@ -129,6 +166,11 @@ class RoomProjectCrsHistoryRepository(
         val last = history.latest(projectId)?.toModel() ?: return@withTransaction CrsChangeResult.NothingToUndo
         if (last.to != current.crs || last.toHeightSystem != current.heightSystem || last.toTerrain != current.terrain) {
             return@withTransaction CrsChangeResult.NothingToUndo
+        }
+        if (hasActiveLocalization(projectId) &&
+            locks(current.crs, current.heightSystem, last.from, last.fromHeightSystem, last.fromTerrain)
+        ) {
+            return@withTransaction CrsChangeResult.LocalizationActive
         }
         switchTo(
             projectId,

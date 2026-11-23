@@ -51,7 +51,7 @@
       Hecho cuando: `LocalizationScreenTest` y `LocalizationViewModelTest` cubren aplicar, aplicar con umbrales superados, editar con una activa, quitar y reactivar.
 
 ## Exclusiones con otras funciones (`app`)
-- [ ] T21. Terreno y cambio de SC: no aplicar con terreno, no pasar a terreno ni cambiar el SC o las alturas con una localización activa. (RF-22, RF-27)
+- [x] T21. Terreno y cambio de SC: no aplicar con terreno, no pasar a terreno ni cambiar el SC o las alturas con una localización activa. (RF-22, RF-27)
       Hecho cuando: `LocalizationTerrainTest` y `LocalizationCrsLockTest` comprueban los cuatro bloqueos y sus textos.
 
 ## Exportar y guardar (`core:formats`, `app`)
