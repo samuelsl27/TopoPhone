@@ -8,6 +8,8 @@ import es.topophone.core.model.localization.LocalizationPair
 import es.topophone.core.model.localization.LocalizationParams
 import es.topophone.core.model.localization.LocalizationStatus
 import es.topophone.core.model.localization.PairResidualValues
+import es.topophone.core.model.log.AppLog
+import es.topophone.core.model.log.LogCategory
 import es.topophone.core.model.project.ProjectCrsText
 import es.topophone.core.survey.localization.LocalizationApplier
 import es.topophone.core.survey.localization.LocalizationFailure
@@ -16,11 +18,16 @@ import es.topophone.core.survey.localization.LocalizationSolver
 import es.topophone.data.db.TopoPhoneDatabase
 import es.topophone.data.project.toProject
 import java.util.UUID
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 /** Qué pasó al aplicar una localización (S039/RF-14, RF-22). */
 sealed interface ApplyResult {
@@ -106,7 +113,7 @@ interface LocalizationRepository {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RoomLocalizationRepository(private val database: TopoPhoneDatabase) : LocalizationRepository {
+class RoomLocalizationRepository(private val database: TopoPhoneDatabase, private val log: AppLog = AppLog.NONE) : LocalizationRepository {
     private val dao = database.localizations()
 
     override fun draft(projectId: String): Flow<Localization?> = withPairs(dao.withStatus(projectId, LocalizationStatus.DRAFT.name))
@@ -212,7 +219,9 @@ class RoomLocalizationRepository(private val database: TopoPhoneDatabase) : Loca
             val r = residuals[row.id]
             dao.updatePair(row.copy(resE = r?.east, resN = r?.north, resV = r?.vertical))
         }
-        ApplyResult.Applied(draft.id, rewritePoints(projectId, solution.params, draft.id))
+        val changed = rewritePoints(projectId, solution.params, draft.id)
+        log.info(LogCategory.POINTS, "Localización aplicada: $changed puntos GNSS cambian sus coordenadas") // RF-26: sin coordenadas
+        ApplyResult.Applied(draft.id, changed)
     }
 
     override suspend fun applyParams(projectId: String, name: String, params: LocalizationParams, nowMs: Long): ApplyResult =
@@ -240,7 +249,9 @@ class RoomLocalizationRepository(private val database: TopoPhoneDatabase) : Loca
                     rmsV = null,
                 ),
             )
-            ApplyResult.Applied(id, rewritePoints(projectId, params, id))
+            val changed = rewritePoints(projectId, params, id)
+            log.info(LogCategory.POINTS, "Localización de un SC guardado aplicada: $changed puntos GNSS cambian sus coordenadas")
+            ApplyResult.Applied(id, changed)
         }
 
     override suspend fun remove(projectId: String): Int = database.withTransaction {
@@ -252,6 +263,7 @@ class RoomLocalizationRepository(private val database: TopoPhoneDatabase) : Loca
             dao.setLocalized(row.id, row.measuredEasting ?: continue, row.measuredNorthing ?: continue, row.measuredHeight, null)
             changed++
         }
+        log.info(LogCategory.POINTS, "Localización quitada: $changed puntos GNSS vuelven a sus coordenadas sin localizar")
         changed
     }
 
@@ -385,3 +397,62 @@ internal fun LocalizationEntity.toModel(pairs: List<LocalizationPairEntity>) = L
     residuals = pairs.filter { it.resE != null || it.resN != null || it.resV != null }
         .associate { it.id to PairResidualValues(it.resE, it.resN, it.resV) },
 )
+
+/** La localización activa de un proyecto, lista para aplicarla a una posición (S039/RF-17, plan D4). */
+data class ActiveLocalizationInfo(val id: String, val params: LocalizationParams)
+
+/**
+ * La localización activa del proyecto (S039/RF-14, RF-17). [info] la sigue en vivo; [current] es la lectura instantánea que usa una medida al
+ * empezar: la conserva hasta el final aunque el usuario la quite a mitad.
+ */
+class ActiveLocalization(private val repository: LocalizationRepository) {
+    fun info(projectId: String): Flow<ActiveLocalizationInfo?> = repository.active(projectId).map { it.toInfo() }
+
+    suspend fun current(projectId: String): ActiveLocalizationInfo? = repository.active(projectId).first().toInfo()
+
+    /** La localización activa del proyecto que dé [projectId] en cada momento, siempre al día. */
+    fun track(projectId: Flow<String?>, scope: CoroutineScope): StateFlow<ActiveLocalizationInfo?> =
+        projectId.flatMapLatest { id -> if (id == null) flowOf(null) else info(id) }.stateIn(scope, SharingStarted.Eagerly, null)
+
+    private fun Localization?.toInfo(): ActiveLocalizationInfo? = this?.params?.let { ActiveLocalizationInfo(id, it) }
+
+    companion object {
+        /** Sin localizaciones: para los tests y las vistas previas que no las usan. */
+        val NONE = ActiveLocalization(NoLocalizations)
+    }
+}
+
+private object NoLocalizations : LocalizationRepository {
+    override fun draft(projectId: String): Flow<Localization?> = flowOf(null)
+
+    override fun active(projectId: String): Flow<Localization?> = flowOf(null)
+
+    override fun history(projectId: String): Flow<List<Localization>> = flowOf(emptyList())
+
+    override suspend fun addPair(projectId: String, pair: LocalizationPair) = false
+
+    override suspend fun removePair(projectId: String, pairId: String) = Unit
+
+    override suspend fun setComponents(projectId: String, pairId: String, useHorizontal: Boolean, useVertical: Boolean) = Unit
+
+    override suspend fun confirmPair(projectId: String, pairId: String) = Unit
+
+    override suspend fun setFixScale(projectId: String, fixScale: Boolean) = Unit
+
+    override suspend fun setLimits(projectId: String, residualLimitM: Double, scaleLimit: Double) = Unit
+
+    override suspend fun discardDraft(projectId: String) = Unit
+
+    override suspend fun startDraft(projectId: String) = Unit
+
+    override suspend fun affectedPoints(projectId: String) = 0
+
+    override suspend fun apply(projectId: String, nowMs: Long): ApplyResult = ApplyResult.NotFound
+
+    override suspend fun remove(projectId: String) = 0
+
+    override suspend fun reactivate(projectId: String, localizationId: String, nowMs: Long): ApplyResult = ApplyResult.NotFound
+
+    override suspend fun applyParams(projectId: String, name: String, params: LocalizationParams, nowMs: Long): ApplyResult =
+        ApplyResult.NotFound
+}

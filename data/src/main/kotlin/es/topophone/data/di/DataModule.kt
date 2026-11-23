@@ -64,6 +64,9 @@ import es.topophone.data.line.LineRepository
 import es.topophone.data.line.RoomLineRepository
 import es.topophone.data.linear.LinearSurveyRepository
 import es.topophone.data.linear.RoomLinearSurveyRepository
+import es.topophone.data.localization.ActiveLocalization
+import es.topophone.data.localization.LocalizationRepository
+import es.topophone.data.localization.RoomLocalizationRepository
 import es.topophone.data.log.DataStoreLogPreferences
 import es.topophone.data.log.LogPreferences
 import es.topophone.data.map.DataStoreMapPreferences
@@ -389,6 +392,16 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideActiveBaseShift(repository: BaseShiftRepository): ActiveBaseShift = ActiveBaseShift(repository)
+
+    /** Las localizaciones de los proyectos y la activa (S039). */
+    @Provides
+    @Singleton
+    fun provideLocalizationRepository(database: TopoPhoneDatabase, log: AppLog): LocalizationRepository =
+        RoomLocalizationRepository(database, log)
+
+    @Provides
+    @Singleton
+    fun provideActiveLocalization(repository: LocalizationRepository): ActiveLocalization = ActiveLocalization(repository)
 
     @Provides
     fun provideAlignmentImporter(repository: AlignmentRepository): AlignmentImporter = AlignmentImporter(repository)
