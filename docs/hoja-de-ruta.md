@@ -121,6 +121,7 @@ Objetivo: demostrar cuanto antes RS3 → NTRIP → coordenadas ETRS89/UTM + EGM0
 
 | Spec | Alcance | Depende de | Estado |
 |---|---|---|---|
+| 060 recolectar-y-replantear-en-campo | Hoja inferior de dos alturas sobre un mapa libre, fila de ajustes con pastillas (jalón, tiempo, modo, inclinación; tolerancias y cota en el replanteo) con teclado numérico, un motivo de bloqueo con su acción, y en el replanteo mapa que sigue al jalón con placa de guiado (flecha, distancia, desplazamientos) y llegada en verde; para recolectar y replantear punto, línea, eje y talud (entrevista 23/11/2026) | 010, 017, 016, 046, 047, 018, 019, 020, 024, 025, 027, 039, 041, 051, 054 | spec |
 | 059 organizar-opciones-del-proyecto | Menús cortos y agrupados (Importar, Exportar, Herramientas) en lugar del menú plano de 21 opciones, lista de Objetos con pestañas Puntos y Líneas, sección «Activo en este proyecto» en «Datos del proyecto» y regla transversal RNF-T15 de presentación de opciones (entrevista 23/11/2026) | 011, 006, 005, 012, 020, 025, 038, 039, 042, 049, 058 | spec |
 
 ## Puertas de validación
