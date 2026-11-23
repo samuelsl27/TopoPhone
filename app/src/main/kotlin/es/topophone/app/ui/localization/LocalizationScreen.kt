@@ -8,14 +8,17 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -66,6 +69,14 @@ fun localizationUnconfirmedTag(id: String) = "localization_unconfirmed_$id"
 
 fun localizationConfirmPairTag(id: String) = "localization_confirm_pair_$id"
 
+fun localizationPairHorizontalTag(id: String) = "localization_pair_h_$id"
+
+fun localizationPairVerticalTag(id: String) = "localization_pair_v_$id"
+
+fun localizationRemovePairTag(id: String) = "localization_remove_pair_$id"
+
+const val LOCALIZATION_FIX_SCALE_TAG = "localization_fix_scale"
+
 /** Acciones de la pantalla de localización (S039); crecen con cada tarea. */
 class LocalizationActions(
     val onOpenAddPair: () -> Unit = {},
@@ -78,6 +89,9 @@ class LocalizationActions(
     val onHeight: (String) -> Unit = {},
     val onConfirmAddPair: () -> Unit = {},
     val onConfirmPair: (String) -> Unit = {},
+    val onComponent: (pairId: String, horizontal: Boolean, enabled: Boolean) -> Unit = { _, _, _ -> },
+    val onRemovePair: (String) -> Unit = {},
+    val onFixScale: (Boolean) -> Unit = {},
 )
 
 /**
@@ -106,6 +120,7 @@ fun LocalizationScreen(
             if (state.loaded && project != null) {
                 Text(project.name, style = MaterialTheme.typography.titleMedium)
                 StatusCard(state, project)
+                FixScaleRow(state.fixScale, actions.onFixScale)
                 PairsSection(state, project, actions)
             }
         }
@@ -129,6 +144,24 @@ private fun StatusCard(state: LocalizationUiState, project: Project) {
     }
     Card(modifier = Modifier.fillMaxWidth().testTag(LOCALIZATION_STATUS_TAG).semantics { liveRegion = LiveRegionMode.Polite }) {
         Text(text, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleSmall)
+    }
+}
+
+@Composable
+private fun FixScaleRow(fixScale: Boolean, onChange: (Boolean) -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().heightIn(
+                min = MinTouchTarget,
+            ).toggleable(value = fixScale, role = Role.Switch, onValueChange = onChange)
+                .testTag(LOCALIZATION_FIX_SCALE_TAG),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Switch(checked = fixScale, onCheckedChange = null)
+            Text(stringResource(R.string.localization_fix_scale), modifier = Modifier.weight(1f))
+        }
+        Text(stringResource(R.string.localization_fix_scale_help), style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -238,6 +271,19 @@ private fun AddPairForm(state: LocalizationUiState, form: AddPairUi, project: Pr
 }
 
 @Composable
+private fun ComponentRow(text: String, checked: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit, tag: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().heightIn(min = MinTouchTarget)
+            .toggleable(value = checked, enabled = enabled, role = Role.Checkbox, onValueChange = onChange).testTag(tag),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Checkbox(checked = checked, onCheckedChange = null, enabled = enabled)
+        Text(text)
+    }
+}
+
+@Composable
 private fun ChoiceRow(text: String, selected: Boolean, onClick: () -> Unit, tag: String) {
     Row(
         modifier = Modifier.fillMaxWidth().heightIn(
@@ -295,6 +341,24 @@ private fun PairRow(pair: LocalizationPair, project: Project, actions: Localizat
                 ),
                 style = MaterialTheme.typography.bodyMedium,
             )
+            ComponentRow(
+                stringResource(R.string.localization_pair_component_h),
+                pair.useHorizontal,
+                true,
+                { actions.onComponent(pair.id, true, it) },
+                localizationPairHorizontalTag(pair.id),
+            )
+            ComponentRow(
+                stringResource(R.string.localization_pair_component_v),
+                pair.useVertical,
+                pair.scH != null && pair.knownH != null,
+                { actions.onComponent(pair.id, false, it) },
+                localizationPairVerticalTag(pair.id),
+            )
+            OutlinedButton(
+                onClick = { actions.onRemovePair(pair.id) },
+                modifier = Modifier.heightIn(min = MinTouchTarget).testTag(localizationRemovePairTag(pair.id)),
+            ) { Text(stringResource(R.string.localization_pair_remove)) }
             if (!pair.confirmed) {
                 Text(
                     stringResource(R.string.localization_pair_unconfirmed),

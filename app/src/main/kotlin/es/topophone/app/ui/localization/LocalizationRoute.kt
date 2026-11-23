@@ -33,6 +33,9 @@ fun LocalizationRoute(
             onHeight = viewModel::setHeight,
             onConfirmAddPair = viewModel::confirmAddPair,
             onConfirmPair = viewModel::confirmPair,
+            onComponent = viewModel::setComponent,
+            onRemovePair = viewModel::removePair,
+            onFixScale = viewModel::setFixScale,
         ),
         onBack = onBack,
     )

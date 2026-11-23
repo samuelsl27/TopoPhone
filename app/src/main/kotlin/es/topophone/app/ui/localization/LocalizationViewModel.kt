@@ -218,6 +218,25 @@ class LocalizationViewModel @Inject constructor(
         }
     }
 
+    /** Activa o excluye la componente horizontal o la vertical de un par sin borrarlo (RF-5). */
+    fun setComponent(pairId: String, horizontal: Boolean, enabled: Boolean) {
+        val pair = state.value.pairs.firstOrNull { it.id == pairId } ?: return
+        val useH = if (horizontal) enabled else pair.useHorizontal
+        val useV = if (horizontal) pair.useVertical else enabled
+        edit(pairId) { projectId, draftPairId -> localizations.setComponents(projectId, draftPairId, useH, useV) }
+    }
+
+    /** Quita un par del borrador (RF-10). */
+    fun removePair(pairId: String) {
+        edit(pairId) { projectId, draftPairId -> localizations.removePair(projectId, draftPairId) }
+    }
+
+    /** «Fijar escala = 1»: solo traslación y giro con 2 o más pares (RF-8). */
+    fun setFixScale(fixScale: Boolean) {
+        val id = projectId.value ?: return
+        viewModelScope.launch { localizations.setFixScale(id, fixScale) }
+    }
+
     /** El usuario confirma el uso de un par de baja calidad (RF-6). */
     fun confirmPair(pairId: String) {
         edit(pairId) { projectId, draftPairId -> localizations.confirmPair(projectId, draftPairId) }

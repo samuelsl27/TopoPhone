@@ -250,4 +250,64 @@ class LocalizationViewModelTest {
 
         await { it.pairs.singleOrNull()?.confirmed == true }
     }
+    private fun addPairTo(gnssId: String, e: String, n: String) {
+        viewModel.openAddPair()
+        viewModel.selectGnss(gnssId)
+        viewModel.setEasting(e)
+        viewModel.setNorthing(n)
+        viewModel.confirmAddPair()
+    }
+
+    @Test
+    fun `S039 RF-5 y RF-10 excluir una componente recalcula y quitar un par tambien`() {
+        create(gnss("g1"), gnss("g2", easting = 440_500.0), gnss("g3", easting = 440_700.0))
+        viewModel()
+        addPairTo("g1", "440390", "4474207")
+        await { it.pairs.size == 1 }
+        addPairTo("g2", "440600", "4474207")
+        await { it.pairs.size == 2 }
+        addPairTo("g3", "440800", "4474207")
+        val full = await { it.pairs.size == 3 && it.outcome is es.topophone.core.survey.localization.LocalizationOutcome.Solved }
+        val firstId = full.pairs.first().id
+
+        viewModel.setComponent(firstId, horizontal = true, enabled = false)
+        val excluded = await { it.pairs.firstOrNull()?.useHorizontal == false }
+
+        excluded.pairs.size shouldBe 3
+        val solved = excluded.outcome.shouldBeInstanceOf<es.topophone.core.survey.localization.LocalizationOutcome.Solved>().solution
+        solved.residuals.first().horizontal.shouldBeNull()
+        viewModel.removePair(excluded.pairs[1].id)
+        await { it.pairs.size == 2 }
+    }
+
+    @Test
+    fun `S039 RF-8 la escala fija se guarda en el borrador y deja la escala en uno`() {
+        create(gnss("g1"), gnss("g2", easting = 440_500.0))
+        viewModel()
+        addPairTo("g1", "440390", "4474207")
+        await { it.pairs.size == 1 }
+        addPairTo("g2", "440603", "4474207")
+        await { it.pairs.size == 2 }
+
+        viewModel.setFixScale(true)
+
+        val s = await { it.fixScale }
+        val solved = s.outcome.shouldBeInstanceOf<es.topophone.core.survey.localization.LocalizationOutcome.Solved>().solution
+        solved.params.scale shouldBe 1.0
+    }
+
+    @Test
+    fun `S039 RF-16 editar con una localizacion activa parte de la activa y no la toca`() {
+        create(gnss("g1"))
+        viewModel()
+        addPairTo("g1", "440390", "4474207")
+        await { it.pairs.size == 1 }
+        runBlocking { localizations.apply(project) }
+        val applied = await { it.active != null && it.draft == null }
+
+        viewModel.setComponent(applied.pairs.single().id, horizontal = true, enabled = false)
+
+        val edited = await { it.draft != null && it.pairs.singleOrNull()?.useHorizontal == false }
+        edited.active.shouldNotBeNull().pairs.single().useHorizontal shouldBe true
+    }
 }

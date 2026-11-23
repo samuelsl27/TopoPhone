@@ -3740,4 +3740,9 @@
     <string name="localization_error_no_position">Ese punto no tiene Este y Norte en el SC del proyecto.</string>
     <string name="localization_pair_unconfirmed">Punto sin solución FIX o fuera del control de precisión: no cuenta hasta que confirmes su uso.</string>
     <string name="localization_pair_confirm">Confirmar uso</string>
+    <string name="localization_fix_scale">Fijar escala = 1</string>
+    <string name="localization_fix_scale_help">Solo traslación y giro: los residuos muestran la deformación del plano. Se aplica con 2 o más pares.</string>
+    <string name="localization_pair_component_h">Usar la componente horizontal (Este y Norte)</string>
+    <string name="localization_pair_component_v">Usar la componente vertical (cota)</string>
+    <string name="localization_pair_remove">Quitar par</string>
 </resources>

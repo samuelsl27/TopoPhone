@@ -43,7 +43,7 @@
       Hecho cuando: `LocalizationScreenTest` muestra «Sin localización», una activa con su RMS y la lista de pares.
 - [x] T17. Añadir un par: elegir el punto GNSS y escribir las coordenadas conocidas o tomarlas de un punto manual o importado, con el rechazo de cada motivo y la confirmación de un punto de baja calidad. (RF-2, RF-3, RF-4, RF-6)
       Hecho cuando: `LocalizationViewModelTest` y `LocalizationScreenTest` cubren el par válido, los tres rechazos y la confirmación de calidad.
-- [ ] T18. Activar o excluir cada componente, quitar un par, «Fijar escala = 1» y recálculo instantáneo. (RF-5, RF-8, RF-11)
+- [x] T18. Activar o excluir cada componente, quitar un par, «Fijar escala = 1» y recálculo instantáneo. (RF-5, RF-8, RF-11)
       Hecho cuando: `LocalizationViewModelTest` comprueba que cada cambio recalcula el borrador y que con la escala fija sale exactamente 1.
 - [ ] T19. Los resultados: traslación, giro en el formato del proyecto, escala y ppm, pendiente, residuos por par, RMS, mayor residuo, umbrales ajustables y avisos con texto. (RF-9, RF-10, RF-12, RF-13)
       Hecho cuando: `LocalizationScreenTest` comprueba cada valor, el destacado con texto de un residuo y de una escala fuera de umbral y el motivo cuando no se puede calcular.

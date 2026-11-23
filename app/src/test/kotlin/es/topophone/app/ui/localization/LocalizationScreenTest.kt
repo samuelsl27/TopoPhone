@@ -174,4 +174,33 @@ class LocalizationScreenTest {
 
         compose.onNodeWithTag(LOCALIZATION_ADD_PAIR_TAG).performScrollTo().assertIsNotEnabled()
     }
+
+    @Test
+    fun `S039 RF-5 cada par ofrece sus componentes y quitarlo`() {
+        val calls = mutableListOf<String>()
+        val withoutHeight = pair("a", "Clavo 1", height = null)
+        show(
+            LocalizationUiState(loaded = true, project = project, pairs = listOf(withoutHeight)),
+            LocalizationActions(
+                onComponent = { id, horizontal, enabled -> calls += "$id:$horizontal:$enabled" },
+                onRemovePair = { calls += "remove:$it" },
+            ),
+        )
+
+        compose.onNodeWithTag(localizationPairHorizontalTag("a")).performScrollTo().performClick()
+        compose.onNodeWithTag(localizationPairVerticalTag("a")).performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag(localizationRemovePairTag("a")).performScrollTo().performClick()
+
+        calls shouldBe listOf("a:true:false", "remove:a")
+    }
+
+    @Test
+    fun `S039 RF-8 el interruptor de la escala fija cambia el ajuste`() {
+        val calls = mutableListOf<Boolean>()
+        show(LocalizationUiState(loaded = true, project = project), LocalizationActions(onFixScale = { calls += it }))
+
+        compose.onNodeWithTag(LOCALIZATION_FIX_SCALE_TAG).performScrollTo().shows("Fijar escala = 1").performClick()
+
+        calls shouldBe listOf(true)
+    }
 }

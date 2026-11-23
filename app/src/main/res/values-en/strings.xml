@@ -3728,4 +3728,9 @@
     <string name="localization_error_no_position">That point has no Easting and Northing in the project CRS.</string>
     <string name="localization_pair_unconfirmed">Point without a FIX solution or outside the precision check: it does not count until you confirm its use.</string>
     <string name="localization_pair_confirm">Confirm use</string>
+    <string name="localization_fix_scale">Fix scale = 1</string>
+    <string name="localization_fix_scale_help">Only translation and rotation: the residuals show the plan distortion. It applies with 2 or more pairs.</string>
+    <string name="localization_pair_component_h">Use the horizontal component (Easting and Northing)</string>
+    <string name="localization_pair_component_v">Use the vertical component (height)</string>
+    <string name="localization_pair_remove">Remove pair</string>
 </resources>
