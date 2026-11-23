@@ -49,7 +49,7 @@ Términos de esta spec:
 - RF-10: EL SISTEMA mostrará en la pastilla «Tiempo» el tiempo de promediado en el modo promediado y el intervalo o la distancia en los automáticos, y «Instantáneo» sin selector en el modo instantáneo.
 - RF-11: CUANDO el usuario toque «Jalón» o «Tiempo», EL SISTEMA abrirá un teclado numérico con el valor actual y los rangos y el formato de S046, S010 y S017, y aplicará el valor al confirmarlo.
 - RF-12: SI el valor escrito no vale, ENTONCES EL SISTEMA dirá el motivo junto al campo y no lo aplicará.
-- RF-13: CUANDO el usuario toque «Modo» o «Inclinación», EL SISTEMA abrirá una lista corta con las opciones y marcará la vigente.
+- RF-13: CUANDO el usuario toque «Modo», EL SISTEMA abrirá una lista corta con las opciones y marcará la vigente; CUANDO toque «Inclinación», abrirá la pantalla de inclinación del receptor (S016), donde se elige el modo con su asistente.
 - RF-14: EL SISTEMA mostrará como pastillas informativas de texto neutro lo que condiciona la medición: los tipos de solución admitidos y el control de precisión (S047), el base shift activo (S020) y la localización activa (S039); al tocar una, abrirá la pantalla donde se cambia.
 - RF-15: MIENTRAS haya una medición en curso, EL SISTEMA mantendrá en las pastillas los valores con que empezó, las desactivará e indicará el progreso (tiempo y épocas) con los botones «Terminar» y «Cancelar» (S017).
 

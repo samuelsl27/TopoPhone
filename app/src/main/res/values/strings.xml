@@ -3849,4 +3849,18 @@
     <string name="field_action_pole">Cambiar jalón</string>
     <string name="field_action_time">Cambiar tiempo</string>
     <string name="field_action_expand">Completar</string>
+    <string name="field_pill_pole">Jalón</string>
+    <string name="field_pill_time">Tiempo</string>
+    <string name="field_pill_mode">Modo</string>
+    <string name="field_pill_tilt">Inclinación</string>
+    <string name="field_pole_title">Altura del jalón</string>
+    <string name="field_pole_label">Altura (%1$s)</string>
+    <string name="field_time_title">Tiempo</string>
+    <string name="field_distance_label">Distancia (%1$s)</string>
+    <string name="field_distance_invalid">Escribe una distancia válida.</string>
+    <string name="field_mode_title">Modo de medida</string>
+    <string name="field_mode_auto_time">Auto · tiempo</string>
+    <string name="field_mode_auto_distance">Auto · distancia</string>
+    <string name="field_tilt_unset">Sin elegir</string>
+    <string name="field_measure_named">Medir %1$s</string>
 </resources>

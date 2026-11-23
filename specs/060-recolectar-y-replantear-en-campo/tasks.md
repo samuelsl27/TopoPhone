@@ -17,7 +17,7 @@
       Hecho cuando: `MeasureReasonsTest` cubre cada motivo de RF-17 con su acción, la prioridad entre dos motivos a la vez y que sin bloqueo no sale nada.
 - [x] T6. `CollectionModeChoice` (puro): las cuatro opciones de «Modo» traducidas a `onMode`, `onAutoEnabled` y `onAutoTrigger`, y el valor de la pastilla «Tiempo» según el modo. (RF-9, RF-10, RF-13, RF-32)
       Hecho cuando: `CollectionModeChoiceTest` comprueba que cada opción llama a las mismas acciones que hoy y que «Tiempo» muestra promediado, intervalo, distancia o «Instantáneo» sin selector.
-- [ ] T7. `CollectorFolded`: línea de estado, fila con las cuatro pastillas y sus selectores, pastillas informativas, motivo con su acción y «Medir» con el nombre del punto. (RF-8, RF-9, RF-11, RF-13, RF-16)
+- [x] T7. `CollectorFolded`: línea de estado, fila con las cuatro pastillas y sus selectores, pastillas informativas, motivo con su acción y «Medir» con el nombre del punto. (RF-8, RF-9, RF-11, RF-13, RF-16)
       Hecho cuando: `CollectorFoldedTest` cambia el jalón y el tiempo desde la pastilla y comprueba que llegan a `onPoleHeight` y `onSeconds`, que Modo e Inclinación abren su lista y que el motivo lleva su acción.
 - [ ] T8. Medición en curso en la hoja plegada: pastillas con los valores de partida y desactivadas, progreso con tiempo y épocas, «Terminar» y «Cancelar», y el aviso de pérdida de solución o inclinación en una sola línea. (RF-15, RF-22)
       Hecho cuando: `CollectorMeasuringSheetTest` comprueba pastillas desactivadas, progreso, que «Terminar» solo sale en promediado y que nunca hay más de una línea de aviso además del motivo.

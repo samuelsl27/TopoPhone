@@ -126,6 +126,11 @@ class CollectorActions(
     val onFinishLine: () -> Unit = {},
     val onUndoLineVertex: () -> Unit = {},
     val onContinueLine: (String) -> Unit = {},
+    /** Lo que resuelve un motivo de bloqueo y las pastillas informativas: receptores, SC del proyecto, antena y jalón, localización (S060/RF-14, RF-16). */
+    val onOpenReceiver: () -> Unit = {},
+    val onOpenProjectCrs: () -> Unit = {},
+    val onOpenGear: () -> Unit = {},
+    val onOpenLocalization: () -> Unit = {},
 )
 
 /**

@@ -3837,4 +3837,18 @@
     <string name="field_action_pole">Change pole</string>
     <string name="field_action_time">Change time</string>
     <string name="field_action_expand">Complete</string>
+    <string name="field_pill_pole">Pole</string>
+    <string name="field_pill_time">Time</string>
+    <string name="field_pill_mode">Mode</string>
+    <string name="field_pill_tilt">Tilt</string>
+    <string name="field_pole_title">Pole height</string>
+    <string name="field_pole_label">Height (%1$s)</string>
+    <string name="field_time_title">Time</string>
+    <string name="field_distance_label">Distance (%1$s)</string>
+    <string name="field_distance_invalid">Enter a valid distance.</string>
+    <string name="field_mode_title">Measuring mode</string>
+    <string name="field_mode_auto_time">Auto · time</string>
+    <string name="field_mode_auto_distance">Auto · distance</string>
+    <string name="field_tilt_unset">Not chosen</string>
+    <string name="field_measure_named">Measure %1$s</string>
 </resources>
