@@ -17,7 +17,7 @@
       Hecho cuando: `LocalizationDraftRulesTest` cubre punto sin medida, repetido, el par 51 y un punto en FLOAT o fuera de precisión que queda sin confirmar.
 
 ## Datos (`data`)
-- [ ] T7. Room v40: tablas `localizations`, `localization_pairs` y `localized_crs`, columna `points.localization_id` y migración 39→40. (RF-13, RF-19, RF-26)
+- [x] T7. Room v40: tablas `localizations`, `localization_pairs` y `localized_crs`, columna `points.localization_id` y migración 39→40. (RF-13, RF-19, RF-26)
       Hecho cuando: `TopoPhoneDatabaseTest` 39 → 40 conserva proyectos y puntos y las entidades guardan y leen sin redondear.
 - [ ] T8. `LocalizationRepository` del borrador: crear, añadir y quitar pares, componentes, escala fija y umbrales. (RF-2, RF-5, RF-10, RF-11, RF-13)
       Hecho cuando: `LocalizationRepositoryTest` comprueba un solo borrador por proyecto y que el recálculo sale de los pares guardados.

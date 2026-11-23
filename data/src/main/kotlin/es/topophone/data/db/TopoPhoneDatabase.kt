@@ -48,6 +48,11 @@ import es.topophone.data.line.ProjectLineEntity
 import es.topophone.data.linear.LinearSurveyDao
 import es.topophone.data.linear.LinearSurveyEntity
 import es.topophone.data.linear.LinearSurveyPointEntity
+import es.topophone.data.localization.LocalizationDao
+import es.topophone.data.localization.LocalizationEntity
+import es.topophone.data.localization.LocalizationPairEntity
+import es.topophone.data.localization.LocalizedCrsDao
+import es.topophone.data.localization.LocalizedCrsEntity
 import es.topophone.data.map.MapViewportDao
 import es.topophone.data.map.MapViewportEntity
 import es.topophone.data.ntrip.NtripProfileDao
@@ -137,6 +142,8 @@ import es.topophone.data.wms.WmsServiceEntity
  *   migración de Room.
  * - v37 (S034): el SC de la biblioteca de un proyecto (`projects.crs_definition` y `geoid_grid`, que admiten NULL: los de España siguen
  *   igual) y los SC favoritos y recientes (`favorite_crs` y `recent_crs`). Migración de Room.
+ * - v40 (S039): las localizaciones de cada proyecto (`localizations` y `localization_pairs`), la de cada punto GNSS (`points.localization_id`, que
+ *   admite NULL) y los SC guardados con una localización (`localized_crs`). Solo añade tablas y una columna: migración de Room.
  */
 @Database(
     entities = [
@@ -151,7 +158,8 @@ import es.topophone.data.wms.WmsServiceEntity
         LineAttributeEntity::class, LineHistoryEntity::class, LineHistoryAttributeEntity::class, LineHistoryVertexEntity::class,
         WmsServiceEntity::class, WmsLayerEntity::class, ProjectWmsLayerEntity::class, TraverseDraftEntity::class,
         WifiReceiverEntity::class, ConfigStepEntity::class, EquipmentProfileEntity::class, FavoriteCrsEntity::class, RecentCrsEntity::class,
-        CustomCrsEntity::class, ProjectCrsHistoryEntity::class,
+        CustomCrsEntity::class, ProjectCrsHistoryEntity::class, LocalizationEntity::class, LocalizationPairEntity::class,
+        LocalizedCrsEntity::class,
     ],
     version = TopoPhoneDatabase.VERSION,
     exportSchema = true,
@@ -194,6 +202,7 @@ import es.topophone.data.wms.WmsServiceEntity
         AutoMigration(from = 36, to = 37),
         AutoMigration(from = 37, to = 38),
         AutoMigration(from = 38, to = 39),
+        AutoMigration(from = 39, to = 40),
     ],
 )
 abstract class TopoPhoneDatabase : RoomDatabase() {
@@ -215,6 +224,10 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
     abstract fun alignments(): AlignmentDao
 
     abstract fun baseShifts(): BaseShiftDao
+
+    abstract fun localizations(): LocalizationDao
+
+    abstract fun localizedCrs(): LocalizedCrsDao
 
     abstract fun photos(): PhotoDao
 
@@ -248,7 +261,7 @@ abstract class TopoPhoneDatabase : RoomDatabase() {
         const val NAME = "topophone.db"
 
         /** Versión actual del esquema; una copia de una versión mayor no se restaura (S013/RF-13). */
-        const val VERSION = 39
+        const val VERSION = 40
 
         /** WAL y `synchronous=FULL`: lo confirmado sobrevive aunque Android cierre la app justo después (RNF-T6). */
         fun build(context: Context, name: String = NAME): TopoPhoneDatabase =

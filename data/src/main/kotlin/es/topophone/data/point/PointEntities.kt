@@ -234,6 +234,8 @@ data class PointEntity(
     @ColumnInfo(name = "equipment_model") val equipmentModel: String? = null,
     @ColumnInfo(name = "equipment_serial") val equipmentSerial: String? = null,
     @ColumnInfo(name = "equipment_firmware") val equipmentFirmware: String? = null,
+    /** La localización con que se calcularon las coordenadas del punto (S039/RF-19, plan D2); NULL en los demás. */
+    @ColumnInfo(name = "localization_id") val localizationId: String? = null,
 )
 
 /**
@@ -472,6 +474,7 @@ internal fun Point.toEntity(): PointEntity {
         codeColor = code?.color,
         codeSymbol = code?.symbol?.name,
         cogo = cogo?.let(CogoRefJson::encode),
+        localizationId = localizationId,
     )
 }
 
@@ -507,6 +510,7 @@ internal fun PointEntity.toPoint(attributes: List<PointAttributeEntity> = emptyL
     },
     code = pointCode(code, codeDescription, codeColor, codeSymbol, attributes.sortedBy { it.ordinal }.map { it.toAttribute() }),
     cogo = cogo?.let(CogoRefJson::decode),
+    localizationId = localizationId,
 )
 
 private fun pointCode(code: String?, description: String?, color: Int?, symbol: String?, attributes: List<PointAttribute>): PointCode? {
